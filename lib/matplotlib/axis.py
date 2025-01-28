@@ -105,6 +105,7 @@ class Tick(martist.Artist):
 
         name = self.__name__
         major_minor = "major" if major else "minor"
+        xaxis_yaxis = "xaxis" if name == "xtick" else "yaxis"
         self._size = mpl._val_or_rc(size, f"{name}.{major_minor}.size")
         self._width = mpl._val_or_rc(width, f"{name}.{major_minor}.width")
         self._base_pad = mpl._val_or_rc(pad, f"{name}.{major_minor}.pad")
@@ -125,19 +126,25 @@ class Tick(martist.Artist):
         self._zorder = zorder
 
         grid_color = (
-            mpl._val_or_rc(grid_color, "grid.color")
-            if mpl.rcParams[f"grid.{major_minor}.color"] is None
+            mpl._val_or_rc(grid_color, f"grid.{xaxis_yaxis}.{major_minor}.color")
+            if mpl.rcParams[f"grid.{xaxis_yaxis}.{major_minor}.color"] is not None
             else mpl._val_or_rc(grid_color, f"grid.{major_minor}.color")
+            if mpl.rcParams[f"grid.{major_minor}.color"] is not None
+            else mpl._val_or_rc(grid_color, "grid.color")
         )
         grid_linestyle = (
-            mpl._val_or_rc(grid_linestyle, "grid.linestyle")
-            if mpl.rcParams[f"grid.{major_minor}.linestyle"] is None
+            mpl._val_or_rc(grid_linestyle, f"grid.{xaxis_yaxis}.{major_minor}.linestyle")
+            if mpl.rcParams[f"grid.{xaxis_yaxis}.{major_minor}.linestyle"] is not None
             else mpl._val_or_rc(grid_linestyle, f"grid.{major_minor}.linestyle")
+            if mpl.rcParams[f"grid.{major_minor}.linestyle"] is not None
+            else mpl._val_or_rc(grid_linestyle, "grid.linestyle")
         )
         grid_linewidth = (
-            mpl._val_or_rc(grid_linewidth, "grid.linewidth")
-            if mpl.rcParams[f"grid.{major_minor}.linewidth"] is None
+            mpl._val_or_rc(grid_linewidth, f"grid.{xaxis_yaxis}.{major_minor}.linewidth")
+            if mpl.rcParams[f"grid.{xaxis_yaxis}.{major_minor}.linewidth"] is not None
             else mpl._val_or_rc(grid_linewidth, f"grid.{major_minor}.linewidth")
+            if mpl.rcParams[f"grid.{major_minor}.linewidth"] is not None
+            else mpl._val_or_rc(grid_linewidth, "grid.linewidth")
         )
         if grid_alpha is None and not mcolors._has_alpha_channel(grid_color):
             # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
@@ -146,9 +153,11 @@ class Tick(martist.Artist):
             #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
             # so the that the rcParams default would override color alpha.
             grid_alpha = (
-                mpl.rcParams["grid.alpha"]
-                if mpl.rcParams[f"grid.{major_minor}.alpha"] is None
+                mpl.rcParams[f"grid.{xaxis_yaxis}.{major_minor}.alpha"]
+                if mpl.rcParams[f"grid.{xaxis_yaxis}.{major_minor}.alpha"] is not None
                 else mpl.rcParams[f"grid.{major_minor}.alpha"]
+                if mpl.rcParams[f"grid.{major_minor}.alpha"] is not None
+                else mpl.rcParams["grid.alpha"]
             )
         grid_kw = {k[5:]: v for k, v in kwargs.items()}
 
