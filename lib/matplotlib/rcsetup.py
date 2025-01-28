@@ -191,6 +191,14 @@ def _make_type_validator(cls, *, allow_none=False):
     def validator(s):
         if (allow_none and
                 (s is None or cbook._str_lower_equal(s, "none"))):
+            if cbook._str_lower_equal(s, "none") and s != "None":
+                _api.warn_deprecated(
+                    "3.11",
+                    message=f"Using the capitalization {s!r} in matplotlibrc for "
+                            "*None* is deprecated in %(removal)s and will lead to an "
+                            "error from version 3.13 onward. Please use 'None' "
+                            "instead."
+                )
             return None
         if cls is str and not isinstance(s, str):
             raise ValueError(f'Could not convert {s!r} to str')

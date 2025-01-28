@@ -3216,6 +3216,8 @@ class Axes(_AxesBase):
         baseline, = self.plot(baseline_x, baseline_y,
                               color=basecolor, linestyle=basestyle,
                               marker=basemarker, label="_nolegend_")
+        baseline.get_path()._interpolation_steps = \
+            mpl.axis.GRIDLINE_INTERPOLATION_STEPS
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
@@ -5454,9 +5456,21 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def arrow(self, x, y, dx, dy, **kwargs):
         """
-        Add an arrow to the Axes.
+        [*Discouraged*] Add an arrow to the Axes.
 
         This draws an arrow from ``(x, y)`` to ``(x+dx, y+dy)``.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged because it is not guaranteed
+            that the arrow renders reasonably. For example, the resulting arrow
+            is affected by the Axes aspect ratio and limits, which may distort
+            the arrow.
+
+            Consider using `~.Axes.annotate` without a text instead, e.g. ::
+
+                ax.annotate("", xytext=(0, 0), xy=(0.5, 0.5),
+                            arrowprops=dict(arrowstyle="->"))
 
         Parameters
         ----------
@@ -5466,17 +5480,6 @@ class Axes(_AxesBase):
         -------
         `.FancyArrow`
             The created `.FancyArrow` object.
-
-        Notes
-        -----
-        The resulting arrow is affected by the Axes aspect ratio and limits.
-        This may produce an arrow whose head is not square with its stem. To
-        create an arrow whose head is square with its stem,
-        use :meth:`annotate` for example:
-
-        >>> ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
-        ...             arrowprops=dict(arrowstyle="->"))
-
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
