@@ -8753,6 +8753,10 @@ such objects
             return color_list
 
         # Convert colors to chain (number of colors can be different from len(vpstats))
+        if facecolor is None or linecolor is None:
+            if not mpl.rcParams['_internal.classic_mode']:
+                next_color = self._get_lines.get_next_color()
+
         if facecolor is not None:
             facecolor = cycle_color(facecolor)
         else:
@@ -8761,7 +8765,6 @@ such objects
             if mpl.rcParams['_internal.classic_mode']:
                 facecolor = cycle_color('y', alpha=default_facealpha)
             else:
-                next_color = self._get_lines.get_next_color()
                 facecolor = cycle_color(next_color, alpha=default_facealpha)
 
         if linecolor is not None:
@@ -8770,7 +8773,6 @@ such objects
             if mpl.rcParams['_internal.classic_mode']:
                 linecolor = cycle_color('r')
             else:
-                next_color = self._get_lines.get_next_color()
                 linecolor = cycle_color(next_color)
 
         # Check whether we are rendering vertically or horizontally
