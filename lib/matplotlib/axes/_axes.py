@@ -8649,16 +8649,16 @@ such objects
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
 
-        facecolor : color or list of colors or None; see :ref:`colors_def`
-            If provided, will set the face color(s) of the violin plots.
-
-        linecolor : color or list of colors or None; see :ref:`colors_def`
-          If provided, will set the line color(s) of the violin plots (the
-          horizontal and vertical spines and body edges).
+        facecolor : :mpltype`color` or list of :mpltype:`color`, optional
+            If provided, will set the face color(s) of the violins.
 
             .. versionadded:: 3.11
 
-            facecolor, linecolor
+        linecolor : :mpltype`color` or list of :mpltype:`color`, optional
+          If provided, will set the line color(s) of the violins (the
+          horizontal and vertical spines and body edges).
+
+            .. versionadded:: 3.11
 
         Returns
         -------
@@ -8752,28 +8752,26 @@ such objects
                 color_list.append(next(color_cycler))
             return color_list
 
-        # Set default colors for when user doesn't provide them
-        default_facealpha = 0.3
-        if mpl.rcParams['_internal.classic_mode']:
-            default_facecolor = cycle_color('y', alpha=default_facealpha)
-            default_linecolor = cycle_color('r')
-        else:
-            next_color = self._get_lines.get_next_color()
-            default_facecolor = cycle_color(next_color, alpha=default_facealpha)
-            default_linecolor = cycle_color(next_color)
-
         # Convert colors to chain (number of colors can be different from len(vpstats))
         if facecolor is not None:
             facecolor = cycle_color(facecolor)
+        else:
+            default_facealpha = 0.3
+            # Use default colors if user doesn't provide them
+            if mpl.rcParams['_internal.classic_mode']:
+                facecolor = cycle_color('y', alpha=default_facealpha)
+            else:
+                next_color = self._get_lines.get_next_color()
+                facecolor = cycle_color(next_color, alpha=default_facealpha)
 
         if linecolor is not None:
             linecolor = cycle_color(linecolor)
-
-        # Set color of violin plots
-        if facecolor is None:
-            facecolor = default_facecolor
-        if linecolor is None:
-            linecolor = default_linecolor
+        else:
+            if mpl.rcParams['_internal.classic_mode']:
+                linecolor = cycle_color('r')
+            else:
+                next_color = self._get_lines.get_next_color()
+                linecolor = cycle_color(next_color)
 
         # Check whether we are rendering vertically or horizontally
         if orientation == 'vertical':
