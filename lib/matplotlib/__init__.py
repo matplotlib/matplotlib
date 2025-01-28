@@ -137,7 +137,7 @@ __all__ = [
 
 import atexit
 from collections import namedtuple
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, Sequence
 import contextlib
 import functools
 import importlib
@@ -1377,14 +1377,17 @@ def _init_tests():
 
 def _replacer(data, value):
     """
-    Either returns ``data[value]`` or passes ``data`` back, converts either to
-    a sequence.
+    Either returns ``data[value]`` or passes ``value`` back, converts either to
+    a sequence.  If ``value`` is a non-string sequence, processes each element
+    and returns a list.
     """
     try:
         # if key isn't a string don't bother
         if isinstance(value, str):
             # try to use __getitem__
             value = data[value]
+        elif isinstance(value, Sequence):
+            return [_replacer(data, x) for x in value]
     except Exception:
         # key does not exist, silently fall back to key
         pass
@@ -1459,7 +1462,9 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     - if called with ``data=None``, forward the other arguments to ``func``;
     - otherwise, *data* must be a mapping; for any argument passed in as a
       string ``name``, replace the argument by ``data[name]`` (if this does not
-      throw an exception), then forward the arguments to ``func``.
+      throw an exception), then forward the arguments to ``func``.  For any
+      argument passed as a non-string sequence, replace any string elements
+      by ``data[name]`` (if that does not throw an exception).
 
     In either case, any argument that is a `MappingView` is also converted to a
     list.
