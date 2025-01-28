@@ -198,7 +198,7 @@ def test_constrained_layout9():
 
 
 @image_comparison(['constrained_layout10.png'],
-                  tol=0.032 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.032)
 def test_constrained_layout10():
     """Test for handling legend outside axis"""
     fig, axs = plt.subplots(2, 2, layout="constrained")

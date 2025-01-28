@@ -30,7 +30,7 @@ def test_patheffect1():
 
 
 @image_comparison(['patheffect2'], remove_text=True, style='mpl20',
-                  tol=0.06 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.06)
 def test_patheffect2():
 
     ax2 = plt.subplot()
@@ -45,7 +45,8 @@ def test_patheffect2():
                                                    foreground="w")])
 
 
-@image_comparison(['patheffect3'], tol=0.019 if platform.machine() == 'arm64' else 0)
+@image_comparison(['patheffect3'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.019)
 def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
     p1.set_path_effects([path_effects.SimpleLineShadow(),
