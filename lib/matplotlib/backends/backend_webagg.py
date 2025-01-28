@@ -1,6 +1,4 @@
-"""
-Displays Agg images in the browser, with interactivity
-"""
+"""Displays Agg images in the browser, with interactivity."""
 
 # The WebAgg backend is divided into two modules:
 #
@@ -37,12 +35,6 @@ from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
 from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
     TimerAsyncio, TimerTornado)
-
-
-@mpl._api.deprecated("3.7")
-class ServerThread(threading.Thread):
-    def run(self):
-        tornado.ioloop.IOLoop.instance().start()
 
 
 webagg_server_thread = threading.Thread(

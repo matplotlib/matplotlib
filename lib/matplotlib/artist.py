@@ -1,10 +1,11 @@
 from collections import namedtuple
 import contextlib
-from functools import cache, wraps
+from functools import cache, reduce, wraps
 import inspect
 from inspect import Signature, Parameter
 import logging
 from numbers import Number, Real
+import operator
 import re
 import warnings
 
@@ -12,10 +13,8 @@ import numpy as np
 
 import matplotlib as mpl
 from . import _api, cbook
-from .colors import BoundaryNorm
-from .cm import ScalarMappable
 from .path import Path
-from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
+from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
 
 _log = logging.getLogger(__name__)
@@ -75,8 +74,8 @@ def allow_rasterization(draw):
                 renderer.stop_filter(artist.get_agg_filter())
             if artist.get_rasterized():
                 renderer._raster_depth -= 1
-            if (renderer._rasterizing and artist.figure and
-                    artist.figure.suppressComposite):
+            if (renderer._rasterizing and (fig := artist.get_figure(root=True)) and
+                    fig.suppressComposite):
                 # restart rasterizing to prevent merging
                 renderer.stop_rasterizing()
                 renderer.start_rasterizing()
@@ -181,7 +180,7 @@ class Artist:
         self._stale = True
         self.stale_callback = None
         self._axes = None
-        self.figure = None
+        self._parent_figure = None
 
         self._transform = None
         self._transformSet = False
@@ -215,8 +214,6 @@ class Artist:
 
     def __getstate__(self):
         d = self.__dict__.copy()
-        # remove the unpicklable remove method, this will get re-added on load
-        # (by the Axes) if the artist lives on an Axes.
         d['stale_callback'] = None
         return d
 
@@ -226,10 +223,10 @@ class Artist:
 
         The effect will not be visible until the figure is redrawn, e.g.,
         with `.FigureCanvasBase.draw_idle`.  Call `~.axes.Axes.relim` to
-        update the axes limits if desired.
+        update the Axes limits if desired.
 
         Note: `~.axes.Axes.relim` will not see collections even if the
-        collection was added to the axes with *autolim* = True.
+        collection was added to the Axes with *autolim* = True.
 
         Note: there is no support for removing the artist's legend entry.
         """
@@ -250,10 +247,10 @@ class Artist:
                 self.axes = None  # decouple the artist from the Axes
                 _ax_flag = True
 
-            if self.figure:
-                self.figure = None
+            if (fig := self.get_figure(root=False)) is not None:
                 if not _ax_flag:
-                    self.figure = True
+                    fig.stale = True
+                self._parent_figure = None
 
         else:
             raise NotImplementedError('cannot remove artist')
@@ -301,9 +298,8 @@ class Artist:
     def axes(self, new_axes):
         if (new_axes is not None and self._axes is not None
                 and new_axes != self._axes):
-            raise ValueError("Can not reset the axes.  You are probably "
-                             "trying to re-use an artist in more than one "
-                             "Axes which is not supported")
+            raise ValueError("Can not reset the Axes. You are probably trying to reuse "
+                             "an artist in more than one Axes which is not supported")
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
             self.stale_callback = _stale_axes_callback
@@ -323,7 +319,7 @@ class Artist:
         # if the artist is animated it does not take normal part in the
         # draw stack and is not expected to be drawn as part of the normal
         # draw loop (when not saving) so do not propagate this change
-        if self.get_animated():
+        if self._animated:
             return
 
         if val and self.stale_callback is not None:
@@ -342,7 +338,7 @@ class Artist:
         Be careful when using this function, the results will not update
         if the artist window extent of the artist changes.  The extent
         can change due to any changes in the transform stack, such as
-        changing the axes limits, the figure size, or the canvas used
+        changing the Axes limits, the figure size, or the canvas used
         (as is done when saving a figure).  This can lead to unexpected
         behavior where interactive figures will look fine on the screen,
         but will save incorrectly.
@@ -355,7 +351,7 @@ class Artist:
 
         Parameters
         ----------
-        renderer : `.RendererBase` subclass
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass, optional
             renderer that will be used to draw the figures (i.e.
             ``fig.canvas.get_renderer()``)
 
@@ -442,7 +438,7 @@ class Artist:
 
         Parameters
         ----------
-        t : `.Transform`
+        t : `~matplotlib.transforms.Transform`
         """
         self._transform = t
         self._transformSet = True
@@ -476,8 +472,9 @@ class Artist:
                 return False, {}
             # subclass-specific implementation follows
         """
-        return (getattr(event, "canvas", None) is not None and self.figure is not None
-                and event.canvas is not self.figure.canvas)
+        return (getattr(event, "canvas", None) is not None
+                and (fig := self.get_figure(root=True)) is not None
+                and event.canvas is not fig.canvas)
 
     def contains(self, mouseevent):
         """
@@ -485,7 +482,7 @@ class Artist:
 
         Parameters
         ----------
-        mouseevent : `matplotlib.backend_bases.MouseEvent`
+        mouseevent : `~matplotlib.backend_bases.MouseEvent`
 
         Returns
         -------
@@ -496,9 +493,6 @@ class Artist:
             such as which points are contained in the pick radius. See the
             individual Artist subclasses for details.
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
@@ -508,9 +502,9 @@ class Artist:
 
         See Also
         --------
-        set_picker, get_picker, pick
+        .Artist.set_picker, .Artist.get_picker, .Artist.pick
         """
-        return self.figure is not None and self._picker is not None
+        return self.get_figure(root=False) is not None and self._picker is not None
 
     def pick(self, mouseevent):
         """
@@ -521,7 +515,7 @@ class Artist:
 
         See Also
         --------
-        set_picker, get_picker, pickable
+        .Artist.set_picker, .Artist.get_picker, .Artist.pickable
         """
         from .backend_bases import PickEvent  # Circular import.
         # Pick self
@@ -532,14 +526,15 @@ class Artist:
             else:
                 inside, prop = self.contains(mouseevent)
             if inside:
-                PickEvent("pick_event", self.figure.canvas,
+                PickEvent("pick_event", self.get_figure(root=True).canvas,
                           mouseevent, self, **prop)._process()
 
         # Pick children
         for a in self.get_children():
             # make sure the event happened in the same Axes
             ax = getattr(a, 'axes', None)
-            if (mouseevent.inaxes is None or ax is None
+            if (isinstance(a, mpl.figure.SubFigure)
+                    or mouseevent.inaxes is None or ax is None
                     or mouseevent.inaxes == ax):
                 # we need to check if mouseevent.inaxes is None
                 # because some objects associated with an Axes (e.g., a
@@ -588,11 +583,11 @@ class Artist:
         """
         Return the picking behavior of the artist.
 
-        The possible values are described in `.set_picker`.
+        The possible values are described in `.Artist.set_picker`.
 
         See Also
         --------
-        set_picker, pickable, pick
+        .Artist.set_picker, .Artist.pickable, .Artist.pick
         """
         return self._picker
 
@@ -717,7 +712,7 @@ class Artist:
 
         Parameters
         ----------
-        path_effects : `.AbstractPathEffect`
+        path_effects : list of `.AbstractPathEffect`
         """
         self._path_effects = path_effects
         self.stale = True
@@ -725,33 +720,48 @@ class Artist:
     def get_path_effects(self):
         return self._path_effects
 
-    def get_figure(self):
-        """Return the `.Figure` instance the artist belongs to."""
-        return self.figure
-
-    def set_figure(self, fig):
+    def get_figure(self, root=False):
         """
-        Set the `.Figure` instance the artist belongs to.
+        Return the `.Figure` or `.SubFigure` instance the artist belongs to.
 
         Parameters
         ----------
-        fig : `.Figure`
+        root : bool, default=False
+            If False, return the (Sub)Figure this artist is on.  If True,
+            return the root Figure for a nested tree of SubFigures.
+        """
+        if root and self._parent_figure is not None:
+            return self._parent_figure.get_figure(root=True)
+
+        return self._parent_figure
+
+    def set_figure(self, fig):
+        """
+        Set the `.Figure` or `.SubFigure` instance the artist belongs to.
+
+        Parameters
+        ----------
+        fig : `~matplotlib.figure.Figure` or `~matplotlib.figure.SubFigure`
         """
         # if this is a no-op just return
-        if self.figure is fig:
+        if self._parent_figure is fig:
             return
         # if we currently have a figure (the case of both `self.figure`
         # and *fig* being none is taken care of above) we then user is
         # trying to change the figure an artist is associated with which
         # is not allowed for the same reason as adding the same instance
         # to more than one Axes
-        if self.figure is not None:
+        if self._parent_figure is not None:
             raise RuntimeError("Can not put single artist in "
                                "more than one figure")
-        self.figure = fig
-        if self.figure and self.figure is not self:
+        self._parent_figure = fig
+        if self._parent_figure and self._parent_figure is not self:
             self.pchanged()
         self.stale = True
+
+    figure = property(get_figure, set_figure,
+                      doc=("The (Sub)Figure that the artist is on.  For more "
+                           "control, use the `get_figure` method."))
 
     def set_clip_box(self, clipbox):
         """
@@ -759,16 +769,17 @@ class Artist:
 
         Parameters
         ----------
-        clipbox : `.Bbox`
-
-            Typically would be created from a `.TransformedBbox`. For
-            instance ``TransformedBbox(Bbox([[0, 0], [1, 1]]), ax.transAxes)``
-            is the default clipping for an artist added to an Axes.
+        clipbox : `~matplotlib.transforms.BboxBase` or None
+            Will typically be created from a `.TransformedBbox`. For instance,
+            ``TransformedBbox(Bbox([[0, 0], [1, 1]]), ax.transAxes)`` is the default
+            clipping for an artist added to an Axes.
 
         """
-        self.clipbox = clipbox
-        self.pchanged()
-        self.stale = True
+        _api.check_isinstance((BboxBase, None), clipbox=clipbox)
+        if clipbox != self.clipbox:
+            self.clipbox = clipbox
+            self.pchanged()
+            self.stale = True
 
     def set_clip_path(self, path, transform=None):
         """
@@ -776,7 +787,7 @@ class Artist:
 
         Parameters
         ----------
-        path : `.Patch` or `.Path` or `.TransformedPath` or None
+        path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath` or None
             The clip path. If given a `.Path`, *transform* must be provided as
             well. If *None*, a previously set clip path is removed.
         transform : `~matplotlib.transforms.Transform`, optional
@@ -989,7 +1000,7 @@ class Artist:
 
         Parameters
         ----------
-        renderer : `.RendererBase` subclass.
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass.
 
         Notes
         -----
@@ -1005,7 +1016,7 @@ class Artist:
 
         Parameters
         ----------
-        alpha : scalar or None
+        alpha : float or None
             *alpha* must be within the 0-1 range, inclusive.
         """
         if alpha is not None and not isinstance(alpha, Real):
@@ -1013,9 +1024,10 @@ class Artist:
                 f'alpha must be numeric or None, not {type(alpha)}')
         if alpha is not None and not (0 <= alpha <= 1):
             raise ValueError(f'alpha ({alpha}) is outside 0-1 range')
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
+        if alpha != self._alpha:
+            self._alpha = alpha
+            self.pchanged()
+            self.stale = True
 
     def _set_alpha_for_array(self, alpha):
         """
@@ -1023,7 +1035,7 @@ class Artist:
 
         Parameters
         ----------
-        alpha : array-like or scalar or None
+        alpha : array-like or float or None
             All values must be within the 0-1 range, inclusive.
             Masked values and nans are not supported.
         """
@@ -1048,9 +1060,10 @@ class Artist:
         ----------
         b : bool
         """
-        self._visible = b
-        self.pchanged()
-        self.stale = True
+        if b != self._visible:
+            self._visible = b
+            self.pchanged()
+            self.stale = True
 
     def set_animated(self, b):
         """
@@ -1098,12 +1111,11 @@ class Artist:
         s : object
             *s* will be converted to a string by calling `str`.
         """
-        if s is not None:
-            self._label = str(s)
-        else:
-            self._label = None
-        self.pchanged()
-        self.stale = True
+        label = str(s) if s is not None else None
+        if label != self._label:
+            self._label = label
+            self.pchanged()
+            self.stale = True
 
     def get_zorder(self):
         """Return the artist's zorder."""
@@ -1120,9 +1132,10 @@ class Artist:
         """
         if level is None:
             level = self.__class__.zorder
-        self.zorder = level
-        self.pchanged()
-        self.stale = True
+        if level != self.zorder:
+            self.zorder = level
+            self.pchanged()
+            self.stale = True
 
     @property
     def sticky_edges(self):
@@ -1177,7 +1190,8 @@ class Artist:
         Helper for `.Artist.set` and `.Artist.update`.
 
         *errfmt* is used to generate error messages for invalid property
-        names; it gets formatted with ``type(self)`` and the property name.
+        names; it gets formatted with ``type(self)`` for "{cls}" and the
+        property name for "{prop_name}".
         """
         ret = []
         with cbook._setattr_cm(self, eventson=False):
@@ -1190,7 +1204,8 @@ class Artist:
                     func = getattr(self, f"set_{k}", None)
                     if not callable(func):
                         raise AttributeError(
-                            errfmt.format(cls=type(self), prop_name=k))
+                            errfmt.format(cls=type(self), prop_name=k),
+                            name=k)
                     ret.append(func(v))
         if ret:
             self.pchanged()
@@ -1275,7 +1290,8 @@ class Artist:
             raise ValueError('match must be None, a matplotlib.artist.Artist '
                              'subclass, or a callable')
 
-        artists = sum([c.findobj(matchfunc) for c in self.get_children()], [])
+        artists = reduce(operator.iadd,
+                         [c.findobj(matchfunc) for c in self.get_children()], [])
         if include_self and matchfunc(self):
             artists.append(self)
         return artists
@@ -1302,7 +1318,7 @@ class Artist:
 
         Parameters
         ----------
-        event : `matplotlib.backend_bases.MouseEvent`
+        event : `~matplotlib.backend_bases.MouseEvent`
 
         See Also
         --------
@@ -1329,35 +1345,11 @@ class Artist:
         --------
         get_cursor_data
         """
-        if np.ndim(data) == 0 and isinstance(self, ScalarMappable):
-            # This block logically belongs to ScalarMappable, but can't be
-            # implemented in it because most ScalarMappable subclasses inherit
-            # from Artist first and from ScalarMappable second, so
-            # Artist.format_cursor_data would always have precedence over
-            # ScalarMappable.format_cursor_data.
-            n = self.cmap.N
-            if np.ma.getmask(data):
-                return "[]"
-            normed = self.norm(data)
-            if np.isfinite(normed):
-                if isinstance(self.norm, BoundaryNorm):
-                    # not an invertible normalization mapping
-                    cur_idx = np.argmin(np.abs(self.norm.boundaries - data))
-                    neigh_idx = max(0, cur_idx - 1)
-                    # use max diff to prevent delta == 0
-                    delta = np.diff(
-                        self.norm.boundaries[neigh_idx:cur_idx + 2]
-                    ).max()
-
-                else:
-                    # Midpoints of neighboring color intervals.
-                    neighbors = self.norm.inverse(
-                        (int(normed * n) + np.array([0, 1])) / n)
-                    delta = abs(neighbors - data).max()
-                g_sig_digits = cbook._g_sig_digits(data, delta)
-            else:
-                g_sig_digits = 3  # Consistent with default below.
-            return f"[{data:-#.{g_sig_digits}g}]"
+        if np.ndim(data) == 0 and hasattr(self, "_format_cursor_data_override"):
+            # workaround for ScalarMappable to be able to define its own
+            # format_cursor_data(). See ScalarMappable._format_cursor_data_override
+            # for details.
+            return self._format_cursor_data_override(data)
         else:
             try:
                 data[0]
@@ -1480,6 +1472,9 @@ class ArtistInspector:
             raise AttributeError(f'{self.o} has no function {name}')
         func = getattr(self.o, name)
 
+        if hasattr(func, '_kwarg_doc'):
+            return func._kwarg_doc
+
         docstring = inspect.getdoc(func)
         if docstring is None:
             return 'unknown'
@@ -1591,7 +1586,8 @@ class ArtistInspector:
         if target in self._NOT_LINKABLE:
             return f'``{s}``'
 
-        aliases = ''.join(' or %s' % x for x in sorted(self.aliasd.get(s, [])))
+        aliases = ''.join(
+            f' or :meth:`{a} <{target}>`' for a in sorted(self.aliasd.get(s, [])))
         return f':meth:`{s} <{target}>`{aliases}'
 
     def pprint_setters(self, prop=None, leadingspace=2):
@@ -1716,7 +1712,7 @@ def getp(obj, property=None):
 
     Parameters
     ----------
-    obj : `.Artist`
+    obj : `~matplotlib.artist.Artist`
         The queried artist; e.g., a `.Line2D`, a `.Text`, or an `~.axes.Axes`.
 
     property : str or None, default: None
@@ -1755,7 +1751,7 @@ def setp(obj, *args, file=None, **kwargs):
 
     Parameters
     ----------
-    obj : `.Artist` or list of `.Artist`
+    obj : `~matplotlib.artist.Artist` or list of `.Artist`
         The artist(s) whose properties are being set or queried.  When setting
         properties, all artists are affected; when querying the allowed values,
         only the first instance in the sequence is queried.

@@ -24,26 +24,6 @@ import matplotlib.ticker as mticker
 import pytest
 
 
-@image_comparison(['image_interps'], style='mpl20')
-def test_image_interps():
-    """Make the basic nearest, bilinear and bicubic interps."""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
-    X = np.arange(100).reshape(5, 20)
-
-    fig, (ax1, ax2, ax3) = plt.subplots(3)
-    ax1.imshow(X, interpolation='nearest')
-    ax1.set_title('three interpolations')
-    ax1.set_ylabel('nearest')
-
-    ax2.imshow(X, interpolation='bilinear')
-    ax2.set_ylabel('bilinear')
-
-    ax3.imshow(X, interpolation='bicubic')
-    ax3.set_ylabel('bicubic')
-
-
 @image_comparison(['interp_alpha.png'], remove_text=True)
 def test_alpha_interp():
     """Test the interpolation of the alpha channel on RGBA images"""
@@ -118,7 +98,7 @@ def test_imshow_antialiased(fig_test, fig_ref,
         fig.set_size_inches(fig_size, fig_size)
     ax = fig_test.subplots()
     ax.set_position([0, 0, 1, 1])
-    ax.imshow(A, interpolation='antialiased')
+    ax.imshow(A, interpolation='auto')
     ax = fig_ref.subplots()
     ax.set_position([0, 0, 1, 1])
     ax.imshow(A, interpolation=interpolation)
@@ -133,7 +113,7 @@ def test_imshow_zoom(fig_test, fig_ref):
     for fig in [fig_test, fig_ref]:
         fig.set_size_inches(2.9, 2.9)
     ax = fig_test.subplots()
-    ax.imshow(A, interpolation='antialiased')
+    ax.imshow(A, interpolation='auto')
     ax.set_xlim([10, 20])
     ax.set_ylim([10, 20])
     ax = fig_ref.subplots()
@@ -204,6 +184,14 @@ def test_imsave(fmt):
     assert_array_equal(arr_dpi1, arr_dpi100)
 
 
+@pytest.mark.parametrize("origin", ["upper", "lower"])
+def test_imsave_rgba_origin(origin):
+    # test that imsave always passes c-contiguous arrays down to pillow
+    buf = io.BytesIO()
+    result = np.zeros((10, 10, 4), dtype='uint8')
+    mimage.imsave(buf, arr=result, format="png", origin=origin)
+
+
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_imsave_fspath(fmt):
     plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
@@ -265,6 +253,32 @@ def test_image_alpha():
     ax1.imshow(Z, alpha=1.0, interpolation='none')
     ax2.imshow(Z, alpha=0.5, interpolation='none')
     ax3.imshow(Z, alpha=0.5, interpolation='nearest')
+
+
+@mpl.style.context('mpl20')
+@check_figures_equal(extensions=['png'])
+def test_imshow_alpha(fig_test, fig_ref):
+    np.random.seed(19680801)
+
+    rgbf = np.random.rand(6, 6, 3)
+    rgbu = np.uint8(rgbf * 255)
+    ((ax0, ax1), (ax2, ax3)) = fig_test.subplots(2, 2)
+    ax0.imshow(rgbf, alpha=0.5)
+    ax1.imshow(rgbf, alpha=0.75)
+    ax2.imshow(rgbu, alpha=0.5)
+    ax3.imshow(rgbu, alpha=0.75)
+
+    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2)
+    rgbau = np.concatenate((rgbu, np.full((6, 6, 1), 255, np.uint8)), axis=2)
+    ((ax0, ax1), (ax2, ax3)) = fig_ref.subplots(2, 2)
+    rgbaf[:, :, 3] = 0.5
+    ax0.imshow(rgbaf)
+    rgbaf[:, :, 3] = 0.75
+    ax1.imshow(rgbaf)
+    rgbau[:, :, 3] = 127
+    ax2.imshow(rgbau)
+    rgbau[:, :, 3] = 191
+    ax3.imshow(rgbau)
 
 
 def test_cursor_data():
@@ -338,13 +352,46 @@ def test_cursor_data():
     assert im.get_cursor_data(event) == 44
 
 
+@pytest.mark.parametrize("xy, data", [
+    # x/y coords chosen to be 0.5 above boundaries so they lie within image pixels
+    [[0.5, 0.5], 0 + 0],
+    [[0.5, 1.5], 0 + 1],
+    [[4.5, 0.5], 16 + 0],
+    [[8.5, 0.5], 16 + 0],
+    [[9.5, 2.5], 81 + 4],
+    [[-1, 0.5], None],
+    [[0.5, -1], None],
+    ]
+)
+def test_cursor_data_nonuniform(xy, data):
+    from matplotlib.backend_bases import MouseEvent
+
+    # Non-linear set of x-values
+    x = np.array([0, 1, 4, 9, 16])
+    y = np.array([0, 1, 2, 3, 4])
+    z = x[np.newaxis, :]**2 + y[:, np.newaxis]**2
+
+    fig, ax = plt.subplots()
+    im = NonUniformImage(ax, extent=(x.min(), x.max(), y.min(), y.max()))
+    im.set_data(x, y, z)
+    ax.add_image(im)
+    # Set lower min lim so we can test cursor outside image
+    ax.set_xlim(x.min() - 2, x.max())
+    ax.set_ylim(y.min() - 2, y.max())
+
+    xdisp, ydisp = ax.transData.transform(xy)
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_cursor_data(event) == data, (im.get_cursor_data(event), data)
+
+
 @pytest.mark.parametrize(
     "data, text", [
         ([[10001, 10000]], "[10001.000]"),
         ([[.123, .987]], "[0.123]"),
         ([[np.nan, 1, 2]], "[]"),
         ([[1, 1+1e-15]], "[1.0000000000000000]"),
-        ([[-1, -1]], "[-1.0000000000000000]"),
+        ([[-1, -1]], "[-1.0]"),
+        ([[0, 0]], "[0.00]"),
     ])
 def test_format_cursor_data(data, text):
     from matplotlib.backend_bases import MouseEvent
@@ -377,15 +424,6 @@ def test_image_cliprect():
     rect = patches.Rectangle(
         xy=(1, 1), width=2, height=2, transform=im.axes.transData)
     im.set_clip_path(rect)
-
-
-@image_comparison(['imshow'], remove_text=True, style='mpl20')
-def test_imshow():
-    fig, ax = plt.subplots()
-    arr = np.arange(100).reshape((10, 10))
-    ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
-    ax.set_xlim(0, 3)
-    ax.set_ylim(0, 3)
 
 
 @check_figures_equal(extensions=['png'])
@@ -564,7 +602,7 @@ def test_bbox_image_inverted():
     image = np.identity(10)
 
     bbox_im = BboxImage(TransformedBbox(Bbox([[0.1, 0.2], [0.3, 0.25]]),
-                                        ax.figure.transFigure),
+                                        ax.get_figure().transFigure),
                         interpolation='nearest')
     bbox_im.set_data(image)
     bbox_im.set_clip_on(False)
@@ -659,7 +697,7 @@ def test_jpeg_alpha():
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
     num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 210
+    assert 175 <= num_colors <= 230
     # The fully transparent part should be red.
     corner_pixel = image.getpixel((0, 0))
     assert corner_pixel == (254, 0, 0)
@@ -754,11 +792,7 @@ def test_log_scale_image():
     ax.set(yscale='log')
 
 
-# Increased tolerance is needed for PDF test to avoid failure. After the PDF
-# backend was modified to use indexed color, there are ten pixels that differ
-# due to how the subpixel calculation is done when converting the PDF files to
-# PNG images.
-@image_comparison(['rotate_image'], remove_text=True, tol=0.35)
+@image_comparison(['rotate_image'], remove_text=True)
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
@@ -803,10 +837,8 @@ def test_image_preserve_size2():
     data = np.identity(n, float)
 
     fig = plt.figure(figsize=(n, n), frameon=False)
-
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+    ax = fig.add_axes((0.0, 0.0, 1.0, 1.0))
     ax.set_axis_off()
-    fig.add_axes(ax)
     ax.imshow(data, interpolation='nearest', origin='lower', aspect='auto')
     buff = io.BytesIO()
     fig.savefig(buff, dpi=1)
@@ -822,8 +854,6 @@ def test_image_preserve_size2():
 
 @image_comparison(['mask_image_over_under.png'], remove_text=True, tol=1.0)
 def test_mask_image_over_under():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
 
     delta = 0.025
     x = y = np.arange(-3.0, 3.0, delta)
@@ -833,7 +863,7 @@ def test_mask_image_over_under():
           (2 * np.pi * 0.5 * 1.5))
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
-    palette = plt.cm.gray.with_extremes(over='r', under='g', bad='b')
+    palette = plt.colormaps["gray"].with_extremes(over='r', under='g', bad='b')
     Zm = np.ma.masked_where(Z > 1.2, Z)
     fig, (ax1, ax2) = plt.subplots(1, 2)
     im = ax1.imshow(Zm, interpolation='bilinear',
@@ -922,6 +952,7 @@ def test_imshow_masked_interpolation():
 
     fig, ax_grid = plt.subplots(3, 6)
     interps = sorted(mimage._interpd_)
+    interps.remove('auto')
     interps.remove('antialiased')
 
     for interp, ax in zip(interps, ax_grid.ravel()):
@@ -1353,9 +1384,28 @@ def test_nonuniform_and_pcolor():
         ax.set(xlim=(0, 10))
 
 
-@image_comparison(
-    ['rgba_antialias.png'], style='mpl20', remove_text=True,
-    tol=0.007 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+@image_comparison(["nonuniform_logscale.png"], style="mpl20")
+def test_nonuniform_logscale():
+    _, axs = plt.subplots(ncols=3, nrows=1)
+
+    for i in range(3):
+        ax = axs[i]
+        im = NonUniformImage(ax)
+        im.set_data(np.arange(1, 4) ** 2, np.arange(1, 4) ** 2,
+                    np.arange(9).reshape((3, 3)))
+        ax.set_xlim(1, 16)
+        ax.set_ylim(1, 16)
+        ax.set_box_aspect(1)
+        if i == 1:
+            ax.set_xscale("log", base=2)
+            ax.set_yscale("log", base=2)
+        if i == 2:
+            ax.set_xscale("log", base=4)
+            ax.set_yscale("log", base=4)
+        ax.add_image(im)
+
+
+@image_comparison(['rgba_antialias.png'], style='mpl20', remove_text=True, tol=0.02)
 def test_rgba_antialias():
     fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5), sharex=False,
                             sharey=False, constrained_layout=True)
@@ -1379,13 +1429,13 @@ def test_rgba_antialias():
     aa[:, int(N/2):] = a[:, int(N/2):]
 
     # set some over/unders and NaNs
-    aa[20:50, 20:50] = np.NaN
+    aa[20:50, 20:50] = np.nan
     aa[70:90, 70:90] = 1e6
     aa[70:90, 20:30] = -1e6
     aa[70:90, 195:215] = 1e6
     aa[20:30, 195:215] = -1e6
 
-    cmap = copy(plt.cm.RdBu_r)
+    cmap = plt.colormaps["RdBu_r"]
     cmap.set_over('yellow')
     cmap.set_under('cyan')
 
@@ -1400,13 +1450,61 @@ def test_rgba_antialias():
 
     # data antialias: Note no purples, and white in circle.  Note
     # that alternating red and blue stripes become white.
-    axs[2].imshow(aa, interpolation='antialiased', interpolation_stage='data',
+    axs[2].imshow(aa, interpolation='auto', interpolation_stage='data',
                   cmap=cmap, vmin=-1.2, vmax=1.2)
 
     # rgba antialias: Note purples at boundary with circle.  Note that
     # alternating red and blue stripes become purple
-    axs[3].imshow(aa, interpolation='antialiased', interpolation_stage='rgba',
+    axs[3].imshow(aa, interpolation='auto', interpolation_stage='rgba',
                   cmap=cmap, vmin=-1.2, vmax=1.2)
+
+
+@check_figures_equal(extensions=('png', ))
+def test_upsample_interpolation_stage(fig_test, fig_ref):
+    """
+    Show that interpolation_stage='auto' gives the same as 'data'
+    for upsampling.
+    """
+    # Fixing random state for reproducibility.  This non-standard seed
+    # gives red splotches for 'rgba'.
+    np.random.seed(19680801+9)
+
+    grid = np.random.rand(4, 4)
+    ax = fig_ref.subplots()
+    ax.imshow(grid, interpolation='bilinear', cmap='viridis',
+              interpolation_stage='data')
+
+    ax = fig_test.subplots()
+    ax.imshow(grid, interpolation='bilinear', cmap='viridis',
+              interpolation_stage='auto')
+
+
+@check_figures_equal(extensions=('png', ))
+def test_downsample_interpolation_stage(fig_test, fig_ref):
+    """
+    Show that interpolation_stage='auto' gives the same as 'rgba'
+    for downsampling.
+    """
+    # Fixing random state for reproducibility
+    np.random.seed(19680801)
+
+    grid = np.random.rand(4000, 4000)
+    ax = fig_ref.subplots()
+    ax.imshow(grid, interpolation='auto', cmap='viridis',
+              interpolation_stage='rgba')
+
+    ax = fig_test.subplots()
+    ax.imshow(grid, interpolation='auto', cmap='viridis',
+              interpolation_stage='auto')
+
+
+def test_rc_interpolation_stage():
+    for val in ["data", "rgba"]:
+        with mpl.rc_context({"image.interpolation_stage": val}):
+            assert plt.imshow([[1, 2]]).get_interpolation_stage() == val
+    for val in ["DATA", "foo", None]:
+        with pytest.raises(ValueError):
+            mpl.rcParams["image.interpolation_stage"] = val
 
 
 # We check for the warning with a draw() in the test, but we also need to
@@ -1466,23 +1564,32 @@ def test_str_norms(fig_test, fig_ref):
     axrs[3].imshow(t, norm=colors.SymLogNorm(linthresh=2, vmin=.3, vmax=.7))
     axrs[4].imshow(t, norm="logit", clim=(.3, .7))
 
-    assert type(axts[0].images[0].norm) == colors.LogNorm  # Exactly that class
+    assert type(axts[0].images[0].norm) is colors.LogNorm  # Exactly that class
     with pytest.raises(ValueError):
         axts[0].imshow(t, norm="foobar")
 
 
 def test__resample_valid_output():
     resample = functools.partial(mpl._image.resample, transform=Affine2D())
-    with pytest.raises(ValueError, match="must be a NumPy array"):
+    with pytest.raises(TypeError, match="incompatible function arguments"):
         resample(np.zeros((9, 9)), None)
     with pytest.raises(ValueError, match="different dimensionalities"):
         resample(np.zeros((9, 9)), np.zeros((9, 9, 4)))
-    with pytest.raises(ValueError, match="must be RGBA"):
+    with pytest.raises(ValueError, match="different dimensionalities"):
+        resample(np.zeros((9, 9, 4)), np.zeros((9, 9)))
+    with pytest.raises(ValueError, match="3D input array must be RGBA"):
+        resample(np.zeros((9, 9, 3)), np.zeros((9, 9, 4)))
+    with pytest.raises(ValueError, match="3D output array must be RGBA"):
         resample(np.zeros((9, 9, 4)), np.zeros((9, 9, 3)))
-    with pytest.raises(ValueError, match="Mismatched types"):
+    with pytest.raises(ValueError, match="mismatched types"):
         resample(np.zeros((9, 9), np.uint8), np.zeros((9, 9)))
     with pytest.raises(ValueError, match="must be C-contiguous"):
         resample(np.zeros((9, 9)), np.zeros((9, 9)).T)
+
+    out = np.zeros((9, 9))
+    out.flags.writeable = False
+    with pytest.raises(ValueError, match="Output array must be writeable"):
+        resample(np.zeros((9, 9)), out)
 
 
 def test_axesimage_get_shape():
@@ -1495,3 +1602,112 @@ def test_axesimage_get_shape():
     im.set_data(z)
     assert im.get_shape() == (4, 3)
     assert im.get_size() == im.get_shape()
+
+
+def test_non_transdata_image_does_not_touch_aspect():
+    ax = plt.figure().add_subplot()
+    im = np.arange(4).reshape((2, 2))
+    ax.imshow(im, transform=ax.transAxes)
+    assert ax.get_aspect() == "auto"
+    ax.imshow(im, transform=Affine2D().scale(2) + ax.transData)
+    assert ax.get_aspect() == 1
+    ax.imshow(im, transform=ax.transAxes, aspect=2)
+    assert ax.get_aspect() == 2
+
+
+@image_comparison(
+    ['downsampling.png'], style='mpl20', remove_text=True, tol=0.09)
+def test_downsampling():
+    N = 450
+    x = np.arange(N) / N - 0.5
+    y = np.arange(N) / N - 0.5
+    aa = np.ones((N, N))
+    aa[::2, :] = -1
+
+    X, Y = np.meshgrid(x, y)
+    R = np.sqrt(X**2 + Y**2)
+    f0 = 5
+    k = 100
+    a = np.sin(np.pi * 2 * (f0 * R + k * R**2 / 2))
+    # make the left hand side of this
+    a[:int(N / 2), :][R[:int(N / 2), :] < 0.4] = -1
+    a[:int(N / 2), :][R[:int(N / 2), :] < 0.3] = 1
+    aa[:, int(N / 3):] = a[:, int(N / 3):]
+    a = aa
+
+    fig, axs = plt.subplots(2, 3, figsize=(7, 6), layout='compressed')
+    axs[0, 0].imshow(a, interpolation='nearest', interpolation_stage='rgba',
+                     cmap='RdBu_r')
+    axs[0, 0].set_xlim(125, 175)
+    axs[0, 0].set_ylim(250, 200)
+    axs[0, 0].set_title('Zoom')
+
+    for ax, interp, space in zip(axs.flat[1:], ['nearest', 'nearest', 'hanning',
+                                                'hanning', 'auto'],
+                                 ['data', 'rgba', 'data', 'rgba', 'auto']):
+        ax.imshow(a, interpolation=interp, interpolation_stage=space,
+                  cmap='RdBu_r')
+        ax.set_title(f"interpolation='{interp}'\nspace='{space}'")
+
+
+@image_comparison(
+    ['downsampling_speckle.png'], style='mpl20', remove_text=True, tol=0.09)
+def test_downsampling_speckle():
+    fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), sharex=True, sharey=True,
+                            layout="compressed")
+    axs = axs.flatten()
+    img = ((np.arange(1024).reshape(-1, 1) * np.ones(720)) // 50).T
+
+    cm = plt.get_cmap("viridis")
+    cm.set_over("m")
+    norm = colors.LogNorm(vmin=3, vmax=11)
+
+    # old default cannot be tested because it creates over/under speckles
+    # in the following that are machine dependent.
+
+    axs[0].set_title("interpolation='auto', stage='rgba'")
+    axs[0].imshow(np.triu(img), cmap=cm, norm=norm, interpolation_stage='rgba')
+
+    # Should be same as previous
+    axs[1].set_title("interpolation='auto', stage='auto'")
+    axs[1].imshow(np.triu(img), cmap=cm, norm=norm)
+
+
+@image_comparison(
+    ['upsampling.png'], style='mpl20', remove_text=True)
+def test_upsampling():
+
+    np.random.seed(19680801+9)  # need this seed to get yellow next to blue
+    a = np.random.rand(4, 4)
+
+    fig, axs = plt.subplots(1, 3, figsize=(6.5, 3), layout='compressed')
+    im = axs[0].imshow(a, cmap='viridis')
+    axs[0].set_title(
+        "interpolation='auto'\nstage='antialaised'\n(default for upsampling)")
+
+    # probably what people want:
+    axs[1].imshow(a, cmap='viridis', interpolation='sinc')
+    axs[1].set_title(
+        "interpolation='sinc'\nstage='auto'\n(default for upsampling)")
+
+    # probably not what people want:
+    axs[2].imshow(a, cmap='viridis', interpolation='sinc', interpolation_stage='rgba')
+    axs[2].set_title("interpolation='sinc'\nstage='rgba'")
+    fig.colorbar(im, ax=axs, shrink=0.7, extend='both')
+
+
+@pytest.mark.parametrize(
+    'dtype',
+    ('float64', 'float32', 'int16', 'uint16', 'int8', 'uint8'),
+)
+@pytest.mark.parametrize('ndim', (2, 3))
+def test_resample_dtypes(dtype, ndim):
+    # Issue 28448, incorrect dtype comparisons in C++ image_resample can raise
+    # ValueError: arrays must be of dtype byte, short, float32 or float64
+    rng = np.random.default_rng(4181)
+    shape = (2, 2) if ndim == 2 else (2, 2, 3)
+    data = rng.uniform(size=shape).astype(np.dtype(dtype, copy=True))
+    fig, ax = plt.subplots()
+    axes_image = ax.imshow(data)
+    # Before fix the following raises ValueError for some dtypes.
+    axes_image.make_image(None)[0]

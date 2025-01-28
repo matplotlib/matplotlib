@@ -15,7 +15,7 @@ from matplotlib.colors import (
     BoundaryNorm, LogNorm, PowerNorm, Normalize, NoNorm
 )
 from matplotlib.colorbar import Colorbar
-from matplotlib.ticker import FixedLocator, LogFormatter
+from matplotlib.ticker import FixedLocator, LogFormatter, StrMethodFormatter
 from matplotlib.testing.decorators import check_figures_equal
 
 
@@ -234,9 +234,8 @@ def test_colorbar_single_ax_panchor_east(constrained):
     assert ax.get_anchor() == 'E'
 
 
-@image_comparison(
-    ['contour_colorbar.png'], remove_text=True,
-    tol=0.01 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+@image_comparison(['contour_colorbar.png'], remove_text=True,
+                  tol=0 if platform.machine() == 'x86_64' else 0.054)
 def test_contour_colorbar():
     fig, ax = plt.subplots(figsize=(4, 2))
     data = np.arange(1200).reshape(30, 40) - 500
@@ -279,13 +278,16 @@ def test_colorbar_single_scatter():
     plt.colorbar(cs)
 
 
-@pytest.mark.parametrize('use_gridspec', [False, True],
-                         ids=['no gridspec', 'with gridspec'])
-def test_remove_from_figure(use_gridspec):
-    """
-    Test `remove` with the specified ``use_gridspec`` setting
-    """
-    fig, ax = plt.subplots()
+@pytest.mark.parametrize('use_gridspec', [True, False])
+@pytest.mark.parametrize('nested_gridspecs', [True, False])
+def test_remove_from_figure(nested_gridspecs, use_gridspec):
+    """Test `remove` with the specified ``use_gridspec`` setting."""
+    fig = plt.figure()
+    if nested_gridspecs:
+        gs = fig.add_gridspec(2, 2)[1, 1].subgridspec(2, 2)
+        ax = fig.add_subplot(gs[1, 1])
+    else:
+        ax = fig.add_subplot()
     sc = ax.scatter([1, 2], [3, 4])
     sc.set_array(np.array([5, 6]))
     pre_position = ax.get_position()
@@ -298,9 +300,7 @@ def test_remove_from_figure(use_gridspec):
 
 
 def test_remove_from_figure_cl():
-    """
-    Test `remove` with constrained_layout
-    """
+    """Test `remove` with constrained_layout."""
     fig, ax = plt.subplots(constrained_layout=True)
     sc = ax.scatter([1, 2], [3, 4])
     sc.set_array(np.array([5, 6]))
@@ -317,7 +317,7 @@ def test_remove_from_figure_cl():
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
-    Colorbar(ax, cmap=plt.cm.bone)
+    Colorbar(ax, cmap=plt.colormaps["bone"])
 
 
 def test_parentless_mappable():
@@ -551,10 +551,10 @@ def test_colorbar_lognorm_extension(extend):
 
 def test_colorbar_powernorm_extension():
     # Test that colorbar with powernorm is extended correctly
-    f, ax = plt.subplots()
-    cb = Colorbar(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
-                  orientation='vertical', extend='both')
-    assert cb._values[0] >= 0.0
+    # Just a smoke test that adding the colorbar doesn't raise an error or warning
+    fig, ax = plt.subplots()
+    Colorbar(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
+             orientation='vertical', extend='both')
 
 
 def test_colorbar_axes_kw():
@@ -1139,6 +1139,7 @@ def test_colorbar_set_formatter_locator():
     fmt = LogFormatter()
     cb.minorformatter = fmt
     assert cb.ax.yaxis.get_minor_formatter() is fmt
+    assert cb.long_axis is cb.ax.yaxis
 
 
 @image_comparison(['colorbar_extend_alpha.png'], remove_text=True,
@@ -1180,12 +1181,12 @@ def test_title_text_loc():
 def test_passing_location(fig_ref, fig_test):
     ax_ref = fig_ref.add_subplot()
     im = ax_ref.imshow([[0, 1], [2, 3]])
-    ax_ref.figure.colorbar(im, cax=ax_ref.inset_axes([0, 1.05, 1, 0.05]),
-                           orientation="horizontal", ticklocation="top")
+    ax_ref.get_figure().colorbar(im, cax=ax_ref.inset_axes([0, 1.05, 1, 0.05]),
+                                 orientation="horizontal", ticklocation="top")
     ax_test = fig_test.add_subplot()
     im = ax_test.imshow([[0, 1], [2, 3]])
-    ax_test.figure.colorbar(im, cax=ax_test.inset_axes([0, 1.05, 1, 0.05]),
-                            location="top")
+    ax_test.get_figure().colorbar(im, cax=ax_test.inset_axes([0, 1.05, 1, 0.05]),
+                                  location="top")
 
 
 @pytest.mark.parametrize("kwargs,error,message", [
@@ -1207,7 +1208,7 @@ def test_colorbar_errors(kwargs, error, message):
         fig.colorbar(im, **kwargs)
 
 
-def test_colorbar_axes_parmeters():
+def test_colorbar_axes_parameters():
     fig, ax = plt.subplots(2)
     im = ax[0].imshow([[0, 1], [2, 3]])
     # colorbar should accept any form of axes sequence:
@@ -1227,6 +1228,13 @@ def test_colorbar_wrong_figure():
     im = fig_cl.add_subplot().imshow([[0, 1]])
     # Make sure this doesn't try to setup a gridspec-controlled colorbar on fig_cl,
     # which would crash CL.
-    fig_tl.colorbar(im)
+    with pytest.warns(UserWarning, match="different Figure"):
+        fig_tl.colorbar(im)
     fig_tl.draw_without_rendering()
     fig_cl.draw_without_rendering()
+
+
+def test_colorbar_format_string_and_old():
+    plt.imshow([[0, 1]])
+    cb = plt.colorbar(format="{x}%")
+    assert isinstance(cb._formatter, StrMethodFormatter)

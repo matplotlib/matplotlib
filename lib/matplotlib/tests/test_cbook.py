@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import itertools
+import pathlib
 import pickle
+import sys
 
 from typing import Any
 from unittest.mock import patch, Mock
@@ -15,7 +17,8 @@ import pytest
 
 from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
-from matplotlib.cbook import delete_masked_points
+from matplotlib.cbook import delete_masked_points, strip_math
+from types import ModuleType
 
 
 class Test_delete_masked_points:
@@ -178,6 +181,15 @@ class Test_boxplot_stats:
         assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
 
+class Hashable:
+    def dummy(self): pass
+
+
+class Unhashable:
+    __hash__ = None  # type: ignore[assignment]
+    def dummy(self): pass
+
+
 class Test_callback_registry:
     def setup_method(self):
         self.signal = 'test'
@@ -193,40 +205,48 @@ class Test_callback_registry:
         return self.callbacks.disconnect(cid)
 
     def count(self):
-        count1 = len(self.callbacks._func_cid_map.get(self.signal, []))
+        count1 = sum(s == self.signal for s, p in self.callbacks._func_cid_map)
         count2 = len(self.callbacks.callbacks.get(self.signal))
         assert count1 == count2
         return count1
 
     def is_empty(self):
         np.testing.break_cycles()
-        assert self.callbacks._func_cid_map == {}
+        assert [*self.callbacks._func_cid_map] == []
         assert self.callbacks.callbacks == {}
         assert self.callbacks._pickled_cids == set()
 
     def is_not_empty(self):
         np.testing.break_cycles()
-        assert self.callbacks._func_cid_map != {}
+        assert [*self.callbacks._func_cid_map] != []
         assert self.callbacks.callbacks != {}
 
+    def test_cid_restore(self):
+        cb = cbook.CallbackRegistry()
+        cb.connect('a', lambda: None)
+        cb2 = pickle.loads(pickle.dumps(cb))
+        cid = cb2.connect('c', lambda: None)
+        assert cid == 1
+
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_callback_complete(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_complete(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # create a class for testing
-        mini_me = Test_callback_registry()
+        mini_me = cls()
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         # test that we don't add a second callback
         cid2 = self.connect(self.signal, mini_me.dummy, pickle)
         assert cid1 == cid2
         self.is_not_empty()
-        assert len(self.callbacks._func_cid_map) == 1
+        assert len([*self.callbacks._func_cid_map]) == 1
         assert len(self.callbacks.callbacks) == 1
 
         del mini_me
@@ -235,16 +255,17 @@ class Test_callback_registry:
         self.is_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_callback_disconnect(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # create a class for testing
-        mini_me = Test_callback_registry()
+        mini_me = cls()
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         self.disconnect(cid1)
@@ -253,16 +274,17 @@ class Test_callback_registry:
         self.is_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_callback_wrong_disconnect(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_wrong_disconnect(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # create a class for testing
-        mini_me = Test_callback_registry()
+        mini_me = cls()
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         self.disconnect("foo")
@@ -271,20 +293,21 @@ class Test_callback_registry:
         self.is_not_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_registration_on_non_empty_registry(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_registration_on_non_empty_registry(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # setup the registry with a callback
-        mini_me = Test_callback_registry()
+        mini_me = cls()
         self.connect(self.signal, mini_me.dummy, pickle)
 
         # Add another callback
-        mini_me2 = Test_callback_registry()
+        mini_me2 = cls()
         self.connect(self.signal, mini_me2.dummy, pickle)
 
         # Remove and add the second callback
-        mini_me2 = Test_callback_registry()
+        mini_me2 = cls()
         self.connect(self.signal, mini_me2.dummy, pickle)
 
         # We still have 2 references
@@ -295,9 +318,6 @@ class Test_callback_registry:
         mini_me = None
         mini_me2 = None
         self.is_empty()
-
-    def dummy(self):
-        pass
 
     def test_pickling(self):
         assert hasattr(pickle.loads(pickle.dumps(cbook.CallbackRegistry())),
@@ -443,6 +463,23 @@ def test_sanitize_sequence():
     assert k == cbook.sanitize_sequence(k)
 
 
+def test_resize_sequence():
+    a_list = [1, 2, 3]
+    arr = np.array([1, 2, 3])
+
+    # already same length: passthrough
+    assert cbook._resize_sequence(a_list, 3) is a_list
+    assert cbook._resize_sequence(arr, 3) is arr
+
+    # shortening
+    assert cbook._resize_sequence(a_list, 2) == [1, 2]
+    assert_array_equal(cbook._resize_sequence(arr, 2), [1, 2])
+
+    # extending
+    assert cbook._resize_sequence(a_list, 5) == [1, 2, 3, 1, 2]
+    assert_array_equal(cbook._resize_sequence(arr, 5), [1, 2, 3, 1, 2])
+
+
 fail_mapping: tuple[tuple[dict, dict], ...] = (
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
@@ -457,8 +494,7 @@ pass_mapping: tuple[tuple[Any, dict, dict], ...] = (
 
 @pytest.mark.parametrize('inp, kwargs_to_norm', fail_mapping)
 def test_normalize_kwargs_fail(inp, kwargs_to_norm):
-    with pytest.raises(TypeError), \
-         _api.suppress_matplotlib_deprecation_warning():
+    with pytest.raises(TypeError), _api.suppress_matplotlib_deprecation_warning():
         cbook.normalize_kwargs(inp, **kwargs_to_norm)
 
 
@@ -468,6 +504,22 @@ def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
     with _api.suppress_matplotlib_deprecation_warning():
         # No other warning should be emitted.
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
+
+
+def test_warn_external(recwarn):
+    _api.warn_external("oops")
+    assert len(recwarn) == 1
+    if sys.version_info[:2] >= (3, 12):
+        # With Python 3.12, we let Python figure out the stacklevel using the
+        # `skip_file_prefixes` argument, which cannot exempt tests, so just confirm
+        # the filename is not in the package.
+        basedir = pathlib.Path(__file__).parents[2]
+        assert not recwarn[0].filename.startswith((str(basedir / 'matplotlib'),
+                                                   str(basedir / 'mpl_toolkits')))
+    else:
+        # On older Python versions, we manually calculated the stacklevel, and had an
+        # exception for our own tests.
+        assert recwarn[0].filename == __file__
 
 
 def test_warn_external_frame_embedded_python():
@@ -776,12 +828,6 @@ def test_safe_first_element_pandas_series(pd):
     assert actual == 0
 
 
-def test_warn_external(recwarn):
-    _api.warn_external("oops")
-    assert len(recwarn) == 1
-    assert recwarn[0].filename == __file__
-
-
 def test_array_patch_perimeters():
     # This compares the old implementation as a reference for the
     # vectorized one.
@@ -790,8 +836,8 @@ def test_array_patch_perimeters():
         row_inds = [*range(0, rows-1, rstride), rows-1]
         col_inds = [*range(0, cols-1, cstride), cols-1]
         polys = []
-        for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
-            for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
+        for rs, rs_next in itertools.pairwise(row_inds):
+            for cs, cs_next in itertools.pairwise(col_inds):
                 # +1 ensures we share edges between polygons
                 ps = cbook._array_perimeter(x[rs:rs_next+1, cs:cs_next+1]).T
                 polys.append(ps)
@@ -911,6 +957,12 @@ def test_safe_first_element_with_none():
     assert actual is not None and actual == datetime_lst[1]
 
 
+def test_strip_math():
+    assert strip_math(r'1 \times 2') == r'1 \times 2'
+    assert strip_math(r'$1 \times 2$') == '1 x 2'
+    assert strip_math(r'$\rm{hi}$') == 'hi'
+
+
 @pytest.mark.parametrize('fmt, value, result', [
     ('%.2f m', 0.2, '0.20 m'),
     ('{:.2f} m', 0.2, '0.20 m'),
@@ -925,3 +977,87 @@ def test_auto_format_str(fmt, value, result):
     """Apply *value* to the format string *fmt*."""
     assert cbook._auto_format_str(fmt, value) == result
     assert cbook._auto_format_str(fmt, np.float64(value)) == result
+
+
+def test_unpack_to_numpy_from_torch():
+    """
+    Test that torch tensors are converted to NumPy arrays.
+
+    We don't want to create a dependency on torch in the test suite, so we mock it.
+    """
+    class Tensor:
+        def __init__(self, data):
+            self.data = data
+
+        def __array__(self):
+            return self.data
+
+    torch = ModuleType('torch')
+    torch.Tensor = Tensor
+    sys.modules['torch'] = torch
+
+    data = np.arange(10)
+    torch_tensor = torch.Tensor(data)
+
+    result = cbook._unpack_to_numpy(torch_tensor)
+    # compare results, do not check for identity: the latter would fail
+    # if not mocked, and the implementation does not guarantee it
+    # is the same Python object, just the same values.
+    assert_array_equal(result, data)
+
+
+def test_unpack_to_numpy_from_jax():
+    """
+    Test that jax arrays are converted to NumPy arrays.
+
+    We don't want to create a dependency on jax in the test suite, so we mock it.
+    """
+    class Array:
+        def __init__(self, data):
+            self.data = data
+
+        def __array__(self):
+            return self.data
+
+    jax = ModuleType('jax')
+    jax.Array = Array
+
+    sys.modules['jax'] = jax
+
+    data = np.arange(10)
+    jax_array = jax.Array(data)
+
+    result = cbook._unpack_to_numpy(jax_array)
+    # compare results, do not check for identity: the latter would fail
+    # if not mocked, and the implementation does not guarantee it
+    # is the same Python object, just the same values.
+    assert_array_equal(result, data)
+
+
+def test_unpack_to_numpy_from_tensorflow():
+    """
+    Test that tensorflow arrays are converted to NumPy arrays.
+
+    We don't want to create a dependency on tensorflow in the test suite, so we mock it.
+    """
+    class Tensor:
+        def __init__(self, data):
+            self.data = data
+
+        def __array__(self):
+            return self.data
+
+    tensorflow = ModuleType('tensorflow')
+    tensorflow.is_tensor = lambda x: isinstance(x, Tensor)
+    tensorflow.Tensor = Tensor
+
+    sys.modules['tensorflow'] = tensorflow
+
+    data = np.arange(10)
+    tf_tensor = tensorflow.Tensor(data)
+
+    result = cbook._unpack_to_numpy(tf_tensor)
+    # compare results, do not check for identity: the latter would fail
+    # if not mocked, and the implementation does not guarantee it
+    # is the same Python object, just the same values.
+    assert_array_equal(result, data)

@@ -26,7 +26,7 @@ def test_getattr(module_name):
     """
     try:
         module = import_module(module_name)
-    except (ImportError, RuntimeError) as e:
+    except (ImportError, RuntimeError, OSError) as e:
         # Skip modules that cannot be imported due to missing dependencies
         pytest.skip(f'Cannot import {module_name} due to {e}')
 

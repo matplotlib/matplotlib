@@ -129,7 +129,7 @@ class Path:
         vertices = _to_unmasked_float_array(vertices)
         _api.check_shape((None, 2), vertices=vertices)
 
-        if codes is not None:
+        if codes is not None and len(vertices):
             codes = np.asarray(codes, self.code_type)
             if codes.ndim != 1 or len(codes) != len(vertices):
                 raise ValueError("'codes' must be a 1D list or array with the "
@@ -457,6 +457,16 @@ class Path:
                 raise ValueError(f"Invalid Path.code_type: {code}")
             prev_vert = verts[-2:]
 
+    def _iter_connected_components(self):
+        """Return subpaths split at MOVETOs."""
+        if self.codes is None:
+            yield self
+        else:
+            idxs = np.append((self.codes == Path.MOVETO).nonzero()[0], len(self.codes))
+            for sl in map(slice, idxs, idxs[1:]):
+                yield Path._fast_from_codes_and_verts(
+                    self.vertices[sl], self.codes[sl], self)
+
     def cleaned(self, transform=None, remove_nans=False, clip=None,
                 *, simplify=False, curves=False,
                 stroke_width=1.0, snap=False, sketch=None):
@@ -686,6 +696,9 @@ class Path:
         If *width* and *height* are both non-zero then the lines will
         be simplified so that vertices outside of (0, 0), (width,
         height) will be clipped.
+
+        The resulting polygons will be simplified if the
+        :attr:`Path.should_simplify` attribute of the path is `True`.
 
         If *closed_only* is `True` (default), only closed polygons,
         with the last point being the same as the first point, will be
@@ -1053,6 +1066,7 @@ def get_path_collection_extents(
         Global transformation applied to all paths.
     paths : list of `Path`
     transforms : list of `~matplotlib.transforms.Affine2DBase`
+        If non-empty, this overrides *master_transform*.
     offsets : (N, 2) array-like
     offset_transform : `~matplotlib.transforms.Affine2DBase`
         Transform applied to the offsets before offsetting the path.
@@ -1072,10 +1086,7 @@ def get_path_collection_extents(
     if len(paths) == 0:
         raise ValueError("No paths provided")
     if len(offsets) == 0:
-        _api.warn_deprecated(
-            "3.8", message="Calling get_path_collection_extents() with an"
-            " empty offsets list is deprecated since %(since)s. Support will"
-            " be removed %(removal)s.")
+        raise ValueError("No offsets provided")
     extents, minpos = _path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
         offsets, offset_transform)

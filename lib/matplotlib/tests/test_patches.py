@@ -1,6 +1,8 @@
 """
 Tests specific to the patches module.
 """
+import platform
+
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
@@ -14,9 +16,6 @@ import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
     path as mpath, transforms as mtransforms, rcParams)
-
-import sys
-on_win = (sys.platform == 'win32')
 
 
 def test_Polygon_close():
@@ -102,6 +101,57 @@ def test_corner_center():
     corners_rot = t.transform(corners)
     ellipse.set_angle(theta)
     assert_almost_equal(ellipse.get_corners(), corners_rot)
+
+
+def test_ellipse_vertices():
+    # expect 0 for 0 ellipse width, height
+    ellipse = Ellipse(xy=(0, 0), width=0, height=0, angle=0)
+    assert_almost_equal(
+        ellipse.get_vertices(),
+        [(0.0, 0.0), (0.0, 0.0)],
+    )
+    assert_almost_equal(
+        ellipse.get_co_vertices(),
+        [(0.0, 0.0), (0.0, 0.0)],
+    )
+
+    ellipse = Ellipse(xy=(0, 0), width=2, height=1, angle=30)
+    assert_almost_equal(
+        ellipse.get_vertices(),
+        [
+            (
+                ellipse.center[0] + ellipse.width / 4 * np.sqrt(3),
+                ellipse.center[1] + ellipse.width / 4,
+            ),
+            (
+                ellipse.center[0] - ellipse.width / 4 * np.sqrt(3),
+                ellipse.center[1] - ellipse.width / 4,
+            ),
+        ],
+    )
+    assert_almost_equal(
+        ellipse.get_co_vertices(),
+        [
+            (
+                ellipse.center[0] - ellipse.height / 4,
+                ellipse.center[1] + ellipse.height / 4 * np.sqrt(3),
+            ),
+            (
+                ellipse.center[0] + ellipse.height / 4,
+                ellipse.center[1] - ellipse.height / 4 * np.sqrt(3),
+            ),
+        ],
+    )
+    v1, v2 = np.array(ellipse.get_vertices())
+    np.testing.assert_almost_equal((v1 + v2) / 2, ellipse.center)
+    v1, v2 = np.array(ellipse.get_co_vertices())
+    np.testing.assert_almost_equal((v1 + v2) / 2, ellipse.center)
+
+    ellipse = Ellipse(xy=(2.252, -10.859), width=2.265, height=1.98, angle=68.78)
+    v1, v2 = np.array(ellipse.get_vertices())
+    np.testing.assert_almost_equal((v1 + v2) / 2, ellipse.center)
+    v1, v2 = np.array(ellipse.get_co_vertices())
+    np.testing.assert_almost_equal((v1 + v2) / 2, ellipse.center)
 
 
 def test_rotate_rect():
@@ -246,8 +296,8 @@ def test_patch_alpha_coloring():
                                edgecolor=(0, 0, 1, 0.75))
     ax.add_patch(patch)
 
-    ax.set_xlim([-1, 2])
-    ax.set_ylim([-1, 2])
+    ax.set_xlim(-1, 2)
+    ax.set_ylim(-1, 2)
 
 
 @image_comparison(['patch_alpha_override'], remove_text=True)
@@ -278,8 +328,8 @@ def test_patch_alpha_override():
                                edgecolor=(0, 0, 1, 0.75))
     ax.add_patch(patch)
 
-    ax.set_xlim([-1, 2])
-    ax.set_ylim([-1, 2])
+    ax.set_xlim(-1, 2)
+    ax.set_ylim(-1, 2)
 
 
 @mpl.style.context('default')
@@ -315,8 +365,8 @@ def test_patch_custom_linestyle():
         facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
     ax.add_patch(patch)
 
-    ax.set_xlim([-1, 2])
-    ax.set_ylim([-1, 2])
+    ax.set_xlim(-1, 2)
+    ax.set_ylim(-1, 2)
 
 
 def test_patch_linestyle_accents():
@@ -387,8 +437,8 @@ def test_wedge_movement():
         assert getattr(w, attr) == new_v
 
 
-# png needs tol>=0.06, pdf tol>=1.617
-@image_comparison(['wedge_range'], remove_text=True, tol=1.65 if on_win else 0)
+@image_comparison(['wedge_range'], remove_text=True,
+                  tol=0.009 if platform.machine() == 'arm64' else 0)
 def test_wedge_range():
     ax = plt.axes()
 
@@ -413,8 +463,8 @@ def test_wedge_range():
 
         ax.add_artist(wedge)
 
-    ax.set_xlim([-2, 8])
-    ax.set_ylim([-2, 9])
+    ax.set_xlim(-2, 8)
+    ax.set_ylim(-2, 9)
 
 
 def test_patch_str():
@@ -513,7 +563,8 @@ def test_units_rectangle():
     ax.set_ylim([5*U.km, 9*U.km])
 
 
-@image_comparison(['connection_patch.png'], style='mpl20', remove_text=True)
+@image_comparison(['connection_patch.png'], style='mpl20', remove_text=True,
+                  tol=0.024 if platform.machine() == 'arm64' else 0)
 def test_connection_patch():
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
@@ -552,6 +603,28 @@ def test_connection_patch_fig(fig_test, fig_ref):
         xyA=(.3, .2), coordsA="data", axesA=ax1,
         xyB=(bb.width - 30, bb.height - 20), coordsB="figure pixels",
         arrowstyle="->", shrinkB=5)
+    fig_ref.add_artist(con)
+
+
+@check_figures_equal(extensions=["png"])
+def test_connection_patch_pixel_points(fig_test, fig_ref):
+    xyA_pts = (.3, .2)
+    xyB_pts = (-30, -20)
+
+    ax1, ax2 = fig_test.subplots(1, 2)
+    con = mpatches.ConnectionPatch(xyA=xyA_pts, coordsA="axes points", axesA=ax1,
+                                   xyB=xyB_pts, coordsB="figure points",
+                                   arrowstyle="->", shrinkB=5)
+    fig_test.add_artist(con)
+
+    plt.rcParams["savefig.dpi"] = plt.rcParams["figure.dpi"]
+
+    ax1, ax2 = fig_ref.subplots(1, 2)
+    xyA_pix = (xyA_pts[0]*(fig_ref.dpi/72), xyA_pts[1]*(fig_ref.dpi/72))
+    xyB_pix = (xyB_pts[0]*(fig_ref.dpi/72), xyB_pts[1]*(fig_ref.dpi/72))
+    con = mpatches.ConnectionPatch(xyA=xyA_pix, coordsA="axes pixels", axesA=ax1,
+                                   xyB=xyB_pix, coordsB="figure pixels",
+                                   arrowstyle="->", shrinkB=5)
     fig_ref.add_artist(con)
 
 
@@ -880,3 +953,116 @@ def test_modifying_arc(fig_test, fig_ref):
     fig_test.subplots().add_patch(arc2)
     arc2.set_width(.5)
     arc2.set_angle(20)
+
+
+def test_arrow_set_data():
+    fig, ax = plt.subplots()
+    arrow = mpl.patches.Arrow(2, 0, 0, 10)
+    expected1 = np.array(
+       [[1.9,  0.],
+        [2.1, -0.],
+        [2.1, 8.],
+        [2.3, 8.],
+        [2., 10.],
+        [1.7, 8.],
+        [1.9, 8.],
+        [1.9, 0.]]
+    )
+    assert np.allclose(expected1, np.round(arrow.get_verts(), 2))
+
+    expected2 = np.array(
+        [[0.39, 0.04],
+         [0.61, -0.04],
+         [3.01, 6.36],
+         [3.24, 6.27],
+         [3.5, 8.],
+         [2.56, 6.53],
+         [2.79, 6.44],
+         [0.39, 0.04]]
+    )
+    arrow.set_data(x=.5, dx=3, dy=8, width=1.2)
+    assert np.allclose(expected2, np.round(arrow.get_verts(), 2))
+
+
+@check_figures_equal(extensions=["png", "pdf", "svg", "eps"])
+def test_set_and_get_hatch_linewidth(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_ref = fig_ref.add_subplot()
+
+    lw = 2.0
+
+    with plt.rc_context({"hatch.linewidth": lw}):
+        ax_ref.add_patch(mpatches.Rectangle((0, 0), 1, 1, hatch="x"))
+
+    ax_test.add_patch(mpatches.Rectangle((0, 0), 1, 1, hatch="x"))
+    ax_test.patches[0].set_hatch_linewidth(lw)
+
+    assert ax_ref.patches[0].get_hatch_linewidth() == lw
+    assert ax_test.patches[0].get_hatch_linewidth() == lw
+
+
+def test_patch_hatchcolor_inherit_logic():
+    with mpl.rc_context({'hatch.color': 'edge'}):
+        # Test for when edgecolor and hatchcolor is set
+        rect = Rectangle((0, 0), 1, 1, hatch='//', ec='red',
+                         hatchcolor='yellow')
+        assert mcolors.same_color(rect.get_edgecolor(), 'red')
+        assert mcolors.same_color(rect.get_hatchcolor(), 'yellow')
+
+        # Test for explicitly setting edgecolor and then hatchcolor
+        rect = Rectangle((0, 0), 1, 1, hatch='//')
+        rect.set_edgecolor('orange')
+        assert mcolors.same_color(rect.get_hatchcolor(), 'orange')
+        rect.set_hatchcolor('cyan')
+        assert mcolors.same_color(rect.get_hatchcolor(), 'cyan')
+
+        # Test for explicitly setting hatchcolor and then edgecolor
+        rect = Rectangle((0, 0), 1, 1, hatch='//')
+        rect.set_hatchcolor('purple')
+        assert mcolors.same_color(rect.get_hatchcolor(), 'purple')
+        rect.set_edgecolor('green')
+        assert mcolors.same_color(rect.get_hatchcolor(), 'purple')
+
+    # Smoke test for setting with numpy array
+    rect.set_hatchcolor(np.ones(3))
+
+
+def test_patch_hatchcolor_fallback_logic():
+    # Test for when hatchcolor parameter is passed
+    rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='green')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'green')
+
+    # Test that hatchcolor parameter takes precedence over rcParam
+    # When edgecolor is not set
+    with mpl.rc_context({'hatch.color': 'blue'}):
+        rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='green')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'green')
+    # When edgecolor is set
+    with mpl.rc_context({'hatch.color': 'yellow'}):
+        rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='green', edgecolor='red')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'green')
+
+    # Test that hatchcolor is not overridden by edgecolor when
+    # hatchcolor parameter is not passed and hatch.color rcParam is set to a color
+    # When edgecolor is not set
+    with mpl.rc_context({'hatch.color': 'blue'}):
+        rect = Rectangle((0, 0), 1, 1, hatch='//')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'blue')
+    # When edgecolor is set
+    with mpl.rc_context({'hatch.color': 'blue'}):
+        rect = Rectangle((0, 0), 1, 1, hatch='//', edgecolor='red')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'blue')
+
+    # Test that hatchcolor matches edgecolor when
+    # hatchcolor parameter is not passed and hatch.color rcParam is set to 'edge'
+    with mpl.rc_context({'hatch.color': 'edge'}):
+        rect = Rectangle((0, 0), 1, 1, hatch='//', edgecolor='red')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'red')
+    # hatchcolor parameter is set to 'edge'
+    rect = Rectangle((0, 0), 1, 1, hatch='//', hatchcolor='edge', edgecolor='orange')
+    assert mcolors.same_color(rect.get_hatchcolor(), 'orange')
+
+    # Test for default hatchcolor when hatchcolor parameter is not passed and
+    # hatch.color rcParam is set to 'edge' and edgecolor is not set
+    rect = Rectangle((0, 0), 1, 1, hatch='//')
+    assert mcolors.same_color(rect.get_hatchcolor(), mpl.rcParams['patch.edgecolor'])

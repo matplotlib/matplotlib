@@ -52,7 +52,7 @@ class Legend(Artist):
     def __init__(
         self,
         parent: Axes | Figure,
-        handles: Iterable[Artist],
+        handles: Iterable[Artist | tuple[Artist, ...]],
         labels: Iterable[str],
         *,
         loc: str | tuple[float, float] | int | None = ...,
@@ -78,7 +78,7 @@ class Legend(Artist):
         ncols: int = ...,
         mode: Literal["expand"] | None = ...,
         fancybox: bool | None = ...,
-        shadow: bool | None = ...,
+        shadow: bool | dict[str, Any] | None = ...,
         title: str | None = ...,
         title_fontsize: float | None = ...,
         framealpha: float | None = ...,
@@ -118,6 +118,7 @@ class Legend(Artist):
     def get_texts(self) -> list[Text]: ...
     def set_alignment(self, alignment: Literal["center", "left", "right"]) -> None: ...
     def get_alignment(self) -> Literal["center", "left", "right"]: ...
+    def set_loc(self, loc: str | tuple[float, float] | int | None = ...) -> None: ...
     def set_title(
         self, title: str, prop: FontProperties | str | pathlib.Path | None = ...
     ) -> None: ...
@@ -127,7 +128,12 @@ class Legend(Artist):
     draw_frame = set_frame_on
     def get_bbox_to_anchor(self) -> BboxBase: ...
     def set_bbox_to_anchor(
-        self, bbox: BboxBase, transform: Transform | None = ...
+        self,
+        bbox: BboxBase
+        | tuple[float, float]
+        | tuple[float, float, float, float]
+        | None,
+        transform: Transform | None = ...
     ) -> None: ...
     @overload
     def set_draggable(
@@ -144,5 +150,3 @@ class Legend(Artist):
         update: Literal["loc", "bbox"] = ...,
     ) -> None: ...
     def get_draggable(self) -> bool: ...
-    @property
-    def legendHandles(self) -> list[Artist | None]: ...

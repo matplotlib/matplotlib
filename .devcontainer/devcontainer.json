@@ -1,0 +1,38 @@
+{
+  "hostRequirements": {
+    "memory": "8gb",
+    "cpus": 4
+  },
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/desktop-lite:1": {},
+    "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+      "packages": "inkscape,ffmpeg,dvipng,lmodern,cm-super,texlive-latex-base,texlive-latex-extra,texlive-fonts-recommended,texlive-latex-recommended,texlive-pictures,texlive-xetex,fonts-wqy-zenhei,graphviz,fonts-crosextra-carlito,fonts-freefont-otf,fonts-comic-neue,fonts-noto-cjk,optipng"
+    }
+  },
+  "onCreateCommand": ".devcontainer/setup.sh",
+  "postCreateCommand": "",
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "desktop"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "yy0931.mplstyle",
+        "eamodio.gitlens",
+        "ms-vscode.live-server"
+      ],
+      "settings": {}
+    },
+    "codespaces": {
+      "openFiles": [
+        "README.md",
+        "doc/devel/codespaces.md"
+      ]
+    }
+  }
+}

@@ -113,31 +113,31 @@ Implementation
 1. Create base ``Controller`` objects that are able to manage
    ``Artist`` objects (e.g., ``Hist``)
 
-    Comments:
+   Comments:
 
-    * initialization should happen via unpacking ``**``, so we need a
-      copy of call signature parameter for the ``Artist`` we're
-      ultimately trying to control. Unfortunate hard-coded
-      repetition...
-    * should the additional ``**kwargs`` accepted by each ``Artist``
-      be tracked at the ``Controller``
-    * how does a ``Controller`` know which artist belongs where? E.g.,
-      do we need to pass ``axes`` references?
+   * initialization should happen via unpacking ``**``, so we need a
+     copy of call signature parameter for the ``Artist`` we're
+     ultimately trying to control. Unfortunate hard-coded
+     repetition...
+   * should the additional ``**kwargs`` accepted by each ``Artist``
+     be tracked at the ``Controller``
+   * how does a ``Controller`` know which artist belongs where? E.g.,
+     do we need to pass ``axes`` references?
 
-    Progress:
+   Progress:
 
-    * A simple NB demonstrating some functionality for
-      ``Line2DController`` objects:
-      https://nbviewer.jupyter.org/gist/theengineear/f0aa8d79f64325e767c0
+   * A simple NB demonstrating some functionality for
+     ``Line2DController`` objects:
+     https://nbviewer.jupyter.org/gist/theengineear/f0aa8d79f64325e767c0
 
 2. Write in protocols for the ``Controller`` to *update* the model.
 
-    Comments:
+   Comments:
 
-    * how should containers be dealt with? E.g., what happens to old
-      patches when we re-bin a histogram?
-    * in the link from (1), the old line is completely destroyed and
-      redrawn, what if something is referencing it?
+   * how should containers be dealt with? E.g., what happens to old
+     patches when we re-bin a histogram?
+   * in the link from (1), the old line is completely destroyed and
+     redrawn, what if something is referencing it?
 
 3. Create method by which a json object can be assembled from the
    ``Controllers``

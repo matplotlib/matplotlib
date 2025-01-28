@@ -11,14 +11,14 @@ from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
 
 
-def test_pyplot_up_to_date(tmpdir):
+def test_pyplot_up_to_date(tmp_path):
     pytest.importorskip("black")
 
     gen_script = Path(mpl.__file__).parents[2] / "tools/boilerplate.py"
     if not gen_script.exists():
         pytest.skip("boilerplate.py not found")
     orig_contents = Path(plt.__file__).read_text()
-    plt_file = tmpdir.join('pyplot.py')
+    plt_file = tmp_path / 'pyplot.py'
     plt_file.write_text(orig_contents, 'utf-8')
 
     subprocess_run_for_testing(
@@ -43,8 +43,8 @@ def test_pyplot_up_to_date(tmpdir):
 
 
 def test_copy_docstring_and_deprecators(recwarn):
-    @mpl._api.rename_parameter("(version)", "old", "new")
-    @mpl._api.make_keyword_only("(version)", "kwo")
+    @mpl._api.rename_parameter(mpl.__version__, "old", "new")
+    @mpl._api.make_keyword_only(mpl.__version__, "kwo")
     def func(new, kwo=None):
         pass
 
@@ -163,8 +163,9 @@ def test_close():
     try:
         plt.close(1.1)
     except TypeError as e:
-        assert str(e) == "close() argument must be a Figure, an int, " \
-                         "a string, or None, not <class 'float'>"
+        assert str(e) == (
+            "'fig' must be an instance of matplotlib.figure.Figure, int, str "
+            "or None, not a float")
 
 
 def test_subplot_reuse():
@@ -440,7 +441,7 @@ def test_switch_backend_no_close():
     plt.switch_backend('agg')
     assert len(plt.get_fignums()) == 2
     plt.switch_backend('svg')
-    assert len(plt.get_fignums()) == 0
+    assert len(plt.get_fignums()) == 2
 
 
 def figure_hook_example(figure):
@@ -456,3 +457,22 @@ def test_figure_hook():
         fig = plt.figure()
 
     assert fig._test_was_here
+
+
+def test_multiple_same_figure_calls():
+    fig = mpl.pyplot.figure(1, figsize=(1, 2))
+    with pytest.warns(UserWarning, match="Ignoring specified arguments in this call"):
+        fig2 = mpl.pyplot.figure(1, figsize=(3, 4))
+    with pytest.warns(UserWarning, match="Ignoring specified arguments in this call"):
+        mpl.pyplot.figure(fig, figsize=(5, 6))
+    assert fig is fig2
+    fig3 = mpl.pyplot.figure(1)  # Checks for false warnings
+    assert fig is fig3
+
+
+def test_close_all_warning():
+    fig1 = plt.figure()
+
+    # Check that the warning is issued when 'all' is passed to plt.figure
+    with pytest.warns(UserWarning, match="closes all existing figures"):
+        fig2 = plt.figure("all")

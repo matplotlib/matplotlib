@@ -1,7 +1,7 @@
 """
-=================
-Mathtext Examples
-=================
+========================
+Mathematical expressions
+========================
 
 Selected features of Matplotlib's math rendering engine.
 """

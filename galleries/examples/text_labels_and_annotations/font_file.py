@@ -1,7 +1,7 @@
 r"""
-===================================
-Using a ttf font file in Matplotlib
-===================================
+====================
+Using ttf font files
+====================
 
 Although it is usually not a good idea to explicitly point to a single ttf file
 for a font instance, you can do so by passing a `pathlib.Path` instance as the

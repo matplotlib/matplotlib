@@ -1,7 +1,7 @@
 """
-==================
-Embedding in wx #4
-==================
+==============
+Embed in wx #4
+==============
 
 An example of how to use wxagg in a wx application with a custom toolbar.
 """
@@ -28,7 +28,7 @@ class MyNavigationToolbar(NavigationToolbar):
         self.Bind(wx.EVT_TOOL, self._on_custom, id=tool.GetId())
 
     def _on_custom(self, event):
-        # add some text to the axes in a random location in axes coords with a
+        # add some text to the Axes in a random location in axes coords with a
         # random color
         ax = self.canvas.figure.axes[0]
         x, y = np.random.rand(2)  # generate a random location

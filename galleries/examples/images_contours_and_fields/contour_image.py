@@ -1,6 +1,6 @@
 """
 =============
-Contour Image
+Contour image
 =============
 
 Test combinations of contouring, filled contouring, and image plotting.
@@ -35,7 +35,7 @@ Z = (Z1 - Z2) * 2
 levels = np.arange(-2.0, 1.601, 0.4)
 
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
-cmap = cm.PRGn
+cmap = plt.colormaps["PRGn"]
 
 fig, _axs = plt.subplots(nrows=2, ncols=2)
 fig.subplots_adjust(hspace=0.3)
@@ -56,9 +56,7 @@ cset2 = axs[0].contour(X, Y, Z, cset1.levels, colors='k')
 
 # We don't really need dashed contour lines to indicate negative
 # regions, so let's turn them off.
-
-for c in cset2.collections:
-    c.set_linestyle('solid')
+cset2.set_linestyle('solid')
 
 # It is easier here to make a separate call to contour than
 # to set up an array of colors and linewidths.

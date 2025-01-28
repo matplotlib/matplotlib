@@ -1,21 +1,7 @@
-.. _users-guide-explain:
-.. _users-guide-using:
+..
+    This page is required by sphinx-gallery,
+    but is not rendered in the final doc build.
 
-.. redirect-from:: /users/explain
-
-Using Matplotlib
-----------------
-
-.. toctree::
-    :maxdepth: 1
-
-    quick_start
-    figure/index
-    axes/index
-    artists/index
-    customizing
-    axis/index
-    colors/index
-    text/index
-    animations/index
-    toolkits/index
+====================
+User guide tutorials
+====================

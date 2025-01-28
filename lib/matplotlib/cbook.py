@@ -23,8 +23,36 @@ import weakref
 
 import numpy as np
 
+try:
+    from numpy.exceptions import VisibleDeprecationWarning  # numpy >= 1.25
+except ImportError:
+    from numpy import VisibleDeprecationWarning
+
 import matplotlib
 from matplotlib import _api, _c_internal_utils
+
+
+class _ExceptionInfo:
+    """
+    A class to carry exception information around.
+
+    This is used to store and later raise exceptions. It's an alternative to
+    directly storing Exception instances that circumvents traceback-related
+    issues: caching tracebacks can keep user's objects in local namespaces
+    alive indefinitely, which can lead to very surprising memory issues for
+    users and result in incorrect tracebacks.
+    """
+
+    def __init__(self, cls, *args):
+        self._cls = cls
+        self._args = args
+
+    @classmethod
+    def from_exception(cls, exc):
+        return cls(type(exc), *exc.args)
+
+    def to_exception(self):
+        return self._cls(*self._args)
 
 
 def _get_running_interactive_framework():
@@ -67,7 +95,7 @@ def _get_running_interactive_framework():
                 if frame.f_code in codes:
                     return "tk"
                 frame = frame.f_back
-        # premetively break reference cycle between locals and the frame
+        # Preemptively break reference cycle between locals and the frame.
         del frame
     macosx = sys.modules.get("matplotlib.backends._macosx")
     if macosx and macosx.event_loop_is_running():
@@ -110,6 +138,61 @@ def _weak_or_strong_ref(func, callback):
         return weakref.WeakMethod(func, callback)
     except TypeError:
         return _StrongRef(func)
+
+
+class _UnhashDict:
+    """
+    A minimal dict-like class that also supports unhashable keys, storing them
+    in a list of key-value pairs.
+
+    This class only implements the interface needed for `CallbackRegistry`, and
+    tries to minimize the overhead for the hashable case.
+    """
+
+    def __init__(self, pairs):
+        self._dict = {}
+        self._pairs = []
+        for k, v in pairs:
+            self[k] = v
+
+    def __setitem__(self, key, value):
+        try:
+            self._dict[key] = value
+        except TypeError:
+            for i, (k, v) in enumerate(self._pairs):
+                if k == key:
+                    self._pairs[i] = (key, value)
+                    break
+            else:
+                self._pairs.append((key, value))
+
+    def __getitem__(self, key):
+        try:
+            return self._dict[key]
+        except TypeError:
+            pass
+        for k, v in self._pairs:
+            if k == key:
+                return v
+        raise KeyError(key)
+
+    def pop(self, key, *args):
+        try:
+            if key in self._dict:
+                return self._dict.pop(key)
+        except TypeError:
+            for i, (k, v) in enumerate(self._pairs):
+                if k == key:
+                    del self._pairs[i]
+                    return v
+        if args:
+            return args[0]
+        raise KeyError(key)
+
+    def __iter__(self):
+        yield from self._dict
+        for k, v in self._pairs:
+            yield k
 
 
 class CallbackRegistry:
@@ -171,14 +254,14 @@ class CallbackRegistry:
 
     # We maintain two mappings:
     #   callbacks: signal -> {cid -> weakref-to-callback}
-    #   _func_cid_map: signal -> {weakref-to-callback -> cid}
+    #   _func_cid_map: {(signal, weakref-to-callback) -> cid}
 
     def __init__(self, exception_handler=_exception_printer, *, signals=None):
         self._signals = None if signals is None else list(signals)  # Copy it.
         self.exception_handler = exception_handler
         self.callbacks = {}
         self._cid_gen = itertools.count()
-        self._func_cid_map = {}
+        self._func_cid_map = _UnhashDict([])
         # A hidden variable that marks cids that need to be pickled.
         self._pickled_cids = set()
 
@@ -192,31 +275,32 @@ class CallbackRegistry:
                           for s, d in self.callbacks.items()},
             # It is simpler to reconstruct this from callbacks in __setstate__.
             "_func_cid_map": None,
+            "_cid_gen": next(self._cid_gen)
         }
 
     def __setstate__(self, state):
+        cid_count = state.pop('_cid_gen')
         vars(self).update(state)
         self.callbacks = {
-            s: {cid: _weak_or_strong_ref(func, self._remove_proxy)
+            s: {cid: _weak_or_strong_ref(func, functools.partial(self._remove_proxy, s))
                 for cid, func in d.items()}
             for s, d in self.callbacks.items()}
-        self._func_cid_map = {
-            s: {proxy: cid for cid, proxy in d.items()}
-            for s, d in self.callbacks.items()}
+        self._func_cid_map = _UnhashDict(
+            ((s, proxy), cid)
+            for s, d in self.callbacks.items() for cid, proxy in d.items())
+        self._cid_gen = itertools.count(cid_count)
 
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=signal)
-        self._func_cid_map.setdefault(signal, {})
-        proxy = _weak_or_strong_ref(func, self._remove_proxy)
-        if proxy in self._func_cid_map[signal]:
-            return self._func_cid_map[signal][proxy]
-        cid = next(self._cid_gen)
-        self._func_cid_map[signal][proxy] = cid
-        self.callbacks.setdefault(signal, {})
-        self.callbacks[signal][cid] = proxy
-        return cid
+        proxy = _weak_or_strong_ref(func, functools.partial(self._remove_proxy, signal))
+        try:
+            return self._func_cid_map[signal, proxy]
+        except KeyError:
+            cid = self._func_cid_map[signal, proxy] = next(self._cid_gen)
+            self.callbacks.setdefault(signal, {})[cid] = proxy
+            return cid
 
     def _connect_picklable(self, signal, func):
         """
@@ -230,23 +314,18 @@ class CallbackRegistry:
 
     # Keep a reference to sys.is_finalizing, as sys may have been cleared out
     # at that point.
-    def _remove_proxy(self, proxy, *, _is_finalizing=sys.is_finalizing):
+    def _remove_proxy(self, signal, proxy, *, _is_finalizing=sys.is_finalizing):
         if _is_finalizing():
             # Weakrefs can't be properly torn down at that point anymore.
             return
-        for signal, proxy_to_cid in list(self._func_cid_map.items()):
-            cid = proxy_to_cid.pop(proxy, None)
-            if cid is not None:
-                del self.callbacks[signal][cid]
-                self._pickled_cids.discard(cid)
-                break
-        else:
-            # Not found
+        cid = self._func_cid_map.pop((signal, proxy), None)
+        if cid is not None:
+            del self.callbacks[signal][cid]
+            self._pickled_cids.discard(cid)
+        else:  # Not found
             return
-        # Clean up empty dicts
-        if len(self.callbacks[signal]) == 0:
+        if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
-            del self._func_cid_map[signal]
 
     def disconnect(self, cid):
         """
@@ -255,24 +334,16 @@ class CallbackRegistry:
         No error is raised if such a callback does not exist.
         """
         self._pickled_cids.discard(cid)
-        # Clean up callbacks
-        for signal, cid_to_proxy in list(self.callbacks.items()):
-            proxy = cid_to_proxy.pop(cid, None)
-            if proxy is not None:
+        for signal, proxy in self._func_cid_map:
+            if self._func_cid_map[signal, proxy] == cid:
                 break
-        else:
-            # Not found
+        else:  # Not found
             return
-
-        proxy_to_cid = self._func_cid_map[signal]
-        for current_proxy, current_cid in list(proxy_to_cid.items()):
-            if current_cid == cid:
-                assert proxy is current_proxy
-                del proxy_to_cid[current_proxy]
-        # Clean up empty dicts
-        if len(self.callbacks[signal]) == 0:
+        assert self.callbacks[signal][cid] == proxy
+        del self.callbacks[signal][cid]
+        self._func_cid_map.pop((signal, proxy))
+        if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
-            del self._func_cid_map[signal]
 
     def process(self, s, *args, **kwargs):
         """
@@ -283,7 +354,7 @@ class CallbackRegistry:
         """
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=s)
-        for cid, ref in list(self.callbacks.get(s, {}).items()):
+        for ref in list(self.callbacks.get(s, {}).values()):
             func = ref()
             if func is not None:
                 try:
@@ -495,9 +566,7 @@ def is_scalar_or_string(val):
     return isinstance(val, str) or not np.iterable(val)
 
 
-@_api.delete_parameter(
-    "3.8", "np_load", alternative="open(get_sample_data(..., asfileobj=False))")
-def get_sample_data(fname, asfileobj=True, *, np_load=True):
+def get_sample_data(fname, asfileobj=True):
     """
     Return a sample data file.  *fname* is a path relative to the
     :file:`mpl-data/sample_data` directory.  If *asfileobj* is `True`
@@ -516,10 +585,7 @@ def get_sample_data(fname, asfileobj=True, *, np_load=True):
         if suffix == '.gz':
             return gzip.open(path)
         elif suffix in ['.npy', '.npz']:
-            if np_load:
-                return np.load(path)
-            else:
-                return path.open('rb')
+            return np.load(path)
         elif suffix in ['.csv', '.xrc', '.txt']:
             return path.open('r')
         else:
@@ -549,9 +615,9 @@ def flatten(seq, scalarp=is_scalar_or_string):
         ['John', 'Hunter', 1, 23, 42, 5, 23]
 
     By: Composite of Holger Krekel and Luther Blissett
-    From: https://code.activestate.com/recipes/121294/
+    From: https://code.activestate.com/recipes/121294-simple-generator-for-flattening-nested-containers/
     and Recipe 1.12 in cookbook
-    """
+    """  # noqa: E501
     for item in seq:
         if scalarp(item) or item is None:
             yield item
@@ -559,23 +625,25 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
-class Stack:
+class _Stack:
     """
     Stack of elements with a movable cursor.
 
     Mimics home/back/forward in a web browser.
     """
 
-    def __init__(self, default=None):
-        self.clear()
-        self._default = default
+    def __init__(self):
+        self._pos = -1
+        self._elements = []
+
+    def clear(self):
+        """Empty the stack."""
+        self._pos = -1
+        self._elements = []
 
     def __call__(self):
         """Return the current element, or None."""
-        if not self._elements:
-            return self._default
-        else:
-            return self._elements[self._pos]
+        return self._elements[self._pos] if self._elements else None
 
     def __len__(self):
         return len(self._elements)
@@ -590,19 +658,18 @@ class Stack:
 
     def back(self):
         """Move the position back and return the current element."""
-        if self._pos > 0:
-            self._pos -= 1
+        self._pos = max(self._pos - 1, 0)
         return self()
 
     def push(self, o):
         """
-        Push *o* to the stack at current position.  Discard all later elements.
+        Push *o* to the stack after the current position, and return *o*.
 
-        *o* is returned.
+        Discard all later elements.
         """
-        self._elements = self._elements[:self._pos + 1] + [o]
+        self._elements[self._pos + 1:] = [o]
         self._pos = len(self._elements) - 1
-        return self()
+        return o
 
     def home(self):
         """
@@ -610,59 +677,7 @@ class Stack:
 
         The first element is returned.
         """
-        if not self._elements:
-            return
-        self.push(self._elements[0])
-        return self()
-
-    def empty(self):
-        """Return whether the stack is empty."""
-        return len(self._elements) == 0
-
-    def clear(self):
-        """Empty the stack."""
-        self._pos = -1
-        self._elements = []
-
-    def bubble(self, o):
-        """
-        Raise all references of *o* to the top of the stack, and return it.
-
-        Raises
-        ------
-        ValueError
-            If *o* is not in the stack.
-        """
-        if o not in self._elements:
-            raise ValueError('Given element not contained in the stack')
-        old_elements = self._elements.copy()
-        self.clear()
-        top_elements = []
-        for elem in old_elements:
-            if elem == o:
-                top_elements.append(elem)
-            else:
-                self.push(elem)
-        for _ in top_elements:
-            self.push(o)
-        return o
-
-    def remove(self, o):
-        """
-        Remove *o* from the stack.
-
-        Raises
-        ------
-        ValueError
-            If *o* is not in the stack.
-        """
-        if o not in self._elements:
-            raise ValueError('Given element not contained in the stack')
-        old_elements = self._elements.copy()
-        self.clear()
-        for elem in old_elements:
-            if elem != o:
-                self.push(elem)
+        return self.push(self._elements[0]) if self._elements else None
 
 
 def safe_masked_invalid(x, copy=False):
@@ -670,10 +685,10 @@ def safe_masked_invalid(x, copy=False):
     if not x.dtype.isnative:
         # If we have already made a copy, do the byteswap in place, else make a
         # copy with the byte order swapped.
-        x = x.byteswap(inplace=copy).newbyteorder('N')  # Swap to native order.
+        # Swap to native order.
+        x = x.byteswap(inplace=copy).view(x.dtype.newbyteorder('N'))
     try:
-        xm = np.ma.masked_invalid(x, copy=False)
-        xm.shrink_mask()
+        xm = np.ma.masked_where(~(np.isfinite(x)), x, copy=False)
     except TypeError:
         return x
     return xm
@@ -785,12 +800,18 @@ class Grouper:
     def __init__(self, init=()):
         self._mapping = weakref.WeakKeyDictionary(
             {x: weakref.WeakSet([x]) for x in init})
+        self._ordering = weakref.WeakKeyDictionary()
+        for x in init:
+            if x not in self._ordering:
+                self._ordering[x] = len(self._ordering)
+        self._next_order = len(self._ordering)  # Plain int to simplify pickling.
 
     def __getstate__(self):
         return {
             **vars(self),
             # Convert weak refs to strong ones.
             "_mapping": {k: set(v) for k, v in self._mapping.items()},
+            "_ordering": {**self._ordering},
         }
 
     def __setstate__(self, state):
@@ -798,23 +819,29 @@ class Grouper:
         # Convert strong refs to weak ones.
         self._mapping = weakref.WeakKeyDictionary(
             {k: weakref.WeakSet(v) for k, v in self._mapping.items()})
+        self._ordering = weakref.WeakKeyDictionary(self._ordering)
 
     def __contains__(self, item):
         return item in self._mapping
-
-    @_api.deprecated("3.8", alternative="none, you no longer need to clean a Grouper")
-    def clean(self):
-        """Clean dead weak references from the dictionary."""
 
     def join(self, a, *args):
         """
         Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
-        set_a = mapping.setdefault(a, weakref.WeakSet([a]))
-
+        try:
+            set_a = mapping[a]
+        except KeyError:
+            set_a = mapping[a] = weakref.WeakSet([a])
+            self._ordering[a] = self._next_order
+            self._next_order += 1
         for arg in args:
-            set_b = mapping.get(arg, weakref.WeakSet([arg]))
+            try:
+                set_b = mapping[arg]
+            except KeyError:
+                set_b = mapping[arg] = weakref.WeakSet([arg])
+                self._ordering[arg] = self._next_order
+                self._next_order += 1
             if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
@@ -828,9 +855,8 @@ class Grouper:
 
     def remove(self, a):
         """Remove *a* from the grouper, doing nothing if it is not there."""
-        set_a = self._mapping.pop(a, None)
-        if set_a:
-            set_a.remove(a)
+        self._mapping.pop(a, {a}).remove(a)
+        self._ordering.pop(a, None)
 
     def __iter__(self):
         """
@@ -840,12 +866,12 @@ class Grouper:
         """
         unique_groups = {id(group): group for group in self._mapping.values()}
         for group in unique_groups.values():
-            yield [x for x in group]
+            yield sorted(group, key=self._ordering.__getitem__)
 
     def get_siblings(self, a):
         """Return all of the items joined with *a*, including itself."""
         siblings = self._mapping.get(a, [a])
-        return [x for x in siblings]
+        return sorted(siblings, key=self._ordering.get)
 
 
 class GrouperView:
@@ -1006,7 +1032,7 @@ def _combine_masks(*args):
                 raise ValueError("Masked arrays must be 1-D")
             try:
                 x = np.asanyarray(x)
-            except (np.VisibleDeprecationWarning, ValueError):
+            except (VisibleDeprecationWarning, ValueError):
                 # NumPy 1.19 raises a warning about ragged arrays, but we want
                 # to accept basically anything here.
                 x = np.asanyarray(x, dtype=object)
@@ -1024,8 +1050,45 @@ def _combine_masks(*args):
     return margs
 
 
-def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
-                  autorange=False):
+def _broadcast_with_masks(*args, compress=False):
+    """
+    Broadcast inputs, combining all masked arrays.
+
+    Parameters
+    ----------
+    *args : array-like
+        The inputs to broadcast.
+    compress : bool, default: False
+        Whether to compress the masked arrays. If False, the masked values
+        are replaced by NaNs.
+
+    Returns
+    -------
+    list of array-like
+        The broadcasted and masked inputs.
+    """
+    # extract the masks, if any
+    masks = [k.mask for k in args if isinstance(k, np.ma.MaskedArray)]
+    # broadcast to match the shape
+    bcast = np.broadcast_arrays(*args, *masks)
+    inputs = bcast[:len(args)]
+    masks = bcast[len(args):]
+    if masks:
+        # combine the masks into one
+        mask = np.logical_or.reduce(masks)
+        # put mask on and compress
+        if compress:
+            inputs = [np.ma.array(k, mask=mask).compressed()
+                      for k in inputs]
+        else:
+            inputs = [np.ma.array(k, mask=mask, dtype=float).filled(np.nan).ravel()
+                      for k in inputs]
+    else:
+        inputs = [np.ravel(k) for k in inputs]
+    return inputs
+
+
+def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
     r"""
     Return a list of dictionaries of statistics used to draw a series of box
     and whisker plots using `~.Axes.bxp`.
@@ -1059,7 +1122,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Number of times the confidence intervals around the median
         should be bootstrapped (percentile method).
 
-    labels : array-like, optional
+    labels : list of str, optional
         Labels for each dataset. Length must be compatible with
         dimensions of *X*.
 
@@ -1172,7 +1235,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             continue
 
         # up-convert to an array, just to be safe
-        x = np.asarray(x)
+        x = np.ma.asarray(x)
+        x = x.data[~x.mask].ravel()
 
         # arithmetic mean
         stats['mean'] = np.mean(x)
@@ -1600,7 +1664,7 @@ def index_of(y):
         pass
     try:
         y = _check_1d(y)
-    except (np.VisibleDeprecationWarning, ValueError):
+    except (VisibleDeprecationWarning, ValueError):
         # NumPy 1.19 will warn on ragged input, and we can't actually use it.
         pass
     else:
@@ -1615,13 +1679,23 @@ def safe_first_element(obj):
     This is a type-independent way of obtaining the first element,
     supporting both index access and the iterator protocol.
     """
-    return _safe_first_finite(obj, skip_nonfinite=False)
+    if isinstance(obj, collections.abc.Iterator):
+        # needed to accept `array.flat` as input.
+        # np.flatiter reports as an instance of collections.Iterator but can still be
+        # indexed via []. This has the side effect of re-setting the iterator, but
+        # that is acceptable.
+        try:
+            return obj[0]
+        except TypeError:
+            pass
+        raise RuntimeError("matplotlib does not support generators as input")
+    return next(iter(obj))
 
 
-def _safe_first_finite(obj, *, skip_nonfinite=True):
+def _safe_first_finite(obj):
     """
     Return the first finite element in *obj* if one is available and skip_nonfinite is
-    True. Otherwise return the first element.
+    True. Otherwise, return the first element.
 
     This is a method for internal use.
 
@@ -1632,33 +1706,29 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         if val is None:
             return False
         try:
+            return math.isfinite(val)
+        except (TypeError, ValueError):
+            # if the outer object is 2d, then val is a 1d array, and
+            # - math.isfinite(numpy.zeros(3)) raises TypeError
+            # - math.isfinite(torch.zeros(3)) raises ValueError
+            pass
+        try:
             return np.isfinite(val) if np.isscalar(val) else True
         except TypeError:
             # This is something that NumPy cannot make heads or tails of,
             # assume "finite"
             return True
-    if skip_nonfinite is False:
-        if isinstance(obj, collections.abc.Iterator):
-            # needed to accept `array.flat` as input.
-            # np.flatiter reports as an instance of collections.Iterator
-            # but can still be indexed via [].
-            # This has the side effect of re-setting the iterator, but
-            # that is acceptable.
-            try:
-                return obj[0]
-            except TypeError:
-                pass
-            raise RuntimeError("matplotlib does not support generators "
-                               "as input")
-        return next(iter(obj))
-    elif isinstance(obj, np.flatiter):
+
+    if isinstance(obj, np.flatiter):
         # TODO do the finite filtering on this
         return obj[0]
     elif isinstance(obj, collections.abc.Iterator):
-        raise RuntimeError("matplotlib does not "
-                           "support generators as input")
+        raise RuntimeError("matplotlib does not support generators as input")
     else:
-        return next((val for val in obj if safe_isfinite(val)), safe_first_element(obj))
+        for val in obj:
+            if safe_isfinite(val):
+                return val
+        return safe_first_element(obj)
 
 
 def sanitize_sequence(data):
@@ -1667,6 +1737,26 @@ def sanitize_sequence(data):
     """
     return (list(data) if isinstance(data, collections.abc.MappingView)
             else data)
+
+
+def _resize_sequence(seq, N):
+    """
+    Trim the given sequence to exactly N elements.
+
+    If there are more elements in the sequence, cut it.
+    If there are less elements in the sequence, repeat them.
+
+    Implementation detail: We maintain type stability for the output for
+    N <= len(seq). We simply return a list for N > len(seq); this was good
+    enough for the present use cases but is not a fixed design decision.
+    """
+    num_elements = len(seq)
+    if N == num_elements:
+        return seq
+    elif N < num_elements:
+        return seq[:N]
+    else:
+        return list(itertools.islice(itertools.cycle(seq), N))
 
 
 def normalize_kwargs(kw, alias_mapping=None):
@@ -1703,7 +1793,7 @@ def normalize_kwargs(kw, alias_mapping=None):
 
     # deal with default value of alias_mapping
     if alias_mapping is None:
-        alias_mapping = dict()
+        alias_mapping = {}
     elif (isinstance(alias_mapping, type) and issubclass(alias_mapping, Artist)
           or isinstance(alias_mapping, Artist)):
         alias_mapping = getattr(alias_mapping, "_alias_map", {})
@@ -2101,15 +2191,6 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     return proc.stdout
 
 
-def _backend_module_name(name):
-    """
-    Convert a backend name (either a standard backend -- "Agg", "TkAgg", ... --
-    or a custom backend -- "module://...") to the corresponding module name).
-    """
-    return (name[9:] if name.startswith("module://")
-            else f"matplotlib.backends.backend_{name.lower()}")
-
-
 def _setup_new_guiapp():
     """
     Perform OS-dependent setup when Matplotlib creates a new GUI application.
@@ -2138,6 +2219,10 @@ def _g_sig_digits(value, delta):
     it is known with an error of *delta*.
     """
     if delta == 0:
+        if value == 0:
+            # if both value and delta are 0, np.spacing below returns 5e-324
+            # which results in rather silly results
+            return 3
         # delta = 0 may occur when trying to format values over a tiny range;
         # in that case, replace it by the distance to the closest float.
         delta = abs(np.spacing(value))
@@ -2235,6 +2320,45 @@ def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
     return cls.__new__(cls)
 
 
+def _is_torch_array(x):
+    """Check if 'x' is a PyTorch Tensor."""
+    try:
+        # we're intentionally not attempting to import torch. If somebody
+        # has created a torch array, torch should already be in sys.modules
+        return isinstance(x, sys.modules['torch'].Tensor)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
+
+
+def _is_jax_array(x):
+    """Check if 'x' is a JAX Array."""
+    try:
+        # we're intentionally not attempting to import jax. If somebody
+        # has created a jax array, jax should already be in sys.modules
+        return isinstance(x, sys.modules['jax'].Array)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
+
+
+def _is_tensorflow_array(x):
+    """Check if 'x' is a TensorFlow Tensor or Variable."""
+    try:
+        # we're intentionally not attempting to import TensorFlow. If somebody
+        # has created a TensorFlow array, TensorFlow should already be in sys.modules
+        # we use `is_tensor` to not depend on the class structure of TensorFlow
+        # arrays, as `tf.Variables` are not instances of `tf.Tensor`
+        # (they both convert the same way)
+        return isinstance(x, sys.modules['tensorflow'].is_tensor(x))
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False
+
+
 def _unpack_to_numpy(x):
     """Internal helper to extract data from e.g. pandas and xarray objects."""
     if isinstance(x, np.ndarray):
@@ -2247,6 +2371,16 @@ def _unpack_to_numpy(x):
         xtmp = x.values
         # For example a dict has a 'values' attribute, but it is not a property
         # so in this case we do not want to return a function
+        if isinstance(xtmp, np.ndarray):
+            return xtmp
+    if _is_torch_array(x) or _is_jax_array(x) or _is_tensorflow_array(x):
+        # using np.asarray() instead of explicitly __array__(), as the latter is
+        # only _one_ of many methods, and it's the last resort, see also
+        # https://numpy.org/devdocs/user/basics.interoperability.html#using-arbitrary-objects-in-numpy
+        # therefore, let arrays do better if they can
+        xtmp = np.asarray(x)
+
+        # In case np.asarray method does not return a numpy array in future
         if isinstance(xtmp, np.ndarray):
             return xtmp
     return x
@@ -2277,3 +2411,15 @@ def _auto_format_str(fmt, value):
         return fmt % (value,)
     except (TypeError, ValueError):
         return fmt.format(value)
+
+
+def _is_pandas_dataframe(x):
+    """Check if 'x' is a Pandas DataFrame."""
+    try:
+        # we're intentionally not attempting to import Pandas. If somebody
+        # has created a Pandas DataFrame, Pandas should already be in sys.modules
+        return isinstance(x, sys.modules['pandas'].DataFrame)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False

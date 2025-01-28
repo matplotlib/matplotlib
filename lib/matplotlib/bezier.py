@@ -54,7 +54,7 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     # rhs_inverse
     a_, b_ = d, -b
     c_, d_ = -c, a
-    a_, b_, c_, d_ = [k / ad_bc for k in [a_, b_, c_, d_]]
+    a_, b_, c_, d_ = (k / ad_bc for k in [a_, b_, c_, d_])
 
     x = a_ * line1_rhs + b_ * line2_rhs
     y = c_ * line1_rhs + d_ * line2_rhs
@@ -171,9 +171,17 @@ def find_bezier_t_intersecting_with_closedpath(
 
         if start_inside ^ middle_inside:
             t1 = middle_t
+            if end == middle:
+                # Edge case where infinite loop is possible
+                # Caused by large numbers relative to tolerance
+                return t0, t1
             end = middle
         else:
             t0 = middle_t
+            if start == middle:
+                # Edge case where infinite loop is possible
+                # Caused by large numbers relative to tolerance
+                return t0, t1
             start = middle
             start_inside = middle_inside
 

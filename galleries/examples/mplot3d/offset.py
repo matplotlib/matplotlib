@@ -29,3 +29,10 @@ ax.set_zlabel("Z label")
 ax.set_zlim(0, 2)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    component: label,
+#    interactivity: pan,
+#    level: beginner

@@ -24,15 +24,15 @@ more finely tuned with the new `~.set_constrained_layout_pads`.
 
 Features include:
 
-  - Automatic spacing for subplots with a fixed-size padding in inches around
-    subplots and all their decorators, and space between as a fraction
-    of subplot size between subplots.
-  - Spacing for `~.Figure.suptitle`, and colorbars that are attached to
-    more than one axes.
-  - Nested `~.GridSpec` layouts using `~.GridSpecFromSubplotSpec`.
+- Automatic spacing for subplots with a fixed-size padding in inches around
+  subplots and all their decorators, and space between as a fraction
+  of subplot size between subplots.
+- Spacing for `~.Figure.suptitle`, and colorbars that are attached to
+  more than one axes.
+- Nested `~.GridSpec` layouts using `~.GridSpecFromSubplotSpec`.
 
-  For more details and capabilities please see the new tutorial:
-  :ref:`constrainedlayout_guide`
+For more details and capabilities please see the new tutorial:
+:ref:`constrainedlayout_guide`
 
 Note the new API to access this:
 
@@ -300,7 +300,7 @@ Added support for QT in new ToolManager
 ---------------------------------------
 
 Now it is possible to use the ToolManager with Qt5
-For example
+For example::
 
   import matplotlib
 

@@ -1,15 +1,29 @@
 """
+.. _custom_scale:
+
 ============
 Custom scale
 ============
 
-Create a custom scale, by implementing the scaling use for latitude data in a
-Mercator Projection.
+Custom scales can be created in two ways
 
-Unless you are making special use of the `.Transform` class, you probably
-don't need to use this verbose method, and instead can use `~.scale.FuncScale`
-and the ``'function'`` option of `~.Axes.set_xscale` and `~.Axes.set_yscale`.
-See the last example in :doc:`/gallery/scales/scales`.
+#. For simple cases, use `~.scale.FuncScale` and the ``'function'`` option of
+   `~.Axes.set_xscale` and `~.Axes.set_yscale`.  See the last example in
+   :doc:`/gallery/scales/scales`.
+
+#. Create a custom scale class such as the one in this example, which implements
+   the scaling use for latitude data in a Mercator Projection.  This more complicated
+   approach is useful when
+
+   * You are making special use of the `.Transform` class, such as the special
+     handling of values beyond the threshold in ``MercatorLatitudeTransform``
+     below.
+
+   * You want to override the default locators and formatters for the axis
+     (``set_default_locators_and_formatters`` below).
+
+   * You want to limit the range of the the axis (``limit_range_for_scale`` below).
+
 """
 
 import numpy as np

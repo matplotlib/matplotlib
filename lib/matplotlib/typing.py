@@ -9,55 +9,74 @@ downstream libraries.
     The ``typing`` module and type stub files are considered provisional and may change
     at any time without a deprecation period.
 """
-from collections.abc import Sequence
+from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Hashable, Literal, Union
+from typing import Any, Callable, Literal, TypeAlias, TypeVar, Union
 
 from . import path
 from ._enums import JoinStyle, CapStyle
+from .artist import Artist
+from .backend_bases import RendererBase
 from .markers import MarkerStyle
+from .transforms import Bbox, Transform
 
-# The following are type aliases. Once python 3.9 is dropped, they should be annotated
-# using ``typing.TypeAlias`` and Unions should be converted to using ``|`` syntax.
-
-RGBColorType = Union[tuple[float, float, float], str]
-RGBAColorType = Union[
-    str,  # "none" or "#RRGGBBAA"/"#RGBA" hex strings
-    tuple[float, float, float, float],
+RGBColorType: TypeAlias = tuple[float, float, float] | str
+RGBAColorType: TypeAlias = (
+    str |  # "none" or "#RRGGBBAA"/"#RGBA" hex strings
+    tuple[float, float, float, float] |
     # 2 tuple (color, alpha) representations, not infinitely recursive
     # RGBColorType includes the (str, float) tuple, even for RGBA strings
-    tuple[RGBColorType, float],
+    tuple[RGBColorType, float] |
     # (4-tuple, float) is odd, but accepted as the outer float overriding A of 4-tuple
     tuple[tuple[float, float, float, float], float]
-]
+)
 
-ColorType = Union[RGBColorType, RGBAColorType]
+ColorType: TypeAlias = RGBColorType | RGBAColorType
 
-RGBColourType = RGBColorType
-RGBAColourType = RGBAColorType
-ColourType = ColorType
+RGBColourType: TypeAlias = RGBColorType
+RGBAColourType: TypeAlias = RGBAColorType
+ColourType: TypeAlias = ColorType
 
-LineStyleType = Union[str, tuple[float, Sequence[float]]]
-DrawStyleType = Literal["default", "steps", "steps-pre", "steps-mid", "steps-post"]
-MarkEveryType = Union[
-    None,
-    int,
-    tuple[int, int],
-    slice,
-    list[int],
-    float,
-    tuple[float, float],
+LineStyleType: TypeAlias = (
+    Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",
+            "", "none", " ", "None"] |
+    tuple[float, Sequence[float]]
+)
+DrawStyleType: TypeAlias = Literal["default", "steps", "steps-pre", "steps-mid",
+                                   "steps-post"]
+MarkEveryType: TypeAlias = (
+    None |
+    int | tuple[int, int] | slice | list[int] |
+    float | tuple[float, float] |
     list[bool]
+)
+
+MarkerType: TypeAlias = str | path.Path | MarkerStyle
+FillStyleType: TypeAlias = Literal["full", "left", "right", "bottom", "top", "none"]
+JoinStyleType: TypeAlias = JoinStyle | Literal["miter", "round", "bevel"]
+CapStyleType: TypeAlias = CapStyle | Literal["butt", "projecting", "round"]
+
+CoordsBaseType = Union[
+    str,
+    Artist,
+    Transform,
+    Callable[
+        [RendererBase],
+        Union[Bbox, Transform]
+    ]
+]
+CoordsType = Union[
+    CoordsBaseType,
+    tuple[CoordsBaseType, CoordsBaseType]
 ]
 
-MarkerType = Union[str, path.Path, MarkerStyle]
-FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]
-JoinStyleType = Union[JoinStyle, Literal["miter", "round", "bevel"]]
-CapStyleType = Union[CapStyle, Literal["butt", "projecting", "round"]]
+RcStyleType: TypeAlias = (
+    str |
+    dict[str, Any] |
+    pathlib.Path |
+    Sequence[str | pathlib.Path | dict[str, Any]]
+)
 
-RcStyleType = Union[
-    str, dict[str, Any], pathlib.Path, list[Union[str, pathlib.Path, dict[str, Any]]]
-]
-
-HashableList = list[Union[Hashable, "HashableList"]]
+_HT = TypeVar("_HT", bound=Hashable)
+HashableList: TypeAlias = list[_HT | "HashableList[_HT]"]
 """A nested list of Hashable values."""

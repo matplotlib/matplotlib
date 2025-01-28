@@ -1,0 +1,7 @@
+``violinplot`` and ``violin`` *vert* parameter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The parameter *vert: bool* has been deprecated on `~.Axes.violinplot` and
+`~.Axes.violin`.
+It will be replaced by *orientation: {"vertical", "horizontal"}* for API
+consistency.

@@ -171,14 +171,13 @@ class AxislineStyle(_Style):
             ----------
             size : float
                 Size of the arrow as a fraction of the ticklabel size.
-            facecolor : color, default: :rc:`axes.edgecolor`
+            facecolor : :mpltype:`color`, default: :rc:`axes.edgecolor`
                 Fill color.
 
                 .. versionadded:: 3.7
             """
 
-            if facecolor is None:
-                facecolor = mpl.rcParams['axes.edgecolor']
+            facecolor = mpl._val_or_rc(facecolor, 'axes.edgecolor')
             self.size = size
             self._facecolor = facecolor
             super().__init__(size=size)

@@ -70,6 +70,12 @@ Matplotlib recognizes the following formats to specify a color.
 +--------------------------------------+--------------------------------------+
 | Tuple of one of the above color      | - ``('green', 0.3)``                 |
 | formats and an alpha float.          | - ``('#f00', 0.9)``                  |
+|                                      |                                      |
+| .. versionadded:: 3.8                |                                      |
++--------------------------------------+--------------------------------------+
+| The special value "none" is fully    | - ``'none'``                         |
+| transparent, i.e. equivalent to a    |                                      |
+| RGBA value ``(0.0, 0.0, 0.0, 0.0)``  |                                      |
 +--------------------------------------+--------------------------------------+
 
 .. _xkcd color survey: https://xkcd.com/color/rgb/

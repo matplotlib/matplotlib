@@ -6,6 +6,7 @@ import pytest
 
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal
 
 
 def draw_quiver(ax, **kwargs):
@@ -267,6 +268,62 @@ def test_quiverkey_angles():
     assert len(qk.verts) == 1
 
 
+def test_quiverkey_angles_xy_aitoff():
+    # GH 26316 and GH 26748
+    # Test that only one arrow will be plotted with non-cartesian
+    # when angles='xy' and/or scale_units='xy'
+
+    # only for test purpose
+    # scale_units='xy' may not be a valid use case for non-cartesian
+    kwargs_list = [
+        {'angles': 'xy'},
+        {'angles': 'xy', 'scale_units': 'xy'},
+        {'scale_units': 'xy'}
+    ]
+
+    for kwargs_dict in kwargs_list:
+
+        x = np.linspace(-np.pi, np.pi, 11)
+        y = np.ones_like(x) * np.pi / 6
+        vx = np.zeros_like(x)
+        vy = np.ones_like(x)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='aitoff')
+        q = ax.quiver(x, y, vx, vy, **kwargs_dict)
+        qk = ax.quiverkey(q, 0, 0, 1, '1 units')
+
+        fig.canvas.draw()
+        assert len(qk.verts) == 1
+
+
+def test_quiverkey_angles_scale_units_cartesian():
+    # GH 26316
+    # Test that only one arrow will be plotted with normal cartesian
+    # when angles='xy' and/or scale_units='xy'
+
+    kwargs_list = [
+        {'angles': 'xy'},
+        {'angles': 'xy', 'scale_units': 'xy'},
+        {'scale_units': 'xy'}
+    ]
+
+    for kwargs_dict in kwargs_list:
+        X = [0, -1, 0]
+        Y = [0, -1, 0]
+        U = [1, -1, 1]
+        V = [1, -1, 0]
+
+        fig, ax = plt.subplots()
+        q = ax.quiver(X, Y, U, V, **kwargs_dict)
+        ax.quiverkey(q, X=0.3, Y=1.1, U=1,
+                     label='Quiver key, length = 1', labelpos='E')
+        qk = ax.quiverkey(q, 0, 0, 1, '1 units')
+
+        fig.canvas.draw()
+        assert len(qk.verts) == 1
+
+
 def test_quiver_setuvc_numbers():
     """Check that it is possible to set all arrow UVC to the same numbers"""
 
@@ -277,3 +334,53 @@ def test_quiver_setuvc_numbers():
 
     q = ax.quiver(X, Y, U, V)
     q.set_UVC(0, 1)
+
+
+def draw_quiverkey_zorder_argument(fig, zorder=None):
+    """Draw Quiver and QuiverKey using zorder argument"""
+    x = np.arange(1, 6, 1)
+    y = np.arange(1, 6, 1)
+    X, Y = np.meshgrid(x, y)
+    U, V = 2, 2
+
+    ax = fig.subplots()
+    q = ax.quiver(X, Y, U, V, pivot='middle')
+    ax.set_xlim(0.5, 5.5)
+    ax.set_ylim(0.5, 5.5)
+    if zorder is None:
+        ax.quiverkey(q, 4, 4, 25, coordinates='data',
+                     label='U', color='blue')
+        ax.quiverkey(q, 5.5, 2, 20, coordinates='data',
+                     label='V', color='blue', angle=90)
+    else:
+        ax.quiverkey(q, 4, 4, 25, coordinates='data',
+                     label='U', color='blue', zorder=zorder)
+        ax.quiverkey(q, 5.5, 2, 20, coordinates='data',
+                     label='V', color='blue', angle=90, zorder=zorder)
+
+
+def draw_quiverkey_setzorder(fig, zorder=None):
+    """Draw Quiver and QuiverKey using set_zorder"""
+    x = np.arange(1, 6, 1)
+    y = np.arange(1, 6, 1)
+    X, Y = np.meshgrid(x, y)
+    U, V = 2, 2
+
+    ax = fig.subplots()
+    q = ax.quiver(X, Y, U, V, pivot='middle')
+    ax.set_xlim(0.5, 5.5)
+    ax.set_ylim(0.5, 5.5)
+    qk1 = ax.quiverkey(q, 4, 4, 25, coordinates='data',
+                       label='U', color='blue')
+    qk2 = ax.quiverkey(q, 5.5, 2, 20, coordinates='data',
+                       label='V', color='blue', angle=90)
+    if zorder is not None:
+        qk1.set_zorder(zorder)
+        qk2.set_zorder(zorder)
+
+
+@pytest.mark.parametrize('zorder', [0, 2, 5, None])
+@check_figures_equal(extensions=['png'])
+def test_quiverkey_zorder(fig_test, fig_ref, zorder):
+    draw_quiverkey_zorder_argument(fig_test, zorder=zorder)
+    draw_quiverkey_setzorder(fig_ref, zorder=zorder)

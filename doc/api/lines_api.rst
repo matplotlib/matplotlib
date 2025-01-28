@@ -17,6 +17,7 @@ Classes
 
    Line2D
    VertexSelector
+   AxLine
 
 Functions
 ---------

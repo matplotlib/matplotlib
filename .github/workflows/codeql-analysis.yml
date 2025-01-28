@@ -22,41 +22,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['cpp', 'javascript', 'python']
+        language: ['c-cpp', 'javascript', 'python']
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        if: matrix.language != 'javascript'
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
-          python-version: '3.x'
-      - name: Install dependencies
-        if: matrix.language != 'javascript'
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          # TODO: Use pip-tools instead when it supports build-system
-          # dependencies so we don't need another copy here.
-          # https://github.com/jazzband/pip-tools/pull/1681
-          python -m pip install --upgrade \
-            certifi contourpy cycler fonttools kiwisolver importlib_resources \
-            numpy packaging pillow pyparsing python-dateutil setuptools-scm \
-            pybind11
-          echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
+          persist-credentials: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c  # v3.28.1
         with:
           languages: ${{ matrix.language }}
-          setup-python-dependencies: false
 
       - name: Build compiled code
-        if: matrix.language == 'cpp'
+        if: matrix.language == 'c-cpp'
         run: |
-          mkdir ~/.cache/matplotlib
-          $CODEQL_PYTHON setup.py build
+          pip install --user --upgrade pip
+          pip install --user -v .
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c  # v3.28.1

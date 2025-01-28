@@ -13,7 +13,6 @@ z axis tick labels.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
@@ -26,7 +25,7 @@ R = np.sqrt(X**2 + Y**2)
 Z = np.sin(R)
 
 # Plot the surface.
-surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
+surf = ax.plot_surface(X, Y, Z, cmap="coolwarm",
                        linewidth=0, antialiased=False)
 
 # Customize the z axis.
@@ -53,3 +52,8 @@ plt.show()
 #    - `matplotlib.axis.Axis.set_major_locator`
 #    - `matplotlib.ticker.LinearLocator`
 #    - `matplotlib.ticker.StrMethodFormatter`
+#
+# .. tags::
+#    plot-type: 3D,
+#    styling: colormap,
+#    level: advanced

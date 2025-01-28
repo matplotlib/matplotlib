@@ -2,6 +2,7 @@
 =======
 hist(x)
 =======
+Compute and plot a histogram.
 
 See `~matplotlib.axes.Axes.hist`.
 """

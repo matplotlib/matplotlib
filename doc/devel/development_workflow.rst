@@ -1,5 +1,8 @@
 .. highlight:: bash
 
+.. redirect-from:: /devel/gitwash/development_workflow
+.. redirect-from:: /devel/gitwash/maintainer_workflow
+
 .. _development-workflow:
 
 ####################
@@ -25,6 +28,30 @@ why you did it, we recommend the following:
   Matplotlib developers can give feedback and eventually include your suggested
   code into the ``main`` branch.
 
+Overview
+--------
+
+After :ref:`setting up a development environment <installing_for_devs>`, the typical
+workflow is:
+
+#. Fetch all changes from ``upstream/main``::
+
+    git fetch upstream/main
+
+#. Start a new *feature branch* from ``upstream/main``::
+
+    git checkout -b my-feature upstream/main
+
+#. When you're done editing, e.g., ``lib/matplotlib/collections.py``, record your changes in Git::
+
+     git add lib/matplotlib/collections.py
+     git commit -m 'a commit message'
+
+#. Push the changes to your GitHub fork::
+
+     git push -u origin my-feature
+
+
 .. _update-mirror-main:
 
 Update the ``main`` branch
@@ -46,16 +73,14 @@ Make a new feature branch
 
 When you are ready to make some changes to the code, you should start a new
 branch.  Branches that are for a collection of related edits are often called
-'feature branches'.
-
-Making a new branch for each set of related changes will make it easier for
-someone reviewing your branch to see what you are doing.
+'feature branches'. Making a new branch for each set of related changes will make it
+easier for someone reviewing your branch to see what you are doing.
 
 Choose an informative name for the branch to remind yourself and the rest of us
 what the changes in the branch are for.  For example ``add-ability-to-fly``, or
 ``bugfix-for-issue-42``.
 
-::
+The process for creating a new feature branch is::
 
     # Update the main branch
     git fetch upstream
@@ -63,41 +88,27 @@ what the changes in the branch are for.  For example ``add-ability-to-fly``, or
     git branch my-new-feature upstream/main
     git checkout my-new-feature
 
+If you started making changes on your local ``main`` branch, you can convert the
+branch to a feature branch by renaming it::
+
+   git branch -m <newname>
+
 Generally, you will want to keep your feature branches on your public GitHub
 fork of Matplotlib.  To do this, you ``git push`` this new branch up to your
-GitHub repo.  Generally (if you followed the instructions in these pages, and by
-default), git will have a link to your fork of the GitHub repo, called
+GitHub repo.  Generally, if you followed the instructions in these pages, and by
+default, git will have a link to your fork of the GitHub repo, called
 ``origin``.  You push up to your own fork with::
 
    git push origin my-new-feature
 
-In git >= 1.7 you can ensure that the link is correctly set by using the
-``--set-upstream`` option::
-
-   git push --set-upstream origin my-new-feature
-
-From now on git will know that ``my-new-feature`` is related to the
-``my-new-feature`` branch in the GitHub repo.
 
 .. _edit-flow:
 
 The editing workflow
 ====================
 
-Overview
---------
-
-::
-
-   # hack hack
-   git add my_new_file
-   git commit -am 'NF - some message'
-   git push
-
-In more detail
---------------
-
 #. Make some changes
+#. Save the changes
 #. See which files have changed with ``git status``.
    You'll see a listing like this one:
 
@@ -118,24 +129,51 @@ In more detail
 
 #. Check what the actual changes are with ``git diff``.
 #. Add any new files to version control ``git add new_file_name``.
-#. To commit all modified files into the local copy of your repo,, do
-   ``git commit -am 'A commit message'``.  Note the ``-am`` options to
-   ``commit``. The ``m`` flag just signals that you're going to type a
-   message on the command line.  The ``a`` flag — you can just take on
-   faith — or see `why the -a flag?`_. The
-   `git commit <https://git-scm.com/docs/git-commit>`_ manual page might also be
-   useful.
+#. To commit **all** modified files into the local copy of your repo, type:
+
+   .. code-block:: bash
+
+      git commit -am 'A commit message'
+
+   Note the ``-am`` options to ``commit``. The ``m`` flag signals that you are
+   going to type a message on the command line.  The ``a`` flag stages every
+   file that has been modified, except files listed in ``.gitignore``. For more
+   information, see the `git commit <https://git-scm.com/docs/git-commit>`_  manual page.
 #. To push the changes up to your forked repo on GitHub, do a ``git
    push``.
 
-.. _why the -a flag?: http://gitready.com/beginner/2009/01/18/the-staging-area.html
 
+Verify your changes
+===================
+
+Check that your change does what you intend.  For code changes:
+
+* If the issue you are working on provided a code example, run that example
+  against your branch and check that you now get the desired result.  Note that
+  adapting the issue example is often a good way to create a new test.
+
+* Run the tests to check that your change has not had unintended consequences
+  on existing functionality.  See :ref:`run_tests`.
+
+For documentation changes, build the documentation locally to check that
+it renders how you intended and that any new links work correctly.  See
+:ref:`build_docs`.
+
+This is also a good time to look through the :ref:`pr-author-guidelines` and
+address as many of the relevant points as you can.
+
+.. _open-pull-request:
 
 Open a pull request
 ===================
 
 When you are ready to ask for someone to review your code and consider a merge,
 `submit your Pull Request (PR) <https://docs.github.com/pull-requests>`_.
+
+Go to the web page of *your fork* of the Matplotlib repo, and click
+``Compare & pull request`` to send your changes to the maintainers for review.
+The base repository is ``matplotlib/matplotlib`` and the base branch is
+generally ``main``.
 
 Enter a title for the set of changes with some explanation of what you've done.
 Mention anything you'd like particular attention for - such as a
@@ -145,8 +183,39 @@ If you don't think your request is ready to be merged, just say so in your pull
 request message and use the "Draft PR" feature of GitHub. This is a good way of
 getting some preliminary code review.
 
-Some other things you might want to do
-======================================
+For more guidance on the mechanics of making a pull request, see GitHub's
+`pull request tutorial <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork>`_.
+
+.. _update-pull-request:
+
+Update a pull request
+=====================
+
+When updating your pull request after making revisions, instead of adding new
+commits, please consider amending your initial commit(s) to keep the commit
+history clean.
+
+You can achieve this by using
+
+.. code-block:: bash
+
+    git commit -a --amend --no-edit
+    git push [your-remote-repo] [your-branch] --force-with-lease
+
+.. tip::
+    Instead of typing your branch name every time, you only need to type the following once to link the remote branch to the local branch::
+
+        git push --set-upstream origin my-new-feature
+
+    From now on git will know that ``my-new-feature`` is related to the
+    ``my-new-feature`` branch in the GitHub repo. After this, you will be able to
+    push your changes with::
+
+        git push
+
+
+Manage commit history
+=====================
 
 Explore your repository
 -----------------------
@@ -163,8 +232,8 @@ To see a linear list of commits for this branch::
 
 .. _recovering-from-mess-up:
 
-Recovering from mess-ups
-------------------------
+Recover from mistakes
+---------------------
 
 Sometimes, you mess up merges or rebases. Luckily, in git it is
 relatively straightforward to recover from such mistakes.
@@ -193,8 +262,8 @@ If you forgot to make a backup branch::
 
 .. _rewriting-commit-history:
 
-Rewriting commit history
-------------------------
+Rewrite commit history
+----------------------
 
 .. note::
 
@@ -285,7 +354,7 @@ to replace your already published commits with the new ones.
 
 .. _rebase-on-main:
 
-Rebasing on ``upstream/main``
+Rebase onto ``upstream/main``
 -----------------------------
 
 Let's say you thought of some work you'd like to do. You
@@ -363,8 +432,8 @@ to replace your already published commits with the new ones.
 .. _force-push:
 
 
-Pushing, with force
--------------------
+Push with force
+---------------
 
 
 If you have in some way re-written already pushed history (e.g. via
@@ -420,3 +489,95 @@ thought it was.
 Be judicious with force-pushing.  It is effectively re-writing published
 history, and if anyone has fetched the old commits, it will have a different view
 of history which can cause confusion.
+
+.. _automated-tests:
+
+Automated tests
+===============
+
+Whenever a pull request is created or updated, various automated test tools
+will run on all supported platforms and versions of Python.
+
+* tox_ is not used in the automated testing. It is supported for testing
+  locally.
+
+  .. _tox: https://tox.readthedocs.io/
+
+* Codecov and CodeQL are currently for information only. Their failure is not
+  necessarily a blocker.
+
+Make sure the Linting, GitHub Actions, AppVeyor, CircleCI, and Azure pipelines are
+passing before merging. All checks are listed at the bottom of the GitHub page of your
+pull request.
+
+.. list-table::
+    :header-rows: 1
+    :stub-columns: 1
+    :widths: 20 20 60
+
+    * - Name
+      - Check
+      - Tips for finding cause of failure
+    * - Linting
+      - :ref:`code style <code-style>`
+      - Errors are displayed as annotations on the pull request diff.
+    * - | Mypy
+        | Stubtest
+      - :ref:`static type hints <type-hints>`
+      - Errors are displayed as annotations on the pull request diff.
+    * - CircleCI
+      - :ref:`documentation build <writing-rest-pages>`
+      - Search the CircleCI log for ``WARNING``.
+    * - | GitHub Actions
+        | AppVeyor
+        | Azure pipelines
+      - :ref:`tests <testing>`
+      - | Search the log for ``FAILURES``. Subsequent section should contain information
+          on failed tests.
+        |
+        | On Azure, find the images as *artifacts* of the Azure job:
+        | 1. Click *Details* on the check on the GitHub PR page.
+        | 2. Click *View more details on Azure Pipelines* to go to Azure.
+        | 3. On the overview page *artifacts* are listed in the section *Related*.
+
+Skip CI checks
+--------------
+
+If you know only a subset of CI checks need to be run, you can skip unneeded CI checks
+on individual commits by including the following strings in the commit message:
+
+.. list-table::
+    :header-rows: 1
+    :stub-columns: 1
+    :widths: 25 20 55
+
+    * - String
+      - Effect
+      - Notes
+    * - ``[ci doc]``
+      - Only run documentation checks.
+      - | For when you have only changed documentation.
+        | ``[ci doc]`` is applied automatically when the changes are only to files in
+          ``doc/**/`` or ``galleries/**/``
+    * - ``[skip doc]``
+      - Skip documentation checks.
+      - For when you didn't change documentation.
+    * - ``[skip appveyor]``
+      - Skip AppVeyor run.
+      - Substring must be in first line of commit message.
+    * - ``[skip azp]``
+      - Skip Azure Pipelines.
+      -
+    * - ``[skip actions]``
+      - Skip GitHub Actions.
+      -
+    * - ``[skip ci]``
+      - Skip all CI checks.
+      - Use only for changes where documentation checks and unit tests do not apply.
+
+
+``[skip actions]`` and ``[skip ci]`` only skip Github Actions CI workflows that are
+triggered on ``on: push`` and ``on: pull_request`` events. For more information,
+see `Skipping workflow runs`_.
+
+.. _`Skipping workflow runs`: https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs

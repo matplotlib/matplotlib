@@ -4,8 +4,10 @@ from unittest.mock import MagicMock
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+import matplotlib.patches as mpatches
 import matplotlib.units as munits
-from matplotlib.category import UnitData
+from matplotlib.category import StrCategoryConverter, UnitData
+from matplotlib.dates import DateConverter
 import numpy as np
 import pytest
 
@@ -79,7 +81,7 @@ def quantity_converter():
 # Tests that the conversion machinery works properly for classes that
 # work as a facade over numpy arrays (like pint)
 @image_comparison(['plot_pint.png'], style='mpl20',
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_numpy_facade(quantity_converter):
     # use former defaults to match existing baseline image
     plt.rcParams['axes.formatter.limits'] = -7, 7
@@ -106,7 +108,7 @@ def test_numpy_facade(quantity_converter):
 
 # Tests gh-8908
 @image_comparison(['plot_masked_units.png'], remove_text=True, style='mpl20',
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_plot_masked_units():
     data = np.linspace(-5, 5)
     data_masked = np.ma.array(data, mask=(data > -2) & (data < 2))
@@ -134,7 +136,7 @@ def test_jpl_bar_units():
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
     x = [0 * units.km, 1 * units.km, 2 * units.km]
     w = [1 * day, 2 * day, 3 * day]
-    b = units.Epoch("ET", dt=datetime(2009, 4, 25))
+    b = units.Epoch("ET", dt=datetime(2009, 4, 26))
     fig, ax = plt.subplots()
     ax.bar(x, w, bottom=b)
     ax.set_ylim([b - 1 * day, b + w[-1] + (1.001) * day])
@@ -149,11 +151,22 @@ def test_jpl_barh_units():
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
     x = [0 * units.km, 1 * units.km, 2 * units.km]
     w = [1 * day, 2 * day, 3 * day]
-    b = units.Epoch("ET", dt=datetime(2009, 4, 25))
+    b = units.Epoch("ET", dt=datetime(2009, 4, 26))
 
     fig, ax = plt.subplots()
     ax.barh(x, w, left=b)
     ax.set_xlim([b - 1 * day, b + w[-1] + (1.001) * day])
+
+
+def test_jpl_datetime_units_consistent():
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    dt = datetime(2009, 4, 26)
+    jpl = units.Epoch("ET", dt=dt)
+    dt_conv = munits.registry.get_converter(dt).convert(dt, None, None)
+    jpl_conv = munits.registry.get_converter(jpl).convert(jpl, None, None)
+    assert dt_conv == jpl_conv
 
 
 def test_empty_arrays():
@@ -225,6 +238,39 @@ def test_shared_axis_categorical():
     assert "c" in ax2.xaxis.get_units()._mapping.keys()
 
 
+def test_explicit_converter():
+    d1 = {"a": 1, "b": 2}
+    str_cat_converter = StrCategoryConverter()
+    str_cat_converter_2 = StrCategoryConverter()
+    date_converter = DateConverter()
+
+    # Explicit is set
+    fig1, ax1 = plt.subplots()
+    ax1.xaxis.set_converter(str_cat_converter)
+    assert ax1.xaxis.get_converter() == str_cat_converter
+    # Explicit not overridden by implicit
+    ax1.plot(d1.keys(), d1.values())
+    assert ax1.xaxis.get_converter() == str_cat_converter
+    # No error when called twice with equivalent input
+    ax1.xaxis.set_converter(str_cat_converter)
+    # Error when explicit called twice
+    with pytest.raises(RuntimeError):
+        ax1.xaxis.set_converter(str_cat_converter_2)
+
+    fig2, ax2 = plt.subplots()
+    ax2.plot(d1.keys(), d1.values())
+
+    # No error when equivalent type is used
+    ax2.xaxis.set_converter(str_cat_converter)
+
+    fig3, ax3 = plt.subplots()
+    ax3.plot(d1.keys(), d1.values())
+
+    # Warn when implicit overridden
+    with pytest.warns():
+        ax3.xaxis.set_converter(date_converter)
+
+
 def test_empty_default_limits(quantity_converter):
     munits.registry[Quantity] = quantity_converter
     fig, ax1 = plt.subplots()
@@ -271,8 +317,16 @@ class Kernel:
     def __init__(self, array):
         self._array = np.asanyarray(array)
 
-    def __array__(self):
-        return self._array
+    def __array__(self, dtype=None, copy=None):
+        if dtype is not None and dtype != self._array.dtype:
+            if copy is not None and not copy:
+                raise ValueError(
+                    f"Converting array from {self._array.dtype} to "
+                    f"{dtype} requires a copy"
+                )
+
+        arr = np.asarray(self._array, dtype=dtype)
+        return (arr if not copy else np.copy(arr))
 
     @property
     def shape(self):
@@ -283,3 +337,17 @@ def test_plot_kernel():
     # just a smoketest that fail
     kernel = Kernel([1, 2, 3, 4, 5])
     plt.plot(kernel)
+
+
+def test_connection_patch_units(pd):
+    # tests that this doesn't raise an error
+    fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(10, 5))
+    x = pd.Timestamp('2017-01-01T12')
+    ax1.axvline(x)
+    y = "test test"
+    ax2.axhline(y)
+    arr = mpatches.ConnectionPatch((x, 0), (0, y),
+                                   coordsA='data', coordsB='data',
+                                   axesA=ax1, axesB=ax2)
+    fig.add_artist(arr)
+    fig.draw_without_rendering()

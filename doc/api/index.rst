@@ -1,90 +1,74 @@
 API Reference
 =============
 
-When using the library you will typically create
-:doc:`Figure <figure_api>` and :doc:`Axes <axes_api>` objects and
-call their methods to add content and modify the appearance.
+Matplotlib interfaces
+---------------------
 
-- :mod:`matplotlib.figure`: axes creation, figure-level content
-- :mod:`matplotlib.axes`: most plotting methods, Axes labels, access to axis
-  styling, etc.
+Matplotlib has two interfaces. See :ref:`api_interfaces` for a more detailed
+description of both and their recommended use cases.
 
-Example: We create a Figure ``fig`` and Axes ``ax``. Then we call
-methods on them to plot data, add axis labels and a figure title.
+.. grid:: 1 1 2 2
+    :padding: 0
+    :gutter: 2
 
-.. plot::
-   :include-source:
-   :align: center
+    .. grid-item-card::
+        :shadow: none
+        :class-footer: api-interface-footer
 
-   import matplotlib.pyplot as plt
-   import numpy as np
+        **Axes interface** (object-based, explicit)
 
-   x = np.arange(0, 4, 0.05)
-   y = np.sin(x*np.pi)
+        create a `.Figure` and one or more `~.axes.Axes` objects, then *explicitly* use
+        methods on these objects to add data, configure limits, set labels etc.
 
-   fig, ax = plt.subplots(figsize=(3,2), constrained_layout=True)
-   ax.plot(x, y)
-   ax.set_xlabel('t [s]')
-   ax.set_ylabel('S [V]')
-   ax.set_title('Sine wave')
-   fig.set_facecolor('lightsteelblue')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+        API:
 
+        - `~.pyplot.subplots`: create Figure and Axes
+        - :mod:`~matplotlib.axes`: add data, limits, labels etc.
+        - `.Figure`: for figure-level methods
 
-.. _usage_patterns:
+        +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Usage patterns
---------------
+        Example:
 
-Below we describe several common approaches to plotting with Matplotlib.  See
-:ref:`api_interfaces` for an explanation of the trade-offs between the supported user
-APIs.
+        .. code-block:: python
+           :class: api-interface-example
 
-
-The explicit API
-^^^^^^^^^^^^^^^^
-
-At its core, Matplotlib is an object-oriented library. We recommend directly
-working with the objects if you need more control and customization of your
-plots.
-
-In many cases you will create a `.Figure` and one or more
-`~matplotlib.axes.Axes` using `.pyplot.subplots` and from then on only work
-on these objects. However, it's also possible to create `.Figure`\ s
-explicitly (e.g. when including them in GUI applications).
-
-Further reading:
-
-- `matplotlib.axes.Axes` and `matplotlib.figure.Figure` for an overview of
-  plotting functions.
-- Most of the :ref:`examples <examples-index>` use the object-oriented approach
-  (except for the pyplot section)
+           fig, ax = plt.subplots()
+           ax.plot(x, y)
+           ax.set_title("Sample plot")
+           plt.show()
 
 
-The implicit API
-^^^^^^^^^^^^^^^^
+    .. grid-item-card::
+        :shadow: none
+        :class-footer: api-interface-footer
 
-`matplotlib.pyplot` is a collection of functions that make
-Matplotlib work like MATLAB. Each pyplot function makes some change to a
-figure: e.g., creates a figure, creates a plotting area in a figure, plots
-some lines in a plotting area, decorates the plot with labels, etc.
+        **pyplot interface** (function-based, implicit)
 
-`.pyplot` is mainly intended for interactive plots and simple cases of
-programmatic plot generation.
+        consists of functions in the `.pyplot` module. Figure and Axes are manipulated
+        through these functions and are only *implicitly* present in the background.
 
-Further reading:
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- The `matplotlib.pyplot` function reference
-- :ref:`pyplot_tutorial`
-- :ref:`Pyplot examples <pyplots_examples>`
+        API:
+
+        - `matplotlib.pyplot`
+
+        +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        Example:
+
+        .. code-block:: python
+           :class: api-interface-example
+
+           plt.plot(x, y)
+           plt.title("Sample plot")
+           plt.show()
+
 
 .. _api-index:
-
-The pylab API (discouraged)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: pylab
-   :no-members:
 
 Modules
 -------
@@ -95,7 +79,6 @@ Alphabetical list of modules:
    :maxdepth: 1
 
    matplotlib_configuration_api.rst
-   afm_api.rst
    animation_api.rst
    artist_api.rst
    axes_api.rst
@@ -110,11 +93,11 @@ Alphabetical list of modules:
    cm_api.rst
    collections_api.rst
    colorbar_api.rst
+   colorizer_api.rst
    colors_api.rst
    container_api.rst
    contour_api.rst
    dates_api.rst
-   docstring_api.rst
    dviread.rst
    figure_api.rst
    font_manager_api.rst
@@ -122,6 +105,7 @@ Alphabetical list of modules:
    gridspec_api.rst
    hatch_api.rst
    image_api.rst
+   inset_api.rst
    layout_engine_api.rst
    legend_api.rst
    legend_handler_api.rst
@@ -142,6 +126,7 @@ Alphabetical list of modules:
    sphinxext_mathmpl_api.rst
    sphinxext_plot_directive_api.rst
    sphinxext_figmpl_directive_api.rst
+   sphinxext_roles.rst
    spines_api.rst
    style_api.rst
    table_api.rst
@@ -149,16 +134,19 @@ Alphabetical list of modules:
    text_api.rst
    texmanager_api.rst
    ticker_api.rst
-   tight_bbox_api.rst
-   tight_layout_api.rst
    transformations.rst
    tri_api.rst
-   type1font.rst
    typing_api.rst
    units_api.rst
    widgets_api.rst
+   _afm_api.rst
    _api_api.rst
+   _docstring_api.rst
    _enums_api.rst
+   _type1font.rst
+   _tight_bbox_api.rst
+   _tight_layout_api.rst
    toolkits/mplot3d.rst
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
+   pylab.rst

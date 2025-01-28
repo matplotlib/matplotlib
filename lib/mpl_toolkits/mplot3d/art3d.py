@@ -14,10 +14,10 @@ import numpy as np
 from contextlib import contextmanager
 
 from matplotlib import (
-    artist, cbook, colors as mcolors, lines, text as mtext,
+    _api, artist, cbook, colors as mcolors, lines, text as mtext,
     path as mpath)
 from matplotlib.collections import (
-    LineCollection, PolyCollection, PatchCollection, PathCollection)
+    Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
 from . import proj3d
@@ -73,6 +73,31 @@ def get_dir_vector(zdir):
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
 
 
+def _viewlim_mask(xs, ys, zs, axes):
+    """
+    Return the mask of the points outside the axes view limits.
+
+    Parameters
+    ----------
+    xs, ys, zs : array-like
+        The points to mask.
+    axes : Axes3D
+        The axes to use for the view limits.
+
+    Returns
+    -------
+    mask : np.array
+        The mask of the points as a bool array.
+    """
+    mask = np.logical_or.reduce((xs < axes.xy_viewLim.xmin,
+                                 xs > axes.xy_viewLim.xmax,
+                                 ys < axes.xy_viewLim.ymin,
+                                 ys > axes.xy_viewLim.ymax,
+                                 zs < axes.zz_viewLim.xmin,
+                                 zs > axes.zz_viewLim.xmax))
+    return mask
+
+
 class Text3D(mtext.Text):
     """
     Text object with 3D position and direction.
@@ -86,6 +111,8 @@ class Text3D(mtext.Text):
     zdir : {'x', 'y', 'z', None, 3-tuple}
         The direction of the text. See `.get_dir_vector` for a description of
         the values.
+    axlim_clip : bool, default: False
+        Whether to hide text outside the axes view limits.
 
     Other Parameters
     ----------------
@@ -93,9 +120,10 @@ class Text3D(mtext.Text):
          All other parameters are passed on to `~matplotlib.text.Text`.
     """
 
-    def __init__(self, x=0, y=0, z=0, text='', zdir='z', **kwargs):
+    def __init__(self, x=0, y=0, z=0, text='', zdir='z', axlim_clip=False,
+                 **kwargs):
         mtext.Text.__init__(self, x, y, text, **kwargs)
-        self.set_3d_properties(z, zdir)
+        self.set_3d_properties(z, zdir, axlim_clip)
 
     def get_position_3d(self):
         """Return the (x, y, z) position of the text."""
@@ -129,7 +157,7 @@ class Text3D(mtext.Text):
         self._z = z
         self.stale = True
 
-    def set_3d_properties(self, z=0, zdir='z'):
+    def set_3d_properties(self, z=0, zdir='z', axlim_clip=False):
         """
         Set the *z* position and direction of the text.
 
@@ -140,16 +168,24 @@ class Text3D(mtext.Text):
         zdir : {'x', 'y', 'z', 3-tuple}
             The direction of the text. Default: 'z'.
             See `.get_dir_vector` for a description of the values.
+        axlim_clip : bool, default: False
+            Whether to hide text outside the axes view limits.
         """
         self._z = z
         self._dir_vec = get_dir_vector(zdir)
+        self._axlim_clip = axlim_clip
         self.stale = True
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        position3d = np.array((self._x, self._y, self._z))
-        proj = proj3d._proj_trans_points(
-            [position3d, position3d + self._dir_vec], self.axes.M)
+        if self._axlim_clip:
+            mask = _viewlim_mask(self._x, self._y, self._z, self.axes)
+            pos3d = np.ma.array([self._x, self._y, self._z],
+                                mask=mask, dtype=float).filled(np.nan)
+        else:
+            pos3d = np.array([self._x, self._y, self._z], dtype=float)
+
+        proj = proj3d._proj_trans_points([pos3d, pos3d + self._dir_vec], self.axes.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
@@ -164,7 +200,7 @@ class Text3D(mtext.Text):
         return None
 
 
-def text_2d_to_3d(obj, z=0, zdir='z'):
+def text_2d_to_3d(obj, z=0, zdir='z', axlim_clip=False):
     """
     Convert a `.Text` to a `.Text3D` object.
 
@@ -175,17 +211,25 @@ def text_2d_to_3d(obj, z=0, zdir='z'):
     zdir : {'x', 'y', 'z', 3-tuple}
         The direction of the text. Default: 'z'.
         See `.get_dir_vector` for a description of the values.
+    axlim_clip : bool, default: False
+        Whether to hide text outside the axes view limits.
     """
     obj.__class__ = Text3D
-    obj.set_3d_properties(z, zdir)
+    obj.set_3d_properties(z, zdir, axlim_clip)
 
 
 class Line3D(lines.Line2D):
     """
     3D line object.
+
+    .. note:: Use `get_data_3d` to obtain the data associated with the line.
+            `~.Line2D.get_data`, `~.Line2D.get_xdata`, and `~.Line2D.get_ydata` return
+            the x- and y-coordinates of the projected 2D-line, not the x- and y-data of
+            the 3D-line. Similarly, use `set_data_3d` to set the data, not
+            `~.Line2D.set_data`, `~.Line2D.set_xdata`, and `~.Line2D.set_ydata`.
     """
 
-    def __init__(self, xs, ys, zs, *args, **kwargs):
+    def __init__(self, xs, ys, zs, *args, axlim_clip=False, **kwargs):
         """
 
         Parameters
@@ -196,13 +240,14 @@ class Line3D(lines.Line2D):
             The y-data to be plotted.
         zs : array-like
             The z-data to be plotted.
-
-        Additional arguments are passed onto :func:`~matplotlib.lines.Line2D`.
+        *args, **kwargs
+            Additional arguments are passed to `~matplotlib.lines.Line2D`.
         """
         super().__init__([], [], *args, **kwargs)
         self.set_data_3d(xs, ys, zs)
+        self._axlim_clip = axlim_clip
 
-    def set_3d_properties(self, zs=0, zdir='z'):
+    def set_3d_properties(self, zs=0, zdir='z', axlim_clip=False):
         """
         Set the *z* position and direction of the line.
 
@@ -214,12 +259,15 @@ class Line3D(lines.Line2D):
         zdir : {'x', 'y', 'z'}
             Plane to plot line orthogonal to. Default: 'z'.
             See `.get_dir_vector` for a description of the values.
+        axlim_clip : bool, default: False
+            Whether to hide lines with an endpoint outside the axes view limits.
         """
         xs = self.get_xdata()
         ys = self.get_ydata()
         zs = cbook._to_unmasked_float_array(zs).ravel()
         zs = np.broadcast_to(zs, len(xs))
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
+        self._axlim_clip = axlim_clip
         self.stale = True
 
     def set_data_3d(self, *args):
@@ -260,14 +308,24 @@ class Line3D(lines.Line2D):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
+        if self._axlim_clip:
+            mask = np.broadcast_to(
+                _viewlim_mask(*self._verts3d, self.axes),
+                (len(self._verts3d), *self._verts3d[0].shape)
+            )
+            xs3d, ys3d, zs3d = np.ma.array(self._verts3d,
+                                           dtype=float, mask=mask).filled(np.nan)
+        else:
+            xs3d, ys3d, zs3d = self._verts3d
+        xs, ys, zs, tis = proj3d._proj_transform_clip(xs3d, ys3d, zs3d,
+                                                      self.axes.M,
+                                                      self.axes._focal_length)
         self.set_data(xs, ys)
         super().draw(renderer)
         self.stale = False
 
 
-def line_2d_to_3d(line, zs=0, zdir='z'):
+def line_2d_to_3d(line, zs=0, zdir='z', axlim_clip=False):
     """
     Convert a `.Line2D` to a `.Line3D` object.
 
@@ -278,10 +336,12 @@ def line_2d_to_3d(line, zs=0, zdir='z'):
     zdir : {'x', 'y', 'z'}
         Plane to plot line orthogonal to. Default: 'z'.
         See `.get_dir_vector` for a description of the values.
+    axlim_clip : bool, default: False
+        Whether to hide lines with an endpoint outside the axes view limits.
     """
 
     line.__class__ = Line3D
-    line.set_3d_properties(zs, zdir)
+    line.set_3d_properties(zs, zdir, axlim_clip)
 
 
 def _path_to_3d_segment(path, zs=0, zdir='z'):
@@ -338,10 +398,43 @@ def _paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     return list(segments), list(codes)
 
 
+class Collection3D(Collection):
+    """A collection of 3D paths."""
+
+    def do_3d_projection(self):
+        """Project the points according to renderer matrix."""
+        vs_list = [vs for vs, _ in self._3dverts_codes]
+        if self._axlim_clip:
+            vs_list = [np.ma.array(vs, mask=np.broadcast_to(
+                       _viewlim_mask(*vs.T, self.axes), vs.shape))
+                       for vs in vs_list]
+        xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M) for vs in vs_list]
+        self._paths = [mpath.Path(np.ma.column_stack([xs, ys]), cs)
+                       for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
+        zs = np.concatenate([zs for _, _, zs in xyzs_list])
+        return zs.min() if len(zs) else 1e9
+
+
+def collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
+    """Convert a `.Collection` to a `.Collection3D` object."""
+    zs = np.broadcast_to(zs, len(col.get_paths()))
+    col._3dverts_codes = [
+        (np.column_stack(juggle_axes(
+            *np.column_stack([p.vertices, np.broadcast_to(z, len(p.vertices))]).T,
+            zdir)),
+         p.codes)
+        for p, z in zip(col.get_paths(), zs)]
+    col.__class__ = cbook._make_class_factory(Collection3D, "{}3D")(type(col))
+    col._axlim_clip = axlim_clip
+
+
 class Line3DCollection(LineCollection):
     """
     A collection of 3D lines.
     """
+    def __init__(self, lines, axlim_clip=False, **kwargs):
+        super().__init__(lines, **kwargs)
+        self._axlim_clip = axlim_clip
 
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
@@ -359,23 +452,41 @@ class Line3DCollection(LineCollection):
         """
         Project the points according to renderer matrix.
         """
-        xyslist = [proj3d._proj_trans_points(points, self.axes.M)
-                   for points in self._segments3d]
-        segments_2d = [np.column_stack([xs, ys]) for xs, ys, zs in xyslist]
+        segments = np.asanyarray(self._segments3d)
+
+        mask = False
+        if np.ma.isMA(segments):
+            mask = segments.mask
+
+        if self._axlim_clip:
+            viewlim_mask = _viewlim_mask(segments[..., 0],
+                                         segments[..., 1],
+                                         segments[..., 2],
+                                         self.axes)
+            if np.any(viewlim_mask):
+                # broadcast mask to 3D
+                viewlim_mask = np.broadcast_to(viewlim_mask[..., np.newaxis],
+                                               (*viewlim_mask.shape, 3))
+                mask = mask | viewlim_mask
+        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M),
+                           mask=mask)
+        segments_2d = xyzs[..., 0:2]
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
-        minz = 1e9
-        for xs, ys, zs in xyslist:
-            minz = min(minz, min(zs))
+        if len(xyzs) > 0:
+            minz = min(xyzs[..., 2].min(), 1e9)
+        else:
+            minz = np.nan
         return minz
 
 
-def line_collection_2d_to_3d(col, zs=0, zdir='z'):
+def line_collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
     """Convert a `.LineCollection` to a `.Line3DCollection` object."""
     segments3d = _paths_to_3d_segments(col.get_paths(), zs, zdir)
     col.__class__ = Line3DCollection
     col.set_segments(segments3d)
+    col._axlim_clip = axlim_clip
 
 
 class Patch3D(Patch):
@@ -383,7 +494,7 @@ class Patch3D(Patch):
     3D patch object.
     """
 
-    def __init__(self, *args, zs=(), zdir='z', **kwargs):
+    def __init__(self, *args, zs=(), zdir='z', axlim_clip=False, **kwargs):
         """
         Parameters
         ----------
@@ -394,11 +505,13 @@ class Patch3D(Patch):
         zdir : {'x', 'y', 'z'}
             Plane to plot patch orthogonal to. Default: 'z'.
             See `.get_dir_vector` for a description of the values.
+        axlim_clip : bool, default: False
+            Whether to hide patches with a vertex outside the axes view limits.
         """
         super().__init__(*args, **kwargs)
-        self.set_3d_properties(zs, zdir)
+        self.set_3d_properties(zs, zdir, axlim_clip)
 
-    def set_3d_properties(self, verts, zs=0, zdir='z'):
+    def set_3d_properties(self, verts, zs=0, zdir='z', axlim_clip=False):
         """
         Set the *z* position and direction of the patch.
 
@@ -411,20 +524,34 @@ class Patch3D(Patch):
         zdir : {'x', 'y', 'z'}
             Plane to plot patch orthogonal to. Default: 'z'.
             See `.get_dir_vector` for a description of the values.
+        axlim_clip : bool, default: False
+            Whether to hide patches with a vertex outside the axes view limits.
         """
         zs = np.broadcast_to(zs, len(verts))
         self._segment3d = [juggle_axes(x, y, z, zdir)
                            for ((x, y), z) in zip(verts, zs)]
+        self._axlim_clip = axlim_clip
 
     def get_path(self):
+        # docstring inherited
+        # self._path2d is not initialized until do_3d_projection
+        if not hasattr(self, '_path2d'):
+            self.axes.M = self.axes.get_proj()
+            self.do_3d_projection()
         return self._path2d
 
     def do_3d_projection(self):
         s = self._segment3d
-        xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
-        self._path2d = mpath.Path(np.column_stack([vxs, vys]))
+        if self._axlim_clip:
+            mask = _viewlim_mask(*zip(*s), self.axes)
+            xs, ys, zs = np.ma.array(zip(*s),
+                                     dtype=float, mask=mask).filled(np.nan)
+        else:
+            xs, ys, zs = zip(*s)
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
+                                                         self.axes.M,
+                                                         self.axes._focal_length)
+        self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]))
         return min(vzs)
 
 
@@ -433,7 +560,7 @@ class PathPatch3D(Patch3D):
     3D PathPatch object.
     """
 
-    def __init__(self, path, *, zs=(), zdir='z', **kwargs):
+    def __init__(self, path, *, zs=(), zdir='z', axlim_clip=False, **kwargs):
         """
         Parameters
         ----------
@@ -444,12 +571,14 @@ class PathPatch3D(Patch3D):
         zdir : {'x', 'y', 'z', 3-tuple}
             Plane to plot path patch orthogonal to. Default: 'z'.
             See `.get_dir_vector` for a description of the values.
+        axlim_clip : bool, default: False
+            Whether to hide path patches with a point outside the axes view limits.
         """
         # Not super().__init__!
         Patch.__init__(self, **kwargs)
-        self.set_3d_properties(path, zs, zdir)
+        self.set_3d_properties(path, zs, zdir, axlim_clip)
 
-    def set_3d_properties(self, path, zs=0, zdir='z'):
+    def set_3d_properties(self, path, zs=0, zdir='z', axlim_clip=False):
         """
         Set the *z* position and direction of the path patch.
 
@@ -462,16 +591,25 @@ class PathPatch3D(Patch3D):
         zdir : {'x', 'y', 'z', 3-tuple}
             Plane to plot path patch orthogonal to. Default: 'z'.
             See `.get_dir_vector` for a description of the values.
+        axlim_clip : bool, default: False
+            Whether to hide path patches with a point outside the axes view limits.
         """
-        Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir)
+        Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir,
+                                  axlim_clip=axlim_clip)
         self._code3d = path.codes
 
     def do_3d_projection(self):
         s = self._segment3d
-        xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
-        self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
+        if self._axlim_clip:
+            mask = _viewlim_mask(*zip(*s), self.axes)
+            xs, ys, zs = np.ma.array(zip(*s),
+                                     dtype=float, mask=mask).filled(np.nan)
+        else:
+            xs, ys, zs = zip(*s)
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
+                                                         self.axes.M,
+                                                         self.axes._focal_length)
+        self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]), self._code3d)
         return min(vzs)
 
 
@@ -483,11 +621,11 @@ def _get_patch_verts(patch):
     return polygons[0] if len(polygons) else np.array([])
 
 
-def patch_2d_to_3d(patch, z=0, zdir='z'):
+def patch_2d_to_3d(patch, z=0, zdir='z', axlim_clip=False):
     """Convert a `.Patch` to a `.Patch3D` object."""
     verts = _get_patch_verts(patch)
     patch.__class__ = Patch3D
-    patch.set_3d_properties(verts, z, zdir)
+    patch.set_3d_properties(verts, z, zdir, axlim_clip)
 
 
 def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
@@ -505,7 +643,8 @@ class Patch3DCollection(PatchCollection):
     A collection of 3D patches.
     """
 
-    def __init__(self, *args, zs=0, zdir='z', depthshade=True, **kwargs):
+    def __init__(self, *args,
+                 zs=0, zdir='z', depthshade=True, axlim_clip=False, **kwargs):
         """
         Create a collection of flat 3D patches with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -522,7 +661,7 @@ class Patch3DCollection(PatchCollection):
         """
         self._depthshade = depthshade
         super().__init__(*args, **kwargs)
-        self.set_3d_properties(zs, zdir)
+        self.set_3d_properties(zs, zdir, axlim_clip)
 
     def get_depthshade(self):
         return self._depthshade
@@ -545,7 +684,7 @@ class Patch3DCollection(PatchCollection):
         self._sort_zpos = val
         self.stale = True
 
-    def set_3d_properties(self, zs, zdir):
+    def set_3d_properties(self, zs, zdir, axlim_clip=False):
         """
         Set the *z* positions and direction of the patches.
 
@@ -558,6 +697,8 @@ class Patch3DCollection(PatchCollection):
             Plane to plot patches orthogonal to.
             All patches must have the same direction.
             See `.get_dir_vector` for a description of the values.
+        axlim_clip : bool, default: False
+            Whether to hide patches with a vertex outside the axes view limits.
         """
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
@@ -571,14 +712,23 @@ class Patch3DCollection(PatchCollection):
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         self._z_markers_idx = slice(-1)
         self._vzs = None
+        self._axlim_clip = axlim_clip
         self.stale = True
 
     def do_3d_projection(self):
-        xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
+        if self._axlim_clip:
+            mask = _viewlim_mask(*self._offsets3d, self.axes)
+            xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
+        else:
+            xs, ys, zs = self._offsets3d
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
+                                                         self.axes.M,
+                                                         self.axes._focal_length)
         self._vzs = vzs
-        super().set_offsets(np.column_stack([vxs, vys]))
+        if np.ma.isMA(vxs):
+            super().set_offsets(np.ma.column_stack([vxs, vys]))
+        else:
+            super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
             return min(vzs)
@@ -612,7 +762,8 @@ class Path3DCollection(PathCollection):
     A collection of 3D paths.
     """
 
-    def __init__(self, *args, zs=0, zdir='z', depthshade=True, **kwargs):
+    def __init__(self, *args,
+                 zs=0, zdir='z', depthshade=True, axlim_clip=False, **kwargs):
         """
         Create a collection of flat 3D paths with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -630,7 +781,7 @@ class Path3DCollection(PathCollection):
         self._depthshade = depthshade
         self._in_draw = False
         super().__init__(*args, **kwargs)
-        self.set_3d_properties(zs, zdir)
+        self.set_3d_properties(zs, zdir, axlim_clip)
         self._offset_zordered = None
 
     def draw(self, renderer):
@@ -643,7 +794,7 @@ class Path3DCollection(PathCollection):
         self._sort_zpos = val
         self.stale = True
 
-    def set_3d_properties(self, zs, zdir):
+    def set_3d_properties(self, zs, zdir, axlim_clip=False):
         """
         Set the *z* positions and direction of the paths.
 
@@ -656,6 +807,8 @@ class Path3DCollection(PathCollection):
             Plane to plot paths orthogonal to.
             All paths must have the same direction.
             See `.get_dir_vector` for a description of the values.
+        axlim_clip : bool, default: False
+            Whether to hide paths with a vertex outside the axes view limits.
         """
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
@@ -666,6 +819,7 @@ class Path3DCollection(PathCollection):
         else:
             xs = []
             ys = []
+        self._zdir = zdir
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         # In the base draw methods we access the attributes directly which
         # means we cannot resolve the shuffling in the getter methods like
@@ -686,6 +840,8 @@ class Path3DCollection(PathCollection):
         # points and point properties according to the index array
         self._z_markers_idx = slice(-1)
         self._vzs = None
+
+        self._axlim_clip = axlim_clip
         self.stale = True
 
     def set_sizes(self, sizes, dpi=72.0):
@@ -715,13 +871,24 @@ class Path3DCollection(PathCollection):
         self.stale = True
 
     def do_3d_projection(self):
-        xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
-                                                        self.axes.M)
+        mask = False
+        for xyz in self._offsets3d:
+            if np.ma.isMA(xyz):
+                mask = mask | xyz.mask
+        if self._axlim_clip:
+            mask = mask | _viewlim_mask(*self._offsets3d, self.axes)
+            mask = np.broadcast_to(mask,
+                                   (len(self._offsets3d), *self._offsets3d[0].shape))
+            xyzs = np.ma.array(self._offsets3d, mask=mask)
+        else:
+            xyzs = self._offsets3d
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(*xyzs,
+                                                         self.axes.M,
+                                                         self.axes._focal_length)
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
         # points and point properties according to the index array
-        z_markers_idx = self._z_markers_idx = np.argsort(vzs)[::-1]
+        z_markers_idx = self._z_markers_idx = np.ma.argsort(vzs)[::-1]
         self._vzs = vzs
 
         # we have to special case the sizes because of code in collections.py
@@ -735,7 +902,7 @@ class Path3DCollection(PathCollection):
         if len(self._linewidths3d) > 1:
             self._linewidths = self._linewidths3d[z_markers_idx]
 
-        PathCollection.set_offsets(self, np.column_stack((vxs, vys)))
+        PathCollection.set_offsets(self, np.ma.column_stack((vxs, vys)))
 
         # Re-order items
         vzs = vzs[z_markers_idx]
@@ -743,7 +910,7 @@ class Path3DCollection(PathCollection):
         vys = vys[z_markers_idx]
 
         # Store ordered offset for drawing purpose
-        self._offset_zordered = np.column_stack((vxs, vys))
+        self._offset_zordered = np.ma.column_stack((vxs, vys))
 
         return np.min(vzs) if vzs.size else np.nan
 
@@ -783,30 +950,35 @@ class Path3DCollection(PathCollection):
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
 
 
-def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
+def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True, axlim_clip=False):
     """
     Convert a `.PatchCollection` into a `.Patch3DCollection` object
     (or a `.PathCollection` into a `.Path3DCollection` object).
 
     Parameters
     ----------
+    col : `~matplotlib.collections.PatchCollection` or \
+`~matplotlib.collections.PathCollection`
+        The collection to convert.
     zs : float or array of floats
         The location or locations to place the patches in the collection along
         the *zdir* axis. Default: 0.
     zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
         See `.get_dir_vector` for a description of the values.
-    depthshade
-        Whether to shade the patches to give a sense of depth. Default: *True*.
-
+    depthshade : bool, default: True
+        Whether to shade the patches to give a sense of depth.
+    axlim_clip : bool, default: False
+        Whether to hide patches with a vertex outside the axes view limits.
     """
     if isinstance(col, PathCollection):
         col.__class__ = Path3DCollection
+        col._offset_zordered = None
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade
     col._in_draw = False
-    col.set_3d_properties(zs, zdir)
+    col.set_3d_properties(zs, zdir, axlim_clip)
 
 
 class Poly3DCollection(PolyCollection):
@@ -831,7 +1003,7 @@ class Poly3DCollection(PolyCollection):
     """
 
     def __init__(self, verts, *args, zsort='average', shade=False,
-                 lightsource=None, **kwargs):
+                 lightsource=None, axlim_clip=False, **kwargs):
         """
         Parameters
         ----------
@@ -852,6 +1024,9 @@ class Poly3DCollection(PolyCollection):
             The lightsource to use when *shade* is True.
 
             .. versionadded:: 3.7
+
+        axlim_clip : bool, default: False
+            Whether to hide polygons with a vertex outside the view limits.
 
         *args, **kwargs
             All other parameters are forwarded to `.PolyCollection`.
@@ -874,7 +1049,7 @@ class Poly3DCollection(PolyCollection):
                 kwargs['edgecolors'] = _shade_colors(
                     edgecolors, normals, lightsource
                 )
-            if facecolors is None and edgecolors in None:
+            if facecolors is None and edgecolors is None:
                 raise ValueError(
                     "You must provide facecolors, edgecolors, or both for "
                     "shade to work.")
@@ -887,6 +1062,7 @@ class Poly3DCollection(PolyCollection):
                 raise ValueError('verts must be a list of (N, 3) array-like')
         self.set_zsort(zsort)
         self._codes3d = None
+        self._axlim_clip = axlim_clip
 
     _zsort_functions = {
         'average': np.average,
@@ -908,17 +1084,42 @@ class Poly3DCollection(PolyCollection):
         self._sort_zpos = None
         self.stale = True
 
+    @_api.deprecated("3.10")
     def get_vector(self, segments3d):
-        """Optimize points for projection."""
-        if len(segments3d):
-            xs, ys, zs = np.row_stack(segments3d).T
-        else:  # row_stack can't stack zero arrays.
-            xs, ys, zs = [], [], []
-        ones = np.ones(len(xs))
-        self._vec = np.array([xs, ys, zs, ones])
+        return self._get_vector(segments3d)
 
-        indices = [0, *np.cumsum([len(segment) for segment in segments3d])]
-        self._segslices = [*map(slice, indices[:-1], indices[1:])]
+    def _get_vector(self, segments3d):
+        """
+        Optimize points for projection.
+
+        Parameters
+        ----------
+        segments3d : NumPy array or list of NumPy arrays
+            List of vertices of the boundary of every segment. If all paths are
+            of equal length and this argument is a NumPy array, then it should
+            be of shape (num_faces, num_vertices, 3).
+        """
+        if isinstance(segments3d, np.ndarray):
+            if segments3d.ndim != 3 or segments3d.shape[-1] != 3:
+                raise ValueError("segments3d must be a MxNx3 array, but got "
+                                 f"shape {segments3d.shape}")
+            if isinstance(segments3d, np.ma.MaskedArray):
+                self._faces = segments3d.data
+                self._invalid_vertices = segments3d.mask.any(axis=-1)
+            else:
+                self._faces = segments3d
+                self._invalid_vertices = False
+        else:
+            # Turn the potentially ragged list into a numpy array for later speedups
+            # If it is ragged, set the unused vertices per face as invalid
+            num_faces = len(segments3d)
+            num_verts = np.fromiter(map(len, segments3d), dtype=np.intp)
+            max_verts = num_verts.max(initial=0)
+            segments = np.empty((num_faces, max_verts, 3))
+            for i, face in enumerate(segments3d):
+                segments[i, :len(face)] = face
+            self._faces = segments
+            self._invalid_vertices = np.arange(max_verts) >= num_verts[:, None]
 
     def set_verts(self, verts, closed=True):
         """
@@ -934,7 +1135,7 @@ class Poly3DCollection(PolyCollection):
             Whether the polygon should be closed by adding a CLOSEPOLY
             connection at the end.
         """
-        self.get_vector(verts)
+        self._get_vector(verts)
         # 2D verts will be updated at draw time
         super().set_verts([], False)
         self._closed = closed
@@ -947,7 +1148,7 @@ class Poly3DCollection(PolyCollection):
         # and set our own codes instead.
         self._codes3d = codes
 
-    def set_3d_properties(self):
+    def set_3d_properties(self, axlim_clip=False):
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
@@ -980,43 +1181,73 @@ class Poly3DCollection(PolyCollection):
                 self._facecolor3d = self._facecolors
             if self._edge_is_mapped:
                 self._edgecolor3d = self._edgecolors
-        txs, tys, tzs = proj3d._proj_transform_vec(self._vec, self.axes.M)
-        xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
+
+        needs_masking = np.any(self._invalid_vertices)
+        num_faces = len(self._faces)
+        mask = self._invalid_vertices
+
+        # Some faces might contain masked vertices, so we want to ignore any
+        # errors that those might cause
+        with np.errstate(invalid='ignore', divide='ignore'):
+            pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
+
+        if self._axlim_clip:
+            viewlim_mask = _viewlim_mask(self._faces[..., 0], self._faces[..., 1],
+                                         self._faces[..., 2], self.axes)
+            if np.any(viewlim_mask):
+                needs_masking = True
+                mask = mask | viewlim_mask
+
+        pzs = pfaces[..., 2]
+        if needs_masking:
+            pzs = np.ma.MaskedArray(pzs, mask=mask)
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolor3d
         cedge = self._edgecolor3d
-        if len(cface) != len(xyzlist):
-            cface = cface.repeat(len(xyzlist), axis=0)
-        if len(cedge) != len(xyzlist):
+        if len(cface) != num_faces:
+            cface = cface.repeat(num_faces, axis=0)
+        if len(cedge) != num_faces:
             if len(cedge) == 0:
                 cedge = cface
             else:
-                cedge = cedge.repeat(len(xyzlist), axis=0)
+                cedge = cedge.repeat(num_faces, axis=0)
 
-        if xyzlist:
-            # sort by depth (furthest drawn first)
-            z_segments_2d = sorted(
-                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
-                 for idx, ((xs, ys, zs), fc, ec)
-                 in enumerate(zip(xyzlist, cface, cedge))),
-                key=lambda x: x[0], reverse=True)
-
-            _, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
-                zip(*z_segments_2d)
+        if len(pzs) > 0:
+            face_z = self._zsortfunc(pzs, axis=-1)
         else:
-            segments_2d = []
-            self._facecolors2d = np.empty((0, 4))
-            self._edgecolors2d = np.empty((0, 4))
-            idxs = []
+            face_z = pzs
+        if needs_masking:
+            face_z = face_z.data
+        face_order = np.argsort(face_z, axis=-1)[::-1]
 
-        if self._codes3d is not None:
-            codes = [self._codes3d[idx] for idx in idxs]
-            PolyCollection.set_verts_and_codes(self, segments_2d, codes)
+        if len(pfaces) > 0:
+            faces_2d = pfaces[face_order, :, :2]
         else:
-            PolyCollection.set_verts(self, segments_2d, self._closed)
+            faces_2d = pfaces
+        if self._codes3d is not None and len(self._codes3d) > 0:
+            if needs_masking:
+                segment_mask = ~mask[face_order, :]
+                faces_2d = [face[mask, :] for face, mask
+                               in zip(faces_2d, segment_mask)]
+            codes = [self._codes3d[idx] for idx in face_order]
+            PolyCollection.set_verts_and_codes(self, faces_2d, codes)
+        else:
+            if needs_masking and len(faces_2d) > 0:
+                invalid_vertices_2d = np.broadcast_to(
+                    mask[face_order, :, None],
+                    faces_2d.shape)
+                faces_2d = np.ma.MaskedArray(
+                        faces_2d, mask=invalid_vertices_2d)
+            PolyCollection.set_verts(self, faces_2d, self._closed)
 
-        if len(self._edgecolor3d) != len(cface):
+        if len(cface) > 0:
+            self._facecolors2d = cface[face_order]
+        else:
+            self._facecolors2d = cface
+        if len(self._edgecolor3d) == len(cface) and len(cedge) > 0:
+            self._edgecolors2d = cedge[face_order]
+        else:
             self._edgecolors2d = self._edgecolor3d
 
         # Return zorder value
@@ -1024,11 +1255,11 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d._proj_transform_vec(zvec, self.axes.M)
             return ztrans[2][0]
-        elif tzs.size > 0:
+        elif pzs.size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
-            return np.min(tzs)
+            return np.min(pzs)
         else:
             return np.nan
 
@@ -1074,12 +1305,14 @@ class Poly3DCollection(PolyCollection):
         return np.asarray(self._edgecolors2d)
 
 
-def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
+def poly_collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
     """
     Convert a `.PolyCollection` into a `.Poly3DCollection` object.
 
     Parameters
     ----------
+    col : `~matplotlib.collections.PolyCollection`
+        The collection to convert.
     zs : float or array of floats
         The location or locations to place the polygons in the collection along
         the *zdir* axis. Default: 0.
@@ -1092,6 +1325,7 @@ def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
     col.__class__ = Poly3DCollection
     col.set_verts_and_codes(segments_3d, codes)
     col.set_3d_properties()
+    col._axlim_clip = axlim_clip
 
 
 def juggle_axes(xs, ys, zs, zdir):
@@ -1139,6 +1373,47 @@ def _zalpha(colors, zs):
     return np.column_stack([rgba[:, :3], rgba[:, 3] * sats])
 
 
+def _all_points_on_plane(xs, ys, zs, atol=1e-8):
+    """
+    Check if all points are on the same plane. Note that NaN values are
+    ignored.
+
+    Parameters
+    ----------
+    xs, ys, zs : array-like
+        The x, y, and z coordinates of the points.
+    atol : float, default: 1e-8
+        The tolerance for the equality check.
+    """
+    xs, ys, zs = np.asarray(xs), np.asarray(ys), np.asarray(zs)
+    points = np.column_stack([xs, ys, zs])
+    points = points[~np.isnan(points).any(axis=1)]
+    # Check for the case where we have less than 3 unique points
+    points = np.unique(points, axis=0)
+    if len(points) <= 3:
+        return True
+    # Calculate the vectors from the first point to all other points
+    vs = (points - points[0])[1:]
+    vs = vs / np.linalg.norm(vs, axis=1)[:, np.newaxis]
+    # Filter out parallel vectors
+    vs = np.unique(vs, axis=0)
+    if len(vs) <= 2:
+        return True
+    # Filter out parallel and antiparallel vectors to the first vector
+    cross_norms = np.linalg.norm(np.cross(vs[0], vs[1:]), axis=1)
+    zero_cross_norms = np.where(np.isclose(cross_norms, 0, atol=atol))[0] + 1
+    vs = np.delete(vs, zero_cross_norms, axis=0)
+    if len(vs) <= 2:
+        return True
+    # Calculate the normal vector from the first three points
+    n = np.cross(vs[0], vs[1])
+    n = n / np.linalg.norm(n)
+    # If the dot product of the normal vector and all other vectors is zero,
+    # all points are on the same plane
+    dots = np.dot(n, vs.transpose())
+    return np.allclose(dots, 0, atol=atol)
+
+
 def _generate_normals(polygons):
     """
     Compute the normals of a list of polygons, one normal per polygon.
@@ -1176,6 +1451,7 @@ def _generate_normals(polygons):
         v2 = np.empty((len(polygons), 3))
         for poly_i, ps in enumerate(polygons):
             n = len(ps)
+            ps = np.asarray(ps)
             i1, i2, i3 = 0, n//3, 2*n//3
             v1[poly_i, :] = ps[i1, :] - ps[i2, :]
             v2[poly_i, :] = ps[i2, :] - ps[i3, :]

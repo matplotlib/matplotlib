@@ -156,6 +156,18 @@ def test_asterisk_marker(fig_test, fig_ref, request):
     ax_ref.set(xlim=(-0.5, 1.5), ylim=(-0.5, 1.5))
 
 
+# The bullet mathtext marker is not quite a circle, so this is not a perfect match, but
+# it is close enough to confirm that the text-based marker is centred correctly. But we
+# still need a small tolerance to work around that difference.
+@check_figures_equal(extensions=['png'], tol=1.86)
+def test_text_marker(fig_ref, fig_test):
+    ax_ref = fig_ref.add_subplot()
+    ax_test = fig_test.add_subplot()
+
+    ax_ref.plot(0, 0, marker=r'o', markersize=100, markeredgewidth=0)
+    ax_test.plot(0, 0, marker=r'$\bullet$', markersize=100, markeredgewidth=0)
+
+
 @check_figures_equal()
 def test_marker_clipping(fig_ref, fig_test):
     # Plotting multiple markers can trigger different optimized paths in

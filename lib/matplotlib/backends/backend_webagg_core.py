@@ -1,6 +1,4 @@
-"""
-Displays Agg images in the browser, with interactivity
-"""
+"""Displays Agg images in the browser, with interactivity."""
 # The WebAgg backend is divided into two modules:
 #
 # - `backend_webagg_core.py` contains code necessary to embed a WebAgg
@@ -24,7 +22,7 @@ from PIL import Image
 from matplotlib import _api, backend_bases, backend_tools
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import (
-    _Backend, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    _Backend, MouseButton, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 _log = logging.getLogger(__name__)
 
@@ -285,10 +283,17 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         y = event['y']
         y = self.get_renderer().height - y
         self._last_mouse_xy = x, y
-        # JavaScript button numbers and Matplotlib button numbers are off by 1.
-        button = event['button'] + 1
-
         e_type = event['type']
+        button = event['button'] + 1  # JS numbers off by 1 compared to mpl.
+        buttons = {  # JS ordering different compared to mpl.
+            button for button, mask in [
+                (MouseButton.LEFT, 1),
+                (MouseButton.RIGHT, 2),
+                (MouseButton.MIDDLE, 4),
+                (MouseButton.BACK, 8),
+                (MouseButton.FORWARD, 16),
+            ] if event['buttons'] & mask  # State *after* press/release.
+        }
         modifiers = event['modifiers']
         guiEvent = event.get('guiEvent')
         if e_type in ['button_press', 'button_release']:
@@ -302,10 +307,12 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                        modifiers=modifiers, guiEvent=guiEvent)._process()
         elif e_type == 'motion_notify':
             MouseEvent(e_type + '_event', self, x, y,
-                       modifiers=modifiers, guiEvent=guiEvent)._process()
+                       buttons=buttons, modifiers=modifiers, guiEvent=guiEvent,
+                       )._process()
         elif e_type in ['figure_enter', 'figure_leave']:
             LocationEvent(e_type + '_event', self, x, y,
                           modifiers=modifiers, guiEvent=guiEvent)._process()
+
     handle_button_press = handle_button_release = handle_dblclick = \
         handle_figure_enter = handle_figure_leave = handle_motion_notify = \
         handle_scroll = _handle_mouse
@@ -321,10 +328,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         getattr(self.toolbar, event['name'])()
 
     def handle_refresh(self, event):
-        figure_label = self.figure.get_label()
-        if not figure_label:
-            figure_label = f"Figure {self.manager.num}"
-        self.send_event('figure_label', label=figure_label)
+        if self.manager:
+            self.send_event('figure_label', label=self.manager.get_window_title())
         self._force_full = True
         if self.toolbar:
             # Normal toolbar init would refresh this, but it happens before the
@@ -405,8 +410,9 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         self.canvas.send_event("rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
 
     def save_figure(self, *args):
-        """Save the current figure"""
+        """Save the current figure."""
         self.canvas.send_event('save')
+        return self.UNKNOWN_SAVED_STATUS
 
     def pan(self):
         super().pan()
@@ -418,7 +424,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
-        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        can_forward = self._nav_stack._pos < len(self._nav_stack) - 1
         self.canvas.send_event('history_buttons',
                                Back=can_backward, Forward=can_forward)
 
@@ -427,6 +433,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     # This must be None to not break ipympl
     _toolbar2_class = None
     ToolbarCls = NavigationToolbar2WebAgg
+    _window_title = "Matplotlib"
 
     def __init__(self, canvas, num):
         self.web_sockets = set()
@@ -444,6 +451,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
     def set_window_title(self, title):
         self._send_event('figure_label', label=title)
+        self._window_title = title
+
+    def get_window_title(self):
+        return self._window_title
 
     # The following methods are specific to FigureManagerWebAgg
 

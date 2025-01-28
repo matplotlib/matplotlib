@@ -1,8 +1,8 @@
 from . import _base
-from ._axes import *
+from ._axes import Axes
 
 # Backcompat.
-from ._axes import Axes as Subplot
+Subplot = Axes
 
 
 class _SubplotBaseMeta(type):

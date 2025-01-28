@@ -35,12 +35,12 @@ def _isolated_tk_test(success_count, func=None):
         reason="missing tkinter"
     )
     @pytest.mark.skipif(
-        sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
-        reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
+        sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
+        reason="$DISPLAY is unset"
     )
     @pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
-        'TF_BUILD' in os.environ and sys.platform == 'darwin' and
-        sys.version_info[:2] == (3, 10),
+        ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+        sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
         reason='Tk version mismatch on Azure macOS CI'
     )
     @functools.wraps(func)
@@ -81,9 +81,7 @@ def test_blit():
 
     fig, ax = plt.subplots()
     photoimage = fig.canvas._tkphoto
-    data = np.ones((4, 4, 4))
-    height, width = data.shape[:2]
-    dataptr = (height, width, data.ctypes.data)
+    data = np.ones((4, 4, 4), dtype=np.uint8)
     # Test out of bounds blitting.
     bad_boxes = ((-1, 2, 0, 2),
                  (2, 0, 0, 2),
@@ -94,8 +92,8 @@ def test_blit():
     for bad_box in bad_boxes:
         try:
             _tkagg.blit(
-                photoimage.tk.interpaddr(), str(photoimage), dataptr, 0,
-                (0, 1, 2, 3), bad_box)
+                photoimage.tk.interpaddr(), str(photoimage), data,
+                _tkagg.TK_PHOTO_COMPOSITE_OVERLAY, (0, 1, 2, 3), bad_box)
         except ValueError:
             print("success")
 
@@ -158,7 +156,6 @@ def test_figuremanager_cleans_own_mainloop():
     thread.join()
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=0)
 def test_never_update():
@@ -199,7 +196,23 @@ def test_missing_back_button():
     print("success")
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
+@_isolated_tk_test(success_count=2)
+def test_save_figure_return():
+    import matplotlib.pyplot as plt
+    from unittest import mock
+    fig = plt.figure()
+    prop = "tkinter.filedialog.asksaveasfilename"
+    with mock.patch(prop, return_value="foobar.png"):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        os.remove("foobar.png")
+        assert fname == "foobar.png"
+        print("success")
+    with mock.patch(prop, return_value=""):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        assert fname is None
+        print("success")
+
+
 @_isolated_tk_test(success_count=1)
 def test_canvas_focus():
     import tkinter as tk

@@ -400,7 +400,7 @@ def _single_spectrum_helper(
 
 
 # Split out these keyword docs so that they can be used elsewhere
-_docstring.interpd.update(
+_docstring.interpd.register(
     Spectral="""\
 Fs : float, default: 2
     The sampling frequency (samples per time unit).  It is used to calculate
@@ -458,7 +458,7 @@ scale_by_freq : bool, default: True
     MATLAB compatibility.""")
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     r"""
@@ -514,7 +514,7 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
     return Pxx.real, freqs
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     """
@@ -634,7 +634,7 @@ phase_spectrum.__doc__ = _single_spectrum_docs.format(
     **_docstring.interpd.params)
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
              noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
              mode=None):
@@ -717,7 +717,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     return spec, freqs, t
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
            noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     r"""
@@ -776,12 +776,11 @@ class GaussianKDE:
     dataset : array-like
         Datapoints to estimate from. In case of univariate data this is a 1-D
         array, otherwise a 2D array with shape (# of dims, # of data).
-    bw_method : str, scalar or callable, optional
-        The method used to calculate the estimator bandwidth.  This can be
-        'scott', 'silverman', a scalar constant or a callable.  If a
-        scalar, this will be used directly as `kde.factor`.  If a
+    bw_method : {'scott', 'silverman'} or float or callable, optional
+        The method used to calculate the estimator bandwidth.  If a
+        float, this will be used directly as `!kde.factor`.  If a
         callable, it should take a `GaussianKDE` instance as only
-        parameter and return a scalar. If None (default), 'scott' is used.
+        parameter and return a float. If None (default), 'scott' is used.
 
     Attributes
     ----------
@@ -792,11 +791,11 @@ class GaussianKDE:
     num_dp : int
         Number of datapoints.
     factor : float
-        The bandwidth factor, obtained from `kde.covariance_factor`, with which
+        The bandwidth factor, obtained from `~GaussianKDE.covariance_factor`, with which
         the covariance matrix is multiplied.
     covariance : ndarray
         The covariance matrix of *dataset*, scaled by the calculated bandwidth
-        (`kde.factor`).
+        (`!kde.factor`).
     inv_cov : ndarray
         The inverse of *covariance*.
 

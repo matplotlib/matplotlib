@@ -26,22 +26,20 @@ def _generate_deprecation_warning(
         addendum='', *, removal=''):
     if pending:
         if removal:
-            raise ValueError(
-                "A pending deprecation cannot have a scheduled removal")
-    else:
-        removal = f"in {removal}" if removal else "two minor releases later"
+            raise ValueError("A pending deprecation cannot have a scheduled removal")
+    elif removal == '':
+        macro, meso, *_ = since.split('.')
+        removal = f'{macro}.{int(meso) + 2}'
     if not message:
         message = (
-            ("The %(name)s %(obj_type)s" if obj_type else "%(name)s")
-            + (" will be deprecated in a future version"
-               if pending else
-               (" was deprecated in Matplotlib %(since)s"
-                + (" and will be removed %(removal)s" if removal else "")))
-            + "."
-            + (" Use %(alternative)s instead." if alternative else "")
-            + (" %(addendum)s" if addendum else ""))
-    warning_cls = (PendingDeprecationWarning if pending
-                   else MatplotlibDeprecationWarning)
+            ("The %(name)s %(obj_type)s" if obj_type else "%(name)s") +
+            (" will be deprecated in a future version" if pending else
+             (" was deprecated in Matplotlib %(since)s" +
+              (" and will be removed in %(removal)s" if removal else ""))) +
+            "." +
+            (" Use %(alternative)s instead." if alternative else "") +
+            (" %(addendum)s" if addendum else ""))
+    warning_cls = PendingDeprecationWarning if pending else MatplotlibDeprecationWarning
     return warning_cls(message % dict(
         func=name, name=name, obj_type=obj_type, since=since, removal=removal,
         alternative=alternative, addendum=addendum))
@@ -292,7 +290,7 @@ def rename_parameter(since, old, new, func=None):
             warn_deprecated(
                 since, message=f"The {old!r} parameter of {func.__name__}() "
                 f"has been renamed {new!r} since Matplotlib {since}; support "
-                f"for the old name will be dropped %(removal)s.")
+                f"for the old name will be dropped in %(removal)s.")
             kwargs[new] = kwargs.pop(old)
         return func(*args, **kwargs)
 
@@ -387,12 +385,12 @@ def delete_parameter(since, name, func=None, **kwargs):
             warn_deprecated(
                 since, message=f"Additional positional arguments to "
                 f"{func.__name__}() are deprecated since %(since)s and "
-                f"support for them will be removed %(removal)s.")
+                f"support for them will be removed in %(removal)s.")
         elif is_varkwargs and arguments.get(name):
             warn_deprecated(
                 since, message=f"Additional keyword arguments to "
                 f"{func.__name__}() are deprecated since %(since)s and "
-                f"support for them will be removed %(removal)s.")
+                f"support for them will be removed in %(removal)s.")
         # We cannot just check `name not in arguments` because the pyplot
         # wrappers always pass all arguments explicitly.
         elif any(name in d and d[name] != _deprecated_parameter
@@ -434,7 +432,8 @@ def make_keyword_only(since, name, func=None):
     assert (name in signature.parameters
             and signature.parameters[name].kind == POK), (
         f"Matplotlib internal error: {name!r} must be a positional-or-keyword "
-        f"parameter for {func.__name__}()")
+        f"parameter for {func.__name__}(). If this error happens on a function with a "
+        f"pyplot wrapper, make sure make_keyword_only() is the outermost decorator.")
     names = [*signature.parameters]
     name_idx = names.index(name)
     kwonly = [name for name in names[name_idx:]
@@ -449,7 +448,7 @@ def make_keyword_only(since, name, func=None):
             warn_deprecated(
                 since, message="Passing the %(name)s %(obj_type)s "
                 "positionally is deprecated since Matplotlib %(since)s; the "
-                "parameter will become keyword-only %(removal)s.",
+                "parameter will become keyword-only in %(removal)s.",
                 name=name, obj_type=f"parameter of {func.__name__}()")
         return func(*args, **kwargs)
 

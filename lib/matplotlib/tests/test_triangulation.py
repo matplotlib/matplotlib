@@ -1035,7 +1035,7 @@ def test_trirefine():
     x_verif, y_verif = np.meshgrid(x_verif, x_verif)
     x_verif = x_verif.ravel()
     y_verif = y_verif.ravel()
-    ind1d = np.in1d(np.around(x_verif*(2.5+y_verif), 8),
+    ind1d = np.isin(np.around(x_verif*(2.5+y_verif), 8),
                     np.around(x_refi*(2.5+y_refi), 8))
     assert_array_equal(ind1d, True)
 
@@ -1181,43 +1181,44 @@ def test_tricontourf_decreasing_levels():
         plt.tricontourf(x, y, z, [1.0, 0.0])
 
 
-def test_internal_cpp_api():
+def test_internal_cpp_api() -> None:
     # Following github issue 8197.
-    from matplotlib import _tri  # noqa: ensure lazy-loaded module *is* loaded.
+    from matplotlib import _tri  # noqa: F401, ensure lazy-loaded module *is* loaded.
 
     # C++ Triangulation.
     with pytest.raises(
             TypeError,
             match=r'__init__\(\): incompatible constructor arguments.'):
-        mpl._tri.Triangulation()
+        mpl._tri.Triangulation()  # type: ignore[call-arg]
 
     with pytest.raises(
             ValueError, match=r'x and y must be 1D arrays of the same length'):
-        mpl._tri.Triangulation([], [1], [[]], (), (), (), False)
+        mpl._tri.Triangulation(np.array([]), np.array([1]), np.array([[]]), (), (), (),
+                               False)
 
-    x = [0, 1, 1]
-    y = [0, 0, 1]
+    x = np.array([0, 1, 1], dtype=np.float64)
+    y = np.array([0, 0, 1], dtype=np.float64)
     with pytest.raises(
             ValueError,
             match=r'triangles must be a 2D array of shape \(\?,3\)'):
-        mpl._tri.Triangulation(x, y, [[0, 1]], (), (), (), False)
+        mpl._tri.Triangulation(x, y, np.array([[0, 1]]), (), (), (), False)
 
-    tris = [[0, 1, 2]]
+    tris = np.array([[0, 1, 2]], dtype=np.int_)
     with pytest.raises(
             ValueError,
             match=r'mask must be a 1D array with the same length as the '
                   r'triangles array'):
-        mpl._tri.Triangulation(x, y, tris, [0, 1], (), (), False)
+        mpl._tri.Triangulation(x, y, tris, np.array([0, 1]), (), (), False)
 
     with pytest.raises(
             ValueError, match=r'edges must be a 2D array with shape \(\?,2\)'):
-        mpl._tri.Triangulation(x, y, tris, (), [[1]], (), False)
+        mpl._tri.Triangulation(x, y, tris, (), np.array([[1]]), (), False)
 
     with pytest.raises(
             ValueError,
             match=r'neighbors must be a 2D array with the same shape as the '
                   r'triangles array'):
-        mpl._tri.Triangulation(x, y, tris, (), (), [[-1]], False)
+        mpl._tri.Triangulation(x, y, tris, (), (), np.array([[-1]]), False)
 
     triang = mpl._tri.Triangulation(x, y, tris, (), (), (), False)
 
@@ -1232,9 +1233,9 @@ def test_internal_cpp_api():
                 ValueError,
                 match=r'mask must be a 1D array with the same length as the '
                       r'triangles array'):
-            triang.set_mask(mask)
+            triang.set_mask(mask)  # type: ignore[arg-type]
 
-    triang.set_mask([True])
+    triang.set_mask(np.array([True]))
     assert_array_equal(triang.get_edges(), np.empty((0, 2)))
 
     triang.set_mask(())  # Equivalent to Python Triangulation mask=None
@@ -1244,15 +1245,14 @@ def test_internal_cpp_api():
     with pytest.raises(
             TypeError,
             match=r'__init__\(\): incompatible constructor arguments.'):
-        mpl._tri.TriContourGenerator()
+        mpl._tri.TriContourGenerator()  # type: ignore[call-arg]
 
     with pytest.raises(
             ValueError,
-            match=r'z must be a 1D array with the same length as the x and y '
-                  r'arrays'):
-        mpl._tri.TriContourGenerator(triang, [1])
+            match=r'z must be a 1D array with the same length as the x and y arrays'):
+        mpl._tri.TriContourGenerator(triang, np.array([1]))
 
-    z = [0, 1, 2]
+    z = np.array([0, 1, 2])
     tcg = mpl._tri.TriContourGenerator(triang, z)
 
     with pytest.raises(
@@ -1263,13 +1263,13 @@ def test_internal_cpp_api():
     with pytest.raises(
             TypeError,
             match=r'__init__\(\): incompatible constructor arguments.'):
-        mpl._tri.TrapezoidMapTriFinder()
+        mpl._tri.TrapezoidMapTriFinder()  # type: ignore[call-arg]
 
     trifinder = mpl._tri.TrapezoidMapTriFinder(triang)
 
     with pytest.raises(
             ValueError, match=r'x and y must be array-like with same shape'):
-        trifinder.find_many([0], [0, 1])
+        trifinder.find_many(np.array([0]), np.array([0, 1]))
 
 
 def test_qhull_large_offset():
@@ -1340,3 +1340,64 @@ def test_triplot_label():
     assert labels == ['label']
     assert len(handles) == 1
     assert handles[0] is lines
+
+
+def test_tricontour_path():
+    x = [0, 4, 4, 0, 2]
+    y = [0, 0, 4, 4, 2]
+    triang = mtri.Triangulation(x, y)
+    _, ax = plt.subplots()
+
+    # Line strip from boundary to boundary
+    cs = ax.tricontour(triang, [1, 0, 0, 0, 0], levels=[0.5])
+    paths = cs.get_paths()
+    assert len(paths) == 1
+    expected_vertices = [[2, 0], [1, 1], [0, 2]]
+    assert_array_almost_equal(paths[0].vertices, expected_vertices)
+    assert_array_equal(paths[0].codes, [1, 2, 2])
+    assert_array_almost_equal(
+        paths[0].to_polygons(closed_only=False), [expected_vertices])
+
+    # Closed line loop inside domain
+    cs = ax.tricontour(triang, [0, 0, 0, 0, 1], levels=[0.5])
+    paths = cs.get_paths()
+    assert len(paths) == 1
+    expected_vertices = [[3, 1], [3, 3], [1, 3], [1, 1], [3, 1]]
+    assert_array_almost_equal(paths[0].vertices, expected_vertices)
+    assert_array_equal(paths[0].codes, [1, 2, 2, 2, 79])
+    assert_array_almost_equal(paths[0].to_polygons(), [expected_vertices])
+
+
+def test_tricontourf_path():
+    x = [0, 4, 4, 0, 2]
+    y = [0, 0, 4, 4, 2]
+    triang = mtri.Triangulation(x, y)
+    _, ax = plt.subplots()
+
+    # Polygon inside domain
+    cs = ax.tricontourf(triang, [0, 0, 0, 0, 1], levels=[0.5, 1.5])
+    paths = cs.get_paths()
+    assert len(paths) == 1
+    expected_vertices = [[3, 1], [3, 3], [1, 3], [1, 1], [3, 1]]
+    assert_array_almost_equal(paths[0].vertices, expected_vertices)
+    assert_array_equal(paths[0].codes, [1, 2, 2, 2, 79])
+    assert_array_almost_equal(paths[0].to_polygons(), [expected_vertices])
+
+    # Polygon following boundary and inside domain
+    cs = ax.tricontourf(triang, [1, 0, 0, 0, 0], levels=[0.5, 1.5])
+    paths = cs.get_paths()
+    assert len(paths) == 1
+    expected_vertices = [[2, 0], [1, 1], [0, 2], [0, 0], [2, 0]]
+    assert_array_almost_equal(paths[0].vertices, expected_vertices)
+    assert_array_equal(paths[0].codes, [1, 2, 2, 2, 79])
+    assert_array_almost_equal(paths[0].to_polygons(), [expected_vertices])
+
+    # Polygon is outer boundary with hole
+    cs = ax.tricontourf(triang, [0, 0, 0, 0, 1], levels=[-0.5, 0.5])
+    paths = cs.get_paths()
+    assert len(paths) == 1
+    expected_vertices = [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0],
+                         [1, 1], [1, 3], [3, 3], [3, 1], [1, 1]]
+    assert_array_almost_equal(paths[0].vertices, expected_vertices)
+    assert_array_equal(paths[0].codes, [1, 2, 2, 2, 79, 1, 2, 2, 2, 79])
+    assert_array_almost_equal(paths[0].to_polygons(), np.split(expected_vertices, [5]))

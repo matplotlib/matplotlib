@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import ticker as mticker
+from matplotlib import ticker as mticker, _api
 from matplotlib.transforms import Bbox, Transform
 
 
@@ -34,7 +34,7 @@ def _find_line_box_crossings(xys, bbox):
         umin, vmin = bbox.min[sl]
         umax, vmax = bbox.max[sl]
         for u0, inside in [(umin, us > umin), (umax, us < umax)]:
-            crossings.append([])
+            cross = []
             idxs, = (inside[:-1] ^ inside[1:]).nonzero()
             for idx in idxs:
                 v = vs[idx] + (u0 - us[idx]) * dvs[idx] / dus[idx]
@@ -42,7 +42,8 @@ def _find_line_box_crossings(xys, bbox):
                     continue
                 crossing = (u0, v)[sl]
                 theta = np.degrees(np.arctan2(*dxys[idx][::-1]))
-                crossings[-1].append((crossing, theta))
+                cross.append((crossing, theta))
+            crossings.append(cross)
     return crossings
 
 
@@ -76,20 +77,29 @@ class ExtremeFinderSimple:
         extremal coordinates; then adding some padding to take into account the
         finite sampling.
 
-        As each sampling step covers a relative range of *1/nx* or *1/ny*,
+        As each sampling step covers a relative range of ``1/nx`` or ``1/ny``,
         the padding is computed by expanding the span covered by the extremal
         coordinates by these fractions.
         """
-        x, y = np.meshgrid(
-            np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny))
-        xt, yt = transform_xy(np.ravel(x), np.ravel(y))
-        return self._add_pad(xt.min(), xt.max(), yt.min(), yt.max())
+        tbbox = self._find_transformed_bbox(
+            _User2DTransform(transform_xy, None), Bbox.from_extents(x1, y1, x2, y2))
+        return tbbox.x0, tbbox.x1, tbbox.y0, tbbox.y1
 
-    def _add_pad(self, x_min, x_max, y_min, y_max):
-        """Perform the padding mentioned in `__call__`."""
-        dx = (x_max - x_min) / self.nx
-        dy = (y_max - y_min) / self.ny
-        return x_min - dx, x_max + dx, y_min - dy, y_max + dy
+    def _find_transformed_bbox(self, trans, bbox):
+        """
+        Compute an approximation of the bounding box obtained by applying
+        *trans* to *bbox*.
+
+        See ``__call__`` for details; this method performs similar
+        calculations, but using a different representation of the arguments and
+        return value.
+        """
+        grid = np.reshape(np.meshgrid(np.linspace(bbox.x0, bbox.x1, self.nx),
+                                      np.linspace(bbox.y0, bbox.y1, self.ny)),
+                          (2, -1)).T
+        tbbox = Bbox.null()
+        tbbox.update_from_data_xy(trans.transform(grid))
+        return tbbox.expanded(1 + 2 / self.nx, 1 + 2 / self.ny)
 
 
 class _User2DTransform(Transform):
@@ -150,96 +160,71 @@ class GridFinder:
         self.tick_formatter2 = tick_formatter2
         self.set_transform(transform)
 
+    def _format_ticks(self, idx, direction, factor, levels):
+        """
+        Helper to support both standard formatters (inheriting from
+        `.mticker.Formatter`) and axisartist-specific ones; should be called instead of
+        directly calling ``self.tick_formatter1`` and ``self.tick_formatter2``.  This
+        method should be considered as a temporary workaround which will be removed in
+        the future at the same time as axisartist-specific formatters.
+        """
+        fmt = _api.check_getitem(
+            {1: self.tick_formatter1, 2: self.tick_formatter2}, idx=idx)
+        return (fmt.format_ticks(levels) if isinstance(fmt, mticker.Formatter)
+                else fmt(direction, factor, levels))
+
     def get_grid_info(self, x1, y1, x2, y2):
         """
         lon_values, lat_values : list of grid values. if integer is given,
                            rough number of grids in each direction.
         """
 
-        extremes = self.extreme_finder(self.inv_transform_xy, x1, y1, x2, y2)
+        bbox = Bbox.from_extents(x1, y1, x2, y2)
+        tbbox = self.extreme_finder._find_transformed_bbox(
+            self.get_transform().inverted(), bbox)
 
-        # min & max rage of lat (or lon) for each grid line will be drawn.
-        # i.e., gridline of lon=0 will be drawn from lat_min to lat_max.
+        lon_levs, lon_n, lon_factor = self.grid_locator1(*tbbox.intervalx)
+        lat_levs, lat_n, lat_factor = self.grid_locator2(*tbbox.intervaly)
 
-        lon_min, lon_max, lat_min, lat_max = extremes
-        lon_levs, lon_n, lon_factor = self.grid_locator1(lon_min, lon_max)
-        lon_levs = np.asarray(lon_levs)
-        lat_levs, lat_n, lat_factor = self.grid_locator2(lat_min, lat_max)
-        lat_levs = np.asarray(lat_levs)
+        lon_values = np.asarray(lon_levs[:lon_n]) / lon_factor
+        lat_values = np.asarray(lat_levs[:lat_n]) / lat_factor
 
-        lon_values = lon_levs[:lon_n] / lon_factor
-        lat_values = lat_levs[:lat_n] / lat_factor
+        lon_lines, lat_lines = self._get_raw_grid_lines(lon_values, lat_values, tbbox)
 
-        lon_lines, lat_lines = self._get_raw_grid_lines(lon_values,
-                                                        lat_values,
-                                                        lon_min, lon_max,
-                                                        lat_min, lat_max)
+        bbox_expanded = bbox.expanded(1 + 2e-10, 1 + 2e-10)
+        grid_info = {"extremes": tbbox}  # "lon", "lat" keys filled below.
 
-        ddx = (x2-x1)*1.e-10
-        ddy = (y2-y1)*1.e-10
-        bb = Bbox.from_extents(x1-ddx, y1-ddy, x2+ddx, y2+ddy)
-
-        grid_info = {
-            "extremes": extremes,
-            "lon_lines": lon_lines,
-            "lat_lines": lat_lines,
-            "lon": self._clip_grid_lines_and_find_ticks(
-                lon_lines, lon_values, lon_levs, bb),
-            "lat": self._clip_grid_lines_and_find_ticks(
-                lat_lines, lat_values, lat_levs, bb),
-        }
-
-        tck_labels = grid_info["lon"]["tick_labels"] = {}
-        for direction in ["left", "bottom", "right", "top"]:
-            levs = grid_info["lon"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter1(
-                direction, lon_factor, levs)
-
-        tck_labels = grid_info["lat"]["tick_labels"] = {}
-        for direction in ["left", "bottom", "right", "top"]:
-            levs = grid_info["lat"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter2(
-                direction, lat_factor, levs)
+        for idx, lon_or_lat, levs, factor, values, lines in [
+                (1, "lon", lon_levs, lon_factor, lon_values, lon_lines),
+                (2, "lat", lat_levs, lat_factor, lat_values, lat_lines),
+        ]:
+            grid_info[lon_or_lat] = gi = {
+                "lines": lines,
+                "ticks": {"left": [], "right": [], "bottom": [], "top": []},
+            }
+            for xys, v, level in zip(lines, values, levs):
+                all_crossings = _find_line_box_crossings(xys, bbox_expanded)
+                for side, crossings in zip(
+                        ["left", "right", "bottom", "top"], all_crossings):
+                    for crossing in crossings:
+                        gi["ticks"][side].append({"level": level, "loc": crossing})
+            for side in gi["ticks"]:
+                levs = [tick["level"] for tick in gi["ticks"][side]]
+                labels = self._format_ticks(idx, side, factor, levs)
+                for tick, label in zip(gi["ticks"][side], labels):
+                    tick["label"] = label
 
         return grid_info
 
-    def _get_raw_grid_lines(self,
-                            lon_values, lat_values,
-                            lon_min, lon_max, lat_min, lat_max):
-
-        lons_i = np.linspace(lon_min, lon_max, 100)  # for interpolation
-        lats_i = np.linspace(lat_min, lat_max, 100)
-
-        lon_lines = [self.transform_xy(np.full_like(lats_i, lon), lats_i)
+    def _get_raw_grid_lines(self, lon_values, lat_values, bbox):
+        trans = self.get_transform()
+        lons = np.linspace(bbox.x0, bbox.x1, 100)  # for interpolation
+        lats = np.linspace(bbox.y0, bbox.y1, 100)
+        lon_lines = [trans.transform(np.column_stack([np.full_like(lats, lon), lats]))
                      for lon in lon_values]
-        lat_lines = [self.transform_xy(lons_i, np.full_like(lons_i, lat))
+        lat_lines = [trans.transform(np.column_stack([lons, np.full_like(lons, lat)]))
                      for lat in lat_values]
-
         return lon_lines, lat_lines
-
-    def _clip_grid_lines_and_find_ticks(self, lines, values, levs, bb):
-        gi = {
-            "values": [],
-            "levels": [],
-            "tick_levels": dict(left=[], bottom=[], right=[], top=[]),
-            "tick_locs": dict(left=[], bottom=[], right=[], top=[]),
-            "lines": [],
-        }
-
-        tck_levels = gi["tick_levels"]
-        tck_locs = gi["tick_locs"]
-        for (lx, ly), v, lev in zip(lines, values, levs):
-            tcks = _find_line_box_crossings(np.column_stack([lx, ly]), bb)
-            gi["levels"].append(v)
-            gi["lines"].append([(lx, ly)])
-
-            for tck, direction in zip(tcks,
-                                      ["left", "right", "bottom", "top"]):
-                for t in tck:
-                    tck_levels[direction].append(lev)
-                    tck_locs[direction].append(t)
-
-        return gi
 
     def set_transform(self, aux_trans):
         if isinstance(aux_trans, Transform):
@@ -255,9 +240,11 @@ class GridFinder:
 
     update_transform = set_transform  # backcompat alias.
 
+    @_api.deprecated("3.11", alternative="grid_finder.get_transform()")
     def transform_xy(self, x, y):
         return self._aux_transform.transform(np.column_stack([x, y])).T
 
+    @_api.deprecated("3.11", alternative="grid_finder.get_transform().inverted()")
     def inv_transform_xy(self, x, y):
         return self._aux_transform.inverted().transform(
             np.column_stack([x, y])).T

@@ -19,19 +19,19 @@ class MixedModeRenderer:
         """
         Parameters
         ----------
-        figure : `matplotlib.figure.Figure`
+        figure : `~matplotlib.figure.Figure`
             The figure instance.
-        width : scalar
+        width : float
             The width of the canvas in logical units
-        height : scalar
+        height : float
             The height of the canvas in logical units
         dpi : float
             The dpi of the canvas
-        vector_renderer : `matplotlib.backend_bases.RendererBase`
+        vector_renderer : `~matplotlib.backend_bases.RendererBase`
             An instance of a subclass of
             `~matplotlib.backend_bases.RendererBase` that will be used for the
             vector drawing.
-        raster_renderer_class : `matplotlib.backend_bases.RendererBase`
+        raster_renderer_class : `~matplotlib.backend_bases.RendererBase`
             The renderer class to use for the raster drawing.  If not provided,
             this will use the Agg backend (which is currently the only viable
             option anyway.)
@@ -75,14 +75,16 @@ class MixedModeRenderer:
         """
         # change the dpi of the figure temporarily.
         self.figure.dpi = self.dpi
-        if self._bbox_inches_restore:  # when tight bbox is used
-            r = process_figure_for_rasterizing(self.figure,
-                                               self._bbox_inches_restore)
-            self._bbox_inches_restore = r
 
         self._raster_renderer = self._raster_renderer_class(
             self._width*self.dpi, self._height*self.dpi, self.dpi)
         self._renderer = self._raster_renderer
+
+        if self._bbox_inches_restore:  # when tight bbox is used
+            r = process_figure_for_rasterizing(self.figure,
+                                               self._bbox_inches_restore,
+                                               self._raster_renderer)
+            self._bbox_inches_restore = r
 
     def stop_rasterizing(self):
         """
@@ -115,5 +117,6 @@ class MixedModeRenderer:
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
                                                self._bbox_inches_restore,
+                                               self._vector_renderer,
                                                self._figdpi)
             self._bbox_inches_restore = r

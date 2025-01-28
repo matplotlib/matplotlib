@@ -3,6 +3,11 @@
     --pst-color-link-hover: var(--pst-color-secondary);
     --sd-color-primary: var(--pst-color-primary);
     --sd-color-primary-text: var(--pst-color-text-base);
+    --sd-color-secondary: #ee9040;
+    --sd-color-success: #28a745;
+    --sd-color-dark: #323232;
+    --sd-color-danger: #dc3545;
+    --sd-color-light: #c9c9c9;
 }
 
 .simple li>p {
@@ -57,9 +62,13 @@ html[data-theme="dark"] .sphx-glr-thumbcontainer {
     background-color: rgb(63, 63, 63);
 }
 
-/* workaround: the default padding decenters the image inside the frame */
-.sphx-glr-thumbcontainer .figure {
-    padding: 0;
+/* Set a fixed height so that lazy loading does not change heights. Without a fixed
+ * height lazy loading of images interferes with anchor links: Clicking a link goes to
+ * a certain position, but then the loaded images add content and move the anchor to a
+ * different position.
+ */
+.sphx-glr-thumbcontainer img {
+    height: 112px;
 }
 
 /* hide download buttons in example headers
@@ -99,6 +108,11 @@ table.property-table td {
     margin: 0 0.5em;
 }
 
+/* Make the code examples in the API reference index the same height. */
+.api-interface-example pre {
+    min-height: 6.5rem;
+}
+
 /* Make inheritance images have a scroll bar if necessary. */
 div.graphviz {
     border: 1px solid lightgrey;
@@ -119,4 +133,77 @@ div.wide-table table th.stub {
     background-clip: padding-box;
     left: 0;
     position: sticky;
+}
+
+.imrot-img {
+    display: flex;
+    margin: auto;
+    max-width:15em;
+    align-self: center;
+  }
+
+  .imrot-cap {
+    text-align: center;
+    font-style: italic;
+    font-size:  large;
+  }
+
+
+.checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.checklist li {
+    margin-left: 24px;
+    padding-left: 23px;
+    margin-right: 6px;
+}
+.checklist li:before {
+    content: "\2610\2001";
+    margin-left: -24px;
+}
+.checklist li p {
+    display: inline;
+}
+
+/* sdd is a custom class that strips out styling from dropdowns
+ * Example usage:
+ *
+ * .. dropdown::
+ *   :class-container: sdd
+ *
+ */
+
+.sdd.sd-dropdown {
+    box-shadow: none!important;
+}
+
+.sdd.sd-dropdown.sd-card{
+    border-style: solid !important;
+    border-color: var(--pst-color-border) !important;
+    border-width: thin !important;
+    border-radius: .05
+}
+
+.sdd.sd-dropdown .sd-card-header{
+    --pst-sd-dropdown-color: none;
+}
+
+.sdd.sd-dropdown .sd-card-header +.sd-card-body{
+    --pst-sd-dropdown-color: none;
+}
+
+/* section-toc is a custom class that removes the page title from a toctree listing
+ * Example usage:
+ *
+ * .. rst-class:: section-toc
+ * .. toctree::
+ *
+ */
+.section-toc.toctree-wrapper .toctree-l1>a{
+    display: none;
+}
+.section-toc.toctree-wrapper li>ul{
+    padding-inline-start:0;
 }

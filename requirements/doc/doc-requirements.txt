@@ -2,22 +2,25 @@
 #
 # You will first need a matching Matplotlib installation
 # e.g (from the Matplotlib root directory)
-#     pip install -e .
+#     pip install --no-build-isolation --editable .[dev]
 #
 # Install the documentation requirements with:
 #     pip install -r requirements/doc/doc-requirements.txt
 #
-sphinx>=3.0.0,!=6.1.2
+sphinx>=5.1.0,!=6.1.2
 colorspacious
 ipython
 ipywidgets
 ipykernel
 numpydoc>=1.0
 packaging>=20
-pydata-sphinx-theme~=0.13.1
-mpl-sphinx-theme~=3.7.0
+pydata-sphinx-theme~=0.15.0
+mpl-sphinx-theme~=3.9.0
 pyyaml
+PyStemmer
 sphinxcontrib-svg2pdfconverter>=1.1.0
-sphinx-gallery>=0.12.0
+sphinxcontrib-video>=0.2.1
 sphinx-copybutton
 sphinx-design
+sphinx-gallery[parallel]>=0.12.0
+sphinx-tags>=0.4.0

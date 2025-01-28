@@ -99,7 +99,7 @@ Here is an example that uses ParasiteAxes.
    :target: /gallery/axisartist/demo_parasite_axes2.html
    :align: center
 
-Curvilinear Grid
+Curvilinear grid
 ----------------
 
 The motivation behind the AxisArtist module is to support a curvilinear grid
@@ -180,11 +180,11 @@ AxisArtist
 AxisArtist can be considered as a container artist with following
 attributes which will draw ticks, labels, etc.
 
- * line
- * major_ticks, major_ticklabels
- * minor_ticks, minor_ticklabels
- * offsetText
- * label
+* line
+* major_ticks, major_ticklabels
+* minor_ticks, minor_ticklabels
+* offsetText
+* label
 
 line
 ----
@@ -298,7 +298,7 @@ HowTo
    To change the pad between ticklabels and axis label,
    axis.label.set_pad method.
 
-Rotation and Alignment of TickLabels
+Rotation and alignment of TickLabels
 ====================================
 
 This is also quite different from standard Matplotlib and can be
@@ -341,18 +341,37 @@ On the other hand, there is a concept of "axis_direction". This is a
 default setting of above properties for each, "bottom", "left", "top",
 and "right" axis.
 
-========== =========== ========= ========== ========= ==========
-   ?           ?        left      bottom      right      top
----------- ----------- --------- ---------- --------- ----------
-axislabel   direction      '-'       '+'        '+'      '-'
-axislabel   rotation      180         0          0       180
-axislabel   va           center    top       center     bottom
-axislabel   ha           right    center      right     center
-ticklabel   direction      '-'       '+'        '+'      '-'
-ticklabels  rotation       90         0        -90       180
-ticklabel   ha           right    center      right     center
-ticklabel   va           center   baseline    center   baseline
-========== =========== ========= ========== ========= ==========
+.. table:: ``axislabel`` property defaults
+
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | reference direction | label direction | label rotation | horizontal alignment | vertical alignment |
+   +=====================+=================+================+======================+====================+
+   | left                | '-'             | 180            | right                | center             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | bottom              | '+'             | 0              | center               | top                |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | right               | '+'             | 0              | right                | center             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | top                 | '-'             | 180            | center               | bottom             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+
+
+
+.. table:: ``ticklabel`` property defaults
+
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | reference direction | label direction | label rotation | horizontal alignment | vertical alignment |
+   +=====================+=================+================+======================+====================+
+   | left                | '-'             | 90             | right                | center             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | bottom              | '+'             | 0              | center               | baseline           |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | right               | '+'             | -90            | right                | center             |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+   | top                 | '-'             | 180            | center               | baseline           |
+   +---------------------+-----------------+----------------+----------------------+--------------------+
+
+
 
 And, 'set_axis_direction("top")' means to adjust the text rotation
 etc, for settings suitable for "top" axis. The concept of axis
@@ -547,7 +566,7 @@ way is to add it as an item of Axes's axis attribute.::
 
 See the first example of this page.
 
-Current Limitations and TODO's
+Current limitations and TODO's
 ==============================
 
 The code need more refinement. Here is a incomplete list of issues and TODO's

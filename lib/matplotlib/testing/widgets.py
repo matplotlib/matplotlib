@@ -6,16 +6,17 @@ Widget testing utilities
 See also :mod:`matplotlib.tests.test_widgets`.
 """
 
-import matplotlib.pyplot as plt
 from unittest import mock
+
+import matplotlib.pyplot as plt
 
 
 def get_ax():
-    """Create a plot and return its axes."""
+    """Create a plot and return its Axes."""
     fig, ax = plt.subplots(1, 1)
     ax.plot([0, 200], [0, 200])
     ax.set_aspect(1.0)
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
     return ax
 
 
@@ -32,11 +33,11 @@ def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
-        The axes the event will be in.
-    xdata : int
+    ax : `~matplotlib.axes.Axes`
+        The Axes the event will be in.
+    xdata : float
         x coord of mouse in data coords.
-    ydata : int
+    ydata : float
         y coord of mouse in data coords.
     button : None or `MouseButton` or {'up', 'down'}
         The mouse button pressed in this event (see also `.MouseEvent`).
@@ -56,7 +57,7 @@ def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
                                                (xdata, ydata)])[0]
     event.xdata, event.ydata = xdata, ydata
     event.inaxes = ax
-    event.canvas = ax.figure.canvas
+    event.canvas = ax.get_figure(root=True).canvas
     event.key = key
     event.step = step
     event.guiEvent = None
@@ -70,12 +71,12 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
 
     Parameters
     ----------
-    tool : matplotlib.widgets.RectangleSelector
+    tool : matplotlib.widgets.AxesWidget
     etype : str
         The event to trigger.
-    xdata : int
+    xdata : float
         x coord of mouse in data coords.
-    ydata : int
+    ydata : float
         y coord of mouse in data coords.
     button : None or `MouseButton` or {'up', 'down'}
         The mouse button pressed in this event (see also `.MouseEvent`).
@@ -95,7 +96,7 @@ def click_and_drag(tool, start, end, key=None):
 
     Parameters
     ----------
-    tool : `matplotlib.widgets.Widget`
+    tool : `~matplotlib.widgets.Widget`
     start : [float, float]
         Starting point in data coordinates.
     end : [float, float]

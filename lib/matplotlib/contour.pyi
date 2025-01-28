@@ -2,10 +2,12 @@ import matplotlib.cm as cm
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.collections import Collection, PathCollection
+from matplotlib.colorizer import Colorizer, ColorizingArtist
 from matplotlib.colors import Colormap, Normalize
-from matplotlib.font_manager import FontProperties
+from matplotlib.path import Path
+from matplotlib.patches import Patch
 from matplotlib.text import Text
-from matplotlib.transforms import Transform
+from matplotlib.transforms import Transform, TransformedPatchPath, TransformedPath
 from matplotlib.ticker import Locator, Formatter
 
 from numpy.typing import ArrayLike
@@ -14,7 +16,7 @@ from collections.abc import Callable, Iterable, Sequence
 from typing import Literal
 from .typing import ColorType
 
-class ClabelText(Text): ...
+
 
 class ContourLabeler:
     labelFmt: str | Formatter | Callable[[float], str] | dict[float, str]
@@ -22,7 +24,7 @@ class ContourLabeler:
     rightside_up: bool
     labelLevelList: list[float]
     labelIndiceList: list[int]
-    labelMappable: cm.ScalarMappable
+    labelMappable: cm.ScalarMappable | ColorizingArtist
     labelCValueList: list[ColorType]
     labelXYs: list[tuple[float, float]]
     def clabel(
@@ -39,15 +41,8 @@ class ContourLabeler:
         rightside_up: bool = ...,
         zorder: float | None = ...
     ) -> list[Text]: ...
-    @property
-    def labelFontProps(self) -> FontProperties: ...
-    @property
-    def labelFontSizeList(self) -> list[float]: ...
-    @property
-    def labelTextsList(self) -> list[Text]: ...
     def print_label(self, linecontour: ArrayLike, labelwidth: float) -> bool: ...
     def too_close(self, x: float, y: float, lw: float) -> bool: ...
-    def set_label_props(self, label: Text, text: str, color: ColorType) -> None: ...
     def get_text(
         self,
         lev: float,
@@ -56,18 +51,7 @@ class ContourLabeler:
     def locate_label(
         self, linecontour: ArrayLike, labelwidth: float
     ) -> tuple[float, float, float]: ...
-    def calc_label_rot_and_inline(
-        self,
-        slc: ArrayLike,
-        ind: int,
-        lw: float,
-        lc: ArrayLike | None = ...,
-        spacing: int = ...,
-    ) -> tuple[float, list[ArrayLike]]: ...
     def add_label(
-        self, x: float, y: float, rotation: float, lev: float, cvalue: ColorType
-    ) -> None: ...
-    def add_label_clabeltext(
         self, x: float, y: float, rotation: float, lev: float, cvalue: ColorType
     ) -> None: ...
     def add_label_near(
@@ -82,35 +66,38 @@ class ContourLabeler:
     def labels(self, inline: bool, inline_spacing: int) -> None: ...
     def remove(self) -> None: ...
 
-class ContourSet(cm.ScalarMappable, ContourLabeler):
+class ContourSet(ContourLabeler, Collection):
     axes: Axes
     levels: Iterable[float]
     filled: bool
     linewidths: float | ArrayLike | None
-    linestyles: None | Literal["solid", "dashed", "dashdot", "dotted"] | Iterable[
-        Literal["solid", "dashed", "dashdot", "dotted"]
-    ]
     hatches: Iterable[str | None]
-    alpha: float | None
     origin: Literal["upper", "lower", "image"] | None
     extent: tuple[float, float, float, float] | None
     colors: ColorType | Sequence[ColorType]
     extend: Literal["neither", "both", "min", "max"]
-    antialiased: bool | None
     nchunk: int
     locator: Locator | None
     logscale: bool
     negative_linestyles: None | Literal[
         "solid", "dashed", "dashdot", "dotted"
     ] | Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
-    collections: list[PathCollection]
+    clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None
     labelTexts: list[Text]
     labelCValues: list[ColorType]
-    allkinds: list[np.ndarray]
-    tcolors: list[tuple[float, float, float, float]]
 
-    # only for not filled
-    tlinewidths: list[tuple[float]]
+    @property
+    def allkinds(self) -> list[list[np.ndarray | None]]: ...
+    @property
+    def allsegs(self) -> list[list[np.ndarray]]: ...
+    @property
+    def alpha(self) -> float | None: ...
+    @property
+    def linestyles(self) -> (
+        None |
+        Literal["solid", "dashed", "dashdot", "dotted"] |
+        Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
+    ): ...
 
     def __init__(
         self,
@@ -131,6 +118,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         norm: str | Normalize | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
+        colorizer: Colorizer | None = ...,
         extend: Literal["neither", "both", "min", "max"] = ...,
         antialiased: bool | None = ...,
         nchunk: int = ...,
@@ -139,16 +127,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         negative_linestyles: Literal["solid", "dashed", "dashdot", "dotted"]
         | Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
         | None = ...,
+        clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None = ...,
         **kwargs
     ) -> None: ...
-    def get_transform(self) -> Transform: ...
     def legend_elements(
         self, variable_name: str = ..., str_format: Callable[[float], str] = ...
     ) -> tuple[list[Artist], list[str]]: ...
-    def get_alpha(self) -> float | None: ...
-    def set_alpha(self, alpha: float | None) -> None: ...
     def find_nearest_contour(
         self, x: float, y: float, indices: Iterable[int] | None = ..., pixel: bool = ...
-    ) -> tuple[Collection, int, int, float, float, float]: ...
+    ) -> tuple[int, int, int, float, float, float]: ...
 
 class QuadContourSet(ContourSet): ...

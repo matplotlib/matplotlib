@@ -1,7 +1,7 @@
 """
-=================================================
-Creating multiple subplots using ``plt.subplots``
-=================================================
+===============================================
+Create multiple subplots using ``plt.subplots``
+===============================================
 
 `.pyplot.subplots` creates a figure and a grid of subplots with a single call,
 while providing reasonable control over how the individual plots are created.
@@ -181,7 +181,7 @@ for ax in fig.get_axes():
 
 # %%
 # If you want a more complex sharing structure, you can first create the
-# grid of axes with no sharing, and then call `.axes.Axes.sharex` or
+# grid of Axes with no sharing, and then call `.axes.Axes.sharex` or
 # `.axes.Axes.sharey` to add sharing info a posteriori.
 
 fig, axs = plt.subplots(2, 2)
@@ -197,7 +197,7 @@ axs[1, 1].set_title("also unrelated")
 fig.tight_layout()
 
 # %%
-# Polar axes
+# Polar Axes
 # """"""""""
 #
 # The parameter *subplot_kw* of `.pyplot.subplots` controls the subplot
@@ -209,3 +209,14 @@ ax1.plot(x, y)
 ax2.plot(x, y ** 2)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot,
+#    component: axes,
+#    component: axis
+#    plot-type: line,
+#    plot-type: polar
+#    level: beginner
+#    purpose: showcase

@@ -1,23 +1,3 @@
-# TODO:
-# * Documentation -- this will need a new section of the User's Guide.
-#      Both for Animations and just timers.
-#   - Also need to update
-#     https://scipy-cookbook.readthedocs.io/items/Matplotlib_Animations.html
-# * Blit
-#   * Currently broken with Qt4 for widgets that don't start on screen
-#   * Still a few edge cases that aren't working correctly
-#   * Can this integrate better with existing matplotlib animation artist flag?
-#     - If animated removes from default draw(), perhaps we could use this to
-#       simplify initial draw.
-# * Example
-#   * Frameless animation - pure procedural with no loop
-#   * Need example that uses something like inotify or subprocess
-#   * Complex syncing examples
-# * Movies
-#   * Can blit be enabled for movies?
-# * Need to consider event sources to allow clicking through multiple figures
-
-
 import abc
 import base64
 import contextlib
@@ -47,13 +27,6 @@ _log = logging.getLogger(__name__)
 # window. See for example https://stackoverflow.com/q/24130623/
 subprocess_creation_flags = (
     subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0)
-
-# Other potential writing methods:
-# * http://pymedia.org/
-# * libming (produces swf) python wrappers: https://github.com/libming/libming
-# * Wrap x264 API:
-
-# (https://stackoverflow.com/q/2940671/)
 
 
 def adjusted_figsize(w, h, dpi, n):
@@ -173,10 +146,8 @@ class AbstractMovieWriter(abc.ABC):
     def __init__(self, fps=5, metadata=None, codec=None, bitrate=None):
         self.fps = fps
         self.metadata = metadata if metadata is not None else {}
-        self.codec = (
-            mpl.rcParams['animation.codec'] if codec is None else codec)
-        self.bitrate = (
-            mpl.rcParams['animation.bitrate'] if bitrate is None else bitrate)
+        self.codec = mpl._val_or_rc(codec, 'animation.codec')
+        self.bitrate = mpl._val_or_rc(bitrate, 'animation.bitrate')
 
     @abc.abstractmethod
     def setup(self, fig, outfile, dpi=None):
@@ -207,13 +178,27 @@ class AbstractMovieWriter(abc.ABC):
         w, h = self.fig.get_size_inches()
         return int(w * self.dpi), int(h * self.dpi)
 
+    def _supports_transparency(self):
+        """
+        Whether this writer supports transparency.
+
+        Writers may consult output file type and codec to determine this at runtime.
+        """
+        return False
+
     @abc.abstractmethod
     def grab_frame(self, **savefig_kwargs):
         """
         Grab the image information from the figure and save as a movie frame.
 
         All keyword arguments in *savefig_kwargs* are passed on to the
-        `~.Figure.savefig` call that saves the figure.
+        `~.Figure.savefig` call that saves the figure.  However, several
+        keyword arguments that are supported by `~.Figure.savefig` may not be
+        passed as they are controlled by the MovieWriter:
+
+        - *dpi*, *bbox_inches*:  These may not be passed because each frame of the
+           animation much be exactly the same size in pixels.
+        - *format*: This is controlled by the MovieWriter.
         """
 
     @abc.abstractmethod
@@ -227,12 +212,18 @@ class AbstractMovieWriter(abc.ABC):
 
         ``*args, **kw`` are any parameters that should be passed to `setup`.
         """
+        if mpl.rcParams['savefig.bbox'] == 'tight':
+            _log.info("Disabling savefig.bbox = 'tight', as it may cause "
+                      "frame size to vary, which is inappropriate for "
+                      "animation.")
+
         # This particular sequence is what contextlib.contextmanager wants
         self.setup(fig, outfile, dpi, *args, **kwargs)
-        try:
-            yield self
-        finally:
-            self.finish()
+        with mpl.rc_context({'savefig.bbox': None}):
+            try:
+                yield self
+            finally:
+                self.finish()
 
 
 class MovieWriter(AbstractMovieWriter):
@@ -276,9 +267,10 @@ class MovieWriter(AbstractMovieWriter):
             means higher quality movies, but increase the file size.  A value
             of -1 lets the underlying movie encoder select the bitrate.
         extra_args : list of str or None, optional
-            Extra command-line arguments passed to the underlying movie
-            encoder.  The default, None, means to use
-            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
+            Extra command-line arguments passed to the underlying movie encoder. These
+            arguments are passed last to the encoder, just before the filename. The
+            default, None, means to use :rc:`animation.[name-of-encoder]_args` for the
+            builtin writers.
         metadata : dict[str, str], default: {}
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
@@ -351,6 +343,7 @@ class MovieWriter(AbstractMovieWriter):
 
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
+        _validate_grabframe_kwargs(savefig_kwargs)
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
         # Readjust the figure size in case it has been changed by the user.
         # All frames must have the same size to save the movie correctly.
@@ -457,6 +450,7 @@ class FileMovieWriter(MovieWriter):
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
         # Creates a filename for saving using basename and counter.
+        _validate_grabframe_kwargs(savefig_kwargs)
         path = Path(self._base_temp_name() % self._frame_counter)
         self._temp_paths.append(path)  # Record the filename for later use.
         self._frame_counter += 1  # Ensures each created name is unique.
@@ -482,6 +476,9 @@ class FileMovieWriter(MovieWriter):
 
 @writers.register('pillow')
 class PillowWriter(AbstractMovieWriter):
+    def _supports_transparency(self):
+        return True
+
     @classmethod
     def isAvailable(cls):
         return True
@@ -491,11 +488,19 @@ class PillowWriter(AbstractMovieWriter):
         self._frames = []
 
     def grab_frame(self, **savefig_kwargs):
+        _validate_grabframe_kwargs(savefig_kwargs)
         buf = BytesIO()
         self.fig.savefig(
             buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
-        self._frames.append(Image.frombuffer(
-            "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1))
+        im = Image.frombuffer(
+            "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1)
+        if im.getextrema()[3][0] < 255:
+            # This frame has transparency, so we'll just add it as is.
+            self._frames.append(im)
+        else:
+            # Without transparency, we switch to RGB mode, which converts to P mode a
+            # little better if needed (specifically, this helps with GIF output.)
+            self._frames.append(im.convert("RGB"))
 
     def finish(self):
         self._frames[0].save(
@@ -516,31 +521,52 @@ class FFMpegBase:
     _exec_key = 'animation.ffmpeg_path'
     _args_key = 'animation.ffmpeg_args'
 
+    def _supports_transparency(self):
+        suffix = Path(self.outfile).suffix
+        if suffix in {'.apng', '.avif', '.gif', '.webm', '.webp'}:
+            return True
+        # This list was found by going through `ffmpeg -codecs` for video encoders,
+        # running them with _support_transparency() forced to True, and checking that
+        # the "Pixel format" in Kdenlive included alpha. Note this is not a guarantee
+        # that transparency will work; you may also need to pass `-pix_fmt`, but we
+        # trust the user has done so if they are asking for these formats.
+        return self.codec in {
+            'apng', 'avrp', 'bmp', 'cfhd', 'dpx', 'ffv1', 'ffvhuff', 'gif', 'huffyuv',
+            'jpeg2000', 'ljpeg', 'png', 'prores', 'prores_aw', 'prores_ks', 'qtrle',
+            'rawvideo', 'targa', 'tiff', 'utvideo', 'v408', }
+
     @property
     def output_args(self):
         args = []
-        if Path(self.outfile).suffix == '.gif':
-            self.codec = 'gif'
+        suffix = Path(self.outfile).suffix
+        if suffix in {'.apng', '.avif', '.gif', '.webm', '.webp'}:
+            self.codec = suffix[1:]
         else:
             args.extend(['-vcodec', self.codec])
         extra_args = (self.extra_args if self.extra_args is not None
                       else mpl.rcParams[self._args_key])
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
-        # iOS, as well as HTML5 video in firefox and safari (on both Win and
-        # OSX). Also fixes internet explorer. This is as of 2015/10/29.
+        # iOS, as well as HTML5 video in firefox and safari (on both Windows and
+        # macOS). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
-        # For GIF, we're telling FFMPEG to split the video stream, to generate
+        # For GIF, we're telling FFmpeg to split the video stream, to generate
         # a palette, and then use it for encoding.
         elif self.codec == 'gif' and '-filter_complex' not in extra_args:
             args.extend(['-filter_complex',
                          'split [a][b];[a] palettegen [p];[b][p] paletteuse'])
+        # For AVIF, we're telling FFmpeg to split the video stream, extract the alpha,
+        # in order to place it in a secondary stream, as needed by AVIF-in-FFmpeg.
+        elif self.codec == 'avif' and '-filter_complex' not in extra_args:
+            args.extend(['-filter_complex',
+                         'split [rgb][rgba]; [rgba] alphaextract [alpha]',
+                         '-map', '[rgb]', '-map', '[alpha]'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
-        args.extend(extra_args)
         for k, v in self.metadata.items():
             args.extend(['-metadata', f'{k}={v}'])
+        args.extend(extra_args)
 
         return args + ['-y', self.outfile]
 
@@ -551,15 +577,19 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
     """
     Pipe-based ffmpeg writer.
 
-    Frames are streamed directly to ffmpeg via a pipe and written in a single
-    pass.
+    Frames are streamed directly to ffmpeg via a pipe and written in a single pass.
+
+    This effectively works as a slideshow input to ffmpeg with the fps passed as
+    ``-framerate``, so see also `their notes on frame rates`_ for further details.
+
+    .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe.
         args = [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
                 '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
-                '-r', str(self.fps)]
+                '-framerate', str(self.fps)]
         # Logging is quieted because subprocess.PIPE has limited buffer size.
         # If you have a lot of frames in your animation and set logging to
         # DEBUG, you will have a buffer overrun.
@@ -575,8 +605,12 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     """
     File-based ffmpeg writer.
 
-    Frames are written to temporary files on disk and then stitched
-    together at the end.
+    Frames are written to temporary files on disk and then stitched together at the end.
+
+    This effectively works as a slideshow input to ffmpeg with the fps passed as
+    ``-framerate``, so see also `their notes on frame rates`_ for further details.
+
+    .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
@@ -590,10 +624,10 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
                 '-f', 'image2', '-vcodec', 'rawvideo',
                 '-video_size', '%dx%d' % self.frame_size,
                 '-pixel_format', 'rgba',
-                '-framerate', str(self.fps),
             ]
-        args += ['-r', str(self.fps), '-i', self._base_temp_name(),
-                 '-vframes', str(self._frame_counter)]
+        args += ['-framerate', str(self.fps), '-i', self._base_temp_name()]
+        if not self._tmpdir:
+            args += ['-frames:v', str(self._frame_counter)]
         # Logging is quieted because subprocess.PIPE has limited buffer size.
         # If you have a lot of frames in your animation and set logging to
         # DEBUG, you will have a buffer overrun.
@@ -614,6 +648,10 @@ class ImageMagickBase:
 
     _exec_key = 'animation.convert_path'
     _args_key = 'animation.convert_args'
+
+    def _supports_transparency(self):
+        suffix = Path(self.outfile).suffix
+        return suffix in {'.apng', '.avif', '.gif', '.webm', '.webp'}
 
     def _args(self):
         # ImageMagick does not recognize "raw".
@@ -718,10 +756,7 @@ class HTMLWriter(FileMovieWriter):
                            default_mode=self.default_mode)
 
         # Save embed limit, which is given in MB
-        if embed_limit is None:
-            self._bytes_limit = mpl.rcParams['animation.embed_limit']
-        else:
-            self._bytes_limit = embed_limit
+        self._bytes_limit = mpl._val_or_rc(embed_limit, 'animation.embed_limit')
         # Convert from MB to bytes
         self._bytes_limit *= 1024 * 1024
 
@@ -747,6 +782,7 @@ class HTMLWriter(FileMovieWriter):
         self._clear_temp = False
 
     def grab_frame(self, **savefig_kwargs):
+        _validate_grabframe_kwargs(savefig_kwargs)
         if self.embed_frames:
             # Just stop processing if we hit the limit
             if self._hit_limit:
@@ -937,9 +973,10 @@ class Animation:
             of -1 lets the underlying movie encoder select the bitrate.
 
         extra_args : list of str or None, optional
-            Extra command-line arguments passed to the underlying movie
-            encoder.  The default, None, means to use
-            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
+            Extra command-line arguments passed to the underlying movie encoder. These
+            arguments are passed last to the encoder, just before the output filename.
+            The default, None, means to use :rc:`animation.[name-of-encoder]_args` for
+            the builtin writers.
 
         metadata : dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
@@ -1011,9 +1048,8 @@ class Animation:
             # Convert interval in ms to frames per second
             fps = 1000. / self._interval
 
-        # Re-use the savefig DPI for ours if none is given
-        if dpi is None:
-            dpi = mpl.rcParams['savefig.dpi']
+        # Reuse the savefig DPI for ours if none is given.
+        dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
         if dpi == 'figure':
             dpi = self._fig.dpi
 
@@ -1051,29 +1087,24 @@ class Animation:
         # TODO: Right now, after closing the figure, saving a movie won't work
         # since GUI widgets are gone. Either need to remove extra code to
         # allow for this non-existent use case or find a way to make it work.
-        if mpl.rcParams['savefig.bbox'] == 'tight':
-            _log.info("Disabling savefig.bbox = 'tight', as it may cause "
-                      "frame size to vary, which is inappropriate for "
-                      "animation.")
-
-        facecolor = savefig_kwargs.get('facecolor',
-                                       mpl.rcParams['savefig.facecolor'])
-        if facecolor == 'auto':
-            facecolor = self._fig.get_facecolor()
 
         def _pre_composite_to_white(color):
             r, g, b, a = mcolors.to_rgba(color)
             return a * np.array([r, g, b]) + 1 - a
 
-        savefig_kwargs['facecolor'] = _pre_composite_to_white(facecolor)
-        savefig_kwargs['transparent'] = False   # just to be safe!
         # canvas._is_saving = True makes the draw_event animation-starting
         # callback a no-op; canvas.manager = None prevents resizing the GUI
         # widget (both are likewise done in savefig()).
-        with mpl.rc_context({'savefig.bbox': None}), \
-             writer.saving(self._fig, filename, dpi), \
-             cbook._setattr_cm(self._fig.canvas,
-                               _is_saving=True, manager=None):
+        with (writer.saving(self._fig, filename, dpi),
+              cbook._setattr_cm(self._fig.canvas, _is_saving=True, manager=None)):
+            if not writer._supports_transparency():
+                facecolor = savefig_kwargs.get('facecolor',
+                                               mpl.rcParams['savefig.facecolor'])
+                if facecolor == 'auto':
+                    facecolor = self._fig.get_facecolor()
+                savefig_kwargs['facecolor'] = _pre_composite_to_white(facecolor)
+                savefig_kwargs['transparent'] = False   # just to be safe!
+
             for anim in all_anim:
                 anim._init_draw()  # Clear the initial frame
             frame_number = 0
@@ -1157,7 +1188,7 @@ class Animation:
         # of the entire figure.
         updated_ax = {a.axes for a in artists}
         # Enumerate artists to cache Axes backgrounds. We do not draw
-        # artists yet to not cache foreground from plots with shared axes
+        # artists yet to not cache foreground from plots with shared Axes
         for ax in updated_ax:
             # If we haven't cached the background for the current view of this
             # Axes object, do so now. This might not always be reliable, but
@@ -1257,8 +1288,7 @@ class Animation:
         # Cache the rendering of the video as HTML
         if not hasattr(self, '_base64_video'):
             # Save embed limit, which is given in MB
-            if embed_limit is None:
-                embed_limit = mpl.rcParams['animation.embed_limit']
+            embed_limit = mpl._val_or_rc(embed_limit, 'animation.embed_limit')
 
             # Convert from MB to bytes
             embed_limit *= 1024 * 1024
@@ -1318,6 +1348,12 @@ class Animation:
             What to do when the animation ends. Must be one of ``{'loop',
             'once', 'reflect'}``. Defaults to ``'loop'`` if the *repeat*
             parameter is True, otherwise ``'once'``.
+
+        Returns
+        -------
+        str
+            An HTML representation of the animation embedded as a js object as
+            produced with the `.HTMLWriter`.
         """
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
@@ -1432,8 +1468,6 @@ class TimedAnimation(Animation):
 
         self.event_source.interval = self._interval
         return True
-
-    repeat = _api.deprecate_privatize_attribute("3.7")
 
 
 class ArtistAnimation(TimedAnimation):
@@ -1775,4 +1809,15 @@ class FuncAnimation(TimedAnimation):
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
 
-    save_count = _api.deprecate_privatize_attribute("3.7")
+
+def _validate_grabframe_kwargs(savefig_kwargs):
+    if mpl.rcParams['savefig.bbox'] == 'tight':
+        raise ValueError(
+            f"{mpl.rcParams['savefig.bbox']=} must not be 'tight' as it "
+            "may cause frame size to vary, which is inappropriate for animation."
+        )
+    for k in ('dpi', 'bbox_inches', 'format'):
+        if k in savefig_kwargs:
+            raise TypeError(
+                f"grab_frame got an unexpected keyword argument {k!r}"
+            )

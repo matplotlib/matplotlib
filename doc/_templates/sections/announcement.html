@@ -1,0 +1,13 @@
+{%- if theme_announcement == "unreleased" -%}
+{% set header_classes = ["bd-header-announcement", "container-fluid"] %}
+  <div class="{{ header_classes | join(' ') }}" id="unreleased-message">
+    <div class="bd-header-announcement__content">
+      You are reading documentation for the unreleased version of Matplotlib.
+      <a href="https://matplotlib.org/search.html?q={{ title | striptags | urlencode }}&amp;check_keywords=yes&amp;area=default">
+        Try searching for the released version of this page instead?
+      </a>
+    </div>
+  </div>
+{%- else -%}
+  {%- extends "!sections/announcement.html" -%}
+{%- endif %}

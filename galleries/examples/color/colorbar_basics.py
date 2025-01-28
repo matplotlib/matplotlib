@@ -5,7 +5,7 @@ Colorbar
 
 Use `~.Figure.colorbar` by specifying the mappable object (here
 the `.AxesImage` returned by `~.axes.Axes.imshow`)
-and the axes to attach the colorbar to.
+and the Axes to attach the colorbar to.
 """
 
 import matplotlib.pyplot as plt
@@ -28,7 +28,7 @@ pos = ax1.imshow(Zpos, cmap='Blues', interpolation='none')
 
 # add the colorbar using the figure's method,
 # telling which mappable we're talking about and
-# which axes object it should be near
+# which Axes object it should be near
 fig.colorbar(pos, ax=ax1)
 
 # repeat everything above for the negative data
@@ -56,3 +56,10 @@ plt.show()
 #    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
 #    - `matplotlib.colorbar.Colorbar.minorticks_on`
 #    - `matplotlib.colorbar.Colorbar.minorticks_off`
+#
+# .. tags::
+#
+#    component: colorbar
+#    styling: color
+#    plot-type: imshow
+#    level: beginner

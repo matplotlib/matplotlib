@@ -59,8 +59,8 @@ separated strings only, controls whether the different lines are left,
 center or right justified.  Here is an example which uses the
 :func:`~matplotlib.pyplot.text` command to show the various alignment
 possibilities.  The use of ``transform=ax.transAxes`` throughout the
-code indicates that the coordinates are given relative to the axes
-bounding box, with (0, 0) being the lower left of the axes and (1, 1) the
+code indicates that the coordinates are given relative to the Axes
+bounding box, with (0, 0) being the lower left of the Axes and (1, 1) the
 upper right.
 """
 

@@ -17,13 +17,8 @@ class CbarAxesBase:
         super().__init__(*args, **kwargs)
 
     def colorbar(self, mappable, **kwargs):
-        return self.figure.colorbar(
+        return self.get_figure(root=False).colorbar(
             mappable, cax=self, location=self.orientation, **kwargs)
-
-    @_api.deprecated("3.8", alternative="ax.tick_params and colorbar.set_label")
-    def toggle_label(self, b):
-        axis = self.axis[self.orientation]
-        axis.toggle(ticklabels=b, label=b)
 
 
 _cbaraxes_class_factory = cbook._make_class_factory(CbarAxesBase, "Cbar{}")
@@ -38,6 +33,26 @@ class Grid:
     displayed with a given aspect ratio; for example, it is difficult to
     display multiple images of a same size with some fixed padding between
     them.  AxesGrid can be used in such case.
+
+    Attributes
+    ----------
+    axes_all : list of Axes
+        A flat list of Axes. Note that you can also access this directly
+        from the grid. The following is equivalent ::
+
+            grid[i] == grid.axes_all[i]
+            len(grid) == len(grid.axes_all)
+
+    axes_column : list of list of Axes
+        A 2D list of Axes where the first index is the column. This results
+        in the usage pattern ``grid.axes_column[col][row]``.
+    axes_row : list of list of Axes
+        A 2D list of Axes where the first index is the row. This results
+        in the usage pattern ``grid.axes_row[row][col]``.
+    axes_llc : Axes
+        The Axes in the lower left corner.
+    ngrids : int
+        Number of Axes in the grid.
     """
 
     _defaultAxesClass = Axes
@@ -93,7 +108,8 @@ class Grid:
             - "all": All axes are labelled.
             - "keep": Do not do anything.
 
-        axes_class : subclass of `matplotlib.axes.Axes`, default: None
+        axes_class : subclass of `matplotlib.axes.Axes`, default: `.mpl_axes.Axes`
+            The type of Axes to create.
         aspect : bool, default: False
             Whether the axes aspect ratio follows the aspect ratio of the data
             limits.
@@ -234,6 +250,7 @@ class Grid:
             - "all": All axes are labelled.
             - "keep": Do not do anything.
         """
+        _api.check_in_list(["all", "L", "1", "keep"], mode=mode)
         is_last_row, is_first_col = (
             np.mgrid[:self._nrows, :self._ncols] == [[[self._nrows - 1]], [[0]]])
         if mode == "all":
@@ -244,15 +261,6 @@ class Grid:
         elif mode == "1":
             bottom = left = is_last_row & is_first_col
         else:
-            # Use _api.check_in_list at the top of the method when deprecation
-            # period expires
-            if mode != 'keep':
-                _api.warn_deprecated(
-                    '3.7', name="Grid label_mode",
-                    message='Passing an undefined label_mode is deprecated '
-                            'since %(since)s and will become an error '
-                            '%(removal)s. To silence this warning, pass '
-                            '"keep", which gives the same behaviour.')
             return
         for i in range(self._nrows):
             for j in range(self._ncols):
@@ -277,7 +285,14 @@ class Grid:
 
 
 class ImageGrid(Grid):
-    # docstring inherited
+    """
+    A grid of Axes for Image display.
+
+    This class is a specialization of `~.axes_grid1.axes_grid.Grid` for displaying a
+    grid of images.  In particular, it forces all axes in a column to share their x-axis
+    and all axes in a row to share their y-axis.  It further provides helpers to add
+    colorbars to some or all axes.
+    """
 
     def __init__(self, fig,
                  rect,
@@ -316,7 +331,9 @@ class ImageGrid(Grid):
             Padding or (horizontal padding, vertical padding) between axes, in
             inches.
         share_all : bool, default: False
-            Whether all axes share their x- and y-axis.
+            Whether all axes share their x- and y-axis.  Note that in any case,
+            all axes in a column share their x-axis and all axes in a row share
+            their y-axis.
         aspect : bool, default: True
             Whether the axes aspect ratio follows the aspect ratio of the data
             limits.
@@ -332,11 +349,16 @@ class ImageGrid(Grid):
             Whether to create a colorbar for "each" axes, a "single" colorbar
             for the entire grid, colorbars only for axes on the "edge"
             determined by *cbar_location*, or no colorbars.  The colorbars are
-            stored in the :attr:`cbar_axes` attribute.
+            stored in the :attr:`!cbar_axes` attribute.
         cbar_location : {"left", "right", "bottom", "top"}, default: "right"
         cbar_pad : float, default: None
             Padding between the image axes and the colorbar axes.
-        cbar_size : size specification (see `.Size.from_any`), default: "5%"
+
+            .. versionchanged:: 3.10
+                ``cbar_mode="single"`` no longer adds *axes_pad* between the axes
+                and the colorbar if the *cbar_location* is "left" or "bottom".
+
+        cbar_size : size specification (see `!.Size.from_any`), default: "5%"
             Colorbar size.
         cbar_set_cax : bool, default: True
             If True, each axes in the grid has a *cax* attribute that is bound
@@ -388,7 +410,7 @@ class ImageGrid(Grid):
                 self._colorbar_pad = self._vert_pad_size.fixed_size
         self.cbar_axes = [
             _cbaraxes_class_factory(self._defaultAxesClass)(
-                self.axes_all[0].figure, self._divider.get_position(),
+                self.axes_all[0].get_figure(root=False), self._divider.get_position(),
                 orientation=self._colorbar_location)
             for _ in range(self.ngrids)]
 
@@ -417,7 +439,7 @@ class ImageGrid(Grid):
             self.cbar_axes[0].set_visible(True)
 
         for col, ax in enumerate(self.axes_row[0]):
-            if h:
+            if col != 0:
                 h.append(self._horiz_pad_size)
 
             if ax:
@@ -446,7 +468,7 @@ class ImageGrid(Grid):
         v_ax_pos = []
         v_cb_pos = []
         for row, ax in enumerate(self.axes_column[0][::-1]):
-            if v:
+            if row != 0:
                 v.append(self._vert_pad_size)
 
             if ax:

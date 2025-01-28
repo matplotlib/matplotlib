@@ -1,7 +1,7 @@
 """
-===============================================
-Creating a timeline with lines, dates, and text
-===============================================
+====================================
+Timeline with lines, dates, and text
+====================================
 
 How to create a simple timeline using Matplotlib release dates.
 
@@ -28,22 +28,19 @@ try:
     data = json.loads(urllib.request.urlopen(url, timeout=1).read().decode())
 
     dates = []
-    names = []
+    releases = []
     for item in data:
         if 'rc' not in item['tag_name'] and 'b' not in item['tag_name']:
             dates.append(item['published_at'].split("T")[0])
-            names.append(item['tag_name'])
-    # Convert date strings (e.g. 2014-10-18) to datetime
-    dates = [datetime.strptime(d, "%Y-%m-%d") for d in dates]
+            releases.append(item['tag_name'].lstrip("v"))
 
 except Exception:
     # In case the above fails, e.g. because of missing internet connection
     # use the following lists as fallback.
-    names = ['v2.2.4', 'v3.0.3', 'v3.0.2', 'v3.0.1', 'v3.0.0', 'v2.2.3',
-             'v2.2.2', 'v2.2.1', 'v2.2.0', 'v2.1.2', 'v2.1.1', 'v2.1.0',
-             'v2.0.2', 'v2.0.1', 'v2.0.0', 'v1.5.3', 'v1.5.2', 'v1.5.1',
-             'v1.5.0', 'v1.4.3', 'v1.4.2', 'v1.4.1', 'v1.4.0']
-
+    releases = ['2.2.4', '3.0.3', '3.0.2', '3.0.1', '3.0.0', '2.2.3',
+                '2.2.2', '2.2.1', '2.2.0', '2.1.2', '2.1.1', '2.1.0',
+                '2.0.2', '2.0.1', '2.0.0', '1.5.3', '1.5.2', '1.5.1',
+                '1.5.0', '1.4.3', '1.4.2', '1.4.1', '1.4.0']
     dates = ['2019-02-26', '2019-02-26', '2018-11-10', '2018-11-10',
              '2018-09-18', '2018-08-10', '2018-03-17', '2018-03-16',
              '2018-03-06', '2018-01-18', '2017-12-10', '2017-10-07',
@@ -51,8 +48,9 @@ except Exception:
              '2016-07-03', '2016-01-10', '2015-10-29', '2015-02-16',
              '2014-10-26', '2014-10-18', '2014-08-26']
 
-    # Convert date strings (e.g. 2014-10-18) to datetime
-    dates = [datetime.strptime(d, "%Y-%m-%d") for d in dates]
+dates = [datetime.strptime(d, "%Y-%m-%d") for d in dates]  # Convert strs to dates.
+releases = [tuple(release.split('.')) for release in releases]  # Split by component.
+dates, releases = zip(*sorted(zip(dates, releases)))  # Sort by increasing date.
 
 # %%
 # Next, we'll create a stem plot with some variation in levels as to
@@ -64,32 +62,52 @@ except Exception:
 #
 # Note that Matplotlib will automatically plot datetime inputs.
 
+# Choose some nice levels: alternate meso releases between top and bottom, and
+# progressively shorten the stems for micro releases.
+levels = []
+macro_meso_releases = sorted({release[:2] for release in releases})
+for release in releases:
+    macro_meso = release[:2]
+    micro = int(release[2])
+    h = 1 + 0.8 * (5 - micro)
+    level = h if macro_meso_releases.index(macro_meso) % 2 == 0 else -h
+    levels.append(level)
 
-# Choose some nice levels
-levels = np.tile([-5, 5, -3, 3, -1, 1],
-                 int(np.ceil(len(dates)/6)))[:len(dates)]
 
-# Create figure and plot a stem plot with the date
+def is_feature(release):
+    """Return whether a version (split into components) is a feature release."""
+    return release[-1] == '0'
+
+
+# The figure and the axes.
 fig, ax = plt.subplots(figsize=(8.8, 4), layout="constrained")
 ax.set(title="Matplotlib release dates")
 
-ax.vlines(dates, 0, levels, color="tab:red")  # The vertical stems.
-ax.plot(dates, np.zeros_like(dates), "-o",
-        color="k", markerfacecolor="w")  # Baseline and markers on it.
+# The vertical stems.
+ax.vlines(dates, 0, levels,
+          color=[("tab:red", 1 if is_feature(release) else .5) for release in releases])
+# The baseline.
+ax.axhline(0, c="black")
+# The markers on the baseline.
+meso_dates = [date for date, release in zip(dates, releases) if is_feature(release)]
+micro_dates = [date for date, release in zip(dates, releases)
+               if not is_feature(release)]
+ax.plot(micro_dates, np.zeros_like(micro_dates), "ko", mfc="white")
+ax.plot(meso_dates, np.zeros_like(meso_dates), "ko", mfc="tab:red")
 
-# annotate lines
-for d, l, r in zip(dates, levels, names):
-    ax.annotate(r, xy=(d, l),
-                xytext=(-3, np.sign(l)*3), textcoords="offset points",
-                horizontalalignment="right",
-                verticalalignment="bottom" if l > 0 else "top")
+# Annotate the lines.
+for date, level, release in zip(dates, levels, releases):
+    version_str = '.'.join(release)
+    ax.annotate(version_str, xy=(date, level),
+                xytext=(-3, np.sign(level)*3), textcoords="offset points",
+                verticalalignment="bottom" if level > 0 else "top",
+                weight="bold" if is_feature(release) else "normal",
+                bbox=dict(boxstyle='square', pad=0, lw=0, fc=(1, 1, 1, 0.7)))
 
-# format x-axis with 4-month intervals
-ax.xaxis.set_major_locator(mdates.MonthLocator(interval=4))
-ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
-plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+ax.xaxis.set(major_locator=mdates.YearLocator(),
+             major_formatter=mdates.DateFormatter("%Y"))
 
-# remove y-axis and spines
+# Remove the y-axis and some spines.
 ax.yaxis.set_visible(False)
 ax.spines[["left", "top", "right"]].set_visible(False)
 
@@ -110,3 +128,9 @@ plt.show()
 #    - `matplotlib.axis.Axis.set_major_formatter`
 #    - `matplotlib.dates.MonthLocator`
 #    - `matplotlib.dates.DateFormatter`
+#
+# .. tags::
+#
+#    component: annotate
+#    plot-type: line
+#    level: intermediate

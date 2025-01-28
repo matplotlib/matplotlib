@@ -9,6 +9,9 @@ custom ones.
 Although the locators know nothing about major or minor ticks, they are used
 by the Axis class to support major and minor tick locating and formatting.
 
+.. _tick_locating:
+.. _locators:
+
 Tick locating
 -------------
 
@@ -77,6 +80,8 @@ The default minor locator is `NullLocator`, i.e., no minor ticks on by default.
         ax.xaxis.set_major_locator(MultipleLocator(5))
         ax2.xaxis.set_major_locator(MultipleLocator(5))
 
+.. _formatters:
+
 Tick formatting
 ---------------
 
@@ -130,6 +135,7 @@ import logging
 import locale
 import math
 from numbers import Integral
+import string
 
 import numpy as np
 
@@ -331,10 +337,11 @@ class FormatStrFormatter(Formatter):
     The format string should have a single variable format (%) in it.
     It will be applied to the value (not the position) of the tick.
 
-    Negative numeric values will use a dash, not a Unicode minus; use mathtext
-    to get a Unicode minus by wrapping the format specifier with $ (e.g.
-    "$%g$").
+    Negative numeric values (e.g., -1) will use a dash, not a Unicode minus;
+    use mathtext to get a Unicode minus by wrapping the format specifier with $
+    (e.g. "$%g$").
     """
+
     def __init__(self, fmt):
         self.fmt = fmt
 
@@ -347,13 +354,33 @@ class FormatStrFormatter(Formatter):
         return self.fmt % x
 
 
+class _UnicodeMinusFormat(string.Formatter):
+    """
+    A specialized string formatter so that `.StrMethodFormatter` respects
+    :rc:`axes.unicode_minus`.  This implementation relies on the fact that the
+    format string is only ever called with kwargs *x* and *pos*, so it blindly
+    replaces dashes by unicode minuses without further checking.
+    """
+
+    def format_field(self, value, format_spec):
+        return Formatter.fix_minus(super().format_field(value, format_spec))
+
+
 class StrMethodFormatter(Formatter):
     """
     Use a new-style format string (as used by `str.format`) to format the tick.
 
     The field used for the tick value must be labeled *x* and the field used
     for the tick position must be labeled *pos*.
+
+    The formatter will respect :rc:`axes.unicode_minus` when formatting
+    negative numeric values.
+
+    It is typically unnecessary to explicitly construct `.StrMethodFormatter`
+    objects, as `~.Axis.set_major_formatter` directly accepts the format string
+    itself.
     """
+
     def __init__(self, fmt):
         self.fmt = fmt
 
@@ -364,7 +391,7 @@ class StrMethodFormatter(Formatter):
         *x* and *pos* are passed to `str.format` as keyword arguments
         with those exact names.
         """
-        return self.fmt.format(x=x, pos=pos)
+        return _UnicodeMinusFormat().format(self.fmt, x=x, pos=pos)
 
 
 class ScalarFormatter(Formatter):
@@ -380,6 +407,11 @@ class ScalarFormatter(Formatter):
     useLocale : bool, default: :rc:`axes.formatter.use_locale`.
         Whether to use locale settings for decimal sign and positive sign.
         See `.set_useLocale`.
+    usetex : bool, default: :rc:`text.usetex`
+        To enable/disable the use of TeX's math mode for rendering the
+        numbers in the formatter.
+
+        .. versionadded:: 3.10
 
     Notes
     -----
@@ -408,28 +440,35 @@ class ScalarFormatter(Formatter):
         lim = (1_000_000, 1_000_010)
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, gridspec_kw={'hspace': 2})
-        ax1.set(title='offset_notation', xlim=lim)
+        ax1.set(title='offset notation', xlim=lim)
         ax2.set(title='scientific notation', xlim=lim)
         ax2.xaxis.get_major_formatter().set_useOffset(False)
-        ax3.set(title='floating point notation', xlim=lim)
+        ax3.set(title='floating-point notation', xlim=lim)
         ax3.xaxis.get_major_formatter().set_useOffset(False)
         ax3.xaxis.get_major_formatter().set_scientific(False)
 
     """
 
-    def __init__(self, useOffset=None, useMathText=None, useLocale=None):
-        if useOffset is None:
-            useOffset = mpl.rcParams['axes.formatter.useoffset']
-        self._offset_threshold = \
-            mpl.rcParams['axes.formatter.offset_threshold']
+    def __init__(self, useOffset=None, useMathText=None, useLocale=None, *,
+                 usetex=None):
+        useOffset = mpl._val_or_rc(useOffset, 'axes.formatter.useoffset')
+        self._offset_threshold = mpl.rcParams['axes.formatter.offset_threshold']
         self.set_useOffset(useOffset)
-        self._usetex = mpl.rcParams['text.usetex']
+        self.set_usetex(usetex)
         self.set_useMathText(useMathText)
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
         self._powerlimits = mpl.rcParams['axes.formatter.limits']
         self.set_useLocale(useLocale)
+
+    def get_usetex(self):
+        return self._usetex
+
+    def set_usetex(self, val):
+        self._usetex = mpl._val_or_rc(val, 'text.usetex')
+
+    usetex = property(fget=get_usetex, fset=set_usetex)
 
     def get_useOffset(self):
         """
@@ -499,10 +538,7 @@ class ScalarFormatter(Formatter):
         val : bool or None
             *None* resets to :rc:`axes.formatter.use_locale`.
         """
-        if val is None:
-            self._useLocale = mpl.rcParams['axes.formatter.use_locale']
-        else:
-            self._useLocale = val
+        self._useLocale = mpl._val_or_rc(val, 'axes.formatter.use_locale')
 
     useLocale = property(fget=get_useLocale, fset=set_useLocale)
 
@@ -511,11 +547,11 @@ class ScalarFormatter(Formatter):
         Format *arg* with *fmt*, applying Unicode minus and locale if desired.
         """
         return self.fix_minus(
-                # Escape commas introduced by format_string but not those present
-                # from the beginning in fmt.
-                ",".join(locale.format_string(part, (arg,), True)
-                         .replace(",", "{,}")
-                         for part in fmt.split(","))
+                # Escape commas introduced by locale.format_string if using math text,
+                # but not those present from the beginning in fmt.
+                (",".join(locale.format_string(part, (arg,), True).replace(",", "{,}")
+                          for part in fmt.split(",")) if self._useMathText
+                 else locale.format_string(fmt, (arg,), True))
                 if self._useLocale
                 else fmt % arg)
 
@@ -547,7 +583,7 @@ class ScalarFormatter(Formatter):
                     from matplotlib import font_manager
                     ufont = font_manager.findfont(
                         font_manager.FontProperties(
-                            mpl.rcParams["font.family"]
+                            family=mpl.rcParams["font.family"]
                         ),
                         fallback_to_default=False,
                     )
@@ -652,12 +688,12 @@ class ScalarFormatter(Formatter):
         # docstring inherited
         e = math.floor(math.log10(abs(value)))
         s = round(value / 10**e, 10)
-        exponent = self._format_maybe_minus_and_locale("%d", e)
         significand = self._format_maybe_minus_and_locale(
             "%d" if s % 1 == 0 else "%1.10g", s)
         if e == 0:
             return significand
-        elif self._useMathText or self._usetex:
+        exponent = self._format_maybe_minus_and_locale("%d", e)
+        if self._useMathText or self._usetex:
             exponent = "10^{%s}" % exponent
             return (exponent if s == 1  # reformat 1x10^y as 10^y
                     else rf"{significand} \times {exponent}")
@@ -670,7 +706,6 @@ class ScalarFormatter(Formatter):
         """
         if len(self.locs) == 0:
             return ''
-        s = ''
         if self.orderOfMagnitude or self.offset:
             offsetStr = ''
             sciNotStr = ''
@@ -689,8 +724,8 @@ class ScalarFormatter(Formatter):
                 s = fr'${sciNotStr}\mathdefault{{{offsetStr}}}$'
             else:
                 s = ''.join((sciNotStr, offsetStr))
-
-        return self.fix_minus(s)
+            return self.fix_minus(s)
+        return ''
 
     def set_locs(self, locs):
         # docstring inherited
@@ -821,20 +856,23 @@ class LogFormatter(Formatter):
 
     labelOnlyBase : bool, default: False
         If True, label ticks only at integer powers of base.
-        This is normally True for major ticks and False for
-        minor ticks.
+        This is normally True for major ticks and False for minor ticks.
 
     minor_thresholds : (subset, all), default: (1, 0.4)
         If labelOnlyBase is False, these two numbers control
         the labeling of ticks that are not at integer powers of
-        base; normally these are the minor ticks. The controlling
-        parameter is the log of the axis data range.  In the typical
-        case where base is 10 it is the number of decades spanned
-        by the axis, so we can call it 'numdec'. If ``numdec <= all``,
-        all minor ticks will be labeled.  If ``all < numdec <= subset``,
-        then only a subset of minor ticks will be labeled, so as to
-        avoid crowding. If ``numdec > subset`` then no minor ticks will
-        be labeled.
+        base; normally these are the minor ticks.
+
+        The first number (*subset*) is the largest number of major ticks for
+        which minor ticks are labeled; e.g., the default, 1, means that minor
+        ticks are labeled as long as there is no more than 1 major tick.  (It
+        is assumed that major ticks are at integer powers of *base*.)
+
+        The second number (*all*) is a threshold, in log-units of the axis
+        limit range, over which only a subset of the minor ticks are labeled,
+        so as to avoid crowding; e.g., with the default value (0.4) and the
+        usual ``base=10``, all minor ticks are shown only if the axis limit
+        range spans less than 0.4 decades.
 
     linthresh : None or float, default: None
         If a symmetric log scale is in use, its ``linthresh``
@@ -858,12 +896,9 @@ class LogFormatter(Formatter):
 
     Examples
     --------
-    To label a subset of minor ticks when the view limits span up
-    to 2 decades, and all of the ticks when zoomed in to 0.5 decades
-    or less, use ``minor_thresholds=(2, 0.5)``.
-
-    To label all minor ticks when the view limits span up to 1.5
-    decades, use ``minor_thresholds=(1.5, 1.5)``.
+    To label a subset of minor ticks when there are up to 2 major ticks,
+    and all of the ticks when zoomed in to 0.5 decades or less, use
+    ``minor_thresholds=(2, 0.5)``.
     """
 
     def __init__(self, base=10.0, labelOnlyBase=False,
@@ -931,22 +966,32 @@ class LogFormatter(Formatter):
             return
 
         b = self._base
+
         if linthresh is not None:  # symlog
-            # Only compute the number of decades in the logarithmic part of the
-            # axis
-            numdec = 0
+            # Only count ticks and decades in the logarithmic part of the axis.
+            numdec = numticks = 0
             if vmin < -linthresh:
                 rhs = min(vmax, -linthresh)
-                numdec += math.log(vmin / rhs) / math.log(b)
+                numticks += (
+                    math.floor(math.log(abs(rhs), b))
+                    - math.floor(math.nextafter(math.log(abs(vmin), b), -math.inf)))
+                numdec += math.log(vmin / rhs, b)
             if vmax > linthresh:
                 lhs = max(vmin, linthresh)
-                numdec += math.log(vmax / lhs) / math.log(b)
+                numticks += (
+                    math.floor(math.log(vmax, b))
+                    - math.floor(math.nextafter(math.log(lhs, b), -math.inf)))
+                numdec += math.log(vmax / lhs, b)
         else:
-            vmin = math.log(vmin) / math.log(b)
-            vmax = math.log(vmax) / math.log(b)
-            numdec = abs(vmax - vmin)
+            lmin = math.log(vmin, b)
+            lmax = math.log(vmax, b)
+            # The nextafter call handles the case where vmin is exactly at a
+            # decade (e.g. there's one major tick between 1 and 5).
+            numticks = (math.floor(lmax)
+                        - math.floor(math.nextafter(lmin, -math.inf)))
+            numdec = abs(lmax - lmin)
 
-        if numdec > self.minor_thresholds[0]:
+        if numticks > self.minor_thresholds[0]:
             # Label only bases
             self._sublabels = {1}
         elif numdec > self.minor_thresholds[1]:
@@ -961,13 +1006,7 @@ class LogFormatter(Formatter):
             self._sublabels = set(np.arange(1, b + 1))
 
     def _num_to_string(self, x, vmin, vmax):
-        if x > 10000:
-            s = '%1.0e' % x
-        elif x < 1:
-            s = '%1.0e' % x
-        else:
-            s = self._pprint_val(x, vmax - vmin)
-        return s
+        return self._pprint_val(x, vmax - vmin) if 1 <= x <= 10000 else f"{x:1.0e}"
 
     def __call__(self, x, pos=None):
         # docstring inherited
@@ -998,7 +1037,7 @@ class LogFormatter(Formatter):
 
     def format_data_short(self, value):
         # docstring inherited
-        return '%-12g' % value
+        return ('%-12g' % value).rstrip()
 
     def _pprint_val(self, x, d):
         # If the number is not too big and it's an int, format it as an int.
@@ -1027,15 +1066,14 @@ class LogFormatterExponent(LogFormatter):
     """
     Format values for log axis using ``exponent = log_base(value)``.
     """
+
     def _num_to_string(self, x, vmin, vmax):
         fx = math.log(x) / math.log(self._base)
-        if abs(fx) > 10000:
-            s = '%1.0g' % fx
-        elif abs(fx) < 1:
-            s = '%1.0g' % fx
-        else:
+        if 1 <= abs(fx) <= 10000:
             fd = math.log(vmax - vmin) / math.log(self._base)
             s = self._pprint_val(fx, fd)
+        else:
+            s = f"{fx:1.0g}"
         return s
 
 
@@ -1050,9 +1088,6 @@ class LogFormatterMathtext(LogFormatter):
 
     def __call__(self, x, pos=None):
         # docstring inherited
-        usetex = mpl.rcParams['text.usetex']
-        min_exp = mpl.rcParams['axes.formatter.min_exponent']
-
         if x == 0:  # Symlog
             return r'$\mathdefault{0}$'
 
@@ -1065,13 +1100,14 @@ class LogFormatterMathtext(LogFormatter):
         is_x_decade = _is_close_to_int(fx)
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
-        if is_x_decade:
-            fx = round(fx)
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
         if self._sublabels is not None and coeff not in self._sublabels:
             return ''
+
+        if is_x_decade:
+            fx = round(fx)
 
         # use string formatting of the base if it is not an integer
         if b % 1 == 0.0:
@@ -1079,9 +1115,10 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if abs(fx) < min_exp:
+        if abs(fx) < mpl.rcParams['axes.formatter.min_exponent']:
             return r'$\mathdefault{%s%g}$' % (sign_string, x)
         elif not is_x_decade:
+            usetex = mpl.rcParams['text.usetex']
             return self._non_decade_format(sign_string, base, fx, usetex)
         else:
             return r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
@@ -1121,10 +1158,10 @@ class LogitFormatter(Formatter):
         Parameters
         ----------
         use_overline : bool, default: False
-            If x > 1/2, with x = 1-v, indicate if x should be displayed as
-            $\overline{v}$. The default is to display $1-v$.
+            If x > 1/2, with x = 1 - v, indicate if x should be displayed as
+            $\overline{v}$. The default is to display $1 - v$.
 
-        one_half : str, default: r"\frac{1}{2}"
+        one_half : str, default: r"\\frac{1}{2}"
             The string used to represent 1/2.
 
         minor : bool, default: False
@@ -1154,9 +1191,9 @@ class LogitFormatter(Formatter):
 
         Parameters
         ----------
-        use_overline : bool, default: False
-            If x > 1/2, with x = 1-v, indicate if x should be displayed as
-            $\overline{v}$. The default is to display $1-v$.
+        use_overline : bool
+            If x > 1/2, with x = 1 - v, indicate if x should be displayed as
+            $\overline{v}$. The default is to display $1 - v$.
         """
         self._use_overline = use_overline
 
@@ -1164,7 +1201,7 @@ class LogitFormatter(Formatter):
         r"""
         Set the way one half is displayed.
 
-        one_half : str, default: r"\frac{1}{2}"
+        one_half : str
             The string used to represent 1/2.
         """
         self._one_half = one_half
@@ -1299,7 +1336,7 @@ class LogitFormatter(Formatter):
         return f"1-{1 - value:e}"
 
 
-class EngFormatter(Formatter):
+class EngFormatter(ScalarFormatter):
     """
     Format axis values using engineering prefixes to represent powers
     of 1000, plus a specified unit, e.g., 10 MHz instead of 1e7.
@@ -1331,7 +1368,7 @@ class EngFormatter(Formatter):
     }
 
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
-                 useMathText=None):
+                 useMathText=None, useOffset=False):
         r"""
         Parameters
         ----------
@@ -1365,76 +1402,124 @@ class EngFormatter(Formatter):
         useMathText : bool, default: :rc:`axes.formatter.use_mathtext`
             To enable/disable the use mathtext for rendering the numbers in
             the formatter.
+        useOffset : bool or float, default: False
+            Whether to use offset notation with :math:`10^{3*N}` based prefixes.
+            This features allows showing an offset with standard SI order of
+            magnitude prefix near the axis. Offset is computed similarly to
+            how `ScalarFormatter` computes it internally, but here you are
+            guaranteed to get an offset which will make the tick labels exceed
+            3 digits. See also `.set_useOffset`.
+
+            .. versionadded:: 3.10
         """
         self.unit = unit
         self.places = places
         self.sep = sep
-        self.set_usetex(usetex)
-        self.set_useMathText(useMathText)
-
-    def get_usetex(self):
-        return self._usetex
-
-    def set_usetex(self, val):
-        if val is None:
-            self._usetex = mpl.rcParams['text.usetex']
-        else:
-            self._usetex = val
-
-    usetex = property(fget=get_usetex, fset=set_usetex)
-
-    def get_useMathText(self):
-        return self._useMathText
-
-    def set_useMathText(self, val):
-        if val is None:
-            self._useMathText = mpl.rcParams['axes.formatter.use_mathtext']
-        else:
-            self._useMathText = val
-
-    useMathText = property(fget=get_useMathText, fset=set_useMathText)
+        super().__init__(
+            useOffset=useOffset,
+            useMathText=useMathText,
+            useLocale=False,
+            usetex=usetex,
+        )
 
     def __call__(self, x, pos=None):
-        s = f"{self.format_eng(x)}{self.unit}"
-        # Remove the trailing separator when there is neither prefix nor unit
-        if self.sep and s.endswith(self.sep):
-            s = s[:-len(self.sep)]
-        return self.fix_minus(s)
+        """
+        Return the format for tick value *x* at position *pos*.
+
+        If there is no currently offset in the data, it returns the best
+        engineering formatting that fits the given argument, independently.
+        """
+        if len(self.locs) == 0 or self.offset == 0:
+            return self.fix_minus(self.format_data(x))
+        else:
+            xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
+            if abs(xp) < 1e-8:
+                xp = 0
+            return self._format_maybe_minus_and_locale(self.format, xp)
+
+    def set_locs(self, locs):
+        # docstring inherited
+        self.locs = locs
+        if len(self.locs) > 0:
+            vmin, vmax = sorted(self.axis.get_view_interval())
+            if self._useOffset:
+                self._compute_offset()
+                if self.offset != 0:
+                    # We don't want to use the offset computed by
+                    # self._compute_offset because it rounds the offset unaware
+                    # of our engineering prefixes preference, and this can
+                    # cause ticks with 4+ digits to appear. These ticks are
+                    # slightly less readable, so if offset is justified
+                    # (decided by self._compute_offset) we set it to better
+                    # value:
+                    self.offset = round((vmin + vmax)/2, 3)
+            # Use log1000 to use engineers' oom standards
+            self.orderOfMagnitude = math.floor(math.log(vmax - vmin, 1000))*3
+            self._set_format()
+
+    # Simplify a bit ScalarFormatter.get_offset: We always want to use
+    # self.format_data. Also we want to return a non-empty string only if there
+    # is an offset, no matter what is self.orderOfMagnitude. If there _is_ an
+    # offset, self.orderOfMagnitude is consulted. This behavior is verified
+    # in `test_ticker.py`.
+    def get_offset(self):
+        # docstring inherited
+        if len(self.locs) == 0:
+            return ''
+        if self.offset:
+            offsetStr = ''
+            if self.offset:
+                offsetStr = self.format_data(self.offset)
+                if self.offset > 0:
+                    offsetStr = '+' + offsetStr
+            sciNotStr = self.format_data(10 ** self.orderOfMagnitude)
+            if self._useMathText or self._usetex:
+                if sciNotStr != '':
+                    sciNotStr = r'\times%s' % sciNotStr
+                s = f'${sciNotStr}{offsetStr}$'
+            else:
+                s = sciNotStr + offsetStr
+            return self.fix_minus(s)
+        return ''
 
     def format_eng(self, num):
+        """Alias to EngFormatter.format_data"""
+        return self.format_data(num)
+
+    def format_data(self, value):
         """
         Format a number in engineering notation, appending a letter
         representing the power of 1000 of the original number.
         Some examples:
 
-        >>> format_eng(0)        # for self.places = 0
+        >>> format_data(0)        # for self.places = 0
         '0'
 
-        >>> format_eng(1000000)  # for self.places = 1
+        >>> format_data(1000000)  # for self.places = 1
         '1.0 M'
 
-        >>> format_eng(-1e-6)  # for self.places = 2
+        >>> format_data(-1e-6)  # for self.places = 2
         '-1.00 \N{MICRO SIGN}'
         """
         sign = 1
         fmt = "g" if self.places is None else f".{self.places:d}f"
 
-        if num < 0:
+        if value < 0:
             sign = -1
-            num = -num
+            value = -value
 
-        if num != 0:
-            pow10 = int(math.floor(math.log10(num) / 3) * 3)
+        if value != 0:
+            pow10 = int(math.floor(math.log10(value) / 3) * 3)
         else:
             pow10 = 0
-            # Force num to zero, to avoid inconsistencies like
+            # Force value to zero, to avoid inconsistencies like
             # format_eng(-0) = "0" and format_eng(0.0) = "0"
             # but format_eng(-0.0) = "-0.0"
-            num = 0.0
+            value = 0.0
 
         pow10 = np.clip(pow10, min(self.ENG_PREFIXES), max(self.ENG_PREFIXES))
 
-        mant = sign * num / (10.0 ** pow10)
+        mant = sign * value / (10.0 ** pow10)
         # Taking care of the cases like 999.9..., which may be rounded to 1000
         # instead of 1 k.  Beware of the corner case of values that are beyond
         # the range of SI prefixes (i.e. > 'Y').
@@ -1443,13 +1528,15 @@ class EngFormatter(Formatter):
             mant /= 1000
             pow10 += 3
 
-        prefix = self.ENG_PREFIXES[int(pow10)]
-        if self._usetex or self._useMathText:
-            formatted = f"${mant:{fmt}}${self.sep}{prefix}"
+        unit_prefix = self.ENG_PREFIXES[int(pow10)]
+        if self.unit or unit_prefix:
+            suffix = f"{self.sep}{unit_prefix}{self.unit}"
         else:
-            formatted = f"{mant:{fmt}}{self.sep}{prefix}"
-
-        return formatted
+            suffix = ""
+        if self._usetex or self._useMathText:
+            return f"${mant:{fmt}}${suffix}"
+        else:
+            return f"{mant:{fmt}}{suffix}"
 
 
 class PercentFormatter(Formatter):
@@ -1549,7 +1636,7 @@ class PercentFormatter(Formatter):
         symbol = self._symbol
         if not symbol:
             symbol = ''
-        elif mpl.rcParams['text.usetex'] and not self._is_latex:
+        elif not self._is_latex and mpl.rcParams['text.usetex']:
             # Source: http://www.personal.ceu.hu/tex/specchar.htm
             # Backslash must be first for this to work correctly since
             # it keeps getting added in
@@ -1564,7 +1651,7 @@ class PercentFormatter(Formatter):
 
 class Locator(TickHelper):
     """
-    Determine the tick locations;
+    Determine tick locations.
 
     Note that the same locator should not be used across multiple
     `~matplotlib.axis.Axis` because the locator stores references to the Axis
@@ -1632,7 +1719,7 @@ class Locator(TickHelper):
         Adjust a range as needed to avoid singularities.
 
         This method gets called during autoscaling, with ``(v0, v1)`` set to
-        the data limits on the axes if the axes contains any data, or
+        the data limits on the Axes if the Axes contains any data, or
         ``(-inf, +inf)`` if not.
 
         - If ``v0 == v1`` (possibly up to some floating point slop), this
@@ -1654,11 +1741,12 @@ class Locator(TickHelper):
 
 class IndexLocator(Locator):
     """
-    Place a tick on every multiple of some base number of points
-    plotted, e.g., on every 5th point.  It is assumed that you are doing
-    index plotting; i.e., the axis is 0, len(data).  This is mainly
-    useful for x ticks.
+    Place ticks at every nth point plotted.
+
+    IndexLocator assumes index plotting; i.e., that the ticks are placed at integer
+    values in the range between 0 and len(data) inclusive.
     """
+
     def __init__(self, base, offset):
         """Place ticks every *base* data point, starting at *offset*."""
         self._base = base
@@ -1682,14 +1770,14 @@ class IndexLocator(Locator):
 
 
 class FixedLocator(Locator):
-    """
-    Tick locations are fixed at *locs*.  If *nbins* is not None,
-    the *locs* array of possible positions will be subsampled to
-    keep the number of ticks <= *nbins* +1.
-    The subsampling will be done to include the smallest
-    absolute value; for example, if zero is included in the
-    array of possibilities, then it is guaranteed to be one of
-    the chosen ticks.
+    r"""
+    Place ticks at a set of fixed values.
+
+    If *nbins* is None ticks are placed at all values. Otherwise, the *locs* array of
+    possible positions will be subsampled to keep the number of ticks
+    :math:`\leq nbins + 1`. The subsampling will be done to include the smallest
+    absolute value; for example, if zero is included in the array of possibilities, then
+    it will be included in the chosen ticks.
     """
 
     def __init__(self, locs, nbins=None):
@@ -1711,9 +1799,7 @@ class FixedLocator(Locator):
 
         .. note::
 
-            Because the values are fixed, vmin and vmax are not used in this
-            method.
-
+            Because the values are fixed, *vmin* and *vmax* are not used.
         """
         if self.nbins is None:
             return self.locs
@@ -1728,7 +1814,7 @@ class FixedLocator(Locator):
 
 class NullLocator(Locator):
     """
-    No ticks
+    Place no ticks.
     """
 
     def __call__(self):
@@ -1740,22 +1826,20 @@ class NullLocator(Locator):
 
         .. note::
 
-            Because the values are Null, vmin and vmax are not used in this
-            method.
+            Because there are no ticks, *vmin* and *vmax* are not used.
         """
         return []
 
 
 class LinearLocator(Locator):
     """
-    Determine the tick locations
+    Place ticks at evenly spaced values.
 
-    The first time this function is called it will try to set the
-    number of ticks to make a nice tick partitioning.  Thereafter, the
-    number of ticks will be fixed so that interactive navigation will
-    be nice
-
+    The first time this function is called, it will try to set the number of
+    ticks to make a nice tick partitioning.  Thereafter, the number of ticks
+    will be fixed to avoid jumping during interactive navigation.
     """
+
     def __init__(self, numticks=None, presets=None):
         """
         Parameters
@@ -1796,8 +1880,6 @@ class LinearLocator(Locator):
 
     def tick_values(self, vmin, vmax):
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        if vmax < vmin:
-            vmin, vmax = vmax, vmin
 
         if (vmin, vmax) in self.presets:
             return self.presets[(vmin, vmax)]
@@ -1831,17 +1913,16 @@ class LinearLocator(Locator):
 
 class MultipleLocator(Locator):
     """
-    Set a tick on each integer multiple of the *base* plus an *offset* within
-    the view interval.
+    Place ticks at every integer multiple of a base plus an offset.
     """
 
     def __init__(self, base=1.0, offset=0.0):
         """
         Parameters
         ----------
-        base : float > 0
+        base : float > 0, default: 1.0
             Interval between ticks.
-        offset : float
+        offset : float, default: 0.0
             Value added to each multiple of *base*.
 
             .. versionadded:: 3.8
@@ -1855,9 +1936,9 @@ class MultipleLocator(Locator):
 
         Parameters
         ----------
-        base : float > 0
+        base : float > 0, optional
             Interval between ticks.
-        offset : float
+        offset : float, optional
             Value added to each multiple of *base*.
 
             .. versionadded:: 3.8
@@ -1918,6 +1999,7 @@ class _Edge_integer:
     Take floating-point precision limitations into account when calculating
     tick locations as integer multiples of a step.
     """
+
     def __init__(self, step, offset):
         """
         Parameters
@@ -1960,7 +2042,9 @@ class _Edge_integer:
 
 class MaxNLocator(Locator):
     """
-    Find nice tick locations with no more than *nbins* + 1 being within the
+    Place evenly spaced ticks, with a cap on the total number of ticks.
+
+    Finds nice tick locations with no more than :math:`nbins + 1` ticks being within the
     view limits. Locations beyond the limits are added to support autoscaling.
     """
     default_params = dict(nbins=10,
@@ -1995,13 +2079,11 @@ class MaxNLocator(Locator):
             If True, autoscaling will result in a range symmetric about zero.
 
         prune : {'lower', 'upper', 'both', None}, default: None
-            Remove edge ticks -- useful for stacked or ganged plots where
-            the upper tick of one axes overlaps with the lower tick of the
-            axes above it, primarily when :rc:`axes.autolimit_mode` is
-            ``'round_numbers'``.  If ``prune=='lower'``, the smallest tick will
-            be removed.  If ``prune == 'upper'``, the largest tick will be
-            removed.  If ``prune == 'both'``, the largest and smallest ticks
-            will be removed.  If *prune* is *None*, no ticks will be removed.
+            Remove the 'lower' tick, the 'upper' tick, or ticks on 'both' sides
+            *if they fall exactly on an axis' edge* (this typically occurs when
+            :rc:`axes.autolimit_mode` is 'round_numbers').  Removing such ticks
+            is mostly useful for stacked or ganged plots, where the upper tick
+            of an Axes overlaps with the lower tick of the axes above it.
 
         min_n_ticks : int, default: 2
             Relax *nbins* and *integer* constraints if necessary to obtain
@@ -2101,6 +2183,11 @@ class MaxNLocator(Locator):
             steps = steps[igood]
 
         raw_step = ((_vmax - _vmin) / nbins)
+        if hasattr(self.axis, "axes") and self.axis.axes.name == '3d':
+            # Due to the change in automargin behavior in mpl3.9, we need to
+            # adjust the raw step to match the mpl3.8 appearance. The zoom
+            # factor of 2/48, gives us the 23/24 modifier.
+            raw_step = raw_step * 23/24
         large_steps = steps >= raw_step
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             # Classic round_numbers mode may require a larger step.
@@ -2110,7 +2197,10 @@ class MaxNLocator(Locator):
             large_steps = large_steps & (floored_vmaxs >= _vmax)
 
         # Find index of smallest large step
-        istep = np.nonzero(large_steps)[0][0]
+        if any(large_steps):
+            istep = np.nonzero(large_steps)[0][0]
+        else:
+            istep = len(steps) - 1
 
         # Start at smallest of the steps greater than the raw step, and check
         # if it provides enough ticks. If not, work backwards through
@@ -2240,38 +2330,33 @@ def _is_close_to_int(x):
 
 class LogLocator(Locator):
     """
+    Place logarithmically spaced ticks.
 
-    Determine the tick locations for log axes.
-
-    Place ticks on the locations : ``subs[j] * base**i``
-
-    Parameters
-    ----------
-    base : float, default: 10.0
-        The base of the log used, so major ticks are placed at
-        ``base**n``, where ``n`` is an integer.
-    subs : None or {'auto', 'all'} or sequence of float, default: (1.0,)
-        Gives the multiples of integer powers of the base at which
-        to place ticks.  The default of ``(1.0, )`` places ticks only at
-        integer powers of the base.
-        Permitted string values are ``'auto'`` and ``'all'``.
-        Both of these use an algorithm based on the axis view
-        limits to determine whether and how to put ticks between
-        integer powers of the base.  With ``'auto'``, ticks are
-        placed only between integer powers; with ``'all'``, the
-        integer powers are included.  A value of None is
-        equivalent to ``'auto'``.
-    numticks : None or int, default: None
-        The maximum number of ticks to allow on a given axis. The default
-        of ``None`` will try to choose intelligently as long as this
-        Locator has already been assigned to an axis using
-        `~.axis.Axis.get_tick_space`, but otherwise falls back to 9.
-
+    Places ticks at the values ``subs[j] * base**i``.
     """
 
-    @_api.delete_parameter("3.8", "numdecs")
-    def __init__(self, base=10.0, subs=(1.0,), numdecs=4, numticks=None):
-        """Place ticks on the locations : subs[j] * base**i."""
+    def __init__(self, base=10.0, subs=(1.0,), *, numticks=None):
+        """
+        Parameters
+        ----------
+        base : float, default: 10.0
+            The base of the log used, so major ticks are placed at ``base**n``, where
+            ``n`` is an integer.
+        subs : None or {'auto', 'all'} or sequence of float, default: (1.0,)
+            Gives the multiples of integer powers of the base at which to place ticks.
+            The default of ``(1.0, )`` places ticks only at integer powers of the base.
+            Permitted string values are ``'auto'`` and ``'all'``. Both of these use an
+            algorithm based on the axis view limits to determine whether and how to put
+            ticks between integer powers of the base:
+            - ``'auto'``: Ticks are placed only between integer powers.
+            - ``'all'``: Ticks are placed between *and* at integer powers.
+            - ``None``: Equivalent to ``'auto'``.
+        numticks : None or int, default: None
+            The maximum number of ticks to allow on a given axis. The default of
+            ``None`` will try to choose intelligently as long as this Locator has
+            already been assigned to an axis using `~.axis.Axis.get_tick_space`, but
+            otherwise falls back to 9.
+        """
         if numticks is None:
             if mpl.rcParams['_internal.classic_mode']:
                 numticks = 15
@@ -2279,23 +2364,16 @@ class LogLocator(Locator):
                 numticks = 'auto'
         self._base = float(base)
         self._set_subs(subs)
-        self._numdecs = numdecs
         self.numticks = numticks
 
-    @_api.delete_parameter("3.8", "numdecs")
-    def set_params(self, base=None, subs=None, numdecs=None, numticks=None):
+    def set_params(self, base=None, subs=None, *, numticks=None):
         """Set parameters within this locator."""
         if base is not None:
             self._base = float(base)
         if subs is not None:
             self._set_subs(subs)
-        if numdecs is not None:
-            self._numdecs = numdecs
         if numticks is not None:
             self.numticks = numticks
-
-    numdecs = _api.deprecate_privatize_attribute(
-        "3.8", addendum="This attribute has no effect.")
 
     def _set_subs(self, subs):
         """
@@ -2351,13 +2429,13 @@ class LogLocator(Locator):
         numdec = math.floor(log_vmax) - math.ceil(log_vmin)
 
         if isinstance(self._subs, str):
-            _first = 2.0 if self._subs == 'auto' else 1.0
             if numdec > 10 or b < 3:
                 if self._subs == 'auto':
                     return np.array([])  # no minor or major ticks
                 else:
                     subs = np.array([1.0])  # major ticks
             else:
+                _first = 2.0 if self._subs == 'auto' else 1.0
                 subs = np.arange(_first, b)
         else:
             subs = self._subs
@@ -2381,23 +2459,14 @@ class LogLocator(Locator):
         decades = np.arange(math.floor(log_vmin) - stride,
                             math.ceil(log_vmax) + 2 * stride, stride)
 
-        if hasattr(self, '_transform'):
-            ticklocs = self._transform.inverted().transform(decades)
-            if have_subs:
-                if stride == 1:
-                    ticklocs = np.ravel(np.outer(subs, ticklocs))
-                else:
-                    # No ticklocs if we have >1 decade between major ticks.
-                    ticklocs = np.array([])
-        else:
-            if have_subs:
-                if stride == 1:
-                    ticklocs = np.concatenate(
-                        [subs * decade_start for decade_start in b ** decades])
-                else:
-                    ticklocs = np.array([])
+        if have_subs:
+            if stride == 1:
+                ticklocs = np.concatenate(
+                    [subs * decade_start for decade_start in b ** decades])
             else:
-                ticklocs = b ** decades
+                ticklocs = np.array([])
+        else:
+            ticklocs = b ** decades
 
         _log.debug('ticklocs %r', ticklocs)
         if (len(subs) > 1
@@ -2417,8 +2486,8 @@ class LogLocator(Locator):
         vmin, vmax = self.nonsingular(vmin, vmax)
 
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
-            vmin = _decade_less_equal(vmin, self._base)
-            vmax = _decade_greater_equal(vmax, self._base)
+            vmin = _decade_less_equal(vmin, b)
+            vmax = _decade_greater_equal(vmax, b)
 
         return vmin, vmax
 
@@ -2447,7 +2516,7 @@ class LogLocator(Locator):
 
 class SymmetricalLogLocator(Locator):
     """
-    Determine the tick locations for symmetric log axes.
+    Place ticks spaced linearly near zero and spaced logarithmically beyond a threshold.
     """
 
     def __init__(self, transform=None, subs=None, linthresh=None, base=None):
@@ -2498,7 +2567,6 @@ class SymmetricalLogLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
-        base = self._base
         linthresh = self._linthresh
 
         if vmax < vmin:
@@ -2535,6 +2603,8 @@ class SymmetricalLogLocator(Locator):
         # Check if linear range is present
         has_b = (has_a and vmax > -linthresh) or (has_c and vmin < linthresh)
 
+        base = self._base
+
         def get_log_range(lo, hi):
             lo = np.floor(np.log(lo) / np.log(base))
             hi = np.ceil(np.log(hi) / np.log(base))
@@ -2568,11 +2638,7 @@ class SymmetricalLogLocator(Locator):
         if has_c:
             decades.extend(base ** (np.arange(c_lo, c_hi, stride)))
 
-        # Add the subticks if requested
-        if self._subs is None:
-            subs = np.arange(2.0, base)
-        else:
-            subs = np.asarray(self._subs)
+        subs = np.asarray(self._subs)
 
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
@@ -2599,16 +2665,14 @@ class SymmetricalLogLocator(Locator):
                 vmin = _decade_less(vmin, b)
                 vmax = _decade_greater(vmax, b)
 
-        result = mtransforms.nonsingular(vmin, vmax)
-        return result
+        return mtransforms.nonsingular(vmin, vmax)
 
 
 class AsinhLocator(Locator):
     """
-    An axis tick locator specialized for the inverse-sinh scale
+    Place ticks spaced evenly on an inverse-sinh scale.
 
-    This is very unlikely to have any use beyond
-    the `~.scale.AsinhScale` class.
+    Generally used with the `~.scale.AsinhScale` class.
 
     .. note::
 
@@ -2668,62 +2732,41 @@ class AsinhLocator(Locator):
             return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
-        # Construct a set of "on-screen" locations
-        # that are uniformly spaced:
+        # Construct a set of uniformly-spaced "on-screen" locations.
         ymin, ymax = self.linear_width * np.arcsinh(np.array([vmin, vmax])
-                                                        / self.linear_width)
+                                                    / self.linear_width)
         ys = np.linspace(ymin, ymax, self.numticks)
-        zero_dev = np.abs(ys / (ymax - ymin))
-        if (ymin * ymax) < 0:
-            # Ensure that the zero tick-mark is included,
-            # if the axis straddles zero
+        zero_dev = abs(ys / (ymax - ymin))
+        if ymin * ymax < 0:
+            # Ensure that the zero tick-mark is included, if the axis straddles zero.
             ys = np.hstack([ys[(zero_dev > 0.5 / self.numticks)], 0.0])
 
         # Transform the "on-screen" grid to the data space:
         xs = self.linear_width * np.sinh(ys / self.linear_width)
         zero_xs = (ys == 0)
 
-        # Round the data-space values to be intuitive base-n numbers,
-        # keeping track of positive and negative values separately,
-        # but giving careful treatment to the zero value:
-        if self.base > 1:
-            log_base = math.log(self.base)
-            powers = (
-                np.where(zero_xs, 0, np.sign(xs)) *
-                np.power(self.base,
-                         np.where(zero_xs, 0.0,
-                                  np.floor(np.log(np.abs(xs) + zero_xs*1e-6)
-                                                / log_base)))
-            )
-            if self.subs:
-                qs = np.outer(powers, self.subs).flatten()
-            else:
-                qs = powers
-        else:
-            powers = (
-                np.where(xs >= 0, 1, -1) *
-                np.power(10, np.where(zero_xs, 0.0,
-                                      np.floor(np.log10(np.abs(xs)
-                                                        + zero_xs*1e-6))))
-            )
-            qs = powers * np.round(xs / powers)
+        # Round the data-space values to be intuitive base-n numbers, keeping track of
+        # positive and negative values separately and carefully treating the zero value.
+        with np.errstate(divide="ignore"):  # base ** log(0) = base ** -inf = 0.
+            if self.base > 1:
+                pows = (np.sign(xs)
+                        * self.base ** np.floor(np.log(abs(xs)) / math.log(self.base)))
+                qs = np.outer(pows, self.subs).flatten() if self.subs else pows
+            else:  # No need to adjust sign(pows), as it cancels out when computing qs.
+                pows = np.where(zero_xs, 1, 10**np.floor(np.log10(abs(xs))))
+                qs = pows * np.round(xs / pows)
         ticks = np.array(sorted(set(qs)))
 
-        if len(ticks) >= 2:
-            return ticks
-        else:
-            return np.linspace(vmin, vmax, self.numticks)
+        return ticks if len(ticks) >= 2 else np.linspace(vmin, vmax, self.numticks)
 
 
 class LogitLocator(MaxNLocator):
     """
-    Determine the tick locations for logit axes
+    Place ticks spaced evenly on a logit scale.
     """
 
     def __init__(self, minor=False, *, nbins="auto"):
         """
-        Place ticks on the logit locations
-
         Parameters
         ----------
         nbins : int or 'auto', optional
@@ -2768,7 +2811,7 @@ class LogitLocator(MaxNLocator):
         # linscale: ... 1e-3 1e-2 1e-1 1/2 1-1e-1 1-1e-2 1-1e-3 ...
         # b-scale : ... -3   -2   -1   0   1      2      3      ...
         def ideal_ticks(x):
-            return 10 ** x if x < 0 else 1 - (10 ** (-x)) if x > 0 else 1 / 2
+            return 10 ** x if x < 0 else 1 - (10 ** (-x)) if x > 0 else 0.5
 
         vmin, vmax = self.nonsingular(vmin, vmax)
         binf = int(
@@ -2865,9 +2908,11 @@ class LogitLocator(MaxNLocator):
 
 class AutoLocator(MaxNLocator):
     """
-    Dynamically find major tick positions. This is actually a subclass
-    of `~matplotlib.ticker.MaxNLocator`, with parameters *nbins = 'auto'*
-    and *steps = [1, 2, 2.5, 5, 10]*.
+    Place evenly spaced ticks, with the step size and maximum number of ticks chosen
+    automatically.
+
+    This is a subclass of `~matplotlib.ticker.MaxNLocator`, with parameters
+    *nbins = 'auto'* and *steps = [1, 2, 2.5, 5, 10]*.
     """
     def __init__(self):
         """
@@ -2885,65 +2930,55 @@ class AutoLocator(MaxNLocator):
 
 class AutoMinorLocator(Locator):
     """
-    Dynamically find minor tick positions based on the positions of
-    major ticks. The scale must be linear with major ticks evenly spaced.
+    Place evenly spaced minor ticks, with the step size and maximum number of ticks
+    chosen automatically.
+
+    The Axis must use a linear scale and have evenly spaced major ticks.
     """
+
     def __init__(self, n=None):
         """
-        *n* is the number of subdivisions of the interval between
-        major ticks; e.g., n=2 will place a single minor tick midway
-        between major ticks.
+        Parameters
+        ----------
+        n : int or 'auto', default: :rc:`xtick.minor.ndivs` or :rc:`ytick.minor.ndivs`
+            The number of subdivisions of the interval between major ticks;
+            e.g., n=2 will place a single minor tick midway between major ticks.
 
-        If *n* is omitted or None, the value stored in rcParams will be used.
-        In case *n* is set to 'auto', it will be set to 4 or 5. If the distance
-        between the major ticks equals 1, 2.5, 5 or 10 it can be perfectly
-        divided in 5 equidistant sub-intervals with a length multiple of
-        0.05. Otherwise it is divided in 4 sub-intervals.
+            If *n* is 'auto', it will be set to 4 or 5: if the distance
+            between the major ticks equals 1, 2.5, 5 or 10 it can be perfectly
+            divided in 5 equidistant sub-intervals with a length multiple of
+            0.05; otherwise, it is divided in 4 sub-intervals.
         """
         self.ndivs = n
 
     def __call__(self):
-        """Return the locations of the ticks."""
+        # docstring inherited
         if self.axis.get_scale() == 'log':
-            _api.warn_external('AutoMinorLocator does not work with '
-                               'logarithmic scale')
+            _api.warn_external('AutoMinorLocator does not work on logarithmic scales')
             return []
 
-        majorlocs = self.axis.get_majorticklocs()
-        try:
-            majorstep = majorlocs[1] - majorlocs[0]
-        except IndexError:
-            # Need at least two major ticks to find minor tick locations
-            # TODO: Figure out a way to still be able to display minor
-            # ticks without two major ticks visible. For now, just display
-            # no ticks at all.
+        majorlocs = np.unique(self.axis.get_majorticklocs())
+        if len(majorlocs) < 2:
+            # Need at least two major ticks to find minor tick locations.
+            # TODO: Figure out a way to still be able to display minor ticks with less
+            # than two major ticks visible. For now, just display no ticks at all.
             return []
+        majorstep = majorlocs[1] - majorlocs[0]
 
         if self.ndivs is None:
-
-            if self.axis.axis_name == 'y':
-                self.ndivs = mpl.rcParams['ytick.minor.ndivs']
-            else:
-                # for x and z axis
-                self.ndivs = mpl.rcParams['xtick.minor.ndivs']
+            self.ndivs = mpl.rcParams[
+                'ytick.minor.ndivs' if self.axis.axis_name == 'y'
+                else 'xtick.minor.ndivs']  # for x and z axis
 
         if self.ndivs == 'auto':
-
-            majorstep_no_exponent = 10 ** (np.log10(majorstep) % 1)
-
-            if np.isclose(majorstep_no_exponent, [1.0, 2.5, 5.0, 10.0]).any():
-                ndivs = 5
-            else:
-                ndivs = 4
+            majorstep_mantissa = 10 ** (np.log10(majorstep) % 1)
+            ndivs = 5 if np.isclose(majorstep_mantissa, [1, 2.5, 5, 10]).any() else 4
         else:
             ndivs = self.ndivs
 
         minorstep = majorstep / ndivs
 
-        vmin, vmax = self.axis.get_view_interval()
-        if vmin > vmax:
-            vmin, vmax = vmax, vmin
-
+        vmin, vmax = sorted(self.axis.get_view_interval())
         t0 = majorlocs[0]
         tmin = round((vmin - t0) / minorstep)
         tmax = round((vmax - t0) / minorstep) + 1
@@ -2952,5 +2987,5 @@ class AutoMinorLocator(Locator):
         return self.raise_if_exceeds(locs)
 
     def tick_values(self, vmin, vmax):
-        raise NotImplementedError('Cannot get tick locations for a '
-                                  '%s type.' % type(self))
+        raise NotImplementedError(
+            f"Cannot get tick locations for a {type(self).__name__}")

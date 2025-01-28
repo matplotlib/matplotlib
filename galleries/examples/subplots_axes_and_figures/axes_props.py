@@ -1,7 +1,7 @@
 """
-==========
-Axes Props
-==========
+===============
+Axes properties
+===============
 
 You can control the axis tick and grid properties
 """
@@ -19,3 +19,10 @@ ax.grid(True, linestyle='-.')
 ax.tick_params(labelcolor='r', labelsize='medium', width=3)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: ticks
+#    plot-type: line
+#    level: beginner

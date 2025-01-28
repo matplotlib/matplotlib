@@ -1,15 +1,16 @@
 import datetime
 import platform
 import re
+from unittest import mock
 
-import contourpy  # type: ignore
+import contourpy
 import numpy as np
-from numpy.testing import (
-    assert_array_almost_equal, assert_array_almost_equal_nulp, assert_array_equal)
+from numpy.testing import assert_array_almost_equal, assert_array_almost_equal_nulp
 import matplotlib as mpl
 from matplotlib import pyplot as plt, rc_context, ticker
 from matplotlib.colors import LogNorm, same_color
-from matplotlib.testing.decorators import image_comparison
+import matplotlib.patches as mpatches
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import pytest
 
 
@@ -85,20 +86,61 @@ def test_contour_Nlevels():
     assert (cs1.levels == cs2.levels).all()
 
 
-@image_comparison(['contour_manual_labels'], remove_text=True, style='mpl20')
+@check_figures_equal(extensions=['png'])
+def test_contour_set_paths(fig_test, fig_ref):
+    cs_test = fig_test.subplots().contour([[0, 1], [1, 2]])
+    cs_ref = fig_ref.subplots().contour([[1, 0], [2, 1]])
+
+    cs_test.set_paths(cs_ref.get_paths())
+
+
+@image_comparison(['contour_manual_labels'], remove_text=True, style='mpl20', tol=0.26)
 def test_contour_manual_labels():
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
 
     plt.figure(figsize=(6, 2), dpi=200)
     cs = plt.contour(x, y, z)
+
     pts = np.array([(1.0, 3.0), (1.0, 4.4), (1.0, 6.0)])
     plt.clabel(cs, manual=pts)
     pts = np.array([(2.0, 3.0), (2.0, 4.4), (2.0, 6.0)])
     plt.clabel(cs, manual=pts, fontsize='small', colors=('r', 'g'))
 
 
-@image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True)
+def test_contour_manual_moveto():
+    x = np.linspace(-10, 10)
+    y = np.linspace(-10, 10)
+
+    X, Y = np.meshgrid(x, y)
+
+    Z = X**2 * 1 / Y**2 - 1
+
+    contours = plt.contour(X, Y, Z, levels=[0, 100])
+
+    # This point lies on the `MOVETO` line for the 100 contour
+    # but is actually closest to the 0 contour
+    point = (1.3, 1)
+    clabels = plt.clabel(contours, manual=[point])
+
+    # Ensure that the 0 contour was chosen, not the 100 contour
+    assert clabels[0].get_text() == "0"
+
+
+@image_comparison(['contour_disconnected_segments'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_contour_label_with_disconnected_segments():
+    x, y = np.mgrid[-1:1:21j, -1:1:21j]
+    z = 1 / np.sqrt(0.01 + (x + 0.3) ** 2 + y ** 2)
+    z += 1 / np.sqrt(0.01 + (x - 0.3) ** 2 + y ** 2)
+
+    plt.figure()
+    cs = plt.contour(x, y, z, levels=[7])
+    cs.clabel(manual=[(0.2, 0.1)])
+
+
+@image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True,
+                  tol=0.018 if platform.machine() == 'arm64' else 0)
 def test_given_colors_levels_and_extends():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -129,8 +171,29 @@ def test_given_colors_levels_and_extends():
         plt.colorbar(c, ax=ax)
 
 
-@image_comparison(['contour_log_locator.svg'], style='mpl20',
-                  remove_text=False)
+@image_comparison(['contourf_hatch_colors'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_hatch_colors():
+    fig, ax = plt.subplots()
+    cf = ax.contourf([[0, 1], [1, 2]], hatches=['-', '/', '\\', '//'], cmap='gray')
+    cf.set_edgecolors(["blue", "grey", "yellow", "red"])
+
+
+@pytest.mark.parametrize('color, extend', [('darkred', 'neither'),
+                                           ('darkred', 'both'),
+                                           (('r', 0.5), 'neither'),
+                                           ((0.1, 0.2, 0.5, 0.3), 'neither')])
+def test_single_color_and_extend(color, extend):
+    z = [[0, 1], [1, 2]]
+
+    _, ax = plt.subplots()
+    levels = [0.5, 0.75, 1, 1.25, 1.5]
+    cs = ax.contour(z, levels=levels, colors=color, extend=extend)
+    for c in cs.get_edgecolors():
+        assert same_color(c, color)
+
+
+@image_comparison(['contour_log_locator.svg'], style='mpl20', remove_text=False)
 def test_log_locator_levels():
 
     fig, ax = plt.subplots()
@@ -177,8 +240,7 @@ def test_contour_datetime_axis():
 
 
 @image_comparison(['contour_test_label_transforms.png'],
-                  remove_text=True, style='mpl20',
-                  tol=0 if platform.machine() == 'x86_64' else 0.08)
+                  remove_text=True, style='mpl20', tol=1.1)
 def test_labels():
     # Adapted from pylab_examples example code: contour_demo.py
     # see issues #2475, #2843, and #2818 for explanation
@@ -207,9 +269,33 @@ def test_labels():
         CS.add_label_near(x, y, inline=True, transform=False)
 
 
-@image_comparison(['contour_corner_mask_False.png',
-                   'contour_corner_mask_True.png'],
-                  remove_text=True)
+def test_label_contour_start():
+    # Set up data and figure/axes that result in automatic labelling adding the
+    # label to the start of a contour
+
+    _, ax = plt.subplots(dpi=100)
+    lats = lons = np.linspace(-np.pi / 2, np.pi / 2, 50)
+    lons, lats = np.meshgrid(lons, lats)
+    wave = 0.75 * (np.sin(2 * lats) ** 8) * np.cos(4 * lons)
+    mean = 0.5 * np.cos(2 * lats) * ((np.sin(2 * lats)) ** 2 + 2)
+    data = wave + mean
+
+    cs = ax.contour(lons, lats, data)
+
+    with mock.patch.object(
+            cs, '_split_path_and_get_label_rotation',
+            wraps=cs._split_path_and_get_label_rotation) as mocked_splitter:
+        # Smoke test that we can add the labels
+        cs.clabel(fontsize=9)
+
+    # Verify at least one label was added to the start of a contour.  I.e. the
+    # splitting method was called with idx=0 at least once.
+    idxs = [cargs[0][1] for cargs in mocked_splitter.call_args_list]
+    assert 0 in idxs
+
+
+@image_comparison(['contour_corner_mask_False.png', 'contour_corner_mask_True.png'],
+                  remove_text=True, tol=1.88)
 def test_corner_mask():
     n = 60
     mask_level = 0.95
@@ -275,6 +361,22 @@ def test_clabel_zorder(use_clabeltext, contour_zorder, clabel_zorder):
         assert clabel.get_zorder() == expected_clabel_zorder
 
 
+def test_clabel_with_large_spacing():
+    # When the inline spacing is large relative to the contour, it may cause the
+    # entire contour to be removed. In current implementation, one line segment is
+    # retained between the identified points.
+    # This behavior may be worth reconsidering, but check to be sure we do not produce
+    # an invalid path, which results in an error at clabel call time.
+    # see gh-27045 for more information
+    x = y = np.arange(-3.0, 3.01, 0.05)
+    X, Y = np.meshgrid(x, y)
+    Z = np.exp(-X**2 - Y**2)
+
+    fig, ax = plt.subplots()
+    contourset = ax.contour(X, Y, Z, levels=[0.01, 0.2, .5, .8])
+    ax.clabel(contourset, inline_spacing=100)
+
+
 # tol because ticks happen to fall on pixel boundaries so small
 # floating point changes in tick location flip which pixel gets
 # the tick.
@@ -316,7 +418,7 @@ def test_contourf_log_extension():
 
 @image_comparison(
     ['contour_addlines.png'], remove_text=True, style='mpl20',
-    tol=0.15 if platform.machine() in ('aarch64', 'ppc64le', 's390x')
+    tol=0.15 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x')
         else 0.03)
 # tolerance is because image changed minutely when tick finding on
 # colorbars was cleaned up...
@@ -365,9 +467,7 @@ def test_contour_linewidth(
         fig, ax = plt.subplots()
         X = np.arange(4*3).reshape(4, 3)
         cs = ax.contour(X, linewidths=call_linewidths)
-        assert cs.collections[0].get_linewidths()[0] == expected
-        with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tlinewidths"):
-            assert cs.tlinewidths[0][0] == expected
+        assert cs.get_linewidths()[0] == expected
 
 
 @pytest.mark.backend("pdf")
@@ -402,7 +502,7 @@ def test_quadcontourset_reuse():
 
 
 @image_comparison(baseline_images=['contour_manual'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True, tol=0.89)
 def test_contour_manual():
     # Manually specifying contour lines/polygons to plot.
     from matplotlib.contour import ContourSet
@@ -461,9 +561,7 @@ def test_find_nearest_contour():
     expected_nearest = (3, 0, 21, 1.884384, 5.023335, 0.013911)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
-    nearest_contour = cs.find_nearest_contour(2, 5,
-                                              indices=(5, 7),
-                                              pixel=False)
+    nearest_contour = cs.find_nearest_contour(2, 5, indices=(5, 7), pixel=False)
     expected_nearest = (5, 0, 16, 2.628202, 5.0, 0.394638)
     assert_array_almost_equal(nearest_contour, expected_nearest)
 
@@ -473,16 +571,13 @@ def test_find_nearest_contour_no_filled():
     img = np.exp(-np.pi * (np.sum((xy - 5)**2, 0)/5.**2))
     cs = plt.contourf(img, 10)
 
-    with pytest.raises(ValueError,
-                       match="Method does not support filled contours."):
+    with pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(1, 1, pixel=False)
 
-    with pytest.raises(ValueError,
-                       match="Method does not support filled contours."):
+    with pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(1, 10, indices=(5, 7), pixel=False)
 
-    with pytest.raises(ValueError,
-                       match="Method does not support filled contours."):
+    with pytest.raises(ValueError, match="Method does not support filled contours"):
         cs.find_nearest_contour(2, 5, indices=(2, 7), pixel=True)
 
 
@@ -520,7 +615,6 @@ def test_contourf_legend_elements():
 
 
 def test_contour_legend_elements():
-    from matplotlib.collections import LineCollection
     x = np.arange(1, 10)
     y = x.reshape(-1, 1)
     h = x * y
@@ -531,7 +625,7 @@ def test_contour_legend_elements():
                      extend='both')
     artists, labels = cs.legend_elements()
     assert labels == ['$x = 10.0$', '$x = 30.0$', '$x = 50.0$']
-    assert all(isinstance(a, LineCollection) for a in artists)
+    assert all(isinstance(a, mpl.lines.Line2D) for a in artists)
     assert all(same_color(a.get_color(), c)
                for a, c in zip(artists, colors))
 
@@ -570,7 +664,7 @@ def test_algorithm_supports_corner_mask(algorithm):
 
 
 @image_comparison(baseline_images=['contour_all_algorithms'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True, tol=0.06)
 def test_all_algorithms():
     algorithms = ['mpl2005', 'mpl2014', 'serial', 'threaded']
 
@@ -702,6 +796,14 @@ def test_contour_no_args():
         ax.contour(Z=data)
 
 
+def test_contour_clip_path():
+    fig, ax = plt.subplots()
+    data = [[0, 1], [1, 0]]
+    circle = mpatches.Circle([0.5, 0.5], 0.5, transform=ax.transAxes)
+    cs = ax.contour(data, clip_path=circle)
+    assert cs.get_clip_path() is not None
+
+
 def test_bool_autolevel():
     x, y = np.random.rand(2, 9)
     z = (np.arange(9) % 2).reshape((3, 3)).astype(bool)
@@ -726,14 +828,14 @@ def test_all_nan():
                                 2.4e-14, 5e-14, 7.5e-14, 1e-13])
 
 
-def test_deprecated_apis():
-    cs = plt.contour(np.arange(16).reshape((4, 4)))
-    colls = cs.collections
-    with pytest.warns(PendingDeprecationWarning, match="allsegs"):
-        assert cs.allsegs == [p.vertices for c in colls for p in c.get_paths()]
-    with pytest.warns(PendingDeprecationWarning, match="allkinds"):
-        assert cs.allkinds == [p.codes for c in colls for p in c.get_paths()]
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tcolors"):
-        assert_array_equal(cs.tcolors, [c.get_edgecolor() for c in colls])
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tlinewidths"):
-        assert cs.tlinewidths == [c.get_linewidth() for c in colls]
+def test_allsegs_allkinds():
+    x, y = np.meshgrid(np.arange(0, 10, 2), np.arange(0, 10, 2))
+    z = np.sin(x) * np.cos(y)
+
+    cs = plt.contour(x, y, z, levels=[0, 0.5])
+
+    # Expect two levels, the first with 5 segments and the second with 4.
+    for result in [cs.allsegs, cs.allkinds]:
+        assert len(result) == 2
+        assert len(result[0]) == 5
+        assert len(result[1]) == 4

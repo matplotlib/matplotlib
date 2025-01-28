@@ -36,6 +36,8 @@ fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
 axs[0].hist(dist1, bins=n_bins)
 axs[1].hist(dist2, bins=n_bins)
 
+plt.show()
+
 
 # %%
 # Updating histogram colors
@@ -59,7 +61,7 @@ norm = colors.Normalize(fracs.min(), fracs.max())
 
 # Now, we'll loop through our objects and set the color of each accordingly
 for thisfrac, thispatch in zip(fracs, patches):
-    color = plt.cm.viridis(norm(thisfrac))
+    color = plt.colormaps["viridis"](norm(thisfrac))
     thispatch.set_facecolor(color)
 
 # We can also normalize our inputs by the total number of counts
@@ -99,9 +101,16 @@ axs[1].hist2d(dist1, dist2, bins=40, norm=colors.LogNorm())
 # We can also define custom numbers of bins for each axis
 axs[2].hist2d(dist1, dist2, bins=(80, 10), norm=colors.LogNorm())
 
-plt.show()
-
 # %%
+#
+# .. tags::
+#
+#    plot-type: histogram,
+#    plot-type: histogram2d
+#    domain: statistics
+#    styling: color,
+#    component: normalization
+#    component: patch
 #
 # .. admonition:: References
 #

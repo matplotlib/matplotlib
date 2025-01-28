@@ -184,9 +184,9 @@ The test framework itself
 
 - We should investigate ways to make it take less time
 
-   - Eliminating redundant tests, if possible
+  - Eliminating redundant tests, if possible
 
-   - General performance improvements to matplotlib will help
+  - General performance improvements to matplotlib will help
 
 - We should be covering more things, particularly more backends
 

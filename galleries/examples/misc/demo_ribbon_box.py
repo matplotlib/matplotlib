@@ -1,6 +1,6 @@
 """
 ==========
-Ribbon Box
+Ribbon box
 ==========
 
 """
@@ -49,7 +49,7 @@ class RibbonBoxImage(AxesImage):
         self._ribbonbox = RibbonBox(color)
         self.set_transform(BboxTransformTo(bbox))
 
-    def draw(self, renderer, *args, **kwargs):
+    def draw(self, renderer):
         stretch_factor = self._bbox.height / self._bbox.width
 
         ny = int(stretch_factor*self._ribbonbox.nx)
@@ -57,7 +57,7 @@ class RibbonBoxImage(AxesImage):
             arr = self._ribbonbox.get_stretched_image(stretch_factor)
             self.set_array(arr)
 
-        super().draw(renderer, *args, **kwargs)
+        super().draw(renderer)
 
 
 def main():
@@ -86,7 +86,7 @@ def main():
     background_gradient[:, :, :3] = [1, 1, 0]
     background_gradient[:, :, 3] = [[0.1, 0.3], [0.3, 0.5]]  # alpha channel
     ax.imshow(background_gradient, interpolation="bicubic", zorder=0.1,
-              extent=(0, 1, 0, 1), transform=ax.transAxes, aspect="auto")
+              extent=(0, 1, 0, 1), transform=ax.transAxes)
 
     plt.show()
 

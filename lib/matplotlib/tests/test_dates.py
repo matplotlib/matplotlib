@@ -6,7 +6,6 @@ import functools
 import numpy as np
 import pytest
 
-import matplotlib as mpl
 from matplotlib import rc_context, style
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -637,6 +636,23 @@ def test_concise_formatter_show_offset(t_delta, expected):
     assert formatter.get_offset() == expected
 
 
+def test_concise_formatter_show_offset_inverted():
+    # Test for github issue #28481
+    d1 = datetime.datetime(1997, 1, 1)
+    d2 = d1 + datetime.timedelta(days=60)
+
+    fig, ax = plt.subplots()
+    locator = mdates.AutoDateLocator()
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter)
+    ax.invert_xaxis()
+
+    ax.plot([d1, d2], [0, 0])
+    fig.canvas.draw()
+    assert formatter.get_offset() == '1997-Jan'
+
+
 def test_concise_converter_stays():
     # This test demonstrates problems introduced by gh-23417 (reverted in gh-25278)
     # In particular, downstream libraries like Pandas had their designated converters
@@ -652,10 +668,12 @@ def test_concise_converter_stays():
     fig, ax = plt.subplots()
     ax.plot(x, y)
     # Bypass Switchable date converter
-    ax.xaxis.converter = conv = mdates.ConciseDateConverter()
+    conv = mdates.ConciseDateConverter()
+    with pytest.warns(UserWarning, match="already has a converter"):
+        ax.xaxis.set_converter(conv)
     assert ax.xaxis.units is None
     ax.set_xlim(*x)
-    assert ax.xaxis.converter == conv
+    assert ax.xaxis.get_converter() == conv
 
 
 def test_offset_changes():
@@ -1280,22 +1298,6 @@ def test_change_interval_multiples():
     fig.canvas.draw()
     assert ax.get_xticklabels()[0].get_text() == 'Jan 15 2020'
     assert ax.get_xticklabels()[1].get_text() == 'Feb 01 2020'
-
-
-def test_julian2num():
-    mdates._reset_epoch_test_example()
-    mdates.set_epoch('0000-12-31')
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        # 2440587.5 is julian date for 1970-01-01T00:00:00
-        # https://en.wikipedia.org/wiki/Julian_day
-        assert mdates.julian2num(2440588.5) == 719164.0
-        assert mdates.num2julian(719165.0) == 2440589.5
-    # set back to the default
-    mdates._reset_epoch_test_example()
-    mdates.set_epoch('1970-01-01T00:00:00')
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        assert mdates.julian2num(2440588.5) == 1.0
-        assert mdates.num2julian(2.0) == 2440589.5
 
 
 def test_DateLocator():

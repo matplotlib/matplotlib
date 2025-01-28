@@ -7,7 +7,7 @@ GridSpecs can be nested, so that a subplot from a parent GridSpec can
 set the position for a nested grid of subplots.
 
 Note that the same functionality can be achieved more directly with
-`~.FigureBase.subfigures`; see
+`~.Figure.subfigures`; see
 :doc:`/gallery/subplots_axes_and_figures/subfigures`.
 
 """
@@ -44,3 +44,9 @@ plt.suptitle("GridSpec Inside GridSpec")
 format_axes(fig)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    level: intermediate

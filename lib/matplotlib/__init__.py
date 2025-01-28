@@ -27,71 +27,71 @@ and explicit interfaces.
 
 Modules include:
 
-    :mod:`matplotlib.axes`
-        The `~.axes.Axes` class.  Most pyplot functions are wrappers for
-        `~.axes.Axes` methods.  The axes module is the highest level of OO
-        access to the library.
+:mod:`matplotlib.axes`
+    The `~.axes.Axes` class.  Most pyplot functions are wrappers for
+    `~.axes.Axes` methods.  The axes module is the highest level of OO
+    access to the library.
 
-    :mod:`matplotlib.figure`
-        The `.Figure` class.
+:mod:`matplotlib.figure`
+    The `.Figure` class.
 
-    :mod:`matplotlib.artist`
-        The `.Artist` base class for all classes that draw things.
+:mod:`matplotlib.artist`
+    The `.Artist` base class for all classes that draw things.
 
-    :mod:`matplotlib.lines`
-        The `.Line2D` class for drawing lines and markers.
+:mod:`matplotlib.lines`
+    The `.Line2D` class for drawing lines and markers.
 
-    :mod:`matplotlib.patches`
-        Classes for drawing polygons.
+:mod:`matplotlib.patches`
+    Classes for drawing polygons.
 
-    :mod:`matplotlib.text`
-        The `.Text` and `.Annotation` classes.
+:mod:`matplotlib.text`
+    The `.Text` and `.Annotation` classes.
 
-    :mod:`matplotlib.image`
-        The `.AxesImage` and `.FigureImage` classes.
+:mod:`matplotlib.image`
+    The `.AxesImage` and `.FigureImage` classes.
 
-    :mod:`matplotlib.collections`
-        Classes for efficient drawing of groups of lines or polygons.
+:mod:`matplotlib.collections`
+    Classes for efficient drawing of groups of lines or polygons.
 
-    :mod:`matplotlib.colors`
-        Color specifications and making colormaps.
+:mod:`matplotlib.colors`
+    Color specifications and making colormaps.
 
-    :mod:`matplotlib.cm`
-        Colormaps, and the `.ScalarMappable` mixin class for providing color
-        mapping functionality to other classes.
+:mod:`matplotlib.cm`
+    Colormaps, and the `.ScalarMappable` mixin class for providing color
+    mapping functionality to other classes.
 
-    :mod:`matplotlib.ticker`
-        Calculation of tick mark locations and formatting of tick labels.
+:mod:`matplotlib.ticker`
+    Calculation of tick mark locations and formatting of tick labels.
 
-    :mod:`matplotlib.backends`
-        A subpackage with modules for various GUI libraries and output formats.
+:mod:`matplotlib.backends`
+    A subpackage with modules for various GUI libraries and output formats.
 
 The base matplotlib namespace includes:
 
-    `~matplotlib.rcParams`
-        Default configuration settings; their defaults may be overridden using
-        a :file:`matplotlibrc` file.
+`~matplotlib.rcParams`
+    Default configuration settings; their defaults may be overridden using
+    a :file:`matplotlibrc` file.
 
-    `~matplotlib.use`
-        Setting the Matplotlib backend.  This should be called before any
-        figure is created, because it is not possible to switch between
-        different GUI backends after that.
+`~matplotlib.use`
+    Setting the Matplotlib backend.  This should be called before any
+    figure is created, because it is not possible to switch between
+    different GUI backends after that.
 
 The following environment variables can be used to customize the behavior:
 
-    :envvar:`MPLBACKEND`
-        This optional variable can be set to choose the Matplotlib backend. See
-        :ref:`what-is-a-backend`.
+:envvar:`MPLBACKEND`
+    This optional variable can be set to choose the Matplotlib backend. See
+    :ref:`what-is-a-backend`.
 
-    :envvar:`MPLCONFIGDIR`
-        This is the directory used to store user customizations to
-        Matplotlib, as well as some caches to improve performance. If
-        :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
-        and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
-        :file:`{HOME}/.matplotlib` on other platforms, if they are
-        writable. Otherwise, the Python standard library's `tempfile.gettempdir`
-        is used to find a base directory in which the :file:`matplotlib`
-        subdirectory is created.
+:envvar:`MPLCONFIGDIR`
+    This is the directory used to store user customizations to
+    Matplotlib, as well as some caches to improve performance. If
+    :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
+    and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
+    :file:`{HOME}/.matplotlib` on other platforms, if they are
+    writable. Otherwise, the Python standard library's `tempfile.gettempdir`
+    is used to find a base directory in which the :file:`matplotlib`
+    subdirectory is created.
 
 Matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
@@ -129,6 +129,8 @@ __all__ = [
     "interactive",
     "is_interactive",
     "colormaps",
+    "multivar_colormaps",
+    "bivar_colormaps",
     "color_sequences",
 ]
 
@@ -151,17 +153,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import warnings
 
-import numpy
 from packaging.version import parse as parse_version
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import _api, _version, cbook, _docstring, rcsetup
-from matplotlib.cbook import sanitize_sequence
 from matplotlib._api import MatplotlibDeprecationWarning
-from matplotlib.rcsetup import validate_backend, cycler
+from matplotlib.rcsetup import cycler  # noqa: F401
 
 
 _log = logging.getLogger(__name__)
@@ -219,15 +218,21 @@ def _get_version():
     if ((root / ".matplotlib-repo").exists()
             and (root / ".git").exists()
             and not (root / ".git/shallow").exists()):
-        import setuptools_scm
-        return setuptools_scm.get_version(
-            root=root,
-            version_scheme="release-branch-semver",
-            local_scheme="node-and-date",
-            fallback_version=_version.version,
-        )
-    else:  # Get the version from the _version.py setuptools_scm file.
-        return _version.version
+        try:
+            import setuptools_scm
+        except ImportError:
+            pass
+        else:
+            return setuptools_scm.get_version(
+                root=root,
+                dist_name="matplotlib",
+                version_scheme="release-branch-semver",
+                local_scheme="node-and-date",
+                fallback_version=_version.version,
+            )
+    # Get the version from the _version.py file if not in repo or setuptools_scm is
+    # unavailable.
+    return _version.version
 
 
 @_api.caching_module_getattr
@@ -241,13 +246,13 @@ def _check_versions():
 
     # Quickfix to ensure Microsoft Visual C++ redistributable
     # DLLs are loaded before importing kiwisolver
-    from . import ft2font
+    from . import ft2font  # noqa: F401
 
     for modname, minver in [
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
-            ("kiwisolver", "1.0.1"),
-            ("numpy", "1.21"),
+            ("kiwisolver", "1.3.1"),
+            ("numpy", "1.23"),
             ("pyparsing", "2.3.1"),
     ]:
         module = importlib.import_module(modname)
@@ -514,35 +519,38 @@ def _get_xdg_cache_dir():
 def _get_config_or_cache_dir(xdg_base_getter):
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir:
-        configdir = Path(configdir).resolve()
+        configdir = Path(configdir)
     elif sys.platform.startswith(('linux', 'freebsd')):
         # Only call _xdg_base_getter here so that MPLCONFIGDIR is tried first,
         # as _xdg_base_getter can throw.
         configdir = Path(xdg_base_getter(), "matplotlib")
     else:
         configdir = Path.home() / ".matplotlib"
+    # Resolve the path to handle potential issues with inaccessible symlinks.
+    configdir = configdir.resolve()
     try:
         configdir.mkdir(parents=True, exist_ok=True)
-    except OSError:
-        pass
+    except OSError as exc:
+        _log.warning("mkdir -p failed for path %s: %s", configdir, exc)
     else:
         if os.access(str(configdir), os.W_OK) and configdir.is_dir():
             return str(configdir)
+        _log.warning("%s is not a writable directory", configdir)
     # If the config or cache directory cannot be created or is not a writable
     # directory, create a temporary one.
     try:
         tmpdir = tempfile.mkdtemp(prefix="matplotlib-")
     except OSError as exc:
         raise OSError(
-            f"Matplotlib requires access to a writable cache directory, but the "
-            f"default path ({configdir}) is not a writable directory, and a temporary "
+            f"Matplotlib requires access to a writable cache directory, but there "
+            f"was an issue with the default path ({configdir}), and a temporary "
             f"directory could not be created; set the MPLCONFIGDIR environment "
             f"variable to a writable directory") from exc
     os.environ["MPLCONFIGDIR"] = tmpdir
     atexit.register(shutil.rmtree, tmpdir)
     _log.warning(
-        "Matplotlib created a temporary cache directory at %s because the default path "
-        "(%s) is not a writable directory; it is highly recommended to set the "
+        "Matplotlib created a temporary cache directory at %s because there was "
+        "an issue with the default path (%s); it is highly recommended to set the "
         "MPLCONFIGDIR environment variable to a writable directory, in particular to "
         "speed up the import of Matplotlib and to better support multiprocessing.",
         tmpdir, configdir)
@@ -574,7 +582,7 @@ def get_cachedir():
     Return the string path of the cache directory.
 
     The procedure used to find the directory is the same as for
-    _get_config_dir, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
+    `get_configdir`, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir)
 
@@ -707,6 +715,35 @@ class RcParams(MutableMapping, dict):
         :meta public:
         """
         return dict.__getitem__(self, key)
+
+    def _update_raw(self, other_params):
+        """
+        Directly update the data from *other_params*, bypassing deprecation,
+        backend and validation logic on both sides.
+
+        This ``rcParams._update_raw(params)`` replaces the previous pattern
+        ``dict.update(rcParams, params)``.
+
+        Parameters
+        ----------
+        other_params : dict or `.RcParams`
+            The input mapping from which to update.
+        """
+        if isinstance(other_params, RcParams):
+            other_params = dict.items(other_params)
+        dict.update(self, other_params)
+
+    def _ensure_has_backend(self):
+        """
+        Ensure that a "backend" entry exists.
+
+        Normally, the default matplotlibrc file contains *no* entry for "backend" (the
+        corresponding line starts with ##, not #; we fill in _auto_backend_sentinel
+        in that case.  However, packagers can set a different default backend
+        (resulting in a normal `#backend: foo` line) in which case we should *not*
+        fill in _auto_backend_sentinel.
+        """
+        dict.setdefault(self, "backend", rcsetup._auto_backend_sentinel)
 
     def __setitem__(self, key, val):
         try:
@@ -957,24 +994,17 @@ Please do not ask for support with these customizations active.
     return config
 
 
-# When constructing the global instances, we need to perform certain updates
-# by explicitly calling the superclass (dict.update, dict.items) to avoid
-# triggering resolution of _auto_backend_sentinel.
 rcParamsDefault = _rc_params_in_file(
     cbook._get_data_path("matplotlibrc"),
     # Strip leading comment.
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
-dict.update(rcParamsDefault, rcsetup._hardcoded_defaults)
-# Normally, the default matplotlibrc file contains *no* entry for backend (the
-# corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
-# in that case.  However, packagers can set a different default backend
-# (resulting in a normal `#backend: foo` line) in which case we should *not*
-# fill in _auto_backend_sentinel.
-dict.setdefault(rcParamsDefault, "backend", rcsetup._auto_backend_sentinel)
+rcParamsDefault._update_raw(rcsetup._hardcoded_defaults)
+rcParamsDefault._ensure_has_backend()
+
 rcParams = RcParams()  # The global instance.
-dict.update(rcParams, dict.items(rcParamsDefault))
-dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
+rcParams._update_raw(rcParamsDefault)
+rcParams._update_raw(_rc_params_in_file(matplotlib_fname()))
 rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
     # This also checks that all rcParams are indeed listed in the template.
@@ -1186,7 +1216,7 @@ def rc_context(rc=None, fname=None):
             rcParams.update(rc)
         yield
     finally:
-        dict.update(rcParams, orig)  # Revert to the original rcs.
+        rcParams._update_raw(orig)  # Revert to the original rcs.
 
 
 def use(backend, *, force=True):
@@ -1204,13 +1234,15 @@ def use(backend, *, force=True):
         backend names, which are case-insensitive:
 
         - interactive backends:
-          GTK3Agg, GTK3Cairo, GTK4Agg, GTK4Cairo, MacOSX, nbAgg, QtAgg,
+          GTK3Agg, GTK3Cairo, GTK4Agg, GTK4Cairo, MacOSX, nbAgg, notebook, QtAgg,
           QtCairo, TkAgg, TkCairo, WebAgg, WX, WXAgg, WXCairo, Qt5Agg, Qt5Cairo
 
         - non-interactive backends:
           agg, cairo, pdf, pgf, ps, svg, template
 
         or a string of the form: ``module://my.module.name``.
+
+        notebook is a synonym for nbAgg.
 
         Switching to an interactive backend is not possible if an unrelated
         event loop has already been started (e.g., switching to GTK3Agg if a
@@ -1230,7 +1262,7 @@ def use(backend, *, force=True):
     matplotlib.pyplot.switch_backend
 
     """
-    name = validate_backend(backend)
+    name = rcsetup.validate_backend(backend)
     # don't (prematurely) resolve the "auto" backend setting
     if rcParams._get_backend_or_none() == name:
         # Nothing to do if the requested backend is already set
@@ -1264,15 +1296,37 @@ if os.environ.get('MPLBACKEND'):
     rcParams['backend'] = os.environ.get('MPLBACKEND')
 
 
-def get_backend():
+def get_backend(*, auto_select=True):
     """
     Return the name of the current backend.
+
+    Parameters
+    ----------
+    auto_select : bool, default: True
+        Whether to trigger backend resolution if no backend has been
+        selected so far. If True, this ensures that a valid backend
+        is returned. If False, this returns None if no backend has been
+        selected so far.
+
+        .. versionadded:: 3.10
+
+        .. admonition:: Provisional
+
+           The *auto_select* flag is provisional. It may be changed or removed
+           without prior warning.
 
     See Also
     --------
     matplotlib.use
     """
-    return rcParams['backend']
+    if auto_select:
+        return rcParams['backend']
+    else:
+        backend = rcParams._get('backend')
+        if backend is rcsetup._auto_backend_sentinel:
+            return None
+        else:
+            return backend
 
 
 def interactive(b):
@@ -1294,22 +1348,31 @@ def is_interactive():
     return rcParams['interactive']
 
 
+def _val_or_rc(val, rc_name):
+    """
+    If *val* is None, return ``mpl.rcParams[rc_name]``, otherwise return val.
+    """
+    return val if val is not None else rcParams[rc_name]
+
+
 def _init_tests():
-    # The version of FreeType to install locally for running the
-    # tests.  This must match the value in `setupext.py`
+    # The version of FreeType to install locally for running the tests. This must match
+    # the value in `meson.build`.
     LOCAL_FREETYPE_VERSION = '2.6.1'
 
     from matplotlib import ft2font
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
             ft2font.__freetype_build_type__ != 'local'):
         _log.warning(
-            f"Matplotlib is not built with the correct FreeType version to "
-            f"run tests.  Rebuild without setting system_freetype=1 in "
-            f"mplsetup.cfg.  Expect many image comparison failures below.  "
-            f"Expected freetype version {LOCAL_FREETYPE_VERSION}.  "
-            f"Found freetype version {ft2font.__freetype_version__}.  "
-            "Freetype build type is {}local".format(
-                "" if ft2font.__freetype_build_type__ == 'local' else "not "))
+            "Matplotlib is not built with the correct FreeType version to run tests.  "
+            "Rebuild without setting system-freetype=true in Meson setup options.  "
+            "Expect many image comparison failures below.  "
+            "Expected freetype version %s.  "
+            "Found freetype version %s.  "
+            "Freetype build type is %slocal.",
+            LOCAL_FREETYPE_VERSION,
+            ft2font.__freetype_version__,
+            "" if ft2font.__freetype_build_type__ == 'local' else "not ")
 
 
 def _replacer(data, value):
@@ -1325,7 +1388,7 @@ def _replacer(data, value):
     except Exception:
         # key does not exist, silently fall back to key
         pass
-    return sanitize_sequence(value)
+    return cbook.sanitize_sequence(value)
 
 
 def _label_from_arg(y, default_name):
@@ -1362,10 +1425,10 @@ def _add_data_doc(docstring, replace_names):
 
     data_doc = ("""\
     If given, all parameters also accept a string ``s``, which is
-    interpreted as ``data[s]`` (unless this raises an exception)."""
+    interpreted as ``data[s]`` if ``s`` is a key in ``data``."""
                 if replace_names is None else f"""\
     If given, the following parameters also accept a string ``s``, which is
-    interpreted as ``data[s]`` (unless this raises an exception):
+    interpreted as ``data[s]`` if ``s`` is a key in ``data``:
 
     {', '.join(map('*{}*'.format, replace_names))}""")
     # using string replacement instead of formatting has the advantages
@@ -1455,7 +1518,10 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     @functools.wraps(func)
     def inner(ax, *args, data=None, **kwargs):
         if data is None:
-            return func(ax, *map(sanitize_sequence, args), **kwargs)
+            return func(
+                ax,
+                *map(cbook.sanitize_sequence, args),
+                **{k: cbook.sanitize_sequence(v) for k, v in kwargs.items()})
 
         bound = new_sig.bind(ax, *args, **kwargs)
         auto_label = (bound.arguments.get(label_namer)
@@ -1492,7 +1558,19 @@ _log.debug('interactive is %s', is_interactive())
 _log.debug('platform is %s', sys.platform)
 
 
+@_api.deprecated("3.10", alternative="matplotlib.cbook.sanitize_sequence")
+def sanitize_sequence(data):
+    return cbook.sanitize_sequence(data)
+
+
+@_api.deprecated("3.10", alternative="matplotlib.rcsetup.validate_backend")
+def validate_backend(s):
+    return rcsetup.validate_backend(s)
+
+
 # workaround: we must defer colormaps import to after loading rcParams, because
 # colormap creation depends on rcParams
-from matplotlib.cm import _colormaps as colormaps
-from matplotlib.colors import _color_sequences as color_sequences
+from matplotlib.cm import _colormaps as colormaps  # noqa: E402
+from matplotlib.cm import _multivar_colormaps as multivar_colormaps  # noqa: E402
+from matplotlib.cm import _bivar_colormaps as bivar_colormaps  # noqa: E402
+from matplotlib.colors import _color_sequences as color_sequences  # noqa: E402

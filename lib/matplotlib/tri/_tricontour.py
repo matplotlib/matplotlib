@@ -5,7 +5,7 @@ from matplotlib.contour import ContourSet
 from matplotlib.tri._triangulation import Triangulation
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 class TriContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions for
@@ -79,7 +79,7 @@ class TriContourSet(ContourSet):
         return (tri, z)
 
 
-_docstring.interpd.update(_tricontour_doc="""
+_docstring.interpd.register(_tricontour_doc="""
 Draw contour %%(type)s on an unstructured triangular grid.
 
 Call signatures::
@@ -130,7 +130,7 @@ Returns
 
 Other Parameters
 ----------------
-colors : color string or sequence of colors, optional
+colors : :mpltype:`color` or list of :mpltype:`color`, optional
     The colors of the levels, i.e., the contour %%(type)s.
 
     The sequence is cycled for the levels in ascending order. If the sequence
@@ -218,7 +218,7 @@ antialiased : bool, optional
 
 
 @_docstring.Substitution(func='tricontour', type='lines')
-@_docstring.dedent_interpd
+@_docstring.interpd
 def tricontour(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s
@@ -247,7 +247,7 @@ def tricontour(ax, *args, **kwargs):
 
 
 @_docstring.Substitution(func='tricontourf', type='regions')
-@_docstring.dedent_interpd
+@_docstring.interpd
 def tricontourf(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s
@@ -255,8 +255,6 @@ def tricontourf(ax, *args, **kwargs):
     hatches : list[str], optional
         A list of crosshatch patterns to use on the filled areas.
         If None, no hatching will be added to the contour.
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
 
     Notes
     -----

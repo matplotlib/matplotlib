@@ -35,8 +35,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
-from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
-                                LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
+from matplotlib.ft2font import FT2Font, FaceFlags, Kerning, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -617,7 +616,7 @@ def _get_pdf_charprocs(font_path, glyph_ids):
     conv = 1000 / font.units_per_EM  # Conversion to PS units (1/1000's).
     procs = {}
     for glyph_id in glyph_ids:
-        g = font.load_glyph(glyph_id, LOAD_NO_SCALE)
+        g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
         # NOTE: We should be using round(), but instead use
         # "(x+.5).astype(int)" to keep backcompat with the old ttconv code
         # (this is different for negative x's).
@@ -732,7 +731,7 @@ class PdfFile:
         self._soft_mask_states = {}
         self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
         self._soft_mask_groups = []
-        self.hatchPatterns = {}
+        self._hatch_patterns = {}
         self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
@@ -1185,7 +1184,7 @@ end"""
             def get_char_width(charcode):
                 s = ord(cp1252.decoding_table[charcode])
                 width = font.load_char(
-                    s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
+                    s, flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING).horiAdvance
                 return cvt(width)
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
@@ -1270,7 +1269,8 @@ end"""
 
             subset_str = "".join(chr(c) for c in characters)
             _log.debug("SUBSET %s characters: %s", filename, subset_str)
-            fontdata = _backend_pdf_ps.get_glyphs_subset(filename, subset_str)
+            with _backend_pdf_ps.get_glyphs_subset(filename, subset_str) as subset:
+                fontdata = _backend_pdf_ps.font_as_file(subset)
             _log.debug(
                 "SUBSET %s %d -> %d", filename,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
@@ -1321,7 +1321,7 @@ end"""
                 ccode = c
                 gind = font.get_char_index(ccode)
                 glyph = font.load_char(ccode,
-                                       flags=LOAD_NO_SCALE | LOAD_NO_HINTING)
+                                       flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING)
                 widths.append((ccode, cvt(glyph.horiAdvance)))
                 if ccode < 65536:
                     cid_to_gid_map[ccode] = chr(gind)
@@ -1417,7 +1417,7 @@ end"""
 
         flags = 0
         symbolic = False  # ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
-        if ff & FIXED_WIDTH:
+        if FaceFlags.FIXED_WIDTH in ff:
             flags |= 1 << 0
         if 0:  # TODO: serif
             flags |= 1 << 1
@@ -1425,7 +1425,7 @@ end"""
             flags |= 1 << 2
         else:
             flags |= 1 << 5
-        if sf & ITALIC:
+        if StyleFlags.ITALIC in sf:
             flags |= 1 << 6
         if 0:  # TODO: all caps
             flags |= 1 << 16
@@ -1534,26 +1534,29 @@ end"""
 
     def hatchPattern(self, hatch_style):
         # The colors may come in as numpy arrays, which aren't hashable
-        if hatch_style is not None:
-            edge, face, hatch = hatch_style
-            if edge is not None:
-                edge = tuple(edge)
-            if face is not None:
-                face = tuple(face)
-            hatch_style = (edge, face, hatch)
+        edge, face, hatch, lw = hatch_style
+        if edge is not None:
+            edge = tuple(edge)
+        if face is not None:
+            face = tuple(face)
+        hatch_style = (edge, face, hatch, lw)
 
-        pattern = self.hatchPatterns.get(hatch_style, None)
+        pattern = self._hatch_patterns.get(hatch_style, None)
         if pattern is not None:
             return pattern
 
         name = next(self._hatch_pattern_seq)
-        self.hatchPatterns[hatch_style] = name
+        self._hatch_patterns[hatch_style] = name
         return name
+
+    hatchPatterns = _api.deprecated("3.10")(property(lambda self: {
+        k: (e, f, h) for k, (e, f, h, l) in self._hatch_patterns.items()
+    }))
 
     def writeHatches(self):
         hatchDict = dict()
         sidelen = 72.0
-        for hatch_style, name in self.hatchPatterns.items():
+        for hatch_style, name in self._hatch_patterns.items():
             ob = self.reserveObject('hatch pattern')
             hatchDict[name] = ob
             res = {'Procsets':
@@ -1568,7 +1571,7 @@ end"""
                  # Change origin to match Agg at top-left.
                  'Matrix': [1, 0, 0, 1, 0, self.height * 72]})
 
-            stroke_rgb, fill_rgb, hatch = hatch_style
+            stroke_rgb, fill_rgb, hatch, lw = hatch_style
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
                         Op.setrgb_stroke)
             if fill_rgb is not None:
@@ -1577,7 +1580,7 @@ end"""
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
 
-            self.output(mpl.rcParams['hatch.linewidth'], Op.setlinewidth)
+            self.output(lw, Op.setlinewidth)
 
             self.output(*self.pathOperations(
                 Path.hatch(hatch),
@@ -1731,39 +1734,43 @@ end"""
                'Subtype': Name('Image'),
                'Width': width,
                'Height': height,
-               'ColorSpace': Name({1: 'DeviceGray',
-                                   3: 'DeviceRGB'}[color_channels]),
+               'ColorSpace': Name({1: 'DeviceGray', 3: 'DeviceRGB'}[color_channels]),
                'BitsPerComponent': 8}
         if smask:
             obj['SMask'] = smask
         if mpl.rcParams['pdf.compression']:
             if data.shape[-1] == 1:
                 data = data.squeeze(axis=-1)
+            png = {'Predictor': 10, 'Colors': color_channels, 'Columns': width}
             img = Image.fromarray(data)
             img_colors = img.getcolors(maxcolors=256)
             if color_channels == 3 and img_colors is not None:
-                # Convert to indexed color if there are 256 colors or fewer
-                # This can significantly reduce the file size
+                # Convert to indexed color if there are 256 colors or fewer. This can
+                # significantly reduce the file size.
                 num_colors = len(img_colors)
-                # These constants were converted to IntEnums and deprecated in
-                # Pillow 9.2
-                dither = getattr(Image, 'Dither', Image).NONE
-                pmode = getattr(Image, 'Palette', Image).ADAPTIVE
-                img = img.convert(
-                    mode='P', dither=dither, palette=pmode, colors=num_colors
-                )
+                palette = np.array([comp for _, color in img_colors for comp in color],
+                                   dtype=np.uint8)
+                palette24 = ((palette[0::3].astype(np.uint32) << 16) |
+                             (palette[1::3].astype(np.uint32) << 8) |
+                             palette[2::3])
+                rgb24 = ((data[:, :, 0].astype(np.uint32) << 16) |
+                         (data[:, :, 1].astype(np.uint32) << 8) |
+                         data[:, :, 2])
+                indices = np.argsort(palette24).astype(np.uint8)
+                rgb8 = indices[np.searchsorted(palette24, rgb24, sorter=indices)]
+                img = Image.fromarray(rgb8, mode='P')
+                img.putpalette(palette)
                 png_data, bit_depth, palette = self._writePng(img)
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
-                palette = palette[:num_colors * 3]  # Trim padding
-                obj['ColorSpace'] = Verbatim(
-                    b'[/Indexed /DeviceRGB %d %s]'
-                    % (num_colors - 1, pdfRepr(palette)))
+                palette = palette[:num_colors * 3]  # Trim padding; remove for Pillow>=9
+                obj['ColorSpace'] = [Name('Indexed'), Name('DeviceRGB'),
+                                     num_colors - 1, palette]
                 obj['BitsPerComponent'] = bit_depth
-                color_channels = 1
+                png['Colors'] = 1
+                png['BitsPerComponent'] = bit_depth
             else:
                 png_data, _, _ = self._writePng(img)
-            png = {'Predictor': 10, 'Colors': color_channels, 'Columns': width}
         else:
             png = None
         self.beginStream(
@@ -2128,10 +2135,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 lastx, lasty = x, y
         output(Op.grestore)
 
-    def draw_gouraud_triangle(self, gc, points, colors, trans):
-        self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
-                                    colors.reshape((1, 3, 4)), trans)
-
     def draw_gouraud_triangles(self, gc, points, colors, trans):
         assert len(points) == len(colors)
         if len(points) == 0:
@@ -2378,8 +2381,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             multibyte_glyphs = []
             prev_was_multibyte = True
             prev_font = font
-            for item in _text_helpers.layout(
-                    s, font, kern_mode=KERNING_UNFITTED):
+            for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED):
                 if _font_supports_glyph(fonttype, ord(item.char)):
                     if prev_was_multibyte or item.ft_object != prev_font:
                         singlebyte_chunks.append((item.ft_object, item.x, []))
@@ -2389,9 +2391,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                     singlebyte_chunks[-1][2].append(item.char)
                     prev_was_multibyte = False
                 else:
-                    multibyte_glyphs.append(
-                        (item.ft_object, item.x, item.glyph_idx)
-                    )
+                    multibyte_glyphs.append((item.ft_object, item.x, item.glyph_idx))
                     prev_was_multibyte = True
             # Do the rotation and global translation as a single matrix
             # concatenation up front
@@ -2511,14 +2511,14 @@ class GraphicsContextPdf(GraphicsContextBase):
         name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
-    def hatch_cmd(self, hatch, hatch_color):
+    def hatch_cmd(self, hatch, hatch_color, hatch_linewidth):
         if not hatch:
             if self._fillcolor is not None:
                 return self.fillcolor_cmd(self._fillcolor)
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
-            hatch_style = (hatch_color, self._fillcolor, hatch)
+            hatch_style = (hatch_color, self._fillcolor, hatch, hatch_linewidth)
             name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]
@@ -2583,8 +2583,8 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_dashes',), dash_cmd),
         (('_rgb',), rgb_cmd),
         # must come after fillcolor and rgb
-        (('_hatch', '_hatch_color'), hatch_cmd),
-        )
+        (('_hatch', '_hatch_color', '_hatch_linewidth'), hatch_cmd),
+    )
 
     def delta(self, other):
         """
@@ -2612,11 +2612,11 @@ class GraphicsContextPdf(GraphicsContextBase):
                     break
 
             # Need to update hatching if we also updated fillcolor
-            if params == ('_hatch', '_hatch_color') and fill_performed:
+            if cmd.__name__ == 'hatch_cmd' and fill_performed:
                 different = True
 
             if different:
-                if params == ('_fillcolor',):
+                if cmd.__name__ == 'fillcolor_cmd':
                     fill_performed = True
                 theirs = [getattr(other, p) for p in params]
                 cmds.extend(cmd(self, *theirs))
@@ -2665,22 +2665,19 @@ class PdfPages:
     In reality `PdfPages` is a thin wrapper around `PdfFile`, in order to avoid
     confusion when using `~.pyplot.savefig` and forgetting the format argument.
     """
-    __slots__ = ('_file', 'keep_empty')
 
-    def __init__(self, filename, keep_empty=True, metadata=None):
+    @_api.delete_parameter("3.10", "keep_empty",
+                           addendum="This parameter does nothing.")
+    def __init__(self, filename, keep_empty=None, metadata=None):
         """
         Create a new PdfPages object.
 
         Parameters
         ----------
         filename : str or path-like or file-like
-            Plots using `PdfPages.savefig` will be written to a file at this
-            location. The file is opened at once and any older file with the
-            same name is overwritten.
-
-        keep_empty : bool, optional
-            If set to False, then empty pdf files will be deleted automatically
-            when closed.
+            Plots using `PdfPages.savefig` will be written to a file at this location.
+            The file is opened when a figure is saved for the first time (overwriting
+            any older file with the same name).
 
         metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
@@ -2692,8 +2689,9 @@ class PdfPages:
             'Trapped'. Values have been predefined for 'Creator', 'Producer'
             and 'CreationDate'. They can be removed by setting them to `None`.
         """
-        self._file = PdfFile(filename, metadata=metadata)
-        self.keep_empty = keep_empty
+        self._filename = filename
+        self._metadata = metadata
+        self._file = None
 
     def __enter__(self):
         return self
@@ -2701,17 +2699,20 @@ class PdfPages:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+    def _ensure_file(self):
+        if self._file is None:
+            self._file = PdfFile(self._filename, metadata=self._metadata)  # init.
+        return self._file
+
     def close(self):
         """
         Finalize this object, making the underlying file a complete
         PDF file.
         """
-        self._file.finalize()
-        self._file.close()
-        if (self.get_pagecount() == 0 and not self.keep_empty and
-                not self._file.passed_in_file_object):
-            os.remove(self._file.fh.name)
-        self._file = None
+        if self._file is not None:
+            self._file.finalize()
+            self._file.close()
+            self._file = None
 
     def infodict(self):
         """
@@ -2719,7 +2720,7 @@ class PdfPages:
         (see PDF reference section 10.2.1 'Document Information
         Dictionary').
         """
-        return self._file.infoDict
+        return self._ensure_file().infoDict
 
     def savefig(self, figure=None, **kwargs):
         """
@@ -2741,12 +2742,11 @@ class PdfPages:
                 raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
         # Force use of pdf backend, as PdfPages is tightly coupled with it.
-        with cbook._setattr_cm(figure, canvas=FigureCanvasPdf(figure)):
-            figure.savefig(self, format="pdf", **kwargs)
+        figure.savefig(self, format="pdf", backend="pdf", **kwargs)
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""
-        return len(self._file.pageList)
+        return len(self._ensure_file().pageList)
 
     def attach_note(self, text, positionRect=[-100, -100, 0, 0]):
         """
@@ -2755,7 +2755,7 @@ class PdfPages:
         page. It is outside the page per default to make sure it is
         invisible on printouts.
         """
-        self._file.newTextnote(text, positionRect)
+        self._ensure_file().newTextnote(text, positionRect)
 
 
 class FigureCanvasPdf(FigureCanvasBase):
@@ -2774,7 +2774,7 @@ class FigureCanvasPdf(FigureCanvasBase):
         self.figure.dpi = 72  # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
         if isinstance(filename, PdfPages):
-            file = filename._file
+            file = filename._ensure_file()
         else:
             file = PdfFile(filename, metadata=metadata)
         try:

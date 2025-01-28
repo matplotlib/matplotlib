@@ -23,7 +23,6 @@ Still TODO:
 
 from contextlib import nullcontext
 from math import radians, cos, sin
-import threading
 
 import numpy as np
 
@@ -32,8 +31,7 @@ from matplotlib import _api, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import fontManager as _fontManager, get_font
-from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
-                                LOAD_DEFAULT, LOAD_NO_AUTOHINT)
+from matplotlib.ft2font import LoadFlags
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
@@ -42,16 +40,16 @@ from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 
 def get_hinting_flag():
     mapping = {
-        'default': LOAD_DEFAULT,
-        'no_autohint': LOAD_NO_AUTOHINT,
-        'force_autohint': LOAD_FORCE_AUTOHINT,
-        'no_hinting': LOAD_NO_HINTING,
-        True: LOAD_FORCE_AUTOHINT,
-        False: LOAD_NO_HINTING,
-        'either': LOAD_DEFAULT,
-        'native': LOAD_NO_AUTOHINT,
-        'auto': LOAD_FORCE_AUTOHINT,
-        'none': LOAD_NO_HINTING,
+        'default': LoadFlags.DEFAULT,
+        'no_autohint': LoadFlags.NO_AUTOHINT,
+        'force_autohint': LoadFlags.FORCE_AUTOHINT,
+        'no_hinting': LoadFlags.NO_HINTING,
+        True: LoadFlags.FORCE_AUTOHINT,
+        False: LoadFlags.NO_HINTING,
+        'either': LoadFlags.DEFAULT,
+        'native': LoadFlags.NO_AUTOHINT,
+        'auto': LoadFlags.FORCE_AUTOHINT,
+        'none': LoadFlags.NO_HINTING,
     }
     return mapping[mpl.rcParams['text.hinting']]
 
@@ -61,19 +59,6 @@ class RendererAgg(RendererBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
-
-    # we want to cache the fonts at the class level so that when
-    # multiple figures are created we can reuse them.  This helps with
-    # a bug on windows where the creation of too many figures leads to
-    # too many open file handles.  However, storing them at the class
-    # level is not thread safe.  The solution here is to let the
-    # FigureCanvas acquire a lock on the fontd at the start of the
-    # draw, and release it when it is done.  This allows multiple
-    # renderers to share the cached fonts, but only one figure can
-    # draw at time and so the font cache is used by only one
-    # renderer at a time.
-
-    lock = threading.RLock()
 
     def __init__(self, width, height, dpi):
         super().__init__()
@@ -85,7 +70,7 @@ class RendererAgg(RendererBase):
         self._filter_renderers = []
 
         self._update_methods()
-        self.mathtext_parser = MathTextParser('Agg')
+        self.mathtext_parser = MathTextParser('agg')
 
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
 
@@ -98,7 +83,6 @@ class RendererAgg(RendererBase):
         self.__init__(state['width'], state['height'], state['dpi'])
 
     def _update_methods(self):
-        self.draw_gouraud_triangle = self._renderer.draw_gouraud_triangle
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers
@@ -189,7 +173,8 @@ class RendererAgg(RendererBase):
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""
         ox, oy, width, height, descent, font_image = \
-            self.mathtext_parser.parse(s, self.dpi, prop)
+            self.mathtext_parser.parse(s, self.dpi, prop,
+                                       antialiased=gc.get_antialiased())
 
         xd = descent * sin(radians(angle))
         yd = descent * cos(radians(angle))
@@ -280,10 +265,6 @@ class RendererAgg(RendererBase):
     def tostring_argb(self):
         return np.asarray(self._renderer).take([3, 0, 1, 2], axis=2).tobytes()
 
-    @_api.deprecated("3.8", alternative="buffer_rgba")
-    def tostring_rgb(self):
-        return np.asarray(self._renderer).take([0, 1, 2], axis=2).tobytes()
-
     def clear(self):
         self._renderer.clear()
 
@@ -345,8 +326,9 @@ class RendererAgg(RendererBase):
 
     def stop_filter(self, post_processing):
         """
-        Save the plot in the current canvas as an image and apply
-        the *post_processing* function.
+        Save the current canvas as an image and apply post processing.
+
+        The *post_processing* function::
 
            def post_processing(image, dpi):
              # ny, nx, depth = image.shape
@@ -395,8 +377,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         self.renderer = self.get_renderer()
         self.renderer.clear()
         # Acquire a lock on the shared font cache.
-        with RendererAgg.lock, \
-             (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
+        with (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
               else nullcontext()):
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so
@@ -411,16 +392,6 @@ class FigureCanvasAgg(FigureCanvasBase):
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
         return self.renderer
-
-    @_api.deprecated("3.8", alternative="buffer_rgba")
-    def tostring_rgb(self):
-        """
-        Get the image as RGB `bytes`.
-
-        `draw` must be called at least once before this function will work and
-        to update the renderer for any subsequent changes to the Figure.
-        """
-        return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
         """
@@ -519,6 +490,9 @@ class FigureCanvasAgg(FigureCanvasBase):
     # print_figure(), and the latter ensures that `self.figure.dpi` already
     # matches the dpi kwarg (if any).
 
+    def print_gif(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
+        self._print_pil(filename_or_obj, "gif", pil_kwargs, metadata)
+
     def print_jpg(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
         # savefig() has already applied savefig.facecolor; we now set it to
         # white to make imsave() blend semi-transparent figures against an
@@ -536,7 +510,7 @@ class FigureCanvasAgg(FigureCanvasBase):
     def print_webp(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
         self._print_pil(filename_or_obj, "webp", pil_kwargs, metadata)
 
-    print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
+    print_gif.__doc__, print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
         """
         Write the figure to a {} file.
 
@@ -547,7 +521,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
-        """.format, ["JPEG", "TIFF", "WebP"])
+        """.format, ["GIF", "JPEG", "TIFF", "WebP"])
 
 
 @_Backend.export

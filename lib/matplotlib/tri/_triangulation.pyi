@@ -8,7 +8,7 @@ from typing import Any
 class Triangulation:
     x: np.ndarray
     y: np.ndarray
-    mask: np.ndarray
+    mask: np.ndarray | None
     is_delaunay: bool
     triangles: np.ndarray
     def __init__(
@@ -18,7 +18,7 @@ class Triangulation:
         triangles: ArrayLike | None = ...,
         mask: ArrayLike | None = ...,
     ) -> None: ...
-    def calculate_plane_coefficients(self, z: ArrayLike): ...
+    def calculate_plane_coefficients(self, z: ArrayLike) -> np.ndarray: ...
     @property
     def edges(self) -> np.ndarray: ...
     def get_cpp_triangulation(self) -> _tri.Triangulation: ...

@@ -33,6 +33,9 @@ installs).  See :ref:`mplot3d-examples-index` and
     from matplotlib import cm
     from mpl_toolkits.mplot3d import Axes3D
 
+
+    plt.style.use('classic')
+
     X = np.arange(-5, 5, 0.25)
     Y = np.arange(-5, 5, 0.25)
     X, Y = np.meshgrid(X, Y)
@@ -92,6 +95,9 @@ new mpl installs.   See :ref:`axes_grid1-examples-index`,
 
 
     fig = plt.figure()
+
+    plt.style.use('classic')
+
     ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
 
     r, g, b = get_rgb()
@@ -138,6 +144,8 @@ well as "detach" the spine to offset it away from the data.  See
             ax.xaxis.set_ticks([])
 
     fig = plt.figure()
+
+    plt.style.use('classic')
 
     x = np.linspace(0, 2*np.pi, 100)
     y = 2*np.sin(x)

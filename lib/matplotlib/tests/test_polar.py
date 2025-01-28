@@ -42,7 +42,7 @@ def test_polar_annotations():
 
 
 @image_comparison(['polar_coords'], style='default', remove_text=True,
-                  tol=0.012)
+                  tol=0.014)
 def test_polar_coord_annotations():
     # You can also use polar notation on a cartesian axes.  Here the native
     # coordinate system ('data') is cartesian, so you need to specify the
@@ -95,7 +95,7 @@ def test_polar_twice():
     fig = plt.figure()
     plt.polar([1, 2], [.1, .2])
     plt.polar([3, 4], [.3, .4])
-    assert len(fig.axes) == 1, 'More than one polar axes created.'
+    assert len(fig.axes) == 1, 'More than one polar Axes created.'
 
 
 @check_figures_equal()
@@ -218,6 +218,13 @@ def test_polar_rlabel_position():
     ax = fig.add_subplot(projection='polar')
     ax.set_rlabel_position(315)
     ax.tick_params(rotation='auto')
+
+
+@image_comparison(['polar_title_position.png'], style='mpl20')
+def test_polar_title_position():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+    ax.set_title('foo')
 
 
 @image_comparison(['polar_theta_wedge'], style='default')
@@ -436,6 +443,33 @@ def test_cursor_precision():
     assert ax.format_coord(2, 1) == "θ=0.637π (114.6°), r=1.000"
 
 
+def test_custom_fmt_data():
+    ax = plt.subplot(projection="polar")
+    def millions(x):
+        return '$%1.1fM' % (x*1e-6)
+
+    # Test only x formatter
+    ax.fmt_xdata = None
+    ax.fmt_ydata = millions
+    assert ax.format_coord(12, 2e7) == "θ=3.8197186342π (687.54935416°), r=$20.0M"
+    assert ax.format_coord(1234, 2e6) == "θ=392.794399551π (70702.9919191°), r=$2.0M"
+    assert ax.format_coord(3, 100) == "θ=0.95493π (171.887°), r=$0.0M"
+
+    # Test only y formatter
+    ax.fmt_xdata = millions
+    ax.fmt_ydata = None
+    assert ax.format_coord(2e5, 1) == "θ=$0.2M, r=1.000"
+    assert ax.format_coord(1, .1) == "θ=$0.0M, r=0.100"
+    assert ax.format_coord(1e6, 0.005) == "θ=$1.0M, r=0.005"
+
+    # Test both x and y formatters
+    ax.fmt_xdata = millions
+    ax.fmt_ydata = millions
+    assert ax.format_coord(2e6, 2e4*3e5) == "θ=$2.0M, r=$6000.0M"
+    assert ax.format_coord(1e18, 12891328123) == "θ=$1000000000000.0M, r=$12891.3M"
+    assert ax.format_coord(63**7, 1081968*1024) == "θ=$3938980.6M, r=$1107.9M"
+
+
 @image_comparison(['polar_log.png'], style='default')
 def test_polar_log():
     fig = plt.figure()
@@ -446,3 +480,29 @@ def test_polar_log():
 
     n = 100
     ax.plot(np.linspace(0, 2 * np.pi, n), np.logspace(0, 2, n))
+
+
+def test_polar_neg_theta_lims():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+    ax.set_thetalim(-np.pi, np.pi)
+    labels = [l.get_text() for l in ax.xaxis.get_ticklabels()]
+    assert labels == ['-180°', '-135°', '-90°', '-45°', '0°', '45°', '90°', '135°']
+
+
+@pytest.mark.parametrize("order", ["before", "after"])
+@image_comparison(baseline_images=['polar_errorbar'], remove_text=True,
+                  extensions=['png'], style='mpl20')
+def test_polar_errorbar(order):
+    theta = np.arange(0, 2 * np.pi, np.pi / 8)
+    r = theta / np.pi / 2 + 0.5
+    fig = plt.figure(figsize=(5, 5))
+    ax = fig.add_subplot(projection='polar')
+    if order == "before":
+        ax.set_theta_zero_location("N")
+        ax.set_theta_direction(-1)
+        ax.errorbar(theta, r, xerr=0.1, yerr=0.1, capsize=7, fmt="o", c="seagreen")
+    else:
+        ax.errorbar(theta, r, xerr=0.1, yerr=0.1, capsize=7, fmt="o", c="seagreen")
+        ax.set_theta_zero_location("N")
+        ax.set_theta_direction(-1)

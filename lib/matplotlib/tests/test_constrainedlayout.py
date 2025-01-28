@@ -1,4 +1,6 @@
 import gc
+import platform
+
 import numpy as np
 import pytest
 
@@ -195,7 +197,8 @@ def test_constrained_layout9():
     fig.suptitle('Test Suptitle', fontsize=28)
 
 
-@image_comparison(['constrained_layout10.png'])
+@image_comparison(['constrained_layout10.png'],
+                  tol=0.032 if platform.machine() == 'arm64' else 0)
 def test_constrained_layout10():
     """Test for handling legend outside axis"""
     fig, axs = plt.subplots(2, 2, layout="constrained")
@@ -347,7 +350,7 @@ def test_constrained_layout19():
 
 
 def test_constrained_layout20():
-    """Smoke test cl does not mess up added axes"""
+    """Smoke test cl does not mess up added Axes"""
     gx = np.linspace(-5, 5, 4)
     img = np.hypot(gx, gx[:, None])
 
@@ -657,6 +660,30 @@ def test_compressed1():
     pos = axs[1, 2].get_position()
     np.testing.assert_allclose(pos.x1, 0.8618, atol=1e-3)
     np.testing.assert_allclose(pos.y0, 0.1934, atol=1e-3)
+
+
+def test_compressed_suptitle():
+    fig, (ax0, ax1) = plt.subplots(
+        nrows=2, figsize=(4, 10), layout="compressed",
+        gridspec_kw={"height_ratios": (1 / 4, 3 / 4), "hspace": 0})
+
+    ax0.axis("equal")
+    ax0.set_box_aspect(1/3)
+
+    ax1.axis("equal")
+    ax1.set_box_aspect(1)
+
+    title = fig.suptitle("Title")
+    fig.draw_without_rendering()
+    assert title.get_position()[1] == pytest.approx(0.7457, abs=1e-3)
+
+    title = fig.suptitle("Title", y=0.98)
+    fig.draw_without_rendering()
+    assert title.get_position()[1] == 0.98
+
+    title = fig.suptitle("Title", in_layout=False)
+    fig.draw_without_rendering()
+    assert title.get_position()[1] == 0.98
 
 
 @pytest.mark.parametrize('arg, state', [

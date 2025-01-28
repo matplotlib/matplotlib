@@ -19,7 +19,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
                maxlength=4.0, integration_direction='both',
-               broken_streamlines=True):
+               broken_streamlines=True, *, integration_max_step_scale=1.0,
+               integration_max_error_scale=1.0, num_arrows=1):
     """
     Draw streamlines of a vector flow.
 
@@ -42,7 +43,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         The width of the streamlines. With a 2D array the line width can be
         varied across the grid. The array must have the same shape as *u*
         and *v*.
-    color : color or 2D array
+    color : :mpltype:`color` or 2D array
         The streamline color. If given an array, its values are converted to
         colors using *cmap* and *norm*.  The array must have the same shape
         as *u* and *v*.
@@ -73,6 +74,29 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         If False, forces streamlines to continue until they
         leave the plot domain.  If True, they may be terminated if they
         come too close to another streamline.
+    integration_max_step_scale : float, default: 1.0
+        Multiplier on the maximum allowable step in the streamline integration routine.
+        A value between zero and one results in a max integration step smaller than
+        the default max step, resulting in more accurate streamlines at the cost
+        of greater computation time; a value greater than one does the converse. Must be
+        greater than zero.
+
+        .. versionadded:: 3.11
+
+    integration_max_error_scale : float, default: 1.0
+        Multiplier on the maximum allowable error in the streamline integration routine.
+        A value between zero and one results in a tighter max integration error than
+        the default max error, resulting in more accurate streamlines at the cost
+        of greater computation time; a value greater than one does the converse. Must be
+        greater than zero.
+
+        .. versionadded:: 3.11
+
+    num_arrows : int
+        Number of arrows per streamline. The arrows are spaced equally along the steps
+        each streamline takes. Note that this can be different to being spaced equally
+        along the distance of the streamline.
+
 
     Returns
     -------
@@ -92,6 +116,21 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     mask = StreamMask(density)
     dmap = DomainMap(grid, mask)
 
+    if integration_max_step_scale <= 0.0:
+        raise ValueError(
+            "The value of integration_max_step_scale must be > 0, " +
+            f"got {integration_max_step_scale}"
+        )
+
+    if integration_max_error_scale <= 0.0:
+        raise ValueError(
+            "The value of integration_max_error_scale must be > 0, " +
+            f"got {integration_max_error_scale}"
+        )
+
+    if num_arrows < 0:
+        raise ValueError(f"The value of num_arrows must be >= 0, got {num_arrows=}")
+
     if zorder is None:
         zorder = mlines.Line2D.zorder
 
@@ -102,8 +141,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if color is None:
         color = axes._get_lines.get_next_color()
 
-    if linewidth is None:
-        linewidth = mpl.rcParams['lines.linewidth']
+    linewidth = mpl._val_or_rc(linewidth, 'lines.linewidth')
 
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
@@ -152,7 +190,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         for xm, ym in _gen_starting_points(mask.shape):
             if mask[ym, xm] == 0:
                 xg, yg = dmap.mask2grid(xm, ym)
-                t = integrate(xg, yg, broken_streamlines)
+                t = integrate(xg, yg, broken_streamlines,
+                              integration_max_step_scale,
+                              integration_max_error_scale)
                 if t is not None:
                     trajectories.append(t)
     else:
@@ -180,7 +220,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             xg = np.clip(xg, 0, grid.nx - 1)
             yg = np.clip(yg, 0, grid.ny - 1)
 
-            t = integrate(xg, yg, broken_streamlines)
+            t = integrate(xg, yg, broken_streamlines, integration_max_step_scale,
+                          integration_max_error_scale)
             if t is not None:
                 trajectories.append(t)
 
@@ -206,25 +247,31 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             points = np.transpose([tx, ty])
             streamlines.append(points)
 
-        # Add arrows halfway along each trajectory.
+        # Distance along streamline
         s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
-        n = np.searchsorted(s, s[-1] / 2.)
-        arrow_tail = (tx[n], ty[n])
-        arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
-
         if isinstance(linewidth, np.ndarray):
             line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
             line_kw['linewidth'].extend(line_widths)
-            arrow_kw['linewidth'] = line_widths[n]
-
         if use_multicolor_lines:
             color_values = interpgrid(color, tgx, tgy)[:-1]
             line_colors.append(color_values)
-            arrow_kw['color'] = cmap(norm(color_values[n]))
 
-        p = patches.FancyArrowPatch(
-            arrow_tail, arrow_head, transform=transform, **arrow_kw)
-        arrows.append(p)
+        # Add arrows along each trajectory.
+        for x in range(1, num_arrows+1):
+            # Get index of distance along streamline to place arrow
+            idx = np.searchsorted(s, s[-1] * (x/(num_arrows+1)))
+            arrow_tail = (tx[idx], ty[idx])
+            arrow_head = (np.mean(tx[idx:idx + 2]), np.mean(ty[idx:idx + 2]))
+
+            if isinstance(linewidth, np.ndarray):
+                arrow_kw['linewidth'] = line_widths[idx]
+
+            if use_multicolor_lines:
+                arrow_kw['color'] = cmap(norm(color_values[idx]))
+
+            p = patches.FancyArrowPatch(
+                arrow_tail, arrow_head, transform=transform, **arrow_kw)
+            arrows.append(p)
 
     lc = mcollections.LineCollection(
         streamlines, transform=transform, **line_kw)
@@ -467,7 +514,8 @@ def _get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
         dxi, dyi = forward_time(xi, yi)
         return -dxi, -dyi
 
-    def integrate(x0, y0, broken_streamlines=True):
+    def integrate(x0, y0, broken_streamlines=True, integration_max_step_scale=1.0,
+                  integration_max_error_scale=1.0):
         """
         Return x, y grid-coordinates of trajectory based on starting point.
 
@@ -487,14 +535,18 @@ def _get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
             return None
         if integration_direction in ['both', 'backward']:
             s, xyt = _integrate_rk12(x0, y0, dmap, backward_time, maxlength,
-                                     broken_streamlines)
+                                     broken_streamlines,
+                                     integration_max_step_scale,
+                                     integration_max_error_scale)
             stotal += s
             xy_traj += xyt[::-1]
 
         if integration_direction in ['both', 'forward']:
             dmap.reset_start_point(x0, y0)
             s, xyt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength,
-                                     broken_streamlines)
+                                     broken_streamlines,
+                                     integration_max_step_scale,
+                                     integration_max_error_scale)
             stotal += s
             xy_traj += xyt[1:]
 
@@ -511,7 +563,9 @@ class OutOfBounds(IndexError):
     pass
 
 
-def _integrate_rk12(x0, y0, dmap, f, maxlength, broken_streamlines=True):
+def _integrate_rk12(x0, y0, dmap, f, maxlength, broken_streamlines=True,
+                    integration_max_step_scale=1.0,
+                    integration_max_error_scale=1.0):
     """
     2nd-order Runge-Kutta algorithm with adaptive step size.
 
@@ -537,7 +591,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength, broken_streamlines=True):
     # This error is below that needed to match the RK4 integrator. It
     # is set for visual reasons -- too low and corners start
     # appearing ugly and jagged. Can be tuned.
-    maxerror = 0.003
+    maxerror = 0.003 * integration_max_error_scale
 
     # This limit is important (for all integrators) to avoid the
     # trajectory skipping some mask cells. We could relax this
@@ -546,6 +600,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength, broken_streamlines=True):
     # nature of the interpolation, this doesn't boost speed by much
     # for quite a bit of complexity.
     maxds = min(1. / dmap.mask.nx, 1. / dmap.mask.ny, 0.1)
+    maxds *= integration_max_step_scale
 
     ds = maxds
     stotal = 0

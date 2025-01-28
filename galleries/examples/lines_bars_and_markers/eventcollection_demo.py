@@ -4,7 +4,7 @@ EventCollection Demo
 ====================
 
 Plot two curves, then use `.EventCollection`\s to mark the locations of the x
-and y data points on the respective axes for each curve.
+and y data points on the respective Axes for each curve.
 """
 
 import matplotlib.pyplot as plt
@@ -60,3 +60,9 @@ ax.set_title('line plot with data points')
 
 # display the plot
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: eventplot
+#    level: intermediate

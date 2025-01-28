@@ -7,13 +7,10 @@
 Legend guide
 ============
 
-Generating legends flexibly in Matplotlib.
-
 .. currentmodule:: matplotlib.pyplot
 
-This legend guide is an extension of the documentation available at
-:func:`~matplotlib.pyplot.legend` - please ensure you are familiar with
-contents of that documentation before proceeding with this guide.
+This legend guide extends the `~.Axes.legend` docstring -
+please read it before proceeding with this guide.
 
 This guide makes use of some common terms, which are documented here for
 clarity:
@@ -62,13 +59,27 @@ the appropriate handles directly to :func:`legend`::
     line_down, = ax.plot([3, 2, 1], label='Line 1')
     ax.legend(handles=[line_up, line_down])
 
-In some cases, it is not possible to set the label of the handle, so it is
-possible to pass through the list of labels to :func:`legend`::
+Renaming legend entries
+-----------------------
+
+When the labels cannot directly be set on the handles, they can be directly passed to
+`.Axes.legend`::
 
     fig, ax = plt.subplots()
     line_up, = ax.plot([1, 2, 3], label='Line 2')
     line_down, = ax.plot([3, 2, 1], label='Line 1')
     ax.legend([line_up, line_down], ['Line Up', 'Line Down'])
+
+
+If the handles are not directly accessible, for example when using some
+`Third-party packages <https://matplotlib.org/mpl-third-party/>`_, they can be accessed
+via `.Axes.get_legend_handles_labels`. Here we use a dictionary to rename existing
+labels::
+
+    my_map = {'Line Up':'Up', 'Line Down':'Down'}
+
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles, [my_map[l] for l in labels])
 
 
 .. _proxy_legend_handles:
@@ -115,8 +126,8 @@ plt.show()
 # *loc*. Please see the documentation at :func:`legend` for more details.
 #
 # The ``bbox_to_anchor`` keyword gives a great degree of control for manual
-# legend placement. For example, if you want your axes legend located at the
-# figure's top right-hand corner instead of the axes' corner, simply specify
+# legend placement. For example, if you want your Axes legend located at the
+# figure's top right-hand corner instead of the Axes' corner, simply specify
 # the corner's location and the coordinate system of that location::
 #
 #     ax.legend(bbox_to_anchor=(1, 1),
@@ -164,7 +175,7 @@ fig.legend(loc='outside upper right')
 #
 ucl = ['upper', 'center', 'lower']
 lcr = ['left', 'center', 'right']
-fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.7')
+fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.95')
 
 ax.plot([1, 2], [1, 2], label='TEST')
 # Place a legend to the right of this smaller subplot.
@@ -177,12 +188,14 @@ for loc in [
         'outside lower right']:
     fig.legend(loc=loc, title=loc)
 
-fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.7')
+fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.95')
 ax.plot([1, 2], [1, 2], label='test')
 
 for loc in [
         'outside left upper',
         'outside right upper',
+        'outside left center',
+        'outside right center',
         'outside left lower',
         'outside right lower']:
     fig.legend(loc=loc, title=loc)
@@ -216,7 +229,7 @@ ax.legend(handles=[line2], loc='lower right')
 plt.show()
 
 # %%
-# Legend Handlers
+# Legend handlers
 # ===============
 #
 # In order to create legend entries, handles are given as an argument to an
@@ -249,11 +262,13 @@ fig, ax = plt.subplots()
 line1, = ax.plot([3, 2, 1], marker='o', label='Line 1')
 line2, = ax.plot([1, 2, 3], marker='o', label='Line 2')
 
-ax.legend(handler_map={line1: HandlerLine2D(numpoints=4)})
+ax.legend(handler_map={line1: HandlerLine2D(numpoints=4)}, handlelength=4)
 
 # %%
 # As you can see, "Line 1" now has 4 marker points, where "Line 2" has 2 (the
-# default). Try the above code, only change the map's key from ``line1`` to
+# default). We have also increased the length of the handles with the
+# ``handlelength`` keyword to fit the larger legend entry.
+# Try the above code, only change the map's key from ``line1`` to
 # ``type(line1)``. Notice how now both `.Line2D` instances get 4 markers.
 #
 # Along with handlers for complex plot types such as errorbars, stem plots

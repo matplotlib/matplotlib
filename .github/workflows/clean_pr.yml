@@ -10,9 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: '0'
+          persist-credentials: false
       - name: Check for added-and-deleted files
         run: |
           git fetch --quiet origin "$GITHUB_BASE_REF"
@@ -45,3 +46,9 @@ jobs:
             printf 'Changes to the following files have no effect and should not be backported:\n%s\n' "$lib"
             exit 1
           fi
+      - name: Check for branches opened against main
+        if: github.ref_name == 'main'
+        run: |
+          echo 'PR branch should not be main.'
+          echo 'See https://matplotlib.org/devdocs/devel/development_workflow.html#make-a-new-feature-branch'
+          exit 1

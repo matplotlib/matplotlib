@@ -24,12 +24,16 @@ The cell (0, 0) is positioned at the top left.
 Thanks to John Gill for providing the class and table.
 """
 
+import numpy as np
+
 from . import _api, _docstring
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
 from .text import Text
 from .transforms import Bbox
 from .path import Path
+
+from .cbook import _is_pandas_dataframe
 
 
 class Cell(Rectangle):
@@ -55,7 +59,7 @@ class Cell(Rectangle):
                  edgecolor='k', facecolor='w',
                  fill=True,
                  text='',
-                 loc=None,
+                 loc='right',
                  fontproperties=None,
                  visible_edges='closed',
                  ):
@@ -68,20 +72,21 @@ class Cell(Rectangle):
             The cell width.
         height : float
             The cell height.
-        edgecolor : color
+        edgecolor : :mpltype:`color`, default: 'k'
             The color of the cell border.
-        facecolor : color
+        facecolor : :mpltype:`color`, default: 'w'
             The cell facecolor.
-        fill : bool
+        fill : bool, default: True
             Whether the cell background is filled.
-        text : str
+        text : str, optional
             The cell text.
-        loc : {'left', 'center', 'right'}, default: 'right'
+        loc : {'right', 'center', 'left'}
             The alignment of the text within the cell.
-        fontproperties : dict
+        fontproperties : dict, optional
             A dict defining the font properties of the text. Supported keys and
             values are the keyword arguments accepted by `.FontProperties`.
-        visible_edges : str, default: 'closed'
+        visible_edges : {'closed', 'open', 'horizontal', 'vertical'} or \
+substring of 'BRTL'
             The cell edges to be drawn with a line: a substring of 'BRTL'
             (bottom, right, top, left), or one of 'open' (no edges drawn),
             'closed' (all edges drawn), 'horizontal' (bottom and top),
@@ -95,14 +100,11 @@ class Cell(Rectangle):
         self.visible_edges = visible_edges
 
         # Create text object
-        if loc is None:
-            loc = 'right'
         self._loc = loc
         self._text = Text(x=xy[0], y=xy[1], clip_on=False,
                           text=text, fontproperties=fontproperties,
                           horizontalalignment=loc, verticalalignment='center')
 
-    @_api.rename_parameter("3.8", "trans", "t")
     def set_transform(self, t):
         super().set_transform(t)
         # the text does not get the transform!
@@ -175,7 +177,7 @@ class Cell(Rectangle):
         l, b, w, h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def set_text_props(self, **kwargs):
         """
         Update the text properties.
@@ -279,9 +281,9 @@ class Table(Artist):
         """
         Parameters
         ----------
-        ax : `matplotlib.axes.Axes`
+        ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` to plot the table into.
-        loc : str
+        loc : str, optional
             The position of the cell with respect to *ax*. This must be one of
             the `~.Table.codes`.
         bbox : `.Bbox` or [xmin, ymin, width, height], optional
@@ -302,7 +304,7 @@ class Table(Artist):
                     "Unrecognized location {!r}. Valid locations are\n\t{}"
                     .format(loc, '\n\t'.join(self.codes)))
             loc = self.codes[loc]
-        self.set_figure(ax.figure)
+        self.set_figure(ax.get_figure(root=False))
         self._axes = ax
         self._loc = loc
         self._bbox = bbox
@@ -353,7 +355,7 @@ class Table(Artist):
         except Exception as err:
             raise KeyError('Only tuples length 2 are accepted as '
                            'coordinates') from err
-        cell.set_figure(self.figure)
+        cell.set_figure(self.get_figure(root=False))
         cell.set_transform(self.get_transform())
         cell.set_clip_on(False)
         self._cells[row, col] = cell
@@ -388,7 +390,7 @@ class Table(Artist):
         self.stale = True
 
     def _approx_text_height(self):
-        return (self.FONTSIZE / 72.0 * self.figure.dpi /
+        return (self.FONTSIZE / 72.0 * self.get_figure(root=True).dpi /
                 self._axes.bbox.height * 1.2)
 
     @allow_rasterization
@@ -398,7 +400,7 @@ class Table(Artist):
         # Need a renderer to do hit tests on mouseevent; assume the last one
         # will do
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         if renderer is None:
             raise RuntimeError('No renderer defined')
 
@@ -431,7 +433,7 @@ class Table(Artist):
             return False, {}
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
-        renderer = self.figure._get_renderer()
+        renderer = self.get_figure(root=True)._get_renderer()
         if renderer is not None:
             boxes = [cell.get_window_extent(renderer)
                      for (row, col), cell in self._cells.items()
@@ -448,7 +450,7 @@ class Table(Artist):
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         self._update_positions(renderer)
         boxes = [cell.get_window_extent(renderer)
                  for cell in self._cells.values()]
@@ -494,14 +496,11 @@ class Table(Artist):
         col : int or sequence of ints
             The indices of the columns to auto-scale.
         """
-        # check for col possibility on iteration
-        try:
-            iter(col)
-        except (TypeError, AttributeError):
-            self._autoColumns.append(col)
-        else:
-            for cell in col:
-                self._autoColumns.append(cell)
+        col1d = np.atleast_1d(col)
+        if not np.issubdtype(col1d.dtype, np.integer):
+            raise TypeError("col must be an int or sequence of ints.")
+        for cell in col1d:
+            self._autoColumns.append(cell)
 
         self.stale = True
 
@@ -648,7 +647,7 @@ class Table(Artist):
         return self._cells
 
 
-@_docstring.dedent_interpd
+@_docstring.interpd
 def table(ax,
           cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
@@ -669,20 +668,20 @@ def table(ax,
     *colLoc* respectively.
 
     For finer grained control over tables, use the `.Table` class and add it to
-    the axes with `.Axes.add_table`.
+    the Axes with `.Axes.add_table`.
 
     Parameters
     ----------
-    cellText : 2D list of str, optional
+    cellText : 2D list of str or pandas.DataFrame, optional
         The texts to place into the table cells.
 
         *Note*: Line breaks in the strings are currently not accounted for and
         will result in the text exceeding the cell boundaries.
 
-    cellColours : 2D list of colors, optional
+    cellColours : 2D list of :mpltype:`color`, optional
         The background colors of the cells.
 
-    cellLoc : {'left', 'center', 'right'}, default: 'right'
+    cellLoc : {'right', 'center', 'left'}
         The alignment of the text within the cells.
 
     colWidths : list of float, optional
@@ -692,22 +691,22 @@ def table(ax,
     rowLabels : list of str, optional
         The text of the row header cells.
 
-    rowColours : list of colors, optional
+    rowColours : list of :mpltype:`color`, optional
         The colors of the row header cells.
 
-    rowLoc : {'left', 'center', 'right'}, default: 'left'
+    rowLoc : {'left', 'center', 'right'}
         The text alignment of the row header cells.
 
     colLabels : list of str, optional
         The text of the column header cells.
 
-    colColours : list of colors, optional
+    colColours : list of :mpltype:`color`, optional
         The colors of the column header cells.
 
-    colLoc : {'left', 'center', 'right'}, default: 'left'
+    colLoc : {'center', 'left', 'right'}
         The text alignment of the column header cells.
 
-    loc : str, optional
+    loc : str, default: 'bottom'
         The position of the cell with respect to *ax*. This must be one of
         the `~.Table.codes`.
 
@@ -715,7 +714,7 @@ def table(ax,
         A bounding box to draw the table into. If this is not *None*, this
         overrides *loc*.
 
-    edges : substring of 'BRTL' or {'open', 'closed', 'horizontal', 'vertical'}
+    edges : {'closed', 'open', 'horizontal', 'vertical'} or substring of 'BRTL'
         The cell edges to be drawn with a line. See also
         `~.Cell.visible_edges`.
 
@@ -742,6 +741,21 @@ def table(ax,
         rows = len(cellColours)
         cols = len(cellColours[0])
         cellText = [[''] * cols] * rows
+
+    # Check if we have a Pandas DataFrame
+    if _is_pandas_dataframe(cellText):
+        # if rowLabels/colLabels are empty, use DataFrame entries.
+        # Otherwise, throw an error.
+        if rowLabels is None:
+            rowLabels = cellText.index
+        else:
+            raise ValueError("rowLabels cannot be used alongside Pandas DataFrame")
+        if colLabels is None:
+            colLabels = cellText.columns
+        else:
+            raise ValueError("colLabels cannot be used alongside Pandas DataFrame")
+        # Update cellText with only values
+        cellText = cellText.values
 
     rows = len(cellText)
     cols = len(cellText[0])
@@ -823,6 +837,10 @@ def table(ax,
                            loc=rowLoc)
         if rowLabelWidth == 0:
             table.auto_set_column_width(-1)
+
+    # set_fontsize is only effective after cells are added
+    if "fontsize" in kwargs:
+        table.set_fontsize(kwargs["fontsize"])
 
     ax.add_table(table)
     return table

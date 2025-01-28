@@ -47,30 +47,30 @@ Detailed description
 
 matplotlib depends on the following third-party Python libraries:
 
-   - Numpy
-   - dateutil (pure Python)
-   - pytz (pure Python)
-   - six -- required by dateutil (pure Python)
-   - pyparsing (pure Python)
-   - PIL (optional)
-   - GUI frameworks: pygtk, gobject, tkinter, PySide, PyQt4, wx (all
-     optional, but one is required for an interactive GUI)
+- Numpy
+- dateutil (pure Python)
+- pytz (pure Python)
+- six -- required by dateutil (pure Python)
+- pyparsing (pure Python)
+- PIL (optional)
+- GUI frameworks: pygtk, gobject, tkinter, PySide, PyQt4, wx (all
+  optional, but one is required for an interactive GUI)
 
 Current behavior
 ----------------
 
 When installing from source, a :program:`git` checkout or pip_:
 
-  - :file:`setup.py` attempts to ``import numpy``.  If this fails, the
-    installation fails.
+- :file:`setup.py` attempts to ``import numpy``.  If this fails, the
+  installation fails.
 
-  - For each of dateutil_, pytz_ and six_, :file:`setup.py` attempts to
-    import them (from the top-level namespace).  If that fails,
-    matplotlib installs its local copy of the library into the
-    top-level namespace.
+- For each of dateutil_, pytz_ and six_, :file:`setup.py` attempts to
+  import them (from the top-level namespace).  If that fails,
+  matplotlib installs its local copy of the library into the
+  top-level namespace.
 
-  - pyparsing_ is always installed inside of the matplotlib
-    namespace.
+- pyparsing_ is always installed inside of the matplotlib
+  namespace.
 
 This behavior is most surprising when used with pip_, because no
 pip_ dependency resolution is performed, even though it is likely to

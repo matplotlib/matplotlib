@@ -1,12 +1,11 @@
 import copy
 import os
-from pathlib import Path
-import re
 import subprocess
 import sys
 from unittest import mock
 
 from cycler import cycler, Cycler
+from packaging.version import parse as parse_version
 import pytest
 
 import matplotlib as mpl
@@ -28,18 +27,20 @@ from matplotlib.rcsetup import (
     validate_int,
     validate_markevery,
     validate_stringlist,
+    validate_sketch,
     _validate_linestyle,
     _listify_validator)
+from matplotlib.testing import subprocess_run_for_testing
 
 
-def test_rcparams(tmpdir):
+def test_rcparams(tmp_path):
     mpl.rc('text', usetex=False)
     mpl.rc('lines', linewidth=22)
 
     usetex = mpl.rcParams['text.usetex']
     linewidth = mpl.rcParams['lines.linewidth']
 
-    rcpath = Path(tmpdir) / 'test_rcparams.rc'
+    rcpath = tmp_path / 'test_rcparams.rc'
     rcpath.write_text('lines.linewidth: 33', encoding='utf-8')
 
     # test context given dictionary
@@ -107,14 +108,12 @@ def test_rcparams_update():
     rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
     bad_dict = {'figure.figsize': (3.5, 42, 1)}
     # make sure validation happens on input
-    with pytest.raises(ValueError), \
-         pytest.warns(UserWarning, match="validate"):
+    with pytest.raises(ValueError):
         rc.update(bad_dict)
 
 
 def test_rcparams_init():
-    with pytest.raises(ValueError), \
-         pytest.warns(UserWarning, match="validate"):
+    with pytest.raises(ValueError):
         mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
 
 
@@ -197,8 +196,8 @@ def test_axes_titlecolor_rcparams():
     assert title.get_color() == 'r'
 
 
-def test_Issue_1713(tmpdir):
-    rcpath = Path(tmpdir) / 'test_rcparams.rc'
+def test_Issue_1713(tmp_path):
+    rcpath = tmp_path / 'test_rcparams.rc'
     rcpath.write_text('timezone: UTC', encoding='utf-8')
     with mock.patch('locale.getpreferredencoding', return_value='UTF-32-BE'):
         rc = mpl.rc_params_from_file(rcpath, True, False)
@@ -522,12 +521,12 @@ def test_rcparams_reset_after_fail():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-def test_backend_fallback_headless(tmpdir):
+def test_backend_fallback_headless(tmp_path):
     env = {**os.environ,
            "DISPLAY": "", "WAYLAND_DISPLAY": "",
-           "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
+           "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
     with pytest.raises(subprocess.CalledProcessError):
-        subprocess.run(
+        subprocess_run_for_testing(
             [sys.executable, "-c",
              "import matplotlib;"
              "matplotlib.use('tkagg');"
@@ -538,21 +537,27 @@ def test_backend_fallback_headless(tmpdir):
 
 
 @pytest.mark.skipif(
-    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
     reason="headless")
-def test_backend_fallback_headful(tmpdir):
-    pytest.importorskip("tkinter")
-    env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
-    backend = subprocess.check_output(
+def test_backend_fallback_headful(tmp_path):
+    if parse_version(pytest.__version__) >= parse_version('8.2.0'):
+        pytest_kwargs = dict(exc_type=ImportError)
+    else:
+        pytest_kwargs = {}
+
+    pytest.importorskip("tkinter", **pytest_kwargs)
+    env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
+    backend = subprocess_run_for_testing(
         [sys.executable, "-c",
          "import matplotlib as mpl; "
          "sentinel = mpl.rcsetup._auto_backend_sentinel; "
          # Check that access on another instance does not resolve the sentinel.
          "assert mpl.RcParams({'backend': sentinel})['backend'] == sentinel; "
          "assert mpl.rcParams._get('backend') == sentinel; "
+         "assert mpl.get_backend(auto_select=False) is None; "
          "import matplotlib.pyplot; "
          "print(matplotlib.get_backend())"],
-        env=env, text=True)
+        env=env, text=True, check=True, capture_output=True).stdout
     # The actual backend will depend on what's installed, but at least tkagg is
     # present.
     assert backend.strip().lower() != "agg"
@@ -599,8 +604,56 @@ def test_deprecation(monkeypatch):
     # suppress_matplotlib_deprecation_warning, rather than any explicit check.
 
 
-def test_rcparams_legend_loc():
-    value = (0.9, .7)
-    match_str = f"{value} is not a valid value for legend.loc;"
-    with pytest.raises(ValueError, match=re.escape(match_str)):
-        mpl.RcParams({'legend.loc': value})
+@pytest.mark.parametrize("value", [
+    "best",
+    1,
+    "1",
+    (0.9, .7),
+    (-0.9, .7),
+    "(0.9, .7)"
+])
+def test_rcparams_legend_loc(value):
+    # rcParams['legend.loc'] should allow any of the following formats.
+    # if any of these are not allowed, an exception will be raised
+    # test for gh issue #22338
+    mpl.rcParams["legend.loc"] = value
+
+
+@pytest.mark.parametrize("value", [
+    "best",
+    1,
+    (0.9, .7),
+    (-0.9, .7),
+])
+def test_rcparams_legend_loc_from_file(tmp_path, value):
+    # rcParams['legend.loc'] should be settable from matplotlibrc.
+    # if any of these are not allowed, an exception will be raised.
+    # test for gh issue #22338
+    rc_path = tmp_path / "matplotlibrc"
+    rc_path.write_text(f"legend.loc: {value}")
+
+    with mpl.rc_context(fname=rc_path):
+        assert mpl.rcParams["legend.loc"] == value
+
+
+@pytest.mark.parametrize("value", [(1, 2, 3), '1, 2, 3', '(1, 2, 3)'])
+def test_validate_sketch(value):
+    mpl.rcParams["path.sketch"] = value
+    assert mpl.rcParams["path.sketch"] == (1, 2, 3)
+    assert validate_sketch(value) == (1, 2, 3)
+
+
+@pytest.mark.parametrize("value", [1, '1', '1 2 3'])
+def test_validate_sketch_error(value):
+    with pytest.raises(ValueError, match="scale, length, randomness"):
+        validate_sketch(value)
+    with pytest.raises(ValueError, match="scale, length, randomness"):
+        mpl.rcParams["path.sketch"] = value
+
+
+@pytest.mark.parametrize("value", ['1, 2, 3', '(1,2,3)'])
+def test_rcparams_path_sketch_from_file(tmp_path, value):
+    rc_path = tmp_path / "matplotlibrc"
+    rc_path.write_text(f"path.sketch: {value}")
+    with mpl.rc_context(fname=rc_path):
+        assert mpl.rcParams["path.sketch"] == (1, 2, 3)

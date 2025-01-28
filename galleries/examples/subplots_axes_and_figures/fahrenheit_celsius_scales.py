@@ -1,6 +1,6 @@
 """
 =================================
-Different scales on the same axes
+Different scales on the same Axes
 =================================
 
 Demo of how to display two scales on the left and right y-axis.
@@ -44,3 +44,10 @@ def make_plot():
     plt.show()
 
 make_plot()
+
+# %%
+# .. tags::
+#
+#    component: axes
+#    plot-type: line
+#    level: beginner

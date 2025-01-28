@@ -18,7 +18,9 @@ ignore =
     D301,
     D400, D401, D403, D404
     # ignored by pydocstyle numpy docstring convention
-    D107, D203, D212, D213, D402, D413, D415, D416, D417,
+    D107, D203, D212, D402, D413, D415, D416, D417,
+    # while D213 is ignored by the numpy docstring convention, it's left out above,
+    # because we want to enforce it.
 
 exclude =
     .git
@@ -31,30 +33,22 @@ exclude =
     .eggs
 
 per-file-ignores =
-    setup.py: E402
-
-    lib/matplotlib/__init__.py: E402, F401
-    lib/matplotlib/_animation_data.py: E501
-    lib/matplotlib/_api/__init__.py: F401
-    lib/matplotlib/_cm.py: E122, E202, E203, E302
-    lib/matplotlib/_mathtext.py: E221, E251
-    lib/matplotlib/_mathtext_data.py: E122, E203, E261
-    lib/matplotlib/axes/__init__.py: F401, F403
+    lib/matplotlib/_cm.py: E202, E203, E302
+    lib/matplotlib/_mathtext.py: E221
+    lib/matplotlib/_mathtext_data.py: E203
     lib/matplotlib/backends/backend_template.py: F401
-    lib/matplotlib/font_manager.py: E501
-    lib/matplotlib/image.py: F401, F403
     lib/matplotlib/mathtext.py: E221
     lib/matplotlib/pylab.py: F401, F403
-    lib/matplotlib/pyplot.py: F401, F811
+    lib/matplotlib/pyplot.py: F811
     lib/matplotlib/tests/test_mathtext.py: E501
-    lib/matplotlib/transforms.py: E201, E202, E203
+    lib/matplotlib/transforms.py: E201, E202
     lib/matplotlib/tri/_triinterpolate.py: E201, E221
     lib/mpl_toolkits/axes_grid1/axes_size.py: E272
-    lib/mpl_toolkits/axisartist/__init__.py: F401
     lib/mpl_toolkits/axisartist/angle_helper.py: E221
-    lib/pylab.py: F401, F403
+    lib/mpl_toolkits/mplot3d/proj3d.py: E201
 
     doc/conf.py: E402
+    galleries/users_explain/quick_start.py: E402
     galleries/users_explain/artists/paths.py: E402
     galleries/users_explain/artists/patheffects_guide.py: E402
     galleries/users_explain/artists/transforms_tutorial.py: E402, E501

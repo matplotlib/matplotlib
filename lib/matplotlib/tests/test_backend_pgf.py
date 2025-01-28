@@ -10,7 +10,8 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
-from matplotlib.testing.compare import compare_images, ImageComparisonFailure
+from matplotlib.testing.exceptions import ImageComparisonFailure
+from matplotlib.testing.compare import compare_images
 from matplotlib.backends.backend_pgf import PdfPages
 from matplotlib.testing.decorators import (
     _image_directories, check_figures_equal, image_comparison)
@@ -63,7 +64,7 @@ def create_figure():
 
     # text and typesetting
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
+    plt.text(0.9, 0.5, 'unicode (ü, °, \N{Section Sign}) and math ($\\mu_i = x_i^2$)',
              ha='right', fontsize=20)
     plt.ylabel('sans-serif, blue, $\\frac{\\sqrt{x}}{y^2}$..',
                family='sans-serif', color='blue')
@@ -286,6 +287,21 @@ def test_pdf_pages_metadata_check(monkeypatch, system):
 
 
 @needs_pgf_xelatex
+def test_multipage_keep_empty(tmp_path):
+    # An empty pdf deletes itself afterwards.
+    fn = tmp_path / "a.pdf"
+    with PdfPages(fn) as pdf:
+        pass
+    assert not fn.exists()
+
+    # Test pdf files with content, they should never be deleted.
+    fn = tmp_path / "b.pdf"
+    with PdfPages(fn) as pdf:
+        pdf.savefig(plt.figure())
+    assert fn.exists()
+
+
+@needs_pgf_xelatex
 def test_tex_restart_after_error():
     fig = plt.figure()
     fig.suptitle(r"\oops")
@@ -360,3 +376,27 @@ def test_sketch_params():
     # \pgfdecoratecurrentpath must be after the path definition and before the
     # path is used (\pgfusepath)
     assert baseline in buf
+
+
+# test to make sure that the document font size is set consistently (see #26892)
+@needs_pgf_xelatex
+@pytest.mark.skipif(
+    not _has_tex_package('unicode-math'), reason='needs unicode-math.sty'
+)
+@pytest.mark.backend('pgf')
+@image_comparison(['pgf_document_font_size.pdf'], style='default', remove_text=True)
+def test_document_font_size():
+    mpl.rcParams.update({
+        'pgf.texsystem': 'xelatex',
+        'pgf.rcfonts': False,
+        'pgf.preamble': r'\usepackage{unicode-math}',
+    })
+    plt.figure()
+    plt.plot([],
+             label=r'$this is a very very very long math label a \times b + 10^{-3}$ '
+                   r'and some text'
+             )
+    plt.plot([],
+             label=r'\normalsize the document font size is \the\fontdimen6\font'
+             )
+    plt.legend()
