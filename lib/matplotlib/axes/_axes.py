@@ -8507,16 +8507,16 @@ such objects
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
 
-        facecolor : color or list of colors or None; see :ref:`colors_def`
-            If provided, will set the face color(s) of the violin plots.
-
-        linecolor : color or list of colors or None; see :ref:`colors_def`
-          If provided, will set the line color(s) of the violin plots (the
-          horizontal and vertical spines and body edges).
+        facecolor : :mpltype`color` or list of :mpltype:`color`, optional
+            If provided, will set the face color(s) of the violins.
 
             .. versionadded:: 3.11
 
-            facecolor, linecolor
+        linecolor : :mpltype`color` or list of :mpltype:`color`, optional
+          If provided, will set the line color(s) of the violins (the
+          horizontal and vertical spines and body edges).
+
+            .. versionadded:: 3.11
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
