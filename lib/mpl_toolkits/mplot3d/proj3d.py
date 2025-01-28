@@ -133,15 +133,33 @@ def _ortho_transformation(zfront, zback):
 
 def _proj_transform_vec(vec, M):
     vecw = np.dot(M, vec.data)
-    w = vecw[3]
-    txs, tys, tzs = vecw[0]/w, vecw[1]/w, vecw[2]/w
-    if np.ma.isMA(vec[0]):  # we check each to protect for scalars
-        txs = np.ma.array(txs, mask=vec[0].mask)
-    if np.ma.isMA(vec[1]):
-        tys = np.ma.array(tys, mask=vec[1].mask)
-    if np.ma.isMA(vec[2]):
-        tzs = np.ma.array(tzs, mask=vec[2].mask)
-    return txs, tys, tzs
+    ts = vecw[0:3]/vecw[3]
+    if np.ma.isMA(vec):
+        ts = np.ma.array(ts, mask=vec.mask)
+    return ts[0], ts[1], ts[2]
+
+
+def _proj_transform_vectors(vecs, M):
+    """
+    Vectorized version of ``_proj_transform_vec``.
+
+    Parameters
+    ----------
+    vecs : ... x 3 np.ndarray
+        Input vectors
+    M : 4 x 4 np.ndarray
+        Projection matrix
+    """
+    vecs_shape = vecs.shape
+    vecs = vecs.reshape(-1, 3).T
+
+    vecs_pad = np.empty((vecs.shape[0] + 1,) + vecs.shape[1:])
+    vecs_pad[:-1] = vecs
+    vecs_pad[-1] = 1
+    product = np.dot(M, vecs_pad)
+    tvecs = product[:3] / product[3]
+
+    return tvecs.T.reshape(vecs_shape)
 
 
 def _proj_transform_vec_clip(vec, M, focal_length):
