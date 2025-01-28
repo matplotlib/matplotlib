@@ -996,7 +996,7 @@ def test_poly3dcollection_verts_validation():
         art3d.Poly3DCollection(poly)  # should be Poly3DCollection([poly])
 
     poly = np.array(poly, dtype=float)
-    with pytest.raises(ValueError, match=r'MxNx3 array'):
+    with pytest.raises(ValueError, match=r'shape \(M, N, 3\)'):
         art3d.Poly3DCollection(poly)  # should be Poly3DCollection([poly])
 
 
