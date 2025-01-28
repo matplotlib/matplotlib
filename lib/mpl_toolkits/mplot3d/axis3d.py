@@ -710,9 +710,9 @@ class Axis(maxis.XAxis):
 
         if self.line.get_visible():
             other.append(self.line.get_window_extent(renderer))
-        if (self.label.get_visible() and not for_layout_only and
-                self.label.get_text()):
-            other.append(self.label.get_window_extent(renderer))
+        if (self.label.get_visible() and self.label.get_text()):
+            bb = self.label.get_window_extent(renderer)
+            other.append(bb)
 
         return mtransforms.Bbox.union([*bb_1, *bb_2, *other])
 
