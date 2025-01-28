@@ -4,8 +4,6 @@ matplotlib\.tests(\..*)?
 matplotlib\.pylab(\..*)?
 matplotlib\._.*
 matplotlib\.rcsetup\._listify_validator
-matplotlib\.rcsetup\._validate_linestyle
-matplotlib\.rcsetup\._validate_linestyle_or_None
 matplotlib\.ft2font\.Glyph
 matplotlib\.testing\.jpl_units\..*
 matplotlib\.sphinxext(\..*)?
