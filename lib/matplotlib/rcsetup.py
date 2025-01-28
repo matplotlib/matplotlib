@@ -1016,6 +1016,7 @@ _validators = {
     "boxplot.meanprops.linewidth":       validate_float,
 
     ## font props
+    "font.enable_last_resort":     validate_bool,
     "font.family":     validate_stringlist,  # used by text object
     "font.style":      validate_string,
     "font.variant":    validate_string,
