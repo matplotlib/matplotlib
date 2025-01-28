@@ -155,9 +155,11 @@ class Tick(martist.Artist):
             # otherwise `grid(color=(1, 1, 1, 0.5))` would work like
             #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
             # so the that the rcParams default would override color alpha.
+
             grid_alpha = (
-                    mpl._val_or_rc(
-                    mpl.rcParams[f"grid.{xaxis_yaxis}.{major_minor}.alpha"], # grid_alpha is None
+                # grid_alpha is None so we can use the first key
+                mpl._val_or_rc(
+                    mpl.rcParams[f"grid.{xaxis_yaxis}.{major_minor}.alpha"],
                     f"grid.{major_minor}.alpha",
                     "grid.alpha",
                 )
