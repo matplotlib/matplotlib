@@ -953,8 +953,7 @@ class Colormap:
              The alpha blending value, between 0 (transparent) and 1 (opaque).
         """
         if not isinstance(alpha, Real):
-            raise TypeError(
-                f"'alpha' must be numeric or None, not {type(alpha)}")
+            raise TypeError(f"'alpha' must be numeric or None, not {type(alpha)}")
         if not 0 <= alpha <= 1:
             ValueError("'alpha' must be between 0 and 1, inclusive")
         new_cm = self.copy()
