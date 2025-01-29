@@ -1,4 +1,4 @@
-Seperate styling options for major/minor grid line in rcParams
+Separate styling options for major/minor grid line in rcParams
 --------------------------------------------------------------
 
 Using :rc:`grid.major.*` or :rc:`grid.minor.*` will overwrite the value in
@@ -22,7 +22,7 @@ Using :rc:`grid.major.*` or :rc:`grid.minor.*` will overwrite the value in
     mpl.rcParams["grid.color"] = "red"
     mpl.rcParams["grid.linewidth"] = 1
 
-    # Overwrite some values for major and minor seperately
+    # Overwrite some values for major and minor separately
     mpl.rcParams["grid.major.color"] = "black"
     mpl.rcParams["grid.major.linewidth"] = 2
     mpl.rcParams["grid.minor.linestyle"] = ":"
