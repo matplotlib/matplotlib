@@ -6,7 +6,7 @@ Using :rc:`grid.major.*` or :rc:`grid.minor.*` will overwrite the value in
 
 .. plot::
     :include-source: true
-    :alt: Modifying the gridlines for three figures using the new options `rcParams`
+    :alt: Modifying the gridlines using the new options `rcParams`
 
     import matplotlib as mpl
     import matplotlib.pyplot as plt
