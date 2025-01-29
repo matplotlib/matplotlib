@@ -2665,7 +2665,7 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     else:
         # Extract actual aspect ratio of array and make appropriately sized
         # figure.
-        fig = figure(fignum, figsize=figaspect(A))
+        fig = figure(fignum, figsize=tuple(figaspect(A)))
         ax = fig.add_axes((0.15, 0.09, 0.775, 0.775))
     im = ax.matshow(A, **kwargs)
     sci(im)
