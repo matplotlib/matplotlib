@@ -1260,26 +1260,6 @@ _validators = {
     "grid.minor.linewidth":    validate_float_or_None,     # in points
     "grid.minor.alpha":        validate_float_or_None,
 
-    "grid.xaxis.major.color":        validate_color_or_None,  # grid color
-    "grid.xaxis.major.linestyle":    _validate_linestyle_or_None,  # solid
-    "grid.xaxis.major.linewidth":    validate_float_or_None,     # in points
-    "grid.xaxis.major.alpha":        validate_float_or_None,
-
-    "grid.xaxis.minor.color":        validate_color_or_None,  # grid color
-    "grid.xaxis.minor.linestyle":    _validate_linestyle_or_None,  # solid
-    "grid.xaxis.minor.linewidth":    validate_float_or_None,     # in points
-    "grid.xaxis.minor.alpha":        validate_float_or_None,
-
-    "grid.yaxis.major.color":        validate_color_or_None,  # grid color
-    "grid.yaxis.major.linestyle":    _validate_linestyle_or_None,  # solid
-    "grid.yaxis.major.linewidth":    validate_float_or_None,     # in points
-    "grid.yaxis.major.alpha":        validate_float_or_None,
-
-    "grid.yaxis.minor.color":        validate_color_or_None,  # grid color
-    "grid.yaxis.minor.linestyle":    _validate_linestyle_or_None,  # solid
-    "grid.yaxis.minor.linewidth":    validate_float_or_None,     # in points
-    "grid.yaxis.minor.alpha":        validate_float_or_None,
-
     ## figure props
     # figure title
     "figure.titlesize":   validate_fontsize,

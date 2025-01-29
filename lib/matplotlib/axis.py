@@ -105,7 +105,6 @@ class Tick(martist.Artist):
 
         name = self.__name__
         major_minor = "major" if major else "minor"
-        xaxis_yaxis = "xaxis" if name == "xtick" else "yaxis"
         self._size = mpl._val_or_rc(size, f"{name}.{major_minor}.size")
         self._width = mpl._val_or_rc(width, f"{name}.{major_minor}.width")
         self._base_pad = mpl._val_or_rc(pad, f"{name}.{major_minor}.pad")
@@ -128,7 +127,6 @@ class Tick(martist.Artist):
         grid_color = (
             mpl._val_or_rc(
                 grid_color,
-                f"grid.{xaxis_yaxis}.{major_minor}.color",
                 f"grid.{major_minor}.color",
                 "grid.color",
             )
@@ -136,7 +134,6 @@ class Tick(martist.Artist):
         grid_linestyle = (
             mpl._val_or_rc(
                 grid_linestyle,
-                f"grid.{xaxis_yaxis}.{major_minor}.linestyle",
                 f"grid.{major_minor}.linestyle",
                 "grid.linestyle",
             )
@@ -144,7 +141,6 @@ class Tick(martist.Artist):
         grid_linewidth = (
             mpl._val_or_rc(
                 grid_linewidth,
-                f"grid.{xaxis_yaxis}.{major_minor}.linewidth",
                 f"grid.{major_minor}.linewidth",
                 "grid.linewidth",
             )
@@ -159,8 +155,7 @@ class Tick(martist.Artist):
             grid_alpha = (
                 # grid_alpha is None so we can use the first key
                 mpl._val_or_rc(
-                    mpl.rcParams[f"grid.{xaxis_yaxis}.{major_minor}.alpha"],
-                    f"grid.{major_minor}.alpha",
+                    mpl.rcParams[f"grid.{major_minor}.alpha"],
                     "grid.alpha",
                 )
             )

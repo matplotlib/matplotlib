@@ -545,26 +545,6 @@
 #grid.minor.linewidth: None # If None defaults to grid.linewidth
 #grid.minor.alpha:     None # If None defaults to grid.alpha
 
-#grid.xaxis.major.color:     None # If None defaults to grid.color
-#grid.xaxis.major.linestyle: None # If None defaults to grid.linestyle
-#grid.xaxis.major.linewidth: None # If None defaults to grid.linewidth
-#grid.xaxis.major.alpha:     None # If None defaults to grid.alpha
-
-#grid.xaxis.minor.color:     None # If None defaults to grid.color
-#grid.xaxis.minor.linestyle: None # If None defaults to grid.linestyle
-#grid.xaxis.minor.linewidth: None # If None defaults to grid.linewidth
-#grid.xaxis.minor.alpha:     None # If None defaults to grid.alpha
-
-#grid.yaxis.major.color:     None # If None defaults to grid.color
-#grid.yaxis.major.linestyle: None # If None defaults to grid.linestyle
-#grid.yaxis.major.linewidth: None # If None defaults to grid.linewidth
-#grid.yaxis.major.alpha:     None # If None defaults to grid.alpha
-
-#grid.yaxis.minor.color:     None # If None defaults to grid.color
-#grid.yaxis.minor.linestyle: None # If None defaults to grid.linestyle
-#grid.yaxis.minor.linewidth: None # If None defaults to grid.linewidth
-#grid.yaxis.minor.alpha:     None # If None defaults to grid.alpha
-
 
 ## ***************************************************************************
 ## * LEGEND                                                                  *
