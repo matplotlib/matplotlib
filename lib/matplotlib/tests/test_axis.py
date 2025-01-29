@@ -80,7 +80,7 @@ def test_grid_rcparams():
     def_alpha = plt.rcParams["grid.alpha"]
 
     plt.rcParams.update({
-        "grid.color": "gray","grid.minor.color": "red",
+        "grid.color": "gray", "grid.minor.color": "red",
         "grid.major.linestyle": ":", "grid.major.linewidth": 2,
         "grid.minor.alpha": 0.6,
     })
