@@ -8807,7 +8807,7 @@ such objects
             bodies += [fill(stats['coords'],
                             -vals + pos if side in ['both', 'low'] else pos,
                             vals + pos if side in ['both', 'high'] else pos,
-                            facecolor=facecol, alpha=0.3)]
+                            facecolor=facecol)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])
