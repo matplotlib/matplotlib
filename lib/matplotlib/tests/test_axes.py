@@ -4065,13 +4065,11 @@ def test_violinplot_color_sequence():
     # each color independently
     np.random.seed(19680801)
     data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 5)]
-    kwargs = {'showmeans': True,
-              'showextrema': True,
-              'showmedians': True
-              }
+    kwargs = {'showmeans': True, 'showextrema': True, 'showmedians': True}
 
     def assert_colors_equal(colors1, colors2):
-        assert all(mcolors.same_color(c1, c2) for c1, c2 in zip(colors1, colors2))
+        assert all(mcolors.same_color(c1, c2)
+                   for c1, c2 in zip(colors1, colors2))
 
     parts_with_facecolor = ["bodies"]
     parts_with_edgecolor = ["cbars", "cmins", "cmaxes", "cmeans", "cmedians"]
@@ -4079,31 +4077,25 @@ def test_violinplot_color_sequence():
     # Color sequence
     N = len(data)
     positions = range(N)
-    colors = ['k', 'r', ('b', 0.5), 'g', ('m', 0.2)]
+    facecolors = ['k', 'r', ('b', 0.5), ('g', 0.2)]
+    linecolors = [('y', 0.4), 'b', 'm', ('k', 0.8)]
 
     # Test image
     fig_test = plt.figure()
     ax = fig_test.gca()
-    parts_test = ax.violinplot(data, positions=positions, facecolor=colors,
-                               linecolor=colors, **kwargs)
-
-    # Reference image
-    fig_ref = plt.figure()
-    ax = fig_ref.gca()
-    parts_ref = []
-    for (p, c, d) in zip(positions, colors, data):
-        cparts = ax.violinplot(d, positions=[p], facecolor=c, linecolor=c, **kwargs)
-        parts_ref.append(cparts)
+    parts_test = ax.violinplot(data,
+                               positions=positions,
+                               facecolor=facecolors,
+                               linecolor=linecolors,
+                               **kwargs)
 
     for part in parts_with_facecolor:
         colors_test = [p.get_facecolor() for p in parts_test[part]]
-        colors_ref = [p[part][0].get_facecolor() for p in parts_ref]
-        assert_colors_equal(colors_test, colors_ref)
+        assert_colors_equal(colors_test, mcolors.to_rgba_array(facecolors))
 
     for part in parts_with_edgecolor:
         colors_test = parts_test[part].get_edgecolor()
-        colors_ref = [p[part].get_edgecolor() for p in parts_ref]
-        assert_colors_equal(colors_test, colors_ref)
+        assert_colors_equal(colors_test, mcolors.to_rgba_array(linecolors))
 
 
 @check_figures_equal(extensions=["png"])
