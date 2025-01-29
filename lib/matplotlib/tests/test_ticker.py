@@ -859,6 +859,22 @@ class TestScalarFormatter:
         assert not tmp_form.get_useOffset()
         assert tmp_form.offset == 0.5
 
+    def test_set_use_offset_bool(self):
+        tmp_form = mticker.ScalarFormatter()
+        tmp_form.set_useOffset(True)
+        assert tmp_form.get_useOffset()
+        assert tmp_form.offset == 0
+
+        tmp_form.set_useOffset(False)
+        assert not tmp_form.get_useOffset()
+        assert tmp_form.offset == 0
+
+    def test_set_use_offset_int(self):
+        tmp_form = mticker.ScalarFormatter()
+        tmp_form.set_useOffset(1)
+        assert not tmp_form.get_useOffset()
+        assert tmp_form.offset == 1
+
     def test_use_locale(self):
         conv = locale.localeconv()
         sep = conv['thousands_sep']
