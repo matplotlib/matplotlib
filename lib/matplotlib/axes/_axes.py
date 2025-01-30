@@ -6997,6 +6997,8 @@ such objects
         (``plt.stairs(*np.histogram(data))``), or by setting *histtype* to
         'step' or 'stepfilled' rather than 'bar' or 'barstacked'.
         """
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
+
         # Avoid shadowing the builtin.
         bin_range = range
         from builtins import range
