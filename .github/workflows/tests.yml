@@ -60,6 +60,7 @@ jobs:
             extra-requirements: '-r requirements/testing/extra.txt'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+            python-optimize: 'true'
           - name-suffix: "(Extra TeX packages)"
             os: ubuntu-22.04
             python-version: '3.13'
@@ -329,6 +330,9 @@ jobs:
         run: |
           if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
             export PYTHON_GIL=0
+          fi
+          if [[ "${{ matrix.python-optimize }}" == 'true' ]]; then
+            export PYTHONOPTIMIZE=2
           fi
           pytest -rfEsXR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
