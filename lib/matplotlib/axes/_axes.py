@@ -8767,6 +8767,13 @@ such objects
             else:
                 facecolor = cycle_color(next_color, alpha=default_facealpha)
 
+        if mpl.rcParams['_internal.classic_mode']:
+            # Classic mode uses patch.force_edgecolor=True, so we need to
+            # set the edgecolor to make sure it has an alpha.
+            body_edgecolor = ("k", 0.3)
+        else:
+            body_edgecolor = None
+
         if linecolor is not None:
             linecolor = cycle_color(linecolor)
         else:
@@ -8807,7 +8814,7 @@ such objects
             bodies += [fill(stats['coords'],
                             -vals + pos if side in ['both', 'low'] else pos,
                             vals + pos if side in ['both', 'high'] else pos,
-                            facecolor=facecol)]
+                            facecolor=facecol, edgecolor=body_edgecolor)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])
