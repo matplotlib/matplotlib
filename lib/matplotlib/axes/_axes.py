@@ -8507,12 +8507,12 @@ such objects
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
 
-        facecolor : :mpltype`color` or list of :mpltype:`color`, optional
+        facecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             If provided, will set the face color(s) of the violins.
 
             .. versionadded:: 3.11
 
-        linecolor : :mpltype`color` or list of :mpltype:`color`, optional
+        linecolor : :mpltype:`color` or list of :mpltype:`color`, optional
           If provided, will set the line color(s) of the violins (the
           horizontal and vertical spines and body edges).
 
@@ -8649,12 +8649,12 @@ such objects
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
 
-        facecolor : :mpltype`color` or list of :mpltype:`color`, optional
+        facecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             If provided, will set the face color(s) of the violins.
 
             .. versionadded:: 3.11
 
-        linecolor : :mpltype`color` or list of :mpltype:`color`, optional
+        linecolor : :mpltype:`color` or list of :mpltype:`color`, optional
           If provided, will set the line color(s) of the violins (the
           horizontal and vertical spines and body edges).
 
@@ -8807,14 +8807,14 @@ such objects
         # Render violins
         bodies = []
         bodies_zip = zip(vpstats, positions, widths, facecolor)
-        for stats, pos, width, facecol in bodies_zip:
+        for stats, pos, width, facecolor in bodies_zip:
             # The 0.5 factor reflects the fact that we plot from v-p to v+p.
             vals = np.array(stats['vals'])
             vals = 0.5 * width * vals / vals.max()
             bodies += [fill(stats['coords'],
                             -vals + pos if side in ['both', 'low'] else pos,
                             vals + pos if side in ['both', 'high'] else pos,
-                            facecolor=facecol, edgecolor=body_edgecolor)]
+                            facecolor=facecolor, edgecolor=body_edgecolor)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])

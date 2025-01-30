@@ -4071,9 +4071,6 @@ def test_violinplot_color_sequence():
         assert all(mcolors.same_color(c1, c2)
                    for c1, c2 in zip(colors1, colors2))
 
-    parts_with_facecolor = ["bodies"]
-    parts_with_edgecolor = ["cbars", "cmins", "cmaxes", "cmeans", "cmedians"]
-
     # Color sequence
     N = len(data)
     positions = range(N)
@@ -4089,11 +4086,10 @@ def test_violinplot_color_sequence():
                                linecolor=linecolors,
                                **kwargs)
 
-    for part in parts_with_facecolor:
-        colors_test = [p.get_facecolor() for p in parts_test[part]]
-        assert_colors_equal(colors_test, mcolors.to_rgba_array(facecolors))
+    body_colors = [p.get_facecolor() for p in parts_test["bodies"]]
+    assert_colors_equal(body_colors, mcolors.to_rgba_array(facecolors))
 
-    for part in parts_with_edgecolor:
+    for part in ["cbars", "cmins", "cmaxes", "cmeans", "cmedians"]:
         colors_test = parts_test[part].get_edgecolor()
         assert_colors_equal(colors_test, mcolors.to_rgba_array(linecolors))
 
