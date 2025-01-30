@@ -1,18 +1,19 @@
+from typing import cast
 from enum import Enum
 
-class _AutoStringNameEnum(Enum):
-    def __hash__(self) -> int: ...
 
-class JoinStyle(str, _AutoStringNameEnum):
-    miter: str
-    round: str
-    bevel: str
+class JoinStyle(str, Enum):
+    miter = "miter"
+    round = "round"
+    bevel = "bevel"
     @staticmethod
     def demo() -> None: ...
 
-class CapStyle(str, _AutoStringNameEnum):
-    butt: str
-    projecting: str
-    round: str
+
+class CapStyle(str, Enum):
+    butt = "butt"
+    projecting = "projecting"
+    round = "round"
+
     @staticmethod
     def demo() -> None: ...
