@@ -2952,6 +2952,9 @@ class Axes3D(Axes):
         depthshade_minalpha : float, default: None
             The lowest alpha value applied by depth-shading.
             If None, use the value from rcParams['axes3d.depthshade_minalpha'].
+
+            .. versionadded:: 3.11
+
         axlim_clip : bool, default: False
             Whether to hide the scatter points outside the axes view limits.
 

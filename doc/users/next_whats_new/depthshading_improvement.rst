@@ -16,6 +16,9 @@ controlled via rcParams, with values of ``True`` and ``0.3`` respectively.
 A simple example:
 
 .. plot::
+    :include-source: true
+    :alt: A 3D scatter plot with depth-shading enabled.
+
     import matplotlib.pyplot as plt
 
     fig = plt.figure()

@@ -113,6 +113,8 @@ class Text3D(mtext.Text):
     axlim_clip : bool, default: False
         Whether to hide text outside the axes view limits.
 
+        .. versionadded:: 3.10
+
     Other Parameters
     ----------------
     **kwargs
@@ -169,6 +171,8 @@ class Text3D(mtext.Text):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide text outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         self._z = z
         self._dir_vec = get_dir_vector(zdir)
@@ -212,6 +216,8 @@ def text_2d_to_3d(obj, z=0, zdir='z', axlim_clip=False):
         See `.get_dir_vector` for a description of the values.
     axlim_clip : bool, default: False
         Whether to hide text outside the axes view limits.
+
+        .. versionadded:: 3.10
     """
     obj.__class__ = Text3D
     obj.set_3d_properties(z, zdir, axlim_clip)
@@ -260,6 +266,8 @@ class Line3D(lines.Line2D):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide lines with an endpoint outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         xs = self.get_xdata()
         ys = self.get_ydata()
@@ -337,6 +345,8 @@ def line_2d_to_3d(line, zs=0, zdir='z', axlim_clip=False):
         See `.get_dir_vector` for a description of the values.
     axlim_clip : bool, default: False
         Whether to hide lines with an endpoint outside the axes view limits.
+
+        .. versionadded:: 3.10
     """
 
     line.__class__ = Line3D
@@ -506,6 +516,8 @@ class Patch3D(Patch):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide patches with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
@@ -525,6 +537,8 @@ class Patch3D(Patch):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide patches with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         zs = np.broadcast_to(zs, len(verts))
         self._segment3d = [juggle_axes(x, y, z, zdir)
@@ -572,6 +586,8 @@ class PathPatch3D(Patch3D):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide path patches with a point outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         # Not super().__init__!
         Patch.__init__(self, **kwargs)
@@ -592,6 +608,8 @@ class PathPatch3D(Patch3D):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide path patches with a point outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir,
                                   axlim_clip=axlim_clip)
@@ -698,6 +716,8 @@ class Patch3DCollection(PatchCollection):
         depthshade_minalpha : float, default: None
             Sets the minimum alpha value used by depth-shading.
             If None, use the value from rcParams['axes3d.depthshade_minalpha'].
+
+            .. versionadded:: 3.11
         """
         if depthshade_minalpha is None:
             depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
@@ -725,6 +745,8 @@ class Patch3DCollection(PatchCollection):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide patches with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
@@ -879,6 +901,8 @@ class Path3DCollection(PathCollection):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide paths with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
@@ -942,6 +966,8 @@ class Path3DCollection(PathCollection):
             depth.
         depthshade_minalpha : float
             Sets the minimum alpha value used by depth-shading.
+
+            .. versionadded:: 3.11
         """
         if depthshade_minalpha is None:
             depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
@@ -1065,11 +1091,16 @@ def patch_collection_2d_to_3d(
     depthshade : bool, default: None
         Whether to shade the patches to give a sense of depth.
         If None, use the value from rcParams['axes3d.depthshade'].
+    axlim_clip : bool, default: False
+        Whether to hide patches with a vertex outside the axes view limits.
+
+        .. versionadded:: 3.10
+
     depthshade_minalpha : float, default: None
         Sets the minimum alpha value used by depth-shading.
         If None, use the value from rcParams['axes3d.depthshade_minalpha'].
-    axlim_clip : bool, default: False
-        Whether to hide patches with a vertex outside the axes view limits.
+
+        .. versionadded:: 3.11
     """
     if isinstance(col, PathCollection):
         col.__class__ = Path3DCollection
@@ -1132,6 +1163,8 @@ class Poly3DCollection(PolyCollection):
 
         axlim_clip : bool, default: False
             Whether to hide polygons with a vertex outside the view limits.
+
+            .. versionadded:: 3.10
 
         *args, **kwargs
             All other parameters are forwarded to `.PolyCollection`.
