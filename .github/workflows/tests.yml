@@ -78,6 +78,7 @@ jobs:
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
             extra-requirements: '-r requirements/testing/extra.txt'
+            python-optimize: 'true'
           - os: ubuntu-22.04-arm
             python-version: '3.12'
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
@@ -363,6 +364,9 @@ jobs:
         run: |
           if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
             export PYTHON_GIL=0
+          fi
+          if [[ "${{ matrix.python-optimize }}" == 'true' ]]; then
+            export PYTHONOPTIMIZE=2
           fi
           pytest -rfEsXR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
