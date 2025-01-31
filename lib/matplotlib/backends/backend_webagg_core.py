@@ -8,14 +8,15 @@
 # - `backend_webagg.py` contains a concrete implementation of a basic
 #   application, implemented with asyncio.
 
-import asyncio
-import datetime
+import base64
 from io import BytesIO, StringIO
 import json
 import logging
+import mimetypes
 import os
 from pathlib import Path
 
+from js import document
 import numpy as np
 from PIL import Image
 
@@ -78,83 +79,9 @@ def _handle_key(key):
     return key
 
 
-class TimerTornado(backend_bases.TimerBase):
-    def __init__(self, *args, **kwargs):
-        self._timer = None
-        super().__init__(*args, **kwargs)
-
-    def _timer_start(self):
-        import tornado
-
-        self._timer_stop()
-        if self._single:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            self._timer = ioloop.add_timeout(
-                datetime.timedelta(milliseconds=self.interval),
-                self._on_timer)
-        else:
-            self._timer = tornado.ioloop.PeriodicCallback(
-                self._on_timer,
-                max(self.interval, 1e-6))
-            self._timer.start()
-
-    def _timer_stop(self):
-        import tornado
-
-        if self._timer is None:
-            return
-        elif self._single:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            ioloop.remove_timeout(self._timer)
-        else:
-            self._timer.stop()
-        self._timer = None
-
-    def _timer_set_interval(self):
-        # Only stop and restart it if the timer has already been started
-        if self._timer is not None:
-            self._timer_stop()
-            self._timer_start()
-
-
-class TimerAsyncio(backend_bases.TimerBase):
-    def __init__(self, *args, **kwargs):
-        self._task = None
-        super().__init__(*args, **kwargs)
-
-    async def _timer_task(self, interval):
-        while True:
-            try:
-                await asyncio.sleep(interval)
-                self._on_timer()
-
-                if self._single:
-                    break
-            except asyncio.CancelledError:
-                break
-
-    def _timer_start(self):
-        self._timer_stop()
-
-        self._task = asyncio.ensure_future(
-            self._timer_task(max(self.interval / 1_000., 1e-6))
-        )
-
-    def _timer_stop(self):
-        if self._task is not None:
-            self._task.cancel()
-        self._task = None
-
-    def _timer_set_interval(self):
-        # Only stop and restart it if the timer has already been started
-        if self._task is not None:
-            self._timer_stop()
-            self._timer_start()
-
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     manager_class = _api.classproperty(lambda cls: FigureManagerWebAgg)
-    _timer_cls = TimerAsyncio
     # Webagg and friends having the right methods, but still
     # having bugs in practice.  Do not advertise that it works until
     # we can debug this.
@@ -249,7 +176,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
             # Store the current buffer so we can compute the next diff.
             self._last_buff = buff.copy()
-            self._force_full = False
+            #self._force_full = False
             self._png_is_old = False
 
             data = output.view(dtype=np.uint8).reshape((*output.shape, 4))
@@ -265,15 +192,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_unknown_event(self, event):
         _log.warning('Unhandled message type %s. %s', event["type"], event)
-
-    def handle_ack(self, event):
-        # Network latency tends to decrease if traffic is flowing
-        # in both directions.  Therefore, the browser sends back
-        # an "ack" message after each image frame is received.
-        # This could also be used as a simple sanity check in the
-        # future, but for now the performance increase is enough
-        # to justify it, even if the server does nothing with it.
-        pass
 
     def handle_draw(self, event):
         self.draw()
@@ -359,6 +277,31 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         if self._set_device_pixel_ratio(device_pixel_ratio):
             self._force_full = True
             self.draw_idle()
+
+    def handle_save(self, event):
+        figure_id = event['figure_id']
+        format = event['format']
+
+        mimetype = mimetypes.types_map.get(f".{format}")
+        if mimetype is None:
+            window.alert(f"Cannot download plot, unable to determine mimetype for '{format}'")
+            return
+
+        element = document.createElement('a')
+        data = BytesIO()
+        self.figure.savefig(data, format=format)
+
+        element.setAttribute(
+            "href",
+            "data:{};base64,{}".format(
+                mimetype, base64.b64encode(data.getvalue()).decode("ascii")
+            ),
+        )
+        element.setAttribute("download", f"plot{figure_id}.{format}")
+        element.style.display = "none"
+        document.body.appendChild(element)
+        element.click()
+        document.body.removeChild(element)
 
     def send_event(self, event_type, **kwargs):
         if self.manager:
@@ -497,6 +440,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
         output.write("mpl.default_extension = {};".format(
             json.dumps(FigureCanvasWebAggCore.get_default_filetype())))
+
+        output.write("mpl.toolbar_image_callback = null;\n")
+        output.write("mpl.set_toolbar_image_callback = function(c) {mpl.toolbar_image_callback=c;}\n")
+        output.write("mpl.set_toolbar_image_callback;\n")
 
         if stream is None:
             return output.getvalue()
