@@ -5961,6 +5961,7 @@ class Axes(_AxesBase):
         `~matplotlib.pyplot.imshow` expects RGB images adopting the straight
         (unassociated) alpha representation.
         """
+
         im = mimage.AxesImage(self, cmap=cmap, norm=norm, colorizer=colorizer,
                               interpolation=interpolation, origin=origin,
                               extent=extent, filternorm=filternorm,
