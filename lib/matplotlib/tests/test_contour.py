@@ -140,7 +140,7 @@ def test_contour_label_with_disconnected_segments():
 
 
 @image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True,
-                  tol=0.018 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.018)
 def test_given_colors_levels_and_extends():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -416,10 +416,8 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c3, ax=ax3)
 
 
-@image_comparison(
-    ['contour_addlines.png'], remove_text=True, style='mpl20',
-    tol=0.15 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x')
-        else 0.03)
+@image_comparison(['contour_addlines.png'], remove_text=True, style='mpl20',
+                  tol=0.03 if platform.machine() == 'x86_64' else 0.15)
 # tolerance is because image changed minutely when tick finding on
 # colorbars was cleaned up...
 def test_contour_addlines():
