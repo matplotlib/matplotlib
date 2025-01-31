@@ -94,6 +94,16 @@ commands:
             python -m pip install --upgrade --user wheel
             python -m pip install --upgrade --user 'setuptools!=60.6.0'
 
+  mamba-install:
+    description: Install micromamba so it can be used for building the emscripten-forge environment
+    steps:
+      - run:
+          name: Install micromamba
+          command: |
+            curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+            pwd
+            ls
+
   doc-deps-install:
     parameters:
       numpy_version:
@@ -138,6 +148,8 @@ commands:
       - run:
           name: Build documentation
           command: |
+            export PATH="$(pwd)/../bin:$PATH"
+            echo $PATH
             # Set epoch to date of latest tag.
             export SOURCE_DATE_EPOCH="$(git log -1 --format=%at $(git describe --abbrev=0))"
             # Set release mode only when deploying to devdocs.
@@ -228,6 +240,7 @@ jobs:
       - apt-install
       - fonts-install
       - pip-install
+      - mamba-install
 
       - doc-deps-install
       - mpl-install
