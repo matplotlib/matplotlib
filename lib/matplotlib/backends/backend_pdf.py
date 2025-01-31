@@ -2030,13 +2030,16 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
+                             offset_position, hatchcolors=None):
         # We can only reuse the objects if the presence of fill and
         # stroke (and the amount of alpha for each) is the same for
         # all of them
         can_do_optimization = True
         facecolors = np.asarray(facecolors)
         edgecolors = np.asarray(edgecolors)
+
+        if hatchcolors is None:
+            hatchcolors = []
 
         if not len(facecolors):
             filled = False
@@ -2072,7 +2075,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position)
+                offset_position, hatchcolors)
 
         padding = np.max(linewidths)
         path_codes = []
@@ -2088,7 +2091,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, urls, offset_position, hatchcolors):
 
             self.check_gc(gc0, rgbFace)
             dx, dy = xo - lastx, yo - lasty

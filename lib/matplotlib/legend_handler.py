@@ -790,12 +790,11 @@ class HandlerPolyCollection(HandlerBase):
         # Directly set Patch color attributes (must be RGBA tuples).
         legend_handle._facecolor = first_color(orig_handle.get_facecolor())
         legend_handle._edgecolor = first_color(orig_handle.get_edgecolor())
+        legend_handle._hatch_color = first_color(orig_handle.get_hatchcolor())
         legend_handle._original_facecolor = orig_handle._original_facecolor
         legend_handle._original_edgecolor = orig_handle._original_edgecolor
         legend_handle._fill = orig_handle.get_fill()
         legend_handle._hatch = orig_handle.get_hatch()
-        # Hatch color is anomalous in having no getters and setters.
-        legend_handle._hatch_color = orig_handle._hatch_color
         # Setters are fine for the remaining attributes.
         legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
         legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
