@@ -994,8 +994,8 @@ default: None
         root_fig = num.get_figure(root=True)
         if root_fig.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
-        elif any([figsize, dpi, facecolor, edgecolor, not frameon,
-                  kwargs]) and root_fig.canvas.manager.num in allnums:
+        elif (any(param is not None for param in [figsize, dpi, facecolor, edgecolor])
+              or not frameon or kwargs) and root_fig.canvas.manager.num in allnums:
             _api.warn_external(
                 "Ignoring specified arguments in this call because figure "
                 f"with num: {root_fig.canvas.manager.num} already exists")
@@ -1007,8 +1007,8 @@ default: None
     if num is None:
         num = next_num
     else:
-        if any([figsize, dpi, facecolor, edgecolor, not frameon,
-                kwargs]) and num in allnums:
+        if (any(param is not None for param in [figsize, dpi, facecolor, edgecolor])
+              or not frameon or kwargs) and num in allnums:
             _api.warn_external(
                 "Ignoring specified arguments in this call "
                 f"because figure with num: {num} already exists")
@@ -2662,9 +2662,13 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     if fignum == 0:
         ax = gca()
     else:
-        # Extract actual aspect ratio of array and make appropriately sized
-        # figure.
-        fig = figure(fignum, figsize=figaspect(A))
+        if fignum is not None and fignum_exists(fignum):
+            # Do not try to set a figure size.
+            figsize = None
+        else:
+            # Extract actual aspect ratio of array and make appropriately sized figure.
+            figsize = figaspect(A)
+        fig = figure(fignum, figsize=figsize)
         ax = fig.add_axes((0.15, 0.09, 0.775, 0.775))
     im = ax.matshow(A, **kwargs)
     sci(im)
