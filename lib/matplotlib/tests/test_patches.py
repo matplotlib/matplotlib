@@ -438,7 +438,7 @@ def test_wedge_movement():
 
 
 @image_comparison(['wedge_range'], remove_text=True,
-                  tol=0.009 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_wedge_range():
     ax = plt.axes()
 
@@ -564,7 +564,7 @@ def test_units_rectangle():
 
 
 @image_comparison(['connection_patch.png'], style='mpl20', remove_text=True,
-                  tol=0.024 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.024)
 def test_connection_patch():
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
