@@ -8555,8 +8555,8 @@ such objects
             .. versionadded:: 3.11
 
         linecolor : :mpltype:`color` or list of :mpltype:`color`, optional
-          If provided, will set the line color(s) of the violins (the
-          horizontal and vertical spines and body edges).
+            If provided, will set the line color(s) of the violins (the
+            horizontal and vertical spines and body edges).
 
             .. versionadded:: 3.11
 
@@ -8697,8 +8697,8 @@ such objects
             .. versionadded:: 3.11
 
         linecolor : :mpltype:`color` or list of :mpltype:`color`, optional
-          If provided, will set the line color(s) of the violins (the
-          horizontal and vertical spines and body edges).
+            If provided, will set the line color(s) of the violins (the
+            horizontal and vertical spines and body edges).
 
             .. versionadded:: 3.11
 
