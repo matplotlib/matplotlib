@@ -459,13 +459,13 @@ def test_figure_hook():
 
 
 def test_multiple_same_figure_calls():
-    fig = mpl.pyplot.figure(1, figsize=(1, 2))
+    fig = plt.figure(1, figsize=(1, 2))
     with pytest.warns(UserWarning, match="Ignoring specified arguments in this call"):
-        fig2 = mpl.pyplot.figure(1, figsize=(3, 4))
+        fig2 = plt.figure(1, figsize=np.array([3, 4]))
     with pytest.warns(UserWarning, match="Ignoring specified arguments in this call"):
-        mpl.pyplot.figure(fig, figsize=(5, 6))
+        plt.figure(fig, figsize=np.array([5, 6]))
     assert fig is fig2
-    fig3 = mpl.pyplot.figure(1)  # Checks for false warnings
+    fig3 = plt.figure(1)  # Checks for false warnings
     assert fig is fig3
 
 
@@ -475,3 +475,11 @@ def test_close_all_warning():
     # Check that the warning is issued when 'all' is passed to plt.figure
     with pytest.warns(UserWarning, match="closes all existing figures"):
         fig2 = plt.figure("all")
+
+
+def test_matshow():
+    fig = plt.figure()
+    arr = [[0, 1], [1, 2]]
+
+    # Smoke test that matshow does not ask for a new figsize on the existing figure
+    plt.matshow(arr, fignum=fig.number)
