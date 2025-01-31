@@ -11,6 +11,7 @@ visualisation.
 
 import copy
 from functools import lru_cache
+import sys
 from weakref import WeakValueDictionary
 
 import numpy as np
@@ -281,11 +282,26 @@ class Path:
         readonly, even if the source `Path` is.
         """
         # Deepcopying arrays (vertices, codes) strips the writeable=False flag.
-        p = copy.deepcopy(super(), memo)
+        if sys.version_info >= (3, 14):
+            from copy import _reconstruct, _keep_alive
+            rv = super().__reduce_ex__(4)
+            assert memo is not None
+            p = _reconstruct(self, memo, *rv)
+            if memo is not None:
+                memo[id(self)] = p
+                _keep_alive(self, memo)
+
+        else:
+            p = copy.deepcopy(super(), memo)
         p._readonly = False
         return p
 
-    deepcopy = __deepcopy__
+    def deepcopy(self, memo=None):
+        """
+        Return a deep copy of the `Path`, with copies of the
+        vertices and codes with the source `Path`.
+        """
+        return copy.deepcopy(self, memo=memo)
 
     @classmethod
     def make_compound_path_from_polys(cls, XY):
