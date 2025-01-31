@@ -51,13 +51,14 @@ Social media
 Active social media
 ^^^^^^^^^^^^^^^^^^^
 
+* https://bsky.app/profile/matplotlib.bsky.social
+* https://fosstodon.org/@matplotlib
 * https://x.com/matplotlib
 * https://instagram.com/matplotart/
 
 Official accounts
 ^^^^^^^^^^^^^^^^^
-* https://bsky.app/profile/matplotlib.bsky.social
-* https://fosstodon.org/@matplotlib
+
 * https://www.tiktok.com/@matplotart
 * https://www.youtube.com/matplotlib
 
