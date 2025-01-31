@@ -64,7 +64,7 @@ im = ax.imshow(harvest)
 
 # Show all ticks and label them with the respective list entries
 ax.set_xticks(range(len(farmers)), labels=farmers,
-              rotation=45, ha="right", rotation_mode="anchor")
+              rotation=45, rotation_mode="xtick")
 ax.set_yticks(range(len(vegetables)), labels=vegetables)
 
 # Loop over data dimensions and create text annotations.
@@ -135,7 +135,7 @@ def heatmap(data, row_labels, col_labels, ax=None,
 
     # Show all ticks and label them with the respective list entries.
     ax.set_xticks(range(data.shape[1]), labels=col_labels,
-                  rotation=-30, ha="right", rotation_mode="anchor")
+                  rotation=-30, rotation_mode="xtick")
     ax.set_yticks(range(data.shape[0]), labels=row_labels)
 
     # Let the horizontal axes labeling appear on top.
