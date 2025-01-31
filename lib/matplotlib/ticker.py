@@ -510,7 +510,7 @@ class ScalarFormatter(Formatter):
         will be formatted as ``0, 2, 4, 6, 8`` plus an offset ``+1e5``, which
         is written to the edge of the axis.
         """
-        if val in [True, False]:
+        if isinstance(val, bool):
             self.offset = 0
             self._useOffset = val
         else:

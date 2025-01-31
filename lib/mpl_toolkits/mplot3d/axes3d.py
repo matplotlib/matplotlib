@@ -2445,11 +2445,20 @@ class Axes3D(Axes):
 
         row_lines = np.stack([X[rii], Y[rii], Z[rii]], axis=-1)
         col_lines = np.stack([tX[cii], tY[cii], tZ[cii]], axis=-1)
-        lines = np.concatenate([row_lines, col_lines])
 
+        # We autoscale twice because autoscaling is much faster with vectorized numpy
+        # arrays, but row_lines and col_lines might not be the same shape, so we can't
+        # stack them to check them in a single pass.
+        # Note that while the column and row grid points are the same, the lines
+        # between them may expand the view limits, so we have to check both.
+        self.auto_scale_xyz(row_lines[..., 0], row_lines[..., 1], row_lines[..., 2],
+                            had_data)
+        self.auto_scale_xyz(col_lines[..., 0], col_lines[..., 1], col_lines[..., 2],
+                            had_data=True)
+
+        lines = list(row_lines) + list(col_lines)
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
         self.add_collection(linec)
-        self.auto_scale_xyz(X, Y, Z, had_data)
 
         return linec
 
@@ -2883,7 +2892,9 @@ class Axes3D(Axes):
                 self.auto_scale_xyz(*np.array(col._segments3d).transpose(),
                                     had_data=had_data)
             elif isinstance(col, art3d.Poly3DCollection):
-                self.auto_scale_xyz(*col._vec[:-1], had_data=had_data)
+                self.auto_scale_xyz(col._faces[..., 0],
+                                    col._faces[..., 1],
+                                    col._faces[..., 2], had_data=had_data)
             elif isinstance(col, art3d.Patch3DCollection):
                 pass
                 # FIXME: Implement auto-scaling function for Patch3DCollection
@@ -2896,9 +2907,11 @@ class Axes3D(Axes):
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
-    def scatter(self, xs, ys,
-                zs=0, zdir='z', s=20, c=None, depthshade=True, *args,
-                axlim_clip=False, **kwargs):
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=None,
+                *args,
+                depthshade_minalpha=None,
+                axlim_clip=False,
+                **kwargs):
         """
         Create a scatter plot.
 
@@ -2930,16 +2943,26 @@ class Axes3D(Axes):
             - A 2D array in which the rows are RGB or RGBA.
 
             For more details see the *c* argument of `~.axes.Axes.scatter`.
-        depthshade : bool, default: True
+        depthshade : bool, default: None
             Whether to shade the scatter markers to give the appearance of
             depth. Each call to ``scatter()`` will perform its depthshading
             independently.
+            If None, use the value from rcParams['axes3d.depthshade'].
+
+        depthshade_minalpha : float, default: None
+            The lowest alpha value applied by depth-shading.
+            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
+
+            .. versionadded:: 3.11
+
         axlim_clip : bool, default: False
             Whether to hide the scatter points outside the axes view limits.
 
             .. versionadded:: 3.10
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All other keyword arguments are passed on to `~.axes.Axes.scatter`.
 
@@ -2959,16 +2982,24 @@ class Axes3D(Axes):
             )
         if kwargs.get("color") is not None:
             kwargs['color'] = color
+        if depthshade is None:
+            depthshade = mpl.rcParams['axes3d.depthshade']
+        if depthshade_minalpha is None:
+            depthshade_minalpha = mpl.rcParams['axes3d.depthshade_minalpha']
 
         # For xs and ys, 2D scatter() will do the copying.
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
             zs = zs.copy()
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
-        art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
-                                        depthshade=depthshade,
-                                        axlim_clip=axlim_clip)
-
+        art3d.patch_collection_2d_to_3d(
+            patches,
+            zs=zs,
+            zdir=zdir,
+            depthshade=depthshade,
+            depthshade_minalpha=depthshade_minalpha,
+            axlim_clip=axlim_clip,
+        )
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
 

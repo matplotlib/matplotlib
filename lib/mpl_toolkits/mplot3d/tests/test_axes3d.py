@@ -221,9 +221,8 @@ def test_bar3d_lightsource():
     np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
-@mpl3d_image_comparison(
-    ['contour3d.png'], style='mpl20',
-    tol=0.002 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
+@mpl3d_image_comparison(['contour3d.png'], style='mpl20',
+                        tol=0 if platform.machine() == 'x86_64' else 0.002)
 def test_contour3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
@@ -409,7 +408,6 @@ def test_tight_layout_text(fig_test, fig_ref):
 
 @mpl3d_image_comparison(['scatter3d.png'], style='mpl20')
 def test_scatter3d():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.scatter(np.arange(10), np.arange(10), np.arange(10),
@@ -423,7 +421,6 @@ def test_scatter3d():
 
 @mpl3d_image_comparison(['scatter3d_color.png'], style='mpl20')
 def test_scatter3d_color():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
@@ -467,7 +464,7 @@ def test_scatter3d_modification(fig_ref, fig_test):
     # Changing Path3DCollection properties post-creation should work correctly.
     ax_test = fig_test.add_subplot(projection='3d')
     c = ax_test.scatter(np.arange(10), np.arange(10), np.arange(10),
-                        marker='o')
+                        marker='o', depthshade=True)
     c.set_facecolor('C1')
     c.set_edgecolor('C2')
     c.set_alpha([0.3, 0.7] * 5)
@@ -483,13 +480,13 @@ def test_scatter3d_modification(fig_ref, fig_test):
                    depthshade=False, s=75, linewidths=3)
 
 
-@pytest.mark.parametrize('depthshade', [True, False])
 @check_figures_equal(extensions=['png'])
-def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
+def test_scatter3d_sorting(fig_ref, fig_test):
     """Test that marker properties are correctly sorted."""
 
     y, x = np.mgrid[:10, :10]
     z = np.arange(x.size).reshape(x.shape)
+    depthshade = False
 
     sizes = np.full(z.shape, 25)
     sizes[0::2, 0::2] = 100
@@ -845,6 +842,14 @@ def test_wireframe3d():
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
 
 
+@mpl3d_image_comparison(['wireframe3dasymmetric.png'], style='mpl20')
+def test_wireframe3dasymmetric():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    ax.plot_wireframe(X, Y, Z, rcount=3, ccount=13)
+
+
 @mpl3d_image_comparison(['wireframe3dzerocstride.png'], style='mpl20')
 def test_wireframe3dzerocstride():
     fig = plt.figure()
@@ -882,7 +887,6 @@ def test_mixedsamplesraises():
 # remove tolerance when regenerating the test image
 @mpl3d_image_comparison(['quiver3d.png'], style='mpl20', tol=0.003)
 def test_quiver3d():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     pivots = ['tip', 'middle', 'tail']
@@ -960,7 +964,7 @@ def test_patch_collection_modification(fig_test, fig_ref):
     patch1 = Circle((0, 0), 0.05)
     patch2 = Circle((0.1, 0.1), 0.03)
     facecolors = np.array([[0., 0.5, 0., 1.], [0.5, 0., 0., 0.5]])
-    c = art3d.Patch3DCollection([patch1, patch2], linewidths=3)
+    c = art3d.Patch3DCollection([patch1, patch2], linewidths=3, depthshade=True)
 
     ax_test = fig_test.add_subplot(projection='3d')
     ax_test.add_collection3d(c)
@@ -988,7 +992,7 @@ def test_poly3dcollection_verts_validation():
         art3d.Poly3DCollection(poly)  # should be Poly3DCollection([poly])
 
     poly = np.array(poly, dtype=float)
-    with pytest.raises(ValueError, match=r'list of \(N, 3\) array-like'):
+    with pytest.raises(ValueError, match=r'shape \(M, N, 3\)'):
         art3d.Poly3DCollection(poly)  # should be Poly3DCollection([poly])
 
 
@@ -1713,7 +1717,7 @@ def test_errorbar3d_errorevery():
 
 
 @mpl3d_image_comparison(['errorbar3d.png'], style='mpl20',
-                        tol=0.02 if platform.machine() == 'arm64' else 0)
+                        tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()
@@ -1729,7 +1733,7 @@ def test_errorbar3d():
     ax.legend()
 
 
-@image_comparison(['stem3d.png'], style='mpl20', tol=0.008)
+@image_comparison(['stem3d.png'], style='mpl20', tol=0.009)
 def test_stem3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),

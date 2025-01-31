@@ -2386,6 +2386,17 @@ class Axes(_AxesBase):
             The x coordinates of the bars. See also *align* for the
             alignment of the bars to the coordinates.
 
+            Bars are often used for categorical data, i.e. string labels below
+            the bars. You can provide a list of strings directly to *x*.
+            ``bar(['A', 'B', 'C'], [1, 2, 3])`` is often a shorter and more
+            convenient notation compared to
+            ``bar(range(3), [1, 2, 3], tick_label=['A', 'B', 'C'])``. They are
+            equivalent as long as the names are unique. The explicit *tick_label*
+            notation draws the names in the sequence given. However, when having
+            duplicate values in categorical *x* data, these values map to the same
+            numerical x coordinate, and hence the corresponding bars are drawn on
+            top of each other.
+
         height : float or array-like
             The height(s) of the bars.
 
@@ -2563,10 +2574,27 @@ class Axes(_AxesBase):
             height = self._convert_dx(height, y0, y, self.convert_yunits)
             if yerr is not None:
                 yerr = self._convert_dx(yerr, y0, y, self.convert_yunits)
-
-        x, height, width, y, linewidth, hatch = np.broadcast_arrays(
-            # Make args iterable too.
-            np.atleast_1d(x), height, width, y, linewidth, hatch)
+        try:
+            x, height, width, y, linewidth, hatch = np.broadcast_arrays(
+                # Make args iterable too.
+                np.atleast_1d(x), height, width, y, linewidth, hatch
+            )
+        except ValueError as e:
+            arg_map = {
+                "arg 0": "'x'",
+                "arg 1": "'height'",
+                "arg 2": "'width'",
+                "arg 3": "'y'",
+                "arg 4": "'linewidth'",
+                "arg 5": "'hatch'"
+            }
+            error_message = str(e)
+            for arg, name in arg_map.items():
+                error_message = error_message.replace(arg, name)
+            if error_message != str(e):
+                raise ValueError(error_message) from e
+            else:
+                raise
 
         # Now that units have been converted, set the tick locations.
         if orientation == 'vertical':
@@ -2700,6 +2728,17 @@ class Axes(_AxesBase):
         y : float or array-like
             The y coordinates of the bars. See also *align* for the
             alignment of the bars to the coordinates.
+
+            Bars are often used for categorical data, i.e. string labels below
+            the bars. You can provide a list of strings directly to *y*.
+            ``barh(['A', 'B', 'C'], [1, 2, 3])`` is often a shorter and more
+            convenient notation compared to
+            ``barh(range(3), [1, 2, 3], tick_label=['A', 'B', 'C'])``. They are
+            equivalent as long as the names are unique. The explicit *tick_label*
+            notation draws the names in the sequence given. However, when having
+            duplicate values in categorical *y* data, these values map to the same
+            numerical y coordinate, and hence the corresponding bars are drawn on
+            top of each other.
 
         width : float or array-like
             The width(s) of the bars.
@@ -3194,6 +3233,8 @@ class Axes(_AxesBase):
         baseline, = self.plot(baseline_x, baseline_y,
                               color=basecolor, linestyle=basestyle,
                               marker=basemarker, label="_nolegend_")
+        baseline.get_path()._interpolation_steps = \
+            mpl.axis.GRIDLINE_INTERPOLATION_STEPS
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
@@ -5432,9 +5473,21 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def arrow(self, x, y, dx, dy, **kwargs):
         """
-        Add an arrow to the Axes.
+        [*Discouraged*] Add an arrow to the Axes.
 
         This draws an arrow from ``(x, y)`` to ``(x+dx, y+dy)``.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged because it is not guaranteed
+            that the arrow renders reasonably. For example, the resulting arrow
+            is affected by the Axes aspect ratio and limits, which may distort
+            the arrow.
+
+            Consider using `~.Axes.annotate` without a text instead, e.g. ::
+
+                ax.annotate("", xytext=(0, 0), xy=(0.5, 0.5),
+                            arrowprops=dict(arrowstyle="->"))
 
         Parameters
         ----------
@@ -5444,17 +5497,6 @@ class Axes(_AxesBase):
         -------
         `.FancyArrow`
             The created `.FancyArrow` object.
-
-        Notes
-        -----
-        The resulting arrow is affected by the Axes aspect ratio and limits.
-        This may produce an arrow whose head is not square with its stem. To
-        create an arrow whose head is square with its stem,
-        use :meth:`annotate` for example:
-
-        >>> ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
-        ...             arrowprops=dict(arrowstyle="->"))
-
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
@@ -8439,7 +8481,8 @@ such objects
     def violinplot(self, dataset, positions=None, vert=None,
                    orientation='vertical', widths=0.5, showmeans=False,
                    showextrema=True, showmedians=False, quantiles=None,
-                   points=100, bw_method=None, side='both',):
+                   points=100, bw_method=None, side='both',
+                   facecolor=None, linecolor=None):
         """
         Make a violin plot.
 
@@ -8506,6 +8549,17 @@ such objects
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
 
+        facecolor : :mpltype:`color` or list of :mpltype:`color`, optional
+            If provided, will set the face color(s) of the violins.
+
+            .. versionadded:: 3.11
+
+        linecolor : :mpltype:`color` or list of :mpltype:`color`, optional
+          If provided, will set the line color(s) of the violins (the
+          horizontal and vertical spines and body edges).
+
+            .. versionadded:: 3.11
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -8558,12 +8612,14 @@ such objects
         return self.violin(vpstats, positions=positions, vert=vert,
                            orientation=orientation, widths=widths,
                            showmeans=showmeans, showextrema=showextrema,
-                           showmedians=showmedians, side=side)
+                           showmedians=showmedians, side=side,
+                           facecolor=facecolor, linecolor=linecolor)
 
     @_api.make_keyword_only("3.9", "vert")
     def violin(self, vpstats, positions=None, vert=None,
                orientation='vertical', widths=0.5, showmeans=False,
-               showextrema=True, showmedians=False, side='both'):
+               showextrema=True, showmedians=False, side='both',
+               facecolor=None, linecolor=None):
         """
         Draw a violin plot from pre-computed statistics.
 
@@ -8634,6 +8690,17 @@ such objects
         side : {'both', 'low', 'high'}, default: 'both'
             'both' plots standard violins. 'low'/'high' only
             plots the side below/above the positions value.
+
+        facecolor : :mpltype:`color` or list of :mpltype:`color`, optional
+            If provided, will set the face color(s) of the violins.
+
+            .. versionadded:: 3.11
+
+        linecolor : :mpltype:`color` or list of :mpltype:`color`, optional
+          If provided, will set the line color(s) of the violins (the
+          horizontal and vertical spines and body edges).
+
+            .. versionadded:: 3.11
 
         Returns
         -------
@@ -8717,12 +8784,45 @@ such objects
                      [0.25 if side in ['both', 'high'] else 0]] \
                           * np.array(widths) + positions
 
-        # Colors.
-        if mpl.rcParams['_internal.classic_mode']:
-            fillcolor = 'y'
-            linecolor = 'r'
+        # Make a cycle of color to iterate through, using 'none' as fallback
+        def cycle_color(color, alpha=None):
+            rgba = mcolors.to_rgba_array(color, alpha=alpha)
+            color_cycler = itertools.chain(itertools.cycle(rgba),
+                                           itertools.repeat('none'))
+            color_list = []
+            for _ in range(N):
+                color_list.append(next(color_cycler))
+            return color_list
+
+        # Convert colors to chain (number of colors can be different from len(vpstats))
+        if facecolor is None or linecolor is None:
+            if not mpl.rcParams['_internal.classic_mode']:
+                next_color = self._get_lines.get_next_color()
+
+        if facecolor is not None:
+            facecolor = cycle_color(facecolor)
         else:
-            fillcolor = linecolor = self._get_lines.get_next_color()
+            default_facealpha = 0.3
+            # Use default colors if user doesn't provide them
+            if mpl.rcParams['_internal.classic_mode']:
+                facecolor = cycle_color('y', alpha=default_facealpha)
+            else:
+                facecolor = cycle_color(next_color, alpha=default_facealpha)
+
+        if mpl.rcParams['_internal.classic_mode']:
+            # Classic mode uses patch.force_edgecolor=True, so we need to
+            # set the edgecolor to make sure it has an alpha.
+            body_edgecolor = ("k", 0.3)
+        else:
+            body_edgecolor = None
+
+        if linecolor is not None:
+            linecolor = cycle_color(linecolor)
+        else:
+            if mpl.rcParams['_internal.classic_mode']:
+                linecolor = cycle_color('r')
+            else:
+                linecolor = cycle_color(next_color)
 
         # Check whether we are rendering vertically or horizontally
         if orientation == 'vertical':
@@ -8748,14 +8848,15 @@ such objects
 
         # Render violins
         bodies = []
-        for stats, pos, width in zip(vpstats, positions, widths):
+        bodies_zip = zip(vpstats, positions, widths, facecolor)
+        for stats, pos, width, facecolor in bodies_zip:
             # The 0.5 factor reflects the fact that we plot from v-p to v+p.
             vals = np.array(stats['vals'])
             vals = 0.5 * width * vals / vals.max()
             bodies += [fill(stats['coords'],
                             -vals + pos if side in ['both', 'low'] else pos,
                             vals + pos if side in ['both', 'high'] else pos,
-                            facecolor=fillcolor, alpha=0.3)]
+                            facecolor=facecolor, edgecolor=body_edgecolor)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])

@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.colors import is_color_like, to_rgba_array
+from matplotlib.colors import is_color_like, to_rgba_array, ListedColormap
 
 
 @pytest.mark.parametrize('N, result', [
@@ -219,6 +219,44 @@ def test_colormap_return_types():
     # multi-dimensional array input
     x2d = np.zeros((2, 2))
     assert cmap(x2d).shape == x2d.shape + (4,)
+
+
+def test_ListedColormap_bad_under_over():
+    cmap = mcolors.ListedColormap(["r", "g", "b"], bad="c", under="m", over="y")
+    assert mcolors.same_color(cmap.get_bad(), "c")
+    assert mcolors.same_color(cmap.get_under(), "m")
+    assert mcolors.same_color(cmap.get_over(), "y")
+
+
+def test_LinearSegmentedColormap_bad_under_over():
+    cdict = {
+        'red': [(0., 0., 0.), (0.5, 1., 1.), (1., 1., 1.)],
+        'green': [(0., 0., 0.), (0.25, 0., 0.), (0.75, 1., 1.), (1., 1., 1.)],
+        'blue': [(0., 0., 0.), (0.5, 0., 0.), (1., 1., 1.)],
+    }
+    cmap = mcolors.LinearSegmentedColormap("lsc", cdict, bad="c", under="m", over="y")
+    assert mcolors.same_color(cmap.get_bad(), "c")
+    assert mcolors.same_color(cmap.get_under(), "m")
+    assert mcolors.same_color(cmap.get_over(), "y")
+
+
+def test_LinearSegmentedColormap_from_list_bad_under_over():
+    cmap = mcolors.LinearSegmentedColormap.from_list(
+        "lsc", ["r", "g", "b"], bad="c", under="m", over="y")
+    assert mcolors.same_color(cmap.get_bad(), "c")
+    assert mcolors.same_color(cmap.get_under(), "m")
+    assert mcolors.same_color(cmap.get_over(), "y")
+
+
+def test_colormap_with_alpha():
+    cmap = ListedColormap(["red", "green", ("blue", 0.8)])
+    cmap2 = cmap.with_alpha(0.5)
+    # color is the same:
+    vals = [0, 0.5, 1]  # numeric positions that map to the listed colors
+    assert_array_equal(cmap(vals)[:, :3], cmap2(vals)[:, :3])
+    # alpha of cmap2 is changed:
+    assert_array_equal(cmap(vals)[:, 3], [1, 1, 0.8])
+    assert_array_equal(cmap2(vals)[:, 3], [0.5, 0.5, 0.5])
 
 
 def test_BoundaryNorm():

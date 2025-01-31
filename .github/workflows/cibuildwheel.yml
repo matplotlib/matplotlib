@@ -70,7 +70,7 @@ jobs:
         run: twine check dist/*
 
       - name: Upload sdist result
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08  # v4.6.0
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
@@ -115,13 +115,12 @@ jobs:
       CIBW_TEST_COMMAND: >-
         python {package}/ci/check_version_number.py
       MACOSX_DEPLOYMENT_TARGET: "10.12"
-      MPL_DISABLE_FH4: "yes"
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
             cibw_archs: "x86_64"
-          - os: ubuntu-latest
+          - os: ubuntu-24.04-arm
             cibw_archs: "aarch64"
           - os: windows-latest
             cibw_archs: "auto64"
@@ -131,12 +130,6 @@ jobs:
             cibw_archs: "arm64"
 
     steps:
-      - name: Set up QEMU
-        if: matrix.cibw_archs == 'aarch64'
-        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf  # v3.2.0
-        with:
-          platforms: arm64
-
       - name: Download sdist
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16  # v4.1.8
         with:
@@ -188,7 +181,7 @@ jobs:
           CIBW_ENABLE: pypy
         if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest'
 
-      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08  # v4.6.0
         with:
           name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
           path: ./wheelhouse/*.whl

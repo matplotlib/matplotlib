@@ -78,7 +78,7 @@ jobs:
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
             extra-requirements: '-r requirements/testing/extra.txt'
-          - os: ubuntu-22.04
+          - os: ubuntu-22.04-arm
             python-version: '3.12'
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
             pyqt6-ver: '!=6.6.0'
@@ -236,10 +236,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: 4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 5-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
+            5-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            5-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
@@ -282,10 +282,13 @@ jobs:
               echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
             )
 
-          python -mpip install --upgrade pyqt5${{ matrix.pyqt5-ver }} &&
-            python -c 'import PyQt5.QtCore' &&
-            echo 'PyQt5 is available' ||
-            echo 'PyQt5 is not available'
+          # PyQt5 does not have any wheels for ARM on Linux.
+          if [[ "${{ matrix.os }}" != 'ubuntu-22.04-arm' ]]; then
+            python -mpip install --upgrade --only-binary :all: pyqt5${{ matrix.pyqt5-ver }} &&
+              python -c 'import PyQt5.QtCore' &&
+              echo 'PyQt5 is available' ||
+              echo 'PyQt5 is not available'
+          fi
           # Even though PySide2 wheels can be installed on Python 3.12+, they are broken and since PySide2 is
           # deprecated, they are unlikely to be fixed. For the same deprecation reason, there are no wheels
           # on M1 macOS, so don't bother there either.
@@ -296,16 +299,16 @@ jobs:
               echo 'PySide2 is available' ||
               echo 'PySide2 is not available'
           fi
-          python -mpip install --upgrade pyqt6${{ matrix.pyqt6-ver }} &&
+          python -mpip install --upgrade --only-binary :all: pyqt6${{ matrix.pyqt6-ver }} &&
             python -c 'import PyQt6.QtCore' &&
             echo 'PyQt6 is available' ||
             echo 'PyQt6 is not available'
-          python -mpip install --upgrade pyside6${{ matrix.pyside6-ver }} &&
+          python -mpip install --upgrade --only-binary :all: pyside6${{ matrix.pyside6-ver }} &&
             python -c 'import PySide6.QtCore' &&
             echo 'PySide6 is available' ||
             echo 'PySide6 is not available'
 
-          python -mpip install --upgrade \
+          python -mpip install --upgrade --only-binary :all: \
             -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
             wxPython &&
             python -c 'import wx' &&
@@ -422,7 +425,7 @@ jobs:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08  # v4.6.0
         if: failure()
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"

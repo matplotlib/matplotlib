@@ -243,7 +243,7 @@ def test_matshow(fig_test, fig_ref):
                    'formatter_ticker_004',
                    'formatter_ticker_005',
                    ],
-                  tol=0.031 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.031)
 def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -444,7 +444,7 @@ def test_twin_logscale(fig_test, fig_ref, twin):
 
 
 @image_comparison(['twin_autoscale.png'],
-                  tol=0.009 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_twinx_axis_scales():
     x = np.array([0, 0.5, 1])
     y = 0.5 * x
@@ -1218,9 +1218,8 @@ def test_imshow():
     ax.imshow("r", data=data)
 
 
-@image_comparison(
-    ['imshow_clip'], style='mpl20',
-    tol=1.24 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
+@image_comparison(['imshow_clip'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 1.24)
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
     # use former defaults to match existing baseline image
@@ -1299,7 +1298,7 @@ def test_fill_betweenx_input(y, x1, x2):
 
 
 @image_comparison(['fill_between_interpolate'], remove_text=True,
-                  tol=0.012 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.012)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -1454,7 +1453,8 @@ def test_pcolormesh_small():
 
 
 @image_comparison(['pcolormesh_alpha'], extensions=["png", "pdf"],
-                  remove_text=True)
+                  remove_text=True,
+                  tol=0.2 if platform.machine() == "aarch64" else 0)
 def test_pcolormesh_alpha():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -1727,7 +1727,8 @@ def test_pcolorauto(fig_test, fig_ref, snap):
     ax.pcolormesh(x2, y2, Z, snap=snap)
 
 
-@image_comparison(['canonical'], tol=0.02 if platform.machine() == 'arm64' else 0)
+@image_comparison(['canonical'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_canonical():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
@@ -2652,9 +2653,8 @@ def test_contour_hatching():
                 extend='both', alpha=0.5)
 
 
-@image_comparison(
-    ['contour_colorbar'], style='mpl20',
-    tol=0.54 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
+@image_comparison(['contour_colorbar'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.54)
 def test_contour_colorbar():
     x, y, z = contour_dat()
 
@@ -3232,7 +3232,7 @@ def test_log_scales_invalid():
 
 
 @image_comparison(['stackplot_test_image', 'stackplot_test_image'],
-                  tol=0.031 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.031)
 def test_stackplot():
     fig = plt.figure()
     x = np.linspace(0, 10, 10)
@@ -4022,6 +4022,79 @@ def test_violinplot_outofrange_quantiles():
 
 
 @check_figures_equal(extensions=["png"])
+def test_violinplot_color_specification(fig_test, fig_ref):
+    # Ensures that setting colors in violinplot constructor works
+    # the same way as setting the color of each object manually
+    np.random.seed(19680801)
+    data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 4)]
+    kwargs = {'showmeans': True,
+              'showextrema': True,
+              'showmedians': True
+              }
+
+    def color_violins(parts, facecolor=None, linecolor=None):
+        """Helper to color parts manually."""
+        if facecolor is not None:
+            for pc in parts['bodies']:
+                pc.set_facecolor(facecolor)
+        if linecolor is not None:
+            for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians'):
+                if partname in parts:
+                    lc = parts[partname]
+                    lc.set_edgecolor(linecolor)
+
+    # Reference image
+    ax = fig_ref.subplots(1, 3)
+    parts0 = ax[0].violinplot(data, **kwargs)
+    parts1 = ax[1].violinplot(data, **kwargs)
+    parts2 = ax[2].violinplot(data, **kwargs)
+
+    color_violins(parts0, facecolor=('r', 0.5), linecolor=('r', 0.2))
+    color_violins(parts1, facecolor='r')
+    color_violins(parts2, linecolor='r')
+
+    # Test image
+    ax = fig_test.subplots(1, 3)
+    ax[0].violinplot(data, facecolor=('r', 0.5), linecolor=('r', 0.2), **kwargs)
+    ax[1].violinplot(data, facecolor='r', **kwargs)
+    ax[2].violinplot(data, linecolor='r', **kwargs)
+
+
+def test_violinplot_color_sequence():
+    # Ensures that setting a sequence of colors works the same as setting
+    # each color independently
+    np.random.seed(19680801)
+    data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 5)]
+    kwargs = {'showmeans': True, 'showextrema': True, 'showmedians': True}
+
+    def assert_colors_equal(colors1, colors2):
+        assert all(mcolors.same_color(c1, c2)
+                   for c1, c2 in zip(colors1, colors2))
+
+    # Color sequence
+    N = len(data)
+    positions = range(N)
+    facecolors = ['k', 'r', ('b', 0.5), ('g', 0.2)]
+    linecolors = [('y', 0.4), 'b', 'm', ('k', 0.8)]
+
+    # Test image
+    fig_test = plt.figure()
+    ax = fig_test.gca()
+    parts_test = ax.violinplot(data,
+                               positions=positions,
+                               facecolor=facecolors,
+                               linecolor=linecolors,
+                               **kwargs)
+
+    body_colors = [p.get_facecolor() for p in parts_test["bodies"]]
+    assert_colors_equal(body_colors, mcolors.to_rgba_array(facecolors))
+
+    for part in ["cbars", "cmins", "cmaxes", "cmeans", "cmedians"]:
+        colors_test = parts_test[part].get_edgecolor()
+        assert_colors_equal(colors_test, mcolors.to_rgba_array(linecolors))
+
+
+@check_figures_equal(extensions=["png"])
 def test_violinplot_single_list_quantiles(fig_test, fig_ref):
     # Ensures quantile list for 1D can be passed in as single list
     # First 9 digits of frac(sqrt(83))
@@ -4616,6 +4689,17 @@ def test_stem_orientation():
             orientation='horizontal')
 
 
+def test_stem_polar_baseline():
+    """Test that the baseline is interpolated so that it will follow the radius."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+    x = np.linspace(1.57, 3.14, 10)
+    y = np.linspace(0, 1, 10)
+    bottom = 0.5
+    container = ax.stem(x, y, bottom=bottom)
+    assert container.baseline.get_path()._interpolation_steps > 100
+
+
 @image_comparison(['hist_stacked_stepfilled_alpha'])
 def test_hist_stacked_stepfilled_alpha():
     # make some data
@@ -5126,7 +5210,7 @@ def test_marker_styles():
 
 
 @image_comparison(['rc_markerfill.png'],
-                  tol=0.037 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.037)
 def test_markers_fillstyle_rcparams():
     fig, ax = plt.subplots()
     x = np.arange(7)
@@ -5709,7 +5793,7 @@ def test_twin_remove(fig_test, fig_ref):
 
 
 @image_comparison(['twin_spines.png'], remove_text=True,
-                  tol=0.022 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.022)
 def test_twin_spines():
 
     def make_patch_spines_invisible(ax):
@@ -6306,7 +6390,7 @@ def test_pie_hatch_multi(fig_test, fig_ref):
 
 
 @image_comparison(['set_get_ticklabels.png'],
-                  tol=0.025 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.025)
 def test_set_get_ticklabels():
     # test issue 2246
     fig, ax = plt.subplots(2)
@@ -6899,7 +6983,7 @@ def test_loglog():
 
 
 @image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20',
-                  tol=0.029 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.029)
 def test_loglog_nonpos():
     fig, axs = plt.subplots(3, 3)
     x = np.arange(1, 11)
@@ -7868,7 +7952,7 @@ def test_scatter_empty_data():
 
 
 @image_comparison(['annotate_across_transforms.png'], style='mpl20', remove_text=True,
-                  tol=0.025 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.025)
 def test_annotate_across_transforms():
     x = np.linspace(0, 10, 200)
     y = np.exp(-x) * np.sin(x)
@@ -7899,7 +7983,7 @@ class _Translation(mtransforms.Transform):
 
 
 @image_comparison(['secondary_xy.png'], style='mpl20',
-                  tol=0.027 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.027)
 def test_secondary_xy():
     fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
 
@@ -9163,7 +9247,7 @@ def test_zorder_and_explicit_rasterization():
 
 
 @image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
-                  tol=0.027 if platform.machine() in ("arm64", "ppc64le") else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.027)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
@@ -9497,7 +9581,7 @@ def test_boxplot_orientation(fig_test, fig_ref):
 
 
 @image_comparison(["use_colorizer_keyword.png"],
-                   tol=0.05 if platform.machine() == 'arm64' else 0)
+                   tol=0 if platform.machine() == 'x86_64' else 0.05)
 def test_use_colorizer_keyword():
     # test using the colorizer keyword
     np.random.seed(0)
@@ -9621,3 +9705,13 @@ def test_axes_set_position_external_bbox_unchanged(fig_test, fig_ref):
     ax_test.set_position([0.25, 0.25, 0.5, 0.5])
     assert (bbox.x0, bbox.y0, bbox.width, bbox.height) == (0.0, 0.0, 1.0, 1.0)
     ax_ref = fig_ref.add_axes([0.25, 0.25, 0.5, 0.5])
+
+
+def test_bar_shape_mismatch():
+    x = ["foo", "bar"]
+    height = [1, 2, 3]
+    error_message = (
+        r"Mismatch is between 'x' with shape \(2,\) and 'height' with shape \(3,\)"
+    )
+    with pytest.raises(ValueError, match=error_message):
+        plt.bar(x, height)

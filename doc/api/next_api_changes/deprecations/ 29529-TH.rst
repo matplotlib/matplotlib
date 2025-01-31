@@ -1,0 +1,7 @@
+Capitalization of None in matplotlibrc
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In :file:`matplotlibrc` config files every capitalization of None was
+accepted for denoting the Python constant `None`. This is deprecated. The
+only accepted capitalization is now None, i.e. starting with a capital letter
+and all other letters in lowercase.

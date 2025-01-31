@@ -997,8 +997,8 @@ default: None
         root_fig = num.get_figure(root=True)
         if root_fig.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
-        elif any([figsize, dpi, facecolor, edgecolor, not frameon,
-                  kwargs]) and root_fig.canvas.manager.num in allnums:
+        elif (any(param is not None for param in [figsize, dpi, facecolor, edgecolor])
+              or not frameon or kwargs) and root_fig.canvas.manager.num in allnums:
             _api.warn_external(
                 "Ignoring specified arguments in this call because figure "
                 f"with num: {root_fig.canvas.manager.num} already exists")
@@ -1010,8 +1010,8 @@ default: None
     if num is None:
         num = next_num
     else:
-        if any([figsize, dpi, facecolor, edgecolor, not frameon,
-                kwargs]) and num in allnums:
+        if (any(param is not None for param in [figsize, dpi, facecolor, edgecolor])
+              or not frameon or kwargs) and num in allnums:
             _api.warn_external(
                 "Ignoring specified arguments in this call "
                 f"because figure with num: {num} already exists")
@@ -1450,16 +1450,10 @@ def subplot(*args, **kwargs) -> Axes:
 
     Notes
     -----
-    Creating a new Axes will delete any preexisting Axes that
-    overlaps with it beyond sharing a boundary::
-
-        import matplotlib.pyplot as plt
-        # plot a line, implicitly creating a subplot(111)
-        plt.plot([1, 2, 3])
-        # now create a subplot which represents the top plot of a grid
-        # with 2 rows and 1 column. Since this subplot will overlap the
-        # first, the plot (and its Axes) previously created, will be removed
-        plt.subplot(211)
+    .. versionchanged:: 3.8
+        In versions prior to 3.8, any preexisting Axes that overlap with the new Axes
+        beyond sharing a boundary was deleted. Deletion does not happen in more
+        recent versions anymore. Use `.Axes.remove` explicitly if needed.
 
     If you do not want this behavior, use the `.Figure.add_subplot` method
     or the `.pyplot.axes` function instead.
@@ -2669,9 +2663,13 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     if fignum == 0:
         ax = gca()
     else:
-        # Extract actual aspect ratio of array and make appropriately sized
-        # figure.
-        fig = figure(fignum, figsize=figaspect(A))
+        if fignum is not None and fignum_exists(fignum):
+            # Do not try to set a figure size.
+            figsize = None
+        else:
+            # Extract actual aspect ratio of array and make appropriately sized figure.
+            figsize = figaspect(A)
+        fig = figure(fignum, figsize=figsize)
         ax = fig.add_axes((0.15, 0.09, 0.775, 0.775))
     im = ax.matshow(A, **kwargs)
     sci(im)
@@ -4302,6 +4300,8 @@ def violinplot(
     | Callable[[GaussianKDE], float]
     | None = None,
     side: Literal["both", "low", "high"] = "both",
+    facecolor: Sequence[ColorType] | ColorType | None = None,
+    linecolor: Sequence[ColorType] | ColorType | None = None,
     *,
     data=None,
 ) -> dict[str, Collection]:
@@ -4318,6 +4318,8 @@ def violinplot(
         points=points,
         bw_method=bw_method,
         side=side,
+        facecolor=facecolor,
+        linecolor=linecolor,
         **({"data": data} if data is not None else {}),
     )
 
