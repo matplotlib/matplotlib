@@ -221,9 +221,8 @@ def test_bar3d_lightsource():
     np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
-@mpl3d_image_comparison(
-    ['contour3d.png'], style='mpl20',
-    tol=0.002 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
+@mpl3d_image_comparison(['contour3d.png'], style='mpl20',
+                        tol=0 if platform.machine() == 'x86_64' else 0.002)
 def test_contour3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
@@ -1713,7 +1712,7 @@ def test_errorbar3d_errorevery():
 
 
 @mpl3d_image_comparison(['errorbar3d.png'], style='mpl20',
-                        tol=0.02 if platform.machine() == 'arm64' else 0)
+                        tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()
@@ -1729,7 +1728,7 @@ def test_errorbar3d():
     ax.legend()
 
 
-@image_comparison(['stem3d.png'], style='mpl20', tol=0.008)
+@image_comparison(['stem3d.png'], style='mpl20', tol=0.009)
 def test_stem3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),

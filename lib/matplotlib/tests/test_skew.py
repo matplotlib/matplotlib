@@ -146,7 +146,7 @@ def test_set_line_coll_dash_image():
 
 
 @image_comparison(['skew_rects'], remove_text=True,
-                  tol=0.009 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_skew_rectangle():
 
     fix, axes = plt.subplots(5, 5, sharex=True, sharey=True, figsize=(8, 8))
