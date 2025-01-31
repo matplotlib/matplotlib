@@ -36,20 +36,30 @@ def set_axis_style(ax, labels):
 np.random.seed(19680801)
 data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 5)]
 
-fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(9, 4), sharey=True)
+fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(9, 3), sharey=True)
 
 ax1.set_title('Default violin plot')
 ax1.set_ylabel('Observed values')
 ax1.violinplot(data)
 
-ax2.set_title('Customized violin plot')
-parts = ax2.violinplot(
-        data, showmeans=False, showmedians=False,
-        showextrema=False)
+ax2.set_title('Set colors of violins')
+ax2.set_ylabel('Observed values')
+ax2.violinplot(
+    data,
+    facecolor=[('yellow', 0.3), ('blue', 0.3), ('red', 0.3), ('green', 0.3)],
+    linecolor='black',
+)
+# Note that when passing a sequence of colors, the method will repeat the sequence if
+# less colors are provided than data distributions.
+
+ax3.set_title('Customized violin plot')
+parts = ax3.violinplot(
+        data, showmeans=False, showmedians=False, showextrema=False,
+        facecolor='#D43F3A', linecolor='black')
 
 for pc in parts['bodies']:
-    pc.set_facecolor('#D43F3A')
     pc.set_edgecolor('black')
+    pc.set_linewidth(1)
     pc.set_alpha(1)
 
 quartile1, medians, quartile3 = np.percentile(data, [25, 50, 75], axis=1)
@@ -59,13 +69,13 @@ whiskers = np.array([
 whiskers_min, whiskers_max = whiskers[:, 0], whiskers[:, 1]
 
 inds = np.arange(1, len(medians) + 1)
-ax2.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
-ax2.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
-ax2.vlines(inds, whiskers_min, whiskers_max, color='k', linestyle='-', lw=1)
+ax3.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
+ax3.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
+ax3.vlines(inds, whiskers_min, whiskers_max, color='k', linestyle='-', lw=1)
 
 # set style for the axes
 labels = ['A', 'B', 'C', 'D']
-for ax in [ax1, ax2]:
+for ax in [ax1, ax2, ax3]:
     set_axis_style(ax, labels)
 
 plt.subplots_adjust(bottom=0.15, wspace=0.05)
