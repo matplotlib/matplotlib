@@ -225,32 +225,66 @@ def _datetime_to_pdf(d):
     return r
 
 
-def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
+def _calculate_rotated_quad_point_coordinates(x, y, width, height, angle):
     """
     Calculate the coordinates of rectangle when rotated by angle around x, y
     """
 
-    angle = math.radians(-angle)
+    angle = math.radians(angle)
     sin_angle = math.sin(angle)
     cos_angle = math.cos(angle)
-    a = x + height * sin_angle
+    width_cos = width * cos_angle
+    width_sin = width * sin_angle
+    a = x - height * sin_angle
     b = y + height * cos_angle
-    c = x + width * cos_angle + height * sin_angle
-    d = y - width * sin_angle + height * cos_angle
-    e = x + width * cos_angle
-    f = y - width * sin_angle
+    c = a + width_cos
+    d = b + width_sin
+    e = x + width_cos
+    f = y + width_sin
     return ((x, y), (e, f), (c, d), (a, b))
 
 
-def _get_coordinates_of_block(x, y, width, height, angle=0):
+def _calculate_transformed_quad_point_coordinates(x, y, trans):
     """
-    Get the coordinates of rotated rectangle and rectangle that covers the
-    rotated rectangle.
+    Calculate the coordinates of rectangle when transformed by trans
+    positioned at x, y
+    """
+    tr1, tr2, tr3, tr4, tr5, tr6 = trans
+    # Conceptual code
+    # width = 1
+    # height = 1
+    # a = x + 0 * tr1 + height * tr3 + tr5
+    # b = y + 0 * tr2 + height * tr4 + tr6
+    # c = x + width * tr1 + height * tr3 + tr5
+    # d = y + width * tr2 + height * tr4 + tr6
+    # e = x + width * tr1 + 0 * tr3 + tr5
+    # f = y + width * tr2 + 0 * tr4 + tr6
+    # x = x + 0 * tr1 + 0 * tr3 + tr5
+    # y = y + 0 * tr2 + 0 * tr4 + tr6
+    x = x + tr5
+    y = y + tr6
+    a = x + tr3
+    b = y + tr4
+    c = a + tr1
+    d = b + tr2
+    e = x + tr1
+    f = y + tr2
+    return (((x, y), (e, f), (c, d), (a, b)),
+            (0 if math.isclose(tr2, 0) else 45))
+
+
+def _get_coordinates_of_block(x, y, width, height, angle, trans):
+    """
+    Get the coordinates of rotated or transformed rectangle and rectangle
+    that covers the rotated or transformed rectangle.
     """
 
-    vertices = _calculate_quad_point_coordinates(x, y, width,
-                                                 height, angle)
-
+    if trans is None:
+        vertices = _calculate_rotated_quad_point_coordinates(x, y, width,
+                                                             height, angle)
+    else:
+        vertices, angle = _calculate_transformed_quad_point_coordinates(x, y,
+                                                                        trans)
     # Find min and max values for rectangle
     # adjust so that QuadPoints is inside Rect
     # PDF docs says that QuadPoints should be ignored if any point lies
@@ -263,27 +297,29 @@ def _get_coordinates_of_block(x, y, width, height, angle=0):
     max_x = max(v[0] for v in vertices) + pad
     max_y = max(v[1] for v in vertices) + pad
     return (tuple(itertools.chain.from_iterable(vertices)),
-            (min_x, min_y, max_x, max_y))
+            (min_x, min_y, max_x, max_y), angle)
 
 
-def _get_link_annotation(gc, x, y, width, height, angle=0):
+def _get_link_annotation(gc, x, y, width, height, angle=0, trans=None):
     """
     Create a link annotation object for embedding URLs.
     """
-    quadpoints, rect = _get_coordinates_of_block(x, y, width, height, angle)
     link_annotation = {
         'Type': Name('Annot'),
         'Subtype': Name('Link'),
-        'Rect': rect,
         'Border': [0, 0, 0],
         'A': {
             'S': Name('URI'),
             'URI': gc.get_url(),
         },
     }
+    quadpoints, rect, angle = _get_coordinates_of_block(x, y, width, height,
+                                                        angle, trans)
+    link_annotation['Rect'] = rect
     if angle % 90:
         # Add QuadPoints
         link_annotation['QuadPoints'] = quadpoints
+
     return link_annotation
 
 
@@ -2001,21 +2037,24 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         self.check_gc(gc)
 
-        w = 72.0 * w / self.image_dpi
-        h = 72.0 * h / self.image_dpi
-
         imob = self.file.imageObject(im)
 
         if transform is None:
+            w = 72.0 * w / self.image_dpi
+            h = 72.0 * h / self.image_dpi
+            if gc.get_url() is not None:
+                self._add_link_annotation(gc, x, y, w, h)
             self.file.output(Op.gsave,
                              w, 0, 0, h, x, y, Op.concat_matrix,
                              imob, Op.use_xobject, Op.grestore)
         else:
-            tr1, tr2, tr3, tr4, tr5, tr6 = transform.frozen().to_values()
+            trans = transform.frozen().to_values()
+            if gc.get_url() is not None:
+                self._add_link_annotation(gc, x, y, w, h, trans=trans)
 
             self.file.output(Op.gsave,
                              1, 0, 0, 1, x, y, Op.concat_matrix,
-                             tr1, tr2, tr3, tr4, tr5, tr6, Op.concat_matrix,
+                             *trans, Op.concat_matrix,
                              imob, Op.use_xobject, Op.grestore)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
@@ -2026,6 +2065,11 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             rgbFace is None and gc.get_hatch_path() is None,
             gc.get_sketch_params())
         self.file.output(self.gc.paint())
+
+    def _add_link_annotation(self, gc, x, y, width, height, angle=0,
+                             trans=None):
+        self.file._annotations[-1][1].append(
+            _get_link_annotation(gc, x, y, width, height, angle, trans))
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
@@ -2191,8 +2235,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self._text2path.mathtext_parser.parse(s, 72, prop)
 
         if gc.get_url() is not None:
-            self.file._annotations[-1][1].append(_get_link_annotation(
-                gc, x, y, width, height, angle))
+            self._add_link_annotation(gc, x, y, width, height, angle)
 
         fonttype = mpl.rcParams['pdf.fonttype']
 
@@ -2248,8 +2291,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             page, = dvi
 
         if gc.get_url() is not None:
-            self.file._annotations[-1][1].append(_get_link_annotation(
-                gc, x, y, page.width, page.height, angle))
+            self._add_link_annotation(gc, x, y, page.width, page.height, angle)
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
@@ -2349,8 +2391,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         if gc.get_url() is not None:
             font.set_text(s)
             width, height = font.get_width_height()
-            self.file._annotations[-1][1].append(_get_link_annotation(
-                gc, x, y, width / 64, height / 64, angle))
+            self._add_link_annotation(gc, x, y, width/64, height/64, angle)
 
         # If fonttype is neither 3 nor 42, emit the whole string at once
         # without manual kerning.
