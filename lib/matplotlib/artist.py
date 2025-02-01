@@ -1572,6 +1572,13 @@ class ArtistInspector:
         'matplotlib.image._ImageBase.set_resample',
         'matplotlib.text._AnnotationBase.set_annotation_clip',
     }
+    _LINK_IN_CHILD_CLASS = {
+        # A set of property setter methods that are inherited, and where the
+        # original method is not part of the docs (e.g. because it's in a private
+        # base class which is not documented), but the method is documented in
+        # the class itself because of :inherited-members:.
+        '_CollectionWithSizes.set_sizes',
+    }
 
     def aliased_name_rest(self, s, target):
         """
@@ -1640,8 +1647,12 @@ class ArtistInspector:
                     break
             else:  # No docstring available.
                 method = getattr(self.o, f"set_{prop}")
-            prop_and_qualnames.append(
-                (prop, f"{method.__module__}.{method.__qualname__}"))
+
+            if method.__qualname__ in self._LINK_IN_CHILD_CLASS:
+                qualname = f"{method.__module__}.{self.o.__name__}.{method.__name__}"
+            else:
+                qualname = f"{method.__module__}.{method.__qualname__}"
+            prop_and_qualnames.append((prop, qualname))
 
         names = [self.aliased_name_rest(prop, target)
                  .replace('_base._AxesBase', 'Axes')
