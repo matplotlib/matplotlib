@@ -19,12 +19,13 @@ fig, axs = plt.subplots(2, 2, layout='constrained')
 
 ax = axs[0][0]
 ax.plot(np.arange(0, 1e6, 1000))
-ax.set_title('Title0 0')
-ax.set_ylabel('YLabel0 0')
+ax.set_title('Title (0,0)')
+ax.set_ylabel('YLabel (0,0)')
 
 ax = axs[0][1]
 ax.plot(np.arange(1., 0., -0.1) * 2000., np.arange(1., 0., -0.1))
-ax.set_title('Title0 1')
+ax.set_title('Title (0,1)')
+ax.set_ylabel('YLabel (0,1)')
 ax.xaxis.tick_top()
 ax.set_xticks(ax.get_xticks())
 ax.tick_params(axis='x', rotation=55, rotation_mode='xtick')
@@ -33,8 +34,9 @@ ax.tick_params(axis='x', rotation=55, rotation_mode='xtick')
 for i in range(2):
     ax = axs[1][i]
     ax.plot(np.arange(1., 0., -0.1) * 2000., np.arange(1., 0., -0.1))
-    ax.set_ylabel('YLabel1 %d' % i)
-    ax.set_xlabel('XLabel1 %d' % i)
+    ax.set_ylabel('YLabel (1,%d)' % i)
+    ax.set_xlabel('XLabel (1,%d)' % i)
+    ax.set_title('Title (1,%d)' % i)
     if i == 0:
         ax.set_xticks(ax.get_xticks())
         ax.tick_params(axis='x', rotation=55, rotation_mode='xtick')
