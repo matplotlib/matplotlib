@@ -205,7 +205,7 @@ vertically across the multiple subplots, which can be unattractive.
 By default, Matplotlib positions the x location of the ylabel so that
 it does not overlap any of the y ticks.  You can override this default
 behavior by specifying the coordinates of the label. To learn how, see
-:doc:`/gallery/text_labels_and_annotations/align_ylabels`
+:doc:`/gallery/subplots_axes_and_figures/align_labels_demo`
 
 .. _howto-set-zorder:
 
