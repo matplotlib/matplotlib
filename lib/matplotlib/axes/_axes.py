@@ -3078,13 +3078,14 @@ class Axes(_AxesBase):
             This function is new in v3.11, and the API is still provisional.
             We may still fine-tune some aspects based on user-feedback.
 
-        Grouped bar charts visualize a collection of multiple categorical datasets.
-        A categorical dataset is a mapping *name* -> *value*. The values of the
-        dataset are represented by a sequence of bars of the same color.
-        In a grouped bar chart, the bars of all datasets are grouped together by
-        category. The category names are drawn as tick labels next to the bar group.
-        Each dataset has a distinct bar color, and can optionally get a label that
-        is used for the legend.
+        Grouped bar charts visualize a collection of categorical datasets. The
+        categories (i.e. names of the individual values) are the same across all
+        datasets. They are typically string names but can also be other discrete
+        values such as dates or integer indices. The values of each dataset are
+        represented by a sequence of bars of the same color. The bars of all
+        datasets are grouped together by their shared categories. The category names
+        are drawn as the tick labels for each bar group. Each dataset has a distinct
+        bar color, and can optionally get a label that is used for the legend.
 
         Example:
 
