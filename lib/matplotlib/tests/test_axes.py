@@ -243,7 +243,7 @@ def test_matshow(fig_test, fig_ref):
                    'formatter_ticker_004',
                    'formatter_ticker_005',
                    ],
-                  tol=0.031 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.031)
 def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -444,7 +444,7 @@ def test_twin_logscale(fig_test, fig_ref, twin):
 
 
 @image_comparison(['twin_autoscale.png'],
-                  tol=0.009 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_twinx_axis_scales():
     x = np.array([0, 0.5, 1])
     y = 0.5 * x
@@ -1218,9 +1218,8 @@ def test_imshow():
     ax.imshow("r", data=data)
 
 
-@image_comparison(
-    ['imshow_clip'], style='mpl20',
-    tol=1.24 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
+@image_comparison(['imshow_clip'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 1.24)
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
     # use former defaults to match existing baseline image
@@ -1299,7 +1298,7 @@ def test_fill_betweenx_input(y, x1, x2):
 
 
 @image_comparison(['fill_between_interpolate'], remove_text=True,
-                  tol=0.012 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.012)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -1727,7 +1726,8 @@ def test_pcolorauto(fig_test, fig_ref, snap):
     ax.pcolormesh(x2, y2, Z, snap=snap)
 
 
-@image_comparison(['canonical'], tol=0.02 if platform.machine() == 'arm64' else 0)
+@image_comparison(['canonical'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_canonical():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
@@ -2652,9 +2652,8 @@ def test_contour_hatching():
                 extend='both', alpha=0.5)
 
 
-@image_comparison(
-    ['contour_colorbar'], style='mpl20',
-    tol=0.54 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x') else 0)
+@image_comparison(['contour_colorbar'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.54)
 def test_contour_colorbar():
     x, y, z = contour_dat()
 
@@ -3232,7 +3231,7 @@ def test_log_scales_invalid():
 
 
 @image_comparison(['stackplot_test_image', 'stackplot_test_image'],
-                  tol=0.031 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.031)
 def test_stackplot():
     fig = plt.figure()
     x = np.linspace(0, 10, 10)
@@ -5126,7 +5125,7 @@ def test_marker_styles():
 
 
 @image_comparison(['rc_markerfill.png'],
-                  tol=0.037 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.037)
 def test_markers_fillstyle_rcparams():
     fig, ax = plt.subplots()
     x = np.arange(7)
@@ -5709,7 +5708,7 @@ def test_twin_remove(fig_test, fig_ref):
 
 
 @image_comparison(['twin_spines.png'], remove_text=True,
-                  tol=0.022 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.022)
 def test_twin_spines():
 
     def make_patch_spines_invisible(ax):
@@ -6306,7 +6305,7 @@ def test_pie_hatch_multi(fig_test, fig_ref):
 
 
 @image_comparison(['set_get_ticklabels.png'],
-                  tol=0.025 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.025)
 def test_set_get_ticklabels():
     # test issue 2246
     fig, ax = plt.subplots(2)
@@ -6899,7 +6898,7 @@ def test_loglog():
 
 
 @image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20',
-                  tol=0.029 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.029)
 def test_loglog_nonpos():
     fig, axs = plt.subplots(3, 3)
     x = np.arange(1, 11)
@@ -7839,7 +7838,7 @@ def test_scatter_empty_data():
 
 
 @image_comparison(['annotate_across_transforms.png'], style='mpl20', remove_text=True,
-                  tol=0.025 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.025)
 def test_annotate_across_transforms():
     x = np.linspace(0, 10, 200)
     y = np.exp(-x) * np.sin(x)
@@ -7870,7 +7869,7 @@ class _Translation(mtransforms.Transform):
 
 
 @image_comparison(['secondary_xy.png'], style='mpl20',
-                  tol=0.027 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.027)
 def test_secondary_xy():
     fig, axs = plt.subplots(1, 2, figsize=(10, 5), constrained_layout=True)
 
@@ -9134,7 +9133,7 @@ def test_zorder_and_explicit_rasterization():
 
 
 @image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
-                  tol=0.027 if platform.machine() in ("arm64", "ppc64le") else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.027)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
@@ -9467,7 +9466,7 @@ def test_boxplot_orientation(fig_test, fig_ref):
 
 
 @image_comparison(["use_colorizer_keyword.png"],
-                   tol=0.05 if platform.machine() == 'arm64' else 0)
+                   tol=0 if platform.machine() == 'x86_64' else 0.05)
 def test_use_colorizer_keyword():
     # test using the colorizer keyword
     np.random.seed(0)

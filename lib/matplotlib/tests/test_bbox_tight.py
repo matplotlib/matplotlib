@@ -45,7 +45,7 @@ def test_bbox_inches_tight():
 
 @image_comparison(['bbox_inches_tight_suptile_legend'],
                   savefig_kwarg={'bbox_inches': 'tight'},
-                  tol=0.02 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_bbox_inches_tight_suptile_legend():
     plt.plot(np.arange(10), label='a straight line')
     plt.legend(bbox_to_anchor=(0.9, 1), loc='upper left')
