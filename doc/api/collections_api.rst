@@ -11,3 +11,12 @@
    :undoc-members:
    :show-inheritance:
    :inherited-members:
+
+.. autoclass:: _CollectionWithSizes
+   :no-members:
+   :members: get_sizes, set_sizes
+   :class-doc-from: class
+
+.. autoclass:: _MeshData
+   :no-members:
+   :class-doc-from: class
