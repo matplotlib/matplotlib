@@ -108,6 +108,7 @@ class ColorSequenceRegistry(Mapping):
         import matplotlib as mpl
         colors = mpl.color_sequences['tab10']
 
+    For a list of built in color sequences, see :doc:`/gallery/color/color_sequences`.
     The returned lists are copies, so that their modification does not change
     the global definition of the color sequence.
 
