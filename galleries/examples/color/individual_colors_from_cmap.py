@@ -38,7 +38,9 @@ plt.show()
 # Extracting colors from a discrete colormap
 # ------------------------------------------
 # The list of all colors in a `.ListedColormap` is available as the ``colors``
-# attribute.
+# attribute.  Note that all the colors from Matplotlib's qualitative color maps
+# are also available as color sequences, so may be accessed more directly from
+# the color sequence registry.  See :doc:`/gallery/color/color_sequences`.
 
 colors = mpl.colormaps['Dark2'].colors
 
