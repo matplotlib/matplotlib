@@ -734,20 +734,19 @@ class RcParams(MutableMapping, dict):
         dict.setdefault(self, "backend", rcsetup._auto_backend_sentinel)
 
     def __setitem__(self, key, val):
+        if (key == "backend"
+                and val is rcsetup._auto_backend_sentinel
+                and "backend" in self):
+            return
         try:
-            if key == 'backend':
-                if val is rcsetup._auto_backend_sentinel:
-                    if 'backend' in self:
-                        return
-            try:
-                cval = self.validate[key](val)
-            except ValueError as ve:
-                raise ValueError(f"Key {key}: {ve}") from None
-            self._set(key, cval)
+            cval = self.validate[key](val)
         except KeyError as err:
             raise KeyError(
                 f"{key} is not a valid rc parameter (see rcParams.keys() for "
                 f"a list of valid parameters)") from err
+        except ValueError as ve:
+            raise ValueError(f"Key {key}: {ve}") from None
+        self._set(key, cval)
 
     def __getitem__(self, key):
         # In theory, this should only ever be used after the global rcParams
@@ -757,7 +756,6 @@ class RcParams(MutableMapping, dict):
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
-
         return self._get(key)
 
     def _get_backend_or_none(self):
