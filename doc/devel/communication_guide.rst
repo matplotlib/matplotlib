@@ -118,14 +118,11 @@ General guidelines
 
 * Follow communication best practices:
 
-  * Do not share non-expert visualizations when it could cause harm:
-
-    * e.g. https://x.com/matplotlib/status/1244178154618605568
-
+  * Do not share non-expert visualizations when it could cause harm.
   * Clearly state when the visualization data/conclusions cannot be verified.
   * Do not rely on machine translations for sensitive visualization.
 
-* Verify sourcing of content (especially on instagram & blog):
+* Verify sourcing of content (especially on Instagram & blog):
 
   * Instagram/blog: ensure mpl has right to repost/share content
   * Make sure content is clearly cited:
