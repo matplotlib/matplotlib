@@ -1001,6 +1001,279 @@ def test_animated_with_canvas_change(fig_test, fig_ref):
     ax_test.plot(range(5), animated=True)
 
 
+class TestSubfigureMosaic:
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize(
+        "x", [
+            [["A", "A", "B"], ["C", "D", "B"]],
+            [[1, 1, 2], [3, 4, 2]],
+            (("A", "A", "B"), ("C", "D", "B")),
+            ((1, 1, 2), (3, 4, 2))
+        ]
+    )
+    def test_basic(self, fig_test, fig_ref, x):
+        grid_axes = fig_test.subfigure_mosaic(x)
+
+        for k, ax in grid_axes.items():
+            ax.text(0.5, 0.5, k)
+
+        labels = sorted(np.unique(x))
+
+        assert len(labels) == len(grid_axes)
+
+        gs = fig_ref.add_gridspec(2, 3)
+        axA = fig_ref.add_subfigure(gs[:1, :2])
+        axA.text(0.5, 0.5, labels[0])
+
+        axB = fig_ref.add_subfigure(gs[:, 2])
+        axB.text(0.5, 0.5, labels[1])
+
+        axC = fig_ref.add_subfigure(gs[1, 0])
+        axC.text(0.5, 0.5, labels[2])
+
+        axD = fig_ref.add_subfigure(gs[1, 1])
+        axD.text(0.5, 0.5, labels[3])
+
+    @check_figures_equal(extensions=["png"])
+    def test_all_nested(self, fig_test, fig_ref):
+        x = [["A", "B"], ["C", "D"]]
+        y = [["E", "F"], ["G", "H"]]
+
+        fig_ref.set_layout_engine("constrained")
+        fig_test.set_layout_engine("constrained")
+
+        grid_axes = fig_test.subfigure_mosaic([[x, y]])
+        for ax in grid_axes.values():
+            ax.text(0.5, 0.5, ax.get_label())
+
+        gs = fig_ref.add_gridspec(1, 2)
+        gs_left = gs[0, 0].subgridspec(2, 2)
+        subfig_left = fig_ref.add_subfigure(gs[0, 0])
+        for j, r in enumerate(x):
+            for k, label in enumerate(r):
+                subfig_left.add_subfigure(gs_left[j, k]).text(0.5, 0.5, label)
+
+        gs_right = gs[0, 1].subgridspec(2, 2)
+        subfig_right = fig_ref.add_subfigure(gs[0, 1])
+        for j, r in enumerate(y):
+            for k, label in enumerate(r):
+                subfig_right.add_subfigure(gs_right[j, k]).text(0.5, 0.5, label)
+
+    @check_figures_equal(extensions=["png"])
+    def test_nested(self, fig_test, fig_ref):
+
+        fig_ref.set_layout_engine("constrained")
+        fig_test.set_layout_engine("constrained")
+
+        x = [["A", "B"], ["C", "D"]]
+
+        y = [["F"], [x]]
+
+        grid_axes = fig_test.subfigure_mosaic(y)
+        for k, ax in grid_axes.items():
+            ax.text(0.5, 0.5, k)
+
+        gs = fig_ref.add_gridspec(2, 1)
+        subfig_bottom = fig_ref.add_subfigure(gs[1, 0])
+        gs_n = gs[1, 0].subgridspec(2, 2)
+
+        axA = subfig_bottom.add_subfigure(gs_n[0, 0])
+        axA.text(0.5, 0.5, "A")
+
+        axB = subfig_bottom.add_subfigure(gs_n[0, 1])
+        axB.text(0.5, 0.5, "B")
+
+        axC = subfig_bottom.add_subfigure(gs_n[1, 0])
+        axC.text(0.5, 0.5, "C")
+
+        axD = subfig_bottom.add_subfigure(gs_n[1, 1])
+        axD.text(0.5, 0.5, "D")
+
+        axF = fig_ref.add_subfigure(gs[0, 0])
+        axF.text(0.5, 0.5, "F")
+
+    @check_figures_equal(extensions=["png"])
+    def test_nested_tuple(self, fig_test, fig_ref):
+        x = [["A", "B", "B"], ["C", "C", "D"]]
+        xt = (("A", "B", "B"), ("C", "C", "D"))
+
+        fig_ref.subfigure_mosaic([["F"], [x]])
+        fig_test.subfigure_mosaic([["F"], [xt]])
+
+    def test_nested_width_ratios(self):
+        x = [["A", [["B"],
+                    ["C"]]]]
+        width_ratios = [2, 1]
+
+        fig, axd = plt.subfigure_mosaic(x, width_ratios=width_ratios)
+
+        outer = list(axd.values())[0]._subplotspec.get_gridspec().get_width_ratios()
+        inner = list(axd.values())[1]._subplotspec.get_gridspec().get_width_ratios()
+        assert outer == width_ratios
+        assert inner != width_ratios
+
+    def test_nested_height_ratios(self):
+        x = [["A", [["B"],
+                    ["C"]]], ["D", "D"]]
+        height_ratios = [1, 2]
+
+        fig, axd = plt.subfigure_mosaic(x, height_ratios=height_ratios)
+
+        outer = list(axd.values())[0]._subplotspec.get_gridspec().get_height_ratios()
+        inner = list(axd.values())[1]._subplotspec.get_gridspec().get_height_ratios()
+        assert outer == height_ratios
+        assert inner != height_ratios
+
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize(
+        "x, empty_sentinel",
+        [
+            ([["A", None], [None, "B"]], None),
+            ([["A", "."], [".", "B"]], "SKIP"),
+            ([["A", 0], [0, "B"]], 0),
+            ([[1, None], [None, 2]], None),
+            ([[1, "."], [".", 2]], "SKIP"),
+            ([[1, 0], [0, 2]], 0),
+        ],
+    )
+    def test_empty(self, fig_test, fig_ref, x, empty_sentinel):
+        if empty_sentinel != "SKIP":
+            kwargs = {"empty_sentinel": empty_sentinel}
+        else:
+            kwargs = {}
+        grid_axes = fig_test.subfigure_mosaic(x, **kwargs)
+
+        for k, ax in grid_axes.items():
+            ax.text(0.5, 0.5, k)
+
+        labels = sorted(
+            {name for row in x for name in row} - {empty_sentinel, "."}
+        )
+
+        assert len(labels) == len(grid_axes)
+
+        gs = fig_ref.add_gridspec(2, 2)
+        axA = fig_ref.add_subfigure(gs[0, 0])
+        axA.text(0.5, 0.5, labels[0])
+
+        axB = fig_ref.add_subfigure(gs[1, 1])
+        axB.text(0.5, 0.5, labels[1])
+
+    def test_fail_list_of_str(self):
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subfigure_mosaic(['foo', 'bar'])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subfigure_mosaic(['foo'])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subfigure_mosaic([['foo', ('bar',)]])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subfigure_mosaic([['a', 'b'], [('a', 'b'), 'c']])
+
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("subfigure_kw", [{}, {"facecolor": "magenta"}])
+    def test_subfigure_kw(self, fig_test, fig_ref, subfigure_kw):
+        x = [[1, 2]]
+        grid_axes = fig_test.subfigure_mosaic(x, subfigure_kw=subfigure_kw)
+        subplot_kw = subfigure_kw or {}
+
+        gs = fig_ref.add_gridspec(1, 2)
+        axA = fig_ref.add_subfigure(gs[0, 0], **subfigure_kw)
+        axB = fig_ref.add_subfigure(gs[0, 1], **subfigure_kw)
+
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("multi_value", ['BC', tuple('BC')])
+    def test_per_subfigure_kw(self, fig_test, fig_ref, multi_value):
+        x = 'AB;CD'
+        grid_axes = fig_test.subfigure_mosaic(
+            x,
+            subfigure_kw={'facecolor': 'red'},
+            per_subfigure_kw={
+                'D': {'facecolor': 'blue'},
+                multi_value: {'facecolor': 'green'},
+            }
+        )
+
+        gs = fig_ref.add_gridspec(2, 2)
+        for color, spec in zip(['red', 'green', 'green', 'blue'], gs):
+            fig_ref.add_subfigure(spec, facecolor=color)
+
+    def test_extra_per_subfigure_kw(self):
+        with pytest.raises(
+                ValueError, match=f'The keys {set("B")!r} are in'
+        ):
+            Figure().subfigure_mosaic("A", per_subfigure_kw={"B": {}})
+
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("str_pattern",
+                             ["AAA\nBBB", "\nAAA\nBBB\n", "ABC\nDEF"]
+                             )
+    def test_single_str_input(self, fig_test, fig_ref, str_pattern):
+        grid_axes = fig_test.subfigure_mosaic(str_pattern)
+
+        grid_axes = fig_ref.subfigure_mosaic(
+            [list(ln) for ln in str_pattern.strip().split("\n")]
+        )
+
+    @pytest.mark.parametrize(
+        "x,match",
+        [
+            (
+                    [["A", "."], [".", "A"]],
+                    (
+                            "(?m)we found that the label .A. specifies a "
+                            + "non-rectangular or non-contiguous area."
+                    ),
+            ),
+            (
+                    [["A", "B"], [None, [["A", "B"], ["C", "D"]]]],
+                    "There are duplicate keys .* between the outer layout",
+            ),
+            ("AAA\nc\nBBB", "All of the rows must be the same length"),
+            (
+                    [["A", [["B", "C"], ["D"]]], ["E", "E"]],
+                    "All of the rows must be the same length",
+            ),
+        ],
+    )
+    def test_fail(self, x, match):
+        fig = plt.figure()
+        with pytest.raises(ValueError, match=match):
+            fig.subfigure_mosaic(x)
+
+    @check_figures_equal(extensions=["png"])
+    def test_hashable_keys(self, fig_test, fig_ref):
+        fig_test.subfigure_mosaic([[object(), object()]])
+        fig_ref.subfigure_mosaic([["A", "B"]])
+
+    @pytest.mark.parametrize('str_pattern',
+                             ['abc', 'cab', 'bca', 'cba', 'acb', 'bac'])
+    def test_user_order(self, str_pattern):
+        fig, ax_dict = plt.subfigure_mosaic(str_pattern)
+        assert list(str_pattern) == list(ax_dict)
+        assert list(fig.subfigs) == list(ax_dict.values())
+
+    def test_nested_user_order(self):
+        layout = [
+            ["A", [["B", "C"],
+                   ["D", "E"]]],
+            ["F", "G"],
+            [".", [["H", [["I"],
+                          ["."]]]]]
+        ]
+        fig, ax_dict = plt.subfigure_mosaic(layout)
+        # getting all of the subfigures of subfigures
+        def _get_subs_nested(fig, child_list=[]):
+            for subfig in fig.subfigs:
+                if len(subfig.subfigs):
+                    _get_subs_nested(subfig, child_list=child_list)
+                else:
+                    child_list.append(subfig)
+            return child_list
+        child_list = _get_subs_nested(fig)
+        assert list(ax_dict) == list("ABCDEFGHI")
+        assert set(child_list) == set(ax_dict.values())
+
+
 class TestSubplotMosaic:
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize(
@@ -1212,8 +1485,8 @@ class TestSubplotMosaic:
                          DE
                          """) == [['A', 'B'], ['C', 'C'], ['D', 'E']]
 
-    def test_per_subplot_kw_expander(self):
-        normalize = Figure._norm_per_subplot_kw
+    def test_per_subthing_kw_expander(self):
+        normalize = Figure._check_duplication_and_flatten_kwargs
         assert normalize({"A": {}, "B": {}}) == {"A": {}, "B": {}}
         assert normalize({("A", "B"): {}}) == {"A": {}, "B": {}}
         with pytest.raises(
