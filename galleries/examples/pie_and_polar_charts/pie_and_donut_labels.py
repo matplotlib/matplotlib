@@ -38,24 +38,15 @@ recipe = ["375 g flour",
           "250 g butter",
           "300 g berries"]
 
-data = [float(x.split()[0]) for x in recipe]
+data = [int(x.split()[0]) for x in recipe]
 ingredients = [x.split()[-1] for x in recipe]
 
+ax.pie(data, wedge_labels='{frac:.1%}\n({abs:d}g)', labels=ingredients,
+       labeldistance=None, textprops=dict(color="w", size=8, weight="bold"))
 
-def func(pct, allvals):
-    absolute = int(np.round(pct/100.*np.sum(allvals)))
-    return f"{pct:.1f}%\n({absolute:d} g)"
-
-
-wedges, texts, autotexts = ax.pie(data, autopct=lambda pct: func(pct, data),
-                                  textprops=dict(color="w"))
-
-ax.legend(wedges, ingredients,
-          title="Ingredients",
+ax.legend(title="Ingredients",
           loc="center left",
           bbox_to_anchor=(1, 0, 0.5, 1))
-
-plt.setp(autotexts, size=8, weight="bold")
 
 ax.set_title("Matplotlib bakery: A pie")
 
@@ -97,7 +88,7 @@ recipe = ["225 g flour",
 
 data = [225, 90, 50, 60, 100, 5]
 
-wedges, texts = ax.pie(data, wedgeprops=dict(width=0.5), startangle=-40)
+wedges, _ = ax.pie(data, wedgeprops=dict(width=0.5), startangle=-40)
 
 bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
 kw = dict(arrowprops=dict(arrowstyle="-"),
