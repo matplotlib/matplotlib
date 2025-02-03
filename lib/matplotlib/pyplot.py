@@ -876,7 +876,7 @@ def figure(
     # autoincrement if None, else integer from 1-N
     num: int | str | Figure | SubFigure | None = None,
     # defaults to rc figure.figsize
-    figsize: tuple[float, float] | None = None,
+    figsize: ArrayLike | None = None,
     # defaults to rc figure.dpi
     dpi: float | None = None,
     *,
