@@ -3260,13 +3260,7 @@ class MultiNorm(Normalize):
             if n is None:
                 norms[i] = Normalize()
             elif isinstance(n, str):
-                try:
-                    scale_cls = scale._scale_mapping[n]
-                except KeyError:
-                    raise ValueError(
-                        "Invalid norm str name; the following values are "
-                        f"supported: {', '.join(scale._scale_mapping)}"
-                    ) from None
+                scale_cls = scale._get_scale_cls_from_str(n)
                 norms[i] = mpl.colorizer._auto_norm_from_scale(scale_cls)()
 
         # Convert the list of norms to a tuple to make it immutable.
@@ -3377,9 +3371,8 @@ class MultiNorm(Normalize):
         """
         if clip is None:
             clip = self.clip
-        else:
-            if not np.iterable(clip):
-                clip = [clip]*self.n_input
+        elif not np.iterable(clip):
+            clip = [clip]*self.n_input
 
         value = self._iterable_variates_in_data(value, self.n_input)
         result = [n(v, clip=c) for n, v, c in zip(self.norms, value, clip)]

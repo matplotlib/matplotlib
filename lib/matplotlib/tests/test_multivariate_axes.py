@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import (image_comparison,
                                            remove_ticks_and_titles)
 import matplotlib.colors as mcolors
+from matplotlib import cbook
 import matplotlib as mpl
 import pytest
 import re
@@ -14,7 +15,7 @@ def test_bivariate_visualizations():
     x_0 = np.arange(25, dtype='float32').reshape(5, 5) % 5
     x_1 = np.arange(25, dtype='float32').reshape(5, 5).T % 5
 
-    fig, axes = plt.subplots(1, 6, figsize=(10, 2))
+    fig, axes = plt.subplots(1, 7, figsize=(12, 2))
 
     axes[0].imshow((x_0, x_1), cmap='BiPeak', interpolation='nearest')
     axes[1].matshow((x_0, x_1), cmap='BiPeak')
@@ -24,7 +25,8 @@ def test_bivariate_visualizations():
     x = np.arange(5)
     y = np.arange(5)
     X, Y = np.meshgrid(x, y)
-    axes[4].pcolormesh(X, Y, (x_0, x_1), cmap='BiPeak')
+    axes[4].pcolor(X, Y, (x_0, x_1), cmap='BiPeak')
+    axes[5].pcolormesh(X, Y, (x_0, x_1), cmap='BiPeak')
 
     patches = [
         mpl.patches.Wedge((.3, .7), .1, 0, 360),             # Full circle
@@ -36,7 +38,7 @@ def test_bivariate_visualizations():
     colors_1 = np.arange(len(patches)) % 2
     p = mpl.collections.PatchCollection(patches, cmap='BiPeak', alpha=0.5)
     p.set_array((colors_0, colors_1))
-    axes[5].add_collection(p)
+    axes[6].add_collection(p)
 
     remove_ticks_and_titles(fig)
 
@@ -47,7 +49,7 @@ def test_multivariate_visualizations():
     x_1 = np.arange(25, dtype='float32').reshape(5, 5).T % 5
     x_2 = np.arange(25, dtype='float32').reshape(5, 5) % 6
 
-    fig, axes = plt.subplots(1, 6, figsize=(10, 2))
+    fig, axes = plt.subplots(1, 7, figsize=(12, 2))
 
     axes[0].imshow((x_0, x_1, x_2), cmap='3VarAddA', interpolation='nearest')
     axes[1].matshow((x_0, x_1, x_2), cmap='3VarAddA')
@@ -57,7 +59,8 @@ def test_multivariate_visualizations():
     x = np.arange(5)
     y = np.arange(5)
     X, Y = np.meshgrid(x, y)
-    axes[4].pcolormesh(X, Y, (x_0, x_1, x_2), cmap='3VarAddA')
+    axes[4].pcolor(X, Y, (x_0, x_1, x_2), cmap='3VarAddA')
+    axes[5].pcolormesh(X, Y, (x_0, x_1, x_2), cmap='3VarAddA')
 
     patches = [
         mpl.patches.Wedge((.3, .7), .1, 0, 360),             # Full circle
@@ -70,7 +73,7 @@ def test_multivariate_visualizations():
     colors_2 = np.arange(len(patches)) % 3
     p = mpl.collections.PatchCollection(patches, cmap='3VarAddA', alpha=0.5)
     p.set_array((colors_0, colors_1, colors_2))
-    axes[5].add_collection(p)
+    axes[6].add_collection(p)
 
     remove_ticks_and_titles(fig)
 
@@ -625,52 +628,8 @@ def test_cmap_error():
                                                    )):
         mpl.collections.PatchCollection([], cmap='not_a_cmap')
 
-if 0:
-    def test_artist_format_cursor_data_multivar():
-
-        X = np.zeros((3, 3))
-        X[0, 0] = 0.9
-        X[0, 1] = 0.99
-        X[0, 2] = 0.999
-        X[1, 0] = -1
-        X[1, 1] = 0
-        X[1, 2] = 1
-        X[2, 0] = 0.09
-        X[2, 1] = 0.009
-        X[2, 2] = 0.0009
-
-        labels_list = [
-            "[0.9, 0.0]",
-            "[1., 0.0]",
-            "[1., 0.0]",
-            "[-1.0, 0.0]",
-            "[0.0, 0.0]",
-            "[1.0, 0.0]",
-            "[0.09, 0.0]",
-            "[0.009, 0.0]",
-            "[0.0009, 0.0]",
-        ]
-
-        pos = [[0, 0], [1, 0], [2, 0],
-               [0, 1], [1, 1], [2, 1],
-               [0, 2], [1, 2], [2, 2]]
-
-        from matplotlib.backend_bases import MouseEvent
-
-        for cmap in ['BiOrangeBlue', '2VarAddA']:
-            fig, ax = plt.subplots()
-            norm = mpl.colors.BoundaryNorm(np.linspace(-1, 1, 20), 256)
-            data = (X, np.zeros(X.shape))
-            im = ax.imshow(data, cmap=cmap, norm=(norm, None))
-
-            for v, text in zip(pos, labels_list):
-                xdisp, ydisp = ax.transData.transform(v)
-                event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-                assert im.format_cursor_data(im.get_cursor_data(event)) == text
-
 
 def test_multivariate_safe_masked_invalid():
-    from matplotlib import cbook
     dt = np.dtype('float32, float32').newbyteorder('>')
     x = np.zeros(2, dtype=dt)
     x['f0'][0] = np.nan

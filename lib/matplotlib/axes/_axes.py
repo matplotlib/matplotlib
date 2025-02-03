@@ -5707,12 +5707,12 @@ class Axes(_AxesBase):
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
             - (K, M, N): multiple images with scalar data. Must be used
-              with a multivariate or bivariate colormap. See *cmap*.
+              with a multivariate or bivariate colormap that supports K channels.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
 
-            Here M and N define the rows and columns of the image.
+            The dimensions M and N are the number of rows and columns of the image.
 
             Out-of-range RGB(A) values are clipped.
 
@@ -6200,12 +6200,17 @@ class Axes(_AxesBase):
         # we need to get the colorizer object to know the number of
         # n_variates that should exist in the array, we therefore get the
         # colorizer here.
-        colorizer = mcolorizer.ColorizingArtist._get_colorizer(norm=norm,
-                                                               cmap=cmap,
-                                                               colorizer=colorizer)
-        if colorizer.norm.n_input > 1:
-            data = mcolorizer._ensure_multivariate_data(colorizer.norm.n_input, args[0])
-            args = (data, *args[1:])
+        colorizer_obj = mcolorizer.ColorizingArtist._get_colorizer(norm=norm,
+                                                                   cmap=cmap,
+                                                                   colorizer=colorizer)
+        if colorizer_obj.norm.n_input > 1:
+            # Valid call signatures for pcolor are with args = (C) or args = (X, Y, C)
+            # If provided, _pcolorargs will check that X, Y and C have the same shape.
+            # Before this check, we need to convert C from shape (K, N, M), where K is
+            # the number of variates, to (N, M) with a data type with K fields.
+            data = mcolorizer._ensure_multivariate_data(colorizer_obj.norm.n_input,
+                                                        args[-1])
+            args = (*args[:-1], data)
 
         X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading,
                                             kwargs=kwargs)
@@ -6243,7 +6248,7 @@ class Axes(_AxesBase):
         coords = stack([X, Y], axis=-1)
 
         collection = mcoll.PolyQuadMesh(
-            coords, array=C, colorizer=colorizer,
+            coords, array=C, colorizer=colorizer_obj,
             alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
@@ -6456,6 +6461,10 @@ class Axes(_AxesBase):
                                                                    cmap=cmap,
                                                                    colorizer=colorizer)
         if colorizer_obj.norm.n_input > 1:
+            # Valid call signatures for pcolor are with args = (C) or args = (X, Y, C)
+            # If provided, _pcolorargs will check that X, Y and C have the same shape.
+            # Before this check, we need to convert C from shape (K, N, M), where K is
+            # the number of variates, to (N, M) with a data type with K fields.
             data = mcolorizer._ensure_multivariate_data(colorizer_obj.norm.n_input,
                                                         args[-1])
             args = (*args[:-1], data)

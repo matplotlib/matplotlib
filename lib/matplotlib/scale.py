@@ -715,6 +715,35 @@ def get_scale_names():
     return sorted(_scale_mapping)
 
 
+def _get_scale_cls_from_str(scale_as_str):
+    """
+    Returns the scale class from a string.
+
+    Used in the creation of norms from a string to ensure a reasonable error
+    in the case where an invalid string is used. This cannot use
+    `_api.check_getitem()`, because the norm keyword accepts arguments
+    other than strings.
+
+    Parameters
+    ----------
+    scale_as_str : string
+        A string corresponding to a scale
+
+    Returns
+    -------
+    A subclass of ScaleBase.
+
+    """
+    try:
+        scale_cls = _scale_mapping[scale_as_str]
+    except KeyError:
+        raise ValueError(
+            "Invalid norm str name; the following values are "
+            f"supported: {', '.join(_scale_mapping)}"
+        ) from None
+    return scale_cls
+
+
 def scale_factory(scale, axis, **kwargs):
     """
     Return a scale class by name.
