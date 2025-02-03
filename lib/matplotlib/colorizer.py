@@ -226,7 +226,7 @@ class Colorizer:
             if self.norm.n_output != cmap_obj.n_variates:
                 raise ValueError(f"The colormap {cmap} does not support "
                                  f"{self.norm.n_output} variates as required by "
-                                 "the norm on this Colorizer.")
+                                 f"the {type(self.norm)} on this Colorizer.")
         self._cmap = cmap_obj
         if not in_init:
             self.changed()  # Things are not set up properly yet.
@@ -751,13 +751,7 @@ def _ensure_norm(norm, n_variates=1):
         if norm is None:
             norm = colors.Normalize()
         elif isinstance(norm, str):
-            try:
-                scale_cls = scale._scale_mapping[norm]
-            except KeyError:
-                raise ValueError(
-                    "Invalid norm str name; the following values are "
-                    f"supported: {', '.join(scale._scale_mapping)}"
-                ) from None
+            scale_cls = scale._get_scale_cls_from_str(norm)
             norm = _auto_norm_from_scale(scale_cls)()
         return norm
     else:  # n_variates > 1
