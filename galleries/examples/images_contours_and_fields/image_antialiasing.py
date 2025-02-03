@@ -63,7 +63,7 @@ axs[1].set_title('(4, 4) Up-sampled', fontsize='medium')
 #
 # ``interpolation_stage='data'``: Data -> Interpolate/Resample -> Normalize -> RGBA
 #
-# For both keyword arguments, Matplotlib has a default "antialiased", that is
+# For both keyword arguments, Matplotlib has a default "auto", that is
 # recommended for most situations, and is described below.  Note that this
 # default behaves differently if the image is being down- or up-sampled, as
 # described below.
@@ -166,16 +166,19 @@ for ax, interp in zip(axs, ['hanning', 'lanczos']):
 # %%
 # A final example shows the desirability of performing the anti-aliasing at the
 # RGBA stage when using non-trivial interpolation kernels.  In the following,
-# the data in the upper 100 rows is exactly 0.0, and data in the inner circle
+# the data in the outer circle is exactly 0.0, and data in the inner circle
 # is exactly 2.0. If we perform the *interpolation_stage* in 'data' space and
 # use an anti-aliasing filter (first panel), then floating point imprecision
 # makes some of the data values just a bit less than zero or a bit more than
 # 2.0, and they get assigned the under- or over- colors. This can be avoided if
-# you do not use an anti-aliasing filter (*interpolation* set set to
+# you do not use an anti-aliasing filter (*interpolation* set to
 # 'nearest'), however, that makes the part of the data susceptible to Moiré
 # patterns much worse (second panel).  Therefore, we recommend the default
 # *interpolation* of 'hanning'/'auto', and *interpolation_stage* of
 # 'rgba'/'auto' for most down-sampling situations (last panel).
+# In this example, the data values are clipped at the edges of the color range.
+# The interpolation uses the 'nearest' method, and as a result, no
+# floating-point imprecision is visible in the first panel.
 
 a = alarge + 1
 cmap = plt.get_cmap('RdBu_r')
