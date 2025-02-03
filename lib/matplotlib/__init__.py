@@ -474,7 +474,8 @@ def _get_executable_info(name):
                     "Failed to find an ImageMagick installation")
         else:
             path = "convert"
-        info = impl([path, "--version"], r"^Version: ImageMagick (\S*)")
+        # Ignore deprecation warning for "convert" on IM>=7.1.1-33.
+        info = impl([path, "--version"], r"(?sm:.*^)Version: ImageMagick (\S*)")
         if info.raw_version == "7.0.10-34":
             # https://github.com/ImageMagick/ImageMagick/issues/2720
             raise ExecutableNotFoundError(
