@@ -121,7 +121,7 @@ General guidelines
   * Do not share information that violates Matplotlib's :ref:`code of conduct <code_of_conduct>` or does not align with Matplotlib's :ref:`mission-statement`.
   * Do not share non-expert visualizations when it could cause harm, e.g.:
 
-    * Could the information affect someone's decisions that impact their personal health or safety?
+    * Could the information affect someone's decisions in a way that impacts their personal health or safety?
     * Could the information be used as part of a politicised debate?
 
   * Clearly state when the visualization data/conclusions cannot be verified.
