@@ -124,7 +124,7 @@ General guidelines
     * Could the information affect someone's decisions that impact their personal health or safety?
     * Could the information be used as part of a politicised debate?
 
-* Clearly state when the visualization data/conclusions cannot be verified.
+  * Clearly state when the visualization data/conclusions cannot be verified.
   * Do not rely on machine translations for sensitive visualization.
 
 * Verify sourcing of content (especially on Instagram & blog):
