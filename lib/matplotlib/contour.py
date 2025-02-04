@@ -539,13 +539,6 @@ def _find_closest_point_on_path(xys, p):
 _docstring.interpd.register(contour_set_attributes=r"""
 Attributes
 ----------
-ax : `~matplotlib.axes.Axes`
-    The Axes object in which the contours are drawn.
-
-collections : `.silent_list` of `.PathCollection`\s
-    The `.Artist`\s representing the contour. This is a list of
-    `.PathCollection`\s for both line and filled contours.
-
 levels : array
     The values of the contour levels.
 
