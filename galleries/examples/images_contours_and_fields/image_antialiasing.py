@@ -63,10 +63,10 @@ axs[1].set_title('(4, 4) Up-sampled', fontsize='medium')
 #
 # ``interpolation_stage='data'``: Data -> Interpolate/Resample -> Normalize -> RGBA
 #
-# For both keyword arguments, Matplotlib has a default "auto", that is
-# recommended for most situations, and is described below.  Note that this
-# default behaves differently if the image is being down- or up-sampled, as
-# described below.
+# For both keyword arguments, Matplotlib uses a default value of "auto" as
+# specified by the rcParam, which is recommended for most situations.
+# This default behavior is explained below. Note that the behavior may differ if the
+# image is being down- or up-sampled, as outlined below.
 #
 # Down-sampling and modest up-sampling
 # ====================================
