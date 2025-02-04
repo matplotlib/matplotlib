@@ -10,10 +10,10 @@ community venue managed by Matplotlib.
 
 Our approach to community engagement is foremost guided by our :ref:`mission-statement`:
 
-* We demonstrate that we care about visualization as a practice
+* We demonstrate that we care about visualization as a practice.
 * We deepen our practice and the community’s capacity to support users,
   facilitate exploration, produce high quality visualizations, and be
-  understandable and extensible
+  understandable and extensible.
 * We showcase advanced use of the library without adding maintenance burden to
   the documentation and recognize contributions that happen outside of the github
   workflow.
@@ -116,9 +116,10 @@ General guidelines
 * No gratuitous disparaging of other visualization libraries and tools, but
   criticism is acceptable so long as it serves a constructive purpose.
 
+* Do not share information that violates Matplotlib's :ref:`code of conduct <code_of_conduct>` or does not align with Matplotlib's :ref:`mission-statement`.
+
 * Follow communication best practices:
 
-  * Do not share information that violates Matplotlib's :ref:`code of conduct <code_of_conduct>` or does not align with Matplotlib's :ref:`mission-statement`.
   * Do not share non-expert visualizations when it could cause harm, e.g.:
 
     * Could the information affect someone's decisions in a way that impacts their personal health or safety?
