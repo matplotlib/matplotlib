@@ -10,10 +10,10 @@ community venue managed by Matplotlib.
 
 Our approach to community engagement is foremost guided by our :ref:`mission-statement`:
 
-* We demonstrate that we care about visualization as a practice
+* We demonstrate that we care about visualization as a practice.
 * We deepen our practice and the community’s capacity to support users,
   facilitate exploration, produce high quality visualizations, and be
-  understandable and extensible
+  understandable and extensible.
 * We showcase advanced use of the library without adding maintenance burden to
   the documentation and recognize contributions that happen outside of the github
   workflow.
@@ -90,7 +90,7 @@ media accounts:
 
 * Everyone else should send an email to matplotlib-social-admin@numfocus.org:
 
-  * Introduce yourself - github handle and participation in the community.
+  * Introduce yourself - GitHub handle and participation in the community.
   * Describe the reason for wanting to moderate or contribute to social.
 
 
@@ -105,6 +105,8 @@ guidelines, ask on the :ref:`social-media-coordination` channels before posting.
 General guidelines
 ------------------
 
+* Do not share information that violates Matplotlib's :ref:`code of conduct <code_of_conduct>` or does not align with Matplotlib's :ref:`mission-statement`.
+
 * Focus on Matplotlib, 3rd party packages, and visualizations made with Matplotlib.
 * These are also acceptable topics:
 
@@ -118,14 +120,15 @@ General guidelines
 
 * Follow communication best practices:
 
-  * Do not share non-expert visualizations when it could cause harm:
+  * Do not share non-expert visualizations when it could cause harm, e.g.:
 
-    * e.g. https://x.com/matplotlib/status/1244178154618605568
+    * Could the information affect someone's decisions in a way that impacts their personal health or safety?
+    * Could the information be used as part of a politicised debate?
 
   * Clearly state when the visualization data/conclusions cannot be verified.
   * Do not rely on machine translations for sensitive visualization.
 
-* Verify sourcing of content (especially on instagram & blog):
+* Verify sourcing of content (especially on Instagram & blog):
 
   * Instagram/blog: ensure mpl has right to repost/share content
   * Make sure content is clearly cited:
