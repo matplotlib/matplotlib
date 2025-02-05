@@ -3074,10 +3074,10 @@ or pandas.DataFrame
 
               .. code-block:: none
 
-                  #           category_A,  category_B
-                  dataset_0 = [ds0_A, ds0_B]
-                  dataset_1 = [ds1_A, ds1_B]
-                  dataset_2 = [ds2_A, ds2_B]
+                  #           category_A, category_B
+                  dataset_0 = [value_0_A, value_0_B]
+                  dataset_1 = [value_1_A, value_1_B]
+                  dataset_2 = [value_2_A, value_2_B]
 
               Example call::
 
