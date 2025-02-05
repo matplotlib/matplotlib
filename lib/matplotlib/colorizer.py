@@ -464,6 +464,34 @@ class _ColorizerInterface:
     def colorbar(self, colorbar):
         self._colorizer.colorbar = colorbar
 
+    @staticmethod
+    def _sig_digits_from_norm(norm, data, n):
+        # Determines the number of significant digits
+        # to use for a number given a norm, and n, where n is the
+        # number of colors in  the colormap.
+        normed = norm(data)
+        if np.isfinite(normed):
+            if isinstance(norm, colors.BoundaryNorm):
+                # not an invertible normalization mapping
+                cur_idx = np.argmin(np.abs(norm.boundaries - data))
+                neigh_idx = max(0, cur_idx - 1)
+                # use max diff to prevent delta == 0
+                delta = np.diff(
+                    norm.boundaries[neigh_idx:cur_idx + 2]
+                ).max()
+            elif norm.vmin == norm.vmax:
+                # singular norms, use delta of 10% of only value
+                delta = np.abs(norm.vmin * .1)
+            else:
+                # Midpoints of neighboring color intervals.
+                neighbors = norm.inverse(
+                    (int(normed * n) + np.array([0, 1])) / n)
+                delta = abs(neighbors - data).max()
+            g_sig_digits = cbook._g_sig_digits(data, delta)
+        else:
+            g_sig_digits = 3  # Consistent with default below.
+        return g_sig_digits
+
     def _format_cursor_data_override(self, data):
         # This function overwrites Artist.format_cursor_data(). We cannot
         # implement cm.ScalarMappable.format_cursor_data() directly, because
@@ -473,30 +501,26 @@ class _ColorizerInterface:
 
         # Note if cm.ScalarMappable is depreciated, this functionality should be
         # implemented as format_cursor_data() on ColorizingArtist.
-        n = self.cmap.N
-        if np.ma.getmask(data):
+        if np.ma.getmask(data) or data is None:
             return "[]"
-        normed = self.norm(data)
-        if np.isfinite(normed):
-            if isinstance(self.norm, colors.BoundaryNorm):
-                # not an invertible normalization mapping
-                cur_idx = np.argmin(np.abs(self.norm.boundaries - data))
-                neigh_idx = max(0, cur_idx - 1)
-                # use max diff to prevent delta == 0
-                delta = np.diff(
-                    self.norm.boundaries[neigh_idx:cur_idx + 2]
-                ).max()
-            elif self.norm.vmin == self.norm.vmax:
-                # singular norms, use delta of 10% of only value
-                delta = np.abs(self.norm.vmin * .1)
+        if len(data.dtype.descr) > 1:
+            # We have multivariate data encoded as a data type with multiple fields
+            # NOTE: If any of the fields are masked, "[]" would be returned via
+            # the if statement above.
+            s_sig_digits_list = []
+            if isinstance(self.cmap, colors.BivarColormap):
+                n_s = (self.cmap.N, self.cmap.M)
             else:
-                # Midpoints of neighboring color intervals.
-                neighbors = self.norm.inverse(
-                    (int(normed * n) + np.array([0, 1])) / n)
-                delta = abs(neighbors - data).max()
-            g_sig_digits = cbook._g_sig_digits(data, delta)
-        else:
-            g_sig_digits = 3  # Consistent with default below.
+                n_s = [part.N for part in self.cmap]
+            os = [f"{d:-#.{self._sig_digits_from_norm(no, d, n)}g}"
+                            for no, d, n in zip(self.norm.norms, data, n_s)]
+            return f"[{', '.join(os)}]"
+
+        # scalar data
+        n = self.cmap.N
+        g_sig_digits = self._sig_digits_from_norm(self.norm,
+                                                  data,
+                                                  n)
         return f"[{data:-#.{g_sig_digits}g}]"
 
 

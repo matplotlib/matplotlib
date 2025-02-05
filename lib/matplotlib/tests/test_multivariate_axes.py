@@ -629,6 +629,54 @@ def test_cmap_error():
         mpl.collections.PatchCollection([], cmap='not_a_cmap')
 
 
+def test_artist_format_cursor_data_multivar():
+
+    X = np.zeros((4, 3))
+    X[0, 0] = 0.9
+    X[0, 1] = 0.99
+    X[0, 2] = 0.999
+    X[1, 0] = -1
+    X[1, 1] = 0
+    X[1, 2] = 1
+    X[2, 0] = 0.09
+    X[2, 1] = 0.009
+    X[2, 2] = 0.0009
+    X[3, 0] = np.nan
+
+    Y = np.arange(np.prod(X.shape)).reshape(X.shape)
+
+    labels_list = [
+        "[0.9, 0.00]",
+        "[1., 1.00]",
+        "[1., 2.00]",
+        "[-1.0, 3.00]",
+        "[0.0, 4.00]",
+        "[1.0, 5.00]",
+        "[0.09, 6.00]",
+        "[0.009, 7.00]",
+        "[0.0009, 8.00]",
+        "[]",
+    ]
+
+    pos = [[0, 0], [1, 0], [2, 0],
+           [0, 1], [1, 1], [2, 1],
+           [0, 2], [1, 2], [2, 2],
+           [3, 0]]
+
+    from matplotlib.backend_bases import MouseEvent
+
+    for cmap in ['BiOrangeBlue', '2VarAddA']:
+        fig, ax = plt.subplots()
+        norm = mpl.colors.BoundaryNorm(np.linspace(-1, 1, 20), 256)
+        data = (X, Y)
+        im = ax.imshow(data, cmap=cmap, norm=(norm, None))
+
+        for v, text in zip(pos, labels_list):
+            xdisp, ydisp = ax.transData.transform(v)
+            event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+            assert im.format_cursor_data(im.get_cursor_data(event)) == text
+
+
 def test_multivariate_safe_masked_invalid():
     dt = np.dtype('float32, float32').newbyteorder('>')
     x = np.zeros(2, dtype=dt)
