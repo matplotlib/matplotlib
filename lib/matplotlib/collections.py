@@ -106,8 +106,8 @@ class Collection(mcolorizer.ColorizingArtist):
         facecolors : :mpltype:`color` or list of colors, default: :rc:`patch.facecolor`
             Face color for each patch making up the collection.
         hatchcolors : :mpltype:`color` or list of colors, default: :rc:`hatch.color`
-            Hatch color for each patch making up the collection. The special
-            value 'edge' can be passed to make the hatchcolor match the
+            Hatch color for each patch making up the collection. The color
+            can be set to the special value 'edge' to make the hatchcolor match the
             edgecolor.
         linewidths : float or list of floats, default: :rc:`patch.linewidth`
             Line width for each patch making up the collection.
@@ -758,7 +758,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
     def set_color(self, c):
         """
-        Sets the edgecolor, facecolor and hatchcolor.
+        Set the edgecolor, facecolor and hatchcolor.
 
         Parameters
         ----------
