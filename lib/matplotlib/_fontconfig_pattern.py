@@ -9,7 +9,7 @@ A module for parsing and generating `fontconfig patterns`_.
 # there would have created cyclical dependency problems, because it also needs
 # to be available from `matplotlib.rcsetup` (for parsing matplotlibrc files).
 
-from functools import lru_cache, partial
+from functools import cache, lru_cache, partial
 import re
 
 from pyparsing import (
@@ -52,7 +52,7 @@ _CONSTANTS = {
 }
 
 
-@lru_cache  # The parser instance is a singleton.
+@cache  # The parser instance is a singleton.
 def _make_fontconfig_parser():
     def comma_separated(elem):
         return elem + ZeroOrMore(Suppress(",") + elem)

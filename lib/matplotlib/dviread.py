@@ -19,7 +19,7 @@ Interface::
 
 from collections import namedtuple
 import enum
-from functools import lru_cache, partial, wraps
+from functools import cache, lru_cache, partial, wraps
 import logging
 import os
 from pathlib import Path
@@ -1020,7 +1020,7 @@ def _parse_enc(path):
 
 
 class _LuatexKpsewhich:
-    @lru_cache  # A singleton.
+    @cache  # A singleton.
     def __new__(cls):
         self = object.__new__(cls)
         self._proc = self._new_proc()
