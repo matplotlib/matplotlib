@@ -1684,6 +1684,13 @@ clip_path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath`
 data : indexable object, optional
     DATA_PARAMETER_PLACEHOLDER
 
+rasterized : bool, optional
+    *Only applies to* `.contourf`.
+    Rasterize the pcolormesh when drawing vector graphics.  This can
+    speed up rendering and produce smaller files for large data sets.
+    See also :doc:`/gallery/misc/rasterization_demo`.
+
+
 Notes
 -----
 1. `.contourf` differs from the MATLAB version in that it does not draw
