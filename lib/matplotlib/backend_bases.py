@@ -220,6 +220,9 @@ class RendererBase:
         *facecolors*, *edgecolors*, *linewidths*, *linestyles*, *antialiased*
         and *hatchcolors* are lists that set the corresponding properties.
 
+        .. versionadded:: 3.11
+            Allowing *hatchcolors* to be specified.
+
         *offset_position* is unused now, but the argument is kept for
         backwards compatibility.
 
