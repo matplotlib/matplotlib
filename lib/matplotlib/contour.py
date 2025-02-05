@@ -24,6 +24,7 @@ import matplotlib.font_manager as font_manager
 import matplotlib.cbook as cbook
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
+from . import artist
 
 
 def _contour_labeler_event_handler(cs, inline, inline_spacing, event):
@@ -1254,6 +1255,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         return (i_level, segment, index, xmin, ymin, d2)
 
+    @artist.allow_rasterization
     def draw(self, renderer):
         paths = self._paths
         n_paths = len(paths)
