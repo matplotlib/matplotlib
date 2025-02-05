@@ -17,20 +17,6 @@
       "lib/matplotlib/backends/backend_tkagg.py:docstring of matplotlib.backends.backend_tkagg.FigureCanvasTkAgg:1",
       "lib/matplotlib/backends/backend_tkcairo.py:docstring of matplotlib.backends.backend_tkcairo.FigureCanvasTkCairo:1"
     ],
-    "matplotlib.collections._CollectionWithSizes": [
-      "doc/api/artist_api.rst:202",
-      "doc/api/collections_api.rst:13",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.CircleCollection:1",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.PathCollection:1",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.PolyCollection:1",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.RegularPolyCollection:1"
-    ],
-    "matplotlib.collections._MeshData": [
-      "doc/api/artist_api.rst:202",
-      "doc/api/collections_api.rst:13",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.PolyQuadMesh:1",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.QuadMesh:1"
-    ],
     "matplotlib.image._ImageBase": [
       "doc/api/artist_api.rst:202",
       "lib/matplotlib/image.py:docstring of matplotlib.image.AxesImage:1",
@@ -140,14 +126,6 @@
     ],
     "numpy.uint8": [
       "<unknown>:1"
-    ]
-  },
-  "py:meth": {
-    "matplotlib.collections._MeshData.set_array": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolormesh:168",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.PolyQuadMesh.set:17",
-      "lib/matplotlib/collections.py:docstring of matplotlib.artist.QuadMesh.set:17",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolormesh:168"
     ]
   },
   "py:obj": {
