@@ -105,6 +105,8 @@ guidelines, ask on the :ref:`social-media-coordination` channels before posting.
 General guidelines
 ------------------
 
+* Do not share information that violates Matplotlib's :ref:`code of conduct <code_of_conduct>` or does not align with Matplotlib's :ref:`mission-statement`.
+
 * Focus on Matplotlib, 3rd party packages, and visualizations made with Matplotlib.
 * These are also acceptable topics:
 
@@ -115,8 +117,6 @@ General guidelines
 
 * No gratuitous disparaging of other visualization libraries and tools, but
   criticism is acceptable so long as it serves a constructive purpose.
-
-* Do not share information that violates Matplotlib's :ref:`code of conduct <code_of_conduct>` or does not align with Matplotlib's :ref:`mission-statement`.
 
 * Follow communication best practices:
 
