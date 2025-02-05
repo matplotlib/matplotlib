@@ -768,6 +768,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 edgecolor="none",
                 # Default zorder taken from Collection
                 zorder=kwargs.pop("zorder", 1),
+                rasterized=kwargs.pop("rasterized", False),
             )
 
         else:
