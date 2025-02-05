@@ -30,12 +30,10 @@ A simple example:
     S = [(i + 1) * 400 for i in range(10)]
 
     ax.scatter(
-        xs=X,
-        ys=Y,
-        zs=Z,
-        s=S,
+        xs=X, ys=Y, zs=Z, s=S,
         depthshade=True,
         depthshade_minalpha=0.3,
     )
+    ax.view_init(elev=10, azim=-150, roll=0)
 
     plt.show()
