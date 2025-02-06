@@ -19,4 +19,5 @@
 
 .. autoclass:: _MeshData
    :no-members:
+   :members: set_array
    :class-doc-from: class
