@@ -1,11 +1,14 @@
 """
-=================
-subplot2grid demo
-=================
+============
+subplot2grid
+============
 
 This example demonstrates the use of `.pyplot.subplot2grid` to generate
 subplots.  Using `.GridSpec`, as demonstrated in
-:doc:`/gallery/userdemo/demo_gridspec03` is generally preferred.
+:doc:`/gallery/subplots_axes_and_figures/gridspec_customization` is
+generally preferred.
+
+.. redirect-from:: /gallery/userdemo/demo_gridspec01
 """
 
 import matplotlib.pyplot as plt
