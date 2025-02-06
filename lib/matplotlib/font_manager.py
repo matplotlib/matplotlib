@@ -1546,17 +1546,26 @@ def is_opentype_cff_font(filename):
 
 
 @lru_cache(64)
-def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id):
+def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id,
+              enable_last_resort):
     first_fontpath, *rest = font_filepaths
+    fallback_list = [
+        ft2font.FT2Font(fpath, hinting_factor, _kerning_factor=_kerning_factor)
+        for fpath in rest
+    ]
+    # Add Last Resort font so we always have glyphs regardless of font.
+    if enable_last_resort:
+        path = _cached_realpath(
+            cbook._get_data_path('fonts', 'ttf', 'LastResortHE-Regular.ttf'))
+        last_resort = ft2font.FT2Font(path, hinting_factor,
+                                      _kerning_factor=_kerning_factor)
+        # Ensure we are using the right charmap; FreeType picks the Unicode one
+        # by default, but this exists only for Windows, and is empty.
+        last_resort.set_charmap(0)
+        fallback_list.append(last_resort)
     return ft2font.FT2Font(
         first_fontpath, hinting_factor,
-        _fallback_list=[
-            ft2font.FT2Font(
-                fpath, hinting_factor,
-                _kerning_factor=_kerning_factor
-            )
-            for fpath in rest
-        ],
+        _fallback_list=fallback_list,
         _kerning_factor=_kerning_factor
     )
 
@@ -1611,7 +1620,8 @@ def get_font(font_filepaths, hinting_factor=None):
         hinting_factor,
         _kerning_factor=mpl.rcParams['text.kerning_factor'],
         # also key on the thread ID to prevent segfaults with multi-threading
-        thread_id=threading.get_ident()
+        thread_id=threading.get_ident(),
+        enable_last_resort=mpl.rcParams['font.enable_last_resort'],
     )
 
 
