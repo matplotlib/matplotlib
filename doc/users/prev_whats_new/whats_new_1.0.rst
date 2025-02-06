@@ -26,8 +26,8 @@ doing complex subplot layouts, featuring row and column spans and
 more.  See :ref:`arranging_axes` for a tutorial
 overview.
 
-.. figure:: ../../gallery/userdemo/images/sphx_glr_demo_gridspec01_001.png
-   :target: ../../gallery/userdemo/demo_gridspec01.html
+.. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_subplot2grid_001.png
+   :target: ../../gallery/subplots_axes_and_figures/subplot2grid.html
    :align: center
    :scale: 50
 
