@@ -43,6 +43,8 @@ dependencies:
   - joblib  # needed for sphinx-gallery[parallel]
   - sphinx-design
   - sphinx-tags>=0.4.0
+  - jupyterlite-sphinx>=0.18.0
+  - jupyterlite-xeus>=3.0.2
   - pystemmer
   - pip
   - pip:
