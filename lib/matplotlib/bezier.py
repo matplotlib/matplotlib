@@ -2,24 +2,16 @@
 A module providing some utility functions regarding Bézier path manipulation.
 """
 
-from functools import lru_cache
 import math
 import warnings
+from collections import deque
 
 import numpy as np
 
 from matplotlib import _api
 
 
-# same algorithm as 3.8's math.comb
-@np.vectorize
-@lru_cache(maxsize=128)
-def _comb(n, k):
-    if k > n:
-        return 0
-    k = min(k, n - k)
-    i = np.arange(1, k + 1)
-    return np.prod((n + 1 - i)/i).astype(int)
+_comb = np.vectorize(math.comb, otypes=[int])
 
 
 class NonIntersectingPathException(ValueError):
@@ -228,6 +220,208 @@ class BezierSegment:
         Evaluate the curve at a single point, returning a tuple of *d* floats.
         """
         return tuple(self(t))
+
+    def split_at_t(self, t):
+        """
+        Split into two Bezier curves using de casteljau's algorithm.
+
+        Parameters
+        ----------
+        t : float
+            Point in [0,1] at which to split into two curves
+
+        Returns
+        -------
+        B1, B2 : BezierSegment
+            The two sub-curves.
+        """
+        new_cpoints = split_de_casteljau(self._cpoints, t)
+        return BezierSegment(new_cpoints[0]), BezierSegment(new_cpoints[1])
+
+    def control_net_length(self):
+        """Sum of lengths between control points"""
+        L = 0
+        N, d = self._cpoints.shape
+        for i in range(N - 1):
+            L += np.linalg.norm(self._cpoints[i+1] - self._cpoints[i])
+        return L
+
+    def arc_length(self, rtol=1e-4, atol=1e-6):
+        """
+        Estimate the length using iterative refinement.
+
+        Our estimate is just the average between the length of the chord and
+        the length of the control net.
+
+        Since the chord length and control net give lower and upper bounds
+        (respectively) on the length, this maximum possible error is tested
+        against an absolute tolerance threshold at each subdivision.
+
+        However, sometimes this estimator converges much faster than this error
+        estimate would suggest. Therefore, the relative change in the length
+        estimate between subdivisions is compared to a relative error tolerance
+        after each set of subdivisions.
+
+        Parameters
+        ----------
+        rtol : float, default 1e-4
+            If :code:`abs(est[i+1] - est[i]) <= rtol * est[i+1]`, we return
+            :code:`est[i+1]`.
+        atol : float, default 1e-6
+            If the distance between chord length and control length at any
+            point falls below this number, iteration is terminated.
+        """
+        chord = np.linalg.norm(self._cpoints[-1] - self._cpoints[0])
+        net = self.control_net_length()
+        max_err = (net - chord)/2
+        curr_est = chord + max_err
+        # early exit so we don't try to "split" paths of zero length
+        if max_err < atol:
+            return curr_est
+
+        prev_est = np.inf
+        curves = deque([self])
+        errs = deque([max_err])
+        lengths = deque([curr_est])
+        while np.abs(curr_est - prev_est) > rtol * curr_est:
+            # subdivide the *whole* curve before checking relative convergence
+            # again
+            prev_est = curr_est
+            num_curves = len(curves)
+            for i in range(num_curves):
+                curve = curves.popleft()
+                new_curves = curve.split_at_t(0.5)
+                max_err -= errs.popleft()
+                curr_est -= lengths.popleft()
+                for ncurve in new_curves:
+                    chord = np.linalg.norm(
+                            ncurve._cpoints[-1] - ncurve._cpoints[0])
+                    net = ncurve.control_net_length()
+                    nerr = (net - chord)/2
+                    nlength = chord + nerr
+                    max_err += nerr
+                    curr_est += nlength
+                    curves.append(ncurve)
+                    errs.append(nerr)
+                    lengths.append(nlength)
+                if max_err < atol:
+                    return curr_est
+        return curr_est
+
+    @property
+    def arc_area(self):
+        r"""
+        Signed area swept out by ray from origin to curve.
+
+        Counterclockwise area is counted as positive, and clockwise area as
+        negative.
+
+        The sum of this function for each Bezier curve in a Path will give the
+        signed area enclosed by the Path.
+
+        Returns
+        -------
+        float
+            The signed area of the arc swept out by the curve.
+
+        Notes
+        -----
+        An analytical formula is possible for arbitrary bezier curves.
+        The formulas can be found in computer graphics references [1]_ and
+        an example derivation is given below.
+
+        For a bezier curve :math:`\vec{B}(t)`, to calculate the area of the arc
+        swept out by the ray from the origin to the curve, we need to compute
+        :math:`\frac{1}{2}\int_0^1 \vec{B}(t) \cdot \vec{n}(t) dt`, where
+        :math:`\vec{n}(t) = u^{(1)}(t)\hat{x}^{(0)} - u^{(0)}(t)\hat{x}^{(1)}`
+        is the normal vector oriented away from the origin and
+        :math:`u^{(i)}(t) = \frac{d}{dt} B^{(i)}(t)` is the :math:`i`\th
+        component of the curve's tangent vector.  (This formula can be found by
+        applying the divergence theorem to :math:`F(x,y) = [x, y]/2`, and
+        calculates the *signed* area for a counter-clockwise curve, by the
+        right hand rule).
+
+        The control points of the curve are its coefficients in a Bernstein
+        expansion, so if we let :math:`P_i = [P^{(0)}_i, P^{(1)}_i]` be the
+        :math:`i`\th control point, then
+
+        .. math::
+
+            \frac{1}{2}\int_0^1 B(t) \cdot n(t) dt
+                    &= \frac{1}{2}\int_0^1 B^{(0)}(t) \frac{d}{dt} B^{(1)}(t)
+                                        - B^{(1)}(t) \frac{d}{dt} B^{(0)}(t)
+                                        dt \\
+                    &= \frac{1}{2}\int_0^1
+                        \left( \sum_{j=0}^n P_j^{(0)} b_{j,n} \right)
+                        \left( n \sum_{k=0}^{n-1} (P_{k+1}^{(1)} -
+                                P_{k}^{(1)}) b_{j,n} \right)
+                        \\
+                    &\hspace{1em} - \left( \sum_{j=0}^n P_j^{(1)} b_{j,n}
+                        \right) \left( n \sum_{k=0}^{n-1} (P_{k+1}^{(0)}
+                                        - P_{k}^{(0)}) b_{j,n} \right)
+                        dt,
+
+        where :math:`b_{\nu, n}(t) = {n \choose \nu} t^\nu {(1 - t)}^{n-\nu}`
+        is the :math:`\nu`\th Bernstein polynomial of degree :math:`n`.
+
+        Grouping :math:`t^l(1-t)^m` terms together for each :math:`l`,
+        :math:`m`, we get that the integrand becomes
+
+        .. math::
+
+            \sum_{j=0}^n \sum_{k=0}^{n-1}
+                {n \choose j} {{n - 1} \choose k}
+                &\left[P_j^{(0)} (P_{k+1}^{(1)} - P_{k}^{(1)})
+                    - P_j^{(1)} (P_{k+1}^{(0)} - P_{k}^{(0)})\right] \\
+                &\hspace{1em}\times{}t^{j + k} {(1 - t)}^{2n - 1 - j - k}
+
+        or more compactly,
+
+        .. math::
+
+            \sum_{j=0}^n \sum_{k=0}^{n-1}
+                \frac{{n \choose j} {{n - 1} \choose k}}
+                        {{{2n - 1} \choose {j+k}}}
+                [P_j^{(0)} (P_{k+1}^{(1)} - P_{k}^{(1)})
+                    - P_j^{(1)} (P_{k+1}^{(0)} - P_{k}^{(0)})]
+                b_{j+k,2n-1}(t).
+
+        Interchanging sum and integral, and using the fact that :math:`\int_0^1
+        b_{\nu, n}(t) dt = \frac{1}{n + 1}`, we conclude that the original
+        integral can be written as
+
+        .. math::
+
+            \frac{1}{2}&\int_0^1 B(t) \cdot n(t) dt
+            \\
+            &= \frac{1}{4}\sum_{j=0}^n \sum_{k=0}^{n-1}
+                \frac{{n \choose j} {{n - 1} \choose k}}
+                    {{{2n - 1} \choose {j+k}}}
+                [P_j^{(0)} (P_{k+1}^{(1)} - P_{k}^{(1)})
+                - P_j^{(1)} (P_{k+1}^{(0)} - P_{k}^{(0)})]
+
+        References
+        ----------
+        .. [1] Sederberg, Thomas W., "Computer Aided Geometric Design" (2012).
+          Faculty Publications. 1. https://scholarsarchive.byu.edu/facpub/1
+        """
+        n = self.degree
+        P = self.control_points
+        dP = np.diff(P, axis=0)
+        j = np.arange(n + 1)
+        k = np.arange(n)
+        return (1/4)*np.sum(
+            np.multiply.outer(_comb(n, j), _comb(n - 1, k))
+            / _comb(2*n - 1, np.add.outer(j, k))
+            * (np.multiply.outer(P[j, 0], dP[k, 1]) -
+               np.multiply.outer(P[j, 1], dP[k, 0]))
+        )
+
+    @classmethod
+    def differentiate(cls, B):
+        """Return the derivative of a BezierSegment, itself a BezierSegment"""
+        dcontrol_points = B.degree*np.diff(B.control_points, axis=0)
+        return cls(dcontrol_points)
 
     @property
     def control_points(self):
