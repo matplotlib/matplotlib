@@ -165,6 +165,10 @@ plt.tight_layout()
 #   a limitation of the current algorithm, and it is not clear why it
 #   happens. Meanwhile, use of pad larger than 0.3 is recommended.
 #
+# * The algorithm of ``tight_layout`` does not necessarily converge,
+#   i.e. calling ``tight_layout`` multiple times can lead to slight
+#   variations in the layout between the calls.
+#
 # Use with GridSpec
 # =================
 #
