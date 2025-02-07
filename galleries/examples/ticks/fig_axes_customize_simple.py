@@ -11,7 +11,7 @@ Customize the background, labels and ticks of a simple plot.
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-rect = fig.patch.set_facecolor('lightgoldenrodyellow')
+fig.patch.set_facecolor('lightgoldenrodyellow')
 
 ax1 = fig.add_axes([0.1, 0.3, 0.4, 0.4])
 ax1.patch.set_facecolor('lightslategray')
