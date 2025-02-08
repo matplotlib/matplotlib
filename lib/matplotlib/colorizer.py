@@ -249,7 +249,7 @@ class Colorizer:
              The limits.
 
              For scalar data, the limits may also be passed as a
-             tuple (*vmin*, *vmax*) as a single positional argument.
+             tuple (*vmin*, *vmax*) single positional argument.
 
              .. ACCEPTS: (vmin: float, vmax: float)
         """
@@ -648,7 +648,7 @@ cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
 cmap : str, `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`\
     or `~matplotlib.colors.MultivarColormap`, default: :rc:`image.cmap`
     The Colormap instance or registered colormap name used to map
-    scalar/multivariate data to colors.
+    data values to colors.
 
     Multivariate data is only accepted if a multivariate colormap
     (`~matplotlib.colors.BivarColormap` or `~matplotlib.colors.MultivarColormap`)
@@ -673,13 +673,13 @@ norm : str, `~matplotlib.colors.Normalize` or list, optional
     before mapping to colors using *cmap*. By default, a linear scaling is
     used, mapping the lowest value to 0 and the highest to 1.
 
-    If given, this can be one of the following:
+    This can be one of the following:
 
     - An instance of `.Normalize` or one of its subclasses
       (see :ref:`colormapnorms`).
     - A scale name, i.e. one of "linear", "log", "symlog", "logit", etc.  For a
       list of available scales, call `matplotlib.scale.get_scale_names()`.
-      In that case, a suitable `.Normalize` subclass is dynamically generated
+      In this case, a suitable `.Normalize` subclass is dynamically generated
       and instantiated.
     - A list of scale names or `.Normalize` objects matching the number of
       variates in the colormap, for use with `~matplotlib.colors.BivarColormap`
@@ -699,8 +699,8 @@ vmin, vmax : float or list, optional
     *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
     name together with *vmin*/*vmax* is acceptable).
 
-    A list can be used to define independent limits for each variate when
-    using a `~matplotlib.colors.BivarColormap` or
+    A list of values (vmin or vmax) can be used to define independent limits
+    for each variate when using a `~matplotlib.colors.BivarColormap` or
     `~matplotlib.colors.MultivarColormap`.""",
 )
 
