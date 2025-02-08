@@ -58,7 +58,6 @@ ax.set_title('Manual DateFormatter', loc='left', y=0.85, x=0.02,
 # Text in the x-axis will be displayed in 'YYYY-mm' format.
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%b'))
 # Rotates and right-aligns the x labels so they don't crowd each other.
-for label in ax.get_xticklabels(which='major'):
-    label.set(rotation=30, horizontalalignment='right')
+ax.xaxis.set_tick_params(rotation=30, rotation_mode='xtick')
 
 plt.show()

@@ -40,10 +40,7 @@ lims = [(np.datetime64('2005-02'), np.datetime64('2005-04')),
 for nn, ax in enumerate(axs):
     ax.plot(dates, y)
     ax.set_xlim(lims[nn])
-    # rotate_labels...
-    for label in ax.get_xticklabels():
-        label.set_rotation(40)
-        label.set_horizontalalignment('right')
+    ax.tick_params(axis='x', rotation=40, rotation_mode='xtick')
 axs[0].set_title('Default Date Formatter')
 plt.show()
 
