@@ -9,6 +9,7 @@ Many plotting functions will restrict positional arguments to the first few para
 in the future. All further configuration parameters will have to be passed as keyword
 arguments. This is to enforce better code and and allow for future changes with reduced
 risk of breaking existing code.
+
 Changing ``Figure.number``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
