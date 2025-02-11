@@ -818,7 +818,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : float, default: 0
-            y position in :ref:`data coordinates <coordinate-systems>`.
+            x position in :ref:`data coordinates <coordinate-systems>`.
 
         ymin : float, default: 0
             The start y-position in :ref:`axes coordinates <coordinate-systems>`.
