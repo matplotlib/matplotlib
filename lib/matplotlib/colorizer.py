@@ -269,6 +269,8 @@ class Colorizer:
             except (TypeError, ValueError):
                 pass
 
+        orig_vmin_vmax = self.norm.vmin, self.norm.vmax
+
         # Blocked context manager prevents callbacks from being triggered
         # until both vmin and vmax are updated
         with self.norm.callbacks.blocked(signal='changed'):
@@ -277,8 +279,9 @@ class Colorizer:
             if vmax is not None:
                 self.norm.vmax = colors._sanitize_extrema(vmax)
 
-        # self.changed() will now emit a update signal after both the limits are set
-        self.changed()
+        # self.changed() will now emit a update signal if the limits are changed
+        if orig_vmin_vmax != (self.norm.vmin, self.norm.vmax):
+            self.changed()
 
     def get_clim(self):
         """
