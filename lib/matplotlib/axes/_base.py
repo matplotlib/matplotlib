@@ -3469,7 +3469,9 @@ class _AxesBase(martist.Artist):
         labelbottom, labeltop, labelleft, labelright : bool
             Whether to draw the respective tick labels.
         labelrotation : float
-            Tick label rotation
+            Tick label rotation angle in degrees. See `.Text.set_rotation`.
+        labelrotation_mode : {'default', 'anchor', 'xtick', 'ytick'}
+            Tick label rotation mode. See `.Text.set_rotation_mode`.
         grid_color : :mpltype:`color`
             Gridline color.
         grid_alpha : float
