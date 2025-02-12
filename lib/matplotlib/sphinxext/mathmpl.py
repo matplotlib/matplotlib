@@ -146,7 +146,7 @@ def latex2html(node, source):
     fontset = node['fontset']
     fontsize = node['fontsize']
     name = 'math-{}'.format(
-        hashlib.md5(f'{latex}{fontset}{fontsize}'.encode()).hexdigest()[-10:])
+        hashlib.sha256(f'{latex}{fontset}{fontsize}'.encode()).hexdigest()[-10:])
 
     destdir = Path(setup.app.builder.outdir, '_images', 'mathmpl')
     destdir.mkdir(parents=True, exist_ok=True)

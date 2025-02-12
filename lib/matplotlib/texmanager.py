@@ -168,7 +168,7 @@ class TexManager:
         Return a filename based on a hash of the string, fontsize, and dpi.
         """
         src = cls._get_tex_source(tex, fontsize) + str(dpi)
-        filehash = hashlib.md5(src.encode('utf-8')).hexdigest()
+        filehash = hashlib.sha256(src.encode('utf-8')).hexdigest()
         filepath = Path(cls._texcache)
 
         num_letters, num_levels = 2, 2
