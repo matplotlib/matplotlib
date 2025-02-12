@@ -46,22 +46,20 @@ def get_cache_dir():
 
 
 def get_file_hash(path, block_size=2 ** 20):
-    md5 = hashlib.md5()
+    sha256 = hashlib.sha256(usedforsecurity=False)
     with open(path, 'rb') as fd:
         while True:
             data = fd.read(block_size)
             if not data:
                 break
-            md5.update(data)
+            sha256.update(data)
 
     if Path(path).suffix == '.pdf':
-        md5.update(str(mpl._get_executable_info("gs").version)
-                   .encode('utf-8'))
+        sha256.update(str(mpl._get_executable_info("gs").version).encode('utf-8'))
     elif Path(path).suffix == '.svg':
-        md5.update(str(mpl._get_executable_info("inkscape").version)
-                   .encode('utf-8'))
+        sha256.update(str(mpl._get_executable_info("inkscape").version).encode('utf-8'))
 
-    return md5.hexdigest()
+    return sha256.hexdigest()
 
 
 class _ConverterError(Exception):
