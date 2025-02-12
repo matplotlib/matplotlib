@@ -236,11 +236,11 @@ class LocationEvent(Event):
     ) -> None: ...
 
 class MouseButton(IntEnum):
-    LEFT: int
-    MIDDLE: int
-    RIGHT: int
-    BACK: int
-    FORWARD: int
+    LEFT = 1
+    MIDDLE = 2
+    RIGHT = 3
+    BACK = 8
+    FORWARD = 9
 
 class MouseEvent(LocationEvent):
     button: MouseButton | Literal["up", "down"] | None
@@ -398,9 +398,9 @@ class FigureManagerBase:
 cursors = Cursors
 
 class _Mode(str, Enum):
-    NONE: str
-    PAN: str
-    ZOOM: str
+    NONE = ""
+    PAN = "pan/zoom"
+    ZOOM = "zoom rect"
 
 class NavigationToolbar2:
     toolitems: tuple[tuple[str, ...] | tuple[None, ...], ...]
