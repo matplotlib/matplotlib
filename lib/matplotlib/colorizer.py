@@ -279,9 +279,9 @@ class Colorizer:
             if vmax is not None:
                 self.norm.vmax = colors._sanitize_extrema(vmax)
 
-        # self.changed() will now emit a update signal if the limits are changed
+        # emit a update signal if the limits are changed
         if orig_vmin_vmax != (self.norm.vmin, self.norm.vmax):
-            self.changed()
+            self.norm.callbacks.process('changed')
 
     def get_clim(self):
         """

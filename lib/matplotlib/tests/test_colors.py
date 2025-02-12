@@ -1605,6 +1605,26 @@ def test_norm_deepcopy():
     assert norm2.vmin == norm.vmin
 
 
+def test_set_clim_emits_single_callback():
+    data = np.array([[1, 2], [3, 4]])
+    fig, ax = plt.subplots()
+    image = ax.imshow(data, cmap='viridis')
+
+    callback = unittest.mock.Mock()
+    image.norm.callbacks.connect('changed', callback)
+
+    # Initial callback count should be zero
+    assert callback.call_count == 0
+
+    # Call set_clim() to update the limits
+    image.set_clim(1, 5)
+
+    # Assert that only one "changed" callback is sent after calling set_clim()
+    callback.assert_called_once()
+
+    plt.close(fig)
+
+
 def test_norm_callback():
     increment = unittest.mock.Mock(return_value=None)
 

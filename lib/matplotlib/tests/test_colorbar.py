@@ -18,8 +18,6 @@ from matplotlib.colorbar import Colorbar
 from matplotlib.ticker import FixedLocator, LogFormatter, StrMethodFormatter
 from matplotlib.testing.decorators import check_figures_equal
 
-import unittest.mock
-
 
 def _get_cmap_norms():
     """
@@ -660,26 +658,6 @@ def test_colorbar_scale_reset():
     pcm.norm = LogNorm()
     assert pcm.norm.vmin == z.min()
     assert pcm.norm.vmax == z.max()
-
-
-def test_set_clim_emits_single_callback():
-    data = np.array([[1, 2], [3, 4]])
-    fig, ax = plt.subplots()
-    image = ax.imshow(data, cmap='viridis')
-
-    callback = unittest.mock.Mock()
-    image.norm.callbacks.connect('changed', callback)
-
-    # Initial callback count should be zero
-    assert callback.call_count == 0
-
-    # Call set_clim() to update the limits
-    image.set_clim(1, 5)
-
-    # Assert that only one "changed" callback is sent after calling set_clim()
-    callback.assert_called_once()
-
-    plt.close(fig)
 
 
 def test_colorbar_get_ticks_2():
