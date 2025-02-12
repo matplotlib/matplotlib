@@ -318,7 +318,9 @@ class Figure(FigureBase):
     subplotpars: SubplotParams
     def __init__(
         self,
-        figsize: tuple[float, float] | None = ...,
+        figsize: tuple[float, float]
+        | tuple[float, float, Literal["in", "cm", "px"]]
+        | None = ...,
         dpi: float | None = ...,
         *,
         facecolor: ColorType | None = ...,
@@ -419,3 +421,8 @@ class Figure(FigureBase):
     ) -> None: ...
 
 def figaspect(arg: float | ArrayLike) -> tuple[float, float]: ...
+
+def _parse_figsize(
+    figsize: tuple[float, float] | tuple[float, float, Literal["in", "cm", "px"]],
+    dpi: float
+) -> tuple[float, float]: ...
