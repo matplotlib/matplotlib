@@ -1819,3 +1819,19 @@ def test_subfigure_stale_propagation():
     sfig2.stale = True
     assert sfig1.stale
     assert fig.stale
+
+
+@pytest.mark.parametrize("figsize, figsize_inches", [
+    ((6, 4), (6, 4)),
+    ((6, 4, "in"), (6, 4)),
+    ((5.08, 2.54, "cm"), (2, 1)),
+    ((600, 400, "px"), (6, 4)),
+])
+def test_figsize(figsize, figsize_inches):
+    fig = plt.figure(figsize=figsize, dpi=100)
+    assert tuple(fig.get_size_inches()) == figsize_inches
+
+
+def test_figsize_invalid_unit():
+    with pytest.raises(ValueError, match="Invalid unit 'um'"):
+        plt.figure(figsize=(6, 4, "um"))
