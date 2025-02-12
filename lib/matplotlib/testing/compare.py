@@ -46,7 +46,7 @@ def get_cache_dir():
 
 
 def get_file_hash(path, block_size=2 ** 20):
-    sha256 = hashlib.sha256()
+    sha256 = hashlib.sha256(usedforsecurity=False)
     with open(path, 'rb') as fd:
         while True:
             data = fd.read(block_size)
