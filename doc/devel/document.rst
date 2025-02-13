@@ -1189,14 +1189,6 @@ Documentation page analytics are available at
 https://views.scientific-python.org/matplotlib.org.
 
 
-
-
-
-
-
-
-.. TODO: Add section about uploading docs
-
 .. _ReST: https://docutils.sourceforge.io/rst.html
 .. _Sphinx: http://www.sphinx-doc.org
 .. _documentation: https://www.sphinx-doc.org/en/master/contents.html
