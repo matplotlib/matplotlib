@@ -9,6 +9,8 @@ special data values, e.g. in this example the center and limit values of the
 sigmoid function.
 
 `~.axes.Axes.axline` draws infinite straight lines in arbitrary directions.
+
+.. redirect-from:: /gallery/pyplot/axline
 """
 
 import matplotlib.pyplot as plt
@@ -17,28 +19,28 @@ import numpy as np
 t = np.linspace(-10, 10, 100)
 sig = 1 / (1 + np.exp(-t))
 
-plt.axhline(y=0, color="black", linestyle="--")
-plt.axhline(y=0.5, color="black", linestyle=":")
-plt.axhline(y=1.0, color="black", linestyle="--")
-plt.axvline(color="grey")
-plt.axline((0, 0.5), slope=0.25, color="black", linestyle=(0, (5, 5)))
-plt.plot(t, sig, linewidth=2, label=r"$\sigma(t) = \frac{1}{1 + e^{-t}}$")
-plt.xlim(-10, 10)
-plt.xlabel("t")
-plt.legend(fontsize=14)
+fig, ax = plt.subplots()
+ax.axhline(y=0, color="black", linestyle="--")
+ax.axhline(y=0.5, color="black", linestyle=":")
+ax.axhline(y=1.0, color="black", linestyle="--")
+ax.axvline(color="grey")
+ax.axline((0, 0.5), slope=0.25, color="black", linestyle=(0, (5, 5)))
+ax.plot(t, sig, linewidth=2, label=r"$\sigma(t) = \frac{1}{1 + e^{-t}}$")
+ax.set(xlim=(-10, 10), xlabel="t")
+ax.legend(fontsize=14)
 plt.show()
 
 # %%
-# `~.axes.Axes.axline` can also be used with a ``transform`` parameter, which
+# `~.axes.Axes.axline` can also be used with a *transform* parameter, which
 # applies to the point, but not to the slope. This can be useful for drawing
 # diagonal grid lines with a fixed slope, which stay in place when the
 # plot limits are moved.
 
+fig, ax = plt.subplots()
 for pos in np.linspace(-2, 1, 10):
-    plt.axline((pos, 0), slope=0.5, color='k', transform=plt.gca().transAxes)
+    ax.axline((pos, 0), slope=0.5, color='k', transform=ax.transAxes)
 
-plt.ylim([0, 1])
-plt.xlim([0, 1])
+ax.set(xlim=(0, 1), ylim=(0, 1))
 plt.show()
 
 # %%
@@ -57,3 +59,5 @@ plt.show()
 #
 #    `~.Axes.axhspan`, `~.Axes.axvspan` draw rectangles that span the Axes in one
 #    direction and are bounded in the other direction.
+#
+# .. tags:: component: annotation
