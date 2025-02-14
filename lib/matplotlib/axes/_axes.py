@@ -7018,6 +7018,8 @@ such objects
         bin_range = range
         from builtins import range
 
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
+
         if np.isscalar(x):
             x = [x]
 
