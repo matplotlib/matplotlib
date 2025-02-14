@@ -660,6 +660,28 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 A = A.astype(np.uint8)
         return A
 
+    def get_data(self):
+        """
+        Get the image array.
+
+        Returns
+        -------
+        `numpy.array`
+            The image array
+        """
+        return self._A
+
+    def get_array(self):
+        """
+        Retained for backwards compatibility - use get_data instead.
+
+        Returns
+        -------
+        `numpy.array`
+            The image array
+        """
+        return self.get_data()
+
     def set_data(self, A):
         """
         Set the image array.
