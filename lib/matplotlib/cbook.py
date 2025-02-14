@@ -884,6 +884,7 @@ class GrouperView:
     def __init__(self, grouper): self._grouper = grouper
     def __contains__(self, item): return item in self._grouper
     def __iter__(self): return iter(self._grouper)
+
     def joined(self, a, b):
         """
         Return whether *a* and *b* are members of the same set.
