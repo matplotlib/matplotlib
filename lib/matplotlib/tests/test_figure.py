@@ -16,7 +16,7 @@ from matplotlib import gridspec
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import KeyEvent, MouseEvent
-from matplotlib.figure import Figure, FigureBase
+from matplotlib.figure import _parse_figsize, Figure, FigureBase
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
                                       TightLayoutEngine,
                                       PlaceHolderLayoutEngine)
@@ -1819,3 +1819,13 @@ def test_subfigure_stale_propagation():
     sfig2.stale = True
     assert sfig1.stale
     assert fig.stale
+
+
+@pytest.mark.parametrize("input, output", [
+    ((6, 4), (6, 4)),
+    ((6, 4, "inch"), (6, 4)),
+    ((5.08, 2.54, "cm"), (2, 1)),
+    ((600, 400, "px"), (6, 4)),
+])
+def test__parse_figsize(input, output):
+    assert _parse_figsize(input, dpi=100) == output
