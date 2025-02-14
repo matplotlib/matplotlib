@@ -886,7 +886,7 @@ class GrouperView:
         Return whether *a* and *b* are members of the same set.
         """
         return self._grouper.joined(a, b)
-    
+
     def get_siblings(self, a):
         """
         Return all of the items joined with *a*, including itself.
