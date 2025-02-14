@@ -850,11 +850,15 @@ class Grouper:
                     mapping[elem] = set_a
 
     def joined(self, a, b):
-        """Return whether *a* and *b* are members of the same set."""
+        """
+        Return whether *a* and *b* are members of the same set.
+        """
         return (self._mapping.get(a, object()) is self._mapping.get(b))
 
     def remove(self, a):
-        """Remove *a* from the grouper, doing nothing if it is not there."""
+        """
+        Remove *a* from the grouper, doing nothing if it is not there.
+        """
         self._mapping.pop(a, {a}).remove(a)
         self._ordering.pop(a, None)
 
@@ -881,10 +885,14 @@ class GrouperView:
     def __contains__(self, item): return item in self._grouper
     def __iter__(self): return iter(self._grouper)
     def joined(self, a, b):
-        """Return whether *a* and *b* are members of the same set."""
+        """
+        Return whether *a* and *b* are members of the same set.
+        """
         return self._grouper.joined(a, b)
     def get_siblings(self, a):
-        """Return all of the items joined with *a*, including itself."""
+        """
+        Return all of the items joined with *a*, including itself.
+        """
         return self._grouper.get_siblings(a)
 
 
