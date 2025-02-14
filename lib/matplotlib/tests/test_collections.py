@@ -86,7 +86,7 @@ def test__EventCollection__get_props():
     # check that the default lineoffset matches the input lineoffset
     assert props['lineoffset'] == coll.get_lineoffset()
     # check that the default linestyle matches the input linestyle
-    assert coll.get_linestyle() == [(0, None)]
+    assert coll.get_linestyle(scaled=True) == [(0, None)]
     # check that the default color matches the input color
     for color in [coll.get_color(), *coll.get_colors()]:
         np.testing.assert_array_equal(color, props['color'])
@@ -248,7 +248,7 @@ def test__EventCollection__set_lineoffset():
 ])
 def test__EventCollection__set_prop():
     for prop, value, expected in [
-            ('linestyle', 'dashed', [(0, (6.0, 6.0))]),
+            ('linestyle', 'dashed', ['dashed']),
             ('linestyle', (0, (6., 6.)), [(0, (6.0, 6.0))]),
             ('linewidth', 5, 5),
     ]:
@@ -666,11 +666,11 @@ def test_lslw_bcast():
     col.set_linestyles(['-', '-'])
     col.set_linewidths([1, 2, 3])
 
-    assert col.get_linestyles() == [(0, None)] * 6
+    assert col.get_linestyles(scaled=True) == [(0, None)] * 6
     assert col.get_linewidths() == [1, 2, 3] * 2
 
     col.set_linestyles(['-', '-', '-'])
-    assert col.get_linestyles() == [(0, None)] * 3
+    assert col.get_linestyles(scaled=True) == [(0, None)] * 3
     assert (col.get_linewidths() == [1, 2, 3]).all()
 
 
