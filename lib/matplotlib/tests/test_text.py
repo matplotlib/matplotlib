@@ -823,6 +823,7 @@ def test_pdf_kerning():
 
 
 def test_unsupported_script(recwarn):
+    plt.rcParams['font.enable_last_resort'] = False
     fig = plt.figure()
     t = fig.text(.5, .5, "\N{BENGALI DIGIT ZERO}")
     fig.canvas.draw()
