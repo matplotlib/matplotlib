@@ -850,15 +850,11 @@ class Grouper:
                     mapping[elem] = set_a
 
     def joined(self, a, b):
-        """
-        Return whether *a* and *b* are members of the same set.
-        """
+        """Return whether *a* and *b* are members of the same set."""
         return (self._mapping.get(a, object()) is self._mapping.get(b))
 
     def remove(self, a):
-        """
-        Remove *a* from the grouper, doing nothing if it is not there.
-        """
+        """Remove *a* from the grouper, doing nothing if it is not there."""
         self._mapping.pop(a, {a}).remove(a)
         self._ordering.pop(a, None)
 
