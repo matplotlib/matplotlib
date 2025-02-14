@@ -51,3 +51,10 @@ fig.legend((l1, l2), ('Line 1', 'Line 2'), loc='upper left')
 fig.legend((l3, l4), ('Line 3', 'Line 4'), loc='outside right upper')
 
 plt.show()
+
+# %%
+#
+# .. seealso::
+#
+#    The :ref:`legend_guide` contains an in depth discussion on the configuration
+#    options for legends.

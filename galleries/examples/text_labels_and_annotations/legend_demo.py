@@ -178,3 +178,10 @@ ax.legend([lc], ['multi-line'], handler_map={type(lc): HandlerDashedLines()},
           handlelength=2.5, handleheight=3)
 
 plt.show()
+
+# %%
+#
+# .. seealso::
+#
+#    The :ref:`legend_guide` contains an in depth discussion on the configuration
+#    options for legends.
