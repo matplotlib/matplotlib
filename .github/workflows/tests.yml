@@ -118,14 +118,14 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         if: matrix.python-version != '3.13t'
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: Quansight-Labs/setup-python@b9ab292c751a42bcd2bb465b7fa202ea2c3f5796  # v5.3.1
+        uses: Quansight-Labs/setup-python@869aeafb7eeb9dc48ba68acc0479e6fc3fd7ce5e  # v5.4.0
         if: matrix.python-version == '3.13t'
         with:
           python-version: ${{ matrix.python-version }}
@@ -420,7 +420,7 @@ jobs:
           fi
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303  # v5.1.2
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3  # v5.3.1
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}
