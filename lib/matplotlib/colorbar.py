@@ -1101,8 +1101,13 @@ class Colorbar:
             # If we still aren't scaled after autoscaling, use 0, 1 as default
             self.norm.vmin = 0
             self.norm.vmax = 1
-        self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
-            self.norm.vmin, self.norm.vmax, expander=0.1)
+
+        # Only expand vmax if needed, to match Normalize's behavior of mapping
+        # everything to 0 if the norm is singular.
+        vmin, vmax = sorted([self.norm.vmin, self.norm.vmax])
+        self.norm.vmin = vmin
+        _, self.norm.vmax = mtransforms.nonsingular(vmin, vmax, expander=0.1)
+
         if (not isinstance(self.norm, colors.BoundaryNorm) and
                 (self.boundaries is None)):
             b = self.norm.inverse(b)
