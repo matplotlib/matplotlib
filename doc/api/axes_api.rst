@@ -262,6 +262,7 @@ Property cycle
 
    Axes.set_prop_cycle
 
+.. _axes-api-axis:
 
 Axis / limits
 =============
@@ -269,11 +270,16 @@ Axis / limits
 .. For families of methods of the form {get,set}_{x,y}foo, try to list them in
    the order set_xfoo, get_xfoo, set_yfoo, get_yfoo
 
+Axis access
+-----------
+
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary.rst
    :nosignatures:
 
+   Axes.xaxis
+   Axes.yaxis
    Axes.get_xaxis
    Axes.get_yaxis
 
