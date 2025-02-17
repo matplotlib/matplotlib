@@ -17,6 +17,7 @@ from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import KeyEvent, MouseEvent
 from matplotlib.figure import Figure, FigureBase
+from matplotlib.figure import SubplotParams
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
                                       TightLayoutEngine,
                                       PlaceHolderLayoutEngine)
@@ -1819,3 +1820,11 @@ def test_subfigure_stale_propagation():
     sfig2.stale = True
     assert sfig1.stale
     assert fig.stale
+
+def test_figsize_getter_setter():
+    fig = plt.figure()
+    test_size_get = fig.get_figsize()
+    assert len(test_size_get) == 2
+
+    fig.set_figsize((5, 5))
+    assert fig.get_figsize() == (5, 5)
