@@ -463,11 +463,11 @@ class ScalarFormatter(Formatter):
         self.set_useLocale(useLocale)
 
     def get_usetex(self):
-        """Return whether TeX's math mode is enabled for rendering."""      
+        """Return whether TeX's math mode is enabled for rendering."""
         return self._usetex
 
     def set_usetex(self, val):
-        """Set whether to use TeX's math mode for rendering 
+        """Set whether to use TeX's math mode for rendering
         the numbers in the formatter."""
         self._usetex = mpl._val_or_rc(val, 'text.usetex')
 
