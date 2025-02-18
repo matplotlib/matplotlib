@@ -1,4 +1,6 @@
 """
+.. _hatch_def:
+
 Module for generating hatch patterns.
 
 The following hatching patterns are available, shown here at level 1 density:
