@@ -1,3 +1,7 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from mpl_toolkits.mplot3d import Axes3D
+
 from collections.abc import Callable, Hashable, Iterable, Sequence
 import os
 from typing import Any, IO, Literal, TypeVar, overload
@@ -86,6 +90,8 @@ class FigureBase(Artist):
     ) -> Axes: ...
 
     # TODO: docstring indicates SubplotSpec a valid arg, but none of the listed signatures appear to be that
+    @overload
+    def add_subplot(self, *args, projection: Literal["3d"], **kwargs) -> Axes3D: ...
     @overload
     def add_subplot(
         self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs
