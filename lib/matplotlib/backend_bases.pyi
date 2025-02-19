@@ -63,6 +63,7 @@ class RendererBase:
         antialiaseds: bool | Sequence[bool],
         urls: str | Sequence[str],
         offset_position: Any,
+        hatchcolors: ColorType | Sequence[ColorType] | None = None,
     ) -> None: ...
     def draw_quad_mesh(
         self,
@@ -76,6 +77,7 @@ class RendererBase:
         facecolors: Sequence[ColorType],
         antialiased: bool,
         edgecolors: Sequence[ColorType] | ColorType | None,
+        hatchcolors: Sequence[ColorType] | ColorType | None = None,
     ) -> None: ...
     def draw_gouraud_triangles(
         self,
