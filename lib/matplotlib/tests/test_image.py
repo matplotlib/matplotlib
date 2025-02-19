@@ -197,6 +197,26 @@ def test_imsave_fspath(fmt):
     plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
 
 
+def test_imsave_python_vanilla_list():
+    input_img = np.array([
+        [[255, 0, 0, 1], [0, 255, 0, 1], [0, 0, 255, 1]],
+        [[0, 255, 0, 1], [0, 255, 0, 1], [0, 0, 0, 1]],
+        [[0, 0, 255, 1], [0, 0, 255, 1], [0, 0, 0, 1]]
+    ], dtype=np.uint8)
+    
+    buff = io.BytesIO()
+    plt.imsave(buff, input_img, format="png")
+    buff.seek(0)
+
+    read_img = plt.imread(buff)
+    
+    read_img = (read_img * 255).astype(np.uint8)
+
+    assert_array_equal(input_img, read_img)
+
+
+
+
 def test_imsave_color_alpha():
     # Test that imsave accept arrays with ndim=3 where the third dimension is
     # color and alpha without raising any exceptions, and that the data is

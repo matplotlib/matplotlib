@@ -1586,6 +1586,10 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # because that's what backend_agg passes, and can be in fact used
             # as is, saving a few operations.
             rgba = arr
+
+        if (isinstance(arr, list)):
+            arr = np.asarray(arr, dtype=np.uint8)
+            
         else:
             sm = mcolorizer.Colorizer(cmap=cmap)
             sm.set_clim(vmin, vmax)
