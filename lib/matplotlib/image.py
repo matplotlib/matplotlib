@@ -1586,9 +1586,11 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # because that's what backend_agg passes, and can be in fact used
             # as is, saving a few operations.
             rgba = arr
+        elif arr.ndim == 3 and arr.shape[-1] in (3,4):
+                rgba = arr
         else:
             sm = mcolorizer.Colorizer(cmap=cmap)
-            sm.set_clim(vmin, vmax)
+            sm.set_clim(vim, vmax)
             rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:
             pil_kwargs = {}
