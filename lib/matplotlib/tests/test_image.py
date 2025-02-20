@@ -1136,7 +1136,7 @@ def test_image_cursor_formatting():
     # However, a value of nan will be masked by `cbook.safe_masked_invalid(data)`
     # called by `image._ImageBase._normalize_image_array(data)`
     # The test is therefore changed to:
-    data = cbook.safe_masked_invalid(np.nan)
+    data = cbook.safe_masked_invalid(np.array(np.nan))
     assert im.format_cursor_data(data) == '[]'
 
 
