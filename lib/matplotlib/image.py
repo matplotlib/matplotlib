@@ -160,8 +160,7 @@ def _draw_list_compositing_images(
         flush_images()
 
 
-def _resample(
-        image_obj, data, out_shape, transform, *, resample=None, alpha=1):
+def _resample(image_obj, data, out_shape, transform, *, resample=None, alpha=1):
     """
     Convenience wrapper around `._image.resample` to resample *data* to
     *out_shape* (with a third dimension if *data* is RGBA) that takes care of
@@ -204,7 +203,10 @@ def _resample(
             interpolation = 'nearest'
         else:
             interpolation = 'hanning'
-    out = np.zeros(out_shape + data.shape[2:], data.dtype)  # 2D->2D, 3D->3D.
+    if len(data.shape) == 3:
+        # Always output RGBA.
+        out_shape += (4, )
+    out = np.zeros(out_shape, data.dtype)
     if resample is None:
         resample = image_obj.get_resample()
     _image.resample(data, out, transform,
@@ -214,20 +216,6 @@ def _resample(
                     image_obj.get_filternorm(),
                     image_obj.get_filterrad())
     return out
-
-
-def _rgb_to_rgba(A):
-    """
-    Convert an RGB image to RGBA, as required by the image resample C++
-    extension.
-    """
-    rgba = np.zeros((A.shape[0], A.shape[1], 4), dtype=A.dtype)
-    rgba[:, :, :3] = A
-    if rgba.dtype == np.uint8:
-        rgba[:, :, 3] = 255
-    else:
-        rgba[:, :, 3] = 1.0
-    return rgba
 
 
 class _ImageBase(mcolorizer.ColorizingArtist):
@@ -508,10 +496,10 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                     # alpha channel below.
                     output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
                 else:
-                    output_alpha = _resample(  # resample alpha channel
-                        self, A[..., 3], out_shape, t, alpha=alpha)
-                output = _resample(  # resample rgb channels
-                    self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
+                    # resample alpha channel
+                    output_alpha = _resample(self, A[..., 3], out_shape, t, alpha=alpha)
+                # resample rgb channels
+                output = _resample(self, A[..., :3], out_shape, t, alpha=alpha)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
 
             # output is now either a 2D array of normed (int or float) data

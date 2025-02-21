@@ -1577,8 +1577,8 @@ def test__resample_valid_output():
         resample(np.zeros((9, 9)), np.zeros((9, 9, 4)))
     with pytest.raises(ValueError, match="different dimensionalities"):
         resample(np.zeros((9, 9, 4)), np.zeros((9, 9)))
-    with pytest.raises(ValueError, match="3D input array must be RGBA"):
-        resample(np.zeros((9, 9, 3)), np.zeros((9, 9, 4)))
+    with pytest.raises(ValueError, match="3D input array must be RGB"):
+        resample(np.zeros((9, 9, 2)), np.zeros((9, 9, 4)))
     with pytest.raises(ValueError, match="3D output array must be RGBA"):
         resample(np.zeros((9, 9, 4)), np.zeros((9, 9, 3)))
     with pytest.raises(ValueError, match="mismatched types"):

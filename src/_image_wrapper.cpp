@@ -106,14 +106,30 @@ image_resample(py::array input_array,
         throw std::invalid_argument("Input array must be a 2D or 3D array");
     }
 
-    if (ndim == 3 && input_array.shape(2) != 4) {
-        throw std::invalid_argument(
-            "3D input array must be RGBA with shape (M, N, 4), has trailing dimension of {}"_s.format(
-                input_array.shape(2)));
+    py::ssize_t ncomponents = 0;
+    int rgb_step = 0;
+    if (ndim == 3) {
+        ncomponents = input_array.shape(2);
+        if (ncomponents == 3) {
+            // We special-case a few options in order to avoid copying in the common case.
+            auto rgb_stride = input_array.strides(1);
+            auto item_stride = input_array.strides(2);
+            if (rgb_stride == 3 * item_stride) {
+                rgb_step = 3;
+            } else if (rgb_stride == 4 * item_stride) {
+                rgb_step = 4;
+            }
+        } else if (ncomponents != 4) {
+            throw std::invalid_argument(
+                "3D input array must be RGB with shape (M, N, 3) or RGBA with shape (M, N, 4), "
+                "has trailing dimension of {}"_s.format(ncomponents));
+        }
     }
 
-    // Ensure input array is contiguous, regardless of dtype
-    input_array = py::array::ensure(input_array, py::array::c_style);
+    if (rgb_step == 0) {
+        // Ensure input array is contiguous, regardless of dtype
+        input_array = py::array::ensure(input_array, py::array::c_style);
+    }
 
     // Validate output array
     auto out_ndim = output_array.ndim();
@@ -173,25 +189,44 @@ image_resample(py::array input_array,
 
     if (auto resampler =
             (ndim == 2) ? (
-                (dtype.equal(py::dtype::of<std::uint8_t>())) ? resample<agg::gray8> :
-                (dtype.equal(py::dtype::of<std::int8_t>())) ? resample<agg::gray8> :
-                (dtype.equal(py::dtype::of<std::uint16_t>())) ? resample<agg::gray16> :
-                (dtype.equal(py::dtype::of<std::int16_t>())) ? resample<agg::gray16> :
-                (dtype.equal(py::dtype::of<float>())) ? resample<agg::gray32> :
-                (dtype.equal(py::dtype::of<double>())) ? resample<agg::gray64> :
+                dtype.equal(py::dtype::of<std::uint8_t>()) ? resample<agg::gray8> :
+                dtype.equal(py::dtype::of<std::int8_t>()) ? resample<agg::gray8> :
+                dtype.equal(py::dtype::of<std::uint16_t>()) ? resample<agg::gray16> :
+                dtype.equal(py::dtype::of<std::int16_t>()) ? resample<agg::gray16> :
+                dtype.equal(py::dtype::of<float>()) ? resample<agg::gray32> :
+                dtype.equal(py::dtype::of<double>()) ? resample<agg::gray64> :
                 nullptr) : (
-            // ndim == 3
-                (dtype.equal(py::dtype::of<std::uint8_t>())) ? resample<agg::rgba8> :
-                (dtype.equal(py::dtype::of<std::int8_t>())) ? resample<agg::rgba8> :
-                (dtype.equal(py::dtype::of<std::uint16_t>())) ? resample<agg::rgba16> :
-                (dtype.equal(py::dtype::of<std::int16_t>())) ? resample<agg::rgba16> :
-                (dtype.equal(py::dtype::of<float>())) ? resample<agg::rgba32> :
-                (dtype.equal(py::dtype::of<double>())) ? resample<agg::rgba64> :
-                nullptr)) {
+                // ndim == 3
+                (ncomponents == 4) ? (
+                    dtype.equal(py::dtype::of<std::uint8_t>()) ? resample<agg::rgba8, true> :
+                    dtype.equal(py::dtype::of<std::int8_t>()) ? resample<agg::rgba8, true> :
+                    dtype.equal(py::dtype::of<std::uint16_t>()) ? resample<agg::rgba16, true> :
+                    dtype.equal(py::dtype::of<std::int16_t>()) ? resample<agg::rgba16, true> :
+                    dtype.equal(py::dtype::of<float>()) ? resample<agg::rgba32, true> :
+                    dtype.equal(py::dtype::of<double>()) ? resample<agg::rgba64, true> :
+                    nullptr
+                ) : (
+                    (rgb_step == 4) ? (
+                        dtype.equal(py::dtype::of<std::uint8_t>()) ? resample<agg::rgba8, false, 4> :
+                        dtype.equal(py::dtype::of<std::int8_t>()) ? resample<agg::rgba8, false, 4> :
+                        dtype.equal(py::dtype::of<std::uint16_t>()) ? resample<agg::rgba16, false, 4> :
+                        dtype.equal(py::dtype::of<std::int16_t>()) ? resample<agg::rgba16, false, 4> :
+                        dtype.equal(py::dtype::of<float>()) ? resample<agg::rgba32, false, 4> :
+                        dtype.equal(py::dtype::of<double>()) ? resample<agg::rgba64, false, 4> :
+                        nullptr
+                    ) : (
+                        dtype.equal(py::dtype::of<std::uint8_t>()) ? resample<agg::rgba8, false, 3> :
+                        dtype.equal(py::dtype::of<std::int8_t>()) ? resample<agg::rgba8, false, 3> :
+                        dtype.equal(py::dtype::of<std::uint16_t>()) ? resample<agg::rgba16, false, 3> :
+                        dtype.equal(py::dtype::of<std::int16_t>()) ? resample<agg::rgba16, false, 3> :
+                        dtype.equal(py::dtype::of<float>()) ? resample<agg::rgba32, false, 3> :
+                        dtype.equal(py::dtype::of<double>()) ? resample<agg::rgba64, false, 3> :
+                        nullptr))))
+    {
         Py_BEGIN_ALLOW_THREADS
         resampler(
-            input_array.data(), input_array.shape(1), input_array.shape(0),
-            output_array.mutable_data(), output_array.shape(1), output_array.shape(0),
+            input_array.data(), input_array.shape(1), input_array.shape(0), input_array.strides(0),
+            output_array.mutable_data(), output_array.shape(1), output_array.shape(0), output_array.strides(0),
             params);
         Py_END_ALLOW_THREADS
     } else {
