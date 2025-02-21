@@ -292,7 +292,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 (MouseButton.MIDDLE, 4),
                 (MouseButton.BACK, 8),
                 (MouseButton.FORWARD, 16),
-            ] if event['buttons'] & mask  # State *after* press/release.
+            ] if event['button'] & mask  # State *after* press/release.
         }
         modifiers = event['modifiers']
         guiEvent = event.get('guiEvent')
