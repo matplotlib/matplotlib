@@ -11,7 +11,7 @@ Interactive figures and asynchronous programming
 
 Matplotlib supports rich interactive figures by embedding figures into
 a GUI window.  The basic interactions of panning and zooming in an
-Axes to inspect your data is 'baked in' to Matplotlib.  This is
+Axes to inspect your data is "baked in" to Matplotlib.  This is
 supported by a full mouse and keyboard event handling system that
 you can use to build sophisticated interactive graphs.
 
@@ -54,7 +54,7 @@ user hits the 'z' key, please run this other function".  This allows
 users to write reactive, event-driven, programs without having to
 delve into the nitty-gritty [#f3]_ details of I/O.  The core event loop
 is sometimes referred to as "the main loop" and is typically started,
-depending on the library, by methods with names like ``_exec``,
+depending on the library, by methods with names like ``exec``,
 ``run``, or ``start``.
 
 
@@ -83,7 +83,7 @@ for user input and lets us register functions to be run when that
 happens.  However, if we want to do both we have a problem: the prompt
 and the GUI event loop are both infinite loops that each think *they*
 are in charge!  In order for both the prompt and the GUI windows to be
-responsive we need a method to allow the loops to 'timeshare' :
+responsive we need a method to allow the loops to "timeshare" :
 
 1. let the GUI main loop block the python process when you want
    interactive windows
@@ -109,7 +109,7 @@ Blocking the prompt
 
 
 The simplest "integration" is to start the GUI event loop in
-'blocking' mode and take over the CLI.  While the GUI event loop is
+"blocking" mode and take over the CLI.  While the GUI event loop is
 running you cannot enter new commands into the prompt (your terminal
 may echo the characters typed into the terminal, but they will not be
 sent to the Python interpreter because it is busy running the GUI
@@ -147,7 +147,7 @@ While running the GUI event loop in a blocking mode or explicitly
 handling UI events is useful, we can do better!  We really want to be
 able to have a usable prompt **and** interactive figure windows.
 
-We can do this using the 'input hook' feature of the interactive
+We can do this using the "input hook" feature of the interactive
 prompt.  This hook is called by the prompt as it waits for the user
 to type (even for a fast typist the prompt is mostly waiting for the
 human to think and move their fingers).  Although the details vary
@@ -386,8 +386,8 @@ sure that you are locking in the critical sections.
 
 
 
-Eventloop integration mechanism
-===============================
+Event loop integration mechanism
+================================
 
 CPython / readline
 ------------------
@@ -404,7 +404,7 @@ run the event loop until a key is pressed on stdin.
 Matplotlib does not currently do any management of :c:data:`PyOS_InputHook` due
 to the wide range of ways that Matplotlib is used.  This management is left to
 downstream libraries -- either user code or the shell.  Interactive figures,
-even with Matplotlib in 'interactive mode', may not work in the vanilla python
+even with Matplotlib in "interactive mode", may not work in the vanilla python
 repl if an appropriate :c:data:`PyOS_InputHook` is not registered.
 
 Input hooks, and helpers to install them, are usually included with
@@ -433,9 +433,9 @@ method.  The source for the ``prompt_toolkit`` input hooks lives at
      then the loop would look something like ::
 
        fds = [...]
-           while True:                    # Loop
-               inp = select(fds).read()   # Read
-               eval(inp)                  # Evaluate / Print
+       while True:                    # Loop
+           inp = select(fds).read()   # Read
+           eval(inp)                  # Evaluate / Print
 
 .. [#f2] Or you can `write your own
          <https://www.youtube.com/watch?v=ZzfHjytDceU>`__ if you must.
