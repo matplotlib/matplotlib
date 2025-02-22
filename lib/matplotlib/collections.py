@@ -437,23 +437,45 @@ class Collection(mcolorizer.ColorizingArtist):
             if self._gapcolor is not None:
                 # First draw paths within the gaps.
                 ipaths, ilinestyles = self._get_inverse_paths_linestyles()
-                args = [gc, transform.frozen(), ipaths, self.get_transforms(),
-                        offsets, offset_trf, [mcolors.to_rgba("none")],
-                        self._gapcolor, self._linewidths, ilinestyles,
-                        self._antialiaseds, self._urls, "screen"]
+                args = [offsets, offset_trf, [mcolors.to_rgba("none")], self._gapcolor,
+                        self._linewidths, ilinestyles, self._antialiaseds, self._urls,
+                        "screen", self.get_hatchcolor()]
+
                 if hatchcolors_arg_supported:
-                    args.append(self.get_hatchcolor())
+                    renderer.draw_path_collection(gc, transform.frozen(), ipaths,
+                                                  self.get_transforms(), *args)
+                else:
+                    # If the renderer does not support the hatchcolors argument,
+                    # iterate over the paths and draw them one by one.
+                    path_ids = renderer._iter_collection_raw_paths(
+                        transform.frozen(), ipaths, self.get_transforms())
+                    for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+                        gc, list(path_ids), *args
+                    ):
+                        path, transform = path_id
+                        if xo != 0 or yo != 0:
+                            transform = transform.frozen()
+                            transform.translate(xo, yo)
+                        renderer.draw_path(gc0, path, transform, rgbFace)
 
-                renderer.draw_path_collection(*args)
+            args = [offsets, offset_trf, self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles, self._antialiaseds, self._urls,
+                    "screen", self.get_hatchcolor()]
 
-            args = [gc, transform.frozen(), paths, self.get_transforms(),
-                    offsets, offset_trf, self.get_facecolor(),
-                    self.get_edgecolor(), self._linewidths, self._linestyles,
-                    self._antialiaseds, self._urls, "screen"]
             if hatchcolors_arg_supported:
-                args.append(self.get_hatchcolor())
-
-            renderer.draw_path_collection(*args)
+                renderer.draw_path_collection(gc, transform.frozen(), paths,
+                                              self.get_transforms(), *args)
+            else:
+                path_ids = renderer._iter_collection_raw_paths(
+                    transform.frozen(), paths, self.get_transforms())
+                for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+                    gc, list(path_ids), *args
+                ):
+                    path, transform = path_id
+                    if xo != 0 or yo != 0:
+                        transform = transform.frozen()
+                        transform.translate(xo, yo)
+                    renderer.draw_path(gc0, path, transform, rgbFace)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
