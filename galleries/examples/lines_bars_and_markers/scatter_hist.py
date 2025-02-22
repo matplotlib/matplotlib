@@ -90,11 +90,10 @@ scatter_hist(x, y, ax, ax_histx, ax_histy)
 
 # Create a Figure, which doesn't have to be square.
 fig = plt.figure(layout='constrained')
-# Create the main Axes, leaving 25% of the figure space at the top and on the
-# right to position marginals.
-ax = fig.add_gridspec(top=0.75, right=0.75).subplots()
+# Create the main Axes.
+ax = fig.add_subplot()
 # The main Axes' aspect can be fixed.
-ax.set(aspect=1)
+ax.set_aspect('equal')
 # Create marginal Axes, which have 25% of the size of the main Axes.  Note that
 # the inset Axes are positioned *outside* (on the right and the top) of the
 # main Axes, by specifying axes coordinates greater than 1.  Axes coordinates
