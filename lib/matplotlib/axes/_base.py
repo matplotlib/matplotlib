@@ -566,6 +566,36 @@ class _AxesBase(martist.Artist):
     dataLim: mtransforms.Bbox
     """The bounding `.Bbox` enclosing all data displayed in the Axes."""
 
+    xaxis: maxis.XAxis
+    """
+    The `.XAxis` instance.
+
+    Common axis-related configuration can be achieved through high-level wrapper
+    methods on Axes; e.g. `ax.set_xticks <.Axes.set_xticks>` is a shortcut for
+    `ax.xaxis.set_ticks <.Axis.set_ticks>`. The *xaxis* attribute gives direct
+    direct access to the underlying `~.axis.Axis` if you need more control.
+
+    See also
+
+    - :ref:`Axis wrapper methods on Axes <axes-api-axis>`
+    - :doc:`Axis API </api/axis_api>`
+    """
+
+    yaxis: maxis.YAxis
+    """
+    The `.YAxis` instance.
+
+    Common axis-related configuration can be achieved through high-level wrapper
+    methods on Axes; e.g. `ax.set_yticks <.Axes.set_yticks>` is a shortcut for
+    `ax.yaxis.set_ticks <.Axis.set_ticks>`. The *yaxis* attribute gives direct
+    access to the underlying `~.axis.Axis` if you need more control.
+
+    See also
+
+    - :ref:`Axis wrapper methods on Axes <axes-api-axis>`
+    - :doc:`Axis API </api/axis_api>`
+    """
+
     @property
     def _axis_map(self):
         """A mapping of axis names, e.g. 'x', to `Axis` instances."""
@@ -2218,7 +2248,7 @@ class _AxesBase(martist.Artist):
         .. admonition:: Discouraged
 
             The use of this function is discouraged. You should instead
-            directly access the attribute ``ax.xaxis``.
+            directly access the attribute `~.Axes.xaxis`.
         """
         return self.xaxis
 
@@ -2229,7 +2259,7 @@ class _AxesBase(martist.Artist):
         .. admonition:: Discouraged
 
             The use of this function is discouraged. You should instead
-            directly access the attribute ``ax.yaxis``.
+            directly access the attribute `~.Axes.yaxis`.
         """
         return self.yaxis
 
