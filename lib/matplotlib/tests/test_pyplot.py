@@ -484,3 +484,10 @@ def test_matshow():
 
     # Smoke test that matshow does not ask for a new figsize on the existing figure
     plt.matshow(arr, fignum=fig.number)
+
+
+def test_pyplotfig_context_manager():
+
+    with plt.figure() as fig:
+        ax = fig.subplots()
+        ax.plot([1,2,3], [4,5,6])

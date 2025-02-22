@@ -50,7 +50,7 @@ import logging
 import sys
 import threading
 import time
-from typing import TYPE_CHECKING, cast, overload
+from typing import TYPE_CHECKING, cast, overload, TypeVar
 
 from cycler import cycler  # noqa: F401
 import matplotlib
@@ -872,6 +872,18 @@ def xkcd(
 
 ## Figures ##
 
+F = TypeVar("F", bound=Figure)
+
+
+class PyplotFigure(Figure):
+
+    def __enter__(self) -> "PyplotFigure":
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        close(self)
+
+
 def figure(
     # autoincrement if None, else integer from 1-N
     num: int | str | Figure | SubFigure | None = None,
@@ -885,10 +897,10 @@ def figure(
     # defaults to rc figure.edgecolor
     edgecolor: ColorType | None = None,
     frameon: bool = True,
-    FigureClass: type[Figure] = Figure,
+    FigureClass: type[F] = PyplotFigure,
     clear: bool = False,
     **kwargs
-) -> Figure:
+) -> F:
     """
     Create a new figure, or activate an existing figure.
 
