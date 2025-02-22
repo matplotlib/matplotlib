@@ -217,7 +217,7 @@ Linestyles for negative contours may be set individually
 
 The line style of negative contours may be set by passing the
 *negative_linestyles* argument to `.Axes.contour`. Previously, this style could
-only be set globally via :rc:`contour.negative_linestyles`.
+only be set globally via :rc:`contour.negative_linestyle`.
 
 .. plot::
     :alt: Two contour plots, each showing two positive and two negative contours. The positive contours are shown in solid black lines in both plots. In one plot the negative contours are shown in dashed lines, which is the current styling. In the other plot they're shown in dotted lines, which is one of the new options.

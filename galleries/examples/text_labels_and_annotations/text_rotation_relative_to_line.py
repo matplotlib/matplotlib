@@ -1,7 +1,7 @@
 """
-==============================
-Text Rotation Relative To Line
-==============================
+=======================================
+Text rotation angle in data coordinates
+=======================================
 
 Text objects in matplotlib are normally rotated with respect to the
 screen coordinate system (i.e., 45 degrees rotation plots text along a
@@ -15,28 +15,18 @@ can be determined automatically by setting the parameter
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 fig, ax = plt.subplots()
 
-# Plot diagonal line (45 degrees)
-h = ax.plot(range(0, 10), range(0, 10))
-
-# set limits so that it no longer looks on screen to be 45 degrees
-ax.set_xlim([-10, 20])
-
-# Locations to plot text
-l1 = np.array((1, 1))
-l2 = np.array((5, 5))
-
-# Rotate angle
-angle = 45
+# Plot diagonal line (45 degrees in data coordinates)
+ax.plot(range(0, 8), range(0, 8))
+ax.set_xlim([-10, 10])
 
 # Plot text
-th1 = ax.text(*l1, 'text not rotated correctly', fontsize=16,
-              rotation=angle, rotation_mode='anchor')
-th2 = ax.text(*l2, 'text rotated correctly', fontsize=16,
-              rotation=angle, rotation_mode='anchor',
-              transform_rotates_text=True)
+ax.text(-8, 0, 'text 45° in screen coordinates', fontsize=18,
+        rotation=45, rotation_mode='anchor')
+ax.text(0, 0, 'text 45° in data coordinates', fontsize=18,
+        rotation=45, rotation_mode='anchor',
+        transform_rotates_text=True)
 
 plt.show()

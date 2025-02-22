@@ -108,7 +108,7 @@ class Gcf:
             manager._cidgcf = manager.canvas.mpl_connect(
                 "button_press_event", lambda event: cls.set_active(manager))
         fig = manager.canvas.figure
-        fig.number = manager.num
+        fig._number = manager.num
         label = fig.get_label()
         if label:
             manager.set_window_title(label)

@@ -2,8 +2,8 @@ import matplotlib.cm as cm
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.collections import Collection, PathCollection
+from matplotlib.colorizer import Colorizer, ColorizingArtist
 from matplotlib.colors import Colormap, Normalize
-from matplotlib.font_manager import FontProperties
 from matplotlib.path import Path
 from matplotlib.patches import Patch
 from matplotlib.text import Text
@@ -24,7 +24,7 @@ class ContourLabeler:
     rightside_up: bool
     labelLevelList: list[float]
     labelIndiceList: list[int]
-    labelMappable: cm.ScalarMappable
+    labelMappable: cm.ScalarMappable | ColorizingArtist
     labelCValueList: list[ColorType]
     labelXYs: list[tuple[float, float]]
     def clabel(
@@ -51,18 +51,7 @@ class ContourLabeler:
     def locate_label(
         self, linecontour: ArrayLike, labelwidth: float
     ) -> tuple[float, float, float]: ...
-    def calc_label_rot_and_inline(
-        self,
-        slc: ArrayLike,
-        ind: int,
-        lw: float,
-        lc: ArrayLike | None = ...,
-        spacing: int = ...,
-    ) -> tuple[float, list[ArrayLike]]: ...
     def add_label(
-        self, x: float, y: float, rotation: float, lev: float, cvalue: ColorType
-    ) -> None: ...
-    def add_label_clabeltext(
         self, x: float, y: float, rotation: float, lev: float, cvalue: ColorType
     ) -> None: ...
     def add_label_near(
@@ -96,12 +85,6 @@ class ContourSet(ContourLabeler, Collection):
     clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None
     labelTexts: list[Text]
     labelCValues: list[ColorType]
-    @property
-    def tcolors(self) -> list[tuple[tuple[float, float, float, float]]]: ...
-
-    # only for not filled
-    @property
-    def tlinewidths(self) -> list[tuple[float]]: ...
 
     @property
     def allkinds(self) -> list[list[np.ndarray | None]]: ...
@@ -109,12 +92,6 @@ class ContourSet(ContourLabeler, Collection):
     def allsegs(self) -> list[list[np.ndarray]]: ...
     @property
     def alpha(self) -> float | None: ...
-    @property
-    def antialiased(self) -> bool: ...
-    @antialiased.setter
-    def antialiased(self, aa: bool | Sequence[bool]) -> None: ...
-    @property
-    def collections(self) -> list[PathCollection]: ...
     @property
     def linestyles(self) -> (
         None |
@@ -141,6 +118,7 @@ class ContourSet(ContourLabeler, Collection):
         norm: str | Normalize | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
+        colorizer: Colorizer | None = ...,
         extend: Literal["neither", "both", "min", "max"] = ...,
         antialiased: bool | None = ...,
         nchunk: int = ...,

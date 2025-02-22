@@ -28,6 +28,30 @@ why you did it, we recommend the following:
   Matplotlib developers can give feedback and eventually include your suggested
   code into the ``main`` branch.
 
+Overview
+--------
+
+After :ref:`setting up a development environment <installing_for_devs>`, the typical
+workflow is:
+
+#. Fetch all changes from ``upstream/main``::
+
+    git fetch upstream/main
+
+#. Start a new *feature branch* from ``upstream/main``::
+
+    git checkout -b my-feature upstream/main
+
+#. When you're done editing, e.g., ``lib/matplotlib/collections.py``, record your changes in Git::
+
+     git add lib/matplotlib/collections.py
+     git commit -m 'a commit message'
+
+#. Push the changes to your GitHub fork::
+
+     git push -u origin my-feature
+
+
 .. _update-mirror-main:
 
 Update the ``main`` branch
@@ -49,16 +73,14 @@ Make a new feature branch
 
 When you are ready to make some changes to the code, you should start a new
 branch.  Branches that are for a collection of related edits are often called
-'feature branches'.
-
-Making a new branch for each set of related changes will make it easier for
-someone reviewing your branch to see what you are doing.
+'feature branches'. Making a new branch for each set of related changes will make it
+easier for someone reviewing your branch to see what you are doing.
 
 Choose an informative name for the branch to remind yourself and the rest of us
 what the changes in the branch are for.  For example ``add-ability-to-fly``, or
 ``bugfix-for-issue-42``.
 
-::
+The process for creating a new feature branch is::
 
     # Update the main branch
     git fetch upstream
@@ -79,19 +101,6 @@ default, git will have a link to your fork of the GitHub repo, called
 
    git push origin my-new-feature
 
-In git >= 1.7 you can ensure that the link is correctly set by using the
-``--set-upstream`` option::
-
-   git push --set-upstream origin my-new-feature
-
-From now on git will know that ``my-new-feature`` is related to the
-``my-new-feature`` branch in the GitHub repo.
-
-If you first opened the pull request from your ``main`` branch and then
-converted it to a feature branch, you will need to close the original pull
-request and open a new pull request from the renamed branch. See
-`GitHub: working with branches
-<https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches#working-with-branches>`_.
 
 .. _edit-flow:
 
@@ -129,19 +138,42 @@ The editing workflow
    Note the ``-am`` options to ``commit``. The ``m`` flag signals that you are
    going to type a message on the command line.  The ``a`` flag stages every
    file that has been modified, except files listed in ``.gitignore``. For more
-   information, see `why the -a flag?`_ and the
-   `git commit <https://git-scm.com/docs/git-commit>`_  manual page.
+   information, see the `git commit <https://git-scm.com/docs/git-commit>`_  manual page.
 #. To push the changes up to your forked repo on GitHub, do a ``git
    push``.
 
-.. _why the -a flag?: http://gitready.com/beginner/2009/01/18/the-staging-area.html
 
+Verify your changes
+===================
+
+Check that your change does what you intend.  For code changes:
+
+* If the issue you are working on provided a code example, run that example
+  against your branch and check that you now get the desired result.  Note that
+  adapting the issue example is often a good way to create a new test.
+
+* Run the tests to check that your change has not had unintended consequences
+  on existing functionality.  See :ref:`run_tests`.
+
+For documentation changes, build the documentation locally to check that
+it renders how you intended and that any new links work correctly.  See
+:ref:`build_docs`.
+
+This is also a good time to look through the :ref:`pr-author-guidelines` and
+address as many of the relevant points as you can.
+
+.. _open-pull-request:
 
 Open a pull request
 ===================
 
 When you are ready to ask for someone to review your code and consider a merge,
 `submit your Pull Request (PR) <https://docs.github.com/pull-requests>`_.
+
+Go to the web page of *your fork* of the Matplotlib repo, and click
+``Compare & pull request`` to send your changes to the maintainers for review.
+The base repository is ``matplotlib/matplotlib`` and the base branch is
+generally ``main``.
 
 Enter a title for the set of changes with some explanation of what you've done.
 Mention anything you'd like particular attention for - such as a
@@ -150,6 +182,9 @@ complicated change or some code you are not happy with.
 If you don't think your request is ready to be merged, just say so in your pull
 request message and use the "Draft PR" feature of GitHub. This is a good way of
 getting some preliminary code review.
+
+For more guidance on the mechanics of making a pull request, see GitHub's
+`pull request tutorial <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork>`_.
 
 .. _update-pull-request:
 
@@ -166,6 +201,17 @@ You can achieve this by using
 
     git commit -a --amend --no-edit
     git push [your-remote-repo] [your-branch] --force-with-lease
+
+.. tip::
+    Instead of typing your branch name every time, you only need to type the following once to link the remote branch to the local branch::
+
+        git push --set-upstream origin my-new-feature
+
+    From now on git will know that ``my-new-feature`` is related to the
+    ``my-new-feature`` branch in the GitHub repo. After this, you will be able to
+    push your changes with::
+
+        git push
 
 
 Manage commit history

@@ -239,6 +239,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         palette = QtGui.QPalette(QtGui.QColor("white"))
         self.setPalette(palette)
 
+    @QtCore.Slot()
     def _update_pixel_ratio(self):
         if self._set_device_pixel_ratio(
                 self.devicePixelRatioF() or 1):  # rarely, devicePixelRatioF=0
@@ -248,6 +249,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             event = QtGui.QResizeEvent(self.size(), self.size())
             self.resizeEvent(event)
 
+    @QtCore.Slot(QtGui.QScreen)
     def _update_screen(self, screen):
         # Handler for changes to a window's attached screen.
         self._update_pixel_ratio()
@@ -329,6 +331,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             return
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
+                   buttons=self._mpl_buttons(event.buttons()),
                    modifiers=self._mpl_modifiers(),
                    guiEvent=event)._process()
 
@@ -393,8 +396,15 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         w, h = self.get_width_height()
         return QtCore.QSize(w, h)
 
-    def minumumSizeHint(self):
+    def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
+
+    @staticmethod
+    def _mpl_buttons(buttons):
+        buttons = _to_int(buttons)
+        # State *after* press/release.
+        return {button for mask, button in FigureCanvasQT.buttond.items()
+                if _to_int(mask) & buttons}
 
     @staticmethod
     def _mpl_modifiers(modifiers=None, *, exclude=None):
@@ -483,7 +493,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if bbox is None and self.figure:
             bbox = self.figure.bbox  # Blit the entire canvas if bbox is None.
         # repaint uses logical pixels, not physical pixels like the renderer.
-        l, b, w, h = [int(pt / self.device_pixel_ratio) for pt in bbox.bounds]
+        l, b, w, h = (int(pt / self.device_pixel_ratio) for pt in bbox.bounds)
         t = b + h
         self.repaint(l, self.rect().height() - t, w, h)
 
@@ -492,7 +502,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             if not self._draw_pending:
                 return
             self._draw_pending = False
-            if self.height() < 0 or self.width() < 0:
+            if self.height() <= 0 or self.width() <= 0:
                 return
             try:
                 self.draw()
@@ -504,7 +514,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
         # to be called at the end of paintEvent.
         if rect is not None:
-            x0, y0, w, h = [int(pt / self.device_pixel_ratio) for pt in rect]
+            x0, y0, w, h = (int(pt / self.device_pixel_ratio) for pt in rect)
             x1 = x0 + w
             y1 = y0 + h
             def _draw_rect_callback(painter):
@@ -658,9 +668,6 @@ class FigureManagerQT(FigureManagerBase):
 
 
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
-    _message = QtCore.Signal(str)  # Remove once deprecation below elapses.
-    message = _api.deprecate_privatize_attribute("3.8")
-
     toolitems = [*NavigationToolbar2.toolitems]
     toolitems.insert(
         # Add 'customize' action after 'subplots'
@@ -783,7 +790,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._update_buttons_checked()
 
     def set_message(self, s):
-        self._message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
 
@@ -839,6 +845,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.StandardButton.Ok,
                     QtWidgets.QMessageBox.StandardButton.NoButton)
+        return fname
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
@@ -851,7 +858,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
 class SubplotToolQt(QtWidgets.QDialog):
     def __init__(self, targetfig, parent):
-        super().__init__()
+        super().__init__(parent)
         self.setWindowIcon(QtGui.QIcon(
             str(cbook._get_data_path("images/matplotlib.png"))))
         self.setObjectName("SubplotTool")

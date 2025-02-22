@@ -147,7 +147,7 @@ commands:
               export RELEASE_TAG='-t release'
             fi
             mkdir -p logs
-            make html O="-T $RELEASE_TAG -j1 -w /tmp/sphinxerrorswarnings.log"
+            make html O="-T $RELEASE_TAG -j4 -w /tmp/sphinxerrorswarnings.log"
             rm -r build/html/_sources
           working_directory: doc
       - save_cache:
@@ -216,9 +216,9 @@ commands:
 #
 
 jobs:
-  docs-python39:
+  docs-python3:
     docker:
-      - image: cimg/python:3.9
+      - image: cimg/python:3.12
     resource_class: large
     steps:
       - checkout
@@ -259,4 +259,4 @@ workflows:
     jobs:
       # NOTE: If you rename this job, then you must update the `if` condition
       # and `circleci-jobs` option in `.github/workflows/circleci.yml`.
-      - docs-python39
+      - docs-python3

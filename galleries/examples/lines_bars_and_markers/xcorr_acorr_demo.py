@@ -34,3 +34,8 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.acorr` / `matplotlib.pyplot.acorr`
 #    - `matplotlib.axes.Axes.xcorr` / `matplotlib.pyplot.xcorr`
+#
+# .. tags::
+#
+#    domain: statistics
+#    level: beginner

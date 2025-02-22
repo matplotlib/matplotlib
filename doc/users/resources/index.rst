@@ -54,8 +54,8 @@ Videos
   <https://www.youtube.com/watch?v=3Fp1zn5ao2M&feature=plcp>`_ by Eric Jones
 
 * `Anatomy of Matplotlib
-  <https://conference.scipy.org/scipy2013/tutorial_detail.php?id=103>`_
-  by Benjamin Root
+  <https://www.youtube.com/watch?v=6gdNUDs6QPc>`_
+  by Benjamin Root and Hannah Aizenman
 
 * `Data Visualization Basics with Python (O'Reilly)
   <https://www.oreilly.com/library/view/data-visualization-basics/9781771375573/>`_

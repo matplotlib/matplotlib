@@ -45,6 +45,8 @@ import matplotlib as mpl
 from matplotlib import _api
 import matplotlib.axes as maxes
 from matplotlib.path import Path
+from matplotlib.transforms import Bbox
+
 from mpl_toolkits.axes_grid1 import mpl_axes
 from .axisline_style import AxislineStyle  # noqa
 from .axis_artist import AxisArtist, GridlinesCollection
@@ -285,10 +287,10 @@ class GridHelperBase:
         x1, x2 = axes.get_xlim()
         y1, y2 = axes.get_ylim()
         if self._old_limits != (x1, x2, y1, y2):
-            self._update_grid(x1, y1, x2, y2)
+            self._update_grid(Bbox.from_extents(x1, y1, x2, y2))
             self._old_limits = (x1, x2, y1, y2)
 
-    def _update_grid(self, x1, y1, x2, y2):
+    def _update_grid(self, bbox):
         """Cache relevant computations when the axes limits have changed."""
 
     def get_gridlines(self, which, axis):
@@ -369,10 +371,6 @@ class GridHelperRectlinear(GridHelperBase):
 
 
 class Axes(maxes.Axes):
-
-    @_api.deprecated("3.8", alternative="ax.axis")
-    def __call__(self, *args, **kwargs):
-        return maxes.Axes.axis(self.axes, *args, **kwargs)
 
     def __init__(self, *args, grid_helper=None, **kwargs):
         self._axisline_on = True

@@ -17,13 +17,8 @@ class CbarAxesBase:
         super().__init__(*args, **kwargs)
 
     def colorbar(self, mappable, **kwargs):
-        return self.figure.colorbar(
+        return self.get_figure(root=False).colorbar(
             mappable, cax=self, location=self.orientation, **kwargs)
-
-    @_api.deprecated("3.8", alternative="ax.tick_params and colorbar.set_label")
-    def toggle_label(self, b):
-        axis = self.axis[self.orientation]
-        axis.toggle(ticklabels=b, label=b)
 
 
 _cbaraxes_class_factory = cbook._make_class_factory(CbarAxesBase, "Cbar{}")
@@ -256,28 +251,24 @@ class Grid:
             - "keep": Do not do anything.
         """
         _api.check_in_list(["all", "L", "1", "keep"], mode=mode)
-        is_last_row, is_first_col = (
-            np.mgrid[:self._nrows, :self._ncols] == [[[self._nrows - 1]], [[0]]])
-        if mode == "all":
-            bottom = left = np.full((self._nrows, self._ncols), True)
-        elif mode == "L":
-            bottom = is_last_row
-            left = is_first_col
-        elif mode == "1":
-            bottom = left = is_last_row & is_first_col
-        else:
+        if mode == "keep":
             return
-        for i in range(self._nrows):
-            for j in range(self._ncols):
-                ax = self.axes_row[i][j]
-                if isinstance(ax.axis, MethodType):
-                    bottom_axis = SimpleAxisArtist(ax.xaxis, 1, ax.spines["bottom"])
-                    left_axis = SimpleAxisArtist(ax.yaxis, 1, ax.spines["left"])
-                else:
-                    bottom_axis = ax.axis["bottom"]
-                    left_axis = ax.axis["left"]
-                bottom_axis.toggle(ticklabels=bottom[i, j], label=bottom[i, j])
-                left_axis.toggle(ticklabels=left[i, j], label=left[i, j])
+        for i, j in np.ndindex(self._nrows, self._ncols):
+            ax = self.axes_row[i][j]
+            if isinstance(ax.axis, MethodType):
+                bottom_axis = SimpleAxisArtist(ax.xaxis, 1, ax.spines["bottom"])
+                left_axis = SimpleAxisArtist(ax.yaxis, 1, ax.spines["left"])
+            else:
+                bottom_axis = ax.axis["bottom"]
+                left_axis = ax.axis["left"]
+            display_at_bottom = (i == self._nrows - 1 if mode == "L" else
+                                 i == self._nrows - 1 and j == 0 if mode == "1" else
+                                 True)  # if mode == "all"
+            display_at_left = (j == 0 if mode == "L" else
+                               i == self._nrows - 1 and j == 0 if mode == "1" else
+                               True)  # if mode == "all"
+            bottom_axis.toggle(ticklabels=display_at_bottom, label=display_at_bottom)
+            left_axis.toggle(ticklabels=display_at_left, label=display_at_left)
 
     def get_divider(self):
         return self._divider
@@ -354,11 +345,16 @@ class ImageGrid(Grid):
             Whether to create a colorbar for "each" axes, a "single" colorbar
             for the entire grid, colorbars only for axes on the "edge"
             determined by *cbar_location*, or no colorbars.  The colorbars are
-            stored in the :attr:`cbar_axes` attribute.
+            stored in the :attr:`!cbar_axes` attribute.
         cbar_location : {"left", "right", "bottom", "top"}, default: "right"
         cbar_pad : float, default: None
             Padding between the image axes and the colorbar axes.
-        cbar_size : size specification (see `.Size.from_any`), default: "5%"
+
+            .. versionchanged:: 3.10
+                ``cbar_mode="single"`` no longer adds *axes_pad* between the axes
+                and the colorbar if the *cbar_location* is "left" or "bottom".
+
+        cbar_size : size specification (see `!.Size.from_any`), default: "5%"
             Colorbar size.
         cbar_set_cax : bool, default: True
             If True, each axes in the grid has a *cax* attribute that is bound
@@ -410,7 +406,7 @@ class ImageGrid(Grid):
                 self._colorbar_pad = self._vert_pad_size.fixed_size
         self.cbar_axes = [
             _cbaraxes_class_factory(self._defaultAxesClass)(
-                self.axes_all[0].figure, self._divider.get_position(),
+                self.axes_all[0].get_figure(root=False), self._divider.get_position(),
                 orientation=self._colorbar_location)
             for _ in range(self.ngrids)]
 
@@ -439,7 +435,7 @@ class ImageGrid(Grid):
             self.cbar_axes[0].set_visible(True)
 
         for col, ax in enumerate(self.axes_row[0]):
-            if h:
+            if col != 0:
                 h.append(self._horiz_pad_size)
 
             if ax:
@@ -468,7 +464,7 @@ class ImageGrid(Grid):
         v_ax_pos = []
         v_cb_pos = []
         for row, ax in enumerate(self.axes_column[0][::-1]):
-            if v:
+            if row != 0:
                 v.append(self._vert_pad_size)
 
             if ax:

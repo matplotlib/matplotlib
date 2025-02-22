@@ -23,7 +23,6 @@ jobs:
           echo "This PR cannot be merged because it has one of the following labels: "
           echo "* status: needs comment/discussion"
           echo "* status: waiting for other PR"
-          echo "${{env.has_tag}}"
           exit 1
       - name: Allow merging
         if: ${{'false' == env.has_tag}}

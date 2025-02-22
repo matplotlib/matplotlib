@@ -27,3 +27,8 @@ ax2.set_title("Row (y) stride set to 0")
 
 plt.tight_layout()
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: intermediate

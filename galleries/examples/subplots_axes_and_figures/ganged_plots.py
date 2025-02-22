@@ -1,7 +1,7 @@
 """
-==========================
-Creating adjacent subplots
-==========================
+=================
+Adjacent subplots
+=================
 
 To create plots that share a common axis (visually) you can set the hspace
 between the subplots to zero. Passing sharex=True when creating the subplots
@@ -38,3 +38,10 @@ axs[2].set_yticks(np.arange(-0.9, 1.0, 0.4))
 axs[2].set_ylim(-1, 1)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    plot-type: line
+#    level: beginner

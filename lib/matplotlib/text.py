@@ -188,8 +188,7 @@ class Text(Artist):
             linespacing = 1.2  # Maybe use rcParam later.
         self.set_linespacing(linespacing)
         self.set_rotation_mode(rotation_mode)
-        self.set_antialiased(antialiased if antialiased is not None else
-                             mpl.rcParams['text.antialiased'])
+        self.set_antialiased(mpl._val_or_rc(antialiased, 'text.antialiased'))
 
     def update(self, kwargs):
         # docstring inherited
@@ -301,16 +300,19 @@ class Text(Artist):
 
         Parameters
         ----------
-        m : {None, 'default', 'anchor'}
+        m : {None, 'default', 'anchor', 'xtick', 'ytick'}
             If ``"default"``, the text will be first rotated, then aligned according
             to their horizontal and vertical alignments.  If ``"anchor"``, then
-            alignment occurs before rotation. Passing ``None`` will set the rotation
-            mode to ``"default"``.
+            alignment occurs before rotation. "xtick" and "ytick" adjust the
+            horizontal/vertical alignment so that the text is visually pointing
+            towards its anchor point. This is primarily used for rotated tick
+            labels and positions them nicely towards their ticks. Passing
+            ``None`` will set the rotation mode to ``"default"``.
         """
         if m is None:
             m = "default"
         else:
-            _api.check_in_list(("anchor", "default"), rotation_mode=m)
+            _api.check_in_list(("anchor", "default", "xtick", "ytick"), rotation_mode=m)
         self._rotation_mode = m
         self.stale = True
 
@@ -372,7 +374,8 @@ class Text(Artist):
         # Full vertical extent of font, including ascenders and descenders:
         _, lp_h, lp_d = _get_text_metrics_with_cache(
             renderer, "lp", self._fontproperties,
-            ismath="TeX" if self.get_usetex() else False, dpi=self.figure.dpi)
+            ismath="TeX" if self.get_usetex() else False,
+            dpi=self.get_figure(root=True).dpi)
         min_dy = (lp_h - lp_d) * self._linespacing
 
         for i, line in enumerate(lines):
@@ -380,7 +383,7 @@ class Text(Artist):
             if clean_line:
                 w, h, d = _get_text_metrics_with_cache(
                     renderer, clean_line, self._fontproperties,
-                    ismath=ismath, dpi=self.figure.dpi)
+                    ismath=ismath, dpi=self.get_figure(root=True).dpi)
             else:
                 w = h = d = 0
 
@@ -453,6 +456,11 @@ class Text(Artist):
 
         rotation_mode = self.get_rotation_mode()
         if rotation_mode != "anchor":
+            angle = self.get_rotation()
+            if rotation_mode == 'xtick':
+                halign = self._ha_for_angle(angle)
+            elif rotation_mode == 'ytick':
+                valign = self._va_for_angle(angle)
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
             if halign == 'center':
@@ -606,9 +614,8 @@ class Text(Artist):
         """
         Set whether the text can be wrapped.
 
-        Wrapping makes sure the text is completely within the figure box, i.e.
-        it does not extend beyond the drawing area. It does not take into
-        account any other artists.
+        Wrapping makes sure the text is confined to the (sub)figure box. It
+        does not take into account any other artists.
 
         Parameters
         ----------
@@ -657,16 +664,16 @@ class Text(Artist):
         """
         if rotation > 270:
             quad = rotation - 270
-            h1 = y0 / math.cos(math.radians(quad))
+            h1 = (y0 - figure_box.y0) / math.cos(math.radians(quad))
             h2 = (figure_box.x1 - x0) / math.cos(math.radians(90 - quad))
         elif rotation > 180:
             quad = rotation - 180
-            h1 = x0 / math.cos(math.radians(quad))
-            h2 = y0 / math.cos(math.radians(90 - quad))
+            h1 = (x0 - figure_box.x0) / math.cos(math.radians(quad))
+            h2 = (y0 - figure_box.y0) / math.cos(math.radians(90 - quad))
         elif rotation > 90:
             quad = rotation - 90
             h1 = (figure_box.y1 - y0) / math.cos(math.radians(quad))
-            h2 = x0 / math.cos(math.radians(90 - quad))
+            h2 = (x0 - figure_box.x0) / math.cos(math.radians(90 - quad))
         else:
             h1 = (figure_box.x1 - x0) / math.cos(math.radians(rotation))
             h2 = (figure_box.y1 - y0) / math.cos(math.radians(90 - rotation))
@@ -754,9 +761,16 @@ class Text(Artist):
 
             # don't use self.get_position here, which refers to text
             # position in Text:
-            posx = float(self.convert_xunits(self._x))
-            posy = float(self.convert_yunits(self._y))
+            x, y = self._x, self._y
+            if np.ma.is_masked(x):
+                x = np.nan
+            if np.ma.is_masked(y):
+                y = np.nan
+            posx = float(self.convert_xunits(x))
+            posy = float(self.convert_yunits(y))
             posx, posy = trans.transform((posx, posy))
+            if np.isnan(posx) or np.isnan(posy):
+                return  # don't throw a warning here
             if not np.isfinite(posx) or not np.isfinite(posy):
                 _log.warning("posx and posy should be finite values")
                 return
@@ -935,28 +949,30 @@ class Text(Artist):
 
         dpi : float, optional
             The dpi value for computing the bbox, defaults to
-            ``self.figure.dpi`` (*not* the renderer dpi); should be set e.g. if
-            to match regions with a figure saved with a custom dpi value.
+            ``self.get_figure(root=True).dpi`` (*not* the renderer dpi); should be set
+            e.g. if to match regions with a figure saved with a custom dpi value.
         """
         if not self.get_visible():
             return Bbox.unit()
+
+        fig = self.get_figure(root=True)
         if dpi is None:
-            dpi = self.figure.dpi
+            dpi = fig.dpi
         if self.get_text() == '':
-            with cbook._setattr_cm(self.figure, dpi=dpi):
+            with cbook._setattr_cm(fig, dpi=dpi):
                 tx, ty = self._get_xy_display()
                 return Bbox.from_bounds(tx, ty, 0, 0)
 
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
-            self._renderer = self.figure._get_renderer()
+            self._renderer = fig._get_renderer()
         if self._renderer is None:
             raise RuntimeError(
                 "Cannot get window extent of text w/o renderer. You likely "
                 "want to call 'figure.draw_without_rendering()' first.")
 
-        with cbook._setattr_cm(self.figure, dpi=dpi):
+        with cbook._setattr_cm(fig, dpi=dpi):
             bbox, info, descent = self._get_layout(self._renderer)
             x, y = self.get_unitless_position()
             x, y = self.get_transform().transform((x, y))
@@ -1327,10 +1343,7 @@ class Text(Artist):
             Whether to render using TeX, ``None`` means to use
             :rc:`text.usetex`.
         """
-        if usetex is None:
-            self._usetex = mpl.rcParams['text.usetex']
-        else:
-            self._usetex = bool(usetex)
+        self._usetex = bool(mpl._val_or_rc(usetex, 'text.usetex'))
         self.stale = True
 
     def get_usetex(self):
@@ -1370,6 +1383,32 @@ class Text(Artist):
 
         """
         self.set_fontfamily(fontname)
+
+    def _ha_for_angle(self, angle):
+        """
+        Determines horizontal alignment ('ha') for rotation_mode "xtick" based on
+        the angle of rotation in degrees and the vertical alignment.
+        """
+        anchor_at_bottom = self.get_verticalalignment() == 'bottom'
+        if (angle <= 10 or 85 <= angle <= 95 or 350 <= angle or
+                170 <= angle <= 190 or 265 <= angle <= 275):
+            return 'center'
+        elif 10 < angle < 85 or 190 < angle < 265:
+            return 'left' if anchor_at_bottom else 'right'
+        return 'right' if anchor_at_bottom else 'left'
+
+    def _va_for_angle(self, angle):
+        """
+        Determines vertical alignment ('va') for rotation_mode "ytick" based on
+        the angle of rotation in degrees and the horizontal alignment.
+        """
+        anchor_at_left = self.get_horizontalalignment() == 'left'
+        if (angle <= 10 or 350 <= angle or 170 <= angle <= 190
+                or 80 <= angle <= 100 or 260 <= angle <= 280):
+            return 'center'
+        elif 190 < angle < 260 or 10 < angle < 80:
+            return 'baseline' if anchor_at_left else 'top'
+        return 'top' if anchor_at_left else 'baseline'
 
 
 class OffsetFrom:
@@ -1515,9 +1554,9 @@ class _AnnotationBase:
 
         # if unit is offset-like
         if bbox_name == "figure":
-            bbox0 = self.figure.figbbox
+            bbox0 = self.get_figure(root=False).figbbox
         elif bbox_name == "subfigure":
-            bbox0 = self.figure.bbox
+            bbox0 = self.get_figure(root=False).bbox
         elif bbox_name == "axes":
             bbox0 = self.axes.bbox
 
@@ -1530,11 +1569,13 @@ class _AnnotationBase:
             raise ValueError(f"{coords!r} is not a valid coordinate")
 
         if unit == "points":
-            tr = Affine2D().scale(self.figure.dpi / 72)  # dpi/72 dots per point
+            tr = Affine2D().scale(
+                self.get_figure(root=True).dpi / 72)  # dpi/72 dots per point
         elif unit == "pixels":
             tr = Affine2D()
         elif unit == "fontsize":
-            tr = Affine2D().scale(self.get_size() * self.figure.dpi / 72)
+            tr = Affine2D().scale(
+                self.get_size() * self.get_figure(root=True).dpi / 72)
         elif unit == "fraction":
             tr = Affine2D().scale(*bbox0.size)
         else:
@@ -1572,7 +1613,7 @@ class _AnnotationBase:
     def _check_xy(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         b = self.get_annotation_clip()
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the Axes.
@@ -1838,10 +1879,6 @@ or callable, default: value of *xycoords*
                 # modified YAArrow API to be used with FancyArrowPatch
                 for key in ['width', 'headwidth', 'headlength', 'shrink']:
                     arrowprops.pop(key, None)
-                if 'frac' in arrowprops:
-                    _api.warn_deprecated(
-                        "3.8", name="the (unused) 'frac' key in 'arrowprops'")
-                    arrowprops.pop("frac")
             self.arrow_patch = FancyArrowPatch((0, 0), (1, 1), **arrowprops)
         else:
             self.arrow_patch = None
@@ -1849,7 +1886,6 @@ or callable, default: value of *xycoords*
         # Must come last, as some kwargs may be propagated to arrow_patch.
         Text.__init__(self, x, y, text, **kwargs)
 
-    @_api.rename_parameter("3.8", "event", "mouseevent")
     def contains(self, mouseevent):
         if self._different_canvas(mouseevent):
             return False, {}
@@ -1988,8 +2024,9 @@ or callable, default: value of *xycoords*
         self.update_positions(renderer)
         self.update_bbox_position_size(renderer)
         if self.arrow_patch is not None:  # FancyArrowPatch
-            if self.arrow_patch.figure is None and self.figure is not None:
-                self.arrow_patch.figure = self.figure
+            if (self.arrow_patch.get_figure(root=False) is None and
+                    (fig := self.get_figure(root=False)) is not None):
+                self.arrow_patch.set_figure(fig)
             self.arrow_patch.draw(renderer)
         # Draw text, including FancyBboxPatch, after FancyArrowPatch.
         # Otherwise, a wedge arrowstyle can land partly on top of the Bbox.
@@ -2004,7 +2041,7 @@ or callable, default: value of *xycoords*
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
-            self._renderer = self.figure._get_renderer()
+            self._renderer = self.get_figure(root=True)._get_renderer()
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent without renderer')
 
@@ -2025,4 +2062,4 @@ or callable, default: value of *xycoords*
         return super().get_tightbbox(renderer)
 
 
-_docstring.interpd.update(Annotation=Annotation.__init__.__doc__)
+_docstring.interpd.register(Annotation=Annotation.__init__.__doc__)

@@ -1,6 +1,7 @@
 """
-Fill Between and Alpha
-======================
+==================================
+``fill_between`` with transparency
+==================================
 
 The `~matplotlib.axes.Axes.fill_between` function generates a shaded
 region between a min and max boundary that is useful for illustrating ranges.
@@ -43,7 +44,7 @@ fig.autofmt_xdate()
 # regions can overlap and alpha allows you to see both.  Note that the
 # postscript format does not support alpha (this is a postscript
 # limitation, not a matplotlib limitation), so when using alpha save
-# your figures in PNG, PDF or SVG.
+# your figures in GIF, PNG, PDF or SVG.
 #
 # Our next example computes two populations of random walkers with a
 # different mean and standard deviation of the normal distributions from
@@ -136,3 +137,11 @@ ax.grid()
 # :doc:`/gallery/subplots_axes_and_figures/axhspan_demo`.
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    styling: alpha
+#    plot-type: fill_between
+#    level: intermediate
+#    purpose: showcase

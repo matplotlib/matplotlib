@@ -27,7 +27,7 @@ s2 = np.sin(6*np.pi*t)
 fig, ax = plt.subplots()
 l0, = ax.plot(t, s0, visible=False, lw=2, color='black', label='1 Hz')
 l1, = ax.plot(t, s1, lw=2, color='red', label='2 Hz')
-l2, = ax.plot(t, s2, lw=2, color='green', label='3 Hz')
+l2, = ax.plot(t, s2, lw=2, color='blue', label='3 Hz')
 
 lines_by_label = {l.get_label(): l for l in [l0, l1, l2]}
 line_colors = [l.get_color() for l in lines_by_label.values()]

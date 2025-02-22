@@ -18,6 +18,9 @@ Animation
 The easiest way to make a live animation in Matplotlib is to use one of the
 `Animation` classes.
 
+.. seealso::
+   - :ref:`animations`
+
 .. inheritance-diagram:: matplotlib.animation.FuncAnimation matplotlib.animation.ArtistAnimation
    :parts: 1
 

@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 from matplotlib.ticker import FuncFormatter
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 @image_comparison(['bbox_inches_tight'], remove_text=True,
@@ -45,7 +46,7 @@ def test_bbox_inches_tight():
 
 @image_comparison(['bbox_inches_tight_suptile_legend'],
                   savefig_kwarg={'bbox_inches': 'tight'},
-                  tol=0.02 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_bbox_inches_tight_suptile_legend():
     plt.plot(np.arange(10), label='a straight line')
     plt.legend(bbox_to_anchor=(0.9, 1), loc='upper left')
@@ -173,3 +174,18 @@ def test_bbox_inches_fixed_aspect():
         ax.plot([0, 1])
         ax.set_xlim(0, 1)
         ax.set_aspect('equal')
+
+
+@image_comparison(['bbox_inches_inset_rasterized'], extensions=['pdf'],
+                  remove_text=True, savefig_kwarg={'bbox_inches': 'tight'},
+                  style='mpl20')
+def test_bbox_inches_inset_rasterized():
+    fig, ax = plt.subplots()
+
+    arr = np.arange(100).reshape(10, 10)
+    im = ax.imshow(arr)
+    inset = inset_axes(
+        ax, width='10%', height='30%', loc='upper left',
+        bbox_to_anchor=(0.045, 0., 1, 1), bbox_transform=ax.transAxes)
+
+    fig.colorbar(im, cax=inset, orientation='horizontal')

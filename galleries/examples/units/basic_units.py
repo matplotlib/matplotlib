@@ -2,11 +2,12 @@
 .. _basic_units:
 
 ===========
-Basic Units
+Basic units
 ===========
 
 """
 
+import itertools
 import math
 
 from packaging.version import parse as parse_version
@@ -146,10 +147,10 @@ class TaggedValue(metaclass=TaggedValueMeta):
             return getattr(variable, name)
         return object.__getattribute__(self, name)
 
-    def __array__(self, dtype=object):
+    def __array__(self, dtype=object, copy=False):
         return np.asarray(self.value, dtype)
 
-    def __array_wrap__(self, array, context):
+    def __array_wrap__(self, array, context=None, return_scalar=False):
         return TaggedValue(array, self.unit)
 
     def __repr__(self):
@@ -192,6 +193,11 @@ class TaggedValue(metaclass=TaggedValueMeta):
 
 
 class BasicUnit:
+    # numpy scalars convert eager and np.float64(2) * BasicUnit('cm')
+    # would thus return a numpy scalar. To avoid this, we increase the
+    # priority of the BasicUnit.
+    __array_priority__ = np.float64(0).__array_priority__ + 1
+
     def __init__(self, name, fullname=None):
         self.name = name
         if fullname is None:
@@ -222,10 +228,10 @@ class BasicUnit:
     def __rmul__(self, lhs):
         return self*lhs
 
-    def __array_wrap__(self, array, context):
+    def __array_wrap__(self, array, context=None, return_scalar=False):
         return TaggedValue(array, self)
 
-    def __array__(self, t=None, context=None):
+    def __array__(self, t=None, context=None, copy=False):
         ret = np.array(1)
         if t is not None:
             return ret.astype(t)
@@ -254,7 +260,7 @@ class BasicUnit:
 
 class UnitResolver:
     def addition_rule(self, units):
-        for unit_1, unit_2 in zip(units[:-1], units[1:]):
+        for unit_1, unit_2 in itertools.pairwise(units):
             if unit_1 != unit_2:
                 return NotImplemented
         return units[0]

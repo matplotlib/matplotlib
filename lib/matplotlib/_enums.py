@@ -10,21 +10,11 @@ As an end-user you will not use these classes directly, but only the values
 they define.
 """
 
-from enum import Enum, auto
+from enum import Enum
 from matplotlib import _docstring
 
 
-class _AutoStringNameEnum(Enum):
-    """Automate the ``name = 'name'`` part of making a (str, Enum)."""
-
-    def _generate_next_value_(name, start, count, last_values):
-        return name
-
-    def __hash__(self):
-        return str(self).__hash__()
-
-
-class JoinStyle(str, _AutoStringNameEnum):
+class JoinStyle(str, Enum):
     """
     Define how the connection between two line segments is drawn.
 
@@ -79,9 +69,9 @@ class JoinStyle(str, _AutoStringNameEnum):
 
     """
 
-    miter = auto()
-    round = auto()
-    bevel = auto()
+    miter = "miter"
+    round = "round"
+    bevel = "bevel"
 
     @staticmethod
     def demo():
@@ -116,7 +106,7 @@ JoinStyle.input_description = "{" \
         + "}"
 
 
-class CapStyle(str, _AutoStringNameEnum):
+class CapStyle(str, Enum):
     r"""
     Define how the two endpoints (caps) of an unclosed line are drawn.
 
@@ -151,9 +141,9 @@ class CapStyle(str, _AutoStringNameEnum):
         CapStyle.demo()
 
     """
-    butt = auto()
-    projecting = auto()
-    round = auto()
+    butt = "butt"
+    projecting = "projecting"
+    round = "round"
 
     @staticmethod
     def demo():
@@ -181,5 +171,7 @@ CapStyle.input_description = "{" \
         + ", ".join([f"'{cs.name}'" for cs in CapStyle]) \
         + "}"
 
-_docstring.interpd.update({'JoinStyle': JoinStyle.input_description,
-                          'CapStyle': CapStyle.input_description})
+_docstring.interpd.register(
+    JoinStyle=JoinStyle.input_description,
+    CapStyle=CapStyle.input_description,
+)

@@ -1,7 +1,7 @@
 """
-=================================================
-Creating multiple subplots using ``plt.subplots``
-=================================================
+===============================================
+Create multiple subplots using ``plt.subplots``
+===============================================
 
 `.pyplot.subplots` creates a figure and a grid of subplots with a single call,
 while providing reasonable control over how the individual plots are created.
@@ -209,3 +209,14 @@ ax1.plot(x, y)
 ax2.plot(x, y ** 2)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot,
+#    component: axes,
+#    component: axis
+#    plot-type: line,
+#    plot-type: polar
+#    level: beginner
+#    purpose: showcase

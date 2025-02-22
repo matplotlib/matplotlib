@@ -1,5 +1,7 @@
 from io import BytesIO
 import ast
+import os
+import sys
 import pickle
 import pickletools
 
@@ -8,14 +10,14 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import cm
-from matplotlib.testing import subprocess_run_helper
+from matplotlib.testing import subprocess_run_helper, is_ci_environment
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.dates import rrulewrapper
 from matplotlib.lines import VertexSelector
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.figure as mfigure
-from mpl_toolkits.axes_grid1 import axes_divider, parasite_axes  # type: ignore
+from mpl_toolkits.axes_grid1 import axes_divider, parasite_axes  # type: ignore[import]
 
 
 def test_simple():
@@ -93,6 +95,11 @@ def _generate_complete_test_figure(fig_ref):
     plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4, label='$-.5 x$')
     plt.legend(draggable=True)
 
+    # Ensure subfigure parenting works.
+    subfigs = fig_ref.subfigures(2)
+    subfigs[0].subplots(1, 2)
+    subfigs[1].subplots(1, 2)
+
     fig_ref.align_ylabels()  # Test handling of _align_label_groups Groupers.
 
 
@@ -143,7 +150,15 @@ def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
     proc = subprocess_run_helper(
         _pickle_load_subprocess,
         timeout=60,
-        extra_env={'PICKLE_FILE_PATH': str(fp), 'MPLBACKEND': 'Agg'}
+        extra_env={
+            "PICKLE_FILE_PATH": str(fp),
+            "MPLBACKEND": "Agg",
+            # subprocess_run_helper will set SOURCE_DATE_EPOCH=0, so for a dirty tree,
+            # the version will have the date 19700101. As we aren't trying to test the
+            # version compatibility warning, force setuptools-scm to use the same
+            # version as us.
+            "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_MATPLOTLIB": mpl.__version__,
+        },
     )
 
     loaded_fig = pickle.loads(ast.literal_eval(proc.stdout))
@@ -302,3 +317,23 @@ def test_cycler():
     ax = pickle.loads(pickle.dumps(ax))
     l, = ax.plot([3, 4])
     assert l.get_color() == "m"
+
+
+# Run under an interactive backend to test that we don't try to pickle the
+# (interactive and non-picklable) canvas.
+def _test_axeswidget_interactive():
+    ax = plt.figure().add_subplot()
+    pickle.dumps(mpl.widgets.Button(ax, "button"))
+
+
+@pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
+        ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+        sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
+        reason='Tk version mismatch on Azure macOS CI'
+    )
+def test_axeswidget_interactive():
+    subprocess_run_helper(
+        _test_axeswidget_interactive,
+        timeout=120 if is_ci_environment() else 20,
+        extra_env={'MPLBACKEND': 'tkagg'}
+    )

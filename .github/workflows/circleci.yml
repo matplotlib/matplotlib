@@ -3,23 +3,24 @@ name: "CircleCI artifact handling"
 on: [status]
 jobs:
   circleci_artifacts_redirector_job:
-    if: "${{ github.event.context == 'ci/circleci: docs-python39' }}"
+    if: "${{ github.event.context == 'ci/circleci: docs-python3' }}"
     permissions:
       statuses: write
     runs-on: ubuntu-latest
     name: Run CircleCI artifacts redirector
     steps:
       - name: GitHub Action step
-        uses: larsoner/circleci-artifacts-redirector-action@master
+        uses:
+          scientific-python/circleci-artifacts-redirector-action@4e13a10d89177f4bfc8007a7064bdbeda848d8d1  # v1.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           api-token: ${{ secrets.CIRCLECI_TOKEN }}
           artifact-path: 0/doc/build/html/index.html
-          circleci-jobs: docs-python39
+          circleci-jobs: docs-python3
           job-title: View the built docs
 
   post_warnings_as_review:
-    if: "${{ github.event.context == 'ci/circleci: docs-python39' }}"
+    if: "${{ github.event.context == 'ci/circleci: docs-python3' }}"
     permissions:
       contents: read
       checks: write
@@ -27,16 +28,20 @@ jobs:
     runs-on: ubuntu-latest
     name: Post warnings/errors as review
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Fetch result artifacts
         id: fetch-artifacts
+        env:
+          target_url: "${{ github.event.target_url }}"
         run: |
-          python .circleci/fetch_doc_logs.py "${{ github.event.target_url }}"
+          python .circleci/fetch_doc_logs.py "${target_url}"
 
       - name: Set up reviewdog
         if: "${{ steps.fetch-artifacts.outputs.count != 0 }}"
-        uses: reviewdog/action-setup@v1
+        uses: reviewdog/action-setup@3f401fe1d58fe77e10d665ab713057375e39b887  # v1.3.0
         with:
           reviewdog_version: latest
 

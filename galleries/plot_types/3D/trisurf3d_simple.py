@@ -8,8 +8,6 @@ See `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib import cm
-
 plt.style.use('_mpl-gallery')
 
 n_radii = 8
@@ -26,7 +24,7 @@ z = np.sin(-x*y)
 
 # Plot
 fig, ax = plt.subplots(subplot_kw={'projection': '3d'})
-ax.plot_trisurf(x, y, z, vmin=z.min() * 2, cmap=cm.Blues)
+ax.plot_trisurf(x, y, z, vmin=z.min() * 2, cmap="Blues")
 
 ax.set(xticklabels=[],
        yticklabels=[],

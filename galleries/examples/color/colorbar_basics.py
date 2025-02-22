@@ -56,3 +56,10 @@ plt.show()
 #    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
 #    - `matplotlib.colorbar.Colorbar.minorticks_on`
 #    - `matplotlib.colorbar.Colorbar.minorticks_off`
+#
+# .. tags::
+#
+#    component: colorbar
+#    styling: color
+#    plot-type: imshow
+#    level: beginner

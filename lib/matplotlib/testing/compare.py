@@ -13,6 +13,7 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory, TemporaryFile
 import weakref
+import re
 
 import numpy as np
 from PIL import Image
@@ -45,22 +46,20 @@ def get_cache_dir():
 
 
 def get_file_hash(path, block_size=2 ** 20):
-    md5 = hashlib.md5()
+    sha256 = hashlib.sha256(usedforsecurity=False)
     with open(path, 'rb') as fd:
         while True:
             data = fd.read(block_size)
             if not data:
                 break
-            md5.update(data)
+            sha256.update(data)
 
     if Path(path).suffix == '.pdf':
-        md5.update(str(mpl._get_executable_info("gs").version)
-                   .encode('utf-8'))
+        sha256.update(str(mpl._get_executable_info("gs").version).encode('utf-8'))
     elif Path(path).suffix == '.svg':
-        md5.update(str(mpl._get_executable_info("inkscape").version)
-                   .encode('utf-8'))
+        sha256.update(str(mpl._get_executable_info("inkscape").version).encode('utf-8'))
 
-    return md5.hexdigest()
+    return sha256.hexdigest()
 
 
 class _ConverterError(Exception):
@@ -96,6 +95,16 @@ class _Converter:
             buf.extend(c)
             if buf.endswith(terminator):
                 return bytes(buf)
+
+
+class _MagickConverter:
+    def __call__(self, orig, dest):
+        try:
+            subprocess.run(
+                [mpl._get_executable_info("magick").executable, orig, dest],
+                check=True)
+        except subprocess.CalledProcessError as e:
+            raise _ConverterError() from e
 
 
 class _GSConverter(_Converter):
@@ -230,6 +239,12 @@ class _SVGWithMatplotlibFontsConverter(_SVGConverter):
 
 def _update_converter():
     try:
+        mpl._get_executable_info("magick")
+    except mpl.ExecutableNotFoundError:
+        pass
+    else:
+        converter['gif'] = _MagickConverter()
+    try:
         mpl._get_executable_info("gs")
     except mpl.ExecutableNotFoundError:
         pass
@@ -299,13 +314,21 @@ def convert(filename, cache):
         _log.debug("For %s: converting to png.", filename)
         convert = converter[path.suffix[1:]]
         if path.suffix == ".svg":
-            contents = path.read_text()
+            contents = path.read_text(encoding="utf-8")
             # NOTE: This check should be kept in sync with font styling in
             # `lib/matplotlib/backends/backend_svg.py`. If it changes, then be sure to
             # re-generate any SVG test files using this mode, or else such tests will
             # fail to use the converter for the expected images (but will for the
             # results), and the tests will fail strangely.
-            if 'style="font:' in contents:
+            if re.search(
+                # searches for attributes :
+                #   style=[font|font-size|font-weight|
+                #          font-family|font-variant|font-style]
+                # taking care of the possibility of multiple style attributes
+                # before the font styling (i.e. opacity)
+                r'style="[^"]*font(|-size|-weight|-family|-variant|-style):',
+                contents  # raw contents of the svg file
+                    ):
                 # for svg.fonttype = none, we explicitly patch the font search
                 # path so that fonts shipped by Matplotlib are found.
                 convert = _svg_with_matplotlib_fonts_converter
@@ -388,7 +411,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
     Compare two "image" files checking differences within a tolerance.
 
     The two given filenames may point to files which are convertible to
-    PNG via the `.converter` dictionary. The underlying RMS is calculated
+    PNG via the `!converter` dictionary. The underlying RMS is calculated
     with the `.calculate_rms` function.
 
     Parameters

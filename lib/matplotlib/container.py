@@ -87,12 +87,12 @@ class ErrorbarContainer(Container):
     lines : tuple
         Tuple of ``(data_line, caplines, barlinecols)``.
 
-        - data_line : :class:`~matplotlib.lines.Line2D` instance of
-          x, y plot markers and/or line.
-        - caplines : tuple of :class:`~matplotlib.lines.Line2D` instances of
-          the error bar caps.
-        - barlinecols : list of :class:`~matplotlib.collections.LineCollection`
-          with the horizontal and vertical error ranges.
+        - data_line : A `~matplotlib.lines.Line2D` instance of x, y plot markers
+          and/or line.
+        - caplines : A tuple of `~matplotlib.lines.Line2D` instances of the error
+          bar caps.
+        - barlinecols : A tuple of `~matplotlib.collections.LineCollection` with the
+          horizontal and vertical error ranges.
 
     has_xerr, has_yerr : bool
         ``True`` if the errorbar has x/y errors.
@@ -115,13 +115,13 @@ class StemContainer(Container):
 
     Attributes
     ----------
-    markerline :  :class:`~matplotlib.lines.Line2D`
+    markerline : `~matplotlib.lines.Line2D`
         The artist of the markers at the stem heads.
 
-    stemlines : list of :class:`~matplotlib.lines.Line2D`
+    stemlines : `~matplotlib.collections.LineCollection`
         The artists of the vertical lines for all stems.
 
-    baseline : :class:`~matplotlib.lines.Line2D`
+    baseline : `~matplotlib.lines.Line2D`
         The artist of the horizontal baseline.
     """
     def __init__(self, markerline_stemlines_baseline, **kwargs):
@@ -130,7 +130,7 @@ class StemContainer(Container):
         ----------
         markerline_stemlines_baseline : tuple
             Tuple of ``(markerline, stemlines, baseline)``.
-            ``markerline`` contains the `.LineCollection` of the markers,
+            ``markerline`` contains the `.Line2D` of the markers,
             ``stemlines`` is a `.LineCollection` of the main lines,
             ``baseline`` is the `.Line2D` of the baseline.
         """

@@ -260,6 +260,8 @@ def test_interactive_colorbar(plot_func, orientation, tool, button, expected):
     # Set up the mouse movements
     start_event = MouseEvent(
         "button_press_event", fig.canvas, *s0, button)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *s1, button, buttons={button})
     stop_event = MouseEvent(
         "button_release_event", fig.canvas, *s1, button)
 
@@ -267,12 +269,12 @@ def test_interactive_colorbar(plot_func, orientation, tool, button, expected):
     if tool == "zoom":
         tb.zoom()
         tb.press_zoom(start_event)
-        tb.drag_zoom(stop_event)
+        tb.drag_zoom(drag_event)
         tb.release_zoom(stop_event)
     else:
         tb.pan()
         tb.press_pan(start_event)
-        tb.drag_pan(stop_event)
+        tb.drag_pan(drag_event)
         tb.release_pan(stop_event)
 
     # Should be close, but won't be exact due to screen integer resolution
@@ -283,10 +285,11 @@ def test_toolbar_zoompan():
     with pytest.warns(UserWarning, match=_EXPECTED_WARNING_TOOLMANAGER):
         plt.rcParams['toolbar'] = 'toolmanager'
     ax = plt.gca()
+    fig = ax.get_figure()
     assert ax.get_navigate_mode() is None
-    ax.figure.canvas.manager.toolmanager.trigger_tool('zoom')
+    fig.canvas.manager.toolmanager.trigger_tool('zoom')
     assert ax.get_navigate_mode() == "ZOOM"
-    ax.figure.canvas.manager.toolmanager.trigger_tool('pan')
+    fig.canvas.manager.toolmanager.trigger_tool('pan')
     assert ax.get_navigate_mode() == "PAN"
 
 
@@ -394,6 +397,9 @@ def test_interactive_pan(key, mouseend, expectedxlim, expectedylim):
     start_event = MouseEvent(
         "button_press_event", fig.canvas, *sstart, button=MouseButton.LEFT,
         key=key)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *send, button=MouseButton.LEFT,
+        buttons={MouseButton.LEFT}, key=key)
     stop_event = MouseEvent(
         "button_release_event", fig.canvas, *send, button=MouseButton.LEFT,
         key=key)
@@ -401,7 +407,7 @@ def test_interactive_pan(key, mouseend, expectedxlim, expectedylim):
     tb = NavigationToolbar2(fig.canvas)
     tb.pan()
     tb.press_pan(start_event)
-    tb.drag_pan(stop_event)
+    tb.drag_pan(drag_event)
     tb.release_pan(stop_event)
     # Should be close, but won't be exact due to screen integer resolution
     assert tuple(ax.get_xlim()) == pytest.approx(expectedxlim, abs=0.02)
@@ -509,6 +515,8 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
 
     # Set up the mouse movements
     start_event = MouseEvent("button_press_event", fig.canvas, *s0, button)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *s1, button, buttons={button})
     stop_event = MouseEvent("button_release_event", fig.canvas, *s1, button)
 
     tb = NavigationToolbar2(fig.canvas)
@@ -532,18 +540,7 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
                 ylim_b = init_ylim
 
         tb.zoom()
-        tb.press_zoom(start_event)
-        tb.drag_zoom(stop_event)
-        tb.release_zoom(stop_event)
 
-        assert ax_t.get_xlim() == pytest.approx(xlim_t, abs=0.15)
-        assert ax_t.get_ylim() == pytest.approx(ylim_t, abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(xlim_b, abs=0.15)
-        assert ax_b.get_ylim() == pytest.approx(ylim_b, abs=0.15)
-
-        # Check if twin-axes are properly triggered
-        assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
     else:
         # Evaluate expected limits
         # (call start_pan to make sure ax._pan_start is set)
@@ -568,15 +565,16 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
                 ylim_b = init_ylim
 
         tb.pan()
-        tb.press_pan(start_event)
-        tb.drag_pan(stop_event)
-        tb.release_pan(stop_event)
 
-        assert ax_t.get_xlim() == pytest.approx(xlim_t, abs=0.15)
-        assert ax_t.get_ylim() == pytest.approx(ylim_t, abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(xlim_b, abs=0.15)
-        assert ax_b.get_ylim() == pytest.approx(ylim_b, abs=0.15)
+    start_event._process()
+    drag_event._process()
+    stop_event._process()
 
-        # Check if twin-axes are properly triggered
-        assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
-        assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
+    assert ax_t.get_xlim() == pytest.approx(xlim_t, abs=0.15)
+    assert ax_t.get_ylim() == pytest.approx(ylim_t, abs=0.15)
+    assert ax_b.get_xlim() == pytest.approx(xlim_b, abs=0.15)
+    assert ax_b.get_ylim() == pytest.approx(ylim_b, abs=0.15)
+
+    # Check if twin-axes are properly triggered
+    assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
+    assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)

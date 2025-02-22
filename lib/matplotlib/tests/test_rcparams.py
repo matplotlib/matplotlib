@@ -5,6 +5,7 @@ import sys
 from unittest import mock
 
 from cycler import cycler, Cycler
+from packaging.version import parse as parse_version
 import pytest
 
 import matplotlib as mpl
@@ -536,10 +537,15 @@ def test_backend_fallback_headless(tmp_path):
 
 
 @pytest.mark.skipif(
-    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
     reason="headless")
 def test_backend_fallback_headful(tmp_path):
-    pytest.importorskip("tkinter")
+    if parse_version(pytest.__version__) >= parse_version('8.2.0'):
+        pytest_kwargs = dict(exc_type=ImportError)
+    else:
+        pytest_kwargs = {}
+
+    pytest.importorskip("tkinter", **pytest_kwargs)
     env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
     backend = subprocess_run_for_testing(
         [sys.executable, "-c",
@@ -548,6 +554,7 @@ def test_backend_fallback_headful(tmp_path):
          # Check that access on another instance does not resolve the sentinel.
          "assert mpl.RcParams({'backend': sentinel})['backend'] == sentinel; "
          "assert mpl.rcParams._get('backend') == sentinel; "
+         "assert mpl.get_backend(auto_select=False) is None; "
          "import matplotlib.pyplot; "
          "print(matplotlib.get_backend())"],
         env=env, text=True, check=True, capture_output=True).stdout
@@ -557,40 +564,6 @@ def test_backend_fallback_headful(tmp_path):
 
 
 def test_deprecation(monkeypatch):
-    monkeypatch.setitem(
-        mpl._deprecated_map, "patch.linewidth",
-        ("0.0", "axes.linewidth", lambda old: 2 * old, lambda new: new / 2))
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        assert mpl.rcParams["patch.linewidth"] \
-            == mpl.rcParams["axes.linewidth"] / 2
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        mpl.rcParams["patch.linewidth"] = 1
-    assert mpl.rcParams["axes.linewidth"] == 2
-
-    monkeypatch.setitem(
-        mpl._deprecated_ignore_map, "patch.edgecolor",
-        ("0.0", "axes.edgecolor"))
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        assert mpl.rcParams["patch.edgecolor"] \
-            == mpl.rcParams["axes.edgecolor"]
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        mpl.rcParams["patch.edgecolor"] = "#abcd"
-    assert mpl.rcParams["axes.edgecolor"] != "#abcd"
-
-    monkeypatch.setitem(
-        mpl._deprecated_ignore_map, "patch.force_edgecolor",
-        ("0.0", None))
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        assert mpl.rcParams["patch.force_edgecolor"] is None
-
-    monkeypatch.setitem(
-        mpl._deprecated_remain_as_none, "svg.hashsalt",
-        ("0.0",))
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        mpl.rcParams["svg.hashsalt"] = "foobar"
-    assert mpl.rcParams["svg.hashsalt"] == "foobar"  # Doesn't warn.
-    mpl.rcParams["svg.hashsalt"] = None  # Doesn't warn.
-
     mpl.rcParams.update(mpl.rcParams.copy())  # Doesn't warn.
     # Note that the warning suppression actually arises from the
     # iteration over the updater rcParams being protected by

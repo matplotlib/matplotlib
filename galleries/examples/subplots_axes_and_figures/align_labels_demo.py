@@ -1,7 +1,7 @@
 """
-==========================
-Aligning Labels and Titles
-==========================
+=======================
+Align labels and titles
+=======================
 
 Aligning xlabel, ylabel, and title using `.Figure.align_xlabels`,
 `.Figure.align_ylabels`, and `.Figure.align_titles`.
@@ -26,7 +26,8 @@ ax = axs[0][1]
 ax.plot(np.arange(1., 0., -0.1) * 2000., np.arange(1., 0., -0.1))
 ax.set_title('Title0 1')
 ax.xaxis.tick_top()
-ax.tick_params(axis='x', rotation=55)
+ax.set_xticks(ax.get_xticks())
+ax.tick_params(axis='x', rotation=55, rotation_mode='xtick')
 
 
 for i in range(2):
@@ -35,9 +36,18 @@ for i in range(2):
     ax.set_ylabel('YLabel1 %d' % i)
     ax.set_xlabel('XLabel1 %d' % i)
     if i == 0:
-        ax.tick_params(axis='x', rotation=55)
+        ax.set_xticks(ax.get_xticks())
+        ax.tick_params(axis='x', rotation=55, rotation_mode='xtick')
 
 fig.align_labels()  # same as fig.align_xlabels(); fig.align_ylabels()
 fig.align_titles()
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: label
+#    component: title
+#    styling: position
+#    level: beginner

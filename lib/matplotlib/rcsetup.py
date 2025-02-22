@@ -191,6 +191,14 @@ def _make_type_validator(cls, *, allow_none=False):
     def validator(s):
         if (allow_none and
                 (s is None or cbook._str_lower_equal(s, "none"))):
+            if cbook._str_lower_equal(s, "none") and s != "None":
+                _api.warn_deprecated(
+                    "3.11",
+                    message=f"Using the capitalization {s!r} in matplotlibrc for "
+                            "*None* is deprecated in %(removal)s and will lead to an "
+                            "error from version 3.13 onward. Please use 'None' "
+                            "instead."
+                )
             return None
         if cls is str and not isinstance(s, str):
             raise ValueError(f'Could not convert {s!r} to str')
@@ -297,6 +305,12 @@ def validate_color_or_inherit(s):
 
 def validate_color_or_auto(s):
     if cbook._str_equal(s, 'auto'):
+        return s
+    return validate_color(s)
+
+
+def _validate_color_or_edge(s):
+    if cbook._str_equal(s, 'edge'):
         return s
     return validate_color(s)
 
@@ -461,19 +475,6 @@ def validate_ps_distiller(s):
         return None
     else:
         return ValidateInStrings('ps.usedistiller', ['ghostscript', 'xpdf'])(s)
-
-
-def _validate_papersize(s):
-    # Re-inline this validator when the 'auto' deprecation expires.
-    s = ValidateInStrings("ps.papersize",
-                          ["figure", "auto", "letter", "legal", "ledger",
-                           *[f"{ab}{i}" for ab in "ab" for i in range(11)]],
-                          ignorecase=True)(s)
-    if s == "auto":
-        _api.warn_deprecated("3.8", name="ps.papersize='auto'",
-                             addendum="Pass an explicit paper type, figure, or omit "
-                             "the *ps.papersize* rcParam entirely.")
-    return s
 
 
 # A validator dedicated to the named line styles, based on the items in
@@ -695,7 +696,7 @@ def cycler(*args, **kwargs):
     Call signatures::
 
       cycler(cycler)
-      cycler(label=values[, label2=values2[, ...]])
+      cycler(label=values, label2=values2, ...)
       cycler(label, values)
 
     Form 1 copies a given `~cycler.Cycler` object.
@@ -963,7 +964,7 @@ _validators = {
     "patch.antialiased":     validate_bool,  # antialiased (no jaggies)
 
     ## hatch props
-    "hatch.color":     validate_color,
+    "hatch.color":     _validate_color_or_edge,
     "hatch.linewidth": validate_float,
 
     ## Histogram properties
@@ -1053,7 +1054,7 @@ _validators = {
 
     "image.aspect":              validate_aspect,  # equal, auto, a number
     "image.interpolation":       validate_string,
-    "image.interpolation_stage": ["data", "rgba"],
+    "image.interpolation_stage": ["auto", "data", "rgba"],
     "image.cmap":                _validate_cmap,  # gray, jet, etc.
     "image.lut":                 validate_int,  # lookup table
     "image.origin":              ["upper", "lower"],
@@ -1131,6 +1132,13 @@ _validators = {
     "axes3d.xaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.zaxis.panecolor":    validate_color,  # 3d background pane
+
+    "axes3d.depthshade": validate_bool,  # depth shade for 3D scatter plots
+    "axes3d.depthshade_minalpha": validate_float,  # min alpha value for depth shading
+
+    "axes3d.mouserotationstyle": ["azel", "trackball", "sphere", "arcball"],
+    "axes3d.trackballsize": validate_float,
+    "axes3d.trackballborder": validate_float,
 
     # scatter props
     "scatter.marker":     _validate_marker,
@@ -1291,7 +1299,9 @@ _validators = {
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
 
     # Set the papersize/type
-    "ps.papersize":       _validate_papersize,
+    "ps.papersize":       _ignorecase(
+                                ["figure", "letter", "legal", "ledger",
+                                 *[f"{ab}{i}" for ab in "ab" for i in range(11)]]),
     "ps.useafm":          validate_bool,
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,
@@ -1311,6 +1321,7 @@ _validators = {
     "svg.image_inline": validate_bool,
     "svg.fonttype": ["none", "path"],  # save text as text ("none") or "paths"
     "svg.hashsalt": validate_string_or_None,
+    "svg.id": validate_string_or_None,
 
     # set this when you want to generate hardcopy docstring
     "docstring.hardcopy": validate_bool,

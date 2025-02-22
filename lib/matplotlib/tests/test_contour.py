@@ -5,27 +5,13 @@ from unittest import mock
 
 import contourpy
 import numpy as np
-from numpy.testing import (
-    assert_array_almost_equal, assert_array_almost_equal_nulp, assert_array_equal)
+from numpy.testing import assert_array_almost_equal, assert_array_almost_equal_nulp
 import matplotlib as mpl
 from matplotlib import pyplot as plt, rc_context, ticker
 from matplotlib.colors import LogNorm, same_color
 import matplotlib.patches as mpatches
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import pytest
-
-
-# Helper to test the transition from ContourSets holding multiple Collections to being a
-# single Collection; remove once the deprecated old layout expires.
-def _maybe_split_collections(do_split):
-    if not do_split:
-        return
-    for fig in map(plt.figure, plt.get_fignums()):
-        for ax in fig.axes:
-            for coll in ax.collections:
-                if isinstance(coll, mpl.contour.ContourSet):
-                    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-                        coll.collections
 
 
 def test_contour_shape_1d_valid():
@@ -108,16 +94,13 @@ def test_contour_set_paths(fig_test, fig_ref):
     cs_test.set_paths(cs_ref.get_paths())
 
 
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(['contour_manual_labels'], remove_text=True, style='mpl20', tol=0.26)
-def test_contour_manual_labels(split_collections):
+def test_contour_manual_labels():
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
 
     plt.figure(figsize=(6, 2), dpi=200)
     cs = plt.contour(x, y, z)
-
-    _maybe_split_collections(split_collections)
 
     pts = np.array([(1.0, 3.0), (1.0, 4.4), (1.0, 6.0)])
     plt.clabel(cs, manual=pts)
@@ -144,29 +127,21 @@ def test_contour_manual_moveto():
     assert clabels[0].get_text() == "0"
 
 
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(['contour_disconnected_segments'],
                   remove_text=True, style='mpl20', extensions=['png'])
-def test_contour_label_with_disconnected_segments(split_collections):
+def test_contour_label_with_disconnected_segments():
     x, y = np.mgrid[-1:1:21j, -1:1:21j]
     z = 1 / np.sqrt(0.01 + (x + 0.3) ** 2 + y ** 2)
     z += 1 / np.sqrt(0.01 + (x - 0.3) ** 2 + y ** 2)
 
     plt.figure()
     cs = plt.contour(x, y, z, levels=[7])
-
-    # Adding labels should invalidate the old style
-    _maybe_split_collections(split_collections)
-
     cs.clabel(manual=[(0.2, 0.1)])
 
-    _maybe_split_collections(split_collections)
 
-
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True,
-                  tol=0.018 if platform.machine() == 'arm64' else 0)
-def test_given_colors_levels_and_extends(split_collections):
+                  tol=0 if platform.machine() == 'x86_64' else 0.018)
+def test_given_colors_levels_and_extends():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
 
@@ -195,12 +170,31 @@ def test_given_colors_levels_and_extends(split_collections):
 
         plt.colorbar(c, ax=ax)
 
-    _maybe_split_collections(split_collections)
+
+@image_comparison(['contourf_hatch_colors'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_hatch_colors():
+    fig, ax = plt.subplots()
+    cf = ax.contourf([[0, 1], [1, 2]], hatches=['-', '/', '\\', '//'], cmap='gray')
+    cf.set_edgecolors(["blue", "grey", "yellow", "red"])
 
 
-@pytest.mark.parametrize("split_collections", [False, True])
+@pytest.mark.parametrize('color, extend', [('darkred', 'neither'),
+                                           ('darkred', 'both'),
+                                           (('r', 0.5), 'neither'),
+                                           ((0.1, 0.2, 0.5, 0.3), 'neither')])
+def test_single_color_and_extend(color, extend):
+    z = [[0, 1], [1, 2]]
+
+    _, ax = plt.subplots()
+    levels = [0.5, 0.75, 1, 1.25, 1.5]
+    cs = ax.contour(z, levels=levels, colors=color, extend=extend)
+    for c in cs.get_edgecolors():
+        assert same_color(c, color)
+
+
 @image_comparison(['contour_log_locator.svg'], style='mpl20', remove_text=False)
-def test_log_locator_levels(split_collections):
+def test_log_locator_levels():
 
     fig, ax = plt.subplots()
 
@@ -219,12 +213,9 @@ def test_log_locator_levels(split_collections):
     cb = fig.colorbar(c, ax=ax)
     assert_array_almost_equal(cb.ax.get_yticks(), c.levels)
 
-    _maybe_split_collections(split_collections)
 
-
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(['contour_datetime_axis.png'], style='mpl20')
-def test_contour_datetime_axis(split_collections):
+def test_contour_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
     base = datetime.datetime(2013, 1, 1)
@@ -247,13 +238,10 @@ def test_contour_datetime_axis(split_collections):
             label.set_ha('right')
             label.set_rotation(30)
 
-    _maybe_split_collections(split_collections)
 
-
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(['contour_test_label_transforms.png'],
                   remove_text=True, style='mpl20', tol=1.1)
-def test_labels(split_collections):
+def test_labels():
     # Adapted from pylab_examples example code: contour_demo.py
     # see issues #2475, #2843, and #2818 for explanation
     delta = 0.025
@@ -272,9 +260,6 @@ def test_labels(split_collections):
     disp_units = [(216, 177), (359, 290), (521, 406)]
     data_units = [(-2, .5), (0, -1.5), (2.8, 1)]
 
-    # Adding labels should invalidate the old style
-    _maybe_split_collections(split_collections)
-
     CS.clabel()
 
     for x, y in data_units:
@@ -282,8 +267,6 @@ def test_labels(split_collections):
 
     for x, y in disp_units:
         CS.add_label_near(x, y, inline=True, transform=False)
-
-    _maybe_split_collections(split_collections)
 
 
 def test_label_contour_start():
@@ -311,10 +294,9 @@ def test_label_contour_start():
     assert 0 in idxs
 
 
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(['contour_corner_mask_False.png', 'contour_corner_mask_True.png'],
                   remove_text=True, tol=1.88)
-def test_corner_mask(split_collections):
+def test_corner_mask():
     n = 60
     mask_level = 0.95
     noise_amp = 1.0
@@ -327,8 +309,6 @@ def test_corner_mask(split_collections):
     for corner_mask in [False, True]:
         plt.figure()
         plt.contourf(z, corner_mask=corner_mask)
-
-    _maybe_split_collections(split_collections)
 
 
 def test_contourf_decreasing_levels():
@@ -400,11 +380,10 @@ def test_clabel_with_large_spacing():
 # tol because ticks happen to fall on pixel boundaries so small
 # floating point changes in tick location flip which pixel gets
 # the tick.
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(['contour_log_extension.png'],
                   remove_text=True, style='mpl20',
                   tol=1.444)
-def test_contourf_log_extension(split_collections):
+def test_contourf_log_extension():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
 
@@ -436,17 +415,12 @@ def test_contourf_log_extension(split_collections):
     assert_array_almost_equal_nulp(cb.ax.get_ylim(), np.array((1e-4, 1e6)))
     cb = plt.colorbar(c3, ax=ax3)
 
-    _maybe_split_collections(split_collections)
 
-
-@pytest.mark.parametrize("split_collections", [False, True])
-@image_comparison(
-    ['contour_addlines.png'], remove_text=True, style='mpl20',
-    tol=0.15 if platform.machine() in ('aarch64', 'ppc64le', 's390x')
-        else 0.03)
+@image_comparison(['contour_addlines.png'], remove_text=True, style='mpl20',
+                  tol=0.03 if platform.machine() == 'x86_64' else 0.15)
 # tolerance is because image changed minutely when tick finding on
 # colorbars was cleaned up...
-def test_contour_addlines(split_collections):
+def test_contour_addlines():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
 
@@ -460,13 +434,10 @@ def test_contour_addlines(split_collections):
     cb.add_lines(cont)
     assert_array_almost_equal(cb.ax.get_ylim(), [114.3091, 9972.30735], 3)
 
-    _maybe_split_collections(split_collections)
 
-
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(baseline_images=['contour_uneven'],
                   extensions=['png'], remove_text=True, style='mpl20')
-def test_contour_uneven(split_collections):
+def test_contour_uneven():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
 
@@ -478,8 +449,6 @@ def test_contour_uneven(split_collections):
     ax = axs[1]
     cs = ax.contourf(z, levels=[2, 4, 6, 10, 20])
     fig.colorbar(cs, ax=ax, spacing='uniform')
-
-    _maybe_split_collections(split_collections)
 
 
 @pytest.mark.parametrize(
@@ -497,8 +466,6 @@ def test_contour_linewidth(
         X = np.arange(4*3).reshape(4, 3)
         cs = ax.contour(X, linewidths=call_linewidths)
         assert cs.get_linewidths()[0] == expected
-        with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tlinewidths"):
-            assert cs.tlinewidths[0][0] == expected
 
 
 @pytest.mark.backend("pdf")
@@ -507,10 +474,9 @@ def test_label_nonagg():
     plt.clabel(plt.contour([[1, 2], [3, 4]]))
 
 
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(baseline_images=['contour_closed_line_loop'],
                   extensions=['png'], remove_text=True)
-def test_contour_closed_line_loop(split_collections):
+def test_contour_closed_line_loop():
     # github issue 19568.
     z = [[0, 0, 0], [0, 2, 0], [0, 0, 0], [2, 1, 2]]
 
@@ -518,8 +484,6 @@ def test_contour_closed_line_loop(split_collections):
     ax.contour(z, [0.5], linewidths=[20], alpha=0.7)
     ax.set_xlim(-0.1, 2.1)
     ax.set_ylim(-0.1, 3.1)
-
-    _maybe_split_collections(split_collections)
 
 
 def test_quadcontourset_reuse():
@@ -535,10 +499,9 @@ def test_quadcontourset_reuse():
     assert qcs3._contour_generator == qcs1._contour_generator
 
 
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(baseline_images=['contour_manual'],
                   extensions=['png'], remove_text=True, tol=0.89)
-def test_contour_manual(split_collections):
+def test_contour_manual():
     # Manually specifying contour lines/polygons to plot.
     from matplotlib.contour import ContourSet
 
@@ -561,13 +524,10 @@ def test_contour_manual(split_collections):
     ContourSet(ax, [2, 3], [segs], [kinds], filled=True, cmap=cmap)
     ContourSet(ax, [2], [segs], [kinds], colors='k', linewidths=3)
 
-    _maybe_split_collections(split_collections)
 
-
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(baseline_images=['contour_line_start_on_corner_edge'],
                   extensions=['png'], remove_text=True)
-def test_contour_line_start_on_corner_edge(split_collections):
+def test_contour_line_start_on_corner_edge():
     fig, ax = plt.subplots(figsize=(6, 5))
 
     x, y = np.meshgrid([0, 1, 2, 3, 4], [0, 1, 2])
@@ -580,8 +540,6 @@ def test_contour_line_start_on_corner_edge(split_collections):
     cbar = fig.colorbar(filled)
     lines = ax.contour(x, y, z, corner_mask=True, colors='k')
     cbar.add_lines(lines)
-
-    _maybe_split_collections(split_collections)
 
 
 def test_find_nearest_contour():
@@ -703,10 +661,9 @@ def test_algorithm_supports_corner_mask(algorithm):
             plt.contourf(z, algorithm=algorithm, corner_mask=True)
 
 
-@pytest.mark.parametrize("split_collections", [False, True])
 @image_comparison(baseline_images=['contour_all_algorithms'],
                   extensions=['png'], remove_text=True, tol=0.06)
-def test_all_algorithms(split_collections):
+def test_all_algorithms():
     algorithms = ['mpl2005', 'mpl2014', 'serial', 'threaded']
 
     rng = np.random.default_rng(2981)
@@ -721,8 +678,6 @@ def test_all_algorithms(split_collections):
         ax.contourf(x, y, z, algorithm=algorithm)
         ax.contour(x, y, z, algorithm=algorithm, colors='k')
         ax.set_title(algorithm)
-
-    _maybe_split_collections(split_collections)
 
 
 def test_subfigure_clabel():
@@ -882,19 +837,3 @@ def test_allsegs_allkinds():
         assert len(result) == 2
         assert len(result[0]) == 5
         assert len(result[1]) == 4
-
-
-def test_deprecated_apis():
-    cs = plt.contour(np.arange(16).reshape((4, 4)))
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="collections"):
-        colls = cs.collections
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tcolors"):
-        assert_array_equal(cs.tcolors, [c.get_edgecolor() for c in colls])
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tlinewidths"):
-        assert cs.tlinewidths == [c.get_linewidth() for c in colls]
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="antialiased"):
-        assert cs.antialiased
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="antialiased"):
-        cs.antialiased = False
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="antialiased"):
-        assert not cs.antialiased

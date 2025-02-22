@@ -42,7 +42,7 @@ def figure_edit(axes, parent=None):
     axis_map = axes._axis_map
     axis_limits = {
         name: tuple(convert_limits(
-            getattr(axes, f'get_{name}lim')(), axis.converter
+            getattr(axes, f'get_{name}lim')(), axis.get_converter()
         ))
         for name, axis in axis_map.items()
     }
@@ -54,7 +54,7 @@ def figure_edit(axes, parent=None):
                 (None, f"<b>{name.title()}-Axis</b>"),
                 ('Min', axis_limits[name][0]),
                 ('Max', axis_limits[name][1]),
-                ('Label', axis.get_label().get_text()),
+                ('Label', axis.label.get_text()),
                 ('Scale', [axis.get_scale(),
                            'linear', 'log', 'symlog', 'logit']),
                 sep,
@@ -66,7 +66,7 @@ def figure_edit(axes, parent=None):
 
     # Save the converter and unit data
     axis_converter = {
-        name: axis.converter
+        name: axis.get_converter()
         for name, axis in axis_map.items()
     }
     axis_units = {
@@ -149,7 +149,7 @@ def figure_edit(axes, parent=None):
     cmaps = [(cmap, name) for name, cmap in sorted(cm._colormaps.items())]
     for label, mappable in labeled_mappables:
         cmap = mappable.get_cmap()
-        if cmap not in cm._colormaps.values():
+        if cmap.name not in cm._colormaps:
             cmaps = [(cmap, cmap.name), *cmaps]
         low, high = mappable.get_clim()
         mappabledata = [
@@ -165,7 +165,7 @@ def figure_edit(axes, parent=None):
                 'Interpolation',
                 [mappable.get_interpolation(), *interpolations]))
 
-            interpolation_stages = ['data', 'rgba']
+            interpolation_stages = ['data', 'rgba', 'auto']
             mappabledata.append((
                 'Interpolation stage',
                 [mappable.get_interpolation_stage(), *interpolation_stages]))
@@ -209,7 +209,7 @@ def figure_edit(axes, parent=None):
             axis.set_label_text(axis_label)
 
             # Restore the unit data
-            axis.converter = axis_converter[name]
+            axis._set_converter(axis_converter[name])
             axis.set_units(axis_units[name])
 
         # Set / Curves

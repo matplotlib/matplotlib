@@ -1,7 +1,7 @@
 """
-==================================
-Scatter Histogram (Locatable Axes)
-==================================
+====================================================
+Align histogram to scatter plot using locatable Axes
+====================================================
 
 Show the marginal distributions of a scatter plot as histograms at the sides of
 the plot.

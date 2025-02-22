@@ -38,8 +38,8 @@ desirable to be able to group these under the same window. See :ghpull:`2194`.
 
 
 The proposed solution modifies `.FigureManagerBase` to contain and manage more
-than one ``Canvas``. The settings parameter :rc:`backend.multifigure` control
-when the **MultiFigure** behaviour is desired.
+than one ``Canvas``. The ``backend.multifigure`` rcParam controls when the
+**MultiFigure** behaviour is desired.
 
 **Note**
 

@@ -49,3 +49,8 @@ markerline, stemlines, baseline = ax.stem(x, y, z, bottom=-1, orientation='x')
 ax.set(xlabel='x', ylabel='y', zlabel='z')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D, plot-type: speciality,
+#    level: beginner

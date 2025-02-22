@@ -38,3 +38,9 @@ plt.show()
 #    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
 #    - `matplotlib.projections.polar`
 #    - `matplotlib.projections.polar.PolarAxes`
+#
+# .. tags::
+#
+#    component: legend
+#    plot-type: polar
+#    level: beginner

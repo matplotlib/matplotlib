@@ -56,7 +56,7 @@ def gradient_bar(ax, x, y, width=0.5, bottom=0):
     for left, top in zip(x, y):
         right = left + width
         gradient_image(ax, extent=(left, right, bottom, top),
-                       cmap=plt.cm.Blues_r, cmap_range=(0, 0.8))
+                       cmap="Blues_r", cmap_range=(0, 0.8))
 
 
 fig, ax = plt.subplots()
@@ -64,10 +64,18 @@ ax.set(xlim=(0, 10), ylim=(0, 1))
 
 # background image
 gradient_image(ax, direction=1, extent=(0, 1, 0, 1), transform=ax.transAxes,
-               cmap=plt.cm.RdYlGn, cmap_range=(0.2, 0.8), alpha=0.5)
+               cmap="RdYlGn", cmap_range=(0.2, 0.8), alpha=0.5)
 
 N = 10
 x = np.arange(N) + 0.15
 y = np.random.rand(N)
 gradient_bar(ax, x, y, width=0.7)
 plt.show()
+
+# %%
+# .. tags::
+#
+#    styling: color
+#    plot-type: imshow
+#    level: intermediate
+#    purpose: showcase

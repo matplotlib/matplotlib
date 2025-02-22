@@ -211,7 +211,7 @@ wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 .. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
 .. _pgf: https://ctan.org/pkg/pgf
 .. _Cairo: https://www.cairographics.org
-.. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
+.. _PyGObject: https://pygobject.gnome.org/
 .. _pycairo: https://www.cairographics.org/pycairo/
 .. _cairocffi: https://doc.courtbouillon.org/cairocffi/stable/
 .. _wxPython: https://www.wxpython.org/

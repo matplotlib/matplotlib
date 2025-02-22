@@ -1,7 +1,7 @@
 """
-========================
-Composing Custom Legends
-========================
+======================
+Compose custom legends
+======================
 
 Composing custom legends piece-by-piece.
 
@@ -31,7 +31,7 @@ np.random.seed(19680801)
 # %%
 N = 10
 data = (np.geomspace(1, 10, 100) + np.random.randn(N, 100)).T
-cmap = plt.cm.coolwarm
+cmap = plt.colormaps["coolwarm"]
 mpl.rcParams['axes.prop_cycle'] = cycler(color=cmap(np.linspace(0, 1, N)))
 
 fig, ax = plt.subplots()

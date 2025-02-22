@@ -20,7 +20,7 @@ When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.9)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.10)
 * `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
@@ -28,10 +28,8 @@ reference.
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
 * `NumPy <https://numpy.org>`_ (>= 1.23)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
-* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
-* `importlib-resources <https://pypi.org/project/importlib-resources/>`_
-  (>= 3.2.0; only required on Python < 3.10)
 
 
 .. _optional_dependencies:
@@ -222,20 +220,19 @@ Build dependencies
 Python
 ------
 
-By default, ``pip`` will build packages using build isolation, meaning that these
-build dependencies are temporally installed by pip for the duration of the
-Matplotlib build process. However, build isolation is disabled when :ref:`installing Matplotlib for development <development-install>`;
-therefore we recommend using one of our :ref:`virtual environment configurations <dev-environment>` to
-create a development environment in which these packages are automatically installed.
-
-If you are developing Matplotlib and unable to use our environment configurations,
-then you must manually install the following packages into your development environment:
+``pip`` normally builds packages using :external+pip:doc:`build isolation <reference/build-system/pyproject-toml>`,
+which means that ``pip`` installs the dependencies listed here for the
+duration of the build process. However, build isolation is disabled via the the
+:external+pip:ref:`--no-build-isolation <install_--no-build-isolation>` flag
+when :ref:`installing Matplotlib for development <development-install>`, which
+means that the dependencies must be explicitly installed, either by :ref:`creating a virtual environment <dev-environment>`
+(recommended) or by manually installing the following packages:
 
 - `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.13.1).
 - `ninja <https://ninja-build.org/>`_ (>= 1.8.2). This may be available in your package
   manager or bundled with Meson, but may be installed via ``pip`` if otherwise not
   available.
-- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.6). Used to connect C/C++ code
+- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.13.2). Used to connect C/C++ code
   with Python.
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
@@ -253,37 +250,38 @@ development environment that must be installed before a compiler can be installe
 You may also need to install headers for various libraries used in the compiled extension
 source files.
 
+.. _dev-compiler:
 .. tab-set::
 
-    .. tab-item:: Linux
+   .. tab-item:: Linux
 
-        On some Linux systems, you can install a meta-build package. For example,
-        on  Ubuntu ``apt install build-essential``
+      On some Linux systems, you can install a meta-build package. For example,
+      on  Ubuntu ``apt install build-essential`` with elevated privileges.
 
-        Otherwise, use the system distribution's package manager to install
-        :ref:`gcc <compiler-table>`.
+      Otherwise, use the system distribution's package manager to install
+      :ref:`gcc <compiler-table>`.
 
-    .. tab-item:: macOS
+   .. tab-item:: macOS
 
-        Install `Xcode <https://developer.apple.com/xcode/>`_ for Apple platform development.
+      Install `Xcode <https://developer.apple.com/xcode/>`_ for Apple platform development.
 
-    .. tab-item:: Windows
+   .. tab-item:: Windows
 
-        Install `Visual Studio Build Tools <https://visualstudio.microsoft.com/downloads/?q=build+tools>`_
+      Install `Visual Studio Build Tools <https://visualstudio.microsoft.com/downloads/?q=build+tools>`_
 
-        Make sure "Desktop development with C++" is selected, and that the latest MSVC,
-        "C++ CMake tools for Windows," and a Windows SDK compatible with your version
-        of Windows are selected and installed. They should be selected by default under
-        the "Optional" subheading, but are required to build Matplotlib from source.
+      Make sure "Desktop development with C++" is selected, and that the latest MSVC,
+      "C++ CMake tools for Windows," and a Windows SDK compatible with your version
+      of Windows are selected and installed. They should be selected by default under
+      the "Optional" subheading, but are required to build Matplotlib from source.
 
-        Alternatively, you can install a Linux-like environment such as `CygWin <https://www.cygwin.com/>`_
-        or `Windows Subsystem for Linux <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
-        If using `MinGW-64 <https://www.mingw-w64.org/>`_, we require **v6** of the
-        ```Mingw-w64-x86_64-headers``.
+      Alternatively, you can install a Linux-like environment such as `CygWin <https://www.cygwin.com/>`_
+      or `Windows Subsystem for Linux <https://learn.microsoft.com/en-us/windows/wsl/install>`_.
+      If using `MinGW-64 <https://www.mingw-w64.org/>`_, we require **v6** of the
+      ```Mingw-w64-x86_64-headers``.
 
 
-We highly recommend that you install a compiler using your platform tool, i.e.,
-Xcode, VS Code or Linux package manager. Choose **one** compiler from this list:
+We highly recommend that you install a compiler using your platform tool, i.e., Xcode,
+VS Code or Linux package manager. Choose **one** compiler from this list:
 
 .. _compiler-table:
 
@@ -310,7 +308,6 @@ Xcode, VS Code or Linux package manager. Choose **one** compiler from this list:
      - `Visual Studio 2019 C++ <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-160>`_
 
 
-
 .. _test-dependencies:
 
 Test dependencies
@@ -330,8 +327,11 @@ Optional
 In addition to all of the optional dependencies on the main library, for
 testing the following will be used if they are installed.
 
-- Ghostscript_ (>= 9.0, to render PDF files)
-- Inkscape_ (to render SVG files)
+Python
+^^^^^^
+These packages are installed when :ref:`creating a virtual environment <dev-environment>`,
+otherwise they must be installed manually:
+
 - nbformat_ and nbconvert_ used to test the notebook backend
 - pandas_ used to test compatibility with Pandas
 - pikepdf_ used in some tests for the pgf and pdf backends
@@ -343,9 +343,14 @@ testing the following will be used if they are installed.
 - pytest-xvfb_ to run tests without windows popping up (Linux)
 - pytz_ used to test pytz int
 - sphinx_ used to test our sphinx extensions
+- xarray_ used to test compatibility with xarray
+
+External tools
+^^^^^^^^^^^^^^
+- Ghostscript_ (>= 9.0, to render PDF files)
+- Inkscape_ (to render SVG files)
 - `WenQuanYi Zen Hei`_ and `Noto Sans CJK`_ fonts for testing font fallback and
   non-Western fonts
-- xarray_ used to test compatibility with xarray
 
 If any of these dependencies are not discovered, then the tests that rely on
 them will be skipped by pytest.
@@ -358,6 +363,7 @@ them will be skipped by pytest.
 
 .. _Ghostscript: https://ghostscript.com/
 .. _Inkscape: https://inkscape.org
+.. _WenQuanYi Zen Hei: http://wenq.org/en/
 .. _flake8: https://pypi.org/project/flake8/
 .. _nbconvert: https://pypi.org/project/nbconvert/
 .. _nbformat: https://pypi.org/project/nbformat/
@@ -372,7 +378,6 @@ them will be skipped by pytest.
 .. _pytest-xvfb: https://pypi.org/project/pytest-xvfb/
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _sphinx: https://pypi.org/project/Sphinx/
-.. _WenQuanYi Zen Hei: http://wenq.org/en/
 .. _Noto Sans CJK: https://fonts.google.com/noto/use
 .. _xarray: https://pypi.org/project/xarray/
 
@@ -397,14 +402,15 @@ The content of :file:`doc-requirements.txt` is also shown below:
    :literal:
 
 
+.. _doc-dependencies-external:
+
 External tools
 --------------
 
-The documentation requires LaTeX and Graphviz.  These are not
-Python packages and must be installed separately.
-
 Required
 ^^^^^^^^
+The documentation requires LaTeX and Graphviz.  These are not
+Python packages and must be installed separately.
 
 * `Graphviz <http://www.graphviz.org/download>`_
 * a minimal working LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
@@ -412,14 +418,13 @@ Required
 
 The following LaTeX packages:
 
-  * `dvipng <https://ctan.org/pkg/dvipng>`_
-  * `underscore <https://ctan.org/pkg/underscore>`_
-  * `cm-super <https://ctan.org/pkg/cm-super>`_
-  * ``collection-fontsrecommended``
+* `dvipng <https://ctan.org/pkg/dvipng>`_
+* `underscore <https://ctan.org/pkg/underscore>`_
+* `cm-super <https://ctan.org/pkg/cm-super>`_
+* ``collection-fontsrecommended``
 
 The complete version of many LaTex distribution installers, e.g.
 "texlive-full" or "texlive-all", will often automatically include these packages.
-
 
 Optional
 ^^^^^^^^
@@ -429,5 +434,5 @@ process will raise various warnings.
 
 * `Inkscape <https://inkscape.org>`_
 * `optipng <http://optipng.sourceforge.net>`_
-* the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <http://comicneue.com/>`_
+* the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_
 * the font "Times New Roman"

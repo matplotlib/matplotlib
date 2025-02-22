@@ -1,6 +1,7 @@
 import functools
 import itertools
 import platform
+import sys
 
 import pytest
 
@@ -115,7 +116,7 @@ def test_axes3d_repr():
 
 
 @mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20',
-                        tol=0.05 if platform.machine() == "arm64" else 0)
+                        tol=0.05 if sys.platform == "darwin" else 0)
 def test_axes3d_primary_views():
     # (elev, azim, roll)
     views = [(90, -90, 0),  # XY
@@ -220,17 +221,16 @@ def test_bar3d_lightsource():
     np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
-@mpl3d_image_comparison(
-    ['contour3d.png'], style='mpl20',
-    tol=0.002 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+@mpl3d_image_comparison(['contour3d.png'], style='mpl20',
+                        tol=0 if platform.machine() == 'x86_64' else 0.002)
 def test_contour3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
-    ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
-    ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
+    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap="coolwarm")
+    ax.contour(X, Y, Z, zdir='x', offset=-40, cmap="coolwarm")
+    ax.contour(X, Y, Z, zdir='y', offset=40, cmap="coolwarm")
     ax.axis(xmin=-40, xmax=40, ymin=-40, ymax=40, zmin=-100, zmax=100)
 
 
@@ -240,7 +240,7 @@ def test_contour3d_extend3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm, extend3d=True)
+    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap="coolwarm", extend3d=True)
     ax.set_xlim(-30, 30)
     ax.set_ylim(-20, 40)
     ax.set_zlim(-80, 80)
@@ -252,9 +252,9 @@ def test_contourf3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
-    ax.contourf(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
-    ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
+    ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap="coolwarm")
+    ax.contourf(X, Y, Z, zdir='x', offset=-40, cmap="coolwarm")
+    ax.contourf(X, Y, Z, zdir='y', offset=40, cmap="coolwarm")
     ax.set_xlim(-40, 40)
     ax.set_ylim(-40, 40)
     ax.set_zlim(-100, 100)
@@ -270,7 +270,7 @@ def test_contourf3d_fill():
     # This produces holes in the z=0 surface that causes rendering errors if
     # the Poly3DCollection is not aware of path code information (issue #4784)
     Z[::5, ::5] = 0.1
-    ax.contourf(X, Y, Z, offset=0, levels=[-0.1, 0], cmap=cm.coolwarm)
+    ax.contourf(X, Y, Z, offset=0, levels=[-0.1, 0], cmap="coolwarm")
     ax.set_xlim(-2, 2)
     ax.set_ylim(-2, 2)
     ax.set_zlim(-1, 1)
@@ -408,7 +408,6 @@ def test_tight_layout_text(fig_test, fig_ref):
 
 @mpl3d_image_comparison(['scatter3d.png'], style='mpl20')
 def test_scatter3d():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.scatter(np.arange(10), np.arange(10), np.arange(10),
@@ -422,7 +421,6 @@ def test_scatter3d():
 
 @mpl3d_image_comparison(['scatter3d_color.png'], style='mpl20')
 def test_scatter3d_color():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
@@ -466,7 +464,7 @@ def test_scatter3d_modification(fig_ref, fig_test):
     # Changing Path3DCollection properties post-creation should work correctly.
     ax_test = fig_test.add_subplot(projection='3d')
     c = ax_test.scatter(np.arange(10), np.arange(10), np.arange(10),
-                        marker='o')
+                        marker='o', depthshade=True)
     c.set_facecolor('C1')
     c.set_edgecolor('C2')
     c.set_alpha([0.3, 0.7] * 5)
@@ -482,13 +480,13 @@ def test_scatter3d_modification(fig_ref, fig_test):
                    depthshade=False, s=75, linewidths=3)
 
 
-@pytest.mark.parametrize('depthshade', [True, False])
 @check_figures_equal(extensions=['png'])
-def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
+def test_scatter3d_sorting(fig_ref, fig_test):
     """Test that marker properties are correctly sorted."""
 
     y, x = np.mgrid[:10, :10]
     z = np.arange(x.size).reshape(x.shape)
+    depthshade = False
 
     sizes = np.full(z.shape, 25)
     sizes[0::2, 0::2] = 100
@@ -508,10 +506,10 @@ def test_scatter3d_sorting(fig_ref, fig_test, depthshade):
     linewidths[0::2, 0::2] = 5
     linewidths[1::2, 1::2] = 5
 
-    x, y, z, sizes, facecolors, edgecolors, linewidths = [
+    x, y, z, sizes, facecolors, edgecolors, linewidths = (
         a.flatten()
         for a in [x, y, z, sizes, facecolors, edgecolors, linewidths]
-    ]
+    )
 
     ax_ref = fig_ref.add_subplot(projection='3d')
     sets = (np.unique(a) for a in [sizes, facecolors, edgecolors, linewidths])
@@ -593,6 +591,48 @@ def test_plot_3d_from_2d():
     ax.plot(xs, ys, zs=0, zdir='y')
 
 
+@mpl3d_image_comparison(['fill_between_quad.png'], style='mpl20')
+def test_fill_between_quad():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    theta = np.linspace(0, 2*np.pi, 50)
+
+    x1 = np.cos(theta)
+    y1 = np.sin(theta)
+    z1 = 0.1 * np.sin(6 * theta)
+
+    x2 = 0.6 * np.cos(theta)
+    y2 = 0.6 * np.sin(theta)
+    z2 = 2
+
+    where = (theta < np.pi/2) | (theta > 3*np.pi/2)
+
+    # Since none of x1 == x2, y1 == y2, or z1 == z2 is True, the fill_between
+    # mode will map to 'quad'
+    ax.fill_between(x1, y1, z1, x2, y2, z2,
+                    where=where, mode='auto', alpha=0.5, edgecolor='k')
+
+
+@mpl3d_image_comparison(['fill_between_polygon.png'], style='mpl20')
+def test_fill_between_polygon():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    theta = np.linspace(0, 2*np.pi, 50)
+
+    x1 = x2 = theta
+    y1 = y2 = 0
+    z1 = np.cos(theta)
+    z2 = z1 + 1
+
+    where = (theta < np.pi/2) | (theta > 3*np.pi/2)
+
+    # Since x1 == x2 and y1 == y2, the fill_between mode will be 'polygon'
+    ax.fill_between(x1, y1, z1, x2, y2, z2,
+                    where=where, mode='auto', edgecolor='k')
+
+
 @mpl3d_image_comparison(['surface3d.png'], style='mpl20')
 def test_surface3d():
     # Remove this line when this test image is regenerated.
@@ -605,7 +645,7 @@ def test_surface3d():
     X, Y = np.meshgrid(X, Y)
     R = np.hypot(X, Y)
     Z = np.sin(R)
-    surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40, cmap=cm.coolwarm,
+    surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40, cmap="coolwarm",
                            lw=0, antialiased=False)
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_zlim(-1.01, 1.01)
@@ -624,8 +664,6 @@ def test_surface3d_label_offset_tick_position():
     ax.set_xlabel("X label")
     ax.set_ylabel("Y label")
     ax.set_zlabel("Z label")
-
-    ax.figure.canvas.draw()
 
 
 @mpl3d_image_comparison(['surface3d_shaded.png'], style='mpl20')
@@ -775,7 +813,7 @@ def test_trisurf3d():
 
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
-    ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+    ax.plot_trisurf(x, y, z, cmap="jet", linewidth=0.2)
 
 
 @mpl3d_image_comparison(['trisurf3d_shaded.png'], tol=0.03, style='mpl20')
@@ -802,6 +840,14 @@ def test_wireframe3d():
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
+
+
+@mpl3d_image_comparison(['wireframe3dasymmetric.png'], style='mpl20')
+def test_wireframe3dasymmetric():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    ax.plot_wireframe(X, Y, Z, rcount=3, ccount=13)
 
 
 @mpl3d_image_comparison(['wireframe3dzerocstride.png'], style='mpl20')
@@ -841,7 +887,6 @@ def test_mixedsamplesraises():
 # remove tolerance when regenerating the test image
 @mpl3d_image_comparison(['quiver3d.png'], style='mpl20', tol=0.003)
 def test_quiver3d():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     pivots = ['tip', 'middle', 'tail']
@@ -895,7 +940,7 @@ def test_quiver3d_colorcoded():
     x = y = dx = dz = np.zeros(10)
     z = dy = np.arange(10.)
 
-    color = plt.cm.Reds(dy/dy.max())
+    color = plt.colormaps["Reds"](dy/dy.max())
     ax.quiver(x, y, z, dx, dy, dz, colors=color)
     ax.set_ylim(0, 10)
 
@@ -919,7 +964,7 @@ def test_patch_collection_modification(fig_test, fig_ref):
     patch1 = Circle((0, 0), 0.05)
     patch2 = Circle((0.1, 0.1), 0.03)
     facecolors = np.array([[0., 0.5, 0., 1.], [0.5, 0., 0., 0.5]])
-    c = art3d.Patch3DCollection([patch1, patch2], linewidths=3)
+    c = art3d.Patch3DCollection([patch1, patch2], linewidths=3, depthshade=True)
 
     ax_test = fig_test.add_subplot(projection='3d')
     ax_test.add_collection3d(c)
@@ -947,7 +992,7 @@ def test_poly3dcollection_verts_validation():
         art3d.Poly3DCollection(poly)  # should be Poly3DCollection([poly])
 
     poly = np.array(poly, dtype=float)
-    with pytest.raises(ValueError, match=r'list of \(N, 3\) array-like'):
+    with pytest.raises(ValueError, match=r'shape \(M, N, 3\)'):
         art3d.Poly3DCollection(poly)  # should be Poly3DCollection([poly])
 
 
@@ -962,8 +1007,8 @@ def test_poly3dcollection_closed():
                                 facecolor=(0.5, 0.5, 1, 0.5), closed=True)
     c2 = art3d.Poly3DCollection([poly2], linewidths=3, edgecolor='k',
                                 facecolor=(1, 0.5, 0.5, 0.5), closed=False)
-    ax.add_collection3d(c1)
-    ax.add_collection3d(c2)
+    ax.add_collection3d(c1, autolim=False)
+    ax.add_collection3d(c2, autolim=False)
 
 
 def test_poly_collection_2d_to_3d_empty():
@@ -996,8 +1041,8 @@ def test_poly3dcollection_alpha():
     c2.set_facecolor((1, 0.5, 0.5))
     c2.set_edgecolor('k')
     c2.set_alpha(0.5)
-    ax.add_collection3d(c1)
-    ax.add_collection3d(c2)
+    ax.add_collection3d(c1, autolim=False)
+    ax.add_collection3d(c2, autolim=False)
 
 
 @mpl3d_image_comparison(['add_collection3d_zs_array.png'], style='mpl20')
@@ -1054,6 +1099,32 @@ def test_add_collection3d_zs_scalar():
     ax.set_xlim(-5, 5)
     ax.set_ylim(-4, 6)
     ax.set_zlim(0, 2)
+
+
+def test_line3dCollection_autoscaling():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    lines = [[(0, 0, 0), (1, 4, 2)],
+             [(1, 1, 3), (2, 0, 2)],
+             [(1, 0, 4), (1, 4, 5)]]
+
+    lc = art3d.Line3DCollection(lines)
+    ax.add_collection3d(lc)
+    assert np.allclose(ax.get_xlim3d(), (-0.041666666666666664, 2.0416666666666665))
+    assert np.allclose(ax.get_ylim3d(), (-0.08333333333333333, 4.083333333333333))
+    assert np.allclose(ax.get_zlim3d(), (-0.10416666666666666, 5.104166666666667))
+
+
+def test_poly3dCollection_autoscaling():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    poly = np.array([[0, 0, 0], [1, 1, 3], [1, 0, 4]])
+    col = art3d.Poly3DCollection([poly])
+    ax.add_collection3d(col)
+    assert np.allclose(ax.get_xlim3d(), (-0.020833333333333332, 1.0208333333333333))
+    assert np.allclose(ax.get_ylim3d(), (-0.020833333333333332, 1.0208333333333333))
+    assert np.allclose(ax.get_zlim3d(), (-0.0833333333333333, 4.083333333333333))
 
 
 @mpl3d_image_comparison(['axes3d_labelpad.png'],
@@ -1257,6 +1328,21 @@ def test_unautoscale(axis, auto):
     np.testing.assert_array_equal(get_lim(), (-0.5, 0.5))
 
 
+@check_figures_equal(extensions=["png"])
+def test_culling(fig_test, fig_ref):
+    xmins = (-100, -50)
+    for fig, xmin in zip((fig_test, fig_ref), xmins):
+        ax = fig.add_subplot(projection='3d')
+        n = abs(xmin) + 1
+        xs = np.linspace(0, xmin, n)
+        ys = np.ones(n)
+        zs = np.zeros(n)
+        ax.plot(xs, ys, zs, 'k')
+
+        ax.set(xlim=(-5, 5), ylim=(-5, 5), zlim=(-5, 5))
+        ax.view_init(5, 180, 0)
+
+
 def test_axes3d_focal_length_checks():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -1295,6 +1381,45 @@ def test_axes3d_isometric():
             ax.plot3D(*zip(s, e), c='k')
     ax.view_init(elev=np.degrees(np.arctan(1. / np.sqrt(2))), azim=-45, roll=0)
     ax.grid(True)
+
+
+@check_figures_equal(extensions=["png"])
+def test_axlim_clip(fig_test, fig_ref):
+    # With axlim clipping
+    ax = fig_test.add_subplot(projection="3d")
+    x = np.linspace(0, 1, 11)
+    y = np.linspace(0, 1, 11)
+    X, Y = np.meshgrid(x, y)
+    Z = X + Y
+    ax.plot_surface(X, Y, Z, facecolor='C1', edgecolors=None,
+                    rcount=50, ccount=50, axlim_clip=True)
+    # This ax.plot is to cover the extra surface edge which is not clipped out
+    ax.plot([0.5, 0.5], [0, 1], [0.5, 1.5],
+            color='k', linewidth=3, zorder=5, axlim_clip=True)
+    ax.scatter(X.ravel(), Y.ravel(), Z.ravel() + 1, axlim_clip=True)
+    ax.quiver(X.ravel(), Y.ravel(), Z.ravel() + 2,
+              0*X.ravel(), 0*Y.ravel(), 0*Z.ravel() + 1,
+              arrow_length_ratio=0, axlim_clip=True)
+    ax.plot(X[0], Y[0], Z[0] + 3, color='C2', axlim_clip=True)
+    ax.text(1.1, 0.5, 4, 'test', axlim_clip=True)  # won't be visible
+    ax.set(xlim=(0, 0.5), ylim=(0, 1), zlim=(0, 5))
+
+    # With manual clipping
+    ax = fig_ref.add_subplot(projection="3d")
+    idx = (X <= 0.5)
+    X = X[idx].reshape(11, 6)
+    Y = Y[idx].reshape(11, 6)
+    Z = Z[idx].reshape(11, 6)
+    ax.plot_surface(X, Y, Z, facecolor='C1', edgecolors=None,
+                    rcount=50, ccount=50, axlim_clip=False)
+    ax.plot([0.5, 0.5], [0, 1], [0.5, 1.5],
+            color='k', linewidth=3, zorder=5, axlim_clip=False)
+    ax.scatter(X.ravel(), Y.ravel(), Z.ravel() + 1, axlim_clip=False)
+    ax.quiver(X.ravel(), Y.ravel(), Z.ravel() + 2,
+              0*X.ravel(), 0*Y.ravel(), 0*Z.ravel() + 1,
+              arrow_length_ratio=0, axlim_clip=False)
+    ax.plot(X[0], Y[0], Z[0] + 3, color='C2', axlim_clip=False)
+    ax.set(xlim=(0, 0.5), ylim=(0, 1), zlim=(0, 5))
 
 
 @pytest.mark.parametrize('value', [np.inf, np.nan])
@@ -1433,8 +1558,9 @@ class TestVoxels:
             ax.voxels(x, y)
         # x, y, z are positional only - this passes them on as attributes of
         # Poly3DCollection
-        with pytest.raises(AttributeError):
+        with pytest.raises(AttributeError, match="keyword argument 'x'") as exec_info:
             ax.voxels(filled=filled, x=x, y=y, z=z)
+        assert exec_info.value.name == 'x'
 
 
 def test_line3d_set_get_data_3d():
@@ -1591,7 +1717,7 @@ def test_errorbar3d_errorevery():
 
 
 @mpl3d_image_comparison(['errorbar3d.png'], style='mpl20',
-                        tol=0.02 if platform.machine() == 'arm64' else 0)
+                        tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()
@@ -1607,7 +1733,7 @@ def test_errorbar3d():
     ax.legend()
 
 
-@image_comparison(['stem3d.png'], style='mpl20', tol=0.008)
+@image_comparison(['stem3d.png'], style='mpl20', tol=0.009)
 def test_stem3d():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
@@ -1857,37 +1983,78 @@ def test_quaternion():
                 np.deg2rad(elev), np.deg2rad(azim), np.deg2rad(roll))
             assert np.isclose(q.norm, 1)
             q = Quaternion(mag * q.scalar, mag * q.vector)
-            e, a, r = np.rad2deg(Quaternion.as_cardan_angles(q))
-            assert np.isclose(e, elev)
-            assert np.isclose(a, azim)
-            assert np.isclose(r, roll)
+            np.testing.assert_allclose(np.rad2deg(Quaternion.as_cardan_angles(q)),
+                                       (elev, azim, roll), atol=1e-6)
 
 
-def test_rotate():
+@pytest.mark.parametrize('style',
+                         ('azel', 'trackball', 'sphere', 'arcball'))
+def test_rotate(style):
     """Test rotating using the left mouse button."""
-    for roll, dx, dy, new_elev, new_azim, new_roll in [
-            [0, 0.5, 0, 0, -90, 0],
-            [30, 0.5, 0, 30, -90, 0],
-            [0, 0, 0.5, -90, 0, 0],
-            [30, 0, 0.5, -60, -90, 90],
-            [0, 0.5, 0.5, -45, -90, 45],
-            [30, 0.5, 0.5, -15, -90, 45]]:
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1, projection='3d')
-        ax.view_init(0, 0, roll)
-        ax.figure.canvas.draw()
+    if style == 'azel':
+        s = 0.5
+    else:
+        s = mpl.rcParams['axes3d.trackballsize'] / 2
+    s *= 0.5
+    mpl.rcParams['axes3d.trackballborder'] = 0
+    with mpl.rc_context({'axes3d.mouserotationstyle': style}):
+        for roll, dx, dy in [
+                [0, 1, 0],
+                [30, 1, 0],
+                [0, 0, 1],
+                [30, 0, 1],
+                [0, 0.5, np.sqrt(3)/2],
+                [30, 0.5, np.sqrt(3)/2],
+                [0, 2, 0]]:
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1, projection='3d')
+            ax.view_init(0, 0, roll)
+            ax.figure.canvas.draw()
 
-        # drag mouse to change orientation
-        ax._button_press(
-            mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
-        ax._on_move(
-            mock_event(ax, button=MouseButton.LEFT,
-                           xdata=dx*ax._pseudo_w, ydata=dy*ax._pseudo_h))
-        ax.figure.canvas.draw()
+            # drag mouse to change orientation
+            ax._button_press(
+                mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
+            ax._on_move(
+                mock_event(ax, button=MouseButton.LEFT,
+                           xdata=s*dx*ax._pseudo_w, ydata=s*dy*ax._pseudo_h))
+            ax.figure.canvas.draw()
 
-        assert np.isclose(ax.elev, new_elev)
-        assert np.isclose(ax.azim, new_azim)
-        assert np.isclose(ax.roll, new_roll)
+            c = np.sqrt(3)/2
+            expectations = {
+                ('azel', 0, 1, 0): (0,  -45, 0),
+                ('azel', 0, 0, 1): (-45, 0, 0),
+                ('azel', 0, 0.5, c): (-38.971143, -22.5, 0),
+                ('azel', 0, 2, 0): (0, -90, 0),
+                ('azel', 30, 1, 0): (22.5, -38.971143, 30),
+                ('azel', 30, 0, 1): (-38.971143, -22.5, 30),
+                ('azel', 30, 0.5, c): (-22.5, -38.971143, 30),
+
+                ('trackball', 0, 1, 0): (0, -28.64789, 0),
+                ('trackball', 0, 0, 1): (-28.64789, 0, 0),
+                ('trackball', 0, 0.5, c): (-24.531578, -15.277726, 3.340403),
+                ('trackball', 0, 2, 0): (0, -180/np.pi, 0),
+                ('trackball', 30, 1, 0): (13.869588, -25.319385, 26.87008),
+                ('trackball', 30, 0, 1): (-24.531578, -15.277726, 33.340403),
+                ('trackball', 30, 0.5, c): (-13.869588, -25.319385, 33.129920),
+
+                ('sphere', 0, 1, 0): (0, -30, 0),
+                ('sphere', 0, 0, 1): (-30, 0, 0),
+                ('sphere', 0, 0.5, c): (-25.658906, -16.102114, 3.690068),
+                ('sphere', 0, 2, 0): (0, -90, 0),
+                ('sphere', 30, 1, 0): (14.477512, -26.565051, 26.565051),
+                ('sphere', 30, 0, 1): (-25.658906, -16.102114, 33.690068),
+                ('sphere', 30, 0.5, c): (-14.477512, -26.565051, 33.434949),
+
+                ('arcball', 0, 1, 0): (0, -60, 0),
+                ('arcball', 0, 0, 1): (-60, 0, 0),
+                ('arcball', 0, 0.5, c): (-48.590378, -40.893395, 19.106605),
+                ('arcball', 0, 2, 0): (0, 180, 0),
+                ('arcball', 30, 1, 0): (25.658906, -56.309932, 16.102114),
+                ('arcball', 30, 0, 1): (-48.590378, -40.893395, 49.106605),
+                ('arcball', 30, 0.5, c): (-25.658906, -56.309932, 43.897886)}
+            new_elev, new_azim, new_roll = expectations[(style, roll, dx, dy)]
+            np.testing.assert_allclose((ax.elev, ax.azim, ax.roll),
+                                       (new_elev, new_azim, new_roll), atol=1e-6)
 
 
 def test_pan():
@@ -1899,9 +2066,10 @@ def test_pan():
         range_ = dmax - dmin
         return center, range_
 
-    ax = plt.figure().add_subplot(projection='3d')
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
     ax.scatter(0, 0, 0)
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
 
     x_center0, x_range0 = convert_lim(*ax.get_xlim3d())
     y_center0, y_range0 = convert_lim(*ax.get_ylim3d())
@@ -1966,20 +2134,20 @@ def test_toolbar_zoom_pan(tool, button, key, expected):
     # Set up the mouse movements
     start_event = MouseEvent(
         "button_press_event", fig.canvas, *s0, button, key=key)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *s1, button, key=key, buttons={button})
     stop_event = MouseEvent(
         "button_release_event", fig.canvas, *s1, button, key=key)
 
     tb = NavigationToolbar2(fig.canvas)
     if tool == "zoom":
         tb.zoom()
-        tb.press_zoom(start_event)
-        tb.drag_zoom(stop_event)
-        tb.release_zoom(stop_event)
     else:
         tb.pan()
-        tb.press_pan(start_event)
-        tb.drag_pan(stop_event)
-        tb.release_pan(stop_event)
+
+    start_event._process()
+    drag_event._process()
+    stop_event._process()
 
     # Should be close, but won't be exact due to screen integer resolution
     xlim, ylim, zlim = expected
@@ -2356,7 +2524,7 @@ def test_view_init_vertical_axis(
     rtol = 2e-06
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
-    ax.figure.canvas.draw()
+    ax.get_figure().canvas.draw()
 
     # Assert the projection matrix:
     proj_actual = ax.get_proj()
@@ -2382,7 +2550,7 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
     """
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
-    ax.figure.canvas.draw()
+    ax.get_figure().canvas.draw()
 
     proj_before = ax.get_proj()
     event_click = mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=1)
@@ -2411,7 +2579,7 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
 def test_set_box_aspect_vertical_axis(vertical_axis, aspect_expected):
     ax = plt.subplot(1, 1, 1, projection="3d")
     ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
-    ax.figure.canvas.draw()
+    ax.get_figure().canvas.draw()
 
     ax.set_box_aspect(None)
 

@@ -16,12 +16,26 @@ Contribute
 :octicon:`heart;1em;sd-text-info` Thank you for your interest in helping to improve
 Matplotlib! :octicon:`heart;1em;sd-text-info`
 
-There are various ways to contribute: optimizing and refactoring code, detailing
-unclear documentation and writing new examples, helping the community, reporting
-and fixing bugs and requesting and implementing new features...
+This project is a community effort, and everyone is welcome to contribute. Everyone
+within the community is expected to abide by our :ref:`code of conduct <code_of_conduct>`.
+
+There are various ways to contribute, such as optimizing and refactoring code,
+detailing unclear documentation and writing new examples, helping the community,
+reporting and fixing bugs, requesting and implementing new features...
 
 .. _submitting-a-bug-report:
 .. _request-a-new-feature:
+
+GitHub issue tracker
+====================
+
+The `issue tracker <https://github.com/matplotlib/matplotlib/issues>`_ serves as the
+centralized location for making feature requests, reporting bugs, identifying major
+projects to work on, and discussing priorities.
+
+We have preloaded the issue creation page with markdown forms requesting the information
+we need to triage issues and we welcome you to add any additional information or
+context that may be necessary for resolving the issue:
 
 .. grid:: 1 1 2 2
 
@@ -31,9 +45,7 @@ and fixing bugs and requesting and implementing new features...
       :octicon:`bug;1em;sd-text-info` **Submit a bug report**
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-      We have preloaded the issue creation page with a Markdown form that you can
-      use to provide relevant context. Thank you for your help in keeping bug reports
-      complete, targeted and descriptive.
+      Thank you for your help in keeping bug reports targeted and descriptive.
 
       .. button-link:: https://github.com/matplotlib/matplotlib/issues/new/choose
             :expand:
@@ -47,9 +59,7 @@ and fixing bugs and requesting and implementing new features...
       :octicon:`light-bulb;1em;sd-text-info` **Request a new feature**
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-      We will give feedback on the feature proposal. Since
-      Matplotlib is an open source project with limited resources, we encourage
-      users to then also :ref:`participate in the implementation <contribute_code>`.
+      Thank you for your help in keeping feature requests well defined and tightly scoped.
 
       .. button-link:: https://github.com/matplotlib/matplotlib/issues/new/choose
          :expand:
@@ -57,17 +67,16 @@ and fixing bugs and requesting and implementing new features...
 
          Request a feature
 
+Since Matplotlib is an open source project with limited resources, we encourage users
+to also :ref:`participate <contribute_code>` in fixing bugs and implementing new
+features.
+
+Contributing guide
+==================
 
 We welcome you to get more involved with the Matplotlib project! If you are new
 to contributing, we recommend that you first read our
-:ref:`contributing guide<contributing>`. If you are contributing code or
-documentation, please follow our guides for setting up and managing a
-:ref:`development environment and workflow<development_environment>`.
-For code, documentation, or triage, please follow the corresponding
-:ref:`contribution guidelines <contribution_guideline>`.
-
-New contributors
-================
+:ref:`contributing guide<contributing>`:
 
 .. toctree::
    :hidden:
@@ -75,53 +84,74 @@ New contributors
    contribute
 
 .. grid:: 1 1 2 2
-   :class-row: sd-align-minor-center
-
-   .. grid-item::
-      :class: sd-fs-5
-
-      :octicon:`info;1em;sd-text-info` :ref:`Where should I start? <start-contributing>`
-
-      :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
-
-      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I work on an issue? <managing_issues_prs>`
-
-      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
+   :class-row: sd-fs-5 sd-align-minor-center
 
    .. grid-item::
 
       .. grid:: 1
          :gutter: 1
-         :class-row: sd-fs-5
 
          .. grid-item-card::
             :link: contribute_code
             :link-type: ref
-            :shadow: none
+            :class-card: sd-shadow-none
+            :class-body: sd-text-{primary}
 
             :octicon:`code;1em;sd-text-info` Contribute code
 
          .. grid-item-card::
             :link: contribute_documentation
             :link-type: ref
-            :shadow: none
+            :class-card: sd-shadow-none
+            :class-body: sd-text-{primary}
 
             :octicon:`note;1em;sd-text-info` Write documentation
 
          .. grid-item-card::
+            :link: contribute_triage
+            :link-type: ref
+            :class-card: sd-shadow-none
+            :class-body: sd-text-{primary}
+
+            :octicon:`issue-opened;1em;sd-text-info` Triage issues
+
+         .. grid-item-card::
             :link: other_ways_to_contribute
             :link-type: ref
-            :shadow: none
+            :class-card: sd-shadow-none
+            :class-body: sd-text-{primary}
 
             :octicon:`globe;1em;sd-text-info` Build community
 
+   .. grid-item::
 
+      .. grid:: 1
+         :gutter: 1
+
+         .. grid-item::
+
+            :octicon:`info;1em;sd-text-info` :ref:`Is this my first contribution? <new_contributors>`
+
+         .. grid-item::
+
+            :octicon:`question;1em;sd-text-info` :ref:`Where do I ask questions? <get_connected>`
+
+         .. grid-item::
+
+            :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I choose an issue? <managing_issues_prs>`
+
+         .. grid-item::
+
+            :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
 
 
 .. _development_environment:
 
-Development environment
-=======================
+Development workflow
+====================
+
+If you are contributing code or documentation, please follow our guide for setting up
+and managing a development environment and workflow:
 
 .. grid:: 1 1 2 2
 
@@ -158,6 +188,11 @@ Development environment
 
 Policies and guidelines
 =======================
+
+These policies and guidelines help us maintain consistency in the various types
+of maintenance work. If you are writing code or documentation, following these policies
+helps maintainers more easily review your work. If you are helping triage, community
+manage, or release manage, these guidelines describe how our current process works.
 
 .. grid:: 1 1 2 2
    :class-row: sf-fs-1

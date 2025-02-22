@@ -20,7 +20,10 @@ fig.suptitle('Categorical Plotting')
 
 
 # %%
-# This works on both Axes:
+# Categorical values are a mapping from names to positions. This means that
+# values that occur multiple times are mapped to the same position. See the
+# ``cat`` and ``dog`` values "happy" and "bored" on the y-axis in the following
+# example.
 
 cat = ["bored", "happy", "bored", "bored", "happy", "bored"]
 dog = ["happy", "happy", "happy", "happy", "bored", "bored"]
@@ -32,3 +35,9 @@ ax.plot(activity, cat, label="cat")
 ax.legend()
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: specialty
+#    level: beginner

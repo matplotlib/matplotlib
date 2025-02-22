@@ -1,6 +1,6 @@
 """
 ===========
-Broken Axis
+Broken axis
 ===========
 
 Broken axis example, where the y-axis will have a portion cut out.
@@ -52,3 +52,10 @@ ax2.plot([0, 1], [1, 1], transform=ax2.transAxes, **kwargs)
 
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: axis
+#    plot-type: line
+#    level: intermediate

@@ -190,8 +190,8 @@ Some parameters have been added, others have been improved.
 +---------------------------+--------------------------------------------------+
 | Parameter                 | Description                                      |
 +===========================+==================================================+
-|:rc:`xaxis.labelpad`,      | mplot3d now respects these parameters            |
-|:rc:`yaxis.labelpad`       |                                                  |
+|``xaxis.labelpad``,        | mplot3d now respects these attributes, which     |
+|``yaxis.labelpad``         | default to :rc:`axes.labelpad`                   |
 +---------------------------+--------------------------------------------------+
 |:rc:`axes.labelpad`        | Default space between the axis and the label     |
 +---------------------------+--------------------------------------------------+
@@ -367,11 +367,6 @@ kwargs names is not ideal, but `.Axes.fill_between` already has a
 ``where`` kwarg.
 
 This is particularly useful for plotting pre-binned histograms.
-
-.. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_filled_step_001.png
-   :target: ../../gallery/lines_bars_and_markers/filled_step.html
-   :align: center
-   :scale: 50
 
 Square Plot
 ```````````

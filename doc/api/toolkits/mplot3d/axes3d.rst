@@ -30,6 +30,7 @@ Plotting
    plot_surface
    plot_wireframe
    plot_trisurf
+   fill_between
 
    clabel
    contour
@@ -98,10 +99,16 @@ Axis limits and direction
    get_zlim
    set_zlim
    get_w_lims
+   get_xinverted
+   set_xinverted
    invert_xaxis
    xaxis_inverted
+   get_yinverted
+   set_yinverted
    invert_yaxis
    yaxis_inverted
+   get_zinverted
+   set_zinverted
    invert_zaxis
    zaxis_inverted
    get_xbound

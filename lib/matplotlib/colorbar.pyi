@@ -1,6 +1,7 @@
 import matplotlib.spines as mspines
-from matplotlib import cm, collections, colors, contour
+from matplotlib import cm, collections, colors, contour, colorizer
 from matplotlib.axes import Axes
+from matplotlib.axis import Axis
 from matplotlib.backend_bases import RendererBase
 from matplotlib.patches import Patch
 from matplotlib.ticker import Locator, Formatter
@@ -21,7 +22,7 @@ class _ColorbarSpine(mspines.Spines):
 
 class Colorbar:
     n_rasterize: int
-    mappable: cm.ScalarMappable
+    mappable: cm.ScalarMappable | colorizer.ColorizingArtist
     ax: Axes
     alpha: float | None
     cmap: colors.Colormap
@@ -43,7 +44,7 @@ class Colorbar:
     def __init__(
         self,
         ax: Axes,
-        mappable: cm.ScalarMappable | None = ...,
+        mappable: cm.ScalarMappable | colorizer.ColorizingArtist | None = ...,
         *,
         cmap: str | colors.Colormap | None = ...,
         norm: colors.Normalize | None = ...,
@@ -63,6 +64,8 @@ class Colorbar:
         location: Literal["left", "right", "top", "bottom"] | None = ...
     ) -> None: ...
     @property
+    def long_axis(self) -> Axis: ...
+    @property
     def locator(self) -> Locator: ...
     @locator.setter
     def locator(self, loc: Locator) -> None: ...
@@ -78,7 +81,7 @@ class Colorbar:
     def minorformatter(self) -> Formatter: ...
     @minorformatter.setter
     def minorformatter(self, fmt: Formatter) -> None: ...
-    def update_normal(self, mappable: cm.ScalarMappable) -> None: ...
+    def update_normal(self, mappable: cm.ScalarMappable | None = ...) -> None: ...
     @overload
     def add_lines(self, CS: contour.ContourSet, erase: bool = ...) -> None: ...
     @overload

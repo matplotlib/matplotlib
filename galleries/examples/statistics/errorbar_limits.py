@@ -77,6 +77,8 @@ plt.show()
 
 # %%
 #
+# .. tags:: plot-type: errorbar, domain: statistics
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown

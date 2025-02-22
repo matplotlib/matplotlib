@@ -9,13 +9,8 @@ if the added benefit is worth the effort of adapting existing code.
 
 Because we are a visualization library, our primary output is the final
 visualization the user sees; therefore, the appearance of the figure is part of
-the API and any changes, either semantic or :ref:`aesthetic <color_changes>`,
-are backwards-incompatible API changes.
-
-.. toctree::
-   :hidden:
-
-   color_changes.rst
+the API and any changes, either semantic or aesthetic, are backwards-incompatible
+API changes.
 
 
 Add new API and features
@@ -37,10 +32,53 @@ take particular care when adding new API:
   __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
 
 
+Add or change colormaps, color sequences, and styles
+----------------------------------------------------
+Visual changes are considered an API break. Therefore, we generally do not modify
+existing colormaps, color sequences, or styles.
+
+We put a high bar on adding new colormaps and styles to prevent excessively growing
+them. While the decision is case-by-case, evaluation criteria include:
+
+- novelty: Does it support a new use case? e.g. slight variations of existing maps,
+  sequences and styles are likely not accepted.
+- usability and accessibility: Are colors of sequences sufficiently distinct? Has
+  colorblindness been considered?
+- evidence of wide spread usage: for example academic papers, industry blogs and
+  whitepapers, or inclusion in other visualization libraries or domain specific tools
+- open license: colormaps, sequences, and styles must have a BSD compatible license
+  (see :ref:`license-discussion`)
+
 .. _deprecation-guidelines:
 
 Deprecate API
 -------------
+
+When deciding to deprecate API we carefully consider the balance between the advantages
+(clearer interfaces, better usability, less maintenance) and the disadvantages (users
+have to learn new API and have to modify existing code).
+
+.. tip::
+
+   A rough estimate on the current usage of an API can be obtained by a GitHub code
+   search. A good search pattern is typically
+   ``[expression] language:Python NOT is:fork``. ``[expression]`` may be a simple
+   string, but often regular expressions are helpful to exclude incorrect matches.
+   You can start simple and look at the search results, if there are too many
+   incorrect matches, gradually refine your search criteria.
+
+   *Example*: Calls of the method ``Figure.draw()`` could be matched using
+   ``/\bfig(ure)?\.draw\(/``. This expression employs a number of patterns:
+
+   - Add the opening bracket ``(`` after the method name to only find method calls.
+   - Include a common object name if there are otherwise too many false positives.
+     There are many ``draw()`` functions out there, but the ones we are looking for
+     are likely called via ``fig.draw()`` or ``figure.draw()``.
+   - Use the word boundary marker ``\b`` to make sure your expression is not a
+     matching as part of a longer word.
+
+   `Link to the resulting GitHub search <https://github.com/search?q=%2F%5Cbfig%28ure%29%3F%5C.draw%5C%28%2F+language%3APython+NOT+is%3Afork&type=code>`_
+
 
 API changes in Matplotlib have to be performed following the deprecation process
 below, except in very rare circumstances as deemed necessary by the development
@@ -50,11 +88,12 @@ team. Generally API deprecation happens in two stages:
 * **expire:** API *is* changed as described in the introduction period
 
 This ensures that users are notified before the change will take effect and thus
-prevents unexpected breaking of code.
+prevents unexpected breaking of code. Occasionally deprecations are marked as
+**pending**, which means that the deprecation will be introduced in a future release.
 
 Rules
 ^^^^^
-- Deprecations are targeted at the next :ref:`meso release <pr-milestones>` (e.g. 3.x)
+- Deprecations are targeted at the next :ref:`meso release <pr-milestones>` (e.g. 3.Y)
 - Deprecated API is generally removed (expired) two point-releases after introduction
   of the deprecation. Longer deprecations can be imposed by core developers on
   a case-by-case basis to give more time for the transition
@@ -64,12 +103,17 @@ Rules
 - If in doubt, decisions about API changes are finally made by the
   `API consistency lead <https://matplotlib.org/governance/people.html>`_ developer.
 
+
 .. _intro-deprecation:
 
 Introduce deprecation
 ^^^^^^^^^^^^^^^^^^^^^
 
-#. Create :ref:`deprecation notice <api_whats_new>`
+Deprecations are introduced to warn users that the API will change. The deprecation
+notice describes how the API will change. When alternatives to the deprecated API exist,
+they are also listed in the notice and decorators.
+
+#. Create a :ref:`deprecation notice <api_whats_new>`
 
 #. If possible, issue a `~matplotlib.MatplotlibDeprecationWarning` when the
    deprecated API is used. There are a number of helper tools for this:
@@ -105,8 +149,10 @@ Introduce deprecation
 
 Expire deprecation
 ^^^^^^^^^^^^^^^^^^
+The API changes described in the introduction notice are only implemented after the
+introduction period has expired.
 
-#. Create :ref:`deprecation announcement <api_whats_new>`. For the content,
+#. Create a :ref:`deprecation announcement <api_whats_new>`. For the content,
    you can usually copy the deprecation notice and adapt it slightly.
 
 #. Change the code functionality and remove any related deprecation warnings.
@@ -124,6 +170,35 @@ Expire deprecation
      items were never type hinted in the first place and were added to this file
      instead. For removed items that were not in the stub file, only deleting from the
      allowlist is required.
+
+.. _pending-deprecation:
+
+Pending deprecation
+^^^^^^^^^^^^^^^^^^^
+
+A pending deprecation is an announcement that a deprecation will be introduced in the
+future. By default, pending deprecations do not raise a warning to the user; however,
+pending deprecations are rendered in the documentation and listed in the release notes.
+Pending notices are primarily intended to give downstream library and tool developers
+time to adapt their code so that it does not raise a deprecation
+warning. This is because their users cannot act on warnings triggered by how the tools
+and libraries use Matplotlib. It's also possible to run Python in dev mode to raise
+`PendingDeprecationWarning`.
+
+To mark a deprecation as pending, set the following parameters on the appropriate
+deprecation decorator:
+* the *pending* parameter is set to ``True``
+* the *removal* parameter is left blank
+
+When converting a pending deprecation to an introduced deprecation, update the
+decorator such that:
+* *pending* is set to ``False``
+* *since* is set to the next meso release (3.Y+1)
+* *removal* is set to at least 2 meso releases after (3.Y+3) introduction.
+
+Pending deprecations are documented in the :ref:`API change notes <api_whats_new>` in
+the same manner as introduced and expired deprecations. The notice should include
+*pending deprecation* in the title.
 
 
 .. redirect-from:: /devel/coding_guide#new-features-and-api-changes
@@ -216,8 +291,8 @@ API change notes
 """"""""""""""""
 
 .. include:: ../api/next_api_changes/README.rst
-   :start-line: 5
-   :end-line: 31
+   :start-after: api-change-guide-start
+   :end-before: api-change-guide-end
 
 .. _whats-new-notes:
 
@@ -225,5 +300,27 @@ What's new notes
 """"""""""""""""
 
 .. include:: ../users/next_whats_new/README.rst
-   :start-line: 5
-   :end-line: 24
+   :start-after: whats-new-guide-start
+   :end-before: whats-new-guide-end
+
+Discourage API
+--------------
+
+We have API that we do not recommend anymore for new code, but that cannot be
+deprecated because its removal would be breaking backward-compatibility and too
+disruptive. In such a case we can formally discourage API. This can cover
+specific parameters, call patterns, whole methods etc.
+
+To do so, add a note to the docstring ::
+
+    .. admonition:: Discouraged
+
+       [description and suggested alternative]
+
+You find several examples for good descriptions if you search the codebase for
+``.. admonition:: Discouraged``.
+
+Additionally, if a whole function is discouraged, prefix the summary line with
+``[*Discouraged*]`` so that it renders in the API overview like this
+
+    [*Discouraged*] Return the XAxis instance.

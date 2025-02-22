@@ -15,6 +15,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
@@ -707,9 +708,13 @@ def test_large_subscript_title():
      (0.3, 0, 'right'),
      (0.3, 185, 'left')])
 def test_wrap(x, rotation, halign):
-    fig = plt.figure(figsize=(6, 6))
+    fig = plt.figure(figsize=(18, 18))
+    gs = GridSpec(nrows=3, ncols=3, figure=fig)
+    subfig = fig.add_subfigure(gs[1, 1])
+    # we only use the central subfigure, which does not align with any
+    # figure boundary, to ensure only subfigure boundaries are relevant
     s = 'This is a very long text that should be wrapped multiple times.'
-    text = fig.text(x, 0.7, s, wrap=True, rotation=rotation, ha=halign)
+    text = subfig.text(x, 0.7, s, wrap=True, rotation=rotation, ha=halign)
     fig.canvas.draw()
     assert text._get_wrapped_text() == ('This is a very long\n'
                                         'text that should be\n'
@@ -916,7 +921,7 @@ def test_annotate_offset_fontsize():
                         fontsize='10',
                         xycoords='data',
                         textcoords=text_coords[i]) for i in range(2)]
-    points_coords, fontsize_coords = [ann.get_window_extent() for ann in anns]
+    points_coords, fontsize_coords = (ann.get_window_extent() for ann in anns)
     fig.canvas.draw()
     assert str(points_coords) == str(fontsize_coords)
 
@@ -1130,3 +1135,58 @@ def test_font_wrap():
     plt.text(3, 4, t, family='monospace', ha='right', wrap=True)
     plt.text(-1, 0, t, fontsize=14, style='italic', ha='left', rotation=-15,
              wrap=True)
+
+
+def test_ha_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance._ha_for_angle(angle)
+        assert alignment in ['center', 'left', 'right']
+
+
+def test_va_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance._va_for_angle(angle)
+        assert alignment in ['center', 'top', 'baseline']
+
+
+@image_comparison(baseline_images=['xtick_rotation_mode'],
+                  remove_text=False, extensions=['png'], style='mpl20')
+def test_xtick_rotation_mode():
+    fig, ax = plt.subplots(figsize=(12, 1))
+    ax.set_yticks([])
+    ax2 = ax.twiny()
+
+    ax.set_xticks(range(37), ['foo'] * 37, rotation_mode="xtick")
+    ax2.set_xticks(range(37), ['foo'] * 37, rotation_mode="xtick")
+
+    angles = np.linspace(0, 360, 37)
+
+    for tick, angle in zip(ax.get_xticklabels(), angles):
+        tick.set_rotation(angle)
+    for tick, angle in zip(ax2.get_xticklabels(), angles):
+        tick.set_rotation(angle)
+
+    plt.subplots_adjust(left=0.01, right=0.99, top=.6, bottom=.4)
+
+
+@image_comparison(baseline_images=['ytick_rotation_mode'],
+                  remove_text=False, extensions=['png'], style='mpl20')
+def test_ytick_rotation_mode():
+    fig, ax = plt.subplots(figsize=(1, 12))
+    ax.set_xticks([])
+    ax2 = ax.twinx()
+
+    ax.set_yticks(range(37), ['foo'] * 37, rotation_mode="ytick")
+    ax2.set_yticks(range(37), ['foo'] * 37, rotation_mode='ytick')
+
+    angles = np.linspace(0, 360, 37)
+    for tick, angle in zip(ax.get_yticklabels(), angles):
+        tick.set_rotation(angle)
+    for tick, angle in zip(ax2.get_yticklabels(), angles):
+        tick.set_rotation(angle)
+
+    plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)

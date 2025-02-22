@@ -83,8 +83,8 @@ Passing both singular and plural *colors*, *linewidths*, *linestyles* to `.Axes.
 Passing e.g. both *linewidth* and *linewidths* will raise a TypeError in the
 future.
 
-Setting :rc:`text.latex.preamble` or :rc:`pdf.preamble` to non-strings
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting ``text.latex.preamble`` or ``pdf.preamble`` rcParams to non-strings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These rcParams should be set to string values.  Support for None (meaning the
 empty string) and lists of strings (implicitly joined with newlines) is
 deprecated.
@@ -311,7 +311,7 @@ JPEG options
 ~~~~~~~~~~~~
 The *quality*, *optimize*, and *progressive* keyword arguments to
 `~.Figure.savefig`, which were only used when saving to JPEG, are deprecated.
-:rc:`savefig.jpeg_quality` is likewise deprecated.
+The ``savefig.jpeg_quality`` rcParam is likewise deprecated.
 
 Such options should now be directly passed to Pillow using
 ``savefig(..., pil_kwargs={"quality": ..., "optimize": ..., "progressive": ...})``.

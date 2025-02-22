@@ -1,13 +1,16 @@
 r"""
+.. redirect-from:: /gallery/userdemo/anchored_box04
+.. redirect-from:: /gallery/userdemo/annotate_explain
 .. redirect-from:: /gallery/userdemo/annotate_simple01
 .. redirect-from:: /gallery/userdemo/annotate_simple02
 .. redirect-from:: /gallery/userdemo/annotate_simple03
 .. redirect-from:: /gallery/userdemo/annotate_simple04
-.. redirect-from:: /gallery/userdemo/anchored_box04
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord01
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord02
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord03
+.. redirect-from:: /gallery/userdemo/annotate_text_arrow
 .. redirect-from:: /gallery/userdemo/connect_simple01
+.. redirect-from:: /gallery/userdemo/connectionstyle_demo
 .. redirect-from:: /tutorials/text/annotations
 
 .. _annotations:
@@ -265,23 +268,30 @@ t = ax.text(0.5, 0.5, "Direction",
 # Defining custom box styles
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# You can use a custom box style. The value for the ``boxstyle`` can be a
-# callable object in the following forms:
+# Custom box styles can be implemented as a function that takes arguments specifying
+# both a rectangular box and the amount of "mutation", and returns the "mutated" path.
+# The specific signature is the one of ``custom_box_style`` below.
+#
+# Here, we return a new path which adds an "arrow" shape on the left of the box.
+#
+# The custom box style can then be used by passing
+# ``bbox=dict(boxstyle=custom_box_style, ...)`` to `.Axes.text`.
 
 from matplotlib.path import Path
 
 
 def custom_box_style(x0, y0, width, height, mutation_size):
     """
-    Given the location and size of the box, return the path of the box around
-    it. Rotation is automatically taken care of.
+    Given the location and size of the box, return the path of the box around it.
+
+    Rotation is automatically taken care of.
 
     Parameters
     ----------
     x0, y0, width, height : float
        Box location and size.
     mutation_size : float
-    Mutation reference scale, typically the text font size.
+        Mutation reference scale, typically the text font size.
     """
     # padding
     mypad = 0.3
@@ -302,9 +312,71 @@ ax.text(0.5, 0.5, "Test", size=30, va="center", ha="center", rotation=30,
         bbox=dict(boxstyle=custom_box_style, alpha=0.2))
 
 # %%
-# See also :doc:`/gallery/userdemo/custom_boxstyle01`. Similarly, you can define a
-# custom `.ConnectionStyle` and a custom `.ArrowStyle`. View the source code at
-# `.patches` to learn how each class is defined.
+# Likewise, custom box styles can be implemented as classes that implement
+# ``__call__``.
+#
+# The classes can then be registered into the ``BoxStyle._style_list`` dict,
+# which allows specifying the box style as a string,
+# ``bbox=dict(boxstyle="registered_name,param=value,...", ...)``.
+# Note that this registration relies on internal APIs and is therefore not
+# officially supported.
+
+from matplotlib.patches import BoxStyle
+
+
+class MyStyle:
+    """A simple box."""
+
+    def __init__(self, pad=0.3):
+        """
+        The arguments must be floats and have default values.
+
+        Parameters
+        ----------
+        pad : float
+            amount of padding
+        """
+        self.pad = pad
+        super().__init__()
+
+    def __call__(self, x0, y0, width, height, mutation_size):
+        """
+        Given the location and size of the box, return the path of the box around it.
+
+        Rotation is automatically taken care of.
+
+        Parameters
+        ----------
+        x0, y0, width, height : float
+            Box location and size.
+        mutation_size : float
+            Reference scale for the mutation, typically the text font size.
+        """
+        # padding
+        pad = mutation_size * self.pad
+        # width and height with padding added
+        width = width + 2 * pad
+        height = height + 2 * pad
+        # boundary of the padded box
+        x0, y0 = x0 - pad, y0 - pad
+        x1, y1 = x0 + width, y0 + height
+        # return the new path
+        return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1),
+                     (x0-pad, (y0+y1)/2), (x0, y0), (x0, y0)],
+                    closed=True)
+
+
+BoxStyle._style_list["angled"] = MyStyle  # Register the custom style.
+
+fig, ax = plt.subplots(figsize=(3, 3))
+ax.text(0.5, 0.5, "Test", size=30, va="center", ha="center", rotation=30,
+        bbox=dict(boxstyle="angled,pad=0.5", alpha=0.2))
+
+del BoxStyle._style_list["angled"]  # Unregister it.
+
+# %%
+# Similarly, you can define a custom `.ConnectionStyle` and a custom `.ArrowStyle`. View
+# the source code at `.patches` to learn how each class is defined.
 #
 # .. _annotation_with_custom_arrow:
 #
@@ -332,9 +404,40 @@ ax.annotate("",
 # 4. The path is transmuted to an arrow patch, as specified by the *arrowstyle*
 #    parameter.
 #
-# .. figure:: /gallery/userdemo/images/sphx_glr_annotate_explain_001.png
-#    :target: /gallery/userdemo/annotate_explain.html
-#    :align: center
+# .. plot::
+#     :show-source-link: False
+#
+#     import matplotlib.patches as mpatches
+#
+#     x1, y1 = 0.3, 0.3
+#     x2, y2 = 0.7, 0.7
+#     arrowprops = {
+#         "1. connect with connectionstyle":
+#             dict(arrowstyle="-", patchB=False, shrinkB=0),
+#         "2. clip against patchB": dict(arrowstyle="-", patchB=True, shrinkB=0),
+#         "3. shrink by shrinkB": dict(arrowstyle="-", patchB=True, shrinkB=5),
+#         "4. mutate with arrowstyle": dict(arrowstyle="fancy", patchB=True, shrinkB=5),
+#     }
+#
+#     fig, axs = plt.subplots(2, 2, figsize=(6, 6), layout='compressed')
+#     for ax, (name, props) in zip(axs.flat, arrowprops.items()):
+#         ax.plot([x1, x2], [y1, y2], ".")
+#
+#         el = mpatches.Ellipse((x1, y1), 0.3, 0.4, angle=30, alpha=0.2)
+#         ax.add_artist(el)
+#
+#         props["patchB"] = el if props["patchB"] else None
+#
+#         ax.annotate(
+#             "",
+#             xy=(x1, y1), xycoords='data',
+#             xytext=(x2, y2), textcoords='data',
+#             arrowprops={"color": "0.5", "connectionstyle": "arc3,rad=0.3", **props})
+#         ax.text(.05, .95, name, transform=ax.transAxes, ha="left", va="top")
+#
+#         ax.set(xlim=(0, 1), ylim=(0, 1), xticks=[], yticks=[], aspect=1)
+#
+#     fig.get_layout_engine().set(wspace=0, hspace=0, w_pad=0, h_pad=0)
 #
 # The creation of the connecting path between two points is controlled by
 # ``connectionstyle`` key and the following styles are available:
@@ -358,9 +461,47 @@ ax.annotate("",
 # example below. (Warning: The behavior of the ``bar`` style is currently not
 # well-defined and may be changed in the future).
 #
-# .. figure:: /gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
-#    :target: /gallery/userdemo/connectionstyle_demo.html
-#    :align: center
+# .. plot::
+#     :caption: Connection styles for annotations
+#
+#     def demo_con_style(ax, connectionstyle):
+#         x1, y1 = 0.3, 0.2
+#         x2, y2 = 0.8, 0.6
+#
+#         ax.plot([x1, x2], [y1, y2], ".")
+#         ax.annotate("",
+#                     xy=(x1, y1), xycoords='data',
+#                     xytext=(x2, y2), textcoords='data',
+#                     arrowprops=dict(arrowstyle="->", color="0.5",
+#                                     shrinkA=5, shrinkB=5,
+#                                     patchA=None, patchB=None,
+#                                     connectionstyle=connectionstyle,
+#                                     ),
+#                     )
+#
+#         ax.text(.05, .95, connectionstyle.replace(",", ",\n"),
+#                 transform=ax.transAxes, ha="left", va="top")
+#
+#         ax.set(xlim=(0, 1), ylim=(0, 1.25), xticks=[], yticks=[], aspect=1.25)
+#
+#     fig, axs = plt.subplots(3, 5, figsize=(7, 6.3), layout="compressed")
+#     demo_con_style(axs[0, 0], "angle3,angleA=90,angleB=0")
+#     demo_con_style(axs[1, 0], "angle3,angleA=0,angleB=90")
+#     demo_con_style(axs[0, 1], "arc3,rad=0.")
+#     demo_con_style(axs[1, 1], "arc3,rad=0.3")
+#     demo_con_style(axs[2, 1], "arc3,rad=-0.3")
+#     demo_con_style(axs[0, 2], "angle,angleA=-90,angleB=180,rad=0")
+#     demo_con_style(axs[1, 2], "angle,angleA=-90,angleB=180,rad=5")
+#     demo_con_style(axs[2, 2], "angle,angleA=-90,angleB=10,rad=5")
+#     demo_con_style(axs[0, 3], "arc,angleA=-90,angleB=0,armA=30,armB=30,rad=0")
+#     demo_con_style(axs[1, 3], "arc,angleA=-90,angleB=0,armA=30,armB=30,rad=5")
+#     demo_con_style(axs[2, 3], "arc,angleA=-90,angleB=0,armA=0,armB=40,rad=0")
+#     demo_con_style(axs[0, 4], "bar,fraction=0.3")
+#     demo_con_style(axs[1, 4], "bar,fraction=-0.3")
+#     demo_con_style(axs[2, 4], "bar,angle=180,fraction=-0.2")
+#
+#     axs[2, 0].remove()
+#     fig.get_layout_engine().set(wspace=0, hspace=0, w_pad=0, h_pad=0)
 #
 # The connecting path (after clipping and shrinking) is then mutated to
 # an arrow patch, according to the given ``arrowstyle``:

@@ -292,8 +292,8 @@ positioning. For the xlabel, the supported values are 'left', 'center', or
 'right'. For the ylabel, the supported values are 'bottom', 'center', or
 'top'.
 
-The default is controlled via :rc:`xaxis.labelposition` and
-:rc:`yaxis.labelposition`; the Colorbar label takes the rcParam based on its
+The default is controlled via :rc:`xaxis.labellocation` and
+:rc:`yaxis.labellocation`; the Colorbar label takes the rcParam based on its
 orientation.
 
 .. plot::

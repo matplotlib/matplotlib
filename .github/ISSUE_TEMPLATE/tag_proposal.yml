@@ -2,7 +2,7 @@
 name: Tag Proposal
 description: Suggest a new tag or subcategory for the gallery of examples
 title: "[Tag]: "
-labels: [Tag proposal]
+labels: ["Documentation: tags"]
 body:
   - type: markdown
     attributes:
