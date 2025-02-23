@@ -420,6 +420,9 @@ class Collection(mcolorizer.ColorizingArtist):
                 gc, paths[0], combined_transform.frozen(),
                 mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
         else:
+            # The current new API of draw_path_collection() is provisional
+            # and will be changed in a future PR.
+
             # Find whether renderer.draw_path_collection() takes hatchcolor parameter
             hatchcolors_arg_supported = True
             try:
