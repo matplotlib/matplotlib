@@ -518,9 +518,7 @@ class _ColorizerInterface:
 
         # scalar data
         n = self.cmap.N
-        g_sig_digits = self._sig_digits_from_norm(self.norm,
-                                                  data,
-                                                  n)
+        g_sig_digits = self._sig_digits_from_norm(self.norm, data, n)
         return f"[{data:-#.{g_sig_digits}g}]"
 
 

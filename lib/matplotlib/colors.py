@@ -3266,7 +3266,7 @@ class MultiNorm(Normalize):
         # Convert the list of norms to a tuple to make it immutable.
         # If there is a use case for swapping a single norm, we can add support for
         # that later
-        self._norms = tuple(n for n in norms)
+        self._norms = tuple(norms)
 
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
