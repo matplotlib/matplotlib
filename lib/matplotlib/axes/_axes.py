@@ -6287,13 +6287,13 @@ class Axes(_AxesBase):
             - (M, N) or M*N: a mesh with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
-            - (K, M, N): multiple images with scalar data. Must be used with
+            - (K, M, N): multiple layers with scalar data. Must be used with
               a multivariate or bivariate colormap. See *cmap*.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
 
-            Here M and N define the rows and columns of the image.
+            Here M and N define the rows and columns of the mesh.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::

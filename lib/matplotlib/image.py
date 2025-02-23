@@ -671,7 +671,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                                  " must be explicitly declared, for example"
                                  f" cmap='{A.shape[0]}VarAddA'")
             raise TypeError(f"Invalid shape {A.shape} for image data")
-        if A.ndim == 3:
+        if A.ndim == 3 and n_input == 1:
             # If the input data has values outside the valid range (after
             # normalisation), we issue a warning and then clip X to the bounds
             # - otherwise casting wraps extreme values, hiding outliers and
