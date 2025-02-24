@@ -171,3 +171,18 @@ saved.
 
 Previously, *mincnt* was inclusive with no *C* provided but exclusive when *C* is provided.
 It is now inclusive of *mincnt* in both cases.
+
+
+``matplotlib.mpl_toolkits`` is now an implicit namespace package
+----------------------------------------------------------------
+
+Following the deprecation of ``pkg_resources.declare_namespace`` in ``setuptools`` 67.3.0,
+``matplotlib.mpl_toolkits`` is now implemented as an implicit namespace, following
+`PEP 420 <https://peps.python.org/pep-0420/>`_.
+
+As a consequence using ``pip`` to install a version of Matplotlib >= 3.8 on top
+of a version of Matplotlib < 3.8 (e.g. via ``pip install --local`` or
+``python -m venv --system-site-packages ...``) will fail because the old
+`matplotlib.mpl_toolkits` files will be found where as the newer files will be
+found for all other modules.  This will result in errors due to the version
+miss-match.
