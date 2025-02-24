@@ -582,7 +582,7 @@ class _ScalarMappable(_ColorizerInterface):
             self._A = None
             return
 
-        A = _ensure_multivariate_data(self.norm.n_input, A)
+        A = _ensure_multivariate_data(A, self.norm.n_input)
 
         A = cbook.safe_masked_invalid(A, copy=True)
         if not np.can_cast(A.dtype, float, "same_kind"):
@@ -862,7 +862,7 @@ def _ensure_cmap(cmap, accept_multivariate=False):
     return cm.colormaps[cmap_name]
 
 
-def _ensure_multivariate_data(n_input, data):
+def _ensure_multivariate_data(data, n_input):
     """
     Ensure that the data has dtype with n_input.
     Input data of shape (n_input, n, m) is converted to an array of shape
