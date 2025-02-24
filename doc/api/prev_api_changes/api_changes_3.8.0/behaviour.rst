@@ -183,6 +183,10 @@ Following the deprecation of ``pkg_resources.declare_namespace`` in ``setuptools
 As a consequence using ``pip`` to install a version of Matplotlib >= 3.8 on top
 of a version of Matplotlib < 3.8 (e.g. via ``pip install --local`` or
 ``python -m venv --system-site-packages ...``) will fail because the old
-`matplotlib.mpl_toolkits` files will be found where as the newer files will be
+``matplotlib.mpl_toolkits`` files will be found where as the newer files will be
 found for all other modules.  This will result in errors due to the version
 miss-match.
+
+To avoid this issue you need to avoid having multiple versions of Matplotlib
+in different entries of ``sys.path``.   Either uninstall Matplotlib from
+at the system level or use a more isolated virtual environment.
