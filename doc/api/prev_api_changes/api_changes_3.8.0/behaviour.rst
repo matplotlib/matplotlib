@@ -188,5 +188,5 @@ found for all other modules.  This will result in errors due to the version
 miss-match.
 
 To avoid this issue you need to avoid having multiple versions of Matplotlib
-in different entries of ``sys.path``.   Either uninstall Matplotlib from
+in different entries of ``sys.path``.   Either uninstall Matplotlib
 at the system level or use a more isolated virtual environment.
