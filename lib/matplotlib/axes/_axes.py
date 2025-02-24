@@ -6208,8 +6208,8 @@ class Axes(_AxesBase):
             # If provided, _pcolorargs will check that X, Y and C have the same shape.
             # Before this check, we need to convert C from shape (K, N, M), where K is
             # the number of variates, to (N, M) with a data type with K fields.
-            data = mcolorizer._ensure_multivariate_data(colorizer_obj.norm.n_input,
-                                                        args[-1])
+            data = mcolorizer._ensure_multivariate_data(args[-1],
+                                                        colorizer_obj.norm.n_input)
             args = (*args[:-1], data)
 
         X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading,
@@ -6465,8 +6465,8 @@ class Axes(_AxesBase):
             # If provided, _pcolorargs will check that X, Y and C have the same shape.
             # Before this check, we need to convert C from shape (K, N, M), where K is
             # the number of variates, to (N, M) with a data type with K fields.
-            data = mcolorizer._ensure_multivariate_data(colorizer_obj.norm.n_input,
-                                                        args[-1])
+            data = mcolorizer._ensure_multivariate_data(args[-1],
+                                                        colorizer_obj.norm.n_input)
             args = (*args[:-1], data)
 
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,

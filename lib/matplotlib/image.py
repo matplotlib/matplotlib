@@ -646,7 +646,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         Check validity of image-like input *A* and normalize it to a format suitable for
         Image subclasses.
         """
-        A = mcolorizer._ensure_multivariate_data(n_input, A)
+        A = mcolorizer._ensure_multivariate_data(A, n_input)
         A = cbook.safe_masked_invalid(A, copy=True)
         if n_input == 1:
             if A.dtype != np.uint8 and not np.can_cast(A.dtype, float, "same_kind"):
