@@ -43,11 +43,11 @@ mpl_xdisplay_is_valid(void)
         && (libX11 = dlopen("libX11.so.6", RTLD_LAZY))) {
         typedef struct Display* (*XOpenDisplay_t)(char const*);
         typedef int (*XCloseDisplay_t)(struct Display*);
-        struct Display* display = NULL;
+        struct Display* display = nullptr;
         XOpenDisplay_t XOpenDisplay = (XOpenDisplay_t)dlsym(libX11, "XOpenDisplay");
         XCloseDisplay_t XCloseDisplay = (XCloseDisplay_t)dlsym(libX11, "XCloseDisplay");
         if (XOpenDisplay && XCloseDisplay
-                && (display = XOpenDisplay(NULL))) {
+                && (display = XOpenDisplay(nullptr))) {
             XCloseDisplay(display);
         }
         if (dlclose(libX11)) {
@@ -75,13 +75,13 @@ mpl_display_is_valid(void)
         && (libwayland_client = dlopen("libwayland-client.so.0", RTLD_LAZY))) {
         typedef struct wl_display* (*wl_display_connect_t)(char const*);
         typedef void (*wl_display_disconnect_t)(struct wl_display*);
-        struct wl_display* display = NULL;
+        struct wl_display* display = nullptr;
         wl_display_connect_t wl_display_connect =
             (wl_display_connect_t)dlsym(libwayland_client, "wl_display_connect");
         wl_display_disconnect_t wl_display_disconnect =
             (wl_display_disconnect_t)dlsym(libwayland_client, "wl_display_disconnect");
         if (wl_display_connect && wl_display_disconnect
-                && (display = wl_display_connect(NULL))) {
+                && (display = wl_display_connect(nullptr))) {
             wl_display_disconnect(display);
         }
         if (dlclose(libwayland_client)) {
@@ -196,7 +196,7 @@ mpl_SetProcessDpiAwareness_max(void)
 #endif
 }
 
-PYBIND11_MODULE(_c_internal_utils, m)
+PYBIND11_MODULE(_c_internal_utils, m, py::mod_gil_not_used())
 {
     m.def(
         "display_is_valid", &mpl_display_is_valid,

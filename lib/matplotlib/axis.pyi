@@ -15,6 +15,7 @@ from matplotlib.text import Text
 from matplotlib.ticker import Locator, Formatter
 from matplotlib.transforms import Transform, Bbox
 from matplotlib.typing import ColorType
+from matplotlib.units import ConversionInterface
 
 
 GRIDLINE_INTERPOLATION_STEPS: int
@@ -47,6 +48,7 @@ class Tick(martist.Artist):
         label2On: bool = ...,
         major: bool = ...,
         labelrotation: float = ...,
+        labelrotation_mode: Literal["default", "anchor", "xtick", "ytick"] | None = ...,
         grid_color: ColorType | None = ...,
         grid_linestyle: str | None = ...,
         grid_linewidth: float | None = ...,
@@ -207,6 +209,8 @@ class Axis(martist.Artist):
     def update_units(self, data): ...
     def have_units(self) -> bool: ...
     def convert_units(self, x): ...
+    def get_converter(self) -> ConversionInterface | None: ...
+    def set_converter(self, converter: ConversionInterface) -> None: ...
     def set_units(self, u) -> None: ...
     def get_units(self): ...
     def set_label_text(

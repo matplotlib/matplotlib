@@ -151,7 +151,7 @@ def test_nonlinear_containment():
 
 
 @image_comparison(['arrow_contains_point.png'], remove_text=True, style='mpl20',
-                  tol=0.027 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.027)
 def test_arrow_contains_point():
     # fix bug (#8384)
     fig, ax = plt.subplots()
@@ -283,7 +283,7 @@ def test_marker_paths_pdf():
 
 @image_comparison(['nan_path'], style='default', remove_text=True,
                   extensions=['pdf', 'svg', 'eps', 'png'],
-                  tol=0.009 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_nan_isolated_points():
 
     y0 = [0, np.nan, 2, np.nan, 4, 5, 6]

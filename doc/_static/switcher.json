@@ -1,14 +1,19 @@
 [
     {
-        "name": "3.9 (stable)",
-        "version": "3.9.2",
+        "name": "3.10 (stable)",
+        "version": "3.10.0",
         "url": "https://matplotlib.org/stable/",
         "preferred": true
     },
     {
-        "name": "3.10 (dev)",
+        "name": "3.11 (dev)",
         "version": "dev",
         "url": "https://matplotlib.org/devdocs/"
+    },
+    {
+        "name": "3.9",
+        "version": "3.9.3",
+        "url": "https://matplotlib.org/3.9.3/"
     },
     {
         "name": "3.8",

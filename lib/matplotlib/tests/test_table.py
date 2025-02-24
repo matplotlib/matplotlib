@@ -55,7 +55,7 @@ def test_label_colours():
     dim = 3
 
     c = np.linspace(0, 1, dim)
-    colours = plt.cm.RdYlGn(c)
+    colours = plt.colormaps["RdYlGn"](c)
     cellText = [['1'] * dim] * dim
 
     fig = plt.figure()
@@ -253,3 +253,32 @@ def test_table_unit(fig_test, fig_ref):
 
     munits.registry.pop(FakeUnit)
     assert not munits.registry.get_converter(FakeUnit)
+
+
+def test_table_dataframe(pd):
+    # Test if Pandas Data Frame can be passed in cellText
+
+    data = {
+        'Letter': ['A', 'B', 'C'],
+        'Number': [100, 200, 300]
+    }
+
+    df = pd.DataFrame(data)
+    fig, ax = plt.subplots()
+    table = ax.table(df, loc='center')
+
+    for r, (index, row) in enumerate(df.iterrows()):
+        for c, col in enumerate(df.columns if r == 0 else row.values):
+            assert table[r if r == 0 else r+1, c].get_text().get_text() == str(col)
+
+
+def test_table_fontsize():
+    # Test that the passed fontsize propagates to cells
+    tableData = [['a', 1], ['b', 2]]
+    fig, ax = plt.subplots()
+    test_fontsize = 20
+    t = ax.table(cellText=tableData, loc='top', fontsize=test_fontsize)
+    cell_fontsize = t[(0, 0)].get_fontsize()
+    assert cell_fontsize == test_fontsize, f"Actual:{test_fontsize},got:{cell_fontsize}"
+    cell_fontsize = t[(1, 1)].get_fontsize()
+    assert cell_fontsize == test_fontsize, f"Actual:{test_fontsize},got:{cell_fontsize}"

@@ -151,6 +151,29 @@ def test_figure_label():
         plt.figure(Figure())
 
 
+def test_figure_label_replaced():
+    plt.close('all')
+    fig = plt.figure(1)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="Changing 'Figure.number' is deprecated"):
+        fig.number = 2
+    assert fig.number == 2
+
+
+def test_figure_no_label():
+    # standalone figures do not have a figure attribute
+    fig = Figure()
+    with pytest.raises(AttributeError):
+        fig.number
+    # but one can set one
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="Changing 'Figure.number' is deprecated"):
+        fig.number = 5
+    assert fig.number == 5
+    # even though it's not known by pyplot
+    assert not plt.fignum_exists(fig.number)
+
+
 def test_fignum_exists():
     # pyplot figure creation, selection and closing with fignum_exists
     plt.figure('one')
@@ -187,7 +210,7 @@ def test_clf_keyword():
 
 
 @image_comparison(['figure_today'],
-                  tol=0.015 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.015)
 def test_figure():
     # named figure support
     fig = plt.figure('today')
@@ -471,6 +494,20 @@ def test_autofmt_xdate(which):
     if which in ('both', 'minor'):
         for label in fig.axes[0].get_xticklabels(True, 'minor'):
             assert int(label.get_rotation()) == angle
+
+
+def test_autofmt_xdate_colorbar_constrained():
+    # check works with a colorbar.
+    # with constrained layout, colorbars do not have a gridspec,
+    # but autofmt_xdate checks if all axes have a gridspec before being
+    # applied.
+    fig, ax = plt.subplots(layout="constrained")
+    im = ax.imshow([[1, 4, 6], [2, 3, 5]])
+    plt.colorbar(im)
+    fig.autofmt_xdate()
+    fig.draw_without_rendering()
+    label = ax.get_xticklabels(which='major')[1]
+    assert label.get_rotation() == 30.0
 
 
 @mpl.style.context('default')

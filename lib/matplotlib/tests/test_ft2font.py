@@ -5,8 +5,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib import ft2font
-from matplotlib.testing.decorators import check_figures_equal
+from matplotlib.testing import _gen_multi_font_text
 import matplotlib.font_manager as fm
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
@@ -39,14 +40,16 @@ def test_ft2font_dejavu_attrs():
     assert font.family_name == 'DejaVu Sans'
     assert font.style_name == 'Book'
     assert font.num_faces == 1  # Single TTF.
+    assert font.num_named_instances == 0  # Not a variable font.
     assert font.num_glyphs == 6241  # From compact encoding view in FontForge.
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 5
     # Other internal flags are set, so only check the ones we're allowed to test.
-    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
-                      ft2font.KERNING | ft2font.GLYPH_NAMES)
-    assert (font.face_flags & expected_flags) == expected_flags
-    assert font.style_flags == 0  # Not italic or bold.
+    expected_flags = (ft2font.FaceFlags.SCALABLE | ft2font.FaceFlags.SFNT |
+                      ft2font.FaceFlags.HORIZONTAL | ft2font.FaceFlags.KERNING |
+                      ft2font.FaceFlags.GLYPH_NAMES)
+    assert expected_flags in font.face_flags
+    assert font.style_flags == ft2font.StyleFlags.NORMAL
     assert font.scalable
     # From FontForge: Font Information → General tab → entry name below.
     assert font.units_per_EM == 2048  # Em Size.
@@ -71,14 +74,15 @@ def test_ft2font_cm_attrs():
     assert font.family_name == 'cmtt10'
     assert font.style_name == 'Regular'
     assert font.num_faces == 1  # Single TTF.
+    assert font.num_named_instances == 0  # Not a variable font.
     assert font.num_glyphs == 133  # From compact encoding view in FontForge.
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 2
     # Other internal flags are set, so only check the ones we're allowed to test.
-    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
-                      ft2font.GLYPH_NAMES)
-    assert (font.face_flags & expected_flags) == expected_flags, font.face_flags
-    assert font.style_flags == 0  # Not italic or bold.
+    expected_flags = (ft2font.FaceFlags.SCALABLE | ft2font.FaceFlags.SFNT |
+                      ft2font.FaceFlags.HORIZONTAL | ft2font.FaceFlags.GLYPH_NAMES)
+    assert expected_flags in font.face_flags
+    assert font.style_flags == ft2font.StyleFlags.NORMAL
     assert font.scalable
     # From FontForge: Font Information → General tab → entry name below.
     assert font.units_per_EM == 2048  # Em Size.
@@ -103,14 +107,15 @@ def test_ft2font_stix_bold_attrs():
     assert font.family_name == 'STIXSizeTwoSym'
     assert font.style_name == 'Bold'
     assert font.num_faces == 1  # Single TTF.
+    assert font.num_named_instances == 0  # Not a variable font.
     assert font.num_glyphs == 20  # From compact encoding view in FontForge.
     assert font.num_fixed_sizes == 0  # All glyphs are scalable.
     assert font.num_charmaps == 3
     # Other internal flags are set, so only check the ones we're allowed to test.
-    expected_flags = (ft2font.SCALABLE | ft2font.SFNT | ft2font.HORIZONTAL |
-                      ft2font.GLYPH_NAMES)
-    assert (font.face_flags & expected_flags) == expected_flags, font.face_flags
-    assert font.style_flags == ft2font.BOLD
+    expected_flags = (ft2font.FaceFlags.SCALABLE | ft2font.FaceFlags.SFNT |
+                      ft2font.FaceFlags.HORIZONTAL | ft2font.FaceFlags.GLYPH_NAMES)
+    assert expected_flags in font.face_flags
+    assert font.style_flags == ft2font.StyleFlags.BOLD
     assert font.scalable
     # From FontForge: Font Information → General tab → entry name below.
     assert font.units_per_EM == 1000  # Em Size.
@@ -714,13 +719,37 @@ def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
     font.set_size(100, 100)
     assert font.get_kerning(font.get_char_index(ord(left)),
                             font.get_char_index(ord(right)),
-                            ft2font.KERNING_UNSCALED) == unscaled
+                            ft2font.Kerning.UNSCALED) == unscaled
     assert font.get_kerning(font.get_char_index(ord(left)),
                             font.get_char_index(ord(right)),
-                            ft2font.KERNING_UNFITTED) == unfitted
+                            ft2font.Kerning.UNFITTED) == unfitted
     assert font.get_kerning(font.get_char_index(ord(left)),
                             font.get_char_index(ord(right)),
-                            ft2font.KERNING_DEFAULT) == default
+                            ft2font.Kerning.DEFAULT) == default
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning.UNSCALED instead'):
+        k = ft2font.KERNING_UNSCALED
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning enum values instead'):
+        assert font.get_kerning(font.get_char_index(ord(left)),
+                                font.get_char_index(ord(right)),
+                                int(k)) == unscaled
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning.UNFITTED instead'):
+        k = ft2font.KERNING_UNFITTED
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning enum values instead'):
+        assert font.get_kerning(font.get_char_index(ord(left)),
+                                font.get_char_index(ord(right)),
+                                int(k)) == unfitted
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning.DEFAULT instead'):
+        k = ft2font.KERNING_DEFAULT
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='Use Kerning enum values instead'):
+        assert font.get_kerning(font.get_char_index(ord(left)),
+                                font.get_char_index(ord(right)),
+                                int(k)) == default
 
 
 def test_ft2font_set_text():
@@ -826,49 +855,15 @@ def test_ft2font_get_path():
     np.testing.assert_array_equal(codes, expected_codes)
 
 
-@pytest.mark.parametrize('family_name, file_name',
-                          [("WenQuanYi Zen Hei",  "wqy-zenhei.ttc"),
-                           ("Noto Sans CJK JP", "NotoSansCJK.ttc"),
-                           ("Noto Sans TC", "NotoSansTC-Regular.otf")]
-                         )
-def test_fallback_smoke(family_name, file_name):
-    fp = fm.FontProperties(family=[family_name])
-    if Path(fm.findfont(fp)).name != file_name:
-        pytest.skip(f"Font {family_name} ({file_name}) is missing")
-    plt.rcParams['font.size'] = 20
+@pytest.mark.parametrize('fmt', ['pdf', 'png', 'ps', 'raw', 'svg'])
+def test_fallback_smoke(fmt):
+    fonts, test_str = _gen_multi_font_text()
+    plt.rcParams['font.size'] = 16
     fig = plt.figure(figsize=(4.75, 1.85))
-    fig.text(0.05, 0.45, "There are 几个汉字 in between!",
-             family=['DejaVu Sans', family_name])
-    fig.text(0.05, 0.85, "There are 几个汉字 in between!",
-             family=[family_name])
+    fig.text(0.5, 0.5, test_str,
+             horizontalalignment='center', verticalalignment='center')
 
-    # TODO enable fallback for other backends!
-    for fmt in ['png', 'raw']:  # ["svg", "pdf", "ps"]:
-        fig.savefig(io.BytesIO(), format=fmt)
-
-
-@pytest.mark.parametrize('family_name, file_name',
-                         [("WenQuanYi Zen Hei",  "wqy-zenhei"),
-                          ("Noto Sans CJK JP", "NotoSansCJK"),
-                          ("Noto Sans TC", "NotoSansTC-Regular.otf")]
-                         )
-@check_figures_equal(extensions=["png", "pdf", "eps", "svg"])
-def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
-    fp = fm.FontProperties(family=[family_name])
-    if file_name not in Path(fm.findfont(fp)).name:
-        pytest.skip(f"Font {family_name} ({file_name}) is missing")
-
-    text = ["There are", "几个汉字", "in between!"]
-
-    plt.rcParams["font.size"] = 20
-    test_fonts = [["DejaVu Sans", family_name]] * 3
-    ref_fonts = [["DejaVu Sans"], [family_name], ["DejaVu Sans"]]
-
-    for j, (txt, test_font, ref_font) in enumerate(
-            zip(text, test_fonts, ref_fonts)
-    ):
-        fig_ref.text(0.05, .85 - 0.15*j, txt, family=ref_font)
-        fig_test.text(0.05, .85 - 0.15*j, txt, family=test_font)
+    fig.savefig(io.BytesIO(), format=fmt)
 
 
 @pytest.mark.parametrize("font_list",
@@ -886,29 +881,15 @@ def test_fallback_missing(recwarn, font_list):
     assert all([font in recwarn[0].message.args[0] for font in font_list])
 
 
-@pytest.mark.parametrize(
-    "family_name, file_name",
-    [
-        ("WenQuanYi Zen Hei", "wqy-zenhei"),
-        ("Noto Sans CJK JP", "NotoSansCJK"),
-        ("Noto Sans TC", "NotoSansTC-Regular.otf")
-    ],
-)
-def test__get_fontmap(family_name, file_name):
-    fp = fm.FontProperties(family=[family_name])
-    found_file_name = Path(fm.findfont(fp)).name
-    if file_name not in found_file_name:
-        pytest.skip(f"Font {family_name} ({file_name}) is missing")
+def test__get_fontmap():
+    fonts, test_str = _gen_multi_font_text()
 
-    text = "There are 几个汉字 in between!"
     ft = fm.get_font(
-        fm.fontManager._find_fonts_by_props(
-            fm.FontProperties(family=["DejaVu Sans", family_name])
-        )
+        fm.fontManager._find_fonts_by_props(fm.FontProperties(family=fonts))
     )
-    fontmap = ft._get_fontmap(text)
+    fontmap = ft._get_fontmap(test_str)
     for char, font in fontmap.items():
         if ord(char) > 127:
-            assert Path(font.fname).name == found_file_name
+            assert Path(font.fname).name == 'DejaVuSans.ttf'
         else:
-            assert Path(font.fname).name == "DejaVuSans.ttf"
+            assert Path(font.fname).name == 'cmr10.ttf'

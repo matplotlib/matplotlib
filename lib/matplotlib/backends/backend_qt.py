@@ -239,6 +239,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         palette = QtGui.QPalette(QtGui.QColor("white"))
         self.setPalette(palette)
 
+    @QtCore.Slot()
     def _update_pixel_ratio(self):
         if self._set_device_pixel_ratio(
                 self.devicePixelRatioF() or 1):  # rarely, devicePixelRatioF=0
@@ -248,6 +249,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             event = QtGui.QResizeEvent(self.size(), self.size())
             self.resizeEvent(event)
 
+    @QtCore.Slot(QtGui.QScreen)
     def _update_screen(self, screen):
         # Handler for changes to a window's attached screen.
         self._update_pixel_ratio()
@@ -329,6 +331,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             return
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
+                   buttons=self._mpl_buttons(event.buttons()),
                    modifiers=self._mpl_modifiers(),
                    guiEvent=event)._process()
 
@@ -395,6 +398,13 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
+
+    @staticmethod
+    def _mpl_buttons(buttons):
+        buttons = _to_int(buttons)
+        # State *after* press/release.
+        return {button for mask, button in FigureCanvasQT.buttond.items()
+                if _to_int(mask) & buttons}
 
     @staticmethod
     def _mpl_modifiers(modifiers=None, *, exclude=None):
@@ -835,6 +845,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.StandardButton.Ok,
                     QtWidgets.QMessageBox.StandardButton.NoButton)
+        return fname
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
@@ -847,7 +858,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
 class SubplotToolQt(QtWidgets.QDialog):
     def __init__(self, targetfig, parent):
-        super().__init__()
+        super().__init__(parent)
         self.setWindowIcon(QtGui.QIcon(
             str(cbook._get_data_path("images/matplotlib.png"))))
         self.setObjectName("SubplotTool")

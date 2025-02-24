@@ -183,10 +183,14 @@ class ContourLabeler:
             self.labelMappable = self
             self.labelCValueList = np.take(self.cvalues, self.labelIndiceList)
         else:
-            cmap = mcolors.ListedColormap(colors, N=len(self.labelLevelList))
-            self.labelCValueList = list(range(len(self.labelLevelList)))
-            self.labelMappable = cm.ScalarMappable(cmap=cmap,
-                                                   norm=mcolors.NoNorm())
+            # handling of explicit colors for labels:
+            # make labelCValueList contain integers [0, 1, 2, ...] and a cmap
+            # so that cmap(i) == colors[i]
+            num_levels = len(self.labelLevelList)
+            colors = cbook._resize_sequence(mcolors.to_rgba_array(colors), num_levels)
+            self.labelMappable = cm.ScalarMappable(
+                cmap=mcolors.ListedColormap(colors), norm=mcolors.NoNorm())
+            self.labelCValueList = list(range(num_levels))
 
         self.labelXYs = []
 
@@ -539,13 +543,6 @@ def _find_closest_point_on_path(xys, p):
 _docstring.interpd.register(contour_set_attributes=r"""
 Attributes
 ----------
-ax : `~matplotlib.axes.Axes`
-    The Axes object in which the contours are drawn.
-
-collections : `.silent_list` of `.PathCollection`\s
-    The `.Artist`\s representing the contour. This is a list of
-    `.PathCollection`\s for both line and filled contours.
-
 levels : array
     The values of the contour levels.
 
@@ -603,8 +600,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                  levels=None, filled=False, linewidths=None, linestyles=None,
                  hatches=(None,), alpha=None, origin=None, extent=None,
                  cmap=None, colors=None, norm=None, vmin=None, vmax=None,
-                 extend='neither', antialiased=None, nchunk=0, locator=None,
-                 transform=None, negative_linestyles=None, clip_path=None,
+                 colorizer=None, extend='neither', antialiased=None, nchunk=0,
+                 locator=None, transform=None, negative_linestyles=None, clip_path=None,
                  **kwargs):
         """
         Draw contour lines or filled regions, depending on
@@ -660,6 +657,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             alpha=alpha,
             clip_path=clip_path,
             transform=transform,
+            colorizer=colorizer,
         )
         self.axes = ax
         self.levels = levels
@@ -672,6 +670,13 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         self.nchunk = nchunk
         self.locator = locator
+
+        if colorizer:
+            self._set_colorizer_check_keywords(colorizer, cmap=cmap,
+                                               norm=norm, vmin=vmin,
+                                               vmax=vmax, colors=colors)
+            norm = colorizer.norm
+            cmap = colorizer.cmap
         if (isinstance(norm, mcolors.LogNorm)
                 or isinstance(self.locator, ticker.LogLocator)):
             self.logscale = True
@@ -690,12 +695,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             self.origin = mpl.rcParams['image.origin']
 
         self._orig_linestyles = linestyles  # Only kept for user access.
-        self.negative_linestyles = negative_linestyles
-        # If negative_linestyles was not defined as a keyword argument, define
-        # negative_linestyles with rcParams
-        if self.negative_linestyles is None:
-            self.negative_linestyles = \
-                mpl.rcParams['contour.negative_linestyle']
+        self.negative_linestyles = mpl._val_or_rc(negative_linestyles,
+                                                  'contour.negative_linestyle')
 
         kwargs = self._process_args(*args, **kwargs)
         self._process_levels()
@@ -730,7 +731,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 if self._extend_min:
                     i0 = 1
 
-            cmap = mcolors.ListedColormap(color_sequence[i0:None], N=ncolors)
+            cmap = mcolors.ListedColormap(
+                cbook._resize_sequence(color_sequence[i0:], ncolors))
 
             if use_set_under_over:
                 if self._extend_min:
@@ -1259,12 +1261,16 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             super().draw(renderer)
             return
         # In presence of hatching, draw contours one at a time.
+        edgecolors = self.get_edgecolors()
+        if edgecolors.size == 0:
+            edgecolors = ("none",)
         for idx in range(n_paths):
             with cbook._setattr_cm(self, _paths=[paths[idx]]), self._cm_set(
                 hatch=self.hatches[idx % len(self.hatches)],
                 array=[self.get_array()[idx]],
                 linewidths=[self.get_linewidths()[idx % len(self.get_linewidths())]],
                 linestyles=[self.get_linestyles()[idx % len(self.get_linestyles())]],
+                edgecolors=edgecolors[idx % len(edgecolors)],
             ):
                 super().draw(renderer)
 
@@ -1297,8 +1303,7 @@ class QuadContourSet(ContourSet):
         else:
             import contourpy
 
-            if algorithm is None:
-                algorithm = mpl.rcParams['contour.algorithm']
+            algorithm = mpl._val_or_rc(algorithm, 'contour.algorithm')
             mpl.rcParams.validate["contour.algorithm"](algorithm)
             self._algorithm = algorithm
 
@@ -1532,6 +1537,10 @@ alpha : float, default: 1
 
     This parameter is ignored if *colors* is set.
 
+%(colorizer_doc)s
+
+    This parameter is ignored if *colors* is set.
+
 origin : {*None*, 'upper', 'lower', 'image'}, default: None
     Determines the orientation and exact position of *Z* by specifying
     the position of ``Z[0, 0]``.  This is only relevant, if *X*, *Y*
@@ -1577,10 +1586,10 @@ extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
 
         An existing `.QuadContourSet` does not get notified if
         properties of its colormap are changed. Therefore, an explicit
-        call ``QuadContourSet.changed()`` is needed after modifying the
+        call `~.ContourSet.changed()` is needed after modifying the
         colormap. The explicit call can be left out, if a colorbar is
         assigned to the `.QuadContourSet` because it internally calls
-        ``QuadContourSet.changed()``.
+        `~.ContourSet.changed()`.
 
     Example::
 

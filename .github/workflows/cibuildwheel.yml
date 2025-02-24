@@ -34,16 +34,17 @@ jobs:
                  'CI: Run cibuildwheel')
       )
     name: Build sdist
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       SDIST_NAME: ${{ steps.sdist.outputs.SDIST_NAME }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         name: Install Python
         with:
           python-version: '3.10'
@@ -69,7 +70,7 @@ jobs:
         run: twine check dist/*
 
       - name: Upload sdist result
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08  # v4.6.0
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
@@ -114,56 +115,40 @@ jobs:
       CIBW_TEST_COMMAND: >-
         python {package}/ci/check_version_number.py
       MACOSX_DEPLOYMENT_TARGET: "10.12"
-      MPL_DISABLE_FH4: "yes"
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             cibw_archs: "x86_64"
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04-arm
             cibw_archs: "aarch64"
           - os: windows-latest
             cibw_archs: "auto64"
-          - os: macos-12
+          - os: macos-13
             cibw_archs: "x86_64"
           - os: macos-14
             cibw_archs: "arm64"
 
     steps:
-      - name: Set up QEMU
-        if: matrix.cibw_archs == 'aarch64'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
       - name: Download sdist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16  # v4.1.8
         with:
           name: cibw-sdist
           path: dist/
 
       - name: Build wheels for CPython 3.13
-        uses: pypa/cibuildwheel@f1859528322d7b29d4493ee241a167807661dfb4  # v2.21.2
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969  # v2.22.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
           CIBW_BUILD: "cp313-* cp313t-*"
-          # No free-threading wheels for NumPy; musllinux skipped for main builds also.
-          CIBW_SKIP: "cp313t-win_amd64 *-musllinux_aarch64"
-          CIBW_BUILD_FRONTEND:
-            "pip; args: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"
-          CIBW_FREE_THREADED_SUPPORT: true
+          CIBW_ENABLE: cpython-freethreading
           # No free-threading wheels available for aarch64 on Pillow.
           CIBW_TEST_SKIP: "cp313t-manylinux_aarch64"
-          # We need pre-releases to get the nightly wheels.
-          CIBW_BEFORE_TEST: >-
-            pip install --pre
-            --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
-            contourpy numpy pillow
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@f1859528322d7b29d4493ee241a167807661dfb4  # v2.21.2
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969  # v2.22.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -171,7 +156,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@f1859528322d7b29d4493ee241a167807661dfb4  # v2.21.2
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969  # v2.22.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -179,7 +164,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@f1859528322d7b29d4493ee241a167807661dfb4  # v2.21.2
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969  # v2.22.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -187,23 +172,16 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@f1859528322d7b29d4493ee241a167807661dfb4  # v2.21.2
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969  # v2.22.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
           CIBW_BUILD: "pp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          # Work around for https://github.com/pypa/setuptools/issues/4571
-          # This can be removed once kiwisolver has wheels for PyPy 3.10
-          # https://github.com/nucleic/kiwi/pull/182
-          CIBW_BEFORE_TEST: >-
-            export PIP_CONSTRAINT=pypy-constraint.txt &&
-            echo "setuptools!=72.2.0" > $PIP_CONSTRAINT &&
-            pip install kiwisolver &&
-            unset PIP_CONSTRAINT
+          CIBW_ENABLE: pypy
         if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08  # v4.6.0
         with:
           name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
           path: ./wheelhouse/*.whl
@@ -221,7 +199,7 @@ jobs:
       contents: read
     steps:
       - name: Download packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16  # v4.1.8
         with:
           pattern: cibw-*
           path: dist
@@ -231,9 +209,9 @@ jobs:
         run: ls dist
 
       - name: Generate artifact attestation for sdist and wheel
-        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c  # v1.4.3
+        uses: actions/attest-build-provenance@520d128f165991a6c774bcb264f323e3d70747f4  # v2.2.0
         with:
           subject-path: dist/matplotlib-*
 
       - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597  # v1.10.3
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4

@@ -226,15 +226,26 @@ class Colorbar:
     mappable : `.ScalarMappable`
         The mappable whose colormap and norm will be used.
 
-        To show the under- and over- value colors, the mappable's norm should
-        be specified as ::
+        To show the colors versus index instead of on a 0-1 scale, set the
+        mappable's norm to ``colors.NoNorm()``.
 
-            norm = colors.Normalize(clip=False)
+    alpha : float
+        The colorbar transparency between 0 (transparent) and 1 (opaque).
 
-        To show the colors versus index instead of on a 0-1 scale, use::
+    location : None or {'left', 'right', 'top', 'bottom'}
+        Set the colorbar's *orientation* and *ticklocation*. Colorbars on
+        the left and right are vertical, colorbars at the top and bottom
+        are horizontal. The *ticklocation* is the same as *location*, so if
+        *location* is 'top', the ticks are on the top. *orientation* and/or
+        *ticklocation* can be provided as well and overrides the value set by
+        *location*, but there will be an error for incompatible combinations.
 
-            norm=colors.NoNorm()
+        .. versionadded:: 3.7
 
+    %(_colormap_kw_doc)s
+
+    Other Parameters
+    ----------------
     cmap : `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The colormap to use.  This parameter is ignored, unless *mappable* is
         None.
@@ -242,9 +253,6 @@ class Colorbar:
     norm : `~matplotlib.colors.Normalize`
         The normalization to use.  This parameter is ignored, unless *mappable*
         is None.
-
-    alpha : float
-        The colorbar transparency between 0 (transparent) and 1 (opaque).
 
     orientation : None or {'vertical', 'horizontal'}
         If None, use the value determined by *location*. If both
@@ -257,40 +265,27 @@ class Colorbar:
         *location*, so a colorbar to the left will have ticks to the left. If
         *location* is None, the ticks will be at the bottom for a horizontal
         colorbar and at the right for a vertical.
-
-    %(_colormap_kw_doc)s
-
-    location : None or {'left', 'right', 'top', 'bottom'}
-        Set the *orientation* and *ticklocation* of the colorbar using a
-        single argument. Colorbars on the left and right are vertical,
-        colorbars at the top and bottom are horizontal. The *ticklocation* is
-        the same as *location*, so if *location* is 'top', the ticks are on
-        the top. *orientation* and/or *ticklocation* can be provided as well
-        and overrides the value set by *location*, but there will be an error
-        for incompatible combinations.
-
-        .. versionadded:: 3.7
     """
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
 
-    def __init__(self, ax, mappable=None, *, cmap=None,
-                 norm=None,
-                 alpha=None,
-                 values=None,
-                 boundaries=None,
-                 orientation=None,
-                 ticklocation='auto',
-                 extend=None,
-                 spacing='uniform',  # uniform or proportional
-                 ticks=None,
-                 format=None,
-                 drawedges=False,
-                 extendfrac=None,
-                 extendrect=False,
-                 label='',
-                 location=None,
-                 ):
+    def __init__(
+        self, ax, mappable=None, *,
+        alpha=None,
+        location=None,
+        extend=None,
+        extendfrac=None,
+        extendrect=False,
+        ticks=None,
+        format=None,
+        values=None,
+        boundaries=None,
+        spacing='uniform',
+        drawedges=False,
+        label='',
+        cmap=None, norm=None,  # redundant with *mappable*
+        orientation=None, ticklocation='auto',  # redundant with *location*
+    ):
 
         if mappable is None:
             mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
@@ -431,43 +426,50 @@ class Colorbar:
             "ylim_changed", self._do_extends)
 
     @property
+    def long_axis(self):
+        """Axis that has decorations (ticks, etc) on it."""
+        if self.orientation == 'vertical':
+            return self.ax.yaxis
+        return self.ax.xaxis
+
+    @property
     def locator(self):
         """Major tick `.Locator` for the colorbar."""
-        return self._long_axis().get_major_locator()
+        return self.long_axis.get_major_locator()
 
     @locator.setter
     def locator(self, loc):
-        self._long_axis().set_major_locator(loc)
+        self.long_axis.set_major_locator(loc)
         self._locator = loc
 
     @property
     def minorlocator(self):
         """Minor tick `.Locator` for the colorbar."""
-        return self._long_axis().get_minor_locator()
+        return self.long_axis.get_minor_locator()
 
     @minorlocator.setter
     def minorlocator(self, loc):
-        self._long_axis().set_minor_locator(loc)
+        self.long_axis.set_minor_locator(loc)
         self._minorlocator = loc
 
     @property
     def formatter(self):
         """Major tick label `.Formatter` for the colorbar."""
-        return self._long_axis().get_major_formatter()
+        return self.long_axis.get_major_formatter()
 
     @formatter.setter
     def formatter(self, fmt):
-        self._long_axis().set_major_formatter(fmt)
+        self.long_axis.set_major_formatter(fmt)
         self._formatter = fmt
 
     @property
     def minorformatter(self):
         """Minor tick `.Formatter` for the colorbar."""
-        return self._long_axis().get_minor_formatter()
+        return self.long_axis.get_minor_formatter()
 
     @minorformatter.setter
     def minorformatter(self, fmt):
-        self._long_axis().set_minor_formatter(fmt)
+        self.long_axis.set_minor_formatter(fmt)
         self._minorformatter = fmt
 
     def _cbar_cla(self):
@@ -478,7 +480,7 @@ class Colorbar:
         del self.ax.cla
         self.ax.cla()
 
-    def update_normal(self, mappable):
+    def update_normal(self, mappable=None):
         """
         Update solid patches, lines, etc.
 
@@ -491,12 +493,21 @@ class Colorbar:
         changes values of *vmin*, *vmax* or *cmap* then the old formatter
         and locator will be preserved.
         """
-        _log.debug('colorbar update normal %r %r', mappable.norm, self.norm)
-        self.mappable = mappable
-        self.set_alpha(mappable.get_alpha())
-        self.cmap = mappable.cmap
-        if mappable.norm != self.norm:
-            self.norm = mappable.norm
+        if mappable:
+            # The mappable keyword argument exists because
+            # ScalarMappable.changed() emits self.callbacks.process('changed', self)
+            # in contrast, ColorizingArtist (and Colorizer) does not use this keyword.
+            # [ColorizingArtist.changed() emits self.callbacks.process('changed')]
+            # Also, there is no test where self.mappable == mappable is not True
+            # and possibly no use case.
+            # Therefore, the mappable keyword can be deprecated if cm.ScalarMappable
+            # is removed.
+            self.mappable = mappable
+        _log.debug('colorbar update normal %r %r', self.mappable.norm, self.norm)
+        self.set_alpha(self.mappable.get_alpha())
+        self.cmap = self.mappable.cmap
+        if self.mappable.norm != self.norm:
+            self.norm = self.mappable.norm
             self._reset_locator_formatter_scale()
 
         self._draw_all()
@@ -517,7 +528,7 @@ class Colorbar:
         else:
             if mpl.rcParams['xtick.minor.visible']:
                 self.minorticks_on()
-        self._long_axis().set(label_position=self.ticklocation,
+        self.long_axis.set(label_position=self.ticklocation,
                               ticks_position=self.ticklocation)
         self._short_axis().set_ticks([])
         self._short_axis().set_ticks([], minor=True)
@@ -536,7 +547,7 @@ class Colorbar:
         # also adds the outline path to self.outline spine:
         self._do_extends()
         lower, upper = self.vmin, self.vmax
-        if self._long_axis().get_inverted():
+        if self.long_axis.get_inverted():
             # If the axis is inverted, we need to swap the vmin/vmax
             lower, upper = upper, lower
         if self.orientation == 'vertical':
@@ -677,7 +688,7 @@ class Colorbar:
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
-            val = -1 if self._long_axis().get_inverted() else 0
+            val = -1 if self.long_axis.get_inverted() else 0
             color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
                 mpath.Path(xy), facecolor=color, alpha=self.alpha,
@@ -701,7 +712,7 @@ class Colorbar:
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
-            val = 0 if self._long_axis().get_inverted() else -1
+            val = 0 if self.long_axis.get_inverted() else -1
             color = self.cmap(self.norm(self._values[val]))
             hatch_idx = len(self._y) - 1
             patch = mpatches.PathPatch(
@@ -721,7 +732,7 @@ class Colorbar:
         """
         Draw lines on the colorbar.
 
-        The lines are appended to the list :attr:`lines`.
+        The lines are appended to the list :attr:`!lines`.
 
         Parameters
         ----------
@@ -803,9 +814,9 @@ class Colorbar:
         """
         # Get the locator and formatter; defaults to self._locator if not None.
         self._get_ticker_locator_formatter()
-        self._long_axis().set_major_locator(self._locator)
-        self._long_axis().set_minor_locator(self._minorlocator)
-        self._long_axis().set_major_formatter(self._formatter)
+        self.long_axis.set_major_locator(self._locator)
+        self.long_axis.set_minor_locator(self._minorlocator)
+        self.long_axis.set_major_formatter(self._formatter)
 
     def _get_ticker_locator_formatter(self):
         """
@@ -840,15 +851,15 @@ class Colorbar:
             if locator is None:
                 # we haven't set the locator explicitly, so use the default
                 # for this axis:
-                locator = self._long_axis().get_major_locator()
+                locator = self.long_axis.get_major_locator()
             if minorlocator is None:
-                minorlocator = self._long_axis().get_minor_locator()
+                minorlocator = self.long_axis.get_minor_locator()
 
         if minorlocator is None:
             minorlocator = ticker.NullLocator()
 
         if formatter is None:
-            formatter = self._long_axis().get_major_formatter()
+            formatter = self.long_axis.get_major_formatter()
 
         self._locator = locator
         self._formatter = formatter
@@ -872,12 +883,12 @@ class Colorbar:
             pass *labels*. In other cases, please use `~.Axes.tick_params`.
         """
         if np.iterable(ticks):
-            self._long_axis().set_ticks(ticks, labels=labels, minor=minor,
+            self.long_axis.set_ticks(ticks, labels=labels, minor=minor,
                                         **kwargs)
-            self._locator = self._long_axis().get_major_locator()
+            self._locator = self.long_axis.get_major_locator()
         else:
             self._locator = ticks
-            self._long_axis().set_major_locator(self._locator)
+            self.long_axis.set_major_locator(self._locator)
         self.stale = True
 
     def get_ticks(self, minor=False):
@@ -890,9 +901,9 @@ class Colorbar:
             if True return the minor ticks.
         """
         if minor:
-            return self._long_axis().get_minorticklocs()
+            return self.long_axis.get_minorticklocs()
         else:
-            return self._long_axis().get_majorticklocs()
+            return self.long_axis.get_majorticklocs()
 
     def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         """
@@ -927,7 +938,7 @@ class Colorbar:
         **kwargs
             `.Text` properties for the labels.
         """
-        self._long_axis().set_ticklabels(ticklabels, minor=minor, **kwargs)
+        self.long_axis.set_ticklabels(ticklabels, minor=minor, **kwargs)
 
     def minorticks_on(self):
         """
@@ -939,7 +950,7 @@ class Colorbar:
     def minorticks_off(self):
         """Turn the minor ticks of the colorbar off."""
         self._minorlocator = ticker.NullLocator()
-        self._long_axis().set_minor_locator(self._minorlocator)
+        self.long_axis.set_minor_locator(self._minorlocator)
 
     def set_label(self, label, *, loc=None, **kwargs):
         """
@@ -1004,7 +1015,7 @@ class Colorbar:
         `matplotlib.scale.register_scale`. These scales can then also
         be used here.
         """
-        self._long_axis()._set_axes_scale(scale, **kwargs)
+        self.long_axis._set_axes_scale(scale, **kwargs)
 
     def remove(self):
         """
@@ -1276,19 +1287,13 @@ class Colorbar:
 
     def _extend_lower(self):
         """Return whether the lower limit is open ended."""
-        minmax = "max" if self._long_axis().get_inverted() else "min"
+        minmax = "max" if self.long_axis.get_inverted() else "min"
         return self.extend in ('both', minmax)
 
     def _extend_upper(self):
         """Return whether the upper limit is open ended."""
-        minmax = "min" if self._long_axis().get_inverted() else "max"
+        minmax = "min" if self.long_axis.get_inverted() else "max"
         return self.extend in ('both', minmax)
-
-    def _long_axis(self):
-        """Return the long axis"""
-        if self.orientation == 'vertical':
-            return self.ax.yaxis
-        return self.ax.xaxis
 
     def _short_axis(self):
         """Return the short axis"""

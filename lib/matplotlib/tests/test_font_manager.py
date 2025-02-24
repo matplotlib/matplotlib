@@ -251,7 +251,7 @@ def test_missing_family(caplog):
 
 def _test_threading():
     import threading
-    from matplotlib.ft2font import LOAD_NO_HINTING
+    from matplotlib.ft2font import LoadFlags
     import matplotlib.font_manager as fm
 
     def loud_excepthook(args):
@@ -266,7 +266,7 @@ def _test_threading():
         b.wait(timeout=5)
         for j in range(100):
             font = fm.get_font(fm.findfont("DejaVu Sans"))
-            font.set_text(str(n), 0.0, flags=LOAD_NO_HINTING)
+            font.set_text(str(n), 0.0, flags=LoadFlags.NO_HINTING)
 
     threads = [
         threading.Thread(target=bad_idea, name=f"bad_thread_{j}", args=(j,))

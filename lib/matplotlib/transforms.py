@@ -1,7 +1,6 @@
 """
-Matplotlib includes a framework for arbitrary geometric
-transformations that is used determine the final position of all
-elements drawn on the canvas.
+Matplotlib includes a framework for arbitrary geometric transformations that is used to
+determine the final position of all elements drawn on the canvas.
 
 Transforms are composed into trees of `TransformNode` objects
 whose actual value depends on their children.  When the contents of
@@ -11,10 +10,10 @@ reflect those changes.  This invalidation/caching approach prevents
 unnecessary recomputations of transforms, and contributes to better
 interactive performance.
 
-For example, here is a graph of the transform tree used to plot data
-to the graph:
+For example, here is a graph of the transform tree used to plot data to the figure:
 
-.. image:: ../_static/transforms.png
+.. graphviz:: /api/transforms.dot
+    :alt: Diagram of transform tree from data to figure coordinates.
 
 The framework can be used for both affine and non-affine
 transformations.  However, for speed, we want to use the backend
@@ -47,8 +46,7 @@ import numpy as np
 from numpy.linalg import inv
 
 from matplotlib import _api
-from matplotlib._path import (
-    affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
+from matplotlib._path import affine_transform, count_bboxes_overlapping_bbox
 from .path import Path
 
 DEBUG = False
@@ -243,7 +241,7 @@ class BboxBase(TransformNode):
         The first of the pair of *x* coordinates that define the bounding box.
 
         This is not guaranteed to be less than :attr:`x1` (for that, use
-        :attr:`xmin`).
+        :attr:`~BboxBase.xmin`).
         """
         return self.get_points()[0, 0]
 
@@ -253,7 +251,7 @@ class BboxBase(TransformNode):
         The first of the pair of *y* coordinates that define the bounding box.
 
         This is not guaranteed to be less than :attr:`y1` (for that, use
-        :attr:`ymin`).
+        :attr:`~BboxBase.ymin`).
         """
         return self.get_points()[0, 1]
 
@@ -263,7 +261,7 @@ class BboxBase(TransformNode):
         The second of the pair of *x* coordinates that define the bounding box.
 
         This is not guaranteed to be greater than :attr:`x0` (for that, use
-        :attr:`xmax`).
+        :attr:`~BboxBase.xmax`).
         """
         return self.get_points()[1, 0]
 
@@ -273,7 +271,7 @@ class BboxBase(TransformNode):
         The second of the pair of *y* coordinates that define the bounding box.
 
         This is not guaranteed to be greater than :attr:`y0` (for that, use
-        :attr:`ymax`).
+        :attr:`~BboxBase.ymax`).
         """
         return self.get_points()[1, 1]
 
@@ -283,7 +281,7 @@ class BboxBase(TransformNode):
         The first pair of (*x*, *y*) coordinates that define the bounding box.
 
         This is not guaranteed to be the bottom-left corner (for that, use
-        :attr:`min`).
+        :attr:`~BboxBase.min`).
         """
         return self.get_points()[0]
 
@@ -293,7 +291,7 @@ class BboxBase(TransformNode):
         The second pair of (*x*, *y*) coordinates that define the bounding box.
 
         This is not guaranteed to be the top-right corner (for that, use
-        :attr:`max`).
+        :attr:`~BboxBase.max`).
         """
         return self.get_points()[1]
 
@@ -365,7 +363,10 @@ class BboxBase(TransformNode):
 
     @property
     def bounds(self):
-        """Return (:attr:`x0`, :attr:`y0`, :attr:`width`, :attr:`height`)."""
+        """
+        Return (:attr:`x0`, :attr:`y0`, :attr:`~BboxBase.width`,
+        :attr:`~BboxBase.height`).
+        """
         (x0, y0), (x1, y1) = self.get_points()
         return (x0, y0, x1 - x0, y1 - y0)
 
@@ -869,8 +870,8 @@ class Bbox(BboxBase):
         if path.vertices.size == 0:
             return
 
-        points, minpos, changed = update_path_extents(
-            path, None, self._points, self._minpos, ignore)
+        points, minpos, changed = self._calc_extents_from_path(path, ignore,
+                                                               updatex, updatey)
 
         if changed:
             self.invalidate()
@@ -880,6 +881,56 @@ class Bbox(BboxBase):
             if updatey:
                 self._points[:, 1] = points[:, 1]
                 self._minpos[1] = minpos[1]
+
+    def _calc_extents_from_path(self, path, ignore, updatex=True, updatey=True):
+        """
+        Calculate the new bounds and minimum positive values for a `Bbox` from
+        the path.
+
+        Parameters
+        ----------
+        path : `~matplotlib.path.Path`
+        ignore : bool
+            - When ``True``, ignore the existing bounds of the `Bbox`.
+            - When ``False``, include the existing bounds of the `Bbox`.
+        updatex : bool
+            When ``True``, update the x-values.
+        updatey : bool
+            When ``True``, update the y-values.
+
+        Returns
+        -------
+        points : (2, 2) array
+        minpos : (2,) array
+        changed : bool
+        """
+        if ignore:
+            points = np.array([[np.inf, np.inf], [-np.inf, -np.inf]])
+            minpos = np.array([np.inf, np.inf])
+        else:
+            points = self._points.copy()
+            minpos = self._minpos.copy()
+
+        if not (updatex or updatey):
+            return points, minpos, False
+
+        valid_points = (np.isfinite(path.vertices[..., 0])
+                        & np.isfinite(path.vertices[..., 1]))
+
+        if updatex:
+            x = path.vertices[..., 0][valid_points]
+            points[0, 0] = min(points[0, 0], np.min(x, initial=np.inf))
+            points[1, 0] = max(points[1, 0], np.max(x, initial=-np.inf))
+            minpos[0] = min(minpos[0], np.min(x[x > 0], initial=np.inf))
+        if updatey:
+            y = path.vertices[..., 1][valid_points]
+            points[0, 1] = min(points[0, 1], np.min(y, initial=np.inf))
+            points[1, 1] = max(points[1, 1], np.max(y, initial=-np.inf))
+            minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
+
+        changed = np.any(points != self._points) or np.any(minpos != self._minpos)
+
+        return points, minpos, changed
 
     def update_from_data_x(self, x, ignore=None):
         """
@@ -897,8 +948,9 @@ class Bbox(BboxBase):
            - When ``None``, use the last value passed to :meth:`ignore`.
         """
         x = np.ravel(x)
-        self.update_from_data_xy(np.column_stack([x, np.ones(x.size)]),
-                                 ignore=ignore, updatey=False)
+        # The y-component in np.array([x, *y*]).T is not used. We simply pass
+        # x again to not spend extra time on creating an array of unused data
+        self.update_from_data_xy(np.array([x, x]).T, ignore=ignore, updatey=False)
 
     def update_from_data_y(self, y, ignore=None):
         """
@@ -916,8 +968,9 @@ class Bbox(BboxBase):
             - When ``None``, use the last value passed to :meth:`ignore`.
         """
         y = np.ravel(y)
-        self.update_from_data_xy(np.column_stack([np.ones(y.size), y]),
-                                 ignore=ignore, updatex=False)
+        # The x-component in np.array([*x*, y]).T is not used. We simply pass
+        # y again to not spend extra time on creating an array of unused data
+        self.update_from_data_xy(np.array([y, y]).T, ignore=ignore, updatex=False)
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """
@@ -1477,14 +1530,14 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array-like
-            The input values as an array of length :attr:`input_dims` or
-            shape (N, :attr:`input_dims`).
+            The input values as an array of length :attr:`~Transform.input_dims` or
+            shape (N, :attr:`~Transform.input_dims`).
 
         Returns
         -------
         array
-            The output values as an array of length :attr:`output_dims` or
-            shape (N, :attr:`output_dims`), depending on the input.
+            The output values as an array of length :attr:`~Transform.output_dims` or
+            shape (N, :attr:`~Transform.output_dims`), depending on the input.
         """
         # Ensure that values is a 2d array (but remember whether
         # we started with a 1d or 2d array).
@@ -1522,14 +1575,14 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array
-            The input values as an array of length :attr:`input_dims` or
-            shape (N, :attr:`input_dims`).
+            The input values as an array of length :attr:`~Transform.input_dims` or
+            shape (N, :attr:`~Transform.input_dims`).
 
         Returns
         -------
         array
-            The output values as an array of length :attr:`output_dims` or
-            shape (N, :attr:`output_dims`), depending on the input.
+            The output values as an array of length :attr:`~Transform.output_dims` or
+            shape (N, :attr:`~Transform.output_dims`), depending on the input.
         """
         return self.get_affine().transform(values)
 
@@ -1547,14 +1600,17 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array
-            The input values as an array of length :attr:`input_dims` or
-            shape (N, :attr:`input_dims`).
+            The input values as an array of length
+            :attr:`~matplotlib.transforms.Transform.input_dims` or
+            shape (N, :attr:`~matplotlib.transforms.Transform.input_dims`).
 
         Returns
         -------
         array
-            The output values as an array of length :attr:`output_dims` or
-            shape (N, :attr:`output_dims`), depending on the input.
+            The output values as an array of length
+            :attr:`~matplotlib.transforms.Transform.output_dims` or shape
+            (N, :attr:`~matplotlib.transforms.Transform.output_dims`),
+            depending on the input.
         """
         return values
 
@@ -2682,6 +2738,25 @@ class ScaledTranslation(Affine2DBase):
             self._mtx[:2, 2] = self._scale_trans.transform(self._t)
             self._invalid = 0
             self._inverted = None
+        return self._mtx
+
+
+class _ScaledRotation(Affine2DBase):
+    """
+    A transformation that applies rotation by *theta*, after transform by *trans_shift*.
+    """
+    def __init__(self, theta, trans_shift):
+        super().__init__()
+        self._theta = theta
+        self._trans_shift = trans_shift
+        self._mtx = None
+
+    def get_matrix(self):
+        if self._invalid:
+            transformed_coords = self._trans_shift.transform([[self._theta, 0]])[0]
+            adjusted_theta = transformed_coords[0]
+            rotation = Affine2D().rotate(adjusted_theta)
+            self._mtx = rotation.get_matrix()
         return self._mtx
 
 

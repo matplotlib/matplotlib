@@ -220,6 +220,13 @@ def test_polar_rlabel_position():
     ax.tick_params(rotation='auto')
 
 
+@image_comparison(['polar_title_position.png'], style='mpl20')
+def test_polar_title_position():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+    ax.set_title('foo')
+
+
 @image_comparison(['polar_theta_wedge'], style='default')
 def test_polar_theta_limits():
     r = np.arange(0, 3.0, 0.01)
@@ -481,3 +488,21 @@ def test_polar_neg_theta_lims():
     ax.set_thetalim(-np.pi, np.pi)
     labels = [l.get_text() for l in ax.xaxis.get_ticklabels()]
     assert labels == ['-180°', '-135°', '-90°', '-45°', '0°', '45°', '90°', '135°']
+
+
+@pytest.mark.parametrize("order", ["before", "after"])
+@image_comparison(baseline_images=['polar_errorbar'], remove_text=True,
+                  extensions=['png'], style='mpl20')
+def test_polar_errorbar(order):
+    theta = np.arange(0, 2 * np.pi, np.pi / 8)
+    r = theta / np.pi / 2 + 0.5
+    fig = plt.figure(figsize=(5, 5))
+    ax = fig.add_subplot(projection='polar')
+    if order == "before":
+        ax.set_theta_zero_location("N")
+        ax.set_theta_direction(-1)
+        ax.errorbar(theta, r, xerr=0.1, yerr=0.1, capsize=7, fmt="o", c="seagreen")
+    else:
+        ax.errorbar(theta, r, xerr=0.1, yerr=0.1, capsize=7, fmt="o", c="seagreen")
+        ax.set_theta_zero_location("N")
+        ax.set_theta_direction(-1)

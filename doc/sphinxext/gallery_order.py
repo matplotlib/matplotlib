@@ -86,6 +86,8 @@ list_all = [
     "color_demo",
     #  pies
     "pie_features", "pie_demo2",
+    # scales
+    "scales",  # Scales overview
 
     # **Plot Types
     # Basic

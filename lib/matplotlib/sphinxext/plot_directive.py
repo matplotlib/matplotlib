@@ -32,7 +32,7 @@ The plot content may be defined in one of three ways:
 
         import matplotlib.pyplot as plt
         plt.plot([1, 2, 3], [4, 5, 6])
-        plt.title("A plotting exammple")
+        plt.title("A plotting example")
 
 3. Using **doctest** syntax::
 

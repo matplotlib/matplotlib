@@ -615,9 +615,9 @@ def flatten(seq, scalarp=is_scalar_or_string):
         ['John', 'Hunter', 1, 23, 42, 5, 23]
 
     By: Composite of Holger Krekel and Luther Blissett
-    From: https://code.activestate.com/recipes/121294/
+    From: https://code.activestate.com/recipes/121294-simple-generator-for-flattening-nested-containers/
     and Recipe 1.12 in cookbook
-    """
+    """  # noqa: E501
     for item in seq:
         if scalarp(item) or item is None:
             yield item
@@ -880,8 +880,18 @@ class GrouperView:
     def __init__(self, grouper): self._grouper = grouper
     def __contains__(self, item): return item in self._grouper
     def __iter__(self): return iter(self._grouper)
-    def joined(self, a, b): return self._grouper.joined(a, b)
-    def get_siblings(self, a): return self._grouper.get_siblings(a)
+
+    def joined(self, a, b):
+        """
+        Return whether *a* and *b* are members of the same set.
+        """
+        return self._grouper.joined(a, b)
+
+    def get_siblings(self, a):
+        """
+        Return all of the items joined with *a*, including itself.
+        """
+        return self._grouper.get_siblings(a)
 
 
 def simple_linear_interpolation(a, steps):
@@ -1340,9 +1350,9 @@ def _to_unmasked_float_array(x):
     values are converted to nans.
     """
     if hasattr(x, 'mask'):
-        return np.ma.asarray(x, float).filled(np.nan)
+        return np.ma.asanyarray(x, float).filled(np.nan)
     else:
-        return np.asarray(x, float)
+        return np.asanyarray(x, float)
 
 
 def _check_1d(x):
@@ -1737,6 +1747,26 @@ def sanitize_sequence(data):
     """
     return (list(data) if isinstance(data, collections.abc.MappingView)
             else data)
+
+
+def _resize_sequence(seq, N):
+    """
+    Trim the given sequence to exactly N elements.
+
+    If there are more elements in the sequence, cut it.
+    If there are less elements in the sequence, repeat them.
+
+    Implementation detail: We maintain type stability for the output for
+    N <= len(seq). We simply return a list for N > len(seq); this was good
+    enough for the present use cases but is not a fixed design decision.
+    """
+    num_elements = len(seq)
+    if N == num_elements:
+        return seq
+    elif N < num_elements:
+        return seq[:N]
+    else:
+        return list(itertools.islice(itertools.cycle(seq), N))
 
 
 def normalize_kwargs(kw, alias_mapping=None):
@@ -2391,3 +2421,15 @@ def _auto_format_str(fmt, value):
         return fmt % (value,)
     except (TypeError, ValueError):
         return fmt.format(value)
+
+
+def _is_pandas_dataframe(x):
+    """Check if 'x' is a Pandas DataFrame."""
+    try:
+        # we're intentionally not attempting to import Pandas. If somebody
+        # has created a Pandas DataFrame, Pandas should already be in sys.modules
+        return isinstance(x, sys.modules['pandas'].DataFrame)
+    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
+        # we're attempting to access attributes on imported modules which
+        # may have arbitrary user code, so we deliberately catch all exceptions
+        return False

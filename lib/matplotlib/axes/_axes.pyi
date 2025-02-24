@@ -12,6 +12,7 @@ from matplotlib.collections import (
     EventCollection,
     QuadMesh,
 )
+from matplotlib.colorizer import Colorizer
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.contour import ContourSet, QuadContourSet
@@ -412,6 +413,7 @@ class Axes(_AxesBase):
         alpha: float | None = ...,
         linewidths: float | Sequence[float] | None = ...,
         edgecolors: Literal["face", "none"] | ColorType | Sequence[ColorType] | None = ...,
+        colorizer: Colorizer | None = ...,
         plotnonfinite: bool = ...,
         data=...,
         **kwargs
@@ -437,6 +439,7 @@ class Axes(_AxesBase):
         reduce_C_function: Callable[[np.ndarray | list[float]], float] = ...,
         mincnt: int | None = ...,
         marginals: bool = ...,
+        colorizer: Colorizer | None = ...,
         data=...,
         **kwargs
     ) -> PolyCollection: ...
@@ -484,6 +487,7 @@ class Axes(_AxesBase):
         alpha: float | ArrayLike | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
+        colorizer: Colorizer | None = ...,
         origin: Literal["upper", "lower"] | None = ...,
         extent: tuple[float, float, float, float] | None = ...,
         interpolation_stage: Literal["data", "rgba", "auto"] | None = ...,
@@ -503,6 +507,7 @@ class Axes(_AxesBase):
         cmap: str | Colormap | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
+        colorizer: Colorizer | None = ...,
         data=...,
         **kwargs
     ) -> Collection: ...
@@ -514,6 +519,7 @@ class Axes(_AxesBase):
         cmap: str | Colormap | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
+        colorizer: Colorizer | None = ...,
         shading: Literal["flat", "nearest", "gouraud", "auto"] | None = ...,
         antialiased: bool = ...,
         data=...,
@@ -527,6 +533,7 @@ class Axes(_AxesBase):
         cmap: str | Colormap | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
+        colorizer: Colorizer | None = ...,
         data=...,
         **kwargs
     ) -> AxesImage | PcolorImage | QuadMesh: ...
@@ -748,6 +755,8 @@ class Axes(_AxesBase):
         | Callable[[GaussianKDE], float]
         | None = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
         data=...,
     ) -> dict[str, Collection]: ...
     def violin(
@@ -762,6 +771,8 @@ class Axes(_AxesBase):
         showextrema: bool = ...,
         showmedians: bool = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
     ) -> dict[str, Collection]: ...
 
     table = mtable.table

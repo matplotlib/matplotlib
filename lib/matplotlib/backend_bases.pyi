@@ -167,6 +167,7 @@ class GraphicsContextBase:
     def get_hatch_color(self) -> ColorType: ...
     def set_hatch_color(self, hatch_color: ColorType) -> None: ...
     def get_hatch_linewidth(self) -> float: ...
+    def set_hatch_linewidth(self, hatch_linewidth: float) -> None: ...
     def get_sketch_params(self) -> tuple[float, float, float] | None: ...
     def set_sketch_params(
         self,
@@ -235,11 +236,11 @@ class LocationEvent(Event):
     ) -> None: ...
 
 class MouseButton(IntEnum):
-    LEFT: int
-    MIDDLE: int
-    RIGHT: int
-    BACK: int
-    FORWARD: int
+    LEFT = 1
+    MIDDLE = 2
+    RIGHT = 3
+    BACK = 8
+    FORWARD = 9
 
 class MouseEvent(LocationEvent):
     button: MouseButton | Literal["up", "down"] | None
@@ -258,6 +259,7 @@ class MouseEvent(LocationEvent):
         dblclick: bool = ...,
         guiEvent: Any | None = ...,
         *,
+        buttons: Iterable[MouseButton] | None = ...,
         modifiers: Iterable[str] | None = ...,
     ) -> None: ...
 
@@ -396,12 +398,13 @@ class FigureManagerBase:
 cursors = Cursors
 
 class _Mode(str, Enum):
-    NONE: str
-    PAN: str
-    ZOOM: str
+    NONE = ""
+    PAN = "pan/zoom"
+    ZOOM = "zoom rect"
 
 class NavigationToolbar2:
     toolitems: tuple[tuple[str, ...] | tuple[None, ...], ...]
+    UNKNOWN_SAVED_STATUS: object
     canvas: FigureCanvasBase
     mode: _Mode
     def __init__(self, canvas: FigureCanvasBase) -> None: ...
@@ -426,7 +429,7 @@ class NavigationToolbar2:
     def zoom(self, *args) -> None: ...
 
     class _ZoomInfo(NamedTuple):
-        direction: Literal["in", "out"]
+        button: MouseButton
         start_xy: tuple[float, float]
         axes: list[Axes]
         cid: int
@@ -437,7 +440,7 @@ class NavigationToolbar2:
     def push_current(self) -> None: ...
     subplot_tool: widgets.SubplotTool
     def configure_subplots(self, *args): ...
-    def save_figure(self, *args) -> None: ...
+    def save_figure(self, *args) -> str | None | object: ...
     def update(self) -> None: ...
     def set_history_buttons(self) -> None: ...
 

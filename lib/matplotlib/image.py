@@ -14,13 +14,14 @@ import PIL.Image
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, cm
+from matplotlib import _api, cbook
 # For clarity, names from _image are given explicitly in this module
 from matplotlib import _image
 # For user convenience, the names from _image are also imported into
 # the image namespace
 from matplotlib._image import *  # noqa: F401, F403
 import matplotlib.artist as martist
+import matplotlib.colorizer as mcolorizer
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
 from matplotlib.transforms import (
@@ -64,8 +65,8 @@ def composite_images(images, renderer, magnification=1.0):
     Parameters
     ----------
     images : list of Images
-        Each must have a `make_image` method.  For each image,
-        `can_composite` should return `True`, though this is not
+        Each must have a `!make_image` method.  For each image,
+        `!can_composite` should return `True`, though this is not
         enforced by this function.  Each image must have a purely
         affine transformation with no shear.
 
@@ -229,26 +230,28 @@ def _rgb_to_rgba(A):
     return rgba
 
 
-class _ImageBase(martist.Artist, cm.ScalarMappable):
+class _ImageBase(mcolorizer.ColorizingArtist):
     """
     Base class for images.
 
-    interpolation and cmap default to their rc settings
+    *interpolation* and *cmap* default to their rc settings.
 
-    cmap is a colors.Colormap instance
-    norm is a colors.Normalize instance to map luminance to 0-1
+    *cmap* is a `.colors.Colormap` instance.
+    *norm* is a `.colors.Normalize` instance to map luminance to 0-1.
 
-    extent is data axes (left, right, bottom, top) for making image plots
-    registered with data plots.  Default is to label the pixel
-    centers with the zero-based row and column indices.
+    *extent* is a ``(left, right, bottom, top)`` tuple in data coordinates, for
+    making image plots registered with data plots; the default is to label the
+    pixel centers with the zero-based row and column indices.
 
-    Additional kwargs are matplotlib.artist properties
+    Additional kwargs are `.Artist` properties.
     """
+
     zorder = 0
 
     def __init__(self, ax,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  interpolation=None,
                  origin=None,
                  filternorm=True,
@@ -258,10 +261,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  interpolation_stage=None,
                  **kwargs
                  ):
-        martist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
-        if origin is None:
-            origin = mpl.rcParams['image.origin']
+        super().__init__(self._get_colorizer(cmap, norm, colorizer))
+        origin = mpl._val_or_rc(origin, 'image.origin')
         _api.check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
@@ -331,7 +332,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Call this whenever the mappable is changed so observers can update.
         """
         self._imcache = None
-        cm.ScalarMappable.changed(self)
+        super().changed()
 
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
                     unsampled=False, round_to_pixel_border=True):
@@ -500,17 +501,27 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if A.ndim == 2:  # interpolation_stage = 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
-                alpha = self._get_scalar_alpha()
-                if A.shape[2] == 3:
-                    # No need to resample alpha or make a full array; NumPy will expand
-                    # this out and cast to uint8 if necessary when it's assigned to the
-                    # alpha channel below.
-                    output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
-                else:
-                    output_alpha = _resample(  # resample alpha channel
-                        self, A[..., 3], out_shape, t, alpha=alpha)
-                output = _resample(  # resample rgb channels
-                    self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
+                alpha = self.get_alpha()
+                if alpha is None:  # alpha parameter not specified
+                    if A.shape[2] == 3:  # image has no alpha channel
+                        output_alpha = 255 if A.dtype == np.uint8 else 1.0
+                    else:
+                        output_alpha = _resample(  # resample alpha channel
+                            self, A[..., 3], out_shape, t)
+                    output = _resample(  # resample rgb channels
+                        self, _rgb_to_rgba(A[..., :3]), out_shape, t)
+                elif np.ndim(alpha) > 0:  # Array alpha
+                    # user-specified array alpha overrides the existing alpha channel
+                    output_alpha = _resample(self, alpha, out_shape, t)
+                    output = _resample(
+                        self, _rgb_to_rgba(A[..., :3]), out_shape, t)
+                else:  # Scalar alpha
+                    if A.shape[2] == 3:  # broadcast scalar alpha
+                        output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
+                    else:  # or apply scalar alpha to existing alpha channel
+                        output_alpha = _resample(self, A[..., 3], out_shape, t) * alpha
+                    output = _resample(
+                        self, _rgb_to_rgba(A[..., :3]), out_shape, t)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
 
             # output is now either a 2D array of normed (int or float) data
@@ -732,11 +743,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        s : {'data', 'rgba', 'auto'} or None
-            Whether to apply up/downsampling interpolation in data or RGBA
-            space.  If None, use :rc:`image.interpolation_stage`.
-            If 'auto' we will check upsampling rate and if less
-            than 3 then use 'rgba', otherwise use 'data'.
+        s : {'data', 'rgba', 'auto'}, default: :rc:`image.interpolation_stage`
+            Whether to apply resampling interpolation in data or RGBA space.
+            If 'auto', 'rgba' is used if the upsampling rate is less than 3,
+            otherwise 'data' is used.
         """
         s = mpl._val_or_rc(s, 'image.interpolation_stage')
         _api.check_in_list(['data', 'rgba', 'auto'], s=s)
@@ -757,8 +767,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        v : bool or None
-            If None, use :rc:`image.resample`.
+        v : bool, default: :rc:`image.resample`
         """
         v = mpl._val_or_rc(v, 'image.resample')
         self._resample = v
@@ -787,8 +796,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_filterrad(self, filterrad):
         """
-        Set the resize filter radius only applicable to some
-        interpolation schemes -- see help for imshow
+        Set the resize filter radius (only applicable to some
+        interpolation schemes).
+
+        See help for `~.Axes.imshow`.
 
         Parameters
         ----------
@@ -857,6 +868,7 @@ class AxesImage(_ImageBase):
                  *,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  interpolation=None,
                  origin=None,
                  extent=None,
@@ -873,6 +885,7 @@ class AxesImage(_ImageBase):
             ax,
             cmap=cmap,
             norm=norm,
+            colorizer=colorizer,
             interpolation=interpolation,
             origin=origin,
             filternorm=filternorm,
@@ -1171,6 +1184,7 @@ class PcolorImage(AxesImage):
                  *,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  **kwargs
                  ):
         """
@@ -1197,7 +1211,7 @@ class PcolorImage(AxesImage):
             Maps luminance to 0-1.
         **kwargs : `~matplotlib.artist.Artist` properties
         """
-        super().__init__(ax, norm=norm, cmap=cmap)
+        super().__init__(ax, norm=norm, cmap=cmap, colorizer=colorizer)
         self._internal_update(kwargs)
         if A is not None:
             self.set_data(x, y, A)
@@ -1301,6 +1315,7 @@ class FigureImage(_ImageBase):
                  *,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  offsetx=0,
                  offsety=0,
                  origin=None,
@@ -1316,6 +1331,7 @@ class FigureImage(_ImageBase):
             None,
             norm=norm,
             cmap=cmap,
+            colorizer=colorizer,
             origin=origin
         )
         self.set_figure(fig)
@@ -1350,7 +1366,7 @@ class FigureImage(_ImageBase):
 
     def set_data(self, A):
         """Set the image array."""
-        cm.ScalarMappable.set_array(self, A)
+        super().set_data(A)
         self.stale = True
 
 
@@ -1361,6 +1377,7 @@ class BboxImage(_ImageBase):
                  *,
                  cmap=None,
                  norm=None,
+                 colorizer=None,
                  interpolation=None,
                  origin=None,
                  filternorm=True,
@@ -1378,6 +1395,7 @@ class BboxImage(_ImageBase):
             None,
             cmap=cmap,
             norm=norm,
+            colorizer=colorizer,
             interpolation=interpolation,
             origin=origin,
             filternorm=filternorm,
@@ -1567,10 +1585,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     else:
         # Don't bother creating an image; this avoids rounding errors on the
         # size when dividing and then multiplying by dpi.
-        if origin is None:
-            origin = mpl.rcParams["image.origin"]
-        else:
-            _api.check_in_list(('upper', 'lower'), origin=origin)
+        origin = mpl._val_or_rc(origin, "image.origin")
+        _api.check_in_list(('upper', 'lower'), origin=origin)
         if origin == "lower":
             arr = arr[::-1]
         if (isinstance(arr, memoryview) and arr.format == "B"
@@ -1581,7 +1597,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # as is, saving a few operations.
             rgba = arr
         else:
-            sm = cm.ScalarMappable(cmap=cmap)
+            sm = mcolorizer.Colorizer(cmap=cmap)
             sm.set_clim(vmin, vmax)
             rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:
@@ -1705,7 +1721,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         thus supports a wide range of file formats, including PNG, JPG, TIFF
         and others.
 
-        .. _Pillow: https://python-pillow.org/
+        .. _Pillow: https://python-pillow.github.io
 
     thumbfile : str or file-like
         The thumbnail filename.

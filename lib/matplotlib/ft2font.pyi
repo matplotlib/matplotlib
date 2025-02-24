@@ -1,5 +1,6 @@
+from enum import Enum, Flag
 import sys
-from typing import BinaryIO, Literal, TypedDict, final, overload
+from typing import BinaryIO, Literal, TypedDict, final, overload, cast
 from typing_extensions import Buffer  # < Py 3.12
 
 import numpy as np
@@ -7,42 +8,64 @@ from numpy.typing import NDArray
 
 __freetype_build_type__: str
 __freetype_version__: str
-BOLD: int
-EXTERNAL_STREAM: int
-FAST_GLYPHS: int
-FIXED_SIZES: int
-FIXED_WIDTH: int
-GLYPH_NAMES: int
-HORIZONTAL: int
-ITALIC: int
-KERNING: int
-KERNING_DEFAULT: int
-KERNING_UNFITTED: int
-KERNING_UNSCALED: int
-LOAD_CROP_BITMAP: int
-LOAD_DEFAULT: int
-LOAD_FORCE_AUTOHINT: int
-LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH: int
-LOAD_IGNORE_TRANSFORM: int
-LOAD_LINEAR_DESIGN: int
-LOAD_MONOCHROME: int
-LOAD_NO_AUTOHINT: int
-LOAD_NO_BITMAP: int
-LOAD_NO_HINTING: int
-LOAD_NO_RECURSE: int
-LOAD_NO_SCALE: int
-LOAD_PEDANTIC: int
-LOAD_RENDER: int
-LOAD_TARGET_LCD: int
-LOAD_TARGET_LCD_V: int
-LOAD_TARGET_LIGHT: int
-LOAD_TARGET_MONO: int
-LOAD_TARGET_NORMAL: int
-LOAD_VERTICAL_LAYOUT: int
-MULTIPLE_MASTERS: int
-SCALABLE: int
-SFNT: int
-VERTICAL: int
+
+class FaceFlags(Flag):
+    SCALABLE = cast(int, ...)
+    FIXED_SIZES = cast(int, ...)
+    FIXED_WIDTH = cast(int, ...)
+    SFNT = cast(int, ...)
+    HORIZONTAL = cast(int, ...)
+    VERTICAL = cast(int, ...)
+    KERNING = cast(int, ...)
+    FAST_GLYPHS = cast(int, ...)
+    MULTIPLE_MASTERS = cast(int, ...)
+    GLYPH_NAMES = cast(int, ...)
+    EXTERNAL_STREAM = cast(int, ...)
+    HINTER = cast(int, ...)
+    CID_KEYED = cast(int, ...)
+    TRICKY = cast(int, ...)
+    COLOR = cast(int, ...)
+    VARIATION = cast(int, ...)
+    SVG = cast(int, ...)
+    SBIX = cast(int, ...)
+    SBIX_OVERLAY = cast(int, ...)
+
+class Kerning(Enum):
+    DEFAULT = cast(int, ...)
+    UNFITTED = cast(int, ...)
+    UNSCALED = cast(int, ...)
+
+class LoadFlags(Flag):
+    DEFAULT = cast(int, ...)
+    NO_SCALE = cast(int, ...)
+    NO_HINTING = cast(int, ...)
+    RENDER = cast(int, ...)
+    NO_BITMAP = cast(int, ...)
+    VERTICAL_LAYOUT = cast(int, ...)
+    FORCE_AUTOHINT = cast(int, ...)
+    CROP_BITMAP = cast(int, ...)
+    PEDANTIC = cast(int, ...)
+    IGNORE_GLOBAL_ADVANCE_WIDTH = cast(int, ...)
+    NO_RECURSE = cast(int, ...)
+    IGNORE_TRANSFORM = cast(int, ...)
+    MONOCHROME = cast(int, ...)
+    LINEAR_DESIGN = cast(int, ...)
+    NO_AUTOHINT = cast(int, ...)
+    COLOR = cast(int, ...)
+    COMPUTE_METRICS = cast(int, ...)
+    BITMAP_METRICS_ONLY = cast(int, ...)
+    NO_SVG = cast(int, ...)
+    # The following should be unique, but the above can be OR'd together.
+    TARGET_NORMAL = cast(int, ...)
+    TARGET_LIGHT = cast(int, ...)
+    TARGET_MONO = cast(int, ...)
+    TARGET_LCD = cast(int, ...)
+    TARGET_LCD_V = cast(int, ...)
+
+class StyleFlags(Flag):
+    NORMAL = cast(int, ...)
+    ITALIC = cast(int, ...)
+    BOLD = cast(int, ...)
 
 class _SfntHeadDict(TypedDict):
     version: tuple[int, int]
@@ -175,7 +198,7 @@ class FT2Font(Buffer):
     def _get_fontmap(self, string: str) -> dict[str, FT2Font]: ...
     def clear(self) -> None: ...
     def draw_glyph_to_bitmap(
-        self, image: FT2Image, x: float, y: float, glyph: Glyph, antialiased: bool = ...
+        self, image: FT2Image, x: int, y: int, glyph: Glyph, antialiased: bool = ...
     ) -> None: ...
     def draw_glyphs_to_bitmap(self, antialiased: bool = ...) -> None: ...
     def get_bitmap_offset(self) -> tuple[int, int]: ...
@@ -184,7 +207,7 @@ class FT2Font(Buffer):
     def get_descent(self) -> int: ...
     def get_glyph_name(self, index: int) -> str: ...
     def get_image(self) -> NDArray[np.uint8]: ...
-    def get_kerning(self, left: int, right: int, mode: int) -> int: ...
+    def get_kerning(self, left: int, right: int, mode: Kerning) -> int: ...
     def get_name_index(self, name: str) -> int: ...
     def get_num_glyphs(self) -> int: ...
     def get_path(self) -> tuple[NDArray[np.float64], NDArray[np.int8]]: ...
@@ -207,13 +230,13 @@ class FT2Font(Buffer):
     @overload
     def get_sfnt_table(self, name: Literal["pclt"]) -> _SfntPcltDict | None: ...
     def get_width_height(self) -> tuple[int, int]: ...
-    def load_char(self, charcode: int, flags: int = ...) -> Glyph: ...
-    def load_glyph(self, glyphindex: int, flags: int = ...) -> Glyph: ...
+    def load_char(self, charcode: int, flags: LoadFlags = ...) -> Glyph: ...
+    def load_glyph(self, glyphindex: int, flags: LoadFlags = ...) -> Glyph: ...
     def select_charmap(self, i: int) -> None: ...
     def set_charmap(self, i: int) -> None: ...
     def set_size(self, ptsize: float, dpi: float) -> None: ...
     def set_text(
-        self, string: str, angle: float = ..., flags: int = ...
+        self, string: str, angle: float = ..., flags: LoadFlags = ...
     ) -> NDArray[np.float64]: ...
     @property
     def ascender(self) -> int: ...
@@ -222,7 +245,7 @@ class FT2Font(Buffer):
     @property
     def descender(self) -> int: ...
     @property
-    def face_flags(self) -> int: ...
+    def face_flags(self) -> FaceFlags: ...
     @property
     def family_name(self) -> str: ...
     @property
@@ -242,11 +265,13 @@ class FT2Font(Buffer):
     @property
     def num_glyphs(self) -> int: ...
     @property
+    def num_named_instances(self) -> int: ...
+    @property
     def postscript_name(self) -> str: ...
     @property
     def scalable(self) -> bool: ...
     @property
-    def style_flags(self) -> int: ...
+    def style_flags(self) -> StyleFlags: ...
     @property
     def style_name(self) -> str: ...
     @property
@@ -258,8 +283,8 @@ class FT2Font(Buffer):
 
 @final
 class FT2Image(Buffer):
-    def __init__(self, width: float, height: float) -> None: ...
-    def draw_rect_filled(self, x0: float, y0: float, x1: float, y1: float) -> None: ...
+    def __init__(self, width: int, height: int) -> None: ...
+    def draw_rect_filled(self, x0: int, y0: int, x1: int, y1: int) -> None: ...
     if sys.version_info[:2] >= (3, 12):
         def __buffer__(self, flags: int) -> memoryview: ...
 

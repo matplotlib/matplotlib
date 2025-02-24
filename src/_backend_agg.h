@@ -65,6 +65,10 @@ class BufferRegion
         delete[] data;
     };
 
+    // prevent copying
+    BufferRegion(const BufferRegion &) = delete;
+    BufferRegion &operator=(const BufferRegion &) = delete;
+
     agg::int8u *get_data()
     {
         return data;
@@ -96,11 +100,6 @@ class BufferRegion
     int width;
     int height;
     int stride;
-
-  private:
-    // prevent copying
-    BufferRegion(const BufferRegion &);
-    BufferRegion &operator=(const BufferRegion &);
 };
 
 #define MARKER_CACHE_SIZE 512
@@ -350,7 +349,8 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
         agg::trans_affine hatch_trans;
         hatch_trans *= agg::trans_affine_scaling(1.0, -1.0);
         hatch_trans *= agg::trans_affine_translation(0.0, 1.0);
-        hatch_trans *= agg::trans_affine_scaling(hatch_size, hatch_size);
+        hatch_trans *= agg::trans_affine_scaling(static_cast<double>(hatch_size),
+                                                 static_cast<double>(hatch_size));
         hatch_path_trans_t hatch_path_trans(hatch_path, hatch_trans);
         hatch_path_curve_t hatch_path_curve(hatch_path_trans);
         hatch_path_stroke_t hatch_path_stroke(hatch_path_curve);
@@ -739,16 +739,19 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
 
         set_clipbox(gc.cliprect, theRasterizer);
 
+        auto image_height = static_cast<double>(image.shape(0)),
+             image_width = static_cast<double>(image.shape(1));
+
         agg::trans_affine mtx;
-        mtx *= agg::trans_affine_translation(0, -image.shape(0));
+        mtx *= agg::trans_affine_translation(0, -image_height);
         mtx *= agg::trans_affine_rotation(-angle * (agg::pi / 180.0));
         mtx *= agg::trans_affine_translation(x, y);
 
         agg::path_storage rect;
         rect.move_to(0, 0);
-        rect.line_to(image.shape(1), 0);
-        rect.line_to(image.shape(1), image.shape(0));
-        rect.line_to(0, image.shape(0));
+        rect.line_to(image_width, 0);
+        rect.line_to(image_width, image_height);
+        rect.line_to(0, image_height);
         rect.line_to(0, 0);
         agg::conv_transform<agg::path_storage> rect2(rect, mtx);
 
@@ -842,12 +845,15 @@ inline void RendererAgg::draw_image(GCAgg &gc,
         agg::trans_affine mtx;
         agg::path_storage rect;
 
-        mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image.shape(0))));
+        auto image_height = static_cast<double>(image.shape(0)),
+             image_width = static_cast<double>(image.shape(1));
+
+        mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image_height)));
 
         rect.move_to(0, 0);
-        rect.line_to(image.shape(1), 0);
-        rect.line_to(image.shape(1), image.shape(0));
-        rect.line_to(0, image.shape(0));
+        rect.line_to(image_width, 0);
+        rect.line_to(image_width, image_height);
+        rect.line_to(0, image_height);
         rect.line_to(0, 0);
 
         agg::conv_transform<agg::path_storage> rect2(rect, mtx);
@@ -883,7 +889,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     } else {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
-            pixf, 0, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
+            pixf, nullptr, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
     }
 
     rendererBase.reset_clipping(true);

@@ -3,8 +3,8 @@ from types import ModuleType
 
 
 class BackendFilter(Enum):
-    INTERACTIVE: int
-    NON_INTERACTIVE: int
+    INTERACTIVE = 0
+    NON_INTERACTIVE = 1
 
 
 class BackendRegistry:

@@ -1159,7 +1159,7 @@ class CheckButtons(AxesWidget):
         """
         Modify the state of a check button by index.
 
-        Callbacks will be triggered if :attr:`eventson` is True.
+        Callbacks will be triggered if :attr:`!eventson` is True.
 
         Parameters
         ----------
@@ -1734,7 +1734,7 @@ class RadioButtons(AxesWidget):
         """
         Select button with number *index*.
 
-        Callbacks will be triggered if :attr:`eventson` is True.
+        Callbacks will be triggered if :attr:`!eventson` is True.
 
         Parameters
         ----------

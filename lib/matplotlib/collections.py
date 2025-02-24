@@ -18,8 +18,8 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, _path, artist, cbook, cm, colors as mcolors, _docstring,
-               hatch as mhatch, lines as mlines, path as mpath, transforms)
+from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
+               _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
 from ._enums import JoinStyle, CapStyle
 
 
@@ -33,7 +33,7 @@ from ._enums import JoinStyle, CapStyle
     "linewidth": ["linewidths", "lw"],
     "offset_transform": ["transOffset"],
 })
-class Collection(artist.Artist, cm.ScalarMappable):
+class Collection(mcolorizer.ColorizingArtist):
     r"""
     Base class for Collections. Must be subclassed to be usable.
 
@@ -88,6 +88,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  offset_transform=None,
                  norm=None,  # optional for ScalarMappable
                  cmap=None,  # ditto
+                 colorizer=None,
                  pickradius=5.0,
                  hatch=None,
                  urls=None,
@@ -156,8 +157,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             Remaining keyword arguments will be used to set properties as
             ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
-        artist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
+
+        super().__init__(self._get_colorizer(cmap, norm, colorizer))
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]
@@ -173,7 +174,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._face_is_mapped = None
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
-        self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
+
+        # Temporary logic to set hatchcolor. This eager resolution is temporary
+        # and will be replaced by a proper mechanism in a follow-up PR.
+        hatch_color = mpl.rcParams['hatch.color']
+        if hatch_color == 'edge':
+            hatch_color = mpl.rcParams['patch.edgecolor']
+        self._hatch_color = mcolors.to_rgba(hatch_color)
+        self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
@@ -364,6 +372,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self._hatch:
             gc.set_hatch(self._hatch)
             gc.set_hatch_color(self._hatch_color)
+            gc.set_hatch_linewidth(self._hatch_linewidth)
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -541,6 +550,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_hatch(self):
         """Return the current hatching pattern."""
         return self._hatch
+
+    def set_hatch_linewidth(self, lw):
+        """Set the hatch linewidth."""
+        self._hatch_linewidth = lw
+
+    def get_hatch_linewidth(self):
+        """Return the hatch linewidth."""
+        return self._hatch_linewidth
 
     def set_offsets(self, offsets):
         """
@@ -1225,15 +1242,15 @@ class PolyCollection(_CollectionWithSizes):
             return
 
         # Fast path for arrays
-        if isinstance(verts, np.ndarray) and len(verts.shape) == 3:
+        if isinstance(verts, np.ndarray) and len(verts.shape) == 3 and verts.size:
             verts_pad = np.concatenate((verts, verts[:, :1]), axis=1)
-            # Creating the codes once is much faster than having Path do it
-            # separately each time by passing closed=True.
-            codes = np.empty(verts_pad.shape[1], dtype=mpath.Path.code_type)
-            codes[:] = mpath.Path.LINETO
-            codes[0] = mpath.Path.MOVETO
-            codes[-1] = mpath.Path.CLOSEPOLY
-            self._paths = [mpath.Path(xy, codes) for xy in verts_pad]
+            # It's faster to create the codes and internal flags once in a
+            # template path and reuse them.
+            template_path = mpath.Path(verts_pad[0], closed=True)
+            codes = template_path.codes
+            _make_path = mpath.Path._fast_from_codes_and_verts
+            self._paths = [_make_path(xy, codes, internals_from=template_path)
+                           for xy in verts_pad]
             return
 
         self._paths = []
@@ -1271,16 +1288,16 @@ class FillBetweenPolyCollection(PolyCollection):
             - 'x': the curves are ``(t, f1)`` and ``(t, f2)``.
             - 'y': the curves are ``(f1, t)`` and ``(f2, t)``.
 
-        t : array (length N)
+        t : array-like
             The ``t_direction`` coordinates of the nodes defining the curves.
 
-        f1 : array (length N) or scalar
+        f1 : array-like or float
             The other coordinates of the nodes defining the first curve.
 
-        f2 : array (length N) or scalar
+        f2 : array-like or float
             The other coordinates of the nodes defining the second curve.
 
-        where : array of bool (length N), optional
+        where : array-like of bool, optional
             Define *where* to exclude some {dir} regions from being filled.
             The filled regions are defined by the coordinates ``t[where]``.
             More precisely, fill between ``t[i]`` and ``t[i+1]`` if
@@ -1351,16 +1368,16 @@ class FillBetweenPolyCollection(PolyCollection):
 
         Parameters
         ----------
-        t : array (length N)
+        t : array-like
             The ``self.t_direction`` coordinates of the nodes defining the curves.
 
-        f1 : array (length N) or scalar
+        f1 : array-like or float
             The other coordinates of the nodes defining the first curve.
 
-        f2 : array (length N) or scalar
+        f2 : array-like or float
             The other coordinates of the nodes defining the second curve.
 
-        where : array of bool (length N), optional
+        where : array-like of bool, optional
             Define *where* to exclude some {dir} regions from being filled.
             The filled regions are defined by the coordinates ``t[where]``.
             More precisely, fill between ``t[i]`` and ``t[i+1]`` if
@@ -1601,14 +1618,13 @@ class LineCollection(Collection):
         """
         Parameters
         ----------
-        segments : list of array-like
-            A sequence (*line0*, *line1*, *line2*) of lines, where each line is a list
-            of points::
+        segments : list of (N, 2) array-like
+            A sequence ``[line0, line1, ...]`` where each line is a (N, 2)-shape
+            array-like containing points::
 
-                lineN = [(x0, y0), (x1, y1), ... (xm, ym)]
+                line0 = [(x0, y0), (x1, y1), ...]
 
-            or the equivalent Mx2 numpy array with two columns. Each line
-            can have a different number of segments.
+            Each line can contain a different number of points.
         linewidths : float or list of float, default: :rc:`lines.linewidth`
             The width of each line in points.
         colors : :mpltype:`color` or list of color, default: :rc:`lines.color`

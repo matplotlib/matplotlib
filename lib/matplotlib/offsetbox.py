@@ -206,10 +206,10 @@ class OffsetBox(martist.Artist):
     The child artists are meant to be drawn at a relative position to its
     parent.
 
-    Being an artist itself, all parameters are passed on to `.Artist`.
+    Being an artist itself, all keyword arguments are passed on to `.Artist`.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args)
+    def __init__(self, **kwargs):
+        super().__init__()
         self._internal_update(kwargs)
         # Clipping has not been implemented in the OffsetBox family, so
         # disable the clip flag for consistency. It can always be turned back
@@ -436,6 +436,14 @@ class VPacker(PackerBase):
     """
     VPacker packs its children vertically, automatically adjusting their
     relative positions at draw time.
+
+    .. code-block:: none
+
+       +---------+
+       | Child 1 |
+       | Child 2 |
+       | Child 3 |
+       +---------+
     """
 
     def _get_bbox_and_child_offsets(self, renderer):
@@ -468,6 +476,12 @@ class HPacker(PackerBase):
     """
     HPacker packs its children horizontally, automatically adjusting their
     relative positions at draw time.
+
+    .. code-block:: none
+
+       +-------------------------------+
+       | Child 1    Child 2    Child 3 |
+       +-------------------------------+
     """
 
     def _get_bbox_and_child_offsets(self, renderer):
@@ -498,6 +512,26 @@ class PaddedBox(OffsetBox):
 
     The `.PaddedBox` contains a `.FancyBboxPatch` that is used to visualize
     it when rendering.
+
+    .. code-block:: none
+
+       +----------------------------+
+       |                            |
+       |                            |
+       |                            |
+       | <--pad--> Artist           |
+       |             ^              |
+       |            pad             |
+       |             v              |
+       +----------------------------+
+
+    Attributes
+    ----------
+    pad : float
+        The padding in points.
+    patch : `.FancyBboxPatch`
+        When *draw_frame* is True, this `.FancyBboxPatch` is made visible and
+        creates a border around the box.
     """
 
     def __init__(self, child, pad=0., *, draw_frame=False, patch_attrs=None):
@@ -1343,9 +1377,7 @@ or callable, default: value of *xycoords*
 
         If *s* is not given, reset to :rc:`legend.fontsize`.
         """
-        if s is None:
-            s = mpl.rcParams["legend.fontsize"]
-
+        s = mpl._val_or_rc(s, "legend.fontsize")
         self.prop = FontProperties(size=s)
         self.stale = True
 

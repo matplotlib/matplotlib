@@ -88,7 +88,6 @@ python_sources = [
   'test_tightlayout.py',
   'test_transforms.py',
   'test_triangulation.py',
-  'test_ttconv.py',
   'test_type1font.py',
   'test_units.py',
   'test_usetex.py',
@@ -104,6 +103,7 @@ install_data(
   'cmr10.pfb',
   'mpltest.ttf',
   'test_nbagg_01.ipynb',
+  'test_inline_01.ipynb',
   install_tag: 'tests',
   install_dir: py3.get_install_dir(subdir: 'matplotlib/tests/'))
 

@@ -1,7 +1,7 @@
 """
 Provides classes of simple units that will be used with `.AxesDivider`
 class (or others) to determine the size of each Axes. The unit
-classes define `get_size` method that returns a tuple of two floats,
+classes define `!get_size` method that returns a tuple of two floats,
 meaning relative and absolute sizes, respectively.
 
 Note that this class is nothing more than a simple tuple of two

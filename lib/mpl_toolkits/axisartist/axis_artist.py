@@ -7,7 +7,7 @@ class; grid lines are managed by the `GridlinesCollection` class.
 
 There is one `AxisArtist` per Axis; it can be accessed through
 the ``axis`` dictionary of the parent Axes (which should be a
-`mpl_toolkits.axislines.Axes`), e.g. ``ax.axis["bottom"]``.
+`~mpl_toolkits.axisartist.axislines.Axes`), e.g. ``ax.axis["bottom"]``.
 
 Children of the AxisArtist are accessed as attributes: ``.line`` and ``.label``
 for the axis line and label, ``.major_ticks``, ``.major_ticklabels``,

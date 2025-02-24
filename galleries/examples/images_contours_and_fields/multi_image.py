@@ -63,8 +63,8 @@ plt.show()
 #
 #     def sync_cmaps(changed_image):
 #         for im in images:
-#         if changed_image.get_cmap() != im.get_cmap():
-#             im.set_cmap(changed_image.get_cmap())
+#             if changed_image.get_cmap() != im.get_cmap():
+#                 im.set_cmap(changed_image.get_cmap())
 #
 #     for im in images:
 #         im.callbacks.connect('changed', sync_cmaps)

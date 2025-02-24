@@ -2,6 +2,7 @@ import matplotlib.cm as cm
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.collections import Collection, PathCollection
+from matplotlib.colorizer import Colorizer, ColorizingArtist
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.path import Path
 from matplotlib.patches import Patch
@@ -23,7 +24,7 @@ class ContourLabeler:
     rightside_up: bool
     labelLevelList: list[float]
     labelIndiceList: list[int]
-    labelMappable: cm.ScalarMappable
+    labelMappable: cm.ScalarMappable | ColorizingArtist
     labelCValueList: list[ColorType]
     labelXYs: list[tuple[float, float]]
     def clabel(
@@ -117,6 +118,7 @@ class ContourSet(ContourLabeler, Collection):
         norm: str | Normalize | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
+        colorizer: Colorizer | None = ...,
         extend: Literal["neither", "both", "min", "max"] = ...,
         antialiased: bool | None = ...,
         nchunk: int = ...,

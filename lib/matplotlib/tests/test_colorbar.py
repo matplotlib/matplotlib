@@ -317,7 +317,7 @@ def test_remove_from_figure_cl():
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
-    Colorbar(ax, cmap=plt.cm.bone)
+    Colorbar(ax, cmap=plt.colormaps["bone"])
 
 
 def test_parentless_mappable():
@@ -1139,6 +1139,7 @@ def test_colorbar_set_formatter_locator():
     fmt = LogFormatter()
     cb.minorformatter = fmt
     assert cb.ax.yaxis.get_minor_formatter() is fmt
+    assert cb.long_axis is cb.ax.yaxis
 
 
 @image_comparison(['colorbar_extend_alpha.png'], remove_text=True,
@@ -1207,7 +1208,7 @@ def test_colorbar_errors(kwargs, error, message):
         fig.colorbar(im, **kwargs)
 
 
-def test_colorbar_axes_parmeters():
+def test_colorbar_axes_parameters():
     fig, ax = plt.subplots(2)
     im = ax[0].imshow([[0, 1], [2, 3]])
     # colorbar should accept any form of axes sequence:

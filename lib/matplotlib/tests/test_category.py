@@ -246,6 +246,14 @@ class TestPlotTypes:
         axis_test(ax.xaxis, ['a', 'b', 'd', 'c'])
         axis_test(ax.yaxis, ['e', 'g', 'f', 'a', 'b', 'd'])
 
+    def test_update_plot_heterogenous_plotter(self):
+        ax = plt.figure().subplots()
+        ax.scatter(['a', 'b'], ['e', 'g'])
+        ax.plot(['a', 'b', 'd'], ['f', 'a', 'b'])
+        ax.bar(['b', 'c', 'd'], ['g', 'e', 'd'])
+        axis_test(ax.xaxis, ['a', 'b', 'd', 'c'])
+        axis_test(ax.yaxis, ['e', 'g', 'f', 'a', 'b', 'd'])
+
     failing_test_cases = [("mixed", ['A', 3.14]),
                           ("number integer", ['1', 1]),
                           ("string integer", ['42', 42]),

@@ -1,4 +1,4 @@
-.. _github-stats-3-9.0:
+.. _github-stats-3-9-0:
 
 GitHub statistics for 3.9.0 (May 15, 2024)
 ==========================================

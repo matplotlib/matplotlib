@@ -53,64 +53,6 @@ Py_points_in_path(py::array_t<double> points_obj, double r, mpl::PathIterator pa
 }
 
 static py::tuple
-Py_update_path_extents(mpl::PathIterator path, agg::trans_affine trans,
-                       agg::rect_d rect, py::array_t<double> minpos, bool ignore)
-{
-    bool changed;
-
-    if (minpos.ndim() != 1) {
-        throw py::value_error(
-            "minpos must be 1D, got " + std::to_string(minpos.ndim()));
-    }
-    if (minpos.shape(0) != 2) {
-        throw py::value_error(
-            "minpos must be of length 2, got " + std::to_string(minpos.shape(0)));
-    }
-
-    extent_limits e;
-
-    if (ignore) {
-        reset_limits(e);
-    } else {
-        if (rect.x1 > rect.x2) {
-            e.x0 = std::numeric_limits<double>::infinity();
-            e.x1 = -std::numeric_limits<double>::infinity();
-        } else {
-            e.x0 = rect.x1;
-            e.x1 = rect.x2;
-        }
-        if (rect.y1 > rect.y2) {
-            e.y0 = std::numeric_limits<double>::infinity();
-            e.y1 = -std::numeric_limits<double>::infinity();
-        } else {
-            e.y0 = rect.y1;
-            e.y1 = rect.y2;
-        }
-        e.xm = *minpos.data(0);
-        e.ym = *minpos.data(1);
-    }
-
-    update_path_extents(path, trans, e);
-
-    changed = (e.x0 != rect.x1 || e.y0 != rect.y1 || e.x1 != rect.x2 || e.y1 != rect.y2 ||
-               e.xm != *minpos.data(0) || e.ym != *minpos.data(1));
-
-    py::ssize_t extentsdims[] = { 2, 2 };
-    py::array_t<double> outextents(extentsdims);
-    *outextents.mutable_data(0, 0) = e.x0;
-    *outextents.mutable_data(0, 1) = e.y0;
-    *outextents.mutable_data(1, 0) = e.x1;
-    *outextents.mutable_data(1, 1) = e.y1;
-
-    py::ssize_t minposdims[] = { 2 };
-    py::array_t<double> outminpos(minposdims);
-    *outminpos.mutable_data(0) = e.xm;
-    *outminpos.mutable_data(1) = e.ym;
-
-    return py::make_tuple(outextents, outminpos, changed);
-}
-
-static py::tuple
 Py_get_path_collection_extents(agg::trans_affine master_transform,
                                mpl::PathGenerator paths,
                                py::array_t<double> transforms_obj,
@@ -368,14 +310,12 @@ Py_is_sorted_and_has_non_nan(py::object obj)
     return result;
 }
 
-PYBIND11_MODULE(_path, m)
+PYBIND11_MODULE(_path, m, py::mod_gil_not_used())
 {
     m.def("point_in_path", &Py_point_in_path,
           "x"_a, "y"_a, "radius"_a, "path"_a, "trans"_a);
     m.def("points_in_path", &Py_points_in_path,
           "points"_a, "radius"_a, "path"_a, "trans"_a);
-    m.def("update_path_extents", &Py_update_path_extents,
-          "path"_a, "trans"_a, "rect"_a, "minpos"_a, "ignore"_a);
     m.def("get_path_collection_extents", &Py_get_path_collection_extents,
           "master_transform"_a, "paths"_a, "transforms"_a, "offsets"_a,
           "offset_transform"_a);

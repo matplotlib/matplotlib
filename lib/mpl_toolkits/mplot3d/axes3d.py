@@ -1400,7 +1400,7 @@ class Axes3D(Axes):
     def format_zdata(self, z):
         """
         Return *z* string formatted.  This function will use the
-        :attr:`fmt_zdata` attribute if it is callable, else will fall
+        :attr:`!fmt_zdata` attribute if it is callable, else will fall
         back on the zaxis major formatter
         """
         try:
@@ -1510,20 +1510,35 @@ class Axes3D(Axes):
 
     def _arcball(self, x: float, y: float) -> np.ndarray:
         """
-        Convert a point (x, y) to a point on a virtual trackball
-        This is Ken Shoemake's arcball
+        Convert a point (x, y) to a point on a virtual trackball.
+
+        This is Ken Shoemake's arcball (a sphere), modified
+        to soften the abrupt edge (optionally).
         See: Ken Shoemake, "ARCBALL: A user interface for specifying
         three-dimensional rotation using a mouse." in
         Proceedings of Graphics Interface '92, 1992, pp. 151-156,
         https://doi.org/10.20380/GI1992.18
+        The smoothing of the edge is inspired by Gavin Bell's arcball
+        (a sphere combined with a hyperbola), but here, the sphere
+        is combined with a section of a cylinder, so it has finite support.
         """
-        x *= 2
-        y *= 2
+        s = mpl.rcParams['axes3d.trackballsize'] / 2
+        b = mpl.rcParams['axes3d.trackballborder'] / s
+        x /= s
+        y /= s
         r2 = x*x + y*y
-        if r2 > 1:
-            p = np.array([0, x/math.sqrt(r2), y/math.sqrt(r2)])
+        r = np.sqrt(r2)
+        ra = 1 + b
+        a = b * (1 + b/2)
+        ri = 2/(ra + 1/ra)
+        if r < ri:
+            p = np.array([np.sqrt(1 - r2), x, y])
+        elif r < ra:
+            dr = ra - r
+            p = np.array([a - np.sqrt((a + dr) * (a - dr)), x, y])
+            p /= np.linalg.norm(p)
         else:
-            p = np.array([math.sqrt(1-r2), x, y])
+            p = np.array([0, x/r, y/r])
         return p
 
     def _on_move(self, event):
@@ -1561,23 +1576,35 @@ class Axes3D(Axes):
             if dx == 0 and dy == 0:
                 return
 
-            # Convert to quaternion
-            elev = np.deg2rad(self.elev)
-            azim = np.deg2rad(self.azim)
-            roll = np.deg2rad(self.roll)
-            q = _Quaternion.from_cardan_angles(elev, azim, roll)
+            style = mpl.rcParams['axes3d.mouserotationstyle']
+            if style == 'azel':
+                roll = np.deg2rad(self.roll)
+                delev = -(dy/h)*180*np.cos(roll) + (dx/w)*180*np.sin(roll)
+                dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
+                elev = self.elev + delev
+                azim = self.azim + dazim
+                roll = self.roll
+            else:
+                q = _Quaternion.from_cardan_angles(
+                        *np.deg2rad((self.elev, self.azim, self.roll)))
 
-            # Update quaternion - a variation on Ken Shoemake's ARCBALL
-            current_vec = self._arcball(self._sx/w, self._sy/h)
-            new_vec = self._arcball(x/w, y/h)
-            dq = _Quaternion.rotate_from_to(current_vec, new_vec)
-            q = dq * q
+                if style == 'trackball':
+                    k = np.array([0, -dy/h, dx/w])
+                    nk = np.linalg.norm(k)
+                    th = nk / mpl.rcParams['axes3d.trackballsize']
+                    dq = _Quaternion(np.cos(th), k*np.sin(th)/nk)
+                else:  # 'sphere', 'arcball'
+                    current_vec = self._arcball(self._sx/w, self._sy/h)
+                    new_vec = self._arcball(x/w, y/h)
+                    if style == 'sphere':
+                        dq = _Quaternion.rotate_from_to(current_vec, new_vec)
+                    else:  # 'arcball'
+                        dq = _Quaternion(0, new_vec) * _Quaternion(0, -current_vec)
 
-            # Convert to elev, azim, roll
-            elev, azim, roll = q.as_cardan_angles()
-            azim = np.rad2deg(azim)
-            elev = np.rad2deg(elev)
-            roll = np.rad2deg(roll)
+                q = dq * q
+                elev, azim, roll = np.rad2deg(q.as_cardan_angles())
+
+            # update view
             vertical_axis = self._axis_names[self._vertical_axis]
             self.view_init(
                 elev=elev,
@@ -1859,18 +1886,34 @@ class Axes3D(Axes):
 
     def invert_zaxis(self):
         """
-        Invert the z-axis.
+        [*Discouraged*] Invert the z-axis.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes3D.set_zinverted` instead.
 
         See Also
         --------
-        zaxis_inverted
+        get_zinverted
         get_zlim, set_zlim
         get_zbound, set_zbound
         """
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom, auto=None)
 
+    set_zinverted = _axis_method_wrapper("zaxis", "set_inverted")
+    get_zinverted = _axis_method_wrapper("zaxis", "get_inverted")
     zaxis_inverted = _axis_method_wrapper("zaxis", "get_inverted")
+    if zaxis_inverted.__doc__:
+        zaxis_inverted.__doc__ = ("[*Discouraged*] " + zaxis_inverted.__doc__ +
+                                  textwrap.dedent("""
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged.
+            Use `.Axes3D.get_zinverted` instead.
+        """))
 
     def get_zbound(self):
         """
@@ -2370,51 +2413,52 @@ class Axes3D(Axes):
                 rstride = int(max(np.ceil(rows / rcount), 1)) if rcount else 0
                 cstride = int(max(np.ceil(cols / ccount), 1)) if ccount else 0
 
+        if rstride == 0 and cstride == 0:
+            raise ValueError("Either rstride or cstride must be non zero")
+
         # We want two sets of lines, one running along the "rows" of
         # Z and another set of lines running along the "columns" of Z.
         # This transpose will make it easy to obtain the columns.
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
-        if rstride:
-            rii = list(range(0, rows, rstride))
-            # Add the last index only if needed
-            if rows > 0 and rii[-1] != (rows - 1):
-                rii += [rows-1]
+        # Compute the indices of the row and column lines to be drawn
+        # For Z.size == 0, we don't want to draw any lines since the data is empty
+        if rstride == 0 or Z.size == 0:
+            rii = np.array([], dtype=int)
+        elif (rows - 1) % rstride == 0:
+            # last index is hit: rii[-1] == rows - 1
+            rii = np.arange(0, rows, rstride)
         else:
-            rii = []
-        if cstride:
-            cii = list(range(0, cols, cstride))
-            # Add the last index only if needed
-            if cols > 0 and cii[-1] != (cols - 1):
-                cii += [cols-1]
+            # add the last index
+            rii = np.arange(0, rows + rstride, rstride)
+            rii[-1] = rows - 1
+
+        if cstride == 0 or Z.size == 0:
+            cii = np.array([], dtype=int)
+        elif (cols - 1) % cstride == 0:
+            # last index is hit: cii[-1] == cols - 1
+            cii = np.arange(0, cols, cstride)
         else:
-            cii = []
+            # add the last index
+            cii = np.arange(0, cols + cstride, cstride)
+            cii[-1] = cols - 1
 
-        if rstride == 0 and cstride == 0:
-            raise ValueError("Either rstride or cstride must be non zero")
+        row_lines = np.stack([X[rii], Y[rii], Z[rii]], axis=-1)
+        col_lines = np.stack([tX[cii], tY[cii], tZ[cii]], axis=-1)
 
-        # If the inputs were empty, then just
-        # reset everything.
-        if Z.size == 0:
-            rii = []
-            cii = []
+        # We autoscale twice because autoscaling is much faster with vectorized numpy
+        # arrays, but row_lines and col_lines might not be the same shape, so we can't
+        # stack them to check them in a single pass.
+        # Note that while the column and row grid points are the same, the lines
+        # between them may expand the view limits, so we have to check both.
+        self.auto_scale_xyz(row_lines[..., 0], row_lines[..., 1], row_lines[..., 2],
+                            had_data)
+        self.auto_scale_xyz(col_lines[..., 0], col_lines[..., 1], col_lines[..., 2],
+                            had_data=True)
 
-        xlines = [X[i] for i in rii]
-        ylines = [Y[i] for i in rii]
-        zlines = [Z[i] for i in rii]
-
-        txlines = [tX[i] for i in cii]
-        tylines = [tY[i] for i in cii]
-        tzlines = [tZ[i] for i in cii]
-
-        lines = ([list(zip(xl, yl, zl))
-                 for xl, yl, zl in zip(xlines, ylines, zlines)]
-                 + [list(zip(xl, yl, zl))
-                 for xl, yl, zl in zip(txlines, tylines, tzlines)])
-
+        lines = list(row_lines) + list(col_lines)
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
         self.add_collection(linec)
-        self.auto_scale_xyz(X, Y, Z, had_data)
 
         return linec
 
@@ -2848,7 +2892,9 @@ class Axes3D(Axes):
                 self.auto_scale_xyz(*np.array(col._segments3d).transpose(),
                                     had_data=had_data)
             elif isinstance(col, art3d.Poly3DCollection):
-                self.auto_scale_xyz(*col._vec[:-1], had_data=had_data)
+                self.auto_scale_xyz(col._faces[..., 0],
+                                    col._faces[..., 1],
+                                    col._faces[..., 2], had_data=had_data)
             elif isinstance(col, art3d.Patch3DCollection):
                 pass
                 # FIXME: Implement auto-scaling function for Patch3DCollection
@@ -2861,9 +2907,11 @@ class Axes3D(Axes):
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
-    def scatter(self, xs, ys,
-                zs=0, zdir='z', s=20, c=None, depthshade=True, *args,
-                axlim_clip=False, **kwargs):
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=None,
+                *args,
+                depthshade_minalpha=None,
+                axlim_clip=False,
+                **kwargs):
         """
         Create a scatter plot.
 
@@ -2895,16 +2943,26 @@ class Axes3D(Axes):
             - A 2D array in which the rows are RGB or RGBA.
 
             For more details see the *c* argument of `~.axes.Axes.scatter`.
-        depthshade : bool, default: True
+        depthshade : bool, default: None
             Whether to shade the scatter markers to give the appearance of
             depth. Each call to ``scatter()`` will perform its depthshading
             independently.
+            If None, use the value from rcParams['axes3d.depthshade'].
+
+        depthshade_minalpha : float, default: None
+            The lowest alpha value applied by depth-shading.
+            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
+
+            .. versionadded:: 3.11
+
         axlim_clip : bool, default: False
             Whether to hide the scatter points outside the axes view limits.
 
             .. versionadded:: 3.10
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All other keyword arguments are passed on to `~.axes.Axes.scatter`.
 
@@ -2924,16 +2982,24 @@ class Axes3D(Axes):
             )
         if kwargs.get("color") is not None:
             kwargs['color'] = color
+        if depthshade is None:
+            depthshade = mpl.rcParams['axes3d.depthshade']
+        if depthshade_minalpha is None:
+            depthshade_minalpha = mpl.rcParams['axes3d.depthshade_minalpha']
 
         # For xs and ys, 2D scatter() will do the copying.
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
             zs = zs.copy()
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
-        art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
-                                        depthshade=depthshade,
-                                        axlim_clip=axlim_clip)
-
+        art3d.patch_collection_2d_to_3d(
+            patches,
+            zs=zs,
+            zdir=zdir,
+            depthshade=depthshade,
+            depthshade_minalpha=depthshade_minalpha,
+            axlim_clip=axlim_clip,
+        )
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
 
@@ -3973,8 +4039,7 @@ class Axes3D(Axes):
 
         # Determine style for stem lines.
         linestyle, linemarker, linecolor = _process_plot_format(linefmt)
-        if linestyle is None:
-            linestyle = mpl.rcParams['lines.linestyle']
+        linestyle = mpl._val_or_rc(linestyle, 'lines.linestyle')
 
         # Plot everything in required order.
         baseline, = self.plot(basex, basey, basefmt, zs=bottom,
@@ -4088,7 +4153,7 @@ class _Quaternion:
         k = np.cross(r1, r2)
         nk = np.linalg.norm(k)
         th = np.arctan2(nk, np.dot(r1, r2))
-        th = th/2
+        th /= 2
         if nk == 0:  # r1 and r2 are parallel or anti-parallel
             if np.dot(r1, r2) < 0:
                 warnings.warn("Rotation defined by anti-parallel vectors is ambiguous")
@@ -4100,7 +4165,7 @@ class _Quaternion:
             else:
                 q = cls(1, [0, 0, 0])  # = 1, no rotation
         else:
-            q = cls(math.cos(th), k*math.sin(th)/nk)
+            q = cls(np.cos(th), k*np.sin(th)/nk)
         return q
 
     @classmethod
@@ -4125,10 +4190,11 @@ class _Quaternion:
         """
         The inverse of `from_cardan_angles()`.
         Note that the angles returned are in radians, not degrees.
+        The angles are not sensitive to the quaternion's norm().
         """
         qw = self.scalar
         qx, qy, qz = self.vector[..., :]
         azim = np.arctan2(2*(-qw*qz+qx*qy), qw*qw+qx*qx-qy*qy-qz*qz)
-        elev = np.arcsin( 2*( qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz))  # noqa E201
-        roll = np.arctan2(2*( qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)   # noqa E201
+        elev = np.arcsin(np.clip(2*(qw*qy+qz*qx)/(qw*qw+qx*qx+qy*qy+qz*qz), -1, 1))
+        roll = np.arctan2(2*(qw*qx-qy*qz), qw*qw-qx*qx-qy*qy+qz*qz)
         return elev, azim, roll

@@ -9,15 +9,14 @@ on:
   pull_request_target:
     types: [synchronize]
 
-permissions:
-  pull-requests: write
-
 jobs:
   main:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Check if PRs have merge conflicts
-        uses: eps1lon/actions-label-merge-conflict@1b1b1fcde06a9b3d089f3464c96417961dde1168  # v3.0.2
+        uses: eps1lon/actions-label-merge-conflict@1df065ebe6e3310545d4f4c4e862e43bdca146f0  # v3.0.3
         with:
           dirtyLabel: "status: needs rebase"
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
