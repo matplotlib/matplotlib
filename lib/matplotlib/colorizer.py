@@ -261,16 +261,27 @@ class Colorizer:
              .. ACCEPTS: (vmin: float, vmax: float)
         """
         # If the norm's limits are updated self.changed() will be called
-        # through the callbacks attached to the norm
+        # through the callbacks attached to the norm, this causes an inconsistent
+        # state, to prevent this blocked context manager is used
         if vmax is None:
             try:
                 vmin, vmax = vmin
             except (TypeError, ValueError):
                 pass
-        if vmin is not None:
-            self.norm.vmin = colors._sanitize_extrema(vmin)
-        if vmax is not None:
-            self.norm.vmax = colors._sanitize_extrema(vmax)
+
+        orig_vmin_vmax = self.norm.vmin, self.norm.vmax
+
+        # Blocked context manager prevents callbacks from being triggered
+        # until both vmin and vmax are updated
+        with self.norm.callbacks.blocked(signal='changed'):
+            if vmin is not None:
+                self.norm.vmin = colors._sanitize_extrema(vmin)
+            if vmax is not None:
+                self.norm.vmax = colors._sanitize_extrema(vmax)
+
+        # emit a update signal if the limits are changed
+        if orig_vmin_vmax != (self.norm.vmin, self.norm.vmax):
+            self.norm.callbacks.process('changed')
 
     def get_clim(self):
         """
