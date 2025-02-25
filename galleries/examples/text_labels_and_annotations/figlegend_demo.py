@@ -9,6 +9,7 @@ on all the sub-axes of a figure can be plotted instead.
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 fig, axs = plt.subplots(1, 2, layout='constrained')
 
 x = np.arange(0.0, 4*np.pi, 0.2)
