@@ -63,7 +63,7 @@ install:
 test_script:
   # Now build the thing..
   - set LINK=/LIBPATH:%cd%\lib
-  - pip install -v --no-build-isolation --config-settings=setup-args="--vsenv" --editable .[dev]
+  - pip install -v --no-build-isolation --editable .[dev]
   # this should show no freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
