@@ -3,7 +3,7 @@
 Figure legend demo
 ==================
 
-Rather than plotting a legend on each axis, a legend for all the artists 
+Rather than plotting a legend on each axis, a legend for all the artists
 on all the sub-axes of a figure can be plotted instead.
 """
 
