@@ -227,6 +227,11 @@ void FT2Font::open(FT_Open_Args &open_args)
     if (open_args.stream != nullptr) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }
+
+    // This allows us to get back to our data if we need it, though it makes a pointer
+    // loop, so don't set a free-function for it.
+    face->generic.data = this;
+    face->generic.finalizer = nullptr;
 }
 
 void FT2Font::close()
@@ -333,48 +338,73 @@ void FT2Font::set_text(
     bbox.xMin = bbox.yMin = 32000;
     bbox.xMax = bbox.yMax = -32000;
 
-    FT_UInt previous = 0;
-    FT2Font *previous_ft_object = nullptr;
+    auto rq = raqm_create();
+    if (!rq) {
+        throw std::runtime_error("failed to compute text layout");
+    }
+    [[maybe_unused]] auto const& rq_cleanup =
+        std::unique_ptr<std::remove_pointer_t<raqm_t>, decltype(&raqm_destroy)>(
+            rq, raqm_destroy);
 
-    for (auto codepoint : text) {
-        FT_UInt glyph_index = 0;
-        FT_BBox glyph_bbox;
-        FT_Pos last_advance;
+    if (!raqm_set_text(rq, reinterpret_cast<const uint32_t *>(text.data()),
+                       text.size()))
+    {
+        throw std::runtime_error("failed to set text for layout");
+    }
 
-        FT_Error charcode_error, glyph_error;
-        std::set<FT_String*> glyph_seen_fonts;
-        FT2Font *ft_object_with_glyph = this;
-        bool was_found = load_char_with_fallback(ft_object_with_glyph, glyph_index, glyphs,
-                                                 char_to_font, codepoint, flags,
-                                                 charcode_error, glyph_error, glyph_seen_fonts, false);
-        if (!was_found) {
-            ft_glyph_warn((FT_ULong)codepoint, glyph_seen_fonts);
-            // render missing glyph tofu
-            // come back to top-most font
-            ft_object_with_glyph = this;
-            char_to_font[codepoint] = ft_object_with_glyph;
-            ft_object_with_glyph->load_glyph(glyph_index, flags);
-        } else if (ft_object_with_glyph->warn_if_used) {
-            ft_glyph_warn((FT_ULong)codepoint, glyph_seen_fonts);
+    if (!raqm_set_freetype_face(rq, face)) {
+        throw std::runtime_error("failed to set text face for layout");
+    }
+
+    if (!raqm_set_freetype_load_flags(rq, flags)) {
+        throw std::runtime_error("failed to set text flags for layout");
+    }
+
+    std::set<FT_String*> glyph_seen_fonts;
+    glyph_seen_fonts.insert(face->family_name);
+
+    if (!raqm_layout(rq)) {
+        throw std::runtime_error("failed to layout text");
+    }
+
+
+    size_t num_glyphs = 0;
+    auto const& rq_glyphs = raqm_get_glyphs(rq, &num_glyphs);
+
+    for (size_t i = 0; i < num_glyphs; i++) {
+        auto const& rglyph = rq_glyphs[i];
+
+        // Warn for missing glyphs.
+        if (rglyph.index == 0) {
+            ft_glyph_warn(text[rglyph.cluster], glyph_seen_fonts);
+            continue;
         }
-
-        // retrieve kerning distance and move pen position
-        if ((ft_object_with_glyph == previous_ft_object) &&  // if both fonts are the same
-            ft_object_with_glyph->has_kerning() &&           // if the font knows how to kern
-            previous && glyph_index                          // and we really have 2 glyphs
-            ) {
-            pen.x += ft_object_with_glyph->get_kerning(previous, glyph_index, FT_KERNING_DEFAULT);
+        FT2Font *wrapped_font = static_cast<FT2Font *>(rglyph.ftface->generic.data);
+        if (wrapped_font->warn_if_used) {
+            ft_glyph_warn(text[rglyph.cluster], glyph_seen_fonts);
         }
 
         // extract glyph image and store it in our table
-        FT_Glyph &thisGlyph = glyphs[glyphs.size() - 1];
+        FT_Error error;
+        error = FT_Load_Glyph(rglyph.ftface, rglyph.index, flags);
+        if (error) {
+            throw std::runtime_error("failed to load glyph");
+        }
+        FT_Glyph thisGlyph;
+        error = FT_Get_Glyph(rglyph.ftface->glyph, &thisGlyph);
+        if (error) {
+            throw std::runtime_error("failed to get glyph");
+        }
 
-        last_advance = ft_object_with_glyph->get_face()->glyph->advance.x;
+        pen.x += rglyph.x_offset;
+        pen.y += rglyph.y_offset;
+
         FT_Glyph_Transform(thisGlyph, nullptr, &pen);
         FT_Glyph_Transform(thisGlyph, &matrix, nullptr);
         xys.push_back(pen.x);
         xys.push_back(pen.y);
 
+        FT_BBox glyph_bbox;
         FT_Glyph_Get_CBox(thisGlyph, FT_GLYPH_BBOX_SUBPIXELS, &glyph_bbox);
 
         bbox.xMin = std::min(bbox.xMin, glyph_bbox.xMin);
@@ -382,11 +412,14 @@ void FT2Font::set_text(
         bbox.yMin = std::min(bbox.yMin, glyph_bbox.yMin);
         bbox.yMax = std::max(bbox.yMax, glyph_bbox.yMax);
 
-        pen.x += last_advance;
+        if ((flags & FT_LOAD_NO_HINTING) != 0) {
+            pen.x += rglyph.x_advance - rglyph.x_offset;
+        } else {
+            pen.x += hinting_factor * rglyph.x_advance - rglyph.x_offset;
+        }
+        pen.y += rglyph.y_advance - rglyph.y_offset;
 
-        previous = glyph_index;
-        previous_ft_object = ft_object_with_glyph;
-
+        glyphs.push_back(thisGlyph);
     }
 
     FT_Vector_Transform(&pen, &matrix);
