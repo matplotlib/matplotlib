@@ -104,6 +104,7 @@ plt.show()
 #
 # While we recommend using one of the two methods described above, there are
 # number of other ways to achieve a similar layout:
+#
 # - The Axes can be positioned manually in relative coordinates using
 #   `~matplotlib.figure.Figure.add_axes`.
 # - A gridspec can be used to create the layout
@@ -120,7 +121,8 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.figure.Figure.subplot_mosaic`
-#    - `matplotlib.figure.Figure.add_gridspec`
+#    - `matplotlib.pyplot.subplot_mosaic`
+#    - `matplotlib.figure.Figure.add_subplot`
 #    - `matplotlib.axes.Axes.inset_axes`
 #    - `matplotlib.axes.Axes.scatter`
 #    - `matplotlib.axes.Axes.hist`
