@@ -8,41 +8,64 @@ Aligning xlabel, ylabel, and title using `.Figure.align_xlabels`,
 
 `.Figure.align_labels` wraps the x and y label functions.
 
-Note that the xlabel "XLabel1 1" would normally be much closer to the
-x-axis, "YLabel0 0" would be much closer to the y-axis, and title
-"Title0 0" would be much closer to the top of their respective axes.
+We align the xlabels and ylabels using short calls to `.Figure.align_xlabels`
+and `.Figure.align_ylabels`. We also show a manual way to align the ylabels
+using the `~.Axis.set_label_coords` method of the yaxis object. Note this requires
+knowing a good offset value which is hardcoded.
+
+.. redirect-from:: /gallery/pyplots/align_ylabels
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig, axs = plt.subplots(2, 2, layout='constrained')
+fig, axs = plt.subplots(2, 3, figsize=(8.9, 5.5),
+                        layout='constrained', gridspec_kw={'wspace': 0.1})
 
-ax = axs[0][0]
-ax.plot(np.arange(0, 1e6, 1000))
-ax.set_title('Title0 0')
-ax.set_ylabel('YLabel0 0')
+# add sample data and labels
+for ax in axs.flat:
+    scale = 2000 if ax.get_subplotspec().is_first_row() else 1
+    ax.plot(scale * (1 - np.exp(-np.linspace(0, 5, 100))))
+    if ax.get_subplotspec().is_last_row():
+        ax.set_xlabel('xlabel', bbox=dict(facecolor='yellow', pad=5, alpha=0.2))
+    ax.set_ylabel('ylabel', bbox=dict(facecolor='yellow', pad=5, alpha=0.2))
+    ax.set_ylim(0, scale)
 
-ax = axs[0][1]
-ax.plot(np.arange(1., 0., -0.1) * 2000., np.arange(1., 0., -0.1))
-ax.set_title('Title0 1')
-ax.xaxis.tick_top()
-ax.set_xticks(ax.get_xticks())
-ax.tick_params(axis='x', rotation=55, rotation_mode='xtick')
+# Modify ticks to get different margins in some plots
+axs[0, 0].xaxis.tick_top()
+axs[1, 2].tick_params(axis='x', rotation=55)
+axs[0, 0].set_title('ylabels not aligned')
 
+# Align labels
+fig.align_titles()            # Align titles
+fig.align_xlabels()           # Align all x-axis labels
+fig.align_ylabels(axs[:, 1])  # Align only the second column's y-labels
+axs[0, 1].set_title('fig.align_ylabels()')
 
-for i in range(2):
-    ax = axs[1][i]
-    ax.plot(np.arange(1., 0., -0.1) * 2000., np.arange(1., 0., -0.1))
-    ax.set_ylabel('YLabel1 %d' % i)
-    ax.set_xlabel('XLabel1 %d' % i)
-    if i == 0:
-        ax.set_xticks(ax.get_xticks())
-        ax.tick_params(axis='x', rotation=55, rotation_mode='xtick')
-
-fig.align_labels()  # same as fig.align_xlabels(); fig.align_ylabels()
-fig.align_titles()
+# Manually adjust y-labels for the third column
+for ax in axs[:, 2]:
+    ax.yaxis.set_label_coords(-0.3, 0.5)
+axs[0, 2].set_title('ylabels manually aligned')
 
 plt.show()
+
+
+# %%
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.figure.Figure.align_xlabels`
+#    - `matplotlib.figure.Figure.align_ylabels`
+#    - `matplotlib.figure.Figure.align_labels`
+#    - `matplotlib.figure.Figure.align_titles`
+#    - `matplotlib.axis.Axis.set_label_coords`
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
+#    - `matplotlib.axes.Axes.set_title`
+#    - `matplotlib.axes.Axes.set_ylabel`
+#    - `matplotlib.axes.Axes.set_ylim`
 
 # %%
 # .. tags::
