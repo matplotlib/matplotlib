@@ -318,15 +318,27 @@ chat room and for community questions reach out at community_.
 Choose an issue
 ===============
 
-In general, the Matplotlib project does not assign issues. Issues are
-"assigned" or "claimed" by opening a PR; there is no other assignment
-mechanism. If you have opened such a PR, please comment on the issue thread to
-avoid duplication of work. Please check if there is an existing PR for the
-issue you are addressing. If there is, try to work with the author by
-submitting reviews of their code or commenting on the PR rather than opening
-a new PR; duplicate PRs are subject to being closed.  However, if the existing
-PR is an outline, unlikely to work, or stalled, and the original author is
-unresponsive, feel free to open a new PR referencing the old one.
+In general, the Matplotlib project does not assign issues. You do not need to
+ask whether you can work on an issue. Nevertheless, we encourage following these
+guidelines to prevent duplicated work:
+
+If there is an existing pull request (PR) for the issue, try to work with the PR
+author by submitting reviews of their code or commenting on the PR rather than
+opening a new PR; duplicate PRs may be closed.  However, if the existing
+PR has stalled, and the original author is unresponsive, feel free to open a new
+PR referencing the old one.
+
+If there is no existing PR and it's not obvious that somebody else is working on
+the topic - either by recent discussion or explicit statement, you can start
+working on it right away.
+
+You may optionally leave a comment "I've started working on this"; please only do
+this if you actually work on it, do not use this as reservation because you would
+like to work on it tomorrow or later. Such a comment is not a formal reservation
+or assignment. It's just a way to prevent duplicate work. If there's no follow-up
+discussion or PR within a reasonable time (typically 2 days), we assume that the
+interest has declined, and anybody is free to pick up the topic.
+
 
 .. _how-to-pull-request:
 
