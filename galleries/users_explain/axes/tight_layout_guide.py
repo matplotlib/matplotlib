@@ -12,7 +12,7 @@ How to use tight-layout to fit plots within your figure cleanly.
 .. tip::
 
    *tight_layout* was the first layout engine in Matplotlib. The more modern
-   and more capable :ref:`constrained_layout <constrainedlayout_guide>` should
+   and more capable :ref:`Constrained Layout <constrainedlayout_guide>` should
    typically be used instead.
 
 *tight_layout* automatically adjusts subplot params so that the
