@@ -75,22 +75,25 @@ def test_tinypages(tmp_path):
     # Plot 13 shows close-figs in action
     assert filecmp.cmp(range_4, plot_file(13))
     # Plot 14 has included source
-    html_contents = (html_dir / 'some_plots.html').read_bytes()
+    html_contents = (html_dir / 'some_plots.html').read_text(encoding='utf-8')
 
-    assert b'# Only a comment' in html_contents
+    assert '# Only a comment' in html_contents
     # check plot defined in external file.
     assert filecmp.cmp(range_4, img_dir / 'range4.png')
     assert filecmp.cmp(range_6, img_dir / 'range6_range6.png')
     # check if figure caption made it into html file
-    assert b'This is the caption for plot 15.' in html_contents
-    # check if figure caption using :caption: made it into html file
-    assert b'Plot 17 uses the caption option.' in html_contents
+    assert 'This is the caption for plot 15.' in html_contents
+    # check if figure caption using :caption: made it into html file (because this plot
+    # doesn't use srcset, the caption preserves newlines in the output.)
+    assert 'Plot 17 uses the caption option,\nwith multi-line input.' in html_contents
+    # check if figure alt text using :alt: made it into html file
+    assert 'Plot 17 uses the alt option, with multi-line input.' in html_contents
     # check if figure caption made it into html file
-    assert b'This is the caption for plot 18.' in html_contents
+    assert 'This is the caption for plot 18.' in html_contents
     # check if the custom classes made it into the html file
-    assert b'plot-directive my-class my-other-class' in html_contents
+    assert 'plot-directive my-class my-other-class' in html_contents
     # check that the multi-image caption is applied twice
-    assert html_contents.count(b'This caption applies to both plots.') == 2
+    assert html_contents.count('This caption applies to both plots.') == 2
     # Plot 21 is range(6) plot via an include directive. But because some of
     # the previous plots are repeated, the argument to plot_file() is only 17.
     assert filecmp.cmp(range_6, plot_file(17))
