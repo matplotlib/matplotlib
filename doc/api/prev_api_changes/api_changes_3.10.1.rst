@@ -1,3 +1,9 @@
+API Changes for 3.10.1
+======================
+
+Behaviour
+---------
+
 *alpha* parameter handling on images
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
