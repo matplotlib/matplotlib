@@ -336,6 +336,11 @@ void FT2Font::set_size(double ptsize, double dpi)
     }
 }
 
+void FT2Font::set_features(std::vector<std::string> features)
+{
+    feature_tags = std::move(features);
+}
+
 void FT2Font::set_charmap(int i)
 {
     if (i >= face->num_charmaps) {

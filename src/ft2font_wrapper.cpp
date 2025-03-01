@@ -534,6 +534,31 @@ PyFT2Font_set_size(PyFT2Font *self, double ptsize, double dpi)
     self->x->set_size(ptsize, dpi);
 }
 
+const char *PyFT2Font_set_features__doc__ = R"""(
+    Set the font feature tags used for the font.
+
+    Parameters
+    ----------
+    features : tuple[str, ...]
+        The font feature tags to use for the font.
+
+        Available font feature tags may be found at
+        https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
+)""";
+
+static void
+PyFT2Font_set_features(PyFT2Font *self, py::object features_obj)
+{
+    std::vector<std::string> features;
+    if (!features_obj.is_none()) {
+        auto features_list = py::cast<py::tuple>(features_obj);
+        for (auto &feature : features_list) {
+            features.push_back(feature.cast<std::string>());
+        }
+    }
+    self->x->set_features(std::move(features));
+}
+
 const char *PyFT2Font_set_charmap__doc__ = R"""(
     Make the i-th charmap current.
 
@@ -1744,6 +1769,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("clear", &PyFT2Font_clear, PyFT2Font_clear__doc__)
         .def("set_size", &PyFT2Font_set_size, "ptsize"_a, "dpi"_a,
              PyFT2Font_set_size__doc__)
+        .def("set_features", &PyFT2Font_set_features, "features"_a,
+             PyFT2Font_set_features__doc__)
         .def("set_charmap", &PyFT2Font_set_charmap, "i"_a,
              PyFT2Font_set_charmap__doc__)
         .def("select_charmap", &PyFT2Font_select_charmap, "i"_a,
