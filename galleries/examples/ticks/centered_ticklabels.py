@@ -7,8 +7,8 @@ Tick labels are aligned relative to their associated tick, and are by default
 centered.
 
 However, there is no direct way to center the labels between ticks. To fake
-this behavior, one can a place a minor tick in between the major ticks. Then
-label the minor tick and hide the minor tick lines and the major tick labels.
+this behavior, one can place a minor tick in between the major ticks. Then
+label the minor tick, and hide the minor tick lines and the major tick labels.
 
 Here is an example that labels the months, centered between the ticks.
 """
