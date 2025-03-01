@@ -1204,6 +1204,19 @@ def test_ytick_rotation_mode():
     plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)
 
 
+@image_comparison(baseline_images=['features.png'], remove_text=False, style='mpl20')
+def test_text_features():
+    fig = plt.figure(figsize=(5, 1.5))
+    t = fig.text(0, 0.7, 'Default: fi ffi fl st', fontsize=32)
+    assert t.get_fontfeatures() is None
+    t = fig.text(0, 0.4, 'Disabled: fi ffi fl st', fontsize=32,
+                 fontfeatures=['-liga'])
+    assert t.get_fontfeatures() == ('-liga', )
+    t = fig.text(0, 0.1, 'Discretionary: fi ffi fl st', fontsize=32)
+    t.set_fontfeatures(['dlig'])
+    assert t.get_fontfeatures() == ('dlig', )
+
+
 @pytest.mark.parametrize(
     'input, match',
     [

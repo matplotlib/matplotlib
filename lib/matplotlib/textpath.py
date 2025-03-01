@@ -69,7 +69,7 @@ class TextToPath:
         d /= 64.0
         return w * scale, h * scale, d * scale
 
-    def get_text_path(self, prop, s, ismath=False, *, language=None):
+    def get_text_path(self, prop, s, ismath=False, *, features=None, language=None):
         """
         Convert text *s* to path (a tuple of vertices and codes for
         matplotlib.path.Path).
@@ -112,8 +112,8 @@ class TextToPath:
             glyph_info, glyph_map, rects = self.get_glyphs_tex(prop, s)
         elif not ismath:
             font = self._get_font(prop)
-            glyph_info, glyph_map, rects = self.get_glyphs_with_font(font, s,
-                                                                     language=language)
+            glyph_info, glyph_map, rects = self.get_glyphs_with_font(
+                font, s, features=features, language=language)
         else:
             glyph_info, glyph_map, rects = self.get_glyphs_mathtext(prop, s)
 
@@ -134,7 +134,8 @@ class TextToPath:
         return verts, codes
 
     def get_glyphs_with_font(self, font, s, glyph_map=None,
-                             return_new_glyphs_only=False, *, language=None):
+                             return_new_glyphs_only=False, *, features=None,
+                             language=None):
         """
         Convert string *s* to vertices and codes using the provided ttf font.
         """
@@ -149,7 +150,7 @@ class TextToPath:
 
         xpositions = []
         glyph_ids = []
-        for item in _text_helpers.layout(s, font, language=language):
+        for item in _text_helpers.layout(s, font, features=features, language=language):
             char_id = self._get_char_id(item.ft_object, ord(item.char))
             glyph_ids.append(char_id)
             xpositions.append(item.x)

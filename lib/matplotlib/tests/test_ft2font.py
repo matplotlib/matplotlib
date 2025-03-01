@@ -207,6 +207,19 @@ def test_ft2font_set_size():
     assert font.get_width_height() == tuple(pytest.approx(2 * x, 1e-1) for x in orig)
 
 
+def test_ft2font_features():
+    # Smoke test that these are accepted as intended.
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    font.set_text('foo', features=None)  # unset
+    font.set_text('foo', features=['calt', 'dlig'])  # list
+    font.set_text('foo', features=('calt', 'dlig'))  # tuple
+    with pytest.raises(TypeError):
+        font.set_text('foo', features=123)
+    with pytest.raises(TypeError):
+        font.set_text('foo', features=[123, 456])
+
+
 def test_ft2font_charmaps():
     def enc(name):
         # We don't expose the encoding enum from FreeType, but can generate it here.
