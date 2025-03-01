@@ -1080,7 +1080,7 @@ def test_facecolor_none_force_edgecolor_true():
     assert rect.get_edgecolor() == (0.0, 0.0, 0.0, 1)
 
 
-def test_facecolor_none_edgecolor_force_edgcolor():
+def test_facecolor_none_edgecolor_force_edgecolor():
 
     # Case 1:force_edgecolor =False -> rcParams['patch.edgecolor'] should NOT be applied
     rcParams['patch.force_edgecolor'] = False
