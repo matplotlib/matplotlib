@@ -662,11 +662,26 @@ class TestDatetimePlotting:
             ax2.plot_date(x_dates, y_ranges)
             ax3.plot_date(x_ranges, y_dates)
 
-    @pytest.mark.xfail(reason="Test for quiver not written yet")
     @mpl.style.context("default")
     def test_quiver(self):
-        fig, ax = plt.subplots()
-        ax.quiver(...)
+        threshold = 10
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout="constrained")
+
+        x_dates = np.array(
+            [datetime.datetime(2024, 1, 1+delta) for delta in range(threshold)]
+        )
+        y_dates = np.array(
+            [datetime.datetime(2024, 2, 1+delta) for delta in range(threshold)]
+        )
+        x_ranges = np.arange(threshold)
+        y_ranges = np.arange(threshold)
+
+        U = np.sin(np.arange(len(x_dates)))
+        V = np.cos(np.arange(len(y_dates)))
+
+        ax1.quiver(x_dates, y_ranges, U, V, scale=20)
+        ax2.quiver(x_ranges, y_dates, U, V, scale=20)
+        ax3.quiver(x_dates, y_dates, U, V, scale=20)
 
     @mpl.style.context("default")
     def test_scatter(self):
