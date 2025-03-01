@@ -2884,8 +2884,10 @@ class Axes(_AxesBase):
               (useful for stacked bars, i.e.,
               :doc:`/gallery/lines_bars_and_markers/bar_label_demo`)
 
-        padding : float, default: 0
+        padding : float or array-like, default: 0
             Distance of label from the end of the bar, in points.
+            If an array-like is provided, the padding values are applied
+            to each label individually. Must have the same length as container.
 
         **kwargs
             Any remaining keyword arguments are passed through to
@@ -2935,8 +2937,23 @@ class Axes(_AxesBase):
 
         annotations = []
 
-        for bar, err, dat, lbl in itertools.zip_longest(
-                bars, errs, datavalues, labels
+        try:
+            if not isinstance(padding, (str, bytes)) and np.iterable(padding):
+                # if padding iterable, check length
+                padding_array = np.asarray(padding)
+                if len(padding_array) != len(bars):
+                    raise ValueError(
+                        f"padding must be of length {len(bars)} when passed as a sequence")
+                padding_list = list(padding_array)
+            else:
+                # single value, apply to all labels
+                padding_list = [padding] * len(bars)
+        except (TypeError, ValueError):
+            # not iterable or wrong length, use scalar padding
+            padding_list = [padding] * len(bars)
+
+        for bar, err, dat, lbl, pad in itertools.zip_longest(
+                bars, errs, datavalues, labels, padding_list
         ):
             (x0, y0), (x1, y1) = bar.get_bbox().get_points()
             xc, yc = (x0 + x1) / 2, (y0 + y1) / 2
@@ -2976,10 +2993,10 @@ class Axes(_AxesBase):
 
             if orientation == "vertical":
                 y_direction = -1 if y_inverted else 1
-                xytext = 0, y_direction * sign(dat) * padding
+                xytext = 0, y_direction * sign(dat) * pad
             else:  # horizontal
                 x_direction = -1 if x_inverted else 1
-                xytext = x_direction * sign(dat) * padding, 0
+                xytext = x_direction * sign(dat) * pad, 0
 
             if label_type == "center":
                 ha, va = "center", "center"
