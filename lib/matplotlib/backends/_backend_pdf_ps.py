@@ -181,6 +181,7 @@ class RendererPDFPSBase(RendererBase):
             font = font_manager.get_font(fnames)
             font.clear()
             font.set_size(prop.get_size_in_points(), 72)
+            font.set_features(prop.get_features())
             return font
         except RuntimeError:
             logging.getLogger(__name__).warning(
