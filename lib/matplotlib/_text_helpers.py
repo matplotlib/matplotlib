@@ -26,7 +26,7 @@ def warn_on_missing_glyph(codepoint, fontnames):
         f"missing from font(s) {fontnames}.")
 
 
-def layout(string, font, *, kern_mode=Kerning.DEFAULT, language=None):
+def layout(string, font, *, features=None, kern_mode=Kerning.DEFAULT, language=None):
     """
     Render *string* with *font*.
 
@@ -39,6 +39,8 @@ def layout(string, font, *, kern_mode=Kerning.DEFAULT, language=None):
         The string to be rendered.
     font : FT2Font
         The font.
+    features : tuple of str, optional
+        The font features to apply to the text.
     kern_mode : Kerning
         A FreeType kerning mode.
     language : str, optional
@@ -51,7 +53,7 @@ def layout(string, font, *, kern_mode=Kerning.DEFAULT, language=None):
     """
     x = 0
     prev_glyph_index = None
-    char_to_font = font._get_fontmap(string)  # TODO: Pass in language.
+    char_to_font = font._get_fontmap(string)  # TODO: Pass in features and language.
     base_font = font
     for char in string:
         # This has done the fallback logic

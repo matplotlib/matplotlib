@@ -320,7 +320,7 @@ void FT2Font::set_kerning_factor(int factor)
 
 std::vector<raqm_glyph_t> FT2Font::layout(
     std::u32string_view text, FT_Int32 flags,
-    LanguageType languages,
+    std::optional<std::vector<std::string>> features, LanguageType languages,
     std::set<FT_String*>& glyph_seen_fonts)
 {
     clear();
@@ -343,6 +343,13 @@ std::vector<raqm_glyph_t> FT2Font::layout(
     }
     if (!raqm_set_freetype_load_flags(rq, flags)) {
         throw std::runtime_error("failed to set text flags for layout");
+    }
+    if (features) {
+        for (auto const& feature : *features) {
+            if (!raqm_add_font_feature(rq, feature.c_str(), feature.size())) {
+                throw std::runtime_error("failed to set font feature {}"_s.format(feature));
+            }
+        }
     }
     if (languages) {
         for (auto & [lang_str, start, end] : *languages) {
@@ -417,6 +424,14 @@ std::vector<raqm_glyph_t> FT2Font::layout(
         if (!raqm_set_freetype_load_flags(rq, flags)) {
             throw std::runtime_error("failed to set text flags for layout");
         }
+        if (features) {
+            for (auto const& feature : *features) {
+                if (!raqm_add_font_feature(rq, feature.c_str(), feature.size())) {
+                    throw std::runtime_error(
+                        "failed to set font feature {}"_s.format(feature));
+                }
+            }
+        }
         if (languages) {
             for (auto & [lang_str, start, end] : *languages) {
                 if (!raqm_set_language(rq, lang_str.c_str(), start, end - start)) {
@@ -440,7 +455,7 @@ std::vector<raqm_glyph_t> FT2Font::layout(
 
 void FT2Font::set_text(
     std::u32string_view text, double angle, FT_Int32 flags,
-    LanguageType languages,
+    std::optional<std::vector<std::string>> features, LanguageType languages,
     std::vector<double> &xys)
 {
     FT_Matrix matrix; /* transformation matrix */
@@ -457,7 +472,7 @@ void FT2Font::set_text(
     matrix.yy = (FT_Fixed)cosangle;
 
     std::set<FT_String*> glyph_seen_fonts;
-    auto rq_glyphs = layout(text, flags, languages, glyph_seen_fonts);
+    auto rq_glyphs = layout(text, flags, features, languages, glyph_seen_fonts);
 
     bbox.xMin = bbox.yMin = 32000;
     bbox.xMax = bbox.yMax = -32000;

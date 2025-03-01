@@ -249,6 +249,7 @@ class FT2Font(Buffer):
         angle: float = ...,
         flags: LoadFlags = ...,
         *,
+        features: tuple[str] | None = ...,
         language: str | list[tuple[str, int, int]] | None = ...,
     ) -> NDArray[np.float64]: ...
     @property
