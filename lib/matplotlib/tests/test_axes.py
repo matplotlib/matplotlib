@@ -7003,6 +7003,7 @@ def test_loglog_nonpos():
                 ax.set_xscale("log", nonpositive=mcx)
             if mcy:
                 ax.set_yscale("log", nonpositive=mcy)
+        ax.set_yticks([1e3, 1e7])  # Backcompat tick selection.
 
 
 @mpl.style.context('default')
@@ -7132,8 +7133,8 @@ def test_auto_numticks_log():
     fig, ax = plt.subplots()
     mpl.rcParams['axes.autolimit_mode'] = 'round_numbers'
     ax.loglog([1e-20, 1e5], [1e-16, 10])
-    assert (np.log10(ax.get_xticks()) == np.arange(-26, 18, 4)).all()
-    assert (np.log10(ax.get_yticks()) == np.arange(-20, 10, 3)).all()
+    assert_array_equal(np.log10(ax.get_xticks()), np.arange(-26, 11, 4))
+    assert_array_equal(np.log10(ax.get_yticks()), np.arange(-20, 5, 3))
 
 
 def test_broken_barh_empty():
