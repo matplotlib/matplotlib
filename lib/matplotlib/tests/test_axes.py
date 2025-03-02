@@ -895,22 +895,6 @@ def test_single_point():
     ax2.plot('b', 'b', 'o', data=data)
 
 
-@image_comparison(['single_date.png'], style='mpl20')
-def test_single_date():
-
-    # use former defaults to match existing baseline image
-    plt.rcParams['axes.formatter.limits'] = -7, 7
-    dt = mdates.date2num(np.datetime64('0000-12-31'))
-
-    time1 = [721964.0]
-    data1 = [-65.54]
-
-    fig, ax = plt.subplots(2, 1)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        ax[0].plot_date(time1 + dt, data1, 'o', color='r')
-    ax[1].plot(time1, data1, 'o', color='r')
-
-
 @check_figures_equal(extensions=["png"])
 def test_shaped_data(fig_test, fig_ref):
     row = np.arange(10).reshape((1, -1))
@@ -7297,63 +7281,6 @@ def test_bar_uint8():
     b = plt.bar(np.array(xs, dtype=np.uint8), [2, 3, 4, 5], align="edge")
     for (patch, x) in zip(b.patches, xs):
         assert patch.xy[0] == x
-
-
-@image_comparison(['date_timezone_x.png'], tol=1.0)
-def test_date_timezone_x():
-    # Tests issue 5575
-    time_index = [datetime.datetime(2016, 2, 22, hour=x,
-                                    tzinfo=dateutil.tz.gettz('Canada/Eastern'))
-                  for x in range(3)]
-
-    # Same Timezone
-    plt.figure(figsize=(20, 12))
-    plt.subplot(2, 1, 1)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
-
-    # Different Timezone
-    plt.subplot(2, 1, 2)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date(time_index, [3] * 3, tz='UTC')
-
-
-@image_comparison(['date_timezone_y.png'])
-def test_date_timezone_y():
-    # Tests issue 5575
-    time_index = [datetime.datetime(2016, 2, 22, hour=x,
-                                    tzinfo=dateutil.tz.gettz('Canada/Eastern'))
-                  for x in range(3)]
-
-    # Same Timezone
-    plt.figure(figsize=(20, 12))
-    plt.subplot(2, 1, 1)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date([3] * 3, time_index, tz='Canada/Eastern', xdate=False, ydate=True)
-
-    # Different Timezone
-    plt.subplot(2, 1, 2)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
-
-
-@image_comparison(['date_timezone_x_and_y.png'], tol=1.0)
-def test_date_timezone_x_and_y():
-    # Tests issue 5575
-    UTC = datetime.timezone.utc
-    time_index = [datetime.datetime(2016, 2, 22, hour=x, tzinfo=UTC)
-                  for x in range(3)]
-
-    # Same Timezone
-    plt.figure(figsize=(20, 12))
-    plt.subplot(2, 1, 1)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
-
-    # Different Timezone
-    plt.subplot(2, 1, 2)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
 
 
 @image_comparison(['axisbelow.png'], remove_text=True)

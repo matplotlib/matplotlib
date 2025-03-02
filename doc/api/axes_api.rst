@@ -54,7 +54,6 @@ Basic
    Axes.errorbar
    Axes.scatter
 
-   Axes.plot_date
    Axes.step
 
    Axes.loglog
