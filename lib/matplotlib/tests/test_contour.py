@@ -399,8 +399,11 @@ def test_contourf_log_extension():
     levels = np.power(10., levels_exp)
 
     # original data
+    # FIXME: Force tick locations for now for backcompat with old test
+    # (log-colorbar extension is not really optimal anyways).
     c1 = ax1.contourf(data,
-                      norm=LogNorm(vmin=data.min(), vmax=data.max()))
+                      norm=LogNorm(vmin=data.min(), vmax=data.max()),
+                      locator=mpl.ticker.FixedLocator(10.**np.arange(-8, 12, 2)))
     # just show data in levels
     c2 = ax2.contourf(data, levels=levels,
                       norm=LogNorm(vmin=levels.min(), vmax=levels.max()),
