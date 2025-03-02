@@ -136,6 +136,9 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
+
+        self.exsit_math = False
+
         self._reset_visual_defaults(
             text=text,
             color=color,
@@ -822,6 +825,9 @@ class Text(Artist):
         if self.get_text() == '':
             return
 
+        if cbook.is_math_text(self._text):
+            self.exsit_math = True
+
         renderer.open_group('text', self.get_gid())
 
         with self._cm_set(text=self._get_wrapped_text()):
@@ -883,7 +889,7 @@ class Text(Artist):
                 else:
                     textrenderer.draw_text(gc, x, y, clean_line,
                                            self._fontproperties, angle,
-                                           ismath=ismath, mtext=mtext)
+                                           ismath=self.exsit_math, mtext=mtext)
 
         gc.restore()
         renderer.close_group('text')
