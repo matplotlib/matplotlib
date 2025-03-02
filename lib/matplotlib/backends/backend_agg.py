@@ -74,6 +74,9 @@ class RendererAgg(RendererBase):
 
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
 
+        self.exist_math = False
+        self.mathtext_width = 0.0
+
     def __getstate__(self):
         # We only want to preserve the init keywords of the Renderer.
         # Anything else can be re-created.
@@ -176,6 +179,8 @@ class RendererAgg(RendererBase):
             self.mathtext_parser.parse(s, self.dpi, prop,
                                        antialiased=gc.get_antialiased())
 
+        self.mathtext_width = width
+
         xd = descent * sin(radians(angle))
         yd = descent * cos(radians(angle))
         x = round(x + ox + xd)
@@ -185,6 +190,9 @@ class RendererAgg(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
         if ismath:
+            self.exist_math = True
+            return self.draw_mathtext(gc, x, y, s, prop, angle)
+        if self.exist_math:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         font = self._prepare_font(prop)
         # We pass '0' for angle here, since it will be rotated (in raster

@@ -378,38 +378,107 @@ class Text(Artist):
             dpi=self.get_figure(root=True).dpi)
         min_dy = (lp_h - lp_d) * self._linespacing
 
-        for i, line in enumerate(lines):
-            clean_line, ismath = self._preprocess_math(line)
-            if clean_line:
-                w, h, d = _get_text_metrics_with_cache(
-                    renderer, clean_line, self._fontproperties,
-                    ismath=ismath, dpi=self.get_figure(root=True).dpi)
-            else:
-                w = h = d = 0
+        # test
+        exist_math = False
+        c_lines = lines.copy()
+        for i, line in enumerate(c_lines):
+            _, exist_math = self._preprocess_math(line)
+            if exist_math:
+                break
+        
+        if exist_math:
+            for i, line in enumerate(lines):
+                clean_line, _ = self._preprocess_math(line)
+                if clean_line:
+                    w, h, d = _get_text_metrics_with_cache(
+                        renderer, clean_line, self._fontproperties,
+                        ismath=exist_math, dpi=self.get_figure(root=True).dpi)
+                else:
+                    w = h = d = 0
+
+                h = max(h, lp_h)
+                d = max(d, lp_d)
+
+                ws.append(w)
+                hs.append(h)
+
+                # Metrics of the last line that are needed later:
+                baseline = (h - d) - thisy
+
+                if i == 0:
+                    # position at baseline
+                    thisy = -(h - d)
+                else:
+                    # put baseline a good distance from bottom of previous line
+                    thisy -= max(min_dy, (h - d) * self._linespacing)
+
+                xs.append(thisx)  # == 0.
+                ys.append(thisy)
+
+                thisy -= d
+        else:
+            for i, line in enumerate(lines):
+                clean_line, ismath = self._preprocess_math(line)
+                if clean_line:
+                    w, h, d = _get_text_metrics_with_cache(
+                        renderer, clean_line, self._fontproperties,
+                        ismath=ismath, dpi=self.get_figure(root=True).dpi)
+                else:
+                    w = h = d = 0
+            
+                h = max(h, lp_h)
+                d = max(d, lp_d)
+
+                ws.append(w)
+                hs.append(h)
+
+                # Metrics of the last line that are needed later:
+                baseline = (h - d) - thisy
+
+                if i == 0:
+                    # position at baseline
+                    thisy = -(h - d)
+                else:
+                    # put baseline a good distance from bottom of previous line
+                    thisy -= max(min_dy, (h - d) * self._linespacing)
+
+                xs.append(thisx)  # == 0.
+                ys.append(thisy)
+
+                thisy -= d
+
+        # for i, line in enumerate(lines):
+        #     clean_line, ismath = self._preprocess_math(line)
+        #     if clean_line:
+        #         w, h, d = _get_text_metrics_with_cache(
+        #             renderer, clean_line, self._fontproperties,
+        #             ismath=ismath, dpi=self.get_figure(root=True).dpi)
+        #     else:
+        #         w = h = d = 0
 
             # For multiline text, increase the line spacing when the text
             # net-height (excluding baseline) is larger than that of a "l"
             # (e.g., use of superscripts), which seems what TeX does.
-            h = max(h, lp_h)
-            d = max(d, lp_d)
+            # h = max(h, lp_h)
+            # d = max(d, lp_d)
 
-            ws.append(w)
-            hs.append(h)
+            # ws.append(w)
+            # hs.append(h)
 
-            # Metrics of the last line that are needed later:
-            baseline = (h - d) - thisy
+            # # Metrics of the last line that are needed later:
+            # baseline = (h - d) - thisy
 
-            if i == 0:
-                # position at baseline
-                thisy = -(h - d)
-            else:
-                # put baseline a good distance from bottom of previous line
-                thisy -= max(min_dy, (h - d) * self._linespacing)
+            # if i == 0:
+            #     # position at baseline
+            #     thisy = -(h - d)
+            # else:
+            #     # put baseline a good distance from bottom of previous line
+            #     thisy -= max(min_dy, (h - d) * self._linespacing)
 
-            xs.append(thisx)  # == 0.
-            ys.append(thisy)
+            # xs.append(thisx)  # == 0.
+            # ys.append(thisy)
 
-            thisy -= d
+            # thisy -= d
 
         # Metrics of the last line that are needed later:
         descent = d
