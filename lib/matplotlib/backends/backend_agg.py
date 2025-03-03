@@ -74,7 +74,10 @@ class RendererAgg(RendererBase):
 
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
 
+        # Add `exist_math` for detecting whether the input `text` contains math text.
         self.exist_math = False
+        # Add `mathtext_width` for future use, in order to resolve the issue by
+        # adjusting the math text size/bbox
         self.mathtext_width = 0.0
 
     def __getstate__(self):
@@ -190,9 +193,11 @@ class RendererAgg(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
         if ismath:
+            # If there's math text, the text object itself is a "math text" object
             self.exist_math = True
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         if self.exist_math:
+            # Once detecting a line contains math text, the next line is also handled as math text
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         font = self._prepare_font(prop)
         # We pass '0' for angle here, since it will be rotated (in raster
