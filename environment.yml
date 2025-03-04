@@ -11,6 +11,8 @@ channels:
 dependencies:
   # runtime dependencies
   - cairocffi
+  - c-compiler
+  - cxx-compiler
   - contourpy>=1.0.1
   - cycler>=0.10.0
   - fonttools>=4.22.0
