@@ -597,7 +597,7 @@ def test_colorbar_renorm():
     norm = LogNorm(z.min(), z.max())
     im.set_norm(norm)
     np.testing.assert_allclose(cbar.ax.yaxis.get_majorticklocs(),
-                               np.logspace(-10, 7, 18))
+                               np.logspace(-9, 6, 16))
     # note that set_norm removes the FixedLocator...
     assert np.isclose(cbar.vmin, z.min())
     cbar.set_ticks([1, 2, 3])
