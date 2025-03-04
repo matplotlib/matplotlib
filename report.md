@@ -145,12 +145,12 @@ Optional (point 5): considered for acceptance (passes all automated checks).
 
 ## Test results
 
-For the original test results, you can refer to [`this branch`](https://github.com/floralsea/matplotlib-dd2480-group21-lab4/tree/docs/update-report-xzuo). Since the test results were rendered into **images**, the test results 
-were under [`./result_images`](https://github.com/floralsea/matplotlib-dd2480-group21-lab4/tree/docs/update-report-xzuo/result_images). Although there were **fails** when we deployed it locally, these fails didn't affect our target issue. To be specific, [`test_agg`](https://github.com/floralsea/matplotlib-dd2480-group21-lab4/tree/docs/update-report-xzuo/result_images/test_agg) and [`test_text`](https://github.com/floralsea/matplotlib-dd2480-group21-lab4/tree/docs/update-report-xzuo/result_images/test_text) are directly affected by our refactoring.
+For the original test results, you can refer to [`./result_images`](https://github.com/floralsea/matplotlib-dd2480-group21-lab4/tree/main/result_images). Since the test results were rendered into **images**, the test results 
+were under [`./result_images`](https://github.com/floralsea/matplotlib-dd2480-group21-lab4/tree/main/result_images). Although there were **fails** when we deployed it locally, these fails didn't affect our target issue. To be specific, [`test_agg`](https://github.com/floralsea/matplotlib-dd2480-group21-lab4/tree/main/result_images/test_agg) and [`test_text`](https://github.com/floralsea/matplotlib-dd2480-group21-lab4/tree/main/result_images/test_text) are directly affected by our refactoring.
 
 Unfortunately, after our refactoring, we failed to pass the origianl tests.
 
-For the test results
+For the test results, you can refer to [./resources](https://github.com/floralsea/matplotlib-dd2480-group21-lab4/tree/main/resources).
 
 ## UML class diagram and its description
 
