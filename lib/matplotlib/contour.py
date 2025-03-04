@@ -24,6 +24,7 @@ import matplotlib.font_manager as font_manager
 import matplotlib.cbook as cbook
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
+from . import artist
 
 
 def _contour_labeler_event_handler(cs, inline, inline_spacing, event):
@@ -767,6 +768,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 edgecolor="none",
                 # Default zorder taken from Collection
                 zorder=kwargs.pop("zorder", 1),
+                rasterized=kwargs.pop("rasterized", False),
             )
 
         else:
@@ -1254,6 +1256,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         return (i_level, segment, index, xmin, ymin, d2)
 
+    @artist.allow_rasterization
     def draw(self, renderer):
         paths = self._paths
         n_paths = len(paths)
@@ -1680,6 +1683,13 @@ clip_path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath`
 
 data : indexable object, optional
     DATA_PARAMETER_PLACEHOLDER
+
+rasterized : bool, optional
+    *Only applies to* `.contourf`.
+    Rasterize the contour plot when drawing vector graphics.  This can
+    speed up rendering and produce smaller files for large data sets.
+    See also :doc:`/gallery/misc/rasterization_demo`.
+
 
 Notes
 -----
