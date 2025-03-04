@@ -1,0 +1,283 @@
+%PDF-1.4
+%¬Ü «º
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+8 0 obj
+<< /Font 3 0 R /XObject 7 0 R /ExtGState 4 0 R /Pattern 5 0 R
+/Shading 6 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ] >>
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /Resources 8 0 R /MediaBox [ 0 0 576 432 ]
+/Contents 9 0 R /Annots 10 0 R >>
+endobj
+9 0 obj
+<< /Length 12 0 R >>
+stream
+/DeviceRGB CS
+/DeviceRGB cs
+1 j
+1 g 0 j 0 w 1 G 1 g
+0 0 m
+576 0 l
+576 432 l
+0 432 l
+h
+
+f
+/A1 gs 0 G
+72 43.2 m
+518.4 43.2 l
+518.4 388.8 l
+72 388.8 l
+h
+
+f
+q 72 43.2 446.4 345.6 re W n /A2 gs 2 J 1 j 0.5 w 0 0 1 RG /DeviceRGB cs
+72 216 m
+518.4 216 l
+
+S
+Q q /A2 gs 2 J 1 w 0 G /DeviceRGB cs
+72 43.2 m
+72 388.8 l
+
+S
+518.4 43.2 m
+518.4 388.8 l
+
+S
+72 43.2 m
+518.4 43.2 l
+
+S
+72 388.8 m
+518.4 388.8 l
+
+S
+0 J 0 g 1 j 0.5 w 0 g
+72 43.2 m
+72 47.2 l
+
+B
+72 388.8 m
+72 384.8 l
+
+B
+1 w
+BT /F1 8 Tf
+66.44 33.456 Td
+(0.0) Tj ET
+0.5 w
+161.28 43.2 m
+161.28 47.2 l
+
+B
+161.28 388.8 m
+161.28 384.8 l
+
+B
+1 w
+BT /F1 8 Tf
+155.72 33.456 Td
+(0.2) Tj ET
+0.5 w
+250.56 43.2 m
+250.56 47.2 l
+
+B
+250.56 388.8 m
+250.56 384.8 l
+
+B
+1 w
+BT /F1 8 Tf
+245 33.456 Td
+(0.4) Tj ET
+0.5 w
+339.84 43.2 m
+339.84 47.2 l
+
+B
+339.84 388.8 m
+339.84 384.8 l
+
+B
+1 w
+BT /F1 8 Tf
+334.28 33.456 Td
+(0.6) Tj ET
+0.5 w
+429.12 43.2 m
+429.12 47.2 l
+
+B
+429.12 388.8 m
+429.12 384.8 l
+
+B
+1 w
+BT /F1 8 Tf
+423.56 33.456 Td
+(0.8) Tj ET
+0.5 w
+518.4 43.2 m
+518.4 47.2 l
+
+B
+518.4 388.8 m
+518.4 384.8 l
+
+B
+1 w
+BT /F1 8 Tf
+512.84 33.456 Td
+(1.0) Tj ET
+0.5 w
+72 43.2 m
+76 43.2 l
+
+B
+518.4 43.2 m
+514.4 43.2 l
+
+B
+1 w
+BT /F1 8 Tf
+56.88 40.328 Td
+(0.0) Tj ET
+0.5 w
+72 112.32 m
+76 112.32 l
+
+B
+518.4 112.32 m
+514.4 112.32 l
+
+B
+1 w
+BT /F1 8 Tf
+56.88 109.448 Td
+(0.2) Tj ET
+0.5 w
+72 181.44 m
+76 181.44 l
+
+B
+518.4 181.44 m
+514.4 181.44 l
+
+B
+1 w
+BT /F1 8 Tf
+56.88 178.568 Td
+(0.4) Tj ET
+0.5 w
+72 250.56 m
+76 250.56 l
+
+B
+518.4 250.56 m
+514.4 250.56 l
+
+B
+1 w
+BT /F1 8 Tf
+56.88 247.688 Td
+(0.6) Tj ET
+0.5 w
+72 319.68 m
+76 319.68 l
+
+B
+518.4 319.68 m
+514.4 319.68 l
+
+B
+1 w
+BT /F1 8 Tf
+56.88 316.808 Td
+(0.8) Tj ET
+0.5 w
+72 388.8 m
+76 388.8 l
+
+B
+518.4 388.8 m
+514.4 388.8 l
+
+B
+1 w
+BT /F1 8 Tf
+56.88 385.928 Td
+(1.0) Tj ET
+BT /F1 14 Tf
+145.253 256.8212 Td
+(A three-line text positioned just above a blue line) Tj ET
+BT /F1 14 Tf
+105.332 241.8188 Td
+(and containing some French characters and the euro symbol:) Tj ET
+BT /F1 14 Tf
+213.195 218.898 Td
+("Merci pépé pour les 10 €") Tj ET
+BT /F1 9.6 Tf
+185.7648 393.8 Td
+(Test PDF backend with option use14corefonts=True) Tj ET
+Q
+
+endstream
+endobj
+12 0 obj
+2081
+endobj
+10 0 obj
+[ ]
+endobj
+13 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica
+/Encoding /WinAnsiEncoding >>
+endobj
+3 0 obj
+<< /F1 13 0 R >>
+endobj
+4 0 obj
+<< /A1 << /Type /ExtGState /CA 0 /ca 1 >>
+/A2 << /Type /ExtGState /CA 1 /ca 1 >> >>
+endobj
+5 0 obj
+<< >>
+endobj
+6 0 obj
+<< >>
+endobj
+7 0 obj
+<< >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [ 11 0 R ] /Count 1 >>
+endobj
+14 0 obj
+<< >>
+endobj
+xref
+0 15
+0000000000 65535 f 
+0000000016 00000 n 
+0000002798 00000 n 
+0000002604 00000 n 
+0000002636 00000 n 
+0000002735 00000 n 
+0000002756 00000 n 
+0000002777 00000 n 
+0000000065 00000 n 
+0000000330 00000 n 
+0000002486 00000 n 
+0000000208 00000 n 
+0000002465 00000 n 
+0000002506 00000 n 
+0000002858 00000 n 
+trailer
+<< /Size 15 /Root 1 0 R /Info 14 0 R >>
+startxref
+2880
+%%EOF
