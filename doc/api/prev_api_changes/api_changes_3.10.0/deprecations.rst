@@ -1,3 +1,7 @@
+Deprecations
+------------
+
+
 Positional parameters in plotting functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

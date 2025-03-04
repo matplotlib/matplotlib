@@ -1,6 +1,6 @@
-=============================================
-What's new in Matplotlib 3.10.0 (Dec 14, 2024)
-=============================================
+===================================================
+What's new in Matplotlib 3.10.0 (December 13, 2024)
+===================================================
 
 For a list of all of the issues and pull requests since the last revision, see the
 :ref:`github-stats`.
@@ -13,7 +13,6 @@ For a list of all of the issues and pull requests since the last revision, see t
 
 Accessible Colors
 =================
-
 
 New more-accessible color cycle
 -------------------------------
@@ -59,6 +58,12 @@ colour maps version 8.0.1 (DOI: https://doi.org/10.5281/zenodo.1243862).
     ax[0].imshow(img, cmap="berlin")
     ax[1].imshow(img, cmap="managua")
     ax[2].imshow(img, cmap="vanimo")
+
+
+
+Plotting and Annotation improvements
+====================================
+
 
 
 
