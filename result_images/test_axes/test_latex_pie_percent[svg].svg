@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="576pt" height="432pt" viewBox="0 0 576 432" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2025-02-25T14:43:41.764188</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v0.1.0.dev51995+gc9402f3, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 432 
+L 576 432 
+L 576 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 433.44 216 
+C 433.44 186.811115 424.195306 158.358871 407.038509 134.744567 
+C 389.881713 111.130262 365.678789 93.545809 337.918509 84.525947 
+L 295.2 216 
+z
+" style="fill: #0000ff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 337.918506 84.525944 
+C 324.122325 80.043291 309.706141 77.76 295.199977 77.76 
+C 280.693814 77.76 266.277651 80.0433 252.481469 84.525952 
+L 295.2 216 
+z
+" style="fill: #008000; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 252.481469 84.525952 
+C 228.236918 92.403487 206.637363 106.835856 190.08148 126.220303 
+C 173.525598 145.604751 162.649817 169.196158 158.661961 194.374535 
+C 154.674097 219.552915 157.727442 245.35041 167.482897 268.902161 
+C 177.238353 292.45391 193.320945 312.854573 213.944593 327.838527 
+C 234.568244 342.82248 258.940165 351.813749 284.353812 353.813849 
+C 309.767459 355.81394 335.245928 350.74596 357.95967 339.172726 
+C 380.673408 327.599492 399.749318 309.965908 413.068975 288.230208 
+C 426.388631 266.494507 433.44 241.492207 433.44 215.999976 
+L 295.2 216 
+z
+" style="fill: #ff0000; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="matplotlib.axis_1"/>
+   <g id="matplotlib.axis_2"/>
+   <g id="text_1">
+    <!-- 20\% -->
+    <g transform="translate(350.342099 170.232544) scale(0.12 -0.12)">
+     <defs>
+      <path id="NimbusSanL-Regu-32" d="M 3238 558 
+L 851 558 
+C 909 930 1114 1167 1670 1494 
+L 2310 1840 
+C 2944 2186 3270 2653 3270 3211 
+C 3270 3589 3117 3942 2848 4185 
+C 2579 4429 2246 4544 1818 4544 
+C 1242 4544 813 4339 563 3955 
+C 403 3711 333 3429 320 2967 
+L 883 2967 
+C 902 3275 941 3461 1018 3608 
+C 1165 3884 1459 4051 1798 4051 
+C 2310 4051 2694 3685 2694 3198 
+C 2694 2839 2483 2531 2080 2301 
+L 1491 1968 
+C 544 1430 269 1000 218 0 
+L 3238 0 
+L 3238 558 
+z
+" transform="scale(0.015625)"/>
+      <path id="NimbusSanL-Regu-30" d="M 1760 4544 
+C 1338 4544 954 4360 717 4046 
+C 422 3651 275 3044 275 2208 
+C 275 683 787 -128 1760 -128 
+C 2720 -128 3245 683 3245 2170 
+C 3245 3050 3104 3638 2803 4046 
+C 2566 4366 2189 4544 1760 4544 
+z
+M 1760 4044 
+C 2368 4044 2669 3432 2669 2221 
+C 2669 939 2374 340 1747 340 
+C 1152 340 851 965 851 2202 
+C 851 3438 1152 4044 1760 4044 
+z
+" transform="scale(0.015625)"/>
+      <path id="NimbusSanL-Regu-25" d="M 1274 4416 
+C 678 4416 186 3911 186 3295 
+C 186 2681 678 2176 1280 2176 
+C 1875 2176 2368 2681 2368 3282 
+C 2368 3918 1888 4416 1274 4416 
+z
+M 1274 3967 
+C 1638 3967 1926 3668 1926 3289 
+C 1926 2923 1632 2625 1280 2625 
+C 922 2625 627 2931 627 3295 
+C 627 3668 922 3967 1274 3967 
+z
+M 3898 4544 
+L 1370 -128 
+L 1792 -128 
+L 4320 4544 
+L 3898 4544 
+z
+M 4403 2048 
+C 3808 2048 3315 1557 3315 963 
+C 3315 364 3808 -128 4410 -128 
+C 4998 -128 5498 364 5498 951 
+C 5498 1563 5018 2048 4403 2048 
+z
+M 4403 1600 
+C 4768 1600 5056 1315 5056 954 
+C 5056 611 4762 327 4410 327 
+C 4051 327 3757 611 3757 966 
+C 3757 1315 4051 1600 4403 1600 
+z
+" transform="scale(0.015625)"/>
+     </defs>
+     <use xlink:href="#NimbusSanL-Regu-32" transform="scale(0.996264)"/>
+     <use xlink:href="#NimbusSanL-Regu-30" transform="translate(55.391677 0) scale(0.996264)"/>
+     <use xlink:href="#NimbusSanL-Regu-25" transform="translate(110.783354 0) scale(0.996264)"/>
+    </g>
+   </g>
+   <g id="text_2">
+    <!-- 10\% -->
+    <g transform="translate(283.238991 136.041805) scale(0.12 -0.12)">
+     <defs>
+      <path id="NimbusSanL-Regu-31" d="M 1658 3238 
+L 1658 0 
+L 2221 0 
+L 2221 4545 
+L 1850 4545 
+C 1651 3847 1523 3751 653 3642 
+L 653 3238 
+L 1658 3238 
+z
+" transform="scale(0.015625)"/>
+     </defs>
+     <use xlink:href="#NimbusSanL-Regu-31" transform="scale(0.996264)"/>
+     <use xlink:href="#NimbusSanL-Regu-30" transform="translate(55.391677 0) scale(0.996264)"/>
+     <use xlink:href="#NimbusSanL-Regu-25" transform="translate(110.783354 0) scale(0.996264)"/>
+    </g>
+   </g>
+   <g id="text_3">
+    <!-- 70\% -->
+    <g transform="translate(234.485718 286.088899) scale(0.12 -0.12)">
+     <defs>
+      <path id="NimbusSanL-Regu-37" d="M 3328 4525 
+L 294 4525 
+L 294 3968 
+L 2746 3968 
+C 1664 2418 1222 1466 883 -32 
+L 1485 -32 
+C 1734 1427 2304 2681 3328 4051 
+L 3328 4525 
+z
+" transform="scale(0.015625)"/>
+     </defs>
+     <use xlink:href="#NimbusSanL-Regu-37" transform="scale(0.996264)"/>
+     <use xlink:href="#NimbusSanL-Regu-30" transform="translate(55.391677 0) scale(0.996264)"/>
+     <use xlink:href="#NimbusSanL-Regu-25" transform="translate(110.783354 0) scale(0.996264)"/>
+    </g>
+   </g>
+  </g>
+ </g>
+</svg>
