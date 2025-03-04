@@ -2644,6 +2644,18 @@ None}, default: None
         self._axstack = _AxesStack()  # track all figure Axes and current Axes
         self.clear()
 
+    def set_figsize(self, fig_size_params):
+        self.set_size_inches(fig_size_params[0], fig_size_params[1])
+
+    def get_figsize(self):
+        return self.get_size_inches()
+
+    def set_layout(self, layout_params):
+        self.set_layout_engine(layout_params)
+
+    def get_layout(self):
+        return self.get_layout_engine()
+
     def pick(self, mouseevent):
         if not self.canvas.widgetlock.locked():
             super().pick(mouseevent)
