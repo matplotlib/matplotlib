@@ -43,6 +43,19 @@ def update_from_first_child(tgt, src):
         tgt.update_from(first_child)
 
 
+def _first_color(colors):
+    if colors.size == 0:
+        return (0, 0, 0, 0)
+    return tuple(colors[0])
+
+
+def _get_first(prop_array):
+    if len(prop_array):
+        return prop_array[0]
+    else:
+        return None
+
+
 class HandlerBase:
     """
     A base class for default legend handlers.
@@ -427,6 +440,32 @@ class HandlerLineCollection(HandlerLine2D):
         return [legline]
 
 
+class HandlerPatchCollection(HandlerPatch):
+    """
+    Handler for `.PatchCollection` instances.
+    """
+    def _default_update_prop(self, legend_handle, orig_handle):
+        lw = _get_first(orig_handle.get_linewidths())
+        dashes = _get_first(orig_handle._us_linestyles)
+        facecolor = _first_color(orig_handle.get_facecolor())
+        edgecolor = _first_color(orig_handle.get_edgecolor())
+        legend_handle.set_facecolor(facecolor)
+        legend_handle.set_edgecolor(edgecolor)
+        legend_handle.set_linestyle(dashes)
+        legend_handle.set_linewidth(lw)
+
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+
+        p = self._create_patch(legend, orig_handle,
+                               xdescent, ydescent, width, height, fontsize)
+
+        self.update_prop(p, orig_handle, legend)
+        p.set_transform(trans)
+
+        return [p]
+
+
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     r"""Handler for `.RegularPolyCollection`\s."""
 
@@ -775,21 +814,10 @@ class HandlerPolyCollection(HandlerBase):
     `~.Axes.stackplot`.
     """
     def _update_prop(self, legend_handle, orig_handle):
-        def first_color(colors):
-            if colors.size == 0:
-                return (0, 0, 0, 0)
-            return tuple(colors[0])
-
-        def get_first(prop_array):
-            if len(prop_array):
-                return prop_array[0]
-            else:
-                return None
-
         # orig_handle is a PolyCollection and legend_handle is a Patch.
         # Directly set Patch color attributes (must be RGBA tuples).
-        legend_handle._facecolor = first_color(orig_handle.get_facecolor())
-        legend_handle._edgecolor = first_color(orig_handle.get_edgecolor())
+        legend_handle._facecolor = _first_color(orig_handle.get_facecolor())
+        legend_handle._edgecolor = _first_color(orig_handle.get_edgecolor())
         legend_handle._original_facecolor = orig_handle._original_facecolor
         legend_handle._original_edgecolor = orig_handle._original_edgecolor
         legend_handle._fill = orig_handle.get_fill()
@@ -797,9 +825,9 @@ class HandlerPolyCollection(HandlerBase):
         # Hatch color is anomalous in having no getters and setters.
         legend_handle._hatch_color = orig_handle._hatch_color
         # Setters are fine for the remaining attributes.
-        legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
-        legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
-        legend_handle.set_transform(get_first(orig_handle.get_transforms()))
+        legend_handle.set_linewidth(_get_first(orig_handle.get_linewidths()))
+        legend_handle.set_linestyle(_get_first(orig_handle.get_linestyles()))
+        legend_handle.set_transform(_get_first(orig_handle.get_transforms()))
         legend_handle.set_figure(orig_handle.get_figure())
         # Alpha is already taken into account by the color attributes.
 

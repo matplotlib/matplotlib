@@ -144,6 +144,19 @@ class HandlerLineCollection(HandlerLine2D):
         trans: Transform,
     ) -> Sequence[Artist]: ...
 
+class HandlerPatchCollection(HandlerPatch):
+    def create_artists(
+        self,
+        legend: Legend,
+        orig_handle: Artist,
+        xdescent: float,
+        ydescent: float,
+        width: float,
+        height: float,
+        fontsize: float,
+        trans: Transform,
+    ) -> Sequence[Artist]: ...
+
 _T = TypeVar("_T", bound=Artist)
 
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
