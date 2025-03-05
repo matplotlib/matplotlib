@@ -287,7 +287,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self._event_cache.clear()
 
             # Handle the current event.
-            handler = getattr(self, 'handle_{0}'.format(e_type),
+            handler = getattr(self, f'handle_{e_type}',
                               self.handle_unknown_event)
             return handler(event)
         else:
