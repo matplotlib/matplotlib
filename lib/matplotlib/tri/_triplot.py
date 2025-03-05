@@ -63,7 +63,7 @@ def triplot(ax, *args, **kwargs):
         'marker': 'None',  # No marker to draw.
         'zorder': kw.get('zorder', 1),  # Path default zorder is used.
     }
-    if linestyle not in [None, 'None', '', ' ']:
+    if linestyle not in [None, 'None', 'none', '', ' ']:
         tri_lines_x = np.insert(x[edges], 2, np.nan, axis=1)
         tri_lines_y = np.insert(y[edges], 2, np.nan, axis=1)
         tri_lines = ax.plot(tri_lines_x.ravel(), tri_lines_y.ravel(),
@@ -75,7 +75,7 @@ def triplot(ax, *args, **kwargs):
     marker = kw['marker']
     kw_markers = {
         **kw,
-        'linestyle': 'None',  # No line to draw.
+        'linestyle': 'none',  # No line to draw.
     }
     kw_markers.pop('label', None)
     if marker not in [None, 'None', '', ' ']:
