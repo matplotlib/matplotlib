@@ -266,9 +266,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def handle_event(self, event):
         # Check if all pending images have been processed.
         if self._num_received_images is not None:
-            pending_images = (
-                self.manager._num_sent_images > self._num_received_images
-                )
+            pending_images = self.manager._num_sent_images > self._num_received_images
             if not pending_images:  # Reset counters
                 self.manager._num_sent_images = 0
                 self._num_received_images = 0
