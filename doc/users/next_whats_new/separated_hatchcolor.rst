@@ -57,3 +57,39 @@ Previously, hatch colors were the same as edge colors, with a fallback to
                 xy=(.5, 1.03), xycoords=patch4, ha='center', va='bottom')
 
     plt.show()
+
+For collections, a sequence of colors can be passed to the *hatchcolor* parameter
+which will be cycled through for each hatch, similar to *facecolor* and *edgecolor*.
+
+Previously, if *edgecolor* was not specified, the hatch color would fall back to
+:rc:`patch.edgecolor`, but the alpha value would default to **1.0**, regardless of the
+alpha value of the collection. This behavior has been changed such that, if both
+*hatchcolor* and *edgecolor* are not specified, the hatch color will fall back
+to 'patch.edgecolor' with the alpha value of the collection.
+
+.. plot::
+    :include-source: true
+    :alt: A random scatter plot with hatches on the markers. The hatches are colored in blue, orange, and green, respectively. After the first three markers, the colors are cycled through again.
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    np.random.seed(19680801)
+
+    fig, ax = plt.subplots()
+
+    x = np.random.rand(20)
+    y = np.random.rand(20)
+    colors = ["blue", "orange", "green"]
+
+    ax.scatter(
+        x,
+        y,
+        s=800,
+        hatch="xxxx",
+        hatchcolor=colors,
+        facecolor="none",
+        edgecolor="black",
+    )
+
+    plt.show()
