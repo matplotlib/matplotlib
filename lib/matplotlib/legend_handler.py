@@ -397,7 +397,7 @@ class HandlerStepPatch(HandlerBase):
 
 class HandlerLineCollection(HandlerLine2D):
     """
-    Handler for `.LineCollection` instances.
+    Handler for `.LineCollection` instances, with support for gradient colors.
     """
     def get_numpoints(self, legend):
         if self._numpoints is None:
@@ -408,23 +408,27 @@ class HandlerLineCollection(HandlerLine2D):
     def _default_update_prop(self, legend_handle, orig_handle):
         lw = orig_handle.get_linewidths()[0]
         dashes = orig_handle._us_linestyles[0]
-        color = orig_handle.get_colors()[0]
-        legend_handle.set_color(color)
-        legend_handle.set_linestyle(dashes)
         legend_handle.set_linewidth(lw)
+        legend_handle.set_linestyle(dashes)
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
-        # docstring inherited
-        xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
-                                             width, height, fontsize)
-        ydata = np.full_like(xdata, (height - ydescent) / 2)
-        legline = Line2D(xdata, ydata)
+        """
+        Create a gradient LineCollection for the legend.
+        """
+        # Define line coordinates
+        x = [xdescent, width - xdescent]
+        y = [(height - ydescent) / 2] * 2
+        points = list(zip(x, y))
+        segments = [[points[0], points[1]]]
 
-        self.update_prop(legline, orig_handle, legend)
-        legline.set_transform(trans)
+        # Create a new LineCollection for the legend
+        legend_lc = LineCollection(segments, cmap=orig_handle.get_cmap(), norm=orig_handle.norm)
+        legend_lc.set_array(orig_handle.get_array())
+        legend_lc.set_linewidth(orig_handle.get_linewidth())
+        legend_lc.set_transform(trans)
 
-        return [legline]
+        return [legend_lc]
 
 
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
