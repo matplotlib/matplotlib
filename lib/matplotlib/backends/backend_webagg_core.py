@@ -282,7 +282,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # Handle cached events of all types other than the current type.
             self._event_cache.pop(e_type, None)
             for cache_event_type, cache_event in self._event_cache.items():
-                getattr(self, 'handle_{0}'.format(cache_event_type),
+                getattr(self, f'handle_{cache_event_type}',
                         self.handle_unknown_event)(cache_event)
             self._event_cache.clear()
 
