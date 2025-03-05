@@ -2648,6 +2648,19 @@ None}, default: None
         if not self.canvas.widgetlock.locked():
             super().pick(mouseevent)
 
+    def set_figsize(self, _figsize):
+        self.set_size_inches(_figsize, forward=True)
+
+    def get_figsize(self):
+        return self.get_size_inches
+    
+    def set_subplotpars(self, _subplotpars):
+        '''self.subplotpars = _subplotpars
+        self.subplots_adjust(self.subplotpars)'''
+
+    def get_subplotpars(self):
+        return self.subplotpars
+
     def _check_layout_engines_compat(self, old, new):
         """
         Helper for set_layout engine
