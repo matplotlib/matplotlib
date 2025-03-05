@@ -184,7 +184,11 @@ Passes this information to `draw_text()` for further rendering.
 
 Optional (point 1): Architectural overview.
 
+We wrote the archtectural overview before and after our fix in [dd2480_lab4_option_1.pdf](resources/dd2480_lab4_option_1.pdf), please refer to it for detailed information.
+
 Optional (point 2): relation to design pattern(s).
+
+You can find the sub-report in [./resources/option2.md](resources/option2.md)
 
 ## Overall experience
 
