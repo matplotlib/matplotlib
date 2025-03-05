@@ -2937,23 +2937,18 @@ class Axes(_AxesBase):
 
         annotations = []
 
-        try:
-            if not isinstance(padding, (str, bytes)) and np.iterable(padding):
-                # if padding iterable, check length
-                padding_array = np.asarray(padding)
-                if len(padding_array) != len(bars):
-                    raise ValueError(
-                        f"padding must be of length {len(bars)} when passed as a sequence")
-                padding_list = list(padding_array)
-            else:
-                # single value, apply to all labels
-                padding_list = [padding] * len(bars)
-        except (TypeError, ValueError):
-            # not iterable or wrong length, use scalar padding
-            padding_list = [padding] * len(bars)
+        if np.iterable(padding):
+            # if padding iterable, check length
+            padding_array = np.asarray(padding)
+            if len(padding_array) != len(bars):
+                raise ValueError(
+                    f"padding must be of length {len(bars)} when passed as a sequence")
+        else:
+            # single value, apply to all labels
+            padding_array = [padding] * len(bars)
 
         for bar, err, dat, lbl, pad in itertools.zip_longest(
-                bars, errs, datavalues, labels, padding_list
+                bars, errs, datavalues, labels, padding_array
         ):
             (x0, y0), (x1, y1) = bar.get_bbox().get_points()
             xc, yc = (x0 + x1) / 2, (y0 + y1) / 2
