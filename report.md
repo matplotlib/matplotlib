@@ -197,7 +197,7 @@ Optional (point 2): relation to design pattern(s).
 
 You can find the sub-report in [./resources/option2.md](resources/option2.md)
 
-## Overall experience
+## Overall Experience
 
 The main take-aways from this project have to do with working on a codebase this large and navigating the difficulties that come with it.
 
@@ -205,7 +205,7 @@ Firstly, understanding how Matplotlib handles text rendering is a challenge in i
 
 Additionally, we've gained more experience working on open-source projects. With collaborators from all over the world, we've been able to see first hand the clear communication that's needed in documentation, pull requests, commit messages etc. This definitely contrasts with the software development environments we're mostly used to, where we typically work in small groups and communication is more direct and easier.
 
-### Essence standard
+### Essence Standard
 
 Throughout this course, we've continously used the Essence standard to evaluate or performance and growth as a team.
 
@@ -213,6 +213,30 @@ We started with outlining our responsibilities and setting up some ground rules.
 
 Generally, we've spent a lot of time in the Collaborating stage, having to work on improving communication and addressing minor inefficiencies. Over the last weeks however, we've at times entered the Performing stage. Altough there is always room for improvement, we've become more effective and improved our ability to quickly adapt to the changing context.
 
-Optional (point 6): How would you put your work in context with best software engineering practice?
+### Software Engineering Practice
 
-Optional (point 7): Is there something special you want to mention here?
+Optional (point 6): Our work in context of the SEMAT kernel
+
+We will put our work in context in relation to [The Solution Area of Concern](https://www.omg.org/spec/Essence/1.2/PDF#page=50). This area covers the practices needed to produce good quality software, and contains the following alphas:
+
+* Requirements
+* Software System
+
+#### Requirements
+
+Requirements are essential in defining what the solution must solve. In our case, the requirement was derived from the original issue on Github.
+
+As for the [Checklist for Requirements](https://www.omg.org/spec/Essence/1.2/PDF#page=54), we've achieved the Acceptable state. The requirement is clear, it is easily testable and the benefit in solving it is easy to understand. In the next states Addressed and Fullfilled, the requirement should communicate a clear value for implementing it and it also demands that a solution is partly accepted, something which we've not achieved.
+
+One thing we haven't done to a great extent, and that is covered in the alpha, is continously working on improving the requirements. As time went on, it could have been beneficial to add more detail to the requirement, or even sub-requirements, when the task became more clear. 
+
+#### Software System
+
+The software system refers to the actual implementation and it working as intended.
+
+As for our system, we've been able to implement a solution that works. However, it is not without fault, as we render non-math text as math. Our solution also had an effect on other test cases.
+
+As for the [Checklist for Software System](https://www.omg.org/spec/Essence/1.2/PDF#page=58), we believe we've achieved parts of the Usable state. We've solved the problem, but not in a way that would be accepted. To achieve greater states, the solution would have to be fully operational, without the less ideal parts of our implementation.
+
+This process shows us that even a seemingly small fix can be complicated to implement and have widespread consequences. It also highlights the need to iteratively refine the solution for it to meet the requirements.
+
