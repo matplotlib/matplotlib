@@ -15,11 +15,18 @@ high-quality figures for different types of input.
 
 ## Onboarding experience
 
-Did you choose a new project or continue on the previous one?
-
 For lab4, we chose a new project ([matplotlib](https://github.com/matplotlib/matplotlib)) instead of the previous one ([jsoniter](https://github.com/json-iterator/java))
 
-If you changed the project, how did your experience differ from before?
+Generally, the onboarding experience was much simpler than the last lab, which could of course have something to to with matplotlib being an ongoing project, whereas jsoniter was not. The [Setting up Matplotlib for development](https://matplotlib.org/devdocs/devel/development_setup.html#installing-for-devs) instruction was helpful, and shortly summarized the setup looked like this:
+
+1. Fork the Matplotlib repository
+2. Create a new venv environment
+3. Install the Python dependencies defined in requirements.txt
+4. Install Matplotlib in editable mode
+
+The venv keeps the Matplotlib development environment seperate from the system-wide Python installation and doesn't affect other projects.
+
+Overall, the repository seemed to be in good shape, with tests running fine, and no compilation errors or such like we encountered in the last lab.
 
 ## Effort spent
 
