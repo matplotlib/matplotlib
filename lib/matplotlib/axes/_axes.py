@@ -1095,7 +1095,7 @@ class Axes(_AxesBase):
         self._request_autoscale_view("x")
         return p
 
-    @_api.make_keyword_only("3.9", "label")
+    @_api.make_keyword_only("3.10", "label")
     @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
                       label_namer="y")
     def hlines(self, y, xmin, xmax, colors=None, linestyles='solid',
@@ -1187,7 +1187,7 @@ class Axes(_AxesBase):
             self._request_autoscale_view()
         return lines
 
-    @_api.make_keyword_only("3.9", "label")
+    @_api.make_keyword_only("3.10", "label")
     @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
                       label_namer="x")
     def vlines(self, x, ymin, ymax, colors=None, linestyles='solid',
@@ -1279,7 +1279,7 @@ class Axes(_AxesBase):
             self._request_autoscale_view()
         return lines
 
-    @_api.make_keyword_only("3.9", "orientation")
+    @_api.make_keyword_only("3.10", "orientation")
     @_preprocess_data(replace_names=["positions", "lineoffsets",
                                      "linelengths", "linewidths",
                                      "colors", "linestyles"])
@@ -2086,7 +2086,7 @@ class Axes(_AxesBase):
         """
         return self.xcorr(x, x, **kwargs)
 
-    @_api.make_keyword_only("3.9", "normed")
+    @_api.make_keyword_only("3.10", "normed")
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs):
@@ -3229,7 +3229,7 @@ class Axes(_AxesBase):
         self.add_container(stem_container)
         return stem_container
 
-    @_api.make_keyword_only("3.9", "explode")
+    @_api.make_keyword_only("3.10", "explode")
     @_preprocess_data(replace_names=["x", "explode", "labels", "colors"])
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
@@ -3509,7 +3509,7 @@ class Axes(_AxesBase):
         everymask[errorevery] = True
         return everymask
 
-    @_api.make_keyword_only("3.9", "ecolor")
+    @_api.make_keyword_only("3.10", "ecolor")
     @_preprocess_data(replace_names=["x", "y", "xerr", "yerr"],
                       label_namer="y")
     @_docstring.interpd
@@ -3887,7 +3887,7 @@ class Axes(_AxesBase):
 
         return errorbar_container  # (l0, caplines, barcols)
 
-    @_api.make_keyword_only("3.9", "notch")
+    @_api.make_keyword_only("3.10", "notch")
     @_preprocess_data()
     @_api.rename_parameter("3.9", "labels", "tick_labels")
     def boxplot(self, x, notch=None, sym=None, vert=None,
@@ -4236,7 +4236,7 @@ class Axes(_AxesBase):
                            orientation=orientation)
         return artists
 
-    @_api.make_keyword_only("3.9", "widths")
+    @_api.make_keyword_only("3.10", "widths")
     def bxp(self, bxpstats, positions=None, widths=None, vert=None,
             orientation='vertical', patch_artist=False, shownotches=False,
             showmeans=False, showcaps=True, showbox=True, showfliers=True,
@@ -4773,7 +4773,7 @@ class Axes(_AxesBase):
             colors = None  # use cmap, norm after collection is created
         return c, colors, edgecolors
 
-    @_api.make_keyword_only("3.9", "marker")
+    @_api.make_keyword_only("3.10", "marker")
     @_preprocess_data(replace_names=["x", "y", "s", "linewidths",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"],
@@ -5064,7 +5064,7 @@ class Axes(_AxesBase):
 
         return collection
 
-    @_api.make_keyword_only("3.9", "gridsize")
+    @_api.make_keyword_only("3.10", "gridsize")
     @_preprocess_data(replace_names=["x", "y", "C"], label_namer="y")
     @_docstring.interpd
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
@@ -6814,7 +6814,7 @@ class Axes(_AxesBase):
 
     #### Data analysis
 
-    @_api.make_keyword_only("3.9", "range")
+    @_api.make_keyword_only("3.10", "range")
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
     def hist(self, x, bins=None, range=None, density=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
@@ -7405,7 +7405,7 @@ such objects
         self._request_autoscale_view()
         return patch
 
-    @_api.make_keyword_only("3.9", "range")
+    @_api.make_keyword_only("3.10", "range")
     @_preprocess_data(replace_names=["x", "y", "weights"])
     @_docstring.interpd
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
@@ -7617,7 +7617,7 @@ such objects
             line.sticky_edges.x[:] = [0, 1]
         return line
 
-    @_api.make_keyword_only("3.9", "NFFT")
+    @_api.make_keyword_only("3.10", "NFFT")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
@@ -7729,7 +7729,7 @@ such objects
         else:
             return pxx, freqs, line
 
-    @_api.make_keyword_only("3.9", "NFFT")
+    @_api.make_keyword_only("3.10", "NFFT")
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     @_docstring.interpd
     def csd(self, x, y, NFFT=None, Fs=None, Fc=None, detrend=None,
@@ -7832,7 +7832,7 @@ such objects
         else:
             return pxy, freqs, line
 
-    @_api.make_keyword_only("3.9", "Fs")
+    @_api.make_keyword_only("3.10", "Fs")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def magnitude_spectrum(self, x, Fs=None, Fc=None, window=None,
@@ -7919,7 +7919,7 @@ such objects
 
         return spec, freqs, line
 
-    @_api.make_keyword_only("3.9", "Fs")
+    @_api.make_keyword_only("3.10", "Fs")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def angle_spectrum(self, x, Fs=None, Fc=None, window=None,
@@ -7989,7 +7989,7 @@ such objects
 
         return spec, freqs, lines[0]
 
-    @_api.make_keyword_only("3.9", "Fs")
+    @_api.make_keyword_only("3.10", "Fs")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def phase_spectrum(self, x, Fs=None, Fc=None, window=None,
@@ -8059,7 +8059,7 @@ such objects
 
         return spec, freqs, lines[0]
 
-    @_api.make_keyword_only("3.9", "NFFT")
+    @_api.make_keyword_only("3.10", "NFFT")
     @_preprocess_data(replace_names=["x", "y"])
     @_docstring.interpd
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
@@ -8124,7 +8124,7 @@ such objects
 
         return cxy, freqs
 
-    @_api.make_keyword_only("3.9", "NFFT")
+    @_api.make_keyword_only("3.10", "NFFT")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def specgram(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
@@ -8286,7 +8286,7 @@ such objects
 
         return spec, freqs, t, im
 
-    @_api.make_keyword_only("3.9", "precision")
+    @_api.make_keyword_only("3.10", "precision")
     @_docstring.interpd
     def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal', origin="upper", **kwargs):
@@ -8477,7 +8477,7 @@ such objects
             mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
         return im
 
-    @_api.make_keyword_only("3.9", "vert")
+    @_api.make_keyword_only("3.10", "vert")
     @_preprocess_data(replace_names=["dataset"])
     def violinplot(self, dataset, positions=None, vert=None,
                    orientation='vertical', widths=0.5, showmeans=False,
@@ -8603,7 +8603,7 @@ such objects
                            showmeans=showmeans, showextrema=showextrema,
                            showmedians=showmedians, side=side)
 
-    @_api.make_keyword_only("3.9", "vert")
+    @_api.make_keyword_only("3.10", "vert")
     def violin(self, vpstats, positions=None, vert=None,
                orientation='vertical', widths=0.5, showmeans=False,
                showextrema=True, showmedians=False, side='both'):
