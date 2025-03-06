@@ -205,7 +205,13 @@ Firstly, understanding how Matplotlib handles text rendering is a challenge in i
 
 Additionally, we've gained more experience working on open-source projects. With collaborators from all over the world, we've been able to see first hand the clear communication that's needed in documentation, pull requests, commit messages etc. This definitely contrasts with the software development environments we're mostly used to, where we typically work in small groups and communication is more direct and easier.
 
-How did you grow as a team, using the Essence standard to evaluate yourself?
+### Essence standard
+
+Throughout this course, we've continously used the Essence standard to evaluate or performance and growth as a team.
+
+We started with outlining our responsibilities and setting up some ground rules. We got a grasp if things quite quickly, and entered the Formed and then the Collaborating stage quite quickly.
+
+Generally, we've spent a lot of time in the Collaborating stage, having to work on improving communication and addressing minor inefficiencies. Over the last weeks however, we've at times entered the Performing stage. Altough there is always room for improvement, we've become more effective and improved our ability to quickly adapt to the changing context.
 
 Optional (point 6): How would you put your work in context with best software engineering practice?
 
