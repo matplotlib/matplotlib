@@ -199,7 +199,11 @@ You can find the sub-report in [./resources/option2.md](resources/option2.md)
 
 ## Overall experience
 
-What are your main take-aways from this project? What did you learn?
+The main take-aways from this project have to do with working on a codebase this large and navigating the difficulties that come with it.
+
+Firstly, understanding how Matplotlib handles text rendering is a challenge in itself. We've learned that identifying parts of the program that may cause the error you're looking for, and finding potential solutions in an unfamiliar code base without breaking anything else, can be tough. We understood that we had to get a deep understanding of the problem before jumping into solutions. Knowing how different parts of the program interact with eachother is essential when assessing the issue.
+
+Additionally, we've gained more experience working on open-source projects. With collaborators from all over the world, we've been able to see first hand the clear communication that's needed in documentation, pull requests, commit messages etc. This definitely contrasts with the software development environments we're mostly used to, where we typically work in small groups and communication is more direct and easier.
 
 How did you grow as a team, using the Essence standard to evaluate yourself?
 
