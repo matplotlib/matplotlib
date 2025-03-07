@@ -37,7 +37,7 @@ For each team member, how much time was spent in
 |1  |2  |2  |2  |2  |
 |2  |1  |1  |1  |1  |
 |3  |1  |0  |2  |0  |
-|4  |20min  |15min  |0  |0  |
+|4  |20min  |30min  |0  |0  |
 |5  |10  |0  |6  |0  |
 |6  |5  |0  |8  |0  |
 |7  |5  |0  |1  |0  |
@@ -57,7 +57,7 @@ For each team member, how much time was spent in
 
 7. writing code;
 
-8. running code?
+8. running tesing code;
 
 For setting up tools and libraries (step 4), enumerate all dependencies
 you took care of and where you spent your time, if that time exceeds
