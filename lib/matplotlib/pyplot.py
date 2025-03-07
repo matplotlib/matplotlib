@@ -3111,12 +3111,17 @@ def boxplot(
 def broken_barh(
     xranges: Sequence[tuple[float, float]],
     yrange: tuple[float, float],
+    align: Literal["bottom", "center", "top"] = "bottom",
     *,
     data=None,
     **kwargs,
 ) -> PolyCollection:
     return gca().broken_barh(
-        xranges, yrange, **({"data": data} if data is not None else {}), **kwargs
+        xranges,
+        yrange,
+        align=align,
+        **({"data": data} if data is not None else {}),
+        **kwargs,
     )
 
 
