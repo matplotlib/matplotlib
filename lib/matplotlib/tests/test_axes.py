@@ -7134,6 +7134,21 @@ def test_broken_barh_timedelta():
     assert pp.get_paths()[0].vertices[2, 0] == mdates.date2num(d0) + 1 / 24
 
 
+def test_broken_barh_align():
+    fig, ax = plt.subplots()
+    pc = ax.broken_barh([(0, 10)], (0, 2))
+    for path in pc.get_paths():
+        assert_array_equal(path.get_extents().intervaly, [0, 2])
+
+    pc = ax.broken_barh([(0, 10)], (10, 2), align="center")
+    for path in pc.get_paths():
+        assert_array_equal(path.get_extents().intervaly, [9, 11])
+
+    pc = ax.broken_barh([(0, 10)], (20, 2), align="top")
+    for path in pc.get_paths():
+        assert_array_equal(path.get_extents().intervaly, [18, 20])
+
+
 def test_pandas_pcolormesh(pd):
     time = pd.date_range('2000-01-01', periods=10)
     depth = np.arange(20)
