@@ -333,6 +333,14 @@ def test_add_collection():
     assert ax.dataLim.bounds == bounds
 
 
+def test_collection_facecolor():
+    pc = plt.figure().subplots().scatter([0, 1, 2], [0, 1, 2], c=[0, 0.5, 1])
+    with pytest.warns(match="Setting the facecolor has no effect"):
+        pc.set_facecolor(['r', 'g', 'b'])
+    # the returned facecolor is the colormapped one:
+    pc.get_facecolor() == plt.get_cmap()([0, 0.5, 1])
+
+
 @mpl.style.context('mpl20')
 @check_figures_equal(extensions=['png'])
 def test_collection_log_datalim(fig_test, fig_ref):
