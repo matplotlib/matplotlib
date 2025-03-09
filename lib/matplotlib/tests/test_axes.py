@@ -4831,6 +4831,27 @@ def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
                      zorder=(len(xs)-i)/2)
 
 
+def test_hist_sequence_type_styles():
+    facecolor = ('r', 0.5)
+    edgecolor = [0.5, 0.5, 0.5]
+    linestyle = (0, (1, 1))
+
+    arr = np.random.uniform(size=50)
+    _, _, bars = plt.hist(arr, facecolor=facecolor, edgecolor=edgecolor,
+                          linestyle=linestyle)
+    assert mcolors.same_color(bars[0].get_facecolor(), facecolor)
+    assert mcolors.same_color(bars[0].get_edgecolor(), edgecolor)
+    assert bars[0].get_linestyle() == linestyle
+
+
+def test_hist_color_none():
+    arr = np.random.uniform(size=50)
+    # No edgecolor is the default but check that it can be explicitly passed.
+    _, _, bars = plt.hist(arr, facecolor='none', edgecolor='none')
+    assert bars[0].get_facecolor(), (0, 0, 0, 0)
+    assert bars[0].get_edgecolor(), (0, 0, 0, 0)
+
+
 @pytest.mark.parametrize('kwargs, patch_face, patch_edge',
                          # 'C0'(blue) stands for the first color of the
                          # default color cycle as well as the patch.facecolor rcParam

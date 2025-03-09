@@ -7193,15 +7193,26 @@ such objects
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
 
         if histtype == "step":
-            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get('edgecolor',
-                                                                  colors)))
+            ec = kwargs.get('edgecolor', colors)
         else:
-            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get("edgecolor", None)))
+            ec = kwargs.get('edgecolor', None)
+        if ec is None or cbook._str_lower_equal(ec, 'none'):
+            edgecolors = itertools.repeat(ec)
+        else:
+            edgecolors = itertools.cycle(mcolors.to_rgba_array(ec))
 
-        facecolors = itertools.cycle(np.atleast_1d(kwargs.get('facecolor', colors)))
+        fc = kwargs.get('facecolor', colors)
+        if cbook._str_lower_equal(fc, 'none'):
+            facecolors = itertools.repeat(fc)
+        else:
+            facecolors = itertools.cycle(mcolors.to_rgba_array(fc))
+
         hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
         linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
-        linestyles = itertools.cycle(np.atleast_1d(kwargs.get('linestyle', None)))
+        if 'linestyle' in kwargs:
+            linestyles = itertools.cycle(mlines._get_dash_patterns(kwargs['linestyle']))
+        else:
+            linestyles = itertools.repeat(None)
 
         for patch, lbl in itertools.zip_longest(patches, labels):
             if not patch:
