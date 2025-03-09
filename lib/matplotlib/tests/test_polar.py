@@ -140,7 +140,7 @@ def test_polar_units_2(fig_test, fig_ref):
 
     ax = fig_ref.add_subplot(projection="polar")
     ax.plot(np.deg2rad(xs), ys)
-    ax.xaxis.set_major_formatter(mpl.ticker.FuncFormatter("{:.12}".format))
+    ax.xaxis.set_major_formatter(mpl.ticker.StrMethodFormatter("{x:.12}"))
     ax.set(xlabel="rad", ylabel="km")
 
 
