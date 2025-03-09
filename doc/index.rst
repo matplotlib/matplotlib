@@ -99,6 +99,29 @@ Learn
                 - figures: `.pyplot.figure`
                 - subplots: `.pyplot.subplots`, `.pyplot.subplot_mosaic`
 
+Live example (experimental)
+===========================
+
+Try Matplotlib directly in this documentation (press :kbd:`shift` + :kbd:`Enter` to execute code)!
+
+.. rstcheck: ignore-directives=replite
+.. replite::
+   :kernel: xeus-python
+   :height: 600px
+   :prompt: Try Matplotlib!
+   :execute: False
+
+   %matplotlib inline
+
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   fig = plt.figure()
+   plt.plot(np.sin(np.linspace(0, 20, 100)))
+   plt.show();
+
+Alternatively, you can try the gallery examples in `our JupyterLite deployment <./lite/lab>`__.
+
 Community
 =========
 

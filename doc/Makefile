@@ -28,6 +28,8 @@ clean:
 	rm -rf "$(SOURCEDIR)/sphinxext/__pycache__"
 	rm -f $(SOURCEDIR)/_static/constrained_layout*.png
 	rm -f $(SOURCEDIR)/sg_execution_times.rst
+	rm -rf $(SOURCEDIR)/jupyterlite_contents
+	rm -rf $(SOURCEDIR)/.jupyterlite.doit.db
 
 show:
 	@python -c "import webbrowser; webbrowser.open_new_tab('file://$(shell pwd)/build/html/index.html')"
