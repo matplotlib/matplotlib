@@ -778,6 +778,16 @@ class Collection(mcolorizer.ColorizingArtist):
         return mpl.rcParams['patch.facecolor']
 
     def _set_facecolor(self, c):
+        if self.get_array() is not None:
+            # Note: we cannot use self._face_is_mapped here because it is
+            # lazily calculated in update_scalarmappable(), but the equivalent
+            # logic there is that colormapping from an array takes precedence
+            # over an explicit facecolor.
+            _api.warn_external(
+                "Setting the facecolor has no effect because there is colormapped "
+                "array data, which takes precedence. Use `set_array(None)` before "
+                "setting the facecolor to override this.")
+
         if c is None:
             c = self._get_default_facecolor()
 
