@@ -2939,16 +2939,16 @@ class Axes(_AxesBase):
 
         if np.iterable(padding):
             # if padding iterable, check length
-            padding_array = np.asarray(padding)
-            if len(padding_array) != len(bars):
+            padding = np.asarray(padding)
+            if len(padding) != len(bars):
                 raise ValueError(
                     f"padding must be of length {len(bars)} when passed as a sequence")
         else:
             # single value, apply to all labels
-            padding_array = [padding] * len(bars)
+            padding = [padding] * len(bars)
 
         for bar, err, dat, lbl, pad in itertools.zip_longest(
-                bars, errs, datavalues, labels, padding_array
+                bars, errs, datavalues, labels, padding
         ):
             (x0, y0), (x1, y1) = bar.get_bbox().get_points()
             xc, yc = (x0 + x1) / 2, (y0 + y1) / 2

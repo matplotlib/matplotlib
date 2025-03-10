@@ -3025,7 +3025,7 @@ def bar_label(
     *,
     fmt: str | Callable[[float], str] = "%g",
     label_type: Literal["center", "edge"] = "edge",
-    padding: float = 0,
+    padding: float | ArrayLike = 0,
     **kwargs,
 ) -> list[Annotation]:
     return gca().bar_label(

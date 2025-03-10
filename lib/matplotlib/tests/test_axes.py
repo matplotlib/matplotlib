@@ -8877,8 +8877,6 @@ def test_bar_label_padding():
     assert labels1[0].xyann[1] == 5
     assert labels1[1].xyann[1] == 5
 
-    ax = plt.gca()
-    rects = ax.bar(xs, heights)
     labels2 = ax.bar_label(rects, padding=[2, 8])  # test array-like values
     assert labels2[0].xyann[1] == 2
     assert labels2[1].xyann[1] == 8
