@@ -39,7 +39,6 @@ class WebAggFigureWidget(HTML):
     def _setup_widget(self):
         # TODO find a better way to get the required size to show the full figure
         w = int(self.f.dpi * self.f.get_figwidth() + self._margin_x)
-        # 40 px is appended as space for the toolbar.
         h = int((self.f.dpi * self.f.get_figheight() + self._margin_y))
         layout = Layout(width=f"{w}px", height=f"{h}px")
 
@@ -106,6 +105,7 @@ class FigureCanvasWebAggWidget(core.FigureCanvasWebAggCore):
 
     def show(self):
         return self._get_widget()
+
 
 @_Backend.export
 class _BackendWebAggWidget(_Backend):
