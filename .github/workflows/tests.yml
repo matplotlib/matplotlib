@@ -104,10 +104,14 @@ jobs:
             pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
 
@@ -273,7 +277,7 @@ jobs:
           # (sometimes, the install appears to be successful but shared
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
-          python -m pip install --upgrade pycairo 'cairocffi>=0.8' 'PyGObject<3.52.0' &&
+          python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject${{ matrix.pygobject-ver }} &&
             (
               python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
               echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
