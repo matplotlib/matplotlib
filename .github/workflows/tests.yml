@@ -261,7 +261,7 @@ jobs:
           python -m pip install --upgrade $PRE \
             'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
             packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
-            'meson-python>=0.13.1' 'pybind11>=2.13.2' \
+            'meson-python>=0.13.1' 'pybind11>=2.13.2' 'ninja>=1.8.2' \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 
