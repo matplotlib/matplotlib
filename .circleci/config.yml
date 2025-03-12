@@ -55,7 +55,6 @@ commands:
               graphviz \
               inkscape \
               lmodern \
-              ninja-build \
               optipng \
               texlive-fonts-recommended \
               texlive-latex-base \

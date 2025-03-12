@@ -72,10 +72,6 @@ stages:
             displayName: 'Use Python $(python.version)'
 
           - bash: |
-              choco install ninja
-            displayName: 'Install dependencies'
-
-          - bash: |
               python -m pip install --upgrade pip
               python -m pip install --upgrade -r requirements/dev/build-requirements.txt
               python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt

@@ -170,7 +170,6 @@ jobs:
               libxcb-render-util0 \
               libxcb-xinerama0 \
               lmodern \
-              ninja-build \
               pkg-config \
               qtbase5-dev \
               texlive-fonts-recommended \
@@ -204,7 +203,7 @@ jobs:
             done
             # Workaround for https://github.com/actions/runner-images/issues/10984
             brew uninstall --ignore-dependencies --force pkg-config@0.29.2
-            brew install ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
+            brew install ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick
             brew install --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
