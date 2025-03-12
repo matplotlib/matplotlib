@@ -626,17 +626,8 @@ class Collection(mcolorizer.ColorizingArtist):
             ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
             complete description.
         """
-        try:
-            dashes = [mlines._get_dash_pattern(ls)]
-        except ValueError:
-            try:
-                dashes = [mlines._get_dash_pattern(x) for x in ls]
-            except ValueError as err:
-                emsg = f'Do not know how to convert {ls!r} to dashes'
-                raise ValueError(emsg) from err
-
         # get the list of raw 'unscaled' dash patterns
-        self._us_linestyles = dashes
+        self._us_linestyles = mlines._get_dash_patterns(ls)
 
         # broadcast and scale the lw and dash patterns
         self._linewidths, self._linestyles = self._bcast_lwls(

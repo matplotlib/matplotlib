@@ -60,6 +60,20 @@ def _get_dash_pattern(style):
     return offset, dashes
 
 
+def _get_dash_patterns(styles):
+    """Convert linestyle or sequence of linestyles to list of dash patterns."""
+    try:
+        patterns = [_get_dash_pattern(styles)]
+    except ValueError:
+        try:
+            patterns = [_get_dash_pattern(x) for x in styles]
+        except ValueError as err:
+            emsg = f'Do not know how to convert {styles!r} to dashes'
+            raise ValueError(emsg) from err
+
+    return patterns
+
+
 def _get_inverse_dash_pattern(offset, dashes):
     """Return the inverse of the given dash pattern, for filling the gaps."""
     # Define the inverse pattern by moving the last gap to the start of the
