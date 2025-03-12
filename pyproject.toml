@@ -38,7 +38,7 @@ dependencies = [
     "numpy >= 1.23",
     "packaging >= 20.0",
     "pillow >= 9",
-    "pyparsing >= 2.3.1",
+    "pyparsing >= 3",
     "python-dateutil >= 2.7",
 ]
 requires-python = ">=3.10"
