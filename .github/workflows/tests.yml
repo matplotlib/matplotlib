@@ -277,7 +277,7 @@ jobs:
           # (sometimes, the install appears to be successful but shared
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
-          python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject${{ matrix.pygobject-ver }} &&
+          python -m pip install --upgrade pycairo 'cairocffi>=0.8' 'PyGObject${{ matrix.pygobject-ver }}' &&
             (
               python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
               echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
