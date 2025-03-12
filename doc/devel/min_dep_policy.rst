@@ -10,8 +10,8 @@ For the purpose of this document, 'minor version' is in the sense of SemVer
 major/macro and minor/meso releases.  For projects that use date-based
 versioning, every release is a 'minor version'.
 
-Matplotlib follows `NEP 29
-<https://numpy.org/neps/nep-0029-deprecation_policy.html>`__.
+Matplotlib follows the recommendations in `SPEC 0
+<https://scientific-python.org/specs/spec-0000/>`__.
 
 Python and NumPy
 ================
