@@ -75,6 +75,7 @@ class FT2Font
     virtual ~FT2Font();
     void clear();
     void set_size(double ptsize, double dpi);
+    void set_features(std::vector<std::string> features);
     void set_charmap(int i);
     void select_charmap(unsigned long i);
     void set_text(std::u32string_view codepoints, double angle, FT_Int32 flags,
@@ -150,6 +151,7 @@ class FT2Font
     FT_Pos advance;
     long hinting_factor;
     int kerning_factor;
+    std::vector<std::string> feature_tags;
 
     // prevent copying
     FT2Font(const FT2Font &);
