@@ -3654,8 +3654,8 @@ def figaspect(arg):
 
     Returns
     -------
-    width, height : float
-        The figure size in inches.
+    size : (2,) array
+        The width and height of the figure in inches.
 
     Notes
     -----
