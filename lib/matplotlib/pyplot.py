@@ -583,7 +583,10 @@ def show(*args, **kwargs) -> None:
 
         If `False` ensure that all figure windows are displayed and return
         immediately.  In this case, you are responsible for ensuring
-        that the event loop is running to have responsive figures.
+        that the event loop is running to have responsive figures; in the
+        simplest form by calling ``fig.canvas.manager.mainloop()`` which is
+        what a blocking show is doing internally. Note that the GUI mainloop
+        itself is blocking.
 
         Defaults to True in non-interactive mode and to False in interactive
         mode (see `.pyplot.isinteractive`).
