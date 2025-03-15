@@ -56,4 +56,4 @@ ani = animation.FuncAnimation(fig, anim, 50, repeat=False, blit=True)
 plt.show()
 
 # %%
-# .. tags:: plot-type: histogram, animation
+# .. tags:: plot-type: histogram, component: animation

@@ -41,5 +41,5 @@ plt.show()
 #    component: marker
 #    styling: color
 #    styling: colormap
-#    plot-style: scatter
+#    plot-type: scatter
 #    level: beginner
