@@ -65,7 +65,7 @@ jobs:
               "ipython==7.29.0"
               "ipykernel==5.5.6"
               "matplotlib-inline<0.1.7"
-            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
+            lto: "--config-settings=setup-args=-Db_lto=false"  # Ensure that disabling LTO works.
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
             pyqt6-ver: '!=6.5.1,!=6.6.0,!=6.7.1'
@@ -78,6 +78,7 @@ jobs:
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
             extra-requirements: '-r requirements/testing/extra.txt'
+            python-optimize: 'true'
           - os: ubuntu-22.04-arm
             python-version: '3.12'
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
@@ -351,7 +352,7 @@ jobs:
           fi
 
           python -m pip install --no-deps --no-build-isolation --verbose \
-            --config-settings=setup-args="-DrcParams-backend=Agg" \
+            --config-settings=setup-args="-DrcParams-backend=Agg" ${{ matrix.lto }} \
             --editable .[dev]
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
@@ -368,7 +369,10 @@ jobs:
           if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
             export PYTHON_GIL=0
           fi
-          pytest -rfEsXR -n auto \
+          if [[ "${{ matrix.python-optimize }}" == 'true' ]]; then
+            export PYTHONOPTIMIZE=2
+          fi
+          pytest -rfEsXR -n auto -sv \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
