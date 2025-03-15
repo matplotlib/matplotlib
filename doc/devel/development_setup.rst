@@ -207,9 +207,9 @@ Additionally, the following non-Python dependencies must also be installed local
 
 .. rst-class:: checklist
 
+* :ref:`ninja <ninja-dependencies>`
 * :ref:`c++ compiler<compile-dependencies>`
 * :ref:`external tools used by the documentation build <doc-dependencies-external>`
-
 
 For a full list of dependencies, see :ref:`dependencies`. External dependencies do not
 need to be installed when working in codespaces.
