@@ -1,0 +1,18 @@
+# This environment file is added via the XeusAddon.environment_file
+# key in the jupyterlite_build_command_options dict in conf.py. See
+# https://jupyterlite-sphinx.readthedocs.io/en/stable/configuration.html
+# for more information on additional configuration options.
+---
+
+name: mpl-wasm-docs
+channels:
+  - https://repo.mamba.pm/emscripten-forge
+  - conda-forge
+dependencies:
+  # for examples in the gallery
+  # temporary: pin NumPy to <2 for now, see https://github.com/emscripten-forge/recipes/issues/1766
+  - numpy==1.26.4
+  - matplotlib
+  - ipympl
+  # a kernel for running them
+  - xeus-python
