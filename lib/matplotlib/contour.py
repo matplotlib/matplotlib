@@ -1686,7 +1686,7 @@ data : indexable object, optional
 
 rasterized : bool, optional
     *Only applies to* `.contourf`.
-    Rasterize the pcolormesh when drawing vector graphics.  This can
+    Rasterize the contour plot when drawing vector graphics.  This can
     speed up rendering and produce smaller files for large data sets.
     See also :doc:`/gallery/misc/rasterization_demo`.
 
