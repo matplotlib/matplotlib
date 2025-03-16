@@ -13,8 +13,8 @@ the API and any changes, either semantic or aesthetic, are backwards-incompatibl
 API changes.
 
 
-Add new API and features
-------------------------
+Add new API
+-----------
 
 Every new function, parameter and attribute that is not explicitly marked as
 private (i.e., starts with an underscore) becomes part of Matplotlib's public
@@ -53,6 +53,32 @@ them. While the decision is case-by-case, evaluation criteria include:
 
 Deprecate API
 -------------
+
+When deciding to deprecate API we carefully consider the balance between the advantages
+(clearer interfaces, better usability, less maintenance) and the disadvantages (users
+have to learn new API and have to modify existing code).
+
+.. tip::
+
+   A rough estimate on the current usage of an API can be obtained by a GitHub code
+   search. A good search pattern is typically
+   ``[expression] language:Python NOT is:fork``. ``[expression]`` may be a simple
+   string, but often regular expressions are helpful to exclude incorrect matches.
+   You can start simple and look at the search results, if there are too many
+   incorrect matches, gradually refine your search criteria.
+
+   *Example*: Calls of the method ``Figure.draw()`` could be matched using
+   ``/\bfig(ure)?\.draw\(/``. This expression employs a number of patterns:
+
+   - Add the opening bracket ``(`` after the method name to only find method calls.
+   - Include a common object name if there are otherwise too many false positives.
+     There are many ``draw()`` functions out there, but the ones we are looking for
+     are likely called via ``fig.draw()`` or ``figure.draw()``.
+   - Use the word boundary marker ``\b`` to make sure your expression is not a
+     matching as part of a longer word.
+
+   `Link to the resulting GitHub search <https://github.com/search?q=%2F%5Cbfig%28ure%29%3F%5C.draw%5C%28%2F+language%3APython+NOT+is%3Afork&type=code>`_
+
 
 API changes in Matplotlib have to be performed following the deprecation process
 below, except in very rare circumstances as deemed necessary by the development
@@ -184,7 +210,8 @@ Announce new and deprecated API
 
 When adding or changing the API in a backward in-compatible way, please add the
 appropriate :ref:`versioning directive <versioning-directives>` and document it
-for the release notes and add the entry to the appropriate folder:
+in the :ref:`release notes <release-notes>` by adding an entry to the appropriate
+folder:
 
 +-------------------+-----------------------------+----------------------------------------------+
 |                   |   versioning directive      |  announcement folder                         |
@@ -251,6 +278,8 @@ For classes and functions, the directive should be placed before the
 *Parameters* section. For parameters, the directive should be placed at the
 end of the parameter description. The micro release version is omitted and
 the directive should not be added to entire modules.
+
+.. _release-notes:
 
 Release notes
 ^^^^^^^^^^^^^

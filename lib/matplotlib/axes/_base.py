@@ -565,6 +565,36 @@ class _AxesBase(martist.Artist):
     dataLim: mtransforms.Bbox
     """The bounding `.Bbox` enclosing all data displayed in the Axes."""
 
+    xaxis: maxis.XAxis
+    """
+    The `.XAxis` instance.
+
+    Common axis-related configuration can be achieved through high-level wrapper
+    methods on Axes; e.g. `ax.set_xticks <.Axes.set_xticks>` is a shortcut for
+    `ax.xaxis.set_ticks <.Axis.set_ticks>`. The *xaxis* attribute gives direct
+    direct access to the underlying `~.axis.Axis` if you need more control.
+
+    See also
+
+    - :ref:`Axis wrapper methods on Axes <axes-api-axis>`
+    - :doc:`Axis API </api/axis_api>`
+    """
+
+    yaxis: maxis.YAxis
+    """
+    The `.YAxis` instance.
+
+    Common axis-related configuration can be achieved through high-level wrapper
+    methods on Axes; e.g. `ax.set_yticks <.Axes.set_yticks>` is a shortcut for
+    `ax.yaxis.set_ticks <.Axis.set_ticks>`. The *yaxis* attribute gives direct
+    access to the underlying `~.axis.Axis` if you need more control.
+
+    See also
+
+    - :ref:`Axis wrapper methods on Axes <axes-api-axis>`
+    - :doc:`Axis API </api/axis_api>`
+    """
+
     def __str__(self):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
@@ -677,8 +707,9 @@ class _AxesBase(martist.Artist):
         self._colorbars = []
         self.spines = mspines.Spines.from_dict(self._gen_axes_spines())
 
-        # this call may differ for non-sep axes, e.g., polar
-        self._init_axis()
+        self.xaxis = None  # will be populated in _init_axis()
+        self.yaxis = None  # will be populated in _init_axis()
+        self._init_axis()  # this call may differ for non-sep axes, e.g., polar
         self._axis_map = {
             name: getattr(self, f"{name}axis") for name in self._axis_names
         }  # A mapping of axis names, e.g. 'x', to `Axis` instances.
@@ -2212,7 +2243,7 @@ class _AxesBase(martist.Artist):
         .. admonition:: Discouraged
 
             The use of this function is discouraged. You should instead
-            directly access the attribute ``ax.xaxis``.
+            directly access the attribute `~.Axes.xaxis`.
         """
         return self.xaxis
 
@@ -2223,7 +2254,7 @@ class _AxesBase(martist.Artist):
         .. admonition:: Discouraged
 
             The use of this function is discouraged. You should instead
-            directly access the attribute ``ax.yaxis``.
+            directly access the attribute `~.Axes.yaxis`.
         """
         return self.yaxis
 
@@ -3469,7 +3500,9 @@ class _AxesBase(martist.Artist):
         labelbottom, labeltop, labelleft, labelright : bool
             Whether to draw the respective tick labels.
         labelrotation : float
-            Tick label rotation
+            Tick label rotation angle in degrees. See `.Text.set_rotation`.
+        labelrotation_mode : {'default', 'anchor', 'xtick', 'ytick'}
+            Tick label rotation mode. See `.Text.set_rotation_mode`.
         grid_color : :mpltype:`color`
             Gridline color.
         grid_alpha : float

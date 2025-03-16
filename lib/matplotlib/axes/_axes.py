@@ -818,7 +818,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : float, default: 0
-            y position in :ref:`data coordinates <coordinate-systems>`.
+            x position in :ref:`data coordinates <coordinate-systems>`.
 
         ymin : float, default: 0
             The start y-position in :ref:`axes coordinates <coordinate-systems>`.
@@ -1090,7 +1090,7 @@ class Axes(_AxesBase):
         self._request_autoscale_view("x")
         return p
 
-    @_api.make_keyword_only("3.9", "label")
+    @_api.make_keyword_only("3.10", "label")
     @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
                       label_namer="y")
     def hlines(self, y, xmin, xmax, colors=None, linestyles='solid',
@@ -1182,7 +1182,7 @@ class Axes(_AxesBase):
             self._request_autoscale_view()
         return lines
 
-    @_api.make_keyword_only("3.9", "label")
+    @_api.make_keyword_only("3.10", "label")
     @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
                       label_namer="x")
     def vlines(self, x, ymin, ymax, colors=None, linestyles='solid',
@@ -1274,7 +1274,7 @@ class Axes(_AxesBase):
             self._request_autoscale_view()
         return lines
 
-    @_api.make_keyword_only("3.9", "orientation")
+    @_api.make_keyword_only("3.10", "orientation")
     @_preprocess_data(replace_names=["positions", "lineoffsets",
                                      "linelengths", "linewidths",
                                      "colors", "linestyles"])
@@ -1778,87 +1778,6 @@ class Axes(_AxesBase):
             self._request_autoscale_view("y")
         return lines
 
-    @_api.deprecated("3.9", alternative="plot")
-    @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    @_docstring.interpd
-    def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
-                  **kwargs):
-        """
-        Plot coercing the axis to treat floats as dates.
-
-        .. deprecated:: 3.9
-
-            This method exists for historic reasons and will be removed in version 3.11.
-
-            - ``datetime``-like data should directly be plotted using
-              `~.Axes.plot`.
-            -  If you need to plot plain numeric data as :ref:`date-format` or
-               need to set a timezone, call ``ax.xaxis.axis_date`` /
-               ``ax.yaxis.axis_date`` before `~.Axes.plot`. See
-               `.Axis.axis_date`.
-
-        Similar to `.plot`, this plots *y* vs. *x* as lines or markers.
-        However, the axis labels are formatted as dates depending on *xdate*
-        and *ydate*.  Note that `.plot` will work with `datetime` and
-        `numpy.datetime64` objects without resorting to this method.
-
-        Parameters
-        ----------
-        x, y : array-like
-            The coordinates of the data points. If *xdate* or *ydate* is
-            *True*, the respective values *x* or *y* are interpreted as
-            :ref:`Matplotlib dates <date-format>`.
-
-        fmt : str, optional
-            The plot format string. For details, see the corresponding
-            parameter in `.plot`.
-
-        tz : timezone string or `datetime.tzinfo`, default: :rc:`timezone`
-            The time zone to use in labeling dates.
-
-        xdate : bool, default: True
-            If *True*, the *x*-axis will be interpreted as Matplotlib dates.
-
-        ydate : bool, default: False
-            If *True*, the *y*-axis will be interpreted as Matplotlib dates.
-
-        Returns
-        -------
-        list of `.Line2D`
-            Objects representing the plotted data.
-
-        Other Parameters
-        ----------------
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
-        **kwargs
-            Keyword arguments control the `.Line2D` properties:
-
-            %(Line2D:kwdoc)s
-
-        See Also
-        --------
-        matplotlib.dates : Helper functions on dates.
-        matplotlib.dates.date2num : Convert dates to num.
-        matplotlib.dates.num2date : Convert num to dates.
-        matplotlib.dates.drange : Create an equally spaced sequence of dates.
-
-        Notes
-        -----
-        If you are using custom date tickers and formatters, it may be
-        necessary to set the formatters/locators after the call to
-        `.plot_date`. `.plot_date` will set the default tick locator to
-        `.AutoDateLocator` (if the tick locator is not already set to a
-        `.DateLocator` instance) and the default tick formatter to
-        `.AutoDateFormatter` (if the tick formatter is not already set to a
-        `.DateFormatter` instance).
-        """
-        if xdate:
-            self.xaxis_date(tz)
-        if ydate:
-            self.yaxis_date(tz)
-        return self.plot(x, y, fmt, **kwargs)
-
     # @_preprocess_data() # let 'plot' do the unpacking..
     @_docstring.interpd
     def loglog(self, *args, **kwargs):
@@ -2081,7 +2000,7 @@ class Axes(_AxesBase):
         """
         return self.xcorr(x, x, **kwargs)
 
-    @_api.make_keyword_only("3.9", "normed")
+    @_api.make_keyword_only("3.10", "normed")
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs):
@@ -3241,7 +3160,7 @@ class Axes(_AxesBase):
         self.add_container(stem_container)
         return stem_container
 
-    @_api.make_keyword_only("3.9", "explode")
+    @_api.make_keyword_only("3.10", "explode")
     @_preprocess_data(replace_names=["x", "explode", "labels", "colors"])
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
@@ -3521,7 +3440,7 @@ class Axes(_AxesBase):
         everymask[errorevery] = True
         return everymask
 
-    @_api.make_keyword_only("3.9", "ecolor")
+    @_api.make_keyword_only("3.10", "ecolor")
     @_preprocess_data(replace_names=["x", "y", "xerr", "yerr"],
                       label_namer="y")
     @_docstring.interpd
@@ -3898,7 +3817,7 @@ class Axes(_AxesBase):
 
         return errorbar_container  # (l0, caplines, barcols)
 
-    @_api.make_keyword_only("3.9", "notch")
+    @_api.make_keyword_only("3.10", "notch")
     @_preprocess_data()
     @_api.rename_parameter("3.9", "labels", "tick_labels")
     def boxplot(self, x, notch=None, sym=None, vert=None,
@@ -4236,7 +4155,7 @@ class Axes(_AxesBase):
                            orientation=orientation)
         return artists
 
-    @_api.make_keyword_only("3.9", "widths")
+    @_api.make_keyword_only("3.10", "widths")
     def bxp(self, bxpstats, positions=None, widths=None, vert=None,
             orientation='vertical', patch_artist=False, shownotches=False,
             showmeans=False, showcaps=True, showbox=True, showfliers=True,
@@ -4770,7 +4689,7 @@ class Axes(_AxesBase):
             colors = None  # use cmap, norm after collection is created
         return c, colors, edgecolors
 
-    @_api.make_keyword_only("3.9", "marker")
+    @_api.make_keyword_only("3.10", "marker")
     @_preprocess_data(replace_names=["x", "y", "s", "linewidths",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"],
@@ -5066,7 +4985,7 @@ class Axes(_AxesBase):
 
         return collection
 
-    @_api.make_keyword_only("3.9", "gridsize")
+    @_api.make_keyword_only("3.10", "gridsize")
     @_preprocess_data(replace_names=["x", "y", "C"], label_namer="y")
     @_docstring.interpd
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
@@ -6814,7 +6733,7 @@ class Axes(_AxesBase):
 
     #### Data analysis
 
-    @_api.make_keyword_only("3.9", "range")
+    @_api.make_keyword_only("3.10", "range")
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
     def hist(self, x, bins=None, range=None, density=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
@@ -7017,6 +6936,8 @@ such objects
         # Avoid shadowing the builtin.
         bin_range = range
         from builtins import range
+
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
 
         if np.isscalar(x):
             x = [x]
@@ -7272,15 +7193,26 @@ such objects
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
 
         if histtype == "step":
-            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get('edgecolor',
-                                                                  colors)))
+            ec = kwargs.get('edgecolor', colors)
         else:
-            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get("edgecolor", None)))
+            ec = kwargs.get('edgecolor', None)
+        if ec is None or cbook._str_lower_equal(ec, 'none'):
+            edgecolors = itertools.repeat(ec)
+        else:
+            edgecolors = itertools.cycle(mcolors.to_rgba_array(ec))
 
-        facecolors = itertools.cycle(np.atleast_1d(kwargs.get('facecolor', colors)))
+        fc = kwargs.get('facecolor', colors)
+        if cbook._str_lower_equal(fc, 'none'):
+            facecolors = itertools.repeat(fc)
+        else:
+            facecolors = itertools.cycle(mcolors.to_rgba_array(fc))
+
         hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
         linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
-        linestyles = itertools.cycle(np.atleast_1d(kwargs.get('linestyle', None)))
+        if 'linestyle' in kwargs:
+            linestyles = itertools.cycle(mlines._get_dash_patterns(kwargs['linestyle']))
+        else:
+            linestyles = itertools.repeat(None)
 
         for patch, lbl in itertools.zip_longest(patches, labels):
             if not patch:
@@ -7404,7 +7336,7 @@ such objects
         self._request_autoscale_view()
         return patch
 
-    @_api.make_keyword_only("3.9", "range")
+    @_api.make_keyword_only("3.10", "range")
     @_preprocess_data(replace_names=["x", "y", "weights"])
     @_docstring.interpd
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
@@ -7616,7 +7548,7 @@ such objects
             line.sticky_edges.x[:] = [0, 1]
         return line
 
-    @_api.make_keyword_only("3.9", "NFFT")
+    @_api.make_keyword_only("3.10", "NFFT")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
@@ -7728,7 +7660,7 @@ such objects
         else:
             return pxx, freqs, line
 
-    @_api.make_keyword_only("3.9", "NFFT")
+    @_api.make_keyword_only("3.10", "NFFT")
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     @_docstring.interpd
     def csd(self, x, y, NFFT=None, Fs=None, Fc=None, detrend=None,
@@ -7831,7 +7763,7 @@ such objects
         else:
             return pxy, freqs, line
 
-    @_api.make_keyword_only("3.9", "Fs")
+    @_api.make_keyword_only("3.10", "Fs")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def magnitude_spectrum(self, x, Fs=None, Fc=None, window=None,
@@ -7918,7 +7850,7 @@ such objects
 
         return spec, freqs, line
 
-    @_api.make_keyword_only("3.9", "Fs")
+    @_api.make_keyword_only("3.10", "Fs")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def angle_spectrum(self, x, Fs=None, Fc=None, window=None,
@@ -7988,7 +7920,7 @@ such objects
 
         return spec, freqs, lines[0]
 
-    @_api.make_keyword_only("3.9", "Fs")
+    @_api.make_keyword_only("3.10", "Fs")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def phase_spectrum(self, x, Fs=None, Fc=None, window=None,
@@ -8058,7 +7990,7 @@ such objects
 
         return spec, freqs, lines[0]
 
-    @_api.make_keyword_only("3.9", "NFFT")
+    @_api.make_keyword_only("3.10", "NFFT")
     @_preprocess_data(replace_names=["x", "y"])
     @_docstring.interpd
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
@@ -8123,7 +8055,7 @@ such objects
 
         return cxy, freqs
 
-    @_api.make_keyword_only("3.9", "NFFT")
+    @_api.make_keyword_only("3.10", "NFFT")
     @_preprocess_data(replace_names=["x"])
     @_docstring.interpd
     def specgram(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
@@ -8285,7 +8217,7 @@ such objects
 
         return spec, freqs, t, im
 
-    @_api.make_keyword_only("3.9", "precision")
+    @_api.make_keyword_only("3.10", "precision")
     @_docstring.interpd
     def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal', origin="upper", **kwargs):
@@ -8476,7 +8408,7 @@ such objects
             mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
         return im
 
-    @_api.make_keyword_only("3.9", "vert")
+    @_api.make_keyword_only("3.10", "vert")
     @_preprocess_data(replace_names=["dataset"])
     def violinplot(self, dataset, positions=None, vert=None,
                    orientation='vertical', widths=0.5, showmeans=False,
@@ -8615,7 +8547,7 @@ such objects
                            showmedians=showmedians, side=side,
                            facecolor=facecolor, linecolor=linecolor)
 
-    @_api.make_keyword_only("3.9", "vert")
+    @_api.make_keyword_only("3.10", "vert")
     def violin(self, vpstats, positions=None, vert=None,
                orientation='vertical', widths=0.5, showmeans=False,
                showextrema=True, showmedians=False, side='both',

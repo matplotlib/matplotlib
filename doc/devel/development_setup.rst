@@ -34,24 +34,31 @@ repository, you should first fork this repository by *clicking* the
 This creates a copy of the code under your account on the GitHub server. See `the GitHub
 documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details.
 
-Decide whether to work locally or in GitHub Codespaces
-======================================================
+Set up development environment
+==============================
 
 You can either work locally on your machine, or online in
 `GitHub Codespaces <github-codespaces_>`_, a cloud-based in-browser development
-environment.  If you are making a one-off, relatively simple change then
-working in GitHub Codespaces can be a good option because most of the setting
-up is done for you and you can skip the next few sections!  If you are making
-extensive or frequent contributions to Matplotlib then it is probably worth
-taking the time to set up on your local machine: As well as having the
-convenience of your local familiar tools, you will not need to worry about
-Codespace's monthly usage limits.
+environment.
+
+
+:local: If you are making extensive or frequent contributions to Matplotlib then it
+        is probably worth taking the time to set up on your local machine: As well as
+        having the convenience of your local familiar tools, you will not need to worry
+        about Codespace's monthly usage limits.
+
+:codespaces: If you are making a one-off, relatively simple, change then working in
+            GitHub Codespaces can be a good option because most of the setting
+            up is done for you and you can skip the next few sections.
 
 If you want to use Codespaces, skip to :ref:`development-codespaces`,
 otherwise, continue with the next section.
 
-Retrieve the latest version of the code
-=======================================
+Create local environment
+------------------------
+
+Get most recent code
+^^^^^^^^^^^^^^^^^^^^
 
 Now that your fork of the repository lives under your GitHub username, you can
 retrieve the most recent version of the source code with one of the following
@@ -122,8 +129,9 @@ code, as described in :ref:`development-workflow`.
 
 .. _dev-environment:
 
-Create a dedicated python environment
-=====================================
+Create a dedicated environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 You should set up a dedicated environment to decouple your Matplotlib
 development from other Python and Matplotlib installations on your system.
 
@@ -142,11 +150,27 @@ setup.
 
         python -m venv <file folder location>
 
-      and activate it with one of the following ::
+      and activate it with one of the following :
 
-        source <file folder location>/bin/activate  # Linux/macOS
-        <file folder location>\Scripts\activate.bat  # Windows cmd.exe
-        <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
+      .. tab-set::
+
+         .. tab-item:: Linux and macOS
+
+            .. code-block:: bash
+
+               source <file folder location>/bin/activate  # Linux/macOS
+
+         .. tab-item:: Windows cmd.exe
+
+            .. code-block:: bat
+
+               <file folder location>\Scripts\activate.bat
+
+         .. tab-item:: Windows PowerShell
+
+            .. code-block:: ps1con
+
+               <file folder location>\Scripts\Activate.ps1
 
       On some systems, you may need to type ``python3`` instead of ``python``.
       For a discussion of the technical reasons, see `PEP-394 <https://peps.python.org/pep-0394>`_.
@@ -176,7 +200,7 @@ setup.
 
 
 Install external dependencies
-=============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Python dependencies were installed as part of :ref:`setting up the environment <dev-environment>`.
 Additionally, the following non-Python dependencies must also be installed locally:
@@ -192,8 +216,8 @@ need to be installed when working in codespaces.
 
 .. _development-codespaces:
 
-:octicon:`codespaces` Create a GitHub Codespace
-===============================================
+Create GitHub Codespace :octicon:`codespaces`
+---------------------------------------------
 
 `GitHub Codespaces <github-codespaces_>`_ is a cloud-based
 in-browser development environment that comes with the appropriate setup to

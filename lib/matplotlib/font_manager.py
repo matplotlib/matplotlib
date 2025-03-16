@@ -30,7 +30,7 @@ from __future__ import annotations
 from base64 import b64encode
 import copy
 import dataclasses
-from functools import lru_cache
+from functools import cache, lru_cache
 import functools
 from io import BytesIO
 import json
@@ -247,7 +247,7 @@ def _get_win32_installed_fonts():
     return items
 
 
-@lru_cache
+@cache
 def _get_fontconfig_fonts():
     """Cache and list the font paths known to ``fc-list``."""
     try:
@@ -261,7 +261,7 @@ def _get_fontconfig_fonts():
     return [Path(os.fsdecode(fname)) for fname in out.split(b'\n')]
 
 
-@lru_cache
+@cache
 def _get_macos_fonts():
     """Cache and list the font paths known to ``system_profiler SPFontsDataType``."""
     try:

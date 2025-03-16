@@ -1,3 +1,7 @@
+Removals
+--------
+
+
 ttconv removed
 ~~~~~~~~~~~~~~
 

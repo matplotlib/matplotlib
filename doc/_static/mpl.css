@@ -195,15 +195,16 @@ div.wide-table table th.stub {
 }
 
 /* section-toc is a custom class that removes the page title from a toctree listing
+ * and shifts the resulting list left
  * Example usage:
  *
  * .. rst-class:: section-toc
  * .. toctree::
  *
  */
-.section-toc.toctree-wrapper .toctree-l1>a{
+ .section-toc.toctree-wrapper .toctree-l1>a{
     display: none;
 }
-.section-toc.toctree-wrapper li>ul{
-    padding-inline-start:0;
+.section-toc.toctree-wrapper .toctree-l1>ul{
+    padding-left: 0;
 }

@@ -200,18 +200,6 @@ class Axes(_AxesBase):
         data=...,
         **kwargs
     ) -> list[Line2D]: ...
-    def plot_date(
-        self,
-        x: ArrayLike,
-        y: ArrayLike,
-        fmt: str = ...,
-        tz: str | datetime.tzinfo | None = ...,
-        xdate: bool = ...,
-        ydate: bool = ...,
-        *,
-        data=...,
-        **kwargs
-    ) -> list[Line2D]: ...
     def loglog(self, *args, **kwargs) -> list[Line2D]: ...
     def semilogx(self, *args, **kwargs) -> list[Line2D]: ...
     def semilogy(self, *args, **kwargs) -> list[Line2D]: ...

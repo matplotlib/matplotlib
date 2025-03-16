@@ -895,22 +895,6 @@ def test_single_point():
     ax2.plot('b', 'b', 'o', data=data)
 
 
-@image_comparison(['single_date.png'], style='mpl20')
-def test_single_date():
-
-    # use former defaults to match existing baseline image
-    plt.rcParams['axes.formatter.limits'] = -7, 7
-    dt = mdates.date2num(np.datetime64('0000-12-31'))
-
-    time1 = [721964.0]
-    data1 = [-65.54]
-
-    fig, ax = plt.subplots(2, 1)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        ax[0].plot_date(time1 + dt, data1, 'o', color='r')
-    ax[1].plot(time1, data1, 'o', color='r')
-
-
 @check_figures_equal(extensions=["png"])
 def test_shaped_data(fig_test, fig_ref):
     row = np.arange(10).reshape((1, -1))
@@ -4847,6 +4831,27 @@ def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
                      zorder=(len(xs)-i)/2)
 
 
+def test_hist_sequence_type_styles():
+    facecolor = ('r', 0.5)
+    edgecolor = [0.5, 0.5, 0.5]
+    linestyle = (0, (1, 1))
+
+    arr = np.random.uniform(size=50)
+    _, _, bars = plt.hist(arr, facecolor=facecolor, edgecolor=edgecolor,
+                          linestyle=linestyle)
+    assert mcolors.same_color(bars[0].get_facecolor(), facecolor)
+    assert mcolors.same_color(bars[0].get_edgecolor(), edgecolor)
+    assert bars[0].get_linestyle() == linestyle
+
+
+def test_hist_color_none():
+    arr = np.random.uniform(size=50)
+    # No edgecolor is the default but check that it can be explicitly passed.
+    _, _, bars = plt.hist(arr, facecolor='none', edgecolor='none')
+    assert bars[0].get_facecolor(), (0, 0, 0, 0)
+    assert bars[0].get_edgecolor(), (0, 0, 0, 0)
+
+
 @pytest.mark.parametrize('kwargs, patch_face, patch_edge',
                          # 'C0'(blue) stands for the first color of the
                          # default color cycle as well as the patch.facecolor rcParam
@@ -7299,63 +7304,6 @@ def test_bar_uint8():
         assert patch.xy[0] == x
 
 
-@image_comparison(['date_timezone_x.png'], tol=1.0)
-def test_date_timezone_x():
-    # Tests issue 5575
-    time_index = [datetime.datetime(2016, 2, 22, hour=x,
-                                    tzinfo=dateutil.tz.gettz('Canada/Eastern'))
-                  for x in range(3)]
-
-    # Same Timezone
-    plt.figure(figsize=(20, 12))
-    plt.subplot(2, 1, 1)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
-
-    # Different Timezone
-    plt.subplot(2, 1, 2)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date(time_index, [3] * 3, tz='UTC')
-
-
-@image_comparison(['date_timezone_y.png'])
-def test_date_timezone_y():
-    # Tests issue 5575
-    time_index = [datetime.datetime(2016, 2, 22, hour=x,
-                                    tzinfo=dateutil.tz.gettz('Canada/Eastern'))
-                  for x in range(3)]
-
-    # Same Timezone
-    plt.figure(figsize=(20, 12))
-    plt.subplot(2, 1, 1)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date([3] * 3, time_index, tz='Canada/Eastern', xdate=False, ydate=True)
-
-    # Different Timezone
-    plt.subplot(2, 1, 2)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
-
-
-@image_comparison(['date_timezone_x_and_y.png'], tol=1.0)
-def test_date_timezone_x_and_y():
-    # Tests issue 5575
-    UTC = datetime.timezone.utc
-    time_index = [datetime.datetime(2016, 2, 22, hour=x, tzinfo=UTC)
-                  for x in range(3)]
-
-    # Same Timezone
-    plt.figure(figsize=(20, 12))
-    plt.subplot(2, 1, 1)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
-
-    # Different Timezone
-    plt.subplot(2, 1, 2)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
-
-
 @image_comparison(['axisbelow.png'], remove_text=True)
 def test_axisbelow():
     # Test 'line' setting added in 6287.
@@ -7539,15 +7487,19 @@ def test_tick_param_label_rotation():
     ax.yaxis.set_tick_params(which='both', rotation=90)
     for text in ax.get_xticklabels(which='both'):
         assert text.get_rotation() == 75
+        assert text.get_rotation_mode() == 'default'
     for text in ax.get_yticklabels(which='both'):
         assert text.get_rotation() == 90
+        assert text.get_rotation_mode() == 'default'
 
-    ax2.tick_params(axis='x', labelrotation=53)
-    ax2.tick_params(axis='y', rotation=35)
+    ax2.tick_params(axis='x', labelrotation=53, labelrotation_mode='xtick')
+    ax2.tick_params(axis='y', rotation=35, rotation_mode='ytick')
     for text in ax2.get_xticklabels(which='major'):
         assert text.get_rotation() == 53
+        assert text.get_rotation_mode() == 'xtick'
     for text in ax2.get_yticklabels(which='major'):
         assert text.get_rotation() == 35
+        assert text.get_rotation_mode() == 'ytick'
 
 
 @mpl.style.context('default')

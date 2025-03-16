@@ -135,7 +135,12 @@ Plot 16 uses a specific function in a file with plot commands:
 Plot 17 gets a caption specified by the :caption: option:
 
 .. plot::
-   :caption: Plot 17 uses the caption option.
+   :caption:
+      Plot 17 uses the caption option,
+      with multi-line input.
+   :alt:
+      Plot 17 uses the alt option,
+      with multi-line input.
 
    plt.figure()
    plt.plot(range(6))
