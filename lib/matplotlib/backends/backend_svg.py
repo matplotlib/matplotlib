@@ -736,7 +736,7 @@ class RendererSVG(RendererBase):
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position, hatchcolors=None):
+                             offset_position, *, hatchcolors=None):
         if hatchcolors is None:
             hatchcolors = []
         # Is the optimization worth it? Rough calculation:
@@ -754,7 +754,7 @@ class RendererSVG(RendererBase):
                 gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position, hatchcolors)
+                offset_position, hatchcolors=hatchcolors)
 
         writer = self.writer
         path_codes = []

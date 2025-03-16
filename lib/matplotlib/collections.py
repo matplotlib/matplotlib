@@ -432,7 +432,7 @@ class Collection(mcolorizer.ColorizingArtist):
                     self.get_facecolor(), self.get_edgecolor(),
                     self._linewidths, self._linestyles,
                     self._antialiaseds, self._urls,
-                    "screen", self.get_hatchcolor()
+                    "screen", hatchcolors=self.get_hatchcolor()
                 )
             except TypeError:
                 hatchcolors_arg_supported = False
@@ -442,11 +442,12 @@ class Collection(mcolorizer.ColorizingArtist):
                 ipaths, ilinestyles = self._get_inverse_paths_linestyles()
                 args = [offsets, offset_trf, [mcolors.to_rgba("none")], self._gapcolor,
                         self._linewidths, ilinestyles, self._antialiaseds, self._urls,
-                        "screen", self.get_hatchcolor()]
+                        "screen"]
 
                 if hatchcolors_arg_supported:
                     renderer.draw_path_collection(gc, transform.frozen(), ipaths,
-                                                  self.get_transforms(), *args)
+                                                  self.get_transforms(), *args,
+                                                  hatchcolors=self.get_hatchcolor())
                 else:
                     # If the renderer does not support the hatchcolors argument,
                     # iterate over the paths and draw them one by one.
@@ -463,11 +464,12 @@ class Collection(mcolorizer.ColorizingArtist):
 
             args = [offsets, offset_trf, self.get_facecolor(), self.get_edgecolor(),
                     self._linewidths, self._linestyles, self._antialiaseds, self._urls,
-                    "screen", self.get_hatchcolor()]
+                    "screen"]
 
             if hatchcolors_arg_supported:
                 renderer.draw_path_collection(gc, transform.frozen(), paths,
-                                              self.get_transforms(), *args)
+                                              self.get_transforms(), *args,
+                                              hatchcolors=self.get_hatchcolor())
             else:
                 path_ids = renderer._iter_collection_raw_paths(
                     transform.frozen(), paths, self.get_transforms())

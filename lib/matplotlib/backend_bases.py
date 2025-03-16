@@ -208,7 +208,7 @@ class RendererBase:
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position, hatchcolors=None):
+                             offset_position, *, hatchcolors=None):
         """
         Draw a collection of *paths*.
 
@@ -277,7 +277,8 @@ class RendererBase:
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
-            edgecolors, linewidths, [], [antialiased], [None], 'screen', hatchcolors)
+            edgecolors, linewidths, [], [antialiased], [None], 'screen',
+            hatchcolors=hatchcolors)
 
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):

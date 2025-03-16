@@ -236,7 +236,7 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "gc"_a, "master_transform"_a, "paths"_a, "transforms"_a, "offsets"_a,
              "offset_trans"_a, "facecolors"_a, "edgecolors"_a, "linewidths"_a,
              "dashes"_a, "antialiaseds"_a, "ignored"_a, "offset_position"_a,
-             "hatchcolors"_a = py::array_t<double>().reshape({0, 4}))
+             py::kw_only(), "hatchcolors"_a = py::array_t<double>().reshape({0, 4}))
         .def("draw_quad_mesh", &PyRendererAgg_draw_quad_mesh,
              "gc"_a, "master_transform"_a, "mesh_width"_a, "mesh_height"_a,
              "coordinates"_a, "offsets"_a, "offset_trans"_a, "facecolors"_a,

@@ -2030,7 +2030,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position, hatchcolors=None):
+                             offset_position, *, hatchcolors=None):
         # We can only reuse the objects if the presence of fill and
         # stroke (and the amount of alpha for each) is the same for
         # all of them
@@ -2075,7 +2075,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position, hatchcolors)
+                offset_position, hatchcolors=hatchcolors)
 
         padding = np.max(linewidths)
         path_codes = []

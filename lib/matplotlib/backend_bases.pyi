@@ -63,6 +63,7 @@ class RendererBase:
         antialiaseds: bool | Sequence[bool],
         urls: str | Sequence[str],
         offset_position: Any,
+        *,
         hatchcolors: ColorType | Sequence[ColorType] | None = None,
     ) -> None: ...
     def draw_quad_mesh(
