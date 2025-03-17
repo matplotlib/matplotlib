@@ -43,9 +43,10 @@ Install
 
         .. warning::
 
-           The ``tkagg`` backend is not available because Python versions
-           distributed by uv do not contain tk bindings that are usable by
-           Matplotlib (see `this issue`_ for details). If you want Matplotlib
+           If you install Python with ``uv`` then the ``tkagg`` backend
+           will not be available because python-build-standalone (used by uv
+           to distribute Python) does not contain tk bindings that are usable by
+           Matplotlib (see `this issue`_ for details).  If you want Matplotlib
            to be able to display plots in a window, you should install one of
            the other :ref:`supported GUI frameworks <optional_dependencies>`,
            e.g.
