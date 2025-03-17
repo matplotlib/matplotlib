@@ -839,6 +839,8 @@ def test_allsegs_allkinds():
         assert len(result[1]) == 4
 
 
+@image_comparison(baseline_images=['contour_rasterization'],
+                  extensions=['pdf'], style='mpl20', savefig_kwarg={'dpi': 25})
 def test_contourf_rasterize():
     fig, ax = plt.subplots()
     data = [[0, 1], [1, 0]]
