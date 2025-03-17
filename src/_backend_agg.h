@@ -295,23 +295,15 @@ template <class path_t>
 inline void
 RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg::rgba> &face, GCAgg &gc)
 {
-    typedef agg::conv_stroke<path_t> stroke_t;
-    typedef agg::conv_dash<path_t> dash_t;
-    typedef agg::conv_stroke<dash_t> stroke_dash_t;
-    typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-    typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
-    typedef agg::renderer_scanline_aa_solid<amask_ren_type> amask_aa_renderer_type;
-    typedef agg::renderer_scanline_bin_solid<amask_ren_type> amask_bin_renderer_type;
-
     // Render face
     if (face) {
         theRasterizer.add_path(path);
 
         if (gc.isaa) {
             if (has_clippath) {
-                pixfmt_amask_type pfa(pixFmt, alphaMask);
-                amask_ren_type r(pfa);
-                amask_aa_renderer_type ren(r);
+                auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+                auto r = agg::renderer_base{pfa};
+                auto ren = agg::renderer_scanline_aa_solid{r};
                 ren.color(*face);
                 agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             } else {
@@ -320,9 +312,9 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
             }
         } else {
             if (has_clippath) {
-                pixfmt_amask_type pfa(pixFmt, alphaMask);
-                amask_ren_type r(pfa);
-                amask_bin_renderer_type ren(r);
+                auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+                auto r = agg::renderer_base{pfa};
+                auto ren = agg::renderer_scanline_bin_solid{r};
                 ren.color(*face);
                 agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             } else {
@@ -340,19 +332,15 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
         rendererBase.reset_clipping(true);
 
         // Create and transform the path
-        typedef agg::conv_transform<mpl::PathIterator> hatch_path_trans_t;
-        typedef agg::conv_curve<hatch_path_trans_t> hatch_path_curve_t;
-        typedef agg::conv_stroke<hatch_path_curve_t> hatch_path_stroke_t;
-
         mpl::PathIterator hatch_path(gc.hatchpath);
         agg::trans_affine hatch_trans;
         hatch_trans *= agg::trans_affine_scaling(1.0, -1.0);
         hatch_trans *= agg::trans_affine_translation(0.0, 1.0);
         hatch_trans *= agg::trans_affine_scaling(static_cast<double>(hatch_size),
                                                  static_cast<double>(hatch_size));
-        hatch_path_trans_t hatch_path_trans(hatch_path, hatch_trans);
-        hatch_path_curve_t hatch_path_curve(hatch_path_trans);
-        hatch_path_stroke_t hatch_path_stroke(hatch_path_curve);
+        auto hatch_path_trans = agg::conv_transform{hatch_path, hatch_trans};
+        auto hatch_path_curve = agg::conv_curve{hatch_path_trans};
+        auto hatch_path_stroke = agg::conv_stroke{hatch_path_curve};
         hatch_path_stroke.width(points_to_pixels(gc.hatch_linewidth));
         hatch_path_stroke.line_cap(agg::square_cap);
 
@@ -376,18 +364,16 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
         }
 
         // Transfer the hatch to the main image buffer
-        typedef agg::image_accessor_wrap<pixfmt,
-                                         agg::wrap_mode_repeat_auto_pow2,
-                                         agg::wrap_mode_repeat_auto_pow2> img_source_type;
-        typedef agg::span_pattern_rgba<img_source_type> span_gen_type;
         agg::span_allocator<agg::rgba8> sa;
-        img_source_type img_src(hatch_img_pixf);
-        span_gen_type sg(img_src, 0, 0);
+        auto img_src = agg::image_accessor_wrap<
+            pixfmt, agg::wrap_mode_repeat_auto_pow2, agg::wrap_mode_repeat_auto_pow2>{
+                hatch_img_pixf};
+        auto sg = agg::span_pattern_rgba{img_src, 0, 0};
         theRasterizer.add_path(path);
 
         if (has_clippath) {
-            pixfmt_amask_type pfa(pixFmt, alphaMask);
-            amask_ren_type ren(pfa);
+            auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+            auto ren = agg::renderer_base{pfa};
             agg::render_scanlines_aa(theRasterizer, slineP8, ren, sa, sg);
         } else {
             agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, sa, sg);
@@ -401,16 +387,16 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
             linewidth = (linewidth < 0.5) ? 0.5 : mpl_round(linewidth);
         }
         if (gc.dashes.size() == 0) {
-            stroke_t stroke(path);
+            auto stroke = agg::conv_stroke{path};
             stroke.width(points_to_pixels(gc.linewidth));
             stroke.line_cap(gc.cap);
             stroke.line_join(gc.join);
             stroke.miter_limit(points_to_pixels(gc.linewidth));
             theRasterizer.add_path(stroke);
         } else {
-            dash_t dash(path);
+            auto dash = agg::conv_dash{path};
             gc.dashes.dash_to_stroke(dash, dpi, gc.isaa);
-            stroke_dash_t stroke(dash);
+            auto stroke = agg::conv_stroke{dash};
             stroke.line_cap(gc.cap);
             stroke.line_join(gc.join);
             stroke.width(linewidth);
@@ -420,9 +406,9 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
 
         if (gc.isaa) {
             if (has_clippath) {
-                pixfmt_amask_type pfa(pixFmt, alphaMask);
-                amask_ren_type r(pfa);
-                amask_aa_renderer_type ren(r);
+                auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+                auto r = agg::renderer_base{pfa};
+                auto ren = agg::renderer_scanline_aa_solid{r};
                 ren.color(gc.color);
                 agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             } else {
@@ -431,9 +417,9 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
             }
         } else {
             if (has_clippath) {
-                pixfmt_amask_type pfa(pixFmt, alphaMask);
-                amask_ren_type r(pfa);
-                amask_bin_renderer_type ren(r);
+                auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+                auto r = agg::renderer_base{pfa};
+                auto ren = agg::renderer_scanline_bin_solid{r};
                 ren.color(gc.color);
                 agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             } else {
@@ -448,14 +434,6 @@ template <class PathIterator>
 inline void
 RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, agg::rgba &color)
 {
-    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> nan_removed_t;
-    typedef PathClipper<nan_removed_t> clipped_t;
-    typedef PathSnapper<clipped_t> snapped_t;
-    typedef PathSimplifier<snapped_t> simplify_t;
-    typedef agg::conv_curve<simplify_t> curve_t;
-    typedef Sketch<curve_t> sketch_t;
-
     std::optional<agg::rgba> face;
     if (color.a != 0.0) {
         face = color;
@@ -475,13 +453,15 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
         snapping_linewidth = 0.0;
     }
 
-    transformed_path_t tpath(path, trans);
-    nan_removed_t nan_removed(tpath, true, path.has_codes());
-    clipped_t clipped(nan_removed, clip, width, height);
-    snapped_t snapped(clipped, gc.snap_mode, path.total_vertices(), snapping_linewidth);
-    simplify_t simplified(snapped, simplify, path.simplify_threshold());
-    curve_t curve(simplified);
-    sketch_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+    auto tpath = agg::conv_transform{path, trans};
+    auto nan_removed = PathNanRemover{tpath, true, path.has_codes()};
+    auto clipped = PathClipper(nan_removed, clip, width, height);
+    auto snapped = PathSnapper{
+        clipped, gc.snap_mode, path.total_vertices(), snapping_linewidth};
+    auto simplified = PathSimplifier{snapped, simplify, path.simplify_threshold()};
+    auto curve = agg::conv_curve{simplified};
+    auto sketch = Sketch{
+        curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness};
 
     _draw_path(sketch, has_clippath, face, gc);
 }
@@ -494,28 +474,19 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                                       agg::trans_affine &trans,
                                       agg::rgba color)
 {
-    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> nan_removed_t;
-    typedef PathSnapper<nan_removed_t> snap_t;
-    typedef agg::conv_curve<snap_t> curve_t;
-    typedef agg::conv_stroke<curve_t> stroke_t;
-    typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-    typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
-    typedef agg::renderer_scanline_aa_solid<amask_ren_type> amask_aa_renderer_type;
-
     // Deal with the difference in y-axis direction
     marker_trans *= agg::trans_affine_scaling(1.0, -1.0);
 
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.5, (double)height + 0.5);
 
-    transformed_path_t marker_path_transformed(marker_path, marker_trans);
-    nan_removed_t marker_path_nan_removed(marker_path_transformed, true, marker_path.has_codes());
-    snap_t marker_path_snapped(marker_path_nan_removed,
-                               gc.snap_mode,
-                               marker_path.total_vertices(),
-                               points_to_pixels(gc.linewidth));
-    curve_t marker_path_curve(marker_path_snapped);
+    auto marker_path_transformed = agg::conv_transform{marker_path, marker_trans};
+    auto marker_path_nan_removed = PathNanRemover{
+        marker_path_transformed, true, marker_path.has_codes()};
+    auto marker_path_snapped = PathSnapper{
+        marker_path_nan_removed,
+        gc.snap_mode, marker_path.total_vertices(), points_to_pixels(gc.linewidth)};
+    auto marker_path_curve = agg::conv_curve{marker_path_snapped};
 
     if (!marker_path_snapped.is_snapping()) {
         // If the path snapper isn't in effect, at least make sure the marker
@@ -524,10 +495,11 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
         marker_trans *= agg::trans_affine_translation(0.5, 0.5);
     }
 
-    transformed_path_t path_transformed(path, trans);
-    nan_removed_t path_nan_removed(path_transformed, false, false);
-    snap_t path_snapped(path_nan_removed, SNAP_FALSE, path.total_vertices(), 0.0);
-    curve_t path_curve(path_snapped);
+    auto path_transformed = agg::conv_transform{path, trans};
+    auto path_nan_removed = PathNanRemover{path_transformed, false, false};
+    auto path_snapped = PathSnapper{
+        path_nan_removed, SNAP_FALSE, path.total_vertices(), 0.0};
+    auto path_curve = agg::conv_curve{path_snapped};
     path_curve.rewind(0);
 
     std::optional<agg::rgba> face;
@@ -556,7 +528,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                                       scanlines.max_y());
         }
 
-        stroke_t stroke(marker_path_curve);
+        auto stroke = agg::conv_stroke{marker_path_curve};
         stroke.width(points_to_pixels(gc.linewidth));
         stroke.line_cap(gc.cap);
         stroke.line_join(gc.join);
@@ -605,9 +577,9 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                     continue;
                 }
 
-                pixfmt_amask_type pfa(pixFmt, alphaMask);
-                amask_ren_type r(pfa);
-                amask_aa_renderer_type ren(r);
+                auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+                auto r = agg::renderer_base{pfa};
+                auto ren = agg::renderer_scanline_aa_solid{r};
 
                 if (face) {
                     ren.color(*face);
@@ -706,14 +678,6 @@ class font_to_rgba
 template <class ImageArray>
 inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, int y, double angle)
 {
-    typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
-    typedef agg::span_interpolator_linear<> interpolator_type;
-    typedef agg::image_accessor_clip<agg::pixfmt_gray8> image_accessor_type;
-    typedef agg::span_image_filter_gray<image_accessor_type, interpolator_type> image_span_gen_type;
-    typedef font_to_rgba<image_span_gen_type> span_gen_type;
-    typedef agg::renderer_scanline_aa<renderer_base, color_span_alloc_type, span_gen_type>
-    renderer_type;
-
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     if (angle != 0.0) {
@@ -745,12 +709,12 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
 
         agg::image_filter_lut filter;
         filter.calculate(agg::image_filter_spline36());
-        interpolator_type interpolator(inv_mtx);
-        color_span_alloc_type sa;
-        image_accessor_type ia(pixf_img, agg::gray8(0));
-        image_span_gen_type image_span_generator(ia, interpolator, filter);
-        span_gen_type output_span_generator(&image_span_generator, gc.color);
-        renderer_type ri(rendererBase, sa, output_span_generator);
+        auto interpolator = agg::span_interpolator_linear{inv_mtx};
+        auto sa = agg::span_allocator<agg::rgba8>{};
+        auto ia = agg::image_accessor_clip{pixf_img, agg::gray8(0)};
+        auto image_span_generator = agg::span_image_filter_gray{ia, interpolator, filter};
+        auto output_span_generator = font_to_rgba{&image_span_generator, gc.color};
+        auto ri = agg::renderer_scanline_aa{rendererBase, sa, output_span_generator};
 
         theRasterizer.add_path(rect2);
         agg::render_scanlines(theRasterizer, slineP8, ri);
@@ -846,28 +810,16 @@ inline void RendererAgg::draw_image(GCAgg &gc,
         agg::trans_affine inv_mtx(mtx);
         inv_mtx.invert();
 
-        typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
-        typedef agg::image_accessor_clip<pixfmt> image_accessor_type;
-        typedef agg::span_interpolator_linear<> interpolator_type;
-        typedef agg::span_image_filter_rgba_nn<image_accessor_type, interpolator_type>
-        image_span_gen_type;
-        typedef agg::span_converter<image_span_gen_type, span_conv_alpha> span_conv;
+        auto sa = agg::span_allocator<agg::rgba8>{};
+        auto ia = agg::image_accessor_clip{pixf, agg::rgba8(0, 0, 0, 0)};
+        auto interpolator = agg::span_interpolator_linear{inv_mtx};
+        auto image_span_generator = agg::span_image_filter_rgba_nn{ia, interpolator};
+        auto conv_alpha = span_conv_alpha{alpha};
+        auto spans = agg::span_converter{image_span_generator, conv_alpha};
 
-        color_span_alloc_type sa;
-        image_accessor_type ia(pixf, agg::rgba8(0, 0, 0, 0));
-        interpolator_type interpolator(inv_mtx);
-        image_span_gen_type image_span_generator(ia, interpolator);
-        span_conv_alpha conv_alpha(alpha);
-        span_conv spans(image_span_generator, conv_alpha);
-
-        typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-        typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
-        typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, span_conv>
-            renderer_type_alpha;
-
-        pixfmt_amask_type pfa(pixFmt, alphaMask);
-        amask_ren_type r(pfa);
-        renderer_type_alpha ri(r, sa, spans);
+        auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+        auto r = agg::renderer_base{pfa};
+        auto ri = agg::renderer_scanline_aa{r, sa, spans};
 
         theRasterizer.add_path(rect2);
         agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
@@ -905,17 +857,6 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                                                        bool has_codes,
                                                        ColorArray &hatchcolors)
 {
-    typedef agg::conv_transform<typename PathGenerator::path_iterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> nan_removed_t;
-    typedef PathClipper<nan_removed_t> clipped_t;
-    typedef PathSnapper<clipped_t> snapped_t;
-    typedef agg::conv_curve<snapped_t> snapped_curve_t;
-    typedef agg::conv_curve<clipped_t> curve_t;
-    typedef Sketch<clipped_t> sketch_clipped_t;
-    typedef Sketch<curve_t> sketch_curve_t;
-    typedef Sketch<snapped_t> sketch_snapped_t;
-    typedef Sketch<snapped_curve_t> sketch_snapped_curve_t;
-
     size_t Npaths = path_generator.num_paths();
     size_t Noffsets = safe_first_shape(offsets);
     size_t N = std::max(Npaths, Noffsets);
@@ -996,27 +937,31 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
         }
 
         gc.isaa = antialiaseds(i % Naa);
-        transformed_path_t tpath(path, trans);
-        nan_removed_t nan_removed(tpath, true, has_codes);
-        clipped_t clipped(nan_removed, do_clip, width, height);
+        auto tpath = agg::conv_transform{path, trans};
+        auto nan_removed = PathNanRemover{tpath, true, has_codes};
+        auto clipped = PathClipper(nan_removed, do_clip, width, height);
         if (check_snap) {
-            snapped_t snapped(
-                clipped, gc.snap_mode, path.total_vertices(), points_to_pixels(gc.linewidth));
+            auto snapped = PathSnapper{
+                clipped, gc.snap_mode, path.total_vertices(), points_to_pixels(gc.linewidth)};
             if (has_codes) {
-                snapped_curve_t curve(snapped);
-                sketch_snapped_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                auto curve = agg::conv_curve{snapped};
+                auto sketch = Sketch{
+                    curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness};
                 _draw_path(sketch, has_clippath, face, gc);
             } else {
-                sketch_snapped_t sketch(snapped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                auto sketch = Sketch{
+                    snapped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness};
                 _draw_path(sketch, has_clippath, face, gc);
             }
         } else {
             if (has_codes) {
-                curve_t curve(clipped);
-                sketch_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                auto curve = agg::conv_curve{clipped};
+                auto sketch = Sketch{
+                    curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness};
                 _draw_path(sketch, has_clippath, face, gc);
             } else {
-                sketch_clipped_t sketch(clipped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                auto sketch = Sketch{
+                    clipped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness};
                 _draw_path(sketch, has_clippath, face, gc);
             }
         }
@@ -1215,14 +1160,9 @@ inline void RendererAgg::_draw_gouraud_triangle(PointArray &points,
     theRasterizer.add_path(span_gen);
 
     if (has_clippath) {
-        typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-        typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
-        typedef agg::renderer_scanline_aa<amask_ren_type, span_alloc_t, span_gen_t>
-        amask_aa_renderer_type;
-
-        pixfmt_amask_type pfa(pixFmt, alphaMask);
-        amask_ren_type r(pfa);
-        amask_aa_renderer_type ren(r, span_alloc, span_gen);
+        auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+        auto r = agg::renderer_base{pfa};
+        auto ren = agg::renderer_scanline_aa{r, span_alloc, span_gen};
         agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
     } else {
         agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, span_alloc, span_gen);
