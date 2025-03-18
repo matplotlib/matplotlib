@@ -2888,7 +2888,6 @@ class Axes(_AxesBase):
             Distance of label from the end of the bar, in points.
             If an array-like is provided, the padding values are applied
             to each label individually. Must have the same length as container.
-            
             .. versionadded:: 3.11
 
         **kwargs
