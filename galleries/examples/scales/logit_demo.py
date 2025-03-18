@@ -10,7 +10,7 @@ by generating three distributions: normal, laplacian, and cauchy in one plot.
 
 The advantage of logit scale is that it effectively spreads out values close to 0 and 1.
 
-In a normal scale plot, probability values near 0 and 1 appear compressed,
+In a linear scale plot, probability values near 0 and 1 appear compressed,
 making it difficult to see differences in those regions.
 
 In a logit scale plot, the transformation expands these regions,
