@@ -28,7 +28,7 @@ precompiled wheel for your OS and Python.
    The following backends work out of the box: Agg, ps, pdf, svg
 
    Python is typically shipped with tk bindings which are used by
-   TkAgg. Notably, python-build-standalone -- used by ``uv``  -- does
+   TkAgg. Notably, python-build-standalone – used by ``uv`` – does
    not include tk bindings that are usable by Matplotlib.
 
    For support of other GUI frameworks, LaTeX rendering, saving
