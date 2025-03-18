@@ -192,7 +192,7 @@ jobs:
               sudo apt-get install -yy --no-install-recommends \
                 libgirepository1.0-dev \
                 libopengl0
-            elif [[ "${{ matrix.os }}" = ubuntu-22.04 ]]; then
+            elif [[ "${{ matrix.os }}" = ubuntu-22.04 || "${{ matrix.os }}" = ubuntu-22.04-arm ]]; then
               sudo apt-get install -yy --no-install-recommends \
                 gir1.2-gtk-4.0 \
                 libgirepository1.0-dev
