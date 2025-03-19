@@ -222,7 +222,7 @@ jobs:
 
           # https://pygobject.gnome.org/devguide/dev_environ.html#macosx-logo-macos
           export PKG_CONFIG_PATH=$(brew --prefix libffi)/lib/pkgconfig
-          python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
+          python -m pip install --upgrade PyGObject &&
           unset PKG_CONFIG_PATH
 
             (
