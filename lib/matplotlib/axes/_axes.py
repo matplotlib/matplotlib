@@ -6252,8 +6252,7 @@ class Axes(_AxesBase):
         maxy = np.max(y)
         collection.sticky_edges.x[:] = [minx, maxx]
         collection.sticky_edges.y[:] = [miny, maxy]
-        corners = (minx, miny), (maxx, maxy)
-        self.update_datalim(corners)
+        self.update_datalim(coords.reshape(-1, 2))
         self._request_autoscale_view()
         return collection
 
