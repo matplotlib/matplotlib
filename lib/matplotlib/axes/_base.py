@@ -3056,6 +3056,10 @@ class _AxesBase(martist.Artist):
 
             if not self._tight:
                 x0, x1 = locator.view_limits(x0, x1)
+
+            # Enforce lower radial limit of 0 for polar plots
+            if name == 'y' and self.name == 'polar':
+                x0 = 0
             set_bound(x0, x1)
             # End of definition of internal function 'handle_single_axis'.
 

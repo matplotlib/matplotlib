@@ -506,3 +506,11 @@ def test_polar_errorbar(order):
         ax.errorbar(theta, r, xerr=0.1, yerr=0.1, capsize=7, fmt="o", c="seagreen")
         ax.set_theta_zero_location("N")
         ax.set_theta_direction(-1)
+
+
+def test_radial_limit_after_plot():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+    ax.set_rticks([1, 2, 3, 4])
+    ax.plot([0, 1], [2, 3])
+    assert ax.get_ylim()[0] == (0)
