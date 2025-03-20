@@ -6232,25 +6232,7 @@ class Axes(_AxesBase):
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
-
-        # Transform from native to data coordinates?
-        t = collection._transform
-        if (not isinstance(t, mtransforms.Transform) and
-                hasattr(t, '_as_mpl_transform')):
-            t = t._as_mpl_transform(self.axes)
-
-        if t and any(t.contains_branch_seperately(self.transData)):
-            trans_to_data = t - self.transData
-            coords = trans_to_data.transform(coords)
-
-        self.add_collection(collection, autolim=False)
-
-        minx, miny = np.min(coords, axis=0)
-        maxx, maxy = np.max(coords, axis=0)
-        collection.sticky_edges.x[:] = [minx, maxx]
-        collection.sticky_edges.y[:] = [miny, maxy]
-        self.update_datalim(coords)
-        self._request_autoscale_view()
+        self._update_pocolor_lims(collection, coords)
         return collection
 
     @_preprocess_data()
@@ -6460,7 +6442,13 @@ class Axes(_AxesBase):
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
+        self._update_pocolor_lims(collection, coords)
+        return collection
 
+    def _update_pocolor_lims(self, collection, coords):
+        """
+        Common code for updating lims in pcolor() and pcolormesh() methods.
+        """
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform) and
@@ -6479,7 +6467,7 @@ class Axes(_AxesBase):
         collection.sticky_edges.y[:] = [miny, maxy]
         self.update_datalim(coords)
         self._request_autoscale_view()
-        return collection
+
 
     @_preprocess_data()
     @_docstring.interpd
