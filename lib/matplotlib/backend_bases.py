@@ -2218,7 +2218,7 @@ class FigureCanvasBase:
         # Characters to be avoided in a NT path:
         # https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
         # plus ' '
-        removed_chars = r'<>:"/\|?*\0 '
+        removed_chars = '<>:"/\\|?*\0 '
         default_basename = default_basename.translate(
             {ord(c): "_" for c in removed_chars})
         default_filetype = self.get_default_filetype()
@@ -2728,23 +2728,24 @@ class FigureManagerBase:
         """For GUI backends, resize the window (in physical pixels)."""
 
     def get_window_title(self):
-        """
-        Return the title text of the window containing the figure, or None
-        if there is no window (e.g., a PS backend).
-        """
-        return 'image'
+        """Return the title text of the window containing the figure."""
+        return self._window_title
 
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.
-
-        This has no effect for non-GUI (e.g., PS) backends.
 
         Examples
         --------
         >>> fig = plt.figure()
         >>> fig.canvas.manager.set_window_title('My figure')
         """
+        # This attribute is not defined in __init__ (but __init__ calls this
+        # setter), as derived classes (real GUI managers) will store this
+        # information directly on the widget; only the base (non-GUI) manager
+        # class needs a specific attribute for it (so that filename escaping
+        # can be checked in the test suite).
+        self._window_title = title
 
 
 cursors = tools.cursors
