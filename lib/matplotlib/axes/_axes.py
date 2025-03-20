@@ -6231,6 +6231,8 @@ class Axes(_AxesBase):
         collection._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
         collection._scale_norm(norm, vmin, vmax)
 
+        coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
+
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform) and
@@ -6239,20 +6241,15 @@ class Axes(_AxesBase):
 
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
-            pts = np.vstack([x, y]).T.astype(float)
-            transformed_pts = trans_to_data.transform(pts)
-            x = transformed_pts[..., 0]
-            y = transformed_pts[..., 1]
+            coords = trans_to_data.transform(coords)
 
         self.add_collection(collection, autolim=False)
 
-        minx = np.min(x)
-        maxx = np.max(x)
-        miny = np.min(y)
-        maxy = np.max(y)
+        minx, miny = np.min(coords, axis=0)
+        maxx, maxy = np.max(coords, axis=0)
         collection.sticky_edges.x[:] = [minx, maxx]
         collection.sticky_edges.y[:] = [miny, maxy]
-        self.update_datalim(coords.reshape(-1, 2))
+        self.update_datalim(coords)
         self._request_autoscale_view()
         return collection
 
