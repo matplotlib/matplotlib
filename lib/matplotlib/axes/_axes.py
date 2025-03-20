@@ -6468,7 +6468,6 @@ class Axes(_AxesBase):
         self.update_datalim(coords)
         self._request_autoscale_view()
 
-
     @_preprocess_data()
     @_docstring.interpd
     def pcolorfast(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
