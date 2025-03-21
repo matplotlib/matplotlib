@@ -92,6 +92,12 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+          - os: ubuntu-24.04
+            python-version: '3.12'
+            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
+            pyqt6-ver: '!=6.6.0'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
           - os: macos-13  # This runner is on Intel chips.
             # merge numpy and pandas install in nighties test when this runner is dropped
             python-version: '3.10'
@@ -153,7 +159,6 @@ jobs:
               libcairo2-dev \
               libffi-dev \
               libgeos-dev \
-              libgirepository1.0-dev \
               libnotify4 \
               libsdl2-2.0-0 \
               libxkbcommon-x11-0 \
@@ -179,9 +184,16 @@ jobs:
               sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
             fi
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
-              sudo apt-get install -yy --no-install-recommends libopengl0
-            else  # ubuntu-22.04
-              sudo apt-get install -yy --no-install-recommends gir1.2-gtk-4.0
+              sudo apt-get install -yy --no-install-recommends \
+                libgirepository1.0-dev \
+                libopengl0
+            elif [[ "${{ matrix.os }}" = ubuntu-22.04 || "${{ matrix.os }}" = ubuntu-22.04-arm ]]; then
+              sudo apt-get install -yy --no-install-recommends \
+                gir1.2-gtk-4.0 \
+                libgirepository1.0-dev
+            else  # ubuntu-24.04
+              sudo apt-get install -yy --no-install-recommends \
+                libgirepository-2.0-dev
             fi
             ;;
           macOS)
