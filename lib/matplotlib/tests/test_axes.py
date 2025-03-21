@@ -1497,6 +1497,27 @@ def test_pcolormesh_nearest_noargs(fig_test, fig_ref):
     ax.pcolormesh(x, y, C, shading="nearest")
 
 
+@check_figures_equal(extensions=["png"])
+def test_pcolormesh_log_scale(fig_test, fig_ref):
+    """
+    Check that setting a log scale sets good default axis limits
+    when using pcolormesh.
+    """
+    x = np.linspace(0, 1, 11)
+    y = np.linspace(1, 2, 5)
+    X, Y = np.meshgrid(x, y)
+    C = X + Y
+
+    ax = fig_test.subplots()
+    ax.pcolormesh(X, Y, C)
+    ax.set_xscale('log')
+
+    ax = fig_ref.subplots()
+    ax.pcolormesh(X, Y, C)
+    ax.set_xlim(1e-2, 1e1)
+    ax.set_xscale('log')
+
+
 @image_comparison(['pcolormesh_datetime_axis.png'], style='mpl20')
 def test_pcolormesh_datetime_axis():
     # Remove this line when this test image is regenerated.
@@ -1548,6 +1569,27 @@ def test_pcolor_datetime_axis():
         for label in ax.get_xticklabels():
             label.set_ha('right')
             label.set_rotation(30)
+
+
+@check_figures_equal(extensions=["png"])
+def test_pcolor_log_scale(fig_test, fig_ref):
+    """
+    Check that setting a log scale sets good default axis limits
+    when using pcolor.
+    """
+    x = np.linspace(0, 1, 11)
+    y = np.linspace(1, 2, 5)
+    X, Y = np.meshgrid(x, y)
+    C = X[:-1, :-1] + Y[:-1, :-1]
+
+    ax = fig_test.subplots()
+    ax.pcolor(X, Y, C)
+    ax.set_xscale('log')
+
+    ax = fig_ref.subplots()
+    ax.pcolor(X, Y, C)
+    ax.set_xlim(1e-1, 1e0)
+    ax.set_xscale('log')
 
 
 def test_pcolorargs():
