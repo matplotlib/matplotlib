@@ -151,6 +151,25 @@ plot_srcset
     The plot_srcset option is incompatible with *singlehtml* builds, and an
     error will be raised.
 
+    plot_rst_directory
+        By default, the directory for RST files is automatically determined
+        from the name of the Python file. This works fine with, e.g., the
+        ``sphinx.ext.autodoc`` extension. However, you may need to modify the
+        path if RST files are generated in another directory. This is the
+        case if you use the ``autodoc2`` extension.
+
+        For it to work, you need to set the ``plot_rst_directory`` option
+        in ``conf.py``:
+
+        .. code:: python
+
+            plot_rst_directory = "source/apidocs/<your_package>/"
+
+        .. note::
+
+            This currently only supports one directory, and can cause potential
+            problems if you have multiple packages documented with ``autodoc2``.
+
 Notes on how it works
 ---------------------
 
@@ -307,6 +326,7 @@ def setup(app):
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
     app.add_config_value('plot_srcset', [], True)
+    app.add_config_value('plot_rst_directory', None, True)
     app.connect('doctree-read', mark_plot_labels)
     app.add_css_file('plot_directive.css')
     app.connect('build-finished', _copy_css_file)
@@ -746,7 +766,11 @@ def run(arguments, content, options, state_machine, state, lineno):
     context_opt = None if not keep_context else options['context']
 
     rst_file = document.attributes['source']
-    rst_dir = os.path.dirname(rst_file)
+
+    if not config.plot_rst_directory:
+        rst_dir = os.path.dirname(rst_file)
+    else:
+        rst_dir = config.plot_rst_directory
 
     if len(arguments):
         if not config.plot_basedir:
