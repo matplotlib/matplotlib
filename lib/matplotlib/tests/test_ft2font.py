@@ -883,13 +883,18 @@ def test_fallback_missing(recwarn, font_list):
 
 def test__get_fontmap():
     fonts, test_str = _gen_multi_font_text()
+    # Add some glyphs that don't exist in either font to check the Last Resort fallback.
+    missing_glyphs = '\n几个汉字'
+    test_str += missing_glyphs
 
     ft = fm.get_font(
         fm.fontManager._find_fonts_by_props(fm.FontProperties(family=fonts))
     )
     fontmap = ft._get_fontmap(test_str)
     for char, font in fontmap.items():
-        if ord(char) > 127:
+        if char in missing_glyphs:
+            assert Path(font.fname).name == 'LastResortHE-Regular.ttf'
+        elif ord(char) > 127:
             assert Path(font.fname).name == 'DejaVuSans.ttf'
         else:
             assert Path(font.fname).name == 'cmr10.ttf'

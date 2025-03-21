@@ -258,8 +258,11 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
 FT2Font::FT2Font(FT_Open_Args &open_args,
                  long hinting_factor_,
                  std::vector<FT2Font *> &fallback_list,
-                 FT2Font::WarnFunc warn)
-    : ft_glyph_warn(warn), image(), face(nullptr)
+                 FT2Font::WarnFunc warn, bool warn_if_used)
+    : ft_glyph_warn(warn), warn_if_used(warn_if_used), image(), face(nullptr),
+      hinting_factor(hinting_factor_),
+      // set default kerning factor to 0, i.e., no kerning manipulation
+      kerning_factor(0)
 {
     clear();
 
@@ -268,12 +271,7 @@ FT2Font::FT2Font(FT_Open_Args &open_args,
         throw_ft_error("Can not load face", error);
     }
 
-    // set default kerning factor to 0, i.e., no kerning manipulation
-    kerning_factor = 0;
-
     // set a default fontsize 12 pt at 72dpi
-    hinting_factor = hinting_factor_;
-
     error = FT_Set_Char_Size(face, 12 * 64, 0, 72 * (unsigned int)hinting_factor, 72);
     if (error) {
         FT_Done_Face(face);
@@ -441,6 +439,8 @@ void FT2Font::set_text(
             char_to_font[codepoint] = ft_object_with_glyph;
             glyph_to_font[glyph_index] = ft_object_with_glyph;
             ft_object_with_glyph->load_glyph(glyph_index, flags, ft_object_with_glyph, false);
+        } else if (ft_object_with_glyph->warn_if_used) {
+            ft_glyph_warn((FT_ULong)codepoint, glyph_seen_fonts);
         }
 
         // retrieve kerning distance and move pen position
@@ -510,6 +510,8 @@ void FT2Font::load_char(long charcode, FT_Int32 flags, FT2Font *&ft_object, bool
             else if (glyph_error) {
                 throw_ft_error("Could not load charcode", glyph_error);
             }
+        } else if (ft_object_with_glyph->warn_if_used) {
+            ft_glyph_warn(charcode, glyph_seen_fonts);
         }
         ft_object = ft_object_with_glyph;
     } else {
@@ -569,7 +571,9 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
                                       bool override = false)
 {
     FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
-    glyph_seen_fonts.insert(face->family_name);
+    if (!warn_if_used) {
+        glyph_seen_fonts.insert(face->family_name);
+    }
 
     if (glyph_index || override) {
         charcode_error = FT_Load_Glyph(face, glyph_index, flags);
