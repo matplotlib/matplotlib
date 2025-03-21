@@ -1,4 +1,6 @@
 from datetime import datetime
+import gc
+import inspect
 import io
 import warnings
 
@@ -881,7 +883,12 @@ def test_pdf_chars_beyond_bmp():
 
 @needs_usetex
 def test_metrics_cache():
-    mpl.text._get_text_metrics_with_cache_impl.cache_clear()
+    # dig into the signature to get the mutable default used as a cache
+    renderer_cache = inspect.signature(
+        mpl.text._get_text_metrics_function
+    ).parameters['_cache'].default
+
+    renderer_cache.clear()
 
     fig = plt.figure()
     fig.text(.3, .5, "foo\nbar")
@@ -890,6 +897,7 @@ def test_metrics_cache():
     fig.canvas.draw()
     renderer = fig._get_renderer()
     ys = {}  # mapping of strings to where they were drawn in y with draw_tex.
+    assert renderer in renderer_cache
 
     def call(*args, **kwargs):
         renderer, x, y, s, *_ = args
@@ -904,10 +912,38 @@ def test_metrics_cache():
     # get incorrectly reused by the first TeX string.
     assert len(ys["foo"]) == len(ys["bar"]) == 1
 
-    info = mpl.text._get_text_metrics_with_cache_impl.cache_info()
+    info = renderer_cache[renderer].cache_info()
     # Every string gets a miss for the first layouting (extents), then a hit
     # when drawing, but "foo\nbar" gets two hits as it's drawn twice.
     assert info.hits > info.misses
+
+
+def test_metrics_cache2():
+    plt.close('all')
+    # dig into the signature to get the mutable default used as a cache
+    renderer_cache = inspect.signature(
+        mpl.text._get_text_metrics_function
+    ).parameters['_cache'].default
+    gc.collect()
+    assert len(renderer_cache) == 0
+
+    def helper():
+        fig, ax = plt.subplots()
+        fig.draw_without_rendering()
+        # show we hit the outer cache
+        assert len(renderer_cache) == 1
+        func = renderer_cache[fig.canvas.get_renderer()]
+        cache_info = func.cache_info()
+        # show we hit the inner cache
+        assert cache_info.currsize > 0
+        assert cache_info.currsize == cache_info.misses
+        assert cache_info.hits > cache_info.misses
+        plt.close(fig)
+
+    helper()
+    gc.collect()
+    # show the outer cache has a lifetime tied to the renderer (via the figure)
+    assert len(renderer_cache) == 0
 
 
 def test_annotate_offset_fontsize():
