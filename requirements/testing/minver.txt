@@ -13,3 +13,11 @@ pillow==8.3.2
 pyparsing==2.3.1
 pytest==7.0.0
 python-dateutil==2.7
+
+# Test ipython/matplotlib-inline before backend mapping moved to mpl.
+# This should be tested for a reasonably long transition period,
+# but we will eventually remove the test when we no longer support
+# ipython/matplotlib-inline versions from before the transition.
+ipython==7.29.0
+ipykernel==5.5.6
+matplotlib-inline<0.1.7
