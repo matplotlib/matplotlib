@@ -1828,3 +1828,44 @@ def test_LinearSegmentedColormap_from_list_value_color_tuple():
         cmap([value for value, _ in value_color_tuples]),
         to_rgba_array([color for _, color in value_color_tuples]),
     )
+
+
+def test_multi_norm():
+    # tests for mcolors.MultiNorm
+
+    # test wrong input
+    with pytest.raises(ValueError,
+                       match="A MultiNorm must be assigned multiple norms"):
+        mcolors.MultiNorm("bad_norm_name")
+    with pytest.raises(ValueError,
+                       match="Invalid norm str name"):
+        mcolors.MultiNorm(["bad_norm_name"])
+
+    # test get vmin, vmax
+    norm = mpl.colors.MultiNorm(['linear', 'log'])
+    norm.vmin = 1
+    norm.vmax = 2
+    assert norm.vmin[0] == 1
+    assert norm.vmin[1] == 1
+    assert norm.vmax[0] == 2
+    assert norm.vmax[1] == 2
+
+    # test call with clip
+    assert_array_equal(norm([3, 3], clip=False), [2.0, 1.584962500721156])
+    assert_array_equal(norm([3, 3], clip=True), [1.0, 1.0])
+    assert_array_equal(norm([3, 3], clip=[True, False]), [1.0, 1.584962500721156])
+    norm.clip = False
+    assert_array_equal(norm([3, 3]), [2.0, 1.584962500721156])
+    norm.clip = True
+    assert_array_equal(norm([3, 3]), [1.0, 1.0])
+    norm.clip = [True, False]
+    assert_array_equal(norm([3, 3]), [1.0, 1.584962500721156])
+    norm.clip = True
+
+    # test inverse
+    assert_array_almost_equal(norm.inverse([0.5, 0.5849625007211562]), [1.5, 1.5])
+
+    # test autoscale
+    norm.autoscale([[0, 1, 2, 3], [0.1, 1, 2, 3]])
+    assert_array_equal(norm.vmin, [0, 0.1])
+    assert_array_equal(norm.vmax, [3, 3])
