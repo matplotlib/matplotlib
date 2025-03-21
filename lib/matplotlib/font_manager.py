@@ -536,7 +536,7 @@ def afmFontProperty(fontpath, font):
 
 def _cleanup_fontproperties_init(init_method):
     """
-    A decorator to limit the call signature to single a positional argument
+    A decorator to limit the call signature to a single positional argument
     or alternatively only keyword arguments.
 
     We still accept but deprecate all other call signatures.
@@ -624,6 +624,13 @@ class FontProperties:
       Supported values are: 'dejavusans', 'dejavuserif', 'cm',
       'stix', 'stixsans' and 'custom'. Default: :rc:`mathtext.fontset`
 
+    - features: A list of advanced font feature tags to enable. Font features are a
+      component of OpenType fonts that allows picking from multiple stylistic variations
+      within a single font. This may include small caps, ligatures, alternate forms of
+      commonly-confused glyphs (e.g., capital I vs. lower-case l), and various other
+      options. A `list of feature tags may be found here
+      <https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist>`__.
+
     Alternatively, a font may be specified using the absolute path to a font
     file, by using the *fname* kwarg.  However, in this case, it is typically
     simpler to just pass the path (as a `pathlib.Path`, not a `str`) to the
@@ -657,7 +664,8 @@ class FontProperties:
     def __init__(self, family=None, style=None, variant=None, weight=None,
                  stretch=None, size=None,
                  fname=None,  # if set, it's a hardcoded filename to use
-                 math_fontfamily=None):
+                 math_fontfamily=None,
+                 features=None):
         self.set_family(family)
         self.set_style(style)
         self.set_variant(variant)
@@ -666,6 +674,7 @@ class FontProperties:
         self.set_file(fname)
         self.set_size(size)
         self.set_math_fontfamily(math_fontfamily)
+        self.set_features(features)
         # Treat family as a fontconfig pattern if it is the only parameter
         # provided.  Even in that case, call the other setters first to set
         # attributes not specified by the pattern to the rcParams defaults.
@@ -705,7 +714,8 @@ class FontProperties:
              self.get_stretch(),
              self.get_size(),
              self.get_file(),
-             self.get_math_fontfamily())
+             self.get_math_fontfamily(),
+             self.get_features())
         return hash(l)
 
     def __eq__(self, other):
@@ -951,6 +961,41 @@ class FontProperties:
             # if it were passed to rcParams['mathtext.fontset']
             _api.check_in_list(valid_fonts, math_fontfamily=fontfamily)
         self._math_fontfamily = fontfamily
+
+    def get_features(self):
+        """Return a tuple of font feature tags to enable."""
+        return self._features
+
+    def set_features(self, features):
+        """
+        Set the font feature tags to enable on this font.
+
+        Parameters
+        ----------
+        features : list[str]
+            A list of feature tags to be used with the associated font. These strings
+            are eventually passed to HarfBuzz, and so all `string formats supported by
+            hb_feature_from_string()
+            <https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-from-string>`__
+            are supported.
+
+            For example, if your desired font includes Stylistic Sets which enable
+            various typographic alternates including one that you do not wish to use
+            (e.g., Contextual Ligatures), then you can pass the following to enable one
+            and not the other::
+
+                fp.set_features([
+                    'ss01',  # Use Stylistic Set 1.
+                    '-clig',  # But disable Contextural Ligatures.
+                ])
+
+            Available font feature tags may be found at
+            https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
+        """
+        _api.check_isinstance((list, tuple, None), features=features)
+        if features is not None:
+            features = tuple(features)
+        self._features = features
 
     def copy(self):
         """Return a copy of self."""
