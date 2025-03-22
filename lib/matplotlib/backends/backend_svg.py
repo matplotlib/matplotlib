@@ -1035,7 +1035,8 @@ class RendererSVG(RendererBase):
     def _adjust_char_id(self, char_id):
         return char_id.replace("%20", "_")
 
-    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath, mtext=None):
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath, mtext=None,
+                           language=None):
         # docstring inherited
         writer = self.writer
 
@@ -1106,7 +1107,8 @@ class RendererSVG(RendererBase):
 
         writer.end('g')
 
-    def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath, mtext=None):
+    def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath, mtext=None,
+                           language=None):
         # NOTE: If you change the font styling CSS, then be sure the check for
         # svg.fonttype = none in `lib/matplotlib/testing/compare.py::convert` remains in
         # sync. Also be sure to re-generate any SVG using this mode, or else such tests
@@ -1263,7 +1265,8 @@ class RendererSVG(RendererBase):
 
             writer.end('g')
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None,
+                  language=None):
         # docstring inherited
 
         clip_attrs = self._get_clip_attrs(gc)
@@ -1276,9 +1279,9 @@ class RendererSVG(RendererBase):
             self.writer.start('a', {'xlink:href': gc.get_url()})
 
         if mpl.rcParams['svg.fonttype'] == 'path':
-            self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
+            self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext, language)
         else:
-            self._draw_text_as_text(gc, x, y, s, prop, angle, ismath, mtext)
+            self._draw_text_as_text(gc, x, y, s, prop, angle, ismath, mtext, language)
 
         if gc.get_url() is not None:
             self.writer.end('a')
