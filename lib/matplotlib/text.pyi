@@ -14,7 +14,7 @@ from .transforms import (
     Transform,
 )
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import Any, Literal
 from .typing import ColorType, CoordsType
 
@@ -108,6 +108,8 @@ class Text(Artist):
     def set_antialiased(self, antialiased: bool) -> None: ...
     def _ha_for_angle(self, angle: Any) -> Literal['center', 'right', 'left'] | None: ...
     def _va_for_angle(self, angle: Any) -> Literal['center', 'top', 'baseline'] | None: ...
+    def get_language(self) -> str | tuple[tuple[str, int, int], ...] | None: ...
+    def set_language(self, language: str | Sequence[tuple[str, int, int]] | None) -> None: ...
 
 class OffsetFrom:
     def __init__(

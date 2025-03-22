@@ -16,7 +16,8 @@ class TextToPath:
         self, s: str, prop: FontProperties, ismath: bool | Literal["TeX"]
     ) -> tuple[float, float, float]: ...
     def get_text_path(
-        self, prop: FontProperties, s: str, ismath: bool | Literal["TeX"] = ...
+        self, prop: FontProperties, s: str, ismath: bool | Literal["TeX"] = ..., *,
+        language: str | list[tuple[str, int, int]] | None = ...,
     ) -> list[np.ndarray]: ...
     def get_glyphs_with_font(
         self,
@@ -24,6 +25,8 @@ class TextToPath:
         s: str,
         glyph_map: dict[str, tuple[np.ndarray, np.ndarray]] | None = ...,
         return_new_glyphs_only: bool = ...,
+        *,
+        language: str | list[tuple[str, int, int]] | None = ...,
     ) -> tuple[
         list[tuple[str, float, float, float]],
         dict[str, tuple[np.ndarray, np.ndarray]],

@@ -9,6 +9,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
+#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
@@ -100,6 +101,9 @@ extern FT_Library _ft2Library;
 class FT2Font
 {
   public:
+    using LanguageRange = std::tuple<std::string, int, int>;
+    using LanguageType = std::optional<std::vector<LanguageRange>>;
+
     FT2Font(long hinting_factor, std::vector<FT2Font *> &fallback_list,
             bool warn_if_used);
     virtual ~FT2Font();
@@ -110,7 +114,7 @@ class FT2Font
     void set_charmap(int i);
     void select_charmap(unsigned long i);
     void set_text(std::u32string_view codepoints, double angle, FT_Int32 flags,
-                  std::vector<double> &xys);
+                  LanguageType languages, std::vector<double> &xys);
     int get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode);
     void set_kerning_factor(int factor);
     void load_char(long charcode, FT_Int32 flags, FT2Font *&ft_object, bool fallback);
