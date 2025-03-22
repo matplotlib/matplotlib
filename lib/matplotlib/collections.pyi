@@ -21,7 +21,7 @@ class Collection(colorizer.ColorizingArtist):
         *,
         edgecolors: ColorType | Sequence[ColorType] | None = ...,
         facecolors: ColorType | Sequence[ColorType] | None = ...,
-        hatchcolors: ColorType | Sequence[ColorType] | None = ...,
+        hatchcolors: ColorType | Sequence[ColorType] | Literal["edge"] | None = ...,
         linewidths: float | Sequence[float] | None = ...,
         linestyles: LineStyleType | Sequence[LineStyleType] = ...,
         capstyle: CapStyleType | None = ...,

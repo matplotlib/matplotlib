@@ -454,7 +454,7 @@ class Collection(mcolorizer.ColorizingArtist):
                     path_ids = renderer._iter_collection_raw_paths(
                         transform.frozen(), ipaths, self.get_transforms())
                     for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-                        gc, list(path_ids), *args
+                        gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
                     ):
                         path, transform = path_id
                         if xo != 0 or yo != 0:
@@ -474,7 +474,7 @@ class Collection(mcolorizer.ColorizingArtist):
                 path_ids = renderer._iter_collection_raw_paths(
                     transform.frozen(), paths, self.get_transforms())
                 for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-                    gc, list(path_ids), *args
+                    gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
                 ):
                     path, transform = path_id
                     if xo != 0 or yo != 0:
@@ -802,14 +802,17 @@ class Collection(mcolorizer.ColorizingArtist):
         """
         Set the edgecolor, facecolor and hatchcolor.
 
+        .. versionchanged:: 3.11
+            Now sets the hatchcolor as well.
+
         Parameters
         ----------
         c : :mpltype:`color` or list of RGBA tuples
 
         See Also
         --------
-        Collection.set_facecolor, Collection.set_edgecolor
-            For setting the edge or face color individually.
+        Collection.set_facecolor, Collection.set_edgecolor, Collection.set_hatchcolor
+            For setting the facecolor, edgecolor, and hatchcolor individually.
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
@@ -2535,7 +2538,7 @@ class QuadMesh(_MeshData, Collection):
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
                 self._antialiased, self.get_edgecolors().reshape((-1, 4)),
-                self.get_hatchcolor().reshape((-1, 4)))
+                hatchcolors=self.get_hatchcolor().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False

@@ -3,12 +3,19 @@
 Hatchcolor Demo
 ===============
 
+The color of the hatch can be set using the *hatchcolor* parameter. The following
+examples show how to use the *hatchcolor* parameter to set the color of the hatch
+in `~.patches.Patch` and `~.collections.Collection`.
+
+See also :doc:`/gallery/shapes_and_collections/hatch_demo` for more usage examples
+of hatching.
+
 Patch Hatchcolor
 ----------------
 
 This example shows how to use the *hatchcolor* parameter to set the color of
-the hatch. The *hatchcolor* parameter is available for `~.patches.Patch`,
-child classes of Patch, and methods that pass through to Patch.
+the hatch in a rectangle and a bar plot. The *hatchcolor* parameter is available for
+`~.patches.Patch`, child classes of Patch, and methods that pass through to Patch.
 """
 
 import matplotlib.pyplot as plt
@@ -62,18 +69,12 @@ ax.scatter(
     facecolor="none",
     edgecolor="gray",
     linewidth=2,
-    marker="h",  # Use hexagon as marker
+    marker="s",  # Use hexagon as marker
     hatch="xxx",
     hatchcolor=colors,
 )
 ax.set_xlim(0, 1)
 ax.set_ylim(0, 1)
-
-# Remove ticks and labels
-ax.set_xticks([])
-ax.set_yticks([])
-ax.set_xticklabels([])
-ax.set_yticklabels([])
 
 plt.show()
 

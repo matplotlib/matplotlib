@@ -240,7 +240,8 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
         .def("draw_quad_mesh", &PyRendererAgg_draw_quad_mesh,
              "gc"_a, "master_transform"_a, "mesh_width"_a, "mesh_height"_a,
              "coordinates"_a, "offsets"_a, "offset_trans"_a, "facecolors"_a,
-             "antialiased"_a, "edgecolors"_a, "hatchcolors"_a = py::array_t<double>().reshape({0, 4}))
+             "antialiased"_a, "edgecolors"_a, py::kw_only(),
+             "hatchcolors"_a = py::array_t<double>().reshape({0, 4}))
         .def("draw_gouraud_triangles", &PyRendererAgg_draw_gouraud_triangles,
              "gc"_a, "points"_a, "colors"_a, "trans"_a = nullptr)
 

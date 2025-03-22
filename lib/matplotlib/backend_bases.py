@@ -221,7 +221,7 @@ class RendererBase:
         and *hatchcolors* are lists that set the corresponding properties.
 
         .. versionadded:: 3.11
-            Allowing *hatchcolors* to be specified.
+            Allow *hatchcolors* to be specified.
 
         *offset_position* is unused now, but the argument is kept for
         backwards compatibility.
@@ -244,7 +244,7 @@ class RendererBase:
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, list(path_ids), offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position, hatchcolors):
+                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
             path, transform = path_id
             # Only apply another translation if we have an offset, else we
             # reuse the initial transform.
@@ -258,7 +258,7 @@ class RendererBase:
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, edgecolors, hatchcolors=None):
+                       antialiased, edgecolors, *, hatchcolors=None):
         """
         Draw a quadmesh.
 
@@ -346,7 +346,7 @@ class RendererBase:
 
     def _iter_collection(self, gc, path_ids, offsets, offset_trans, facecolors,
                          edgecolors, linewidths, linestyles,
-                         antialiaseds, urls, offset_position, hatchcolors):
+                         antialiaseds, urls, offset_position, *, hatchcolors):
         """
         Helper method (along with `_iter_collection_raw_paths`) to implement
         `draw_path_collection` in a memory-efficient manner.
