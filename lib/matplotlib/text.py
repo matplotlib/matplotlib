@@ -136,6 +136,7 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
+        self._language = None
         self._reset_visual_defaults(
             text=text,
             color=color,
@@ -1421,6 +1422,41 @@ class Text(Artist):
         elif 190 < angle < 260 or 10 < angle < 80:
             return 'baseline' if anchor_at_left else 'top'
         return 'top' if anchor_at_left else 'baseline'
+
+    def get_language(self):
+        """Return the language this Text is in."""
+        return self._language
+
+    def set_language(self, language):
+        """
+        Set the language of the text.
+
+        Parameters
+        ----------
+        language : str or None
+            The language of the text in a format accepted by libraqm, namely `a BCP47
+            language code <https://www.w3.org/International/articles/language-tags/>`_.
+
+            If None, then defaults to :rc:`text.language`.
+        """
+        _api.check_isinstance((list, tuple, str, None), language=language)
+        language = mpl._val_or_rc(language, 'text.language')
+
+        if not cbook.is_scalar_or_string(language):
+            for val in language:
+                if not isinstance(val, tuple) or len(val) != 3:
+                    raise TypeError('language must be list of tuple, not {language!r}')
+                sublang, start, end = val
+                if not isinstance(sublang, str):
+                    raise TypeError(
+                        'sub-language specification must be str, not {sublang!r}')
+                if not isinstance(start, int):
+                    raise TypeError('start location must be int, not {start!r}')
+                if not isinstance(end, int):
+                    raise TypeError('end location must be int, not {end!r}')
+
+        self._language = language
+        self.stale = True
 
 
 class OffsetFrom:
