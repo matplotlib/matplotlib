@@ -233,7 +233,7 @@ class TextToPath:
         # Gather font information and do some setup for combining
         # characters into strings.
         for text in page.text:
-            font = get_font(text.font_path)
+            font = get_font(text.font.path)
             char_id = self._get_char_id(font, text.glyph)
             if char_id not in glyph_map:
                 font.clear()
