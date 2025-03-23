@@ -286,7 +286,7 @@ namespace agg
     #else
 
         //This code is actually pure C and portable to most 
-        //architectures including 64bit ones.
+        //architectures including 64bit ones. 
         unsigned t = val;
         int bit=0;
         unsigned shift = 11;

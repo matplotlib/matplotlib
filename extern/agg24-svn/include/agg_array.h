@@ -776,7 +776,7 @@ namespace agg
     // Memory is allocated with blocks of fixed size ("block_size" in
     // the constructor). If required size exceeds the block size the allocator
     // creates a new block of the required size. However, the most efficient
-    // use is when the average required size is much less than the block size.
+    // use is when the average required size is much less than the block size. 
     //------------------------------------------------------------------------
     class block_allocator
     {
