@@ -13,7 +13,7 @@
 //          http://www.antigrain.com
 //----------------------------------------------------------------------------
 //
-// Filtering class image_filter_lut implemantation
+// Filtering class image_filter_lut implementation
 //
 //----------------------------------------------------------------------------
 

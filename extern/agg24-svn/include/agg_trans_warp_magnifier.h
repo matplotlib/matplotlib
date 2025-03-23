@@ -22,7 +22,7 @@ namespace agg
 
     //----------------------------------------------------trans_warp_magnifier
     //
-    // See Inmplementation agg_trans_warp_magnifier.cpp
+    // See Implementation agg_trans_warp_magnifier.cpp
     //
     class trans_warp_magnifier
     {

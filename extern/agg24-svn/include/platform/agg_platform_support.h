@@ -2,8 +2,8 @@
 // Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
-// Permission to copy, use, modify, sell and distribute this software 
-// is granted provided this copyright notice appears in all copies. 
+// Permission to copy, use, modify, sell and distribute this software
+// is granted provided this copyright notice appears in all copies.
 // This software is provided "as is" without express or implied
 // warranty, and with no claim as to its suitability for any purpose.
 //
@@ -15,14 +15,14 @@
 //
 // class platform_support
 //
-// It's not a part of the AGG library, it's just a helper class to create 
+// It's not a part of the AGG library, it's just a helper class to create
 // interactive demo examples. Since the examples should not be too complex
 // this class is provided to support some very basic interactive graphical
-// functionality, such as putting the rendered image to the window, simple 
+// functionality, such as putting the rendered image to the window, simple
 // keyboard and mouse input, window resizing, setting the window title,
 // and catching the "idle" events.
 // 
-// The idea is to have a single header file that does not depend on any 
+// The idea is to have a single header file that does not depend on any
 // platform (I hate these endless #ifdef/#elif/#elif.../#endif) and a number
 // of different implementations depending on the concrete platform. 
 // The most popular platforms are:
@@ -34,7 +34,7 @@
 // 
 // This file does not include any system dependent .h files such as
 // windows.h or X11.h, so, your demo applications do not depend on the
-// platform. The only file that can #include system dependend headers
+// platform. The only file that can #include system dependent headers
 // is the implementation file agg_platform_support.cpp. Different
 // implementations are placed in different directories, such as
 // ~/agg/src/platform/win32
@@ -42,11 +42,11 @@
 // ~/agg/src/platform/X11
 // and so on.
 //
-// All the system dependent stuff sits in the platform_specific 
+// All the system dependent stuff sits in the platform_specific
 // class which is forward-declared here but not defined. 
-// The platform_support class has just a pointer to it and it's 
+// The platform_support class has just a pointer to it and it's
 // the responsibility of the implementation to create/delete it.
-// This class being defined in the implementation file can have 
+// This class being defined in the implementation file can have
 // any platform dependent stuff such as HWND, X11 Window and so on.
 //
 //----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ namespace agg
     // Possible formats of the rendering buffer. Initially I thought that it's
     // reasonable to create the buffer and the rendering functions in 
     // accordance with the native pixel format of the system because it 
-    // would have no overhead for pixel format conersion. 
+    // would have no overhead for pixel format conversion.
     // But eventually I came to a conclusion that having a possibility to 
     // convert pixel formats on demand is a good idea. First, it was X11 where 
     // there lots of different formats and visuals and it would be great to 
@@ -153,7 +153,7 @@ namespace agg
     // In the method on_mouse_button_up() the mouse flags have different
     // meaning. They mean that the respective button is being released, but
     // the meaning of the keyboard flags remains the same.
-    // There's absolut minimal set of flags is used because they'll be most
+    // There's absolute minimal set of flags is used because they'll be most
     // probably supported on different platforms. Even the mouse_right flag
     // is restricted because Mac's mice have only one button, but AFAIK
     // it can be simulated with holding a special key on the keydoard.
@@ -369,7 +369,7 @@ namespace agg
 
 
     //---------------------------------------------------------platform_support
-    // This class is a base one to the apllication classes. It can be used 
+    // This class is a base one to the application classes. It can be used
     // as follows:
     //
     //  class the_application : public agg::platform_support
@@ -467,7 +467,7 @@ namespace agg
         unsigned bpp() const { return m_bpp; }
 
         //--------------------------------------------------------------------
-        // The following provides a very simple mechanism of doing someting
+        // The following provides a very simple mechanism of doing something
         // in background. It's not multithreading. When wait_mode is true
         // the class waits for the events and it does not ever call on_idle().
         // When it's false it calls on_idle() when the event queue is empty.
@@ -489,7 +489,7 @@ namespace agg
         void update_window();
 
         //--------------------------------------------------------------------
-        // So, finally, how to draw anythig with AGG? Very simple.
+        // So, finally, how to draw anything with AGG? Very simple.
         // rbuf_window() returns a reference to the main rendering 
         // buffer which can be attached to any rendering class.
         // rbuf_img() returns a reference to the previously created
@@ -544,9 +544,9 @@ namespace agg
         // to override them all.
         // In my demo applications these functions are defined inside
         // the the_application class (implicit inlining) which is in general 
-        // very bad practice, I mean vitual inline methods. At least it does
+        // very bad practice, I mean virtual inline methods. At least it does
         // not make sense. 
-        // But in this case it's quite appropriate bacause we have the only
+        // But in this case it's quite appropriate because we have the only
         // instance of the the_application class and it is in the same file 
         // where this class is defined.
         virtual void on_init();
@@ -617,7 +617,7 @@ namespace agg
         //--------------------------------------------------------------------
         // Get raw display handler depending on the system. 
         // For win32 its an HDC, for other systems it can be a pointer to some
-        // structure. See the implementation files for detals.
+        // structure. See the implementation files for details.
         // It's provided "as is", so, first you should check if it's not null.
         // If it's null the raw_display_handler is not supported. Also, there's 
         // no guarantee that this function is implemented, so, in some 

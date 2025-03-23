@@ -488,7 +488,7 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*   If this macro is set (which is _not_ the default), FreeType2 will   */
   /*   avoid creating constants that require address fixups.  Instead the  */
-  /*   constants will be moved into a struct and additional intialization  */
+  /*   constants will be moved into a struct and additional initialization */
   /*   code will be used.                                                  */
   /*                                                                       */
   /*   Setting this macro is needed for systems that prohibit address      */

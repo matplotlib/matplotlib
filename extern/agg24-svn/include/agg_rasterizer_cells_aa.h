@@ -9,7 +9,7 @@
 //
 //----------------------------------------------------------------------------
 //
-// The author gratefully acknowleges the support of David Turner,
+// The author gratefully acknowledges the support of David Turner,
 // Robert Wilhelm, and Werner Lemberg - the authors of the FreeType
 // libray - in producing this work. See http://www.freetype.org for details.
 //
@@ -41,7 +41,7 @@ namespace agg
 
     //-----------------------------------------------------rasterizer_cells_aa
     // An internal class that implements the main rasterization algorithm.
-    // Used in the rasterizer. Should not be used direcly.
+    // Used in the rasterizer. Should not be used directly.
     template<class Cell> class rasterizer_cells_aa
     {
         enum cell_block_scale_e

@@ -24,7 +24,7 @@ namespace agg
 
     //======================================================vcgen_markers_term
     //
-    // See Implemantation agg_vcgen_markers_term.cpp
+    // See Implementation agg_vcgen_markers_term.cpp
     // Terminal markers generator (arrowhead/arrowtail)
     //
     //------------------------------------------------------------------------

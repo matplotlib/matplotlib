@@ -795,7 +795,7 @@ Changes in parameter names
 - The *normed* parameter to `.Axes.hist2d` has been renamed to *density*.
 - The *s* parameter to `.Annotation` (and indirectly `.Axes.annotate`) has
   been renamed to *text*.
-- The *tolerence* parameter to
+- The *tolerance* parameter to
   `.bezier.find_bezier_t_intersecting_with_closedpath`,
   `.bezier.split_bezier_intersecting_with_closedpath`,
   ``bezier.find_r_to_boundary_of_closedpath``,

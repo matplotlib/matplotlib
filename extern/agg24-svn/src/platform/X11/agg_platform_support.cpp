@@ -560,7 +560,7 @@ namespace agg
 //         {
 //             
 //             // This is an attempt to find an appropriate Visual if         
-//             // the default one doesn't match the minumum requirements
+//             // the default one doesn't match the minimum requirements
 //             static int depth[] = { 32, 24, 16, 15 };
 //             int i;
 //             for(int i = 0; i < 4; i++)
