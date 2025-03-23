@@ -90,7 +90,7 @@ namespace agg
     //                                    // grayscale image 1-byte per pixel.
     //     do
     //     {
-    //         *dst++ = *covers++;        // Hypothetical rendering.
+    //         *dst++ = *covers++;        // Hypothetical rendering. 
     //     }
     //     while(--num_pix);
     //
