@@ -48,26 +48,17 @@ jobs:
       matrix:
         include:
           - name-suffix: "(Minimum Versions)"
-            os: ubuntu-20.04
-            python-version: '3.10'
+            os: ubuntu-22.04
+            python-version: '3.11'
             extra-requirements: '-c requirements/testing/minver.txt'
             delete-font-cache: true
-            # Oldest versions with Py3.10 wheels.
-            pyqt5-ver: '==5.15.5 sip==6.3.0'
-            pyqt6-ver: '==6.2.0 PyQt6-Qt6==6.2.0'
-            pyside2-ver: '==5.15.2.1'
-            pyside6-ver: '==6.2.0'
-          - os: ubuntu-20.04
-            python-version: '3.10'
-            extra-requirements: '-r requirements/testing/extra.txt'
-            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-            # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.5.1,!=6.6.0,!=6.7.1'
+            pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: ubuntu-22.04
             python-version: '3.11'
+            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
@@ -178,11 +169,7 @@ jobs:
             if [[ "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
               sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
             fi
-            if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
-              sudo apt-get install -yy --no-install-recommends libopengl0
-            else  # ubuntu-22.04
-              sudo apt-get install -yy --no-install-recommends gir1.2-gtk-4.0
-            fi
+            sudo apt-get install -yy --no-install-recommends gir1.2-gtk-4.0
             ;;
           macOS)
             brew update
