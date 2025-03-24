@@ -286,7 +286,7 @@ namespace agg
     #else
 
         //This code is actually pure C and portable to most 
-        //architectures including 64bit ones. 
+        //arcitectures including 64bit ones. 
         unsigned t = val;
         int bit=0;
         unsigned shift = 11;
@@ -388,7 +388,7 @@ namespace agg
             m2 = m1;
         }
     
-        // Apply recurrence down from current max order
+        // Apply recurrence down from curent max order
         for(;;) 
         {
             double c3 = 0;
