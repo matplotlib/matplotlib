@@ -59,12 +59,7 @@ jobs:
             pyside6-ver: '==6.2.0'
           - os: ubuntu-20.04
             python-version: '3.10'
-            # One CI run tests ipython/matplotlib-inline before backend mapping moved to mpl
-            extra-requirements:
-              -r requirements/testing/extra.txt
-              "ipython==7.29.0"
-              "ipykernel==5.5.6"
-              "matplotlib-inline<0.1.7"
+            extra-requirements: '-r requirements/testing/extra.txt'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
             # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
