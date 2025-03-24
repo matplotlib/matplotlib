@@ -229,9 +229,6 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 (recommended) or by manually installing the following packages:
 
 - `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.13.1).
-- `ninja <https://ninja-build.org/>`_ (>= 1.8.2). This may be available in your package
-  manager or bundled with Meson, but may be installed via ``pip`` if otherwise not
-  available.
 - `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.13.2). Used to connect C/C++ code
   with Python.
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
@@ -240,10 +237,22 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 - `NumPy <https://numpy.org>`_ (>= 1.22).  Also a runtime dependency.
 
 
+.. _compile-build-dependencies:
+
+Compilers and external build tools
+----------------------------------
+
+When setting up a virtual environment for development, `ninja <https://ninja-build.org/>`_
+(>= 1.8.2) may need to be installed separately. This may be available
+as a `pre-built binary <https://github.com/ninja-build/ninja/releases>`_ or from a
+`package manager <https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages>`_
+or bundled with Meson. Ninja may also be installed via ``pip`` if otherwise not
+available.
+
 .. _compile-dependencies:
 
-Compiled extensions
--------------------
+Compilers
+^^^^^^^^^
 
 Matplotlib requires a C++ compiler that supports C++17, and each platform has a
 development environment that must be installed before a compiler can be installed.
