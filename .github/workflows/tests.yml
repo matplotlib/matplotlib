@@ -147,7 +147,7 @@ jobs:
             brew uninstall --ignore-dependencies --force pkg-config@0.29.2
             brew install ccache ffmpeg ghostscript imagemagick ninja
             # https://pygobject.gnome.org/devguide/dev_environ.html#macosx-logo-macos
-            brew install gobject-introspection libffi
+            brew install gobject-introspection libffi py3cairo
             brew install --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
