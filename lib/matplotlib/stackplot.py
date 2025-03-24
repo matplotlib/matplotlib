@@ -23,14 +23,53 @@ def stackplot(axes, x, *args,
 
     Parameters
     ----------
-    x : (N,) array-like
+    x : array-like
 
-    y : (M, N) array-like
-        The data is assumed to be unstacked. Each of the following
-        calls is legal::
+    y : multiple array-like, 2D array-like or pandas.DataFrame
 
-            stackplot(x, y)           # where y has shape (M, N)
-            stackplot(x, y1, y2, y3)  # where y1, y2, y3, y4 have length N
+        - multiple array-like: the data is unstacked
+        
+        .. code-block:: none
+
+                  #     year_1,    year_2,    year_3
+                  y1 = [value_1_A, value_2_A, value_3_A] # category_A
+                  y2 = [value_1_B, value_2_B, value_3_B] # category_B
+                  y3 = [value_1_C, value_2_C, value_3_C] # category_C
+        
+                  x = [*range(3)]
+
+        Example call:
+
+        .. code-block:: python
+
+            stackplot(x, y1, y2, y3)
+
+        - 2D array-like: Each row represents a category, each column represents an x-axis dimension associated with the categories. A list of 1D array-like can also be passed; each list item must have the same length
+
+        Example call:
+
+        .. code-block:: python
+        
+            y = [y1, y2, y3]
+            x = [*range(3)]
+
+            stackplot(x, y)    
+
+        - a `pandas.DataFrame`: The index is used for the categories, each column represents an x-axis dimension associated with the categories.
+
+        Example call:
+
+        .. code-block:: python
+
+            y = pd.DataFrame(
+                        np.random.random((3, 3)),
+                        index=["category_A", "category_B", "category_C"],
+                        columns=[*range(3)]
+                    )
+            
+            x = df.columns
+
+            stackplot(x, y)
 
     baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:
