@@ -145,7 +145,9 @@ jobs:
             done
             # Workaround for https://github.com/actions/runner-images/issues/10984
             brew uninstall --ignore-dependencies --force pkg-config@0.29.2
-            brew install ccache ffmpeg ghostscript gtk4 imagemagick ninja py3cairo
+            brew install ccache ffmpeg ghostscript imagemagick ninja
+            # https://pygobject.gnome.org/devguide/dev_environ.html#macosx-logo-macos
+            brew install gobject-introspection libffi
             brew install --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
@@ -218,7 +220,12 @@ jobs:
           # (sometimes, the install appears to be successful but shared
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
-          python -m pip install --upgrade PyGObject &&
+
+          # https://pygobject.gnome.org/devguide/dev_environ.html#macosx-logo-macos
+          export PKG_CONFIG_PATH=$(brew --prefix libffi)/lib/pkgconfig
+          python -m pip install --upgrade PyGObject
+          unset PKG_CONFIG_PATH
+
             (
               python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
               echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
