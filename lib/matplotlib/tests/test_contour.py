@@ -214,7 +214,6 @@ def test_log_locator_levels():
     assert_array_almost_equal(cb.ax.get_yticks(), c.levels)
 
 
-
 @pytest.mark.parametrize("n_levels", [2, 3, 4, 5, 6])
 def test_lognorm_levels(n_levels):
     x, y = np.mgrid[1:10:0.1, 1:10:0.1]
