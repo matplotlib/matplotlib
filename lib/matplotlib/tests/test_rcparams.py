@@ -257,6 +257,8 @@ def generate_validator_testcases(valid):
         {'validator': validate_cycler,
          'success': (('cycler("color", "rgb")',
                       cycler("color", 'rgb')),
+                     ('cycler("color", "Dark2")',
+                      cycler("color", mpl.color_sequences["Dark2"])),
                      (cycler('linestyle', ['-', '--']),
                       cycler('linestyle', ['-', '--'])),
                      ("""(cycler("color", ["r", "g", "b"]) +
@@ -453,6 +455,12 @@ def test_validator_valid(validator, arg, target):
 def test_validator_invalid(validator, arg, exception_type):
     with pytest.raises(exception_type):
         validator(arg)
+
+
+def test_validate_cycler_bad_color_string():
+    msg = "'foo' is neither a color sequence name nor can it be interpreted as a list"
+    with pytest.raises(ValueError, match=msg):
+        validate_cycler("cycler('color', 'foo')")
 
 
 @pytest.mark.parametrize('weight, parsed_weight', [
