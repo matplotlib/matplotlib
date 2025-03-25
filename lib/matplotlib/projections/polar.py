@@ -1292,7 +1292,9 @@ class PolarAxes(Axes):
         return Axes.set_yscale(self, *args, **kwargs)
 
     def set_rticks(self, *args, **kwargs):
-        return Axes.set_yticks(self, *args, **kwargs)
+        Axes.set_yticks(self, *args, **kwargs)
+        self.yaxis.set_major_locator(
+            self.RadialLocator(self.yaxis.get_major_locator(), self))
 
     def set_thetagrids(self, angles, labels=None, fmt=None, **kwargs):
         """
