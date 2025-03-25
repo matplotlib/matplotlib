@@ -145,7 +145,7 @@ jobs:
             done
             # Workaround for https://github.com/actions/runner-images/issues/10984
             brew uninstall --ignore-dependencies --force pkg-config@0.29.2
-            brew install cairo ccache ffmpeg ghostscript gtk4 imagemagick ninja
+            brew install ccache ffmpeg ghostscript gtk4 imagemagick ninja
             brew install --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
