@@ -449,10 +449,7 @@ class Line3DCollection(LineCollection):
         ----------
         segments : list of (N, 3) array-like
             A sequence ``[line0, line1, ...]`` where each line is a (N, 3)-shape
-            array-like containing points::
-
-                line0 = [(x0, y0, z0), (x1, y1, z1), ...]
-
+            array-like containing points:: line0 = [(x0, y0, z0), (x1, y1, z1), ...]
             Each line can contain a different number of points.
         linewidths : float or list of float, default: :rc:`lines.linewidth`
             The width of each line in points.
@@ -461,9 +458,6 @@ class Line3DCollection(LineCollection):
             allowed).
         antialiaseds : bool or list of bool, default: :rc:`lines.antialiased`
             Whether to use antialiasing for each line.
-        zorder : float, default: 2
-            zorder of the lines once drawn.
-
         facecolors : :mpltype:`color` or list of :mpltype:`color`, default: 'none'
             When setting *facecolors*, each line is interpreted as a boundary
             for an area, implicitly closing the path from the last point to the
@@ -472,9 +466,7 @@ class Line3DCollection(LineCollection):
             each line, please use `.PathCollection` instead, where the
             "interior" can be specified by appropriate usage of
             `~.path.Path.CLOSEPOLY`.
-
-        **kwargs
-            Forwarded to `.Collection`.      
+        **kwargs : Forwarded to `.Collection`.
         """
 
     def set_sort_zpos(self, val):
