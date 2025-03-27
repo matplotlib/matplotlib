@@ -776,7 +776,8 @@ class Tfm:
     checksum : int
        Used for verifying against the dvi file.
     design_size : int
-       Design size of the font (unknown units)
+       Design size of the font (in 12.20 TeX points); unused because it is
+       overridden by the scale factor specified in the dvi file.
     width, height, depth : dict
        Dimensions of each character, need to be scaled by the factor
        specified in the dvi file. These are dicts because indexing may
