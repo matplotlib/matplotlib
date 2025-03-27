@@ -711,8 +711,8 @@ def test_wrap(x, rotation, halign):
     s = 'This is a very long text that should be wrapped multiple times.'
     text = subfig.text(x, 0.7, s, wrap=True, rotation=rotation, ha=halign)
     fig.canvas.draw()
-    assert text._get_wrapped_text() == ('This is a very long text\n'
-                                        'that should be\n'
+    assert text._get_wrapped_text() == ('This is a very long\n'
+                                        'text that should be\n'
                                         'wrapped multiple\n'
                                         'times.')
 
