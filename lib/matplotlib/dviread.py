@@ -577,12 +577,8 @@ class DviFont:
     size : float
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
-    widths : list
-       Widths of glyphs in glyph-space units, typically 1/1000ths of
-       the point size.
-
     """
-    __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
+    __slots__ = ('texname', 'size', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
         _api.check_isinstance(bytes, texname=texname)
@@ -591,12 +587,10 @@ class DviFont:
         self.texname = texname
         self._vf = vf
         self.size = scale * (72.0 / (72.27 * 2**16))
-        try:
-            nchars = max(tfm.width) + 1
-        except ValueError:
-            nchars = 0
-        self.widths = [(1000*tfm.width.get(char, 0)) >> 20
-                       for char in range(nchars)]
+
+    widths = _api.deprecated("3.11")(property(lambda self: [
+        (1000 * self._tfm.width.get(char, 0)) >> 20
+        for char in range(max(self._tfm.width, default=-1) + 1)]))
 
     def __eq__(self, other):
         return (type(self) is type(other)
