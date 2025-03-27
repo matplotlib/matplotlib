@@ -447,7 +447,7 @@ class Line3DCollection(LineCollection):
         """
         Parameters
         ----------
-        segments : list of (N, 3) array-like
+        lines : list of (N, 3) array-like
             A sequence ``[line0, line1, ...]`` where each line is a (N, 3)-shape
             array-like containing points:: line0 = [(x0, y0, z0), (x1, y1, z1), ...]
             Each line can contain a different number of points.
