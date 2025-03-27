@@ -568,14 +568,14 @@ def test_box_repr():
         _mathtext.DejaVuSansFonts(fm.FontProperties(), LoadFlags.NO_HINTING),
         fontsize=12, dpi=100))
     assert s == textwrap.dedent("""\
-        Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
+        Hlist<w=9.51 h=15.81 d=6.57 s=0.00>[
           Hlist<w=0.00 h=0.00 d=0.00 s=0.00>[],
-          Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
-            Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
-              Vlist<w=7.40 h=22.72 d=0.00 s=6.64>[
-                HCentered<w=7.40 h=8.67 d=0.00 s=0.00>[
+          Hlist<w=9.51 h=15.81 d=6.57 s=0.00>[
+            Hlist<w=9.51 h=15.81 d=6.57 s=0.00>[
+              Vlist<w=7.43 h=22.38 d=0.00 s=6.57>[
+                HCentered<w=7.43 h=8.51 d=0.00 s=0.00>[
                   Glue,
-                  Hlist<w=7.40 h=8.67 d=0.00 s=0.00>[
+                  Hlist<w=7.43 h=8.51 d=0.00 s=0.00>[
                     `1`,
                     k2.36,
                   ],
@@ -584,9 +584,9 @@ def test_box_repr():
                 Vbox,
                 Hrule,
                 Vbox,
-                HCentered<w=7.40 h=8.84 d=0.00 s=0.00>[
+                HCentered<w=7.43 h=8.66 d=0.00 s=0.00>[
                   Glue,
-                  Hlist<w=7.40 h=8.84 d=0.00 s=0.00>[
+                  Hlist<w=7.43 h=8.66 d=0.00 s=0.00>[
                     `2`,
                     k2.02,
                   ],

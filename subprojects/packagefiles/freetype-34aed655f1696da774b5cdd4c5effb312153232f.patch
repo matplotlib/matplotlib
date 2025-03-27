@@ -1,0 +1,36 @@
+From 34aed655f1696da774b5cdd4c5effb312153232f Mon Sep 17 00:00:00 2001
+From: Benoit Pierre <benoit.pierre+freedesktop@gmail.com>
+Date: Sat, 12 Oct 2024 10:49:46 +0000
+Subject: [PATCH] * meson.build: Fix `bzip2` option handling.
+
+---
+ meson.build | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index 72b7f9900..2e8d5355e 100644
+--- a/meson.build
++++ b/meson.build
+@@ -320,11 +320,16 @@ else
+ endif
+ 
+ # BZip2 support.
+-bzip2_dep = dependency('bzip2', required: false)
++bzip2_dep = dependency(
++  'bzip2',
++  required: get_option('bzip2').disabled() ? get_option('bzip2') : false,
++)
+ if not bzip2_dep.found()
+-  bzip2_dep = cc.find_library('bz2',
++  bzip2_dep = cc.find_library(
++    'bz2',
+     has_headers: ['bzlib.h'],
+-    required: get_option('bzip2'))
++    required: get_option('bzip2'),
++  )
+ endif
+ 
+ if bzip2_dep.found()
+-- 
+GitLab
+

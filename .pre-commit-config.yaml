@@ -20,13 +20,13 @@ repos:
       - id: check-docstring-first
         exclude: lib/matplotlib/typing.py  # docstring used for attribute flagged by check
       - id: end-of-file-fixer
-        exclude_types: [svg]
+        exclude_types: [diff, svg]
       - id: mixed-line-ending
       - id: name-tests-test
         args: ["--pytest-test-first"]
       - id: no-commit-to-branch  # Default is master and main.
       - id: trailing-whitespace
-        exclude_types: [svg]
+        exclude_types: [diff, svg]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.15.0
     hooks:

@@ -13,11 +13,20 @@ else
   # must match the value in `lib/matplotlib.__init__.py`. Also update the docs
   # in `docs/devel/dependencies.rst`. Bump the cache key in
   # `.circleci/config.yml` when changing requirements.
-  LOCAL_FREETYPE_VERSION = '2.6.1'
+  LOCAL_FREETYPE_VERSION = '2.13.3'
 
   freetype_proj = subproject(
     f'freetype-@LOCAL_FREETYPE_VERSION@',
-    default_options: ['default_library=static'])
+    default_options: [
+      'default_library=static',
+      'brotli=disabled',
+      'bzip2=disabled',
+      'harfbuzz=disabled',
+      'mmap=auto',
+      'png=disabled',
+      'tests=disabled',
+      'zlib=internal',
+  ])
   freetype_dep = freetype_proj.get_variable('freetype_dep')
 endif
 
