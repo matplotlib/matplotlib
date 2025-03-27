@@ -1,0 +1,3 @@
+``DviFont.widths``
+~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.
