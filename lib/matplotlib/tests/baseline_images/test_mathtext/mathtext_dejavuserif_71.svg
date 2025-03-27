@@ -20,29 +20,6 @@ z
   <g id="text_1">
    <!-- $\Cup$ $\Cap$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$ -->
    <defs>
-    <path d="M 3.421875 28.953125 
-L 27.484375 52.734375 
-L 28.03125 52.734375 
-L 18.609375 36.28125 
-L 78.078125 36.28125 
-L 78.078125 28.375 
-L 3.421875 28.375 
-z
-" id="DejaVuSerif-21bc"/>
-    <path d="M 57.203125 58 
-L 4.796875 58 
-L 4.796875 64.59375 
-L 57.203125 64.59375 
-z
-M 59 -2.90625 
-L 52.703125 -2.90625 
-L 31.203125 40.296875 
-L 9.703125 -2.90625 
-L 3.203125 -2.90625 
-L 30.703125 53.59375 
-L 31.703125 53.59375 
-z
-" id="STIXGeneral-Regular-22bc"/>
     <path d="M 57.203125 -3.09375 
 L 50.59375 -3.09375 
 L 50.59375 26.40625 
@@ -74,6 +51,7 @@ Q 36.5 39.796875 39.890625 36.1875
 Q 43.296875 32.59375 43.296875 26.796875 
 z
 " id="STIXGeneral-Regular-22d3"/>
+    <path id="DejaVuSans-20"/>
     <path d="M 43.296875 53.59375 
 L 43.296875 23.703125 
 Q 43.296875 17.90625 39.890625 14.296875 
@@ -105,6 +83,29 @@ Q 50.59375 15.5 50.59375 24.09375
 L 50.59375 53.59375 
 z
 " id="STIXGeneral-Regular-22d2"/>
+    <path d="M 3.421875 28.953125 
+L 27.484375 52.734375 
+L 28.03125 52.734375 
+L 18.609375 36.28125 
+L 78.078125 36.28125 
+L 78.078125 28.375 
+L 3.421875 28.375 
+z
+" id="DejaVuSerif-21bc"/>
+    <path d="M 57.203125 58 
+L 4.796875 58 
+L 4.796875 64.59375 
+L 57.203125 64.59375 
+z
+M 59 -2.90625 
+L 52.703125 -2.90625 
+L 31.203125 40.296875 
+L 9.703125 -2.90625 
+L 3.203125 -2.90625 
+L 30.703125 53.59375 
+L 31.703125 53.59375 
+z
+" id="STIXGeneral-Regular-22bc"/>
     <path d="M 80.375 28.953125 
 L 80.375 28.375 
 L 5.71875 28.375 
@@ -114,18 +115,17 @@ L 55.765625 52.734375
 L 56.296875 52.734375 
 z
 " id="DejaVuSerif-21c0"/>
-    <path id="DejaVuSans-20"/>
    </defs>
-   <g transform="translate(155.580000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.406250)" xlink:href="#STIXGeneral-Regular-22d3"/>
-    <use transform="translate(61.999985 0.406250)" xlink:href="#DejaVuSans-20"/>
-    <use transform="translate(93.787094 0.406250)" xlink:href="#STIXGeneral-Regular-22d2"/>
-    <use transform="translate(155.787079 0.406250)" xlink:href="#DejaVuSans-20"/>
-    <use transform="translate(206.539032 0.406250)" xlink:href="#DejaVuSerif-21bc"/>
-    <use transform="translate(309.292938 0.406250)" xlink:href="#DejaVuSans-20"/>
-    <use transform="translate(341.080048 0.406250)" xlink:href="#STIXGeneral-Regular-22bc"/>
-    <use transform="translate(403.080032 0.406250)" xlink:href="#DejaVuSans-20"/>
-    <use transform="translate(453.831985 0.406250)" xlink:href="#DejaVuSerif-21c0"/>
+   <g transform="translate(155.58 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0 0.40625)" xlink:href="#STIXGeneral-Regular-22d3"/>
+    <use transform="translate(61.999985 0.40625)" xlink:href="#DejaVuSans-20"/>
+    <use transform="translate(93.787094 0.40625)" xlink:href="#STIXGeneral-Regular-22d2"/>
+    <use transform="translate(155.787079 0.40625)" xlink:href="#DejaVuSans-20"/>
+    <use transform="translate(206.539032 0.40625)" xlink:href="#DejaVuSerif-21bc"/>
+    <use transform="translate(309.292938 0.40625)" xlink:href="#DejaVuSans-20"/>
+    <use transform="translate(341.080048 0.40625)" xlink:href="#STIXGeneral-Regular-22bc"/>
+    <use transform="translate(403.080032 0.40625)" xlink:href="#DejaVuSans-20"/>
+    <use transform="translate(453.831985 0.40625)" xlink:href="#DejaVuSerif-21c0"/>
    </g>
   </g>
  </g>

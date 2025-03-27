@@ -56,11 +56,12 @@ Q 53.21875 48.921875 51.53125 44.890625
 Q 49.859375 40.875 45.40625 35.40625 
 Q 44.1875 33.984375 37.640625 27.21875 
 Q 31.109375 20.453125 19.1875 8.296875 
+z
 " id="DejaVuSans-32"/>
    </defs>
-   <g transform="translate(182.580000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.312500)" xlink:href="#DejaVuSans-Oblique-78"/>
-    <use transform="translate(59.179688 -16.093750)scale(0.700000)" xlink:href="#DejaVuSans-32"/>
+   <g transform="translate(182.58 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0 0.3125)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(59.179688 -16.09375)scale(0.7)" xlink:href="#DejaVuSans-32"/>
    </g>
   </g>
  </g>

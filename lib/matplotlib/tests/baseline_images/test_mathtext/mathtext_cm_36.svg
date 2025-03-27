@@ -137,12 +137,13 @@ Q 37.84375 0.78125 37.640625 0.390625
 Q 37.453125 0 36.53125 0 
 L 9.90625 0 
 Q 8.890625 0 8.890625 1.3125 
+z
 " id="Cmmi10-59"/>
    </defs>
-   <g transform="translate(184.740000 27.180000)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 38.181250)scale(0.700000)" xlink:href="#Cmmi10-58"/>
-    <use transform="translate(4.000000 -26.541875)scale(0.490000)" xlink:href="#Cmmi10-58"/>
-    <use transform="translate(10.000000 -81.890000)scale(0.490000)" xlink:href="#Cmmi10-59"/>
+   <g transform="translate(184.74 27.18)scale(0.12 -0.12)">
+    <use transform="translate(0 38.18125)scale(0.7)" xlink:href="#Cmmi10-58"/>
+    <use transform="translate(4 -26.541875)scale(0.49)" xlink:href="#Cmmi10-58"/>
+    <use transform="translate(10 -81.89)scale(0.49)" xlink:href="#Cmmi10-59"/>
     <path d="M 0 13.18125 
 L 0 19.43125 
 L 57.96875 19.43125 

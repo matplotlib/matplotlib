@@ -20,12 +20,17 @@ z
   <g id="text_1">
    <!-- $\binom{n}{k/2}$ -->
    <defs>
-    <path d="M 28.703125 67.59375 
-L 5.90625 -1.40625 
-L -0.90625 -1.40625 
-L 22 67.59375 
+    <path d="M 38.203125 -13.40625 
+L 38.203125 -16.40625 
+Q 27 -5.796875 20.453125 9.84375 
+Q 13.90625 25.5 13.90625 45.09375 
+Q 13.90625 64.40625 20.453125 80.25 
+Q 27 96.09375 38.203125 106.59375 
+L 38.203125 103.59375 
+Q 22 83.796875 22 45.09375 
+Q 22 6.40625 38.203125 -13.40625 
 z
-" id="STIXGeneral-Regular-2f"/>
+" id="STIXSizeOneSym-Regular-28"/>
     <path d="M 25.09375 45.90625 
 L 23.90625 40.203125 
 Q 28.40625 43.796875 32.203125 45.046875 
@@ -61,26 +66,12 @@ L 21.703125 30.296875
 L 45.203125 45.296875 
 z
 " id="STIXGeneral-Italic-1d62c"/>
-    <path d="M 38.203125 -13.40625 
-L 38.203125 -16.40625 
-Q 27 -5.796875 20.453125 9.84375 
-Q 13.90625 25.5 13.90625 45.09375 
-Q 13.90625 64.40625 20.453125 80.25 
-Q 27 96.09375 38.203125 106.59375 
-L 38.203125 103.59375 
-Q 22 83.796875 22 45.09375 
-Q 22 6.40625 38.203125 -13.40625 
-" id="STIXSizeOneSym-Regular-28"/>
-    <path d="M 8.59375 103.59375 
-L 8.59375 106.59375 
-Q 19.796875 96 26.34375 80.34375 
-Q 32.90625 64.703125 32.90625 45.09375 
-Q 32.90625 25.796875 26.34375 9.9375 
-Q 19.796875 -5.90625 8.59375 -16.40625 
-L 8.59375 -13.40625 
-Q 24.796875 6.40625 24.796875 45.09375 
-Q 24.796875 83.796875 8.59375 103.59375 
-" id="STIXSizeOneSym-Regular-29"/>
+    <path d="M 28.703125 67.59375 
+L 5.90625 -1.40625 
+L -0.90625 -1.40625 
+L 22 67.59375 
+z
+" id="STIXGeneral-Regular-2f"/>
     <path d="M 46.90625 7.09375 
 L 44 0 
 L 3.5 0 
@@ -105,14 +96,25 @@ Q 40.40625 35.40625 33.703125 27
 L 17.703125 7.09375 
 z
 " id="STIXGeneral-Regular-1d7e4"/>
+    <path d="M 8.59375 103.59375 
+L 8.59375 106.59375 
+Q 19.796875 96 26.34375 80.34375 
+Q 32.90625 64.703125 32.90625 45.09375 
+Q 32.90625 25.796875 26.34375 9.9375 
+Q 19.796875 -5.90625 8.59375 -16.40625 
+L 8.59375 -13.40625 
+Q 24.796875 6.40625 24.796875 45.09375 
+Q 24.796875 83.796875 8.59375 103.59375 
+z
+" id="STIXSizeOneSym-Regular-29"/>
    </defs>
-   <g transform="translate(178.200000 28.320000)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 -27.243750)scale(0.864660)" xlink:href="#STIXSizeOneSym-Regular-28"/>
-    <use transform="translate(66.481995 32.515625)scale(0.700000)" xlink:href="#STIXGeneral-Italic-1d62f"/>
-    <use transform="translate(40.481995 -40.368750)scale(0.700000)" xlink:href="#STIXGeneral-Italic-1d62c"/>
-    <use transform="translate(72.191986 -40.368750)scale(0.700000)" xlink:href="#STIXGeneral-Regular-2f"/>
-    <use transform="translate(91.651978 -40.368750)scale(0.700000)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(139.151967 -27.243750)scale(0.864660)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+   <g transform="translate(178.2 28.32)scale(0.12 -0.12)">
+    <use transform="translate(0 -27.18125)scale(0.86466)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(66.460068 32.515625)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d62f"/>
+    <use transform="translate(40.460068 -40.36875)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d62c"/>
+    <use transform="translate(72.170059 -40.36875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2f"/>
+    <use transform="translate(91.630051 -40.36875)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(139.13004 -27.18125)scale(0.86466)" xlink:href="#STIXSizeOneSym-Regular-29"/>
    </g>
   </g>
  </g>

@@ -48,19 +48,19 @@ L 23.046875 0
 z
 " id="DejaVuSerif-Italic-4d"/>
    </defs>
-   <g transform="translate(87.420000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(118.196931 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(236.393861 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(354.590792 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(478.055208 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(601.519624 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(730.252474 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(864.252809 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(1014.057496 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(1211.274293 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(1503.315309 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(1589.903534 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+   <g transform="translate(87.42 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(118.196931 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(236.393861 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(354.590792 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(478.055208 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(601.519624 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(730.252474 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(864.252809 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1014.057496 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1211.274293 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1503.315309 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1589.903534 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
    </g>
   </g>
  </g>

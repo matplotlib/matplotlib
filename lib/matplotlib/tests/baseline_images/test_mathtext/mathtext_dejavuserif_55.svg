@@ -20,24 +20,6 @@ z
   <g id="text_1">
    <!-- ${2}^{{2}^{{2}^{x}}}$ -->
    <defs>
-    <path d="M 6.390625 0 
-L 0.296875 0 
-L 23.1875 24.90625 
-L 11.671875 46.6875 
-L 5.28125 46.6875 
-L 6.25 51.90625 
-L 19.4375 51.90625 
-L 30.21875 31.6875 
-L 48.828125 51.90625 
-L 54.9375 51.90625 
-L 32.46875 27.484375 
-L 44.34375 5.171875 
-L 51.125 5.171875 
-L 50.140625 0 
-L 36.53125 0 
-L 25.484375 20.703125 
-z
-" id="DejaVuSerif-Italic-78"/>
     <path d="M 12.796875 55.515625 
 L 7.328125 55.515625 
 L 7.328125 68.5 
@@ -61,13 +43,32 @@ Q 42.484375 61.078125 38.640625 65.234375
 Q 34.8125 69.390625 28.078125 69.390625 
 Q 21.09375 69.390625 17.28125 65.921875 
 Q 13.484375 62.453125 12.796875 55.515625 
+z
 " id="DejaVuSerif-32"/>
+    <path d="M 6.390625 0 
+L 0.296875 0 
+L 23.1875 24.90625 
+L 11.671875 46.6875 
+L 5.28125 46.6875 
+L 6.25 51.90625 
+L 19.4375 51.90625 
+L 30.21875 31.6875 
+L 48.828125 51.90625 
+L 54.9375 51.90625 
+L 32.46875 27.484375 
+L 44.34375 5.171875 
+L 51.125 5.171875 
+L 50.140625 0 
+L 36.53125 0 
+L 25.484375 20.703125 
+z
+" id="DejaVuSerif-Italic-78"/>
    </defs>
-   <g transform="translate(178.980000 30.444375)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.864375)" xlink:href="#DejaVuSerif-32"/>
-    <use transform="translate(64.531406 37.198750)scale(0.700000)" xlink:href="#DejaVuSerif-32"/>
-    <use transform="translate(109.703391 62.632813)scale(0.490000)" xlink:href="#DejaVuSerif-32"/>
-    <use transform="translate(141.323780 80.436656)scale(0.343000)" xlink:href="#DejaVuSerif-Italic-78"/>
+   <g transform="translate(178.98 30.444375)scale(0.12 -0.12)">
+    <use transform="translate(0 0.864375)" xlink:href="#DejaVuSerif-32"/>
+    <use transform="translate(64.531406 37.19875)scale(0.7)" xlink:href="#DejaVuSerif-32"/>
+    <use transform="translate(109.703391 62.632813)scale(0.49)" xlink:href="#DejaVuSerif-32"/>
+    <use transform="translate(141.32378 80.436656)scale(0.343)" xlink:href="#DejaVuSerif-Italic-78"/>
    </g>
   </g>
  </g>

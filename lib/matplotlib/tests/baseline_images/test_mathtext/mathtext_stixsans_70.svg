@@ -36,16 +36,16 @@ L 81 66.203125
 z
 " id="STIXGeneral-Italic-1d614"/>
    </defs>
-   <g transform="translate(106.080000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+   <g transform="translate(106.08 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
     <use transform="translate(96.900238 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
     <use transform="translate(193.800477 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
     <use transform="translate(290.700715 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
     <use transform="translate(391.800533 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
-    <use transform="translate(492.900350 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(492.90035 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
     <use transform="translate(598.200504 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
     <use transform="translate(707.700236 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
-    <use transform="translate(829.800220 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(829.80022 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
     <use transform="translate(989.700198 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
     <use transform="translate(1225.200168 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
     <use transform="translate(1296.899905 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>

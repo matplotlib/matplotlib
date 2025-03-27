@@ -478,10 +478,10 @@ def test_figure_legend_outside():
     todos += ['left ' + pos for pos in ['lower', 'center', 'upper']]
     todos += ['right ' + pos for pos in ['lower', 'center', 'upper']]
 
-    upperext = [20.347556,  27.722556, 790.583, 545.499]
-    lowerext = [20.347556,  71.056556, 790.583, 588.833]
-    leftext = [151.681556, 27.722556, 790.583, 588.833]
-    rightext = [20.347556,  27.722556, 659.249, 588.833]
+    upperext = [20.347556, 24.722556, 790.5205, 546.499]
+    lowerext = [20.347556, 68.056556, 790.5205, 589.833]
+    leftext = [151.681556, 24.722556, 790.5205, 589.833]
+    rightext = [20.347556, 24.722556, 659.1865, 589.833]
     axbb = [upperext, upperext, upperext,
             lowerext, lowerext, lowerext,
             leftext, leftext, leftext,

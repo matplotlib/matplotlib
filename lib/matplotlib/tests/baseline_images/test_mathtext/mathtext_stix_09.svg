@@ -65,6 +65,7 @@ L 7.5 41.203125
 Q 15.5 44.09375 19.203125 44.09375 
 Q 21.09375 44.09375 22.1875 42.296875 
 Q 23.296875 40.5 24.296875 35.5 
+z
 " id="STIXGeneral-Italic-78"/>
     <path d="M 24.296875 18.59375 
 L 26.40625 7.59375 
@@ -100,17 +101,18 @@ Q 8.796875 43.09375 15.40625 44.09375
 L 15.796875 44.09375 
 Q 16.90625 44.09375 19.953125 34.796875 
 Q 23 25.5 24.296875 18.59375 
+z
 " id="STIXGeneral-Italic-79"/>
    </defs>
-   <g transform="translate(149.820000 30.286875)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.906250)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(68.466414 0.906250)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(124.899979 0.906250)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(189.355683 0.906250)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(305.955659 0.906250)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(494.755616 0.906250)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(527.122039 0.906250)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(607.622024 0.906250)" xlink:href="#STIXGeneral-Italic-79"/>
+   <g transform="translate(149.82 30.286875)scale(0.12 -0.12)">
+    <use transform="translate(0 0.90625)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(68.466414 0.90625)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(124.899979 0.90625)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(189.355683 0.90625)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(305.955659 0.90625)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(494.755616 0.90625)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(527.122039 0.90625)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(607.622024 0.90625)" xlink:href="#STIXGeneral-Italic-79"/>
    </g>
   </g>
  </g>
