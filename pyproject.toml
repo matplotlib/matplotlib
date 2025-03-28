@@ -321,5 +321,7 @@ mpl-deterministic = true
 addopts = [
     "--import-mode=importlib",
     "--mpl",
-    "--mpl-hash-library=hashes.json"
+    "--mpl-generate-summary=html",
+    "--mpl-hash-library=hashes.json",
+    "--mpl-results-path=test-results"
 ]

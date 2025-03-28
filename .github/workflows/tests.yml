@@ -422,6 +422,12 @@ jobs:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
           path: ./result_images
 
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        if: failure()
+        with:
+            name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} figure comparison HTML"
+            path: ./test-results
+
   # Separate dependent job to only upload one issue from the matrix of jobs
   create-issue:
     if: ${{ failure() && github.event_name == 'schedule' }}
