@@ -69,7 +69,7 @@ ax.scatter(
     facecolor="none",
     edgecolor="gray",
     linewidth=2,
-    marker="s",  # Use hexagon as marker
+    marker="h",  # Use hexagon as marker
     hatch="xxx",
     hatchcolor=colors,
 )

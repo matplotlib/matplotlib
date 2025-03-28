@@ -423,7 +423,10 @@ class Collection(mcolorizer.ColorizingArtist):
             # The current new API of draw_path_collection() is provisional
             # and will be changed in a future PR.
 
-            # Find whether renderer.draw_path_collection() takes hatchcolor parameter
+            # Find whether renderer.draw_path_collection() takes hatchcolor parameter.
+            # Since third-party implementations of draw_path_collection() may not be
+            # introspectable, e.g. with inspect.signature, the only way is to try and
+            # call this with the hatchcolors parameter.
             hatchcolors_arg_supported = True
             try:
                 renderer.draw_path_collection(
@@ -435,6 +438,9 @@ class Collection(mcolorizer.ColorizingArtist):
                     "screen", hatchcolors=self.get_hatchcolor()
                 )
             except TypeError:
+                # If the renderer does not support the hatchcolors argument,
+                # it will raise a TypeError. In this case, we will
+                # iterate over all paths and draw them one by one.
                 hatchcolors_arg_supported = False
 
             if self._gapcolor is not None:
@@ -449,8 +455,6 @@ class Collection(mcolorizer.ColorizingArtist):
                                                   self.get_transforms(), *args,
                                                   hatchcolors=self.get_hatchcolor())
                 else:
-                    # If the renderer does not support the hatchcolors argument,
-                    # iterate over the paths and draw them one by one.
                     path_ids = renderer._iter_collection_raw_paths(
                         transform.frozen(), ipaths, self.get_transforms())
                     for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
