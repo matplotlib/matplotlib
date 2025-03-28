@@ -317,6 +317,9 @@ ignore_messages = [
 # `lib/matplotlib/testing/conftest.py`.
 minversion = "7.0"
 testpaths = ["lib"]
+mpl-deterministic = true
 addopts = [
     "--import-mode=importlib",
+    "--mpl",
+    "--mpl-hash-library=hashes.json"
 ]
