@@ -9685,3 +9685,40 @@ def test_bar_shape_mismatch():
     )
     with pytest.raises(ValueError, match=error_message):
         plt.bar(x, height)
+
+
+def test_caps_color():
+    """
+     Tests that the color of the caps is set correctly when 'ecolor' is provided.
+     """
+     # Creates a simple plot with error bars and a specified ecolor
+    x = np.linspace(0, 10, 10)
+    y = np.sin(x)
+    yerr = 0.1
+    mpl.rcParams['lines.markeredgecolor'] = 'green'
+    ecolor = 'red'
+
+    fig, ax = plt.subplots()
+    errorbars = ax.errorbar(x, y, yerr=yerr, ecolor=ecolor, fmt='o', capsize=5)
+
+    # Tests if the caps have the specified color
+    for cap in errorbars[2]:
+        assert mcolors.same_color(cap.get_edgecolor(), ecolor)
+
+
+def test_caps_no_ecolor():
+    """
+    Tests that the color of the caps is set to default (blue) when 'ecolor' is not provided.
+    """
+    # Creates a simple plot with error bars without specifying ecolor
+    x = np.linspace(0, 10, 10)
+    y = np.sin(x)
+    yerr = 0.1
+    mpl.rcParams['lines.markeredgecolor'] = 'green'
+
+    fig, ax = plt.subplots()
+    errorbars = ax.errorbar(x, y, yerr=yerr, fmt='o', capsize=5)
+
+    # Tesrts if the caps have the default color (blue)
+    for cap in errorbars[2]:
+        assert mcolors.same_color(cap.get_edgecolor(), "blue")
