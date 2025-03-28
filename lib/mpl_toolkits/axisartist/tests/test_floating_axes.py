@@ -69,9 +69,6 @@ def test_curvelinear3():
 # remove when image is regenerated.
 @image_comparison(['curvelinear4.png'], style='default', tol=0.9)
 def test_curvelinear4():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig = plt.figure(figsize=(5, 5))
 
     tr = (mtransforms.Affine2D().scale(np.pi / 180, 1) +
