@@ -8,31 +8,90 @@ import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
+import matplotlib.patches as mpatches
 from matplotlib import gridspec, ticker
+
+
+def fake_ylabel(ax, *, right=False, fontsize=12):
+    """
+    Fake ylabel to test if the label is set correctly.
+    """
+    fig = ax.figure
+    width = fontsize / 72 * 1.2
+    height = fontsize / 72 * 4
+    trans = (fig.dpi_scale_trans +
+             mtransforms.ScaledTranslation(0, 0.5, ax.transAxes) +
+             mtransforms.ScaledTranslation(-2*width, -height / 2,
+                                           ax.figure.dpi_scale_trans))
+    rect = mpatches.Rectangle((0, 0), width, height, transform=trans,
+                              color='red', alpha=0.5, clip_on=False)
+    ax.add_patch(rect)
+
+
+def fake_xlabel(ax, *, right=False, fontsize=12):
+    """
+    Fake xlabel to test if the label is set correctly.
+    """
+    fig = ax.figure
+    height = fontsize / 72 * 1.2
+    width = fontsize / 72 * 4
+    trans = (fig.dpi_scale_trans +
+             mtransforms.ScaledTranslation(0.5, 0, ax.transAxes) +
+             mtransforms.ScaledTranslation(-width / 2, -2*height,
+                                           ax.figure.dpi_scale_trans))
+    rect = mpatches.Rectangle((0, 0), width, height, transform=trans,
+                              color='red', alpha=0.5, clip_on=False)
+    ax.add_patch(rect)
+
+
+def fake_title(ax, *, right=False, fontsize=12):
+    """
+    Fake xlabel to test if the label is set correctly.
+    """
+    fig = ax.figure
+    height = fontsize / 72 * 1.2
+    width = fontsize / 72 * 4
+    # Create rectangle
+    trans = (fig.dpi_scale_trans +
+             mtransforms.ScaledTranslation(0.5, 1.0, ax.transAxes) +
+             mtransforms.ScaledTranslation(-width / 2, 0.2*height,
+                                           ax.figure.dpi_scale_trans))
+
+    rect = mpatches.Rectangle((0, 0), width, height, transform=trans,
+                              color='blue', alpha=0.5, clip_on=False)
+    ax.add_patch(rect)
 
 
 def example_plot(ax, fontsize=12, nodec=False):
     ax.plot([1, 2])
     ax.locator_params(nbins=3)
     if not nodec:
-        ax.set_xlabel('x-label', fontsize=fontsize)
-        ax.set_ylabel('y-label', fontsize=fontsize)
-        ax.set_title('Title', fontsize=fontsize)
+        fake_ylabel(ax, fontsize=fontsize)
+        fake_xlabel(ax, fontsize=fontsize)
+        fake_title(ax, fontsize=fontsize)
+        # fake_xticks(ax, fontsize=10)
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
     else:
         ax.set_xticklabels([])
         ax.set_yticklabels([])
 
 
-def example_pcolor(ax, fontsize=12):
+def example_pcolor(ax, xlabel=True, ylabel=True, title=True, fontsize=12):
     dx, dy = 0.6, 0.6
     y, x = np.mgrid[slice(-3, 3 + dy, dy),
                     slice(-3, 3 + dx, dx)]
     z = (1 - x / 2. + x ** 5 + y ** 3) * np.exp(-x ** 2 - y ** 2)
     pcm = ax.pcolormesh(x, y, z[:-1, :-1], cmap='RdBu_r', vmin=-1., vmax=1.,
                         rasterized=True)
-    ax.set_xlabel('x-label', fontsize=fontsize)
-    ax.set_ylabel('y-label', fontsize=fontsize)
-    ax.set_title('Title', fontsize=fontsize)
+    if xlabel:
+        fake_xlabel(ax, fontsize=fontsize)
+    if ylabel:
+        fake_ylabel(ax, fontsize=fontsize)
+    if title:
+        fake_title(ax, fontsize=fontsize)
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
     return pcm
 
 
@@ -52,7 +111,7 @@ def test_constrained_layout2():
         example_plot(ax, fontsize=24)
 
 
-@image_comparison(['constrained_layout3.png'])
+@image_comparison(['constrained_layout3.png'], remove_text=True)
 def test_constrained_layout3():
     """Test constrained_layout for colorbars with subplots"""
 
@@ -66,7 +125,7 @@ def test_constrained_layout3():
         fig.colorbar(pcm, ax=ax, pad=pad)
 
 
-@image_comparison(['constrained_layout4.png'])
+@image_comparison(['constrained_layout4.png'], remove_text=True)
 def test_constrained_layout4():
     """Test constrained_layout for a single colorbar with subplots"""
 
@@ -76,7 +135,7 @@ def test_constrained_layout4():
     fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
 
 
-@image_comparison(['constrained_layout5.png'], tol=0.002)
+@image_comparison(['constrained_layout5.png'], tol=0.002, remove_text=True)
 def test_constrained_layout5():
     """
     Test constrained_layout for a single colorbar with subplots,
@@ -91,7 +150,7 @@ def test_constrained_layout5():
                  location='bottom')
 
 
-@image_comparison(['constrained_layout6.png'], tol=0.002)
+@image_comparison(['constrained_layout6.png'], tol=0.002, remove_text=True)
 def test_constrained_layout6():
     """Test constrained_layout for nested gridspecs"""
     # Remove this line when this test image is regenerated.
@@ -106,7 +165,6 @@ def test_constrained_layout6():
         ax = fig.add_subplot(gs)
         axsl += [ax]
         example_plot(ax, fontsize=12)
-    ax.set_xlabel('x-label\nMultiLine')
     axsr = []
     for gs in gsr:
         ax = fig.add_subplot(gs)
@@ -154,7 +212,7 @@ def test_constrained_layout7():
         fig.draw_without_rendering()
 
 
-@image_comparison(['constrained_layout8.png'])
+@image_comparison(['constrained_layout8.png'], remove_text=True)
 def test_constrained_layout8():
     """Test for gridspecs that are not completely full"""
 
@@ -189,9 +247,7 @@ def test_constrained_layout9():
     fig, axs = plt.subplots(2, 2, layout="constrained",
                             sharex=False, sharey=False)
     for ax in axs.flat:
-        pcm = example_pcolor(ax, fontsize=24)
-        ax.set_xlabel('')
-        ax.set_ylabel('')
+        pcm = example_pcolor(ax, fontsize=24, xlabel=False, ylabel=False)
     ax.set_aspect(2.)
     fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
     fig.suptitle('Test Suptitle', fontsize=28)
@@ -207,7 +263,7 @@ def test_constrained_layout10():
     ax.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 
 
-@image_comparison(['constrained_layout11.png'])
+@image_comparison(['constrained_layout11.png'], remove_text=True)
 def test_constrained_layout11():
     """Test for multiple nested gridspecs"""
 
@@ -227,7 +283,7 @@ def test_constrained_layout11():
     example_plot(ax, fontsize=9)
 
 
-@image_comparison(['constrained_layout11rat.png'])
+@image_comparison(['constrained_layout11rat.png'], remove_text=True)
 def test_constrained_layout11rat():
     """Test for multiple nested gridspecs with width_ratios"""
 
@@ -266,10 +322,10 @@ def test_constrained_layout12():
     example_plot(ax, nodec=True)
     ax = fig.add_subplot(gs0[4:, 0])
     example_plot(ax, nodec=True)
-    ax.set_xlabel('x-label')
+    fake_xlabel(ax)
 
 
-@image_comparison(['constrained_layout13.png'], tol=2.e-2)
+@image_comparison(['constrained_layout13.png'], tol=2.e-2, remove_text=True)
 def test_constrained_layout13():
     """Test that padding works."""
     fig, axs = plt.subplots(2, 2, layout="constrained")
@@ -281,7 +337,7 @@ def test_constrained_layout13():
     fig.get_layout_engine().set(w_pad=24./72., h_pad=24./72.)
 
 
-@image_comparison(['constrained_layout14.png'])
+@image_comparison(['constrained_layout14.png'], remove_text=True)
 def test_constrained_layout14():
     """Test that padding works."""
     fig, axs = plt.subplots(2, 2, layout="constrained")
@@ -302,7 +358,7 @@ def test_constrained_layout15():
         example_plot(ax, fontsize=12)
 
 
-@image_comparison(['constrained_layout16.png'])
+@image_comparison(['constrained_layout16.png'], remove_text=True)
 def test_constrained_layout16():
     """Test ax.set_position."""
     fig, ax = plt.subplots(layout="constrained")
@@ -414,9 +470,7 @@ def test_colorbar_location():
 
     fig, axs = plt.subplots(4, 5, layout="constrained")
     for ax in axs.flat:
-        pcm = example_pcolor(ax)
-        ax.set_xlabel('')
-        ax.set_ylabel('')
+        pcm = example_pcolor(ax, xlabel=False, ylabel=False, title=False)
     fig.colorbar(pcm, ax=axs[:, 1], shrink=0.4)
     fig.colorbar(pcm, ax=axs[-1, :2], shrink=0.5, location='bottom')
     fig.colorbar(pcm, ax=axs[0, 2:], shrink=0.5, location='bottom', pad=0.05)
@@ -470,7 +524,7 @@ def test_colorbar_align():
                                        cbs[3].ax.get_position().y0)
 
 
-@image_comparison(['test_colorbars_no_overlapV.png'], style='mpl20')
+@image_comparison(['test_colorbars_no_overlapV.png'], style='mpl20', remove_text=True)
 def test_colorbars_no_overlapV():
     fig = plt.figure(figsize=(2, 4), layout="constrained")
     axs = fig.subplots(2, 1, sharex=True, sharey=True)
@@ -479,13 +533,11 @@ def test_colorbars_no_overlapV():
         ax.tick_params(axis='both', direction='in')
         im = ax.imshow([[1, 2], [3, 4]])
         fig.colorbar(im, ax=ax, orientation="vertical")
-    fig.suptitle("foo")
 
 
-@image_comparison(['test_colorbars_no_overlapH.png'], style='mpl20')
+@image_comparison(['test_colorbars_no_overlapH.png'], style='mpl20', remove_text=True)
 def test_colorbars_no_overlapH():
     fig = plt.figure(figsize=(4, 2), layout="constrained")
-    fig.suptitle("foo")
     axs = fig.subplots(1, 2, sharex=True, sharey=True)
     for ax in axs:
         ax.yaxis.set_major_formatter(ticker.NullFormatter())
