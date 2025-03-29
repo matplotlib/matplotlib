@@ -695,7 +695,8 @@ const char *PyFT2Font_set_text__doc__ = R"""(
 
 static py::array_t<double>
 PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0,
-                   std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
+                   std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT,
+                   py::object language_obj = py::none())
 {
     std::vector<double> xys;
     LoadFlags flags;
@@ -715,7 +716,29 @@ PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0
         throw py::type_error("flags must be LoadFlags or int");
     }
 
-    self->x->set_text(text, angle, static_cast<FT_Int32>(flags), xys);
+    FT2Font::LanguageType languages;
+    if (py::isinstance<std::string>(language_obj)) {
+        languages = std::vector<FT2Font::LanguageRange>{
+            FT2Font::LanguageRange{language_obj.cast<std::string>(), 0, text.size()}
+        };
+    } else if (py::isinstance<py::list>(language_obj)) {
+        languages = std::vector<FT2Font::LanguageRange>{};
+
+        for (py::handle lang_range_obj : language_obj.cast<py::list>()) {
+            if (!py::isinstance<py::tuple>(lang_range_obj)) {
+                throw py::type_error("languages must be str or list of tuple");
+            }
+
+            auto lang_range = lang_range_obj.cast<py::tuple>();
+            auto lang_str = lang_range[0].cast<std::string>();
+            auto start = lang_range[1].cast<size_t>();
+            auto end = lang_range[2].cast<size_t>();
+
+            languages->emplace_back(lang_str, start, end);
+        }
+    }
+
+    self->x->set_text(text, angle, static_cast<FT_Int32>(flags), languages, xys);
 
     py::ssize_t dims[] = { static_cast<py::ssize_t>(xys.size()) / 2, 2 };
     py::array_t<double> result(dims);
@@ -1726,6 +1749,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
              PyFT2Font_get_kerning__doc__)
         .def("set_text", &PyFT2Font_set_text,
              "string"_a, "angle"_a=0.0, "flags"_a=LoadFlags::FORCE_AUTOHINT,
+             "language"_a=py::none(),
              PyFT2Font_set_text__doc__)
         .def("_get_fontmap", &PyFT2Font_get_fontmap, "string"_a,
              PyFT2Font_get_fontmap__doc__)

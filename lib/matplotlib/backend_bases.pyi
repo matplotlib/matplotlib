@@ -116,6 +116,7 @@ class RendererBase:
         angle: float,
         ismath: bool | Literal["TeX"] = ...,
         mtext: Text | None = ...,
+        language: str | list[tuple[str, int, int]] | None = ...,
     ) -> None: ...
     def get_text_width_height_descent(
         self, s: str, prop: FontProperties, ismath: bool | Literal["TeX"]

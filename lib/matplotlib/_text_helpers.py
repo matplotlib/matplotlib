@@ -43,7 +43,7 @@ def warn_on_missing_glyph(codepoint, fontnames):
             f"Matplotlib currently does not support {block} natively.")
 
 
-def layout(string, font, *, kern_mode=Kerning.DEFAULT):
+def layout(string, font, language, *, kern_mode=Kerning.DEFAULT):
     """
     Render *string* with *font*.
 
@@ -65,7 +65,7 @@ def layout(string, font, *, kern_mode=Kerning.DEFAULT):
     """
     x = 0
     prev_glyph_idx = None
-    char_to_font = font._get_fontmap(string)
+    char_to_font = font._get_fontmap(string)  # TODO: Pass in language.
     base_font = font
     for char in string:
         # This has done the fallback logic

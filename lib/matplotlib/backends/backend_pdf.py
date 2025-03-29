@@ -2331,7 +2331,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             return s.encode('cp1252', 'replace')
         return s.encode('utf-16be', 'replace')
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None,
+                  language=None):
         # docstring inherited
 
         # TODO: combine consecutive texts into one BT/ET delimited section
@@ -2351,7 +2352,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             fonttype = mpl.rcParams['pdf.fonttype']
 
         if gc.get_url() is not None:
-            font.set_text(s)
+            font.set_text(s, language=language)
             width, height = font.get_width_height()
             self.file._annotations[-1][1].append(_get_link_annotation(
                 gc, x, y, width / 64, height / 64, angle))
@@ -2385,7 +2386,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             multibyte_glyphs = []
             prev_was_multibyte = True
             prev_font = font
-            for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED):
+            for item in _text_helpers.layout(s, font, language,
+                                             kern_mode=Kerning.UNFITTED):
                 if _font_supports_glyph(fonttype, ord(item.char)):
                     if prev_was_multibyte or item.ft_object != prev_font:
                         singlebyte_chunks.append((item.ft_object, item.x, []))
