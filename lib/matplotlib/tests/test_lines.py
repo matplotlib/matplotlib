@@ -374,7 +374,7 @@ def test_picking():
     assert_array_equal(indices['ind'], [0])
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_input_copy(fig_test, fig_ref):
 
     t = np.arange(0, 6, 2)
