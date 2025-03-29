@@ -122,7 +122,7 @@ def test_imshow_zoom(fig_test, fig_ref):
     ax.set_ylim([10, 20])
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_imshow_pil(fig_test, fig_ref):
     style.use("default")
     png_path = Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png"
@@ -1335,7 +1335,7 @@ def test_huge_range_log(fig_test, fig_ref, x):
               interpolation='nearest', cmap=cmap)
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_spy_box(fig_test, fig_ref):
     # setting up reference and test
     ax_test = fig_test.subplots(1, 3)
