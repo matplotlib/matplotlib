@@ -1,7 +1,10 @@
+.. redirect-from:: /devel/style_guide
 
-=========================
-Documentation style guide
-=========================
+.. _document_style:
+
+***********
+Style guide
+***********
 
 This guide contains best practices for the language and formatting of Matplotlib
 documentation.
@@ -409,6 +412,7 @@ Additional resources
 This style guide is not a comprehensive standard. For a more thorough
 reference of how to contribute to documentation, see the links below. These
 resources contain common best practices for writing documentation.
+
 
 * `Python Developer's Guide <https://devguide.python.org/documenting/#documenting-python>`_
 * `Google Developer Style Guide <https://developers.google.com/style>`_
