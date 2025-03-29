@@ -78,19 +78,19 @@ Q 27.4375 0 26.515625 0
 z
 " id="Cmmi10-4d"/>
    </defs>
-   <g transform="translate(93.360000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(111.653938 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(223.307877 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(334.961815 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(451.492653 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(568.023491 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(689.432106 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(815.717621 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(956.635590 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(1141.450043 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(1414.057465 0.687500)" xlink:href="#Cmmi10-4d"/>
-    <use transform="translate(1496.446495 0.687500)" xlink:href="#Cmmi10-4d"/>
+   <g transform="translate(93.36 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(111.653938 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(223.307877 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(334.961815 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(451.492653 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(568.023491 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(689.432106 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(815.717621 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(956.63559 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(1141.450043 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(1414.057465 0.6875)" xlink:href="#Cmmi10-4d"/>
+    <use transform="translate(1496.446495 0.6875)" xlink:href="#Cmmi10-4d"/>
    </g>
   </g>
  </g>

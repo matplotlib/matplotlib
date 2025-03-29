@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2024-07-07T03:44:09.761597</dc:date>
+    <dc:date>2025-03-27T23:42:07.781449</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v0.1.0.dev50519+g9c53d4f.d20240707, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev554+g462a692b9f.d20250328, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -626,7 +626,7 @@ z
    </g>
    <g id="text_18">
     <!-- centered spines -->
-    <g transform="translate(237.682125 38.2) scale(0.144 -0.144)">
+    <g transform="translate(237.841875 38.2) scale(0.144 -0.144)">
      <defs>
       <path id="DejaVuSans-63" d="M 3122 3366 
 L 3122 2828 
@@ -835,15 +835,15 @@ z
      <use xlink:href="#DejaVuSans-74" transform="translate(179.882812 0)"/>
      <use xlink:href="#DejaVuSans-65" transform="translate(219.091797 0)"/>
      <use xlink:href="#DejaVuSans-72" transform="translate(280.615234 0)"/>
-     <use xlink:href="#DejaVuSans-65" transform="translate(321.697266 0)"/>
-     <use xlink:href="#DejaVuSans-64" transform="translate(383.220703 0)"/>
-     <use xlink:href="#DejaVuSans-20" transform="translate(446.697266 0)"/>
-     <use xlink:href="#DejaVuSans-73" transform="translate(478.484375 0)"/>
-     <use xlink:href="#DejaVuSans-70" transform="translate(530.583984 0)"/>
-     <use xlink:href="#DejaVuSans-69" transform="translate(594.060547 0)"/>
-     <use xlink:href="#DejaVuSans-6e" transform="translate(621.84375 0)"/>
-     <use xlink:href="#DejaVuSans-65" transform="translate(685.222656 0)"/>
-     <use xlink:href="#DejaVuSans-73" transform="translate(746.746094 0)"/>
+     <use xlink:href="#DejaVuSans-65" transform="translate(319.478516 0)"/>
+     <use xlink:href="#DejaVuSans-64" transform="translate(381.001953 0)"/>
+     <use xlink:href="#DejaVuSans-20" transform="translate(444.478516 0)"/>
+     <use xlink:href="#DejaVuSans-73" transform="translate(476.265625 0)"/>
+     <use xlink:href="#DejaVuSans-70" transform="translate(528.365234 0)"/>
+     <use xlink:href="#DejaVuSans-69" transform="translate(591.841797 0)"/>
+     <use xlink:href="#DejaVuSans-6e" transform="translate(619.625 0)"/>
+     <use xlink:href="#DejaVuSans-65" transform="translate(683.003906 0)"/>
+     <use xlink:href="#DejaVuSans-73" transform="translate(744.527344 0)"/>
     </g>
    </g>
   </g>

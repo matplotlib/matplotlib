@@ -47,7 +47,23 @@ Q 33.09375 55.40625 30.4375 57.953125
 Q 27.796875 60.5 24 60.5 
 Q 20 60.5 16.546875 57.640625 
 Q 13.09375 54.796875 11.296875 49.203125 
+z
 " id="STIXGeneral-Regular-1d7e5"/>
+    <path d="M 108.90625 155.203125 
+L 52.703125 -29.5 
+L 48.5 -29.5 
+L 25.40625 45.59375 
+Q 24.296875 49.203125 22.890625 50.796875 
+Q 21.5 52.40625 19.203125 52.40625 
+Q 15.796875 52.40625 12.40625 49.703125 
+L 11.203125 51.703125 
+L 27.59375 64.296875 
+L 30.09375 64.296875 
+L 52.796875 -9.40625 
+L 53.203125 -9.40625 
+L 103.203125 155.203125 
+z
+" id="STIXSizeOneSym-Regular-221a"/>
     <path d="M 80.59375 66.203125 
 L 48.90625 34.90625 
 L 66.90625 0 
@@ -97,6 +113,17 @@ L 40.5 36.203125
 L 67.90625 66.203125 
 z
 " id="STIXGeneral-Italic-1d620"/>
+    <path d="M 63.703125 32 
+L 4.796875 32 
+L 4.796875 38.59375 
+L 63.703125 38.59375 
+z
+M 63.703125 12 
+L 4.796875 12 
+L 4.796875 18.59375 
+L 63.703125 18.59375 
+z
+" id="STIXGeneral-Regular-3d"/>
     <path d="M 45.796875 67.59375 
 L 42.59375 60.5 
 L 24.90625 60.5 
@@ -116,53 +143,27 @@ L 8 42.40625
 L 19.59375 67.59375 
 z
 " id="STIXGeneral-Regular-1d7e7"/>
-    <path d="M 63.703125 32 
-L 4.796875 32 
-L 4.796875 38.59375 
-L 63.703125 38.59375 
-z
-M 63.703125 12 
-L 4.796875 12 
-L 4.796875 18.59375 
-L 63.703125 18.59375 
-z
-" id="STIXGeneral-Regular-3d"/>
-    <path d="M 108.90625 155.203125 
-L 52.703125 -29.5 
-L 48.5 -29.5 
-L 25.40625 45.59375 
-Q 24.296875 49.203125 22.890625 50.796875 
-Q 21.5 52.40625 19.203125 52.40625 
-Q 15.796875 52.40625 12.40625 49.703125 
-L 11.203125 51.703125 
-L 27.59375 64.296875 
-L 30.09375 64.296875 
-L 52.796875 -9.40625 
-L 53.203125 -9.40625 
-L 103.203125 155.203125 
-z
-" id="STIXSizeOneSym-Regular-221a"/>
    </defs>
-   <g transform="translate(169.020000 32.460000)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 75.168125)scale(0.490000)" xlink:href="#STIXGeneral-Regular-1d7e5"/>
-    <use transform="translate(-22.602569 -13.125000)scale(0.891683)" xlink:href="#STIXSizeOneSym-Regular-221a"/>
-    <use transform="translate(84.102554 47.407813)scale(0.700000)" xlink:href="#STIXGeneral-Italic-1d61f"/>
-    <use transform="translate(133.102544 37.895469)scale(0.490000)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(99.102554 -39.696719)scale(0.700000)" xlink:href="#STIXGeneral-Italic-1d620"/>
-    <use transform="translate(199.307925 0.420312)" xlink:href="#STIXGeneral-Regular-3d"/>
-    <use transform="translate(282.927908 0.420312)" xlink:href="#STIXGeneral-Regular-1d7e7"/>
-    <path d="M 71.602554 118.5 
-L 71.602554 124.75 
-L 184.187927 124.75 
-L 184.187927 118.5 
-L 71.602554 118.5 
+   <g transform="translate(169.02 32.46)scale(0.12 -0.12)">
+    <use transform="translate(0 75.049375)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e5"/>
+    <use transform="translate(-22.619079 -13.375)scale(0.891683)" xlink:href="#STIXSizeOneSym-Regular-221a"/>
+    <use transform="translate(84.119064 47.407813)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d61f"/>
+    <use transform="translate(133.119054 37.895469)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(99.119064 -39.696719)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d620"/>
+    <use transform="translate(199.324435 0.123437)" xlink:href="#STIXGeneral-Regular-3d"/>
+    <use transform="translate(282.944418 0.123437)" xlink:href="#STIXGeneral-Regular-1d7e7"/>
+    <path d="M 71.619064 118.5 
+L 71.619064 124.75 
+L 184.204437 124.75 
+L 184.204437 118.5 
+L 71.619064 118.5 
 z
 "/>
-    <path d="M 84.102554 12.895469 
-L 84.102554 19.145469 
-L 159.187927 19.145469 
-L 159.187927 12.895469 
-L 84.102554 12.895469 
+    <path d="M 84.119064 12.895469 
+L 84.119064 19.145469 
+L 159.204437 19.145469 
+L 159.204437 12.895469 
+L 84.119064 12.895469 
 z
 "/>
    </g>

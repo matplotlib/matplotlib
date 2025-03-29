@@ -136,11 +136,8 @@ def test_polar_box():
     ax1.grid(True)
 
 
-# Remove tol & kerning_factor when this test image is regenerated.
-@image_comparison(['axis_direction.png'], style='default', tol=0.13)
+@image_comparison(['axis_direction.png'], style='default', tol=0.04)
 def test_axis_direction():
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig = plt.figure(figsize=(5, 5))
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate

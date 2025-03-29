@@ -59,11 +59,11 @@ L 45 45.296875
 z
 " id="STIXGeneral-Italic-1d639"/>
    </defs>
-   <g transform="translate(181.020000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.103047)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(50.792680 36.340547)scale(0.700000)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(86.347556 61.706797)scale(0.490000)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(111.235969 79.463172)scale(0.343000)" xlink:href="#STIXGeneral-Italic-1d639"/>
+   <g transform="translate(181.02 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0 0.103047)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(50.79268 36.340547)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(86.347556 61.706797)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(111.235969 79.463172)scale(0.343)" xlink:href="#STIXGeneral-Italic-1d639"/>
    </g>
   </g>
  </g>

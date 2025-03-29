@@ -55,14 +55,14 @@ L 70.59375 65.296875
 z
 " id="STIXGeneral-Italic-4d"/>
    </defs>
-   <g transform="translate(107.820000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
+   <g transform="translate(107.82 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
     <use transform="translate(95.333559 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
     <use transform="translate(190.667117 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
     <use transform="translate(286.000676 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
     <use transform="translate(385.344944 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
     <use transform="translate(484.689212 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(588.044910 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
+    <use transform="translate(588.04491 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
     <use transform="translate(695.411318 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
     <use transform="translate(814.811297 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
     <use transform="translate(970.311266 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>

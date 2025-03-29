@@ -20,23 +20,6 @@ z
   <g id="text_1">
    <!-- $x\leftarrow y\ x\forall y\ x-y$ -->
    <defs>
-    <path d="M 85.703125 22 
-L 25.796875 22 
-Q 25 22 24.09375 21.25 
-Q 23.203125 20.5 23.203125 19.796875 
-Q 23.203125 18.703125 24.59375 17.296875 
-Q 29.703125 12.40625 32.796875 7.703125 
-L 30.796875 5.796875 
-Q 18.40625 20.09375 7.09375 24.796875 
-L 7.09375 25.796875 
-Q 18.59375 30.703125 30.90625 44.90625 
-L 32.90625 43 
-Q 30.09375 39 24.703125 33.40625 
-Q 23.296875 32 23.296875 30.59375 
-Q 23.296875 28.59375 25.90625 28.59375 
-L 85.703125 28.59375 
-z
-" id="STIXGeneral-Regular-2190"/>
     <path d="M 24.296875 35.5 
 L 25.5 29.796875 
 Q 30.796875 37.90625 34.046875 41 
@@ -82,7 +65,25 @@ L 7.5 41.203125
 Q 15.5 44.09375 19.203125 44.09375 
 Q 21.09375 44.09375 22.1875 42.296875 
 Q 23.296875 40.5 24.296875 35.5 
+z
 " id="STIXGeneral-Italic-78"/>
+    <path d="M 85.703125 22 
+L 25.796875 22 
+Q 25 22 24.09375 21.25 
+Q 23.203125 20.5 23.203125 19.796875 
+Q 23.203125 18.703125 24.59375 17.296875 
+Q 29.703125 12.40625 32.796875 7.703125 
+L 30.796875 5.796875 
+Q 18.40625 20.09375 7.09375 24.796875 
+L 7.09375 25.796875 
+Q 18.59375 30.703125 30.90625 44.90625 
+L 32.90625 43 
+Q 30.09375 39 24.703125 33.40625 
+Q 23.296875 32 23.296875 30.59375 
+Q 23.296875 28.59375 25.90625 28.59375 
+L 85.703125 28.59375 
+z
+" id="STIXGeneral-Regular-2190"/>
     <path d="M 24.296875 18.59375 
 L 26.40625 7.59375 
 Q 33.09375 18.59375 35.84375 24.34375 
@@ -117,13 +118,8 @@ Q 8.796875 43.09375 15.40625 44.09375
 L 15.796875 44.09375 
 Q 16.90625 44.09375 19.953125 34.796875 
 Q 23 25.5 24.296875 18.59375 
-" id="STIXGeneral-Italic-79"/>
-    <path d="M 62.09375 22 
-L 6.40625 22 
-L 6.40625 28.59375 
-L 62.09375 28.59375 
 z
-" id="STIXGeneral-Regular-2212"/>
+" id="STIXGeneral-Italic-79"/>
     <path d="M 55.796875 66.203125 
 L 31.296875 0 
 L 24.703125 0 
@@ -138,14 +134,20 @@ L 16.90625 40.296875
 L 28 10.296875 
 z
 " id="STIXGeneral-Regular-2200"/>
+    <path d="M 62.09375 22 
+L 6.40625 22 
+L 6.40625 28.59375 
+L 62.09375 28.59375 
+z
+" id="STIXGeneral-Regular-2212"/>
    </defs>
-   <g transform="translate(153.600000 30.286875)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.796875)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(58.839990 0.796875)" xlink:href="#STIXGeneral-Regular-2190"/>
+   <g transform="translate(153.6 30.286875)scale(0.12 -0.12)">
+    <use transform="translate(0 0.796875)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(58.83999 0.796875)" xlink:href="#STIXGeneral-Regular-2190"/>
     <use transform="translate(165.879977 0.796875)" xlink:href="#STIXGeneral-Italic-79"/>
     <use transform="translate(234.346391 0.796875)" xlink:href="#STIXGeneral-Italic-78"/>
     <use transform="translate(278.746385 0.796875)" xlink:href="#STIXGeneral-Regular-2200"/>
-    <use transform="translate(334.746370 0.796875)" xlink:href="#STIXGeneral-Italic-79"/>
+    <use transform="translate(334.74637 0.796875)" xlink:href="#STIXGeneral-Italic-79"/>
     <use transform="translate(403.212784 0.796875)" xlink:href="#STIXGeneral-Italic-78"/>
     <use transform="translate(462.052774 0.796875)" xlink:href="#STIXGeneral-Regular-2212"/>
     <use transform="translate(544.992755 0.796875)" xlink:href="#STIXGeneral-Italic-79"/>

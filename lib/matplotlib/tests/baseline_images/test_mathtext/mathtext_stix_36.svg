@@ -94,10 +94,10 @@ L 44.40625 65.296875
 z
 " id="STIXGeneral-Italic-59"/>
    </defs>
-   <g transform="translate(185.640000 27.240000)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 38.292188)scale(0.700000)" xlink:href="#STIXGeneral-Italic-58"/>
-    <use transform="translate(2.000000 -24.953281)scale(0.490000)" xlink:href="#STIXGeneral-Italic-58"/>
-    <use transform="translate(3.000000 -78.823750)scale(0.490000)" xlink:href="#STIXGeneral-Italic-59"/>
+   <g transform="translate(185.64 27.24)scale(0.12 -0.12)">
+    <use transform="translate(0 38.292188)scale(0.7)" xlink:href="#STIXGeneral-Italic-58"/>
+    <use transform="translate(2 -24.953281)scale(0.49)" xlink:href="#STIXGeneral-Italic-58"/>
+    <use transform="translate(3 -78.82375)scale(0.49)" xlink:href="#STIXGeneral-Italic-59"/>
     <path d="M 0 13.292188 
 L 0 19.542188 
 L 42.769994 19.542188 

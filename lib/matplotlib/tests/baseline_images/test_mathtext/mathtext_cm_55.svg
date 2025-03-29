@@ -120,13 +120,14 @@ Q 10.453125 12.109375 11.578125 11.109375
 Q 12.703125 10.109375 12.703125 8.5 
 Q 12.703125 6.390625 11.296875 4.828125 
 Q 9.90625 3.265625 7.8125 2.875 
+z
 " id="Cmmi10-78"/>
    </defs>
-   <g transform="translate(179.820000 30.444375)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.045391)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(54.464141 38.309453)scale(0.700000)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(92.589039 65.094297)scale(0.490000)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(119.276468 83.843688)scale(0.343000)" xlink:href="#Cmmi10-78"/>
+   <g transform="translate(179.82 30.444375)scale(0.12 -0.12)">
+    <use transform="translate(0 0.045391)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(54.464141 38.309453)scale(0.7)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(92.589039 65.094297)scale(0.49)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(119.276468 83.843688)scale(0.343)" xlink:href="#Cmmi10-78"/>
    </g>
   </g>
  </g>

@@ -48,6 +48,7 @@ L 7.625 4.984375
 Q 7.28125 4.296875 6.6875 4.296875 
 Q 6.15625 4.296875 5 4.78125 
 Q 3.859375 5.28125 3.515625 5.421875 
+z
 " id="Cmsy10-30"/>
     <path d="M 40.578125 39.3125 
 Q 47.65625 37.796875 51.625 33 
@@ -79,14 +80,15 @@ Q 40.828125 74.21875 47.359375 69.109375
 Q 53.90625 64.015625 53.90625 55.328125 
 Q 53.90625 49.265625 50.4375 45.09375 
 Q 46.96875 40.921875 40.578125 39.3125 
+z
 " id="DejaVuSans-33"/>
    </defs>
-   <g transform="translate(181.500000 29.940000)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.584375)" xlink:href="#DejaVuSans-Oblique-79"/>
-    <use transform="translate(63.645833 38.865625)scale(0.700000)" xlink:href="#Cmsy10-30"/>
-    <use transform="translate(82.888997 38.865625)scale(0.700000)" xlink:href="#Cmsy10-30"/>
-    <use transform="translate(102.132161 38.865625)scale(0.700000)" xlink:href="#Cmsy10-30"/>
-    <use transform="translate(59.179688 -26.759375)scale(0.700000)" xlink:href="#DejaVuSans-33"/>
+   <g transform="translate(181.5 29.94)scale(0.12 -0.12)">
+    <use transform="translate(0 0.584375)" xlink:href="#DejaVuSans-Oblique-79"/>
+    <use transform="translate(63.645833 38.865625)scale(0.7)" xlink:href="#Cmsy10-30"/>
+    <use transform="translate(82.888997 38.865625)scale(0.7)" xlink:href="#Cmsy10-30"/>
+    <use transform="translate(102.132161 38.865625)scale(0.7)" xlink:href="#Cmsy10-30"/>
+    <use transform="translate(59.179688 -26.759375)scale(0.7)" xlink:href="#DejaVuSans-33"/>
    </g>
   </g>
  </g>

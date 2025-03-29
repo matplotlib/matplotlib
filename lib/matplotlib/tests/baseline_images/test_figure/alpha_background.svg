@@ -15,7 +15,7 @@ L 144 72
 L 144 0 
 L 0 0 
 z
-" style="fill:#00ff66;opacity:0.400000;"/>
+" style="fill:#00ff66;opacity:0.4;"/>
   </g>
   <g id="patch_2">
    <path d="M 20 37 
@@ -39,7 +39,7 @@ L 32.135255 43.183221
 L 28.816779 39.864745 
 L 24.635255 37.734152 
 z
-" style="fill:#ff0000;opacity:0.600000;stroke:#000000;stroke-linejoin:miter;"/>
+" style="fill:#ff0000;opacity:0.6;stroke:#000000;stroke-linejoin:miter;"/>
   </g>
  </g>
 </svg>

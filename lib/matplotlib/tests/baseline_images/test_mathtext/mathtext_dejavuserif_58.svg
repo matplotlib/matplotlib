@@ -84,12 +84,13 @@ Q 42.484375 61.078125 38.640625 65.234375
 Q 34.8125 69.390625 28.078125 69.390625 
 Q 21.09375 69.390625 17.28125 65.921875 
 Q 13.484375 62.453125 12.796875 55.515625 
+z
 " id="DejaVuSerif-32"/>
    </defs>
-   <g transform="translate(180.900000 30.046875)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSerif-Italic-79"/>
-    <use transform="translate(56.494141 -15.478125)scale(0.700000)" xlink:href="#DejaVuSerif-Italic-78"/>
-    <use transform="translate(98.938987 9.955937)scale(0.490000)" xlink:href="#DejaVuSerif-32"/>
+   <g transform="translate(180.9 30.046875)scale(0.12 -0.12)">
+    <use transform="translate(0 0.09375)" xlink:href="#DejaVuSerif-Italic-79"/>
+    <use transform="translate(56.494141 -15.478125)scale(0.7)" xlink:href="#DejaVuSerif-Italic-78"/>
+    <use transform="translate(98.938987 9.955937)scale(0.49)" xlink:href="#DejaVuSerif-32"/>
    </g>
   </g>
  </g>

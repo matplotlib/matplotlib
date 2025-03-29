@@ -65,6 +65,7 @@ L 7.5 41.203125
 Q 15.5 44.09375 19.203125 44.09375 
 Q 21.09375 44.09375 22.1875 42.296875 
 Q 23.296875 40.5 24.296875 35.5 
+z
 " id="STIXGeneral-Italic-78"/>
     <path d="M 47.40625 13.703125 
 L 42 0 
@@ -90,9 +91,9 @@ Q 43.59375 10.203125 46 14.296875
 z
 " id="STIXGeneral-Regular-32"/>
    </defs>
-   <g transform="translate(183.600000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.409375)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(50.573119 35.684375)scale(0.700000)" xlink:href="#STIXGeneral-Regular-32"/>
+   <g transform="translate(183.6 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0 0.409375)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(50.573119 35.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
    </g>
   </g>
  </g>

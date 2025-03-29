@@ -36,19 +36,19 @@ L 2.6875 0
 z
 " id="DejaVuSans-Oblique-4d"/>
    </defs>
-   <g transform="translate(98.280000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(102.514973 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(205.029946 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(307.544919 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(415.471135 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(523.397351 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(636.735784 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(755.485459 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(890.470811 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(1074.162217 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(1355.265732 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
-    <use transform="translate(1425.309353 0.093750)" xlink:href="#DejaVuSans-Oblique-4d"/>
+   <g transform="translate(98.28 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(102.514973 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(205.029946 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(307.544919 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(415.471135 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(523.397351 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(636.735784 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(755.485459 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(890.470811 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(1074.162217 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(1355.265732 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
+    <use transform="translate(1425.309353 0.09375)" xlink:href="#DejaVuSans-Oblique-4d"/>
    </g>
   </g>
  </g>

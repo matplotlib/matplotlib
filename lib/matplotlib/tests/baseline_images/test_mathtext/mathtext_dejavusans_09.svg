@@ -20,6 +20,20 @@ z
   <g id="text_1">
    <!-- $x\ x\,x\;x\quad x\qquad x\!x\hspace{ 0.5 }y$ -->
    <defs>
+    <path d="M 60.015625 54.6875 
+L 34.90625 27.875 
+L 50.296875 0 
+L 39.984375 0 
+L 28.421875 21.6875 
+L 8.296875 0 
+L -2.59375 0 
+L 24.3125 28.8125 
+L 10.015625 54.6875 
+L 20.3125 54.6875 
+L 30.8125 34.90625 
+L 49.125 54.6875 
+z
+" id="DejaVuSans-Oblique-78"/>
     <path d="M 24.8125 -5.078125 
 Q 18.5625 -15.578125 14.625 -18.1875 
 Q 10.6875 -20.796875 4.59375 -20.796875 
@@ -36,30 +50,16 @@ L 50.875 54.6875
 L 60.296875 54.6875 
 z
 " id="DejaVuSans-Oblique-79"/>
-    <path d="M 60.015625 54.6875 
-L 34.90625 27.875 
-L 50.296875 0 
-L 39.984375 0 
-L 28.421875 21.6875 
-L 8.296875 0 
-L -2.59375 0 
-L 24.3125 28.8125 
-L 10.015625 54.6875 
-L 20.3125 54.6875 
-L 30.8125 34.90625 
-L 49.125 54.6875 
-z
-" id="DejaVuSans-Oblique-78"/>
    </defs>
-   <g transform="translate(136.560000 30.286875)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.312500)" xlink:href="#DejaVuSans-Oblique-78"/>
-    <use transform="translate(91.650066 0.312500)" xlink:href="#DejaVuSans-Oblique-78"/>
-    <use transform="translate(167.065430 0.312500)" xlink:href="#DejaVuSans-Oblique-78"/>
-    <use transform="translate(253.304253 0.312500)" xlink:href="#DejaVuSans-Oblique-78"/>
-    <use transform="translate(409.896050 0.312500)" xlink:href="#DejaVuSans-Oblique-78"/>
-    <use transform="translate(663.899956 0.312500)" xlink:href="#DejaVuSans-Oblique-78"/>
-    <use transform="translate(706.843967 0.312500)" xlink:href="#DejaVuSans-Oblique-78"/>
-    <use transform="translate(814.729709 0.312500)" xlink:href="#DejaVuSans-Oblique-79"/>
+   <g transform="translate(136.56 30.286875)scale(0.12 -0.12)">
+    <use transform="translate(0 0.3125)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(91.650066 0.3125)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(167.06543 0.3125)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(253.304253 0.3125)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(409.89605 0.3125)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(663.899956 0.3125)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(706.843967 0.3125)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(814.729709 0.3125)" xlink:href="#DejaVuSans-Oblique-79"/>
    </g>
   </g>
  </g>

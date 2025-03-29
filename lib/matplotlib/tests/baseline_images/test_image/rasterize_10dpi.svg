@@ -26,8 +26,8 @@ L 27 11.742353
 z
 " style="fill:#ffffff;"/>
    </g>
-   <g clip-path="url(#p8508da2591)">
-    <image height="50.4" id="image271ed3a4fb" transform="scale(1 -1)translate(0 -50.4)" width="50.4" x="27" xlink:href="data:image/png;base64,
+   <g clip-path="url(#p27b523bc02)">
+    <image height="50.4" id="image997dbb6a5d" transform="scale(1 -1)translate(0 -50.4)" width="50.4" x="27" xlink:href="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAABHNCSVQICAgIfAhkiAAAACdJREFUCJljNN1e8Z8BCk4YrGFABkwMeAD5kowujCFwO9+kWVLJWAAQpwc3TBJsUAAAAABJRU5ErkJggg==" y="-10.577647"/>
    </g>
    <g id="matplotlib.axis_1"/>
@@ -44,7 +44,7 @@ z
    </g>
    <g id="matplotlib.axis_3"/>
    <g id="matplotlib.axis_4"/>
-   <image height="43.2" id="image1a04ba45e5" transform="scale(1 -1)translate(0 -43.2)" width="50.4" x="86.4" xlink:href="data:image/png;base64,
+   <image height="43.2" id="image411c214fee" transform="scale(1 -1)translate(0 -43.2)" width="50.4" x="86.4" xlink:href="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAABHNCSVQICAgIfAhkiAAAAGRJREFUCJldybENglAUQNHzHEQo3ILSkhWMugWMwBJEElaAztgxBglO8i30G+Mtz42imXrcsGxdnfwURTNlWDFg3Lr6+T9zCQ8MO5xw/yAEjhgjpbeV7bzHGRcc4DtzZTsHKlxfkMke1VjXFTwAAAAASUVORK5CYII=" y="-14.4"/>
   </g>
   <g id="axes_3">
@@ -59,17 +59,17 @@ z
    <g id="matplotlib.axis_5"/>
    <g id="matplotlib.axis_6"/>
    <g id="line2d_1">
-    <path clip-path="url(#p21fb5c1da8)" d="M 145.164706 45.6 
+    <path clip-path="url(#pa32229f459)" d="M 145.164706 45.6 
 L 194.4 27.12 
 " style="fill:none;stroke:#1f77b4;stroke-linecap:square;stroke-width:20;"/>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="p8508da2591">
+  <clipPath id="p27b523bc02">
    <rect height="49.235294" width="49.235294" x="27" y="11.742353"/>
   </clipPath>
-  <clipPath id="p21fb5c1da8">
+  <clipPath id="pa32229f459">
    <rect height="55.44" width="49.235294" x="145.164706" y="8.64"/>
   </clipPath>
  </defs>
