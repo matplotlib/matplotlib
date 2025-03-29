@@ -443,6 +443,12 @@ class Collection(mcolorizer.ColorizingArtist):
                 # iterate over all paths and draw them one by one.
                 hatchcolors_arg_supported = False
 
+            # If the hatchcolors argument is not needed or not passed
+            # then we can skip the iteration over paths in case the
+            # argument is not supported by the renderer.
+            hatchcolors_not_needed = (self.get_hatch() is None or
+                                      self._original_hatchcolor is None)
+
             if self._gapcolor is not None:
                 # First draw paths within the gaps.
                 ipaths, ilinestyles = self._get_inverse_paths_linestyles()
@@ -455,16 +461,21 @@ class Collection(mcolorizer.ColorizingArtist):
                                                   self.get_transforms(), *args,
                                                   hatchcolors=self.get_hatchcolor())
                 else:
-                    path_ids = renderer._iter_collection_raw_paths(
-                        transform.frozen(), ipaths, self.get_transforms())
-                    for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-                        gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
-                    ):
-                        path, transform = path_id
-                        if xo != 0 or yo != 0:
-                            transform = transform.frozen()
-                            transform.translate(xo, yo)
-                        renderer.draw_path(gc0, path, transform, rgbFace)
+                    if hatchcolors_not_needed:
+                        renderer.draw_path_collection(gc, transform.frozen(), ipaths,
+                                                      self.get_transforms(), *args)
+                    else:
+                        path_ids = renderer._iter_collection_raw_paths(
+                            transform.frozen(), ipaths, self.get_transforms())
+                        for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+                            gc, list(path_ids), *args,
+                            hatchcolors=self.get_hatchcolor(),
+                        ):
+                            path, transform = path_id
+                            if xo != 0 or yo != 0:
+                                transform = transform.frozen()
+                                transform.translate(xo, yo)
+                            renderer.draw_path(gc0, path, transform, rgbFace)
 
             args = [offsets, offset_trf, self.get_facecolor(), self.get_edgecolor(),
                     self._linewidths, self._linestyles, self._antialiaseds, self._urls,
@@ -475,16 +486,20 @@ class Collection(mcolorizer.ColorizingArtist):
                                               self.get_transforms(), *args,
                                               hatchcolors=self.get_hatchcolor())
             else:
-                path_ids = renderer._iter_collection_raw_paths(
-                    transform.frozen(), paths, self.get_transforms())
-                for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-                    gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
-                ):
-                    path, transform = path_id
-                    if xo != 0 or yo != 0:
-                        transform = transform.frozen()
-                        transform.translate(xo, yo)
-                    renderer.draw_path(gc0, path, transform, rgbFace)
+                if hatchcolors_not_needed:
+                    renderer.draw_path_collection(gc, transform.frozen(), paths,
+                                                  self.get_transforms(), *args)
+                else:
+                    path_ids = renderer._iter_collection_raw_paths(
+                        transform.frozen(), paths, self.get_transforms())
+                    for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+                        gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
+                    ):
+                        path, transform = path_id
+                        if xo != 0 or yo != 0:
+                            transform = transform.frozen()
+                            transform.translate(xo, yo)
+                        renderer.draw_path(gc0, path, transform, rgbFace)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
