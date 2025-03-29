@@ -398,14 +398,14 @@ class Dvi:
         else:
             scale = font._scale
             for x, y, f, g, w in font._vf[char].text:
-                newf = DviFont(scale=_mul2012(scale, f._scale),
+                newf = DviFont(scale=_mul1220(scale, f._scale),
                                tfm=f._tfm, texname=f.texname, vf=f._vf)
-                self.text.append(Text(self.h + _mul2012(x, scale),
-                                      self.v + _mul2012(y, scale),
+                self.text.append(Text(self.h + _mul1220(x, scale),
+                                      self.v + _mul1220(y, scale),
                                       newf, g, newf._width_of(g)))
-            self.boxes.extend([Box(self.h + _mul2012(x, scale),
-                                   self.v + _mul2012(y, scale),
-                                   _mul2012(a, scale), _mul2012(b, scale))
+            self.boxes.extend([Box(self.h + _mul1220(x, scale),
+                                   self.v + _mul1220(y, scale),
+                                   _mul1220(a, scale), _mul1220(b, scale))
                                for x, y, a, b in font._vf[char].boxes])
 
     @_dispatch(137, state=_dvistate.inpage, args=('s4', 's4'))
@@ -577,12 +577,8 @@ class DviFont:
     size : float
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
-    widths : list
-       Widths of glyphs in glyph-space units, typically 1/1000ths of
-       the point size.
-
     """
-    __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
+    __slots__ = ('texname', 'size', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
         _api.check_isinstance(bytes, texname=texname)
@@ -591,12 +587,10 @@ class DviFont:
         self.texname = texname
         self._vf = vf
         self.size = scale * (72.0 / (72.27 * 2**16))
-        try:
-            nchars = max(tfm.width) + 1
-        except ValueError:
-            nchars = 0
-        self.widths = [(1000*tfm.width.get(char, 0)) >> 20
-                       for char in range(nchars)]
+
+    widths = _api.deprecated("3.11")(property(lambda self: [
+        (1000 * self._tfm.width.get(char, 0)) >> 20
+        for char in range(max(self._tfm.width, default=-1) + 1)]))
 
     def __eq__(self, other):
         return (type(self) is type(other)
@@ -612,7 +606,7 @@ class DviFont:
         """Width of char in dvi units."""
         width = self._tfm.width.get(char, None)
         if width is not None:
-            return _mul2012(width, self._scale)
+            return _mul1220(width, self._scale)
         _log.debug('No width for char %d in font %s.', char, self.texname)
         return 0
 
@@ -627,7 +621,7 @@ class DviFont:
                            name, char, self.texname)
                 result.append(0)
             else:
-                result.append(_mul2012(value, self._scale))
+                result.append(_mul1220(value, self._scale))
         # cmsyXX (symbols font) glyph 0 ("minus") has a nonzero descent
         # so that TeX aligns equations properly
         # (https://tex.stackexchange.com/q/526103/)
@@ -761,8 +755,8 @@ class Vf(Dvi):
         # cs = checksum, ds = design size
 
 
-def _mul2012(num1, num2):
-    """Multiply two numbers in 20.12 fixed point format."""
+def _mul1220(num1, num2):
+    """Multiply two numbers in 12.20 fixed point format."""
     # Separated into a function because >> has surprising precedence
     return (num1*num2) >> 20
 
@@ -782,7 +776,8 @@ class Tfm:
     checksum : int
        Used for verifying against the dvi file.
     design_size : int
-       Design size of the font (unknown units)
+       Design size of the font (in 12.20 TeX points); unused because it is
+       overridden by the scale factor specified in the dvi file.
     width, height, depth : dict
        Dimensions of each character, need to be scaled by the factor
        specified in the dvi file. These are dicts because indexing may
