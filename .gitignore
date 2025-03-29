@@ -96,6 +96,7 @@ sg_execution_times.rst
 cover/
 .noseids
 __pycache__
+test-results
 
 # Conda files #
 ###############
