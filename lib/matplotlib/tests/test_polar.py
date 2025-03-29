@@ -525,4 +525,4 @@ def test_radial_limits_behavior():
     assert ax.get_ylim() == (-1, 2)
     # negative data also autoscales to negative limits
     ax.plot([1, 2], [-1, -2])
-    ax.get_ylim() == (-2.2, 2.2)
+    assert ax.get_ylim() == (-2, 2)
