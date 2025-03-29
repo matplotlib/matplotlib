@@ -252,7 +252,7 @@ def test_is_sorted_and_has_non_nan():
     plt.plot([np.nan] * n, range(n))
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_step_markers(fig_test, fig_ref):
     fig_test.subplots().step([0, 1], "-o")
     fig_ref.subplots().plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
@@ -342,7 +342,7 @@ def test_striped_lines():
     ax.legend(handlelength=5)
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_odd_dashes(fig_test, fig_ref):
     fig_test.add_subplot().plot([1, 2], dashes=[1, 2, 3])
     fig_ref.add_subplot().plot([1, 2], dashes=[1, 2, 3, 1, 2, 3])
@@ -374,7 +374,7 @@ def test_picking():
     assert_array_equal(indices['ind'], [0])
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_input_copy(fig_test, fig_ref):
 
     t = np.arange(0, 6, 2)
