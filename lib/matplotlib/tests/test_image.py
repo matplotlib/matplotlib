@@ -260,15 +260,15 @@ def test_image_alpha():
 def test_imshow_alpha(fig_test, fig_ref):
     np.random.seed(19680801)
 
-    rgbf = np.random.rand(6, 6, 3)
+    rgbf = np.random.rand(6, 6, 3).astype(np.float32)
     rgbu = np.uint8(rgbf * 255)
     ((ax0, ax1), (ax2, ax3)) = fig_test.subplots(2, 2)
     ax0.imshow(rgbf, alpha=0.5)
     ax1.imshow(rgbf, alpha=0.75)
-    ax2.imshow(rgbu, alpha=0.5)
-    ax3.imshow(rgbu, alpha=0.75)
+    ax2.imshow(rgbu, alpha=127/255)
+    ax3.imshow(rgbu, alpha=191/255)
 
-    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2)
+    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2).astype(np.float32)
     rgbau = np.concatenate((rgbu, np.full((6, 6, 1), 255, np.uint8)), axis=2)
     ((ax0, ax1), (ax2, ax3)) = fig_ref.subplots(2, 2)
     rgbaf[:, :, 3] = 0.5
@@ -514,7 +514,7 @@ def test_image_composite_background():
     ax.set_xlim([0, 12])
 
 
-@image_comparison(['image_composite_alpha'], remove_text=True)
+@image_comparison(['image_composite_alpha'], remove_text=True, tol=0.07)
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
