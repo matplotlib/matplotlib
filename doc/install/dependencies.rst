@@ -422,18 +422,45 @@ The documentation requires LaTeX and Graphviz.  These are not
 Python packages and must be installed separately.
 
 * `Graphviz <http://www.graphviz.org/download>`_
-* a minimal working LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
+* LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
   `MikTeX <https://miktex.org/>`_
 
-The following LaTeX packages:
+
+When using tex-live, the following collections must be installed. If you cannot install
+the collections, for example when using a different distribution, then you must ensure
+that the following packages from each collection are installed:
+
+* collection-basic
+  * `cm <https://ctan.org/pkg/cm>`_
+  * luahbtex
+* collection-fontsrecommended
+  * `cm-super <https://ctan.org/pkg/cm-super>`_
+  * `lm <https://ctan.org/pkg/lm>`_
+  * `txfonts <https://ctan.org/pkg/txfonts>`_
+* collection-latex
+  * `latex <https://ctan.org/pkg/latex>`_
+  * latex-bin
+  * `psnfss <https://ctan.org/pkg/psnfss>`_
+* collection-latexextra
+  * `import <https://ctan.org/pkg/import>`_
+  * `sfmath <https://ctan.org/pkg/sfmath>`_
+  * `type1cm <https://ctan.org/pkg/type1cm>`_
+* collection-latexrecommended
+  * `fontspec <https://ctan.org/pkg/fontspec>`_
+  * `lwarp <https://ctan.org/pkg/lwarp>`_
+* collection-xetex
+  * `xetex <https://ctan.org/pkg/xetex>`_
+  * xetex-bin
+
+Note you may need to install some packages in collection-basic that are not listed here.
+The complete version of many LaTex distribution installers, e.g. "texlive-full" or
+"texlive-all", will often automatically include these collections.
+
+The following packages must also installed:
 
 * `dvipng <https://ctan.org/pkg/dvipng>`_
-* `underscore <https://ctan.org/pkg/underscore>`_
-* `cm-super <https://ctan.org/pkg/cm-super>`_
-* ``collection-fontsrecommended``
+* `pgf <https://ctan.org/pkg/pgf>`_ (if using the pgf backend)
 
-The complete version of many LaTex distribution installers, e.g.
-"texlive-full" or "texlive-all", will often automatically include these packages.
 
 Optional
 ^^^^^^^^
