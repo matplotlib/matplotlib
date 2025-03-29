@@ -2125,6 +2125,9 @@ class _SelectorWidget(AxesWidget):
         self._eventrelease = None
         self._prev_event = None
         self._state = set()
+        # keep track if selector is selected or not
+        # Default to True
+        self._selected = True
 
     def set_active(self, active):
         super().set_active(active)
@@ -2352,8 +2355,9 @@ class _SelectorWidget(AxesWidget):
 
     def clear(self):
         """Clear the selection and set the selector ready to make a new one."""
-        self._clear_without_update()
-        self.update()
+        if self._selected:
+            self._clear_without_update()
+            self.update()
 
     def _clear_without_update(self):
         self._selection_completed = False
@@ -3937,6 +3941,14 @@ class PolygonSelector(_SelectorWidget):
             h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
             if h_dist < self.grab_range:
                 self._active_handle_idx = h_idx
+        # Only check if contains when polygon is completed
+        if self._selection_completed:
+            # contains shape + handle
+            contains = self._contains(event) or self._active_handle_idx >= 0
+            if contains != self._selected:
+                self._selected = contains
+                self._polygon_handles.set_visible(self._selected)
+                self._draw_polygon()
         # Save the vertex positions at the time of the press event (needed to
         # support the 'move_all' state modifier).
         self._xys_at_press = self._xys.copy()
@@ -3995,7 +4007,7 @@ class PolygonSelector(_SelectorWidget):
                 self._xys[-1] = self._get_data_coords(event)
 
         # Move all vertices.
-        elif 'move_all' in self._state and self._eventpress:
+        elif 'move_all' in self._state and self._eventpress and self._selected:
             xdata, ydata = self._get_data_coords(event)
             dx = xdata - self._eventpress.xdata
             dy = ydata - self._eventpress.ydata
@@ -4043,7 +4055,7 @@ class PolygonSelector(_SelectorWidget):
             self._xys.append(self._get_data_coords(event))
             self._draw_polygon()
         # Reset the polygon if the released key is the 'clear' key.
-        elif event.key == self._state_modifier_keys.get('clear'):
+        elif self._selected and event.key == self._state_modifier_keys.get('clear'):
             event = self._clean_event(event)
             self._xys = [self._get_data_coords(event)]
             self._selection_completed = False
@@ -4069,6 +4081,11 @@ class PolygonSelector(_SelectorWidget):
         """Redraw the polygon based on the new vertex positions."""
         self._draw_polygon_without_update()
         self.update()
+
+    def _contains(self, event):
+        return mpl.path.Path(self.verts).contains_points(
+            [self._get_data_coords(event), ]
+            )
 
     @property
     def verts(self):
