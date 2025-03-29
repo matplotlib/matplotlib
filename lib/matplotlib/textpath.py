@@ -233,23 +233,32 @@ class TextToPath:
         # Gather font information and do some setup for combining
         # characters into strings.
         for text in page.text:
-            font = get_font(text.font_path)
-            char_id = self._get_char_id(font, text.glyph)
-            if char_id not in glyph_map:
-                font.clear()
-                font.set_size(self.FONT_SCALE, self.DPI)
-                glyph_name_or_index = text.glyph_name_or_index
-                if isinstance(glyph_name_or_index, str):
-                    index = font.get_name_index(glyph_name_or_index)
-                    font.load_glyph(index, flags=LoadFlags.TARGET_LIGHT)
-                elif isinstance(glyph_name_or_index, int):
-                    self._select_native_charmap(font)
-                    font.load_char(
-                        glyph_name_or_index, flags=LoadFlags.TARGET_LIGHT)
-                else:  # Should not occur.
-                    raise TypeError(f"Glyph spec of unexpected type: "
-                                    f"{glyph_name_or_index!r}")
-                glyph_map_new[char_id] = font.get_path()
+            if text.font.texname.startswith(b"["):
+                font = get_font(text.font.texname[1:-1].decode("latin-1"))
+                char_id = self._get_char_id(font, text.glyph)
+                if char_id not in glyph_map:
+                    font.clear()
+                    font.set_size(self.FONT_SCALE, self.DPI)
+                    font.load_glyph(text.glyph, flags=LoadFlags.TARGET_LIGHT)
+                    glyph_map_new[char_id] = font.get_path()
+            else:
+                font = get_font(text.font_path)
+                char_id = self._get_char_id(font, text.glyph)
+                if char_id not in glyph_map:
+                    font.clear()
+                    font.set_size(self.FONT_SCALE, self.DPI)
+                    glyph_name_or_index = text.glyph_name_or_index
+                    if isinstance(glyph_name_or_index, str):
+                        index = font.get_name_index(glyph_name_or_index)
+                        font.load_glyph(index, flags=LoadFlags.TARGET_LIGHT)
+                    elif isinstance(glyph_name_or_index, int):
+                        self._select_native_charmap(font)
+                        font.load_char(
+                            glyph_name_or_index, flags=LoadFlags.TARGET_LIGHT)
+                    else:  # Should not occur.
+                        raise TypeError(f"Glyph spec of unexpected type: "
+                                        f"{glyph_name_or_index!r}")
+                    glyph_map_new[char_id] = font.get_path()
 
             glyph_ids.append(char_id)
             xpositions.append(text.x)
