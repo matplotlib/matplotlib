@@ -30,7 +30,7 @@ import sys
 
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api, cbook, font_manager
 
 _log = logging.getLogger(__name__)
 
@@ -578,7 +578,7 @@ class DviFont:
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
     """
-    __slots__ = ('texname', 'size', '_scale', '_vf', '_tfm')
+    __slots__ = ('texname', 'size', '_scale', '_vf', '_tfm', '_encoding')
 
     def __init__(self, scale, tfm, texname, vf):
         _api.check_isinstance(bytes, texname=texname)
@@ -587,6 +587,7 @@ class DviFont:
         self.texname = texname
         self._vf = vf
         self.size = scale * (72.0 / (72.27 * 2**16))
+        self._encoding = None
 
     widths = _api.deprecated("3.11")(property(lambda self: [
         (1000 * self._tfm.width.get(char, 0)) >> 20
@@ -601,6 +602,35 @@ class DviFont:
 
     def __repr__(self):
         return f"<{type(self).__name__}: {self.texname}>"
+
+    # TODO: Make this public when {xe,lua}tex support is merged; simultaneously
+    # deprecate Text.glyph_name_or_index.
+    def _index_dvi_to_freetype(self, idx):
+        """Convert dvi glyph indices to FreeType ones."""
+        # Glyphs indices stored in the dvi file map to FreeType glyph indices
+        # (i.e., which can be passed to FT_Load_Glyph) in various ways:
+        # - if pdftex.map specifies an ".enc" file for the font, that file maps
+        #   dvi indices to Adobe glyph names, which can then be converted to
+        #   FreeType glyph indices with FT_Get_Name_Index.
+        # - if no ".enc" file is specified, then the font must be a Type 1
+        #   font, and dvi indices directly index into the font's CharStrings
+        #   vector.
+        # - (xetex & luatex, currently unsupported, can also declare "native
+        #   fonts", for which dvi indices are equal to FreeType indices.)
+        if self._encoding is None:
+            psfont = PsfontsMap(find_tex_file("pdftex.map"))[self.texname]
+            if psfont.filename is None:
+                raise ValueError("No usable font file found for {} ({}); "
+                                 "the font may lack a Type-1 version"
+                                 .format(psfont.psname.decode("ascii"),
+                                         psfont.texname.decode("ascii")))
+            face = font_manager.get_font(psfont.filename)
+            if psfont.encoding:
+                self._encoding = [face.get_name_index(name)
+                                  for name in _parse_enc(psfont.encoding)]
+            else:
+                self._encoding = face._get_type1_encoding_vector()
+        return self._encoding[idx]
 
     def _width_of(self, char):
         """Width of char in dvi units."""
@@ -1002,8 +1032,7 @@ def _parse_enc(path):
     Returns
     -------
     list
-        The nth entry of the list is the PostScript glyph name of the nth
-        glyph.
+        The nth list item is the PostScript glyph name of the nth glyph.
     """
     no_comments = re.sub("%.*", "", Path(path).read_text(encoding="ascii"))
     array = re.search(r"(?s)\[(.*)\]", no_comments).group(1)
