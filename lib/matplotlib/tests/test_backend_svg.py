@@ -101,7 +101,7 @@ def test_rasterized(fig_test, fig_ref):
     ax_test.plot(x+1, y, "-", c="b", lw=10, rasterized=True)
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['svg'])
 def test_rasterized_ordering(fig_test, fig_ref):
     t = np.arange(0, 100) * (2.3)
     x = np.cos(t)
