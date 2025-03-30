@@ -1108,26 +1108,44 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
     import itertools
 
+    import fontTools.agl
+
+    from matplotlib.ft2font import FT2Font
+    from matplotlib.textpath import TextToPath
+
     parser = ArgumentParser()
     parser.add_argument("filename")
     parser.add_argument("dpi", nargs="?", type=float, default=None)
     args = parser.parse_args()
+
+    def _print_fields(*args):
+        print(" ".join(map("{:>11}".format, args)))
+
     with Dvi(args.filename, args.dpi) as dvi:
         fontmap = PsfontsMap(find_tex_file('pdftex.map'))
         for page in dvi:
-            print(f"=== new page === "
+            print(f"=== NEW PAGE === "
                   f"(w: {page.width}, h: {page.height}, d: {page.descent})")
+            print("--- GLYPHS ---")
             for font, group in itertools.groupby(
                     page.text, lambda text: text.font):
-                print(f"font: {font.texname.decode('latin-1')!r}\t"
-                      f"scale: {font._scale / 2 ** 20}")
-                print("x", "y", "glyph", "chr", "w", "(glyphs)", sep="\t")
+                psfont = fontmap[font.texname]
+                fontpath = psfont.filename
+                print(f"font: {font.texname.decode('latin-1')} "
+                      f"(scale: {font._scale / 2 ** 20}) at {fontpath}")
+                face = FT2Font(fontpath)
+                TextToPath._select_native_charmap(face)
+                _print_fields("x", "y", "glyph", "chr", "w")
                 for text in group:
-                    print(text.x, text.y, text.glyph,
-                          chr(text.glyph) if chr(text.glyph).isprintable()
-                          else ".",
-                          text.width, sep="\t")
+                    if psfont.encoding:
+                        glyph_name = _parse_enc(psfont.encoding)[text.glyph]
+                    else:
+                        glyph_name = face.get_glyph_name(
+                            face.get_char_index(text.glyph))
+                    glyph_str = fontTools.agl.toUnicode(glyph_name)
+                    _print_fields(text.x, text.y, text.glyph, glyph_str, text.width)
             if page.boxes:
-                print("x", "y", "h", "w", "", "(boxes)", sep="\t")
+                print("--- BOXES ---")
+                _print_fields("x", "y", "h", "w")
                 for box in page.boxes:
-                    print(box.x, box.y, box.height, box.width, sep="\t")
+                    _print_fields(box.x, box.y, box.height, box.width)
