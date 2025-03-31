@@ -74,6 +74,8 @@ class TexMetrics:
     tex_width: int
     tex_height: int
     tex_depth: int
+    # work around mypy not respecting kw_only=True in stub files
+    __match_args__ = ()
 
 class Tfm:
     checksum: int
