@@ -6232,7 +6232,7 @@ class Axes(_AxesBase):
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
-        self._update_pocolor_lims(collection, coords)
+        self._update_pcolor_lims(collection, coords)
         return collection
 
     @_preprocess_data()
@@ -6442,10 +6442,10 @@ class Axes(_AxesBase):
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
-        self._update_pocolor_lims(collection, coords)
+        self._update_pcolor_lims(collection, coords)
         return collection
 
-    def _update_pocolor_lims(self, collection, coords):
+    def _update_pcolor_lims(self, collection, coords):
         """
         Common code for updating lims in pcolor() and pcolormesh() methods.
         """
