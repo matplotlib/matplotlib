@@ -1,4 +1,3 @@
-import importlib
 import sys
 import logging
 import types
@@ -55,22 +54,14 @@ def select_gui_toolkit(newbackend=None):
 
     if newbackend is rcsetup._auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
-        mapping = {
-            "qt": "qtagg",
-            "gtk3": "gtk3agg",
-            "gtk4": "gtk4agg",
-            "wx": "wxagg",
-            "tk": "tkagg",
-            "macosx": "macosx",
-            "headless": "agg",
-        }
-
-        best_guess = mapping.get(current_framework, None)
-        if best_guess is not None:
-            candidates = [best_guess]
+        if (current_framework and
+                (backend := backend_registry.backend_for_gui_framework(
+                    current_framework))):
+            candidates = [backend]
         else:
             candidates = []
-        candidates += ["macosx", "qt5agg", "gtk3agg", "tkagg", "wxagg"]
+        candidates += [
+            "macosx", "qtagg", "gtk4agg", "gtk3agg", "tkagg", "wxagg"]
 
         # Don't try to fallback on the cairo-based backends as they each have
         # an additional dependency (pycairo) over the agg-based backend, and
@@ -93,8 +84,7 @@ def select_gui_toolkit(newbackend=None):
         # body is filled with the module's globals.
 
         backend_name = backend_registry.resolve_gui_or_backend(newbackend)[0]
-        print(backend_name)
-        mod = importlib.import_module('matplotlib.backends.backend_' + backend_name)
+        mod = backend_registry.load_backend_module(newbackend)
         if hasattr(mod, "Backend"):
             orig_class = mod.Backend
 
@@ -135,9 +125,8 @@ def select_gui_toolkit(newbackend=None):
         mod.Backend = BackendClass
         sys.modules[mod_name] = mod
 
-    required_framework = getattr(
-        BackendClass.FigureCanvas, "required_interactive_framework", None
-    )
+    canvas_class = mod.FigureCanvas
+    required_framework = canvas_class.required_interactive_framework
     if required_framework is not None:
         current_framework = cbook._get_running_interactive_framework()
         if (
