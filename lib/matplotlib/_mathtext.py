@@ -157,7 +157,10 @@ class Output:
 
         for ox, oy, info in shifted.glyphs:
             info.font.draw_glyph_to_bitmap(
-                image, int(ox), int(oy - info.metrics.iceberg), info.glyph,
+                image,
+                int(ox),
+                int(oy - np.ceil(info.metrics.iceberg)),
+                info.glyph,
                 antialiased=antialiased)
         for x1, y1, x2, y2 in shifted.rects:
             height = max(int(y2 - y1) - 1, 0)
