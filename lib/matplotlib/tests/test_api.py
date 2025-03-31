@@ -13,7 +13,7 @@ from matplotlib import _api
 
 
 if typing.TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 T = TypeVar('T')
 

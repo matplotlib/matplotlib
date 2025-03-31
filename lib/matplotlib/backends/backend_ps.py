@@ -151,10 +151,10 @@ FontName currentdict end definefont pop
         g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
         v, c = font.get_path()
         entries.append(
-            "/%(name)s{%(bbox)s sc\n" % {
-                "name": font.get_glyph_name(glyph_id),
-                "bbox": " ".join(map(str, [g.horiAdvance, 0, *g.bbox])),
-            }
+            "/{name}{{{bbox} sc\n".format(
+                name=font.get_glyph_name(glyph_id),
+                bbox=" ".join(map(str, [g.horiAdvance, 0, *g.bbox])),
+            )
             + _path.convert_to_string(
                 # Convert back to TrueType's internal units (1/64's).
                 # (Other dimensions are already in these units.)
@@ -740,14 +740,14 @@ translate
                    'monospace': r'{\ttfamily %s}'}.get(
                        mpl.rcParams['font.family'][0], r'{\rmfamily %s}')
         s = fontcmd % s
-        tex = r'\color[rgb]{%s} %s' % (color, s)
+        tex = r'\color[rgb]{{{}}} {}'.format(color, s)
 
         # Stick to bottom-left alignment, so subtract descent from the text-normal
         # direction since text is normally positioned by its baseline.
         rangle = np.radians(angle + 90)
         pos = _nums_to_str(x - bl * np.cos(rangle), y - bl * np.sin(rangle))
         self.psfrag.append(
-            r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}' % (
+            r'\psfrag{{{}}}[bl][bl][1][{:f}]{{\fontsize{{{:f}}}{{{:f}}}{}}}'.format(
                 thetext, angle, fontsize, fontsize*1.25, tex))
 
         self._pswriter.write(f"""\
@@ -981,7 +981,7 @@ class FigureCanvasPS(FigureCanvasBase):
         dsc_comments["CreationDate"] = (
             datetime.datetime.fromtimestamp(
                 int(source_date_epoch),
-                datetime.timezone.utc).strftime("%a %b %d %H:%M:%S %Y")
+                datetime.UTC).strftime("%a %b %d %H:%M:%S %Y")
             if source_date_epoch
             else time.ctime())
         dsc_comments = "\n".join(

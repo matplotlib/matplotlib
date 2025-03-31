@@ -202,7 +202,7 @@ __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
 
 
 _log = logging.getLogger(__name__)
-UTC = datetime.timezone.utc
+UTC = datetime.UTC
 
 
 def _get_tzinfo(tz=None):
@@ -1169,14 +1169,14 @@ class RRuleLocator(DateLocator):
         except (ValueError, OverflowError):
             # cap
             start = datetime.datetime(1, 1, 1, 0, 0, 0,
-                                      tzinfo=datetime.timezone.utc)
+                                      tzinfo=datetime.UTC)
 
         try:
             stop = vmax + delta
         except (ValueError, OverflowError):
             # cap
             stop = datetime.datetime(9999, 12, 31, 23, 59, 59,
-                                     tzinfo=datetime.timezone.utc)
+                                     tzinfo=datetime.UTC)
 
         self.rule.set(dtstart=start, until=stop)
 

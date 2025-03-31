@@ -1,9 +1,6 @@
 from collections.abc import Callable
 import contextlib
-from typing import Any, Literal, ParamSpec, TypedDict, TypeVar, overload
-from typing_extensions import (
-    Unpack,  # < Py 3.11
-)
+from typing import Any, Literal, ParamSpec, TypedDict, TypeVar, Unpack, overload
 
 _P = ParamSpec("_P")
 _R = TypeVar("_R")

@@ -1,7 +1,6 @@
 from collections.abc import Callable, Iterable, Sequence
 import datetime
-from typing import Any, Literal, overload
-from typing_extensions import Self  # < Py 3.11
+from typing import Any, Literal, Self, overload
 
 import numpy as np
 from numpy.typing import ArrayLike

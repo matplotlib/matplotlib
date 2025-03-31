@@ -1547,8 +1547,7 @@ class MultivarColormap:
         return self._colormaps[item]
 
     def __iter__(self):
-        for c in self._colormaps:
-            yield c
+        yield from self._colormaps
 
     def __len__(self):
         return len(self._colormaps)

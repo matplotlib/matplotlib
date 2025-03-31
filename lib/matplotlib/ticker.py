@@ -1086,7 +1086,7 @@ class LogFormatterMathtext(LogFormatter):
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
         """Return string for non-decade locations."""
-        return r'$\mathdefault{%s%s^{%.2f}}$' % (sign_string, base, fx)
+        return r'$\mathdefault{{{}{}^{{{:.2f}}}}}$'.format(sign_string, base, fx)
 
     def __call__(self, x, pos=None):
         # docstring inherited
@@ -1118,7 +1118,7 @@ class LogFormatterMathtext(LogFormatter):
             base = '%s' % b
 
         if abs(fx) < mpl.rcParams['axes.formatter.min_exponent']:
-            return r'$\mathdefault{%s%g}$' % (sign_string, x)
+            return r'$\mathdefault{{{}{:g}}}$'.format(sign_string, x)
         elif not is_x_decade:
             usetex = mpl.rcParams['text.usetex']
             return self._non_decade_format(sign_string, base, fx, usetex)

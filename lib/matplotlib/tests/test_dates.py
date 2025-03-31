@@ -855,7 +855,7 @@ def test_concise_formatter_tz():
         sts = [st.get_text() for st in ax.get_yticklabels()]
         return sts, ax.yaxis.get_offset_text().get_text()
 
-    d1 = datetime.datetime(1997, 1, 1).replace(tzinfo=datetime.timezone.utc)
+    d1 = datetime.datetime(1997, 1, 1).replace(tzinfo=datetime.UTC)
     results = ([datetime.timedelta(hours=40),
                 ['03:00', '07:00', '11:00', '15:00', '19:00', '23:00',
                  '03:00', '07:00', '11:00', '15:00', '19:00'],
@@ -1310,8 +1310,8 @@ def test_DateLocator():
     locator.create_dummy_axis()
     # default values
     assert locator.datalim_to_dt() == (
-        datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc),
-        datetime.datetime(1970, 1, 2, 0, 0, tzinfo=datetime.timezone.utc))
+        datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.UTC),
+        datetime.datetime(1970, 1, 2, 0, 0, tzinfo=datetime.UTC))
 
     # Check default is UTC
     assert locator.tz == mdates.UTC
@@ -1395,10 +1395,10 @@ def test_num2date_error(val):
 
 def test_num2date_roundoff():
     assert mdates.num2date(100000.0000578702) == datetime.datetime(
-        2243, 10, 17, 0, 0, 4, 999980, tzinfo=datetime.timezone.utc)
+        2243, 10, 17, 0, 0, 4, 999980, tzinfo=datetime.UTC)
     # Slightly larger, steps of 20 microseconds
     assert mdates.num2date(100000.0000578703) == datetime.datetime(
-        2243, 10, 17, 0, 0, 5, tzinfo=datetime.timezone.utc)
+        2243, 10, 17, 0, 0, 5, tzinfo=datetime.UTC)
 
 
 def test_DateFormatter_settz():

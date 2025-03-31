@@ -1,8 +1,7 @@
 from matplotlib.axes import Axes
 
 from collections.abc import Callable, Iterable
-from typing import Any
-from typing_extensions import Self  # < Py 3.11
+from typing import Any, Self
 
 import numpy as np
 

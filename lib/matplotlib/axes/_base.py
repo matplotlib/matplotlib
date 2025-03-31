@@ -4114,7 +4114,7 @@ class _AxesBase(martist.Artist):
         for ax in sorted(twins, key=attrgetter("zorder")):
             data_x, data_y = ax.transData.inverted().transform(screen_xy)
             xy_strs.append(
-                "({}, {})".format(ax.format_xdata(data_x), ax.format_ydata(data_y)))
+                f"({ax.format_xdata(data_x)}, {ax.format_ydata(data_y)})")
         return "(x, y) = {}".format(" | ".join(xy_strs))
 
     def minorticks_on(self):

@@ -4140,7 +4140,7 @@ class _Quaternion:
         return (self.scalar == other.scalar) and (self.vector == other.vector).all
 
     def __repr__(self):
-        return "_Quaternion({}, {})".format(repr(self.scalar), repr(self.vector))
+        return f"_Quaternion({repr(self.scalar)}, {repr(self.vector)})"
 
     @classmethod
     def rotate_from_to(cls, r1, r2):

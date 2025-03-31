@@ -4,8 +4,7 @@ import os
 from enum import Enum
 from collections.abc import Generator
 
-from typing import NamedTuple
-from typing_extensions import Self  # < Py 3.11
+from typing import NamedTuple, Self
 
 class _dvistate(Enum):
     pre = ...

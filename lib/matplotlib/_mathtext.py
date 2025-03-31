@@ -1966,9 +1966,9 @@ class Parser:
       """.split())
     _delims = _left_delims | _right_delims | _ambi_delims
 
-    _small_greek = set([unicodedata.name(chr(i)).split()[-1].lower() for i in
+    _small_greek = {unicodedata.name(chr(i)).split()[-1].lower() for i in
                        range(ord('\N{GREEK SMALL LETTER ALPHA}'),
-                             ord('\N{GREEK SMALL LETTER OMEGA}') + 1)])
+                             ord('\N{GREEK SMALL LETTER OMEGA}') + 1)}
     _latin_alphabets = set(string.ascii_letters)
 
     def __init__(self) -> None:

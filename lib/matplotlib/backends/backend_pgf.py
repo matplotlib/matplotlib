@@ -121,7 +121,7 @@ def _escape_and_apply_props(s, prop):
         _log.warning("Ignoring unknown font: %s", family)
 
     size = prop.get_size_in_points()
-    commands.append(r"\fontsize{%f}{%f}" % (size, size * 1.2))
+    commands.append(r"\fontsize{{{:f}}}{{{:f}}}".format(size, size * 1.2))
 
     styles = {"normal": r"", "italic": r"\itshape", "oblique": r"\slshape"}
     commands.append(styles[prop.get_style()])
@@ -416,7 +416,8 @@ class RendererPgf(RendererBase):
                                               clip=clip):
             x, y = point[0] * f, point[1] * f
             _writeln(self.fh, r"\begin{pgfscope}")
-            _writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (x, y))
+            _writeln(self.fh,
+                     r"\pgfsys@transformshift{{{:f}in}}{{{:f}in}}".format(x, y))
             _writeln(self.fh, r"\pgfsys@useobject{currentmarker}{}")
             _writeln(self.fh, r"\end{pgfscope}")
 
@@ -465,7 +466,7 @@ class RendererPgf(RendererBase):
             ymin, ymax = f * ymin, f * ymax
             repx, repy = math.ceil(xmax - xmin), math.ceil(ymax - ymin)
             _writeln(self.fh,
-                     r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
+                     r"\pgfsys@transformshift{{{:f}in}}{{{:f}in}}".format(xmin, ymin))
             for iy in range(repy):
                 for ix in range(repx):
                     _writeln(self.fh, r"\pgfsys@useobject{currentpattern}{}")
@@ -652,7 +653,7 @@ class RendererPgf(RendererBase):
         f = 1. / self.dpi  # from display coords to inch
         if transform is None:
             _writeln(self.fh,
-                     r"\pgfsys@transformshift{%fin}{%fin}" % (x * f, y * f))
+                     r"\pgfsys@transformshift{{{:f}in}}{{{:f}in}}".format(x * f, y * f))
             w, h = w * f, h * f
         else:
             tr1, tr2, tr3, tr4, tr5, tr6 = transform.frozen().to_values()
@@ -718,7 +719,7 @@ class RendererPgf(RendererBase):
         if angle != 0:
             text_args.append("rotate=%f" % angle)
 
-        _writeln(self.fh, r"\pgftext[%s]{%s}" % (",".join(text_args), s))
+        _writeln(self.fh, r"\pgftext[{}]{{{}}}".format(",".join(text_args), s))
         _writeln(self.fh, r"\end{pgfscope}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
