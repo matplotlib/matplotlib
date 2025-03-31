@@ -1486,7 +1486,15 @@ class DraggableBase:
     def __init__(self, ref_artist, use_blit=False):
         self.ref_artist = ref_artist
         if not ref_artist.pickable():
-            ref_artist.set_picker(True)
+            ref_artist.set_picker(
+                lambda artist, mouseevent: (
+                    (
+                        artist.contains(mouseevent) and
+                        mouseevent.name != "scroll_event"
+                    ),
+                    {}
+                )
+            )
         self.got_artist = False
         self._use_blit = use_blit and self.canvas.supports_blit
         callbacks = self.canvas.callbacks
