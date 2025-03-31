@@ -31,7 +31,6 @@ from ._mathtext_data import (
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import FT2Font, FT2Image, Kerning, LoadFlags
 
-from packaging.version import parse as parse_version
 from pyparsing import nested_expr
 
 if T.TYPE_CHECKING:
