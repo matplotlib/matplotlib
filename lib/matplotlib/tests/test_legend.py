@@ -390,17 +390,14 @@ class TestLegendFunction:
             ax.legend(labels=('a', 'b'), handles=(lnc, lns))
         Legend.assert_called_with(ax, (lnc, lns), ('a', 'b'))
 
-    def test_warn_mixed_args_and_kwargs(self):
+    def test_error_mixed_args_and_kwargs(self):
         fig, ax = plt.subplots()
         th = np.linspace(0, 2*np.pi, 1024)
         lns, = ax.plot(th, np.sin(th), label='sin')
         lnc, = ax.plot(th, np.cos(th), label='cos')
-        with pytest.warns(DeprecationWarning) as record:
+        msg = 'must both be passed positionally or both as keywords'
+        with pytest.raises(TypeError, match=msg):
             ax.legend((lnc, lns), labels=('a', 'b'))
-        assert len(record) == 1
-        assert str(record[0].message).startswith(
-            "You have mixed positional and keyword arguments, some input may "
-            "be discarded.")
 
     def test_parasite(self):
         from mpl_toolkits.axes_grid1 import host_subplot  # type: ignore[import]
@@ -460,16 +457,13 @@ class TestLegendFigureFunction:
             fig, (lines, lines2), ('a', 'b'), loc='right',
             bbox_transform=fig.transFigure)
 
-    def test_warn_args_kwargs(self):
+    def test_error_args_kwargs(self):
         fig, axs = plt.subplots(1, 2)
         lines = axs[0].plot(range(10))
         lines2 = axs[1].plot(np.arange(10) * 2.)
-        with pytest.warns(DeprecationWarning) as record:
+        msg = 'must both be passed positionally or both as keywords'
+        with pytest.raises(TypeError, match=msg):
             fig.legend((lines, lines2), labels=('a', 'b'))
-        assert len(record) == 1
-        assert str(record[0].message).startswith(
-            "You have mixed positional and keyword arguments, some input may "
-            "be discarded.")
 
 
 def test_figure_legend_outside():
@@ -1178,21 +1172,15 @@ def test_plot_multiple_input_single_label(label):
     assert legend_texts == [str(label)] * 2
 
 
-@pytest.mark.parametrize('label_array', [['low', 'high'],
-                                         ('low', 'high'),
-                                         np.array(['low', 'high'])])
-def test_plot_single_input_multiple_label(label_array):
+def test_plot_single_input_multiple_label():
     # test ax.plot() with 1D array like input
     # and iterable label
     x = [1, 2, 3]
     y = [2, 5, 6]
     fig, ax = plt.subplots()
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match='Passing label as a length 2 sequence'):
-        ax.plot(x, y, label=label_array)
-    leg = ax.legend()
-    assert len(leg.get_texts()) == 1
-    assert leg.get_texts()[0].get_text() == str(label_array)
+    with pytest.raises(ValueError,
+                       match='label must be scalar or have the same length'):
+        ax.plot(x, y, label=['low', 'high'])
 
 
 def test_plot_single_input_list_label():
