@@ -1132,7 +1132,6 @@ if __name__ == '__main__':
     import fontTools.agl
 
     from matplotlib.ft2font import FT2Font
-    from matplotlib.textpath import TextToPath
 
     parser = ArgumentParser()
     parser.add_argument("filename")
@@ -1155,14 +1154,13 @@ if __name__ == '__main__':
                 print(f"font: {font.texname.decode('latin-1')} "
                       f"(scale: {font._scale / 2 ** 20}) at {fontpath}")
                 face = FT2Font(fontpath)
-                TextToPath._select_native_charmap(face)
                 _print_fields("x", "y", "glyph", "chr", "w")
                 for text in group:
                     if psfont.encoding:
                         glyph_name = _parse_enc(psfont.encoding)[text.glyph]
                     else:
-                        glyph_name = face.get_glyph_name(
-                            face.get_char_index(text.glyph))
+                        encoding_vector = face._get_type1_encoding_vector()
+                        glyph_name = face.get_glyph_name(encoding_vector[text.glyph])
                     glyph_str = fontTools.agl.toUnicode(glyph_name)
                     _print_fields(text.x, text.y, text.glyph, glyph_str, text.width)
             if page.boxes:
