@@ -305,10 +305,12 @@ class Axes3D(Axes):
                                        self.yaxis.get_view_interval(),
                                        self.zaxis.get_view_interval()])
             ptp = np.ptp(view_intervals, axis=1)
+            fig_aspect = self._get_fig_aspect()
             if self._adjustable == 'datalim':
                 mean = np.mean(view_intervals, axis=1)
-                scale = max(ptp[ax_indices] / self._box_aspect[ax_indices])
-                deltas = scale * self._box_aspect
+                scale = max(ptp[ax_indices]
+                            / (self._box_aspect[ax_indices] * fig_aspect[ax_indices]))
+                deltas = scale * self._box_aspect * fig_aspect
 
                 for i, set_lim in enumerate((self.set_xlim3d,
                                              self.set_ylim3d,
@@ -320,15 +322,23 @@ class Axes3D(Axes):
                 # Change the box aspect such that the ratio of the length of
                 # the unmodified axis to the length of the diagonal
                 # perpendicular to it remains unchanged.
-                box_aspect = np.array(self._box_aspect)
-                box_aspect[ax_indices] = ptp[ax_indices]
+                aspect = self._box_aspect * fig_aspect
+                aspect[ax_indices] = ptp[ax_indices]
                 remaining_ax_indices = {0, 1, 2}.difference(ax_indices)
                 if remaining_ax_indices:
                     remaining = remaining_ax_indices.pop()
-                    old_diag = np.linalg.norm(self._box_aspect[ax_indices])
-                    new_diag = np.linalg.norm(box_aspect[ax_indices])
-                    box_aspect[remaining] *= new_diag / old_diag
-                self.set_box_aspect(box_aspect)
+                    old_diag = np.linalg.norm(aspect[ax_indices]
+                                              * fig_aspect[ax_indices])
+                    new_diag = np.linalg.norm(aspect[ax_indices])
+                    aspect[remaining] *= new_diag / old_diag
+                self.set_box_aspect(aspect / fig_aspect)
+
+    def _get_fig_aspect(self):
+        trans = self.get_figure().transSubfigure
+        bb = mtransforms.Bbox.unit().transformed(trans)
+        # this is the physical aspect of the panel (or figure):
+        fig_aspect = np.array([bb.height / bb.width, 1, 1])
+        return fig_aspect
 
     def _equal_aspect_axis_indices(self, aspect):
         """
@@ -399,12 +409,7 @@ class Axes3D(Axes):
         # in the superclass, we would go through and actually deal with axis
         # scales and box/datalim. Those are all irrelevant - all we need to do
         # is make sure our coordinate system is square.
-        trans = self.get_figure().transSubfigure
-        bb = mtransforms.Bbox.unit().transformed(trans)
-        # this is the physical aspect of the panel (or figure):
-        fig_aspect = bb.height / bb.width
-
-        box_aspect = 1
+        box_aspect = fig_aspect = 1
         pb = position.frozen()
         pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
         self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
@@ -1217,18 +1222,18 @@ class Axes3D(Axes):
 
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
+        aspect = self._roll_to_vertical(self._box_aspect * self._get_fig_aspect())
 
         # Transform to uniform world coordinates 0-1, 0-1, 0-1
-        box_aspect = self._roll_to_vertical(self._box_aspect)
         worldM = proj3d.world_transformation(
             *self.get_xlim3d(),
             *self.get_ylim3d(),
             *self.get_zlim3d(),
-            pb_aspect=box_aspect,
+            pb_aspect=aspect,
         )
 
         # Look into the middle of the world coordinates:
-        R = 0.5 * box_aspect
+        R = 0.5 * aspect
 
         # elev: elevation angle in the z plane.
         # azim: azimuth angle in the xy plane.
@@ -1270,8 +1275,7 @@ class Axes3D(Axes):
                                                  self._focal_length)
 
         # Combine all the transformation matrices to get the final projection
-        M0 = np.dot(viewM, worldM)
-        M = np.dot(projM, M0)
+        M = np.linalg.multi_dot([projM, viewM, worldM])
         return M
 
     def mouse_init(self, rotate_btn=1, pan_btn=2, zoom_btn=3):
@@ -1468,7 +1472,8 @@ class Axes3D(Axes):
             focal_length = 1e9  # large enough to be effectively infinite
         else:  # perspective projection
             focal_length = self._focal_length
-        eye = c + self._view_w * self._dist * r / self._box_aspect * focal_length
+        aspect = self._box_aspect * self._get_fig_aspect()
+        eye = c + self._view_w * self._dist * r / aspect * focal_length
         return eye
 
     def _calc_coord(self, xv, yv, renderer=None):
@@ -1657,7 +1662,7 @@ class Axes3D(Axes):
 
         # Transform the pan from the view axes to the data axes
         R = np.array([self._view_u, self._view_v, self._view_w])
-        R = -R / self._box_aspect * self._dist
+        R = -R / (self._box_aspect * self._get_fig_aspect()) * self._dist
         duvw_projected = R.T @ np.array([du, dv, dw])
 
         # Calculate pan distance
@@ -1682,7 +1687,7 @@ class Axes3D(Axes):
         roll_rad = np.deg2rad(art3d._norm_angle(self.roll))
 
         # Look into the middle of the world coordinates
-        R = 0.5 * self._roll_to_vertical(self._box_aspect)
+        R = 0.5 * self._roll_to_vertical(self._box_aspect * self._get_fig_aspect())
 
         # Define which axis should be vertical. A negative value
         # indicates the plot is upside down and therefore the values
