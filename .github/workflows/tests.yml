@@ -52,60 +52,30 @@ jobs:
             python-version: '3.11'
             extra-requirements: '-c requirements/testing/minver.txt'
             delete-font-cache: true
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: ubuntu-22.04
             python-version: '3.11'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
             extra-requirements: '-r requirements/testing/extra.txt'
           - os: ubuntu-22.04-arm
             python-version: '3.12'
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: ubuntu-22.04
             python-version: '3.13'
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
             python-version: '3.13t'
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: ubuntu-24.04
             python-version: '3.12'
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: macos-13  # This runner is on Intel chips.
             # merge numpy and pandas install in nighties test when this runner is dropped
             python-version: '3.10'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -274,7 +244,7 @@ jobs:
 
           # PyQt5 does not have any wheels for ARM on Linux.
           if [[ "${{ matrix.os }}" != 'ubuntu-22.04-arm' ]]; then
-            python -mpip install --upgrade --only-binary :all: pyqt5${{ matrix.pyqt5-ver }} &&
+            python -mpip install --upgrade --only-binary :all: pyqt5 &&
               python -c 'import PyQt5.QtCore' &&
               echo 'PyQt5 is available' ||
               echo 'PyQt5 is not available'
@@ -284,16 +254,16 @@ jobs:
           # on M1 macOS, so don't bother there either.
           if [[ "${{ matrix.os }}" != 'macos-14'
                 && "${{ matrix.python-version }}" != '3.12' && "${{ matrix.python-version }}" != '3.13' ]]; then
-            python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
+            python -mpip install --upgrade pyside2 &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
               echo 'PySide2 is not available'
           fi
-          python -mpip install --upgrade --only-binary :all: pyqt6${{ matrix.pyqt6-ver }} &&
+          python -mpip install --upgrade --only-binary :all: pyqt6 &&
             python -c 'import PyQt6.QtCore' &&
             echo 'PyQt6 is available' ||
             echo 'PyQt6 is not available'
-          python -mpip install --upgrade --only-binary :all: pyside6${{ matrix.pyside6-ver }} &&
+          python -mpip install --upgrade --only-binary :all: pyside6 &&
             python -c 'import PySide6.QtCore' &&
             echo 'PySide6 is available' ||
             echo 'PySide6 is not available'
