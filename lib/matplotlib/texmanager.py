@@ -200,14 +200,31 @@ class TexManager:
         font_preamble, fontcmd = cls._get_font_preamble_and_command()
         baselineskip = 1.25 * fontsize
         return "\n".join([
+            rf"% !TeX program = {mpl.rcParams['text.latex.engine']}",
             r"\documentclass{article}",
             r"% Pass-through \mathdefault, which is used in non-usetex mode",
             r"% to use the default text font but was historically suppressed",
             r"% in usetex mode.",
             r"\newcommand{\mathdefault}[1]{#1}",
-            font_preamble,
+            r"\usepackage{iftex}",
+            r"\ifpdftex",
             r"\usepackage[utf8]{inputenc}",
             r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
+            font_preamble,
+            r"\fi",
+            r"\ifluatex",
+            r"\begingroup\catcode`\%=12\relax\gdef\percent{%}\endgroup",
+            r"\directlua{",
+            r"  v = luaotfload.version",
+            r"  major, minor = string.match(v, '(\percent d+).(\percent d+)')",
+            r"  major = tonumber(major)",
+            r"  minor = tonumber(minor) - (string.sub(v, -4) == '-dev' and .5 or 0)",
+            r"  if major < 3 or major == 3 and minor < 15 then",
+            r"    tex.error(string.format(",
+            r"      'luaotfload>=3.15 is required; you have \percent s', v))",
+            r"  end",
+            r"}",
+            r"\fi",
             r"% geometry is loaded before the custom preamble as ",
             r"% convert_psfrags relies on a custom preamble to change the ",
             r"% geometry.",
@@ -277,7 +294,9 @@ class TexManager:
         Return the file name.
         """
         basefile = cls.get_basefile(tex, fontsize)
-        dvifile = '%s.dvi' % basefile
+        ext = {"latex": "dvi", "xelatex": "xdv", "lualatex": "dvi"}[
+            mpl.rcParams["text.latex.engine"]]
+        dvifile = f"{basefile}.{ext}"
         if not os.path.exists(dvifile):
             texfile = Path(cls.make_tex(tex, fontsize))
             # Generate the dvi in a temporary directory to avoid race
@@ -292,8 +311,13 @@ class TexManager:
             cwd = Path(dvifile).parent
             with TemporaryDirectory(dir=cwd) as tmpdir:
                 tmppath = Path(tmpdir)
+                cmd = {
+                    "latex": ["latex"],
+                    "xelatex": ["xelatex", "-no-pdf"],
+                    "lualatex": ["lualatex", "--output-format=dvi"],
+                }[mpl.rcParams["text.latex.engine"]]
                 cls._run_checked_subprocess(
-                    ["latex", "-interaction=nonstopmode", "--halt-on-error",
+                    [*cmd, "-interaction=nonstopmode", "--halt-on-error",
                      f"--output-directory={tmppath.name}",
                      f"{texfile.name}"], tex, cwd=cwd)
                 (tmppath / Path(dvifile).name).replace(dvifile)
