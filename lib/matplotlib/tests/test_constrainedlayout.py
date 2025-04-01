@@ -94,9 +94,6 @@ def test_constrained_layout5():
 @image_comparison(['constrained_layout6.png'], tol=0.002)
 def test_constrained_layout6():
     """Test constrained_layout for nested gridspecs"""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     fig = plt.figure(layout="constrained")
     gs = fig.add_gridspec(1, 2, figure=fig)
     gsl = gs[0].subgridspec(2, 2)
