@@ -23,53 +23,21 @@ def stackplot(axes, x, *args,
 
     Parameters
     ----------
-    x : array-like
+    x : (N, ) array-like
 
-    y : multiple array-like, 2D array-like or pandas.DataFrame
-
-        - multiple array-like: the data is unstacked
+    y : (M, N) array-like or pandas.DataFrame
+        The data is assumed to be unstacked. Each of the following
+        calls is legal::
         
-        .. code-block:: none
+            stackplot(x, y)           # where y = [y1, y2, y3, y4] 
+                                      # or y = pd.DataFrame(np.random.random((4, 3)),
+                                      # index=["category_A", "category_B", "category_C", "category_D"],
+                                      # columns=["period_1", "period_2", "period_3"])
 
-                  #     year_1,    year_2,    year_3
-                  y1 = [value_1_A, value_2_A, value_3_A] # category_A
-                  y2 = [value_1_B, value_2_B, value_3_B] # category_B
-                  y3 = [value_1_C, value_2_C, value_3_C] # category_C
+            stackplot(x, y1, y2, y3, y4) # where y1, y2, y3, y4 have length N
         
-                  x = [*range(3)]
+      
 
-        Example call:
-
-        .. code-block:: python
-
-            stackplot(x, y1, y2, y3)
-
-        - 2D array-like: Each row represents a category, each column represents an x-axis dimension associated with the categories. A list of 1D array-like can also be passed; each list item must have the same length
-
-        Example call:
-
-        .. code-block:: python
-        
-            y = [y1, y2, y3]
-            x = [*range(3)]
-
-            stackplot(x, y)    
-
-        - a `pandas.DataFrame`: The index is used for the categories, each column represents an x-axis dimension associated with the categories.
-
-        Example call:
-
-        .. code-block:: python
-
-            y = pd.DataFrame(
-                        np.random.random((3, 3)),
-                        index=["category_A", "category_B", "category_C"],
-                        columns=[*range(3)]
-                    )
-            
-            x = df.columns
-
-            stackplot(x, y)
 
     baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:
