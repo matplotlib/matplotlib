@@ -93,7 +93,7 @@ def test_diff_cell_table():
     cellText = [['1'] * len(cells)] * 2
     colWidths = [0.1] * len(cells)
 
-    _, axs = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
+    _, axs = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1), layout='tight')
     for ax, cell in zip(axs, cells):
         ax.table(
                 colWidths=colWidths,
@@ -102,7 +102,6 @@ def test_diff_cell_table():
                 edges=cell,
                 )
         ax.axis('off')
-    plt.tight_layout()
 
 
 def test_customcell():
