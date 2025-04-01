@@ -654,7 +654,6 @@ def test_surface3d():
 
 @image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20')
 def test_surface3d_label_offset_tick_position():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax = plt.figure().add_subplot(projection="3d")
 
     x, y = np.mgrid[0:6 * np.pi:0.25, 0:4 * np.pi:0.25]
@@ -764,7 +763,6 @@ def test_text3d():
 
     ax.text(1, 1, 1, "red", color='red')
     ax.text2D(0.05, 0.95, "2D Text", transform=ax.transAxes)
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_xlim3d(0, 10)
     ax.set_ylim3d(0, 10)
     ax.set_zlim3d(0, 10)
@@ -1243,7 +1241,6 @@ def test_proj_axes_cube():
     for x, y, t in zip(txs, tys, ts):
         ax.text(x, y, t)
 
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_xlim(-0.2, 0.2)
     ax.set_ylim(-0.2, 0.2)
 
@@ -1273,7 +1270,6 @@ def test_proj_axes_cube_ortho():
     for x, y, t in zip(txs, tys, ts):
         ax.text(x, y, t)
 
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax.set_xlim(-200, 200)
     ax.set_ylim(-200, 200)
 
@@ -1735,7 +1731,6 @@ def test_errorbar3d():
 
 @image_comparison(['stem3d.png'], style='mpl20', tol=0.009)
 def test_stem3d():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
                             constrained_layout=True,
                             subplot_kw={'projection': '3d'})

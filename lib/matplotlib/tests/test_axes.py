@@ -1027,9 +1027,6 @@ def test_hexbin_pickable():
 def test_hexbin_log():
     # Issue #1636 (and also test log scaled colorbar)
 
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     np.random.seed(19680801)
     n = 100000
     x = np.random.standard_normal(n)
@@ -1515,9 +1512,6 @@ def test_pcolormesh_log_scale(fig_test, fig_ref):
 
 @image_comparison(['pcolormesh_datetime_axis.png'], style='mpl20')
 def test_pcolormesh_datetime_axis():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
     base = datetime.datetime(2013, 1, 1)
