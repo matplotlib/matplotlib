@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <iterator>
+#include <map>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -361,8 +362,70 @@ void FT2Font::set_text(
         throw std::runtime_error("failed to layout text");
     }
 
+    std::vector<std::pair<size_t, const FT_Face&>> face_substitutions;
     std::set<FT_String*> glyph_seen_fonts;
     glyph_seen_fonts.insert(face->family_name);
+
+    // Attempt to use fallback fonts if necessary.
+    for (auto const& fallback : fallbacks) {
+        size_t num_glyphs = 0;
+        auto const& rq_glyphs = raqm_get_glyphs(rq, &num_glyphs);
+        bool new_fallback_used = false;
+
+        // Sort clusters (n.b. std::map is ordered), as RTL text will be returned in
+        // display, not source, order.
+        std::map<decltype(raqm_glyph_t::cluster), bool> cluster_missing;
+        for (size_t i = 0; i < num_glyphs; i++) {
+            auto const& rglyph = rq_glyphs[i];
+
+            // Sometimes multiple glyphs are necessary for a single cluster; if any are
+            // not found, we want to "poison" the whole set and keep them missing.
+            cluster_missing[rglyph.cluster] |= (rglyph.index == 0);
+        }
+
+        for (auto it = cluster_missing.cbegin(); it != cluster_missing.cend(); ) {
+            auto [cluster, missing] = *it;
+            ++it;  // Early change so we can access the next cluster below.
+            if (missing) {
+                auto next = (it != cluster_missing.cend()) ? it->first : text.size();
+                for (auto i = cluster; i < next; i++) {
+                    face_substitutions.emplace_back(i, fallback->face);
+                }
+                new_fallback_used = true;
+            }
+        }
+
+        if (!new_fallback_used) {
+            // If we never used a fallback, then we're good to go with the existing
+            // layout we have already made.
+            break;
+        }
+
+        // If a fallback was used, then re-attempt the layout with the new fonts.
+        if (!fallback->warn_if_used) {
+            glyph_seen_fonts.insert(fallback->face->family_name);
+        }
+
+        raqm_clear_contents(rq);
+        if (!raqm_set_text(rq,
+                           reinterpret_cast<const uint32_t *>(text.data()),
+                           text.size()))
+        {
+            throw std::runtime_error("failed to set text for layout");
+        }
+        if (!raqm_set_freetype_face(rq, face)) {
+            throw std::runtime_error("failed to set text face for layout");
+        }
+        for (auto [cluster, fallback] : face_substitutions) {
+            raqm_set_freetype_face_range(rq, fallback, cluster, 1);
+        }
+        if (!raqm_set_freetype_load_flags(rq, flags)) {
+            throw std::runtime_error("failed to set text flags for layout");
+        }
+        if (!raqm_layout(rq)) {
+            throw std::runtime_error("failed to layout text");
+        }
+    }
 
     size_t num_glyphs = 0;
     auto const& rq_glyphs = raqm_get_glyphs(rq, &num_glyphs);
