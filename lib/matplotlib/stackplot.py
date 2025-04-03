@@ -25,14 +25,11 @@ def stackplot(axes, x, *args,
     ----------
     x : (N, ) array-like
 
-    y : (M, N) array-like or pandas.DataFrame
-        The data is assumed to be unstacked. Each of the following
+    y : (M, N) array-like
+        The data can be either stacked or unstacked. Each of the following
         calls is legal::
         
-            stackplot(x, y)           # where y = [y1, y2, y3, y4] 
-                                      # or y = pd.DataFrame(np.random.random((4, 3)),
-                                      # index=["category_A", "category_B", "category_C", "category_D"],
-                                      # columns=["period_1", "period_2", "period_3"])
+            stackplot(x, y) # where y has shape (M, N) e.g. y = [y1, y2, y3, y4] 
 
             stackplot(x, y1, y2, y3, y4) # where y1, y2, y3, y4 have length N
         
