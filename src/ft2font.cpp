@@ -444,13 +444,61 @@ void FT2Font::set_text(
         throw std::runtime_error("failed to set text flags for layout");
     }
 
-    std::set<FT_String*> glyph_seen_fonts;
-    glyph_seen_fonts.insert(face->family_name);
-
     if (!raqm_layout(rq)) {
         throw std::runtime_error("failed to layout text");
     }
 
+    std::vector<std::pair<size_t, const FT_Face&>> face_substitutions;
+    std::set<FT_String*> glyph_seen_fonts;
+    glyph_seen_fonts.insert(face->family_name);
+
+    // Attempt to use fallback fonts if necessary.
+    for (auto const& fallback : fallbacks) {
+        size_t num_glyphs = 0;
+        auto const& rq_glyphs = raqm_get_glyphs(rq, &num_glyphs);
+        bool new_fallback_used = false;
+
+        for (size_t i = 0; i < num_glyphs; i++) {
+            auto const& rglyph = rq_glyphs[i];
+
+            if (rglyph.index == 0) {
+                face_substitutions.emplace_back(rglyph.cluster, fallback->face);
+                new_fallback_used = true;
+            }
+        }
+
+        if (new_fallback_used) {
+            // If a fallback was used, then re-attempt the layout with the new fonts.
+            if (!fallback->warn_if_used) {
+                glyph_seen_fonts.insert(fallback->face->family_name);
+            }
+
+            raqm_clear_contents(rq);
+            if (!raqm_set_text(rq,
+                               reinterpret_cast<const uint32_t *>(text.data()),
+                               text.size()))
+            {
+                throw std::runtime_error("failed to set text for layout");
+            }
+            if (!raqm_set_freetype_face(rq, face)) {
+                throw std::runtime_error("failed to set text face for layout");
+            }
+            for (auto [cluster, face] : face_substitutions) {
+                raqm_set_freetype_face_range(rq, face, cluster, 1);
+            }
+            if (!raqm_set_freetype_load_flags(rq, flags)) {
+                throw std::runtime_error("failed to set text flags for layout");
+            }
+
+            if (!raqm_layout(rq)) {
+                throw std::runtime_error("failed to layout text");
+            }
+        } else {
+            // If we never used a fallback, then we're good to go with the existing
+            // layout we have already made.
+            break;
+        }
+    }
 
     size_t num_glyphs = 0;
     auto const& rq_glyphs = raqm_get_glyphs(rq, &num_glyphs);
