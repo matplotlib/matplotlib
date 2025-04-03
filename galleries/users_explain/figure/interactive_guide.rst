@@ -113,8 +113,8 @@ Blocking the prompt
 The simplest solution is to start the GUI event loop and let it run
 exclusively, which results in responsive figure windows. However, the
 CLI event loop will not run, so that you cannot enter new commands.
-We call this "blocking" mode. (your terminal may echo the typed characters,
-but they will not yet be processed by th CLI event loop because the Python
+We call this "blocking" mode. (Your terminal may echo the typed characters,
+but they will not yet be processed by the CLI event loop because the Python
 interpreter is busy running the GUI event loop).
 
 It is possible to stop the GUI event loop and return control to the CLI
