@@ -1126,7 +1126,7 @@ def test_check_radio_buttons_image():
         check_props={'color': ['red', 'green', 'blue']})
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_radio_buttons(fig_test, fig_ref):
     widgets.RadioButtons(fig_test.subplots(), ["tea", "coffee"])
     ax = fig_ref.add_subplot(xticks=[], yticks=[])
@@ -1136,7 +1136,7 @@ def test_radio_buttons(fig_test, fig_ref):
     ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_radio_buttons_props(fig_test, fig_ref):
     label_props = {'color': ['red'], 'fontsize': [24]}
     radio_props = {'facecolor': 'green', 'edgecolor': 'blue', 'linewidth': 2}
@@ -1160,7 +1160,7 @@ def test_radio_button_active_conflict(ax):
     assert mcolors.same_color(rb._buttons.get_facecolor(), ['green', 'none'])
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_radio_buttons_activecolor_change(fig_test, fig_ref):
     widgets.RadioButtons(fig_ref.subplots(), ['tea', 'coffee'],
                          activecolor='green')
@@ -1171,7 +1171,7 @@ def test_radio_buttons_activecolor_change(fig_test, fig_ref):
     cb.activecolor = 'green'
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_check_buttons(fig_test, fig_ref):
     widgets.CheckButtons(fig_test.subplots(), ["tea", "coffee"], [True, True])
     ax = fig_ref.add_subplot(xticks=[], yticks=[])
@@ -1183,7 +1183,7 @@ def test_check_buttons(fig_test, fig_ref):
     ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_check_button_props(fig_test, fig_ref):
     label_props = {'color': ['red'], 'fontsize': [24]}
     frame_props = {'facecolor': 'green', 'edgecolor': 'blue', 'linewidth': 2}
@@ -1536,7 +1536,7 @@ def test_polygon_selector_set_props_handle_props(ax, draw_bounding_box):
         assert artist.get_alpha() == 0.3
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_rect_visibility(fig_test, fig_ref):
     # Check that requesting an invisible selector makes it invisible
     ax_test = fig_test.subplots()
@@ -1604,7 +1604,7 @@ def test_polygon_selector_redraw(ax, draw_bounding_box):
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box):
     verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
     ax_test = fig_test.add_subplot()

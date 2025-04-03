@@ -83,7 +83,7 @@ def test_spines_data_positions():
     ax.set_ylim([-2, 2])
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_spine_nonlinear_data_positions(fig_test, fig_ref):
     plt.style.use("default")
 

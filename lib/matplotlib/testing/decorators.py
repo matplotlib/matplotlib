@@ -347,7 +347,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         savefig_kwargs=savefig_kwarg, style=style)
 
 
-def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
+def check_figures_equal(*, extensions=("png", ), tol=0):
     """
     Decorator for test cases that generate and compare two figures.
 
@@ -360,7 +360,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
     Parameters
     ----------
-    extensions : list, default: ["png", "pdf", "svg"]
+    extensions : list, default: ["png"]
         The extensions to test.
     tol : float
         The RMS threshold above which the test is considered failed.

@@ -848,7 +848,7 @@ def test_colorbar_change_lim_scale():
     cb.ax.set_ylim([20, 90])
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_axes_handles_same_functions(fig_ref, fig_test):
     # prove that cax and cb.ax are functionally the same
     for nn, fig in enumerate([fig_ref, fig_test]):
@@ -894,7 +894,7 @@ def test_twoslope_colorbar():
     fig.colorbar(pc)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_remove_cb_whose_mappable_has_no_figure(fig_ref, fig_test):
     ax = fig_test.add_subplot()
     cb = fig_test.colorbar(cm.ScalarMappable(), cax=ax)
@@ -1178,7 +1178,7 @@ def test_title_text_loc():
             cb.ax.spines['outline'].get_window_extent().ymax)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_passing_location(fig_ref, fig_test):
     ax_ref = fig_ref.add_subplot()
     im = ax_ref.imshow([[0, 1], [2, 3]])

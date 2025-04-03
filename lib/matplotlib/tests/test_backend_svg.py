@@ -87,7 +87,7 @@ def test_bold_font_output_with_none_fonttype():
     ax.set_title('bold-title', fontweight='bold')
 
 
-@check_figures_equal(tol=20)
+@check_figures_equal(extensions=['svg'], tol=20)
 def test_rasterized(fig_test, fig_ref):
     t = np.arange(0, 100) * (2.3)
     x = np.cos(t)

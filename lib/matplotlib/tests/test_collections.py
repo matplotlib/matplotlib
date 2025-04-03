@@ -334,7 +334,7 @@ def test_add_collection():
 
 
 @mpl.style.context('mpl20')
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_collection_log_datalim(fig_test, fig_ref):
     # Data limits should respect the minimum x/y when using log scale.
     x_vals = [4.38462e-6, 5.54929e-6, 7.02332e-6, 8.88889e-6, 1.12500e-5,
@@ -831,7 +831,7 @@ def test_collection_set_verts_array():
         assert np.array_equal(ap._codes, atp._codes)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 @pytest.mark.parametrize("kwargs", [{}, {"step": "pre"}])
 def test_fill_between_poly_collection_set_data(fig_test, fig_ref, kwargs):
     t = np.linspace(0, 16)
@@ -1306,7 +1306,7 @@ def test_check_masked_offsets():
     ax.scatter(unmasked_x, masked_y)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_masked_set_offsets(fig_ref, fig_test):
     x = np.ma.array([1, 2, 3, 4, 5], mask=[0, 0, 1, 1, 0])
     y = np.arange(1, 6)
@@ -1340,7 +1340,7 @@ def test_check_offsets_dtype():
 
 
 @pytest.mark.parametrize('gapcolor', ['orange', ['r', 'k']])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_striped_lines(fig_test, fig_ref, gapcolor):
     ax_test = fig_test.add_subplot(111)
     ax_ref = fig_ref.add_subplot(111)

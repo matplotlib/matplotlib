@@ -649,7 +649,7 @@ def test_savefig_locate_colorbar():
 
 
 @mpl.rc_context({"savefig.transparent": True})
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_savefig_transparent(fig_test, fig_ref):
     # create two transparent subfigures with corresponding transparent inset
     # axes. the entire background of the image should be transparent.
@@ -742,7 +742,7 @@ def test_invalid_layouts():
         fig.set_layout_engine("constrained")
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_tightlayout_autolayout_deconflict(fig_test, fig_ref):
     for fig, autolayout in zip([fig_ref, fig_test], [False, True]):
         with mpl.rc_context({'figure.autolayout': autolayout}):
@@ -1002,7 +1002,7 @@ def test_animated_with_canvas_change(fig_test, fig_ref):
 
 
 class TestSubplotMosaic:
-    @check_figures_equal(extensions=["png"])
+    @check_figures_equal()
     @pytest.mark.parametrize(
         "x", [
             [["A", "A", "B"], ["C", "D", "B"]],
@@ -1034,7 +1034,7 @@ class TestSubplotMosaic:
         axD = fig_ref.add_subplot(gs[1, 1])
         axD.set_title(labels[3])
 
-    @check_figures_equal(extensions=["png"])
+    @check_figures_equal()
     def test_all_nested(self, fig_test, fig_ref):
         x = [["A", "B"], ["C", "D"]]
         y = [["E", "F"], ["G", "H"]]
@@ -1057,7 +1057,7 @@ class TestSubplotMosaic:
             for k, label in enumerate(r):
                 fig_ref.add_subplot(gs_right[j, k]).set_title(label)
 
-    @check_figures_equal(extensions=["png"])
+    @check_figures_equal()
     def test_nested(self, fig_test, fig_ref):
 
         fig_ref.set_layout_engine("constrained")
@@ -1091,7 +1091,7 @@ class TestSubplotMosaic:
         axF = fig_ref.add_subplot(gs[0, 0])
         axF.set_title("F")
 
-    @check_figures_equal(extensions=["png"])
+    @check_figures_equal()
     def test_nested_tuple(self, fig_test, fig_ref):
         x = [["A", "B", "B"], ["C", "C", "D"]]
         xt = (("A", "B", "B"), ("C", "C", "D"))
@@ -1119,7 +1119,7 @@ class TestSubplotMosaic:
         assert axd["D"].get_gridspec().get_height_ratios() == height_ratios
         assert axd["B"].get_gridspec().get_height_ratios() != height_ratios
 
-    @check_figures_equal(extensions=["png"])
+    @check_figures_equal()
     @pytest.mark.parametrize(
         "x, empty_sentinel",
         [
@@ -1164,7 +1164,7 @@ class TestSubplotMosaic:
         with pytest.raises(ValueError, match='must be 2D'):
             plt.subplot_mosaic([['a', 'b'], [('a', 'b'), 'c']])
 
-    @check_figures_equal(extensions=["png"])
+    @check_figures_equal()
     @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])
     def test_subplot_kw(self, fig_test, fig_ref, subplot_kw):
         x = [[1, 2]]
@@ -1176,7 +1176,7 @@ class TestSubplotMosaic:
 
         axB = fig_ref.add_subplot(gs[0, 1], **subplot_kw)
 
-    @check_figures_equal(extensions=["png"])
+    @check_figures_equal()
     @pytest.mark.parametrize("multi_value", ['BC', tuple('BC')])
     def test_per_subplot_kw(self, fig_test, fig_ref, multi_value):
         x = 'AB;CD'
@@ -1231,7 +1231,7 @@ class TestSubplotMosaic:
         ):
             Figure().subplot_mosaic("A", per_subplot_kw={"B": {}})
 
-    @check_figures_equal(extensions=["png"])
+    @check_figures_equal()
     @pytest.mark.parametrize("str_pattern",
                              ["AAA\nBBB", "\nAAA\nBBB\n", "ABC\nDEF"]
                              )
@@ -1268,7 +1268,7 @@ class TestSubplotMosaic:
         with pytest.raises(ValueError, match=match):
             fig.subplot_mosaic(x)
 
-    @check_figures_equal(extensions=["png"])
+    @check_figures_equal()
     def test_hashable_keys(self, fig_test, fig_ref):
         fig_test.subplot_mosaic([[object(), object()]])
         fig_ref.subplot_mosaic([["A", "B"]])
@@ -1645,7 +1645,7 @@ def test_kwargs_pass():
     assert sub_fig.get_label() == 'sub figure'
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_rcparams(fig_test, fig_ref):
     fig_ref.supxlabel("xlabel", weight='bold', size=15)
     fig_ref.supylabel("ylabel", weight='bold', size=15)

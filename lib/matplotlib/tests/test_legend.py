@@ -306,7 +306,7 @@ def test_reverse_legend_handles_and_labels():
     assert actual_markers == list(reversed(markers))
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_reverse_legend_display(fig_test, fig_ref):
     """Check that the rendered legend entries are reversed"""
     ax = fig_test.subplots()
@@ -1262,7 +1262,7 @@ def test_legend_markers_from_line2d():
     assert labels == new_labels
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_ncol_ncols(fig_test, fig_ref):
     # Test that both ncol and ncols work
     strings = ["a", "b", "c", "d", "e", "f"]
