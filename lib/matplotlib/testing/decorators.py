@@ -361,7 +361,12 @@ def check_figures_equal(*, extensions=("png", ), tol=0):
     Parameters
     ----------
     extensions : list, default: ["png"]
-        The extensions to test.
+        The extensions to test. Supported extensions are "png", "pdf", "svg".
+
+        Testing with the one default extension is sufficient if the output is not
+        format dependent, e.g. if you test that a ``bar()`` plot yields the same
+        result as some manually placed Rectangles. You should use all extensions
+        if a renderer property is involved, e.g. correct alpha blending.
     tol : float
         The RMS threshold above which the test is considered failed.
 
