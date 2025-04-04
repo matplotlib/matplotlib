@@ -14,7 +14,7 @@ def test_indicate_inset_no_args():
         ax.indicate_inset()
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_zoom_inset_update_limits(fig_test, fig_ref):
     # Updating the inset axes limits should also update the indicator #19768
     ax_ref = fig_ref.add_subplot()

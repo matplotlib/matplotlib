@@ -660,7 +660,7 @@ def test_divider_errors(anchor, error, message):
                 anchor=anchor)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_mark_inset_unstales_viewlim(fig_test, fig_ref):
     inset, full = fig_test.subplots(1, 2)
     full.plot([0, 5], [0, 5])
