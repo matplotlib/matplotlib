@@ -30,7 +30,6 @@ def stackplot(axes, x, *args,
         calls is legal::
         
             stackplot(x, y) # where y has shape (M, N) e.g. y = [y1, y2, y3, y4] 
-
             stackplot(x, y1, y2, y3, y4) # where y1, y2, y3, y4 have length N
         
       
