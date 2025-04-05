@@ -24,7 +24,7 @@ dependencies:
   - pillow>=9
   - pkg-config
   - pygobject
-  - pyparsing>=2.3.1
+  - pyparsing>=3
   - pyqt
   - python>=3.10
   - python-dateutil>=2.1
