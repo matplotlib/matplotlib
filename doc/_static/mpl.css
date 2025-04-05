@@ -208,3 +208,15 @@ div.wide-table table th.stub {
 .section-toc.toctree-wrapper .toctree-l1>ul{
     padding-left: 0;
 }
+
+.sidebar-cheatsheets {
+    margin-bottom: 3em;
+}
+
+.sidebar-cheatsheets > h3 {
+    margin-top: 0;
+}
+
+.sidebar-cheatsheets > img {
+    width: 100%;
+}
