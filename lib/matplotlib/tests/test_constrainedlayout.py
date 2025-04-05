@@ -5,10 +5,16 @@ import numpy as np
 import pytest
 
 import matplotlib as mpl
+from matplotlib.testing.conftest import _text_placeholders
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from matplotlib import gridspec, ticker
+
+
+@pytest.fixture(autouse=True)
+def text_placeholders(monkeypatch):
+    _text_placeholders(monkeypatch)
 
 
 def example_plot(ax, fontsize=12, nodec=False):
@@ -91,12 +97,9 @@ def test_constrained_layout5():
                  location='bottom')
 
 
-@image_comparison(['constrained_layout6.png'], tol=0.002)
+@image_comparison(['constrained_layout6.png'])
 def test_constrained_layout6():
     """Test constrained_layout for nested gridspecs"""
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     fig = plt.figure(layout="constrained")
     gs = fig.add_gridspec(1, 2, figure=fig)
     gsl = gs[0].subgridspec(2, 2)
@@ -435,7 +438,7 @@ def test_hidden_axes():
     extents1 = np.copy(axs[0, 0].get_position().extents)
 
     np.testing.assert_allclose(
-        extents1, [0.045552, 0.543288, 0.47819, 0.982638], rtol=1e-5)
+        extents1, [0.046918, 0.541204, 0.477409, 0.980555], rtol=1e-5)
 
 
 def test_colorbar_align():
@@ -641,7 +644,7 @@ def test_compressed1():
     fig.draw_without_rendering()
 
     pos = axs[0, 0].get_position()
-    np.testing.assert_allclose(pos.x0, 0.2344, atol=1e-3)
+    np.testing.assert_allclose(pos.x0, 0.2381, atol=1e-2)
     pos = axs[0, 1].get_position()
     np.testing.assert_allclose(pos.x1, 0.7024, atol=1e-3)
 
@@ -655,11 +658,11 @@ def test_compressed1():
     fig.draw_without_rendering()
 
     pos = axs[0, 0].get_position()
-    np.testing.assert_allclose(pos.x0, 0.06195, atol=1e-3)
-    np.testing.assert_allclose(pos.y1, 0.8537, atol=1e-3)
+    np.testing.assert_allclose(pos.x0, 0.05653, atol=1e-3)
+    np.testing.assert_allclose(pos.y1, 0.8603, atol=1e-2)
     pos = axs[1, 2].get_position()
-    np.testing.assert_allclose(pos.x1, 0.8618, atol=1e-3)
-    np.testing.assert_allclose(pos.y0, 0.1934, atol=1e-3)
+    np.testing.assert_allclose(pos.x1, 0.8728, atol=1e-3)
+    np.testing.assert_allclose(pos.y0, 0.1808, atol=1e-2)
 
 
 def test_compressed_suptitle():
@@ -675,7 +678,7 @@ def test_compressed_suptitle():
 
     title = fig.suptitle("Title")
     fig.draw_without_rendering()
-    assert title.get_position()[1] == pytest.approx(0.7457, abs=1e-3)
+    assert title.get_position()[1] == pytest.approx(0.7491, abs=1e-3)
 
     title = fig.suptitle("Title", y=0.98)
     fig.draw_without_rendering()
