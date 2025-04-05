@@ -53,7 +53,7 @@ dependencies:
   # testing
   - black<24
   - coverage
-  - flake8>=3.8
+  - flake8>=3.8,<7.2
   - flake8-docstrings>=1.4.0
   - gtk4
   - ipykernel
