@@ -7,9 +7,6 @@ from matplotlib.testing.decorators import image_comparison
 @image_comparison(baseline_images=['agg_filter_alpha'],
                   extensions=['gif', 'png', 'pdf'])
 def test_agg_filter_alpha():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     ax = plt.axes()
     x, y = np.mgrid[0:7, 0:8]
     data = x**2 - y**2

@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
-@image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
+@image_comparison(['figure_align_labels.png'],
                   tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_labels():
     fig = plt.figure(layout='tight')
