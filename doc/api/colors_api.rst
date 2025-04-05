@@ -96,3 +96,5 @@ as dictionaries that map color names to hex strings.
 .. py:data:: CSS4_COLORS
 
 .. py:data:: XKCD_COLORS
+
+.. py:data:: SPECTRAL_COLORS
