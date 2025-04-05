@@ -2611,10 +2611,16 @@ class PolyQuadMesh(_MeshData, PolyCollection):
         arr = self.get_array()
         if arr is not None:
             arr = np.ma.getmaskarray(arr)
-            if arr.ndim == 3:
+            if self.norm.n_input > 1:
+                # multivar case
+                for a in mcolors.MultiNorm._iterable_variates_in_data(
+                                                arr, self.norm.n_input):
+                    mask |= np.any(a, axis=0)
+            elif arr.ndim == 3:
                 # RGB(A) case
                 mask |= np.any(arr, axis=-1)
             elif arr.ndim == 2:
+                # scalar case
                 mask |= arr
             else:
                 mask |= arr.reshape(self._coordinates[:-1, :-1, :].shape[:2])
