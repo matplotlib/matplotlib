@@ -97,6 +97,13 @@ class Text(Artist):
 
     zorder = 3
     _charsize_cache = dict()
+    _draw_bbox_only = False
+    """
+    A helper flag to replace texts by a bounding box. This is primarily
+    intended for use in figure comparison tests.
+    For sipmlicity, the flag is evaluated at draw time and thus applies
+    to all drawn text.
+    """
 
     def __repr__(self):
         return f"Text({self._x}, {self._y}, {self._text!r})"
@@ -778,6 +785,9 @@ class Text(Artist):
 
             # Update the location and size of the bbox
             # (`.patches.FancyBboxPatch`), and draw it.
+            if self._draw_bbox_only:
+                self.set_bbox(dict(facecolor='none', edgecolor='red', pad=0))
+
             if self._bbox_patch:
                 self.update_bbox_position_size(renderer)
                 self._bbox_patch.draw(renderer)
@@ -792,6 +802,9 @@ class Text(Artist):
             angle = self.get_rotation()
 
             for line, wh, x, y in info:
+
+                if self._draw_bbox_only:
+                    break
 
                 mtext = self if len(info) == 1 else None
                 x = x + posx

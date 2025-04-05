@@ -15,6 +15,7 @@ import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
 from matplotlib import _pylab_helpers, cbook, ft2font, pyplot as plt, ticker
+import matplotlib.text as mtext
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -117,11 +118,12 @@ class _ImageComparisonBase:
     any code that would be specific to any testing framework.
     """
 
-    def __init__(self, func, tol, remove_text, savefig_kwargs):
+    def __init__(self, func, tol, remove_text, replace_text, savefig_kwargs):
         self.func = func
         self.baseline_dir, self.result_dir = _image_directories(func)
         self.tol = tol
         self.remove_text = remove_text
+        self.replace_text = replace_text
         self.savefig_kwargs = savefig_kwargs
 
     def copy_baseline(self, baseline, extension):
@@ -164,19 +166,23 @@ class _ImageComparisonBase:
         lock = (cbook._lock_path(actual_path)
                 if _lock else contextlib.nullcontext())
         with lock:
+            if self.replace_text:
+                mtext.Text._draw_bbox_only = True
             try:
                 fig.savefig(actual_path, **kwargs)
             finally:
                 # Matplotlib has an autouse fixture to close figures, but this
                 # makes things more convenient for third-party users.
                 plt.close(fig)
+            if self.replace_text:
+                mtext.Text._draw_bbox_only = False
             expected_path = self.copy_baseline(baseline, extension)
             _raise_on_image_difference(expected_path, actual_path, self.tol)
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
-                             freetype_version, remove_text, savefig_kwargs,
-                             style):
+                             freetype_version, remove_text, replace_text,
+                             savefig_kwargs, style):
     """
     Decorate function with image comparison for pytest.
 
@@ -212,6 +218,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 pytest.skip(f"Cannot compare {extension} files {reason}")
 
             img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
+                                       replace_text=replace_text,
                                        savefig_kwargs=savefig_kwargs)
             matplotlib.testing.set_font_settings_for_testing()
 
@@ -259,6 +266,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
 
 def image_comparison(baseline_images, extensions=None, tol=0,
                      freetype_version=None, remove_text=False,
+                     replace_text=False,
                      savefig_kwarg=None,
                      # Default of mpl_test_settings fixture and cleanup too.
                      style=("classic", "_classic_test_patch")):
@@ -344,6 +352,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     return _pytest_image_comparison(
         baseline_images=baseline_images, extensions=extensions, tol=tol,
         freetype_version=freetype_version, remove_text=remove_text,
+        replace_text=replace_text,
         savefig_kwargs=savefig_kwarg, style=style)
 
 

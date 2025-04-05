@@ -1190,3 +1190,15 @@ def test_ytick_rotation_mode():
         tick.set_rotation(angle)
 
     plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)
+
+
+@image_comparison(baseline_images=['replace_text'],
+                  replace_text=True, extensions=['png'], style='mpl20')
+def test_replace_text():
+    fig, ax = plt.subplots()
+    ax.plot([2, 1], label='line 1')
+    ax.plot([3, 2], label='line 2')
+    ax.legend(title='mylegend')
+    ax.set_title('testing text replacement')
+    ax.set_xlabel('xlabel')
+    ax.set_ylabel('ylabel')
