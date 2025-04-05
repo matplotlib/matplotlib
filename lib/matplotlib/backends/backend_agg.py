@@ -182,14 +182,15 @@ class RendererAgg(RendererBase):
         y = round(y - oy + yd)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None,
+                  language=None):
         # docstring inherited
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         font = self._prepare_font(prop)
         # We pass '0' for angle here, since it will be rotated (in raster
         # space) in the following call to draw_text_image).
-        font.set_text(s, 0, flags=get_hinting_flag())
+        font.set_text(s, 0, flags=get_hinting_flag(), language=language)
         font.draw_glyphs_to_bitmap(
             antialiased=gc.get_antialiased())
         d = font.get_descent() / 64.0
@@ -203,7 +204,7 @@ class RendererAgg(RendererBase):
         y = round(y + yo + yd)
         self._renderer.draw_text_image(font, x, y + 1, angle, gc)
 
-    def get_text_width_height_descent(self, s, prop, ismath):
+    def get_text_width_height_descent(self, s, prop, ismath, language=None):
         # docstring inherited
 
         _api.check_in_list(["TeX", True, False], ismath=ismath)
@@ -216,7 +217,7 @@ class RendererAgg(RendererBase):
             return width, height, descent
 
         font = self._prepare_font(prop)
-        font.set_text(s, 0.0, flags=get_hinting_flag())
+        font.set_text(s, 0.0, flags=get_hinting_flag(), language=language)
         w, h = font.get_width_height()  # width and height of unrotated string
         d = font.get_descent()
         w /= 64.0  # convert from subpixels
