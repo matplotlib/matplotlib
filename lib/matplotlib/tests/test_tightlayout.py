@@ -11,6 +11,11 @@ from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
 from matplotlib.patches import Rectangle
 
 
+pytestmark = [
+    pytest.mark.usefixtures('text_placeholders')
+]
+
+
 def example_plot(ax, fontsize=12):
     ax.plot([1, 2])
     ax.locator_params(nbins=3)
@@ -19,7 +24,7 @@ def example_plot(ax, fontsize=12):
     ax.set_title('Title', fontsize=fontsize)
 
 
-@image_comparison(['tight_layout1'], tol=1.9)
+@image_comparison(['tight_layout1'], style='mpl20')
 def test_tight_layout1():
     """Test tight_layout for a single subplot."""
     fig, ax = plt.subplots()
@@ -27,7 +32,7 @@ def test_tight_layout1():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout2'])
+@image_comparison(['tight_layout2'], style='mpl20')
 def test_tight_layout2():
     """Test tight_layout for multiple subplots."""
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
@@ -38,7 +43,7 @@ def test_tight_layout2():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout3'])
+@image_comparison(['tight_layout3'], style='mpl20')
 def test_tight_layout3():
     """Test tight_layout for multiple subplots."""
     ax1 = plt.subplot(221)
@@ -50,8 +55,7 @@ def test_tight_layout3():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout4'], freetype_version=('2.5.5', '2.6.1'),
-                  tol=0.015)
+@image_comparison(['tight_layout4'], style='mpl20')
 def test_tight_layout4():
     """Test tight_layout for subplot2grid."""
     ax1 = plt.subplot2grid((3, 3), (0, 0))
@@ -65,7 +69,7 @@ def test_tight_layout4():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout5'])
+@image_comparison(['tight_layout5'], style='mpl20')
 def test_tight_layout5():
     """Test tight_layout for image."""
     ax = plt.subplot()
@@ -74,7 +78,7 @@ def test_tight_layout5():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout6'])
+@image_comparison(['tight_layout6'], style='mpl20')
 def test_tight_layout6():
     """Test tight_layout for gridspec."""
 
@@ -116,7 +120,7 @@ def test_tight_layout6():
                          h_pad=0.45)
 
 
-@image_comparison(['tight_layout7'], tol=1.9)
+@image_comparison(['tight_layout7'], style='mpl20')
 def test_tight_layout7():
     # tight layout with left and right titles
     fontsize = 24
@@ -130,7 +134,7 @@ def test_tight_layout7():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout8'], tol=0.005)
+@image_comparison(['tight_layout8'], style='mpl20', tol=0.005)
 def test_tight_layout8():
     """Test automatic use of tight_layout."""
     fig = plt.figure()
@@ -140,7 +144,7 @@ def test_tight_layout8():
     fig.draw_without_rendering()
 
 
-@image_comparison(['tight_layout9'])
+@image_comparison(['tight_layout9'], style='mpl20')
 def test_tight_layout9():
     # Test tight_layout for non-visible subplots
     # GH 8244
@@ -174,10 +178,10 @@ def test_outward_ticks():
     # These values were obtained after visual checking that they correspond
     # to a tight layouting that did take the ticks into account.
     expected = [
-        [[0.091, 0.607], [0.433, 0.933]],
-        [[0.579, 0.607], [0.922, 0.933]],
-        [[0.091, 0.140], [0.433, 0.466]],
-        [[0.579, 0.140], [0.922, 0.466]],
+        [[0.092, 0.605], [0.433, 0.933]],
+        [[0.581, 0.605], [0.922, 0.933]],
+        [[0.092, 0.138], [0.433, 0.466]],
+        [[0.581, 0.138], [0.922, 0.466]],
     ]
     for nn, ax in enumerate(fig.axes):
         assert_array_equal(np.round(ax.get_position().get_points(), 3),
