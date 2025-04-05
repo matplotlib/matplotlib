@@ -125,3 +125,39 @@ def xr():
 
     xr = pytest.importorskip('xarray')
     return xr
+
+
+def _text_placeholders(monkeypatch):
+    from matplotlib.patches import Rectangle
+
+    def patched_get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
+        """
+        Replace ``_get_text_metrics_with_cache`` with fixed results.
+
+        The usual ``renderer.get_text_width_height_descent`` would depend on font
+        metrics; instead the fixed results are based on font size and the length of the
+        string only.
+        """
+        height = fontprop.get_size()
+        width = len(text) * height / 1.618  # Golden ratio for character size.
+        return width, height, 0
+
+    def patched_text_draw(self, renderer):
+        """
+        Replace ``Text.draw`` with a fixed bounding box Rectangle.
+
+        The bounding box corresponds to ``Text.get_window_extent``, which ultimately
+        depends on the above patched ``_get_text_metrics_with_cache``.
+        """
+        if renderer is not None:
+            self._renderer = renderer
+        if not self.get_visible():
+            return
+        if self.get_text() == '':
+            return
+        bbox = self.get_window_extent()
+        Rectangle(bbox.p0, bbox.width, bbox.height, color='grey').draw(renderer)
+
+    monkeypatch.setattr('matplotlib.text._get_text_metrics_with_cache',
+                        patched_get_text_metrics_with_cache)
+    monkeypatch.setattr('matplotlib.text.Text.draw', patched_text_draw)

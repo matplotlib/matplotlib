@@ -5,10 +5,16 @@ from numpy.testing import assert_array_equal
 import pytest
 
 import matplotlib as mpl
+from matplotlib.testing.conftest import _text_placeholders
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
 from matplotlib.patches import Rectangle
+
+
+@pytest.fixture(autouse=True)
+def text_placeholders(monkeypatch):
+    _text_placeholders(monkeypatch)
 
 
 def example_plot(ax, fontsize=12):
@@ -174,10 +180,10 @@ def test_outward_ticks():
     # These values were obtained after visual checking that they correspond
     # to a tight layouting that did take the ticks into account.
     expected = [
-        [[0.091, 0.607], [0.433, 0.933]],
-        [[0.579, 0.607], [0.922, 0.933]],
-        [[0.091, 0.140], [0.433, 0.466]],
-        [[0.579, 0.140], [0.922, 0.466]],
+        [[0.092, 0.605], [0.433, 0.933]],
+        [[0.581, 0.605], [0.922, 0.933]],
+        [[0.092, 0.138], [0.433, 0.466]],
+        [[0.581, 0.138], [0.922, 0.466]],
     ]
     for nn, ax in enumerate(fig.axes):
         assert_array_equal(np.round(ax.get_position().get_points(), 3),
