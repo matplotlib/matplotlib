@@ -55,8 +55,6 @@ dependencies:
   # testing
   - black<24
   - coverage
-  - flake8>=3.8,<7.2
-  - flake8-docstrings>=1.4.0
   - gtk4
   - ipykernel
   - nbconvert[execute]!=6.0.0,!=6.0.1,!=7.3.0,!=7.3.1
@@ -72,4 +70,5 @@ dependencies:
   - pytest-xdist
   - tornado
   - pytz
+  - ruff
   - tox
