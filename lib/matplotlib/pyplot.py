@@ -1711,7 +1711,7 @@ def subplots(
 
         Typical idioms for handling the return value are::
 
-            # using the variable ax for single a Axes
+            # using the variable ax for a single Axes
             fig, ax = plt.subplots()
 
             # using the variable axs for multiple Axes
