@@ -238,6 +238,7 @@ def boilerplate_gen():
         'fill_between',
         'fill_betweenx',
         'grid',
+        'grouped_bar',
         'hexbin',
         'hist',
         'stairs',
