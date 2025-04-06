@@ -42,13 +42,13 @@ def test_usetex():
     ax.set_axis_off()
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_empty(fig_test, fig_ref):
     mpl.rcParams['text.usetex'] = True
     fig_test.text(.5, .5, "% a comment")
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_unicode_minus(fig_test, fig_ref):
     mpl.rcParams['text.usetex'] = True
     fig_test.text(.5, .5, "$-$")

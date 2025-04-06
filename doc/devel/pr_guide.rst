@@ -41,7 +41,7 @@ guidelines before submitting a pull request:
 * For high-level plotting functions, consider adding a small example to the
   :ref:`examples gallery <gallery>`.
 
-* If you add a major new feature or change the API in a backward-incompatible
+* If you add a new feature or change the API in a backward-incompatible
   way, please document it as described in :ref:`api_changes`.
 
 * Code should follow our conventions as documented in our :ref:`coding_guidelines`.

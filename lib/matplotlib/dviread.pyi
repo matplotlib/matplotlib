@@ -1,3 +1,4 @@
+import dataclasses
 from pathlib import Path
 import io
 import os
@@ -56,24 +57,37 @@ class Dvi:
 class DviFont:
     texname: bytes
     size: float
-    widths: list[int]
     def __init__(
         self, scale: float, tfm: Tfm, texname: bytes, vf: Vf | None
     ) -> None: ...
     def __eq__(self, other: object) -> bool: ...
     def __ne__(self, other: object) -> bool: ...
+    @property
+    def widths(self) -> list[int]: ...
 
 class Vf(Dvi):
     def __init__(self, filename: str | os.PathLike) -> None: ...
     def __getitem__(self, code: int) -> Page: ...
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TexMetrics:
+    tex_width: int
+    tex_height: int
+    tex_depth: int
+    # work around mypy not respecting kw_only=True in stub files
+    __match_args__ = ()
+
 class Tfm:
     checksum: int
     design_size: int
-    width: dict[int, int]
-    height: dict[int, int]
-    depth: dict[int, int]
     def __init__(self, filename: str | os.PathLike) -> None: ...
+    def get_metrics(self, idx: int) -> TexMetrics | None: ...
+    @property
+    def width(self) -> dict[int, int]: ...
+    @property
+    def height(self) -> dict[int, int]: ...
+    @property
+    def depth(self) -> dict[int, int]: ...
 
 class PsFont(NamedTuple):
     texname: bytes

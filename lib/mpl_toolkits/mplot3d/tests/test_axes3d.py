@@ -36,7 +36,7 @@ def plot_cuboid(ax, scale):
             ax.plot3D(*zip(start*np.array(scale), end*np.array(scale)))
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_invisible_axes(fig_test, fig_ref):
     ax = fig_test.subplots(subplot_kw=dict(projection='3d'))
     ax.set_visible(False)
@@ -279,7 +279,7 @@ def test_contourf3d_fill():
 @pytest.mark.parametrize('extend, levels', [['both', [2, 4, 6]],
                                             ['min', [2, 4, 6, 8]],
                                             ['max', [0, 2, 4, 6]]])
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_contourf3d_extend(fig_test, fig_ref, extend, levels):
     X, Y = np.meshgrid(np.arange(-2, 2, 0.25), np.arange(-2, 2, 0.25))
     # Z is in the range [0, 8]
@@ -343,7 +343,7 @@ def test_lines3d():
     ax.plot(x, y, z)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_plot_scalar(fig_test, fig_ref):
     ax1 = fig_test.add_subplot(projection='3d')
     ax1.plot([1], [1], "o")
@@ -393,7 +393,7 @@ def test_mixedsubplots():
     ax.set_zlim3d(-1, 1)
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_tight_layout_text(fig_test, fig_ref):
     # text is currently ignored in tight layout. So the order of text() and
     # tight_layout() calls should not influence the result.
@@ -445,7 +445,7 @@ def test_scatter3d_linewidth():
                marker='o', linewidth=np.arange(10))
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_scatter3d_linewidth_modification(fig_ref, fig_test):
     # Changing Path3DCollection linewidths with array-like post-creation
     # should work correctly.
@@ -459,7 +459,7 @@ def test_scatter3d_linewidth_modification(fig_ref, fig_test):
                    linewidths=np.arange(10))
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_scatter3d_modification(fig_ref, fig_test):
     # Changing Path3DCollection properties post-creation should work correctly.
     ax_test = fig_test.add_subplot(projection='3d')
@@ -480,7 +480,7 @@ def test_scatter3d_modification(fig_ref, fig_test):
                    depthshade=False, s=75, linewidths=3)
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_scatter3d_sorting(fig_ref, fig_test):
     """Test that marker properties are correctly sorted."""
 
@@ -537,7 +537,7 @@ def test_scatter3d_sorting(fig_ref, fig_test):
 
 
 @pytest.mark.parametrize('azim', [-50, 130])  # yellow first, blue first
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_marker_draw_order_data_reversed(fig_test, fig_ref, azim):
     """
     Test that the draw order does not depend on the data point order.
@@ -557,7 +557,7 @@ def test_marker_draw_order_data_reversed(fig_test, fig_ref, azim):
     ax.view_init(elev=0, azim=azim, roll=0)
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_marker_draw_order_view_rotated(fig_test, fig_ref):
     """
     Test that the draw order changes with the direction.
@@ -708,7 +708,7 @@ def test_surface3d_masked():
     ax.view_init(30, -80, 0)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_plot_scatter_masks(fig_test, fig_ref):
     x = np.linspace(0, 10, 100)
     y = np.linspace(0, 10, 100)
@@ -726,7 +726,7 @@ def test_plot_scatter_masks(fig_test, fig_ref):
     ax_ref.plot(x, y, z)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_plot_surface_None_arg(fig_test, fig_ref):
     x, y = np.meshgrid(np.arange(5), np.arange(5))
     z = x + y
@@ -773,7 +773,7 @@ def test_text3d():
     ax.set_zlabel('Z axis')
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_text3d_modification(fig_ref, fig_test):
     # Modifying the Text position after the fact should work the same as
     # setting it directly.
@@ -906,7 +906,7 @@ def test_quiver3d():
     ax.set_zlim(-1, 5)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_quiver3d_empty(fig_test, fig_ref):
     fig_ref.add_subplot(projection='3d')
     x = y = z = u = v = w = []
@@ -958,7 +958,7 @@ def test_patch_modification():
     assert mcolors.same_color(circle.get_facecolor(), (1, 0, 0, 1))
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_patch_collection_modification(fig_test, fig_ref):
     # Test that modifying Patch3DCollection properties after creation works.
     patch1 = Circle((0, 0), 0.05)
@@ -1328,7 +1328,7 @@ def test_unautoscale(axis, auto):
     np.testing.assert_array_equal(get_lim(), (-0.5, 0.5))
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_culling(fig_test, fig_ref):
     xmins = (-100, -50)
     for fig, xmin in zip((fig_test, fig_ref), xmins):
@@ -1383,7 +1383,7 @@ def test_axes3d_isometric():
     ax.grid(True)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_axlim_clip(fig_test, fig_ref):
     # With axlim clipping
     ax = fig_test.add_subplot(projection="3d")
@@ -1581,7 +1581,7 @@ def test_line3d_set_get_data_3d():
     np.testing.assert_array_equal((x, y, np.zeros_like(z)), line.get_data_3d())
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_inverted(fig_test, fig_ref):
     # Plot then invert.
     ax = fig_test.add_subplot(projection="3d")
@@ -1630,7 +1630,7 @@ def test_ax3d_tickcolour():
         assert tick.tick1line._color == 'red'
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_ticklabel_format(fig_test, fig_ref):
     axs = fig_test.subplots(4, 5, subplot_kw={"projection": "3d"})
     for ax in axs.flat:
@@ -1670,7 +1670,7 @@ def test_ticklabel_format(fig_test, fig_ref):
                 not mpl.rcParams["axes.formatter.use_mathtext"])
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_quiver3D_smoke(fig_test, fig_ref):
     pivot = "middle"
     # Make the grid
@@ -1867,7 +1867,7 @@ def test_set_zlim():
         ax.set_zlim(top=0, zmax=1)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_shared_view(fig_test, fig_ref):
     elev, azim, roll = 5, 20, 30
     ax1 = fig_test.add_subplot(131, projection="3d")
@@ -2173,7 +2173,7 @@ def test_toolbar_zoom_pan(tool, button, key, expected):
 
 
 @mpl.style.context('default')
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_scalarmap_update(fig_test, fig_ref):
 
     x, y, z = np.array(list(itertools.product(*[np.arange(0, 5, 1),
@@ -2373,7 +2373,7 @@ def test_margins_errors(err, args, kwargs, match):
         ax.margins(*args, **kwargs)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_text_3d(fig_test, fig_ref):
     ax = fig_ref.add_subplot(projection="3d")
     txt = Text(0.5, 0.5, r'Foo bar $\int$')
@@ -2394,7 +2394,7 @@ def test_draw_single_lines_from_Nx1():
     ax.plot([[0], [1]], [[0], [1]], [[0], [1]])
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_pathpatch_3d(fig_test, fig_ref):
     ax = fig_ref.add_subplot(projection="3d")
     path = Path.unit_rectangle()
@@ -2608,7 +2608,7 @@ def test_panecolor_rcparams():
         fig.add_subplot(projection='3d')
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_mutating_input_arrays_y_and_z(fig_test, fig_ref):
     """
     Test to see if the `z` axis does not get mutated

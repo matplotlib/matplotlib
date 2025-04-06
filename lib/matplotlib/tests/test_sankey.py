@@ -91,7 +91,7 @@ def test_sankey2():
                      (0.75, -0.8599479)])
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_sankey3(fig_test, fig_ref):
     ax_test = fig_test.gca()
     s_test = Sankey(ax=ax_test, flows=[0.25, -0.25, -0.25, 0.25, 0.5, -0.5],

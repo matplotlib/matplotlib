@@ -875,7 +875,7 @@ def figure(
     # autoincrement if None, else integer from 1-N
     num: int | str | Figure | SubFigure | None = None,
     # defaults to rc figure.figsize
-    figsize: tuple[float, float] | None = None,
+    figsize: ArrayLike | None = None,
     # defaults to rc figure.dpi
     dpi: float | None = None,
     *,
@@ -1172,7 +1172,7 @@ def disconnect(cid: int) -> None:
 
 def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
     """
-    Close a figure window.
+    Close a figure window, and unregister it from pyplot.
 
     Parameters
     ----------
@@ -1185,6 +1185,14 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
         - ``str``: a figure name
         - 'all': all figures
 
+    Notes
+    -----
+    pyplot maintains a reference to figures created with `figure()`. When
+    work on the figure is completed, it should be closed, i.e. deregistered
+    from pyplot, to free its memory (see also :rc:figure.max_open_warning).
+    Closing a figure window created by `show()` automatically deregisters the
+    figure. For all other use cases, most prominently `savefig()` without
+    `show()`, the figure must be deregistered explicitly using `close()`.
     """
     if fig is None:
         manager = _pylab_helpers.Gcf.get_active()
@@ -1703,7 +1711,7 @@ def subplots(
 
         Typical idioms for handling the return value are::
 
-            # using the variable ax for single a Axes
+            # using the variable ax for a single Axes
             fig, ax = plt.subplots()
 
             # using the variable axs for multiple Axes
@@ -2715,12 +2723,15 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # If rcParams['backend_fallback'] is true, and an interactive backend is
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
-if (rcParams["backend_fallback"]
-        and rcParams._get_backend_or_none() in (  # type: ignore[attr-defined]
-            set(backend_registry.list_builtin(BackendFilter.INTERACTIVE)) -
-            {'webagg', 'nbagg'})
-        and cbook._get_running_interactive_framework()):
-    rcParams._set("backend", rcsetup._auto_backend_sentinel)
+if rcParams["backend_fallback"]:
+    requested_backend = rcParams._get_backend_or_none()  # type: ignore[attr-defined]
+    requested_backend = None if requested_backend is None else requested_backend.lower()
+    available_backends = backend_registry.list_builtin(BackendFilter.INTERACTIVE)
+    if (
+        requested_backend in (set(available_backends) - {'webagg', 'nbagg'})
+        and cbook._get_running_interactive_framework()
+    ):
+        rcParams._set("backend", rcsetup._auto_backend_sentinel)
 
 # fmt: on
 
@@ -3024,7 +3035,7 @@ def bar_label(
     *,
     fmt: str | Callable[[float], str] = "%g",
     label_type: Literal["center", "edge"] = "edge",
-    padding: float = 0,
+    padding: float | ArrayLike = 0,
     **kwargs,
 ) -> list[Annotation]:
     return gca().bar_label(

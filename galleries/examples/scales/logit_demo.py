@@ -4,6 +4,20 @@ Logit scale
 ===========
 
 Examples of plots with logit axes.
+
+This example visualises how ``set_yscale("logit")`` works on probability plots
+by generating three distributions: normal, laplacian, and cauchy in one plot.
+
+The advantage of logit scale is that it effectively spreads out values close to 0 and 1.
+
+In a linear scale plot, probability values near 0 and 1 appear compressed,
+making it difficult to see differences in those regions.
+
+In a logit scale plot, the transformation expands these regions,
+making the graph cleaner and easier to compare across different probability values.
+
+This makes the logit scale especially useful when visalising probabilities in logistic
+regression, classification models, and cumulative distribution functions.
 """
 
 import math

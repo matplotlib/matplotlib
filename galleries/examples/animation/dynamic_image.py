@@ -48,4 +48,4 @@ ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
 plt.show()
 
 # %%
-# .. tags:: animation
+# .. tags:: component: animation

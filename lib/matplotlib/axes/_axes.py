@@ -2803,8 +2803,11 @@ class Axes(_AxesBase):
               (useful for stacked bars, i.e.,
               :doc:`/gallery/lines_bars_and_markers/bar_label_demo`)
 
-        padding : float, default: 0
+        padding : float or array-like, default: 0
             Distance of label from the end of the bar, in points.
+            If an array-like is provided, the padding values are applied
+            to each label individually. Must have the same length as container.
+            .. versionadded:: 3.11
 
         **kwargs
             Any remaining keyword arguments are passed through to
@@ -2854,8 +2857,18 @@ class Axes(_AxesBase):
 
         annotations = []
 
-        for bar, err, dat, lbl in itertools.zip_longest(
-                bars, errs, datavalues, labels
+        if np.iterable(padding):
+            # if padding iterable, check length
+            padding = np.asarray(padding)
+            if len(padding) != len(bars):
+                raise ValueError(
+                    f"padding must be of length {len(bars)} when passed as a sequence")
+        else:
+            # single value, apply to all labels
+            padding = [padding] * len(bars)
+
+        for bar, err, dat, lbl, pad in itertools.zip_longest(
+                bars, errs, datavalues, labels, padding
         ):
             (x0, y0), (x1, y1) = bar.get_bbox().get_points()
             xc, yc = (x0 + x1) / 2, (y0 + y1) / 2
@@ -2895,10 +2908,10 @@ class Axes(_AxesBase):
 
             if orientation == "vertical":
                 y_direction = -1 if y_inverted else 1
-                xytext = 0, y_direction * sign(dat) * padding
+                xytext = 0, y_direction * sign(dat) * pad
             else:  # horizontal
                 x_direction = -1 if x_inverted else 1
-                xytext = x_direction * sign(dat) * padding, 0
+                xytext = x_direction * sign(dat) * pad, 0
 
             if label_type == "center":
                 ha, va = "center", "center"
@@ -6239,30 +6252,8 @@ class Axes(_AxesBase):
             alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
-        # Transform from native to data coordinates?
-        t = collection._transform
-        if (not isinstance(t, mtransforms.Transform) and
-                hasattr(t, '_as_mpl_transform')):
-            t = t._as_mpl_transform(self.axes)
-
-        if t and any(t.contains_branch_seperately(self.transData)):
-            trans_to_data = t - self.transData
-            pts = np.vstack([x, y]).T.astype(float)
-            transformed_pts = trans_to_data.transform(pts)
-            x = transformed_pts[..., 0]
-            y = transformed_pts[..., 1]
-
-        self.add_collection(collection, autolim=False)
-
-        minx = np.min(x)
-        maxx = np.max(x)
-        miny = np.min(y)
-        maxy = np.max(y)
-        collection.sticky_edges.x[:] = [minx, maxx]
-        collection.sticky_edges.y[:] = [miny, maxy]
-        corners = (minx, miny), (maxx, maxy)
-        self.update_datalim(corners)
-        self._request_autoscale_view()
+        coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
+        self._update_pcolor_lims(collection, coords)
         return collection
 
     @_preprocess_data()
@@ -6491,7 +6482,13 @@ class Axes(_AxesBase):
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
+        self._update_pcolor_lims(collection, coords)
+        return collection
 
+    def _update_pcolor_lims(self, collection, coords):
+        """
+        Common code for updating lims in pcolor() and pcolormesh() methods.
+        """
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform) and
@@ -6508,10 +6505,8 @@ class Axes(_AxesBase):
         maxx, maxy = np.max(coords, axis=0)
         collection.sticky_edges.x[:] = [minx, maxx]
         collection.sticky_edges.y[:] = [miny, maxy]
-        corners = (minx, miny), (maxx, maxy)
-        self.update_datalim(corners)
+        self.update_datalim(coords)
         self._request_autoscale_view()
-        return collection
 
     @_preprocess_data()
     @_docstring.interpd
@@ -7233,15 +7228,26 @@ such objects
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
 
         if histtype == "step":
-            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get('edgecolor',
-                                                                  colors)))
+            ec = kwargs.get('edgecolor', colors)
         else:
-            edgecolors = itertools.cycle(np.atleast_1d(kwargs.get("edgecolor", None)))
+            ec = kwargs.get('edgecolor', None)
+        if ec is None or cbook._str_lower_equal(ec, 'none'):
+            edgecolors = itertools.repeat(ec)
+        else:
+            edgecolors = itertools.cycle(mcolors.to_rgba_array(ec))
 
-        facecolors = itertools.cycle(np.atleast_1d(kwargs.get('facecolor', colors)))
+        fc = kwargs.get('facecolor', colors)
+        if cbook._str_lower_equal(fc, 'none'):
+            facecolors = itertools.repeat(fc)
+        else:
+            facecolors = itertools.cycle(mcolors.to_rgba_array(fc))
+
         hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
         linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
-        linestyles = itertools.cycle(np.atleast_1d(kwargs.get('linestyle', None)))
+        if 'linestyle' in kwargs:
+            linestyles = itertools.cycle(mlines._get_dash_patterns(kwargs['linestyle']))
+        else:
+            linestyles = itertools.repeat(None)
 
         for patch, lbl in itertools.zip_longest(patches, labels):
             if not patch:

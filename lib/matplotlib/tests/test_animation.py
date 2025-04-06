@@ -428,7 +428,7 @@ def test_no_frame_warning():
         anim._start()
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_animation_frame(tmp_path, fig_test, fig_ref):
     # Test the expected image after iterating through a few frames
     # we save the animation to get the iteration because we are not

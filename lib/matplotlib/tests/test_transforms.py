@@ -1047,7 +1047,7 @@ def test_transformwrapper():
         t.set(scale.LogTransform(10))
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_scale_swapping(fig_test, fig_ref):
     np.random.seed(19680801)
     samples = np.random.normal(size=10)

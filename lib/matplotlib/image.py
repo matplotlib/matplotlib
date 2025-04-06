@@ -496,37 +496,40 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                     out_alpha *= _resample(self, alpha, out_shape, t, resample=True)
                 # mask and run through the norm
                 resampled_masked = np.ma.masked_array(A_resampled, out_mask)
-                output = self.norm(resampled_masked)
+                res = self.norm(resampled_masked)
             else:
                 if A.ndim == 2:  # interpolation_stage = 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
+                if A.dtype == np.uint8:
+                    # uint8 is too imprecise for premultiplied alpha roundtrips.
+                    A = np.divide(A, 0xff, dtype=np.float32)
                 alpha = self.get_alpha()
+                post_apply_alpha = False
                 if alpha is None:  # alpha parameter not specified
                     if A.shape[2] == 3:  # image has no alpha channel
-                        output_alpha = 255 if A.dtype == np.uint8 else 1.0
-                    else:
-                        output_alpha = _resample(  # resample alpha channel
-                            self, A[..., 3], out_shape, t)
-                    output = _resample(  # resample rgb channels
-                        self, _rgb_to_rgba(A[..., :3]), out_shape, t)
+                        A = np.dstack([A, np.ones(A.shape[:2])])
                 elif np.ndim(alpha) > 0:  # Array alpha
                     # user-specified array alpha overrides the existing alpha channel
-                    output_alpha = _resample(self, alpha, out_shape, t)
-                    output = _resample(
-                        self, _rgb_to_rgba(A[..., :3]), out_shape, t)
+                    A = np.dstack([A[..., :3], alpha])
                 else:  # Scalar alpha
                     if A.shape[2] == 3:  # broadcast scalar alpha
-                        output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
+                        A = np.dstack([A, np.full(A.shape[:2], alpha, np.float32)])
                     else:  # or apply scalar alpha to existing alpha channel
-                        output_alpha = _resample(self, A[..., 3], out_shape, t) * alpha
-                    output = _resample(
-                        self, _rgb_to_rgba(A[..., :3]), out_shape, t)
-                output[..., 3] = output_alpha  # recombine rgb and alpha
+                        post_apply_alpha = True
+                # Resample in premultiplied alpha space.  (TODO: Consider
+                # implementing premultiplied-space resampling in
+                # span_image_resample_rgba_affine::generate?)
+                A[..., :3] *= A[..., 3:]
+                res = _resample(self, A, out_shape, t)
+                np.divide(res[..., :3], res[..., 3:], out=res[..., :3],
+                            where=res[..., 3:] != 0)
+                if post_apply_alpha:
+                    res[..., 3] *= alpha
 
-            # output is now either a 2D array of normed (int or float) data
+            # res is now either a 2D array of normed (int or float) data
             # or an RGBA array of re-sampled input
-            output = self.to_rgba(output, bytes=True, norm=False)
+            output = self.to_rgba(res, bytes=True, norm=False)
             # output is now a correctly sized RGBA array of uint8
 
             # Apply alpha *after* if the input was greyscale without a mask

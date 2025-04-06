@@ -66,7 +66,7 @@ def generate_EventCollection_plot():
     return ax, coll, props
 
 
-@image_comparison(['EventCollection_plot__default'])
+@image_comparison(['EventCollection_plot__default.png'])
 def test__EventCollection__get_props():
     _, coll, props = generate_EventCollection_plot()
     # check that the default segments have the correct coordinates
@@ -92,7 +92,7 @@ def test__EventCollection__get_props():
         np.testing.assert_array_equal(color, props['color'])
 
 
-@image_comparison(['EventCollection_plot__set_positions'])
+@image_comparison(['EventCollection_plot__set_positions.png'])
 def test__EventCollection__set_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'], props['extra_positions']])
@@ -106,7 +106,7 @@ def test__EventCollection__set_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(['EventCollection_plot__add_positions'])
+@image_comparison(['EventCollection_plot__add_positions.png'])
 def test__EventCollection__add_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
@@ -124,7 +124,7 @@ def test__EventCollection__add_positions():
     splt.set_xlim(-1, 35)
 
 
-@image_comparison(['EventCollection_plot__append_positions'])
+@image_comparison(['EventCollection_plot__append_positions.png'])
 def test__EventCollection__append_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
@@ -140,7 +140,7 @@ def test__EventCollection__append_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(['EventCollection_plot__extend_positions'])
+@image_comparison(['EventCollection_plot__extend_positions.png'])
 def test__EventCollection__extend_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
@@ -156,7 +156,7 @@ def test__EventCollection__extend_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(['EventCollection_plot__switch_orientation'])
+@image_comparison(['EventCollection_plot__switch_orientation.png'])
 def test__EventCollection__switch_orientation():
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
@@ -173,7 +173,7 @@ def test__EventCollection__switch_orientation():
     splt.set_xlim(0, 2)
 
 
-@image_comparison(['EventCollection_plot__switch_orientation__2x'])
+@image_comparison(['EventCollection_plot__switch_orientation__2x.png'])
 def test__EventCollection__switch_orientation_2x():
     """
     Check that calling switch_orientation twice sets the orientation back to
@@ -194,7 +194,7 @@ def test__EventCollection__switch_orientation_2x():
     splt.set_title('EventCollection: switch_orientation 2x')
 
 
-@image_comparison(['EventCollection_plot__set_orientation'])
+@image_comparison(['EventCollection_plot__set_orientation.png'])
 def test__EventCollection__set_orientation():
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
@@ -211,7 +211,7 @@ def test__EventCollection__set_orientation():
     splt.set_xlim(0, 2)
 
 
-@image_comparison(['EventCollection_plot__set_linelength'])
+@image_comparison(['EventCollection_plot__set_linelength.png'])
 def test__EventCollection__set_linelength():
     splt, coll, props = generate_EventCollection_plot()
     new_linelength = 15
@@ -226,7 +226,7 @@ def test__EventCollection__set_linelength():
     splt.set_ylim(-20, 20)
 
 
-@image_comparison(['EventCollection_plot__set_lineoffset'])
+@image_comparison(['EventCollection_plot__set_lineoffset.png'])
 def test__EventCollection__set_lineoffset():
     splt, coll, props = generate_EventCollection_plot()
     new_lineoffset = -5.
@@ -242,9 +242,9 @@ def test__EventCollection__set_lineoffset():
 
 
 @image_comparison([
-    'EventCollection_plot__set_linestyle',
-    'EventCollection_plot__set_linestyle',
-    'EventCollection_plot__set_linewidth',
+    'EventCollection_plot__set_linestyle.png',
+    'EventCollection_plot__set_linestyle.png',
+    'EventCollection_plot__set_linewidth.png',
 ])
 def test__EventCollection__set_prop():
     for prop, value, expected in [
@@ -258,7 +258,7 @@ def test__EventCollection__set_prop():
         splt.set_title(f'EventCollection: set_{prop}')
 
 
-@image_comparison(['EventCollection_plot__set_color'])
+@image_comparison(['EventCollection_plot__set_color.png'])
 def test__EventCollection__set_color():
     splt, coll, _ = generate_EventCollection_plot()
     new_color = np.array([0, 1, 1, 1])
@@ -334,7 +334,7 @@ def test_add_collection():
 
 
 @mpl.style.context('mpl20')
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_collection_log_datalim(fig_test, fig_ref):
     # Data limits should respect the minimum x/y when using log scale.
     x_vals = [4.38462e-6, 5.54929e-6, 7.02332e-6, 8.88889e-6, 1.12500e-5,
@@ -831,7 +831,7 @@ def test_collection_set_verts_array():
         assert np.array_equal(ap._codes, atp._codes)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 @pytest.mark.parametrize("kwargs", [{}, {"step": "pre"}])
 def test_fill_between_poly_collection_set_data(fig_test, fig_ref, kwargs):
     t = np.linspace(0, 16)
@@ -1306,7 +1306,7 @@ def test_check_masked_offsets():
     ax.scatter(unmasked_x, masked_y)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_masked_set_offsets(fig_ref, fig_test):
     x = np.ma.array([1, 2, 3, 4, 5], mask=[0, 0, 1, 1, 0])
     y = np.arange(1, 6)
@@ -1340,7 +1340,7 @@ def test_check_offsets_dtype():
 
 
 @pytest.mark.parametrize('gapcolor', ['orange', ['r', 'k']])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_striped_lines(fig_test, fig_ref, gapcolor):
     ax_test = fig_test.add_subplot(111)
     ax_ref = fig_ref.add_subplot(111)
@@ -1384,3 +1384,130 @@ def test_hatch_linewidth(fig_test, fig_ref):
     ax_test.add_collection(test)
 
     assert test.get_hatch_linewidth() == ref.get_hatch_linewidth() == lw
+
+
+def test_collection_hatchcolor_inherit_logic():
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+
+    edgecolors = ['purple', 'red', 'green', 'yellow']
+    hatchcolors = ['orange', 'cyan', 'blue', 'magenta']
+    with mpl.rc_context({'hatch.color': 'edge'}):
+        # edgecolor and hatchcolor is set
+        col = PathCollection([path], hatch='//',
+                              edgecolor=edgecolors, hatchcolor=hatchcolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+
+        # explicitly setting edgecolor and then hatchcolor
+        col = PathCollection([path], hatch='//')
+        col.set_edgecolor(edgecolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(edgecolors))
+        col.set_hatchcolor(hatchcolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+
+        # explicitly setting hatchcolor and then edgecolor
+        col = PathCollection([path], hatch='//')
+        col.set_hatchcolor(hatchcolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+        col.set_edgecolor(edgecolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+
+
+def test_collection_hatchcolor_fallback_logic():
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+
+    edgecolors = ['purple', 'red', 'green', 'yellow']
+    hatchcolors = ['orange', 'cyan', 'blue', 'magenta']
+
+    # hatchcolor parameter should take precedence over rcParam
+    # When edgecolor is not set
+    with mpl.rc_context({'hatch.color': 'green'}):
+        col = PathCollection([path], hatch='//', hatchcolor=hatchcolors)
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+    # When edgecolor is set
+    with mpl.rc_context({'hatch.color': 'green'}):
+        col = PathCollection([path], hatch='//',
+                             edgecolor=edgecolors, hatchcolor=hatchcolors)
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+
+    # hatchcolor should not be overridden by edgecolor when
+    # hatchcolor parameter is not passed and hatch.color rcParam is set to a color
+    with mpl.rc_context({'hatch.color': 'green'}):
+        col = PathCollection([path], hatch='//')
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array('green'))
+        col.set_edgecolor(edgecolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array('green'))
+
+    # hatchcolor should match edgecolor when
+    # hatchcolor parameter is not passed and hatch.color rcParam is set to 'edge'
+    with mpl.rc_context({'hatch.color': 'edge'}):
+        col = PathCollection([path], hatch='//', edgecolor=edgecolors)
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(edgecolors))
+    # hatchcolor parameter is set to 'edge'
+    col = PathCollection([path], hatch='//', edgecolor=edgecolors, hatchcolor='edge')
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(edgecolors))
+
+    # default hatchcolor should be used when hatchcolor parameter is not passed and
+    # hatch.color rcParam is set to 'edge' and edgecolor is not set
+    col = PathCollection([path], hatch='//')
+    assert_array_equal(col.get_hatchcolor(),
+                       mpl.colors.to_rgba_array(mpl.rcParams['patch.edgecolor']))
+
+
+@pytest.mark.parametrize('backend', ['agg', 'pdf', 'svg', 'ps'])
+def test_draw_path_collection_no_hatchcolor(backend):
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+
+    plt.switch_backend(backend)
+    fig, ax = plt.subplots()
+    renderer = fig._get_renderer()
+
+    col = PathCollection([path], hatch='//')
+    ax.add_collection(col)
+
+    gc = renderer.new_gc()
+    transform = mtransforms.IdentityTransform()
+    paths = col.get_paths()
+    transforms = col.get_transforms()
+    offsets = col.get_offsets()
+    offset_trf = col.get_offset_transform()
+    facecolors = col.get_facecolor()
+    edgecolors = col.get_edgecolor()
+    linewidths = col.get_linewidth()
+    linestyles = col.get_linestyle()
+    antialiaseds = col.get_antialiased()
+    urls = col.get_urls()
+    offset_position = "screen"
+
+    renderer.draw_path_collection(
+        gc, transform, paths, transforms, offsets, offset_trf,
+        facecolors, edgecolors, linewidths, linestyles,
+        antialiaseds, urls, offset_position
+    )
+
+
+def test_third_party_backend_hatchcolors_arg_fallback(monkeypatch):
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    renderer = canvas.get_renderer()
+
+    # monkeypatch the `draw_path_collection` method to simulate a third-party backend
+    # that does not support the `hatchcolors` argument.
+    def mock_draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                                  offsets, offset_trans, facecolors, edgecolors,
+                                  linewidths, linestyles, antialiaseds, urls,
+                                  offset_position):
+        pass
+
+    monkeypatch.setattr(renderer, 'draw_path_collection', mock_draw_path_collection)
+
+    # Create a PathCollection with hatch colors
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+    coll = PathCollection([path], hatch='//', hatchcolor='red')
+
+    ax.add_collection(coll)
+
+    plt.draw()
