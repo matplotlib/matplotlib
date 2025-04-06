@@ -875,7 +875,9 @@ def figure(
     # autoincrement if None, else integer from 1-N
     num: int | str | Figure | SubFigure | None = None,
     # defaults to rc figure.figsize
-    figsize: ArrayLike | None = None,
+    figsize: ArrayLike  # a 2-element ndarray is accepted as well
+             | tuple[float, float, Literal["in", "cm", "px"]]
+             | None = None,
     # defaults to rc figure.dpi
     dpi: float | None = None,
     *,
@@ -908,8 +910,12 @@ def figure(
         window title is set to this value.  If num is a ``SubFigure``, its
         parent ``Figure`` is activated.
 
-    figsize : (float, float), default: :rc:`figure.figsize`
-        Width, height in inches.
+    figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
+        The figure dimensions. This can be
+
+        - a tuple ``(width, height, unit)``, where *unit* is one of "inch", "cm",
+          "px".
+        - a tuple ``(x, y)``, which is interpreted as ``(x, y, "inch")``.
 
     dpi : float, default: :rc:`figure.dpi`
         The resolution of the figure in dots-per-inch.
