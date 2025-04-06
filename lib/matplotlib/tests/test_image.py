@@ -14,7 +14,7 @@ from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import (
-    colors, image as mimage, patches, pyplot as plt, style, rcParams)
+    cbook, colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -1130,8 +1130,14 @@ def test_image_cursor_formatting():
     data = np.ma.masked_array([0], mask=[False])
     assert im.format_cursor_data(data) == '[0]'
 
-    data = np.nan
-    assert im.format_cursor_data(data) == '[nan]'
+    # This used to test
+    # > data = np.nan
+    # > assert im.format_cursor_data(data) == '[nan]'
+    # However, a value of nan will be masked by `cbook.safe_masked_invalid(data)`
+    # called by `image._ImageBase._normalize_image_array(data)`
+    # The test is therefore changed to:
+    data = cbook.safe_masked_invalid(np.array(np.nan))
+    assert im.format_cursor_data(data) == '[]'
 
 
 @check_figures_equal(extensions=['png', 'pdf', 'svg'])
