@@ -3458,7 +3458,7 @@ class Axes(_AxesBase):
                       label_namer="y")
     @_docstring.interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='', ecolor=None, elinewidth=None, capsize=None,
+                 fmt='', ecolor=None, elinewidth=None, elinestyle=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
                  **kwargs):
@@ -3507,6 +3507,12 @@ class Axes(_AxesBase):
         elinewidth : float, default: None
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
+
+        elinestyle : str or tuple, default:None
+           str or tuple or list thereof
+           Valid values for individual linestyles include {'-', '--', '-.',
+            ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
+            complete description.
 
         capsize : float, default: :rc:`errorbar.capsize`
             The length of the error bar caps in points.
@@ -3822,6 +3828,13 @@ class Axes(_AxesBase):
 
         self._request_autoscale_view()
         caplines = caplines['x'] + caplines['y']
+
+        if(elinestyle is not None):
+            if(xerr is not None and yerr is not None): 
+                barcols[-2].set_linestyle(elinestyle)
+                barcols[-1].set_linestyle(elinestyle)
+
+
         errorbar_container = ErrorbarContainer(
             (data_line, tuple(caplines), tuple(barcols)),
             has_xerr=(xerr is not None), has_yerr=(yerr is not None),

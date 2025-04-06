@@ -4525,7 +4525,29 @@ def test_errorbar_every(fig_test, fig_ref):
 def test_errorbar_linewidth_type(elinewidth):
     plt.errorbar([1, 2, 3], [1, 2, 3], yerr=[1, 2, 3], elinewidth=elinewidth)
 
+def test_errorbar_linestyle_type():
+    eb = plt.errorbar([1, 2, 3], [1, 2, 3], yerr=[1, 2, 3], elinestyle='-')
+    assert eb[-1][0].get_linestyle(),'-'
+    eb = plt.errorbar([1, 2, 3], [1, 2, 3], yerr=[1, 2, 3], elinestyle='--')
+    assert eb[-1][0].get_linestyle(),'--'
+    eb = plt.errorbar([1, 2, 3], [1, 2, 3], yerr=[1, 2, 3], elinestyle='-.')
+    assert eb[-1][0].get_linestyle(),'-.'
+    eb = plt.errorbar([1, 2, 3], [1, 2, 3], yerr=[1, 2, 3], elinestyle=':')
+    assert eb[-1][0].get_linestyle(),':'
 
+    eb = plt.errorbar([1, 2, 3], [1, 2, 3], xerr=[1, 2, 3], yerr=[1, 2, 3], elinestyle='-')
+    assert eb[-1][0].get_linestyle(),'-'
+    assert eb[-1][1].get_linestyle(),'-'
+    eb = plt.errorbar([1, 2, 3], [1, 2, 3], xerr=[1, 2, 3],yerr=[1, 2, 3], elinestyle='--')
+    assert eb[-1][0].get_linestyle(),'--'
+    assert eb[-1][1].get_linestyle(),'--'
+    eb = plt.errorbar([1, 2, 3], [1, 2, 3], xerr=[1, 2, 3],yerr=[1, 2, 3], elinestyle='-.')
+    assert eb[-1][0].get_linestyle(),'-.'
+    assert eb[-1][1].get_linestyle(),'-.'
+    eb = plt.errorbar([1, 2, 3], [1, 2, 3], xerr=[1, 2, 3],yerr=[1, 2, 3], elinestyle=':')
+    assert eb[-1][0].get_linestyle(),':'
+    assert eb[-1][1].get_linestyle(),':'
+    
 @check_figures_equal()
 def test_errorbar_nan(fig_test, fig_ref):
     ax = fig_test.add_subplot()
