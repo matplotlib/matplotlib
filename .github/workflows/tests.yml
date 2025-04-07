@@ -52,30 +52,39 @@ jobs:
             python-version: '3.11'
             extra-requirements: '-c requirements/testing/minver.txt'
             delete-font-cache: true
+            codecov-test-results-action-os: 'linux'
           - os: ubuntu-22.04
             python-version: '3.11'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             extra-requirements: '-r requirements/testing/extra.txt'
+            codecov-test-results-action-os: 'linux'
           - os: ubuntu-22.04-arm
             python-version: '3.12'
+            codecov-test-results-action-os: 'linux-arm64'
           - os: ubuntu-22.04
             python-version: '3.13'
+            codecov-test-results-action-os: 'linux'
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
             python-version: '3.13t'
+            codecov-test-results-action-os: 'linux'
           - os: ubuntu-24.04
             python-version: '3.12'
+            codecov-test-results-action-os: 'linux'
           - os: macos-13  # This runner is on Intel chips.
             # merge numpy and pandas install in nighties test when this runner is dropped
             python-version: '3.10'
+            codecov-test-results-action-os: 'macos'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
+            codecov-test-results-action-os: 'macos'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
+            codecov-test-results-action-os: 'macos'
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -326,8 +335,15 @@ jobs:
           fi
           pytest -rfEsXR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
-            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
+            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes \
+            --junitxml=junit.xml -o junit_family=legacy
 
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}  # Run even if tests fail
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          os: ${{ matrix.codecov-test-results-action-os }}
       - name: Cleanup non-failed image files
         if: failure()
         run: |
