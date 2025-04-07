@@ -17,7 +17,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python 3
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
         with:
           python-version: '3.10'
 
@@ -25,7 +25,7 @@ jobs:
         run: pip3 install -r requirements/testing/flake8.txt
 
       - name: Set up reviewdog
-        uses: reviewdog/action-setup@3f401fe1d58fe77e10d665ab713057375e39b887  # v1.3.9
+        uses: reviewdog/action-setup@e04ffabe3898a0af8d0fb1af00c188831c4b5893  # v1.3.9
 
       - name: Run flake8
         env:
@@ -46,7 +46,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python 3
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
         with:
           python-version: '3.10'
 
@@ -54,7 +54,7 @@ jobs:
         run: pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt
 
       - name: Set up reviewdog
-        uses: reviewdog/action-setup@3f401fe1d58fe77e10d665ab713057375e39b887  # v1.3.9
+        uses: reviewdog/action-setup@e04ffabe3898a0af8d0fb1af00c188831c4b5893  # v1.3.9
 
       - name: Run mypy
         env:
@@ -77,7 +77,7 @@ jobs:
           persist-credentials: false
 
       - name: eslint
-        uses: reviewdog/action-eslint@9b5b0150e399e1f007ee3c27bc156549810a64e3  # v1.33.0
+        uses: reviewdog/action-eslint@2fee6dd72a5419ff4113f694e2068d2a03bb35dd  # v1.33.2
         with:
           filter_mode: nofilter
           github_token: ${{ secrets.GITHUB_TOKEN }}

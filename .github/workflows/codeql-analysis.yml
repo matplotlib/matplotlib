@@ -31,7 +31,7 @@ jobs:
           persist-credentials: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c  # v3.28.1
+        uses: github/codeql-action/init@1b549b9259bda1cb5ddde3b41741a82a2d15a841  # v3.28.13
         with:
           languages: ${{ matrix.language }}
 
@@ -42,4 +42,4 @@ jobs:
           pip install --user -v .
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c  # v3.28.1
+        uses: github/codeql-action/analyze@1b549b9259bda1cb5ddde3b41741a82a2d15a841  # v3.28.13

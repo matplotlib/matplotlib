@@ -193,6 +193,11 @@ class TaggedValue(metaclass=TaggedValueMeta):
 
 
 class BasicUnit:
+    # numpy scalars convert eager and np.float64(2) * BasicUnit('cm')
+    # would thus return a numpy scalar. To avoid this, we increase the
+    # priority of the BasicUnit.
+    __array_priority__ = np.float64(0).__array_priority__ + 1
+
     def __init__(self, name, fullname=None):
         self.name = name
         if fullname is None:

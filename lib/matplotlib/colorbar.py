@@ -217,81 +217,76 @@ class Colorbar:
         A list of `.LineCollection` (empty if no lines were drawn).
     dividers : `.LineCollection`
         A LineCollection (empty if *drawedges* is ``False``).
-
-    Parameters
-    ----------
-    ax : `~matplotlib.axes.Axes`
-        The `~.axes.Axes` instance in which the colorbar is drawn.
-
-    mappable : `.ScalarMappable`
-        The mappable whose colormap and norm will be used.
-
-        To show the under- and over- value colors, the mappable's norm should
-        be specified as ::
-
-            norm = colors.Normalize(clip=False)
-
-        To show the colors versus index instead of on a 0-1 scale, use::
-
-            norm=colors.NoNorm()
-
-    cmap : `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-        The colormap to use.  This parameter is ignored, unless *mappable* is
-        None.
-
-    norm : `~matplotlib.colors.Normalize`
-        The normalization to use.  This parameter is ignored, unless *mappable*
-        is None.
-
-    alpha : float
-        The colorbar transparency between 0 (transparent) and 1 (opaque).
-
-    orientation : None or {'vertical', 'horizontal'}
-        If None, use the value determined by *location*. If both
-        *orientation* and *location* are None then defaults to 'vertical'.
-
-    ticklocation : {'auto', 'left', 'right', 'top', 'bottom'}
-        The location of the colorbar ticks. The *ticklocation* must match
-        *orientation*. For example, a horizontal colorbar can only have ticks
-        at the top or the bottom. If 'auto', the ticks will be the same as
-        *location*, so a colorbar to the left will have ticks to the left. If
-        *location* is None, the ticks will be at the bottom for a horizontal
-        colorbar and at the right for a vertical.
-
-    %(_colormap_kw_doc)s
-
-    location : None or {'left', 'right', 'top', 'bottom'}
-        Set the *orientation* and *ticklocation* of the colorbar using a
-        single argument. Colorbars on the left and right are vertical,
-        colorbars at the top and bottom are horizontal. The *ticklocation* is
-        the same as *location*, so if *location* is 'top', the ticks are on
-        the top. *orientation* and/or *ticklocation* can be provided as well
-        and overrides the value set by *location*, but there will be an error
-        for incompatible combinations.
-
-        .. versionadded:: 3.7
     """
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
 
-    def __init__(self, ax, mappable=None, *, cmap=None,
-                 norm=None,
-                 alpha=None,
-                 values=None,
-                 boundaries=None,
-                 orientation=None,
-                 ticklocation='auto',
-                 extend=None,
-                 spacing='uniform',  # uniform or proportional
-                 ticks=None,
-                 format=None,
-                 drawedges=False,
-                 extendfrac=None,
-                 extendrect=False,
-                 label='',
-                 location=None,
-                 ):
+    def __init__(
+        self, ax, mappable=None, *,
+        alpha=None,
+        location=None,
+        extend=None,
+        extendfrac=None,
+        extendrect=False,
+        ticks=None,
+        format=None,
+        values=None,
+        boundaries=None,
+        spacing='uniform',
+        drawedges=False,
+        label='',
+        cmap=None, norm=None,  # redundant with *mappable*
+        orientation=None, ticklocation='auto',  # redundant with *location*
+    ):
+        """
+        Parameters
+        ----------
+        ax : `~matplotlib.axes.Axes`
+            The `~.axes.Axes` instance in which the colorbar is drawn.
 
+        mappable : `.ScalarMappable`
+            The mappable whose colormap and norm will be used.
+
+            To show the colors versus index instead of on a 0-1 scale, set the
+            mappable's norm to ``colors.NoNorm()``.
+
+        alpha : float
+            The colorbar transparency between 0 (transparent) and 1 (opaque).
+
+        location : None or {'left', 'right', 'top', 'bottom'}
+            Set the colorbar's *orientation* and *ticklocation*. Colorbars on
+            the left and right are vertical, colorbars at the top and bottom
+            are horizontal. The *ticklocation* is the same as *location*, so if
+            *location* is 'top', the ticks are on the top. *orientation* and/or
+            *ticklocation* can be provided as well and overrides the value set by
+            *location*, but there will be an error for incompatible combinations.
+
+            .. versionadded:: 3.7
+
+        %(_colormap_kw_doc)s
+
+        Other Parameters
+        ----------------
+        cmap : `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+            The colormap to use.  This parameter is ignored, unless *mappable* is
+            None.
+
+        norm : `~matplotlib.colors.Normalize`
+            The normalization to use.  This parameter is ignored, unless *mappable*
+            is None.
+
+        orientation : None or {'vertical', 'horizontal'}
+            If None, use the value determined by *location*. If both
+            *orientation* and *location* are None then defaults to 'vertical'.
+
+        ticklocation : {'auto', 'left', 'right', 'top', 'bottom'}
+            The location of the colorbar ticks. The *ticklocation* must match
+            *orientation*. For example, a horizontal colorbar can only have ticks
+            at the top or the bottom. If 'auto', the ticks will be the same as
+            *location*, so a colorbar to the left will have ticks to the left. If
+            *location* is None, the ticks will be at the bottom for a horizontal
+            colorbar and at the right for a vertical.
+        """
         if mappable is None:
             mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
 

@@ -86,7 +86,7 @@ def test_contour_Nlevels():
     assert (cs1.levels == cs2.levels).all()
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_contour_set_paths(fig_test, fig_ref):
     cs_test = fig_test.subplots().contour([[0, 1], [1, 2]])
     cs_ref = fig_ref.subplots().contour([[1, 0], [2, 1]])
@@ -140,7 +140,7 @@ def test_contour_label_with_disconnected_segments():
 
 
 @image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True,
-                  tol=0.018 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.018)
 def test_given_colors_levels_and_extends():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -399,8 +399,11 @@ def test_contourf_log_extension():
     levels = np.power(10., levels_exp)
 
     # original data
+    # FIXME: Force tick locations for now for backcompat with old test
+    # (log-colorbar extension is not really optimal anyways).
     c1 = ax1.contourf(data,
-                      norm=LogNorm(vmin=data.min(), vmax=data.max()))
+                      norm=LogNorm(vmin=data.min(), vmax=data.max()),
+                      locator=mpl.ticker.FixedLocator(10.**np.arange(-8, 12, 2)))
     # just show data in levels
     c2 = ax2.contourf(data, levels=levels,
                       norm=LogNorm(vmin=levels.min(), vmax=levels.max()),
@@ -416,10 +419,8 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c3, ax=ax3)
 
 
-@image_comparison(
-    ['contour_addlines.png'], remove_text=True, style='mpl20',
-    tol=0.15 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x')
-        else 0.03)
+@image_comparison(['contour_addlines.png'], remove_text=True, style='mpl20',
+                  tol=0.03 if platform.machine() == 'x86_64' else 0.15)
 # tolerance is because image changed minutely when tick finding on
 # colorbars was cleaned up...
 def test_contour_addlines():
@@ -839,3 +840,13 @@ def test_allsegs_allkinds():
         assert len(result) == 2
         assert len(result[0]) == 5
         assert len(result[1]) == 4
+
+
+@image_comparison(baseline_images=['contour_rasterization'],
+                  extensions=['pdf'], style='mpl20', savefig_kwarg={'dpi': 25})
+def test_contourf_rasterize():
+    fig, ax = plt.subplots()
+    data = [[0, 1], [1, 0]]
+    circle = mpatches.Circle([0.5, 0.5], 0.5, transform=ax.transAxes)
+    cs = ax.contourf(data, clip_path=circle, rasterized=True)
+    assert cs._rasterized

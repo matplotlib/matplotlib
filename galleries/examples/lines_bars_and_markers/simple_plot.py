@@ -36,5 +36,5 @@ plt.show()
 #
 # .. tags::
 #
-#    plot-style: line
+#    plot-type: line
 #    level: beginner

@@ -79,6 +79,7 @@ class Collection(mcolorizer.ColorizingArtist):
     def __init__(self, *,
                  edgecolors=None,
                  facecolors=None,
+                 hatchcolors=None,
                  linewidths=None,
                  linestyles='solid',
                  capstyle=None,
@@ -104,6 +105,10 @@ class Collection(mcolorizer.ColorizingArtist):
             facecolor.
         facecolors : :mpltype:`color` or list of colors, default: :rc:`patch.facecolor`
             Face color for each patch making up the collection.
+        hatchcolors : :mpltype:`color` or list of colors, default: :rc:`hatch.color`
+            Hatch color for each patch making up the collection. The color
+            can be set to the special value 'edge' to make the hatchcolor match the
+            edgecolor.
         linewidths : float or list of floats, default: :rc:`patch.linewidth`
             Line width for each patch making up the collection.
         linestyles : str or tuple or list thereof, default: 'solid'
@@ -174,13 +179,6 @@ class Collection(mcolorizer.ColorizingArtist):
         self._face_is_mapped = None
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
-
-        # Temporary logic to set hatchcolor. This eager resolution is temporary
-        # and will be replaced by a proper mechanism in a follow-up PR.
-        hatch_color = mpl.rcParams['hatch.color']
-        if hatch_color == 'edge':
-            hatch_color = mpl.rcParams['patch.edgecolor']
-        self._hatch_color = mcolors.to_rgba(hatch_color)
         self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
@@ -190,6 +188,7 @@ class Collection(mcolorizer.ColorizingArtist):
         self.set_pickradius(pickradius)
         self.set_urls(urls)
         self.set_hatch(hatch)
+        self.set_hatchcolor(hatchcolors)
         self.set_zorder(zorder)
 
         if capstyle:
@@ -371,7 +370,6 @@ class Collection(mcolorizer.ColorizingArtist):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
-            gc.set_hatch_color(self._hatch_color)
             gc.set_hatch_linewidth(self._hatch_linewidth)
 
         if self.get_sketch_params() is not None:
@@ -422,24 +420,86 @@ class Collection(mcolorizer.ColorizingArtist):
                 gc, paths[0], combined_transform.frozen(),
                 mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
         else:
+            # The current new API of draw_path_collection() is provisional
+            # and will be changed in a future PR.
+
+            # Find whether renderer.draw_path_collection() takes hatchcolor parameter.
+            # Since third-party implementations of draw_path_collection() may not be
+            # introspectable, e.g. with inspect.signature, the only way is to try and
+            # call this with the hatchcolors parameter.
+            hatchcolors_arg_supported = True
+            try:
+                renderer.draw_path_collection(
+                    gc, transform.frozen(), [],
+                    self.get_transforms(), offsets, offset_trf,
+                    self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles,
+                    self._antialiaseds, self._urls,
+                    "screen", hatchcolors=self.get_hatchcolor()
+                )
+            except TypeError:
+                # If the renderer does not support the hatchcolors argument,
+                # it will raise a TypeError. In this case, we will
+                # iterate over all paths and draw them one by one.
+                hatchcolors_arg_supported = False
+
+            # If the hatchcolors argument is not needed or not passed
+            # then we can skip the iteration over paths in case the
+            # argument is not supported by the renderer.
+            hatchcolors_not_needed = (self.get_hatch() is None or
+                                      self._original_hatchcolor is None)
+
             if self._gapcolor is not None:
                 # First draw paths within the gaps.
                 ipaths, ilinestyles = self._get_inverse_paths_linestyles()
-                renderer.draw_path_collection(
-                    gc, transform.frozen(), ipaths,
-                    self.get_transforms(), offsets, offset_trf,
-                    [mcolors.to_rgba("none")], self._gapcolor,
-                    self._linewidths, ilinestyles,
-                    self._antialiaseds, self._urls,
-                    "screen")
+                args = [offsets, offset_trf, [mcolors.to_rgba("none")], self._gapcolor,
+                        self._linewidths, ilinestyles, self._antialiaseds, self._urls,
+                        "screen"]
 
-            renderer.draw_path_collection(
-                gc, transform.frozen(), paths,
-                self.get_transforms(), offsets, offset_trf,
-                self.get_facecolor(), self.get_edgecolor(),
-                self._linewidths, self._linestyles,
-                self._antialiaseds, self._urls,
-                "screen")  # offset_position, kept for backcompat.
+                if hatchcolors_arg_supported:
+                    renderer.draw_path_collection(gc, transform.frozen(), ipaths,
+                                                  self.get_transforms(), *args,
+                                                  hatchcolors=self.get_hatchcolor())
+                else:
+                    if hatchcolors_not_needed:
+                        renderer.draw_path_collection(gc, transform.frozen(), ipaths,
+                                                      self.get_transforms(), *args)
+                    else:
+                        path_ids = renderer._iter_collection_raw_paths(
+                            transform.frozen(), ipaths, self.get_transforms())
+                        for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+                            gc, list(path_ids), *args,
+                            hatchcolors=self.get_hatchcolor(),
+                        ):
+                            path, transform = path_id
+                            if xo != 0 or yo != 0:
+                                transform = transform.frozen()
+                                transform.translate(xo, yo)
+                            renderer.draw_path(gc0, path, transform, rgbFace)
+
+            args = [offsets, offset_trf, self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles, self._antialiaseds, self._urls,
+                    "screen"]
+
+            if hatchcolors_arg_supported:
+                renderer.draw_path_collection(gc, transform.frozen(), paths,
+                                              self.get_transforms(), *args,
+                                              hatchcolors=self.get_hatchcolor())
+            else:
+                if hatchcolors_not_needed:
+                    renderer.draw_path_collection(gc, transform.frozen(), paths,
+                                                  self.get_transforms(), *args)
+                else:
+                    path_ids = renderer._iter_collection_raw_paths(
+                        transform.frozen(), paths, self.get_transforms())
+                    for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+                        gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
+                    ):
+                        path, transform = path_id
+                        if xo != 0 or yo != 0:
+                            transform = transform.frozen()
+                            transform.translate(xo, yo)
+                        renderer.draw_path(gc0, path, transform, rgbFace)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -632,17 +692,8 @@ class Collection(mcolorizer.ColorizingArtist):
             ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
             complete description.
         """
-        try:
-            dashes = [mlines._get_dash_pattern(ls)]
-        except ValueError:
-            try:
-                dashes = [mlines._get_dash_pattern(x) for x in ls]
-            except ValueError as err:
-                emsg = f'Do not know how to convert {ls!r} to dashes'
-                raise ValueError(emsg) from err
-
         # get the list of raw 'unscaled' dash patterns
-        self._us_linestyles = dashes
+        self._us_linestyles = mlines._get_dash_patterns(ls)
 
         # broadcast and scale the lw and dash patterns
         self._linewidths, self._linestyles = self._bcast_lwls(
@@ -759,7 +810,10 @@ class Collection(mcolorizer.ColorizingArtist):
 
     def set_color(self, c):
         """
-        Set both the edgecolor and the facecolor.
+        Set the edgecolor, facecolor and hatchcolor.
+
+        .. versionchanged:: 3.11
+            Now sets the hatchcolor as well.
 
         Parameters
         ----------
@@ -767,11 +821,12 @@ class Collection(mcolorizer.ColorizingArtist):
 
         See Also
         --------
-        Collection.set_facecolor, Collection.set_edgecolor
-            For setting the edge or face color individually.
+        Collection.set_facecolor, Collection.set_edgecolor, Collection.set_hatchcolor
+            For setting the facecolor, edgecolor, and hatchcolor individually.
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
+        self.set_hatchcolor(c)
 
     def _get_default_facecolor(self):
         # This may be overridden in a subclass.
@@ -814,8 +869,15 @@ class Collection(mcolorizer.ColorizingArtist):
         # This may be overridden in a subclass.
         return mpl.rcParams['patch.edgecolor']
 
+    def get_hatchcolor(self):
+        if cbook._str_equal(self._hatchcolors, 'edge'):
+            if len(self.get_edgecolor()) == 0:
+                return mpl.colors.to_rgba_array(self._get_default_edgecolor(),
+                                                self._alpha)
+            return self.get_edgecolor()
+        return self._hatchcolors
+
     def _set_edgecolor(self, c):
-        set_hatch_color = True
         if c is None:
             if (mpl.rcParams['patch.force_edgecolor']
                     or self._edge_default
@@ -823,14 +885,11 @@ class Collection(mcolorizer.ColorizingArtist):
                 c = self._get_default_edgecolor()
             else:
                 c = 'none'
-                set_hatch_color = False
         if cbook._str_lower_equal(c, 'face'):
             self._edgecolors = 'face'
             self.stale = True
             return
         self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
-        if set_hatch_color and len(self._edgecolors):
-            self._hatch_color = tuple(self._edgecolors[0])
         self.stale = True
 
     def set_edgecolor(self, c):
@@ -851,6 +910,27 @@ class Collection(mcolorizer.ColorizingArtist):
         self._original_edgecolor = c
         self._set_edgecolor(c)
 
+    def _set_hatchcolor(self, c):
+        c = mpl._val_or_rc(c, 'hatch.color')
+        if cbook._str_equal(c, 'edge'):
+            self._hatchcolors = 'edge'
+        else:
+            self._hatchcolors = mcolors.to_rgba_array(c, self._alpha)
+        self.stale = True
+
+    def set_hatchcolor(self, c):
+        """
+        Set the hatchcolor(s) of the collection.
+
+        Parameters
+        ----------
+        c : :mpltype:`color` or list of :mpltype:`color` or 'edge'
+            The collection hatchcolor(s).  If a sequence, the patches cycle
+            through it.
+        """
+        self._original_hatchcolor = c
+        self._set_hatchcolor(c)
+
     def set_alpha(self, alpha):
         """
         Set the transparency of the collection.
@@ -866,6 +946,7 @@ class Collection(mcolorizer.ColorizingArtist):
         artist.Artist._set_alpha_for_array(self, alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+        self._set_hatchcolor(self._original_hatchcolor)
 
     set_alpha.__doc__ = artist.Artist._set_alpha_for_array.__doc__
 
@@ -968,6 +1049,7 @@ class Collection(mcolorizer.ColorizingArtist):
         self._us_linestyles = other._us_linestyles
         self._pickradius = other._pickradius
         self._hatch = other._hatch
+        self._hatchcolors = other._hatchcolors
 
         # update_from for scalarmappable
         self._A = other._A
@@ -1242,15 +1324,15 @@ class PolyCollection(_CollectionWithSizes):
             return
 
         # Fast path for arrays
-        if isinstance(verts, np.ndarray) and len(verts.shape) == 3:
+        if isinstance(verts, np.ndarray) and len(verts.shape) == 3 and verts.size:
             verts_pad = np.concatenate((verts, verts[:, :1]), axis=1)
-            # Creating the codes once is much faster than having Path do it
-            # separately each time by passing closed=True.
-            codes = np.empty(verts_pad.shape[1], dtype=mpath.Path.code_type)
-            codes[:] = mpath.Path.LINETO
-            codes[0] = mpath.Path.MOVETO
-            codes[-1] = mpath.Path.CLOSEPOLY
-            self._paths = [mpath.Path(xy, codes) for xy in verts_pad]
+            # It's faster to create the codes and internal flags once in a
+            # template path and reuse them.
+            template_path = mpath.Path(verts_pad[0], closed=True)
+            codes = template_path.codes
+            _make_path = mpath.Path._fast_from_codes_and_verts
+            self._paths = [_make_path(xy, codes, internals_from=template_path)
+                           for xy in verts_pad]
             return
 
         self._paths = []
@@ -2465,7 +2547,8 @@ class QuadMesh(_MeshData, Collection):
                 coordinates, offsets, offset_trf,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
-                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
+                self._antialiased, self.get_edgecolors().reshape((-1, 4)),
+                hatchcolors=self.get_hatchcolor().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False

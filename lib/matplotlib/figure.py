@@ -1390,8 +1390,7 @@ default: %(va)s
         Example with rotated xtick labels::
 
             fig, axs = plt.subplots(1, 2)
-            for tick in axs[0].get_xticklabels():
-                tick.set_rotation(55)
+            axs[0].tick_params(axis='x', rotation=55)
             axs[0].set_xlabel('XLabel 0')
             axs[1].set_xlabel('XLabel 1')
             fig.align_xlabels()
@@ -2476,8 +2475,13 @@ class Figure(FigureBase):
         """
         Parameters
         ----------
-        figsize : 2-tuple of floats, default: :rc:`figure.figsize`
-            Figure dimension ``(width, height)`` in inches.
+        figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
+            The figure dimensions. This can be
+
+            - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
+              "cm" (centimenter), "px" (pixel).
+            - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
+              ``(width, height, "in")``.
 
         dpi : float, default: :rc:`figure.dpi`
             Dots per inch.
@@ -2612,6 +2616,8 @@ None}, default: None
         facecolor = mpl._val_or_rc(facecolor, 'figure.facecolor')
         edgecolor = mpl._val_or_rc(edgecolor, 'figure.edgecolor')
         frameon = mpl._val_or_rc(frameon, 'figure.frameon')
+
+        figsize = _parse_figsize(figsize, dpi)
 
         if not np.isfinite(figsize).all() or (np.array(figsize) < 0).any():
             raise ValueError('figure size must be positive finite not '
@@ -3655,8 +3661,8 @@ def figaspect(arg):
 
     Returns
     -------
-    width, height : float
-        The figure size in inches.
+    size : (2,) array
+        The width and height of the figure in inches.
 
     Notes
     -----
@@ -3714,3 +3720,46 @@ def figaspect(arg):
     # the min/max dimensions (we don't want figures 10 feet tall!)
     newsize = np.clip(newsize, figsize_min, figsize_max)
     return newsize
+
+
+def _parse_figsize(figsize, dpi):
+    """
+    Convert a figsize expression to (width, height) in inches.
+
+    Parameters
+    ----------
+    figsize : (float, float) or (float, float, str)
+        This can be
+
+        - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
+          "cm" (centimenter), "px" (pixel).
+        - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
+          ``(width, height, "in")``.
+
+    dpi : float
+        The dots-per-inch; used for converting 'px' to 'in'.
+    """
+    num_parts = len(figsize)
+    if num_parts == 2:
+        return figsize
+    elif num_parts == 3:
+        x, y, unit = figsize
+        if unit == 'in':
+            pass
+        elif unit == 'cm':
+            x /= 2.54
+            y /= 2.54
+        elif unit == 'px':
+            x /= dpi
+            y /= dpi
+        else:
+            raise ValueError(
+                f"Invalid unit {unit!r} in 'figsize'; "
+                "supported units are 'in', 'cm', 'px'"
+            )
+        return x, y
+    else:
+        raise ValueError(
+            "Invalid figsize format, expected (x, y) or (x, y, unit) but got "
+            f"{figsize!r}"
+        )

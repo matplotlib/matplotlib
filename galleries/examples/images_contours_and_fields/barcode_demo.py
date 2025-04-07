@@ -45,3 +45,9 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
 #    - `matplotlib.figure.Figure.add_axes`
+#
+# .. tags::
+#
+#    component: axes
+#    plot-type: imshow
+#    purpose: fun

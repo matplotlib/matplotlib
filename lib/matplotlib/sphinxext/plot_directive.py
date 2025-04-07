@@ -900,7 +900,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # Properly indent the caption
     if caption and config.plot_srcset:
-        caption = f':caption: {caption}'
+        caption = ':caption: ' + caption.replace('\n', ' ')
     elif caption:
         caption = '\n' + '\n'.join('      ' + line.strip()
                                    for line in caption.split('\n'))
@@ -919,6 +919,9 @@ def run(arguments, content, options, state_machine, state, lineno):
 
         if nofigs:
             images = []
+
+        if 'alt' in options:
+            options['alt'] = options['alt'].replace('\n', ' ')
 
         opts = [
             f':{key}: {val}' for key, val in options.items()

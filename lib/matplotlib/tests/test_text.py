@@ -671,7 +671,7 @@ def test_annotation_update():
                            rtol=1e-6)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_annotation_units(fig_test, fig_ref):
     ax = fig_test.add_subplot()
     ax.plot(datetime.now(), 1, "o")  # Implicitly set axes extents.
@@ -761,7 +761,7 @@ def test_wrap_no_wrap():
     assert text._get_wrapped_text() == 'non wrapped text'
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_buffer_size(fig_test, fig_ref):
     # On old versions of the Agg renderer, large non-ascii single-character
     # strings (here, "€") would be rendered clipped because the rendering
@@ -958,7 +958,7 @@ def test_annotation_antialiased():
     assert annot4._antialiased == mpl.rcParams['text.antialiased']
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_annotate_and_offsetfrom_copy_input(fig_test, fig_ref):
     # Both approaches place the text (10, 0) pixels away from the center of the line.
     ax = fig_test.add_subplot()
@@ -974,7 +974,7 @@ def test_annotate_and_offsetfrom_copy_input(fig_test, fig_ref):
     an_xy[:] = 2
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_text_antialiased_off_default_vs_manual(fig_test, fig_ref):
     fig_test.text(0.5, 0.5, '6 inches x 2 inches',
                              antialiased=False)
@@ -983,7 +983,7 @@ def test_text_antialiased_off_default_vs_manual(fig_test, fig_ref):
     fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_text_antialiased_on_default_vs_manual(fig_test, fig_ref):
     fig_test.text(0.5, 0.5, '6 inches x 2 inches', antialiased=True)
 
@@ -1135,3 +1135,58 @@ def test_font_wrap():
     plt.text(3, 4, t, family='monospace', ha='right', wrap=True)
     plt.text(-1, 0, t, fontsize=14, style='italic', ha='left', rotation=-15,
              wrap=True)
+
+
+def test_ha_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance._ha_for_angle(angle)
+        assert alignment in ['center', 'left', 'right']
+
+
+def test_va_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance._va_for_angle(angle)
+        assert alignment in ['center', 'top', 'baseline']
+
+
+@image_comparison(baseline_images=['xtick_rotation_mode'],
+                  remove_text=False, extensions=['png'], style='mpl20')
+def test_xtick_rotation_mode():
+    fig, ax = plt.subplots(figsize=(12, 1))
+    ax.set_yticks([])
+    ax2 = ax.twiny()
+
+    ax.set_xticks(range(37), ['foo'] * 37, rotation_mode="xtick")
+    ax2.set_xticks(range(37), ['foo'] * 37, rotation_mode="xtick")
+
+    angles = np.linspace(0, 360, 37)
+
+    for tick, angle in zip(ax.get_xticklabels(), angles):
+        tick.set_rotation(angle)
+    for tick, angle in zip(ax2.get_xticklabels(), angles):
+        tick.set_rotation(angle)
+
+    plt.subplots_adjust(left=0.01, right=0.99, top=.6, bottom=.4)
+
+
+@image_comparison(baseline_images=['ytick_rotation_mode'],
+                  remove_text=False, extensions=['png'], style='mpl20')
+def test_ytick_rotation_mode():
+    fig, ax = plt.subplots(figsize=(1, 12))
+    ax.set_xticks([])
+    ax2 = ax.twinx()
+
+    ax.set_yticks(range(37), ['foo'] * 37, rotation_mode="ytick")
+    ax2.set_yticks(range(37), ['foo'] * 37, rotation_mode='ytick')
+
+    angles = np.linspace(0, 360, 37)
+    for tick, angle in zip(ax.get_yticklabels(), angles):
+        tick.set_rotation(angle)
+    for tick, angle in zip(ax2.get_yticklabels(), angles):
+        tick.set_rotation(angle)
+
+    plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)

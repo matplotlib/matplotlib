@@ -2907,9 +2907,11 @@ class Axes3D(Axes):
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
-    def scatter(self, xs, ys,
-                zs=0, zdir='z', s=20, c=None, depthshade=True, *args,
-                axlim_clip=False, **kwargs):
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=None,
+                *args,
+                depthshade_minalpha=None,
+                axlim_clip=False,
+                **kwargs):
         """
         Create a scatter plot.
 
@@ -2941,16 +2943,26 @@ class Axes3D(Axes):
             - A 2D array in which the rows are RGB or RGBA.
 
             For more details see the *c* argument of `~.axes.Axes.scatter`.
-        depthshade : bool, default: True
+        depthshade : bool, default: None
             Whether to shade the scatter markers to give the appearance of
             depth. Each call to ``scatter()`` will perform its depthshading
             independently.
+            If None, use the value from rcParams['axes3d.depthshade'].
+
+        depthshade_minalpha : float, default: None
+            The lowest alpha value applied by depth-shading.
+            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
+
+            .. versionadded:: 3.11
+
         axlim_clip : bool, default: False
             Whether to hide the scatter points outside the axes view limits.
 
             .. versionadded:: 3.10
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All other keyword arguments are passed on to `~.axes.Axes.scatter`.
 
@@ -2970,16 +2982,24 @@ class Axes3D(Axes):
             )
         if kwargs.get("color") is not None:
             kwargs['color'] = color
+        if depthshade is None:
+            depthshade = mpl.rcParams['axes3d.depthshade']
+        if depthshade_minalpha is None:
+            depthshade_minalpha = mpl.rcParams['axes3d.depthshade_minalpha']
 
         # For xs and ys, 2D scatter() will do the copying.
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
             zs = zs.copy()
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
-        art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
-                                        depthshade=depthshade,
-                                        axlim_clip=axlim_clip)
-
+        art3d.patch_collection_2d_to_3d(
+            patches,
+            zs=zs,
+            zdir=zdir,
+            depthshade=depthshade,
+            depthshade_minalpha=depthshade_minalpha,
+            axlim_clip=axlim_clip,
+        )
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
 

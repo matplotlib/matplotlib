@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.colors import is_color_like, to_rgba_array
+from matplotlib.colors import is_color_like, to_rgba_array, ListedColormap
 
 
 @pytest.mark.parametrize('N, result', [
@@ -246,6 +246,17 @@ def test_LinearSegmentedColormap_from_list_bad_under_over():
     assert mcolors.same_color(cmap.get_bad(), "c")
     assert mcolors.same_color(cmap.get_under(), "m")
     assert mcolors.same_color(cmap.get_over(), "y")
+
+
+def test_colormap_with_alpha():
+    cmap = ListedColormap(["red", "green", ("blue", 0.8)])
+    cmap2 = cmap.with_alpha(0.5)
+    # color is the same:
+    vals = [0, 0.5, 1]  # numeric positions that map to the listed colors
+    assert_array_equal(cmap(vals)[:, :3], cmap2(vals)[:, :3])
+    # alpha of cmap2 is changed:
+    assert_array_equal(cmap(vals)[:, 3], [1, 1, 0.8])
+    assert_array_equal(cmap2(vals)[:, 3], [0.5, 0.5, 0.5])
 
 
 def test_BoundaryNorm():
@@ -1594,6 +1605,23 @@ def test_norm_deepcopy():
     assert norm2.vmin == norm.vmin
 
 
+def test_set_clim_emits_single_callback():
+    data = np.array([[1, 2], [3, 4]])
+    fig, ax = plt.subplots()
+    image = ax.imshow(data, cmap='viridis')
+
+    callback = unittest.mock.Mock()
+    image.norm.callbacks.connect('changed', callback)
+
+    callback.assert_not_called()
+
+    # Call set_clim() to update the limits
+    image.set_clim(1, 5)
+
+    # Assert that only one "changed" callback is sent after calling set_clim()
+    callback.assert_called_once()
+
+
 def test_norm_callback():
     increment = unittest.mock.Mock(return_value=None)
 
@@ -1769,3 +1797,34 @@ def test_colorizer_vmin_vmax():
     assert ca.vmax == 3.0
     assert ca.norm.vmin == 1.0
     assert ca.norm.vmax == 3.0
+
+
+def test_LinearSegmentedColormap_from_list_color_alpha_tuple():
+    """
+    GitHub issue #29042: A bug in 'from_list' causes an error
+    when passing a tuple (str, float) where the string is a
+    color name or grayscale value and float is an alpha value.
+    """
+    colors = [("red", 0.3), ("0.42", 0.1), "green"]
+    cmap = mcolors.LinearSegmentedColormap.from_list("lsc", colors, N=3)
+    assert_array_almost_equal(cmap([.0, 0.5, 1.]), to_rgba_array(colors))
+
+
+@pytest.mark.parametrize("colors",
+                         [[(0.42, "blue"), (.1, .1, .1, .1)],
+                          ["blue", (0.42, "red")],
+                          ["blue", (.1, .1, .1, .1), ("red", 2)],
+                          [(0, "red"), (1.1, "blue")],
+                          [(0.52, "red"), (0.42, "blue")]])
+def test_LinearSegmentedColormap_from_list_invalid_inputs(colors):
+    with pytest.raises(ValueError):
+        mcolors.LinearSegmentedColormap.from_list("lsc", colors)
+
+
+def test_LinearSegmentedColormap_from_list_value_color_tuple():
+    value_color_tuples = [(0, "red"), (0.6, "blue"), (1, "green")]
+    cmap = mcolors.LinearSegmentedColormap.from_list("lsc", value_color_tuples, N=11)
+    assert_array_almost_equal(
+        cmap([value for value, _ in value_color_tuples]),
+        to_rgba_array([color for _, color in value_color_tuples]),
+    )

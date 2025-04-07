@@ -1,4 +1,6 @@
 """
+.. _hatch_def:
+
 =====================
 Hatch style reference
 =====================
@@ -62,3 +64,7 @@ for ax, h in zip(axs.flat, hatches):
 #    - `matplotlib.patches.Rectangle`
 #    - `matplotlib.axes.Axes.add_patch`
 #    - `matplotlib.axes.Axes.text`
+#
+# .. tags::
+#
+#    purpose: reference

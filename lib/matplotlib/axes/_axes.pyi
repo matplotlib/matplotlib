@@ -200,18 +200,6 @@ class Axes(_AxesBase):
         data=...,
         **kwargs
     ) -> list[Line2D]: ...
-    def plot_date(
-        self,
-        x: ArrayLike,
-        y: ArrayLike,
-        fmt: str = ...,
-        tz: str | datetime.tzinfo | None = ...,
-        xdate: bool = ...,
-        ydate: bool = ...,
-        *,
-        data=...,
-        **kwargs
-    ) -> list[Line2D]: ...
     def loglog(self, *args, **kwargs) -> list[Line2D]: ...
     def semilogx(self, *args, **kwargs) -> list[Line2D]: ...
     def semilogy(self, *args, **kwargs) -> list[Line2D]: ...
@@ -268,7 +256,7 @@ class Axes(_AxesBase):
         *,
         fmt: str | Callable[[float], str] = ...,
         label_type: Literal["center", "edge"] = ...,
-        padding: float = ...,
+        padding: float | ArrayLike = ...,
         **kwargs
     ) -> list[Annotation]: ...
     def broken_barh(
@@ -755,6 +743,8 @@ class Axes(_AxesBase):
         | Callable[[GaussianKDE], float]
         | None = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
         data=...,
     ) -> dict[str, Collection]: ...
     def violin(
@@ -769,6 +759,8 @@ class Axes(_AxesBase):
         showextrema: bool = ...,
         showmedians: bool = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
     ) -> dict[str, Collection]: ...
 
     table = mtable.table

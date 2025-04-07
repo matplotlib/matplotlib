@@ -75,6 +75,7 @@ class Tick(martist.Artist):
         label2On=False,
         major=True,
         labelrotation=0,
+        labelrotation_mode=None,
         grid_color=None,
         grid_linestyle=None,
         grid_linewidth=None,
@@ -134,7 +135,7 @@ class Tick(martist.Artist):
             #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
             # so the that the rcParams default would override color alpha.
             grid_alpha = mpl.rcParams["grid.alpha"]
-        grid_kw = {k[5:]: v for k, v in kwargs.items()}
+        grid_kw = {k[5:]: v for k, v in kwargs.items() if k != "rotation_mode"}
 
         self.tick1line = mlines.Line2D(
             [], [],
@@ -157,11 +158,13 @@ class Tick(martist.Artist):
         self.label1 = mtext.Text(
             np.nan, np.nan,
             fontsize=labelsize, color=labelcolor, visible=label1On,
-            fontfamily=labelfontfamily, rotation=self._labelrotation[1])
+            fontfamily=labelfontfamily, rotation=self._labelrotation[1],
+            rotation_mode=labelrotation_mode)
         self.label2 = mtext.Text(
             np.nan, np.nan,
             fontsize=labelsize, color=labelcolor, visible=label2On,
-            fontfamily=labelfontfamily, rotation=self._labelrotation[1])
+            fontfamily=labelfontfamily, rotation=self._labelrotation[1],
+            rotation_mode=labelrotation_mode)
 
         self._apply_tickdir(tickdir)
 
@@ -321,7 +324,8 @@ class Tick(martist.Artist):
             self.label2.set(rotation=self._labelrotation[1])
 
         label_kw = {k[5:]: v for k, v in kwargs.items()
-                    if k in ['labelsize', 'labelcolor', 'labelfontfamily']}
+                    if k in ['labelsize', 'labelcolor', 'labelfontfamily',
+                             'labelrotation_mode']}
         self.label1.set(**label_kw)
         self.label2.set(**label_kw)
 
@@ -1050,7 +1054,7 @@ class Axis(martist.Artist):
             'tick1On', 'tick2On', 'label1On', 'label2On',
             'length', 'direction', 'left', 'bottom', 'right', 'top',
             'labelleft', 'labelbottom', 'labelright', 'labeltop',
-            'labelrotation',
+            'labelrotation', 'labelrotation_mode',
             *_gridline_param_names]
 
         keymap = {
@@ -1058,6 +1062,7 @@ class Axis(martist.Artist):
             'length': 'size',
             'direction': 'tickdir',
             'rotation': 'labelrotation',
+            'rotation_mode': 'labelrotation_mode',
             'left': 'tick1On',
             'bottom': 'tick1On',
             'right': 'tick2On',

@@ -51,7 +51,6 @@ Basic
    plot
    errorbar
    scatter
-   plot_date
    step
    loglog
    semilogx

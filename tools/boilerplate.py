@@ -256,7 +256,6 @@ def boilerplate_gen():
         'phase_spectrum',
         'pie',
         'plot',
-        'plot_date',
         'psd',
         'quiver',
         'quiverkey',
