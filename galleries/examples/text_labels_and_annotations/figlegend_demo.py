@@ -25,3 +25,9 @@ plt.show()
 # %%
 # The outside positioning is discussed in detail here:
 # https://matplotlib.org/stable/users/explain/axes/legend_guide.html#figure-legends
+#
+#
+# .. seealso::
+#
+#    The :ref:`legend_guide` contains an in depth discussion on the configuration
+#    options for legends.
