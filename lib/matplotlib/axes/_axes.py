@@ -3508,9 +3508,9 @@ class Axes(_AxesBase):
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
 
-        elinestyle : str or tuple, default:None
-           str or tuple or list thereof
-           Valid values for individual linestyles include {'-', '--', '-.',
+        elinestyle : str or tuple, default: 'solid'
+           The linestyle of the errorbar lines.
+           Valid values for linestyles include {'-', '--', '-.',
             ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
             complete description.
 
