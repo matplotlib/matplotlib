@@ -964,7 +964,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             label.set_color(self.labelMappable.to_rgba(cv))
         super().changed()
 
-    def _autolev(self, N, *, using_default):
+    def _autolev(self, N):
         """
         Select contour levels to span the data.
 
@@ -978,16 +978,20 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         a single contour boundary, say at z = 0, requires only
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
+
+        Parameters
+        ----------
+        N : int | None
         """
         if self.locator is None:
             if self.logscale:
-                if using_default:
-                    # Let log locator choose instead of using hard coded value
-                    # set in self._process_contour_level_args()
+                if N is None:
                     self.locator = ticker.LogLocator()
                 else:
                     self.locator = ticker.LogLocator(numticks=N)
             else:
+                if N is None:
+                    N = 7  # Hard coded default
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
 
         lev = self.locator.tick_values(self.zmin, self.zmax)
@@ -1017,23 +1021,23 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         """
         Determine the contour levels and store in self.levels.
         """
-        if self.levels is None:
+        levels_arg = self.levels
+        if levels_arg is None:
             if args:
+                # Set if levels manually provided
                 levels_arg = args[0]
             elif np.issubdtype(z_dtype, bool):
+                # Set default values for bool data types
                 if self.filled:
                     levels_arg = [0, .5, 1]
                 else:
                     levels_arg = [.5]
-            else:
-                levels_arg = 7  # Default, hard-wired.
-        else:
-            levels_arg = self.levels
 
-        if isinstance(levels_arg, Integral):
-            self.levels = self._autolev(levels_arg, using_default=self.levels is None)
+        if isinstance(levels_arg, (Integral, None)):
+            self.levels = self._autolev(levels_arg)
         else:
             self.levels = np.asarray(levels_arg, np.float64)
+
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
         if len(self.levels) > 1 and np.min(np.diff(self.levels)) <= 0.0:
