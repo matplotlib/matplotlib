@@ -875,7 +875,9 @@ def figure(
     # autoincrement if None, else integer from 1-N
     num: int | str | Figure | SubFigure | None = None,
     # defaults to rc figure.figsize
-    figsize: tuple[float, float] | None = None,
+    figsize: ArrayLike  # a 2-element ndarray is accepted as well
+             | tuple[float, float, Literal["in", "cm", "px"]]
+             | None = None,
     # defaults to rc figure.dpi
     dpi: float | None = None,
     *,
@@ -908,8 +910,12 @@ def figure(
         window title is set to this value.  If num is a ``SubFigure``, its
         parent ``Figure`` is activated.
 
-    figsize : (float, float), default: :rc:`figure.figsize`
-        Width, height in inches.
+    figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
+        The figure dimensions. This can be
+
+        - a tuple ``(width, height, unit)``, where *unit* is one of "inch", "cm",
+          "px".
+        - a tuple ``(x, y)``, which is interpreted as ``(x, y, "inch")``.
 
     dpi : float, default: :rc:`figure.dpi`
         The resolution of the figure in dots-per-inch.
@@ -1172,7 +1178,7 @@ def disconnect(cid: int) -> None:
 
 def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
     """
-    Close a figure window.
+    Close a figure window, and unregister it from pyplot.
 
     Parameters
     ----------
@@ -1185,6 +1191,14 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
         - ``str``: a figure name
         - 'all': all figures
 
+    Notes
+    -----
+    pyplot maintains a reference to figures created with `figure()`. When
+    work on the figure is completed, it should be closed, i.e. deregistered
+    from pyplot, to free its memory (see also :rc:figure.max_open_warning).
+    Closing a figure window created by `show()` automatically deregisters the
+    figure. For all other use cases, most prominently `savefig()` without
+    `show()`, the figure must be deregistered explicitly using `close()`.
     """
     if fig is None:
         manager = _pylab_helpers.Gcf.get_active()
@@ -1703,7 +1717,7 @@ def subplots(
 
         Typical idioms for handling the return value are::
 
-            # using the variable ax for single a Axes
+            # using the variable ax for a single Axes
             fig, ax = plt.subplots()
 
             # using the variable axs for multiple Axes

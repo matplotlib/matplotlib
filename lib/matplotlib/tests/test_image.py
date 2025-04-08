@@ -88,7 +88,7 @@ def test_image_python_io():
      (3, 2.9, "hanning"),  # <3 upsample.
      (3, 9.1, "nearest"),  # >3 upsample.
      ])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_imshow_antialiased(fig_test, fig_ref,
                             img_size, fig_size, interpolation):
     np.random.seed(19680801)
@@ -104,7 +104,7 @@ def test_imshow_antialiased(fig_test, fig_ref,
     ax.imshow(A, interpolation=interpolation)
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_imshow_zoom(fig_test, fig_ref):
     # should be less than 3 upsample, so should be nearest...
     np.random.seed(19680801)
@@ -256,19 +256,19 @@ def test_image_alpha():
 
 
 @mpl.style.context('mpl20')
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_imshow_alpha(fig_test, fig_ref):
     np.random.seed(19680801)
 
-    rgbf = np.random.rand(6, 6, 3)
+    rgbf = np.random.rand(6, 6, 3).astype(np.float32)
     rgbu = np.uint8(rgbf * 255)
     ((ax0, ax1), (ax2, ax3)) = fig_test.subplots(2, 2)
     ax0.imshow(rgbf, alpha=0.5)
     ax1.imshow(rgbf, alpha=0.75)
-    ax2.imshow(rgbu, alpha=0.5)
-    ax3.imshow(rgbu, alpha=0.75)
+    ax2.imshow(rgbu, alpha=127/255)
+    ax3.imshow(rgbu, alpha=191/255)
 
-    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2)
+    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2).astype(np.float32)
     rgbau = np.concatenate((rgbu, np.full((6, 6, 1), 255, np.uint8)), axis=2)
     ((ax0, ax1), (ax2, ax3)) = fig_ref.subplots(2, 2)
     rgbaf[:, :, 3] = 0.5
@@ -426,7 +426,7 @@ def test_image_cliprect():
     im.set_clip_path(rect)
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_imshow_10_10_1(fig_test, fig_ref):
     # 10x10x1 should be the same as 10x10
     arr = np.arange(100).reshape((10, 10, 1))
@@ -514,7 +514,7 @@ def test_image_composite_background():
     ax.set_xlim([0, 12])
 
 
-@image_comparison(['image_composite_alpha'], remove_text=True)
+@image_comparison(['image_composite_alpha'], remove_text=True, tol=0.07)
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
@@ -1134,7 +1134,7 @@ def test_image_cursor_formatting():
     assert im.format_cursor_data(data) == '[nan]'
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_image_array_alpha(fig_test, fig_ref):
     """Per-pixel alpha channel test."""
     x = np.linspace(0, 1)
@@ -1287,7 +1287,7 @@ def test_imshow_quantitynd():
     fig.canvas.draw()
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_norm_change(fig_test, fig_ref):
     # LogNorm should not mask anything invalid permanently.
     data = np.full((5, 5), 1, dtype=np.float64)
@@ -1316,7 +1316,7 @@ def test_norm_change(fig_test, fig_ref):
 
 
 @pytest.mark.parametrize('x', [-1, 1])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_huge_range_log(fig_test, fig_ref, x):
     # parametrize over bad lognorm -1 values and large range 1 -> 1e20
     data = np.full((5, 5), x, dtype=np.float64)
@@ -1459,7 +1459,7 @@ def test_rgba_antialias():
                   cmap=cmap, vmin=-1.2, vmax=1.2)
 
 
-@check_figures_equal(extensions=('png', ))
+@check_figures_equal()
 def test_upsample_interpolation_stage(fig_test, fig_ref):
     """
     Show that interpolation_stage='auto' gives the same as 'data'
@@ -1479,7 +1479,7 @@ def test_upsample_interpolation_stage(fig_test, fig_ref):
               interpolation_stage='auto')
 
 
-@check_figures_equal(extensions=('png', ))
+@check_figures_equal()
 def test_downsample_interpolation_stage(fig_test, fig_ref):
     """
     Show that interpolation_stage='auto' gives the same as 'rgba'
@@ -1515,7 +1515,7 @@ def test_rc_interpolation_stage():
 @pytest.mark.parametrize(
     'dim, size, msg', [['row', 2**23, r'2\*\*23 columns'],
                        ['col', 2**24, r'2\*\*24 rows']])
-@check_figures_equal(extensions=('png', ))
+@check_figures_equal()
 def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
     # Check that Matplotlib downsamples images that are too big for AGG
     # See issue #19276. Currently the fix only works for png output but not
@@ -1547,7 +1547,7 @@ def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
                        origin=origin)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_str_norms(fig_test, fig_ref):
     t = np.random.rand(10, 10) * .8 + .1  # between 0 and 1
     axts = fig_test.subplots(1, 5)
@@ -1714,7 +1714,7 @@ def test_resample_dtypes(dtype, ndim):
 
 
 @pytest.mark.parametrize('intp_stage', ('data', 'rgba'))
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_stage):
     axs_tst = fig_test.subplots(2, 3)
     axs_ref = fig_ref.subplots(2, 3)

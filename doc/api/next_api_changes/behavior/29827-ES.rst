@@ -1,0 +1,6 @@
+``matplotlib.testing.check_figures_equal`` defaults to PNG only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In most cases, checking that figures are equal with `.check_figures_equal` does not
+depend on the file format. Consequently, the *extensions* parameter now defaults to
+``['png']`` instead of ``['png', 'pdf', 'svg']``, reducing default test requirements.

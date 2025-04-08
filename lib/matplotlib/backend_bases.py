@@ -208,7 +208,7 @@ class RendererBase:
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
+                             offset_position, *, hatchcolors=None):
         """
         Draw a collection of *paths*.
 
@@ -217,8 +217,11 @@ class RendererBase:
         *master_transform*.  They are then translated by the corresponding
         entry in *offsets*, which has been first transformed by *offset_trans*.
 
-        *facecolors*, *edgecolors*, *linewidths*, *linestyles*, and
-        *antialiased* are lists that set the corresponding properties.
+        *facecolors*, *edgecolors*, *linewidths*, *linestyles*, *antialiased*
+        and *hatchcolors* are lists that set the corresponding properties.
+
+        .. versionadded:: 3.11
+            Allow *hatchcolors* to be specified.
 
         *offset_position* is unused now, but the argument is kept for
         backwards compatibility.
@@ -235,10 +238,13 @@ class RendererBase:
         path_ids = self._iter_collection_raw_paths(master_transform,
                                                    paths, all_transforms)
 
+        if hatchcolors is None:
+            hatchcolors = []
+
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, list(path_ids), offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
             path, transform = path_id
             # Only apply another translation if we have an offset, else we
             # reuse the initial transform.
@@ -252,7 +258,7 @@ class RendererBase:
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, edgecolors):
+                       antialiased, edgecolors, *, hatchcolors=None):
         """
         Draw a quadmesh.
 
@@ -265,11 +271,14 @@ class RendererBase:
 
         if edgecolors is None:
             edgecolors = facecolors
+        if hatchcolors is None:
+            hatchcolors = []
         linewidths = np.array([gc.get_linewidth()], float)
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
-            edgecolors, linewidths, [], [antialiased], [None], 'screen')
+            edgecolors, linewidths, [], [antialiased], [None], 'screen',
+            hatchcolors=hatchcolors)
 
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
@@ -337,7 +346,7 @@ class RendererBase:
 
     def _iter_collection(self, gc, path_ids, offsets, offset_trans, facecolors,
                          edgecolors, linewidths, linestyles,
-                         antialiaseds, urls, offset_position):
+                         antialiaseds, urls, offset_position, *, hatchcolors):
         """
         Helper method (along with `_iter_collection_raw_paths`) to implement
         `draw_path_collection` in a memory-efficient manner.
@@ -365,11 +374,12 @@ class RendererBase:
         N = max(Npaths, Noffsets)
         Nfacecolors = len(facecolors)
         Nedgecolors = len(edgecolors)
+        Nhatchcolors = len(hatchcolors)
         Nlinewidths = len(linewidths)
         Nlinestyles = len(linestyles)
         Nurls = len(urls)
 
-        if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
+        if (Nfacecolors == 0 and Nedgecolors == 0 and Nhatchcolors == 0) or Npaths == 0:
             return
 
         gc0 = self.new_gc()
@@ -384,6 +394,7 @@ class RendererBase:
         toffsets = cycle_or_default(offset_trans.transform(offsets), (0, 0))
         fcs = cycle_or_default(facecolors)
         ecs = cycle_or_default(edgecolors)
+        hcs = cycle_or_default(hatchcolors)
         lws = cycle_or_default(linewidths)
         lss = cycle_or_default(linestyles)
         aas = cycle_or_default(antialiaseds)
@@ -392,8 +403,8 @@ class RendererBase:
         if Nedgecolors == 0:
             gc0.set_linewidth(0.0)
 
-        for pathid, (xo, yo), fc, ec, lw, ls, aa, url in itertools.islice(
-                zip(pathids, toffsets, fcs, ecs, lws, lss, aas, urls), N):
+        for pathid, (xo, yo), fc, ec, hc, lw, ls, aa, url in itertools.islice(
+                zip(pathids, toffsets, fcs, ecs, hcs, lws, lss, aas, urls), N):
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
             if Nedgecolors:
@@ -405,6 +416,8 @@ class RendererBase:
                     gc0.set_linewidth(0)
                 else:
                     gc0.set_foreground(ec)
+            if Nhatchcolors:
+                gc0.set_hatch_color(hc)
             if fc is not None and len(fc) == 4 and fc[3] == 0:
                 fc = None
             gc0.set_antialiased(aa)

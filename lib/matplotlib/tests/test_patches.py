@@ -178,7 +178,7 @@ def test_rotate_rect():
     assert_almost_equal(rect1.get_verts(), new_verts)
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_rotate_rect_draw(fig_test, fig_ref):
     ax_test = fig_test.add_subplot()
     ax_ref = fig_ref.add_subplot()
@@ -199,7 +199,7 @@ def test_rotate_rect_draw(fig_test, fig_ref):
     assert rect_test.get_angle() == angle
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_dash_offset_patch_draw(fig_test, fig_ref):
     ax_test = fig_test.add_subplot()
     ax_ref = fig_ref.add_subplot()
@@ -241,7 +241,7 @@ def test_negative_rect():
     assert_array_equal(np.roll(neg_vertices, 2, 0), pos_vertices)
 
 
-@image_comparison(['clip_to_bbox'])
+@image_comparison(['clip_to_bbox.png'])
 def test_clip_to_bbox():
     fig, ax = plt.subplots()
     ax.set_xlim([-18, 20])
@@ -395,7 +395,7 @@ def test_patch_linestyle_accents():
     fig.canvas.draw()
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_patch_linestyle_none(fig_test, fig_ref):
     circle = mpath.Path.unit_circle()
 
@@ -583,7 +583,7 @@ def test_connection_patch():
     ax2.add_artist(con)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_connection_patch_fig(fig_test, fig_ref):
     # Test that connection patch can be added as figure artist, and that figure
     # pixels count negative values from the top right corner (this API may be
@@ -606,7 +606,7 @@ def test_connection_patch_fig(fig_test, fig_ref):
     fig_ref.add_artist(con)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_connection_patch_pixel_points(fig_test, fig_ref):
     xyA_pts = (.3, .2)
     xyB_pts = (-30, -20)
@@ -678,7 +678,7 @@ def test_contains_points():
 
 
 # Currently fails with pdf/svg, probably because some parts assume a dpi of 72.
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_shadow(fig_test, fig_ref):
     xy = np.array([.2, .3])
     dxy = np.array([.1, .2])

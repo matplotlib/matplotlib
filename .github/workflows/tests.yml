@@ -48,67 +48,34 @@ jobs:
       matrix:
         include:
           - name-suffix: "(Minimum Versions)"
-            os: ubuntu-20.04
-            python-version: '3.10'
+            os: ubuntu-22.04
+            python-version: '3.11'
             extra-requirements: '-c requirements/testing/minver.txt'
             delete-font-cache: true
-            # Oldest versions with Py3.10 wheels.
-            pyqt5-ver: '==5.15.5 sip==6.3.0'
-            pyqt6-ver: '==6.2.0 PyQt6-Qt6==6.2.0'
-            pyside2-ver: '==5.15.2.1'
-            pyside6-ver: '==6.2.0'
-          - os: ubuntu-20.04
-            python-version: '3.10'
-            extra-requirements: '-r requirements/testing/extra.txt'
-            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-            # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.5.1,!=6.6.0,!=6.7.1'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: ubuntu-22.04
             python-version: '3.11'
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
+            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             extra-requirements: '-r requirements/testing/extra.txt'
           - os: ubuntu-22.04-arm
             python-version: '3.12'
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: ubuntu-22.04
             python-version: '3.13'
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
             python-version: '3.13t'
-            # https://www.riverbankcomputing.com/pipermail/pyqt/2023-November/045606.html
-            pyqt6-ver: '!=6.6.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
+          - os: ubuntu-24.04
+            python-version: '3.12'
           - os: macos-13  # This runner is on Intel chips.
             # merge numpy and pandas install in nighties test when this runner is dropped
             python-version: '3.10'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
-            pyside6-ver: '!=6.5.1'
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -145,7 +112,6 @@ jobs:
               libcairo2-dev \
               libffi-dev \
               libgeos-dev \
-              libgirepository1.0-dev \
               libnotify4 \
               libsdl2-2.0-0 \
               libxkbcommon-x11-0 \
@@ -170,10 +136,13 @@ jobs:
             if [[ "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
               sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
             fi
-            if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
-              sudo apt-get install -yy --no-install-recommends libopengl0
-            else  # ubuntu-22.04
-              sudo apt-get install -yy --no-install-recommends gir1.2-gtk-4.0
+            if [[ "${{ matrix.os }}" = ubuntu-22.04 || "${{ matrix.os }}" = ubuntu-22.04-arm ]]; then
+              sudo apt-get install -yy --no-install-recommends \
+                gir1.2-gtk-4.0 \
+                libgirepository1.0-dev
+            else  # ubuntu-24.04
+              sudo apt-get install -yy --no-install-recommends \
+                libgirepository-2.0-dev
             fi
             ;;
           macOS)
@@ -275,7 +244,7 @@ jobs:
 
           # PyQt5 does not have any wheels for ARM on Linux.
           if [[ "${{ matrix.os }}" != 'ubuntu-22.04-arm' ]]; then
-            python -mpip install --upgrade --only-binary :all: pyqt5${{ matrix.pyqt5-ver }} &&
+            python -mpip install --upgrade --only-binary :all: pyqt5 &&
               python -c 'import PyQt5.QtCore' &&
               echo 'PyQt5 is available' ||
               echo 'PyQt5 is not available'
@@ -285,16 +254,16 @@ jobs:
           # on M1 macOS, so don't bother there either.
           if [[ "${{ matrix.os }}" != 'macos-14'
                 && "${{ matrix.python-version }}" != '3.12' && "${{ matrix.python-version }}" != '3.13' ]]; then
-            python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
+            python -mpip install --upgrade pyside2 &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
               echo 'PySide2 is not available'
           fi
-          python -mpip install --upgrade --only-binary :all: pyqt6${{ matrix.pyqt6-ver }} &&
+          python -mpip install --upgrade --only-binary :all: pyqt6 &&
             python -c 'import PyQt6.QtCore' &&
             echo 'PyQt6 is available' ||
             echo 'PyQt6 is not available'
-          python -mpip install --upgrade --only-binary :all: pyside6${{ matrix.pyside6-ver }} &&
+          python -mpip install --upgrade --only-binary :all: pyside6 &&
             python -c 'import PySide6.QtCore' &&
             echo 'PySide6 is available' ||
             echo 'PySide6 is not available'
@@ -397,11 +366,17 @@ jobs:
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
         run: |
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            lcov --rc lcov_branch_coverage=1 --capture --directory . \
-              --output-file coverage.info
-            lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
-              --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
-            lcov --rc lcov_branch_coverage=1 --list coverage.info
+            LCOV_IGNORE_ERRORS=','  # do not ignore any lcov errors by default
+            if [[ "${{ matrix.os }}" = ubuntu-24.04 ]]; then
+              # filter mismatch and unused-entity errors detected by lcov 2.x
+              LCOV_IGNORE_ERRORS='mismatch,unused'
+            fi
+            lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
+              --capture --directory . --output-file coverage.info
+            lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
+              --output-file coverage.info --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
+            lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
+              --list coverage.info
             find . -name '*.gc*' -delete
           else
             xcrun llvm-profdata merge -sparse default.*.profraw \
