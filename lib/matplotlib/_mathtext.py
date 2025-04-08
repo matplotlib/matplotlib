@@ -22,7 +22,7 @@ from pyparsing import (
     Empty, Forward, Literal, NotAny, one_of, OneOrMore, Optional,
     ParseBaseException, ParseException, ParseExpression, ParseFatalException,
     ParserElement, ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore,
-    pyparsing_common, Group)
+    pyparsing_common, Group, nested_expr)
 
 import matplotlib as mpl
 from . import cbook
@@ -31,7 +31,6 @@ from ._mathtext_data import (
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import FT2Font, FT2Image, Kerning, LoadFlags
 
-from pyparsing import nested_expr
 
 if T.TYPE_CHECKING:
     from collections.abc import Iterable
