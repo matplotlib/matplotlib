@@ -338,12 +338,6 @@ jobs:
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes \
             --junitxml=junit.xml -o junit_family=legacy
 
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}  # Run even if tests fail
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          os: ${{ matrix.codecov-test-results-action-os }}
       - name: Cleanup non-failed image files
         if: failure()
         run: |
@@ -400,6 +394,14 @@ jobs:
             xcrun llvm-cov export -format="lcov" build/*/src/*.so \
               -instr-profile default.profdata > info.lcov
           fi
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}  # Run even if tests fail
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          os: ${{ matrix.codecov-test-results-action-os }}
+
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
         uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574  # v5.4.0
