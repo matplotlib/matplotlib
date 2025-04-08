@@ -37,3 +37,8 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
 #    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
+#
+# .. seealso::
+#
+#    The :ref:`legend_guide` contains an in depth discussion on the configuration
+#    options for legends.
