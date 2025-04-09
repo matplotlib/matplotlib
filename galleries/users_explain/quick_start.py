@@ -111,6 +111,45 @@ plt.show()                           # Show the figure.
 # Artists are drawn to the **canvas**.  Most Artists are tied to an Axes; such
 # an Artist cannot be shared by multiple Axes, or moved from one to another.
 #
+# .. _plot_types_quickstart:
+#
+# Plot types
+# ==========
+#
+# For an overview of the different types of plots you can create with Matplotlib,
+# see the :ref:`Plot types gallery <plot_types>`. If you don't find the plot
+# type you need, it may still be possible to create the visualization you want
+# For example, Matplotlib does not provide a method to automatically annotate a
+# distribution plot. Instead, you can create this visualization by combining the
+# `~.matplotlib.axes.Axes.plot` method to draw the distribution, the
+# `~.matplotlib.axes.Axes.axhline` method to draw the mean, and
+# `~matplotlib.axes.Axes.axhspan` to shade the standard deviation region.
+
+x = np.array([3, 4, 9, 8, 9, 8, 0, 8, 4, 8])
+fig, ax = plt.subplots()
+
+# Compute the mean and standard deviation of the data
+mean = np.mean(x)
+std = np.std(x)
+
+# Add a horizontal line for the mean, and a rectangle representing the
+# standard deviation of the data
+ln_data = ax.plot(x, label='Data')
+ln_mean = ax.axhline(mean, color='red', label='Mean')
+ln_std = ax.axhspan(mean-std, mean+std, alpha=0.1, label=r'$\sigma$')
+
+ax.legend()
+
+# Now, you can use object methods to directly customize your plot.
+# Note that ln_data is a list of `~.matplotlib.lines.Line2D` objects - we'll
+# modify the first entry in this list.
+ln_data[0].set_color('orange')
+ln_mean.set_linestyle(':')
+ln_std.set_hatch('oo')
+# %%
+# For more information on creating artists from their constructors, see
+# :ref:`artists_tutorial`.
+#
 # .. _input_types:
 #
 # Types of inputs to plotting functions
@@ -209,8 +248,8 @@ plt.legend()
 #    You may find older examples that use the ``pylab`` interface,
 #    via ``from pylab import *``. This approach is strongly deprecated.
 #
-# Making a helper functions
-# -------------------------
+# Making helper functions
+# -----------------------
 #
 # If you need to make the same plots over and over again with different data
 # sets, or want to easily wrap Matplotlib methods, use the recommended
@@ -563,8 +602,8 @@ axs[1, 1].set_title('scatter()')
 # control the size.  Finally, the colorbar will have default locators
 # and formatters appropriate to the norm.  These can be changed as for
 # other Axis objects.
-#
-#
+
+# %%
 # Working with multiple Figures and Axes
 # ======================================
 #
@@ -593,3 +632,6 @@ axd['right'].set_title('right')
 # For more plot types see :doc:`Plot types </plot_types/index>` and the
 # :doc:`API reference </api/index>`, in particular the
 # :doc:`Axes API </api/axes_api>`.
+#
+# For more information on coordinate systems and transformations, see the
+# :ref:`transforms_tutorial`.
