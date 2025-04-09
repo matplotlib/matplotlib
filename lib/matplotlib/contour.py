@@ -964,13 +964,30 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             label.set_color(self.labelMappable.to_rgba(cv))
         super().changed()
 
-    def _autolev(self, N):
+    def _set_locator_if_none(self, N):
+        """
+        Set a locator on this ContourSet if it's not already set.
+
+        If *N* is an int, it is used as the target number of levels.
+        Otherwise when *N* is None, a reasonable default is chosen;
+        for logscales the LogLocator chooses, N=7 is the default
+        otherwise.
+
+        Parameters
+        ----------
+        N : int or None
+        """
+        if self.locator is None:
+            if self.logscale:
+                self.locator = ticker.LogLocator(numticks=N)
+            else:
+                if N is None:
+                    N = 7  # Hard coded default
+                self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
+
+    def _autolev(self):
         """
         Select contour levels to span the data.
-
-        The target number of levels, *N*, is used only when the
-        locator is not set and the scale is log or the default
-        locator is used.
 
         We need two more levels for filled contours than for
         line contours, because for the latter we need to specify
@@ -978,22 +995,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         a single contour boundary, say at z = 0, requires only
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
-
-        Parameters
-        ----------
-        N : int | None
         """
-        if self.locator is None:
-            if self.logscale:
-                if N is None:
-                    self.locator = ticker.LogLocator()
-                else:
-                    self.locator = ticker.LogLocator(numticks=N)
-            else:
-                if N is None:
-                    N = 7  # Hard coded default
-                self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
-
         lev = self.locator.tick_values(self.zmin, self.zmax)
 
         try:
@@ -1028,13 +1030,11 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 levels_arg = args[0]
             elif np.issubdtype(z_dtype, bool):
                 # Set default values for bool data types
-                if self.filled:
-                    levels_arg = [0, .5, 1]
-                else:
-                    levels_arg = [.5]
+                levels_arg = [0, .5, 1] if self.filled else [.5]
 
-        if isinstance(levels_arg, (Integral, None)):
-            self.levels = self._autolev(levels_arg)
+        if isinstance(levels_arg, Integral) or levels_arg is None:
+            self._set_locator_if_none(levels_arg)
+            self.levels = self._autolev()
         else:
             self.levels = np.asarray(levels_arg, np.float64)
 
