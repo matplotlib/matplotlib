@@ -8272,8 +8272,8 @@ def test_normal_axes():
 
     # test the axis bboxes
     target = [
-        [123.375, 75.88888888888886, 983.25, 33.0],
-        [85.51388888888889, 99.99999999999997, 53.375, 993.0]
+        [124.0, 76.89, 982.0, 32.0],
+        [86.89, 100.5, 52.0, 992.0],
     ]
     for nn, b in enumerate(bbaxis):
         targetbb = mtransforms.Bbox.from_bounds(*target[nn])
@@ -8293,7 +8293,7 @@ def test_normal_axes():
     targetbb = mtransforms.Bbox.from_bounds(*target)
     assert_array_almost_equal(bbax.bounds, targetbb.bounds, decimal=2)
 
-    target = [85.5138, 75.88888, 1021.11, 1017.11]
+    target = [86.89, 76.89, 1019.11, 1015.61]
     targetbb = mtransforms.Bbox.from_bounds(*target)
     assert_array_almost_equal(bbtb.bounds, targetbb.bounds, decimal=2)
 

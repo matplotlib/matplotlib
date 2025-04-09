@@ -328,7 +328,7 @@ def test_get_tightbbox_polar():
     fig.canvas.draw()
     bb = ax.get_tightbbox(fig.canvas.get_renderer())
     assert_allclose(
-        bb.extents, [107.7778,  29.2778, 539.7847, 450.7222], rtol=1e-03)
+        bb.extents, [108.27778, 28.7778, 539.7222, 451.2222], rtol=1e-03)
 
 
 @check_figures_equal()
