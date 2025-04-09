@@ -107,8 +107,9 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
         raise
     except subprocess.CalledProcessError as e:
         import pytest
-        pytest.xfail(f"Subprocess failed with exit code {e.returncode}:"
-                     f"\n{e.stdout}\n{e.stderr}")
+        pytest.fail(
+            f"Subprocess failed with exit code {e.returncode}:\n\n"
+            f"STDOUT:\n{e.stdout}\n\nSTDERR:\n{e.stderr}")
     return proc
 
 
