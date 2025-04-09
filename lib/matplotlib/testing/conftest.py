@@ -129,6 +129,14 @@ def xr():
 
 @pytest.fixture
 def text_placeholders(monkeypatch):
+    """
+    Replace texts with placeholder rectangles.
+
+    The rectangle size only depends on the font size and the number of characters. It is
+    thus insensitive to font properties and rendering details. This should be used for
+    tests that depend on text geometries but not the actual text rendering, e.g. layout
+    tests.
+    """
     from matplotlib.patches import Rectangle
 
     def patched_get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
