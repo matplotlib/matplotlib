@@ -4,3 +4,6 @@
 ytick.alignment: center_baseline
 
 hatch.color: edge
+
+text.hinting: default
+text.hinting_factor: 1
