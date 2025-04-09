@@ -78,5 +78,5 @@ RcStyleType: TypeAlias = (
 )
 
 _HT = TypeVar("_HT", bound=Hashable)
-HashableList: TypeAlias = list[_HT | "HashableList[_HT]"]
+HashableList: TypeAlias = Sequence[_HT | "HashableList[_HT]"]
 """A nested list of Hashable values."""
