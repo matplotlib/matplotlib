@@ -2122,9 +2122,9 @@ default: %(va)s
             # go through the unique keys,
             for name in unique_ids:
                 # sort out where each axes starts/ends
-                indx = np.argwhere(mosaic == name)
-                start_row, start_col = np.min(indx, axis=0)
-                end_row, end_col = np.max(indx, axis=0) + 1
+                idx = np.argwhere(mosaic == name)
+                start_row, start_col = np.min(idx, axis=0)
+                end_row, end_col = np.max(idx, axis=0) + 1
                 # and construct the slice object
                 slc = (slice(start_row, end_row), slice(start_col, end_col))
                 # some light error checking
