@@ -2335,7 +2335,7 @@ class _Style:
     @classmethod
     def pprint_styles(cls):
         """Return the available styles as pretty-printed string."""
-        table = [('Class', 'Name', 'Attrs'),
+        table = [('Class', 'Name', 'Parameters'),
                  *[(cls.__name__,
                     # Add backquotes, as - and | have special meaning in reST.
                     f'``{name}``',
@@ -4159,49 +4159,90 @@ class FancyArrowPatch(Patch):
                  patchA=None, patchB=None, shrinkA=2, shrinkB=2,
                  mutation_scale=1, mutation_aspect=1, **kwargs):
         """
-        There are two ways for defining an arrow:
+        **Defining the arrow position and path**
 
-        - If *posA* and *posB* are given, a path connecting two points is
-          created according to *connectionstyle*. The path will be
-          clipped with *patchA* and *patchB* and further shrunken by
-          *shrinkA* and *shrinkB*. An arrow is drawn along this
-          resulting path using the *arrowstyle* parameter.
+        There are two ways to define the arrow position and path:
 
-        - Alternatively if *path* is provided, an arrow is drawn along this
-          path and *patchA*, *patchB*, *shrinkA*, and *shrinkB* are ignored.
+        - **Start, end and connection**:
+          The typical approach is to define the start and end points of the
+          arrow using *posA* and *posB*. The curve between these two can
+          further be configured using *connectionstyle*.
+
+          If given, the arrow curve is clipped by *patchA* and *patchB*,
+          allowing it to start/end at the border of these patches.
+          Additionally, the arrow curve can be shortened by *shrinkA* and *shrinkB*
+          to create a margin between start/end (after possible clipping) and the
+          drawn arrow.
+
+        - **path**: Alternatively if *path* is provided, an arrow is drawn along
+          this Path. In this case, *connectionstyle*, *patchA*, *patchB*,
+          *shrinkA*, and *shrinkB* are ignored.
+
+        **Styling**
+
+        The *arrowstyle* defines the styling of the arrow head, tail and shaft.
+        The resulting arrows can be styled further by setting the `.Patch`
+        properties such as *linewidth*, *color*, *facecolor*, *edgecolor*
+        etc. via keyword arguments.
 
         Parameters
         ----------
-        posA, posB : (float, float), default: None
-            (x, y) coordinates of arrow tail and arrow head respectively.
+        posA, posB : (float, float), optional
+            (x, y) coordinates of start and end point of the arrow.
+            The actually drawn start and end positions may be modified
+            through *patchA*, *patchB*, *shrinkA*, and *shrinkB*.
 
-        path : `~matplotlib.path.Path`, default: None
+            *posA*, *posB* are exclusive of *path*.
+
+        path : `~matplotlib.path.Path`, optional
             If provided, an arrow is drawn along this path and *patchA*,
             *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
+            *path* is exclusive of *posA*, *posB*.
+
         arrowstyle : str or `.ArrowStyle`, default: 'simple'
-            The `.ArrowStyle` with which the fancy arrow is drawn.  If a
-            string, it should be one of the available arrowstyle names, with
-            optional comma-separated attributes.  The optional attributes are
-            meant to be scaled with the *mutation_scale*.  The following arrow
-            styles are available:
+            The styling of arrow head, tail and shaft. This can be
+
+            - `.ArrowStyle` or one of its subclasses
+            - The shorthand string name (e.g. "->") as given in the table below,
+              optionally containing a comma-separated list of style parameters,
+              e.g. "->, head_length=10, head_width=5".
+
+            The style parameters are scaled by *mutation_scale*.
+
+            The following arrow styles are available. See also
+            :doc:`/gallery/text_labels_and_annotations/fancyarrow_demo`.
 
             %(ArrowStyle:table)s
 
+            Only the styles ``<|-``, ``-|>``, ``<|-|>`` ``simple``, ``fancy``
+            and ``wedge`` contain closed paths and can be filled.
+
         connectionstyle : str or `.ConnectionStyle` or None, optional, \
 default: 'arc3'
-            The `.ConnectionStyle` with which *posA* and *posB* are connected.
-            If a string, it should be one of the available connectionstyle
-            names, with optional comma-separated attributes.  The following
-            connection styles are available:
+            `.ConnectionStyle` with which *posA* and *posB* are connected.
+            This can be
+
+            - `.ConnectionStyle` or one of its subclasses
+            - The shorthand string name as given in the table below, e.g. "arc3".
 
             %(ConnectionStyle:table)s
 
+            Ignored if *path* is provided.
+
         patchA, patchB : `~matplotlib.patches.Patch`, default: None
-            Head and tail patches, respectively.
+            Optional Patches at *posA* and *posB*, respectively. If given,
+            the arrow path is clipped by these patches such that head and tail
+            are at the border of the patches.
+
+            Ignored if *path* is provided.
 
         shrinkA, shrinkB : float, default: 2
-            Shrink amount, in points, of the tail and head of the arrow respectively.
+            Shorten the arrow path at *posA* and *posB* by this amount in points.
+            This allows to add a margin between the intended start/end points and
+            the arrow.
+
+            Ignored if *path* is provided.
 
         mutation_scale : float, default: 1
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
