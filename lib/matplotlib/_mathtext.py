@@ -1610,7 +1610,7 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
         return -1e9 if value < -1e9 else +1e9 if value > +1e9 else value
 
     def hlist_out(box: Hlist) -> None:
-        nonlocal cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h
 
         cur_g = 0
         cur_glue = 0.
@@ -1673,7 +1673,7 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
                 cur_h += rule_width
 
     def vlist_out(box: Vlist) -> None:
-        nonlocal cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h
 
         cur_g = 0
         cur_glue = 0.
