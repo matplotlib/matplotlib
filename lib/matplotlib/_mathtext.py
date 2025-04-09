@@ -19,10 +19,10 @@ from typing import NamedTuple
 
 import numpy as np
 from pyparsing import (
-    Empty, Forward, Literal, NotAny, one_of, OneOrMore, Optional,
+    Empty, Forward, Literal, Group, NotAny, OneOrMore, Optional,
     ParseBaseException, ParseException, ParseExpression, ParseFatalException,
     ParserElement, ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore,
-    pyparsing_common, Group, nested_expr)
+    pyparsing_common, nested_expr, one_of)
 
 import matplotlib as mpl
 from . import cbook
