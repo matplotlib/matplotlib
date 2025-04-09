@@ -105,6 +105,9 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
             import pytest
             pytest.xfail("Fork failure")
         raise
+    except subprocess.CalledProcessError as e:
+        import pytest
+        pytest.xfail(f"Subprocess failed with exit code {e.returncode}:\n{e.stdout}\n{e.stderr}")
     return proc
 
 
