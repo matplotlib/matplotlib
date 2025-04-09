@@ -711,14 +711,14 @@ def test_wrap(x, rotation, halign):
     s = 'This is a very long text that should be wrapped multiple times.'
     text = subfig.text(x, 0.7, s, wrap=True, rotation=rotation, ha=halign)
     fig.canvas.draw()
-    assert text._get_wrapped_text() == ('This is a very long\n'
-                                        'text that should be\n'
+    assert text._get_wrapped_text() == ('This is a very long text\n'
+                                        'that should be\n'
                                         'wrapped multiple\n'
                                         'times.')
 
 
 def test_mathwrap():
-    fig = plt.figure(figsize=(6, 4))
+    fig = plt.figure(figsize=(5, 4))
     s = r'This is a very $\overline{\mathrm{long}}$ line of Mathtext.'
     text = fig.text(0, 0.5, s, size=40, wrap=True)
     fig.canvas.draw()
