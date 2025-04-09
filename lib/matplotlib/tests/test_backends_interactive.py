@@ -433,7 +433,8 @@ def _impl_test_cross_Qt_imports():
     host_app = host_qwidgets.QApplication(["mpl testing"])
     warnings.filterwarnings("error", message=r".*Mixing Qt major.*",
                             category=UserWarning)
-    with pytest.warns(UserWarning, match="Mixing Qt major versions may not work as expected."):
+    with pytest.warns(UserWarning,
+                      match="Mixing Qt major versions may not work as expected."):
         matplotlib.backends.backend_qt._create_qApp()
 
 

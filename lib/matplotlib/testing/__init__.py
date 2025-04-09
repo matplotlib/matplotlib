@@ -54,7 +54,8 @@ def setup():
 
 def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
                                stderr=None, check=False, text=True,
-                               capture_output=False):
+                               capture_output=False,
+                               fail_on_error=False):
     """
     Create and run a subprocess.
 
@@ -76,6 +77,8 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
         platforms.
     capture_output : bool
         Set stdout and stderr to subprocess.PIPE
+    fail_on_error : bool
+        If True, fail the test on `subprocess.CalledProcessError`.
 
     Returns
     -------
@@ -89,6 +92,8 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
     ------
     pytest.xfail
         If platform is Cygwin and subprocess reports a fork() failure.
+    pytest.fail
+        If fail_on_error is True and subprocess reports a non-zero exit code.
     """
     if capture_output:
         stdout = stderr = subprocess.PIPE
@@ -106,14 +111,16 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
             pytest.xfail("Fork failure")
         raise
     except subprocess.CalledProcessError as e:
-        import pytest
-        pytest.fail(
-            f"Subprocess failed with exit code {e.returncode}:\n\n"
-            f"STDOUT:\n{e.stdout}\n\nSTDERR:\n{e.stderr}")
+        if fail_on_error:
+            import pytest
+            pytest.fail(
+                f"Subprocess failed with exit code {e.returncode}:\n\n"
+                f"STDOUT:\n{e.stdout}\n\nSTDERR:\n{e.stderr}")
+        raise e
     return proc
 
 
-def subprocess_run_helper(func, *args, timeout, extra_env=None):
+def subprocess_run_helper(func, *args, timeout, extra_env=None, fail_on_error=False):
     """
     Run a function in a sub-process.
 
@@ -126,6 +133,8 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
         the first argument to ``subprocess.run``.
     extra_env : dict[str, str]
         Any additional environment variables to be set for the subprocess.
+    fail_on_error : bool
+        If True, fail the test on `subprocess.CalledProcessError`.
     """
     target = func.__name__
     module = func.__module__
@@ -145,7 +154,8 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
         timeout=timeout, check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
+        fail_on_error=fail_on_error,
     )
     return proc
 
