@@ -161,9 +161,10 @@ the tests, they should now pass.
 
 It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
 figures and reflects the newer look of default Matplotlib plots. Also, if the
-texts (labels, tick labels, etc) are not really part of what is tested, use
-``remove_text=True`` as this will lead to smaller figures and reduce possible
-issues with font mismatch on different platforms.
+texts (labels, tick labels, etc) are not really part of what is tested, use the
+``remove_text=True`` argument or add the ``text_placeholders`` fixture as this
+will lead to smaller figures and reduce possible issues with font mismatch on
+different platforms.
 
 
 Compare two methods of creating an image
