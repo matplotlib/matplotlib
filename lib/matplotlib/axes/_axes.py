@@ -3756,8 +3756,7 @@ class Axes(_AxesBase):
                     f"'{dep_axis}err' must not contain None. "
                     "Use NaN if you want to skip a value.")
 
-            res = np.zeros(err.shape, dtype=bool)  # Default in case of nan
-            if np.any(np.less(err, -err, out=res, where=(err == err))):
+            if np.any((err < -err) & (err == err)):
                 # like err<0, but also works for timedelta and nan.
                 raise ValueError(
                     f"'{dep_axis}err' must not contain negative values")
