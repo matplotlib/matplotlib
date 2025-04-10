@@ -673,7 +673,8 @@ class RendererPgf(RendererBase):
         # docstring inherited
         self.draw_text(gc, x, y, s, prop, angle, ismath="TeX", mtext=mtext)
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None,
+                  language=None):  # TODO: Implement language if possible.
         # docstring inherited
 
         # prepare string for tex

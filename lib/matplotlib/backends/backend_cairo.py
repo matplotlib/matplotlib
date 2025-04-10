@@ -214,7 +214,8 @@ class RendererCairo(RendererBase):
         ctx.paint()
         ctx.restore()
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None,
+                  language=None):  # TODO: Apply language tag, if possible.
         # docstring inherited
 
         # Note: (x, y) are device/display coords, not user-coords, unlike other

@@ -3,9 +3,11 @@ Classes for including text in a figure.
 """
 
 import functools
+import inspect
 import logging
 import math
 from numbers import Real
+import warnings
 import weakref
 
 import numpy as np
@@ -136,6 +138,7 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
+        self._language = None
         self._reset_visual_defaults(
             text=text,
             color=color,
@@ -800,6 +803,7 @@ class Text(Artist):
 
             angle = self.get_rotation()
 
+            lang = self._language  # TODO: Split this by line.
             for line, wh, x, y in info:
 
                 mtext = self if len(info) == 1 else None
@@ -821,9 +825,19 @@ class Text(Artist):
                                           self._fontproperties, angle,
                                           mtext=mtext)
                 else:
-                    textrenderer.draw_text(gc, x, y, clean_line,
-                                           self._fontproperties, angle,
-                                           ismath=ismath, mtext=mtext)
+                    params = inspect.signature(textrenderer.draw_text).parameters
+                    if 'language' in params:
+                        textrenderer.draw_text(gc, x, y, clean_line,
+                                               self._fontproperties, angle,
+                                               ismath=ismath, mtext=mtext,
+                                               language=lang)
+                    else:
+                        warnings.warn(
+                            f'{textrenderer.__class__.__name__} missing language '
+                            f'parameter to draw_text method')
+                        textrenderer.draw_text(gc, x, y, clean_line,
+                                               self._fontproperties, angle,
+                                               ismath=ismath, mtext=mtext)
 
         gc.restore()
         renderer.close_group('text')
@@ -1421,6 +1435,36 @@ class Text(Artist):
         elif 190 < angle < 260 or 10 < angle < 80:
             return 'baseline' if anchor_at_left else 'top'
         return 'top' if anchor_at_left else 'baseline'
+
+    def get_language(self):
+        """Return the language this Text is in."""
+        return self._language
+
+    def set_language(self, language):
+        """
+        Set the language of the text.
+
+        Parameters
+        ----------
+        language : str or list[tuple[str, int, int]]
+
+        """
+        _api.check_isinstance((list, str, None), language=language)
+        if isinstance(language, list):
+            for val in language:
+                if not isinstance(val, tuple) or len(val) != 3:
+                    raise ValueError('language must be list of tuple, not {language!r}')
+                sublang, start, end = val
+                if not isinstance(sublang, str):
+                    raise ValueError(
+                        'sub-language specifcation must be str, not {sublang!r}')
+                if not isinstance(start, int):
+                    raise ValueError('start location must be int, not {start!r}')
+                if not isinstance(end, int):
+                    raise ValueError('end location must be int, not {end!r}')
+
+        self._language = language
+        self.stale = True
 
 
 class OffsetFrom:

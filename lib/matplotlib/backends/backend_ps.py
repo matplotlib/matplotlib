@@ -760,7 +760,8 @@ grestore
         self.textcnt += 1
 
     @_log_if_debug_on
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None,
+                  language=None):
         # docstring inherited
 
         if self._is_transparent(gc.get_rgb()):
@@ -797,7 +798,7 @@ grestore
         else:
             font = self._get_font_ttf(prop)
             self._character_tracker.track(font, s)
-            for item in _text_helpers.layout(s, font):
+            for item in _text_helpers.layout(s, font, language):
                 ps_name = (item.ft_object.postscript_name
                            .encode("ascii", "replace").decode("ascii"))
                 glyph_name = item.ft_object.get_glyph_name(item.glyph_idx)

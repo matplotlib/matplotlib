@@ -507,7 +507,8 @@ class RendererBase:
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None,
+                  language=None):
         """
         Draw a text instance.
 
@@ -529,6 +530,8 @@ class RendererBase:
             If True, use mathtext parser.
         mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
+        language : str or list[tuple[str, int, int]]
+            The language of the text.
 
         Notes
         -----
@@ -681,7 +684,8 @@ class RendererBase:
         cost of the draw_XYZ calls on the canvas.
         """
         no_ops = {
-            meth_name: lambda *args, **kwargs: None
+            meth_name: functools.update_wrapper(lambda *args, **kwargs: None,
+                                                getattr(RendererBase, meth_name))
             for meth_name in dir(RendererBase)
             if (meth_name.startswith("draw_")
                 or meth_name in ["open_group", "close_group"])
