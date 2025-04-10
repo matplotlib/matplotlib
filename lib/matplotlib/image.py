@@ -912,6 +912,14 @@ class AxesImage(_ImageBase):
         transformed_bbox = TransformedBbox(bbox, trans)
         clip = ((self.get_clip_box() or self.axes.bbox) if self.get_clip_on()
                 else self.get_figure(root=True).bbox)
+        if (
+            isinstance(self._A, np.ndarray)
+            and self._A.ndim == 3
+            and self._A.shape[2] == 3
+            and self._A.dtype == np.uint8
+        ):
+            alpha = np.full(self._A.shape[:2] + (1,), 255, dtype=self._A.dtype)
+            self._A = np.concatenate((self._A, alpha), axis=2)
         return self._make_image(self._A, bbox, transformed_bbox, clip,
                                 magnification, unsampled=unsampled)
 

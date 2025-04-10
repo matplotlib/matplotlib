@@ -281,6 +281,59 @@ def test_imshow_alpha(fig_test, fig_ref):
     ax3.imshow(rgbau)
 
 
+@pytest.mark.parametrize("ext", ["png"])
+def test_rgb_array_converted_to_rgba(tmp_path, ext):
+    """
+    Test for GitHub issue #29300:
+    Confirm that uint8 RGB NumPy arrays are internally converted to RGBA
+    with an opaque alpha channel before rendering.
+    """
+    # Create synthetic RGB image (no alpha channel)
+    rgb_data = np.zeros((100, 100, 3), dtype=np.uint8)
+    rgb_data[30:70, 30:70] = [255, 0, 0]  # red square
+    rotate = Affine2D().rotate_deg_around(50, 50, 45)
+    fig, ax = plt.subplots()
+    im = ax.imshow(rgb_data, transform=rotate + ax.transData, clip_on=False)
+    fig.canvas.draw()  # Force rendering pipeline
+    # Check that image data has been converted to RGBA
+    assert im._A.ndim == 3
+    assert im._A.shape[2] == 4, "Image array was not converted to RGBA as expected"
+
+
+@pytest.mark.parametrize("ext", ["png"])
+@pytest.mark.xfail(sys.platform == "darwin",
+                   reason="Renderer on macOS blends transparent rotation with black")
+def test_rotate_rgb_image_no_black_background_rendering_issue(tmp_path, ext):
+    """
+    Test for GitHub issue #29300:
+    Despite the bug being fixed it still remains many black pixels,
+    may have better improvements in the future.
+    If that happens, this test will fail.
+    """
+    # Create an RGB image: red square in center of black
+    rgb_data = np.zeros((100, 100, 3), dtype=np.uint8)
+    rgb_data[30:70, 30:70] = [255, 0, 0]  # Red block
+    # Rotation and translation transforms
+    rotate = Affine2D().rotate_deg_around(50, 50, 45)
+    translate = Affine2D().translate(100, 100)
+    fig, ax = plt.subplots()
+    ax.imshow(rgb_data, transform=rotate + ax.transData, clip_on=False)
+    ax.imshow(rgb_data, transform=translate + ax.transData, clip_on=False)
+    ax.set_xlim(-100, 300)
+    ax.set_ylim(-100, 300)
+    # Save the image over a white background to test for black pixels
+    output_file = tmp_path / f"rotated_rgb_test.{ext}"
+    fig.savefig(output_file, facecolor="white")
+    # Load the saved image and convert to RGB for checking
+    img = Image.open(output_file).convert("RGB")
+    arr = np.array(img)
+    # Count how many pixels are pure black
+    black_pixels = np.all(arr[:, :, :3] == [0, 0, 0], axis=-1)
+    black_pixel_count = np.sum(black_pixels)
+    # Fail if too many black pixels exist in white background
+    assert black_pixel_count < 10, f"background pixels:{black_pixel_count}"
+
+
 def test_cursor_data():
     from matplotlib.backend_bases import MouseEvent
 
