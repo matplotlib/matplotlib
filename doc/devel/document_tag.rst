@@ -1,3 +1,7 @@
+.. redirect-from:: /devel/tag_guidelines
+
+.. _document-tag-guidelines:
+
 Tagging guidelines
 ==================
 
@@ -50,10 +54,10 @@ title or the scope of the example.
     .. toctree::
         :maxdepth: 2
 
-        tag_glossary
+        document_tag_glossary
 
     +++
-    See :doc:`Tag Glossary <tag_glossary>` for a complete list
+    See :ref:`Tag Glossary <document-tag-glossary>` for a complete list
 
 Proposing new tags
 ------------------
