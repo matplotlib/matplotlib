@@ -263,6 +263,7 @@ class Axes(_AxesBase):
         self,
         xranges: Sequence[tuple[float, float]],
         yrange: tuple[float, float],
+        align: Literal["bottom", "center", "top"] = ...,
         *,
         data=...,
         **kwargs
