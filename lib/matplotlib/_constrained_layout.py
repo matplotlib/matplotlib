@@ -226,19 +226,12 @@ def make_layoutgrids_gs(layoutgrids, gs):
         if parentgs not in layoutgrids:
             layoutgrids = make_layoutgrids_gs(layoutgrids, parentgs)
         subspeclb = layoutgrids[parentgs]
-        # gridspecfromsubplotspec need an outer container:
-        # get a unique representation:
-        rep = (gs, 'top')
-        if rep not in layoutgrids:
-            layoutgrids[rep] = mlayoutgrid.LayoutGrid(
-                parent=subspeclb,
-                name='top',
-                nrows=1, ncols=1,
-                parent_pos=(subplot_spec.rowspan, subplot_spec.colspan))
         layoutgrids[gs] = mlayoutgrid.LayoutGrid(
-                parent=layoutgrids[rep],
+                parent=subspeclb,
+                parent_flush=True,
                 name='gridspec',
                 nrows=gs._nrows, ncols=gs._ncols,
+                parent_pos=(subplot_spec.rowspan, subplot_spec.colspan),
                 width_ratios=gs.get_width_ratios(),
                 height_ratios=gs.get_height_ratios())
     return layoutgrids
@@ -434,6 +427,14 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
                 if (cbp_rspan.start == ss.rowspan.start and
                         cbbbox.y1 > bbox.y1):
                     margin['top'] += cbbbox.y1 - bbox.y1
+
+        if layoutgrids[gs].parent_flush:
+            inner_lb = layoutgrids[gs]
+            parent_ss = gs._subplot_spec
+            parent_gs = parent_ss.get_gridspec()
+            parent_lb = layoutgrids[parent_gs]
+            match_nested_margins(inner_lb, parent_lb, parent_ss)
+
         # pass the new margins down to the layout grid for the solution...
         layoutgrids[gs].edit_outer_margin_mins(margin, ss)
 
@@ -455,6 +456,24 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
                 layoutgrids[fig].edit_margin_min('right', w)
             elif legendloc == 'left':
                 layoutgrids[fig].edit_margin_min('left', w)
+
+
+def match_nested_margins(inner_lb, parent_lb, parent_ss):
+    def _match(loc, inner_cell, parent_cell):
+        inner_size = inner_lb.get_margins(loc, inner_cell)
+        parent_size = parent_lb.get_margins(loc, parent_cell)
+        size = max(parent_size, inner_size)
+        inner_lb.edit_margin_min(loc, size, inner_cell)
+        parent_lb.edit_margin_min(loc, size, parent_cell)
+
+    _match('left',      0, parent_ss.colspan.start)
+    _match('leftcb',    0, parent_ss.colspan.start)
+    _match('right',    -1, parent_ss.colspan.stop - 1)
+    _match('rightcb',  -1, parent_ss.colspan.stop - 1)
+    _match('top',       0, parent_ss.rowspan.start)
+    _match('topcb',     0, parent_ss.rowspan.start)
+    _match('bottom',   -1, parent_ss.rowspan.stop - 1)
+    _match('bottomcb', -1, parent_ss.rowspan.stop - 1)
 
 
 def make_margin_suptitles(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0):
