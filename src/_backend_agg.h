@@ -131,12 +131,12 @@ class RendererAgg
 
     virtual ~RendererAgg();
 
-    unsigned int get_width()
+    int get_width()
     {
         return width;
     }
 
-    unsigned int get_height()
+    int get_height()
     {
         return height;
     }
@@ -206,7 +206,7 @@ class RendererAgg
     void restore_region(BufferRegion &reg);
     void restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int yy2, int x, int y);
 
-    unsigned int width, height;
+    int width, height;
     double dpi;
     size_t NUMBYTES; // the number of bytes in buffer
 
