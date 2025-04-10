@@ -1589,14 +1589,14 @@ class MultivarColormap:
 
         Parameters
         ----------
-        bad: :mpltype:`color`, default: None
+        bad : :mpltype:`color`, default: None
             If Matplotlib color, the bad value is set accordingly in the copy
 
-        under: tuple of :mpltype:`color`, default: None
+        under : tuple of :mpltype:`color`, default: None
             If tuple, the ``under`` value of each component is set with the values
             from the tuple.
 
-        over: tuple of :mpltype:`color`, default: None
+        over : tuple of :mpltype:`color`, default: None
             If tuple, the ``over`` value of each component is set with the values
             from the tuple.
 
@@ -3308,12 +3308,13 @@ class MultiNorm(Normalize):
 
         if isinstance(norms, str) or not np.iterable(norms):
             raise ValueError("A MultiNorm must be assigned multiple norms")
-        norms = [n for n in norms]
+
+        norms = [*norms]
         for i, n in enumerate(norms):
             if n is None:
                 norms[i] = Normalize()
             elif isinstance(n, str):
-                scale_cls = scale._get_scale_cls_from_str(n)
+                scale_cls = _get_scale_cls_from_str(n)
                 norms[i] = mpl.colorizer._auto_norm_from_scale(scale_cls)()
 
         # Convert the list of norms to a tuple to make it immutable.
@@ -3407,7 +3408,7 @@ class MultiNorm(Normalize):
         value
             Data to normalize. Must be of length `n_input` or have a data type with
             `n_input` fields.
-        clip : List of bools or bool, optional
+        clip : list of bools or bool, optional
             See the description of the parameter *clip* in Normalize.
             If ``None``, defaults to ``self.clip`` (which defaults to
             ``False``).
@@ -3477,7 +3478,7 @@ class MultiNorm(Normalize):
         self._changed()
 
     def scaled(self):
-        """Return whether both *vmin* and *vmax* are set on all constitient norms"""
+        """Return whether both *vmin* and *vmax* are set on all constituent norms"""
         return all([(n.vmin is not None and n.vmax is not None) for n in self.norms])
 
     @staticmethod
@@ -4145,3 +4146,32 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
+
+
+def _get_scale_cls_from_str(scale_as_str):
+    """
+    Returns the scale class from a string.
+
+    Used in the creation of norms from a string to ensure a reasonable error
+    in the case where an invalid string is used. This cannot use
+    `_api.check_getitem()`, because the norm keyword accepts arguments
+    other than strings.
+
+    Parameters
+    ----------
+    scale_as_str : string
+        A string corresponding to a scale
+
+    Returns
+    -------
+    A subclass of ScaleBase.
+
+    """
+    try:
+        scale_cls = scale._scale_mapping[scale_as_str]
+    except KeyError:
+        raise ValueError(
+            "Invalid norm str name; the following values are "
+            f"supported: {', '.join(scale._scale_mapping)}"
+        ) from None
+    return scale_cls
