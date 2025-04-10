@@ -150,7 +150,7 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
         timeout=timeout, check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True,
+        text=True
     )
     return proc
 
