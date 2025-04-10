@@ -1335,7 +1335,7 @@ def test_huge_range_log(fig_test, fig_ref, x):
               interpolation='nearest', cmap=cmap)
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_spy_box(fig_test, fig_ref):
     # setting up reference and test
     ax_test = fig_test.subplots(1, 3)

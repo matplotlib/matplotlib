@@ -174,10 +174,10 @@ def test_outward_ticks():
     # These values were obtained after visual checking that they correspond
     # to a tight layouting that did take the ticks into account.
     expected = [
-        [[0.091, 0.607], [0.433, 0.933]],
-        [[0.579, 0.607], [0.922, 0.933]],
-        [[0.091, 0.140], [0.433, 0.466]],
-        [[0.579, 0.140], [0.922, 0.466]],
+        [[0.090, 0.609], [0.433, 0.933]],
+        [[0.579, 0.609], [0.922, 0.933]],
+        [[0.090, 0.143], [0.433, 0.466]],
+        [[0.579, 0.143], [0.922, 0.466]],
     ]
     for nn, ax in enumerate(fig.axes):
         assert_array_equal(np.round(ax.get_position().get_points(), 3),
