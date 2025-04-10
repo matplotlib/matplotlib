@@ -1387,7 +1387,7 @@ def _reshape_2D(X, name):
 
     # Iterate over columns for ndarrays.
     if isinstance(X, np.ndarray):
-        X = X.T
+        X = X.transpose()
 
         if len(X) == 0:
             return [[]]
