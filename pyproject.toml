@@ -38,7 +38,7 @@ dependencies = [
     "numpy >= 1.23",
     "packaging >= 20.0",
     "pillow >= 9",
-    "pyparsing >= 2.3.1",
+    "pyparsing >= 3",
     "python-dateutil >= 2.7",
 ]
 requires-python = ">=3.10"
@@ -99,6 +99,10 @@ exclude = [
     "tools/gh_api.py",
     ".tox",
     ".eggs",
+    # TODO: fix .pyi files
+    "*.pyi",
+    # TODO: fix .ipynb files
+    "*.ipynb"
 ]
 line-length = 88
 target-version = "py310"
@@ -112,15 +116,28 @@ ignore = [
     "D104",
     "D105",
     "D106",
+    "D107",
     "D200",
     "D202",
+    "D203",
     "D204",
     "D205",
+    "D212",
     "D301",
     "D400",
     "D401",
+    "D402",
     "D403",
     "D404",
+    "D413",
+    "D415",
+    "D416",
+    "D417",
+    "E24",
+    "E266",
+    "E305",
+    "E306",
+    "E721",
     "E741",
     "F841",
 ]
@@ -180,6 +197,7 @@ convention = "numpy"
 "galleries/examples/user_interfaces/pylab_with_gtk4_sgskip.py" = ["E402"]
 "galleries/examples/userdemo/pgf_preamble_sgskip.py" = ["E402"]
 
+"lib/matplotlib/__init__.py" = ["F822"]
 "lib/matplotlib/_cm.py" = ["E202", "E203"]
 "lib/matplotlib/_mathtext.py" = ["E221"]
 "lib/matplotlib/_mathtext_data.py" = ["E203"]
@@ -194,6 +212,7 @@ convention = "numpy"
 "lib/mpl_toolkits/mplot3d/proj3d.py" = ["E201"]
 
 "galleries/users_explain/artists/paths.py" = ["E402"]
+"galleries/users_explain/quick_start.py" = ["E402"]
 "galleries/users_explain/artists/patheffects_guide.py" = ["E402"]
 "galleries/users_explain/artists/transforms_tutorial.py" = ["E402", "E501"]
 "galleries/users_explain/colors/colormaps.py" = ["E501"]
