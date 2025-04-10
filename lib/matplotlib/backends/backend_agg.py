@@ -253,6 +253,7 @@ class RendererAgg(RendererBase):
         font.clear()
         size = font_prop.get_size_in_points()
         font.set_size(size, self.dpi)
+        font.set_features(font_prop.get_features())
         return font
 
     def points_to_pixels(self, points):
