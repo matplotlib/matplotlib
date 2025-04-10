@@ -6,6 +6,7 @@ import math
 import os.path
 import pathlib
 import sys
+import time
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.font
@@ -126,12 +127,15 @@ class TimerTk(TimerBase):
 
     def __init__(self, parent, *args, **kwargs):
         self._timer = None
-        super().__init__(*args, **kwargs)
         self.parent = parent
+        super().__init__(*args, **kwargs)
 
     def _timer_start(self):
         self._timer_stop()
         self._timer = self.parent.after(self._interval, self._on_timer)
+        # Keep track of the firing time for repeating timers since
+        # we have to do this manually in Tk
+        self._timer_start_count = time.perf_counter_ns()
 
     def _timer_stop(self):
         if self._timer is not None:
@@ -139,6 +143,9 @@ class TimerTk(TimerBase):
         self._timer = None
 
     def _on_timer(self):
+        # We want to measure the time spent in the callback, so we need to
+        # record the time before calling the base class method.
+        timer_fire_ms = (time.perf_counter_ns() - self._timer_start_count) // 1_000_000
         super()._on_timer()
         # Tk after() is only a single shot, so we need to add code here to
         # reset the timer if we're not operating in single shot mode.  However,
@@ -146,7 +153,20 @@ class TimerTk(TimerBase):
         # don't recreate the timer in that case.
         if not self._single and self._timer:
             if self._interval > 0:
-                self._timer = self.parent.after(self._interval, self._on_timer)
+                # We want to adjust our fire time independent of the time
+                # spent in the callback and not drift over time, so reference
+                # to the start count.
+                after_callback_ms = ((time.perf_counter_ns() - self._timer_start_count)
+                                     // 1_000_000)
+                if after_callback_ms - timer_fire_ms < self._interval:
+                    next_interval = self._interval - after_callback_ms % self._interval
+                    # minimum of 1ms
+                    next_interval = max(1, next_interval)
+                else:
+                    # Account for the callback being longer than the interval, where
+                    # we really want to fire the next timer as soon as possible.
+                    next_interval = 1
+                self._timer = self.parent.after(next_interval, self._on_timer)
             else:
                 # Edge case: Tcl after 0 *prepends* events to the queue
                 # so a 0 interval does not allow any other events to run.
@@ -157,6 +177,12 @@ class TimerTk(TimerBase):
                 )
         else:
             self._timer = None
+
+    def _timer_set_interval(self):
+        self._timer_start()
+
+    def _timer_set_single_shot(self):
+        self._timer_start()
 
 
 class FigureCanvasTk(FigureCanvasBase):
