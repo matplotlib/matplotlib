@@ -1178,8 +1178,8 @@ default: %(va)s
         """
         effective_kwargs = {
             'transform': self.transSubfigure,
-            **(fontdict if fontdict is not None else {}),
             **kwargs,
+            **(fontdict if fontdict is not None else {}),
         }
         text = Text(x=x, y=y, text=s, **effective_kwargs)
         text.set_figure(self)
