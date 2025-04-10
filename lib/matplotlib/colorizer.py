@@ -78,7 +78,7 @@ class Colorizer:
                 raise ValueError(
                     "Passing a Normalize instance simultaneously with "
                     "vmin/vmax is not supported.  Please pass vmin/vmax "
-                    "directly to the norm when creating it.")
+                    "directly to the norm when creating it")
 
         # always resolve the autoscaling so we have concrete limits
         # rather than deferring to draw time.
@@ -174,7 +174,7 @@ class Colorizer:
 
             if norm and (xx.max() > 1 or xx.min() < 0):
                 raise ValueError("Floating point image RGB values "
-                                 "must be in the 0..1 range.")
+                                 "must be in the 0..1 range")
             if bytes:
                 xx = (xx * 255).astype(np.uint8)
         elif xx.dtype == np.uint8:
@@ -226,7 +226,7 @@ class Colorizer:
             if self.norm.n_output != cmap_obj.n_variates:
                 raise ValueError(f"The colormap {cmap} does not support "
                                  f"{self.norm.n_output} variates as required by "
-                                 f"the {type(self.norm)} on this Colorizer.")
+                                 f"the {type(self.norm)} on this Colorizer")
         self._cmap = cmap_obj
         if not in_init:
             self.changed()  # Things are not set up properly yet.
@@ -788,7 +788,7 @@ def _ensure_norm(norm, n_variates=1):
             return norm
         raise ValueError(
                 "Invalid norm for multivariate colormap with "
-                f"{n_variates} inputs."
+                f"{n_variates} inputs"
             )
 
 
@@ -840,15 +840,12 @@ def _ensure_cmap(cmap, accept_multivariate=False):
 
     # this error message is a variant of _api.check_in_list but gives
     # additional hints as to how to access multivariate colormaps
-
-    msg = f"{cmap!r} is not a valid value for cmap"
-    msg += "; supported values for scalar colormaps are "
-    msg += f"{', '.join(map(repr, sorted(mpl.colormaps)))}\n"
-    msg += "See matplotlib.bivar_colormaps() and"
-    msg += " matplotlib.multivar_colormaps() for"
-    msg += " bivariate and multivariate colormaps."
-
-    raise ValueError(msg)
+    raise ValueError(f"{cmap!r} is not a valid value for cmap"
+                     "; supported values for scalar colormaps are "
+                     f"{', '.join(map(repr, sorted(mpl.colormaps)))}\n"
+                     "See `matplotlib.bivar_colormaps()` and"
+                     " `matplotlib.multivar_colormaps()` for"
+                     " bivariate and multivariate colormaps")
 
     if isinstance(cmap, colors.Colormap):
         return cmap
@@ -870,11 +867,13 @@ def _ensure_multivariate_data(data, n_input):
     If n_input is 1 and data is not of type np.ndarray (i.e. PIL.Image),
     the data is returned unchanged.
     If data is None, the function returns None
+
     Parameters
     ----------
     n_input : int
         -  number of variates in the data
     data : np.ndarray, PIL.Image or None
+
     Returns
     -------
         np.ndarray, PIL.Image or None
@@ -921,10 +920,10 @@ def _ensure_multivariate_data(data, n_input):
         return data
 
     elif n_input == 2:
-        raise ValueError("Invalid data entry for mutlivariate data. The data"
+        raise ValueError("Invalid data entry for multivariate data. The data"
                          " must contain complex numbers, or have a first dimension 2,"
                          " or be of a dtype with 2 fields")
     else:
-        raise ValueError("Invalid data entry for mutlivariate data. The shape"
+        raise ValueError("Invalid data entry for multivariate data. The shape"
                          f" of the data must have a first dimension {n_input}"
                          f" or be of a dtype with {n_input} fields")
