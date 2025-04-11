@@ -281,6 +281,47 @@ def test_imshow_alpha(fig_test, fig_ref):
     ax3.imshow(rgbau)
 
 
+def test_rotated_image_corners_no_black():
+    rng = np.random.default_rng(42)
+    img = rng.random((100, 20, 3))
+
+    fig, ax = plt.subplots()
+
+    tr_rotate = Affine2D().rotate_deg_around(10, 50, 45)
+    tr_translate = Affine2D().translate(250, 250)
+
+    ax.imshow(img, transform=tr_rotate + ax.transData, clip_on=False)
+    ax.imshow(img, transform=tr_translate + ax.transData, clip_on=False)
+
+    ax.set_xlim(-250, 500)
+    ax.set_ylim(-250, 500)
+
+    fig.canvas.draw()
+
+    # Get the RGB image buffer from the Agg backend
+    rendered = np.asarray(fig.canvas.buffer_rgba())[:, :, :3]  # Drop alpha
+
+    plt.close(fig)
+
+    corner_size = 50
+    inset = 5
+
+    corners = {
+        "top-left":     rendered[inset:inset+corner_size, inset:inset+corner_size],
+        "top-right":    rendered[inset:inset+corner_size, -inset-corner_size:-inset],
+        "bottom-left":  rendered[-inset-corner_size:-inset, inset:inset+corner_size],
+        "bottom-right": rendered[-inset-corner_size:-inset, -inset-corner_size:-inset]
+    }
+
+    threshold = 5
+    for name, corner in corners.items():
+        is_blackish = np.all(corner < threshold, axis=-1)
+        percent_black = np.sum(is_blackish) / is_blackish.size
+        assert percent_black < 0.01, (
+            f"Too many black pixels in {name} corner: {percent_black:.2%}"
+        )
+
+
 def test_cursor_data():
     from matplotlib.backend_bases import MouseEvent
 
