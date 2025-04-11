@@ -182,14 +182,12 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
                              agg::trans_affine offset_trans,
                              py::array_t<double> facecolors_obj,
                              bool antialiased,
-                             py::array_t<double> edgecolors_obj,
-                             py::array_t<double> hatchcolors_obj)
+                             py::array_t<double> edgecolors_obj)
 {
     auto coordinates = coordinates_obj.mutable_unchecked<3>();
     auto offsets = convert_points(offsets_obj);
     auto facecolors = convert_colors(facecolors_obj);
     auto edgecolors = convert_colors(edgecolors_obj);
-    auto hatchcolors = convert_colors(hatchcolors_obj);
 
     self->draw_quad_mesh(gc,
             master_transform,
@@ -200,8 +198,7 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
             offset_trans,
             facecolors,
             antialiased,
-            edgecolors,
-            hatchcolors);
+            edgecolors);
 }
 
 static void
@@ -240,8 +237,7 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
         .def("draw_quad_mesh", &PyRendererAgg_draw_quad_mesh,
              "gc"_a, "master_transform"_a, "mesh_width"_a, "mesh_height"_a,
              "coordinates"_a, "offsets"_a, "offset_trans"_a, "facecolors"_a,
-             "antialiased"_a, "edgecolors"_a, py::kw_only(),
-             "hatchcolors"_a = py::array_t<double>().reshape({0, 4}))
+             "antialiased"_a, "edgecolors"_a)
         .def("draw_gouraud_triangles", &PyRendererAgg_draw_gouraud_triangles,
              "gc"_a, "points"_a, "colors"_a, "trans"_a = nullptr)
 

@@ -78,8 +78,6 @@ class RendererBase:
         facecolors: Sequence[ColorType],
         antialiased: bool,
         edgecolors: Sequence[ColorType] | ColorType | None,
-        *,
-        hatchcolors: Sequence[ColorType] | ColorType | None = None,
     ) -> None: ...
     def draw_gouraud_triangles(
         self,

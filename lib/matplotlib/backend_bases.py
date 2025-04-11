@@ -258,7 +258,7 @@ class RendererBase:
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, edgecolors, *, hatchcolors=None):
+                       antialiased, edgecolors):
         """
         Draw a quadmesh.
 
@@ -271,14 +271,11 @@ class RendererBase:
 
         if edgecolors is None:
             edgecolors = facecolors
-        if hatchcolors is None:
-            hatchcolors = []
         linewidths = np.array([gc.get_linewidth()], float)
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
-            edgecolors, linewidths, [], [antialiased], [None], 'screen',
-            hatchcolors=hatchcolors)
+            edgecolors, linewidths, [], [antialiased], [None], 'screen')
 
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
