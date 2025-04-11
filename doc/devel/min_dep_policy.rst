@@ -155,3 +155,27 @@ Matplotlib  Python    NumPy
 .. _`1.5`: https://matplotlib.org/1.5.0/users/installing.html#required-dependencies
 .. _`1.4`: https://matplotlib.org/1.4.0/users/installing.html#required-dependencies
 .. _`1.3`: https://matplotlib.org/1.3.0/users/installing.html#build-requirements
+
+
+Updating Python and Numpy versions
+==================================
+
+To update the minimum versions of Python we need to update:
+
+- ``pyproject.toml`` (classifiers and requires-python)
+- ``environment.yml``
+- ``doc/install/dependencies.rst``
+- ``doc/devel/min_dep_policy.rst`` (this file)
+- CI configuration files (circle, GHA, azure)
+
+To update the minimum numpy we need to update:
+
+- ``pyproject.toml``
+- ``environment.yml``
+- ``doc/install/dependencies.rst``
+- ``doc/devel/min_dep_policy.rst`` (this file)
+
+
+The work to leverage new features or remove workarounds for no-longer supported
+versions should be done in a follow-on PRs to keep the version bump PRs well
+scoped.
