@@ -11,6 +11,11 @@ from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
 from matplotlib.patches import Rectangle
 
 
+pytestmark = [
+    pytest.mark.usefixtures('text_placeholders')
+]
+
+
 def example_plot(ax, fontsize=12):
     ax.plot([1, 2])
     ax.locator_params(nbins=3)
@@ -19,7 +24,7 @@ def example_plot(ax, fontsize=12):
     ax.set_title('Title', fontsize=fontsize)
 
 
-@image_comparison(['tight_layout1'], tol=1.9)
+@image_comparison(['tight_layout1'], style='mpl20')
 def test_tight_layout1():
     """Test tight_layout for a single subplot."""
     fig, ax = plt.subplots()
@@ -27,7 +32,7 @@ def test_tight_layout1():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout2'])
+@image_comparison(['tight_layout2'], style='mpl20')
 def test_tight_layout2():
     """Test tight_layout for multiple subplots."""
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
@@ -38,7 +43,7 @@ def test_tight_layout2():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout3'])
+@image_comparison(['tight_layout3'], style='mpl20')
 def test_tight_layout3():
     """Test tight_layout for multiple subplots."""
     ax1 = plt.subplot(221)
@@ -50,8 +55,7 @@ def test_tight_layout3():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout4'], freetype_version=('2.5.5', '2.6.1'),
-                  tol=0.015)
+@image_comparison(['tight_layout4'], style='mpl20')
 def test_tight_layout4():
     """Test tight_layout for subplot2grid."""
     ax1 = plt.subplot2grid((3, 3), (0, 0))
@@ -65,7 +69,7 @@ def test_tight_layout4():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout5'])
+@image_comparison(['tight_layout5'], style='mpl20')
 def test_tight_layout5():
     """Test tight_layout for image."""
     ax = plt.subplot()
@@ -74,7 +78,7 @@ def test_tight_layout5():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout6'])
+@image_comparison(['tight_layout6'], style='mpl20')
 def test_tight_layout6():
     """Test tight_layout for gridspec."""
 
@@ -116,7 +120,7 @@ def test_tight_layout6():
                          h_pad=0.45)
 
 
-@image_comparison(['tight_layout7'], tol=1.9)
+@image_comparison(['tight_layout7'], style='mpl20')
 def test_tight_layout7():
     # tight layout with left and right titles
     fontsize = 24
@@ -130,7 +134,7 @@ def test_tight_layout7():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout8'], tol=0.005)
+@image_comparison(['tight_layout8'], style='mpl20', tol=0.005)
 def test_tight_layout8():
     """Test automatic use of tight_layout."""
     fig = plt.figure()
@@ -140,7 +144,7 @@ def test_tight_layout8():
     fig.draw_without_rendering()
 
 
-@image_comparison(['tight_layout9'])
+@image_comparison(['tight_layout9'], style='mpl20')
 def test_tight_layout9():
     # Test tight_layout for non-visible subplots
     # GH 8244
@@ -174,10 +178,10 @@ def test_outward_ticks():
     # These values were obtained after visual checking that they correspond
     # to a tight layouting that did take the ticks into account.
     expected = [
-        [[0.091, 0.607], [0.433, 0.933]],
-        [[0.579, 0.607], [0.922, 0.933]],
-        [[0.091, 0.140], [0.433, 0.466]],
-        [[0.579, 0.140], [0.922, 0.466]],
+        [[0.092, 0.605], [0.433, 0.933]],
+        [[0.581, 0.605], [0.922, 0.933]],
+        [[0.092, 0.138], [0.433, 0.466]],
+        [[0.581, 0.138], [0.922, 0.466]],
     ]
     for nn, ax in enumerate(fig.axes):
         assert_array_equal(np.round(ax.get_position().get_points(), 3),
@@ -190,8 +194,8 @@ def add_offsetboxes(ax, size=10, margin=.1, color='black'):
     """
     m, mp = margin, 1+margin
     anchor_points = [(-m, -m), (-m, .5), (-m, mp),
-                     (mp, .5), (.5, mp), (mp, mp),
-                     (.5, -m), (mp, -m), (.5, -m)]
+                     (.5, mp), (mp, mp), (mp, .5),
+                     (mp, -m), (.5, -m)]
     for point in anchor_points:
         da = DrawingArea(size, size)
         background = Rectangle((0, 0), width=size,
@@ -211,47 +215,78 @@ def add_offsetboxes(ax, size=10, margin=.1, color='black'):
             bbox_transform=ax.transAxes,
             borderpad=0.)
         ax.add_artist(anchored_box)
-    return anchored_box
 
 
-@image_comparison(['tight_layout_offsetboxes1', 'tight_layout_offsetboxes2'])
 def test_tight_layout_offsetboxes():
-    # 1.
+    # 0.
     # - Create 4 subplots
     # - Plot a diagonal line on them
+    # - Use tight_layout
+    #
+    # 1.
+    # - Same 4 subplots
     # - Surround each plot with 7 boxes
     # - Use tight_layout
-    # - See that the squares are included in the tight_layout
-    #   and that the squares in the middle do not overlap
+    # - See that the squares are included in the tight_layout and that the squares do
+    #   not overlap
     #
     # 2.
-    # - Make the squares around the right side axes invisible
-    # - See that the invisible squares do not affect the
-    #   tight_layout
+    # - Make the squares around the Axes invisible
+    # - See that the invisible squares do not affect the tight_layout
     rows = cols = 2
     colors = ['red', 'blue', 'green', 'yellow']
     x = y = [0, 1]
 
-    def _subplots():
-        _, axs = plt.subplots(rows, cols)
-        axs = axs.flat
-        for ax, color in zip(axs, colors):
+    def _subplots(with_boxes):
+        fig, axs = plt.subplots(rows, cols)
+        for ax, color in zip(axs.flat, colors):
             ax.plot(x, y, color=color)
-            add_offsetboxes(ax, 20, color=color)
-        return axs
+            if with_boxes:
+                add_offsetboxes(ax, 20, color=color)
+        return fig, axs
+
+    # 0.
+    fig0, axs0 = _subplots(False)
+    fig0.tight_layout()
 
     # 1.
-    axs = _subplots()
-    plt.tight_layout()
+    fig1, axs1 = _subplots(True)
+    fig1.tight_layout()
+
+    # The AnchoredOffsetbox should be added to the bounding of the Axes, causing them to
+    # be smaller than the plain figure.
+    for ax0, ax1 in zip(axs0.flat, axs1.flat):
+        bbox0 = ax0.get_position()
+        bbox1 = ax1.get_position()
+        assert bbox1.x0 > bbox0.x0
+        assert bbox1.x1 < bbox0.x1
+        assert bbox1.y0 > bbox0.y0
+        assert bbox1.y1 < bbox0.y1
+
+    # No AnchoredOffsetbox should overlap with another.
+    bboxes = []
+    for ax1 in axs1.flat:
+        for child in ax1.get_children():
+            if not isinstance(child, AnchoredOffsetbox):
+                continue
+            bbox = child.get_window_extent()
+            for other_bbox in bboxes:
+                assert not bbox.overlaps(other_bbox)
+            bboxes.append(bbox)
 
     # 2.
-    axs = _subplots()
-    for ax in (axs[cols-1::rows]):
+    fig2, axs2 = _subplots(True)
+    for ax in axs2.flat:
         for child in ax.get_children():
             if isinstance(child, AnchoredOffsetbox):
                 child.set_visible(False)
-
-    plt.tight_layout()
+    fig2.tight_layout()
+    # The invisible AnchoredOffsetbox should not count for tight layout, so it should
+    # look the same as when they were never added.
+    for ax0, ax2 in zip(axs0.flat, axs2.flat):
+        bbox0 = ax0.get_position()
+        bbox2 = ax2.get_position()
+        assert_array_equal(bbox2.get_points(), bbox0.get_points())
 
 
 def test_empty_layout():
