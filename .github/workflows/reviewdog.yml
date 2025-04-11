@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install ruff
         run: pip3 install ruff
@@ -48,7 +48,7 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install mypy
         run: pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt
