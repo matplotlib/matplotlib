@@ -67,7 +67,7 @@ jobs:
             python-version: '3.12'
           - os: macos-13  # This runner is on Intel chips.
             # merge numpy and pandas install in nighties test when this runner is dropped
-            python-version: '3.10'
+            python-version: '3.11'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
