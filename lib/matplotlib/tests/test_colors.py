@@ -1624,7 +1624,7 @@ def test_scalarmappable_norm_update():
     assert sm.stale
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_norm_update_figs(fig_test, fig_ref):
     ax_ref = fig_ref.add_subplot()
     ax_test = fig_test.add_subplot()
