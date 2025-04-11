@@ -49,11 +49,8 @@ stages:
       - job: Pytest
         strategy:
           matrix:
-            Windows_py310:
-              vmImage: 'windows-2019'  # keep one job pinned to the oldest image
-              python.version: '3.10'
             Windows_py311:
-              vmImage: 'windows-latest'
+              vmImage: 'windows-2019'  # keep one job pinned to the oldest image
               python.version: '3.11'
             Windows_py312:
               vmImage: 'windows-latest'

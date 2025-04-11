@@ -16,7 +16,6 @@ classifiers=[
     "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -41,7 +40,7 @@ dependencies = [
     "pyparsing >= 3",
     "python-dateutil >= 2.7",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [project.optional-dependencies]
 # Should be a copy of the build dependencies below.
@@ -105,7 +104,7 @@ exclude = [
     "*.ipynb"
 ]
 line-length = 88
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 ignore = [
