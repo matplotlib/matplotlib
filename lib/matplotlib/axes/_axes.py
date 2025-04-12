@@ -3305,7 +3305,8 @@ class Axes(_AxesBase):
         
         if not np.all(np.isfinite(x)):
             raise ValueError('Wedge sizes must be finite numbers')
-
+        
+        sx = x.sum()
 
         if normalize:
             x = x / sx
