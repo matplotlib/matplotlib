@@ -516,13 +516,20 @@ class Text(Artist):
 
     def set_bbox(self, rectprops):
         """
-        Draw a bounding box around self.
+        Draw a box behind/around the text.
+
+        This can be used to set a background and/or a frame around the text.
+        It's realized through a `.FancyBboxPatch` behind the text (see also
+        `.Text.get_bbox_patch`). The bbox patch is None by default and only
+        created when needed.
 
         Parameters
         ----------
-        rectprops : dict with properties for `.patches.FancyBboxPatch`
+        rectprops : dict with properties for `.FancyBboxPatch` or None
              The default boxstyle is 'square'. The mutation
              scale of the `.patches.FancyBboxPatch` is set to the fontsize.
+
+             Pass ``None`` to remove the bbox patch completely.
 
         Examples
         --------
@@ -558,6 +565,8 @@ class Text(Artist):
         """
         Return the bbox Patch, or None if the `.patches.FancyBboxPatch`
         is not made.
+
+        For more details see `.Text.set_bbox`.
         """
         return self._bbox_patch
 
@@ -981,7 +990,10 @@ class Text(Artist):
 
     def set_backgroundcolor(self, color):
         """
-        Set the background color of the text by updating the bbox.
+        Set the background color of the text.
+
+        This is realized through the bbox (see `.set_bbox`),
+        creating the bbox patch if needed.
 
         Parameters
         ----------

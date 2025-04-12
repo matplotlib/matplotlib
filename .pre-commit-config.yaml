@@ -41,15 +41,14 @@ repos:
         args: ["--config-file=pyproject.toml", "lib/matplotlib"]
         files: lib/matplotlib  # Only run when files in lib/matplotlib are changed.
         pass_filenames: false
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.11.0
     hooks:
-      - id: flake8
-        additional_dependencies:
-          - pydocstyle>5.1.0
-          - flake8-docstrings>1.4.0
-          - flake8-force
-        args: ["--docstring-convention=all"]
+      # Run the linter.
+      - id: ruff
+        args: [--fix, --show-fixes]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
     hooks:
