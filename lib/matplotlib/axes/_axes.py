@@ -3718,9 +3718,6 @@ class Axes(_AxesBase):
 
         if elinestyle is not None:
             eb_lines_style['linestyle'] = elinestyle
-            #if xerr is not None and yerr is not None:
-                #barcols[-2].set_linestyle(elinestyle)
-                #barcols[-1].set_linestyle(elinestyle)
 
         # Make the style dict for caps (the "hats").
         eb_cap_style = {**base_style, 'linestyle': 'none'}
