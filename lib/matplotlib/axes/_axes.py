@@ -3453,15 +3453,14 @@ class Axes(_AxesBase):
         everymask[errorevery] = True
         return everymask
 
-    @_api.make_keyword_only("3.10", "elinestyle")
+    @_api.make_keyword_only("3.10", "ecolor")
     @_preprocess_data(replace_names=["x", "y", "xerr", "yerr"],
                       label_namer="y")
     @_docstring.interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
-                 xlolims=False, xuplims=False, errorevery=1, capthick=None,
-                 elinestyle=None,
+                 xlolims=False, xuplims=False, errorevery=1, capthick=None, elinestyle=None,
                  **kwargs):
         """
         Plot y versus x as lines and/or markers with attached errorbars.
