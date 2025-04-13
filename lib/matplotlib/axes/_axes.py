@@ -3831,7 +3831,7 @@ class Axes(_AxesBase):
         else:
             for axis in caplines:
                 for l in caplines[axis]:
-                    self.add_line(l)                    
+                    self.add_line(l)
         self._request_autoscale_view()
         caplines = caplines['x'] + caplines['y']
         errorbar_container = ErrorbarContainer(
