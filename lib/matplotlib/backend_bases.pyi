@@ -19,7 +19,7 @@ from matplotlib.text import Text
 from matplotlib.transforms import Bbox, BboxBase, Transform, TransformedPath
 
 from collections.abc import Callable, Iterable, Sequence
-from typing import Any, IO, Literal, NamedTuple, TypeVar
+from typing import Any, IO, Literal, NamedTuple, TypeVar, overload
 from numpy.typing import ArrayLike
 from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
 
@@ -78,8 +78,6 @@ class RendererBase:
         facecolors: Sequence[ColorType],
         antialiased: bool,
         edgecolors: Sequence[ColorType] | ColorType | None,
-        *,
-        hatchcolors: Sequence[ColorType] | ColorType | None = None,
     ) -> None: ...
     def draw_gouraud_triangles(
         self,
@@ -352,6 +350,40 @@ class FigureCanvasBase:
     def get_default_filetype(cls) -> str: ...
     def get_default_filename(self) -> str: ...
     _T = TypeVar("_T", bound=FigureCanvasBase)
+
+    @overload
+    def mpl_connect(
+        self,
+        s: Literal[
+            "button_press_event",
+            "motion_notify_event",
+            "scroll_event",
+            "figure_enter_event",
+            "figure_leave_event",
+            "axes_enter_event",
+            "axes_leave_event",
+            "button_release_event",
+        ],
+        func: Callable[[MouseEvent], Any],
+    ) -> int: ...
+
+    @overload
+    def mpl_connect(
+        self,
+        s: Literal["key_press_event", "key_release_event"],
+        func: Callable[[KeyEvent], Any],
+    ) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: Literal["pick_event"], func: Callable[[PickEvent], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: Literal["resize_event"], func: Callable[[ResizeEvent], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: Literal["close_event"], func: Callable[[CloseEvent], Any]) -> int: ...
+
+    @overload
     def mpl_connect(self, s: str, func: Callable[[Event], Any]) -> int: ...
     def mpl_disconnect(self, cid: int) -> None: ...
     def new_timer(
