@@ -31,6 +31,7 @@ Managing Figure and Axes
    sca
    subplot
    subplot2grid
+   subfigure_mosaic
    subplot_mosaic
    subplots
    twinx
