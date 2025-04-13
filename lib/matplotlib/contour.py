@@ -964,7 +964,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             label.set_color(self.labelMappable.to_rgba(cv))
         super().changed()
 
-    def _set_locator_if_none(self, N):
+    def _ensure_locator_exists(self, N):
         """
         Set a locator on this ContourSet if it's not already set.
 
@@ -1033,7 +1033,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 levels_arg = [0, .5, 1] if self.filled else [.5]
 
         if isinstance(levels_arg, Integral) or levels_arg is None:
-            self._set_locator_if_none(levels_arg)
+            self._ensure_locator_exists(levels_arg)
             self.levels = self._autolev()
         else:
             self.levels = np.asarray(levels_arg, np.float64)
