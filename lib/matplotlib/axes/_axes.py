@@ -3453,14 +3453,15 @@ class Axes(_AxesBase):
         everymask[errorevery] = True
         return everymask
 
-    @_api.make_keyword_only("3.10", "ecolor")
+    @_api.make_keyword_only("3.10", "elinestyle")
     @_preprocess_data(replace_names=["x", "y", "xerr", "yerr"],
                       label_namer="y")
     @_docstring.interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='', ecolor=None, elinewidth=None, elinestyle=None, capsize=None,
+                 fmt='', ecolor=None, elinewidth=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
+                 elinestyle=None,
                  **kwargs):
         """
         Plot y versus x as lines and/or markers with attached errorbars.
@@ -3715,6 +3716,12 @@ class Axes(_AxesBase):
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
 
+        if elinestyle is not None:
+            eb_lines_style['style'] = elinestyle
+            #if xerr is not None and yerr is not None:
+                #barcols[-2].set_linestyle(elinestyle)
+                #barcols[-1].set_linestyle(elinestyle)
+
         # Make the style dict for caps (the "hats").
         eb_cap_style = {**base_style, 'linestyle': 'none'}
         capsize = mpl._val_or_rc(capsize, "errorbar.capsize")
@@ -3824,17 +3831,9 @@ class Axes(_AxesBase):
         else:
             for axis in caplines:
                 for l in caplines[axis]:
-                    self.add_line(l)
-
+                    self.add_line(l)                    
         self._request_autoscale_view()
         caplines = caplines['x'] + caplines['y']
-
-        if(elinestyle is not None):
-            if(xerr is not None and yerr is not None): 
-                barcols[-2].set_linestyle(elinestyle)
-                barcols[-1].set_linestyle(elinestyle)
-
-
         errorbar_container = ErrorbarContainer(
             (data_line, tuple(caplines), tuple(barcols)),
             has_xerr=(xerr is not None), has_yerr=(yerr is not None),
