@@ -3717,7 +3717,7 @@ class Axes(_AxesBase):
                 eb_lines_style[key] = kwargs[key]
 
         if elinestyle is not None:
-            eb_lines_style['style'] = elinestyle
+            eb_lines_style['linestyle'] = elinestyle
             #if xerr is not None and yerr is not None:
                 #barcols[-2].set_linestyle(elinestyle)
                 #barcols[-1].set_linestyle(elinestyle)
