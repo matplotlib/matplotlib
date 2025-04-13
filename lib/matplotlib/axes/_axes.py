@@ -3460,7 +3460,8 @@ class Axes(_AxesBase):
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
-                 xlolims=False, xuplims=False, errorevery=1, capthick=None, elinestyle=None,
+                 xlolims=False, xuplims=False, errorevery=1,
+                 capthick=None, elinestyle=None,
                  **kwargs):
         """
         Plot y versus x as lines and/or markers with attached errorbars.
