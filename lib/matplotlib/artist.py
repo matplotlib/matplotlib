@@ -337,15 +337,14 @@ class Artist:
 
         .. warning::
 
-          Be careful when using this function, the results will not update if
-          the artist window extent of the artist changes.
-
           The extent can change due to any changes in the transform stack, such
           as changing the Axes limits, the figure size, the canvas used (as is
           done when saving a figure), or the DPI.
 
-          This can lead to unexpected behavior where interactive figures will
-          look fine on the screen, but will save incorrectly.
+          Relying on a once-retrieved window extent can lead to unexpected
+          behavior in various cases such as interactive figures being resized or
+          moved to a screen with different dpi, or figures that look fine on
+          screen render incorrectly when saved to file.
 
           To get accurate results you may need to manually call
           `matplotlib.figure.Figure.savefig` or
