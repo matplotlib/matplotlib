@@ -43,7 +43,14 @@ def test_SubplotParams():
     assert s.left == 0.1
 
     with pytest.raises(ValueError):
+        s.update(left=s.right + .01)
+
+    with pytest.raises(ValueError):
+        s.update(bottom=s.top + .01)
+
+    with pytest.raises(ValueError):
         s = gridspec.SubplotParams(.1, .1, .09, .9)
+
 
 
 def test_repr():
