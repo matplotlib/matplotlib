@@ -335,7 +335,7 @@ class Artist:
         "tight" calculation. Default is to return an empty bounding
         box at 0, 0.
 
-        .. warning ::
+        .. warning::
 
           Be careful when using this function, the results will not update if
           the artist window extent of the artist changes.
