@@ -12,6 +12,16 @@ Release notes
 
    .. include:: release_notes_next.rst
 
+Version 3.10
+^^^^^^^^^^^^
+.. toctree::
+    :maxdepth: 1
+
+    prev_whats_new/whats_new_3.10.0.rst
+    ../api/prev_api_changes/api_changes_3.10.1.rst
+    ../api/prev_api_changes/api_changes_3.10.0.rst
+    github_stats.rst
+    prev_whats_new/github_stats_3.10.0.rst
 
 Version 3.9
 ^^^^^^^^^^^
@@ -22,7 +32,9 @@ Version 3.9
     ../api/prev_api_changes/api_changes_3.9.2.rst
     ../api/prev_api_changes/api_changes_3.9.1.rst
     ../api/prev_api_changes/api_changes_3.9.0.rst
-    github_stats.rst
+    prev_whats_new/github_stats_3.9.4.rst
+    prev_whats_new/github_stats_3.9.3.rst
+    prev_whats_new/github_stats_3.9.2.rst
     prev_whats_new/github_stats_3.9.1.rst
     prev_whats_new/github_stats_3.9.0.rst
 

@@ -163,9 +163,10 @@ the tests, they should now pass.
 
 It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
 figures and reflects the newer look of default Matplotlib plots. Also, if the
-texts (labels, tick labels, etc) are not really part of what is tested, use
-``remove_text=True`` as this will lead to smaller figures and reduce possible
-issues with font mismatch on different platforms.
+texts (labels, tick labels, etc) are not really part of what is tested, use the
+``remove_text=True`` argument or add the ``text_placeholders`` fixture as this
+will lead to smaller figures and reduce possible issues with font mismatch on
+different platforms.
 
 
 Compare two methods of creating an image
@@ -191,7 +192,7 @@ vs plotting the circle using the parametric equation of a circle ::
    @check_figures_equal()
    def test_parametric_circle_plot(fig_test, fig_ref):
 
-       xo, yo= (.5, .5)
+       xo = yo = 0.5
        radius = 0.4
 
        ax_test = fig_test.subplots()
@@ -205,7 +206,7 @@ vs plotting the circle using the parametric equation of a circle ::
        ax_ref.add_artist(red_circle_ref)
 
        for ax in [ax_ref, ax_test]:
-           ax.set(xlim=(0,1), ylim=(0,1), aspect='equal')
+           ax.set(xlim=(0, 1), ylim=(0, 1), aspect='equal')
 
 Both comparison decorators have a tolerance argument ``tol`` that is used to specify the
 tolerance for difference in color value between the two images, where 255 is the maximal

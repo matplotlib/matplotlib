@@ -88,7 +88,7 @@ def test_image_python_io():
      (3, 2.9, "hanning"),  # <3 upsample.
      (3, 9.1, "nearest"),  # >3 upsample.
      ])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_imshow_antialiased(fig_test, fig_ref,
                             img_size, fig_size, interpolation):
     np.random.seed(19680801)
@@ -104,7 +104,7 @@ def test_imshow_antialiased(fig_test, fig_ref,
     ax.imshow(A, interpolation=interpolation)
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_imshow_zoom(fig_test, fig_ref):
     # should be less than 3 upsample, so should be nearest...
     np.random.seed(19680801)
@@ -256,19 +256,19 @@ def test_image_alpha():
 
 
 @mpl.style.context('mpl20')
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_imshow_alpha(fig_test, fig_ref):
     np.random.seed(19680801)
 
-    rgbf = np.random.rand(6, 6, 3)
+    rgbf = np.random.rand(6, 6, 3).astype(np.float32)
     rgbu = np.uint8(rgbf * 255)
     ((ax0, ax1), (ax2, ax3)) = fig_test.subplots(2, 2)
     ax0.imshow(rgbf, alpha=0.5)
     ax1.imshow(rgbf, alpha=0.75)
-    ax2.imshow(rgbu, alpha=0.5)
-    ax3.imshow(rgbu, alpha=0.75)
+    ax2.imshow(rgbu, alpha=127/255)
+    ax3.imshow(rgbu, alpha=191/255)
 
-    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2)
+    rgbaf = np.concatenate((rgbf, np.ones((6, 6, 1))), axis=2).astype(np.float32)
     rgbau = np.concatenate((rgbu, np.full((6, 6, 1), 255, np.uint8)), axis=2)
     ((ax0, ax1), (ax2, ax3)) = fig_ref.subplots(2, 2)
     rgbaf[:, :, 3] = 0.5
@@ -279,6 +279,33 @@ def test_imshow_alpha(fig_test, fig_ref):
     ax2.imshow(rgbau)
     rgbau[:, :, 3] = 191
     ax3.imshow(rgbau)
+
+
+@pytest.mark.parametrize('n_channels, is_int, alpha_arr, opaque',
+                         [(3, False, False, False),  # RGB float
+                          (4, False, False, False),  # RGBA float
+                          (4, False, True, False),   # RGBA float with alpha array
+                          (4, False, False, True),   # RGBA float with solid color
+                          (4, True, False, False)])  # RGBA unint8
+def test_imshow_multi_draw(n_channels, is_int, alpha_arr, opaque):
+    if is_int:
+        array = np.random.randint(0, 256, (2, 2, n_channels))
+    else:
+        array = np.random.random((2, 2, n_channels))
+        if opaque:
+            array[:, :, 3] = 1
+
+    if alpha_arr:
+        alpha = np.array([[0.3, 0.5], [1, 0.8]])
+    else:
+        alpha = None
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(array, alpha=alpha)
+    fig.draw_without_rendering()
+
+    # Draw should not modify original array
+    np.testing.assert_array_equal(array, im._A)
 
 
 def test_cursor_data():
@@ -426,7 +453,7 @@ def test_image_cliprect():
     im.set_clip_path(rect)
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_imshow_10_10_1(fig_test, fig_ref):
     # 10x10x1 should be the same as 10x10
     arr = np.arange(100).reshape((10, 10, 1))
@@ -514,7 +541,7 @@ def test_image_composite_background():
     ax.set_xlim([0, 12])
 
 
-@image_comparison(['image_composite_alpha'], remove_text=True)
+@image_comparison(['image_composite_alpha'], remove_text=True, tol=0.07)
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
@@ -863,7 +890,7 @@ def test_mask_image_over_under():
           (2 * np.pi * 0.5 * 1.5))
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
-    palette = plt.cm.gray.with_extremes(over='r', under='g', bad='b')
+    palette = plt.colormaps["gray"].with_extremes(over='r', under='g', bad='b')
     Zm = np.ma.masked_where(Z > 1.2, Z)
     fig, (ax1, ax2) = plt.subplots(1, 2)
     im = ax1.imshow(Zm, interpolation='bilinear',
@@ -1134,7 +1161,7 @@ def test_image_cursor_formatting():
     assert im.format_cursor_data(data) == '[nan]'
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_image_array_alpha(fig_test, fig_ref):
     """Per-pixel alpha channel test."""
     x = np.linspace(0, 1)
@@ -1287,7 +1314,7 @@ def test_imshow_quantitynd():
     fig.canvas.draw()
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_norm_change(fig_test, fig_ref):
     # LogNorm should not mask anything invalid permanently.
     data = np.full((5, 5), 1, dtype=np.float64)
@@ -1316,7 +1343,7 @@ def test_norm_change(fig_test, fig_ref):
 
 
 @pytest.mark.parametrize('x', [-1, 1])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_huge_range_log(fig_test, fig_ref, x):
     # parametrize over bad lognorm -1 values and large range 1 -> 1e20
     data = np.full((5, 5), x, dtype=np.float64)
@@ -1435,7 +1462,7 @@ def test_rgba_antialias():
     aa[70:90, 195:215] = 1e6
     aa[20:30, 195:215] = -1e6
 
-    cmap = copy(plt.cm.RdBu_r)
+    cmap = plt.colormaps["RdBu_r"]
     cmap.set_over('yellow')
     cmap.set_under('cyan')
 
@@ -1459,7 +1486,7 @@ def test_rgba_antialias():
                   cmap=cmap, vmin=-1.2, vmax=1.2)
 
 
-@check_figures_equal(extensions=('png', ))
+@check_figures_equal()
 def test_upsample_interpolation_stage(fig_test, fig_ref):
     """
     Show that interpolation_stage='auto' gives the same as 'data'
@@ -1479,7 +1506,7 @@ def test_upsample_interpolation_stage(fig_test, fig_ref):
               interpolation_stage='auto')
 
 
-@check_figures_equal(extensions=('png', ))
+@check_figures_equal()
 def test_downsample_interpolation_stage(fig_test, fig_ref):
     """
     Show that interpolation_stage='auto' gives the same as 'rgba'
@@ -1515,7 +1542,7 @@ def test_rc_interpolation_stage():
 @pytest.mark.parametrize(
     'dim, size, msg', [['row', 2**23, r'2\*\*23 columns'],
                        ['col', 2**24, r'2\*\*24 rows']])
-@check_figures_equal(extensions=('png', ))
+@check_figures_equal()
 def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
     # Check that Matplotlib downsamples images that are too big for AGG
     # See issue #19276. Currently the fix only works for png output but not
@@ -1547,7 +1574,7 @@ def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
                        origin=origin)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_str_norms(fig_test, fig_ref):
     t = np.random.rand(10, 10) * .8 + .1  # between 0 and 1
     axts = fig_test.subplots(1, 5)
@@ -1711,3 +1738,49 @@ def test_resample_dtypes(dtype, ndim):
     axes_image = ax.imshow(data)
     # Before fix the following raises ValueError for some dtypes.
     axes_image.make_image(None)[0]
+
+
+@pytest.mark.parametrize('intp_stage', ('data', 'rgba'))
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
+def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_stage):
+    axs_tst = fig_test.subplots(2, 3)
+    axs_ref = fig_ref.subplots(2, 3)
+    ny, nx = 3, 3
+    scalar_alpha = 0.5
+    array_alpha = np.random.rand(ny, nx)
+
+    # When the image does not have an alpha channel, alpha should be specified
+    # by the user or default to 1.0
+    im_rgb = np.random.rand(ny, nx, 3)
+    im_concat_default_a = np.ones((ny, nx, 1))  # alpha defaults to 1.0
+    im_rgba = np.concatenate(  # combine rgb channels with array alpha
+        (im_rgb, array_alpha.reshape((ny, nx, 1))), axis=-1
+    )
+    axs_tst[0][0].imshow(im_rgb)
+    axs_ref[0][0].imshow(np.concatenate((im_rgb, im_concat_default_a), axis=-1))
+    axs_tst[0][1].imshow(im_rgb, interpolation_stage=intp_stage, alpha=scalar_alpha)
+    axs_ref[0][1].imshow(
+        np.concatenate(  # combine rgb channels with broadcasted scalar alpha
+            (im_rgb, scalar_alpha * im_concat_default_a), axis=-1
+        ), interpolation_stage=intp_stage
+    )
+    axs_tst[0][2].imshow(im_rgb, interpolation_stage=intp_stage, alpha=array_alpha)
+    axs_ref[0][2].imshow(im_rgba, interpolation_stage=intp_stage)
+
+    # When the image already has an alpha channel, multiply it by the
+    # scalar alpha param, or replace it by the array alpha param
+    axs_tst[1][0].imshow(im_rgba)
+    axs_ref[1][0].imshow(im_rgb, alpha=array_alpha)
+    axs_tst[1][1].imshow(im_rgba, interpolation_stage=intp_stage, alpha=scalar_alpha)
+    axs_ref[1][1].imshow(
+        np.concatenate(  # combine rgb channels with scaled array alpha
+            (im_rgb, scalar_alpha * array_alpha.reshape((ny, nx, 1))), axis=-1
+        ), interpolation_stage=intp_stage
+    )
+    new_array_alpha = np.random.rand(ny, nx)
+    axs_tst[1][2].imshow(im_rgba, interpolation_stage=intp_stage, alpha=new_array_alpha)
+    axs_ref[1][2].imshow(
+        np.concatenate(  # combine rgb channels with new array alpha
+            (im_rgb, new_array_alpha.reshape((ny, nx, 1))), axis=-1
+        ), interpolation_stage=intp_stage
+    )

@@ -22,6 +22,7 @@ import re
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib.backends import BackendFilter, backend_registry
 from matplotlib.cbook import ls_mapper
@@ -93,6 +94,25 @@ class ValidateInStrings:
         raise ValueError(msg)
 
 
+def _single_string_color_list(s, scalar_validator):
+    """
+    Convert the string *s* to a list of colors interpreting it either as a
+    color sequence name, or a string containing single-letter colors.
+    """
+    try:
+        colors = mpl.color_sequences[s]
+    except KeyError:
+        try:
+            # Sometimes, a list of colors might be a single string
+            # of single-letter colornames. So give that a shot.
+            colors = [scalar_validator(v.strip()) for v in s if v.strip()]
+        except ValueError:
+            raise ValueError(f'{s!r} is neither a color sequence name nor can '
+                             'it be interpreted as a list of colors')
+
+    return colors
+
+
 @lru_cache
 def _listify_validator(scalar_validator, allow_stringlist=False, *,
                        n=None, doc=None):
@@ -103,9 +123,8 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *,
                        if v.strip()]
             except Exception:
                 if allow_stringlist:
-                    # Sometimes, a list of colors might be a single string
-                    # of single-letter colornames. So give that a shot.
-                    val = [scalar_validator(v.strip()) for v in s if v.strip()]
+                    # Special handling for colors
+                    val = _single_string_color_list(s, scalar_validator)
                 else:
                     raise
         # Allow any ordered sequence type -- generators, np.ndarray, pd.Series
@@ -191,6 +210,14 @@ def _make_type_validator(cls, *, allow_none=False):
     def validator(s):
         if (allow_none and
                 (s is None or cbook._str_lower_equal(s, "none"))):
+            if cbook._str_lower_equal(s, "none") and s != "None":
+                _api.warn_deprecated(
+                    "3.11",
+                    message=f"Using the capitalization {s!r} in matplotlibrc for "
+                            "*None* is deprecated in %(removal)s and will lead to an "
+                            "error from version 3.13 onward. Please use 'None' "
+                            "instead."
+                )
             return None
         if cls is str and not isinstance(s, str):
             raise ValueError(f'Could not convert {s!r} to str')
@@ -1124,6 +1151,9 @@ _validators = {
     "axes3d.xaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.zaxis.panecolor":    validate_color,  # 3d background pane
+
+    "axes3d.depthshade": validate_bool,  # depth shade for 3D scatter plots
+    "axes3d.depthshade_minalpha": validate_float,  # min alpha value for depth shading
 
     "axes3d.mouserotationstyle": ["azel", "trackball", "sphere", "arcball"],
     "axes3d.trackballsize": validate_float,

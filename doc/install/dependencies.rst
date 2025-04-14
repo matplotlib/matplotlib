@@ -29,7 +29,7 @@ reference.
 * `NumPy <https://numpy.org>`_ (>= 1.23)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
-* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
+* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 3)
 
 
 .. _optional_dependencies:
@@ -229,9 +229,6 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 (recommended) or by manually installing the following packages:
 
 - `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.13.1).
-- `ninja <https://ninja-build.org/>`_ (>= 1.8.2). This may be available in your package
-  manager or bundled with Meson, but may be installed via ``pip`` if otherwise not
-  available.
 - `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.13.2). Used to connect C/C++ code
   with Python.
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
@@ -240,10 +237,22 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 - `NumPy <https://numpy.org>`_ (>= 1.22).  Also a runtime dependency.
 
 
+.. _compile-build-dependencies:
+
+Compilers and external build tools
+----------------------------------
+
+When setting up a virtual environment for development, `ninja <https://ninja-build.org/>`_
+(>= 1.8.2) may need to be installed separately. This may be available
+as a `pre-built binary <https://github.com/ninja-build/ninja/releases>`_ or from a
+`package manager <https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages>`_
+or bundled with Meson. Ninja may also be installed via ``pip`` if otherwise not
+available.
+
 .. _compile-dependencies:
 
-Compiled extensions
--------------------
+Compilers
+^^^^^^^^^
 
 Matplotlib requires a C++ compiler that supports C++17, and each platform has a
 development environment that must be installed before a compiler can be installed.
@@ -337,7 +346,6 @@ otherwise they must be installed manually:
 - pikepdf_ used in some tests for the pgf and pdf backends
 - psutil_ used in testing the interactive backends
 - pytest-cov_ (>= 2.3.1) to collect coverage information
-- pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
 - pytest-xdist_ to run tests in parallel
 - pytest-xvfb_ to run tests without windows popping up (Linux)
@@ -364,7 +372,6 @@ them will be skipped by pytest.
 .. _Ghostscript: https://ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _WenQuanYi Zen Hei: http://wenq.org/en/
-.. _flake8: https://pypi.org/project/flake8/
 .. _nbconvert: https://pypi.org/project/nbconvert/
 .. _nbformat: https://pypi.org/project/nbformat/
 .. _pandas: https://pypi.org/project/pandas/
@@ -372,7 +379,6 @@ them will be skipped by pytest.
 .. _psutil: https://pypi.org/project/psutil/
 .. _pytz: https://fonts.google.com/noto/use#faq
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
-.. _pytest-flake8: https://pypi.org/project/pytest-flake8/
 .. _pytest-timeout: https://pypi.org/project/pytest-timeout/
 .. _pytest-xdist: https://pypi.org/project/pytest-xdist/
 .. _pytest-xvfb: https://pypi.org/project/pytest-xvfb/
@@ -434,5 +440,5 @@ process will raise various warnings.
 
 * `Inkscape <https://inkscape.org>`_
 * `optipng <http://optipng.sourceforge.net>`_
-* the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <http://comicneue.com/>`_
+* the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_
 * the font "Times New Roman"

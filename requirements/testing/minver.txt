@@ -10,6 +10,14 @@ meson==1.1.0
 numpy==1.23.0
 packaging==20.0
 pillow==9.0.1
-pyparsing==2.3.1
+pyparsing==3.0.0
 pytest==7.0.0
 python-dateutil==2.7
+
+# Test ipython/matplotlib-inline before backend mapping moved to mpl.
+# This should be tested for a reasonably long transition period,
+# but we will eventually remove the test when we no longer support
+# ipython/matplotlib-inline versions from before the transition.
+ipython==7.29.0
+ipykernel==5.5.6
+matplotlib-inline<0.1.7

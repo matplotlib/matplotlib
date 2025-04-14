@@ -1181,7 +1181,13 @@ are centralized as a sphinx theme at
 `mpl_sphinx_theme <https://github.com/matplotlib/mpl-sphinx-theme>`_.  Changes to the
 style or topbar should be made there to propagate across all subprojects.
 
-.. TODO: Add section about uploading docs
+
+Analytics
+==========
+
+Documentation page analytics are available at
+https://views.scientific-python.org/matplotlib.org.
+
 
 .. _ReST: https://docutils.sourceforge.io/rst.html
 .. _Sphinx: http://www.sphinx-doc.org

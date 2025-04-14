@@ -417,9 +417,9 @@
 
 #axes.unicode_minus: True  # use Unicode for the minus symbol rather than hyphen.  See
                            # https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
-#axes.prop_cycle: cycler('color', ['1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
-                  # color cycle for plot lines as list of string color specs:
-                  # single letter, long name, or web-style hex
+#axes.prop_cycle: cycler(color='tab10')
+                  # color cycle for plot lines as either a named color sequence or a list
+                  # of string color specs: single letter, long name, or web-style hex
                   # As opposed to all other parameters in this file, the color
                   # values must be enclosed in quotes for this parameter,
                   # e.g. '1f77b4', instead of 1f77b4.
@@ -438,6 +438,9 @@
 #axes3d.xaxis.panecolor:    (0.95, 0.95, 0.95, 0.5)  # background pane on 3D axes
 #axes3d.yaxis.panecolor:    (0.90, 0.90, 0.90, 0.5)  # background pane on 3D axes
 #axes3d.zaxis.panecolor:    (0.925, 0.925, 0.925, 0.5)  # background pane on 3D axes
+
+#axes3d.depthshade: True  # depth shade for 3D scatter plots
+#axes3d.depthshade_minalpha: 0.3  # minimum alpha value for depth shading
 
 #axes3d.mouserotationstyle: arcball  # {azel, trackball, sphere, arcball}
                             # See also https://matplotlib.org/stable/api/toolkits/mplot3d/view_angles.html#rotation-with-mouse

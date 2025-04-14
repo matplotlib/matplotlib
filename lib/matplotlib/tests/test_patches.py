@@ -178,7 +178,7 @@ def test_rotate_rect():
     assert_almost_equal(rect1.get_verts(), new_verts)
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_rotate_rect_draw(fig_test, fig_ref):
     ax_test = fig_test.add_subplot()
     ax_ref = fig_ref.add_subplot()
@@ -199,7 +199,7 @@ def test_rotate_rect_draw(fig_test, fig_ref):
     assert rect_test.get_angle() == angle
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_dash_offset_patch_draw(fig_test, fig_ref):
     ax_test = fig_test.add_subplot()
     ax_ref = fig_ref.add_subplot()
@@ -241,7 +241,7 @@ def test_negative_rect():
     assert_array_equal(np.roll(neg_vertices, 2, 0), pos_vertices)
 
 
-@image_comparison(['clip_to_bbox'])
+@image_comparison(['clip_to_bbox.png'])
 def test_clip_to_bbox():
     fig, ax = plt.subplots()
     ax.set_xlim([-18, 20])
@@ -395,7 +395,7 @@ def test_patch_linestyle_accents():
     fig.canvas.draw()
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_patch_linestyle_none(fig_test, fig_ref):
     circle = mpath.Path.unit_circle()
 
@@ -438,7 +438,7 @@ def test_wedge_movement():
 
 
 @image_comparison(['wedge_range'], remove_text=True,
-                  tol=0.009 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_wedge_range():
     ax = plt.axes()
 
@@ -564,7 +564,7 @@ def test_units_rectangle():
 
 
 @image_comparison(['connection_patch.png'], style='mpl20', remove_text=True,
-                  tol=0.024 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.024)
 def test_connection_patch():
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
@@ -583,7 +583,7 @@ def test_connection_patch():
     ax2.add_artist(con)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_connection_patch_fig(fig_test, fig_ref):
     # Test that connection patch can be added as figure artist, and that figure
     # pixels count negative values from the top right corner (this API may be
@@ -606,7 +606,7 @@ def test_connection_patch_fig(fig_test, fig_ref):
     fig_ref.add_artist(con)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_connection_patch_pixel_points(fig_test, fig_ref):
     xyA_pts = (.3, .2)
     xyB_pts = (-30, -20)
@@ -678,7 +678,7 @@ def test_contains_points():
 
 
 # Currently fails with pdf/svg, probably because some parts assume a dpi of 72.
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_shadow(fig_test, fig_ref):
     xy = np.array([.2, .3])
     dxy = np.array([.1, .2])
@@ -1023,6 +1023,9 @@ def test_patch_hatchcolor_inherit_logic():
         rect.set_edgecolor('green')
         assert mcolors.same_color(rect.get_hatchcolor(), 'purple')
 
+    # Smoke test for setting with numpy array
+    rect.set_hatchcolor(np.ones(3))
+
 
 def test_patch_hatchcolor_fallback_logic():
     # Test for when hatchcolor parameter is passed
@@ -1063,3 +1066,30 @@ def test_patch_hatchcolor_fallback_logic():
     # hatch.color rcParam is set to 'edge' and edgecolor is not set
     rect = Rectangle((0, 0), 1, 1, hatch='//')
     assert mcolors.same_color(rect.get_hatchcolor(), mpl.rcParams['patch.edgecolor'])
+
+
+def test_facecolor_none_force_edgecolor_false():
+    rcParams['patch.force_edgecolor'] = False   # default value
+    rect = Rectangle((0, 0), 1, 1, facecolor="none")
+    assert rect.get_edgecolor() == (0.0, 0.0, 0.0, 0.0)
+
+
+def test_facecolor_none_force_edgecolor_true():
+    rcParams['patch.force_edgecolor'] = True
+    rect = Rectangle((0, 0), 1, 1, facecolor="none")
+    assert rect.get_edgecolor() == (0.0, 0.0, 0.0, 1)
+
+
+def test_facecolor_none_edgecolor_force_edgecolor():
+
+    # Case 1:force_edgecolor =False -> rcParams['patch.edgecolor'] should NOT be applied
+    rcParams['patch.force_edgecolor'] = False
+    rcParams['patch.edgecolor'] = 'red'
+    rect = Rectangle((0, 0), 1, 1, facecolor="none")
+    assert not mcolors.same_color(rect.get_edgecolor(), rcParams['patch.edgecolor'])
+
+    # Case 2:force_edgecolor =True -> rcParams['patch.edgecolor'] SHOULD be applied
+    rcParams['patch.force_edgecolor'] = True
+    rcParams['patch.edgecolor'] = 'red'
+    rect = Rectangle((0, 0), 1, 1, facecolor="none")
+    assert mcolors.same_color(rect.get_edgecolor(), rcParams['patch.edgecolor'])

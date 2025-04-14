@@ -65,8 +65,8 @@ def composite_images(images, renderer, magnification=1.0):
     Parameters
     ----------
     images : list of Images
-        Each must have a `make_image` method.  For each image,
-        `can_composite` should return `True`, though this is not
+        Each must have a `!make_image` method.  For each image,
+        `!can_composite` should return `True`, though this is not
         enforced by this function.  Each image must have a purely
         affine transformation with no shear.
 
@@ -439,6 +439,8 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
                 raise ValueError(f"Invalid shape {A.shape} for image data")
 
+            float_rgba_in = A.ndim == 3 and A.shape[-1] == 4 and A.dtype.kind == 'f'
+
             # if antialiased, this needs to change as window sizes
             # change:
             interpolation_stage = self._interpolation_stage
@@ -496,27 +498,43 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                     out_alpha *= _resample(self, alpha, out_shape, t, resample=True)
                 # mask and run through the norm
                 resampled_masked = np.ma.masked_array(A_resampled, out_mask)
-                output = self.norm(resampled_masked)
+                res = self.norm(resampled_masked)
             else:
                 if A.ndim == 2:  # interpolation_stage = 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
-                alpha = self._get_scalar_alpha()
-                if A.shape[2] == 3:
-                    # No need to resample alpha or make a full array; NumPy will expand
-                    # this out and cast to uint8 if necessary when it's assigned to the
-                    # alpha channel below.
-                    output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
-                else:
-                    output_alpha = _resample(  # resample alpha channel
-                        self, A[..., 3], out_shape, t, alpha=alpha)
-                output = _resample(  # resample rgb channels
-                    self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
-                output[..., 3] = output_alpha  # recombine rgb and alpha
+                if A.dtype == np.uint8:
+                    # uint8 is too imprecise for premultiplied alpha roundtrips.
+                    A = np.divide(A, 0xff, dtype=np.float32)
+                alpha = self.get_alpha()
+                post_apply_alpha = False
+                if alpha is None:  # alpha parameter not specified
+                    if A.shape[2] == 3:  # image has no alpha channel
+                        A = np.dstack([A, np.ones(A.shape[:2])])
+                elif np.ndim(alpha) > 0:  # Array alpha
+                    # user-specified array alpha overrides the existing alpha channel
+                    A = np.dstack([A[..., :3], alpha])
+                else:  # Scalar alpha
+                    if A.shape[2] == 3:  # broadcast scalar alpha
+                        A = np.dstack([A, np.full(A.shape[:2], alpha, np.float32)])
+                    else:  # or apply scalar alpha to existing alpha channel
+                        post_apply_alpha = True
+                # Resample in premultiplied alpha space.  (TODO: Consider
+                # implementing premultiplied-space resampling in
+                # span_image_resample_rgba_affine::generate?)
+                if float_rgba_in and np.ndim(alpha) == 0 and np.any(A[..., 3] < 1):
+                    # Do not modify original RGBA input
+                    A = A.copy()
+                A[..., :3] *= A[..., 3:]
+                res = _resample(self, A, out_shape, t)
+                np.divide(res[..., :3], res[..., 3:], out=res[..., :3],
+                            where=res[..., 3:] != 0)
+                if post_apply_alpha:
+                    res[..., 3] *= alpha
 
-            # output is now either a 2D array of normed (int or float) data
+            # res is now either a 2D array of normed (int or float) data
             # or an RGBA array of re-sampled input
-            output = self.to_rgba(output, bytes=True, norm=False)
+            output = self.to_rgba(res, bytes=True, norm=False)
             # output is now a correctly sized RGBA array of uint8
 
             # Apply alpha *after* if the input was greyscale without a mask
@@ -1711,7 +1729,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         thus supports a wide range of file formats, including PNG, JPG, TIFF
         and others.
 
-        .. _Pillow: https://python-pillow.org/
+        .. _Pillow: https://python-pillow.github.io
 
     thumbfile : str or file-like
         The thumbnail filename.

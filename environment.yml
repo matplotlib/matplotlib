@@ -11,6 +11,8 @@ channels:
 dependencies:
   # runtime dependencies
   - cairocffi
+  - c-compiler
+  - cxx-compiler
   - contourpy>=1.0.1
   - cycler>=0.10.0
   - fonttools>=4.22.0
@@ -18,11 +20,11 @@ dependencies:
   - kiwisolver>=1.3.1
   - pybind11>=2.13.2
   - meson-python>=0.13.1
-  - numpy<2.1
+  - numpy
   - pillow>=9
   - pkg-config
   - pygobject
-  - pyparsing>=2.3.1
+  - pyparsing>=3
   - pyqt
   - python>=3.10
   - python-dateutil>=2.1
@@ -53,8 +55,6 @@ dependencies:
   # testing
   - black<24
   - coverage
-  - flake8>=3.8
-  - flake8-docstrings>=1.4.0
   - gtk4
   - ipykernel
   - nbconvert[execute]!=6.0.0,!=6.0.1,!=7.3.0,!=7.3.1
@@ -70,4 +70,5 @@ dependencies:
   - pytest-xdist
   - tornado
   - pytz
+  - ruff
   - tox

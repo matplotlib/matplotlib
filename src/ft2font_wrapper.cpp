@@ -66,6 +66,19 @@ const char *FaceFlags__doc__ = R"""(
     .. versionadded:: 3.10
 )""";
 
+#ifndef FT_FACE_FLAG_VARIATION  // backcompat: ft 2.9.0.
+#define FT_FACE_FLAG_VARIATION (1L << 15)
+#endif
+#ifndef FT_FACE_FLAG_SVG  // backcompat: ft 2.12.0.
+#define FT_FACE_FLAG_SVG (1L << 16)
+#endif
+#ifndef FT_FACE_FLAG_SBIX  // backcompat: ft 2.12.0.
+#define FT_FACE_FLAG_SBIX (1L << 17)
+#endif
+#ifndef FT_FACE_FLAG_SBIX_OVERLAY  // backcompat: ft 2.12.0.
+#define FT_FACE_FLAG_SBIX_OVERLAY (1L << 18)
+#endif
+
 enum class FaceFlags : FT_Long {
 #define DECLARE_FLAG(name) name = FT_FACE_FLAG_##name
     DECLARE_FLAG(SCALABLE),
@@ -83,18 +96,10 @@ enum class FaceFlags : FT_Long {
     DECLARE_FLAG(CID_KEYED),
     DECLARE_FLAG(TRICKY),
     DECLARE_FLAG(COLOR),
-#ifdef FT_FACE_FLAG_VARIATION  // backcompat: ft 2.9.0.
     DECLARE_FLAG(VARIATION),
-#endif
-#ifdef FT_FACE_FLAG_SVG  // backcompat: ft 2.12.0.
     DECLARE_FLAG(SVG),
-#endif
-#ifdef FT_FACE_FLAG_SBIX  // backcompat: ft 2.12.0.
     DECLARE_FLAG(SBIX),
-#endif
-#ifdef FT_FACE_FLAG_SBIX_OVERLAY  // backcompat: ft 2.12.0.
     DECLARE_FLAG(SBIX_OVERLAY),
-#endif
 #undef DECLARE_FLAG
 };
 
@@ -115,14 +120,10 @@ P11X_DECLARE_ENUM(
     {"CID_KEYED", FaceFlags::CID_KEYED},
     {"TRICKY", FaceFlags::TRICKY},
     {"COLOR", FaceFlags::COLOR},
-    // backcompat: ft 2.9.0.
-    // {"VARIATION", FaceFlags::VARIATION},
-    // backcompat: ft 2.12.0.
-    // {"SVG", FaceFlags::SVG},
-    // backcompat: ft 2.12.0.
-    // {"SBIX", FaceFlags::SBIX},
-    // backcompat: ft 2.12.0.
-    // {"SBIX_OVERLAY", FaceFlags::SBIX_OVERLAY},
+    {"VARIATION", FaceFlags::VARIATION},
+    {"SVG", FaceFlags::SVG},
+    {"SBIX", FaceFlags::SBIX},
+    {"SBIX_OVERLAY", FaceFlags::SBIX_OVERLAY},
 );
 
 const char *LoadFlags__doc__ = R"""(
@@ -133,6 +134,16 @@ const char *LoadFlags__doc__ = R"""(
 
     .. versionadded:: 3.10
 )""";
+
+#ifndef FT_LOAD_COMPUTE_METRICS  // backcompat: ft 2.6.1.
+#define FT_LOAD_COMPUTE_METRICS (1L << 21)
+#endif
+#ifndef FT_LOAD_BITMAP_METRICS_ONLY  // backcompat: ft 2.7.1.
+#define FT_LOAD_BITMAP_METRICS_ONLY (1L << 22)
+#endif
+#ifndef FT_LOAD_NO_SVG  // backcompat: ft 2.13.1.
+#define FT_LOAD_NO_SVG (1L << 24)
+#endif
 
 enum class LoadFlags : FT_Int32 {
 #define DECLARE_FLAG(name) name = FT_LOAD_##name
@@ -152,15 +163,9 @@ enum class LoadFlags : FT_Int32 {
     DECLARE_FLAG(LINEAR_DESIGN),
     DECLARE_FLAG(NO_AUTOHINT),
     DECLARE_FLAG(COLOR),
-#ifdef FT_LOAD_COMPUTE_METRICS  // backcompat: ft 2.6.1.
     DECLARE_FLAG(COMPUTE_METRICS),
-#endif
-#ifdef FT_LOAD_BITMAP_METRICS_ONLY  // backcompat: ft 2.7.1.
     DECLARE_FLAG(BITMAP_METRICS_ONLY),
-#endif
-#ifdef FT_LOAD_NO_SVG  // backcompat: ft 2.13.1.
     DECLARE_FLAG(NO_SVG),
-#endif
     DECLARE_FLAG(TARGET_NORMAL),
     DECLARE_FLAG(TARGET_LIGHT),
     DECLARE_FLAG(TARGET_MONO),
@@ -187,12 +192,9 @@ P11X_DECLARE_ENUM(
     {"LINEAR_DESIGN", LoadFlags::LINEAR_DESIGN},
     {"NO_AUTOHINT", LoadFlags::NO_AUTOHINT},
     {"COLOR", LoadFlags::COLOR},
-    // backcompat: ft 2.6.1.
     {"COMPUTE_METRICS", LoadFlags::COMPUTE_METRICS},
-    // backcompat: ft 2.7.1.
-    // {"BITMAP_METRICS_ONLY", LoadFlags::BITMAP_METRICS_ONLY},
-    // backcompat: ft 2.13.1.
-    // {"NO_SVG", LoadFlags::NO_SVG},
+    {"BITMAP_METRICS_ONLY", LoadFlags::BITMAP_METRICS_ONLY},
+    {"NO_SVG", LoadFlags::NO_SVG},
     // These must be unique, but the others can be OR'd together; I don't know if
     // there's any way to really enforce that.
     {"TARGET_NORMAL", LoadFlags::TARGET_NORMAL},
@@ -1475,7 +1477,13 @@ PyFT2Font_face_flags(PyFT2Font *self)
 static StyleFlags
 PyFT2Font_style_flags(PyFT2Font *self)
 {
-    return static_cast<StyleFlags>(self->x->get_face()->style_flags);
+    return static_cast<StyleFlags>(self->x->get_face()->style_flags & 0xffff);
+}
+
+static FT_Long
+PyFT2Font_num_named_instances(PyFT2Font *self)
+{
+    return (self->x->get_face()->style_flags & 0x7fff0000) >> 16;
 }
 
 static FT_Long
@@ -1766,6 +1774,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                                "Face flags; see `.FaceFlags`.")
         .def_property_readonly("style_flags", &PyFT2Font_style_flags,
                                "Style flags; see `.StyleFlags`.")
+        .def_property_readonly("num_named_instances", &PyFT2Font_num_named_instances,
+                               "Number of named instances in the face.")
         .def_property_readonly("num_glyphs", &PyFT2Font_num_glyphs,
                                "Number of glyphs in the face.")
         .def_property_readonly("num_fixed_sizes", &PyFT2Font_num_fixed_sizes,

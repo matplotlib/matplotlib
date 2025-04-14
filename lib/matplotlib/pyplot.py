@@ -86,7 +86,6 @@ import numpy as np
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable, Sequence
-    import datetime
     import pathlib
     import os
     from typing import Any, BinaryIO, Literal, TypeVar
@@ -876,7 +875,9 @@ def figure(
     # autoincrement if None, else integer from 1-N
     num: int | str | Figure | SubFigure | None = None,
     # defaults to rc figure.figsize
-    figsize: tuple[float, float] | None = None,
+    figsize: ArrayLike  # a 2-element ndarray is accepted as well
+             | tuple[float, float, Literal["in", "cm", "px"]]
+             | None = None,
     # defaults to rc figure.dpi
     dpi: float | None = None,
     *,
@@ -909,8 +910,12 @@ def figure(
         window title is set to this value.  If num is a ``SubFigure``, its
         parent ``Figure`` is activated.
 
-    figsize : (float, float), default: :rc:`figure.figsize`
-        Width, height in inches.
+    figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
+        The figure dimensions. This can be
+
+        - a tuple ``(width, height, unit)``, where *unit* is one of "inch", "cm",
+          "px".
+        - a tuple ``(x, y)``, which is interpreted as ``(x, y, "inch")``.
 
     dpi : float, default: :rc:`figure.dpi`
         The resolution of the figure in dots-per-inch.
@@ -997,8 +1002,8 @@ default: None
         root_fig = num.get_figure(root=True)
         if root_fig.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
-        elif any([figsize, dpi, facecolor, edgecolor, not frameon,
-                  kwargs]) and root_fig.canvas.manager.num in allnums:
+        elif (any(param is not None for param in [figsize, dpi, facecolor, edgecolor])
+              or not frameon or kwargs) and root_fig.canvas.manager.num in allnums:
             _api.warn_external(
                 "Ignoring specified arguments in this call because figure "
                 f"with num: {root_fig.canvas.manager.num} already exists")
@@ -1010,8 +1015,8 @@ default: None
     if num is None:
         num = next_num
     else:
-        if any([figsize, dpi, facecolor, edgecolor, not frameon,
-                kwargs]) and num in allnums:
+        if (any(param is not None for param in [figsize, dpi, facecolor, edgecolor])
+              or not frameon or kwargs) and num in allnums:
             _api.warn_external(
                 "Ignoring specified arguments in this call "
                 f"because figure with num: {num} already exists")
@@ -1173,7 +1178,7 @@ def disconnect(cid: int) -> None:
 
 def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
     """
-    Close a figure window.
+    Close a figure window, and unregister it from pyplot.
 
     Parameters
     ----------
@@ -1186,6 +1191,14 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
         - ``str``: a figure name
         - 'all': all figures
 
+    Notes
+    -----
+    pyplot maintains a reference to figures created with `figure()`. When
+    work on the figure is completed, it should be closed, i.e. deregistered
+    from pyplot, to free its memory (see also :rc:figure.max_open_warning).
+    Closing a figure window created by `show()` automatically deregisters the
+    figure. For all other use cases, most prominently `savefig()` without
+    `show()`, the figure must be deregistered explicitly using `close()`.
     """
     if fig is None:
         manager = _pylab_helpers.Gcf.get_active()
@@ -1450,16 +1463,10 @@ def subplot(*args, **kwargs) -> Axes:
 
     Notes
     -----
-    Creating a new Axes will delete any preexisting Axes that
-    overlaps with it beyond sharing a boundary::
-
-        import matplotlib.pyplot as plt
-        # plot a line, implicitly creating a subplot(111)
-        plt.plot([1, 2, 3])
-        # now create a subplot which represents the top plot of a grid
-        # with 2 rows and 1 column. Since this subplot will overlap the
-        # first, the plot (and its Axes) previously created, will be removed
-        plt.subplot(211)
+    .. versionchanged:: 3.8
+        In versions prior to 3.8, any preexisting Axes that overlap with the new Axes
+        beyond sharing a boundary was deleted. Deletion does not happen in more
+        recent versions anymore. Use `.Axes.remove` explicitly if needed.
 
     If you do not want this behavior, use the `.Figure.add_subplot` method
     or the `.pyplot.axes` function instead.
@@ -1710,7 +1717,7 @@ def subplots(
 
         Typical idioms for handling the return value are::
 
-            # using the variable ax for single a Axes
+            # using the variable ax for a single Axes
             fig, ax = plt.subplots()
 
             # using the variable axs for multiple Axes
@@ -2669,9 +2676,13 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     if fignum == 0:
         ax = gca()
     else:
-        # Extract actual aspect ratio of array and make appropriately sized
-        # figure.
-        fig = figure(fignum, figsize=figaspect(A))
+        if fignum is not None and fignum_exists(fignum):
+            # Do not try to set a figure size.
+            figsize = None
+        else:
+            # Extract actual aspect ratio of array and make appropriately sized figure.
+            figsize = figaspect(A)
+        fig = figure(fignum, figsize=figsize)
         ax = fig.add_axes((0.15, 0.09, 0.775, 0.775))
     im = ax.matshow(A, **kwargs)
     sci(im)
@@ -2718,12 +2729,15 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # If rcParams['backend_fallback'] is true, and an interactive backend is
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
-if (rcParams["backend_fallback"]
-        and rcParams._get_backend_or_none() in (  # type: ignore[attr-defined]
-            set(backend_registry.list_builtin(BackendFilter.INTERACTIVE)) -
-            {'webagg', 'nbagg'})
-        and cbook._get_running_interactive_framework()):
-    rcParams._set("backend", rcsetup._auto_backend_sentinel)
+if rcParams["backend_fallback"]:
+    requested_backend = rcParams._get_backend_or_none()  # type: ignore[attr-defined]
+    requested_backend = None if requested_backend is None else requested_backend.lower()
+    available_backends = backend_registry.list_builtin(BackendFilter.INTERACTIVE)
+    if (
+        requested_backend in (set(available_backends) - {'webagg', 'nbagg'})
+        and cbook._get_running_interactive_framework()
+    ):
+        rcParams._set("backend", rcsetup._auto_backend_sentinel)
 
 # fmt: on
 
@@ -3034,7 +3048,7 @@ def bar_label(
     *,
     fmt: str | Callable[[float], str] = "%g",
     label_type: Literal["center", "edge"] = "edge",
-    padding: float = 0,
+    padding: float | ArrayLike = 0,
     **kwargs,
 ) -> list[Annotation]:
     return gca().bar_label(
@@ -3844,31 +3858,6 @@ def plot(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_copy_docstring_and_deprecators(Axes.plot_date)
-def plot_date(
-    x: ArrayLike,
-    y: ArrayLike,
-    fmt: str = "o",
-    tz: str | datetime.tzinfo | None = None,
-    xdate: bool = True,
-    ydate: bool = False,
-    *,
-    data=None,
-    **kwargs,
-) -> list[Line2D]:
-    return gca().plot_date(
-        x,
-        y,
-        fmt=fmt,
-        tz=tz,
-        xdate=xdate,
-        ydate=ydate,
-        **({"data": data} if data is not None else {}),
-        **kwargs,
-    )
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.psd)
 def psd(
     x: ArrayLike,
@@ -4309,6 +4298,8 @@ def violinplot(
     | Callable[[GaussianKDE], float]
     | None = None,
     side: Literal["both", "low", "high"] = "both",
+    facecolor: Sequence[ColorType] | ColorType | None = None,
+    linecolor: Sequence[ColorType] | ColorType | None = None,
     *,
     data=None,
 ) -> dict[str, Collection]:
@@ -4325,6 +4316,8 @@ def violinplot(
         points=points,
         bw_method=bw_method,
         side=side,
+        facecolor=facecolor,
+        linecolor=linecolor,
         **({"data": data} if data is not None else {}),
     )
 

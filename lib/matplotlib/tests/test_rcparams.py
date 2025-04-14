@@ -257,6 +257,8 @@ def generate_validator_testcases(valid):
         {'validator': validate_cycler,
          'success': (('cycler("color", "rgb")',
                       cycler("color", 'rgb')),
+                     ('cycler("color", "Dark2")',
+                      cycler("color", mpl.color_sequences["Dark2"])),
                      (cycler('linestyle', ['-', '--']),
                       cycler('linestyle', ['-', '--'])),
                      ("""(cycler("color", ["r", "g", "b"]) +
@@ -455,6 +457,12 @@ def test_validator_invalid(validator, arg, exception_type):
         validator(arg)
 
 
+def test_validate_cycler_bad_color_string():
+    msg = "'foo' is neither a color sequence name nor can it be interpreted as a list"
+    with pytest.raises(ValueError, match=msg):
+        validate_cycler("cycler('color', 'foo')")
+
+
 @pytest.mark.parametrize('weight, parsed_weight', [
     ('bold', 'bold'),
     ('BOLD', ValueError),  # weight is case-sensitive
@@ -521,10 +529,11 @@ def test_rcparams_reset_after_fail():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-def test_backend_fallback_headless(tmp_path):
+def test_backend_fallback_headless_invalid_backend(tmp_path):
     env = {**os.environ,
            "DISPLAY": "", "WAYLAND_DISPLAY": "",
            "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
+    # plotting should fail with the tkagg backend selected in a headless environment
     with pytest.raises(subprocess.CalledProcessError):
         subprocess_run_for_testing(
             [sys.executable, "-c",
@@ -534,6 +543,28 @@ def test_backend_fallback_headless(tmp_path):
              "matplotlib.pyplot.plot(42);"
              ],
             env=env, check=True, stderr=subprocess.DEVNULL)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+def test_backend_fallback_headless_auto_backend(tmp_path):
+    # specify a headless mpl environment, but request a graphical (tk) backend
+    env = {**os.environ,
+           "DISPLAY": "", "WAYLAND_DISPLAY": "",
+           "MPLBACKEND": "TkAgg", "MPLCONFIGDIR": str(tmp_path)}
+
+    # allow fallback to an available interactive backend explicitly in configuration
+    rc_path = tmp_path / "matplotlibrc"
+    rc_path.write_text("backend_fallback: true")
+
+    # plotting should succeed, by falling back to use the generic agg backend
+    backend = subprocess_run_for_testing(
+        [sys.executable, "-c",
+         "import matplotlib.pyplot;"
+         "matplotlib.pyplot.plot(42);"
+         "print(matplotlib.get_backend());"
+         ],
+        env=env, text=True, check=True, capture_output=True).stdout
+    assert backend.strip().lower() == "agg"
 
 
 @pytest.mark.skipif(
@@ -564,40 +595,6 @@ def test_backend_fallback_headful(tmp_path):
 
 
 def test_deprecation(monkeypatch):
-    monkeypatch.setitem(
-        mpl._deprecated_map, "patch.linewidth",
-        ("0.0", "axes.linewidth", lambda old: 2 * old, lambda new: new / 2))
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        assert mpl.rcParams["patch.linewidth"] \
-            == mpl.rcParams["axes.linewidth"] / 2
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        mpl.rcParams["patch.linewidth"] = 1
-    assert mpl.rcParams["axes.linewidth"] == 2
-
-    monkeypatch.setitem(
-        mpl._deprecated_ignore_map, "patch.edgecolor",
-        ("0.0", "axes.edgecolor"))
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        assert mpl.rcParams["patch.edgecolor"] \
-            == mpl.rcParams["axes.edgecolor"]
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        mpl.rcParams["patch.edgecolor"] = "#abcd"
-    assert mpl.rcParams["axes.edgecolor"] != "#abcd"
-
-    monkeypatch.setitem(
-        mpl._deprecated_ignore_map, "patch.force_edgecolor",
-        ("0.0", None))
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        assert mpl.rcParams["patch.force_edgecolor"] is None
-
-    monkeypatch.setitem(
-        mpl._deprecated_remain_as_none, "svg.hashsalt",
-        ("0.0",))
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
-        mpl.rcParams["svg.hashsalt"] = "foobar"
-    assert mpl.rcParams["svg.hashsalt"] == "foobar"  # Doesn't warn.
-    mpl.rcParams["svg.hashsalt"] = None  # Doesn't warn.
-
     mpl.rcParams.update(mpl.rcParams.copy())  # Doesn't warn.
     # Note that the warning suppression actually arises from the
     # iteration over the updater rcParams being protected by

@@ -29,7 +29,7 @@ def test_clipping():
 
 
 @image_comparison(['overflow'], remove_text=True,
-                  tol=0.007 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.007)
 def test_overflow():
     x = np.array([1.0, 2.0, 3.0, 2.0e5])
     y = np.arange(len(x))
@@ -248,7 +248,7 @@ def test_simplify_curve():
     ax.set_ylim((0, 2))
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_closed_path_nan_removal(fig_test, fig_ref):
     ax_test = fig_test.subplots(2, 2).flatten()
     ax_ref = fig_ref.subplots(2, 2).flatten()
@@ -356,7 +356,7 @@ def test_closed_path_nan_removal(fig_test, fig_ref):
     remove_ticks_and_titles(fig_ref)
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_closed_path_clipping(fig_test, fig_ref):
     vertices = []
     for roll in range(8):

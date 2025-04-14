@@ -62,6 +62,7 @@ from matplotlib._enums import JoinStyle, CapStyle
 _log = logging.getLogger(__name__)
 _default_filetypes = {
     'eps': 'Encapsulated Postscript',
+    'gif': 'Graphics Interchange Format',
     'jpg': 'Joint Photographic Experts Group',
     'jpeg': 'Joint Photographic Experts Group',
     'pdf': 'Portable Document Format',
@@ -78,6 +79,7 @@ _default_filetypes = {
 }
 _default_backends = {
     'eps': 'matplotlib.backends.backend_ps',
+    'gif': 'matplotlib.backends.backend_agg',
     'jpg': 'matplotlib.backends.backend_agg',
     'jpeg': 'matplotlib.backends.backend_agg',
     'pdf': 'matplotlib.backends.backend_pdf',
@@ -206,7 +208,7 @@ class RendererBase:
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
+                             offset_position, *, hatchcolors=None):
         """
         Draw a collection of *paths*.
 
@@ -215,8 +217,11 @@ class RendererBase:
         *master_transform*.  They are then translated by the corresponding
         entry in *offsets*, which has been first transformed by *offset_trans*.
 
-        *facecolors*, *edgecolors*, *linewidths*, *linestyles*, and
-        *antialiased* are lists that set the corresponding properties.
+        *facecolors*, *edgecolors*, *linewidths*, *linestyles*, *antialiased*
+        and *hatchcolors* are lists that set the corresponding properties.
+
+        .. versionadded:: 3.11
+            Allow *hatchcolors* to be specified.
 
         *offset_position* is unused now, but the argument is kept for
         backwards compatibility.
@@ -225,7 +230,7 @@ class RendererBase:
         Backends may want to override this in order to render each set of
         path data only once, and then reference that path multiple times with
         the different offsets, colors, styles etc.  The generator methods
-        `_iter_collection_raw_paths` and `_iter_collection` are provided to
+        `!_iter_collection_raw_paths` and `!_iter_collection` are provided to
         help with (and standardize) the implementation across backends.  It
         is highly recommended to use those generators, so that changes to the
         behavior of `draw_path_collection` can be made globally.
@@ -233,10 +238,13 @@ class RendererBase:
         path_ids = self._iter_collection_raw_paths(master_transform,
                                                    paths, all_transforms)
 
+        if hatchcolors is None:
+            hatchcolors = []
+
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, list(path_ids), offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
             path, transform = path_id
             # Only apply another translation if we have an offset, else we
             # reuse the initial transform.
@@ -335,7 +343,7 @@ class RendererBase:
 
     def _iter_collection(self, gc, path_ids, offsets, offset_trans, facecolors,
                          edgecolors, linewidths, linestyles,
-                         antialiaseds, urls, offset_position):
+                         antialiaseds, urls, offset_position, *, hatchcolors):
         """
         Helper method (along with `_iter_collection_raw_paths`) to implement
         `draw_path_collection` in a memory-efficient manner.
@@ -363,11 +371,12 @@ class RendererBase:
         N = max(Npaths, Noffsets)
         Nfacecolors = len(facecolors)
         Nedgecolors = len(edgecolors)
+        Nhatchcolors = len(hatchcolors)
         Nlinewidths = len(linewidths)
         Nlinestyles = len(linestyles)
         Nurls = len(urls)
 
-        if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
+        if (Nfacecolors == 0 and Nedgecolors == 0 and Nhatchcolors == 0) or Npaths == 0:
             return
 
         gc0 = self.new_gc()
@@ -382,6 +391,7 @@ class RendererBase:
         toffsets = cycle_or_default(offset_trans.transform(offsets), (0, 0))
         fcs = cycle_or_default(facecolors)
         ecs = cycle_or_default(edgecolors)
+        hcs = cycle_or_default(hatchcolors)
         lws = cycle_or_default(linewidths)
         lss = cycle_or_default(linestyles)
         aas = cycle_or_default(antialiaseds)
@@ -390,8 +400,8 @@ class RendererBase:
         if Nedgecolors == 0:
             gc0.set_linewidth(0.0)
 
-        for pathid, (xo, yo), fc, ec, lw, ls, aa, url in itertools.islice(
-                zip(pathids, toffsets, fcs, ecs, lws, lss, aas, urls), N):
+        for pathid, (xo, yo), fc, ec, hc, lw, ls, aa, url in itertools.islice(
+                zip(pathids, toffsets, fcs, ecs, hcs, lws, lss, aas, urls), N):
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
             if Nedgecolors:
@@ -403,6 +413,8 @@ class RendererBase:
                     gc0.set_linewidth(0)
                 else:
                     gc0.set_foreground(ec)
+            if Nhatchcolors:
+                gc0.set_hatch_color(hc)
             if fc is not None and len(fc) == 4 and fc[3] == 0:
                 fc = None
             gc0.set_antialiased(aa)
@@ -428,11 +440,11 @@ class RendererBase:
         gc : `.GraphicsContextBase`
             A graphics context with clipping information.
 
-        x : scalar
+        x : float
             The distance in physical units (i.e., dots or pixels) from the left
             hand side of the canvas.
 
-        y : scalar
+        y : float
             The distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
@@ -441,12 +453,13 @@ class RendererBase:
 
         transform : `~matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
-            `option_scale_image` returns ``True``, an affine transformation
-            (i.e., an `.Affine2DBase`) *may* be passed to `draw_image`.  The
-            translation vector of the transformation is given in physical units
-            (i.e., dots or pixels). Note that the transformation does not
-            override *x* and *y*, and has to be applied *before* translating
-            the result by *x* and *y* (this can be accomplished by adding *x*
+            `~.RendererBase.option_scale_image` returns ``True``, an affine
+            transformation (i.e., an `.Affine2DBase`) *may* be passed to
+            `~.RendererBase.draw_image`.  The translation vector of the
+            transformation is given in physical units (i.e., dots or pixels).
+            Note that the transformation does not override *x* and *y*,
+            and has to be applied *before* translatingthe result by
+            *x* and *y* (this can be accomplished by adding *x*
             and *y* to the translation vector defined by *transform*).
         """
         raise NotImplementedError
@@ -463,8 +476,8 @@ class RendererBase:
 
     def option_scale_image(self):
         """
-        Return whether arbitrary affine transformations in `draw_image` are
-        supported (True for most vector backends).
+        Return whether arbitrary affine transformations in
+        `~.RendererBase.draw_image` are supported (True for most vector backends).
         """
         return False
 
@@ -1020,7 +1033,7 @@ class TimerBase:
     Subclasses may additionally override the following methods:
 
     - ``_timer_set_single_shot``: Code for setting the timer to single shot
-      operating mode, if supported by the timer object.  If not, the `Timer`
+      operating mode, if supported by the timer object.  If not, the `TimerBase`
       class itself will store the flag and the ``_on_timer`` method should be
       overridden to support such behavior.
 
@@ -2217,7 +2230,7 @@ class FigureCanvasBase:
         # Characters to be avoided in a NT path:
         # https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
         # plus ' '
-        removed_chars = r'<>:"/\|?*\0 '
+        removed_chars = '<>:"/\\|?*\0 '
         default_basename = default_basename.translate(
             {ord(c): "_" for c in removed_chars})
         default_filetype = self.get_default_filetype()
@@ -2306,7 +2319,7 @@ class FigureCanvasBase:
 
     def new_timer(self, interval=None, callbacks=None):
         """
-        Create a new backend-specific subclass of `.Timer`.
+        Create a new backend-specific subclass of `.TimerBase`.
 
         This is useful for getting periodic events through the backend's native
         event loop.  Implemented only for backends with GUIs.
@@ -2727,23 +2740,24 @@ class FigureManagerBase:
         """For GUI backends, resize the window (in physical pixels)."""
 
     def get_window_title(self):
-        """
-        Return the title text of the window containing the figure, or None
-        if there is no window (e.g., a PS backend).
-        """
-        return 'image'
+        """Return the title text of the window containing the figure."""
+        return self._window_title
 
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.
-
-        This has no effect for non-GUI (e.g., PS) backends.
 
         Examples
         --------
         >>> fig = plt.figure()
         >>> fig.canvas.manager.set_window_title('My figure')
         """
+        # This attribute is not defined in __init__ (but __init__ calls this
+        # setter), as derived classes (real GUI managers) will store this
+        # information directly on the widget; only the base (non-GUI) manager
+        # class needs a specific attribute for it (so that filename escaping
+        # can be checked in the test suite).
+        self._window_title = title
 
 
 cursors = tools.cursors
@@ -3288,7 +3302,7 @@ class ToolContainerBase:
     Attributes
     ----------
     toolmanager : `.ToolManager`
-        The tools with which this `ToolContainer` wants to communicate.
+        The tools with which this `ToolContainerBase` wants to communicate.
     """
 
     _icon_extension = '.png'
@@ -3457,7 +3471,7 @@ class ToolContainerBase:
         called when `.ToolManager` emits a ``tool_removed_event``.
 
         Because some tools are present only on the `.ToolManager` but not on
-        the `ToolContainer`, this method must be a no-op when called on a tool
+        the `ToolContainerBase`, this method must be a no-op when called on a tool
         absent from the container.
 
         .. warning::

@@ -51,16 +51,17 @@ class Grid:
         in the usage pattern ``grid.axes_row[row][col]``.
     axes_llc : Axes
         The Axes in the lower left corner.
-    ngrids : int
+    n_axes : int
         Number of Axes in the grid.
     """
 
     _defaultAxesClass = Axes
 
+    @_api.rename_parameter("3.11", "ngrids", "n_axes")
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
-                 ngrids=None,
+                 n_axes=None,
                  direction="row",
                  axes_pad=0.02,
                  *,
@@ -83,8 +84,8 @@ class Grid:
             ``121``), or as a `~.SubplotSpec`.
         nrows_ncols : (int, int)
             Number of rows and columns in the grid.
-        ngrids : int or None, default: None
-            If not None, only the first *ngrids* axes in the grid are created.
+        n_axes : int or None, default: None
+            If not None, only the first *n_axes* axes in the grid are created.
         direction : {"row", "column"}, default: "row"
             Whether axes are created in row-major ("row by row") or
             column-major order ("column by column").  This also affects the
@@ -116,14 +117,12 @@ class Grid:
         """
         self._nrows, self._ncols = nrows_ncols
 
-        if ngrids is None:
-            ngrids = self._nrows * self._ncols
+        if n_axes is None:
+            n_axes = self._nrows * self._ncols
         else:
-            if not 0 < ngrids <= self._nrows * self._ncols:
+            if not 0 < n_axes <= self._nrows * self._ncols:
                 raise ValueError(
-                    "ngrids must be positive and not larger than nrows*ncols")
-
-        self.ngrids = ngrids
+                    "n_axes must be positive and not larger than nrows*ncols")
 
         self._horiz_pad_size, self._vert_pad_size = map(
             Size.Fixed, np.broadcast_to(axes_pad, 2))
@@ -150,7 +149,7 @@ class Grid:
         rect = self._divider.get_position()
 
         axes_array = np.full((self._nrows, self._ncols), None, dtype=object)
-        for i in range(self.ngrids):
+        for i in range(n_axes):
             col, row = self._get_col_row(i)
             if share_all:
                 sharex = sharey = axes_array[0, 0]
@@ -160,9 +159,9 @@ class Grid:
             axes_array[row, col] = axes_class(
                 fig, rect, sharex=sharex, sharey=sharey)
         self.axes_all = axes_array.ravel(
-            order="C" if self._direction == "row" else "F").tolist()
-        self.axes_column = axes_array.T.tolist()
-        self.axes_row = axes_array.tolist()
+            order="C" if self._direction == "row" else "F").tolist()[:n_axes]
+        self.axes_row = [[ax for ax in row if ax] for row in axes_array]
+        self.axes_column = [[ax for ax in col if ax] for col in axes_array.T]
         self.axes_llc = self.axes_column[0][-1]
 
         self._init_locators()
@@ -177,7 +176,7 @@ class Grid:
             [Size.Scaled(1), self._horiz_pad_size] * (self._ncols-1) + [Size.Scaled(1)])
         self._divider.set_vertical(
             [Size.Scaled(1), self._vert_pad_size] * (self._nrows-1) + [Size.Scaled(1)])
-        for i in range(self.ngrids):
+        for i in range(self.n_axes):
             col, row = self._get_col_row(i)
             self.axes_all[i].set_axes_locator(
                 self._divider.new_locator(nx=2 * col, ny=2 * (self._nrows - 1 - row)))
@@ -189,6 +188,9 @@ class Grid:
             row, col = divmod(n, self._ncols)
 
         return col, row
+
+    n_axes = property(lambda self: len(self.axes_all))
+    ngrids = _api.deprecated(property(lambda self: len(self.axes_all)))
 
     # Good to propagate __len__ if we have __getitem__
     def __len__(self):
@@ -251,28 +253,27 @@ class Grid:
             - "keep": Do not do anything.
         """
         _api.check_in_list(["all", "L", "1", "keep"], mode=mode)
-        is_last_row, is_first_col = (
-            np.mgrid[:self._nrows, :self._ncols] == [[[self._nrows - 1]], [[0]]])
-        if mode == "all":
-            bottom = left = np.full((self._nrows, self._ncols), True)
-        elif mode == "L":
-            bottom = is_last_row
-            left = is_first_col
-        elif mode == "1":
-            bottom = left = is_last_row & is_first_col
-        else:
+        if mode == "keep":
             return
-        for i in range(self._nrows):
-            for j in range(self._ncols):
+        for i, j in np.ndindex(self._nrows, self._ncols):
+            try:
                 ax = self.axes_row[i][j]
-                if isinstance(ax.axis, MethodType):
-                    bottom_axis = SimpleAxisArtist(ax.xaxis, 1, ax.spines["bottom"])
-                    left_axis = SimpleAxisArtist(ax.yaxis, 1, ax.spines["left"])
-                else:
-                    bottom_axis = ax.axis["bottom"]
-                    left_axis = ax.axis["left"]
-                bottom_axis.toggle(ticklabels=bottom[i, j], label=bottom[i, j])
-                left_axis.toggle(ticklabels=left[i, j], label=left[i, j])
+            except IndexError:
+                continue
+            if isinstance(ax.axis, MethodType):
+                bottom_axis = SimpleAxisArtist(ax.xaxis, 1, ax.spines["bottom"])
+                left_axis = SimpleAxisArtist(ax.yaxis, 1, ax.spines["left"])
+            else:
+                bottom_axis = ax.axis["bottom"]
+                left_axis = ax.axis["left"]
+            display_at_bottom = (i == self._nrows - 1 if mode == "L" else
+                                 i == self._nrows - 1 and j == 0 if mode == "1" else
+                                 True)  # if mode == "all"
+            display_at_left = (j == 0 if mode == "L" else
+                               i == self._nrows - 1 and j == 0 if mode == "1" else
+                               True)  # if mode == "all"
+            bottom_axis.toggle(ticklabels=display_at_bottom, label=display_at_bottom)
+            left_axis.toggle(ticklabels=display_at_left, label=display_at_left)
 
     def get_divider(self):
         return self._divider
@@ -297,7 +298,7 @@ class ImageGrid(Grid):
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
-                 ngrids=None,
+                 n_axes=None,
                  direction="row",
                  axes_pad=0.02,
                  *,
@@ -321,8 +322,8 @@ class ImageGrid(Grid):
             as a three-digit subplot position code (e.g., "121").
         nrows_ncols : (int, int)
             Number of rows and columns in the grid.
-        ngrids : int or None, default: None
-            If not None, only the first *ngrids* axes in the grid are created.
+        n_axes : int or None, default: None
+            If not None, only the first *n_axes* axes in the grid are created.
         direction : {"row", "column"}, default: "row"
             Whether axes are created in row-major ("row by row") or
             column-major order ("column by column").  This also affects the
@@ -349,7 +350,7 @@ class ImageGrid(Grid):
             Whether to create a colorbar for "each" axes, a "single" colorbar
             for the entire grid, colorbars only for axes on the "edge"
             determined by *cbar_location*, or no colorbars.  The colorbars are
-            stored in the :attr:`cbar_axes` attribute.
+            stored in the :attr:`!cbar_axes` attribute.
         cbar_location : {"left", "right", "bottom", "top"}, default: "right"
         cbar_pad : float, default: None
             Padding between the image axes and the colorbar axes.
@@ -358,7 +359,7 @@ class ImageGrid(Grid):
                 ``cbar_mode="single"`` no longer adds *axes_pad* between the axes
                 and the colorbar if the *cbar_location* is "left" or "bottom".
 
-        cbar_size : size specification (see `.Size.from_any`), default: "5%"
+        cbar_size : size specification (see `!.Size.from_any`), default: "5%"
             Colorbar size.
         cbar_set_cax : bool, default: True
             If True, each axes in the grid has a *cax* attribute that is bound
@@ -376,7 +377,7 @@ class ImageGrid(Grid):
         # The colorbar axes are created in _init_locators().
 
         super().__init__(
-            fig, rect, nrows_ncols, ngrids,
+            fig, rect, nrows_ncols, n_axes,
             direction=direction, axes_pad=axes_pad,
             share_all=share_all, share_x=True, share_y=True, aspect=aspect,
             label_mode=label_mode, axes_class=axes_class)
@@ -412,7 +413,7 @@ class ImageGrid(Grid):
             _cbaraxes_class_factory(self._defaultAxesClass)(
                 self.axes_all[0].get_figure(root=False), self._divider.get_position(),
                 orientation=self._colorbar_location)
-            for _ in range(self.ngrids)]
+            for _ in range(self.n_axes)]
 
         cb_mode = self._colorbar_mode
         cb_location = self._colorbar_location
@@ -433,7 +434,7 @@ class ImageGrid(Grid):
                 v.append(Size.from_any(self._colorbar_size, sz))
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 locator = self._divider.new_locator(nx=0, nx1=-1, ny=0)
-            for i in range(self.ngrids):
+            for i in range(self.n_axes):
                 self.cbar_axes[i].set_visible(False)
             self.cbar_axes[0].set_axes_locator(locator)
             self.cbar_axes[0].set_visible(True)
@@ -494,7 +495,7 @@ class ImageGrid(Grid):
                 v_cb_pos.append(len(v))
                 v.append(Size.from_any(self._colorbar_size, sz))
 
-        for i in range(self.ngrids):
+        for i in range(self.n_axes):
             col, row = self._get_col_row(i)
             locator = self._divider.new_locator(nx=h_ax_pos[col],
                                                 ny=v_ax_pos[self._nrows-1-row])
@@ -534,12 +535,12 @@ class ImageGrid(Grid):
                 v.append(Size.from_any(self._colorbar_size, sz))
                 locator = self._divider.new_locator(nx=0, nx1=-1, ny=-2)
             if cb_location in ("right", "top"):
-                for i in range(self.ngrids):
+                for i in range(self.n_axes):
                     self.cbar_axes[i].set_visible(False)
                 self.cbar_axes[0].set_axes_locator(locator)
                 self.cbar_axes[0].set_visible(True)
         elif cb_mode == "each":
-            for i in range(self.ngrids):
+            for i in range(self.n_axes):
                 self.cbar_axes[i].set_visible(True)
         elif cb_mode == "edge":
             if cb_location in ("right", "left"):
@@ -548,10 +549,10 @@ class ImageGrid(Grid):
                 count = self._ncols
             for i in range(count):
                 self.cbar_axes[i].set_visible(True)
-            for j in range(i + 1, self.ngrids):
+            for j in range(i + 1, self.n_axes):
                 self.cbar_axes[j].set_visible(False)
         else:
-            for i in range(self.ngrids):
+            for i in range(self.n_axes):
                 self.cbar_axes[i].set_visible(False)
                 self.cbar_axes[i].set_position([1., 1., 0.001, 0.001],
                                                which="active")

@@ -15,10 +15,9 @@ from contextlib import contextmanager
 
 from matplotlib import (
     _api, artist, cbook, colors as mcolors, lines, text as mtext,
-    path as mpath)
+    path as mpath, rcParams)
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
-from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
 from . import proj3d
 
@@ -75,7 +74,7 @@ def get_dir_vector(zdir):
 
 def _viewlim_mask(xs, ys, zs, axes):
     """
-    Return original points with points outside the axes view limits masked.
+    Return the mask of the points outside the axes view limits.
 
     Parameters
     ----------
@@ -86,8 +85,8 @@ def _viewlim_mask(xs, ys, zs, axes):
 
     Returns
     -------
-    xs_masked, ys_masked, zs_masked : np.ma.array
-        The masked points.
+    mask : np.array
+        The mask of the points as a bool array.
     """
     mask = np.logical_or.reduce((xs < axes.xy_viewLim.xmin,
                                  xs > axes.xy_viewLim.xmax,
@@ -95,10 +94,7 @@ def _viewlim_mask(xs, ys, zs, axes):
                                  ys > axes.xy_viewLim.ymax,
                                  zs < axes.zz_viewLim.xmin,
                                  zs > axes.zz_viewLim.xmax))
-    xs_masked = np.ma.array(xs, mask=mask)
-    ys_masked = np.ma.array(ys, mask=mask)
-    zs_masked = np.ma.array(zs, mask=mask)
-    return xs_masked, ys_masked, zs_masked
+    return mask
 
 
 class Text3D(mtext.Text):
@@ -116,6 +112,8 @@ class Text3D(mtext.Text):
         the values.
     axlim_clip : bool, default: False
         Whether to hide text outside the axes view limits.
+
+        .. versionadded:: 3.10
 
     Other Parameters
     ----------------
@@ -173,6 +171,8 @@ class Text3D(mtext.Text):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide text outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         self._z = z
         self._dir_vec = get_dir_vector(zdir)
@@ -182,14 +182,13 @@ class Text3D(mtext.Text):
     @artist.allow_rasterization
     def draw(self, renderer):
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(self._x, self._y, self._z, self.axes)
-            position3d = np.ma.row_stack((xs, ys, zs)).ravel().filled(np.nan)
+            mask = _viewlim_mask(self._x, self._y, self._z, self.axes)
+            pos3d = np.ma.array([self._x, self._y, self._z],
+                                mask=mask, dtype=float).filled(np.nan)
         else:
-            xs, ys, zs = self._x, self._y, self._z
-            position3d = np.asanyarray([xs, ys, zs])
+            pos3d = np.array([self._x, self._y, self._z], dtype=float)
 
-        proj = proj3d._proj_trans_points(
-            [position3d, position3d + self._dir_vec], self.axes.M)
+        proj = proj3d._proj_trans_points([pos3d, pos3d + self._dir_vec], self.axes.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
@@ -217,6 +216,8 @@ def text_2d_to_3d(obj, z=0, zdir='z', axlim_clip=False):
         See `.get_dir_vector` for a description of the values.
     axlim_clip : bool, default: False
         Whether to hide text outside the axes view limits.
+
+        .. versionadded:: 3.10
     """
     obj.__class__ = Text3D
     obj.set_3d_properties(z, zdir, axlim_clip)
@@ -265,6 +266,8 @@ class Line3D(lines.Line2D):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide lines with an endpoint outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         xs = self.get_xdata()
         ys = self.get_ydata()
@@ -313,7 +316,12 @@ class Line3D(lines.Line2D):
     @artist.allow_rasterization
     def draw(self, renderer):
         if self._axlim_clip:
-            xs3d, ys3d, zs3d = _viewlim_mask(*self._verts3d, self.axes)
+            mask = np.broadcast_to(
+                _viewlim_mask(*self._verts3d, self.axes),
+                (len(self._verts3d), *self._verts3d[0].shape)
+            )
+            xs3d, ys3d, zs3d = np.ma.array(self._verts3d,
+                                           dtype=float, mask=mask).filled(np.nan)
         else:
             xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs, tis = proj3d._proj_transform_clip(xs3d, ys3d, zs3d,
@@ -337,6 +345,8 @@ def line_2d_to_3d(line, zs=0, zdir='z', axlim_clip=False):
         See `.get_dir_vector` for a description of the values.
     axlim_clip : bool, default: False
         Whether to hide lines with an endpoint outside the axes view limits.
+
+        .. versionadded:: 3.10
     """
 
     line.__class__ = Line3D
@@ -404,7 +414,8 @@ class Collection3D(Collection):
         """Project the points according to renderer matrix."""
         vs_list = [vs for vs, _ in self._3dverts_codes]
         if self._axlim_clip:
-            vs_list = [np.ma.row_stack(_viewlim_mask(*vs.T, self.axes)).T
+            vs_list = [np.ma.array(vs, mask=np.broadcast_to(
+                       _viewlim_mask(*vs.T, self.axes), vs.shape))
                        for vs in vs_list]
         xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M) for vs in vs_list]
         self._paths = [mpath.Path(np.ma.column_stack([xs, ys]), cs)
@@ -450,22 +461,32 @@ class Line3DCollection(LineCollection):
         """
         Project the points according to renderer matrix.
         """
-        segments = self._segments3d
+        segments = np.asanyarray(self._segments3d)
+
+        mask = False
+        if np.ma.isMA(segments):
+            mask = segments.mask
+
         if self._axlim_clip:
-            all_points = np.ma.vstack(segments)
-            masked_points = np.ma.column_stack([*_viewlim_mask(*all_points.T,
-                                                               self.axes)])
-            segment_lengths = [np.shape(segment)[0] for segment in segments]
-            segments = np.split(masked_points, np.cumsum(segment_lengths[:-1]))
-        xyslist = [proj3d._proj_trans_points(points, self.axes.M)
-                   for points in segments]
-        segments_2d = [np.ma.column_stack([xs, ys]) for xs, ys, zs in xyslist]
+            viewlim_mask = _viewlim_mask(segments[..., 0],
+                                         segments[..., 1],
+                                         segments[..., 2],
+                                         self.axes)
+            if np.any(viewlim_mask):
+                # broadcast mask to 3D
+                viewlim_mask = np.broadcast_to(viewlim_mask[..., np.newaxis],
+                                               (*viewlim_mask.shape, 3))
+                mask = mask | viewlim_mask
+        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M),
+                           mask=mask)
+        segments_2d = xyzs[..., 0:2]
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
-        minz = 1e9
-        for xs, ys, zs in xyslist:
-            minz = min(minz, min(zs))
+        if len(xyzs) > 0:
+            minz = min(xyzs[..., 2].min(), 1e9)
+        else:
+            minz = np.nan
         return minz
 
 
@@ -495,6 +516,8 @@ class Patch3D(Patch):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide patches with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
@@ -514,6 +537,8 @@ class Patch3D(Patch):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide patches with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         zs = np.broadcast_to(zs, len(verts))
         self._segment3d = [juggle_axes(x, y, z, zdir)
@@ -531,7 +556,9 @@ class Patch3D(Patch):
     def do_3d_projection(self):
         s = self._segment3d
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(*zip(*s), self.axes)
+            mask = _viewlim_mask(*zip(*s), self.axes)
+            xs, ys, zs = np.ma.array(zip(*s),
+                                     dtype=float, mask=mask).filled(np.nan)
         else:
             xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
@@ -559,6 +586,8 @@ class PathPatch3D(Patch3D):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide path patches with a point outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         # Not super().__init__!
         Patch.__init__(self, **kwargs)
@@ -579,6 +608,8 @@ class PathPatch3D(Patch3D):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide path patches with a point outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir,
                                   axlim_clip=axlim_clip)
@@ -587,7 +618,9 @@ class PathPatch3D(Patch3D):
     def do_3d_projection(self):
         s = self._segment3d
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(*zip(*s), self.axes)
+            mask = _viewlim_mask(*zip(*s), self.axes)
+            xs, ys, zs = np.ma.array(zip(*s),
+                                     dtype=float, mask=mask).filled(np.nan)
         else:
             xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
@@ -627,8 +660,16 @@ class Patch3DCollection(PatchCollection):
     A collection of 3D patches.
     """
 
-    def __init__(self, *args,
-                 zs=0, zdir='z', depthshade=True, axlim_clip=False, **kwargs):
+    def __init__(
+        self,
+        *args,
+        zs=0,
+        zdir="z",
+        depthshade=None,
+        depthshade_minalpha=None,
+        axlim_clip=False,
+        **kwargs
+    ):
         """
         Create a collection of flat 3D patches with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -639,18 +680,31 @@ class Patch3DCollection(PatchCollection):
         :class:`~matplotlib.collections.PatchCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
-        Also, the keyword argument *depthshade* is available to indicate
-        whether to shade the patches in order to give the appearance of depth
-        (default is *True*). This is typically desired in scatter plots.
+        The keyword argument *depthshade* is available to
+        indicate whether or not to shade the patches in order to
+        give the appearance of depth (default is *True*).
+        This is typically desired in scatter plots.
+
+        *depthshade_minalpha* sets the minimum alpha value applied by
+        depth-shading.
         """
+        if depthshade is None:
+            depthshade = rcParams['axes3d.depthshade']
+        if depthshade_minalpha is None:
+            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
+        self._depthshade_minalpha = depthshade_minalpha
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
 
     def get_depthshade(self):
         return self._depthshade
 
-    def set_depthshade(self, depthshade):
+    def set_depthshade(
+        self,
+        depthshade,
+        depthshade_minalpha=None,
+    ):
         """
         Set whether depth shading is performed on collection members.
 
@@ -659,8 +713,16 @@ class Patch3DCollection(PatchCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
+        depthshade_minalpha : float, default: None
+            Sets the minimum alpha value used by depth-shading.
+            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
+
+            .. versionadded:: 3.11
         """
+        if depthshade_minalpha is None:
+            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
+        self._depthshade_minalpha = depthshade_minalpha
         self.stale = True
 
     def set_sort_zpos(self, val):
@@ -683,6 +745,8 @@ class Patch3DCollection(PatchCollection):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide patches with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
@@ -701,14 +765,18 @@ class Patch3DCollection(PatchCollection):
 
     def do_3d_projection(self):
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(*self._offsets3d, self.axes)
+            mask = _viewlim_mask(*self._offsets3d, self.axes)
+            xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
         self._vzs = vzs
-        super().set_offsets(np.ma.column_stack([vxs, vys]))
+        if np.ma.isMA(vxs):
+            super().set_offsets(np.ma.column_stack([vxs, vys]))
+        else:
+            super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
             return min(vzs)
@@ -717,7 +785,11 @@ class Patch3DCollection(PatchCollection):
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
         color_array = (
-            _zalpha(color_array, self._vzs)
+            _zalpha(
+                color_array,
+                self._vzs,
+                min_alpha=self._depthshade_minalpha,
+            )
             if self._vzs is not None and self._depthshade
             else color_array
         )
@@ -737,13 +809,44 @@ class Patch3DCollection(PatchCollection):
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
 
 
+def _get_data_scale(X, Y, Z):
+    """
+    Estimate the scale of the 3D data for use in depth shading
+
+    Parameters
+    ----------
+    X, Y, Z : masked arrays
+        The data to estimate the scale of.
+    """
+    # Account for empty datasets. Assume that X Y and Z have the same number
+    # of elements.
+    if not np.ma.count(X):
+        return 0
+
+    # Estimate the scale using the RSS of the ranges of the dimensions
+    # Note that we don't use np.ma.ptp() because we otherwise get a build
+    # warning about handing empty arrays.
+    ptp_x = X.max() - X.min()
+    ptp_y = Y.max() - Y.min()
+    ptp_z = Z.max() - Z.min()
+    return np.sqrt(ptp_x ** 2 + ptp_y ** 2 + ptp_z ** 2)
+
+
 class Path3DCollection(PathCollection):
     """
     A collection of 3D paths.
     """
 
-    def __init__(self, *args,
-                 zs=0, zdir='z', depthshade=True, axlim_clip=False, **kwargs):
+    def __init__(
+        self,
+        *args,
+        zs=0,
+        zdir="z",
+        depthshade=None,
+        depthshade_minalpha=None,
+        axlim_clip=False,
+        **kwargs
+    ):
         """
         Create a collection of flat 3D paths with its normal vector
         pointed in *zdir* direction, and located at *zs* on the *zdir*
@@ -754,11 +857,20 @@ class Path3DCollection(PathCollection):
         :class:`~matplotlib.collections.PathCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
-        Also, the keyword argument *depthshade* is available to indicate
-        whether to shade the patches in order to give the appearance of depth
-        (default is *True*). This is typically desired in scatter plots.
+        Also, the keyword argument *depthshade* is available to
+        indicate whether or not to shade the patches in order to
+        give the appearance of depth (default is *True*).
+        This is typically desired in scatter plots.
+
+        *depthshade_minalpha* sets the minimum alpha value applied by
+        depth-shading.
         """
+        if depthshade is None:
+            depthshade = rcParams['axes3d.depthshade']
+        if depthshade_minalpha is None:
+            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
+        self._depthshade_minalpha = depthshade_minalpha
         self._in_draw = False
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir, axlim_clip)
@@ -789,6 +901,8 @@ class Path3DCollection(PathCollection):
             See `.get_dir_vector` for a description of the values.
         axlim_clip : bool, default: False
             Whether to hide paths with a vertex outside the axes view limits.
+
+            .. versionadded:: 3.10
         """
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
@@ -837,7 +951,11 @@ class Path3DCollection(PathCollection):
     def get_depthshade(self):
         return self._depthshade
 
-    def set_depthshade(self, depthshade):
+    def set_depthshade(
+        self,
+        depthshade,
+        depthshade_minalpha=None,
+    ):
         """
         Set whether depth shading is performed on collection members.
 
@@ -846,18 +964,33 @@ class Path3DCollection(PathCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
+        depthshade_minalpha : float
+            Sets the minimum alpha value used by depth-shading.
+
+            .. versionadded:: 3.11
         """
+        if depthshade_minalpha is None:
+            depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
         self._depthshade = depthshade
+        self._depthshade_minalpha = depthshade_minalpha
         self.stale = True
 
     def do_3d_projection(self):
+        mask = False
+        for xyz in self._offsets3d:
+            if np.ma.isMA(xyz):
+                mask = mask | xyz.mask
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(*self._offsets3d, self.axes)
+            mask = mask | _viewlim_mask(*self._offsets3d, self.axes)
+            mask = np.broadcast_to(mask,
+                                   (len(self._offsets3d), *self._offsets3d[0].shape))
+            xyzs = np.ma.array(self._offsets3d, mask=mask)
         else:
-            xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
+            xyzs = self._offsets3d
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(*xyzs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
+        self._data_scale = _get_data_scale(vxs, vys, vzs)
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
         # points and point properties according to the index array
@@ -902,14 +1035,22 @@ class Path3DCollection(PathCollection):
                 self._offsets = old_offset
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
-        color_array = (
-            _zalpha(color_array, self._vzs)
-            if self._vzs is not None and self._depthshade
-            else color_array
-        )
+        # Adjust the color_array alpha values if point depths are defined
+        # and depth shading is active
+        if self._vzs is not None and self._depthshade:
+            color_array = _zalpha(
+                color_array,
+                self._vzs,
+                min_alpha=self._depthshade_minalpha,
+                _data_scale=self._data_scale,
+            )
+
+        # Adjust the order of the color_array using the _z_markers_idx,
+        # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
-        return mcolors.to_rgba_array(color_array, self._alpha)
+
+        return mcolors.to_rgba_array(color_array)
 
     def get_facecolor(self):
         return self._maybe_depth_shade_and_sort_colors(super().get_facecolor())
@@ -923,7 +1064,15 @@ class Path3DCollection(PathCollection):
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
 
 
-def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True, axlim_clip=False):
+def patch_collection_2d_to_3d(
+    col,
+    zs=0,
+    zdir="z",
+    depthshade=None,
+    axlim_clip=False,
+    *args,
+    depthshade_minalpha=None,
+):
     """
     Convert a `.PatchCollection` into a `.Patch3DCollection` object
     (or a `.PathCollection` into a `.Path3DCollection` object).
@@ -939,17 +1088,31 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True, axlim_clip=F
     zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
         See `.get_dir_vector` for a description of the values.
-    depthshade : bool, default: True
+    depthshade : bool, default: None
         Whether to shade the patches to give a sense of depth.
+        If None, use the value from rcParams['axes3d.depthshade'].
     axlim_clip : bool, default: False
         Whether to hide patches with a vertex outside the axes view limits.
+
+        .. versionadded:: 3.10
+
+    depthshade_minalpha : float, default: None
+        Sets the minimum alpha value used by depth-shading.
+        If None, use the value from rcParams['axes3d.depthshade_minalpha'].
+
+        .. versionadded:: 3.11
     """
     if isinstance(col, PathCollection):
         col.__class__ = Path3DCollection
         col._offset_zordered = None
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
+    if depthshade is None:
+        depthshade = rcParams['axes3d.depthshade']
+    if depthshade_minalpha is None:
+        depthshade_minalpha = rcParams['axes3d.depthshade_minalpha']
     col._depthshade = depthshade
+    col._depthshade_minalpha = depthshade_minalpha
     col._in_draw = False
     col.set_3d_properties(zs, zdir, axlim_clip)
 
@@ -1000,6 +1163,8 @@ class Poly3DCollection(PolyCollection):
 
         axlim_clip : bool, default: False
             Whether to hide polygons with a vertex outside the view limits.
+
+            .. versionadded:: 3.10
 
         *args, **kwargs
             All other parameters are forwarded to `.PolyCollection`.
@@ -1062,16 +1227,35 @@ class Poly3DCollection(PolyCollection):
         return self._get_vector(segments3d)
 
     def _get_vector(self, segments3d):
-        """Optimize points for projection."""
-        if len(segments3d):
-            xs, ys, zs = np.vstack(segments3d).T
-        else:  # vstack can't stack zero arrays.
-            xs, ys, zs = [], [], []
-        ones = np.ones(len(xs))
-        self._vec = np.array([xs, ys, zs, ones])
+        """
+        Optimize points for projection.
 
-        indices = [0, *np.cumsum([len(segment) for segment in segments3d])]
-        self._segslices = [*map(slice, indices[:-1], indices[1:])]
+        Parameters
+        ----------
+        segments3d : NumPy array or list of NumPy arrays
+            List of vertices of the boundary of every segment. If all paths are
+            of equal length and this argument is a NumPy array, then it should
+            be of shape (num_faces, num_vertices, 3).
+        """
+        if isinstance(segments3d, np.ndarray):
+            _api.check_shape((None, None, 3), segments3d=segments3d)
+            if isinstance(segments3d, np.ma.MaskedArray):
+                self._faces = segments3d.data
+                self._invalid_vertices = segments3d.mask.any(axis=-1)
+            else:
+                self._faces = segments3d
+                self._invalid_vertices = False
+        else:
+            # Turn the potentially ragged list into a numpy array for later speedups
+            # If it is ragged, set the unused vertices per face as invalid
+            num_faces = len(segments3d)
+            num_verts = np.fromiter(map(len, segments3d), dtype=np.intp)
+            max_verts = num_verts.max(initial=0)
+            segments = np.empty((num_faces, max_verts, 3))
+            for i, face in enumerate(segments3d):
+                segments[i, :len(face)] = face
+            self._faces = segments
+            self._invalid_vertices = np.arange(max_verts) >= num_verts[:, None]
 
     def set_verts(self, verts, closed=True):
         """
@@ -1133,52 +1317,73 @@ class Poly3DCollection(PolyCollection):
                 self._facecolor3d = self._facecolors
             if self._edge_is_mapped:
                 self._edgecolor3d = self._edgecolors
+
+        needs_masking = np.any(self._invalid_vertices)
+        num_faces = len(self._faces)
+        mask = self._invalid_vertices
+
+        # Some faces might contain masked vertices, so we want to ignore any
+        # errors that those might cause
+        with np.errstate(invalid='ignore', divide='ignore'):
+            pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
+
         if self._axlim_clip:
-            xs, ys, zs = _viewlim_mask(*self._vec[0:3], self.axes)
-            if self._vec.shape[0] == 4:  # Will be 3 (xyz) or 4 (xyzw)
-                w_masked = np.ma.masked_where(zs.mask, self._vec[3])
-                vec = np.ma.array([xs, ys, zs, w_masked])
-            else:
-                vec = np.ma.array([xs, ys, zs])
-        else:
-            vec = self._vec
-        txs, tys, tzs = proj3d._proj_transform_vec(vec, self.axes.M)
-        xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
+            viewlim_mask = _viewlim_mask(self._faces[..., 0], self._faces[..., 1],
+                                         self._faces[..., 2], self.axes)
+            if np.any(viewlim_mask):
+                needs_masking = True
+                mask = mask | viewlim_mask
+
+        pzs = pfaces[..., 2]
+        if needs_masking:
+            pzs = np.ma.MaskedArray(pzs, mask=mask)
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolor3d
         cedge = self._edgecolor3d
-        if len(cface) != len(xyzlist):
-            cface = cface.repeat(len(xyzlist), axis=0)
-        if len(cedge) != len(xyzlist):
+        if len(cface) != num_faces:
+            cface = cface.repeat(num_faces, axis=0)
+        if len(cedge) != num_faces:
             if len(cedge) == 0:
                 cedge = cface
             else:
-                cedge = cedge.repeat(len(xyzlist), axis=0)
+                cedge = cedge.repeat(num_faces, axis=0)
 
-        if xyzlist:
-            # sort by depth (furthest drawn first)
-            z_segments_2d = sorted(
-                ((self._zsortfunc(zs.data), np.ma.column_stack([xs, ys]), fc, ec, idx)
-                 for idx, ((xs, ys, zs), fc, ec)
-                 in enumerate(zip(xyzlist, cface, cedge))),
-                key=lambda x: x[0], reverse=True)
-
-            _, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
-                zip(*z_segments_2d)
+        if len(pzs) > 0:
+            face_z = self._zsortfunc(pzs, axis=-1)
         else:
-            segments_2d = []
-            self._facecolors2d = np.empty((0, 4))
-            self._edgecolors2d = np.empty((0, 4))
-            idxs = []
+            face_z = pzs
+        if needs_masking:
+            face_z = face_z.data
+        face_order = np.argsort(face_z, axis=-1)[::-1]
 
-        if self._codes3d is not None:
-            codes = [self._codes3d[idx] for idx in idxs]
-            PolyCollection.set_verts_and_codes(self, segments_2d, codes)
+        if len(pfaces) > 0:
+            faces_2d = pfaces[face_order, :, :2]
         else:
-            PolyCollection.set_verts(self, segments_2d, self._closed)
+            faces_2d = pfaces
+        if self._codes3d is not None and len(self._codes3d) > 0:
+            if needs_masking:
+                segment_mask = ~mask[face_order, :]
+                faces_2d = [face[mask, :] for face, mask
+                               in zip(faces_2d, segment_mask)]
+            codes = [self._codes3d[idx] for idx in face_order]
+            PolyCollection.set_verts_and_codes(self, faces_2d, codes)
+        else:
+            if needs_masking and len(faces_2d) > 0:
+                invalid_vertices_2d = np.broadcast_to(
+                    mask[face_order, :, None],
+                    faces_2d.shape)
+                faces_2d = np.ma.MaskedArray(
+                        faces_2d, mask=invalid_vertices_2d)
+            PolyCollection.set_verts(self, faces_2d, self._closed)
 
-        if len(self._edgecolor3d) != len(cface):
+        if len(cface) > 0:
+            self._facecolors2d = cface[face_order]
+        else:
+            self._facecolors2d = cface
+        if len(self._edgecolor3d) == len(cface) and len(cedge) > 0:
+            self._edgecolors2d = cedge[face_order]
+        else:
             self._edgecolors2d = self._edgecolor3d
 
         # Return zorder value
@@ -1186,11 +1391,11 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d._proj_transform_vec(zvec, self.axes.M)
             return ztrans[2][0]
-        elif tzs.size > 0:
+        elif pzs.size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
-            return np.min(tzs)
+            return np.min(pzs)
         else:
             return np.nan
 
@@ -1290,17 +1495,31 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def _zalpha(colors, zs):
-    """Modify the alphas of the color list according to depth."""
-    # FIXME: This only works well if the points for *zs* are well-spaced
-    #        in all three dimensions. Otherwise, at certain orientations,
-    #        the min and max zs are very close together.
-    #        Should really normalize against the viewing depth.
+def _zalpha(
+    colors,
+    zs,
+    min_alpha=0.3,
+    _data_scale=None,
+):
+    """Modify the alpha values of the color list according to z-depth."""
+
     if len(colors) == 0 or len(zs) == 0:
         return np.zeros((0, 4))
-    norm = Normalize(min(zs), max(zs))
-    sats = 1 - norm(zs) * 0.7
+
+    # Alpha values beyond the range 0-1 inclusive make no sense, so clip them
+    min_alpha = np.clip(min_alpha, 0, 1)
+
+    if _data_scale is None or _data_scale == 0:
+        # Don't scale the alpha values since we have no valid data scale for reference
+        sats = np.ones_like(zs)
+
+    else:
+        # Deeper points have an increasingly transparent appearance
+        sats = np.clip(1 - (zs - np.min(zs)) / _data_scale, min_alpha, 1)
+
     rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
+
+    # Change the alpha values of the colors using the generated alpha multipliers
     return np.column_stack([rgba[:, :3], rgba[:, 3] * sats])
 
 

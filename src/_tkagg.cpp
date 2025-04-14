@@ -7,7 +7,7 @@
 // and methods of operation are now quite different.  Because our review of
 // the codebase showed that all the code that came from PIL was removed or
 // rewritten, we have removed the PIL licensing information.  If you want PIL,
-// you can get it at https://python-pillow.org/
+// you can get it at https://python-pillow.github.io
 
 #include <Python.h>
 #include <new>

@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.colors import is_color_like, to_rgba_array
+from matplotlib.colors import is_color_like, to_rgba_array, ListedColormap
 
 
 @pytest.mark.parametrize('N, result', [
@@ -108,7 +108,7 @@ def test_double_register_builtin_cmap():
 
 
 def test_colormap_copy():
-    cmap = plt.cm.Reds
+    cmap = plt.colormaps["Reds"]
     copied_cmap = copy.copy(cmap)
     with np.errstate(invalid='ignore'):
         ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
@@ -118,7 +118,7 @@ def test_colormap_copy():
         ret2 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     assert_array_equal(ret1, ret2)
     # again with the .copy method:
-    cmap = plt.cm.Reds
+    cmap = plt.colormaps["Reds"]
     copied_cmap = cmap.copy()
     with np.errstate(invalid='ignore'):
         ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
@@ -219,6 +219,44 @@ def test_colormap_return_types():
     # multi-dimensional array input
     x2d = np.zeros((2, 2))
     assert cmap(x2d).shape == x2d.shape + (4,)
+
+
+def test_ListedColormap_bad_under_over():
+    cmap = mcolors.ListedColormap(["r", "g", "b"], bad="c", under="m", over="y")
+    assert mcolors.same_color(cmap.get_bad(), "c")
+    assert mcolors.same_color(cmap.get_under(), "m")
+    assert mcolors.same_color(cmap.get_over(), "y")
+
+
+def test_LinearSegmentedColormap_bad_under_over():
+    cdict = {
+        'red': [(0., 0., 0.), (0.5, 1., 1.), (1., 1., 1.)],
+        'green': [(0., 0., 0.), (0.25, 0., 0.), (0.75, 1., 1.), (1., 1., 1.)],
+        'blue': [(0., 0., 0.), (0.5, 0., 0.), (1., 1., 1.)],
+    }
+    cmap = mcolors.LinearSegmentedColormap("lsc", cdict, bad="c", under="m", over="y")
+    assert mcolors.same_color(cmap.get_bad(), "c")
+    assert mcolors.same_color(cmap.get_under(), "m")
+    assert mcolors.same_color(cmap.get_over(), "y")
+
+
+def test_LinearSegmentedColormap_from_list_bad_under_over():
+    cmap = mcolors.LinearSegmentedColormap.from_list(
+        "lsc", ["r", "g", "b"], bad="c", under="m", over="y")
+    assert mcolors.same_color(cmap.get_bad(), "c")
+    assert mcolors.same_color(cmap.get_under(), "m")
+    assert mcolors.same_color(cmap.get_over(), "y")
+
+
+def test_colormap_with_alpha():
+    cmap = ListedColormap(["red", "green", ("blue", 0.8)])
+    cmap2 = cmap.with_alpha(0.5)
+    # color is the same:
+    vals = [0, 0.5, 1]  # numeric positions that map to the listed colors
+    assert_array_equal(cmap(vals)[:, :3], cmap2(vals)[:, :3])
+    # alpha of cmap2 is changed:
+    assert_array_equal(cmap(vals)[:, 3], [1, 1, 0.8])
+    assert_array_equal(cmap2(vals)[:, 3], [0.5, 0.5, 0.5])
 
 
 def test_BoundaryNorm():
@@ -950,7 +988,7 @@ def test_light_source_shading_default():
     y, x = np.mgrid[-1.2:1.2:8j, -1.2:1.2:8j]
     z = 10 * np.cos(x**2 + y**2)
 
-    cmap = plt.cm.copper
+    cmap = plt.colormaps["copper"]
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
@@ -1001,7 +1039,7 @@ def test_light_source_shading_empty_mask():
     z0 = 10 * np.cos(x**2 + y**2)
     z1 = np.ma.array(z0)
 
-    cmap = plt.cm.copper
+    cmap = plt.colormaps["copper"]
     ls = mcolors.LightSource(315, 45)
     rgb0 = ls.shade(z0, cmap)
     rgb1 = ls.shade(z1, cmap)
@@ -1022,7 +1060,7 @@ def test_light_source_masked_shading():
 
     z = np.ma.masked_greater(z, 9.9)
 
-    cmap = plt.cm.copper
+    cmap = plt.colormaps["copper"]
     ls = mcolors.LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
@@ -1191,10 +1229,18 @@ def test_colormap_reversing(name):
 def test_has_alpha_channel():
     assert mcolors._has_alpha_channel((0, 0, 0, 0))
     assert mcolors._has_alpha_channel([1, 1, 1, 1])
+    assert mcolors._has_alpha_channel('#fff8')
+    assert mcolors._has_alpha_channel('#0f0f0f80')
+    assert mcolors._has_alpha_channel(('r', 0.5))
+    assert mcolors._has_alpha_channel(([1, 1, 1, 1], None))
     assert not mcolors._has_alpha_channel('blue')  # 4-char string!
     assert not mcolors._has_alpha_channel('0.25')
     assert not mcolors._has_alpha_channel('r')
     assert not mcolors._has_alpha_channel((1, 0, 0))
+    assert not mcolors._has_alpha_channel('#fff')
+    assert not mcolors._has_alpha_channel('#0f0f0f')
+    assert not mcolors._has_alpha_channel(('r', None))
+    assert not mcolors._has_alpha_channel(([1, 1, 1], None))
 
 
 def test_cn():
@@ -1559,6 +1605,23 @@ def test_norm_deepcopy():
     assert norm2.vmin == norm.vmin
 
 
+def test_set_clim_emits_single_callback():
+    data = np.array([[1, 2], [3, 4]])
+    fig, ax = plt.subplots()
+    image = ax.imshow(data, cmap='viridis')
+
+    callback = unittest.mock.Mock()
+    image.norm.callbacks.connect('changed', callback)
+
+    callback.assert_not_called()
+
+    # Call set_clim() to update the limits
+    image.set_clim(1, 5)
+
+    # Assert that only one "changed" callback is sent after calling set_clim()
+    callback.assert_called_once()
+
+
 def test_norm_callback():
     increment = unittest.mock.Mock(return_value=None)
 
@@ -1734,3 +1797,34 @@ def test_colorizer_vmin_vmax():
     assert ca.vmax == 3.0
     assert ca.norm.vmin == 1.0
     assert ca.norm.vmax == 3.0
+
+
+def test_LinearSegmentedColormap_from_list_color_alpha_tuple():
+    """
+    GitHub issue #29042: A bug in 'from_list' causes an error
+    when passing a tuple (str, float) where the string is a
+    color name or grayscale value and float is an alpha value.
+    """
+    colors = [("red", 0.3), ("0.42", 0.1), "green"]
+    cmap = mcolors.LinearSegmentedColormap.from_list("lsc", colors, N=3)
+    assert_array_almost_equal(cmap([.0, 0.5, 1.]), to_rgba_array(colors))
+
+
+@pytest.mark.parametrize("colors",
+                         [[(0.42, "blue"), (.1, .1, .1, .1)],
+                          ["blue", (0.42, "red")],
+                          ["blue", (.1, .1, .1, .1), ("red", 2)],
+                          [(0, "red"), (1.1, "blue")],
+                          [(0.52, "red"), (0.42, "blue")]])
+def test_LinearSegmentedColormap_from_list_invalid_inputs(colors):
+    with pytest.raises(ValueError):
+        mcolors.LinearSegmentedColormap.from_list("lsc", colors)
+
+
+def test_LinearSegmentedColormap_from_list_value_color_tuple():
+    value_color_tuples = [(0, "red"), (0.6, "blue"), (1, "green")]
+    cmap = mcolors.LinearSegmentedColormap.from_list("lsc", value_color_tuples, N=11)
+    assert_array_almost_equal(
+        cmap([value for value, _ in value_color_tuples]),
+        to_rgba_array([color for _, color in value_color_tuples]),
+    )

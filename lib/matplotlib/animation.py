@@ -496,7 +496,7 @@ class PillowWriter(AbstractMovieWriter):
             "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1)
         if im.getextrema()[3][0] < 255:
             # This frame has transparency, so we'll just add it as is.
-            self._frame.append(im)
+            self._frames.append(im)
         else:
             # Without transparency, we switch to RGB mode, which converts to P mode a
             # little better if needed (specifically, this helps with GIF output.)
@@ -891,6 +891,7 @@ class Animation:
         # that cause the frame sequence to be iterated.
         self.frame_seq = self.new_frame_seq()
         self.event_source = event_source
+        self.event_source.add_callback(self._step)
 
         # Instead of starting the event source now, we connect to the figure's
         # draw_event, so that we only start once the figure has been drawn.
@@ -923,13 +924,9 @@ class Animation:
             return
         # First disconnect our draw event handler
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
-
         # Now do any initial draw
         self._init_draw()
-
-        # Add our callback for stepping the animation and
-        # actually start the event_source.
-        self.event_source.add_callback(self._step)
+        # Actually start the event_source.
         self.event_source.start()
 
     def _stop(self, *args):

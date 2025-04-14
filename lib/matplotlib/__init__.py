@@ -160,6 +160,7 @@ from packaging.version import parse as parse_version
 # definitions, so it is safe to import from it here.
 from . import _api, _version, cbook, _docstring, rcsetup
 from matplotlib._api import MatplotlibDeprecationWarning
+from matplotlib.colors import _color_sequences as color_sequences
 from matplotlib.rcsetup import cycler  # noqa: F401
 
 
@@ -474,7 +475,8 @@ def _get_executable_info(name):
                     "Failed to find an ImageMagick installation")
         else:
             path = "convert"
-        info = impl([path, "--version"], r"^Version: ImageMagick (\S*)")
+        # Ignore deprecation warning for "convert" on IM>=7.1.1-33.
+        info = impl([path, "--version"], r"(?sm:.*^)Version: ImageMagick (\S*)")
         if info.raw_version == "7.0.10-34":
             # https://github.com/ImageMagick/ImageMagick/issues/2720
             raise ExecutableNotFoundError(
@@ -638,18 +640,6 @@ def matplotlib_fname():
                        "install is broken")
 
 
-# rcParams deprecated and automatically mapped to another key.
-# Values are tuples of (version, new_name, f_old2new, f_new2old).
-_deprecated_map = {}
-# rcParams deprecated; some can manually be mapped to another key.
-# Values are tuples of (version, new_name_or_None).
-_deprecated_ignore_map = {}
-# rcParams deprecated; can use None to suppress warnings; remain actually
-# listed in the rcParams.
-# Values are tuples of (version,)
-_deprecated_remain_as_none = {}
-
-
 @_docstring.Substitution(
     "\n".join(map("- {}".format, sorted(rcsetup._validators, key=str.lower)))
 )
@@ -746,56 +736,28 @@ class RcParams(MutableMapping, dict):
         dict.setdefault(self, "backend", rcsetup._auto_backend_sentinel)
 
     def __setitem__(self, key, val):
+        if (key == "backend"
+                and val is rcsetup._auto_backend_sentinel
+                and "backend" in self):
+            return
         try:
-            if key in _deprecated_map:
-                version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-                _api.warn_deprecated(
-                    version, name=key, obj_type="rcparam", alternative=alt_key)
-                key = alt_key
-                val = alt_val(val)
-            elif key in _deprecated_remain_as_none and val is not None:
-                version, = _deprecated_remain_as_none[key]
-                _api.warn_deprecated(version, name=key, obj_type="rcparam")
-            elif key in _deprecated_ignore_map:
-                version, alt_key = _deprecated_ignore_map[key]
-                _api.warn_deprecated(
-                    version, name=key, obj_type="rcparam", alternative=alt_key)
-                return
-            elif key == 'backend':
-                if val is rcsetup._auto_backend_sentinel:
-                    if 'backend' in self:
-                        return
-            try:
-                cval = self.validate[key](val)
-            except ValueError as ve:
-                raise ValueError(f"Key {key}: {ve}") from None
-            self._set(key, cval)
+            cval = self.validate[key](val)
         except KeyError as err:
             raise KeyError(
                 f"{key} is not a valid rc parameter (see rcParams.keys() for "
                 f"a list of valid parameters)") from err
+        except ValueError as ve:
+            raise ValueError(f"Key {key}: {ve}") from None
+        self._set(key, cval)
 
     def __getitem__(self, key):
-        if key in _deprecated_map:
-            version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-            _api.warn_deprecated(
-                version, name=key, obj_type="rcparam", alternative=alt_key)
-            return inverse_alt(self._get(alt_key))
-
-        elif key in _deprecated_ignore_map:
-            version, alt_key = _deprecated_ignore_map[key]
-            _api.warn_deprecated(
-                version, name=key, obj_type="rcparam", alternative=alt_key)
-            return self._get(alt_key) if alt_key else None
-
         # In theory, this should only ever be used after the global rcParams
         # has been set up, but better be safe e.g. in presence of breakpoints.
-        elif key == "backend" and self is globals().get("rcParams"):
+        if key == "backend" and self is globals().get("rcParams"):
             val = self._get(key)
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
-
         return self._get(key)
 
     def _get_backend_or_none(self):
@@ -817,6 +779,8 @@ class RcParams(MutableMapping, dict):
 
     def __iter__(self):
         """Yield sorted list of keys."""
+        # Deprecation warnings are silenced to cover the case where some
+        # rcParams entries are being deprecated.
         with _api.suppress_matplotlib_deprecation_warning():
             yield from sorted(dict.__iter__(self))
 
@@ -938,11 +902,6 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 except Exception as msg:
                     _log.warning('Bad value in file %r, line %d (%r): %s',
                                  fname, line_no, line.rstrip('\n'), msg)
-        elif key in _deprecated_ignore_map:
-            version, alt_key = _deprecated_ignore_map[key]
-            _api.warn_deprecated(
-                version, name=key, alternative=alt_key, obj_type='rcparam',
-                addendum="Please update your matplotlibrc.")
         else:
             # __version__ must be looked up as an attribute to trigger the
             # module-level __getattr__.
@@ -1573,4 +1532,3 @@ def validate_backend(s):
 from matplotlib.cm import _colormaps as colormaps  # noqa: E402
 from matplotlib.cm import _multivar_colormaps as multivar_colormaps  # noqa: E402
 from matplotlib.cm import _bivar_colormaps as bivar_colormaps  # noqa: E402
-from matplotlib.colors import _color_sequences as color_sequences  # noqa: E402
