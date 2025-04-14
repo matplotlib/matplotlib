@@ -28,7 +28,7 @@ repos:
       - id: trailing-whitespace
         exclude_types: [svg]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.14.1
+    rev: v1.15.0
     hooks:
       - id: mypy
         additional_dependencies:
@@ -44,13 +44,13 @@ repos:
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.11.0
+    rev: v0.11.5
     hooks:
       # Run the linter.
       - id: ruff
         args: [--fix, --show-fixes]
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         files: ^.*\.(py|c|cpp|h|m|md|rst|yml)$
@@ -60,7 +60,7 @@ repos:
           - "--skip"
           - "doc/project/credits.rst"
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 6.0.1
     hooks:
       - id: isort
         name: isort (python)
@@ -73,12 +73,12 @@ repos:
           - sphinx>=1.8.1
           - tomli
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.35.1
+    rev: v1.37.0
     hooks:
       - id: yamllint
         args: ["--strict", "--config-file=.yamllint.yml"]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.30.0
+    rev: 0.33.0
     hooks:
       # TODO: Re-enable this when https://github.com/microsoft/azure-pipelines-vscode/issues/567 is fixed.
       # - id: check-azure-pipelines
