@@ -232,6 +232,7 @@ class TextToPath:
 
         # Gather font information and do some setup for combining
         # characters into strings.
+        t1_encodings = {}
         for text in page.text:
             font = get_font(text.font_path)
             char_id = self._get_char_id(font, text.glyph)
@@ -241,14 +242,14 @@ class TextToPath:
                 glyph_name_or_index = text.glyph_name_or_index
                 if isinstance(glyph_name_or_index, str):
                     index = font.get_name_index(glyph_name_or_index)
-                    font.load_glyph(index, flags=LoadFlags.TARGET_LIGHT)
                 elif isinstance(glyph_name_or_index, int):
-                    self._select_native_charmap(font)
-                    font.load_char(
-                        glyph_name_or_index, flags=LoadFlags.TARGET_LIGHT)
+                    if font not in t1_encodings:
+                        t1_encodings[font] = font._get_type1_encoding_vector()
+                    index = t1_encodings[font][glyph_name_or_index]
                 else:  # Should not occur.
                     raise TypeError(f"Glyph spec of unexpected type: "
                                     f"{glyph_name_or_index!r}")
+                font.load_glyph(index, flags=LoadFlags.TARGET_LIGHT)
                 glyph_map_new[char_id] = font.get_path()
 
             glyph_ids.append(char_id)
@@ -268,23 +269,6 @@ class TextToPath:
 
         return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
-
-    @staticmethod
-    def _select_native_charmap(font):
-        # Select the native charmap. (we can't directly identify it but it's
-        # typically an Adobe charmap).
-        for charmap_code in [
-                1094992451,  # ADOBE_CUSTOM.
-                1094995778,  # ADOBE_STANDARD.
-        ]:
-            try:
-                font.select_charmap(charmap_code)
-            except (ValueError, RuntimeError):
-                pass
-            else:
-                break
-        else:
-            _log.warning("No supported encoding in font (%s).", font.fname)
 
 
 text_to_path = TextToPath()
