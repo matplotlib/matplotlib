@@ -667,12 +667,26 @@ class Path:
 
     def interpolated(self, steps):
         """
-        Return a new path resampled to length N x *steps*.
+        Return a new path with each segment divided into *steps* parts.
 
-        Codes other than `LINETO` are not handled correctly.
+        Codes other than `LINETO` and `MOVETO` are not handled correctly.
+
+        Parameters
+        ----------
+        steps : int
+            The number of segments in the new path for each in the original.
+
+        Returns
+        -------
+        Path
+            The interpolated path.
         """
         if steps == 1:
             return self
+
+        if self.codes is not None and self.MOVETO in self.codes[1:]:
+            return self.make_compound_path(
+                *(p.interpolated(steps) for p in self._iter_connected_components()))
 
         vertices = simple_linear_interpolation(self.vertices, steps)
         codes = self.codes
