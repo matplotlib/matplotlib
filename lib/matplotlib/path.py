@@ -669,7 +669,7 @@ class Path:
         """
         Return a new path with each segment divided into *steps* parts.
 
-        Codes other than `LINETO` and `MOVETO` are not handled correctly.
+        Codes other than `LINETO`, `MOVETO`, and `CLOSEPOLY` are not handled correctly.
 
         Parameters
         ----------
@@ -688,7 +688,14 @@ class Path:
             return self.make_compound_path(
                 *(p.interpolated(steps) for p in self._iter_connected_components()))
 
-        vertices = simple_linear_interpolation(self.vertices, steps)
+        if self.codes is not None and self.CLOSEPOLY in self.codes and not np.all(
+                self.vertices[self.codes == self.CLOSEPOLY] == self.vertices[0]):
+            vertices = self.vertices.copy()
+            vertices[self.codes == self.CLOSEPOLY] = vertices[0]
+        else:
+            vertices = self.vertices
+
+        vertices = simple_linear_interpolation(vertices, steps)
         codes = self.codes
         if codes is not None:
             new_codes = np.full((len(codes) - 1) * steps + 1, Path.LINETO,
