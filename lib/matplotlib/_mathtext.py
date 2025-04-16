@@ -515,7 +515,7 @@ class BakomaFonts(TruetypeFonts):
         }
 
     for alias, target in [(r'\leftparen', '('),
-                          (r'\rightparent', ')'),
+                          (r'\rightparen', ')'),
                           (r'\leftbrace', '{'),
                           (r'\rightbrace', '}'),
                           (r'\leftbracket', '['),
