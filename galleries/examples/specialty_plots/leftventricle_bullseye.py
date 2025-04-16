@@ -55,7 +55,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap="viridis", norm=None):
 
     r = np.linspace(0.2, 1, 4)
 
-    ax.set(ylim=[0, 1], xticklabels=[], yticklabels=[])
+    ax.set(ylim=(0, 1), xticklabels=[], yticklabels=[])
     ax.grid(False)  # Remove grid
 
     # Fill segments 1-6, 7-12, 13-16.

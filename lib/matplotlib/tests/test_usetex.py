@@ -169,7 +169,7 @@ def test_rotation():
 
     fig = plt.figure()
     ax = fig.add_axes((0, 0, 1, 1))
-    ax.set(xlim=[-0.5, 5], xticks=[], ylim=[-0.5, 3], yticks=[], frame_on=False)
+    ax.set(xlim=(-0.5, 5), xticks=[], ylim=(-0.5, 3), yticks=[], frame_on=False)
 
     text = {val: val[0] for val in ['top', 'center', 'bottom', 'left', 'right']}
     text['baseline'] = 'B'
