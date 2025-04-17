@@ -3242,13 +3242,13 @@ class MultiNorm(Normalize):
             The constituent norms. The list must have a minimum length of 2.
         vmin, vmax : float, None, or list of float or None
             Limits of the constituent norms.
-            If a list, each each value is assigned to one of the constituent
+            If a list, each value is assigned to each of the constituent
             norms. Single values are repeated to form a list of appropriate size.
 
         clip : bool or list of bools, default: False
             Determines the behavior for mapping values outside the range
             ``[vmin, vmax]`` for the constituent norms.
-            If a list, each each value is assigned to one of the constituent
+            If a list, each value is assigned to each of the constituent
             norms. Single values are repeated to form a list of appropriate size.
 
         """
@@ -3263,6 +3263,10 @@ class MultiNorm(Normalize):
             elif isinstance(n, str):
                 scale_cls = _get_scale_cls_from_str(n)
                 norms[i] = mpl.colorizer._auto_norm_from_scale(scale_cls)()
+            elif not isinstance(n, Normalize):
+                raise ValueError(
+                    "MultiNorm must be assigned multiple norms, where each norm "
+                    f"is of type `None` `str`, or `Normalize`, not {type(n)}")
 
         # Convert the list of norms to a tuple to make it immutable.
         # If there is a use case for swapping a single norm, we can add support for
@@ -3275,8 +3279,7 @@ class MultiNorm(Normalize):
         self.vmax = vmax
         self.clip = clip
 
-        self._id_norms = [n.callbacks.connect('changed',
-                                                    self._changed) for n in self._norms]
+        [n.callbacks.connect('changed', self._changed) for n in self._norms]
 
     @property
     def n_input(self):
@@ -3348,7 +3351,8 @@ class MultiNorm(Normalize):
     def __call__(self, value, clip=None):
         """
         Normalize the data and return the normalized data.
-        Each variate in the input is assigned to the a constituent norm.
+
+        Each variate in the input is assigned to the constituent norm.
 
         Parameters
         ----------
@@ -3381,8 +3385,7 @@ class MultiNorm(Normalize):
 
     def inverse(self, value):
         """
-        Maps the normalized value (i.e., index in the colormap) back to image
-        data value.
+        Map the normalized value (i.e., index in the colormap) back to image data value.
 
         Parameters
         ----------
@@ -3449,7 +3452,7 @@ class MultiNorm(Normalize):
         """
         if isinstance(data, np.ndarray) and data.dtype.fields is not None:
             data = [data[descriptor[0]] for descriptor in data.dtype.descr]
-        if not len(data) == n_input:
+        if len(data) != n_input:
             raise ValueError("The input to this `MultiNorm` must be of shape "
                              f"({n_input}, ...), or have a data type with {n_input} "
                              "fields.")
@@ -4100,9 +4103,11 @@ def _get_scale_cls_from_str(scale_as_str):
     Returns the scale class from a string.
 
     Used in the creation of norms from a string to ensure a reasonable error
-    in the case where an invalid string is used. This cannot use
-    `_api.check_getitem()`, because the norm keyword accepts arguments
-    other than strings.
+    in the case where an invalid string is used. This would normally use
+    `_api.check_getitem()`, which would produce the error
+    > 'not_a_norm' is not a valid value for norm; supported values are
+    > 'linear', 'log', 'symlog', 'asinh', 'logit', 'function', 'functionlog'
+    which is misleading because the norm keyword also accepts `Normalize` objects.
 
     Parameters
     ----------

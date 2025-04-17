@@ -1840,6 +1840,10 @@ def test_multi_norm():
     with pytest.raises(ValueError,
                        match="Invalid norm str name"):
         mcolors.MultiNorm(["bad_norm_name"])
+    with pytest.raises(ValueError,
+                       match="MultiNorm must be assigned multiple norms, "
+                             "where each norm is of type `None`"):
+        mcolors.MultiNorm([4])
 
     # test get vmin, vmax
     norm = mpl.colors.MultiNorm(['linear', 'log'])
