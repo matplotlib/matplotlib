@@ -617,3 +617,8 @@ def test_interpolated_moveto_closepoly():
 
     np.testing.assert_allclose(result.vertices, expected_vertices)
     np.testing.assert_array_equal(result.codes, expected_codes)
+
+
+def test_interpolated_empty_path():
+    path = Path(np.zeros((0, 2)))
+    assert path.interpolated(42) is path

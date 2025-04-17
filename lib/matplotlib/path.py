@@ -681,7 +681,7 @@ class Path:
         Path
             The interpolated path.
         """
-        if steps == 1:
+        if steps == 1 or len(self) == 0:
             return self
 
         if self.codes is not None and self.MOVETO in self.codes[1:]:
