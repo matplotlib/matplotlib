@@ -52,53 +52,21 @@ def setup():
     set_reproducibility_for_testing()
 
 
-def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
-                               stderr=None, check=False, text=True,
-                               capture_output=False):
+def subprocess_run_for_testing(*args, **kwargs):
     """
     Create and run a subprocess.
 
     Thin wrapper around `subprocess.run`, intended for testing.  Will
-    mark fork() failures on Cygwin as expected failures: not a
+    transform fork() failures on Cygwin as expected failures: not a
     success, but not indicating a problem with the code either.
-
-    Parameters
-    ----------
-    args : list of str
-    env : dict[str, str]
-    timeout : float
-    stdout, stderr
-    check : bool
-    text : bool
-        Also called ``universal_newlines`` in subprocess.  I chose this
-        name since the main effect is returning bytes (`False`) vs. str
-        (`True`), though it also tries to normalize newlines across
-        platforms.
-    capture_output : bool
-        Set stdout and stderr to subprocess.PIPE
-
-    Returns
-    -------
-    proc : subprocess.Popen
-
-    See Also
-    --------
-    subprocess.run
 
     Raises
     ------
     pytest.xfail
         If platform is Cygwin and subprocess reports a fork() failure.
     """
-    if capture_output:
-        stdout = stderr = subprocess.PIPE
     try:
-        proc = subprocess.run(
-            command, env=env,
-            timeout=timeout, check=check,
-            stdout=stdout, stderr=stderr,
-            text=text
-        )
+        proc = subprocess.run(*args, **kwargs)
     except BlockingIOError:
         if sys.platform == "cygwin":
             # Might want to make this more specific
