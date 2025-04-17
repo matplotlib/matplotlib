@@ -991,11 +991,11 @@ class PdfFile:
 
         # Widths
         widthsObject = self.reserveObject('font widths')
-        tfm = fontinfo.dvifont._tfm
+        font_metrics = fontinfo.dvifont._metrics
         # convert from TeX's 12.20 representation to 1/1000 text space units.
-        widths = [(1000 * metrics.tex_width) >> 20
-                  if (metrics := tfm.get_metrics(char)) else 0
-                  for char in range(max(tfm._glyph_metrics, default=-1) + 1)]
+        widths = [(1000 * glyph_metrics.tex_width) >> 20
+                  if (glyph_metrics := font_metrics.get_metrics(char)) else 0
+                  for char in range(max(font_metrics._glyph_metrics, default=-1) + 1)]
         self.writeObject(widthsObject, widths)
 
         # Font dictionary
