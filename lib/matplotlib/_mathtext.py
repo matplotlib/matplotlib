@@ -1531,7 +1531,7 @@ class AutoHeightChar(Hlist):
     """
 
     def __init__(self, c: str, height: float, depth: float, state: ParserState,
-                 always: bool = False, factor: float | None = None):
+                 factor: float | None = None):
         alternatives = state.fontset.get_sized_alternatives_for_symbol(state.font, c)
 
         x_height = state.fontset.get_xheight(state.font, state.fontsize, state.dpi)
@@ -1568,7 +1568,7 @@ class AutoWidthChar(Hlist):
     always just return a scaled version of the glyph.
     """
 
-    def __init__(self, c: str, width: float, state: ParserState, always: bool = False,
+    def __init__(self, c: str, width: float, state: ParserState,
                  char_class: type[Char] = Char):
         alternatives = state.fontset.get_sized_alternatives_for_symbol(state.font, c)
 
@@ -2706,7 +2706,7 @@ class Parser:
         # the height so it doesn't seem cramped
         height = body.height - body.shift_amount + 5 * thickness
         depth = body.depth + body.shift_amount
-        check = AutoHeightChar(r'\__sqrt__', height, depth, state, always=True)
+        check = AutoHeightChar(r'\__sqrt__', height, depth, state)
         height = check.height - check.shift_amount
         depth = check.depth + check.shift_amount
 
