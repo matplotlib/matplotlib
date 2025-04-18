@@ -156,6 +156,7 @@ select = [
     "E251",
     "E261",
     "E272",
+    "E302",
     "E703",
 ]
 
@@ -166,7 +167,6 @@ select = [
 # See https://github.com/charliermarsh/ruff/issues/2402 for status on implementation
 external = [
   "E122",
-  "E302",
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -198,7 +198,7 @@ convention = "numpy"
 "galleries/examples/userdemo/pgf_preamble_sgskip.py" = ["E402"]
 
 "lib/matplotlib/__init__.py" = ["F822"]
-"lib/matplotlib/_cm.py" = ["E202", "E203"]
+"lib/matplotlib/_cm.py" = ["E202", "E203", "E302"]
 "lib/matplotlib/_mathtext.py" = ["E221"]
 "lib/matplotlib/_mathtext_data.py" = ["E203"]
 "lib/matplotlib/backends/backend_template.py" = ["F401"]
