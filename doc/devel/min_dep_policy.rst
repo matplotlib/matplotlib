@@ -162,7 +162,7 @@ Updating Python and NumPy versions
 
 To update the minimum versions of Python we need to update:
 
-- ``pyproject.toml`` (classifiers, requires-python, ``[ruff.tool]`` target-version)
+- ``pyproject.toml`` (classifiers, requires-python, ``[tool.ruff]`` target-version)
 - ``environment.yml``
 - ``doc/install/dependencies.rst``
 - ``doc/devel/min_dep_policy.rst`` (this file)
