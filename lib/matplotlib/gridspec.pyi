@@ -157,7 +157,6 @@ class SubplotParams:
         top: float | None = ...,
         wspace: float | None = ...,
         hspace: float | None = ...,
-        rc_default: bool = ...,
     ) -> None: ...
     def get_subplot_params(
         self,

@@ -2826,16 +2826,9 @@ def subplots_adjust(
     top: float | None = None,
     wspace: float | None = None,
     hspace: float | None = None,
-    rc_default: bool = False,
 ) -> None:
     gcf().subplots_adjust(
-        left=left,
-        bottom=bottom,
-        right=right,
-        top=top,
-        wspace=wspace,
-        hspace=hspace,
-        rc_default=rc_default,
+        left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace
     )
 
 

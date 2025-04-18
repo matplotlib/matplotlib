@@ -1,4 +1,5 @@
 import unittest
+import matplotlib
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import pytest
@@ -51,6 +52,8 @@ def test_SubplotParams():
     with pytest.raises(ValueError):
         s = gridspec.SubplotParams(.1, .1, .09, .9)
 
+    s.reset()
+    assert s.left == matplotlib.rcParams['figure.subplot.left']
 
 def test_repr():
     ss = gridspec.GridSpec(3, 3)[2, 1:3]

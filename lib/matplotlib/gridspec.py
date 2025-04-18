@@ -771,11 +771,9 @@ class SubplotParams:
         p.text(s)
 
     def update(self, left=None, bottom=None, right=None, top=None,
-               wspace=None, hspace=None, rc_default=False):
+               wspace=None, hspace=None):
         """
         Update the dimensions of the passed parameters. *None* means unchanged.
-        If *rc_default* is True, then restore the parameters with value *None*
-        to the default.
         """
         if ((left if left is not None else self.left)
                 >= (right if right is not None else self.right)):
@@ -787,11 +785,13 @@ class SubplotParams:
         attributes = {'left': left, 'right': right, 'bottom': bottom, 'top': top,
                           'hspace': hspace, 'wspace': wspace}
         for key, value in attributes.items():
-            if value is None:
-                if rc_default:
-                    setattr(self, key, mpl.rcParams[f'figure.subplot.{key}'])
-            else:
+            if value is not None:
                 setattr(self, key, value)
+
+    def reset(self):
+        """ Restore the positioning parameters to the default values """
+        for key in self.get_subplot_params.keys():
+            setattr(self, key, mpl.rcParams[f'figure.subplot.{key}'])
 
     def get_subplot_params(self) -> dict[str, float]:
         """
