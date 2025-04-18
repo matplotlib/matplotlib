@@ -47,7 +47,7 @@ jobs:
       - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
         name: Install Python
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       # Something changed somewhere that prevents the downloaded-at-build-time
       # licenses from being included in built wheels, so pre-download them so
@@ -163,22 +163,17 @@ jobs:
           CIBW_BUILD: "cp311-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
-      - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@d04cacbc9866d432033b1d09142936e6a0e2121a  # v2.23.2
-        with:
-          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
-        env:
-          CIBW_BUILD: "cp310-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
         uses: pypa/cibuildwheel@d04cacbc9866d432033b1d09142936e6a0e2121a  # v2.23.2
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
-          CIBW_BUILD: "pp310-*"
+          CIBW_BUILD: "pp311-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_ENABLE: pypy
+          # No wheels available for Pillow with pp311 yet.
+          CIBW_TEST_SKIP: "pp311*"
         if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest'
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
