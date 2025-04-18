@@ -182,7 +182,7 @@ fig.colorbar(pcm, cax=cax)
 fig, ax = plt.subplots(layout='constrained', figsize=(4, 4))
 pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
 cax = ax.inset_axes([1.04, 0.0, 0.05, 1.0])
-ax.set_title('colorbar with inset_axes', fontsize='medium')
+ax.set_title('Colorbar with inset_axes', fontsize='medium')
 fig.colorbar(pcm, cax=cax)
 
 # %%
