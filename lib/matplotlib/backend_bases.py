@@ -42,6 +42,7 @@ import sys
 import time
 import weakref
 from weakref import WeakKeyDictionary
+from ctypes import c_int, c_void_p, pythonapi
 
 import numpy as np
 
@@ -58,6 +59,11 @@ from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
 from matplotlib._enums import JoinStyle, CapStyle
 
+
+pythonapi.PyOS_getsig.restype = c_void_p
+pythonapi.PyOS_getsig.argtypes = (c_int,)
+pythonapi.PyOS_setsig.restype = c_void_p
+pythonapi.PyOS_setsig.argtypes = (c_int, c_void_p)
 
 _log = logging.getLogger(__name__)
 _default_filetypes = {
@@ -1655,6 +1661,10 @@ def _allow_interrupt(prepare_notifier, handle_sigint):
     old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
     notifier = prepare_notifier(rsock)
 
+    # Save OS level sigint handlers
+    # See https://github.com/prompt-toolkit/python-prompt-toolkit/issues/1576
+    sigint_os = pythonapi.PyOS_getsig(signal.SIGINT)
+
     def save_args_and_handle_sigint(*args):
         nonlocal handler_args
         handler_args = args
@@ -1668,6 +1678,7 @@ def _allow_interrupt(prepare_notifier, handle_sigint):
         rsock.close()
         signal.set_wakeup_fd(old_wakeup_fd)
         signal.signal(signal.SIGINT, old_sigint_handler)
+        pythonapi.PyOS_setsig(signal.SIGINT, sigint_os)
         if handler_args is not None:
             old_sigint_handler(*handler_args)
 
