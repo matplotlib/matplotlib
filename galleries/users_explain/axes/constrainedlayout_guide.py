@@ -493,6 +493,35 @@ for ax in axs.flat:
     ax.imshow(arr)
 fig.suptitle("fixed-aspect plots, layout='compressed'")
 
+# %%
+# Compressed layout will also attempt to size colorbars to match the size of the
+# fixed-aspect-ratio parent Axes as the figure is resized or the aspect ratio changes.
+# In the following figure, the colorbar is taller than its parent Axes:
+
+fig, ax = plt.subplots(layout='constrained', figsize=(3, 3))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+ax.set_title("Colorbar with layout='constrained'", fontsize='medium')
+fig.colorbar(pcm, ax=ax)
+
+# %%
+# Compressed layout ensures that the height of the colorbar matches the height
+# of its parent Axes, maintaining a consistent appearance:
+
+fig, ax = plt.subplots(layout='compressed', figsize=(3, 3))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+ax.set_title("Colorbar with layout='compressed'", fontsize='medium')
+fig.colorbar(pcm, ax=ax)
+
+# %%
+# If the Axes is zoomed in or out, or the figure is resized, the colorbar will
+# dynamically resize to match the parent Axes. Whether this behavior is desired
+# depends on the specific application:
+
+fig, ax = plt.subplots(layout='compressed', figsize=(3, 3))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+ax.set_ylim([4, 8])
+ax.set_title("Layout='compressed' with zoom", fontsize='medium')
+fig.colorbar(pcm, ax=ax)
 
 # %%
 # Manually turning off *constrained layout*
