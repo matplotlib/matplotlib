@@ -205,6 +205,7 @@ def test_imsave_python_sequences():
         read_img[:, :, :3]  # Drop alpha if present
     )
 
+
 @pytest.mark.parametrize("origin", ["upper", "lower"])
 def test_imsave_rgba_origin(origin):
     # test that imsave always passes c-contiguous arrays down to pillow
