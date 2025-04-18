@@ -1,12 +1,10 @@
-subplots_adjust has a new ``kwarg``: ``rc_default``
+Resetting the subplot parameters for figure.clear()
 ---------------------------------------------------
-
-`.Figure.subplots_adjust` and `.pyplot.subplots_adjust` have a new ``kwarg``:
-``rc_default`` that determines the default values for the subplot parameters.
-
-The `.gridspec.SubplotParams` object has a new get method
-:meth:`~.SubplotParams.get_subplot_params`
 
 When calling `.Figure.clear()` the settings for `.gridspec.SubplotParams` are restored to the default values.
 
-(code based on work by @fredrik-1)
+The `.gridspec.SubplotParams` object has a new get method :meth:`~.SubplotParams.get_subplot_params` and a
+method to reset the parameters to the defaults :meth:`~.SubplotParams.reset`
+
+
+(contributed by @eendebakpt based on work by @fredrik-1)
