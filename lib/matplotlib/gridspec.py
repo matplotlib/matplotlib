@@ -789,7 +789,7 @@ class SubplotParams:
                 setattr(self, key, value)
 
     def reset(self):
-        """ Restore the positioning parameters to the default values """
+        """Restore the positioning parameters to the default values"""
         for key in self.get_subplot_params.keys():
             setattr(self, key, mpl.rcParams[f'figure.subplot.{key}'])
 
