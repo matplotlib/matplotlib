@@ -1536,7 +1536,7 @@ def test_polygon_selector_set_props_handle_props(ax, draw_bounding_box):
         assert artist.get_alpha() == 0.3
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_rect_visibility(fig_test, fig_ref):
     # Check that requesting an invisible selector makes it invisible
     ax_test = fig_test.subplots()

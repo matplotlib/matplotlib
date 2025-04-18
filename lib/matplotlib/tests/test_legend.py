@@ -42,7 +42,7 @@ def test_legend_ordereddict():
               loc='center left', bbox_to_anchor=(1, .5))
 
 
-@image_comparison(['legend_auto1'], remove_text=True)
+@image_comparison(['legend_auto1.png'], remove_text=True)
 def test_legend_auto1():
     """Test automatic legend placement"""
     fig, ax = plt.subplots()
@@ -52,7 +52,7 @@ def test_legend_auto1():
     ax.legend(loc='best')
 
 
-@image_comparison(['legend_auto2'], remove_text=True)
+@image_comparison(['legend_auto2.png'], remove_text=True)
 def test_legend_auto2():
     """Test automatic legend placement"""
     fig, ax = plt.subplots()
@@ -62,7 +62,7 @@ def test_legend_auto2():
     ax.legend([b1[0], b2[0]], ['up', 'down'], loc='best')
 
 
-@image_comparison(['legend_auto3'])
+@image_comparison(['legend_auto3.png'])
 def test_legend_auto3():
     """Test automatic legend placement"""
     fig, ax = plt.subplots()
@@ -128,7 +128,7 @@ def test_legend_auto5():
     assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
 
 
-@image_comparison(['legend_various_labels'], remove_text=True)
+@image_comparison(['legend_various_labels.png'], remove_text=True)
 def test_various_labels():
     # tests all sorts of label types
     fig = plt.figure()
@@ -187,7 +187,7 @@ def test_alpha_rcparam():
         leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
 
 
-@image_comparison(['fancy'], remove_text=True, tol=0.05)
+@image_comparison(['fancy.png'], remove_text=True, tol=0.05)
 def test_fancy():
     # Tolerance caused by changing default shadow "shade" from 0.3 to 1 - 0.7 =
     # 0.30000000000000004
@@ -210,7 +210,7 @@ def test_framealpha():
     plt.legend(framealpha=0.5)
 
 
-@image_comparison(['scatter_rc3', 'scatter_rc1'], remove_text=True)
+@image_comparison(['scatter_rc3.png', 'scatter_rc1.png'], remove_text=True)
 def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.figure()
@@ -227,7 +227,7 @@ def test_rc():
               title="My legend")
 
 
-@image_comparison(['legend_expand'], remove_text=True)
+@image_comparison(['legend_expand.png'], remove_text=True)
 def test_legend_expand():
     """Test expand mode"""
     legend_modes = [None, "expand"]
@@ -1274,7 +1274,7 @@ def test_legend_markers_from_line2d():
     assert labels == new_labels
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_ncol_ncols(fig_test, fig_ref):
     # Test that both ncol and ncols work
     strings = ["a", "b", "c", "d", "e", "f"]
