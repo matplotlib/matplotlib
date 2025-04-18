@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-17T04:58:17.385327</dc:date>
+    <dc:date>2025-04-18T05:34:32.564511</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev684+g1896d8d579, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev684+g00e38349f5.d20250418, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\frac{a}{b/2}$ -->
-   <g transform="translate(181.62 29.16) scale(0.12 -0.12)">
+   <g transform="translate(181.44 29.16) scale(0.12 -0.12)">
     <defs>
      <path id="DejaVuSans-Oblique-61" d="M 3438 1997 
 L 3047 0 
@@ -133,14 +133,14 @@ Q 1991 1309 1228 531
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSans-Oblique-61" transform="translate(33 44.8) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-Oblique-61" transform="translate(35 44.8) scale(0.7)"/>
     <use xlink:href="#DejaVuSans-Oblique-62" transform="translate(0 -40.634375) scale(0.7)"/>
     <use xlink:href="#DejaVuSans-2f" transform="translate(44.433594 -40.634375) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-32" transform="translate(65.217578 -40.634375) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-32" transform="translate(68.017578 -40.634375) scale(0.7)"/>
     <path d="M 0 18.804688 
 L 0 25.054688 
-L 109.753711 25.054688 
-L 109.753711 18.804688 
+L 112.553711 25.054688 
+L 112.553711 18.804688 
 L 0 18.804688 
 z
 "/>
