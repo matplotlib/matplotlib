@@ -437,12 +437,18 @@ const char *PyFT2Font_init__doc__ = R"""(
 
         .. warning::
             This API is private: do not use it directly.
+
+    _warn_if_used : bool, optional
+        Used to trigger missing glyph warnings.
+
+        .. warning::
+            This API is private: do not use it directly.
 )""";
 
 static PyFT2Font *
 PyFT2Font_init(py::object filename, long hinting_factor = 8,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
-               int kerning_factor = 0)
+               int kerning_factor = 0, bool warn_if_used = false)
 {
     if (hinting_factor <= 0) {
         throw py::value_error("hinting_factor must be greater than 0");
@@ -491,7 +497,8 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
         self->stream.close = nullptr;
     }
 
-    self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn);
+    self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn,
+                          warn_if_used);
 
     self->x->set_kerning_factor(kerning_factor);
 
@@ -1740,6 +1747,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def(py::init(&PyFT2Font_init),
              "filename"_a, "hinting_factor"_a=8, py::kw_only(),
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=0,
+             "_warn_if_used"_a=false,
              PyFT2Font_init__doc__)
         .def("clear", &PyFT2Font_clear, PyFT2Font_clear__doc__)
         .def("set_size", &PyFT2Font_set_size, "ptsize"_a, "dpi"_a,
