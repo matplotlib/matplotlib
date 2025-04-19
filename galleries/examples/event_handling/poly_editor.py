@@ -203,6 +203,6 @@ if __name__ == '__main__':
     p = PolygonInteractor(ax, poly)
 
     ax.set_title('Click and drag a point to move it')
-    ax.set_xlim((-2, 2))
-    ax.set_ylim((-2, 2))
+    ax.set_xlim(-2, 2)
+    ax.set_ylim(-2, 2)
     plt.show()

@@ -19,7 +19,7 @@ from matplotlib.patches import Shadow
 
 # make a square figure and Axes
 fig = plt.figure(figsize=(6, 6))
-ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+ax = fig.add_axes((0.1, 0.1, 0.8, 0.8))
 
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
 fracs = [15, 30, 45, 10]

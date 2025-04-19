@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.animation as animation
 
 fig, ax = plt.subplots()
-ax.set_xlim([0, 10])
+ax.set_xlim(0, 10)
 
 scat = ax.scatter(1, 0)
 x = np.linspace(0, 10)

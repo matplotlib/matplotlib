@@ -48,7 +48,7 @@ xmin, ymin = verts.min(axis=0) - 1
 xmax, ymax = verts.max(axis=0) + 1
 
 fig = plt.figure(figsize=(5, 5), facecolor="0.75")  # gray background
-ax = fig.add_axes([0, 0, 1, 1], frameon=False, aspect=1,
+ax = fig.add_axes((0, 0, 1, 1), frameon=False, aspect=1,
                   xlim=(xmin, xmax),  # centering
                   ylim=(ymax, ymin),  # centering, upside down
                   xticks=[], yticks=[])  # no ticks
