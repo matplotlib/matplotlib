@@ -34,6 +34,7 @@ class TextToPath:
         filenames = _fontManager._find_fonts_by_props(prop)
         font = get_font(filenames)
         font.set_size(self.FONT_SCALE, self.DPI)
+        font.set_features(prop.get_features())
         return font
 
     def _get_hinting_flag(self):
