@@ -9734,7 +9734,7 @@ def test_bar_shape_mismatch():
 
 
 def test_caps_color():
-   
+
     # Creates a simple plot with error bars and a specified ecolor
     x = np.linspace(0, 10, 10)
     y = np.sin(x)
@@ -9749,8 +9749,9 @@ def test_caps_color():
     for cap in errorbars[2]:
         assert mcolors.same_color(cap.get_edgecolor(), ecolor)
 
+
 def test_caps_no_ecolor():
-   
+
     # Creates a simple plot with error bars without specifying ecolor
     x = np.linspace(0, 10, 10)
     y = np.sin(x)
