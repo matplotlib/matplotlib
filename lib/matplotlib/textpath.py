@@ -234,22 +234,14 @@ class TextToPath:
         # characters into strings.
         t1_encodings = {}
         for text in page.text:
-            font = get_font(text.font_path)
+            font = get_font(text.font.path)
+            if text.font.subfont:
+                raise NotImplementedError("Indexing TTC fonts is not supported yet")
             char_id = self._get_char_id(font, text.glyph)
             if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
-                glyph_name_or_index = text.glyph_name_or_index
-                if isinstance(glyph_name_or_index, str):
-                    index = font.get_name_index(glyph_name_or_index)
-                elif isinstance(glyph_name_or_index, int):
-                    if font not in t1_encodings:
-                        t1_encodings[font] = font._get_type1_encoding_vector()
-                    index = t1_encodings[font][glyph_name_or_index]
-                else:  # Should not occur.
-                    raise TypeError(f"Glyph spec of unexpected type: "
-                                    f"{glyph_name_or_index!r}")
-                font.load_glyph(index, flags=LoadFlags.TARGET_LIGHT)
+                font.load_glyph(text.index, flags=LoadFlags.TARGET_LIGHT)
                 glyph_map_new[char_id] = font.get_path()
 
             glyph_ids.append(char_id)
