@@ -1770,6 +1770,44 @@ def test_warn_colorbar_mismatch():
         subfig3_1.colorbar(im4_1)
 
 
+def test_clf_subplotpars():
+    keys = ('left', 'right', 'bottom', 'top', 'wspace', 'hspace')
+    rc_params = {key: plt.rcParams['figure.subplot.'+key] for key in keys}
+
+    fig = plt.figure(1)
+    fig.subplots_adjust(left=0.1)
+    fig.clf()
+    assert fig.subplotpars.get_subplot_params() == rc_params
+
+
+def test_suplots_adjust_1():
+    fig = plt.figure(1)
+    wspace = 0
+    fig.subplots_adjust(wspace=wspace)
+    inDict = dict(left=0.1, right=0.7, bottom=0, top=0.9, hspace=0.05)
+    fig.subplots_adjust(**inDict)
+    inDict['wspace'] = wspace
+    assert fig.subplotpars.get_subplot_params() == inDict
+
+
+def test_suplots_adjust_2():
+    fig = plt.figure(1)
+    fig.subplots_adjust(wspace=0)
+    inDict = dict(left=0.1, right=0.7, bottom=0, top=0.9, hspace=0.05)
+    fig.subplots_adjust(**inDict)
+    inDict['wspace'] = plt.rcParams['figure.subplot.wspace']
+    assert fig.subplotpars.get_subplot_params() == inDict
+
+
+def test_suplots_adjust_plt():
+    plt.figure(1)
+    plt.subplots_adjust(wspace=0)
+    inDict = dict(left=0.1, right=0.7, bottom=0, top=0.9, hspace=0.05)
+    plt.subplots_adjust(**inDict)
+    inDict['wspace'] = plt.rcParams['figure.subplot.wspace']
+    assert plt.gcf().subplotpars.get_subplot_params() == inDict
+
+
 def test_set_figure():
     fig = plt.figure()
     sfig1 = fig.subfigures()
