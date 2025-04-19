@@ -3302,10 +3302,10 @@ class Axes(_AxesBase):
 
         if np.any(x < 0):
             raise ValueError("Wedge sizes 'x' must be non negative values")
-        
+
         if not np.all(np.isfinite(x)):
             raise ValueError('Wedge sizes must be finite numbers')
-        
+
         sx = x.sum()
 
         if normalize:
