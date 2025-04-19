@@ -184,6 +184,28 @@ def test_imsave(fmt):
     assert_array_equal(arr_dpi1, arr_dpi100)
 
 
+def test_imsave_python_sequences():
+    # Tests saving an image with data passed using Python sequence types
+    # such as lists or tuples.
+
+    # RGB image: 3 rows × 2 columns, with float values in [0.0, 1.0]
+    img_data = [
+        [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0)],
+        [(0.0, 0.0, 1.0), (1.0, 1.0, 0.0)],
+        [(0.0, 1.0, 1.0), (1.0, 0.0, 1.0)],
+    ]
+
+    buff = io.BytesIO()
+    plt.imsave(buff, img_data, format="png")
+    buff.seek(0)
+    read_img = plt.imread(buff)
+
+    assert_array_equal(
+        np.array(img_data),
+        read_img[:, :, :3]  # Drop alpha if present
+    )
+
+
 @pytest.mark.parametrize("origin", ["upper", "lower"])
 def test_imsave_rgba_origin(origin):
     # test that imsave always passes c-contiguous arrays down to pillow
@@ -279,6 +301,33 @@ def test_imshow_alpha(fig_test, fig_ref):
     ax2.imshow(rgbau)
     rgbau[:, :, 3] = 191
     ax3.imshow(rgbau)
+
+
+@pytest.mark.parametrize('n_channels, is_int, alpha_arr, opaque',
+                         [(3, False, False, False),  # RGB float
+                          (4, False, False, False),  # RGBA float
+                          (4, False, True, False),   # RGBA float with alpha array
+                          (4, False, False, True),   # RGBA float with solid color
+                          (4, True, False, False)])  # RGBA unint8
+def test_imshow_multi_draw(n_channels, is_int, alpha_arr, opaque):
+    if is_int:
+        array = np.random.randint(0, 256, (2, 2, n_channels))
+    else:
+        array = np.random.random((2, 2, n_channels))
+        if opaque:
+            array[:, :, 3] = 1
+
+    if alpha_arr:
+        alpha = np.array([[0.3, 0.5], [1, 0.8]])
+    else:
+        alpha = None
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(array, alpha=alpha)
+    fig.draw_without_rendering()
+
+    # Draw should not modify original array
+    np.testing.assert_array_equal(array, im._A)
 
 
 def test_cursor_data():

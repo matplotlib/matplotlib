@@ -498,6 +498,16 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
     return self;
 }
 
+static py::str
+PyFT2Font_fname(PyFT2Font *self)
+{
+    if (self->stream.close) {  // Called passed a filename to the constructor.
+        return self->py_file.attr("name");
+    } else {
+        return py::cast<py::str>(self->py_file);
+    }
+}
+
 const char *PyFT2Font_clear__doc__ =
     "Clear all the glyphs, reset for a new call to `.set_text`.";
 
@@ -1431,6 +1441,32 @@ PyFT2Font_get_image(PyFT2Font *self)
     return py::array_t<unsigned char>(dims, im.get_buffer());
 }
 
+const char *PyFT2Font__get_type1_encoding_vector__doc__ = R"""(
+    Return a list mapping CharString indices of a Type 1 font to FreeType glyph indices.
+
+    Returns
+    -------
+    list[int]
+)""";
+
+static std::array<FT_UInt, 256>
+PyFT2Font__get_type1_encoding_vector(PyFT2Font *self)
+{
+    auto face = self->x->get_face();
+    auto indices = std::array<FT_UInt, 256>{};
+    for (auto i = 0u; i < indices.size(); ++i) {
+        auto len = FT_Get_PS_Font_Value(face, PS_DICT_ENCODING_ENTRY, i, nullptr, 0);
+        if (len == -1) {
+            // Explicitly ignore missing entries (mapped to glyph 0 = .notdef).
+            continue;
+        }
+        auto buf = std::make_unique<char[]>(len);
+        FT_Get_PS_Font_Value(face, PS_DICT_ENCODING_ENTRY, i, buf.get(), len);
+        indices[i] = FT_Get_Name_Index(face, buf.get());
+    }
+    return indices;
+}
+
 static const char *
 PyFT2Font_postscript_name(PyFT2Font *self)
 {
@@ -1567,16 +1603,6 @@ static FT_Short
 PyFT2Font_underline_thickness(PyFT2Font *self)
 {
     return self->x->get_face()->underline_thickness;
-}
-
-static py::str
-PyFT2Font_fname(PyFT2Font *self)
-{
-    if (self->stream.close) {  // Called passed a filename to the constructor.
-        return self->py_file.attr("name");
-    } else {
-        return py::cast<py::str>(self->py_file);
-    }
 }
 
 static py::object
@@ -1761,6 +1787,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
              PyFT2Font_get_sfnt_table__doc__)
         .def("get_path", &PyFT2Font_get_path, PyFT2Font_get_path__doc__)
         .def("get_image", &PyFT2Font_get_image, PyFT2Font_get_image__doc__)
+        .def("_get_type1_encoding_vector", &PyFT2Font__get_type1_encoding_vector,
+             PyFT2Font__get_type1_encoding_vector__doc__)
 
         .def_property_readonly("postscript_name", &PyFT2Font_postscript_name,
                                "PostScript name of the font.")

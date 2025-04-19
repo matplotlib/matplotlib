@@ -190,8 +190,7 @@ class RendererAgg
                         agg::trans_affine &offset_trans,
                         ColorArray &facecolors,
                         bool antialiased,
-                        ColorArray &edgecolors,
-                        ColorArray &hatchcolors);
+                        ColorArray &edgecolors);
 
     template <class PointArray, class ColorArray>
     void draw_gouraud_triangles(GCAgg &gc,
@@ -1163,8 +1162,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                         agg::trans_affine &offset_trans,
                                         ColorArray &facecolors,
                                         bool antialiased,
-                                        ColorArray &edgecolors,
-                                        ColorArray &hatchcolors)
+                                        ColorArray &edgecolors)
 {
     QuadMeshGenerator<CoordinateArray> path_generator(mesh_width, mesh_height, coordinates);
 
@@ -1172,6 +1170,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
     array::scalar<double, 1> linewidths(gc.linewidth);
     array::scalar<uint8_t, 1> antialiaseds(antialiased);
     DashesVector linestyles;
+    ColorArray hatchcolors = py::array_t<double>().reshape({0, 4}).unchecked<double, 2>();
 
     _draw_path_collection_generic(gc,
                                   master_transform,
