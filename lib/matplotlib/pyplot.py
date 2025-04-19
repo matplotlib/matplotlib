@@ -3041,7 +3041,7 @@ def bar_label(
     *,
     fmt: str | Callable[[float], str] = "%g",
     label_type: Literal["center", "edge"] = "edge",
-    padding: float | ArrayLike = 0,
+    padding: float = 0,
     **kwargs,
 ) -> list[Annotation]:
     return gca().bar_label(
@@ -4117,9 +4117,6 @@ def streamplot(
     integration_direction="both",
     broken_streamlines=True,
     *,
-    integration_max_step_scale=1.0,
-    integration_max_error_scale=1.0,
-    num_arrows=1,
     data=None,
 ):
     __ret = gca().streamplot(
@@ -4141,9 +4138,6 @@ def streamplot(
         maxlength=maxlength,
         integration_direction=integration_direction,
         broken_streamlines=broken_streamlines,
-        integration_max_step_scale=integration_max_step_scale,
-        integration_max_error_scale=integration_max_error_scale,
-        num_arrows=num_arrows,
         **({"data": data} if data is not None else {}),
     )
     sci(__ret.lines)
@@ -4291,8 +4285,6 @@ def violinplot(
     | Callable[[GaussianKDE], float]
     | None = None,
     side: Literal["both", "low", "high"] = "both",
-    facecolor: Sequence[ColorType] | ColorType | None = None,
-    linecolor: Sequence[ColorType] | ColorType | None = None,
     *,
     data=None,
 ) -> dict[str, Collection]:
@@ -4309,8 +4301,6 @@ def violinplot(
         points=points,
         bw_method=bw_method,
         side=side,
-        facecolor=facecolor,
-        linecolor=linecolor,
         **({"data": data} if data is not None else {}),
     )
 
