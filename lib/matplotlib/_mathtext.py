@@ -157,7 +157,10 @@ class Output:
 
         for ox, oy, info in shifted.glyphs:
             info.font.draw_glyph_to_bitmap(
-                image, int(ox), int(oy - info.metrics.iceberg), info.glyph,
+                image,
+                int(ox),
+                int(oy - np.ceil(info.metrics.iceberg)),
+                info.glyph,
                 antialiased=antialiased)
         for x1, y1, x2, y2 in shifted.rects:
             height = max(int(y2 - y1) - 1, 0)
@@ -420,7 +423,9 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
-            return font.get_kerning(info1.num, info2.num, Kerning.DEFAULT) / 64
+            return font.get_kerning(font.get_char_index(info1.num),
+                                    font.get_char_index(info2.num),
+                                    Kerning.DEFAULT) / 64
         return super().get_kern(font1, fontclass1, sym1, fontsize1,
                                 font2, fontclass2, sym2, fontsize2, dpi)
 
