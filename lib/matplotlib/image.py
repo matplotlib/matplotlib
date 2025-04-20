@@ -1544,7 +1544,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         extension of *fname*, if any, and from :rc:`savefig.format` otherwise.
         If *format* is set, it determines the output format.
     arr : array-like
-        The image data. The shape can be one of
+        The image data. Accepts NumPy arrays or sequences
+        (e.g., lists or tuples). The shape can be one of
         MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA).
     vmin, vmax : float, optional
         *vmin* and *vmax* set the color scaling for the image by fixing the
@@ -1575,6 +1576,10 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         default 'Software' key.
     """
     from matplotlib.figure import Figure
+
+    # Normalizing input (e.g., list or tuples) to NumPy array if needed
+    arr = np.asanyarray(arr)
+
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if format is None:
