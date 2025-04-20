@@ -23,6 +23,10 @@ from .bezier import (
 from .path import Path
 from ._enums import JoinStyle, CapStyle
 
+# TEMPORARY: REMOVE LATER
+import logging
+_log = logging.getLogger(__name__)
+
 
 @_docstring.interpd
 @_api.define_aliases({
@@ -2530,7 +2534,6 @@ class BoxStyle(_Style):
             self.head_angle = np.mod(head_angle, 360.)
 
         def __call__(self, x0, y0, width, height, mutation_size):
-
             # scaled padding
             pad = mutation_size * self.pad
             # add padding to width and height
@@ -2538,7 +2541,7 @@ class BoxStyle(_Style):
             # boundary points of the padded box (arrow tail/body)
             x0, y0 = x0 - pad, y0 - pad,
             x1, y1 = x0 + width, y0 + height
-            # width and half-width of arrow tail
+            # half-width and quarter-width of arrow tail
             dx = (y1 - y0) / 2
             dxx = dx / 2
 
@@ -2551,7 +2554,10 @@ class BoxStyle(_Style):
             # the total 'width' of arrow-head not within the body.
             width_adjustment = (self.head_width - 1) * dx
 
-            if self.head_angle <= 180:
+            if self.head_angle == 0:
+                # This would cause a division by zero ('infinitely long' arrow head)
+                raise ValueError("Head angle of zero is not valid.")
+            elif self.head_angle <= 180:
                 # Non-reversed arrow head (<---)
 
                 # The angle adjustment is the tip-to-body length of the arrow head.
@@ -2569,46 +2575,70 @@ class BoxStyle(_Style):
             else:
                 # Reversed arrow head (>---)
 
-                # Account for padding to left of text; this is no longer contained
-                # within the arrow head.
-                x0 = x0 - (2 * pad)
+                # No arrow head available for enclosed text to spill over into; add
+                # padding to left of text
+                x0 = x0 - (1.4 * pad)
+
+                # tan(1/2 * angle subtended by arrow tip)
+                tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))
 
                 if self.head_width <= 1:
-                    # Reversed arrow head entirely enclosed by arrow body
+                    # Length of arrow head
+                    angle_adjustment = (self.head_width * dx) / tan_half_angle
 
-                    # draw rectangle
-                    return Path._create_closed([
-                        (x0 + dxx, y0),
-                        (x1, y0),
-                        (x1, y1),
-                        (x0 + dxx, y1),
-                        (x0 + dxx, y0)
-                    ])
+                    if angle_adjustment < width:
+                        # Rectangle; head entirely enclosed by body
 
+                        return Path._create_closed([
+                            (x0 + dxx, y0),
+                            (x1, y0),
+                            (x1, y1),
+                            (x0 + dxx, y1),
+                            (x0 + dxx, y0)
+                        ])
+                    else:
+                        # Head pokes out of back of body
 
-                # Distance from the arrow head's outermost vertices to the points
-                # where the reversed arrow head intercepts the arrow body
-                tan_half_angle = np.tan(self.head_angle / 2)
-                intercept_adjustment = width_adjustment / np.abs(tan_half_angle)
+                        # The half-width of the connection of the arrow tip to the
+                        # back of the arrow body
+                        opposite_width_adjustment = (angle_adjustment - width) \
+                            * tan_half_angle
 
-                if intercept_adjustment >= width:
-                    # If the arrow body lies entirely within the arrow head
+                        #_log.error()
 
-                    # draw triangle
-                    return Path._create_closed([
-                        (x0 + dxx, y0 - width_adjustment),
-                        (x0 + dxx + intercept_adjustment, y0 + dx),
-                        (x0 + dxx, y1 + width_adjustment),
-                        (x0 + dxx, y0 - width_adjustment)
-                    ])
-                else:
-                    # draw reversed arrow
+                        return Path._create_closed([
+                            (x0 + dxx, y0),
+                            (x1, y0),
+                            (x1, y0 + dx - opposite_width_adjustment),
+                            (x0 + dxx + angle_adjustment, y0 + dx),
+                            (x1, y0 + dx + opposite_width_adjustment),
+                            (x1, y1),
+                            (x0 + dxx, y1),
+                            (x0 + dxx, y0)
+                        ])
+
+                # Distance from end of arrow to points where slanted parts of head
+                # intercept arrow body
+                intercept_adjustment = width_adjustment / tan_half_angle
+
+                if intercept_adjustment < width:
+                    # Some of arrow body is outside of head
+
                     return Path._create_closed([
                         (x0 + dxx, y0 - width_adjustment),
                         (x0 + dxx + intercept_adjustment, y0),
                         (x1, y0),
                         (x1, y1),
                         (x0 + dxx + intercept_adjustment, y1),
+                        (x0 + dxx, y1 + width_adjustment),
+                        (x0 + dxx, y0 - width_adjustment)
+                    ])
+                else:
+                    # Draw triangle
+
+                    return Path._create_closed([
+                        (x0 + dxx, y0 - width_adjustment),
+                        (x0 + dxx + intercept_adjustment, y0 + dx),
                         (x0 + dxx, y1 + width_adjustment),
                         (x0 + dxx, y0 - width_adjustment)
                     ])
@@ -2643,55 +2673,48 @@ class BoxStyle(_Style):
                 10.0 and the maximum value is 179.0. Any value smaller or
                 greater than this is constrained to the edge values.
             """
-
-            # TODO
-
             self.pad = pad
-            if head_width > 10:
-                self.head_width = 10
-            elif head_width < 0:
-                self.head_width = 0
+
+            if head_width < 0:
+                raise ValueError("The relative head width must be a positive number.")
             else:
                 self.head_width = head_width
 
-            if head_angle >= 180:
-                self.head_angle = 179
-            elif head_angle < 10:
-                self.head_angle = 10
-            else:
-                self.head_angle = head_angle
+            # Set arrow-head angle to within [0, 360 deg)
+            self.head_angle = np.mod(head_angle, 360.)
 
         def __call__(self, x0, y0, width, height, mutation_size):
-            # padding
+            # scaled padding
             pad = mutation_size * self.pad
-            # width and height with padding added.
-            # The width is padded by the arrows, so we don't need to pad it.
-            height = height + 2 * pad
-            # boundary of the padded box
-            x0, y0 = x0 - pad, y0 - pad
+            # add padding to width and height
+            width, height = width + 2 * pad, height + 2 * pad
+            # boundary points of the padded box (arrow tail/body)
+            x0, y0 = x0 - pad, y0 - pad,
             x1, y1 = x0 + width, y0 + height
-
+            # width and half-width of arrow tail
             dx = (y1 - y0) / 2
             dxx = dx / 2
+
             x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
-            # The width adjustment is the value that must be added or
-            # subtracted from y_0 and y_1 for the ends of the head.
+            # The width adjustment is the distance that must be subtracted from
+            # y0 and added to y1 to reach the non-tip vertices of the head.
             # The body width is 2dx.
-            # Subtracting 1 from the head_width gives what percentage of the
-            # body width is in the head, and there is .5x of that on each side.
-            # The .5 cancels out the 2dx for the body width.
+            # Subtracting 1 from the head width gives, in units of the body width,
+            # the total 'width' of arrow-head not within the body.
             width_adjustment = (self.head_width - 1) * dx
 
-            # The angle adjustment is the value that must be subtracted/added
-            # from x_0 or x_1 for the position of the tip.
-            # each half of the arrow head is a right angle triangle. Therefore,
-            # each half of the arrow head has the equation tan(head_angle/2)=
-            # (dx+width_adjustment)/(dxx+angle_adjustment).
-            angle_adjustment = ((dx + width_adjustment) / math.tan((self.
-                                head_angle/2) * (math.pi/180))) - dxx
+            if self.head_angle <= 180:
+                # Non-reversed arrow heads (<--->)
 
-            return Path._create_closed([
+                # The angle adjustment is the tip-to-body length of the arrow head.
+                # Each half of the arrow head is a right-angled triangle. Therefore,
+                # each half of the arrow head has, by trigonometry, tan(head_angle/2)=
+                # (dx+width_adjustment)/(dxx+angle_adjustment).
+                angle_adjustment = ((dx + width_adjustment) / math.tan((self.
+                                    head_angle/2) * (math.pi/180))) - dxx
+
+                return Path._create_closed([
                 (x0 + dxx, y0), (x1, y0),  # bot-segment
                 (x1, y0 - width_adjustment),
                 (x1 + angle_adjustment + dxx, y0 + dx),
@@ -2701,6 +2724,11 @@ class BoxStyle(_Style):
                 (x0 - angle_adjustment, y0 + dx),
                 (x0 + dxx, y0 - width_adjustment),  # left-arrow
                 (x0 + dxx, y0)])
+            else:
+                # Reversed arrow heads (>---<)
+
+                # TODO
+                raise NotImplementedError
 
     @_register_style(_style_list)
     class Round:
