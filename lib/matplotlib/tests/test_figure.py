@@ -1775,19 +1775,17 @@ def test_clf_subplotpars():
     rc_params = {key: plt.rcParams['figure.subplot.'+key] for key in keys}
 
     fig = plt.figure(1)
-    fig.subplots_adjust(left=0.1)
+    fig.subplots_adjust({k, v+0.01 for k, v in rc_params.items())
     fig.clf()
     assert fig.subplotpars.get_subplot_params() == rc_params
 
 
-def test_suplots_adjust_1():
-    fig = plt.figure(1)
-    wspace = 0
-    fig.subplots_adjust(wspace=wspace)
-    inDict = dict(left=0.1, right=0.7, bottom=0, top=0.9, hspace=0.05)
-    fig.subplots_adjust(**inDict)
-    inDict['wspace'] = wspace
-    assert fig.subplotpars.get_subplot_params() == inDict
+def test_suplots_adjust_incremental():
+    fig = plt.figure()
+    fig.subplots_adjust(left=0)
+    fig.subplots_adjust(right=1)
+    assert fig.subplotpars.left == 0
+    assert fig.subplotpars.right == 1
 
 
 def test_suplots_adjust_2():
