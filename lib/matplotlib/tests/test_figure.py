@@ -1787,6 +1787,7 @@ def test_suplots_adjust_incremental():
     assert fig.subplotpars.left == 0
     assert fig.subplotpars.right == 1
 
+
 def test_set_figure():
     fig = plt.figure()
     sfig1 = fig.subfigures()
