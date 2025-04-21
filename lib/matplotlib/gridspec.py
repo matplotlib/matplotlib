@@ -774,7 +774,6 @@ class SubplotParams:
         if ((bottom if bottom is not None else self.bottom)
                 >= (top if top is not None else self.top)):
             raise ValueError('bottom cannot be >= top')
-
         if left is not None:
             self.left = left
         if right is not None:
