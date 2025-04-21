@@ -1,4 +1,3 @@
-import unittest
 import matplotlib
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
@@ -43,6 +42,9 @@ def test_SubplotParams():
     s = gridspec.SubplotParams(.1, .1, .9, .9)
     assert s.left == 0.1
 
+    s.reset()
+    assert s.left == matplotlib.rcParams['figure.subplot.left']
+
     with pytest.raises(ValueError):
         s.update(left=s.right + .01)
 
@@ -52,8 +54,6 @@ def test_SubplotParams():
     with pytest.raises(ValueError):
         s = gridspec.SubplotParams(.1, .1, .09, .9)
 
-    s.reset()
-    assert s.left == matplotlib.rcParams['figure.subplot.left']
 
 def test_repr():
     ss = gridspec.GridSpec(3, 3)[2, 1:3]
@@ -76,8 +76,3 @@ def test_subplotspec_args():
         gs = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=axs[0])
     with pytest.raises(TypeError, match="subplot_spec must be type SubplotSpec"):
         gs = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec=axs)
-
-    s = gridspec.SubplotParams(.1, .1, .9, .9)
-    p = unittest.mock.MagicMock()
-    s._repr_pretty_(p, False)
-    assert 'SubplotParams' in p.method_calls[0].args[0]

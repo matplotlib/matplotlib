@@ -9,7 +9,6 @@ Often, users need not access this module directly, and can use higher-level
 methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
 `~.Figure.subfigures`. See the tutorial :ref:`arranging_axes` for a guide.
 """
-from typing import Any
 import copy
 import logging
 from numbers import Integral
@@ -763,13 +762,6 @@ class SubplotParams:
             setattr(self, key, mpl.rcParams[f"figure.subplot.{key}"])
         self.update(left, bottom, right, top, wspace, hspace)
 
-    def _repr_pretty_(self, p: Any, cycle: bool) -> None:
-        del cycle
-        name = self.__class__.__name__
-        s = f"{name}(left={self.left}, bottom={self.bottom}, right={self.right}, "
-        s += f" top={self.top}, wspace={self.wspace}, hspace={self.hspace})"
-        p.text(s)
-
     def update(self, left=None, bottom=None, right=None, top=None,
                wspace=None, hspace=None):
         """
@@ -782,11 +774,18 @@ class SubplotParams:
                 >= (top if top is not None else self.top)):
             raise ValueError('bottom cannot be >= top')
 
-        attributes = {'left': left, 'right': right, 'bottom': bottom, 'top': top,
-                          'hspace': hspace, 'wspace': wspace}
-        for key, value in attributes.items():
-            if value is not None:
-                setattr(self, key, value)
+        if left is not None:
+            self.left = left
+        if right is not None:
+            self.right = right
+        if bottom is not None:
+            self.bottom = bottom
+        if top is not None:
+            self.top = top
+        if wspace is not None:
+            self.wspace = wspace
+        if hspace is not None:
+            self.hspace = hspace
 
     def reset(self):
         """Restore the positioning parameters to the default values"""
