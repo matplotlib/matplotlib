@@ -9,6 +9,7 @@ Often, users need not access this module directly, and can use higher-level
 methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
 `~.Figure.subfigures`. See the tutorial :ref:`arranging_axes` for a guide.
 """
+
 import copy
 import logging
 from numbers import Integral
@@ -789,7 +790,7 @@ class SubplotParams:
 
     def reset(self):
         """Restore the positioning parameters to the default values"""
-        for key in self.get_subplot_params().keys():
+        for key in self.to_dict():
             setattr(self, key, mpl.rcParams[f'figure.subplot.{key}'])
 
     def to_dict(self):
