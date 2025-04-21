@@ -9,7 +9,6 @@ Often, users need not access this module directly, and can use higher-level
 methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
 `~.Figure.subfigures`. See the tutorial :ref:`arranging_axes` for a guide.
 """
-from typing import Any
 import copy
 import logging
 from numbers import Integral
@@ -793,11 +792,6 @@ class SubplotParams:
         for key in self.get_subplot_params().keys():
             setattr(self, key, mpl.rcParams[f'figure.subplot.{key}'])
 
-    def get_subplot_params(self) -> dict[str, float]:
-        """
-        Returns
-        -------
-        subplot_params : dictionary
-            A dictionary with the subplot parameters
-        """
+    def to_dict(self):
+        """Return the subplot parameters as a dict."""
         return self.__dict__.copy()
