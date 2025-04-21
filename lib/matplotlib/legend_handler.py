@@ -810,3 +810,42 @@ class HandlerPolyCollection(HandlerBase):
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
+    
+from matplotlib.legend_handler import HandlerPatchCollection
+
+_default_handler_map[PatchCollection] = HandlerPatchCollection()
+
+
+from matplotlib.patches import Patch
+from matplotlib.collections import PatchCollection
+
+class HandlerPatchCollection(HandlerPatch):
+    """
+    Handler for PatchCollection, e.g. from matplotlib.collections.
+    Uses the properties of the first patch in the collection.
+    """
+
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+        p = Patch()
+
+        try:
+            fc = orig_handle.get_facecolor()[0]
+            ec = orig_handle.get_edgecolor()[0]
+            lw = orig_handle.get_linewidths()[0]
+            ls = orig_handle.get_linestyle()[0]
+        except IndexError:
+            fc, ec, lw, ls = 'gray', 'black', 1.0, 'solid'
+
+        p.set_facecolor(fc)
+        p.set_edgecolor(ec)
+        p.set_linewidth(lw)
+        p.set_linestyle(ls)
+
+        self.update_prop(p, orig_handle, legend)
+        p.set_transform(trans)
+        p.set_xy([[-xdescent, -ydescent],
+                  [-xdescent + width, -ydescent],
+                  [-xdescent + width, -ydescent + height],
+                  [-xdescent, -ydescent + height]])
+        return [p]
