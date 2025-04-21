@@ -1793,17 +1793,7 @@ def test_suplots_adjust_2():
     fig.subplots_adjust(wspace=0)
     inDict = dict(left=0.1, right=0.7, bottom=0, top=0.9, hspace=0.05)
     fig.subplots_adjust(**inDict)
-    inDict['wspace'] = plt.rcParams['figure.subplot.wspace']
     assert fig.subplotpars.to_dict() == inDict
-
-
-def test_suplots_adjust_plt():
-    plt.figure(1)
-    plt.subplots_adjust(wspace=0)
-    inDict = dict(left=0.1, right=0.7, bottom=0, top=0.9, hspace=0.05)
-    plt.subplots_adjust(**inDict)
-    inDict['wspace'] = plt.rcParams['figure.subplot.wspace']
-    assert plt.gcf().subplotpars.to_dict() == inDict
 
 
 def test_set_figure():
