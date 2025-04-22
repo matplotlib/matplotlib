@@ -788,7 +788,7 @@ class SubplotParams:
             self.hspace = hspace
 
     def reset(self):
-        """Restore the positioning parameters to the default values"""
+        """Restore the subplot positioning parameters to the default rcParams values"""
         for key in self.to_dict():
             setattr(self, key, mpl.rcParams[f'figure.subplot.{key}'])
 
