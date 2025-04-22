@@ -18,6 +18,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api, _pylab_helpers, _tight_layout
+from matplotlib._api import UNSET as _UNSET
 from matplotlib.transforms import Bbox
 
 _log = logging.getLogger(__name__)
@@ -366,7 +367,8 @@ class GridSpec(GridSpecBase):
 
     _AllowedKeys = ["left", "bottom", "right", "top", "wspace", "hspace"]
 
-    def update(self, **kwargs):
+    def update(self, *, left=_UNSET, bottom=_UNSET, right=_UNSET, top=_UNSET,
+               wspace=_UNSET, hspace=_UNSET):
         """
         Update the subplot parameters of the grid.
 
@@ -377,15 +379,23 @@ class GridSpec(GridSpecBase):
         ----------
         left, right, top, bottom : float or None, optional
             Extent of the subplots as a fraction of figure width or height.
-        wspace, hspace : float, optional
+        wspace, hspace : float or None, optional
             Spacing between the subplots as a fraction of the average subplot
             width / height.
         """
-        for k, v in kwargs.items():
-            if k in self._AllowedKeys:
-                setattr(self, k, v)
-            else:
-                raise AttributeError(f"{k} is an unknown keyword")
+        if left is not _UNSET:
+            self.left = left
+        if bottom is not _UNSET:
+            self.bottom = bottom
+        if right is not _UNSET:
+            self.right = right
+        if top is not _UNSET:
+            self.top = top
+        if wspace is not _UNSET:
+            self.wspace = wspace
+        if hspace is not _UNSET:
+            self.hspace = hspace
+
         for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
                 if ax.get_subplotspec() is not None:
