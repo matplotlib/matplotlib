@@ -793,5 +793,5 @@ class SubplotParams:
             setattr(self, key, mpl.rcParams[f'figure.subplot.{key}'])
 
     def to_dict(self):
-        """Return the subplot parameters as a dict."""
+        """Return a copy of the subplot parameters as a dict."""
         return self.__dict__.copy()
