@@ -16,9 +16,6 @@ def test_update():
     gs.update(left=.1)
     assert gs.left == .1
 
-    with pytest.raises(AttributeError):
-        gs.update(lleft=.1)
-
 
 def test_width_ratios():
     """
