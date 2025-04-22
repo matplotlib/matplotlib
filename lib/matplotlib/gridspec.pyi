@@ -3,6 +3,7 @@ from typing import Any, Literal, overload
 from numpy.typing import ArrayLike
 import numpy as np
 
+from matplotlib._api import _Unset
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase
 from matplotlib.figure import Figure
@@ -78,7 +79,16 @@ class GridSpec(GridSpecBase):
         width_ratios: ArrayLike | None = ...,
         height_ratios: ArrayLike | None = ...,
     ) -> None: ...
-    def update(self, **kwargs: float | None) -> None: ...
+    def update(
+        self,
+        *,
+        left: float | None | _Unset = ...,
+        bottom: float | None | _Unset = ...,
+        right: float | None | _Unset = ...,
+        top: float | None | _Unset = ...,
+        wspace: float | None | _Unset = ...,
+        hspace: float | None | _Unset = ...,
+    ) -> None: ...
     def locally_modified_subplot_params(self) -> list[str]: ...
     def tight_layout(
         self,

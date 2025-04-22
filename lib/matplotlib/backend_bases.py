@@ -678,7 +678,8 @@ class RendererBase:
         cost of the draw_XYZ calls on the canvas.
         """
         no_ops = {
-            meth_name: lambda *args, **kwargs: None
+            meth_name: functools.update_wrapper(lambda *args, **kwargs: None,
+                                                getattr(RendererBase, meth_name))
             for meth_name in dir(RendererBase)
             if (meth_name.startswith("draw_")
                 or meth_name in ["open_group", "close_group"])
