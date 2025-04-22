@@ -408,7 +408,6 @@ def test_EllipseCollection():
         ww, hh, aa, units='x', offsets=XY, offset_transform=ax.transData,
         facecolors='none')
     ax.add_collection(ec)
-    ax.autoscale_view()
 
 
 def test_EllipseCollection_setter_getter():
@@ -526,7 +525,6 @@ def test_regularpolycollection_rotate():
             4, sizes=(100,), rotation=alpha,
             offsets=[xy], offset_transform=ax.transData)
         ax.add_collection(col, autolim=True)
-    ax.autoscale_view()
 
 
 @image_comparison(['regularpolycollection_scale.png'], remove_text=True)

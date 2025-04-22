@@ -1,7 +1,7 @@
 """
-=========================================================
-Line, Poly and RegularPoly Collection with autoscaling
-=========================================================
+=====================================
+Line, Poly and RegularPoly Collection
+=====================================
 
 For the first two subplots, we will use spirals.  Their size will be set in
 plot units, not data units.  Their positions will be set in data units by using
@@ -38,7 +38,7 @@ rs = np.random.RandomState(19680801)
 # Make some offsets
 xyo = rs.randn(npts, 2)
 
-# Make a list of colors cycling through the default series.
+# Make a list of colors from the default color cycle.
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
@@ -59,14 +59,12 @@ ax1.add_collection(col, autolim=True)
 # but it is good enough to generate a plot that you can use
 # as a starting point.  If you know beforehand the range of
 # x and y that you want to show, it is better to set them
-# explicitly, leave out the *autolim* keyword argument (or set it to False),
-# and omit the 'ax1.autoscale_view()' call below.
+# explicitly, set the *autolim* keyword argument to False.
 
 # Make a transform for the line segments such that their size is
 # given in points:
 col.set_color(colors)
 
-ax1.autoscale_view()  # See comment above, after ax1.add_collection.
 ax1.set_title('LineCollection using offsets')
 
 
@@ -79,7 +77,6 @@ ax2.add_collection(col, autolim=True)
 col.set_color(colors)
 
 
-ax2.autoscale_view()
 ax2.set_title('PolyCollection using offsets')
 
 # 7-sided regular polygons
@@ -90,7 +87,6 @@ trans = transforms.Affine2D().scale(fig.dpi / 72.0)
 col.set_transform(trans)  # the points to pixels transform
 ax3.add_collection(col, autolim=True)
 col.set_color(colors)
-ax3.autoscale_view()
 ax3.set_title('RegularPolyCollection using offsets')
 
 
@@ -114,7 +110,6 @@ for i in range(ncurves):
 col = collections.LineCollection(segs, offsets=offs)
 ax4.add_collection(col, autolim=True)
 col.set_color(colors)
-ax4.autoscale_view()
 ax4.set_title('Successive data offsets')
 ax4.set_xlabel('Zonal velocity component (m/s)')
 ax4.set_ylabel('Depth (m)')
@@ -136,6 +131,5 @@ plt.show()
 #    - `matplotlib.collections.LineCollection`
 #    - `matplotlib.collections.RegularPolyCollection`
 #    - `matplotlib.axes.Axes.add_collection`
-#    - `matplotlib.axes.Axes.autoscale_view`
 #    - `matplotlib.transforms.Affine2D`
 #    - `matplotlib.transforms.Affine2D.scale`
