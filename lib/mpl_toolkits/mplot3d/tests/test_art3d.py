@@ -55,7 +55,7 @@ def test_zordered_error():
 
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
-    ax.add_collection(Line3DCollection(lc))
+    ax.add_collection(Line3DCollection(lc), autolim="_datalim_only")
     ax.scatter(*pc, visible=False)
     plt.draw()
 

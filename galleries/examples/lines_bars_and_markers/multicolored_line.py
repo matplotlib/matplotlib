@@ -72,7 +72,6 @@ def colored_line(x, y, c, ax=None, **lc_kwargs):
     # Plot the line collection to the axes
     ax = ax or plt.gca()
     ax.add_collection(lc)
-    ax.autoscale_view()
 
     return lc
 

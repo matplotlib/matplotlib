@@ -2336,6 +2336,23 @@ class _AxesBase(martist.Artist):
     def add_collection(self, collection, autolim=True):
         """
         Add a `.Collection` to the Axes; return the collection.
+
+        Parameters
+        ----------
+        collection : `.Collection`
+            The collection to add.
+        autolim : bool
+            Whether to update data and view limits.
+
+            .. versionchanged:: 3.11
+
+               This now also updates the view limits, making explicit
+               calls to `~.Axes.autoscale_view` unnecessary.
+
+            As an implementation detail, the value "_datalim_only" is
+            supported to smooth the internal transition from pre-3.11
+            behavior. This is not a public interface and will be removed
+            again in the future.
         """
         _api.check_isinstance(mcoll.Collection, collection=collection)
         if not collection.get_label():
@@ -2371,6 +2388,8 @@ class _AxesBase(martist.Artist):
                 updatex=x_is_data or ox_is_data,
                 updatey=y_is_data or oy_is_data,
             )
+            if autolim != "_datalim_only":
+                self._request_autoscale_view()
 
         self.stale = True
         return collection

@@ -18,7 +18,6 @@ There are a number of options to this autoscaling behaviour, discussed below.
 import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib as mpl
 
 x = np.linspace(-2 * np.pi, 2 * np.pi, 100)
 y = np.sinc(x)
@@ -159,22 +158,3 @@ ax.margins(0.2, 0.2)
 ax.autoscale(enable=None, axis="x", tight=True)
 
 print(ax.margins())
-
-# %%
-# Working with collections
-# ------------------------
-#
-# Autoscale works out of the box for all lines, patches, and images added to
-# the Axes. One of the artists that it won't work with is a `.Collection`.
-# After adding a collection to the Axes, one has to manually trigger the
-# `~matplotlib.axes.Axes.autoscale_view()` to recalculate
-# axes limits.
-
-fig, ax = plt.subplots()
-collection = mpl.collections.StarPolygonCollection(
-    5, rotation=0, sizes=(250,),  # five point star, zero angle, size 250px
-    offsets=np.column_stack([x, y]),  # Set the positions
-    offset_transform=ax.transData,  # Propagate transformations of the Axes
-)
-ax.add_collection(collection)
-ax.autoscale_view()
