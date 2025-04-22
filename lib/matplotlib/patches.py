@@ -2515,9 +2515,11 @@ class BoxStyle(_Style):
             pad : float, default: 0.3
                 The amount of padding around the original box.
             head_width : float, default: 1.5
-                TODO
+                The width of the arrow head, relative to that of the arrow body.
+                Only positive values are accepted.
             head_angle : float, default: 90.0
-                The angle subtended by the tip of the arrow, in degrees. TODO
+                The angle subtended by the tip of the arrow head, in degrees.
+                Only nonzero angles are accepted.
             """
             self.pad = pad
 
@@ -2659,9 +2661,11 @@ class BoxStyle(_Style):
             pad : float, default: 0.3
                 The amount of padding around the original box.
             head_width : float, default: 1.5
-                TODO
+                The width of each arrow head, relative to that of the arrow body.
+                Only positive values are accepted.
             head_angle : float, default: 90.0
-                The angle subtended by the tip of the arrow, in degrees. TODO
+                The angle subtended by the tip of each arrow head, in degrees.
+                Only nonzero angles are accepted.
             """
             self.pad = pad
 
