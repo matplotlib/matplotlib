@@ -60,9 +60,9 @@ def colored_line(x, y, c, ax=None, **lc_kwargs):
         (xy[0, :][None, :], (xy[:-1, :] + xy[1:, :]) / 2, xy[-1, :][None, :]), axis=0
     )
     segments = np.stack((xy_mid[:-1, :], xy, xy_mid[1:, :]), axis=-2)
-    # Note that 
+    # Note that
     # segments[0, :, :] is [xy[0, :], xy[0, :], (xy[0, :] + xy[1, :]) / 2]
-    # segments[i, :, :] is [(xy[i - 1, :] + xy[i, :]) / 2, xy[i, :], 
+    # segments[i, :, :] is [(xy[i - 1, :] + xy[i, :]) / 2, xy[i, :],
     #     (xy[i, :] + xy[i + 1, :]) / 2] if i not in {0, len(x) - 1}
     # segments[-1, :, :] is [(xy[-2, :] + xy[-1, :]) / 2, xy[-1, :], xy[-1, :]]
 
@@ -72,7 +72,7 @@ def colored_line(x, y, c, ax=None, **lc_kwargs):
     # Plot the line collection to the axes
     ax = ax or plt.gca()
     ax.add_collection(lc)
-    ax.autoscale_view(scalex=scalex, scaley=scaley)
+    ax.autoscale_view()
 
     return lc
 
