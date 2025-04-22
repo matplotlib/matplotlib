@@ -21,7 +21,7 @@ import numpy as np
 from matplotlib.collections import LineCollection
 
 
-def colored_line(x, y, c, ax=None, scalex=True, scaley=True, **lc_kwargs):
+def colored_line(x, y, c, ax=None, **lc_kwargs):
     """
     Plot a line with a color specified along the line by a third value.
 
@@ -38,10 +38,7 @@ def colored_line(x, y, c, ax=None, scalex=True, scaley=True, **lc_kwargs):
         The color values, which should be the same size as x and y.
     ax : matplotlib.axes.Axes, optional
         The axes to plot on. If not provided, the current axes will be used.
-    scalex, scaley : bool
-        These parameters determine if the view limits are adapted to the data limits.
-        The values are passed on to autoscale_view.
-    **lc_kwargs : Any
+    **lc_kwargs
         Any additional arguments to pass to matplotlib.collections.LineCollection
         constructor. This should not include the array keyword argument because
         that is set to the color argument. If provided, it will be overridden.
@@ -63,13 +60,11 @@ def colored_line(x, y, c, ax=None, scalex=True, scaley=True, **lc_kwargs):
         (xy[0, :][None, :], (xy[:-1, :] + xy[1:, :]) / 2, xy[-1, :][None, :]), axis=0
     )
     segments = np.stack((xy_mid[:-1, :], xy, xy_mid[1:, :]), axis=-2)
-    # Note that segments is [
-    #   [[x[0], y[0]], [x[0], y[0]], [mean(x[0], x[1]), mean(y[0], y[1])]],
-    #   [[mean(x[0], x[1]), mean(y[0], y[1])], [x[1], y[1]],
-    #    [mean(x[1], x[2]), mean(y[1], y[2])]],
-    #   ...
-    #   [[mean(x[-2], x[-1]), mean(y[-2], y[-1])], [x[-1], y[-1]], [x[-1], y[-1]]]
-    # ]
+    # Note that 
+    # segments[0, :, :] is [xy[0, :], xy[0, :], (xy[0, :] + xy[1, :]) / 2]
+    # segments[i, :, :] is [(xy[i - 1, :] + xy[i, :]) / 2, xy[i, :], 
+    #     (xy[i, :] + xy[i + 1, :]) / 2] if i not in {0, len(x) - 1}
+    # segments[-1, :, :] is [(xy[-2, :] + xy[-1, :]) / 2, xy[-1, :], xy[-1, :]]
 
     lc_kwargs["array"] = c
     lc = LineCollection(segments, **lc_kwargs)
@@ -79,7 +74,6 @@ def colored_line(x, y, c, ax=None, scalex=True, scaley=True, **lc_kwargs):
     ax.add_collection(lc)
     ax.autoscale_view(scalex=scalex, scaley=scaley)
 
-    # Return the LineCollection object
     return lc
 
 
