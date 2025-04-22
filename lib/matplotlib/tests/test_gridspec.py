@@ -51,8 +51,8 @@ def test_SubplotParams():
     with pytest.raises(ValueError, match='bottom cannot be >= top'):
         s.update(bottom=s.top + .01)
 
-    with pytest.raises(ValueError):
-        s = gridspec.SubplotParams(.1, .1, .09, .9)
+    with pytest.raises(ValueError, match='left cannot be >= right'):
+        gridspec.SubplotParams(.1, .1, .09, .9)
 
 
 def test_repr():
