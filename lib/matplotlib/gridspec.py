@@ -750,22 +750,22 @@ class SubplotParams:
 
         Parameters
         ----------
-        left : float
+        left : float, optional
             The position of the left edge of the subplots,
             as a fraction of the figure width.
-        right : float
+        right : float, optional
             The position of the right edge of the subplots,
             as a fraction of the figure width.
-        bottom : float
+        bottom : float, optional
             The position of the bottom edge of the subplots,
             as a fraction of the figure height.
-        top : float
+        top : float, optional
             The position of the top edge of the subplots,
             as a fraction of the figure height.
-        wspace : float
+        wspace : float, optional
             The width of the padding between subplots,
             as a fraction of the average Axes width.
-        hspace : float
+        hspace : float, optional
             The height of the padding between subplots,
             as a fraction of the average Axes height.
         """
@@ -796,3 +796,12 @@ class SubplotParams:
             self.wspace = wspace
         if hspace is not None:
             self.hspace = hspace
+
+    def reset(self):
+        """Restore the subplot positioning parameters to the default rcParams values"""
+        for key in self.to_dict():
+            setattr(self, key, mpl.rcParams[f'figure.subplot.{key}'])
+
+    def to_dict(self):
+        """Return a copy of the subplot parameters as a dict."""
+        return self.__dict__.copy()

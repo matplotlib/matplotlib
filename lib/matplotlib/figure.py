@@ -989,6 +989,7 @@ default: %(va)s
         self.texts = []
         self.images = []
         self.legends = []
+        self.subplotpars.reset()
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
         self._suptitle = None
