@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.org/) -->
-<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2025-04-26T05:32:34.612247</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
  <defs>
-  <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;}
-  </style>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
  </defs>
  <g id="figure_1">
   <g id="patch_1">
@@ -15,69 +26,71 @@ L 378 54
 L 378 0 
 L 0 0 
 z
-" style="fill:#ffffff;"/>
+" style="fill: #ffffff"/>
   </g>
   <g id="text_1">
    <!-- $\frac{X}{\frac{X}{Y}}$ -->
-   <defs>
-    <path d="M 11.8125 0 
-L 12.796875 5.171875 
-L 22.125 5.171875 
-L 27.25 31.390625 
-L 11.765625 67.671875 
-L 4.9375 67.671875 
-L 5.953125 72.90625 
-L 33.0625 72.90625 
-L 32.03125 67.671875 
-L 23.53125 67.671875 
-L 36.03125 38.1875 
-L 59.96875 67.671875 
-L 51.765625 67.671875 
-L 52.78125 72.90625 
-L 73.96875 72.90625 
-L 72.953125 67.671875 
-L 66.0625 67.671875 
-L 37.3125 32.328125 
-L 31.984375 5.171875 
-L 41.3125 5.171875 
-L 40.328125 0 
+   <g transform="translate(185.22 27.84) scale(0.12 -0.12)">
+    <defs>
+     <path id="DejaVuSerif-Italic-58" d="M 2056 1997 
+L 591 331 
+L 1194 331 
+L 1131 0 
+L -413 0 
+L -350 331 
+L 187 331 
+L 1912 2291 
+L 947 4331 
+L 447 4331 
+L 512 4666 
+L 2362 4666 
+L 2297 4331 
+L 1747 4331 
+L 2456 2828 
+L 3775 4331 
+L 3175 4331 
+L 3241 4666 
+L 4769 4666 
+L 4703 4331 
+L 4178 4331 
+L 2597 2534 
+L 3641 331 
+L 4141 331 
+L 4075 0 
+L 2225 0 
+L 2287 331 
+L 2844 331 
+L 2056 1997 
 z
-" id="DejaVuSerif-Italic-59"/>
-    <path d="M 32.125 31.203125 
-L 9.234375 5.171875 
-L 18.65625 5.171875 
-L 17.671875 0 
-L -6.453125 0 
-L -5.46875 5.171875 
-L 2.9375 5.171875 
-L 29.890625 35.796875 
-L 14.796875 67.671875 
-L 6.984375 67.671875 
-L 8.015625 72.90625 
-L 36.921875 72.90625 
-L 35.890625 67.671875 
-L 27.296875 67.671875 
-L 38.375 44.1875 
-L 58.984375 67.671875 
-L 49.609375 67.671875 
-L 50.640625 72.90625 
-L 74.515625 72.90625 
-L 73.484375 67.671875 
-L 65.28125 67.671875 
-L 40.578125 39.59375 
-L 56.890625 5.171875 
-L 64.703125 5.171875 
-L 63.671875 0 
-L 34.765625 0 
-L 35.75 5.171875 
-L 44.4375 5.171875 
+" transform="scale(0.015625)"/>
+     <path id="DejaVuSerif-Italic-59" d="M 756 0 
+L 819 331 
+L 1416 331 
+L 1744 2009 
+L 753 4331 
+L 316 4331 
+L 381 4666 
+L 2116 4666 
+L 2050 4331 
+L 1506 4331 
+L 2306 2444 
+L 3838 4331 
+L 3313 4331 
+L 3378 4666 
+L 4734 4666 
+L 4669 4331 
+L 4228 4331 
+L 2388 2069 
+L 2047 331 
+L 2644 331 
+L 2581 0 
+L 756 0 
 z
-" id="DejaVuSerif-Italic-58"/>
-   </defs>
-   <g transform="translate(185.220000 27.840000)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 43.965625)scale(0.700000)" xlink:href="#DejaVuSerif-Italic-58"/>
-    <use transform="translate(3.000000 -23.008437)scale(0.490000)" xlink:href="#DejaVuSerif-Italic-58"/>
-    <use transform="translate(4.000000 -80.607500)scale(0.490000)" xlink:href="#DejaVuSerif-Italic-59"/>
+" transform="scale(0.015625)"/>
+    </defs>
+    <use xlink:href="#DejaVuSerif-Italic-58" transform="translate(0 43.965625) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-Italic-58" transform="translate(3 -23.008437) scale(0.49)"/>
+    <use xlink:href="#DejaVuSerif-Italic-59" transform="translate(4 -80.6075) scale(0.49)"/>
     <path d="M 0 18.965625 
 L 0 25.215625 
 L 49.833984 25.215625 

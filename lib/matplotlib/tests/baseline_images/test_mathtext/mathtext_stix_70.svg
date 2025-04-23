@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.org/) -->
-<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2025-04-26T05:32:26.805478</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
  <defs>
-  <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;}
-  </style>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
  </defs>
  <g id="figure_1">
   <g id="patch_1">
@@ -15,59 +26,60 @@ L 378 54
 L 378 0 
 L 0 0 
 z
-" style="fill:#ffffff;"/>
+" style="fill: #ffffff"/>
   </g>
   <g id="text_1">
    <!-- $M \, M \thinspace M \/ M \&gt; M \: M \; M \ M \enspace M \quad M \qquad M \! M$ -->
-   <defs>
-    <path d="M 87.203125 65.296875 
-L 87.203125 63.703125 
-Q 83.09375 63 81.640625 61.640625 
-Q 80.203125 60.296875 79.09375 56.296875 
-L 66.796875 12 
-Q 65.40625 7 65.40625 5.796875 
-Q 65.40625 3.796875 67.203125 2.75 
-Q 69 1.703125 73.5 1.59375 
-L 73.40625 0 
-L 46.296875 0 
-L 46.296875 1.59375 
-Q 51.203125 2.09375 53.203125 3.796875 
-Q 55.203125 5.5 56.5 10.203125 
-L 69.09375 56.09375 
-L 31.5 0 
-L 29.796875 0 
-L 23.59375 54.59375 
-L 11.796875 11.796875 
-Q 10.90625 8.59375 10.90625 6.40625 
-Q 10.90625 2.09375 17.90625 1.59375 
-L 17.90625 0 
-L -1.796875 0 
-L -1.796875 1.59375 
-Q 2.203125 2.09375 4.046875 4.4375 
-Q 5.90625 6.796875 8.203125 15 
-L 19.59375 55.09375 
-Q 20.796875 59.203125 20.796875 60.296875 
-Q 20.796875 63.296875 13.40625 63.703125 
-L 13.40625 65.296875 
-L 31.5 65.296875 
-L 37.09375 16.09375 
-L 70.59375 65.296875 
+   <g transform="translate(107.82 30.31125) scale(0.12 -0.12)">
+    <defs>
+     <path id="STIXGeneral-Italic-4d" d="M 5581 4179 
+L 5581 4077 
+Q 5318 4032 5225 3945 
+Q 5133 3859 5062 3603 
+L 4275 768 
+Q 4186 448 4186 371 
+Q 4186 243 4301 176 
+Q 4416 109 4704 102 
+L 4698 0 
+L 2963 0 
+L 2963 102 
+Q 3277 134 3405 243 
+Q 3533 352 3616 653 
+L 4422 3590 
+L 2016 0 
+L 1907 0 
+L 1510 3494 
+L 755 755 
+Q 698 550 698 410 
+Q 698 134 1146 102 
+L 1146 0 
+L -115 0 
+L -115 102 
+Q 141 134 259 284 
+Q 378 435 525 960 
+L 1254 3526 
+Q 1331 3789 1331 3859 
+Q 1331 4051 858 4077 
+L 858 4179 
+L 2016 4179 
+L 2374 1030 
+L 4518 4179 
+L 5581 4179 
 z
-" id="STIXGeneral-Italic-4d"/>
-   </defs>
-   <g transform="translate(107.820000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(95.333559 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(190.667117 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(286.000676 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(385.344944 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(484.689212 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(588.044910 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(695.411318 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(814.811297 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(970.311266 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(1198.011217 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
-    <use transform="translate(1269.277634 0.703125)" xlink:href="#STIXGeneral-Italic-4d"/>
+" transform="scale(0.015625)"/>
+    </defs>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(0 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(95.33349 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(190.66698 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(286.00047 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(385.344667 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(484.688863 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(588.044488 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(695.41082 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(814.810714 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(970.310577 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(1198.010376 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(1269.276739 0.703125)"/>
    </g>
   </g>
  </g>
