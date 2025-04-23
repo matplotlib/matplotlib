@@ -3,5 +3,5 @@ Resetting the subplot parameters for figure.clear()
 
 When calling `.Figure.clear()` the settings for `.gridspec.SubplotParams` are restored to the default values.
 
-The `.gridspec.SubplotParams` object has a new method to get the subplot parameters :meth:`~.SubplotParams.to_dict` and a
-method to reset the parameters to the defaults :meth:`~.SubplotParams.reset`
+`~.SubplotParams.to_dict` is a new method to get the subplot parameters as a dict, 
+and `~.SubplotParams.reset` resets the parameters to the defaults.
