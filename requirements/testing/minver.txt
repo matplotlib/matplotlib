@@ -5,7 +5,7 @@ cycler==0.10
 fonttools==4.22.0
 importlib-resources==3.2.0
 kiwisolver==1.3.2
-meson-python==0.13.1
+meson-python==0.13.2
 meson==1.1.0
 numpy==1.25.0
 packaging==20.0
