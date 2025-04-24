@@ -24,3 +24,5 @@ sphinx-copybutton
 sphinx-design
 sphinx-gallery[parallel]>=0.12.0
 sphinx-tags>=0.4.0
+jupyterlite-sphinx>=0.18.0
+jupyterlite-xeus>=3.0.2
