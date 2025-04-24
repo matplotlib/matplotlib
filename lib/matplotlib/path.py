@@ -969,36 +969,73 @@ class Path:
         return cls._unit_circle_righthalf
 
     @classmethod
-    def arc(cls, theta1, theta2, n=None, is_wedge=False):
+    def arc(cls, theta1, theta2, n=None, is_wedge=False, wrap=True):
         """
-        Return a `Path` for the unit circle arc from angles *theta1* to
-        *theta2* (in degrees).
+        Return a `Path` for a counter-clockwise unit circle arc from angles
+        *theta1* to *theta2* (in degrees).
 
-        *theta2* is unwrapped to produce the shortest arc within 360 degrees.
-        That is, if *theta2* > *theta1* + 360, the arc will be from *theta1* to
-        *theta2* - 360 and not a full circle plus some extra overlap.
+        Parameters
+        ----------
+        theta1, theta2 : float
+            The angles (in degrees) defining the start (*theta1*) and end
+            (*theta2*) of the arc. If the arc spans more than 360 degrees, it
+            will be wrapped to fit within the range from *theta1* to *theta1* +
+            360, provided *wrap* is True. The arc is drawn counter-clockwise
+            from *theta1* to *theta2*. For instance, if *theta1* =90 and
+            *theta2* = 70, the resulting arc will span 320 degrees.
 
-        If *n* is provided, it is the number of spline segments to make.
-        If *n* is not provided, the number of spline segments is
-        determined based on the delta between *theta1* and *theta2*.
+        n : int, optional
+            The number of spline segments to make.  If not provided, the number
+            of spline segments is determined based on the delta between
+            *theta1* and *theta2*.
 
-           Masionobe, L.  2003.  `Drawing an elliptical arc using
-           polylines, quadratic or cubic Bezier curves
+        is_wedge : bool, default: False
+            If True, the arc is a wedge.  The first vertex is the center of the
+            wedge, the second vertex is the start of the arc, and the last
+            vertex is the end of the arc.  The wedge is closed with a line
+            segment to the center of the wedge.  If False, the arc is a
+            polyline.  The first vertex is the start of the arc, and the last
+            vertex is the end of the arc.  The arc is closed with a line
+            segment to the start of the arc.  The wedge is not closed with a
+            line segment to the start of the arc.
+
+        wrap : bool, default: True
+            If True, the arc is wrapped to fit between *theta1* and *theta1* +
+            360 degrees.  If False, the arc is not wrapped.  The arc will be
+            drawn from *theta1* to *theta2*.
+
+        Notes
+        -----
+           The arc is approximated using cubic Bézier curves, as described in
+           Masionobe, L.  2003.  `Drawing an elliptical arc using polylines,
+           quadratic or cubic Bezier curves
            <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
-        halfpi = np.pi * 0.5
 
         eta1 = theta1
-        eta2 = theta2 - 360 * np.floor((theta2 - theta1) / 360)
-        # Ensure 2pi range is not flattened to 0 due to floating-point errors,
-        # but don't try to expand existing 0 range.
-        if theta2 != theta1 and eta2 <= eta1:
-            eta2 += 360
+        if wrap:
+            # Wrap theta2 to 0-360 degrees from theta1.
+            eta2 = np.mod(theta2 - theta1, 360.0) + theta1
+            print('Eta1, Eta20', eta1, eta2)
+            # Ensure 360-deg range is not flattened to 0 due to floating-point
+            # errors, but don't try to expand existing 0 range.
+            if theta2 != theta1 and eta2 <= eta1:
+                eta2 += 360
+            print('Eta1, Eta2', eta1, eta2)
+        else:
+            eta2 = theta2
         eta1, eta2 = np.deg2rad([eta1, eta2])
 
         # number of curve segments to make
         if n is None:
-            n = int(2 ** np.ceil((eta2 - eta1) / halfpi))
+            if np.abs(eta2 - eta1) <= 2.2 * np.pi:
+                # this doesn't need to grow exponentially, but we have left
+                # this way for back compatibility
+                n = int(2 ** np.ceil(2 * np.abs(eta2 - eta1) / np.pi))
+                print('Here')
+            else:
+                # this will not grow exponentially if we allow wrapping arcs:
+                n = int(2 * np.ceil(2 * np.abs(eta2 - eta1) / np.pi))
         if n < 1:
             raise ValueError("n must be >= 1 or None")
 
@@ -1048,22 +1085,32 @@ class Path:
         return cls(vertices, codes, readonly=True)
 
     @classmethod
-    def wedge(cls, theta1, theta2, n=None):
+    def wedge(cls, theta1, theta2, n=None, wrap=True):
         """
-        Return a `Path` for the unit circle wedge from angles *theta1* to
-        *theta2* (in degrees).
+        Return a `Path` for a counter-clockwise unit circle wedge from angles
+        *theta1* to *theta2* (in degrees).
 
-        *theta2* is unwrapped to produce the shortest wedge within 360 degrees.
-        That is, if *theta2* > *theta1* + 360, the wedge will be from *theta1*
-        to *theta2* - 360 and not a full circle plus some extra overlap.
+        Parameters
+        ----------
+        theta1, theta2 : float
+            The angles (in degrees) defining the start (*theta1*) and end
+            (*theta2*) of the arc. If the arc spans more than 360 degrees, it
+            will be wrapped to fit within the range from *theta1* to *theta1* +
+            360, provided *wrap* is True. The arc is drawn counter-clockwise
+            from *theta1* to *theta2*. For instance, if *theta1* =90 and
+            *theta2* = 70, the resulting arc will span 320 degrees.
 
-        If *n* is provided, it is the number of spline segments to make.
-        If *n* is not provided, the number of spline segments is
-        determined based on the delta between *theta1* and *theta2*.
+        n : int, optional
+            The number of spline segments to make.  If not provided, the number
+            of spline segments is determined based on the delta between
+            *theta1* and *theta2*.
 
-        See `Path.arc` for the reference on the approximation used.
+        wrap : bool, default: True
+            If True, the arc is wrapped to fit between *theta1* and *theta1* +
+            360 degrees.  If False, the arc is not wrapped.  The arc will be
+            drawn from *theta1* to *theta2*.
         """
-        return cls.arc(theta1, theta2, n, True)
+        return cls.arc(theta1, theta2, n, wedge=True, wrap=wrap)
 
     @staticmethod
     @lru_cache(8)

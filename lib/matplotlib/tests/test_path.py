@@ -505,10 +505,27 @@ def test_full_arc(offset):
     high = 360 + offset
 
     path = Path.arc(low, high)
+    print(path.vertices)
     mins = np.min(path.vertices, axis=0)
     maxs = np.max(path.vertices, axis=0)
     np.testing.assert_allclose(mins, -1)
     np.testing.assert_allclose(maxs, 1)
+
+
+@image_comparison(['arc_close360'], style='default', remove_text=True,
+                  extensions=['png'])
+def test_arc_close360():
+    fig, ax = plt.subplots(ncols=3)
+    ax[0].add_patch(patches.PathPatch(Path.arc(theta1=-90 - 1e-14, theta2=270)))
+    #ax[0].set_title("arc(-90-1e-14, 270), should be a circle")
+    ax[1].add_patch(patches.PathPatch(Path.arc(theta1=-90, theta2=270)))
+    #ax[1].set_title("arc(-90, 270), is a circle")
+    ax[2].add_patch(patches.PathPatch(Path.arc(theta1=-90 - 1e-14, theta2=-90)))
+    #ax[2].set_title("arc(-90, -90-1e-14), should not be a circle")
+    for a in ax:
+        a.set_xlim(-1, 1)
+        a.set_ylim(-1, 1)
+        a.set_aspect("equal")
 
 
 def test_disjoint_zero_length_segment():
