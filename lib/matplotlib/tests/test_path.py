@@ -515,7 +515,7 @@ def test_full_arc(offset):
 @image_comparison(['arc_close360'], style='default', remove_text=True,
                   extensions=['png'])
 def test_arc_close360():
-    fig, ax = plt.subplots(ncols=3)
+    _, ax = plt.subplots(ncols=3)
     ax[0].add_patch(patches.PathPatch(Path.arc(theta1=-90 - 1e-14, theta2=270)))
     #ax[0].set_title("arc(-90-1e-14, 270), should be a circle")
     ax[1].add_patch(patches.PathPatch(Path.arc(theta1=-90, theta2=270)))
@@ -526,6 +526,26 @@ def test_arc_close360():
         a.set_xlim(-1, 1)
         a.set_ylim(-1, 1)
         a.set_aspect("equal")
+
+
+@image_comparison(['arc_wrap_false'], style='default', remove_text=True,
+                  extensions=['png'])
+def test_arc_wrap_false():
+    _, ax = plt.subplots(2, 2)
+    ax = ax.flatten()
+    ax[0].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=20,
+                                               is_wedge=True, wrap=True)))
+    ax[1].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=380,
+                                               is_wedge=True, wrap=True)))
+    ax[2].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=20,
+                                               is_wedge=True, wrap=False)))
+    ax[3].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=740,
+                                               is_wedge=True, wrap=False)))
+    for a in ax:
+        a.set_xlim(-1, 1)
+        a.set_ylim(-1, 1)
+        a.set_aspect("equal")
+
 
 
 def test_disjoint_zero_length_segment():

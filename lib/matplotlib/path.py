@@ -1006,22 +1006,20 @@ class Path:
 
         Notes
         -----
-           The arc is approximated using cubic Bézier curves, as described in
-           Masionobe, L.  2003.  `Drawing an elliptical arc using polylines,
-           quadratic or cubic Bezier curves
-           <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
+        The arc is approximated using cubic Bézier curves, as described in
+        Masionobe, L.  2003.  `Drawing an elliptical arc using polylines,
+        quadratic or cubic Bezier curves
+        <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
 
         eta1 = theta1
         if wrap:
             # Wrap theta2 to 0-360 degrees from theta1.
             eta2 = np.mod(theta2 - theta1, 360.0) + theta1
-            print('Eta1, Eta20', eta1, eta2)
             # Ensure 360-deg range is not flattened to 0 due to floating-point
             # errors, but don't try to expand existing 0 range.
             if theta2 != theta1 and eta2 <= eta1:
                 eta2 += 360
-            print('Eta1, Eta2', eta1, eta2)
         else:
             eta2 = theta2
         eta1, eta2 = np.deg2rad([eta1, eta2])
@@ -1032,9 +1030,8 @@ class Path:
                 # this doesn't need to grow exponentially, but we have left
                 # this way for back compatibility
                 n = int(2 ** np.ceil(2 * np.abs(eta2 - eta1) / np.pi))
-                print('Here')
             else:
-                # this will not grow exponentially if we allow wrapping arcs:
+                # this will grow linearly if we allow wrapping arcs:
                 n = int(2 * np.ceil(2 * np.abs(eta2 - eta1) / np.pi))
         if n < 1:
             raise ValueError("n must be >= 1 or None")
