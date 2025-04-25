@@ -228,7 +228,7 @@ class FuncAnimation(TimedAnimation):
         fargs: tuple[Any, ...] | None = ...,
         save_count: int | None = ...,
         *,
-        blit: Literal[True],  # blit=True
+        blit: Literal[True],
         cache_frame_data: bool = ...,
         **kwargs
     ) -> None: ...
