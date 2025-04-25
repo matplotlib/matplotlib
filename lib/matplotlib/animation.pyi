@@ -217,7 +217,7 @@ class FuncAnimation(TimedAnimation):
     ) -> None: ...
 
     @overload
-        def __init__(
+    def __init__(
         self,
         fig: Figure,
         func: Callable[..., Optional[Iterable[Artist]]],  
@@ -231,7 +231,7 @@ class FuncAnimation(TimedAnimation):
         **kwargs
     ) -> None: ...
 
-       @overload
+    @overload
     def __init__(
         self,
         fig: Figure,
