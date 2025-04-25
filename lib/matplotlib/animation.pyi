@@ -232,16 +232,3 @@ class FuncAnimation(TimedAnimation):
         cache_frame_data: bool = ...,
         **kwargs
     ) -> None: ...
-
-    def __init__(
-        self,
-        fig: Figure,
-        func: Callable[..., Iterable[Artist]],
-        frames: Iterable | int | Callable[[], Generator] | None = ...,
-        init_func: Callable[[], Iterable[Artist]] | None = ...,
-        fargs: tuple[Any, ...] | None = ...,
-        save_count: int | None = ...,
-        *,
-        cache_frame_data: bool = ...,
-        **kwargs
-    ) -> None: ...
