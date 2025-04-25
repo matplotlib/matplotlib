@@ -38,6 +38,7 @@ Attributes
 
    Axes.viewLim
    Axes.dataLim
+   Axes.spines
 
 Plotting
 ========
