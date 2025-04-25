@@ -6,7 +6,7 @@ from matplotlib.artist import Artist
 from matplotlib.backend_bases import TimerBase
 from matplotlib.figure import Figure
 
-from typing import Any
+from typing import Optional, Literal, overload, Any
 
 subprocess_creation_flags: int
 
@@ -203,15 +203,32 @@ class ArtistAnimation(TimedAnimation):
     def __init__(self, fig: Figure, artists: Sequence[Collection[Artist]], *args, **kwargs) -> None: ...
 
 class FuncAnimation(TimedAnimation):
+    @overload
     def __init__(
         self,
         fig: Figure,
-        func: Callable[..., Iterable[Artist]],
+        func: Callable[..., Optional[Iterable[Artist]]],  
+        frames: Iterable | int | Callable[[], Generator] | None = ...,
+        init_func: Optional[Callable[[], Optional[Iterable[Artist]]]] = ...,
+        fargs: tuple[Any, ...] | None = ...,
+        save_count: int | None = ...,
+        *,
+        blit: Literal[False] = False, 
+        cache_frame_data: bool = ...,
+        **kwargs
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        fig: Figure,
+        func: Callable[..., Iterable[Artist]],  # must return Iterable[Artist]
         frames: Iterable | int | Callable[[], Generator] | None = ...,
         init_func: Callable[[], Iterable[Artist]] | None = ...,
         fargs: tuple[Any, ...] | None = ...,
         save_count: int | None = ...,
         *,
+        blit: Literal[True],
         cache_frame_data: bool = ...,
         **kwargs
     ) -> None: ...
