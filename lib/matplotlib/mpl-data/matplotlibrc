@@ -278,6 +278,11 @@
 #font.fantasy:    Chicago, Charcoal, Impact, Western, xkcd script, fantasy
 #font.monospace:  DejaVu Sans Mono, Bitstream Vera Sans Mono, Computer Modern Typewriter, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
+## If font.enable_last_resort is True, then Unicode Consortium's Last Resort
+## font will be appended to all font selections. This ensures that there will
+## always be a glyph displayed.
+#font.enable_last_resort: true
+
 
 ## ***************************************************************************
 ## * TEXT                                                                    *
