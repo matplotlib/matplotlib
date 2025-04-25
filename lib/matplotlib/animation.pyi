@@ -207,13 +207,13 @@ class FuncAnimation(TimedAnimation):
     def __init__(
         self,
         fig: Figure,
-        func: Callable[..., Optional[Iterable[Artist]]],  
+        func: Callable[..., Optional[Iterable[Artist]]],
         frames: Iterable | int | Callable[[], Generator] | None = ...,
         init_func: Optional[Callable[[], Optional[Iterable[Artist]]]] = ...,
         fargs: tuple[Any, ...] | None = ...,
         save_count: int | None = ...,
         *,
-        blit: Literal[False] = False, 
+        blit: Literal[False] = False,
         cache_frame_data: bool = ...,
         **kwargs
     ) -> None: ...
