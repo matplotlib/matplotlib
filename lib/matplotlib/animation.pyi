@@ -6,7 +6,7 @@ from matplotlib.artist import Artist
 from matplotlib.backend_bases import TimerBase
 from matplotlib.figure import Figure
 
-from typing import Literal, overload, Any
+from typing import Tuple, Literal, overload, Any
 
 subprocess_creation_flags: int
 
