@@ -231,4 +231,4 @@ class FuncAnimation(TimedAnimation):
         blit: Literal[True],
         cache_frame_data: bool = ...,
         **kwargs: Any
-    ) -> Non
+    ) -> None: ...
