@@ -210,14 +210,14 @@ class FuncAnimation(TimedAnimation):
         func: Callable[..., Iterable[Artist] | None],
         frames: Iterable | int | Callable[[], Generator] | None = ...,
         init_func: Callable[[], Iterable[Artist] | None] | None = ...,
-        fargs: tuple[Any, ...] | None = ...,
+        fargs: Tuple[Any, ...] | None = ...,
         save_count: int | None = ...,
         *,
         blit: Literal[False] = False,
         cache_frame_data: bool = ...,
-        **kwargs
+        **kwargs: Any
     ) -> None: ...
-
+    
     @overload
     def __init__(
         self,
@@ -225,10 +225,10 @@ class FuncAnimation(TimedAnimation):
         func: Callable[..., Iterable[Artist]],
         frames: Iterable | int | Callable[[], Generator] | None = ...,
         init_func: Callable[[], Iterable[Artist] | None] | None = ...,
-        fargs: tuple[Any, ...] | None = ...,
+        fargs: Tuple[Any, ...] | None = ...,
         save_count: int | None = ...,
         *,
         blit: Literal[True],
         cache_frame_data: bool = ...,
-        **kwargs
-    ) -> None: ...
+        **kwargs: Any
+    ) -> Non
