@@ -217,7 +217,7 @@ class FuncAnimation(TimedAnimation):
         cache_frame_data: bool = ...,
         **kwargs: Any
     ) -> None: ...
-    
+
     @overload
     def __init__(
         self,
