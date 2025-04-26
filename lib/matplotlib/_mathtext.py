@@ -14,6 +14,7 @@ import re
 import types
 import unicodedata
 import string
+import textwrap
 import typing as T
 from typing import NamedTuple
 
@@ -1165,12 +1166,16 @@ class List(Box):
         self.glue_sign    = 0    # 0: normal, -1: shrinking, 1: stretching
         self.glue_order   = 0    # The order of infinity (0 - 3) for the glue
 
-    def __repr__(self) -> str:
-        return '{}<w={:.02f} h={:.02f} d={:.02f} s={:.02f}>[{}]'.format(
+    def __repr__(self):
+        return "{}<w={:.02f} h={:.02f} d={:.02f} s={:.02f}>[{}]".format(
             super().__repr__(),
             self.width, self.height,
             self.depth, self.shift_amount,
-            ', '.join([repr(x) for x in self.children]))
+            "\n" + textwrap.indent(
+                "\n".join(map("{!r},".format, self.children)),
+                "  ") + "\n"
+            if self.children else ""
+        )
 
     def _set_glue(self, x: float, sign: int, totals: list[float],
                   error_type: str) -> None:
@@ -1604,7 +1609,7 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
         return -1e9 if value < -1e9 else +1e9 if value > +1e9 else value
 
     def hlist_out(box: Hlist) -> None:
-        nonlocal cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h
 
         cur_g = 0
         cur_glue = 0.
@@ -1667,7 +1672,7 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
                 cur_h += rule_width
 
     def vlist_out(box: Vlist) -> None:
-        nonlocal cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h
 
         cur_g = 0
         cur_glue = 0.
