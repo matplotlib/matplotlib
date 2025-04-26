@@ -1934,8 +1934,15 @@ class Cursor(AxesWidget):
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
             if self.needclear:
+                if self.useblit and self.background is not None:
+                    self.canvas.restore_region(self.background)
+                else:
+                    self.canvas.draw()
+                    self.canvas.restore_region(self.background)
+                    self.canvas.blit(self.ax.bbox)
+            else:
                 self.canvas.draw()
-                self.needclear = False
+            self.needclear = False
             return
         self.needclear = True
         xdata, ydata = self._get_data_coords(event)
