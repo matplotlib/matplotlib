@@ -209,7 +209,7 @@ class FuncAnimation(TimedAnimation):
         fig: Figure,
         func: Callable[..., Optional[Iterable[Artist]]],
         frames: Iterable | int | Callable[[], Generator] | None = ...,
-        init_func: Optional[Callable[[], Optional[Iterable[Artist]]]] = ...,
+        init_func: Callable[[], Iterable[Artist] | None] | None = ...,
         fargs: tuple[Any, ...] | None = ...,
         save_count: int | None = ...,
         *,
@@ -224,7 +224,7 @@ class FuncAnimation(TimedAnimation):
         fig: Figure,
         func: Callable[..., Iterable[Artist]],  # must return Iterable[Artist]
         frames: Iterable | int | Callable[[], Generator] | None = ...,
-        init_func: Callable[[], Iterable[Artist]] | None = ...,
+        init_func: Callable[[], Iterable[Artist] | None] | None = ...,
         fargs: tuple[Any, ...] | None = ...,
         save_count: int | None = ...,
         *,
