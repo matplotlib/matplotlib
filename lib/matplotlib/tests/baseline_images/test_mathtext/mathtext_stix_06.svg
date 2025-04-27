@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:24.235782</dc:date>
+    <dc:date>2025-05-01T07:03:45.571751</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -324,20 +324,20 @@ Q 2125 1619 1690 1875
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Regular-31" transform="translate(0 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(49.999954 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(99.999908 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-25" transform="translate(149.999863 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(224.699799 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(293.166167 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-2a" transform="translate(352.006117 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(416.446059 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(484.912427 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-2f" transform="translate(529.31239 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(557.112362 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(601.512326 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-24" transform="translate(645.912289 0.296875)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(695.912243 0.296875)"/>
+    <use xlink:href="#STIXGeneral-Regular-31"/>
+    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(49.999954 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(99.999908 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-25" transform="translate(149.999863 0)"/>
+    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(224.699799 0)"/>
+    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(293.166167 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-2a" transform="translate(352.006117 0)"/>
+    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(416.446059 0)"/>
+    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(484.912427 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-2f" transform="translate(529.31239 0)"/>
+    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(557.112362 0)"/>
+    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(601.512326 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-24" transform="translate(645.912289 0)"/>
+    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(695.912243 0)"/>
    </g>
   </g>
  </g>

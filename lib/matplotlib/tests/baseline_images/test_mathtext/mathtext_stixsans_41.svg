@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:28.941319</dc:date>
+    <dc:date>2025-05-01T07:03:50.805904</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -630,28 +630,28 @@ Q 3469 2950 4512 2950
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXNonUnicode-Italic-e1d8" transform="translate(0 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1d9" transform="translate(58.599945 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1da" transform="translate(112.099899 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1db" transform="translate(162.399857 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1dc" transform="translate(212.099808 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1dd" transform="translate(261.499756 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1de" transform="translate(304.399719 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1df" transform="translate(353.699677 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1e0" transform="translate(405.499634 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1e2" transform="translate(435.099609 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1e3" transform="translate(488.699554 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1e4" transform="translate(544.7995 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1e5" transform="translate(582.39946 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1e7" transform="translate(625.799423 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1e1" transform="translate(682.299362 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1e8" transform="translate(729.499313 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1ea" transform="translate(782.899261 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1eb" transform="translate(843.599197 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1ec" transform="translate(890.399155 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1f3" transform="translate(941.799103 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1ee" transform="translate(1006.599045 0.59375)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-e1ef" transform="translate(1057.998993 0.59375)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1d8"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1d9" transform="translate(58.599945 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1da" transform="translate(112.099899 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1db" transform="translate(162.399857 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1dc" transform="translate(212.099808 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1dd" transform="translate(261.499756 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1de" transform="translate(304.399719 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1df" transform="translate(353.699677 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1e0" transform="translate(405.499634 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1e2" transform="translate(435.099609 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1e3" transform="translate(488.699554 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1e4" transform="translate(544.7995 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1e5" transform="translate(582.39946 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1e7" transform="translate(625.799423 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1e1" transform="translate(682.299362 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1e8" transform="translate(729.499313 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1ea" transform="translate(782.899261 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1eb" transform="translate(843.599197 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1ec" transform="translate(890.399155 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1f3" transform="translate(941.799103 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1ee" transform="translate(1006.599045 0)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e1ef" transform="translate(1057.998993 0)"/>
    </g>
   </g>
  </g>

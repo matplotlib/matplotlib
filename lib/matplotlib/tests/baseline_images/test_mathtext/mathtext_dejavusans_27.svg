@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:31.391109</dc:date>
+    <dc:date>2025-05-01T07:03:53.983163</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -210,18 +210,18 @@ Q 928 4138 513 4856
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSans-61" transform="translate(0 0.529687)"/>
-    <use xlink:href="#DejaVuSans-72" transform="translate(61.279297 0.529687)"/>
-    <use xlink:href="#DejaVuSans-63" transform="translate(100.392578 0.529687)"/>
-    <use xlink:href="#DejaVuSans-63" transform="translate(155.373047 0.529687)"/>
-    <use xlink:href="#DejaVuSans-6f" transform="translate(210.353516 0.529687)"/>
-    <use xlink:href="#DejaVuSans-73" transform="translate(271.535156 0.529687)"/>
-    <use xlink:href="#DejaVuSans-28" transform="translate(323.634766 0.529687)"/>
-    <use xlink:href="#DejaVuSans-28" transform="translate(362.648438 0.529687)"/>
-    <use xlink:href="#DejaVuSans-Oblique-78" transform="translate(401.662109 0.529687)"/>
-    <use xlink:href="#DejaVuSans-Oblique-69" transform="translate(465.307943 38.810937) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-29" transform="translate(487.49056 0.529687)"/>
-    <use xlink:href="#DejaVuSans-29" transform="translate(526.504232 0.529687)"/>
+    <use xlink:href="#DejaVuSans-61"/>
+    <use xlink:href="#DejaVuSans-72" transform="translate(61.279297 0)"/>
+    <use xlink:href="#DejaVuSans-63" transform="translate(100.392578 0)"/>
+    <use xlink:href="#DejaVuSans-63" transform="translate(155.373047 0)"/>
+    <use xlink:href="#DejaVuSans-6f" transform="translate(210.353516 0)"/>
+    <use xlink:href="#DejaVuSans-73" transform="translate(271.535156 0)"/>
+    <use xlink:href="#DejaVuSans-28" transform="translate(323.634766 0)"/>
+    <use xlink:href="#DejaVuSans-28" transform="translate(362.648438 0)"/>
+    <use xlink:href="#DejaVuSans-Oblique-78" transform="translate(401.662109 0)"/>
+    <use xlink:href="#DejaVuSans-Oblique-69" transform="translate(465.307943 38.28125) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-29" transform="translate(487.49056 0)"/>
+    <use xlink:href="#DejaVuSans-29" transform="translate(526.504232 0)"/>
    </g>
   </g>
  </g>

@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:34.739511</dc:date>
+    <dc:date>2025-05-01T07:03:58.513462</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -347,20 +347,20 @@ Q 1587 5363 550 6630
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXNonUnicode-Italic-e234" transform="translate(0 0.96875)"/>
-    <use xlink:href="#DejaVuSerif-3d" transform="translate(102.064758 0.96875)"/>
-    <use xlink:href="#DejaVuSerifDisplay-222b" transform="translate(204.818665 0.96875)"/>
-    <use xlink:href="#DejaVuSerif-Italic-64" transform="translate(278.451477 0.96875)"/>
-    <use xlink:href="#DejaVuSerif-Italic-3c4" transform="translate(342.465149 0.96875)"/>
-    <use xlink:href="#STIXSizeOneSym-Regular-28" transform="translate(397.787415 -5.28125) scale(0.886865)"/>
-    <use xlink:href="#DejaVuSerif-Italic-3b5" transform="translate(439.285873 0.96875)"/>
-    <use xlink:href="#DejaVuSerif-Italic-45" transform="translate(492.947983 0.96875)"/>
-    <use xlink:href="#DejaVuSerif-32" transform="translate(573.12504 37.303125) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-2b" transform="translate(639.221329 0.96875)"/>
-    <use xlink:href="#DejaVuSerif-Italic-3bc" transform="translate(741.975235 0.96875)"/>
-    <use xlink:href="#DejaVuSerif-Italic-48" transform="translate(806.96547 0.96875)"/>
-    <use xlink:href="#DejaVuSerif-32" transform="translate(901.351511 37.303125) scale(0.7)"/>
-    <use xlink:href="#STIXSizeOneSym-Regular-29" transform="translate(948.482957 -5.28125) scale(0.886865)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-e234"/>
+    <use xlink:href="#DejaVuSerif-3d" transform="translate(102.064758 0)"/>
+    <use xlink:href="#DejaVuSerifDisplay-222b" transform="translate(204.818665 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-64" transform="translate(278.451477 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-3c4" transform="translate(342.465149 0)"/>
+    <use xlink:href="#STIXSizeOneSym-Regular-28" transform="translate(397.787415 -6.25) scale(0.886865)"/>
+    <use xlink:href="#DejaVuSerif-Italic-3b5" transform="translate(439.285873 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-45" transform="translate(492.947983 0)"/>
+    <use xlink:href="#DejaVuSerif-32" transform="translate(573.12504 36.334375) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-2b" transform="translate(639.221329 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-3bc" transform="translate(741.975235 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-48" transform="translate(806.96547 0)"/>
+    <use xlink:href="#DejaVuSerif-32" transform="translate(901.351511 36.334375) scale(0.7)"/>
+    <use xlink:href="#STIXSizeOneSym-Regular-29" transform="translate(948.482957 -6.25) scale(0.886865)"/>
    </g>
   </g>
  </g>

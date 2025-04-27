@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:32.997392</dc:date>
+    <dc:date>2025-05-01T07:03:56.312810</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -118,13 +118,13 @@ L 2868 2388
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSans-2214" transform="translate(0 0.09375)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(83.789062 0.09375)"/>
-    <use xlink:href="#DejaVuSans-2250" transform="translate(115.576172 0.09375)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(199.365234 0.09375)"/>
-    <use xlink:href="#DejaVuSans-2251" transform="translate(231.152344 0.09375)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(314.941406 0.09375)"/>
-    <use xlink:href="#DejaVuSans-22f1" transform="translate(346.728516 0.09375)"/>
+    <use xlink:href="#DejaVuSans-2214"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(83.789062 0)"/>
+    <use xlink:href="#DejaVuSans-2250" transform="translate(115.576172 0)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(199.365234 0)"/>
+    <use xlink:href="#DejaVuSans-2251" transform="translate(231.152344 0)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(314.941406 0)"/>
+    <use xlink:href="#DejaVuSans-22f1" transform="translate(346.728516 0)"/>
    </g>
   </g>
  </g>

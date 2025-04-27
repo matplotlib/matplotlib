@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:27.187191</dc:date>
+    <dc:date>2025-05-01T07:03:48.945780</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -192,24 +192,24 @@ Q 2432 1120 2432 2080
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Italic-3c9" transform="translate(0 1.3875)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(70.143211 36.1625) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-31" transform="translate(105.63256 38.684375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(105.63256 -39.88125) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(154.67581 36.1625) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(154.67581 -25.56875) scale(0.7)"/>
-    <path d="M 0 57.04375 
-L 0 63.29375 
-L 68.59993 63.29375 
-L 68.59993 57.04375 
-L 0 57.04375 
+    <use xlink:href="#STIXGeneral-Italic-3c9" transform="translate(0 0.5)"/>
+    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(70.143211 35.275) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-31" transform="translate(105.63256 37.796875) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(105.63256 -40.76875) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(154.67581 35.275) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(154.67581 -26.45625) scale(0.7)"/>
+    <path d="M 0 56.15625 
+L 0 62.40625 
+L 68.59993 62.40625 
+L 68.59993 56.15625 
+L 0 56.15625 
 z
 "/>
-    <path d="M 105.63256 13.684375 
-L 105.63256 19.934375 
-L 140.632528 19.934375 
-L 140.632528 13.684375 
-L 105.63256 13.684375 
+    <path d="M 105.63256 12.796875 
+L 105.63256 19.046875 
+L 140.632528 19.046875 
+L 140.632528 12.796875 
+L 105.63256 12.796875 
 z
 "/>
    </g>

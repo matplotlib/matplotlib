@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:34.259605</dc:date>
+    <dc:date>2025-05-01T07:03:57.921912</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -128,11 +128,11 @@ L 909 0
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSerif-394" transform="translate(0 0.442187)"/>
-    <use xlink:href="#DejaVuSerif-Italic-6a" transform="translate(73.125156 54.495313) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-Italic-69" transform="translate(73.125156 -25.510938) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-2b" transform="translate(108.788242 -25.510938) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-31" transform="translate(180.715977 -25.510938) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-394"/>
+    <use xlink:href="#DejaVuSerif-Italic-6a" transform="translate(73.125156 54.053125) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-Italic-69" transform="translate(73.125156 -25.953125) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-2b" transform="translate(108.788242 -25.953125) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-31" transform="translate(180.715977 -25.953125) scale(0.7)"/>
    </g>
   </g>
  </g>

@@ -824,7 +824,7 @@ def test_ft2font_drawing():
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
     glyph = font.load_char(ord('M'))
     image = ft2font.FT2Image(expected.shape[1], expected.shape[0])
-    font.draw_glyph_to_bitmap(image, -1, 1, glyph, antialiased=False)
+    font.draw_glyph_to_bitmap(image, -1, 10, glyph, antialiased=False)
     np.testing.assert_array_equal(image, expected)
 
 

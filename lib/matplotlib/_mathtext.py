@@ -9,6 +9,7 @@ import copy
 import enum
 import functools
 import logging
+import math
 import os
 import re
 import types
@@ -128,50 +129,62 @@ class Output:
     def to_vector(self) -> VectorParse:
         w, h, d = map(
             np.ceil, [self.box.width, self.box.height, self.box.depth])
-        gs = [(info.font, info.fontsize, info.num, ox, h - oy + info.offset)
+        gs = [(info.font, info.fontsize, info.num, ox, -oy + info.offset)
               for ox, oy, info in self.glyphs]
-        rs = [(x1, h - y2, x2 - x1, y2 - y1)
+        rs = [(x1, -y2, x2 - x1, y2 - y1)
               for x1, y1, x2, y2 in self.rects]
         return VectorParse(w, h + d, d, gs, rs)
 
     def to_raster(self, *, antialiased: bool) -> RasterParse:
         # Metrics y's and mathtext y's are oriented in opposite directions,
         # hence the switch between ymin and ymax.
-        xmin = min([*[ox + info.metrics.xmin for ox, oy, info in self.glyphs],
-                    *[x1 for x1, y1, x2, y2 in self.rects], 0]) - 1
-        ymin = min([*[oy - info.metrics.ymax for ox, oy, info in self.glyphs],
-                    *[y1 for x1, y1, x2, y2 in self.rects], 0]) - 1
-        xmax = max([*[ox + info.metrics.xmax for ox, oy, info in self.glyphs],
-                    *[x2 for x1, y1, x2, y2 in self.rects], 0]) + 1
-        ymax = max([*[oy - info.metrics.ymin for ox, oy, info in self.glyphs],
-                    *[y2 for x1, y1, x2, y2 in self.rects], 0]) + 1
+        xmin0 = min([*[ox + info.metrics.xmin for ox, oy, info in self.glyphs],
+                     *[x1 for x1, y1, x2, y2 in self.rects], 0])
+        ymin0 = min([*[oy - max(info.metrics.ymax, info.metrics.iceberg)
+                       for ox, oy, info in self.glyphs],
+                     *[y1 for x1, y1, x2, y2 in self.rects], 0])
+        xmax0 = max([*[ox + info.metrics.xmax for ox, oy, info in self.glyphs],
+                     *[x2 for x1, y1, x2, y2 in self.rects], 0])
+        ymax0 = max([*[oy - info.metrics.ymin for ox, oy, info in self.glyphs],
+                     *[y2 for x1, y1, x2, y2 in self.rects], 0])
+        # Rasterizing can leak into the neighboring pixel, hence the +/-1; it
+        # will be cropped at the end.
+        xmin = math.floor(xmin0 - 1)
+        ymin = math.floor(ymin0 - 1)
+        xmax = math.ceil(xmax0 + 1)
+        ymax = math.ceil(ymax0 + 1)
         w = xmax - xmin
-        h = ymax - ymin - self.box.depth
-        d = ymax - ymin - self.box.height
-        image = FT2Image(int(np.ceil(w)), int(np.ceil(h + max(d, 0))))
+        h = max(-ymin, 0)
+        d = max(ymax, 0)
+        image = FT2Image(w, h + d)
 
-        # Ideally, we could just use self.glyphs and self.rects here, shifting
-        # their coordinates by (-xmin, -ymin), but this yields slightly
-        # different results due to floating point slop; shipping twice is the
-        # old approach and keeps baseline images backcompat.
-        shifted = ship(self.box, (-xmin, -ymin))
-
-        for ox, oy, info in shifted.glyphs:
+        for ox, oy, info in self.glyphs:
+            ox -= xmin
+            oy -= (-h + info.offset)
             info.font.draw_glyph_to_bitmap(
-                image,
-                int(ox),
-                int(oy - np.ceil(info.metrics.iceberg)),
-                info.glyph,
-                antialiased=antialiased)
-        for x1, y1, x2, y2 in shifted.rects:
+                image, ox, oy, info.glyph, antialiased=antialiased)
+        for x1, y1, x2, y2 in self.rects:
+            x1 -= xmin
+            x2 -= xmin
+            y1 -= -h
+            y2 -= -h
             height = max(int(y2 - y1) - 1, 0)
             if height == 0:
                 center = (y2 + y1) / 2
                 y = int(center - (height + 1) / 2)
             else:
                 y = int(y1)
-            image.draw_rect_filled(int(x1), y, int(np.ceil(x2)), y + height)
-        return RasterParse(0, 0, w, h + d, d, image)
+            image.draw_rect_filled(int(x1), y, math.ceil(x2), y + height)
+
+        image = np.asarray(image)
+        while h and (image[0] == 0).all():
+            image = image[1:]
+            h -= 1
+        while d and (image[-1] == 0).all():
+            image = image[:-1]
+            d -= 1
+        return RasterParse(
+            xmin - xmin0, d - ymax0, xmax0 - xmin0, ymax0 - ymin0, d, image)
 
 
 class FontMetrics(NamedTuple):
@@ -1607,7 +1620,7 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
     cur_v = 0.
     cur_h = 0.
     off_h = ox
-    off_v = oy + box.height
+    off_v = oy
     output = Output(box)
 
     def clamp(value: float) -> float:

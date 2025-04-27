@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:31.776222</dc:date>
+    <dc:date>2025-05-01T07:03:54.461147</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -241,14 +241,14 @@ L 3059 4863
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXSizeFourSym-Regular-302" transform="translate(217.340332 34.140625) scale(0.953034)"/>
-    <use xlink:href="#DejaVuSans-Oblique-61" transform="translate(0 0.265625)"/>
-    <use xlink:href="#DejaVuSans-Oblique-62" transform="translate(61.279297 0.265625)"/>
-    <use xlink:href="#DejaVuSans-Oblique-63" transform="translate(124.755859 0.265625)"/>
-    <use xlink:href="#STIXSizeFourSym-Regular-303" transform="translate(373.053223 37.109375) scale(0.849472)"/>
-    <use xlink:href="#DejaVuSans-Oblique-64" transform="translate(179.736328 0.265625)"/>
-    <use xlink:href="#DejaVuSans-Oblique-65" transform="translate(243.212891 0.265625)"/>
-    <use xlink:href="#DejaVuSans-Oblique-66" transform="translate(304.736328 0.265625)"/>
+    <use xlink:href="#STIXSizeFourSym-Regular-302" transform="translate(217.340332 33.875) scale(0.953034)"/>
+    <use xlink:href="#DejaVuSans-Oblique-61"/>
+    <use xlink:href="#DejaVuSans-Oblique-62" transform="translate(61.279297 0)"/>
+    <use xlink:href="#DejaVuSans-Oblique-63" transform="translate(124.755859 0)"/>
+    <use xlink:href="#STIXSizeFourSym-Regular-303" transform="translate(373.053223 36.84375) scale(0.849472)"/>
+    <use xlink:href="#DejaVuSans-Oblique-64" transform="translate(179.736328 0)"/>
+    <use xlink:href="#DejaVuSans-Oblique-65" transform="translate(243.212891 0)"/>
+    <use xlink:href="#DejaVuSans-Oblique-66" transform="translate(304.736328 0)"/>
    </g>
   </g>
  </g>

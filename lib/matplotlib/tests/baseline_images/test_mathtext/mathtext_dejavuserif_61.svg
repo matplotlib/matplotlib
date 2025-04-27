@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:35.659272</dc:date>
+    <dc:date>2025-05-03T02:24:03.548404</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+g578ea94844, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -220,13 +220,13 @@ L 1141 1497
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSerif-Italic-78" transform="translate(0 0.280156)"/>
-    <use xlink:href="#DejaVuSerif-Italic-7a" transform="translate(60.635495 60.333594) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-Italic-64" transform="translate(100.730747 85.767656) scale(0.49)"/>
-    <use xlink:href="#DejaVuSerif-Italic-63" transform="translate(97.515378 42.166406) scale(0.49)"/>
-    <use xlink:href="#DejaVuSerif-Italic-79" transform="translate(56.396484 -25.672969) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-Italic-61" transform="translate(98.90969 2.838906) scale(0.49)"/>
-    <use xlink:href="#DejaVuSerif-Italic-62" transform="translate(95.942383 -43.840156) scale(0.49)"/>
+    <use xlink:href="#DejaVuSerif-Italic-78"/>
+    <use xlink:href="#DejaVuSerif-Italic-7a" transform="translate(60.635495 60.053438) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-Italic-64" transform="translate(100.730747 85.4875) scale(0.49)"/>
+    <use xlink:href="#DejaVuSerif-Italic-63" transform="translate(97.515378 41.88625) scale(0.49)"/>
+    <use xlink:href="#DejaVuSerif-Italic-79" transform="translate(56.396484 -25.953125) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-Italic-61" transform="translate(98.90969 2.55875) scale(0.49)"/>
+    <use xlink:href="#DejaVuSerif-Italic-62" transform="translate(95.942383 -44.120313) scale(0.49)"/>
    </g>
   </g>
  </g>

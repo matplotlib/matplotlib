@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:26.849809</dc:date>
+    <dc:date>2025-05-01T07:03:48.603845</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -158,15 +158,15 @@ L 5766 1408
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Regular-22d3" transform="translate(0 0.40625)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(61.999939 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-22d2" transform="translate(93.787048 0.40625)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(155.786987 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-21bc" transform="translate(202.014084 0.40625)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(311.953979 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-22bc" transform="translate(343.741089 0.40625)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(405.741028 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-21c0" transform="translate(451.968124 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-22d3"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(61.999939 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-22d2" transform="translate(93.787048 0)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(155.786987 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-21bc" transform="translate(202.014084 0)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(311.953979 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-22bc" transform="translate(343.741089 0)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(405.741028 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-21c0" transform="translate(451.968124 0)"/>
    </g>
   </g>
  </g>

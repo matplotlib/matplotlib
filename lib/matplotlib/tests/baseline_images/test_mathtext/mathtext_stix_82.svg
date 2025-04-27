@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:27.321207</dc:date>
+    <dc:date>2025-05-01T07:03:49.100425</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -168,19 +168,19 @@ Q 1472 1632 1555 1190
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Regular-24" transform="translate(0 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-31" transform="translate(49.999954 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(99.999908 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(149.999863 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-2e" transform="translate(199.999817 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(224.999786 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(274.999741 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(140 -36.75)"/>
-    <path d="M 0 13.59375 
-L 0 19.84375 
-L 324.999695 19.84375 
-L 324.999695 13.59375 
-L 0 13.59375 
+    <use xlink:href="#STIXGeneral-Regular-24" transform="translate(0 46.5)"/>
+    <use xlink:href="#STIXGeneral-Regular-31" transform="translate(49.999954 46.5)"/>
+    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(99.999908 46.5)"/>
+    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(149.999863 46.5)"/>
+    <use xlink:href="#STIXGeneral-Regular-2e" transform="translate(199.999817 46.5)"/>
+    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(224.999786 46.5)"/>
+    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(274.999741 46.5)"/>
+    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(140 -37.546875)"/>
+    <path d="M 0 12.796875 
+L 0 19.046875 
+L 324.999695 19.046875 
+L 324.999695 12.796875 
+L 0 12.796875 
 z
 "/>
    </g>

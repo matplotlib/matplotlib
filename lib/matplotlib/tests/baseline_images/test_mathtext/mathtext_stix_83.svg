@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2024-05-08T19:52:30.625389</dc:date>
+    <dc:date>2025-05-01T07:03:49.159021</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.10.0.dev150+gec4808956b.d20240508, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -147,12 +147,12 @@ Q 1971 403 2240 685
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Italic-61" transform="translate(0 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Regular-3d" transform="translate(64.539987 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(147.479968 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-62" transform="translate(215.979953 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(280.419934 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-63" transform="translate(363.359915 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-61"/>
+    <use xlink:href="#STIXGeneral-Regular-3d" transform="translate(64.539932 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(147.479858 0)"/>
+    <use xlink:href="#STIXGeneral-Italic-62" transform="translate(215.979797 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(280.419739 0)"/>
+    <use xlink:href="#STIXGeneral-Italic-63" transform="translate(363.359665 0)"/>
    </g>
   </g>
  </g>

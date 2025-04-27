@@ -180,7 +180,7 @@ class RendererAgg(RendererBase):
         yd = descent * cos(radians(angle))
         x = round(x + ox + xd)
         y = round(y - oy + yd)
-        self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
+        self._renderer.draw_text_image(font_image, x, y, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited

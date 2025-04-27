@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:35.924733</dc:date>
+    <dc:date>2025-05-03T02:24:03.896696</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+g578ea94844, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -61,18 +61,18 @@ L -97 0
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(0 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(118.196931 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(236.393861 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(354.590792 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(478.055208 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(601.519624 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(730.252474 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(864.252809 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(1014.057496 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(1211.274293 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(1503.315309 0.09375)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(1589.903534 0.09375)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(118.196931 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(236.393861 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(354.590792 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(478.055208 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(601.519624 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(730.252474 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(864.252809 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(1014.057496 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(1211.274293 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(1503.315309 0)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4d" transform="translate(1589.903534 0)"/>
    </g>
   </g>
  </g>

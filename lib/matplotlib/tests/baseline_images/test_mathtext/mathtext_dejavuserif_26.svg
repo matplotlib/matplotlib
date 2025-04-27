@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:34.301579</dc:date>
+    <dc:date>2025-05-01T07:03:57.957847</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -273,20 +273,20 @@ Q 3169 3094 2916 3094
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSerif-308" transform="translate(62.535645 1.5625)"/>
-    <use xlink:href="#DejaVuSerif-Italic-6f" transform="translate(0 0.921875)"/>
-    <use xlink:href="#DejaVuSerif-301" transform="translate(116.8125 5.125)"/>
-    <use xlink:href="#DejaVuSerif-Italic-65" transform="translate(60.205078 0.921875)"/>
-    <use xlink:href="#DejaVuSerif-300" transform="translate(186.585938 5.21875)"/>
-    <use xlink:href="#DejaVuSerif-Italic-65" transform="translate(119.384766 0.921875)"/>
-    <use xlink:href="#DejaVuSerif-302" transform="translate(254.638184 26.015625)"/>
-    <use xlink:href="#DejaVuSerif-Italic-4f" transform="translate(178.564453 0.921875)"/>
-    <use xlink:href="#DejaVuSerif-306" transform="translate(305.82373 0.828125)"/>
-    <use xlink:href="#DejaVuSerif-Italic-131" transform="translate(260.546875 0.921875)"/>
-    <use xlink:href="#DejaVuSerif-303" transform="translate(358.036621 2.828125)"/>
-    <use xlink:href="#DejaVuSerif-Italic-6e" transform="translate(292.529297 0.921875)"/>
-    <use xlink:href="#STIXGeneral-Regular-20d7" transform="translate(420.233887 12)"/>
-    <use xlink:href="#DejaVuSerif-Italic-71" transform="translate(356.933594 0.921875)"/>
+    <use xlink:href="#DejaVuSerif-308" transform="translate(62.535645 0.640625)"/>
+    <use xlink:href="#DejaVuSerif-Italic-6f"/>
+    <use xlink:href="#DejaVuSerif-301" transform="translate(116.8125 4.203125)"/>
+    <use xlink:href="#DejaVuSerif-Italic-65" transform="translate(60.205078 0)"/>
+    <use xlink:href="#DejaVuSerif-300" transform="translate(186.585938 4.296875)"/>
+    <use xlink:href="#DejaVuSerif-Italic-65" transform="translate(119.384766 0)"/>
+    <use xlink:href="#DejaVuSerif-302" transform="translate(254.638184 25.09375)"/>
+    <use xlink:href="#DejaVuSerif-Italic-4f" transform="translate(178.564453 0)"/>
+    <use xlink:href="#DejaVuSerif-306" transform="translate(305.82373 -0.09375)"/>
+    <use xlink:href="#DejaVuSerif-Italic-131" transform="translate(260.546875 0)"/>
+    <use xlink:href="#DejaVuSerif-303" transform="translate(358.036621 1.90625)"/>
+    <use xlink:href="#DejaVuSerif-Italic-6e" transform="translate(292.529297 0)"/>
+    <use xlink:href="#STIXGeneral-Regular-20d7" transform="translate(420.233887 11.078125)"/>
+    <use xlink:href="#DejaVuSerif-Italic-71" transform="translate(356.933594 0)"/>
    </g>
   </g>
  </g>

@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-04-26T05:32:28.889874</dc:date>
+    <dc:date>2025-05-01T07:03:50.758528</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev737+g5bcde287de, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -266,17 +266,17 @@ L 4576 557
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXNonUnicode-Regular-e17f" transform="translate(0 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e180" transform="translate(53.499954 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e184" transform="translate(120.099884 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e187" transform="translate(191.499817 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e18a" transform="translate(258.099747 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e18c" transform="translate(322.399689 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e18f" transform="translate(388.199631 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e191" transform="translate(450.599579 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e192" transform="translate(519.599518 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e194" transform="translate(591.199448 0.90625)"/>
-    <use xlink:href="#STIXNonUnicode-Regular-e195" transform="translate(663.59938 0.90625)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e17f"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e180" transform="translate(53.499954 0)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e184" transform="translate(120.099884 0)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e187" transform="translate(191.499817 0)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e18a" transform="translate(258.099747 0)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e18c" transform="translate(322.399689 0)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e18f" transform="translate(388.199631 0)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e191" transform="translate(450.599579 0)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e192" transform="translate(519.599518 0)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e194" transform="translate(591.199448 0)"/>
+    <use xlink:href="#STIXNonUnicode-Regular-e195" transform="translate(663.59938 0)"/>
    </g>
   </g>
  </g>
