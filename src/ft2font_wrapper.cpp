@@ -1467,144 +1467,6 @@ PyFT2Font__get_type1_encoding_vector(PyFT2Font *self)
     return indices;
 }
 
-static const char *
-PyFT2Font_postscript_name(PyFT2Font *self)
-{
-    const char *ps_name = FT_Get_Postscript_Name(self->x->get_face());
-    if (ps_name == nullptr) {
-        ps_name = "UNAVAILABLE";
-    }
-
-    return ps_name;
-}
-
-static FT_Long
-PyFT2Font_num_faces(PyFT2Font *self)
-{
-    return self->x->get_face()->num_faces;
-}
-
-static const char *
-PyFT2Font_family_name(PyFT2Font *self)
-{
-    const char *name = self->x->get_face()->family_name;
-    if (name == nullptr) {
-        name = "UNAVAILABLE";
-    }
-    return name;
-}
-
-static const char *
-PyFT2Font_style_name(PyFT2Font *self)
-{
-    const char *name = self->x->get_face()->style_name;
-    if (name == nullptr) {
-        name = "UNAVAILABLE";
-    }
-    return name;
-}
-
-static FaceFlags
-PyFT2Font_face_flags(PyFT2Font *self)
-{
-    return static_cast<FaceFlags>(self->x->get_face()->face_flags);
-}
-
-static StyleFlags
-PyFT2Font_style_flags(PyFT2Font *self)
-{
-    return static_cast<StyleFlags>(self->x->get_face()->style_flags & 0xffff);
-}
-
-static FT_Long
-PyFT2Font_num_named_instances(PyFT2Font *self)
-{
-    return (self->x->get_face()->style_flags & 0x7fff0000) >> 16;
-}
-
-static FT_Long
-PyFT2Font_num_glyphs(PyFT2Font *self)
-{
-    return self->x->get_face()->num_glyphs;
-}
-
-static FT_Int
-PyFT2Font_num_fixed_sizes(PyFT2Font *self)
-{
-    return self->x->get_face()->num_fixed_sizes;
-}
-
-static FT_Int
-PyFT2Font_num_charmaps(PyFT2Font *self)
-{
-    return self->x->get_face()->num_charmaps;
-}
-
-static bool
-PyFT2Font_scalable(PyFT2Font *self)
-{
-    if (FT_IS_SCALABLE(self->x->get_face())) {
-        return true;
-    }
-    return false;
-}
-
-static FT_UShort
-PyFT2Font_units_per_EM(PyFT2Font *self)
-{
-    return self->x->get_face()->units_per_EM;
-}
-
-static py::tuple
-PyFT2Font_get_bbox(PyFT2Font *self)
-{
-    FT_BBox *bbox = &(self->x->get_face()->bbox);
-
-    return py::make_tuple(bbox->xMin, bbox->yMin, bbox->xMax, bbox->yMax);
-}
-
-static FT_Short
-PyFT2Font_ascender(PyFT2Font *self)
-{
-    return self->x->get_face()->ascender;
-}
-
-static FT_Short
-PyFT2Font_descender(PyFT2Font *self)
-{
-    return self->x->get_face()->descender;
-}
-
-static FT_Short
-PyFT2Font_height(PyFT2Font *self)
-{
-    return self->x->get_face()->height;
-}
-
-static FT_Short
-PyFT2Font_max_advance_width(PyFT2Font *self)
-{
-    return self->x->get_face()->max_advance_width;
-}
-
-static FT_Short
-PyFT2Font_max_advance_height(PyFT2Font *self)
-{
-    return self->x->get_face()->max_advance_height;
-}
-
-static FT_Short
-PyFT2Font_underline_position(PyFT2Font *self)
-{
-    return self->x->get_face()->underline_position;
-}
-
-static FT_Short
-PyFT2Font_underline_thickness(PyFT2Font *self)
-{
-    return self->x->get_face()->underline_thickness;
-}
-
 static py::object
 ft2font__getattr__(std::string name) {
     auto api = py::module_::import("matplotlib._api");
@@ -1790,50 +1652,104 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("_get_type1_encoding_vector", &PyFT2Font__get_type1_encoding_vector,
              PyFT2Font__get_type1_encoding_vector__doc__)
 
-        .def_property_readonly("postscript_name", &PyFT2Font_postscript_name,
-                               "PostScript name of the font.")
-        .def_property_readonly("num_faces", &PyFT2Font_num_faces,
-                               "Number of faces in file.")
-        .def_property_readonly("family_name", &PyFT2Font_family_name,
-                               "Face family name.")
-        .def_property_readonly("style_name", &PyFT2Font_style_name,
-                               "Style name.")
-        .def_property_readonly("face_flags", &PyFT2Font_face_flags,
-                               "Face flags; see `.FaceFlags`.")
-        .def_property_readonly("style_flags", &PyFT2Font_style_flags,
-                               "Style flags; see `.StyleFlags`.")
-        .def_property_readonly("num_named_instances", &PyFT2Font_num_named_instances,
-                               "Number of named instances in the face.")
-        .def_property_readonly("num_glyphs", &PyFT2Font_num_glyphs,
-                               "Number of glyphs in the face.")
-        .def_property_readonly("num_fixed_sizes", &PyFT2Font_num_fixed_sizes,
-                               "Number of bitmap in the face.")
-        .def_property_readonly("num_charmaps", &PyFT2Font_num_charmaps,
-                               "Number of charmaps in the face.")
-        .def_property_readonly("scalable", &PyFT2Font_scalable,
-                               "Whether face is scalable; attributes after this one "
-                               "are only defined for scalable faces.")
-        .def_property_readonly("units_per_EM", &PyFT2Font_units_per_EM,
-                               "Number of font units covered by the EM.")
-        .def_property_readonly("bbox", &PyFT2Font_get_bbox,
-                               "Face global bounding box (xmin, ymin, xmax, ymax).")
-        .def_property_readonly("ascender", &PyFT2Font_ascender,
-                               "Ascender in 26.6 units.")
-        .def_property_readonly("descender", &PyFT2Font_descender,
-                               "Descender in 26.6 units.")
-        .def_property_readonly("height", &PyFT2Font_height,
-                               "Height in 26.6 units; used to compute a default line "
-                               "spacing (baseline-to-baseline distance).")
-        .def_property_readonly("max_advance_width", &PyFT2Font_max_advance_width,
-                               "Maximum horizontal cursor advance for all glyphs.")
-        .def_property_readonly("max_advance_height", &PyFT2Font_max_advance_height,
-                               "Maximum vertical cursor advance for all glyphs.")
-        .def_property_readonly("underline_position", &PyFT2Font_underline_position,
-                               "Vertical position of the underline bar.")
-        .def_property_readonly("underline_thickness", &PyFT2Font_underline_thickness,
-                               "Thickness of the underline bar.")
-        .def_property_readonly("fname", &PyFT2Font_fname,
-                               "The original filename for this object.")
+        .def_property_readonly(
+          "postscript_name", [](PyFT2Font *self) {
+            if (const char *name = FT_Get_Postscript_Name(self->x->get_face())) {
+              return name;
+            } else {
+              return "UNAVAILABLE";
+            }
+          }, "PostScript name of the font.")
+        .def_property_readonly(
+          "num_faces", [](PyFT2Font *self) {
+            return self->x->get_face()->num_faces;
+          }, "Number of faces in file.")
+        .def_property_readonly(
+          "family_name", [](PyFT2Font *self) {
+            if (const char *name = self->x->get_face()->family_name) {
+              return name;
+            } else {
+              return "UNAVAILABLE";
+            }
+          }, "Face family name.")
+        .def_property_readonly(
+          "style_name", [](PyFT2Font *self) {
+            if (const char *name = self->x->get_face()->style_name) {
+              return name;
+            } else {
+              return "UNAVAILABLE";
+            }
+          }, "Style name.")
+        .def_property_readonly(
+          "face_flags", [](PyFT2Font *self) {
+            return static_cast<FaceFlags>(self->x->get_face()->face_flags);
+          }, "Face flags; see `.FaceFlags`.")
+        .def_property_readonly(
+          "style_flags", [](PyFT2Font *self) {
+            return static_cast<StyleFlags>(self->x->get_face()->style_flags & 0xffff);
+          }, "Style flags; see `.StyleFlags`.")
+        .def_property_readonly(
+          "num_named_instances", [](PyFT2Font *self) {
+            return (self->x->get_face()->style_flags & 0x7fff0000) >> 16;
+          }, "Number of named instances in the face.")
+        .def_property_readonly(
+          "num_glyphs", [](PyFT2Font *self) {
+            return self->x->get_face()->num_glyphs;
+          }, "Number of glyphs in the face.")
+        .def_property_readonly(
+          "num_fixed_sizes", [](PyFT2Font *self) {
+            return self->x->get_face()->num_fixed_sizes;
+          }, "Number of bitmap in the face.")
+        .def_property_readonly(
+          "num_charmaps", [](PyFT2Font *self) {
+            return self->x->get_face()->num_charmaps;
+          }, "Number of charmaps in the face.")
+        .def_property_readonly(
+          "scalable", [](PyFT2Font *self) {
+            return bool(FT_IS_SCALABLE(self->x->get_face()));
+          }, "Whether face is scalable; attributes after this one "
+             "are only defined for scalable faces.")
+        .def_property_readonly(
+          "units_per_EM", [](PyFT2Font *self) {
+            return self->x->get_face()->units_per_EM;
+          }, "Number of font units covered by the EM.")
+        .def_property_readonly(
+          "bbox", [](PyFT2Font *self) {
+            FT_BBox bbox = self->x->get_face()->bbox;
+            return py::make_tuple(bbox.xMin, bbox.yMin, bbox.xMax, bbox.yMax);
+          }, "Face global bounding box (xmin, ymin, xmax, ymax).")
+        .def_property_readonly(
+          "ascender", [](PyFT2Font *self) {
+            return self->x->get_face()->ascender;
+          }, "Ascender in 26.6 units.")
+        .def_property_readonly(
+          "descender", [](PyFT2Font *self) {
+            return self->x->get_face()->descender;
+          }, "Descender in 26.6 units.")
+        .def_property_readonly(
+          "height", [](PyFT2Font *self) {
+            return self->x->get_face()->height;
+          }, "Height in 26.6 units; used to compute a default line spacing "
+             "(baseline-to-baseline distance).")
+        .def_property_readonly(
+          "max_advance_width", [](PyFT2Font *self) {
+            return self->x->get_face()->max_advance_width;
+          }, "Maximum horizontal cursor advance for all glyphs.")
+        .def_property_readonly(
+          "max_advance_height", [](PyFT2Font *self) {
+            return self->x->get_face()->max_advance_height;
+          }, "Maximum vertical cursor advance for all glyphs.")
+        .def_property_readonly(
+          "underline_position", [](PyFT2Font *self) {
+            return self->x->get_face()->underline_position;
+          }, "Vertical position of the underline bar.")
+        .def_property_readonly(
+          "underline_thickness", [](PyFT2Font *self) {
+            return self->x->get_face()->underline_thickness;
+          }, "Thickness of the underline bar.")
+        .def_property_readonly(
+          "fname", &PyFT2Font_fname,
+          "The original filename for this object.")
 
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
             FT2Image &im = self.x->get_image();
