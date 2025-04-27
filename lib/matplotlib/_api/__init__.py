@@ -25,6 +25,15 @@ from .deprecation import (  # noqa: F401
     MatplotlibDeprecationWarning)
 
 
+# A sentinel value for optional arguments, when None cannot be used as
+# default because we need to distinguish between None passed explicitly
+# and parameter not given. Usage: def foo(arg=_api.UNSET):
+class _Unset:
+    def __repr__(self):
+        return "<UNSET>"
+UNSET = _Unset()
+
+
 class classproperty:
     """
     Like `property`, but also triggers on access via the class, and it is the
