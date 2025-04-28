@@ -2680,8 +2680,8 @@ class BoxStyle(_Style):
         def __call__(self, x0, y0, width, height, mutation_size):
             # scaled padding
             pad = mutation_size * self.pad
-            # add padding to width and height
-            width, height = width + 2 * pad, height + 2 * pad
+            # add padding to height
+            height = height + 2 * pad
             # boundary points of the padded box (arrow tail/body)
             x0, y0 = x0 - pad, y0 - pad
             x1, y1 = x0 + width, y0 + height
