@@ -2683,7 +2683,7 @@ class BoxStyle(_Style):
             # add padding to width and height
             width, height = width + 2 * pad, height + 2 * pad
             # boundary points of the padded box (arrow tail/body)
-            x0, y0 = x0 - pad, y0 - pad,
+            x0, y0 = x0 - pad, y0 - pad
             x1, y1 = x0 + width, y0 + height
             # half-width and quarter-width of arrow tail
             dx = (y1 - y0) / 2
