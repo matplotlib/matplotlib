@@ -9764,3 +9764,12 @@ def test_caps_no_ecolor():
     # Tesrts if the caps have the default color (blue)
     for cap in errorbars[2]:
         assert mcolors.same_color(cap.get_edgecolor(), "blue")
+
+
+def test_pie_non_finite_values():
+    fig, ax = plt.subplots()
+    df = [5, float('nan'), float('inf')]
+
+    with pytest.raises(ValueError, match='Wedge sizes must be finite numbers'):
+        ax.pie(df, labels=['A', 'B', 'C'])
+
