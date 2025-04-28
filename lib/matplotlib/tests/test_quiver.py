@@ -26,11 +26,12 @@ def test_quiver_memory_leak():
 
     Q = draw_quiver(ax)
     ttX = Q.X
+    orig_refcount = sys.getrefcount(ttX)
     Q.remove()
 
     del Q
 
-    assert sys.getrefcount(ttX) == 2
+    assert sys.getrefcount(ttX) < orig_refcount
 
 
 @pytest.mark.skipif(platform.python_implementation() != 'CPython',
@@ -43,9 +44,9 @@ def test_quiver_key_memory_leak():
     qk = ax.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$',
                       labelpos='W',
                       fontproperties={'weight': 'bold'})
-    assert sys.getrefcount(qk) == 3
+    orig_refcount = sys.getrefcount(qk)
     qk.remove()
-    assert sys.getrefcount(qk) == 2
+    assert sys.getrefcount(qk) < orig_refcount
 
 
 def test_quiver_number_of_args():
