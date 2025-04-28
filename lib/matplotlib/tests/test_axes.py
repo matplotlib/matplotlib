@@ -9772,4 +9772,3 @@ def test_pie_non_finite_values():
 
     with pytest.raises(ValueError, match='Wedge sizes must be finite numbers'):
         ax.pie(df, labels=['A', 'B', 'C'])
-
