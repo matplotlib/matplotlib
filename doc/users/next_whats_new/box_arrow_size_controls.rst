@@ -34,13 +34,13 @@ with 'backwards' heads may be created.
 
     # head_width=1 gives 'road-sign' shape
     t1 = ax.text(-1, 35, "Primary maximum",
-                ha="right", va="center", rotation=30, size=12,
+                ha="right", va="center", rotation=30, size=10,
                 bbox=dict(boxstyle="rarrow,pad=0.3,head_width=1,head_angle=60",
                         fc="lightblue", ec="steelblue", lw=2))
 
     # Negative head_angle gives reversed arrow heads
-    t2 = ax.text(np.pi, 30, "Lower intensity",
-                ha="center", va="center", rotation=0, size=12,
+    t2 = ax.text(np.pi, 30, " Lower intensity  ",
+                ha="center", va="center", rotation=0, size=10,
                 bbox=dict(boxstyle="darrow,pad=0.3,head_width=2,head_angle=-80",
                         fc="lightblue", ec="steelblue", lw=2))
 
