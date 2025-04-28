@@ -67,8 +67,9 @@ def update(frame_number):
     scat.set_edgecolors(rain_drops['color'])
     scat.set_sizes(rain_drops['size'])
     scat.set_offsets(rain_drops['position'])
+    return [scat]
 
 
 # Construct the animation, using the update function as the animation director.
-animation = FuncAnimation(fig, update, interval=10, save_count=100)
+animation = FuncAnimation(fig, update, interval=10, save_count=100, blit=True)
 plt.show()
