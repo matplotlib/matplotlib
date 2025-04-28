@@ -13,6 +13,7 @@ pytest.importorskip('ipykernel')
 # From https://blog.thedataincubator.com/2016/06/testing-jupyter-notebooks/
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_ipynb():
     nb_path = Path(__file__).parent / 'test_nbagg_01.ipynb'
 

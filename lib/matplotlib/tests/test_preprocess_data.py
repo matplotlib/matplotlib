@@ -245,6 +245,7 @@ def test_docstring_addition():
                          funcy.__doc__)
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_data_parameter_replacement():
     """
     Test that the docstring contains the correct *data* parameter stub

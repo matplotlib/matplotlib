@@ -25,6 +25,7 @@ def _test_cached_renderer():
 
 
 @pytest.mark.backend('macosx', skip_on_importerror=True)
+@pytest.mark.xdist_group(name="subprocess")
 def test_cached_renderer():
     subprocess_run_helper(_test_cached_renderer, timeout=_test_timeout,
                           extra_env={"MPLBACKEND": "macosx"})
@@ -55,6 +56,7 @@ def _test_savefig_rcparam():
 
 
 @pytest.mark.backend('macosx', skip_on_importerror=True)
+@pytest.mark.xdist_group(name="subprocess")
 def test_savefig_rcparam(tmp_path):
     subprocess_run_helper(
         _test_savefig_rcparam, timeout=_test_timeout,
@@ -62,6 +64,7 @@ def test_savefig_rcparam(tmp_path):
 
 
 @pytest.mark.backend('macosx', skip_on_importerror=True)
+@pytest.mark.xdist_group(name="subprocess")
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
     ipython_in_subprocess("osx", {(8, 24): "macosx", (7, 0): "MacOSX"})
@@ -81,6 +84,7 @@ def _test_save_figure_return():
 
 
 @pytest.mark.backend('macosx', skip_on_importerror=True)
+@pytest.mark.xdist_group(name="subprocess")
 def test_save_figure_return():
     subprocess_run_helper(_test_save_figure_return, timeout=_test_timeout,
                           extra_env={"MPLBACKEND": "macosx"})

@@ -12,6 +12,7 @@ pytest.importorskip('ipykernel')
 pytest.importorskip('matplotlib_inline')
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_ipynb():
     nb_path = Path(__file__).parent / 'test_inline_01.ipynb'
 

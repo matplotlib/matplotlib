@@ -149,6 +149,7 @@ stages:
 
               PYTHONFAULTHANDLER=1 pytest -rfEsXR -n 2 \
                   --maxfail=50 --timeout=300 --durations=25 \
+                  --dist=loadgroup \
                   --junitxml=junit/test-results.xml --cov-report=xml --cov=lib
 
               if [[ $VS_VER == 2022 ]]; then

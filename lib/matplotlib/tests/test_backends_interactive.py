@@ -636,6 +636,7 @@ def _fallback_check():
     matplotlib.pyplot.figure()
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_fallback_to_different_backend():
     pytest.importorskip("IPython")
     # Runs the process that caused the GH issue 23770

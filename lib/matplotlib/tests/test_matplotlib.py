@@ -22,6 +22,7 @@ def test_parse_to_version_info(version_str, version_tuple):
                     reason="chmod() doesn't work as is on Windows")
 @pytest.mark.skipif(sys.platform != "win32" and os.geteuid() == 0,
                     reason="chmod() doesn't work as root")
+@pytest.mark.xdist_group(name="subprocess")
 def test_tmpconfigdir_warning(tmp_path):
     """Test that a warning is emitted if a temporary configdir must be used."""
     mode = os.stat(tmp_path).st_mode
@@ -36,6 +37,7 @@ def test_tmpconfigdir_warning(tmp_path):
         os.chmod(tmp_path, mode)
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_importable_with_no_home(tmp_path):
     subprocess_run_for_testing(
         [sys.executable, "-c",
@@ -65,6 +67,7 @@ def test_use_doc_standard_backends():
             set(backend_registry.list_builtin(BackendFilter.NON_INTERACTIVE)))
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_importable_with__OO():
     """
     When using -OO or export PYTHONOPTIMIZE=2, docstrings are discarded,

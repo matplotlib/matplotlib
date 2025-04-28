@@ -7,6 +7,7 @@ from matplotlib.testing import subprocess_run_for_testing
 
 
 @pytest.mark.parametrize("backend", ["webagg", "nbagg"])
+@pytest.mark.xdist_group(name="subprocess")
 def test_webagg_fallback(backend):
     pytest.importorskip("tornado")
     if backend == "nbagg":

@@ -529,6 +529,7 @@ def test_rcparams_reset_after_fail():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.xdist_group(name="subprocess")
 def test_backend_fallback_headless_invalid_backend(tmp_path):
     env = {**os.environ,
            "DISPLAY": "", "WAYLAND_DISPLAY": "",
@@ -546,6 +547,7 @@ def test_backend_fallback_headless_invalid_backend(tmp_path):
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+@pytest.mark.xdist_group(name="subprocess")
 def test_backend_fallback_headless_auto_backend(tmp_path):
     # specify a headless mpl environment, but request a graphical (tk) backend
     env = {**os.environ,
@@ -570,6 +572,7 @@ def test_backend_fallback_headless_auto_backend(tmp_path):
 @pytest.mark.skipif(
     sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
     reason="headless")
+@pytest.mark.xdist_group(name="subprocess")
 def test_backend_fallback_headful(tmp_path):
     if parse_version(pytest.__version__) >= parse_version('8.2.0'):
         pytest_kwargs = dict(exc_type=ImportError)

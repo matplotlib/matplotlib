@@ -136,6 +136,7 @@ def _pickle_load_subprocess():
 
 
 @mpl.style.context("default")
+@pytest.mark.xdist_group(name="subprocess")
 @check_figures_equal()
 def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
     _generate_complete_test_figure(fig_ref)
@@ -331,6 +332,7 @@ def _test_axeswidget_interactive():
         sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
         reason='Tk version mismatch on Azure macOS CI'
     )
+@pytest.mark.xdist_group(name="subprocess")
 def test_axeswidget_interactive():
     subprocess_run_helper(
         _test_axeswidget_interactive,

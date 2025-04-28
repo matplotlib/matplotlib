@@ -282,12 +282,14 @@ def _test_threading():
             raise RuntimeError("thread failed to join")
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_fontcache_thread_safe():
     pytest.importorskip('threading')
 
     subprocess_run_helper(_test_threading, timeout=10)
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_lockfilefailure(tmp_path):
     # The logic here:
     # 1. get a temp directory from pytest

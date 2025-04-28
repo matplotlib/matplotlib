@@ -43,6 +43,7 @@ def _isolated_tk_test(success_count, func=None):
         sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
         reason='Tk version mismatch on Azure macOS CI'
     )
+    @pytest.mark.xdist_group(name="subprocess")
     @functools.wraps(func)
     def test_func():
         # even if the package exists, may not actually be importable this can

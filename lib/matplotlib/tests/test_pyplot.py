@@ -11,6 +11,7 @@ from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_pyplot_up_to_date(tmp_path):
     pytest.importorskip("black")
 
@@ -348,6 +349,7 @@ def test_set_current_axes_on_subfigure():
     assert plt.gca() == ax
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_pylab_integration():
     IPython = pytest.importorskip("IPython")
     mpl.testing.subprocess_run_helper(

@@ -154,6 +154,7 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
         pytest.param("mhip", "svg", True, marks=needs_usetex),
     ]
 )
+@pytest.mark.xdist_group(name="subprocess")
 def test_determinism_check(objects, fmt, usetex):
     """
     Output three times the same graphs and checks that the outputs are exactly
@@ -195,6 +196,7 @@ def test_determinism_check(objects, fmt, usetex):
         ("ps", b"%%CreationDate: Sat Jan 01 00:00:00 2000"),
     ]
 )
+@pytest.mark.xdist_group(name="subprocess")
 def test_determinism_source_date_epoch(fmt, string):
     """
     Test SOURCE_DATE_EPOCH support. Output a document with the environment

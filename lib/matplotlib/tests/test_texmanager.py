@@ -64,6 +64,7 @@ def test_unicode_characters():
 
 
 @needs_usetex
+@pytest.mark.xdist_group(name="subprocess")
 def test_openin_any_paranoid():
     completed = subprocess_run_for_testing(
         [sys.executable, "-c",

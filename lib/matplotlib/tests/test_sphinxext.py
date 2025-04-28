@@ -32,6 +32,7 @@ def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
     assert html_dir.is_dir()
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_tinypages(tmp_path):
     shutil.copytree(Path(__file__).parent / 'tinypages', tmp_path,
                     dirs_exist_ok=True)
@@ -124,6 +125,7 @@ def test_tinypages(tmp_path):
     assert filecmp.cmp(range_6, plot_file(5))
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_plot_html_show_source_link(tmp_path):
     parent = Path(__file__).parent
     shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
@@ -147,6 +149,7 @@ def test_plot_html_show_source_link(tmp_path):
 
 
 @pytest.mark.parametrize('plot_html_show_source_link', [0, 1])
+@pytest.mark.xdist_group(name="subprocess")
 def test_show_source_link_true(tmp_path, plot_html_show_source_link):
     # Test that a source link is generated if :show-source-link: is true,
     # whether or not plot_html_show_source_link is true.
@@ -167,6 +170,7 @@ def test_show_source_link_true(tmp_path, plot_html_show_source_link):
 
 
 @pytest.mark.parametrize('plot_html_show_source_link', [0, 1])
+@pytest.mark.xdist_group(name="subprocess")
 def test_show_source_link_false(tmp_path, plot_html_show_source_link):
     # Test that a source link is NOT generated if :show-source-link: is false,
     # whether or not plot_html_show_source_link is true.
@@ -186,6 +190,7 @@ def test_show_source_link_false(tmp_path, plot_html_show_source_link):
     assert len(list(html_dir.glob("**/index-1.py"))) == 0
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_srcset_version(tmp_path):
     shutil.copytree(Path(__file__).parent / 'tinypages', tmp_path,
                     dirs_exist_ok=True)

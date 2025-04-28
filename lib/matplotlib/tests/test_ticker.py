@@ -1766,6 +1766,7 @@ def _impl_locale_comma():
     assert x == '0,5'
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_locale_comma():
     # On some systems/pytest versions, `pytest.skip` in an exception handler
     # does not skip, but is treated as an exception, so directly running this
