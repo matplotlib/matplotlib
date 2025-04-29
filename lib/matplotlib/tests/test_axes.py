@@ -4528,8 +4528,10 @@ def test_errorbar_linewidth_type(elinewidth):
 
 def test_errorbar_linestyle_type():
     eb = plt.errorbar([1, 2, 3], [1, 2, 3],
-                      yerr=[1, 2, 3], elinestyle='-')
-    assert eb[-1][0].get_linestyle() == [(0,None)]
+                      yerr=[1, 2, 3], elinestyle='--')
+    errorlines = eb[-1][0]
+    errorlinestyle = errorlines.get_linestyle()
+    assert errorlinestyle == [(0.0,(6.0,6.0))]
 
 
 @check_figures_equal()
