@@ -4531,7 +4531,7 @@ def test_errorbar_linestyle_type():
                       yerr=[1, 2, 3], elinestyle='--')
     errorlines = eb[-1][0]
     errorlinestyle = errorlines.get_linestyle()
-    assert errorlinestyle == [(0.0,(6.0,6.0))]
+    assert errorlinestyle == [(0, (6, 6))]
 
 
 @check_figures_equal()
