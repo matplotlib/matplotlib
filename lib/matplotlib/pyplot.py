@@ -3247,7 +3247,7 @@ def ecdf(
     weights: ArrayLike | None = None,
     *,
     complementary: bool = False,
-    orientation: Literal["vertical", "horizonatal"] = "vertical",
+    orientation: Literal["vertical", "horizontal"] = "vertical",
     compress: bool = False,
     data=None,
     **kwargs,
