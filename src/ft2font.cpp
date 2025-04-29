@@ -306,6 +306,17 @@ void FT2Font::set_size(double ptsize, double dpi)
     }
 }
 
+void FT2Font::set_transform(
+  std::array<std::array<FT_Fixed, 2>, 2> matrix, std::array<FT_Fixed, 2> delta)
+{
+    FT_Matrix m = {matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1]};
+    FT_Vector d = {delta[0], delta[1]};
+    FT_Set_Transform(face, &m, &d);
+    for (auto & fallback : fallbacks) {
+        fallback->set_transform(matrix, delta);
+    }
+}
+
 void FT2Font::set_charmap(int i)
 {
     if (i >= face->num_charmaps) {
@@ -694,6 +705,27 @@ void FT2Font::draw_glyph_to_bitmap(
     FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[glyphInd];
 
     draw_bitmap(im, &bitmap->bitmap, x + bitmap->left, y);
+}
+
+void FT2Font::draw_glyph_at(
+    py::array_t<uint8_t, py::array::c_style> im,
+    double x, double y, size_t glyphInd, bool antialiased)
+{
+    if (glyphInd >= glyphs.size()) {
+        throw std::runtime_error("glyph num is out of range");
+    }
+    FT_Vector sub_offset = {FT_Fixed(x * 64 + .5), FT_Fixed(y * 64 + .5)};
+    FT_Error error = FT_Glyph_To_Bitmap(
+      &glyphs[glyphInd],
+      antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO,
+      &sub_offset, // additional translation
+      1 // destroy image
+      );
+    if (error) {
+        throw_ft_error("Could not convert glyph to bitmap", error);
+    }
+    FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[glyphInd];
+    draw_bitmap(im, &bitmap->bitmap, bitmap->left, im.shape(0) - bitmap->top);
 }
 
 void FT2Font::get_glyph_name(unsigned int glyph_number, std::string &buffer,
