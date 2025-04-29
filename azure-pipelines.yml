@@ -147,7 +147,7 @@ stages:
               fi
               echo "##vso[task.setvariable variable=VS_COVERAGE_TOOL]$TOOL"
 
-              PYTHONFAULTHANDLER=1 pytest -rfEsXR -n 2 \
+              PYTHONFAULTHANDLER=1 pytest -rfEsXR -n 1 \
                   --maxfail=50 --timeout=300 --durations=25 \
                   --junitxml=junit/test-results.xml --cov-report=xml --cov=lib
 
