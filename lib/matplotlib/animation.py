@@ -1769,8 +1769,8 @@ class FuncAnimation(TimedAnimation):
             self._drawn_artists = self._init_func()
             if self._blit:
                 if self._drawn_artists is None:
-                    raise RuntimeError('The init_func must return a '
-                                       'sequence of Artist objects.')
+                    raise RuntimeError('When blit=True, the init_func must '
+                                       'return a sequence of Artist objects.')
                 for a in self._drawn_artists:
                     a.set_animated(self._blit)
         self._save_seq = []
@@ -1787,8 +1787,8 @@ class FuncAnimation(TimedAnimation):
 
         if self._blit:
 
-            err = RuntimeError('The animation function must return a sequence '
-                               'of Artist objects.')
+            err = RuntimeError('When blit=True, the animation function must '
+                               'return a sequence of Artist objects.')
             try:
                 # check if a sequence
                 iter(self._drawn_artists)
