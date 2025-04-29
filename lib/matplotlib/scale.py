@@ -31,6 +31,8 @@ Third parties can register their scales by name through `register_scale`.
 
 import inspect
 import textwrap
+import warnings
+from functools import wraps
 
 import numpy as np
 
@@ -103,6 +105,40 @@ class ScaleBase:
         return vmin, vmax
 
 
+def handle_axis_parameter(init_func):
+    """
+    Allow scale classes to work with or without the `axis` parameter.
+
+    This decorator enables scale constructors to maintain backward
+    compatibility with older code that passes `axis`, while allowing
+    future implementations to omit it entirely.
+
+    If the wrapped constructor defines `axis` as its first argument,
+    the parameter is preserved. Otherwise, it is safely removed from
+    positional or keyword arguments.
+
+    Parameters
+    ----------
+    init_func : callable
+        The original __init__ method of a scale class.
+
+    Returns
+    -------
+    callable
+        A wrapped version of `init_func` that handles the optional `axis`.
+    """
+    @wraps(init_func)
+    def wrapper(self, *args, **kwargs):
+        sig = inspect.signature(init_func)
+        params = list(sig.parameters.values())
+        if params and params[1].name == "axis":
+            return init_func(self, *args, **kwargs)
+        if args:
+            args = args[1:]
+        kwargs.pop("axis", None)
+        return init_func(self, *args, **kwargs)
+    return wrapper
+
 class LinearScale(ScaleBase):
     """
     The default linear scale.
@@ -110,7 +146,8 @@ class LinearScale(ScaleBase):
 
     name = 'linear'
 
-    def __init__(self, axis):
+    @handle_axis_parameter
+    def __init__(self, axis=None):
         # This method is present only to prevent inheritance of the base class'
         # constructor docstring, which would otherwise end up interpolated into
         # the docstring of Axis.set_scale.
@@ -180,6 +217,7 @@ class FuncScale(ScaleBase):
 
     name = 'function'
 
+    @handle_axis_parameter
     def __init__(self, axis, functions):
         """
         Parameters
@@ -279,7 +317,8 @@ class LogScale(ScaleBase):
     """
     name = 'log'
 
-    def __init__(self, axis, *, base=10, subs=None, nonpositive="clip"):
+    @handle_axis_parameter  
+    def __init__(self, axis=None, *, base=10, subs=None, nonpositive="clip"):
         """
         Parameters
         ----------
@@ -330,6 +369,7 @@ class FuncScaleLog(LogScale):
 
     name = 'functionlog'
 
+    @handle_axis_parameter
     def __init__(self, axis, functions, base=10):
         """
         Parameters
@@ -455,7 +495,8 @@ class SymmetricalLogScale(ScaleBase):
     """
     name = 'symlog'
 
-    def __init__(self, axis, *, base=10, linthresh=2, subs=None, linscale=1):
+    @handle_axis_parameter
+    def __init__(self, axis=None, *, base=10, linthresh=2, subs=None, linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
 
@@ -547,6 +588,7 @@ class AsinhScale(ScaleBase):
         1024: (256, 512)
     }
 
+    @handle_axis_parameter
     def __init__(self, axis, *, linear_width=1.0,
                  base=10, subs='auto', **kwargs):
         """
@@ -645,7 +687,8 @@ class LogitScale(ScaleBase):
     """
     name = 'logit'
 
-    def __init__(self, axis, nonpositive='mask', *,
+    @handle_axis_parameter
+    def __init__(self, axis=None, nonpositive='mask', *,
                  one_half=r"\frac{1}{2}", use_overline=False):
         r"""
         Parameters
@@ -725,7 +768,12 @@ def scale_factory(scale, axis, **kwargs):
     axis : `~matplotlib.axis.Axis`
     """
     scale_cls = _api.check_getitem(_scale_mapping, scale=scale)
-    return scale_cls(axis, **kwargs)
+    try:
+        return scale_cls(axis, **kwargs)
+    except TypeError as e:
+        if 'unexpected keyword argument' in str(e) or 'positional argument' in str(e):
+            return scale_cls(**kwargs)
+        raise
 
 
 if scale_factory.__doc__:
@@ -742,6 +790,13 @@ def register_scale(scale_class):
     scale_class : subclass of `ScaleBase`
         The scale to register.
     """
+    sig = inspect.signature(scale_class.__init__)
+    if 'axis' in sig.parameters:
+        warnings.warn(
+            f"The scale class {scale_class.__name__} still uses the 'axis' parameter in its constructor. "
+            "Consider refactoring it to remove this dependency.",
+            DeprecationWarning
+        )
     _scale_mapping[scale_class.name] = scale_class
 
 
