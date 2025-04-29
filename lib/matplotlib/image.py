@@ -808,7 +808,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
 class AxesImage(_ImageBase):
     """
-    An image, i.e. data on a regular grid, attached to an Axes.
+    An image with pixels on a regular grid, attached to an Axes.
 
     Parameters
     ----------
