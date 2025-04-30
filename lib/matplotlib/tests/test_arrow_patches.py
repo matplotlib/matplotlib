@@ -49,27 +49,32 @@ def test_boxarrow():
                  bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 
-@image_comparison(['roadsign_test_image.png'])
-def temp_test_boxarrow():
+@image_comparison(['boxarrow_adjustment_test_image.png'])
+def test_boxarrow_adjustment():
 
     styles = mpatches.BoxStyle.get_styles()
 
-    n = len(styles)
-    spacing = 1.2
+    repetitions = 2
+    spacing = 2.4
 
-    figheight = (n * spacing + .5)
+    figheight = (3 * repetitions * spacing + .5)
     fig = plt.figure(figsize=(4 / 1.5, figheight / 1.5))
 
     fontsize = 0.3 * 72
 
-    for i, stylename in enumerate(sorted(styles)):
-        if stylename in ("larrow", "rarrow", "darrow"):
-            fig.text(0.5, ((n - i) * spacing - 0.5)/figheight, stylename,
-                        ha="center",
-                        size=fontsize,
-                        transform=fig.transFigure,
-                        bbox=dict(boxstyle=stylename+",head_width=1", fc="w",
-                                    ec="k"))
+    angle = -80
+    angle_step = 120 / repetitions
+    for i in range(repetitions):
+        for j, stylename in enumerate(sorted(styles)):
+            if stylename in ("larrow", "rarrow", "darrow"):
+                fig.text(0.5, ((3 * repetitions - i - j) * spacing - 0.5)/figheight,
+                    stylename,
+                    ha="center",
+                    size=fontsize,
+                    transform=fig.transFigure,
+                    rotation=angle,
+                    bbox=dict(boxstyle=stylename+f",head_width={(i + j) / 2},head_angle={angle}", fc="w", ec="k"))
+                angle = angle + angle_step
 
 
 def __prepare_fancyarrow_dpi_cor_test():
