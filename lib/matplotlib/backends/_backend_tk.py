@@ -638,6 +638,14 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             window = canvas.get_tk_widget().master
         tk.Frame.__init__(self, master=window, borderwidth=2,
                           width=int(canvas.figure.bbox.width), height=50)
+        # Avoid message_label expanding the toolbar size, and in turn expanding the
+        # canvas size.
+        # Without pack_propagate(False), when the user defines a small figure size
+        # (e.g. 2x2):
+        # 1. Figure size that is bigger than the user's expectation.
+        # 2. When message_label is refreshed by mouse enter/leave, the canvas
+        #    size will also be changed.
+        self.pack_propagate(False)
 
         self._buttons = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
