@@ -825,7 +825,7 @@ def test_annulus():
     ax.set_aspect('equal')
 
 
-@pytest.mark.parametrize('mode', ('a', 'b'))
+@pytest.mark.parametrize('mode', ('by_semiaxis', 'by_radius'))
 @image_comparison(baseline_images=['annulus'], extensions=['png'])
 def test_annulus_setters(mode):
 
@@ -838,22 +838,23 @@ def test_annulus_setters(mode):
     ax.set_aspect('equal')
 
     cir.center = (0.5, 0.5)
-    if mode == 'a':
+    ell.center = (0.5, 0.5)
+
+    if mode == 'by_semiaxis':
         cir.set_semimajor(0.2)
         cir.set_semiminor(0.2)
         assert cir.radii == (0.2, 0.2)
-    elif mode == 'b':
-        cir.radii = 0.2
-    cir.width = 0.05
 
-    ell.center = (0.5, 0.5)
-    if mode == 'a':
         ell.set_semimajor(0.5)
         ell.set_semiminor(0.3)
         assert ell.radii == (0.5, 0.3)
-    elif mode == 'b':
+    elif mode == 'by_radius':
+        cir.radii = 0.2
         ell.radii = (0.5, 0.3)
+
+    cir.width = 0.05
     ell.width = 0.1
+
     ell.angle = 45
 
 
