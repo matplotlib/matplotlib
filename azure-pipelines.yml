@@ -147,9 +147,13 @@ stages:
               fi
               echo "##vso[task.setvariable variable=VS_COVERAGE_TOOL]$TOOL"
 
+              if [[ $(python.version) == 3.11 ]]; then
+                # when removing this, also remove
+                # @pytest.mark.xdist_group(name="subprocess") from tests
+                DIST_LOAD_GROUP=--dist=loadgroup
+              fi
               PYTHONFAULTHANDLER=1 pytest -rfEsXR -n 2 \
-                  --maxfail=50 --timeout=300 --durations=25 \
-                  --dist=loadgroup \
+                  --maxfail=50 --timeout=300 --durations=25 $DIST_LOAD_GROUP \
                   --junitxml=junit/test-results.xml --cov-report=xml --cov=lib
 
               if [[ $VS_VER == 2022 ]]; then
