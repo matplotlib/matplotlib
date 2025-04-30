@@ -968,14 +968,13 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         """
         Set a locator on this ContourSet if it's not already set.
 
-        If *N* is an int, it is used as the target number of levels.
-        Otherwise when *N* is None, a reasonable default is chosen;
-        for logscales the LogLocator chooses, N=7 is the default
-        otherwise.
-
         Parameters
         ----------
         N : int or None
+            If *N* is an int, it is used as the target number of levels.
+            Otherwise when *N* is None, a reasonable default is chosen;
+            for logscales the LogLocator chooses, N=7 is the default
+            otherwise.
         """
         if self.locator is None:
             if self.logscale:
