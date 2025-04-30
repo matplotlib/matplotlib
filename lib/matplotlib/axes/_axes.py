@@ -3463,7 +3463,8 @@ class Axes(_AxesBase):
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
-                 xlolims=False, xuplims=False, errorevery=1, capthick=None,
+                 xlolims=False, xuplims=False, errorevery=1,
+                 capthick=None, elinestyle=None,
                  **kwargs):
         """
         Plot y versus x as lines and/or markers with attached errorbars.
@@ -3510,6 +3511,12 @@ class Axes(_AxesBase):
         elinewidth : float, default: None
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
+
+        elinestyle : str or tuple, default: 'solid'
+           The linestyle of the errorbar lines.
+           Valid values for linestyles include {'-', '--', '-.',
+            ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
+            complete description.
 
         capsize : float, default: :rc:`errorbar.capsize`
             The length of the error bar caps in points.
@@ -3711,6 +3718,9 @@ class Axes(_AxesBase):
         for key in ('transform', 'alpha', 'zorder', 'rasterized'):
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
+
+        if elinestyle is not None:
+            eb_lines_style['linestyle'] = elinestyle
 
         # Make the style dict for caps (the "hats").
         eb_cap_style = {**base_style, 'linestyle': 'none'}

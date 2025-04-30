@@ -3281,6 +3281,7 @@ def errorbar(
     xuplims: bool | ArrayLike = False,
     errorevery: int | tuple[int, int] = 1,
     capthick: float | None = None,
+    elinestyle: LineStyleType | None = None,
     *,
     data=None,
     **kwargs,
@@ -3301,6 +3302,7 @@ def errorbar(
         xuplims=xuplims,
         errorevery=errorevery,
         capthick=capthick,
+        elinestyle=elinestyle,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )

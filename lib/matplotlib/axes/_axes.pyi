@@ -315,6 +315,7 @@ class Axes(_AxesBase):
         *,
         ecolor: ColorType | None = ...,
         elinewidth: float | None = ...,
+        elinestyle: LineStyleType | None = ...,
         capsize: float | None = ...,
         barsabove: bool = ...,
         lolims: bool | ArrayLike = ...,
