@@ -73,7 +73,9 @@ def test_boxarrow_adjustment():
                     size=fontsize,
                     transform=fig.transFigure,
                     rotation=angle,
-                    bbox=dict(boxstyle=stylename+f",head_width={(i + j) / 2},head_angle={angle}", fc="w", ec="k"))
+                    bbox=dict(boxstyle=stylename+\
+                        f",head_width={(i + j) / 2},head_angle={angle}",
+                    fc="w", ec="k"))
                 angle = angle + angle_step
 
 
