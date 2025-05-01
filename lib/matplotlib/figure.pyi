@@ -1,6 +1,6 @@
 from collections.abc import Callable, Hashable, Iterable, Sequence
 import os
-from typing import Any, IO, Literal, TypeVar, overload, TYPE_CHECKING
+from typing import Any, IO, Literal, TypeVar, overload
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -25,8 +25,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
 from matplotlib.transforms import Affine2D, Bbox, BboxBase, Transform
-if TYPE_CHECKING:
-    from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D
 
 from .typing import ColorType, HashableList
 
