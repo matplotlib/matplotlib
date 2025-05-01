@@ -49,7 +49,7 @@ def test_boxarrow():
                  bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 
-@image_comparison(['boxarrow_adjustment_test_image.png'])
+@image_comparison(['boxarrow_adjustment_test_image.png'], style='mpl20')
 def test_boxarrow_adjustment():
 
     styles = mpatches.BoxStyle.get_styles()
