@@ -238,6 +238,7 @@ def _test_interactive_impl():
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 @pytest.mark.parametrize("toolbar", ["toolbar2", "toolmanager"])
 @pytest.mark.flaky(reruns=3)
+@pytest.mark.xdist_group(name="subprocess")
 def test_interactive_backend(env, toolbar):
     if env["MPLBACKEND"] == "macosx":
         if toolbar == "toolmanager":
@@ -330,6 +331,7 @@ for param in _thread_safe_backends:
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
 @pytest.mark.flaky(reruns=3)
+@pytest.mark.xdist_group(name="subprocess")
 def test_interactive_thread_safety(env):
     proc = _run_helper(_test_thread_impl, timeout=_test_timeout, extra_env=env)
     assert proc.stdout.count("CloseEvent") == 1
@@ -349,6 +351,7 @@ def _impl_test_lazy_auto_backend_selection():
     assert isinstance(bk, str)
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_lazy_auto_backend_selection():
     _run_helper(_impl_test_lazy_auto_backend_selection,
                 timeout=_test_timeout)
@@ -381,6 +384,7 @@ def _implcore():
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_qt5backends_uses_qt5():
     qt5_bindings = [
         dep for dep in ['PyQt5', 'pyside2']
@@ -414,6 +418,7 @@ def _impl_missing():
         plt.switch_backend("qt5agg")
 
 
+@pytest.mark.xdist_group(name="subprocess")
 def test_qt_missing():
     _run_helper(_impl_missing, timeout=_test_timeout)
 
@@ -459,6 +464,7 @@ def qt5_and_qt6_pairs():
     sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
     reason="$DISPLAY and $WAYLAND_DISPLAY are unset")
 @pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
+@pytest.mark.xdist_group(name="subprocess")
 def test_cross_Qt_imports(host, mpl):
     try:
         proc = _run_helper(_impl_test_cross_Qt_imports, host, mpl,
@@ -541,6 +547,7 @@ def _lazy_headless():
 
 @pytest.mark.skipif(sys.platform != "linux", reason="this a linux-only test")
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
+@pytest.mark.xdist_group(name="subprocess")
 def test_lazy_linux_headless(env):
     proc = _run_helper(
         _lazy_headless,
@@ -618,6 +625,7 @@ for param in _blit_backends:
 @pytest.mark.parametrize("env", _blit_backends)
 # subprocesses can struggle to get the display, so rerun a few times
 @pytest.mark.flaky(reruns=4)
+@pytest.mark.xdist_group(name="subprocess")
 def test_blitting_events(env):
     proc = _run_helper(
         _test_number_of_draws_script, timeout=_test_timeout, extra_env=env)
@@ -681,6 +689,7 @@ def _impl_test_interactive_timers():
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
+@pytest.mark.xdist_group(name="subprocess")
 def test_interactive_timers(env):
     if env["MPLBACKEND"] == "gtk3cairo" and os.getenv("CI"):
         pytest.skip("gtk3cairo timers do not work in remote CI")
