@@ -422,6 +422,8 @@ Python packages and must be installed separately.
 * a LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
   `MikTeX <https://miktex.org/>`_
 
+LaTeX dependencies
+""""""""""""""""""
 
 The following collections must be installed. When using a distribution that does not
 support collections, the packages listed for each collection must be installed. You may
@@ -456,7 +458,7 @@ will often automatically include these collections.
 |                             | xetex-bin                                        |
 +-----------------------------+--------------------------------------------------+
 
-The following packages must also installed:
+The following packages must also be installed:
 
 * `dvipng <https://ctan.org/pkg/dvipng>`_
 * `pgf <https://ctan.org/pkg/pgf>`_ (if using the pgf backend)
