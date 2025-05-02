@@ -419,18 +419,48 @@ The documentation requires LaTeX and Graphviz.  These are not
 Python packages and must be installed separately.
 
 * `Graphviz <http://www.graphviz.org/download>`_
-* a minimal working LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
+* a LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
   `MikTeX <https://miktex.org/>`_
 
-The following LaTeX packages:
+
+The following collections must be installed. When using a distribution that does not
+support collections, the packages listed for each collection must be installed. You may
+need to install some packages that are not listed here.  The complete version of many
+LaTeX distribution installers, e.g. "texlive-full" or "texlive-all",
+will often automatically include these collections.
+
++-----------------------------+--------------------------------------------------+
+| collection                  | packages                                         |
++=============================+==================================================+
+| collection-basic            | `cm <https://ctan.org/pkg/cm>`_,                 |
+|                             | luahbtex                                         |
++-----------------------------+--------------------------------------------------+
+| collection-fontsrecommended | `cm-super <https://ctan.org/pkg/cm-super>`_,     |
+|                             | `lm <https://ctan.org/pkg/lm>`_,                 |
+|                             | `txfonts <https://ctan.org/pkg/txfonts>`_        |
++-----------------------------+--------------------------------------------------+
+| collection-latex            | `geometry <https://ctan.org/pkg/geometry>`_,     |
+|                             | `hyperref <https://ctan.org/pkg/hyperref>`_,     |
+|                             | `latex <https://ctan.org/pkg/latex>`_,           |
+|                             | latex-bin,                                       |
+|                             | `psnfss <https://ctan.org/pkg/psnfss>`_          |
++-----------------------------+--------------------------------------------------+
+| collection-latexextra       | `import <https://ctan.org/pkg/import>`_,         |
+|                             | `sfmath <https://ctan.org/pkg/sfmath>`_,         |
+|                             | `type1cm <https://ctan.org/pkg/type1cm>`_        |
++-----------------------------+--------------------------------------------------+
+| collection-latexrecommended | `fontspec <https://ctan.org/pkg/fontspec>`_,     |
+|                             | `underscore <https://ctan.org/pkg/underscore>`_, |
++-----------------------------+--------------------------------------------------+
+| collection-xetex            | `xetex <https://ctan.org/pkg/xetex>`_,           |
+|                             | xetex-bin                                        |
++-----------------------------+--------------------------------------------------+
+
+The following packages must also installed:
 
 * `dvipng <https://ctan.org/pkg/dvipng>`_
-* `underscore <https://ctan.org/pkg/underscore>`_
-* `cm-super <https://ctan.org/pkg/cm-super>`_
-* ``collection-fontsrecommended``
+* `pgf <https://ctan.org/pkg/pgf>`_ (if using the pgf backend)
 
-The complete version of many LaTex distribution installers, e.g.
-"texlive-full" or "texlive-all", will often automatically include these packages.
 
 Optional
 ^^^^^^^^
