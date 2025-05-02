@@ -15,7 +15,7 @@ import io
 import pytest
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_log_scales(fig_test, fig_ref):
     ax_test = fig_test.add_subplot(122, yscale='log', xscale='symlog')
     ax_test.axvline(24.1)

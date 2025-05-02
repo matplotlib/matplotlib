@@ -209,7 +209,7 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(['figure_today'],
+@image_comparison(['figure_today.png'],
                   tol=0 if platform.machine() == 'x86_64' else 0.015)
 def test_figure():
     # named figure support
@@ -225,7 +225,7 @@ def test_figure():
     plt.close('tomorrow')
 
 
-@image_comparison(['figure_legend'])
+@image_comparison(['figure_legend.png'])
 def test_figure_legend():
     fig, axs = plt.subplots(2)
     axs[0].plot([0, 1], [1, 0], label='x', color='g')
@@ -322,7 +322,7 @@ def test_add_subplot_invalid():
         fig.add_subplot(ax)
 
 
-@image_comparison(['figure_suptitle'])
+@image_comparison(['figure_suptitle.png'])
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')

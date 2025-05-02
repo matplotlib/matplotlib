@@ -34,7 +34,7 @@ def test_startpoints():
     plt.plot(start_x, start_y, 'ok')
 
 
-@image_comparison(['streamplot_colormap'], remove_text=True, style='mpl20',
+@image_comparison(['streamplot_colormap.png'], remove_text=True, style='mpl20',
                   tol=0.022)
 def test_colormap():
     X, Y, U, V = velocity_field()
@@ -53,7 +53,7 @@ def test_linewidth():
     ax.streamplot(X, Y, U, V, density=[0.5, 1], color='k', linewidth=lw)
 
 
-@image_comparison(['streamplot_masks_and_nans'],
+@image_comparison(['streamplot_masks_and_nans.png'],
                   remove_text=True, style='mpl20')
 def test_masks_and_nans():
     X, Y, U, V = velocity_field()

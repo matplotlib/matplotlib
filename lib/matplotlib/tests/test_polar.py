@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
-@image_comparison(['polar_axes'], style='default', tol=0.012)
+@image_comparison(['polar_axes.png'], style='default', tol=0.012)
 def test_polar_annotations():
     # You can specify the xypoint and the xytext in different positions and
     # coordinate systems, and optionally turn on a connecting line and mark the
@@ -41,7 +41,7 @@ def test_polar_annotations():
     ax.tick_params(axis='x', tick1On=True, tick2On=True, direction='out')
 
 
-@image_comparison(['polar_coords'], style='default', remove_text=True,
+@image_comparison(['polar_coords.png'], style='default', remove_text=True,
                   tol=0.014)
 def test_polar_coord_annotations():
     # You can also use polar notation on a cartesian axes.  Here the native
@@ -98,7 +98,7 @@ def test_polar_twice():
     assert len(fig.axes) == 1, 'More than one polar Axes created.'
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_polar_wrap(fig_test, fig_ref):
     ax = fig_test.add_subplot(projection="polar")
     ax.plot(np.deg2rad([179, -179]), [0.2, 0.1])
@@ -108,7 +108,7 @@ def test_polar_wrap(fig_test, fig_ref):
     ax.plot(np.deg2rad([2, 358]), [0.2, 0.1])
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_polar_units_1(fig_test, fig_ref):
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -123,7 +123,7 @@ def test_polar_units_1(fig_test, fig_ref):
     ax.set(xlabel="deg")
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_polar_units_2(fig_test, fig_ref):
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -144,7 +144,7 @@ def test_polar_units_2(fig_test, fig_ref):
     ax.set(xlabel="rad", ylabel="km")
 
 
-@image_comparison(['polar_rmin'], style='default')
+@image_comparison(['polar_rmin.png'], style='default')
 def test_polar_rmin():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -156,7 +156,7 @@ def test_polar_rmin():
     ax.set_rmin(0.5)
 
 
-@image_comparison(['polar_negative_rmin'], style='default')
+@image_comparison(['polar_negative_rmin.png'], style='default')
 def test_polar_negative_rmin():
     r = np.arange(-3.0, 0.0, 0.01)
     theta = 2*np.pi*r
@@ -168,7 +168,7 @@ def test_polar_negative_rmin():
     ax.set_rmin(-3.0)
 
 
-@image_comparison(['polar_rorigin'], style='default')
+@image_comparison(['polar_rorigin.png'], style='default')
 def test_polar_rorigin():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -200,7 +200,7 @@ def test_polar_invertedylim_rorigin():
     ax.set_rorigin(3)
 
 
-@image_comparison(['polar_theta_position'], style='default')
+@image_comparison(['polar_theta_position.png'], style='default')
 def test_polar_theta_position():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -212,7 +212,7 @@ def test_polar_theta_position():
     ax.set_theta_direction('clockwise')
 
 
-@image_comparison(['polar_rlabel_position'], style='default')
+@image_comparison(['polar_rlabel_position.png'], style='default')
 def test_polar_rlabel_position():
     fig = plt.figure()
     ax = fig.add_subplot(projection='polar')
@@ -227,7 +227,7 @@ def test_polar_title_position():
     ax.set_title('foo')
 
 
-@image_comparison(['polar_theta_wedge'], style='default')
+@image_comparison(['polar_theta_wedge.png'], style='default')
 def test_polar_theta_limits():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
@@ -491,8 +491,8 @@ def test_polar_neg_theta_lims():
 
 
 @pytest.mark.parametrize("order", ["before", "after"])
-@image_comparison(baseline_images=['polar_errorbar'], remove_text=True,
-                  extensions=['png'], style='mpl20')
+@image_comparison(baseline_images=['polar_errorbar.png'], remove_text=True,
+                  style='mpl20')
 def test_polar_errorbar(order):
     theta = np.arange(0, 2 * np.pi, np.pi / 8)
     r = theta / np.pi / 2 + 0.5
