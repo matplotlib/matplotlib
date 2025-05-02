@@ -40,6 +40,7 @@ dependencies = [
     "pyparsing >= 3",
     "python-dateutil >= 2.7",
 ]
+# Also keep in sync with find_program of meson.build.
 requires-python = ">=3.11"
 
 [project.optional-dependencies]
