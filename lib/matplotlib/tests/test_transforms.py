@@ -891,8 +891,7 @@ CompositeGenericTransform(
                 Affine2D().scale(1.0))),
         PolarTransform(
             PolarAxes(0.125,0.1;0.775x0.8),
-            use_rmin=True,
-            apply_theta_transforms=False)),
+            use_rmin=True)),
     CompositeGenericTransform(
         CompositeGenericTransform(
             PolarAffine(
