@@ -1,0 +1,7 @@
+``matplotlib.cm.get_cmap``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have the name of a colormap as a `str`, use ``matplotlib.colormaps[name]`` instead.
+
+Otherwise `matplotlib.cm.ColormapRegistry.get_cmap` if you have a `str`, `None` or a
+`matplotlib.colors.Colormap` object that you want to convert to a `.Colormap` object.
