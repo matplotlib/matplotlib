@@ -1,5 +1,5 @@
 from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
-from typing import Any, TypeVar, overload
+from typing import Any, Type, TypeVar, overload
 from typing_extensions import Self  # < Py 3.11
 
 from numpy.typing import NDArray
@@ -42,7 +42,9 @@ def check_in_list(
     values: Sequence[Any], /, *, _print_supported_values: bool = ..., **kwargs: Any
 ) -> None: ...
 def check_shape(shape: tuple[int | None, ...], /, **kwargs: NDArray) -> None: ...
-def check_getitem(mapping: Mapping[Any, Any], /, **kwargs: Any) -> Any: ...
+def check_getitem(
+        mapping: Mapping[Any, Any], /, _suggest_close_matches: bool, _error_cls: Type[Exception], **kwargs: Any
+) -> Any: ...
 def caching_module_getattr(cls: type) -> Callable[[str], Any]: ...
 @overload
 def define_aliases(
