@@ -1829,3 +1829,13 @@ def test_LinearSegmentedColormap_from_list_value_color_tuple():
         cmap([value for value, _ in value_color_tuples]),
         to_rgba_array([color for _, color in value_color_tuples]),
     )
+
+
+def test_close_error_name():
+    with pytest.raises(
+        KeyError,
+        match=(
+            "'grays' is not a valid value for colormap. "
+            "Did you mean one of ['gray', 'Grays', 'gray_r']?"
+        )):
+        matplotlib.colormaps["grays"]
