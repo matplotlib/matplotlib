@@ -743,12 +743,11 @@ class RcParams(MutableMapping, dict):
                 and val is rcsetup._auto_backend_sentinel
                 and "backend" in self):
             return
+        valid_key = _api.check_getitem(
+            self.validate, rcParam=key, _suggest_close_matches=True, _error_cls=KeyError
+        )
         try:
-            cval = self.validate[key](val)
-        except KeyError as err:
-            raise KeyError(
-                f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                f"a list of valid parameters)") from err
+            cval = valid_key(val)
         except ValueError as ve:
             raise ValueError(f"Key {key}: {ve}") from None
         self._set(key, cval)
