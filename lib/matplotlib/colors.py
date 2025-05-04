@@ -3279,7 +3279,8 @@ class MultiNorm(Normalize):
         self.vmax = vmax
         self.clip = clip
 
-        [n.callbacks.connect('changed', self._changed) for n in self._norms]
+        for n in self._norms:
+            n.callbacks.connect('changed', self._changed)
 
     @property
     def n_input(self):
@@ -3299,11 +3300,7 @@ class MultiNorm(Normalize):
 
     @vmin.setter
     def vmin(self, value):
-        if not np.iterable(value):
-            value = [value]*self.n_input
-        if len(value) != self.n_input:
-            raise ValueError(f"Invalid vmin for `MultiNorm` with {self.n_input}"
-                             " inputs.")
+        value = np.broadcast_to(value, self.n_input)
         with self.callbacks.blocked():
             for i, v in enumerate(value):
                 if v is not None:
@@ -3316,11 +3313,7 @@ class MultiNorm(Normalize):
 
     @vmax.setter
     def vmax(self, value):
-        if not np.iterable(value):
-            value = [value]*self.n_input
-        if len(value) != self.n_input:
-            raise ValueError(f"Invalid vmax for `MultiNorm` with {self.n_input}"
-                             " inputs.")
+        value = np.broadcast_to(value, self.n_input)
         with self.callbacks.blocked():
             for i, v in enumerate(value):
                 if v is not None:
@@ -3333,8 +3326,7 @@ class MultiNorm(Normalize):
 
     @clip.setter
     def clip(self, value):
-        if not np.iterable(value):
-            value = [value]*self.n_input
+        value = np.broadcast_to(value, self.n_input)
         with self.callbacks.blocked():
             for i, v in enumerate(value):
                 if v is not None:
