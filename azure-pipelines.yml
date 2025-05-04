@@ -50,7 +50,7 @@ stages:
         strategy:
           matrix:
             Windows_py311:
-              vmImage: 'windows-2022'  # keep one job pinned to the oldest image
+              vmImage: 'windows-2022'  # Keep one job pinned to the oldest image
               python.version: '3.11'
             Windows_py312:
               vmImage: 'windows-latest'
@@ -100,31 +100,24 @@ stages:
               echo "Coverage session ID: ${SESSION_ID}"
               VS=$(ls -d /c/Program\ Files*/Microsoft\ Visual\ Studio/*/Enterprise)
               echo "Visual Studio: ${VS}"
-              DIR="$VS"/Team\ Tools/Dynamic\ Code\ Coverage\ Tools/amd64
-              if [[ -d $DIR ]]; then
-                # This is for MSVC 2019 (on windows-2019).
-                VSINSTR="$VS"/Team\ Tools/Performance\ Tools/vsinstr.exe
-                for f in build/cp*/src/*.pyd; do
-                  "$VSINSTR" $f -Verbose -Coverage
-                done
-                TOOL="$DIR/CodeCoverage.exe"
-                cat > extensions.config << EOF
-              <CodeCoverage>
-                <CollectFromChildProcesses>true</CollectFromChildProcesses>
-                <ModulePaths>
-                  <Include>
-                    <ModulePath>.*\\.*\.pyd</ModulePath>
-                  </Include>
-                </ModulePaths>
-              </CodeCoverage>
-              EOF
-                echo "Starting $TOOL in server mode"
-                "$TOOL" collect \
-                  -config:extensions.config -session:$SESSION_ID \
-                  -output:extensions.coverage -verbose &
-                echo "Started $TOOL"
-                VS_VER=2019
-              fi
+              DIR="$VS/Common7/IDE/Extensions/Microsoft/CodeCoverage.Console"
+              # This is for MSVC 2022 (on windows-latest).
+              TOOL="$DIR/Microsoft.CodeCoverage.Console.exe"
+              for f in build/cp*/src/*.pyd; do
+                echo $f
+                echo "=============================="
+                "$TOOL" instrument $f --session-id $SESSION_ID \
+                  --log-level Verbose --log-file instrument.log
+                cat instrument.log
+                rm instrument.log
+              done
+              echo "Starting $TOOL in server mode"
+              "$TOOL" collect \
+                  --session-id $SESSION_ID --server-mode \
+                  --output-format cobertura --output extensions.xml \
+                  --log-level Verbose --log-file extensions.log &
+              VS_VER=2022
+
               echo "##vso[task.setvariable variable=VS_COVERAGE_TOOL]$TOOL"
 
               PYTHONFAULTHANDLER=1 pytest -rfEsXR -n 2 \
