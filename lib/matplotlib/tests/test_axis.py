@@ -67,3 +67,33 @@ def test_get_tick_position_tick_params():
                    right=True, labelright=True, left=False, labelleft=False)
     assert ax.xaxis.get_ticks_position() == "top"
     assert ax.yaxis.get_ticks_position() == "right"
+
+
+def test_tick_label_alignment():
+    """Test that tick label alignment can be set via tick_params."""
+    fig, ax = plt.subplots()
+    
+    ax.tick_params(axis='x', labelhorizontalalignment='right')
+    ax.tick_params(axis='y', labelhorizontalalignment='center')
+    
+    ax.tick_params(axis='x', labelverticalalignment='top')
+    ax.tick_params(axis='y', labelverticalalignment='bottom')
+    
+    x_tick = ax.xaxis.get_major_ticks()[0]
+    y_tick = ax.yaxis.get_major_ticks()[0]
+    
+    assert x_tick.label1.get_horizontalalignment() == 'right'
+    assert y_tick.label1.get_horizontalalignment() == 'center'
+    assert x_tick.label1.get_verticalalignment() == 'top'
+    assert y_tick.label1.get_verticalalignment() == 'bottom'
+    
+    ax.set_xticks([0, 1, 2])
+    ax.set_yticks([0, 1, 2])
+    
+    x_tick = ax.xaxis.get_major_ticks()[0]
+    y_tick = ax.yaxis.get_major_ticks()[0]
+    
+    assert x_tick.label1.get_horizontalalignment() == 'right'
+    assert y_tick.label1.get_horizontalalignment() == 'center'
+    assert x_tick.label1.get_verticalalignment() == 'top'
+    assert y_tick.label1.get_verticalalignment() == 'bottom'

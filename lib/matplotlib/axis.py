@@ -329,6 +329,14 @@ class Tick(martist.Artist):
         self.label1.set(**label_kw)
         self.label2.set(**label_kw)
 
+        # handle new alignment kwargs
+        if 'labelhorizontalalignment' in kwargs:
+            self.label1.set_horizontalalignment(kwargs['labelhorizontalalignment'])
+            self.label2.set_horizontalalignment(kwargs['labelhorizontalalignment'])
+        if 'labelverticalalignment' in kwargs:
+            self.label1.set_verticalalignment(kwargs['labelverticalalignment'])
+            self.label2.set_verticalalignment(kwargs['labelverticalalignment'])
+
         grid_kw = {k[5:]: v for k, v in kwargs.items()
                    if k in _gridline_param_names}
         self.gridline.set(**grid_kw)
@@ -937,6 +945,12 @@ class Axis(martist.Artist):
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
 
+        New supported parameters:
+        labelhorizontalalignment : str
+            Horizontal alignment of tick labels. Passed to Text.set_horizontalalignment.
+        labelverticalalignment : str
+            Vertical alignment of tick labels. Passed to Text.set_verticalalignment.
+
         See Also
         --------
         .Axis.get_tick_params
@@ -1055,6 +1069,7 @@ class Axis(martist.Artist):
             'length', 'direction', 'left', 'bottom', 'right', 'top',
             'labelleft', 'labelbottom', 'labelright', 'labeltop',
             'labelrotation', 'labelrotation_mode',
+            'labelhorizontalalignment', 'labelverticalalignment',
             *_gridline_param_names]
 
         keymap = {
@@ -1071,6 +1086,8 @@ class Axis(martist.Artist):
             'labelbottom': 'label1On',
             'labelright': 'label2On',
             'labeltop': 'label2On',
+            'labelhorizontalalignment': 'labelhorizontalalignment',
+            'labelverticalalignment': 'labelverticalalignment',
         }
         if reverse:
             kwtrans = {}

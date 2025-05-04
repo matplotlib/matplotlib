@@ -3522,6 +3522,13 @@ class _AxesBase(martist.Artist):
         and with dimensions 6 points by 2 points.  Tick labels will
         also be red.  Gridlines will be red and translucent.
 
+        ::
+
+            ax.tick_params(axis='x', labelhorizontalalignment='right',
+                          labelverticalalignment='top')
+
+        This will align x-axis tick labels to the right horizontally and top vertically.
+
         """
         _api.check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
