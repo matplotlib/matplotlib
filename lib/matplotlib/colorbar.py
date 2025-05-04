@@ -16,8 +16,9 @@ import logging
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, collections, cm, colors, contour, ticker
+from matplotlib import _api, cbook, collections, colors, contour, ticker
 import matplotlib.artist as martist
+import matplotlib.colorizer as mcolorizer
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.spines as mspines
@@ -199,12 +200,12 @@ class Colorbar:
     Draw a colorbar in an existing Axes.
 
     Typically, colorbars are created using `.Figure.colorbar` or
-    `.pyplot.colorbar` and associated with `.ScalarMappable`\s (such as an
+    `.pyplot.colorbar` and associated with `.ColorizingArtist`\s (such as an
     `.AxesImage` generated via `~.axes.Axes.imshow`).
 
     In order to draw a colorbar not associated with other elements in the
     figure, e.g. when showing a colormap by itself, one can create an empty
-    `.ScalarMappable`, or directly pass *cmap* and *norm* instead of *mappable*
+    `.Colorizer`, or directly pass *cmap* and *norm* instead of *mappable*
     to `Colorbar`.
 
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
@@ -244,8 +245,8 @@ class Colorbar:
         ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` instance in which the colorbar is drawn.
 
-        mappable : `.ScalarMappable`
-            The mappable whose colormap and norm will be used.
+        mappable : `.ColorizingArtist` or `.Colorizer`
+            The mappable or colorizer whose colormap and norm will be used.
 
             To show the colors versus index instead of on a 0-1 scale, set the
             mappable's norm to ``colors.NoNorm()``.
@@ -288,15 +289,21 @@ class Colorbar:
             colorbar and at the right for a vertical.
         """
         if mappable is None:
-            mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+            mappable = mcolorizer.Colorizer(norm=norm, cmap=cmap)
 
-        self.mappable = mappable
-        cmap = mappable.cmap
-        norm = mappable.norm
+        if isinstance(mappable, mcolorizer.Colorizer):
+            self._mappable = None
+            self._colorizer = mappable
+        else:
+            self._mappable = mappable
+            self._colorizer = mappable._colorizer
+        self._historic_norm = self.colorizer.norm
+
+        del mappable, cmap, norm
 
         filled = True
-        if isinstance(mappable, contour.ContourSet):
-            cs = mappable
+        if isinstance(self.mappable, contour.ContourSet):
+            cs = self.mappable
             alpha = cs.get_alpha()
             boundaries = cs._levels
             values = cs.cvalues
@@ -304,11 +311,11 @@ class Colorbar:
             filled = cs.filled
             if ticks is None:
                 ticks = ticker.FixedLocator(cs.levels, nbins=10)
-        elif isinstance(mappable, martist.Artist):
-            alpha = mappable.get_alpha()
+        elif isinstance(self.mappable, martist.Artist):
+            alpha = self.mappable.get_alpha()
 
-        mappable.colorbar = self
-        mappable.colorbar_cid = mappable.callbacks.connect(
+        self.colorizer.colorbar = self
+        self.colorizer.colorbar_cid = self.colorizer.callbacks.connect(
             'changed', self.update_normal)
 
         location_orientation = _get_orientation_from_location(location)
@@ -332,18 +339,16 @@ class Colorbar:
         self.ax._axes_locator = _ColorbarAxesLocator(self)
 
         if extend is None:
-            if (not isinstance(mappable, contour.ContourSet)
-                    and getattr(cmap, 'colorbar_extend', False) is not False):
-                extend = cmap.colorbar_extend
-            elif hasattr(norm, 'extend'):
-                extend = norm.extend
+            if (not isinstance(self.mappable, contour.ContourSet)
+                    and getattr(self.cmap, 'colorbar_extend', False) is not False):
+                extend = self.cmap.colorbar_extend
+            elif hasattr(self.norm, 'extend'):
+                extend = self.norm.extend
             else:
                 extend = 'neither'
         self.alpha = None
         # Call set_alpha to handle array-like alphas properly
         self.set_alpha(alpha)
-        self.cmap = cmap
-        self.norm = norm
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
@@ -402,8 +407,8 @@ class Colorbar:
             self._formatter = format  # Assume it is a Formatter or None
         self._draw_all()
 
-        if isinstance(mappable, contour.ContourSet) and not mappable.filled:
-            self.add_lines(mappable)
+        if isinstance(self.mappable, contour.ContourSet) and not self.mappable.filled:
+            self.add_lines(self.mappable)
 
         # Link the Axes and Colorbar for interactive use
         self.ax._colorbar = self
@@ -424,6 +429,31 @@ class Colorbar:
             "xlim_changed", self._do_extends)
         self._extend_cid2 = self.ax.callbacks.connect(
             "ylim_changed", self._do_extends)
+
+    @property
+    def mappable(self):
+        return self._mappable
+
+    @property
+    def colorizer(self):
+        return self._colorizer
+
+    @colorizer.setter
+    def colorizer(self, colorizer):
+        self._colorizer = colorizer
+        # need to know the norm as it is now
+        # so that we can monitor for changes in update_normal()
+        self._historic_norm = colorizer.norm
+        # assume the norm is changed
+        self.update_normal()
+
+    @property
+    def cmap(self):
+        return self._colorizer.cmap
+
+    @property
+    def norm(self):
+        return self._colorizer.norm
 
     @property
     def long_axis(self):
@@ -484,7 +514,7 @@ class Colorbar:
         """
         Update solid patches, lines, etc.
 
-        This is meant to be called when the norm of the image or contour plot
+        This is meant to be called when the norm of the colorizer (image etc.)
         to which this colorbar belongs changes.
 
         If the norm on the mappable is different than before, this resets the
@@ -503,12 +533,16 @@ class Colorbar:
             # Therefore, the mappable keyword can be deprecated if cm.ScalarMappable
             # is removed.
             self.mappable = mappable
-        _log.debug('colorbar update normal %r %r', self.mappable.norm, self.norm)
-        self.set_alpha(self.mappable.get_alpha())
-        self.cmap = self.mappable.cmap
-        if self.mappable.norm != self.norm:
-            self.norm = self.mappable.norm
+
+        _log.debug('colorbar update normal %r %r',
+                   self.colorizer.norm,
+                   self._historic_norm)
+        if self.mappable:
+            self.set_alpha(self.mappable.get_alpha())
+
+        if self.colorizer.norm != self._historic_norm:
             self._reset_locator_formatter_scale()
+            self._historic_norm = self.colorizer.norm
 
         self._draw_all()
         if isinstance(self.mappable, contour.ContourSet):
@@ -1032,9 +1066,9 @@ class Colorbar:
 
         self.ax.remove()
 
-        self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)
-        self.mappable.colorbar = None
-        self.mappable.colorbar_cid = None
+        self.colorizer.callbacks.disconnect(self.colorizer.colorbar_cid)
+        self.colorizer.colorbar = None
+        self.colorizer.colorbar_cid = None
         # Remove the extension callbacks
         self.ax.callbacks.disconnect(self._extend_cid1)
         self.ax.callbacks.disconnect(self._extend_cid2)
@@ -1090,8 +1124,9 @@ class Colorbar:
             b = np.hstack((b, b[-1] + 1))
 
         # transform from 0-1 to vmin-vmax:
-        if self.mappable.get_array() is not None:
-            self.mappable.autoscale_None()
+        if self.mappable:
+            if self.mappable.get_array() is not None:
+                self.mappable.autoscale_None()
         if not self.norm.scaled():
             # If we still aren't scaled after autoscaling, use 0, 1 as default
             self.norm.vmin = 0

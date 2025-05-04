@@ -22,11 +22,8 @@ class _ColorbarSpine(mspines.Spines):
 
 class Colorbar:
     n_rasterize: int
-    mappable: cm.ScalarMappable | colorizer.ColorizingArtist
     ax: Axes
     alpha: float | None
-    cmap: colors.Colormap
-    norm: colors.Normalize
     values: Sequence[float] | None
     boundaries: Sequence[float] | None
     extend: Literal["neither", "both", "min", "max"]
@@ -44,7 +41,7 @@ class Colorbar:
     def __init__(
         self,
         ax: Axes,
-        mappable: cm.ScalarMappable | colorizer.ColorizingArtist | None = ...,
+        mappable: cm.ScalarMappable | colorizer.ColorizingArtist | colorizer.Colorizer | None = ...,
         *,
         cmap: str | colors.Colormap | None = ...,
         norm: colors.Normalize | None = ...,
@@ -63,6 +60,16 @@ class Colorbar:
         label: str = ...,
         location: Literal["left", "right", "top", "bottom"] | None = ...
     ) -> None: ...
+    @property
+    def mappable(self) -> cm.ScalarMappable | colorizer.ColorizingArtist : ...
+    @property
+    def colorizer(self) -> colorizer.Colorizer : ...
+    @colorizer.setter
+    def colorizer(self, colorizer) -> None : ...
+    @property
+    def cmap(self) -> colors.Colormap : ...
+    @property
+    def norm(self) -> colors.Normalize : ...
     @property
     def long_axis(self) -> Axis: ...
     @property
