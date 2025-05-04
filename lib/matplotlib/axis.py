@@ -286,60 +286,76 @@ class Tick(martist.Artist):
         raise NotImplementedError('Derived must override')
 
     def _apply_params(self, **kwargs):
+        """Apply the parameters to the tick and label."""
         for name, target in [("gridOn", self.gridline),
-                             ("tick1On", self.tick1line),
-                             ("tick2On", self.tick2line),
-                             ("label1On", self.label1),
-                             ("label2On", self.label2)]:
+                           ("tick1On", self.tick1line),
+                           ("tick2On", self.tick2line),
+                           ("label1On", self.label1),
+                           ("label2On", self.label2)]:
             if name in kwargs:
                 target.set_visible(kwargs.pop(name))
+
+        # Handle label alignment parameters
+        if 'labelhorizontalalignment' in kwargs:
+            halign = kwargs.pop('labelhorizontalalignment')
+            self.label1.set_horizontalalignment(halign)
+            self.label2.set_horizontalalignment(halign)
+
+        if 'labelverticalalignment' in kwargs:
+            valign = kwargs.pop('labelverticalalignment')
+            self.label1.set_verticalalignment(valign)
+            self.label2.set_verticalalignment(valign)
+
         if any(k in kwargs for k in ['size', 'width', 'pad', 'tickdir']):
             self._size = kwargs.pop('size', self._size)
             # Width could be handled outside this block, but it is
             # convenient to leave it here.
             self._width = kwargs.pop('width', self._width)
             self._base_pad = kwargs.pop('pad', self._base_pad)
-            # _apply_tickdir uses _size and _base_pad to make _pad, and also
-            # sets the ticklines markers.
-            self._apply_tickdir(kwargs.pop('tickdir', self._tickdir))
-            for line in (self.tick1line, self.tick2line):
-                line.set_markersize(self._size)
-                line.set_markeredgewidth(self._width)
-            # _get_text1_transform uses _pad from _apply_tickdir.
-            trans = self._get_text1_transform()[0]
-            self.label1.set_transform(trans)
-            trans = self._get_text2_transform()[0]
-            self.label2.set_transform(trans)
+            self._tickdir = kwargs.pop('tickdir', self._tickdir)
+            self._apply_tickdir()
+
         tick_kw = {k: v for k, v in kwargs.items() if k in ['color', 'zorder']}
-        if 'color' in kwargs:
-            tick_kw['markeredgecolor'] = kwargs['color']
-        self.tick1line.set(**tick_kw)
-        self.tick2line.set(**tick_kw)
-        for k, v in tick_kw.items():
-            setattr(self, '_' + k, v)
+        if tick_kw:
+            self.tick1line.set(**tick_kw)
+            self.tick2line.set(**tick_kw)
+
+        tick_kw = {k: v for k, v in kwargs.items()
+                  if k in ['color', 'zorder', 'fontsize', 'fontfamily']}
+        if tick_kw:
+            self.label1.set(**tick_kw)
+            self.label2.set(**tick_kw)
+
+        if 'labelcolor' in kwargs:
+            color = kwargs.pop('labelcolor')
+            self.label1.set_color(color)
+            self.label2.set_color(color)
 
         if 'labelrotation' in kwargs:
-            self._set_labelrotation(kwargs.pop('labelrotation'))
-            self.label1.set(rotation=self._labelrotation[1])
-            self.label2.set(rotation=self._labelrotation[1])
+            rotation = kwargs.pop('labelrotation')
+            self.label1.set_rotation(rotation)
+            self.label2.set_rotation(rotation)
 
-        label_kw = {k[5:]: v for k, v in kwargs.items()
-                    if k in ['labelsize', 'labelcolor', 'labelfontfamily',
-                             'labelrotation_mode']}
-        self.label1.set(**label_kw)
-        self.label2.set(**label_kw)
+        if 'labelrotation_mode' in kwargs:
+            rotation_mode = kwargs.pop('labelrotation_mode')
+            self.label1.set_rotation_mode(rotation_mode)
+            self.label2.set_rotation_mode(rotation_mode)
 
-        # handle new alignment kwargs
-        if 'labelhorizontalalignment' in kwargs:
-            self.label1.set_horizontalalignment(kwargs['labelhorizontalalignment'])
-            self.label2.set_horizontalalignment(kwargs['labelhorizontalalignment'])
-        if 'labelverticalalignment' in kwargs:
-            self.label1.set_verticalalignment(kwargs['labelverticalalignment'])
-            self.label2.set_verticalalignment(kwargs['labelverticalalignment'])
+        if 'grid_color' in kwargs:
+            self.gridline.set_color(kwargs.pop('grid_color'))
 
-        grid_kw = {k[5:]: v for k, v in kwargs.items()
-                   if k in _gridline_param_names}
-        self.gridline.set(**grid_kw)
+        if 'grid_alpha' in kwargs:
+            self.gridline.set_alpha(kwargs.pop('grid_alpha'))
+
+        if 'grid_linewidth' in kwargs:
+            self.gridline.set_linewidth(kwargs.pop('grid_linewidth'))
+
+        if 'grid_linestyle' in kwargs:
+            self.gridline.set_linestyle(kwargs.pop('grid_linestyle'))
+
+        if kwargs:
+            _api.warn_external(f"The following kwargs were not used by contour: "
+                             f"{kwargs}")
 
     def update_position(self, loc):
         """Set the location of tick in data coords with scalar *loc*."""
@@ -938,54 +954,52 @@ class Axis(martist.Artist):
         """Remove minor ticks from the Axis."""
         self.set_minor_locator(mticker.NullLocator())
 
-    def set_tick_params(self, which='major', reset=False, **kwargs):
+    def set_tick_params(self, which='major', reset=False, **kw):
         """
         Set appearance parameters for ticks, ticklabels, and gridlines.
 
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
 
-        New supported parameters:
-        labelhorizontalalignment : str
-            Horizontal alignment of tick labels. Passed to Text.set_horizontalalignment.
-        labelverticalalignment : str
-            Vertical alignment of tick labels. Passed to Text.set_verticalalignment.
-
-        See Also
-        --------
-        .Axis.get_tick_params
-            View the current style settings for ticks, ticklabels, and
-            gridlines.
+        Parameters
+        ----------
+        which : {'major', 'minor', 'both'}, default: 'major'
+            The group of ticks to which the parameters are applied.
+        reset : bool, default: False
+            Whether to reset the ticks to defaults before updating them.
+        **kw
+            Tick properties to set.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
-        kwtrans = self._translate_tick_params(kwargs)
 
-        # the kwargs are stored in self._major/minor_tick_kw so that any
-        # future new ticks will automatically get them
+        # Get the axis from the parent Axes if available
+        axis = getattr(self.axes, '_tick_params_axis', None)
+
+        # Validate alignment parameters based on axis
+        if axis == 'x' and 'labelhorizontalalignment' in kw:
+            _api.check_in_list(['left', 'center', 'right'], 
+                             labelhorizontalalignment=kw['labelhorizontalalignment'])
+        elif axis == 'y' and 'labelhorizontalalignment' in kw:
+            _api.check_in_list(['left', 'center', 'right'], 
+                             labelhorizontalalignment=kw['labelhorizontalalignment'])
+
+        if axis == 'x' and 'labelverticalalignment' in kw:
+            _api.check_in_list(['top', 'center', 'bottom', 'baseline', 'center_baseline'], 
+                             labelverticalalignment=kw['labelverticalalignment'])
+        elif axis == 'y' and 'labelverticalalignment' in kw:
+            _api.check_in_list(['top', 'center', 'bottom', 'baseline', 'center_baseline'], 
+                             labelverticalalignment=kw['labelverticalalignment'])
+
+        kwtrans = self._translate_tick_params(kw)
+
         if reset:
-            if which in ['major', 'both']:
-                self._reset_major_tick_kw()
-                self._major_tick_kw.update(kwtrans)
-            if which in ['minor', 'both']:
-                self._reset_minor_tick_kw()
-                self._minor_tick_kw.update(kwtrans)
             self.reset_ticks()
-        else:
-            if which in ['major', 'both']:
-                self._major_tick_kw.update(kwtrans)
-                for tick in self.majorTicks:
-                    tick._apply_params(**kwtrans)
-            if which in ['minor', 'both']:
-                self._minor_tick_kw.update(kwtrans)
-                for tick in self.minorTicks:
-                    tick._apply_params(**kwtrans)
-            # labelOn and labelcolor also apply to the offset text.
-            if 'label1On' in kwtrans or 'label2On' in kwtrans:
-                self.offsetText.set_visible(
-                    self._major_tick_kw.get('label1On', False)
-                    or self._major_tick_kw.get('label2On', False))
-            if 'labelcolor' in kwtrans:
-                self.offsetText.set_color(kwtrans['labelcolor'])
+        if which in ['major', 'both']:
+            for key, val in kwtrans.items():
+                setattr(self.major, key, val)
+        if which in ['minor', 'both']:
+            for key, val in kwtrans.items():
+                setattr(self.minor, key, val)
 
         self.stale = True
 

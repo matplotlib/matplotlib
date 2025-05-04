@@ -272,3 +272,39 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
    Tick.set_pad
    Tick.set_url
    Tick.update_position
+
+Tick Parameters
+--------------
+
+The following parameters can be used to control the appearance of tick marks and tick labels:
+
+* ``direction`` : {'in', 'out', 'inout'}
+    Puts ticks inside the axes, outside the axes, or both.
+* ``length`` : float
+    Tick length in points.
+* ``width`` : float
+    Tick width in points.
+* ``color`` : color
+    Tick color.
+* ``pad`` : float
+    Distance in points between tick and label.
+* ``labelsize`` : float or str
+    Tick label font size in points or as a string (e.g., 'large').
+* ``labelcolor`` : color
+    Tick label color.
+* ``labelfontfamily`` : str
+    Tick label font family.
+* ``labelhorizontalalignment`` : {'left', 'center', 'right'}
+    Horizontal alignment of tick labels. Only applies when axis='x' or axis='y'.
+* ``labelverticalalignment`` : {'top', 'center', 'bottom', 'baseline', 'center_baseline'}
+    Vertical alignment of tick labels. Only applies when axis='x' or axis='y'.
+* ``labelrotation`` : float
+    Tick label rotation angle in degrees.
+* ``grid_color`` : color
+    Gridline color.
+* ``grid_alpha`` : float
+    Transparency of gridlines: 0 (transparent) to 1 (opaque).
+* ``grid_linewidth`` : float
+    Width of gridlines in points.
+* ``grid_linestyle`` : str
+    Any valid Line2D line style spec.
