@@ -1108,6 +1108,11 @@ _validators = {
     "axes.spines.bottom":    validate_bool,  # denoting data boundary.
     "axes.spines.top":       validate_bool,
 
+    "axes.spines.left.position":      validate_anylist,
+    "axes.spines.right.position":     validate_anylist,
+    "axes.spines.bottom.position":    validate_anylist,
+    "axes.spines.top.position":       validate_anylist,
+
     "axes.titlesize":     validate_fontsize,  # Axes title fontsize
     "axes.titlelocation": ["left", "center", "right"],  # Axes title alignment
     "axes.titleweight":   validate_fontweight,  # Axes title font weight

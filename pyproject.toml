@@ -77,6 +77,7 @@ requires = [
 
 [tool.meson-python.args]
 install = ['--tags=data,python-runtime,runtime']
+setup = ['--vsenv']
 
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
