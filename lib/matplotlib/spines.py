@@ -203,7 +203,8 @@ class Spine(mpatches.Patch):
     def _ensure_position_is_set(self):
         if self._position is None:
             # default position
-            self._position = ('outward', 0.0)  # in points
+            default_pos = mpl.rcParams[f'axes.spines.{self.spine_type}_outward']
+            self._position = ('outward', default_pos)  # in points
             self.set_position(self._position)
 
     def register_axis(self, axis):
