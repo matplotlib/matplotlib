@@ -2,10 +2,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Colormaps are now available through the `.Coloarmap.Registry` accessible via
-``matplotlib.colormaps`` or ``plt.colormaps``.
+`matplotlib.colormaps` or `matplotlib.pyplot.colormaps`.
 
-If you have the name of a colormap as a sting, you can use direct lookup
-``matplotlib.colormaps[name]``. Alternatively, `matplotlib.colormaps.get_cmap` will
+If you have the name of a colormap as a string, you can use a direct lookup,
+``matplotlib.colormaps[name]``. Alternatively, ``matplotlib.colormaps.get_cmap`` will
 maintain the existing behavior of additionally passing through `.Colormap` instances
-and converting ``None`` to the default colormap. `plt.get_cmap` will stay as a
-shortcut to `matplotlib.colormaps.get_cmap`.
+and converting ``None`` to the default colormap. `matplotlib.pyplot.get_cmap` will stay as a
+shortcut to ``matplotlib.colormaps.get_cmap``.
