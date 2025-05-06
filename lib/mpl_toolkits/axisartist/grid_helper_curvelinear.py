@@ -316,9 +316,9 @@ class GridHelperCurveLinear(GridHelperBase):
         self.grid_finder.update(**kwargs)
         self._old_limits = None  # Force revalidation.
 
-    @_api.make_keyword_only("3.9", "nth_coord")
     def new_fixed_axis(
-            self, loc, nth_coord=None, axis_direction=None, offset=None, axes=None):
+        self, loc, *, axis_direction=None, offset=None, axes=None, nth_coord=None
+    ):
         if axes is None:
             axes = self.axes
         if axis_direction is None:
