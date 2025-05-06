@@ -9748,6 +9748,7 @@ def test_pie_non_finite_values():
     with pytest.raises(ValueError, match='Wedge sizes must be finite numbers'):
         ax.pie(df, labels=['A', 'B', 'C'])
 
+
 def test_pie_all_zeros():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match="All wedge sizes are zero"):
