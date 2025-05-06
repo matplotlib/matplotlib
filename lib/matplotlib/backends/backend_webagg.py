@@ -52,8 +52,8 @@ class FigureManagerWebAgg(core.FigureManagerWebAgg):
             """
         js_code = f"var fig_id = '{fignum}';" + js_code
 
-        js_fig = run_js(js_code)
-        web_socket = WebAggApplication.MockPythonWebSocket(self, js_fig.ws)
+        self.js_fig = run_js(js_code)
+        web_socket = WebAggApplication.MockPythonWebSocket(self, self.js_fig.ws)
         web_socket.open(fignum)
 
 
@@ -70,14 +70,18 @@ class WebAggApplication():
         def __init__(self, manager, js_web_socket):
             self.manager = manager
             self.js_web_socket = js_web_socket
+            self.on_message_proxy = None
 
         def open(self, fignum):
-            self.js_web_socket.open(create_proxy(self.on_message))   # should destroy proxy on close/exit?
+            self.on_message_proxy = create_proxy(self.on_message)
+            self.js_web_socket.open(self.on_message_proxy)
             self.fignum = int(fignum)
             self.manager.add_web_socket(self)
 
         def on_close(self):
             self.manager.remove_web_socket(self)
+            self.on_message_proxy.destroy()
+            self.on_message_proxy = None
 
         def on_message(self, message):
             message = message.as_py_json()
