@@ -207,7 +207,7 @@ class InvertedPolarTransform(mtransforms.Transform):
         # docstring inherited
         x, y = values.T
         r = np.hypot(x, y)
-        theta = (np.arctan2(y, x) + 2 * np.pi) % (2 * np.pi)
+        theta = np.arctan2(y, x) % (2 * np.pi)
         if self._use_rmin and self._axis is not None:
             r += self._axis.get_rorigin()
             r *= self._axis.get_rsign()
