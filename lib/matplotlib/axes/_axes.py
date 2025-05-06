@@ -3308,6 +3308,9 @@ class Axes(_AxesBase):
 
         sx = x.sum()
 
+        if sx == 0:
+            raise ValueError('All wedge sizes are zero')
+
         if normalize:
             x = x / sx
         elif sx > 1:
