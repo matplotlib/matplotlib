@@ -2321,13 +2321,8 @@ class Normalize:
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
     @property
-    def n_input(self):
+    def n_variables(self):
         # To be overridden by subclasses with multiple inputs
-        return 1
-
-    @property
-    def n_output(self):
-        # To be overridden by subclasses with multiple outputs
         return 1
 
     @property
@@ -3283,11 +3278,7 @@ class MultiNorm(Normalize):
             n.callbacks.connect('changed', self._changed)
 
     @property
-    def n_input(self):
-        return len(self._norms)
-
-    @property
-    def n_output(self):
+    def n_variables(self):
         return len(self._norms)
 
     @property
@@ -3300,7 +3291,7 @@ class MultiNorm(Normalize):
 
     @vmin.setter
     def vmin(self, value):
-        value = np.broadcast_to(value, self.n_input)
+        value = np.broadcast_to(value, self.n_variables)
         with self.callbacks.blocked():
             for i, v in enumerate(value):
                 if v is not None:
@@ -3313,7 +3304,7 @@ class MultiNorm(Normalize):
 
     @vmax.setter
     def vmax(self, value):
-        value = np.broadcast_to(value, self.n_input)
+        value = np.broadcast_to(value, self.n_variables)
         with self.callbacks.blocked():
             for i, v in enumerate(value):
                 if v is not None:
@@ -3326,7 +3317,7 @@ class MultiNorm(Normalize):
 
     @clip.setter
     def clip(self, value):
-        value = np.broadcast_to(value, self.n_input)
+        value = np.broadcast_to(value, self.n_variables)
         with self.callbacks.blocked():
             for i, v in enumerate(value):
                 if v is not None:
@@ -3349,8 +3340,8 @@ class MultiNorm(Normalize):
         Parameters
         ----------
         value
-            Data to normalize. Must be of length `n_input` or have a data type with
-            `n_input` fields.
+            Data to normalize. Must be of length `n_variables` or have a data type with
+            `n_variables` fields.
         clip : list of bools or bool, optional
             See the description of the parameter *clip* in Normalize.
             If ``None``, defaults to ``self.clip`` (which defaults to
@@ -3359,7 +3350,7 @@ class MultiNorm(Normalize):
         Returns
         -------
         Data
-            Normalized input values as a list of length `n_input`
+            Normalized input values as a list of length `n_variables`
 
         Notes
         -----
@@ -3369,9 +3360,9 @@ class MultiNorm(Normalize):
         if clip is None:
             clip = self.clip
         elif not np.iterable(clip):
-            clip = [clip]*self.n_input
+            clip = [clip]*self.n_variables
 
-        value = self._iterable_variates_in_data(value, self.n_input)
+        value = self._iterable_variates_in_data(value, self.n_variables)
         result = [n(v, clip=c) for n, v, c in zip(self.norms, value, clip)]
         return result
 
@@ -3382,10 +3373,10 @@ class MultiNorm(Normalize):
         Parameters
         ----------
         value
-            Normalized value. Must be of length `n_input` or have a data type with
-            `n_input` fields.
+            Normalized value. Must be of length `n_variables` or have a data type with
+            `n_variables` fields.
         """
-        value = self._iterable_variates_in_data(value, self.n_input)
+        value = self._iterable_variates_in_data(value, self.n_variables)
         result = [n.inverse(v) for n, v in zip(self.norms, value)]
         return result
 
@@ -3397,7 +3388,7 @@ class MultiNorm(Normalize):
         with self.callbacks.blocked():
             # Pause callbacks while we are updating so we only get
             # a single update signal at the end
-            A = self._iterable_variates_in_data(A, self.n_input)
+            A = self._iterable_variates_in_data(A, self.n_variables)
             for n, a in zip(self.norms, A):
                 n.autoscale(a)
         self._changed()
@@ -3410,11 +3401,11 @@ class MultiNorm(Normalize):
         Parameters
         ----------
         A
-            Data, must be of length `n_input` or be an np.ndarray type with
-            `n_input` fields.
+            Data, must be of length `n_variables` or be an np.ndarray type with
+            `n_variables` fields.
         """
         with self.callbacks.blocked():
-            A = self._iterable_variates_in_data(A, self.n_input)
+            A = self._iterable_variates_in_data(A, self.n_variables)
             for n, a in zip(self.norms, A):
                 n.autoscale_None(a)
         self._changed()
@@ -3424,18 +3415,18 @@ class MultiNorm(Normalize):
         return all([(n.vmin is not None and n.vmax is not None) for n in self.norms])
 
     @staticmethod
-    def _iterable_variates_in_data(data, n_input):
+    def _iterable_variates_in_data(data, n_variables):
         """
         Provides an iterable over the variates contained in the data.
 
-        An input array with n_input fields is returned as a list of length n referencing
-        slices of the original array.
+        An input array with `n_variables` fields is returned as a list of length n
+        referencing slices of the original array.
 
         Parameters
         ----------
         data : np.ndarray, tuple or list
-            The input array. It must either be an array with n_input fields or have
-            a length (n_input)
+            The input array. It must either be an array with n_variables fields or have
+            a length (n_variables)
 
         Returns
         -------
@@ -3444,10 +3435,10 @@ class MultiNorm(Normalize):
         """
         if isinstance(data, np.ndarray) and data.dtype.fields is not None:
             data = [data[descriptor[0]] for descriptor in data.dtype.descr]
-        if len(data) != n_input:
+        if len(data) != n_variables:
             raise ValueError("The input to this `MultiNorm` must be of shape "
-                             f"({n_input}, ...), or have a data type with {n_input} "
-                             "fields.")
+                             f"({n_variables}, ...), or have a data type with "
+                             f"{n_variables} fields.")
         return data
 
 
