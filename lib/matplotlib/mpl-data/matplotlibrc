@@ -420,6 +420,11 @@
 #axes.spines.top:    True
 #axes.spines.right:  True
 
+#axes.spines.left.position:   outward, 0.0 # set (outward, axes, data) position
+#axes.spines.bottom.position: outward, 0.0
+#axes.spines.top.position:    outward, 0.0
+#axes.spines.right.position:  outward, 0.0
+
 #axes.unicode_minus: True  # use Unicode for the minus symbol rather than hyphen.  See
                            # https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
 #axes.prop_cycle: cycler(color='tab10')
