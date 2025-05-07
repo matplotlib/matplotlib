@@ -7,7 +7,6 @@ import functools
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, Bbox, IdentityTransform
 from .axislines import (
