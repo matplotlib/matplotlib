@@ -20,6 +20,9 @@ from js import document
 import numpy as np
 from PIL import Image
 
+from pyodide.ffi.wrappers import (
+    clear_interval, clear_timeout, set_interval, set_timeout)
+
 from matplotlib import _api, backend_bases, backend_tools
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import (
@@ -79,9 +82,38 @@ def _handle_key(key):
     return key
 
 
+class TimerJs(backend_bases.TimerBase):
+    def __init__(self, *args, **kwargs):
+        self._timer: int | None = None
+        super().__init__(*args, **kwargs)
+
+    def _timer_start(self):
+        self._timer_stop()
+        if self._single:
+            self._timer = set_timeout(self._on_timer, self.interval)
+        else:
+            self._timer = set_interval(self._on_timer, self.interval)
+
+    def _timer_stop(self):
+        if self._timer is None:
+            return
+        elif self._single:
+            clear_timeout(self._timer)
+            self._timer = None
+        else:
+            clear_interval(self._timer)
+            self._timer = None
+
+    def _timer_set_interval(self):
+        # Only stop and restart it if the timer has already been started
+        if self._timer is not None:
+            self._timer_stop()
+            self._timer_start()
+
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     manager_class = _api.classproperty(lambda cls: FigureManagerWebAgg)
+    _timer_cls = TimerJs
     # Webagg and friends having the right methods, but still
     # having bugs in practice.  Do not advertise that it works until
     # we can debug this.
