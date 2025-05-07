@@ -1,4 +1,5 @@
-import numpy as np
+import numpy as np  
+import warnings
 
 from matplotlib import _docstring
 from matplotlib.contour import ContourSet
@@ -161,25 +162,6 @@ alpha : float, default: 1
 
     This parameter is ignored if *colors* is set.
 
-origin : {*None*, 'upper', 'lower', 'image'}, default: None
-    Determines the orientation and exact position of *z* by specifying the
-    position of ``z[0, 0]``.  This is only relevant, if *X*, *Y* are not given.
-
-    - *None*: ``z[0, 0]`` is at X=0, Y=0 in the lower left corner.
-    - 'lower': ``z[0, 0]`` is at X=0.5, Y=0.5 in the lower left corner.
-    - 'upper': ``z[0, 0]`` is at X=N+0.5, Y=0.5 in the upper left corner.
-    - 'image': Use the value from :rc:`image.origin`.
-
-extent : (x0, x1, y0, y1), optional
-    If *origin* is not *None*, then *extent* is interpreted as in `.imshow`: it
-    gives the outer pixel boundaries. In this case, the position of z[0, 0] is
-    the center of the pixel, not a corner. If *origin* is *None*, then
-    (*x0*, *y0*) is the position of z[0, 0], and (*x1*, *y1*) is the position
-    of z[-1, -1].
-
-    This argument is ignored if *X* and *Y* are specified in the call to
-    contour.
-
 locator : ticker.Locator subclass, optional
     The locator is used to determine the contour levels if they are not given
     explicitly via *levels*.
@@ -219,7 +201,13 @@ antialiased : bool, optional
 
 @_docstring.Substitution(func='tricontour', type='lines')
 @_docstring.interpd
-def tricontour(ax, *args, **kwargs):
+def tricontour(ax, *args, origin=None, extent=None, **kwargs):
+    if origin is not None or extent is not None:
+        warnings.warn(
+            "'origin' and 'extent' have no effect in 'tricontour' or 'tricontourf'.",
+            DeprecationWarning
+        )
+
     """
     %(_tricontour_doc)s
 
