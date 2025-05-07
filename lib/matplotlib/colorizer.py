@@ -223,9 +223,9 @@ class Colorizer:
         in_init = self._cmap is None
         cmap_obj = _ensure_cmap(cmap, accept_multivariate=True)
         if not in_init:
-            if self.norm.n_output != cmap_obj.n_variates:
+            if self.norm.n_variables != cmap_obj.n_variates:
                 raise ValueError(f"The colormap {cmap} does not support "
-                                 f"{self.norm.n_output} variates as required by "
+                                 f"{self.norm.n_variables} variates as required by "
                                  f"the {type(self.norm)} on this Colorizer")
         self._cmap = cmap_obj
         if not in_init:
@@ -253,7 +253,7 @@ class Colorizer:
 
              .. ACCEPTS: (vmin: float, vmax: float)
         """
-        if self.norm.n_input == 1:
+        if self.norm.n_variables == 1:
             if vmax is None:
                 try:
                     vmin, vmax = vmin
@@ -580,7 +580,7 @@ class _ScalarMappable(_ColorizerInterface):
             self._A = None
             return
 
-        A = _ensure_multivariate_data(A, self.norm.n_input)
+        A = _ensure_multivariate_data(A, self.norm.n_variables)
 
         A = cbook.safe_masked_invalid(A, copy=True)
         if not np.can_cast(A.dtype, float, "same_kind"):
@@ -784,7 +784,7 @@ def _ensure_norm(norm, n_variates=1):
             norm = colors.MultiNorm([norm]*n_variates)
         else:  # multiple string or objects
             norm = colors.MultiNorm(norm)
-        if isinstance(norm, colors.Normalize) and norm.n_output == n_variates:
+        if isinstance(norm, colors.Normalize) and norm.n_variables == n_variates:
             return norm
         raise ValueError(
                 "Invalid norm for multivariate colormap with "
@@ -857,20 +857,20 @@ def _ensure_cmap(cmap, accept_multivariate=False):
     return cm.colormaps[cmap_name]
 
 
-def _ensure_multivariate_data(data, n_input):
+def _ensure_multivariate_data(data, n_variables):
     """
-    Ensure that the data has dtype with n_input.
-    Input data of shape (n_input, n, m) is converted to an array of shape
-    (n, m) with data type np.dtype(f'{data.dtype}, ' * n_input)
+    Ensure that the data has dtype with n_variables.
+    Input data of shape (n_variables, n, m) is converted to an array of shape
+    (n, m) with data type np.dtype(f'{data.dtype}, ' * n_variables)
     Complex data is returned as a view with dtype np.dtype('float64, float64')
     or np.dtype('float32, float32')
-    If n_input is 1 and data is not of type np.ndarray (i.e. PIL.Image),
+    If n_variables is 1 and data is not of type np.ndarray (i.e. PIL.Image),
     the data is returned unchanged.
     If data is None, the function returns None
 
     Parameters
     ----------
-    n_input : int
+    n_variables : int
         -  number of variates in the data
     data : np.ndarray, PIL.Image or None
 
@@ -880,7 +880,7 @@ def _ensure_multivariate_data(data, n_input):
     """
 
     if isinstance(data, np.ndarray):
-        if len(data.dtype.descr) == n_input:
+        if len(data.dtype.descr) == n_variables:
             # pass scalar data
             # and already formatted data
             return data
@@ -896,8 +896,8 @@ def _ensure_multivariate_data(data, n_input):
                     reconstructed[descriptor[0]][data.mask] = np.ma.masked
             return reconstructed
 
-    if n_input > 1 and len(data) == n_input:
-        # convert data from shape (n_input, n, m)
+    if n_variables > 1 and len(data) == n_variables:
+        # convert data from shape (n_variables, n, m)
         # to (n,m) with a new dtype
         data = [np.ma.array(part, copy=False) for part in data]
         dt = np.dtype(', '.join([f'{part.dtype}' for part in data]))
@@ -915,15 +915,15 @@ def _ensure_multivariate_data(data, n_input):
     if data is None:
         return data
 
-    if n_input == 1:
+    if n_variables == 1:
         # PIL.Image also gets passed here
         return data
 
-    elif n_input == 2:
+    elif n_variables == 2:
         raise ValueError("Invalid data entry for multivariate data. The data"
                          " must contain complex numbers, or have a first dimension 2,"
                          " or be of a dtype with 2 fields")
     else:
         raise ValueError("Invalid data entry for multivariate data. The shape"
-                         f" of the data must have a first dimension {n_input}"
-                         f" or be of a dtype with {n_input} fields")
+                         f" of the data must have a first dimension {n_variables}"
+                         f" or be of a dtype with {n_variables} fields")
