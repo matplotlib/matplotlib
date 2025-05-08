@@ -719,11 +719,11 @@ class PdfFile:
 
         self.infoDict = _create_pdf_info_dict('pdf', metadata or {})
 
-        self.fontNames = {}     # maps filenames to internal font names
         self._internal_font_seq = (Name(f'F{i}') for i in itertools.count(1))
-        self.dviFontInfo = {}   # maps dvi font names to embedding information
+        self._fontNames = {}     # maps filenames to internal font names
+        self._dviFontInfo = {}   # maps dvi font names to embedding information
         # differently encoded Type-1 fonts may share the same descriptor
-        self.type1Descriptors = {}
+        self._type1Descriptors = {}
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
@@ -764,6 +764,11 @@ class PdfFile:
                      'Shading': self.gouraudObject,
                      'ProcSet': procsets}
         self.writeObject(self.resourceObject, resources)
+
+    fontNames = _api.deprecated("3.11")(property(lambda self: self._fontNames))
+    dviFontNames = _api.deprecated("3.11")(property(lambda self: self._dviFontNames))
+    type1Descriptors = _api.deprecated("3.11")(
+        property(lambda self: self._type1Descriptors))
 
     def newPage(self, width, height):
         self.endStream()
@@ -894,7 +899,7 @@ class PdfFile:
     def fontName(self, fontprop):
         """
         Select a font based on fontprop and return a name suitable for
-        Op.selectfont. If fontprop is a string, it will be interpreted
+        ``Op.selectfont``. If fontprop is a string, it will be interpreted
         as the filename of the font.
         """
 
@@ -908,12 +913,12 @@ class PdfFile:
             filenames = _fontManager._find_fonts_by_props(fontprop)
         first_Fx = None
         for fname in filenames:
-            Fx = self.fontNames.get(fname)
+            Fx = self._fontNames.get(fname)
             if not first_Fx:
                 first_Fx = Fx
             if Fx is None:
                 Fx = next(self._internal_font_seq)
-                self.fontNames[fname] = Fx
+                self._fontNames[fname] = Fx
                 _log.debug('Assigning font %s = %r', Fx, fname)
                 if not first_Fx:
                     first_Fx = Fx
@@ -925,11 +930,11 @@ class PdfFile:
     def dviFontName(self, dvifont):
         """
         Given a dvi font object, return a name suitable for Op.selectfont.
-        This registers the font information in ``self.dviFontInfo`` if not yet
-        registered.
+        This registers the font information internally (in ``_dviFontInfo``) if
+        not yet registered.
         """
 
-        dvi_info = self.dviFontInfo.get(dvifont.texname)
+        dvi_info = self._dviFontInfo.get(dvifont.texname)
         if dvi_info is not None:
             return dvi_info.pdfname
 
@@ -943,7 +948,7 @@ class PdfFile:
 
         pdfname = next(self._internal_font_seq)
         _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
-        self.dviFontInfo[dvifont.texname] = types.SimpleNamespace(
+        self._dviFontInfo[dvifont.texname] = types.SimpleNamespace(
             dvifont=dvifont,
             pdfname=pdfname,
             fontfile=psfont.filename,
@@ -954,12 +959,12 @@ class PdfFile:
 
     def writeFonts(self):
         fonts = {}
-        for dviname, info in sorted(self.dviFontInfo.items()):
+        for dviname, info in sorted(self._dviFontInfo.items()):
             Fx = info.pdfname
             _log.debug('Embedding Type-1 font %s from dvi.', dviname)
             fonts[Fx] = self._embedTeXFont(info)
-        for filename in sorted(self.fontNames):
-            Fx = self.fontNames[filename]
+        for filename in sorted(self._fontNames):
+            Fx = self._fontNames[filename]
             _log.debug('Embedding font %s.', filename)
             if filename.endswith('.afm'):
                 # from pdf.use14corefonts
@@ -1039,10 +1044,10 @@ class PdfFile:
         # existing descriptor for this font.
         effects = (fontinfo.effects.get('slant', 0.0),
                    fontinfo.effects.get('extend', 1.0))
-        fontdesc = self.type1Descriptors.get((fontinfo.fontfile, effects))
+        fontdesc = self._type1Descriptors.get((fontinfo.fontfile, effects))
         if fontdesc is None:
             fontdesc = self.createType1Descriptor(t1font, fontinfo.fontfile)
-            self.type1Descriptors[(fontinfo.fontfile, effects)] = fontdesc
+            self._type1Descriptors[(fontinfo.fontfile, effects)] = fontdesc
         fontdict['FontDescriptor'] = fontdesc
 
         self.writeObject(fontdictObject, fontdict)

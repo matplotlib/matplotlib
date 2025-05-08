@@ -1,0 +1,3 @@
+``PdfFile.fontNames``, ``PdfFile.dviFontNames``, ``PdfFile.type1Descriptors``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated with no replacement.
