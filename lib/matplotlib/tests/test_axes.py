@@ -9737,13 +9737,11 @@ def test_caps_color():
 
     # Creates a simple plot with error bars and a specified ecolor
     x = np.linspace(0, 10, 10)
-    y = np.sin(x)
-    yerr = 0.1
     mpl.rcParams['lines.markeredgecolor'] = 'green'
     ecolor = 'red'
 
     fig, ax = plt.subplots()
-    errorbars = ax.errorbar(x, y, yerr=yerr, ecolor=ecolor, fmt='o', capsize=5)
+    errorbars = ax.errorbar(x, sin(x), yerr=0.1, ecolor=ecolor)
 
     # Tests if the caps have the specified color
     for cap in errorbars[2]:
