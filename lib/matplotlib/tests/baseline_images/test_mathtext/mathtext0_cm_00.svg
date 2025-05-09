@@ -10,8 +10,8 @@
    <!-- $-$- -->
    <g transform="translate(182.16 30.31125)">
     <text>
-     <tspan style="font: 12px 'cmsy10'" x="0" y="-0.234375">¡</tspan>
-     <tspan style="font: 12px 'DejaVu Sans'" x="9.322266" y="-0.234375">-</tspan>
+     <tspan x="0" y="-0" style="font-size: 12px; font-family: 'cmsy10'">¡</tspan>
+     <tspan x="9.322266" y="-0" style="font-size: 12px; font-family: 'DejaVu Sans'">-</tspan>
     </text>
    </g>
   </g>

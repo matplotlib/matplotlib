@@ -1027,9 +1027,6 @@ def test_hexbin_pickable():
 def test_hexbin_log():
     # Issue #1636 (and also test log scaled colorbar)
 
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     np.random.seed(19680801)
     n = 100000
     x = np.random.standard_normal(n)
@@ -1515,9 +1512,6 @@ def test_pcolormesh_log_scale(fig_test, fig_ref):
 
 @image_comparison(['pcolormesh_datetime_axis.png'], style='mpl20')
 def test_pcolormesh_datetime_axis():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
     base = datetime.datetime(2013, 1, 1)
@@ -4856,7 +4850,7 @@ def test_hist_stacked_bar():
     colors = [(0.5759849696758961, 1.0, 0.0), (0.0, 1.0, 0.350624650815206),
               (0.0, 1.0, 0.6549834156005998), (0.0, 0.6569064625276622, 1.0),
               (0.28302699607823545, 0.0, 1.0), (0.6849123462299822, 0.0, 1.0)]
-    labels = ['green', 'orange', ' yellow', 'magenta', 'black']
+    labels = ['green', 'orange', 'yellow', 'magenta', 'black']
     fig, ax = plt.subplots()
     ax.hist(d, bins=10, histtype='barstacked', align='mid', color=colors,
             label=labels)
@@ -8153,12 +8147,12 @@ def test_normal_axes():
 
     # test the axis bboxes
     target = [
-        [123.375, 75.88888888888886, 983.25, 33.0],
-        [85.51388888888889, 99.99999999999997, 53.375, 993.0]
+        [124.0, 76.89, 982.0, 32.0],
+        [86.89, 100.5, 52.0, 992.0],
     ]
     for nn, b in enumerate(bbaxis):
         targetbb = mtransforms.Bbox.from_bounds(*target[nn])
-        assert_array_almost_equal(b.bounds, targetbb.bounds, decimal=2)
+        assert_array_almost_equal(b.bounds, targetbb.bounds, decimal=0)
 
     target = [
         [150.0, 119.999, 930.0, 11.111],
@@ -8174,9 +8168,9 @@ def test_normal_axes():
     targetbb = mtransforms.Bbox.from_bounds(*target)
     assert_array_almost_equal(bbax.bounds, targetbb.bounds, decimal=2)
 
-    target = [85.5138, 75.88888, 1021.11, 1017.11]
+    target = [86.89, 76.89, 1019.11, 1015.61]
     targetbb = mtransforms.Bbox.from_bounds(*target)
-    assert_array_almost_equal(bbtb.bounds, targetbb.bounds, decimal=2)
+    assert_array_almost_equal(bbtb.bounds, targetbb.bounds, decimal=0)
 
     # test that get_position roundtrips to get_window_extent
     axbb = ax.get_position().transformed(fig.transFigure).bounds

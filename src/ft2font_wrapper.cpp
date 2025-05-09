@@ -970,8 +970,8 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
     ----------
     image : FT2Image
         The image buffer on which to draw the glyph.
-    x, y : int
-        The pixel location at which to draw the glyph.
+    x, y : float
+        The pixel location of the glyph's origin.
     glyph : Glyph
         The glyph to draw.
     antialiased : bool, default: True
@@ -984,12 +984,9 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
 
 static void
 PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, FT2Image &image,
-                               double_or_<int> vxd, double_or_<int> vyd,
+                               double xd, double yd,
                                PyGlyph *glyph, bool antialiased = true)
 {
-    auto xd = _double_to_<int>("x", vxd);
-    auto yd = _double_to_<int>("y", vyd);
-
     self->x->draw_glyph_to_bitmap(image, xd, yd, glyph->glyphInd, antialiased);
 }
 
@@ -1768,5 +1765,6 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
+    m.attr("__libraqm_version__") = raqm_version_string();
     m.def("__getattr__", ft2font__getattr__);
 }

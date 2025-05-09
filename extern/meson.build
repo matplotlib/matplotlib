@@ -13,12 +13,44 @@ else
   # must match the value in `lib/matplotlib.__init__.py`. Also update the docs
   # in `docs/devel/dependencies.rst`. Bump the cache key in
   # `.circleci/config.yml` when changing requirements.
-  LOCAL_FREETYPE_VERSION = '2.6.1'
+  LOCAL_FREETYPE_VERSION = '2.13.3'
 
   freetype_proj = subproject(
     f'freetype-@LOCAL_FREETYPE_VERSION@',
-    default_options: ['default_library=static'])
+    default_options: [
+      'default_library=static',
+      'brotli=disabled',
+      'bzip2=disabled',
+      'harfbuzz=disabled',
+      'mmap=auto',
+      'png=disabled',
+      'tests=disabled',
+      'zlib=internal',
+  ])
   freetype_dep = freetype_proj.get_variable('freetype_dep')
+endif
+
+if get_option('system-libraqm')
+  libraqm_dep = dependency('raqm', version: '>=0.10.2')
+else
+  LOCAL_LIBRAQM_VERSION = '0.10.2'
+
+  subproject('harfbuzz',
+    default_options: [
+      'default_library=static',
+      'freetype=enabled',
+      'glib=disabled',
+      'gobject=disabled',
+      'cairo=disabled',
+      'icu=disabled',
+      'tests=disabled',
+    ]
+  )
+  subproject('sheenbidi', default_options: ['default_library=static'])
+  libraqm_proj = subproject(
+    f'libraqm-@LOCAL_LIBRAQM_VERSION@',
+    default_options: ['default_library=static', 'sheenbidi=true'])
+  libraqm_dep = libraqm_proj.get_variable('libraqm_dep')
 endif
 
 if get_option('system-qhull')
