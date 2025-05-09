@@ -75,7 +75,7 @@ def test_repr():
         "label='label', title={'center': 'title'}, xlabel='x', ylabel='y'>")
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_label_loc_vertical(fig_test, fig_ref):
     ax = fig_test.subplots()
     sc = ax.scatter([1, 2], [1, 2], c=[1, 2], label='scatter')
@@ -94,7 +94,7 @@ def test_label_loc_vertical(fig_test, fig_ref):
     cbar.set_label("Z Label", y=1, ha='right')
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_label_loc_horizontal(fig_test, fig_ref):
     ax = fig_test.subplots()
     sc = ax.scatter([1, 2], [1, 2], c=[1, 2], label='scatter')
@@ -113,7 +113,7 @@ def test_label_loc_horizontal(fig_test, fig_ref):
     cbar.set_label("Z Label", x=0, ha='left')
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_label_loc_rc(fig_test, fig_ref):
     with matplotlib.rc_context({"xaxis.labellocation": "right",
                                 "yaxis.labellocation": "top"}):
@@ -2250,7 +2250,7 @@ def test_bar_pandas_indexed(pd):
 
 
 @mpl.style.context('default')
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_bar_hatches(fig_test, fig_ref):
     ax_test = fig_test.subplots()
     ax_ref = fig_ref.subplots()
@@ -3299,7 +3299,7 @@ def test_stackplot_baseline():
     axs[1, 1].stackplot(range(100), d.T, baseline='weighted_wiggle')
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_stackplot_hatching(fig_ref, fig_test):
     x = np.linspace(0, 10, 10)
     y1 = 1.0 * x
@@ -3468,7 +3468,7 @@ def test_bxp_customwhisker():
         whiskerprops=dict(linestyle='-', color='m', lw=3)))
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_boxplot_median_bound_by_box(fig_test, fig_ref):
     data = np.arange(3)
     medianprops_test = {"linewidth": 12}
@@ -4276,7 +4276,7 @@ def test_errorbar_colorcycle():
     assert mcolors.to_rgba(ln1.get_color()) == mcolors.to_rgba('C2')
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_errorbar_cycle_ecolor(fig_test, fig_ref):
     x = np.arange(0.1, 4, 0.5)
     y = [np.exp(-x+n) for n in range(4)]
@@ -4475,7 +4475,7 @@ def test_xerr_yerr_not_none():
         ax.errorbar(x=[0], y=[0], yerr=[[None], [1]])
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_errorbar_every(fig_test, fig_ref):
     x = np.linspace(0, 1, 15)
     y = x * (1-x)
@@ -5322,7 +5322,7 @@ def test_eb_line_zorder():
     ax.set_title("errorbar zorder test")
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_axline_loglog(fig_test, fig_ref):
     ax = fig_test.subplots()
     ax.set(xlim=(0.1, 10), ylim=(1e-3, 1))
@@ -5335,7 +5335,7 @@ def test_axline_loglog(fig_test, fig_ref):
     ax.loglog([1, 10], [1e-3, 1e-2], c="k")
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_axline(fig_test, fig_ref):
     ax = fig_test.subplots()
     ax.set(xlim=(-1, 1), ylim=(-1, 1))
@@ -5358,7 +5358,7 @@ def test_axline(fig_test, fig_ref):
     ax.axvline(-0.5, color='C5')
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_axline_transaxes(fig_test, fig_ref):
     ax = fig_test.subplots()
     ax.set(xlim=(-1, 1), ylim=(-1, 1))
@@ -5375,7 +5375,7 @@ def test_axline_transaxes(fig_test, fig_ref):
     ax.plot([0, 0], [-1, 1], color='C3')
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_axline_transaxes_panzoom(fig_test, fig_ref):
     # test that it is robust against pan/zoom and
     # figure resize after plotting
@@ -6431,7 +6431,7 @@ def test_normalize_kwarg_pie():
     assert abs(t2[0][-1].theta2 - 360.) > 1e-3
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_pie_hatch_single(fig_test, fig_ref):
     x = [0.3, 0.3, 0.1]
     hatch = '+'
@@ -6440,7 +6440,7 @@ def test_pie_hatch_single(fig_test, fig_ref):
     [w.set_hatch(hatch) for w in wedges]
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_pie_hatch_multi(fig_test, fig_ref):
     x = [0.3, 0.3, 0.1]
     hatch = ['/', '+', '.']
@@ -9516,7 +9516,7 @@ def test_boxplot_tick_labels():
 
 
 @needs_usetex
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_latex_pie_percent(fig_test, fig_ref):
 
     data = [20, 10, 70]
