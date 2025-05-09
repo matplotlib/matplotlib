@@ -4506,14 +4506,12 @@ def test_hist_stacked_weighted():
 
 
 @image_comparison(['stem.png'], style='mpl20', remove_text=True)
-def test_stem():
+def test_stem(text_placeholders):
     x = np.linspace(0.1, 2 * np.pi, 100)
 
     fig, ax = plt.subplots()
-    # Label is a single space to force a legend to be drawn, but to avoid any
-    # text being drawn
     ax.stem(x, np.cos(x),
-            linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ')
+            linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label='stem')
     ax.legend()
 
 
