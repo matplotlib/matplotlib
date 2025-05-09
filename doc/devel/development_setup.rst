@@ -177,7 +177,7 @@ setup.
 
       Install the Python dependencies with ::
 
-        pip install -r requirements/dev/dev-requirements.txt
+        pip install --group dev
 
       Remember to activate the environment whenever you start working on Matplotlib!
 
