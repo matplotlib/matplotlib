@@ -26,6 +26,8 @@ __all__ = [
     "interactive",
     "is_interactive",
     "colormaps",
+    "multivar_colormaps",
+    "bivar_colormaps",
     "color_sequences",
 ]
 
