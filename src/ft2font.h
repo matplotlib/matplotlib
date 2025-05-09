@@ -101,7 +101,7 @@ class FT2Font
     void get_bitmap_offset(long *x, long *y);
     long get_descent();
     void draw_glyphs_to_bitmap(bool antialiased);
-    void draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, bool antialiased);
+    void draw_glyph_to_bitmap(FT2Image &im, double x, double y, size_t glyphInd, bool antialiased);
     void get_glyph_name(unsigned int glyph_number, std::string &buffer, bool fallback);
     long get_name_index(char *name);
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);

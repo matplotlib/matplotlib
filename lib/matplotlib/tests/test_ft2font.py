@@ -707,10 +707,10 @@ def test_ft2font_get_sfnt_table(font_name, header):
 
 @pytest.mark.parametrize('left, right, unscaled, unfitted, default', [
     # These are all the same class.
-    ('A', 'A', 57, 248, 256), ('A', 'À', 57, 248, 256), ('A', 'Á', 57, 248, 256),
-    ('A', 'Â', 57, 248, 256), ('A', 'Ã', 57, 248, 256), ('A', 'Ä', 57, 248, 256),
+    ('A', 'A', 57, 247, 256), ('A', 'À', 57, 247, 256), ('A', 'Á', 57, 247, 256),
+    ('A', 'Â', 57, 247, 256), ('A', 'Ã', 57, 247, 256), ('A', 'Ä', 57, 247, 256),
     # And a few other random ones.
-    ('D', 'A', -36, -156, -128), ('T', '.', -243, -1056, -1024),
+    ('D', 'A', -36, -156, -128), ('T', '.', -243, -1055, -1024),
     ('X', 'C', -149, -647, -640), ('-', 'J', 114, 495, 512),
 ])
 def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
@@ -824,7 +824,7 @@ def test_ft2font_drawing():
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
     glyph = font.load_char(ord('M'))
     image = ft2font.FT2Image(expected.shape[1], expected.shape[0])
-    font.draw_glyph_to_bitmap(image, -1, 1, glyph, antialiased=False)
+    font.draw_glyph_to_bitmap(image, -1, 10, glyph, antialiased=False)
     np.testing.assert_array_equal(image, expected)
 
 

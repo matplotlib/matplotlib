@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2021-08-10T16:39:40.187285</dc:date>
+    <dc:date>2025-05-01T07:03:56.266034</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.4.2.post1645+ge771650c3a.d20210810, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev740+gaa96c44efd, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$ -->
-   <g transform="translate(152.16 30.31125)scale(0.12 -0.12)">
+   <g transform="translate(152.16 30.31125) scale(0.12 -0.12)">
     <defs>
      <path id="DejaVuSans-22d2" d="M 3113 0 
 L 3113 2219 
@@ -136,15 +136,15 @@ L 5050 1741
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSans-22d2" transform="translate(0 0.96875)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(83.789062 0.96875)"/>
-    <use xlink:href="#DejaVuSans-22d3" transform="translate(115.576172 0.96875)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(199.365234 0.96875)"/>
-    <use xlink:href="#DejaVuSans-21bc" transform="translate(250.634766 0.96875)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(353.90625 0.96875)"/>
-    <use xlink:href="#DejaVuSans-22bc" transform="translate(385.693359 0.96875)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(458.886719 0.96875)"/>
-    <use xlink:href="#DejaVuSans-21c0" transform="translate(510.15625 0.96875)"/>
+    <use xlink:href="#DejaVuSans-22d2"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(83.789062 0)"/>
+    <use xlink:href="#DejaVuSans-22d3" transform="translate(115.576172 0)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(199.365234 0)"/>
+    <use xlink:href="#DejaVuSans-21bc" transform="translate(250.634766 0)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(353.90625 0)"/>
+    <use xlink:href="#DejaVuSans-22bc" transform="translate(385.693359 0)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(458.886719 0)"/>
+    <use xlink:href="#DejaVuSans-21c0" transform="translate(510.15625 0)"/>
    </g>
   </g>
  </g>

@@ -696,11 +696,12 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
     }
 }
 
-void FT2Font::draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, bool antialiased)
+void FT2Font::draw_glyph_to_bitmap(
+    FT2Image &im, double x, double y, size_t glyphInd, bool antialiased)
 {
-    FT_Vector sub_offset;
-    sub_offset.x = 0; // int((xd - (double)x) * 64.0);
-    sub_offset.y = 0; // int((yd - (double)y) * 64.0);
+    FT_Vector sub_offset = {
+        int((x - std::floor(x)) * 64), int((y - std::floor(y)) * 64),
+    };
 
     if (glyphInd >= glyphs.size()) {
         throw std::runtime_error("glyph num is out of range");
@@ -718,7 +719,7 @@ void FT2Font::draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, 
 
     FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[glyphInd];
 
-    im.draw_bitmap(&bitmap->bitmap, x + bitmap->left, y);
+    im.draw_bitmap(&bitmap->bitmap, std::floor(x) + bitmap->left, std::floor(y) - bitmap->top);
 }
 
 void FT2Font::get_glyph_name(unsigned int glyph_number, std::string &buffer,
