@@ -995,9 +995,9 @@ def rc(group, **kwargs):
 
     The following aliases are available to save typing for interactive users:
 
-    =====   =================
+    ======  =================
     Alias   Property
-    =====   =================
+    ======  =================
     'lw'    'linewidth'
     'ls'    'linestyle'
     'c'     'color'
@@ -1005,7 +1005,8 @@ def rc(group, **kwargs):
     'ec'    'edgecolor'
     'mew'   'markeredgewidth'
     'aa'    'antialiased'
-    =====   =================
+    'sans'  'sans-serif'
+    ======  =================
 
     Thus you could abbreviate the above call as::
 
@@ -1039,6 +1040,7 @@ def rc(group, **kwargs):
         'ec':  'edgecolor',
         'mew': 'markeredgewidth',
         'aa':  'antialiased',
+        'sans': 'sans-serif',
         }
 
     if isinstance(group, str):
