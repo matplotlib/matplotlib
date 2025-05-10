@@ -543,6 +543,16 @@
 #grid.linewidth: 0.8        # in points
 #grid.alpha:     1.0        # transparency, between 0.0 and 1.0
 
+#grid.major.color:     None # If None defaults to grid.color
+#grid.major.linestyle: None # If None defaults to grid.linestyle
+#grid.major.linewidth: None # If None defaults to grid.linewidth
+#grid.major.alpha:     None # If None defaults to grid.alpha
+
+#grid.minor.color:     None # If None defaults to grid.color
+#grid.minor.linestyle: None # If None defaults to grid.linestyle
+#grid.minor.linewidth: None # If None defaults to grid.linewidth
+#grid.minor.alpha:     None # If None defaults to grid.alpha
+
 
 ## ***************************************************************************
 ## * LEGEND                                                                  *
