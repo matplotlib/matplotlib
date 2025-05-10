@@ -3739,7 +3739,7 @@ class Axes(_AxesBase):
                     'zorder', 'rasterized'):
             if key in kwargs:
                 eb_cap_style[key] = kwargs[key]
-        eb_cap_style['color'] = ecolor
+        eb_cap_style["markeredgecolor"] = ecolor
 
         barcols = []
         caplines = {'x': [], 'y': []}
