@@ -220,3 +220,15 @@ div.wide-table table th.stub {
 .sidebar-cheatsheets > img {
     width: 100%;
 }
+
+.sidebar-cheatsheets {
+    margin-bottom: 3em;
+}
+
+.sidebar-cheatsheets > h3 {
+    margin-top: 0;
+}
+
+.sidebar-cheatsheets > img {
+    width: 100%;
+}
