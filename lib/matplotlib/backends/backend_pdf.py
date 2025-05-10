@@ -1021,18 +1021,6 @@ class PdfFile:
                     0, *map(Name, dviread._parse_enc(fontinfo.encodingfile))],
             }
 
-        # If no file is specified, stop short
-        if fontinfo.fontfile is None:
-            _log.warning(
-                "Because of TeX configuration (pdftex.map, see updmap option "
-                "pdftexDownloadBase14) the font %s is not embedded. This is "
-                "deprecated as of PDF 1.5 and it may cause the consumer "
-                "application to show something that was not intended.",
-                fontinfo.basefont)
-            fontdict['BaseFont'] = Name(fontinfo.basefont)
-            self.writeObject(fontdictObject, fontdict)
-            return fontdictObject
-
         # We have a font file to embed - read it in and apply any effects
         t1font = _type1font.Type1Font(fontinfo.fontfile)
         if fontinfo.effects:
