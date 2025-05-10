@@ -70,7 +70,7 @@ of ``[left, bottom, width, height]`` values in 0-1 relative figure
 coordinates::
 
     fig2 = plt.figure()
-    ax2 = fig2.add_axes([0.15, 0.1, 0.7, 0.3])
+    ax2 = fig2.add_axes((0.15, 0.1, 0.7, 0.3))
 
 Continuing with our example::
 
@@ -134,7 +134,7 @@ line, = ax1.plot(t, s, color='blue', lw=2)
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-ax2 = fig.add_axes([0.15, 0.1, 0.7, 0.3])
+ax2 = fig.add_axes((0.15, 0.1, 0.7, 0.3))
 n, bins, patches = ax2.hist(np.random.randn(1000), 50,
                             facecolor='yellow', edgecolor='yellow')
 ax2.set_xlabel('Time [s]')
@@ -295,7 +295,7 @@ plt.show()
 #
 #     In [157]: ax1 = fig.add_subplot(211)
 #
-#     In [158]: ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.3])
+#     In [158]: ax2 = fig.add_axes((0.1, 0.1, 0.7, 0.3))
 #
 #     In [159]: ax1
 #     Out[159]: <Axes:>
@@ -669,7 +669,7 @@ fig = plt.figure()
 rect = fig.patch  # a rectangle instance
 rect.set_facecolor('lightgoldenrodyellow')
 
-ax1 = fig.add_axes([0.1, 0.3, 0.4, 0.4])
+ax1 = fig.add_axes((0.1, 0.3, 0.4, 0.4))
 rect = ax1.patch
 rect.set_facecolor('lightslategray')
 

@@ -194,10 +194,10 @@ class FourierDemoFrame(wx.Frame):
         self.subplot1.set_xlabel("frequency f", fontsize=8)
         self.subplot2.set_ylabel("Time Domain Waveform x(t)", fontsize=8)
         self.subplot2.set_xlabel("time t", fontsize=8)
-        self.subplot1.set_xlim([-6, 6])
-        self.subplot1.set_ylim([0, 1])
-        self.subplot2.set_xlim([-2, 2])
-        self.subplot2.set_ylim([-2, 2])
+        self.subplot1.set_xlim(-6, 6)
+        self.subplot1.set_ylim(0, 1)
+        self.subplot2.set_xlim(-2, 2)
+        self.subplot2.set_ylim(-2, 2)
         self.subplot1.text(0.05, .95,
                            r'$X(f) = \mathcal{F}\{x(t)\}$',
                            verticalalignment='top',
