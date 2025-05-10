@@ -163,5 +163,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     corners = (minx, miny), (maxx, maxy)
     ax.update_datalim(corners)
     ax.autoscale_view()
-    ax.add_collection(collection)
+    # TODO: check whether the above explicit limit handling can be
+    # replaced by autolim=True
+    ax.add_collection(collection, autolim=False)
     return collection
