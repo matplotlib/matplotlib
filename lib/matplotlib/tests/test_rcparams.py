@@ -657,14 +657,14 @@ def test_rcparams_path_sketch_from_file(tmp_path, value):
 
 
 @pytest.mark.parametrize('group, option, alias, value', [
-    ('lines',  'linewidth',       'lw',   3),
-    ('lines',  'linestyle',       'ls',   'dashed'),
-    ('lines',  'color',           'c',    'white'),
-    ('axes',   'facecolor',       'fc',   'black'),
-    ('figure', 'edgecolor',       'ec',   'magenta'),
-    ('lines',  'markeredgewidth', 'mew',  1.5),
-    ('patch',  'antialiased',     'aa',   False),
-    ('font',   'sans-serif',      'sans', ["Verdana"])
+    ('lines',  'linewidth',        'lw', 3),
+    ('lines',  'linestyle',        'ls', 'dashed'),
+    ('lines',  'color',             'c', 'white'),
+    ('axes',   'facecolor',        'fc', 'black'),
+    ('figure', 'edgecolor',        'ec', 'magenta'),
+    ('lines',  'markeredgewidth', 'mew', 1.5),
+    ('patch',  'antialiased',      'aa', False),
+    ('font',   'sans-serif',     'sans', ["Verdana"])
 ])
 def test_rc_aliases(group, option, alias, value):
     rc_kwargs = {alias: value,}
