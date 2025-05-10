@@ -1,5 +1,6 @@
 import numpy as np
 
+from matplotlib._api.deprecation import delete_parameter
 from matplotlib import _docstring
 from matplotlib.contour import ContourSet
 from matplotlib.tri._triangulation import Triangulation
@@ -219,6 +220,9 @@ antialiased : bool, optional
 
 @_docstring.Substitution(func='tricontour', type='lines')
 @_docstring.interpd
+@delete_parameter("3.9", "tricontour", "origin")
+@delete_parameter("3.9", "tricontour", "extent")
+
 def tricontour(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s
