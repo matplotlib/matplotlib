@@ -940,18 +940,12 @@ class PdfFile:
 
         tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
         psfont = tex_font_map[dvifont.texname]
-        if psfont.filename is None:
-            raise ValueError(
-                "No usable font file found for {} (TeX: {}); "
-                "the font may lack a Type-1 version"
-                .format(psfont.psname, dvifont.texname))
-
         pdfname = next(self._internal_font_seq)
         _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
         self._dviFontInfo[dvifont.texname] = types.SimpleNamespace(
             dvifont=dvifont,
             pdfname=pdfname,
-            fontfile=psfont.filename,
+            fontfile=str(dvifont.path),  # raises ValueError if psfont.filename is None.
             basefont=psfont.psname,
             encodingfile=psfont.encoding,
             effects=psfont.effects)
@@ -996,11 +990,11 @@ class PdfFile:
 
         # Widths
         widthsObject = self.reserveObject('font widths')
-        tfm = fontinfo.dvifont._tfm
+        font_metrics = fontinfo.dvifont._metrics
         # convert from TeX's 12.20 representation to 1/1000 text space units.
-        widths = [(1000 * metrics.tex_width) >> 20
-                  if (metrics := tfm.get_metrics(char)) else 0
-                  for char in range(max(tfm._glyph_metrics, default=-1) + 1)]
+        widths = [(1000 * glyph_metrics.tex_width) >> 20
+                  if (glyph_metrics := font_metrics.get_metrics(char)) else 0
+                  for char in range(max(font_metrics._glyph_metrics, default=-1) + 1)]
         self.writeObject(widthsObject, widths)
 
         # Font dictionary
