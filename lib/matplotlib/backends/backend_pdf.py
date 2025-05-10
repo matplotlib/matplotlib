@@ -19,6 +19,7 @@ import struct
 import sys
 import time
 import types
+import typing as T
 import warnings
 import zlib
 
@@ -994,24 +995,12 @@ class PdfFile:
         _log.debug('Embedding TeX font %s - fontinfo=%s',
                    fontinfo.dvifont.texname, fontinfo.__dict__)
 
-        # Widths
-        widthsObject = self.reserveObject('font widths')
-        tfm = fontinfo.dvifont._tfm
-        # convert from TeX's 12.20 representation to 1/1000 text space units.
-        widths = [(1000 * metrics.tex_width) >> 20
-                  if (metrics := tfm.get_metrics(char)) else 0
-                  for char in range(max(tfm._glyph_metrics, default=-1) + 1)]
-        self.writeObject(widthsObject, widths)
-
         # Font dictionary
         fontdictObject = self.reserveObject('font dictionary')
-        fontdict = {
+        fontdict: dict[str, T.Any] = {
             'Type':      Name('Font'),
             'Subtype':   Name('Type1'),
-            'FirstChar': 0,
-            'LastChar':  len(widths) - 1,
-            'Widths':    widthsObject,
-            }
+        }
 
         # Encoding (if needed)
         if fontinfo.encodingfile is not None:
@@ -1037,8 +1026,11 @@ class PdfFile:
         t1font = _type1font.Type1Font(fontinfo.fontfile)
         if fontinfo.effects:
             t1font = t1font.transform(fontinfo.effects)
+        chars = self._character_tracker.used[fontinfo.dvifont.fname]
+        t1font = t1font.subset(chars)
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
-
+        fc = fontdict['FirstChar'] = min(t1font.prop['Encoding'].keys(), default=0)
+        lc = fontdict['LastChar'] = max(t1font.prop['Encoding'].keys(), default=255)
         # Font descriptors may be shared between differently encoded
         # Type-1 fonts, so only create a new descriptor if there is no
         # existing descriptor for this font.
@@ -1050,7 +1042,15 @@ class PdfFile:
             self._type1Descriptors[(fontinfo.fontfile, effects)] = fontdesc
         fontdict['FontDescriptor'] = fontdesc
 
+        # Use TeX Font Metrics file to get glyph widths (TeX uses its 12.20 fixed point
+        # representation and we want 1/1000 text space units)
+        tfm = fontinfo.dvifont._tfm
+        widths = [(1000 * metrics.tex_width) >> 20
+                  if (metrics := tfm.get_metrics(char)) else 0
+                  for char in range(fc, lc + 1)]
+        fontdict['Widths'] = (widthsObject := self.reserveObject('glyph widths'))
         self.writeObject(fontdictObject, fontdict)
+        self.writeObject(widthsObject, widths)
         return fontdictObject
 
     def createType1Descriptor(self, t1font, fontfile):
@@ -1090,6 +1090,14 @@ class PdfFile:
 
         ft2font = get_font(fontfile)
 
+        encoding = t1font.prop['Encoding']
+        charset = ''.join(
+            sorted(
+                f'/{c}' for c in encoding.values()
+                if c != '.notdef'
+            )
+        )
+
         descriptor = {
             'Type':        Name('FontDescriptor'),
             'FontName':    Name(t1font.prop['FontName']),
@@ -1103,6 +1111,7 @@ class PdfFile:
             'FontFile':    fontfileObject,
             'FontFamily':  t1font.prop['FamilyName'],
             'StemV':       50,  # TODO
+            'CharSet':     charset,
             # (see also revision 3874; but not all TeX distros have AFM files!)
             # 'FontWeight': a number where 400 = Regular, 700 = Bold
             }
@@ -2280,6 +2289,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
             seq += [['text', x1, y1, [bytes([glyph])], x1+width]]
+            self.file._character_tracker.track(dvifont, chr(glyph))
 
         # Find consecutive text strings with constant y coordinate and
         # combine into a sequence of strings and kerns, or just one

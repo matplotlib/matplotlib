@@ -1,3 +1,5 @@
+import re
+import string
 import matplotlib._type1font as t1f
 import os.path
 import difflib
@@ -158,3 +160,21 @@ def test_encrypt_decrypt_roundtrip():
     decrypted = t1f.Type1Font._decrypt(encrypted, 'eexec')
     assert encrypted != decrypted
     assert data == decrypted
+
+
+def test_make_tag():
+    make_tag = t1f._make_tag
+    # tags are assigned in order starting from MPLAAA
+    assert make_tag('a') == 'MPLAAA+'
+    assert make_tag('ab') == 'MPLAAB+'
+    assert make_tag('abc') == 'MPLAAC+'
+    # the same character set has the same tag
+    assert make_tag('a') == make_tag({'a'}) == make_tag(['a', 'a']) == 'MPLAAA+'
+    # different character sets have different tags
+    tags = {
+        make_tag((x, y))
+        for x in string.ascii_uppercase + string.digits
+        for y in string.ascii_uppercase + string.digits
+    }
+    assert len(tags) == 36 * 35 / 2 + 36  # (36 choose 2) pairs + 36 singles
+    assert all(re.match(r'^MPL[A-Z]{3}\+$', tag) for tag in tags)
