@@ -52,17 +52,27 @@ jobs:
             python-version: '3.11'
             extra-requirements: '-c requirements/testing/minver.txt'
             delete-font-cache: true
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04
             python-version: '3.11'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             extra-requirements: '-r requirements/testing/extra.txt'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04-arm
             python-version: '3.12'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04
             python-version: '3.13'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
             python-version: '3.13t'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
             python-version: '3.12'
           - os: macos-13  # This runner is on Intel chips.
