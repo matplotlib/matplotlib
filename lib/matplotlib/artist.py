@@ -323,19 +323,28 @@ class Artist:
         """
         Get the artist's bounding box in display space.
 
-        The bounding box' width and height are nonnegative.
+        The bounding box's width and height are non-negative.
 
         Subclasses should override for inclusion in the bounding box
         "tight" calculation. Default is to return an empty bounding
         box at 0, 0.
 
-        Be careful when using this function, the results will not update
-        if the artist window extent of the artist changes.  The extent
-        can change due to any changes in the transform stack, such as
-        changing the Axes limits, the figure size, or the canvas used
-        (as is done when saving a figure).  This can lead to unexpected
-        behavior where interactive figures will look fine on the screen,
-        but will save incorrectly.
+        .. warning::
+
+          The extent can change due to any changes in the transform stack, such
+          as changing the Axes limits, the figure size, the canvas used (as is
+          done when saving a figure), or the DPI.
+
+          Relying on a once-retrieved window extent can lead to unexpected
+          behavior in various cases such as interactive figures being resized or
+          moved to a screen with different dpi, or figures that look fine on
+          screen render incorrectly when saved to file.
+
+          To get accurate results you may need to manually call
+          `matplotlib.figure.Figure.savefig` or
+          `matplotlib.figure.Figure.draw_without_rendering` to have Matplotlib
+          compute the rendered size.
+
         """
         return Bbox([[0, 0], [0, 0]])
 

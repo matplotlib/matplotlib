@@ -1387,8 +1387,52 @@ class FigureImage(_ImageBase):
 
 
 class BboxImage(_ImageBase):
-    """The Image class whose size is determined by the given bbox."""
+    """
+    The Image class whose size is determined by the given bbox.
 
+    Parameters
+    ----------
+    bbox : BboxBase or Callable[RendererBase, BboxBase]
+        The bbox or a function to generate the bbox
+
+        .. warning ::
+
+            If using `matplotlib.artist.Artist.get_window_extent` as the
+            callable ensure that the other artist is drawn first (lower zorder)
+            or you may need to renderer the figure twice to ensure that the
+            computed bbox is accurate.
+
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+        The Colormap instance or registered colormap name used to map scalar
+        data to colors.
+    norm : str or `~matplotlib.colors.Normalize`
+        Maps luminance to 0-1.
+    interpolation : str, default: :rc:`image.interpolation`
+        Supported values are 'none', 'auto', 'nearest', 'bilinear',
+        'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
+        'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
+        'sinc', 'lanczos', 'blackman'.
+    origin : {'upper', 'lower'}, default: :rc:`image.origin`
+        Place the [0, 0] index of the array in the upper left or lower left
+        corner of the Axes. The convention 'upper' is typically used for
+        matrices and images.
+    filternorm : bool, default: True
+        A parameter for the antigrain image resize filter
+        (see the antigrain documentation).
+        If filternorm is set, the filter normalizes integer values and corrects
+        the rounding errors. It doesn't do anything with the source floating
+        point values, it corrects only integers according to the rule of 1.0
+        which means that any sum of pixel weights must be equal to 1.0. So,
+        the filter function must produce a graph of the proper shape.
+    filterrad : float > 0, default: 4
+        The filter radius for filters that have a radius parameter, i.e. when
+        interpolation is one of: 'sinc', 'lanczos' or 'blackman'.
+    resample : bool, default: False
+        When True, use a full resampling method. When False, only resample when
+        the output image is larger than the input image.
+    **kwargs : `~matplotlib.artist.Artist` properties
+
+    """
     def __init__(self, bbox,
                  *,
                  cmap=None,
@@ -1401,12 +1445,7 @@ class BboxImage(_ImageBase):
                  resample=False,
                  **kwargs
                  ):
-        """
-        cmap is a colors.Colormap instance
-        norm is a colors.Normalize instance to map luminance to 0-1
 
-        kwargs are an optional list of Artist keyword args
-        """
         super().__init__(
             None,
             cmap=cmap,
@@ -1422,12 +1461,11 @@ class BboxImage(_ImageBase):
         self.bbox = bbox
 
     def get_window_extent(self, renderer=None):
-        if renderer is None:
-            renderer = self.get_figure()._get_renderer()
-
         if isinstance(self.bbox, BboxBase):
             return self.bbox
         elif callable(self.bbox):
+            if renderer is None:
+                renderer = self.get_figure()._get_renderer()
             return self.bbox(renderer)
         else:
             raise ValueError("Unknown type of bbox")
