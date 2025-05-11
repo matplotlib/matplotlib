@@ -1931,18 +1931,19 @@ class Cursor(AxesWidget):
         if not self.canvas.widgetlock.available(self):
             return
         if not self.ax.contains(event)[0]:
-            self.linev.set_visible(False)
-            self.lineh.set_visible(False)
-            if self.needclear:
-                if self.useblit and self.background is not None:
-                    self.canvas.restore_region(self.background)
+            if self.linev.get_visible() or self.lineh.get_visible():
+                self.linev.set_visible(False)
+                self.lineh.set_visible(False)
+                if self.needclear:
+                    if self.useblit and self.background is not None and self.background is not False:
+                        self.canvas.restore_region(self.background)
+                    else:
+                        self.canvas.draw()
+                        self.canvas.restore_region(self.background)
+                        self.canvas.blit(self.ax.bbox)
                 else:
                     self.canvas.draw()
-                    self.canvas.restore_region(self.background)
-                    self.canvas.blit(self.ax.bbox)
-            else:
-                self.canvas.draw()
-            self.needclear = False
+                self.needclear = False
             return
         self.needclear = True
         xdata, ydata = self._get_data_coords(event)
@@ -1956,9 +1957,9 @@ class Cursor(AxesWidget):
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
-            self.ax.draw_artist(self.linev)
-            self.ax.draw_artist(self.lineh)
-            self.canvas.blit(self.ax.bbox)
+                self.ax.draw_artist(self.linev)
+                self.ax.draw_artist(self.lineh)
+                self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
 
