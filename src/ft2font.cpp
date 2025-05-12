@@ -63,51 +63,23 @@ void throw_ft_error(std::string message, FT_Error error) {
     throw std::runtime_error(os.str());
 }
 
-FT2Image::FT2Image() : m_buffer(nullptr), m_width(0), m_height(0)
-{
-}
-
 FT2Image::FT2Image(unsigned long width, unsigned long height)
-    : m_buffer(nullptr), m_width(0), m_height(0)
+    : m_buffer((unsigned char *)calloc(width * height, 1)), m_width(width), m_height(height)
 {
-    resize(width, height);
 }
 
 FT2Image::~FT2Image()
 {
-    delete[] m_buffer;
+    free(m_buffer);
 }
 
-void FT2Image::resize(long width, long height)
+void draw_bitmap(
+    py::array_t<uint8_t, py::array::c_style> im, FT_Bitmap *bitmap, FT_Int x, FT_Int y)
 {
-    if (width <= 0) {
-        width = 1;
-    }
-    if (height <= 0) {
-        height = 1;
-    }
-    size_t numBytes = width * height;
+    auto buf = im.mutable_data(0);
 
-    if ((unsigned long)width != m_width || (unsigned long)height != m_height) {
-        if (numBytes > m_width * m_height) {
-            delete[] m_buffer;
-            m_buffer = nullptr;
-            m_buffer = new unsigned char[numBytes];
-        }
-
-        m_width = (unsigned long)width;
-        m_height = (unsigned long)height;
-    }
-
-    if (numBytes && m_buffer) {
-        memset(m_buffer, 0, numBytes);
-    }
-}
-
-void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
-{
-    FT_Int image_width = (FT_Int)m_width;
-    FT_Int image_height = (FT_Int)m_height;
+    FT_Int image_width = (FT_Int)im.shape(1);
+    FT_Int image_height = (FT_Int)im.shape(0);
     FT_Int char_width = bitmap->width;
     FT_Int char_height = bitmap->rows;
 
@@ -121,14 +93,14 @@ void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
 
     if (bitmap->pixel_mode == FT_PIXEL_MODE_GRAY) {
         for (FT_Int i = y1; i < y2; ++i) {
-            unsigned char *dst = m_buffer + (i * image_width + x1);
+            unsigned char *dst = buf + (i * image_width + x1);
             unsigned char *src = bitmap->buffer + (((i - y_offset) * bitmap->pitch) + x_start);
             for (FT_Int j = x1; j < x2; ++j, ++dst, ++src)
                 *dst |= *src;
         }
     } else if (bitmap->pixel_mode == FT_PIXEL_MODE_MONO) {
         for (FT_Int i = y1; i < y2; ++i) {
-            unsigned char *dst = m_buffer + (i * image_width + x1);
+            unsigned char *dst = buf + (i * image_width + x1);
             unsigned char *src = bitmap->buffer + ((i - y_offset) * bitmap->pitch);
             for (FT_Int j = x1; j < x2; ++j, ++dst) {
                 int x = (j - x1 + x_start);
@@ -259,7 +231,7 @@ FT2Font::FT2Font(FT_Open_Args &open_args,
                  long hinting_factor_,
                  std::vector<FT2Font *> &fallback_list,
                  FT2Font::WarnFunc warn, bool warn_if_used)
-    : ft_glyph_warn(warn), warn_if_used(warn_if_used), image(), face(nullptr),
+    : ft_glyph_warn(warn), warn_if_used(warn_if_used), image({1, 1}), face(nullptr),
       hinting_factor(hinting_factor_),
       // set default kerning factor to 0, i.e., no kerning manipulation
       kerning_factor(0)
@@ -676,7 +648,8 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
     long width = (bbox.xMax - bbox.xMin) / 64 + 2;
     long height = (bbox.yMax - bbox.yMin) / 64 + 2;
 
-    image.resize(width, height);
+    image = py::array_t<uint8_t>{{height, width}};
+    std::memset(image.mutable_data(0), 0, image.nbytes());
 
     for (auto & glyph : glyphs) {
         FT_Error error = FT_Glyph_To_Bitmap(
@@ -692,11 +665,13 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
         FT_Int x = (FT_Int)(bitmap->left - (bbox.xMin * (1. / 64.)));
         FT_Int y = (FT_Int)((bbox.yMax * (1. / 64.)) - bitmap->top + 1);
 
-        image.draw_bitmap(&bitmap->bitmap, x, y);
+        draw_bitmap(image, &bitmap->bitmap, x, y);
     }
 }
 
-void FT2Font::draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, bool antialiased)
+void FT2Font::draw_glyph_to_bitmap(
+    py::array_t<uint8_t, py::array::c_style> im,
+    int x, int y, size_t glyphInd, bool antialiased)
 {
     FT_Vector sub_offset;
     sub_offset.x = 0; // int((xd - (double)x) * 64.0);
@@ -718,7 +693,7 @@ void FT2Font::draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, 
 
     FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[glyphInd];
 
-    im.draw_bitmap(&bitmap->bitmap, x + bitmap->left, y);
+    draw_bitmap(im, &bitmap->bitmap, x + bitmap->left, y);
 }
 
 void FT2Font::get_glyph_name(unsigned int glyph_number, std::string &buffer,

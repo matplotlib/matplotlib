@@ -18,7 +18,8 @@ def test_ft2image_draw_rect_filled():
     width = 23
     height = 42
     for x0, y0, x1, y1 in itertools.product([1, 100], [2, 200], [4, 400], [8, 800]):
-        im = ft2font.FT2Image(width, height)
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            im = ft2font.FT2Image(width, height)
         im.draw_rect_filled(x0, y0, x1, y1)
         a = np.asarray(im)
         assert a.dtype == np.uint8
@@ -823,7 +824,7 @@ def test_ft2font_drawing():
     np.testing.assert_array_equal(image, expected)
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
     glyph = font.load_char(ord('M'))
-    image = ft2font.FT2Image(expected.shape[1], expected.shape[0])
+    image = np.zeros(expected.shape, np.uint8)
     font.draw_glyph_to_bitmap(image, -1, 1, glyph, antialiased=False)
     np.testing.assert_array_equal(image, expected)
 
