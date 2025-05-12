@@ -16,7 +16,7 @@ import mimetypes
 import os
 from pathlib import Path
 
-from js import document
+from js import alert, document
 import numpy as np
 from PIL import Image
 
@@ -316,7 +316,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
         mimetype = mimetypes.types_map.get(f".{format}")
         if mimetype is None:
-            window.alert(f"Cannot download plot, unable to determine mimetype for '{format}'")
+            alert(f"Cannot download plot, unable to determine mimetype for '{format}'")
             return
 
         element = document.createElement('a')
