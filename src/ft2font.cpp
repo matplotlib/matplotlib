@@ -73,11 +73,20 @@ FT2Image::~FT2Image()
     free(m_buffer);
 }
 
-void draw_bitmap(
-    py::array_t<uint8_t, py::array::c_style> im, FT_Bitmap *bitmap, FT_Int x, FT_Int y)
+static std::array<uint8_t, 0x10000> const alpha_cov_merge_table{[]() {
+    auto table = std::array<uint8_t, 0x10000>{};
+    for (auto dst = 0; dst < 0x100; ++dst) {
+        for (auto src = 0; src < 0x100; ++src) {
+            table[(dst << 8) + src] = dst + src - (dst * src + 0x7f) / 0xff;
+        }
+    }
+    return table;
+} ()};
+
+void
+draw_bitmap(py::array_t<uint8_t, py::array::c_style> im, FT_Bitmap *bitmap, FT_Int x, FT_Int y)
 {
     auto buf = im.mutable_data(0);
-
     FT_Int image_width = (FT_Int)im.shape(1);
     FT_Int image_height = (FT_Int)im.shape(0);
     FT_Int char_width = bitmap->width;
@@ -96,7 +105,8 @@ void draw_bitmap(
             unsigned char *dst = buf + (i * image_width + x1);
             unsigned char *src = bitmap->buffer + (((i - y_offset) * bitmap->pitch) + x_start);
             for (FT_Int j = x1; j < x2; ++j, ++dst, ++src)
-                *dst |= *src;
+                // Provide a fast-path for the common case of black background.
+                *dst = *dst ? alpha_cov_merge_table[(*dst << 8) + *src] : *src;
         }
     } else if (bitmap->pixel_mode == FT_PIXEL_MODE_MONO) {
         for (FT_Int i = y1; i < y2; ++i) {
