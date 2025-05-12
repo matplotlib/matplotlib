@@ -9741,7 +9741,7 @@ def test_caps_color():
     ecolor = 'red'
 
     fig, ax = plt.subplots()
-    errorbars = ax.errorbar(x, sin(x), yerr=0.1, ecolor=ecolor)
+    errorbars = ax.errorbar(x, np.sin(x), yerr=0.1, ecolor=ecolor)
 
     # Tests if the caps have the specified color
     for cap in errorbars[2]:
@@ -9752,14 +9752,11 @@ def test_caps_no_ecolor():
 
     # Creates a simple plot with error bars without specifying ecolor
     x = np.linspace(0, 10, 10)
-    y = np.sin(x)
-    yerr = 0.1
     mpl.rcParams['lines.markeredgecolor'] = 'green'
-
     fig, ax = plt.subplots()
-    errorbars = ax.errorbar(x, y, yerr=yerr, fmt='o', capsize=5)
+    errorbars = ax.errorbar(x, np.sin(x), yerr=0.1)
 
-    # Tesrts if the caps have the default color (blue)
+    # Tests if the caps have the default color (blue)
     for cap in errorbars[2]:
         assert mcolors.same_color(cap.get_edgecolor(), "blue")
 
