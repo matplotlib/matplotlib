@@ -139,6 +139,7 @@ def handle_axis_parameter(init_func):
         return init_func(self, *args, **kwargs)
     return wrapper
 
+
 class LinearScale(ScaleBase):
     """
     The default linear scale.
@@ -317,7 +318,7 @@ class LogScale(ScaleBase):
     """
     name = 'log'
 
-    @handle_axis_parameter  
+    @handle_axis_parameter
     def __init__(self, axis=None, *, base=10, subs=None, nonpositive="clip"):
         """
         Parameters
@@ -793,8 +794,9 @@ def register_scale(scale_class):
     sig = inspect.signature(scale_class.__init__)
     if 'axis' in sig.parameters:
         warnings.warn(
-            f"The scale class {scale_class.__name__} still uses the 'axis' parameter in its constructor. "
-            "Consider refactoring it to remove this dependency.",
+            f"The scale class {scale_class.__name__} still uses the 'axis' "
+            "parameter in its constructor. Consider refactoring it to remove "
+            "this dependency.",
             DeprecationWarning
         )
     _scale_mapping[scale_class.name] = scale_class
