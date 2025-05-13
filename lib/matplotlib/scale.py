@@ -107,28 +107,27 @@ class ScaleBase:
 
 def handle_axis_parameter(init_func):
     """
-    Decorator to support scale constructors that optionally accept an axis.
+    Decorator to handle the optional *axis* parameter in scale constructors.
 
-    This decorator provides backward compatibility for scale classes that
-    used to require an *axis* parameter. It allows scale constructors to
-    function whether or not the *axis* argument is provided.
+    This decorator ensures backward compatibility for scale classes that
+    previously required an *axis* parameter. It allows constructors to work
+    seamlessly with or without the *axis* parameter.
 
     Parameters
     ----------
     init_func : callable
-        The original ``__init__`` method of a scale class.
+        The original __init__ method of a scale class.
 
     Returns
     -------
     callable
-        A wrapped version of ``init_func`` that supports the optional *axis*
-        parameter.
+        A wrapped version of *init_func* that handles the optional *axis*.
 
     Notes
     -----
-    If the constructor defines *axis* explicitly as its first parameter, the
-    argument is preserved. Otherwise, it is removed from positional and keyword
-    arguments before calling the constructor.
+    If the wrapped constructor defines *axis* as its first argument, the
+    parameter is preserved. Otherwise, it is safely removed from positional
+    or keyword arguments.
 
     Examples
     --------
@@ -138,6 +137,17 @@ def handle_axis_parameter(init_func):
     ...     def __init__(self, axis=None, custom_param=1):
     ...         self.custom_param = custom_param
     """
+    @wraps(init_func)
+    def wrapper(self, *args, **kwargs):
+        sig = inspect.signature(init_func)
+        params = list(sig.parameters.values())
+        if params and params[1].name == "axis":
+            return init_func(self, *args, **kwargs)
+        if args:
+            args = args[1:]
+        kwargs.pop("axis", None)
+        return init_func(self, *args, **kwargs)
+    return wrapper
 
 
 class LinearScale(ScaleBase):
