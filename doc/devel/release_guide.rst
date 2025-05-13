@@ -451,7 +451,7 @@ which will copy the built docs over.  If this is a final release, link the
   rm stable
   ln -s 3.7.0 stable
 
-You will also need to edit :file:`sitemap.xml` and :file:`versions.html` to include
+You will also need to edit :file:`sitemap.xml` to include
 the newly released version.  Now commit and push everything to GitHub ::
 
   git add *
@@ -464,6 +464,14 @@ If you have access, clear the CloudFlare caches.
 
 It typically takes about 5-10 minutes for the website to process the push and update the
 live web page (remember to clear your browser cache).
+
+Update the version switcher
+---------------------------
+The version switcher is populated from https://matplotlib.org/devdocs/_static/switcher.json.
+
+Since it's always taken from devdocs, update the file :file:`doc/_static/switcher.json`
+on the main branch through a regular PR. Once that PR is merged, the devdocs site
+will be updated automatically.
 
 .. _release_merge_up:
 
