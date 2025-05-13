@@ -107,37 +107,37 @@ class ScaleBase:
 
 def handle_axis_parameter(init_func):
     """
-    Allow scale classes to work with or without the `axis` parameter.
+    Decorator to support scale constructors that optionally accept an axis.
 
-    This decorator enables scale constructors to maintain backward
-    compatibility with older code that passes `axis`, while allowing
-    future implementations to omit it entirely.
-
-    If the wrapped constructor defines `axis` as its first argument,
-    the parameter is preserved. Otherwise, it is safely removed from
-    positional or keyword arguments.
+    This decorator provides backward compatibility for scale classes that
+    used to require an *axis* parameter. It allows scale constructors to
+    function whether or not the *axis* argument is provided.
 
     Parameters
     ----------
     init_func : callable
-        The original __init__ method of a scale class.
+        The original ``__init__`` method of a scale class.
 
     Returns
     -------
     callable
-        A wrapped version of `init_func` that handles the optional `axis`.
+        A wrapped version of ``init_func`` that supports the optional *axis*
+        parameter.
+
+    Notes
+    -----
+    If the constructor defines *axis* explicitly as its first parameter, the
+    argument is preserved. Otherwise, it is removed from positional and keyword
+    arguments before calling the constructor.
+
+    Examples
+    --------
+    >>> from matplotlib.scale import ScaleBase
+    >>> class CustomScale(ScaleBase):
+    ...     @handle_axis_parameter
+    ...     def __init__(self, axis=None, custom_param=1):
+    ...         self.custom_param = custom_param
     """
-    @wraps(init_func)
-    def wrapper(self, *args, **kwargs):
-        sig = inspect.signature(init_func)
-        params = list(sig.parameters.values())
-        if params and params[1].name == "axis":
-            return init_func(self, *args, **kwargs)
-        if args:
-            args = args[1:]
-        kwargs.pop("axis", None)
-        return init_func(self, *args, **kwargs)
-    return wrapper
 
 
 class LinearScale(ScaleBase):
