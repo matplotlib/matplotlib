@@ -245,6 +245,7 @@ on the main branch through a regular PR:
 
 - If a micro release, update the version from :samp:`{X}.{Y}.{Z-1}` to :samp:`{X}.{Y}.{Z}`
 - If a meso release :samp:`{X}.{Y}.0`:
+
     + update the dev entry to :samp:`name: {X}.{Y+1} (dev)`
     + update the stable entry to :samp:`name: {X}.{Y} (stable)`
     + add a new entry for the previous stable (:samp:`name: {X}.{Y-1}`).
