@@ -233,15 +233,24 @@ Update :file:`doc/users/release_notes.rst`:
      ../api/prev_api_changes/api_changes_X.Y.Z.rst
      prev_whats_new/github_stats_X.Y.Z.rst
 
+.. _update-version-switcher:
+
 Update version switcher
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
-Update ``doc/_static/switcher.json``:
+The version switcher is populated from https://matplotlib.org/devdocs/_static/switcher.json.
 
-- If a micro release, :samp:`{X}.{Y}.{Z}`, no changes are needed.
-- If a meso release, :samp:`{X}.{Y}.0`, change the name of :samp:`name: {X}.{Y+1} (dev)`
-  and :samp:`name: {X}.{Y} (stable)` as well as adding a new version for the previous
-  stable (:samp:`name: {X}.{Y-1}`).
+Since it's always taken from devdocs, update the file :file:`doc/_static/switcher.json`
+on the main branch through a regular PR:
+
+- If a micro release, update the version from :samp:`{X}.{Y}.{Z-1}` to :samp:`{X}.{Y}.{Z}`
+- If a meso release :samp:`{X}.{Y}.0`:
+
+    + update the dev entry to :samp:`name: {X}.{Y+1} (dev)`
+    + update the stable entry to :samp:`name: {X}.{Y} (stable)`
+    + add a new entry for the previous stable (:samp:`name: {X}.{Y-1}`).
+
+Once that PR is merged, the devdocs site will be updated automatically.
 
 Verify that docs build
 ----------------------
@@ -465,13 +474,7 @@ If you have access, clear the CloudFlare caches.
 It typically takes about 5-10 minutes for the website to process the push and update the
 live web page (remember to clear your browser cache).
 
-Update the version switcher
----------------------------
-The version switcher is populated from https://matplotlib.org/devdocs/_static/switcher.json.
-
-Since it's always taken from devdocs, update the file :file:`doc/_static/switcher.json`
-on the main branch through a regular PR. Once that PR is merged, the devdocs site
-will be updated automatically.
+Remember to :ref:`update the version switcher <update-version-switcher>`!
 
 .. _release_merge_up:
 
