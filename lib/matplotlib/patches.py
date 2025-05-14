@@ -2558,12 +2558,28 @@ class BoxStyle(_Style):
             elif self.head_angle <= 180:
                 # Non-reversed arrow head (<---)
 
+                # tan(1/2 * angle subtended by arrow tip)
+                tan_half_angle = np.tan(self.head_angle * (math.pi / 360))
+
                 # The angle adjustment is the tip-to-body length of the arrow head.
                 # Each half of the arrow head is a right-angled triangle. Therefore,
                 # each half of the arrow head has, by trigonometry, tan(head_angle/2)=
                 # (dx+width_adjustment)/(dxx+angle_adjustment).
-                angle_adjustment = ((dx + width_adjustment) / math.tan((self.
-                                    head_angle/2) * (math.pi/180))) - dxx
+                angle_adjustment = ((dx + width_adjustment) / tan_half_angle) - dxx
+
+                # Check padding; the left end of the text should have a minimum
+                # clearance of pad from the head
+                if -width_adjustment < pad:
+                    # Only do this if the text fits into the head
+                    text_clearance = (width_adjustment / tan_half_angle) + \
+                        pad * ((1 / tan_half_angle) - 1)
+
+                    if text_clearance < pad:
+                        # Lengthen arrow body to accomodate text
+                        x0 = x0 + text_clearance - pad
+                else:
+                    # Pad away from head straight-edge
+                    x0 = x0 - pad
 
                 return Path._create_closed(
                     [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
@@ -2704,12 +2720,14 @@ class BoxStyle(_Style):
             elif self.head_angle <= 180:
                 # Non-reversed arrow heads (<--->)
 
+                # tan(1/2 * angle subtended by arrow tip)
+                tan_half_angle = np.tan(self.head_angle * (math.pi / 360))
+
                 # The angle adjustment is the tip-to-body length of the arrow head.
                 # Each half of the arrow head is a right-angled triangle. Therefore,
                 # each half of the arrow head has, by trigonometry, tan(head_angle/2)=
                 # (dx+width_adjustment)/(dxx+angle_adjustment).
-                angle_adjustment = ((dx + width_adjustment) / math.tan((self.
-                                    head_angle/2) * (math.pi/180))) - dxx
+                angle_adjustment = ((dx + width_adjustment) / tan_half_angle) - dxx
 
                 return Path._create_closed([
                     (x0 + dxx, y0),
@@ -2728,8 +2746,8 @@ class BoxStyle(_Style):
                 # Reversed arrow heads (>---<)
 
                 # No arrow head available for enclosed text to spill over into; add
-                # padding to left of text
-                x0 = x0 - (1.4 * pad)
+                # padding to both sides of text
+                # TODO
 
                 # tan(1/2 * angle subtended by arrow tip)
                 tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))
