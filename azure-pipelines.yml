@@ -78,20 +78,38 @@ stages:
               python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt
             displayName: 'Install dependencies with pip'
 
-          - bash: |
+          - pwsh: |
+              Invoke-WebRequest `
+                https://github.com/wingtk/gvsbuild/releases/download/2025.5.0/GTK4_Gvsbuild_2025.5.0_x64.zip `
+                -OutFile $(Agent.BuildDirectory)\GTK4.zip
+              Write-Host "##vso[task.prependpath]$(Agent.BuildDirectory)\gtk4\bin"
+            displayName: 'Download system dependencies'
+
+          - task: ExtractFiles@1
+            inputs:
+              archiveFilePatterns: '$(Agent.BuildDirectory)\GTK4.zip'
+              destinationFolder: '$(Agent.BuildDirectory)\gtk4'
+
+          - pwsh: |
               # GUI toolkits are pip-installable only for some versions of Python so don't fail if we can't install
               # them.  Make it easier to check whether the install was successful by trying to import the toolkit
               # (sometimes, the install appears to be successful but shared libraries cannot be loaded at runtime, so
               # an actual import is a better check).
-              python -m pip install --upgrade pycairo cairocffi>=0.8
-              python -m pip install --upgrade PyGObject &&
-                (
-                  python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
-                  echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
-                ) && (
-                  python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
-                  echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
-                )
+              python -m pip install (Resolve-Path $(Agent.BuildDirectory)\gtk4\wheels\pycairo*.whl) cairocffi>=0.8
+              if ('$(python.version)' -eq '3.13') {
+                python -m pip install (Resolve-Path $(Agent.BuildDirectory)\gtk4\wheels\PyGObject*.whl) &&
+                  (
+                    python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
+                    echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
+                  ) && (
+                    python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+                    echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
+                  )
+                python -m pip install --upgrade --only-binary :all: wxPython &&
+                  python -c 'import wx' &&
+                  echo 'wxPython is available' ||
+                  echo 'wxPython is not available'
+              }
               python -m pip install --upgrade pyqt5 &&
                 python -c 'import PyQt5.QtCore' &&
                 echo 'PyQt5 is available' ||
@@ -100,10 +118,6 @@ stages:
                 python -c 'import PySide2.QtCore' &&
                 echo 'PySide2 is available' ||
                 echo 'PySide2 is not available'
-              python -m pip install --upgrade --only-binary :all: wxPython &&
-                python -c 'import wx' &&
-                echo 'wxPython is available' ||
-                echo 'wxPython is not available'
             displayName: 'Install GUI dependencies with pip'
 
           - bash: |
