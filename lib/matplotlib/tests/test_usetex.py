@@ -158,7 +158,7 @@ def test_missing_psfont(fmt, monkeypatch):
 
 
 def test_pdf_type1_font_subsetting():
-    """Test that fonts in PDF output are properly subsetted"""
+    """Test that fonts in PDF output are properly subset."""
     pikepdf = pytest.importorskip("pikepdf")
 
     mpl.rcParams["text.usetex"] = True
