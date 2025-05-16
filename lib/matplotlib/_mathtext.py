@@ -9,6 +9,7 @@ import copy
 import enum
 import functools
 import logging
+import math
 import os
 import re
 import types
@@ -19,6 +20,7 @@ import typing as T
 from typing import NamedTuple
 
 import numpy as np
+from numpy.typing import NDArray
 from pyparsing import (
     Empty, Forward, Literal, Group, NotAny, OneOrMore, Optional,
     ParseBaseException, ParseException, ParseExpression, ParseFatalException,
@@ -30,7 +32,7 @@ from . import cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
 from .font_manager import FontProperties, findfont, get_font
-from .ft2font import FT2Font, FT2Image, Kerning, LoadFlags
+from .ft2font import FT2Font, Kerning, LoadFlags
 
 
 if T.TYPE_CHECKING:
@@ -99,7 +101,7 @@ class RasterParse(NamedTuple):
         The offsets are always zero.
     width, height, depth : float
         The global metrics.
-    image : FT2Image
+    image : 2D array of uint8
         A raster image.
     """
     ox: float
@@ -107,7 +109,7 @@ class RasterParse(NamedTuple):
     width: float
     height: float
     depth: float
-    image: FT2Image
+    image: NDArray[np.uint8]
 
 RasterParse.__module__ = "matplotlib.mathtext"
 
@@ -148,7 +150,7 @@ class Output:
         w = xmax - xmin
         h = ymax - ymin - self.box.depth
         d = ymax - ymin - self.box.height
-        image = FT2Image(int(np.ceil(w)), int(np.ceil(h + max(d, 0))))
+        image = np.zeros((math.ceil(h + max(d, 0)), math.ceil(w)), np.uint8)
 
         # Ideally, we could just use self.glyphs and self.rects here, shifting
         # their coordinates by (-xmin, -ymin), but this yields slightly
@@ -167,7 +169,9 @@ class Output:
                 y = int(center - (height + 1) / 2)
             else:
                 y = int(y1)
-            image.draw_rect_filled(int(x1), y, int(np.ceil(x2)), y + height)
+            x1 = math.floor(x1)
+            x2 = math.ceil(x2)
+            image[y:y+height+1, x1:x2+1] = 0xff
         return RasterParse(0, 0, w, h + d, d, image)
 
 
