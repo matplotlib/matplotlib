@@ -16,7 +16,7 @@ from matplotlib.ft2font import FT2Font
 from matplotlib.backends._backend_pdf_ps import get_glyphs_subset, font_as_file
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.patches import Rectangle
-from matplotlib.testing import _gen_multi_font_text
+from matplotlib.testing import _gen_multi_font_text, _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
 
@@ -426,5 +426,55 @@ def test_truetype_conversion(recwarn):
     fig, ax = plt.subplots()
     ax.text(0, 0, "ABCDE",
             font=Path(__file__).with_name("mpltest.ttf"), fontsize=80)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+
+@pytest.mark.skipif(not _has_tex_package("heuristica"),
+                    reason="LaTeX lacks heuristica package")
+@image_comparison(["font-heuristica.pdf"])
+def test_font_heuristica():
+    # Heuristica uses the callothersubr operator for some glyphs
+    mpl.rcParams['text.latex.preamble'] = '\n'.join((
+        r'\usepackage{heuristica}',
+        r'\usepackage[T1]{fontenc}',
+        r'\usepackage[utf8]{inputenc}'
+    ))
+    fig, ax = plt.subplots()
+    ax.text(0.1, 0.1, r"BHTem fi ffl 1234", usetex=True, fontsize=50)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+
+@pytest.mark.skipif(not _has_tex_package("DejaVuSans"),
+                    reason="LaTeX lacks DejaVuSans package")
+@image_comparison(["font-dejavusans.pdf"])
+def test_font_dejavusans():
+    # DejaVuSans uses the seac operator to compose characters with diacritics
+    mpl.rcParams['text.latex.preamble'] = '\n'.join((
+        r'\usepackage{DejaVuSans}',
+        r'\usepackage[T1]{fontenc}',
+        r'\usepackage[utf8]{inputenc}'
+    ))
+
+    fig, ax = plt.subplots()
+    ax.text(0.1, 0.1, r"\textsf{ñäö ABCDabcd}", usetex=True, fontsize=50)
+    ax.text(0.1, 0.3, r"\textsf{fi ffl 1234}", usetex=True, fontsize=50)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+
+@pytest.mark.skipif(not _has_tex_package("charter"),
+                    reason="LaTeX lacks charter package")
+@image_comparison(["font-bitstream-charter.pdf"])
+def test_font_bitstream_charter():
+    mpl.rcParams['text.latex.preamble'] = '\n'.join((
+        r'\usepackage{charter}',
+        r'\usepackage[T1]{fontenc}',
+        r'\usepackage[utf8]{inputenc}'
+    ))
+    fig, ax = plt.subplots()
+    ax.text(0.1, 0.1, r"åüš ABCDabcd", usetex=True, fontsize=50)
+    ax.text(0.1, 0.3, r"fi ffl 1234", usetex=True, fontsize=50)
     ax.set_xticks([])
     ax.set_yticks([])
