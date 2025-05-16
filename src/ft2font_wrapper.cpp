@@ -1764,7 +1764,59 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             std::vector<py::size_t> shape { im.get_height(), im.get_width() };
             std::vector<py::size_t> strides { im.get_width(), 1 };
             return py::buffer_info(im.get_buffer(), shape, strides);
-        });
+        })
+
+        // TODO: Return a nicer structure than dicts.
+        // NOTE: The lifetime of the buffers is limited and could get invalidated...
+        // TODO: Real antialiasing flag.
+        // TODO: throw_ft_error.
+        // x, y are upwards here
+        .def("_render_glyph", [](PyFT2Font *self, FT_UInt idx,
+                                 double x, double y, double angle,
+                                 LoadFlags flags) {
+            auto face = self->x->get_face();
+            auto hf = self->x->get_hinting_factor();
+            auto c = std::cos(angle * M_PI / 180) * 0x10000L,
+                 s = std::sin(angle * M_PI / 180) * 0x10000L;
+            auto matrix = FT_Matrix{
+            std::lround(c / hf), std::lround(-s), std::lround(s / hf), std::lround(c)};
+            auto delta = FT_Vector{std::lround(x * 64), std::lround(y * 64)};
+            FT_Set_Transform(face, &matrix, &delta);
+            if (auto error = FT_Load_Glyph(face, idx, static_cast<FT_Int32>(flags))) {
+                throw std::runtime_error("Could not load glyph");
+            }
+            if (auto error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL)) {
+                throw std::runtime_error("Could not convert glyph to bitmap");
+            }
+            py::dict d;
+            d["left"] = face->glyph->bitmap_left;
+            d["top"] = face->glyph->bitmap_top;
+            d["buffer"] = py::array_t<uint8_t>{
+                {face->glyph->bitmap.rows, face->glyph->bitmap.width},
+                {face->glyph->bitmap.pitch, 1},
+                face->glyph->bitmap.buffer};
+            return d;
+        })
+        .def("_render_glyphs", [](PyFT2Font *self, double x, double y) {
+            auto origin = FT_Vector{std::lround(x * 64), std::lround(y * 64)};
+            py::list gs;
+            for (auto &g: self->x->glyphs) {
+                if (auto error = FT_Glyph_To_Bitmap(&g, FT_RENDER_MODE_NORMAL, &origin, 1)) {
+                    throw std::runtime_error("Could not convert glyph to bitmap");
+                }
+                auto bg = reinterpret_cast<FT_BitmapGlyph>(g);
+                py::dict d;
+                d["left"] = bg->left;
+                d["top"] = bg->top;
+                d["buffer"] = py::array_t<uint8_t>{
+                    {bg->bitmap.rows, bg->bitmap.width},
+                    {bg->bitmap.pitch, 1},
+                    bg->bitmap.buffer};
+                gs.append(d);
+            }
+            return gs;
+        })
+        ;
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
