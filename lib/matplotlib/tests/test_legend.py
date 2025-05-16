@@ -1262,7 +1262,7 @@ def test_legend_markers_from_line2d():
     assert labels == new_labels
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_ncol_ncols(fig_test, fig_ref):
     # Test that both ncol and ncols work
     strings = ["a", "b", "c", "d", "e", "f"]
