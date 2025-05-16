@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import matplotlib.pyplot as plt
 from matplotlib.axis import XTick
@@ -67,3 +68,28 @@ def test_get_tick_position_tick_params():
                    right=True, labelright=True, left=False, labelleft=False)
     assert ax.xaxis.get_ticks_position() == "top"
     assert ax.yaxis.get_ticks_position() == "right"
+
+
+def test_tick_label_alignment():
+    """Test that tick label alignment can be set via tick_params."""
+    fig, ax = plt.subplots()
+    
+    ax.tick_params(axis='x', labelhorizontalalignment='right')
+    assert ax.xaxis.get_major_ticks()[0].label1.get_horizontalalignment() == 'right'
+    
+    ax.tick_params(axis='x', labelverticalalignment='top')
+    assert ax.xaxis.get_major_ticks()[0].label1.get_verticalalignment() == 'top'
+    
+    # Test horizontal alignment for y-axis
+    ax.tick_params(axis='y', labelhorizontalalignment='left')
+    assert ax.yaxis.get_major_ticks()[0].label1.get_horizontalalignment() == 'left'
+    
+    # Test vertical alignment for y-axis
+    ax.tick_params(axis='y', labelverticalalignment='bottom')
+    assert ax.yaxis.get_major_ticks()[0].label1.get_verticalalignment() == 'bottom'
+    
+    # Test that alignment parameters are validated
+    with pytest.raises(ValueError):
+        ax.tick_params(axis='x', labelhorizontalalignment='invalid')
+    with pytest.raises(ValueError):
+        ax.tick_params(axis='y', labelverticalalignment='invalid')
