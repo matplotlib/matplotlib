@@ -19,6 +19,7 @@
 
 extern "C" {
 #include <ft2build.h>
+#include FT_BITMAP_H
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
@@ -111,6 +112,8 @@ class FT2Font
     void close();
     void clear();
     void set_size(double ptsize, double dpi);
+    void _set_transform(
+        std::array<std::array<FT_Fixed, 2>, 2> matrix, std::array<FT_Fixed, 2> delta);
     void set_charmap(int i);
     void select_charmap(unsigned long i);
     std::vector<raqm_glyph_t> layout(std::u32string_view text, FT_Int32 flags,
@@ -154,6 +157,10 @@ class FT2Font
     py::array_t<uint8_t, py::array::c_style> &get_image()
     {
         return image;
+    }
+    std::vector<FT_Glyph> &get_glyphs()
+    {
+        return glyphs;
     }
     FT_Glyph const &get_last_glyph() const
     {
