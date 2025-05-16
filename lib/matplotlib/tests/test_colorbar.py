@@ -332,11 +332,11 @@ def test_colorbar_closed_patch():
     plt.rcParams['pcolormesh.snap'] = False
 
     fig = plt.figure(figsize=(8, 6))
-    ax1 = fig.add_axes([0.05, 0.85, 0.9, 0.1])
-    ax2 = fig.add_axes([0.1, 0.65, 0.75, 0.1])
-    ax3 = fig.add_axes([0.05, 0.45, 0.9, 0.1])
-    ax4 = fig.add_axes([0.05, 0.25, 0.9, 0.1])
-    ax5 = fig.add_axes([0.05, 0.05, 0.9, 0.1])
+    ax1 = fig.add_axes((0.05, 0.85, 0.9, 0.1))
+    ax2 = fig.add_axes((0.1, 0.65, 0.75, 0.1))
+    ax3 = fig.add_axes((0.05, 0.45, 0.9, 0.1))
+    ax4 = fig.add_axes((0.05, 0.25, 0.9, 0.1))
+    ax5 = fig.add_axes((0.05, 0.05, 0.9, 0.1))
 
     cmap = mpl.colormaps["RdBu"].resampled(5)
 
@@ -845,7 +845,7 @@ def test_colorbar_change_lim_scale():
 
     pc = ax[1].pcolormesh(np.arange(100).reshape(10, 10)+1)
     cb = fig.colorbar(pc, ax=ax[1], extend='both')
-    cb.ax.set_ylim([20, 90])
+    cb.ax.set_ylim(20, 90)
 
 
 @check_figures_equal()
@@ -854,7 +854,7 @@ def test_axes_handles_same_functions(fig_ref, fig_test):
     for nn, fig in enumerate([fig_ref, fig_test]):
         ax = fig.add_subplot()
         pc = ax.pcolormesh(np.ones(300).reshape(10, 30))
-        cax = fig.add_axes([0.9, 0.1, 0.03, 0.8])
+        cax = fig.add_axes((0.9, 0.1, 0.03, 0.8))
         cb = fig.colorbar(pc, cax=cax)
         if nn == 0:
             caxx = cax

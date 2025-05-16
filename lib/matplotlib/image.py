@@ -967,9 +967,9 @@ class AxesImage(_ImageBase):
         self.sticky_edges.x[:] = [xmin, xmax]
         self.sticky_edges.y[:] = [ymin, ymax]
         if self.axes.get_autoscalex_on():
-            self.axes.set_xlim((xmin, xmax), auto=None)
+            self.axes.set_xlim(xmin, xmax, auto=None)
         if self.axes.get_autoscaley_on():
-            self.axes.set_ylim((ymin, ymax), auto=None)
+            self.axes.set_ylim(ymin, ymax, auto=None)
         self.stale = True
 
     def get_extent(self):
@@ -1823,7 +1823,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         fig = Figure(figsize=(width, height), dpi=dpi)
         FigureCanvasBase(fig)
 
-    ax = fig.add_axes([0, 0, 1, 1], aspect='auto',
+    ax = fig.add_axes((0, 0, 1, 1), aspect='auto',
                       frameon=False, xticks=[], yticks=[])
     ax.imshow(im, aspect='auto', resample=True, interpolation=interpolation)
     fig.savefig(thumbfile, dpi=dpi)
