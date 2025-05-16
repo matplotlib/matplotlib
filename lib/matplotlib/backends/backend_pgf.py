@@ -453,8 +453,17 @@ class RendererPgf(RendererBase):
                      r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
             _writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
+            # Store default PGF line width
+            _writeln(self.fh, r"\newlength{\defaultpgflinewidth}")
+            _writeln(self.fh,
+                     r"\setlength{\defaultpgflinewidth}{\pgflinewidth}")
+            lw = (mpl.rcParams["hatch.linewidth"]
+                  * mpl_pt_to_in * latex_in_to_pt)
+            _writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
             self._print_pgf_path(None, gc.get_hatch_path(), scale)
             self._pgf_path_draw(stroke=True)
+            # Restore default PGF line width
+            _writeln(self.fh, r"\pgfsetlinewidth{\defaultpgflinewidth}")
             _writeln(self.fh, r"\end{pgfscope}")
             _writeln(self.fh, r"}")
             # repeat pattern, filling the bounding rect of the path
