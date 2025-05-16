@@ -1422,6 +1422,15 @@ class MouseEvent(LocationEvent):
         self.step = step
         self.dblclick = dblclick
 
+    @classmethod
+    def _from_ax_coords(cls, name, ax, xy, *args, **kwargs):
+        """Generate a synthetic event at a given axes coordinate."""
+        x, y = ax.transData.transform(xy)
+        event = cls(name, ax.figure.canvas, x, y, *args, **kwargs)
+        event.inaxes = ax
+        event.xdata, event.ydata = xy  # Force exact xy to avoid fp roundtrip issues.
+        return event
+
     def __str__(self):
         return (f"{self.name}: "
                 f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
@@ -1513,6 +1522,17 @@ class KeyEvent(LocationEvent):
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
         super().__init__(name, canvas, x, y, guiEvent=guiEvent)
         self.key = key
+
+    @classmethod
+    def _from_ax_coords(cls, name, ax, xy, key, *args, **kwargs):
+        """Generate a synthetic event at a given axes coordinate."""
+        # Separate from MouseEvent._from_ax_coords instead of being defined in the base
+        # class, due to different parameter order in the constructor signature.
+        x, y = ax.transData.transform(xy)
+        event = cls(name, ax.figure.canvas, key, x, y, *args, **kwargs)
+        event.inaxes = ax
+        event.xdata, event.ydata = xy  # Force exact xy to avoid fp roundtrip issues.
+        return event
 
 
 # Default callback for key events.
