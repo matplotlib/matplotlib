@@ -13,7 +13,7 @@ pytest.importorskip('matplotlib_inline')
 
 
 def test_ipynb():
-    nb_path = Path(__file__).parent / 'test_inline_01.ipynb'
+    nb_path = Path(__file__).parent / 'data/test_inline_01.ipynb'
 
     with TemporaryDirectory() as tmpdir:
         out_path = Path(tmpdir, "out.ipynb")
