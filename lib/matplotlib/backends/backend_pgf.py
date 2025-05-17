@@ -29,7 +29,9 @@ from matplotlib._pylab_helpers import Gcf
 _log = logging.getLogger(__name__)
 
 
-_DOCUMENTCLASS = r"\documentclass{article}"
+_DOCUMENTCLASS = (
+    rf"\documentclass{{{mpl.rcParams.get('pgf.documentclass', 'article')}}}"
+)
 
 
 # Note: When formatting floating point values, it is important to use the

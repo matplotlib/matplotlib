@@ -958,6 +958,7 @@ rcParamsDefault = _rc_params_in_file(
     # Strip leading comment.
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
+rcParamsDefault["pgf.documentclass"] = "article"
 rcParamsDefault._update_raw(rcsetup._hardcoded_defaults)
 rcParamsDefault._ensure_has_backend()
 
