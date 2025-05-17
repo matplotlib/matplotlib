@@ -33,7 +33,7 @@ def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
 
 
 def test_tinypages(tmp_path):
-    shutil.copytree(Path(__file__).parent / 'tinypages', tmp_path,
+    shutil.copytree(Path(__file__).parent / 'data/tinypages', tmp_path,
                     dirs_exist_ok=True)
     html_dir = tmp_path / '_build' / 'html'
     img_dir = html_dir / '_images'
@@ -41,7 +41,7 @@ def test_tinypages(tmp_path):
     # Build the pages with warnings turned into errors
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
            '-d', str(doctree_dir),
-           str(Path(__file__).parent / 'tinypages'), str(html_dir)]
+           str(Path(__file__).parent / 'data/tinypages'), str(html_dir)]
     # On CI, gcov emits warnings (due to agg headers being included with the
     # same name in multiple extension modules -- but we don't care about their
     # coverage anyways); hide them using GCOV_ERROR_FILE.
@@ -126,8 +126,8 @@ def test_tinypages(tmp_path):
 
 def test_plot_html_show_source_link(tmp_path):
     parent = Path(__file__).parent
-    shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
-    shutil.copytree(parent / 'tinypages/_static', tmp_path / '_static')
+    shutil.copyfile(parent / 'data/tinypages/conf.py', tmp_path / 'conf.py')
+    shutil.copytree(parent / 'data/tinypages/_static', tmp_path / '_static')
     doctree_dir = tmp_path / 'doctrees'
     (tmp_path / 'index.rst').write_text("""
 .. plot::
@@ -151,8 +151,8 @@ def test_show_source_link_true(tmp_path, plot_html_show_source_link):
     # Test that a source link is generated if :show-source-link: is true,
     # whether or not plot_html_show_source_link is true.
     parent = Path(__file__).parent
-    shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
-    shutil.copytree(parent / 'tinypages/_static', tmp_path / '_static')
+    shutil.copyfile(parent / 'data/tinypages/conf.py', tmp_path / 'conf.py')
+    shutil.copytree(parent / 'data/tinypages/_static', tmp_path / '_static')
     doctree_dir = tmp_path / 'doctrees'
     (tmp_path / 'index.rst').write_text("""
 .. plot::
@@ -171,8 +171,8 @@ def test_show_source_link_false(tmp_path, plot_html_show_source_link):
     # Test that a source link is NOT generated if :show-source-link: is false,
     # whether or not plot_html_show_source_link is true.
     parent = Path(__file__).parent
-    shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
-    shutil.copytree(parent / 'tinypages/_static', tmp_path / '_static')
+    shutil.copyfile(parent / 'data/tinypages/conf.py', tmp_path / 'conf.py')
+    shutil.copytree(parent / 'data/tinypages/_static', tmp_path / '_static')
     doctree_dir = tmp_path / 'doctrees'
     (tmp_path / 'index.rst').write_text("""
 .. plot::
@@ -187,7 +187,7 @@ def test_show_source_link_false(tmp_path, plot_html_show_source_link):
 
 
 def test_srcset_version(tmp_path):
-    shutil.copytree(Path(__file__).parent / 'tinypages', tmp_path,
+    shutil.copytree(Path(__file__).parent / 'data/tinypages', tmp_path,
                     dirs_exist_ok=True)
     html_dir = tmp_path / '_build' / 'html'
     img_dir = html_dir / '_images'

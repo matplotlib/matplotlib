@@ -1,7 +1,6 @@
 import datetime
 import decimal
 import io
-import os
 from pathlib import Path
 
 import numpy as np
@@ -291,8 +290,8 @@ def test_text_urls_tex():
             assert annot.Rect[1] == decimal.Decimal('0.7') * 72
 
 
-def test_pdfpages_fspath():
-    with PdfPages(Path(os.devnull)) as pdf:
+def test_pdfpages_fspath(tmp_path):
+    with PdfPages(tmp_path / 'unused.pdf') as pdf:
         pdf.savefig(plt.figure())
 
 
@@ -425,6 +424,6 @@ def test_truetype_conversion(recwarn):
     mpl.rcParams['pdf.fonttype'] = 3
     fig, ax = plt.subplots()
     ax.text(0, 0, "ABCDE",
-            font=Path(__file__).with_name("mpltest.ttf"), fontsize=80)
+            font=Path(__file__).parent / "data/mpltest.ttf", fontsize=80)
     ax.set_xticks([])
     ax.set_yticks([])
