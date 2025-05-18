@@ -215,9 +215,7 @@ class InvertedPolarTransform(mtransforms.Transform):
 
     def inverted(self):
         # docstring inherited
-        return PolarAxes.PolarTransform(
-            self._axis, self._use_rmin,
-        )
+        return PolarAxes.PolarTransform(self._axis, self._use_rmin)
 
 
 class ThetaFormatter(mticker.Formatter):
