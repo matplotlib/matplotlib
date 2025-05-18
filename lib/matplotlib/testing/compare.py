@@ -17,6 +17,7 @@ import re
 
 import numpy as np
 from PIL import Image
+import packaging.version
 
 import matplotlib as mpl
 from matplotlib import cbook
@@ -56,7 +57,7 @@ def get_file_hash(path, block_size=2 ** 20):
 
     if Path(path).suffix == '.pdf':
         sha256.update(str(mpl._get_executable_info("gs").version).encode('utf-8'))
-        sha256.update(b"r600")  # invalidate old cache entries
+        sha256.update(b"antialiasing")  # invalidate old cache entries
     elif Path(path).suffix == '.svg':
         sha256.update(str(mpl._get_executable_info("inkscape").version).encode('utf-8'))
 
@@ -111,14 +112,21 @@ class _MagickConverter:
 class _GSConverter(_Converter):
     def __call__(self, orig, dest):
         if not self._proc:
+            if mpl._get_executable_info("gs").version < packaging.version.parse("9.57"):
+                antialias = [
+                    "-sDEVICE=png16m",
+                    "-r150",
+                    "-dGraphicsAlphaBits=4",
+                    "-dTextAlphaBits=4",
+                ]
+            else:
+                antialias = ["-sDEVICE=png16malpha", "-r600", "-dDownScaleFactor=4"]
             self._proc = subprocess.Popen(
                 [mpl._get_executable_info("gs").executable,
                  "-dNOSAFER",
                  "-dNOPAUSE",
                  "-dEPSCrop",
-                 "-sDEVICE=png16malpha",
-                 "-r600",
-                 "-dDownScaleFactor=4"],
+                 *antialias],
                 # As far as I can see, ghostscript never outputs to stderr.
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             try:
