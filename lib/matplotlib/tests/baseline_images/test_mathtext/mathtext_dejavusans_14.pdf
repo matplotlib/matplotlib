@@ -1,47 +1,47 @@
 %PDF-1.4
 %¬Ü «º
 1 0 obj
-<< /Pages 2 0 R /Type /Catalog >>
+<< /Type /Catalog /Pages 2 0 R >>
 endobj
 8 0 obj
-<< /ExtGState 4 0 R /Font 3 0 R
-/ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ] /Shading 6 0 R
-/XObject 7 0 R /Pattern 5 0 R >>
-endobj
-10 0 obj
-<< /Group << /S /Transparency /CS /DeviceRGB /Type /Group >> /Annots [ ]
-/Resources 8 0 R /MediaBox [ 0 0 378 54 ] /Contents 9 0 R /Parent 2 0 R
-/Type /Page >>
-endobj
-9 0 obj
-<< /Length 11 0 R /Filter /FlateDecode >>
-stream
-xœ%Œ1Â0CwŸÂ#ùiÓ†	:#å EtèT	ƒeûë}+Œ…UÚiœ¥¯¶¢Ÿ’üİ<
-şo/`Q.B«´š¥‚Mc×ÑRp‘¡wcš"+.ù·ê†^5?qº‰	ÌŸ#sÅäÌ[CdgîÜ¾˜ÜĞ¸Ğ¸kÆøKâ$Ø
-endstream
+<< /Font 3 0 R /XObject 7 0 R /ExtGState 4 0 R /Pattern 5 0 R
+/Shading 6 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ] >>
 endobj
 11 0 obj
-136
+<< /Type /Page /Parent 2 0 R /Resources 8 0 R /MediaBox [ 0 0 378 54 ]
+/Contents 9 0 R /Annots 10 0 R >>
 endobj
-16 0 obj
-<< /Length 92 /Filter /FlateDecode >>
+9 0 obj
+<< /Length 12 0 R /Filter /FlateDecode >>
 stream
-xœ=Œ±À0{¦ø"aŒmØ'Jåìßæ-'iàô×Ò 8¬qvU48‹|xKõ„Ä”¦•GSœİÚ+ƒ»Ø^a¤òj˜ñySÕÀ’R”åÍúw=Ç«º
+xœEŒ½‚0„û}Š+µ $@lñ‡ZÍ D3R8Îˆï‹oööæ»+wãë6Œ§¾“íå¿OI$Š–D1Ò“Í6£j=óÓÕô/®ÀÄ9RMd¡Ô“ˆŸi)4—Æ[åÄVªñ­“aF¾_U]±†Ê+aÂê½–Ğ*£k¬“Â¨M¾Êš¯êìÙìíÀå°-L
 endstream
 endobj
+12 0 obj
+154
+endobj
+10 0 obj
+[ ]
+endobj
+17 0 obj
+<< /Length 95 /Filter /FlateDecode >>
+stream
+xœ=ŒAÀ ï¼b?ĞÿÓ4=Øÿ_»FÛLvaJ7(+œUÅÎ$>’½ÃZÇ¢™GCœİÜK«Xa¤´5Ìø¼(k`J)êigõ¿»åzÿŸ,
+endstream
+endobj
+15 0 obj
+<< /Type /Font /BaseFont /GCWXDV+DejaVuSans-Oblique /FirstChar 0
+/LastChar 255 /FontDescriptor 14 0 R /Subtype /Type3
+/Name /GCWXDV+DejaVuSans-Oblique /FontBBox [ -1016 -351 1660 1068 ]
+/FontMatrix [ 0.001 0 0 0.001 0 0 ] /CharProcs 16 0 R
+/Encoding << /Type /Encoding /Differences [ 120 /x ] >> /Widths 13 0 R >>
+endobj
 14 0 obj
-<< /FontDescriptor 13 0 R /Name /DejaVuSans-Oblique /CharProcs 15 0 R
-/LastChar 255 /FirstChar 0 /FontMatrix [ 0.001 0 0 0.001 0 0 ]
-/BaseFont /DejaVuSans-Oblique /Subtype /Type3 /Widths 12 0 R
-/FontBBox [ -1016 -351 1660 1068 ]
-/Encoding << /Differences [ 120 /x ] /Type /Encoding >> /Type /Font >>
+<< /Type /FontDescriptor /FontName /GCWXDV+DejaVuSans-Oblique /Flags 96
+/FontBBox [ -1016 -351 1660 1068 ] /Ascent 929 /Descent -236 /CapHeight 0
+/XHeight 0 /ItalicAngle 0 /StemV 0 /MaxWidth 1350 >>
 endobj
 13 0 obj
-<< /Ascent 929 /CapHeight 0 /StemV 0 /XHeight 0 /ItalicAngle 0
-/FontBBox [ -1016 -351 1660 1068 ] /MaxWidth 1350 /Flags 96 /Descent -236
-/FontName /DejaVuSans-Oblique /Type /FontDescriptor >>
-endobj
-12 0 obj
 [ 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600
 600 600 600 600 600 600 600 600 600 600 600 600 600 600 318 401 460 838 636
 950 780 275 390 390 500 838 318 361 318 337 636 636 636 636 636 636 636 636
@@ -57,30 +57,28 @@ endobj
 630 613 613 613 613 613 613 995 550 615 615 615 615 278 278 278 278 612 634
 612 612 612 612 612 838 612 634 634 634 634 592 635 592 ]
 endobj
-15 0 obj
-<< /x 16 0 R >>
+16 0 obj
+<< /x 17 0 R >>
 endobj
-21 0 obj
-<< /Length 248 /Filter /FlateDecode >>
+22 0 obj
+<< /Length 251 /Filter /FlateDecode >>
 stream
-xœ-Q9’AËçzBsÓï±Ë‘÷ÿé
-Êƒ†C :-qPÆO–+ŞòÈU´áï™ÁwÁ¡ßÊu9HÒTM¨]¼½vfó¤5,ƒë?c
-7zqxLÆÙíu5{×kOfP2+qÉÄSuØÈ™ÃO¦Œí\ÏÈ¹Öe¤›•ÆŒ„#M!RH¡ê&©3A£«Q£Å~éË#aU#jû\KÛ×sÎ4;«<9¥GWœËÉÅ+ı¼ÍÀET«<p¿ÛCıœìä7ŞÒ¹³Åôø^s²¼0XñæµMµø7/âø=ãëùü¨¥[
+xœ-QIrA»Ï+ô„f§ßc—+‡äÿ×Ê‹@tZâ ŒŸ ,W¼å‘«hÃß31‚ß‡~+×mXä@T IcP5¡vñzôØq˜	Ì“Ö°f¬üŒ)ÜèÅá1g·×eÔì]¯=™AÉ¬\Ä%LÕa#g?™2.´s=7 çFX—anV34…H!…ª›¤ÎAŒ®F6rû¥/t†U¨1ìs-m_ÏM8kĞìX¬òä”]q.'/¬ôõ6Qi¬ò@HÀınõs²“ßxKçÎÓã{ÍÉòÂT`Å›×n@6Õâß¼ˆãûŒ¯ççùü_`[ˆ
 endstream
 endobj
+20 0 obj
+<< /Type /Font /BaseFont /BMQQDV+DejaVuSans /FirstChar 0 /LastChar 255
+/FontDescriptor 19 0 R /Subtype /Type3 /Name /BMQQDV+DejaVuSans
+/FontBBox [ -1021 -463 1794 1233 ] /FontMatrix [ 0.001 0 0 0.001 0 0 ]
+/CharProcs 21 0 R /Encoding << /Type /Encoding /Differences [ 50 /two ] >>
+/Widths 18 0 R >>
+endobj
 19 0 obj
-<< /FontDescriptor 18 0 R /Name /DejaVuSans /CharProcs 20 0 R
-/LastChar 255 /FirstChar 0 /FontMatrix [ 0.001 0 0 0.001 0 0 ]
-/BaseFont /DejaVuSans /Subtype /Type3 /Widths 17 0 R
-/FontBBox [ -1021 -463 1794 1233 ]
-/Encoding << /Differences [ 50 /two ] /Type /Encoding >> /Type /Font >>
+<< /Type /FontDescriptor /FontName /BMQQDV+DejaVuSans /Flags 32
+/FontBBox [ -1021 -463 1794 1233 ] /Ascent 929 /Descent -236 /CapHeight 0
+/XHeight 0 /ItalicAngle 0 /StemV 0 /MaxWidth 1342 >>
 endobj
 18 0 obj
-<< /Ascent 929 /CapHeight 0 /StemV 0 /XHeight 0 /ItalicAngle 0
-/FontBBox [ -1021 -463 1794 1233 ] /MaxWidth 1342 /Flags 32 /Descent -236
-/FontName /DejaVuSans /Type /FontDescriptor >>
-endobj
-17 0 obj
 [ 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600 600
 600 600 600 600 600 600 600 600 600 600 600 600 600 600 318 401 460 838 636
 950 780 275 390 390 500 838 318 361 318 337 636 636 636 636 636 636 636 636
@@ -96,11 +94,11 @@ endobj
 630 613 613 613 613 613 613 982 550 615 615 615 615 278 278 278 278 612 634
 612 612 612 612 612 838 612 634 634 634 634 592 635 592 ]
 endobj
-20 0 obj
-<< /two 21 0 R >>
+21 0 obj
+<< /two 22 0 R >>
 endobj
 3 0 obj
-<< /F2 19 0 R /F1 14 0 R >>
+<< /F1 15 0 R /F2 20 0 R >>
 endobj
 4 0 obj
 << >>
@@ -115,40 +113,39 @@ endobj
 << >>
 endobj
 2 0 obj
-<< /Kids [ 10 0 R ] /Type /Pages /Count 1 >>
+<< /Type /Pages /Kids [ 11 0 R ] /Count 1 >>
 endobj
-22 0 obj
-<< /CreationDate (D:20151106001651+01'00')
-/Producer (matplotlib pdf backend)
-/Creator (matplotlib 1.5.0.post304.dev0+g5330f39, http://matplotlib.org) >>
+23 0 obj
+<< >>
 endobj
 xref
-0 23
+0 24
 0000000000 65535 f 
 0000000016 00000 n 
-0000004424 00000 n 
-0000004297 00000 n 
-0000004340 00000 n 
-0000004361 00000 n 
-0000004382 00000 n 
-0000004403 00000 n 
+0000004455 00000 n 
+0000004328 00000 n 
+0000004371 00000 n 
+0000004392 00000 n 
+0000004413 00000 n 
+0000004434 00000 n 
 0000000065 00000 n 
-0000000384 00000 n 
+0000000329 00000 n 
+0000000578 00000 n 
 0000000208 00000 n 
-0000000595 00000 n 
-0000001303 00000 n 
+0000000558 00000 n 
+0000001310 00000 n 
 0000001095 00000 n 
-0000000779 00000 n 
-0000002356 00000 n 
-0000000615 00000 n 
-0000003210 00000 n 
-0000003010 00000 n 
-0000002709 00000 n 
-0000004263 00000 n 
-0000002388 00000 n 
-0000004484 00000 n 
+0000000765 00000 n 
+0000002363 00000 n 
+0000000598 00000 n 
+0000003241 00000 n 
+0000003034 00000 n 
+0000002719 00000 n 
+0000004294 00000 n 
+0000002395 00000 n 
+0000004515 00000 n 
 trailer
-<< /Info 22 0 R /Size 23 /Root 1 0 R >>
+<< /Size 24 /Root 1 0 R /Info 23 0 R >>
 startxref
-4654
+4537
 %%EOF
