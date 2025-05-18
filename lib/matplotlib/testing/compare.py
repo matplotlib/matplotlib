@@ -56,6 +56,7 @@ def get_file_hash(path, block_size=2 ** 20):
 
     if Path(path).suffix == '.pdf':
         sha256.update(str(mpl._get_executable_info("gs").version).encode('utf-8'))
+        sha256.update(b"r600")  # invalidate old cache entries
     elif Path(path).suffix == '.svg':
         sha256.update(str(mpl._get_executable_info("inkscape").version).encode('utf-8'))
 
@@ -112,7 +113,12 @@ class _GSConverter(_Converter):
         if not self._proc:
             self._proc = subprocess.Popen(
                 [mpl._get_executable_info("gs").executable,
-                 "-dNOSAFER", "-dNOPAUSE", "-dEPSCrop", "-sDEVICE=png16m"],
+                 "-dNOSAFER",
+                 "-dNOPAUSE",
+                 "-dEPSCrop",
+                 "-sDEVICE=png16malpha",
+                 "-r600",
+                 "-dDownScaleFactor=4"],
                 # As far as I can see, ghostscript never outputs to stderr.
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             try:
