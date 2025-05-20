@@ -1362,15 +1362,6 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         pstoeps(tmpfile)
 
 
-@_api.deprecated("3.9")
-def get_bbox_header(lbrt, rotated=False):
-    """
-    Return a postscript header string for the given bbox lbrt=(l, b, r, t).
-    Optionally, return rotate command.
-    """
-    return _get_bbox_header(lbrt), (_get_rotate_command(lbrt) if rotated else "")
-
-
 def _get_bbox_header(lbrt):
     """Return a PostScript header string for bounding box *lbrt*=(l, b, r, t)."""
     l, b, r, t = lbrt

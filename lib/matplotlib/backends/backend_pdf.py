@@ -766,7 +766,7 @@ class PdfFile:
         self.writeObject(self.resourceObject, resources)
 
     fontNames = _api.deprecated("3.11")(property(lambda self: self._fontNames))
-    dviFontNames = _api.deprecated("3.11")(property(lambda self: self._dviFontNames))
+    dviFontInfo = _api.deprecated("3.11")(property(lambda self: self._dviFontInfo))
     type1Descriptors = _api.deprecated("3.11")(
         property(lambda self: self._type1Descriptors))
 

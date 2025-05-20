@@ -82,6 +82,10 @@ Tutorials
   <https://github.com/stefmolin/python-data-viz-workshop>`_
   by Stefanie Molin
 
+* `Matplotlib Journey: Interactive Online Course
+  <https://www.matplotlib-journey.com/>`_
+  by Yan Holtz and Joseph Barbier
+
 =========
 Galleries
 =========
