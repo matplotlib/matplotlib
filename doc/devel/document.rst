@@ -399,11 +399,14 @@ expression in the Matplotlib figure. In these cases, you can use the
 
 .. _writing-docstrings:
 
-Write docstrings
-================
+Write API documentation
+=======================
 
-Most of the API documentation is written in docstrings. These are comment
-blocks in source code that explain how the code works.
+The API reference documentation describes the library interfaces, e.g. inputs, outputs,
+and expected behavior. Most of the API documentation is written in docstrings. These are
+comment blocks in source code that explain how the code works. All docstrings should
+conform to the `numpydoc docstring guide`_. Much of the ReST_ syntax discussed above
+(:ref:`writing-rest-pages`) can be used for links and references.
 
 .. note::
 
@@ -412,11 +415,11 @@ blocks in source code that explain how the code works.
    you may see in the source code. Pull requests updating docstrings to
    the current style are very welcome.
 
-All new or edited docstrings should conform to the `numpydoc docstring guide`_.
-Much of the ReST_ syntax discussed above (:ref:`writing-rest-pages`) can be
-used for links and references.  These docstrings eventually populate the
-:file:`doc/api` directory and form the reference documentation for the
-library.
+The pages in :file:`doc/api` are purely technical definitions of
+layout; therefore new API reference documentation should be added to the module
+docstrings. This placement keeps all API reference documentation about a module in the
+same file. These module docstrings eventually populate the :file:`doc/api` directory
+and form the reference documentation for the library.
 
 Example docstring
 -----------------
