@@ -139,7 +139,7 @@ class AsinhScale(ScaleBase):
     auto_tick_multipliers: dict[int, tuple[int, ...]]
     def __init__(
         self,
-        axis: Axis | None,
+        axis: Union[Axis, None] = None,
         *,
         linear_width: float = ...,
         base: float = ...,
