@@ -1397,11 +1397,11 @@ class Axes(_AxesBase):
         else:
             positions = [np.asanyarray(positions)]
 
-        if 'snap' not in kwargs and len(positions) > 200:
+        if 'snap' not in kwargs:
             _log.warning(
-                "eventplot: Number of events (%d) exceeds 200. Snapping has "
-                "been turned off. Snapping may still be turned on manually, "
-                "but runs the risk of 'missing' data in the outputted graph.",
+                "eventplot: Snapping has been turned off. Snapping may still "
+                "be turned on manually, but runs the risk of 'missing' data "
+                "in the outputted graph.",
                 len(positions))
             kwargs['snap'] = False
             kwargs['antialiaseds'] = True
