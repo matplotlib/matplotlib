@@ -126,8 +126,8 @@ def handle_axis_parameter(init_func):
     Notes
     -----
     If the wrapped constructor defines *axis* as its first argument, the
-    parameter is preserved. Otherwise, it is safely removed from positional
-    or keyword arguments.
+    parameter is preserved when present. Otherwise, the value `None` is injected
+    as the first argument.
 
     Examples
     --------
@@ -139,14 +139,12 @@ def handle_axis_parameter(init_func):
     """
     @wraps(init_func)
     def wrapper(self, *args, **kwargs):
-        sig = inspect.signature(init_func)
-        params = list(sig.parameters.values())
-        if params and params[1].name == "axis":
+        # If the first argument is a ScaleBase (axis), pass as is.
+        if args and isinstance(args[0], ScaleBase):
             return init_func(self, *args, **kwargs)
-        if args:
-            args = args[1:]
-        kwargs.pop("axis", None)
-        return init_func(self, *args, **kwargs)
+        else:
+            # Inject None as axis parameter
+            return init_func(self, None, *args, **kwargs)
     return wrapper
 
 
@@ -801,14 +799,6 @@ def register_scale(scale_class):
     scale_class : subclass of `ScaleBase`
         The scale to register.
     """
-    sig = inspect.signature(scale_class.__init__)
-    if 'axis' in sig.parameters:
-        warnings.warn(
-            f"The scale class {scale_class.__name__} still uses the 'axis' "
-            "parameter in its constructor. Consider refactoring it to remove "
-            "this dependency.",
-            DeprecationWarning
-        )
     _scale_mapping[scale_class.name] = scale_class
 
 
