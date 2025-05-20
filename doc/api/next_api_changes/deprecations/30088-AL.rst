@@ -1,0 +1,4 @@
+*fontfile* parameter of ``PdfFile.createType1Descriptor``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This parameter is deprecated; all relevant pieces of information are now
+directly extracted from the *t1font* argument.

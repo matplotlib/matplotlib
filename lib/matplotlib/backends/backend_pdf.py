@@ -1034,14 +1034,15 @@ class PdfFile:
                    fontinfo.effects.get('extend', 1.0))
         fontdesc = self._type1Descriptors.get((fontinfo.fontfile, effects))
         if fontdesc is None:
-            fontdesc = self.createType1Descriptor(t1font, fontinfo.fontfile)
+            fontdesc = self.createType1Descriptor(t1font)
             self._type1Descriptors[(fontinfo.fontfile, effects)] = fontdesc
         fontdict['FontDescriptor'] = fontdesc
 
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def createType1Descriptor(self, t1font, fontfile):
+    @_api.delete_parameter("3.11", "fontfile")
+    def createType1Descriptor(self, t1font, fontfile=None):
         # Create and write the font descriptor and the font file
         # of a Type-1 font
         fontdescObject = self.reserveObject('font descriptor')
@@ -1076,16 +1077,14 @@ class PdfFile:
         if 0:
             flags |= 1 << 18
 
-        ft2font = get_font(fontfile)
-
         descriptor = {
             'Type':        Name('FontDescriptor'),
             'FontName':    Name(t1font.prop['FontName']),
             'Flags':       flags,
-            'FontBBox':    ft2font.bbox,
+            'FontBBox':    t1font.prop['FontBBox'],
             'ItalicAngle': italic_angle,
-            'Ascent':      ft2font.ascender,
-            'Descent':     ft2font.descender,
+            'Ascent':      t1font.prop['FontBBox'][3],
+            'Descent':     t1font.prop['FontBBox'][1],
             'CapHeight':   1000,  # TODO: find this out
             'XHeight':     500,  # TODO: this one too
             'FontFile':    fontfileObject,
@@ -1093,7 +1092,7 @@ class PdfFile:
             'StemV':       50,  # TODO
             # (see also revision 3874; but not all TeX distros have AFM files!)
             # 'FontWeight': a number where 400 = Regular, 700 = Bold
-            }
+        }
 
         self.writeObject(fontdescObject, descriptor)
 
