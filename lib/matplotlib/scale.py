@@ -155,7 +155,7 @@ class LinearScale(ScaleBase):
     name = 'linear'
 
     @handle_axis_parameter
-    def __init__(self, axis):
+    def __init__(self, axis=None):
         # This method is present only to prevent inheritance of the base class'
         # constructor docstring, which would otherwise end up interpolated into
         # the docstring of Axis.set_scale.
@@ -326,7 +326,7 @@ class LogScale(ScaleBase):
     name = 'log'
 
     @handle_axis_parameter
-    def __init__(self, axis, *, base=10, subs=None, nonpositive="clip"):
+    def __init__(self, axis=None, *, base=10, subs=None, nonpositive="clip"):
         """
         Parameters
         ----------
@@ -504,7 +504,7 @@ class SymmetricalLogScale(ScaleBase):
     name = 'symlog'
 
     @handle_axis_parameter
-    def __init__(self, axis, *, base=10, linthresh=2, subs=None, linscale=1):
+    def __init__(self, axis=None, *, base=10, linthresh=2, subs=None, linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
 
@@ -597,7 +597,7 @@ class AsinhScale(ScaleBase):
     }
 
     @handle_axis_parameter
-    def __init__(self, axis, *, linear_width=1.0,
+    def __init__(self, axis=None, *, linear_width=1.0,
                  base=10, subs='auto', **kwargs):
         """
         Parameters
@@ -696,7 +696,7 @@ class LogitScale(ScaleBase):
     name = 'logit'
 
     @handle_axis_parameter
-    def __init__(self, axis, nonpositive='mask', *,
+    def __init__(self, axis=None, nonpositive='mask', *,
                  one_half=r"\frac{1}{2}", use_overline=False):
         r"""
         Parameters
