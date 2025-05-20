@@ -133,16 +133,16 @@ def handle_axis_parameter(init_func):
     >>> from matplotlib.scale import ScaleBase
     >>> class CustomScale(ScaleBase):
     ...     @handle_axis_parameter
-    ...     def __init__(self, axis=None, custom_param=1):
+    ...     def __init__(self, axis, custom_param=1):
     ...         self.custom_param = custom_param
     """
     @wraps(init_func)
     def wrapper(self, *args, **kwargs):
-        # If the first argument is a ScaleBase (axis), pass as is.
-        if args and isinstance(args[0], ScaleBase):
+        if args and isinstance(args[0], mpl.axis.Axis):
             return init_func(self, *args, **kwargs)
         else:
-            # Inject None as axis parameter
+            # Remove 'axis' from kwargs to avoid double assignment
+            kwargs.pop('axis', None)
             return init_func(self, None, *args, **kwargs)
     return wrapper
 
@@ -155,7 +155,7 @@ class LinearScale(ScaleBase):
     name = 'linear'
 
     @handle_axis_parameter
-    def __init__(self, axis=None):
+    def __init__(self, axis):
         # This method is present only to prevent inheritance of the base class'
         # constructor docstring, which would otherwise end up interpolated into
         # the docstring of Axis.set_scale.
@@ -326,7 +326,7 @@ class LogScale(ScaleBase):
     name = 'log'
 
     @handle_axis_parameter
-    def __init__(self, axis=None, *, base=10, subs=None, nonpositive="clip"):
+    def __init__(self, axis, *, base=10, subs=None, nonpositive="clip"):
         """
         Parameters
         ----------
@@ -504,7 +504,7 @@ class SymmetricalLogScale(ScaleBase):
     name = 'symlog'
 
     @handle_axis_parameter
-    def __init__(self, axis=None, *, base=10, linthresh=2, subs=None, linscale=1):
+    def __init__(self, axis, *, base=10, linthresh=2, subs=None, linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
 
@@ -696,7 +696,7 @@ class LogitScale(ScaleBase):
     name = 'logit'
 
     @handle_axis_parameter
-    def __init__(self, axis=None, nonpositive='mask', *,
+    def __init__(self, axis, nonpositive='mask', *,
                  one_half=r"\frac{1}{2}", use_overline=False):
         r"""
         Parameters
