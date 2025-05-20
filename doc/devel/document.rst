@@ -1115,6 +1115,28 @@ The current width limit (induced by *pydata-sphinx-theme*) is 720px, i.e.
 ``figsize=(7.2, ...)``, or 896px if the page does not have subsections and
 thus does not have the "On this page" navigation on the right-hand side.
 
+
+Plot types guidelines
+---------------------
+
+The :ref:`plot_types` gallery provides an overview of the types of visualizations that
+Matplotlib provides out of the box, meaning that there is a high-level API for
+generating each type of chart. Additions to this gallery are generally discouraged
+because this gallery is heavily curated and tightly scoped to methods on
+`matplotlib.axes.Axes`.
+
+Format
+^^^^^^
+:title: Method signature with required arguments, e.g. ``plot(x, y)``
+:description: In one sentence, describe the visualization that the method produces and
+              link to the API documentation, e.g. *Draws a bar chart. See ~Axes.bar*.
+              When necessary, add an additional sentence explaining the use case for
+              this function vs a very similar one, e.g. stairs vs step.
+:plot: Use data with a self explanatory structure to illustrate the type of data this
+       plotting method is typically used for.
+:code: The code should be about 5-10 lines with minimal customization. Plots in
+       this gallery use the ``_mpl-gallery`` stylesheet for a uniform aesthetic.
+
 Miscellaneous
 =============
 
