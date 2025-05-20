@@ -157,7 +157,7 @@ Check that your change does what you intend.  For code changes:
 
 For documentation changes, build the documentation locally to check that
 it renders how you intended and that any new links work correctly.  See
-:ref:`build_docs`.
+:ref:`document-build`.
 
 This is also a good time to look through the :ref:`pr-author-guidelines` and
 address as many of the relevant points as you can.

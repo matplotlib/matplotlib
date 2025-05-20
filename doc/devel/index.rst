@@ -220,9 +220,10 @@ manage, or release manage, these guidelines describe how our current process wor
       .. toctree::
          :maxdepth: 1
 
-         document
-         style_guide
-         tag_guidelines
+         document_build
+         document_format
+         document_style
+         document_tag
 
    .. grid-item-card::
       :shadow: none
