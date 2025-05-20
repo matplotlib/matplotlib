@@ -869,6 +869,26 @@ Plots can also be directly placed inside docstrings.  Details are in
 An advantage of this style over referencing an example script is that the
 code will also appear in interactive docstrings.
 
+.. _inheritance-diagrams:
+
+Generate inheritance diagrams
+-----------------------------
+
+Class inheritance diagrams can be generated with the Sphinx
+`inheritance-diagram`_ directive.
+
+.. _inheritance-diagram: https://www.sphinx-doc.org/en/master/usage/extensions/inheritance.html
+
+Example:
+
+.. code-block:: rst
+
+    .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+       :parts: 2
+
+.. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+   :parts: 2
+
 .. _writing-examples-and-tutorials:
 
 Write examples and tutorials
@@ -1153,28 +1173,6 @@ Use the full path for this directive, relative to the doc root at
 ``https://matplotlib.org/stable/``.  So ``/old_topic/old_info2`` would be
 found by users at ``http://matplotlib.org/stable/old_topic/old_info2``.
 For clarity, do not use relative links.
-
-
-.. _inheritance-diagrams:
-
-Generate inheritance diagrams
------------------------------
-
-Class inheritance diagrams can be generated with the Sphinx
-`inheritance-diagram`_ directive.
-
-.. _inheritance-diagram: https://www.sphinx-doc.org/en/master/usage/extensions/inheritance.html
-
-Example:
-
-.. code-block:: rst
-
-    .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
-       :parts: 2
-
-.. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
-   :parts: 2
-
 
 Navbar and style
 ----------------
