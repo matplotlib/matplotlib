@@ -31,7 +31,6 @@ Third parties can register their scales by name through `register_scale`.
 
 import inspect
 import textwrap
-import warnings
 from functools import wraps
 
 import numpy as np
