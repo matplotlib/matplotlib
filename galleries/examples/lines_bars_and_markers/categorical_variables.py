@@ -8,7 +8,7 @@ many plotting functions:
 """
 import matplotlib.pyplot as plt
 
-data : dict[str, int] = {'apple': 10, 'orange': 15, 'lemon': 5, 'lime': 20}
+data: dict[str, int] = {'apple': 10, 'orange': 15, 'lemon': 5, 'lime': 20}
 names = list(data.keys())
 values = list(data.values())
 
