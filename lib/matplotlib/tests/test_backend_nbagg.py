@@ -14,7 +14,7 @@ pytest.importorskip('ipykernel')
 
 
 def test_ipynb():
-    nb_path = Path(__file__).parent / 'test_nbagg_01.ipynb'
+    nb_path = Path(__file__).parent / 'data/test_nbagg_01.ipynb'
 
     with TemporaryDirectory() as tmpdir:
         out_path = Path(tmpdir, "out.ipynb")
