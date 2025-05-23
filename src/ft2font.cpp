@@ -318,28 +318,12 @@ void FT2Font::set_kerning_factor(int factor)
     }
 }
 
-void FT2Font::set_text(
-    std::u32string_view text, double angle, FT_Int32 flags,
+std::vector<raqm_glyph_t> FT2Font::layout(
+    std::u32string_view text, FT_Int32 flags,
     LanguageType languages,
-    std::vector<double> &xys)
+    std::set<FT_String*>& glyph_seen_fonts)
 {
-    FT_Matrix matrix; /* transformation matrix */
-
-    angle = angle * (2 * M_PI / 360.0);
-
-    // this computes width and height in subpixels so we have to multiply by 64
-    double cosangle = cos(angle) * 0x10000L;
-    double sinangle = sin(angle) * 0x10000L;
-
-    matrix.xx = (FT_Fixed)cosangle;
-    matrix.xy = (FT_Fixed)-sinangle;
-    matrix.yx = (FT_Fixed)sinangle;
-    matrix.yy = (FT_Fixed)cosangle;
-
     clear();
-
-    bbox.xMin = bbox.yMin = 32000;
-    bbox.xMax = bbox.yMax = -32000;
 
     auto rq = raqm_create();
     if (!rq) {
@@ -375,7 +359,6 @@ void FT2Font::set_text(
     }
 
     std::vector<std::pair<size_t, const FT_Face&>> face_substitutions;
-    std::set<FT_String*> glyph_seen_fonts;
     glyph_seen_fonts.insert(face->family_name);
 
     // Attempt to use fallback fonts if necessary.
@@ -452,9 +435,34 @@ void FT2Font::set_text(
     size_t num_glyphs = 0;
     auto const& rq_glyphs = raqm_get_glyphs(rq, &num_glyphs);
 
-    for (size_t i = 0; i < num_glyphs; i++) {
-        auto const& rglyph = rq_glyphs[i];
+    return std::vector<raqm_glyph_t>(rq_glyphs, rq_glyphs + num_glyphs);
+}
 
+void FT2Font::set_text(
+    std::u32string_view text, double angle, FT_Int32 flags,
+    LanguageType languages,
+    std::vector<double> &xys)
+{
+    FT_Matrix matrix; /* transformation matrix */
+
+    angle = angle * (2 * M_PI / 360.0);
+
+    // this computes width and height in subpixels so we have to multiply by 64
+    double cosangle = cos(angle) * 0x10000L;
+    double sinangle = sin(angle) * 0x10000L;
+
+    matrix.xx = (FT_Fixed)cosangle;
+    matrix.xy = (FT_Fixed)-sinangle;
+    matrix.yx = (FT_Fixed)sinangle;
+    matrix.yy = (FT_Fixed)cosangle;
+
+    std::set<FT_String*> glyph_seen_fonts;
+    auto rq_glyphs = layout(text, flags, languages, glyph_seen_fonts);
+
+    bbox.xMin = bbox.yMin = 32000;
+    bbox.xMax = bbox.yMax = -32000;
+
+    for (auto const& rglyph : rq_glyphs) {
         // Warn for missing glyphs.
         if (rglyph.index == 0) {
             ft_glyph_warn(text[rglyph.cluster], glyph_seen_fonts);
