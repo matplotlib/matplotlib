@@ -25,6 +25,9 @@ class ParasiteAxesBase:
         self._parent_axes.callbacks._connect_picklable(
             "ylim_changed", self._sync_lims)
 
+    def get_axes_locator(self):
+        return self._parent_axes.get_axes_locator()
+
     def pick(self, mouseevent):
         # This most likely goes to Artist.pick (depending on axes_class given
         # to the factory), which only handles pick events registered on the
