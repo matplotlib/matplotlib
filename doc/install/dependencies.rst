@@ -443,7 +443,8 @@ will often automatically include these collections.
 |                             | `lm <https://ctan.org/pkg/lm>`_,                 |
 |                             | `txfonts <https://ctan.org/pkg/txfonts>`_        |
 +-----------------------------+--------------------------------------------------+
-| collection-latex            | `geometry <https://ctan.org/pkg/geometry>`_,     |
+| collection-latex            | `fix-cm <https://ctan.org/pkg/fix-cm>`_,         |
+|                             | `geometry <https://ctan.org/pkg/geometry>`_,     |
 |                             | `hyperref <https://ctan.org/pkg/hyperref>`_,     |
 |                             | `latex <https://ctan.org/pkg/latex>`_,           |
 |                             | latex-bin,                                       |
