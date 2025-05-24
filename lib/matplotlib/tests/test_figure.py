@@ -436,6 +436,49 @@ def test_set_fig_size():
     assert fig.get_figheight() == 3
 
 
+def test_set_fig_ratio():
+    # defining plt fig
+    fig = plt.figure()
+
+    # setting width and height individually
+    fig.set_figwidth(5)
+    fig.set_figheight(1)
+
+    # setting width and height with figratio
+    fig.set_figratio(2, 4)
+    assert fig.get_figwidth() == 2
+    assert fig.get_figheight() == 4
+
+    # setting width with value and height with aspect
+    fig.set_figratio(width=3, aspect=2)
+    assert fig.get_figwidth() == 3
+    assert fig.get_figheight() == 8
+
+    # setting height with value and width with aspect
+    fig.set_figratio(height=3, aspect=2)
+    assert fig.get_figwidth() == 6
+    assert fig.get_figheight() == 3
+
+    # upsizing width and height with an aspect of 4
+    fig.set_figratio(aspect=4)
+    assert fig.get_figwidth() == 24
+    assert fig.get_figheight() == 12
+
+    # error checking for when only width is passed in
+    try:
+        fig.set_figratio(width=4)
+    except ValueError:
+        assert fig.get_figwidth() == 24
+        assert fig.get_figheight() == 12
+
+    # error checking for when only height is passed in
+    try:
+        fig.set_figratio(height=4)
+    except ValueError:
+        assert fig.get_figwidth() == 24
+        assert fig.get_figheight() == 12
+
+
 def test_axes_remove():
     fig, axs = plt.subplots(2, 2)
     axs[-1, -1].remove()
