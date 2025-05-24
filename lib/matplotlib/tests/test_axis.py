@@ -15,9 +15,9 @@ def test_axis_not_in_layout():
     fig2, (ax2_left, ax2_right) = plt.subplots(ncols=2, layout='constrained')
 
     # 100 label overlapping the end of the axis
-    ax1_left.set_xlim([0, 100])
+    ax1_left.set_xlim(0, 100)
     # 100 label not overlapping the end of the axis
-    ax2_left.set_xlim([0, 120])
+    ax2_left.set_xlim(0, 120)
 
     for ax in ax1_left, ax2_left:
         ax.set_xticks([0, 100])

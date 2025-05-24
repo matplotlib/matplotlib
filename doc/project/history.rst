@@ -157,7 +157,7 @@ Matplotlib logo (2008 - 2015).
 
 
    def add_math_background():
-       ax = fig.add_axes([0., 0., 1., 1.])
+       ax = fig.add_axes((0., 0., 1., 1.))
 
        text = []
        text.append(
@@ -187,7 +187,7 @@ Matplotlib logo (2008 - 2015).
 
 
    def add_polar_bar():
-       ax = fig.add_axes([0.025, 0.075, 0.2, 0.85], projection='polar')
+       ax = fig.add_axes((0.025, 0.075, 0.2, 0.85), projection='polar')
 
        ax.patch.set_alpha(axalpha)
        ax.set_axisbelow(True)

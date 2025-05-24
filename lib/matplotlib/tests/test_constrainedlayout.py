@@ -309,7 +309,7 @@ def test_constrained_layout16():
     """Test ax.set_position."""
     fig, ax = plt.subplots(layout="constrained")
     example_plot(ax, fontsize=12)
-    ax2 = fig.add_axes([0.2, 0.2, 0.4, 0.4])
+    ax2 = fig.add_axes((0.2, 0.2, 0.4, 0.4))
 
 
 @image_comparison(['constrained_layout17.png'], style='mpl20')
@@ -357,7 +357,7 @@ def test_constrained_layout20():
     img = np.hypot(gx, gx[:, None])
 
     fig = plt.figure()
-    ax = fig.add_axes([0, 0, 1, 1])
+    ax = fig.add_axes((0, 0, 1, 1))
     mesh = ax.pcolormesh(gx, gx, img[:-1, :-1])
     fig.colorbar(mesh)
 
