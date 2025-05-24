@@ -143,6 +143,16 @@ class FT2Font
         return FT_HAS_KERNING(face);
     }
 
+    void set_parent(void *parent)
+    {
+        _parent = parent;
+    }
+
+    void *get_parent() const
+    {
+        return _parent;
+    }
+
   private:
     WarnFunc ft_glyph_warn;
     bool warn_if_used;
@@ -157,6 +167,9 @@ class FT2Font
     FT_Pos advance;
     long hinting_factor;
     int kerning_factor;
+
+    // Holds the parent PyFT2Font object.
+    void *_parent;
 
     // prevent copying
     FT2Font(const FT2Font &);
