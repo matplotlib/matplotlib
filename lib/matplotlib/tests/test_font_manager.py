@@ -164,7 +164,7 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
     # Prepare a temporary user font directory
     user_fonts_dir = tmpdir.join('fonts')
     user_fonts_dir.ensure(dir=True)
-    shutil.copyfile(Path(__file__).parent / font_test_file,
+    shutil.copyfile(Path(__file__).parent / 'data' / font_test_file,
                     user_fonts_dir.join(font_test_file))
 
     with monkeypatch.context() as m:
@@ -181,7 +181,7 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
 def test_addfont_as_path():
     """Smoke test that addfont() accepts pathlib.Path."""
     font_test_file = 'mpltest.ttf'
-    path = Path(__file__).parent / font_test_file
+    path = Path(__file__).parent / 'data' / font_test_file
     try:
         fontManager.addfont(path)
         added, = (font for font in fontManager.ttflist
@@ -215,7 +215,7 @@ def test_user_fonts_win32():
     os.makedirs(user_fonts_dir)
 
     # Copy the test font to the user font directory
-    shutil.copy(Path(__file__).parent / font_test_file, user_fonts_dir)
+    shutil.copy(Path(__file__).parent / 'data' / font_test_file, user_fonts_dir)
 
     # Now, the font should be available
     fonts = findSystemFonts()

@@ -52,17 +52,27 @@ jobs:
             python-version: '3.11'
             extra-requirements: '-c requirements/testing/minver.txt'
             delete-font-cache: true
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04
             python-version: '3.11'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             extra-requirements: '-r requirements/testing/extra.txt'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04-arm
             python-version: '3.12'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04
             python-version: '3.13'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
             python-version: '3.13t'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
             python-version: '3.12'
           - os: macos-13  # This runner is on Intel chips.
@@ -84,7 +94,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
@@ -386,7 +396,7 @@ jobs:
           fi
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d  # v5.4.2
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24  # v5.4.3
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}

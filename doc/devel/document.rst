@@ -399,11 +399,14 @@ expression in the Matplotlib figure. In these cases, you can use the
 
 .. _writing-docstrings:
 
-Write docstrings
-================
+Write API documentation
+=======================
 
-Most of the API documentation is written in docstrings. These are comment
-blocks in source code that explain how the code works.
+The API reference documentation describes the library interfaces, e.g. inputs, outputs,
+and expected behavior. Most of the API documentation is written in docstrings. These are
+comment blocks in source code that explain how the code works. All docstrings should
+conform to the `numpydoc docstring guide`_. Much of the ReST_ syntax discussed above
+(:ref:`writing-rest-pages`) can be used for links and references.
 
 .. note::
 
@@ -412,11 +415,11 @@ blocks in source code that explain how the code works.
    you may see in the source code. Pull requests updating docstrings to
    the current style are very welcome.
 
-All new or edited docstrings should conform to the `numpydoc docstring guide`_.
-Much of the ReST_ syntax discussed above (:ref:`writing-rest-pages`) can be
-used for links and references.  These docstrings eventually populate the
-:file:`doc/api` directory and form the reference documentation for the
-library.
+The pages in :file:`doc/api` are purely technical definitions of
+layout; therefore new API reference documentation should be added to the module
+docstrings. This placement keeps all API reference documentation about a module in the
+same file. These module docstrings eventually populate the :file:`doc/api` directory
+and form the reference documentation for the library.
 
 Example docstring
 -----------------
@@ -866,6 +869,26 @@ Plots can also be directly placed inside docstrings.  Details are in
 An advantage of this style over referencing an example script is that the
 code will also appear in interactive docstrings.
 
+.. _inheritance-diagrams:
+
+Generate inheritance diagrams
+-----------------------------
+
+Class inheritance diagrams can be generated with the Sphinx
+`inheritance-diagram`_ directive.
+
+.. _inheritance-diagram: https://www.sphinx-doc.org/en/master/usage/extensions/inheritance.html
+
+Example:
+
+.. code-block:: rst
+
+    .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+       :parts: 2
+
+.. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+   :parts: 2
+
 .. _writing-examples-and-tutorials:
 
 Write examples and tutorials
@@ -1115,6 +1138,28 @@ The current width limit (induced by *pydata-sphinx-theme*) is 720px, i.e.
 ``figsize=(7.2, ...)``, or 896px if the page does not have subsections and
 thus does not have the "On this page" navigation on the right-hand side.
 
+
+Plot types guidelines
+---------------------
+
+The :ref:`plot_types` gallery provides an overview of the types of visualizations that
+Matplotlib provides out of the box, meaning that there is a high-level API for
+generating each type of chart. Additions to this gallery are generally discouraged
+because this gallery is heavily curated and tightly scoped to methods on
+`matplotlib.axes.Axes`.
+
+Format
+^^^^^^
+:title: Method signature with required arguments, e.g. ``plot(x, y)``
+:description: In one sentence, describe the visualization that the method produces and
+              link to the API documentation, e.g. *Draws a bar chart. See ~Axes.bar*.
+              When necessary, add an additional sentence explaining the use case for
+              this function vs a very similar one, e.g. stairs vs step.
+:plot: Use data with a self explanatory structure to illustrate the type of data this
+       plotting method is typically used for.
+:code: The code should be about 5-10 lines with minimal customization. Plots in
+       this gallery use the ``_mpl-gallery`` stylesheet for a uniform aesthetic.
+
 Miscellaneous
 =============
 
@@ -1150,28 +1195,6 @@ Use the full path for this directive, relative to the doc root at
 ``https://matplotlib.org/stable/``.  So ``/old_topic/old_info2`` would be
 found by users at ``http://matplotlib.org/stable/old_topic/old_info2``.
 For clarity, do not use relative links.
-
-
-.. _inheritance-diagrams:
-
-Generate inheritance diagrams
------------------------------
-
-Class inheritance diagrams can be generated with the Sphinx
-`inheritance-diagram`_ directive.
-
-.. _inheritance-diagram: https://www.sphinx-doc.org/en/master/usage/extensions/inheritance.html
-
-Example:
-
-.. code-block:: rst
-
-    .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
-       :parts: 2
-
-.. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
-   :parts: 2
-
 
 Navbar and style
 ----------------

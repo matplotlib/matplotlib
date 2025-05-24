@@ -120,8 +120,7 @@ class _AxisArtistHelperBase:
 class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
     """Helper class for a fixed (in the axes coordinate) axis."""
 
-    @_api.delete_parameter("3.9", "nth_coord")
-    def __init__(self, loc, nth_coord=None):
+    def __init__(self, loc):
         """``nth_coord = 0``: x-axis; ``nth_coord = 1``: y-axis."""
         super().__init__(_api.check_getitem(
             {"bottom": 0, "top": 0, "left": 1, "right": 1}, loc=loc))
@@ -171,12 +170,7 @@ class _FloatingAxisArtistHelperBase(_AxisArtistHelperBase):
 
 class FixedAxisArtistHelperRectilinear(_FixedAxisArtistHelperBase):
 
-    @_api.delete_parameter("3.9", "nth_coord")
-    def __init__(self, axes, loc, nth_coord=None):
-        """
-        nth_coord = along which coordinate value varies
-        in 2D, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
-        """
+    def __init__(self, axes, loc):
         super().__init__(loc)
         self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
 
@@ -311,10 +305,9 @@ class GridHelperRectlinear(GridHelperBase):
         super().__init__()
         self.axes = axes
 
-    @_api.delete_parameter(
-        "3.9", "nth_coord", addendum="'nth_coord' is now inferred from 'loc'.")
     def new_fixed_axis(
-            self, loc, nth_coord=None, axis_direction=None, offset=None, axes=None):
+        self, loc, *, axis_direction=None, offset=None, axes=None
+    ):
         if axes is None:
             _api.warn_external(
                 "'new_fixed_axis' explicitly requires the axes keyword.")

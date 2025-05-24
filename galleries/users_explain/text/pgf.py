@@ -209,9 +209,10 @@ be configured in the preamble.
 Troubleshooting
 ===============
 
-* On Windows, the :envvar:`PATH` environment variable may need to be modified
-  to include the directories containing the latex, dvipng and ghostscript
-  executables. See :ref:`environment-variables` and
+* Make sure LaTeX is working and on your :envvar:`PATH` (for raster output,
+  pdftocairo or ghostscript is also required).  The :envvar:`PATH` environment
+  variable may need to be modified (in particular on Windows) to include the
+  directories containing the executable. See :ref:`environment-variables` and
   :ref:`setting-windows-environment-variables` for details.
 
 * Sometimes the font rendering in figures that are saved to png images is

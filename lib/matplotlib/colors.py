@@ -131,6 +131,8 @@ class ColorSequenceRegistry(Mapping):
         'Set1': _cm._Set1_data,
         'Set2': _cm._Set2_data,
         'Set3': _cm._Set3_data,
+        'petroff6': _cm._petroff6_data,
+        'petroff8': _cm._petroff8_data,
         'petroff10': _cm._petroff10_data,
     }
 
@@ -372,40 +374,31 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             # This may turn c into a non-string, so we check again below.
             c = _colors_full_map[c]
         except KeyError:
-            if len(orig_c) != 1:
+            if len(c) != 1:
                 try:
                     c = _colors_full_map[c.lower()]
                 except KeyError:
                     pass
     if isinstance(c, str):
-        # hex color in #rrggbb format.
-        match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
-        if match:
-            return (tuple(int(n, 16) / 255
-                          for n in [c[1:3], c[3:5], c[5:7]])
-                    + (alpha if alpha is not None else 1.,))
-        # hex color in #rgb format, shorthand for #rrggbb.
-        match = re.match(r"\A#[a-fA-F0-9]{3}\Z", c)
-        if match:
-            return (tuple(int(n, 16) / 255
-                          for n in [c[1]*2, c[2]*2, c[3]*2])
-                    + (alpha if alpha is not None else 1.,))
-        # hex color with alpha in #rrggbbaa format.
-        match = re.match(r"\A#[a-fA-F0-9]{8}\Z", c)
-        if match:
-            color = [int(n, 16) / 255
-                     for n in [c[1:3], c[3:5], c[5:7], c[7:9]]]
-            if alpha is not None:
-                color[-1] = alpha
-            return tuple(color)
-        # hex color with alpha in #rgba format, shorthand for #rrggbbaa.
-        match = re.match(r"\A#[a-fA-F0-9]{4}\Z", c)
-        if match:
-            color = [int(n, 16) / 255
-                     for n in [c[1]*2, c[2]*2, c[3]*2, c[4]*2]]
-            if alpha is not None:
-                color[-1] = alpha
-            return tuple(color)
+        if re.fullmatch("#[a-fA-F0-9]+", c):
+            if len(c) == 7:  # #rrggbb hex format.
+                return (*[n / 0xff for n in bytes.fromhex(c[1:])],
+                        alpha if alpha is not None else 1.)
+            elif len(c) == 4:  # #rgb hex format, shorthand for #rrggbb.
+                return (*[int(n, 16) / 0xf for n in c[1:]],
+                        alpha if alpha is not None else 1.)
+            elif len(c) == 9:  # #rrggbbaa hex format.
+                color = [n / 0xff for n in bytes.fromhex(c[1:])]
+                if alpha is not None:
+                    color[-1] = alpha
+                return tuple(color)
+            elif len(c) == 5:  # #rgba hex format, shorthand for #rrggbbaa.
+                color = [int(n, 16) / 0xf for n in c[1:]]
+                if alpha is not None:
+                    color[-1] = alpha
+                return tuple(color)
+            else:
+                raise ValueError(f"Invalid hex color specifier: {orig_c!r}")
         # string gray.
         try:
             c = float(c)

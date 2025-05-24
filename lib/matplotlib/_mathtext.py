@@ -9,15 +9,18 @@ import copy
 import enum
 import functools
 import logging
+import math
 import os
 import re
 import types
 import unicodedata
 import string
+import textwrap
 import typing as T
 from typing import NamedTuple
 
 import numpy as np
+from numpy.typing import NDArray
 from pyparsing import (
     Empty, Forward, Literal, Group, NotAny, OneOrMore, Optional,
     ParseBaseException, ParseException, ParseExpression, ParseFatalException,
@@ -29,7 +32,7 @@ from . import cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
 from .font_manager import FontProperties, findfont, get_font
-from .ft2font import FT2Font, FT2Image, Kerning, LoadFlags
+from .ft2font import FT2Font, Kerning, LoadFlags
 
 
 if T.TYPE_CHECKING:
@@ -98,7 +101,7 @@ class RasterParse(NamedTuple):
         The offsets are always zero.
     width, height, depth : float
         The global metrics.
-    image : FT2Image
+    image : 2D array of uint8
         A raster image.
     """
     ox: float
@@ -106,7 +109,7 @@ class RasterParse(NamedTuple):
     width: float
     height: float
     depth: float
-    image: FT2Image
+    image: NDArray[np.uint8]
 
 RasterParse.__module__ = "matplotlib.mathtext"
 
@@ -147,7 +150,7 @@ class Output:
         w = xmax - xmin
         h = ymax - ymin - self.box.depth
         d = ymax - ymin - self.box.height
-        image = FT2Image(int(np.ceil(w)), int(np.ceil(h + max(d, 0))))
+        image = np.zeros((math.ceil(h + max(d, 0)), math.ceil(w)), np.uint8)
 
         # Ideally, we could just use self.glyphs and self.rects here, shifting
         # their coordinates by (-xmin, -ymin), but this yields slightly
@@ -166,7 +169,9 @@ class Output:
                 y = int(center - (height + 1) / 2)
             else:
                 y = int(y1)
-            image.draw_rect_filled(int(x1), y, int(np.ceil(x2)), y + height)
+            x1 = math.floor(x1)
+            x2 = math.ceil(x2)
+            image[y:y+height+1, x1:x2+1] = 0xff
         return RasterParse(0, 0, w, h + d, d, image)
 
 
@@ -1165,12 +1170,16 @@ class List(Box):
         self.glue_sign    = 0    # 0: normal, -1: shrinking, 1: stretching
         self.glue_order   = 0    # The order of infinity (0 - 3) for the glue
 
-    def __repr__(self) -> str:
-        return '{}<w={:.02f} h={:.02f} d={:.02f} s={:.02f}>[{}]'.format(
+    def __repr__(self):
+        return "{}<w={:.02f} h={:.02f} d={:.02f} s={:.02f}>[{}]".format(
             super().__repr__(),
             self.width, self.height,
             self.depth, self.shift_amount,
-            ', '.join([repr(x) for x in self.children]))
+            "\n" + textwrap.indent(
+                "\n".join(map("{!r},".format, self.children)),
+                "  ") + "\n"
+            if self.children else ""
+        )
 
     def _set_glue(self, x: float, sign: int, totals: list[float],
                   error_type: str) -> None:
@@ -1604,7 +1613,7 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
         return -1e9 if value < -1e9 else +1e9 if value > +1e9 else value
 
     def hlist_out(box: Hlist) -> None:
-        nonlocal cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h
 
         cur_g = 0
         cur_glue = 0.
@@ -1667,7 +1676,7 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
                 cur_h += rule_width
 
     def vlist_out(box: Vlist) -> None:
-        nonlocal cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h
 
         cur_g = 0
         cur_glue = 0.
