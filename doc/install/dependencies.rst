@@ -422,6 +422,8 @@ Python packages and must be installed separately.
 * a LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
   `MikTeX <https://miktex.org/>`_
 
+.. _tex-dependencies:
+
 LaTeX dependencies
 """"""""""""""""""
 

@@ -9741,9 +9741,43 @@ def test_bar_shape_mismatch():
         plt.bar(x, height)
 
 
+def test_caps_color():
+
+    # Creates a simple plot with error bars and a specified ecolor
+    x = np.linspace(0, 10, 10)
+    mpl.rcParams['lines.markeredgecolor'] = 'green'
+    ecolor = 'red'
+
+    fig, ax = plt.subplots()
+    errorbars = ax.errorbar(x, np.sin(x), yerr=0.1, ecolor=ecolor)
+
+    # Tests if the caps have the specified color
+    for cap in errorbars[2]:
+        assert mcolors.same_color(cap.get_edgecolor(), ecolor)
+
+
+def test_caps_no_ecolor():
+
+    # Creates a simple plot with error bars without specifying ecolor
+    x = np.linspace(0, 10, 10)
+    mpl.rcParams['lines.markeredgecolor'] = 'green'
+    fig, ax = plt.subplots()
+    errorbars = ax.errorbar(x, np.sin(x), yerr=0.1)
+
+    # Tests if the caps have the default color (blue)
+    for cap in errorbars[2]:
+        assert mcolors.same_color(cap.get_edgecolor(), "blue")
+
+
 def test_pie_non_finite_values():
     fig, ax = plt.subplots()
     df = [5, float('nan'), float('inf')]
 
     with pytest.raises(ValueError, match='Wedge sizes must be finite numbers'):
         ax.pie(df, labels=['A', 'B', 'C'])
+
+
+def test_pie_all_zeros():
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match="All wedge sizes are zero"):
+        ax.pie([0, 0], labels=["A", "B"])

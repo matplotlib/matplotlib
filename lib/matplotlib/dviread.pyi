@@ -41,6 +41,8 @@ class Text(NamedTuple):
     @property
     def font_effects(self) -> dict[str, float]: ...
     @property
+    def index(self) -> int: ...  # type: ignore[override]
+    @property
     def glyph_name_or_index(self) -> int | str: ...
 
 class Dvi:

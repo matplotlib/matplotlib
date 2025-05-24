@@ -46,7 +46,7 @@ requires-python = ">=3.11"
 [project.optional-dependencies]
 # Should be a copy of the build dependencies below.
 dev = [
-    "meson-python>=0.13.1,<0.17.0",
+    "meson-python>=0.13.1,!=0.17.*",
     "pybind11>=2.13.2,!=2.13.3",
     "setuptools_scm>=7",
     # Not required by us but setuptools_scm without a version, cso _if_
@@ -70,7 +70,9 @@ dev = [
 build-backend = "mesonpy"
 # Also keep in sync with optional dependencies above.
 requires = [
-    "meson-python>=0.13.1,<0.17.0",
+    # meson-python 0.17.x breaks symlinks in sdists. You can remove this pin if
+    # you really need it and aren't using an sdist.
+    "meson-python>=0.13.1,!=0.17.*",
     "pybind11>=2.13.2,!=2.13.3",
     "setuptools_scm>=7",
 ]
@@ -99,8 +101,6 @@ exclude = [
     "tools/gh_api.py",
     ".tox",
     ".eggs",
-    # TODO: fix .pyi files
-    "*.pyi",
     # TODO: fix .ipynb files
     "*.ipynb"
 ]
@@ -173,6 +173,7 @@ external = [
 convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
+"*.pyi" = ["E501"]
 "doc/conf.py" = ["E402"]
 "galleries/examples/animation/frame_grabbing_sgskip.py" = ["E402"]
 "galleries/examples/images_contours_and_fields/tricontour_demo.py" = ["E201"]

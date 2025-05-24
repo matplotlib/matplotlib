@@ -10,7 +10,7 @@ exclude: |
     doc/devel/gitwash|
     doc/users/prev|
     doc/api/prev|
-    lib/matplotlib/tests/tinypages
+    lib/matplotlib/tests/data/tinypages
     )
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks

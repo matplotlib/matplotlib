@@ -67,6 +67,10 @@ have to learn new API and have to modify existing code).
    You can start simple and look at the search results, if there are too many
    incorrect matches, gradually refine your search criteria.
 
+   It can also be helpful to add ``NOT path:**/matplotlib/** NOT path:**/site-packages/**``
+   to exclude matches where the matplotlib codebase is checked into another repo,
+   either as direct sources or as part of an environment.
+
    *Example*: Calls of the method ``Figure.draw()`` could be matched using
    ``/\bfig(ure)?\.draw\(/``. This expression employs a number of patterns:
 
