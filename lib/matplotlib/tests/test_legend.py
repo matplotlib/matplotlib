@@ -107,6 +107,12 @@ def test_legend_auto4():
     assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
     assert_allclose(leg_bboxes[2].bounds, leg_bboxes[0].bounds)
 
+def test_legend_framelinewidth():
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], label="test")
+    leg = ax.legend(frameon=True, framelinewidth=5.0)
+    assert leg.get_frame().get_linewidth() == 5.0
+
 
 def test_legend_auto5():
     """
