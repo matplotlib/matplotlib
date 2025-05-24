@@ -3,7 +3,7 @@ A class representing a Type 1 font.
 
 This version reads pfa and pfb files and splits them for embedding in
 pdf files. It also supports SlantFont and ExtendFont transformations,
-similarly to pdfTeX and friends. There is no support yet for subsetting.
+similarly to pdfTeX and friends.
 
 Usage::
 
@@ -11,6 +11,7 @@ Usage::
     clear_part, encrypted_part, finale = font.parts
     slanted_font = font.transform({'slant': 0.167})
     extended_font = font.transform({'extend': 1.2})
+    subset_font = font.subset([ord(c) for c in 'Hello World'])
 
 Sources:
 
@@ -25,6 +26,7 @@ from __future__ import annotations
 
 import binascii
 import functools
+import itertools
 import logging
 import re
 import string
@@ -627,8 +629,7 @@ class Type1Font:
 
         return array, next(tokens).endpos()
 
-    @staticmethod
-    def _parse_charstrings(tokens, _data):
+    def _parse_charstrings(self, tokens, _data):
         count_token = next(tokens)
         if not count_token.is_number():
             raise RuntimeError(
@@ -650,7 +651,12 @@ class Type1Font:
                     f"Token following /{glyphname} in CharStrings definition "
                     f"must be a number, was {nbytes_token}"
                 )
-            next(tokens)  # usually RD or |-
+            token = next(tokens)
+            if not token.is_keyword(self._abbr['RD']):
+                raise RuntimeError(
+                    f"Token preceding charstring must be {self._abbr['RD']}, "
+                    f"was {token}"
+                )
             binary_token = tokens.send(1+nbytes_token.value())
             charstrings[glyphname] = binary_token.value()
 
@@ -681,8 +687,7 @@ class Type1Font:
                 continue
             encoding[index_token.value()] = name_token.value()
 
-    @staticmethod
-    def _parse_othersubrs(tokens, data):
+    def _parse_othersubrs(self, tokens, data):
         init_pos = None
         while True:
             token = next(tokens)
@@ -690,7 +695,7 @@ class Type1Font:
                 init_pos = token.pos
             if token.is_delim():
                 _expression(token, tokens, data)
-            elif token.is_keyword('def', 'ND', '|-'):
+            elif token.is_keyword('def', self._abbr['ND']):
                 return data[init_pos:token.endpos()], token.endpos()
 
     def transform(self, effects):
@@ -745,7 +750,7 @@ class Type1Font:
         fontmatrix = (
             f"[{' '.join(_format_approx(x, 6) for x in array)}]"
         )
-        replacements = (
+        newparts = self._replace(
             [(x, f'/FontName/{fontname} def')
              for x in self._pos['FontName']]
             + [(x, f'/ItalicAngle {italicangle} def')
@@ -755,11 +760,63 @@ class Type1Font:
             + [(x, '') for x in self._pos.get('UniqueID', [])]
         )
 
+        return Type1Font((
+            newparts[0],
+            self._encrypt(newparts[1], 'eexec'),
+            self.parts[2]
+        ))
+
+    def with_encoding(self, encoding):
+        """
+        Change the encoding of the font.
+
+        Parameters
+        ----------
+        encoding : dict
+            A dictionary mapping character codes to glyph names.
+
+        Returns
+        -------
+        `Type1Font`
+        """
+        newparts = self._replace(
+            [(x, '') for x in self._pos.get('UniqueID', [])]
+            + [(self._pos['Encoding'][0], self._postscript_encoding(encoding))]
+        )
+        return Type1Font((
+            newparts[0],
+            self._encrypt(newparts[1], 'eexec'),
+            self.parts[2]
+        ))
+
+    def _replace(self, replacements):
+        """
+        Change the font according to `replacements`
+
+        Parameters
+        ----------
+        replacements : list of ((int, int), str)
+            Each element is ((pos0, pos1), replacement) where pos0 and
+            pos1 are indices to the original font data (parts[0] and the
+            decrypted part concatenated). The data in the interval
+            pos0:pos1 will be replaced by the replacement text. To
+            accommodate binary data, the replacement is taken to be in
+            Latin-1 encoding.
+
+            The case where pos0 is inside parts[0] and pos1 inside
+            the decrypted part is not supported.
+
+        Returns
+        -------
+        (bytes, bytes)
+            The new parts[0] and decrypted part (which needs to be
+            encrypted in the transformed font).
+        """
         data = bytearray(self.parts[0])
         data.extend(self.decrypted)
         len0 = len(self.parts[0])
         for (pos0, pos1), value in sorted(replacements, reverse=True):
-            data[pos0:pos1] = value.encode('ascii', 'replace')
+            data[pos0:pos1] = value.encode('latin-1')
             if pos0 < len(self.parts[0]):
                 if pos1 >= len(self.parts[0]):
                     raise RuntimeError(
@@ -768,12 +825,274 @@ class Type1Font:
                     )
                 len0 += len(value) - pos1 + pos0
 
-        data = bytes(data)
-        return Type1Font((
-            data[:len0],
-            self._encrypt(data[len0:], 'eexec'),
+        return bytes(data[:len0]), bytes(data[len0:])
+
+    def subset(self, characters, name_prefix):
+        """
+        Return a new font that only defines the given characters.
+
+        Parameters
+        ----------
+        characters : sequence of bytes
+            The subset of characters to include. These are indices into the
+            font's encoding array. The encoding array of a Type-1 font can
+            only include 256 characters, but other glyphs may be accessed
+            via the seac operator.
+        name_prefix : str
+            Prefix to prepend to the font name.
+
+        Returns
+        -------
+        `Type1Font`
+        """
+        characters = frozenset(characters)
+        if _log.isEnabledFor(logging.DEBUG):
+            _log.debug(
+                "Subsetting font %s to characters %s = %s",
+                self.prop['FontName'],
+                sorted(characters),
+                [self.prop['Encoding'].get(code) for code in sorted(characters)],
+            )
+        encoding = {code: glyph
+                    for code, glyph in self.prop['Encoding'].items()
+                    if code in characters}
+        encoding[0] = '.notdef'
+        # todo and done include strings (glyph names)
+        todo = set(encoding.values())
+        done = set()
+        seen_subrs = {0, 1, 2, 3}
+        while todo:
+            glyph = todo.pop()
+            called_glyphs, called_subrs = _CharstringSimulator(self).run(glyph)
+            todo.update(called_glyphs - done)
+            seen_subrs.update(called_subrs)
+            done.add(glyph)
+
+        charstrings = self._subset_charstrings(done)
+        subrs = self._subset_subrs(seen_subrs)
+        newparts = self._replace(
+            [(x, f'/FontName /{name_prefix}{self.prop["FontName"]} def')
+             for x in self._pos['FontName']]
+            + [(self._pos['CharStrings'][0], charstrings),
+               (self._pos['Subrs'][0], subrs),
+               (self._pos['Encoding'][0], self._postscript_encoding(encoding))
+               ] + [(x, '') for x in self._pos.get('UniqueID', [])]
+        )
+        return type(self)((
+            newparts[0],
+            self._encrypt(newparts[1], 'eexec'),
             self.parts[2]
         ))
+
+    @staticmethod
+    def _charstring_tokens(data):
+        """Parse a Type-1 charstring
+
+        Yield opcode names and integer parameters.
+        """
+        data = iter(data)
+        for byte in data:
+            if 32 <= byte <= 246:
+                yield byte - 139
+            elif 247 <= byte <= 250:
+                byte2 = next(data)
+                yield (byte-247) * 256 + byte2 + 108
+            elif 251 <= byte <= 254:
+                byte2 = next(data)
+                yield -(byte-251)*256 - byte2 - 108
+            elif byte == 255:
+                bs = bytes(itertools.islice(data, 4))
+                yield struct.unpack('>i', bs)[0]
+            elif byte == 12:
+                byte1 = next(data)
+                yield {
+                    0: 'dotsection',
+                    1: 'vstem3',
+                    2: 'hstem3',
+                    6: 'seac',
+                    7: 'sbw',
+                    12: 'div',
+                    16: 'callothersubr',
+                    17: 'pop',
+                    33: 'setcurrentpoint'
+                }[byte1]
+            else:
+                yield {
+                    1: 'hstem',
+                    3: 'vstem',
+                    4: 'vmoveto',
+                    5: 'rlineto',
+                    6: 'hlineto',
+                    7: 'vlineto',
+                    8: 'rrcurveto',
+                    9: 'closepath',
+                    10: 'callsubr',
+                    11: 'return',
+                    13: 'hsbw',
+                    14: 'endchar',
+                    21: 'rmoveto',
+                    22: 'hmoveto',
+                    30: 'vhcurveto',
+                    31: 'hvcurveto'
+                }[byte]
+
+    def _postscript_encoding(self, encoding):
+        """Return a PostScript encoding array for the encoding."""
+        return '\n'.join([
+            '/Encoding 256 array\n0 1 255 { 1 index exch /.notdef put} for',
+            *(
+                f'dup {i} /{glyph} put'
+                for i, glyph in sorted(encoding.items())
+                if glyph != '.notdef'
+            ),
+            'readonly def\n',
+        ])
+
+    def _subset_charstrings(self, glyphs):
+        """Return a PostScript CharStrings array for the glyphs."""
+        charstrings = self.prop['CharStrings']
+        lenIV = self.prop.get('lenIV', 4)
+        ordered = sorted(glyphs)
+        encrypted = [
+            self._encrypt(charstrings[glyph], 'charstring', lenIV).decode('latin-1')
+            for glyph in ordered
+        ]
+        RD, ND = self._abbr['RD'], self._abbr['ND']
+        return '\n'.join([
+            f'/CharStrings {len(ordered)} dict dup begin',
+            *(
+                f'/{glyph} {len(enc)} {RD} {enc} {ND}'
+                for glyph, enc in zip(ordered, encrypted)
+            ),
+            'end\n',
+        ])
+
+    def _subset_subrs(self, indices):
+        """Return a PostScript Subrs array for the subroutines."""
+        # we can't remove subroutines, we just replace unused ones with a stub
+        subrs = self.prop['Subrs']
+        n_subrs = len(subrs)
+        lenIV = self.prop.get('lenIV', 4)
+        stub = self._encrypt(b'\x0b', 'charstring', lenIV).decode('latin-1')
+        encrypted = [
+            self._encrypt(subrs[i], 'charstring', lenIV).decode('latin-1')
+            if i in indices
+            else stub
+            for i in range(n_subrs)
+        ]
+        RD, ND, NP = self._abbr['RD'], self._abbr['ND'], self._abbr['NP']
+        return '\n'.join([
+            f'/Subrs {n_subrs} array',
+            *(
+                f'dup {i} {len(enc)} {RD} {enc} {NP}'
+                for i, enc in enumerate(encrypted)
+            ),
+        ])
+
+
+class _CharstringSimulator:
+    __slots__ = ('font', 'buildchar_stack', 'postscript_stack', 'glyphs', 'subrs')
+
+    def __init__(self, font):
+        self.font = font
+        self.buildchar_stack = []
+        self.postscript_stack = []
+        self.glyphs = set()
+        self.subrs = set()
+
+    def run(self, glyph_or_subr):
+        """Run the charstring interpreter on a glyph or subroutine.
+
+        This does not actually execute the code but simulates it to find out
+        which subroutines get called when executing the glyph or subroutine.
+
+        Parameters
+        ----------
+        glyph_or_subr : str or int
+            The name of the glyph or the index of the subroutine to simulate.
+
+        Returns
+        -------
+        glyphs : set[str]
+            The set of glyph names called by the glyph or subroutine.
+        subrs : set[int]
+            The set of subroutines called by the glyph or subroutine.
+        """
+        if isinstance(glyph_or_subr, str):
+            program = self.font.prop['CharStrings'][glyph_or_subr]
+            self.glyphs.add(glyph_or_subr)
+        else:
+            program = self.font.prop['Subrs'][glyph_or_subr]
+            self.subrs.add(glyph_or_subr)
+        for opcode in self.font._charstring_tokens(program):
+            if opcode in ('return', 'endchar'):
+                return self.glyphs, self.subrs
+            self._step(opcode)
+        else:
+            font_name = self.font.prop.get('FontName', '(unknown)')
+            _log.info(
+                f"Glyph or subr {glyph_or_subr} in font {font_name} does not end "
+                "with return or endchar"
+            )
+            return self.glyphs, self.subrs
+
+    def _step(self, opcode):
+        """Run one step in the charstring interpreter."""
+        match opcode:
+            case _ if isinstance(opcode, int):
+                self.buildchar_stack.append(opcode)
+            case (
+                'hsbw' | 'sbw' | 'closepath' | 'hlineto' | 'hmoveto' | 'hcurveto' |
+                'hvcurveto' | 'rlineto' | 'rmoveto' | 'rrcurveto' | 'vhcurveto' |
+                'vlineto' | 'vmoveto' | 'dotsection' | 'hstem' | 'hstem3' |
+                'vstem' | 'vstem3' | 'setcurrentpoint'
+            ):
+                self.buildchar_stack.clear()
+            case 'seac':  # Standard Encoding Accented Character
+                codes = self.buildchar_stack[3:5]
+                self.glyphs.update(_StandardEncoding[int(x)] for x in codes)
+                self.buildchar_stack.clear()
+            case 'div':
+                num1, num2 = self.buildchar_stack[-2:]
+                if num2 == 0:
+                    _log.warning(
+                        f"Division by zero in font {self.font.prop['FontName']}"
+                    )
+                    self.buildchar_stack[-2:] = [0]
+                else:
+                    self.buildchar_stack[-2:] = [num1/num2]
+            case 'callothersubr':
+                n, othersubr = self.buildchar_stack[-2:]
+                if not isinstance(n, int):
+                    _log.warning(
+                        f"callothersubr {othersubr} with non-integer argument "
+                        f"count in font {self.font.prop['FontName']}"
+                    )
+                    n = int(n)
+                args = self.buildchar_stack[-2-n:-2]
+                if othersubr == 3:
+                    self.postscript_stack.append(args[0])
+                else:
+                    self.postscript_stack.extend(args[::-1])
+                self.buildchar_stack[-2-n:] = []
+            case 'callsubr':
+                subr = self.buildchar_stack.pop()
+                if not isinstance(subr, int):
+                    _log.warning(
+                        f"callsubr with non-integer argument {subr} in font "
+                        f"{self.font.prop['FontName']}"
+                    )
+                    subr = int(subr)
+                self.run(subr)
+            case 'pop':
+                if not self.postscript_stack:
+                    _log.warning(
+                        f"pop with empty stack in font {self.font.prop['FontName']}"
+                    )
+                    self.postscript_stack.append(0)
+                self.buildchar_stack.append(self.postscript_stack.pop())
+            case _:
+                raise RuntimeError(f'opcode {opcode}')
 
 
 _StandardEncoding = {
