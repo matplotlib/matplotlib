@@ -369,7 +369,8 @@ void FT2Font::set_kerning_factor(int factor)
 }
 
 void FT2Font::set_text(
-    std::u32string_view text, double angle, FT_Int32 flags, std::vector<double> &xys)
+    std::u32string_view text, double angle, FT_Int32 flags, LanguageType languages,
+    std::vector<double> &xys)
 {
     FT_Matrix matrix; /* transformation matrix */
 

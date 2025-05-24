@@ -775,6 +775,27 @@ def test_ft2font_set_text():
     assert font.get_bitmap_offset() == (6, 0)
 
 
+def test_ft2font_language_invalid():
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    with pytest.raises(TypeError):
+        font.set_text('foo', language=[1, 2, 3])
+    with pytest.raises(TypeError):
+        font.set_text('foo', language=[(1, 2)])
+    with pytest.raises(TypeError):
+        font.set_text('foo', language=[('en', 'foo', 2)])
+    with pytest.raises(TypeError):
+        font.set_text('foo', language=[('en', 1, 'foo')])
+
+
+def test_ft2font_language():
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font.set_text('foo')
+    font.set_text('foo', language='en')
+    font.set_text('foo', language=[('en', 1, 2)])
+
+
 def test_ft2font_loading():
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)

@@ -6,6 +6,7 @@
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
 
+#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
@@ -73,6 +74,9 @@ class FT2Font
     typedef void (*WarnFunc)(FT_ULong charcode, std::set<FT_String*> family_names);
 
   public:
+    using LanguageRange = std::tuple<std::string, int, int>;
+    using LanguageType = std::optional<std::vector<LanguageRange>>;
+
     FT2Font(FT_Open_Args &open_args, long hinting_factor,
             std::vector<FT2Font *> &fallback_list,
             WarnFunc warn, bool warn_if_used);
@@ -82,7 +86,7 @@ class FT2Font
     void set_charmap(int i);
     void select_charmap(unsigned long i);
     void set_text(std::u32string_view codepoints, double angle, FT_Int32 flags,
-                  std::vector<double> &xys);
+                  LanguageType languages, std::vector<double> &xys);
     int get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode, bool fallback);
     int get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode, FT_Vector &delta);
     void set_kerning_factor(int factor);
