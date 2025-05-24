@@ -6,6 +6,7 @@
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
 
+#include <filesystem>
 #include <set>
 #include <string>
 #include <string_view>
@@ -26,11 +27,35 @@ extern "C" {
 #include <pybind11/numpy.h>
 namespace py = pybind11;
 
-/*
- By definition, FT_FIXED as 2 16bit values stored in a single long.
- */
+// By definition, FT_FIXED as 2 16bit values stored in a single long.
 #define FIXED_MAJOR(val) (signed short)((val & 0xffff0000) >> 16)
 #define FIXED_MINOR(val) (unsigned short)(val & 0xffff)
+
+// Error handling (error codes are loaded as described in fterror.h).
+inline char const* ft_error_string(FT_Error error) {
+#undef __FTERRORS_H__
+#define FT_ERROR_START_LIST     switch (error) {
+#define FT_ERRORDEF( e, v, s )    case v: return s;
+#define FT_ERROR_END_LIST         default: return NULL; }
+#include FT_ERRORS_H
+}
+
+// No more than 16 hex digits + "0x" + null byte for a 64-bit int error.
+#define THROW_FT_ERROR(name, err) { \
+    char buf[20] = {0}; \
+    sprintf(buf, "%#04x", err); \
+    throw std::runtime_error{ \
+        name " (" \
+        + std::filesystem::path(__FILE__).filename().string() \
+        + " line " + std::to_string(__LINE__) + ") failed with error " \
+        + std::string{buf} + ": " + std::string{ft_error_string(err)}}; \
+} (void)0
+
+#define FT_CHECK(func, ...) { \
+    if (auto const& error_ = func(__VA_ARGS__)) { \
+        THROW_FT_ERROR(#func, error_); \
+    } \
+} (void)0
 
 // the FreeType string rendered into a width, height buffer
 class FT2Image
