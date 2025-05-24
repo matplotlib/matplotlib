@@ -397,8 +397,10 @@ def _validate_cmap(s):
 
 
 def validate_aspect(s):
-    if s in ('auto', 'equal'):
+    if s == 'auto':
         return s
+    if s == 'equal':
+        return 1
     try:
         return float(s)
     except ValueError as e:
@@ -1108,7 +1110,8 @@ _validators = {
     "axes.spines.bottom":    validate_bool,  # denoting data boundary.
     "axes.spines.top":       validate_bool,
 
-    "axes.aspect": validate_aspect,  # auto, equal, a number
+    "axes.aspect":      validate_aspect,    # auto, equal, a number
+    "axes.adjustable":  ["box", "datalim"],
 
     "axes.titlesize":     validate_fontsize,  # Axes title fontsize
     "axes.titlelocation": ["left", "center", "right"],  # Axes title alignment

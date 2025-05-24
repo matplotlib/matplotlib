@@ -391,6 +391,7 @@
 #axes.labelweight:   normal  # weight of the x and y labels
 #axes.labelcolor:    black
 #axes.aspect:        auto    # {auto, equal} or a number
+#axes.adjustable:    box     # box or datalim
 #axes.axisbelow:     line    # draw axis gridlines and ticks:
                              #     - below patches (True)
                              #     - above patches but below lines ('line')
