@@ -158,17 +158,17 @@ class CharacterTracker:
             and the character codes will be returned from the string unchanged.
         """
         font_glyphs = []
-        char_to_font = font._get_fontmap(s)
-        for _c, _f in char_to_font.items():
-            charcode = ord(_c)
-            glyph_index = _f.get_char_index(charcode)
+        for raqm_item in font._layout(s, ft2font.LoadFlags.NO_HINTING):
+            font_path = raqm_item.ft_object.fname
+            charcode = ord(raqm_item.char)
+            glyph_index = raqm_item.glyph_index
             if self.subset_size != 0:
                 subset = charcode // self.subset_size
                 subset_charcode = charcode % self.subset_size
             else:
                 subset = 0
                 subset_charcode = charcode
-            self.used.setdefault((_f.fname, subset), {})[subset_charcode] = glyph_index
+            self.used.setdefault((font_path, subset), {})[subset_charcode] = glyph_index
             font_glyphs.append((subset, subset_charcode))
         return font_glyphs
 
