@@ -1506,7 +1506,9 @@ class DraggableBase:
     @staticmethod
     def _picker(artist, mouseevent):
         # A custom picker to prevent dragging on mouse scroll events
-        return (artist.contains(mouseevent) and mouseevent.name != "scroll_event"), {}
+        if mouseevent.name == "scroll_event":
+            return False, {}
+        return artist.contains(mouseevent)
 
     # A property, not an attribute, to maintain picklability.
     canvas = property(lambda self: self.ref_artist.get_figure(root=True).canvas)
