@@ -1577,6 +1577,8 @@ end"""
                             Op.setrgb_nonstroke,
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
+            self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
+                        Op.setrgb_nonstroke)
 
             self.output(lw, Op.setlinewidth)
 
