@@ -4,9 +4,6 @@ from collections.abc import Callable, Iterable
 from typing import Any, Literal, TypeVar
 from matplotlib.typing import ColorType, LineStyleType, MarkEveryType
 
-interactive_bk: list[str]
-non_interactive_bk: list[str]
-all_backends: list[str]
 
 _T = TypeVar("_T")
 
