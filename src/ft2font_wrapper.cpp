@@ -499,6 +499,7 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
 
     self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn,
                           warn_if_used);
+    self->x->set_parent(self);
 
     self->x->set_kerning_factor(kerning_factor);
 
@@ -1467,6 +1468,97 @@ PyFT2Font__get_type1_encoding_vector(PyFT2Font *self)
     return indices;
 }
 
+/**********************************************************************
+ * Layout items
+ * */
+
+struct LayoutItem {
+    PyFT2Font *ft_object;
+    std::u32string character;
+    int glyph_idx;
+    double x;
+    double y;
+    double prev_kern;
+
+    LayoutItem(PyFT2Font *f, std::u32string c, int i, double x, double y, double k) :
+        ft_object(f), character(c), glyph_idx(i), x(x), y(y), prev_kern(k) {}
+
+    std::string to_string()
+    {
+        std::ostringstream out;
+        out << "LayoutItem(ft_object=" << PyFT2Font_fname(ft_object);
+        out << ", char=" << character[0];
+        out << ", glyph_idx=" << glyph_idx;
+        out << ", x=" << x;
+        out << ", y=" << y;
+        out << ", prev_kern=" << prev_kern;
+        out << ")";
+        return out.str();
+    }
+};
+
+const char *PyFT2Font_layout__doc__ = R"""(
+    Layout a string and yield information about each used glyph.
+
+    .. warning::
+        This API uses the fallback list and is both private and provisional: do not use
+        it directly.
+
+    Parameters
+    ----------
+    text : str
+        The characters for which to find fonts.
+
+    Returns
+    -------
+    list[LayoutItem]
+)""";
+
+static auto
+PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags)
+{
+    const auto hinting_factor = self->x->get_hinting_factor();
+    const auto load_flags = static_cast<FT_Int32>(flags);
+
+    std::set<FT_String*> glyph_seen_fonts;
+    std::vector<raqm_glyph_t> glyphs;
+    self->x->layout(text, load_flags, glyph_seen_fonts, glyphs);
+
+    std::vector<LayoutItem> items;
+
+    double x = 0.0;
+    double y = 0.0;
+    std::optional<double> prev_advance = std::nullopt;
+    double prev_x = 0.0;
+    for (auto &glyph : glyphs) {
+        auto ft_object = static_cast<FT2Font *>(glyph.ftface->generic.data);
+        auto pyft_object = static_cast<PyFT2Font *>(ft_object->get_parent());
+
+        ft_object->load_glyph(glyph.index, load_flags);
+
+        double prev_kern = 0.0;
+        if (prev_advance.has_value()) {
+            double actual_advance = (x + glyph.x_offset) - prev_x;
+            prev_kern = actual_advance - prev_advance.value();
+        }
+
+        items.emplace_back(pyft_object, text.substr(glyph.cluster, 1), glyph.index,
+                           (x + glyph.x_offset) / 64.0, (y + glyph.y_offset) / 64.0,
+                           prev_kern / 64.0);
+        prev_x = x + glyph.x_offset;
+        x += glyph.x_advance;
+        y += glyph.y_advance;
+        // Note, linearHoriAdvance is a 16.16 instead of 26.6 fixed-point value.
+        prev_advance = ft_object->get_face()->glyph->linearHoriAdvance / 1024.0 / hinting_factor;
+    }
+
+    return items;
+}
+
+/**********************************************************************
+ * Deprecations
+ * */
+
 static py::object
 ft2font__getattr__(std::string name) {
     auto api = py::module_::import("matplotlib._api");
@@ -1601,8 +1693,23 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_property_readonly("bbox", &PyGlyph_get_bbox,
                                "The control box of the glyph.");
 
-        auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
-                                         PyFT2Font__doc__)
+    py::class_<LayoutItem>(m, "LayoutItem", py::is_final())
+        .def_readonly("ft_object", &LayoutItem::ft_object,
+                      "The FT_Face of the item.")
+        .def_readonly("char", &LayoutItem::character,
+                      "The character code for the item.")
+        .def_readonly("glyph_idx", &LayoutItem::glyph_idx,
+                      "The glyph index for the item.")
+        .def_readonly("x", &LayoutItem::x,
+                      "The x position of the item.")
+        .def_readonly("y", &LayoutItem::y,
+                      "The y position of the item.")
+        .def_readonly("prev_kern", &LayoutItem::prev_kern,
+                      "The kerning between this item and the previous one.")
+        .def("__str__", &LayoutItem::to_string);
+
+    auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
+                                     PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
              "filename"_a, "hinting_factor"_a=8, py::kw_only(),
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=0,
@@ -1617,6 +1724,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
              PyFT2Font_select_charmap__doc__)
         .def("get_kerning", &PyFT2Font_get_kerning, "left"_a, "right"_a, "mode"_a,
              PyFT2Font_get_kerning__doc__)
+        .def("_layout", &PyFT2Font_layout, "string"_a, "flags"_a,
+             PyFT2Font_layout__doc__)
         .def("set_text", &PyFT2Font_set_text,
              "string"_a, "angle"_a=0.0, "flags"_a=LoadFlags::FORCE_AUTOHINT,
              PyFT2Font_set_text__doc__)
