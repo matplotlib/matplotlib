@@ -211,7 +211,7 @@ class Axes(_AxesBase):
         return handles, labels
 
     @_docstring.interpd
-    def legend(self, *args, **kwargs):
+    def legend(self, *args, framelinewidth=None, **kwargs):
         """
         Place a legend on the Axes.
 
@@ -330,6 +330,10 @@ class Axes(_AxesBase):
         """
         handles, labels, kwargs = mlegend._parse_legend_args([self], *args, **kwargs)
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
+
+        if framelinewidth is not None:
+            self.legend_.get_frame().set_linewidth(framelinewidth)
+
         self.legend_._remove_method = self._remove_legend
         return self.legend_
 
