@@ -623,54 +623,6 @@ PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right,
     return self->get_kerning(left, right, mode);
 }
 
-const char *PyFT2Font_get_fontmap__doc__ = R"""(
-    Get a mapping between characters and the font that includes them.
-
-    .. warning::
-        This API uses the fallback list and is both private and provisional: do not use
-        it directly.
-
-    Parameters
-    ----------
-    text : str
-        The characters for which to find fonts.
-
-    Returns
-    -------
-    dict[str, FT2Font]
-        A dictionary mapping unicode characters to `.FT2Font` objects.
-)""";
-
-static py::dict
-PyFT2Font_get_fontmap(PyFT2Font *self, std::u32string text)
-{
-    std::set<FT_ULong> codepoints;
-
-    py::dict char_to_font;
-    for (auto code : text) {
-        if (!codepoints.insert(code).second) {
-            continue;
-        }
-
-        py::object target_font;
-        int index;
-        if (self->get_char_fallback_index(code, index)) {
-            if (index >= 0) {
-                target_font = self->fallbacks[index];
-            } else {
-                target_font = py::cast(self);
-            }
-        } else {
-            // TODO Handle recursion!
-            target_font = py::cast(self);
-        }
-
-        auto key = py::cast(std::u32string(1, code));
-        char_to_font[key] = target_font;
-    }
-    return char_to_font;
-}
-
 const char *PyFT2Font_set_text__doc__ = R"""(
     Set the text *string* and *angle*.
 
@@ -1705,8 +1657,6 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
              "string"_a, "angle"_a=0.0, "flags"_a=LoadFlags::FORCE_AUTOHINT, py::kw_only(),
              "features"_a=nullptr, "language"_a=nullptr,
              PyFT2Font_set_text__doc__)
-        .def("_get_fontmap", &PyFT2Font_get_fontmap, "string"_a,
-             PyFT2Font_get_fontmap__doc__)
         .def("get_num_glyphs", &PyFT2Font::get_num_glyphs,
              PyFT2Font_get_num_glyphs__doc__)
         .def("load_char", &PyFT2Font_load_char,
