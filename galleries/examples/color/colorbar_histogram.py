@@ -40,3 +40,5 @@ cax.set_xlabel('Count')
 cax.set_ylabel('Value')
 
 plt.show()
+
+print("Colorbar with histogram example completed.")
