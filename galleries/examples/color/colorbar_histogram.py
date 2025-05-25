@@ -12,43 +12,35 @@ visualizing the distribution of values mapped to colors.
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from matplotlib import gridspec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # Generate random data
-x = np.random.random(100).reshape(10, 10)
+x = np.random.random((10, 10))
 
 # Compute histogram
 counts, bins = np.histogram(x)
 
 # Set up colormap and normalization
-cmap = plt.colormaps['viridis']
+cmap = plt.get_cmap('viridis')
 norm = mcolors.BoundaryNorm(bins, cmap.N)
 
-# Create figure with constrained_layout for better spacing
-fig = plt.figure(figsize=(8, 4), constrained_layout=True)
-gs = gridspec.GridSpec(1, 3, width_ratios=[4, 0.2, 1], figure=fig)
-
-# Main image
-ax_img = fig.add_subplot(gs[0])
-im = ax_img.imshow(x, cmap=cmap, norm=norm)
-ax_img.set_title("Image")
-
-# Colorbar
-cax = fig.add_subplot(gs[1])
-cbar = plt.colorbar(im, cax=cax)
+fig, ax = plt.subplots()
+im = ax.imshow(x, cmap=cmap, norm=norm)
+cbar = plt.colorbar(im, ax=ax)
 cbar.set_label('Value')
 
-# Histogram
-ax_hist = fig.add_subplot(gs[2])
-midpoints = bins[:-1] + np.diff(bins) / 2
-ax_hist.barh(midpoints, counts, height=np.diff(bins), color=cmap(norm(midpoints)), edgecolor='k')
-ax_hist.set_yticks(bins)
-ax_hist.set_xlabel('Count')
-ax_hist.set_ylabel('Value')
-ax_hist.margins(0)
-for spine in ax_hist.spines.values():
-    spine.set_visible(False)
+# Create an axes on the right side of ax. The width of cax will be 20% of ax and the padding between cax and ax will be fixed at 0.05 inch.
+divider = make_axes_locatable(ax)
+cax = divider.append_axes("right", size="20%", pad=0.05)
 
+# Plot histogram
+midpoints = bins[:-1] + np.diff(bins) / 2
+cax.barh(midpoints, counts, height=np.diff(bins), color=cmap(norm(midpoints)))
+cax.set_yticks(bins)
+cax.set_xlabel('Count')
+cax.set_ylabel('Value')
+cax.invert_yaxis()  # Optional: to match the orientation of imshow
+
+plt.tight_layout()
 plt.show()
 
-print("Colorbar with histogram example completed.")
