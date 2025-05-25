@@ -809,3 +809,47 @@ def test_submerged_subfig():
     for ax in axs[1:]:
         assert np.allclose(ax.get_position().bounds[-1],
                            axs[0].get_position().bounds[-1], atol=1e-6)
+
+
+def test_submerged_height_gap():
+    """Test that the gap between rows does not depend on the number of columns."""
+
+    mosaic1 = "AC;BC"
+    mosaic2 = "ACDE;BCDE"
+
+    fig1, ax_dict1 = plt.subplot_mosaic(mosaic1, layout='constrained')
+    fig2, ax_dict2 = plt.subplot_mosaic(mosaic2, layout='constrained')
+    for fig in fig1, fig2:
+        fig.get_layout_engine().set(h_pad=0.2)
+        fig.draw_without_rendering()
+
+    for label in 'A', 'B':
+        np.testing.assert_allclose(ax_dict1[label].get_position().bounds[-1],
+                                   ax_dict2[label].get_position().bounds[-1])
+
+
+def test_submerged_width_gap():
+    """Test that the gap between columns does not depend on the number of rows."""
+
+    mosaic1 = "AB;CC"
+    mosaic2 = "AB;CC;DD"
+
+    fig1, ax_dict1 = plt.subplot_mosaic(mosaic1, layout='constrained')
+    fig2, ax_dict2 = plt.subplot_mosaic(mosaic2, layout='constrained')
+    for fig in fig1, fig2:
+        fig.get_layout_engine().set(w_pad=0.2)
+        fig.draw_without_rendering()
+
+    for label in 'A', 'B':
+        np.testing.assert_allclose(ax_dict1[label].get_position().bounds[-2],
+                                   ax_dict2[label].get_position().bounds[-2])
+
+
+@image_comparison(['test_submerged_with_colorbar.png'], style='mpl20')
+def test_submerged_with_colorbar():
+    mosaic = "AABBCC;DDDEEE"
+
+    fig, ax_dict = plt.subplot_mosaic(mosaic, layout='constrained')
+
+    cf = ax_dict['A'].contourf([[0, 1], [2, 3]])
+    fig.colorbar(cf)
