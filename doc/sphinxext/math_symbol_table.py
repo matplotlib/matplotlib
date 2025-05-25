@@ -9,57 +9,42 @@ frak_pattern = re.compile("frak[A-Z]")
 
 symbols = [
     ["Lower-case Greek",
-     4,
      (r"\alpha", r"\beta", r"\gamma",  r"\chi", r"\delta", r"\epsilon",
       r"\eta", r"\iota",  r"\kappa", r"\lambda", r"\mu", r"\nu",  r"\omega",
       r"\phi",  r"\pi", r"\psi", r"\rho",  r"\sigma",  r"\tau", r"\theta",
       r"\upsilon", r"\xi", r"\zeta",  r"\digamma", r"\varepsilon", r"\varkappa",
       r"\varphi", r"\varpi", r"\varrho", r"\varsigma",  r"\vartheta")],
     ["Upper-case Greek",
-     4,
      (r"\Delta", r"\Gamma", r"\Lambda", r"\Omega", r"\Phi", r"\Pi", r"\Psi",
       r"\Sigma", r"\Theta", r"\Upsilon", r"\Xi")],
     ["Hebrew",
-     6,
      (r"\aleph", r"\beth", r"\gimel", r"\daleth")],
     ["Latin named characters",
-     6,
      r"""\aa \AA \ae \AE \oe \OE \O \o \thorn \Thorn \ss \eth \dh \DH""".split()],
     ["Delimiters",
-     5,
      _mathtext.Parser._delims],
     ["Big symbols",
-     5,
      _mathtext.Parser._overunder_symbols | _mathtext.Parser._dropsub_symbols],
     ["Standard function names",
-     5,
      {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
     ["Binary operation symbols",
-     4,
      _mathtext.Parser._binary_operators],
     ["Relation symbols",
-     4,
      _mathtext.Parser._relation_symbols],
     ["Arrow symbols",
-     4,
      _mathtext.Parser._arrow_symbols],
     ["Dot symbols",
-     4,
      r"""\cdots \vdots \ldots \ddots \adots \Colon \therefore \because""".split()],
     ["Black-board characters",
-     6,
      [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
       if re.match(bb_pattern, symbol)]],
     ["Script characters",
-     6,
      [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
       if re.match(scr_pattern, symbol)]],
     ["Fraktur characters",
-     6,
      [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
       if re.match(frak_pattern, symbol)]],
     ["Miscellaneous symbols",
-     4,
      r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
      \nexists \measuredangle \emptyset \sphericalangle \clubsuit
      \varnothing \complement \diamondsuit \imath \Finv \triangledown
@@ -71,6 +56,27 @@ symbols = [
      \lambdabar \L \l \degree \danger \maltese \clubsuitopen
      \i \hermitmatrix \sterling \nabla \mho""".split()],
 ]
+
+
+def calculate_best_columns(
+        symbols_list, max_line_length, max_columns
+):
+    """
+    Calculate the best number of columns to fit the symbols within the
+    given constraints.
+
+    Parameters
+    ----------
+        symbols_list (list): A list of symbols to be displayed.
+        max_line_length (int): The maximum allowed length of a line.
+        max_columns (int): The maximum number of columns to consider.
+
+    Returns
+    -------
+        int: The best number of columns that fits within the constraints.
+    """
+    max_cell_width = max(len(sym) for sym in symbols_list)
+    return min(max_columns, len(symbols_list), max_line_length // max_cell_width)
 
 
 def run(state_machine):
@@ -86,7 +92,7 @@ def run(state_machine):
         return f'\\{sym}' if sym in ('\\', '|', '+', '-', '*') else sym
 
     lines = []
-    for category, columns, syms in symbols:
+    for category, syms in symbols:
         syms = sorted(syms,
                       # Sort by Unicode and place variants immediately
                       # after standard versions.
@@ -94,7 +100,11 @@ def run(state_machine):
                                        sym.startswith(r"\var")),
                       reverse=(category == "Hebrew"))  # Hebrew is rtl
         rendered_syms = [f"{render_symbol(sym)} ``{sym}``" for sym in syms]
-        columns = min(columns, len(syms))
+        columns = calculate_best_columns(
+            rendered_syms,
+            max_line_length=96,
+            max_columns=6
+        )
         lines.append("**%s**" % category)
         lines.append('')
         max_width = max(map(len, rendered_syms))
@@ -128,13 +138,12 @@ def setup(app):
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
 
-
 if __name__ == "__main__":
     # Do some verification of the tables
 
     print("SYMBOLS NOT IN STIX:")
     all_symbols = {}
-    for category, columns, syms in symbols:
+    for category, syms in symbols:
         if category == "Standard Function Names":
             continue
         for sym in syms:
