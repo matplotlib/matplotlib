@@ -538,14 +538,10 @@ def match_submerged_margins(layoutgrids, fig):
 
         # interior columns:
         if len(ss1.colspan) > 1:
-            maxsubl = np.max(
-                lg1.margin_vals['left'][ss1.colspan[1:]] +
-                lg1.margin_vals['leftcb'][ss1.colspan[1:]]
-            )
-            maxsubr = np.max(
-                lg1.margin_vals['right'][ss1.colspan[:-1]] +
-                lg1.margin_vals['rightcb'][ss1.colspan[:-1]]
-            )
+            leftcb = lg1.margin_vals['leftcb'][ss1.colspan[1:]]
+            rightcb = lg1.margin_vals['rightcb'][ss1.colspan[:-1]]
+            maxsubl = np.max(lg1.margin_vals['left'][ss1.colspan[1:]] + leftcb)
+            maxsubr = np.max(lg1.margin_vals['right'][ss1.colspan[:-1]] + rightcb)
             for ax2 in axs:
                 ss2 = ax2.get_subplotspec()
                 lg2 = layoutgrids[ss2.get_gridspec()]
@@ -560,22 +556,17 @@ def match_submerged_margins(layoutgrids, fig):
                         lg2.margin_vals['rightcb'][ss2.colspan[:-1]])
                     if maxsubr2 > maxsubr:
                         maxsubr = maxsubr2
-            for i in ss1.colspan[1:]:
-                lg1.edit_margin_min('left', maxsubl, cell=i)
-            for i in ss1.colspan[:-1]:
-                lg1.edit_margin_min('right', maxsubr, cell=i)
+            for i, cb in zip(ss1.colspan[1:], leftcb):
+                lg1.edit_margin_min('left', maxsubl - cb, cell=i)
+            for i, cb in zip(ss1.colspan[:-1], rightcb):
+                lg1.edit_margin_min('right', maxsubr - cb, cell=i)
 
         # interior rows:
         if len(ss1.rowspan) > 1:
-            maxsubt = np.max(
-                lg1.margin_vals['top'][ss1.rowspan[1:]] +
-                lg1.margin_vals['topcb'][ss1.rowspan[1:]]
-            )
-            maxsubb = np.max(
-                lg1.margin_vals['bottom'][ss1.rowspan[:-1]] +
-                lg1.margin_vals['bottomcb'][ss1.rowspan[:-1]]
-            )
-
+            topcb = lg1.margin_vals['topcb'][ss1.rowspan[1:]]
+            bottomcb = lg1.margin_vals['bottomcb'][ss1.rowspan[:-1]]
+            maxsubt = np.max(lg1.margin_vals['top'][ss1.rowspan[1:]] + topcb)
+            maxsubb = np.max(lg1.margin_vals['bottom'][ss1.rowspan[:-1]] + bottomcb)
             for ax2 in axs:
                 ss2 = ax2.get_subplotspec()
                 lg2 = layoutgrids[ss2.get_gridspec()]
@@ -589,10 +580,10 @@ def match_submerged_margins(layoutgrids, fig):
                             lg2.margin_vals['bottom'][ss2.rowspan[:-1]] +
                             lg2.margin_vals['bottomcb'][ss2.rowspan[:-1]]
                         ), maxsubb])
-            for i in ss1.rowspan[1:]:
-                lg1.edit_margin_min('top', maxsubt, cell=i)
-            for i in ss1.rowspan[:-1]:
-                lg1.edit_margin_min('bottom', maxsubb, cell=i)
+            for i, cb in zip(ss1.rowspan[1:], topcb):
+                lg1.edit_margin_min('top', maxsubt - cb, cell=i)
+            for i, cb in zip(ss1.rowspan[:-1], bottomcb):
+                lg1.edit_margin_min('bottom', maxsubb - cb, cell=i)
 
     return axs
 
