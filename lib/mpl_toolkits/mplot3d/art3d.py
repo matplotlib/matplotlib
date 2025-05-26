@@ -20,7 +20,7 @@ from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.patches import Patch
 from . import proj3d
-
+from .bbox3d import _Bbox3d
 
 def _norm_angle(a):
     """Return the given angle normalized to -180 < *a* <= 180 degrees."""
@@ -95,6 +95,16 @@ def _viewlim_mask(xs, ys, zs, axes):
                                  zs < axes.zz_viewLim.xmin,
                                  zs > axes.zz_viewLim.xmax))
     return mask
+
+
+def create_bbox3d_from_array(arr):
+    arr = np.asarray(arr)
+    if arr.ndim != 2 or arr.shape[1] != 3:
+        raise ValueError("Expected array of shape (N, 3)")
+    xmin, xmax = np.min(arr[:, 0]), np.max(arr[:, 0])
+    ymin, ymax = np.min(arr[:, 1]), np.max(arr[:, 1])
+    zmin, zmax = np.min(arr[:, 2]), np.max(arr[:, 2])
+    return _Bbox3d(((xmin, xmax), (ymin, ymax), (zmin, zmax)))
 
 
 class Text3D(mtext.Text):
@@ -330,6 +340,10 @@ class Line3D(lines.Line2D):
         self.set_data(xs, ys)
         super().draw(renderer)
         self.stale = False
+    
+    def _get_datalim3d(self):
+        xs, ys, zs = self._verts3d
+        return create_bbox3d_from_array(np.column_stack((xs, ys, zs)))
 
 
 def line_2d_to_3d(line, zs=0, zdir='z', axlim_clip=False):
@@ -513,6 +527,10 @@ class Line3DCollection(LineCollection):
             minz = np.nan
         return minz
 
+    def _get_datalim3d(self):
+        segments = np.concatenate(self._segments3d)
+        return create_bbox3d_from_array(segments)
+
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
     """Convert a `.LineCollection` to a `.Line3DCollection` object."""
@@ -591,6 +609,9 @@ class Patch3D(Patch):
         self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]))
         return min(vzs)
 
+    def _get_datalim3d(self):
+        return create_bbox3d_from_array(self._segment3d)
+
 
 class PathPatch3D(Patch3D):
     """
@@ -652,6 +673,9 @@ class PathPatch3D(Patch3D):
                                                          self.axes._focal_length)
         self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]), self._code3d)
         return min(vzs)
+
+    def _get_datalim3d(self):
+        return create_bbox3d_from_array(self._segment3d)
 
 
 def _get_patch_verts(patch):
@@ -831,6 +855,10 @@ class Patch3DCollection(PatchCollection):
         if cbook._str_equal(self._edgecolors, 'face'):
             return self.get_facecolor()
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
+
+    def _get_datalim3d(self):
+        xs, ys, zs = self._offsets3d
+        return create_bbox3d_from_array(np.column_stack((xs, ys, zs)))
 
 
 def _get_data_scale(X, Y, Z):
@@ -1086,6 +1114,10 @@ class Path3DCollection(PathCollection):
         if cbook._str_equal(self._edgecolors, 'face'):
             return self.get_facecolor()
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
+
+    def _get_datalim3d(self):
+        xs, ys, zs = self._offsets3d
+        return create_bbox3d_from_array(np.column_stack((xs, ys, zs)))
 
 
 def patch_collection_2d_to_3d(
@@ -1463,6 +1495,9 @@ class Poly3DCollection(PolyCollection):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
         return np.asarray(self._edgecolors2d)
+
+    def _get_datalim3d(self):
+        return create_bbox3d_from_array(self._faces.reshape(-1, 3))
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):

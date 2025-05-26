@@ -607,6 +607,13 @@ class Axes3D(Axes):
             self.zz_dataLim.update_from_data_x(Z, not had_data)
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
+    
+    def auto_scale_lim(self, bbox3d, had_data=False):
+        self.xy_dataLim.update_from_bbox(bbox3d.to_bbox_xy())
+        self.zz_dataLim.update_from_bbox(bbox3d.to_bbox_zz())
+        if not had_data:
+            self._xy_dataLim_set = True
+            self._zz_dataLim_set = True
 
     def autoscale_view(self, tight=None,
                        scalex=True, scaley=True, scalez=True):
@@ -2887,19 +2894,9 @@ class Axes3D(Axes):
                                             axlim_clip=axlim_clip)
             col.set_sort_zpos(zsortval)
 
-        if autolim:
-            if isinstance(col, art3d.Line3DCollection):
-                self.auto_scale_xyz(*np.array(col._segments3d).transpose(),
-                                    had_data=had_data)
-            elif isinstance(col, art3d.Poly3DCollection):
-                self.auto_scale_xyz(col._faces[..., 0],
-                                    col._faces[..., 1],
-                                    col._faces[..., 2], had_data=had_data)
-            elif isinstance(col, art3d.Patch3DCollection):
-                pass
-                # FIXME: Implement auto-scaling function for Patch3DCollection
-                # Currently unable to do so due to issues with Patch3DCollection
-                # See https://github.com/matplotlib/matplotlib/issues/14298 for details
+        if autolim and hasattr(col, "_get_datalim3d"):
+            bbox3d = col._get_datalim3d()
+            self.auto_scale_lim(bbox3d, had_data=had_data)
 
         collection = super().add_collection(col)
         return collection
