@@ -11,6 +11,7 @@ visualizing the distribution of values mapped to colors.
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from matplotlib.ticker import MaxNLocator
 
 # === Surface Data ===
 delta = 0.025
@@ -33,26 +34,30 @@ im = ax.imshow(Z, interpolation='bilinear', cmap=cmap,
                origin='lower', extent=[-3, 3, -3, 3],
                norm=norm)
 
-# === Inset Histogram Using ax.inset_axes ===
-cax = ax.inset_axes([1.28, 0.05, 0.25, 1.2])
+# Adjust image position to allow space
+plt.subplots_adjust(right=0.78, top=0.92, bottom=0.08)
+
+# === Inset Histogram – Positioning adjusted ===
+cax = ax.inset_axes([1.18, 0.02, 0.25, 0.95])  # left, bottom, width, height
 
 # === Plot Histogram ===
 midpoints = bins[:-1] + np.diff(bins) / 2
 bar_height = 1 / len(counts)
 cax.barh(midpoints, counts, height=bar_height, color=cmap(norm(midpoints)))
 
-# === Remove spines and margins ===
+# === Clean up ===
 for spine in cax.spines.values():
     spine.set_visible(False)
 cax.margins(0)
-
-# Optional: clean up ticks
 cax.tick_params(axis='both', which='both', length=0)
 
-# === Labels and ticks ===
-cax.set_xlabel('Count', labelpad=8)   # increased from 6 → 8
-cax.set_ylabel('Value', labelpad=10)  # increased from 8 → 10
+# === Axis labels ===
+cax.set_xlabel('Count', labelpad=10)
+cax.set_ylabel('Value', labelpad=6) 
+
+# === Ticks ===
 cax.set_yticks(bins)
+cax.yaxis.set_major_locator(MaxNLocator(nbins=8))
 
 plt.show()
 
