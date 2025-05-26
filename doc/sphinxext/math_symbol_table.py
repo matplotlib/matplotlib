@@ -67,13 +67,17 @@ def calculate_best_columns(
 
     Parameters
     ----------
-        symbols_list (list): A list of symbols to be displayed.
-        max_line_length (int): The maximum allowed length of a line.
-        max_columns (int): The maximum number of columns to consider.
+    symbols_list : list of str
+        List symbols to be displayed.
+    max_line_length : int
+        Maximum allowed length of a line.
+    max_columns : int
+        Maximum number of columns to consider.
 
     Returns
     -------
-        int: The best number of columns that fits within the constraints.
+    int
+        Number of columns that fits within the constraints.
     """
     max_cell_width = max(len(sym) for sym in symbols_list)
     return min(max_columns, len(symbols_list), max_line_length // max_cell_width)
@@ -137,6 +141,7 @@ def setup(app):
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
+
 
 if __name__ == "__main__":
     # Do some verification of the tables
