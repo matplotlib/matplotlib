@@ -511,14 +511,17 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 if alpha is None:  # alpha parameter not specified
                     if A.shape[2] == 3:  # image has no alpha channel
                         A = np.dstack([A, np.ones(A.shape[:2])])
-                elif np.ndim(alpha) > 0:  # Array alpha
+                elif np.ndim(alpha) > 0: # Array alpha
+                    if alpha.shape != A.shape[:2]:
+                        raise ValueError("Alpha array shape must match image dimensions")      
                     # user-specified array alpha overrides the existing alpha channel
                     A = np.dstack([A[..., :3], alpha])
                 else:  # Scalar alpha
                     if A.shape[2] == 3:  # broadcast scalar alpha
                         A = np.dstack([A, np.full(A.shape[:2], alpha, np.float32)])
-                    else:  # or apply scalar alpha to existing alpha channel
-                        post_apply_alpha = True
+                #to handle RGBA inputs
+                if A.shape[2] == 4 and alpha is not None:
+                    A[..., 3] = alpha  # override existing alpha channel            
                 # Resample in premultiplied alpha space.  (TODO: Consider
                 # implementing premultiplied-space resampling in
                 # span_image_resample_rgba_affine::generate?)
