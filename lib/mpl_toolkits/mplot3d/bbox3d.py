@@ -1,5 +1,6 @@
 from matplotlib.transforms import Bbox
 
+
 class _Bbox3d:
     """
     A helper class to represent a 3D bounding box.

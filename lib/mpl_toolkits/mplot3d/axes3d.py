@@ -607,7 +607,7 @@ class Axes3D(Axes):
             self.zz_dataLim.update_from_data_x(Z, not had_data)
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
-    
+
     def auto_scale_lim(self, bbox3d, had_data=False):
         self.xy_dataLim.update_from_bbox(bbox3d.to_bbox_xy())
         self.zz_dataLim.update_from_bbox(bbox3d.to_bbox_zz())

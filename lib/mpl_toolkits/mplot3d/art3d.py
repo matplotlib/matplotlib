@@ -22,6 +22,7 @@ from matplotlib.patches import Patch
 from . import proj3d
 from .bbox3d import _Bbox3d
 
+
 def _norm_angle(a):
     """Return the given angle normalized to -180 < *a* <= 180 degrees."""
     a = (a + 360) % 360
@@ -340,7 +341,7 @@ class Line3D(lines.Line2D):
         self.set_data(xs, ys)
         super().draw(renderer)
         self.stale = False
-    
+
     def _get_datalim3d(self):
         xs, ys, zs = self._verts3d
         return create_bbox3d_from_array(np.column_stack((xs, ys, zs)))
