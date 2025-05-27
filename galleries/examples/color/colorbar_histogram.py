@@ -46,7 +46,6 @@ bar_height = 1 / len(counts)
 cax.barh(midpoints, counts, height=np.median(np.diff(bins))*0.8, color=cmap(norm(midpoints)))
 
 # === Clean up ===
-#showcase none loop version
 cax.spines[:].set_visible(False)
 cax.margins(0)
 cax.tick_params(axis='both', which='both', length=0)
