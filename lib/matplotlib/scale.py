@@ -104,7 +104,7 @@ class ScaleBase:
         return vmin, vmax
 
 
-def handle_axis_parameter(init_func):
+def _make_axis_parameter_optional(init_func):
     """
     Decorator to handle the optional *axis* parameter in scale constructors.
 
