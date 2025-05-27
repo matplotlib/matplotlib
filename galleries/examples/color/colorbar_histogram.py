@@ -43,7 +43,7 @@ cax = ax.inset_axes([1.18, 0.02, 0.25, 0.95])  # left, bottom, width, height
 # === Plot Histogram ===
 midpoints = bins[:-1] + np.diff(bins) / 2
 bar_height = 1 / len(counts)
-cax.barh(midpoints, counts, height=bar_height, color=cmap(norm(midpoints)))
+cax.barh(midpoints, counts, height=np.median(np.diff(bins))*0.8, color=cmap(norm(midpoints)))
 
 # === Clean up ===
 for spine in cax.spines.values():
