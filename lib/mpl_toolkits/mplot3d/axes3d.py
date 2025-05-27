@@ -609,11 +609,22 @@ class Axes3D(Axes):
         self.autoscale_view()
 
     def auto_scale_lim(self, bbox3d, had_data=False):
-        self.xy_dataLim.update_from_bbox(bbox3d.to_bbox_xy())
-        self.zz_dataLim.update_from_bbox(bbox3d.to_bbox_zz())
+        """
+        Expand the 3D axes data limits to include the given Bbox3d.
+
+        Parameters
+        ----------
+        bbox3d : _Bbox3d
+            The 3D bounding box to incorporate into the data limits.
+        had_data : bool, default: False
+            Whether the axes already had data limits set before.
+        """
+        self.xy_dataLim = Bbox.union([self.xy_dataLim, bbox3d.to_bbox_xy()])
+        self.zz_dataLim = Bbox.union([self.zz_dataLim, bbox3d.to_bbox_zz()])
         if not had_data:
             self._xy_dataLim_set = True
             self._zz_dataLim_set = True
+
 
     def autoscale_view(self, tight=None,
                        scalex=True, scaley=True, scalez=True):
