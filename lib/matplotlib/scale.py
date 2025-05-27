@@ -106,7 +106,7 @@ class ScaleBase:
 
 def _make_axis_parameter_optional(init_func):
     """
-    Decorator to handle the optional *axis* parameter in scale constructors.
+    Decorator to allow leaving out the *axis* parameter in scale constructors.
 
     This decorator ensures backward compatibility for scale classes that
     previously required an *axis* parameter. It allows constructors to work
