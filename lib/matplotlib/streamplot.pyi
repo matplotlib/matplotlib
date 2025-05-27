@@ -29,6 +29,8 @@ def streamplot(
     integration_direction: Literal["forward", "backward", "both"] = ...,
     broken_streamlines: bool = ...,
     *,
+    integration_max_step_scale: float = ...,
+    integration_max_error_scale: float = ...,
     num_arrows: int = ...,
 ) -> StreamplotSet: ...
 
@@ -82,3 +84,5 @@ class StreamMask:
 class InvalidIndexError(Exception): ...
 class TerminateTrajectory(Exception): ...
 class OutOfBounds(IndexError): ...
+
+__all__ = ['streamplot']

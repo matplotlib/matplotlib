@@ -63,7 +63,7 @@ the toolbar pan and zoom buttons are not used.
 ===================================
 
 .. note::
-   See :attr:`mpl_toolkits.mplot3d.axis3d._axinfo` for a dictionary containing
+   See :attr:`!mpl_toolkits.mplot3d.axis3d._axinfo` for a dictionary containing
    constants that may be modified for controlling the look and feel
    of mplot3d axes (e.g., label spacing, font colors and panel colors).
    Historically, axis3d has suffered from having hard-coded constants

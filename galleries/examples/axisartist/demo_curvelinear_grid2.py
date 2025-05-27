@@ -41,7 +41,7 @@ def curvelinear_test1(fig):
     # itself (i.e., transData) is not affected by the given transform.
 
     ax1.imshow(np.arange(25).reshape(5, 5),
-               vmax=50, cmap=plt.cm.gray_r, origin="lower")
+               vmax=50, cmap="gray_r", origin="lower")
 
 
 if __name__ == "__main__":

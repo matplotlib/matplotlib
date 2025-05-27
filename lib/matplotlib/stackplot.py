@@ -26,11 +26,11 @@ def stackplot(axes, x, *args,
     x : (N,) array-like
 
     y : (M, N) array-like
-        The data is assumed to be unstacked. Each of the following
+        The data can be either stacked or unstacked. Each of the following
         calls is legal::
 
-            stackplot(x, y)           # where y has shape (M, N)
-            stackplot(x, y1, y2, y3)  # where y1, y2, y3, y4 have length N
+            stackplot(x, y)  # where y has shape (M, N) e.g. y = [y1, y2, y3, y4]
+            stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4 have length N
 
     baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:

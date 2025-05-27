@@ -34,7 +34,7 @@ annotations like x- and y-labels, titles, and legends.
 
     arranging_axes
     colorbar_placement
-    Autoscaling axes <autoscale>
+    autoscale
 
 .. toctree::
     :maxdepth: 2

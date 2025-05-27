@@ -60,6 +60,20 @@ def _get_dash_pattern(style):
     return offset, dashes
 
 
+def _get_dash_patterns(styles):
+    """Convert linestyle or sequence of linestyles to list of dash patterns."""
+    try:
+        patterns = [_get_dash_pattern(styles)]
+    except ValueError:
+        try:
+            patterns = [_get_dash_pattern(x) for x in styles]
+        except ValueError as err:
+            emsg = f'Do not know how to convert {styles!r} to dashes'
+            raise ValueError(emsg) from err
+
+    return patterns
+
+
 def _get_inverse_dash_pattern(offset, dashes):
     """Return the inverse of the given dash pattern, for filling the gaps."""
     # Define the inverse pattern by moving the last gap to the start of the
@@ -327,28 +341,16 @@ class Line2D(Artist):
         if not np.iterable(ydata):
             raise RuntimeError('ydata must be a sequence')
 
-        if linewidth is None:
-            linewidth = mpl.rcParams['lines.linewidth']
-
-        if linestyle is None:
-            linestyle = mpl.rcParams['lines.linestyle']
-        if marker is None:
-            marker = mpl.rcParams['lines.marker']
-        if color is None:
-            color = mpl.rcParams['lines.color']
-
-        if markersize is None:
-            markersize = mpl.rcParams['lines.markersize']
-        if antialiased is None:
-            antialiased = mpl.rcParams['lines.antialiased']
-        if dash_capstyle is None:
-            dash_capstyle = mpl.rcParams['lines.dash_capstyle']
-        if dash_joinstyle is None:
-            dash_joinstyle = mpl.rcParams['lines.dash_joinstyle']
-        if solid_capstyle is None:
-            solid_capstyle = mpl.rcParams['lines.solid_capstyle']
-        if solid_joinstyle is None:
-            solid_joinstyle = mpl.rcParams['lines.solid_joinstyle']
+        linewidth = mpl._val_or_rc(linewidth, 'lines.linewidth')
+        linestyle = mpl._val_or_rc(linestyle, 'lines.linestyle')
+        marker = mpl._val_or_rc(marker, 'lines.marker')
+        color = mpl._val_or_rc(color, 'lines.color')
+        markersize = mpl._val_or_rc(markersize, 'lines.markersize')
+        antialiased = mpl._val_or_rc(antialiased, 'lines.antialiased')
+        dash_capstyle = mpl._val_or_rc(dash_capstyle, 'lines.dash_capstyle')
+        dash_joinstyle = mpl._val_or_rc(dash_joinstyle, 'lines.dash_joinstyle')
+        solid_capstyle = mpl._val_or_rc(solid_capstyle, 'lines.solid_capstyle')
+        solid_joinstyle = mpl._val_or_rc(solid_joinstyle, 'lines.solid_joinstyle')
 
         if drawstyle is None:
             drawstyle = 'default'
@@ -1152,15 +1154,15 @@ class Line2D(Artist):
 
             - A string:
 
-              ==========================================  =================
-              linestyle                                   description
-              ==========================================  =================
-              ``'-'`` or ``'solid'``                      solid line
-              ``'--'`` or  ``'dashed'``                   dashed line
-              ``'-.'`` or  ``'dashdot'``                  dash-dotted line
-              ``':'`` or ``'dotted'``                     dotted line
-              ``'none'``, ``'None'``, ``' '``, or ``''``  draw nothing
-              ==========================================  =================
+              =======================================================  ================
+              linestyle                                                description
+              =======================================================  ================
+              ``'-'`` or ``'solid'``                                   solid line
+              ``'--'`` or ``'dashed'``                                 dashed line
+              ``'-.'`` or ``'dashdot'``                                dash-dotted line
+              ``':'`` or ``'dotted'``                                  dotted line
+              ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
+              =======================================================  ================
 
             - Alternatively a dash tuple of the following form can be
               provided::
@@ -1253,8 +1255,7 @@ class Line2D(Artist):
         ew : float
              Marker edge width, in points.
         """
-        if ew is None:
-            ew = mpl.rcParams['lines.markeredgewidth']
+        ew = mpl._val_or_rc(ew, 'lines.markeredgewidth')
         if self._markeredgewidth != ew:
             self.stale = True
         self._markeredgewidth = ew
@@ -1354,7 +1355,6 @@ class Line2D(Artist):
         self._solidcapstyle = other._solidcapstyle
         self._solidjoinstyle = other._solidjoinstyle
 
-        self._linestyle = other._linestyle
         self._marker = MarkerStyle(marker=other._marker)
         self._drawstyle = other._drawstyle
 

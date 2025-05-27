@@ -167,13 +167,13 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
     }
 
     /* qhull expects a FILE* to write errors to. */
-    FILE* error_file = NULL;
+    FILE* error_file = nullptr;
     if (hide_qhull_errors) {
         /* qhull errors are ignored by writing to OS-equivalent of /dev/null.
          * Rather than have OS-specific code here, instead it is determined by
          * meson.build and passed in via the macro MPL_DEVNULL. */
         error_file = fopen(STRINGIFY(MPL_DEVNULL), "w");
-        if (error_file == NULL) {
+        if (error_file == nullptr) {
             throw std::runtime_error("Could not open devnull");
         }
     }
@@ -186,7 +186,7 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
     QhullInfo info(error_file, qh);
     qh_zero(qh, error_file);
     exitcode = qh_new_qhull(qh, ndim, (int)npoints, points.data(), False,
-                            (char*)"qhull d Qt Qbb Qc Qz", NULL, error_file);
+                            (char*)"qhull d Qt Qbb Qc Qz", nullptr, error_file);
     if (exitcode != qh_ERRnone) {
         std::string msg =
             py::str("Error in qhull Delaunay triangulation calculation: {} (exitcode={})")

@@ -235,7 +235,7 @@ class SimplePatchShadow(AbstractPathEffect):
             is not specified.
         **kwargs
             Extra keywords are stored and passed through to
-            :meth:`AbstractPathEffect._update_gc`.
+            :meth:`!AbstractPathEffect._update_gc`.
 
         """
         super().__init__(offset)
@@ -304,7 +304,7 @@ class SimpleLineShadow(AbstractPathEffect):
             is ``None``.
         **kwargs
             Extra keywords are stored and passed through to
-            :meth:`AbstractPathEffect._update_gc`.
+            :meth:`!AbstractPathEffect._update_gc`.
         """
         super().__init__(offset)
         if shadow_color is None:
@@ -409,7 +409,7 @@ class TickedStroke(AbstractPathEffect):
             when angle=90 and length=2.0 when angle=60.
         **kwargs
             Extra keywords are stored and passed through to
-            :meth:`AbstractPathEffect._update_gc`.
+            :meth:`!AbstractPathEffect._update_gc`.
 
         Examples
         --------

@@ -615,9 +615,9 @@ def flatten(seq, scalarp=is_scalar_or_string):
         ['John', 'Hunter', 1, 23, 42, 5, 23]
 
     By: Composite of Holger Krekel and Luther Blissett
-    From: https://code.activestate.com/recipes/121294/
+    From: https://code.activestate.com/recipes/121294-simple-generator-for-flattening-nested-containers/
     and Recipe 1.12 in cookbook
-    """
+    """  # noqa: E501
     for item in seq:
         if scalarp(item) or item is None:
             yield item
@@ -880,8 +880,18 @@ class GrouperView:
     def __init__(self, grouper): self._grouper = grouper
     def __contains__(self, item): return item in self._grouper
     def __iter__(self): return iter(self._grouper)
-    def joined(self, a, b): return self._grouper.joined(a, b)
-    def get_siblings(self, a): return self._grouper.get_siblings(a)
+
+    def joined(self, a, b):
+        """
+        Return whether *a* and *b* are members of the same set.
+        """
+        return self._grouper.joined(a, b)
+
+    def get_siblings(self, a):
+        """
+        Return all of the items joined with *a*, including itself.
+        """
+        return self._grouper.get_siblings(a)
 
 
 def simple_linear_interpolation(a, steps):
@@ -1340,9 +1350,9 @@ def _to_unmasked_float_array(x):
     values are converted to nans.
     """
     if hasattr(x, 'mask'):
-        return np.ma.asarray(x, float).filled(np.nan)
+        return np.ma.asanyarray(x, float).filled(np.nan)
     else:
-        return np.asarray(x, float)
+        return np.asanyarray(x, float)
 
 
 def _check_1d(x):
@@ -1377,7 +1387,7 @@ def _reshape_2D(X, name):
 
     # Iterate over columns for ndarrays.
     if isinstance(X, np.ndarray):
-        X = X.T
+        X = X.transpose()
 
         if len(X) == 0:
             return [[]]

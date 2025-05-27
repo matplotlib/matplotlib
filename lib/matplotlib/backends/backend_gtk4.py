@@ -29,6 +29,8 @@ from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
     TimerGTK as TimerGTK4,
 )
 
+_GOBJECT_GE_3_47 = gi.version_info >= (3, 47, 0)
+
 
 class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
     required_interactive_framework = "gtk4"
@@ -115,7 +117,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         MouseEvent(
             "scroll_event", self, *self._mpl_coords(), step=dy,
             modifiers=self._mpl_modifiers(controller),
-            guiEvent=controller.get_current_event(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         return True
 
@@ -124,7 +126,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_press_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
-            guiEvent=controller.get_current_event(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         self.grab_focus()
 
@@ -133,14 +135,14 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_release_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
-            guiEvent=controller.get_current_event(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def key_press_event(self, controller, keyval, keycode, state):
         KeyEvent(
             "key_press_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
-            guiEvent=controller.get_current_event(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         return True
 
@@ -148,7 +150,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         KeyEvent(
             "key_release_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
-            guiEvent=controller.get_current_event(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         return True
 
@@ -157,21 +159,21 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "motion_notify_event", self, *self._mpl_coords((x, y)),
             buttons=self._mpl_buttons(controller),
             modifiers=self._mpl_modifiers(controller),
-            guiEvent=controller.get_current_event(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def enter_notify_event(self, controller, x, y):
         LocationEvent(
             "figure_enter_event", self, *self._mpl_coords((x, y)),
             modifiers=self._mpl_modifiers(),
-            guiEvent=controller.get_current_event(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def leave_notify_event(self, controller):
         LocationEvent(
             "figure_leave_event", self, *self._mpl_coords(),
             modifiers=self._mpl_modifiers(),
-            guiEvent=controller.get_current_event(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def resize_event(self, area, width, height):

@@ -10,9 +10,9 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
       height(height),
       dpi(dpi),
       NUMBYTES((size_t)width * (size_t)height * 4),
-      pixBuffer(NULL),
+      pixBuffer(nullptr),
       renderingBuffer(),
-      alphaBuffer(NULL),
+      alphaBuffer(nullptr),
       alphaMaskRenderingBuffer(),
       alphaMask(alphaMaskRenderingBuffer),
       pixfmtAlphaMask(alphaMaskRenderingBuffer),
@@ -26,7 +26,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
       rendererAA(),
       rendererBin(),
       theRasterizer(32768),
-      lastclippath(NULL),
+      lastclippath(nullptr),
       _fill_color(agg::rgba(1, 1, 1, 0))
 {
     if (dpi <= 0.0) {
@@ -75,7 +75,7 @@ BufferRegion *RendererAgg::copy_from_bbox(agg::rect_d in_rect)
     agg::rect_i rect(
         (int)in_rect.x1, height - (int)in_rect.y2, (int)in_rect.x2, height - (int)in_rect.y1);
 
-    BufferRegion *reg = NULL;
+    BufferRegion *reg = nullptr;
     reg = new BufferRegion(rect);
 
     agg::rendering_buffer rbuf;
@@ -90,21 +90,21 @@ BufferRegion *RendererAgg::copy_from_bbox(agg::rect_d in_rect)
 
 void RendererAgg::restore_region(BufferRegion &region)
 {
-    if (region.get_data() == NULL) {
+    if (region.get_data() == nullptr) {
         throw std::runtime_error("Cannot restore_region from NULL data");
     }
 
     agg::rendering_buffer rbuf;
     rbuf.attach(region.get_data(), region.get_width(), region.get_height(), region.get_stride());
 
-    rendererBase.copy_from(rbuf, 0, region.get_rect().x1, region.get_rect().y1);
+    rendererBase.copy_from(rbuf, nullptr, region.get_rect().x1, region.get_rect().y1);
 }
 
 // Restore the part of the saved region with offsets
 void
 RendererAgg::restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int yy2, int x, int y )
 {
-    if (region.get_data() == NULL) {
+    if (region.get_data() == nullptr) {
         throw std::runtime_error("Cannot restore_region from NULL data");
     }
 

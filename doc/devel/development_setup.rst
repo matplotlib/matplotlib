@@ -34,8 +34,31 @@ repository, you should first fork this repository by *clicking* the
 This creates a copy of the code under your account on the GitHub server. See `the GitHub
 documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details.
 
-Retrieve the latest version of the code
-=======================================
+Set up development environment
+==============================
+
+You can either work locally on your machine, or online in
+`GitHub Codespaces <github-codespaces_>`_, a cloud-based in-browser development
+environment.
+
+
+:local: If you are making extensive or frequent contributions to Matplotlib then it
+        is probably worth taking the time to set up on your local machine: As well as
+        having the convenience of your local familiar tools, you will not need to worry
+        about Codespace's monthly usage limits.
+
+:codespaces: If you are making a one-off, relatively simple, change then working in
+            GitHub Codespaces can be a good option because most of the setting
+            up is done for you and you can skip the next few sections.
+
+If you want to use Codespaces, skip to :ref:`development-codespaces`,
+otherwise, continue with the next section.
+
+Create local environment
+------------------------
+
+Get most recent code
+^^^^^^^^^^^^^^^^^^^^
 
 Now that your fork of the repository lives under your GitHub username, you can
 retrieve the most recent version of the source code with one of the following
@@ -107,7 +130,8 @@ code, as described in :ref:`development-workflow`.
 .. _dev-environment:
 
 Create a dedicated environment
-==============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 You should set up a dedicated environment to decouple your Matplotlib
 development from other Python and Matplotlib installations on your system.
 
@@ -126,11 +150,27 @@ setup.
 
         python -m venv <file folder location>
 
-      and activate it with one of the following ::
+      and activate it with one of the following :
 
-        source <file folder location>/bin/activate  # Linux/macOS
-        <file folder location>\Scripts\activate.bat  # Windows cmd.exe
-        <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
+      .. tab-set::
+
+         .. tab-item:: Linux and macOS
+
+            .. code-block:: bash
+
+               source <file folder location>/bin/activate  # Linux/macOS
+
+         .. tab-item:: Windows cmd.exe
+
+            .. code-block:: bat
+
+               <file folder location>\Scripts\activate.bat
+
+         .. tab-item:: Windows PowerShell
+
+            .. code-block:: ps1con
+
+               <file folder location>\Scripts\Activate.ps1
 
       On some systems, you may need to type ``python3`` instead of ``python``.
       For a discussion of the technical reasons, see `PEP-394 <https://peps.python.org/pep-0394>`_.
@@ -158,64 +198,69 @@ setup.
 
       Remember to activate the environment whenever you start working on Matplotlib!
 
-   .. tab-item:: :octicon:`codespaces` GitHub Codespaces
-
-      `GitHub Codespaces <https://docs.github.com/codespaces>`_ is a cloud-based
-      in-browser development environment that comes with the appropriate setup to
-      contribute to Matplotlib.
-
-      #. Open codespaces on your fork by clicking on the green :octicon:`code` ``Code``
-         button on the GitHub web interface and selecting the ``Codespaces`` tab.
-
-      #. Next, click on "Open codespaces on <your branch name>". You will be
-         able to change branches later, so you can select the default
-         ``main`` branch.
-
-      #. After the codespace is created, you will be taken to a new browser
-         tab where you can use the terminal to activate a pre-defined conda
-         environment called ``mpl-dev``::
-
-         conda activate mpl-dev
-
-      Remember to activate the *mpl-dev* environment whenever you start working on
-      Matplotlib.
-
-      If you need to open a GUI window with Matplotlib output on Codespaces, our
-      configuration includes a `light-weight Fluxbox-based desktop
-      <https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
-      You can use it by connecting to this desktop via your web browser. To do this:
-
-      #. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
-         ``Ports: Focus on Ports View`` in the VSCode session to bring it into
-         focus. Open the ports view in your tool, select the ``noVNC`` port, and
-         click the Globe icon.
-      #. In the browser that appears, click the Connect button and enter the desktop
-         password (``vscode`` by default).
-
-      Check the `GitHub instructions
-      <https://github.com/devcontainers/features/tree/main/src/desktop-lite#connecting-to-the-desktop>`_
-      for more details on connecting to the desktop.
-
-      If you also built the documentation pages, you can view them using Codespaces.
-      Use the "Extensions" icon in the activity bar to install the "Live Server"
-      extension. Locate the ``doc/build/html`` folder in the Explorer, right click
-      the file you want to open and select "Open with Live Server."
-
 
 Install external dependencies
-=============================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Python dependencies were installed as part of :ref:`setting up the environment <dev-environment>`.
 Additionally, the following non-Python dependencies must also be installed locally:
 
 .. rst-class:: checklist
 
-* :ref:`c++ compiler<compile-dependencies>`
-* :ref:`documentation build dependencies <doc-dependencies-external>`
+* :ref:`compile-build-dependencies`
+* :ref:`external tools used by the documentation build <doc-dependencies-external>`
 
 
 For a full list of dependencies, see :ref:`dependencies`. External dependencies do not
 need to be installed when working in codespaces.
+
+.. _development-codespaces:
+
+Create GitHub Codespace :octicon:`codespaces`
+---------------------------------------------
+
+`GitHub Codespaces <github-codespaces_>`_ is a cloud-based
+in-browser development environment that comes with the appropriate setup to
+contribute to Matplotlib.
+
+#. Open codespaces on your fork by clicking on the green :octicon:`code` ``Code``
+   button on the GitHub web interface and selecting the ``Codespaces`` tab.
+
+#. Next, click on "Open codespaces on <your branch name>". You will be
+   able to change branches later, so you can select the default
+   ``main`` branch.
+
+#. After the codespace is created, you will be taken to a new browser
+   tab where you can use the terminal to activate a pre-defined conda
+   environment called ``mpl-dev``::
+
+      conda activate mpl-dev
+
+Remember to activate the *mpl-dev* environment whenever you start working on
+Matplotlib.
+
+If you need to open a GUI window with Matplotlib output on Codespaces, our
+configuration includes a `light-weight Fluxbox-based desktop
+<https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
+You can use it by connecting to this desktop via your web browser. To do this:
+
+#. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
+   ``Ports: Focus on Ports View`` in the VSCode session to bring it into
+   focus. Open the ports view in your tool, select the ``noVNC`` port, and
+   click the Globe icon.
+#. In the browser that appears, click the Connect button and enter the desktop
+   password (``vscode`` by default).
+
+Check the `GitHub instructions
+<https://github.com/devcontainers/features/tree/main/src/desktop-lite#connecting-to-the-desktop>`_
+for more details on connecting to the desktop.
+
+If you also built the documentation pages, you can view them using Codespaces.
+Use the "Extensions" icon in the activity bar to install the "Live Server"
+extension. Locate the ``doc/build/html`` folder in the Explorer, right click
+the file you want to open and select "Open with Live Server."
+
+.. _`github-codespaces`: https://docs.github.com/codespaces
 
 .. _development-install:
 

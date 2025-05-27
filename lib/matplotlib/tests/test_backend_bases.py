@@ -38,7 +38,7 @@ def test_uses_per_path():
                    gc, range(len(raw_paths)), offsets,
                    transforms.AffineDeltaTransform(master_transform),
                    facecolors, edgecolors, [], [], [False],
-                   [], 'screen')]
+                   [], 'screen', hatchcolors=[])]
         uses = rb._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
         if raw_paths:
@@ -64,7 +64,10 @@ def test_canvas_ctor():
 
 
 def test_get_default_filename():
-    assert plt.figure().canvas.get_default_filename() == 'image.png'
+    fig = plt.figure()
+    assert fig.canvas.get_default_filename() == "Figure_1.png"
+    fig.canvas.manager.set_window_title("0:1/2<3")
+    assert fig.canvas.get_default_filename() == "0_1_2_3.png"
 
 
 def test_canvas_change():

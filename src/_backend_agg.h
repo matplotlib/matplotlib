@@ -65,6 +65,10 @@ class BufferRegion
         delete[] data;
     };
 
+    // prevent copying
+    BufferRegion(const BufferRegion &) = delete;
+    BufferRegion &operator=(const BufferRegion &) = delete;
+
     agg::int8u *get_data()
     {
         return data;
@@ -96,11 +100,6 @@ class BufferRegion
     int width;
     int height;
     int stride;
-
-  private:
-    // prevent copying
-    BufferRegion(const BufferRegion &);
-    BufferRegion &operator=(const BufferRegion &);
 };
 
 #define MARKER_CACHE_SIZE 512
@@ -178,7 +177,8 @@ class RendererAgg
                               ColorArray &edgecolors,
                               LineWidthArray &linewidths,
                               DashesVector &linestyles,
-                              AntialiasedArray &antialiaseds);
+                              AntialiasedArray &antialiaseds,
+                              ColorArray &hatchcolors);
 
     template <class CoordinateArray, class OffsetArray, class ColorArray>
     void draw_quad_mesh(GCAgg &gc,
@@ -273,7 +273,8 @@ class RendererAgg
                                        DashesVector &linestyles,
                                        AntialiasedArray &antialiaseds,
                                        bool check_snap,
-                                       bool has_codes);
+                                       bool has_codes,
+                                       ColorArray &hatchcolors);
 
     template <class PointArray, class ColorArray>
     void _draw_gouraud_triangle(PointArray &points,
@@ -890,7 +891,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     } else {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
-            pixf, 0, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
+            pixf, nullptr, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
     }
 
     rendererBase.reset_clipping(true);
@@ -918,7 +919,8 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                                                        DashesVector &linestyles,
                                                        AntialiasedArray &antialiaseds,
                                                        bool check_snap,
-                                                       bool has_codes)
+                                                       bool has_codes,
+                                                       ColorArray &hatchcolors)
 {
     typedef agg::conv_transform<typename PathGenerator::path_iterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
@@ -938,11 +940,12 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     size_t Ntransforms = safe_first_shape(transforms);
     size_t Nfacecolors = safe_first_shape(facecolors);
     size_t Nedgecolors = safe_first_shape(edgecolors);
+    size_t Nhatchcolors = safe_first_shape(hatchcolors);
     size_t Nlinewidths = safe_first_shape(linewidths);
     size_t Nlinestyles = std::min(linestyles.size(), N);
     size_t Naa = safe_first_shape(antialiaseds);
 
-    if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0) {
+    if ((Nfacecolors == 0 && Nedgecolors == 0 && Nhatchcolors == 0) || Npaths == 0) {
         return;
     }
 
@@ -1005,6 +1008,11 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
             }
         }
 
+        if(Nhatchcolors) {
+            int ic = i % Nhatchcolors;
+            gc.hatch_color = agg::rgba(hatchcolors(ic, 0), hatchcolors(ic, 1), hatchcolors(ic, 2), hatchcolors(ic, 3));
+        }
+
         gc.isaa = antialiaseds(i % Naa);
         transformed_path_t tpath(path, trans);
         nan_removed_t nan_removed(tpath, true, has_codes);
@@ -1049,7 +1057,8 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                               ColorArray &edgecolors,
                                               LineWidthArray &linewidths,
                                               DashesVector &linestyles,
-                                              AntialiasedArray &antialiaseds)
+                                              AntialiasedArray &antialiaseds,
+                                              ColorArray &hatchcolors)
 {
     _draw_path_collection_generic(gc,
                                   master_transform,
@@ -1066,7 +1075,8 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                   linestyles,
                                   antialiaseds,
                                   true,
-                                  true);
+                                  true,
+                                  hatchcolors);
 }
 
 template <class CoordinateArray>
@@ -1160,6 +1170,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
     array::scalar<double, 1> linewidths(gc.linewidth);
     array::scalar<uint8_t, 1> antialiaseds(antialiased);
     DashesVector linestyles;
+    ColorArray hatchcolors = py::array_t<double>().reshape({0, 4}).unchecked<double, 2>();
 
     _draw_path_collection_generic(gc,
                                   master_transform,
@@ -1176,7 +1187,8 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                   linestyles,
                                   antialiaseds,
                                   true, // check_snap
-                                  false);
+                                  false,
+                                  hatchcolors);
 }
 
 template <class PointArray, class ColorArray>

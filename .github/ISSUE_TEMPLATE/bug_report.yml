@@ -17,7 +17,7 @@ body:
       description: >-
         If possible, please provide a minimum self-contained example.  If you
         have used generative AI as an aid see
-        https://dev.matplotlib.org/devel/contributing.html#generative_ai.
+        https://matplotlib.org/devdocs/devel/contribute.html#restrictions-on-generative-ai-usage
       placeholder: Paste your code here. This field is automatically formatted as Python code.
       render: Python
     validations:

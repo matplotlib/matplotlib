@@ -32,7 +32,7 @@ The plot content may be defined in one of three ways:
 
         import matplotlib.pyplot as plt
         plt.plot([1, 2, 3], [4, 5, 6])
-        plt.title("A plotting exammple")
+        plt.title("A plotting example")
 
 3. Using **doctest** syntax::
 
@@ -876,7 +876,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # Properly indent the caption
     if caption and config.plot_srcset:
-        caption = f':caption: {caption}'
+        caption = ':caption: ' + caption.replace('\n', ' ')
     elif caption:
         caption = '\n' + '\n'.join('      ' + line.strip()
                                    for line in caption.split('\n'))
@@ -895,6 +895,9 @@ def run(arguments, content, options, state_machine, state, lineno):
 
         if nofigs:
             images = []
+
+        if 'alt' in options:
+            options['alt'] = options['alt'].replace('\n', ' ')
 
         opts = [
             f':{key}: {val}' for key, val in options.items()

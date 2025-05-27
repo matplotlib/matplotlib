@@ -47,7 +47,7 @@ type. See their documentation for the types they expect.
 Discouraged: ``plot_date``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The use of `~.Axes.plot_date` is discouraged. This method exists for historic
+The use of ``plot_date`` is discouraged. This method exists for historic
 reasons and may be deprecated in the future.
 
 - ``datetime``-like data should directly be plotted using `~.Axes.plot`.

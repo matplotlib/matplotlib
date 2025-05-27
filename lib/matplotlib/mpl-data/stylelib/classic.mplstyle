@@ -225,6 +225,8 @@ axes.spines.top     : True
 polaraxes.grid      : True    # display grid on polar axes
 axes3d.grid         : True    # display grid on 3D axes
 axes3d.automargin   : False   # automatically add margin when manually setting 3D axis limits
+axes3d.depthshade   : False   # depth shade for 3D scatter plots
+axes3d.depthshade_minalpha : 0.3  # minimum alpha value for depth shading
 
 date.autoformatter.year   : %Y
 date.autoformatter.month  : %b %Y

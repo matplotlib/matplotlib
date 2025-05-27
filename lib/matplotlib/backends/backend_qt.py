@@ -239,6 +239,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         palette = QtGui.QPalette(QtGui.QColor("white"))
         self.setPalette(palette)
 
+    @QtCore.Slot()
     def _update_pixel_ratio(self):
         if self._set_device_pixel_ratio(
                 self.devicePixelRatioF() or 1):  # rarely, devicePixelRatioF=0
@@ -248,6 +249,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             event = QtGui.QResizeEvent(self.size(), self.size())
             self.resizeEvent(event)
 
+    @QtCore.Slot(QtGui.QScreen)
     def _update_screen(self, screen):
         # Handler for changes to a window's attached screen.
         self._update_pixel_ratio()

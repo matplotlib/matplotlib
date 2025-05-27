@@ -39,7 +39,7 @@ Z[interior] = np.ma.masked
 # for purposes of illustration.
 
 fig1, ax2 = plt.subplots(layout='constrained')
-CS = ax2.contourf(X, Y, Z, 10, cmap=plt.cm.bone)
+CS = ax2.contourf(X, Y, Z, 10, cmap="bone")
 
 # Note that in the following, we explicitly pass in a subset of the contour
 # levels used for the filled contours.  Alternatively, we could pass in

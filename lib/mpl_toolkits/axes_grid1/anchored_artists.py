@@ -83,7 +83,7 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
         ----------
         transform : `~matplotlib.transforms.Transform`
             The transformation object for the coordinate system in use, i.e.,
-            :attr:`matplotlib.axes.Axes.transData`.
+            :attr:`!matplotlib.axes.Axes.transData`.
         loc : str
             Location of this artist.  Valid locations are
             'upper left', 'upper center', 'upper right',
@@ -137,7 +137,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         ----------
         transform : `~matplotlib.transforms.Transform`
             The transformation object for the coordinate system in use, i.e.,
-            :attr:`matplotlib.axes.Axes.transData`.
+            :attr:`!matplotlib.axes.Axes.transData`.
         size : float
             Horizontal length of the size bar, given in coordinates of
             *transform*.
@@ -256,7 +256,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         ----------
         transform : `~matplotlib.transforms.Transform`
             The transformation object for the coordinate system in use, i.e.,
-            :attr:`matplotlib.axes.Axes.transAxes`.
+            :attr:`!matplotlib.axes.Axes.transAxes`.
         label_x, label_y : str
             Label text for the x and y arrows
         length : float, default: 0.15

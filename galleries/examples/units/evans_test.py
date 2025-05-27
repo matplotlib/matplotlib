@@ -77,11 +77,11 @@ fig.subplots_adjust(bottom=0.2)
 # plot specifying units
 ax2.plot(x, y, 'o', xunits=2.0)
 ax2.set_title("xunits = 2.0")
-plt.setp(ax2.get_xticklabels(), rotation=30, ha='right')
+ax2.tick_params(axis='x', rotation=30, rotation_mode='xtick')
 
 # plot without specifying units; will use the None branch for axisinfo
 ax1.plot(x, y)  # uses default units
 ax1.set_title('default units')
-plt.setp(ax1.get_xticklabels(), rotation=30, ha='right')
+ax1.tick_params(axis='x', rotation=30, rotation_mode='xtick')
 
 plt.show()

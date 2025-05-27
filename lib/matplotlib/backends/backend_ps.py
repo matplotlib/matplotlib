@@ -674,7 +674,9 @@ grestore
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
+                             offset_position, *, hatchcolors=None):
+        if hatchcolors is None:
+            hatchcolors = []
         # Is the optimization worth it? Rough calculation:
         # cost of emitting a path in-line is
         #     (len_path + 2) * uses_per_path
@@ -690,7 +692,7 @@ grestore
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position)
+                offset_position, hatchcolors=hatchcolors)
 
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
@@ -709,7 +711,7 @@ translate
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
             ps = f"{xo:g} {yo:g} {path_id}"
             self._draw_ps(ps, gc0, rgbFace)
 
@@ -1358,15 +1360,6 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         shutil.move(tmpps, tmpfile)
     if eps:
         pstoeps(tmpfile)
-
-
-@_api.deprecated("3.9")
-def get_bbox_header(lbrt, rotated=False):
-    """
-    Return a postscript header string for the given bbox lbrt=(l, b, r, t).
-    Optionally, return rotate command.
-    """
-    return _get_bbox_header(lbrt), (_get_rotate_command(lbrt) if rotated else "")
 
 
 def _get_bbox_header(lbrt):

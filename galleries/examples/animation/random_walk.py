@@ -52,4 +52,4 @@ ani = animation.FuncAnimation(
 plt.show()
 
 # %%
-# .. tags:: animation, plot-type: 3D
+# .. tags:: component: animation, plot-type: 3D

@@ -22,6 +22,10 @@ extern "C" {
 #include FT_TRUETYPE_TABLES_H
 }
 
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+namespace py = pybind11;
+
 /*
  By definition, FT_FIXED as 2 16bit values stored in a single long.
  */
@@ -32,7 +36,6 @@ extern "C" {
 class FT2Image
 {
   public:
-    FT2Image();
     FT2Image(unsigned long width, unsigned long height);
     virtual ~FT2Image();
 
@@ -71,7 +74,8 @@ class FT2Font
 
   public:
     FT2Font(FT_Open_Args &open_args, long hinting_factor,
-            std::vector<FT2Font *> &fallback_list, WarnFunc warn);
+            std::vector<FT2Font *> &fallback_list,
+            WarnFunc warn, bool warn_if_used);
     virtual ~FT2Font();
     void clear();
     void set_size(double ptsize, double dpi);
@@ -100,7 +104,9 @@ class FT2Font
     void get_bitmap_offset(long *x, long *y);
     long get_descent();
     void draw_glyphs_to_bitmap(bool antialiased);
-    void draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, bool antialiased);
+    void draw_glyph_to_bitmap(
+        py::array_t<uint8_t, py::array::c_style> im,
+        int x, int y, size_t glyphInd, bool antialiased);
     void get_glyph_name(unsigned int glyph_number, std::string &buffer, bool fallback);
     long get_name_index(char *name);
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);
@@ -112,7 +118,7 @@ class FT2Font
         return face;
     }
 
-    FT2Image &get_image()
+    py::array_t<uint8_t, py::array::c_style> &get_image()
     {
         return image;
     }
@@ -139,7 +145,8 @@ class FT2Font
 
   private:
     WarnFunc ft_glyph_warn;
-    FT2Image image;
+    bool warn_if_used;
+    py::array_t<uint8_t, py::array::c_style> image;
     FT_Face face;
     FT_Vector pen;    /* untransformed origin  */
     std::vector<FT_Glyph> glyphs;

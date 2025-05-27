@@ -921,9 +921,9 @@ class Barbs(mcollections.PolyCollection):
     are changed using the :meth:`set_offsets` collection method.
     Possibly this method will be useful in animations.
 
-    There is one internal function :meth:`_find_tails` which finds
+    There is one internal function :meth:`!_find_tails` which finds
     exactly what should be put on the barb given the vector magnitude.
-    From there :meth:`_make_barbs` is used to find the vertices of the
+    From there :meth:`!_make_barbs` is used to find the vertices of the
     polygon to represent the barb based on this information.
     """
 

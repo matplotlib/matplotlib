@@ -15,6 +15,7 @@ use a `.ScalarMappable` with no associated data.
 """
 
 import matplotlib.pyplot as plt
+
 import matplotlib as mpl
 
 # %%
@@ -30,10 +31,9 @@ import matplotlib as mpl
 
 fig, ax = plt.subplots(figsize=(6, 1), layout='constrained')
 
-cmap = mpl.cm.cool
 norm = mpl.colors.Normalize(vmin=5, vmax=10)
 
-fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
+fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap="cool"),
              cax=ax, orientation='horizontal', label='Some Units')
 
 # %%
@@ -61,11 +61,11 @@ fig.colorbar(mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(0, 1), cmap='magma'
 
 fig, ax = plt.subplots(figsize=(6, 1), layout='constrained')
 
-cmap = mpl.cm.viridis
+cmap = mpl.colormaps["viridis"]
 bounds = [-1, 2, 5, 7, 12, 15]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N, extend='both')
 
-fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
+fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap="viridis"),
              cax=ax, orientation='horizontal',
              label="Discrete intervals with extend='both' keyword")
 
@@ -75,8 +75,7 @@ fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
 # The following example still uses a `.BoundaryNorm` to describe discrete
 # interval boundaries, but now uses a `matplotlib.colors.ListedColormap` to
 # associate each interval with an arbitrary color (there must be as many
-# intervals than there are colors).  The "over" and "under" colors are set on
-# the colormap using `.Colormap.with_extremes`.
+# intervals than there are colors).
 #
 # We also pass additional arguments to `~.Figure.colorbar`:
 #
@@ -90,8 +89,8 @@ fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
 
 fig, ax = plt.subplots(figsize=(6, 1), layout='constrained')
 
-cmap = (mpl.colors.ListedColormap(['red', 'green', 'blue', 'cyan'])
-        .with_extremes(under='yellow', over='magenta'))
+cmap = mpl.colors.ListedColormap(
+    ['red', 'green', 'blue', 'cyan'], under='yellow', over='magenta')
 bounds = [1, 2, 4, 7, 8]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 
@@ -112,8 +111,8 @@ fig.colorbar(
 
 fig, ax = plt.subplots(figsize=(6, 1), layout='constrained')
 
-cmap = (mpl.colors.ListedColormap(['royalblue', 'cyan', 'yellow', 'orange'])
-        .with_extremes(over='red', under='blue'))
+cmap = mpl.colors.ListedColormap(
+    ['royalblue', 'cyan', 'yellow', 'orange'], over='red', under='blue')
 bounds = [-1.0, -0.5, 0.0, 0.5, 1.0]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 

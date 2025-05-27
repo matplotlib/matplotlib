@@ -124,7 +124,7 @@ def test_clipping():
     ax1.set_ylim([-3, 3])
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_clipping_zoom(fig_test, fig_ref):
     # This test places the Axes and sets its limits such that the clip path is
     # outside the figure entirely. This should not break the clip path.

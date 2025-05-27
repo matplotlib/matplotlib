@@ -2,7 +2,6 @@ from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
 from matplotlib.artist import Artist
-from matplotlib.backend_bases import RendererBase
 from matplotlib.collections import (
     Collection,
     FillBetweenPolyCollection,
@@ -32,7 +31,6 @@ import matplotlib.table as mtable
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 
-import datetime
 import PIL.Image
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any, Literal, overload
@@ -200,18 +198,6 @@ class Axes(_AxesBase):
         data=...,
         **kwargs
     ) -> list[Line2D]: ...
-    def plot_date(
-        self,
-        x: ArrayLike,
-        y: ArrayLike,
-        fmt: str = ...,
-        tz: str | datetime.tzinfo | None = ...,
-        xdate: bool = ...,
-        ydate: bool = ...,
-        *,
-        data=...,
-        **kwargs
-    ) -> list[Line2D]: ...
     def loglog(self, *args, **kwargs) -> list[Line2D]: ...
     def semilogx(self, *args, **kwargs) -> list[Line2D]: ...
     def semilogy(self, *args, **kwargs) -> list[Line2D]: ...
@@ -268,7 +254,7 @@ class Axes(_AxesBase):
         *,
         fmt: str | Callable[[float], str] = ...,
         label_type: Literal["center", "edge"] = ...,
-        padding: float = ...,
+        padding: float | ArrayLike = ...,
         **kwargs
     ) -> list[Annotation]: ...
     def broken_barh(
@@ -327,6 +313,7 @@ class Axes(_AxesBase):
         *,
         ecolor: ColorType | None = ...,
         elinewidth: float | None = ...,
+        elinestyle: LineStyleType | None = ...,
         capsize: float | None = ...,
         barsabove: bool = ...,
         lolims: bool | ArrayLike = ...,
@@ -602,7 +589,7 @@ class Axes(_AxesBase):
         weights: ArrayLike | None = ...,
         *,
         complementary: bool=...,
-        orientation: Literal["vertical", "horizonatal"]=...,
+        orientation: Literal["vertical", "horizontal"]=...,
         compress: bool=...,
         data=...,
         **kwargs
@@ -755,6 +742,8 @@ class Axes(_AxesBase):
         | Callable[[GaussianKDE], float]
         | None = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
         data=...,
     ) -> dict[str, Collection]: ...
     def violin(
@@ -769,6 +758,8 @@ class Axes(_AxesBase):
         showextrema: bool = ...,
         showmedians: bool = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
     ) -> dict[str, Collection]: ...
 
     table = mtable.table

@@ -6,9 +6,6 @@ Multipage PDF
 This is a demo of creating a pdf file with several pages,
 as well as adding metadata and annotations to pdf files.
 
-If you want to use a multipage pdf file using LaTeX, you need
-to use ``from matplotlib.backends.backend_pgf import PdfPages``.
-This version however does not support `.attach_note`.
 """
 
 import datetime
