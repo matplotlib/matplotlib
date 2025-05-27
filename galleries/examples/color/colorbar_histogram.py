@@ -15,7 +15,7 @@ from matplotlib.ticker import MaxNLocator
 
 # === Surface Data ===
 delta = 0.025
-x = y = np.arange(-3.0, 3.0, delta)
+x = y = np.arange(-2.0, 2.0, delta)
 X, Y = np.meshgrid(x, y)
 Z1 = np.exp(-((X+1)*1.3)**2 - ((Y+1)*1.3)**2)
 Z2 = 2.5*np.exp(-(X - 1)**2 - (Y - 1)**2)
@@ -30,7 +30,7 @@ norm = mcolors.BoundaryNorm(bins, cmap.N)
 
 # === Main Plot ===
 fig, ax = plt.subplots()
-im = ax.imshow(Z, interpolation='bilinear', cmap=cmap,
+im = ax.imshow(Z, cmap=cmap,
                origin='lower', extent=[-3, 3, -3, 3],
                norm=norm)
 
@@ -42,8 +42,10 @@ cax = ax.inset_axes([1.18, 0.02, 0.25, 0.95])  # left, bottom, width, height
 
 # === Plot Histogram ===
 midpoints = bins[:-1] + np.diff(bins) / 2
-bar_height = 1 / len(counts)
-cax.barh(midpoints, counts, height=np.median(np.diff(bins))*0.8, color=cmap(norm(midpoints)))
+height = np.median(np.diff(bins)) * 0.8
+colors = cmap(norm(midpoints))
+
+cax.barh(midpoints, counts, height=height, color=colors)
 
 # === Clean up ===
 cax.spines[:].set_visible(False)
