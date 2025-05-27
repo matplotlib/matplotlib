@@ -17,15 +17,15 @@ from matplotlib.ticker import MaxNLocator
 delta = 0.025
 x = y = np.arange(-3.0, 3.0, delta)
 X, Y = np.meshgrid(x, y)
-Z1 = np.exp(-X**2 - Y**2)
-Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
-Z = (Z1 - Z2) * 2
+Z1 = np.exp(-((X+1)*1.3)**2 - ((Y+1)*1.3)**2)
+Z2 = 2.5*np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = (Z1**0.25 - Z2**0.5)
 
 # === Histogram from actual Z data ===
 counts, bins = np.histogram(Z, bins=30)
 
 # === Colormap & Normalization ===
-cmap = plt.get_cmap('RdYlBu')
+cmap = plt.get_cmap('RdYlBu_r')
 norm = mcolors.BoundaryNorm(bins, cmap.N)
 
 # === Main Plot ===
