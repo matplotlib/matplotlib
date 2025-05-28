@@ -34,9 +34,6 @@ im = ax.imshow(Z, cmap=cmap,
                origin='lower', extent=[-3, 3, -3, 3],
                norm=norm)
 
-# Adjust image position to allow space
-plt.subplots_adjust(right=0.78, top=0.92, bottom=0.08)
-
 # === Inset Histogram – Positioning adjusted ===
 cax = ax.inset_axes([1.18, 0.02, 0.25, 0.95])  # left, bottom, width, height
 
