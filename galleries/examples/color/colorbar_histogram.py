@@ -1,7 +1,7 @@
 """
-=========================
-Histogram as Colorbar
-=========================
+=====================
+Histogram as colorbar
+=====================
 
 This example demonstrates how to create a colorbar for an image and
 add a histogram of the data values alongside it. This is useful for
