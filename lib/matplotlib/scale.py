@@ -111,8 +111,9 @@ def _make_axis_parameter_optional(init_func):
     This decorator ensures backward compatibility for scale classes that
     previously required an *axis* parameter. It allows constructors to be
     callerd with or without the *axis* parameter.
-    
-    For simplicity, this does not handle the case when *axis* is passed as a keyword. Howver,
+
+    For simplicity, this does not handle the case when *axis*
+    is passed as a keyword. Howver,
     scanning GitHub, there's no evidence that that is used anywhere.
 
     Parameters
