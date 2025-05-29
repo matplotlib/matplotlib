@@ -158,7 +158,7 @@ class LinearScale(ScaleBase):
     name = 'linear'
 
     @_make_axis_parameter_optional
-    def __init__(self, axis=None):
+    def __init__(self, axis):
         # This method is present only to prevent inheritance of the base class'
         # constructor docstring, which would otherwise end up interpolated into
         # the docstring of Axis.set_scale.
@@ -779,12 +779,7 @@ def scale_factory(scale, axis, **kwargs):
     axis : `~matplotlib.axis.Axis`
     """
     scale_cls = _api.check_getitem(_scale_mapping, scale=scale)
-    try:
-        return scale_cls(axis, **kwargs)
-    except TypeError as e:
-        if 'unexpected keyword argument' in str(e) or 'positional argument' in str(e):
-            return scale_cls(**kwargs)
-        raise
+    return scale_cls(axis, **kwargs)
 
 
 if scale_factory.__doc__:
