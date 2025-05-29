@@ -113,7 +113,7 @@ def _make_axis_parameter_optional(init_func):
     callerd with or without the *axis* parameter.
 
     For simplicity, this does not handle the case when *axis*
-    is passed as a keyword. Howver,
+    is passed as a keyword. However,
     scanning GitHub, there's no evidence that that is used anywhere.
 
     Parameters
