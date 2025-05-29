@@ -135,7 +135,7 @@ def _make_axis_parameter_optional(init_func):
     --------
     >>> from matplotlib.scale import ScaleBase
     >>> class CustomScale(ScaleBase):
-    ...     @handle_axis_parameter
+    ...     @_make_axis_parameter_optional
     ...     def __init__(self, axis, custom_param=1):
     ...         self.custom_param = custom_param
     """
@@ -157,7 +157,7 @@ class LinearScale(ScaleBase):
 
     name = 'linear'
 
-    @handle_axis_parameter
+    @_make_axis_parameter_optional
     def __init__(self, axis=None):
         # This method is present only to prevent inheritance of the base class'
         # constructor docstring, which would otherwise end up interpolated into
@@ -228,7 +228,7 @@ class FuncScale(ScaleBase):
 
     name = 'function'
 
-    @handle_axis_parameter
+    @_make_axis_parameter_optional
     def __init__(self, axis, functions):
         """
         Parameters
@@ -328,7 +328,7 @@ class LogScale(ScaleBase):
     """
     name = 'log'
 
-    @handle_axis_parameter
+    @_make_axis_parameter_optional
     def __init__(self, axis=None, *, base=10, subs=None, nonpositive="clip"):
         """
         Parameters
@@ -380,7 +380,7 @@ class FuncScaleLog(LogScale):
 
     name = 'functionlog'
 
-    @handle_axis_parameter
+    @_make_axis_parameter_optional
     def __init__(self, axis, functions, base=10):
         """
         Parameters
@@ -506,7 +506,7 @@ class SymmetricalLogScale(ScaleBase):
     """
     name = 'symlog'
 
-    @handle_axis_parameter
+    @_make_axis_parameter_optional
     def __init__(self, axis=None, *, base=10, linthresh=2, subs=None, linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
@@ -599,7 +599,7 @@ class AsinhScale(ScaleBase):
         1024: (256, 512)
     }
 
-    @handle_axis_parameter
+    @_make_axis_parameter_optional
     def __init__(self, axis=None, *, linear_width=1.0,
                  base=10, subs='auto', **kwargs):
         """
@@ -698,7 +698,7 @@ class LogitScale(ScaleBase):
     """
     name = 'logit'
 
-    @handle_axis_parameter
+    @_make_axis_parameter_optional
     def __init__(self, axis=None, nonpositive='mask', *,
                  one_half=r"\frac{1}{2}", use_overline=False):
         r"""
