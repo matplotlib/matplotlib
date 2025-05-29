@@ -624,6 +624,7 @@ class Axes3D(Axes):
         if not had_data:
             self._xy_dataLim_set = True
             self._zz_dataLim_set = True
+        self.autoscale_view()
 
 
     def autoscale_view(self, tight=None,
