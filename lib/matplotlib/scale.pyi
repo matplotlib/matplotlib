@@ -104,8 +104,8 @@ class SymmetricalLogScale(ScaleBase):
     name: str
     subs: Iterable[int] | None
     def __init__(
-        self: SymmetricalLogScale,
-        axis: Union[Axis, None] = None,
+        self,
+        axis: Axis | None = ...,
         *,
         base: float = 10,
         linthresh: float = 2,
@@ -139,7 +139,7 @@ class AsinhScale(ScaleBase):
     auto_tick_multipliers: dict[int, tuple[int, ...]]
     def __init__(
         self,
-        axis: Union[Axis, None] = None,
+        axis: Axis | None = ...,
         *,
         linear_width: float = ...,
         base: float = ...,
@@ -165,8 +165,8 @@ class LogisticTransform(Transform):
 class LogitScale(ScaleBase):
     name: str
     def __init__(
-        self: LogitScale,
-        axis: Union[Axis, None] = None,
+        self,
+        axis: Axis | None = ...,
         nonpositive: Union[Literal['mask'], Literal['clip']] = 'mask',
         *,
         one_half: str = '\\frac{1}{2}',
