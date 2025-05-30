@@ -6,7 +6,6 @@
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
 
-#include <filesystem>
 #include <set>
 #include <string>
 #include <string_view>
@@ -42,11 +41,12 @@ inline char const* ft_error_string(FT_Error error) {
 
 // No more than 16 hex digits + "0x" + null byte for a 64-bit int error.
 #define THROW_FT_ERROR(name, err) { \
+    std::string path{__FILE__}; \
     char buf[20] = {0}; \
-    sprintf(buf, "%#04x", err); \
+    snprintf(buf, sizeof buf, "%#04x", err); \
     throw std::runtime_error{ \
         name " (" \
-        + std::filesystem::path(__FILE__).filename().string() \
+        + path.substr(path.find_last_of("/\\") + 1) \
         + " line " + std::to_string(__LINE__) + ") failed with error " \
         + std::string{buf} + ": " + std::string{ft_error_string(err)}}; \
 } (void)0
