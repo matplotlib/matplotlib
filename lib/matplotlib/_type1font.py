@@ -1049,7 +1049,7 @@ class _CharstringSimulator:
     def _step(self, opcode):
         """Run one step in the charstring interpreter."""
         match opcode:
-            case _ if isinstance(opcode, int):
+            case int():
                 self.buildchar_stack.append(opcode)
             case (
                 'hsbw' | 'sbw' | 'closepath' | 'hlineto' | 'hmoveto' | 'hcurveto' |
