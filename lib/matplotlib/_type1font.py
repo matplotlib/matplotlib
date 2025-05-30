@@ -579,6 +579,16 @@ class Type1Font:
             extras = ('(?i)([ -](regular|plain|italic|oblique|(semi)?bold|'
                       '(ultra)?light|extra|condensed))+$')
             prop['FamilyName'] = re.sub(extras, '', prop['FullName'])
+
+        # Parse FontBBox
+        toks = [*_tokenize(prop['FontBBox'].encode('ascii'), True)]
+        if ([tok.kind for tok in toks]
+                != ['delimiter', 'number', 'number', 'number', 'number', 'delimiter']
+                or toks[-1].raw != toks[0].opposite()):
+            raise RuntimeError(
+                f"FontBBox should be a size-4 array, was {prop['FontBBox']}")
+        prop['FontBBox'] = [tok.value() for tok in toks[1:-1]]
+
         # Decrypt the encrypted parts
         ndiscard = prop.get('lenIV', 4)
         cs = prop['CharStrings']
