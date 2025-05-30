@@ -29,7 +29,7 @@ cmap = plt.get_cmap('RdYlBu_r')
 norm = mcolors.BoundaryNorm(bins, cmap.N)
 
 # === Main Plot ===
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(layout="constrained")
 im = ax.imshow(Z, cmap=cmap,
                origin='lower', extent=[-3, 3, -3, 3],
                norm=norm)
@@ -51,7 +51,7 @@ cax.tick_params(axis='both', which='both', length=0)
 
 # === Axis labels ===
 cax.set_xlabel('Count', labelpad=10)
-cax.set_ylabel('Value', labelpad=6) 
+cax.set_ylabel('Value', labelpad=6)
 
 # === Ticks ===
 cax.set_yticks(bins)
