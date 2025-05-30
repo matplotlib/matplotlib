@@ -1769,9 +1769,17 @@ class Axes(_AxesBase):
         (``'green'``) or hex strings (``'#008000'``).
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
+        
+        # Extract tooltip parameter before creating lines
+        tooltip = kwargs.pop('tooltip', None)
+        
         lines = [*self._get_lines(self, *args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
+            # Set tooltip if provided
+            if tooltip is not None:
+                line.set_tooltip(tooltip)
+                
         if scalex:
             self._request_autoscale_view("x")
         if scaley:

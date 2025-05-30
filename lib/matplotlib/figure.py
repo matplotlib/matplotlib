@@ -27,6 +27,7 @@ list of examples) .  More information about Figures can be found at
 """
 
 from contextlib import ExitStack
+from matplotlib import lines
 import inspect
 import itertools
 import functools
@@ -2650,6 +2651,7 @@ None}, default: None
 
         self._axstack = _AxesStack()  # track all figure Axes and current Axes
         self.clear()
+        self._init_tooltip_handling()
 
     def pick(self, mouseevent):
         if not self.canvas.widgetlock.locked():
@@ -3581,6 +3583,118 @@ None}, default: None
         self.canvas.draw()
 
         return clicks
+        
+    def _init_tooltip_handling(self):
+        """
+        Initialize tooltip event handling.
+        """
+        self._tooltip_cid = self.canvas.mpl_connect(
+            'motion_notify_event', self._on_mouse_move_for_tooltip)
+    
+    def _on_mouse_move_for_tooltip(self, event):
+        """
+        Handle mouse movement for tooltip display.
+        
+        This method is called when the mouse moves over the figure.
+        If the mouse is over an artist with tooltip data, the tooltip is shown.
+        Otherwise, the tooltip is hidden.
+        """
+        if not event.inaxes:
+            self.canvas.hide_tooltip()
+            return
+        
+        # Get all artists under the cursor, from top to bottom
+        artists = []
+        for ax in self.get_axes():
+            if ax == event.inaxes:  # Only check the current axes
+                # Get all artists in this axes, reversed to check top-most first
+                for artist in reversed(ax.get_children()):
+                    if hasattr(artist, 'get_tooltip') and artist.get_visible():
+                        artists.append(artist)
+        
+        # Check if the mouse is over any artist with tooltip data
+        found_tooltip = False
+        for artist in artists:
+            tooltip = artist.get_tooltip()
+            if tooltip is None:
+                continue
+            
+            # Check if the mouse is over this artist
+            contains, info = artist.contains(event)
+            if not contains:
+                continue
+            
+            # Get tooltip text based on the type of tooltip
+            # if isinstance(artist, matplotlib.lines.Line2D) and 'ind' in info:
+            if isinstance(artist, lines.Line2D) and 'ind' in info:
+                # For Line2D objects
+                indices = info['ind']
+                if not indices.size:
+                    continue
+                
+                idx = indices[0]
+                xdata, ydata = artist.get_data()
+                
+                if callable(tooltip):
+                    # Function tooltip
+                    if idx < len(xdata) and idx < len(ydata):
+                        text = tooltip(xdata[idx], ydata[idx])
+                    else:
+                        continue
+                elif isinstance(tooltip, list):
+                    # List tooltip
+                    if idx < len(tooltip):
+                        text = tooltip[idx]
+                    else:
+                        continue
+                else:
+                    # String tooltip
+                    text = str(tooltip)
+            
+            elif isinstance(artist, matplotlib.collections.PathCollection) and 'ind' in info:
+                # For scatter plots
+                indices = info['ind']
+                if not indices.size:
+                    continue
+                
+                idx = indices[0]
+                offsets = artist.get_offsets()
+                
+                if callable(tooltip):
+                    # Function tooltip
+                    if idx < len(offsets):
+                        x, y = offsets[idx]
+                        text = tooltip(x, y)
+                    else:
+                        continue
+                elif isinstance(tooltip, list):
+                    # List tooltip
+                    if idx < len(tooltip):
+                        text = tooltip[idx]
+                    else:
+                        continue
+                else:
+                    # String tooltip
+                    text = str(tooltip)
+            
+            else:
+                # Generic artist
+                if callable(tooltip):
+                    text = tooltip(event.xdata, event.ydata)
+                else:
+                    text = str(tooltip)
+            
+            # Show the tooltip
+            bbox = self.bbox
+            fig_x = event.x / bbox.width
+            fig_y = event.y / bbox.height
+            self.canvas.show_tooltip(text, fig_x, fig_y)
+            found_tooltip = True
+            break
+        
+        # Hide tooltip if no artist with tooltip was found
+        if not found_tooltip:
+            self.canvas.hide_tooltip()
 
     def waitforbuttonpress(self, timeout=-1):
         """

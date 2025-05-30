@@ -1904,6 +1904,28 @@ class FigureCanvasBase:
             with self._idle_draw_cntx():
                 self.draw(*args, **kwargs)
 
+    def show_tooltip(self, text, x, y, timeout=None):
+        """
+        Display a tooltip with the given text at the position (x, y).
+        
+        Parameters
+        ----------
+        text : str
+            The tooltip text containing arbitrary data.
+        x, y : float
+            The position of the tooltip in display coordinates.
+        timeout : float, optional
+            The timeout in seconds after which the tooltip should disappear.
+            If None, the tooltip will remain until explicitly hidden.
+        """
+        pass
+    
+    def hide_tooltip(self):
+        """
+        Hide the currently displayed tooltip.
+        """
+        pass
+
     @property
     def device_pixel_ratio(self):
         """
