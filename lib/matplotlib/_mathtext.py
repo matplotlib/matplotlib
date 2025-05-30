@@ -2521,10 +2521,10 @@ class Parser:
             if len(new_children):
                 # remove last kern
                 if (isinstance(new_children[-1], Kern) and
-                        hasattr(new_children[-2], '_metrics')):
+                        isinstance(new_children[-2], Char)):
                     new_children = new_children[:-1]
                 last_char = new_children[-1]
-                if hasattr(last_char, '_metrics'):
+                if isinstance(last_char, Char):
                     last_char.width = last_char._metrics.advance
             # create new Hlist without kerning
             nucleus = Hlist(new_children, do_kern=False)
@@ -2600,7 +2600,7 @@ class Parser:
 
         # Do we need to add a space after the nucleus?
         # To find out, check the flag set by operatorname
-        spaced_nucleus = [nucleus, x]
+        spaced_nucleus: list[Node] = [nucleus, x]
         if self._in_subscript_or_superscript:
             spaced_nucleus += [self._make_space(self._space_widths[r'\,'])]
             self._in_subscript_or_superscript = False
