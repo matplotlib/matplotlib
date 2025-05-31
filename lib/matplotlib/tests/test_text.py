@@ -1183,3 +1183,19 @@ def test_ytick_rotation_mode():
         tick.set_rotation(angle)
 
     plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)
+
+
+def test_text_language_invalid():
+    with pytest.raises(TypeError, match='must be list of tuple'):
+        Text(0, 0, 'foo', language=[1, 2, 3])
+    with pytest.raises(TypeError, match='must be list of tuple'):
+        Text(0, 0, 'foo', language=[(1, 2)])
+    with pytest.raises(TypeError, match='start location must be int'):
+        Text(0, 0, 'foo', language=[('en', 'foo', 2)])
+    with pytest.raises(TypeError, match='end location must be int'):
+        Text(0, 0, 'foo', language=[('en', 1, 'foo')])
+
+
+def test_text_language():
+    Text(0, 0, 'foo', language='en')
+    Text(0, 0, 'foo', language=[('en', 1, 2)])

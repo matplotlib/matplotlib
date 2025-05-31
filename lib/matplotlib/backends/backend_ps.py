@@ -794,9 +794,10 @@ grestore
                 thisx += width * scale
 
         else:
+            language = mtext.get_language() if mtext is not None else None
             font = self._get_font_ttf(prop)
             self._character_tracker.track(font, s)
-            for item in _text_helpers.layout(s, font):
+            for item in _text_helpers.layout(s, font, language=language):
                 ps_name = (item.ft_object.postscript_name
                            .encode("ascii", "replace").decode("ascii"))
                 glyph_name = item.ft_object.get_glyph_name(item.glyph_idx)
