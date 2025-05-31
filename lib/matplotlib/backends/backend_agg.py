@@ -70,7 +70,7 @@ class RendererAgg(RendererBase):
         self._filter_renderers = []
 
         self._update_methods()
-        self.mathtext_parser = MathTextParser('agg')
+        self.mathtext_parser = MathTextParser('path')
 
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
 
@@ -172,36 +172,58 @@ class RendererAgg(RendererBase):
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""
-        ox, oy, width, height, descent, font_image = \
-            self.mathtext_parser.parse(s, self.dpi, prop,
-                                       antialiased=gc.get_antialiased())
-
-        xd = descent * sin(radians(angle))
-        yd = descent * cos(radians(angle))
-        x = round(x + ox + xd)
-        y = round(y - oy + yd)
-        self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
+        # y is downwards.
+        parse = self.mathtext_parser.parse(
+            s, self.dpi, prop, antialiased=gc.get_antialiased())
+        c = cos(radians(angle))
+        s = sin(radians(angle))
+        for font, size, char, dx, dy in parse.glyphs:  # dy is upwards.
+            font.set_size(size, self.dpi)
+            bitmap = font._render_glyph(
+                font.get_char_index(char),
+                # The "y" parameter is upwards (per FreeType).
+                x + dx * c - dy * s, self.height - y + dx * s + dy * c, angle,
+                get_hinting_flag())
+            # draw_text_image's y is downwards & the bitmap bottom side.
+            self._renderer.draw_text_image(
+                bitmap["buffer"],
+                bitmap["left"],
+                int(self.height) - bitmap["top"] + bitmap["buffer"].shape[0],
+                0, gc)
+        if not angle:
+            for dx, dy, w, h in parse.rects:  # dy is upwards & the rect top side.
+                self._renderer.draw_text_image(
+                    np.full((round(h), round(w)), np.uint8(0xff)),
+                    round(x + dx), round(y - dy - h),
+                    0, gc)
+        else:
+            rgba = gc.get_rgb()
+            if len(rgba) == 3 or gc.get_forced_alpha():
+                rgba = rgba[:3] + (gc.get_alpha(),)
+            gc1 = self.new_gc()
+            gc1.set_linewidth(0)
+            for dx, dy, w, h in parse.rects:  # dy is upwards & the rect top side.
+                path = Path._create_closed(
+                    [(dx, dy), (dx + w, dy), (dx + w, dy + h), (dx, dy + h)])
+                self._renderer.draw_path(
+                    gc1, path,
+                    mpl.transforms.Affine2D()
+                    .rotate_deg(angle).translate(x, self.height - y),
+                    rgba)
+            gc1.restore()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         font = self._prepare_font(prop)
-        # We pass '0' for angle here, since it will be rotated (in raster
-        # space) in the following call to draw_text_image).
-        font.set_text(s, 0, flags=get_hinting_flag())
-        font.draw_glyphs_to_bitmap(
-            antialiased=gc.get_antialiased())
-        d = font.get_descent() / 64.0
-        # The descent needs to be adjusted for the angle.
-        xo, yo = font.get_bitmap_offset()
-        xo /= 64.0
-        yo /= 64.0
-        xd = d * sin(radians(angle))
-        yd = d * cos(radians(angle))
-        x = round(x + xo + xd)
-        y = round(y + yo + yd)
-        self._renderer.draw_text_image(font, x, y + 1, angle, gc)
+        font.set_text(s, angle, flags=get_hinting_flag())
+        for bitmap in font._render_glyphs(x, self.height - y):
+            self._renderer.draw_text_image(
+                bitmap["buffer"],
+                bitmap["left"],
+                int(self.height) - bitmap["top"] + bitmap["buffer"].shape[0],
+                0, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
@@ -211,9 +233,8 @@ class RendererAgg(RendererBase):
             return super().get_text_width_height_descent(s, prop, ismath)
 
         if ismath:
-            ox, oy, width, height, descent, font_image = \
-                self.mathtext_parser.parse(s, self.dpi, prop)
-            return width, height, descent
+            parse = self.mathtext_parser.parse(s, self.dpi, prop)
+            return parse.width, parse.height, parse.depth
 
         font = self._prepare_font(prop)
         font.set_text(s, 0.0, flags=get_hinting_flag())
