@@ -155,8 +155,8 @@ def test_nonlinear_containment():
 def test_arrow_contains_point():
     # fix bug (#8384)
     fig, ax = plt.subplots()
-    ax.set_xlim((0, 2))
-    ax.set_ylim((0, 2))
+    ax.set_xlim(0, 2)
+    ax.set_ylim(0, 2)
 
     # create an arrow with Curve style
     arrow = patches.FancyArrowPatch((0.5, 0.25), (1.5, 0.75),
