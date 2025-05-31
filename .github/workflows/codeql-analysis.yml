@@ -12,6 +12,7 @@ on:
 
 jobs:
   analyze:
+    if: github.repository == 'matplotlib/matplotlib'
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
