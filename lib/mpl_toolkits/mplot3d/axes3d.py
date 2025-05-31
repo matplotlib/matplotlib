@@ -619,11 +619,12 @@ class Axes3D(Axes):
         had_data : bool, default: False
             Whether the axes already had data limits set before.
         """
-        self.xy_dataLim = Bbox.union([self.xy_dataLim, bbox3d.to_bbox_xy()])
-        self.zz_dataLim = Bbox.union([self.zz_dataLim, bbox3d.to_bbox_zz()])
+        self.xy_dataLim.update_from_bbox(bbox3d.to_bbox_xy(), ignore=not had_data)
+        self.zz_dataLim.update_from_bbox(bbox3d.to_bbox_zz(), ignore=not had_data)
         if not had_data:
             self._xy_dataLim_set = True
             self._zz_dataLim_set = True
+        self.autoscale_view()
 
 
     def autoscale_view(self, tight=None,

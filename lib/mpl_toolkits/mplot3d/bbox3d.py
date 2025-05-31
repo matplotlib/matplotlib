@@ -32,8 +32,8 @@ class _Bbox3d:
          (self.zmin, self.zmax)) = points
 
     def to_bbox_xy(self):
-        return Bbox(((self.xmin, self.xmax), (self.ymin, self.ymax)))
+        return Bbox(((self.xmin, self.ymin), (self.xmax, self.ymax)))
 
     def to_bbox_zz(self):
         # first component contains z, second is unused
-        return Bbox(((self.zmin, self.zmax), (0, 0)))
+        return Bbox(((self.zmin, 0), (self.zmax, 0)))

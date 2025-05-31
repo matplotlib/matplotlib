@@ -965,6 +965,28 @@ class Bbox(BboxBase):
         self.update_from_path(path, ignore=ignore,
                               updatex=updatex, updatey=updatey)
 
+    def update_from_bbox(self, bbox, ignore=False, updatex=True, updatey=True):
+        """
+        Update the Bbox to include another Bbox.
+
+        This is equivalent to performing an in-place union of this Bbox with `bbox`.
+
+        Parameters
+        ----------
+        bbox3d : Bbox3d
+            The Bbox to merge into this one.
+        ignore : bool, default: False
+            Whether to ignore the current bounds (start fresh) or not.
+        updatex, updatey : bool, default: True
+            Whether to update the x/y dimensions.
+        """
+        if not updatex and not updatey:
+            return
+
+        vertices = np.array([[bbox.x0, bbox.y0],[bbox.x1, bbox.y1]])
+        path = Path(vertices)
+        self.update_from_path(path, ignore=ignore, updatex=updatex, updatey=updatey)
+
     @BboxBase.x0.setter
     def x0(self, val):
         self._points[0, 0] = val
