@@ -969,7 +969,7 @@ class Bbox(BboxBase):
         """
         Update the Bbox to include another Bbox.
 
-        This is equivalent to performing an in-place union of this Bbox with `bbox`.
+        This is equivalent to performing an in-place union of this Bbox with *bbox*.
 
         Parameters
         ----------
