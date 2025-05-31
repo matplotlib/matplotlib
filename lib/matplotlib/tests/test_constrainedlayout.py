@@ -741,3 +741,37 @@ def test_submerged_subfig():
     for ax in axs[1:]:
         assert np.allclose(ax.get_position().bounds[-1],
                            axs[0].get_position().bounds[-1], atol=1e-6)
+
+
+def test_submerged_height_gap():
+    """Test that the gap between rows does not depend on the number of columns."""
+
+    mosaic1 = "AC;BC"
+    mosaic2 = "ACDE;BCDE"
+
+    fig1, ax_dir1 = plt.subplot_mosaic(mosaic1, layout='constrained')
+    fig2, ax_dir2 = plt.subplot_mosaic(mosaic2, layout='constrained')
+    for fig in fig1, fig2:
+        fig.get_layout_engine().set(h_pad=0.2)
+        fig.draw_without_rendering()
+
+    for label in 'A', 'B':
+        np.testing.assert_allclose(ax_dir1[label].get_position().bounds[-1],
+                                   ax_dir2[label].get_position().bounds[-1])
+
+
+def test_submerged_width_gap():
+    """Test that the gap between columns does not depend on the number of rows."""
+
+    mosaic1 = "AB;CC"
+    mosaic2 = "AB;CC;DD"
+
+    fig1, ax_dir1 = plt.subplot_mosaic(mosaic1, layout='constrained')
+    fig2, ax_dir2 = plt.subplot_mosaic(mosaic2, layout='constrained')
+    for fig in fig1, fig2:
+        fig.get_layout_engine().set(w_pad=0.2)
+        fig.draw_without_rendering()
+
+    for label in 'A', 'B':
+        np.testing.assert_allclose(ax_dir1[label].get_position().bounds[-2],
+                                   ax_dir2[label].get_position().bounds[-2])
