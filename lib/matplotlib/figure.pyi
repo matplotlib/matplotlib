@@ -169,7 +169,7 @@ class FigureBase(Artist):
     ) -> Text: ...
     def colorbar(
         self,
-        mappable: ScalarMappable | ColorizingArtist,
+        mappable: ScalarMappable | ColorizingArtist | Colorizer,
         cax: Axes | None = ...,
         ax: Axes | Iterable[Axes] | None = ...,
         use_gridspec: bool = ...,
