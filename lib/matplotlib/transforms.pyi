@@ -12,7 +12,6 @@ class TransformNode:
     INVALID_NON_AFFINE: int
     INVALID_AFFINE: int
     INVALID: int
-    is_bbox: bool
     # Implemented as a standard attr in base class, but functionally readonly and some subclasses implement as such
     @property
     def is_affine(self) -> bool: ...
@@ -24,7 +23,6 @@ class TransformNode:
     def frozen(self) -> TransformNode: ...
 
 class BboxBase(TransformNode):
-    is_bbox: bool
     is_affine: bool
     def frozen(self) -> Bbox: ...
     def __array__(self, *args, **kwargs): ...
@@ -294,8 +292,6 @@ class BboxTransform(Affine2DBase):
 
 class BboxTransformTo(Affine2DBase):
     def __init__(self, boxout: BboxBase, **kwargs) -> None: ...
-
-class BboxTransformToMaxOnly(BboxTransformTo): ...
 
 class BboxTransformFrom(Affine2DBase):
     def __init__(self, boxin: BboxBase, **kwargs) -> None: ...
