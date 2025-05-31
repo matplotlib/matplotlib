@@ -2,7 +2,7 @@ from matplotlib.axis import Axis
 from matplotlib.transforms import Transform
 
 from collections.abc import Callable, Iterable
-from typing import Literal
+from typing import Literal, Union
 from numpy.typing import ArrayLike
 
 class ScaleBase:
@@ -15,6 +15,7 @@ class ScaleBase:
 
 class LinearScale(ScaleBase):
     name: str
+    def __init__(self: ScaleBase, axis: Union[Axis, None] = None) -> None: ...
 
 class FuncTransform(Transform):
     input_dims: int
@@ -56,12 +57,12 @@ class LogScale(ScaleBase):
     name: str
     subs: Iterable[int] | None
     def __init__(
-        self,
-        axis: Axis | None,
+        self: LogScale,
+        axis: Axis | None = ...,
         *,
-        base: float = ...,
-        subs: Iterable[int] | None = ...,
-        nonpositive: Literal["clip", "mask"] = ...
+        base: float = 10,
+        subs: Union[Iterable[int], None] = None,
+        nonpositive: Union[Literal['clip'], Literal['mask']] = 'clip'
     ) -> None: ...
     @property
     def base(self) -> float: ...
@@ -104,12 +105,12 @@ class SymmetricalLogScale(ScaleBase):
     subs: Iterable[int] | None
     def __init__(
         self,
-        axis: Axis | None,
+        axis: Axis | None = ...,
         *,
-        base: float = ...,
-        linthresh: float = ...,
-        subs: Iterable[int] | None = ...,
-        linscale: float = ...
+        base: float = 10,
+        linthresh: float = 2,
+        subs: Union[Iterable[int], None] = None,
+        linscale: float = 1
     ) -> None: ...
     @property
     def base(self) -> float: ...
@@ -138,7 +139,7 @@ class AsinhScale(ScaleBase):
     auto_tick_multipliers: dict[int, tuple[int, ...]]
     def __init__(
         self,
-        axis: Axis | None,
+        axis: Axis | None = ...,
         *,
         linear_width: float = ...,
         base: float = ...,
@@ -165,14 +166,15 @@ class LogitScale(ScaleBase):
     name: str
     def __init__(
         self,
-        axis: Axis | None,
-        nonpositive: Literal["mask", "clip"] = ...,
+        axis: Axis | None = ...,
+        nonpositive: Union[Literal['mask'], Literal['clip']] = 'mask',
         *,
-        one_half: str = ...,
-        use_overline: bool = ...
+        one_half: str = '\\frac{1}{2}',
+        use_overline: bool = False
     ) -> None: ...
     def get_transform(self) -> LogitTransform: ...
 
 def get_scale_names() -> list[str]: ...
 def scale_factory(scale: str, axis: Axis, **kwargs) -> ScaleBase: ...
 def register_scale(scale_class: type[ScaleBase]) -> None: ...
+def handle_axis_parameter(init_func: Callable[..., None]) -> Callable[..., None]: ...
