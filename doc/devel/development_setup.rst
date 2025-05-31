@@ -177,7 +177,8 @@ setup.
 
       Install the Python dependencies with ::
 
-        pip install -r requirements/dev/dev-requirements.txt
+        pip install -U pip  # You may skip this step if pip 25.1 is already available.
+        pip install --group dev
 
       Remember to activate the environment whenever you start working on Matplotlib!
 
