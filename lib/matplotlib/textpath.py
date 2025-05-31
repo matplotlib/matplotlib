@@ -234,7 +234,9 @@ class TextToPath:
         # characters into strings.
         t1_encodings = {}
         for text in page.text:
-            font = get_font(text.font_path)
+            font = get_font(text.font.resolve_path())
+            if text.font.subfont:
+                raise NotImplementedError("Indexing TTC fonts is not supported yet")
             char_id = self._get_char_id(font, text.glyph)
             if char_id not in glyph_map:
                 font.clear()
