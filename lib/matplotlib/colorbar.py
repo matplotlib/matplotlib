@@ -16,8 +16,9 @@ import logging
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, collections, cm, colors, contour, ticker
+from matplotlib import _api, cbook, collections, colors, contour, ticker
 import matplotlib.artist as martist
+import matplotlib.colorizer as mcolorizer
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.spines as mspines
@@ -199,12 +200,12 @@ class Colorbar:
     Draw a colorbar in an existing Axes.
 
     Typically, colorbars are created using `.Figure.colorbar` or
-    `.pyplot.colorbar` and associated with `.ScalarMappable`\s (such as an
+    `.pyplot.colorbar` and associated with `.ColorizingArtist`\s (such as an
     `.AxesImage` generated via `~.axes.Axes.imshow`).
 
     In order to draw a colorbar not associated with other elements in the
     figure, e.g. when showing a colormap by itself, one can create an empty
-    `.ScalarMappable`, or directly pass *cmap* and *norm* instead of *mappable*
+    `.ColorizingArtist`, or directly pass *cmap* and *norm* instead of *mappable*
     to `Colorbar`.
 
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
@@ -244,7 +245,7 @@ class Colorbar:
         ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` instance in which the colorbar is drawn.
 
-        mappable : `.ScalarMappable`
+        mappable : `.ColorizingArtist`
             The mappable whose colormap and norm will be used.
 
             To show the colors versus index instead of on a 0-1 scale, set the
@@ -288,7 +289,8 @@ class Colorbar:
             colorbar and at the right for a vertical.
         """
         if mappable is None:
-            mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+            colorizer = mcolorizer.Colorizer(norm=norm, cmap=cmap)
+            mappable = mcolorizer.ColorizingArtist(colorizer)
 
         self.mappable = mappable
         cmap = mappable.cmap
