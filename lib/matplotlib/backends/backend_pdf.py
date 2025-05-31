@@ -722,8 +722,6 @@ class PdfFile:
         self._internal_font_seq = (Name(f'F{i}') for i in itertools.count(1))
         self._fontNames = {}     # maps filenames to internal font names
         self._dviFontInfo = {}   # maps dvi font names to embedding information
-        # differently encoded Type-1 fonts may share the same descriptor
-        self._type1Descriptors = {}
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
@@ -767,8 +765,6 @@ class PdfFile:
 
     fontNames = _api.deprecated("3.11")(property(lambda self: self._fontNames))
     dviFontInfo = _api.deprecated("3.11")(property(lambda self: self._dviFontInfo))
-    type1Descriptors = _api.deprecated("3.11")(
-        property(lambda self: self._type1Descriptors))
 
     def newPage(self, width, height):
         self.endStream()
@@ -1005,48 +1001,42 @@ class PdfFile:
         _log.debug('Embedding TeX font %s - fontinfo=%s',
                    fontinfo.dvifont.texname, fontinfo.__dict__)
 
-        # Font dictionary
+        # The font dictionary is the top-level object describing a font
         fontdictObject = self.reserveObject('font dictionary')
         fontdict = {
             'Type':      Name('Font'),
             'Subtype':   Name('Type1'),
         }
 
-        # We have a font file to embed - read it in and apply any effects
+        # Read the font file and apply any encoding changes and effects
         t1font = _type1font.Type1Font(fontinfo.fontfile)
         if fontinfo.encodingfile is not None:
             t1font = t1font.with_encoding(
                 {i: c for i, c in enumerate(dviread._parse_enc(fontinfo.encodingfile))}
             )
-
         if fontinfo.effects:
             t1font = t1font.transform(fontinfo.effects)
+
+        # Reduce the font to only the glyphs used in the document, get the encoding
+        # for that subset, and compute various properties based on the encoding.
         chars = frozenset(self._character_tracker.used[fontinfo.dvifont.fname])
         t1font = t1font.subset(chars, self._get_subset_prefix(chars))
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
+        # createType1Descriptor writes the font data as a side effect
+        fontdict['FontDescriptor'] = self.createType1Descriptor(t1font)
         encoding = t1font.prop['Encoding']
+        fontdict['Encoding'] = self._generate_encoding(encoding)
         fc = fontdict['FirstChar'] = min(encoding.keys(), default=0)
         lc = fontdict['LastChar'] = max(encoding.keys(), default=255)
-        fontdict['Encoding'] = self._generate_encoding(encoding)
-        # Font descriptors may be shared between differently encoded
-        # Type-1 fonts, so only create a new descriptor if there is no
-        # existing descriptor for this font.
-        effects = (fontinfo.effects.get('slant', 0.0),
-                   fontinfo.effects.get('extend', 1.0))
-        fontdesc = self._type1Descriptors.get((fontinfo.fontfile, effects))
-        if fontdesc is None:
-            fontdesc = self.createType1Descriptor(t1font)
-            self._type1Descriptors[(fontinfo.fontfile, effects)] = fontdesc
-        fontdict['FontDescriptor'] = fontdesc
 
-        # Use TeX Font Metrics file to get glyph widths (TeX uses its 12.20 fixed point
-        # representation and we want 1/1000 text space units)
+        # Convert glyph widths from TeX 12.20 fixed point to 1/1000 text space units
         tfm = fontinfo.dvifont._tfm
         widths = [(1000 * metrics.tex_width) >> 20
                   if (metrics := tfm.get_metrics(char)) else 0
                   for char in range(fc, lc + 1)]
         fontdict['Widths'] = widthsObject = self.reserveObject('glyph widths')
         self.writeObject(widthsObject, widths)
+
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
