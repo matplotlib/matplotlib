@@ -212,7 +212,7 @@ class _SwitchableDateConverter:
 
     @staticmethod
     def default_units(x: Union[datetime.datetime, datetime.date, float, np.ndarray, Sequence[Union[datetime.datetime, datetime.date, float, np.datetime64]]],
-                      axis: Axis) -> Optional[datetime.tzinfo]: ... 
+                      axis: Axis) -> Optional[datetime.tzinfo]: ...
 
     @staticmethod
     def convert(value: Union[datetime.datetime, datetime.date, float, np.datetime64, Sequence[Union[datetime.datetime, datetime.date, float, np.datetime64]]],
