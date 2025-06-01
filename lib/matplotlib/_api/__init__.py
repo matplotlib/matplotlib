@@ -176,7 +176,7 @@ def check_shape(shape, /, **kwargs):
 
 
 def check_getitem(
-        mapping, /, _suggest_close_matches=False, _error_cls=ValueError, **kwargs
+        mapping, /, _error_cls=ValueError, **kwargs
     ):
     """
     *kwargs* must consist of a single *key, value* pair.  If *key* is in
@@ -185,8 +185,6 @@ def check_getitem(
 
     Parameters
     ----------
-    _suggest_close_matches :
-        If True, suggest only close matches instead of all valid values.
     _error_cls :
         Class of error to raise.
 
@@ -200,7 +198,7 @@ def check_getitem(
     try:
         return mapping[v]
     except KeyError:
-        if _suggest_close_matches:
+        if len(mapping) > 5:
             if len(best := difflib.get_close_matches(v, mapping.keys(), cutoff=0.5)):
                 suggestion = f"Did you mean one of {best}?"
             else:

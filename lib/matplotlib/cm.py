@@ -93,7 +93,7 @@ class ColormapRegistry(Mapping):
 
     def __getitem__(self, item):
         cmap = _api.check_getitem(
-            self._cmaps, colormap=item, _suggest_close_matches=True, _error_cls=KeyError
+            self._cmaps, colormap=item, _error_cls=KeyError
         )
         return cmap.copy()
 
