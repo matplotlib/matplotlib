@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 from .axis import Axis
 from .projections.polar import _AxisWrapper
-from .ticker import _DummyAxis, Formatter, Locator, TickHelper
+from .ticker import _DummyAxis, Formatter, Locator
 from .units import AxisInfo, ConversionInterface
 
 
