@@ -8,11 +8,11 @@ Customized Colorbars Tutorial
 This tutorial shows how to build and customize standalone colorbars, i.e.
 without an attached plot.
 
-A `~.Figure.colorbar` needs a "mappable" (`matplotlib.colorizer.ColorizingArtist`)
-object (typically, an image) which contains a colorizer
-(`matplotlib.colorizer.Colorizer`) that holds the data-to-color pipeline (norm and
-colormap).  In order to create a colorbar without an attached image, one can instead
+A `~.Figure.colorbar` requires a `matplotlib.colorizer.ColorizingArtist` which
+contains a `matplotlib.colorizer.Colorizer` that holds the data-to-color pipeline
+(norm and colormap). To create a colorbar without an attached plot one can
 use a `.ColorizingArtist` with no associated data.
+
 """
 
 import matplotlib.pyplot as plt

@@ -20,7 +20,8 @@ the image plotting methods.
 import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib as mpl
+import matplotlib.colorizer as mcolorizer
+import matplotlib.colors as mcolors
 
 np.random.seed(19680801)
 
@@ -32,9 +33,9 @@ datasets = [
 fig, axs = plt.subplots(2, 2)
 fig.suptitle('Multiple images')
 
-# create a single norm and colorizer to be shared across all images
-norm = mpl.colors.Normalize(vmin=np.min(datasets), vmax=np.max(datasets))
-colorizer = mpl.colorizer.Colorizer(norm=norm)
+# create a colorizer with a predefined norm to be shared across all images
+norm = mcolors.Normalize(vmin=np.min(datasets), vmax=np.max(datasets))
+colorizer = mcolorizer.Colorizer(norm=norm)
 
 images = []
 for ax, data in zip(axs.flat, datasets):
@@ -61,4 +62,3 @@ plt.show()
 #    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
 #    - `matplotlib.colorizer.Colorizer`
 #    - `matplotlib.colors.Normalize`
-#    - `matplotlib.cbook.CallbackRegistry.connect`
