@@ -3233,7 +3233,7 @@ class MultiNorm(Normalize):
         """
         Parameters
         ----------
-        norms : List of strings or `Normalize` objects
+        norms : List of (str, `Normalize` or None)
             The constituent norms. The list must have a minimum length of 2.
         vmin, vmax : float, None, or list of float or None
             Limits of the constituent norms.
@@ -3248,7 +3248,7 @@ class MultiNorm(Normalize):
 
         """
 
-        if isinstance(norms, str) or not np.iterable(norms):
+        if cbook.is_scalar_or_string(norms):
             raise ValueError("A MultiNorm must be assigned multiple norms")
 
         norms = [*norms]
@@ -3349,7 +3349,7 @@ class MultiNorm(Normalize):
 
         Returns
         -------
-        Data
+        List
             Normalized input values as a list of length `n_variables`
 
         Notes
@@ -3401,7 +3401,7 @@ class MultiNorm(Normalize):
         Parameters
         ----------
         A
-            Data, must be of length `n_variables` or be an np.ndarray type with
+            Data, must be of length `n_variables` or have a data type with
             `n_variables` fields.
         """
         with self.callbacks.blocked():
@@ -3412,7 +3412,7 @@ class MultiNorm(Normalize):
 
     def scaled(self):
         """Return whether both *vmin* and *vmax* are set on all constituent norms"""
-        return all([(n.vmin is not None and n.vmax is not None) for n in self.norms])
+        return all([n.scaled() for n in self.norms])
 
     @staticmethod
     def _iterable_variates_in_data(data, n_variables):
@@ -3430,7 +3430,7 @@ class MultiNorm(Normalize):
 
         Returns
         -------
-            list of np.ndarray
+        list of np.ndarray
 
         """
         if isinstance(data, np.ndarray) and data.dtype.fields is not None:
@@ -4087,9 +4087,9 @@ def _get_scale_cls_from_str(scale_as_str):
 
     Used in the creation of norms from a string to ensure a reasonable error
     in the case where an invalid string is used. This would normally use
-    `_api.check_getitem()`, which would produce the error
-    > 'not_a_norm' is not a valid value for norm; supported values are
-    > 'linear', 'log', 'symlog', 'asinh', 'logit', 'function', 'functionlog'
+    `_api.check_getitem()`, which would produce the error:
+    'not_a_norm' is not a valid value for norm; supported values are
+    'linear', 'log', 'symlog', 'asinh', 'logit', 'function', 'functionlog'.
     which is misleading because the norm keyword also accepts `Normalize` objects.
 
     Parameters
