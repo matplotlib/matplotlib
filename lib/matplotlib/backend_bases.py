@@ -3244,7 +3244,7 @@ class NavigationToolbar2:
     def configure_subplots(self, *args):
         if hasattr(self, "subplot_tool"):
             self.subplot_tool.figure.canvas.manager.show()
-            return
+            return self.subplot_tool
         # This import needs to happen here due to circular imports.
         from matplotlib.figure import Figure
         with mpl.rc_context({"toolbar": "none"}):  # No navbar for the toolfig.
