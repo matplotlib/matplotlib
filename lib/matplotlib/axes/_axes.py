@@ -78,7 +78,7 @@ class _GroupedBarReturn:
         self.bar_containers = bar_containers
 
     def remove(self):
-        [b.remove() for b in self.bars]
+        [b.remove() for b in self.bar_containers]
 
 
 @_docstring.interpd

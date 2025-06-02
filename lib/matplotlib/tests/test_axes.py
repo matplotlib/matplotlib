@@ -23,6 +23,7 @@ import matplotlib as mpl
 from matplotlib import rc_context, patheffects
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
+from matplotlib.container import BarContainer
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
@@ -2249,6 +2250,20 @@ def test_grouped_bar_dataframe(fig_test, fig_ref, pd):
     list_of_datasets = [df[col].to_numpy() for col in df.columns]
     ax.grouped_bar(list_of_datasets, tick_labels=categories, labels=labels)
     ax.legend()
+
+
+def test_grouped_bar_return_value():
+    fig, ax = plt.subplots()
+    ret = ax.grouped_bar([[1, 2, 3], [11, 12, 13]], tick_labels=['A', 'B', 'C'])
+
+    assert len(ret.bar_containers) == 2
+    for bc in ret.bar_containers:
+        assert isinstance(bc, BarContainer)
+        assert bc in ax.containers
+
+    ret.remove()
+    for bc in ret.bar_containers:
+        assert bc not in ax.containers
 
 
 def test_boxplot_dates_pandas(pd):
