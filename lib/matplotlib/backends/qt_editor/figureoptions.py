@@ -11,18 +11,21 @@ from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
 from matplotlib.dates import DateConverter, num2date
 
-LINESTYLES = {'-': 'Solid',
-              '--': 'Dashed',
-              '-.': 'DashDot',
-              ':': 'Dotted',
-              'None': 'None',
-              }
+LINESTYLES = {
+    "-": "Solid",
+    "--": "Dashed",
+    "-.": "DashDot",
+    ":": "Dotted",
+    "None": "None",
+}
 
 DRAWSTYLES = {
-    'default': 'Default',
-    'steps-pre': 'Steps (Pre)', 'steps': 'Steps (Pre)',
-    'steps-mid': 'Steps (Mid)',
-    'steps-post': 'Steps (Post)'}
+    "default": "Default",
+    "steps-pre": "Steps (Pre)",
+    "steps": "Steps (Pre)",
+    "steps-mid": "Steps (Mid)",
+    "steps-post": "Steps (Post)",
+}
 
 MARKERS = markers.MarkerStyle.markers
 
@@ -41,44 +44,39 @@ def figure_edit(axes, parent=None):
 
     axis_map = axes._axis_map
     axis_limits = {
-        name: tuple(convert_limits(
-            getattr(axes, f'get_{name}lim')(), axis.get_converter()
-        ))
+        name: tuple(
+            convert_limits(getattr(axes, f"get_{name}lim")(), axis.get_converter())
+        )
         for name, axis in axis_map.items()
     }
     general = [
-        ('Title', axes.get_title()),
+        ("Title", axes.get_title()),
         sep,
-        *chain.from_iterable([
-            (
-                (None, f"<b>{name.title()}-Axis</b>"),
-                ('Min', axis_limits[name][0]),
-                ('Max', axis_limits[name][1]),
-                ('Label', axis.label.get_text()),
-                ('Scale', [axis.get_scale(),
-                           'linear', 'log', 'symlog', 'logit']),
-                sep,
-            )
-            for name, axis in axis_map.items()
-        ]),
-        ('(Re-)Generate automatic legend', False),
+        *chain.from_iterable(
+            [
+                (
+                    (None, f"<b>{name.title()}-Axis</b>"),
+                    ("Min", axis_limits[name][0]),
+                    ("Max", axis_limits[name][1]),
+                    ("Label", axis.label.get_text()),
+                    ("Scale", [axis.get_scale(), "linear", "log", "symlog", "logit"]),
+                    sep,
+                )
+                for name, axis in axis_map.items()
+            ]
+        ),
+        ("(Re-)Generate automatic legend", False),
     ]
 
     # Save the converter and unit data
-    axis_converter = {
-        name: axis.get_converter()
-        for name, axis in axis_map.items()
-    }
-    axis_units = {
-        name: axis.get_units()
-        for name, axis in axis_map.items()
-    }
+    axis_converter = {name: axis.get_converter() for name, axis in axis_map.items()}
+    axis_units = {name: axis.get_units() for name, axis in axis_map.items()}
 
     # Get / Curves
     labeled_lines = []
     for line in axes.get_lines():
         label = line.get_label()
-        if label == '_nolegend_':
+        if label == "_nolegend_":
             continue
         labeled_lines.append((label, line))
     curves = []
@@ -106,34 +104,37 @@ def figure_edit(axes, parent=None):
         # Find the kept shorthand for the style specified by init.
         canonical_init = name2short[d[init]]
         # Sort by representation and prepend the initial value.
-        return ([canonical_init] +
-                sorted(short2name.items(),
-                       key=lambda short_and_name: short_and_name[1]))
+        return [canonical_init] + sorted(
+            short2name.items(), key=lambda short_and_name: short_and_name[1]
+        )
 
     for label, line in labeled_lines:
         color = mcolors.to_hex(
-            mcolors.to_rgba(line.get_color(), line.get_alpha()),
-            keep_alpha=True)
+            mcolors.to_rgba(line.get_color(), line.get_alpha()), keep_alpha=True
+        )
         ec = mcolors.to_hex(
             mcolors.to_rgba(line.get_markeredgecolor(), line.get_alpha()),
-            keep_alpha=True)
+            keep_alpha=True,
+        )
         fc = mcolors.to_hex(
             mcolors.to_rgba(line.get_markerfacecolor(), line.get_alpha()),
-            keep_alpha=True)
+            keep_alpha=True,
+        )
         curvedata = [
-            ('Label', label),
+            ("Label", label),
             sep,
-            (None, '<b>Line</b>'),
-            ('Line style', prepare_data(LINESTYLES, line.get_linestyle())),
-            ('Draw style', prepare_data(DRAWSTYLES, line.get_drawstyle())),
-            ('Width', line.get_linewidth()),
-            ('Color (RGBA)', color),
+            (None, "<b>Line</b>"),
+            ("Line style", prepare_data(LINESTYLES, line.get_linestyle())),
+            ("Draw style", prepare_data(DRAWSTYLES, line.get_drawstyle())),
+            ("Width", line.get_linewidth()),
+            ("Color (RGBA)", color),
             sep,
-            (None, '<b>Marker</b>'),
-            ('Style', prepare_data(MARKERS, line.get_marker())),
-            ('Size', line.get_markersize()),
-            ('Face color (RGBA)', fc),
-            ('Edge color (RGBA)', ec)]
+            (None, "<b>Marker</b>"),
+            ("Style", prepare_data(MARKERS, line.get_marker())),
+            ("Size", line.get_markersize()),
+            ("Face color (RGBA)", fc),
+            ("Edge color (RGBA)", ec),
+        ]
         curves.append([curvedata, label, ""])
     # Is there a curve displayed?
     has_curve = bool(curves)
@@ -142,7 +143,7 @@ def figure_edit(axes, parent=None):
     labeled_mappables = []
     for mappable in [*axes.images, *axes.collections]:
         label = mappable.get_label()
-        if label == '_nolegend_' or mappable.get_array() is None:
+        if label == "_nolegend_" or mappable.get_array() is None:
             continue
         labeled_mappables.append((label, mappable))
     mappables = []
@@ -153,22 +154,26 @@ def figure_edit(axes, parent=None):
             cmaps = [(cmap, cmap.name), *cmaps]
         low, high = mappable.get_clim()
         mappabledata = [
-            ('Label', label),
-            ('Colormap', [cmap.name] + cmaps),
-            ('Min. value', low),
-            ('Max. value', high),
+            ("Label", label),
+            ("Colormap", [cmap.name] + cmaps),
+            ("Min. value", low),
+            ("Max. value", high),
         ]
         if hasattr(mappable, "get_interpolation"):  # Images.
             interpolations = [
-                (name, name) for name in sorted(mimage.interpolations_names)]
-            mappabledata.append((
-                'Interpolation',
-                [mappable.get_interpolation(), *interpolations]))
+                (name, name) for name in sorted(mimage.interpolations_names)
+            ]
+            mappabledata.append(
+                ("Interpolation", [mappable.get_interpolation(), *interpolations])
+            )
 
-            interpolation_stages = ['data', 'rgba', 'auto']
-            mappabledata.append((
-                'Interpolation stage',
-                [mappable.get_interpolation_stage(), *interpolation_stages]))
+            interpolation_stages = ["data", "rgba", "auto"]
+            mappabledata.append(
+                (
+                    "Interpolation stage",
+                    [mappable.get_interpolation_stage(), *interpolation_stages],
+                )
+            )
 
         mappables.append([mappabledata, label, ""])
     # Is there a scalarmappable displayed?
@@ -182,10 +187,7 @@ def figure_edit(axes, parent=None):
 
     def apply_callback(data):
         """A callback to apply changes."""
-        orig_limits = {
-            name: getattr(axes, f"get_{name}lim")()
-            for name in axis_map
-        }
+        orig_limits = {name: getattr(axes, f"get_{name}lim")() for name in axis_map}
 
         general = data.pop(0)
         curves = data.pop(0) if has_curve else []
@@ -198,10 +200,10 @@ def figure_edit(axes, parent=None):
         generate_legend = general.pop()
 
         for i, (name, axis) in enumerate(axis_map.items()):
-            axis_min = general[4*i]
-            axis_max = general[4*i + 1]
-            axis_label = general[4*i + 2]
-            axis_scale = general[4*i + 3]
+            axis_min = general[4 * i]
+            axis_max = general[4 * i + 1]
+            axis_label = general[4 * i + 2]
+            axis_scale = general[4 * i + 3]
             if axis.get_scale() != axis_scale:
                 getattr(axes, f"set_{name}scale")(axis_scale)
 
@@ -215,8 +217,17 @@ def figure_edit(axes, parent=None):
         # Set / Curves
         for index, curve in enumerate(curves):
             line = labeled_lines[index][1]
-            (label, linestyle, drawstyle, linewidth, color, marker, markersize,
-             markerfacecolor, markeredgecolor) = curve
+            (
+                label,
+                linestyle,
+                drawstyle,
+                linewidth,
+                color,
+                marker,
+                markersize,
+                markerfacecolor,
+                markeredgecolor,
+            ) = curve
             line.set_label(label)
             line.set_linestyle(linestyle)
             line.set_drawstyle(drawstyle)
@@ -224,7 +235,7 @@ def figure_edit(axes, parent=None):
             rgba = mcolors.to_rgba(color)
             line.set_alpha(None)
             line.set_color(rgba)
-            if marker != 'none':
+            if marker != "none":
                 line.set_marker(marker)
                 line.set_markersize(markersize)
                 line.set_markerfacecolor(markerfacecolor)
@@ -234,8 +245,9 @@ def figure_edit(axes, parent=None):
         for index, mappable_settings in enumerate(mappables):
             mappable = labeled_mappables[index][1]
             if len(mappable_settings) == 6:
-                label, cmap, low, high, interpolation, interpolation_stage = \
-                  mappable_settings
+                label, cmap, low, high, interpolation, interpolation_stage = (
+                    mappable_settings
+                )
                 mappable.set_interpolation(interpolation)
                 mappable.set_interpolation_stage(interpolation_stage)
             elif len(mappable_settings) == 4:
@@ -252,9 +264,54 @@ def figure_edit(axes, parent=None):
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
                 ncols = old_legend._ncols
-            new_legend = axes.legend(ncols=ncols)
-            if new_legend:
-                new_legend.set_draggable(draggable)
+                fontsize = old_legend._fontsize
+                loc = old_legend._loc
+                title = old_legend.get_title().get_text()
+                alignment = old_legend.get_alignment()
+                frameon = old_legend.get_frame_on()
+                borderpad = old_legend.borderpad
+                labelspacing = old_legend.labelspacing
+                handleheight = old_legend.handleheight
+                handletextpad = old_legend.handletextpad
+                borderaxespad = old_legend.borderaxespad
+                columnspacing = old_legend.columnspacing
+                shadow = old_legend.shadow
+                markerscale = old_legend.markerscale
+                numpoints = old_legend.numpoints
+                scatterpoints = old_legend.scatterpoints
+                bbox = old_legend.get_bbox_to_anchor()
+                if bbox is not None:
+                    try:
+                        bbox = bbox.bounds
+                        bbox_tuple = (bbox[0] + bbox[2], bbox[1] + bbox[3])
+                    except Exception:
+                        bbox_tuple = None
+                    else:
+                        bbox_tuple = None
+
+                new_legend = axes.legend(
+                    ncols=ncols,
+                    fontsize=fontsize,
+                    loc=loc,
+                    title=title,
+                    alignment=alignment,
+                    frameon=frameon,
+                    borderpad=borderpad,
+                    labelspacing=labelspacing,
+                    handleheight=handleheight,
+                    handletextpad=handletextpad,
+                    borderaxespad=borderaxespad,
+                    columnspacing=columnspacing,
+                    shadow=shadow,
+                    markerscale=markerscale,
+                    numpoints=numpoints,
+                    scatterpoints=scatterpoints,
+                    bbox_to_anchor=bbox_tuple if bbox_tuple else None,
+                )
+                # new_legend = deepcopy(old_legend)
+                # axes.add_artist(new_legend)
+                if new_legend:
+                    new_legend.set_draggable(draggable)
 
         # Redraw
         figure = axes.get_figure()
@@ -265,7 +322,9 @@ def figure_edit(axes, parent=None):
                 break
 
     _formlayout.fedit(
-        datalist, title="Figure options", parent=parent,
-        icon=QtGui.QIcon(
-            str(cbook._get_data_path('images', 'qt4_editor_options.svg'))),
-        apply=apply_callback)
+        datalist,
+        title="Figure options",
+        parent=parent,
+        icon=QtGui.QIcon(str(cbook._get_data_path("images", "qt4_editor_options.svg"))),
+        apply=apply_callback,
+    )
