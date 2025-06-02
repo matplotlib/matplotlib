@@ -15,20 +15,6 @@ import matplotlib.transforms as mtransforms
 from matplotlib.spines import Spine
 
 
-def _apply_theta_transforms_warn():
-    _api.warn_deprecated(
-                "3.9",
-                message=(
-                    "Passing `apply_theta_transforms=True` (the default) "
-                    "is deprecated since Matplotlib %(since)s. "
-                    "Support for this will be removed in Matplotlib in %(removal)s. "
-                    "To prevent this warning, set `apply_theta_transforms=False`, "
-                    "and make sure to shift theta values before being passed to "
-                    "this transform."
-                )
-            )
-
-
 class PolarTransform(mtransforms.Transform):
     r"""
     The base polar transform.
@@ -48,8 +34,7 @@ class PolarTransform(mtransforms.Transform):
 
     input_dims = output_dims = 2
 
-    def __init__(self, axis=None, use_rmin=True, *,
-                 apply_theta_transforms=True, scale_transform=None):
+    def __init__(self, axis=None, use_rmin=True, *, scale_transform=None):
         """
         Parameters
         ----------
@@ -64,15 +49,12 @@ class PolarTransform(mtransforms.Transform):
         super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
-        self._apply_theta_transforms = apply_theta_transforms
         self._scale_transform = scale_transform
-        if apply_theta_transforms:
-            _apply_theta_transforms_warn()
 
     __str__ = mtransforms._make_str_method(
         "_axis",
-        use_rmin="_use_rmin",
-        apply_theta_transforms="_apply_theta_transforms")
+        use_rmin="_use_rmin"
+    )
 
     def _get_rorigin(self):
         # Get lower r limit after being scaled by the radial scale transform
@@ -82,11 +64,6 @@ class PolarTransform(mtransforms.Transform):
     def transform_non_affine(self, values):
         # docstring inherited
         theta, r = np.transpose(values)
-        # PolarAxes does not use the theta transforms here, but apply them for
-        # backwards-compatibility if not being used by it.
-        if self._apply_theta_transforms and self._axis is not None:
-            theta *= self._axis.get_theta_direction()
-            theta += self._axis.get_theta_offset()
         if self._use_rmin and self._axis is not None:
             r = (r - self._get_rorigin()) * self._axis.get_rsign()
         r = np.where(r >= 0, r, np.nan)
@@ -148,10 +125,7 @@ class PolarTransform(mtransforms.Transform):
 
     def inverted(self):
         # docstring inherited
-        return PolarAxes.InvertedPolarTransform(
-            self._axis, self._use_rmin,
-            apply_theta_transforms=self._apply_theta_transforms
-        )
+        return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin)
 
 
 class PolarAffine(mtransforms.Affine2DBase):
@@ -209,8 +183,7 @@ class InvertedPolarTransform(mtransforms.Transform):
     """
     input_dims = output_dims = 2
 
-    def __init__(self, axis=None, use_rmin=True,
-                 *, apply_theta_transforms=True):
+    def __init__(self, axis=None, use_rmin=True):
         """
         Parameters
         ----------
@@ -225,26 +198,16 @@ class InvertedPolarTransform(mtransforms.Transform):
         super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
-        self._apply_theta_transforms = apply_theta_transforms
-        if apply_theta_transforms:
-            _apply_theta_transforms_warn()
 
     __str__ = mtransforms._make_str_method(
         "_axis",
-        use_rmin="_use_rmin",
-        apply_theta_transforms="_apply_theta_transforms")
+        use_rmin="_use_rmin")
 
     def transform_non_affine(self, values):
         # docstring inherited
         x, y = values.T
         r = np.hypot(x, y)
         theta = (np.arctan2(y, x) + 2 * np.pi) % (2 * np.pi)
-        # PolarAxes does not use the theta transforms here, but apply them for
-        # backwards-compatibility if not being used by it.
-        if self._apply_theta_transforms and self._axis is not None:
-            theta -= self._axis.get_theta_offset()
-            theta *= self._axis.get_theta_direction()
-            theta %= 2 * np.pi
         if self._use_rmin and self._axis is not None:
             r += self._axis.get_rorigin()
             r *= self._axis.get_rsign()
@@ -252,10 +215,7 @@ class InvertedPolarTransform(mtransforms.Transform):
 
     def inverted(self):
         # docstring inherited
-        return PolarAxes.PolarTransform(
-            self._axis, self._use_rmin,
-            apply_theta_transforms=self._apply_theta_transforms
-        )
+        return PolarAxes.PolarTransform(self._axis, self._use_rmin)
 
 
 class ThetaFormatter(mticker.Formatter):
@@ -895,7 +855,6 @@ class PolarAxes(Axes):
         # data.  This one is aware of rmin
         self.transProjection = self.PolarTransform(
             self,
-            apply_theta_transforms=False,
             scale_transform=self.transScale
         )
         # Add dependency on rorigin.
