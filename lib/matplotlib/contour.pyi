@@ -1,7 +1,7 @@
 import matplotlib.cm as cm
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
-from matplotlib.collections import Collection, PathCollection
+from matplotlib.collections import Collection
 from matplotlib.colorizer import Colorizer, ColorizingArtist
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.path import Path

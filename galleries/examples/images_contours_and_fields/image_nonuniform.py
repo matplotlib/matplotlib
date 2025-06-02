@@ -3,15 +3,17 @@
 Image nonuniform
 ================
 
-This illustrates the NonUniformImage class.  It is not
-available via an Axes method, but it is easily added to an
-Axes instance as shown here.
+`.NonUniformImage` is a generalized image with pixels on a rectilinear grid,
+i.e. it allows rows and columns with individual heights / widths.
+
+There is no high-level plotting method on `~.axes.Axes` or `.pyplot` to
+create a NonUniformImage. Instead, you have to instantiate the image
+explicitly add it to the Axes using `.Axes.add_image`.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib import cm
 from matplotlib.image import NonUniformImage
 
 interp = 'nearest'
@@ -30,7 +32,7 @@ fig, axs = plt.subplots(nrows=2, ncols=2, layout='constrained')
 fig.suptitle('NonUniformImage class', fontsize='large')
 ax = axs[0, 0]
 im = NonUniformImage(ax, interpolation=interp, extent=(-4, 4, -4, 4),
-                     cmap=cm.Purples)
+                     cmap="Purples")
 im.set_data(x, y, z)
 ax.add_image(im)
 ax.set_xlim(-4, 4)
@@ -39,7 +41,7 @@ ax.set_title(interp)
 
 ax = axs[0, 1]
 im = NonUniformImage(ax, interpolation=interp, extent=(-64, 64, -4, 4),
-                     cmap=cm.Purples)
+                     cmap="Purples")
 im.set_data(x2, y, z)
 ax.add_image(im)
 ax.set_xlim(-64, 64)
@@ -50,7 +52,7 @@ interp = 'bilinear'
 
 ax = axs[1, 0]
 im = NonUniformImage(ax, interpolation=interp, extent=(-4, 4, -4, 4),
-                     cmap=cm.Purples)
+                     cmap="Purples")
 im.set_data(x, y, z)
 ax.add_image(im)
 ax.set_xlim(-4, 4)
@@ -59,7 +61,7 @@ ax.set_title(interp)
 
 ax = axs[1, 1]
 im = NonUniformImage(ax, interpolation=interp, extent=(-64, 64, -4, 4),
-                     cmap=cm.Purples)
+                     cmap="Purples")
 im.set_data(x2, y, z)
 ax.add_image(im)
 ax.set_xlim(-64, 64)

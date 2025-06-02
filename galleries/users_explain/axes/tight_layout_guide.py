@@ -9,14 +9,16 @@ Tight layout guide
 
 How to use tight-layout to fit plots within your figure cleanly.
 
+.. tip::
+
+   *tight_layout* was the first layout engine in Matplotlib. The more modern
+   and more capable :ref:`Constrained Layout <constrainedlayout_guide>` should
+   typically be used instead.
+
 *tight_layout* automatically adjusts subplot params so that the
 subplot(s) fits in to the figure area. This is an experimental
 feature and may not work for some cases. It only checks the extents
 of ticklabels, axis labels, and titles.
-
-An alternative to *tight_layout* is :ref:`constrained_layout
-<constrainedlayout_guide>`.
-
 
 Simple example
 ==============
@@ -164,6 +166,10 @@ plt.tight_layout()
 # * ``pad=0`` can clip some texts by a few pixels. This may be a bug or
 #   a limitation of the current algorithm, and it is not clear why it
 #   happens. Meanwhile, use of pad larger than 0.3 is recommended.
+#
+# * The algorithm of ``tight_layout`` does not necessarily converge,
+#   i.e. calling ``tight_layout`` multiple times can lead to slight
+#   variations in the layout between the calls.
 #
 # Use with GridSpec
 # =================

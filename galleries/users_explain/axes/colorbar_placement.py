@@ -143,43 +143,47 @@ fig.colorbar(pcm, cax=cax, orientation='horizontal')
 # Colorbars attached to fixed-aspect-ratio Axes
 # ---------------------------------------------
 #
-# Placing colorbars for Axes with a fixed aspect ratio pose a particular
-# challenge as the parent Axes changes size depending on the data view.
+# Axes with a fixed aspect ratio may shrink in height to preserve the aspect
+# ratio of the underlying data. This can result in the colorbar becoming taller
+# than the associated Axes, as demonstrated in the following example.
 
-fig, axs = plt.subplots(2, 2,  layout='constrained')
-cmaps = ['RdBu_r', 'viridis']
-for col in range(2):
-    for row in range(2):
-        ax = axs[row, col]
-        pcm = ax.pcolormesh(np.random.random((20, 20)) * (col + 1),
-                            cmap=cmaps[col])
-        if col == 0:
-            ax.set_aspect(2)
-        else:
-            ax.set_aspect(1/2)
-        if row == 1:
-            fig.colorbar(pcm, ax=ax, shrink=0.6)
+fig, ax = plt.subplots(layout='constrained', figsize=(4, 4))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+fig.colorbar(pcm, ax=ax)
 
 # %%
-# We solve this problem using `.Axes.inset_axes` to locate the Axes in "axes
-# coordinates" (see :ref:`transforms_tutorial`).  Note that if you zoom in on
-# the parent Axes, and thus change the shape of it, the colorbar will also
-# change position.
+# To automatically adjust the colorbar size to match the parent Axes, we can
+# use ``layout='compressed'``. This ensures that as the figure is resized or
+# the fixed-aspect-ratio Axes is zoomed in or out, the colorbar dynamically
+# resizes to align with the parent Axes.
 
-fig, axs = plt.subplots(2, 2, layout='constrained')
-cmaps = ['RdBu_r', 'viridis']
-for col in range(2):
-    for row in range(2):
-        ax = axs[row, col]
-        pcm = ax.pcolormesh(np.random.random((20, 20)) * (col + 1),
-                            cmap=cmaps[col])
-        if col == 0:
-            ax.set_aspect(2)
-        else:
-            ax.set_aspect(1/2)
-        if row == 1:
-            cax = ax.inset_axes([1.04, 0.2, 0.05, 0.6])
-            fig.colorbar(pcm, cax=cax)
+fig, ax = plt.subplots(layout='compressed', figsize=(4, 4))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+ax.set_title("Colorbar with layout='compressed'", fontsize='medium')
+fig.colorbar(pcm, ax=ax)
+
+# %%
+# Alternatively, we can manually position the colorbar using `.Axes.inset_axes`
+# with axes-relative coordinates. This approach provides precise control over
+# the colorbar's placement. However, without a layout engine, the colorbar
+# might be clipped if it extends beyond the figure boundaries.
+
+fig, ax = plt.subplots(layout='constrained', figsize=(4, 4))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+cax = ax.inset_axes([1.04, 0.0, 0.05, 1.0])  # Positioning the colorbar
+ax.set_title('Colorbar with inset_axes', fontsize='medium')
+fig.colorbar(pcm, cax=cax)
+
+# %%
+# We can also do this manually using an `.Axes.inset_axes` using axes-relative
+# coordinates (see :ref:`transforms_tutorial`).  Note that if we do not use a
+# layout engine, the colorbar will be clipped off the right side of the figure.
+
+fig, ax = plt.subplots(layout='constrained', figsize=(4, 4))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+cax = ax.inset_axes([1.04, 0.0, 0.05, 1.0])
+ax.set_title('Colorbar with inset_axes', fontsize='medium')
+fig.colorbar(pcm, cax=cax)
 
 # %%
 # .. seealso::

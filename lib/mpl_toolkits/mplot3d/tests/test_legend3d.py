@@ -28,7 +28,7 @@ def test_legend_bar():
 
 
 @image_comparison(['fancy.png'], remove_text=True, style='mpl20',
-                  tol=0.011 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.011)
 def test_fancy():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     ax.plot(np.arange(10), np.full(10, 5), np.full(10, 5), 'o--', label='line')

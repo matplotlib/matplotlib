@@ -1,0 +1,7 @@
+``DviFont.widths``
+~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.
+
+Direct access to ``Tfm``'s ``widths``, ``heights``, ``depths`` dicts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated; access a glyph's metrics with `.Tfm.get_metrics` instead.

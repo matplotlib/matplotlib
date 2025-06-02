@@ -62,6 +62,7 @@ from matplotlib._enums import JoinStyle, CapStyle
 _log = logging.getLogger(__name__)
 _default_filetypes = {
     'eps': 'Encapsulated Postscript',
+    'gif': 'Graphics Interchange Format',
     'jpg': 'Joint Photographic Experts Group',
     'jpeg': 'Joint Photographic Experts Group',
     'pdf': 'Portable Document Format',
@@ -78,6 +79,7 @@ _default_filetypes = {
 }
 _default_backends = {
     'eps': 'matplotlib.backends.backend_ps',
+    'gif': 'matplotlib.backends.backend_agg',
     'jpg': 'matplotlib.backends.backend_agg',
     'jpeg': 'matplotlib.backends.backend_agg',
     'pdf': 'matplotlib.backends.backend_pdf',
@@ -206,7 +208,7 @@ class RendererBase:
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
+                             offset_position, *, hatchcolors=None):
         """
         Draw a collection of *paths*.
 
@@ -215,8 +217,11 @@ class RendererBase:
         *master_transform*.  They are then translated by the corresponding
         entry in *offsets*, which has been first transformed by *offset_trans*.
 
-        *facecolors*, *edgecolors*, *linewidths*, *linestyles*, and
-        *antialiased* are lists that set the corresponding properties.
+        *facecolors*, *edgecolors*, *linewidths*, *linestyles*, *antialiased*
+        and *hatchcolors* are lists that set the corresponding properties.
+
+        .. versionadded:: 3.11
+            Allow *hatchcolors* to be specified.
 
         *offset_position* is unused now, but the argument is kept for
         backwards compatibility.
@@ -233,10 +238,13 @@ class RendererBase:
         path_ids = self._iter_collection_raw_paths(master_transform,
                                                    paths, all_transforms)
 
+        if hatchcolors is None:
+            hatchcolors = []
+
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, list(path_ids), offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
             path, transform = path_id
             # Only apply another translation if we have an offset, else we
             # reuse the initial transform.
@@ -335,7 +343,7 @@ class RendererBase:
 
     def _iter_collection(self, gc, path_ids, offsets, offset_trans, facecolors,
                          edgecolors, linewidths, linestyles,
-                         antialiaseds, urls, offset_position):
+                         antialiaseds, urls, offset_position, *, hatchcolors):
         """
         Helper method (along with `_iter_collection_raw_paths`) to implement
         `draw_path_collection` in a memory-efficient manner.
@@ -363,11 +371,12 @@ class RendererBase:
         N = max(Npaths, Noffsets)
         Nfacecolors = len(facecolors)
         Nedgecolors = len(edgecolors)
+        Nhatchcolors = len(hatchcolors)
         Nlinewidths = len(linewidths)
         Nlinestyles = len(linestyles)
         Nurls = len(urls)
 
-        if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
+        if (Nfacecolors == 0 and Nedgecolors == 0 and Nhatchcolors == 0) or Npaths == 0:
             return
 
         gc0 = self.new_gc()
@@ -382,6 +391,7 @@ class RendererBase:
         toffsets = cycle_or_default(offset_trans.transform(offsets), (0, 0))
         fcs = cycle_or_default(facecolors)
         ecs = cycle_or_default(edgecolors)
+        hcs = cycle_or_default(hatchcolors)
         lws = cycle_or_default(linewidths)
         lss = cycle_or_default(linestyles)
         aas = cycle_or_default(antialiaseds)
@@ -390,8 +400,8 @@ class RendererBase:
         if Nedgecolors == 0:
             gc0.set_linewidth(0.0)
 
-        for pathid, (xo, yo), fc, ec, lw, ls, aa, url in itertools.islice(
-                zip(pathids, toffsets, fcs, ecs, lws, lss, aas, urls), N):
+        for pathid, (xo, yo), fc, ec, hc, lw, ls, aa, url in itertools.islice(
+                zip(pathids, toffsets, fcs, ecs, hcs, lws, lss, aas, urls), N):
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
             if Nedgecolors:
@@ -403,6 +413,8 @@ class RendererBase:
                     gc0.set_linewidth(0)
                 else:
                     gc0.set_foreground(ec)
+            if Nhatchcolors:
+                gc0.set_hatch_color(hc)
             if fc is not None and len(fc) == 4 and fc[3] == 0:
                 fc = None
             gc0.set_antialiased(aa)
@@ -428,11 +440,11 @@ class RendererBase:
         gc : `.GraphicsContextBase`
             A graphics context with clipping information.
 
-        x : scalar
+        x : float
             The distance in physical units (i.e., dots or pixels) from the left
             hand side of the canvas.
 
-        y : scalar
+        y : float
             The distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
@@ -666,7 +678,8 @@ class RendererBase:
         cost of the draw_XYZ calls on the canvas.
         """
         no_ops = {
-            meth_name: lambda *args, **kwargs: None
+            meth_name: functools.update_wrapper(lambda *args, **kwargs: None,
+                                                getattr(RendererBase, meth_name))
             for meth_name in dir(RendererBase)
             if (meth_name.startswith("draw_")
                 or meth_name in ["open_group", "close_group"])
@@ -2218,7 +2231,7 @@ class FigureCanvasBase:
         # Characters to be avoided in a NT path:
         # https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx#naming_conventions
         # plus ' '
-        removed_chars = r'<>:"/\|?*\0 '
+        removed_chars = '<>:"/\\|?*\0 '
         default_basename = default_basename.translate(
             {ord(c): "_" for c in removed_chars})
         default_filetype = self.get_default_filetype()
@@ -2728,23 +2741,24 @@ class FigureManagerBase:
         """For GUI backends, resize the window (in physical pixels)."""
 
     def get_window_title(self):
-        """
-        Return the title text of the window containing the figure, or None
-        if there is no window (e.g., a PS backend).
-        """
-        return 'image'
+        """Return the title text of the window containing the figure."""
+        return self._window_title
 
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.
-
-        This has no effect for non-GUI (e.g., PS) backends.
 
         Examples
         --------
         >>> fig = plt.figure()
         >>> fig.canvas.manager.set_window_title('My figure')
         """
+        # This attribute is not defined in __init__ (but __init__ calls this
+        # setter), as derived classes (real GUI managers) will store this
+        # information directly on the widget; only the base (non-GUI) manager
+        # class needs a specific attribute for it (so that filename escaping
+        # can be checked in the test suite).
+        self._window_title = title
 
 
 cursors = tools.cursors

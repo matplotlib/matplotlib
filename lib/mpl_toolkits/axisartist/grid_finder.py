@@ -36,14 +36,10 @@ def _find_line_box_crossings(xys, bbox):
         for u0, inside in [(umin, us > umin), (umax, us < umax)]:
             cross = []
             idxs, = (inside[:-1] ^ inside[1:]).nonzero()
-            for idx in idxs:
-                v = vs[idx] + (u0 - us[idx]) * dvs[idx] / dus[idx]
-                if not vmin <= v <= vmax:
-                    continue
-                crossing = (u0, v)[sl]
-                theta = np.degrees(np.arctan2(*dxys[idx][::-1]))
-                cross.append((crossing, theta))
-            crossings.append(cross)
+            vv = vs[idxs] + (u0 - us[idxs]) * dvs[idxs] / dus[idxs]
+            crossings.append([
+                ((u0, v)[sl], np.degrees(np.arctan2(*dxy[::-1])))  # ((x, y), theta)
+                for v, dxy in zip(vv, dxys[idxs]) if vmin <= v <= vmax])
     return crossings
 
 

@@ -16,8 +16,8 @@ issue #8576".
 
 If possible, please provide a minimum self-contained example.  If you have used
 generative AI as an aid in preparing this PR, see
-https://dev.matplotlib.org/devel/contributing.html#generative_ai.
 
+https://matplotlib.org/devdocs/devel/contribute.html#restrictions-on-generative-ai-usage
 -->
 
 

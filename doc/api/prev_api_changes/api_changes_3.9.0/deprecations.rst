@@ -4,7 +4,7 @@ Deprecations
 ``plot_date``
 ^^^^^^^^^^^^^
 
-Use of `~.Axes.plot_date` has been discouraged since Matplotlib 3.5 and the function is
+Use of ``plot_date`` has been discouraged since Matplotlib 3.5 and the function is
 now formally deprecated.
 
 - ``datetime``-like data should directly be plotted using `~.Axes.plot`.

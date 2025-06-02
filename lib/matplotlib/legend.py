@@ -459,6 +459,7 @@ class Legend(Artist):
             labels = [*reversed(labels)]
             handles = [*reversed(handles)]
 
+        handles = list(handles)
         if len(handles) < 2:
             ncols = 1
         self._ncols = ncols if ncols != 1 else ncol
@@ -1286,7 +1287,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         legend(handles=handles, labels=labels)
 
     The behavior for a mixture of positional and keyword handles and labels
-    is undefined and issues a warning; it will be an error in the future.
+    is undefined and raises an error.
 
     Parameters
     ----------
@@ -1319,10 +1320,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     handlers = kwargs.get('handler_map')
 
     if (handles is not None or labels is not None) and args:
-        _api.warn_deprecated("3.9", message=(
-            "You have mixed positional and keyword arguments, some input may "
-            "be discarded.  This is deprecated since %(since)s and will "
-            "become an error in %(removal)s."))
+        raise TypeError("When passing handles and labels, they must both be "
+                        "passed positionally or both as keywords.")
 
     if (hasattr(handles, "__len__") and
             hasattr(labels, "__len__") and

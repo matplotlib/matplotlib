@@ -8,7 +8,7 @@ from matplotlib import (
 
 
 @pytest.mark.backend('cairo')
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_patch_alpha_coloring(fig_test, fig_ref):
     """
     Test checks that the patch and collection are rendered with the specified

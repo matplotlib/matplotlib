@@ -22,7 +22,7 @@ def setup_axes(fig, rect):
     grid_helper = GridHelperCurveLinear(
         (
             Affine2D().scale(np.pi/180., 1.) +
-            PolarAxes.PolarTransform(apply_theta_transforms=False)
+            PolarAxes.PolarTransform()
         ),
         extreme_finder=angle_helper.ExtremeFinderCycle(
             20, 20,

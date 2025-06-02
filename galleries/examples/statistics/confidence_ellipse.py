@@ -219,7 +219,7 @@ plt.show()
 #
 # .. tags::
 #
-#    plot-type: speciality
+#    plot-type: specialty
 #    plot-type: scatter
 #    component: ellipse
 #    component: patch

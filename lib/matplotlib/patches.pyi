@@ -25,7 +25,7 @@ class Patch(artist.Artist):
         fill: bool = ...,
         capstyle: CapStyleType | None = ...,
         joinstyle: JoinStyleType | None = ...,
-        hatchcolor: ColorType | None = ...,
+        hatchcolor: ColorType | Literal["edge"] | None = ...,
         **kwargs,
     ) -> None: ...
     def get_verts(self) -> ArrayLike: ...

@@ -48,6 +48,7 @@ class Tick(martist.Artist):
         label2On: bool = ...,
         major: bool = ...,
         labelrotation: float = ...,
+        labelrotation_mode: Literal["default", "anchor", "xtick", "ytick"] | None = ...,
         grid_color: ColorType | None = ...,
         grid_linestyle: str | None = ...,
         grid_linewidth: float | None = ...,

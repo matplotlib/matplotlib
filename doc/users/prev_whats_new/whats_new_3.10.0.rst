@@ -1,6 +1,6 @@
-=============================================
-What's new in Matplotlib 3.10.0 (Dec 14, 2024)
-=============================================
+===================================================
+What's new in Matplotlib 3.10.0 (December 13, 2024)
+===================================================
 
 For a list of all of the issues and pull requests since the last revision, see the
 :ref:`github-stats`.
@@ -13,7 +13,6 @@ For a list of all of the issues and pull requests since the last revision, see t
 
 Accessible Colors
 =================
-
 
 New more-accessible color cycle
 -------------------------------
@@ -56,9 +55,15 @@ colour maps version 8.0.1 (DOI: https://doi.org/10.5281/zenodo.1243862).
     img = np.sin(x*y)
 
     _, ax = plt.subplots(1, 3)
-    ax[0].imshow(img, cmap=plt.cm.berlin)
-    ax[1].imshow(img, cmap=plt.cm.managua)
-    ax[2].imshow(img, cmap=plt.cm.vanimo)
+    ax[0].imshow(img, cmap="berlin")
+    ax[1].imshow(img, cmap="managua")
+    ax[2].imshow(img, cmap="vanimo")
+
+
+
+Plotting and Annotation improvements
+====================================
+
 
 
 
@@ -291,6 +296,62 @@ the ``set_data`` method, enabling e.g. resampling
     coll.set_data(t, -t**4, t**4)
     fig.savefig("after.png")
 
+
+``matplotlib.colorizer.Colorizer`` as container for ``norm`` and ``cmap``
+-------------------------------------------------------------------------
+
+ `matplotlib.colorizer.Colorizer` encapsulates the data-to-color pipeline. It makes reuse of colormapping easier, e.g. across multiple images. Plotting methods that support *norm* and *cmap* keyword arguments now also accept a *colorizer* keyword argument.
+
+In the following example the norm and cmap are changed on multiple plots simultaneously:
+
+
+.. plot::
+    :include-source: true
+    :alt: Example use of a matplotlib.colorizer.Colorizer object
+
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+    import numpy as np
+
+    x = np.linspace(-2, 2, 50)[np.newaxis, :]
+    y = np.linspace(-2, 2, 50)[:, np.newaxis]
+    im_0 = 1 * np.exp( - (x**2 + y**2 - x * y))
+    im_1 = 2 * np.exp( - (x**2 + y**2 + x * y))
+
+    colorizer = mpl.colorizer.Colorizer()
+    fig, axes = plt.subplots(1, 2, figsize=(6, 2))
+    cim_0 = axes[0].imshow(im_0, colorizer=colorizer)
+    fig.colorbar(cim_0)
+    cim_1 = axes[1].imshow(im_1, colorizer=colorizer)
+    fig.colorbar(cim_1)
+
+    colorizer.vmin = 0.5
+    colorizer.vmax = 2
+    colorizer.cmap = 'RdBu'
+
+All plotting methods that use a data-to-color pipeline now create a colorizer object if one is not provided. This can be re-used by subsequent artists such that they will share a single data-to-color pipeline:
+
+.. plot::
+    :include-source: true
+    :alt: Example of how artists that share a ``colorizer`` have coupled colormaps
+
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+    import numpy as np
+
+    x = np.linspace(-2, 2, 50)[np.newaxis, :]
+    y = np.linspace(-2, 2, 50)[:, np.newaxis]
+    im_0 = 1 * np.exp( - (x**2 + y**2 - x * y))
+    im_1 = 2 * np.exp( - (x**2 + y**2 + x * y))
+
+    fig, axes = plt.subplots(1, 2, figsize=(6, 2))
+
+    cim_0 = axes[0].imshow(im_0, cmap='RdBu', vmin=0.5, vmax=2)
+    fig.colorbar(cim_0)
+    cim_1 = axes[1].imshow(im_1, colorizer=cim_0.colorizer)
+    fig.colorbar(cim_1)
+
+    cim_1.cmap = 'rainbow'
 
 3D plotting improvements
 ========================

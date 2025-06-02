@@ -87,7 +87,7 @@ if __name__ == "__main__":
                             )
         ax1.add_artist(ab)
 
-    ax1.imshow([[0, 1, 2], [1, 2, 3]], cmap=plt.cm.gist_gray_r,
+    ax1.imshow([[0, 1, 2], [1, 2, 3]], cmap="gist_gray_r",
                interpolation="bilinear", aspect="auto")
 
     # EXAMPLE 2

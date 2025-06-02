@@ -115,6 +115,7 @@ specification of the dependencies.
 ==========  ========  ======
 Matplotlib  Python    NumPy
 ==========  ========  ======
+3.11        3.11      1.25.0
 `3.10`_     3.10      1.23.0
 `3.9`_      3.9       1.23.0
 `3.8`_      3.9       1.21.0
@@ -154,3 +155,50 @@ Matplotlib  Python    NumPy
 .. _`1.5`: https://matplotlib.org/1.5.0/users/installing.html#required-dependencies
 .. _`1.4`: https://matplotlib.org/1.4.0/users/installing.html#required-dependencies
 .. _`1.3`: https://matplotlib.org/1.3.0/users/installing.html#build-requirements
+
+
+Updating Python and NumPy versions
+==================================
+
+To update the minimum versions of Python we need to update:
+
+- ``pyproject.toml`` (classifiers, requires-python, ``[tool.ruff]`` target-version)
+- ``environment.yml``
+- ``doc/install/dependencies.rst``
+- ``doc/devel/min_dep_policy.rst`` (this file)
+- CI configuration files (circle, GHA, azure)
+- ``tox.ini``
+
+To update the minimum NumPy we need to update:
+
+- ``pyproject.toml``
+- ``environment.yml``
+- ``doc/install/dependencies.rst``
+- ``doc/devel/min_dep_policy.rst`` (this file)
+- ``requirements/testing/minver.txt``
+- ``lib/matplotlib/__init__.py`` (matplotlib._check_versions())
+
+
+The work to leverage new features or remove workarounds for no-longer supported
+versions should be done in a follow-on PRs to keep the version bump PRs well
+scoped.
+
+In both cases add an api_changes/development with the following template:
+
+.. code-block:: rst
+
+   Increase to minimum supported versions of dependencies
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   For Matplotlib 3.ZZ, the :ref:`minimum supported versions <dependencies>` are
+   being bumped:
+
+   +------------+-----------------+----------------+
+   | Dependency |  min in mpl3.N  | min in mpl3.M  |
+   +============+=================+================+
+   |   Python   |       3.XX      |       3.AA     |
+   |   NumPy    |       1.YY      |       1.BB     |
+   +------------+-----------------+----------------+
+
+   This is consistent with our :ref:`min_deps_policy` and `SPEC0
+   <https://scientific-python.org/specs/spec-0000/>`__

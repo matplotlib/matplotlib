@@ -3,7 +3,9 @@ Scales define the distribution of data values on an axis, e.g. a log scaling.
 
 The mapping is implemented through `.Transform` subclasses.
 
-The following scales are builtin:
+The following scales are built-in:
+
+.. _builtin_scales:
 
 ============= ===================== ================================ =================================
 Name          Class                 Transform                        Inverted transform

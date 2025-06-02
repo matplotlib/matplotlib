@@ -40,7 +40,7 @@ dx = 111200 * dx * np.cos(np.radians(dem['ymin']))
 
 # Shade from the northwest, with the sun 45 degrees from horizontal
 ls = LightSource(azdeg=315, altdeg=45)
-cmap = plt.cm.gist_earth
+cmap = plt.colormaps["gist_earth"]
 
 fig, axs = plt.subplots(nrows=4, ncols=3, figsize=(8, 9))
 plt.setp(axs.flat, xticks=[], yticks=[])

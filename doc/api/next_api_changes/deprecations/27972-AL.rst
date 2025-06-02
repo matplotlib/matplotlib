@@ -1,0 +1,8 @@
+``axes_grid.Grid.ngrids``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute has been deprecated and renamed ``n_axes``, consistently with
+the new name of the `~.axes_grid.Grid` constructor parameter that allows
+setting the actual number of axes in the grid (the old parameter, ``ngrids``,
+did not actually work since Matplotlib 3.3).
+
+The same change has been made in ``axes_grid.ImageGrid``.

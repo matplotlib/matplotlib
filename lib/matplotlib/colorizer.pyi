@@ -1,6 +1,5 @@
 from matplotlib import cbook, colorbar, colors, artist
 
-from typing import overload
 import numpy as np
 from numpy.typing import ArrayLike
 

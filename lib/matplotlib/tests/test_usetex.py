@@ -42,13 +42,13 @@ def test_usetex():
     ax.set_axis_off()
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_empty(fig_test, fig_ref):
     mpl.rcParams['text.usetex'] = True
     fig_test.text(.5, .5, "% a comment")
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_unicode_minus(fig_test, fig_ref):
     mpl.rcParams['text.usetex'] = True
     fig_test.text(.5, .5, "$-$")
@@ -185,3 +185,10 @@ def test_rotation():
                 # 'My' checks full height letters plus descenders.
                 ax.text(x, y, f"$\\mathrm{{My {text[ha]}{text[va]} {angle}}}$",
                         rotation=angle, horizontalalignment=ha, verticalalignment=va)
+
+
+def test_unicode_sizing():
+    tp = mpl.textpath.TextToPath()
+    scale1 = tp.get_glyphs_tex(mpl.font_manager.FontProperties(), "W")[0][0][3]
+    scale2 = tp.get_glyphs_tex(mpl.font_manager.FontProperties(), r"\textwon")[0][0][3]
+    assert scale1 == scale2

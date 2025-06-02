@@ -317,7 +317,7 @@ def test_remove_from_figure_cl():
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
-    Colorbar(ax, cmap=plt.cm.bone)
+    Colorbar(ax, cmap=plt.colormaps["bone"])
 
 
 def test_parentless_mappable():
@@ -491,12 +491,13 @@ def test_colorbar_autotickslog():
         pcm = ax[1].pcolormesh(X, Y, 10**Z, norm=LogNorm())
         cbar2 = fig.colorbar(pcm, ax=ax[1], extend='both',
                              orientation='vertical', shrink=0.4)
+
+        fig.draw_without_rendering()
         # note only -12 to +12 are visible
-        np.testing.assert_almost_equal(cbar.ax.yaxis.get_ticklocs(),
-                                       10**np.arange(-16., 16.2, 4.))
-        # note only -24 to +24 are visible
-        np.testing.assert_almost_equal(cbar2.ax.yaxis.get_ticklocs(),
-                                       10**np.arange(-24., 25., 12.))
+        np.testing.assert_equal(np.log10(cbar.ax.yaxis.get_ticklocs()),
+                                [-18, -12, -6, 0, +6, +12, +18])
+        np.testing.assert_equal(np.log10(cbar2.ax.yaxis.get_ticklocs()),
+                                [-36, -12, 12, +36])
 
 
 def test_colorbar_get_ticks():
@@ -597,7 +598,7 @@ def test_colorbar_renorm():
     norm = LogNorm(z.min(), z.max())
     im.set_norm(norm)
     np.testing.assert_allclose(cbar.ax.yaxis.get_majorticklocs(),
-                               np.logspace(-10, 7, 18))
+                               np.logspace(-9, 6, 16))
     # note that set_norm removes the FixedLocator...
     assert np.isclose(cbar.vmin, z.min())
     cbar.set_ticks([1, 2, 3])
@@ -847,7 +848,7 @@ def test_colorbar_change_lim_scale():
     cb.ax.set_ylim([20, 90])
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_axes_handles_same_functions(fig_ref, fig_test):
     # prove that cax and cb.ax are functionally the same
     for nn, fig in enumerate([fig_ref, fig_test]):
@@ -893,7 +894,7 @@ def test_twoslope_colorbar():
     fig.colorbar(pc)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_remove_cb_whose_mappable_has_no_figure(fig_ref, fig_test):
     ax = fig_test.add_subplot()
     cb = fig_test.colorbar(cm.ScalarMappable(), cax=ax)
@@ -1177,7 +1178,7 @@ def test_title_text_loc():
             cb.ax.spines['outline'].get_window_extent().ymax)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_passing_location(fig_ref, fig_test):
     ax_ref = fig_ref.add_subplot()
     im = ax_ref.imshow([[0, 1], [2, 3]])
