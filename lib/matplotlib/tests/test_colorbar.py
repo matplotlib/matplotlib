@@ -1239,3 +1239,13 @@ def test_colorbar_format_string_and_old():
     plt.imshow([[0, 1]])
     cb = plt.colorbar(format="{x}%")
     assert isinstance(cb._formatter, StrMethodFormatter)
+
+
+def test_colorizer():
+    fig, ax = plt.subplots()
+    c = mpl.colorizer.Colorizer(norm=mcolors.Normalize(), cmap='viridis')
+    fig.colorbar(c, cax=ax)
+    c.vmin = -1
+    c.vmax = 2
+    np.testing.assert_almost_equal(ax.yaxis.get_ticklocs()[0], -1)
+    np.testing.assert_almost_equal(ax.yaxis.get_ticklocs()[-1], 2)
