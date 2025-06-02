@@ -11,7 +11,8 @@ without an attached plot.
 A `~.Figure.colorbar` requires a `matplotlib.colorizer.ColorizingArtist` which
 contains a `matplotlib.colorizer.Colorizer` that holds the data-to-color pipeline
 (norm and colormap). To create a colorbar without an attached plot one can
-use a `.ColorizingArtist` with no associated data.
+directly instantiate the base class `.ColorizingArtist`, which has no associated
+data.
 
 """
 
