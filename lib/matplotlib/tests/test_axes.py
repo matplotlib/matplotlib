@@ -2182,7 +2182,7 @@ def test_grouped_bar():
     ax.set_yticks([])
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_grouped_bar_list_of_datasets(fig_test, fig_ref):
     categories = ['A', 'B']
     data1 = [1, 1.2]
@@ -2205,7 +2205,7 @@ def test_grouped_bar_list_of_datasets(fig_test, fig_ref):
     ax.legend()
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_grouped_bar_dict_of_datasets(fig_test, fig_ref):
     categories = ['A', 'B']
     data_dict = dict(data1=[1, 1.2], data2=[2, 2.4], data3=[3, 3.6])
@@ -2219,7 +2219,7 @@ def test_grouped_bar_dict_of_datasets(fig_test, fig_ref):
     ax.legend()
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_grouped_bar_array(fig_test, fig_ref):
     categories = ['A', 'B']
     array = np.array([[1, 2, 3], [1.2, 2.4, 3.6]])
@@ -2235,7 +2235,7 @@ def test_grouped_bar_array(fig_test, fig_ref):
     ax.legend()
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_grouped_bar_dataframe(fig_test, fig_ref, pd):
     categories = ['A', 'B']
     labels = ['data1', 'data2', 'data3']

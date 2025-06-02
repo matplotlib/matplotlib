@@ -3057,9 +3057,9 @@ class Axes(_AxesBase):
 
         .. code-block:: python
 
-           grouped_bar([dataset_1, dataset_2, dataset_3],
+           grouped_bar([dataset_0, dataset_1, dataset_2],
                        tick_labels=['A', 'B'],
-                       labels=['dataset 1', 'dataset 2', 'dataset 3'])
+                       labels=['dataset 0', 'dataset 1', 'dataset 2'])
 
         .. plot:: _embedded_plots/grouped_bar.py
 
@@ -3156,13 +3156,13 @@ or pandas.DataFrame
             These will show up in the legend.
 
         group_spacing : float, default: 1.5
-            The space between two bar groups as multiples of bar width.
+            The space between two bar groups as a multiple of bar width.
 
             The default value of 1.5 thus means that there's a gap of
             1.5 bar widths between bar groups.
 
         bar_spacing : float, default: 0
-            The space between bars as multiples of bar width.
+            The space between bars as a multiple of bar width.
 
         orientation : {"vertical", "horizontal"}, default: "vertical"
             The direction of the bars.
@@ -3181,17 +3181,17 @@ or pandas.DataFrame
 
         Returns
         -------
-            _GroupedBarReturn
+        _GroupedBarReturn
 
-                A provisional result object. This will be refined in the future.
-                For now, the guaranteed API on the returned object is limited to
+            A provisional result object. This will be refined in the future.
+            For now, the guaranteed API on the returned object is limited to
 
-                - the attribute ``bar_containers``, which is a list of
-                  `.BarContainer`, i.e. the results of the individual `~.Axes.bar`
-                  calls for each dataset.
+            - the attribute ``bar_containers``, which is a list of
+              `.BarContainer`, i.e. the results of the individual `~.Axes.bar`
+              calls for each dataset.
 
-                - a ``remove()`` method, that remove all bars from the Axes.
-                  See also `.Artist.remove()`.
+            - a ``remove()`` method, that remove all bars from the Axes.
+              See also `.Artist.remove()`.
 
         See Also
         --------
@@ -3261,8 +3261,7 @@ or pandas.DataFrame
             heights = heights.to_numpy().T
         elif hasattr(heights, 'keys'):  # dict
             if labels is not None:
-                raise ValueError(
-                    "'labels' cannot be used if 'heights' are a mapping")
+                raise ValueError("'labels' cannot be used if 'heights' is a mapping")
             labels = heights.keys()
             heights = list(heights.values())
         elif hasattr(heights, 'shape'):  # numpy array
@@ -3317,8 +3316,7 @@ or pandas.DataFrame
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
         bar_containers = []
-        for i, (hs, label, color) in enumerate(
-                zip(heights, labels, colors)):
+        for i, (hs, label, color) in enumerate(zip(heights, labels, colors)):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":

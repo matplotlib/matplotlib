@@ -41,6 +41,7 @@ import pandas as pd
 
 
 class _GroupedBarReturn:
+    bar_containers: list[BarContainer]
     def __init__(self, bar_containers: list[BarContainer]) -> None: ...
     def remove(self) -> None: ...
 
@@ -273,13 +274,13 @@ class Axes(_AxesBase):
     ) -> PolyCollection: ...
     def grouped_bar(
         self,
-        heights : Sequence[ArrayLike] | dict[str, ArrayLike] | np.ndarray | pd.DataFrame,
+        heights: Sequence[ArrayLike] | dict[str, ArrayLike] | np.ndarray | pd.DataFrame,
         *,
-        positions : ArrayLike | None = ...,
-        tick_labels : Sequence[str] | None = ...,
-        labels : Sequence[str] | None = ...,
-        group_spacing : float | None = ...,
-        bar_spacing : float | None = ...,
+        positions: ArrayLike | None = ...,
+        tick_labels: Sequence[str] | None = ...,
+        labels: Sequence[str] | None = ...,
+        group_spacing: float | None = ...,
+        bar_spacing: float | None = ...,
         orientation: Literal["vertical", "horizontal"] = ...,
         colors: Iterable[ColorType] | None = ...,
         **kwargs
