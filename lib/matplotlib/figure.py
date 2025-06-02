@@ -1200,17 +1200,18 @@ default: %(va)s
         Parameters
         ----------
         mappable
-            The `matplotlib.cm.ScalarMappable` (i.e., `.AxesImage`,
+            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`,
             `.ContourSet`, etc.) described by this colorbar.  This argument is
             mandatory for the `.Figure.colorbar` method but optional for the
             `.pyplot.colorbar` function, which sets the default to the current
             image.
 
-            Note that one can create a `.ScalarMappable` "on-the-fly" to
-            generate colorbars not attached to a previously drawn artist, e.g.
+            Note that one can create a `.colorizer.ColorizingArtist` "on-the-fly"
+            to generate colorbars not attached to a previously drawn artist, e.g.
             ::
 
-                fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
+                cr = colorizer.Colorizer(norm=norm, cmap=cmap)
+                fig.colorbar(colorizer.ColorizingArtist(cr), ax=ax)
 
         cax : `~matplotlib.axes.Axes`, optional
             Axes into which the colorbar will be drawn.  If `None`, then a new
