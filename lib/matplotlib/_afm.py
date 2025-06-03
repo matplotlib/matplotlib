@@ -27,9 +27,10 @@ are given in units of 1/1000 of the scale factor (point size) of the font
 being used.
 """
 
-from collections import namedtuple
+import inspect
 import logging
 import re
+from typing import BinaryIO, NamedTuple, TypedDict
 
 from ._mathtext_data import uni2type1
 
@@ -37,7 +38,7 @@ from ._mathtext_data import uni2type1
 _log = logging.getLogger(__name__)
 
 
-def _to_int(x):
+def _to_int(x: bytes | str) -> int:
     # Some AFM files have floats where we are expecting ints -- there is
     # probably a better way to handle this (support floats, round rather than
     # truncate).  But I don't know what the best approach is now and this
@@ -46,7 +47,7 @@ def _to_int(x):
     return int(float(x))
 
 
-def _to_float(x):
+def _to_float(x: bytes | str) -> float:
     # Some AFM files use "," instead of "." as decimal separator -- this
     # shouldn't be ambiguous (unless someone is wicked enough to use "," as
     # thousands separator...).
@@ -57,27 +58,56 @@ def _to_float(x):
     return float(x.replace(',', '.'))
 
 
-def _to_str(x):
+def _to_str(x: bytes) -> str:
     return x.decode('utf8')
 
 
-def _to_list_of_ints(s):
+def _to_list_of_ints(s: bytes) -> list[int]:
     s = s.replace(b',', b' ')
     return [_to_int(val) for val in s.split()]
 
 
-def _to_list_of_floats(s):
+def _to_list_of_floats(s: bytes | str) -> list[float]:
     return [_to_float(val) for val in s.split()]
 
 
-def _to_bool(s):
+def _to_bool(s: bytes) -> bool:
     if s.lower().strip() in (b'false', b'0', b'no'):
         return False
     else:
         return True
 
 
-def _parse_header(fh):
+class FontMetricsHeader(TypedDict, total=False):
+    StartFontMetrics: float
+    FontName: str
+    FullName: str
+    FamilyName: str
+    Weight: str
+    ItalicAngle: float
+    IsFixedPitch: bool
+    FontBBox: list[int]
+    UnderlinePosition: float
+    UnderlineThickness: float
+    Version: str
+    # Some AFM files have non-ASCII characters (which are not allowed by the spec).
+    # Given that there is actually no public API to even access this field, just return
+    # it as straight bytes.
+    Notice: bytes
+    EncodingScheme: str
+    CapHeight: float  # Is the second version a mistake, or
+    Capheight: float  # do some AFM files contain 'Capheight'? -JKS
+    XHeight: float
+    Ascender: float
+    Descender: float
+    StdHW: float
+    StdVW: float
+    StartCharMetrics: int
+    CharacterSet: str
+    Characters: int
+
+
+def _parse_header(fh: BinaryIO) -> FontMetricsHeader:
     """
     Read the font metrics header (up to the char metrics).
 
@@ -98,34 +128,15 @@ def _parse_header(fh):
             * '-168 -218 1000 898' -> [-168, -218, 1000, 898]
     """
     header_converters = {
-        b'StartFontMetrics': _to_float,
-        b'FontName': _to_str,
-        b'FullName': _to_str,
-        b'FamilyName': _to_str,
-        b'Weight': _to_str,
-        b'ItalicAngle': _to_float,
-        b'IsFixedPitch': _to_bool,
-        b'FontBBox': _to_list_of_ints,
-        b'UnderlinePosition': _to_float,
-        b'UnderlineThickness': _to_float,
-        b'Version': _to_str,
-        # Some AFM files have non-ASCII characters (which are not allowed by
-        # the spec).  Given that there is actually no public API to even access
-        # this field, just return it as straight bytes.
-        b'Notice': lambda x: x,
-        b'EncodingScheme': _to_str,
-        b'CapHeight': _to_float,  # Is the second version a mistake, or
-        b'Capheight': _to_float,  # do some AFM files contain 'Capheight'? -JKS
-        b'XHeight': _to_float,
-        b'Ascender': _to_float,
-        b'Descender': _to_float,
-        b'StdHW': _to_float,
-        b'StdVW': _to_float,
-        b'StartCharMetrics': _to_int,
-        b'CharacterSet': _to_str,
-        b'Characters': _to_int,
+        bool: _to_bool,
+        bytes: lambda x: x,
+        float: _to_float,
+        int: _to_int,
+        list[int]: _to_list_of_ints,
+        str: _to_str,
     }
-    d = {}
+    header_value_types = inspect.get_annotations(FontMetricsHeader)
+    d: FontMetricsHeader = {}
     first_line = True
     for line in fh:
         line = line.rstrip()
@@ -147,14 +158,16 @@ def _parse_header(fh):
         else:
             val = b''
         try:
-            converter = header_converters[key]
-        except KeyError:
+            key_str = _to_str(key)
+            value_type = header_value_types[key_str]
+        except (KeyError, UnicodeDecodeError):
             _log.error("Found an unknown keyword in AFM header (was %r)", key)
             continue
         try:
-            d[key] = converter(val)
+            converter = header_converters[value_type]
+            d[key_str] = converter(val)  # type: ignore[literal-required]
         except ValueError:
-            _log.error('Value error parsing header in AFM: %s, %s', key, val)
+            _log.error('Value error parsing header in AFM: %r, %r', key, val)
             continue
         if key == b'StartCharMetrics':
             break
@@ -163,8 +176,8 @@ def _parse_header(fh):
     return d
 
 
-CharMetrics = namedtuple('CharMetrics', 'width, name, bbox')
-CharMetrics.__doc__ = """
+class CharMetrics(NamedTuple):
+    """
     Represents the character metrics of a single character.
 
     Notes
@@ -172,13 +185,20 @@ CharMetrics.__doc__ = """
     The fields do currently only describe a subset of character metrics
     information defined in the AFM standard.
     """
+
+    width: float
+    name: str
+    bbox: tuple[int, int, int, int]
+
+
 CharMetrics.width.__doc__ = """The character width (WX)."""
 CharMetrics.name.__doc__ = """The character name (N)."""
 CharMetrics.bbox.__doc__ = """
     The bbox of the character (B) as a tuple (*llx*, *lly*, *urx*, *ury*)."""
 
 
-def _parse_char_metrics(fh):
+def _parse_char_metrics(fh: BinaryIO) -> tuple[dict[int, CharMetrics],
+                                               dict[str, CharMetrics]]:
     """
     Parse the given filehandle for character metrics information.
 
@@ -198,12 +218,12 @@ def _parse_char_metrics(fh):
     """
     required_keys = {'C', 'WX', 'N', 'B'}
 
-    ascii_d = {}
-    name_d = {}
-    for line in fh:
+    ascii_d: dict[int, CharMetrics] = {}
+    name_d: dict[str, CharMetrics] = {}
+    for bline in fh:
         # We are defensively letting values be utf8. The spec requires
         # ascii, but there are non-compliant fonts in circulation
-        line = _to_str(line.rstrip())  # Convert from byte-literal
+        line = _to_str(bline.rstrip())
         if line.startswith('EndCharMetrics'):
             return ascii_d, name_d
         # Split the metric line into a dictionary, keyed by metric identifiers
@@ -214,8 +234,9 @@ def _parse_char_metrics(fh):
         num = _to_int(vals['C'])
         wx = _to_float(vals['WX'])
         name = vals['N']
-        bbox = _to_list_of_floats(vals['B'])
-        bbox = list(map(int, bbox))
+        bbox = tuple(map(int, _to_list_of_floats(vals['B'])))
+        if len(bbox) != 4:
+            raise RuntimeError(f'Bad parse: bbox has {len(bbox)} elements, should be 4')
         metrics = CharMetrics(wx, name, bbox)
         # Workaround: If the character name is 'Euro', give it the
         # corresponding character code, according to WinAnsiEncoding (see PDF
@@ -230,7 +251,7 @@ def _parse_char_metrics(fh):
     raise RuntimeError('Bad parse')
 
 
-def _parse_kern_pairs(fh):
+def _parse_kern_pairs(fh: BinaryIO) -> dict[tuple[str, str], float]:
     """
     Return a kern pairs dictionary.
 
@@ -242,12 +263,11 @@ def _parse_kern_pairs(fh):
 
             d['A', 'y'] = -50
     """
-
     line = next(fh)
     if not line.startswith(b'StartKernPairs'):
-        raise RuntimeError('Bad start of kern pairs data: %s' % line)
+        raise RuntimeError(f'Bad start of kern pairs data: {line!r}')
 
-    d = {}
+    d: dict[tuple[str, str], float] = {}
     for line in fh:
         line = line.rstrip()
         if not line:
@@ -257,21 +277,26 @@ def _parse_kern_pairs(fh):
             return d
         vals = line.split()
         if len(vals) != 4 or vals[0] != b'KPX':
-            raise RuntimeError('Bad kern pairs line: %s' % line)
+            raise RuntimeError(f'Bad kern pairs line: {line!r}')
         c1, c2, val = _to_str(vals[1]), _to_str(vals[2]), _to_float(vals[3])
         d[(c1, c2)] = val
     raise RuntimeError('Bad kern pairs parse')
 
 
-CompositePart = namedtuple('CompositePart', 'name, dx, dy')
-CompositePart.__doc__ = """
-    Represents the information on a composite element of a composite char."""
+class CompositePart(NamedTuple):
+    """Represents the information on a composite element of a composite char."""
+
+    name: bytes
+    dx: float
+    dy: float
+
+
 CompositePart.name.__doc__ = """Name of the part, e.g. 'acute'."""
 CompositePart.dx.__doc__ = """x-displacement of the part from the origin."""
 CompositePart.dy.__doc__ = """y-displacement of the part from the origin."""
 
 
-def _parse_composites(fh):
+def _parse_composites(fh: BinaryIO) -> dict[bytes, list[CompositePart]]:
     """
     Parse the given filehandle for composites information.
 
@@ -292,11 +317,11 @@ def _parse_composites(fh):
 
     will be represented as::
 
-      composites['Aacute'] = [CompositePart(name='A', dx=0, dy=0),
-                              CompositePart(name='acute', dx=160, dy=170)]
+      composites[b'Aacute'] = [CompositePart(name=b'A', dx=0, dy=0),
+                               CompositePart(name=b'acute', dx=160, dy=170)]
 
     """
-    composites = {}
+    composites: dict[bytes, list[CompositePart]] = {}
     for line in fh:
         line = line.rstrip()
         if not line:
@@ -306,6 +331,9 @@ def _parse_composites(fh):
         vals = line.split(b';')
         cc = vals[0].split()
         name, _num_parts = cc[1], _to_int(cc[2])
+        if len(vals) != _num_parts + 2:  # First element is 'CC', last is empty.
+            raise RuntimeError(f'Bad composites parse: expected {_num_parts} parts, '
+                               f'but got {len(vals) - 2}')
         pccParts = []
         for s in vals[1:-1]:
             pcc = s.split()
@@ -316,7 +344,8 @@ def _parse_composites(fh):
     raise RuntimeError('Bad composites parse')
 
 
-def _parse_optional(fh):
+def _parse_optional(fh: BinaryIO) -> tuple[dict[tuple[str, str], float],
+                                           dict[bytes, list[CompositePart]]]:
     """
     Parse the optional fields for kern pair data and composites.
 
@@ -329,44 +358,38 @@ def _parse_optional(fh):
         A dict containing composite information. May be empty.
         See `._parse_composites`.
     """
-    optional = {
-        b'StartKernData': _parse_kern_pairs,
-        b'StartComposites':  _parse_composites,
-        }
-
-    d = {b'StartKernData': {},
-         b'StartComposites': {}}
+    kern_data: dict[tuple[str, str], float] = {}
+    composites: dict[bytes, list[CompositePart]] = {}
     for line in fh:
         line = line.rstrip()
         if not line:
             continue
-        key = line.split()[0]
+        match line.split()[0]:
+            case b'StartKernData':
+                kern_data = _parse_kern_pairs(fh)
+            case b'StartComposites':
+                composites = _parse_composites(fh)
 
-        if key in optional:
-            d[key] = optional[key](fh)
-
-    return d[b'StartKernData'], d[b'StartComposites']
+    return kern_data, composites
 
 
 class AFM:
 
-    def __init__(self, fh):
+    def __init__(self, fh: BinaryIO):
         """Parse the AFM file in file object *fh*."""
         self._header = _parse_header(fh)
         self._metrics, self._metrics_by_name = _parse_char_metrics(fh)
         self._kern, self._composite = _parse_optional(fh)
 
-    def get_str_bbox_and_descent(self, s):
+    def get_str_bbox_and_descent(self, s: str) -> tuple[int, int, float, int, int]:
         """Return the string bounding box and the maximal descent."""
         if not len(s):
             return 0, 0, 0, 0, 0
-        total_width = 0
-        namelast = None
-        miny = 1e9
+        total_width = 0.0
+        namelast = ''
+        miny = 1_000_000_000
         maxy = 0
         left = 0
-        if not isinstance(s, str):
-            s = _to_str(s)
         for c in s:
             if c == '\n':
                 continue
@@ -386,11 +409,11 @@ class AFM:
 
         return left, miny, total_width, maxy - miny, -miny
 
-    def get_glyph_name(self, glyph_ind):  # For consistency with FT2Font.
+    def get_glyph_name(self, glyph_ind: int) -> str:  # For consistency with FT2Font.
         """Get the name of the glyph, i.e., ord(';') is 'semicolon'."""
         return self._metrics[glyph_ind].name
 
-    def get_char_index(self, c):  # For consistency with FT2Font.
+    def get_char_index(self, c: int) -> int:  # For consistency with FT2Font.
         """
         Return the glyph index corresponding to a character code point.
 
@@ -398,38 +421,38 @@ class AFM:
         """
         return c
 
-    def get_width_char(self, c):
+    def get_width_char(self, c: int) -> float:
         """Get the width of the character code from the character metric WX field."""
         return self._metrics[c].width
 
-    def get_width_from_char_name(self, name):
+    def get_width_from_char_name(self, name: str) -> float:
         """Get the width of the character from a type1 character name."""
         return self._metrics_by_name[name].width
 
-    def get_kern_dist_from_name(self, name1, name2):
+    def get_kern_dist_from_name(self, name1: str, name2: str) -> float:
         """
         Return the kerning pair distance (possibly 0) for chars *name1* and *name2*.
         """
         return self._kern.get((name1, name2), 0)
 
-    def get_fontname(self):
+    def get_fontname(self) -> str:
         """Return the font name, e.g., 'Times-Roman'."""
-        return self._header[b'FontName']
+        return self._header['FontName']
 
     @property
-    def postscript_name(self):  # For consistency with FT2Font.
+    def postscript_name(self) -> str:  # For consistency with FT2Font.
         return self.get_fontname()
 
-    def get_fullname(self):
+    def get_fullname(self) -> str:
         """Return the font full name, e.g., 'Times-Roman'."""
-        name = self._header.get(b'FullName')
+        name = self._header.get('FullName')
         if name is None:  # use FontName as a substitute
-            name = self._header[b'FontName']
+            name = self._header['FontName']
         return name
 
-    def get_familyname(self):
+    def get_familyname(self) -> str:
         """Return the font family name, e.g., 'Times'."""
-        name = self._header.get(b'FamilyName')
+        name = self._header.get('FamilyName')
         if name is not None:
             return name
 
@@ -440,26 +463,26 @@ class AFM:
         return re.sub(extras, '', name)
 
     @property
-    def family_name(self):  # For consistency with FT2Font.
+    def family_name(self) -> str:  # For consistency with FT2Font.
         """The font family name, e.g., 'Times'."""
         return self.get_familyname()
 
-    def get_weight(self):
+    def get_weight(self) -> str:
         """Return the font weight, e.g., 'Bold' or 'Roman'."""
-        return self._header[b'Weight']
+        return self._header['Weight']
 
-    def get_angle(self):
+    def get_angle(self) -> float:
         """Return the fontangle as float."""
-        return self._header[b'ItalicAngle']
+        return self._header['ItalicAngle']
 
-    def get_capheight(self):
+    def get_capheight(self) -> float:
         """Return the cap height as float."""
-        return self._header[b'CapHeight']
+        return self._header['CapHeight']
 
-    def get_xheight(self):
+    def get_xheight(self) -> float:
         """Return the xheight as float."""
-        return self._header[b'XHeight']
+        return self._header['XHeight']
 
-    def get_underline_thickness(self):
+    def get_underline_thickness(self) -> float:
         """Return the underline thickness as float."""
-        return self._header[b'UnderlineThickness']
+        return self._header['UnderlineThickness']
