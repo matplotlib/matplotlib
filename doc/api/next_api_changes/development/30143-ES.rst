@@ -1,0 +1,7 @@
+Glyph indices now typed distinctly from character codes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, character codes and glyph indices were both typed as `int`, which means you
+could mix and match them erroneously. While the character code can't be made a distinct
+type (because it's used for `chr`/`ord`), typing glyph indices as a distinct type means
+these can't be fully swapped.

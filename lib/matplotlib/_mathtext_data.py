@@ -3,9 +3,12 @@ font data tables for truetype and afm computer modern fonts
 """
 
 from __future__ import annotations
-from typing import overload
+from typing import TypeAlias, overload
 
-latex_to_bakoma = {
+from .ft2font import CharacterCodeType
+
+
+latex_to_bakoma: dict[str, tuple[str, CharacterCodeType]] = {
     '\\__sqrt__'                 : ('cmex10', 0x70),
     '\\bigcap'                   : ('cmex10', 0x5c),
     '\\bigcup'                   : ('cmex10', 0x5b),
@@ -241,7 +244,7 @@ latex_to_bakoma = {
 
 # Automatically generated.
 
-type12uni = {
+type12uni: dict[str, CharacterCodeType] = {
     'aring'          : 229,
     'quotedblright'  : 8221,
     'V'              : 86,
@@ -475,7 +478,7 @@ uni2type1 = {v: k for k, v in type12uni.items()}
 #  for key in sd:
 #      print("{0:24} : {1: <s},".format("'" + key + "'", sd[key]))
 
-tex2uni = {
+tex2uni: dict[str, CharacterCodeType] = {
     '#'                      : 0x23,
     '$'                      : 0x24,
     '%'                      : 0x25,
@@ -1113,8 +1116,9 @@ tex2uni = {
 # Each element is a 4-tuple of the form:
 #   src_start, src_end, dst_font, dst_start
 
-_EntryTypeIn = tuple[str, str, str, str | int]
-_EntryTypeOut = tuple[int, int, str, int]
+_EntryTypeIn: TypeAlias = tuple[str, str, str, str | CharacterCodeType]
+_EntryTypeOut: TypeAlias = tuple[CharacterCodeType, CharacterCodeType, str,
+                                 CharacterCodeType]
 
 _stix_virtual_fonts: dict[str, dict[str, list[_EntryTypeIn]] | list[_EntryTypeIn]] = {
     'bb': {
@@ -1735,7 +1739,7 @@ stix_virtual_fonts = _normalize_stix_fontcodes(_stix_virtual_fonts)
 del _stix_virtual_fonts
 
 # Fix some incorrect glyphs.
-stix_glyph_fixes = {
+stix_glyph_fixes: dict[CharacterCodeType, CharacterCodeType] = {
     # Cap and Cup glyphs are swapped.
     0x22d2: 0x22d3,
     0x22d3: 0x22d2,
