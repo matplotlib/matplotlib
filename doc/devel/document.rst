@@ -537,6 +537,10 @@ understandable by humans. If the possible types are too complex use a
 simplification for the type description and explain the type more
 precisely in the text.
 
+We do not use formal type annotation syntax for type descriptions in
+docstrings; e.g. we use ``list of str`` rather than  ``list[str]``; we
+use ``int or str`` rather than ``int | str`` or ``Union[int, str]``.
+
 Generally, the `numpydoc docstring guide`_ conventions apply. The following
 rules expand on them where the numpydoc conventions are not specific.
 
