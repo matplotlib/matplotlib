@@ -24,14 +24,16 @@ permissions:
 jobs:
   build_sdist:
     if: >-
-      github.event_name == 'push' ||
-      github.event_name == 'pull_request' && (
-        (
-          github.event.action == 'labeled' &&
-          github.event.label.name == 'CI: Run cibuildwheel'
-        ) ||
-        contains(github.event.pull_request.labels.*.name,
-                 'CI: Run cibuildwheel')
+      github.repository == 'matplotlib/matplotlib' && (
+        github.event_name == 'push' ||
+        github.event_name == 'pull_request' && (
+          (
+            github.event.action == 'labeled' &&
+            github.event.label.name == 'CI: Run cibuildwheel'
+          ) ||
+          contains(github.event.pull_request.labels.*.name,
+                   'CI: Run cibuildwheel')
+        )
       )
     name: Build sdist
     runs-on: ubuntu-latest
@@ -78,14 +80,16 @@ jobs:
 
   build_wheels:
     if: >-
-      github.event_name == 'push' ||
-      github.event_name == 'pull_request' && (
-        (
-          github.event.action == 'labeled' &&
-          github.event.label.name == 'CI: Run cibuildwheel'
-        ) ||
-        contains(github.event.pull_request.labels.*.name,
-                 'CI: Run cibuildwheel')
+      github.repository == 'matplotlib/matplotlib' && (
+        github.event_name == 'push' ||
+        github.event_name == 'pull_request' && (
+          (
+            github.event.action == 'labeled' &&
+            github.event.label.name == 'CI: Run cibuildwheel'
+          ) ||
+          contains(github.event.pull_request.labels.*.name,
+                   'CI: Run cibuildwheel')
+        )
       )
     needs: build_sdist
     name: Build wheels on ${{ matrix.os }} for ${{ matrix.cibw_archs }}
@@ -188,7 +192,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    if: github.event_name == 'push' && github.ref_type == 'tag'
+    if: github.repository == 'matplotlib/matplotlib' && github.event_name == 'push' && github.ref_type == 'tag'
     name: Upload release to PyPI
     needs: [build_sdist, build_wheels]
     runs-on: ubuntu-latest
