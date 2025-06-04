@@ -3226,16 +3226,16 @@ class NoNorm(Normalize):
 
 class MultiNorm(Normalize):
     """
-    A mixin class which contains multiple scalar norms
+    A class which contains multiple scalar norms
     """
 
     def __init__(self, norms, vmin=None, vmax=None, clip=False):
         """
         Parameters
         ----------
-        norms : List of (str, `Normalize` or None)
+        norms : list of (str, `Normalize` or None)
             The constituent norms. The list must have a minimum length of 2.
-        vmin, vmax : float, None, or list of float or None
+        vmin, vmax : float or None or list of (float or None)
             Limits of the constituent norms.
             If a list, each value is assigned to each of the constituent
             norms. Single values are repeated to form a list of appropriate size.
@@ -3279,14 +3279,17 @@ class MultiNorm(Normalize):
 
     @property
     def n_variables(self):
+        """Number of norms held by this `MultiNorm`."""
         return len(self._norms)
 
     @property
     def norms(self):
+        """The individual norms held by this `MultiNorm`"""
         return self._norms
 
     @property
     def vmin(self):
+        """The lower limit of each constituent norm."""
         return tuple(n.vmin for n in self._norms)
 
     @vmin.setter
@@ -3300,6 +3303,7 @@ class MultiNorm(Normalize):
 
     @property
     def vmax(self):
+        """The upper limit of each constituent norm."""
         return tuple(n.vmax for n in self._norms)
 
     @vmax.setter
@@ -3313,6 +3317,7 @@ class MultiNorm(Normalize):
 
     @property
     def clip(self):
+        """The clip behaviour of each constituent norm."""
         return tuple(n.clip for n in self._norms)
 
     @clip.setter
@@ -3339,9 +3344,9 @@ class MultiNorm(Normalize):
 
         Parameters
         ----------
-        value
-            Data to normalize. Must be of length `n_variables` or have a data type with
-            `n_variables` fields.
+        value : array-like
+            Data to normalize. Must be of length `n_variables` or be a structured
+            array or scalar with `n_variables` fields.
         clip : list of bools or bool, optional
             See the description of the parameter *clip* in Normalize.
             If ``None``, defaults to ``self.clip`` (which defaults to
@@ -3349,7 +3354,7 @@ class MultiNorm(Normalize):
 
         Returns
         -------
-        List
+        list
             Normalized input values as a list of length `n_variables`
 
         Notes
@@ -3373,8 +3378,8 @@ class MultiNorm(Normalize):
         Parameters
         ----------
         value
-            Normalized value. Must be of length `n_variables` or have a data type with
-            `n_variables` fields.
+            Normalized value. Must be of length `n_variables` or be a structured array
+            or scalar with `n_variables` fields.
         """
         value = self._iterable_variates_in_data(value, self.n_variables)
         result = [n.inverse(v) for n, v in zip(self.norms, value)]
@@ -3401,8 +3406,8 @@ class MultiNorm(Normalize):
         Parameters
         ----------
         A
-            Data, must be of length `n_variables` or have a data type with
-            `n_variables` fields.
+            Data, must be of length `n_variables` or be a structured array or scalar
+            with `n_variables` fields.
         """
         with self.callbacks.blocked():
             A = self._iterable_variates_in_data(A, self.n_variables)
@@ -3411,7 +3416,7 @@ class MultiNorm(Normalize):
         self._changed()
 
     def scaled(self):
-        """Return whether both *vmin* and *vmax* are set on all constituent norms"""
+        """Return whether both *vmin* and *vmax* are set on all constituent norms."""
         return all([n.scaled() for n in self.norms])
 
     @staticmethod
@@ -3437,8 +3442,8 @@ class MultiNorm(Normalize):
             data = [data[descriptor[0]] for descriptor in data.dtype.descr]
         if len(data) != n_variables:
             raise ValueError("The input to this `MultiNorm` must be of shape "
-                             f"({n_variables}, ...), or have a data type with "
-                             f"{n_variables} fields.")
+                             f"({n_variables}, ...), or be structured array or scalar "
+                             f"with {n_variables} fields.")
         return data
 
 
