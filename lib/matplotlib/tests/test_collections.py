@@ -16,10 +16,10 @@ import matplotlib.colors as mcolors
 import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
-                                    EventCollection, PolyCollection)
+                                    EventCollection, PolyCollection, PathCollection)
 from matplotlib.collections import FillBetweenPolyCollection
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-
+from matplotlib.path import Path
 
 @pytest.fixture(params=["pcolormesh", "pcolor"])
 def pcfunc(request):
@@ -1533,3 +1533,12 @@ def test_third_party_backend_hatchcolors_arg_fallback(monkeypatch):
     ax.add_collection(coll)
 
     plt.draw()
+
+def test_pathcollection_size_mismatch_warning():
+
+    paths = [Path([(0, 0), (1, 0), (0.5, 1)]) for _ in range(5)]
+    fig, ax = plt.subplots()
+    with pytest.warns(UserWarning, match="Number of sizes does not match"):
+        pc = PathCollection(paths, sizes=[10, 20])
+        ax.add_collection(pc)
+        fig.canvas.draw()  
