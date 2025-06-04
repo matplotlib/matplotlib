@@ -765,6 +765,7 @@ class PdfFile:
 
     fontNames = _api.deprecated("3.11")(property(lambda self: self._fontNames))
     dviFontInfo = _api.deprecated("3.11")(property(lambda self: self._dviFontInfo))
+    type1Descriptors = _api.deprecated("3.11")(property(lambda _: {}))
 
     def newPage(self, width, height):
         self.endStream()
