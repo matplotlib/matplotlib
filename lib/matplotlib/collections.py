@@ -1131,7 +1131,7 @@ class PathCollection(_CollectionWithSizes):
 
     def get_paths(self):
         return self._paths
-    
+
     def check_consistency(self):
         """
         Emit warnings if the lengths of certain properties do not match
@@ -1310,7 +1310,7 @@ class PathCollection(_CollectionWithSizes):
             labels.append(l)
 
         return handles, labels
-    
+
     def draw(self, renderer):
         """
         Draw the collection using the given renderer.
