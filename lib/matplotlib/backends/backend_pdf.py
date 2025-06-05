@@ -721,7 +721,7 @@ class PdfFile:
 
         self._internal_font_seq = (Name(f'F{i}') for i in itertools.count(1))
         self._fontNames = {}     # maps filenames to internal font names
-        self._dviFontInfo = {}   # maps dvi font names to embedding information
+        self._dviFontInfo = {}   # maps pdf names to dvifonts
         # differently encoded Type-1 fonts may share the same descriptor
         self._type1Descriptors = {}
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
@@ -766,9 +766,30 @@ class PdfFile:
         self.writeObject(self.resourceObject, resources)
 
     fontNames = _api.deprecated("3.11")(property(lambda self: self._fontNames))
-    dviFontInfo = _api.deprecated("3.11")(property(lambda self: self._dviFontInfo))
     type1Descriptors = _api.deprecated("3.11")(
         property(lambda self: self._type1Descriptors))
+
+    @_api.deprecated("3.11")
+    @property
+    def dviFontInfo(self):
+        d = {}
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+        for pdfname, dvifont in self._dviFontInfo.items():
+            psfont = tex_font_map[dvifont.texname]
+            if psfont.filename is None:
+                raise ValueError(
+                    "No usable font file found for {} (TeX: {}); "
+                    "the font may lack a Type-1 version"
+                    .format(psfont.psname, dvifont.texname))
+            d[dvifont.texname] = types.SimpleNamespace(
+                dvifont=dvifont,
+                pdfname=pdfname,
+                fontfile=psfont.filename,
+                basefont=psfont.psname,
+                encodingfile=psfont.encoding,
+                effects=psfont.effects,
+            )
+        return d
 
     def newPage(self, width, height):
         self.endStream()
@@ -930,39 +951,19 @@ class PdfFile:
     def dviFontName(self, dvifont):
         """
         Given a dvi font object, return a name suitable for Op.selectfont.
-        This registers the font information internally (in ``_dviFontInfo``) if
-        not yet registered.
+
+        Register the font internally (in ``_dviFontInfo``) if not yet registered.
         """
-
-        dvi_info = self._dviFontInfo.get(dvifont.texname)
-        if dvi_info is not None:
-            return dvi_info.pdfname
-
-        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
-        psfont = tex_font_map[dvifont.texname]
-        if psfont.filename is None:
-            raise ValueError(
-                "No usable font file found for {} (TeX: {}); "
-                "the font may lack a Type-1 version"
-                .format(psfont.psname, dvifont.texname))
-
-        pdfname = next(self._internal_font_seq)
+        pdfname = Name(f"F-{dvifont.texname.decode('ascii')}")
         _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
-        self._dviFontInfo[dvifont.texname] = types.SimpleNamespace(
-            dvifont=dvifont,
-            pdfname=pdfname,
-            fontfile=psfont.filename,
-            basefont=psfont.psname,
-            encodingfile=psfont.encoding,
-            effects=psfont.effects)
-        return pdfname
+        self._dviFontInfo[pdfname] = dvifont
+        return Name(pdfname)
 
     def writeFonts(self):
         fonts = {}
-        for dviname, info in sorted(self._dviFontInfo.items()):
-            Fx = info.pdfname
-            _log.debug('Embedding Type-1 font %s from dvi.', dviname)
-            fonts[Fx] = self._embedTeXFont(info)
+        for pdfname, dvifont in sorted(self._dviFontInfo.items()):
+            _log.debug('Embedding Type-1 font %s from dvi.', dvifont.texname)
+            fonts[pdfname] = self._embedTeXFont(dvifont)
         for filename in sorted(self._fontNames):
             Fx = self._fontNames[filename]
             _log.debug('Embedding font %s.', filename)
@@ -990,13 +991,18 @@ class PdfFile:
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def _embedTeXFont(self, fontinfo):
-        _log.debug('Embedding TeX font %s - fontinfo=%s',
-                   fontinfo.dvifont.texname, fontinfo.__dict__)
+    def _embedTeXFont(self, dvifont):
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+        psfont = tex_font_map[dvifont.texname]
+        if psfont.filename is None:
+            raise ValueError(
+                "No usable font file found for {} (TeX: {}); "
+                "the font may lack a Type-1 version"
+                .format(psfont.psname, dvifont.texname))
 
         # Widths
         widthsObject = self.reserveObject('font widths')
-        tfm = fontinfo.dvifont._tfm
+        tfm = dvifont._tfm
         # convert from TeX's 12.20 representation to 1/1000 text space units.
         widths = [(1000 * metrics.tex_width) >> 20
                   if (metrics := tfm.get_metrics(char)) else 0
@@ -1014,28 +1020,28 @@ class PdfFile:
             }
 
         # Encoding (if needed)
-        if fontinfo.encodingfile is not None:
+        if psfont.encoding is not None:
             fontdict['Encoding'] = {
                 'Type': Name('Encoding'),
                 'Differences': [
-                    0, *map(Name, dviread._parse_enc(fontinfo.encodingfile))],
+                    0, *map(Name, dviread._parse_enc(psfont.encoding))],
             }
 
         # We have a font file to embed - read it in and apply any effects
-        t1font = _type1font.Type1Font(fontinfo.fontfile)
-        if fontinfo.effects:
-            t1font = t1font.transform(fontinfo.effects)
+        t1font = _type1font.Type1Font(psfont.filename)
+        if psfont.effects:
+            t1font = t1font.transform(psfont.effects)
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
 
         # Font descriptors may be shared between differently encoded
         # Type-1 fonts, so only create a new descriptor if there is no
         # existing descriptor for this font.
-        effects = (fontinfo.effects.get('slant', 0.0),
-                   fontinfo.effects.get('extend', 1.0))
-        fontdesc = self._type1Descriptors.get((fontinfo.fontfile, effects))
+        effects = (psfont.effects.get('slant', 0.0),
+                   psfont.effects.get('extend', 1.0))
+        fontdesc = self._type1Descriptors.get((psfont.filename, effects))
         if fontdesc is None:
-            fontdesc = self.createType1Descriptor(t1font)
-            self._type1Descriptors[(fontinfo.fontfile, effects)] = fontdesc
+            fontdesc = self._type1Descriptors[psfont.filename, effects] = \
+                self.createType1Descriptor(t1font)
         fontdict['FontDescriptor'] = fontdesc
 
         self.writeObject(fontdictObject, fontdict)
