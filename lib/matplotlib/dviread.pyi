@@ -8,7 +8,7 @@ from collections.abc import Generator
 from typing import NamedTuple
 from typing import Self
 
-from .ft2font import GlyphIndexType
+from .ft2font import CharacterCodeType, GlyphIndexType
 
 
 class _dvistate(Enum):
@@ -35,7 +35,7 @@ class Text(NamedTuple):
     x: int
     y: int
     font: DviFont
-    glyph: int
+    glyph: CharacterCodeType
     width: int
     @property
     def font_path(self) -> Path: ...
