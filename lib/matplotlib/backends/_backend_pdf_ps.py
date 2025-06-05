@@ -20,18 +20,18 @@ def _cached_get_afm_from_fname(fname):
         return AFM(fh)
 
 
-def get_glyphs_subset(fontfile, characters):
+def get_glyphs_subset(fontfile, glyphs):
     """
-    Subset a TTF font
+    Subset a TTF font.
 
-    Reads the named fontfile and restricts the font to the characters.
+    Reads the named fontfile and restricts the font to the glyphs.
 
     Parameters
     ----------
     fontfile : str
         Path to the font file
-    characters : str
-        Continuous set of characters to include in subset
+    glyphs : set[int]
+        Set of glyph IDs to include in subset.
 
     Returns
     -------
@@ -39,8 +39,8 @@ def get_glyphs_subset(fontfile, characters):
         An open font object representing the subset, which needs to
         be closed by the caller.
     """
-
-    options = subset.Options(glyph_names=True, recommended_glyphs=True)
+    options = subset.Options(glyph_names=True, recommended_glyphs=True,
+                             retain_gids=True)
 
     # Prevent subsetting extra tables.
     options.drop_tables += [
@@ -71,7 +71,7 @@ def get_glyphs_subset(fontfile, characters):
 
     font = subset.load_font(fontfile, options)
     subsetter = subset.Subsetter(options=options)
-    subsetter.populate(text=characters)
+    subsetter.populate(gids=glyphs)
     subsetter.subset(font)
     return font
 
@@ -97,10 +97,10 @@ def font_as_file(font):
 
 class CharacterTracker:
     """
-    Helper for font subsetting by the pdf and ps backends.
+    Helper for font subsetting by the PDF and PS backends.
 
-    Maintains a mapping of font paths to the set of character codepoints that
-    are being used from that font.
+    Maintains a mapping of font paths to the set of glyphs that are being used from that
+    font.
     """
 
     def __init__(self):
@@ -110,10 +110,11 @@ class CharacterTracker:
         """Record that string *s* is being typeset using font *font*."""
         char_to_font = font._get_fontmap(s)
         for _c, _f in char_to_font.items():
-            self.used.setdefault(_f.fname, set()).add(ord(_c))
+            glyph_index = _f.get_char_index(ord(_c))
+            self.used.setdefault(_f.fname, set()).add(glyph_index)
 
     def track_glyph(self, font, glyph):
-        """Record that codepoint *glyph* is being typeset using font *font*."""
+        """Record that glyph index *glyph* is being typeset using font *font*."""
         self.used.setdefault(font.fname, set()).add(glyph)
 
 

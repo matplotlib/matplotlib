@@ -14,7 +14,7 @@ from .ft2font import FT2Font, GlyphIndexType, Kerning, LoadFlags
 class LayoutItem:
     ft_object: FT2Font
     char: str
-    glyph_idx: GlyphIndexType
+    glyph_index: GlyphIndexType
     x: float
     prev_kern: float
 
