@@ -638,7 +638,7 @@ def _parse_srcset(entries):
 def check_output_base_name(env, output_base):
     docname = env.docname
 
-    if '.' in output_base or '/' in output_base:
+    if '.' in output_base or '/' in output_base or '\\' in output_base:
         raise PlotError(
             f"The image-basename '{output_base}' is invalid. "
             f"It must not contain dots or slashes.")
