@@ -647,11 +647,9 @@ def check_output_base_name(env, output_base):
         if output_base in env.mpl_plot_image_basenames[d]:
             if d == docname:
                 raise PlotError(
-                    f"The image-basename "
-                    f"{output_base}' is used multiple times.")
-            raise PlotError(f"The image-basename "
-                            f"'{output_base}' is used multiple times "
-                            f"(it is also used in {env.doc2path(d)}).")
+                    f"The image-basename {output_base!r} is used multiple times.")
+            raise PlotError(f"The image-basename {output_base!r} is used multiple"
+                            f"times (it is also used in {env.doc2path(d)}).")
 
     env.mpl_plot_image_basenames[docname].add(output_base)
 
@@ -778,8 +776,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
 def run(arguments, content, options, state_machine, state, lineno):
     document = state_machine.document
-    config = document.settings.env.config
     env = document.settings.env
+    config = env.config
     nofigs = 'nofigs' in options
 
     if config.plot_srcset and setup.app.builder.name == 'singlehtml':
