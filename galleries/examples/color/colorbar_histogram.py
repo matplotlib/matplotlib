@@ -8,8 +8,9 @@ add a histogram of the data values alongside it. This is useful for
 visualizing the distribution of values mapped to colors.
 
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.colors as mcolors
 
 # === Surface Data ===
