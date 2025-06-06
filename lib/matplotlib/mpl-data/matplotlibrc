@@ -339,7 +339,7 @@
                         # become quite long.
                         # The following packages are always loaded with usetex,
                         # so beware of package collisions:
-                        #   geometry, inputenc, type1cm.
+                        #   color, fix-cm, geometry, graphicx, textcomp.
                         # PostScript (PSNFSS) font packages may also be
                         # loaded, depending on your font settings.
 

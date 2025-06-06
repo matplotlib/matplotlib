@@ -17,17 +17,17 @@ Interface::
               ...
 """
 
-from collections import namedtuple
 import dataclasses
 import enum
-from functools import cache, lru_cache, partial, wraps
 import logging
 import os
-from pathlib import Path
 import re
 import struct
 import subprocess
 import sys
+from collections import namedtuple
+from functools import cache, lru_cache, partial, wraps
+from pathlib import Path
 
 import numpy as np
 
@@ -583,6 +583,9 @@ class DviFont:
     Attributes
     ----------
     texname : bytes
+    fname : str
+       Compatibility shim so that DviFont can be used with
+       ``_backend_pdf_ps.CharacterTracker``; not a real filename.
     size : float
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
@@ -601,6 +604,18 @@ class DviFont:
     widths = _api.deprecated("3.11")(property(lambda self: [
         (1000 * self._tfm.width.get(char, 0)) >> 20
         for char in range(max(self._tfm.width, default=-1) + 1)]))
+
+    @property
+    def fname(self):
+        """A fake filename"""
+        return self.texname.decode('latin-1')
+
+    def _get_fontmap(self, string):
+        """Get the mapping from characters to the font that includes them.
+
+        Each value maps to self; there is no fallback mechanism for DviFont.
+        """
+        return {char: self for char in string}
 
     def __eq__(self, other):
         return (type(self) is type(other)
@@ -1161,8 +1176,8 @@ _vffile = partial(_fontfile, Vf, ".vf")
 
 
 if __name__ == '__main__':
-    from argparse import ArgumentParser
     import itertools
+    from argparse import ArgumentParser
 
     import fontTools.agl
 

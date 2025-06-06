@@ -1553,9 +1553,7 @@ class _AnnotationBase:
             return self.axes.transData
         elif coords == 'polar':
             from matplotlib.projections import PolarAxes
-            tr = PolarAxes.PolarTransform(apply_theta_transforms=False)
-            trans = tr + self.axes.transData
-            return trans
+            return PolarAxes.PolarTransform() + self.axes.transData
 
         try:
             bbox_name, unit = coords.split()

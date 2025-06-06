@@ -2315,6 +2315,7 @@ class Normalize:
 
     @property
     def vmin(self):
+        """Lower limit of the input data interval; maps to 0."""
         return self._vmin
 
     @vmin.setter
@@ -2326,6 +2327,7 @@ class Normalize:
 
     @property
     def vmax(self):
+        """Upper limit of the input data interval; maps to 1."""
         return self._vmax
 
     @vmax.setter
@@ -2337,6 +2339,11 @@ class Normalize:
 
     @property
     def clip(self):
+        """
+        Determines the behavior for mapping values outside the range ``[vmin, vmax]``.
+
+        See the *clip* parameter in `.Normalize`.
+        """
         return self._clip
 
     @clip.setter

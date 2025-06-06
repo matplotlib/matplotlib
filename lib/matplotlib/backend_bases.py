@@ -1067,19 +1067,8 @@ class TimerBase:
         """Need to stop timer and possibly disconnect timer."""
         self._timer_stop()
 
-    @_api.delete_parameter("3.9", "interval", alternative="timer.interval")
-    def start(self, interval=None):
-        """
-        Start the timer object.
-
-        Parameters
-        ----------
-        interval : int, optional
-            Timer interval in milliseconds; overrides a previously set interval
-            if provided.
-        """
-        if interval is not None:
-            self.interval = interval
+    def start(self):
+        """Start the timer."""
         self._timer_start()
 
     def stop(self):
@@ -3244,7 +3233,7 @@ class NavigationToolbar2:
     def configure_subplots(self, *args):
         if hasattr(self, "subplot_tool"):
             self.subplot_tool.figure.canvas.manager.show()
-            return
+            return self.subplot_tool
         # This import needs to happen here due to circular imports.
         from matplotlib.figure import Figure
         with mpl.rc_context({"toolbar": "none"}):  # No navbar for the toolfig.
