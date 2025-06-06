@@ -213,7 +213,9 @@ def test_device_pixel_ratio_change():
 def test_subplottool():
     fig, ax = plt.subplots()
     with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
-        fig.canvas.manager.toolbar.configure_subplots()
+        tool = fig.canvas.manager.toolbar.configure_subplots()
+        assert tool is not None
+        assert tool == fig.canvas.manager.toolbar.configure_subplots()
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)

@@ -37,6 +37,13 @@ from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
 from matplotlib.typing import ColorType, MarkerType, LineStyleType
+import pandas as pd
+
+
+class _GroupedBarReturn:
+    bar_containers: list[BarContainer]
+    def __init__(self, bar_containers: list[BarContainer]) -> None: ...
+    def remove(self) -> None: ...
 
 class Axes(_AxesBase):
     def get_title(self, loc: Literal["left", "center", "right"] = ...) -> str: ...
@@ -265,6 +272,19 @@ class Axes(_AxesBase):
         data=...,
         **kwargs
     ) -> PolyCollection: ...
+    def grouped_bar(
+        self,
+        heights: Sequence[ArrayLike] | dict[str, ArrayLike] | np.ndarray | pd.DataFrame,
+        *,
+        positions: ArrayLike | None = ...,
+        tick_labels: Sequence[str] | None = ...,
+        labels: Sequence[str] | None = ...,
+        group_spacing: float | None = ...,
+        bar_spacing: float | None = ...,
+        orientation: Literal["vertical", "horizontal"] = ...,
+        colors: Iterable[ColorType] | None = ...,
+        **kwargs
+    ) -> list[BarContainer]: ...
     def stem(
         self,
         *args: ArrayLike | str,

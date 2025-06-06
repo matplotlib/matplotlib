@@ -24,7 +24,6 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api, cbook, _path, _text_helpers
-from matplotlib._afm import AFM
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
@@ -787,7 +786,7 @@ grestore
                     width = font.get_width_from_char_name(name)
                 except KeyError:
                     name = 'question'
-                    width = font.get_width_char('?')
+                    width = font.get_width_char(ord('?'))
                 kern = font.get_kern_dist_from_name(last_name, name)
                 last_name = name
                 thisx += kern * scale
@@ -835,9 +834,7 @@ grestore
                 lastfont = font.postscript_name, fontsize
                 self._pswriter.write(
                     f"/{font.postscript_name} {fontsize} selectfont\n")
-            glyph_name = (
-                font.get_name_char(chr(num)) if isinstance(font, AFM) else
-                font.get_glyph_name(font.get_char_index(num)))
+            glyph_name = font.get_glyph_name(font.get_char_index(num))
             self._pswriter.write(
                 f"{ox:g} {oy:g} moveto\n"
                 f"/{glyph_name} glyphshow\n")
