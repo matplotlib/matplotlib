@@ -11,7 +11,7 @@ def draw_arrow(ax, t, r):
                                 fc="b", ec='k'))
 
 
-@image_comparison(['fancyarrow_test_image'],
+@image_comparison(['fancyarrow_test_image.png'],
                   tol=0 if platform.machine() == 'x86_64' else 0.012)
 def test_fancyarrow():
     # Added 0 to test division by zero error described in issue 3930

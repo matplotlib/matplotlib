@@ -208,13 +208,6 @@ def test_antialiasing():
     mpl.rcParams['text.antialiased'] = False  # Should not affect existing text.
 
 
-def test_afm_kerning():
-    fn = mpl.font_manager.findfont("Helvetica", fontext="afm")
-    with open(fn, 'rb') as fh:
-        afm = mpl._afm.AFM(fh)
-    assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
-
-
 @image_comparison(['text_contains.png'])
 def test_contains():
     fig = plt.figure()
@@ -671,7 +664,7 @@ def test_annotation_update():
                            rtol=1e-6)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_annotation_units(fig_test, fig_ref):
     ax = fig_test.add_subplot()
     ax.plot(datetime.now(), 1, "o")  # Implicitly set axes extents.
@@ -761,7 +754,7 @@ def test_wrap_no_wrap():
     assert text._get_wrapped_text() == 'non wrapped text'
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_buffer_size(fig_test, fig_ref):
     # On old versions of the Agg renderer, large non-ascii single-character
     # strings (here, "€") would be rendered clipped because the rendering
@@ -958,7 +951,7 @@ def test_annotation_antialiased():
     assert annot4._antialiased == mpl.rcParams['text.antialiased']
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_annotate_and_offsetfrom_copy_input(fig_test, fig_ref):
     # Both approaches place the text (10, 0) pixels away from the center of the line.
     ax = fig_test.add_subplot()
@@ -974,7 +967,7 @@ def test_annotate_and_offsetfrom_copy_input(fig_test, fig_ref):
     an_xy[:] = 2
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_text_antialiased_off_default_vs_manual(fig_test, fig_ref):
     fig_test.text(0.5, 0.5, '6 inches x 2 inches',
                              antialiased=False)
@@ -983,7 +976,7 @@ def test_text_antialiased_off_default_vs_manual(fig_test, fig_ref):
     fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_text_antialiased_on_default_vs_manual(fig_test, fig_ref):
     fig_test.text(0.5, 0.5, '6 inches x 2 inches', antialiased=True)
 

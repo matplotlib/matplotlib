@@ -13,14 +13,21 @@ import pytest
 pytest.importorskip('sphinx', minversion='4.1.3')
 
 
+tinypages = Path(__file__).parent / 'data/tinypages'
+
+
 def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
     # Build the pages with warnings turned into errors
     extra_args = [] if extra_args is None else extra_args
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
            '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
+    # On CI, gcov emits warnings (due to agg headers being included with the
+    # same name in multiple extension modules -- but we don't care about their
+    # coverage anyways); hide them using GCOV_ERROR_FILE.
     proc = subprocess_run_for_testing(
         cmd, capture_output=True, text=True,
-        env={**os.environ, "MPLBACKEND": ""})
+        env={**os.environ, "MPLBACKEND": "", "GCOV_ERROR_FILE": os.devnull}
+    )
     out = proc.stdout
     err = proc.stderr
 
@@ -33,24 +40,10 @@ def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
 
 
 def test_tinypages(tmp_path):
-    shutil.copytree(Path(__file__).parent / 'tinypages', tmp_path,
-                    dirs_exist_ok=True)
+    shutil.copytree(tinypages, tmp_path, dirs_exist_ok=True)
     html_dir = tmp_path / '_build' / 'html'
     img_dir = html_dir / '_images'
     doctree_dir = tmp_path / 'doctrees'
-    # Build the pages with warnings turned into errors
-    cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
-           '-d', str(doctree_dir),
-           str(Path(__file__).parent / 'tinypages'), str(html_dir)]
-    # On CI, gcov emits warnings (due to agg headers being included with the
-    # same name in multiple extension modules -- but we don't care about their
-    # coverage anyways); hide them using GCOV_ERROR_FILE.
-    proc = subprocess_run_for_testing(
-        cmd, capture_output=True, text=True,
-        env={**os.environ, "MPLBACKEND": "", "GCOV_ERROR_FILE": os.devnull}
-    )
-    out = proc.stdout
-    err = proc.stderr
 
     # Build the pages with warnings turned into errors
     build_sphinx_html(tmp_path, doctree_dir, html_dir)
@@ -75,22 +68,25 @@ def test_tinypages(tmp_path):
     # Plot 13 shows close-figs in action
     assert filecmp.cmp(range_4, plot_file(13))
     # Plot 14 has included source
-    html_contents = (html_dir / 'some_plots.html').read_bytes()
+    html_contents = (html_dir / 'some_plots.html').read_text(encoding='utf-8')
 
-    assert b'# Only a comment' in html_contents
+    assert '# Only a comment' in html_contents
     # check plot defined in external file.
     assert filecmp.cmp(range_4, img_dir / 'range4.png')
     assert filecmp.cmp(range_6, img_dir / 'range6_range6.png')
     # check if figure caption made it into html file
-    assert b'This is the caption for plot 15.' in html_contents
-    # check if figure caption using :caption: made it into html file
-    assert b'Plot 17 uses the caption option.' in html_contents
+    assert 'This is the caption for plot 15.' in html_contents
+    # check if figure caption using :caption: made it into html file (because this plot
+    # doesn't use srcset, the caption preserves newlines in the output.)
+    assert 'Plot 17 uses the caption option,\nwith multi-line input.' in html_contents
+    # check if figure alt text using :alt: made it into html file
+    assert 'Plot 17 uses the alt option, with multi-line input.' in html_contents
     # check if figure caption made it into html file
-    assert b'This is the caption for plot 18.' in html_contents
+    assert 'This is the caption for plot 18.' in html_contents
     # check if the custom classes made it into the html file
-    assert b'plot-directive my-class my-other-class' in html_contents
+    assert 'plot-directive my-class my-other-class' in html_contents
     # check that the multi-image caption is applied twice
-    assert html_contents.count(b'This caption applies to both plots.') == 2
+    assert html_contents.count('This caption applies to both plots.') == 2
     # Plot 21 is range(6) plot via an include directive. But because some of
     # the previous plots are repeated, the argument to plot_file() is only 17.
     assert filecmp.cmp(range_6, plot_file(17))
@@ -125,9 +121,8 @@ def test_tinypages(tmp_path):
 
 
 def test_plot_html_show_source_link(tmp_path):
-    parent = Path(__file__).parent
-    shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
-    shutil.copytree(parent / 'tinypages/_static', tmp_path / '_static')
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
     doctree_dir = tmp_path / 'doctrees'
     (tmp_path / 'index.rst').write_text("""
 .. plot::
@@ -150,9 +145,8 @@ def test_plot_html_show_source_link(tmp_path):
 def test_show_source_link_true(tmp_path, plot_html_show_source_link):
     # Test that a source link is generated if :show-source-link: is true,
     # whether or not plot_html_show_source_link is true.
-    parent = Path(__file__).parent
-    shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
-    shutil.copytree(parent / 'tinypages/_static', tmp_path / '_static')
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
     doctree_dir = tmp_path / 'doctrees'
     (tmp_path / 'index.rst').write_text("""
 .. plot::
@@ -170,9 +164,8 @@ def test_show_source_link_true(tmp_path, plot_html_show_source_link):
 def test_show_source_link_false(tmp_path, plot_html_show_source_link):
     # Test that a source link is NOT generated if :show-source-link: is false,
     # whether or not plot_html_show_source_link is true.
-    parent = Path(__file__).parent
-    shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
-    shutil.copytree(parent / 'tinypages/_static', tmp_path / '_static')
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
     doctree_dir = tmp_path / 'doctrees'
     (tmp_path / 'index.rst').write_text("""
 .. plot::
@@ -187,14 +180,12 @@ def test_show_source_link_false(tmp_path, plot_html_show_source_link):
 
 
 def test_srcset_version(tmp_path):
-    shutil.copytree(Path(__file__).parent / 'tinypages', tmp_path,
-                    dirs_exist_ok=True)
     html_dir = tmp_path / '_build' / 'html'
     img_dir = html_dir / '_images'
     doctree_dir = tmp_path / 'doctrees'
 
-    build_sphinx_html(tmp_path, doctree_dir, html_dir, extra_args=[
-        '-D', 'plot_srcset=2x'])
+    build_sphinx_html(tinypages, doctree_dir, html_dir,
+                      extra_args=['-D', 'plot_srcset=2x'])
 
     def plot_file(num, suff=''):
         return img_dir / f'some_plots-{num}{suff}.png'

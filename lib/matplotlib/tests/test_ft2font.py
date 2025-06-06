@@ -8,6 +8,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib import ft2font
 from matplotlib.testing import _gen_multi_font_text
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.font_manager as fm
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
@@ -17,7 +18,8 @@ def test_ft2image_draw_rect_filled():
     width = 23
     height = 42
     for x0, y0, x1, y1 in itertools.product([1, 100], [2, 200], [4, 400], [8, 800]):
-        im = ft2font.FT2Image(width, height)
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            im = ft2font.FT2Image(width, height)
         im.draw_rect_filled(x0, y0, x1, y1)
         a = np.asarray(im)
         assert a.dtype == np.uint8
@@ -822,7 +824,7 @@ def test_ft2font_drawing():
     np.testing.assert_array_equal(image, expected)
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
     glyph = font.load_char(ord('M'))
-    image = ft2font.FT2Image(expected.shape[1], expected.shape[0])
+    image = np.zeros(expected.shape, np.uint8)
     font.draw_glyph_to_bitmap(image, -1, 1, glyph, antialiased=False)
     np.testing.assert_array_equal(image, expected)
 
@@ -881,15 +883,31 @@ def test_fallback_missing(recwarn, font_list):
     assert all([font in recwarn[0].message.args[0] for font in font_list])
 
 
+@image_comparison(['last_resort'])
+def test_fallback_last_resort(recwarn):
+    fig = plt.figure(figsize=(3, 0.5))
+    fig.text(.5, .5, "Hello 🙃 World!", size=24,
+             horizontalalignment='center', verticalalignment='center')
+    fig.canvas.draw()
+    assert all(isinstance(warn.message, UserWarning) for warn in recwarn)
+    assert recwarn[0].message.args[0].startswith(
+           "Glyph 128579 (\\N{UPSIDE-DOWN FACE}) missing from font(s)")
+
+
 def test__get_fontmap():
     fonts, test_str = _gen_multi_font_text()
+    # Add some glyphs that don't exist in either font to check the Last Resort fallback.
+    missing_glyphs = '\n几个汉字'
+    test_str += missing_glyphs
 
     ft = fm.get_font(
         fm.fontManager._find_fonts_by_props(fm.FontProperties(family=fonts))
     )
     fontmap = ft._get_fontmap(test_str)
     for char, font in fontmap.items():
-        if ord(char) > 127:
+        if char in missing_glyphs:
+            assert Path(font.fname).name == 'LastResortHE-Regular.ttf'
+        elif ord(char) > 127:
             assert Path(font.fname).name == 'DejaVuSans.ttf'
         else:
             assert Path(font.fname).name == 'cmr10.ttf'

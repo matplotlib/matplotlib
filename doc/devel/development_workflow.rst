@@ -36,7 +36,7 @@ workflow is:
 
 #. Fetch all changes from ``upstream/main``::
 
-    git fetch upstream/main
+    git fetch upstream
 
 #. Start a new *feature branch* from ``upstream/main``::
 

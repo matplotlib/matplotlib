@@ -87,7 +87,7 @@ def json_dump(data: FontManager, filename: str | Path | os.PathLike) -> None: ..
 def json_load(filename: str | Path | os.PathLike) -> FontManager: ...
 
 class FontManager:
-    __version__: int
+    __version__: str
     default_size: float | None
     defaultFamily: dict[str, str]
     afmlist: list[FontEntry]

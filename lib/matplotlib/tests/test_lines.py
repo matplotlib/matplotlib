@@ -153,7 +153,7 @@ def test_drawstyle_variants():
         ax.set(xlim=(0, 2), ylim=(0, 2))
 
 
-@check_figures_equal(extensions=('png',))
+@check_figures_equal()
 def test_no_subslice_with_transform(fig_ref, fig_test):
     ax = fig_ref.add_subplot()
     x = np.arange(2000)
@@ -259,7 +259,7 @@ def test_step_markers(fig_test, fig_ref):
 
 
 @pytest.mark.parametrize("parent", ["figure", "axes"])
-@check_figures_equal(extensions=('png',))
+@check_figures_equal()
 def test_markevery(fig_test, fig_ref, parent):
     np.random.seed(42)
     x = np.linspace(0, 1, 14)
@@ -332,13 +332,13 @@ def test_marker_as_markerstyle():
 
 
 @image_comparison(['striped_line.png'], remove_text=True, style='mpl20')
-def test_striped_lines():
+def test_striped_lines(text_placeholders):
     rng = np.random.default_rng(19680801)
     _, ax = plt.subplots()
     ax.plot(rng.uniform(size=12), color='orange', gapcolor='blue',
-            linestyle='--', lw=5, label=' ')
+            linestyle='--', lw=5, label='blue in orange')
     ax.plot(rng.uniform(size=12), color='red', gapcolor='black',
-            linestyle=(0, (2, 5, 4, 2)), lw=5, label=' ', alpha=0.5)
+            linestyle=(0, (2, 5, 4, 2)), lw=5, label='black in red', alpha=0.5)
     ax.legend(handlelength=5)
 
 
@@ -385,7 +385,7 @@ def test_input_copy(fig_test, fig_ref):
     fig_ref.add_subplot().plot([0, 2, 4], [0, 2, 4], ".-", drawstyle="steps")
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_markevery_prop_cycle(fig_test, fig_ref):
     """Test that we can set markevery prop_cycle."""
     cases = [None, 8, (30, 8), [16, 24, 30], [0, -1],

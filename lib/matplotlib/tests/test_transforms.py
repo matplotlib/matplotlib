@@ -891,8 +891,7 @@ CompositeGenericTransform(
                 Affine2D().scale(1.0))),
         PolarTransform(
             PolarAxes(0.125,0.1;0.775x0.8),
-            use_rmin=True,
-            apply_theta_transforms=False)),
+            use_rmin=True)),
     CompositeGenericTransform(
         CompositeGenericTransform(
             PolarAffine(
@@ -1047,7 +1046,7 @@ def test_transformwrapper():
         t.set(scale.LogTransform(10))
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_scale_swapping(fig_test, fig_ref):
     np.random.seed(19680801)
     samples = np.random.normal(size=10)

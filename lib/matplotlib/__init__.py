@@ -160,6 +160,7 @@ from packaging.version import parse as parse_version
 # definitions, so it is safe to import from it here.
 from . import _api, _version, cbook, _docstring, rcsetup
 from matplotlib._api import MatplotlibDeprecationWarning
+from matplotlib.colors import _color_sequences as color_sequences
 from matplotlib.rcsetup import cycler  # noqa: F401
 
 
@@ -252,7 +253,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.3.1"),
-            ("numpy", "1.23"),
+            ("numpy", "1.25"),
             ("pyparsing", "2.3.1"),
     ]:
         module = importlib.import_module(modname)
@@ -994,9 +995,9 @@ def rc(group, **kwargs):
 
     The following aliases are available to save typing for interactive users:
 
-    =====   =================
+    ======  =================
     Alias   Property
-    =====   =================
+    ======  =================
     'lw'    'linewidth'
     'ls'    'linestyle'
     'c'     'color'
@@ -1004,7 +1005,8 @@ def rc(group, **kwargs):
     'ec'    'edgecolor'
     'mew'   'markeredgewidth'
     'aa'    'antialiased'
-    =====   =================
+    'sans'  'sans-serif'
+    ======  =================
 
     Thus you could abbreviate the above call as::
 
@@ -1038,6 +1040,7 @@ def rc(group, **kwargs):
         'ec':  'edgecolor',
         'mew': 'markeredgewidth',
         'aa':  'antialiased',
+        'sans': 'sans-serif',
         }
 
     if isinstance(group, str):
@@ -1531,4 +1534,3 @@ def validate_backend(s):
 from matplotlib.cm import _colormaps as colormaps  # noqa: E402
 from matplotlib.cm import _multivar_colormaps as multivar_colormaps  # noqa: E402
 from matplotlib.cm import _bivar_colormaps as bivar_colormaps  # noqa: E402
-from matplotlib.colors import _color_sequences as color_sequences  # noqa: E402

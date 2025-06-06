@@ -516,13 +516,20 @@ class Text(Artist):
 
     def set_bbox(self, rectprops):
         """
-        Draw a bounding box around self.
+        Draw a box behind/around the text.
+
+        This can be used to set a background and/or a frame around the text.
+        It's realized through a `.FancyBboxPatch` behind the text (see also
+        `.Text.get_bbox_patch`). The bbox patch is None by default and only
+        created when needed.
 
         Parameters
         ----------
-        rectprops : dict with properties for `.patches.FancyBboxPatch`
+        rectprops : dict with properties for `.FancyBboxPatch` or None
              The default boxstyle is 'square'. The mutation
              scale of the `.patches.FancyBboxPatch` is set to the fontsize.
+
+             Pass ``None`` to remove the bbox patch completely.
 
         Examples
         --------
@@ -558,6 +565,8 @@ class Text(Artist):
         """
         Return the bbox Patch, or None if the `.patches.FancyBboxPatch`
         is not made.
+
+        For more details see `.Text.set_bbox`.
         """
         return self._bbox_patch
 
@@ -685,10 +694,10 @@ class Text(Artist):
         Return the width of a given text string, in pixels.
         """
 
-        w, h, d = self._renderer.get_text_width_height_descent(
-            text,
-            self.get_fontproperties(),
-            cbook.is_math_text(text))
+        w, h, d = _get_text_metrics_with_cache(
+            self._renderer, text, self.get_fontproperties(),
+            cbook.is_math_text(text),
+            self.get_figure(root=True).dpi)
         return math.ceil(w)
 
     def _get_wrapped_text(self):
@@ -981,7 +990,10 @@ class Text(Artist):
 
     def set_backgroundcolor(self, color):
         """
-        Set the background color of the text by updating the bbox.
+        Set the background color of the text.
+
+        This is realized through the bbox (see `.set_bbox`),
+        creating the bbox patch if needed.
 
         Parameters
         ----------
@@ -1541,9 +1553,7 @@ class _AnnotationBase:
             return self.axes.transData
         elif coords == 'polar':
             from matplotlib.projections import PolarAxes
-            tr = PolarAxes.PolarTransform(apply_theta_transforms=False)
-            trans = tr + self.axes.transData
-            return trans
+            return PolarAxes.PolarTransform() + self.axes.transData
 
         try:
             bbox_name, unit = coords.split()

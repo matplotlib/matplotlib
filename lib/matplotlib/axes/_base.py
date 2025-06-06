@@ -523,13 +523,6 @@ class _process_plot_var_args:
             labels = [label] * n_datasets
         elif len(label) == n_datasets:
             labels = label
-        elif n_datasets == 1:
-            msg = (f'Passing label as a length {len(label)} sequence when '
-                    'plotting a single dataset is deprecated in Matplotlib 3.9 '
-                    'and will error in 3.11.  To keep the current behavior, '
-                    'cast the sequence to string before passing.')
-            _api.warn_deprecated('3.9', message=msg)
-            labels = [label]
         else:
             raise ValueError(
                 f"label must be scalar or have the same length as the input "
@@ -564,6 +557,12 @@ class _AxesBase(martist.Artist):
 
     dataLim: mtransforms.Bbox
     """The bounding `.Bbox` enclosing all data displayed in the Axes."""
+
+    spines: mspines.Spines
+    """
+    The `.Spines` container for the Axes' spines, i.e. the lines denoting the
+    data area boundaries.
+    """
 
     xaxis: maxis.XAxis
     """
@@ -1607,7 +1606,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        cycler : `~cycler.Cycler`
+        cycler : `~cycler.Cycler` or ``None``
             Set the given Cycler. *None* resets to the cycle defined by the
             current style.
 

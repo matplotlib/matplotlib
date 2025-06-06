@@ -3,7 +3,7 @@ What's new in Matplotlib 3.9.0 (May 15, 2024)
 =============================================
 
 For a list of all of the issues and pull requests since the last revision, see the
-:ref:`github-stats`.
+:ref:`github-stats-3-9-0`.
 
 .. contents:: Table of Contents
    :depth: 4

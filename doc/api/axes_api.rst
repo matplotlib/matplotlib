@@ -38,6 +38,7 @@ Attributes
 
    Axes.viewLim
    Axes.dataLim
+   Axes.spines
 
 Plotting
 ========
@@ -54,7 +55,6 @@ Basic
    Axes.errorbar
    Axes.scatter
 
-   Axes.plot_date
    Axes.step
 
    Axes.loglog
@@ -67,6 +67,7 @@ Basic
    Axes.bar
    Axes.barh
    Axes.bar_label
+   Axes.grouped_bar
 
    Axes.stem
    Axes.eventplot

@@ -1,0 +1,10 @@
+``plot_date``
+~~~~~~~~~~~~~
+
+Use of ``plot_date`` has been discouraged since Matplotlib 3.5 and deprecated
+since 3.9. The ``plot_date`` function has now been removed.
+
+- ``datetime``-like data should directly be plotted using `~.Axes.plot`.
+-  If you need to plot plain numeric data as :ref:`date-format` or need to set
+   a timezone, call ``ax.xaxis.axis_date`` / ``ax.yaxis.axis_date`` before
+   `~.Axes.plot`. See `.Axis.axis_date`.

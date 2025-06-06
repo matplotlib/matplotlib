@@ -196,8 +196,8 @@ class BivarColormap:
     M: int
     n_variates: int
     def __init__(
-    	self, N: int = ..., M: int | None = ..., shape: Literal['square', 'circle', 'ignore', 'circleignore'] = ...,
-    	origin: Sequence[float] = ..., name: str = ...
+        self, N: int = ..., M: int | None = ..., shape: Literal['square', 'circle', 'ignore', 'circleignore'] = ...,
+        origin: Sequence[float] = ..., name: str = ...
     ) -> None: ...
     @overload
     def __call__(
@@ -245,8 +245,8 @@ class SegmentedBivarColormap(BivarColormap):
 
 class BivarColormapFromImage(BivarColormap):
     def __init__(
-    	self, lut: np.ndarray, shape: Literal['square', 'circle', 'ignore', 'circleignore'] = ...,
-    	origin: Sequence[float] = ..., name: str = ...
+        self, lut: np.ndarray, shape: Literal['square', 'circle', 'ignore', 'circleignore'] = ...,
+        origin: Sequence[float] = ..., name: str = ...
     ) -> None: ...
 
 class Normalize:

@@ -444,6 +444,30 @@ class Line3DCollection(LineCollection):
     def __init__(self, lines, axlim_clip=False, **kwargs):
         super().__init__(lines, **kwargs)
         self._axlim_clip = axlim_clip
+        """
+        Parameters
+        ----------
+        lines : list of (N, 3) array-like
+            A sequence ``[line0, line1, ...]`` where each line is a (N, 3)-shape
+            array-like containing points:: line0 = [(x0, y0, z0), (x1, y1, z1), ...]
+            Each line can contain a different number of points.
+        linewidths : float or list of float, default: :rc:`lines.linewidth`
+            The width of each line in points.
+        colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
+            A sequence of RGBA tuples (e.g., arbitrary color strings, etc, not
+            allowed).
+        antialiaseds : bool or list of bool, default: :rc:`lines.antialiased`
+            Whether to use antialiasing for each line.
+        facecolors : :mpltype:`color` or list of :mpltype:`color`, default: 'none'
+            When setting *facecolors*, each line is interpreted as a boundary
+            for an area, implicitly closing the path from the last point to the
+            first point. The enclosed area is filled with *facecolor*.
+            In order to manually specify what should count as the "interior" of
+            each line, please use `.PathCollection` instead, where the
+            "interior" can be specified by appropriate usage of
+            `~.path.Path.CLOSEPOLY`.
+        **kwargs : Forwarded to `.Collection`.
+        """
 
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""

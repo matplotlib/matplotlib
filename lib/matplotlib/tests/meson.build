@@ -99,11 +99,6 @@ py3.install_sources(python_sources,
 
 install_data(
   'README',
-  'Courier10PitchBT-Bold.pfb',
-  'cmr10.pfb',
-  'mpltest.ttf',
-  'test_nbagg_01.ipynb',
-  'test_inline_01.ipynb',
   install_tag: 'tests',
   install_dir: py3.get_install_dir(subdir: 'matplotlib/tests/'))
 
@@ -112,6 +107,6 @@ install_subdir(
   install_tag: 'tests',
   install_dir: py3.get_install_dir(subdir: 'matplotlib/tests'))
 install_subdir(
-  'tinypages',
+  'data',
   install_tag: 'tests',
-  install_dir: py3.get_install_dir(subdir: 'matplotlib/tests'))
+  install_dir: py3.get_install_dir(subdir: 'matplotlib/tests/'))

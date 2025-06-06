@@ -174,7 +174,7 @@ def test_exceptions():
         plt.subplots(2, 2, sharey='blah')
 
 
-@image_comparison(['subplots_offset_text'],
+@image_comparison(['subplots_offset_text.png'],
                   tol=0 if platform.machine() == 'x86_64' else 0.028)
 def test_subplots_offsettext():
     x = np.arange(0, 1e10, 1e9)
@@ -242,7 +242,7 @@ def test_dont_mutate_kwargs():
 
 @pytest.mark.parametrize("width_ratios", [None, [1, 3, 2]])
 @pytest.mark.parametrize("height_ratios", [None, [1, 2]])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_width_and_height_ratios(fig_test, fig_ref,
                                  height_ratios, width_ratios):
     fig_test.subplots(2, 3, height_ratios=height_ratios,
@@ -254,7 +254,7 @@ def test_width_and_height_ratios(fig_test, fig_ref,
 
 @pytest.mark.parametrize("width_ratios", [None, [1, 3, 2]])
 @pytest.mark.parametrize("height_ratios", [None, [1, 2]])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_width_and_height_ratios_mosaic(fig_test, fig_ref,
                                         height_ratios, width_ratios):
     mosaic_spec = [['A', 'B', 'B'], ['A', 'C', 'D']]

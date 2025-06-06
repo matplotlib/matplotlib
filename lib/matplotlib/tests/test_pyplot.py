@@ -381,7 +381,7 @@ def test_doc_pyplot_summary():
                :nosignatures:
 
                plot
-               plot_date
+               errorbar
 
         """
         functions = []

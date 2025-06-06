@@ -1065,7 +1065,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
-    __version__ = 390
+    __version__ = '3.11.0a1'
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1546,19 +1546,39 @@ def is_opentype_cff_font(filename):
 
 
 @lru_cache(64)
-def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id):
+def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id,
+              enable_last_resort):
     first_fontpath, *rest = font_filepaths
-    return ft2font.FT2Font(
+    fallback_list = [
+        ft2font.FT2Font(fpath, hinting_factor, _kerning_factor=_kerning_factor)
+        for fpath in rest
+    ]
+    last_resort_path = _cached_realpath(
+        cbook._get_data_path('fonts', 'ttf', 'LastResortHE-Regular.ttf'))
+    try:
+        last_resort_index = font_filepaths.index(last_resort_path)
+    except ValueError:
+        last_resort_index = -1
+        # Add Last Resort font so we always have glyphs regardless of font, unless we're
+        # already in the list.
+        if enable_last_resort:
+            fallback_list.append(
+                ft2font.FT2Font(last_resort_path, hinting_factor,
+                                _kerning_factor=_kerning_factor,
+                                _warn_if_used=True))
+            last_resort_index = len(fallback_list)
+    font = ft2font.FT2Font(
         first_fontpath, hinting_factor,
-        _fallback_list=[
-            ft2font.FT2Font(
-                fpath, hinting_factor,
-                _kerning_factor=_kerning_factor
-            )
-            for fpath in rest
-        ],
+        _fallback_list=fallback_list,
         _kerning_factor=_kerning_factor
     )
+    # Ensure we are using the right charmap for the Last Resort font; FreeType picks the
+    # Unicode one by default, but this exists only for Windows, and is empty.
+    if last_resort_index == 0:
+        font.set_charmap(0)
+    elif last_resort_index > 0:
+        fallback_list[last_resort_index - 1].set_charmap(0)
+    return font
 
 
 # FT2Font objects cannot be used across fork()s because they reference the same
@@ -1611,7 +1631,8 @@ def get_font(font_filepaths, hinting_factor=None):
         hinting_factor,
         _kerning_factor=mpl.rcParams['text.kerning_factor'],
         # also key on the thread ID to prevent segfaults with multi-threading
-        thread_id=threading.get_ident()
+        thread_id=threading.get_ident(),
+        enable_last_resort=mpl.rcParams['font.enable_last_resort'],
     )
 
 

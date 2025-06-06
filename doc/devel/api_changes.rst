@@ -13,8 +13,8 @@ the API and any changes, either semantic or aesthetic, are backwards-incompatibl
 API changes.
 
 
-Add new API and features
-------------------------
+Add new API
+-----------
 
 Every new function, parameter and attribute that is not explicitly marked as
 private (i.e., starts with an underscore) becomes part of Matplotlib's public
@@ -66,6 +66,10 @@ have to learn new API and have to modify existing code).
    string, but often regular expressions are helpful to exclude incorrect matches.
    You can start simple and look at the search results, if there are too many
    incorrect matches, gradually refine your search criteria.
+
+   It can also be helpful to add ``NOT path:**/matplotlib/** NOT path:**/site-packages/**``
+   to exclude matches where the matplotlib codebase is checked into another repo,
+   either as direct sources or as part of an environment.
 
    *Example*: Calls of the method ``Figure.draw()`` could be matched using
    ``/\bfig(ure)?\.draw\(/``. This expression employs a number of patterns:
@@ -210,7 +214,8 @@ Announce new and deprecated API
 
 When adding or changing the API in a backward in-compatible way, please add the
 appropriate :ref:`versioning directive <versioning-directives>` and document it
-for the release notes and add the entry to the appropriate folder:
+in the :ref:`release notes <release-notes>` by adding an entry to the appropriate
+folder:
 
 +-------------------+-----------------------------+----------------------------------------------+
 |                   |   versioning directive      |  announcement folder                         |
@@ -277,6 +282,8 @@ For classes and functions, the directive should be placed before the
 *Parameters* section. For parameters, the directive should be placed at the
 end of the parameter description. The micro release version is omitted and
 the directive should not be added to entire modules.
+
+.. _release-notes:
 
 Release notes
 ^^^^^^^^^^^^^

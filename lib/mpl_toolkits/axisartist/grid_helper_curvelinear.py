@@ -7,7 +7,6 @@ import functools
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, Bbox, IdentityTransform
 from .axislines import (
@@ -316,9 +315,9 @@ class GridHelperCurveLinear(GridHelperBase):
         self.grid_finder.update(**kwargs)
         self._old_limits = None  # Force revalidation.
 
-    @_api.make_keyword_only("3.9", "nth_coord")
     def new_fixed_axis(
-            self, loc, nth_coord=None, axis_direction=None, offset=None, axes=None):
+        self, loc, *, axis_direction=None, offset=None, axes=None, nth_coord=None
+    ):
         if axes is None:
             axes = self.axes
         if axis_direction is None:
@@ -351,14 +350,3 @@ class GridHelperCurveLinear(GridHelperBase):
         if axis in ["both", "y"]:
             grid_lines.extend([gl.T for gl in self._grid_info["lat"]["lines"]])
         return grid_lines
-
-    @_api.deprecated("3.9")
-    def get_tick_iterator(self, nth_coord, axis_side, minor=False):
-        angle_tangent = dict(left=90, right=90, bottom=0, top=0)[axis_side]
-        lon_or_lat = ["lon", "lat"][nth_coord]
-        if not minor:  # major ticks
-            for tick in self._grid_info[lon_or_lat]["ticks"][axis_side]:
-                yield *tick["loc"], angle_tangent, tick["label"]
-        else:
-            for tick in self._grid_info[lon_or_lat]["ticks"][axis_side]:
-                yield *tick["loc"], angle_tangent, ""

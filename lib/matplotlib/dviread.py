@@ -17,20 +17,21 @@ Interface::
               ...
 """
 
-from collections import namedtuple
+import dataclasses
 import enum
-from functools import cache, lru_cache, partial, wraps
 import logging
 import os
-from pathlib import Path
 import re
 import struct
 import subprocess
 import sys
+from collections import namedtuple
+from functools import cache, lru_cache, partial, wraps
+from pathlib import Path
 
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api, cbook, font_manager
 
 _log = logging.getLogger(__name__)
 
@@ -70,8 +71,8 @@ class Text(namedtuple('Text', 'x y font glyph width')):
     *glyph*, and *width* attributes are kept public for back-compatibility,
     but users wanting to draw the glyph themselves are encouraged to instead
     load the font specified by `font_path` at `font_size`, warp it with the
-    effects specified by `font_effects`, and load the glyph specified by
-    `glyph_name_or_index`.
+    effects specified by `font_effects`, and load the glyph at the FreeType
+    glyph `index`.
     """
 
     def _get_pdftexmap_entry(self):
@@ -104,6 +105,14 @@ class Text(namedtuple('Text', 'x y font glyph width')):
         return self._get_pdftexmap_entry().effects
 
     @property
+    def index(self):
+        """
+        The FreeType index of this glyph (that can be passed to FT_Load_Glyph).
+        """
+        # See DviFont._index_dvi_to_freetype for details on the index mapping.
+        return self.font._index_dvi_to_freetype(self.glyph)
+
+    @property  # To be deprecated together with font_size, font_effects.
     def glyph_name_or_index(self):
         """
         Either the glyph name or the native charmap glyph index.
@@ -398,14 +407,14 @@ class Dvi:
         else:
             scale = font._scale
             for x, y, f, g, w in font._vf[char].text:
-                newf = DviFont(scale=_mul2012(scale, f._scale),
+                newf = DviFont(scale=_mul1220(scale, f._scale),
                                tfm=f._tfm, texname=f.texname, vf=f._vf)
-                self.text.append(Text(self.h + _mul2012(x, scale),
-                                      self.v + _mul2012(y, scale),
+                self.text.append(Text(self.h + _mul1220(x, scale),
+                                      self.v + _mul1220(y, scale),
                                       newf, g, newf._width_of(g)))
-            self.boxes.extend([Box(self.h + _mul2012(x, scale),
-                                   self.v + _mul2012(y, scale),
-                                   _mul2012(a, scale), _mul2012(b, scale))
+            self.boxes.extend([Box(self.h + _mul1220(x, scale),
+                                   self.v + _mul1220(y, scale),
+                                   _mul1220(a, scale), _mul1220(b, scale))
                                for x, y, a, b in font._vf[char].boxes])
 
     @_dispatch(137, state=_dvistate.inpage, args=('s4', 's4'))
@@ -574,15 +583,14 @@ class DviFont:
     Attributes
     ----------
     texname : bytes
+    fname : str
+       Compatibility shim so that DviFont can be used with
+       ``_backend_pdf_ps.CharacterTracker``; not a real filename.
     size : float
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
-    widths : list
-       Widths of glyphs in glyph-space units, typically 1/1000ths of
-       the point size.
-
     """
-    __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
+    __slots__ = ('texname', 'size', '_scale', '_vf', '_tfm', '_encoding')
 
     def __init__(self, scale, tfm, texname, vf):
         _api.check_isinstance(bytes, texname=texname)
@@ -591,12 +599,23 @@ class DviFont:
         self.texname = texname
         self._vf = vf
         self.size = scale * (72.0 / (72.27 * 2**16))
-        try:
-            nchars = max(tfm.width) + 1
-        except ValueError:
-            nchars = 0
-        self.widths = [(1000*tfm.width.get(char, 0)) >> 20
-                       for char in range(nchars)]
+        self._encoding = None
+
+    widths = _api.deprecated("3.11")(property(lambda self: [
+        (1000 * self._tfm.width.get(char, 0)) >> 20
+        for char in range(max(self._tfm.width, default=-1) + 1)]))
+
+    @property
+    def fname(self):
+        """A fake filename"""
+        return self.texname.decode('latin-1')
+
+    def _get_fontmap(self, string):
+        """Get the mapping from characters to the font that includes them.
+
+        Each value maps to self; there is no fallback mechanism for DviFont.
+        """
+        return {char: self for char in string}
 
     def __eq__(self, other):
         return (type(self) is type(other)
@@ -610,32 +629,57 @@ class DviFont:
 
     def _width_of(self, char):
         """Width of char in dvi units."""
-        width = self._tfm.width.get(char, None)
-        if width is not None:
-            return _mul2012(width, self._scale)
-        _log.debug('No width for char %d in font %s.', char, self.texname)
-        return 0
+        metrics = self._tfm.get_metrics(char)
+        if metrics is None:
+            _log.debug('No width for char %d in font %s.', char, self.texname)
+            return 0
+        return _mul1220(metrics.tex_width, self._scale)
 
     def _height_depth_of(self, char):
         """Height and depth of char in dvi units."""
-        result = []
-        for metric, name in ((self._tfm.height, "height"),
-                             (self._tfm.depth, "depth")):
-            value = metric.get(char, None)
-            if value is None:
-                _log.debug('No %s for char %d in font %s',
-                           name, char, self.texname)
-                result.append(0)
-            else:
-                result.append(_mul2012(value, self._scale))
+        metrics = self._tfm.get_metrics(char)
+        if metrics is None:
+            _log.debug('No metrics for char %d in font %s', char, self.texname)
+            return [0, 0]
+        hd = [
+            _mul1220(metrics.tex_height, self._scale),
+            _mul1220(metrics.tex_depth, self._scale),
+        ]
         # cmsyXX (symbols font) glyph 0 ("minus") has a nonzero descent
         # so that TeX aligns equations properly
         # (https://tex.stackexchange.com/q/526103/)
         # but we actually care about the rasterization depth to align
         # the dvipng-generated images.
         if re.match(br'^cmsy\d+$', self.texname) and char == 0:
-            result[-1] = 0
-        return result
+            hd[-1] = 0
+        return hd
+
+    def _index_dvi_to_freetype(self, idx):
+        """Convert dvi glyph indices to FreeType ones."""
+        # Glyphs indices stored in the dvi file map to FreeType glyph indices
+        # (i.e., which can be passed to FT_Load_Glyph) in various ways:
+        # - if pdftex.map specifies an ".enc" file for the font, that file maps
+        #   dvi indices to Adobe glyph names, which can then be converted to
+        #   FreeType glyph indices with FT_Get_Name_Index.
+        # - if no ".enc" file is specified, then the font must be a Type 1
+        #   font, and dvi indices directly index into the font's CharStrings
+        #   vector.
+        # - (xetex & luatex, currently unsupported, can also declare "native
+        #   fonts", for which dvi indices are equal to FreeType indices.)
+        if self._encoding is None:
+            psfont = PsfontsMap(find_tex_file("pdftex.map"))[self.texname]
+            if psfont.filename is None:
+                raise ValueError("No usable font file found for {} ({}); "
+                                 "the font may lack a Type-1 version"
+                                 .format(psfont.psname.decode("ascii"),
+                                         psfont.texname.decode("ascii")))
+            face = font_manager.get_font(psfont.filename)
+            if psfont.encoding:
+                self._encoding = [face.get_name_index(name)
+                                  for name in _parse_enc(psfont.encoding)]
+            else:
+                self._encoding = face._get_type1_encoding_vector()
+        return self._encoding[idx]
 
 
 class Vf(Dvi):
@@ -761,10 +805,26 @@ class Vf(Dvi):
         # cs = checksum, ds = design size
 
 
-def _mul2012(num1, num2):
-    """Multiply two numbers in 20.12 fixed point format."""
+def _mul1220(num1, num2):
+    """Multiply two numbers in 12.20 fixed point format."""
     # Separated into a function because >> has surprising precedence
     return (num1*num2) >> 20
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TexMetrics:
+    """
+    Metrics of a glyph, with TeX semantics.
+
+    TeX metrics have different semantics from FreeType metrics: tex_width
+    corresponds to FreeType's ``advance`` (i.e., including whitespace padding);
+    tex_height to ``bearingY`` (how much the glyph extends over the baseline);
+    tex_depth to ``height - bearingY`` (how much the glyph extends under the
+    baseline, as a positive number).
+    """
+    tex_width: int
+    tex_height: int
+    tex_depth: int
 
 
 class Tfm:
@@ -782,13 +842,9 @@ class Tfm:
     checksum : int
        Used for verifying against the dvi file.
     design_size : int
-       Design size of the font (unknown units)
-    width, height, depth : dict
-       Dimensions of each character, need to be scaled by the factor
-       specified in the dvi file. These are dicts because indexing may
-       not start from 0.
+       Design size of the font (in 12.20 TeX points); unused because it is
+       overridden by the scale factor specified in the dvi file.
     """
-    __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
     def __init__(self, filename):
         _log.debug('opening tfm file %s', filename)
@@ -804,15 +860,26 @@ class Tfm:
             widths = struct.unpack(f'!{nw}i', file.read(4*nw))
             heights = struct.unpack(f'!{nh}i', file.read(4*nh))
             depths = struct.unpack(f'!{nd}i', file.read(4*nd))
-        self.width = {}
-        self.height = {}
-        self.depth = {}
+        self._glyph_metrics = {}
         for idx, char in enumerate(range(bc, ec+1)):
             byte0 = char_info[4*idx]
             byte1 = char_info[4*idx+1]
-            self.width[char] = widths[byte0]
-            self.height[char] = heights[byte1 >> 4]
-            self.depth[char] = depths[byte1 & 0xf]
+            self._glyph_metrics[char] = TexMetrics(
+                tex_width=widths[byte0],
+                tex_height=heights[byte1 >> 4],
+                tex_depth=depths[byte1 & 0xf],
+            )
+
+    def get_metrics(self, idx):
+        """Return a glyph's TexMetrics, or None if unavailable."""
+        return self._glyph_metrics.get(idx)
+
+    width = _api.deprecated("3.11", alternative="get_metrics")(
+        property(lambda self: {c: m.tex_width for c, m in self._glyph_metrics}))
+    height = _api.deprecated("3.11", alternative="get_metrics")(
+        property(lambda self: {c: m.tex_height for c, m in self._glyph_metrics}))
+    depth = _api.deprecated("3.11", alternative="get_metrics")(
+        property(lambda self: {c: m.tex_depth for c, m in self._glyph_metrics}))
 
 
 PsFont = namedtuple('PsFont', 'texname psname effects encoding filename')
@@ -1007,8 +1074,7 @@ def _parse_enc(path):
     Returns
     -------
     list
-        The nth entry of the list is the PostScript glyph name of the nth
-        glyph.
+        The nth list item is the PostScript glyph name of the nth glyph.
     """
     no_comments = re.sub("%.*", "", Path(path).read_text(encoding="ascii"))
     array = re.search(r"(?s)\[(.*)\]", no_comments).group(1)
@@ -1110,29 +1176,40 @@ _vffile = partial(_fontfile, Vf, ".vf")
 
 
 if __name__ == '__main__':
-    from argparse import ArgumentParser
     import itertools
+    from argparse import ArgumentParser
+
+    import fontTools.agl
+
+    from matplotlib.ft2font import FT2Font
 
     parser = ArgumentParser()
     parser.add_argument("filename")
     parser.add_argument("dpi", nargs="?", type=float, default=None)
     args = parser.parse_args()
+
+    def _print_fields(*args):
+        print(" ".join(map("{:>11}".format, args)))
+
     with Dvi(args.filename, args.dpi) as dvi:
         fontmap = PsfontsMap(find_tex_file('pdftex.map'))
         for page in dvi:
-            print(f"=== new page === "
+            print(f"=== NEW PAGE === "
                   f"(w: {page.width}, h: {page.height}, d: {page.descent})")
+            print("--- GLYPHS ---")
             for font, group in itertools.groupby(
                     page.text, lambda text: text.font):
-                print(f"font: {font.texname.decode('latin-1')!r}\t"
-                      f"scale: {font._scale / 2 ** 20}")
-                print("x", "y", "glyph", "chr", "w", "(glyphs)", sep="\t")
+                psfont = fontmap[font.texname]
+                fontpath = psfont.filename
+                print(f"font: {font.texname.decode('latin-1')} "
+                      f"(scale: {font._scale / 2 ** 20}) at {fontpath}")
+                face = FT2Font(fontpath)
+                _print_fields("x", "y", "glyph", "chr", "w")
                 for text in group:
-                    print(text.x, text.y, text.glyph,
-                          chr(text.glyph) if chr(text.glyph).isprintable()
-                          else ".",
-                          text.width, sep="\t")
+                    glyph_str = fontTools.agl.toUnicode(face.get_glyph_name(text.index))
+                    _print_fields(text.x, text.y, text.glyph, glyph_str, text.width)
             if page.boxes:
-                print("x", "y", "h", "w", "", "(boxes)", sep="\t")
+                print("--- BOXES ---")
+                _print_fields("x", "y", "h", "w")
                 for box in page.boxes:
-                    print(box.x, box.y, box.height, box.width, sep="\t")
+                    _print_fields(box.x, box.y, box.height, box.width)

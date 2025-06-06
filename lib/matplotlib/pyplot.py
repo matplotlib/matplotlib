@@ -86,7 +86,6 @@ import numpy as np
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable, Sequence
-    import datetime
     import pathlib
     import os
     from typing import Any, BinaryIO, Literal, TypeVar
@@ -94,6 +93,7 @@ if TYPE_CHECKING:
 
     import PIL.Image
     from numpy.typing import ArrayLike
+    import pandas as pd
 
     import matplotlib.axes
     import matplotlib.artist
@@ -876,7 +876,9 @@ def figure(
     # autoincrement if None, else integer from 1-N
     num: int | str | Figure | SubFigure | None = None,
     # defaults to rc figure.figsize
-    figsize: tuple[float, float] | None = None,
+    figsize: ArrayLike  # a 2-element ndarray is accepted as well
+             | tuple[float, float, Literal["in", "cm", "px"]]
+             | None = None,
     # defaults to rc figure.dpi
     dpi: float | None = None,
     *,
@@ -909,8 +911,12 @@ def figure(
         window title is set to this value.  If num is a ``SubFigure``, its
         parent ``Figure`` is activated.
 
-    figsize : (float, float), default: :rc:`figure.figsize`
-        Width, height in inches.
+    figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
+        The figure dimensions. This can be
+
+        - a tuple ``(width, height, unit)``, where *unit* is one of "inch", "cm",
+          "px".
+        - a tuple ``(x, y)``, which is interpreted as ``(x, y, "inch")``.
 
     dpi : float, default: :rc:`figure.dpi`
         The resolution of the figure in dots-per-inch.
@@ -1173,7 +1179,7 @@ def disconnect(cid: int) -> None:
 
 def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
     """
-    Close a figure window.
+    Close a figure window, and unregister it from pyplot.
 
     Parameters
     ----------
@@ -1186,6 +1192,14 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
         - ``str``: a figure name
         - 'all': all figures
 
+    Notes
+    -----
+    pyplot maintains a reference to figures created with `figure()`. When
+    work on the figure is completed, it should be closed, i.e. deregistered
+    from pyplot, to free its memory (see also :rc:figure.max_open_warning).
+    Closing a figure window created by `show()` automatically deregisters the
+    figure. For all other use cases, most prominently `savefig()` without
+    `show()`, the figure must be deregistered explicitly using `close()`.
     """
     if fig is None:
         manager = _pylab_helpers.Gcf.get_active()
@@ -1704,7 +1718,7 @@ def subplots(
 
         Typical idioms for handling the return value are::
 
-            # using the variable ax for single a Axes
+            # using the variable ax for a single Axes
             fig, ax = plt.subplots()
 
             # using the variable axs for multiple Axes
@@ -2716,12 +2730,15 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # If rcParams['backend_fallback'] is true, and an interactive backend is
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
-if (rcParams["backend_fallback"]
-        and rcParams._get_backend_or_none() in (  # type: ignore[attr-defined]
-            set(backend_registry.list_builtin(BackendFilter.INTERACTIVE)) -
-            {'webagg', 'nbagg'})
-        and cbook._get_running_interactive_framework()):
-    rcParams._set("backend", rcsetup._auto_backend_sentinel)
+if rcParams["backend_fallback"]:
+    requested_backend = rcParams._get_backend_or_none()  # type: ignore[attr-defined]
+    requested_backend = None if requested_backend is None else requested_backend.lower()
+    available_backends = backend_registry.list_builtin(BackendFilter.INTERACTIVE)
+    if (
+        requested_backend in (set(available_backends) - {'webagg', 'nbagg'})
+        and cbook._get_running_interactive_framework()
+    ):
+        rcParams._set("backend", rcsetup._auto_backend_sentinel)
 
 # fmt: on
 
@@ -3025,7 +3042,7 @@ def bar_label(
     *,
     fmt: str | Callable[[float], str] = "%g",
     label_type: Literal["center", "edge"] = "edge",
-    padding: float = 0,
+    padding: float | ArrayLike = 0,
     **kwargs,
 ) -> list[Annotation]:
     return gca().bar_label(
@@ -3231,7 +3248,7 @@ def ecdf(
     weights: ArrayLike | None = None,
     *,
     complementary: bool = False,
-    orientation: Literal["vertical", "horizonatal"] = "vertical",
+    orientation: Literal["vertical", "horizontal"] = "vertical",
     compress: bool = False,
     data=None,
     **kwargs,
@@ -3265,6 +3282,7 @@ def errorbar(
     xuplims: bool | ArrayLike = False,
     errorevery: int | tuple[int, int] = 1,
     capthick: float | None = None,
+    elinestyle: LineStyleType | None = None,
     *,
     data=None,
     **kwargs,
@@ -3285,6 +3303,7 @@ def errorbar(
         xuplims=xuplims,
         errorevery=errorevery,
         capthick=capthick,
+        elinestyle=elinestyle,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )
@@ -3384,6 +3403,33 @@ def grid(
     **kwargs,
 ) -> None:
     gca().grid(visible=visible, which=which, axis=axis, **kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@_copy_docstring_and_deprecators(Axes.grouped_bar)
+def grouped_bar(
+    heights: Sequence[ArrayLike] | dict[str, ArrayLike] | np.ndarray | pd.DataFrame,
+    *,
+    positions: ArrayLike | None = None,
+    group_spacing: float | None = 1.5,
+    bar_spacing: float | None = 0,
+    tick_labels: Sequence[str] | None = None,
+    labels: Sequence[str] | None = None,
+    orientation: Literal["vertical", "horizontal"] = "vertical",
+    colors: Iterable[ColorType] | None = None,
+    **kwargs,
+) -> list[BarContainer]:
+    return gca().grouped_bar(
+        heights,
+        positions=positions,
+        group_spacing=group_spacing,
+        bar_spacing=bar_spacing,
+        tick_labels=tick_labels,
+        labels=labels,
+        orientation=orientation,
+        colors=colors,
+        **kwargs,
+    )
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -3829,31 +3875,6 @@ def plot(
         *args,
         scalex=scalex,
         scaley=scaley,
-        **({"data": data} if data is not None else {}),
-        **kwargs,
-    )
-
-
-# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-@_copy_docstring_and_deprecators(Axes.plot_date)
-def plot_date(
-    x: ArrayLike,
-    y: ArrayLike,
-    fmt: str = "o",
-    tz: str | datetime.tzinfo | None = None,
-    xdate: bool = True,
-    ydate: bool = False,
-    *,
-    data=None,
-    **kwargs,
-) -> list[Line2D]:
-    return gca().plot_date(
-        x,
-        y,
-        fmt=fmt,
-        tz=tz,
-        xdate=xdate,
-        ydate=ydate,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )

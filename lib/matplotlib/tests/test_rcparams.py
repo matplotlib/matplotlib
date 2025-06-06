@@ -257,6 +257,8 @@ def generate_validator_testcases(valid):
         {'validator': validate_cycler,
          'success': (('cycler("color", "rgb")',
                       cycler("color", 'rgb')),
+                     ('cycler("color", "Dark2")',
+                      cycler("color", mpl.color_sequences["Dark2"])),
                      (cycler('linestyle', ['-', '--']),
                       cycler('linestyle', ['-', '--'])),
                      ("""(cycler("color", ["r", "g", "b"]) +
@@ -455,6 +457,12 @@ def test_validator_invalid(validator, arg, exception_type):
         validator(arg)
 
 
+def test_validate_cycler_bad_color_string():
+    msg = "'foo' is neither a color sequence name nor can it be interpreted as a list"
+    with pytest.raises(ValueError, match=msg):
+        validate_cycler("cycler('color', 'foo')")
+
+
 @pytest.mark.parametrize('weight, parsed_weight', [
     ('bold', 'bold'),
     ('BOLD', ValueError),  # weight is case-sensitive
@@ -521,10 +529,11 @@ def test_rcparams_reset_after_fail():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
-def test_backend_fallback_headless(tmp_path):
+def test_backend_fallback_headless_invalid_backend(tmp_path):
     env = {**os.environ,
            "DISPLAY": "", "WAYLAND_DISPLAY": "",
            "MPLBACKEND": "", "MPLCONFIGDIR": str(tmp_path)}
+    # plotting should fail with the tkagg backend selected in a headless environment
     with pytest.raises(subprocess.CalledProcessError):
         subprocess_run_for_testing(
             [sys.executable, "-c",
@@ -534,6 +543,28 @@ def test_backend_fallback_headless(tmp_path):
              "matplotlib.pyplot.plot(42);"
              ],
             env=env, check=True, stderr=subprocess.DEVNULL)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+def test_backend_fallback_headless_auto_backend(tmp_path):
+    # specify a headless mpl environment, but request a graphical (tk) backend
+    env = {**os.environ,
+           "DISPLAY": "", "WAYLAND_DISPLAY": "",
+           "MPLBACKEND": "TkAgg", "MPLCONFIGDIR": str(tmp_path)}
+
+    # allow fallback to an available interactive backend explicitly in configuration
+    rc_path = tmp_path / "matplotlibrc"
+    rc_path.write_text("backend_fallback: true")
+
+    # plotting should succeed, by falling back to use the generic agg backend
+    backend = subprocess_run_for_testing(
+        [sys.executable, "-c",
+         "import matplotlib.pyplot;"
+         "matplotlib.pyplot.plot(42);"
+         "print(matplotlib.get_backend());"
+         ],
+        env=env, text=True, check=True, capture_output=True).stdout
+    assert backend.strip().lower() == "agg"
 
 
 @pytest.mark.skipif(
@@ -623,3 +654,21 @@ def test_rcparams_path_sketch_from_file(tmp_path, value):
     rc_path.write_text(f"path.sketch: {value}")
     with mpl.rc_context(fname=rc_path):
         assert mpl.rcParams["path.sketch"] == (1, 2, 3)
+
+
+@pytest.mark.parametrize('group, option, alias, value', [
+    ('lines',  'linewidth',        'lw', 3),
+    ('lines',  'linestyle',        'ls', 'dashed'),
+    ('lines',  'color',             'c', 'white'),
+    ('axes',   'facecolor',        'fc', 'black'),
+    ('figure', 'edgecolor',        'ec', 'magenta'),
+    ('lines',  'markeredgewidth', 'mew', 1.5),
+    ('patch',  'antialiased',      'aa', False),
+    ('font',   'sans-serif',     'sans', ["Verdana"])
+])
+def test_rc_aliases(group, option, alias, value):
+    rc_kwargs = {alias: value,}
+    mpl.rc(group, **rc_kwargs)
+
+    rcParams_key = f"{group}.{option}"
+    assert mpl.rcParams[rcParams_key] == value

@@ -86,7 +86,7 @@ def test_contour_Nlevels():
     assert (cs1.levels == cs2.levels).all()
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_contour_set_paths(fig_test, fig_ref):
     cs_test = fig_test.subplots().contour([[0, 1], [1, 2]])
     cs_ref = fig_ref.subplots().contour([[1, 0], [2, 1]])
@@ -212,6 +212,21 @@ def test_log_locator_levels():
     assert_array_almost_equal(c.levels, np.power(10.0, np.arange(-6, 3)))
     cb = fig.colorbar(c, ax=ax)
     assert_array_almost_equal(cb.ax.get_yticks(), c.levels)
+
+
+@pytest.mark.parametrize("n_levels", [2, 3, 4, 5, 6])
+def test_lognorm_levels(n_levels):
+    x, y = np.mgrid[1:10:0.1, 1:10:0.1]
+    data = np.abs(np.sin(x)*np.exp(y))
+
+    fig, ax = plt.subplots()
+    im = ax.contour(x, y, data, norm=LogNorm(), levels=n_levels)
+    fig.colorbar(im, ax=ax)
+
+    levels = im.levels
+    visible_levels = levels[(levels <= data.max()) & (levels >= data.min())]
+    # levels parameter promises "no more than n+1 "nice" contour levels "
+    assert len(visible_levels) <= n_levels + 1
 
 
 @image_comparison(['contour_datetime_axis.png'], style='mpl20')
@@ -399,8 +414,11 @@ def test_contourf_log_extension():
     levels = np.power(10., levels_exp)
 
     # original data
+    # FIXME: Force tick locations for now for backcompat with old test
+    # (log-colorbar extension is not really optimal anyways).
     c1 = ax1.contourf(data,
-                      norm=LogNorm(vmin=data.min(), vmax=data.max()))
+                      norm=LogNorm(vmin=data.min(), vmax=data.max()),
+                      locator=mpl.ticker.FixedLocator(10.**np.arange(-8, 12, 2)))
     # just show data in levels
     c2 = ax2.contourf(data, levels=levels,
                       norm=LogNorm(vmin=levels.min(), vmax=levels.max()),
@@ -837,3 +855,13 @@ def test_allsegs_allkinds():
         assert len(result) == 2
         assert len(result[0]) == 5
         assert len(result[1]) == 4
+
+
+@image_comparison(baseline_images=['contour_rasterization'],
+                  extensions=['pdf'], style='mpl20', savefig_kwarg={'dpi': 25})
+def test_contourf_rasterize():
+    fig, ax = plt.subplots()
+    data = [[0, 1], [1, 0]]
+    circle = mpatches.Circle([0.5, 0.5], 0.5, transform=ax.transAxes)
+    cs = ax.contourf(data, clip_path=circle, rasterized=True)
+    assert cs._rasterized
