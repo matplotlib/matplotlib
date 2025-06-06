@@ -910,7 +910,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # save script (if necessary)
     if options['show-source-link']:
-        Path(build_dir, output_base + source_ext).write_text(
+        Path(build_dir, output_base + (source_ext or '.py')).write_text(
             doctest.script_from_examples(code)
             if source_file_name == rst_file and is_doctest
             else code,
@@ -970,7 +970,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         # Not-None src_name signals the need for a source download in the
         # generated html
         if j == 0 and options['show-source-link']:
-            src_name = output_base + source_ext
+            src_name = output_base + (source_ext or '.py')
         else:
             src_name = None
         if config.plot_srcset:
