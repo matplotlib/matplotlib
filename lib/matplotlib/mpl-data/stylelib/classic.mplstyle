@@ -122,8 +122,8 @@ text.latex.preamble :  # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURE
                        # Note that it has to be put on a single line, which may
                        # become quite long.
                        # The following packages are always loaded with usetex, so
-                       # beware of package collisions: color, geometry, graphicx,
-                       # type1cm, textcomp.
+                       # beware of package collisions:
+                       #   color, fix-cm, geometry, graphicx, textcomp.
                        # Adobe Postscript (PSSNFS) font packages may also be
                        # loaded, depending on your font settings.
 

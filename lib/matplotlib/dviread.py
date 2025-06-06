@@ -17,21 +17,21 @@ Interface::
               ...
 """
 
-from collections import namedtuple
 import dataclasses
 import enum
-from functools import cache, lru_cache, partial, wraps
 import logging
 import os
-from pathlib import Path
 import re
 import struct
 import subprocess
 import sys
+from collections import namedtuple
+from functools import cache, lru_cache, partial, wraps
+from pathlib import Path
 
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api, cbook, font_manager
 
 _log = logging.getLogger(__name__)
 
@@ -71,8 +71,8 @@ class Text(namedtuple('Text', 'x y font glyph width')):
     *glyph*, and *width* attributes are kept public for back-compatibility,
     but users wanting to draw the glyph themselves are encouraged to instead
     load the font specified by `font_path` at `font_size`, warp it with the
-    effects specified by `font_effects`, and load the glyph specified by
-    `glyph_name_or_index`.
+    effects specified by `font_effects`, and load the glyph at the FreeType
+    glyph `index`.
     """
 
     def _get_pdftexmap_entry(self):
@@ -105,6 +105,14 @@ class Text(namedtuple('Text', 'x y font glyph width')):
         return self._get_pdftexmap_entry().effects
 
     @property
+    def index(self):
+        """
+        The FreeType index of this glyph (that can be passed to FT_Load_Glyph).
+        """
+        # See DviFont._index_dvi_to_freetype for details on the index mapping.
+        return self.font._index_dvi_to_freetype(self.glyph)
+
+    @property  # To be deprecated together with font_size, font_effects.
     def glyph_name_or_index(self):
         """
         Either the glyph name or the native charmap glyph index.
@@ -575,11 +583,14 @@ class DviFont:
     Attributes
     ----------
     texname : bytes
+    fname : str
+       Compatibility shim so that DviFont can be used with
+       ``_backend_pdf_ps.CharacterTracker``; not a real filename.
     size : float
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
     """
-    __slots__ = ('texname', 'size', '_scale', '_vf', '_tfm')
+    __slots__ = ('texname', 'size', '_scale', '_vf', '_tfm', '_encoding')
 
     def __init__(self, scale, tfm, texname, vf):
         _api.check_isinstance(bytes, texname=texname)
@@ -588,10 +599,23 @@ class DviFont:
         self.texname = texname
         self._vf = vf
         self.size = scale * (72.0 / (72.27 * 2**16))
+        self._encoding = None
 
     widths = _api.deprecated("3.11")(property(lambda self: [
         (1000 * self._tfm.width.get(char, 0)) >> 20
         for char in range(max(self._tfm.width, default=-1) + 1)]))
+
+    @property
+    def fname(self):
+        """A fake filename"""
+        return self.texname.decode('latin-1')
+
+    def _get_fontmap(self, string):
+        """Get the mapping from characters to the font that includes them.
+
+        Each value maps to self; there is no fallback mechanism for DviFont.
+        """
+        return {char: self for char in string}
 
     def __eq__(self, other):
         return (type(self) is type(other)
@@ -629,6 +653,33 @@ class DviFont:
         if re.match(br'^cmsy\d+$', self.texname) and char == 0:
             hd[-1] = 0
         return hd
+
+    def _index_dvi_to_freetype(self, idx):
+        """Convert dvi glyph indices to FreeType ones."""
+        # Glyphs indices stored in the dvi file map to FreeType glyph indices
+        # (i.e., which can be passed to FT_Load_Glyph) in various ways:
+        # - if pdftex.map specifies an ".enc" file for the font, that file maps
+        #   dvi indices to Adobe glyph names, which can then be converted to
+        #   FreeType glyph indices with FT_Get_Name_Index.
+        # - if no ".enc" file is specified, then the font must be a Type 1
+        #   font, and dvi indices directly index into the font's CharStrings
+        #   vector.
+        # - (xetex & luatex, currently unsupported, can also declare "native
+        #   fonts", for which dvi indices are equal to FreeType indices.)
+        if self._encoding is None:
+            psfont = PsfontsMap(find_tex_file("pdftex.map"))[self.texname]
+            if psfont.filename is None:
+                raise ValueError("No usable font file found for {} ({}); "
+                                 "the font may lack a Type-1 version"
+                                 .format(psfont.psname.decode("ascii"),
+                                         psfont.texname.decode("ascii")))
+            face = font_manager.get_font(psfont.filename)
+            if psfont.encoding:
+                self._encoding = [face.get_name_index(name)
+                                  for name in _parse_enc(psfont.encoding)]
+            else:
+                self._encoding = face._get_type1_encoding_vector()
+        return self._encoding[idx]
 
 
 class Vf(Dvi):
@@ -1023,8 +1074,7 @@ def _parse_enc(path):
     Returns
     -------
     list
-        The nth entry of the list is the PostScript glyph name of the nth
-        glyph.
+        The nth list item is the PostScript glyph name of the nth glyph.
     """
     no_comments = re.sub("%.*", "", Path(path).read_text(encoding="ascii"))
     array = re.search(r"(?s)\[(.*)\]", no_comments).group(1)
@@ -1126,13 +1176,12 @@ _vffile = partial(_fontfile, Vf, ".vf")
 
 
 if __name__ == '__main__':
-    from argparse import ArgumentParser
     import itertools
+    from argparse import ArgumentParser
 
     import fontTools.agl
 
     from matplotlib.ft2font import FT2Font
-    from matplotlib.textpath import TextToPath
 
     parser = ArgumentParser()
     parser.add_argument("filename")
@@ -1155,15 +1204,9 @@ if __name__ == '__main__':
                 print(f"font: {font.texname.decode('latin-1')} "
                       f"(scale: {font._scale / 2 ** 20}) at {fontpath}")
                 face = FT2Font(fontpath)
-                TextToPath._select_native_charmap(face)
                 _print_fields("x", "y", "glyph", "chr", "w")
                 for text in group:
-                    if psfont.encoding:
-                        glyph_name = _parse_enc(psfont.encoding)[text.glyph]
-                    else:
-                        glyph_name = face.get_glyph_name(
-                            face.get_char_index(text.glyph))
-                    glyph_str = fontTools.agl.toUnicode(glyph_name)
+                    glyph_str = fontTools.agl.toUnicode(face.get_glyph_name(text.index))
                     _print_fields(text.x, text.y, text.glyph, glyph_str, text.width)
             if page.boxes:
                 print("--- BOXES ---")

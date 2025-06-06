@@ -5,6 +5,14 @@
 Basic units
 ===========
 
+
+This file implements a units library that supports registering arbitrary units,
+conversions between units, and math with unitized data. This library also implements a
+Matplotlib unit converter and registers its units with Matplotlib. This library is used
+in the examples to demonstrate Matplotlib's unit support. It is only maintained for the
+purposes of building documentation and should never be used outside of the Matplotlib
+documentation.
+
 """
 
 import itertools

@@ -253,7 +253,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.3.1"),
-            ("numpy", "1.23"),
+            ("numpy", "1.25"),
             ("pyparsing", "2.3.1"),
     ]:
         module = importlib.import_module(modname)
@@ -995,9 +995,9 @@ def rc(group, **kwargs):
 
     The following aliases are available to save typing for interactive users:
 
-    =====   =================
+    ======  =================
     Alias   Property
-    =====   =================
+    ======  =================
     'lw'    'linewidth'
     'ls'    'linestyle'
     'c'     'color'
@@ -1005,7 +1005,8 @@ def rc(group, **kwargs):
     'ec'    'edgecolor'
     'mew'   'markeredgewidth'
     'aa'    'antialiased'
-    =====   =================
+    'sans'  'sans-serif'
+    ======  =================
 
     Thus you could abbreviate the above call as::
 
@@ -1039,6 +1040,7 @@ def rc(group, **kwargs):
         'ec':  'edgecolor',
         'mew': 'markeredgewidth',
         'aa':  'antialiased',
+        'sans': 'sans-serif',
         }
 
     if isinstance(group, str):

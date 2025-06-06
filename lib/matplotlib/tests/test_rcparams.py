@@ -654,3 +654,21 @@ def test_rcparams_path_sketch_from_file(tmp_path, value):
     rc_path.write_text(f"path.sketch: {value}")
     with mpl.rc_context(fname=rc_path):
         assert mpl.rcParams["path.sketch"] == (1, 2, 3)
+
+
+@pytest.mark.parametrize('group, option, alias, value', [
+    ('lines',  'linewidth',        'lw', 3),
+    ('lines',  'linestyle',        'ls', 'dashed'),
+    ('lines',  'color',             'c', 'white'),
+    ('axes',   'facecolor',        'fc', 'black'),
+    ('figure', 'edgecolor',        'ec', 'magenta'),
+    ('lines',  'markeredgewidth', 'mew', 1.5),
+    ('patch',  'antialiased',      'aa', False),
+    ('font',   'sans-serif',     'sans', ["Verdana"])
+])
+def test_rc_aliases(group, option, alias, value):
+    rc_kwargs = {alias: value,}
+    mpl.rc(group, **rc_kwargs)
+
+    rcParams_key = f"{group}.{option}"
+    assert mpl.rcParams[rcParams_key] == value

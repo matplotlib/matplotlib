@@ -9,40 +9,37 @@ import copy
 import enum
 import functools
 import logging
+import math
 import os
 import re
 import types
 import unicodedata
 import string
+import textwrap
 import typing as T
 from typing import NamedTuple
 
 import numpy as np
+from numpy.typing import NDArray
 from pyparsing import (
-    Empty, Forward, Literal, NotAny, oneOf, OneOrMore, Optional,
+    Empty, Forward, Literal, Group, NotAny, OneOrMore, Optional,
     ParseBaseException, ParseException, ParseExpression, ParseFatalException,
     ParserElement, ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore,
-    pyparsing_common, Group)
+    pyparsing_common, nested_expr, one_of)
 
 import matplotlib as mpl
 from . import cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
 from .font_manager import FontProperties, findfont, get_font
-from .ft2font import FT2Font, FT2Image, Kerning, LoadFlags
+from .ft2font import FT2Font, Kerning, LoadFlags
 
-from packaging.version import parse as parse_version
-from pyparsing import __version__ as pyparsing_version
-if parse_version(pyparsing_version).major < 3:
-    from pyparsing import nestedExpr as nested_expr
-else:
-    from pyparsing import nested_expr
 
 if T.TYPE_CHECKING:
     from collections.abc import Iterable
     from .ft2font import Glyph
 
-ParserElement.enablePackrat()
+ParserElement.enable_packrat()
 _log = logging.getLogger("matplotlib.mathtext")
 
 
@@ -104,7 +101,7 @@ class RasterParse(NamedTuple):
         The offsets are always zero.
     width, height, depth : float
         The global metrics.
-    image : FT2Image
+    image : 2D array of uint8
         A raster image.
     """
     ox: float
@@ -112,7 +109,7 @@ class RasterParse(NamedTuple):
     width: float
     height: float
     depth: float
-    image: FT2Image
+    image: NDArray[np.uint8]
 
 RasterParse.__module__ = "matplotlib.mathtext"
 
@@ -153,7 +150,7 @@ class Output:
         w = xmax - xmin
         h = ymax - ymin - self.box.depth
         d = ymax - ymin - self.box.height
-        image = FT2Image(int(np.ceil(w)), int(np.ceil(h + max(d, 0))))
+        image = np.zeros((math.ceil(h + max(d, 0)), math.ceil(w)), np.uint8)
 
         # Ideally, we could just use self.glyphs and self.rects here, shifting
         # their coordinates by (-xmin, -ymin), but this yields slightly
@@ -172,7 +169,9 @@ class Output:
                 y = int(center - (height + 1) / 2)
             else:
                 y = int(y1)
-            image.draw_rect_filled(int(x1), y, int(np.ceil(x2)), y + height)
+            x1 = math.floor(x1)
+            x2 = math.ceil(x2)
+            image[y:y+height+1, x1:x2+1] = 0xff
         return RasterParse(0, 0, w, h + d, d, image)
 
 
@@ -521,7 +520,7 @@ class BakomaFonts(TruetypeFonts):
         }
 
     for alias, target in [(r'\leftparen', '('),
-                          (r'\rightparent', ')'),
+                          (r'\rightparen', ')'),
                           (r'\leftbrace', '{'),
                           (r'\rightbrace', '}'),
                           (r'\leftbracket', '['),
@@ -1171,12 +1170,16 @@ class List(Box):
         self.glue_sign    = 0    # 0: normal, -1: shrinking, 1: stretching
         self.glue_order   = 0    # The order of infinity (0 - 3) for the glue
 
-    def __repr__(self) -> str:
-        return '{}<w={:.02f} h={:.02f} d={:.02f} s={:.02f}>[{}]'.format(
+    def __repr__(self):
+        return "{}<w={:.02f} h={:.02f} d={:.02f} s={:.02f}>[{}]".format(
             super().__repr__(),
             self.width, self.height,
             self.depth, self.shift_amount,
-            ', '.join([repr(x) for x in self.children]))
+            "\n" + textwrap.indent(
+                "\n".join(map("{!r},".format, self.children)),
+                "  ") + "\n"
+            if self.children else ""
+        )
 
     def _set_glue(self, x: float, sign: int, totals: list[float],
                   error_type: str) -> None:
@@ -1610,7 +1613,7 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
         return -1e9 if value < -1e9 else +1e9 if value > +1e9 else value
 
     def hlist_out(box: Hlist) -> None:
-        nonlocal cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h
 
         cur_g = 0
         cur_glue = 0.
@@ -1673,7 +1676,7 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
                 cur_h += rule_width
 
     def vlist_out(box: Vlist) -> None:
-        nonlocal cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h
 
         cur_g = 0
         cur_glue = 0.
@@ -1745,7 +1748,7 @@ def Error(msg: str) -> ParserElement:
     def raise_error(s: str, loc: int, toks: ParseResults) -> T.Any:
         raise ParseFatalException(s, loc, msg)
 
-    return Empty().setParseAction(raise_error)
+    return Empty().set_parse_action(raise_error)
 
 
 class ParserState:
@@ -1981,10 +1984,10 @@ class Parser:
                     # token, placeable, and auto_delim are forward references which
                     # are left without names to ensure useful error messages
                     if key not in ("token", "placeable", "auto_delim"):
-                        val.setName(key)
+                        val.set_name(key)
                     # Set actions
                     if hasattr(self, key):
-                        val.setParseAction(getattr(self, key))
+                        val.set_parse_action(getattr(self, key))
 
         # Root definitions.
 
@@ -2007,9 +2010,9 @@ class Parser:
             )
 
         p.float_literal  = Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
-        p.space          = oneOf(self._space_widths)("space")
+        p.space          = one_of(self._space_widths)("space")
 
-        p.style_literal  = oneOf(
+        p.style_literal  = one_of(
             [str(e.value) for e in self._MathStyle])("style_literal")
 
         p.symbol         = Regex(
@@ -2017,14 +2020,14 @@ class Parser:
             r"|\\[%${}\[\]_|]"
             + r"|\\(?:{})(?![A-Za-z])".format(
                 "|".join(map(re.escape, tex2uni)))
-        )("sym").leaveWhitespace()
+        )("sym").leave_whitespace()
         p.unknown_symbol = Regex(r"\\[A-Za-z]+")("name")
 
         p.font           = csnames("font", self._fontnames)
-        p.start_group    = Optional(r"\math" + oneOf(self._fontnames)("font")) + "{"
+        p.start_group    = Optional(r"\math" + one_of(self._fontnames)("font")) + "{"
         p.end_group      = Literal("}")
 
-        p.delim          = oneOf(self._delims)
+        p.delim          = one_of(self._delims)
 
         # Mutually recursive definitions.  (Minimizing the number of Forward
         # elements is important for speed.)
@@ -2085,7 +2088,7 @@ class Parser:
             r"\underset",
             p.optional_group("annotation") + p.optional_group("body"))
 
-        p.text = cmd(r"\text", QuotedString('{', '\\', endQuoteChar="}"))
+        p.text = cmd(r"\text", QuotedString('{', '\\', end_quote_char="}"))
 
         p.substack = cmd(r"\substack",
                            nested_expr(opener="{", closer="}",
@@ -2094,7 +2097,7 @@ class Parser:
 
         p.subsuper = (
             (Optional(p.placeable)("nucleus")
-             + OneOrMore(oneOf(["_", "^"]) - p.placeable)("subsuper")
+             + OneOrMore(one_of(["_", "^"]) - p.placeable)("subsuper")
              + Regex("'*")("apostrophes"))
             | Regex("'+")("apostrophes")
             | (p.named_placeable("nucleus") + Regex("'*")("apostrophes"))
@@ -2143,8 +2146,8 @@ class Parser:
 
         # Leaf definitions.
         p.math          = OneOrMore(p.token)
-        p.math_string   = QuotedString('$', '\\', unquoteResults=False)
-        p.non_math      = Regex(r"(?:(?:\\[$])|[^$])*").leaveWhitespace()
+        p.math_string   = QuotedString('$', '\\', unquote_results=False)
+        p.non_math      = Regex(r"(?:(?:\\[$])|[^$])*").leave_whitespace()
         p.main          = (
             p.non_math + ZeroOrMore(p.math_string + p.non_math) + StringEnd()
         )
@@ -2167,7 +2170,7 @@ class Parser:
             ParserState(fonts_object, 'default', 'rm', fontsize, dpi)]
         self._em_width_cache: dict[tuple[str, float, float], float] = {}
         try:
-            result = self._expression.parseString(s)
+            result = self._expression.parse_string(s)
         except ParseBaseException as err:
             # explain becomes a plain method on pyparsing 3 (err.explain(0)).
             raise ValueError("\n" + ParseException.explain(err, 0)) from None
@@ -2175,7 +2178,7 @@ class Parser:
         self._in_subscript_or_superscript = False
         # prevent operator spacing from leaking into a new expression
         self._em_width_cache = {}
-        ParserElement.resetCache()
+        ParserElement.reset_cache()
         return T.cast(Hlist, result[0])  # Known return type from main.
 
     def get_state(self) -> ParserState:
@@ -2191,13 +2194,13 @@ class Parser:
         self._state_stack.append(self.get_state().copy())
 
     def main(self, toks: ParseResults) -> list[Hlist]:
-        return [Hlist(toks.asList())]
+        return [Hlist(toks.as_list())]
 
     def math_string(self, toks: ParseResults) -> ParseResults:
-        return self._math_expression.parseString(toks[0][1:-1], parseAll=True)
+        return self._math_expression.parse_string(toks[0][1:-1], parse_all=True)
 
     def math(self, toks: ParseResults) -> T.Any:
-        hlist = Hlist(toks.asList())
+        hlist = Hlist(toks.as_list())
         self.pop_state()
         return [hlist]
 
@@ -2210,7 +2213,7 @@ class Parser:
         self.get_state().font = mpl.rcParams['mathtext.default']
         return [hlist]
 
-    float_literal = staticmethod(pyparsing_common.convertToFloat)
+    float_literal = staticmethod(pyparsing_common.convert_to_float)
 
     def text(self, toks: ParseResults) -> T.Any:
         self.push_state()
@@ -2521,10 +2524,10 @@ class Parser:
             if len(new_children):
                 # remove last kern
                 if (isinstance(new_children[-1], Kern) and
-                        hasattr(new_children[-2], '_metrics')):
+                        isinstance(new_children[-2], Char)):
                     new_children = new_children[:-1]
                 last_char = new_children[-1]
-                if hasattr(last_char, '_metrics'):
+                if isinstance(last_char, Char):
                     last_char.width = last_char._metrics.advance
             # create new Hlist without kerning
             nucleus = Hlist(new_children, do_kern=False)
@@ -2600,7 +2603,7 @@ class Parser:
 
         # Do we need to add a space after the nucleus?
         # To find out, check the flag set by operatorname
-        spaced_nucleus = [nucleus, x]
+        spaced_nucleus: list[Node] = [nucleus, x]
         if self._in_subscript_or_superscript:
             spaced_nucleus += [self._make_space(self._space_widths[r'\,'])]
             self._in_subscript_or_superscript = False
@@ -2809,7 +2812,7 @@ class Parser:
         return self._auto_sized_delimiter(
             toks["left"],
             # if "mid" in toks ... can be removed when requiring pyparsing 3.
-            toks["mid"].asList() if "mid" in toks else [],
+            toks["mid"].as_list() if "mid" in toks else [],
             toks["right"])
 
     def boldsymbol(self, toks: ParseResults) -> T.Any:

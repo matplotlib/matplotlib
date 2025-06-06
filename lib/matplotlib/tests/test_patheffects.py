@@ -135,9 +135,8 @@ def test_collection():
                        'edgecolor': 'blue'})
 
 
-@image_comparison(['tickedstroke'], remove_text=True, extensions=['png'],
-                  tol=0.22)  # Increased tolerance due to fixed clipping.
-def test_tickedstroke():
+@image_comparison(['tickedstroke.png'], remove_text=True, style='mpl20')
+def test_tickedstroke(text_placeholders):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(12, 4))
     path = Path.unit_circle()
     patch = patches.PathPatch(path, facecolor='none', lw=2, path_effects=[
@@ -149,13 +148,13 @@ def test_tickedstroke():
     ax1.set_xlim(-2, 2)
     ax1.set_ylim(-2, 2)
 
-    ax2.plot([0, 1], [0, 1], label=' ',
+    ax2.plot([0, 1], [0, 1], label='C0',
              path_effects=[path_effects.withTickedStroke(spacing=7,
                                                          angle=135)])
     nx = 101
     x = np.linspace(0.0, 1.0, nx)
     y = 0.3 * np.sin(x * 8) + 0.4
-    ax2.plot(x, y, label=' ', path_effects=[path_effects.withTickedStroke()])
+    ax2.plot(x, y, label='C1', path_effects=[path_effects.withTickedStroke()])
 
     ax2.legend()
 

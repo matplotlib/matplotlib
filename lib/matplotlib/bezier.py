@@ -190,6 +190,9 @@ class BezierSegment:
     """
     A d-dimensional Bézier segment.
 
+    A BezierSegment can be called with an argument, either a scalar or an array-like
+    object, to evaluate the curve at that/those location(s).
+
     Parameters
     ----------
     control_points : (N, d) array
@@ -223,6 +226,8 @@ class BezierSegment:
         return (np.power.outer(1 - t, self._orders[::-1])
                 * np.power.outer(t, self._orders)) @ self._px
 
+    @_api.deprecated(
+        "3.11", alternative="Call the BezierSegment object with an argument.")
     def point_at_t(self, t):
         """
         Evaluate the curve at a single point, returning a tuple of *d* floats.
@@ -336,10 +341,9 @@ def split_bezier_intersecting_with_closedpath(
     """
 
     bz = BezierSegment(bezier)
-    bezier_point_at_t = bz.point_at_t
 
     t0, t1 = find_bezier_t_intersecting_with_closedpath(
-        bezier_point_at_t, inside_closedpath, tolerance=tolerance)
+        lambda t: tuple(bz(t)), inside_closedpath, tolerance=tolerance)
 
     _left, _right = split_de_casteljau(bezier, (t0 + t1) / 2.)
     return _left, _right

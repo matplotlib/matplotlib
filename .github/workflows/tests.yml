@@ -52,22 +52,34 @@ jobs:
             python-version: '3.11'
             extra-requirements: '-c requirements/testing/minver.txt'
             delete-font-cache: true
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04
             python-version: '3.11'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             extra-requirements: '-r requirements/testing/extra.txt'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04-arm
             python-version: '3.12'
-          - os: ubuntu-22.04
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
+          - name-suffix: "(Extra TeX packages)"
+            os: ubuntu-22.04
             python-version: '3.13'
+            extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
             python-version: '3.13t'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
             python-version: '3.12'
           - os: macos-13  # This runner is on Intel chips.
             # merge numpy and pandas install in nighties test when this runner is dropped
-            python-version: '3.10'
+            python-version: '3.11'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
@@ -84,7 +96,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
@@ -132,7 +144,8 @@ jobs:
               texlive-latex-recommended \
               texlive-luatex \
               texlive-pictures \
-              texlive-xetex
+              texlive-xetex \
+              ${{ matrix.extra-packages }}
             if [[ "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
               sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
             fi
@@ -196,10 +209,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: 5-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            5-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            5-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
+            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
@@ -386,7 +399,7 @@ jobs:
           fi
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574  # v5.4.0
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24  # v5.4.3
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}

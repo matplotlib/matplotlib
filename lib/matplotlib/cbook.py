@@ -1387,7 +1387,7 @@ def _reshape_2D(X, name):
 
     # Iterate over columns for ndarrays.
     if isinstance(X, np.ndarray):
-        X = X.T
+        X = X.transpose()
 
         if len(X) == 0:
             return [[]]
@@ -2331,42 +2331,56 @@ def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
 
 
 def _is_torch_array(x):
-    """Check if 'x' is a PyTorch Tensor."""
+    """Return whether *x* is a PyTorch Tensor."""
     try:
-        # we're intentionally not attempting to import torch. If somebody
-        # has created a torch array, torch should already be in sys.modules
-        return isinstance(x, sys.modules['torch'].Tensor)
-    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
-        # we're attempting to access attributes on imported modules which
-        # may have arbitrary user code, so we deliberately catch all exceptions
-        return False
+        # We're intentionally not attempting to import torch. If somebody
+        # has created a torch array, torch should already be in sys.modules.
+        tp = sys.modules.get("torch").Tensor
+    except AttributeError:
+        return False  # Module not imported or a nonstandard module with no Tensor attr.
+    return (isinstance(tp, type)  # Just in case it's a very nonstandard module.
+            and isinstance(x, tp))
 
 
 def _is_jax_array(x):
-    """Check if 'x' is a JAX Array."""
+    """Return whether *x* is a JAX Array."""
     try:
-        # we're intentionally not attempting to import jax. If somebody
-        # has created a jax array, jax should already be in sys.modules
-        return isinstance(x, sys.modules['jax'].Array)
-    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
-        # we're attempting to access attributes on imported modules which
-        # may have arbitrary user code, so we deliberately catch all exceptions
-        return False
+        # We're intentionally not attempting to import jax. If somebody
+        # has created a jax array, jax should already be in sys.modules.
+        tp = sys.modules.get("jax").Array
+    except AttributeError:
+        return False  # Module not imported or a nonstandard module with no Array attr.
+    return (isinstance(tp, type)  # Just in case it's a very nonstandard module.
+            and isinstance(x, tp))
+
+
+def _is_pandas_dataframe(x):
+    """Check if *x* is a Pandas DataFrame."""
+    try:
+        # We're intentionally not attempting to import Pandas. If somebody
+        # has created a Pandas DataFrame, Pandas should already be in sys.modules.
+        tp = sys.modules.get("pandas").DataFrame
+    except AttributeError:
+        return False  # Module not imported or a nonstandard module with no Array attr.
+    return (isinstance(tp, type)  # Just in case it's a very nonstandard module.
+            and isinstance(x, tp))
 
 
 def _is_tensorflow_array(x):
-    """Check if 'x' is a TensorFlow Tensor or Variable."""
+    """Return whether *x* is a TensorFlow Tensor or Variable."""
     try:
-        # we're intentionally not attempting to import TensorFlow. If somebody
-        # has created a TensorFlow array, TensorFlow should already be in sys.modules
-        # we use `is_tensor` to not depend on the class structure of TensorFlow
-        # arrays, as `tf.Variables` are not instances of `tf.Tensor`
-        # (they both convert the same way)
-        return isinstance(x, sys.modules['tensorflow'].is_tensor(x))
-    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
-        # we're attempting to access attributes on imported modules which
-        # may have arbitrary user code, so we deliberately catch all exceptions
+        # We're intentionally not attempting to import TensorFlow. If somebody
+        # has created a TensorFlow array, TensorFlow should already be in
+        # sys.modules we use `is_tensor` to not depend on the class structure
+        # of TensorFlow arrays, as `tf.Variables` are not instances of
+        # `tf.Tensor` (they both convert the same way).
+        is_tensor = sys.modules.get("tensorflow").is_tensor
+    except AttributeError:
         return False
+    try:
+        return is_tensor(x)
+    except Exception:
+        return False  # Just in case it's a very nonstandard module.
 
 
 def _unpack_to_numpy(x):
@@ -2421,15 +2435,3 @@ def _auto_format_str(fmt, value):
         return fmt % (value,)
     except (TypeError, ValueError):
         return fmt.format(value)
-
-
-def _is_pandas_dataframe(x):
-    """Check if 'x' is a Pandas DataFrame."""
-    try:
-        # we're intentionally not attempting to import Pandas. If somebody
-        # has created a Pandas DataFrame, Pandas should already be in sys.modules
-        return isinstance(x, sys.modules['pandas'].DataFrame)
-    except Exception:  # TypeError, KeyError, AttributeError, maybe others?
-        # we're attempting to access attributes on imported modules which
-        # may have arbitrary user code, so we deliberately catch all exceptions
-        return False

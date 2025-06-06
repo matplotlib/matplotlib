@@ -2,7 +2,6 @@ from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
 from matplotlib.artist import Artist
-from matplotlib.backend_bases import RendererBase
 from matplotlib.collections import (
     Collection,
     FillBetweenPolyCollection,
@@ -32,13 +31,19 @@ import matplotlib.table as mtable
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 
-import datetime
 import PIL.Image
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
 from matplotlib.typing import ColorType, MarkerType, LineStyleType
+import pandas as pd
+
+
+class _GroupedBarReturn:
+    bar_containers: list[BarContainer]
+    def __init__(self, bar_containers: list[BarContainer]) -> None: ...
+    def remove(self) -> None: ...
 
 class Axes(_AxesBase):
     def get_title(self, loc: Literal["left", "center", "right"] = ...) -> str: ...
@@ -267,6 +272,19 @@ class Axes(_AxesBase):
         data=...,
         **kwargs
     ) -> PolyCollection: ...
+    def grouped_bar(
+        self,
+        heights: Sequence[ArrayLike] | dict[str, ArrayLike] | np.ndarray | pd.DataFrame,
+        *,
+        positions: ArrayLike | None = ...,
+        tick_labels: Sequence[str] | None = ...,
+        labels: Sequence[str] | None = ...,
+        group_spacing: float | None = ...,
+        bar_spacing: float | None = ...,
+        orientation: Literal["vertical", "horizontal"] = ...,
+        colors: Iterable[ColorType] | None = ...,
+        **kwargs
+    ) -> list[BarContainer]: ...
     def stem(
         self,
         *args: ArrayLike | str,
@@ -315,6 +333,7 @@ class Axes(_AxesBase):
         *,
         ecolor: ColorType | None = ...,
         elinewidth: float | None = ...,
+        elinestyle: LineStyleType | None = ...,
         capsize: float | None = ...,
         barsabove: bool = ...,
         lolims: bool | ArrayLike = ...,
@@ -590,7 +609,7 @@ class Axes(_AxesBase):
         weights: ArrayLike | None = ...,
         *,
         complementary: bool=...,
-        orientation: Literal["vertical", "horizonatal"]=...,
+        orientation: Literal["vertical", "horizontal"]=...,
         compress: bool=...,
         data=...,
         **kwargs

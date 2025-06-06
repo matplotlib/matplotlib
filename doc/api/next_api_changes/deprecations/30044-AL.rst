@@ -1,0 +1,12 @@
+``FT2Image``
+~~~~~~~~~~~~
+... is deprecated.  Use 2D uint8 ndarrays instead.  In particular:
+
+- The ``FT2Image`` constructor took ``width, height`` as separate parameters
+  but the ndarray constructor takes ``(height, width)`` as single tuple
+  parameter.
+- `.FT2Font.draw_glyph_to_bitmap` now (also) takes 2D uint8 arrays as input.
+- ``FT2Image.draw_rect_filled`` should be replaced by directly setting pixel
+  values to black.
+- The ``image`` attribute of the object returned by ``MathTextParser("agg").parse``
+  is now a 2D uint8 array.

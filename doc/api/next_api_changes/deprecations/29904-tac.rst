@@ -1,0 +1,16 @@
+
+Increase to minimum supported versions of dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For Matplotlib 3.11, the :ref:`minimum supported versions <dependencies>` are
+being bumped:
+
++------------+-----------------+----------------+
+| Dependency |  min in mpl3.10 | min in mpl3.11 |
++============+=================+================+
+|   Python   |       3.10      |      3.11      |
+|   NumPy    |       1.23      |      1.25      |
++------------+-----------------+----------------+
+
+This is consistent with our :ref:`min_deps_policy` and `SPEC0
+<https://scientific-python.org/specs/spec-0000/>`__

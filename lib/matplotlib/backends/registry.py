@@ -407,7 +407,7 @@ class BackendRegistry:
             return self.resolve_backend(gui_or_backend)
         except Exception:  # KeyError ?
             raise RuntimeError(
-                f"'{gui_or_backend} is not a recognised GUI loop or backend name")
+                f"'{gui_or_backend}' is not a recognised GUI loop or backend name")
 
 
 # Singleton

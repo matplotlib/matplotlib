@@ -20,16 +20,16 @@ When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.10)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.11)
 * `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
 * `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
-* `NumPy <https://numpy.org>`_ (>= 1.23)
+* `NumPy <https://numpy.org>`_ (>= 1.25)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
-* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
+* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 3)
 
 
 .. _optional_dependencies:
@@ -346,7 +346,6 @@ otherwise they must be installed manually:
 - pikepdf_ used in some tests for the pgf and pdf backends
 - psutil_ used in testing the interactive backends
 - pytest-cov_ (>= 2.3.1) to collect coverage information
-- pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
 - pytest-xdist_ to run tests in parallel
 - pytest-xvfb_ to run tests without windows popping up (Linux)
@@ -373,7 +372,6 @@ them will be skipped by pytest.
 .. _Ghostscript: https://ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _WenQuanYi Zen Hei: http://wenq.org/en/
-.. _flake8: https://pypi.org/project/flake8/
 .. _nbconvert: https://pypi.org/project/nbconvert/
 .. _nbformat: https://pypi.org/project/nbformat/
 .. _pandas: https://pypi.org/project/pandas/
@@ -381,7 +379,6 @@ them will be skipped by pytest.
 .. _psutil: https://pypi.org/project/psutil/
 .. _pytz: https://fonts.google.com/noto/use#faq
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
-.. _pytest-flake8: https://pypi.org/project/pytest-flake8/
 .. _pytest-timeout: https://pypi.org/project/pytest-timeout/
 .. _pytest-xdist: https://pypi.org/project/pytest-xdist/
 .. _pytest-xvfb: https://pypi.org/project/pytest-xvfb/
@@ -422,18 +419,53 @@ The documentation requires LaTeX and Graphviz.  These are not
 Python packages and must be installed separately.
 
 * `Graphviz <http://www.graphviz.org/download>`_
-* a minimal working LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
+* a LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
   `MikTeX <https://miktex.org/>`_
 
-The following LaTeX packages:
+.. _tex-dependencies:
+
+LaTeX dependencies
+""""""""""""""""""
+
+The following collections must be installed. When using a distribution that does not
+support collections, the packages listed for each collection must be installed. You may
+need to install some packages that are not listed here.  The complete version of many
+LaTeX distribution installers, e.g. "texlive-full" or "texlive-all",
+will often automatically include these collections.
+
++-----------------------------+--------------------------------------------------+
+| collection                  | packages                                         |
++=============================+==================================================+
+| collection-basic            | `cm <https://ctan.org/pkg/cm>`_,                 |
+|                             | luahbtex                                         |
++-----------------------------+--------------------------------------------------+
+| collection-fontsrecommended | `cm-super <https://ctan.org/pkg/cm-super>`_,     |
+|                             | `lm <https://ctan.org/pkg/lm>`_,                 |
+|                             | `txfonts <https://ctan.org/pkg/txfonts>`_        |
++-----------------------------+--------------------------------------------------+
+| collection-latex            | `fix-cm <https://ctan.org/pkg/fix-cm>`_,         |
+|                             | `geometry <https://ctan.org/pkg/geometry>`_,     |
+|                             | `hyperref <https://ctan.org/pkg/hyperref>`_,     |
+|                             | `latex <https://ctan.org/pkg/latex>`_,           |
+|                             | latex-bin,                                       |
+|                             | `psnfss <https://ctan.org/pkg/psnfss>`_          |
++-----------------------------+--------------------------------------------------+
+| collection-latexextra       | `import <https://ctan.org/pkg/import>`_,         |
+|                             | `sfmath <https://ctan.org/pkg/sfmath>`_,         |
+|                             | `type1cm <https://ctan.org/pkg/type1cm>`_        |
++-----------------------------+--------------------------------------------------+
+| collection-latexrecommended | `fontspec <https://ctan.org/pkg/fontspec>`_,     |
+|                             | `underscore <https://ctan.org/pkg/underscore>`_, |
++-----------------------------+--------------------------------------------------+
+| collection-xetex            | `xetex <https://ctan.org/pkg/xetex>`_,           |
+|                             | xetex-bin                                        |
++-----------------------------+--------------------------------------------------+
+
+The following packages must also be installed:
 
 * `dvipng <https://ctan.org/pkg/dvipng>`_
-* `underscore <https://ctan.org/pkg/underscore>`_
-* `cm-super <https://ctan.org/pkg/cm-super>`_
-* ``collection-fontsrecommended``
+* `pgf <https://ctan.org/pkg/pgf>`_ (if using the pgf backend)
 
-The complete version of many LaTex distribution installers, e.g.
-"texlive-full" or "texlive-all", will often automatically include these packages.
 
 Optional
 ^^^^^^^^

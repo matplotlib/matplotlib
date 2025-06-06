@@ -38,6 +38,7 @@ Attributes
 
    Axes.viewLim
    Axes.dataLim
+   Axes.spines
 
 Plotting
 ========
@@ -66,6 +67,7 @@ Basic
    Axes.bar
    Axes.barh
    Axes.bar_label
+   Axes.grouped_bar
 
    Axes.stem
    Axes.eventplot

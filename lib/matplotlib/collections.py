@@ -2547,8 +2547,7 @@ class QuadMesh(_MeshData, Collection):
                 coordinates, offsets, offset_trf,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
-                self._antialiased, self.get_edgecolors().reshape((-1, 4)),
-                hatchcolors=self.get_hatchcolor().reshape((-1, 4)))
+                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False

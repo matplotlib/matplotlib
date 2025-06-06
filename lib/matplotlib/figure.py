@@ -989,6 +989,7 @@ default: %(va)s
         self.texts = []
         self.images = []
         self.legends = []
+        self.subplotpars.reset()
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
         self._suptitle = None
@@ -1199,17 +1200,18 @@ default: %(va)s
         Parameters
         ----------
         mappable
-            The `matplotlib.cm.ScalarMappable` (i.e., `.AxesImage`,
+            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`,
             `.ContourSet`, etc.) described by this colorbar.  This argument is
             mandatory for the `.Figure.colorbar` method but optional for the
             `.pyplot.colorbar` function, which sets the default to the current
             image.
 
-            Note that one can create a `.ScalarMappable` "on-the-fly" to
-            generate colorbars not attached to a previously drawn artist, e.g.
+            Note that one can create a `.colorizer.ColorizingArtist` "on-the-fly"
+            to generate colorbars not attached to a previously drawn artist, e.g.
             ::
 
-                fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
+                cr = colorizer.Colorizer(norm=norm, cmap=cmap)
+                fig.colorbar(colorizer.ColorizingArtist(cr), ax=ax)
 
         cax : `~matplotlib.axes.Axes`, optional
             Axes into which the colorbar will be drawn.  If `None`, then a new
@@ -2122,9 +2124,9 @@ default: %(va)s
             # go through the unique keys,
             for name in unique_ids:
                 # sort out where each axes starts/ends
-                indx = np.argwhere(mosaic == name)
-                start_row, start_col = np.min(indx, axis=0)
-                end_row, end_col = np.max(indx, axis=0) + 1
+                index = np.argwhere(mosaic == name)
+                start_row, start_col = np.min(index, axis=0)
+                end_row, end_col = np.max(index, axis=0) + 1
                 # and construct the slice object
                 slc = (slice(start_row, end_row), slice(start_col, end_col))
                 # some light error checking

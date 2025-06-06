@@ -1770,6 +1770,24 @@ def test_warn_colorbar_mismatch():
         subfig3_1.colorbar(im4_1)
 
 
+def test_clf_subplotpars():
+    keys = ('left', 'right', 'bottom', 'top', 'wspace', 'hspace')
+    rc_params = {key: plt.rcParams['figure.subplot.' + key] for key in keys}
+
+    fig = plt.figure(1)
+    fig.subplots_adjust(**{k: v+0.01 for k, v in rc_params.items()})
+    fig.clf()
+    assert fig.subplotpars.to_dict() == rc_params
+
+
+def test_suplots_adjust_incremental():
+    fig = plt.figure()
+    fig.subplots_adjust(left=0)
+    fig.subplots_adjust(right=1)
+    assert fig.subplotpars.left == 0
+    assert fig.subplotpars.right == 1
+
+
 def test_set_figure():
     fig = plt.figure()
     sfig1 = fig.subfigures()

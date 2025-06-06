@@ -588,8 +588,9 @@ class TickLabels(AxisLabel):  # mtext.Text
             if not label.strip():
                 continue
             clean_line, ismath = self._preprocess_math(label)
-            whd = renderer.get_text_width_height_descent(
-                clean_line, self._fontproperties, ismath=ismath)
+            whd = mtext._get_text_metrics_with_cache(
+                renderer, clean_line, self._fontproperties, ismath=ismath,
+                dpi=self.get_figure(root=True).dpi)
             whd_list.append(whd)
         return whd_list
 

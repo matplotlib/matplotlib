@@ -258,7 +258,7 @@ class RendererBase:
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, edgecolors, *, hatchcolors=None):
+                       antialiased, edgecolors):
         """
         Draw a quadmesh.
 
@@ -271,14 +271,11 @@ class RendererBase:
 
         if edgecolors is None:
             edgecolors = facecolors
-        if hatchcolors is None:
-            hatchcolors = []
         linewidths = np.array([gc.get_linewidth()], float)
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
-            edgecolors, linewidths, [], [antialiased], [None], 'screen',
-            hatchcolors=hatchcolors)
+            edgecolors, linewidths, [], [antialiased], [None], 'screen')
 
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
@@ -681,7 +678,8 @@ class RendererBase:
         cost of the draw_XYZ calls on the canvas.
         """
         no_ops = {
-            meth_name: lambda *args, **kwargs: None
+            meth_name: functools.update_wrapper(lambda *args, **kwargs: None,
+                                                getattr(RendererBase, meth_name))
             for meth_name in dir(RendererBase)
             if (meth_name.startswith("draw_")
                 or meth_name in ["open_group", "close_group"])
@@ -1069,19 +1067,8 @@ class TimerBase:
         """Need to stop timer and possibly disconnect timer."""
         self._timer_stop()
 
-    @_api.delete_parameter("3.9", "interval", alternative="timer.interval")
-    def start(self, interval=None):
-        """
-        Start the timer object.
-
-        Parameters
-        ----------
-        interval : int, optional
-            Timer interval in milliseconds; overrides a previously set interval
-            if provided.
-        """
-        if interval is not None:
-            self.interval = interval
+    def start(self):
+        """Start the timer."""
         self._timer_start()
 
     def stop(self):
@@ -3246,7 +3233,7 @@ class NavigationToolbar2:
     def configure_subplots(self, *args):
         if hasattr(self, "subplot_tool"):
             self.subplot_tool.figure.canvas.manager.show()
-            return
+            return self.subplot_tool
         # This import needs to happen here due to circular imports.
         from matplotlib.figure import Figure
         with mpl.rc_context({"toolbar": "none"}):  # No navbar for the toolfig.

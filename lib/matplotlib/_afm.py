@@ -1,5 +1,5 @@
 """
-A python interface to Adobe Font Metrics Files.
+A Python interface to Adobe Font Metrics Files.
 
 Although a number of other Python implementations exist, and may be more
 complete than this, it was decided not to go with them because they were
@@ -16,19 +16,11 @@ It is pretty easy to use, and has no external dependencies:
 >>> from pathlib import Path
 >>> afm_path = Path(mpl.get_data_path(), 'fonts', 'afm', 'ptmr8a.afm')
 >>>
->>> from matplotlib.afm import AFM
+>>> from matplotlib._afm import AFM
 >>> with afm_path.open('rb') as fh:
 ...     afm = AFM(fh)
->>> afm.string_width_height('What the heck?')
-(6220.0, 694)
 >>> afm.get_fontname()
 'Times-Roman'
->>> afm.get_kern_dist('A', 'f')
-0
->>> afm.get_kern_dist('A', 'y')
--92.0
->>> afm.get_bbox_char('!')
-[130, -9, 238, 676]
 
 As in the Adobe Font Metrics File Format Specification, all dimensions
 are given in units of 1/1000 of the scale factor (point size) of the font
@@ -87,20 +79,23 @@ def _to_bool(s):
 
 def _parse_header(fh):
     """
-    Read the font metrics header (up to the char metrics) and returns
-    a dictionary mapping *key* to *val*.  *val* will be converted to the
-    appropriate python type as necessary; e.g.:
+    Read the font metrics header (up to the char metrics).
 
-        * 'False'->False
-        * '0'->0
-        * '-168 -218 1000 898'-> [-168, -218, 1000, 898]
+    Returns
+    -------
+    dict
+        A dictionary mapping *key* to *val*. Dictionary keys are:
 
-    Dictionary keys are
+            StartFontMetrics, FontName, FullName, FamilyName, Weight, ItalicAngle,
+            IsFixedPitch, FontBBox, UnderlinePosition, UnderlineThickness, Version,
+            Notice, EncodingScheme, CapHeight, XHeight, Ascender, Descender,
+            StartCharMetrics
 
-      StartFontMetrics, FontName, FullName, FamilyName, Weight,
-      ItalicAngle, IsFixedPitch, FontBBox, UnderlinePosition,
-      UnderlineThickness, Version, Notice, EncodingScheme, CapHeight,
-      XHeight, Ascender, Descender, StartCharMetrics
+        *val* will be converted to the appropriate Python type as necessary, e.g.,:
+
+            * 'False' -> False
+            * '0' -> 0
+            * '-168 -218 1000 898' -> [-168, -218, 1000, 898]
     """
     header_converters = {
         b'StartFontMetrics': _to_float,
@@ -185,11 +180,9 @@ CharMetrics.bbox.__doc__ = """
 
 def _parse_char_metrics(fh):
     """
-    Parse the given filehandle for character metrics information and return
-    the information as dicts.
+    Parse the given filehandle for character metrics information.
 
-    It is assumed that the file cursor is on the line behind
-    'StartCharMetrics'.
+    It is assumed that the file cursor is on the line behind 'StartCharMetrics'.
 
     Returns
     -------
@@ -239,14 +232,15 @@ def _parse_char_metrics(fh):
 
 def _parse_kern_pairs(fh):
     """
-    Return a kern pairs dictionary; keys are (*char1*, *char2*) tuples and
-    values are the kern pair value.  For example, a kern pairs line like
-    ``KPX A y -50``
+    Return a kern pairs dictionary.
 
-    will be represented as::
+    Returns
+    -------
+    dict
+        Keys are (*char1*, *char2*) tuples and values are the kern pair value. For
+        example, a kern pairs line like ``KPX A y -50`` will be represented as::
 
-      d[ ('A', 'y') ] = -50
-
+            d['A', 'y'] = -50
     """
 
     line = next(fh)
@@ -279,8 +273,7 @@ CompositePart.dy.__doc__ = """y-displacement of the part from the origin."""
 
 def _parse_composites(fh):
     """
-    Parse the given filehandle for composites information return them as a
-    dict.
+    Parse the given filehandle for composites information.
 
     It is assumed that the file cursor is on the line behind 'StartComposites'.
 
@@ -363,36 +356,6 @@ class AFM:
         self._metrics, self._metrics_by_name = _parse_char_metrics(fh)
         self._kern, self._composite = _parse_optional(fh)
 
-    def get_bbox_char(self, c, isord=False):
-        if not isord:
-            c = ord(c)
-        return self._metrics[c].bbox
-
-    def string_width_height(self, s):
-        """
-        Return the string width (including kerning) and string height
-        as a (*w*, *h*) tuple.
-        """
-        if not len(s):
-            return 0, 0
-        total_width = 0
-        namelast = None
-        miny = 1e9
-        maxy = 0
-        for c in s:
-            if c == '\n':
-                continue
-            wx, name, bbox = self._metrics[ord(c)]
-
-            total_width += wx + self._kern.get((namelast, name), 0)
-            l, b, w, h = bbox
-            miny = min(miny, b)
-            maxy = max(maxy, b + h)
-
-            namelast = name
-
-        return total_width, maxy - miny
-
     def get_str_bbox_and_descent(self, s):
         """Return the string bounding box and the maximal descent."""
         if not len(s):
@@ -423,45 +386,29 @@ class AFM:
 
         return left, miny, total_width, maxy - miny, -miny
 
-    def get_str_bbox(self, s):
-        """Return the string bounding box."""
-        return self.get_str_bbox_and_descent(s)[:4]
+    def get_glyph_name(self, glyph_ind):  # For consistency with FT2Font.
+        """Get the name of the glyph, i.e., ord(';') is 'semicolon'."""
+        return self._metrics[glyph_ind].name
 
-    def get_name_char(self, c, isord=False):
-        """Get the name of the character, i.e., ';' is 'semicolon'."""
-        if not isord:
-            c = ord(c)
-        return self._metrics[c].name
+    def get_char_index(self, c):  # For consistency with FT2Font.
+        """
+        Return the glyph index corresponding to a character code point.
 
-    def get_width_char(self, c, isord=False):
+        Note, for AFM fonts, we treat the glyph index the same as the codepoint.
         """
-        Get the width of the character from the character metric WX field.
-        """
-        if not isord:
-            c = ord(c)
+        return c
+
+    def get_width_char(self, c):
+        """Get the width of the character code from the character metric WX field."""
         return self._metrics[c].width
 
     def get_width_from_char_name(self, name):
         """Get the width of the character from a type1 character name."""
         return self._metrics_by_name[name].width
 
-    def get_height_char(self, c, isord=False):
-        """Get the bounding box (ink) height of character *c* (space is 0)."""
-        if not isord:
-            c = ord(c)
-        return self._metrics[c].bbox[-1]
-
-    def get_kern_dist(self, c1, c2):
-        """
-        Return the kerning pair distance (possibly 0) for chars *c1* and *c2*.
-        """
-        name1, name2 = self.get_name_char(c1), self.get_name_char(c2)
-        return self.get_kern_dist_from_name(name1, name2)
-
     def get_kern_dist_from_name(self, name1, name2):
         """
-        Return the kerning pair distance (possibly 0) for chars
-        *name1* and *name2*.
+        Return the kerning pair distance (possibly 0) for chars *name1* and *name2*.
         """
         return self._kern.get((name1, name2), 0)
 
@@ -493,7 +440,7 @@ class AFM:
         return re.sub(extras, '', name)
 
     @property
-    def family_name(self):
+    def family_name(self):  # For consistency with FT2Font.
         """The font family name, e.g., 'Times'."""
         return self.get_familyname()
 
@@ -516,17 +463,3 @@ class AFM:
     def get_underline_thickness(self):
         """Return the underline thickness as float."""
         return self._header[b'UnderlineThickness']
-
-    def get_horizontal_stem_width(self):
-        """
-        Return the standard horizontal stem width as float, or *None* if
-        not specified in AFM file.
-        """
-        return self._header.get(b'StdHW', None)
-
-    def get_vertical_stem_width(self):
-        """
-        Return the standard vertical stem width as float, or *None* if
-        not specified in AFM file.
-        """
-        return self._header.get(b'StdVW', None)

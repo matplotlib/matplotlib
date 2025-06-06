@@ -964,12 +964,29 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             label.set_color(self.labelMappable.to_rgba(cv))
         super().changed()
 
-    def _autolev(self, N):
+    def _ensure_locator_exists(self, N):
+        """
+        Set a locator on this ContourSet if it's not already set.
+
+        Parameters
+        ----------
+        N : int or None
+            If *N* is an int, it is used as the target number of levels.
+            Otherwise when *N* is None, a reasonable default is chosen;
+            for logscales the LogLocator chooses, N=7 is the default
+            otherwise.
+        """
+        if self.locator is None:
+            if self.logscale:
+                self.locator = ticker.LogLocator(numticks=N)
+            else:
+                if N is None:
+                    N = 7  # Hard coded default
+                self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
+
+    def _autolev(self):
         """
         Select contour levels to span the data.
-
-        The target number of levels, *N*, is used only when the
-        scale is not log and default locator is used.
 
         We need two more levels for filled contours than for
         line contours, because for the latter we need to specify
@@ -978,12 +995,6 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         """
-        if self.locator is None:
-            if self.logscale:
-                self.locator = ticker.LogLocator()
-            else:
-                self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
-
         lev = self.locator.tick_values(self.zmin, self.zmax)
 
         try:
@@ -1011,22 +1022,21 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         """
         Determine the contour levels and store in self.levels.
         """
-        if self.levels is None:
+        levels_arg = self.levels
+        if levels_arg is None:
             if args:
+                # Set if levels manually provided
                 levels_arg = args[0]
             elif np.issubdtype(z_dtype, bool):
-                if self.filled:
-                    levels_arg = [0, .5, 1]
-                else:
-                    levels_arg = [.5]
-            else:
-                levels_arg = 7  # Default, hard-wired.
-        else:
-            levels_arg = self.levels
-        if isinstance(levels_arg, Integral):
-            self.levels = self._autolev(levels_arg)
+                # Set default values for bool data types
+                levels_arg = [0, .5, 1] if self.filled else [.5]
+
+        if isinstance(levels_arg, Integral) or levels_arg is None:
+            self._ensure_locator_exists(levels_arg)
+            self.levels = self._autolev()
         else:
             self.levels = np.asarray(levels_arg, np.float64)
+
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
         if len(self.levels) > 1 and np.min(np.diff(self.levels)) <= 0.0:

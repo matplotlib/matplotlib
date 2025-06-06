@@ -694,10 +694,10 @@ class Text(Artist):
         Return the width of a given text string, in pixels.
         """
 
-        w, h, d = self._renderer.get_text_width_height_descent(
-            text,
-            self.get_fontproperties(),
-            cbook.is_math_text(text))
+        w, h, d = _get_text_metrics_with_cache(
+            self._renderer, text, self.get_fontproperties(),
+            cbook.is_math_text(text),
+            self.get_figure(root=True).dpi)
         return math.ceil(w)
 
     def _get_wrapped_text(self):
@@ -1553,9 +1553,7 @@ class _AnnotationBase:
             return self.axes.transData
         elif coords == 'polar':
             from matplotlib.projections import PolarAxes
-            tr = PolarAxes.PolarTransform(apply_theta_transforms=False)
-            trans = tr + self.axes.transData
-            return trans
+            return PolarAxes.PolarTransform() + self.axes.transData
 
         try:
             bbox_name, unit = coords.split()

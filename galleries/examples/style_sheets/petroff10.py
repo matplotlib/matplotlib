@@ -1,13 +1,13 @@
 """
-=====================
-Petroff10 style sheet
-=====================
+====================
+Petroff style sheets
+====================
 
-This example demonstrates the "petroff10" style, which implements the 10-color
-sequence developed by Matthew A. Petroff [1]_ for accessible data visualization.
-The style balances aesthetics with accessibility considerations, making it
-suitable for various types of plots while ensuring readability and distinction
-between data series.
+This example demonstrates the "petroffN" styles, which implement the 6-, 8- and
+10-color sequences developed by Matthew A. Petroff [1]_ for accessible data
+visualization.  The styles balance aesthetics with accessibility considerations,
+making them suitable for various types of plots while ensuring readability and
+distinction between data series.
 
 .. [1] https://arxiv.org/abs/2107.02270
 
@@ -35,9 +35,15 @@ def image_and_patch_example(ax):
     c = plt.Circle((5, 5), radius=5, label='patch')
     ax.add_patch(c)
 
-plt.style.use('petroff10')
-fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(12, 5))
-fig.suptitle("'petroff10' style sheet")
-colored_lines_example(ax1)
-image_and_patch_example(ax2)
+
+fig = plt.figure(figsize=(6.4, 9.6), layout='compressed')
+sfigs = fig.subfigures(nrows=3)
+
+for style, sfig in zip(['petroff6', 'petroff8', 'petroff10'], sfigs):
+    sfig.suptitle(f"'{style}' style sheet")
+    with plt.style.context(style):
+        ax1, ax2 = sfig.subplots(ncols=2)
+        colored_lines_example(ax1)
+        image_and_patch_example(ax2)
+
 plt.show()

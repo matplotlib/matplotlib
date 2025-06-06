@@ -14,7 +14,7 @@ from .transforms import (
     Transform,
 )
 
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from typing import Any, Literal
 from .typing import ColorType, CoordsType
 

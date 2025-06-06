@@ -23,6 +23,7 @@ import matplotlib as mpl
 from matplotlib import rc_context, patheffects
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
+from matplotlib.container import BarContainer
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
@@ -2164,6 +2165,105 @@ def test_bar_datetime_start():
     fig, ax = plt.subplots()
     ax.barh([0, 1, 3], width=stop-start, left=start)
     assert isinstance(ax.xaxis.get_major_formatter(), mdates.AutoDateFormatter)
+
+
+@image_comparison(["grouped_bar.png"], style="mpl20")
+def test_grouped_bar():
+    data = {
+        'data1': [1, 2, 3],
+        'data2': [1.2, 2.2, 3.2],
+        'data3': [1.4, 2.4, 3.4],
+    }
+
+    fig, ax = plt.subplots()
+    ax.grouped_bar(data, tick_labels=['A', 'B', 'C'],
+                   group_spacing=0.5, bar_spacing=0.1,
+                   colors=['#1f77b4', '#58a1cf', '#abd0e6'])
+    ax.set_yticks([])
+
+
+@check_figures_equal()
+def test_grouped_bar_list_of_datasets(fig_test, fig_ref):
+    categories = ['A', 'B']
+    data1 = [1, 1.2]
+    data2 = [2, 2.4]
+    data3 = [3, 3.6]
+
+    ax = fig_test.subplots()
+    ax.grouped_bar([data1, data2, data3], tick_labels=categories,
+                   labels=["data1", "data2", "data3"])
+    ax.legend()
+
+    ax = fig_ref.subplots()
+    label_pos = np.array([0, 1])
+    bar_width = 1 / (3 + 1.5)  # 3 bars + 1.5 group_spacing
+    data_shift = -1 * bar_width + np.array([0, bar_width, 2 * bar_width])
+    ax.bar(label_pos + data_shift[0], data1, width=bar_width, label="data1")
+    ax.bar(label_pos + data_shift[1], data2, width=bar_width, label="data2")
+    ax.bar(label_pos + data_shift[2], data3, width=bar_width, label="data3")
+    ax.set_xticks(label_pos, categories)
+    ax.legend()
+
+
+@check_figures_equal()
+def test_grouped_bar_dict_of_datasets(fig_test, fig_ref):
+    categories = ['A', 'B']
+    data_dict = dict(data1=[1, 1.2], data2=[2, 2.4], data3=[3, 3.6])
+
+    ax = fig_test.subplots()
+    ax.grouped_bar(data_dict, tick_labels=categories)
+    ax.legend()
+
+    ax = fig_ref.subplots()
+    ax.grouped_bar(data_dict.values(), tick_labels=categories, labels=data_dict.keys())
+    ax.legend()
+
+
+@check_figures_equal()
+def test_grouped_bar_array(fig_test, fig_ref):
+    categories = ['A', 'B']
+    array = np.array([[1, 2, 3], [1.2, 2.4, 3.6]])
+    labels = ['data1', 'data2', 'data3']
+
+    ax = fig_test.subplots()
+    ax.grouped_bar(array, tick_labels=categories, labels=labels)
+    ax.legend()
+
+    ax = fig_ref.subplots()
+    list_of_datasets = [column for column in array.T]
+    ax.grouped_bar(list_of_datasets, tick_labels=categories, labels=labels)
+    ax.legend()
+
+
+@check_figures_equal()
+def test_grouped_bar_dataframe(fig_test, fig_ref, pd):
+    categories = ['A', 'B']
+    labels = ['data1', 'data2', 'data3']
+    df = pd.DataFrame([[1, 2, 3], [1.2, 2.4, 3.6]],
+                      index=categories, columns=labels)
+
+    ax = fig_test.subplots()
+    ax.grouped_bar(df)
+    ax.legend()
+
+    ax = fig_ref.subplots()
+    list_of_datasets = [df[col].to_numpy() for col in df.columns]
+    ax.grouped_bar(list_of_datasets, tick_labels=categories, labels=labels)
+    ax.legend()
+
+
+def test_grouped_bar_return_value():
+    fig, ax = plt.subplots()
+    ret = ax.grouped_bar([[1, 2, 3], [11, 12, 13]], tick_labels=['A', 'B', 'C'])
+
+    assert len(ret.bar_containers) == 2
+    for bc in ret.bar_containers:
+        assert isinstance(bc, BarContainer)
+        assert bc in ax.containers
+
+    ret.remove()
+    for bc in ret.bar_containers:
+        assert bc not in ax.containers
 
 
 def test_boxplot_dates_pandas(pd):
@@ -4526,16 +4626,37 @@ def test_errorbar_linewidth_type(elinewidth):
     plt.errorbar([1, 2, 3], [1, 2, 3], yerr=[1, 2, 3], elinewidth=elinewidth)
 
 
+def test_errorbar_linestyle_type():
+    eb = plt.errorbar([1, 2, 3], [1, 2, 3],
+                      yerr=[1, 2, 3], elinestyle='--')
+    errorlines = eb[-1][0]
+    errorlinestyle = errorlines.get_linestyle()
+    assert errorlinestyle == [(0, (6, 6))]
+
+
 @check_figures_equal()
 def test_errorbar_nan(fig_test, fig_ref):
     ax = fig_test.add_subplot()
     xs = range(5)
     ys = np.array([1, 2, np.nan, np.nan, 3])
     es = np.array([4, 5, np.nan, np.nan, 6])
-    ax.errorbar(xs, ys, es)
+    ax.errorbar(xs, ys, yerr=es)
     ax = fig_ref.add_subplot()
-    ax.errorbar([0, 1], [1, 2], [4, 5])
-    ax.errorbar([4], [3], [6], fmt="C0")
+    ax.errorbar([0, 1], [1, 2], yerr=[4, 5])
+    ax.errorbar([4], [3], yerr=[6], fmt="C0")
+
+
+@check_figures_equal()
+def test_errorbar_masked_negative(fig_test, fig_ref):
+    ax = fig_test.add_subplot()
+    xs = range(5)
+    mask = np.array([False, False, True, True, False])
+    ys = np.ma.array([1, 2, 2, 2, 3], mask=mask)
+    es = np.ma.array([4, 5, -1, -10, 6], mask=mask)
+    ax.errorbar(xs, ys, yerr=es)
+    ax = fig_ref.add_subplot()
+    ax.errorbar([0, 1], [1, 2], yerr=[4, 5])
+    ax.errorbar([4], [3], yerr=[6], fmt="C0")
 
 
 @image_comparison(['hist_stacked_stepfilled.png', 'hist_stacked_stepfilled.png'])
@@ -4593,14 +4714,12 @@ def test_hist_stacked_weighted():
 
 
 @image_comparison(['stem.png'], style='mpl20', remove_text=True)
-def test_stem():
+def test_stem(text_placeholders):
     x = np.linspace(0.1, 2 * np.pi, 100)
 
     fig, ax = plt.subplots()
-    # Label is a single space to force a legend to be drawn, but to avoid any
-    # text being drawn
     ax.stem(x, np.cos(x),
-            linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ')
+            linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label='stem')
     ax.legend()
 
 
@@ -9720,3 +9839,45 @@ def test_bar_shape_mismatch():
     )
     with pytest.raises(ValueError, match=error_message):
         plt.bar(x, height)
+
+
+def test_caps_color():
+
+    # Creates a simple plot with error bars and a specified ecolor
+    x = np.linspace(0, 10, 10)
+    mpl.rcParams['lines.markeredgecolor'] = 'green'
+    ecolor = 'red'
+
+    fig, ax = plt.subplots()
+    errorbars = ax.errorbar(x, np.sin(x), yerr=0.1, ecolor=ecolor)
+
+    # Tests if the caps have the specified color
+    for cap in errorbars[2]:
+        assert mcolors.same_color(cap.get_edgecolor(), ecolor)
+
+
+def test_caps_no_ecolor():
+
+    # Creates a simple plot with error bars without specifying ecolor
+    x = np.linspace(0, 10, 10)
+    mpl.rcParams['lines.markeredgecolor'] = 'green'
+    fig, ax = plt.subplots()
+    errorbars = ax.errorbar(x, np.sin(x), yerr=0.1)
+
+    # Tests if the caps have the default color (blue)
+    for cap in errorbars[2]:
+        assert mcolors.same_color(cap.get_edgecolor(), "blue")
+
+
+def test_pie_non_finite_values():
+    fig, ax = plt.subplots()
+    df = [5, float('nan'), float('inf')]
+
+    with pytest.raises(ValueError, match='Wedge sizes must be finite numbers'):
+        ax.pie(df, labels=['A', 'B', 'C'])
+
+
+def test_pie_all_zeros():
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match="All wedge sizes are zero"):
+        ax.pie([0, 0], labels=["A", "B"])

@@ -8,10 +8,12 @@ Customized Colorbars Tutorial
 This tutorial shows how to build and customize standalone colorbars, i.e.
 without an attached plot.
 
-A `~.Figure.colorbar` needs a "mappable" (`matplotlib.cm.ScalarMappable`)
-object (typically, an image) which indicates the colormap and the norm to be
-used.  In order to create a colorbar without an attached image, one can instead
-use a `.ScalarMappable` with no associated data.
+A `~.Figure.colorbar` requires a `matplotlib.colorizer.ColorizingArtist` which
+contains a `matplotlib.colorizer.Colorizer` that holds the data-to-color pipeline
+(norm and colormap). To create a colorbar without an attached plot one can
+directly instantiate the base class `.ColorizingArtist`, which has no associated
+data.
+
 """
 
 import matplotlib.pyplot as plt
@@ -23,9 +25,11 @@ import matplotlib as mpl
 # -------------------------
 # Here, we create a basic continuous colorbar with ticks and labels.
 #
-# The arguments to the `~.Figure.colorbar` call are the `.ScalarMappable`
-# (constructed using the *norm* and *cmap* arguments), the axes where the
-# colorbar should be drawn, and the colorbar's orientation.
+# The arguments to the `~.Figure.colorbar` call are a `.ColorizingArtist`,
+# the axes where the colorbar should be drawn, and the colorbar's orientation.
+# To crate a `.ColorizingArtist` one must first make `.Colorizer` that holds the
+# desired *norm* and *cmap*.
+#
 #
 # For more information see the `~matplotlib.colorbar` API.
 
@@ -33,7 +37,9 @@ fig, ax = plt.subplots(figsize=(6, 1), layout='constrained')
 
 norm = mpl.colors.Normalize(vmin=5, vmax=10)
 
-fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap="cool"),
+colorizer = mpl.colorizer.Colorizer(norm=norm, cmap="cool")
+
+fig.colorbar(mpl.colorizer.ColorizingArtist(colorizer),
              cax=ax, orientation='horizontal', label='Some Units')
 
 # %%
@@ -47,7 +53,9 @@ fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap="cool"),
 
 fig, ax = plt.subplots(layout='constrained')
 
-fig.colorbar(mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(0, 1), cmap='magma'),
+colorizer = mpl.colorizer.Colorizer(norm=mpl.colors.Normalize(0, 1), cmap='magma')
+
+fig.colorbar(mpl.colorizer.ColorizingArtist(colorizer),
              ax=ax, orientation='vertical', label='a colorbar label')
 
 # %%
@@ -65,7 +73,9 @@ cmap = mpl.colormaps["viridis"]
 bounds = [-1, 2, 5, 7, 12, 15]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N, extend='both')
 
-fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap="viridis"),
+colorizer = mpl.colorizer.Colorizer(norm=norm, cmap='viridis')
+
+fig.colorbar(mpl.colorizer.ColorizingArtist(colorizer),
              cax=ax, orientation='horizontal',
              label="Discrete intervals with extend='both' keyword")
 
@@ -94,8 +104,10 @@ cmap = mpl.colors.ListedColormap(
 bounds = [1, 2, 4, 7, 8]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 
+colorizer = mpl.colorizer.Colorizer(norm=norm, cmap=cmap)
+
 fig.colorbar(
-    mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
+    mpl.colorizer.ColorizingArtist(colorizer),
     cax=ax, orientation='horizontal',
     extend='both',
     spacing='proportional',
@@ -116,8 +128,10 @@ cmap = mpl.colors.ListedColormap(
 bounds = [-1.0, -0.5, 0.0, 0.5, 1.0]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 
+colorizer = mpl.colorizer.Colorizer(norm=norm, cmap=cmap)
+
 fig.colorbar(
-    mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
+    mpl.colorizer.ColorizingArtist(colorizer),
     cax=ax, orientation='horizontal',
     extend='both', extendfrac='auto',
     spacing='uniform',

@@ -182,6 +182,7 @@ class Stars(Shapes):
         self.shape_codes = np.full(len(self.shape_vertices), Path.LINETO,
                                    dtype=Path.code_type)
         self.shape_codes[0] = Path.MOVETO
+        self.shape_codes[-1] = Path.CLOSEPOLY
         super().__init__(hatch, density)
 
 _hatch_types = [

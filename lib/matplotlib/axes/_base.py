@@ -558,6 +558,12 @@ class _AxesBase(martist.Artist):
     dataLim: mtransforms.Bbox
     """The bounding `.Bbox` enclosing all data displayed in the Axes."""
 
+    spines: mspines.Spines
+    """
+    The `.Spines` container for the Axes' spines, i.e. the lines denoting the
+    data area boundaries.
+    """
+
     xaxis: maxis.XAxis
     """
     The `.XAxis` instance.
@@ -1600,7 +1606,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        cycler : `~cycler.Cycler`
+        cycler : `~cycler.Cycler` or ``None``
             Set the given Cycler. *None* resets to the cycle defined by the
             current style.
 
