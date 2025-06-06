@@ -54,7 +54,7 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
     /* TODO: Could we get away with float, rather than double, arrays here? */
 
     /* Given a non-affine transform object, create a mesh that maps
-    every pixel in the output image to the input image.  This is used
+    every pixel center in the output image to the input image.  This is used
     as a lookup table during the actual resampling. */
 
     // If attribute doesn't exist, raises Python AttributeError
@@ -66,8 +66,10 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
 
     for (auto y = 0; y < dims[0]; ++y) {
         for (auto x = 0; x < dims[1]; ++x) {
-            *p++ = (double)x;
-            *p++ = (double)y;
+            // The convention for the supplied transform is that pixel centers
+	    // are at 0.5, 1.5, 2.5, etc.
+            *p++ = (double)x + 0.5;
+            *p++ = (double)y + 0.5;
         }
     }
 
