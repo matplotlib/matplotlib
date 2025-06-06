@@ -47,20 +47,20 @@ def test_parse_header():
     fh = BytesIO(AFM_TEST_DATA)
     header = _afm._parse_header(fh)
     assert header == {
-        b'StartFontMetrics': 2.0,
-        b'FontName': 'MyFont-Bold',
-        b'EncodingScheme': 'FontSpecific',
-        b'FullName': 'My Font Bold',
-        b'FamilyName': 'Test Fonts',
-        b'Weight': 'Bold',
-        b'ItalicAngle': 0.0,
-        b'IsFixedPitch': False,
-        b'UnderlinePosition': -100,
-        b'UnderlineThickness': 56.789,
-        b'Version': '001.000',
-        b'Notice': b'Copyright \xa9 2017 No one.',
-        b'FontBBox': [0, -321, 1234, 369],
-        b'StartCharMetrics': 3,
+        'StartFontMetrics': 2.0,
+        'FontName': 'MyFont-Bold',
+        'EncodingScheme': 'FontSpecific',
+        'FullName': 'My Font Bold',
+        'FamilyName': 'Test Fonts',
+        'Weight': 'Bold',
+        'ItalicAngle': 0.0,
+        'IsFixedPitch': False,
+        'UnderlinePosition': -100,
+        'UnderlineThickness': 56.789,
+        'Version': '001.000',
+        'Notice': b'Copyright \xa9 2017 No one.',
+        'FontBBox': [0, -321, 1234, 369],
+        'StartCharMetrics': 3,
     }
 
 
@@ -69,20 +69,23 @@ def test_parse_char_metrics():
     _afm._parse_header(fh)  # position
     metrics = _afm._parse_char_metrics(fh)
     assert metrics == (
-        {0: (250.0, 'space', [0, 0, 0, 0]),
-         42: (1141.0, 'foo', [40, 60, 800, 360]),
-         99: (583.0, 'bar', [40, -10, 543, 210]),
-         },
-        {'space': (250.0, 'space', [0, 0, 0, 0]),
-         'foo': (1141.0, 'foo', [40, 60, 800, 360]),
-         'bar': (583.0, 'bar', [40, -10, 543, 210]),
-         })
+        {
+            0: _afm.CharMetrics(250.0, 'space', (0, 0, 0, 0)),
+            42: _afm.CharMetrics(1141.0, 'foo', (40, 60, 800, 360)),
+            99: _afm.CharMetrics(583.0, 'bar', (40, -10, 543, 210)),
+        },
+        {
+            'space': _afm.CharMetrics(250.0, 'space', (0, 0, 0, 0)),
+            'foo': _afm.CharMetrics(1141.0, 'foo', (40, 60, 800, 360)),
+            'bar': _afm.CharMetrics(583.0, 'bar', (40, -10, 543, 210)),
+        }
+    )
 
 
 def test_get_familyname_guessed():
     fh = BytesIO(AFM_TEST_DATA)
     font = _afm.AFM(fh)
-    del font._header[b'FamilyName']  # remove FamilyName, so we have to guess
+    del font._header['FamilyName']  # remove FamilyName, so we have to guess
     assert font.get_familyname() == 'My Font'
 
 
