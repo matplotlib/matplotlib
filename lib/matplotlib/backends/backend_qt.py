@@ -15,6 +15,7 @@ import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, __version__, QT_API, _to_int, _isdeleted)
+from matplotlib.backends.backend_qt import FigureCanvasQT
 
 
 # SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name
@@ -542,6 +543,64 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
                 return
         self._draw_rect_callback = _draw_rect_callback
         self.update()
+        
+    def __init__(self, figure):
+        super().__init__(figure)
+        self._tooltip_timer = None
+        self._tooltip_label = None
+    
+    def show_tooltip(self, text, x, y, timeout=None):
+        """
+        Show a tooltip on the canvas.
+        """
+        from matplotlib.backends.qt_compat import QtWidgets, QtCore
+        
+        if self._tooltip_label is None:
+            self._tooltip_label = QtWidgets.QLabel(self)
+            self._tooltip_label.setStyleSheet("""
+                background-color: rgba(255, 255, 245, 0.9);
+                border: 1px solid rgba(0, 0, 0, 0.5);
+                border-radius: 4px;
+                padding: 4px;
+                font-size: 9pt;
+            """)
+            self._tooltip_label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+            self._tooltip_label.hide()
+        
+        # x, y are expected to be in display/pixel coordinates
+        # Set text and adjust size
+        self._tooltip_label.setText(text)
+        self._tooltip_label.adjustSize()
+        
+        # Position tooltip slightly offset from cursor
+        offset_x, offset_y = 10, 10
+        self._tooltip_label.move(int(x + offset_x), int(y + offset_y))
+        
+        # Show tooltip
+        self._tooltip_label.show()
+        self._tooltip_label.raise_()
+        
+        # Handle timeout (optional - removes tooltip automatically)
+        if self._tooltip_timer is not None:
+            self._tooltip_timer.stop()
+            self._tooltip_timer = None
+            
+        if timeout is not None:
+            self._tooltip_timer = QtCore.QTimer()
+            self._tooltip_timer.setSingleShot(True)
+            self._tooltip_timer.timeout.connect(self.hide_tooltip)
+            self._tooltip_timer.start(int(timeout * 1000))
+    
+    def hide_tooltip(self):
+        """
+        Hide the tooltip.
+        """
+        if self._tooltip_label is not None:
+            self._tooltip_label.hide()
+        
+        if self._tooltip_timer is not None:
+            self._tooltip_timer.stop()
+            self._tooltip_timer = None
 
 
 class MainWindow(QtWidgets.QMainWindow):
