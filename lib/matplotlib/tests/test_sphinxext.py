@@ -16,17 +16,6 @@ pytest.importorskip('sphinx', minversion='4.1.3')
 tinypages = Path(__file__).parent / 'data/tinypages'
 
 
-def _ignore_build_artifacts(dir, files):
-    """
-    Ignore function for shutil.copytree to exclude build artifacts.
-
-    This prevents stale build artifacts from the source tinypages directory
-    from being copied to test directories, which could cause inconsistent
-    test results due to cached or outdated files.
-    """
-    return {'_build', 'doctrees', 'plot_directive'} & set(files)
-
-
 def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
     # Build the pages with warnings turned into errors
     extra_args = [] if extra_args is None else extra_args
@@ -52,7 +41,8 @@ def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
 
 def test_tinypages(tmp_path):
     shutil.copytree(tinypages, tmp_path, dirs_exist_ok=True,
-                    ignore=_ignore_build_artifacts)
+                    ignore=shutil.ignore_patterns('_build', 'doctrees',
+                                                   'plot_directive'))
     html_dir = tmp_path / '_build' / 'html'
     img_dir = html_dir / '_images'
     doctree_dir = tmp_path / 'doctrees'
@@ -217,7 +207,8 @@ def test_plot_html_show_source_link_custom_basename(tmp_path):
 
 def test_srcset_version(tmp_path):
     shutil.copytree(tinypages, tmp_path, dirs_exist_ok=True,
-                    ignore=_ignore_build_artifacts)
+                    ignore=shutil.ignore_patterns('_build', 'doctrees',
+                                                   'plot_directive'))
     html_dir = tmp_path / '_build' / 'html'
     img_dir = html_dir / '_images'
     doctree_dir = tmp_path / 'doctrees'
