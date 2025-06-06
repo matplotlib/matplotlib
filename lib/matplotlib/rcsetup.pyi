@@ -1,7 +1,7 @@
 from cycler import Cycler
 
 from collections.abc import Callable, Iterable
-from typing import Any, Literal, TypeVar
+from typing import Any, Literal, TypeVar, Optional
 from matplotlib.typing import ColorType, LineStyleType, MarkEveryType
 
 interactive_bk: list[str]
@@ -42,6 +42,7 @@ def validate_floatlist(s: Any) -> list[float]: ...
 def _validate_marker(s: Any) -> int | str: ...
 def _validate_markerlist(s: Any) -> list[int | str]: ...
 def validate_fonttype(s: Any) -> int: ...
+def validate_font_superfamily(val: Any) -> Optional[str]: ...
 
 _auto_backend_sentinel: object
 

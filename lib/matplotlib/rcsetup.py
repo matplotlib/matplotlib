@@ -461,6 +461,53 @@ def validate_font_properties(s):
     return s
 
 
+def validate_font_superfamily(val):
+    """
+    Validate the font.superfamily rcParam.
+
+    Accepts:
+    - A string (e.g. "Roboto", "DejaVu", or "None").
+      The string "None" (case-insensitive)
+      is interpreted as disabling the feature and returns None.
+    - A dictionary with "name" and "variants" keys
+      (used to register a new superfamily).
+    - The Python value None.
+
+    Parameters
+    ----------
+    val : str, dict, or None
+        The value passed from the rc file or directly in code.
+
+    Returns
+    -------
+    str, dict, or None
+        The normalized value, or None if superfamily is not to be used.
+
+    Raises
+    ------
+    ValueError
+        If the input is not a valid superfamily specification.
+    """
+    if isinstance(val, str):
+        if val.strip().lower() == "none":
+            return None
+        return val.strip()
+    if val is None:
+        return None
+    if isinstance(val, dict):
+        if "name" not in val or "variants" not in val:
+            raise ValueError(
+                "font.superfamily dict must include " \
+                "both 'name' and 'variants' keys"
+            )
+        return val  # Delay actual FontSuperfamily creation
+
+    raise ValueError(
+        "font.superfamily must be a string (e.g. 'DejaVu'), " \
+        "a dict with 'name' and 'variants', or None"
+    )
+
+
 def _validate_mathtext_fallback(s):
     _fallback_fonts = ['cm', 'stix', 'stixsans']
     if isinstance(s, str):
@@ -1038,6 +1085,7 @@ _validators = {
     "font.enable_last_resort":     validate_bool,
     "font.family":     validate_stringlist,  # used by text object
     "font.style":      validate_string,
+    "font.superfamily": validate_font_superfamily,  # list of logical superfamily name
     "font.variant":    validate_string,
     "font.stretch":    validate_fontstretch,
     "font.weight":     validate_fontweight,
