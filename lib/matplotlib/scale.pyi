@@ -57,7 +57,7 @@ class LogScale(ScaleBase):
     name: str
     subs: Iterable[int] | None
     def __init__(
-        self: LogScale,
+        self,
         axis: Axis | None = ...,
         *,
         base: float = 10,
