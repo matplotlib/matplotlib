@@ -337,6 +337,12 @@ def test_suptitle_fontproperties():
     assert txt.get_weight() == fps.get_weight()
 
 
+def test_suptitle_fontdict_size():
+    fig, _ = plt.subplots()
+    fig.suptitle('suptitle', fontdict=dict(size=21))
+    assert fig._suptitle.get_fontsize() == 21
+
+
 def test_suptitle_subfigures():
     fig = plt.figure(figsize=(4, 3))
     sf1, sf2 = fig.subfigures(1, 2)
