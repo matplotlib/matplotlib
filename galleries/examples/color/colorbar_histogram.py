@@ -11,7 +11,6 @@ visualizing the distribution of values mapped to colors.
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from matplotlib.ticker import MaxNLocator
 
 # === Surface Data ===
 delta = 0.025
@@ -38,24 +37,20 @@ im = ax.imshow(Z, cmap=cmap,
 cax = ax.inset_axes([1.18, 0.02, 0.25, 0.95])  # left, bottom, width, height
 
 # === Plot Histogram ===
-midpoints = bins[:-1] + np.diff(bins) / 2
+midpoints = midpoints = (bins[:-1] + bins[1:]) / 2
 height = np.median(np.diff(bins)) * 0.8
 colors = cmap(norm(midpoints))
 
-cax.barh(midpoints, counts, height=height, color=colors)
+distance = midpoints[1] - midpoints[0]
 
-# === Clean up ===
+cax.barh(midpoints, counts, height=0.8 * distance, color=cmap(norm(midpoints)))
+
+# styling
 cax.spines[:].set_visible(False)
 cax.margins(0)
 cax.tick_params(axis='both', which='both', length=0)
 
-# === Axis labels ===
-cax.set_xlabel('Count', labelpad=10)
-cax.set_ylabel('Value', labelpad=6)
-
 # === Ticks ===
 cax.set_yticks(bins)
-cax.yaxis.set_major_locator(MaxNLocator(nbins=8))
 
 plt.show()
-
