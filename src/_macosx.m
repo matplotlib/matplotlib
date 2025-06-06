@@ -1754,6 +1754,15 @@ Timer_repr(Timer* self)
                                (void*) self, (void*)(self->timer));
 }
 
+static void
+Timer__timer_stop_impl(Timer* self)
+{
+    if (self->timer) {
+        [self->timer invalidate];
+        self->timer = NULL;
+    }
+}
+
 static PyObject*
 Timer__timer_start(Timer* self, PyObject* args)
 {
@@ -1772,20 +1781,21 @@ Timer__timer_start(Timer* self, PyObject* args)
         goto exit;
     }
 
+    // Stop the current timer if it is already running
+    Timer__timer_stop_impl(self);
     // hold a reference to the timer so we can invalidate/stop it later
-    self->timer = [NSTimer timerWithTimeInterval: interval
-                                         repeats: !single
-                                           block: ^(NSTimer *timer) {
-        gil_call_method((PyObject*)self, "_on_timer");
-        if (single) {
-            // A single-shot timer will be automatically invalidated when it fires, so
-            // we shouldn't do it ourselves when the object is deleted.
-            self->timer = NULL;
-        }
+    self->timer = [NSTimer scheduledTimerWithTimeInterval: interval
+                                                  repeats: !single
+                                                    block: ^(NSTimer *timer) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            gil_call_method((PyObject*)self, "_on_timer");
+            if (single) {
+                // A single-shot timer will be automatically invalidated when it fires, so
+                // we shouldn't do it ourselves when the object is deleted.
+                self->timer = NULL;
+            }
+        });
     }];
-    // Schedule the timer on the main run loop which is needed
-    // when updating the UI from a background thread
-    [[NSRunLoop mainRunLoop] addTimer: self->timer forMode: NSRunLoopCommonModes];
 
 exit:
     Py_XDECREF(py_interval);
@@ -1798,19 +1808,22 @@ exit:
     }
 }
 
-static void
-Timer__timer_stop_impl(Timer* self)
-{
-    if (self->timer) {
-        [self->timer invalidate];
-        self->timer = NULL;
-    }
-}
-
 static PyObject*
 Timer__timer_stop(Timer* self)
 {
     Timer__timer_stop_impl(self);
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+Timer__timer_update(Timer* self)
+{
+    // stop and invalidate a timer if it is already running and then create a new one
+    // where the start() method retrieves the updated interval internally
+    if (self->timer) {
+        Timer__timer_stop_impl(self);
+        gil_call_method((PyObject*)self, "_timer_start");
+    }
     Py_RETURN_NONE;
 }
 
@@ -1839,6 +1852,12 @@ static PyTypeObject TimerType = {
          METH_VARARGS},
         {"_timer_stop",
          (PyCFunction)Timer__timer_stop,
+         METH_NOARGS},
+        {"_timer_set_interval",
+         (PyCFunction)Timer__timer_update,
+         METH_NOARGS},
+        {"_timer_set_single_shot",
+         (PyCFunction)Timer__timer_update,
          METH_NOARGS},
         {}  // sentinel
     },
