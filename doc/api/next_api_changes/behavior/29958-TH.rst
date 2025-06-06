@@ -1,0 +1,8 @@
+``Axes.add_collection(..., autolim=True)`` updates view limits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``Axes.add_collection(..., autolim=True)`` has so far only updated the data limits.
+Users needed to additionally call `.Axes.autoscale_view` to update the view limits.
+View limits are now updated as well if ``autolim=True``, using a lazy internal
+update mechanism, so that the costs only apply once also if you add multiple
+collections.
