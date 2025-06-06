@@ -1,5 +1,6 @@
 import io
 from itertools import chain
+import sys
 
 import numpy as np
 
@@ -256,7 +257,9 @@ def test_setp():
     # Check *file* argument
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
-    assert sio.getvalue() == '  zorder: float\n'
+    # With optimization, docstrings are stripped so the automated types don't work.
+    expected = 'unknown' if sys.flags.optimize >= 2 else 'float'
+    assert sio.getvalue() == f'  zorder: {expected}\n'
 
 
 def test_None_zorder():
@@ -361,6 +364,8 @@ def test_set_signature():
     assert 'myparam2' in MyArtist2.set.__doc__
 
 
+@pytest.mark.skipif(sys.flags.optimize >= 2,
+                    reason='Python optimization is enabled and docstrings are stripped')
 def test_set_is_overwritten():
     """set() defined in Artist subclasses should not be overwritten."""
     class MyArtist3(martist.Artist):

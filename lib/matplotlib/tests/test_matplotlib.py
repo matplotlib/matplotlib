@@ -44,6 +44,8 @@ def test_importable_with_no_home(tmp_path):
         env={**os.environ, "MPLCONFIGDIR": str(tmp_path)}, check=True)
 
 
+@pytest.mark.skipif(sys.flags.optimize >= 2,
+                    reason='Python optimization is enabled and docstrings are stripped')
 def test_use_doc_standard_backends():
     """
     Test that the standard backends mentioned in the docstring of
