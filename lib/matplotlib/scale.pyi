@@ -2,7 +2,7 @@ from matplotlib.axis import Axis
 from matplotlib.transforms import Transform
 
 from collections.abc import Callable, Iterable
-from typing import Literal, Union
+from typing import Literal
 from numpy.typing import ArrayLike
 
 class ScaleBase:
@@ -15,7 +15,10 @@ class ScaleBase:
 
 class LinearScale(ScaleBase):
     name: str
-    def __init__(self: ScaleBase, axis: Union[Axis, None] = None) -> None: ...
+    def __init__(
+            self: ScaleBase,
+            axis:  Axis | None,
+        ) -> None: ...
 
 class FuncTransform(Transform):
     input_dims: int
@@ -177,4 +180,4 @@ class LogitScale(ScaleBase):
 def get_scale_names() -> list[str]: ...
 def scale_factory(scale: str, axis: Axis, **kwargs) -> ScaleBase: ...
 def register_scale(scale_class: type[ScaleBase]) -> None: ...
-def handle_axis_parameter(init_func: Callable[..., None]) -> Callable[..., None]: ...
+def _make_axis_parameter_optional(init_func: Callable[..., None]) -> Callable[..., None]: ...
