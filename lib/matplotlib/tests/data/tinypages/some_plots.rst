@@ -180,7 +180,7 @@ Plot 22 uses a different specific function in a file with plot commands:
 
 .. plot:: range6.py range10
 
-Plots 23 and 24 use image-basename.
+Plots 23--25 use image-basename.
 
 .. plot::
    :image-basename: custom-basename-6
@@ -189,3 +189,12 @@ Plots 23 and 24 use image-basename.
 
 .. plot:: range4.py
    :image-basename: custom-basename-4
+
+.. plot::
+   :image-basename: custom-basename-4-6
+
+   plt.figure()
+   plt.plot(range(4))
+
+   plt.figure()
+   plt.plot(range(6))
