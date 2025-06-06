@@ -41,6 +41,7 @@ Colors that Matplotlib recognizes are listed at
 
 import base64
 from collections.abc import Sequence, Mapping
+from typing import Protocol, runtime_checkable
 import functools
 import importlib
 import inspect
@@ -2255,6 +2256,84 @@ class BivarColormapFromImage(BivarColormap):
 
     def _init(self):
         self._isinit = True
+
+
+@runtime_checkable
+class Norm(Protocol):
+
+    @property
+    def vmin(self):
+        """Lower limit of the input data interval; maps to 0."""
+        ...
+
+
+    @property
+    def vmax(self):
+        """Upper limit of the input data interval; maps to 1."""
+        ...
+
+    @property
+    def clip(self):
+        """
+        Determines the behavior for mapping values outside the range ``[vmin, vmax]``.
+
+        See the *clip* parameter in `.Normalize`.
+        """
+        ...
+
+    def _changed(self):
+        """
+        Call this whenever the norm is changed to notify all the
+        callback listeners to the 'changed' signal.
+        """
+        ...
+
+
+    def __call__(self, value, clip=None):
+        """
+        Normalize the data and return the normalized data.
+
+        Parameters
+        ----------
+        value
+            Data to normalize.
+        clip : bool, optional
+            See the description of the parameter *clip* in `.Normalize`.
+
+            If ``None``, defaults to ``self.clip`` (which defaults to
+            ``False``).
+
+        Notes
+        -----
+        If not already initialized, ``self.vmin`` and ``self.vmax`` are
+        initialized using ``self.autoscale_None(value)``.
+        """
+        ...
+
+    def inverse(self, value):
+        """
+        Maps the normalized value (i.e., index in the colormap) back to image
+        data value.
+
+        Parameters
+        ----------
+        value
+            Normalized value.
+        """
+        ...
+
+
+    def autoscale(self, A):
+        """Set *vmin*, *vmax* to min, max of *A*."""
+        ...
+
+    def autoscale_None(self, A):
+        """If *vmin* or *vmax* are not set, use the min/max of *A* to set them."""
+        ...
+
+    def scaled(self):
+        """Return whether *vmin* and *vmax* are both set."""
+        ...
 
 
 class Normalize:

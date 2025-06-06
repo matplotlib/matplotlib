@@ -19,7 +19,8 @@ import matplotlib.colorizer as mcolorizer
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.rcsetup import cycler
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.testing.decorators import (image_comparison, check_figures_equal,
+    remove_ticks_and_titles)
 from matplotlib.colors import is_color_like, to_rgba_array, ListedColormap
 
 
@@ -1829,3 +1830,52 @@ def test_LinearSegmentedColormap_from_list_value_color_tuple():
         cmap([value for value, _ in value_color_tuples]),
         to_rgba_array([color for _, color in value_color_tuples]),
     )
+
+
+@image_comparison(['test_norm_protocol.png'])
+def test_norm_protocol():
+    class CustomHalfNorm:
+        def __init__(self):
+            self.callbacks = mpl.cbook.CallbackRegistry(signals=["changed"])
+
+        @property
+        def vmin(self):
+            return 0
+
+        @property
+        def vmax(self):
+            return 1
+
+        @property
+        def clip(self):
+            return False
+
+        def _changed(self):
+            self.callbacks.process('changed')
+
+        def __call__(self, value, clip=None):
+            return value/2
+
+        def inverse(self, value):
+            return value
+
+
+        def autoscale(self, A):
+            pass
+
+        def autoscale_None(self, A):
+            pass
+
+        def scaled(self):
+            return True
+
+    fig, axes = plt.subplots(2,2)
+
+    r = np.linspace(-1, 3, 16*16).reshape((16,16))
+    norm = CustomHalfNorm()
+    colorizer = mpl.colorizer.Colorizer(cmap='viridis', norm=norm)
+    c = axes[0,0].imshow(r, colorizer=colorizer)
+    axes[0,1].pcolor(r, colorizer=colorizer)
+    axes[1,0].contour(r, colorizer=colorizer)
+    axes[1,1].contourf(r, colorizer=colorizer)
+    remove_ticks_and_titles(fig)
