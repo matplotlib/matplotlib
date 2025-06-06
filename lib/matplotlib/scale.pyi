@@ -60,9 +60,9 @@ class LogScale(ScaleBase):
         self,
         axis: Axis | None = ...,
         *,
-        base: float = 10,
-        subs: Union[Iterable[int], None] = None,
-        nonpositive: Union[Literal['clip'], Literal['mask']] = 'clip'
+        base: float = ...,
+        subs: Iterable[int] | None = ...,
+        nonpositive: Literal["clip", "mask"] = ...
     ) -> None: ...
     @property
     def base(self) -> float: ...
@@ -107,10 +107,10 @@ class SymmetricalLogScale(ScaleBase):
         self,
         axis: Axis | None = ...,
         *,
-        base: float = 10,
-        linthresh: float = 2,
-        subs: Union[Iterable[int], None] = None,
-        linscale: float = 1
+        base: float = ...,
+        linthresh: float = ...,
+        subs: Iterable[int] | None = ...,
+        linscale: float = ...
     ) -> None: ...
     @property
     def base(self) -> float: ...
@@ -167,10 +167,10 @@ class LogitScale(ScaleBase):
     def __init__(
         self,
         axis: Axis | None = ...,
-        nonpositive: Union[Literal['mask'], Literal['clip']] = 'mask',
+        nonpositive: Literal["mask", "clip"] = ...,
         *,
-        one_half: str = '\\frac{1}{2}',
-        use_overline: bool = False
+        one_half: str = ...,
+        use_overline: bool = ...
     ) -> None: ...
     def get_transform(self) -> LogitTransform: ...
 
