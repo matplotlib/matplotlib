@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 import pytest
 import base64
+import platform
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
@@ -19,8 +20,7 @@ import matplotlib.colorizer as mcolorizer
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.rcsetup import cycler
-from matplotlib.testing.decorators import (image_comparison, check_figures_equal,
-    remove_ticks_and_titles)
+from matplotlib.testing.decorators import (image_comparison, check_figures_equal)
 from matplotlib.colors import is_color_like, to_rgba_array, ListedColormap
 
 
@@ -1832,7 +1832,8 @@ def test_LinearSegmentedColormap_from_list_value_color_tuple():
     )
 
 
-@image_comparison(['test_norm_protocol.png'])
+@image_comparison(['test_norm_protocol.png'], remove_text=True,
+                   tol=0 if platform.machine() == 'x86_64' else 0.05)
 def test_norm_protocol():
     class CustomHalfNorm:
         def __init__(self):
@@ -1878,4 +1879,3 @@ def test_norm_protocol():
     axes[0,1].pcolor(r, colorizer=colorizer)
     axes[1,0].contour(r, colorizer=colorizer)
     axes[1,1].contourf(r, colorizer=colorizer)
-    remove_ticks_and_titles(fig)

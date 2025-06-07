@@ -2261,6 +2261,8 @@ class BivarColormapFromImage(BivarColormap):
 @runtime_checkable
 class Norm(Protocol):
 
+    callbacks: cbook.CallbackRegistry
+
     @property
     def vmin(self):
         """Lower limit of the input data interval; maps to 0."""
