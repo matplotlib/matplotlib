@@ -35,7 +35,7 @@ im = ax.imshow(Z, cmap=cmap, origin="lower", extent=[-3, 3, -3, 3], norm=norm)
 cax = ax.inset_axes([1.18, 0.02, 0.25, 0.95])  # left, bottom, width, height
 
 # plot histogram
-counts, bin_edges = np.histogram(Z, bins=bins)
+counts, _ = np.histogram(Z, bins=bin_edges)
 midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
 distance = midpoints[1] - midpoints[0]
 cax.barh(midpoints, counts, height=0.8 * distance, color=cmap(norm(midpoints)))
