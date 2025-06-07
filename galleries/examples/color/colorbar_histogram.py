@@ -27,7 +27,8 @@ Z = Z1**0.25 - Z2**0.5
 # colormap & normalization
 bins = 30
 cmap = plt.get_cmap("RdYlBu_r")
-norm = mcolors.BoundaryNorm(bins, cmap.N)
+bin_edges = np.linspace(Z.min(), Z.max(), bins + 1)
+norm = mcolors.BoundaryNorm(bin_edges, cmap.N)
 
 # main plot
 fig, ax = plt.subplots(layout="constrained")
@@ -48,7 +49,7 @@ cax.barh(midpoints, counts, height=0.8 * distance, color=cmap(norm(midpoints)))
 # styling
 cax.spines[:].set_visible(False)
 
-cax.set_yticks(bins)
+cax.set_yticks(bin_edges)
 
 cax.tick_params(axis="both", which="both", length=0)
 
