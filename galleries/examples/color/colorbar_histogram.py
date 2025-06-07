@@ -3,9 +3,9 @@
 Histogram as colorbar
 =====================
 
-This example demonstrates how to create a colorbar for an image and
-add a histogram of the data values alongside it. This is useful for
-visualizing the distribution of values mapped to colors.
+This example demonstrates how to use a colored histogram instead of a colorbar
+to not only show the color-to-value mapping, but also visualize the
+distribution of values.
 
 """
 
@@ -14,7 +14,7 @@ import numpy as np
 
 import matplotlib.colors as mcolors
 
-# Surface Data
+# surface Data
 delta = 0.025
 x = y = np.arange(-2.0, 2.0, delta)
 X, Y = np.meshgrid(x, y)
@@ -22,24 +22,24 @@ Z1 = np.exp(-(((X + 1) * 1.3) ** 2) - ((Y + 1) * 1.3) ** 2)
 Z2 = 2.5 * np.exp(-((X - 1) ** 2) - (Y - 1) ** 2)
 Z = Z1**0.25 - Z2**0.5
 
-# Histogram from actual Z data
-counts, bins = np.histogram(Z, bins=30)
+# histogram from actual Z data
 
-# Colormap & Normalization
+# colormap & normalization
+bins = 30
 cmap = plt.get_cmap("RdYlBu_r")
 norm = mcolors.BoundaryNorm(bins, cmap.N)
 
-# Main Plot
+# main plot
 fig, ax = plt.subplots(layout="constrained")
 im = ax.imshow(Z, cmap=cmap, origin="lower", extent=[-3, 3, -3, 3], norm=norm)
 
-# Inset Histogram
+# inset histogram
 cax = ax.inset_axes([1.18, 0.02, 0.25, 0.95])  # left, bottom, width, height
 
-# Plot Histogram
-midpoints = (bins[:-1] + bins[1:]) / 2
+# plot histogram
+counts, bin_edges = np.histogram(Z, bins=bins)
 
-colors = cmap(norm(midpoints))
+midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
 
 distance = midpoints[1] - midpoints[0]
 
@@ -48,8 +48,8 @@ cax.barh(midpoints, counts, height=0.8 * distance, color=cmap(norm(midpoints)))
 # styling
 cax.spines[:].set_visible(False)
 
-# Ticks
 cax.set_yticks(bins)
+
 cax.tick_params(axis="both", which="both", length=0)
 
 plt.show()
