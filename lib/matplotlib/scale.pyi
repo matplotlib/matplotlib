@@ -16,7 +16,7 @@ class ScaleBase:
 class LinearScale(ScaleBase):
     name: str
     def __init__(
-            self: ScaleBase,
+            self,
             axis:  Axis | None,
         ) -> None: ...
 
