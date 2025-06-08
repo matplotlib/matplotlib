@@ -190,7 +190,7 @@ def test_plot_html_show_source_link_custom_basename(tmp_path):
     doctree_dir = tmp_path / 'doctrees'
     (tmp_path / 'index.rst').write_text("""
 .. plot::
-    :image-basename: custom-name
+    :filename-prefix: custom-name
 
     plt.plot(range(2))
 """)

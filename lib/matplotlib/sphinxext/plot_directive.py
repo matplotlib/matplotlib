@@ -47,11 +47,11 @@ Options
 
 The ``.. plot::`` directive supports the following options:
 
-``:image-basename:`` : str
-    The base name (without the extension) of the outputted image files. The
-    default is to use the same name as the input script, or the name of
-    the RST document if no script is provided. The image-basename for each
-    plot directive must be unique.
+``:filename-prefix:`` : str
+    The base name (without the extension) of the outputted image and script
+    files. The default is to use the same name as the input script, or the
+    name of the RST document if no script is provided. The filename-prefix for
+    each plot directive must be unique.
 
 ``:format:`` : {'python', 'doctest'}
     The format of the input.  If unset, the format is auto-detected.
@@ -169,6 +169,7 @@ the ``*.png`` files in the ``plot_directive`` directory.  These translations can
 be customized by changing the *plot_template*.  See the source of
 :doc:`/api/sphinxext_plot_directive_api` for the templates defined in *TEMPLATE*
 and *TEMPLATE_SRCSET*.
+
 """
 
 from collections import defaultdict
@@ -273,7 +274,7 @@ class PlotDirective(Directive):
         'scale': directives.nonnegative_int,
         'align': Image.align,
         'class': directives.class_option,
-        'image-basename': directives.unchanged,
+        'filename-prefix': directives.unchanged,
         'include-source': _option_boolean,
         'show-source-link': _option_boolean,
         'format': _option_format,
@@ -640,15 +641,15 @@ def check_output_base_name(env, output_base):
 
     if '.' in output_base or '/' in output_base or '\\' in output_base:
         raise PlotError(
-            f"The image-basename '{output_base}' is invalid. "
+            f"The filename-prefix '{output_base}' is invalid. "
             f"It must not contain dots or slashes.")
 
     for d in env.mpl_plot_image_basenames:
         if output_base in env.mpl_plot_image_basenames[d]:
             if d == docname:
                 raise PlotError(
-                    f"The image-basename {output_base!r} is used multiple times.")
-            raise PlotError(f"The image-basename {output_base!r} is used multiple"
+                    f"The filename-prefix {output_base!r} is used multiple times.")
+            raise PlotError(f"The filename-prefix {output_base!r} is used multiple"
                             f"times (it is also used in {env.doc2path(d)}).")
 
     env.mpl_plot_image_basenames[docname].add(output_base)
@@ -789,7 +790,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     options.setdefault('include-source', config.plot_include_source)
     options.setdefault('show-source-link', config.plot_html_show_source_link)
-    options.setdefault('image-basename', None)
+    options.setdefault('filename-prefix', None)
 
     if 'class' in options:
         # classes are parsed into a list of string, and output by simply
@@ -831,16 +832,16 @@ def run(arguments, content, options, state_machine, state, lineno):
             function_name = None
 
         code = Path(source_file_name).read_text(encoding='utf-8')
-        if options['image-basename']:
-            output_base = options['image-basename']
+        if options['filename-prefix']:
+            output_base = options['filename-prefix']
             check_output_base_name(env, output_base)
         else:
             output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
         code = textwrap.dedent("\n".join(map(str, content)))
-        if options['image-basename']:
-            output_base = options['image-basename']
+        if options['filename-prefix']:
+            output_base = options['filename-prefix']
             check_output_base_name(env, output_base)
         else:
             base, ext = os.path.splitext(os.path.basename(source_file_name))
