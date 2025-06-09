@@ -124,26 +124,20 @@ class Tick(martist.Artist):
                 zorder = mlines.Line2D.zorder
         self._zorder = zorder
 
-        grid_color = (
-            mpl._val_or_rc(
-                grid_color,
-                f"grid.{major_minor}.color",
-                "grid.color",
-            )
+        grid_color = mpl._val_or_rc(
+            grid_color,
+            f"grid.{major_minor}.color",
+            "grid.color",
         )
-        grid_linestyle = (
-            mpl._val_or_rc(
-                grid_linestyle,
-                f"grid.{major_minor}.linestyle",
-                "grid.linestyle",
-            )
+        grid_linestyle = mpl._val_or_rc(
+            grid_linestyle,
+            f"grid.{major_minor}.linestyle",
+            "grid.linestyle",
         )
-        grid_linewidth = (
-            mpl._val_or_rc(
-                grid_linewidth,
-                f"grid.{major_minor}.linewidth",
-                "grid.linewidth",
-            )
+        grid_linewidth = mpl._val_or_rc(
+            grid_linewidth,
+            f"grid.{major_minor}.linewidth",
+            "grid.linewidth",
         )
         if grid_alpha is None and not mcolors._has_alpha_channel(grid_color):
             # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
@@ -151,12 +145,10 @@ class Tick(martist.Artist):
             # otherwise `grid(color=(1, 1, 1, 0.5))` would work like
             #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
             # so the that the rcParams default would override color alpha.
-            grid_alpha = (
+            grid_alpha = mpl._val_or_rc(
                 # grid_alpha is None so we can use the first key
-                mpl._val_or_rc(
-                    mpl.rcParams[f"grid.{major_minor}.alpha"],
-                    "grid.alpha",
-                )
+                mpl.rcParams[f"grid.{major_minor}.alpha"],
+                "grid.alpha",
             )
 
         grid_kw = {k[5:]: v for k, v in kwargs.items() if k != "rotation_mode"}
