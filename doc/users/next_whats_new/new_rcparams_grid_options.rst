@@ -18,7 +18,7 @@ Using :rc:`grid.major.*` or :rc:`grid.minor.*` will overwrite the value in
     mpl.rcParams["xtick.minor.visible"] = True
     mpl.rcParams["axes.grid.which"] = "both"
 
-    # Using old old values to set both major and minor properties
+    # Using old values to set both major and minor properties
     mpl.rcParams["grid.color"] = "red"
     mpl.rcParams["grid.linewidth"] = 1
 
