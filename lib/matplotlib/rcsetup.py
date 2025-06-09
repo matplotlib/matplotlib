@@ -368,7 +368,7 @@ def validate_color(s):
     raise ValueError(f'{s!r} does not look like a color arg')
 
 
-def validate_color_or_None(s):
+def _validate_color_or_None(s):
     if s is None or cbook._str_equal(s, "None"):
         return None
     return validate_color(s)
@@ -528,11 +528,11 @@ def _validate_linestyle(ls):
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
 
 
-def _validate_linestyle_or_None(ls):
-    if ls is None or cbook._str_equal(ls, "None"):
+def _validate_linestyle_or_None(s):
+    if s is None or cbook._str_equal(s, "None"):
         return None
 
-    return _validate_linestyle(ls)
+    return _validate_linestyle(s)
 
 
 validate_fillstyle = ValidateInStrings(
