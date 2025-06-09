@@ -1261,12 +1261,12 @@ _validators = {
     "grid.linewidth":    validate_float,     # in points
     "grid.alpha":        validate_float,
 
-    "grid.major.color":        validate_color_or_None,  # grid color
+    "grid.major.color":        _validate_color_or_None,  # grid color
     "grid.major.linestyle":    _validate_linestyle_or_None,  # solid
     "grid.major.linewidth":    validate_float_or_None,     # in points
     "grid.major.alpha":        validate_float_or_None,
 
-    "grid.minor.color":        validate_color_or_None,  # grid color
+    "grid.minor.color":        _validate_color_or_None,  # grid color
     "grid.minor.linestyle":    _validate_linestyle_or_None,  # solid
     "grid.minor.linewidth":    validate_float_or_None,     # in points
     "grid.minor.alpha":        validate_float_or_None,
