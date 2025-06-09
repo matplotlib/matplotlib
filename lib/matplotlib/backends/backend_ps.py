@@ -406,7 +406,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     def __init__(self, width, height, pswriter, imagedpi=72):
         # Although postscript itself is dpi independent, we need to inform the
         # image code about a requested dpi to generate high resolution images
-        # and them scale them before embedding them.
+        # and then scale them before embedding them.
         super().__init__(width, height)
         self._pswriter = pswriter
         if mpl.rcParams['text.usetex']:
