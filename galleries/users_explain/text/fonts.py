@@ -90,7 +90,7 @@ files, particularly with fonts with many glyphs such as those that support CJK
 
 The solution to this problem is to subset the fonts used in the document and
 only embed the glyphs actually used.  This gets both vector text and small
-files sizes.  Computing the subset of the font required and writing the new
+files sizes.  Computing the font subset and writing the new
 (reduced) font are both complex problems and thus Matplotlib relies in most cases
 on `fontTools <https://fonttools.readthedocs.io/en/latest/>`__.
 
