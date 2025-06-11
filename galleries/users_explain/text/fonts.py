@@ -53,7 +53,7 @@ which are explained later in the guide):
 .. note::
 
    Adobe disabled__ support for authoring with Type 1 fonts in January 2023.
-   Matplotlib uses Type 1 fonts for compatibility with TeX: when the usetex
+   Matplotlib uses Type 1 fonts for compatibility with TeX; when the usetex
    feature is used with the PDF backend, Matplotlib reads the fonts used by
    the TeX engine, which are usually Type 1.
 
