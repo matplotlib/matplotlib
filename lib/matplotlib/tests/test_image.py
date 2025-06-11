@@ -1656,8 +1656,7 @@ def test_resample_nonaffine(data, interpolation, expected):
     affine_transform = Affine2D().scale(sx=expected.shape[1] / data.shape[1], sy=1)
 
     affine_result = np.empty_like(expected)
-    mimage.resample(data, affine_result, affine_transform,
-                        interpolation=interpolation)
+    mimage.resample(data, affine_result, affine_transform, interpolation=interpolation)
     assert_allclose(affine_result, expected)
 
     # Create a nonaffine version of the same transform
@@ -1672,7 +1671,7 @@ def test_resample_nonaffine(data, interpolation, expected):
 
     nonaffine_result = np.empty_like(expected)
     mimage.resample(data, nonaffine_result, nonaffine_transform,
-                        interpolation=interpolation)
+                    interpolation=interpolation)
     assert_allclose(nonaffine_result, expected, atol=5e-3)
 
 
