@@ -36,7 +36,7 @@ which are explained later in the guide):
   | introduced by Adobe      | terms of introduction      | used commonly today,       |
   |                          |                            | introduced by Apple        |
   +--------------------------+----------------------------+----------------------------+
-  | Restricted subset of     | Full PostScript language,  | Includes a virtual machine  |
+  | Restricted subset of     | Full PostScript language,  | Includes a virtual machine |
   | PostScript, charstrings  | allows embedding arbitrary | that can execute code!     |
   | are in bytecode          | code (in theory, even      |                            |
   |                          | render fractals when       |                            |
@@ -88,11 +88,12 @@ pixelated.  However, embedding full fonts in the file can lead to large output
 files, particularly with fonts with many glyphs such as those that support CJK
 (Chinese/Japanese/Korean).
 
-The solution to this problem is to subset the fonts used in the document and
-only embed the glyphs actually used.  This gets both vector text and small
-files sizes.  Computing the font subset and writing the new
-(reduced) font are both complex problems and thus Matplotlib relies in most cases
-on `fontTools <https://fonttools.readthedocs.io/en/latest/>`__.
+To keep the output size reasonable while using vector fonts,
+Matplotlib embeds only the glyphs that are actually used in the document.
+This is known as font subsetting.
+Computing the font subset and writing the reduced font are both complex problems,
+which Matplotlib solves in most cases by using the
+`fontTools <https://fonttools.readthedocs.io/en/latest/>`__ library.
 
 Core Fonts
 ^^^^^^^^^^
