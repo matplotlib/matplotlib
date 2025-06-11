@@ -36,7 +36,7 @@ which are explained later in the guide):
   | introduced by Adobe      | terms of introduction      | used commonly today,       |
   |                          |                            | introduced by Apple        |
   +--------------------------+----------------------------+----------------------------+
-  | Restricted subset of     | Full PostScript language,  | Include a virtual machine  |
+  | Restricted subset of     | Full PostScript language,  | Includes a virtual machine  |
   | PostScript, charstrings  | allows embedding arbitrary | that can execute code!     |
   | are in bytecode          | code (in theory, even      |                            |
   |                          | render fractals when       |                            |
