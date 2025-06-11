@@ -42,9 +42,9 @@ which are explained later in the guide):
   |                          | render fractals when       |                            |
   |                          | rasterizing!)              |                            |
   +--------------------------+----------------------------+----------------------------+
-  | Supports font | Does not support font hinting| Supports font hinting (virtual |
-  | hinting                  |                            | machine processes the      |
-  |                          |                            | "hints")                   |
+  | Supports font            | Does not support font      | Supports font hinting      |
+  | hinting                  | hinting                    | (virtual machine processes |
+  |                          |                            | the "hints")               |
   +--------------------------+----------------------------+----------------------------+
   | Subsetted by code in     | Subsetted via external module                           |
   | `matplotlib._type1font`  | `fontTools <https://github.com/fonttools/fonttools>`__  |
