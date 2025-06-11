@@ -42,7 +42,7 @@ which are explained later in the guide):
   |                          | render fractals when       |                            |
   |                          | rasterizing!)              |                            |
   +--------------------------+----------------------------+----------------------------+
-  | These fonts support font | Do not support font hinting| Hinting supported (virtual |
+  | Supports font | Does not support font hinting| Supports font hinting (virtual |
   | hinting                  |                            | machine processes the      |
   |                          |                            | "hints")                   |
   +--------------------------+----------------------------+----------------------------+
