@@ -623,27 +623,30 @@ def test_rectangle_selector_ignore_outside(ax, ignore_event_outside):
     ('horizontal', False, dict(interactive=True)),
 ])
 def test_span_selector(ax, orientation, onmove_callback, kwargs):
-    onselect = mock.Mock(spec=noop, return_value=None)
-    onmove = mock.Mock(spec=noop, return_value=None)
-    if onmove_callback:
-        kwargs['onmove_callback'] = onmove
-
-    # While at it, also test that span selectors work in the presence of twin axes on
-    # top of the axes that contain the selector.  Note that we need to unforce the axes
-    # aspect here, otherwise the twin axes forces the original axes' limits (to respect
-    # aspect=1) which makes some of the values below go out of bounds.
+    # Also test that span selectors work in the presence of twin axes or for
+    # outside-inset axes on top of the axes that contain the selector.  Note
+    # that we need to unforce the axes aspect here, otherwise the twin axes
+    # forces the original axes' limits (to respect aspect=1) which makes some
+    # of the values below go out of bounds.
     ax.set_aspect("auto")
-    tax = ax.twinx()
+    ax.twinx()
+    child = ax.inset_axes([0, 1, 1, .05], xlim=(0, 200), ylim=(0, 200))
 
-    tool = widgets.SpanSelector(ax, onselect, orientation, **kwargs)
-    do_event(tool, 'press', xdata=100, ydata=100, button=1)
-    # move outside of axis
-    do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
-    do_event(tool, 'release', xdata=250, ydata=250, button=1)
+    for target in [ax, child]:
+        onselect = mock.Mock(spec=noop, return_value=None)
+        onmove = mock.Mock(spec=noop, return_value=None)
+        if onmove_callback:
+            kwargs['onmove_callback'] = onmove
 
-    onselect.assert_called_once_with(100, 199)
-    if onmove_callback:
-        onmove.assert_called_once_with(100, 199)
+        tool = widgets.SpanSelector(target, onselect, orientation, **kwargs)
+        do_event(tool, 'press', xdata=100, ydata=100, button=1)
+        # move outside of axis
+        do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
+        do_event(tool, 'release', xdata=250, ydata=250, button=1)
+
+        onselect.assert_called_once_with(100, 199)
+        if onmove_callback:
+            onmove.assert_called_once_with(100, 199)
 
 
 @pytest.mark.parametrize('interactive', [True, False])
