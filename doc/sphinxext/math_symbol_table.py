@@ -9,57 +9,57 @@ frak_pattern = re.compile("frak[A-Z]")
 
 symbols = [
     ["Lower-case Greek",
-     4,
+     0,
      (r"\alpha", r"\beta", r"\gamma",  r"\chi", r"\delta", r"\epsilon",
       r"\eta", r"\iota",  r"\kappa", r"\lambda", r"\mu", r"\nu",  r"\omega",
       r"\phi",  r"\pi", r"\psi", r"\rho",  r"\sigma",  r"\tau", r"\theta",
       r"\upsilon", r"\xi", r"\zeta",  r"\digamma", r"\varepsilon", r"\varkappa",
       r"\varphi", r"\varpi", r"\varrho", r"\varsigma",  r"\vartheta")],
     ["Upper-case Greek",
-     4,
+     0,
      (r"\Delta", r"\Gamma", r"\Lambda", r"\Omega", r"\Phi", r"\Pi", r"\Psi",
       r"\Sigma", r"\Theta", r"\Upsilon", r"\Xi")],
     ["Hebrew",
-     6,
+     0,
      (r"\aleph", r"\beth", r"\gimel", r"\daleth")],
     ["Latin named characters",
-     6,
+     0,
      r"""\aa \AA \ae \AE \oe \OE \O \o \thorn \Thorn \ss \eth \dh \DH""".split()],
     ["Delimiters",
-     5,
+     0,
      _mathtext.Parser._delims],
     ["Big symbols",
-     5,
+     0,
      _mathtext.Parser._overunder_symbols | _mathtext.Parser._dropsub_symbols],
     ["Standard function names",
-     5,
+     0,
      {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
     ["Binary operation symbols",
-     4,
+     0,
      _mathtext.Parser._binary_operators],
     ["Relation symbols",
-     4,
+     0,
      _mathtext.Parser._relation_symbols],
     ["Arrow symbols",
-     4,
+     0,
      _mathtext.Parser._arrow_symbols],
     ["Dot symbols",
-     4,
+     0,
      r"""\cdots \vdots \ldots \ddots \adots \Colon \therefore \because""".split()],
     ["Black-board characters",
-     6,
+     0,
      [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
       if re.match(bb_pattern, symbol)]],
     ["Script characters",
-     6,
+     0,
      [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
       if re.match(scr_pattern, symbol)]],
     ["Fraktur characters",
-     6,
+     0,
      [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
       if re.match(frak_pattern, symbol)]],
     ["Miscellaneous symbols",
-     4,
+     0,
      r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
      \nexists \measuredangle \emptyset \sphericalangle \clubsuit
      \varnothing \complement \diamondsuit \imath \Finv \triangledown
@@ -94,7 +94,8 @@ def run(state_machine):
                                        sym.startswith(r"\var")),
                       reverse=(category == "Hebrew"))  # Hebrew is rtl
         rendered_syms = [f"{render_symbol(sym)} ``{sym}``" for sym in syms]
-        columns = min(columns, len(syms))
+        max_columns = 6  # You can adjust this (e.g., 4–8)
+        columns = min(max_columns, len(syms))  # New dynamic logic
         lines.append("**%s**" % category)
         lines.append('')
         max_width = max(map(len, rendered_syms))
