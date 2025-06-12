@@ -30,8 +30,8 @@ fig, ax = plt.subplots()
 fig.subplots_adjust(bottom=0.25)
 l, = ax.plot(t, s, lw=2)
 
-ax_freq = fig.add_axes([0.25, 0.1, 0.65, 0.03])
-ax_amp = fig.add_axes([0.25, 0.15, 0.65, 0.03])
+ax_freq = fig.add_axes((0.25, 0.1, 0.65, 0.03))
+ax_amp = fig.add_axes((0.25, 0.15, 0.65, 0.03))
 
 # define the values to use for snapping
 allowed_amplitudes = np.concatenate([np.linspace(.1, 5, 100), [6, 7, 8, 9]])
@@ -60,7 +60,7 @@ def update(val):
 sfreq.on_changed(update)
 samp.on_changed(update)
 
-ax_reset = fig.add_axes([0.8, 0.025, 0.1, 0.04])
+ax_reset = fig.add_axes((0.8, 0.025, 0.1, 0.04))
 button = Button(ax_reset, 'Reset', hovercolor='0.975')
 
 
