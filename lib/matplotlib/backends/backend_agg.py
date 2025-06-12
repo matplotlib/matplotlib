@@ -189,7 +189,7 @@ class RendererAgg(RendererBase):
                  round(0x40 * (self.height - y + dx * sin + dy * cos))]
             )
             bitmap = font._render_glyph(
-                glyph_index, get_hinting_flag(),
+                glyph_index, get_hinting_flag() | LoadFlags.COLOR,
                 RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO)
             buffer = np.asarray(bitmap.buffer)
             if not gc.get_antialiased():
@@ -221,20 +221,38 @@ class RendererAgg(RendererBase):
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         font = self._prepare_font(prop)
-        font.set_text(s, angle, flags=get_hinting_flag(),
-                      features=mtext.get_fontfeatures() if mtext is not None else None,
-                      language=mtext.get_language() if mtext is not None else None)
-        for bitmap in font._render_glyphs(
-            x, self.height - y,
-            RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO,
-        ):
+        cos = math.cos(math.radians(angle))
+        sin = math.sin(math.radians(angle))
+        load_flags = get_hinting_flag() | LoadFlags.COLOR | LoadFlags.NO_SVG
+        items = font._layout(
+            s, flags=load_flags,
+            features=mtext.get_fontfeatures() if mtext is not None else None,
+            language=mtext.get_language() if mtext is not None else None)
+        for item in items:
+            hf = item.ft_object._hinting_factor
+            item.ft_object._set_transform(
+                [[round(0x10000 * cos / hf), round(0x10000 * -sin)],
+                 [round(0x10000 * sin / hf), round(0x10000 * cos)]],
+                [round(0x40 * (x + item.x * cos - item.y * sin)),
+                 # FreeType's y is upwards.
+                 round(0x40 * (self.height - y + item.x * sin + item.y * cos))]
+            )
+            bitmap = item.ft_object._render_glyph(
+                item.glyph_index, load_flags,
+                RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO)
             buffer = bitmap.buffer
-            if not gc.get_antialiased():
-                buffer *= 0xff
-            self._renderer.draw_text_image(
-                buffer,
-                bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
-                0, gc)
+            if buffer.ndim == 3:
+                self._renderer.draw_image(
+                    gc,
+                    bitmap.left, bitmap.top - buffer.shape[0],
+                    buffer[::-1, :, [2, 1, 0, 3]])
+            else:
+                if not gc.get_antialiased():
+                    buffer *= 0xff
+                self._renderer.draw_text_image(
+                    buffer,
+                    bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
+                    0, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
