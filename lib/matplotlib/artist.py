@@ -1393,6 +1393,28 @@ class Artist:
                 ax._mouseover_set.discard(self)
 
     mouseover = property(get_mouseover, set_mouseover)  # backcompat.
+    
+    def set_tooltip(self, tooltip):
+        """
+        Set tooltip for the artist.
+        
+        Parameters
+        ----------
+        tooltip : str, list, callable, or None
+            - If a string, the same tooltip is used for all data points.
+            - If a list, each element is used as tooltip for the corresponding data point.
+            - If a callable, it is called with the data point coordinates as arguments,
+              and should return the tooltip string.
+            - If None, no tooltip is shown.
+        """
+        self._tooltip = tooltip
+        self.stale = True
+    
+    def get_tooltip(self):
+        """
+        Return the tooltip for the artist.
+        """
+        return getattr(self, '_tooltip', None)
 
 
 def _get_tightbbox_for_layout_only(obj, *args, **kwargs):
