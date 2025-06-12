@@ -9,7 +9,7 @@ from matplotlib import cbook
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.patches import Circle, Ellipse
-from matplotlib.transforms import Bbox, TransformedBbox
+from matplotlib.transforms import Affine2D, Bbox, TransformedBbox
 from matplotlib.testing.decorators import (
     check_figures_equal, image_comparison, remove_ticks_and_titles)
 
@@ -26,6 +26,7 @@ from mpl_toolkits.axes_grid1.axes_divider import (
 from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
+from mpl_toolkits.axes_grid1.parasite_axes import HostAxes
 import mpl_toolkits.axes_grid1.mpl_axes
 import pytest
 
@@ -465,6 +466,26 @@ def test_gettightbbox():
     bbox = fig.get_tightbbox(fig.canvas.get_renderer())
     np.testing.assert_array_almost_equal(bbox.extents,
                                          [-17.7, -13.9, 7.2, 5.4])
+
+
+def test_gettightbbox_parasite():
+    fig = plt.figure()
+
+    y0 = 0.3
+    horiz = [Size.Scaled(1.0)]
+    vert = [Size.Scaled(1.0)]
+    ax0_div = Divider(fig, [0.1, y0, 0.8, 0.2], horiz, vert)
+    ax1_div = Divider(fig, [0.1, 0.5, 0.8, 0.4], horiz, vert)
+
+    ax0 = fig.add_subplot(
+        xticks=[], yticks=[], axes_locator=ax0_div.new_locator(nx=0, ny=0))
+    ax1 = fig.add_subplot(
+        axes_class=HostAxes, axes_locator=ax1_div.new_locator(nx=0, ny=0))
+    aux_ax = ax1.get_aux_axes(Affine2D())
+
+    fig.canvas.draw()
+    rdr = fig.canvas.get_renderer()
+    assert rdr.get_canvas_width_height()[1] * y0 / fig.dpi == fig.get_tightbbox(rdr).y0
 
 
 @pytest.mark.parametrize("click_on", ["big", "small"])

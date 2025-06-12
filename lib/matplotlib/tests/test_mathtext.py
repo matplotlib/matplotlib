@@ -437,7 +437,7 @@ def test_mathtext_fallback_invalid():
      ("stix", ['DejaVu Sans', 'mpltest', 'STIXGeneral', 'STIXGeneral', 'STIXGeneral'])])
 def test_mathtext_fallback(fallback, fontlist):
     mpl.font_manager.fontManager.addfont(
-        str(Path(__file__).resolve().parent / 'mpltest.ttf'))
+        (Path(__file__).resolve().parent / 'data/mpltest.ttf'))
     mpl.rcParams["svg.fonttype"] = 'none'
     mpl.rcParams['mathtext.fontset'] = 'custom'
     mpl.rcParams['mathtext.rm'] = 'mpltest'

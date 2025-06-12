@@ -3,7 +3,6 @@ from typing import Any
 
 import pytest
 
-import matplotlib as mpl
 from matplotlib.backends import BackendFilter, backend_registry
 
 
@@ -93,16 +92,6 @@ def test_is_valid_backend(backend, is_valid):
 ])
 def test_backend_normalization(backend, normalized):
     assert backend_registry._backend_module_name(backend) == normalized
-
-
-def test_deprecated_rcsetup_attributes():
-    match = "was deprecated in Matplotlib 3.9"
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
-        mpl.rcsetup.interactive_bk
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
-        mpl.rcsetup.non_interactive_bk
-    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
-        mpl.rcsetup.all_backends
 
 
 def test_entry_points_inline():

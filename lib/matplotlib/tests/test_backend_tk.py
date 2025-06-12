@@ -168,7 +168,9 @@ def test_never_update():
     plt.show(block=False)
 
     plt.draw()  # Test FigureCanvasTkAgg.
-    fig.canvas.toolbar.configure_subplots()  # Test NavigationToolbar2Tk.
+    tool = fig.canvas.toolbar.configure_subplots()  # Test NavigationToolbar2Tk.
+    assert tool is not None
+    assert tool == fig.canvas.toolbar.configure_subplots()  # Tool is reused internally.
     # Test FigureCanvasTk filter_destroy callback
     fig.canvas.get_tk_widget().after(100, plt.close, fig)
 

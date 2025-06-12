@@ -42,6 +42,18 @@ def test_legend_ordereddict():
               loc='center left', bbox_to_anchor=(1, .5))
 
 
+def test_legend_generator():
+    # smoketest that generator inputs work
+    fig, ax = plt.subplots()
+    ax.plot([0, 1])
+    ax.plot([0, 2])
+
+    handles = (line for line in ax.get_lines())
+    labels = (label for label in ['spam', 'eggs'])
+
+    ax.legend(handles, labels, loc='upper left')
+
+
 @image_comparison(['legend_auto1.png'], remove_text=True)
 def test_legend_auto1():
     """Test automatic legend placement"""

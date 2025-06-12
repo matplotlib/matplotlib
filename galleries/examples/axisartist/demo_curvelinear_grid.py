@@ -54,8 +54,7 @@ def curvelinear_test2(fig):
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree
-    tr = Affine2D().scale(np.pi/180, 1) + PolarAxes.PolarTransform(
-        apply_theta_transforms=False)
+    tr = Affine2D().scale(np.pi/180, 1) + PolarAxes.PolarTransform()
     # Polar projection, which involves cycle, and also has limits in
     # its coordinates, needs a special method to find the extremes
     # (min, max of the coordinate within the view).

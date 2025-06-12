@@ -98,7 +98,6 @@ class TransformNode:
     # Some metadata about the transform, used to determine whether an
     # invalidation is affine-only
     is_affine = False
-    is_bbox = _api.deprecated("3.9")(_api.classproperty(lambda cls: False))
 
     pass_through = False
     """
@@ -216,7 +215,6 @@ class BboxBase(TransformNode):
     and height, but these are not stored explicitly.
     """
 
-    is_bbox = _api.deprecated("3.9")(_api.classproperty(lambda cls: True))
     is_affine = True
 
     if DEBUG:
@@ -2621,27 +2619,6 @@ class BboxTransformTo(Affine2DBase):
             self._mtx = np.array([[outw,  0.0, outl],
                                   [ 0.0, outh, outb],
                                   [ 0.0,  0.0,  1.0]],
-                                 float)
-            self._inverted = None
-            self._invalid = 0
-        return self._mtx
-
-
-@_api.deprecated("3.9")
-class BboxTransformToMaxOnly(BboxTransformTo):
-    """
-    `BboxTransformToMaxOnly` is a transformation that linearly transforms points from
-    the unit bounding box to a given `Bbox` with a fixed upper left of (0, 0).
-    """
-    def get_matrix(self):
-        # docstring inherited
-        if self._invalid:
-            xmax, ymax = self._boxout.max
-            if DEBUG and (xmax == 0 or ymax == 0):
-                raise ValueError("Transforming to a singular bounding box.")
-            self._mtx = np.array([[xmax,  0.0, 0.0],
-                                  [ 0.0, ymax, 0.0],
-                                  [ 0.0,  0.0, 1.0]],
                                  float)
             self._inverted = None
             self._invalid = 0
