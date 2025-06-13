@@ -40,7 +40,9 @@ def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
 
 
 def test_tinypages(tmp_path):
-    shutil.copytree(tinypages, tmp_path, dirs_exist_ok=True)
+    shutil.copytree(tinypages, tmp_path, dirs_exist_ok=True,
+                    ignore=shutil.ignore_patterns('_build', 'doctrees',
+                                                   'plot_directive'))
     html_dir = tmp_path / '_build' / 'html'
     img_dir = html_dir / '_images'
     doctree_dir = tmp_path / 'doctrees'
@@ -92,6 +94,11 @@ def test_tinypages(tmp_path):
     assert filecmp.cmp(range_6, plot_file(17))
     # plot 22 is from the range6.py file again, but a different function
     assert filecmp.cmp(range_10, img_dir / 'range6_range10.png')
+    # plots 23--25 use a custom basename
+    assert filecmp.cmp(range_6, img_dir / 'custom-basename-6.png')
+    assert filecmp.cmp(range_4, img_dir / 'custom-basename-4.png')
+    assert filecmp.cmp(range_4, img_dir / 'custom-basename-4-6_00.png')
+    assert filecmp.cmp(range_6, img_dir / 'custom-basename-4-6_01.png')
 
     # Modify the included plot
     contents = (tmp_path / 'included_plot_21.rst').read_bytes()
@@ -176,12 +183,37 @@ def test_show_source_link_false(tmp_path, plot_html_show_source_link):
     assert len(list(html_dir.glob("**/index-1.py"))) == 0
 
 
+def test_plot_html_show_source_link_custom_basename(tmp_path):
+    # Test that source link filename includes .py extension when using custom basename
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    doctree_dir = tmp_path / 'doctrees'
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+    :filename-prefix: custom-name
+
+    plt.plot(range(2))
+""")
+    html_dir = tmp_path / '_build' / 'html'
+    build_sphinx_html(tmp_path, doctree_dir, html_dir)
+
+    # Check that source file with .py extension is generated
+    assert len(list(html_dir.glob("**/custom-name.py"))) == 1
+
+    # Check that the HTML contains the correct link with .py extension
+    html_content = (html_dir / 'index.html').read_text()
+    assert 'custom-name.py' in html_content
+
+
 def test_srcset_version(tmp_path):
+    shutil.copytree(tinypages, tmp_path, dirs_exist_ok=True,
+                    ignore=shutil.ignore_patterns('_build', 'doctrees',
+                                                   'plot_directive'))
     html_dir = tmp_path / '_build' / 'html'
     img_dir = html_dir / '_images'
     doctree_dir = tmp_path / 'doctrees'
 
-    build_sphinx_html(tinypages, doctree_dir, html_dir,
+    build_sphinx_html(tmp_path, doctree_dir, html_dir,
                       extra_args=['-D', 'plot_srcset=2x'])
 
     def plot_file(num, suff=''):

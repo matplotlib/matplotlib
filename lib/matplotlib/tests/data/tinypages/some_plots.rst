@@ -179,3 +179,22 @@ Plot 21 is generated via an include directive:
 Plot 22 uses a different specific function in a file with plot commands:
 
 .. plot:: range6.py range10
+
+Plots 23--25 use filename-prefix.
+
+.. plot::
+   :filename-prefix: custom-basename-6
+
+   plt.plot(range(6))
+
+.. plot:: range4.py
+   :filename-prefix: custom-basename-4
+
+.. plot::
+   :filename-prefix: custom-basename-4-6
+
+   plt.figure()
+   plt.plot(range(4))
+
+   plt.figure()
+   plt.plot(range(6))
