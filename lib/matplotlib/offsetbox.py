@@ -43,23 +43,16 @@ DEBUG = False
 
 
 def _is_vector_renderer(renderer):
-    # 1. Check the mode name
+    # 1. Check the renderer name
+    vector_bases = {'RendererPdf', 'RendererSVG', 'RendererPS'}
     # If it's MixedModeRenderer, get the actual renderer recursively
-    while type(renderer).__name__ == 'MixedModeRenderer':
-        eff = getattr(renderer, '_renderer', renderer)
-    mod = getattr(eff.__class__, '__module__', '').lower()
-    if any(x in mod for x in ('pdf', 'svg', 'ps')):
+    actual_renderer = renderer
+    while type(actual_renderer).__name__ == 'MixedModeRenderer':
+        actual_renderer = getattr(actual_renderer, '_renderer', actual_renderer)
+    renderer_name = type(actual_renderer).__name__
+    if renderer_name in vector_bases:
         return True
-    # 2. The vectorized backends
-    vector_bases = (
-        'RendererPdf', 'RendererSVG', 'RendererPS'
-    )
-    if any(base in type(renderer).__name__ for base in vector_bases):
-        return True
-    # 3. fallback: Agg/bitmap are not vector renderers
-    if 'agg' in mod or 'bitmap' in mod:
-        return False
-    # 4. For unknown renderers, assume they are not vector
+    # 3. For unknown renderers, assume they are not vector
     return False
 
 
