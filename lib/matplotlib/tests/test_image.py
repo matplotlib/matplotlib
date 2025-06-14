@@ -1641,6 +1641,17 @@ def test__resample_valid_output():
         resample(np.zeros((9, 9)), out)
 
 
+@pytest.fixture
+def nonaffine_identity_transform():
+    class NonAffineIdentityTransform(Transform):
+        input_dims = 2
+        output_dims = 2
+
+        def inverted(self):
+            return self
+    return NonAffineIdentityTransform()
+
+
 @pytest.mark.parametrize("data, interpolation, expected",
     [(np.array([[0.1, 0.3, 0.2]]), mimage.NEAREST,
       np.array([[0.1, 0.1, 0.1, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2]])),
@@ -1649,7 +1660,7 @@ def test__resample_valid_output():
                  0.28476562, 0.2546875, 0.22460938, 0.20002441, 0.20002441]])),
     ]
 )
-def test_resample_nonaffine(data, interpolation, expected):
+def test_resample_nonaffine(data, interpolation, expected, nonaffine_identity_transform):
     # Test that equivalent affine and nonaffine transforms resample the same
 
     # Create a simple affine transform for scaling the input array
@@ -1661,18 +1672,25 @@ def test_resample_nonaffine(data, interpolation, expected):
 
     # Create a nonaffine version of the same transform
     # by compositing with a nonaffine identity transform
-    class NonAffineIdentityTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-
-        def inverted(self):
-           return self
-    nonaffine_transform = NonAffineIdentityTransform() + affine_transform
+    nonaffine_transform = nonaffine_identity_transform + affine_transform
 
     nonaffine_result = np.empty_like(expected)
     mimage.resample(data, nonaffine_result, nonaffine_transform,
                     interpolation=interpolation)
     assert_allclose(nonaffine_result, expected, atol=5e-3)
+
+
+@check_figures_equal()
+def test_nonaffine_scaling_to_axes_edges(fig_test, fig_ref, nonaffine_identity_transform):
+    # Test that plotting an image with equivalent affine and nonaffine
+    # transforms is scaled the same to the axes edges
+    data = np.arange(16).reshape((4, 4)) % 3
+
+    ax = fig_test.subplots()
+    ax.imshow(data, transform=nonaffine_identity_transform + ax.transData)
+
+    ax = fig_ref.subplots()
+    ax.imshow(data)
 
 
 def test_axesimage_get_shape():
