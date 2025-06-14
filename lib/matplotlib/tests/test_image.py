@@ -1659,6 +1659,17 @@ def test__resample_valid_output():
         resample(np.zeros((9, 9)), out)
 
 
+@pytest.fixture
+def nonaffine_identity():
+    class NonAffineIdentityTransform(Transform):
+        input_dims = 2
+        output_dims = 2
+
+        def inverted(self):
+            return self
+    return NonAffineIdentityTransform()
+
+
 @pytest.mark.parametrize("data, interpolation, expected",
     [(np.array([[0.1, 0.3, 0.2]]), mimage.NEAREST,
       np.array([[0.1, 0.1, 0.1, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2]])),
@@ -1677,7 +1688,7 @@ def test__resample_valid_output():
                       np.full(256, 0.9)]).reshape(1, -1)),
     ]
 )
-def test_resample_nonaffine(data, interpolation, expected):
+def test_resample_nonaffine(data, interpolation, expected, nonaffine_identity):
     # Test that both affine and nonaffine transforms resample to the correct answer
 
     # If the array is constant, the tolerance can be tight
@@ -1693,18 +1704,34 @@ def test_resample_nonaffine(data, interpolation, expected):
 
     # Create a nonaffine version of the same transform
     # by compositing with a nonaffine identity transform
-    class NonAffineIdentityTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-
-        def inverted(self):
-            return self
-    nonaffine_transform = NonAffineIdentityTransform() + affine_transform
+    nonaffine_transform = nonaffine_identity + affine_transform
 
     nonaffine_result = np.empty_like(expected)
     mimage.resample(data, nonaffine_result, nonaffine_transform,
                     interpolation=interpolation)
     assert_allclose(nonaffine_result, expected, atol=atol)
+
+
+@check_figures_equal()
+def test_nonaffine_scaling_to_axes_edges(fig_test, fig_ref, nonaffine_identity):
+    # Test that plotting an image with equivalent affine and nonaffine
+    # transforms is scaled the same to the axes edges
+    data = np.arange(16).reshape((4, 4)) % 3
+
+    # Specifically choose an axes bbox that has a fractional pixel
+
+    fig_test.set_size_inches(5, 5)
+    fig_test.set_dpi(100)
+    ax = fig_test.subplots()
+    ax.set_position([0.2, 0.2, 300.5 / 500, 300.5 / 500])
+    ax.imshow(data, interpolation='nearest',
+              transform=nonaffine_identity + ax.transData)
+
+    fig_ref.set_size_inches(5, 5)
+    fig_ref.set_dpi(100)
+    ax = fig_ref.subplots()
+    ax.set_position([0.2, 0.2, 300.5 / 500, 300.5 / 500])
+    ax.imshow(data, interpolation='nearest')
 
 
 def test_axesimage_get_shape():
