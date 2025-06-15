@@ -102,9 +102,12 @@ def create_bbox3d_from_array(arr):
     arr = np.asarray(arr)
     if arr.ndim != 2 or arr.shape[1] != 3:
         raise ValueError("Expected array of shape (N, 3)")
-    xmin, xmax = np.min(arr[:, 0]), np.max(arr[:, 0])
-    ymin, ymax = np.min(arr[:, 1]), np.max(arr[:, 1])
-    zmin, zmax = np.min(arr[:, 2]), np.max(arr[:, 2])
+    if arr.shape[0] == 0:
+        return _Bbox3d(((np.inf, -np.inf), (np.inf, -np.inf), (np.inf, -np.inf)))
+    mins = np.nanmin(arr, axis=0)
+    maxs = np.nanmax(arr, axis=0)
+    xmin, ymin, zmin = mins
+    xmax, ymax, zmax = maxs
     return _Bbox3d(((xmin, xmax), (ymin, ymax), (zmin, zmax)))
 
 
