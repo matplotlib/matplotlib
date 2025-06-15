@@ -2906,9 +2906,17 @@ class Axes3D(Axes):
                                             axlim_clip=axlim_clip)
             col.set_sort_zpos(zsortval)
 
-        if autolim and hasattr(col, "_get_datalim3d"):
-            bbox3d = col._get_datalim3d()
-            self.auto_scale_lim(bbox3d, had_data=had_data)
+        if autolim:
+            if hasattr(col, "_get_datalim3d"):
+                bbox3d = col._get_datalim3d()
+                self.auto_scale_lim(bbox3d, had_data=had_data)
+            else:
+                warnings.warn(
+                    (f"{type(col).__name__} does not implement `_get_datalim3d`,"
+                    " so it will not be autoscaled."),
+                    category=UserWarning,
+                    stacklevel=2
+                )
 
         collection = super().add_collection(col)
         return collection
