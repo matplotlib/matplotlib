@@ -965,18 +965,27 @@ class Bbox(BboxBase):
 
     def update_from_bbox(self, bbox, ignore=False, updatex=True, updatey=True):
         """
-        Update the Bbox to include another Bbox.
+        Update this Bbox to include the bounds of another Bbox.
 
-        This is equivalent to performing an in-place union of this Bbox with *bbox*.
+        This method expands the current Bbox in-place to include the given *bbox*,
+        unless *ignore* is True, in which case the current Bbox is replaced with
+        the bounds of *bbox*. If the input *bbox* is already fully contained,
+        the current Bbox remains unchanged.
+
+        This is equivalent to performing an in-place union of the two Bboxes,
+        unless *ignore=True*, which resets the bounds.
 
         Parameters
         ----------
-        bbox3d : Bbox3d
+        bbox : Bbox
             The Bbox to merge into this one.
         ignore : bool, default: False
-            Whether to ignore the current bounds (start fresh) or not.
-        updatex, updatey : bool, default: True
-            Whether to update the x/y dimensions.
+            If True, the current bounds are ignored and set to match *bbox*.
+            If False, the current bounds are expanded to include *bbox*.
+        updatex : bool, default: True
+            Whether to update the x-dimension bounds.
+        updatey : bool, default: True
+            Whether to update the y-dimension bounds.
         """
         if not updatex and not updatey:
             return
