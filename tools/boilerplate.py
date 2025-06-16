@@ -54,6 +54,25 @@ def {name}{signature}:
     {return_statement}gca().{called_name}{call}
 """
 
+AXES_GETTER_SETTER_TEMPLATE = AUTOGEN_MSG + """
+@overload
+@_copy_docstring_and_deprecators(Axes.get_{called_name})
+def {name}() -> {get_return_type}: ...
+""" + AUTOGEN_MSG + """
+@overload
+@_copy_docstring_and_deprecators(Axes.set_{called_name})
+def {name}{signature}: ...
+""" + AUTOGEN_MSG + """
+@_copy_docstring_and_deprecators(Axes.get_{called_name})
+def {name}(*args, **kwargs):
+    ax = gca()
+    if not args and not kwargs:
+        return ax.get_{called_name}()
+    
+    ret = ax.set_{called_name}(*args, **kwargs)
+    return ret
+"""
+
 FIGURE_METHOD_TEMPLATE = AUTOGEN_MSG + """
 @_copy_docstring_and_deprecators(Figure.{called_name})
 def {name}{signature}:
@@ -102,6 +121,7 @@ class direct_repr:
     """
     A placeholder class to destringify annotations from ast
     """
+
     def __init__(self, value):
         self._repr = value
 
@@ -109,7 +129,7 @@ class direct_repr:
         return self._repr
 
 
-def generate_function(name, called_fullname, template, **kwargs):
+def generate_function(name, called_fullname, template, gettersetter=False, **kwargs):
     """
     Create a wrapper function *pyplot_name* calling *call_name*.
 
@@ -127,6 +147,11 @@ def generate_function(name, called_fullname, template, **kwargs):
         - signature: The function signature (including parentheses).
         - called_name: The name of the called function.
         - call: Parameters passed to *called_name* (including parentheses).
+    gettersetter : bool
+        Indicate if the method to be wrapped is correponding to a getter and setter. A new placeholdr is filled :
+
+        - get_return_type: The type returned by the getter
+        - set_return_type: The type returned by the setter
 
     **kwargs
         Additional parameters are passed to ``template.format()``.
@@ -135,15 +160,14 @@ def generate_function(name, called_fullname, template, **kwargs):
     class_name, called_name = called_fullname.split('.')
     class_ = {'Axes': Axes, 'Figure': Figure}[class_name]
 
-    meth = getattr(class_, called_name)
-    decorator = _api.deprecation.DECORATORS.get(meth)
-    # Generate the wrapper with the non-kwonly signature, as it will get
-    # redecorated with make_keyword_only by _copy_docstring_and_deprecators.
-    if decorator and decorator.func is _api.make_keyword_only:
-        meth = meth.__wrapped__
+    if not gettersetter:
+        signature = get_signature(class_, called_name)
+    else:
+        getter_signature = get_signature(class_, f"get_{called_name}")
+        kwargs.setdefault("get_return_type", str(getter_signature.return_annotation))
 
-    annotated_trees = get_ast_mro_trees(class_)
-    signature = get_matching_signature(meth, annotated_trees)
+        signature = get_signature(class_, f"set_{called_name}")
+        kwargs.setdefault('return_type', str(signature.return_annotation))
 
     # Replace self argument.
     params = list(signature.parameters.values())[1:]
@@ -152,30 +176,30 @@ def generate_function(name, called_fullname, template, **kwargs):
         param.replace(default=value_formatter(param.default))
         if param.default is not param.empty else param
         for param in params]))
+
     # How to call the wrapped function.
-    call = '(' + ', '.join((
-           # Pass "intended-as-positional" parameters positionally to avoid
-           # forcing third-party subclasses to reproduce the parameter names.
-           '{0}'
-           if param.kind in [
-               Parameter.POSITIONAL_OR_KEYWORD]
-              and param.default is Parameter.empty else
-           # Only pass the data kwarg if it is actually set, to avoid forcing
-           # third-party subclasses to support it.
-           '**({{"data": data}} if data is not None else {{}})'
-           if param.name == "data" else
-           '{0}={0}'
-           if param.kind in [
-               Parameter.POSITIONAL_OR_KEYWORD,
-               Parameter.KEYWORD_ONLY] else
-           '{0}'
-           if param.kind is Parameter.POSITIONAL_ONLY else
-           '*{0}'
-           if param.kind is Parameter.VAR_POSITIONAL else
-           '**{0}'
-           if param.kind is Parameter.VAR_KEYWORD else
-           None).format(param.name)
-       for param in params) + ')'
+
+    def call_param(param: Parameter):
+        match param.kind:
+            # Pass "intended-as-positional" parameters positionally to avoid
+            # forcing third-party subclasses to reproduce the parameter names.
+            case Parameter.POSITIONAL_OR_KEYWORD if param.default is Parameter.empty:
+                return '{0}'
+            # Only pass the data kwarg if it is actually set, to avoid forcing
+            # third-party subclasses to support it.
+            case _ if param.name == "data":
+                return '**({{"data": data}} if data is not None else {{}})'
+            case Parameter.POSITIONAL_OR_KEYWORD | Parameter.KEYWORD_ONLY:
+                return '{0}={0}'
+            case Parameter.POSITIONAL_ONLY:
+                return '{0}'
+            case Parameter.VAR_POSITIONAL:
+                return '*{0}'
+            case Parameter.VAR_KEYWORD:
+                return '**{0}'
+        return None
+
+    call = '(' + ', '.join((call_param(param)).format(param.name) for param in params) + ')'
     return_statement = 'return ' if has_return_value else ''
     # Bail out in case of name collision.
     for reserved in ('gca', 'gci', 'gcf', '__ret'):
@@ -286,7 +310,12 @@ def boilerplate_gen():
         'xlabel:set_xlabel',
         'ylabel:set_ylabel',
         'xscale:set_xscale',
-        'yscale:set_yscale',
+        'yscale:set_yscale'
+    )
+
+    _axes_getter_setters = (
+        'xlim',
+        'ylim',
     )
 
     cmappable = {
@@ -340,6 +369,14 @@ def boilerplate_gen():
                     AXES_METHOD_TEMPLATE)
         yield generate_function(name, f'Axes.{called_name}', template,
                                 sci_command=cmappable.get(name))
+
+    for spec in _axes_getter_setters:
+        if ':' in spec:
+            name, called_name = spec.split(':')
+        else:
+            name = called_name = spec
+        yield generate_function(name, f'Axes.{called_name}',
+                                AXES_GETTER_SETTER_TEMPLATE, True)
 
     cmaps = (
         'autumn',
@@ -405,6 +442,19 @@ def get_ast_mro_trees(cls):
     return [get_ast_tree(c) for c in cls.__mro__ if c.__module__ != "builtins"]
 
 
+def get_signature(class_, name):
+    meth = getattr(class_, name)
+
+    decorator = _api.deprecation.DECORATORS.get(meth)
+    # Generate the wrapper with the non-kwonly signature, as it will get
+    # redecorated with make_keyword_only by _copy_docstring_and_deprecators.
+    if decorator and decorator.func is _api.make_keyword_only:
+        meth = meth.__wrapped__
+
+    annotated_trees = get_ast_mro_trees(class_)
+    return get_matching_signature(meth, annotated_trees)
+
+
 def get_matching_signature(method, trees):
     sig = inspect.signature(method)
     for tree in trees:
@@ -460,10 +510,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         pyplot_path = Path(sys.argv[1])
     else:
-        mpl_path = (Path(__file__).parent / ".." /"lib"/"matplotlib").resolve()
+        mpl_path = (Path(__file__).parent / ".." / "lib" / "matplotlib").resolve()
         pyplot_path = mpl_path / "pyplot.py"
         for cls in [Axes, Figure]:
-            if mpl_path not in  Path(inspect.getfile(cls)).parents:
+            if mpl_path not in Path(inspect.getfile(cls)).parents:
                 raise RuntimeError(
                     f"{cls.__name__} import path is not {mpl_path}.\n"
                     "Please make sure your Matplotlib installation "
