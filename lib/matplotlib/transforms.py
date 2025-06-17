@@ -612,6 +612,14 @@ class BboxBase(TransformNode):
         if h_pad is None:
             h_pad = w_pad
         return Bbox(points + [[-w_pad, -h_pad], [w_pad, h_pad]])
+    
+    def padded_4sides(self, l, r, b, t):
+        """
+        Construct a `Bbox` by padding this one by a possibly different
+        amount on each side.
+        """
+        points = self.get_points()
+        return Bbox(points + [[-l, -b], [r, t]])
 
     def translated(self, tx, ty):
         """Construct a `Bbox` by translating this one by *tx* and *ty*."""
