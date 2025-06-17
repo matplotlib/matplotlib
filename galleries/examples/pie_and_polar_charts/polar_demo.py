@@ -52,6 +52,8 @@ plt.show()
 #    - `matplotlib.projections.polar`
 #    - `matplotlib.projections.polar.PolarAxes`
 #    - `matplotlib.projections.polar.PolarAxes.set_rticks`
+#    - `matplotlib.projections.polar.PolarAxes.set_rmin`
+#    - `matplotlib.projections.polar.PolarAxes.set_rorigin`
 #    - `matplotlib.projections.polar.PolarAxes.set_rmax`
 #    - `matplotlib.projections.polar.PolarAxes.set_rlabel_position`
 #
