@@ -2161,8 +2161,8 @@ class FigureCanvasBase:
                         renderer, bbox_extra_artists=bbox_extra_artists)
                     if (isinstance(layout_engine, ConstrainedLayoutEngine) and
                             pad_inches == "layout"):
-                        h_pad = layout_engine.get()["h_pad"]
-                        w_pad = layout_engine.get()["w_pad"]
+                        b_pad = t_pad = layout_engine.get()["h_pad"]
+                        l_pad = r_pad = layout_engine.get()["w_pad"]
                     else:
                         if isinstance(pad_inches, (int, float)):
                             l_pad = r_pad = b_pad = t_pad = pad_inches
