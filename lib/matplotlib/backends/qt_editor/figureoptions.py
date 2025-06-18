@@ -271,7 +271,6 @@ def figure_edit(axes, parent=None):
                 if bbox is not None:
                     bbox_raw = bbox._bbox
                     bbox_tuple = (bbox_raw.x0, bbox_raw.y0, bbox_raw.x1, bbox_raw.y1)
-                    print(bbox_tuple)
                 else:
                     bbox_tuple = None
 
