@@ -315,14 +315,14 @@ def test_bivar_cmap_call():
     # test origin
     cmap = mpl.bivar_colormaps['BiOrangeBlue'].with_extremes(origin=(0.5, 0.5))
     assert_allclose(cmap[0](0.5),
-                    (0.50244140625, 0.5024222412109375, 0.50244140625, 1))
+                    (0.501953125, 0.501937744140625, 0.501953125, 1))
     assert_allclose(cmap[1](0.5),
-                    (0.50244140625, 0.5024222412109375, 0.50244140625, 1))
+                    (0.501953125, 0.501937744140625, 0.501953125, 1))
     cmap = mpl.bivar_colormaps['BiOrangeBlue'].with_extremes(origin=(1, 1))
     assert_allclose(cmap[0](1.),
-                    (0.99853515625, 0.9985467529296875, 0.99853515625, 1.0))
+                    (0.998046875, 0.998062255859375, 0.998046875, 1.0))
     assert_allclose(cmap[1](1.),
-                    (0.99853515625, 0.9985467529296875, 0.99853515625, 1.0))
+                    (0.998046875, 0.998062255859375, 0.998046875, 1.0))
     with pytest.raises(KeyError,
                        match="only 0 or 1 are valid keys"):
         cs = cmap[2]
