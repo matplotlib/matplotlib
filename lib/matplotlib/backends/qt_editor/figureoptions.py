@@ -252,9 +252,52 @@ def figure_edit(axes, parent=None):
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
                 ncols = old_legend._ncols
-            new_legend = axes.legend(ncols=ncols)
-            if new_legend:
-                new_legend.set_draggable(draggable)
+                fontsize = old_legend._fontsize
+                loc = old_legend._loc
+                title = old_legend.get_title().get_text()
+                alignment = old_legend.get_alignment()
+                frameon = old_legend.get_frame_on()
+                borderpad = old_legend.borderpad
+                labelspacing = old_legend.labelspacing
+                handleheight = old_legend.handleheight
+                handletextpad = old_legend.handletextpad
+                borderaxespad = old_legend.borderaxespad
+                columnspacing = old_legend.columnspacing
+                shadow = old_legend.shadow
+                markerscale = old_legend.markerscale
+                numpoints = old_legend.numpoints
+                scatterpoints = old_legend.scatterpoints
+                bbox = old_legend.get_bbox_to_anchor()
+                if bbox is not None:
+                    bbox_raw = bbox._bbox
+                    bbox_tuple = (bbox_raw.x0, bbox_raw.y0, bbox_raw.x1, bbox_raw.y1)
+                    print(bbox_tuple)
+                else:
+                    bbox_tuple = None
+
+                new_legend = axes.legend(
+                    ncols=ncols,
+                    fontsize=fontsize,
+                    loc=loc,
+                    title=title,
+                    alignment=alignment,
+                    frameon=frameon,
+                    borderpad=borderpad,
+                    labelspacing=labelspacing,
+                    handleheight=handleheight,
+                    handletextpad=handletextpad,
+                    borderaxespad=borderaxespad,
+                    columnspacing=columnspacing,
+                    shadow=shadow,
+                    markerscale=markerscale,
+                    numpoints=numpoints,
+                    scatterpoints=scatterpoints,
+                    bbox_to_anchor=bbox_tuple
+                )
+                # new_legend = deepcopy(old_legend)
+                # axes.add_artist(new_legend)
+                if new_legend:
+                    new_legend.set_draggable(draggable)
 
         # Redraw
         figure = axes.get_figure()
