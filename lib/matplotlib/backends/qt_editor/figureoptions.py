@@ -267,6 +267,7 @@ def figure_edit(axes, parent=None):
                 markerscale = old_legend.markerscale
                 numpoints = old_legend.numpoints
                 scatterpoints = old_legend.scatterpoints
+                mode = old_legend._mode
                 bbox = old_legend.get_bbox_to_anchor()
                 if bbox is not None:
                     bbox_raw = bbox._bbox
@@ -291,6 +292,7 @@ def figure_edit(axes, parent=None):
                     markerscale=markerscale,
                     numpoints=numpoints,
                     scatterpoints=scatterpoints,
+                    mode=mode,
                     bbox_to_anchor=bbox_tuple
                 )
                 # new_legend = deepcopy(old_legend)
