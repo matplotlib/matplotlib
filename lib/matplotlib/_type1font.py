@@ -25,6 +25,7 @@ Sources:
 from __future__ import annotations
 
 import binascii
+from contextlib import contextmanager
 import functools
 import itertools
 import logging
@@ -36,12 +37,18 @@ import typing as T
 import numpy as np
 
 from matplotlib.cbook import _format_approx
-from . import _api
 
 _log = logging.getLogger(__name__)
 
 
-class _Token:
+class _ParseError(ValueError):
+    pass
+
+
+_T = T.TypeVar('_T', str, bytes)
+
+
+class _Token(T.Generic[_T]):
     """
     A token in a PostScript stream.
 
@@ -55,82 +62,102 @@ class _Token:
         Description of the token (for debugging or testing).
     """
     __slots__ = ('pos', 'raw')
+    pos: int
+    raw: _T
     kind = '?'
 
-    def __init__(self, pos, raw):
+    def __init__(self, pos: int, raw: _T):
         _log.debug('type1font._Token %s at %d: %r', self.kind, pos, raw)
         self.pos = pos
         self.raw = raw
 
-    def __str__(self):
-        return f"<{self.kind} {self.raw} @{self.pos}>"
+    def __str__(self) -> str:
+        return f"<{self.kind} {self.raw!r} @{self.pos}>"
 
-    def endpos(self):
+    def endpos(self) -> int:
         """Position one past the end of the token"""
         return self.pos + len(self.raw)
 
-    def is_keyword(self, *names):
+    def is_keyword(self, *names: str) -> bool:
         """Is this a name token with one of the names?"""
         return False
 
-    def is_slash_name(self):
+    def is_slash_name(self) -> bool:
         """Is this a name token that starts with a slash?"""
         return False
 
-    def is_delim(self):
+    def is_delim(self) -> bool:
         """Is this a delimiter token?"""
         return False
 
-    def is_number(self):
+    def is_number(self) -> bool:
         """Is this a number token?"""
         return False
 
-    def value(self):
+    def value(self) -> str | bytes | float | bool:
         return self.raw
 
+    def nonneg_int_value(self) -> int:
+        """The nonnegative integer value of the token, if applicable."""
+        if not self.is_number():
+            raise _ParseError(f"Token {self} is not a number")
+        value = self.value()
+        if not isinstance(value, int) or value < 0:
+            raise _ParseError(f"Token {self} is not a non-negative integer")
+        return value
 
-class _NameToken(_Token):
+    def binary_value(self) -> bytes:
+        """The binary value of the token, if applicable."""
+        if isinstance(self, _BinaryToken):
+            return self.raw[1:]
+        raise _ParseError(f"Token {self} is not a binary token")
+
+
+class _NameToken(_Token[str]):
     kind = 'name'
 
-    def is_slash_name(self):
+    def is_slash_name(self) -> bool:
         return self.raw.startswith('/')
 
-    def value(self):
+    def value(self) -> str:
         return self.raw[1:]
 
 
-class _BooleanToken(_Token):
+class _BooleanToken(_Token[str]):
     kind = 'boolean'
 
-    def value(self):
+    def value(self) -> bool:
         return self.raw == 'true'
 
 
-class _KeywordToken(_Token):
+class _KeywordToken(_Token[str]):
     kind = 'keyword'
 
-    def is_keyword(self, *names):
+    def is_keyword(self, *names: str) -> bool:
         return self.raw in names
 
+    def value(self) -> str:
+        return self.raw
 
-class _DelimiterToken(_Token):
+
+class _DelimiterToken(_Token[str]):
     kind = 'delimiter'
 
-    def is_delim(self):
+    def is_delim(self) -> bool:
         return True
 
-    def opposite(self):
+    def opposite(self) -> str:
         return {'[': ']', ']': '[',
                 '{': '}', '}': '{',
                 '<<': '>>', '>>': '<<'
                 }[self.raw]
 
 
-class _WhitespaceToken(_Token):
+class _WhitespaceToken(_Token[str]):
     kind = 'whitespace'
 
 
-class _StringToken(_Token):
+class _StringToken(_Token[str]):
     kind = 'string'
     _escapes_re = re.compile(r'\\([\\()nrtbf]|[0-7]{1,3})')
     _replacements = {'\\': '\\', '(': '(', ')': ')', 'n': '\n',
@@ -138,15 +165,18 @@ class _StringToken(_Token):
     _ws_re = re.compile('[\0\t\r\f\n ]')
 
     @classmethod
-    def _escape(cls, match):
+    def _escape(cls, match: re.Match[str]) -> str:
         group = match.group(1)
         try:
             return cls._replacements[group]
         except KeyError:
             return chr(int(group, 8))
 
+    def value(self) -> str | bytes:
+        return self._value()
+
     @functools.lru_cache
-    def value(self):
+    def _value(self) -> str | bytes:
         if self.raw[0] == '(':
             return self._escapes_re.sub(self._escape, self.raw[1:-1])
         else:
@@ -156,27 +186,51 @@ class _StringToken(_Token):
             return binascii.unhexlify(data)
 
 
-class _BinaryToken(_Token):
+class _BinaryToken(_Token[bytes]):
     kind = 'binary'
 
-    def value(self):
+    def value(self) -> bytes:
         return self.raw[1:]
 
 
-class _NumberToken(_Token):
+class _NumberToken(_Token[str]):
     kind = 'number'
 
-    def is_number(self):
+    def is_number(self) -> bool:
         return True
 
-    def value(self):
+    def value(self) -> float:
         if '.' not in self.raw:
             return int(self.raw)
         else:
             return float(self.raw)
 
 
-def _tokenize(data: bytes, skip_ws: bool) -> T.Generator[_Token, int, None]:
+# Type guards for some token types (cannot be defined as methods since
+# method type guards assert the type of the second argument)
+
+def _is_slash_name(token: _Token[str] | _Token[bytes]) -> T.TypeGuard[_NameToken]:
+    return token.is_slash_name()
+
+
+def _is_keyword(
+        token: _Token[str] | _Token[bytes], *names: str
+    ) -> T.TypeGuard[_KeywordToken]:
+    return token.is_keyword(*names)
+
+
+def _is_delimiter(token: _Token[str] | _Token[bytes]) -> T.TypeGuard[_DelimiterToken]:
+    return token.is_delim()
+
+
+def _is_number(token: _Token[str] | _Token[bytes]) -> T.TypeGuard[_NumberToken]:
+    return token.is_number()
+
+
+_TokenizerStream: T.TypeAlias = T.Generator[_Token[str] | _Token[bytes], int, None]
+
+
+def _tokenize(data: bytes, skip_ws: bool) -> _TokenizerStream:
     """
     A generator that produces _Token instances from Type-1 font code.
 
@@ -224,7 +278,7 @@ def _tokenize(data: bytes, skip_ws: bool) -> T.Generator[_Token, int, None]:
             while depth:
                 match = instring_re.search(text, pos)
                 if match is None:
-                    raise ValueError(
+                    raise _ParseError(
                         f'Unterminated string starting at {start}')
                 pos = match.end()
                 if match.group() == '(':
@@ -250,10 +304,10 @@ def _tokenize(data: bytes, skip_ws: bool) -> T.Generator[_Token, int, None]:
             try:
                 pos = text.index('>', pos) + 1
             except ValueError as e:
-                raise ValueError(f'Unterminated hex string starting at {start}'
+                raise _ParseError(f'Unterminated hex string starting at {start}'
                                  ) from e
             if not hex_re.match(text[start:pos]):
-                raise ValueError(f'Malformed hex string starting at {start}')
+                raise _ParseError(f'Malformed hex string starting at {start}')
             next_binary = (yield _StringToken(pos, text[start:pos]))
         else:
             match = token_re.match(text, pos)
@@ -275,11 +329,13 @@ def _tokenize(data: bytes, skip_ws: bool) -> T.Generator[_Token, int, None]:
                 pos += 1
 
 
-class _BalancedExpression(_Token):
+class _BalancedExpression(_Token[str]):
     pass
 
 
-def _expression(initial, tokens, data):
+def _expression(
+        initial: _Token[str] | _Token[bytes], tokens: _TokenizerStream, data: bytes
+    ) -> _BalancedExpression:
     """
     Consume some number of tokens and return a balanced PostScript expression.
 
@@ -287,7 +343,7 @@ def _expression(initial, tokens, data):
     ----------
     initial : _Token
         The token that triggered parsing a balanced expression.
-    tokens : iterator of _Token
+    tokens : _TokenizerStream
         Following tokens.
     data : bytes
         Underlying data that the token positions point to.
@@ -299,21 +355,21 @@ def _expression(initial, tokens, data):
     delim_stack = []
     token = initial
     while True:
-        if token.is_delim():
+        if _is_delimiter(token):
             if token.raw in ('[', '{'):
                 delim_stack.append(token)
             elif token.raw in (']', '}'):
                 if not delim_stack:
-                    raise RuntimeError(f"unmatched closing token {token}")
+                    raise _ParseError(f"unmatched closing token {token}")
                 match = delim_stack.pop()
                 if match.raw != token.opposite():
-                    raise RuntimeError(
+                    raise _ParseError(
                         f"opening token {match} closed by {token}"
                     )
                 if not delim_stack:
                     break
             else:
-                raise RuntimeError(f'unknown delimiter {token}')
+                raise _ParseError(f'unknown delimiter {token}')
         elif not delim_stack:
             break
         token = next(tokens)
@@ -323,13 +379,48 @@ def _expression(initial, tokens, data):
     )
 
 
+class _Effects(T.TypedDict):
+    slant: float
+    extend: float
+
+
+_BBoxType: T.TypeAlias = tuple[float, float, float, float]
+
+
+class _Properties(T.TypedDict):
+   CharStrings: dict[str, bytes]
+   Encoding: dict[int, str]
+   FamilyName: str
+   FontBBox: _BBoxType
+   FontMatrix: str
+   FontName: str
+   FullName: str
+   isFixedPitch: bool
+   ItalicAngle: float
+   lenIV: T.NotRequired[int]
+   OtherSubrs: T.NotRequired[bytes]
+   Subrs: list[bytes]
+   UnderlinePosition: float
+   UnderlineThickness: float
+   UniqueID: T.NotRequired[str]
+   Weight: str
+
+
+@contextmanager
+def _expecting(expected: str) -> T.Generator[None, None, None]:
+    try:
+        yield
+    except _ParseError as e:
+        raise _ParseError(f"Parsing failed, expected {expected}") from e
+
+
 class Type1Font:
     """
     A class representing a Type-1 font, for use by backends.
 
     Attributes
     ----------
-    parts : tuple
+    parts : tuple of bytes
         A 3-tuple of the cleartext part, the encrypted part, and the finale of
         zeros.
 
@@ -355,8 +446,13 @@ class Type1Font:
     #
     # _abbr maps three standard abbreviations to their particular names in
     # this font (e.g. 'RD' is named '-|' in some fonts)
+    parts: tuple[bytes, bytes, bytes]
+    decrypted: bytes
+    prop: _Properties
+    _pos: dict[str, list[tuple[int, int]]]
+    _abbr: dict[T.Literal['RD', 'ND', 'NP'], str]
 
-    def __init__(self, input):
+    def __init__(self, input: str | tuple[bytes, bytes, bytes]):
         """
         Initialize a Type-1 font.
 
@@ -377,7 +473,7 @@ class Type1Font:
         self._abbr = {'RD': 'RD', 'ND': 'ND', 'NP': 'NP'}
         self._parse()
 
-    def _read(self, file):
+    def _read(self, file: T.IO[bytes]) -> bytes:
         """Read the font from a file, decoding into usable parts."""
         rawdata = file.read()
         if not rawdata.startswith(b'\x80'):
@@ -386,26 +482,26 @@ class Type1Font:
         data = b''
         while rawdata:
             if not rawdata.startswith(b'\x80'):
-                raise RuntimeError('Broken pfb file (expected byte 128, '
-                                   'got %d)' % rawdata[0])
+                raise _ParseError('Broken pfb file (expected byte 128, '
+                                  'got %d)' % rawdata[0])
             type = rawdata[1]
             if type in (1, 2):
                 length, = struct.unpack('<i', rawdata[2:6])
                 segment = rawdata[6:6 + length]
                 rawdata = rawdata[6 + length:]
 
-            if type == 1:       # ASCII text: include verbatim
-                data += segment
-            elif type == 2:     # binary data: encode in hexadecimal
-                data += binascii.hexlify(segment)
+                if type == 1:   # ASCII text: include verbatim
+                    data += segment
+                else:           # binary data: encode in hexadecimal
+                    data += binascii.hexlify(segment)
             elif type == 3:     # end of file
                 break
             else:
-                raise RuntimeError('Unknown segment type %d in pfb file' % type)
+                raise _ParseError('Unknown segment type %d in pfb file' % type)
 
         return data
 
-    def _split(self, data):
+    def _split(self, data: bytes) -> tuple[bytes, bytes, bytes]:
         """
         Split the Type 1 font into its three main parts.
 
@@ -444,8 +540,10 @@ class Type1Font:
 
         return data[:len1], binary, data[idx+1:]
 
+    _encryption_key: T.TypeAlias = T.Literal['eexec', 'charstring'] | int
+
     @staticmethod
-    def _decrypt(ciphertext, key, ndiscard=4):
+    def _decrypt(ciphertext: bytes, key: _encryption_key, ndiscard: int = 4) -> bytes:
         """
         Decrypt ciphertext using the Type-1 font algorithm.
 
@@ -458,16 +556,23 @@ class Type1Font:
         That number of bytes is discarded from the beginning of plaintext.
         """
 
-        key = _api.check_getitem({'eexec': 55665, 'charstring': 4330}, key=key)
+        match key:
+            case 'eexec':
+                key_int = 55665
+            case 'charstring':
+                key_int = 4330
+            case int():
+                key_int = key
+
         plaintext = []
         for byte in ciphertext:
-            plaintext.append(byte ^ (key >> 8))
-            key = ((key+byte) * 52845 + 22719) & 0xffff
+            plaintext.append(byte ^ (key_int >> 8))
+            key_int = ((key_int+byte) * 52845 + 22719) & 0xffff
 
         return bytes(plaintext[ndiscard:])
 
     @staticmethod
-    def _encrypt(plaintext, key, ndiscard=4):
+    def _encrypt(plaintext: bytes, key: _encryption_key, ndiscard: int = 4) -> bytes:
         """
         Encrypt plaintext using the Type-1 font algorithm.
 
@@ -483,26 +588,59 @@ class Type1Font:
         cryptanalysis.
         """
 
-        key = _api.check_getitem({'eexec': 55665, 'charstring': 4330}, key=key)
+        match key:
+            case 'eexec':
+                key_int = 55665
+            case 'charstring':
+                key_int = 4330
+            case int():
+                key_int = key
         ciphertext = []
         for byte in b'\0' * ndiscard + plaintext:
-            c = byte ^ (key >> 8)
+            c = byte ^ (key_int >> 8)
             ciphertext.append(c)
-            key = ((key + c) * 52845 + 22719) & 0xffff
+            key_int = ((key_int+c) * 52845 + 22719) & 0xffff
 
         return bytes(ciphertext)
 
-    def _parse(self):
+    def _parse(self) -> None:
         """
         Find the values of various font properties. This limited kind
         of parsing is described in Chapter 10 "Adobe Type Manager
         Compatibility" of the Type-1 spec.
         """
         # Start with reasonable defaults
-        prop = {'Weight': 'Regular', 'ItalicAngle': 0.0, 'isFixedPitch': False,
-                'UnderlinePosition': -100, 'UnderlineThickness': 50}
+        prop: _Properties = {
+            'CharStrings': {},
+            'Encoding': {},
+            'FamilyName': '',
+            'FontBBox': (0, 0, 0, 0),
+            'FontMatrix': '[0.001 0 0 0.001 0 0]',
+            'FontName': '',
+            'FullName': '',
+            'isFixedPitch': False,
+            'ItalicAngle': 0.0,
+            'Subrs': [],
+            'UnderlinePosition': -100,
+            'UnderlineThickness': 50,
+            'Weight': 'Regular',
+        }
+        pos: dict[str, list[tuple[int, int]]] = {}
         pos = {}
         data = self.parts[0] + self.decrypted
+
+        # Define parsers for special keys. Each takes the token stream
+        # and the underlying data that the tokens point to, and returns
+        # the value of whatever was parsed and the end position.
+        subparsers: dict[
+            str, T.Callable[[_TokenizerStream, bytes], tuple[T.Any, int]]
+        ] = {
+            "Subrs": self._parse_subrs,
+            "CharStrings": self._parse_charstrings,
+            "Encoding": self._parse_encoding,
+            "OtherSubrs": self._parse_othersubrs,
+            "FontBBox": self._parse_font_bbox,
+        }
 
         source = _tokenize(data, True)
         while True:
@@ -515,20 +653,16 @@ class Type1Font:
             if token.is_delim():
                 # skip over this - we want top-level keys only
                 _expression(token, source, data)
-            if token.is_slash_name():
+            if _is_slash_name(token):
                 key = token.value()
                 keypos = token.pos
             else:
                 continue
 
             # Some values need special parsing
-            if key in ('Subrs', 'CharStrings', 'Encoding', 'OtherSubrs'):
-                prop[key], endpos = {
-                    'Subrs': self._parse_subrs,
-                    'CharStrings': self._parse_charstrings,
-                    'Encoding': self._parse_encoding,
-                    'OtherSubrs': self._parse_othersubrs
-                }[key](source, data)
+            if key in subparsers:
+                T.cast(dict[str, T.Any], prop)[key], endpos = \
+                    subparsers[key](source, data)
                 pos.setdefault(key, []).append((keypos, endpos))
                 continue
 
@@ -544,7 +678,7 @@ class Type1Font:
                 continue
 
             if token.is_delim():
-                value = _expression(token, source, data).raw
+                value: T.Any = _expression(token, source, data).raw
             else:
                 value = token.value()
 
@@ -559,7 +693,7 @@ class Type1Font:
 
             # sometimes noaccess def and readonly def are abbreviated
             if kw.is_keyword('def', self._abbr['ND'], self._abbr['NP']):
-                prop[key] = value
+                T.cast(dict[str, T.Any], prop)[key] = value
                 pos.setdefault(key, []).append((keypos, kw.endpos()))
 
             # detect the standard abbreviations
@@ -571,29 +705,20 @@ class Type1Font:
                 self._abbr['RD'] = key
 
         # Fill in the various *Name properties
-        if 'FontName' not in prop:
+        if not prop['FontName']:
             prop['FontName'] = (prop.get('FullName') or
                                 prop.get('FamilyName') or
                                 'Unknown')
-        if 'FullName' not in prop:
+        if not prop['FullName']:
             prop['FullName'] = prop['FontName']
-        if 'FamilyName' not in prop:
+        if not prop['FamilyName']:
             extras = ('(?i)([ -](regular|plain|italic|oblique|(semi)?bold|'
                       '(ultra)?light|extra|condensed))+$')
             prop['FamilyName'] = re.sub(extras, '', prop['FullName'])
 
-        # Parse FontBBox
-        toks = [*_tokenize(prop['FontBBox'].encode('ascii'), True)]
-        if ([tok.kind for tok in toks]
-                != ['delimiter', 'number', 'number', 'number', 'number', 'delimiter']
-                or toks[-1].raw != toks[0].opposite()):
-            raise RuntimeError(
-                f"FontBBox should be a size-4 array, was {prop['FontBBox']}")
-        prop['FontBBox'] = [tok.value() for tok in toks[1:-1]]
-
         # Decrypt the encrypted parts
         ndiscard = prop.get('lenIV', 4)
-        cs = prop['CharStrings']
+        cs = prop.get('CharStrings', {})
         for key, value in cs.items():
             cs[key] = self._decrypt(value, 'charstring', ndiscard)
         if 'Subrs' in prop:
@@ -605,99 +730,137 @@ class Type1Font:
         self.prop = prop
         self._pos = pos
 
-    def _parse_subrs(self, tokens, _data):
-        count_token = next(tokens)
-        if not count_token.is_number():
-            raise RuntimeError(
-                f"Token following /Subrs must be a number, was {count_token}"
-            )
-        count = count_token.value()
-        array = [None] * count
+    def _parse_subrs(
+            self, tokens: _TokenizerStream, _data: bytes
+        ) -> tuple[list[bytes], int]:
+        """Parse the subroutines.
+
+        Parameters
+        ----------
+        tokens : _TokenizerStream
+            The token stream to parse.
+        _data : bytes
+            The underlying data that the tokens point to (ignored).
+
+        Returns
+        -------
+        tuple[list[bytes], int]
+            The subroutines and the end position.
+        """
+        with _expecting('subroutine count'):
+            count = next(tokens).nonneg_int_value()
+        array: list[bytes] = [b''] * count
         next(t for t in tokens if t.is_keyword('array'))
         for _ in range(count):
             next(t for t in tokens if t.is_keyword('dup'))
-            index_token = next(tokens)
-            if not index_token.is_number():
-                raise RuntimeError(
-                    "Token following dup in Subrs definition must be a "
-                    f"number, was {index_token}"
-                )
-            nbytes_token = next(tokens)
-            if not nbytes_token.is_number():
-                raise RuntimeError(
-                    "Second token following dup in Subrs definition must "
-                    f"be a number, was {nbytes_token}"
-                )
+            with _expecting('subroutine index'):
+                index = next(tokens).nonneg_int_value()
+            with _expecting('subroutine length'):
+                nbytes = next(tokens).nonneg_int_value()
             token = next(tokens)
             if not token.is_keyword(self._abbr['RD']):
-                raise RuntimeError(
+                raise _ParseError(
                     f"Token preceding subr must be {self._abbr['RD']}, "
                     f"was {token}"
                 )
-            binary_token = tokens.send(1+nbytes_token.value())
-            array[index_token.value()] = binary_token.value()
+            array[index] = tokens.send(1+nbytes).binary_value()
 
         return array, next(tokens).endpos()
 
-    def _parse_charstrings(self, tokens, _data):
-        count_token = next(tokens)
-        if not count_token.is_number():
-            raise RuntimeError(
-                "Token following /CharStrings must be a number, "
-                f"was {count_token}"
-            )
-        count = count_token.value()
-        charstrings = {}
+    def _parse_charstrings(
+            self, tokens: _TokenizerStream, _data: bytes
+        ) -> tuple[dict[str, bytes], int]:
+        """Parse the charstrings.
+
+        Parameters
+        ----------
+        tokens : _TokenizerStream
+            The token stream to parse.
+        _data : bytes
+            The underlying data that the tokens point to (ignored).
+        """
+
+        with _expecting('charstring count'):
+            _ = next(tokens).nonneg_int_value()
+        charstrings: dict[str, bytes] = {}
         next(t for t in tokens if t.is_keyword('begin'))
         while True:
-            token = next(t for t in tokens
-                         if t.is_keyword('end') or t.is_slash_name())
+            token = next(
+                t for t in tokens
+                if _is_keyword(t, 'end') or _is_slash_name(t)
+            )
             if token.raw == 'end':
                 return charstrings, token.endpos()
             glyphname = token.value()
-            nbytes_token = next(tokens)
-            if not nbytes_token.is_number():
-                raise RuntimeError(
-                    f"Token following /{glyphname} in CharStrings definition "
-                    f"must be a number, was {nbytes_token}"
-                )
-            token = next(tokens)
-            if not token.is_keyword(self._abbr['RD']):
-                raise RuntimeError(
+            with _expecting('charstring length'):
+                nbytes = next(tokens).nonneg_int_value()
+            token_rd = next(tokens)
+            if not token_rd.is_keyword(self._abbr['RD']):
+                raise _ParseError(
                     f"Token preceding charstring must be {self._abbr['RD']}, "
                     f"was {token}"
                 )
-            binary_token = tokens.send(1+nbytes_token.value())
-            charstrings[glyphname] = binary_token.value()
+            charstrings[glyphname] = tokens.send(1+nbytes).binary_value()
 
     @staticmethod
-    def _parse_encoding(tokens, _data):
+    def _parse_encoding(
+        tokens: _TokenizerStream, _data: bytes
+    ) -> tuple[dict[int, str], int]:
+        """Parse the encoding.
+
+        Parameters
+        ----------
+        tokens : _TokenizerStream
+            The token stream to parse.
+        _data : bytes
+            The underlying data that the tokens point to (ignored).
+
+        Returns
+        -------
+        tuple[dict[int, str], int]
+            The encoding and the end position.
+        """
         # this only works for encodings that follow the Adobe manual
         # but some old fonts include non-compliant data - we log a warning
         # and return a possibly incomplete encoding
-        encoding = {}
+        encoding: dict[int, str] = {}
         while True:
-            token = next(t for t in tokens
-                         if t.is_keyword('StandardEncoding', 'dup', 'def'))
+            token = next(
+                t for t in tokens
+                if t.is_keyword('StandardEncoding', 'dup', 'def')
+            )
             if token.is_keyword('StandardEncoding'):
                 return _StandardEncoding, token.endpos()
             if token.is_keyword('def'):
                 return encoding, token.endpos()
-            index_token = next(tokens)
-            if not index_token.is_number():
-                _log.warning(
-                    f"Parsing encoding: expected number, got {index_token}"
-                )
-                continue
+            with _expecting('encoding index'):
+                index = next(tokens).nonneg_int_value()
             name_token = next(tokens)
-            if not name_token.is_slash_name():
+            if not _is_slash_name(name_token):
                 _log.warning(
                     f"Parsing encoding: expected slash-name, got {name_token}"
                 )
                 continue
-            encoding[index_token.value()] = name_token.value()
+            encoding[index] = name_token.value()
 
-    def _parse_othersubrs(self, tokens, data):
+    def _parse_othersubrs(
+            self, tokens: _TokenizerStream, data: bytes
+        ) -> tuple[bytes, int]:
+        """Parse the "other subroutines".
+
+        Parameters
+        ----------
+        tokens : _TokenizerStream
+            The token stream to parse.
+        data : bytes
+            The underlying data that the tokens point to.
+
+        Returns
+        -------
+        tuple[bytes, int]
+            The other subroutines and the end position.
+        """
+
         init_pos = None
         while True:
             token = next(tokens)
@@ -708,7 +871,39 @@ class Type1Font:
             elif token.is_keyword('def', self._abbr['ND']):
                 return data[init_pos:token.endpos()], token.endpos()
 
-    def transform(self, effects):
+    @staticmethod
+    def _parse_font_bbox(
+            tokens: _TokenizerStream, _data: bytes
+        ) -> tuple[_BBoxType, int]:
+        """Parse the font bbox.
+
+        Parameters
+        ----------
+        tokens : _TokenizerStream
+            The token stream to parse.
+        _data : bytes
+            The underlying data that the tokens point to.
+
+        Returns
+        -------
+        tuple[_BBoxType, int]
+            The font bbox and the end position.
+        """
+
+        left, *nums, right = itertools.islice(tokens, 6)
+        if not (
+            _is_delimiter(left)
+            and _is_delimiter(right)
+            and right.raw == left.opposite()
+            and len(nums) == 4
+            and all(isinstance(num, _NumberToken) for num in nums)
+        ):
+            raise _ParseError(
+                f"FontBBox should be a size-4 array, instead got {left} {nums} {right}"
+            )
+        return T.cast(_BBoxType, tuple(num.value() for num in nums)), right.endpos()
+
+    def transform(self, effects: _Effects) -> T.Self:
         """
         Return a new font that is slanted and/or extended.
 
@@ -770,13 +965,13 @@ class Type1Font:
             + [(x, '') for x in self._pos.get('UniqueID', [])]
         )
 
-        return Type1Font((
+        return type(self)((
             newparts[0],
             self._encrypt(newparts[1], 'eexec'),
             self.parts[2]
         ))
 
-    def with_encoding(self, encoding):
+    def with_encoding(self, encoding: dict[int, str]) -> T.Self:
         """
         Change the encoding of the font.
 
@@ -793,13 +988,15 @@ class Type1Font:
             [(x, '') for x in self._pos.get('UniqueID', [])]
             + [(self._pos['Encoding'][0], self._postscript_encoding(encoding))]
         )
-        return Type1Font((
+        return type(self)((
             newparts[0],
             self._encrypt(newparts[1], 'eexec'),
             self.parts[2]
         ))
 
-    def _replace(self, replacements):
+    def _replace(
+            self, replacements: list[tuple[tuple[int, int], str]]
+        ) -> tuple[bytes, bytes]:
         """
         Change the font according to `replacements`
 
@@ -829,7 +1026,7 @@ class Type1Font:
             data[pos0:pos1] = value.encode('latin-1')
             if pos0 < len(self.parts[0]):
                 if pos1 >= len(self.parts[0]):
-                    raise RuntimeError(
+                    raise _ParseError(
                         f"text to be replaced with {value} spans "
                         "the eexec boundary"
                     )
@@ -837,7 +1034,7 @@ class Type1Font:
 
         return bytes(data[:len0]), bytes(data[len0:])
 
-    def subset(self, characters, name_prefix):
+    def subset(self, characters: T.Iterable[int], name_prefix: str) -> T.Self:
         """
         Return a new font that only defines the given characters.
 
@@ -868,8 +1065,8 @@ class Type1Font:
                     if code in characters}
         encoding[0] = '.notdef'
         # todo and done include strings (glyph names)
-        todo = set(encoding.values())
-        done = set()
+        todo: set[str] = set(encoding.values())
+        done: set[str] = set()
         seen_subrs = {0, 1, 2, 3}
         while todo:
             glyph = todo.pop()
@@ -895,7 +1092,7 @@ class Type1Font:
         ))
 
     @staticmethod
-    def _charstring_tokens(data):
+    def _charstring_tokens(data: T.Iterable[int]) -> T.Generator[str | int, None, None]:
         """Parse a Type-1 charstring
 
         Yield opcode names and integer parameters.
@@ -946,8 +1143,20 @@ class Type1Font:
                     31: 'hvcurveto'
                 }[byte]
 
-    def _postscript_encoding(self, encoding):
-        """Return a PostScript encoding array for the encoding."""
+    @staticmethod
+    def _postscript_encoding(encoding: dict[int, str]) -> str:
+        """Format the encoding as a PostScript array.
+
+        Parameters
+        ----------
+        encoding : dict[int, str]
+            The encoding to format.
+
+        Returns
+        -------
+        str
+            The formatted encoding.
+        """
         return '\n'.join([
             '/Encoding 256 array\n0 1 255 { 1 index exch /.notdef put} for',
             *(
@@ -958,8 +1167,19 @@ class Type1Font:
             'readonly def\n',
         ])
 
-    def _subset_charstrings(self, glyphs):
-        """Return a PostScript CharStrings array for the glyphs."""
+    def _subset_charstrings(self, glyphs: T.Iterable[str]) -> str:
+        """Format the given subset of charstrings as a PostScript dictionary.
+
+        Parameters
+        ----------
+        glyphs : T.Iterable[str]
+            The glyphs to include.
+
+        Returns
+        -------
+        str
+            The formatted charstrings.
+        """
         charstrings = self.prop['CharStrings']
         lenIV = self.prop.get('lenIV', 4)
         ordered = sorted(glyphs)
@@ -977,8 +1197,19 @@ class Type1Font:
             'end\n',
         ])
 
-    def _subset_subrs(self, indices):
-        """Return a PostScript Subrs array for the subroutines."""
+    def _subset_subrs(self, indices: T.Iterable[int]) -> str:
+        """Format the given subset of subroutines as a PostScript array.
+
+        Parameters
+        ----------
+        indices : T.Iterable[int]
+            The indices of the subroutines to include.
+
+        Returns
+        -------
+        str
+            The formatted subroutines.
+        """
         # we can't remove subroutines, we just replace unused ones with a stub
         subrs = self.prop['Subrs']
         n_subrs = len(subrs)
@@ -1002,15 +1233,20 @@ class Type1Font:
 
 class _CharstringSimulator:
     __slots__ = ('font', 'buildchar_stack', 'postscript_stack', 'glyphs', 'subrs')
+    font: Type1Font
+    buildchar_stack: list[float]
+    postscript_stack: list[float]
+    glyphs: set[str]
+    subrs: set[int]
 
-    def __init__(self, font):
+    def __init__(self, font: Type1Font):
         self.font = font
         self.buildchar_stack = []
         self.postscript_stack = []
         self.glyphs = set()
         self.subrs = set()
 
-    def run(self, glyph_or_subr):
+    def run(self, glyph_or_subr: str | int) -> tuple[set[str], set[int]]:
         """Run the charstring interpreter on a glyph or subroutine.
 
         This does not actually execute the code but simulates it to find out
@@ -1046,7 +1282,7 @@ class _CharstringSimulator:
             )
             return self.glyphs, self.subrs
 
-    def _step(self, opcode):
+    def _step(self, opcode: str | int) -> None:
         """Run one step in the charstring interpreter."""
         match opcode:
             case int():
@@ -1102,7 +1338,7 @@ class _CharstringSimulator:
                     self.postscript_stack.append(0)
                 self.buildchar_stack.append(self.postscript_stack.pop())
             case _:
-                raise RuntimeError(f'opcode {opcode}')
+                raise _ParseError(f'opcode {opcode}')
 
 
 _StandardEncoding = {
