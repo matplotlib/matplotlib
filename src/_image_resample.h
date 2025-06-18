@@ -584,8 +584,8 @@ public:
             if (dx >= 0 && dx < m_out_width &&
                 dy >= 0 && dy < m_out_height) {
                 const double *coord = m_mesh + (int(dy) * m_out_width + int(dx)) * 2;
-                *x = int(coord[0] * agg::image_subpixel_scale);
-                *y = int(coord[1] * agg::image_subpixel_scale);
+                *x = int(coord[0] * agg::image_subpixel_scale + 0.5); // round
+                *y = int(coord[1] * agg::image_subpixel_scale + 0.5); // round
             }
         }
     }
