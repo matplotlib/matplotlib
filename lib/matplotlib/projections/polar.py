@@ -1175,14 +1175,20 @@ class PolarAxes(Axes):
         return self.viewLim.ymin
 
     def set_rorigin(self, rorigin):
-        """
-        Update the radial origin.
-
-        Parameters
-        ----------
-        rorigin : float
-        """
         self._originViewLim.locked_y0 = rorigin
+
+        # Fix: Adjust tick/grid when using log scale
+        self._rorigin = rorigin  # store internally for use elsewhere
+        if hasattr(self, 'yaxis'):
+           if self.yaxis.get_scale() == 'log':
+                locator = self.yaxis.get_major_locator()
+                if locator is not None:
+                    locs = locator.tick_values(self.get_rmin(), self.get_rmax())
+                    # Offset tick locations based on origin, only if loc > 0 (log scale)
+                    adjusted_locs = [abs(rorigin) + loc for loc in locs if loc > 0]
+                    self.yaxis.set_ticks(adjusted_locs)
+        return self
+
 
     def get_rorigin(self):
         """
