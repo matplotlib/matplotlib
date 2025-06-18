@@ -268,13 +268,8 @@ def figure_edit(axes, parent=None):
                 numpoints = old_legend.numpoints
                 scatterpoints = old_legend.scatterpoints
                 mode = old_legend._mode
-                bbox = old_legend.get_bbox_to_anchor()
-                if bbox is not None:
-                    bbox_raw = bbox._bbox
-                    bbox_tuple = (bbox_raw.x0, bbox_raw.y0, bbox_raw.x1, bbox_raw.y1)
-                else:
-                    bbox_tuple = None
-
+                # bbox gets some value even though None is passed in the legend function
+                # bbox = old_legend.get_bbox_to_anchor()._bbox
                 new_legend = axes.legend(
                     ncols=ncols,
                     fontsize=fontsize,
@@ -293,7 +288,8 @@ def figure_edit(axes, parent=None):
                     numpoints=numpoints,
                     scatterpoints=scatterpoints,
                     mode=mode,
-                    bbox_to_anchor=bbox_tuple
+                    # Uncomment this line if bbox default value figured out
+                    # bbox_to_anchor=bbox
                 )
                 # new_legend = deepcopy(old_legend)
                 # axes.add_artist(new_legend)
