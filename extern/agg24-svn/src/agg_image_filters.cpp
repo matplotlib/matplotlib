@@ -88,6 +88,7 @@ namespace agg
             }
         }
 
+#ifndef MPL_FIX_IMAGE_FILTER_LUT_BUGS
         unsigned pivot = m_diameter << (image_subpixel_shift - 1);
 
         for(i = 0; i < pivot; i++)
@@ -96,6 +97,7 @@ namespace agg
         }
         unsigned end = (diameter() << image_subpixel_shift) - 1;
         m_weight_array[0] = m_weight_array[end];
+#endif
     }
 
 

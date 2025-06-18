@@ -1663,19 +1663,26 @@ def test__resample_valid_output():
     [(np.array([[0.1, 0.3, 0.2]]), mimage.NEAREST,
       np.array([[0.1, 0.1, 0.1, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2]])),
      (np.array([[0.1, 0.3, 0.2]]), mimage.BILINEAR,
-      np.array([[0.1, 0.1, 0.15078125, 0.21096191, 0.27033691,
-                 0.28476562, 0.2546875, 0.22460938, 0.20002441, 0.20002441]])),
+      np.array([[0.1, 0.1, 0.15, 0.21, 0.27, 0.285, 0.255, 0.225, 0.2, 0.2]])),
+     (np.array([[0.1, 0.9]]), mimage.BILINEAR,
+      np.array([[0.1, 0.1, 0.1, 0.1, 0.1, 0.14, 0.22, 0.3, 0.38, 0.46,
+                 0.54, 0.62, 0.7, 0.78, 0.86, 0.9, 0.9, 0.9, 0.9, 0.9]])),
+     (np.array([[0.1, 0.1]]), mimage.BILINEAR, np.full((1, 10), 0.1)),
     ]
 )
 def test_resample_nonaffine(data, interpolation, expected):
-    # Test that equivalent affine and nonaffine transforms resample the same
+    # Test that both affine and nonaffine transforms resample to the correct answer
+
+    # If the array is constant, the tolerance can be tight
+    # Otherwise, the tolerance is limited by the subpixel approach in the agg backend
+    atol = 0 if np.all(data == data.ravel()[0]) else 2e-3
 
     # Create a simple affine transform for scaling the input array
     affine_transform = Affine2D().scale(sx=expected.shape[1] / data.shape[1], sy=1)
 
     affine_result = np.empty_like(expected)
     mimage.resample(data, affine_result, affine_transform, interpolation=interpolation)
-    assert_allclose(affine_result, expected)
+    assert_allclose(affine_result, expected, atol=atol)
 
     # Create a nonaffine version of the same transform
     # by compositing with a nonaffine identity transform
@@ -1684,13 +1691,13 @@ def test_resample_nonaffine(data, interpolation, expected):
         output_dims = 2
 
         def inverted(self):
-           return self
+            return self
     nonaffine_transform = NonAffineIdentityTransform() + affine_transform
 
     nonaffine_result = np.empty_like(expected)
     mimage.resample(data, nonaffine_result, nonaffine_transform,
                     interpolation=interpolation)
-    assert_allclose(nonaffine_result, expected, atol=5e-3)
+    assert_allclose(nonaffine_result, expected, atol=atol)
 
 
 def test_axesimage_get_shape():
