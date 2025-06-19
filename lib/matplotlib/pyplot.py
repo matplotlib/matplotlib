@@ -338,8 +338,8 @@ draw_all = _pylab_helpers.Gcf.draw_all
 
 # Ensure this appears in the pyplot docs.
 @_copy_docstring_and_deprecators(matplotlib.set_loglevel)
-def set_loglevel(*args, **kwargs) -> None:
-    return matplotlib.set_loglevel(*args, **kwargs)
+def set_loglevel(level) -> None:
+    return matplotlib.set_loglevel(level)
 
 
 @_copy_docstring_and_deprecators(Artist.findobj)
@@ -2690,7 +2690,13 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     return im
 
 
-def polar(*args, **kwargs) -> list[Line2D]:
+def polar(
+        *args,
+        scalex=True,
+        scaley=True,
+        data=None,
+        **kwargs
+) -> list[Line2D]:
     """
     Make a polar plot.
 
