@@ -30,15 +30,15 @@ ax.set_title("A line plot on a polar axis", va='bottom')
 ax = axs[1]
 ax.plot(theta, r)
 ax.set_rmax(2)
-ax.set_rmin(1)  # change the radial axis to only go from 1 to 2
-ax.set_rorigin(0)  # Set the origin of the radial axis to 0.
+ax.set_rmin(1)  # Change the radial axis to only go from 1 to 2
+ax.set_rorigin(0)  # Set the origin of the radial axis to 0
 ax.set_thetamin(0)
 ax.set_thetamax(225)
 ax.set_rticks([1, 1.5, 2])  # Fewer radial ticks
 ax.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
 
 ax.grid(True)
-ax.set_title("Same plot, but axis starts at r=1, and ends at theta=225", va='bottom')
+ax.set_title("Same plot, but with reduced axis limits", va='bottom')
 plt.show()
 
 # %%
