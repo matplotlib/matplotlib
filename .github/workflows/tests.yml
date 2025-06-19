@@ -346,7 +346,7 @@ jobs:
         run: |
           function remove_files() {
               local extension=$1
-              find ./result_images -type f -name "*-expected*.$extension" | while read file; do
+              find ./result_images -name "*-expected*.$extension" | while read file; do
                   if [[ $file == *"-expected_pdf"* ]]; then
                       base=${file%-expected_pdf.$extension}_pdf
                   elif [[ $file == *"-expected_eps"* ]]; then
