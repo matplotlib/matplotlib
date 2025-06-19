@@ -50,7 +50,7 @@ import logging
 import sys
 import threading
 import time
-from typing import TYPE_CHECKING, cast, overload
+from typing import IO, TYPE_CHECKING, cast, overload
 
 from cycler import cycler  # noqa: F401
 import matplotlib
@@ -1251,11 +1251,11 @@ def draw() -> None:
 
 
 @_copy_docstring_and_deprecators(Figure.savefig)
-def savefig(*args, **kwargs) -> None:
+def savefig(fname: str | os.PathLike | IO, **kwargs) -> None:
     fig = gcf()
     # savefig default implementation has no return, so mypy is unhappy
     # presumably this is here because subclasses can return?
-    res = fig.savefig(*args, **kwargs)  # type: ignore[func-returns-value]
+    res = fig.savefig(fname, **kwargs)  # type: ignore[func-returns-value]
     fig.canvas.draw_idle()  # Need this if 'transparent=True', to reset colors.
     return res
 
