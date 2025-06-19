@@ -301,9 +301,9 @@
 ##                ("native" is a synonym.)
 ## - force_autohint: Use FreeType's auto-hinter.  ("auto" is a synonym.)
 ## - no_hinting: Disable hinting.  ("none" is a synonym.)
-#text.hinting: force_autohint
+#text.hinting: default
 
-#text.hinting_factor: 8  # Specifies the amount of softness for hinting in the
+#text.hinting_factor: 1  # Specifies the amount of softness for hinting in the
                          # horizontal direction.  A value of 1 will hint to full
                          # pixels.  A value of 2 will hint to half pixels etc.
 #text.kerning_factor: 0  # Specifies the scaling factor for kerning values.  This
