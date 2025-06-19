@@ -353,6 +353,8 @@ jobs:
                       base=${file%-expected_eps.$extension}_eps
                   elif [[ $file == *"-expected_svg"* ]]; then
                       base=${file%-expected_svg.$extension}_svg
+                  elif [[ $file == *"-expected_gif"* ]]; then
+                      base=${file%-expected_gif.$extension}_gif
                   else
                       base=${file%-expected.$extension}
                   fi
@@ -369,7 +371,7 @@ jobs:
               done
           }
 
-          remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps";
+          remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps"; remove_files "gif";
 
           if [ "$(find ./result_images -mindepth 1 -type d)" ]; then
               find ./result_images/* -type d -empty -delete
