@@ -1,4 +1,5 @@
 import difflib
+import inspect
 
 import numpy as np
 import sys
@@ -449,7 +450,6 @@ def figure_hook_example(figure):
 
 
 def test_figure_hook():
-
     test_rc = {
         'figure.hooks': ['matplotlib.tests.test_pyplot:figure_hook_example']
     }
@@ -484,3 +484,24 @@ def test_matshow():
 
     # Smoke test that matshow does not ask for a new figsize on the existing figure
     plt.matshow(arr, fignum=fig.number)
+
+
+def assert_signatures_identical(plt_meth, original_meth, remove_self_param=False):
+    plt_params = inspect.signature(plt_meth).parameters
+    original_params = inspect.signature(original_meth).parameters
+    if remove_self_param:
+        if next(iter(original_params)) not in ["self"]:
+            raise AssertionError(f"{original_params} is not an instance method")
+
+        original_params = dict(original_params)
+        del original_params["self"]
+
+    assert plt_params == original_params
+
+
+def test_setloglevel_signature():
+    assert_signatures_identical(plt.set_loglevel, mpl.set_loglevel)
+
+
+def test_polar_signature():
+    assert_signatures_identical(plt.polar, plt.Axes.plot, True)
