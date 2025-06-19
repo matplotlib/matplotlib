@@ -1,0 +1,23 @@
+``TransformNode.is_bbox``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+... is removed. Instead check the object using ``isinstance(..., BboxBase)``.
+
+``rcsetup.interactive_bk``, ``rcsetup.non_interactive_bk`` and ``rcsetup.all_backends``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+... are removed and replaced by ``matplotlib.backends.backend_registry.list_builtin``
+with the following arguments
+
+- ``matplotlib.backends.BackendFilter.INTERACTIVE``
+- ``matplotlib.backends.BackendFilter.NON_INTERACTIVE``
+- ``None``
+
+``BboxTransformToMaxOnly``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+... is removed. It can be replaced by ``BboxTransformTo(LockableBbox(bbox, x0=0, y0=0))``.
+
+*interval* parameter of ``TimerBase.start``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The timer interval parameter can no longer be set while starting it. The interval can be specified instead in the timer constructor, or by setting the timer.interval attribute.

@@ -47,6 +47,12 @@ Options
 
 The ``.. plot::`` directive supports the following options:
 
+``:filename-prefix:`` : str
+    The base name (without the extension) of the outputted image and script
+    files. The default is to use the same name as the input script, or the
+    name of the RST document if no script is provided. The filename-prefix for
+    each plot directive must be unique.
+
 ``:format:`` : {'python', 'doctest'}
     The format of the input.  If unset, the format is auto-detected.
 
@@ -163,8 +169,10 @@ the ``*.png`` files in the ``plot_directive`` directory.  These translations can
 be customized by changing the *plot_template*.  See the source of
 :doc:`/api/sphinxext_plot_directive_api` for the templates defined in *TEMPLATE*
 and *TEMPLATE_SRCSET*.
+
 """
 
+from collections import defaultdict
 import contextlib
 import doctest
 from io import StringIO
@@ -182,6 +190,7 @@ from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.images import Image
 import jinja2  # Sphinx dependency.
 
+from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ExtensionError
 
 import matplotlib
@@ -265,6 +274,7 @@ class PlotDirective(Directive):
         'scale': directives.nonnegative_int,
         'align': Image.align,
         'class': directives.class_option,
+        'filename-prefix': directives.unchanged,
         'include-source': _option_boolean,
         'show-source-link': _option_boolean,
         'format': _option_format,
@@ -312,7 +322,33 @@ def setup(app):
     app.connect('build-finished', _copy_css_file)
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
                 'version': matplotlib.__version__}
+    app.connect('builder-inited', init_filename_registry)
+    app.add_env_collector(_FilenameCollector)
     return metadata
+
+
+# -----------------------------------------------------------------------------
+# Handle Duplicate Filenames
+# -----------------------------------------------------------------------------
+
+def init_filename_registry(app):
+    env = app.builder.env
+    if not hasattr(env, 'mpl_plot_image_basenames'):
+        env.mpl_plot_image_basenames = defaultdict(set)
+
+
+class _FilenameCollector(EnvironmentCollector):
+    def process_doc(self, app, doctree):
+        pass
+
+    def clear_doc(self, app, env, docname):
+        if docname in env.mpl_plot_image_basenames:
+            del env.mpl_plot_image_basenames[docname]
+
+    def merge_other(self, app, env, docnames, other):
+        for docname in other.mpl_plot_image_basenames:
+            env.mpl_plot_image_basenames[docname].update(
+                other.mpl_plot_image_basenames[docname])
 
 
 # -----------------------------------------------------------------------------
@@ -600,6 +636,25 @@ def _parse_srcset(entries):
     return srcset
 
 
+def check_output_base_name(env, output_base):
+    docname = env.docname
+
+    if '.' in output_base or '/' in output_base or '\\' in output_base:
+        raise PlotError(
+            f"The filename-prefix '{output_base}' is invalid. "
+            f"It must not contain dots or slashes.")
+
+    for d in env.mpl_plot_image_basenames:
+        if output_base in env.mpl_plot_image_basenames[d]:
+            if d == docname:
+                raise PlotError(
+                    f"The filename-prefix {output_base!r} is used multiple times.")
+            raise PlotError(f"The filename-prefix {output_base!r} is used multiple"
+                            f"times (it is also used in {env.doc2path(d)}).")
+
+    env.mpl_plot_image_basenames[docname].add(output_base)
+
+
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False,
                    close_figs=False,
@@ -722,7 +777,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
 def run(arguments, content, options, state_machine, state, lineno):
     document = state_machine.document
-    config = document.settings.env.config
+    env = document.settings.env
+    config = env.config
     nofigs = 'nofigs' in options
 
     if config.plot_srcset and setup.app.builder.name == 'singlehtml':
@@ -734,6 +790,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     options.setdefault('include-source', config.plot_include_source)
     options.setdefault('show-source-link', config.plot_html_show_source_link)
+    options.setdefault('filename-prefix', None)
 
     if 'class' in options:
         # classes are parsed into a list of string, and output by simply
@@ -775,14 +832,22 @@ def run(arguments, content, options, state_machine, state, lineno):
             function_name = None
 
         code = Path(source_file_name).read_text(encoding='utf-8')
-        output_base = os.path.basename(source_file_name)
+        if options['filename-prefix']:
+            output_base = options['filename-prefix']
+            check_output_base_name(env, output_base)
+        else:
+            output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
         code = textwrap.dedent("\n".join(map(str, content)))
-        counter = document.attributes.get('_plot_counter', 0) + 1
-        document.attributes['_plot_counter'] = counter
-        base, ext = os.path.splitext(os.path.basename(source_file_name))
-        output_base = '%s-%d.py' % (base, counter)
+        if options['filename-prefix']:
+            output_base = options['filename-prefix']
+            check_output_base_name(env, output_base)
+        else:
+            base, ext = os.path.splitext(os.path.basename(source_file_name))
+            counter = document.attributes.get('_plot_counter', 0) + 1
+            document.attributes['_plot_counter'] = counter
+            output_base = '%s-%d.py' % (base, counter)
         function_name = None
         caption = options.get('caption', '')
 
@@ -846,7 +911,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # save script (if necessary)
     if options['show-source-link']:
-        Path(build_dir, output_base + source_ext).write_text(
+        Path(build_dir, output_base + (source_ext or '.py')).write_text(
             doctest.script_from_examples(code)
             if source_file_name == rst_file and is_doctest
             else code,
@@ -906,7 +971,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         # Not-None src_name signals the need for a source download in the
         # generated html
         if j == 0 and options['show-source-link']:
-            src_name = output_base + source_ext
+            src_name = output_base + (source_ext or '.py')
         else:
             src_name = None
         if config.plot_srcset:

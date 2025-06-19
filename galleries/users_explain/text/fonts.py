@@ -27,30 +27,35 @@ different platforms supporting different types of fonts.  In practice,
 Matplotlib supports three font specifications (in addition to pdf 'core fonts',
 which are explained later in the guide):
 
-.. list-table:: Type of Fonts
-   :header-rows: 1
+.. table:: Type of Fonts
 
-   * - Type 1 (PDF)
-     - Type 3 (PDF/PS)
-     - TrueType (PDF)
-   * - One of the oldest types, introduced by Adobe
-     - Similar to Type 1 in terms of introduction
-     - Newer than previous types, used commonly today, introduced by Apple
-   * - Restricted subset of PostScript, charstrings are in bytecode
-     - Full PostScript language, allows embedding arbitrary code
-       (in theory, even render fractals when rasterizing!)
-     - Include a virtual machine that can execute code!
-   * - These fonts support font hinting
-     - Do not support font hinting
-     - Hinting supported (virtual machine processes the "hints")
-   * - Non-subsetted through Matplotlib
-     - Subsetted via external module ttconv
-     - Subsetted via external module
-       `fontTools <https://github.com/fonttools/fonttools>`__
+  +--------------------------+----------------------------+----------------------------+
+  | Type 1 (PDF with usetex) | Type 3 (PDF/PS)            | TrueType (PDF)             |
+  +==========================+============================+============================+
+  | One of the oldest types, | Similar to Type 1 in       | Newer than previous types, |
+  | introduced by Adobe      | terms of introduction      | used commonly today,       |
+  |                          |                            | introduced by Apple        |
+  +--------------------------+----------------------------+----------------------------+
+  | Restricted subset of     | Full PostScript language,  | Includes a virtual machine |
+  | PostScript, charstrings  | allows embedding arbitrary | that can execute code!     |
+  | are in bytecode          | code (in theory, even      |                            |
+  |                          | render fractals when       |                            |
+  |                          | rasterizing!)              |                            |
+  +--------------------------+----------------------------+----------------------------+
+  | Supports font            | Does not support font      | Supports font hinting      |
+  | hinting                  | hinting                    | (virtual machine processes |
+  |                          |                            | the "hints")               |
+  +--------------------------+----------------------------+----------------------------+
+  | Subsetted by code in     | Subsetted via external module                           |
+  | `matplotlib._type1font`  | `fontTools <https://github.com/fonttools/fonttools>`__  |
+  +--------------------------+----------------------------+----------------------------+
 
 .. note::
 
    Adobe disabled__ support for authoring with Type 1 fonts in January 2023.
+   Matplotlib uses Type 1 fonts for compatibility with TeX; when the usetex
+   feature is used with the PDF backend, Matplotlib reads the fonts used by
+   the TeX engine, which are usually Type 1.
 
    __ https://helpx.adobe.com/fonts/kb/postscript-type-1-fonts-end-of-support.html
 
@@ -83,14 +88,12 @@ pixelated.  However, embedding full fonts in the file can lead to large output
 files, particularly with fonts with many glyphs such as those that support CJK
 (Chinese/Japanese/Korean).
 
-The solution to this problem is to subset the fonts used in the document and
-only embed the glyphs actually used.  This gets both vector text and small
-files sizes.  Computing the subset of the font required and writing the new
-(reduced) font are both complex problem and thus Matplotlib relies on
-`fontTools <https://fonttools.readthedocs.io/en/latest/>`__ and a vendored fork
-of ttconv.
-
-Currently Type 3, Type 42, and TrueType fonts are subsetted.  Type 1 fonts are not.
+To keep the output size reasonable while using vector fonts,
+Matplotlib embeds only the glyphs that are actually used in the document.
+This is known as font subsetting.
+Computing the font subset and writing the reduced font are both complex problems,
+which Matplotlib solves in most cases by using the
+`fontTools <https://fonttools.readthedocs.io/en/latest/>`__ library.
 
 Core Fonts
 ^^^^^^^^^^
