@@ -2715,6 +2715,22 @@ class BoxStyle(_Style):
                 # (dx+width_adjustment)/(dxx+angle_adjustment).
                 angle_adjustment = ((dx + width_adjustment) / tan_half_angle) - dxx
 
+                # Check padding; the ends of the text should have a minimum
+                # clearance of pad from the heads
+                if -width_adjustment < pad:
+                    # Only do this if the text fits into the head
+                    text_clearance = (width_adjustment / tan_half_angle) + \
+                        pad * ((1 / tan_half_angle) - 1)
+
+                    if text_clearance < pad:
+                        # Lengthen arrow body to accommodate text
+                        x0 = x0 + text_clearance - pad
+                        x1 = x1 + pad - text_clearance
+                else:
+                    # Pad away from head straight-edges
+                    x0 = x0 - pad
+                    x1 = x1 + pad
+
                 return Path._create_closed([
                     (x0 + dxx, y0),
                     (x1, y0),
