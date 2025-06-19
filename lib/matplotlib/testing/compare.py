@@ -19,7 +19,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import cbook, _image
 from matplotlib.testing.exceptions import ImageComparisonFailure
 
 _log = logging.getLogger(__name__)
@@ -412,7 +412,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
     The two given filenames may point to files which are convertible to
     PNG via the `!converter` dictionary. The underlying RMS is calculated
-    with the `.calculate_rms` function.
+    in a similar way to the `.calculate_rms` function.
 
     Parameters
     ----------
@@ -483,17 +483,12 @@ def compare_images(expected, actual, tol, in_decorator=False):
         if np.array_equal(expected_image, actual_image):
             return None
 
-    # convert to signed integers, so that the images can be subtracted without
-    # overflow
-    expected_image = expected_image.astype(np.int16)
-    actual_image = actual_image.astype(np.int16)
-
-    rms = calculate_rms(expected_image, actual_image)
+    rms, abs_diff = _image.calculate_rms_and_diff(expected_image, actual_image)
 
     if rms <= tol:
         return None
 
-    save_diff_image(expected, actual, diff_image)
+    Image.fromarray(abs_diff).save(diff_image, format="png")
 
     results = dict(rms=rms, expected=str(expected),
                    actual=str(actual), diff=str(diff_image), tol=tol)
