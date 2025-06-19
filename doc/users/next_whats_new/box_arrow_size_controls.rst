@@ -39,7 +39,7 @@ with 'backwards' heads may be created.
                         fc="lightblue", ec="steelblue", lw=2))
 
     # Negative head_angle gives reversed arrow heads
-    t2 = ax.text(np.pi, 30, " Lower intensity  ",
+    t2 = ax.text(np.pi, 30, "Lower intensity",
                 ha="center", va="center", rotation=0, size=10,
                 bbox=dict(boxstyle="darrow,pad=0.3,head_width=2,head_angle=-80",
                         fc="lightblue", ec="steelblue", lw=2))
