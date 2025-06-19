@@ -8,7 +8,6 @@ from .projections.polar import _AxisWrapper
 from .ticker import _DummyAxis, Formatter, Locator
 from .units import AxisInfo, ConversionInterface
 
-
 # --- Global Functions ---
 
 def _get_tzinfo(tz: str | datetime.tzinfo | None = ...) -> datetime.tzinfo: ...
