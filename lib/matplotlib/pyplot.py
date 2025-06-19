@@ -1401,6 +1401,22 @@ def cla() -> None:
 
 ## More ways of creating Axes ##
 
+@overload
+def subplot(nrows: int, ncols: int, index: int, /, **kwargs): ...
+
+
+@overload
+def subplot(pos: int | SubplotSpec, /, **kwargs): ...
+
+
+@overload
+def subplot(ax: Axes, /): ...
+
+
+@overload
+def subplot(**kwargs): ...
+
+
 @_docstring.interpd
 def subplot(*args, **kwargs) -> Axes:
     """
