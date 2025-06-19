@@ -569,6 +569,14 @@ def draw_if_interactive(*args, **kwargs):
     return _get_backend_mod().draw_if_interactive(*args, **kwargs)
 
 
+@overload
+def show() -> None: ...
+
+
+@overload
+def show(block: bool) -> None: ...
+
+
 # This function's signature is rewritten upon backend-load by switch_backend.
 def show(*args, **kwargs) -> None:
     """
