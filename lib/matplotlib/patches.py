@@ -2597,37 +2597,17 @@ class BoxStyle(_Style):
                 tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))
 
                 if self.head_width <= 1:
-                    # Length of arrow head
-                    angle_adjustment = (self.head_width * dx) / tan_half_angle
+                    # Rectangle; head entirely enclosed by body (don't count head
+                    # 'poking' out of back of body)
 
-                    if angle_adjustment < width:
-                        # Rectangle; head entirely enclosed by body
+                    return Path._create_closed([
+                        (x0 + dxx, y0),
+                        (x1, y0),
+                        (x1, y1),
+                        (x0 + dxx, y1),
+                        (x0 + dxx, y0)
+                    ])
 
-                        return Path._create_closed([
-                            (x0 + dxx, y0),
-                            (x1, y0),
-                            (x1, y1),
-                            (x0 + dxx, y1),
-                            (x0 + dxx, y0)
-                        ])
-                    else:
-                        # Head pokes out of back of body
-
-                        # The half-width of the connection of the arrow tip to the
-                        # back of the arrow body
-                        opposite_width_adjustment = (angle_adjustment - width) \
-                            * tan_half_angle
-
-                        return Path._create_closed([
-                            (x0 + dxx, y0),
-                            (x1, y0),
-                            (x1, y0 + dx - opposite_width_adjustment),
-                            (x0 + dxx + angle_adjustment, y0 + dx),
-                            (x1, y0 + dx + opposite_width_adjustment),
-                            (x1, y1),
-                            (x0 + dxx, y1),
-                            (x0 + dxx, y0)
-                        ])
 
                 # Distance from end of arrow to points where slanted parts of head
                 # intercept arrow body
@@ -2646,13 +2626,19 @@ class BoxStyle(_Style):
                         (x0 + dxx, y0 - width_adjustment)
                     ])
                 else:
-                    # Draw triangle
+                    # Trapezium-shaped reversed arrow (reversed triangle 'cut off' by
+                    # end of body
+
+                    # Vertical distance between top of text at end furthest from arrow
+                    # head and corner of trapezium
+                    vertical_offset = width_adjustment + ((x0 - x1) * tan_half_angle)
 
                     return Path._create_closed([
-                        (x0 + dxx, y0 - width_adjustment),
-                        (x0 + dxx + intercept_adjustment, y0 + dx),
-                        (x0 + dxx, y1 + width_adjustment),
-                        (x0 + dxx, y0 - width_adjustment)
+                        (x0, y0 - width_adjustment),
+                        (x1, y0 - vertical_offset),
+                        (x1, y1 + vertical_offset),
+                        (x0, y1 + width_adjustment),
+                        (x0, y0 - width_adjustment)
                     ])
 
     @_register_style(_style_list)
@@ -2747,46 +2733,22 @@ class BoxStyle(_Style):
 
                 # No arrow head available for enclosed text to spill over into; add
                 # padding to both sides of text
-                # TODO
+                x0 = x0 - (1.4 * pad)
+                x1 = x1 + (1.4 * pad)
 
                 # tan(1/2 * angle subtended by arrow tip)
                 tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))
 
                 if self.head_width <= 1:
-                    # Length of arrow head
-                    angle_adjustment = (self.head_width * dx) / tan_half_angle
+                    # Rectangle; heads entirely enclosed by body
 
-                    if angle_adjustment < width:
-                        # Rectangle; heads entirely enclosed by body
-
-                        return Path._create_closed([
-                            (x0 + dxx, y0),
-                            (x1, y0),
-                            (x1, y1),
-                            (x0 + dxx, y1),
-                            (x0 + dxx, y0)
-                        ])
-                    else:
-                        # Heads poke out of opposite ends of body
-
-                        # The half-width of the connection of the arrow tip to the
-                        # back of the arrow body
-                        opposite_width_adjustment = (angle_adjustment - width) \
-                            * tan_half_angle
-
-                        return Path._create_closed([
-                            (x0 + dxx, y0),
-                            (x1, y0),
-                            (x1, y0 + dx - opposite_width_adjustment),
-                            (x0 + dxx + angle_adjustment, y0 + dx),
-                            (x1, y0 + dx + opposite_width_adjustment),
-                            (x1, y1),
-                            (x0 + dxx, y1),
-                            (x0 + dxx, y0 + dx + opposite_width_adjustment),
-                            (x1 - angle_adjustment, y0 + dx),
-                            (x0 + dxx, y0 + dx - opposite_width_adjustment),
-                            (x0 + dxx, y0)
-                        ])
+                    return Path._create_closed([
+                        (x0 + dxx, y0),
+                        (x1, y0),
+                        (x1, y1),
+                        (x0 + dxx, y1),
+                        (x0 + dxx, y0)
+                    ])
 
                 # Distance from end of arrow to points where slanted parts of head
                 # intercept arrow body
