@@ -338,7 +338,7 @@ draw_all = _pylab_helpers.Gcf.draw_all
 
 # Ensure this appears in the pyplot docs.
 @_copy_docstring_and_deprecators(matplotlib.set_loglevel)
-def set_loglevel(level) -> None:
+def set_loglevel(level: str) -> None:
     return matplotlib.set_loglevel(level)
 
 
@@ -2691,9 +2691,9 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
 
 
 def polar(
-        *args,
-        scalex=True,
-        scaley=True,
+        *args: float | ArrayLike | str,
+        scalex: bool = True,
+        scaley: bool = True,
         data=None,
         **kwargs
 ) -> list[Line2D]:
@@ -2730,7 +2730,13 @@ def polar(
             )
     else:
         ax = axes(projection="polar")
-    return ax.plot(*args, **kwargs)
+    return ax.plot(
+        *args,
+        scalex=scalex,
+        scaley=scaley,
+        data=data,
+        **kwargs
+    )
 
 
 # If rcParams['backend_fallback'] is true, and an interactive backend is
