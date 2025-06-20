@@ -11,6 +11,7 @@
 #include <cmath>
 #include <algorithm>
 #include <functional>
+#include <vector>
 
 #include "agg_alpha_mask_u8.h"
 #include "agg_conv_curve.h"
@@ -101,8 +102,6 @@ class BufferRegion
     int height;
     int stride;
 };
-
-#define MARKER_CACHE_SIZE 512
 
 // the renderer
 class RendererAgg
@@ -539,22 +538,14 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
     rendererBase.reset_clipping(true);
     agg::rect_i marker_size(0x7FFFFFFF, 0x7FFFFFFF, -0x7FFFFFFF, -0x7FFFFFFF);
 
-    agg::int8u staticFillCache[MARKER_CACHE_SIZE];
-    agg::int8u staticStrokeCache[MARKER_CACHE_SIZE];
-    agg::int8u *fillCache = staticFillCache;
-    agg::int8u *strokeCache = staticStrokeCache;
-
     try
     {
-        unsigned fillSize = 0;
+        std::vector<agg::int8u> fillBuffer;
         if (face.first) {
             theRasterizer.add_path(marker_path_curve);
             agg::render_scanlines(theRasterizer, slineP8, scanlines);
-            fillSize = scanlines.byte_size();
-            if (fillSize >= MARKER_CACHE_SIZE) {
-                fillCache = new agg::int8u[fillSize];
-            }
-            scanlines.serialize(fillCache);
+            fillBuffer.resize(scanlines.byte_size());
+            scanlines.serialize(fillBuffer.data());
             marker_size = agg::rect_i(scanlines.min_x(),
                                       scanlines.min_y(),
                                       scanlines.max_x(),
@@ -569,11 +560,8 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
         theRasterizer.reset();
         theRasterizer.add_path(stroke);
         agg::render_scanlines(theRasterizer, slineP8, scanlines);
-        unsigned strokeSize = scanlines.byte_size();
-        if (strokeSize >= MARKER_CACHE_SIZE) {
-            strokeCache = new agg::int8u[strokeSize];
-        }
-        scanlines.serialize(strokeCache);
+        std::vector<agg::int8u> strokeBuffer(scanlines.byte_size());
+        scanlines.serialize(strokeBuffer.data());
         marker_size = agg::rect_i(std::min(marker_size.x1, scanlines.min_x()),
                                   std::min(marker_size.y1, scanlines.min_y()),
                                   std::max(marker_size.x2, scanlines.max_x()),
@@ -619,11 +607,11 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
 
                 if (face.first) {
                     ren.color(face.second);
-                    sa.init(fillCache, fillSize, x, y);
+                    sa.init(fillBuffer.data(), fillBuffer.size(), x, y);
                     agg::render_scanlines(sa, sl, ren);
                 }
                 ren.color(gc.color);
-                sa.init(strokeCache, strokeSize, x, y);
+                sa.init(strokeBuffer.data(), strokeBuffer.size(), x, y);
                 agg::render_scanlines(sa, sl, ren);
             }
         } else {
@@ -647,31 +635,22 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
 
                 if (face.first) {
                     rendererAA.color(face.second);
-                    sa.init(fillCache, fillSize, x, y);
+                    sa.init(fillBuffer.data(), fillBuffer.size(), x, y);
                     agg::render_scanlines(sa, sl, rendererAA);
                 }
 
                 rendererAA.color(gc.color);
-                sa.init(strokeCache, strokeSize, x, y);
+                sa.init(strokeBuffer.data(), strokeBuffer.size(), x, y);
                 agg::render_scanlines(sa, sl, rendererAA);
             }
         }
     }
     catch (...)
     {
-        if (fillCache != staticFillCache)
-            delete[] fillCache;
-        if (strokeCache != staticStrokeCache)
-            delete[] strokeCache;
         theRasterizer.reset_clipping();
         rendererBase.reset_clipping(true);
         throw;
     }
-
-    if (fillCache != staticFillCache)
-        delete[] fillCache;
-    if (strokeCache != staticStrokeCache)
-        delete[] strokeCache;
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
