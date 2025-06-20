@@ -1,3 +1,4 @@
+import ast
 import difflib
 import inspect
 
@@ -487,16 +488,60 @@ def test_matshow():
 
 
 def assert_signatures_identical(plt_meth, original_meth, remove_self_param=False):
-    plt_params = inspect.signature(plt_meth).parameters
-    original_params = inspect.signature(original_meth).parameters
+    def get_src(meth):
+        meth_src = Path(inspect.getfile(meth))
+        meth_stub = meth_src.with_suffix(".pyi")
+        return meth_stub if meth_stub.exists() else meth_src
+
+    def tree_loop(tree, name, class_):
+        for item in tree.body:
+            if class_ and isinstance(item, ast.ClassDef) and item.name == class_:
+                return tree_loop(item, name, None)
+
+            if isinstance(item, ast.FunctionDef) and item.name == name:
+                return item
+
+        raise ValueError(f"Cannot find {class_}.{name} in ast")
+
+    def get_signature(meth):
+        qualname = meth.__qualname__
+        class_ = None if "." not in qualname else qualname.split(".")[-2]
+        path = get_src(meth)
+        tree = ast.parse(path.read_text())
+        node = tree_loop(tree, meth.__name__, class_)
+
+        params = dict(inspect.signature(meth).parameters)
+        args = node.args
+        for param in (*args.posonlyargs, *args.args, args.vararg, *args.kwonlyargs, args.kwarg):
+            if param is None:
+                continue
+            if param.annotation is None:
+                continue
+            annotation = ast.unparse(param.annotation)
+            params[param.arg] = params[param.arg].replace(annotation=annotation)
+
+        if node.returns is not None:
+            return inspect.Signature(
+                params.values(),
+                return_annotation=ast.unparse(node.returns)
+            )
+        else:
+            return inspect.Signature(params.values())
+
+    plt_sig = get_signature(plt_meth)
+    original_sig = get_signature(original_meth)
+
+    assert plt_sig.return_annotation == original_sig.return_annotation
+
+    original_params = original_sig.parameters
     if remove_self_param:
         if next(iter(original_params)) not in ["self"]:
-            raise AssertionError(f"{original_params} is not an instance method")
+            raise ValueError(f"{original_sig} is not an instance method")
 
-        original_params = dict(original_params)
+        original_params = original_params.copy()
         del original_params["self"]
 
-    assert plt_params == original_params
+    assert plt_sig.parameters == original_params
 
 
 def test_setloglevel_signature():
