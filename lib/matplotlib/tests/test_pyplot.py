@@ -451,6 +451,7 @@ def figure_hook_example(figure):
 
 
 def test_figure_hook():
+
     test_rc = {
         'figure.hooks': ['matplotlib.tests.test_pyplot:figure_hook_example']
     }
@@ -512,7 +513,14 @@ def assert_signatures_identical(plt_meth, original_meth, remove_self_param=False
 
         params = dict(inspect.signature(meth).parameters)
         args = node.args
-        for param in (*args.posonlyargs, *args.args, args.vararg, *args.kwonlyargs, args.kwarg):
+        allargs = (
+            *args.posonlyargs,
+            *args.args,
+            args.vararg,
+            *args.kwonlyargs,
+            args.kwarg
+        )
+        for param in allargs:
             if param is None:
                 continue
             if param.annotation is None:
