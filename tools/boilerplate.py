@@ -129,7 +129,13 @@ class direct_repr:
         return self._repr
 
 
-def generate_function(name, called_fullname, template, gettersetter=False, **kwargs):
+def generate_function(
+        name,
+        called_fullname,
+        template,
+        gettersetter=False,
+        **kwargs
+):
     """
     Create a wrapper function *pyplot_name* calling *call_name*.
 
@@ -199,7 +205,9 @@ def generate_function(name, called_fullname, template, gettersetter=False, **kwa
                 return '**{0}'
         return None
 
-    call = '(' + ', '.join((call_param(param)).format(param.name) for param in params) + ')'
+    call = '(' + ', '.join(
+        (call_param(param)).format(param.name) for param in params
+    ) + ')'
     return_statement = 'return ' if has_return_value else ''
     # Bail out in case of name collision.
     for reserved in ('gca', 'gci', 'gcf', '__ret'):
