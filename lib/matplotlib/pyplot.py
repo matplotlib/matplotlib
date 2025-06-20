@@ -138,7 +138,6 @@ if TYPE_CHECKING:
     _R = TypeVar('_R')
     _T = TypeVar('_T')
 
-
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
 from matplotlib.lines import Line2D, AxLine
@@ -155,7 +154,6 @@ from .ticker import (  # noqa: F401
 
 _log = logging.getLogger(__name__)
 
-
 # Explicit rename instead of import-as for typing's sake.
 colormaps = _colormaps
 color_sequences = _color_sequences
@@ -163,19 +161,19 @@ color_sequences = _color_sequences
 
 @overload
 def _copy_docstring_and_deprecators(
-    method: Any,
-    func: Literal[None] = None
+        method: Any,
+        func: Literal[None] = None
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
 
 
 @overload
 def _copy_docstring_and_deprecators(
-    method: Any, func: Callable[_P, _R]) -> Callable[_P, _R]: ...
+        method: Any, func: Callable[_P, _R]) -> Callable[_P, _R]: ...
 
 
 def _copy_docstring_and_deprecators(
-    method: Any,
-    func: Callable[_P, _R] | None = None
+        method: Any,
+        func: Callable[_P, _R] | None = None
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]] | Callable[_P, _R]:
     if func is None:
         return cast('Callable[[Callable[_P, _R]], Callable[_P, _R]]',
@@ -201,8 +199,8 @@ _NO_PYPLOT_NOTE = [
     'FigureBase._gci',  # wrapped_func is private
     '_AxesBase._sci',  # wrapped_func is private
     'Artist.findobj',  # not a standard pyplot wrapper because it does not operate
-                       # on the current Figure / Axes. Explanation of relation would
-                       # be more complex and is not too important.
+    # on the current Figure / Axes. Explanation of relation would
+    # be more complex and is not too important.
 ]
 
 
@@ -338,15 +336,15 @@ draw_all = _pylab_helpers.Gcf.draw_all
 
 # Ensure this appears in the pyplot docs.
 @_copy_docstring_and_deprecators(matplotlib.set_loglevel)
-def set_loglevel(level) -> None:
+def set_loglevel(level: str) -> None:
     return matplotlib.set_loglevel(level)
 
 
 @_copy_docstring_and_deprecators(Artist.findobj)
 def findobj(
-    o: Artist | None = None,
-    match: Callable[[Artist], bool] | type[Artist] | None = None,
-    include_self: bool = True
+        o: Artist | None = None,
+        match: Callable[[Artist], bool] | type[Artist] | None = None,
+        include_self: bool = True
 ) -> list[Artist]:
     if o is None:
         o = gcf()
@@ -454,7 +452,6 @@ def switch_backend(newbackend: str) -> None:
     # update backend_mod accordingly; also, per-backend customization of
     # draw_if_interactive is disabled.
     if new_figure_manager is None:
-
         def new_figure_manager_given_figure(num, figure):
             return canvas_class.new_manager(figure, num)
 
@@ -779,8 +776,8 @@ def rc(group: str, **kwargs) -> None:
 
 @_copy_docstring_and_deprecators(matplotlib.rc_context)
 def rc_context(
-    rc: dict[str, Any] | None = None,
-    fname: str | pathlib.Path | os.PathLike | None = None,
+        rc: dict[str, Any] | None = None,
+        fname: str | pathlib.Path | os.PathLike | None = None,
 ) -> AbstractContextManager[None]:
     return matplotlib.rc_context(rc, fname)
 
@@ -811,7 +808,7 @@ def setp(obj, *args, **kwargs):
 
 
 def xkcd(
-    scale: float = 1, length: float = 100, randomness: float = 2
+        scale: float = 1, length: float = 100, randomness: float = 2
 ) -> ExitStack:
     """
     Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
@@ -881,23 +878,23 @@ def xkcd(
 ## Figures ##
 
 def figure(
-    # autoincrement if None, else integer from 1-N
-    num: int | str | Figure | SubFigure | None = None,
-    # defaults to rc figure.figsize
-    figsize: ArrayLike  # a 2-element ndarray is accepted as well
-             | tuple[float, float, Literal["in", "cm", "px"]]
-             | None = None,
-    # defaults to rc figure.dpi
-    dpi: float | None = None,
-    *,
-    # defaults to rc figure.facecolor
-    facecolor: ColorType | None = None,
-    # defaults to rc figure.edgecolor
-    edgecolor: ColorType | None = None,
-    frameon: bool = True,
-    FigureClass: type[Figure] = Figure,
-    clear: bool = False,
-    **kwargs
+        # autoincrement if None, else integer from 1-N
+        num: int | str | Figure | SubFigure | None = None,
+        # defaults to rc figure.figsize
+        figsize: ArrayLike  # a 2-element ndarray is accepted as well
+                 | tuple[float, float, Literal["in", "cm", "px"]]
+                 | None = None,
+        # defaults to rc figure.dpi
+        dpi: float | None = None,
+        *,
+        # defaults to rc figure.facecolor
+        facecolor: ColorType | None = None,
+        # defaults to rc figure.edgecolor
+        edgecolor: ColorType | None = None,
+        frameon: bool = True,
+        FigureClass: type[Figure] = Figure,
+        clear: bool = False,
+        **kwargs
 ) -> Figure:
     """
     Create a new figure, or activate an existing figure.
@@ -1025,7 +1022,7 @@ default: None
         num = next_num
     else:
         if (any(param is not None for param in [figsize, dpi, facecolor, edgecolor])
-              or not frameon or kwargs) and num in allnums:
+            or not frameon or kwargs) and num in allnums:
             _api.warn_external(
                 "Ignoring specified arguments in this call "
                 f"because figure with num: {num} already exists")
@@ -1273,6 +1270,8 @@ def savefig(fname: str | os.PathLike | IO, **kwargs) -> None:
 
 def figlegend(*args, **kwargs) -> Legend:
     return gcf().legend(*args, **kwargs)
+
+
 if Figure.legend.__doc__:
     figlegend.__doc__ = Figure.legend.__doc__ \
         .replace(" legend(", " figlegend(") \
@@ -1284,8 +1283,8 @@ if Figure.legend.__doc__:
 
 @_docstring.interpd
 def axes(
-    arg: None | tuple[float, float, float, float] = None,
-    **kwargs
+        arg: None | tuple[float, float, float, float] = None,
+        **kwargs
 ) -> matplotlib.axes.Axes:
     """
     Add an Axes to the current figure and make it the current Axes.
@@ -1586,9 +1585,9 @@ def subplot(*args, **kwargs) -> Axes:
         # If we found an Axes at the position, we can reuse it if the user passed no
         # kwargs or if the Axes class and kwargs are identical.
         if (ax.get_subplotspec() == key
-            and (kwargs == {}
-                 or (ax._projection_init
-                     == fig._process_projection_requirements(**kwargs)))):
+                and (kwargs == {}
+                     or (ax._projection_init
+                         == fig._process_projection_requirements(**kwargs)))):
             break
     else:
         # we have exhausted the known Axes and none match, make a new one!
@@ -1601,65 +1600,65 @@ def subplot(*args, **kwargs) -> Axes:
 
 @overload
 def subplots(
-    nrows: Literal[1] = ...,
-    ncols: Literal[1] = ...,
-    *,
-    sharex: bool | Literal["none", "all", "row", "col"] = ...,
-    sharey: bool | Literal["none", "all", "row", "col"] = ...,
-    squeeze: Literal[True] = ...,
-    width_ratios: Sequence[float] | None = ...,
-    height_ratios: Sequence[float] | None = ...,
-    subplot_kw: dict[str, Any] | None = ...,
-    gridspec_kw: dict[str, Any] | None = ...,
-    **fig_kw
+        nrows: Literal[1] = ...,
+        ncols: Literal[1] = ...,
+        *,
+        sharex: bool | Literal["none", "all", "row", "col"] = ...,
+        sharey: bool | Literal["none", "all", "row", "col"] = ...,
+        squeeze: Literal[True] = ...,
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+        **fig_kw
 ) -> tuple[Figure, Axes]:
     ...
 
 
 @overload
 def subplots(
-    nrows: int = ...,
-    ncols: int = ...,
-    *,
-    sharex: bool | Literal["none", "all", "row", "col"] = ...,
-    sharey: bool | Literal["none", "all", "row", "col"] = ...,
-    squeeze: Literal[False],
-    width_ratios: Sequence[float] | None = ...,
-    height_ratios: Sequence[float] | None = ...,
-    subplot_kw: dict[str, Any] | None = ...,
-    gridspec_kw: dict[str, Any] | None = ...,
-    **fig_kw
+        nrows: int = ...,
+        ncols: int = ...,
+        *,
+        sharex: bool | Literal["none", "all", "row", "col"] = ...,
+        sharey: bool | Literal["none", "all", "row", "col"] = ...,
+        squeeze: Literal[False],
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+        **fig_kw
 ) -> tuple[Figure, np.ndarray]:  # TODO numpy/numpy#24738
     ...
 
 
 @overload
 def subplots(
-    nrows: int = ...,
-    ncols: int = ...,
-    *,
-    sharex: bool | Literal["none", "all", "row", "col"] = ...,
-    sharey: bool | Literal["none", "all", "row", "col"] = ...,
-    squeeze: bool = ...,
-    width_ratios: Sequence[float] | None = ...,
-    height_ratios: Sequence[float] | None = ...,
-    subplot_kw: dict[str, Any] | None = ...,
-    gridspec_kw: dict[str, Any] | None = ...,
-    **fig_kw
+        nrows: int = ...,
+        ncols: int = ...,
+        *,
+        sharex: bool | Literal["none", "all", "row", "col"] = ...,
+        sharey: bool | Literal["none", "all", "row", "col"] = ...,
+        squeeze: bool = ...,
+        width_ratios: Sequence[float] | None = ...,
+        height_ratios: Sequence[float] | None = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+        **fig_kw
 ) -> tuple[Figure, Any]:
     ...
 
 
 def subplots(
-    nrows: int = 1, ncols: int = 1, *,
-    sharex: bool | Literal["none", "all", "row", "col"] = False,
-    sharey: bool | Literal["none", "all", "row", "col"] = False,
-    squeeze: bool = True,
-    width_ratios: Sequence[float] | None = None,
-    height_ratios: Sequence[float] | None = None,
-    subplot_kw: dict[str, Any] | None = None,
-    gridspec_kw: dict[str, Any] | None = None,
-    **fig_kw
+        nrows: int = 1, ncols: int = 1, *,
+        sharex: bool | Literal["none", "all", "row", "col"] = False,
+        sharey: bool | Literal["none", "all", "row", "col"] = False,
+        squeeze: bool = True,
+        width_ratios: Sequence[float] | None = None,
+        height_ratios: Sequence[float] | None = None,
+        subplot_kw: dict[str, Any] | None = None,
+        gridspec_kw: dict[str, Any] | None = None,
+        **fig_kw
 ) -> tuple[Figure, Any]:
     """
     Create a figure and a set of subplots.
@@ -1815,66 +1814,66 @@ def subplots(
 
 @overload
 def subplot_mosaic(
-    mosaic: str,
-    *,
-    sharex: bool = ...,
-    sharey: bool = ...,
-    width_ratios: ArrayLike | None = ...,
-    height_ratios: ArrayLike | None = ...,
-    empty_sentinel: str = ...,
-    subplot_kw: dict[str, Any] | None = ...,
-    gridspec_kw: dict[str, Any] | None = ...,
-    per_subplot_kw: dict[str | tuple[str, ...], dict[str, Any]] | None = ...,
-    **fig_kw: Any
+        mosaic: str,
+        *,
+        sharex: bool = ...,
+        sharey: bool = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        empty_sentinel: str = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+        per_subplot_kw: dict[str | tuple[str, ...], dict[str, Any]] | None = ...,
+        **fig_kw: Any
 ) -> tuple[Figure, dict[str, matplotlib.axes.Axes]]: ...
 
 
 @overload
 def subplot_mosaic(
-    mosaic: list[HashableList[_T]],
-    *,
-    sharex: bool = ...,
-    sharey: bool = ...,
-    width_ratios: ArrayLike | None = ...,
-    height_ratios: ArrayLike | None = ...,
-    empty_sentinel: _T = ...,
-    subplot_kw: dict[str, Any] | None = ...,
-    gridspec_kw: dict[str, Any] | None = ...,
-    per_subplot_kw: dict[_T | tuple[_T, ...], dict[str, Any]] | None = ...,
-    **fig_kw: Any
+        mosaic: list[HashableList[_T]],
+        *,
+        sharex: bool = ...,
+        sharey: bool = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        empty_sentinel: _T = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+        per_subplot_kw: dict[_T | tuple[_T, ...], dict[str, Any]] | None = ...,
+        **fig_kw: Any
 ) -> tuple[Figure, dict[_T, matplotlib.axes.Axes]]: ...
 
 
 @overload
 def subplot_mosaic(
-    mosaic: list[HashableList[Hashable]],
-    *,
-    sharex: bool = ...,
-    sharey: bool = ...,
-    width_ratios: ArrayLike | None = ...,
-    height_ratios: ArrayLike | None = ...,
-    empty_sentinel: Any = ...,
-    subplot_kw: dict[str, Any] | None = ...,
-    gridspec_kw: dict[str, Any] | None = ...,
-    per_subplot_kw: dict[Hashable | tuple[Hashable, ...], dict[str, Any]] | None = ...,
-    **fig_kw: Any
+        mosaic: list[HashableList[Hashable]],
+        *,
+        sharex: bool = ...,
+        sharey: bool = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        empty_sentinel: Any = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...,
+        per_subplot_kw: dict[Hashable | tuple[Hashable, ...], dict[str, Any]] | None = ...,
+        **fig_kw: Any
 ) -> tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]: ...
 
 
 def subplot_mosaic(
-    mosaic: str | list[HashableList[_T]] | list[HashableList[Hashable]],
-    *,
-    sharex: bool = False,
-    sharey: bool = False,
-    width_ratios: ArrayLike | None = None,
-    height_ratios: ArrayLike | None = None,
-    empty_sentinel: Any = '.',
-    subplot_kw: dict[str, Any] | None = None,
-    gridspec_kw: dict[str, Any] | None = None,
-    per_subplot_kw: dict[str | tuple[str, ...], dict[str, Any]] |
-                    dict[_T | tuple[_T, ...], dict[str, Any]] |
-                    dict[Hashable | tuple[Hashable, ...], dict[str, Any]] | None = None,
-    **fig_kw: Any
+        mosaic: str | list[HashableList[_T]] | list[HashableList[Hashable]],
+        *,
+        sharex: bool = False,
+        sharey: bool = False,
+        width_ratios: ArrayLike | None = None,
+        height_ratios: ArrayLike | None = None,
+        empty_sentinel: Any = '.',
+        subplot_kw: dict[str, Any] | None = None,
+        gridspec_kw: dict[str, Any] | None = None,
+        per_subplot_kw: dict[str | tuple[str, ...], dict[str, Any]] |
+                        dict[_T | tuple[_T, ...], dict[str, Any]] |
+                        dict[Hashable | tuple[Hashable, ...], dict[str, Any]] | None = None,
+        **fig_kw: Any
 ) -> tuple[Figure, dict[str, matplotlib.axes.Axes]] | \
      tuple[Figure, dict[_T, matplotlib.axes.Axes]] | \
      tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]:
@@ -1991,10 +1990,10 @@ def subplot_mosaic(
 
 
 def subplot2grid(
-    shape: tuple[int, int], loc: tuple[int, int],
-    rowspan: int = 1, colspan: int = 1,
-    fig: Figure | None = None,
-    **kwargs
+        shape: tuple[int, int], loc: tuple[int, int],
+        rowspan: int = 1, colspan: int = 1,
+        fig: Figure | None = None,
+        **kwargs
 ) -> matplotlib.axes.Axes:
     """
     Create a subplot at a specific location inside a regular grid.
@@ -2117,6 +2116,7 @@ def box(on: bool | None = None) -> None:
         on = not ax.get_frame_on()
     ax.set_frame_on(on)
 
+
 ## Axis ##
 
 
@@ -2195,11 +2195,11 @@ def ylim(*args, **kwargs) -> tuple[float, float]:
 
 
 def xticks(
-    ticks: ArrayLike | None = None,
-    labels: Sequence[str] | None = None,
-    *,
-    minor: bool = False,
-    **kwargs
+        ticks: ArrayLike | None = None,
+        labels: Sequence[str] | None = None,
+        *,
+        minor: bool = False,
+        **kwargs
 ) -> tuple[list[Tick] | np.ndarray, list[Text]]:
     """
     Get or set the current tick locations and labels of the x-axis.
@@ -2281,11 +2281,11 @@ def xticks(
 
 
 def yticks(
-    ticks: ArrayLike | None = None,
-    labels: Sequence[str] | None = None,
-    *,
-    minor: bool = False,
-    **kwargs
+        ticks: ArrayLike | None = None,
+        labels: Sequence[str] | None = None,
+        *,
+        minor: bool = False,
+        **kwargs
 ) -> tuple[list[Tick] | np.ndarray, list[Text]]:
     """
     Get or set the current tick locations and labels of the y-axis.
@@ -2366,11 +2366,11 @@ def yticks(
 
 
 def rgrids(
-    radii: ArrayLike | None = None,
-    labels: Sequence[str | Text] | None = None,
-    angle: float | None = None,
-    fmt: str | None = None,
-    **kwargs
+        radii: ArrayLike | None = None,
+        labels: Sequence[str | Text] | None = None,
+        angle: float | None = None,
+        fmt: str | None = None,
+        **kwargs
 ) -> tuple[list[Line2D], list[Text]]:
     """
     Get or set the radial gridlines on the current polar plot.
@@ -2445,10 +2445,10 @@ def rgrids(
 
 
 def thetagrids(
-    angles: ArrayLike | None = None,
-    labels: Sequence[str | Text] | None = None,
-    fmt: str | None = None,
-    **kwargs
+        angles: ArrayLike | None = None,
+        labels: Sequence[str | Text] | None = None,
+        fmt: str | None = None,
+        **kwargs
 ) -> tuple[list[Line2D], list[Text]]:
     """
     Get or set the theta gridlines on the current polar plot.
@@ -2541,8 +2541,8 @@ def _get_pyplot_commands() -> list[str]:
     return sorted(
         name for name, obj in globals().items()
         if not name.startswith('_') and name not in exclude
-           and inspect.isfunction(obj)
-           and inspect.getmodule(obj) is this_module)
+        and inspect.isfunction(obj)
+        and inspect.getmodule(obj) is this_module)
 
 
 ## Plotting part 1: manually generated functions and wrappers ##
@@ -2550,10 +2550,10 @@ def _get_pyplot_commands() -> list[str]:
 
 @_copy_docstring_and_deprecators(Figure.colorbar)
 def colorbar(
-    mappable: ScalarMappable | ColorizingArtist | None = None,
-    cax: matplotlib.axes.Axes | None = None,
-    ax: matplotlib.axes.Axes | Iterable[matplotlib.axes.Axes] | None = None,
-    **kwargs
+        mappable: ScalarMappable | ColorizingArtist | None = None,
+        cax: matplotlib.axes.Axes | None = None,
+        ax: matplotlib.axes.Axes | Iterable[matplotlib.axes.Axes] | None = None,
+        **kwargs
 ) -> Colorbar:
     if mappable is None:
         mappable = gci()
@@ -2648,7 +2648,7 @@ def imread(
 
 @_copy_docstring_and_deprecators(matplotlib.image.imsave)
 def imsave(
-    fname: str | os.PathLike | BinaryIO, arr: ArrayLike, **kwargs
+        fname: str | os.PathLike | BinaryIO, arr: ArrayLike, **kwargs
 ) -> None:
     matplotlib.image.imsave(fname, arr, **kwargs)
 
@@ -2715,9 +2715,9 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
 
 
 def polar(
-        *args,
-        scalex=True,
-        scaley=True,
+        *args: float | ArrayLike | str,
+        scalex: bool = True,
+        scaley: bool = True,
         data=None,
         **kwargs
 ) -> list[Line2D]:
@@ -2754,7 +2754,13 @@ def polar(
             )
     else:
         ax = axes(projection="polar")
-    return ax.plot(*args, **kwargs)
+    return ax.plot(
+        *args,
+        scalex=scalex,
+        scaley=scaley,
+        data=data,
+        **kwargs
+    )
 
 
 # If rcParams['backend_fallback'] is true, and an interactive backend is
@@ -2765,10 +2771,11 @@ if rcParams["backend_fallback"]:
     requested_backend = None if requested_backend is None else requested_backend.lower()
     available_backends = backend_registry.list_builtin(BackendFilter.INTERACTIVE)
     if (
-        requested_backend in (set(available_backends) - {'webagg', 'nbagg'})
-        and cbook._get_running_interactive_framework()
+            requested_backend in (set(available_backends) - {'webagg', 'nbagg'})
+            and cbook._get_running_interactive_framework()
     ):
         rcParams._set("backend", rcsetup._auto_backend_sentinel)
+
 
 # fmt: on
 
