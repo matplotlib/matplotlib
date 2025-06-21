@@ -2966,7 +2966,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     @_docstring.interpd
-    def broken_barh(self, xranges, yrange, **kwargs):
+    def broken_barh(self, xranges, yrange, align="bottom", **kwargs):
         """
         Plot a horizontal sequence of rectangles.
 
@@ -2979,8 +2979,16 @@ class Axes(_AxesBase):
             The x-positions and extents of the rectangles. For each tuple
             (*xmin*, *xwidth*) a rectangle is drawn from *xmin* to *xmin* +
             *xwidth*.
-        yrange : (*ymin*, *yheight*)
+        yrange : (*ypos*, *yheight*)
             The y-position and extent for all the rectangles.
+        align : {"bottom", "center", "top"}, default: 'bottom'
+            The alignment of the yrange with respect to the y-position. One of:
+
+            - "bottom": Resulting y-range [ypos, ypos + yheight]
+            - "center": Resulting y-range [ypos - yheight/2, ypos + yheight/2]
+            - "top": Resulting y-range [ypos - yheight, ypos]
+
+            .. versionadded:: 3.11
 
         Returns
         -------
@@ -3015,7 +3023,15 @@ class Axes(_AxesBase):
 
         vertices = []
         y0, dy = yrange
-        y0, y1 = self.convert_yunits((y0, y0 + dy))
+
+        _api.check_in_list(['bottom', 'center', 'top'], align=align)
+        if align == "bottom":
+            y0, y1 = self.convert_yunits((y0, y0 + dy))
+        elif align == "center":
+            y0, y1 = self.convert_yunits((y0 - dy/2, y0 + dy/2))
+        else:
+            y0, y1 = self.convert_yunits((y0 - dy, y0))
+
         for xr in xranges:  # convert the absolute values, not the x and dx
             try:
                 x0, dx = xr
