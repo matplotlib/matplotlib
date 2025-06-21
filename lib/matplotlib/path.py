@@ -16,12 +16,38 @@ from weakref import WeakValueDictionary
 import numpy as np
 
 import matplotlib as mpl
+
 from . import _api, _path
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 from .bezier import BezierSegment
 
 
-class Path:
+class _HideDeepcopyMeta(type):
+    """Metaclass that allows conditionally hiding the __deepcopy__ method.
+
+    Set __hide_deepcopy__ to True to hide the __deepcopy__ method,
+    which will then be looked up in the usual method resolution order.
+    """
+
+    def __new__(cls, name, bases, namespace):
+        orig_ga = namespace.get("__getattribute__") or object.__getattribute__
+
+        def __getattribute__(self, attr_name):
+            if attr_name == "__deepcopy__" and orig_ga(self, "__hide_deepcopy__"):
+                for base in type(self).__mro__[1:]:
+                    if attr_name in base.__dict__:
+                        method = base.__dict__[attr_name]
+                        return method.__get__(self, type(self))
+                raise AttributeError(
+                    f"'{type(self).__name__}' object has no attribute '{attr_name}'"
+                )
+            return orig_ga(self, attr_name)
+
+        namespace["__getattribute__"] = __getattribute__
+        return super().__new__(cls, name, bases, namespace)
+
+
+class Path(metaclass=_HideDeepcopyMeta):
     """
     A series of possibly disconnected, possibly closed, line and curve
     segments.
@@ -281,9 +307,13 @@ class Path:
         readonly, even if the source `Path` is.
         """
         # Deepcopying arrays (vertices, codes) strips the writeable=False flag.
-        p = copy.deepcopy(super(), memo)
-        p._readonly = False
-        return p
+        self.__hide_deepcopy__ = True
+        try:
+            p = copy.deepcopy(self, memo)
+            p._readonly = False
+            return p
+        finally:
+            self.__hide_deepcopy__ = False
 
     deepcopy = __deepcopy__
 
