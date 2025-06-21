@@ -11,6 +11,7 @@
 #include <cmath>
 #include <algorithm>
 #include <functional>
+#include <optional>
 #include <vector>
 
 #include "agg_alpha_mask_u8.h"
@@ -122,9 +123,6 @@ class RendererAgg
 
     typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
     typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
-
-    /* TODO: Remove facepair_t */
-    typedef std::pair<bool, agg::rgba> facepair_t;
 
     RendererAgg(unsigned int width, unsigned int height, double dpi);
 
@@ -248,7 +246,7 @@ class RendererAgg
     bool render_clippath(mpl::PathIterator &clippath, const agg::trans_affine &clippath_trans, e_snap_mode snap_mode);
 
     template <class PathIteratorType>
-    void _draw_path(PathIteratorType &path, bool has_clippath, const facepair_t &face, GCAgg &gc);
+    void _draw_path(PathIteratorType &path, bool has_clippath, const std::optional<agg::rgba> &face, GCAgg &gc);
 
     template <class PathIterator,
               class PathGenerator,
@@ -295,7 +293,7 @@ class RendererAgg
 
 template <class path_t>
 inline void
-RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face, GCAgg &gc)
+RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg::rgba> &face, GCAgg &gc)
 {
     typedef agg::conv_stroke<path_t> stroke_t;
     typedef agg::conv_dash<path_t> dash_t;
@@ -306,7 +304,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
     typedef agg::renderer_scanline_bin_solid<amask_ren_type> amask_bin_renderer_type;
 
     // Render face
-    if (face.first) {
+    if (face) {
         theRasterizer.add_path(path);
 
         if (gc.isaa) {
@@ -314,10 +312,10 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
                 pixfmt_amask_type pfa(pixFmt, alphaMask);
                 amask_ren_type r(pfa);
                 amask_aa_renderer_type ren(r);
-                ren.color(face.second);
+                ren.color(*face);
                 agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             } else {
-                rendererAA.color(face.second);
+                rendererAA.color(*face);
                 agg::render_scanlines(theRasterizer, slineP8, rendererAA);
             }
         } else {
@@ -325,10 +323,10 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
                 pixfmt_amask_type pfa(pixFmt, alphaMask);
                 amask_ren_type r(pfa);
                 amask_bin_renderer_type ren(r);
-                ren.color(face.second);
+                ren.color(*face);
                 agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             } else {
-                rendererBin.color(face.second);
+                rendererBin.color(*face);
                 agg::render_scanlines(theRasterizer, slineP8, rendererBin);
             }
         }
@@ -458,7 +456,10 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
     typedef agg::conv_curve<simplify_t> curve_t;
     typedef Sketch<curve_t> sketch_t;
 
-    facepair_t face(color.a != 0.0, color);
+    std::optional<agg::rgba> face;
+    if (color.a != 0.0) {
+        face = color;
+    }
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
@@ -467,7 +468,7 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
 
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.0, (double)height);
-    bool clip = !face.first && !gc.has_hatchpath();
+    bool clip = !face && !gc.has_hatchpath();
     bool simplify = path.should_simplify() && clip;
     double snapping_linewidth = points_to_pixels(gc.linewidth);
     if (gc.color.a == 0.0) {
@@ -529,7 +530,10 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
     curve_t path_curve(path_snapped);
     path_curve.rewind(0);
 
-    facepair_t face(color.a != 0.0, color);
+    std::optional<agg::rgba> face;
+    if (color.a != 0.0) {
+        face = color;
+    }
 
     // maxim's suggestions for cached scanlines
     agg::scanline_storage_aa8 scanlines;
@@ -541,7 +545,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
     try
     {
         std::vector<agg::int8u> fillBuffer;
-        if (face.first) {
+        if (face) {
             theRasterizer.add_path(marker_path_curve);
             agg::render_scanlines(theRasterizer, slineP8, scanlines);
             fillBuffer.resize(scanlines.byte_size());
@@ -605,8 +609,8 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                 amask_ren_type r(pfa);
                 amask_aa_renderer_type ren(r);
 
-                if (face.first) {
-                    ren.color(face.second);
+                if (face) {
+                    ren.color(*face);
                     sa.init(fillBuffer.data(), fillBuffer.size(), x, y);
                     agg::render_scanlines(sa, sl, ren);
                 }
@@ -633,8 +637,8 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                     continue;
                 }
 
-                if (face.first) {
-                    rendererAA.color(face.second);
+                if (face) {
+                    rendererAA.color(*face);
                     sa.init(fillBuffer.data(), fillBuffer.size(), x, y);
                     agg::render_scanlines(sa, sl, rendererAA);
                 }
@@ -936,10 +940,9 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
 
     // Set some defaults, assuming no face or edge
     gc.linewidth = 0.0;
-    facepair_t face;
-    face.first = Nfacecolors != 0;
+    std::optional<agg::rgba> face;
     agg::trans_affine trans;
-    bool do_clip = !face.first && !gc.has_hatchpath();
+    bool do_clip = Nfacecolors == 0 && !gc.has_hatchpath();
 
     for (int i = 0; i < (int)N; ++i) {
         typename PathGenerator::path_iterator path = path_generator(i);
@@ -970,7 +973,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
 
         if (Nfacecolors) {
             int ic = i % Nfacecolors;
-            face.second = agg::rgba(facecolors(ic, 0), facecolors(ic, 1), facecolors(ic, 2), facecolors(ic, 3));
+            face.emplace(facecolors(ic, 0), facecolors(ic, 1), facecolors(ic, 2), facecolors(ic, 3));
         }
 
         if (Nedgecolors) {
