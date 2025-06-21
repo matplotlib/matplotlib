@@ -50,7 +50,7 @@ import logging
 import sys
 import threading
 import time
-from typing import TYPE_CHECKING, cast, overload
+from typing import IO, TYPE_CHECKING, cast, overload
 
 from cycler import cycler  # noqa: F401
 import matplotlib
@@ -338,8 +338,8 @@ draw_all = _pylab_helpers.Gcf.draw_all
 
 # Ensure this appears in the pyplot docs.
 @_copy_docstring_and_deprecators(matplotlib.set_loglevel)
-def set_loglevel(*args, **kwargs) -> None:
-    return matplotlib.set_loglevel(*args, **kwargs)
+def set_loglevel(level: str) -> None:
+    return matplotlib.set_loglevel(level)
 
 
 @_copy_docstring_and_deprecators(Artist.findobj)
@@ -1251,11 +1251,11 @@ def draw() -> None:
 
 
 @_copy_docstring_and_deprecators(Figure.savefig)
-def savefig(*args, **kwargs) -> None:
+def savefig(fname: str | os.PathLike | IO, **kwargs) -> None:
     fig = gcf()
     # savefig default implementation has no return, so mypy is unhappy
     # presumably this is here because subclasses can return?
-    res = fig.savefig(*args, **kwargs)  # type: ignore[func-returns-value]
+    res = fig.savefig(fname, **kwargs)  # type: ignore[func-returns-value]
     fig.canvas.draw_idle()  # Need this if 'transparent=True', to reset colors.
     return res
 
@@ -2690,7 +2690,13 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     return im
 
 
-def polar(*args, **kwargs) -> list[Line2D]:
+def polar(
+        *args: float | ArrayLike | str,
+        scalex: bool = True,
+        scaley: bool = True,
+        data=None,
+        **kwargs
+) -> list[Line2D]:
     """
     Make a polar plot.
 
@@ -2724,7 +2730,13 @@ def polar(*args, **kwargs) -> list[Line2D]:
             )
     else:
         ax = axes(projection="polar")
-    return ax.plot(*args, **kwargs)
+    return ax.plot(
+        *args,
+        scalex=scalex,
+        scaley=scaley,
+        data=data,
+        **kwargs
+    )
 
 
 # If rcParams['backend_fallback'] is true, and an interactive backend is
