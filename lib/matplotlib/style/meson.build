@@ -4,6 +4,7 @@ python_sources = [
 ]
 
 typing_sources = [
+  '__init__.pyi',
   'core.pyi',
 ]
 
