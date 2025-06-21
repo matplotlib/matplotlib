@@ -129,7 +129,7 @@ prop : None or `~matplotlib.font_manager.FontProperties` or dict
     The font properties of the legend. If None (default), the current
     :data:`matplotlib.rcParams` will be used.
 
-fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
+fontsize : float or {'xx-small', 'x-small', 'small', 'medium', 'large', \
 'x-large', 'xx-large'}
     The font size of the legend. If the value is numeric the size will be the
     absolute font size in points. String values are relative to the current
@@ -214,7 +214,7 @@ title_fontproperties : None or `~matplotlib.font_manager.FontProperties` or dict
     *title_fontsize* argument will be used if present; if *title_fontsize* is
     also None, the current :rc:`legend.title_fontsize` will be used.
 
-title_fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
+title_fontsize : float or {'xx-small', 'x-small', 'small', 'medium', 'large', \
 'x-large', 'xx-large'}, default: :rc:`legend.title_fontsize`
     The font size of the legend's title.
     Note: This cannot be combined with *title_fontproperties*. If you want
@@ -812,7 +812,7 @@ class Legend(Artist):
     def get_legend_handler(legend_handler_map, orig_handle):
         """
         Return a legend handler from *legend_handler_map* that
-        corresponds to *orig_handler*.
+        corresponds to *orig_handle*.
 
         *legend_handler_map* should be a dictionary object (that is
         returned by the get_legend_handler_map method).
