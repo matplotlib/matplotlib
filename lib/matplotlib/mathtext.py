@@ -58,6 +58,8 @@ class MathTextParser:
         self._output_type = _api.check_getitem(
             {"path": "vector", "agg": "raster", "macosx": "raster"},
             output=output.lower())
+        self._last_backend = None
+        self._last_font = None
 
     def parse(self, s, dpi=72, prop=None, *, antialiased=None):
         """
@@ -76,6 +78,17 @@ class MathTextParser:
         # Text._get_text_metrics_with_cache for a similar case); likewise,
         # we need to check the mutable state of the text.antialiased and
         # text.hinting rcParams.
+        from matplotlib import rcParams
+
+        backend_now = self._output_type
+        font_now = prop.get_name() if prop else rcParams['font.family']
+
+        if backend_now != self._last_backend or font_now != self._last_font:
+            self._parse_cached.cache_clear()
+
+        self._last_backend = backend_now
+        self._last_font = font_now
+
         prop = prop.copy() if prop is not None else None
         antialiased = mpl._val_or_rc(antialiased, 'text.antialiased')
         from matplotlib.backends import backend_agg
