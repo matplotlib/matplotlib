@@ -130,11 +130,11 @@ class direct_repr:
 
 
 def generate_function(
-        name,
-        called_fullname,
-        template,
-        gettersetter=False,
-        **kwargs
+    name,
+    called_fullname,
+    template,
+    gettersetter=False,
+    **kwargs
 ):
     """
     Create a wrapper function *pyplot_name* calling *call_name*.
