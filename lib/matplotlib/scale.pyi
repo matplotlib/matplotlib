@@ -15,6 +15,10 @@ class ScaleBase:
 
 class LinearScale(ScaleBase):
     name: str
+    def __init__(
+            self,
+            axis:  Axis | None,
+        ) -> None: ...
 
 class FuncTransform(Transform):
     input_dims: int
@@ -57,7 +61,7 @@ class LogScale(ScaleBase):
     subs: Iterable[int] | None
     def __init__(
         self,
-        axis: Axis | None,
+        axis: Axis | None = ...,
         *,
         base: float = ...,
         subs: Iterable[int] | None = ...,
@@ -104,7 +108,7 @@ class SymmetricalLogScale(ScaleBase):
     subs: Iterable[int] | None
     def __init__(
         self,
-        axis: Axis | None,
+        axis: Axis | None = ...,
         *,
         base: float = ...,
         linthresh: float = ...,
@@ -138,7 +142,7 @@ class AsinhScale(ScaleBase):
     auto_tick_multipliers: dict[int, tuple[int, ...]]
     def __init__(
         self,
-        axis: Axis | None,
+        axis: Axis | None = ...,
         *,
         linear_width: float = ...,
         base: float = ...,
@@ -165,7 +169,7 @@ class LogitScale(ScaleBase):
     name: str
     def __init__(
         self,
-        axis: Axis | None,
+        axis: Axis | None = ...,
         nonpositive: Literal["mask", "clip"] = ...,
         *,
         one_half: str = ...,
@@ -176,3 +180,4 @@ class LogitScale(ScaleBase):
 def get_scale_names() -> list[str]: ...
 def scale_factory(scale: str, axis: Axis, **kwargs) -> ScaleBase: ...
 def register_scale(scale_class: type[ScaleBase]) -> None: ...
+def _make_axis_parameter_optional(init_func: Callable[..., None]) -> Callable[..., None]: ...
