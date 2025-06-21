@@ -2185,9 +2185,9 @@ class _AxesBase(martist.Artist):
                     xlim = self.get_xlim()
                     ylim = self.get_ylim()
                     edge_size = max(np.diff(xlim), np.diff(ylim))[0]
-                    self.set_xlim([xlim[0], xlim[0] + edge_size],
+                    self.set_xlim(xlim[0], xlim[0] + edge_size,
                                   emit=emit, auto=False)
-                    self.set_ylim([ylim[0], ylim[0] + edge_size],
+                    self.set_ylim(ylim[0], ylim[0] + edge_size,
                                   emit=emit, auto=False)
             else:
                 raise ValueError(f"Unrecognized string {arg!r} to axis; "

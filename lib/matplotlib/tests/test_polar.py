@@ -150,7 +150,7 @@ def test_polar_rmin():
     theta = 2*np.pi*r
 
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.plot(theta, r)
     ax.set_rmax(2.0)
     ax.set_rmin(0.5)
@@ -162,7 +162,7 @@ def test_polar_negative_rmin():
     theta = 2*np.pi*r
 
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.plot(theta, r)
     ax.set_rmax(0.0)
     ax.set_rmin(-3.0)
@@ -174,7 +174,7 @@ def test_polar_rorigin():
     theta = 2*np.pi*r
 
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.plot(theta, r)
     ax.set_rmax(2.0)
     ax.set_rmin(0.5)
@@ -184,14 +184,14 @@ def test_polar_rorigin():
 @image_comparison(['polar_invertedylim.png'], style='default')
 def test_polar_invertedylim():
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.set_ylim(2, 0)
 
 
 @image_comparison(['polar_invertedylim_rorigin.png'], style='default')
 def test_polar_invertedylim_rorigin():
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.yaxis.set_inverted(True)
     # Set the rlims to inverted (2, 0) without calling set_rlim, to check that
     # viewlims are correctly unstaled before draw()ing.
@@ -206,7 +206,7 @@ def test_polar_theta_position():
     theta = 2*np.pi*r
 
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.plot(theta, r)
     ax.set_theta_zero_location("NW", 30)
     ax.set_theta_direction('clockwise')
