@@ -42,6 +42,7 @@ jobs:
       contents: read
     name: "Python ${{ matrix.python-version }} on ${{ matrix.os }} ${{ matrix.name-suffix }}"
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ contains(matrix.name-suffix, 'pre-release') }}
 
     strategy:
       fail-fast: false
@@ -88,6 +89,14 @@ jobs:
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
+          - name-suffix: "(Python 3.14 pre-release)"
+            os: ubuntu-24.04
+            python-version: '3.14.0-beta.3'
+            # no pillow wheel yet, need extra packages to build from source
+            extra-packages: >-
+              libtiff5-dev libjpeg8-dev libopenjp2-7-dev zlib1g-dev
+              libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev
+              python3-tk libharfbuzz-dev libfribidi-dev libxcb1-dev
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -265,8 +274,10 @@ jobs:
           # Even though PySide2 wheels can be installed on Python 3.12+, they are broken and since PySide2 is
           # deprecated, they are unlikely to be fixed. For the same deprecation reason, there are no wheels
           # on M1 macOS, so don't bother there either.
-          if [[ "${{ matrix.os }}" != 'macos-14'
-                && "${{ matrix.python-version }}" != '3.12' && "${{ matrix.python-version }}" != '3.13' ]]; then
+          version_atmost() {
+            printf "%s\n" "$1" "$2" | sort --version-sort --check=silent
+          }
+          if [[ "${{ matrix.os }}" != 'macos-14' ]] && version_atmost "${{ matrix.python-version }}" 3.11.999; then
             python -mpip install --upgrade pyside2 &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
