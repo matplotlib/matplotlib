@@ -274,8 +274,10 @@ jobs:
           # Even though PySide2 wheels can be installed on Python 3.12+, they are broken and since PySide2 is
           # deprecated, they are unlikely to be fixed. For the same deprecation reason, there are no wheels
           # on M1 macOS, so don't bother there either.
-          if [[ "${{ matrix.os }}" != 'macos-14'
-                && "${{ matrix.python-version }}" != '3.12' && "${{ matrix.python-version }}" != '3.13' ]]; then
+          version_atmost() {
+            printf "%s\n" "$1" "$2" | sort --version-sort --check=silent
+          }
+          if [[ "${{ matrix.os }}" != 'macos-14' ]] && version_atmost "${{ matrix.python-version }}" 3.11.999; then
             python -mpip install --upgrade pyside2 &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
