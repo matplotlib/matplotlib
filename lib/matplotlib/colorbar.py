@@ -373,7 +373,7 @@ class Colorbar:
             colors=[mpl.rcParams['axes.edgecolor']],
             linewidths=[0.5 * mpl.rcParams['axes.linewidth']],
             clip_on=False)
-        self.ax.add_collection(self.dividers)
+        self.ax.add_collection(self.dividers, autolim=False)
 
         self._locator = None
         self._minorlocator = None
@@ -807,7 +807,7 @@ class Colorbar:
         xy = self.ax.transAxes.inverted().transform(inches.transform(xy))
         col.set_clip_path(mpath.Path(xy, closed=True),
                           self.ax.transAxes)
-        self.ax.add_collection(col)
+        self.ax.add_collection(col, autolim=False)
         self.stale = True
 
     def update_ticks(self):
