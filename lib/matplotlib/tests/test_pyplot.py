@@ -1,4 +1,6 @@
+import ast
 import difflib
+import inspect
 
 import numpy as np
 import sys
@@ -484,3 +486,75 @@ def test_matshow():
 
     # Smoke test that matshow does not ask for a new figsize on the existing figure
     plt.matshow(arr, fignum=fig.number)
+
+
+def assert_signatures_identical(plt_meth, original_meth, remove_self_param=False):
+    def get_src(meth):
+        meth_src = Path(inspect.getfile(meth))
+        meth_stub = meth_src.with_suffix(".pyi")
+        return meth_stub if meth_stub.exists() else meth_src
+
+    def tree_loop(tree, name, class_):
+        for item in tree.body:
+            if class_ and isinstance(item, ast.ClassDef) and item.name == class_:
+                return tree_loop(item, name, None)
+
+            if isinstance(item, ast.FunctionDef) and item.name == name:
+                return item
+
+        raise ValueError(f"Cannot find {class_}.{name} in ast")
+
+    def get_signature(meth):
+        qualname = meth.__qualname__
+        class_ = None if "." not in qualname else qualname.split(".")[-2]
+        path = get_src(meth)
+        tree = ast.parse(path.read_text())
+        node = tree_loop(tree, meth.__name__, class_)
+
+        params = dict(inspect.signature(meth).parameters)
+        args = node.args
+        allargs = (
+            *args.posonlyargs,
+            *args.args,
+            args.vararg,
+            *args.kwonlyargs,
+            args.kwarg
+        )
+        for param in allargs:
+            if param is None:
+                continue
+            if param.annotation is None:
+                continue
+            annotation = ast.unparse(param.annotation)
+            params[param.arg] = params[param.arg].replace(annotation=annotation)
+
+        if node.returns is not None:
+            return inspect.Signature(
+                params.values(),
+                return_annotation=ast.unparse(node.returns)
+            )
+        else:
+            return inspect.Signature(params.values())
+
+    plt_sig = get_signature(plt_meth)
+    original_sig = get_signature(original_meth)
+
+    assert plt_sig.return_annotation == original_sig.return_annotation
+
+    original_params = original_sig.parameters
+    if remove_self_param:
+        if next(iter(original_params)) not in ["self"]:
+            raise ValueError(f"{original_sig} is not an instance method")
+
+        original_params = original_params.copy()
+        del original_params["self"]
+
+    assert plt_sig.parameters == original_params
+
+
+def test_setloglevel_signature():
+    assert_signatures_identical(plt.set_loglevel, mpl.set_loglevel)
+
+
+def test_polar_signature():
+    assert_signatures_identical(plt.polar, plt.Axes.plot, True)
