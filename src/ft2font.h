@@ -108,22 +108,19 @@ class FT2Font
     void select_charmap(unsigned long i);
     void set_text(std::u32string_view codepoints, double angle, FT_Int32 flags,
                   std::vector<double> &xys);
-    int get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode, bool fallback);
-    int get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode, FT_Vector &delta);
+    int get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode);
     void set_kerning_factor(int factor);
     void load_char(long charcode, FT_Int32 flags, FT2Font *&ft_object, bool fallback);
     bool load_char_with_fallback(FT2Font *&ft_object_with_glyph,
                                  FT_UInt &final_glyph_index,
                                  std::vector<FT_Glyph> &parent_glyphs,
                                  std::unordered_map<long, FT2Font *> &parent_char_to_font,
-                                 std::unordered_map<FT_UInt, FT2Font *> &parent_glyph_to_font,
                                  long charcode,
                                  FT_Int32 flags,
                                  FT_Error &charcode_error,
                                  FT_Error &glyph_error,
                                  std::set<FT_String*> &glyph_seen_fonts,
                                  bool override);
-    void load_glyph(FT_UInt glyph_index, FT_Int32 flags, FT2Font *&ft_object, bool fallback);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
     void get_width_height(long *width, long *height);
     void get_bitmap_offset(long *x, long *y);
@@ -132,7 +129,7 @@ class FT2Font
     void draw_glyph_to_bitmap(
         py::array_t<uint8_t, py::array::c_style> im,
         int x, int y, size_t glyphInd, bool antialiased);
-    void get_glyph_name(unsigned int glyph_number, std::string &buffer, bool fallback);
+    void get_glyph_name(unsigned int glyph_number, std::string &buffer);
     long get_name_index(char *name);
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);
     void get_path(std::vector<double> &vertices, std::vector<unsigned char> &codes);
@@ -176,7 +173,6 @@ class FT2Font
     FT_Vector pen;    /* untransformed origin  */
     std::vector<FT_Glyph> glyphs;
     std::vector<FT2Font *> fallbacks;
-    std::unordered_map<FT_UInt, FT2Font *> glyph_to_font;
     std::unordered_map<long, FT2Font *> char_to_font;
     FT_BBox bbox;
     FT_Pos advance;

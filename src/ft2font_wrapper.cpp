@@ -618,7 +618,6 @@ static int
 PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right,
                       std::variant<FT_Kerning_Mode, FT_UInt> mode_or_int)
 {
-    bool fallback = true;
     FT_Kerning_Mode mode;
 
     if (auto value = std::get_if<FT_UInt>(&mode_or_int)) {
@@ -636,7 +635,7 @@ PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right,
         throw py::type_error("mode must be Kerning or int");
     }
 
-    return self->x->get_kerning(left, right, mode, fallback);
+    return self->x->get_kerning(left, right, mode);
 }
 
 const char *PyFT2Font_get_fontmap__doc__ = R"""(
@@ -834,8 +833,6 @@ static PyGlyph *
 PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
                      std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
-    bool fallback = true;
-    FT2Font *ft_object = nullptr;
     LoadFlags flags;
 
     if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
@@ -853,9 +850,9 @@ PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
         throw py::type_error("flags must be LoadFlags or int");
     }
 
-    self->x->load_glyph(glyph_index, static_cast<FT_Int32>(flags), ft_object, fallback);
+    self->x->load_glyph(glyph_index, static_cast<FT_Int32>(flags));
 
-    return PyGlyph_from_FT2Font(ft_object);
+    return PyGlyph_from_FT2Font(self->x);
 }
 
 const char *PyFT2Font_get_width_height__doc__ = R"""(
@@ -1022,10 +1019,9 @@ static py::str
 PyFT2Font_get_glyph_name(PyFT2Font *self, unsigned int glyph_number)
 {
     std::string buffer;
-    bool fallback = true;
 
     buffer.resize(128);
-    self->x->get_glyph_name(glyph_number, buffer, fallback);
+    self->x->get_glyph_name(glyph_number, buffer);
     return buffer;
 }
 
