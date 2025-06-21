@@ -7,7 +7,11 @@ from numpy.typing import ArrayLike
 
 from typing import Any, overload
 
-class Path:
+class _HideDeepcopyMeta(type):
+    def __new__(cls, name, bases, namespace):
+        ...
+
+class Path(metaclass=_HideDeepcopyMeta):
     code_type: type[np.uint8]
     STOP: np.uint8
     MOVETO: np.uint8
