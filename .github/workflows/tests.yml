@@ -50,14 +50,14 @@ jobs:
           - name-suffix: "(Minimum Versions)"
             os: ubuntu-22.04
             python-version: '3.11'
-            extra-requirements: '-c requirements/testing/minver.txt'
+            extra-requirements: '--group test-minver'
             delete-font-cache: true
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04
             python-version: '3.11'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-            extra-requirements: '-r requirements/testing/extra.txt'
+            extra-requirements: '--group test-extra'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04-arm
@@ -183,7 +183,7 @@ jobs:
         if: startsWith(runner.os, 'Linux')
         with:
           path: ~/.cache/pip
-          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache pip
@@ -191,7 +191,7 @@ jobs:
         if: startsWith(runner.os, 'macOS')
         with:
           path: ~/Library/Caches/pip
-          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache ccache
@@ -228,12 +228,8 @@ jobs:
 
           # Install dependencies from PyPI.
           # Preinstall build requirements to enable no-build-isolation builds.
-          python -m pip install --upgrade $PRE \
-            'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
-            packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
-            'meson-python>=0.13.1' 'pybind11>=2.13.2' \
-            -r requirements/testing/all.txt \
-            ${{ matrix.extra-requirements }}
+          python -m pip install --upgrade $PRE --prefer-binary \
+            --group build --group test ${{ matrix.extra-requirements }}
 
           # Install optional dependencies from PyPI.
           # Sphinx is needed to run sphinxext tests
