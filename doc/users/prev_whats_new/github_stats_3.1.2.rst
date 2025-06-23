@@ -172,7 +172,7 @@ Issues (28):
 * :ghissue:`15162`: axes.bar fails when x is int-indexed pandas.Series
 * :ghissue:`15103`: Colorbar for imshow messes interactive cursor with masked data
 * :ghissue:`8744`: ConnectionPatch hidden by plots
-* :ghissue:`14950`: plt.ioff() not supressing figure generation
+* :ghissue:`14950`: plt.ioff() not suppressing figure generation
 * :ghissue:`14959`: Typo in Docs
 * :ghissue:`14902`: from matplotlib import animation UnicodeDecodeError
 * :ghissue:`14897`: New yticks behavior in 3.1.1 vs 3.1.0

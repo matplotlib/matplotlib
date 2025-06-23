@@ -150,7 +150,7 @@ Pull Requests (127):
 * :ghpull:`12230`: Backport PR #12213 on branch v3.0.x (Change win32InstalledFonts return value)
 * :ghpull:`12213`: Change win32InstalledFonts return value
 * :ghpull:`12223`: Backport PR #11688 on branch v3.0.x (Don't draw axis (spines, ticks, labels) twice when using parasite axes.)
-* :ghpull:`12224`: Backport PR #12207 on branch v3.0.x (FIX: dont' check for interactive framework if none required)
+* :ghpull:`12224`: Backport PR #12207 on branch v3.0.x (FIX: don't check for interactive framework if none required)
 * :ghpull:`12207`: FIX: don't check for interactive framework if none required
 * :ghpull:`11688`: Don't draw axis (spines, ticks, labels) twice when using parasite axes.
 * :ghpull:`12205`: Backport PR #12186 on branch v3.0.x (DOC: fix API note about get_tightbbox)

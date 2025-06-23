@@ -102,16 +102,16 @@ Pull Requests (73):
 * :ghpull:`17995`: Avoid using Bbox machinery in Path.get_extents; special case polylines.
 * :ghpull:`17994`: Special case degree-1 Bezier curves.
 * :ghpull:`17990`: Manual backport of pr 17983 on v3.3.x
-* :ghpull:`17984`: Backport PR #17972 on branch v3.3.x (Fix PyPy compatiblity issue)
+* :ghpull:`17984`: Backport PR #17972 on branch v3.3.x (Fix PyPy compatibility issue)
 * :ghpull:`17985`: Backport PR #17976 on branch v3.3.x (Fixed #17970 - Docstrings should not accessed with -OO)
 * :ghpull:`17983`: FIX: undeprecate and update num2epoch/epoch2num
 * :ghpull:`17976`: Fixed #17970 - Docstrings should not accessed with -OO
-* :ghpull:`17972`: Fix PyPy compatiblity issue
+* :ghpull:`17972`: Fix PyPy compatibility issue
 
 Issues (25):
 
 * :ghissue:`18234`: _reshape_2D function behavior changed, breaks hist for some cases in 3.3.0
-* :ghissue:`18232`: different behaviour between 3.3.0 and 3.2.2 (and earlier) for ploting in a Tk canvas
+* :ghissue:`18232`: different behaviour between 3.3.0 and 3.2.2 (and earlier) for plotting in a Tk canvas
 * :ghissue:`18212`: Updated WxAgg NavigationToolbar2 breaks custom toolbars
 * :ghissue:`18129`: Error reading png image from URL with imread in matplotlib 3.3
 * :ghissue:`18163`: Figure cannot be closed if it has associated Agg canvas
