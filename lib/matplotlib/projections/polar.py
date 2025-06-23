@@ -1,6 +1,8 @@
 import math
 import types
 
+import numpy as np # Ensure numpy is imported for np.isclose
+
 import numpy as np
 
 import matplotlib as mpl
@@ -167,6 +169,12 @@ class PolarAffine(mtransforms.Affine2DBase):
         if self._invalid:
             limits_scaled = self._limits.transformed(self._scale_transform)
             yscale = limits_scaled.ymax - limits_scaled.ymin
+            if np.isclose(yscale, 0): # Use isclose for float comparison
+                # This case might occur if rmin and rmax are identical,
+                # or if limits somehow make yscale effectively zero.
+                # Avoid division by zero or extreme scaling.
+                # Defaulting to 1 is a fallback; ideally, yscale reflects a valid data range.
+                yscale = 1
             affine = mtransforms.Affine2D() \
                 .scale(0.5 / yscale) \
                 .translate(0.5, 0.5)
@@ -1250,8 +1258,36 @@ class PolarAxes(Axes):
     def set_rscale(self, *args, **kwargs):
         return Axes.set_yscale(self, *args, **kwargs)
 
+    # Override set_yticks to ensure our specialized rticks logic is called
+    def set_yticks(self, ticks, labels=None, minor=False, **kwargs):
+        # Forward to set_rticks, which contains the clamping logic
+        # and calls super().set_yticks() itself.
+        return self.set_rticks(ticks, labels=labels, minor=minor, **kwargs)
+
     def set_rticks(self, *args, **kwargs):
+        # The first arg is 'ticks'. If called from set_yticks, this is correct.
+        # If called as ax.set_rticks(radii_list), args[0] is radii_list.
+        # We need to pass all args and kwargs to Axes.set_yticks.
+        # The actual setting of yticks (which triggers autoscale) happens here:
         result = Axes.set_yticks(self, *args, **kwargs)
+
+        # If autoscaling (due to clearing ticks) resulted in rmin > intended origin, clamp rmin.
+        # The intended r_origin is 0, unless explicitly set by user via set_rorigin().
+        # self._originViewLim.locked_y0 stores the value from set_rorigin().
+        intended_rorigin = self._originViewLim.locked_y0
+        if intended_rorigin is None:
+            intended_rorigin = 0.0  # Default r-origin for polar plots
+
+        if self.viewLim.y0 > intended_rorigin and not self.yaxis_inverted():
+            self.viewLim.y0 = intended_rorigin
+        elif self.viewLim.y1 < intended_rorigin and self.yaxis_inverted():
+            # Handle inverted r-axis case
+            self.viewLim.y1 = intended_rorigin
+        
+        # Ensure _originViewLim (which is a LockableBbox(viewLim)) is also updated if not locked.
+        # This should happen automatically if locked_y0 is None.
+        # If locked_y0 is not None, viewLim.y0 should already match intended_rorigin due to LockableBbox behavior.
+        
         self.yaxis.set_major_locator(
             self.RadialLocator(self.yaxis.get_major_locator(), self))
         return result
