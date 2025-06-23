@@ -1,3 +1,5 @@
+# TEMP TEST: confirming file is tracked for commit
+
 from collections.abc import Iterable, Sequence
 from contextlib import ExitStack
 import functools
@@ -3510,6 +3512,10 @@ class _AxesBase(martist.Artist):
             Width of gridlines in points.
         grid_linestyle : str
             Any valid `.Line2D` line style spec.
+        labelhorizontalalignment : str
+            Horizontal alignment of tick labels. Only applies when axis='x' or axis='y'.
+        labelverticalalignment : str
+            Vertical alignment of tick labels. Only applies when axis='x' or axis='y'.
 
         Examples
         --------
@@ -3522,8 +3528,18 @@ class _AxesBase(martist.Artist):
         and with dimensions 6 points by 2 points.  Tick labels will
         also be red.  Gridlines will be red and translucent.
 
+        ::
+
+            ax.tick_params(axis='x', labelhorizontalalignment='right',
+                          labelverticalalignment='top')
+
+        This will align x-axis tick labels to the right horizontally and top vertically.
         """
         _api.check_in_list(['x', 'y', 'both'], axis=axis)
+
+        # Store the axis parameter for validation in Axis.set_tick_params
+        self._tick_params_axis = axis
+
         if axis in ['x', 'both']:
             xkw = dict(kwargs)
             xkw.pop('left', None)
@@ -3538,6 +3554,9 @@ class _AxesBase(martist.Artist):
             ykw.pop('labeltop', None)
             ykw.pop('labelbottom', None)
             self.yaxis.set_tick_params(**ykw)
+
+        # Clean up after validation
+        self._tick_params_axis = None
 
     def set_axis_off(self):
         """
