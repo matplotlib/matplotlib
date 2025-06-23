@@ -79,8 +79,8 @@ fig, axs = plt.subplots(3, 3, figsize=(10, 6), layout='constrained')
 for ax, markevery in zip(axs.flat, cases):
     ax.set_title(f'markevery={markevery}')
     ax.plot(x, y, 'o', ls='-', ms=4, markevery=markevery)
-    ax.set_xlim((6, 6.7))
-    ax.set_ylim((1.1, 1.7))
+    ax.set_xlim(6, 6.7)
+    ax.set_ylim(1.1, 1.7)
 
 # %%
 # markevery on polar plots

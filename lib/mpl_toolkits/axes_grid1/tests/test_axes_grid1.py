@@ -699,7 +699,7 @@ def test_mark_inset_unstales_viewlim(fig_test, fig_ref):
 
 def test_auto_adjustable():
     fig = plt.figure()
-    ax = fig.add_axes([0, 0, 1, 1])
+    ax = fig.add_axes((0, 0, 1, 1))
     pad = 0.1
     make_axes_area_auto_adjustable(ax, pad=pad)
     fig.canvas.draw()
