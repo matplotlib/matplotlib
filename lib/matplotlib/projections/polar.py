@@ -15,7 +15,7 @@ from matplotlib.path import Path
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 from matplotlib.spines import Spine
-
+from matplotlib.ticker import FixedLocator, AutoLocator
 
 class PolarTransform(mtransforms.Transform):
     r"""
@@ -825,6 +825,12 @@ class PolarAxes(Axes):
         self.xaxis = ThetaAxis(self, clear=False)
         self.yaxis = RadialAxis(self, clear=False)
         self.spines['polar'].register_axis(self.yaxis)
+
+        # PATCH START
+        locator = self.xaxis.get_major_locator()
+        if isinstance(locator, FixedLocator) and len(locator.locs) == 0:
+            self.xaxis.set_major_locator(AutoLocator())
+        # PATCH END
 
     def _set_lim_and_transforms(self):
         # A view limit where the minimum radius can be locked if the user
