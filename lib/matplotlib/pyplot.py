@@ -2690,13 +2690,7 @@ def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     return im
 
 
-def polar(
-        *args: float | ArrayLike | str,
-        scalex: bool = True,
-        scaley: bool = True,
-        data=None,
-        **kwargs
-) -> list[Line2D]:
+def polar(*args, **kwargs) -> list[Line2D]:
     """
     Make a polar plot.
 
@@ -2730,13 +2724,7 @@ def polar(
             )
     else:
         ax = axes(projection="polar")
-    return ax.plot(
-        *args,
-        scalex=scalex,
-        scaley=scaley,
-        data=data,
-        **kwargs
-    )
+    return ax.plot(*args, **kwargs)
 
 
 # If rcParams['backend_fallback'] is true, and an interactive backend is

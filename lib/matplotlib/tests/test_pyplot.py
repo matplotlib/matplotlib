@@ -554,7 +554,3 @@ def assert_signatures_identical(plt_meth, original_meth, remove_self_param=False
 
 def test_setloglevel_signature():
     assert_signatures_identical(plt.set_loglevel, mpl.set_loglevel)
-
-
-def test_polar_signature():
-    assert_signatures_identical(plt.polar, plt.Axes.plot, True)
