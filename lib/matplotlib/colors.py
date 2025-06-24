@@ -2264,7 +2264,7 @@ class Norm(ABC):
         """
         Abstract base class for normalizations.
 
-        Subclasses include `colors.Normalize` which maps from a scalar to
+        Subclasses include `Normalize` which maps from a scalar to
         a scalar. However, this class makes no such requirement, and subclasses may
         support the normalization of multiple variates simultaneously, with
         separate normalization for each variate.
@@ -2311,7 +2311,6 @@ class Norm(ABC):
         Notes
         -----
         If not already initialized, ``self.vmin`` and ``self.vmax`` are
-
         initialized using ``self.autoscale_None(value)``.
         """
         pass
@@ -2410,7 +2409,7 @@ class Normalize(Norm):
 
     @property
     def vmin(self):
-        """Lower limit of the input data interval; maps to 0."""
+        # docstring inherited
         return self._vmin
 
     @vmin.setter
@@ -2422,7 +2421,7 @@ class Normalize(Norm):
 
     @property
     def vmax(self):
-        """Upper limit of the input data interval; maps to 1."""
+        # docstring inherited
         return self._vmax
 
     @vmax.setter
@@ -2434,11 +2433,7 @@ class Normalize(Norm):
 
     @property
     def clip(self):
-        """
-        Determines the behavior for mapping values outside the range ``[vmin, vmax]``.
-
-        See the *clip* parameter in `.Normalize`.
-        """
+        # docstring inherited
         return self._clip
 
     @clip.setter
@@ -2488,24 +2483,7 @@ class Normalize(Norm):
         return result, is_scalar
 
     def __call__(self, value, clip=None):
-        """
-        Normalize the data and return the normalized data.
-
-        Parameters
-        ----------
-        value
-            Data to normalize.
-        clip : bool, optional
-            See the description of the parameter *clip* in `.Normalize`.
-
-            If ``None``, defaults to ``self.clip`` (which defaults to
-            ``False``).
-
-        Notes
-        -----
-        If not already initialized, ``self.vmin`` and ``self.vmax`` are
-        initialized using ``self.autoscale_None(value)``.
-        """
+        # docstring inherited
         if clip is None:
             clip = self.clip
 
@@ -2535,15 +2513,7 @@ class Normalize(Norm):
         return result
 
     def inverse(self, value):
-        """
-        Maps the normalized value (i.e., index in the colormap) back to image
-        data value.
-
-        Parameters
-        ----------
-        value
-            Normalized value.
-        """
+        # docstring inherited
         if not self.scaled():
             raise ValueError("Not invertible until both vmin and vmax are set")
         (vmin,), _ = self.process_value(self.vmin)
@@ -2556,7 +2526,7 @@ class Normalize(Norm):
             return vmin + value * (vmax - vmin)
 
     def autoscale(self, A):
-        """Set *vmin*, *vmax* to min, max of *A*."""
+        # docstring inherited
         with self.callbacks.blocked():
             # Pause callbacks while we are updating so we only get
             # a single update signal at the end
@@ -2565,7 +2535,7 @@ class Normalize(Norm):
         self._changed()
 
     def autoscale_None(self, A):
-        """If *vmin* or *vmax* are not set, use the min/max of *A* to set them."""
+        # docstring inherited
         A = np.asanyarray(A)
 
         if isinstance(A, np.ma.MaskedArray):
@@ -2579,7 +2549,7 @@ class Normalize(Norm):
             self.vmax = A.max()
 
     def scaled(self):
-        """Return whether *vmin* and *vmax* are both set."""
+        # docstring inherited
         return self.vmin is not None and self.vmax is not None
 
 
