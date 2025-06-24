@@ -1410,10 +1410,6 @@ def subplot(pos: int | SubplotSpec, /, **kwargs): ...
 
 
 @overload
-def subplot(ax: Axes, /): ...
-
-
-@overload
 def subplot(**kwargs): ...
 
 
@@ -1430,7 +1426,6 @@ def subplot(*args, **kwargs) -> Axes:
        subplot(nrows, ncols, index, **kwargs)
        subplot(pos, **kwargs)
        subplot(**kwargs)
-       subplot(ax)
 
     Parameters
     ----------
