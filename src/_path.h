@@ -524,12 +524,11 @@ struct bisectx
     {
     }
 
-    inline void bisect(double sx, double sy, double px, double py, double *bx, double *by) const
+    inline auto bisect(double sx, double sy, double px, double py) const
     {
-        *bx = m_x;
         double dx = px - sx;
         double dy = py - sy;
-        *by = sy + dy * ((m_x - sx) / dx);
+        return std::tuple(m_x, sy + dy * ((m_x - sx) / dx));
     }
 };
 
@@ -565,12 +564,11 @@ struct bisecty
     {
     }
 
-    inline void bisect(double sx, double sy, double px, double py, double *bx, double *by) const
+    inline auto bisect(double sx, double sy, double px, double py) const
     {
-        *by = m_y;
         double dx = px - sx;
         double dy = py - sy;
-        *bx = sx + dx * ((m_y - sy) / dy);
+        return std::tuple(sx + dx * ((m_y - sy) / dy), m_y);
     }
 };
 
@@ -615,8 +613,7 @@ inline void clip_to_rect_one_step(const Polygon &polygon, Polygon &result, const
         pinside = filter.is_inside(px, py);
 
         if (sinside ^ pinside) {
-            double bx, by;
-            filter.bisect(sx, sy, px, py, &bx, &by);
+            auto [bx, by] = filter.bisect(sx, sy, px, py);
             result.emplace_back(bx, by);
         }
 
