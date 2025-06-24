@@ -92,11 +92,6 @@ jobs:
           - name-suffix: "(Python 3.14 pre-release)"
             os: ubuntu-24.04
             python-version: '3.14-dev'
-            # no pillow wheel yet, need extra packages to build from source
-            extra-packages: >-
-              libtiff5-dev libjpeg8-dev libopenjp2-7-dev zlib1g-dev
-              libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev
-              python3-tk libharfbuzz-dev libfribidi-dev libxcb1-dev
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -233,6 +228,12 @@ jobs:
           if [[ "${{ github.event_name }}" == 'schedule'
                 && "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
             PRE="--pre"
+          fi
+
+          # On pre-release builds, use nightly wheels
+          if ${{ contains(matrix.name-suffix, 'pre-release') }}; then
+            PRE="--pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"
+            PRE+=" --prefer-binary"
           fi
 
           # Install dependencies from PyPI.
