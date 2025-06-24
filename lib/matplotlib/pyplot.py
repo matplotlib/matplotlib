@@ -570,11 +570,11 @@ def draw_if_interactive(*args, **kwargs):
 
 
 @overload
-def show() -> None: ...
+def show(**kwargs) -> None: ...
 
 
 @overload
-def show(block: bool) -> None: ...
+def show(*, block: bool, **kwargs) -> None: ...
 
 
 # This function's signature is rewritten upon backend-load by switch_backend.
