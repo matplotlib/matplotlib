@@ -3,12 +3,12 @@
 #ifndef MPL_PATH_H
 #define MPL_PATH_H
 
-#include <limits>
-#include <math.h>
-#include <vector>
-#include <cmath>
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <limits>
 #include <string>
+#include <vector>
 
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
@@ -1051,15 +1051,14 @@ void cleanup_path(PathIterator &path,
 void quad2cubic(double x0, double y0,
                 double x1, double y1,
                 double x2, double y2,
-                double *outx, double *outy)
+                std::array<double, 3> &outx, std::array<double, 3> &outy)
 {
-
-    outx[0] = x0 + 2./3. * (x1 - x0);
-    outy[0] = y0 + 2./3. * (y1 - y0);
-    outx[1] = outx[0] + 1./3. * (x2 - x0);
-    outy[1] = outy[0] + 1./3. * (y2 - y0);
-    outx[2] = x2;
-    outy[2] = y2;
+    std::get<0>(outx) = x0 + 2./3. * (x1 - x0);
+    std::get<0>(outy) = y0 + 2./3. * (y1 - y0);
+    std::get<1>(outx) = std::get<0>(outx) + 1./3. * (x2 - x0);
+    std::get<1>(outy) = std::get<0>(outy) + 1./3. * (y2 - y0);
+    std::get<2>(outx) = x2;
+    std::get<2>(outy) = y2;
 }
 
 
@@ -1104,27 +1103,27 @@ void __add_number(double val, char format_code, int precision,
 template <class PathIterator>
 bool __convert_to_string(PathIterator &path,
                          int precision,
-                         char **codes,
+                         const std::array<std::string, 5> &codes,
                          bool postfix,
                          std::string& buffer)
 {
     const char format_code = 'f';
 
-    double x[3];
-    double y[3];
+    std::array<double, 3> x;
+    std::array<double, 3> y;
     double last_x = 0.0;
     double last_y = 0.0;
 
     unsigned code;
 
-    while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
+    while ((code = path.vertex(&std::get<0>(x), &std::get<0>(y))) != agg::path_cmd_stop) {
         if (code == CLOSEPOLY) {
-            buffer += codes[4];
+            buffer += std::get<4>(codes);
         } else if (code < 5) {
             size_t size = NUM_VERTICES[code];
 
             for (size_t i = 1; i < size; ++i) {
-                unsigned subcode = path.vertex(&x[i], &y[i]);
+                unsigned subcode = path.vertex(&x.at(i), &y.at(i));
                 if (subcode != code) {
                     return false;
                 }
@@ -1133,29 +1132,29 @@ bool __convert_to_string(PathIterator &path,
             /* For formats that don't support quad curves, convert to
                cubic curves */
             if (code == CURVE3 && codes[code - 1][0] == '\0') {
-                quad2cubic(last_x, last_y, x[0], y[0], x[1], y[1], x, y);
+                quad2cubic(last_x, last_y, x.at(0), y.at(0), x.at(1), y.at(1), x, y);
                 code++;
                 size = 3;
             }
 
             if (!postfix) {
-                buffer += codes[code - 1];
+                buffer += codes.at(code - 1);
                 buffer += ' ';
             }
 
             for (size_t i = 0; i < size; ++i) {
-                __add_number(x[i], format_code, precision, buffer);
+                __add_number(x.at(i), format_code, precision, buffer);
                 buffer += ' ';
-                __add_number(y[i], format_code, precision, buffer);
+                __add_number(y.at(i), format_code, precision, buffer);
                 buffer += ' ';
             }
 
             if (postfix) {
-                buffer += codes[code - 1];
+                buffer += codes.at(code - 1);
             }
 
-            last_x = x[size - 1];
-            last_y = y[size - 1];
+            last_x = x.at(size - 1);
+            last_y = y.at(size - 1);
         } else {
             // Unknown code value
             return false;
@@ -1174,7 +1173,7 @@ bool convert_to_string(PathIterator &path,
                        bool simplify,
                        SketchParams sketch_params,
                        int precision,
-                       char **codes,
+                       const std::array<std::string, 5> &codes,
                        bool postfix,
                        std::string& buffer)
 {
@@ -1211,7 +1210,6 @@ bool convert_to_string(PathIterator &path,
         sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
         return __convert_to_string(sketch, precision, codes, postfix, buffer);
     }
-
 }
 
 template<class T>
