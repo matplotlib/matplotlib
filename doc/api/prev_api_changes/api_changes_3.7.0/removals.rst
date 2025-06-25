@@ -323,7 +323,7 @@ Miscellaneous removals
 - The *format* parameter of ``dviread.find_tex_file`` is removed (with no
   replacement).
 - ``FancyArrowPatch.get_path_in_displaycoord`` and
-  ``ConnectionPath.get_path_in_displaycoord`` are removed. The path in
+  ``ConnectionPatch.get_path_in_displaycoord`` are removed. The path in
   display coordinates can still be obtained, as for other patches, using
   ``patch.get_transform().transform_path(patch.get_path())``.
 - The ``font_manager.win32InstalledFonts`` and
