@@ -1,3 +1,6 @@
+Adding my status workflow badge
+[![Maintenance](https://github.com/shadowemperor1510/matplotlib/actions/workflows/conflictcheck.yml/badge.svg)](https://github.com/shadowemperor1510/matplotlib/actions/workflows/conflictcheck.yml)
+
 [![PyPi](https://img.shields.io/pypi/v/matplotlib)](https://pypi.org/project/matplotlib/)
 [![Conda](https://img.shields.io/conda/vn/conda-forge/matplotlib)](https://anaconda.org/conda-forge/matplotlib)
 [![Downloads](https://img.shields.io/pypi/dm/matplotlib)](https://pypi.org/project/matplotlib)
