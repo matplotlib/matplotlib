@@ -2833,7 +2833,7 @@ def _make_norm_from_scale(
       unlike to arbitrary lambdas.
     """
 
-    class Norm(base_norm_cls):
+    class ScaleNorm(base_norm_cls):
         def __reduce__(self):
             cls = type(self)
             # If the class is toplevel-accessible, it is possible to directly
@@ -2913,15 +2913,15 @@ def _make_norm_from_scale(
             return super().autoscale_None(in_trf_domain)
 
     if base_norm_cls is Normalize:
-        Norm.__name__ = f"{scale_cls.__name__}Norm"
-        Norm.__qualname__ = f"{scale_cls.__qualname__}Norm"
+        ScaleNorm.__name__ = f"{scale_cls.__name__}Norm"
+        ScaleNorm.__qualname__ = f"{scale_cls.__qualname__}Norm"
     else:
-        Norm.__name__ = base_norm_cls.__name__
-        Norm.__qualname__ = base_norm_cls.__qualname__
-    Norm.__module__ = base_norm_cls.__module__
-    Norm.__doc__ = base_norm_cls.__doc__
+        ScaleNorm.__name__ = base_norm_cls.__name__
+        ScaleNorm.__qualname__ = base_norm_cls.__qualname__
+    ScaleNorm.__module__ = base_norm_cls.__module__
+    ScaleNorm.__doc__ = base_norm_cls.__doc__
 
-    return Norm
+    return ScaleNorm
 
 
 def _create_empty_object_of_class(cls):
