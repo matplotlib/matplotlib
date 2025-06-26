@@ -536,7 +536,7 @@ def assert_signatures_identical(plt_meth, original_meth, remove_self_param=False
         else:
             return inspect.Signature(params.values())
 
-    plt_sig = get_signature(plt_meth)
+    plt_sig = inspect.signature(plt_meth)
     original_sig = get_signature(original_meth)
 
     assert plt_sig.return_annotation == original_sig.return_annotation
