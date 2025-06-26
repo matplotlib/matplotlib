@@ -35,7 +35,6 @@ of how to use transforms.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
-import copy
 import functools
 import itertools
 import textwrap
@@ -141,7 +140,9 @@ class TransformNode:
             for k, v in self._parents.items() if v is not None}
 
     def __copy__(self):
-        other = copy.copy(super())
+        cls = type(self)
+        other = cls.__new__(cls)
+        other.__dict__.update(self.__dict__)
         # If `c = a + b; a1 = copy(a)`, then modifications to `a1` do not
         # propagate back to `c`, i.e. we need to clear the parents of `a1`.
         other._parents = {}
