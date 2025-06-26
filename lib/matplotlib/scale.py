@@ -146,8 +146,7 @@ def _make_axis_parameter_optional(init_func):
             return init_func(self, *args, **kwargs)
         else:
             # Remove 'axis' from kwargs to avoid double assignment
-            kwargs.pop('axis', None)
-            return init_func(self, None, *args, **kwargs)
+            return init_func(self, kwargs.pop('axis', None), *args, **kwargs)
     return wrapper
 
 
