@@ -276,17 +276,37 @@ class Path:
         """
         return copy.copy(self)
 
-    def __deepcopy__(self, memo=None):
+    def __deepcopy__(self, memo):
         """
         Return a deepcopy of the `Path`.  The `Path` will not be
         readonly, even if the source `Path` is.
         """
         # Deepcopying arrays (vertices, codes) strips the writeable=False flag.
-        p = copy.deepcopy(super(), memo)
+        cls = type(self)
+        memo[id(self)] = p = cls.__new__(cls)
+
+        for k, v in self.__dict__.items():
+            setattr(p, k, copy.deepcopy(v, memo))
+
         p._readonly = False
         return p
 
-    deepcopy = __deepcopy__
+    def deepcopy(self, memo=None):
+        """
+        Return a deep copy of the `Path`.  The `Path` will not be readonly,
+        even if the source `Path` is.
+
+        Parameters
+        ----------
+        memo : dict, optional
+            A dictionary to use for memoizing, passed to `copy.deepcopy`.
+
+        Returns
+        -------
+        Path
+            A deep copy of the `Path`, but not readonly.
+        """
+        return copy.deepcopy(self, memo)
 
     @classmethod
     def make_compound_path_from_polys(cls, XY):
