@@ -569,6 +569,14 @@ def draw_if_interactive(*args, **kwargs):
     return _get_backend_mod().draw_if_interactive(*args, **kwargs)
 
 
+@overload
+def show(*, block: bool, **kwargs) -> None: ...
+
+
+@overload
+def show(*args: Any, **kwargs: Any) -> None: ...
+
+
 # This function's signature is rewritten upon backend-load by switch_backend.
 def show(*args, **kwargs) -> None:
     """
@@ -1393,6 +1401,18 @@ def cla() -> None:
 
 ## More ways of creating Axes ##
 
+@overload
+def subplot(nrows: int, ncols: int, index: int, /, **kwargs): ...
+
+
+@overload
+def subplot(pos: int | SubplotSpec, /, **kwargs): ...
+
+
+@overload
+def subplot(**kwargs): ...
+
+
 @_docstring.interpd
 def subplot(*args, **kwargs) -> Axes:
     """
@@ -1406,7 +1426,6 @@ def subplot(*args, **kwargs) -> Axes:
        subplot(nrows, ncols, index, **kwargs)
        subplot(pos, **kwargs)
        subplot(**kwargs)
-       subplot(ax)
 
     Parameters
     ----------
