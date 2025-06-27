@@ -2115,6 +2115,24 @@ def box(on: bool | None = None) -> None:
 ## Axis ##
 
 
+@overload
+def xlim() -> tuple[float, float]:
+    ...
+
+
+@overload
+def xlim(
+        left: float | tuple[float, float] | None = None,
+        right: float | None = None,
+        *,
+        emit: bool = True,
+        auto: bool | None = False,
+        xmin: float | None = None,
+        xmax: float | None = None,
+) -> tuple[float, float]:
+    ...
+
+
 def xlim(*args, **kwargs) -> tuple[float, float]:
     """
     Get or set the x limits of the current Axes.
@@ -2150,6 +2168,24 @@ def xlim(*args, **kwargs) -> tuple[float, float]:
         return ax.get_xlim()
     ret = ax.set_xlim(*args, **kwargs)
     return ret
+
+
+@overload
+def ylim() -> tuple[float, float]:
+    ...
+
+
+@overload
+def ylim(
+        bottom: float | tuple[float, float] | None = None,
+        top: float | None = None,
+        *,
+        emit: bool = True,
+        auto: bool | None = False,
+        ymin: float | None = None,
+        ymax: float | None = None,
+) -> tuple[float, float]:
+    ...
 
 
 def ylim(*args, **kwargs) -> tuple[float, float]:
