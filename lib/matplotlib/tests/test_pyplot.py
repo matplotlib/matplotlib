@@ -487,20 +487,20 @@ def test_matshow():
     plt.matshow(arr, fignum=fig.number)
 
 
-def assert_same_signature(meth, original_meth):
+def assert_same_signature(func1, func2):
     """
-    Assert that the arguments of plt_meth and original_meth have the same names.
+    Assert that `func1` and `func2` have the same arguments, i.e. same parameter count, names and kinds.
 
-    :param meth: The method to check.
-    :param original_meth: The original method to compare against.
+    :param func1: First function to check
+    :param func2: Second function to check
     """
-    params = inspect.signature(meth).parameters
-    original_params = inspect.signature(original_meth).parameters
+    params1 = inspect.signature(func1).parameters
+    params2 = inspect.signature(func2).parameters
 
-    assert len(params) == len(original_params)
+    assert len(params1) == len(params2)
     assert all([
-        params[p].name == original_params[p].name and
-        params[p].kind == original_params[p].kind
+        params1[p].name == params2[p].name and
+        params1[p].kind == params2[p].kind
         for p in params
     ])
 
