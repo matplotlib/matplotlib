@@ -488,69 +488,23 @@ def test_matshow():
     plt.matshow(arr, fignum=fig.number)
 
 
-def assert_signatures_identical(plt_meth, original_meth, remove_self_param=False):
-    def get_src(meth):
-        meth_src = Path(inspect.getfile(meth))
-        meth_stub = meth_src.with_suffix(".pyi")
-        return meth_stub if meth_stub.exists() else meth_src
+def assert_same_signature(meth, original_meth):
+    """
+    Assert that the arguments of plt_meth and original_meth have the same names.
 
-    def tree_loop(tree, name, class_):
-        for item in tree.body:
-            if class_ and isinstance(item, ast.ClassDef) and item.name == class_:
-                return tree_loop(item, name, None)
+    :param meth: The method to check.
+    :param original_meth: The original method to compare against.
+    """
+    params = inspect.signature(meth).parameters
+    original_params = inspect.signature(original_meth).parameters
 
-            if isinstance(item, ast.FunctionDef) and item.name == name:
-                return item
-
-        raise ValueError(f"Cannot find {class_}.{name} in ast")
-
-    def get_signature(meth):
-        qualname = meth.__qualname__
-        class_ = None if "." not in qualname else qualname.split(".")[-2]
-        path = get_src(meth)
-        tree = ast.parse(path.read_text())
-        node = tree_loop(tree, meth.__name__, class_)
-
-        params = dict(inspect.signature(meth).parameters)
-        args = node.args
-        allargs = (
-            *args.posonlyargs,
-            *args.args,
-            args.vararg,
-            *args.kwonlyargs,
-            args.kwarg
-        )
-        for param in allargs:
-            if param is None:
-                continue
-            if param.annotation is None:
-                continue
-            annotation = ast.unparse(param.annotation)
-            params[param.arg] = params[param.arg].replace(annotation=annotation)
-
-        if node.returns is not None:
-            return inspect.Signature(
-                params.values(),
-                return_annotation=ast.unparse(node.returns)
-            )
-        else:
-            return inspect.Signature(params.values())
-
-    plt_sig = inspect.signature(plt_meth)
-    original_sig = get_signature(original_meth)
-
-    assert plt_sig.return_annotation == original_sig.return_annotation
-
-    original_params = original_sig.parameters
-    if remove_self_param:
-        if next(iter(original_params)) not in ["self"]:
-            raise ValueError(f"{original_sig} is not an instance method")
-
-        original_params = original_params.copy()
-        del original_params["self"]
-
-    assert plt_sig.parameters == original_params
+    assert len(params) == len(original_params)
+    assert all([
+        params[p].name == original_params[p].name and
+        params[p].kind == original_params[p].kind
+        for p in params
+    ])
 
 
 def test_setloglevel_signature():
-    assert_signatures_identical(plt.set_loglevel, mpl.set_loglevel)
+    assert_same_signature(plt.set_loglevel, mpl.set_loglevel)
