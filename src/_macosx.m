@@ -258,7 +258,7 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
 }
 
 static PyObject*
-stop(PyObject* self)
+stop(PyObject* self, PyObject* _ /* ignored */)
 {
     stopWithEvent();
     Py_RETURN_NONE;
@@ -1863,7 +1863,7 @@ static struct PyModuleDef moduledef = {
             "written on the file descriptor given as argument.")},
         {"stop",
          (PyCFunction)stop,
-         METH_NOARGS,
+         METH_VARARGS,
          PyDoc_STR("Stop the NSApp.")},
         {"show",
          (PyCFunction)show,

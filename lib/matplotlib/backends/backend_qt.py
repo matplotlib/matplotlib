@@ -169,9 +169,14 @@ def _allow_interrupt_qt(qapp_or_eventloop):
                 # be forgiving about reading an empty socket.
                 pass
 
-        return sn  # Actually keep the notifier alive.
+        # We return the QSocketNotifier so that the caller holds a reference, and we
+        # also explicitly clean it up in handle_sigint(). Without doing both, deletion
+        # of the socket notifier can happen prematurely or not at all.
+        return sn
 
-    def handle_sigint():
+    def handle_sigint(sn):
+        sn.deleteLater()
+        QtCore.QCoreApplication.sendPostedEvents(sn, QtCore.QEvent.Type.DeferredDelete)
         if hasattr(qapp_or_eventloop, 'closeAllWindows'):
             qapp_or_eventloop.closeAllWindows()
         qapp_or_eventloop.quit()
