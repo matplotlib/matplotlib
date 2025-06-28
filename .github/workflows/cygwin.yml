@@ -143,7 +143,7 @@ jobs:
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
         with:
           path: C:\cygwin\home\runneradmin\.cache\pip
-          key: Cygwin-py3.${{ matrix.python-minor-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          key: Cygwin-py3.${{ matrix.python-minor-version }}-pip-${{ hashFiles('pyproject.toml') }}
           restore-keys: ${{ matrix.os }}-py3.${{ matrix.python-minor-version }}-pip-
 
       - name: Cache ccache
@@ -174,15 +174,9 @@ jobs:
       - name: Install Python dependencies
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install kiwisolver 'numpy>=1.22,<1.26' pillow importlib_resources
-          grep -v -F -e psutil requirements/testing/all.txt >requirements_test.txt
-          python -m pip install meson-python pybind11
+          python -m pip install --group build 'numpy>=1.25,<1.26'
           export PATH="/usr/local/bin:$PATH"
-          python -m pip install --no-build-isolation 'contourpy>=1.0.1'
-          python -m pip install --upgrade cycler fonttools \
-              packaging pyparsing python-dateutil setuptools-scm \
-              -r requirements_test.txt sphinx ipython
+          python -m pip install --upgrade --group test sphinx ipython
           python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
              python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
              echo 'PyGObject is available' ||
