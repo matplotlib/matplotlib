@@ -6,6 +6,9 @@
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
 
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+
 #include <set>
 #include <string>
 #include <string_view>
@@ -22,8 +25,6 @@ extern "C" {
 #include FT_TRUETYPE_TABLES_H
 }
 
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
 namespace py = pybind11;
 
 // By definition, FT_FIXED as 2 16bit values stored in a single long.
