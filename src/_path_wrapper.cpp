@@ -252,15 +252,10 @@ static py::object
 Py_convert_to_string(mpl::PathIterator path, agg::trans_affine trans,
                      agg::rect_d cliprect, std::optional<bool> simplify,
                      SketchParams sketch, int precision,
-                     std::array<std::string, 5> codes_obj, bool postfix)
+                     const std::array<std::string, 5> &codes, bool postfix)
 {
-    char *codes[5];
     std::string buffer;
     bool status;
-
-    for (auto i = 0; i < 5; ++i) {
-        codes[i] = const_cast<char *>(codes_obj[i].c_str());
-    }
 
     if (!simplify.has_value()) {
         simplify = path.should_simplify();
