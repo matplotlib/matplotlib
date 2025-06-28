@@ -2259,16 +2259,16 @@ class BivarColormapFromImage(BivarColormap):
 
 
 class Norm(ABC):
+    """
+    Abstract base class for normalizations.
+
+    Subclasses include `Normalize` which maps from a scalar to
+    a scalar. However, this class makes no such requirement, and subclasses may
+    support the normalization of multiple variates simultaneously, with
+    separate normalization for each variate.
+    """
 
     def __init__(self):
-        """
-        Abstract base class for normalizations.
-
-        Subclasses include `Normalize` which maps from a scalar to
-        a scalar. However, this class makes no such requirement, and subclasses may
-        support the normalization of multiple variates simultaneously, with
-        separate normalization for each variate.
-        """
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
     @property
@@ -2312,19 +2312,6 @@ class Norm(ABC):
         -----
         If not already initialized, ``self.vmin`` and ``self.vmax`` are
         initialized using ``self.autoscale_None(value)``.
-        """
-        pass
-
-    @abstractmethod
-    def inverse(self, value):
-        """
-        Maps the normalized value (i.e., index in the colormap) back to image
-        data value.
-
-        Parameters
-        ----------
-        value
-            Normalized value.
         """
         pass
 
@@ -2513,7 +2500,15 @@ class Normalize(Norm):
         return result
 
     def inverse(self, value):
-        # docstring inherited
+        """
+        Maps the normalized value (i.e., index in the colormap) back to image
+        data value.
+
+        Parameters
+        ----------
+        value
+            Normalized value.
+        """
         if not self.scaled():
             raise ValueError("Not invertible until both vmin and vmax are set")
         (vmin,), _ = self.process_value(self.vmin)
