@@ -1784,7 +1784,8 @@ end"""
                          data[:, :, 2])
                 indices = np.argsort(palette24).astype(np.uint8)
                 rgb8 = indices[np.searchsorted(palette24, rgb24, sorter=indices)]
-                img = Image.fromarray(rgb8, mode='P')
+                img = Image.fromarray(rgb8)
+                img.convert("P")
                 img.putpalette(palette)
                 png_data, bit_depth, palette = self._writePng(img)
                 if bit_depth is None or palette is None:
