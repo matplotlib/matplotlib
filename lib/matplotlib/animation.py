@@ -611,6 +611,23 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     This effectively works as a slideshow input to ffmpeg with the fps passed as
     ``-framerate``, so see also `their notes on frame rates`_ for further details.
 
+    Parameters
+    ----------
+    fps : int, default: 5
+        Movie frame rate (frames per second).
+    codec : str or None, default: :rc:`animation.codec`
+        The codec to use for video compression.
+    bitrate : int, default: :rc:`animation.bitrate`
+        The bitrate of the movie, in kilobits per second. Higher values mean
+        better quality at the cost of file size. A value of -1 lets ffmpeg choose.
+    extra_args : list of str or None, optional
+        Additional command-line arguments passed to ffmpeg.
+        If None, uses :rc:`animation.ffmpeg_args`.
+    metadata : dict of str, default: {}
+        Metadata to embed in the output file. Possible keys include:
+        'title', 'artist', 'genre', 'subject', 'copyright',
+        'srcform', and 'comment'.
+
     .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
