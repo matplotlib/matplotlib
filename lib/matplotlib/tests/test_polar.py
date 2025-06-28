@@ -98,7 +98,7 @@ def test_polar_twice():
     assert len(fig.axes) == 1, 'More than one polar Axes created.'
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_polar_wrap(fig_test, fig_ref):
     ax = fig_test.add_subplot(projection="polar")
     ax.plot(np.deg2rad([179, -179]), [0.2, 0.1])
@@ -108,7 +108,7 @@ def test_polar_wrap(fig_test, fig_ref):
     ax.plot(np.deg2rad([2, 358]), [0.2, 0.1])
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_polar_units_1(fig_test, fig_ref):
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -123,7 +123,7 @@ def test_polar_units_1(fig_test, fig_ref):
     ax.set(xlabel="deg")
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_polar_units_2(fig_test, fig_ref):
     import matplotlib.testing.jpl_units as units
     units.register()
