@@ -2337,6 +2337,12 @@ class Norm(ABC):
         """
         self.callbacks.process('changed')
 
+    @property
+    @abstractmethod
+    def n_variables(self):
+        # Returns the number of variables supported by this normalization
+        pass
+
 
 class Normalize(Norm):
     """
@@ -2393,11 +2399,6 @@ class Normalize(Norm):
         self._vmax = _sanitize_extrema(vmax)
         self._clip = clip
         self._scale = None
-
-    @property
-    def n_variables(self):
-        # To be overridden by subclasses with multiple inputs
-        return 1
 
     @property
     def vmin(self):
@@ -2551,6 +2552,11 @@ class Normalize(Norm):
     def scaled(self):
         # docstring inherited
         return self.vmin is not None and self.vmax is not None
+
+    @property
+    def n_variables(self):
+        # docstring inherited
+        return 1
 
 
 class TwoSlopeNorm(Normalize):
@@ -3277,7 +3283,7 @@ class NoNorm(Normalize):
         return value
 
 
-class MultiNorm(Normalize):
+class MultiNorm(Norm):
     """
     A class which contains multiple scalar norms
     """
@@ -3442,6 +3448,12 @@ class MultiNorm(Normalize):
         """
         For each constituent norm, Set *vmin*, *vmax* to min, max of the corresponding
         variate in *A*.
+
+        Parameters
+        ----------
+        A
+            Data, must be of length `n_variables` or be a structured array or scalar
+            with `n_variables` fields.
         """
         with self.callbacks.blocked():
             # Pause callbacks while we are updating so we only get

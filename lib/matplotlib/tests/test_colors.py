@@ -1867,6 +1867,9 @@ def test_norm_abc():
         def scaled(self):
             return True
 
+        def n_variables(self):
+            return 1
+
     fig, axes = plt.subplots(2,2)
 
     r = np.linspace(-1, 3, 16*16).reshape((16,16))
