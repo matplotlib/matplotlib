@@ -1,3 +1,13 @@
+"""
+Workaround for `tick_top()` with `sharex=True` subplots
+
+Using `tick_top()` on subplots with `sharex=True` does not restore tick labels
+on the top-most axes because shared axes suppress redundant labels.
+
+This example demonstrates a workaround using `tick_params()` and `label_outer()`
+to explicitly enable top ticks and labels on the first row of a subplot grid.
+"""
+
 import matplotlib.pyplot as plt
 
 # Create a 2x2 grid of subplots with shared x and y axes
@@ -21,7 +31,7 @@ for i, ax in enumerate(axes):
             labeltop=True,      # Show labels on top
             bottom=False,       # Hide bottom ticks
             labelbottom=False,  # Hide bottom labels
-            rotation=55         # Rotate the tick labels for better visibility
+            rotation=55         # Rotate tick labels
         )
     else:
         # Hide all x-axis ticks/labels for the bottom row
@@ -33,11 +43,9 @@ for i, ax in enumerate(axes):
             labelbottom=False
         )
 
-    # Automatically hide tick labels that are not on the edge of the figure
+    # Automatically hide labels on inner axes to avoid redundancy
     ax.label_outer()
 
-# Adjust layout to prevent overlap between subplots and labels
+# Adjust layout to prevent overlap
 plt.tight_layout()
-
-# Display the plot
 plt.show()
