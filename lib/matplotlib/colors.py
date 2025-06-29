@@ -1414,10 +1414,10 @@ class MultivarColormap:
         combination_mode: str, 'sRGB_add' or 'sRGB_sub'
             Describe how colormaps are combined in sRGB space
 
-            - If 'sRGB_add' -> Mixing produces brighter colors
-              `sRGB = sum(colors)`
-            - If 'sRGB_sub' -> Mixing produces darker colors
-              `sRGB = 1 - sum(1 - colors)`
+            - If 'sRGB_add': Mixing produces brighter colors
+              ``sRGB = sum(colors)``
+            - If 'sRGB_sub': Mixing produces darker colors
+              ``sRGB = 1 - sum(1 - colors)``
         name : str, optional
             The name of the colormap family.
         """
@@ -1589,15 +1589,15 @@ class MultivarColormap:
 
         Parameters
         ----------
-        bad: :mpltype:`color`, default: None
+        bad : :mpltype:`color`, default: None
             If Matplotlib color, the bad value is set accordingly in the copy
 
-        under tuple of :mpltype:`color`, default: None
-            If tuple, the `under` value of each component is set with the values
+        under : tuple of :mpltype:`color`, default: None
+            If tuple, the ``under`` value of each component is set with the values
             from the tuple.
 
-        over tuple of :mpltype:`color`, default: None
-            If tuple, the `over` value of each component is set with the values
+        over : tuple of :mpltype:`color`, default: None
+            If tuple, the ``over`` value of each component is set with the values
             from the tuple.
 
         Returns
@@ -2337,6 +2337,12 @@ class Norm(ABC):
         """
         self.callbacks.process('changed')
 
+    @property
+    @abstractmethod
+    def n_variables(self):
+        # Returns the number of variables supported by this normalization
+        pass
+
 
 class Normalize(Norm):
     """
@@ -2546,6 +2552,11 @@ class Normalize(Norm):
     def scaled(self):
         # docstring inherited
         return self.vmin is not None and self.vmax is not None
+
+    @property
+    def n_variables(self):
+        # docstring inherited
+        return 1
 
 
 class TwoSlopeNorm(Normalize):
@@ -3272,6 +3283,235 @@ class NoNorm(Normalize):
         return value
 
 
+class MultiNorm(Norm):
+    """
+    A class which contains multiple scalar norms
+    """
+
+    def __init__(self, norms, vmin=None, vmax=None, clip=False):
+        """
+        Parameters
+        ----------
+        norms : list of (str, `Normalize` or None)
+            The constituent norms. The list must have a minimum length of 2.
+        vmin, vmax : float or None or list of (float or None)
+            Limits of the constituent norms.
+            If a list, each value is assigned to each of the constituent
+            norms. Single values are repeated to form a list of appropriate size.
+
+        clip : bool or list of bools, default: False
+            Determines the behavior for mapping values outside the range
+            ``[vmin, vmax]`` for the constituent norms.
+            If a list, each value is assigned to each of the constituent
+            norms. Single values are repeated to form a list of appropriate size.
+
+        """
+
+        if cbook.is_scalar_or_string(norms):
+            raise ValueError("A MultiNorm must be assigned multiple norms")
+
+        norms = [*norms]
+        for i, n in enumerate(norms):
+            if n is None:
+                norms[i] = Normalize()
+            elif isinstance(n, str):
+                scale_cls = _get_scale_cls_from_str(n)
+                norms[i] = mpl.colorizer._auto_norm_from_scale(scale_cls)()
+            elif not isinstance(n, Normalize):
+                raise ValueError(
+                    "MultiNorm must be assigned multiple norms, where each norm "
+                    f"is of type `None` `str`, or `Normalize`, not {type(n)}")
+
+        # Convert the list of norms to a tuple to make it immutable.
+        # If there is a use case for swapping a single norm, we can add support for
+        # that later
+        self._norms = tuple(norms)
+
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+
+        self.vmin = vmin
+        self.vmax = vmax
+        self.clip = clip
+
+        for n in self._norms:
+            n.callbacks.connect('changed', self._changed)
+
+    @property
+    def n_variables(self):
+        """Number of norms held by this `MultiNorm`."""
+        return len(self._norms)
+
+    @property
+    def norms(self):
+        """The individual norms held by this `MultiNorm`"""
+        return self._norms
+
+    @property
+    def vmin(self):
+        """The lower limit of each constituent norm."""
+        return tuple(n.vmin for n in self._norms)
+
+    @vmin.setter
+    def vmin(self, value):
+        value = np.broadcast_to(value, self.n_variables)
+        with self.callbacks.blocked():
+            for i, v in enumerate(value):
+                if v is not None:
+                    self.norms[i].vmin = v
+        self._changed()
+
+    @property
+    def vmax(self):
+        """The upper limit of each constituent norm."""
+        return tuple(n.vmax for n in self._norms)
+
+    @vmax.setter
+    def vmax(self, value):
+        value = np.broadcast_to(value, self.n_variables)
+        with self.callbacks.blocked():
+            for i, v in enumerate(value):
+                if v is not None:
+                    self.norms[i].vmax = v
+        self._changed()
+
+    @property
+    def clip(self):
+        """The clip behaviour of each constituent norm."""
+        return tuple(n.clip for n in self._norms)
+
+    @clip.setter
+    def clip(self, value):
+        value = np.broadcast_to(value, self.n_variables)
+        with self.callbacks.blocked():
+            for i, v in enumerate(value):
+                if v is not None:
+                    self.norms[i].clip = v
+        self._changed()
+
+    def _changed(self):
+        """
+        Call this whenever the norm is changed to notify all the
+        callback listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+
+    def __call__(self, value, clip=None):
+        """
+        Normalize the data and return the normalized data.
+
+        Each variate in the input is assigned to the constituent norm.
+
+        Parameters
+        ----------
+        value : array-like
+            Data to normalize. Must be of length `n_variables` or be a structured
+            array or scalar with `n_variables` fields.
+        clip : list of bools or bool, optional
+            See the description of the parameter *clip* in Normalize.
+            If ``None``, defaults to ``self.clip`` (which defaults to
+            ``False``).
+
+        Returns
+        -------
+        list
+            Normalized input values as a list of length `n_variables`
+
+        Notes
+        -----
+        If not already initialized, ``self.vmin`` and ``self.vmax`` are
+        initialized using ``self.autoscale_None(value)``.
+        """
+        if clip is None:
+            clip = self.clip
+        elif not np.iterable(clip):
+            clip = [clip]*self.n_variables
+
+        value = self._iterable_variates_in_data(value, self.n_variables)
+        result = [n(v, clip=c) for n, v, c in zip(self.norms, value, clip)]
+        return result
+
+    def inverse(self, value):
+        """
+        Map the normalized value (i.e., index in the colormap) back to image data value.
+
+        Parameters
+        ----------
+        value
+            Normalized value. Must be of length `n_variables` or be a structured array
+            or scalar with `n_variables` fields.
+        """
+        value = self._iterable_variates_in_data(value, self.n_variables)
+        result = [n.inverse(v) for n, v in zip(self.norms, value)]
+        return result
+
+    def autoscale(self, A):
+        """
+        For each constituent norm, Set *vmin*, *vmax* to min, max of the corresponding
+        variate in *A*.
+
+        Parameters
+        ----------
+        A
+            Data, must be of length `n_variables` or be a structured array or scalar
+            with `n_variables` fields.
+        """
+        with self.callbacks.blocked():
+            # Pause callbacks while we are updating so we only get
+            # a single update signal at the end
+            A = self._iterable_variates_in_data(A, self.n_variables)
+            for n, a in zip(self.norms, A):
+                n.autoscale(a)
+        self._changed()
+
+    def autoscale_None(self, A):
+        """
+        If *vmin* or *vmax* are not set on any constituent norm,
+        use the min/max of the corresponding variate in *A* to set them.
+
+        Parameters
+        ----------
+        A
+            Data, must be of length `n_variables` or be a structured array or scalar
+            with `n_variables` fields.
+        """
+        with self.callbacks.blocked():
+            A = self._iterable_variates_in_data(A, self.n_variables)
+            for n, a in zip(self.norms, A):
+                n.autoscale_None(a)
+        self._changed()
+
+    def scaled(self):
+        """Return whether both *vmin* and *vmax* are set on all constituent norms."""
+        return all([n.scaled() for n in self.norms])
+
+    @staticmethod
+    def _iterable_variates_in_data(data, n_variables):
+        """
+        Provides an iterable over the variates contained in the data.
+
+        An input array with `n_variables` fields is returned as a list of length n
+        referencing slices of the original array.
+
+        Parameters
+        ----------
+        data : np.ndarray, tuple or list
+            The input array. It must either be an array with n_variables fields or have
+            a length (n_variables)
+
+        Returns
+        -------
+        list of np.ndarray
+
+        """
+        if isinstance(data, np.ndarray) and data.dtype.fields is not None:
+            data = [data[descriptor[0]] for descriptor in data.dtype.descr]
+        if len(data) != n_variables:
+            raise ValueError("The input to this `MultiNorm` must be of shape "
+                             f"({n_variables}, ...), or be structured array or scalar "
+                             f"with {n_variables} fields.")
+        return data
+
+
 def rgb_to_hsv(arr):
     """
     Convert an array of float RGB values (in the range [0, 1]) to HSV values.
@@ -3909,3 +4149,34 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
+
+
+def _get_scale_cls_from_str(scale_as_str):
+    """
+    Returns the scale class from a string.
+
+    Used in the creation of norms from a string to ensure a reasonable error
+    in the case where an invalid string is used. This would normally use
+    `_api.check_getitem()`, which would produce the error:
+    'not_a_norm' is not a valid value for norm; supported values are
+    'linear', 'log', 'symlog', 'asinh', 'logit', 'function', 'functionlog'.
+    which is misleading because the norm keyword also accepts `Normalize` objects.
+
+    Parameters
+    ----------
+    scale_as_str : string
+        A string corresponding to a scale
+
+    Returns
+    -------
+    A subclass of ScaleBase.
+
+    """
+    try:
+        scale_cls = scale._scale_mapping[scale_as_str]
+    except KeyError:
+        raise ValueError(
+            "Invalid norm str name; the following values are "
+            f"supported: {', '.join(scale._scale_mapping)}"
+        ) from None
+    return scale_cls
