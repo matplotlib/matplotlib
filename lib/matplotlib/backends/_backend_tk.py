@@ -775,7 +775,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             image_data = np.asarray(image).copy()
             black_mask = (image_data[..., :3] == 0).all(axis=-1)
             image_data[black_mask, :3] = color
-            return Image.fromarray(image_data, mode="RGBA")
+            return Image.fromarray(image_data)
 
         # Use the high-resolution (48x48 px) icon if it exists and is needed
         with Image.open(path_large if (size > 24 and path_large.exists())
