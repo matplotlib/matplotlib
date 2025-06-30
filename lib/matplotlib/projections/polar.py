@@ -857,6 +857,10 @@ class PolarAxes(Axes):
         self.xaxis = ThetaAxis(self, clear=False)
         self.yaxis = RadialAxis(self, clear=False)
         self.spines['polar'].register_axis(self.yaxis)
+        inner_spine = self.spines.get('inner', None)
+        if inner_spine is not None:
+            # Subclasses may not have inner spine.
+            inner_spine.register_axis(self.yaxis)
 
     def _set_lim_and_transforms(self):
         # A view limit where the minimum radius can be locked if the user
@@ -1002,7 +1006,9 @@ class PolarAxes(Axes):
         thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
         if thetamin > thetamax:
             thetamin, thetamax = thetamax, thetamin
-        rmin, rmax = ((self._realViewLim.intervaly - self.get_rorigin()) *
+        rscale_tr = self.yaxis.get_transform()
+        rmin, rmax = ((rscale_tr.transform(self._realViewLim.intervaly) -
+                       rscale_tr.transform(self.get_rorigin())) *
                       self.get_rsign())
         if isinstance(self.patch, mpatches.Wedge):
             # Backwards-compatibility: Any subclassed Axes might override the
