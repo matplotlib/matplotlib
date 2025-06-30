@@ -1453,8 +1453,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     cax = fig.add_axes(pbcb, label="<colorbar>")
     for a in parents:
-        # tell the parent it has a colorbar
-        a._colorbars += [cax]
+        a._colorbars.append(cax)  # tell the parent it has a colorbar
     cax._colorbar_info = dict(
         parents=parents,
         location=location,
@@ -1547,6 +1546,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
 
     fig = parent.get_figure()
     cax = fig.add_subplot(ss_cb, label="<colorbar>")
+    parent._colorbars.append(cax)  # tell the parent it has a colorbar
     cax.set_anchor(anchor)
     cax.set_box_aspect(aspect)
     cax.set_aspect('auto')

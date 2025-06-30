@@ -4,6 +4,7 @@ import platform
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib.axes import Axes, SubplotBase
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -111,10 +112,15 @@ def test_shared():
 
 
 @pytest.mark.parametrize('remove_ticks', [True, False])
-def test_label_outer(remove_ticks):
-    f, axs = plt.subplots(2, 2, sharex=True, sharey=True)
+@pytest.mark.parametrize('layout_engine', ['none', 'tight', 'constrained'])
+@pytest.mark.parametrize('with_colorbar', [True, False])
+def test_label_outer(remove_ticks, layout_engine, with_colorbar):
+    fig = plt.figure(layout=layout_engine)
+    axs = fig.subplots(2, 2, sharex=True, sharey=True)
     for ax in axs.flat:
         ax.set(xlabel="foo", ylabel="bar")
+        if with_colorbar:
+            fig.colorbar(mpl.cm.ScalarMappable(), ax=ax)
         ax.label_outer(remove_inner_ticks=remove_ticks)
     check_ticklabel_visible(
         axs.flat, [False, False, True, True], [True, False, True, False])
