@@ -244,13 +244,15 @@ def test_figureoptions_with_datetime_axes():
     with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
         fig.canvas.manager.toolbar.edit_parameters()
 
+
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 @pytest.mark.parametrize("legend_visible", [True, False])
 def test_legend_checkbox_toggle(legend_visible):
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], label='Line 1')
-    ax.legend()  
-    ax.legend_.set_visible(not legend_visible)  # Set initial visibility opposite to the test case
+    ax.legend()
+    ax.legend_.set_visible(not legend_visible)
+    # Set initial visibility opposite to the test case
 
     with mock.patch.object(fig.canvas, 'draw') as mock_draw, \
         mock.patch.object(fig.canvas, 'toolbar', create=True):
@@ -260,7 +262,8 @@ def test_legend_checkbox_toggle(legend_visible):
             callback = apply
             return datalist
 
-        with mock.patch.object(matplotlib.backends.qt_editor.figureoptions._formlayout, 'fedit', side_effect=fake_fedit):
+        with mock.patch.object(matplotlib.backends.qt_editor.figureoptions._formlayout,
+                               'fedit', side_effect=fake_fedit):
             matplotlib.backends.qt_editor.figureoptions.figure_edit(ax)
 
         xlim = ax.get_xlim()
@@ -276,15 +279,17 @@ def test_legend_checkbox_toggle(legend_visible):
                 xlim[0], xlim[1], xlabel, xscale,
                 ylim[0], ylim[1], ylabel, yscale,
                 legend_visible,
-                False             
+                False
             ],
             [
-            ['Title', '-', 'default', 1.5, '#1f77b4ff', '', 6.0, '#1f77b4ff', '#1f77b4ff']
+            ['Title', '-', 'default', 1.5, '#1f77b4ff', '',
+             6.0, '#1f77b4ff', '#1f77b4ff']
             ]
-        ]   
+        ]
 
         callback(form_data)
         assert ax.legend_.get_visible() == legend_visible
+
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_double_resize():
