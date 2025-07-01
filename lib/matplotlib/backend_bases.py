@@ -1616,7 +1616,8 @@ def _allow_interrupt(prepare_notifier, handle_sigint):
     If SIGINT was indeed caught, after exiting the on_signal() function the
     interpreter reacts to the signal according to the handler function which
     had been set up by a signal.signal() call; here, we arrange to call the
-    backend-specific *handle_sigint* function.  Finally, we call the old SIGINT
+    backend-specific *handle_sigint* function, passing the notifier object
+    as returned by prepare_notifier().  Finally, we call the old SIGINT
     handler with the same arguments that were given to our custom handler.
 
     We do this only if the old handler for SIGINT was not None, which means
@@ -1626,7 +1627,7 @@ def _allow_interrupt(prepare_notifier, handle_sigint):
     Parameters
     ----------
     prepare_notifier : Callable[[socket.socket], object]
-    handle_sigint : Callable[[], object]
+    handle_sigint : Callable[[object], object]
     """
 
     old_sigint_handler = signal.getsignal(signal.SIGINT)
@@ -1642,9 +1643,10 @@ def _allow_interrupt(prepare_notifier, handle_sigint):
     notifier = prepare_notifier(rsock)
 
     def save_args_and_handle_sigint(*args):
-        nonlocal handler_args
+        nonlocal handler_args, notifier
         handler_args = args
-        handle_sigint()
+        handle_sigint(notifier)
+        notifier = None
 
     signal.signal(signal.SIGINT, save_args_and_handle_sigint)
     try:
