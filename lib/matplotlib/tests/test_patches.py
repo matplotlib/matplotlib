@@ -1094,8 +1094,10 @@ def test_facecolor_none_edgecolor_force_edgecolor():
     rect = Rectangle((0, 0), 1, 1, facecolor="none")
     assert mcolors.same_color(rect.get_edgecolor(), rcParams['patch.edgecolor'])
 
+
 def test_empty_fancyarrow():
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
+  
     arrow = ax.arrow([], [], [], [])
     assert arrow is not None
