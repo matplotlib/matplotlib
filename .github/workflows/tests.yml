@@ -48,48 +48,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name-suffix: "(Minimum Versions)"
-            os: ubuntu-22.04
-            python-version: '3.11'
-            extra-requirements: '-c requirements/testing/minver.txt'
-            delete-font-cache: true
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - os: ubuntu-22.04
-            python-version: '3.11'
-            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-            extra-requirements: '-r requirements/testing/extra.txt'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - os: ubuntu-22.04-arm
-            python-version: '3.12'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - name-suffix: "(Extra TeX packages)"
-            os: ubuntu-22.04
-            python-version: '3.13'
-            extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - name-suffix: "Free-threaded"
-            os: ubuntu-22.04
-            python-version: '3.13t'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-            skip-interactive-backend-builds: true
-          - os: ubuntu-24.04
-            python-version: '3.12'
-          - os: macos-13  # This runner is on Intel chips.
-            # merge numpy and pandas install in nighties test when this runner is dropped
-            python-version: '3.11'
-          - os: macos-14  # This runner is on M1 (arm64) chips.
-            python-version: '3.12'
-            # https://github.com/matplotlib/matplotlib/issues/29732
-            pygobject-ver: '<3.52.0'
-          - os: macos-14  # This runner is on M1 (arm64) chips.
-            python-version: '3.13'
-            # https://github.com/matplotlib/matplotlib/issues/29732
-            pygobject-ver: '<3.52.0'
           - name-suffix: "(Python pre-release)"
             os: ubuntu-24.04
             python-version: '3.14-dev'
