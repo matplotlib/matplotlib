@@ -76,6 +76,7 @@ jobs:
             python-version: '3.13t'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+            skip-interactive-backend-builds: true
           - os: ubuntu-24.04
             python-version: '3.12'
           - os: macos-13  # This runner is on Intel chips.
@@ -92,6 +93,7 @@ jobs:
           - name-suffix: "(Python pre-release)"
             os: ubuntu-24.04
             python-version: '3.14-dev'
+            skip-interactive-backend-builds: true
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -249,7 +251,7 @@ jobs:
           # Sphinx is needed to run sphinxext tests
           python -m pip install --upgrade sphinx!=6.1.2
 
-          if [[ "${{ matrix.python-version }}" != '3.13t' ]]; then
+          if [[ "${{ matrix.skip-interactive-backend-builds }}" != "true" ]]; then
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
           # whether the install was successful by trying to import the toolkit
@@ -300,7 +302,7 @@ jobs:
             echo 'wxPython is available' ||
             echo 'wxPython is not available'
 
-          fi  # Skip backends on Python 3.13t.
+          fi  # skip-interactive-backend-builds
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
@@ -350,7 +352,12 @@ jobs:
           if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
             export PYTHON_GIL=0
           fi
-          pytest -rfEsXR -n auto \
+          if "${{ contains(matrix.name-suffix, 'pre-release') }}"; then
+            FLAGS=(-k 'not test_backends_interactive')
+          else
+            FLAGS=()
+          fi
+          pytest -rfEsXR -n auto "${FLAGS[@]}" \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
