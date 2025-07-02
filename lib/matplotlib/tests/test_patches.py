@@ -1096,8 +1096,6 @@ def test_facecolor_none_edgecolor_force_edgecolor():
 
 
 def test_empty_fancyarrow():
-    import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
-  
     arrow = ax.arrow([], [], [], [])
     assert arrow is not None
