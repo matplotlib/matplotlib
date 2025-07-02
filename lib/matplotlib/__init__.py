@@ -799,13 +799,13 @@ class RcParams(MutableMapping, dict):
 
         """
         pattern_re = re.compile(pattern)
-        return RcParams((key, value)
-                        for key, value in self.items()
-                        if pattern_re.search(key))
+        return self.__class__(
+            (key, value) for key, value in self.items() if pattern_re.search(key)
+        )
 
     def copy(self):
         """Copy this RcParams instance."""
-        rccopy = RcParams()
+        rccopy = self.__class__()
         for k in self:  # Skip deprecations and revalidation.
             rccopy._set(k, self._get(k))
         return rccopy
