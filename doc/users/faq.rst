@@ -281,8 +281,23 @@ locators as desired because the two axes are independent.
 Generate images without having a window appear
 ----------------------------------------------
 
-Simply do not call `~matplotlib.pyplot.show`, and directly save the figure to
-the desired format::
+The recommended approach since matplotlib 3.1 is to explicitly create a Figure
+instance::
+
+    from matplotlib.figure import Figure
+    fig = Figure()
+    ax = fig.subplots()
+    ax.plot([1, 2, 3])
+    fig.savefig('myfig.png')
+
+This prevents any interaction with GUI frameworks and the window manager.
+
+It's alternatively still possible to use the pyplot interface. Instead of
+calling `matplotlib.pyplot.show`, call `matplotlib.pyplot.savefig`.
+
+Additionally, you must ensure to close the figure after saving it. Not
+closing the figure is a memory leak, because pyplot keeps references
+to all not-yet-shown figures::
 
     import matplotlib.pyplot as plt
     plt.plot([1, 2, 3])
