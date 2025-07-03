@@ -1867,7 +1867,7 @@ def test_norm_abc():
         def scaled(self):
             return True
 
-        def n_variables(self):
+        def n_components(self):
             return 1
 
     fig, axes = plt.subplots(2,2)
@@ -1900,10 +1900,8 @@ def test_multi_norm():
     norm = mpl.colors.MultiNorm(['linear', 'log'])
     norm.vmin = 1
     norm.vmax = 2
-    assert norm.vmin[0] == 1
-    assert norm.vmin[1] == 1
-    assert norm.vmax[0] == 2
-    assert norm.vmax[1] == 2
+    assert norm.vmin == (1, 1)
+    assert norm.vmax == (2, 2)
 
     # test call with clip
     assert_array_equal(norm([3, 3], clip=False), [2.0, 1.584962500721156])
