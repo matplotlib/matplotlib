@@ -999,3 +999,9 @@ def test_set_and_get_hatch_linewidth(fig_test, fig_ref):
 
     assert ax_ref.patches[0].get_hatch_linewidth() == lw
     assert ax_test.patches[0].get_hatch_linewidth() == lw
+
+
+def test_empty_fancyarrow():
+    fig, ax = plt.subplots()
+    arrow = ax.arrow([], [], [], [])
+    assert arrow is not None
