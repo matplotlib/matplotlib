@@ -638,7 +638,7 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
             args += ['-loglevel', 'error']
         return [self.bin_path(), *args, *self.output_args]
 
-# Workaround: Assign __init__ docstring to the class so Sphinx can display constructor parameters
+# Workaround: Set class docstring from __init__ for Sphinx visibility
 FFMpegFileWriter.__doc__ = inspect.getdoc(FFMpegFileWriter.__init__)
 
 
