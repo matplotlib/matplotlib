@@ -2268,7 +2268,9 @@ class Axes3D(Axes):
             )
             fc_interp = zoom(fc, zoom_factors, order=order)
             if fc_interp.shape[2] not in (3, 4):
-                raise ValueError("Interpolated facecolors must have 3 or 4 channels (RGB or RGBA)")
+                raise ValueError(
+                    "Interpolated facecolors must have 3 or 4 channels (RGB or RGBA)"
+                )
             fcolors = fc_interp.astype(float)
 
         cmap = kwargs.get('cmap', None)

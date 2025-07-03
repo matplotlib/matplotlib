@@ -670,6 +670,7 @@ def test_surface3d_facecolors_interpolation():
     ax.plot_surface(X, Y, Z, facecolors=C, interpolation='bicubic', shade=False)
     ax.set_title("plot_surface with facecolors and bicubic interpolation")
 
+
 @image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20')
 def test_surface3d_label_offset_tick_position():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
