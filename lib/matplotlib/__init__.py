@@ -399,12 +399,15 @@ def _get_executable_info(name):
         try:
             output = subprocess.check_output(
                 args, stderr=subprocess.STDOUT,
-                text=True, errors="replace")
+                text=True, errors="replace", timeout=30)
         except subprocess.CalledProcessError as _cpe:
             if ignore_exit_code:
                 output = _cpe.output
             else:
                 raise ExecutableNotFoundError(str(_cpe)) from _cpe
+        except subprocess.TimeoutExpired as _te:
+            msg = f"Timed out running {cbook._pformat_subprocess(args)}"
+            raise ExecutableNotFoundError(msg) from _te
         except OSError as _ose:
             raise ExecutableNotFoundError(str(_ose)) from _ose
         match = re.search(regex, output)
