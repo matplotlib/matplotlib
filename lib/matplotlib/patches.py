@@ -1515,7 +1515,7 @@ class FancyArrow(Polygon):
             length = distance
         else:
             length = distance + head_length
-        if not length:
+        if np.size(length) == 0:
             self.verts = np.empty([0, 2])  # display nothing if empty
         else:
             # start by drawing horizontal arrow, point at (0, 0)
