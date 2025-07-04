@@ -137,6 +137,7 @@ __all__ = [
 
 import atexit
 from collections import namedtuple
+from typing import Literal
 from collections.abc import MutableMapping
 import contextlib
 import functools
@@ -153,6 +154,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+
 
 from packaging.version import parse as parse_version
 
@@ -281,7 +283,9 @@ def _ensure_handler():
     return handler
 
 
-def set_loglevel(level):
+def set_loglevel(
+    level: Literal["notset", "debug", "info", "warning", "error", "critical"]
+):
     """
     Configure Matplotlib's logging levels.
 
@@ -309,7 +313,6 @@ def set_loglevel(level):
     The first time this function is called, an additional handler is attached
     to Matplotlib's root handler; this handler is reused every time and this
     function simply manipulates the logger and handler's level.
-
     """
     _log.setLevel(level.upper())
     _ensure_handler().setLevel(level.upper())
