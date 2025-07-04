@@ -1,5 +1,3 @@
-from builtins import list
-
 """
 Typing support for Matplotlib
 
@@ -12,6 +10,7 @@ downstream libraries.
     The ``typing`` module and type stub files are considered provisional and may change
     at any time without a deprecation period.
 """
+from builtins import list
 from collections.abc import Hashable, Sequence
 import pathlib
 from typing import Any, Callable, Literal, TypeAlias, TypeVar, Union
