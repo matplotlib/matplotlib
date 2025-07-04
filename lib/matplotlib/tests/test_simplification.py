@@ -25,7 +25,7 @@ def test_clipping():
 
     fig, ax = plt.subplots()
     ax.plot(t, s, linewidth=1.0)
-    ax.set_ylim((-0.20, -0.28))
+    ax.set_ylim(-0.20, -0.28)
 
 
 @image_comparison(['overflow'], remove_text=True,
@@ -244,8 +244,8 @@ def test_simplify_curve():
 
     fig, ax = plt.subplots()
     ax.add_patch(pp1)
-    ax.set_xlim((0, 2))
-    ax.set_ylim((0, 2))
+    ax.set_xlim(0, 2)
+    ax.set_ylim(0, 2)
 
 
 @check_figures_equal(extensions=['png', 'pdf', 'svg'])
@@ -401,8 +401,8 @@ def test_closed_path_clipping(fig_test, fig_ref):
 def test_hatch():
     fig, ax = plt.subplots()
     ax.add_patch(plt.Rectangle((0, 0), 1, 1, fill=False, hatch="/"))
-    ax.set_xlim((0.45, 0.55))
-    ax.set_ylim((0.45, 0.55))
+    ax.set_xlim(0.45, 0.55)
+    ax.set_ylim(0.45, 0.55)
 
 
 @image_comparison(['fft_peaks'], remove_text=True)

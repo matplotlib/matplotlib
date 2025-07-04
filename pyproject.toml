@@ -196,7 +196,6 @@ convention = "numpy"
 "galleries/examples/user_interfaces/mpl_with_glade3_sgskip.py" = ["E402"]
 "galleries/examples/user_interfaces/pylab_with_gtk3_sgskip.py" = ["E402"]
 "galleries/examples/user_interfaces/pylab_with_gtk4_sgskip.py" = ["E402"]
-"galleries/examples/userdemo/pgf_preamble_sgskip.py" = ["E402"]
 
 "lib/matplotlib/__init__.py" = ["F822"]
 "lib/matplotlib/_cm.py" = ["E202", "E203", "E302"]

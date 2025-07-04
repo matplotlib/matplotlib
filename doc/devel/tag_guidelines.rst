@@ -61,7 +61,7 @@ Proposing new tags
 1. Review existing tag list, looking out for similar entries (i.e. ``axes`` and ``axis``).
 2. If a relevant tag or subcategory does not yet exist, propose it. Each tag is two
    parts: ``subcategory: tag``. Tags should be one or two words.
-3. New tags should be be added when they are relevant to existing gallery entries too.
+3. New tags should be added when they are relevant to existing gallery entries too.
    Avoid tags that will link to only a single gallery entry.
 4. Tags can recreate other forms of organization.
 

@@ -241,7 +241,7 @@ def test_gca():
     fig = plt.figure()
 
     # test that gca() picks up Axes created via add_axes()
-    ax0 = fig.add_axes([0, 0, 1, 1])
+    ax0 = fig.add_axes((0, 0, 1, 1))
     assert fig.gca() is ax0
 
     # test that gca() picks up Axes created via add_subplot()
@@ -546,7 +546,7 @@ def test_invalid_figure_add_axes():
         fig.add_axes((.1, .1, .5, np.nan))
 
     with pytest.raises(TypeError, match="multiple values for argument 'rect'"):
-        fig.add_axes([0, 0, 1, 1], rect=[0, 0, 1, 1])
+        fig.add_axes((0, 0, 1, 1), rect=[0, 0, 1, 1])
 
     fig2, ax = plt.subplots()
     with pytest.raises(ValueError,
@@ -559,7 +559,7 @@ def test_invalid_figure_add_axes():
         fig2.add_axes(ax, "extra positional argument")
 
     with pytest.raises(TypeError, match=r"add_axes\(\) takes 1 positional arguments"):
-        fig.add_axes([0, 0, 1, 1], "extra positional argument")
+        fig.add_axes((0, 0, 1, 1), "extra positional argument")
 
 
 def test_subplots_shareax_loglabels():
@@ -1583,22 +1583,22 @@ def test_add_subplot_kwargs():
 def test_add_axes_kwargs():
     # fig.add_axes() always creates new axes, even if axes kwargs differ.
     fig = plt.figure()
-    ax = fig.add_axes([0, 0, 1, 1])
-    ax1 = fig.add_axes([0, 0, 1, 1])
+    ax = fig.add_axes((0, 0, 1, 1))
+    ax1 = fig.add_axes((0, 0, 1, 1))
     assert ax is not None
     assert ax1 is not ax
     plt.close()
 
     fig = plt.figure()
-    ax = fig.add_axes([0, 0, 1, 1], projection='polar')
-    ax1 = fig.add_axes([0, 0, 1, 1], projection='polar')
+    ax = fig.add_axes((0, 0, 1, 1), projection='polar')
+    ax1 = fig.add_axes((0, 0, 1, 1), projection='polar')
     assert ax is not None
     assert ax1 is not ax
     plt.close()
 
     fig = plt.figure()
-    ax = fig.add_axes([0, 0, 1, 1], projection='polar')
-    ax1 = fig.add_axes([0, 0, 1, 1])
+    ax = fig.add_axes((0, 0, 1, 1), projection='polar')
+    ax1 = fig.add_axes((0, 0, 1, 1))
     assert ax is not None
     assert ax1.name == 'rectilinear'
     assert ax1 is not ax

@@ -400,12 +400,15 @@ def _get_executable_info(name):
         try:
             output = subprocess.check_output(
                 args, stderr=subprocess.STDOUT,
-                text=True, errors="replace")
+                text=True, errors="replace", timeout=30)
         except subprocess.CalledProcessError as _cpe:
             if ignore_exit_code:
                 output = _cpe.output
             else:
                 raise ExecutableNotFoundError(str(_cpe)) from _cpe
+        except subprocess.TimeoutExpired as _te:
+            msg = f"Timed out running {cbook._pformat_subprocess(args)}"
+            raise ExecutableNotFoundError(msg) from _te
         except OSError as _ose:
             raise ExecutableNotFoundError(str(_ose)) from _ose
         match = re.search(regex, output)
@@ -799,13 +802,13 @@ class RcParams(MutableMapping, dict):
 
         """
         pattern_re = re.compile(pattern)
-        return RcParams((key, value)
-                        for key, value in self.items()
-                        if pattern_re.search(key))
+        return self.__class__(
+            (key, value) for key, value in self.items() if pattern_re.search(key)
+        )
 
     def copy(self):
         """Copy this RcParams instance."""
-        rccopy = RcParams()
+        rccopy = self.__class__()
         for k in self:  # Skip deprecations and revalidation.
             rccopy._set(k, self._get(k))
         return rccopy
@@ -1309,11 +1312,18 @@ def is_interactive():
     return rcParams['interactive']
 
 
-def _val_or_rc(val, rc_name):
+def _val_or_rc(val, *rc_names):
     """
-    If *val* is None, return ``mpl.rcParams[rc_name]``, otherwise return val.
+    If *val* is None, the first not-None value in ``mpl.rcParams[rc_names[i]]``.
+    If all are None returns ``mpl.rcParams[rc_names[-1]]``.
     """
-    return val if val is not None else rcParams[rc_name]
+    if val is not None:
+        return val
+
+    for rc_name in rc_names[:-1]:
+        if rcParams[rc_name] is not None:
+            return rcParams[rc_name]
+    return rcParams[rc_names[-1]]
 
 
 def _init_tests():

@@ -22,7 +22,7 @@ Custom scales can be created in two ways
    * You want to override the default locators and formatters for the axis
      (``set_default_locators_and_formatters`` below).
 
-   * You want to limit the range of the the axis (``limit_range_for_scale`` below).
+   * You want to limit the range of the axis (``limit_range_for_scale`` below).
 
 """
 

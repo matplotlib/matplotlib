@@ -41,6 +41,7 @@ Colors that Matplotlib recognizes are listed at
 
 import base64
 from collections.abc import Sequence, Mapping
+from abc import ABC, abstractmethod
 import functools
 import importlib
 import inspect
@@ -2257,7 +2258,87 @@ class BivarColormapFromImage(BivarColormap):
         self._isinit = True
 
 
-class Normalize:
+class Norm(ABC):
+    """
+    Abstract base class for normalizations.
+
+    Subclasses include `Normalize` which maps from a scalar to
+    a scalar. However, this class makes no such requirement, and subclasses may
+    support the normalization of multiple variates simultaneously, with
+    separate normalization for each variate.
+    """
+
+    def __init__(self):
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+
+    @property
+    @abstractmethod
+    def vmin(self):
+        """Lower limit of the input data interval; maps to 0."""
+        pass
+
+    @property
+    @abstractmethod
+    def vmax(self):
+        """Upper limit of the input data interval; maps to 1."""
+        pass
+
+    @property
+    @abstractmethod
+    def clip(self):
+        """
+        Determines the behavior for mapping values outside the range ``[vmin, vmax]``.
+
+        See the *clip* parameter in `.Normalize`.
+        """
+        pass
+
+    @abstractmethod
+    def __call__(self, value, clip=None):
+        """
+        Normalize the data and return the normalized data.
+
+        Parameters
+        ----------
+        value
+            Data to normalize.
+        clip : bool, optional
+            See the description of the parameter *clip* in `.Normalize`.
+
+            If ``None``, defaults to ``self.clip`` (which defaults to
+            ``False``).
+
+        Notes
+        -----
+        If not already initialized, ``self.vmin`` and ``self.vmax`` are
+        initialized using ``self.autoscale_None(value)``.
+        """
+        pass
+
+    @abstractmethod
+    def autoscale(self, A):
+        """Set *vmin*, *vmax* to min, max of *A*."""
+        pass
+
+    @abstractmethod
+    def autoscale_None(self, A):
+        """If *vmin* or *vmax* are not set, use the min/max of *A* to set them."""
+        pass
+
+    @abstractmethod
+    def scaled(self):
+        """Return whether *vmin* and *vmax* are both set."""
+        pass
+
+    def _changed(self):
+        """
+        Call this whenever the norm is changed to notify all the
+        callback listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+
+
+class Normalize(Norm):
     """
     A class which, when called, maps values within the interval
     ``[vmin, vmax]`` linearly to the interval ``[0.0, 1.0]``. The mapping of
@@ -2307,15 +2388,15 @@ class Normalize:
         -----
         If ``vmin == vmax``, input data will be mapped to 0.
         """
+        super().__init__()
         self._vmin = _sanitize_extrema(vmin)
         self._vmax = _sanitize_extrema(vmax)
         self._clip = clip
         self._scale = None
-        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
     @property
     def vmin(self):
-        """Lower limit of the input data interval; maps to 0."""
+        # docstring inherited
         return self._vmin
 
     @vmin.setter
@@ -2327,7 +2408,7 @@ class Normalize:
 
     @property
     def vmax(self):
-        """Upper limit of the input data interval; maps to 1."""
+        # docstring inherited
         return self._vmax
 
     @vmax.setter
@@ -2339,11 +2420,7 @@ class Normalize:
 
     @property
     def clip(self):
-        """
-        Determines the behavior for mapping values outside the range ``[vmin, vmax]``.
-
-        See the *clip* parameter in `.Normalize`.
-        """
+        # docstring inherited
         return self._clip
 
     @clip.setter
@@ -2351,13 +2428,6 @@ class Normalize:
         if value != self._clip:
             self._clip = value
             self._changed()
-
-    def _changed(self):
-        """
-        Call this whenever the norm is changed to notify all the
-        callback listeners to the 'changed' signal.
-        """
-        self.callbacks.process('changed')
 
     @staticmethod
     def process_value(value):
@@ -2400,24 +2470,7 @@ class Normalize:
         return result, is_scalar
 
     def __call__(self, value, clip=None):
-        """
-        Normalize the data and return the normalized data.
-
-        Parameters
-        ----------
-        value
-            Data to normalize.
-        clip : bool, optional
-            See the description of the parameter *clip* in `.Normalize`.
-
-            If ``None``, defaults to ``self.clip`` (which defaults to
-            ``False``).
-
-        Notes
-        -----
-        If not already initialized, ``self.vmin`` and ``self.vmax`` are
-        initialized using ``self.autoscale_None(value)``.
-        """
+        # docstring inherited
         if clip is None:
             clip = self.clip
 
@@ -2468,7 +2521,7 @@ class Normalize:
             return vmin + value * (vmax - vmin)
 
     def autoscale(self, A):
-        """Set *vmin*, *vmax* to min, max of *A*."""
+        # docstring inherited
         with self.callbacks.blocked():
             # Pause callbacks while we are updating so we only get
             # a single update signal at the end
@@ -2477,7 +2530,7 @@ class Normalize:
         self._changed()
 
     def autoscale_None(self, A):
-        """If *vmin* or *vmax* are not set, use the min/max of *A* to set them."""
+        # docstring inherited
         A = np.asanyarray(A)
 
         if isinstance(A, np.ma.MaskedArray):
@@ -2491,7 +2544,7 @@ class Normalize:
             self.vmax = A.max()
 
     def scaled(self):
-        """Return whether *vmin* and *vmax* are both set."""
+        # docstring inherited
         return self.vmin is not None and self.vmax is not None
 
 
@@ -2775,7 +2828,7 @@ def _make_norm_from_scale(
       unlike to arbitrary lambdas.
     """
 
-    class Norm(base_norm_cls):
+    class ScaleNorm(base_norm_cls):
         def __reduce__(self):
             cls = type(self)
             # If the class is toplevel-accessible, it is possible to directly
@@ -2855,15 +2908,15 @@ def _make_norm_from_scale(
             return super().autoscale_None(in_trf_domain)
 
     if base_norm_cls is Normalize:
-        Norm.__name__ = f"{scale_cls.__name__}Norm"
-        Norm.__qualname__ = f"{scale_cls.__qualname__}Norm"
+        ScaleNorm.__name__ = f"{scale_cls.__name__}Norm"
+        ScaleNorm.__qualname__ = f"{scale_cls.__qualname__}Norm"
     else:
-        Norm.__name__ = base_norm_cls.__name__
-        Norm.__qualname__ = base_norm_cls.__qualname__
-    Norm.__module__ = base_norm_cls.__module__
-    Norm.__doc__ = base_norm_cls.__doc__
+        ScaleNorm.__name__ = base_norm_cls.__name__
+        ScaleNorm.__qualname__ = base_norm_cls.__qualname__
+    ScaleNorm.__module__ = base_norm_cls.__module__
+    ScaleNorm.__doc__ = base_norm_cls.__doc__
 
-    return Norm
+    return ScaleNorm
 
 
 def _create_empty_object_of_class(cls):

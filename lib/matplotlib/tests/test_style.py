@@ -8,7 +8,6 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt, style
-from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
 
 PARAM = 'image.cmap'
@@ -21,7 +20,7 @@ def temp_style(style_name, settings=None):
     """Context manager to create a style sheet in a temporary directory."""
     if not settings:
         settings = DUMMY_SETTINGS
-    temp_file = f'{style_name}.{STYLE_EXTENSION}'
+    temp_file = f'{style_name}.mplstyle'
     try:
         with TemporaryDirectory() as tmpdir:
             # Write style settings to file in the tmpdir.
@@ -29,7 +28,7 @@ def temp_style(style_name, settings=None):
                 "\n".join(f"{k}: {v}" for k, v in settings.items()),
                 encoding="utf-8")
             # Add tmpdir to style path and reload so we can access this style.
-            USER_LIBRARY_PATHS.append(tmpdir)
+            style.USER_LIBRARY_PATHS.append(tmpdir)
             style.reload_library()
             yield
     finally:
@@ -71,7 +70,7 @@ def test_use_url(tmp_path):
 
 def test_single_path(tmp_path):
     mpl.rcParams[PARAM] = 'gray'
-    path = tmp_path / f'text.{STYLE_EXTENSION}'
+    path = tmp_path / 'text.mplstyle'
     path.write_text(f'{PARAM} : {VALUE}', encoding='utf-8')
     with style.context(path):
         assert mpl.rcParams[PARAM] == VALUE
