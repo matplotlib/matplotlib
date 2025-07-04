@@ -101,8 +101,6 @@ exclude = [
     "tools/gh_api.py",
     ".tox",
     ".eggs",
-    # TODO: fix .ipynb files
-    "*.ipynb"
 ]
 line-length = 88
 target-version = "py311"
@@ -174,6 +172,7 @@ convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
 "*.pyi" = ["E501"]
+"*.ipynb" = ["E402"]
 "doc/conf.py" = ["E402"]
 "galleries/examples/animation/frame_grabbing_sgskip.py" = ["E402"]
 "galleries/examples/images_contours_and_fields/tricontour_demo.py" = ["E201"]
