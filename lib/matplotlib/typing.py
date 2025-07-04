@@ -51,7 +51,7 @@ ColourType: TypeAlias = ColorType
 
 LineStyleType: TypeAlias = (
     Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",
-    "", "none", " ", "None"] |
+            "", "none", " ", "None"] |
     tuple[float, Sequence[float]]
 )
 """
@@ -60,7 +60,7 @@ See :doc:`/gallery/lines_bars_and_markers/linestyles`.
 """
 
 DrawStyleType: TypeAlias = Literal["default", "steps", "steps-pre", "steps-mid",
-"steps-post"]
+                                   "steps-post"]
 """See :doc:`/gallery/lines_bars_and_markers/step_demo`."""
 
 MarkEveryType: TypeAlias = (
