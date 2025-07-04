@@ -315,9 +315,17 @@ jobs:
           else
             FLAGS=()
           fi
-          pytest -rfEsXR -n auto "${FLAGS[@]}" \
-            --maxfail=50 --timeout=300 --durations=25 \
-            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
+          FLAGS+=(
+            --maxfail=50
+            --timeout=300
+            --durations=25
+            --cov-report=xml
+            --cov=lib
+            --log-level=DEBUG
+            --color=yes
+          )
+          pytest -rfEsXR -n auto -m 'not subprocess' "${FLAGS[@]}"
+          pytest -rfEsXR -m subprocess "${FLAGS[@]}"
 
       - name: Cleanup non-failed image files
         if: failure()
