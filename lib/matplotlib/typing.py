@@ -1,3 +1,5 @@
+from builtins import list
+
 """
 Typing support for Matplotlib
 
@@ -49,7 +51,7 @@ ColourType: TypeAlias = ColorType
 
 LineStyleType: TypeAlias = (
     Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",
-            "", "none", " ", "None"] |
+    "", "none", " ", "None"] |
     tuple[float, Sequence[float]]
 )
 """
@@ -58,7 +60,7 @@ See :doc:`/gallery/lines_bars_and_markers/linestyles`.
 """
 
 DrawStyleType: TypeAlias = Literal["default", "steps", "steps-pre", "steps-mid",
-                                   "steps-post"]
+"steps-post"]
 """See :doc:`/gallery/lines_bars_and_markers/step_demo`."""
 
 MarkEveryType: TypeAlias = (
@@ -69,7 +71,16 @@ MarkEveryType: TypeAlias = (
 )
 """See :doc:`/gallery/lines_bars_and_markers/markevery_demo`."""
 
-MarkerType: TypeAlias = str | path.Path | MarkerStyle
+MarkerType: TypeAlias = (
+    path.Path | MarkerStyle | str |  # str required for "$...$" marker
+    Literal[
+        ".", ",", "o", "v", "^", "<", ">",
+        "1", "2", "3", "4", "8", "s", "p",
+        "P", "*", "h", "H", "+", "x", "X",
+        "D", "d", "|", "_", "none", " ",
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+    ] | list[tuple[int, int]] | tuple[int, Literal[1, 2, 3], int]
+)
 """
 Marker specification. See :doc:`/gallery/lines_bars_and_markers/marker_reference`.
 """
