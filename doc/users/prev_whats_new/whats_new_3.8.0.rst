@@ -359,7 +359,7 @@ The following delimiter names have been supported earlier, but can now be sized 
 * ``\leftparen`` and ``\rightparen``
 
 There are really no obvious advantages in using these.
-Instead, they are are added for completeness.
+Instead, they are added for completeness.
 
 ``mathtext`` documentation improvements
 ---------------------------------------
@@ -513,7 +513,7 @@ Plot Directive now can make responsive images with "srcset"
 
 The plot sphinx directive (``matplotlib.sphinxext.plot_directive``, invoked in
 rst as ``.. plot::``) can be configured to automatically make higher res
-figures and add these to the the built html docs.  In ``conf.py``::
+figures and add these to the built html docs.  In ``conf.py``::
 
     extensions = [
     ...

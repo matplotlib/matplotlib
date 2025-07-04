@@ -21,6 +21,7 @@ Color norms
    :toctree: _as_gen/
    :template: autosummary.rst
 
+   Norm
    Normalize
    NoNorm
    AsinhNorm

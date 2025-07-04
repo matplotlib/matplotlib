@@ -219,8 +219,8 @@ def test_marker_fill_styles():
                     markeredgecolor=color,
                     markeredgewidth=2)
 
-    ax.set_ylim([0, 7.5])
-    ax.set_xlim([-5, 155])
+    ax.set_ylim(0, 7.5)
+    ax.set_xlim(-5, 155)
 
 
 def test_markerfacecolor_fillstyle():

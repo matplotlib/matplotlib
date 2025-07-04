@@ -150,7 +150,7 @@ def test_polar_rmin():
     theta = 2*np.pi*r
 
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.plot(theta, r)
     ax.set_rmax(2.0)
     ax.set_rmin(0.5)
@@ -162,7 +162,7 @@ def test_polar_negative_rmin():
     theta = 2*np.pi*r
 
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.plot(theta, r)
     ax.set_rmax(0.0)
     ax.set_rmin(-3.0)
@@ -174,7 +174,7 @@ def test_polar_rorigin():
     theta = 2*np.pi*r
 
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.plot(theta, r)
     ax.set_rmax(2.0)
     ax.set_rmin(0.5)
@@ -184,14 +184,14 @@ def test_polar_rorigin():
 @image_comparison(['polar_invertedylim.png'], style='default')
 def test_polar_invertedylim():
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.set_ylim(2, 0)
 
 
 @image_comparison(['polar_invertedylim_rorigin.png'], style='default')
 def test_polar_invertedylim_rorigin():
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.yaxis.set_inverted(True)
     # Set the rlims to inverted (2, 0) without calling set_rlim, to check that
     # viewlims are correctly unstaled before draw()ing.
@@ -206,7 +206,7 @@ def test_polar_theta_position():
     theta = 2*np.pi*r
 
     fig = plt.figure()
-    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax = fig.add_axes((0.1, 0.1, 0.8, 0.8), polar=True)
     ax.plot(theta, r)
     ax.set_theta_zero_location("NW", 30)
     ax.set_theta_direction('clockwise')
@@ -480,6 +480,26 @@ def test_polar_log():
 
     n = 100
     ax.plot(np.linspace(0, 2 * np.pi, n), np.logspace(0, 2, n))
+
+
+@check_figures_equal()
+def test_polar_log_rorigin(fig_ref, fig_test):
+    # Test that equivalent linear and log radial settings give the same axes patch
+    # and spines.
+    ax_ref = fig_ref.add_subplot(projection='polar', facecolor='red')
+    ax_ref.set_rlim(0, 2)
+    ax_ref.set_rorigin(-3)
+    ax_ref.set_rticks(np.linspace(0, 2, 5))
+
+    ax_test = fig_test.add_subplot(projection='polar', facecolor='red')
+    ax_test.set_rscale('log')
+    ax_test.set_rlim(1, 100)
+    ax_test.set_rorigin(10**-3)
+    ax_test.set_rticks(np.logspace(0, 2, 5))
+
+    for ax in ax_ref, ax_test:
+        # Radial tick labels should be the only difference, so turn them off.
+        ax.tick_params(labelleft=False)
 
 
 def test_polar_neg_theta_lims():

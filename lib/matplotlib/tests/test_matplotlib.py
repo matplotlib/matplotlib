@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from unittest.mock import patch
 
 import pytest
 
@@ -80,3 +81,16 @@ def test_importable_with__OO():
         [sys.executable, "-OO", "-c", program],
         env={**os.environ, "MPLBACKEND": ""}, check=True
         )
+
+
+@patch('matplotlib.subprocess.check_output')
+def test_get_executable_info_timeout(mock_check_output):
+    """
+    Test that _get_executable_info raises ExecutableNotFoundError if the
+    command times out.
+    """
+
+    mock_check_output.side_effect = subprocess.TimeoutExpired(cmd=['mock'], timeout=30)
+
+    with pytest.raises(matplotlib.ExecutableNotFoundError, match='Timed out'):
+        matplotlib._get_executable_info.__wrapped__('inkscape')
