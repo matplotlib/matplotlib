@@ -1417,14 +1417,64 @@ class Poly3DCollection(PolyCollection):
             if self._edge_is_mapped:
                 self._edgecolor3d = self._edgecolors
 
-        needs_masking = np.any(self._invalid_vertices)
-        num_faces = len(self._faces)
-        mask = self._invalid_vertices
+        # Broadcast the input colors to the number of faces
+        cface, cedge = self._compute_colors()
+
+        # Apply mask to projected z coordinates of the polygon faces
+        mask, needs_masking = self._compute_mask()
 
         # Some faces might contain masked vertices, so we want to ignore any
         # errors that those might cause
         with np.errstate(invalid='ignore', divide='ignore'):
             pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
+
+        # get the projected z-coordinate array for computing the drawing order
+        # of the faces
+        pzs = pfaces[..., 2]
+        if needs_masking:
+            pzs = np.ma.MaskedArray(pzs, mask=mask)
+
+        # Compute drawing order
+        face_order = self._compute_faces_order(pzs, needs_masking)
+
+        # Compute 2d coordinates of the faces (and order)
+        faces_2d, *codes = self._compute_faces_2d(pfaces, face_order, mask, needs_masking)
+
+        if codes:
+            PolyCollection.set_verts_and_codes(self, faces_2d, codes)
+        else:
+            PolyCollection.set_verts(self, faces_2d, self._closed)
+
+        # Set the 2d facecolors and edgecolors
+        self._facecolors2d = cface[face_order] if len(cface) > 0 else cface
+        if len(self._edgecolor3d) == len(cface) and len(cedge) > 0:
+            self._edgecolors2d = cedge[face_order]
+        else:
+            self._edgecolors2d = self._edgecolor3d
+
+        # Return zorder value
+        if self._sort_zpos is None:
+            # FIXME: Some results still don't look quite right.
+            #        In particular, examine contourf3d_demo2.py
+            #        with az = -54 and elev = -45.
+            return np.min(pzs) if pzs.size > 0 else np.nan
+    
+        # use _sort_zpos
+        zvec = np.array([[0], [0], [self._sort_zpos], [1]])
+        ztrans = proj3d._proj_transform_vec(zvec, self.axes.M)
+        return ztrans[2][0]
+
+    def _compute_faces_order(self, pzs, needs_masking):
+        face_z = self._zsortfunc(pzs, axis=-1) if len(pzs) > 0 else pzs
+
+        if needs_masking:
+            face_z = face_z.data
+
+        return np.argsort(face_z, axis=-1)[::-1]
+
+    def _compute_mask(self):
+        needs_masking = np.any(self._invalid_vertices)
+        mask = self._invalid_vertices
 
         if self._axlim_clip:
             viewlim_mask = _viewlim_mask(self._faces[..., 0], self._faces[..., 1],
@@ -1433,70 +1483,41 @@ class Poly3DCollection(PolyCollection):
                 needs_masking = True
                 mask = mask | viewlim_mask
 
-        pzs = pfaces[..., 2]
-        if needs_masking:
-            pzs = np.ma.MaskedArray(pzs, mask=mask)
+        return mask, needs_masking
 
-        # This extra fuss is to re-order face / edge colors
+    def _compute_colors(self):
+        # Broadcast the input colors to the number of faces
         cface = self._facecolor3d
         cedge = self._edgecolor3d
+        num_faces = len(self._faces)
+
         if len(cface) != num_faces:
             cface = cface.repeat(num_faces, axis=0)
+
         if len(cedge) != num_faces:
-            if len(cedge) == 0:
-                cedge = cface
-            else:
-                cedge = cedge.repeat(num_faces, axis=0)
+            cedge = cface if len(cedge) == 0 else cedge.repeat(num_faces, axis=0)
 
-        if len(pzs) > 0:
-            face_z = self._zsortfunc(pzs, axis=-1)
-        else:
-            face_z = pzs
-        if needs_masking:
-            face_z = face_z.data
-        face_order = np.argsort(face_z, axis=-1)[::-1]
+        return cface, cedge
 
-        if len(pfaces) > 0:
-            faces_2d = pfaces[face_order, :, :2]
-        else:
-            faces_2d = pfaces
+    def _compute_faces_2d(self, pfaces, face_order, mask, needs_masking):
+
+        faces_2d = pfaces[face_order, :, :2] if len(pfaces) > 0 else pfaces
+
         if self._codes3d is not None and len(self._codes3d) > 0:
             if needs_masking:
                 segment_mask = ~mask[face_order, :]
                 faces_2d = [face[mask, :] for face, mask
-                               in zip(faces_2d, segment_mask)]
+                            in zip(faces_2d, segment_mask)]
             codes = [self._codes3d[idx] for idx in face_order]
-            PolyCollection.set_verts_and_codes(self, faces_2d, codes)
-        else:
-            if needs_masking and len(faces_2d) > 0:
-                invalid_vertices_2d = np.broadcast_to(
-                    mask[face_order, :, None],
-                    faces_2d.shape)
-                faces_2d = np.ma.MaskedArray(
-                        faces_2d, mask=invalid_vertices_2d)
-            PolyCollection.set_verts(self, faces_2d, self._closed)
+            return faces_2d, codes
 
-        if len(cface) > 0:
-            self._facecolors2d = cface[face_order]
-        else:
-            self._facecolors2d = cface
-        if len(self._edgecolor3d) == len(cface) and len(cedge) > 0:
-            self._edgecolors2d = cedge[face_order]
-        else:
-            self._edgecolors2d = self._edgecolor3d
+        if needs_masking and len(faces_2d) > 0:
+            invalid_vertices_2d = np.broadcast_to(
+                mask[face_order, :, None],
+                faces_2d.shape)
+            faces_2d = np.ma.MaskedArray(faces_2d, mask=invalid_vertices_2d)
 
-        # Return zorder value
-        if self._sort_zpos is not None:
-            zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-            ztrans = proj3d._proj_transform_vec(zvec, self.axes.M)
-            return ztrans[2][0]
-        elif pzs.size > 0:
-            # FIXME: Some results still don't look quite right.
-            #        In particular, examine contourf3d_demo2.py
-            #        with az = -54 and elev = -45.
-            return np.min(pzs)
-        else:
-            return np.nan
+        return faces_2d,
 
     def set_facecolor(self, colors):
         # docstring inherited
