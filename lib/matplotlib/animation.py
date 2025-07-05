@@ -12,6 +12,7 @@ import sys
 from tempfile import TemporaryDirectory
 import uuid
 import warnings
+import inspect
 
 import numpy as np
 from PIL import Image
@@ -615,6 +616,7 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
@@ -635,6 +637,9 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
         if _log.getEffectiveLevel() > logging.DEBUG:
             args += ['-loglevel', 'error']
         return [self.bin_path(), *args, *self.output_args]
+
+# Workaround: Set class docstring from __init__ for Sphinx visibility
+FFMpegFileWriter.__doc__ = inspect.getdoc(FFMpegFileWriter.__init__)
 
 
 # Base class for animated GIFs with ImageMagick
