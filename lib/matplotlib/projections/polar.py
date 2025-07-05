@@ -679,20 +679,15 @@ class RadialAxis(maxis.YAxis):
         super().__init__(*args, **kwargs)
         self.sticky_edges.y.append(0)
 
-    def _wrap_locator_formatter(self):
-        self.set_major_locator(RadialLocator(self.get_major_locator(),
-                                             self.axes))
-        self.isDefault_majloc = True
+    def set_major_locator(self, locator):
+        if not isinstance(locator, RadialLocator):
+            locator = RadialLocator(locator, self.axes)
+        super().set_major_locator(locator)
 
     def clear(self):
         # docstring inherited
         super().clear()
         self.set_ticks_position('none')
-        self._wrap_locator_formatter()
-
-    def _set_scale(self, value, **kwargs):
-        super()._set_scale(value, **kwargs)
-        self._wrap_locator_formatter()
 
 
 def _is_full_circle_deg(thetamin, thetamax):
@@ -1248,19 +1243,11 @@ class PolarAxes(Axes):
         """
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
 
-    def set_yscale(self, *args, **kwargs):
-        super().set_yscale(*args, **kwargs)
-        self.yaxis.set_major_locator(
-            self.RadialLocator(self.yaxis.get_major_locator(), self))
-
     def set_rscale(self, *args, **kwargs):
         return Axes.set_yscale(self, *args, **kwargs)
 
     def set_rticks(self, *args, **kwargs):
-        result = Axes.set_yticks(self, *args, **kwargs)
-        self.yaxis.set_major_locator(
-            self.RadialLocator(self.yaxis.get_major_locator(), self))
-        return result
+        return Axes.set_yticks(self, *args, **kwargs)
 
     def set_thetagrids(self, angles, labels=None, fmt=None, **kwargs):
         """
