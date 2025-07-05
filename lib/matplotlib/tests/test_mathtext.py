@@ -125,7 +125,16 @@ math_tests = [
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
-    r'$a=-b-c$'  # github issue #28180
+    r'$a=-b-c$',  # github issue #28180
+    # Check all AutoHeightChar substitutions.
+    *[
+        r'$\left' + lc + r' M \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # Normal size.
+        r'\left' + lc + r' \frac{M}{B} \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # big size.
+        r'\left' + lc + r' \frac{\frac{M}{I}}{B} \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # bigg size.
+        r'\left' + lc + r' \frac{\frac{M}{I}}{\frac{B}{U}} \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # Big size.
+        r'\left' + lc + r'\frac{\frac{\frac{M}{I}}{N}}{\frac{\frac{B}{U}}{G}} \middle/ ? \middle\backslash ? \right' + rc + '$'  # Bigg size.
+        for lc, rc in ['()', '[]', '<>', (r'\{', r'\}'), (r'\lfloor', r'\rfloor'), (r'\lceil', r'\rceil')]
+    ],
 ]
 # 'svgastext' tests switch svg output to embed text as text (rather than as
 # paths).
