@@ -2363,6 +2363,9 @@ class _AxesBase(martist.Artist):
                 points = np.concatenate([points, [datalim.minpos]])
             self.update_datalim(points)
 
+            # Automatically adjust the view limits to fit the collection
+            self.autoscale_view()
+
         self.stale = True
         return collection
 
