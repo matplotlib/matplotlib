@@ -1,9 +1,10 @@
 import importlib
+from unittest.mock import patch
 
 from matplotlib import path, transforms
 from matplotlib.backend_bases import (
     FigureCanvasBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
-    NavigationToolbar2, RendererBase)
+    NavigationToolbar2, RendererBase, TimerBase)
 from matplotlib.backend_tools import RubberbandBase
 from matplotlib.figure import Figure
 from matplotlib.testing._markers import needs_pgf_xelatex
@@ -581,3 +582,31 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
     # Check if twin-axes are properly triggered
     assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
     assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
+
+
+def test_timer_properties():
+    # Setting a property to the same value should not trigger the
+    # private setter call again.
+    timer = TimerBase(100)
+    with patch.object(timer, '_timer_set_interval') as mock:
+        timer.interval = 200
+        mock.assert_called_once()
+        assert timer.interval == 200
+        timer.interval = 200
+        # Make sure it wasn't called again
+        mock.assert_called_once()
+
+    with patch.object(timer, '_timer_set_single_shot') as mock:
+        timer.single_shot = True
+        mock.assert_called_once()
+        assert timer._single
+        timer.single_shot = True
+        # Make sure it wasn't called again
+        mock.assert_called_once()
+
+    # A timer with <1 millisecond gets converted to int and therefore 0
+    # milliseconds, which the mac framework interprets as singleshot.
+    # We only want singleshot if we specify that ourselves, otherwise we want
+    # a repeating timer, so make sure our interval is set to a minimum of 1ms.
+    timer.interval = 0.1
+    assert timer.interval == 1
