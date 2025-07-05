@@ -12,8 +12,8 @@ import sys
 from tempfile import TemporaryDirectory
 import uuid
 import warnings
-
 import inspect
+
 import numpy as np
 from PIL import Image
 
