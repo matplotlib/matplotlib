@@ -3436,6 +3436,9 @@ or pandas.DataFrame
         else:  # horizontal
             heads, locs = self._process_unit_info([("x", heads), ("y", locs)])
 
+        heads = cbook._check_1d(heads)
+        locs = cbook._check_1d(locs)
+
         # resolve line format
         if linefmt is None:
             linefmt = args[0] if len(args) > 0 else "C0-"
