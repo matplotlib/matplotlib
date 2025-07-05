@@ -6,7 +6,8 @@ Core functions and attributes for the matplotlib style library:
 ``context``
     Context manager to use a style sheet temporarily.
 ``available``
-    List available style sheets.
+    List available style sheets. Underscore-prefixed names are considered private and
+    not listed, though may still be accessed directly from ``library``.
 ``library``
     A dictionary of style names and matplotlib settings.
 """
@@ -245,8 +246,8 @@ available = []
 def reload_library():
     """Reload the style library."""
     library.clear()
-    library.update(_update_user_library(_base_library))
-    available[:] = sorted(library.keys())
+    library.update(_update_user_library(_base_library.copy()))
+    available[:] = sorted(name for name in library if not name.startswith('_'))
 
 
 reload_library()

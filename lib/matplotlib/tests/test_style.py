@@ -21,6 +21,7 @@ def temp_style(style_name, settings=None):
     if not settings:
         settings = DUMMY_SETTINGS
     temp_file = f'{style_name}.mplstyle'
+    orig_library_paths = style.USER_LIBRARY_PATHS
     try:
         with TemporaryDirectory() as tmpdir:
             # Write style settings to file in the tmpdir.
@@ -32,6 +33,7 @@ def temp_style(style_name, settings=None):
             style.reload_library()
             yield
     finally:
+        style.USER_LIBRARY_PATHS = orig_library_paths
         style.reload_library()
 
 
@@ -46,8 +48,17 @@ def test_invalid_rc_warning_includes_filename(caplog):
 
 
 def test_available():
-    with temp_style('_test_', DUMMY_SETTINGS):
-        assert '_test_' in style.available
+    # Private name should not be listed in available but still usable.
+    assert '_classic_test_patch' not in style.available
+    assert '_classic_test_patch' in style.library
+
+    with temp_style('_test_', DUMMY_SETTINGS), temp_style('dummy', DUMMY_SETTINGS):
+        assert 'dummy' in style.available
+        assert 'dummy' in style.library
+        assert '_test_' not in style.available
+        assert '_test_' in style.library
+    assert 'dummy' not in style.available
+    assert '_test_' not in style.available
 
 
 def test_use():
