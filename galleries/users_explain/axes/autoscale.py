@@ -177,4 +177,3 @@ collection = mpl.collections.StarPolygonCollection(
     offset_transform=ax.transData,  # Propagate transformations of the Axes
 )
 ax.add_collection(collection)
-ax.autoscale_view()
