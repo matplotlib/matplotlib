@@ -10,6 +10,7 @@ downstream libraries.
     The ``typing`` module and type stub files are considered provisional and may change
     at any time without a deprecation period.
 """
+from builtins import list
 from collections.abc import Hashable, Sequence
 import pathlib
 from typing import Any, Callable, Literal, TypeAlias, TypeVar, Union
@@ -69,7 +70,16 @@ MarkEveryType: TypeAlias = (
 )
 """See :doc:`/gallery/lines_bars_and_markers/markevery_demo`."""
 
-MarkerType: TypeAlias = str | path.Path | MarkerStyle
+MarkerType: TypeAlias = (
+    path.Path | MarkerStyle | str |  # str required for "$...$" marker
+    Literal[
+        ".", ",", "o", "v", "^", "<", ">",
+        "1", "2", "3", "4", "8", "s", "p",
+        "P", "*", "h", "H", "+", "x", "X",
+        "D", "d", "|", "_", "none", " ",
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+    ] | list[tuple[int, int]] | tuple[int, Literal[1, 2, 3], int]
+)
 """
 Marker specification. See :doc:`/gallery/lines_bars_and_markers/marker_reference`.
 """
