@@ -264,7 +264,15 @@
 ## settings for axes and ticks.  Special text sizes can be defined
 ## relative to font.size, using the following values: xx-small, x-small,
 ## small, medium, large, x-large, xx-large, larger, or smaller
+##
+## font.superfamily: None
+## A logical font superfamily name (e.g., 'DejaVu', 'Computer Modern', 'Bitstream Vera')
+## that maps genre-specific families like 'serif', 'sans-serif', or 'monospace'
+## to coordinated fonts. When set, it overrides genre-specific defaults based on
+## the current style and weight.
 
+
+#font.superfamily: None
 #font.family:  sans-serif
 #font.style:   normal
 #font.variant: normal
