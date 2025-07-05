@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import shutil
+import sys
 
 import matplotlib.dviread as dr
 import pytest
@@ -60,7 +61,7 @@ def test_PsfontsMap(monkeypatch):
         fontmap[b'%']
 
 
-@pytest.mark.skipif(shutil.which("kpsewhich") is None,
+@pytest.mark.skipif(sys.platform == "emscripten" or shutil.which("kpsewhich") is None,
                     reason="kpsewhich is not available")
 def test_dviread():
     dirpath = Path(__file__).parent / 'baseline_images/dviread'
