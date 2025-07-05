@@ -687,6 +687,8 @@ class _AxesBase(martist.Artist):
         self._forward_navigation_events = forward_navigation_events
         self._sharex = sharex
         self._sharey = sharey
+        self._orig_xbound = None
+        self._orig_ybound = None
         self.set_label(label)
         self.set_figure(fig)
         # The subplotspec needs to be set after the figure (so that
@@ -2019,8 +2021,8 @@ class _AxesBase(martist.Artist):
 
         x_trf = self.xaxis.get_transform()
         y_trf = self.yaxis.get_transform()
-        xmin, xmax = x_trf.transform(self.get_xbound())
-        ymin, ymax = y_trf.transform(self.get_ybound())
+        xmin, xmax = self._orig_xbound or x_trf.transform(self.get_xbound())
+        ymin, ymax = self._orig_ybound or y_trf.transform(self.get_ybound())
         xsize = max(abs(xmax - xmin), 1e-30)
         ysize = max(abs(ymax - ymin), 1e-30)
 
@@ -2072,18 +2074,26 @@ class _AxesBase(martist.Artist):
             yc = 0.5 * (ymin + ymax)
             y0 = yc - Ysize / 2.0
             y1 = yc + Ysize / 2.0
+            self.set_ybound(y_trf.inverted().transform([y0, y1]))
             if not self.get_autoscaley_on():
                 _log.warning("Ignoring fixed y limits to fulfill fixed data aspect "
                              "with adjustable data limits.")
-            self.set_ybound(y_trf.inverted().transform([y0, y1]))
+                self._orig_ybound = (ymin, ymax)
+            if self._orig_xbound is not None:
+                # We previously expanded x, so revert that
+                self.set_xbound(x_trf.inverted().transform([xmin, xmax]))
         else:
             xc = 0.5 * (xmin + xmax)
             x0 = xc - Xsize / 2.0
             x1 = xc + Xsize / 2.0
+            self.set_xbound(x_trf.inverted().transform([x0, x1]))
             if not self.get_autoscalex_on():
                 _log.warning("Ignoring fixed x limits to fulfill fixed data aspect "
                              "with adjustable data limits.")
-            self.set_xbound(x_trf.inverted().transform([x0, x1]))
+                self._orig_xbound = (xmin, xmax)
+            if self._orig_ybound is not None:
+                # We previously expanded y, so revert that
+                self.set_ybound(y_trf.inverted().transform([ymin, ymax]))
 
     def axis(self, arg=None, /, *, emit=True, **kwargs):
         """
@@ -3810,6 +3820,7 @@ class _AxesBase(martist.Artist):
 
         >>> set_xlim(5000, 0)
         """
+        self._orig_xbound = None
         if right is None and np.iterable(left):
             left, right = left
         if xmin is not None:
@@ -4059,6 +4070,7 @@ class _AxesBase(martist.Artist):
 
         >>> set_ylim(5000, 0)
         """
+        self._orig_ybound = None
         if top is None and np.iterable(bottom):
             bottom, top = bottom
         if ymin is not None:
