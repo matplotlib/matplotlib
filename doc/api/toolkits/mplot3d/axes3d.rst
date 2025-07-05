@@ -246,6 +246,8 @@ Interactive
    format_zdata
    format_coord
 
+   fmt_zdata
+
 
 Projection and perspective
 --------------------------
