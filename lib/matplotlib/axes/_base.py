@@ -680,8 +680,8 @@ class _AxesBase(martist.Artist):
             raise ValueError('Width and height specified must be non-negative')
         self._originalPosition = self._position.frozen()
         self.axes = self
-        self._aspect = 'auto'
-        self._adjustable = 'box'
+        self._aspect = mpl.rcParams['axes.aspect']
+        self._adjustable = mpl.rcParams['axes.adjustable']
         self._anchor = 'C'
         self._stale_viewlims = dict.fromkeys(self._axis_names, False)
         self._forward_navigation_events = forward_navigation_events
