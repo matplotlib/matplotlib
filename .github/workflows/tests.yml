@@ -40,13 +40,15 @@ jobs:
       )
     permissions:
       contents: read
-    name: "Python ${{ matrix.python-version }} on ${{ matrix.os }} ${{ matrix.name-suffix }}"
+    name: "Python ${{ matrix.python-version }} on ${{ matrix.os }}, ${{ matrix.test_type}} ${{ matrix.name-suffix }}"
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
+          # Each run appears twice, with test_type=parallel and test_type=serial
+          # Fix this once <https://github.com/actions/runner/issues/1182> implemented
           - name-suffix: "(Minimum Versions)"
             os: ubuntu-22.04
             python-version: '3.11'
@@ -54,40 +56,107 @@ jobs:
             delete-font-cache: true
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+            test_type: parallel
+          - name-suffix: "(Minimum Versions)"
+            os: ubuntu-22.04
+            python-version: '3.11'
+            extra-requirements: '-c requirements/testing/minver.txt'
+            delete-font-cache: true
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
+            test_type: serial
+
           - os: ubuntu-22.04
             python-version: '3.11'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
             extra-requirements: '-r requirements/testing/extra.txt'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+            test_type: parallel
+          - os: ubuntu-22.04
+            python-version: '3.11'
+            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
+            extra-requirements: '-r requirements/testing/extra.txt'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
+            test_type: serial
+
           - os: ubuntu-22.04-arm
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+            test_type: parallel
+          - os: ubuntu-22.04-arm
+            python-version: '3.12'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
+            test_type: serial
+
           - name-suffix: "(Extra TeX packages)"
             os: ubuntu-22.04
             python-version: '3.13'
             extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+            test_type: parallel
+          - name-suffix: "(Extra TeX packages)"
+            os: ubuntu-22.04
+            python-version: '3.13'
+            extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
+            test_type: serial
+
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
             python-version: '3.13t'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+            test_type: parallel
+          - name-suffix: "Free-threaded"
+            os: ubuntu-22.04
+            python-version: '3.13t'
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
+            test_type: serial
+
           - os: ubuntu-24.04
             python-version: '3.12'
+            test_type: parallel
+          - os: ubuntu-24.04
+            python-version: '3.12'
+            test_type: serial
+
           - os: macos-13  # This runner is on Intel chips.
             # merge numpy and pandas install in nighties test when this runner is dropped
             python-version: '3.11'
+            test_type: parallel
+          - os: macos-13  # This runner is on Intel chips.
+            # merge numpy and pandas install in nighties test when this runner is dropped
+            python-version: '3.11'
+            test_type: serial
+
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
+            test_type: parallel
+          - os: macos-14  # This runner is on M1 (arm64) chips.
+            python-version: '3.12'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
+            test_type: serial
+
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
+            test_type: parallel
+          - os: macos-14  # This runner is on M1 (arm64) chips.
+            python-version: '3.13'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
+            test_type: serial
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -337,9 +406,21 @@ jobs:
           if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
             export PYTHON_GIL=0
           fi
-          pytest -rfEsXR -n auto \
-            --maxfail=50 --timeout=300 --durations=25 \
-            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
+          FLAGS=(
+            -rfEsXR
+            --maxfail=50
+            --timeout=300
+            --durations=25
+            --cov-report=xml
+            --cov=lib
+            --log-level=DEBUG
+            --color=yes
+          )
+          if [[ "${{ matrix.test_type }}" == 'serial' ]]; then
+              pytest "${FLAGS[@]}" -m subprocess -n 0
+          else
+              pytest "${FLAGS[@]}" -m 'not subprocess' -n auto
+          fi
 
       - name: Cleanup non-failed image files
         if: failure()
