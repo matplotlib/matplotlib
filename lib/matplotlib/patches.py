@@ -2589,9 +2589,13 @@ class BoxStyle(_Style):
             else:
                 # Reversed arrow head (>---)
 
+                # Distance to pad x0 by, in order to ensure consistent spacing
+                a, b = 1.214, 0.250  # Empirical factors
+                padding_offset = (a * pad) + (b * mutation_size)
+
                 # No arrow head available for enclosed text to spill over into; add
                 # padding to left of text
-                x0 = x0 - (1.4 * pad)
+                x0 = x0 - padding_offset
 
                 # tan(1/2 * angle subtended by arrow tip)
                 tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))
@@ -2634,11 +2638,11 @@ class BoxStyle(_Style):
                     vertical_offset = width_adjustment + ((x0 - x1) * tan_half_angle)
 
                     return Path._create_closed([
-                        (x0, y0 - width_adjustment),
+                        (x0 + dxx, y0 - width_adjustment),
                         (x1, y0 - vertical_offset),
                         (x1, y1 + vertical_offset),
-                        (x0, y1 + width_adjustment),
-                        (x0, y0 - width_adjustment)
+                        (x0 + dxx, y1 + width_adjustment),
+                        (x0 + dxx, y0 - width_adjustment)
                     ])
 
     @_register_style(_style_list)
@@ -2747,10 +2751,14 @@ class BoxStyle(_Style):
             else:
                 # Reversed arrow heads (>---<)
 
+                # Distance to pad x0 and x1 by, in order to ensure consistent spacing
+                a, b = 1.214, 0.250  # Empirical factors
+                padding_offset = (a * pad) + (b * mutation_size)
+
                 # No arrow head available for enclosed text to spill over into; add
                 # padding to both sides of text
-                x0 = x0 - (1.4 * pad)
-                x1 = x1 + (1.4 * pad)
+                x0 = x0 - padding_offset
+                x1 = x1 + padding_offset
 
                 # tan(1/2 * angle subtended by arrow tip)
                 tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))
