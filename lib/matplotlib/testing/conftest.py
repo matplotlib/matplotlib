@@ -20,6 +20,7 @@ def pytest_configure(config):
         ("markers", "backend: Set alternate Matplotlib backend temporarily."),
         ("markers", "baseline_images: Compare output against references."),
         ("markers", "pytz: Tests that require pytz to be installed."),
+        ("markers", "starts_subprocess: Tests that start subprocesses."),
         ("filterwarnings", "error"),
         ("filterwarnings",
          "ignore:.*The py23 module has been deprecated:DeprecationWarning"),
