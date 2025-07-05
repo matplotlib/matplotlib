@@ -119,19 +119,16 @@ stages:
               VS_VER=2022
 
               echo "##vso[task.setvariable variable=VS_COVERAGE_TOOL]$TOOL"
-
-              FLAGS=(
-                -rfEsXR
-                --maxfail=50
-                --timeout=300
-                --durations=25
-                --cov-report=xml
+              PYTHONFAULTHANDLER=1 pytest \
+                -rfEsXR \
+                -n 2 \
+                --dist=loadgroup \
+                --junitxml=junit/test-results.xml \
+                --maxfail=50 \
+                --timeout=300 \
+                --durations=25 \
+                --cov-report=xml \
                 --cov=lib
-              )
-              PYTHONFAULTHANDLER=1 pytest "${FLAGS[@]}" -m 'not subprocess' -n 2 \
-                  --junitxml=junit/test-results-1.xml
-              PYTHONFAULTHANDLER=1 pytest "${FLAGS[@]}" -m subprocess \
-                  --junitxml=junit/test-results-2.xml
 
               if [[ $VS_VER == 2022 ]]; then
                 "$TOOL" shutdown $SESSION_ID
@@ -162,8 +159,7 @@ stages:
 
           - task: PublishTestResults@2
             inputs:
-              mergeTestResults: true
-              testResultsFiles: '**/test-results*.xml'
+              testResultsFiles: '**/test-results.xml'
               testRunTitle: 'Python $(python.version)'
             condition: succeededOrFailed()
 

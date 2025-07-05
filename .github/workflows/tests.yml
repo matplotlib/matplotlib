@@ -337,18 +337,17 @@ jobs:
           if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
             export PYTHON_GIL=0
           fi
-          FLAGS=(
-            -rfEsXR
-            --maxfail=50
-            --timeout=300
-            --durations=25
-            --cov-report=xml
-            --cov=lib
-            --log-level=DEBUG
+          pytest \
+            -rfEsXR \
+            -n auto \
+            --dist=loadgroup \
+            --maxfail=50 \
+            --timeout=300 \
+            --durations=25 \
+            --cov-report=xml \
+            --cov=lib \
+            --log-level=DEBUG \
             --color=yes
-          )
-          pytest "${FLAGS[@]}" -m 'not subprocess' -n auto
-          pytest "${FLAGS[@]}" -m subprocess
 
       - name: Cleanup non-failed image files
         if: failure()
