@@ -18,6 +18,7 @@ from matplotlib.font_manager import (
     MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
+from matplotlib.testing._markers import starts_subprocess
 
 
 has_fclist = shutil.which('fc-list') is not None
@@ -288,6 +289,7 @@ def test_fontcache_thread_safe():
     subprocess_run_helper(_test_threading, timeout=10)
 
 
+@starts_subprocess
 def test_lockfilefailure(tmp_path):
     # The logic here:
     # 1. get a temp directory from pytest

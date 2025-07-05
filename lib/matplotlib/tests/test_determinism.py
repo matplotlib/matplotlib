@@ -16,10 +16,14 @@ from matplotlib.offsetbox import AnchoredOffsetbox, AuxTransformBox
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.testing import subprocess_run_for_testing
-from matplotlib.testing._markers import needs_ghostscript, needs_usetex
+from matplotlib.testing._markers import (
+    needs_ghostscript, needs_usetex, starts_subprocess
+)
 import matplotlib.testing.compare
 from matplotlib.text import TextPath
 from matplotlib.transforms import IdentityTransform
+
+pytestmark = starts_subprocess
 
 
 def _save_figure(objects='mhip', fmt="pdf", usetex=False):

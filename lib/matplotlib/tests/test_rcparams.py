@@ -31,6 +31,7 @@ from matplotlib.rcsetup import (
     _validate_linestyle,
     _listify_validator)
 from matplotlib.testing import subprocess_run_for_testing
+from matplotlib.testing._markers import starts_subprocess
 
 
 def test_rcparams(tmp_path):
@@ -528,6 +529,7 @@ def test_rcparams_reset_after_fail():
         assert mpl.rcParams['text.usetex'] is False
 
 
+@starts_subprocess
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 def test_backend_fallback_headless_invalid_backend(tmp_path):
     env = {**os.environ,
@@ -545,6 +547,7 @@ def test_backend_fallback_headless_invalid_backend(tmp_path):
             env=env, check=True, stderr=subprocess.DEVNULL)
 
 
+@starts_subprocess
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 def test_backend_fallback_headless_auto_backend(tmp_path):
     # specify a headless mpl environment, but request a graphical (tk) backend
@@ -567,6 +570,7 @@ def test_backend_fallback_headless_auto_backend(tmp_path):
     assert backend.strip().lower() == "agg"
 
 
+@starts_subprocess
 @pytest.mark.skipif(
     sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
     reason="headless")
