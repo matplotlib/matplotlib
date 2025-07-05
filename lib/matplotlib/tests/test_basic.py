@@ -6,8 +6,6 @@ import textwrap
 from matplotlib.testing._markers import starts_subprocess
 from matplotlib.testing import subprocess_run_for_testing
 
-import pytest
-
 
 def test_simple():
     assert 1 + 1 == 2
