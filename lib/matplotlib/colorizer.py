@@ -154,7 +154,13 @@ class Colorizer:
         # Otherwise run norm -> colormap pipeline
         x = ma.asarray(x)
         if norm:
-            x = self.norm(x)
+            if isinstance(self.norm, colors.MultiNorm):
+                # using structured_output=False gives one less
+                # memcopy operation
+                x = self.norm(x, structured_output=False)
+            else:
+                x = self.norm(x)
+
         rgba = self.cmap(x, alpha=alpha, bytes=bytes)
         return rgba
 

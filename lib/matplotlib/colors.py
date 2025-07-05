@@ -745,7 +745,7 @@ class Colormap:
         self._i_over = self.N + 1
         self._i_bad = self.N + 2
         self._isinit = False
-        self.n_variates = 1
+        self.n_components = 1
         #: When this colormap exists on a scalar mappable and colorbar_extend
         #: is not False, colorbar creation will pick up ``colorbar_extend`` as
         #: the default value for the ``extend`` keyword in the
@@ -1414,10 +1414,10 @@ class MultivarColormap:
         combination_mode: str, 'sRGB_add' or 'sRGB_sub'
             Describe how colormaps are combined in sRGB space
 
-            - If 'sRGB_add' -> Mixing produces brighter colors
-              `sRGB = sum(colors)`
-            - If 'sRGB_sub' -> Mixing produces darker colors
-              `sRGB = 1 - sum(1 - colors)`
+            - If 'sRGB_add': Mixing produces brighter colors
+              ``sRGB = sum(colors)``
+            - If 'sRGB_sub': Mixing produces darker colors
+              ``sRGB = 1 - sum(1 - colors)``
         name : str, optional
             The name of the colormap family.
         """
@@ -1438,7 +1438,7 @@ class MultivarColormap:
         self._colormaps = colormaps
         _api.check_in_list(['sRGB_add', 'sRGB_sub'], combination_mode=combination_mode)
         self._combination_mode = combination_mode
-        self.n_variates = len(colormaps)
+        self.n_components = len(colormaps)
         self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
 
     def __call__(self, X, alpha=None, bytes=False, clip=True):
@@ -1446,14 +1446,16 @@ class MultivarColormap:
         Parameters
         ----------
         X : tuple (X0, X1, ...) of length equal to the number of colormaps
-            X0, X1 ...:
-            float or int, `~numpy.ndarray` or scalar
+            or structured array with multiple fields, X0, X1, ...:
+            Xi: float or int, `~numpy.ndarray` or scalar.
             The data value(s) to convert to RGBA.
-            For floats, *Xi...* should be in the interval ``[0.0, 1.0]`` to
-            return the RGBA values ``X*100`` percent along the Colormap line.
-            For integers, *Xi...*  should be in the interval ``[0, self[i].N)`` to
-            return RGBA values *indexed* from colormap [i] with index ``Xi``, where
-            self[i] is colormap i.
+
+            - For floats, *Xi...* should be in the interval ``[0.0, 1.0]`` to
+              return the RGBA values ``X*100`` percent along the line of colormap i.
+            - For integers, *Xi...*  should be in the interval ``[0, self[i].N)`` to
+              return RGBA values *indexed* from colormap i with
+              index ``Xi``, where self[i] is colormap i.
+
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
             floats with shape matching *Xi*, or None.
@@ -1470,10 +1472,14 @@ class MultivarColormap:
         RGBA values with a shape of ``X.shape + (4, )``.
         """
 
+        if isinstance(X, np.ndarray) and X.dtype.fields is not None:
+            X = tuple(X[descriptor[0]] for descriptor in X.dtype.descr)
+
         if len(X) != len(self):
             raise ValueError(
                 f'For the selected colormap the data must have a first dimension '
-                f'{len(self)}, not {len(X)}')
+                f'{len(self)}, not {len(X)}, or be structured array ',
+                f'with {len(self)} fields.')
         rgba, mask_bad = self[0]._get_rgba_and_mask(X[0], bytes=False)
         for c, xx in zip(self[1:], X[1:]):
             sub_rgba, sub_mask_bad = c._get_rgba_and_mask(xx, bytes=False)
@@ -1561,7 +1567,7 @@ class MultivarColormap:
         Parameters
         ----------
         lutshape : tuple of (`int`, `None`)
-            The tuple must have a length matching the number of variates.
+            The tuple must have a length matching the number of components.
             For each element in the tuple, if `int`, the corresponding colorbar
             is resampled, if `None`, the corresponding colorbar is not resampled.
 
@@ -1589,15 +1595,15 @@ class MultivarColormap:
 
         Parameters
         ----------
-        bad: :mpltype:`color`, default: None
+        bad : :mpltype:`color`, default: None
             If Matplotlib color, the bad value is set accordingly in the copy
 
-        under tuple of :mpltype:`color`, default: None
-            If tuple, the `under` value of each component is set with the values
+        under : tuple of :mpltype:`color`, default: None
+            If tuple, the ``under`` value of each component is set with the values
             from the tuple.
 
-        over tuple of :mpltype:`color`, default: None
-            If tuple, the `over` value of each component is set with the values
+        over : tuple of :mpltype:`color`, default: None
+            If tuple, the ``over`` value of each component is set with the values
             from the tuple.
 
         Returns
@@ -1697,7 +1703,7 @@ class BivarColormap:
         self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
         self._rgba_outside = (1.0, 0.0, 1.0, 1.0)
         self._isinit = False
-        self.n_variates = 2
+        self.n_components = 2
         self._origin = (float(origin[0]), float(origin[1]))
         '''#: When this colormap exists on a scalar mappable and colorbar_extend
         #: is not False, colorbar creation will pick up ``colorbar_extend`` as
@@ -1709,7 +1715,8 @@ class BivarColormap:
         r"""
         Parameters
         ----------
-        X : tuple (X0, X1), X0 and X1: float or int or array-like
+        X : tuple (X0, X1) or structured array with two fields, X0 and X1:
+            Xi: float or int or array-like.
             The data value(s) to convert to RGBA.
 
             - For floats, *X* should be in the interval ``[0.0, 1.0]`` to
@@ -1731,10 +1738,14 @@ class BivarColormap:
         RGBA values with a shape of ``X.shape + (4, )``.
         """
 
+        # unwrap structured data.
+        if isinstance(X, np.ndarray) and X.dtype.fields is not None:
+            X = tuple(X[descriptor[0]] for descriptor in X.dtype.descr)
+
         if len(X) != 2:
             raise ValueError(
-                f'For a `BivarColormap` the data must have a first dimension '
-                f'2, not {len(X)}')
+                'For a `BivarColormap` the data must have a first dimension '
+                f'2, not {len(X)}, or be a structured array with 2 fields.')
 
         if not self._isinit:
             self._init()
@@ -2264,8 +2275,8 @@ class Norm(ABC):
 
     Subclasses include `Normalize` which maps from a scalar to
     a scalar. However, this class makes no such requirement, and subclasses may
-    support the normalization of multiple variates simultaneously, with
-    separate normalization for each variate.
+    support the normalization of multiple components simultaneously, with
+    separate normalization for each component.
     """
 
     def __init__(self):
@@ -2336,6 +2347,17 @@ class Norm(ABC):
         callback listeners to the 'changed' signal.
         """
         self.callbacks.process('changed')
+
+    @property
+    @abstractmethod
+    def n_components(self):
+        """
+        The number of normalized components.
+
+        This is number of elements of the parameter to ``__call__`` and of
+        *vmin*, *vmax*.
+        """
+        pass
 
 
 class Normalize(Norm):
@@ -2546,6 +2568,20 @@ class Normalize(Norm):
     def scaled(self):
         # docstring inherited
         return self.vmin is not None and self.vmax is not None
+
+    @property
+    def n_components(self):
+        """
+        The number of distinct components supported (1).
+
+        This is number of elements of the parameter to ``__call__`` and of
+        *vmin*, *vmax*.
+
+        This class support only a single compoenent, as opposed to `MultiNorm`
+        which supports multiple components.
+
+        """
+        return 1
 
 
 class TwoSlopeNorm(Normalize):
@@ -3272,6 +3308,335 @@ class NoNorm(Normalize):
         return value
 
 
+class MultiNorm(Norm):
+    """
+    A class which contains multiple scalar norms
+    """
+
+    def __init__(self, norms, vmin=None, vmax=None, clip=False):
+        """
+        Parameters
+        ----------
+        norms : list of (str, `Normalize` or None)
+            The constituent norms. The list must have a minimum length of 2.
+        vmin, vmax : float or None or list of (float or None)
+            Limits of the constituent norms.
+            If a list, each value is assigned to each of the constituent
+            norms. Single values are repeated to form a list of appropriate size.
+
+        clip : bool or list of bools, default: False
+            Determines the behavior for mapping values outside the range
+            ``[vmin, vmax]`` for the constituent norms.
+            If a list, each value is assigned to each of the constituent
+            norms. Single values are repeated to form a list of appropriate size.
+
+        """
+
+        if cbook.is_scalar_or_string(norms):
+            raise ValueError("A MultiNorm must be assigned multiple norms")
+
+        norms = [*norms]
+        for i, n in enumerate(norms):
+            if n is None:
+                norms[i] = Normalize()
+            elif isinstance(n, str):
+                scale_cls = _get_scale_cls_from_str(n)
+                norms[i] = mpl.colorizer._auto_norm_from_scale(scale_cls)()
+            elif not isinstance(n, Normalize):
+                raise ValueError(
+                    "MultiNorm must be assigned multiple norms, where each norm "
+                    f"is of type `None` `str`, or `Normalize`, not {type(n)}")
+
+        # Convert the list of norms to a tuple to make it immutable.
+        # If there is a use case for swapping a single norm, we can add support for
+        # that later
+        self._norms = tuple(norms)
+
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+
+        self.vmin = vmin
+        self.vmax = vmax
+        self.clip = clip
+
+        for n in self._norms:
+            n.callbacks.connect('changed', self._changed)
+
+    @property
+    def n_components(self):
+        """Number of norms held by this `MultiNorm`."""
+        return len(self._norms)
+
+    @property
+    def norms(self):
+        """The individual norms held by this `MultiNorm`"""
+        return self._norms
+
+    @property
+    def vmin(self):
+        """The lower limit of each constituent norm."""
+        return tuple(n.vmin for n in self._norms)
+
+    @vmin.setter
+    def vmin(self, value):
+        value = np.broadcast_to(value, self.n_components)
+        with self.callbacks.blocked():
+            for i, v in enumerate(value):
+                if v is not None:
+                    self.norms[i].vmin = v
+        self._changed()
+
+    @property
+    def vmax(self):
+        """The upper limit of each constituent norm."""
+        return tuple(n.vmax for n in self._norms)
+
+    @vmax.setter
+    def vmax(self, value):
+        value = np.broadcast_to(value, self.n_components)
+        with self.callbacks.blocked():
+            for i, v in enumerate(value):
+                if v is not None:
+                    self.norms[i].vmax = v
+        self._changed()
+
+    @property
+    def clip(self):
+        """The clip behaviour of each constituent norm."""
+        return tuple(n.clip for n in self._norms)
+
+    @clip.setter
+    def clip(self, value):
+        value = np.broadcast_to(value, self.n_components)
+        with self.callbacks.blocked():
+            for i, v in enumerate(value):
+                if v is not None:
+                    self.norms[i].clip = v
+        self._changed()
+
+    def _changed(self):
+        """
+        Call this whenever the norm is changed to notify all the
+        callback listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+
+    def __call__(self, value, clip=None, structured_output=None):
+        """
+        Normalize the data and return the normalized data.
+
+        Each component of the input is assigned to the constituent norm.
+
+        Parameters
+        ----------
+        value : array-like
+            Data to normalize, as tuple, scalar array or structured array.
+
+            - If tuple, must be of length `n_components`
+            - If scalar array, the first axis must be of length `n_components`
+            - If structured array, must have `n_components` fields.
+
+        clip : list of bools or bool or None, optional
+            Determines the behavior for mapping values outside the range
+            ``[vmin, vmax]``. See the description of the parameter *clip* in
+            `.Normalize`.
+            If ``None``, defaults to ``self.clip`` (which defaults to
+            ``False``).
+        structured_output : bool, optional
+
+            - If True, output is returned as a structured array
+            - If False, output is returned as a tuple of length `n_components`
+            - If None (default) output is returned in the same format as the input.
+
+        Returns
+        -------
+        tuple or `~numpy.ndarray`
+            Normalized input values`
+
+        Notes
+        -----
+        If not already initialized, ``self.vmin`` and ``self.vmax`` are
+        initialized using ``self.autoscale_None(value)``.
+        """
+        if clip is None:
+            clip = self.clip
+        elif not np.iterable(clip):
+            clip = [clip]*self.n_components
+
+        if structured_output is None:
+            if isinstance(value, np.ndarray) and value.dtype.fields is not None:
+                structured_output = True
+            else:
+                structured_output = False
+
+        value = self._iterable_components_in_data(value, self.n_components)
+
+        result = tuple(n(v, clip=c) for n, v, c in zip(self.norms, value, clip))
+
+        if structured_output:
+            result = self._ensure_multicomponent_data(result, self.n_components)
+
+        return result
+
+    def inverse(self, value):
+        """
+        Map the normalized value (i.e., index in the colormap) back to image data value.
+
+        Parameters
+        ----------
+        value
+            Normalized value, as tuple, scalar array or structured array.
+
+            - If tuple, must be of length `n_components`
+            - If scalar array, the first axis must be of length `n_components`
+            - If structured array, must have `n_components` fields.
+
+        """
+        value = self._iterable_components_in_data(value, self.n_components)
+        result = [n.inverse(v) for n, v in zip(self.norms, value)]
+        return result
+
+    def autoscale(self, A):
+        """
+        For each constituent norm, Set *vmin*, *vmax* to min, max of the corresponding
+        component in *A*.
+
+        Parameters
+        ----------
+        A
+            Data, must be of length `n_components` or be a structured array or scalar
+            with `n_components` fields.
+        """
+        with self.callbacks.blocked():
+            # Pause callbacks while we are updating so we only get
+            # a single update signal at the end
+            A = self._iterable_components_in_data(A, self.n_components)
+            for n, a in zip(self.norms, A):
+                n.autoscale(a)
+        self._changed()
+
+    def autoscale_None(self, A):
+        """
+        If *vmin* or *vmax* are not set on any constituent norm,
+        use the min/max of the corresponding component in *A* to set them.
+
+        Parameters
+        ----------
+        A
+            Data, must be of length `n_components` or be a structured array or scalar
+            with `n_components` fields.
+        """
+        with self.callbacks.blocked():
+            A = self._iterable_components_in_data(A, self.n_components)
+            for n, a in zip(self.norms, A):
+                n.autoscale_None(a)
+        self._changed()
+
+    def scaled(self):
+        """Return whether both *vmin* and *vmax* are set on all constituent norms."""
+        return all([n.scaled() for n in self.norms])
+
+    @staticmethod
+    def _iterable_components_in_data(data, n_components):
+        """
+        Provides an iterable over the components contained in the data.
+
+        An input array with `n_components` fields is returned as a list of length n
+        referencing slices of the original array.
+
+        Parameters
+        ----------
+        data : np.ndarray, tuple or list
+            The input array. It must either be an array with n_components fields or have
+            a length (n_components)
+
+        Returns
+        -------
+        tuple of np.ndarray
+
+        """
+        if isinstance(data, np.ndarray) and data.dtype.fields is not None:
+            data = tuple(data[descriptor[0]] for descriptor in data.dtype.descr)
+        if len(data) != n_components:
+            raise ValueError("The input to this `MultiNorm` must be of shape "
+                             f"({n_components}, ...), or be structured array or scalar "
+                             f"with {n_components} fields.")
+        return data
+
+    @staticmethod
+    def _ensure_multicomponent_data(data, n_components):
+        """
+        Ensure that the data has dtype with n_components.
+        Input data of shape (n_components, n, m) is converted to an array of shape
+        (n, m) with data type np.dtype(f'{data.dtype}, ' * n_components)
+        Complex data is returned as a view with dtype np.dtype('float64, float64')
+        or np.dtype('float32, float32')
+        If n_components is 1 and data is not of type np.ndarray (i.e. PIL.Image),
+        the data is returned unchanged.
+        If data is None, the function returns None
+
+        Parameters
+        ----------
+        n_components : int
+            -  number of omponents in the data
+        data : np.ndarray, PIL.Image or None
+
+        Returns
+        -------
+            np.ndarray, PIL.Image or None
+        """
+
+        if isinstance(data, np.ndarray):
+            if len(data.dtype.descr) == n_components:
+                # pass scalar data
+                # and already formatted data
+                return data
+            elif data.dtype in [np.complex64, np.complex128]:
+                # pass complex data
+                if data.dtype == np.complex128:
+                    dt = np.dtype('float64, float64')
+                else:
+                    dt = np.dtype('float32, float32')
+                reconstructed = np.ma.frombuffer(data.data,
+                                                 dtype=dt).reshape(data.shape)
+                if np.ma.is_masked(data):
+                    for descriptor in dt.descr:
+                        reconstructed[descriptor[0]][data.mask] = np.ma.masked
+                return reconstructed
+
+        if n_components > 1 and len(data) == n_components:
+            # convert data from shape (n_components, n, m)
+            # to (n,m) with a new dtype
+            data = [np.ma.array(part, copy=False) for part in data]
+            dt = np.dtype(', '.join([f'{part.dtype}' for part in data]))
+            fields = [descriptor[0] for descriptor in dt.descr]
+            reconstructed = np.ma.empty(data[0].shape, dtype=dt)
+            for i, f in enumerate(fields):
+                if data[i].shape != reconstructed.shape:
+                    raise ValueError("For mutlicomponent data all components must "
+                                     f"have same shape, not {data[0].shape} "
+                                     f"and {data[i].shape}")
+                reconstructed[f] = data[i]
+                if np.ma.is_masked(data[i]):
+                    reconstructed[f][data[i].mask] = np.ma.masked
+            return reconstructed
+
+        if data is None:
+            return data
+
+        if n_components == 1:
+            # PIL.Image also gets passed here
+            return data
+
+        elif n_components == 2:
+            raise ValueError("Invalid data entry for mutlicomponent data. The data "
+                             "must contain complex numbers, or have a first dimension "
+                             "2, or be of a dtype with 2 fields")
+        else:
+            raise ValueError("Invalid data entry for mutlicomponent data. The shape "
+                             f"of the data must have a first dimension {n_components} "
+                             f"or be of a dtype with {n_components} fields")
+
+
 def rgb_to_hsv(arr):
     """
     Convert an array of float RGB values (in the range [0, 1]) to HSV values.
@@ -3909,3 +4274,34 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
+
+
+def _get_scale_cls_from_str(scale_as_str):
+    """
+    Returns the scale class from a string.
+
+    Used in the creation of norms from a string to ensure a reasonable error
+    in the case where an invalid string is used. This would normally use
+    `_api.check_getitem()`, which would produce the error:
+    'not_a_norm' is not a valid value for norm; supported values are
+    'linear', 'log', 'symlog', 'asinh', 'logit', 'function', 'functionlog'.
+    which is misleading because the norm keyword also accepts `Normalize` objects.
+
+    Parameters
+    ----------
+    scale_as_str : string
+        A string corresponding to a scale
+
+    Returns
+    -------
+    A subclass of ScaleBase.
+
+    """
+    try:
+        scale_cls = scale._scale_mapping[scale_as_str]
+    except KeyError:
+        raise ValueError(
+            "Invalid norm str name; the following values are "
+            f"supported: {', '.join(scale._scale_mapping)}"
+        ) from None
+    return scale_cls
