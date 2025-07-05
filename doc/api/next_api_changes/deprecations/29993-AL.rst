@@ -1,0 +1,4 @@
+``testing.widgets.mock_event`` and ``testing.widgets.do_event``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.  Directly construct Event objects (typically `.MouseEvent`
+or `.KeyEvent`) and pass them to ``canvas.callbacks.process()`` instead.
