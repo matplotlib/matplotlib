@@ -4744,6 +4744,11 @@ def test_stem_args():
     _assert_equal(ax.stem(y, linefmt='r--'), expected=([0, 1, 2], y))
     _assert_equal(ax.stem(y, 'r--'), expected=([0, 1, 2], y))
 
+    with pytest.raises(ValueError):
+        ax.stem([[y]])
+    with pytest.raises(ValueError):
+        ax.stem([[x]], y)
+
 
 def test_stem_markerfmt():
     """Test that stem(..., markerfmt=...) produces the intended markers."""
