@@ -350,7 +350,7 @@ class Artist:
 
         See Also
         --------
-        `~.Artist.get_tightbbox` :
+        .Artist.get_tightbbox :
             Get the artist bounding box, taking clipping into account.
         """
         return Bbox([[0, 0], [0, 0]])
@@ -372,7 +372,7 @@ class Artist:
 
         See Also
         --------
-        `~.Artist.get_window_extent` :
+        .Artist.get_window_extent :
             Get the artist bounding box, ignoring clipping.
         """
         bbox = self.get_window_extent(renderer)
