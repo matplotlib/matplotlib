@@ -1963,59 +1963,51 @@ class Axes3D(Axes):
     text3D = text
     text2D = Axes.text
 
-    def plot(self, xs, ys, zs, fmt=None, *, zdir='z', axlim_clip=False, data=None, **kwargs):  # noqa: E501
-        """
-        Plot 2D or 3D data.
 
-        Parameters
-        ----------
-        xs : 1D array-like
-            x coordinates of vertices.
-        ys : 1D array-like
-            y coordinates of vertices.
-        zs : float or 1D array-like
-            z coordinates of vertices; either one for all points or one for
-            each point.
-        zdir : {'x', 'y', 'z'}, default: 'z'
-            When plotting 2D data, the direction to use as z.
-        axlim_clip : bool, default: False
-            Whether to hide data that is outside the axes view limits.
+def plot(self, xs, ys, zs=0, fmt=None, *, zdir='z', axlim_clip=False, data=None, **kwargs):
+    """
+    Plot 2D or 3D data.
 
-            .. versionadded:: 3.10
-        data : indexable object, optional
-            An object with labelled data. If given, provide the label names to
-            plot in *x*, *y* and *z*.
-        **kwargs
-            Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
-        """
-        had_data = self.has_data()
-        # Use data parameter like 2d plot.
-        if data:
-            xs=data[xs]
-            ys=data[ys]
-            if 'zs' in kwargs:
-                zs=kwargs.pop('zs')
-            else:
-                zs,*args=  args
-            zs=data[zs]
-        # `zs` can be passed positionally or as keyword; checking whether
-        # args[0] is a string matches the behavior of 2D `plot` (via
-        # `_process_plot_var_args`).
-        elif args and not isinstance(args[0], str):
-            zs, *args = args
-            if 'zs' in kwargs:
-                raise TypeError("plot() for multiple values for argument 'zs'")
-        else:
-            zs = kwargs.pop('zs', 0)
+    Parameters
+    ----------
+    xs : 1D array-like or label
+        x coordinates of vertices, or a column label if `data` is given.
+    ys : 1D array-like or label
+        y coordinates of vertices, or a column label if `data` is given.
+    zs : float or 1D array-like or label, default: 0
+        z coordinates of vertices, or a column label if `data` is given.
+    fmt : str, optional
+        A format string, e.g., 'ro' for red circles.
+    zdir : {'x', 'y', 'z'}, default: 'z'
+        When plotting 2D data, the direction to use as z.
+    axlim_clip : bool, default: False
+        Whether to hide data that is outside the axes view limits.
+    data : indexable object, optional
+        If given, provides labeled data to plot.
+    **kwargs
+        Other arguments forwarded to `Axes.plot`.
+    """
+    had_data = self.has_data()
 
-        xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
-        lines = super().plot(xs, ys, *args, **kwargs)
-        for line in lines:
-            art3d.line_2d_to_3d(line, zs=zs, zdir=zdir, axlim_clip=axlim_clip)
+    # Resolve string labels using data, if given
+    if data is not None:
+        xs = data[xs] if isinstance(xs, str) else xs
+        ys = data[ys] if isinstance(ys, str) else ys
+        zs = data[zs] if isinstance(zs, str) else zs
 
-        xs, ys, zs = art3d.juggle_axes(xs, ys, zs, zdir)
-        self.auto_scale_xyz(xs, ys, zs, had_data)
-        return lines
+    xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
+
+    if fmt is not None:
+        lines = super().plot(xs, ys, fmt, **kwargs)
+    else:
+        lines = super().plot(xs, ys, **kwargs)
+
+    for line in lines:
+        art3d.line_2d_to_3d(line, zs=zs, zdir=zdir, axlim_clip=axlim_clip)
+
+    xs, ys, zs = art3d.juggle_axes(xs, ys, zs, zdir)
+    self.auto_scale_xyz(xs, ys, zs, had_data)
+    return lines
 
     plot3D = plot
 

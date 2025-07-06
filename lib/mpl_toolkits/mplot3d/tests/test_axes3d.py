@@ -346,16 +346,17 @@ def test_lines3d():
 @check_figures_equal()
 def test_plot_scalar(fig_test, fig_ref):
     ax1 = fig_test.add_subplot(projection='3d')
-    ax1.plot([1], [1], "o")
+    ax1.plot([1], [1], [1], "o")
     ax2 = fig_ref.add_subplot(projection='3d')
-    ax2.plot(1, 1, "o")
+    ax2.plot(1, 1, 1, "o")
+
 
 @check_figures_equal()
 def test_plot_data(fig_test, fig_ref):
     ax1 = fig_test.add_subplot(projection='3d')
-    ax1.plot([1, 2, 3], [4, 5, 6], [7, 8, 9])
+    ax1.plot('x','y','r',data=dict(x=[1,2,3],y=[4,5,6],r=[7,8,9]))
     ax2 = fig_ref.add_subplot(projection='3d')
-    ax2.plot([1, 2, 3], [4, 5, 6], [7, 8, 9])
+    ax2.plot([1,2,3],[4,5,6],[7,8,9])
 
 def test_invalid_line_data():
     with pytest.raises(RuntimeError, match='x must be'):
