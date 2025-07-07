@@ -274,9 +274,9 @@ of the text inside the Axes of the `.TextBox` widget.
 
     fig = plt.figure(figsize=(4, 3))
     for i, alignment in enumerate(['left', 'center', 'right']):
-            box_input = fig.add_axes([0.1, 0.7 - i*0.3, 0.8, 0.2])
-            text_box = TextBox(ax=box_input, initial=f'{alignment} alignment',
-                               label='', textalignment=alignment)
+        box_input = fig.add_axes((0.1, 0.7 - i*0.3, 0.8, 0.2))
+        text_box = TextBox(ax=box_input, initial=f'{alignment} alignment',
+                           label='', textalignment=alignment)
 
 Simplifying the font setting for usetex mode
 --------------------------------------------
@@ -375,9 +375,9 @@ attribute.
         points = ax.scatter((3, 3), (1, 3), (1, 3), c='red', zorder=10,
                             label='zorder=10')
 
-        ax.set_xlim((0, 5))
-        ax.set_ylim((0, 5))
-        ax.set_zlim((0, 2.5))
+        ax.set_xlim(0, 5)
+        ax.set_ylim(0, 5)
+        ax.set_zlim(0, 2.5)
 
     plane = mpatches.Patch(facecolor='white', edgecolor='black',
                            label='zorder=1')
@@ -485,7 +485,7 @@ new styling parameters for the added handles.
     ax = ax_old
     valmin = 0
     valinit = 0.5
-    ax.set_xlim([0, 1])
+    ax.set_xlim(0, 1)
     ax_old.axvspan(valmin, valinit, 0, 1)
     ax.axvline(valinit, 0, 1, color="r", lw=1)
     ax.set_xticks([])

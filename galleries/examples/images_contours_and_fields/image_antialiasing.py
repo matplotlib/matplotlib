@@ -245,7 +245,7 @@ fig.colorbar(im, ax=axs, shrink=0.7, extend='both')
 # may serve a 100x100 version of the image, which will be downsampled.)
 
 fig = plt.figure(figsize=(2, 2))
-ax = fig.add_axes([0, 0, 1, 1])
+ax = fig.add_axes((0, 0, 1, 1))
 ax.imshow(aa[:400, :400], cmap='RdBu_r', interpolation='nearest')
 plt.show()
 # %%

@@ -90,7 +90,7 @@ class Colorizer:
 
     @norm.setter
     def norm(self, norm):
-        _api.check_isinstance((colors.Normalize, str, None), norm=norm)
+        _api.check_isinstance((colors.Norm, str, None), norm=norm)
         if norm is None:
             norm = colors.Normalize()
         elif isinstance(norm, str):
