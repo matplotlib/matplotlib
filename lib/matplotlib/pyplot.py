@@ -131,6 +131,7 @@ if TYPE_CHECKING:
         HashableList,
         LineStyleType,
         MarkerType,
+        EventType
     )
     from matplotlib.widgets import SubplotTool
 
@@ -1176,7 +1177,7 @@ def get_current_fig_manager() -> FigureManagerBase | None:
 
 
 @_copy_docstring_and_deprecators(FigureCanvasBase.mpl_connect)
-def connect(s: str, func: Callable[[Event], Any]) -> int:
+def connect(s: EventType, func: Callable[[Event], Any]) -> int:
     return gcf().canvas.mpl_connect(s, func)
 
 
