@@ -1972,11 +1972,11 @@ class Axes3D(Axes):
         Parameters
         ----------
         xs : 1D array-like or label
-            x coordinates of vertices, or a column label if `data` is given.
+            x coordinates of vertices, or a column label if 'data' is given.
         ys : 1D array-like or label
-            y coordinates of vertices, or a column label if `data` is given.
+            y coordinates of vertices, or a column label if 'data' is given.
         zs : float or 1D array-like or label, default: 0
-            z coordinates of vertices, or a column label if `data` is given.
+            z coordinates of vertices, or a column label if 'data' is given.
         fmt : str, optional
             A format string, e.g., 'ro' for red circles.
         zdir : {'x', 'y', 'z'}, default: 'z'
