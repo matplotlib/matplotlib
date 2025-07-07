@@ -800,7 +800,6 @@ class HandlerPolyCollection(HandlerBase):
         legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
         legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
         legend_handle.set_transform(get_first(orig_handle.get_transforms()))
-        legend_handle.set_figure(orig_handle.get_figure())
         # Alpha is already taken into account by the color attributes.
 
     def create_artists(self, legend, orig_handle,
