@@ -1986,7 +1986,7 @@ class Axes3D(Axes):
         data : indexable object, optional
             If given, provides labeled data to plot.
         **kwargs
-            Other arguments forwarded to `Axes.plot`.
+            Other arguments forwarded to 'Axes.plot'.
         """
         had_data = self.has_data()
 

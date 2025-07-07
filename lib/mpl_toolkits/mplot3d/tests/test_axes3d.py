@@ -352,7 +352,6 @@ def test_plot_scalar(fig_test, fig_ref):
 
 
 
-
 def test_invalid_line_data():
     with pytest.raises(RuntimeError, match='x must be'):
         art3d.Line3D(0, [], [])
