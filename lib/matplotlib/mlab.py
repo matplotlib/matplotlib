@@ -215,9 +215,9 @@ def _stride_windows(x, n, noverlap=0):
     x = np.asarray(x)
 
     _api.check_isinstance(Integral, n=n, noverlap=noverlap)
-    if not (1 <= n <= x.size and n < noverlap):
+    if not (1 <= n <= x.size and noverlap < n):
         raise ValueError(f'n ({n}) and noverlap ({noverlap}) must be positive integers '
-                         f'with n < noverlap and n <= x.size ({x.size})')
+                         f'with noverlap < n and n <= x.size ({x.size})')
 
     if n == 1 and noverlap == 0:
         return x[np.newaxis]
