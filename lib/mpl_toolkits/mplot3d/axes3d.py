@@ -1969,6 +1969,24 @@ class Axes3D(Axes):
         """
         Plot 2D or 3D data.
 
+        .. versionchanged:: 3.10
+
+        .. api-changed:: 3.10
+
+            The signature of ``Axes3D.plot`` was changed to require all positional data
+            arguments (xs, ys, zs) and the format string (fmt) to be passed
+            positionally.All other arguments, including ``zdir``, ``axlim_clip``,
+            and ``data``, must be passed as keyword arguments.
+
+            This is a formal API incompatibility for edge cases such as
+            ``plot(xs, ys, 'ro', zs=zs)``, which is no longer supported. Instead,
+            use ``plot(xs, ys, zs, 'ro')`` or ``plot(xs, ys, zs=zs, fmt='ro')``.
+
+            This change brings the 3D API in line with the 2D API and avoids
+            ambiguity in argument parsing.Other similar edge cases where a style
+            string is followed by a keyword data argument are
+            also now formally incompatible.
+
         Parameters
         ----------
         xs : 1D array-like or label
