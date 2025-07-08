@@ -215,12 +215,10 @@ def _stride_windows(x, n, noverlap=0):
     x = np.asarray(x)
 
     _api.check_isinstance(Integral, n=n, noverlap=noverlap)
-    if not (1 <= n <= x.size and n < noverlap):
-        raise ValueError(f'n ({n}) and noverlap ({noverlap}) must be positive integers '
-                         f'with n < noverlap and n <= x.size ({x.size})')
-
-    if n == 1 and noverlap == 0:
-        return x[np.newaxis]
+    if not (0 <= noverlap < n <= x.size):
+        raise ValueError(
+            f'n ({n}), noverlap ({noverlap}), and x.size ({x.size}) must satisfy '
+            f'0 <= noverlap < n <= x.size')
 
     step = n - noverlap
     shape = (n, (x.shape[-1]-noverlap)//step)
@@ -257,7 +255,7 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
     if NFFT is None:
         NFFT = 256
 
-    if noverlap >= NFFT:
+    if not (0 <= noverlap < NFFT):
         raise ValueError('noverlap must be less than NFFT')
 
     if mode is None or mode == 'default':
