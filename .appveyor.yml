@@ -17,7 +17,7 @@ skip_commits:
 
 clone_depth: 50
 
-image: Visual Studio 2019
+image: Visual Studio 2022
 
 environment:
 
@@ -59,6 +59,26 @@ init:
 install:
   - micromamba env create -f environment.yml python=%PYTHON_VERSION% pywin32
   - micromamba activate mpl-dev
+
+before_test:
+  - git config --global user.name 'Matplotlib'
+  - git config --global user.email 'nobody@matplotlib.org'
+  - git fetch https://github.com/QuLogic/matplotlib.git text-overhaul-figures:text-overhaul-figures
+  - git merge --no-commit text-overhaul-figures || true
+  # If there are any conflicts in baseline images, then pick "ours",
+  # which should be the updated images in the PR.
+  - ps: |
+      $conflicts = git diff --name-only --diff-filter=U `
+                     lib/matplotlib/tests/baseline_images `
+                     lib/mpl_toolkits/*/tests/baseline_images
+      if ($conflicts) {
+        git checkout --ours -- $conflicts
+        git add -- $conflicts
+      }
+      git status
+  # If committing fails, there were conflicts other than the baseline images,
+  # which should not be allowed to happen, and should fail the build.
+  - git commit -m "Preload test images from branch text-overhaul-figures"
 
 test_script:
   # Now build the thing..

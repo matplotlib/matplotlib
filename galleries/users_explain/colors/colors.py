@@ -197,7 +197,7 @@ overlap = {name for name in mcolors.CSS4_COLORS
            if f'xkcd:{name}' in mcolors.XKCD_COLORS}
 
 fig = plt.figure(figsize=[9, 5])
-ax = fig.add_axes([0, 0, 1, 1])
+ax = fig.add_axes((0, 0, 1, 1))
 
 n_groups = 3
 n_rows = len(overlap) // n_groups + 1

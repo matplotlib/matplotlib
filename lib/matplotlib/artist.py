@@ -321,13 +321,12 @@ class Artist:
 
     def get_window_extent(self, renderer=None):
         """
-        Get the artist's bounding box in display space.
+        Get the artist's bounding box in display space, ignoring clipping.
 
         The bounding box's width and height are non-negative.
 
-        Subclasses should override for inclusion in the bounding box
-        "tight" calculation. Default is to return an empty bounding
-        box at 0, 0.
+        Subclasses should override for inclusion in the bounding box "tight"
+        calculation.  Default is to return an empty bounding box at 0, 0.
 
         .. warning::
 
@@ -341,28 +340,40 @@ class Artist:
           screen render incorrectly when saved to file.
 
           To get accurate results you may need to manually call
-          `matplotlib.figure.Figure.savefig` or
-          `matplotlib.figure.Figure.draw_without_rendering` to have Matplotlib
-          compute the rendered size.
+          `~.Figure.savefig` or `~.Figure.draw_without_rendering` to have
+          Matplotlib compute the rendered size.
 
+        Parameters
+        ----------
+        renderer : `~matplotlib.backend_bases.RendererBase`, optional
+            Renderer used to draw the figure (i.e. ``fig.canvas.get_renderer()``).
+
+        See Also
+        --------
+        .Artist.get_tightbbox :
+            Get the artist bounding box, taking clipping into account.
         """
         return Bbox([[0, 0], [0, 0]])
 
     def get_tightbbox(self, renderer=None):
         """
-        Like `.Artist.get_window_extent`, but includes any clipping.
+        Get the artist's bounding box in display space, taking clipping into account.
 
         Parameters
         ----------
-        renderer : `~matplotlib.backend_bases.RendererBase` subclass, optional
-            renderer that will be used to draw the figures (i.e.
-            ``fig.canvas.get_renderer()``)
+        renderer : `~matplotlib.backend_bases.RendererBase`, optional
+            Renderer used to draw the figure (i.e. ``fig.canvas.get_renderer()``).
 
         Returns
         -------
         `.Bbox` or None
-            The enclosing bounding box (in figure pixel coordinates).
-            Returns None if clipping results in no intersection.
+            The enclosing bounding box (in figure pixel coordinates), or None
+            if clipping results in no intersection.
+
+        See Also
+        --------
+        .Artist.get_window_extent :
+            Get the artist bounding box, ignoring clipping.
         """
         bbox = self.get_window_extent(renderer)
         if self.get_clip_on():

@@ -95,6 +95,25 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Preload test images
+        run: |
+          git config --global user.name 'Matplotlib'
+          git config --global user.email 'nobody@matplotlib.org'
+          git fetch https://github.com/QuLogic/matplotlib.git text-overhaul-figures:text-overhaul-figures
+          git merge --no-commit text-overhaul-figures || true
+          # If there are any conflicts in baseline images, then pick "ours",
+          # which should be the updated images in the PR.
+          conflicts=$(git diff --name-only --diff-filter=U \
+                      lib/matplotlib/tests/baseline_images \
+                      lib/mpl_toolkits/*/tests/baseline_images)
+          if [ -n "${conflicts}" ]; then
+            git checkout --ours -- "${conflicts}"
+            git add -- "${conflicts}"
+          fi
+          # If committing fails, there were conflicts other than the baseline images,
+          # which should not be allowed to happen, and should fail the build.
+          git commit -m 'Preload test images from branch text-overhaul-figures'
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
@@ -346,13 +365,15 @@ jobs:
         run: |
           function remove_files() {
               local extension=$1
-              find ./result_images -type f -name "*-expected*.$extension" | while read file; do
+              find ./result_images -name "*-expected*.$extension" | while read file; do
                   if [[ $file == *"-expected_pdf"* ]]; then
                       base=${file%-expected_pdf.$extension}_pdf
                   elif [[ $file == *"-expected_eps"* ]]; then
                       base=${file%-expected_eps.$extension}_eps
                   elif [[ $file == *"-expected_svg"* ]]; then
                       base=${file%-expected_svg.$extension}_svg
+                  elif [[ $file == *"-expected_gif"* ]]; then
+                      base=${file%-expected_gif.$extension}_gif
                   else
                       base=${file%-expected.$extension}
                   fi
@@ -369,7 +390,7 @@ jobs:
               done
           }
 
-          remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps";
+          remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps"; remove_files "gif";
 
           if [ "$(find ./result_images -mindepth 1 -type d)" ]; then
               find ./result_images/* -type d -empty -delete

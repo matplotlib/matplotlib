@@ -1,0 +1,9 @@
+``matplotlib.style.core``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``matplotlib.style.core`` module is deprecated.  All APIs intended for
+public use are now available in `matplotlib.style` directly (including
+``USER_LIBRARY_PATHS``, which was previously not reexported).
+
+The following APIs of ``matplotlib.style.core`` have been deprecated with no
+replacement: ``BASE_LIBRARY_PATH``, ``STYLE_EXTENSION``, ``STYLE_BLACKLIST``,
+``update_user_library``, ``read_style_directory``, ``update_nested_dict``.

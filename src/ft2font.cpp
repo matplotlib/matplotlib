@@ -1,5 +1,8 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
+#include "ft2font.h"
+#include "mplutils.h"
+
 #include <algorithm>
 #include <cstdio>
 #include <iterator>
@@ -8,9 +11,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#include "ft2font.h"
-#include "mplutils.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338328

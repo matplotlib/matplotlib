@@ -33,12 +33,12 @@ main_ax.set_ylabel('current (nA)')
 main_ax.set_title('Gaussian colored noise')
 
 # this is an inset Axes over the main Axes
-right_inset_ax = fig.add_axes([.65, .6, .2, .2], facecolor='k')
+right_inset_ax = fig.add_axes((.65, .6, .2, .2), facecolor='k')
 right_inset_ax.hist(s, 400, density=True)
 right_inset_ax.set(title='Probability', xticks=[], yticks=[])
 
 # this is another inset Axes over the main Axes
-left_inset_ax = fig.add_axes([.2, .6, .2, .2], facecolor='k')
+left_inset_ax = fig.add_axes((.2, .6, .2, .2), facecolor='k')
 left_inset_ax.plot(t[:len(r)], r)
 left_inset_ax.set(title='Impulse response', xlim=(0, .2), xticks=[], yticks=[])
 

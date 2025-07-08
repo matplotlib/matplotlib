@@ -699,7 +699,7 @@ class PdfFile:
 
         self._internal_font_seq = (Name(f'F{i}') for i in itertools.count(1))
         self._fontNames = {}     # maps filenames to internal font names
-        self._dviFontInfo = {}   # maps dvi font names to embedding information
+        self._dviFontInfo = {}   # maps pdf names to dvifonts
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
@@ -742,8 +742,29 @@ class PdfFile:
         self.writeObject(self.resourceObject, resources)
 
     fontNames = _api.deprecated("3.11")(property(lambda self: self._fontNames))
-    dviFontInfo = _api.deprecated("3.11")(property(lambda self: self._dviFontInfo))
     type1Descriptors = _api.deprecated("3.11")(property(lambda _: {}))
+
+    @_api.deprecated("3.11")
+    @property
+    def dviFontInfo(self):
+        d = {}
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+        for pdfname, dvifont in self._dviFontInfo.items():
+            psfont = tex_font_map[dvifont.texname]
+            if psfont.filename is None:
+                raise ValueError(
+                    "No usable font file found for {} (TeX: {}); "
+                    "the font may lack a Type-1 version"
+                    .format(psfont.psname, dvifont.texname))
+            d[dvifont.texname] = types.SimpleNamespace(
+                dvifont=dvifont,
+                pdfname=pdfname,
+                fontfile=psfont.filename,
+                basefont=psfont.psname,
+                encodingfile=psfont.encoding,
+                effects=psfont.effects,
+            )
+        return d
 
     def newPage(self, width, height):
         self.endStream()
@@ -916,39 +937,19 @@ class PdfFile:
     def dviFontName(self, dvifont):
         """
         Given a dvi font object, return a name suitable for Op.selectfont.
-        This registers the font information internally (in ``_dviFontInfo``) if
-        not yet registered.
+
+        Register the font internally (in ``_dviFontInfo``) if not yet registered.
         """
-
-        dvi_info = self._dviFontInfo.get(dvifont.texname)
-        if dvi_info is not None:
-            return dvi_info.pdfname
-
-        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
-        psfont = tex_font_map[dvifont.texname]
-        if psfont.filename is None:
-            raise ValueError(
-                "No usable font file found for {} (TeX: {}); "
-                "the font may lack a Type-1 version"
-                .format(psfont.psname, dvifont.texname))
-
-        pdfname = next(self._internal_font_seq)
+        pdfname = Name(f"F-{dvifont.texname.decode('ascii')}")
         _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
-        self._dviFontInfo[dvifont.texname] = types.SimpleNamespace(
-            dvifont=dvifont,
-            pdfname=pdfname,
-            fontfile=psfont.filename,
-            basefont=psfont.psname,
-            encodingfile=psfont.encoding,
-            effects=psfont.effects)
-        return pdfname
+        self._dviFontInfo[pdfname] = dvifont
+        return Name(pdfname)
 
     def writeFonts(self):
         fonts = {}
-        for dviname, info in sorted(self._dviFontInfo.items()):
-            Fx = info.pdfname
-            _log.debug('Embedding Type-1 font %s from dvi.', dviname)
-            fonts[Fx] = self._embedTeXFont(info)
+        for pdfname, dvifont in sorted(self._dviFontInfo.items()):
+            _log.debug('Embedding Type-1 font %s from dvi.', dvifont.texname)
+            fonts[pdfname] = self._embedTeXFont(dvifont)
         for filename in sorted(self._fontNames):
             Fx = self._fontNames[filename]
             _log.debug('Embedding font %s.', filename)
@@ -976,9 +977,14 @@ class PdfFile:
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def _embedTeXFont(self, fontinfo):
-        _log.debug('Embedding TeX font %s - fontinfo=%s',
-                   fontinfo.dvifont.texname, fontinfo.__dict__)
+    def _embedTeXFont(self, dvifont):
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+        psfont = tex_font_map[dvifont.texname]
+        if psfont.filename is None:
+            raise ValueError(
+                "No usable font file found for {} (TeX: {}); "
+                "the font may lack a Type-1 version"
+                .format(psfont.psname, dvifont.texname))
 
         # The font dictionary is the top-level object describing a font
         fontdictObject = self.reserveObject('font dictionary')
@@ -988,17 +994,17 @@ class PdfFile:
         }
 
         # Read the font file and apply any encoding changes and effects
-        t1font = _type1font.Type1Font(fontinfo.fontfile)
-        if fontinfo.encodingfile is not None:
+        t1font = _type1font.Type1Font(psfont.filename)
+        if psfont.encoding is not None:
             t1font = t1font.with_encoding(
-                {i: c for i, c in enumerate(dviread._parse_enc(fontinfo.encodingfile))}
+                {i: c for i, c in enumerate(dviread._parse_enc(psfont.encoding))}
             )
-        if fontinfo.effects:
-            t1font = t1font.transform(fontinfo.effects)
+        if psfont.effects:
+            t1font = t1font.transform(psfont.effects)
 
         # Reduce the font to only the glyphs used in the document, get the encoding
         # for that subset, and compute various properties based on the encoding.
-        chars = frozenset(self._character_tracker.used[fontinfo.dvifont.fname])
+        chars = frozenset(self._character_tracker.used[dvifont.fname])
         t1font = t1font.subset(chars, self._get_subset_prefix(chars))
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
         # createType1Descriptor writes the font data as a side effect
@@ -1009,16 +1015,14 @@ class PdfFile:
         lc = fontdict['LastChar'] = max(encoding.keys(), default=255)
 
         # Convert glyph widths from TeX 12.20 fixed point to 1/1000 text space units
-        tfm = fontinfo.dvifont._tfm
+        tfm = dvifont._tfm
         widths = [(1000 * metrics.tex_width) >> 20
                   if (metrics := tfm.get_metrics(char)) else 0
                   for char in range(fc, lc + 1)]
         fontdict['Widths'] = widthsObject = self.reserveObject('glyph widths')
         self.writeObject(widthsObject, widths)
-
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
-
 
     def _generate_encoding(self, encoding):
         prev = -2
@@ -1032,7 +1036,6 @@ class PdfFile:
             'Type': Name('Encoding'),
             'Differences': result
         }
-
 
     @_api.delete_parameter("3.11", "fontfile")
     def createType1Descriptor(self, t1font, fontfile=None):
@@ -1759,7 +1762,7 @@ end"""
                          data[:, :, 2])
                 indices = np.argsort(palette24).astype(np.uint8)
                 rgb8 = indices[np.searchsorted(palette24, rgb24, sorter=indices)]
-                img = Image.fromarray(rgb8, mode='P')
+                img = Image.fromarray(rgb8).convert("P")
                 img.putpalette(palette)
                 png_data, bit_depth, palette = self._writePng(img)
                 if bit_depth is None or palette is None:

@@ -169,7 +169,7 @@ fig, ax = plt.subplots()
 ax.barh(group_names, group_data)
 labels = ax.get_xticklabels()
 plt.setp(labels, rotation=45, horizontalalignment='right')
-ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
+ax.set(xlim=(-10000, 140000), xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
 
 # %%
@@ -187,7 +187,7 @@ fig, ax = plt.subplots(figsize=(8, 4))
 ax.barh(group_names, group_data)
 labels = ax.get_xticklabels()
 plt.setp(labels, rotation=45, horizontalalignment='right')
-ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
+ax.set(xlim=(-10000, 140000), xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
 
 # %%
@@ -220,7 +220,7 @@ ax.barh(group_names, group_data)
 labels = ax.get_xticklabels()
 plt.setp(labels, rotation=45, horizontalalignment='right')
 
-ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
+ax.set(xlim=(-10000, 140000), xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
 ax.xaxis.set_major_formatter(currency)
 
@@ -248,7 +248,7 @@ for group in [3, 5, 8]:
 # Now we move our title up since it's getting a little cramped
 ax.title.set(y=1.05)
 
-ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
+ax.set(xlim=(-10000, 140000), xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
 ax.xaxis.set_major_formatter(currency)
 ax.set_xticks([0, 25e3, 50e3, 75e3, 100e3, 125e3])

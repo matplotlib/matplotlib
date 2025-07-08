@@ -50,7 +50,7 @@ import logging
 import sys
 import threading
 import time
-from typing import TYPE_CHECKING, cast, overload
+from typing import IO, TYPE_CHECKING, cast, overload
 
 from cycler import cycler  # noqa: F401
 import matplotlib
@@ -338,8 +338,8 @@ draw_all = _pylab_helpers.Gcf.draw_all
 
 # Ensure this appears in the pyplot docs.
 @_copy_docstring_and_deprecators(matplotlib.set_loglevel)
-def set_loglevel(*args, **kwargs) -> None:
-    return matplotlib.set_loglevel(*args, **kwargs)
+def set_loglevel(level: str) -> None:
+    return matplotlib.set_loglevel(level)
 
 
 @_copy_docstring_and_deprecators(Artist.findobj)
@@ -567,6 +567,14 @@ def draw_if_interactive(*args, **kwargs):
         the interactive mode takes care of this.
     """
     return _get_backend_mod().draw_if_interactive(*args, **kwargs)
+
+
+@overload
+def show(*, block: bool, **kwargs) -> None: ...
+
+
+@overload
+def show(*args: Any, **kwargs: Any) -> None: ...
 
 
 # This function's signature is rewritten upon backend-load by switch_backend.
@@ -1251,11 +1259,11 @@ def draw() -> None:
 
 
 @_copy_docstring_and_deprecators(Figure.savefig)
-def savefig(*args, **kwargs) -> None:
+def savefig(fname: str | os.PathLike | IO, **kwargs) -> None:
     fig = gcf()
     # savefig default implementation has no return, so mypy is unhappy
     # presumably this is here because subclasses can return?
-    res = fig.savefig(*args, **kwargs)  # type: ignore[func-returns-value]
+    res = fig.savefig(fname, **kwargs)  # type: ignore[func-returns-value]
     fig.canvas.draw_idle()  # Need this if 'transparent=True', to reset colors.
     return res
 
@@ -1393,6 +1401,18 @@ def cla() -> None:
 
 ## More ways of creating Axes ##
 
+@overload
+def subplot(nrows: int, ncols: int, index: int, /, **kwargs): ...
+
+
+@overload
+def subplot(pos: int | SubplotSpec, /, **kwargs): ...
+
+
+@overload
+def subplot(**kwargs): ...
+
+
 @_docstring.interpd
 def subplot(*args, **kwargs) -> Axes:
     """
@@ -1406,7 +1426,6 @@ def subplot(*args, **kwargs) -> Axes:
        subplot(nrows, ncols, index, **kwargs)
        subplot(pos, **kwargs)
        subplot(**kwargs)
-       subplot(ax)
 
     Parameters
     ----------
@@ -2096,6 +2115,24 @@ def box(on: bool | None = None) -> None:
 ## Axis ##
 
 
+@overload
+def xlim() -> tuple[float, float]:
+    ...
+
+
+@overload
+def xlim(
+        left: float | tuple[float, float] | None = None,
+        right: float | None = None,
+        *,
+        emit: bool = True,
+        auto: bool | None = False,
+        xmin: float | None = None,
+        xmax: float | None = None,
+) -> tuple[float, float]:
+    ...
+
+
 def xlim(*args, **kwargs) -> tuple[float, float]:
     """
     Get or set the x limits of the current Axes.
@@ -2131,6 +2168,24 @@ def xlim(*args, **kwargs) -> tuple[float, float]:
         return ax.get_xlim()
     ret = ax.set_xlim(*args, **kwargs)
     return ret
+
+
+@overload
+def ylim() -> tuple[float, float]:
+    ...
+
+
+@overload
+def ylim(
+        bottom: float | tuple[float, float] | None = None,
+        top: float | None = None,
+        *,
+        emit: bool = True,
+        auto: bool | None = False,
+        ymin: float | None = None,
+        ymax: float | None = None,
+) -> tuple[float, float]:
+    ...
 
 
 def ylim(*args, **kwargs) -> tuple[float, float]:
