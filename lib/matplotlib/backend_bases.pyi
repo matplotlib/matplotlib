@@ -22,17 +22,16 @@ from collections.abc import Callable, Iterable, Sequence
 from typing import Any, IO, Literal, NamedTuple, TypeVar, overload
 from numpy.typing import ArrayLike
 from .typing import (
-    ColorType,
-    LineStyleType,
     CapStyleType,
-    JoinStyleType,
-    MouseEventType,
-    KeyEventType,
+    CloseEventType,
+    ColorType,
     DrawEventType,
+    JoinStyleType,
+    KeyEventType,
+    LineStyleType,
+    MouseEventType,
     PickEventType,
     ResizeEventType,
-    CloseEventType,
-    EventType
 )
 
 def register_backend(
@@ -388,9 +387,6 @@ class FigureCanvasBase:
 
     @overload
     def mpl_connect(self, s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
-
-    @overload
-    def mpl_connect(self, s: EventType, func: Callable[[Event], Any]) -> int: ...
     def mpl_disconnect(self, cid: int) -> None: ...
     def new_timer(
         self,
