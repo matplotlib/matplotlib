@@ -107,8 +107,8 @@ jobs:
                       lib/matplotlib/tests/baseline_images \
                       lib/mpl_toolkits/*/tests/baseline_images)
           if [ -n "${conflicts}" ]; then
-            git checkout --ours -- "${conflicts}"
-            git add -- "${conflicts}"
+            git checkout --ours -- ${conflicts}
+            git add -- ${conflicts}
           fi
           # If committing fails, there were conflicts other than the baseline images,
           # which should not be allowed to happen, and should fail the build.
