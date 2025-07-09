@@ -779,7 +779,7 @@ grestore
                         .decode("ascii"))
             scale = 0.001 * prop.get_size_in_points()
             thisx = 0
-            last_name = None  # kerns returns 0 for None.
+            last_name = ''  # kerns returns 0 for ''.
             for c in s:
                 name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
                 try:
