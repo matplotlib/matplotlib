@@ -1965,7 +1965,7 @@ class Axes3D(Axes):
 
     @_preprocess_data(replace_names=['xs', 'ys', 'zs'])
     def plot(self, xs, ys, zs=0, fmt=None, *, zdir='z', axlim_clip=False,
-              data=None, **kwargs):
+            **kwargs):
         """
         Plot 2D or 3D data.
 
