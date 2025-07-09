@@ -408,7 +408,7 @@ jobs:
           fi
           FLAGS=(
             -rfEsXR
-            --maxfail=50
+            --maxfail=5
             --timeout=300
             --durations=25
             --cov-report=xml
