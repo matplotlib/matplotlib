@@ -1963,7 +1963,7 @@ class Axes3D(Axes):
     text3D = text
     text2D = Axes.text
 
-
+    @_preprocess_data(replace_names=['xs', 'ys', 'zs'])
     def plot(self, xs, ys, zs=0, fmt=None, *, zdir='z', axlim_clip=False,
               data=None, **kwargs):
         """
@@ -2007,12 +2007,6 @@ class Axes3D(Axes):
             Other arguments forwarded to 'Axes.plot'.
         """
         had_data = self.has_data()
-
-        # Resolve string labels using data, if given
-        if data is not None:
-            xs = data[xs] if isinstance(xs, str) else xs
-            ys = data[ys] if isinstance(ys, str) else ys
-            zs = data[zs] if isinstance(zs, str) else zs
 
         xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
 
