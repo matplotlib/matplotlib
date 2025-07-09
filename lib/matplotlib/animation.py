@@ -147,6 +147,7 @@ class AbstractMovieWriter(abc.ABC):
     def __init__(self, fps=5, metadata=None, codec=None, bitrate=None):
         """
         Initialize the FFMpegFileWriter.
+
         Parameters
         ----------
         fps : int, default: 5
