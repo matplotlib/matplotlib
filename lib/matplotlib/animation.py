@@ -146,6 +146,22 @@ class AbstractMovieWriter(abc.ABC):
     """
 
     def __init__(self, fps=5, metadata=None, codec=None, bitrate=None):
+        """
+        Initialize the FFMpegFileWriter.
+    
+        Parameters
+        ----------
+        fps : int, default: 5
+            Frames per second to write into the video.
+        metadata : dict, optional
+            Metadata dictionary to embed in the output file (e.g., title, artist).
+        codec : str or None, optional
+            Name of the video codec to use (e.g., 'libx264').
+            If None, uses the default from rcParams['animation.codec'].
+        bitrate : int or None, optional
+            Bitrate of the video in kilobits per second.
+            If None, uses the default from rcParams['animation.bitrate'].
+        """
         self.fps = fps
         self.metadata = metadata if metadata is not None else {}
         self.codec = mpl._val_or_rc(codec, 'animation.codec')
@@ -637,9 +653,6 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
         if _log.getEffectiveLevel() > logging.DEBUG:
             args += ['-loglevel', 'error']
         return [self.bin_path(), *args, *self.output_args]
-
-# Workaround: Set class docstring from __init__ for Sphinx visibility
-FFMpegFileWriter.__doc__ = inspect.getdoc(FFMpegFileWriter.__init__)
 
 
 # Base class for animated GIFs with ImageMagick
