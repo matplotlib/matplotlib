@@ -2529,7 +2529,7 @@ class BoxStyle(_Style):
                 self.head_width = head_width
 
             # Set arrow-head angle to within [0, 360 deg)
-            self.head_angle = np.mod(head_angle, 360.)
+            self.head_angle = head_angle % 360.
 
         def __call__(self, x0, y0, width, height, mutation_size):
             # scaled padding
@@ -2681,7 +2681,7 @@ class BoxStyle(_Style):
                 self.head_width = head_width
 
             # Set arrow-head angle to within [0, 360 deg)
-            self.head_angle = np.mod(head_angle, 360.)
+            self.head_angle = head_angle % 360.
 
         def __call__(self, x0, y0, width, height, mutation_size):
             # scaled padding
