@@ -36,8 +36,10 @@ class _WaitForStringPopen(subprocess.Popen):
         super().__init__(
             *args, **kwargs,
             # Force Agg so that each test can switch to its desired backend.
-            env={**os.environ, "MPLBACKEND": "Agg", "SOURCE_DATE_EPOCH": "0"},
-            stdout=subprocess.PIPE, universal_newlines=True)
+            env={**os.environ, "MPLBACKEND": "Agg", "SOURCE_DATE_EPOCH": "0",
+                 "PYTHONUNBUFFERED": "1"},
+            bufsize=0, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, universal_newlines=True)
 
     def wait_for(self, terminator):
         """Read until the terminator is reached."""
@@ -45,8 +47,12 @@ class _WaitForStringPopen(subprocess.Popen):
         while True:
             c = self.stdout.read(1)
             if not c:
-                raise RuntimeError(
-                    f'Subprocess died before emitting expected {terminator!r}')
+                if self.poll() is None:
+                    os.sched_yield()
+                else:
+                    raise RuntimeError(
+                        f'Subprocess died before emitting expected {terminator!r}\n'
+                        f'\nSubprocess output:\n{buf}')
             buf += c
             if buf.endswith(terminator):
                 return
