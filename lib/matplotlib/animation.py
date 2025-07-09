@@ -12,7 +12,6 @@ import sys
 from tempfile import TemporaryDirectory
 import uuid
 import warnings
-import inspect
 
 import numpy as np
 from PIL import Image
@@ -148,7 +147,6 @@ class AbstractMovieWriter(abc.ABC):
     def __init__(self, fps=5, metadata=None, codec=None, bitrate=None):
         """
         Initialize the FFMpegFileWriter.
-    
         Parameters
         ----------
         fps : int, default: 5
