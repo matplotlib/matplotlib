@@ -310,7 +310,7 @@ jobs:
             --color=yes
           )
           if [[ "${{ matrix.test_type }}" == 'serial' ]]; then
-              pytest "${FLAGS[@]}" -m subprocess -n 0 -vv
+              pytest "${FLAGS[@]}" -m subprocess -n 0 -vv -s
           else
               pytest "${FLAGS[@]}" -m 'not subprocess' -n auto
           fi
