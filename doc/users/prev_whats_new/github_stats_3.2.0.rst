@@ -264,12 +264,12 @@ Pull Requests (839):
 * :ghpull:`16112`: CI: Fail when failed to install dependencies
 * :ghpull:`16119`: Backport PR #16065 on branch v3.2.x (Nicer formatting of community aspects on front page)
 * :ghpull:`16074`: Backport PR #16061 on branch v3.2.x (Fix deprecation message for axes_grid1.colorbar.)
-* :ghpull:`16093`: Backport PR #16079 on branch v3.2.x (Fix restuctured text formatting)
+* :ghpull:`16093`: Backport PR #16079 on branch v3.2.x (Fix restructured text formatting)
 * :ghpull:`16094`: Backport PR #16080 on branch v3.2.x (Cleanup docstrings in backend_bases.py)
 * :ghpull:`16086`: FIX: use supported attribute to check pillow version
 * :ghpull:`16084`: Backport PR #16077 on branch v3.2.x (Fix some typos)
 * :ghpull:`16077`: Fix some typos
-* :ghpull:`16079`: Fix restuctured text formatting
+* :ghpull:`16079`: Fix restructured text formatting
 * :ghpull:`16080`: Cleanup docstrings in backend_bases.py
 * :ghpull:`16061`: Fix deprecation message for axes_grid1.colorbar.
 * :ghpull:`16006`: Ignore pos in StrCategoryFormatter.__call__ to display correct label in the preview window
@@ -811,7 +811,7 @@ Pull Requests (839):
 * :ghpull:`14310`: Update to Bounding Box for Qt5 FigureCanvasATAgg.paintEvent()
 * :ghpull:`14380`: Inline $MPLLOCALFREETYPE/$PYTEST_ADDOPTS/$NPROC in .travis.yml.
 * :ghpull:`14413`: MAINT: small improvements to the pdf backend
-* :ghpull:`14452`: MAINT: Minor cleanup to make functions more self consisntent
+* :ghpull:`14452`: MAINT: Minor cleanup to make functions more self consistent
 * :ghpull:`14441`: Misc. docstring cleanups.
 * :ghpull:`14440`: Interpolations example
 * :ghpull:`14402`: Prefer ``mpl.get_data_path()``, and support Paths in FontProperties.
@@ -827,7 +827,7 @@ Pull Requests (839):
 * :ghpull:`14311`: travis: add c code coverage measurements
 * :ghpull:`14393`: Remove remaining unicode-strings markers.
 * :ghpull:`14391`: Remove explicit inheritance from object
-* :ghpull:`14343`: acquiring and releaseing keypresslock when textbox is being activated
+* :ghpull:`14343`: acquiring and releasing keypresslock when textbox is being activated
 * :ghpull:`14353`: Register flaky pytest marker.
 * :ghpull:`14373`: Properly hide __has_include to support C++<17 compilers.
 * :ghpull:`14378`: Remove setup_method

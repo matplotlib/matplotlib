@@ -897,7 +897,7 @@ class _AxesBase(martist.Artist):
         Mark a single axis, or all of them, as stale wrt. autoscaling.
 
         No computation is performed until the next autoscaling; thus, separate
-        calls to control individual axises incur negligible performance cost.
+        calls to control individual `Axis`s incur negligible performance cost.
 
         Parameters
         ----------

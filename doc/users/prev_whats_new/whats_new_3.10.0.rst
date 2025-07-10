@@ -329,7 +329,9 @@ In the following example the norm and cmap are changed on multiple plots simulta
     colorizer.vmax = 2
     colorizer.cmap = 'RdBu'
 
-All plotting methods that use a data-to-color pipeline now create a colorizer object if one is not provided. This can be re-used by subsequent artists such that they will share a single data-to-color pipeline:
+All plotting methods that use a data-to-color pipeline now create a colorizer object if
+one is not provided. This can be reused by subsequent artists such that they will share
+a single data-to-color pipeline:
 
 .. plot::
     :include-source: true

@@ -426,9 +426,9 @@ Pull Requests (772):
 * :ghpull:`19207`: Fix Grouper example code
 * :ghpull:`19204`: Clarify Date Format Example
 * :ghpull:`19200`: Fix incorrect statement regarding test images cache size.
-* :ghpull:`19198`: Fix link in contrbuting docs
+* :ghpull:`19198`: Fix link in contributing docs
 * :ghpull:`19196`: Fix PR welcome action
-* :ghpull:`19188`: Cleanup comparision between X11/CSS4 and xkcd colors
+* :ghpull:`19188`: Cleanup comparison between X11/CSS4 and xkcd colors
 * :ghpull:`19194`: Fix trivial quiver doc typo.
 * :ghpull:`19180`: Fix Artist.remove_callback()
 * :ghpull:`19192`: Fixed part of Issue - #19100, changed documentation for axisartist
@@ -472,7 +472,7 @@ Pull Requests (772):
 * :ghpull:`19127`: Cleanups to webagg & friends.
 * :ghpull:`19122`: FIX/DOC - make Text doscstring interp more easily searchable
 * :ghpull:`19106`: Support setting rcParams["image.cmap"] to Colormap instances.
-* :ghpull:`19085`: FIX: update a transfrom from transFigure to transSubfigure
+* :ghpull:`19085`: FIX: update a transform from transFigure to transSubfigure
 * :ghpull:`19117`: Rename a confusing variable.
 * :ghpull:`18647`: Axes.axline: implement support transform argument (for points but not slope)
 * :ghpull:`16220`: Fix interaction with unpickled 3d plots.
@@ -701,7 +701,7 @@ Pull Requests (772):
 * :ghpull:`18564`: Prepare for merging SubplotBase into AxesBase.
 * :ghpull:`15127`: ENH/API: improvements to register_cmap
 * :ghpull:`18576`: DOC: prefer colormap over color map
-* :ghpull:`18340`: Colorbar grid postion
+* :ghpull:`18340`: Colorbar grid position
 * :ghpull:`18568`: Added Reporting to code_of_conduct.md
 * :ghpull:`18555`: Convert _math_style_dict into an Enum.
 * :ghpull:`18567`: Replace subplot(ijk) calls by subplots(i, j)
@@ -759,7 +759,7 @@ Pull Requests (772):
 * :ghpull:`18449`: Remove the private Axes._set_position.
 * :ghpull:`18460`: DOC: example gray level in 'Specifying Colors' tutorial
 * :ghpull:`18426`: plot directive: caption-option
-* :ghpull:`18444`: Support doubleclick in webagg/nbagg
+* :ghpull:`18444`: Support double-click in webagg/nbagg
 * :ghpull:`12518`: Example showing scale-invariant angle arc
 * :ghpull:`18446`: Normalize properties passed to ToolHandles.
 * :ghpull:`18445`: Warn if an animation is gc'd before doing anything.
@@ -808,9 +808,9 @@ Pull Requests (772):
 * :ghpull:`17901`: DOC: Autoreformating of backend/\*.py
 * :ghpull:`17291`: Normalize gridspec ratios to lists in the setter.
 * :ghpull:`18226`: Use CallbackRegistry in Widgets and some related cleanup
-* :ghpull:`18203`: Force locator and formatter inheritence
+* :ghpull:`18203`: Force locator and formatter inheritance
 * :ghpull:`18279`: boxplot: Add conf_intervals reference to notch docs.
-* :ghpull:`18276`: Fix autoscaling to exclude inifinite data limits when possible.
+* :ghpull:`18276`: Fix autoscaling to exclude infinite data limits when possible.
 * :ghpull:`18261`: Migrate tk backend tests into subprocesses
 * :ghpull:`17961`: DOCS: Remove How-to: Contributing
 * :ghpull:`18201`: Remove mpl.colors deprecations for 3.4
@@ -964,7 +964,7 @@ Pull Requests (772):
 * :ghpull:`17697`: Add description examples/pyplots/pyplot simple.py
 * :ghpull:`17694`: CI: Only skip devdocs deploy if PR is to this repo.
 * :ghpull:`17691`: ci: Print out reasons for not deploying docs.
-* :ghpull:`17099`: Make Spines accessable by the attributes.
+* :ghpull:`17099`: Make Spines accessible by the attributes
 
 Issues (204):
 
@@ -1044,7 +1044,7 @@ Issues (204):
 * :ghissue:`19099`: axisartist axis_direction bug
 * :ghissue:`19171`: 3D surface example bug for non-square grid
 * :ghissue:`18112`: set_{x,y,z}bound 3d limits are not persistent upon interactive rotation
-* :ghissue:`19078`: _update_patch_limits should not use CLOSEPOLY verticies for updating
+* :ghissue:`19078`: _update_patch_limits should not use CLOSEPOLY vertices for updating
 * :ghissue:`16123`: test_dpi_ratio_change fails on Windows/Qt5Agg
 * :ghissue:`15796`: [DOC] PDF build of matplotlib own documentation crashes with LaTeX error "too deeply nested"
 * :ghissue:`19091`: 3D Axes don't work in SubFigures
@@ -1091,13 +1091,13 @@ Issues (204):
 * :ghissue:`18641`: Conversion cache cleaning is broken with xdist
 * :ghissue:`15614`: named color examples need borders
 * :ghissue:`5519`: The linestyle 'None',  ' ' and '' not supported by PathPatch.
-* :ghissue:`17487`: Polygon selector with useblit=True - polygon dissapears
+* :ghissue:`17487`: Polygon selector with useblit=True - polygon disappears
 * :ghissue:`17476`: RectangleSelector fails to clear itself after being toggled inactive and then back to active.
 * :ghissue:`18600`: plt.errorbar raises error when given marker=<matplotlib.markers.MarkerStyle object>
 * :ghissue:`18355`: Optional components required to build docs aren't documented
 * :ghissue:`18428`: small bug in the mtplotlib gallery
 * :ghissue:`4438`: inconsistent behaviour of the errorevery option in pyplot.errorbar() to the markevery keyword
-* :ghissue:`5823`: pleas dont include the Google Analytics tracking in the off-line doc
+* :ghissue:`5823`: please don't include the Google Analytics tracking in the off-line doc
 * :ghissue:`13035`: Path3DCollection from 3D scatter cannot set_color
 * :ghissue:`9725`: scatter - set_facecolors is not working on Axes3D
 * :ghissue:`3370`: Patch3DCollection doesn't update color after calling set_color
@@ -1123,12 +1123,12 @@ Issues (204):
 * :ghissue:`17712`: constrained_layout fails on suptitle+colorbars+some figure sizes
 * :ghissue:`14638`: colorbar.make_axes doesn't anchor in constrained_layout
 * :ghissue:`18299`: New configure_subplots behaves badly on TkAgg backend
-* :ghissue:`18300`: Remove the examples category "Our Favorite Recipies"
+* :ghissue:`18300`: Remove the examples category "Our Favorite Recipes"
 * :ghissue:`18077`: Imshow breaks if given a unyt_array input
 * :ghissue:`7074`: Using a linestyle cycler with plt.errorbar results in strange plots
 * :ghissue:`18236`: FuncAnimation fails to display with interval 0 on Tkagg backend
 * :ghissue:`8107`:  invalid command name "..._on_timer" in FuncAnimation for (too) small interval
-* :ghissue:`18272`: Add CI Intervall to boxplot notch documentation
+* :ghissue:`18272`: Add CI Interval to boxplot notch documentation
 * :ghissue:`18137`: axhspan() in empty plots changes the xlimits of plots sharing the X axis
 * :ghissue:`18246`: test_never_update is flaky
 * :ghissue:`5856`: Horizontal stem plot
@@ -1146,7 +1146,7 @@ Issues (204):
 * :ghissue:`12198`: axvline incorrectly tries to handle unitized ymin, ymax
 * :ghissue:`9139`: Python3 matplotlib 2.0.2 with Times New Roman misses unicode minus sign in pdf
 * :ghissue:`5970`: pyplot.scatter raises obscure error when mistakenly passed a third string param
-* :ghissue:`17936`: documenattion and behavior do not match for suppressing (PDF) metadata
+* :ghissue:`17936`: documentation and behavior do not match for suppressing (PDF) metadata
 * :ghissue:`17932`: latex textrm does not work in Cairo backend
 * :ghissue:`17714`: Universal fullscreen command
 * :ghissue:`4584`: ColorbarBase draws edges in slightly wrong positions.
@@ -1161,7 +1161,7 @@ Issues (204):
 * :ghissue:`15821`: Should constrained_layout work as plt.figure() argument?
 * :ghissue:`15616`: Colormaps should have a ``_repr_html_`` that is an image of the colormap
 * :ghissue:`17579`: ``BoundaryNorm`` yield a ``ZeroDivisionError: division by zero``
-* :ghissue:`17652`: NEP 29 : Stop support fro Python 3.6 soon ?
+* :ghissue:`17652`: NEP 29 : Stop support for Python 3.6 soon ?
 * :ghissue:`11095`: Repeated plot calls with xunits=None throws exception
 * :ghissue:`17733`: Rename "array" (and perhaps "fields") section of Axes API
 * :ghissue:`15610`: Link to most recent DevDocs when installing from Master Source

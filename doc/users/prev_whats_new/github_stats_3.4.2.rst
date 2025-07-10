@@ -146,7 +146,7 @@ Issues (21):
 * :ghissue:`19960`: Failed to init RangeSlider with valinit attribute
 * :ghissue:`19736`: subplot_mosaic axes are not added in consistent order
 * :ghissue:`19979`: Blank EPS figures if plot contains 'd'
-* :ghissue:`19938`: unuseful deprecation warning figbox
+* :ghissue:`19938`: useless deprecation warning figbox
 * :ghissue:`19958`: subfigures missing bbox_inches attribute in inline backend
 * :ghissue:`19936`: Errorbars elinewidth raise error when numpy array
 * :ghissue:`19879`: Using "drawstyle" raises AttributeError in errorbar, when yerr is specified.
