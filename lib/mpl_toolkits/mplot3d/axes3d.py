@@ -1969,13 +1969,17 @@ class Axes3D(Axes):
         Plot 2D or 3D data.
 
         .. versionchanged:: 3.10
+        xs : 1D array-like
+            x coordinates of vertices.
+        ys : 1D array-like
+            y coordinates of vertices.
+        zs : float or 1D array-like
+            z coordinates of vertices; either one for all points or one for
+            each point.
+        The signature was changed to make the parameters *zs* and *fmt* explicit.
 
-        .. api-changed:: 3.10
-
-            The signature was changed to make the parameters *zs* and *fmt* explicit.
-
-            The unconventional but previously valid call signature
-            ``plot(xs, ys, 'ro', zs=zs)`` is no longer supported.
+        The unconventional but previously valid call signature
+        ``plot(xs, ys, 'ro', zs=zs)`` is no longer supported.
 
         Parameters
         ----------
@@ -1983,7 +1987,8 @@ class Axes3D(Axes):
             When plotting 2D data, the direction to use as z.
         axlim_clip : bool, default: False
             Whether to hide data that is outside the axes view limits.
-        DATA_PARAMETER_PLACEHOLDER
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs
             Other arguments are forwarded to 'Axes.plot'.
         """
