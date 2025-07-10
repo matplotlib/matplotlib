@@ -708,10 +708,10 @@ def test_ft2font_get_sfnt_table(font_name, header):
 
 @pytest.mark.parametrize('left, right, unscaled, unfitted, default', [
     # These are all the same class.
-    ('A', 'A', 57, 248, 256), ('A', 'À', 57, 248, 256), ('A', 'Á', 57, 248, 256),
-    ('A', 'Â', 57, 248, 256), ('A', 'Ã', 57, 248, 256), ('A', 'Ä', 57, 248, 256),
+    ('A', 'A', 57, 247, 256), ('A', 'À', 57, 247, 256), ('A', 'Á', 57, 247, 256),
+    ('A', 'Â', 57, 247, 256), ('A', 'Ã', 57, 247, 256), ('A', 'Ä', 57, 247, 256),
     # And a few other random ones.
-    ('D', 'A', -36, -156, -128), ('T', '.', -243, -1056, -1024),
+    ('D', 'A', -36, -156, -128), ('T', '.', -243, -1055, -1024),
     ('X', 'C', -149, -647, -640), ('-', 'J', 114, 495, 512),
 ])
 def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
@@ -767,9 +767,9 @@ def test_ft2font_set_text():
     xys = font.set_text('AADAT.XC-J')
     np.testing.assert_array_equal(
         xys,
-        [(0, 0), (512, 0), (1024, 0), (1600, 0), (2112, 0), (2496, 0), (2688, 0),
-         (3200, 0), (3712, 0), (4032, 0)])
-    assert font.get_width_height() == (4288, 768)
+        [(0, 0), (533, 0), (1045, 0), (1608, 0), (2060, 0), (2417, 0), (2609, 0),
+         (3065, 0), (3577, 0), (3940, 0)])
+    assert font.get_width_height() == (4196, 768)
     assert font.get_num_glyphs() == 10
     assert font.get_descent() == 192
     assert font.get_bitmap_offset() == (6, 0)

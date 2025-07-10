@@ -25,6 +25,8 @@ extern "C" {
 #include FT_TRUETYPE_TABLES_H
 }
 
+#include <raqm.h>
+
 namespace py = pybind11;
 
 // By definition, FT_FIXED as 2 16bit values stored in a single long.
@@ -107,6 +109,9 @@ class FT2Font
     void set_size(double ptsize, double dpi);
     void set_charmap(int i);
     void select_charmap(unsigned long i);
+    void layout(std::u32string_view text, FT_Int32 flags,
+                std::set<FT_String*>& glyph_seen_fonts,
+                std::vector<raqm_glyph_t> &glyphs);
     void set_text(std::u32string_view codepoints, double angle, FT_Int32 flags,
                   std::vector<double> &xys);
     int get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode);
@@ -166,6 +171,16 @@ class FT2Font
         return FT_HAS_KERNING(face);
     }
 
+    void set_parent(void *parent)
+    {
+        _parent = parent;
+    }
+
+    void *get_parent() const
+    {
+        return _parent;
+    }
+
   private:
     WarnFunc ft_glyph_warn;
     bool warn_if_used;
@@ -179,6 +194,9 @@ class FT2Font
     FT_Pos advance;
     long hinting_factor;
     int kerning_factor;
+
+    // Holds the parent PyFT2Font object.
+    void *_parent;
 
     // prevent copying
     FT2Font(const FT2Font &);
