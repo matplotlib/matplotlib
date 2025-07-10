@@ -76,7 +76,8 @@ def test_custom_transform():
     ax1.grid(True)
 
 
-@image_comparison(['polar_box.png'], style='default', tol=0.04)
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['polar_box.png'], style='default', tol=0.09)
 def test_polar_box():
     fig = plt.figure(figsize=(5, 5))
 
@@ -136,7 +137,7 @@ def test_polar_box():
 
 
 # Remove tol & kerning_factor when this test image is regenerated.
-@image_comparison(['axis_direction.png'], style='default', tol=0.13)
+@image_comparison(['axis_direction.png'], style='default', tol=0.15)
 def test_axis_direction():
     plt.rcParams['text.kerning_factor'] = 6
 
