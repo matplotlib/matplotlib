@@ -1964,8 +1964,7 @@ class Axes3D(Axes):
     text2D = Axes.text
 
     @_preprocess_data(replace_names=['xs', 'ys', 'zs'])
-    def plot(self, xs, ys, zs=0, fmt=None, *, zdir='z', axlim_clip=False,
-            **kwargs):
+    def plot(self, xs, ys, zs=0, fmt=None, *, zdir='z', axlim_clip=False, **kwargs):
         """
         Plot 2D or 3D data.
 
@@ -1973,38 +1972,20 @@ class Axes3D(Axes):
 
         .. api-changed:: 3.10
 
-            The signature of ``Axes3D.plot`` was changed to require all positional data
-            arguments (xs, ys, zs) and the format string (fmt) to be passed
-            positionally.All other arguments, including ``zdir``, ``axlim_clip``,
-            and ``data``, must be passed as keyword arguments.
+            The signature was changed to make the parameters *zs* and *fmt* explicit.
 
-            This is a formal API incompatibility for edge cases such as
-            ``plot(xs, ys, 'ro', zs=zs)``, which is no longer supported. Instead,
-            use ``plot(xs, ys, zs, 'ro')`` or ``plot(xs, ys, zs=zs, fmt='ro')``.
-
-            This change brings the 3D API in line with the 2D API and avoids
-            ambiguity in argument parsing.Other similar edge cases where a style
-            string is followed by a keyword data argument are
-            also now formally incompatible.
+            The unconventional but previously valid call signature
+            ``plot(xs, ys, 'ro', zs=zs)`` is no longer supported.
 
         Parameters
         ----------
-        xs : 1D array-like or label
-            x coordinates of vertices, or a column label if 'data' is given.
-        ys : 1D array-like or label
-            y coordinates of vertices, or a column label if 'data' is given.
-        zs : float or 1D array-like or label, default: 0
-            z coordinates of vertices, or a column label if 'data' is given.
-        fmt : str, optional
-            A format string, e.g., 'ro' for red circles.
         zdir : {'x', 'y', 'z'}, default: 'z'
             When plotting 2D data, the direction to use as z.
         axlim_clip : bool, default: False
             Whether to hide data that is outside the axes view limits.
-        data : indexable object, optional
-            If given, provides labeled data to plot.
+        DATA_PARAMETER_PLACEHOLDER
         **kwargs
-            Other arguments forwarded to 'Axes.plot'.
+            Other arguments are forwarded to 'Axes.plot'.
         """
         had_data = self.has_data()
 
