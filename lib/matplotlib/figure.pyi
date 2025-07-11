@@ -6,7 +6,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from matplotlib.artist import Artist
-from matplotlib.axes import Axes
+from matplotlib.axes import Axes, Axes3D
 from matplotlib.backend_bases import (
     FigureCanvasBase,
     MouseButton,
