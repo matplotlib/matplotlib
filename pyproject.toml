@@ -24,10 +24,9 @@ classifiers=[
 
 # When updating the list of dependencies, add an api_changes/development
 # entry and also update the following places:
+# - the `build` and `test-minver` dependency groups below
 # - lib/matplotlib/__init__.py (matplotlib._check_versions())
-# - requirements/testing/minver.txt
 # - doc/devel/dependencies.rst
-# - .github/workflows/tests.yml
 # - environment.yml
 dependencies = [
     "contourpy >= 1.0.1",
@@ -43,20 +42,6 @@ dependencies = [
 # Also keep in sync with find_program of meson.build.
 requires-python = ">=3.11"
 
-[project.optional-dependencies]
-# Should be a copy of the build dependencies below.
-dev = [
-    "meson-python>=0.13.1,!=0.17.*",
-    "pybind11>=2.13.2,!=2.13.3",
-    "setuptools_scm>=7",
-    # Not required by us but setuptools_scm without a version, cso _if_
-    # installed, then setuptools_scm 8 requires at least this version.
-    # Unfortunately, we can't do a sort of minimum-if-installed dependency, so
-    # we need to keep this for now until setuptools_scm _fully_ drops
-    # setuptools.
-    "setuptools>=64",
-]
-
 [project.urls]
 "Homepage" = "https://matplotlib.org"
 "Download" = "https://matplotlib.org/stable/install/index.html"
@@ -68,13 +53,136 @@ dev = [
 
 [build-system]
 build-backend = "mesonpy"
-# Also keep in sync with optional dependencies above.
+# Also keep in sync with dependency groups below.
 requires = [
     # meson-python 0.17.x breaks symlinks in sdists. You can remove this pin if
     # you really need it and aren't using an sdist.
     "meson-python>=0.13.1,!=0.17.*",
     "pybind11>=2.13.2,!=2.13.3",
     "setuptools_scm>=7",
+]
+
+[dependency-groups]
+build = [
+    # Should be the same as `[project] dependencies` above.
+    "contourpy >= 1.0.1",
+    "cycler >= 0.10",
+    "fonttools >= 4.22.0",
+    "kiwisolver >= 1.3.1",
+    "numpy >= 1.25",
+    "packaging >= 20.0",
+    "pillow >= 9",
+    "pyparsing >= 3",
+    "python-dateutil >= 2.7",
+
+    # Should be the same as `[build-system] requires` above.
+    "meson-python>=0.13.1,!=0.17.*",
+    "pybind11>=2.13.2,!=2.13.3",
+    "setuptools_scm>=7",
+    # Not required by us but setuptools_scm without a version, so _if_
+    # installed, then setuptools_scm 8 requires at least this version.
+    # Unfortunately, we can't do a sort of minimum-if-installed dependency, so
+    # we need to keep this for now until setuptools_scm _fully_ drops
+    # setuptools.
+    "setuptools>=64",
+]
+dev = [
+    {include-group = "build"},
+    {include-group = "doc"},
+    {include-group = "test"},
+    {include-group = "test-extra"},
+    "pre-commit",
+]
+# Requirements for building docs
+#
+# You will first need a matching Matplotlib installation
+# e.g (from the Matplotlib root directory)
+#     pip install --group build --no-build-isolation --editable .
+#
+# Install the documentation requirements with:
+#     pip install --group doc
+#
+doc = [
+    "sphinx>=5.1.0,!=6.1.2",
+    "colorspacious",
+    "ipython",
+    "ipywidgets",
+    "ipykernel",
+    "numpydoc>=1.0",
+    "pydata-sphinx-theme~=0.15.0",
+    "mpl-sphinx-theme~=3.9.0",
+    "pyyaml",
+    "PyStemmer",
+    "sphinxcontrib-svg2pdfconverter>=1.1.0",
+    "sphinxcontrib-video>=0.2.1",
+    "sphinx-copybutton",
+    "sphinx-design",
+    "sphinx-gallery[parallel]>=0.12.0",
+    "sphinx-tags>=0.4.0",
+]
+
+# pip requirements for all the CI builds
+test = [
+    "black<24",
+    "certifi",
+    "coverage!=6.3",
+    "psutil; sys_platform != 'cygwin'",
+    "pytest!=4.6.0,!=5.4.0,!=8.1.0",
+    "pytest-cov",
+    "pytest-rerunfailures",
+    "pytest-timeout",
+    "pytest-xdist",
+    "pytest-xvfb",
+    "tornado",
+]
+
+# Extra pip requirements
+test-extra = [
+    "ipykernel",
+    # jupyter/nbconvert#1970 for the 7.3 series exclusions
+    "nbconvert[execute]!=6.0.0,!=6.0.1,!=7.3.0,!=7.3.1",
+    "nbformat!=5.0.0,!=5.0.1",
+    "pandas!=0.25.0",
+    "pikepdf",
+    "pytz",
+    "pywin32; sys_platform == 'win32'",
+    "xarray",
+]
+
+# Extra pip requirements for the minimum-version CI run
+test-minver = [
+    "contourpy==1.0.1",
+    "cycler==0.10",
+    "fonttools==4.22.0",
+    "importlib-resources==3.2.0",
+    "kiwisolver==1.3.2",
+    "meson-python==0.13.1",
+    "meson==1.1.0",
+    "numpy==1.25.0",
+    "packaging==20.0",
+    "pillow==9.0.1",
+    "pyparsing==3.0.0",
+    "pytest==7.0.0",
+    "python-dateutil==2.7",
+    # Test ipython/matplotlib-inline before backend mapping moved to mpl.
+    # This should be tested for a reasonably long transition period,
+    # but we will eventually remove the test when we no longer support
+    # ipython/matplotlib-inline versions from before the transition.
+    "ipython==7.29.0",
+    "ipykernel==5.5.6",
+    "matplotlib-inline<0.1.7",
+]
+
+# Extra pip requirements for the GitHub Actions mypy build
+typing = [
+    "mypy>=1.9",
+    "typing-extensions>=4.6",
+    # Extra stubs distributed separately from the main pypi package
+    "pandas-stubs",
+    "types-pillow",
+    "types-python-dateutil",
+    "types-psutil",
+    "sphinx",
 ]
 
 [tool.meson-python.args]
