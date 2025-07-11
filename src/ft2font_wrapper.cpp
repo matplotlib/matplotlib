@@ -1569,8 +1569,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                         item.glyph_index, item.x, item.y, item.prev_kern);
                 });
 
-        auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
-                                         PyFT2Font__doc__)
+    py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
+                          PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
              "filename"_a, "hinting_factor"_a=py::none(), py::kw_only(),
              "face_index"_a=0,
@@ -1610,20 +1610,10 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("get_descent", &PyFT2Font::get_descent, PyFT2Font_get_descent__doc__)
         .def("draw_glyphs_to_bitmap", &PyFT2Font::draw_glyphs_to_bitmap,
              py::kw_only(), "antialiased"_a=true,
-             PyFT2Font_draw_glyphs_to_bitmap__doc__);
-        // The generated docstring uses an unqualified "Buffer" as type hint,
-        // which causes an error in sphinx.  This is fixed as of pybind11
-        // master (since #5566) which now uses "collections.abc.Buffer";
-        // restore the signature once that version is released.
-        {
-            py::options options{};
-            options.disable_function_signatures();
-            cls
-            .def("draw_glyph_to_bitmap", &PyFT2Font_draw_glyph_to_bitmap,
-                "image"_a, "x"_a, "y"_a, "glyph"_a, py::kw_only(), "antialiased"_a=true,
-                PyFT2Font_draw_glyph_to_bitmap__doc__);
-        }
-        cls
+             PyFT2Font_draw_glyphs_to_bitmap__doc__)
+        .def("draw_glyph_to_bitmap", &PyFT2Font_draw_glyph_to_bitmap,
+             "image"_a, "x"_a, "y"_a, "glyph"_a, py::kw_only(), "antialiased"_a=true,
+             PyFT2Font_draw_glyph_to_bitmap__doc__)
         .def("get_glyph_name", &PyFT2Font::get_glyph_name, "index"_a,
              PyFT2Font_get_glyph_name__doc__)
         .def("get_charmap", &PyFT2Font_get_charmap, PyFT2Font_get_charmap__doc__)
