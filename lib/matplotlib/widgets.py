@@ -3724,6 +3724,23 @@ class LassoSelector(_SelectorWidget):
         self.update()
 
 
+def _dist_to_line(p1, p2, p3):
+    """
+    Calculates the distance of the line connecting the points p1 and p2 to point p3
+    """
+
+    def dist_sqr(p, q):
+        return (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2
+
+    dist = dist_sqr(p1, p2)
+    if dist == 0:
+        raise ValueError("p1 and p2 are coincidental, there is no line")
+    u = ((p3[0] - p1[0]) * (p2[0] - p1[0]) + (p3[1] - p1[1]) * (p2[1] - p1[1])) / dist
+    intersection = p1[0] + u * (p2[0] - p1[0]), p1[1] + u * (p2[1] - p1[1])
+
+    return dist_sqr(intersection, p3) ** 0.5, u
+
+
 class PolygonSelector(_SelectorWidget):
     """
     Select a polygon region of an Axes.
@@ -3731,7 +3748,8 @@ class PolygonSelector(_SelectorWidget):
     Place vertices with each mouse click, and make the selection by completing
     the polygon (clicking on the first vertex). Once drawn individual vertices
     can be moved by clicking and dragging with the left mouse button, or
-    removed by clicking the right mouse button.
+    removed by clicking the right mouse button. Also new vertices can be
+    added by left clicking.
 
     In addition, the following modifier keys can be used:
 
@@ -3890,6 +3908,8 @@ class PolygonSelector(_SelectorWidget):
         if self._old_box_extents == self._box.extents:
             return
 
+        self._box.add_state("move")
+
         # Create transform from old box to new box
         x1, y1, w1, h1 = self._box._rect_bbox
         old_bbox = self._get_bbox()
@@ -3949,6 +3969,24 @@ class PolygonSelector(_SelectorWidget):
                 self._remove_vertex(self._active_handle_idx)
                 self._draw_polygon()
             self._active_handle_idx = -1
+
+        elif (self._selection_completed
+              and "move_all"
+              not in self._state
+              and "move_vertex" not in self._state
+              and (self._box is None or "move" not in self._box._state)):
+            if event.button == 1:
+                p3 = self._get_data_coords(event)
+                min_dist = np.inf
+                index = None
+                for i, (p1, p2) in enumerate(zip(self._xys[:-1], self._xys[1:])):
+                    dist, u = _dist_to_line(p1, p2, p3)
+                    if 1 > u > 0:
+                        if min_dist > dist:
+                            min_dist = dist
+                            index = i
+                self._xys.insert(index + 1, p3)
+                self._draw_polygon()
 
         # Complete the polygon.
         elif len(self._xys) > 3 and self._xys[-1] == self._xys[0]:
