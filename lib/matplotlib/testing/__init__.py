@@ -129,6 +129,8 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
         [
             sys.executable,
             "-c",
+            f"import pytest;"
+            f"pytest.register_assert_rewrite({module!r});"
             f"import importlib.util;"
             f"_spec = importlib.util.spec_from_file_location({module!r}, {file!r});"
             f"_module = importlib.util.module_from_spec(_spec);"
