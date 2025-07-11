@@ -264,18 +264,17 @@ def test_gridspec_make_colorbar():
     plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
 
 
-@image_comparison(['colorbar_single_scatter.png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
 def test_colorbar_single_scatter():
-    # Issue #2642: if a path collection has only one entry,
-    # the norm scaling within the colorbar must ensure a
-    # finite range, otherwise a zero denominator will occur in _locate.
+    # Issue #2642:  If a path collection has only one entry, the norm scaling within the
+    # colorbar must ensure a finite range, otherwise a zero denominator will occur in
+    # _locate.  Also, adding the colorbar must not change the value's normalization.
     plt.figure()
-    x = y = [0]
-    z = [50]
-    cmap = mpl.colormaps['jet'].resampled(16)
-    cs = plt.scatter(x, y, z, c=z, cmap=cmap)
+    v = 50
+    cs = plt.scatter([0], [0], c=[50])
+    old_normed = cs.norm(v)
     plt.colorbar(cs)
+    new_normed = cs.norm(v)
+    assert old_normed == new_normed
 
 
 @pytest.mark.parametrize('use_gridspec', [True, False])
