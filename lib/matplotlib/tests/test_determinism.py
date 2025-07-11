@@ -21,6 +21,8 @@ import matplotlib.testing.compare
 from matplotlib.text import TextPath
 from matplotlib.transforms import IdentityTransform
 
+pytestmark = pytest.mark.subprocess
+
 
 def _save_figure(objects='mhip', fmt="pdf", usetex=False):
     mpl.use(fmt)
