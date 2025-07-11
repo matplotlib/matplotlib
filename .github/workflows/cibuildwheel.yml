@@ -94,31 +94,6 @@ jobs:
     needs: build_sdist
     name: Build wheels on ${{ matrix.os }} for ${{ matrix.cibw_archs }}
     runs-on: ${{ matrix.os }}
-    env:
-      CIBW_BEFORE_BUILD: >-
-        rm -rf {package}/build
-      CIBW_BEFORE_BUILD_WINDOWS: >-
-        pip install delvewheel &&
-        rm -rf {package}/build
-      CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
-        delvewheel repair -w {dest_dir} {wheel}
-      CIBW_AFTER_BUILD: >-
-        twine check {wheel} &&
-        python {package}/ci/check_wheel_licenses.py {wheel}
-      # On Windows, we explicitly request MSVC compilers (as GitHub Action runners have
-      # MinGW on PATH that would be picked otherwise), switch to a static build for
-      # runtimes, but use dynamic linking for `VCRUNTIME140.dll`, `VCRUNTIME140_1.dll`,
-      # and the UCRT. This avoids requiring specific versions of `MSVCP140.dll`, while
-      # keeping shared state with the rest of the Python process/extensions.
-      CIBW_CONFIG_SETTINGS_WINDOWS: >-
-        setup-args="--vsenv"
-        setup-args="-Db_vscrt=mt"
-        setup-args="-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']"
-      CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-      CIBW_SKIP: "*-musllinux_aarch64"
-      CIBW_TEST_COMMAND: >-
-        python {package}/ci/check_version_number.py
-      MACOSX_DEPLOYMENT_TARGET: "10.12"
     strategy:
       matrix:
         include:
@@ -148,11 +123,6 @@ jobs:
           CIBW_BUILD: "cp314-* cp314t-*"
           CIBW_ENABLE: "cpython-freethreading cpython-prerelease"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-          CIBW_BEFORE_TEST: >-
-            python -m pip install
-            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
-            --upgrade --pre --only-binary=:all: contourpy numpy pillow
 
       - name: Build wheels for CPython 3.13
         uses: pypa/cibuildwheel@5f22145df44122af0f5a201f93cf0207171beca7  # v3.0.0
