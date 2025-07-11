@@ -47,7 +47,7 @@ requires-python = ">=3.11"
 # Should be a copy of the build dependencies below.
 dev = [
     "meson-python>=0.13.1,!=0.17.*",
-    "pybind11>=2.13.2,!=2.13.3",
+    "pybind11>=3",
     "setuptools_scm>=7",
     # Not required by us but setuptools_scm without a version, cso _if_
     # installed, then setuptools_scm 8 requires at least this version.
@@ -73,7 +73,7 @@ requires = [
     # meson-python 0.17.x breaks symlinks in sdists. You can remove this pin if
     # you really need it and aren't using an sdist.
     "meson-python>=0.13.1,!=0.17.*",
-    "pybind11>=2.13.2,!=2.13.3",
+    "pybind11>=3",
     "setuptools_scm>=7",
 ]
 
