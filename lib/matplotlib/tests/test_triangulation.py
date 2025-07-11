@@ -1321,7 +1321,7 @@ def test_tricontourset_reuse():
     assert tcs3._contour_generator == tcs1._contour_generator
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_triplot_with_ls(fig_test, fig_ref):
     x = [0, 2, 1]
     y = [0, 0, 1]
