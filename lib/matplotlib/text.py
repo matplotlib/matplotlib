@@ -1857,6 +1857,19 @@ or callable, default: value of *xycoords*
         --------
         :ref:`annotations`
 
+        Notes
+        -----
+        When using `.set_clip_path()` to clip an annotation to a patch (e.g., an
+        `axvspan`), be aware that if the axis limits (such as via `set_xlim()`)
+        are changed *after* assigning the clip path, the clipping may no longer
+        align visually. This is because the patch transform may change, but the
+        annotation’s clip path remains tied to the old coordinates.
+
+        To avoid this issue, you should either:
+        - Set the axis limits *before* setting the clip path, or
+        - Reassign the clip path manually using a new patch with the correct transform
+          (typically `transform=ax.transData`).
+
         """
         _AnnotationBase.__init__(self,
                                  xy,
