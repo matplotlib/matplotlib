@@ -1,13 +1,12 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
+from numbers import Integral
 import os
+from pathlib import Path
+from typing import Any, Literal
 
 from matplotlib._afm import AFM
 from matplotlib import ft2font
-
-from pathlib import Path
-
-from collections.abc import Iterable
-from typing import Any, Literal
 
 font_scalings: dict[str | None, float]
 stretch_dict: dict[str, int]
@@ -19,6 +18,7 @@ MSUserFontDirectories: list[str]
 X11FontDirectories: list[str]
 OSXFontDirectories: list[str]
 
+def _normalize_weight(weight: str | Integral) -> Integral: ...
 def get_fontext_synonyms(fontext: str) -> list[str]: ...
 def list_fonts(directory: str, extensions: Iterable[str]) -> list[str]: ...
 def win32FontDirectory() -> str: ...
