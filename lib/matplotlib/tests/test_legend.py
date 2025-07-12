@@ -1472,3 +1472,28 @@ def test_boxplot_legend_labels():
     bp4 = axs[3].boxplot(data, label='box A')
     assert bp4['medians'][0].get_label() == 'box A'
     assert all(x.get_label().startswith("_") for x in bp4['medians'][1:])
+
+
+def test_labelcolor_linecolor_with_none_facecolor():
+    # This test ensures that labelcolor='linecolor' works even when the
+    # artist has a facecolor of None (fixes issue #30298).
+
+    np.random.seed(0)
+    x, y = np.random.randn(2, 100)
+
+    fig, axes = plt.subplots(2, 2)
+
+    # Step histogram
+    axes[0, 0].hist(x, histtype='bar', label="bar")
+    axes[0, 1].hist(x, histtype='step', label="step")
+
+    # Scatter with default and empty facecolor
+    axes[1, 0].scatter(x, y, label="scatter-filled")
+    axes[1, 1].scatter(x, y, ec='C0', fc='None', label="scatter-empty")
+
+    # The test will fail with IndexError unless the bug is fixed
+    for ax in axes.ravel():
+        try:
+            ax.legend(labelcolor='linecolor')
+        except Exception as e:
+            pytest.fail(f"Legend with labelcolor='linecolor' failed: {e}")

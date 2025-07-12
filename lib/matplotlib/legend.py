@@ -596,10 +596,12 @@ class Legend(Artist):
                     try:
                         color = getattr(handle, getter_name)()
                         if isinstance(color, np.ndarray):
-                            if (
-                                    color.shape[0] == 1
-                                    or np.isclose(color, color[0]).all()
-                            ):
+                            if color.size == 0:
+                                continue
+                            elif (
+                                color.shape[0] == 1
+                                or np.isclose(color, color[0]).all()
+                                ):
                                 text.set_color(color[0])
                             else:
                                 pass
