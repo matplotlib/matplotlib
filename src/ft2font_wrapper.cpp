@@ -1548,7 +1548,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .value("BOLD", StyleFlags::BOLD)
         .finalize();
 
-    py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
+    py::classh<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
                          PyFT2Image__doc__)
         .def(py::init(
                 [](double_or_<long> width, double_or_<long> height) {
@@ -1571,7 +1571,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             return py::buffer_info(self.get_buffer(), shape, strides);
         });
 
-    py::class_<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
+    py::classh<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
         .def(py::init<>([]() -> PyGlyph {
             // Glyph is not useful from Python, so mark it as not constructible.
             throw std::runtime_error("Glyph is not constructible");
@@ -1595,7 +1595,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_property_readonly("bbox", &PyGlyph_get_bbox,
                                "The control box of the glyph.");
 
-    py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
+    py::classh<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
                           PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
              "filename"_a, "hinting_factor"_a=8, py::kw_only(),
