@@ -1,0 +1,13 @@
+[wrap-file]
+directory = freetype-2.13.3
+source_url = https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.xz
+source_fallback_url = https://downloads.sourceforge.net/project/freetype/freetype2/2.13.3/freetype-2.13.3.tar.xz
+source_filename = freetype-2.13.3.tar.xz
+source_hash = 0550350666d427c74daeb85d5ac7bb353acba5f76956395995311a9c6f063289
+
+# https://gitlab.freedesktop.org/freetype/freetype/-/commit/34aed655f1696da774b5cdd4c5effb312153232f
+diff_files = freetype-34aed655f1696da774b5cdd4c5effb312153232f.patch
+
+[provide]
+freetype2 = freetype_dep
+freetype = freetype_dep

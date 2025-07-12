@@ -139,9 +139,6 @@ def test_multiline():
 
 @image_comparison(['multiline2'], style='mpl20')
 def test_multiline2():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig, ax = plt.subplots()
 
     ax.set_xlim(0, 1.4)
@@ -694,8 +691,6 @@ def test_annotation_units(fig_test, fig_ref):
 
 @image_comparison(['large_subscript_title.png'], style='mpl20')
 def test_large_subscript_title():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
     plt.rcParams['axes.titley'] = None
 
     fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
@@ -732,7 +727,7 @@ def test_wrap(x, rotation, halign):
 
 
 def test_mathwrap():
-    fig = plt.figure(figsize=(6, 4))
+    fig = plt.figure(figsize=(5, 4))
     s = r'This is a very $\overline{\mathrm{long}}$ line of Mathtext.'
     text = fig.text(0, 0.5, s, size=40, wrap=True)
     fig.canvas.draw()
