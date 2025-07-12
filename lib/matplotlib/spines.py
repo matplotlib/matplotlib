@@ -265,11 +265,17 @@ class Spine(mpatches.Patch):
                 self._path = mpath.Path.arc(np.rad2deg(low), np.rad2deg(high))
 
                 if self.spine_type == 'bottom':
-                    rmin, rmax = self.axes.viewLim.intervaly
+                    if self.axis is None:
+                        tr = mtransforms.IdentityTransform()
+                    else:
+                        tr = self.axis.get_transform()
+                    rmin, rmax = tr.transform(self.axes.viewLim.intervaly)
                     try:
                         rorigin = self.axes.get_rorigin()
                     except AttributeError:
                         rorigin = rmin
+                    else:
+                        rorigin = tr.transform(rorigin)
                     scaled_diameter = (rmin - rorigin) / (rmax - rorigin)
                     self._height = scaled_diameter
                     self._width = scaled_diameter

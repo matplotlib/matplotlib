@@ -119,7 +119,7 @@ Issues (22):
 * :ghissue:`20628`: Out-of-bounds read leads to crash or broken TrueType fonts
 * :ghissue:`20612`: Broken EPS for Type 42 STIX
 * :ghissue:`19982`: regression for 3.4.x - ax.figbox replacement incompatible to all version including 3.3.4
-* :ghissue:`19938`: unuseful deprecation warning figbox
+* :ghissue:`19938`: useless deprecation warning figbox
 * :ghissue:`16400`: Inconsistent behavior between Normalizers when input is Dataframe
 * :ghissue:`20583`: Lost class descriptions since 3.4 docs
 * :ghissue:`20551`: set_segments(get_segments()) makes lines coarse

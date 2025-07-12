@@ -2296,8 +2296,8 @@ class Axes(_AxesBase):
             facecolor = mcolors.to_rgba_array(facecolor)
         except ValueError as err:
             raise ValueError(
-                "'facecolor' or 'color' argument must be a valid color or"
-                    "sequence of colors."
+                "'facecolor' or 'color' argument must be a valid color or "
+                "sequence of colors."
             ) from err
 
         return facecolor, edgecolor
@@ -3435,6 +3435,9 @@ or pandas.DataFrame
             locs, heads = self._process_unit_info([("x", locs), ("y", heads)])
         else:  # horizontal
             heads, locs = self._process_unit_info([("x", heads), ("y", locs)])
+
+        heads = cbook._check_1d(heads)
+        locs = cbook._check_1d(locs)
 
         # resolve line format
         if linefmt is None:

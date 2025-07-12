@@ -21,7 +21,18 @@ from matplotlib.transforms import Bbox, BboxBase, Transform, TransformedPath
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any, IO, Literal, NamedTuple, TypeVar, overload
 from numpy.typing import ArrayLike
-from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
+from .typing import (
+    CapStyleType,
+    CloseEventType,
+    ColorType,
+    DrawEventType,
+    JoinStyleType,
+    KeyEventType,
+    LineStyleType,
+    MouseEventType,
+    PickEventType,
+    ResizeEventType,
+)
 
 def register_backend(
     format: str, backend: str | type[FigureCanvasBase], description: str | None = ...
@@ -354,37 +365,28 @@ class FigureCanvasBase:
     @overload
     def mpl_connect(
         self,
-        s: Literal[
-            "button_press_event",
-            "motion_notify_event",
-            "scroll_event",
-            "figure_enter_event",
-            "figure_leave_event",
-            "axes_enter_event",
-            "axes_leave_event",
-            "button_release_event",
-        ],
+        s: MouseEventType,
         func: Callable[[MouseEvent], Any],
     ) -> int: ...
 
     @overload
     def mpl_connect(
         self,
-        s: Literal["key_press_event", "key_release_event"],
+        s: KeyEventType,
         func: Callable[[KeyEvent], Any],
     ) -> int: ...
 
     @overload
-    def mpl_connect(self, s: Literal["pick_event"], func: Callable[[PickEvent], Any]) -> int: ...
+    def mpl_connect(self, s: PickEventType, func: Callable[[PickEvent], Any]) -> int: ...
 
     @overload
-    def mpl_connect(self, s: Literal["resize_event"], func: Callable[[ResizeEvent], Any]) -> int: ...
+    def mpl_connect(self, s: ResizeEventType, func: Callable[[ResizeEvent], Any]) -> int: ...
 
     @overload
-    def mpl_connect(self, s: Literal["close_event"], func: Callable[[CloseEvent], Any]) -> int: ...
+    def mpl_connect(self, s: CloseEventType, func: Callable[[CloseEvent], Any]) -> int: ...
 
     @overload
-    def mpl_connect(self, s: str, func: Callable[[Event], Any]) -> int: ...
+    def mpl_connect(self, s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
     def mpl_disconnect(self, cid: int) -> None: ...
     def new_timer(
         self,

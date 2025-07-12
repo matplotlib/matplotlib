@@ -3420,6 +3420,20 @@ def test_stackplot_hatching(fig_ref, fig_test):
     ax_ref.set_ylim(0, 70)
 
 
+def test_stackplot_subfig_legend():
+    # Smoke test for https://github.com/matplotlib/matplotlib/issues/30158
+
+    fig = plt.figure()
+    subfigs = fig.subfigures(nrows=1, ncols=2)
+
+    for _fig in subfigs:
+        ax = _fig.subplots(nrows=1, ncols=1)
+        ax.stackplot([3, 4], [[1, 2]], labels=['a'])
+
+    fig.legend()
+    fig.draw_without_rendering()
+
+
 def _bxp_test_helper(
         stats_kwargs={}, transform_stats=lambda s: s, bxp_kwargs={}):
     np.random.seed(937)
@@ -4743,6 +4757,11 @@ def test_stem_args():
     _assert_equal(ax.stem(x, y, linefmt='r--', basefmt='b--'), expected=(x, y))
     _assert_equal(ax.stem(y, linefmt='r--'), expected=([0, 1, 2], y))
     _assert_equal(ax.stem(y, 'r--'), expected=([0, 1, 2], y))
+
+    with pytest.raises(ValueError):
+        ax.stem([[y]])
+    with pytest.raises(ValueError):
+        ax.stem([[x]], y)
 
 
 def test_stem_markerfmt():

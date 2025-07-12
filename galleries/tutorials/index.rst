@@ -7,7 +7,7 @@ This page contains a few tutorials for using Matplotlib.  For the old tutorials,
 
 For shorter examples, see our :ref:`examples page <examples-index>`.
 You can also find :ref:`external resources <resources-index>` and
-a :ref:`FAQ <faq-index>` in our :ref:`user guide <users-guide-index>`.
+a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
 
 
 .. raw:: html

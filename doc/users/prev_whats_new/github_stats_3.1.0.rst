@@ -871,7 +871,7 @@ Pull Requests (918):
 * :ghpull:`12749`: Move toolmanager warning from logging to warning.
 * :ghpull:`12598`: Support Cn colors with n>=10.
 * :ghpull:`12727`: Reorder API docs: separate file per module
-* :ghpull:`12738`: Add unobtrusive depreaction note to the first line of the docstring.
+* :ghpull:`12738`: Add unobtrusive deprecation note to the first line of the docstring
 * :ghpull:`11663`: Refactor color parsing of Axes.scatter
 * :ghpull:`12736`: Move deprecation note to end of docstring
 * :ghpull:`12704`: Rename tkinter import from Tk to tk.

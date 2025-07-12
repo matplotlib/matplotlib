@@ -131,3 +131,33 @@ RcStyleType: TypeAlias = (
 _HT = TypeVar("_HT", bound=Hashable)
 HashableList: TypeAlias = list[_HT | "HashableList[_HT]"]
 """A nested list of Hashable values."""
+
+MouseEventType: TypeAlias = Literal[
+    "button_press_event",
+    "button_release_event",
+    "motion_notify_event",
+    "scroll_event",
+    "figure_enter_event",
+    "figure_leave_event",
+    "axes_enter_event",
+    "axes_leave_event",
+]
+
+KeyEventType: TypeAlias = Literal[
+    "key_press_event",
+    "key_release_event"
+]
+
+DrawEventType: TypeAlias = Literal["draw_event"]
+PickEventType: TypeAlias = Literal["pick_event"]
+ResizeEventType: TypeAlias = Literal["resize_event"]
+CloseEventType: TypeAlias = Literal["close_event"]
+
+EventType: TypeAlias = Literal[
+    MouseEventType,
+    KeyEventType,
+    DrawEventType,
+    PickEventType,
+    ResizeEventType,
+    CloseEventType,
+]
