@@ -283,9 +283,7 @@ def _ensure_handler():
     return handler
 
 
-def set_loglevel(
-    level: Literal["notset", "debug", "info", "warning", "error", "critical"]
-):
+def set_loglevel(level):
     """
     Configure Matplotlib's logging levels.
 
