@@ -7,6 +7,7 @@ from numpy.typing import ArrayLike
 
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
+from matplotlib.axes3d import Axes3D
 from matplotlib.backend_bases import (
     FigureCanvasBase,
     MouseButton,
@@ -87,17 +88,20 @@ class FigureBase(Artist):
 
     # TODO: docstring indicates SubplotSpec a valid arg, but none of the listed signatures appear to be that
     @overload
+    def add_subplot(self, *args: Any, projection: Literal["3d"], **kwargs: Any) -> Axes3D: ...
+    @overload
     def add_subplot(
-        self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs
+        self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs: Any
     ) -> Axes: ...
     @overload
-    def add_subplot(self, pos: int, **kwargs) -> Axes: ...
+    def add_subplot(self, pos: int, **kwargs: Any) -> Axes: ...
     @overload
-    def add_subplot(self, ax: Axes, **kwargs) -> Axes: ...
+    def add_subplot(self, ax: Axes, **kwargs: Any) -> Axes: ...
     @overload
-    def add_subplot(self, ax: SubplotSpec, **kwargs) -> Axes: ...
+    def add_subplot(self, ax: SubplotSpec, **kwargs: Any) -> Axes: ...
     @overload
-    def add_subplot(self, **kwargs) -> Axes: ...
+    def add_subplot(self, **kwargs: Any) -> Axes: ...
+
     @overload
     def subplots(
         self,
