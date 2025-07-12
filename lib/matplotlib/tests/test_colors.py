@@ -1896,15 +1896,20 @@ def test_multi_norm():
 
     # test wrong input
     with pytest.raises(ValueError,
-                       match="A MultiNorm must be assigned multiple norms"):
+                       match="MultiNorm must be assigned multiple norms"):
         mcolors.MultiNorm("bad_norm_name")
+    with pytest.raises(ValueError,
+                       match="MultiNorm must be assigned multiple norms, "):
+        mcolors.MultiNorm([4])
+    with pytest.raises(ValueError,
+                       match="MultiNorm must be assigned multiple norms, "):
+        mcolors.MultiNorm(None)
     with pytest.raises(ValueError,
                        match="Invalid norm str name"):
         mcolors.MultiNorm(["bad_norm_name"])
     with pytest.raises(ValueError,
-                       match="MultiNorm must be assigned multiple norms, "
-                             "where each norm is of type `None`"):
-        mcolors.MultiNorm([4])
+                       match="Invalid norm str name"):
+        mcolors.MultiNorm(["None"])
 
     # test get vmin, vmax
     norm = mpl.colors.MultiNorm(['linear', 'log'])
@@ -1935,7 +1940,7 @@ def test_multi_norm():
 
     # test autoscale_none
     norm0 = mcolors.TwoSlopeNorm(2, vmin=0, vmax=None)
-    norm = mcolors.MultiNorm([norm0, None], vmax=[None, 50])
+    norm = mcolors.MultiNorm([norm0, 'linear'], vmax=[None, 50])
     norm.autoscale_None([[1, 2, 3, 4, 5], [-50, 1, 0, 1, 500]])
     assert_array_equal(norm([5, 0]), [1, 0.5])
     assert_array_equal(norm.vmin, (0, -50))

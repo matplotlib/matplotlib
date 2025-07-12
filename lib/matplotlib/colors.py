@@ -2566,9 +2566,8 @@ class Normalize(Norm):
         This is number of elements of the parameter to ``__call__`` and of
         *vmin*, *vmax*.
 
-        This class support only a single compoenent, as opposed to `MultiNorm`
+        This class support only a single component, as opposed to `MultiNorm`
         which supports multiple components.
-
         """
         return 1
 
@@ -3306,7 +3305,7 @@ class MultiNorm(Norm):
         """
         Parameters
         ----------
-        norms : list of (str, `Normalize` or None)
+        norms : list of (str or `Normalize`)
             The constituent norms. The list must have a minimum length of 2.
         vmin, vmax : float or None or list of (float or None)
             Limits of the constituent norms.
@@ -3318,28 +3317,24 @@ class MultiNorm(Norm):
             ``[vmin, vmax]`` for the constituent norms.
             If a list, each value is assigned to each of the constituent
             norms. Single values are repeated to form a list of appropriate size.
-
         """
-
         if cbook.is_scalar_or_string(norms):
-            raise ValueError("A MultiNorm must be assigned multiple norms")
+            raise ValueError(
+                    "MultiNorm must be assigned multiple norms, where each norm "
+                    f"is of type `str`, or `Normalize`, not {type(norms)}")
 
-        norms = [*norms]
-        for i, n in enumerate(norms):
-            if n is None:
-                norms[i] = Normalize()
-            elif isinstance(n, str):
-                scale_cls = _get_scale_cls_from_str(n)
-                norms[i] = mpl.colorizer._auto_norm_from_scale(scale_cls)()
-            elif not isinstance(n, Normalize):
+        def resolve(norm):
+            if isinstance(norm, str):
+                scale_cls = _get_scale_cls_from_str(norm)
+                return mpl.colorizer._auto_norm_from_scale(scale_cls)()
+            elif isinstance(norm, Normalize):
+                return norm
+            else:
                 raise ValueError(
                     "MultiNorm must be assigned multiple norms, where each norm "
-                    f"is of type `None` `str`, or `Normalize`, not {type(n)}")
+                    f"is of type `str`, or `Normalize`, not {type(norm)}")
 
-        # Convert the list of norms to a tuple to make it immutable.
-        # If there is a use case for swapping a single norm, we can add support for
-        # that later
-        self._norms = tuple(norms)
+        self._norms = tuple(resolve(norm) for norm in norms)
 
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
@@ -3369,9 +3364,9 @@ class MultiNorm(Norm):
     def vmin(self, value):
         value = np.broadcast_to(value, self.n_components)
         with self.callbacks.blocked():
-            for i, v in enumerate(value):
+            for norm, v in zip(self.norms, value):
                 if v is not None:
-                    self.norms[i].vmin = v
+                    norm.vmin = v
         self._changed()
 
     @property
@@ -3383,9 +3378,9 @@ class MultiNorm(Norm):
     def vmax(self, value):
         value = np.broadcast_to(value, self.n_components)
         with self.callbacks.blocked():
-            for i, v in enumerate(value):
+            for norm, v in zip(self.norms, value):
                 if v is not None:
-                    self.norms[i].vmax = v
+                    norm.vmax = v
         self._changed()
 
     @property
@@ -3397,9 +3392,9 @@ class MultiNorm(Norm):
     def clip(self, value):
         value = np.broadcast_to(value, self.n_components)
         with self.callbacks.blocked():
-            for i, v in enumerate(value):
+            for norm, v in zip(self.norms, value):
                 if v is not None:
-                    self.norms[i].clip = v
+                    norm.clip = v
         self._changed()
 
     def _changed(self):
