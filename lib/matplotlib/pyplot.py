@@ -50,7 +50,7 @@ import logging
 import sys
 import threading
 import time
-from typing import IO, TYPE_CHECKING, cast, overload
+from typing import TYPE_CHECKING, cast, overload
 
 from cycler import cycler  # noqa: F401
 import matplotlib
@@ -100,14 +100,7 @@ if TYPE_CHECKING:
     import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
-    from matplotlib.backend_bases import (
-        CloseEvent,
-        DrawEvent,
-        KeyEvent,
-        MouseEvent,
-        PickEvent,
-        ResizeEvent,
-    )
+    from matplotlib.backend_bases import Event
     from matplotlib.cm import ScalarMappable
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
@@ -133,18 +126,11 @@ if TYPE_CHECKING:
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
     from matplotlib.typing import (
-        CloseEventType,
         ColorType,
         CoordsType,
-        DrawEventType,
         HashableList,
-        KeyEventType,
         LineStyleType,
         MarkerType,
-        MouseEventType,
-        PickEventType,
-        ResizeEventType,
-        RcGroupType,
     )
     from matplotlib.widgets import SubplotTool
 
@@ -352,8 +338,8 @@ draw_all = _pylab_helpers.Gcf.draw_all
 
 # Ensure this appears in the pyplot docs.
 @_copy_docstring_and_deprecators(matplotlib.set_loglevel)
-def set_loglevel(level: str) -> None:
-    return matplotlib.set_loglevel(level)
+def set_loglevel(*args, **kwargs) -> None:
+    return matplotlib.set_loglevel(*args, **kwargs)
 
 
 @_copy_docstring_and_deprecators(Artist.findobj)
@@ -787,8 +773,9 @@ def pause(interval: float) -> None:
 
 
 @_copy_docstring_and_deprecators(matplotlib.rc)
-def rc(group: RcGroupType, **kwargs) -> None:
+def rc(group: str, **kwargs) -> None:
     matplotlib.rc(group, **kwargs)
+
 
 @_copy_docstring_and_deprecators(matplotlib.rc_context)
 def rc_context(
@@ -1188,32 +1175,8 @@ def get_current_fig_manager() -> FigureManagerBase | None:
     return gcf().canvas.manager
 
 
-@overload
-def connect(s: MouseEventType, func: Callable[[MouseEvent], Any]) -> int: ...
-
-
-@overload
-def connect(s: KeyEventType, func: Callable[[KeyEvent], Any]) -> int: ...
-
-
-@overload
-def connect(s: PickEventType, func: Callable[[PickEvent], Any]) -> int: ...
-
-
-@overload
-def connect(s: ResizeEventType, func: Callable[[ResizeEvent], Any]) -> int: ...
-
-
-@overload
-def connect(s: CloseEventType, func: Callable[[CloseEvent], Any]) -> int: ...
-
-
-@overload
-def connect(s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
-
-
 @_copy_docstring_and_deprecators(FigureCanvasBase.mpl_connect)
-def connect(s, func) -> int:
+def connect(s: str, func: Callable[[Event], Any]) -> int:
     return gcf().canvas.mpl_connect(s, func)
 
 
@@ -1296,11 +1259,11 @@ def draw() -> None:
 
 
 @_copy_docstring_and_deprecators(Figure.savefig)
-def savefig(fname: str | os.PathLike | IO, **kwargs) -> None:
+def savefig(*args, **kwargs) -> None:
     fig = gcf()
     # savefig default implementation has no return, so mypy is unhappy
     # presumably this is here because subclasses can return?
-    res = fig.savefig(fname, **kwargs)  # type: ignore[func-returns-value]
+    res = fig.savefig(*args, **kwargs)  # type: ignore[func-returns-value]
     fig.canvas.draw_idle()  # Need this if 'transparent=True', to reset colors.
     return res
 
