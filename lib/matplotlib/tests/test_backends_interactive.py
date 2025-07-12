@@ -634,12 +634,9 @@ def _impl_test_interactive_timers():
     # milliseconds, which the mac framework interprets as singleshot.
     # We only want singleshot if we specify that ourselves, otherwise we want
     # a repeating timer
-    import os
     from unittest.mock import Mock
     import matplotlib.pyplot as plt
-    # increase pause duration on CI to let things spin up
-    # particularly relevant for gtk3cairo
-    pause_time = 2 if os.getenv("CI") else 0.5
+    pause_time = 0.5
     fig = plt.figure()
     plt.pause(pause_time)
     timer = fig.canvas.new_timer(0.1)
