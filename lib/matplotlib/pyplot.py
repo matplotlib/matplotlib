@@ -131,6 +131,7 @@ if TYPE_CHECKING:
         HashableList,
         LineStyleType,
         MarkerType,
+        RcGroupType
     )
     from matplotlib.widgets import SubplotTool
 
@@ -773,9 +774,8 @@ def pause(interval: float) -> None:
 
 
 @_copy_docstring_and_deprecators(matplotlib.rc)
-def rc(group: str, **kwargs) -> None:
+def rc(group: RcGroupType, **kwargs) -> None:
     matplotlib.rc(group, **kwargs)
-
 
 @_copy_docstring_and_deprecators(matplotlib.rc_context)
 def rc_context(

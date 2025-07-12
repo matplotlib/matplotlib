@@ -77,6 +77,30 @@ Marker specification. See :doc:`/gallery/lines_bars_and_markers/marker_reference
 FillStyleType: TypeAlias = Literal["full", "left", "right", "bottom", "top", "none"]
 """Marker fill styles. See :doc:`/gallery/lines_bars_and_markers/marker_reference`."""
 
+LogLevel: TypeAlias = Literal["notset", "debug", "info", "warning", "error", "critical"]
+"""Valid string values for logging levels used in `set_loglevel`."""
+
+RcGroupType: TypeAlias = Literal[
+    "animation", "axes", "axes3d", "backend", "boxplot", "contour", "date",
+    "errorbar", "figure", "font", "grid", "hatch", "image", "interactive",
+    "keymap", "legend", "lines", "markers", "patch", "path", "pdf", "pgf", "ps",
+    "savefig", "scatter", "text", "tk", "toolbar", "xtick", "ytick"
+]
+"""Valid values for the `group` parameter in `rc(group=...)`."""
+
+# --- START GENERATED RcParamKeyType ---
+RcParamKeyType: TypeAlias = Literal[
+    "_internal.classic_mode",
+
+]
+# --- END GENERATED RcParamKeyType ---
+"""The keys are extracted directly from the matplotlib runtime via:
+ `generate_rc_keys_once.py`
+To regenerate this block:
+1. Run `python tools/update_rc_keys_once.py`
+2. Replace the content between the START and END markers below
+"""
+
 JoinStyleType: TypeAlias = JoinStyle | Literal["miter", "round", "bevel"]
 """Line join styles. See :doc:`/gallery/lines_bars_and_markers/joinstyle`."""
 
