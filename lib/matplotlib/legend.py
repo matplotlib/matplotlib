@@ -576,7 +576,7 @@ class Legend(Artist):
         # set the text color
 
         color_getters = {  # getter function depends on line or patch
-            'linecolor':       ['get_color',           'get_facecolor'],
+            'linecolor':       ['get_facecolor', 'get_edgecolor', 'get_color'],
             'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
             'mfc':             ['get_markerfacecolor', 'get_facecolor'],
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
@@ -592,34 +592,43 @@ class Legend(Artist):
                         continue
                 except AttributeError:
                     pass
+
                 for getter_name in getter_names:
                     try:
                         color = getattr(handle, getter_name)()
+
                         if isinstance(color, np.ndarray):
                             if color.size == 0:
                                 continue
-                            elif (
-                                color.shape[0] == 1
-                                or np.isclose(color, color[0]).all()
-                                ):
-                                text.set_color(color[0])
+                            if color.shape[0] == 1 or np.isclose(color, color[0]).all():
+                                rgba = color[0]
                             else:
-                                pass
+                                continue  # Gradient or ambiguous color
                         else:
-                            text.set_color(color)
+                            rgba = color
+
+                        # Skip if fully transparent (invisible legend text)
+                        if (
+                            hasattr(rgba, '__getitem__')
+                            and len(rgba) == 4 and rgba[3] == 0
+                            ):
+                            continue
+
+                        text.set_color(rgba)
                         break
                     except AttributeError:
                         pass
-        elif cbook._str_equal(labelcolor, 'none'):
-            for text in self.texts:
-                text.set_color(labelcolor)
-        elif np.iterable(labelcolor):
-            for text, color in zip(self.texts,
-                                   itertools.cycle(
-                                       colors.to_rgba_array(labelcolor))):
-                text.set_color(color)
         else:
-            raise ValueError(f"Invalid labelcolor: {labelcolor!r}")
+            if cbook._str_equal(labelcolor, 'none'):
+                for text in self.texts:
+                    text.set_color(labelcolor)
+            elif np.iterable(labelcolor):
+                for text, color in zip(self.texts,
+                                    itertools.cycle(colors.to_rgba_array(labelcolor))):
+                    text.set_color(color)
+            else:
+                for text in self.texts:
+                    text.set_color(labelcolor)
 
     def _set_artist_props(self, a):
         """

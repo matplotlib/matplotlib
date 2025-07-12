@@ -22,6 +22,9 @@ from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
 from matplotlib import rc_context
 from matplotlib.font_manager import FontProperties
+import matplotlib.colors as mcolors
+
+
 
 
 def test_legend_ordereddict():
@@ -1474,26 +1477,29 @@ def test_boxplot_legend_labels():
     assert all(x.get_label().startswith("_") for x in bp4['medians'][1:])
 
 
-def test_labelcolor_linecolor_with_none_facecolor():
-    # This test ensures that labelcolor='linecolor' works even when the
-    # artist has a facecolor of None (fixes issue #30298).
-
-    np.random.seed(0)
-    x, y = np.random.randn(2, 100)
-
+def test_legend_labelcolor_linecolor_default_artists():
     fig, axes = plt.subplots(2, 2)
+    x = np.random.randn(1000)
+    y = np.random.randn(1000)
 
-    # Step histogram
-    axes[0, 0].hist(x, histtype='bar', label="bar")
-    axes[0, 1].hist(x, histtype='step', label="step")
+    # Top Left: Filled Histogram (default color C0)
+    axes[0, 0].hist(x, histtype='bar', label="spam")
+    leg00 = axes[0, 0].legend(labelcolor='linecolor')
+    assert np.allclose(leg00.get_texts()[0].get_color()[:3], mcolors.to_rgb('C0'))
 
-    # Scatter with default and empty facecolor
-    axes[1, 0].scatter(x, y, label="scatter-filled")
-    axes[1, 1].scatter(x, y, ec='C0', fc='None', label="scatter-empty")
+    # Top Right: Step Histogram (default color C0)
+    axes[0, 1].hist(x, histtype='step', label="spam")
+    leg01 = axes[0, 1].legend(labelcolor='linecolor')
+    assert np.allclose(leg01.get_texts()[0].get_color()[:3], mcolors.to_rgb('C0'))
 
-    # The test will fail with IndexError unless the bug is fixed
-    for ax in axes.ravel():
-        try:
-            ax.legend(labelcolor='linecolor')
-        except Exception as e:
-            pytest.fail(f"Legend with labelcolor='linecolor' failed: {e}")
+    # Bottom Left: Scatter (filled, default color C0)
+    axes[1, 0].scatter(x, y, label="spam")
+    leg10 = axes[1, 0].legend(labelcolor='linecolor')
+    assert np.allclose(leg10.get_texts()[0].get_color()[:3], mcolors.to_rgb('C0'))
+
+    # Bottom Right: Scatter (outline, default edge color C0)
+    axes[1, 1].scatter(x, y, label="spam")
+    leg11 = axes[1, 1].legend(labelcolor='linecolor')
+    assert np.allclose(leg11.get_texts()[0].get_color()[:3], mcolors.to_rgb('C0'))
+
+    plt.close(fig)
