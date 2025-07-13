@@ -7,7 +7,6 @@ from numpy.typing import ArrayLike
 
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
-from matplotlib.axes3d import Axes3D
 from matplotlib.backend_bases import (
     FigureCanvasBase,
     MouseButton,
@@ -26,6 +25,8 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
 from matplotlib.transforms import Affine2D, Bbox, BboxBase, Transform
+from mpl_toolkits.mplot3d import Axes3D
+
 from .typing import ColorType, HashableList
 
 _T = TypeVar("_T")
