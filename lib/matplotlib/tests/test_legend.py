@@ -1537,7 +1537,7 @@ def test_boxplot_legend_labels():
 
     # 13. Plot with colormapped RGBA
     lambda ax, x, y: ax.plot(
-        x, y, color=plt.cm.plasma(0.5), label="plot – RGBA colormapped"
+    x, y, color=(0.771551, 0.320066, 0.913019, 1.0), label="plot – RGBA colormapped"
     ),
 
     # 14. Scatter with many facecolors
