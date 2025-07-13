@@ -110,10 +110,10 @@
   - all:
       - changed-files:
           - any-glob-to-any-file:
-              - 'doc/users/**'
+              - 'doc/release/**'
               - 'galleries/users_explain/**'
           - all-globs-to-all-files:
-              - '!doc/users/next_whats_new/**'
+              - '!doc/release/next_whats_new/**'
 
 "topic: animation":
   - changed-files:
