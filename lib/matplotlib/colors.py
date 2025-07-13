@@ -3352,7 +3352,7 @@ class MultiNorm(Norm):
 
     @property
     def norms(self):
-        """The individual norms held by this `MultiNorm`"""
+        """The individual norms held by this `MultiNorm`."""
         return self._norms
 
     @property
@@ -3361,10 +3361,10 @@ class MultiNorm(Norm):
         return tuple(n.vmin for n in self._norms)
 
     @vmin.setter
-    def vmin(self, value):
-        value = np.broadcast_to(value, self.n_components)
+    def vmin(self, values):
+        values = np.broadcast_to(values, self.n_components)
         with self.callbacks.blocked():
-            for norm, v in zip(self.norms, value):
+            for norm, v in zip(self.norms, values):
                 if v is not None:
                     norm.vmin = v
         self._changed()
@@ -3375,10 +3375,10 @@ class MultiNorm(Norm):
         return tuple(n.vmax for n in self._norms)
 
     @vmax.setter
-    def vmax(self, value):
-        value = np.broadcast_to(value, self.n_components)
+    def vmax(self, values):
+        values = np.broadcast_to(values, self.n_components)
         with self.callbacks.blocked():
-            for norm, v in zip(self.norms, value):
+            for norm, v in zip(self.norms, values):
                 if v is not None:
                     norm.vmax = v
         self._changed()
@@ -3389,10 +3389,10 @@ class MultiNorm(Norm):
         return tuple(n.clip for n in self._norms)
 
     @clip.setter
-    def clip(self, value):
-        value = np.broadcast_to(value, self.n_components)
+    def clip(self, values):
+        values = np.broadcast_to(values, self.n_components)
         with self.callbacks.blocked():
-            for norm, v in zip(self.norms, value):
+            for norm, v in zip(self.norms, values):
                 if v is not None:
                     norm.clip = v
         self._changed()
@@ -3404,15 +3404,15 @@ class MultiNorm(Norm):
         """
         self.callbacks.process('changed')
 
-    def __call__(self, value, clip=None, structured_output=None):
+    def __call__(self, values, clip=None, structured_output=None):
         """
         Normalize the data and return the normalized data.
 
-        Each component of the input is assigned to the constituent norm.
+        Each component of the input is normalized via the constituent norm.
 
         Parameters
         ----------
-        value : array-like
+        values : array-like
             Data to normalize, as tuple, scalar array or structured array.
 
             - If tuple, must be of length `n_components`
@@ -3439,7 +3439,7 @@ class MultiNorm(Norm):
         Notes
         -----
         If not already initialized, ``self.vmin`` and ``self.vmax`` are
-        initialized using ``self.autoscale_None(value)``.
+        initialized using ``self.autoscale_None(values)``.
         """
         if clip is None:
             clip = self.clip
@@ -3447,36 +3447,36 @@ class MultiNorm(Norm):
             clip = [clip]*self.n_components
 
         if structured_output is None:
-            if isinstance(value, np.ndarray) and value.dtype.fields is not None:
+            if isinstance(values, np.ndarray) and values.dtype.fields is not None:
                 structured_output = True
             else:
                 structured_output = False
 
-        value = self._iterable_components_in_data(value, self.n_components)
+        values = self._iterable_components_in_data(values, self.n_components)
 
-        result = tuple(n(v, clip=c) for n, v, c in zip(self.norms, value, clip))
+        result = tuple(n(v, clip=c) for n, v, c in zip(self.norms, values, clip))
 
         if structured_output:
             result = self._ensure_multicomponent_data(result, self.n_components)
 
         return result
 
-    def inverse(self, value):
+    def inverse(self, values):
         """
-        Map the normalized value (i.e., index in the colormap) back to image data value.
+        Map the normalized values (i.e., index in the colormap) back to data values.
 
         Parameters
         ----------
-        value
-            Normalized value, as tuple, scalar array or structured array.
+        values
+            Normalized values, as tuple, scalar array or structured array.
 
             - If tuple, must be of length `n_components`
             - If scalar array, the first axis must be of length `n_components`
             - If structured array, must have `n_components` fields.
 
         """
-        value = self._iterable_components_in_data(value, self.n_components)
-        result = [n.inverse(v) for n, v in zip(self.norms, value)]
+        values = self._iterable_components_in_data(values, self.n_components)
+        result = [n.inverse(v) for n, v in zip(self.norms, values)]
         return result
 
     def autoscale(self, A):
@@ -3487,8 +3487,8 @@ class MultiNorm(Norm):
         Parameters
         ----------
         A
-            Data, must be of length `n_components` or be a structured array or scalar
-            with `n_components` fields.
+            Data, must be of length `n_components` or be a structured scalar or
+            structured array with `n_components` fields.
         """
         with self.callbacks.blocked():
             # Pause callbacks while we are updating so we only get
@@ -3561,7 +3561,7 @@ class MultiNorm(Norm):
         Parameters
         ----------
         n_components : int
-            -  number of omponents in the data
+            Number of omponents in the data.
         data : np.ndarray, PIL.Image or None
 
         Returns
