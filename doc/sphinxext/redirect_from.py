@@ -94,7 +94,8 @@ class RedirectFrom(SphinxDirective):
         domain = self.env.get_domain('redirect_from')
         current_doc = self.env.path2doc(self.state.document.current_source)
         redirected_reldoc, _ = self.env.relfn2path(redirected_doc, current_doc)
-        if redirected_reldoc in domain.redirects:
+        if (redirected_reldoc in domain.redirects
+                and domain.redirects[redirected_reldoc] != current_doc):
             raise ValueError(
                 f"{redirected_reldoc} is already noted as redirecting to "
                 f"{domain.redirects[redirected_reldoc]}")
