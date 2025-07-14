@@ -624,7 +624,7 @@ class Legend(Artist):
                             continue
 
                         text.set_color(rgba)
-                        break 
+                        break
                     except AttributeError:
                         continue
                 else:

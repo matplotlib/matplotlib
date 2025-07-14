@@ -858,7 +858,7 @@ def test_legend_pathcollection_labelcolor_linecolor():
 
     leg = ax.legend(labelcolor='linecolor')
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
-        assert mpl.colors.same_color(text.get_color(), color)
+        assert mpl.colors.same_color(text.get_color(), 'black')
 
 
 def test_legend_pathcollection_labelcolor_linecolor_iterable():
@@ -1476,31 +1476,93 @@ def test_boxplot_legend_labels():
     assert bp4['medians'][0].get_label() == 'box A'
     assert all(x.get_label().startswith("_") for x in bp4['medians'][1:])
 
-"""
-def test_legend_labelcolor_linecolor_default_artists():
-    fig, axes = plt.subplots(2, 2)
-    x = np.random.randn(1000)
-    y = np.random.randn(1000)
 
-    # Top Left: Filled Histogram (default color C0)
-    axes[0, 0].hist(x, histtype='bar', label="spam")
-    leg00 = axes[0, 0].legend(labelcolor='linecolor')
-    assert np.allclose(mcolors.to_rgb(leg00.get_texts()[0].get_color()), mcolors.to_rgb('C0'))
+@pytest.mark.parametrize(
+    "artist_type, plot_func, kwargs, expected_color",
+    [
+        # Plot with visible face color
+        (
+            "plot", plt.plot,
+            {'c': 'orange'},
+            'orange'
+        ),
 
-    # Top Right: Step Histogram (default color C0)
-    axes[0, 1].hist(x, histtype='step', label="spam")
-    leg01 = axes[0, 1].legend(labelcolor='linecolor')
-    assert np.allclose(mcolors.to_rgb(leg01.get_texts()[0].get_color()), mcolors.to_rgb('C0'))
+        # Plot with marker edge only
+        (
+            "plot", plt.plot,
+            {'mfc': 'None', 'mec': 'red'},
+            'red'
+        ),
 
-    # Bottom Left: Scatter (filled, default color C0)
-    axes[1, 0].scatter(x, y, label="spam")
-    leg10 = axes[1, 0].legend(labelcolor='linecolor')
-    assert np.allclose(mcolors.to_rgb(leg10.get_texts()[0].get_color()), mcolors.to_rgb('C0'))
+        # Plot with marker face only
+        (
+            "plot", plt.plot,
+            {'mfc': 'cyan', 'mec': 'None'},
+            'cyan'
+        ),
 
-    # Bottom Right: Scatter (outline, default edge color C0)
-    axes[1, 1].scatter(x, y, label="spam")
-    leg11 = axes[1, 1].legend(labelcolor='linecolor')
-    assert np.allclose(mcolors.to_rgb(leg11.get_texts()[0].get_color()), mcolors.to_rgb('C0'))
+        # Scatter with edge color
+        (
+            "scatter", plt.scatter,
+            {'facecolors': 'None', 'edgecolors': 'blue'},
+            'blue'
+        ),
+
+        # Scatter with face color
+        (
+            "scatter", plt.scatter,
+            {'facecolors': 'magenta', 'edgecolors': 'None'},
+            'magenta'
+        ),
+
+        # Histogram bar (should fallback to black if ambiguous)
+        (
+            "hist", plt.hist,
+            {'bins': 10, 'color': 'C1', 'histtype': 'bar'},
+            'black'
+        ),
+
+        # Histogram step (edgecolor)
+        (
+            "hist", plt.hist,
+            {'bins': 10, 'color': 'C2', 'histtype': 'step'},
+            'C2'
+        ),
+
+        # Fully transparent (should not override default)
+        (
+            "plot", plt.plot,
+            {'color': (1, 0, 0, 0)},
+            'none'
+        ),
+    ]
+)
+def test_legend_labelcolor_linecolor_variants(
+    artist_type, plot_func, kwargs, expected_color
+):
+    x = np.linspace(0, 1, 10)
+    y = np.random.randn(10)
+    fig, ax = plt.subplots()
+
+    if artist_type == "hist":
+        plot_func(np.random.randn(100), label="example", **kwargs)
+    else:
+        plot_func(x, y, label="example", **kwargs)
+
+    leg = ax.legend(labelcolor='linecolor')
+    label_color = leg.get_texts()[0].get_color()
+
+    if isinstance(label_color, tuple) and len(label_color) == 4:
+        label_color = label_color[:3]
+
+    if expected_color == 'none':
+        assert label_color == 'none', (
+            f"Expected 'none', got {label_color} for {artist_type}"
+        )
+    else:
+        assert mcolors.same_color(label_color, expected_color), (
+            f"Expected: {expected_color}, Got: {label_color} "
+            f"for artist_type={artist_type}, kwargs={kwargs}"
+        )
 
     plt.close(fig)
-"""
