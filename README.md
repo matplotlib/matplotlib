@@ -1,3 +1,5 @@
+<div align="center">
+
 [![PyPi](https://img.shields.io/pypi/v/matplotlib)](https://pypi.org/project/matplotlib/)
 [![Conda](https://img.shields.io/conda/vn/conda-forge/matplotlib)](https://anaconda.org/conda-forge/matplotlib)
 [![Downloads](https://img.shields.io/pypi/dm/matplotlib)](https://pypi.org/project/matplotlib)
@@ -14,12 +16,16 @@
 [![Codecov status](https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=main&service=github)](https://app.codecov.io/gh/matplotlib/matplotlib)
 [![EffVer Versioning](https://img.shields.io/badge/version_scheme-EffVer-0097a7)](https://jacobtomlinson.dev/effver)
 
+<br>
+
 ![Matplotlib logotype](https://matplotlib.org/_static/logo2.svg)
+
+</div>
 
 Matplotlib is a comprehensive library for creating static, animated, and
 interactive visualizations in Python.
 
-Check out our [home page](https://matplotlib.org/) for more information.
+Check out our [Home Page](https://matplotlib.org/) for more information.
 
 ![image](https://matplotlib.org/_static/readme_preview.png)
 
@@ -30,20 +36,16 @@ and various graphical user interface toolkits.
 
 ## Install
 
-See the [install
-documentation](https://matplotlib.org/stable/users/installing/index.html),
+See the [Documentation](https://matplotlib.org/stable/users/installing/index.html),
 which is generated from `/doc/install/index.rst`
 
 ## Contribute
 
-You've discovered a bug or something else you want to change — excellent!
-
-You've worked out a way to fix it — even better!
-
-You want to tell us about it — best of all!
-
-Start at the [contributing
-guide](https://matplotlib.org/devdocs/devel/contribute.html)!
+- You've discovered a bug or something else you want to change — excellent!
+- You've worked out a way to fix it — even better!
+- You want to tell us about it — best of all!
+- Start at the [Contributing
+Guide](https://matplotlib.org/devdocs/devel/contribute.html)!
 
 ## Contact
 
@@ -69,6 +71,5 @@ matplotlib.
 If Matplotlib contributes to a project that leads to publication, please
 acknowledge this by citing Matplotlib.
 
-[A ready-made citation
-entry](https://matplotlib.org/stable/users/project/citing.html) is
-available.
+A ready-made citation entry is available 
+[here](https://matplotlib.org/stable/users/project/citing.html)
