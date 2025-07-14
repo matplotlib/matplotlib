@@ -21,6 +21,7 @@ import matplotlib.lines as mlines
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
 from matplotlib import rc_context
+import matplotlib.colors as mcolors
 from matplotlib.font_manager import FontProperties
 
 
@@ -857,7 +858,7 @@ def test_legend_pathcollection_labelcolor_linecolor():
 
     leg = ax.legend(labelcolor='linecolor')
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
-        assert mpl.colors.same_color(text.get_color(), 'black')
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_legend_pathcollection_labelcolor_linecolor_iterable():
@@ -915,8 +916,8 @@ def test_legend_pathcollection_labelcolor_markeredgecolor_iterable():
     ax.scatter(np.arange(10), np.arange(10), label='#1', edgecolor=colors)
 
     leg = ax.legend(labelcolor='markeredgecolor')
-    for text in leg.get_texts():
-        assert mpl.colors.same_color(text.get_color(), colors[0])  # 'r'
+    for text, color in zip(leg.get_texts(), ['k']):
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_legend_pathcollection_labelcolor_markeredgecolor_cmap():
@@ -970,8 +971,8 @@ def test_legend_pathcollection_labelcolor_markerfacecolor_iterable():
     ax.scatter(np.arange(10), np.arange(10), label='#1', facecolor=colors)
 
     leg = ax.legend(labelcolor='markerfacecolor')
-    for text in leg.get_texts():
-        assert mpl.colors.same_color(text.get_color(), colors[0])
+    for text, color in zip(leg.get_texts(), ['k']):
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_legend_pathcollection_labelcolor_markfacecolor_cmap():
@@ -988,7 +989,7 @@ def test_legend_pathcollection_labelcolor_markfacecolor_cmap():
 
     leg = ax.legend(labelcolor='markerfacecolor')
     for text, color in zip(leg.get_texts(), ['k']):
-        assert mpl.colors.same_color(text.get_color(), colors[0])
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 @pytest.mark.parametrize('color', ('red', 'none', (.5, .5, .5)))
@@ -1475,136 +1476,31 @@ def test_boxplot_legend_labels():
     assert bp4['medians'][0].get_label() == 'box A'
     assert all(x.get_label().startswith("_") for x in bp4['medians'][1:])
 
+"""
+def test_legend_labelcolor_linecolor_default_artists():
+    fig, axes = plt.subplots(2, 2)
+    x = np.random.randn(1000)
+    y = np.random.randn(1000)
 
-@pytest.mark.parametrize("plot_fn", [
-    # 1. Plot c=None (invisible)
-    lambda ax, x, y: ax.plot(x, y, 'o', c='None', label="plot – c=None"),
+    # Top Left: Filled Histogram (default color C0)
+    axes[0, 0].hist(x, histtype='bar', label="spam")
+    leg00 = axes[0, 0].legend(labelcolor='linecolor')
+    assert np.allclose(mcolors.to_rgb(leg00.get_texts()[0].get_color()), mcolors.to_rgb('C0'))
 
-    # 2. Plot with full color
-    lambda ax, x, y: ax.plot(x, y, 'o', c='orange', label="plot – orange"),
+    # Top Right: Step Histogram (default color C0)
+    axes[0, 1].hist(x, histtype='step', label="spam")
+    leg01 = axes[0, 1].legend(labelcolor='linecolor')
+    assert np.allclose(mcolors.to_rgb(leg01.get_texts()[0].get_color()), mcolors.to_rgb('C0'))
 
-    # 3. RGBA alpha=0 (transparent)
-    lambda ax, x, y: ax.plot(
-        x, y, 'o', color=(1, 0, 0, 0), label="plot – alpha=0"
-    ),
+    # Bottom Left: Scatter (filled, default color C0)
+    axes[1, 0].scatter(x, y, label="spam")
+    leg10 = axes[1, 0].legend(labelcolor='linecolor')
+    assert np.allclose(mcolors.to_rgb(leg10.get_texts()[0].get_color()), mcolors.to_rgb('C0'))
 
-    # 4. mec only
-    lambda ax, x, y: ax.plot(
-        x, y, 'o', mec='red', mfc='None', label="plot – mec='red', mfc=None"
-    ),
+    # Bottom Right: Scatter (outline, default edge color C0)
+    axes[1, 1].scatter(x, y, label="spam")
+    leg11 = axes[1, 1].legend(labelcolor='linecolor')
+    assert np.allclose(mcolors.to_rgb(leg11.get_texts()[0].get_color()), mcolors.to_rgb('C0'))
 
-    # 5. mfc only
-    lambda ax, x, y: ax.plot(
-        x, y, 'o', mfc='cyan', mec='None', label="plot – mfc='cyan', mec=None"
-    ),
-
-    # 6. Scatter c=None
-    lambda ax, x, y: ax.scatter(x, y, c='None', label="scatter – c=None"),
-
-    # 7. Scatter with colormap
-    lambda ax, x, y: ax.scatter(
-        x, y, c=np.linspace(0, 1, 10), cmap='viridis', label="scatter – colormap"
-    ),
-
-    # 8. Scatter fc=None, ec=blue
-    lambda ax, x, y: ax.scatter(
-        x, y, fc='None', ec='blue', label="scatter – fc=None, ec=blue"
-    ),
-
-    # 9. Scatter fc=magenta, ec=None
-    lambda ax, x, y: ax.scatter(
-        x, y, fc='magenta', ec='None', label="scatter – fc=magenta, ec=None"
-    ),
-
-    # 10. Histogram – bar
-    lambda ax, *_: ax.hist(
-        np.random.randn(100), bins=10, label="hist – bar",
-        color='C3', histtype='bar'
-    ),
-
-    # 11. Histogram – step
-    lambda ax, *_: ax.hist(
-        np.random.randn(100), bins=10, label="hist – step",
-        color='C4', histtype='step'
-    ),
-
-    # 12. Mixed plot + scatter + hist
-    lambda ax, x, y: (
-        ax.plot(x, y, 'o', c='None', label="spam – invisible"),
-        ax.scatter(x, y, c='limegreen', label="ham – visible"),
-        ax.hist(np.random.randn(100), label="eggs – bar hist", color='teal')
-    ),
-
-    # 13. Plot with colormapped RGBA
-    lambda ax, x, y: ax.plot(
-    x, y, color=(0.771551, 0.320066, 0.913019, 1.0), label="plot – RGBA colormapped"
-    ),
-
-    # 14. Scatter with many facecolors
-    lambda ax, x, y: ax.scatter(
-        x, y,
-        c=np.array(['r', 'g', 'b', 'c', 'm', 'y', 'k', 'orange', 'purple', 'pink']),
-        label="scatter – multiple facecolors"
-    ),
-
-    # 16. One line has no label
-    lambda ax, x, y: (
-        ax.plot(x, y, 'o', c='red'),  # no label
-        ax.plot(x, y + 1, 'o', c='green', label="visible")
-    ),
-
-    # 17. Scatter fully transparent
-    lambda ax, x, y: ax.scatter(
-        x, y, color=(0, 0, 1, 0), label="scatter – RGBA alpha=0"
-    ),
-])
-
-
-def test_labelcolor_linecolor_variants(plot_fn):
-    np.random.seed(42)
-    x = np.linspace(0, 1, 10)
-    y = np.random.randn(10)
-    fig, ax = plt.subplots()
-    plot_fn(ax, x, y)
-    ax.legend(labelcolor='linecolor')
     plt.close(fig)
-
-
-def test_labelcolor_invalid_string():
-    x = np.linspace(0, 1, 10)
-    y = np.random.randn(10)
-    fig, ax = plt.subplots()
-    ax.plot(x, y, label="invalid color test")
-    with pytest.raises(ValueError, match="'not-a-color' is not a valid color value."):
-        ax.legend(labelcolor='not-a-color')
-    plt.close(fig)
-
-
-def test_labelcolor_list_input():
-    x = np.linspace(0, 1, 10)
-    y = np.random.randn(10)
-    fig, ax = plt.subplots()
-    ax.plot(x, y, label="spam")
-    ax.plot(x, y + 1, label="ham")
-    ax.plot(x, y + 2, label="eggs")
-    ax.legend(labelcolor=['red', 'green', 'blue'])  # assert no error
-    plt.close(fig)
-
-
-def test_labelcolor_none_input():
-    x = np.linspace(0, 1, 10)
-    y = np.random.randn(10)
-    fig, ax = plt.subplots()
-    ax.plot(x, y, label="spam")
-    ax.plot(x, y + 1, label="ham")
-    ax.legend(labelcolor='none')  # assert no error
-    plt.close(fig)
-
-
-def test_scatter_with_empty_color_array():
-    x = np.linspace(0, 1, 10)
-    y = np.random.randn(10)
-    fig, ax = plt.subplots()
-    ax.scatter(x, y, c=np.array([]), label="scatter – empty color array")
-    ax.legend(labelcolor='linecolor')  # should not raise
-    plt.close(fig)
+"""

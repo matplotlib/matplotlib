@@ -581,58 +581,42 @@ class Legend(Artist):
                 'get_edgecolor',
                 'get_markerfacecolor',
                 'get_facecolor',
+                'get_color'
             ],
-            'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
+            'markerfacecolor':  ['get_markerfacecolor', 'get_facecolor'],
             'mfc':              ['get_markerfacecolor', 'get_facecolor'],
-            'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
+            'markeredgecolor':  ['get_markeredgecolor', 'get_edgecolor'],
             'mec':              ['get_markeredgecolor', 'get_edgecolor'],
         }
 
-        # Resolve labelcolor from kwargs or rcParams, then fallback to text.color
-        labelcolor = mpl._val_or_rc(
-            mpl._val_or_rc(labelcolor, 'legend.labelcolor'),
-            'text.color'
-        )
-
+        labelcolor = mpl._val_or_rc(mpl._val_or_rc(labelcolor, 'legend.labelcolor'),
+                                'text.color')
         if isinstance(labelcolor, str) and labelcolor in color_getters:
-            # labelcolor is a special string key like 'linecolor' or 'mfc'
             getter_names = color_getters[labelcolor]
-
             for handle, text in zip(self.legend_handles, self.texts):
                 try:
-                    # Skip filled PathCollections with colormaps (scatter)
                     if handle.get_array() is not None:
                         continue
                 except AttributeError:
                     pass
-
                 for getter_name in getter_names:
                     try:
                         color = getattr(handle, getter_name)()
-
-                        # Handle array colors (e.g., scatter)
                         if isinstance(color, np.ndarray):
-                                if color.size == 0:
+                                if color.size ==0:
                                     continue
-                                if color.ndim == 2:
-                                    # pick first color if multiple
-                                    color = color[0]
-
-                                elif color.ndim == 1 and len(color) in (3, 4):
-                                    # already a single color
-                                    pass
-
+                                elif (
+                                    color.shape[0] == 1
+                                    or np.isclose(color, color[0]).all()
+                                ):
+                                    text.set_color(color[0])
+                                elif color.ndim == 2 and color.shape[1] in (3,4):
+                                    color = mpl.rcParams.get("text.color", "black")
                                 else:
-                                    continue
-
-                        # Skip 'None' or empty string colors
+                                    pass
                         if str(color).lower() == 'none' or color is None:
                             continue
-
-                        # Convert to RGBA
                         rgba = colors.to_rgba(color)
-
-                        # Skip if fully transparent
                         if (
                             hasattr(rgba, '__getitem__')
                             and len(rgba) == 4 and rgba[3] == 0
@@ -640,34 +624,22 @@ class Legend(Artist):
                             continue
 
                         text.set_color(rgba)
-                        break  # Use first valid color
+                        break 
                     except AttributeError:
                         continue
                 else:
-                    # If no valid color found from any getter
                     text.set_color('none')
 
+        elif cbook._str_equal(labelcolor, 'none'):
+            for text in self.texts:
+                text.set_color(labelcolor)
+        elif np.iterable(labelcolor):
+            for text, color in zip(self.texts,
+                                   itertools.cycle(
+                                       colors.to_rgba_array(labelcolor))):
+                text.set_color(color)
         else:
-            # labelcolor is either 'none', a list, or a single color string
-            if cbook._str_equal(labelcolor, 'none'):
-                for text in self.texts:
-                    text.set_color('none')
-
-            elif np.iterable(labelcolor):
-                for text, color in zip(self.texts,
-                                    itertools.cycle(colors.to_rgba_array(labelcolor))):
-                    text.set_color(color)
-            else:
-                try:
-                    rgba = colors.to_rgba(labelcolor)
-                    for text in self.texts:
-                        text.set_color(rgba)
-                except Exception as err:
-                    raise ValueError(
-                        f"Invalid labelcolor {labelcolor!r} for legend: {err}"
-                    ) from err
-                for text in self.texts:
-                    text.set_color(rgba)
+            raise ValueError(f"Invalid labelcolor: {labelcolor!r}")
 
     def _set_artist_props(self, a):
         """
