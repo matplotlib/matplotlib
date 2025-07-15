@@ -1689,7 +1689,7 @@ recent changes, please refer to the :doc:`/users/release_notes`.
     required by the experimental traited config and are somewhat out of date.
     If needed, install them independently, see
     http://code.enthought.com/pages/traits.html and
-    http://www.voidspace.org.uk/python/configobj.html
+    https://configobj.readthedocs.io/en/latest/
 
 2008-12-12
     Added support to assign labels to histograms of multiple data. - MM
