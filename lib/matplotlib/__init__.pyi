@@ -39,7 +39,7 @@ import contextlib
 from packaging.version import Version
 
 from matplotlib._api import MatplotlibDeprecationWarning
-from matplotlib.typing import RcKeyType
+from matplotlib.typing import RcKeyType, RcGroupKeyType
 from typing import Any, Literal, NamedTuple, overload
 
 class _VersionInfo(NamedTuple):
@@ -94,9 +94,9 @@ def rc_params_from_file(
 rcParamsDefault: RcParams
 rcParams: RcParams
 rcParamsOrig: RcParams
-defaultParams: dict[str, Any]
+defaultParams: dict[RcKeyType, Any]
 
-def rc(group: str, **kwargs) -> None: ...
+def rc(group: RcGroupKeyType, **kwargs) -> None: ...
 def rcdefaults() -> None: ...
 def rc_file_defaults() -> None: ...
 def rc_file(
@@ -104,7 +104,7 @@ def rc_file(
 ) -> None: ...
 @contextlib.contextmanager
 def rc_context(
-    rc: dict[str, Any] | None = ..., fname: str | Path | os.PathLike | None = ...
+    rc: dict[RcKeyType, Any] | None = ..., fname: str | Path | os.PathLike | None = ...
 ) -> Generator[None, None, None]: ...
 def use(backend: str, *, force: bool = ...) -> None: ...
 @overload
