@@ -76,8 +76,8 @@ MarkerType: TypeAlias = (
         "1", "2", "3", "4", "8", "s", "p",
         "P", "*", "h", "H", "+", "x", "X",
         "D", "d", "|", "_", "none", " ",
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
-    ] | list[tuple[int, int]] | tuple[int, Literal[1, 2, 3], int]
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+    ] | list[tuple[int, int]] | tuple[int, Literal[0, 1, 2], int]
 )
 """
 Marker specification. See :doc:`/gallery/lines_bars_and_markers/marker_reference`.
