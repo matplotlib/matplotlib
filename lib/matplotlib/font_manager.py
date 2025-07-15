@@ -50,6 +50,8 @@ from matplotlib._fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 from matplotlib.rcsetup import _validators
 
+from typing import Any, Dict, List, Optional, Set, Union
+
 _log = logging.getLogger(__name__)
 
 font_scalings = {
@@ -131,6 +133,129 @@ font_family_aliases = {
     'monospace',
     'sans',
 }
+_default_superfamilies = [
+    {
+        "name": "DejaVu",
+        "variants": {
+            "serif": {
+                "normal-normal": "DejaVu Serif"
+            },
+            "sans": {
+                "normal-normal": "DejaVu Sans"
+            },
+            "mono": {
+                "normal-normal": "DejaVu Sans Mono"
+            }
+        }
+    },
+    {
+        "name": "Bitstream Vera",
+        "variants": {
+            "serif": {
+                "normal-normal": "Bitstream Vera Serif"
+            },
+            "sans": {
+                "normal-normal": "Bitstream Vera Sans"
+            },
+            "mono": {
+                "normal-normal": "Bitstream Vera Sans Mono"
+            }
+        }
+    },
+    {
+        "name": "Computer Modern",
+        "variants": {
+            "serif": {
+                "normal-normal": "Computer Modern Roman"
+            },
+            "sans": {
+                "normal-normal": "Computer Modern Sans Serif"
+            },
+            "mono": {
+                "normal-normal": "Computer Modern Typewriter"
+            }
+        }
+    },
+    {
+        "name": "Arial",
+        "variants": {
+            "sans": {
+                "normal-normal": "Arial",
+                "bold-normal": "Arial Bold",
+                "normal-italic": "Arial Italic",
+                "bold-italic": "Arial Bold Italic"
+            }
+        }
+    },
+    {
+        "name": "Times",
+        "variants": {
+            "serif": {
+                "normal-normal": "Times New Roman",
+                "bold-normal": "Times New Roman Bold",
+                "normal-italic": "Times New Roman Italic",
+                "bold-italic": "Times New Roman Bold Italic"
+            }
+        }
+    },
+    {
+        "name": "Courier",
+        "variants": {
+            "mono": {
+                "normal-normal": "Courier New",
+                "bold-normal": "Courier New Bold",
+                "normal-italic": "Courier New Italic",
+                "bold-italic": "Courier New Bold Italic"
+            }
+        }
+    },
+    {
+        "name": "Liberation",
+        "variants": {
+            "serif": {
+                "normal-normal": "Liberation Serif",
+                "bold-normal": "Liberation Serif Bold",
+                "normal-italic": "Liberation Serif Italic",
+                "bold-italic": "Liberation Serif Bold Italic"
+            },
+            "sans": {
+                "normal-normal": "Liberation Sans",
+                "bold-normal": "Liberation Sans Bold",
+                "normal-italic": "Liberation Sans Italic",
+                "bold-italic": "Liberation Sans Bold Italic"
+            },
+            "mono": {
+                "normal-normal": "Liberation Mono",
+                "bold-normal": "Liberation Mono Bold",
+                "normal-italic": "Liberation Mono Italic",
+                "bold-italic": "Liberation Mono Bold Italic"
+            }
+        }
+    },
+    {
+        "name": "Noto",
+        "variants": {
+            "serif": {
+                "normal-normal": "Noto Serif",
+                "bold-normal": "Noto Serif Bold",
+                "normal-italic": "Noto Serif Italic",
+                "bold-italic": "Noto Serif Bold Italic"
+            },
+            "sans": {
+                "normal-normal": "Noto Sans",
+                "bold-normal": "Noto Sans Bold",
+                "normal-italic": "Noto Sans Italic",
+                "bold-italic": "Noto Sans Bold Italic"
+            },
+            "mono": {
+                "normal-normal": "Noto Mono",
+                "bold-normal": "Noto Mono Bold",
+                "normal-italic": "Noto Mono Italic",
+                "bold-italic": "Noto Mono Bold Italic"
+            }
+        }
+    }
+]
 
 # OS Font paths
 try:
@@ -304,6 +429,278 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         fontfiles.update(map(os.path.abspath, list_fonts(path, fontexts)))
 
     return [fname for fname in fontfiles if os.path.exists(fname)]
+
+
+class FontSuperfamily:
+    """
+    Represents a typographic superfamily — a logical grouping of fonts that
+    share a common design but span different genres
+    like 'serif', 'sans', 'mono', etc.
+    Example: the 'Roboto' superfamily includes 'Roboto',
+    'Roboto Serif', and 'Roboto Mono'.
+    """
+    _registry: Dict[str, "FontSuperfamily"] = {}
+
+    def __init__(self, name: str):
+        """
+        Initialize a superfamily with a given name.
+
+        Parameters
+        ----------
+        name : str
+            Logical name of the superfamily (e.g., 'Roboto').
+        """
+        self.name = name
+        # genre -> style_key -> font_name
+        self.variants: Dict[str, Dict[str, str]] = {}
+
+    def register(self, genre: str, font_name: str,
+                 weight: str = "normal", style: str = "normal"):
+        """
+        Register a specific font under a given genre and variation.
+
+        Parameters
+        ----------
+        genre : str
+            One of: 'serif', 'sans', 'mono', 'cursive', 'fantasy', etc.
+        font_name : str
+            The actual font name (e.g., 'Roboto Serif').
+        weight : str
+            Font weight (e.g., 'normal', 'bold').
+        style : str
+            Font style (e.g., 'normal', 'italic').
+        """
+        genre = genre.lower()
+        key = f"{weight.lower()}-{style.lower()}"
+        self.variants.setdefault(genre, {})[key] = font_name
+
+    def get_family(self, genre: str,
+                weight: Optional[Union[int, str]] = None,
+                style: Optional[str] = None) -> Optional[str]:
+        """
+        Return the font name associated with a genre in this superfamily.
+
+        Tries multiple fallbacks:
+        - Exact match on weight + style
+        - Match on weight only (style=normal)
+        - Match on style only (weight=normal)
+        - Default to normal-normal
+
+        Parameters
+        ----------
+        genre : str
+            The genre to look up ('serif', 'sans', etc.).
+        weight : int or str, optional
+            Font weight (e.g., 'bold').
+        style : str, optional
+            Font style (e.g., 'italic').
+
+        Returns
+        -------
+        str or None
+            The name of the registered font, or None if not found.
+        """
+        genre = genre.lower()
+        variants = self.variants.get(genre, {})
+
+        def norm(x, is_style=False):
+            if x is None:
+                return "normal"
+            s = str(x).lower()
+            return "italic" if is_style and s == "oblique" else s
+
+
+        keys = [
+        f"{norm(weight)}-{norm(style, is_style=True)}",
+        f"{norm(weight)}-normal",
+        f"normal-{norm(style, is_style=True)}",
+        "normal-normal",
+        ]
+
+
+        for key in keys:
+            if key in variants:
+                return variants[key]
+
+        return None
+
+    @classmethod
+    def get_superfamily(cls, name: str) -> "FontSuperfamily":
+        """
+        Retrieve or create a FontSuperfamily instance by name.
+
+        Parameters
+        ----------
+        name : str
+            The logical superfamily name.
+
+        Returns
+        -------
+        FontSuperfamily
+        """
+        if name not in cls._registry:
+            cls._registry[name] = FontSuperfamily(name)
+        return cls._registry[name]
+
+    def __repr__(self):
+        return f"<FontSuperfamily '{self.name}': {self.variants}>"
+
+    def _populate_default_superfamilies():
+        """
+        Populate the FontSuperfamily registry using only fonts listed in
+        matplotlibrc default genres, but grouping only those that actually
+        form multi-genre superfamilies.
+        """
+        if FontSuperfamily._registry:
+            return  # Already populated
+        for data in _default_superfamilies:
+            sf = FontSuperfamily.from_dict(data)
+            FontSuperfamily._registry[sf.name] = sf
+
+    def to_dict(self) -> Dict[str, Any]:
+            return {"name": self.name, "variants": self.variants}
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "FontSuperfamily":
+        sf = cls(data["name"])
+        for genre, variants in data["variants"].items():
+            for key, font in variants.items():
+                weight, style = key.split("-")
+                sf.register(genre, font, weight, style)
+        return sf
+
+    def genres(self) -> List[str]:
+        """
+        Return the list of genre categories defined in this superfamily.
+
+        Returns
+        -------
+        list of str
+            The genre keys present (e.g., ['serif', 'sans', 'mono']).
+        """
+        return list(self.variants.keys())
+
+    def keys(self, genre: str) -> List[str]:
+        """
+        Return the list of style keys defined under a given genre.
+
+        Parameters
+        ----------
+        genre : str
+            The genre to inspect.
+
+        Returns
+        -------
+        list of str
+            The style keys (e.g., ['normal-normal', 'bold-italic']) defined
+            for the given genre. Returns an empty list if the genre is not found.
+        """
+        return list(self.variants.get(genre.lower(), {}).keys())
+
+    def all_fonts(self) -> Set[str]:
+        """
+        Return the set of all font names registered in this superfamily.
+
+        Returns
+        -------
+        set of str
+            All font names used in the superfamily across all genres and styles.
+        """
+        return {
+            font for genre_map in self.variants.values()
+            for font in genre_map.values()
+        }
+
+    def has_genre(self, genre: str) -> bool:
+        """
+        Check if a given genre is defined in the superfamily.
+
+        Parameters
+        ----------
+        genre : str
+            The genre to check.
+
+        Returns
+        -------
+        bool
+            True if the genre exists, False otherwise.
+        """
+        return genre.lower() in self.variants
+
+    def describe(self) -> str:
+        """
+        Return a string summary of the superfamily content.
+
+        Useful for debugging or interactive inspection.
+
+        Returns
+        -------
+        str
+            Human-readable listing of all genres and their font mappings.
+        """
+        lines = [f"Superfamily '{self.name}':"]
+        for genre, styles in self.variants.items():
+            for key, font in styles.items():
+                lines.append(f"  {genre:<10} | {key:<13} → {font}")
+        return "\n".join(lines)
+
+    def to_json(self) -> str:
+        """
+        Serialize the superfamily as a JSON string.
+
+        Returns
+        -------
+        str
+            JSON representation of the superfamily.
+        """
+        import json
+        return json.dumps(self.to_dict(), indent=2)
+
+    @classmethod
+    def from_json(cls, s: str) -> "FontSuperfamily":
+        """
+        Construct a FontSuperfamily instance from a JSON string.
+
+        Parameters
+        ----------
+        s : str
+            JSON-encoded string describing a superfamily.
+
+        Returns
+        -------
+        FontSuperfamily
+            A new instance populated from the data.
+        """
+        import json
+        return cls.from_dict(json.loads(s))
+
+    @classmethod
+    def register_from_dict(cls, data: dict) -> "FontSuperfamily":
+        """
+        Construct and register a FontSuperfamily from a dictionary.
+
+        Parameters
+        ----------
+        data : dict
+            Dictionary with keys "name" and "variants", in the same
+            format accepted by rcParams["font.superfamily"].
+
+        Returns
+        -------
+        FontSuperfamily
+            The registered instance.
+
+        Raises
+        ------
+        ValueError
+            If required keys are missing.
+        """
+        if "name" not in data or "variants" not in data:
+            raise ValueError("Sfdict must contain 'name' and 'variants' keys.")
+
+        sf = cls.from_dict(data)
+        cls._registry[sf.name] = sf
+        return sf
 
 
 @dataclasses.dataclass(frozen=True)
@@ -655,10 +1052,10 @@ class FontProperties:
 
     @_cleanup_fontproperties_init
     def __init__(self, family=None, style=None, variant=None, weight=None,
-                 stretch=None, size=None,
-                 fname=None,  # if set, it's a hardcoded filename to use
-                 math_fontfamily=None):
-        self.set_family(family)
+                stretch=None, size=None,
+                fname=None,  # if set, it's a hardcoded filename to use
+                math_fontfamily=None):
+
         self.set_style(style)
         self.set_variant(variant)
         self.set_weight(weight)
@@ -666,6 +1063,30 @@ class FontProperties:
         self.set_file(fname)
         self.set_size(size)
         self.set_math_fontfamily(math_fontfamily)
+
+        font_family_is_generic = (
+            family is None or (
+                isinstance(family, list)
+                and len(family) == 1
+                and str(family[0]).lower() in {
+                    "serif", "sans-serif", "sans", "monospace", "cursive", "fantasy"
+                }
+            )
+        )
+
+        if font_family_is_generic:
+            resolved = self._resolve_superfamily_from_rc(family=family)
+        else:
+            resolved = None
+
+
+        if resolved:
+            self.set_family([resolved])
+        else:
+            self.set_family(
+                family if family is not None else mpl.rcParams["font.family"]
+            )
+
         # Treat family as a fontconfig pattern if it is the only parameter
         # provided.  Even in that case, call the other setters first to set
         # attributes not specified by the pattern to the rcParams defaults.
@@ -713,6 +1134,73 @@ class FontProperties:
 
     def __str__(self):
         return self.get_fontconfig_pattern()
+
+    def _resolve_superfamily_from_rc(self, family=None):
+        """
+        Resolve the font superfamily from rcParams["font.superfamily"],
+        supporting both string names and dict-based definitions.
+
+        If a dict is given, it is lazily instantiated as a FontSuperfamily
+        and registered. If resolution fails, falls back to font.family.
+        """
+        superfamily_val = mpl.rcParams.get("font.superfamily", None)
+
+        if isinstance(superfamily_val, dict):
+            try:
+                # Lazily register the dictionary-defined superfamily
+                sf = FontSuperfamily.from_dict(superfamily_val)
+                FontSuperfamily._registry[sf.name] = sf
+                superfamily_name = sf.name
+            except Exception as e:
+                import warnings
+                warnings.warn(
+                    f"Invalid font.superfamily dict: {e}. Falling back to font.family.",
+                    UserWarning
+                )
+                return None
+
+        elif isinstance(superfamily_val, str):
+            superfamily_name = superfamily_val.strip()
+            if superfamily_name.lower() in {"", "none"}:
+                return None
+        else:
+            return None
+
+        try:
+            # Ensure defaults are present
+            FontSuperfamily._populate_default_superfamilies()
+
+            sf = FontSuperfamily.get_superfamily(superfamily_name)
+
+            # Map font.family (e.g. "sans-serif") to genre key used in the superfamily
+            raw_genre = next(iter(family), "sans-serif") if family else \
+                next(iter(mpl.rcParams["font.family"]), "sans-serif")
+            genre = {
+                "sans-serif": "sans",
+                "serif": "serif",
+                "monospace": "mono",
+                "cursive": "cursive",
+                "fantasy": "fantasy"
+            }.get(raw_genre.lower(), raw_genre.lower())
+
+            weight = self.get_weight()
+            if isinstance(weight, int):
+                weight = "bold" if weight >= 600 else "normal"
+
+            style = self.get_style()
+
+            resolved = sf.get_family(genre=genre, weight=weight, style=style)
+            return resolved  # name or path
+        except Exception as e:
+            import warnings
+            warnings.warn(
+                f"Failed to resolve font.superfamily '{superfamily_name}': {e}. "
+                f"Falling back to font.family.",
+                UserWarning
+            )
+
+            return None
+
 
     def get_family(self):
         """
