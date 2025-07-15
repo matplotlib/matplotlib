@@ -35,7 +35,7 @@ import functools
 from io import BytesIO
 import json
 import logging
-from numbers import Number
+from numbers import Integral
 import os
 from pathlib import Path
 import plistlib
@@ -170,6 +170,10 @@ OSXFontDirectories = [
     # user fonts
     str(_HOME / "Library/Fonts"),
 ]
+
+
+def _normalize_weight(weight):
+    return weight if isinstance(weight, Integral) else weight_dict[weight]
 
 
 def get_fontext_synonyms(fontext):
@@ -1256,8 +1260,8 @@ class FontManager:
         # exact match of the weight names, e.g. weight1 == weight2 == "regular"
         if cbook._str_equal(weight1, weight2):
             return 0.0
-        w1 = weight1 if isinstance(weight1, Number) else weight_dict[weight1]
-        w2 = weight2 if isinstance(weight2, Number) else weight_dict[weight2]
+        w1 = _normalize_weight(weight1)
+        w2 = _normalize_weight(weight2)
         return 0.95 * (abs(w1 - w2) / 1000) + 0.05
 
     def score_size(self, size1, size2):
@@ -1480,6 +1484,10 @@ class FontManager:
                 best_font = font
             if score == 0:
                 break
+        if best_font is not None and (_normalize_weight(prop.get_weight()) !=
+                                      _normalize_weight(best_font.weight)):
+            _log.warning('findfont: Failed to find font weight %s, now using %s.',
+                         prop.get_weight(), best_font.weight)
 
         if best_font is None or best_score >= 10.0:
             if fallback_to_default:

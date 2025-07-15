@@ -15,7 +15,8 @@ import matplotlib as mpl
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
-    MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
+    MSUserFontDirectories, ttfFontProperty,
+    _get_fontconfig_fonts, _normalize_weight)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
@@ -407,3 +408,29 @@ def test_fontproperties_init_deprecation():
     # Since this case is not covered by docs, I've refrained from jumping
     # extra hoops to detect this possible API misuse.
     FontProperties(family="serif-24:style=oblique:weight=bold")
+
+
+def test_normalize_weights():
+    assert _normalize_weight(300) == 300  # passthrough
+    assert _normalize_weight('ultralight') == 100
+    assert _normalize_weight('light') == 200
+    assert _normalize_weight('normal') == 400
+    assert _normalize_weight('regular') == 400
+    assert _normalize_weight('book') == 400
+    assert _normalize_weight('medium') == 500
+    assert _normalize_weight('roman') == 500
+    assert _normalize_weight('semibold') == 600
+    assert _normalize_weight('demibold') == 600
+    assert _normalize_weight('demi') == 600
+    assert _normalize_weight('bold') == 700
+    assert _normalize_weight('heavy') == 800
+    assert _normalize_weight('extra bold') == 800
+    assert _normalize_weight('black') == 900
+    with pytest.raises(KeyError):
+        _normalize_weight('invalid')
+
+
+def test_font_match_warning(caplog):
+    findfont(FontProperties(family=["DejaVu Sans"], weight=750))
+    logs = [rec.message for rec in caplog.records]
+    assert 'findfont: Failed to find font weight 750, now using 700.' in logs
