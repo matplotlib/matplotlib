@@ -12,7 +12,8 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Callable, Literal, TypeAlias, TypeVar, Union
+from typing import Any, Literal, TypeAlias, TypeVar, Union
+from collections.abc import Callable
 
 from . import path
 from ._enums import JoinStyle, CapStyle

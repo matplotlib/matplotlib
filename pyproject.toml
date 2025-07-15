@@ -140,6 +140,7 @@ select = [
     "E",
     "F",
     "W",
+    "UP035",
     # The following error codes require the preview mode to be enabled.
     "E201",
     "E202",
