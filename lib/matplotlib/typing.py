@@ -138,7 +138,7 @@ EventType: TypeAlias = Literal[
     CloseEventType,
 ]
 
-RCKeyType: TypeAlias = Literal[
+RcKeyType: TypeAlias = Literal[
     "agg.path.chunksize",
     "animation.bitrate",
     "animation.codec",
@@ -462,7 +462,7 @@ RCKeyType: TypeAlias = Literal[
     "ytick.right"
 ]
 
-RCGroupKeyType: TypeAlias = Literal[
+RcGroupKeyType: TypeAlias = Literal[
     "agg",
     "agg.path",
     "animation",
