@@ -1,0 +1,45 @@
+From 520164c36c94daabc20f49ed1e9f30bf0674d8a1 Mon Sep 17 00:00:00 2001
+From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+Date: Wed, 16 Jul 2025 01:06:00 -0400
+Subject: [PATCH] Add support for SheenBidi 2.9
+
+This release moved the main header from globally available to within a
+`SheenBidi` subdirectory.
+---
+ meson.build | 6 ++++++
+ src/raqm.c  | 4 ++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/meson.build b/meson.build
+index e4c8e93..34fffc7 100644
+--- a/meson.build
++++ b/meson.build
+@@ -78,6 +78,12 @@ if get_option('sheenbidi')
+         'sheenbidi',
+         fallback: ['sheenbidi', 'sheenbidi_dep'],
+     )
++    if sheenbidi.version().version_compare('>= 2.9')
++        sheenbidi = declare_dependency(
++            compile_args: ['-DRAQM_SHEENBIDI_GT_2_9'],
++            dependencies: sheenbidi
++        )
++    endif
+ else
+     fribidi = dependency(
+         'fribidi',
+diff --git a/src/raqm.c b/src/raqm.c
+index fbeb172..2ded35b 100644
+--- a/src/raqm.c
++++ b/src/raqm.c
+@@ -30,7 +30,11 @@
+ #include <string.h>
+ 
+ #ifdef RAQM_SHEENBIDI
++#ifdef RAQM_SHEENBIDI_GT_2_9
++#include <SheenBidi/SheenBidi.h>
++#else
+ #include <SheenBidi.h>
++#endif
+ #else
+ #include <fribidi.h>
+ #endif
