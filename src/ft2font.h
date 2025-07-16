@@ -99,10 +99,11 @@ class FT2Font
     typedef void (*WarnFunc)(FT_ULong charcode, std::set<FT_String*> family_names);
 
   public:
-    FT2Font(FT_Open_Args &open_args, long hinting_factor,
-            std::vector<FT2Font *> &fallback_list,
+    FT2Font(long hinting_factor, std::vector<FT2Font *> &fallback_list,
             WarnFunc warn, bool warn_if_used);
     virtual ~FT2Font();
+    void open(FT_Open_Args &open_args);
+    void close();
     void clear();
     void set_size(double ptsize, double dpi);
     void set_charmap(int i);
