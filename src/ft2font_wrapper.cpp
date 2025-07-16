@@ -499,10 +499,10 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
         self->stream.close = nullptr;
     }
 
-    self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn,
+    self->x = new FT2Font(hinting_factor, fallback_fonts, ft_glyph_warn,
                           warn_if_used);
-
     self->x->set_kerning_factor(*kerning_factor);
+    self->x->open(open_args);
 
     return self;
 }

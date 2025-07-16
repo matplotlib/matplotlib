@@ -7,7 +7,6 @@
 #include <cstdio>
 #include <iterator>
 #include <set>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -207,9 +206,7 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
     codes.push_back(CLOSEPOLY);
 }
 
-FT2Font::FT2Font(FT_Open_Args &open_args,
-                 long hinting_factor_,
-                 std::vector<FT2Font *> &fallback_list,
+FT2Font::FT2Font(long hinting_factor_, std::vector<FT2Font *> &fallback_list,
                  FT2Font::WarnFunc warn, bool warn_if_used)
     : ft_glyph_warn(warn), warn_if_used(warn_if_used), image({1, 1}), face(nullptr),
       hinting_factor(hinting_factor_),
@@ -217,22 +214,36 @@ FT2Font::FT2Font(FT_Open_Args &open_args,
       kerning_factor(0)
 {
     clear();
-    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, 0, &face);
-    if (open_args.stream != nullptr) {
-        face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
-    }
     // Set fallbacks
     std::copy(fallback_list.begin(), fallback_list.end(), std::back_inserter(fallbacks));
 }
 
 FT2Font::~FT2Font()
 {
+    close();
+}
+
+void FT2Font::open(FT_Open_Args &open_args)
+{
+    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, 0, &face);
+    if (open_args.stream != nullptr) {
+        face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
+    }
+}
+
+void FT2Font::close()
+{
+    // This should be idempotent, in case a user manually calls close before the
+    // destructor does.
+
     for (auto & glyph : glyphs) {
         FT_Done_Glyph(glyph);
     }
+    glyphs.clear();
 
     if (face) {
         FT_Done_Face(face);
+        face = nullptr;
     }
 }
 
