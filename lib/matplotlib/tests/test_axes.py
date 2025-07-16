@@ -9900,3 +9900,14 @@ def test_pie_all_zeros():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match="All wedge sizes are zero"):
         ax.pie([0, 0], labels=["A", "B"])
+
+
+def test_set_axes_with_none_limits():
+    fig, ax = plt.subplots()
+    xlim_before = ax.get_xlim()
+    ylim_before = ax.get_ylim()
+
+    ax.set(xlim=None, ylim=None)
+
+    assert ax.get_xlim() == xlim_before
+    assert ax.get_ylim() == ylim_before
