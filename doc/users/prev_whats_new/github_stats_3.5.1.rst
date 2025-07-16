@@ -131,7 +131,7 @@ Issues (29):
 * :ghissue:`21803`: [Bug]: using ``set_offsets`` on scatter object raises TypeError
 * :ghissue:`21839`: [Bug]: Top of plot clipped when using Subfigures without suptitle
 * :ghissue:`21841`: [Bug]: Wrong tick labels and colorbar of discrete normalizer
-* :ghissue:`21783`: [MNT]: wheel of 3.5.0 apears to depend on setuptools-scm which apears to be unintentional
+* :ghissue:`21783`: [MNT]: wheel of 3.5.0 appears to depend on setuptools-scm which appears to be unintentional
 * :ghissue:`21733`: [Bug]: Possible bug on arrows in annotation
 * :ghissue:`21749`: [Bug]: Regression on ``tight_layout`` when manually adding axes for colorbars
 * :ghissue:`19197`: Unexpected error after using Figure.canvas.draw on macosx backend

@@ -14,10 +14,10 @@ from typing import (
     Generic,
     IO,
     Literal,
-    Sequence,
     TypeVar,
     overload,
 )
+from collections.abc import Sequence
 
 _T = TypeVar("_T")
 

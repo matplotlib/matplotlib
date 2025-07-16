@@ -1,6 +1,6 @@
 from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
 from typing import Any, TypeVar, overload
-from typing_extensions import Self  # < Py 3.11
+from typing import Self
 
 from numpy.typing import NDArray
 

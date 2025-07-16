@@ -122,7 +122,11 @@
       "doc/api/_as_gen/mpl_toolkits.axisartist.floating_axes.rst:32:<autosummary>:1"
     ],
     "numpy.float64": [
+      "doc/docstring of matplotlib.ft2font.pybind11_detail_function_record_v1_system_libstdcpp_gxx_abi_1xxx_use_cxx11_abi_1.set_text:1",
       "doc/docstring of matplotlib.ft2font.PyCapsule.set_text:1"
+    ],
+    "numpy.typing.NDArray": [
+      "doc/docstring of matplotlib.ft2font.pybind11_detail_function_record_v1_system_libstdcpp_gxx_abi_1xxx_use_cxx11_abi_1.set_text:1"
     ],
     "numpy.uint8": [
       "<unknown>:1"

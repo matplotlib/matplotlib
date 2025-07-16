@@ -12,7 +12,8 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Callable, Literal, TypeAlias, TypeVar, Union
+from typing import Any, Literal, TypeAlias, TypeVar, Union
+from collections.abc import Callable
 
 from . import path
 from ._enums import JoinStyle, CapStyle
@@ -69,7 +70,16 @@ MarkEveryType: TypeAlias = (
 )
 """See :doc:`/gallery/lines_bars_and_markers/markevery_demo`."""
 
-MarkerType: TypeAlias = str | path.Path | MarkerStyle
+MarkerType: TypeAlias = (
+    path.Path | MarkerStyle | str |  # str required for "$...$" marker
+    Literal[
+        ".", ",", "o", "v", "^", "<", ">",
+        "1", "2", "3", "4", "8", "s", "p",
+        "P", "*", "h", "H", "+", "x", "X",
+        "D", "d", "|", "_", "none", " ",
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+    ] | list[tuple[int, int]] | tuple[int, Literal[0, 1, 2], int]
+)
 """
 Marker specification. See :doc:`/gallery/lines_bars_and_markers/marker_reference`.
 """
@@ -107,3 +117,33 @@ RcStyleType: TypeAlias = (
 _HT = TypeVar("_HT", bound=Hashable)
 HashableList: TypeAlias = list[_HT | "HashableList[_HT]"]
 """A nested list of Hashable values."""
+
+MouseEventType: TypeAlias = Literal[
+    "button_press_event",
+    "button_release_event",
+    "motion_notify_event",
+    "scroll_event",
+    "figure_enter_event",
+    "figure_leave_event",
+    "axes_enter_event",
+    "axes_leave_event",
+]
+
+KeyEventType: TypeAlias = Literal[
+    "key_press_event",
+    "key_release_event"
+]
+
+DrawEventType: TypeAlias = Literal["draw_event"]
+PickEventType: TypeAlias = Literal["pick_event"]
+ResizeEventType: TypeAlias = Literal["resize_event"]
+CloseEventType: TypeAlias = Literal["close_event"]
+
+EventType: TypeAlias = Literal[
+    MouseEventType,
+    KeyEventType,
+    DrawEventType,
+    PickEventType,
+    ResizeEventType,
+    CloseEventType,
+]

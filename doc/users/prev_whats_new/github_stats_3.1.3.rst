@@ -71,8 +71,8 @@ Pull Requests (45):
 * :ghpull:`15757`: Backport PR #15751 on branch v3.1.x (Modernize FAQ entry for plt.show().)
 * :ghpull:`15735`: Cleanup some mplot3d docstrings.
 * :ghpull:`15753`: Backport PR #15661 on branch v3.1.x (Document scope of 3D scatter depthshading.)
-* :ghpull:`15741`: Backport PR #15729 on branch v3.1.x (Catch correct parse errror type for dateutil >= 2.8.1)
-* :ghpull:`15729`: Catch correct parse errror type for dateutil >= 2.8.1
+* :ghpull:`15741`: Backport PR #15729 on branch v3.1.x (Catch correct parse error type for dateutil >= 2.8.1)
+* :ghpull:`15729`: Catch correct parse error type for dateutil >= 2.8.1
 * :ghpull:`15737`: Fix env override in WebAgg backend test.
 * :ghpull:`15244`: Change documentation format of rcParams defaults
 

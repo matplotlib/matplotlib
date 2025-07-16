@@ -928,7 +928,7 @@ class _ReducedHCT_Element:
 
         Returns
         -------
-        (Kff_rows, Kff_cols, Kff_vals) Kff matrix in coo format - Duplicate
+        (Kff_rows, Kff_cols, Kff_vals) Kff matrix in COO format - Duplicate
         (row, col) entries must be summed.
         Ff: force vector - dim npts * 3
         """
@@ -961,12 +961,12 @@ class _ReducedHCT_Element:
         #        [ Kcf Kff ]
         # * As F = K x U one gets straightforwardly: Ff = - Kfc x Uc
 
-        # Computing Kff stiffness matrix in sparse coo format
+        # Computing Kff stiffness matrix in sparse COO format
         Kff_vals = np.ravel(K_elem[np.ix_(vec_range, f_dof, f_dof)])
         Kff_rows = np.ravel(f_row_indices[np.ix_(vec_range, f_dof, f_dof)])
         Kff_cols = np.ravel(f_col_indices[np.ix_(vec_range, f_dof, f_dof)])
 
-        # Computing Ff force vector in sparse coo format
+        # Computing Ff force vector in sparse COO format
         Kfc_elem = K_elem[np.ix_(vec_range, f_dof, c_dof)]
         Uc_elem = np.expand_dims(Uc, axis=2)
         Ff_elem = -(Kfc_elem @ Uc_elem)[:, :, 0]
@@ -1178,7 +1178,7 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
         triangles = self._triangles
         Uc = self.z[self._triangles]
 
-        # Building stiffness matrix and force vector in coo format
+        # Building stiffness matrix and force vector in COO format
         Kff_rows, Kff_cols, Kff_vals, Ff = reference_element.get_Kff_and_Ff(
             J, eccs, triangles, Uc)
 
@@ -1215,7 +1215,7 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
 class _Sparse_Matrix_coo:
     def __init__(self, vals, rows, cols, shape):
         """
-        Create a sparse matrix in coo format.
+        Create a sparse matrix in COO format.
         *vals*: arrays of values of non-null entries of the matrix
         *rows*: int arrays of rows of non-null entries of the matrix
         *cols*: int arrays of cols of non-null entries of the matrix

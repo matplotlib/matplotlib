@@ -1121,7 +1121,7 @@ Issues (187):
 * :ghissue:`20847`: [Bug]: Contourf not filling contours.
 * :ghissue:`21300`: [Bug]: zooming in on contour plot gives false extra contour lines
 * :ghissue:`21466`: [Bug]: EPS export shows hidden tick labels when using tex for text rendering
-* :ghissue:`21463`: [Bug]: Plotting lables with Greek latters in math mode produces Parsing error when plt.show() runs
+* :ghissue:`21463`: [Bug]: Plotting labels with Greek latters in math mode produces Parsing error when plt.show() runs
 * :ghissue:`20534`: Document formatting for sections
 * :ghissue:`21246`: [Doc]: Install info takes up too much room on new front page
 * :ghissue:`21432`: [Doc]: Double clicking parameter name also highlights next item of text
@@ -1157,7 +1157,7 @@ Issues (187):
 * :ghissue:`16251`: API changes are too hard to find in the rendered docs
 * :ghissue:`20770`: [Doc]: How to replicate behaviour of ``plt.gca(projection=...)``?
 * :ghissue:`17052`: Colorbar update error with clim change in multi_image.py example
-* :ghissue:`4387`: make ``Normalize`` objects notifiy scalar-mappables on changes
+* :ghissue:`4387`: make ``Normalize`` objects notify scalar-mappables on changes
 * :ghissue:`20001`: rename fig.draw_no_output
 * :ghissue:`20936`: [Bug]: edgecolor 'auto' doesn't work properly
 * :ghissue:`20909`: [Bug]: Animation error message
@@ -1241,7 +1241,7 @@ Issues (187):
 * :ghissue:`17508`: Quadmesh.set_array should validate dimensions
 * :ghissue:`20372`: Incorrect axes positioning in axes_grid.Grid with direction='column'
 * :ghissue:`19419`: Dev version hard to check
-* :ghissue:`17310`: Matplotlib git master version fails to pass serveral pytest's tests.
+* :ghissue:`17310`: Matplotlib git master version fails to pass several pytest's tests
 * :ghissue:`7742`: plot_date() after axhline() doesn't rescale axes
 * :ghissue:`20322`: QuadMesh default for shading inadvertently changed.
 * :ghissue:`9653`: SVG savefig + LaTeX extremely slow on macOS

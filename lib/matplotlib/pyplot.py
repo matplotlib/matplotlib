@@ -100,7 +100,14 @@ if TYPE_CHECKING:
     import matplotlib.backend_bases
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
-    from matplotlib.backend_bases import Event
+    from matplotlib.backend_bases import (
+        CloseEvent,
+        DrawEvent,
+        KeyEvent,
+        MouseEvent,
+        PickEvent,
+        ResizeEvent,
+    )
     from matplotlib.cm import ScalarMappable
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
@@ -126,11 +133,17 @@ if TYPE_CHECKING:
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
     from matplotlib.typing import (
+        CloseEventType,
         ColorType,
         CoordsType,
+        DrawEventType,
         HashableList,
+        KeyEventType,
         LineStyleType,
         MarkerType,
+        MouseEventType,
+        PickEventType,
+        ResizeEventType,
     )
     from matplotlib.widgets import SubplotTool
 
@@ -1175,8 +1188,32 @@ def get_current_fig_manager() -> FigureManagerBase | None:
     return gcf().canvas.manager
 
 
+@overload
+def connect(s: MouseEventType, func: Callable[[MouseEvent], Any]) -> int: ...
+
+
+@overload
+def connect(s: KeyEventType, func: Callable[[KeyEvent], Any]) -> int: ...
+
+
+@overload
+def connect(s: PickEventType, func: Callable[[PickEvent], Any]) -> int: ...
+
+
+@overload
+def connect(s: ResizeEventType, func: Callable[[ResizeEvent], Any]) -> int: ...
+
+
+@overload
+def connect(s: CloseEventType, func: Callable[[CloseEvent], Any]) -> int: ...
+
+
+@overload
+def connect(s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
+
+
 @_copy_docstring_and_deprecators(FigureCanvasBase.mpl_connect)
-def connect(s: str, func: Callable[[Event], Any]) -> int:
+def connect(s, func) -> int:
     return gcf().canvas.mpl_connect(s, func)
 
 
