@@ -188,8 +188,8 @@ def test_ft2font_clear():
 
 def test_ft2font_set_size():
     file = fm.findfont('DejaVu Sans')
-    # Default is 12pt @ 72 dpi.
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=1)
+    font.set_size(12, 72)
     font.set_text('ABabCDcd')
     orig = font.get_width_height()
     font.set_size(24, 72)
@@ -757,6 +757,7 @@ def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
 def test_ft2font_set_text():
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font.set_size(12, 72)
     xys = font.set_text('')
     np.testing.assert_array_equal(xys, np.empty((0, 2)))
     assert font.get_width_height() == (0, 0)
@@ -778,6 +779,7 @@ def test_ft2font_set_text():
 def test_ft2font_loading():
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font.set_size(12, 72)
     for glyph in [font.load_char(ord('M')),
                   font.load_glyph(font.get_char_index(ord('M')))]:
         assert glyph is not None
@@ -818,11 +820,13 @@ def test_ft2font_drawing():
     expected *= 255
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font.set_size(12, 72)
     font.set_text('M')
     font.draw_glyphs_to_bitmap(antialiased=False)
     image = font.get_image()
     np.testing.assert_array_equal(image, expected)
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font.set_size(12, 72)
     glyph = font.load_char(ord('M'))
     image = np.zeros(expected.shape, np.uint8)
     font.draw_glyph_to_bitmap(image, -1, 1, glyph, antialiased=False)
@@ -832,6 +836,7 @@ def test_ft2font_drawing():
 def test_ft2font_get_path():
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font.set_size(12, 72)
     vertices, codes = font.get_path()
     assert vertices.shape == (0, 2)
     assert codes.shape == (0, )

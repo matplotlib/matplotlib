@@ -221,12 +221,6 @@ FT2Font::FT2Font(FT_Open_Args &open_args,
     if (open_args.stream != nullptr) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }
-    try {
-        set_size(12., 72.);  // Set a default fontsize 12 pt at 72dpi.
-    } catch (...) {
-        FT_Done_Face(face);
-        throw;
-    }
     // Set fallbacks
     std::copy(fallback_list.begin(), fallback_list.end(), std::back_inserter(fallbacks));
 }
