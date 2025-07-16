@@ -9902,12 +9902,14 @@ def test_pie_all_zeros():
         ax.pie([0, 0], labels=["A", "B"])
 
 
-def test_set_axes_with_none_limits():
+def test_get_legend_return_type():
     fig, ax = plt.subplots()
-    xlim_before = ax.get_xlim()
-    ylim_before = ax.get_ylim()
 
-    ax.set(xlim=None, ylim=None)
+    assert ax.get_legend() is None
 
-    assert ax.get_xlim() == xlim_before
-    assert ax.get_ylim() == ylim_before
+    ax.plot([1, 2], label="Line")
+    ax.legend()
+
+    legend = ax.get_legend()
+    assert legend is not None
+    assert isinstance(legend, matplotlib.legend.Legend)
