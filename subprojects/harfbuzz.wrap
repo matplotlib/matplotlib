@@ -1,8 +1,10 @@
 [wrap-file]
-directory = harfbuzz-11.2.0
-source_url = https://github.com/harfbuzz/harfbuzz/releases/download/11.2.0/harfbuzz-11.2.0.tar.xz
-source_filename = harfbuzz-11.2.0.tar.xz
-source_hash = 50f7d0a208367e606dbf6eecc5cfbecc01a47be6ee837ae7aff2787e24b09b45
+directory = harfbuzz-11.2.1
+source_url = https://github.com/harfbuzz/harfbuzz/releases/download/11.2.1/harfbuzz-11.2.1.tar.xz
+source_filename = harfbuzz-11.2.1.tar.xz
+source_hash = 093714c8548a285094685f0bdc999e202d666b59eeb3df2ff921ab68b8336a49
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/harfbuzz_11.2.1-1/harfbuzz-11.2.1.tar.xz
+wrapdb_version = 11.2.1-1
 
-# This patch allows using our bundled FreeType.
-diff_files = harfbuzz-11.2.0-bundle-freetype.patch
+[provide]
+dependency_names = harfbuzz, harfbuzz-cairo, harfbuzz-gobject, harfbuzz-icu, harfbuzz-subset
