@@ -238,14 +238,7 @@ class Spine(mpatches.Patch):
         if self.spine_type == 'circle':
             return
 
-        if self._bounds is not None:
-            low, high = self._bounds
-        elif self.spine_type in ('left', 'right'):
-            low, high = self.axes.viewLim.intervaly
-        elif self.spine_type in ('top', 'bottom'):
-            low, high = self.axes.viewLim.intervalx
-        else:
-            raise ValueError(f'unknown spine spine_type: {self.spine_type}')
+        low, high = self.get_bounds()
 
         if self._patch_type == 'arc':
             if self.spine_type in ('bottom', 'top'):
@@ -424,7 +417,7 @@ class Spine(mpatches.Patch):
                 'set_bounds() method incompatible with circular spines')
         if high is None and np.iterable(low):
             low, high = low
-        old_low, old_high = self.get_bounds() or (None, None)
+        old_low, old_high = self.get_bounds()
         if low is None:
             low = old_low
         if high is None:
@@ -433,7 +426,15 @@ class Spine(mpatches.Patch):
         self.stale = True
 
     def get_bounds(self):
-        """Get the bounds of the spine."""
+        """Get the bounds of the spine. Take None into consideration. """
+        if self._bounds is not None:
+            pass
+        elif self.spine_type in ('left', 'right'):
+            self._bounds = self.axes.viewLim.intervaly
+        elif self.spine_type in ('top', 'bottom'):
+            self._bounds = self.axes.viewLim.intervalx
+        else:
+            raise ValueError(f'unknown spine spine_type: {self.spine_type}')
         return self._bounds
 
     @classmethod
