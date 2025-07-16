@@ -175,9 +175,7 @@ def check_shape(shape, /, **kwargs):
             )
 
 
-def check_getitem(
-        mapping, /, _error_cls=ValueError, **kwargs
-    ):
+def check_getitem(mapping, /, _error_cls=ValueError, **kwargs):
     """
     *kwargs* must consist of a single *key, value* pair.  If *key* is in
     *mapping*, return ``mapping[value]``; else, raise an appropriate
