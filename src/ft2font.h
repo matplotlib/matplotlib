@@ -12,6 +12,7 @@
 #include <set>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -96,11 +97,9 @@ extern FT_Library _ft2Library;
 
 class FT2Font
 {
-    typedef void (*WarnFunc)(FT_ULong charcode, std::set<FT_String*> family_names);
-
   public:
     FT2Font(long hinting_factor, std::vector<FT2Font *> &fallback_list,
-            WarnFunc warn, bool warn_if_used);
+            bool warn_if_used);
     virtual ~FT2Font();
     void open(FT_Open_Args &open_args);
     void close();
@@ -124,14 +123,14 @@ class FT2Font
                                  std::set<FT_String*> &glyph_seen_fonts,
                                  bool override);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
-    void get_width_height(long *width, long *height);
-    void get_bitmap_offset(long *x, long *y);
+    std::tuple<long, long> get_width_height();
+    std::tuple<long, long> get_bitmap_offset();
     long get_descent();
     void draw_glyphs_to_bitmap(bool antialiased);
     void draw_glyph_to_bitmap(
         py::array_t<uint8_t, py::array::c_style> im,
         int x, int y, size_t glyphInd, bool antialiased);
-    void get_glyph_name(unsigned int glyph_number, std::string &buffer);
+    std::string get_glyph_name(unsigned int glyph_number);
     long get_name_index(char *name);
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);
     void get_path(std::vector<double> &vertices, std::vector<unsigned char> &codes);
@@ -167,8 +166,9 @@ class FT2Font
         return FT_HAS_KERNING(face);
     }
 
+  protected:
+    virtual void ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names) = 0;
   private:
-    WarnFunc ft_glyph_warn;
     bool warn_if_used;
     py::array_t<uint8_t, py::array::c_style> image;
     FT_Face face;
