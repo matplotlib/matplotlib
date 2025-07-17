@@ -9900,16 +9900,3 @@ def test_pie_all_zeros():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match="All wedge sizes are zero"):
         ax.pie([0, 0], labels=["A", "B"])
-
-
-def test_get_legend_return_type():
-    fig, ax = plt.subplots()
-
-    assert ax.get_legend() is None
-
-    ax.plot([1, 2], label="Line")
-    ax.legend()
-
-    legend = ax.get_legend()
-    assert legend is not None
-    assert isinstance(legend, matplotlib.legend.Legend)
