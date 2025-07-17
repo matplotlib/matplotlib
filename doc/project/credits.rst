@@ -1,4 +1,4 @@
-.. Note: This file is auto-generated using doc/release/generate_credits.py
+.. Note: This file is auto-generated using generate_credits.py
 
 .. redirect-from:: /users/credits
 .. redirect-from:: /users/project/credits
