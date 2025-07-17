@@ -52,26 +52,15 @@ triangle meshes.
 
 Kerning adjustments now use correct values
 ------------------------------------------
-Due to an error in how kerning adjustments were applied, previous versions of
-Matplotlib would under-correct kerning. This version will now correctly apply
-kerning (for fonts supported by FreeType). To restore the old behavior (e.g.,
-for test images), you may set :rc:`text.kerning_factor` to 6 (instead of 0).
-Other values have undefined behavior.
+Due to an error in how kerning adjustments were applied, previous versions of Matplotlib
+would under-correct kerning. This version will now correctly apply kerning (for fonts
+supported by FreeType). To restore the old behavior (e.g., for test images), you may set
+the ``text.kerning_factor`` rcParam to 6 (instead of 0). Other values have undefined
+behavior.
 
-.. plot::
-
-   import matplotlib.pyplot as plt
-
-   # Use old kerning values:
-   plt.rcParams['text.kerning_factor'] = 6
-   fig, ax = plt.subplots()
-   ax.text(0.0, 0.05, 'BRAVO\nAWKWARD\nVAT\nW.Test', fontsize=56)
-   ax.set_title('Before (text.kerning_factor = 6)')
-
-Note how the spacing between characters is uniform between their bounding boxes
-(above). With corrected kerning (below), slanted characters (e.g., AV or VA)
-will be spaced closer together, as well as various other character pairs,
-depending on font support (e.g., T and e, or the period after the W).
+With corrected kerning (below), slanted characters (e.g., AV or VA) will be spaced closer
+together, as well as various other character pairs, depending on font support (e.g., T
+and e, or the period after the W).
 
 .. plot::
 

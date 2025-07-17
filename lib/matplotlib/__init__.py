@@ -751,6 +751,8 @@ class RcParams(MutableMapping, dict):
                 f"a list of valid parameters)") from err
         except ValueError as ve:
             raise ValueError(f"Key {key}: {ve}") from None
+        if key == "text.kerning_factor" and cval is not None:
+           _api.warn_deprecated("3.11", name="text.kerning_factor", obj_type="rcParam")
         self._set(key, cval)
 
     def __getitem__(self, key):

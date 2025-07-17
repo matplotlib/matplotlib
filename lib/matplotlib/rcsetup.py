@@ -1042,7 +1042,7 @@ _validators = {
     "text.hinting":        ["default", "no_autohint", "force_autohint",
                             "no_hinting", "auto", "native", "either", "none"],
     "text.hinting_factor": validate_int,
-    "text.kerning_factor": validate_int,
+    "text.kerning_factor": validate_int_or_None,
     "text.antialiased":    validate_bool,
     "text.parse_math":     validate_bool,
 
