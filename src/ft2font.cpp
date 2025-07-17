@@ -207,15 +207,13 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
 }
 
 FT2Font::FT2Font(long hinting_factor_, std::vector<FT2Font *> &fallback_list,
-                 FT2Font::WarnFunc warn, bool warn_if_used)
-    : ft_glyph_warn(warn), warn_if_used(warn_if_used), image({1, 1}), face(nullptr),
+                 bool warn_if_used)
+    : warn_if_used(warn_if_used), image({1, 1}), face(nullptr), fallbacks(fallback_list),
       hinting_factor(hinting_factor_),
       // set default kerning factor to 0, i.e., no kerning manipulation
       kerning_factor(0)
 {
     clear();
-    // Set fallbacks
-    std::copy(fallback_list.begin(), fallback_list.end(), std::back_inserter(fallbacks));
 }
 
 FT2Font::~FT2Font()
@@ -544,10 +542,9 @@ FT_UInt FT2Font::get_char_index(FT_ULong charcode, bool fallback = false)
     return FT_Get_Char_Index(ft_object->get_face(), charcode);
 }
 
-void FT2Font::get_width_height(long *width, long *height)
+std::tuple<long, long> FT2Font::get_width_height()
 {
-    *width = advance;
-    *height = bbox.yMax - bbox.yMin;
+    return {advance, bbox.yMax - bbox.yMin};
 }
 
 long FT2Font::get_descent()
@@ -555,10 +552,9 @@ long FT2Font::get_descent()
     return -bbox.yMin;
 }
 
-void FT2Font::get_bitmap_offset(long *x, long *y)
+std::tuple<long, long> FT2Font::get_bitmap_offset()
 {
-    *x = bbox.xMin;
-    *y = 0;
+    return {bbox.xMin, 0};
 }
 
 void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
