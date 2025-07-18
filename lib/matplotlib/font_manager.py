@@ -310,6 +310,19 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
+class FontPath(str):
+    __match_args__ = ('path', 'face_index')
+
+    def __new__(cls, path, face_index):
+        ret = super().__new__(cls, path)
+        ret.face_index = face_index
+        return ret
+
+    @property
+    def path(self):
+        return str(self)
+
+
 @dataclasses.dataclass(frozen=True)
 class FontEntry:
     """
@@ -1542,7 +1555,7 @@ class FontManager:
                 # actually raised.
                 return cbook._ExceptionInfo(ValueError, "No valid font could be found")
 
-        return _cached_realpath(result)
+        return FontPath(_cached_realpath(result), best_font.index)
 
 
 @_api.deprecated("3.11")
@@ -1618,8 +1631,9 @@ def get_font(font_filepaths, hinting_factor=None):
 
     Parameters
     ----------
-    font_filepaths : Iterable[str, Path, bytes, tuple[str | Path | bytes, int]], \
-str, Path, bytes, tuple[str | Path | bytes, int]
+    font_filepaths : Iterable[str, Path, bytes, FontPath, \
+tuple[str | Path | bytes, int, FontPath]], \
+str, Path, bytes, FontPath, tuple[str | Path | bytes, int]
         Relative or absolute paths to the font files to be used.
 
         If a single string, bytes, or `pathlib.Path`, then it will be treated
@@ -1635,6 +1649,8 @@ str, Path, bytes, tuple[str | Path | bytes, int]
 
     """
     match font_filepaths:
+        case FontPath(path, index):
+            paths = ((_cached_realpath(path), index), )
         case str() | Path() | bytes() as path:
             paths = ((_cached_realpath(path), 0), )
         case (str() | Path() | bytes() as path, int() as index):
@@ -1642,7 +1658,8 @@ str, Path, bytes, tuple[str | Path | bytes, int]
         case _:
             paths = tuple(
                 (_cached_realpath(fname[0]), fname[1]) if isinstance(fname, tuple)
-                else (_cached_realpath(fname), 0)
+                else (_cached_realpath(fname.path), fname.face_index)
+                if isinstance(fname, FontPath) else (_cached_realpath(fname), 0)
                 for fname in font_filepaths)
 
     hinting_factor = mpl._val_or_rc(hinting_factor, 'text.hinting_factor')
