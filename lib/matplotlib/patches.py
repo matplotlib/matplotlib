@@ -2579,7 +2579,11 @@ class BoxStyle(_Style):
                         x0 = x0 + text_clearance - pad
                 else:
                     # Pad away from head straight-edge
-                    x0 = x0 - pad
+
+                    a, b = 1.214, 0.250  # Empirical factors
+                    padding_offset = (a * pad) + (b * mutation_size)
+
+                    x0 = x0 - padding_offset
 
                 return Path._create_closed(
                     [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
@@ -2732,8 +2736,12 @@ class BoxStyle(_Style):
                         x1 = x1 + pad - text_clearance
                 else:
                     # Pad away from head straight-edges
-                    x0 = x0 - pad
-                    x1 = x1 + pad
+
+                    a, b = 1.214, 0.250  # Empirical factors
+                    padding_offset = (a * pad) + (b * mutation_size)
+
+                    x0 = x0 - padding_offset
+                    x1 = x1 + padding_offset
 
                 return Path._create_closed([
                     (x0 + dxx, y0),
