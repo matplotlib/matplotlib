@@ -169,7 +169,7 @@ def test_arc_spine_inner_no_axis():
 
 
 def test_spine_set_bounds_with_none():
-    """Test that set_bounds(None, ...) uses original axis limits."""
+    """Test that set_bounds(None, ...) uses original axis view limits."""
     fig, ax = plt.subplots()
 
     # Plot some data to set axis limits
