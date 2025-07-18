@@ -32,6 +32,7 @@ Color norms
    PowerNorm
    SymLogNorm
    TwoSlopeNorm
+   MultiNorm
 
 Univariate Colormaps
 --------------------
