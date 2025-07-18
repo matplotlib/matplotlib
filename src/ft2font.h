@@ -107,7 +107,7 @@ class FT2Font
     FT2Font(long hinting_factor, std::vector<FT2Font *> &fallback_list,
             bool warn_if_used);
     virtual ~FT2Font();
-    void open(FT_Open_Args &open_args);
+    void open(FT_Long face_index, FT_Open_Args &open_args);
     void close();
     void clear();
     void set_size(double ptsize, double dpi);
