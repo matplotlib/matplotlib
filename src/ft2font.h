@@ -9,6 +9,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
+#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
@@ -108,6 +109,7 @@ class FT2Font
     void set_charmap(int i);
     void select_charmap(unsigned long i);
     void set_text(std::u32string_view codepoints, double angle, FT_Int32 flags,
+                  std::optional<std::vector<std::string>> features,
                   std::vector<double> &xys);
     int get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode);
     void set_kerning_factor(int factor);
