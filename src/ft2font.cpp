@@ -222,9 +222,9 @@ FT2Font::~FT2Font()
     close();
 }
 
-void FT2Font::open(FT_Open_Args &open_args)
+void FT2Font::open(FT_Long face_index, FT_Open_Args &open_args)
 {
-    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, 0, &face);
+    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, face_index, &face);
     if (open_args.stream != nullptr) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }
