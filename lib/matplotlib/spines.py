@@ -428,14 +428,13 @@ class Spine(mpatches.Patch):
     def get_bounds(self):
         """Get the bounds of the spine. Take None into consideration."""
         if self._bounds is not None:
-            pass
+            return self._bounds
         elif self.spine_type in ('left', 'right'):
-            self._bounds = self.axes.viewLim.intervaly
+            return self.axes.viewLim.intervaly
         elif self.spine_type in ('top', 'bottom'):
-            self._bounds = self.axes.viewLim.intervalx
+            return self.axes.viewLim.intervalx
         else:
             raise ValueError(f'unknown spine spine_type: {self.spine_type}')
-        return self._bounds
 
     @classmethod
     def linear_spine(cls, axes, spine_type, **kwargs):
