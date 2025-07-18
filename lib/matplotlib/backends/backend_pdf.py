@@ -35,7 +35,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
-from matplotlib.ft2font import FT2Font, FaceFlags, Kerning, LoadFlags, StyleFlags
+from matplotlib.ft2font import FT2Font, FaceFlags, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -2351,7 +2351,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
-            self.file._character_tracker.track(font, s)
             fonttype = mpl.rcParams['pdf.fonttype']
 
         if gc.get_url() is not None:
@@ -2363,6 +2362,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # If fonttype is neither 3 nor 42, emit the whole string at once
         # without manual kerning.
         if fonttype not in [3, 42]:
+            self.file._character_tracker.track(font, s)
             self.file.output(Op.begin_text,
                              self.file.fontName(prop), fontsize, Op.selectfont)
             self._setup_textpos(x, y, angle)
@@ -2389,7 +2389,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             multibyte_glyphs = []
             prev_was_multibyte = True
             prev_font = font
-            for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED):
+            for item in _text_helpers.layout(s, font):
+                self.file._character_tracker.track_glyph(font, item.glyph_idx)
                 if _font_supports_glyph(fonttype, ord(item.char)):
                     if prev_was_multibyte or item.ft_object != prev_font:
                         singlebyte_chunks.append((item.ft_object, item.x, []))

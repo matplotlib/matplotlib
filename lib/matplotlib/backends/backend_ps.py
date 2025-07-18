@@ -795,19 +795,18 @@ grestore
 
         else:
             font = self._get_font_ttf(prop)
-            self._character_tracker.track(font, s)
             for item in _text_helpers.layout(s, font):
+                self._character_tracker.track_glyph(item.ft_object, item.glyph_idx)
                 ps_name = (item.ft_object.postscript_name
                            .encode("ascii", "replace").decode("ascii"))
                 glyph_name = item.ft_object.get_glyph_name(item.glyph_idx)
-                stream.append((ps_name, item.x, glyph_name))
+                stream.append((ps_name, item.x, item.y, glyph_name))
         self.set_color(*gc.get_rgb())
 
-        for ps_name, group in itertools. \
-                groupby(stream, lambda entry: entry[0]):
+        for ps_name, group in itertools.groupby(stream, lambda entry: entry[0]):
             self.set_font(ps_name, prop.get_size_in_points(), False)
-            thetext = "\n".join(f"{x:g} 0 m /{name:s} glyphshow"
-                                for _, x, name in group)
+            thetext = "\n".join(f"{x:g} {y:g} m /{name:s} glyphshow"
+                                for _, x, y, name in group)
             self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
