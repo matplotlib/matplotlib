@@ -117,7 +117,9 @@ class AxesWidget(Widget):
         self.ax = ax
         self._cids = []
 
-    canvas = property(lambda self: self.ax.get_figure(root=True).canvas)
+    canvas = property(
+        lambda self: getattr(self.ax.get_figure(root=True), 'canvas', None)
+    )
 
     def connect_event(self, event, callback):
         """
@@ -143,6 +145,10 @@ class AxesWidget(Widget):
         # because that can introduce floating point errors for synthetic events.
         return ((event.xdata, event.ydata) if event.inaxes is self.ax
                 else self.ax.transData.inverted().transform((event.x, event.y)))
+
+    def ignore(self, event):
+        # docstring inherited
+        return super().ignore(event) or self.canvas is None
 
 
 class Button(AxesWidget):
@@ -2181,7 +2187,9 @@ class _SelectorWidget(AxesWidget):
 
     def ignore(self, event):
         # docstring inherited
-        if not self.active or not self.ax.get_visible():
+        if super().ignore(event):
+            return True
+        if not self.ax.get_visible():
             return True
         # If canvas was locked
         if not self.canvas.widgetlock.available(self):
