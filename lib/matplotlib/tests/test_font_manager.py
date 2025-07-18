@@ -117,8 +117,13 @@ def test_utf16m_sfnt():
 
 def test_find_ttc():
     fp = FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(findfont(fp)).name != "wqy-zenhei.ttc":
+    fontpath = findfont(fp)
+    if Path(fontpath).name != "wqy-zenhei.ttc":
         pytest.skip("Font wqy-zenhei.ttc may be missing")
+    # All fonts from this collection should have loaded as well.
+    for name in ["WenQuanYi Zen Hei Mono", "WenQuanYi Zen Hei Sharp"]:
+        assert findfont(FontProperties(family=[name]),
+                        fallback_to_default=False) == fontpath
     fig, ax = plt.subplots()
     ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
     for fmt in ["raw", "svg", "pdf", "ps"]:
@@ -363,6 +368,10 @@ def test_get_font_names():
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
             ttf_fonts.append(prop.name)
+            for face_index in range(1, font.num_faces):
+                font = ft2font.FT2Font(path, face_index=face_index)
+                prop = ttfFontProperty(font)
+                ttf_fonts.append(prop.name)
         except Exception:
             pass
     available_fonts = sorted(list(set(ttf_fonts)))
