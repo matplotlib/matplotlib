@@ -319,6 +319,7 @@ class FontEntry:
     """
 
     fname: str = ''
+    index: int = 0
     name: str = ''
     style: str = 'normal'
     variant: str = 'normal'
@@ -465,7 +466,8 @@ def ttfFontProperty(font):
         raise NotImplementedError("Non-scalable fonts are not supported")
     size = 'scalable'
 
-    return FontEntry(font.fname, name, style, variant, weight, stretch, size)
+    return FontEntry(font.fname, font.face_index, name,
+                     style, variant, weight, stretch, size)
 
 
 def afmFontProperty(fontpath, font):
@@ -535,7 +537,7 @@ def afmFontProperty(fontpath, font):
 
     size = 'scalable'
 
-    return FontEntry(fontpath, name, style, variant, weight, stretch, size)
+    return FontEntry(fontpath, 0, name, style, variant, weight, stretch, size)
 
 
 def _cleanup_fontproperties_init(init_method):
@@ -1069,7 +1071,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
-    __version__ = '3.11.0a1'
+    __version__ = '3.11.0a2'
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1134,6 +1136,10 @@ class FontManager:
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
             self.ttflist.append(prop)
+            for face_index in range(1, font.num_faces):
+                subfont = ft2font.FT2Font(path, face_index=face_index)
+                prop = ttfFontProperty(subfont)
+                self.ttflist.append(prop)
         self._findfont_cached.cache_clear()
 
     @property
