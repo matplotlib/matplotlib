@@ -2543,7 +2543,7 @@ class BoxStyle(_Style):
             dx = (y1 - y0) / 2
             dxx = dx / 2
 
-            x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
+            x0 += pad / 1.4  # adjust by ~sqrt(2)
 
             # The width adjustment is the distance that must be subtracted from
             # y0 and added to y1 to reach the non-tip vertices of the head.
@@ -2576,14 +2576,14 @@ class BoxStyle(_Style):
 
                     if text_clearance < pad:
                         # Lengthen arrow body to accommodate text
-                        x0 = x0 + text_clearance - pad
+                        x0 += text_clearance - pad
                 else:
                     # Pad away from head straight-edge
 
                     a, b = 1.214, 0.250  # Empirical factors
                     padding_offset = (a * pad) + (b * mutation_size)
 
-                    x0 = x0 - padding_offset
+                    x0 -= padding_offset
 
                 return Path._create_closed(
                     [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
@@ -2599,7 +2599,7 @@ class BoxStyle(_Style):
 
                 # No arrow head available for enclosed text to spill over into; add
                 # padding to left of text
-                x0 = x0 - padding_offset
+                x0 -= padding_offset
 
                 # tan(1/2 * angle subtended by arrow tip)
                 tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))
@@ -2699,7 +2699,7 @@ class BoxStyle(_Style):
             dx = (y1 - y0) / 2
             dxx = dx / 2
 
-            x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
+            x0 += pad / 1.4  # adjust by ~sqrt(2)
 
             # The width adjustment is the distance that must be subtracted from
             # y0 and added to y1 to reach the non-tip vertices of the head.
@@ -2732,16 +2732,16 @@ class BoxStyle(_Style):
 
                     if text_clearance < pad:
                         # Lengthen arrow body to accommodate text
-                        x0 = x0 + text_clearance - pad
-                        x1 = x1 + pad - text_clearance
+                        x0 += text_clearance - pad
+                        x1 += pad - text_clearance
                 else:
                     # Pad away from head straight-edges
 
                     a, b = 1.214, 0.250  # Empirical factors
                     padding_offset = (a * pad) + (b * mutation_size)
 
-                    x0 = x0 - padding_offset
-                    x1 = x1 + padding_offset
+                    x0 -= padding_offset
+                    x1 += padding_offset
 
                 return Path._create_closed([
                     (x0 + dxx, y0),
@@ -2765,8 +2765,8 @@ class BoxStyle(_Style):
 
                 # No arrow head available for enclosed text to spill over into; add
                 # padding to both sides of text
-                x0 = x0 - padding_offset
-                x1 = x1 + padding_offset
+                x0 -= padding_offset
+                x1 += padding_offset
 
                 # tan(1/2 * angle subtended by arrow tip)
                 tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))
