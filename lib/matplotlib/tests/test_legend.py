@@ -1075,7 +1075,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='bar', color='r',
                       label="red bar hist with a red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
@@ -1084,7 +1084,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='step', color='g',
                       label="green step hist with a green label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'g')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
@@ -1093,7 +1093,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='stepfilled', color='b',
                       label="blue stepfilled hist with a blue label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'b')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
@@ -1103,7 +1103,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='bar', color='r', ec='b',
                       label="red bar hist with blue edges and a red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
@@ -1112,7 +1112,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='bar', fc='r', ec='b',
                       label="red bar hist with blue edges and a red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
@@ -1121,7 +1121,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='bar', fc='none', ec='b',
                       label="unfilled blue bar hist with a blue label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'b')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
@@ -1131,7 +1131,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='step', color='r', ec='b',
                       label="blue step hist with a blue label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'b')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
@@ -1140,7 +1140,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='step', ec='b',
                       label="blue step hist with a blue label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'b')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
@@ -1150,7 +1150,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='stepfilled', color='r', ec='b',
                       label="red stepfilled hist, blue edges, red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
@@ -1159,7 +1159,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='stepfilled', fc='r', ec='b',
                       label="red stepfilled hist, blue edges, red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
@@ -1168,7 +1168,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='stepfilled', fc='none', ec='b',
                       label="unfilled blue stepfilled hist, blue label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'b')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
@@ -1177,7 +1177,7 @@ def test_legend_labelcolor_linecolor_histograms():
     fig, ax = plt.subplots()
     _, _, h = ax.hist(x, histtype='stepfilled', fc='r', ec='none',
                       label="edgeless red stepfilled hist with a red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
@@ -1191,7 +1191,7 @@ def test_legend_labelcolor_linecolor_plot():
     # testing line plot
     fig, ax = plt.subplots()
     p = ax.plot(x, c='r', label="red line with a red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_lines()[0].get_color())
@@ -1200,7 +1200,7 @@ def test_legend_labelcolor_linecolor_plot():
     # testing c, fc, and ec combinations for maker plots
     fig, ax = plt.subplots()
     p = ax.plot(x, 'o', c='r', label="red circles with a red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_lines()[0].get_color())
@@ -1208,7 +1208,7 @@ def test_legend_labelcolor_linecolor_plot():
 
     fig, ax = plt.subplots()
     p = ax.plot(x, 'o', c='r', mec='b', label="red circles, blue edges, red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_lines()[0].get_color())
@@ -1216,7 +1216,7 @@ def test_legend_labelcolor_linecolor_plot():
 
     fig, ax = plt.subplots()
     p = ax.plot(x, 'o', mfc='r', mec='b', label="red circles, blue edges, red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_lines()[0].get_markerfacecolor())
@@ -1225,7 +1225,7 @@ def test_legend_labelcolor_linecolor_plot():
     # 'none' cases
     fig, ax = plt.subplots()
     p = ax.plot(x, 'o', mfc='none', mec='b', label="blue unfilled circles, blue label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'b')
     assert mpl.colors.same_color(tc, leg.get_lines()[0].get_markeredgecolor())
@@ -1233,7 +1233,7 @@ def test_legend_labelcolor_linecolor_plot():
 
     fig, ax = plt.subplots()
     p = ax.plot(x, 'o', mfc='r', mec='none', label="red edgeless circles, red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.get_lines()[0].get_markerfacecolor())
@@ -1241,7 +1241,7 @@ def test_legend_labelcolor_linecolor_plot():
 
     fig, ax = plt.subplots()
     p = ax.plot(x, 'o', c='none', mec='none', label="invisible circles and label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert tc == 'none'
     assert tc == leg.get_lines()[0].get_markerfacecolor()
@@ -1259,7 +1259,7 @@ def test_legend_labelcolor_linecolor_scatter():
     # testing c, fc, and ec combinations for scatter plots
     fig, ax = plt.subplots()
     p = ax.scatter(x, x, c='r', label="red circles with a red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.legend_handles[0].get_facecolor())
@@ -1267,7 +1267,7 @@ def test_legend_labelcolor_linecolor_scatter():
 
     fig, ax = plt.subplots()
     p = ax.scatter(x, x, c='r', ec='b', label="red circles, blue edges, red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.legend_handles[0].get_facecolor())
@@ -1275,7 +1275,7 @@ def test_legend_labelcolor_linecolor_scatter():
 
     fig, ax = plt.subplots()
     p = ax.scatter(x, x, fc='r', ec='b', label="red circles, blue edges, red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.legend_handles[0].get_facecolor())
@@ -1284,7 +1284,7 @@ def test_legend_labelcolor_linecolor_scatter():
     # 'none' cases
     fig, ax = plt.subplots()
     p = ax.scatter(x, x, fc='none', ec='b', label="blue unfilled circles, blue label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'b')
     assert mpl.colors.same_color(tc, leg.legend_handles[0].get_edgecolor())
@@ -1292,7 +1292,7 @@ def test_legend_labelcolor_linecolor_scatter():
 
     fig, ax = plt.subplots()
     p = ax.scatter(x, x, fc='r', ec='none', label="red edgeless circles, red label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert mpl.colors.same_color(tc, 'r')
     assert mpl.colors.same_color(tc, leg.legend_handles[0].get_facecolor())
@@ -1300,7 +1300,7 @@ def test_legend_labelcolor_linecolor_scatter():
 
     fig, ax = plt.subplots()
     p = ax.scatter(x, x, c='none', ec='none', label="invisible circles and label")
-    leg = ax.legend(loc=1, labelcolor='linecolor')
+    leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
     assert tc == 'none'
     plt.close('all')
