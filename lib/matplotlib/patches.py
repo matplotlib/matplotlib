@@ -2586,10 +2586,15 @@ class BoxStyle(_Style):
                     x0 -= padding_offset
 
                 return Path._create_closed(
-                    [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
-                    (x0 + dxx, y1 + width_adjustment), (x0 - angle_adjustment, y0
-                    + dx), (x0 + dxx, y0 - width_adjustment),  # arrow
-                    (x0 + dxx, y0)])
+                    [(x0 + dxx, y0),
+                    (x1, y0),
+                    (x1, y1),
+                    (x0 + dxx, y1),
+                    (x0 + dxx, y1 + width_adjustment),
+                    (x0 - angle_adjustment, y0 + dx),
+                    (x0 + dxx, y0 - width_adjustment),
+                    (x0 + dxx, y0)
+                ])
             else:
                 # Reversed arrow head (>---)
 
