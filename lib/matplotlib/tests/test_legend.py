@@ -1243,13 +1243,13 @@ def test_legend_labelcolor_linecolor_plot():
     p = ax.plot(x, 'o', c='none', mec='none', label="invisible circles and label")
     leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
-    assert tc == 'none'
-    assert tc == leg.get_lines()[0].get_markerfacecolor()
-    assert tc == leg.get_lines()[0].get_markeredgecolor()
-    assert tc == leg.get_lines()[0].get_color()
-    assert tc == p[0].get_markerfacecolor()
-    assert tc == p[0].get_markeredgecolor()
-    assert tc == p[0].get_color()
+    assert mpl.colors.same_color(tc, 'none')
+    assert mpl.colors.same_color(tc, leg.get_lines()[0].get_markerfacecolor())
+    assert mpl.colors.same_color(tc, leg.get_lines()[0].get_markeredgecolor())
+    assert mpl.colors.same_color(tc, leg.get_lines()[0].get_color())
+    assert mpl.colors.same_color(tc, p[0].get_markerfacecolor())
+    assert mpl.colors.same_color(tc, p[0].get_markeredgecolor())
+    assert mpl.colors.same_color(tc, p[0].get_color())
     plt.close('all')
 
 
@@ -1302,7 +1302,7 @@ def test_legend_labelcolor_linecolor_scatter():
     p = ax.scatter(x, x, c='none', ec='none', label="invisible circles and label")
     leg = ax.legend(labelcolor='linecolor')
     tc = leg.texts[0].get_color()
-    assert tc == 'none'
+    assert mpl.colors.same_color(tc, 'none')
     plt.close('all')
 
 
