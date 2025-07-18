@@ -426,7 +426,7 @@ class Spine(mpatches.Patch):
         self.stale = True
 
     def get_bounds(self):
-        """Get the bounds of the spine. Take None into consideration. """
+        """Get the bounds of the spine. Take None into consideration."""
         if self._bounds is not None:
             pass
         elif self.spine_type in ('left', 'right'):
