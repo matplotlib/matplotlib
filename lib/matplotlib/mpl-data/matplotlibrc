@@ -306,10 +306,9 @@
 #text.hinting_factor: 1  # Specifies the amount of softness for hinting in the
                          # horizontal direction.  A value of 1 will hint to full
                          # pixels.  A value of 2 will hint to half pixels etc.
-#text.kerning_factor: 0  # Specifies the scaling factor for kerning values.  This
-                         # is provided solely to allow old test images to remain
-                         # unchanged.  Set to 6 to obtain previous behavior.
-                         # Values  other than 0 or 6 have no defined meaning.
+#text.kerning_factor: None  # Specifies the scaling factor for kerning values. Values
+                            # other than 0, 6, or None have no defined meaning.
+                            # This setting is deprecated.
 #text.antialiased: True  # If True (default), the text will be antialiased.
                          # This only affects raster outputs.
 #text.parse_math: True  # Use mathtext if there is an even number of unescaped
