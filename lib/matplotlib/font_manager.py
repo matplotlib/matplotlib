@@ -1556,15 +1556,16 @@ def is_opentype_cff_font(filename):
 @lru_cache(64)
 def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id,
               enable_last_resort):
-    first_fontpath, *rest = font_filepaths
+    (first_fontpath, first_fontindex), *rest = font_filepaths
     fallback_list = [
-        ft2font.FT2Font(fpath, hinting_factor, _kerning_factor=_kerning_factor)
-        for fpath in rest
+        ft2font.FT2Font(fpath, hinting_factor, face_index=index,
+                        _kerning_factor=_kerning_factor)
+        for fpath, index in rest
     ]
     last_resort_path = _cached_realpath(
         cbook._get_data_path('fonts', 'ttf', 'LastResortHE-Regular.ttf'))
     try:
-        last_resort_index = font_filepaths.index(last_resort_path)
+        last_resort_index = font_filepaths.index((last_resort_path, 0))
     except ValueError:
         last_resort_index = -1
         # Add Last Resort font so we always have glyphs regardless of font, unless we're
@@ -1576,7 +1577,7 @@ def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id,
                                 _warn_if_used=True))
             last_resort_index = len(fallback_list)
     font = ft2font.FT2Font(
-        first_fontpath, hinting_factor,
+        first_fontpath, hinting_factor, face_index=first_fontindex,
         _fallback_list=fallback_list,
         _kerning_factor=_kerning_factor
     )
@@ -1611,7 +1612,8 @@ def get_font(font_filepaths, hinting_factor=None):
 
     Parameters
     ----------
-    font_filepaths : Iterable[str, Path, bytes], str, Path, bytes
+    font_filepaths : Iterable[str, Path, bytes, tuple[str | Path | bytes, int]], \
+str, Path, bytes, tuple[str | Path | bytes, int]
         Relative or absolute paths to the font files to be used.
 
         If a single string, bytes, or `pathlib.Path`, then it will be treated
@@ -1626,10 +1628,16 @@ def get_font(font_filepaths, hinting_factor=None):
     `.ft2font.FT2Font`
 
     """
-    if isinstance(font_filepaths, (str, Path, bytes)):
-        paths = (_cached_realpath(font_filepaths),)
-    else:
-        paths = tuple(_cached_realpath(fname) for fname in font_filepaths)
+    match font_filepaths:
+        case str() | Path() | bytes() as path:
+            paths = ((_cached_realpath(path), 0), )
+        case (str() | Path() | bytes() as path, int() as index):
+            paths = ((_cached_realpath(path), index), )
+        case _:
+            paths = tuple(
+                (_cached_realpath(fname[0]), fname[1]) if isinstance(fname, tuple)
+                else (_cached_realpath(fname), 0)
+                for fname in font_filepaths)
 
     hinting_factor = mpl._val_or_rc(hinting_factor, 'text.hinting_factor')
 

@@ -3,10 +3,12 @@ from dataclasses import dataclass
 from numbers import Integral
 import os
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, TypeAlias
 
 from matplotlib._afm import AFM
 from matplotlib import ft2font
+
+FontFace: TypeAlias = tuple[str | Path | bytes, int]
 
 font_scalings: dict[str | None, float]
 stretch_dict: dict[str, int]
@@ -120,7 +122,7 @@ class FontManager:
 
 def is_opentype_cff_font(filename: str) -> bool: ...
 def get_font(
-    font_filepaths: Iterable[str | Path | bytes] | str | Path | bytes,
+    font_filepaths: Iterable[str | Path | bytes | FontFace] | str | Path | bytes | FontFace,
     hinting_factor: int | None = ...,
 ) -> ft2font.FT2Font: ...
 
