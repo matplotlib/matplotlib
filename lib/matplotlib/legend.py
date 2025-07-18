@@ -609,10 +609,9 @@ class Legend(Artist):
                                 text.set_color(color[0])
                             else:
                                 pass
-                        elif isinstance(color, str) and str(color).lower() == 'none':
+                        elif cbook._str_lower_equal(color, 'none'):
                             continue
-                        elif (len(mpl.colors.to_rgba(color)) == 4
-                              and mpl.colors.to_rgba(color)[3] == 0):
+                        elif mpl.colors.to_rgba(color)[3] == 0:
                                 continue
                         else:
                             text.set_color(color)
