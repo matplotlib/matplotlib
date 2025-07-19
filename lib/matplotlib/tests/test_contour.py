@@ -127,8 +127,9 @@ def test_contour_manual_moveto():
     assert clabels[0].get_text() == "0"
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['contour_disconnected_segments'],
-                  remove_text=True, style='mpl20', extensions=['png'])
+                  remove_text=True, style='mpl20', extensions=['png'], tol=0.01)
 def test_contour_label_with_disconnected_segments():
     x, y = np.mgrid[-1:1:21j, -1:1:21j]
     z = 1 / np.sqrt(0.01 + (x + 0.3) ** 2 + y ** 2)
@@ -229,7 +230,8 @@ def test_lognorm_levels(n_levels):
     assert len(visible_levels) <= n_levels + 1
 
 
-@image_comparison(['contour_datetime_axis.png'], style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['contour_datetime_axis.png'], style='mpl20', tol=0.3)
 def test_contour_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
