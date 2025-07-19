@@ -460,6 +460,8 @@ def qt5_and_qt6_pairs():
     reason="$DISPLAY and $WAYLAND_DISPLAY are unset")
 @pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
 def test_cross_Qt_imports(host, mpl):
+    if sys.flags.optimize > 0 and 'PySide2' in {host, mpl}:
+        pytest.xfail('PySide2 does not work optimized')
     try:
         proc = _run_helper(_impl_test_cross_Qt_imports, host, mpl,
                            timeout=_test_timeout)
