@@ -30,7 +30,6 @@ ec = EllipseCollection(ww, hh, aa, units='x', offsets=XY,
                        offset_transform=ax.transData)
 ec.set_array((X + Y).ravel())
 ax.add_collection(ec)
-ax.autoscale_view()
 ax.set_xlabel('X')
 ax.set_ylabel('y')
 cbar = plt.colorbar(ec)
