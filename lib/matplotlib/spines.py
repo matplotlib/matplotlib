@@ -233,6 +233,12 @@ class Spine(mpatches.Patch):
         self._position = None  # clear position
 
     def _get_bounds_or_viewLim(self):
+        """
+        Get the bounds of the spine.
+
+        If self._bounds is None, return self.axes.viewLim.intervalx
+        or self.axes.viewLim.intervaly based on self.spine_type
+        """
         if self._bounds is not None:
             low, high = self._bounds
         elif self.spine_type in ('left', 'right'):
@@ -240,7 +246,8 @@ class Spine(mpatches.Patch):
         elif self.spine_type in ('top', 'bottom'):
             low, high = self.axes.viewLim.intervalx
         else:
-            raise ValueError(f'unknown spine spine_type: {self.spine_type}')
+            raise ValueError(f'spine_type: {self.spine_type} not supported')
+            # circle not supported
         return low, high
 
     def _adjust_location(self):
