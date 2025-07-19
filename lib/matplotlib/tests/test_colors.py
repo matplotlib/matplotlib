@@ -1876,3 +1876,13 @@ def test_norm_abc():
     axes[0,1].pcolor(r, colorizer=colorizer)
     axes[1,0].contour(r, colorizer=colorizer)
     axes[1,1].contourf(r, colorizer=colorizer)
+
+
+def test_close_error_name():
+    with pytest.raises(
+        KeyError,
+        match=(
+            "'grays' is not a valid value for colormap. "
+            "Did you mean one of ['gray', 'Grays', 'gray_r']?"
+        )):
+        matplotlib.colormaps["grays"]

@@ -10,6 +10,7 @@ This documentation is only relevant for Matplotlib developers, not for users.
 
 """
 
+import difflib
 import functools
 import itertools
 import pathlib
@@ -174,11 +175,16 @@ def check_shape(shape, /, **kwargs):
             )
 
 
-def check_getitem(mapping, /, **kwargs):
+def check_getitem(mapping, /, _error_cls=ValueError, **kwargs):
     """
     *kwargs* must consist of a single *key, value* pair.  If *key* is in
     *mapping*, return ``mapping[value]``; else, raise an appropriate
     ValueError.
+
+    Parameters
+    ----------
+    _error_cls :
+        Class of error to raise.
 
     Examples
     --------
@@ -190,9 +196,14 @@ def check_getitem(mapping, /, **kwargs):
     try:
         return mapping[v]
     except KeyError:
-        raise ValueError(
-            f"{v!r} is not a valid value for {k}; supported values are "
-            f"{', '.join(map(repr, mapping))}") from None
+        if len(mapping) > 5:
+            if len(best := difflib.get_close_matches(v, mapping.keys(), cutoff=0.5)):
+                suggestion = f"Did you mean one of {best}?"
+            else:
+                suggestion = ""
+        else:
+            suggestion = f"Supported values are {', '.join(map(repr, mapping))}"
+        raise _error_cls(f"{v!r} is not a valid value for {k}. {suggestion}") from None
 
 
 def caching_module_getattr(cls):
