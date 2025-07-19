@@ -339,7 +339,8 @@ jobs:
           fi
           pytest -rfEsXR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
-            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
+            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes \
+            --junitxml=junit.xml -o junit_family=legacy
 
       - name: Cleanup non-failed image files
         if: failure()
@@ -399,6 +400,15 @@ jobs:
             xcrun llvm-cov export -format="lcov" build/*/src/*.so \
               -instr-profile default.profdata > info.lcov
           fi
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}  # Run even if tests fail
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ${{matrix.os}},${{matrix.python-version}}
+          os: ${{ matrix.os == 'ubuntu-22.04-arm' && 'linux-arm64' || '' }}
+
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24  # v5.4.3
