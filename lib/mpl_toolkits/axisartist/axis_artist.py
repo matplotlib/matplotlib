@@ -7,7 +7,7 @@ class; grid lines are managed by the `GridlinesCollection` class.
 
 There is one `AxisArtist` per Axis; it can be accessed through
 the ``axis`` dictionary of the parent Axes (which should be a
-`mpl_toolkits.axislines.Axes`), e.g. ``ax.axis["bottom"]``.
+`~mpl_toolkits.axisartist.axislines.Axes`), e.g. ``ax.axis["bottom"]``.
 
 Children of the AxisArtist are accessed as attributes: ``.line`` and ``.label``
 for the axis line and label, ``.major_ticks``, ``.major_ticklabels``,
@@ -588,8 +588,9 @@ class TickLabels(AxisLabel):  # mtext.Text
             if not label.strip():
                 continue
             clean_line, ismath = self._preprocess_math(label)
-            whd = renderer.get_text_width_height_descent(
-                clean_line, self._fontproperties, ismath=ismath)
+            whd = mtext._get_text_metrics_with_cache(
+                renderer, clean_line, self._fontproperties, ismath=ismath,
+                dpi=self.get_figure(root=True).dpi)
             whd_list.append(whd)
         return whd_list
 

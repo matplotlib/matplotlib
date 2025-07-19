@@ -103,6 +103,16 @@ __conda_version__.txt
 lib/png.lib
 lib/z.lib
 
+# Environments #
+################
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
 # Jupyter files #
 #################
 

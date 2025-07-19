@@ -38,6 +38,7 @@ Attributes
 
    Axes.viewLim
    Axes.dataLim
+   Axes.spines
 
 Plotting
 ========
@@ -54,7 +55,6 @@ Basic
    Axes.errorbar
    Axes.scatter
 
-   Axes.plot_date
    Axes.step
 
    Axes.loglog
@@ -67,6 +67,7 @@ Basic
    Axes.bar
    Axes.barh
    Axes.bar_label
+   Axes.grouped_bar
 
    Axes.stem
    Axes.eventplot
@@ -262,6 +263,7 @@ Property cycle
 
    Axes.set_prop_cycle
 
+.. _axes-api-axis:
 
 Axis / limits
 =============
@@ -269,11 +271,16 @@ Axis / limits
 .. For families of methods of the form {get,set}_{x,y}foo, try to list them in
    the order set_xfoo, get_xfoo, set_yfoo, get_yfoo
 
+Axis access
+-----------
+
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary.rst
    :nosignatures:
 
+   Axes.xaxis
+   Axes.yaxis
    Axes.get_xaxis
    Axes.get_yaxis
 
@@ -285,8 +292,12 @@ Axis limits and direction
    :template: autosummary.rst
    :nosignatures:
 
+   Axes.set_xinverted
+   Axes.get_xinverted
    Axes.invert_xaxis
    Axes.xaxis_inverted
+   Axes.set_yinverted
+   Axes.get_yinverted
    Axes.invert_yaxis
    Axes.yaxis_inverted
 
@@ -616,5 +627,6 @@ Other
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data
    Axes.set
+   Axes.remove
 
 .. autoclass:: matplotlib.axes.Axes.ArtistList

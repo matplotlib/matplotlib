@@ -891,8 +891,7 @@ CompositeGenericTransform(
                 Affine2D().scale(1.0))),
         PolarTransform(
             PolarAxes(0.125,0.1;0.775x0.8),
-            use_rmin=True,
-            apply_theta_transforms=False)),
+            use_rmin=True)),
     CompositeGenericTransform(
         CompositeGenericTransform(
             PolarAffine(
@@ -987,12 +986,6 @@ def test_transformed_path():
                     [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)],
                     atol=1e-15)
 
-    # Changing the path does not change the result (it's cached).
-    path.points = [(0, 0)] * 4
-    assert_allclose(trans_path.get_fully_transformed_path().vertices,
-                    [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)],
-                    atol=1e-15)
-
 
 def test_transformed_patch_path():
     trans = mtransforms.Affine2D()
@@ -1053,7 +1046,7 @@ def test_transformwrapper():
         t.set(scale.LogTransform(10))
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_scale_swapping(fig_test, fig_ref):
     np.random.seed(19680801)
     samples = np.random.normal(size=10)

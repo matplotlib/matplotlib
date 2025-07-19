@@ -139,7 +139,7 @@ Code changes
   ``matplotlib.testing.image_util.autocontrast``. These will be removed
   completely in v1.5.0.
 
-* The ``fmt`` argument of :meth:`~matplotlib.axes.Axes.plot_date` has been
+* The ``fmt`` argument of ``Axes.plot_date`` has been
   changed from ``bo`` to just ``o``, so color cycling can happen by default.
 
 * Removed the class ``FigureManagerQTAgg`` and deprecated

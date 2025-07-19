@@ -64,7 +64,7 @@ class UniformTriRefiner(TriRefiner):
     def refine_triangulation(self, return_tri_index=False, subdiv=3):
         """
         Compute a uniformly refined triangulation *refi_triangulation* of
-        the encapsulated :attr:`triangulation`.
+        the encapsulated :attr:`!triangulation`.
 
         This function refines the encapsulated triangulation by splitting each
         father triangle into 4 child sub-triangles built on the edges midside

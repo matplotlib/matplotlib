@@ -65,8 +65,8 @@ def composite_images(images, renderer, magnification=1.0):
     Parameters
     ----------
     images : list of Images
-        Each must have a `make_image` method.  For each image,
-        `can_composite` should return `True`, though this is not
+        Each must have a `!make_image` method.  For each image,
+        `!can_composite` should return `True`, though this is not
         enforced by this function.  Each image must have a purely
         affine transformation with no shear.
 
@@ -234,17 +234,18 @@ class _ImageBase(mcolorizer.ColorizingArtist):
     """
     Base class for images.
 
-    interpolation and cmap default to their rc settings
+    *interpolation* and *cmap* default to their rc settings.
 
-    cmap is a colors.Colormap instance
-    norm is a colors.Normalize instance to map luminance to 0-1
+    *cmap* is a `.colors.Colormap` instance.
+    *norm* is a `.colors.Normalize` instance to map luminance to 0-1.
 
-    extent is data axes (left, right, bottom, top) for making image plots
-    registered with data plots.  Default is to label the pixel
-    centers with the zero-based row and column indices.
+    *extent* is a ``(left, right, bottom, top)`` tuple in data coordinates, for
+    making image plots registered with data plots; the default is to label the
+    pixel centers with the zero-based row and column indices.
 
-    Additional kwargs are matplotlib.artist properties
+    Additional kwargs are `.Artist` properties.
     """
+
     zorder = 0
 
     def __init__(self, ax,
@@ -261,8 +262,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                  **kwargs
                  ):
         super().__init__(self._get_colorizer(cmap, norm, colorizer))
-        if origin is None:
-            origin = mpl.rcParams['image.origin']
+        origin = mpl._val_or_rc(origin, 'image.origin')
         _api.check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
@@ -439,6 +439,8 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
                 raise ValueError(f"Invalid shape {A.shape} for image data")
 
+            float_rgba_in = A.ndim == 3 and A.shape[-1] == 4 and A.dtype.kind == 'f'
+
             # if antialiased, this needs to change as window sizes
             # change:
             interpolation_stage = self._interpolation_stage
@@ -496,27 +498,43 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                     out_alpha *= _resample(self, alpha, out_shape, t, resample=True)
                 # mask and run through the norm
                 resampled_masked = np.ma.masked_array(A_resampled, out_mask)
-                output = self.norm(resampled_masked)
+                res = self.norm(resampled_masked)
             else:
                 if A.ndim == 2:  # interpolation_stage = 'rgba'
                     self.norm.autoscale_None(A)
                     A = self.to_rgba(A)
-                alpha = self._get_scalar_alpha()
-                if A.shape[2] == 3:
-                    # No need to resample alpha or make a full array; NumPy will expand
-                    # this out and cast to uint8 if necessary when it's assigned to the
-                    # alpha channel below.
-                    output_alpha = (255 * alpha) if A.dtype == np.uint8 else alpha
-                else:
-                    output_alpha = _resample(  # resample alpha channel
-                        self, A[..., 3], out_shape, t, alpha=alpha)
-                output = _resample(  # resample rgb channels
-                    self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
-                output[..., 3] = output_alpha  # recombine rgb and alpha
+                if A.dtype == np.uint8:
+                    # uint8 is too imprecise for premultiplied alpha roundtrips.
+                    A = np.divide(A, 0xff, dtype=np.float32)
+                alpha = self.get_alpha()
+                post_apply_alpha = False
+                if alpha is None:  # alpha parameter not specified
+                    if A.shape[2] == 3:  # image has no alpha channel
+                        A = np.dstack([A, np.ones(A.shape[:2])])
+                elif np.ndim(alpha) > 0:  # Array alpha
+                    # user-specified array alpha overrides the existing alpha channel
+                    A = np.dstack([A[..., :3], alpha])
+                else:  # Scalar alpha
+                    if A.shape[2] == 3:  # broadcast scalar alpha
+                        A = np.dstack([A, np.full(A.shape[:2], alpha, np.float32)])
+                    else:  # or apply scalar alpha to existing alpha channel
+                        post_apply_alpha = True
+                # Resample in premultiplied alpha space.  (TODO: Consider
+                # implementing premultiplied-space resampling in
+                # span_image_resample_rgba_affine::generate?)
+                if float_rgba_in and np.ndim(alpha) == 0 and np.any(A[..., 3] < 1):
+                    # Do not modify original RGBA input
+                    A = A.copy()
+                A[..., :3] *= A[..., 3:]
+                res = _resample(self, A, out_shape, t)
+                np.divide(res[..., :3], res[..., 3:], out=res[..., :3],
+                            where=res[..., 3:] != 0)
+                if post_apply_alpha:
+                    res[..., 3] *= alpha
 
-            # output is now either a 2D array of normed (int or float) data
+            # res is now either a 2D array of normed (int or float) data
             # or an RGBA array of re-sampled input
-            output = self.to_rgba(output, bytes=True, norm=False)
+            output = self.to_rgba(res, bytes=True, norm=False)
             # output is now a correctly sized RGBA array of uint8
 
             # Apply alpha *after* if the input was greyscale without a mask
@@ -733,11 +751,10 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
         Parameters
         ----------
-        s : {'data', 'rgba', 'auto'} or None
-            Whether to apply up/downsampling interpolation in data or RGBA
-            space.  If None, use :rc:`image.interpolation_stage`.
-            If 'auto' we will check upsampling rate and if less
-            than 3 then use 'rgba', otherwise use 'data'.
+        s : {'data', 'rgba', 'auto'}, default: :rc:`image.interpolation_stage`
+            Whether to apply resampling interpolation in data or RGBA space.
+            If 'auto', 'rgba' is used if the upsampling rate is less than 3,
+            otherwise 'data' is used.
         """
         s = mpl._val_or_rc(s, 'image.interpolation_stage')
         _api.check_in_list(['data', 'rgba', 'auto'], s=s)
@@ -758,8 +775,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
         Parameters
         ----------
-        v : bool or None
-            If None, use :rc:`image.resample`.
+        v : bool, default: :rc:`image.resample`
         """
         v = mpl._val_or_rc(v, 'image.resample')
         self._resample = v
@@ -788,8 +804,10 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
     def set_filterrad(self, filterrad):
         """
-        Set the resize filter radius only applicable to some
-        interpolation schemes -- see help for imshow
+        Set the resize filter radius (only applicable to some
+        interpolation schemes).
+
+        See help for `~.Axes.imshow`.
 
         Parameters
         ----------
@@ -808,7 +826,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
 class AxesImage(_ImageBase):
     """
-    An image attached to an Axes.
+    An image with pixels on a regular grid, attached to an Axes.
 
     Parameters
     ----------
@@ -949,9 +967,9 @@ class AxesImage(_ImageBase):
         self.sticky_edges.x[:] = [xmin, xmax]
         self.sticky_edges.y[:] = [ymin, ymax]
         if self.axes.get_autoscalex_on():
-            self.axes.set_xlim((xmin, xmax), auto=None)
+            self.axes.set_xlim(xmin, xmax, auto=None)
         if self.axes.get_autoscaley_on():
-            self.axes.set_ylim((ymin, ymax), auto=None)
+            self.axes.set_ylim(ymin, ymax, auto=None)
         self.stale = True
 
     def get_extent(self):
@@ -995,6 +1013,14 @@ class AxesImage(_ImageBase):
 
 
 class NonUniformImage(AxesImage):
+    """
+    An image with pixels on a rectilinear grid.
+
+    In contrast to `.AxesImage`, where pixels are on a regular grid,
+    NonUniformImage allows rows and columns with individual heights / widths.
+
+    See also :doc:`/gallery/images_contours_and_fields/image_nonuniform`.
+    """
 
     def __init__(self, ax, *, interpolation='nearest', **kwargs):
         """
@@ -1361,8 +1387,52 @@ class FigureImage(_ImageBase):
 
 
 class BboxImage(_ImageBase):
-    """The Image class whose size is determined by the given bbox."""
+    """
+    The Image class whose size is determined by the given bbox.
 
+    Parameters
+    ----------
+    bbox : BboxBase or Callable[RendererBase, BboxBase]
+        The bbox or a function to generate the bbox
+
+        .. warning ::
+
+            If using `matplotlib.artist.Artist.get_window_extent` as the
+            callable ensure that the other artist is drawn first (lower zorder)
+            or you may need to renderer the figure twice to ensure that the
+            computed bbox is accurate.
+
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+        The Colormap instance or registered colormap name used to map scalar
+        data to colors.
+    norm : str or `~matplotlib.colors.Normalize`
+        Maps luminance to 0-1.
+    interpolation : str, default: :rc:`image.interpolation`
+        Supported values are 'none', 'auto', 'nearest', 'bilinear',
+        'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
+        'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
+        'sinc', 'lanczos', 'blackman'.
+    origin : {'upper', 'lower'}, default: :rc:`image.origin`
+        Place the [0, 0] index of the array in the upper left or lower left
+        corner of the Axes. The convention 'upper' is typically used for
+        matrices and images.
+    filternorm : bool, default: True
+        A parameter for the antigrain image resize filter
+        (see the antigrain documentation).
+        If filternorm is set, the filter normalizes integer values and corrects
+        the rounding errors. It doesn't do anything with the source floating
+        point values, it corrects only integers according to the rule of 1.0
+        which means that any sum of pixel weights must be equal to 1.0. So,
+        the filter function must produce a graph of the proper shape.
+    filterrad : float > 0, default: 4
+        The filter radius for filters that have a radius parameter, i.e. when
+        interpolation is one of: 'sinc', 'lanczos' or 'blackman'.
+    resample : bool, default: False
+        When True, use a full resampling method. When False, only resample when
+        the output image is larger than the input image.
+    **kwargs : `~matplotlib.artist.Artist` properties
+
+    """
     def __init__(self, bbox,
                  *,
                  cmap=None,
@@ -1375,12 +1445,7 @@ class BboxImage(_ImageBase):
                  resample=False,
                  **kwargs
                  ):
-        """
-        cmap is a colors.Colormap instance
-        norm is a colors.Normalize instance to map luminance to 0-1
 
-        kwargs are an optional list of Artist keyword args
-        """
         super().__init__(
             None,
             cmap=cmap,
@@ -1396,12 +1461,11 @@ class BboxImage(_ImageBase):
         self.bbox = bbox
 
     def get_window_extent(self, renderer=None):
-        if renderer is None:
-            renderer = self.get_figure()._get_renderer()
-
         if isinstance(self.bbox, BboxBase):
             return self.bbox
         elif callable(self.bbox):
+            if renderer is None:
+                renderer = self.get_figure()._get_renderer()
             return self.bbox(renderer)
         else:
             raise ValueError("Unknown type of bbox")
@@ -1526,7 +1590,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         extension of *fname*, if any, and from :rc:`savefig.format` otherwise.
         If *format* is set, it determines the output format.
     arr : array-like
-        The image data. The shape can be one of
+        The image data. Accepts NumPy arrays or sequences
+        (e.g., lists or tuples). The shape can be one of
         MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA).
     vmin, vmax : float, optional
         *vmin* and *vmax* set the color scaling for the image by fixing the
@@ -1557,6 +1622,10 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         default 'Software' key.
     """
     from matplotlib.figure import Figure
+
+    # Normalizing input (e.g., list or tuples) to NumPy array if needed
+    arr = np.asanyarray(arr)
+
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if format is None:
@@ -1575,10 +1644,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     else:
         # Don't bother creating an image; this avoids rounding errors on the
         # size when dividing and then multiplying by dpi.
-        if origin is None:
-            origin = mpl.rcParams["image.origin"]
-        else:
-            _api.check_in_list(('upper', 'lower'), origin=origin)
+        origin = mpl._val_or_rc(origin, "image.origin")
+        _api.check_in_list(('upper', 'lower'), origin=origin)
         if origin == "lower":
             arr = arr[::-1]
         if (isinstance(arr, memoryview) and arr.format == "B"
@@ -1713,7 +1780,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         thus supports a wide range of file formats, including PNG, JPG, TIFF
         and others.
 
-        .. _Pillow: https://python-pillow.org/
+        .. _Pillow: https://python-pillow.github.io
 
     thumbfile : str or file-like
         The thumbnail filename.
@@ -1756,7 +1823,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         fig = Figure(figsize=(width, height), dpi=dpi)
         FigureCanvasBase(fig)
 
-    ax = fig.add_axes([0, 0, 1, 1], aspect='auto',
+    ax = fig.add_axes((0, 0, 1, 1), aspect='auto',
                       frameon=False, xticks=[], yticks=[])
     ax.imshow(im, aspect='auto', resample=True, interpolation=interpolation)
     fig.savefig(thumbfile, dpi=dpi)

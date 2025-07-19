@@ -149,7 +149,7 @@ def figure_edit(axes, parent=None):
     cmaps = [(cmap, name) for name, cmap in sorted(cm._colormaps.items())]
     for label, mappable in labeled_mappables:
         cmap = mappable.get_cmap()
-        if cmap not in cm._colormaps.values():
+        if cmap.name not in cm._colormaps:
             cmaps = [(cmap, cmap.name), *cmaps]
         low, high = mappable.get_clim()
         mappabledata = [

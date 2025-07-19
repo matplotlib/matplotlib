@@ -28,3 +28,5 @@ class CubicTriInterpolator(TriInterpolator):
         trifinder: TriFinder | None = ...,
         dz: tuple[ArrayLike, ArrayLike] | None = ...,
     ) -> None: ...
+
+__all__ = ('TriInterpolator', 'LinearTriInterpolator', 'CubicTriInterpolator')

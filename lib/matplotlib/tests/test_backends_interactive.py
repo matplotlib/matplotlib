@@ -78,7 +78,10 @@ def _get_available_interactive_backends():
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
         if missing:
             reason = "{} cannot be imported".format(", ".join(missing))
-        elif env["MPLBACKEND"] == "tkagg" and _is_linux_and_xdisplay_invalid:
+        elif _is_linux_and_xdisplay_invalid and (
+                env["MPLBACKEND"] == "tkagg"
+                # Remove when https://github.com/wxWidgets/Phoenix/pull/2638 is out.
+                or env["MPLBACKEND"].startswith("wx")):
             reason = "$DISPLAY is unset"
         elif _is_linux_and_display_invalid:
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
@@ -241,6 +244,9 @@ def test_interactive_backend(env, toolbar):
             pytest.skip("toolmanager is not implemented for macosx.")
     if env["MPLBACKEND"] == "wx":
         pytest.skip("wx backend is deprecated; tests failed on appveyor")
+    if env["MPLBACKEND"] == "wxagg" and toolbar == "toolmanager":
+        pytest.skip("Temporarily deactivated: show() changes figure height "
+                    "and thus fails the test")
     try:
         proc = _run_helper(
             _test_interactive_impl,
@@ -449,6 +455,9 @@ def qt5_and_qt6_pairs():
             yield from ([qt5, qt6], [qt6, qt5])
 
 
+@pytest.mark.skipif(
+    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    reason="$DISPLAY and $WAYLAND_DISPLAY are unset")
 @pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
 def test_cross_Qt_imports(host, mpl):
     try:
@@ -620,17 +629,29 @@ def test_blitting_events(env):
     assert 0 < ndraws < 5
 
 
+def _fallback_check():
+    import IPython.core.interactiveshell as ipsh
+    import matplotlib.pyplot
+    ipsh.InteractiveShell.instance()
+    matplotlib.pyplot.figure()
+
+
+def test_fallback_to_different_backend():
+    pytest.importorskip("IPython")
+    # Runs the process that caused the GH issue 23770
+    # making sure that this doesn't crash
+    # since we're supposed to be switching to a different backend instead.
+    response = _run_helper(_fallback_check, timeout=_test_timeout)
+
+
 def _impl_test_interactive_timers():
     # A timer with <1 millisecond gets converted to int and therefore 0
     # milliseconds, which the mac framework interprets as singleshot.
     # We only want singleshot if we specify that ourselves, otherwise we want
     # a repeating timer
-    import os
     from unittest.mock import Mock
     import matplotlib.pyplot as plt
-    # increase pause duration on CI to let things spin up
-    # particularly relevant for gtk3cairo
-    pause_time = 2 if os.getenv("CI") else 0.5
+    pause_time = 0.5
     fig = plt.figure()
     plt.pause(pause_time)
     timer = fig.canvas.new_timer(0.1)

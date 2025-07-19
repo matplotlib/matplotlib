@@ -102,6 +102,14 @@ sys.path.append('.')
 # usage in the gallery.
 warnings.filterwarnings('error', append=True)
 
+# Warnings for missing glyphs occur during `savefig`, and would cause any such plot to
+# not be created. Because the exception occurs in savefig, there is no way for the plot
+# itself to ignore these warnings locally, so we must do so globally.
+warnings.filterwarnings('default', category=UserWarning,
+                        message=r'Glyph \d+ \(.+\) missing from font\(s\)')
+warnings.filterwarnings('default', category=UserWarning,
+                        message=r'Matplotlib currently does not support .+ natively\.')
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [

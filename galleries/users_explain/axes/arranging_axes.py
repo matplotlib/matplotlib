@@ -103,8 +103,8 @@ import numpy as np
 w, h = 4, 3
 margin = 0.5
 fig = plt.figure(figsize=(w, h), facecolor='lightblue')
-ax = fig.add_axes([margin / w, margin / h, (w - 2 * margin) / w,
-                      (h - 2 * margin) / h])
+ax = fig.add_axes((margin / w, margin / h,
+                   (w - 2 * margin) / w, (h - 2 * margin) / h))
 
 
 # %%
@@ -308,7 +308,7 @@ fig.suptitle('Manually added subplots using add_gridspec')
 # -------------------------------------
 #
 # We can index the *spec* array using `NumPy slice syntax
-# <https://numpy.org/doc/stable/reference/arrays.indexing.html>`_
+# <https://numpy.org/doc/stable/user/basics.indexing.html>`_
 # and the new Axes will span the slice.  This would be the same
 # as ``fig, axd = plt.subplot_mosaic([['ax0', 'ax0'], ['ax1', 'ax2']], ...)``:
 

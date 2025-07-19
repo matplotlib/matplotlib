@@ -33,5 +33,5 @@ plt.show()
 # .. tags::
 #
 #    styling: conditional
-#    plot-style: fill_between
+#    plot-type: fill_between
 #    level: beginner

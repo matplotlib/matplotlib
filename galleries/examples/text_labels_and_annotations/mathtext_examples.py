@@ -61,7 +61,7 @@ def doall():
 
     # Creating figure and axis.
     fig = plt.figure(figsize=(7, 7))
-    ax = fig.add_axes([0.01, 0.01, 0.98, 0.90],
+    ax = fig.add_axes((0.01, 0.01, 0.98, 0.90),
                       facecolor="white", frameon=True)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)

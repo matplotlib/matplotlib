@@ -281,7 +281,7 @@ class TestPlotTypes:
 
 
 @mpl.style.context('default')
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_overriding_units_in_plot(fig_test, fig_ref):
     from datetime import datetime
 

@@ -117,7 +117,9 @@ class AxesWidget(Widget):
         self.ax = ax
         self._cids = []
 
-    canvas = property(lambda self: self.ax.get_figure(root=True).canvas)
+    canvas = property(
+        lambda self: getattr(self.ax.get_figure(root=True), 'canvas', None)
+    )
 
     def connect_event(self, event, callback):
         """
@@ -143,6 +145,10 @@ class AxesWidget(Widget):
         # because that can introduce floating point errors for synthetic events.
         return ((event.xdata, event.ydata) if event.inaxes is self.ax
                 else self.ax.transData.inverted().transform((event.x, event.y)))
+
+    def ignore(self, event):
+        # docstring inherited
+        return super().ignore(event) or self.canvas is None
 
 
 class Button(AxesWidget):
@@ -273,10 +279,10 @@ class SliderBase(AxesWidget):
         self.valfmt = valfmt
 
         if orientation == "vertical":
-            ax.set_ylim((valmin, valmax))
+            ax.set_ylim(valmin, valmax)
             axis = ax.yaxis
         else:
-            ax.set_xlim((valmin, valmax))
+            ax.set_xlim(valmin, valmax)
             axis = ax.xaxis
 
         self._fmt = axis.get_major_formatter()
@@ -1159,7 +1165,7 @@ class CheckButtons(AxesWidget):
         """
         Modify the state of a check button by index.
 
-        Callbacks will be triggered if :attr:`eventson` is True.
+        Callbacks will be triggered if :attr:`!eventson` is True.
 
         Parameters
         ----------
@@ -1734,7 +1740,7 @@ class RadioButtons(AxesWidget):
         """
         Select button with number *index*.
 
-        Callbacks will be triggered if :attr:`eventson` is True.
+        Callbacks will be triggered if :attr:`!eventson` is True.
 
         Parameters
         ----------
@@ -1841,7 +1847,7 @@ class SubplotTool(Widget):
         self.sliderbottom.slidermax = self.slidertop
         self.slidertop.slidermin = self.sliderbottom
 
-        bax = toolfig.add_axes([0.8, 0.05, 0.15, 0.075])
+        bax = toolfig.add_axes((0.8, 0.05, 0.15, 0.075))
         self.buttonreset = Button(bax, 'Reset')
         self.buttonreset.on_clicked(self._on_reset)
 
@@ -2181,7 +2187,9 @@ class _SelectorWidget(AxesWidget):
 
     def ignore(self, event):
         # docstring inherited
-        if not self.active or not self.ax.get_visible():
+        if super().ignore(event):
+            return True
+        if not self.ax.get_visible():
             return True
         # If canvas was locked
         if not self.canvas.widgetlock.available(self):

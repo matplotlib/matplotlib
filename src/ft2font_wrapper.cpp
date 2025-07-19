@@ -66,6 +66,19 @@ const char *FaceFlags__doc__ = R"""(
     .. versionadded:: 3.10
 )""";
 
+#ifndef FT_FACE_FLAG_VARIATION  // backcompat: ft 2.9.0.
+#define FT_FACE_FLAG_VARIATION (1L << 15)
+#endif
+#ifndef FT_FACE_FLAG_SVG  // backcompat: ft 2.12.0.
+#define FT_FACE_FLAG_SVG (1L << 16)
+#endif
+#ifndef FT_FACE_FLAG_SBIX  // backcompat: ft 2.12.0.
+#define FT_FACE_FLAG_SBIX (1L << 17)
+#endif
+#ifndef FT_FACE_FLAG_SBIX_OVERLAY  // backcompat: ft 2.12.0.
+#define FT_FACE_FLAG_SBIX_OVERLAY (1L << 18)
+#endif
+
 enum class FaceFlags : FT_Long {
 #define DECLARE_FLAG(name) name = FT_FACE_FLAG_##name
     DECLARE_FLAG(SCALABLE),
@@ -83,18 +96,10 @@ enum class FaceFlags : FT_Long {
     DECLARE_FLAG(CID_KEYED),
     DECLARE_FLAG(TRICKY),
     DECLARE_FLAG(COLOR),
-#ifdef FT_FACE_FLAG_VARIATION  // backcompat: ft 2.9.0.
     DECLARE_FLAG(VARIATION),
-#endif
-#ifdef FT_FACE_FLAG_SVG  // backcompat: ft 2.12.0.
     DECLARE_FLAG(SVG),
-#endif
-#ifdef FT_FACE_FLAG_SBIX  // backcompat: ft 2.12.0.
     DECLARE_FLAG(SBIX),
-#endif
-#ifdef FT_FACE_FLAG_SBIX_OVERLAY  // backcompat: ft 2.12.0.
     DECLARE_FLAG(SBIX_OVERLAY),
-#endif
 #undef DECLARE_FLAG
 };
 
@@ -115,14 +120,10 @@ P11X_DECLARE_ENUM(
     {"CID_KEYED", FaceFlags::CID_KEYED},
     {"TRICKY", FaceFlags::TRICKY},
     {"COLOR", FaceFlags::COLOR},
-    // backcompat: ft 2.9.0.
-    // {"VARIATION", FaceFlags::VARIATION},
-    // backcompat: ft 2.12.0.
-    // {"SVG", FaceFlags::SVG},
-    // backcompat: ft 2.12.0.
-    // {"SBIX", FaceFlags::SBIX},
-    // backcompat: ft 2.12.0.
-    // {"SBIX_OVERLAY", FaceFlags::SBIX_OVERLAY},
+    {"VARIATION", FaceFlags::VARIATION},
+    {"SVG", FaceFlags::SVG},
+    {"SBIX", FaceFlags::SBIX},
+    {"SBIX_OVERLAY", FaceFlags::SBIX_OVERLAY},
 );
 
 const char *LoadFlags__doc__ = R"""(
@@ -133,6 +134,16 @@ const char *LoadFlags__doc__ = R"""(
 
     .. versionadded:: 3.10
 )""";
+
+#ifndef FT_LOAD_COMPUTE_METRICS  // backcompat: ft 2.6.1.
+#define FT_LOAD_COMPUTE_METRICS (1L << 21)
+#endif
+#ifndef FT_LOAD_BITMAP_METRICS_ONLY  // backcompat: ft 2.7.1.
+#define FT_LOAD_BITMAP_METRICS_ONLY (1L << 22)
+#endif
+#ifndef FT_LOAD_NO_SVG  // backcompat: ft 2.13.1.
+#define FT_LOAD_NO_SVG (1L << 24)
+#endif
 
 enum class LoadFlags : FT_Int32 {
 #define DECLARE_FLAG(name) name = FT_LOAD_##name
@@ -152,15 +163,9 @@ enum class LoadFlags : FT_Int32 {
     DECLARE_FLAG(LINEAR_DESIGN),
     DECLARE_FLAG(NO_AUTOHINT),
     DECLARE_FLAG(COLOR),
-#ifdef FT_LOAD_COMPUTE_METRICS  // backcompat: ft 2.6.1.
     DECLARE_FLAG(COMPUTE_METRICS),
-#endif
-#ifdef FT_LOAD_BITMAP_METRICS_ONLY  // backcompat: ft 2.7.1.
     DECLARE_FLAG(BITMAP_METRICS_ONLY),
-#endif
-#ifdef FT_LOAD_NO_SVG  // backcompat: ft 2.13.1.
     DECLARE_FLAG(NO_SVG),
-#endif
     DECLARE_FLAG(TARGET_NORMAL),
     DECLARE_FLAG(TARGET_LIGHT),
     DECLARE_FLAG(TARGET_MONO),
@@ -187,12 +192,9 @@ P11X_DECLARE_ENUM(
     {"LINEAR_DESIGN", LoadFlags::LINEAR_DESIGN},
     {"NO_AUTOHINT", LoadFlags::NO_AUTOHINT},
     {"COLOR", LoadFlags::COLOR},
-    // backcompat: ft 2.6.1.
     {"COMPUTE_METRICS", LoadFlags::COMPUTE_METRICS},
-    // backcompat: ft 2.7.1.
-    // {"BITMAP_METRICS_ONLY", LoadFlags::BITMAP_METRICS_ONLY},
-    // backcompat: ft 2.13.1.
-    // {"NO_SVG", LoadFlags::NO_SVG},
+    {"BITMAP_METRICS_ONLY", LoadFlags::BITMAP_METRICS_ONLY},
+    {"NO_SVG", LoadFlags::NO_SVG},
     // These must be unique, but the others can be OR'd together; I don't know if
     // there's any way to really enforce that.
     {"TARGET_NORMAL", LoadFlags::TARGET_NORMAL},
@@ -435,21 +437,27 @@ const char *PyFT2Font_init__doc__ = R"""(
 
         .. warning::
             This API is private: do not use it directly.
+
+    _warn_if_used : bool, optional
+        Used to trigger missing glyph warnings.
+
+        .. warning::
+            This API is private: do not use it directly.
 )""";
 
 static PyFT2Font *
 PyFT2Font_init(py::object filename, long hinting_factor = 8,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
-               int kerning_factor = 0)
+               int kerning_factor = 0, bool warn_if_used = false)
 {
     if (hinting_factor <= 0) {
         throw py::value_error("hinting_factor must be greater than 0");
     }
 
     PyFT2Font *self = new PyFT2Font();
-    self->x = NULL;
+    self->x = nullptr;
     memset(&self->stream, 0, sizeof(FT_StreamRec));
-    self->stream.base = NULL;
+    self->stream.base = nullptr;
     self->stream.size = 0x7fffffff;  // Unknown size.
     self->stream.pos = 0;
     self->stream.descriptor.pointer = self;
@@ -486,14 +494,25 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
                 "First argument must be a path to a font file or a binary-mode file object");
         }
         self->py_file = filename;
-        self->stream.close = NULL;
+        self->stream.close = nullptr;
     }
 
-    self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn);
+    self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn,
+                          warn_if_used);
 
     self->x->set_kerning_factor(kerning_factor);
 
     return self;
+}
+
+static py::str
+PyFT2Font_fname(PyFT2Font *self)
+{
+    if (self->stream.close) {  // Called passed a filename to the constructor.
+        return self->py_file.attr("name");
+    } else {
+        return py::cast<py::str>(self->py_file);
+    }
 }
 
 const char *PyFT2Font_clear__doc__ =
@@ -762,7 +781,7 @@ PyFT2Font_load_char(PyFT2Font *self, long charcode,
                     std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
     bool fallback = true;
-    FT2Font *ft_object = NULL;
+    FT2Font *ft_object = nullptr;
     LoadFlags flags;
 
     if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
@@ -816,7 +835,7 @@ PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
                      std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
     bool fallback = true;
-    FT2Font *ft_object = NULL;
+    FT2Font *ft_object = nullptr;
     LoadFlags flags;
 
     if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
@@ -949,7 +968,7 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
 
     Parameters
     ----------
-    image : FT2Image
+    image : 2d array of uint8
         The image buffer on which to draw the glyph.
     x, y : int
         The pixel location at which to draw the glyph.
@@ -964,14 +983,16 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
 )""";
 
 static void
-PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, FT2Image &image,
+PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, py::buffer &image,
                                double_or_<int> vxd, double_or_<int> vyd,
                                PyGlyph *glyph, bool antialiased = true)
 {
     auto xd = _double_to_<int>("x", vxd);
     auto yd = _double_to_<int>("y", vyd);
 
-    self->x->draw_glyph_to_bitmap(image, xd, yd, glyph->glyphInd, antialiased);
+    self->x->draw_glyph_to_bitmap(
+        py::array_t<uint8_t, py::array::c_style>{image},
+        xd, yd, glyph->glyphInd, antialiased);
 }
 
 const char *PyFT2Font_get_glyph_name__doc__ = R"""(
@@ -1421,154 +1442,33 @@ const char *PyFT2Font_get_image__doc__ = R"""(
 static py::array
 PyFT2Font_get_image(PyFT2Font *self)
 {
-    FT2Image &im = self->x->get_image();
-    py::ssize_t dims[] = {
-        static_cast<py::ssize_t>(im.get_height()),
-        static_cast<py::ssize_t>(im.get_width())
-    };
-    return py::array_t<unsigned char>(dims, im.get_buffer());
+    return self->x->get_image();
 }
 
-static const char *
-PyFT2Font_postscript_name(PyFT2Font *self)
+const char *PyFT2Font__get_type1_encoding_vector__doc__ = R"""(
+    Return a list mapping CharString indices of a Type 1 font to FreeType glyph indices.
+
+    Returns
+    -------
+    list[int]
+)""";
+
+static std::array<FT_UInt, 256>
+PyFT2Font__get_type1_encoding_vector(PyFT2Font *self)
 {
-    const char *ps_name = FT_Get_Postscript_Name(self->x->get_face());
-    if (ps_name == NULL) {
-        ps_name = "UNAVAILABLE";
+    auto face = self->x->get_face();
+    auto indices = std::array<FT_UInt, 256>{};
+    for (auto i = 0u; i < indices.size(); ++i) {
+        auto len = FT_Get_PS_Font_Value(face, PS_DICT_ENCODING_ENTRY, i, nullptr, 0);
+        if (len == -1) {
+            // Explicitly ignore missing entries (mapped to glyph 0 = .notdef).
+            continue;
+        }
+        auto buf = std::make_unique<char[]>(len);
+        FT_Get_PS_Font_Value(face, PS_DICT_ENCODING_ENTRY, i, buf.get(), len);
+        indices[i] = FT_Get_Name_Index(face, buf.get());
     }
-
-    return ps_name;
-}
-
-static FT_Long
-PyFT2Font_num_faces(PyFT2Font *self)
-{
-    return self->x->get_face()->num_faces;
-}
-
-static const char *
-PyFT2Font_family_name(PyFT2Font *self)
-{
-    const char *name = self->x->get_face()->family_name;
-    if (name == NULL) {
-        name = "UNAVAILABLE";
-    }
-    return name;
-}
-
-static const char *
-PyFT2Font_style_name(PyFT2Font *self)
-{
-    const char *name = self->x->get_face()->style_name;
-    if (name == NULL) {
-        name = "UNAVAILABLE";
-    }
-    return name;
-}
-
-static FaceFlags
-PyFT2Font_face_flags(PyFT2Font *self)
-{
-    return static_cast<FaceFlags>(self->x->get_face()->face_flags);
-}
-
-static StyleFlags
-PyFT2Font_style_flags(PyFT2Font *self)
-{
-    return static_cast<StyleFlags>(self->x->get_face()->style_flags);
-}
-
-static FT_Long
-PyFT2Font_num_glyphs(PyFT2Font *self)
-{
-    return self->x->get_face()->num_glyphs;
-}
-
-static FT_Int
-PyFT2Font_num_fixed_sizes(PyFT2Font *self)
-{
-    return self->x->get_face()->num_fixed_sizes;
-}
-
-static FT_Int
-PyFT2Font_num_charmaps(PyFT2Font *self)
-{
-    return self->x->get_face()->num_charmaps;
-}
-
-static bool
-PyFT2Font_scalable(PyFT2Font *self)
-{
-    if (FT_IS_SCALABLE(self->x->get_face())) {
-        return true;
-    }
-    return false;
-}
-
-static FT_UShort
-PyFT2Font_units_per_EM(PyFT2Font *self)
-{
-    return self->x->get_face()->units_per_EM;
-}
-
-static py::tuple
-PyFT2Font_get_bbox(PyFT2Font *self)
-{
-    FT_BBox *bbox = &(self->x->get_face()->bbox);
-
-    return py::make_tuple(bbox->xMin, bbox->yMin, bbox->xMax, bbox->yMax);
-}
-
-static FT_Short
-PyFT2Font_ascender(PyFT2Font *self)
-{
-    return self->x->get_face()->ascender;
-}
-
-static FT_Short
-PyFT2Font_descender(PyFT2Font *self)
-{
-    return self->x->get_face()->descender;
-}
-
-static FT_Short
-PyFT2Font_height(PyFT2Font *self)
-{
-    return self->x->get_face()->height;
-}
-
-static FT_Short
-PyFT2Font_max_advance_width(PyFT2Font *self)
-{
-    return self->x->get_face()->max_advance_width;
-}
-
-static FT_Short
-PyFT2Font_max_advance_height(PyFT2Font *self)
-{
-    return self->x->get_face()->max_advance_height;
-}
-
-static FT_Short
-PyFT2Font_underline_position(PyFT2Font *self)
-{
-    return self->x->get_face()->underline_position;
-}
-
-static FT_Short
-PyFT2Font_underline_thickness(PyFT2Font *self)
-{
-    return self->x->get_face()->underline_thickness;
-}
-
-static py::str
-PyFT2Font_fname(PyFT2Font *self)
-{
-    if (self->stream.close) {  // Called passed a filename to the constructor.
-        return self->py_file.attr("name");
-    } else {
-        return py::cast<py::str>(self->py_file);
-    }
+    return indices;
 }
 
 static py::object
@@ -1662,6 +1562,10 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                          PyFT2Image__doc__)
         .def(py::init(
                 [](double_or_<long> width, double_or_<long> height) {
+                    auto warn =
+                        py::module_::import("matplotlib._api").attr("warn_deprecated");
+                    warn("since"_a="3.11", "name"_a="FT2Image", "obj_type"_a="class",
+                         "alternative"_a="a 2D uint8 ndarray");
                     return new FT2Image(
                         _double_to_<long>("width", width),
                         _double_to_<long>("height", height)
@@ -1701,11 +1605,12 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_property_readonly("bbox", &PyGlyph_get_bbox,
                                "The control box of the glyph.");
 
-    py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
-                          PyFT2Font__doc__)
+        auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
+                                         PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
              "filename"_a, "hinting_factor"_a=8, py::kw_only(),
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=0,
+             "_warn_if_used"_a=false,
              PyFT2Font_init__doc__)
         .def("clear", &PyFT2Font_clear, PyFT2Font_clear__doc__)
         .def("set_size", &PyFT2Font_set_size, "ptsize"_a, "dpi"_a,
@@ -1735,10 +1640,20 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("get_descent", &PyFT2Font_get_descent, PyFT2Font_get_descent__doc__)
         .def("draw_glyphs_to_bitmap", &PyFT2Font_draw_glyphs_to_bitmap,
              py::kw_only(), "antialiased"_a=true,
-             PyFT2Font_draw_glyphs_to_bitmap__doc__)
-        .def("draw_glyph_to_bitmap", &PyFT2Font_draw_glyph_to_bitmap,
-             "image"_a, "x"_a, "y"_a, "glyph"_a, py::kw_only(), "antialiased"_a=true,
-             PyFT2Font_draw_glyph_to_bitmap__doc__)
+             PyFT2Font_draw_glyphs_to_bitmap__doc__);
+        // The generated docstring uses an unqualified "Buffer" as type hint,
+        // which causes an error in sphinx.  This is fixed as of pybind11
+        // master (since #5566) which now uses "collections.abc.Buffer";
+        // restore the signature once that version is released.
+        {
+            py::options options{};
+            options.disable_function_signatures();
+            cls
+            .def("draw_glyph_to_bitmap", &PyFT2Font_draw_glyph_to_bitmap,
+                "image"_a, "x"_a, "y"_a, "glyph"_a, py::kw_only(), "antialiased"_a=true,
+                PyFT2Font_draw_glyph_to_bitmap__doc__);
+        }
+        cls
         .def("get_glyph_name", &PyFT2Font_get_glyph_name, "index"_a,
              PyFT2Font_get_glyph_name__doc__)
         .def("get_charmap", &PyFT2Font_get_charmap, PyFT2Font_get_charmap__doc__)
@@ -1753,55 +1668,110 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
              PyFT2Font_get_sfnt_table__doc__)
         .def("get_path", &PyFT2Font_get_path, PyFT2Font_get_path__doc__)
         .def("get_image", &PyFT2Font_get_image, PyFT2Font_get_image__doc__)
+        .def("_get_type1_encoding_vector", &PyFT2Font__get_type1_encoding_vector,
+             PyFT2Font__get_type1_encoding_vector__doc__)
 
-        .def_property_readonly("postscript_name", &PyFT2Font_postscript_name,
-                               "PostScript name of the font.")
-        .def_property_readonly("num_faces", &PyFT2Font_num_faces,
-                               "Number of faces in file.")
-        .def_property_readonly("family_name", &PyFT2Font_family_name,
-                               "Face family name.")
-        .def_property_readonly("style_name", &PyFT2Font_style_name,
-                               "Style name.")
-        .def_property_readonly("face_flags", &PyFT2Font_face_flags,
-                               "Face flags; see `.FaceFlags`.")
-        .def_property_readonly("style_flags", &PyFT2Font_style_flags,
-                               "Style flags; see `.StyleFlags`.")
-        .def_property_readonly("num_glyphs", &PyFT2Font_num_glyphs,
-                               "Number of glyphs in the face.")
-        .def_property_readonly("num_fixed_sizes", &PyFT2Font_num_fixed_sizes,
-                               "Number of bitmap in the face.")
-        .def_property_readonly("num_charmaps", &PyFT2Font_num_charmaps,
-                               "Number of charmaps in the face.")
-        .def_property_readonly("scalable", &PyFT2Font_scalable,
-                               "Whether face is scalable; attributes after this one "
-                               "are only defined for scalable faces.")
-        .def_property_readonly("units_per_EM", &PyFT2Font_units_per_EM,
-                               "Number of font units covered by the EM.")
-        .def_property_readonly("bbox", &PyFT2Font_get_bbox,
-                               "Face global bounding box (xmin, ymin, xmax, ymax).")
-        .def_property_readonly("ascender", &PyFT2Font_ascender,
-                               "Ascender in 26.6 units.")
-        .def_property_readonly("descender", &PyFT2Font_descender,
-                               "Descender in 26.6 units.")
-        .def_property_readonly("height", &PyFT2Font_height,
-                               "Height in 26.6 units; used to compute a default line "
-                               "spacing (baseline-to-baseline distance).")
-        .def_property_readonly("max_advance_width", &PyFT2Font_max_advance_width,
-                               "Maximum horizontal cursor advance for all glyphs.")
-        .def_property_readonly("max_advance_height", &PyFT2Font_max_advance_height,
-                               "Maximum vertical cursor advance for all glyphs.")
-        .def_property_readonly("underline_position", &PyFT2Font_underline_position,
-                               "Vertical position of the underline bar.")
-        .def_property_readonly("underline_thickness", &PyFT2Font_underline_thickness,
-                               "Thickness of the underline bar.")
-        .def_property_readonly("fname", &PyFT2Font_fname,
-                               "The original filename for this object.")
+        .def_property_readonly(
+          "postscript_name", [](PyFT2Font *self) {
+            if (const char *name = FT_Get_Postscript_Name(self->x->get_face())) {
+              return name;
+            } else {
+              return "UNAVAILABLE";
+            }
+          }, "PostScript name of the font.")
+        .def_property_readonly(
+          "num_faces", [](PyFT2Font *self) {
+            return self->x->get_face()->num_faces;
+          }, "Number of faces in file.")
+        .def_property_readonly(
+          "family_name", [](PyFT2Font *self) {
+            if (const char *name = self->x->get_face()->family_name) {
+              return name;
+            } else {
+              return "UNAVAILABLE";
+            }
+          }, "Face family name.")
+        .def_property_readonly(
+          "style_name", [](PyFT2Font *self) {
+            if (const char *name = self->x->get_face()->style_name) {
+              return name;
+            } else {
+              return "UNAVAILABLE";
+            }
+          }, "Style name.")
+        .def_property_readonly(
+          "face_flags", [](PyFT2Font *self) {
+            return static_cast<FaceFlags>(self->x->get_face()->face_flags);
+          }, "Face flags; see `.FaceFlags`.")
+        .def_property_readonly(
+          "style_flags", [](PyFT2Font *self) {
+            return static_cast<StyleFlags>(self->x->get_face()->style_flags & 0xffff);
+          }, "Style flags; see `.StyleFlags`.")
+        .def_property_readonly(
+          "num_named_instances", [](PyFT2Font *self) {
+            return (self->x->get_face()->style_flags & 0x7fff0000) >> 16;
+          }, "Number of named instances in the face.")
+        .def_property_readonly(
+          "num_glyphs", [](PyFT2Font *self) {
+            return self->x->get_face()->num_glyphs;
+          }, "Number of glyphs in the face.")
+        .def_property_readonly(
+          "num_fixed_sizes", [](PyFT2Font *self) {
+            return self->x->get_face()->num_fixed_sizes;
+          }, "Number of bitmap in the face.")
+        .def_property_readonly(
+          "num_charmaps", [](PyFT2Font *self) {
+            return self->x->get_face()->num_charmaps;
+          }, "Number of charmaps in the face.")
+        .def_property_readonly(
+          "scalable", [](PyFT2Font *self) {
+            return bool(FT_IS_SCALABLE(self->x->get_face()));
+          }, "Whether face is scalable; attributes after this one "
+             "are only defined for scalable faces.")
+        .def_property_readonly(
+          "units_per_EM", [](PyFT2Font *self) {
+            return self->x->get_face()->units_per_EM;
+          }, "Number of font units covered by the EM.")
+        .def_property_readonly(
+          "bbox", [](PyFT2Font *self) {
+            FT_BBox bbox = self->x->get_face()->bbox;
+            return py::make_tuple(bbox.xMin, bbox.yMin, bbox.xMax, bbox.yMax);
+          }, "Face global bounding box (xmin, ymin, xmax, ymax).")
+        .def_property_readonly(
+          "ascender", [](PyFT2Font *self) {
+            return self->x->get_face()->ascender;
+          }, "Ascender in 26.6 units.")
+        .def_property_readonly(
+          "descender", [](PyFT2Font *self) {
+            return self->x->get_face()->descender;
+          }, "Descender in 26.6 units.")
+        .def_property_readonly(
+          "height", [](PyFT2Font *self) {
+            return self->x->get_face()->height;
+          }, "Height in 26.6 units; used to compute a default line spacing "
+             "(baseline-to-baseline distance).")
+        .def_property_readonly(
+          "max_advance_width", [](PyFT2Font *self) {
+            return self->x->get_face()->max_advance_width;
+          }, "Maximum horizontal cursor advance for all glyphs.")
+        .def_property_readonly(
+          "max_advance_height", [](PyFT2Font *self) {
+            return self->x->get_face()->max_advance_height;
+          }, "Maximum vertical cursor advance for all glyphs.")
+        .def_property_readonly(
+          "underline_position", [](PyFT2Font *self) {
+            return self->x->get_face()->underline_position;
+          }, "Vertical position of the underline bar.")
+        .def_property_readonly(
+          "underline_thickness", [](PyFT2Font *self) {
+            return self->x->get_face()->underline_thickness;
+          }, "Thickness of the underline bar.")
+        .def_property_readonly(
+          "fname", &PyFT2Font_fname,
+          "The original filename for this object.")
 
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
-            FT2Image &im = self.x->get_image();
-            std::vector<py::size_t> shape { im.get_height(), im.get_width() };
-            std::vector<py::size_t> strides { im.get_width(), 1 };
-            return py::buffer_info(im.get_buffer(), shape, strides);
+            return self.x->get_image().request();
         });
 
     m.attr("__freetype_version__") = version_string;

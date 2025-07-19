@@ -286,7 +286,7 @@ Hint: You will need to store the original
 ``xy`` location of the rectangle which is stored as ``rect.xy`` and
 connect to the press, motion and release mouse events.  When the mouse
 is pressed, check to see if the click occurs over your rectangle (see
-`.Rectangle.contains`) and if it does, store
+`!.Rectangle.contains`) and if it does, store
 the rectangle xy and the location of the mouse click in data coordinates.
 In the motion event callback, compute the deltax and deltay of the
 mouse movement, and add those deltas to the origin of the rectangle
@@ -577,7 +577,7 @@ callback function simply prints the data that are under the pick
 location.  Different Matplotlib Artists can attach different data to
 the PickEvent.  For example, ``Line2D`` attaches the ind property,
 which are the indices into the line data under the pick point.  See
-`.Line2D.pick` for details on the ``PickEvent`` properties of the line.  ::
+`!.Line2D.pick` for details on the ``PickEvent`` properties of the line.  ::
 
     import numpy as np
     import matplotlib.pyplot as plt

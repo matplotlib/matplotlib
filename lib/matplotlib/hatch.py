@@ -1,4 +1,21 @@
-"""Contains classes for generating hatch patterns."""
+"""
+Module for generating hatch patterns.
+
+For examples of using the hatch API, see
+:ref:`sphx_glr_gallery_shapes_and_collections_hatch_style_reference.py`.
+
+The following hatching patterns are available, shown here at level 2 density:
+
+.. plot:: _embedded_plots/hatch_classes.py
+    :include-source: false
+    :alt:
+        8 squares, each showing the pattern corresponding to the hatch symbol:
+        symbol '/' makes right leaning diagonals, '\\' makes left leaning diagonals,
+        '|' makes vertical lines, '-' makes horizontal lines, '+' makes a grid,
+        'X' makes a grid rotated 90 degrees, 'o' makes small unfilled circles,
+        'O' makes large unfilled circles, '.' makes small filled circles, and '*' makes
+        a star with 5 points
+"""
 
 import numpy as np
 
@@ -165,6 +182,7 @@ class Stars(Shapes):
         self.shape_codes = np.full(len(self.shape_vertices), Path.LINETO,
                                    dtype=Path.code_type)
         self.shape_codes[0] = Path.MOVETO
+        self.shape_codes[-1] = Path.CLOSEPOLY
         super().__init__(hatch, density)
 
 _hatch_types = [

@@ -1,5 +1,0 @@
-The offset string associated with ConciseDateFormatter will now invert when the axis is inverted
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Previously, when the axis was inverted, the offset string associated with ConciseDateFormatter would not change,
-so the offset string indicated the axis was oriented in the wrong direction. Now, when the axis is inverted, the offset
-string is oriented correctly.

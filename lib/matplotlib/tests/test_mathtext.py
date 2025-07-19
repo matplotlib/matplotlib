@@ -4,8 +4,9 @@ import io
 from pathlib import Path
 import platform
 import re
-from xml.etree import ElementTree as ET
+import textwrap
 from typing import Any
+from xml.etree import ElementTree as ET
 
 import numpy as np
 from packaging.version import parse as parse_version
@@ -16,7 +17,8 @@ import pytest
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import mathtext, _mathtext
+from matplotlib import font_manager as fm, mathtext, _mathtext
+from matplotlib.ft2font import LoadFlags
 
 pyparsing_version = parse_version(pyparsing.__version__)
 
@@ -264,7 +266,7 @@ def test_mathfont_rendering(baseline_images, fontset, index, text):
              horizontalalignment='center', verticalalignment='center')
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_short_long_accents(fig_test, fig_ref):
     acc_map = _mathtext.Parser._accent_map
     short_accs = [s for s in acc_map if len(s) == 1]
@@ -373,13 +375,13 @@ def test_single_minus_sign():
     assert (t != 0xff).any()  # assert that canvas is not all white.
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_spaces(fig_test, fig_ref):
     fig_test.text(.5, .5, r"$1\,2\>3\ 4$")
     fig_ref.text(.5, .5, r"$1\/2\:3~4$")
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_operator_space(fig_test, fig_ref):
     fig_test.text(0.1, 0.1, r"$\log 6$")
     fig_test.text(0.1, 0.2, r"$\log(6)$")
@@ -402,13 +404,13 @@ def test_operator_space(fig_test, fig_ref):
     fig_ref.text(0.1, 0.9, r"$\mathrm{sin}^2 \mathrm{\,cos}$")
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_inverted_delimiters(fig_test, fig_ref):
     fig_test.text(.5, .5, r"$\left)\right($", math_fontfamily="dejavusans")
     fig_ref.text(.5, .5, r"$)($", math_fontfamily="dejavusans")
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_genfrac_displaystyle(fig_test, fig_ref):
     fig_test.text(0.1, 0.1, r"$\dfrac{2x}{3y}$")
 
@@ -435,7 +437,7 @@ def test_mathtext_fallback_invalid():
      ("stix", ['DejaVu Sans', 'mpltest', 'STIXGeneral', 'STIXGeneral', 'STIXGeneral'])])
 def test_mathtext_fallback(fallback, fontlist):
     mpl.font_manager.fontManager.addfont(
-        str(Path(__file__).resolve().parent / 'mpltest.ttf'))
+        (Path(__file__).resolve().parent / 'data/mpltest.ttf'))
     mpl.rcParams["svg.fonttype"] = 'none'
     mpl.rcParams['mathtext.fontset'] = 'custom'
     mpl.rcParams['mathtext.rm'] = 'mpltest'
@@ -554,7 +556,45 @@ def test_mathtext_operators():
     fig.draw_without_rendering()
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_boldsymbol(fig_test, fig_ref):
     fig_test.text(0.1, 0.2, r"$\boldsymbol{\mathrm{abc0123\alpha}}$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")
+
+
+def test_box_repr():
+    s = repr(_mathtext.Parser().parse(
+        r"$\frac{1}{2}$",
+        _mathtext.DejaVuSansFonts(fm.FontProperties(), LoadFlags.NO_HINTING),
+        fontsize=12, dpi=100))
+    assert s == textwrap.dedent("""\
+        Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
+          Hlist<w=0.00 h=0.00 d=0.00 s=0.00>[],
+          Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
+            Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
+              Vlist<w=7.40 h=22.72 d=0.00 s=6.64>[
+                HCentered<w=7.40 h=8.67 d=0.00 s=0.00>[
+                  Glue,
+                  Hlist<w=7.40 h=8.67 d=0.00 s=0.00>[
+                    `1`,
+                    k2.36,
+                  ],
+                  Glue,
+                ],
+                Vbox,
+                Hrule,
+                Vbox,
+                HCentered<w=7.40 h=8.84 d=0.00 s=0.00>[
+                  Glue,
+                  Hlist<w=7.40 h=8.84 d=0.00 s=0.00>[
+                    `2`,
+                    k2.02,
+                  ],
+                  Glue,
+                ],
+              ],
+              Hbox,
+            ],
+          ],
+          Hlist<w=0.00 h=0.00 d=0.00 s=0.00>[],
+        ]""")

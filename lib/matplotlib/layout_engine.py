@@ -10,9 +10,14 @@ disable the layout engine for the final draw. Second, it is useful to know the
 layout engine while the figure is being created.  In particular, colorbars are
 made differently with different layout engines (for historical reasons).
 
-Matplotlib supplies two layout engines, `.TightLayoutEngine` and
-`.ConstrainedLayoutEngine`.  Third parties can create their own layout engine
-by subclassing `.LayoutEngine`.
+Matplotlib has two built-in layout engines:
+
+- `.TightLayoutEngine` was the first layout engine added to Matplotlib.
+  See also :ref:`tight_layout_guide`.
+- `.ConstrainedLayoutEngine` is more modern and generally gives better results.
+  See also :ref:`constrainedlayout_guide`.
+
+Third parties can create their own layout engine by subclassing `.LayoutEngine`.
 """
 
 from contextlib import nullcontext

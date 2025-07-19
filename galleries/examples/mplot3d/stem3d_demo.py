@@ -52,5 +52,5 @@ plt.show()
 
 # %%
 # .. tags::
-#    plot-type: 3D, plot-type: speciality,
+#    plot-type: 3D, plot-type: specialty,
 #    level: beginner

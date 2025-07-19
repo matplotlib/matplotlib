@@ -45,6 +45,8 @@ import matplotlib as mpl
 from matplotlib import _api
 import matplotlib.axes as maxes
 from matplotlib.path import Path
+from matplotlib.transforms import Bbox
+
 from mpl_toolkits.axes_grid1 import mpl_axes
 from .axisline_style import AxislineStyle  # noqa
 from .axis_artist import AxisArtist, GridlinesCollection
@@ -118,8 +120,7 @@ class _AxisArtistHelperBase:
 class _FixedAxisArtistHelperBase(_AxisArtistHelperBase):
     """Helper class for a fixed (in the axes coordinate) axis."""
 
-    @_api.delete_parameter("3.9", "nth_coord")
-    def __init__(self, loc, nth_coord=None):
+    def __init__(self, loc):
         """``nth_coord = 0``: x-axis; ``nth_coord = 1``: y-axis."""
         super().__init__(_api.check_getitem(
             {"bottom": 0, "top": 0, "left": 1, "right": 1}, loc=loc))
@@ -169,12 +170,7 @@ class _FloatingAxisArtistHelperBase(_AxisArtistHelperBase):
 
 class FixedAxisArtistHelperRectilinear(_FixedAxisArtistHelperBase):
 
-    @_api.delete_parameter("3.9", "nth_coord")
-    def __init__(self, axes, loc, nth_coord=None):
-        """
-        nth_coord = along which coordinate value varies
-        in 2D, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
-        """
+    def __init__(self, axes, loc):
         super().__init__(loc)
         self.axis = [axes.xaxis, axes.yaxis][self.nth_coord]
 
@@ -285,10 +281,10 @@ class GridHelperBase:
         x1, x2 = axes.get_xlim()
         y1, y2 = axes.get_ylim()
         if self._old_limits != (x1, x2, y1, y2):
-            self._update_grid(x1, y1, x2, y2)
+            self._update_grid(Bbox.from_extents(x1, y1, x2, y2))
             self._old_limits = (x1, x2, y1, y2)
 
-    def _update_grid(self, x1, y1, x2, y2):
+    def _update_grid(self, bbox):
         """Cache relevant computations when the axes limits have changed."""
 
     def get_gridlines(self, which, axis):
@@ -309,10 +305,9 @@ class GridHelperRectlinear(GridHelperBase):
         super().__init__()
         self.axes = axes
 
-    @_api.delete_parameter(
-        "3.9", "nth_coord", addendum="'nth_coord' is now inferred from 'loc'.")
     def new_fixed_axis(
-            self, loc, nth_coord=None, axis_direction=None, offset=None, axes=None):
+        self, loc, *, axis_direction=None, offset=None, axes=None
+    ):
         if axes is None:
             _api.warn_external(
                 "'new_fixed_axis' explicitly requires the axes keyword.")

@@ -169,9 +169,14 @@ def _allow_interrupt_qt(qapp_or_eventloop):
                 # be forgiving about reading an empty socket.
                 pass
 
-        return sn  # Actually keep the notifier alive.
+        # We return the QSocketNotifier so that the caller holds a reference, and we
+        # also explicitly clean it up in handle_sigint(). Without doing both, deletion
+        # of the socket notifier can happen prematurely or not at all.
+        return sn
 
-    def handle_sigint():
+    def handle_sigint(sn):
+        sn.deleteLater()
+        QtCore.QCoreApplication.sendPostedEvents(sn, QtCore.QEvent.Type.DeferredDelete)
         if hasattr(qapp_or_eventloop, 'closeAllWindows'):
             qapp_or_eventloop.closeAllWindows()
         qapp_or_eventloop.quit()
@@ -239,6 +244,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         palette = QtGui.QPalette(QtGui.QColor("white"))
         self.setPalette(palette)
 
+    @QtCore.Slot()
     def _update_pixel_ratio(self):
         if self._set_device_pixel_ratio(
                 self.devicePixelRatioF() or 1):  # rarely, devicePixelRatioF=0
@@ -248,6 +254,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             event = QtGui.QResizeEvent(self.size(), self.size())
             self.resizeEvent(event)
 
+    @QtCore.Slot(QtGui.QScreen)
     def _update_screen(self, screen):
         # Handler for changes to a window's attached screen.
         self._update_pixel_ratio()
@@ -856,7 +863,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
 class SubplotToolQt(QtWidgets.QDialog):
     def __init__(self, targetfig, parent):
-        super().__init__()
+        super().__init__(parent)
         self.setWindowIcon(QtGui.QIcon(
             str(cbook._get_data_path("images/matplotlib.png"))))
         self.setObjectName("SubplotTool")

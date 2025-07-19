@@ -1,5 +1,6 @@
 import abc
 import base64
+import collections
 import contextlib
 from io import BytesIO, TextIOWrapper
 import itertools
@@ -492,8 +493,15 @@ class PillowWriter(AbstractMovieWriter):
         buf = BytesIO()
         self.fig.savefig(
             buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
-        self._frames.append(Image.frombuffer(
-            "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1))
+        im = Image.frombuffer(
+            "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1)
+        if im.getextrema()[3][0] < 255:
+            # This frame has transparency, so we'll just add it as is.
+            self._frames.append(im)
+        else:
+            # Without transparency, we switch to RGB mode, which converts to P mode a
+            # little better if needed (specifically, this helps with GIF output.)
+            self._frames.append(im.convert("RGB"))
 
     def finish(self):
         self._frames[0].save(
@@ -884,6 +892,7 @@ class Animation:
         # that cause the frame sequence to be iterated.
         self.frame_seq = self.new_frame_seq()
         self.event_source = event_source
+        self.event_source.add_callback(self._step)
 
         # Instead of starting the event source now, we connect to the figure's
         # draw_event, so that we only start once the figure has been drawn.
@@ -916,13 +925,9 @@ class Animation:
             return
         # First disconnect our draw event handler
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
-
         # Now do any initial draw
         self._init_draw()
-
-        # Add our callback for stepping the animation and
-        # actually start the event_source.
-        self.event_source.add_callback(self._step)
+        # Actually start the event_source.
         self.event_source.start()
 
     def _stop(self, *args):
@@ -1704,13 +1709,13 @@ class FuncAnimation(TimedAnimation):
         self._cache_frame_data = cache_frame_data
 
         # Needs to be initialized so the draw functions work without checking
-        self._save_seq = []
+        self._save_seq = collections.deque([], self._save_count)
 
         super().__init__(fig, **kwargs)
 
         # Need to reset the saved seq, since right now it will contain data
         # for a single frame from init, which is not what we want.
-        self._save_seq = []
+        self._save_seq.clear()
 
     def new_frame_seq(self):
         # Use the generating function to generate a new frame sequence
@@ -1723,8 +1728,7 @@ class FuncAnimation(TimedAnimation):
         if self._save_seq:
             # While iterating we are going to update _save_seq
             # so make a copy to safely iterate over
-            self._old_saved_seq = list(self._save_seq)
-            return iter(self._old_saved_seq)
+            return iter([*self._save_seq])
         else:
             if self._save_count is None:
                 frame_seq = self.new_frame_seq()
@@ -1765,17 +1769,16 @@ class FuncAnimation(TimedAnimation):
             self._drawn_artists = self._init_func()
             if self._blit:
                 if self._drawn_artists is None:
-                    raise RuntimeError('The init_func must return a '
-                                       'sequence of Artist objects.')
+                    raise RuntimeError('When blit=True, the init_func must '
+                                       'return a sequence of Artist objects.')
                 for a in self._drawn_artists:
                     a.set_animated(self._blit)
-        self._save_seq = []
+        self._save_seq.clear()
 
     def _draw_frame(self, framedata):
         if self._cache_frame_data:
             # Save the data for potential saving of movies.
             self._save_seq.append(framedata)
-            self._save_seq = self._save_seq[-self._save_count:]
 
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
@@ -1783,8 +1786,8 @@ class FuncAnimation(TimedAnimation):
 
         if self._blit:
 
-            err = RuntimeError('The animation function must return a sequence '
-                               'of Artist objects.')
+            err = RuntimeError('When blit=True, the animation function must '
+                               'return a sequence of Artist objects.')
             try:
                 # check if a sequence
                 iter(self._drawn_artists)

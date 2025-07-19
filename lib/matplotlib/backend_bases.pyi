@@ -19,9 +19,20 @@ from matplotlib.text import Text
 from matplotlib.transforms import Bbox, BboxBase, Transform, TransformedPath
 
 from collections.abc import Callable, Iterable, Sequence
-from typing import Any, IO, Literal, NamedTuple, TypeVar
+from typing import Any, IO, Literal, NamedTuple, TypeVar, overload
 from numpy.typing import ArrayLike
-from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
+from .typing import (
+    CapStyleType,
+    CloseEventType,
+    ColorType,
+    DrawEventType,
+    JoinStyleType,
+    KeyEventType,
+    LineStyleType,
+    MouseEventType,
+    PickEventType,
+    ResizeEventType,
+)
 
 def register_backend(
     format: str, backend: str | type[FigureCanvasBase], description: str | None = ...
@@ -63,6 +74,8 @@ class RendererBase:
         antialiaseds: bool | Sequence[bool],
         urls: str | Sequence[str],
         offset_position: Any,
+        *,
+        hatchcolors: ColorType | Sequence[ColorType] | None = None,
     ) -> None: ...
     def draw_quad_mesh(
         self,
@@ -184,7 +197,7 @@ class TimerBase:
         callbacks: list[tuple[Callable, tuple, dict[str, Any]]] | None = ...,
     ) -> None: ...
     def __del__(self) -> None: ...
-    def start(self, interval: int | None = ...) -> None: ...
+    def start(self) -> None: ...
     def stop(self) -> None: ...
     @property
     def interval(self) -> int: ...
@@ -236,11 +249,11 @@ class LocationEvent(Event):
     ) -> None: ...
 
 class MouseButton(IntEnum):
-    LEFT: int
-    MIDDLE: int
-    RIGHT: int
-    BACK: int
-    FORWARD: int
+    LEFT = 1
+    MIDDLE = 2
+    RIGHT = 3
+    BACK = 8
+    FORWARD = 9
 
 class MouseEvent(LocationEvent):
     button: MouseButton | Literal["up", "down"] | None
@@ -348,7 +361,32 @@ class FigureCanvasBase:
     def get_default_filetype(cls) -> str: ...
     def get_default_filename(self) -> str: ...
     _T = TypeVar("_T", bound=FigureCanvasBase)
-    def mpl_connect(self, s: str, func: Callable[[Event], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(
+        self,
+        s: MouseEventType,
+        func: Callable[[MouseEvent], Any],
+    ) -> int: ...
+
+    @overload
+    def mpl_connect(
+        self,
+        s: KeyEventType,
+        func: Callable[[KeyEvent], Any],
+    ) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: PickEventType, func: Callable[[PickEvent], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: ResizeEventType, func: Callable[[ResizeEvent], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: CloseEventType, func: Callable[[CloseEvent], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
     def mpl_disconnect(self, cid: int) -> None: ...
     def new_timer(
         self,
@@ -398,9 +436,9 @@ class FigureManagerBase:
 cursors = Cursors
 
 class _Mode(str, Enum):
-    NONE: str
-    PAN: str
-    ZOOM: str
+    NONE = ""
+    PAN = "pan/zoom"
+    ZOOM = "zoom rect"
 
 class NavigationToolbar2:
     toolitems: tuple[tuple[str, ...] | tuple[None, ...], ...]
@@ -429,7 +467,7 @@ class NavigationToolbar2:
     def zoom(self, *args) -> None: ...
 
     class _ZoomInfo(NamedTuple):
-        direction: Literal["in", "out"]
+        button: MouseButton
         start_xy: tuple[float, float]
         axes: list[Axes]
         cid: int
@@ -439,7 +477,7 @@ class NavigationToolbar2:
     def release_zoom(self, event: Event) -> None: ...
     def push_current(self) -> None: ...
     subplot_tool: widgets.SubplotTool
-    def configure_subplots(self, *args): ...
+    def configure_subplots(self, *args: Any) -> widgets.SubplotTool: ...
     def save_figure(self, *args) -> str | None | object: ...
     def update(self) -> None: ...
     def set_history_buttons(self) -> None: ...

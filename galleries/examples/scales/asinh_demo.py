@@ -1,7 +1,7 @@
 """
-============
-Asinh Demo
-============
+===========
+Asinh scale
+===========
 
 Illustration of the `asinh <.scale.AsinhScale>` axis scaling,
 which uses the transformation

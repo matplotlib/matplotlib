@@ -35,7 +35,6 @@ of how to use transforms.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
-import copy
 import functools
 import itertools
 import textwrap
@@ -46,8 +45,7 @@ import numpy as np
 from numpy.linalg import inv
 
 from matplotlib import _api
-from matplotlib._path import (
-    affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
+from matplotlib._path import affine_transform, count_bboxes_overlapping_bbox
 from .path import Path
 
 DEBUG = False
@@ -99,7 +97,6 @@ class TransformNode:
     # Some metadata about the transform, used to determine whether an
     # invalidation is affine-only
     is_affine = False
-    is_bbox = _api.deprecated("3.9")(_api.classproperty(lambda cls: False))
 
     pass_through = False
     """
@@ -141,7 +138,9 @@ class TransformNode:
             for k, v in self._parents.items() if v is not None}
 
     def __copy__(self):
-        other = copy.copy(super())
+        cls = type(self)
+        other = cls.__new__(cls)
+        other.__dict__.update(self.__dict__)
         # If `c = a + b; a1 = copy(a)`, then modifications to `a1` do not
         # propagate back to `c`, i.e. we need to clear the parents of `a1`.
         other._parents = {}
@@ -217,7 +216,6 @@ class BboxBase(TransformNode):
     and height, but these are not stored explicitly.
     """
 
-    is_bbox = _api.deprecated("3.9")(_api.classproperty(lambda cls: True))
     is_affine = True
 
     if DEBUG:
@@ -242,7 +240,7 @@ class BboxBase(TransformNode):
         The first of the pair of *x* coordinates that define the bounding box.
 
         This is not guaranteed to be less than :attr:`x1` (for that, use
-        :attr:`xmin`).
+        :attr:`~BboxBase.xmin`).
         """
         return self.get_points()[0, 0]
 
@@ -252,7 +250,7 @@ class BboxBase(TransformNode):
         The first of the pair of *y* coordinates that define the bounding box.
 
         This is not guaranteed to be less than :attr:`y1` (for that, use
-        :attr:`ymin`).
+        :attr:`~BboxBase.ymin`).
         """
         return self.get_points()[0, 1]
 
@@ -262,7 +260,7 @@ class BboxBase(TransformNode):
         The second of the pair of *x* coordinates that define the bounding box.
 
         This is not guaranteed to be greater than :attr:`x0` (for that, use
-        :attr:`xmax`).
+        :attr:`~BboxBase.xmax`).
         """
         return self.get_points()[1, 0]
 
@@ -272,7 +270,7 @@ class BboxBase(TransformNode):
         The second of the pair of *y* coordinates that define the bounding box.
 
         This is not guaranteed to be greater than :attr:`y0` (for that, use
-        :attr:`ymax`).
+        :attr:`~BboxBase.ymax`).
         """
         return self.get_points()[1, 1]
 
@@ -282,7 +280,7 @@ class BboxBase(TransformNode):
         The first pair of (*x*, *y*) coordinates that define the bounding box.
 
         This is not guaranteed to be the bottom-left corner (for that, use
-        :attr:`min`).
+        :attr:`~BboxBase.min`).
         """
         return self.get_points()[0]
 
@@ -292,7 +290,7 @@ class BboxBase(TransformNode):
         The second pair of (*x*, *y*) coordinates that define the bounding box.
 
         This is not guaranteed to be the top-right corner (for that, use
-        :attr:`max`).
+        :attr:`~BboxBase.max`).
         """
         return self.get_points()[1]
 
@@ -364,7 +362,10 @@ class BboxBase(TransformNode):
 
     @property
     def bounds(self):
-        """Return (:attr:`x0`, :attr:`y0`, :attr:`width`, :attr:`height`)."""
+        """
+        Return (:attr:`x0`, :attr:`y0`, :attr:`~BboxBase.width`,
+        :attr:`~BboxBase.height`).
+        """
         (x0, y0), (x1, y1) = self.get_points()
         return (x0, y0, x1 - x0, y1 - y0)
 
@@ -865,13 +866,31 @@ class Bbox(BboxBase):
         if ignore is None:
             ignore = self._ignore
 
-        if path.vertices.size == 0:
+        if path.vertices.size == 0 or not (updatex or updatey):
             return
 
-        points, minpos, changed = update_path_extents(
-            path, None, self._points, self._minpos, ignore)
+        if ignore:
+            points = np.array([[np.inf, np.inf], [-np.inf, -np.inf]])
+            minpos = np.array([np.inf, np.inf])
+        else:
+            points = self._points.copy()
+            minpos = self._minpos.copy()
 
-        if changed:
+        valid_points = (np.isfinite(path.vertices[..., 0])
+                        & np.isfinite(path.vertices[..., 1]))
+
+        if updatex:
+            x = path.vertices[..., 0][valid_points]
+            points[0, 0] = min(points[0, 0], np.min(x, initial=np.inf))
+            points[1, 0] = max(points[1, 0], np.max(x, initial=-np.inf))
+            minpos[0] = min(minpos[0], np.min(x[x > 0], initial=np.inf))
+        if updatey:
+            y = path.vertices[..., 1][valid_points]
+            points[0, 1] = min(points[0, 1], np.min(y, initial=np.inf))
+            points[1, 1] = max(points[1, 1], np.max(y, initial=-np.inf))
+            minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
+
+        if np.any(points != self._points) or np.any(minpos != self._minpos):
             self.invalidate()
             if updatex:
                 self._points[:, 0] = points[:, 0]
@@ -896,8 +915,9 @@ class Bbox(BboxBase):
            - When ``None``, use the last value passed to :meth:`ignore`.
         """
         x = np.ravel(x)
-        self.update_from_data_xy(np.column_stack([x, np.ones(x.size)]),
-                                 ignore=ignore, updatey=False)
+        # The y-component in np.array([x, *y*]).T is not used. We simply pass
+        # x again to not spend extra time on creating an array of unused data
+        self.update_from_data_xy(np.array([x, x]).T, ignore=ignore, updatey=False)
 
     def update_from_data_y(self, y, ignore=None):
         """
@@ -915,8 +935,9 @@ class Bbox(BboxBase):
             - When ``None``, use the last value passed to :meth:`ignore`.
         """
         y = np.ravel(y)
-        self.update_from_data_xy(np.column_stack([np.ones(y.size), y]),
-                                 ignore=ignore, updatex=False)
+        # The x-component in np.array([*x*, y]).T is not used. We simply pass
+        # y again to not spend extra time on creating an array of unused data
+        self.update_from_data_xy(np.array([y, y]).T, ignore=ignore, updatex=False)
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """
@@ -1476,14 +1497,14 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array-like
-            The input values as an array of length :attr:`input_dims` or
-            shape (N, :attr:`input_dims`).
+            The input values as an array of length :attr:`~Transform.input_dims` or
+            shape (N, :attr:`~Transform.input_dims`).
 
         Returns
         -------
         array
-            The output values as an array of length :attr:`output_dims` or
-            shape (N, :attr:`output_dims`), depending on the input.
+            The output values as an array of length :attr:`~Transform.output_dims` or
+            shape (N, :attr:`~Transform.output_dims`), depending on the input.
         """
         # Ensure that values is a 2d array (but remember whether
         # we started with a 1d or 2d array).
@@ -1521,14 +1542,14 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array
-            The input values as an array of length :attr:`input_dims` or
-            shape (N, :attr:`input_dims`).
+            The input values as an array of length :attr:`~Transform.input_dims` or
+            shape (N, :attr:`~Transform.input_dims`).
 
         Returns
         -------
         array
-            The output values as an array of length :attr:`output_dims` or
-            shape (N, :attr:`output_dims`), depending on the input.
+            The output values as an array of length :attr:`~Transform.output_dims` or
+            shape (N, :attr:`~Transform.output_dims`), depending on the input.
         """
         return self.get_affine().transform(values)
 
@@ -1546,14 +1567,17 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array
-            The input values as an array of length :attr:`input_dims` or
-            shape (N, :attr:`input_dims`).
+            The input values as an array of length
+            :attr:`~matplotlib.transforms.Transform.input_dims` or
+            shape (N, :attr:`~matplotlib.transforms.Transform.input_dims`).
 
         Returns
         -------
         array
-            The output values as an array of length :attr:`output_dims` or
-            shape (N, :attr:`output_dims`), depending on the input.
+            The output values as an array of length
+            :attr:`~matplotlib.transforms.Transform.output_dims` or shape
+            (N, :attr:`~matplotlib.transforms.Transform.output_dims`),
+            depending on the input.
         """
         return values
 
@@ -2596,27 +2620,6 @@ class BboxTransformTo(Affine2DBase):
             self._mtx = np.array([[outw,  0.0, outl],
                                   [ 0.0, outh, outb],
                                   [ 0.0,  0.0,  1.0]],
-                                 float)
-            self._inverted = None
-            self._invalid = 0
-        return self._mtx
-
-
-@_api.deprecated("3.9")
-class BboxTransformToMaxOnly(BboxTransformTo):
-    """
-    `BboxTransformToMaxOnly` is a transformation that linearly transforms points from
-    the unit bounding box to a given `Bbox` with a fixed upper left of (0, 0).
-    """
-    def get_matrix(self):
-        # docstring inherited
-        if self._invalid:
-            xmax, ymax = self._boxout.max
-            if DEBUG and (xmax == 0 or ymax == 0):
-                raise ValueError("Transforming to a singular bounding box.")
-            self._mtx = np.array([[xmax,  0.0, 0.0],
-                                  [ 0.0, ymax, 0.0],
-                                  [ 0.0,  0.0, 1.0]],
                                  float)
             self._inverted = None
             self._invalid = 0

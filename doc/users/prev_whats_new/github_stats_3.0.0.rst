@@ -595,7 +595,7 @@ Pull Requests (598):
 * :ghpull:`11757`: PGF backend output text color even if black
 * :ghpull:`11751`: Remove the unused 'verbose' option from setupext.
 * :ghpull:`9084`: Require calling a _BoundMethodProxy to get the underlying callable.
-* :ghpull:`11752`: Fix section level of Previous Whats New
+* :ghpull:`11752`: Fix section level of Previous What's New
 * :ghpull:`10513`: Replace most uses of getfilesystemencoding by os.fs{en,de}code.
 * :ghpull:`11739`: fix tight_layout bug #11737
 * :ghpull:`11744`: minor doc update on axes_grid1's inset_axes
@@ -899,7 +899,7 @@ Pull Requests (598):
 * :ghpull:`11075`: Drop alpha channel when saving comparison failure diff image.
 * :ghpull:`9022`: Help tool
 * :ghpull:`11045`: Help tool.
-* :ghpull:`11076`: Don't create texput.{aux,log} in rootdir everytime tests are run.
+* :ghpull:`11076`: Don't create texput.{aux,log} in rootdir every time tests are run
 * :ghpull:`11073`: py3fication of some tests.
 * :ghpull:`11074`: bytes % args is back since py3.5
 * :ghpull:`11066`: Use chained comparisons where reasonable.
@@ -1138,7 +1138,7 @@ Issues (123):
 * :ghissue:`11373`: Passing an incorrectly sized colour list to scatter should raise a relevant error
 * :ghissue:`11756`: pgf backend doesn't set color of text when the color is black
 * :ghissue:`11766`: test_axes.py::test_csd_freqs failing with numpy 1.15.0 on macOS
-* :ghissue:`11750`: previous whats new is overindented on "what's new in mpl3.0 page"
+* :ghissue:`11750`: previous what's new is overindented on "what's new in mpl3.0 page"
 * :ghissue:`11728`: Qt5 Segfaults on window resize
 * :ghissue:`11709`: Repaint region is wrong on Retina display with Qt5
 * :ghissue:`11578`: wx segfaulting on OSX travis tests
@@ -1149,7 +1149,7 @@ Issues (123):
 * :ghissue:`11607`: AttributeError: 'QEvent' object has no attribute 'pos'
 * :ghissue:`11486`: Colorbar does not render with PowerNorm and min extend when using imshow
 * :ghissue:`11582`: wx segfault
-* :ghissue:`11515`: using 'sharex' once in 'subplots' function can affect subsequent calles to 'subplots'
+* :ghissue:`11515`: using 'sharex' once in 'subplots' function can affect subsequent calls to 'subplots'
 * :ghissue:`10269`: input() blocks any rendering and event handling
 * :ghissue:`10345`: Python 3.4 with Matplotlib 1.5 vs Python 3.6 with Matplotlib 2.1
 * :ghissue:`10443`: Drop use of pytz dependency in next major release

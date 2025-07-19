@@ -104,7 +104,7 @@ def _generate_complete_test_figure(fig_ref):
 
 
 @mpl.style.context("default")
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_complete(fig_test, fig_ref):
     _generate_complete_test_figure(fig_ref)
     # plotting is done, now test its pickle-ability
@@ -136,7 +136,7 @@ def _pickle_load_subprocess():
 
 
 @mpl.style.context("default")
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
     _generate_complete_test_figure(fig_ref)
 

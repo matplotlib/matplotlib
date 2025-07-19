@@ -3,7 +3,7 @@ import io
 import operator
 from unittest import mock
 
-from matplotlib.backend_bases import MouseEvent
+from matplotlib.backend_bases import MouseEvent, DrawEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
@@ -1126,7 +1126,7 @@ def test_check_radio_buttons_image():
         check_props={'color': ['red', 'green', 'blue']})
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_radio_buttons(fig_test, fig_ref):
     widgets.RadioButtons(fig_test.subplots(), ["tea", "coffee"])
     ax = fig_ref.add_subplot(xticks=[], yticks=[])
@@ -1136,7 +1136,7 @@ def test_radio_buttons(fig_test, fig_ref):
     ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_radio_buttons_props(fig_test, fig_ref):
     label_props = {'color': ['red'], 'fontsize': [24]}
     radio_props = {'facecolor': 'green', 'edgecolor': 'blue', 'linewidth': 2}
@@ -1160,7 +1160,7 @@ def test_radio_button_active_conflict(ax):
     assert mcolors.same_color(rb._buttons.get_facecolor(), ['green', 'none'])
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_radio_buttons_activecolor_change(fig_test, fig_ref):
     widgets.RadioButtons(fig_ref.subplots(), ['tea', 'coffee'],
                          activecolor='green')
@@ -1171,7 +1171,7 @@ def test_radio_buttons_activecolor_change(fig_test, fig_ref):
     cb.activecolor = 'green'
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_check_buttons(fig_test, fig_ref):
     widgets.CheckButtons(fig_test.subplots(), ["tea", "coffee"], [True, True])
     ax = fig_ref.add_subplot(xticks=[], yticks=[])
@@ -1183,7 +1183,7 @@ def test_check_buttons(fig_test, fig_ref):
     ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_check_button_props(fig_test, fig_ref):
     label_props = {'color': ['red'], 'fontsize': [24]}
     frame_props = {'facecolor': 'green', 'edgecolor': 'blue', 'linewidth': 2}
@@ -1599,12 +1599,12 @@ def test_polygon_selector_redraw(ax, draw_bounding_box):
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
     # After removing two verts, only one remains, and the
-    # selector should be automatically resete
+    # selector should be automatically reset
     assert tool.verts == verts[0:2]
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box):
     verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
     ax_test = fig_test.add_subplot()
@@ -1757,3 +1757,26 @@ def test_MultiCursor(horizOn, vertOn):
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:
         assert l.get_ydata() == (.25, .25)
+
+
+def test_parent_axes_removal():
+
+    fig, (ax_radio, ax_checks) = plt.subplots(1, 2)
+
+    radio = widgets.RadioButtons(ax_radio, ['1', '2'], 0)
+    checks = widgets.CheckButtons(ax_checks, ['1', '2'], [True, False])
+
+    ax_checks.remove()
+    ax_radio.remove()
+    with io.BytesIO() as out:
+        # verify that saving does not raise
+        fig.savefig(out, format='raw')
+
+    # verify that this method which is triggered by a draw_event callback when
+    # blitting is enabled does not raise.  Calling private methods is simpler
+    # than trying to force blitting to be enabled with Agg or use a GUI
+    # framework.
+    renderer = fig._get_renderer()
+    evt = DrawEvent('draw_event', fig.canvas, renderer)
+    radio._clear(evt)
+    checks._clear(evt)

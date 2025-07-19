@@ -1,7 +1,7 @@
 from collections.abc import Callable, Iterable, Sequence
 import datetime
 from typing import Any, Literal, overload
-from typing_extensions import Self  # < Py 3.11
+from typing import Self
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -48,6 +48,7 @@ class Tick(martist.Artist):
         label2On: bool = ...,
         major: bool = ...,
         labelrotation: float = ...,
+        labelrotation_mode: Literal["default", "anchor", "xtick", "ytick"] | None = ...,
         grid_color: ColorType | None = ...,
         grid_linestyle: str | None = ...,
         grid_linewidth: float | None = ...,

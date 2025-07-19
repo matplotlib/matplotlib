@@ -29,5 +29,5 @@ plt.show()
 # .. tags::
 #
 #    styling: color
-#    plot-style: bar
+#    plot-type: bar
 #    level: beginner

@@ -30,7 +30,7 @@ def test_patheffect1():
 
 
 @image_comparison(['patheffect2'], remove_text=True, style='mpl20',
-                  tol=0.06 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.06)
 def test_patheffect2():
 
     ax2 = plt.subplot()
@@ -45,7 +45,8 @@ def test_patheffect2():
                                                    foreground="w")])
 
 
-@image_comparison(['patheffect3'], tol=0.019 if platform.machine() == 'arm64' else 0)
+@image_comparison(['patheffect3'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.019)
 def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
     p1.set_path_effects([path_effects.SimpleLineShadow(),
@@ -134,9 +135,8 @@ def test_collection():
                        'edgecolor': 'blue'})
 
 
-@image_comparison(['tickedstroke'], remove_text=True, extensions=['png'],
-                  tol=0.22)  # Increased tolerance due to fixed clipping.
-def test_tickedstroke():
+@image_comparison(['tickedstroke.png'], remove_text=True, style='mpl20')
+def test_tickedstroke(text_placeholders):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(12, 4))
     path = Path.unit_circle()
     patch = patches.PathPatch(path, facecolor='none', lw=2, path_effects=[
@@ -148,13 +148,13 @@ def test_tickedstroke():
     ax1.set_xlim(-2, 2)
     ax1.set_ylim(-2, 2)
 
-    ax2.plot([0, 1], [0, 1], label=' ',
+    ax2.plot([0, 1], [0, 1], label='C0',
              path_effects=[path_effects.withTickedStroke(spacing=7,
                                                          angle=135)])
     nx = 101
     x = np.linspace(0.0, 1.0, nx)
     y = 0.3 * np.sin(x * 8) + 0.4
-    ax2.plot(x, y, label=' ', path_effects=[path_effects.withTickedStroke()])
+    ax2.plot(x, y, label='C1', path_effects=[path_effects.withTickedStroke()])
 
     ax2.legend()
 

@@ -1,4 +1,6 @@
 """
+.. redirect-from:: /gallery/userdemo/demo_gridspec06
+
 ================
 Nested Gridspecs
 ================

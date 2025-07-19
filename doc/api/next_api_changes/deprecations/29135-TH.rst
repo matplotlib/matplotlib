@@ -1,0 +1,5 @@
+Parameter ``ListedColormap(..., N=...)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing the parameter *N* to `.ListedColormap` is deprecated.
+Please preprocess the list colors yourself if needed.

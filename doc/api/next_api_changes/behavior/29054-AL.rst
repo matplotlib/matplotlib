@@ -1,0 +1,11 @@
+Minor log tick labels are set depending on number of major log ticks, not on number of decades spanned
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, by default, on a log-scaled axis, the minor ticks would be
+unlabeled if the axis limits spanned more than one decade.  The meaning of the
+``minor_thresholds`` parameter to `.LogFormatter` has been altered so that the
+decision of whether to label the minor ticks is now based on the number of
+major ticks drawn within the axis limits.
+
+For example, for an axis spanning from 4 to 60 (with thus a single major log
+tick, at 10), minor ticks are now labeled, even though the axis spans more than
+one decade.

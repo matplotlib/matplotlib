@@ -1,19 +1,37 @@
 """
 Scales define the distribution of data values on an axis, e.g. a log scaling.
-They are defined as subclasses of `ScaleBase`.
 
-See also `.axes.Axes.set_xscale` and the scales examples in the documentation.
+The mapping is implemented through `.Transform` subclasses.
 
-See :doc:`/gallery/scales/custom_scale` for a full example of defining a custom
-scale.
+The following scales are built-in:
 
-Matplotlib also supports non-separable transformations that operate on both
-`~.axis.Axis` at the same time.  They are known as projections, and defined in
-`matplotlib.projections`.
-"""
+.. _builtin_scales:
+
+============= ===================== ================================ =================================
+Name          Class                 Transform                        Inverted transform
+============= ===================== ================================ =================================
+"asinh"       `AsinhScale`          `AsinhTransform`                 `InvertedAsinhTransform`
+"function"    `FuncScale`           `FuncTransform`                  `FuncTransform`
+"functionlog" `FuncScaleLog`        `FuncTransform` + `LogTransform` `InvertedLogTransform` + `FuncTransform`
+"linear"      `LinearScale`         `.IdentityTransform`             `.IdentityTransform`
+"log"         `LogScale`            `LogTransform`                   `InvertedLogTransform`
+"logit"       `LogitScale`          `LogitTransform`                 `LogisticTransform`
+"symlog"      `SymmetricalLogScale` `SymmetricalLogTransform`        `InvertedSymmetricalLogTransform`
+============= ===================== ================================ =================================
+
+A user will often only use the scale name, e.g. when setting the scale through
+`~.Axes.set_xscale`: ``ax.set_xscale("log")``.
+
+See also the :ref:`scales examples <sphx_glr_gallery_scales>` in the documentation.
+
+Custom scaling can be achieved through `FuncScale`, or by creating your own
+`ScaleBase` subclass and corresponding transforms (see :doc:`/gallery/scales/custom_scale`).
+Third parties can register their scales by name through `register_scale`.
+"""  # noqa: E501
 
 import inspect
 import textwrap
+from functools import wraps
 
 import numpy as np
 
@@ -34,7 +52,7 @@ class ScaleBase:
 
     Subclasses should override
 
-    :attr:`name`
+    :attr:`!name`
         The scale's name.
     :meth:`get_transform`
         A method returning a `.Transform`, which converts data coordinates to
@@ -86,6 +104,53 @@ class ScaleBase:
         return vmin, vmax
 
 
+def _make_axis_parameter_optional(init_func):
+    """
+    Decorator to allow leaving out the *axis* parameter in scale constructors.
+
+    This decorator ensures backward compatibility for scale classes that
+    previously required an *axis* parameter. It allows constructors to be
+    callerd with or without the *axis* parameter.
+
+    For simplicity, this does not handle the case when *axis*
+    is passed as a keyword. However,
+    scanning GitHub, there's no evidence that that is used anywhere.
+
+    Parameters
+    ----------
+    init_func : callable
+        The original __init__ method of a scale class.
+
+    Returns
+    -------
+    callable
+        A wrapped version of *init_func* that handles the optional *axis*.
+
+    Notes
+    -----
+    If the wrapped constructor defines *axis* as its first argument, the
+    parameter is preserved when present. Otherwise, the value `None` is injected
+    as the first argument.
+
+    Examples
+    --------
+    >>> from matplotlib.scale import ScaleBase
+    >>> class CustomScale(ScaleBase):
+    ...     @_make_axis_parameter_optional
+    ...     def __init__(self, axis, custom_param=1):
+    ...         self.custom_param = custom_param
+    """
+    @wraps(init_func)
+    def wrapper(self, *args, **kwargs):
+        if args and isinstance(args[0], mpl.axis.Axis):
+            return init_func(self, *args, **kwargs)
+        else:
+            # Remove 'axis' from kwargs to avoid double assignment
+            axis = kwargs.pop('axis', None)
+            return init_func(self, axis, *args, **kwargs)
+    return wrapper
+
+
 class LinearScale(ScaleBase):
     """
     The default linear scale.
@@ -93,6 +158,7 @@ class LinearScale(ScaleBase):
 
     name = 'linear'
 
+    @_make_axis_parameter_optional
     def __init__(self, axis):
         # This method is present only to prevent inheritance of the base class'
         # constructor docstring, which would otherwise end up interpolated into
@@ -163,6 +229,7 @@ class FuncScale(ScaleBase):
 
     name = 'function'
 
+    @_make_axis_parameter_optional
     def __init__(self, axis, functions):
         """
         Parameters
@@ -262,7 +329,8 @@ class LogScale(ScaleBase):
     """
     name = 'log'
 
-    def __init__(self, axis, *, base=10, subs=None, nonpositive="clip"):
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, *, base=10, subs=None, nonpositive="clip"):
         """
         Parameters
         ----------
@@ -313,6 +381,7 @@ class FuncScaleLog(LogScale):
 
     name = 'functionlog'
 
+    @_make_axis_parameter_optional
     def __init__(self, axis, functions, base=10):
         """
         Parameters
@@ -412,6 +481,8 @@ class SymmetricalLogScale(ScaleBase):
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
 
+    See :doc:`/gallery/scales/symlog_demo` for a detailed description.
+
     Parameters
     ----------
     base : float, default: 10
@@ -436,7 +507,8 @@ class SymmetricalLogScale(ScaleBase):
     """
     name = 'symlog'
 
-    def __init__(self, axis, *, base=10, linthresh=2, subs=None, linscale=1):
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, *, base=10, linthresh=2, subs=None, linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
 
@@ -528,7 +600,8 @@ class AsinhScale(ScaleBase):
         1024: (256, 512)
     }
 
-    def __init__(self, axis, *, linear_width=1.0,
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, *, linear_width=1.0,
                  base=10, subs='auto', **kwargs):
         """
         Parameters
@@ -626,7 +699,8 @@ class LogitScale(ScaleBase):
     """
     name = 'logit'
 
-    def __init__(self, axis, nonpositive='mask', *,
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, nonpositive='mask', *,
                  one_half=r"\frac{1}{2}", use_overline=False):
         r"""
         Parameters

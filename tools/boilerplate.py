@@ -238,6 +238,7 @@ def boilerplate_gen():
         'fill_between',
         'fill_betweenx',
         'grid',
+        'grouped_bar',
         'hexbin',
         'hist',
         'stairs',
@@ -256,7 +257,6 @@ def boilerplate_gen():
         'phase_spectrum',
         'pie',
         'plot',
-        'plot_date',
         'psd',
         'quiver',
         'quiverkey',
@@ -460,5 +460,13 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         pyplot_path = Path(sys.argv[1])
     else:
-        pyplot_path = Path(__file__).parent / "../lib/matplotlib/pyplot.py"
+        mpl_path = (Path(__file__).parent / ".." /"lib"/"matplotlib").resolve()
+        pyplot_path = mpl_path / "pyplot.py"
+        for cls in [Axes, Figure]:
+            if mpl_path not in  Path(inspect.getfile(cls)).parents:
+                raise RuntimeError(
+                    f"{cls.__name__} import path is not {mpl_path}.\n"
+                    "Please make sure your Matplotlib installation "
+                    "is from the same source checkout as boilerplate.py"
+                )
     build_pyplot(pyplot_path)

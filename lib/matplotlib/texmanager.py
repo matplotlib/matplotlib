@@ -67,6 +67,13 @@ class TexManager:
     _grey_arrayd = {}
 
     _font_families = ('serif', 'sans-serif', 'cursive', 'monospace')
+    # Check for the cm-super package (which registers unicode computer modern
+    # support just by being installed) without actually loading any package
+    # (because we already load the incompatible fix-cm).
+    _check_cmsuper_installed = (
+        r'\IfFileExists{type1ec.sty}{}{\PackageError{matplotlib-support}{'
+        r'Missing cm-super package, required by Matplotlib}{}}'
+    )
     _font_preambles = {
         'new century schoolbook': r'\renewcommand{\rmdefault}{pnc}',
         'bookman': r'\renewcommand{\rmdefault}{pbk}',
@@ -80,13 +87,10 @@ class TexManager:
         'helvetica': r'\usepackage{helvet}',
         'avant garde': r'\usepackage{avant}',
         'courier': r'\usepackage{courier}',
-        # Loading the type1ec package ensures that cm-super is installed, which
-        # is necessary for Unicode computer modern.  (It also allows the use of
-        # computer modern at arbitrary sizes, but that's just a side effect.)
-        'monospace': r'\usepackage{type1ec}',
-        'computer modern roman': r'\usepackage{type1ec}',
-        'computer modern sans serif': r'\usepackage{type1ec}',
-        'computer modern typewriter': r'\usepackage{type1ec}',
+        'monospace': _check_cmsuper_installed,
+        'computer modern roman': _check_cmsuper_installed,
+        'computer modern sans serif': _check_cmsuper_installed,
+        'computer modern typewriter': _check_cmsuper_installed,
     }
     _font_types = {
         'new century schoolbook': 'serif',
@@ -168,7 +172,10 @@ class TexManager:
         Return a filename based on a hash of the string, fontsize, and dpi.
         """
         src = cls._get_tex_source(tex, fontsize) + str(dpi)
-        filehash = hashlib.md5(src.encode('utf-8')).hexdigest()
+        filehash = hashlib.sha256(
+            src.encode('utf-8'),
+            usedforsecurity=False
+        ).hexdigest()
         filepath = Path(cls._texcache)
 
         num_letters, num_levels = 2, 2
@@ -197,6 +204,7 @@ class TexManager:
         font_preamble, fontcmd = cls._get_font_preamble_and_command()
         baselineskip = 1.25 * fontsize
         return "\n".join([
+            r"\RequirePackage{fix-cm}",
             r"\documentclass{article}",
             r"% Pass-through \mathdefault, which is used in non-usetex mode",
             r"% to use the default text font but was historically suppressed",
@@ -323,10 +331,8 @@ class TexManager:
     @classmethod
     def get_grey(cls, tex, fontsize=None, dpi=None):
         """Return the alpha channel."""
-        if not fontsize:
-            fontsize = mpl.rcParams['font.size']
-        if not dpi:
-            dpi = mpl.rcParams['savefig.dpi']
+        fontsize = mpl._val_or_rc(fontsize, 'font.size')
+        dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
         key = cls._get_tex_source(tex, fontsize), dpi
         alpha = cls._grey_arrayd.get(key)
         if alpha is None:

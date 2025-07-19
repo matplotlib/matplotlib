@@ -989,6 +989,7 @@ default: %(va)s
         self.texts = []
         self.images = []
         self.legends = []
+        self.subplotpars.reset()
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
         self._suptitle = None
@@ -1199,17 +1200,18 @@ default: %(va)s
         Parameters
         ----------
         mappable
-            The `matplotlib.cm.ScalarMappable` (i.e., `.AxesImage`,
+            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`,
             `.ContourSet`, etc.) described by this colorbar.  This argument is
             mandatory for the `.Figure.colorbar` method but optional for the
             `.pyplot.colorbar` function, which sets the default to the current
             image.
 
-            Note that one can create a `.ScalarMappable` "on-the-fly" to
-            generate colorbars not attached to a previously drawn artist, e.g.
+            Note that one can create a `.colorizer.ColorizingArtist` "on-the-fly"
+            to generate colorbars not attached to a previously drawn artist, e.g.
             ::
 
-                fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
+                cr = colorizer.Colorizer(norm=norm, cmap=cmap)
+                fig.colorbar(colorizer.ColorizingArtist(cr), ax=ax)
 
         cax : `~matplotlib.axes.Axes`, optional
             Axes into which the colorbar will be drawn.  If `None`, then a new
@@ -1382,16 +1384,15 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
         Example with rotated xtick labels::
 
             fig, axs = plt.subplots(1, 2)
-            for tick in axs[0].get_xticklabels():
-                tick.set_rotation(55)
+            axs[0].tick_params(axis='x', rotation=55)
             axs[0].set_xlabel('XLabel 0')
             axs[1].set_xlabel('XLabel 1')
             fig.align_xlabels()
@@ -1444,8 +1445,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1500,8 +1501,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1544,6 +1545,11 @@ default: %(va)s
         matplotlib.figure.Figure.align_xlabels
         matplotlib.figure.Figure.align_ylabels
         matplotlib.figure.Figure.align_titles
+
+        Notes
+        -----
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
@@ -2118,9 +2124,9 @@ default: %(va)s
             # go through the unique keys,
             for name in unique_ids:
                 # sort out where each axes starts/ends
-                indx = np.argwhere(mosaic == name)
-                start_row, start_col = np.min(indx, axis=0)
-                end_row, end_col = np.max(indx, axis=0) + 1
+                index = np.argwhere(mosaic == name)
+                start_row, start_col = np.min(index, axis=0)
+                end_row, end_col = np.max(index, axis=0) + 1
                 # and construct the slice object
                 slc = (slice(start_row, end_row), slice(start_col, end_col))
                 # some light error checking
@@ -2265,10 +2271,8 @@ class SubFigure(FigureBase):
         super().__init__(**kwargs)
         if facecolor is None:
             facecolor = "none"
-        if edgecolor is None:
-            edgecolor = mpl.rcParams['figure.edgecolor']
-        if frameon is None:
-            frameon = mpl.rcParams['figure.frameon']
+        edgecolor = mpl._val_or_rc(edgecolor, 'figure.edgecolor')
+        frameon = mpl._val_or_rc(frameon, 'figure.frameon')
 
         self._subplotspec = subplotspec
         self._parent = parent
@@ -2473,8 +2477,13 @@ class Figure(FigureBase):
         """
         Parameters
         ----------
-        figsize : 2-tuple of floats, default: :rc:`figure.figsize`
-            Figure dimension ``(width, height)`` in inches.
+        figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
+            The figure dimensions. This can be
+
+            - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
+              "cm" (centimenter), "px" (pixel).
+            - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
+              ``(width, height, "in")``.
 
         dpi : float, default: :rc:`figure.dpi`
             Dots per inch.
@@ -2604,16 +2613,13 @@ None}, default: None
         self._button_pick_id = connect('button_press_event', self.pick)
         self._scroll_pick_id = connect('scroll_event', self.pick)
 
-        if figsize is None:
-            figsize = mpl.rcParams['figure.figsize']
-        if dpi is None:
-            dpi = mpl.rcParams['figure.dpi']
-        if facecolor is None:
-            facecolor = mpl.rcParams['figure.facecolor']
-        if edgecolor is None:
-            edgecolor = mpl.rcParams['figure.edgecolor']
-        if frameon is None:
-            frameon = mpl.rcParams['figure.frameon']
+        figsize = mpl._val_or_rc(figsize, 'figure.figsize')
+        dpi = mpl._val_or_rc(dpi, 'figure.dpi')
+        facecolor = mpl._val_or_rc(facecolor, 'figure.facecolor')
+        edgecolor = mpl._val_or_rc(edgecolor, 'figure.edgecolor')
+        frameon = mpl._val_or_rc(frameon, 'figure.frameon')
+
+        figsize = _parse_figsize(figsize, dpi)
 
         if not np.isfinite(figsize).all() or (np.array(figsize) < 0).any():
             raise ValueError('figure size must be positive finite not '
@@ -2886,8 +2892,7 @@ None}, default: None
             If a dict, pass it as kwargs to `.Figure.tight_layout`, overriding the
             default paddings.
         """
-        if tight is None:
-            tight = mpl.rcParams['figure.autolayout']
+        tight = mpl._val_or_rc(tight, 'figure.autolayout')
         _tight = 'tight' if bool(tight) else 'none'
         _tight_parameters = tight if isinstance(tight, dict) else {}
         self.set_layout_engine(_tight, **_tight_parameters)
@@ -2918,8 +2923,7 @@ None}, default: None
         ----------
         constrained : bool or dict or None
         """
-        if constrained is None:
-            constrained = mpl.rcParams['figure.constrained_layout.use']
+        constrained = mpl._val_or_rc(constrained, 'figure.constrained_layout.use')
         _constrained = 'constrained' if bool(constrained) else 'none'
         _parameters = constrained if isinstance(constrained, dict) else {}
         self.set_layout_engine(_constrained, **_parameters)
@@ -3446,8 +3450,7 @@ None}, default: None
         """
 
         kwargs.setdefault('dpi', mpl.rcParams['savefig.dpi'])
-        if transparent is None:
-            transparent = mpl.rcParams['savefig.transparent']
+        transparent = mpl._val_or_rc(transparent, 'savefig.transparent')
 
         with ExitStack() as stack:
             if transparent:
@@ -3660,8 +3663,8 @@ def figaspect(arg):
 
     Returns
     -------
-    width, height : float
-        The figure size in inches.
+    size : (2,) array
+        The width and height of the figure in inches.
 
     Notes
     -----
@@ -3677,7 +3680,7 @@ def figaspect(arg):
 
         w, h = figaspect(2.)
         fig = Figure(figsize=(w, h))
-        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+        ax = fig.add_axes((0.1, 0.1, 0.8, 0.8))
         ax.imshow(A, **kwargs)
 
     Make a figure with the proper aspect for an array::
@@ -3685,7 +3688,7 @@ def figaspect(arg):
         A = rand(5, 3)
         w, h = figaspect(A)
         fig = Figure(figsize=(w, h))
-        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+        ax = fig.add_axes((0.1, 0.1, 0.8, 0.8))
         ax.imshow(A, **kwargs)
     """
 
@@ -3719,3 +3722,46 @@ def figaspect(arg):
     # the min/max dimensions (we don't want figures 10 feet tall!)
     newsize = np.clip(newsize, figsize_min, figsize_max)
     return newsize
+
+
+def _parse_figsize(figsize, dpi):
+    """
+    Convert a figsize expression to (width, height) in inches.
+
+    Parameters
+    ----------
+    figsize : (float, float) or (float, float, str)
+        This can be
+
+        - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
+          "cm" (centimenter), "px" (pixel).
+        - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
+          ``(width, height, "in")``.
+
+    dpi : float
+        The dots-per-inch; used for converting 'px' to 'in'.
+    """
+    num_parts = len(figsize)
+    if num_parts == 2:
+        return figsize
+    elif num_parts == 3:
+        x, y, unit = figsize
+        if unit == 'in':
+            pass
+        elif unit == 'cm':
+            x /= 2.54
+            y /= 2.54
+        elif unit == 'px':
+            x /= dpi
+            y /= dpi
+        else:
+            raise ValueError(
+                f"Invalid unit {unit!r} in 'figsize'; "
+                "supported units are 'in', 'cm', 'px'"
+            )
+        return x, y
+    else:
+        raise ValueError(
+            "Invalid figsize format, expected (x, y) or (x, y, unit) but got "
+            f"{figsize!r}"
+        )

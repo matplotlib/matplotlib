@@ -107,7 +107,7 @@ module:// syntax
 Any backend in a separate module (not built into Matplotlib) can be used by
 specifying the path to the module in the form ``module://some.backend.module``.
 An example is ``module://mplcairo.qt`` for
-`mplcairo <https:////github.com/matplotlib/mplcairo>`_.  The backend's
+`mplcairo <https://github.com/matplotlib/mplcairo>`_.  The backend's
 interactive framework will be taken from its
 ``FigureCanvas.required_interactive_framework``.
 
