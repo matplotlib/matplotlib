@@ -219,9 +219,6 @@ def _stride_windows(x, n, noverlap=0):
         raise ValueError(f'n ({n}) and noverlap ({noverlap}) must be positive integers '
                          f'with n < noverlap and n <= x.size ({x.size})')
 
-    if n == 1 and noverlap == 0:
-        return x[np.newaxis]
-
     step = n - noverlap
     shape = (n, (x.shape[-1]-noverlap)//step)
     strides = (x.strides[0], step*x.strides[0])
