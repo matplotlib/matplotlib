@@ -459,7 +459,8 @@ class Patch(artist.Artist):
         w : float or None
         """
         w = mpl._val_or_rc(w, 'patch.linewidth')
-        self._linewidth = float(w)
+        w = float(w)
+        self._linewidth = w
         self._dash_pattern = mlines._scale_dashes(*self._unscaled_dash_pattern, w)
         self.stale = True
 
