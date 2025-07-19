@@ -32,6 +32,10 @@ class BarContainer(Container):
         orientation: Literal["vertical", "horizontal"] | None = ...,
         **kwargs
     ) -> None: ...
+    @property
+    def position_centers(self) -> list[float]: ...
+    @property
+    def tops(self) -> list[float]: ...
 
 class ErrorbarContainer(Container):
     lines: tuple[Line2D, tuple[Line2D, ...], tuple[LineCollection, ...]]
