@@ -1242,6 +1242,45 @@ def test_slider_valmin_valmax():
     assert slider.val == slider.valmax
 
 
+def test_slider_set_limits():
+    fig, ax = plt.subplots()
+    slider = widgets.Slider(ax=ax, label='', valmin=10.0, valmax=40.0,
+                            valinit=15.0)
+    slider.set_limits(vmin=10, vmax=50)
+    assert slider.valinit == 15
+    assert slider.valmax == 50
+    assert slider.valmin == 10
+
+    slider = widgets.Slider(ax=ax, label='', valmin=10.0, valmax=40.0,
+                            valinit=15.0)
+    slider.set_limits(vmin=20, vmax=40)
+    assert slider.valinit == 20
+    assert slider.valmax == 40
+    assert slider.valmin == 20
+
+    slider = widgets.Slider(ax=ax, label='', valmin=10.0, valmax=40.0,
+                            valinit=15.0)
+    slider.val = 20
+    slider.set_limits(vmin=30, vmax=50)
+    assert slider.val == 30
+    assert slider.valmax == 50
+    assert slider.valmin == 30
+
+    slider = widgets.Slider(ax=ax, label='', valmin=10.0, valmax=40.0,
+                            valinit=15.0)
+    slider.val = 20
+    slider.set_limits(vmin=1, vmax=7)
+    assert slider.val == 7
+    assert slider.valmax == 7
+    assert slider.valmin == 1
+
+    slider = widgets.Slider(ax=ax, label='', valmin=10.0, valmax=40.0,
+                            valinit=15.0)
+    slider.set_limits()
+    assert slider.valmax == 40
+    assert slider.valmin == 10
+
+
 def test_slider_valstep_snapping():
     fig, ax = plt.subplots()
     slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
