@@ -3,7 +3,7 @@ import io
 import operator
 from unittest import mock
 
-from matplotlib.backend_bases import MouseEvent
+from matplotlib.backend_bases import MouseEvent, DrawEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
@@ -1757,3 +1757,26 @@ def test_MultiCursor(horizOn, vertOn):
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:
         assert l.get_ydata() == (.25, .25)
+
+
+def test_parent_axes_removal():
+
+    fig, (ax_radio, ax_checks) = plt.subplots(1, 2)
+
+    radio = widgets.RadioButtons(ax_radio, ['1', '2'], 0)
+    checks = widgets.CheckButtons(ax_checks, ['1', '2'], [True, False])
+
+    ax_checks.remove()
+    ax_radio.remove()
+    with io.BytesIO() as out:
+        # verify that saving does not raise
+        fig.savefig(out, format='raw')
+
+    # verify that this method which is triggered by a draw_event callback when
+    # blitting is enabled does not raise.  Calling private methods is simpler
+    # than trying to force blitting to be enabled with Agg or use a GUI
+    # framework.
+    renderer = fig._get_renderer()
+    evt = DrawEvent('draw_event', fig.canvas, renderer)
+    radio._clear(evt)
+    checks._clear(evt)
