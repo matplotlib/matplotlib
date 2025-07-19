@@ -143,6 +143,7 @@ if TYPE_CHECKING:
         MarkerType,
         MouseEventType,
         PickEventType,
+        RcGroupKeyType,
         ResizeEventType,
     )
     from matplotlib.widgets import SubplotTool
@@ -786,7 +787,7 @@ def pause(interval: float) -> None:
 
 
 @_copy_docstring_and_deprecators(matplotlib.rc)
-def rc(group: str, **kwargs) -> None:
+def rc(group: RcGroupKeyType, **kwargs) -> None:
     matplotlib.rc(group, **kwargs)
 
 
