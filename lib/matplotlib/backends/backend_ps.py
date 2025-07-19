@@ -88,16 +88,16 @@ def _move_path_to_path_or_stream(src, dst):
         shutil.move(src, dst, copy_function=shutil.copyfile)
 
 
-def _font_to_ps_type3(font_path, chars):
+def _font_to_ps_type3(font_path, glyph_indices):
     """
-    Subset *chars* from the font at *font_path* into a Type 3 font.
+    Subset *glyphs_indices* from the font at *font_path* into a Type 3 font.
 
     Parameters
     ----------
     font_path : path-like
         Path to the font to be subsetted.
-    chars : str
-        The characters to include in the subsetted font.
+    glyph_indices : set[int]
+        The glyphs to include in the subsetted font.
 
     Returns
     -------
@@ -106,7 +106,6 @@ def _font_to_ps_type3(font_path, chars):
         verbatim into a PostScript file.
     """
     font = get_font(font_path, hinting_factor=1)
-    glyph_ids = [font.get_char_index(c) for c in chars]
 
     preamble = """\
 %!PS-Adobe-3.0 Resource-Font
@@ -123,9 +122,9 @@ def _font_to_ps_type3(font_path, chars):
 """.format(font_name=font.postscript_name,
            inv_units_per_em=1 / font.units_per_EM,
            bbox=" ".join(map(str, font.bbox)),
-           encoding=" ".join(f"/{font.get_glyph_name(glyph_id)}"
-                             for glyph_id in glyph_ids),
-           num_glyphs=len(glyph_ids) + 1)
+           encoding=" ".join(f"/{font.get_glyph_name(glyph_index)}"
+                             for glyph_index in glyph_indices),
+           num_glyphs=len(glyph_indices) + 1)
     postamble = """
 end readonly def
 
@@ -146,12 +145,12 @@ FontName currentdict end definefont pop
 """
 
     entries = []
-    for glyph_id in glyph_ids:
-        g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
+    for glyph_index in glyph_indices:
+        g = font.load_glyph(glyph_index, LoadFlags.NO_SCALE)
         v, c = font.get_path()
         entries.append(
             "/%(name)s{%(bbox)s sc\n" % {
-                "name": font.get_glyph_name(glyph_id),
+                "name": font.get_glyph_name(glyph_index),
                 "bbox": " ".join(map(str, [g.horiAdvance, 0, *g.bbox])),
             }
             + _path.convert_to_string(
@@ -169,21 +168,20 @@ FontName currentdict end definefont pop
     return preamble + "\n".join(entries) + postamble
 
 
-def _font_to_ps_type42(font_path, chars, fh):
+def _font_to_ps_type42(font_path, glyph_indices, fh):
     """
-    Subset *chars* from the font at *font_path* into a Type 42 font at *fh*.
+    Subset *glyph_indices* from the font at *font_path* into a Type 42 font at *fh*.
 
     Parameters
     ----------
     font_path : path-like
         Path to the font to be subsetted.
-    chars : str
-        The characters to include in the subsetted font.
+    glyph_indices : set[int]
+        The glyphs to include in the subsetted font.
     fh : file-like
         Where to write the font.
     """
-    subset_str = ''.join(chr(c) for c in chars)
-    _log.debug("SUBSET %s characters: %s", font_path, subset_str)
+    _log.debug("SUBSET %s characters: %s", font_path, glyph_indices)
     try:
         kw = {}
         # fix this once we support loading more fonts from a collection
@@ -191,7 +189,7 @@ def _font_to_ps_type42(font_path, chars, fh):
         if font_path.endswith('.ttc'):
             kw['fontNumber'] = 0
         with (fontTools.ttLib.TTFont(font_path, **kw) as font,
-              _backend_pdf_ps.get_glyphs_subset(font_path, subset_str) as subset):
+              _backend_pdf_ps.get_glyphs_subset(font_path, glyph_indices) as subset):
             fontdata = _backend_pdf_ps.font_as_file(subset).getvalue()
             _log.debug(
                 "SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
@@ -775,8 +773,7 @@ grestore
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
-            ps_name = (font.postscript_name.encode("ascii", "replace")
-                        .decode("ascii"))
+            ps_name = font.postscript_name.encode("ascii", "replace").decode("ascii")
             scale = 0.001 * prop.get_size_in_points()
             thisx = 0
             last_name = ''  # kerns returns 0 for ''.
@@ -799,7 +796,7 @@ grestore
             for item in _text_helpers.layout(s, font):
                 ps_name = (item.ft_object.postscript_name
                            .encode("ascii", "replace").decode("ascii"))
-                glyph_name = item.ft_object.get_glyph_name(item.glyph_idx)
+                glyph_name = item.ft_object.get_glyph_name(item.glyph_index)
                 stream.append((ps_name, item.x, glyph_name))
         self.set_color(*gc.get_rgb())
 
@@ -828,13 +825,13 @@ grestore
             f"{x:g} {y:g} translate\n"
             f"{angle:g} rotate\n")
         lastfont = None
-        for font, fontsize, num, ox, oy in glyphs:
-            self._character_tracker.track_glyph(font, num)
+        for font, fontsize, glyph_index, ox, oy in glyphs:
+            self._character_tracker.track_glyph(font, glyph_index)
             if (font.postscript_name, fontsize) != lastfont:
                 lastfont = font.postscript_name, fontsize
                 self._pswriter.write(
                     f"/{font.postscript_name} {fontsize} selectfont\n")
-            glyph_name = font.get_glyph_name(font.get_char_index(num))
+            glyph_name = font.get_glyph_name(glyph_index)
             self._pswriter.write(
                 f"{ox:g} {oy:g} moveto\n"
                 f"/{glyph_name} glyphshow\n")
@@ -1072,19 +1069,18 @@ class FigureCanvasPS(FigureCanvasBase):
             print("mpldict begin", file=fh)
             print("\n".join(_psDefs), file=fh)
             if not mpl.rcParams['ps.useafm']:
-                for font_path, chars \
-                        in ps_renderer._character_tracker.used.items():
-                    if not chars:
+                for font_path, glyphs in ps_renderer._character_tracker.used.items():
+                    if not glyphs:
                         continue
                     fonttype = mpl.rcParams['ps.fonttype']
                     # Can't use more than 255 chars from a single Type 3 font.
-                    if len(chars) > 255:
+                    if len(glyphs) > 255:
                         fonttype = 42
                     fh.flush()
                     if fonttype == 3:
-                        fh.write(_font_to_ps_type3(font_path, chars))
+                        fh.write(_font_to_ps_type3(font_path, glyphs))
                     else:  # Type 42 only.
-                        _font_to_ps_type42(font_path, chars, fh)
+                        _font_to_ps_type42(font_path, glyphs, fh)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
