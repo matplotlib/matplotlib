@@ -3413,10 +3413,9 @@ class MultiNorm(Norm):
         Parameters
         ----------
         values : array-like
-            Data to normalize, as tuple, scalar array or structured array.
+            Data to normalize, as tuple or list or structured array.
 
-            - If tuple, must be of length `n_components`
-            - If scalar array, the first axis must be of length `n_components`
+            - If tuple or list, must be of length `n_components`
             - If structured array, must have `n_components` fields.
 
         clip : list of bools or bool or None, optional
@@ -3530,21 +3529,71 @@ class MultiNorm(Norm):
         Parameters
         ----------
         data : np.ndarray, tuple or list
-            The input array. It must either be an array with n_components fields or have
-            a length (n_components)
+            The input data, as a tuple or list or structured array.
+
+            - If tuple or list, must be of length `n_components`
+            - If structured array, must have `n_components` fields.
 
         Returns
         -------
         tuple of np.ndarray
 
         """
-        if isinstance(data, np.ndarray) and data.dtype.fields is not None:
-            data = tuple(data[descriptor[0]] for descriptor in data.dtype.descr)
-        if len(data) != n_components:
-            raise ValueError("The input to this `MultiNorm` must be of shape "
-                             f"({n_components}, ...), or be structured array or scalar "
-                             f"with {n_components} fields.")
+        if isinstance(data, np.ndarray):
+            if data.dtype.fields is not None:
+                data = tuple(data[descriptor[0]] for descriptor in data.dtype.descr)
+                if len(data) != n_components:
+                    raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
+                                     f". A structured array with "
+                                     f"{len(data)} fields is not compatible")
+            else:
+                # Input is a scalar array, which we do not support.
+                # try to give a hint as to how the data can be converted to
+                # an accepted format
+                if ((len(data.shape) == 1 and
+                     data.shape[0] == n_components) or
+                    (len(data.shape) > 1 and
+                        data.shape[0] == n_components and
+                        data.shape[-1] != n_components)
+                    ):
+                    raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
+                                     ". You can use `list(data)` to convert"
+                                     f" the input data of shape {data.shape} to"
+                                     " a compatible list")
+
+                elif (len(data.shape) > 1 and
+                      data.shape[-1] == n_components and
+                      data.shape[0] != n_components):
+                    raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
+                                     ". You can use "
+                                     "`rfn.unstructured_to_structured(data)` available "
+                                     "with `from numpy.lib import recfunctions as rfn` "
+                                     "to convert the input array of shape "
+                                     f"{data.shape} to a structured array")
+                else:
+                    # Cannot give shape hint
+                    # Either neither first nor last axis matches, or both do.
+                    raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
+                                     f". An np.ndarray of shape {data.shape} is"
+                                     " not compatible")
+        elif isinstance(data, (tuple, list)):
+            if len(data) != n_components:
+                raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
+                                 f". A {type(data)} of length {len(data)} is"
+                                 " not compatible")
+        else:
+            raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
+                             f". Input of type {type(data)} is not supported")
+
         return data
+
+    @staticmethod
+    def _get_input_err(n_components):
+        # returns the start of the error message given when a
+        # MultiNorm receives incompatible input
+        return ("The input to this `MultiNorm` must be a list or tuple "
+               f"of length {n_components}, or be structured array "
+               f"with {n_components} fields")
 
     @staticmethod
     def _ensure_multicomponent_data(data, n_components):

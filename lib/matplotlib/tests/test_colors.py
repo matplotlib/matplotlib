@@ -9,6 +9,7 @@ import pytest
 import base64
 import platform
 
+from numpy.lib import recfunctions as rfn
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 from matplotlib import cbook, cm
@@ -1891,7 +1892,7 @@ def test_close_error_name():
         matplotlib.colormaps["grays"]
 
 
-def test_multi_norm():
+def test_multi_norm_creation():
     # tests for mcolors.MultiNorm
 
     # test wrong input
@@ -1911,12 +1912,23 @@ def test_multi_norm():
                        match="Invalid norm str name"):
         mcolors.MultiNorm(["None"])
 
+    norm = mpl.colors.MultiNorm(['linear', 'linear'])
+
+
+def test_multi_norm_call_vmin_vmax():
     # test get vmin, vmax
     norm = mpl.colors.MultiNorm(['linear', 'log'])
     norm.vmin = 1
     norm.vmax = 2
     assert norm.vmin == (1, 1)
     assert norm.vmax == (2, 2)
+
+
+def test_multi_norm_call_clip_inverse():
+    # test get vmin, vmax
+    norm = mpl.colors.MultiNorm(['linear', 'log'])
+    norm.vmin = 1
+    norm.vmax = 2
 
     # test call with clip
     assert_array_equal(norm([3, 3], clip=False), [2.0, 1.584962500721156])
@@ -1933,6 +1945,9 @@ def test_multi_norm():
     # test inverse
     assert_array_almost_equal(norm.inverse([0.5, 0.5849625007211562]), [1.5, 1.5])
 
+
+def test_multi_norm_autoscale():
+    norm = mpl.colors.MultiNorm(['linear', 'log'])
     # test autoscale
     norm.autoscale([[0, 1, 2, 3], [0.1, 1, 2, 3]])
     assert_array_equal(norm.vmin, [0, 0.1])
@@ -1945,3 +1960,109 @@ def test_multi_norm():
     assert_array_equal(norm([5, 0]), [1, 0.5])
     assert_array_equal(norm.vmin, (0, -50))
     assert_array_equal(norm.vmax, (5, 50))
+
+
+def test_mult_norm_call_types():
+    mn = mpl.colors.MultiNorm(['linear', 'linear'])
+    mn.vmin = -2
+    mn.vmax = 2
+
+    vals = np.arange(6).reshape((3,2))
+    target = np.ma.array([(0.5, 0.75),
+                          (1., 1.25),
+                          (1.5, 1.75)])
+
+    # test structured array as input
+    structured_target = rfn.unstructured_to_structured(target)
+    from_mn= mn(rfn.unstructured_to_structured(vals))
+    assert from_mn.dtype == structured_target.dtype
+    assert_array_almost_equal(rfn.structured_to_unstructured(from_mn),
+                              rfn.structured_to_unstructured(structured_target))
+
+    # test list of arrays as input
+    assert_array_almost_equal(mn(list(vals.T)),
+                              list(target.T))
+    # test list of floats as input
+    assert_array_almost_equal(mn(list(vals[0])),
+                              list(target[0]))
+    # test tuple of arrays as input
+    assert_array_almost_equal(mn(tuple(vals.T)),
+                              list(target.T))
+
+
+    # test setting structured_output true/false:
+    # structured input, structured output
+    from_mn = mn(rfn.unstructured_to_structured(vals), structured_output=True)
+    assert from_mn.dtype == structured_target.dtype
+    assert_array_almost_equal(rfn.structured_to_unstructured(from_mn),
+                              rfn.structured_to_unstructured(structured_target))
+    # structured input, list as output
+    from_mn = mn(rfn.unstructured_to_structured(vals), structured_output=False)
+    assert_array_almost_equal(from_mn,
+                              list(target.T))
+    # list as input, structured output
+    from_mn= mn(list(vals.T), structured_output=True)
+    assert from_mn.dtype == structured_target.dtype
+    assert_array_almost_equal(rfn.structured_to_unstructured(from_mn),
+                              rfn.structured_to_unstructured(structured_target))
+    # list as input, list as output
+    from_mn = mn(list(vals.T), structured_output=False)
+    assert_array_almost_equal(from_mn,
+                              list(target.T))
+
+    # test with NoNorm, list as input
+    mn_no_norm = mpl.colors.MultiNorm(['linear', mcolors.NoNorm()])
+    no_norm_out = mn_no_norm(list(vals.T))
+    assert_array_almost_equal(no_norm_out,
+                              [[0., 0.5, 1.],
+                               [1, 3, 5]])
+    assert no_norm_out[0].dtype == np.dtype('float64')
+    assert no_norm_out[1].dtype == np.dtype('int64')
+
+    # test with NoNorm, structured array as input
+    mn_no_norm = mpl.colors.MultiNorm(['linear', mcolors.NoNorm()])
+    no_norm_out = mn_no_norm(rfn.unstructured_to_structured(vals))
+    assert_array_almost_equal(rfn.structured_to_unstructured(no_norm_out),
+                              np.array(\
+                                  [[0., 0.5, 1.],
+                                   [1, 3, 5]]).T)
+    assert no_norm_out.dtype['f0'] == np.dtype('float64')
+    assert no_norm_out.dtype['f1'] == np.dtype('int64')
+
+    # test single int as input
+    with pytest.raises(ValueError,
+                       match="Input of type <class 'int'> is not supported"):
+        mn(1)
+
+    # test list of incompatible size
+    with pytest.raises(ValueError,
+                       match="A <class 'list'> of length 3 is not compatible"):
+        mn([3, 2, 1])
+
+    # np.arrays of shapes that can be converted:
+    for data in [np.zeros(2), np.zeros((2,3)), np.zeros((2,3,3))]:
+        with pytest.raises(ValueError,
+                           match=r"You can use `list\(data\)` to convert"):
+            mn(data)
+
+    for data in [np.zeros((3, 2)), np.zeros((3, 3, 2))]:
+        with pytest.raises(ValueError,
+                           match=r"You can use `rfn.unstructured_to_structured"):
+            mn(data)
+
+    # np.ndarray that can be converted, but unclear if first or last axis
+    for data in [np.zeros((2, 2)), np.zeros((2, 3, 2))]:
+        with pytest.raises(ValueError,
+                           match="An np.ndarray of shape"):
+            mn(data)
+
+    # incompatible arrays where no relevant axis matches
+    for data in [np.zeros(3), np.zeros((3, 2, 3))]:
+        with pytest.raises(ValueError,
+                           match=r"An np.ndarray of shape"):
+            mn(data)
+
+    # test incompatible class
+    with pytest.raises(ValueError,
+                       match="Input of type <class 'str'> is not supported"):
+        mn("An object of incompatible class")
