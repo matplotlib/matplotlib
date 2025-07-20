@@ -139,6 +139,7 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
     fig.savefig(stdout, format=fmt)
 
 
+@pytest.mark.subprocess
 @pytest.mark.parametrize(
     "objects, fmt, usetex", [
         ("", "pdf", False),
@@ -185,6 +186,7 @@ def test_determinism_check(objects, fmt, usetex):
             assert p == plots[0]
 
 
+@pytest.mark.subprocess
 @pytest.mark.parametrize(
     "fmt, string", [
         ("pdf", b"/CreationDate (D:20000101000000Z)"),
