@@ -3557,19 +3557,25 @@ class MultiNorm(Norm):
                         data.shape[-1] != n_components)
                     ):
                     raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
-                                     ". You can use `list(data)` to convert"
-                                     f" the input data of shape {data.shape} to"
-                                     " a compatible list")
+                                     ". You can use `data_as_list = list(data)`"
+                                     " to convert the input data of shape"
+                                     f" {data.shape} to a compatible list")
 
                 elif (len(data.shape) > 1 and
                       data.shape[-1] == n_components and
                       data.shape[0] != n_components):
-                    raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
-                                     ". You can use "
-                                     "`rfn.unstructured_to_structured(data)` available "
-                                     "with `from numpy.lib import recfunctions as rfn` "
-                                     "to convert the input array of shape "
-                                     f"{data.shape} to a structured array")
+                    if len(data.shape) == 2:
+                        raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
+                                         ". You can use `data_as_list = list(data.T)`"
+                                         " to convert the input data of shape"
+                                         f" {data.shape} to a compatible list")
+                    else:
+                        raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
+                                         ". You can use `data_as_list = [data[..., i]"
+                                         " for i in range(data.shape[-1])]`"
+                                         " to convert the input data of shape"
+                                         f" {data.shape} to a compatible list")
+
                 else:
                     # Cannot give shape hint
                     # Either neither first nor last axis matches, or both do.

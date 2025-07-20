@@ -2042,13 +2042,19 @@ def test_mult_norm_call_types():
     # np.arrays of shapes that can be converted:
     for data in [np.zeros(2), np.zeros((2,3)), np.zeros((2,3,3))]:
         with pytest.raises(ValueError,
-                           match=r"You can use `list\(data\)` to convert"):
+                           match=r"You can use `data_as_list = list\(data\)`"):
             mn(data)
 
-    for data in [np.zeros((3, 2)), np.zeros((3, 3, 2))]:
-        with pytest.raises(ValueError,
-                           match=r"You can use `rfn.unstructured_to_structured"):
-            mn(data)
+    # last axis matches, len(data.shape) > 2
+    with pytest.raises(ValueError,
+                       match=(r"`data_as_list = \[data\[..., i\] for i in "
+                             r"range\(data.shape\[-1\]\)\]`")):
+        mn(np.zeros((3, 3, 2)))
+
+    # last axis matches, len(data.shape) == 2
+    with pytest.raises(ValueError,
+                       match=r"You can use `data_as_list = list\(data.T\)`"):
+        mn(np.zeros((3, 2)))
 
     # np.ndarray that can be converted, but unclear if first or last axis
     for data in [np.zeros((2, 2)), np.zeros((2, 3, 2))]:
