@@ -13,6 +13,7 @@ dependencies:
   - cairocffi
   - c-compiler
   - cxx-compiler
+  - vs2022_win-64=19.44.35207=ha74f236_28
   - contourpy>=1.0.1
   - cycler>=0.10.0
   - fonttools>=4.22.0
