@@ -180,7 +180,7 @@ def test_spine_set_bounds_with_none():
     xlim = ax.viewLim.intervalx
     ylim = ax.viewLim.intervaly
     # Use modified set_bounds with None
-    ax.spines['bottom'].set_bounds(0, None)
+    ax.spines['bottom'].set_bounds(2, None)
     ax.spines['left'].set_bounds(None, None)
 
     # Check that get_bounds returns correct numeric values
@@ -190,7 +190,7 @@ def test_spine_set_bounds_with_none():
 
     assert bottom_bound[1] is not None, "Higher bound should be numeric"
     assert left_bounds_not_None, "left bound should be numeric"
-    assert np.isclose(bottom_bound[0], 0), "Lower bound should match provided value"
+    assert np.isclose(bottom_bound[0], 2), "Lower bound should match provided value"
     assert np.isclose(bottom_bound[1],
                        xlim[1]), "Upper bound should match original value"
     assert np.isclose(left_bound[0], ylim[0]), "Lower bound should match original value"
