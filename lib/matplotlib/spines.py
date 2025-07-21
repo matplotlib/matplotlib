@@ -247,7 +247,6 @@ class Spine(mpatches.Patch):
             low, high = self.axes.viewLim.intervalx
         else:
             raise ValueError(f'spine_type: {self.spine_type} not supported')
-            # circle not supported
         return low, high
 
     def _adjust_location(self):
