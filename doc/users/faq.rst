@@ -367,7 +367,7 @@ provide the following information in your e-mail to the `mailing list
 * Matplotlib provides debugging information through the `logging` library, and
   a helper function to set the logging level: one can call ::
 
-    plt.set_loglevel("info")  # or "debug" for more info
+    plt.set_loglevel("INFO")  # or "DEBUG" for more info
 
   to obtain this debugging information.
 
