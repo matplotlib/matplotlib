@@ -92,10 +92,8 @@ class ColormapRegistry(Mapping):
         self._builtin_cmaps = tuple(cmaps)
 
     def __getitem__(self, item):
-        try:
-            return self._cmaps[item].copy()
-        except KeyError:
-            raise KeyError(f"{item!r} is not a known colormap name") from None
+        cmap = _api.check_getitem(self._cmaps, colormap=item, _error_cls=KeyError)
+        return cmap.copy()
 
     def __iter__(self):
         return iter(self._cmaps)
