@@ -280,7 +280,7 @@ parallelized version of tox called ``detox``. Give this a try:
 
 .. code-block:: bash
 
-    $ pip install -U -i http://pypi.testrun.org detox
+    $ pip install -U detox
     $ detox
 
 Tox is configured using a file called ``tox.ini``. You may need to
