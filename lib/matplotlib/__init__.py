@@ -292,8 +292,8 @@ def set_loglevel(level):
     - set the root logger handler's level, creating the handler
       if it does not exist yet
 
-    Typically, one should call ``set_loglevel("info")`` or
-    ``set_loglevel("debug")`` to get additional debugging information.
+    Typically, one should call ``set_loglevel("INFO")`` or
+    ``set_loglevel("DEBUG")`` to get additional debugging information.
 
     Users or applications that are installing their own logging handlers
     may want to directly manipulate ``logging.getLogger('matplotlib')`` rather
@@ -301,8 +301,12 @@ def set_loglevel(level):
 
     Parameters
     ----------
-    level : {"notset", "debug", "info", "warning", "error", "critical"}
-        The log level of the handler.
+    level : {"NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+        The log level as defined in `Python logging levels
+        <https://docs.python.org/3/library/logging.html#logging-levels>`__.
+
+        For backwards compatibility, the levels are case-insensitive, but
+        the capitalized version is preferred in analogy to `logging.Logger.setLevel`.
 
     Notes
     -----

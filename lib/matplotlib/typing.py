@@ -93,7 +93,7 @@ JoinStyleType: TypeAlias = JoinStyle | Literal["miter", "round", "bevel"]
 CapStyleType: TypeAlias = CapStyle | Literal["butt", "projecting", "round"]
 """Line cap styles. See :doc:`/gallery/lines_bars_and_markers/capstyle`."""
 
-LogLevel: TypeAlias = Literal["notset", "debug", "info", "warning", "error", "critical"]
+LogLevel: TypeAlias = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 """Literal type for valid logging levels accepted by `set_loglevel()`."""
 
 CoordsBaseType = Union[

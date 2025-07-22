@@ -179,7 +179,7 @@ development environment such as :program:`IDLE` which add additional
 complexities. Open up a UNIX shell or a DOS command prompt and run, for
 example::
 
-   python -c "from pylab import *; set_loglevel('debug'); plot(); show()"
+   python -c "from pylab import *; set_loglevel('DEBUG'); plot(); show()"
 
 This will give you additional information about which backends Matplotlib is
 loading, version information, and more. At this point you might want to make

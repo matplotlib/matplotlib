@@ -23,7 +23,7 @@ mode::
     git clean -xfd
     git pull
     python -m pip install -v . > build.out
-    python -c "from pylab import *; set_loglevel('debug'); plot(); show()" > run.out
+    python -c "from pylab import *; set_loglevel('DEBUG'); plot(); show()" > run.out
 
 and post :file:`build.out` and :file:`run.out` to the `matplotlib-devel
 <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_
