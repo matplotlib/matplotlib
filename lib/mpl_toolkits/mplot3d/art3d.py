@@ -1565,16 +1565,81 @@ class Poly3DCollection(PolyCollection):
 
 class Bar3DCollection(Poly3DCollection):
     """
-    Bars (rectangular prisms) with constant square cross section, bases located
-    on z-plane at *z0*, arranged in a regular grid at *x*, *y* locations and
-    with height *z - z0*.
-    """
+    A collection of 3D bars.
 
+    The bars are rectangular prisms with constant square cross-section.
+
+    Attributes
+    ----------
+    xyz : numpy.ndarray
+        Array of bar positions and heights.
+    x: numpy.ndarray
+        The x-coordinates of the bar bases.
+    y: numpy.ndarray
+        The y-coordinates of the bar bases.
+    xy: numpy.ndarray
+        The x and y coordinates of the bar bases.
+    dxy : tuple[float, float]
+        The width (dx) and depth (dy) of the bars in data units.
+    dx : float
+        The width of the bars in data units.
+    dy : float
+        The depth of the bars in data units.
+    z : numpy.ndarray
+        The height of the bars.
+    z0 : float
+        The z-coordinate of the bar bases.
+    n_bars
+        The number of bars.
+    
+    Methods
+    -------
+    set_data:
+        Set the data for the bars. Can also be used to set the color limits 
+        for color mapped data. 
+    """
     _n_faces_base = 6
 
     def __init__(self, x, y, z, dxy='0.8', z0=0, shade=True, lightsource=None,
                  cmap=None, **kws):
-        #
+        """
+        Create a collection of 3D bars.
+
+        Bars (rectangular prisms) with constant square cross section, bases
+        located on z-plane at *z0*, arranged in a regular grid at *x*, *y*
+        locations and with height *z - z0*.
+        
+        Parameters
+        ----------
+        x, y, z : array-like
+            The coordinates of the bar bases.
+        dxy : float or str or tuple[float|str, float|str], default: '0.8'
+            The width and depth of the bars:
+            - float: *dxy* is the width and depth of the bars. The bars are
+              scaled to the data with this value. If *dxy* is a string, it must
+              be parsable as a float.
+            - (float, float): *dxy* is the width and depth of the bars in
+              data units.
+        z0 : float, default: 0
+            Z-coordinate of the bases.
+        shade : bool, default: True
+            When *True*, the faces of the bars are shaded.
+        lightsource : `~matplotlib.colors.LightSource`, optional
+            The lightsource to use when *shade* is True.
+        cmap : `~matplotlib.colors.Colormap`, optional
+            Colormap for the bars.
+        **kws
+            Additional keyword arguments are passed to `.Poly3DCollection`.
+            
+        Raises
+        ------
+        ValueError:
+            When arrays have inconsistent shapes.
+        TypeError:
+            If the provided lightsource is not a `matplotlib.colors.LightSource`
+            object.
+        """
+
         x, y, z, z0 = np.ma.atleast_1d(x, y, z, z0)
         assert x.shape == y.shape == z.shape
 
@@ -1677,6 +1742,7 @@ class Bar3DCollection(Poly3DCollection):
 
     @property
     def n_bars(self):
+        """The number of bars in the collection."""
         return self.x.size
 
     def set_data(self, x=None, y=None, z=None, z0=None, clim=None):
@@ -2071,6 +2137,31 @@ def _camera_position(ax):
 
 
 def resolve_dxy(step, xy, axis):
+    """
+    Resolve the bar size from input step size and xy-positions along an axis of
+    the array.
+
+    Parameters
+    ----------
+    step : float or str
+        The bar size.  If the step input is float, it is returned unchanged. If
+        it is a string, it is converted to a float and multiplied
+        by the grid step size along the specified *axis*.
+    xy : array-like
+        The coordinates of the bar centers.
+    axis : int
+        The axis along which to calculate the grid step size.
+
+    Returns
+    -------
+    float
+        The resolved bar size.
+
+    Raises
+    ------
+    TypeError
+        If *step* is not a float or a string.
+    """
     if isinstance(step, str):
         return float(step) * _resolve_grid_step(xy, axis) 
     
@@ -2101,15 +2192,35 @@ def _resolve_grid_step(x, axis=0):
 
 
 def get_prism_face_zorder(ax, mask_occluded=True, nfaces=4):
-    # compute panel sequence based on camera position
+    """
+    Compute the zorder of prism faces based on camera position.
 
-    # these index positions are determined by the order of the faces returned
-    # by `_compute_verts`
+    The zorder determines the order in which the faces are drawn. Faces further
+    from the camera are drawn first.
+
+    Parameters
+    ----------
+    ax : Axes3D
+        The 3D axes.
+    mask_occluded : bool, default: True
+        Whether to mask occluded faces.
+    nfaces : int, default: 4
+        The number of faces of the prism's base shape. Eg: 4 for square bars, 6
+        for hexagonal bars.
+
+    Returns
+    -------
+    zorder : ndarray
+        The zorder of the prism faces.
+    """
+
+    # NOTE: these index positions are determined by the order of the faces
+    # returned by `_compute_verts`
     base, top = nfaces, nfaces + 1
     if ax.elev < 0:
         base, top = top, base
 
-    # this is to figure out which of the vertical faces to draw first
+    # This is to figure out which of the vertical faces to draw first
     angle_step = 360 / nfaces
     zero = -angle_step / 2
     flip = (np.abs(ax.elev) % 180 > 90)
@@ -2125,7 +2236,7 @@ def get_prism_face_zorder(ax, mask_occluded=True, nfaces=4):
     sequence = [base, first, second, third]
     sequence = [*sequence, *np.setdiff1d(np.arange(nfaces), sequence), top]
 
-    # reverse the panel sequence if elevation has flipped the axes by 180 multiple
+    # reverse panel sequence if elevation has flipped the axes by 180 multiple
     if np.abs(ax.elev) % 360 > 180:
         sequence = sequence[::-1]
 
@@ -2145,7 +2256,7 @@ def get_prism_face_zorder(ax, mask_occluded=True, nfaces=4):
     #       f'{sequence = :}',
     #       f'names = {list(np.take(names, sequence))}',
     #       f'{zorder = :}',
-    #       f'zorder = {pformat(dict(zip(*cosort(zorder, names)[::-1])))}',
+    #       f'zorder = {dict(sorted(zip(zorder, names))[::-1])}',
     #       sep='\n')
 
     return zorder
