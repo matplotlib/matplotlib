@@ -306,7 +306,7 @@ def set_loglevel(level):
         <https://docs.python.org/3/library/logging.html#logging-levels>`__.
 
         For backwards compatibility, the levels are case-insensitive, but
-        the capitalized version is preferred in analogy to `.Logger.setLevel`.
+        the capitalized version is preferred in analogy to `logging.Logger.setLevel`.
 
     Notes
     -----
