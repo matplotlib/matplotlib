@@ -8,6 +8,7 @@ artists into 3D versions which can be added to an Axes3D.
 """
 
 import math
+import numbers
 import warnings
 from contextlib import contextmanager
 import itertools 
@@ -1569,7 +1570,7 @@ class Bar3DCollection(Poly3DCollection):
     with height *z - z0*.
     """
 
-    _n_faces = 6
+    _n_faces_base = 6
 
     def __init__(self, x, y, z, dxy='0.8', z0=0, shade=True, lightsource=None,
                  cmap=None, **kws):
@@ -1618,22 +1619,31 @@ class Bar3DCollection(Poly3DCollection):
 
     def _resolve_dx_dy(self, dxy):
 
-        d = list(cbook.duplicate_if_scalar(dxy))
+    def _resolve_dx_dy(self, dxy):
+        # if dxy a number -> use it directly else if str,
+        # scale dxy to data step.
+        # get x/y step along axis -1/-2 (x/y considered constant along axis
+        # -2/-1)
+        dxy = list(cbook.duplicate_if_scalar(dxy))
 
         for i, xy in enumerate(self.xy):
-            # if dxy a number -> use it directly else if str,
-            # scale dxy to data step.
-            # get x/y step along axis -1/-2 (x/y considered constant along axis
-            # -2/-1)
-            data_step = _get_grid_step(xy, -i - 1) if isinstance(d[i], str) else 1
-            d[i] = float(d[i]) * data_step
+            delta = resolve_dxy(dxy[i], xy, -i - 1)
+            if delta == 0:
+                raise ValueError(
+                    f'Data step cannot be 0 in the {"xy"[i]} direction.'
+                )
+            dxy[i] = delta
 
-        dx, dy = d
-        assert (dx != 0)
-        assert (dy != 0)
+        return tuple(dxy)
 
-        return dx, dy
+    @property
+    def xyz(self):
+        return self._xyz
 
+    @xyz.setter
+    def xyz(self, xyz):
+        self.set_data(*xyz)
+    
     @property
     def x(self):
         return self._xyz[0]
@@ -1665,6 +1675,10 @@ class Bar3DCollection(Poly3DCollection):
         self.z0 = float(z0)
         super().set_verts(self._compute_verts())
 
+    @property
+    def n_bars(self):
+        return self.x.size
+
     def set_data(self, x=None, y=None, z=None, z0=None, clim=None):
         # self._xyz = np.atleast_3d(xyz)
         assert not all(map(is_none, (x, y, z, z0)))
@@ -1672,26 +1686,30 @@ class Bar3DCollection(Poly3DCollection):
         if (x is not None) or (y is not None):
             self.dx, self.dy = self._resolve_dx_dy(self.dxy)
 
-        for i, p in enumerate((x, y, z)):
-            if p is not None:
-                self._xyz[i] = p
+        for i, p in filter((lambda _, w: w), enumerate((x, y, z))):
+            self._xyz[i] = p
 
         if z0 is not None:
             self.z0 = float(z0)
 
         # compute points
         super().set_verts(self._compute_verts())
+
+        # set array for scalar mappable
         self.set_array(z := self.z.ravel())
 
+        # compute color limits
         if clim is None or clim is True:
             clim = (z.min(), z.max())
 
         if clim is not False:
             self.set_clim(*clim)
 
+        # Return if artist not added to axes yet
         if not self.axes:
             return
 
+        # Recompute 3d projection
         if self.axes.M is not None:
             self.do_3d_projection()
 
@@ -1710,100 +1728,69 @@ class Bar3DCollection(Poly3DCollection):
         # collapse the first two axes
         return polys.reshape((-1, 4, 3))  # *polys.shape[-2:]
 
-    def do_3d_projection(self):
-        """
-        Perform the 3D projection for this object.
-        """
-        if self._A is not None:
-            # force update of color mapping because we re-order them
-            # below.  If we do not do this here, the 2D draw will call
-            # this, but we will never port the color mapped values back
-            # to the 3D versions.
-            #
-            # We hold the 3D versions in a fixed order (the order the user
-            # passed in) and sort the 2D version by view depth.
-            self.update_scalarmappable()
-            if self._face_is_mapped:
-                self._facecolor3d = self._facecolors
-            if self._edge_is_mapped:
-                self._edgecolor3d = self._edgecolors
-
-        txs, tys, tzs = proj3d._proj_transform_vec(self._vec, self.axes.M)
-        xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
-
-        # get panel facecolors
-        cface, cedge = self._compute_colors(xyzlist, self._lightsource)
-
-        if xyzlist:
-            zorder = self._compute_zorder()
-            occluded = np.isnan(zorder)
-
-            z_segments_2d = sorted(
-                ((zo, np.column_stack([xs, ys]), fc, ec, idx)
-                 for idx, (ok, zo, (xs, ys, _), fc, ec)
-                 in enumerate(zip(~occluded, zorder, xyzlist, cface, cedge))
-                 if ok),
-                key=lambda x: x[0], reverse=True)
-
-            _, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
-                zip(*z_segments_2d)
-        else:
-            segments_2d = []
-            self._facecolors2d = np.empty((0, 4))
-            self._edgecolors2d = np.empty((0, 4))
-            idxs = []
-
-        if self._codes3d is None:
-            PolyCollection.set_verts(self, segments_2d, self._closed)
-        else:
-            codes = [self._codes3d[idx] for idx in idxs]
-            PolyCollection.set_verts_and_codes(self, segments_2d, codes)
-
-        if len(self._edgecolor3d) != len(cface):
-            self._edgecolors2d = self._edgecolor3d
-
-        # Return zorder value
-        if self._sort_zpos is not None:
-            zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-            ztrans = proj3d._proj_transform_vec(zvec, self.axes.M)
-            return ztrans[2][0]
-
-        return np.min(tzs) if tzs.size > 0 else np.nan
-
-    def _compute_colors(self, xyzlist, lightsource):
+    def _compute_colors(self):
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolor3d
         cedge = self._edgecolor3d
-        n, nc = len(xyzlist), len(cface)
+        num_faces = len(self._faces)
+        num_facecolors = len(cface)
 
-        if (nc == 1) or (nc * self._n_faces == n):
-            cface = cface.repeat(n // nc, axis=0)
-            if self._shade:
-                verts = self._compute_verts()
-                normals = _generate_normals(verts)
-                cface = _shade_colors(cface, normals, lightsource)
+        # Check that the number of facecolors make sense for the number of bars
+        # or faces
+        if num_facecolors not in {1, self.n_bars, num_faces}:
+            raise ValueError(
+                f"Invalid number of facecolors ({num_facecolors}) provided for"
+                f"{self.__class__.__name__} with {self.n_bars} bars ({num_faces} faces)"
+                )
+        
+        # For single facecolor, or number matching number of bars we have to
+        # duplicate to the total number of faces
+        if (repeat := num_faces // num_facecolors) > 1:
+            cface = cface.repeat(repeat, axis=0)
+        
+        # apply shading if required
+        if self._shade:
+            verts = self._compute_verts()
+            normals = _generate_normals(verts)
+            cface = _shade_colors(cface, normals, self._lightsource)
 
-            if self._original_alpha is not None:
-                cface[:, -1] = self._original_alpha
-
-        if len(cface) != n:
-            raise ValueError
-            # cface = cface.repeat(n, axis=0)
-
-        if len(cedge) != n:
-            cedge = cface if len(cedge) == 0 else cedge.repeat(n, axis=0)
+        # apply transparancy if required
+        if self._original_alpha is not None:
+            cface[:, -1] = self._original_alpha
+        
+        # Duplicate edgecolors if needed
+        if len(cedge) != num_faces:
+            cedge = cface if len(cedge) == 0 else cedge.repeat(num_faces, axis=0)
 
         return cface, cedge
 
-    def _compute_zorder(self):
+    def _compute_mask(self):
+        mask, needs_masking = super()._compute_mask()
+        # Get drawing order for the base shape at this orientation
+        prism_face_zorder = get_prism_face_zorder(self.axes,
+                                                  False,
+                                                  self._n_faces_base - 2)
+        # Mask faces that are behind others so we don't draw them
+        occluded = prism_face_zorder < 0.5
+        if self._original_alpha == 1:
+            # only mask back panels if bars are fully opaque
+            if needs_masking:
+                mask[occluded] = True
+            else:
+                mask = occluded[None].repeat(self._faces.shape[1], 0).T
+                needs_masking = True
+
+        return mask, needs_masking
+
+    def _compute_faces_order(self, pzs, needs_masking):
         # sort by depth (furthest drawn first)
         zorder = camera_distance(self.axes, *self.xy)
         zorder = (zorder - zorder.min()) / (np.ptp(zorder) or 1)
         zorder = zorder.ravel() * len(zorder)
         face_zorder = get_prism_face_zorder(self.axes,
-                                            self._original_alpha == 1,
-                                            self._n_faces - 2)
-        return (zorder[..., None] + face_zorder).ravel()
+                                            False,   
+                                            self._n_faces_base - 2)
+        return np.argsort((zorder[..., None] + face_zorder).ravel())[::-1]
 
 
 class HexBar3DCollection(Bar3DCollection):
@@ -2083,7 +2070,19 @@ def _camera_position(ax):
     return r, theta, phi
 
 
-def _get_grid_step(x, axis=0):
+def resolve_dxy(step, xy, axis):
+    if isinstance(step, str):
+        return float(step) * _resolve_grid_step(xy, axis) 
+    
+    if not isinstance(step, numbers.Real):
+        raise TypeError(
+            f"Invalid type ({type(step)}) for specifying bar size `dxy`"
+            )
+
+    return float(step)
+
+
+def _resolve_grid_step(x, axis=0):
     # for data arrange in a regular grid, get the size of the data step by
     # looking for the first non-zero step along an axis.
     # If axis is singular, return 1
