@@ -10,6 +10,7 @@ artists into 3D versions which can be added to an Axes3D.
 import math
 import warnings
 from contextlib import contextmanager
+import itertools 
 
 import numpy as np
 
@@ -2089,7 +2090,7 @@ def _get_grid_step(x, axis=0):
 
     # deal with singular dimension (this ignores axis param)
     if x.ndim == 1:
-        if d := next(filter(None, map(np.diff, cbook.pairwise(x))), None):
+        if d := next(filter(None, map(np.diff, itertools.pairwise(x))), None):
             return d.item()
 
     if x.shape[axis % x.ndim] == 1:
