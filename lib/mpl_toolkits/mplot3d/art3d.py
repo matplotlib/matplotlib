@@ -13,6 +13,7 @@ from contextlib import contextmanager
 
 import numpy as np
 
+import contextlib
 from matplotlib import (
     _api, artist, cbook, colors as mcolors, lines, text as mtext,
     path as mpath, rcParams)
@@ -1532,16 +1533,15 @@ class Poly3DCollection(PolyCollection):
     def set_alpha(self, alpha):
         # docstring inherited
         artist.Artist.set_alpha(self, alpha)
-        try:
+        safety_net = contextlib.suppress(AttributeError, TypeError, IndexError)
+        with safety_net:
             self._facecolor3d = mcolors.to_rgba_array(
                 self._facecolor3d, self._alpha)
-        except (AttributeError, TypeError, IndexError):
-            pass
-        try:
+
+        with safety_net:
             self._edgecolors = mcolors.to_rgba_array(
                 self._edgecolor3d, self._alpha)
-        except (AttributeError, TypeError, IndexError):
-            pass
+
         self.stale = True
 
     def get_facecolor(self):
