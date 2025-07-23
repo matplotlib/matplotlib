@@ -130,7 +130,7 @@ ordered from best/hardest to worst/easiest):
 1. The distutils wininst installer allows a post-install script to
    run.  It might be possible to get this script to run pip_ to
    install the other dependencies.  (See `this thread
-   <https://mail.python.org/pipermail/distutils-sig/2010-September/016858.html>`_
+   <https://mail.python.org/pipermail/distutils-sig/2010-September/016857.html>`_
    for someone who has trod that ground before).
 
 2. Continue to ship dateutil_, pytz_, six_ and pyparsing_ in
