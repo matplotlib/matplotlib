@@ -15,6 +15,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib import _c_internal_utils
 
 try:
+    from matplotlib.backends.qt_compat import QtCore  # type: ignore[attr-defined]
     from matplotlib.backends.qt_compat import QtGui  # type: ignore[attr-defined]  # noqa: E501, F401
     from matplotlib.backends.qt_compat import QtWidgets  # type: ignore[attr-defined]
     from matplotlib.backends.qt_editor import _formlayout
@@ -23,12 +24,6 @@ except ImportError:
 
 
 _test_timeout = 60  # A reasonably safe value for slower architectures.
-
-
-@pytest.fixture
-def qt_core(request):
-    from matplotlib.backends.qt_compat import QtCore
-    return QtCore
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
@@ -101,7 +96,7 @@ def test_fig_close():
         'QtAgg',
         marks=pytest.mark.backend('QtAgg', skip_on_importerror=True)),
 ])
-def test_correct_key(backend, qt_core, qt_key, qt_mods, answer, monkeypatch):
+def test_correct_key(backend, qt_key, qt_mods, answer, monkeypatch):
     """
     Make a figure.
     Send a key_press_event event (using non-public, qtX backend specific api).
@@ -137,7 +132,7 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer, monkeypatch):
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_device_pixel_ratio_change(qt_core):
+def test_device_pixel_ratio_change():
     """
     Make sure that if the pixel ratio changes, the figure dpi changes but the
     widget remains the same logical size.
@@ -155,12 +150,11 @@ def test_device_pixel_ratio_change(qt_core):
             p.return_value = ratio
 
             window = qt_canvas.window().windowHandle()
-            current_version = tuple(
-                int(x) for x in qt_core.qVersion().split('.', 2)[:2])
+            current_version = tuple(int(x) for x in QtCore.qVersion().split('.', 2)[:2])
             if current_version >= (6, 6):
-                qt_core.QCoreApplication.sendEvent(
+                QtCore.QCoreApplication.sendEvent(
                     window,
-                    qt_core.QEvent(qt_core.QEvent.Type.DevicePixelRatioChange))
+                    QtCore.QEvent(QtCore.QEvent.Type.DevicePixelRatioChange))
             else:
                 # The value here doesn't matter, as we can't mock the C++ QScreen
                 # object, but can override the functional wrapper around it.
@@ -342,7 +336,7 @@ def _get_testable_qt_backends():
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_fig_sigint_override(qt_core):
+def test_fig_sigint_override():
     from matplotlib.backends.backend_qt5 import _BackendQT5
     # Create a figure
     plt.figure()
@@ -357,10 +351,10 @@ def test_fig_sigint_override(qt_core):
         event_loop_handler = signal.getsignal(signal.SIGINT)
 
         # Request event loop exit
-        qt_core.QCoreApplication.exit()
+        QtCore.QCoreApplication.exit()
 
     # Timer to exit event loop
-    qt_core.QTimer.singleShot(0, fire_signal_and_quit)
+    QtCore.QTimer.singleShot(0, fire_signal_and_quit)
 
     # Save original SIGINT handler
     original_handler = signal.getsignal(signal.SIGINT)
@@ -385,7 +379,7 @@ def test_fig_sigint_override(qt_core):
 
         # Repeat again to test that SIG_DFL and SIG_IGN will not be overridden
         for custom_handler in (signal.SIG_DFL, signal.SIG_IGN):
-            qt_core.QTimer.singleShot(0, fire_signal_and_quit)
+            QtCore.QTimer.singleShot(0, fire_signal_and_quit)
             signal.signal(signal.SIGINT, custom_handler)
 
             _BackendQT5.mainloop()
