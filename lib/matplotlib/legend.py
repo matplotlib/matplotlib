@@ -618,8 +618,6 @@ class Legend(Artist):
                         break
                     except AttributeError:
                         continue
-                else:
-                    text.set_color('none')
         elif cbook._str_equal(labelcolor, 'none'):
             for text in self.texts:
                 text.set_color(labelcolor)
