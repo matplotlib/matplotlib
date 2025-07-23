@@ -3413,9 +3413,9 @@ class MultiNorm(Norm):
         Parameters
         ----------
         values : array-like
-            Data to normalize, as tuple or list or structured array.
+            The input data, as an iterable or a structured numpy array.
 
-            - If tuple or list, must be of length `n_components`
+            - If iterable, must be of length `n_components`
             - If structured array, must have `n_components` fields.
 
         clip : list of bools or bool or None, optional
@@ -3424,11 +3424,13 @@ class MultiNorm(Norm):
             `.Normalize`.
             If ``None``, defaults to ``self.clip`` (which defaults to
             ``False``).
+
         structured_output : bool, optional
 
             - If True, output is returned as a structured array
             - If False, output is returned as a tuple of length `n_components`
-            - If None (default) output is returned in the same format as the input.
+            - If None (default) output is returned as a structured array for
+            structured input, and otherwise returned as a tuple
 
         Returns
         -------
@@ -3466,12 +3468,12 @@ class MultiNorm(Norm):
 
         Parameters
         ----------
-        values
-            Normalized values, as tuple, scalar array or structured array.
+        values : array-like
+            The input data, as an iterable or a structured numpy array.
 
-            - If tuple, must be of length `n_components`
-            - If scalar array, the first axis must be of length `n_components`
+            - If iterable, must be of length `n_components`
             - If structured array, must have `n_components` fields.
+
 
         """
         values = self._iterable_components_in_data(values, self.n_components)
@@ -3505,7 +3507,7 @@ class MultiNorm(Norm):
         Parameters
         ----------
         A
-            Data, must be of length `n_components` or be a structured array or scalar
+            Data, must be of length `n_components` or be a structured array
             with `n_components` fields.
         """
         with self.callbacks.blocked():
@@ -3528,78 +3530,56 @@ class MultiNorm(Norm):
 
         Parameters
         ----------
-        data : np.ndarray, tuple or list
-            The input data, as a tuple or list or structured array.
+        data : array-like
+            The input data, as an iterable or a structured numpy array.
 
-            - If tuple or list, must be of length `n_components`
+            - If iterable, must be of length `n_components`
             - If structured array, must have `n_components` fields.
+
 
         Returns
         -------
         tuple of np.ndarray
 
         """
-        if isinstance(data, np.ndarray):
-            if data.dtype.fields is not None:
-                data = tuple(data[descriptor[0]] for descriptor in data.dtype.descr)
-                if len(data) != n_components:
-                    raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
-                                     f". A structured array with "
-                                     f"{len(data)} fields is not compatible")
+        if isinstance(data, np.ndarray) and data.dtype.fields is not None:
+            # structured array
+            if len(data.dtype.fields) != n_components:
+                raise ValueError(
+                    "Structured array inputs to MultiNorm must have the same "
+                    "number of fields as components in the MultiNorm. Expected "
+                    f"{n_components}, but got {len(data.dtype.fields)} fields"
+                    )
             else:
-                # Input is a scalar array, which we do not support.
-                # try to give a hint as to how the data can be converted to
-                # an accepted format
-                if ((len(data.shape) == 1 and
-                     data.shape[0] == n_components) or
-                    (len(data.shape) > 1 and
-                        data.shape[0] == n_components and
-                        data.shape[-1] != n_components)
-                    ):
-                    raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
-                                     ". You can use `data_as_list = list(data)`"
-                                     " to convert the input data of shape"
-                                     f" {data.shape} to a compatible list")
-
-                elif (len(data.shape) > 1 and
-                      data.shape[-1] == n_components and
-                      data.shape[0] != n_components):
-                    if len(data.shape) == 2:
-                        raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
-                                         ". You can use `data_as_list = list(data.T)`"
-                                         " to convert the input data of shape"
-                                         f" {data.shape} to a compatible list")
-                    else:
-                        raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
-                                         ". You can use `data_as_list = [data[..., i]"
-                                         " for i in range(data.shape[-1])]`"
-                                         " to convert the input data of shape"
-                                         f" {data.shape} to a compatible list")
-
+                return tuple(data[field] for field in data.dtype.names)
+        try:
+            n_elements = len(data)
+        except TypeError:
+            raise ValueError("MultiNorm expects a sequence with one element per "
+                             f"component as input, but got {data!r} instead")
+        if n_elements != n_components:
+            if isinstance(data, np.ndarray) and data.shape[-1] == n_components:
+                if len(data.shape) == 2:
+                    raise ValueError(
+                        f"MultiNorm expects a sequence with one element per component. "
+                        "You can use `data_transposed = data.T`"
+                        "to convert the input data of shape "
+                        f"{data.shape} to a compatible shape {data.shape[::-1]} ")
                 else:
-                    # Cannot give shape hint
-                    # Either neither first nor last axis matches, or both do.
-                    raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
-                                     f". An np.ndarray of shape {data.shape} is"
-                                     " not compatible")
-        elif isinstance(data, (tuple, list)):
-            if len(data) != n_components:
-                raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
-                                 f". A {type(data)} of length {len(data)} is"
-                                 " not compatible")
-        else:
-            raise ValueError(f"{MultiNorm._get_input_err(n_components)}"
-                             f". Input of type {type(data)} is not supported")
+                    raise ValueError(
+                        f"MultiNorm expects a sequence with one element per component. "
+                        "You can use `data_as_list = [data[..., i] for i in "
+                        "range(data.shape[-1])]` to convert the input data of shape "
+                        f" {data.shape} to a compatible list")
 
-        return data
+            raise ValueError(
+                "MultiNorm expects a sequence with one element per component. "
+                f"This MultiNorm has {n_components} components, but got a sequence "
+                f"with {n_elements} elements"
+                )
 
-    @staticmethod
-    def _get_input_err(n_components):
-        # returns the start of the error message given when a
-        # MultiNorm receives incompatible input
-        return ("The input to this `MultiNorm` must be a list or tuple "
-               f"of length {n_components}, or be structured array "
-               f"with {n_components} fields")
+        return tuple(data[i] for i in range(n_elements))
+
 
     @staticmethod
     def _ensure_multicomponent_data(data, n_components):

@@ -1989,6 +1989,13 @@ def test_mult_norm_call_types():
     assert_array_almost_equal(mn(tuple(vals.T)),
                               list(target.T))
 
+    # np.arrays of shapes that are compatible
+    assert_array_almost_equal(mn(np.zeros(2)),
+                              0.5*np.ones(2))
+    assert_array_almost_equal(mn(np.zeros((2, 3))),
+                              0.5*np.ones((2, 3)))
+    assert_array_almost_equal(mn(np.zeros((2, 3, 4))),
+                              0.5*np.ones((2, 3, 4)))
 
     # test setting structured_output true/false:
     # structured input, structured output
@@ -2031,19 +2038,13 @@ def test_mult_norm_call_types():
 
     # test single int as input
     with pytest.raises(ValueError,
-                       match="Input of type <class 'int'> is not supported"):
+                       match="component as input, but got 1 instead"):
         mn(1)
 
     # test list of incompatible size
     with pytest.raises(ValueError,
-                       match="A <class 'list'> of length 3 is not compatible"):
+                       match="but got a sequence with 3 elements"):
         mn([3, 2, 1])
-
-    # np.arrays of shapes that can be converted:
-    for data in [np.zeros(2), np.zeros((2,3)), np.zeros((2,3,3))]:
-        with pytest.raises(ValueError,
-                           match=r"You can use `data_as_list = list\(data\)`"):
-            mn(data)
 
     # last axis matches, len(data.shape) > 2
     with pytest.raises(ValueError,
@@ -2053,22 +2054,16 @@ def test_mult_norm_call_types():
 
     # last axis matches, len(data.shape) == 2
     with pytest.raises(ValueError,
-                       match=r"You can use `data_as_list = list\(data.T\)`"):
+                       match=r"You can use `data_transposed = data.T`to convert"):
         mn(np.zeros((3, 2)))
-
-    # np.ndarray that can be converted, but unclear if first or last axis
-    for data in [np.zeros((2, 2)), np.zeros((2, 3, 2))]:
-        with pytest.raises(ValueError,
-                           match="An np.ndarray of shape"):
-            mn(data)
 
     # incompatible arrays where no relevant axis matches
     for data in [np.zeros(3), np.zeros((3, 2, 3))]:
         with pytest.raises(ValueError,
-                           match=r"An np.ndarray of shape"):
+                           match=r"but got a sequence with 3 elements"):
             mn(data)
 
     # test incompatible class
     with pytest.raises(ValueError,
-                       match="Input of type <class 'str'> is not supported"):
-        mn("An object of incompatible class")
+                       match="but got <object object"):
+        mn(object())
