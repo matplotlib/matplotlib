@@ -86,6 +86,47 @@ local_scheme = "node-and-date"
 parentdir_prefix_version = "matplotlib-"
 fallback_version = "0.0+UNKNOWN"
 
+[tool.cibuildwheel]
+skip = "*-musllinux_aarch64"
+manylinux-x86_64-image = "manylinux2014"
+
+before-build = "rm -rf {package}/build"
+test-command = [
+    # "python {package}/ci/check_wheel_licenses.py {wheel}",
+    "python {package}/ci/check_version_number.py",
+]
+test-environment = "PIP_PREFER_BINARY=true"
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "10.12"
+
+[tool.cibuildwheel.windows]
+before-build = [
+    "pip install delvewheel",
+    "rm -rf {package}/build",
+]
+repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.windows.config-settings]
+# On Windows, we explicitly request MSVC compilers (as GitHub Action runners have
+# MinGW on PATH that would be picked otherwise), switch to a static build for
+# runtimes, but use dynamic linking for `VCRUNTIME140.dll`, `VCRUNTIME140_1.dll`,
+# and the UCRT. This avoids requiring specific versions of `MSVCP140.dll`, while
+# keeping shared state with the rest of the Python process/extensions.
+setup-args = [
+    "--vsenv",
+    "-Db_vscrt=mt",
+    "-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']",
+]
+
+[[tool.cibuildwheel.overrides]]
+select = "cp314*"
+manylinux-x86_64-image = "manylinux_2_28"
+before-test = """
+    python -m pip install \
+        --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
+        --upgrade --pre --only-binary=:all: contourpy numpy pillow"""
+
 [tool.isort]
 known_pydata = "numpy, matplotlib.pyplot"
 known_firstparty = "matplotlib,mpl_toolkits"
