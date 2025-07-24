@@ -85,6 +85,14 @@ local_scheme = "node-and-date"
 parentdir_prefix_version = "matplotlib-"
 fallback_version = "0.0+UNKNOWN"
 
+# FIXME: Remove this override once dependencies are available on PyPI.
+[[tool.cibuildwheel.overrides]]
+select = "*-win_arm64"
+before-test = """\
+    pip install --pre \
+    --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
+    contourpy numpy"""
+
 [tool.isort]
 known_pydata = "numpy, matplotlib.pyplot"
 known_firstparty = "matplotlib,mpl_toolkits"
