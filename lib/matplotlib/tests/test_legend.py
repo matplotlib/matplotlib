@@ -1068,121 +1068,113 @@ def test_legend_labelcolor_rcparam_markerfacecolor_short():
         assert mpl.colors.same_color(text.get_color(), color)
 
 
+def assert_last_legend_patch_color(histogram, leg, expected_color,
+                                   facecolor=False, edgecolor=False):
+    """
+    Check that histogram color, legend handle color, and legend label color all
+    match the expected input. Provide facecolor and edgecolor flags to clarify
+    which feature to match.
+    """
+    label_color = leg.texts[-1].get_color()
+    patch = leg.get_patches()[-1]
+    histogram = histogram[-1][0]
+    assert mpl.colors.same_color(label_color, expected_color)
+    if facecolor:
+        assert mpl.colors.same_color(label_color, patch.get_facecolor())
+        assert mpl.colors.same_color(label_color, histogram.get_facecolor())
+    if edgecolor:
+        assert mpl.colors.same_color(label_color, patch.get_edgecolor())
+        assert mpl.colors.same_color(label_color, histogram.get_edgecolor())
+
+
 def test_legend_labelcolor_linecolor_histograms():
     x = np.arange(10)
 
     # testing c kwarg for bar, step, and stepfilled histograms
     fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='bar', color='r',
-                      label="red bar hist with a red label")
+    h = ax.hist(x, histtype='bar', color='r', label="red bar hist with a red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
-    assert mpl.colors.same_color(tc, h[0].get_facecolor())
+    assert_last_legend_patch_color(h, leg, 'r', facecolor=True)
 
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='step', color='g',
-                      label="green step hist with a green label")
+    h = ax.hist(x, histtype='step', color='g', label="green step hist, green label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'g')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
-    assert mpl.colors.same_color(tc, h[0].get_edgecolor())
+    assert_last_legend_patch_color(h, leg, 'g', edgecolor=True)
 
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='stepfilled', color='b',
-                      label="blue stepfilled hist with a blue label")
+    h = ax.hist(x, histtype='stepfilled', color='b',
+                label="blue stepfilled hist with a blue label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'b')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
-    assert mpl.colors.same_color(tc, h[0].get_facecolor())
+    assert_last_legend_patch_color(h, leg, 'b', facecolor=True)
 
     # testing c, fc, and ec combinations for bar histograms
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='bar', color='r', ec='b',
-                      label="red bar hist with blue edges and a red label")
+    h = ax.hist(x, histtype='bar', color='r', ec='b',
+                label="red bar hist with blue edges and a red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
-    assert mpl.colors.same_color(tc, h[0].get_facecolor())
+    assert_last_legend_patch_color(h, leg, 'r', facecolor=True)
 
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='bar', fc='r', ec='b',
-                      label="red bar hist with blue edges and a red label")
+    h = ax.hist(x, histtype='bar', fc='r', ec='b',
+                label="red bar hist with blue edges and a red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
-    assert mpl.colors.same_color(tc, h[0].get_facecolor())
+    assert_last_legend_patch_color(h, leg, 'r', facecolor=True)
 
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='bar', fc='none', ec='b',
-                      label="unfilled blue bar hist with a blue label")
+    h = ax.hist(x, histtype='bar', fc='none', ec='b',
+                label="unfilled blue bar hist with a blue label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'b')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
-    assert mpl.colors.same_color(tc, h[0].get_edgecolor())
+    assert_last_legend_patch_color(h, leg, 'b', edgecolor=True)
 
     # testing c, and ec combinations for step histograms
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='step', color='r', ec='b',
-                      label="blue step hist with a blue label")
+    h = ax.hist(x, histtype='step', color='r', ec='b',
+                label="blue step hist with a blue label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'b')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
-    assert mpl.colors.same_color(tc, h[0].get_edgecolor())
+    assert_last_legend_patch_color(h, leg, 'b', edgecolor=True)
 
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='step', ec='b',
-                      label="blue step hist with a blue label")
+    h = ax.hist(x, histtype='step', ec='b',
+                label="blue step hist with a blue label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'b')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
-    assert mpl.colors.same_color(tc, h[0].get_edgecolor())
+    assert_last_legend_patch_color(h, leg, 'b', edgecolor=True)
 
     # testing c, fc, and ec combinations for stepfilled histograms
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='stepfilled', color='r', ec='b',
-                      label="red stepfilled hist, blue edges, red label")
+    h = ax.hist(x, histtype='stepfilled', color='r', ec='b',
+                label="red stepfilled hist, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
-    assert mpl.colors.same_color(tc, h[0].get_facecolor())
+    assert_last_legend_patch_color(h, leg, 'r', facecolor=True)
 
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='stepfilled', fc='r', ec='b',
-                      label="red stepfilled hist, blue edges, red label")
+    h = ax.hist(x, histtype='stepfilled', fc='r', ec='b',
+                label="red stepfilled hist, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
-    assert mpl.colors.same_color(tc, h[0].get_facecolor())
+    assert_last_legend_patch_color(h, leg, 'r', facecolor=True)
 
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='stepfilled', fc='none', ec='b',
-                      label="unfilled blue stepfilled hist, blue label")
+    h = ax.hist(x, histtype='stepfilled', fc='none', ec='b',
+                label="unfilled blue stepfilled hist, blue label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'b')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_edgecolor())
-    assert mpl.colors.same_color(tc, h[0].get_edgecolor())
+    assert_last_legend_patch_color(h, leg, 'b', edgecolor=True)
 
-    fig, ax = plt.subplots()
-    _, _, h = ax.hist(x, histtype='stepfilled', fc='r', ec='none',
-                      label="edgeless red stepfilled hist with a red label")
+    h = ax.hist(x, histtype='stepfilled', fc='r', ec='none',
+                label="edgeless red stepfilled hist with a red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_patches()[0].get_facecolor())
-    assert mpl.colors.same_color(tc, h[0].get_facecolor())
+    assert_last_legend_patch_color(h, leg, 'r', facecolor=True)
     plt.close('all')
+
+
+def assert_last_legend_linemarker_color(plot, leg, expected_color,
+                                    color=False, facecolor=False, edgecolor=False):
+    """
+    Check that line marker color, legend handle color, and legend label color all
+    match the expected input. Provide color, facecolor and edgecolor flags to clarify
+    which feature to match.
+    """
+    label_color = leg.texts[-1].get_color()
+    leg_marker = leg.get_lines()[-1]
+    plot_marker = plot[0]
+    assert mpl.colors.same_color(label_color, expected_color)
+    if color:
+        assert mpl.colors.same_color(label_color, leg_marker.get_color())
+        assert mpl.colors.same_color(label_color, plot_marker.get_color())
+    if facecolor:
+        assert mpl.colors.same_color(label_color, leg_marker.get_markerfacecolor())
+        assert mpl.colors.same_color(label_color, plot_marker.get_markerfacecolor())
+    if edgecolor:
+        assert mpl.colors.same_color(label_color, leg_marker.get_markeredgecolor())
+        assert mpl.colors.same_color(label_color, plot_marker.get_markeredgecolor())
 
 
 def test_legend_labelcolor_linecolor_plot():
@@ -1192,60 +1184,53 @@ def test_legend_labelcolor_linecolor_plot():
     fig, ax = plt.subplots()
     p = ax.plot(x, c='r', label="red line with a red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_lines()[0].get_color())
-    assert mpl.colors.same_color(tc, p[0].get_color())
+    assert_last_legend_linemarker_color(p, leg, 'r', color=True)
 
     # testing c, fc, and ec combinations for maker plots
-    fig, ax = plt.subplots()
     p = ax.plot(x, 'o', c='r', label="red circles with a red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_lines()[0].get_color())
-    assert mpl.colors.same_color(tc, p[0].get_color())
+    assert_last_legend_linemarker_color(p, leg, 'r', color=True)
 
-    fig, ax = plt.subplots()
     p = ax.plot(x, 'o', c='r', mec='b', label="red circles, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_lines()[0].get_color())
-    assert mpl.colors.same_color(tc, p[0].get_color())
+    assert_last_legend_linemarker_color(p, leg, 'r', color=True)
 
-    fig, ax = plt.subplots()
     p = ax.plot(x, 'o', mfc='r', mec='b', label="red circles, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_lines()[0].get_markerfacecolor())
-    assert mpl.colors.same_color(tc, p[0].get_markerfacecolor())
+    assert_last_legend_linemarker_color(p, leg, 'r', facecolor=True)
 
     # 'none' cases
-    fig, ax = plt.subplots()
     p = ax.plot(x, 'o', mfc='none', mec='b', label="blue unfilled circles, blue label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'b')
-    assert mpl.colors.same_color(tc, leg.get_lines()[0].get_markeredgecolor())
-    assert mpl.colors.same_color(tc, p[0].get_markeredgecolor())
+    assert_last_legend_linemarker_color(p, leg, 'b', edgecolor=True)
 
-    fig, ax = plt.subplots()
     p = ax.plot(x, 'o', mfc='r', mec='none', label="red edgeless circles, red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.get_lines()[0].get_markerfacecolor())
-    assert mpl.colors.same_color(tc, p[0].get_markerfacecolor())
+    assert_last_legend_linemarker_color(p, leg, 'r', facecolor=True)
 
-    fig, ax = plt.subplots()
     p = ax.plot(x, 'o', c='none', mec='none',
                 label="black label despite invisible circles for dummy entries")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'k')
+    assert_last_legend_linemarker_color(p, leg, 'k')
     plt.close('all')
+
+
+def assert_last_legend_scattermarker_color(scatter_marker, leg, expected_color,
+                                           facecolor=False, edgecolor=False):
+    """
+    Check that scatter marker color, legend handle color, and legend label color all
+    match the expected input. Provide facecolor and edgecolor flags to clarify
+    which feature to match.
+    """
+    label_color = leg.texts[-1].get_color()
+    leg_handle = leg.legend_handles[-1]
+    assert mpl.colors.same_color(label_color, expected_color)
+    if facecolor:
+        assert mpl.colors.same_color(label_color, leg_handle.get_facecolor())
+        assert mpl.colors.same_color(label_color, scatter_marker.get_facecolor())
+    if edgecolor:
+        assert mpl.colors.same_color(label_color, leg_handle.get_edgecolor())
+        assert mpl.colors.same_color(label_color, scatter_marker.get_edgecolor())
 
 
 def test_legend_labelcolor_linecolor_scatter():
@@ -1255,50 +1240,29 @@ def test_legend_labelcolor_linecolor_scatter():
     fig, ax = plt.subplots()
     p = ax.scatter(x, x, c='r', label="red circles with a red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.legend_handles[0].get_facecolor())
-    assert mpl.colors.same_color(tc, p.get_facecolor())
+    assert_last_legend_scattermarker_color(p, leg, 'r', facecolor=True)
 
-    fig, ax = plt.subplots()
     p = ax.scatter(x, x, c='r', ec='b', label="red circles, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.legend_handles[0].get_facecolor())
-    assert mpl.colors.same_color(tc, p.get_facecolor())
+    assert_last_legend_scattermarker_color(p, leg, 'r', facecolor=True)
 
-    fig, ax = plt.subplots()
     p = ax.scatter(x, x, fc='r', ec='b', label="red circles, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.legend_handles[0].get_facecolor())
-    assert mpl.colors.same_color(tc, p.get_facecolor())
+    assert_last_legend_scattermarker_color(p, leg, 'r', facecolor=True)
 
     # 'none' cases
-    fig, ax = plt.subplots()
     p = ax.scatter(x, x, fc='none', ec='b', label="blue unfilled circles, blue label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'b')
-    assert mpl.colors.same_color(tc, leg.legend_handles[0].get_edgecolor())
-    assert mpl.colors.same_color(tc, p.get_edgecolor())
+    assert_last_legend_scattermarker_color(p, leg, 'b', edgecolor=True)
 
-    fig, ax = plt.subplots()
     p = ax.scatter(x, x, fc='r', ec='none', label="red edgeless circles, red label")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'r')
-    assert mpl.colors.same_color(tc, leg.legend_handles[0].get_facecolor())
-    assert mpl.colors.same_color(tc, p.get_facecolor())
+    assert_last_legend_scattermarker_color(p, leg, 'r', facecolor=True)
 
-    fig, ax = plt.subplots()
     p = ax.scatter(x, x, c='none', ec='none',
                    label="black label despite invisible circles for dummy entries")
     leg = ax.legend(labelcolor='linecolor')
-    tc = leg.texts[0].get_color()
-    assert mpl.colors.same_color(tc, 'k')
+    assert_last_legend_scattermarker_color(p, leg, 'k')
     plt.close('all')
 
 
