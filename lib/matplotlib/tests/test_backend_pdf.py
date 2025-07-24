@@ -361,13 +361,13 @@ def test_glyphs_subset():
     # non-subsetted FT2Font
     nosubfont = FT2Font(fpath)
     nosubfont.set_text(chars)
+    nosubcmap = nosubfont.get_charmap()
 
     # subsetted FT2Font
-    with get_glyphs_subset(fpath, chars) as subset:
+    glyph_ids = {nosubcmap[ord(c)] for c in chars}
+    with get_glyphs_subset(fpath, glyph_ids) as subset:
         subfont = FT2Font(font_as_file(subset))
     subfont.set_text(chars)
-
-    nosubcmap = nosubfont.get_charmap()
     subcmap = subfont.get_charmap()
 
     # all unique chars must be available in subsetted font
