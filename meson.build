@@ -7,9 +7,9 @@ project(
     '-m', 'setuptools_scm', check: true).stdout().strip(),
   # qt_editor backend is MIT
   # ResizeObserver at end of lib/matplotlib/backends/web_backend/js/mpl.js is CC0
-  # Carlogo, STIX and Computer Modern is OFL
+  # Carlogo, STIX, Computer Modern and Last Resort are OFL
   # DejaVu is Bitstream Vera and Public Domain
-  license: 'PSF-2.0 AND MIT AND CC0-1.0 AND OFL-1.1 AND Bitstream-Vera AND Public-Domain',
+  license: 'PSF-2.0 AND MIT AND CC0-1.0 AND OFL-1.1 AND Bitstream-Vera AND LicenseRef-Public-Domain',
   license_files: [
     'LICENSE/LICENSE',
     'LICENSE/LICENSE_AMSFONTS',
@@ -18,6 +18,7 @@ project(
     'LICENSE/LICENSE_COLORBREWER',
     'LICENSE/LICENSE_COURIERTEN',
     'LICENSE/LICENSE_JSXTOOLS_RESIZE_OBSERVER',
+    'LICENSE/LICENSE_LAST_RESORT_FONT',
     'LICENSE/LICENSE_QT4_EDITOR',
     'LICENSE/LICENSE_SOLARIZED',
     'LICENSE/LICENSE_STIX',
