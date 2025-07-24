@@ -39,7 +39,7 @@ def on_activate(app):
     canvas.set_size_request(800, 600)
     sw.set_child(canvas)
 
-    win.show()
+    win.present()
 
 
 app = Gtk.Application(application_id='org.matplotlib.examples.EmbeddingInGTK4')
