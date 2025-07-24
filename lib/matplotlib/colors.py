@@ -3323,6 +3323,9 @@ class MultiNorm(Norm):
                     "MultiNorm must be assigned multiple norms, where each norm "
                     f"is of type `str`, or `Normalize`, not {type(norms)}")
 
+        if len(norms) < 2:
+            raise ValueError("MultiNorm must be assigned at least two norms")
+
         def resolve(norm):
             if isinstance(norm, str):
                 scale_cls = _get_scale_cls_from_str(norm)
@@ -3518,7 +3521,7 @@ class MultiNorm(Norm):
 
     def scaled(self):
         """Return whether both *vmin* and *vmax* are set on all constituent norms."""
-        return all([n.scaled() for n in self.norms])
+        return all(n.scaled() for n in self.norms)
 
     @staticmethod
     def _iterable_components_in_data(data, n_components):
@@ -4320,7 +4323,7 @@ def _get_scale_cls_from_str(scale_as_str):
         scale_cls = scale._scale_mapping[scale_as_str]
     except KeyError:
         raise ValueError(
-            "Invalid norm str name; the following values are "
-            f"supported: {', '.join(scale._scale_mapping)}"
+            f"Invalid norm name {scale_as_str!r}; supported values are "
+            f"{', '.join(scale._scale_mapping)}"
         ) from None
     return scale_cls
