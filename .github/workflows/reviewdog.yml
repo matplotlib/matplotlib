@@ -65,7 +65,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install mypy
-        run: pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt
+        run: pip3 install --group build --group typing
 
       - name: Set up reviewdog
         uses: reviewdog/action-setup@e04ffabe3898a0af8d0fb1af00c188831c4b5893  # v1.3.9
