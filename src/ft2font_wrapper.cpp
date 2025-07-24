@@ -1774,5 +1774,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
+    auto py_int = py::module_::import("builtins").attr("int");
+    m.attr("CharacterCodeType") = py_int;
+    m.attr("GlyphIndexType") = py_int;
     m.def("__getattr__", ft2font__getattr__);
 }
