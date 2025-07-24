@@ -25,6 +25,8 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
 from matplotlib.transforms import Affine2D, Bbox, BboxBase, Transform
+from mpl_toolkits.mplot3d import Axes3D
+
 from .typing import ColorType, HashableList
 
 _T = TypeVar("_T")
@@ -87,17 +89,20 @@ class FigureBase(Artist):
 
     # TODO: docstring indicates SubplotSpec a valid arg, but none of the listed signatures appear to be that
     @overload
+    def add_subplot(self, *args: Any, projection: Literal["3d"], **kwargs: Any) -> Axes3D: ...
+    @overload
     def add_subplot(
-        self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs
+        self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs: Any
     ) -> Axes: ...
     @overload
-    def add_subplot(self, pos: int, **kwargs) -> Axes: ...
+    def add_subplot(self, pos: int, **kwargs: Any) -> Axes: ...
     @overload
-    def add_subplot(self, ax: Axes, **kwargs) -> Axes: ...
+    def add_subplot(self, ax: Axes, **kwargs: Any) -> Axes: ...
     @overload
-    def add_subplot(self, ax: SubplotSpec, **kwargs) -> Axes: ...
+    def add_subplot(self, ax: SubplotSpec, **kwargs: Any) -> Axes: ...
     @overload
-    def add_subplot(self, **kwargs) -> Axes: ...
+    def add_subplot(self, **kwargs: Any) -> Axes: ...
+
     @overload
     def subplots(
         self,
