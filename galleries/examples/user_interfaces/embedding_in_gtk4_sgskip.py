@@ -14,8 +14,7 @@ from gi.repository import Gtk
 
 import numpy as np
 
-from matplotlib.backends.backend_gtk4agg import \
-    FigureCanvasGTK4Agg as FigureCanvas
+from matplotlib.backends.backend_gtk4agg import FigureCanvasGTK4Agg as FigureCanvas
 from matplotlib.figure import Figure
 
 
