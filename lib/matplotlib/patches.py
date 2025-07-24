@@ -2737,7 +2737,7 @@ class BoxStyle(_Style):
 
                     if text_clearance < pad:
                         # Lengthen arrow body to accommodate text
-                        x0 += text_clearance - pad
+                        x0 -= pad - text_clearance
                         x1 += pad - text_clearance
                 else:
                     # Pad away from head straight-edges
