@@ -1194,3 +1194,28 @@ def test_ytick_rotation_mode():
         tick.set_rotation(angle)
 
     plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)
+
+
+@pytest.mark.parametrize(
+    'input, match',
+    [
+        ([1, 2, 3], 'must be list of tuple'),
+        ([(1, 2)], 'must be list of tuple'),
+        ([('en', 'foo', 2)], 'start location must be int'),
+        ([('en', 1, 'foo')], 'end location must be int'),
+    ],
+)
+def test_text_language_invalid(input, match):
+    with pytest.raises(TypeError, match=match):
+        Text(0, 0, 'foo', language=input)
+
+
+def test_text_language():
+    # TODO: This is just a smoke test.
+    Text(0, 0, 'foo', language='en')
+    Text(0, 0, 'foo').set_language('en')
+    Text(0, 0, 'foo', language=[('en', 1, 2)])
+    Text(0, 0, 'foo').set_language([('en', 1, 2)])
+    # Not documented, but we'll allow it.
+    Text(0, 0, 'foo', language=(('en', 1, 2), ))
+    Text(0, 0, 'foo').set_language((('en', 1, 2), ))
