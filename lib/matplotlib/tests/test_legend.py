@@ -1154,8 +1154,8 @@ def test_legend_labelcolor_linecolor_histograms():
     assert_last_legend_patch_color(h, leg, 'r', facecolor=True)
 
 
-def assert_last_legend_linemarker_color(plot, leg, expected_color,
-                                    color=False, facecolor=False, edgecolor=False):
+def assert_last_legend_linemarker_color(line_marker, leg, expected_color, color=False,
+                                        facecolor=False, edgecolor=False):
     """
     Check that line marker color, legend handle color, and legend label color all
     match the expected input. Provide color, facecolor and edgecolor flags to clarify
@@ -1163,17 +1163,16 @@ def assert_last_legend_linemarker_color(plot, leg, expected_color,
     """
     label_color = leg.texts[-1].get_color()
     leg_marker = leg.get_lines()[-1]
-    plot_marker = plot[0]
     assert mpl.colors.same_color(label_color, expected_color)
     if color:
         assert mpl.colors.same_color(label_color, leg_marker.get_color())
-        assert mpl.colors.same_color(label_color, plot_marker.get_color())
+        assert mpl.colors.same_color(label_color, line_marker.get_color())
     if facecolor:
         assert mpl.colors.same_color(label_color, leg_marker.get_markerfacecolor())
-        assert mpl.colors.same_color(label_color, plot_marker.get_markerfacecolor())
+        assert mpl.colors.same_color(label_color, line_marker.get_markerfacecolor())
     if edgecolor:
         assert mpl.colors.same_color(label_color, leg_marker.get_markeredgecolor())
-        assert mpl.colors.same_color(label_color, plot_marker.get_markeredgecolor())
+        assert mpl.colors.same_color(label_color, line_marker.get_markeredgecolor())
 
 
 def test_legend_labelcolor_linecolor_plot():
@@ -1181,36 +1180,37 @@ def test_legend_labelcolor_linecolor_plot():
 
     # testing line plot
     fig, ax = plt.subplots()
-    p = ax.plot(x, c='r', label="red line with a red label")
+    l, = ax.plot(x, c='r', label="red line with a red label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_linemarker_color(p, leg, 'r', color=True)
+    assert_last_legend_linemarker_color(l, leg, 'r', color=True)
 
     # testing c, fc, and ec combinations for maker plots
-    p = ax.plot(x, 'o', c='r', label="red circles with a red label")
+    l, = ax.plot(x, 'o', c='r', label="red circles with a red label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_linemarker_color(p, leg, 'r', color=True)
+    assert_last_legend_linemarker_color(l, leg, 'r', color=True)
 
-    p = ax.plot(x, 'o', c='r', mec='b', label="red circles, blue edges, red label")
+    l, = ax.plot(x, 'o', c='r', mec='b', label="red circles, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_linemarker_color(p, leg, 'r', color=True)
+    assert_last_legend_linemarker_color(l, leg, 'r', color=True)
 
-    p = ax.plot(x, 'o', mfc='r', mec='b', label="red circles, blue edges, red label")
+    l, = ax.plot(x, 'o', mfc='r', mec='b', label="red circles, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_linemarker_color(p, leg, 'r', facecolor=True)
+    assert_last_legend_linemarker_color(l, leg, 'r', facecolor=True)
 
     # 'none' cases
-    p = ax.plot(x, 'o', mfc='none', mec='b', label="blue unfilled circles, blue label")
+    l, = ax.plot(x, 'o', mfc='none', mec='b',
+                 label="blue unfilled circles, blue label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_linemarker_color(p, leg, 'b', edgecolor=True)
+    assert_last_legend_linemarker_color(l, leg, 'b', edgecolor=True)
 
-    p = ax.plot(x, 'o', mfc='r', mec='none', label="red edgeless circles, red label")
+    l, = ax.plot(x, 'o', mfc='r', mec='none', label="red edgeless circles, red label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_linemarker_color(p, leg, 'r', facecolor=True)
+    assert_last_legend_linemarker_color(l, leg, 'r', facecolor=True)
 
-    p = ax.plot(x, 'o', c='none', mec='none',
-                label="black label despite invisible circles for dummy entries")
+    l, = ax.plot(x, 'o', c='none', mec='none',
+                 label="black label despite invisible circles for dummy entries")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_linemarker_color(p, leg, 'k')
+    assert_last_legend_linemarker_color(l, leg, 'k')
 
 
 def assert_last_legend_scattermarker_color(scatter_marker, leg, expected_color,
@@ -1236,31 +1236,31 @@ def test_legend_labelcolor_linecolor_scatter():
 
     # testing c, fc, and ec combinations for scatter plots
     fig, ax = plt.subplots()
-    p = ax.scatter(x, x, c='r', label="red circles with a red label")
+    s = ax.scatter(x, x, c='r', label="red circles with a red label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_scattermarker_color(p, leg, 'r', facecolor=True)
+    assert_last_legend_scattermarker_color(s, leg, 'r', facecolor=True)
 
-    p = ax.scatter(x, x, c='r', ec='b', label="red circles, blue edges, red label")
+    s = ax.scatter(x, x, c='r', ec='b', label="red circles, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_scattermarker_color(p, leg, 'r', facecolor=True)
+    assert_last_legend_scattermarker_color(s, leg, 'r', facecolor=True)
 
-    p = ax.scatter(x, x, fc='r', ec='b', label="red circles, blue edges, red label")
+    s = ax.scatter(x, x, fc='r', ec='b', label="red circles, blue edges, red label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_scattermarker_color(p, leg, 'r', facecolor=True)
+    assert_last_legend_scattermarker_color(s, leg, 'r', facecolor=True)
 
     # 'none' cases
-    p = ax.scatter(x, x, fc='none', ec='b', label="blue unfilled circles, blue label")
+    s = ax.scatter(x, x, fc='none', ec='b', label="blue unfilled circles, blue label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_scattermarker_color(p, leg, 'b', edgecolor=True)
+    assert_last_legend_scattermarker_color(s, leg, 'b', edgecolor=True)
 
-    p = ax.scatter(x, x, fc='r', ec='none', label="red edgeless circles, red label")
+    s = ax.scatter(x, x, fc='r', ec='none', label="red edgeless circles, red label")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_scattermarker_color(p, leg, 'r', facecolor=True)
+    assert_last_legend_scattermarker_color(s, leg, 'r', facecolor=True)
 
-    p = ax.scatter(x, x, c='none', ec='none',
+    s = ax.scatter(x, x, c='none', ec='none',
                    label="black label despite invisible circles for dummy entries")
     leg = ax.legend(labelcolor='linecolor')
-    assert_last_legend_scattermarker_color(p, leg, 'k')
+    assert_last_legend_scattermarker_color(s, leg, 'k')
 
 
 @pytest.mark.filterwarnings("ignore:No artists with labels found to put in legend")
