@@ -193,9 +193,22 @@ class FigureBase(Artist):
     @overload
     def subfigures(
         self,
+        nrows: int,
+        ncols: int,
+        squeeze: Literal[False],
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        **kwargs
+    ) -> np.ndarray: ...
+    @overload
+    def subfigures(
+        self,
         nrows: int = ...,
         ncols: int = ...,
-        squeeze: Literal[False] = ...,
+        *,
+        squeeze: Literal[False],
         wspace: float | None = ...,
         hspace: float | None = ...,
         width_ratios: ArrayLike | None = ...,
