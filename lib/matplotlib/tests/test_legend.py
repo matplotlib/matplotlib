@@ -1152,7 +1152,6 @@ def test_legend_labelcolor_linecolor_histograms():
                 label="edgeless red stepfilled hist with a red label")
     leg = ax.legend(labelcolor='linecolor')
     assert_last_legend_patch_color(h, leg, 'r', facecolor=True)
-    plt.close('all')
 
 
 def assert_last_legend_linemarker_color(plot, leg, expected_color,
@@ -1212,7 +1211,6 @@ def test_legend_labelcolor_linecolor_plot():
                 label="black label despite invisible circles for dummy entries")
     leg = ax.legend(labelcolor='linecolor')
     assert_last_legend_linemarker_color(p, leg, 'k')
-    plt.close('all')
 
 
 def assert_last_legend_scattermarker_color(scatter_marker, leg, expected_color,
@@ -1263,7 +1261,6 @@ def test_legend_labelcolor_linecolor_scatter():
                    label="black label despite invisible circles for dummy entries")
     leg = ax.legend(labelcolor='linecolor')
     assert_last_legend_scattermarker_color(p, leg, 'k')
-    plt.close('all')
 
 
 @pytest.mark.filterwarnings("ignore:No artists with labels found to put in legend")
