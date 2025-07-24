@@ -3028,7 +3028,6 @@ class Axes(_AxesBase):
 
         col = mcoll.PolyCollection(np.array(vertices), **kwargs)
         self.add_collection(col, autolim=True)
-        self._request_autoscale_view()
 
         return col
 
@@ -5337,7 +5336,6 @@ or pandas.DataFrame
                 self.set_ymargin(0.05)
 
         self.add_collection(collection)
-        self._request_autoscale_view()
 
         return collection
 
@@ -5808,7 +5806,6 @@ or pandas.DataFrame
         args = self._quiver_units(args, kwargs)
         q = mquiver.Quiver(self, *args, **kwargs)
         self.add_collection(q, autolim=True)
-        self._request_autoscale_view()
         return q
 
     # args can be some combination of X, Y, U, V, C and all should be replaced
@@ -5820,7 +5817,6 @@ or pandas.DataFrame
         args = self._quiver_units(args, kwargs)
         b = mquiver.Barbs(self, *args, **kwargs)
         self.add_collection(b, autolim=True)
-        self._request_autoscale_view()
         return b
 
     # Uses a custom implementation of data-kwarg handling in
@@ -5980,7 +5976,6 @@ or pandas.DataFrame
             where=where, interpolate=interpolate, step=step, **kwargs)
 
         self.add_collection(collection)
-        self._request_autoscale_view()
         return collection
 
     def _fill_between_process_units(self, ind_dir, dep_dir, ind, dep1, dep2, **kwargs):
