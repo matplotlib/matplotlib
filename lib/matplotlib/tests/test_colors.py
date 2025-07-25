@@ -1972,9 +1972,8 @@ def test_mult_norm_call_types():
     # test structured array as input
     structured_target = rfn.unstructured_to_structured(target)
     from_mn= mn(rfn.unstructured_to_structured(vals))
-    assert from_mn.dtype == structured_target.dtype
-    assert_array_almost_equal(rfn.structured_to_unstructured(from_mn),
-                              rfn.structured_to_unstructured(structured_target))
+    assert_array_almost_equal(from_mn,
+                              target.T)
 
     # test list of arrays as input
     assert_array_almost_equal(mn(list(vals.T)),
@@ -1994,26 +1993,6 @@ def test_mult_norm_call_types():
     assert_array_almost_equal(mn(np.zeros((2, 3, 4))),
                               0.5*np.ones((2, 3, 4)))
 
-    # test setting structured_output true/false:
-    # structured input, structured output
-    from_mn = mn(rfn.unstructured_to_structured(vals), structured_output=True)
-    assert from_mn.dtype == structured_target.dtype
-    assert_array_almost_equal(rfn.structured_to_unstructured(from_mn),
-                              rfn.structured_to_unstructured(structured_target))
-    # structured input, list as output
-    from_mn = mn(rfn.unstructured_to_structured(vals), structured_output=False)
-    assert_array_almost_equal(from_mn,
-                              list(target.T))
-    # list as input, structured output
-    from_mn= mn(list(vals.T), structured_output=True)
-    assert from_mn.dtype == structured_target.dtype
-    assert_array_almost_equal(rfn.structured_to_unstructured(from_mn),
-                              rfn.structured_to_unstructured(structured_target))
-    # list as input, list as output
-    from_mn = mn(list(vals.T), structured_output=False)
-    assert_array_almost_equal(from_mn,
-                              list(target.T))
-
     # test with NoNorm, list as input
     mn_no_norm = mpl.colors.MultiNorm(['linear', mcolors.NoNorm()])
     no_norm_out = mn_no_norm(list(vals.T))
@@ -2026,12 +2005,9 @@ def test_mult_norm_call_types():
     # test with NoNorm, structured array as input
     mn_no_norm = mpl.colors.MultiNorm(['linear', mcolors.NoNorm()])
     no_norm_out = mn_no_norm(rfn.unstructured_to_structured(vals))
-    assert_array_almost_equal(rfn.structured_to_unstructured(no_norm_out),
-                              np.array(\
+    assert_array_almost_equal(no_norm_out,
                                   [[0., 0.5, 1.],
-                                   [1, 3, 5]]).T)
-    assert no_norm_out.dtype['f0'] == np.dtype('float64')
-    assert no_norm_out.dtype['f1'] == np.dtype('int64')
+                                   [1, 3, 5]])
 
     # test single int as input
     with pytest.raises(ValueError,

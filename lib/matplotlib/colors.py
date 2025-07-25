@@ -3407,7 +3407,7 @@ class MultiNorm(Norm):
         """
         self.callbacks.process('changed')
 
-    def __call__(self, values, clip=None, structured_output=None):
+    def __call__(self, values, clip=None):
         """
         Normalize the data and return the normalized data.
 
@@ -3428,17 +3428,11 @@ class MultiNorm(Norm):
             If ``None``, defaults to ``self.clip`` (which defaults to
             ``False``).
 
-        structured_output : bool, optional
-
-            - If True, output is returned as a structured array
-            - If False, output is returned as a tuple of length `n_components`
-            - If None (default) output is returned as a structured array for
-            structured input, and otherwise returned as a tuple
 
         Returns
         -------
-        tuple or `~numpy.ndarray`
-            Normalized input values`
+        tuple
+            Normalized input values
 
         Notes
         -----
@@ -3450,18 +3444,9 @@ class MultiNorm(Norm):
         elif not np.iterable(clip):
             clip = [clip]*self.n_components
 
-        if structured_output is None:
-            if isinstance(values, np.ndarray) and values.dtype.fields is not None:
-                structured_output = True
-            else:
-                structured_output = False
-
         values = self._iterable_components_in_data(values, self.n_components)
 
         result = tuple(n(v, clip=c) for n, v, c in zip(self.norms, values, clip))
-
-        if structured_output:
-            result = self._ensure_multicomponent_data(result, self.n_components)
 
         return result
 
