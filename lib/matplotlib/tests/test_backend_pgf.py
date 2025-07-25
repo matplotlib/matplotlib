@@ -1,7 +1,9 @@
 import datetime
 from io import BytesIO
 import os
+from pathlib import Path
 import shutil
+import string
 
 import numpy as np
 from packaging.version import parse as parse_version
@@ -9,6 +11,7 @@ import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties, findfont
 from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib.testing.compare import compare_images
@@ -328,6 +331,23 @@ def test_png_transparency():  # Actually, also just testing that png works.
     buf.seek(0)
     t = plt.imread(buf)
     assert (t[..., 3] == 0).all()  # fully transparent.
+
+
+@needs_pgf_xelatex
+@pytest.mark.backend('pgf')
+@image_comparison(['ttc_pgf.pdf'], style='mpl20')
+def test_ttc_output():
+    fp = FontProperties(family=['WenQuanYi Zen Hei'])
+    if Path(findfont(fp)).name != 'wqy-zenhei.ttc':
+        pytest.skip('Font wqy-zenhei.ttc may be missing')
+
+    fonts = {'sans-serif': 'WenQuanYi Zen Hei', 'monospace': 'WenQuanYi Zen Hei Mono'}
+    plt.rc('font', size=16, **fonts)
+
+    figs = plt.figure(figsize=(7, len(fonts) / 2)).subfigures(len(fonts))
+    for font, fig in zip(fonts.values(), figs):
+        fig.text(0.5, 0.5, f'{font}: {string.ascii_uppercase}', font=font,
+                 horizontalalignment='center', verticalalignment='center')
 
 
 @needs_pgf_xelatex
