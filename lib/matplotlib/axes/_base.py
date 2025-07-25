@@ -4753,14 +4753,25 @@ class _AxesBase(martist.Artist):
         self._label_outer_yaxis(skip_non_rectangular_axes=False,
                                 remove_inner_ticks=remove_inner_ticks)
 
+    def _get_subplotspec_with_optional_colorbar(self):
+        """
+        Return the subplotspec for this Axes, except that if this Axes has been
+        moved to a subgridspec to make room for a colorbar, then return the
+        subplotspec that encloses both this Axes and the colorbar Axes.
+        """
+        ss = self.get_subplotspec()
+        if any(cax.get_subplotspec() for cax in self._colorbars):
+            ss = ss.get_gridspec()._subplot_spec
+        return ss
+
     def _label_outer_xaxis(self, *, skip_non_rectangular_axes,
                            remove_inner_ticks=False):
         # see documentation in label_outer.
         if skip_non_rectangular_axes and not isinstance(self.patch,
                                                         mpl.patches.Rectangle):
             return
-        ss = self.get_subplotspec()
-        if not ss:
+        ss = self._get_subplotspec_with_optional_colorbar()
+        if ss is None:
             return
         label_position = self.xaxis.get_label_position()
         if not ss.is_first_row():  # Remove top label/ticklabels/offsettext.
@@ -4786,8 +4797,8 @@ class _AxesBase(martist.Artist):
         if skip_non_rectangular_axes and not isinstance(self.patch,
                                                         mpl.patches.Rectangle):
             return
-        ss = self.get_subplotspec()
-        if not ss:
+        ss = self._get_subplotspec_with_optional_colorbar()
+        if ss is None:
             return
         label_position = self.yaxis.get_label_position()
         if not ss.is_first_col():  # Remove left label/ticklabels/offsettext.
