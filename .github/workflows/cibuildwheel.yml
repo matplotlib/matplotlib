@@ -127,7 +127,9 @@ jobs:
           - os: ubuntu-24.04-arm
             cibw_archs: "aarch64"
           - os: windows-latest
-            cibw_archs: "auto64"
+            cibw_archs: "AMD64"
+          - os: windows-11-arm
+            cibw_archs: "ARM64"
           - os: macos-13
             cibw_archs: "x86_64"
           - os: macos-14
@@ -174,6 +176,8 @@ jobs:
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+        # Ignore because dependencies do not provide win-arm wheels on 3.10; should be removed on merge up
+        if: matrix.os != 'windows-11-arm'
 
       - name: Build wheels for PyPy
         uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969  # v2.22.0
@@ -183,7 +187,7 @@ jobs:
           CIBW_BUILD: "pp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_ENABLE: pypy
-        if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest'
+        if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest' && matrix.os != 'windows-11-arm'
 
       - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
         with:
