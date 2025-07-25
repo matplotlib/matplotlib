@@ -470,3 +470,32 @@ def test_draggable_in_subfigure():
     bbox = ann.get_window_extent()
     MouseEvent("button_press_event", fig.canvas, bbox.x1+2, bbox.y1+2)._process()
     assert not ann._draggable.got_artist
+
+
+
+def test_anchored_offsetbox_tuple_and_float_borderpad():
+    """
+    Test AnchoredOffsetbox correctly handles both float and tuple for borderpad.
+    """
+    from matplotlib.offsetbox import AnchoredText
+
+    fig, ax = plt.subplots()
+
+    # Case 1: Test the old float behavior (exercises the 'except' block)
+    text_float = AnchoredText("float", loc='lower left', borderpad=5)
+    ax.add_artist(text_float)
+
+    # Case 2: Test the new tuple behavior (exercises the 'try' block)
+    text_tuple = AnchoredText("tuple", loc='lower left', borderpad=(10, 10))
+    ax.add_artist(text_tuple)
+
+    # Draw the canvas to calculate final positions
+    fig.canvas.draw()
+
+    pos_float = text_float.get_window_extent()
+    pos_tuple = text_tuple.get_window_extent()
+
+    # Assert that the tuple with larger padding is further from the origin
+    # than the float with smaller padding.
+    assert pos_tuple.x0 > pos_float.x0
+    assert pos_tuple.y0 > pos_float.y0
