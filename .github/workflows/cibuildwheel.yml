@@ -176,6 +176,8 @@ jobs:
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+        # Ignore because dependencies do not provide win-arm wheels on 3.10; should be removed on merge up
+        if: matrix.os != 'windows-11-arm'
 
       - name: Build wheels for PyPy
         uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969  # v2.22.0
