@@ -137,7 +137,7 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer, monkeypatch):
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_device_pixel_ratio_change():
+def test_device_pixel_ratio_change(qt_core):
     """
     Make sure that if the pixel ratio changes, the figure dpi changes but the
     widget remains the same logical size.
@@ -154,11 +154,19 @@ def test_device_pixel_ratio_change():
         def set_device_pixel_ratio(ratio):
             p.return_value = ratio
 
-            # The value here doesn't matter, as we can't mock the C++ QScreen
-            # object, but can override the functional wrapper around it.
-            # Emitting this event is simply to trigger the DPI change handler
-            # in Matplotlib in the same manner that it would occur normally.
-            screen.logicalDotsPerInchChanged.emit(96)
+            window = qt_canvas.window().windowHandle()
+            current_version = tuple(
+                int(x) for x in qt_core.qVersion().split('.', 2)[:2])
+            if current_version >= (6, 6):
+                qt_core.QCoreApplication.sendEvent(
+                    window,
+                    qt_core.QEvent(qt_core.QEvent.Type.DevicePixelRatioChange))
+            else:
+                # The value here doesn't matter, as we can't mock the C++ QScreen
+                # object, but can override the functional wrapper around it.
+                # Emitting this event is simply to trigger the DPI change handler
+                # in Matplotlib in the same manner that it would occur normally.
+                window.screen().logicalDotsPerInchChanged.emit(96)
 
             qt_canvas.draw()
             qt_canvas.flush_events()
@@ -168,7 +176,6 @@ def test_device_pixel_ratio_change():
 
         qt_canvas.manager.show()
         size = qt_canvas.size()
-        screen = qt_canvas.window().windowHandle().screen()
         set_device_pixel_ratio(3)
 
         # The DPI and the renderer width/height change
