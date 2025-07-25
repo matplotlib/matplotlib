@@ -42,7 +42,7 @@ def get_glyphs_subset(fontfile: str, glyphs: set[GlyphIndexType]) -> TTFont:
 
     Parameters
     ----------
-    fontfile : str
+    fontfile : FontPath
         Path to the font file
     glyphs : set[GlyphIndexType]
         Set of glyph indices to include in subset.
@@ -80,8 +80,7 @@ def get_glyphs_subset(fontfile: str, glyphs: set[GlyphIndexType]) -> TTFont:
         'xref',  # The cross-reference table (some Apple font tooling information).
     ]
     # if fontfile is a ttc, specify font number
-    if fontfile.endswith(".ttc"):
-        options.font_number = 0
+    options.font_number = fontfile.face_index
 
     font = subset.load_font(fontfile, options)
     subsetter = subset.Subsetter(options=options)
@@ -267,11 +266,12 @@ class CharacterTracker:
             charcode = chars
             chars = chr(chars)
 
-        glyph_map = self.glyph_maps.setdefault(font.fname, GlyphMap())
+        font_path = font_manager.FontPath(font.fname, font.face_index)
+        glyph_map = self.glyph_maps.setdefault(font_path, GlyphMap())
         if result := glyph_map.get(chars, glyph):
             return result
 
-        subset_maps = self.used.setdefault(font.fname, [{}])
+        subset_maps = self.used.setdefault(font_path, [{}])
         use_next_charmap = (
             # Multi-character glyphs always go in the non-0 subset.
             len(chars) > 1 or

@@ -32,7 +32,7 @@ from matplotlib.backend_bases import (
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
-from matplotlib.font_manager import get_font, fontManager as _fontManager
+from matplotlib.font_manager import FontPath, get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
 from matplotlib.ft2font import FT2Font, FaceFlags, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
@@ -894,8 +894,10 @@ class PdfFile:
         as the filename of the font.
         """
 
-        if isinstance(fontprop, str):
+        if isinstance(fontprop, FontPath):
             filenames = [fontprop]
+        elif isinstance(fontprop, str):
+            filenames = [FontPath(fontprop, 0)]
         elif mpl.rcParams['pdf.use14corefonts']:
             filenames = _fontManager._find_fonts_by_props(
                 fontprop, fontext='afm', directory=RendererPdf._afm_font_dir
@@ -935,7 +937,7 @@ class PdfFile:
             _log.debug('Embedding Type-1 font %s from dvi.', dvifont.texname)
             fonts[pdfname] = self._embedTeXFont(dvifont)
         for (filename, subset), Fx in sorted(self._fontNames.items()):
-            _log.debug('Embedding font %s:%d.', filename, subset)
+            _log.debug('Embedding font %r:%d.', filename, subset)
             if filename.endswith('.afm'):
                 # from pdf.use14corefonts
                 _log.debug('Writing AFM font.')
@@ -986,10 +988,11 @@ class PdfFile:
 
         # Reduce the font to only the glyphs used in the document, get the encoding
         # for that subset, and compute various properties based on the encoding.
-        charmap = self._character_tracker.used[dvifont.fname][0]
+        font_path = FontPath(dvifont.fname, dvifont.face_index)
+        charmap = self._character_tracker.used[font_path][0]
         chars = {
             # DVI type 1 fonts always map single glyph to single character.
-            ord(self._character_tracker.subset_to_unicode(dvifont.fname, 0, ccode))
+            ord(self._character_tracker.subset_to_unicode(font_path, 0, ccode))
             for ccode in charmap
         }
         t1font = t1font.subset(chars, self._get_subset_prefix(charmap.values()))
@@ -1241,12 +1244,12 @@ end"""
             wObject = self.reserveObject('Type 0 widths')
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
-            _log.debug("SUBSET %s:%d characters: %s", filename, subset_index, charmap)
+            _log.debug("SUBSET %r:%d characters: %s", filename, subset_index, charmap)
             with _backend_pdf_ps.get_glyphs_subset(filename,
                                                    charmap.values()) as subset:
                 fontdata = _backend_pdf_ps.font_as_file(subset)
             _log.debug(
-                "SUBSET %s:%d %d -> %d", filename, subset_index,
+                "SUBSET %r:%d %d -> %d", filename, subset_index,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
             )
 
@@ -2137,13 +2140,13 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         for font, fontsize, ccode, glyph_index, ox, oy in glyphs:
             subset_index, subset_charcode = self.file._character_tracker.track_glyph(
                 font, ccode, glyph_index)
-            fontname = font.fname
+            font_path = FontPath(font.fname, font.face_index)
             self._setup_textpos(ox, oy, 0, oldx, oldy)
             oldx, oldy = ox, oy
-            if (fontname, subset_index, fontsize) != prev_font:
-                self.file.output(self.file.fontName(fontname, subset_index), fontsize,
+            if (font_path, subset_index, fontsize) != prev_font:
+                self.file.output(self.file.fontName(font_path, subset_index), fontsize,
                                  Op.selectfont)
-                prev_font = fontname, subset_index, fontsize
+                prev_font = font_path, subset_index, fontsize
             self.file.output(self._encode_glyphs([subset_charcode], fonttype),
                              Op.show)
         self.file.output(Op.end_text)
@@ -2338,7 +2341,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                     item.ft_object, item.char, item.glyph_index)
                 if (item.ft_object, subset) != prev_font:
                     output_singlebyte_chunk(singlebyte_chunk)
-                    ft_name = self.file.fontName(item.ft_object.fname, subset)
+                    font_path = FontPath(item.ft_object.fname,
+                                         item.ft_object.face_index)
+                    ft_name = self.file.fontName(font_path, subset)
                     self.file.output(ft_name, fontsize, Op.selectfont)
                     self._setup_textpos(item.x, 0, 0, prev_start_x, 0, 0)
                     prev_font = (item.ft_object, subset)
