@@ -1,4 +1,5 @@
 from enum import Enum, Flag
+from os import PathLike
 import sys
 from typing import BinaryIO, Literal, TypedDict, final, overload, cast
 from typing_extensions import Buffer  # < Py 3.12
@@ -187,9 +188,10 @@ class _SfntPcltDict(TypedDict):
 class FT2Font(Buffer):
     def __init__(
         self,
-        filename: str | BinaryIO,
+        filename: str | bytes | PathLike | BinaryIO,
         hinting_factor: int = ...,
         *,
+        face_index: int = ...,
         _fallback_list: list[FT2Font] | None = ...,
         _kerning_factor: int | None = ...
     ) -> None: ...
@@ -247,9 +249,11 @@ class FT2Font(Buffer):
     @property
     def face_flags(self) -> FaceFlags: ...
     @property
+    def face_index(self) -> int: ...
+    @property
     def family_name(self) -> str: ...
     @property
-    def fname(self) -> str: ...
+    def fname(self) -> str | bytes: ...
     @property
     def height(self) -> int: ...
     @property

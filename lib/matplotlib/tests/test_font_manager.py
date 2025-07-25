@@ -1,4 +1,4 @@
-from io import BytesIO, StringIO
+from io import BytesIO
 import gc
 import multiprocessing
 import os
@@ -13,7 +13,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib.font_manager import (
-    findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
+    findfont, findSystemFonts, FontEntry, FontPath, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, ttfFontProperty,
     _get_fontconfig_fonts, _normalize_weight)
@@ -22,6 +22,38 @@ from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
 
 has_fclist = shutil.which('fc-list') is not None
+
+
+def test_font_path():
+    fp = FontPath('foo', 123)
+    fp2 = FontPath('foo', 321)
+    assert str(fp) == 'foo'
+    assert repr(fp) == "FontPath('foo', 123)"
+    assert fp.path == 'foo'
+    assert fp.face_index == 123
+    # Should be immutable.
+    with pytest.raises(AttributeError, match='has no setter'):
+        fp.path = 'bar'
+    with pytest.raises(AttributeError, match='has no setter'):
+        fp.face_index = 321
+    # Should be comparable with str and itself.
+    assert fp == 'foo'
+    assert fp == FontPath('foo', 123)
+    assert fp <= fp
+    assert fp >= fp
+    assert fp != fp2
+    assert fp < fp2
+    assert fp <= fp2
+    assert fp2 > fp
+    assert fp2 >= fp
+    # Should be hashable, but not the same as str.
+    d = {fp: 1, 'bar': 2}
+    assert fp in d
+    assert d[fp] == 1
+    assert d[FontPath('foo', 123)] == 1
+    assert fp2 not in d
+    assert 'foo' not in d
+    assert FontPath('bar', 0) not in d
 
 
 def test_font_priority():
@@ -117,8 +149,17 @@ def test_utf16m_sfnt():
 
 def test_find_ttc():
     fp = FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(findfont(fp)).name != "wqy-zenhei.ttc":
+    fontpath = findfont(fp)
+    if Path(fontpath).name != "wqy-zenhei.ttc":
         pytest.skip("Font wqy-zenhei.ttc may be missing")
+    # All fonts from this collection should have loaded as well.
+    for name in ["WenQuanYi Zen Hei Mono", "WenQuanYi Zen Hei Sharp"]:
+        subfontpath = findfont(FontProperties(family=[name]), fallback_to_default=False)
+        assert subfontpath.path == fontpath.path
+        assert subfontpath.face_index != fontpath.face_index
+        subfont = get_font(subfontpath)
+        assert subfont.fname == subfontpath.path
+        assert subfont.face_index == subfontpath.face_index
     fig, ax = plt.subplots()
     ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
     for fmt in ["raw", "svg", "pdf", "ps"]:
@@ -137,6 +178,34 @@ def test_find_noto():
         fig.savefig(BytesIO(), format=fmt)
 
 
+def test_find_valid():
+    class PathLikeClass:
+        def __init__(self, filename):
+            self.filename = filename
+
+        def __fspath__(self):
+            return self.filename
+
+    file_str = findfont('DejaVu Sans')
+    file_bytes = os.fsencode(file_str)
+
+    font = get_font(file_str)
+    assert font.fname == file_str
+    font = get_font(file_bytes)
+    assert font.fname == file_bytes
+    font = get_font(PathLikeClass(file_str))
+    assert font.fname == file_str
+    font = get_font(PathLikeClass(file_bytes))
+    assert font.fname == file_bytes
+    font = get_font(FontPath(file_str, 0))
+    assert font.fname == file_str
+
+    # Note, fallbacks are not currently accessible.
+    font = get_font([file_str, file_bytes,
+                     PathLikeClass(file_str), PathLikeClass(file_bytes)])
+    assert font.fname == file_str
+
+
 def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
@@ -147,11 +216,6 @@ def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         get_font(bytes(tmp_path / 'non-existent-font-name.ttf'))
-
-    # Not really public, but get_font doesn't expose non-filename constructor.
-    from matplotlib.ft2font import FT2Font
-    with pytest.raises(TypeError, match='font file or a binary-mode file'):
-        FT2Font(StringIO())  # type: ignore[arg-type]
 
 
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
@@ -342,6 +406,10 @@ def test_get_font_names():
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
             ttf_fonts.append(prop.name)
+            for face_index in range(1, font.num_faces):
+                font = ft2font.FT2Font(path, face_index=face_index)
+                prop = ttfFontProperty(font)
+                ttf_fonts.append(prop.name)
         except Exception:
             pass
     available_fonts = sorted(list(set(ttf_fonts)))
