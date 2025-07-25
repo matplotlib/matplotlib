@@ -2373,7 +2373,17 @@ class _AxesBase(martist.Artist):
                 # the call so that self.dataLim will update its own minpos.
                 # This ensures that log scales see the correct minimum.
                 points = np.concatenate([points, [datalim.minpos]])
-            self.update_datalim(points)
+            # only update the dataLim for x/y if the collection uses transData
+            # in this direction.
+            x_is_data, y_is_data = (collection.get_transform()
+                                    .contains_branch_seperately(self.transData))
+            ox_is_data, oy_is_data = (collection.get_offset_transform()
+                                      .contains_branch_seperately(self.transData))
+            self.update_datalim(
+                points,
+                updatex=x_is_data or ox_is_data,
+                updatey=y_is_data or oy_is_data,
+            )
 
         self.stale = True
         return collection
