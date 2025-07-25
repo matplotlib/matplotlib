@@ -1611,10 +1611,10 @@ def get_font(font_filepaths, hinting_factor=None):
 
     Parameters
     ----------
-    font_filepaths : Iterable[str, Path, bytes], str, Path, bytes
+    font_filepaths : Iterable[str, bytes, os.PathLike], str, bytes, os.PathLike
         Relative or absolute paths to the font files to be used.
 
-        If a single string, bytes, or `pathlib.Path`, then it will be treated
+        If a single string, bytes, or `os.PathLike`, then it will be treated
         as a list with that entry only.
 
         If more than one filepath is passed, then the returned FT2Font object
@@ -1626,7 +1626,7 @@ def get_font(font_filepaths, hinting_factor=None):
     `.ft2font.FT2Font`
 
     """
-    if isinstance(font_filepaths, (str, Path, bytes)):
+    if isinstance(font_filepaths, (str, bytes, os.PathLike)):
         paths = (_cached_realpath(font_filepaths),)
     else:
         paths = tuple(_cached_realpath(fname) for fname in font_filepaths)
