@@ -9,40 +9,16 @@ By using negative angles (or corresponding reflex angles) for *head_angle*, arro
 with 'backwards' heads may be created.
 
 .. plot::
-    :include-source: false
-    :alt: A plot containing two arrow-shaped text boxes. One arrow has a pentagonal 'road-sign' shape, and the other an inverted arrow head on each end.
+    :include-source: true
+    :alt: Six arrow-shaped text boxes, all containing the text "Arrow". The top left arrow has a shorter head than default, while the top right arrow a longer head. The centre left double arrow has a "road-sign" shape (head as wide as the arrow tail), while the centre right arrow has a "backwards" head. The bottom left arrow has two heads which are larger than default, and the bottom right arrow has a head narrower than its tail.
 
-    import numpy as np
     import matplotlib.pyplot as plt
 
-    # Data for plotting; here, an intensity distribution for Fraunhofer diffraction
-    # from 7 thin slits
-    x_data = np.linspace(-3 * np.pi, 3 * np.pi, num=1000)
-    I_data = (np.sin(x_data * 3.5) / np.sin(x_data / 2)) ** 2
-
-    # Generate plot
-
-    fig, ax = plt.subplots()
-    plt.plot(x_data, I_data)
-
-    plt.xlim(-3 * np.pi, 3 * np.pi)
-    plt.ylim(0, 50)
-
-    #
-    # Annotate with boxed text in arrows
-    #
-
-    # head_width=1 gives 'road-sign' shape
-    t1 = ax.text(-1, 35, "Primary maximum",
-                ha="right", va="center", rotation=30, size=10,
-                bbox=dict(boxstyle="rarrow,pad=0.3,head_width=1,head_angle=60",
-                        fc="lightblue", ec="steelblue", lw=2))
-
-    # Negative head_angle gives reversed arrow heads
-    t2 = ax.text(np.pi, 30, "Lower intensity",
-                ha="center", va="center", rotation=0, size=10,
-                bbox=dict(boxstyle="darrow,pad=0.3,head_width=2,head_angle=-80",
-                        fc="lightblue", ec="steelblue", lw=2))
-
+    plt.text(0.2, 0.8, "Arrow", ha='center', size=16, bbox=dict(boxstyle="larrow, pad=0.3, head_angle=150"))
+    plt.text(0.7, 0.8, "Arrow", ha='center', size=16, bbox=dict(boxstyle="rarrow, pad=0.3, head_angle=30"))
+    plt.text(0.2, 0.2, "Arrow", ha='center', size=16, bbox=dict(boxstyle="darrow, pad=0.3, head_width=3"))
+    plt.text(0.7, 0.2, "Arrow", ha='center', size=16, bbox=dict(boxstyle="larrow, pad=0.3, head_width=0.5"))
+    plt.text(0.2, 0.5, "Arrow", ha='center', size=16, bbox=dict(boxstyle="darrow, pad=0.3, head_width=1, head_angle=60"))
+    plt.text(0.7, 0.5, "Arrow", ha='center', size=16, bbox=dict(boxstyle="rarrow, pad=0.3, head_width=2, head_angle=-90"))
 
     plt.show()
