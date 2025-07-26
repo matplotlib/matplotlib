@@ -65,4 +65,11 @@ class Stars(Shapes):
     shape_codes: np.ndarray
     def __init__(self, hatch: str, density: int) -> None: ...
 
+class Dashes(Shapes):
+    size: float
+    num_rows: int
+    shape_vertices: np.ndarray
+    shape_codes: np.ndarray
+    def __init__(self, hatch: str, density: int) -> None: ...
+
 def get_path(hatchpattern: str, density: int = ...) -> Path: ...
