@@ -311,10 +311,8 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
             if text is None:
                 self.insert(Gtk.SeparatorToolItem(), -1)
                 continue
-            image = Gtk.Image.new_from_gicon(
-                Gio.Icon.new_for_string(
-                    str(cbook._get_data_path('images',
-                                             f'{image_file}-symbolic.svg'))),
+            image = Gtk.Image.new_from_icon_name(
+                f'org.matplotlib.Matplotlib.{image_file}',
                 Gtk.IconSize.LARGE_TOOLBAR)
             self._gtk_ids[text] = button = (
                 Gtk.ToggleToolButton() if callback in ['zoom', 'pan'] else
@@ -413,6 +411,12 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self._groups = {}
         self._toolitems = {}
 
+    def _get_image_filename(self, tool):
+        if (fname := super()._get_image_filename(tool)) is not None:
+            return fname
+        if tool.image.startswith('mpl-data/'):
+            return os.path.basename(tool.image)
+
     def add_toolitem(self, name, group, position, image_file, description,
                      toggle):
         if toggle:
@@ -422,9 +426,14 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         button.set_label(name)
 
         if image_file is not None:
-            image = Gtk.Image.new_from_gicon(
-                Gio.Icon.new_for_string(image_file),
-                Gtk.IconSize.LARGE_TOOLBAR)
+            if os.path.isabs(image_file):
+                image = Gtk.Image.new_from_gicon(
+                    Gio.Icon.new_for_string(image_file),
+                    Gtk.IconSize.LARGE_TOOLBAR)
+            else:
+                image = Gtk.Image.new_from_icon_name(
+                    f'org.matplotlib.Matplotlib.{image_file}',
+                    Gtk.IconSize.LARGE_TOOLBAR)
             button.set_icon_widget(image)
 
         if position is None:
