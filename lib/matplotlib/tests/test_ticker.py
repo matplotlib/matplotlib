@@ -356,6 +356,10 @@ class TestLogLocator:
         loc = mticker.LogLocator(subs=np.arange(2, 10))
         assert 1.0 not in loc.tick_values(0.9, 20.)
         assert 10.0 not in loc.tick_values(0.9, 20.)
+        # don't switch if there's already one major and one minor tick (10 & 20)
+        loc = mticker.LogLocator(subs="auto")
+        tv = loc.tick_values(10, 20)
+        assert_array_equal(tv[(10 <= tv) & (tv <= 20)], [20])
 
     def test_set_params(self):
         """
