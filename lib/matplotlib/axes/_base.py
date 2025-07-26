@@ -724,7 +724,6 @@ class _AxesBase(martist.Artist):
         self.fmt_ydata = None
 
         self.set_navigate(True)
-        self.set_navigate_mode(None)
 
         if xscale:
             self.set_xscale(xscale)
@@ -4187,17 +4186,22 @@ class _AxesBase(martist.Artist):
         """
         Get the navigation toolbar button status: 'PAN', 'ZOOM', or None.
         """
-        return self._navigate_mode
+        toolbar = self.figure.canvas.toolbar
+        if toolbar:
+            return None if toolbar.mode.name == "NONE" else toolbar.mode.name
+        manager = self.figure.canvas.manager
+        if manager and manager.toolmanager:
+            mode = manager.toolmanager.active_toggle.get("default")
+            return None if mode is None else mode.upper()
 
+    @_api.deprecated("3.11")
     def set_navigate_mode(self, b):
         """
         Set the navigation toolbar button status.
 
         .. warning::
             This is not a user-API function.
-
         """
-        self._navigate_mode = b
 
     def _get_view(self):
         """
