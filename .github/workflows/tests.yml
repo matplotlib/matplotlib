@@ -344,34 +344,29 @@ jobs:
       - name: Cleanup non-failed image files
         if: failure()
         run: |
-          function remove_files() {
-              local extension=$1
-              find ./result_images -name "*-expected*.$extension" | while read file; do
-                  if [[ $file == *"-expected_pdf"* ]]; then
-                      base=${file%-expected_pdf.$extension}_pdf
-                  elif [[ $file == *"-expected_eps"* ]]; then
-                      base=${file%-expected_eps.$extension}_eps
-                  elif [[ $file == *"-expected_svg"* ]]; then
-                      base=${file%-expected_svg.$extension}_svg
-                  elif [[ $file == *"-expected_gif"* ]]; then
-                      base=${file%-expected_gif.$extension}_gif
-                  else
-                      base=${file%-expected.$extension}
-                  fi
-                  if [[ ! -e "${base}-failed-diff.$extension" ]]; then
-                      if [[ -e "$file" ]]; then
-                          rm "$file"
-                          echo "Removed $file"
-                      fi
-                      if [[ -e "${base}.$extension" ]]; then
-                          rm "${base}.$extension"
-                          echo " Removed ${base}.$extension"
-                      fi
-                  fi
+          find ./result_images -name "*-expected*.png" | while read file; do
+            if [[ $file == *-expected_???.png ]]; then
+              extension=${file: -7:3}
+              base=${file%*-expected_$extension.png}_$extension
+            else
+              extension="png"
+              base=${file%-expected.png}
+            fi
+            if [[ ! -e ${base}-failed-diff.png ]]; then
+              indent=""
+              list=($file $base.png)
+              if [[ $extension != "png" ]]; then
+                list+=(${base%_$extension}-expected.$extension ${base%_$extension}.$extension)
+              fi
+              for to_remove in "${list[@]}"; do
+                if [[ -e $to_remove ]]; then
+                  rm $to_remove
+                  echo "${indent}Removed $to_remove"
+                fi
+                indent+=" "
               done
-          }
-
-          remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps"; remove_files "gif";
+            fi
+          done
 
           if [ "$(find ./result_images -mindepth 1 -type d)" ]; then
               find ./result_images/* -type d -empty -delete
