@@ -1,3 +1,5 @@
+import sys
+
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal_nulp)
 import numpy as np
@@ -429,7 +431,16 @@ class TestSpectral:
         assert spec.shape[0] == freqs.shape[0]
         assert spec.shape[1] == getattr(self, f"t_{case}").shape[0]
 
-    def test_csd(self):
+    @pytest.mark.parametrize('bitsize', [
+        pytest.param(None, id='default'),
+        pytest.param(32,
+                     marks=pytest.mark.skipif(sys.maxsize <= 2**32,
+                                              reason='System is already 32-bit'),
+                     id='32-bit')
+    ])
+    def test_csd(self, bitsize, monkeypatch):
+        if bitsize is not None:
+            monkeypatch.setattr(sys, 'maxsize', 2**bitsize)
         freqs = self.freqs_density
         spec, fsp = mlab.csd(x=self.y, y=self.y+1,
                              NFFT=self.NFFT_density,
