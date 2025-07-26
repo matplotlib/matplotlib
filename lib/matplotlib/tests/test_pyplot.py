@@ -12,6 +12,7 @@ from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
 
 
+@pytest.mark.subprocess
 def test_pyplot_up_to_date(tmp_path):
     pytest.importorskip("black")
 
