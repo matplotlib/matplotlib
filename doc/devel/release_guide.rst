@@ -125,22 +125,22 @@ prepare this list:
 
 1. Archive the existing GitHub statistics page.
 
-   a. Copy the current :file:`doc/users/github_stats.rst` to
-      :file:`doc/users/prev_whats_new/github_stats_{X}.{Y}.{Z}.rst`.
+   a. Copy the current :file:`doc/release/github_stats.rst` to
+      :file:`doc/release/prev_whats_new/github_stats_{X}.{Y}.{Z}.rst`.
    b. Change the link target at the top of the file.
    c. Remove the "Previous GitHub Stats" section at the end.
 
    For example, when updating from v3.7.0 to v3.7.1::
 
-      cp doc/users/github_stats.rst doc/users/prev_whats_new/github_stats_3.7.0.rst
-      $EDITOR doc/users/prev_whats_new/github_stats_3.7.0.rst
+      cp doc/release/github_stats.rst doc/release/prev_whats_new/github_stats_3.7.0.rst
+      $EDITOR doc/release/prev_whats_new/github_stats_3.7.0.rst
       # Change contents as noted above.
-      git add doc/users/prev_whats_new/github_stats_3.7.0.rst
+      git add doc/release/prev_whats_new/github_stats_3.7.0.rst
 
 2. Re-generate the updated stats::
 
        python tools/github_stats.py --since-tag v3.7.0 --milestone=v3.7.1 \
-           --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
+           --project 'matplotlib/matplotlib' --links > doc/release/github_stats.rst
 
 3. Review and commit changes. Some issue/PR titles may not be valid reST (the most
    common issue is ``*`` which is interpreted as unclosed markup). Also confirm that
@@ -194,8 +194,8 @@ What's new
 *Only needed for macro and meso releases. Bugfix releases should not have new
 features.*
 
-Merge the contents of all the files in :file:`doc/users/next_whats_new/` into a single
-file :file:`doc/users/prev_whats_new/whats_new_{X}.{Y}.0.rst` and delete the individual
+Merge the contents of all the files in :file:`doc/release/next_whats_new/` into a single
+file :file:`doc/release/prev_whats_new/whats_new_{X}.{Y}.0.rst` and delete the individual
 files.
 
 API changes
@@ -211,7 +211,7 @@ individual files.
 Release notes TOC
 ^^^^^^^^^^^^^^^^^
 
-Update :file:`doc/users/release_notes.rst`:
+Update :file:`doc/release/release_notes.rst`:
 
 - For macro and meso releases add a new section
 
