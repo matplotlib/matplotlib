@@ -3,6 +3,7 @@ from datetime import datetime
 import io
 import pickle
 import platform
+import sys
 from threading import Timer
 from types import SimpleNamespace
 import warnings
@@ -1605,6 +1606,8 @@ def test_add_axes_kwargs():
     plt.close()
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support threads')
 def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig, ax = plt.subplots()
@@ -1627,6 +1630,8 @@ def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     np.testing.assert_allclose(fig.ginput(3), [(.3, .4), (.5, .6)])
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support threads')
 def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig = plt.figure()
