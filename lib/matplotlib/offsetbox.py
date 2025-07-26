@@ -946,8 +946,10 @@ class AnchoredOffsetbox(OffsetBox):
             See the parameter *loc* of `.Legend` for details.
         pad : float, default: 0.4
             Padding around the child as fraction of the fontsize.
-        borderpad : float, default: 0.5
-            Padding between the offsetbox frame and the *bbox_to_anchor*.
+        borderpad : float or tuple[float, float], default: 0.5
+                    Padding between the offsetbox frame and the *bbox_to_anchor*.
+                    If a float, the same padding is used for both x and y.
+                    If a tuple of two floats, it specifies the (x, y) padding.
         child : `.OffsetBox`
             The box that will be anchored.
         prop : `.FontProperties`
@@ -1052,14 +1054,29 @@ class AnchoredOffsetbox(OffsetBox):
         self.stale = True
 
     @_compat_get_offset
+
     def get_offset(self, bbox, renderer):
-        # docstring inherited
-        pad = (self.borderpad
-               * renderer.points_to_pixels(self.prop.get_size_in_points()))
+        fontsize_in_pixels = renderer.points_to_pixels(self.prop.get_size_in_points())
+        try:
+            borderpad_x, borderpad_y = self.borderpad
+        except (TypeError, ValueError):
+            borderpad_x = self.borderpad
+            borderpad_y = self.borderpad
+        pad_x_pixels = borderpad_x * fontsize_in_pixels
+        pad_y_pixels = borderpad_y * fontsize_in_pixels
         bbox_to_anchor = self.get_bbox_to_anchor()
+        padded_bbox_to_anchor = Bbox.from_extents(
+            bbox_to_anchor.x0 + pad_x_pixels,
+            bbox_to_anchor.y0 + pad_y_pixels,
+            bbox_to_anchor.x1 - pad_x_pixels,
+            bbox_to_anchor.y1 - pad_y_pixels
+        )
         x0, y0 = _get_anchored_bbox(
-            self.loc, Bbox.from_bounds(0, 0, bbox.width, bbox.height),
-            bbox_to_anchor, pad)
+            self.loc,
+            Bbox.from_bounds(0, 0, bbox.width, bbox.height),
+            padded_bbox_to_anchor,
+            0
+        )
         return x0 - bbox.x0, y0 - bbox.y0
 
     def update_frame(self, bbox, fontsize=None):
