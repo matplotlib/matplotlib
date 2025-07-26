@@ -2372,6 +2372,9 @@ class _AxesBase(martist.Artist):
                 updatey=y_is_data or oy_is_data,
             )
 
+            # Automatically adjust the view limits to fit the collection
+            self.autoscale_view()
+
         self.stale = True
         return collection
 
