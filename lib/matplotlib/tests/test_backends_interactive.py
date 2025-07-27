@@ -227,12 +227,15 @@ def _test_interactive_impl():
     # Ensure that the window is really closed.
     plt.pause(0.5)
 
-    # Test that saving works after interactive window is closed, but the figure
-    # is not deleted.
+    # When the figure is closed, it's manager is removed and the canvas is reset to
+    # FigureCanvasBase. Saving should still be possible.
     result_after = io.BytesIO()
     fig.savefig(result_after, format='png')
 
-    assert result.getvalue() == result_after.getvalue()
+    if backend.endswith("agg"):
+        # agg-based interactive backends should save the same image as a non-interactive
+        # figure
+        assert result.getvalue() == result_after.getvalue()
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())

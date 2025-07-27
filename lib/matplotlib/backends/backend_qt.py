@@ -664,6 +664,7 @@ class FigureManagerQT(FigureManagerBase):
             self.window.raise_()
 
     def destroy(self, *args):
+        super().destroy()
         # check for qApp first, as PySide deletes it in its atexit handler
         if QtWidgets.QApplication.instance() is None:
             return

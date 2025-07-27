@@ -2723,7 +2723,9 @@ class FigureManagerBase:
             f"shown")
 
     def destroy(self):
-        pass
+        # managers may have swapped the canvas to a GUI-framework specific one.
+        # restore the base canvas when the manager is destroyed.
+        self.canvas.figure._set_base_canvas()
 
     def full_screen_toggle(self):
         pass

@@ -2642,7 +2642,7 @@ None}, default: None
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
-        FigureCanvasBase(self)  # Set self.canvas.
+        self._set_base_canvas()
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -2995,6 +2995,15 @@ None}, default: None
             h_pad = h_pad * dpi / renderer.height
 
         return w_pad, h_pad, wspace, hspace
+
+    def _set_base_canvas(self):
+        """
+        Initialize self.canvas with a FigureCanvasBase instance.
+
+        This is used upon initialization of the Figure, but also
+        to reset the canvas when decoupling from pyplot.
+        """
+        FigureCanvasBase(self)  # Set self.canvas as a side-effect
 
     def set_canvas(self, canvas):
         """

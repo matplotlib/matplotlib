@@ -90,6 +90,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
 
     def destroy(self):
         CloseEvent("close_event", self)._process()
+        super().destroy()
 
     def set_cursor(self, cursor):
         # docstring inherited
