@@ -510,7 +510,14 @@ class FigureCanvasAgg(FigureCanvasBase):
     def print_webp(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
         self._print_pil(filename_or_obj, "webp", pil_kwargs, metadata)
 
-    print_gif.__doc__, print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
+    def print_avif(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
+        self._print_pil(filename_or_obj, "avif", pil_kwargs, metadata)
+
+    (print_gif.__doc__,
+     print_jpg.__doc__,
+     print_tif.__doc__,
+     print_webp.__doc__,
+     print_avif.__doc__) = map(
         """
         Write the figure to a {} file.
 
@@ -521,7 +528,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
-        """.format, ["GIF", "JPEG", "TIFF", "WebP"])
+        """.format, ["GIF", "JPEG", "TIFF", "WebP", "AVIF"])
 
 
 @_Backend.export
