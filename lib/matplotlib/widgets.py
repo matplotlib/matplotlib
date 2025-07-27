@@ -547,7 +547,10 @@ class Slider(SliderBase):
     def _format(self, val):
         """Pretty-print *val*."""
         if self.valfmt is not None:
-            return self.valfmt % val
+            if callable(self.valfmt):
+                return self.valfmt(val)
+            else:
+                return self.valfmt % val
         else:
             _, s, _ = self._fmt.format_ticks([self.valmin, val, self.valmax])
             # fmt.get_offset is actually the multiplicative factor, if any.
@@ -890,7 +893,10 @@ class RangeSlider(SliderBase):
     def _format(self, val):
         """Pretty-print *val*."""
         if self.valfmt is not None:
-            return f"({self.valfmt % val[0]}, {self.valfmt % val[1]})"
+            if callable(self.valfmt):
+                self.valfmt(val)
+            else:
+                return f"({self.valfmt % val[0]}, {self.valfmt % val[1]})"
         else:
             _, s1, s2, _ = self._fmt.format_ticks(
                 [self.valmin, *val, self.valmax]
