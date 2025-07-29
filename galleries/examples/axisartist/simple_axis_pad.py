@@ -81,23 +81,33 @@ def ann(ax1, d):
                  va="top", ha="center")
 
 
-ax1 = setup_axes(fig, rect=141)
+ax1 = setup_axes(fig, rect=231)
 axis = add_floating_axis1(ax1)
-ann(ax1, r"default")
+ann(ax1, "default")
 
-ax1 = setup_axes(fig, rect=142)
+ax1 = setup_axes(fig, rect=232)
 axis = add_floating_axis1(ax1)
 axis.major_ticklabels.set_pad(10)
-ann(ax1, r"ticklabels.set_pad(10)")
+ann(ax1, "ticklabels.set_pad(10)")
 
-ax1 = setup_axes(fig, rect=143)
+ax1 = setup_axes(fig, rect=233)
 axis = add_floating_axis1(ax1)
 axis.label.set_pad(20)
-ann(ax1, r"label.set_pad(20)")
+ann(ax1, "label.set_pad(20)")
 
-ax1 = setup_axes(fig, rect=144)
+ax1 = setup_axes(fig, rect=234)
 axis = add_floating_axis1(ax1)
-axis.major_ticks.set_tick_out(True)
-ann(ax1, "ticks.set_tick_out(True)")
+axis.major_ticks.set_tick_direction("in")
+ann(ax1, 'ticks.set_tick_direction("in")')
+
+ax1 = setup_axes(fig, rect=235)
+axis = add_floating_axis1(ax1)
+axis.major_ticks.set_tick_direction("out")
+ann(ax1, 'ticks.set_tick_direction("out")')
+
+ax1 = setup_axes(fig, rect=236)
+axis = add_floating_axis1(ax1)
+axis.major_ticks.set_tick_direction("inout")
+ann(ax1, 'ticks.set_tick_direction("inout")')
 
 plt.show()
