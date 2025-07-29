@@ -36,6 +36,7 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
+from PIL import features
 
 
 def get_hinting_flag():
@@ -511,7 +512,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         self._print_pil(filename_or_obj, "webp", pil_kwargs, metadata)
 
     def print_avif(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
-        if not PIL.features.check("avif"):
+        if not features.check("avif"):
             raise RuntimeError(
                 "The installed pillow version does not support avif. Full "
                 "avif support has been added in pillow 11.3."
