@@ -511,6 +511,11 @@ class FigureCanvasAgg(FigureCanvasBase):
         self._print_pil(filename_or_obj, "webp", pil_kwargs, metadata)
 
     def print_avif(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
+        if not PIL.features.check("avif"):
+            raise RuntimeError(
+                "The installed pillow version does not support avif. Full "
+                "avif support has been added in pillow 11.3."
+            )
         self._print_pil(filename_or_obj, "avif", pil_kwargs, metadata)
 
     (print_gif.__doc__,
