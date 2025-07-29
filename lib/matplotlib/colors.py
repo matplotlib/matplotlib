@@ -3459,8 +3459,10 @@ class MultiNorm(Norm):
         values : array-like
             The input data, as an iterable or a structured numpy array.
 
-            - If iterable, must be of length `n_components`
-            - If structured array, must have `n_components` fields.
+            - If iterable, must be of length `n_components`. Each element can be a
+              scalar or array-like and is mapped through the correspong norm.
+            - If structured array, must have `n_components` fields. Each field
+              is mapped through the the corresponding norm.
 
         """
         values = self._iterable_components_in_data(values, self.n_components)
@@ -3475,8 +3477,12 @@ class MultiNorm(Norm):
         Parameters
         ----------
         A : array-like
-            Data, must be of length `n_components` or be a structured scalar or
-            structured array with `n_components` fields.
+            The input data, as an iterable or a structured numpy array.
+
+            - If iterable, must be of length `n_components`. Each element
+              is used for the limits of one constituent norm.
+            - If structured array, must have `n_components` fields. Each field
+              is used for the limits of one constituent norm.
         """
         with self.callbacks.blocked():
             # Pause callbacks while we are updating so we only get
@@ -3493,9 +3499,13 @@ class MultiNorm(Norm):
 
         Parameters
         ----------
-        A
-            Data, must be of length `n_components` or be a structured array
-            with `n_components` fields.
+        A : array-like
+            The input data, as an iterable or a structured numpy array.
+
+            - If iterable, must be of length `n_components`. Each element
+              is used for the limits of one constituent norm.
+            - If structured array, must have `n_components` fields. Each field
+              is used for the limits of one constituent norm.
         """
         with self.callbacks.blocked():
             A = self._iterable_components_in_data(A, self.n_components)
@@ -3512,7 +3522,7 @@ class MultiNorm(Norm):
         """
         Provides an iterable over the components contained in the data.
 
-        An input array with `n_components` fields is returned as a list of length n
+        An input array with `n_components` fields is returned as a tuple of length n
         referencing slices of the original array.
 
         Parameters
