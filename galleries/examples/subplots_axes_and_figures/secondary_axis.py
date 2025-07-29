@@ -9,6 +9,9 @@ axes with only one axis visible via `.axes.Axes.secondary_xaxis` and
 `.axes.Axes.secondary_yaxis`.  This secondary axis can have a different scale
 than the main axis by providing both a forward and an inverse conversion
 function in a tuple to the *functions* keyword argument:
+
+See also :doc:`/gallery/subplots_axes_and_figures/two_scales` for the case
+where two scales are not related to one another, but independent.
 """
 
 import datetime
