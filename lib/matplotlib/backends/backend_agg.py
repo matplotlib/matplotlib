@@ -525,6 +525,9 @@ class FigureCanvasAgg(FigureCanvasBase):
         ----------
         filename_or_obj : str or path-like or file-like
             The file to write to.
+        metadata : None
+            Unused for pillow-based writers. All supported options
+            can be passed via *pil_kwargs*.
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
