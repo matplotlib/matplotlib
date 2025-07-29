@@ -3418,8 +3418,10 @@ class MultiNorm(Norm):
         values : array-like
             The input data, as an iterable or a structured numpy array.
 
-            - If iterable, must be of length `n_components`
-            - If structured array, must have `n_components` fields.
+            - If iterable, must be of length `n_components`. Each element can be a
+              scalar or array-like and is normalized through the correspong norm.
+            - If structured array, must have `n_components` fields. Each field
+              is normalized through the the corresponding norm.
 
         clip : list of bools or bool or None, optional
             Determines the behavior for mapping values outside the range
@@ -3445,9 +3447,7 @@ class MultiNorm(Norm):
             clip = [clip]*self.n_components
 
         values = self._iterable_components_in_data(values, self.n_components)
-
         result = tuple(n(v, clip=c) for n, v, c in zip(self.norms, values, clip))
-
         return result
 
     def inverse(self, values):
@@ -3462,7 +3462,6 @@ class MultiNorm(Norm):
             - If iterable, must be of length `n_components`
             - If structured array, must have `n_components` fields.
 
-
         """
         values = self._iterable_components_in_data(values, self.n_components)
         result = [n.inverse(v) for n, v in zip(self.norms, values)]
@@ -3475,7 +3474,7 @@ class MultiNorm(Norm):
 
         Parameters
         ----------
-        A
+        A : array-like
             Data, must be of length `n_components` or be a structured scalar or
             structured array with `n_components` fields.
         """
