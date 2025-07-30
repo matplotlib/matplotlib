@@ -220,7 +220,7 @@ def _test_interactive_impl():
     fig.canvas.mpl_connect("close_event", print)
 
     result = io.BytesIO()
-    fig.savefig(result, format='png')
+    fig.savefig(result, format='png', dpi=100)
 
     plt.show()
 
@@ -230,7 +230,7 @@ def _test_interactive_impl():
     # When the figure is closed, it's manager is removed and the canvas is reset to
     # FigureCanvasBase. Saving should still be possible.
     result_after = io.BytesIO()
-    fig.savefig(result_after, format='png')
+    fig.savefig(result_after, format='png', dpi=100)
 
     if backend.endswith("agg"):
         # agg-based interactive backends should save the same image as a non-interactive
