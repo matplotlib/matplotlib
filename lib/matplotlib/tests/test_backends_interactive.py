@@ -288,10 +288,13 @@ def _test_thread_impl():
     future = ThreadPoolExecutor().submit(fig.canvas.draw)
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
+    # stash the current canvas as closing the figure will reset the canvas on
+    # the figure
+    canvas = fig.canvas
     plt.close()  # backend is responsible for flushing any events here
     if plt.rcParams["backend"].lower().startswith("wx"):
         # TODO: debug why WX needs this only on py >= 3.8
-        fig.canvas.flush_events()
+        canvas.flush_events()
 
 
 _thread_safe_backends = _get_testable_interactive_backends()
