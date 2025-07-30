@@ -76,7 +76,7 @@ _default_filetypes = {
     'tif': 'Tagged Image File Format',
     'tiff': 'Tagged Image File Format',
     'webp': 'WebP Image Format',
-    'avif': 'Av1 Image File Format',
+    'avif': 'AV1 Image File Format',
 }
 _default_backends = {
     'eps': 'matplotlib.backends.backend_ps',
