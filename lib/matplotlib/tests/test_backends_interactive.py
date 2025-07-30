@@ -22,6 +22,9 @@ from matplotlib.backend_tools import ToolToggleBase
 from matplotlib.testing import subprocess_run_helper as _run_helper, is_ci_environment
 
 
+pytestmark = pytest.mark.subprocess
+
+
 class _WaitForStringPopen(subprocess.Popen):
     """
     A Popen that passes flags that allow triggering KeyboardInterrupt.
@@ -33,8 +36,10 @@ class _WaitForStringPopen(subprocess.Popen):
         super().__init__(
             *args, **kwargs,
             # Force Agg so that each test can switch to its desired backend.
-            env={**os.environ, "MPLBACKEND": "Agg", "SOURCE_DATE_EPOCH": "0"},
-            stdout=subprocess.PIPE, universal_newlines=True)
+            env={**os.environ, "MPLBACKEND": "Agg", "SOURCE_DATE_EPOCH": "0",
+                 "PYTHONUNBUFFERED": "1"},
+            bufsize=0, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, universal_newlines=True)
 
     def wait_for(self, terminator):
         """Read until the terminator is reached."""
@@ -42,8 +47,12 @@ class _WaitForStringPopen(subprocess.Popen):
         while True:
             c = self.stdout.read(1)
             if not c:
-                raise RuntimeError(
-                    f'Subprocess died before emitting expected {terminator!r}')
+                if self.poll() is None:
+                    os.sched_yield()
+                else:
+                    raise RuntimeError(
+                        f'Subprocess died before emitting expected {terminator!r}\n'
+                        f'\nSubprocess output:\n{buf}')
             buf += c
             if buf.endswith(terminator):
                 return
@@ -237,7 +246,7 @@ def _test_interactive_impl():
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 @pytest.mark.parametrize("toolbar", ["toolbar2", "toolmanager"])
-@pytest.mark.flaky(reruns=3)
+#@pytest.mark.flaky(reruns=3)
 def test_interactive_backend(env, toolbar):
     if env["MPLBACKEND"] == "macosx":
         if toolbar == "toolmanager":
@@ -329,7 +338,7 @@ for param in _thread_safe_backends:
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
-@pytest.mark.flaky(reruns=3)
+#@pytest.mark.flaky(reruns=3)
 def test_interactive_thread_safety(env):
     proc = _run_helper(_test_thread_impl, timeout=_test_timeout, extra_env=env)
     assert proc.stdout.count("CloseEvent") == 1
@@ -617,7 +626,7 @@ for param in _blit_backends:
 
 @pytest.mark.parametrize("env", _blit_backends)
 # subprocesses can struggle to get the display, so rerun a few times
-@pytest.mark.flaky(reruns=4)
+#@pytest.mark.flaky(reruns=4)
 def test_blitting_events(env):
     proc = _run_helper(
         _test_number_of_draws_script, timeout=_test_timeout, extra_env=env)
