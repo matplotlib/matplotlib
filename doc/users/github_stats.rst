@@ -1,6 +1,6 @@
 .. _github-stats:
 
-GitHub statistics for 3.10.4 (Jul 31, 2025)
+GitHub statistics for 3.10.5 (Jul 31, 2025)
 ===========================================
 
 GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2025/07/31
