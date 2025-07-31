@@ -37,7 +37,8 @@ from .ft2font import FT2Font, Kerning, LoadFlags
 
 if T.TYPE_CHECKING:
     from collections.abc import Iterable
-    from .ft2font import Glyph
+    from .ft2font import CharacterCodeType, Glyph
+
 
 ParserElement.enable_packrat()
 _log = logging.getLogger("matplotlib.mathtext")
@@ -47,7 +48,7 @@ _log = logging.getLogger("matplotlib.mathtext")
 # FONTS
 
 
-def get_unicode_index(symbol: str) -> int:  # Publicly exported.
+def get_unicode_index(symbol: str) -> CharacterCodeType:  # Publicly exported.
     r"""
     Return the integer index (from the Unicode table) of *symbol*.
 
@@ -85,7 +86,7 @@ class VectorParse(NamedTuple):
     width: float
     height: float
     depth: float
-    glyphs: list[tuple[FT2Font, float, int, float, float]]
+    glyphs: list[tuple[FT2Font, float, CharacterCodeType, float, float]]
     rects: list[tuple[float, float, float, float]]
 
 VectorParse.__module__ = "matplotlib.mathtext"
@@ -212,7 +213,7 @@ class FontInfo(NamedTuple):
     fontsize: float
     postscript_name: str
     metrics: FontMetrics
-    num: int
+    num: CharacterCodeType
     glyph: Glyph
     offset: float
 
@@ -365,7 +366,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
         return 0.
 
     def _get_glyph(self, fontname: str, font_class: str,
-                   sym: str) -> tuple[FT2Font, int, bool]:
+                   sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         raise NotImplementedError
 
     # The return value of _get_info is cached per-instance.
@@ -425,7 +426,9 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
-            return font.get_kerning(info1.num, info2.num, Kerning.DEFAULT) / 64
+            return font.get_kerning(font.get_char_index(info1.num),
+                                    font.get_char_index(info2.num),
+                                    Kerning.DEFAULT) / 64
         return super().get_kern(font1, fontclass1, sym1, fontsize1,
                                 font2, fontclass2, sym2, fontsize2, dpi)
 
@@ -459,7 +462,7 @@ class BakomaFonts(TruetypeFonts):
     _slanted_symbols = set(r"\int \oint".split())
 
     def _get_glyph(self, fontname: str, font_class: str,
-                   sym: str) -> tuple[FT2Font, int, bool]:
+                   sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         font = None
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
@@ -551,7 +554,7 @@ class UnicodeFonts(TruetypeFonts):
     # Some glyphs are not present in the `cmr10` font, and must be brought in
     # from `cmsy10`. Map the Unicode indices of those glyphs to the indices at
     # which they are found in `cmsy10`.
-    _cmr10_substitutions = {
+    _cmr10_substitutions: dict[CharacterCodeType, CharacterCodeType] = {
         0x00D7: 0x00A3,  # Multiplication sign.
         0x2212: 0x00A1,  # Minus sign.
     }
@@ -594,11 +597,11 @@ class UnicodeFonts(TruetypeFonts):
     _slanted_symbols = set(r"\int \oint".split())
 
     def _map_virtual_font(self, fontname: str, font_class: str,
-                          uniindex: int) -> tuple[str, int]:
+                          uniindex: CharacterCodeType) -> tuple[str, CharacterCodeType]:
         return fontname, uniindex
 
     def _get_glyph(self, fontname: str, font_class: str,
-                   sym: str) -> tuple[FT2Font, int, bool]:
+                   sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         try:
             uniindex = get_unicode_index(sym)
             found_symbol = True
@@ -607,8 +610,7 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             _log.warning("No TeX to Unicode mapping for %a.", sym)
 
-        fontname, uniindex = self._map_virtual_font(
-            fontname, font_class, uniindex)
+        fontname, uniindex = self._map_virtual_font(fontname, font_class, uniindex)
 
         new_fontname = fontname
 
@@ -693,7 +695,7 @@ class DejaVuFonts(UnicodeFonts, metaclass=abc.ABCMeta):
             self.fontmap[name] = fullpath
 
     def _get_glyph(self, fontname: str, font_class: str,
-                   sym: str) -> tuple[FT2Font, int, bool]:
+                   sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         # Override prime symbol to use Bakoma.
         if sym == r'\prime':
             return self.bakoma._get_glyph(fontname, font_class, sym)
@@ -783,7 +785,7 @@ class StixFonts(UnicodeFonts):
             self.fontmap[name] = fullpath
 
     def _map_virtual_font(self, fontname: str, font_class: str,
-                          uniindex: int) -> tuple[str, int]:
+                          uniindex: CharacterCodeType) -> tuple[str, CharacterCodeType]:
         # Handle these "fonts" that are actually embedded in
         # other fonts.
         font_mapping = stix_virtual_fonts.get(fontname)
@@ -1170,7 +1172,7 @@ class List(Box):
         self.glue_sign    = 0    # 0: normal, -1: shrinking, 1: stretching
         self.glue_order   = 0    # The order of infinity (0 - 3) for the glue
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}<w={:.02f} h={:.02f} d={:.02f} s={:.02f}>[{}]".format(
             super().__repr__(),
             self.width, self.height,

@@ -30,9 +30,10 @@ being used.
 import inspect
 import logging
 import re
-from typing import BinaryIO, NamedTuple, TypedDict
+from typing import BinaryIO, NamedTuple, TypedDict, cast
 
 from ._mathtext_data import uni2type1
+from .ft2font import CharacterCodeType, GlyphIndexType
 
 
 _log = logging.getLogger(__name__)
@@ -197,7 +198,7 @@ CharMetrics.bbox.__doc__ = """
     The bbox of the character (B) as a tuple (*llx*, *lly*, *urx*, *ury*)."""
 
 
-def _parse_char_metrics(fh: BinaryIO) -> tuple[dict[int, CharMetrics],
+def _parse_char_metrics(fh: BinaryIO) -> tuple[dict[CharacterCodeType, CharMetrics],
                                                dict[str, CharMetrics]]:
     """
     Parse the given filehandle for character metrics information.
@@ -218,7 +219,7 @@ def _parse_char_metrics(fh: BinaryIO) -> tuple[dict[int, CharMetrics],
     """
     required_keys = {'C', 'WX', 'N', 'B'}
 
-    ascii_d: dict[int, CharMetrics] = {}
+    ascii_d: dict[CharacterCodeType, CharMetrics] = {}
     name_d: dict[str, CharMetrics] = {}
     for bline in fh:
         # We are defensively letting values be utf8. The spec requires
@@ -409,19 +410,21 @@ class AFM:
 
         return left, miny, total_width, maxy - miny, -miny
 
-    def get_glyph_name(self, glyph_ind: int) -> str:  # For consistency with FT2Font.
+    def get_glyph_name(self,  # For consistency with FT2Font.
+                       glyph_ind: GlyphIndexType) -> str:
         """Get the name of the glyph, i.e., ord(';') is 'semicolon'."""
-        return self._metrics[glyph_ind].name
+        return self._metrics[cast(CharacterCodeType, glyph_ind)].name
 
-    def get_char_index(self, c: int) -> int:  # For consistency with FT2Font.
+    def get_char_index(self,  # For consistency with FT2Font.
+                       c: CharacterCodeType) -> GlyphIndexType:
         """
         Return the glyph index corresponding to a character code point.
 
         Note, for AFM fonts, we treat the glyph index the same as the codepoint.
         """
-        return c
+        return cast(GlyphIndexType, c)
 
-    def get_width_char(self, c: int) -> float:
+    def get_width_char(self, c: CharacterCodeType) -> float:
         """Get the width of the character code from the character metric WX field."""
         return self._metrics[c].width
 

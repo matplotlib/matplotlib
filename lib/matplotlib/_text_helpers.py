@@ -7,14 +7,14 @@ from __future__ import annotations
 import dataclasses
 
 from . import _api
-from .ft2font import FT2Font, Kerning, LoadFlags
+from .ft2font import FT2Font, GlyphIndexType, Kerning, LoadFlags
 
 
 @dataclasses.dataclass(frozen=True)
 class LayoutItem:
     ft_object: FT2Font
     char: str
-    glyph_idx: int
+    glyph_idx: GlyphIndexType
     x: float
     prev_kern: float
 

@@ -1,6 +1,7 @@
 import itertools
 import io
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import pytest
@@ -241,7 +242,7 @@ def test_ft2font_charmaps():
     assert unic == after
 
     # This is just a random sample from FontForge.
-    glyph_names = {
+    glyph_names = cast(dict[str, ft2font.GlyphIndexType], {
         'non-existent-glyph-name': 0,
         'plusminus': 115,
         'Racute': 278,
@@ -253,7 +254,7 @@ def test_ft2font_charmaps():
         'uni2A02': 4464,
         'u1D305': 5410,
         'u1F0A1': 5784,
-    }
+    })
     for name, index in glyph_names.items():
         assert font.get_name_index(name) == index
         if name == 'non-existent-glyph-name':
