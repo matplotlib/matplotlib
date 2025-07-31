@@ -1076,7 +1076,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self._coordinates = coordinates
         if self._coordinates:
             self.AddStretchableSpace()
-            self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
+            self._label_text = wx.StaticText(self, size=(120,-1), style=wx.ALIGN_RIGHT)
             self.AddControl(self._label_text)
 
         self.Realize()
