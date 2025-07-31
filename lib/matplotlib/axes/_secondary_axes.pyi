@@ -29,6 +29,22 @@ class SecondaryAxis(_AxesBase):
         location: Literal["top", "bottom", "right", "left"] | float,
         transform: Transform | None = ...
     ) -> None: ...
+    def set_xticks(
+        self,
+        ticks: ArrayLike,
+        labels: Iterable[str] | None = ...,
+        *,
+        minor: bool = ...,
+        **kwargs
+    ) -> list[Tick]: ...
+    def set_yticks(
+        self,
+        ticks: ArrayLike,
+        labels: Iterable[str] | None = ...,
+        *,
+        minor: bool = ...,
+        **kwargs
+    ) -> list[Tick]: ...
     def set_ticks(
         self,
         ticks: ArrayLike,
