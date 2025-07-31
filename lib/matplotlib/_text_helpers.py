@@ -43,7 +43,7 @@ def warn_on_missing_glyph(codepoint, fontnames):
             f"Matplotlib currently does not support {block} natively.")
 
 
-def layout(string, font, *, kern_mode=Kerning.DEFAULT):
+def layout(string, font, *, language=None, kern_mode=Kerning.DEFAULT):
     """
     Render *string* with *font*.
 
@@ -56,6 +56,9 @@ def layout(string, font, *, kern_mode=Kerning.DEFAULT):
         The string to be rendered.
     font : FT2Font
         The font.
+    language : str, optional
+        The language of the text in a format accepted by libraqm, namely `a BCP47
+        language code <https://www.w3.org/International/articles/language-tags/>`_.
     kern_mode : Kerning
         A FreeType kerning mode.
 
@@ -65,7 +68,7 @@ def layout(string, font, *, kern_mode=Kerning.DEFAULT):
     """
     x = 0
     prev_glyph_idx = None
-    char_to_font = font._get_fontmap(string)
+    char_to_font = font._get_fontmap(string)  # TODO: Pass in language.
     base_font = font
     for char in string:
         # This has done the fallback logic
