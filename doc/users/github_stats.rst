@@ -68,7 +68,6 @@ Pull Requests (67):
 * :ghpull:`30344`: Support fractional HiDPI in GTK4 backend
 * :ghpull:`30326`: Backport PR #30321 on branch v3.10.x (Fix type annotation for Axes.get_legend() to include None)
 * :ghpull:`30321`: Fix type annotation for Axes.get_legend() to include None
-* :ghpull:`29816`: Update FreeType to 2.13.3
 * :ghpull:`30287`: Backport PR #30286 on branch v3.10.x (Fix whitespace in _axes.py error message)
 * :ghpull:`30288`: Backport PR #30283 on branch v3.10.x (changed the FAQ link to point to the correct path)
 * :ghpull:`30293`: Backport PR #30289 on branch v3.10.x (DOC: Fix build with pybind11 3)

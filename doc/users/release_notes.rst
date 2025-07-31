@@ -21,8 +21,9 @@ Version 3.10
     ../api/prev_api_changes/api_changes_3.10.1.rst
     ../api/prev_api_changes/api_changes_3.10.0.rst
     github_stats.rst
-    prev_whats_new/github_stats_3.10.0.rst
+    prev_whats_new/github_stats_3.10.3.rst
     prev_whats_new/github_stats_3.10.1.rst
+    prev_whats_new/github_stats_3.10.0.rst
 
 Version 3.9
 ^^^^^^^^^^^
