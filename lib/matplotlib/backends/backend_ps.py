@@ -94,7 +94,7 @@ def _font_to_ps_type3(font_path, chars):
 
     Parameters
     ----------
-    font_path : path-like
+    font_path : FontPath
         Path to the font to be subsetted.
     chars : str
         The characters to include in the subsetted font.
@@ -175,7 +175,7 @@ def _font_to_ps_type42(font_path, chars, fh):
 
     Parameters
     ----------
-    font_path : path-like
+    font_path : FontPath
         Path to the font to be subsetted.
     chars : str
         The characters to include in the subsetted font.
@@ -183,14 +183,10 @@ def _font_to_ps_type42(font_path, chars, fh):
         Where to write the font.
     """
     subset_str = ''.join(chr(c) for c in chars)
-    _log.debug("SUBSET %s characters: %s", font_path, subset_str)
+    _log.debug("SUBSET %r characters: %s", font_path, subset_str)
     try:
-        kw = {}
-        # fix this once we support loading more fonts from a collection
-        # https://github.com/matplotlib/matplotlib/issues/3135#issuecomment-571085541
-        if font_path.endswith('.ttc'):
-            kw['fontNumber'] = 0
-        with (fontTools.ttLib.TTFont(font_path, **kw) as font,
+        with (fontTools.ttLib.TTFont(font_path.path,
+                                     fontNumber=font_path.face_index) as font,
               _backend_pdf_ps.get_glyphs_subset(font_path, subset_str) as subset):
             fontdata = _backend_pdf_ps.font_as_file(subset).getvalue()
             _log.debug(

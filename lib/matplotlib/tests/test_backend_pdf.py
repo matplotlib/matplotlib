@@ -3,6 +3,7 @@ import decimal
 import io
 import os
 from pathlib import Path
+import string
 
 import numpy as np
 import pytest
@@ -363,7 +364,7 @@ def test_glyphs_subset():
     nosubfont.set_text(chars)
 
     # subsetted FT2Font
-    with get_glyphs_subset(fpath, chars) as subset:
+    with get_glyphs_subset(fm.FontPath(fpath, 0), chars) as subset:
         subfont = FT2Font(font_as_file(subset))
     subfont.set_text(chars)
 
@@ -400,6 +401,38 @@ def test_multi_font_type42():
     fig = plt.figure()
     fig.text(0.5, 0.5, test_str,
              horizontalalignment='center', verticalalignment='center')
+
+
+@image_comparison(['ttc_type3.pdf'], style='mpl20')
+def test_ttc_type3():
+    fp = fm.FontProperties(family=['WenQuanYi Zen Hei'])
+    if Path(fm.findfont(fp)).name != 'wqy-zenhei.ttc':
+        pytest.skip('Font wqy-zenhei.ttc may be missing')
+
+    fonts = ['WenQuanYi Zen Hei', 'WenQuanYi Zen Hei Mono']
+    plt.rc('font', size=16)
+    plt.rc('pdf', fonttype=3)
+
+    figs = plt.figure(figsize=(7, len(fonts) / 2)).subfigures(len(fonts))
+    for font, fig in zip(fonts, figs):
+        fig.text(0.5, 0.5, f'{font}: {string.ascii_uppercase}', font=font,
+                 horizontalalignment='center', verticalalignment='center')
+
+
+@image_comparison(['ttc_type42.pdf'], style='mpl20')
+def test_ttc_type42():
+    fp = fm.FontProperties(family=['WenQuanYi Zen Hei'])
+    if Path(fm.findfont(fp)).name != 'wqy-zenhei.ttc':
+        pytest.skip('Font wqy-zenhei.ttc may be missing')
+
+    fonts = ['WenQuanYi Zen Hei', 'WenQuanYi Zen Hei Mono']
+    plt.rc('font', size=16)
+    plt.rc('pdf', fonttype=42)
+
+    figs = plt.figure(figsize=(7, len(fonts) / 2)).subfigures(len(fonts))
+    for font, fig in zip(fonts, figs):
+        fig.text(0.5, 0.5, f'{font}: {string.ascii_uppercase}', font=font,
+                 horizontalalignment='center', verticalalignment='center')
 
 
 @pytest.mark.parametrize('family_name, file_name',

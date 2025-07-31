@@ -28,7 +28,7 @@ def get_glyphs_subset(fontfile, characters):
 
     Parameters
     ----------
-    fontfile : str
+    fontfile : FontPath
         Path to the font file
     characters : str
         Continuous set of characters to include in subset
@@ -66,8 +66,7 @@ def get_glyphs_subset(fontfile, characters):
         'xref',  # The cross-reference table (some Apple font tooling information).
     ]
     # if fontfile is a ttc, specify font number
-    if fontfile.endswith(".ttc"):
-        options.font_number = 0
+    options.font_number = fontfile.face_index
 
     font = subset.load_font(fontfile, options)
     subsetter = subset.Subsetter(options=options)
@@ -110,11 +109,13 @@ class CharacterTracker:
         """Record that string *s* is being typeset using font *font*."""
         char_to_font = font._get_fontmap(s)
         for _c, _f in char_to_font.items():
-            self.used.setdefault(_f.fname, set()).add(ord(_c))
+            font_path = font_manager.FontPath(_f.fname, _f.face_index)
+            self.used.setdefault(font_path, set()).add(ord(_c))
 
     def track_glyph(self, font, glyph):
         """Record that codepoint *glyph* is being typeset using font *font*."""
-        self.used.setdefault(font.fname, set()).add(glyph)
+        font_path = font_manager.FontPath(font.fname, font.face_index)
+        self.used.setdefault(font_path, set()).add(glyph)
 
 
 class RendererPDFPSBase(RendererBase):

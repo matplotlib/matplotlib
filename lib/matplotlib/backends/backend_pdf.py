@@ -33,7 +33,7 @@ from matplotlib.backend_bases import (
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
-from matplotlib.font_manager import get_font, fontManager as _fontManager
+from matplotlib.font_manager import FontPath, get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
 from matplotlib.ft2font import FT2Font, FaceFlags, Kerning, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
@@ -910,8 +910,10 @@ class PdfFile:
         as the filename of the font.
         """
 
-        if isinstance(fontprop, str):
+        if isinstance(fontprop, FontPath):
             filenames = [fontprop]
+        elif isinstance(fontprop, str):
+            filenames = [FontPath(fontprop, 0)]
         elif mpl.rcParams['pdf.use14corefonts']:
             filenames = _fontManager._find_fonts_by_props(
                 fontprop, fontext='afm', directory=RendererPdf._afm_font_dir
@@ -950,9 +952,8 @@ class PdfFile:
         for pdfname, dvifont in sorted(self._dviFontInfo.items()):
             _log.debug('Embedding Type-1 font %s from dvi.', dvifont.texname)
             fonts[pdfname] = self._embedTeXFont(dvifont)
-        for filename in sorted(self._fontNames):
-            Fx = self._fontNames[filename]
-            _log.debug('Embedding font %s.', filename)
+        for filename, Fx in sorted(self._fontNames.items()):
+            _log.debug('Embedding font %r.', filename)
             if filename.endswith('.afm'):
                 # from pdf.use14corefonts
                 _log.debug('Writing AFM font.')
@@ -1004,7 +1005,8 @@ class PdfFile:
 
         # Reduce the font to only the glyphs used in the document, get the encoding
         # for that subset, and compute various properties based on the encoding.
-        chars = frozenset(self._character_tracker.used[dvifont.fname])
+        font_path = FontPath(dvifont.fname, dvifont.face_index)
+        chars = frozenset(self._character_tracker.used[font_path])
         t1font = t1font.subset(chars, self._get_subset_prefix(chars))
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
         # createType1Descriptor writes the font data as a side effect
@@ -1113,6 +1115,7 @@ class PdfFile:
         return "-".join([
             Fx.name.decode(),
             os.path.splitext(os.path.basename(filename))[0],
+            str(filename.face_index),
             glyph_name])
 
     _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
@@ -1270,11 +1273,11 @@ end"""
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
             subset_str = "".join(chr(c) for c in characters)
-            _log.debug("SUBSET %s characters: %s", filename, subset_str)
+            _log.debug("SUBSET %r characters: %s", filename, subset_str)
             with _backend_pdf_ps.get_glyphs_subset(filename, subset_str) as subset:
                 fontdata = _backend_pdf_ps.font_as_file(subset)
             _log.debug(
-                "SUBSET %s %d -> %d", filename,
+                "SUBSET %r %d -> %d", filename,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
             )
 
@@ -2218,7 +2221,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file.output(Op.begin_text)
         for font, fontsize, num, ox, oy in glyphs:
             self.file._character_tracker.track_glyph(font, num)
-            fontname = font.fname
+            font_path = FontPath(font.fname, font.face_index)
             if not _font_supports_glyph(fonttype, num):
                 # Unsupported chars (i.e. multibyte in Type 3 or beyond BMP in
                 # Type 42) must be emitted separately (below).
@@ -2226,10 +2229,10 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             else:
                 self._setup_textpos(ox, oy, 0, oldx, oldy)
                 oldx, oldy = ox, oy
-                if (fontname, fontsize) != prev_font:
-                    self.file.output(self.file.fontName(fontname), fontsize,
+                if (font_path, fontsize) != prev_font:
+                    self.file.output(self.file.fontName(font_path), fontsize,
                                      Op.selectfont)
-                    prev_font = fontname, fontsize
+                    prev_font = font_path, fontsize
                 self.file.output(self.encode_string(chr(num), fonttype),
                                  Op.show)
         self.file.output(Op.end_text)
@@ -2413,7 +2416,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self.file.output(Op.begin_text)
             prev_start_x = 0
             for ft_object, start_x, kerns_or_chars in singlebyte_chunks:
-                ft_name = self.file.fontName(ft_object.fname)
+                font_path = FontPath(ft_object.fname, ft_object.face_index)
+                ft_name = self.file.fontName(font_path)
                 self.file.output(ft_name, fontsize, Op.selectfont)
                 self._setup_textpos(start_x, 0, 0, prev_start_x, 0, 0)
                 self.file.output(
@@ -2435,7 +2439,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     def _draw_xobject_glyph(self, font, fontsize, glyph_idx, x, y):
         """Draw a multibyte character from a Type 3 font as an XObject."""
         glyph_name = font.get_glyph_name(glyph_idx)
-        name = self.file._get_xobject_glyph_name(font.fname, glyph_name)
+        name = self.file._get_xobject_glyph_name(FontPath(font.fname, font.face_index),
+                                                 glyph_name)
         self.file.output(
             Op.gsave,
             0.001 * fontsize, 0, 0, 0.001 * fontsize, x, y, Op.concat_matrix,

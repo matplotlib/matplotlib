@@ -610,6 +610,10 @@ class DviFont:
         """A fake filename"""
         return self.texname.decode('latin-1')
 
+    @property
+    def face_index(self):  # For compatibility with FT2Font.
+        return 0
+
     def _get_fontmap(self, string):
         """Get the mapping from characters to the font that includes them.
 

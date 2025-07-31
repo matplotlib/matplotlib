@@ -207,8 +207,7 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
     codes.push_back(CLOSEPOLY);
 }
 
-FT2Font::FT2Font(FT_Open_Args &open_args,
-                 long hinting_factor_,
+FT2Font::FT2Font(FT_Long face_index, FT_Open_Args &open_args, long hinting_factor_,
                  std::vector<FT2Font *> &fallback_list,
                  FT2Font::WarnFunc warn, bool warn_if_used)
     : ft_glyph_warn(warn), warn_if_used(warn_if_used), image({1, 1}), face(nullptr),
@@ -217,7 +216,7 @@ FT2Font::FT2Font(FT_Open_Args &open_args,
       kerning_factor(0)
 {
     clear();
-    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, 0, &face);
+    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, face_index, &face);
     if (open_args.stream != nullptr) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }

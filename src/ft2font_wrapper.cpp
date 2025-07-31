@@ -420,11 +420,14 @@ ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
 const char *PyFT2Font_init__doc__ = R"""(
     Parameters
     ----------
-    filename : str or file-like
+    filename : str, bytes, os.PathLike, or io.BinaryIO
         The source of the font data in a format (ttf or ttc) that FreeType can read.
 
     hinting_factor : int, optional
         Must be positive. Used to scale the hinting in the x-direction.
+
+    face_index : int, optional
+        The index of the face in the font file to load.
 
     _fallback_list : list of FT2Font, optional
         A list of FT2Font objects used to find missing glyphs.
@@ -440,7 +443,7 @@ const char *PyFT2Font_init__doc__ = R"""(
 )""";
 
 static PyFT2Font *
-PyFT2Font_init(py::object filename, long hinting_factor = 8,
+PyFT2Font_init(py::object filename, long hinting_factor = 8, FT_Long face_index = 0,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
                std::optional<int> kerning_factor = std::nullopt,
                bool warn_if_used = false)
@@ -454,6 +457,10 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
         warn("since"_a="3.11", "name"_a="_kerning_factor", "obj_type"_a="parameter");
     } else {
         kerning_factor = 0;
+    }
+
+    if (face_index < 0 || face_index >= 1<<16) {
+        throw std::range_error("face_index must be between 0 and 65535, inclusive");
     }
 
     PyFT2Font *self = new PyFT2Font();
@@ -481,7 +488,10 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
         }
     }
 
-    if (py::isinstance<py::bytes>(filename) || py::isinstance<py::str>(filename)) {
+    auto PathLike = py::module_::import("os").attr("PathLike");
+    if (py::isinstance<py::bytes>(filename) || py::isinstance<py::str>(filename) ||
+        py::isinstance(filename, PathLike))
+    {
         self->py_file = py::module_::import("io").attr("open")(filename, "rb");
         self->stream.close = &close_file_callback;
     } else {
@@ -499,21 +509,21 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
         self->stream.close = nullptr;
     }
 
-    self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn,
-                          warn_if_used);
+    self->x = new FT2Font(face_index, open_args, hinting_factor, fallback_fonts,
+                          ft_glyph_warn, warn_if_used);
 
     self->x->set_kerning_factor(*kerning_factor);
 
     return self;
 }
 
-static py::str
+static py::object
 PyFT2Font_fname(PyFT2Font *self)
 {
-    if (self->stream.close) {  // Called passed a filename to the constructor.
+    if (self->stream.close) {  // User passed a filename to the constructor.
         return self->py_file.attr("name");
     } else {
-        return py::cast<py::str>(self->py_file);
+        return self->py_file;
     }
 }
 
@@ -1606,7 +1616,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
                                          PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
-             "filename"_a, "hinting_factor"_a=8, py::kw_only(),
+             "filename"_a, "hinting_factor"_a=8, py::kw_only(), "face_index"_a=0,
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=py::none(),
              "_warn_if_used"_a=false,
              PyFT2Font_init__doc__)
@@ -1679,8 +1689,12 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
           }, "PostScript name of the font.")
         .def_property_readonly(
           "num_faces", [](PyFT2Font *self) {
-            return self->x->get_face()->num_faces;
+            return self->x->get_face()->num_faces & 0xffff;
           }, "Number of faces in file.")
+        .def_property_readonly(
+          "face_index", [](PyFT2Font *self) {
+            return self->x->get_face()->face_index;
+          }, "The index of the font in the file.")
         .def_property_readonly(
           "family_name", [](PyFT2Font *self) {
             if (const char *name = self->x->get_face()->family_name) {

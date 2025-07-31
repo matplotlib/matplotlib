@@ -310,6 +310,61 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
+class FontPath(str):
+    """
+    A class to describe a path to a font with a face index.
+
+    Parameters
+    ----------
+    path : str
+        The path to a font.
+    face_index : int
+        The face index in the font.
+    """
+
+    __match_args__ = ('path', 'face_index')
+
+    def __new__(cls, path, face_index):
+        ret = super().__new__(cls, path)
+        ret._face_index = face_index
+        return ret
+
+    @property
+    def path(self):
+        """The path to a font."""
+        return str(self)
+
+    @property
+    def face_index(self):
+        """The face index in a font."""
+        return self._face_index
+
+    def _as_tuple(self):
+        return (self.path, self.face_index)
+
+    def __eq__(self, other):
+        if isinstance(other, FontPath):
+            return self._as_tuple() == other._as_tuple()
+        return super().__eq__(other)
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __lt__(self, other):
+        if isinstance(other, FontPath):
+            return self._as_tuple() < other._as_tuple()
+        return super().__lt__(other)
+
+    def __gt__(self, other):
+        return not (self == other or self < other)
+
+    def __hash__(self):
+        return hash(self._as_tuple())
+
+    def __repr__(self):
+        return f'FontPath{self._as_tuple()}'
+
+
 @dataclasses.dataclass(frozen=True)
 class FontEntry:
     """
@@ -319,6 +374,7 @@ class FontEntry:
     """
 
     fname: str = ''
+    index: int = 0
     name: str = ''
     style: str = 'normal'
     variant: str = 'normal'
@@ -465,7 +521,8 @@ def ttfFontProperty(font):
         raise NotImplementedError("Non-scalable fonts are not supported")
     size = 'scalable'
 
-    return FontEntry(font.fname, name, style, variant, weight, stretch, size)
+    return FontEntry(font.fname, font.face_index, name,
+                     style, variant, weight, stretch, size)
 
 
 def afmFontProperty(fontpath, font):
@@ -535,7 +592,7 @@ def afmFontProperty(fontpath, font):
 
     size = 'scalable'
 
-    return FontEntry(fontpath, name, style, variant, weight, stretch, size)
+    return FontEntry(fontpath, 0, name, style, variant, weight, stretch, size)
 
 
 def _cleanup_fontproperties_init(init_method):
@@ -1069,7 +1126,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
-    __version__ = '3.11.0a1'
+    __version__ = '3.11.0a2'
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1134,6 +1191,10 @@ class FontManager:
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
             self.ttflist.append(prop)
+            for face_index in range(1, font.num_faces):
+                subfont = ft2font.FT2Font(path, face_index=face_index)
+                prop = ttfFontProperty(subfont)
+                self.ttflist.append(prop)
         self._findfont_cached.cache_clear()
 
     @property
@@ -1320,7 +1381,7 @@ class FontManager:
 
         Returns
         -------
-        str
+        FontPath
             The filename of the best matching font.
 
         Notes
@@ -1390,7 +1451,7 @@ class FontManager:
 
         Returns
         -------
-        list[str]
+        list[FontPath]
             The paths of the fonts found.
 
         Notes
@@ -1536,7 +1597,7 @@ class FontManager:
                 # actually raised.
                 return cbook._ExceptionInfo(ValueError, "No valid font could be found")
 
-        return _cached_realpath(result)
+        return FontPath(_cached_realpath(result), best_font.index)
 
 
 @_api.deprecated("3.11")
@@ -1556,15 +1617,16 @@ def is_opentype_cff_font(filename):
 @lru_cache(64)
 def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id,
               enable_last_resort):
-    first_fontpath, *rest = font_filepaths
+    (first_fontpath, first_fontindex), *rest = font_filepaths
     fallback_list = [
-        ft2font.FT2Font(fpath, hinting_factor, _kerning_factor=_kerning_factor)
-        for fpath in rest
+        ft2font.FT2Font(fpath, hinting_factor, face_index=index,
+                        _kerning_factor=_kerning_factor)
+        for fpath, index in rest
     ]
     last_resort_path = _cached_realpath(
         cbook._get_data_path('fonts', 'ttf', 'LastResortHE-Regular.ttf'))
     try:
-        last_resort_index = font_filepaths.index(last_resort_path)
+        last_resort_index = font_filepaths.index((last_resort_path, 0))
     except ValueError:
         last_resort_index = -1
         # Add Last Resort font so we always have glyphs regardless of font, unless we're
@@ -1576,7 +1638,7 @@ def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id,
                                 _warn_if_used=True))
             last_resort_index = len(fallback_list)
     font = ft2font.FT2Font(
-        first_fontpath, hinting_factor,
+        first_fontpath, hinting_factor, face_index=first_fontindex,
         _fallback_list=fallback_list,
         _kerning_factor=_kerning_factor
     )
@@ -1611,10 +1673,11 @@ def get_font(font_filepaths, hinting_factor=None):
 
     Parameters
     ----------
-    font_filepaths : Iterable[str, Path, bytes], str, Path, bytes
+    font_filepaths : Iterable[str, bytes, os.PathLike, FontPath], \
+str, bytes, os.PathLike, FontPath
         Relative or absolute paths to the font files to be used.
 
-        If a single string, bytes, or `pathlib.Path`, then it will be treated
+        If a single string, bytes, or `os.PathLike`, then it will be treated
         as a list with that entry only.
 
         If more than one filepath is passed, then the returned FT2Font object
@@ -1626,10 +1689,16 @@ def get_font(font_filepaths, hinting_factor=None):
     `.ft2font.FT2Font`
 
     """
-    if isinstance(font_filepaths, (str, Path, bytes)):
-        paths = (_cached_realpath(font_filepaths),)
-    else:
-        paths = tuple(_cached_realpath(fname) for fname in font_filepaths)
+    match font_filepaths:
+        case FontPath(path, index):
+            paths = ((_cached_realpath(path), index), )
+        case str() | bytes() | os.PathLike() as path:
+            paths = ((_cached_realpath(path), 0), )
+        case _:
+            paths = tuple(
+                (_cached_realpath(fname.path), fname.face_index)
+                if isinstance(fname, FontPath) else (_cached_realpath(fname), 0)
+                for fname in font_filepaths)
 
     hinting_factor = mpl._val_or_rc(hinting_factor, 'text.hinting_factor')
 
