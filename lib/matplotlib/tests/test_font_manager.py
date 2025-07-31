@@ -67,12 +67,14 @@ def test_json_serialization(tmp_path):
 def test_otf():
     fname = '/usr/share/fonts/opentype/freefont/FreeMono.otf'
     if Path(fname).exists():
-        assert is_opentype_cff_font(fname)
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            assert is_opentype_cff_font(fname)
     for f in fontManager.ttflist:
         if 'otf' in f.fname:
             with open(f.fname, 'rb') as fd:
                 res = fd.read(4) == b'OTTO'
-            assert res == is_opentype_cff_font(f.fname)
+            with pytest.warns(mpl.MatplotlibDeprecationWarning):
+                assert res == is_opentype_cff_font(f.fname)
 
 
 @pytest.mark.skipif(sys.platform == "win32" or not has_fclist,

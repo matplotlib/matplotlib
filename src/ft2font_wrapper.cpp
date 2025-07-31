@@ -432,12 +432,6 @@ const char *PyFT2Font_init__doc__ = R"""(
         .. warning::
             This API is both private and provisional: do not use it directly.
 
-    _kerning_factor : int, optional
-        Used to adjust the degree of kerning.
-
-        .. warning::
-            This API is private: do not use it directly.
-
     _warn_if_used : bool, optional
         Used to trigger missing glyph warnings.
 
@@ -448,10 +442,18 @@ const char *PyFT2Font_init__doc__ = R"""(
 static PyFT2Font *
 PyFT2Font_init(py::object filename, long hinting_factor = 8,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
-               int kerning_factor = 0, bool warn_if_used = false)
+               std::optional<int> kerning_factor = std::nullopt,
+               bool warn_if_used = false)
 {
     if (hinting_factor <= 0) {
         throw py::value_error("hinting_factor must be greater than 0");
+    }
+    if (kerning_factor) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.11", "name"_a="_kerning_factor", "obj_type"_a="parameter");
+    } else {
+        kerning_factor = 0;
     }
 
     PyFT2Font *self = new PyFT2Font();
@@ -500,7 +502,7 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
     self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn,
                           warn_if_used);
 
-    self->x->set_kerning_factor(kerning_factor);
+    self->x->set_kerning_factor(*kerning_factor);
 
     return self;
 }
@@ -618,7 +620,6 @@ static int
 PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right,
                       std::variant<FT_Kerning_Mode, FT_UInt> mode_or_int)
 {
-    bool fallback = true;
     FT_Kerning_Mode mode;
 
     if (auto value = std::get_if<FT_UInt>(&mode_or_int)) {
@@ -636,7 +637,7 @@ PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right,
         throw py::type_error("mode must be Kerning or int");
     }
 
-    return self->x->get_kerning(left, right, mode, fallback);
+    return self->x->get_kerning(left, right, mode);
 }
 
 const char *PyFT2Font_get_fontmap__doc__ = R"""(
@@ -834,8 +835,6 @@ static PyGlyph *
 PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
                      std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
-    bool fallback = true;
-    FT2Font *ft_object = nullptr;
     LoadFlags flags;
 
     if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
@@ -853,9 +852,9 @@ PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
         throw py::type_error("flags must be LoadFlags or int");
     }
 
-    self->x->load_glyph(glyph_index, static_cast<FT_Int32>(flags), ft_object, fallback);
+    self->x->load_glyph(glyph_index, static_cast<FT_Int32>(flags));
 
-    return PyGlyph_from_FT2Font(ft_object);
+    return PyGlyph_from_FT2Font(self->x);
 }
 
 const char *PyFT2Font_get_width_height__doc__ = R"""(
@@ -1022,10 +1021,9 @@ static py::str
 PyFT2Font_get_glyph_name(PyFT2Font *self, unsigned int glyph_number)
 {
     std::string buffer;
-    bool fallback = true;
 
     buffer.resize(128);
-    self->x->get_glyph_name(glyph_number, buffer, fallback);
+    self->x->get_glyph_name(glyph_number, buffer);
     return buffer;
 }
 
@@ -1609,7 +1607,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                                          PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
              "filename"_a, "hinting_factor"_a=8, py::kw_only(),
-             "_fallback_list"_a=py::none(), "_kerning_factor"_a=0,
+             "_fallback_list"_a=py::none(), "_kerning_factor"_a=py::none(),
              "_warn_if_used"_a=false,
              PyFT2Font_init__doc__)
         .def("clear", &PyFT2Font_clear, PyFT2Font_clear__doc__)
@@ -1776,5 +1774,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
+    auto py_int = py::module_::import("builtins").attr("int");
+    m.attr("CharacterCodeType") = py_int;
+    m.attr("GlyphIndexType") = py_int;
     m.def("__getattr__", ft2font__getattr__);
 }
