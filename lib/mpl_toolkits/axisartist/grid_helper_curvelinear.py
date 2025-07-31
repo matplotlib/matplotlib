@@ -341,7 +341,7 @@ class GridHelperCurveLinear(GridHelperBase):
         return axisline
 
     def _update_grid(self, bbox):
-        self._grid_info = self.grid_finder.get_grid_info(*bbox.extents)
+        self._grid_info = self.grid_finder.get_grid_info(bbox)
 
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
