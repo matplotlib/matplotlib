@@ -1,147 +1,146 @@
 .. _github-stats:
 
-GitHub statistics for 3.10.3 (May 08, 2025)
+GitHub statistics for 3.10.4 (Jul 31, 2025)
 ===========================================
 
-GitHub statistics for 2025/02/27 (tag: v3.10.1) - 2025/05/08
+GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2025/07/31
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 16 issues and merged 78 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/101?closed=1>`__
+We closed 18 issues and merged 67 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/102?closed=1>`__
 
-The following 28 authors contributed 128 commits.
+The following 36 authors contributed 371 commits.
 
-* Alexandra Khoo
 * Antony Lee
-* Carlos Ramos Carreño
-* David Lowry-Duda
+* Brian Christian
+* chrisjbillington
+* Christine P. Chai
+* Clément Robert
 * David Stansby
-* DerWeh
+* dependabot[bot]
 * Elliott Sales de Andrade
-* guillermodotn
+* G.D. McBain
+* Greg Lucas
 * hannah
-* Hassan Kibirige
+* hu-xiaonan
 * Ian Thomas
-* James Addison
+* ianlv
+* IdiotCoffee
+* Ines Cachola
+* Inês Cachola
 * Jody Klymak
+* Jouni K. Seppänen
+* Khushi_29
 * Kyle Sunden
-* Marten H. van Kerkwijk
-* Marten Henric van Kerkwijk
-* martincornejo
-* Mateusz Sokół
-* Nicolai Weitkemper
+* Lumberbot (aka Jack)
+* N R Navaneet
+* Nathan G. Wiseman
 * Oscar Gustafsson
 * Praful Gulani
-* prafulgulani555
 * Qian Zhang
 * Raphael Erik Hviding
+* Roman
+* Roman A
 * Ruth Comer
+* saikarna913
+* Scott Shambaugh
 * Thomas A Caswell
 * Tim Hoffmann
-* Weh Andreas
+* Trygve Magnus Ræder
 
 GitHub issues and pull requests:
 
-Pull Requests (78):
+Pull Requests (67):
 
-* :ghpull:`30018`: Backport PR #29907 on branch v3.10.x (Ensure text metric calculation always uses the text cache)
-* :ghpull:`30010`: Backport PR #29992 on v3.10.x: Update pinned oldest win image on azure
-* :ghpull:`29992`: Update pinned oldest win image on azure
-* :ghpull:`29867`: Backport PR #29827 on branch v3.10.x (TST: Remove unnecessary test images)
-* :ghpull:`30002`: Backport PR #29673 on branch v3.10.x (DOC: document the issues with overlaying new mpl on old mpl)
-* :ghpull:`29673`: DOC: document the issues with overlaying new mpl on old mpl
-* :ghpull:`29999`: Backport PR #29997 on branch v3.10.x (BLD: Ensure meson.build has the right version of Python)
-* :ghpull:`29997`: BLD: Ensure meson.build has the right version of Python
-* :ghpull:`29996`: Backport PR #29995 on branch v3.10.x (Fix typo: missing singlequote in unrecognized backend exception)
-* :ghpull:`29995`: Fix typo: missing singlequote in unrecognized backend exception
-* :ghpull:`29990`: Backport PR #29789 on branch v3.10.x (Improve layout of cheatsheets in sidebar)
-* :ghpull:`29987`: Backport PR #29370 on branch v3.10.x (DOC: Improve NonUniformImage docs)
-* :ghpull:`29370`: DOC: Improve NonUniformImage docs
-* :ghpull:`29983`: Backport PR #29975 on branch v3.10.x (DOC: correct signature for animation update function in rain example)
-* :ghpull:`29974`: Backport PR #29970 on branch v3.10.x (TST: Make refcount tests more resilient to Python changes)
-* :ghpull:`29975`: DOC: correct signature for animation update function in rain example
-* :ghpull:`29980`: Backport PR #29979 on branch v3.10.x (Fix typos: horizonatal -> horizontal)
-* :ghpull:`29979`: Fix typos: horizonatal -> horizontal
-* :ghpull:`29970`: TST: Make refcount tests more resilient to Python changes
-* :ghpull:`29969`: Backport PR #29965 on branch v3.10.x (Document Axes.spines)
-* :ghpull:`29965`: Document Axes.spines
-* :ghpull:`29949`: Backport PR #29796 on branch v3.10.x: ci: rotate soon-to-be-unsupported GitHub Actions ubuntu-20.04 runner out of roster
-* :ghpull:`29901`: Backport PR #29872 on branch v3.10.x (TST: Use placeholders for text in layout tests)
-* :ghpull:`29933`: Backport PR #29931 on branch v3.10.x (Allow Python native sequences in Matplotlib ``imsave()``.)
-* :ghpull:`29943`: Fix doc build on 3.10.x
-* :ghpull:`29940`: Backport PR #29919 on branch v3.10.x (Handle MOVETO's, CLOSEPOLY's and empty paths in Path.interpolated)
-* :ghpull:`29919`: Handle MOVETO's, CLOSEPOLY's and empty paths in Path.interpolated
-* :ghpull:`29908`: TST: Use text placeholders for empty legends
-* :ghpull:`29931`: Allow Python native sequences in Matplotlib ``imsave()``.
-* :ghpull:`29932`: Backport PR #29920 on branch v3.10.x (Allow ``None`` in set_prop_cycle (in type hints))
-* :ghpull:`29920`: Allow ``None`` in set_prop_cycle (in type hints)
-* :ghpull:`29927`: Backport PR #29897 on branch v3.10.x (BUG: ensure that errorbar does not error on masked negative errors.)
-* :ghpull:`29930`: Backport PR #29929 on branch v3.10.x (Correct rightparen typo)
-* :ghpull:`29929`: Correct rightparen typo
-* :ghpull:`29897`: BUG: ensure that errorbar does not error on masked negative errors.
-* :ghpull:`29907`: Ensure text metric calculation always uses the text cache
-* :ghpull:`29902`: Backport PR #29899 on branch v3.10.x ([doc] minimally document what basic units is doing)
-* :ghpull:`29900`: Backport PR #29896 on branch v3.10.x (Change ``.T`` to ``.transpose()`` in ``_reshape_2D``)
-* :ghpull:`29872`: TST: Use placeholders for text in layout tests
-* :ghpull:`29896`: Change ``.T`` to ``.transpose()`` in ``_reshape_2D``
-* :ghpull:`29888`: Backport PR #29803 on branch v3.10.x (DOC: Improve FancyArrowPatch docstring)
-* :ghpull:`29880`: Backport PR #29853 on branch v3.10.x (Update lib/matplotlib/stackplot.py)
-* :ghpull:`29853`: Update lib/matplotlib/stackplot.py
-* :ghpull:`29868`: Backport PR #29834 on branch v3.10.x (TST: pin flake8)
-* :ghpull:`29827`: TST: Remove unnecessary test images
-* :ghpull:`29861`: Backport PR #29773 on branch v3.10.x (DOC: Improve interactive figures guide / Blocking input)
-* :ghpull:`29859`: Backport PR #29545 on branch v3.10.x (DOC: correctly specify return type of ``figaspect``)
-* :ghpull:`29545`: DOC: correctly specify return type of ``figaspect``
-* :ghpull:`29858`: Backport PR #29842 on branch v3.10.x (Don't drag draggables on scroll events)
-* :ghpull:`29842`: Don't drag draggables on scroll events
-* :ghpull:`29848`: Backport PR #29839 on branch v3.10.x (Improve docs regarding plt.close().)
-* :ghpull:`29839`: Improve docs regarding plt.close().
-* :ghpull:`29818`: Backport PR #29801 on branch v3.10.x (DOC: Slightly further improve arrowstyle demo)
-* :ghpull:`29814`: Backport PR #29552 on branch v3.10.x (Bug Fix: Normalize kwargs for Histogram)
-* :ghpull:`29792`: Backport PR #29770 on branch v3.10.x (MNT: Move test for old ipython behavior to minver tests)
-* :ghpull:`29750`: Backport PR #29748 on branch v3.10.x (Fix PyGObject version pinning in macOS tests)
-* :ghpull:`29754`: Backport PR #29721 on branch v3.10.x (FIX: pyplot auto-backend detection case-sensitivity fixup)
-* :ghpull:`29786`: Backport PR #29755 on branch v3.10.x (DOC: Simplify annotation arrow style reference)
-* :ghpull:`29784`: Backport PR #29781 on branch v3.10.x (Fix escaping of nulls and "0" in default filenames.)
-* :ghpull:`29781`: Fix escaping of nulls and "0" in default filenames.
-* :ghpull:`29771`: Backport PR #29752 on branch v3.10.x (DOC: Add install instructions for pixi and uv)
-* :ghpull:`29768`: Backport PR #29767 on branch v3.10.x (Add description to logit_demo.py script)
-* :ghpull:`29721`: FIX: pyplot auto-backend detection case-sensitivity fixup
-* :ghpull:`29737`: Backport PR #29734 on branch v3.10.x (ci: MacOS 14: temporarily upper-bound the 'PyGObject' Python package version)
-* :ghpull:`29735`: Backport PR #29719 on branch v3.10.x (Fix passing singleton sequence-type styles to hist)
-* :ghpull:`29719`: Fix passing singleton sequence-type styles to hist
-* :ghpull:`29730`: Backport PR #29724 on branch v3.10.x (Fix SubplotSpec.get_gridspec type hint)
-* :ghpull:`29724`: Fix SubplotSpec.get_gridspec type hint
-* :ghpull:`29727`: Backport PR #29726 on branch v3.10.x (Add reference tag to Hatch style reference)
-* :ghpull:`29709`: Backport PR #29708 on branch v3.10.x (MNT: correct version in plotting method deprecation warnings)
-* :ghpull:`29708`: MNT: correct version in plotting method deprecation warnings
-* :ghpull:`29692`: Backport PR #29689 on branch v3.10.x (Fix alt and caption handling in Sphinx directives)
-* :ghpull:`29693`: Backport PR #29590 on branch v3.10.x (Blocked set_clim() callbacks to prevent inconsistent state (#29522))
-* :ghpull:`29590`: Blocked set_clim() callbacks to prevent inconsistent state (#29522)
-* :ghpull:`29689`: Fix alt and caption handling in Sphinx directives
-* :ghpull:`29691`: Backport PR #29584 on branch v3.10.x (DOC: Recommend constrained_layout over tight_layout)
-* :ghpull:`29584`: DOC: Recommend constrained_layout over tight_layout
-* :ghpull:`29552`: Bug Fix: Normalize kwargs for Histogram
+* :ghpull:`30357`: CIBW updates: fix pypy sections, update cibw version
+* :ghpull:`30356`: Manual Backport PR #30195 on branch v3.10.x (ci: Enable wheel builds on Python 3.14)
+* :ghpull:`30352`: Backport PR #28554 on branch v3.10.x (BLD: Enable wheels on Windows-on-ARM)
+* :ghpull:`30353`: Backport PR #30345 on branch v3.10.x (qt: Use better devicePixelRatio event to refresh scaling)
+* :ghpull:`30350`: Backport PR #30344 on branch v3.10.x (Support fractional HiDPI in GTK4 backend)
+* :ghpull:`30277`: Backport PR #30271 on branch v3.10.x (Reduce pause time in interactive timer test)
+* :ghpull:`30351`: Backport PR #30327 on branch v3.10.x (FIX Update Axes limits from Axes.add_collection(... autolim=True))
+* :ghpull:`30345`: qt: Use better devicePixelRatio event to refresh scaling
+* :ghpull:`28554`: BLD: Enable wheels on Windows-on-ARM
+* :ghpull:`30292`: Backport PR #30237: Add explicit ``**options: Any`` for ``add_subplot`` m…
+* :ghpull:`29935`: Backport PR #29908 on branch v3.10.x (TST: Use text placeholders for empty legends)
+* :ghpull:`30327`: FIX Update Axes limits from Axes.add_collection(... autolim=True)
+* :ghpull:`30344`: Support fractional HiDPI in GTK4 backend
+* :ghpull:`30326`: Backport PR #30321 on branch v3.10.x (Fix type annotation for Axes.get_legend() to include None)
+* :ghpull:`30321`: Fix type annotation for Axes.get_legend() to include None
+* :ghpull:`29816`: Update FreeType to 2.13.3
+* :ghpull:`30287`: Backport PR #30286 on branch v3.10.x (Fix whitespace in _axes.py error message)
+* :ghpull:`30288`: Backport PR #30283 on branch v3.10.x (changed the FAQ link to point to the correct path)
+* :ghpull:`30293`: Backport PR #30289 on branch v3.10.x (DOC: Fix build with pybind11 3)
+* :ghpull:`30283`: changed the FAQ link to point to the correct path
+* :ghpull:`30286`: Fix whitespace in _axes.py error message
+* :ghpull:`30271`: Reduce pause time in interactive timer test
+* :ghpull:`30269`: Backport PR #30186 on branch v3.10.x (Fix figure legend when drawing stackplots)
+* :ghpull:`30186`: Fix figure legend when drawing stackplots
+* :ghpull:`30268`: Backport PR #30233 on branch v3.10.x (Check that stem input is 1D)
+* :ghpull:`30233`: Check that stem input is 1D
+* :ghpull:`30259`: Backport PR #30256 on branch v3.10.x (Time out in _get_executable_info)
+* :ghpull:`30256`: Time out in _get_executable_info
+* :ghpull:`30237`: Add explicit ``**options: Any`` for ``add_subplot`` method
+* :ghpull:`30253`: Backport PR #30243 on branch v3.10.x (Fix FancyArrow rendering for zero-length arrows)
+* :ghpull:`30243`: Fix FancyArrow rendering for zero-length arrows
+* :ghpull:`30250`: Backport PR #30244 on branch v3.10.x (DOC: Recommend to use bare Figure instances for saving to file)
+* :ghpull:`30247`: Backport PR #30246 on branch v3.10.x (chore: remove redundant words in comment)
+* :ghpull:`30246`: chore: remove redundant words in comment
+* :ghpull:`30240`: Backport PR #30236 on branch v3.10.x (Copy-edit the docstring of AuxTransformBox.)
+* :ghpull:`30236`: Copy-edit the docstring of AuxTransformBox.
+* :ghpull:`30234`: Backport PR #30209 on branch v3.10.x (Clean up Qt socket notifier to avoid spurious interrupt handler calls)
+* :ghpull:`30209`: Clean up Qt socket notifier to avoid spurious interrupt handler calls
+* :ghpull:`30195`: ci: Enable wheel builds on Python 3.14
+* :ghpull:`30229`: Backport PR #30221 on branch v3.10.x (BUG: fix future incompatibility with Pillow 13)
+* :ghpull:`30221`: BUG: fix future incompatibility with Pillow 13
+* :ghpull:`30228`: Backport PR #30098 on branch v3.10.x (Fix label_outer in the presence of colorbars.)
+* :ghpull:`30227`: Backport PR #30223 on branch v3.10.x (Polar log scale: fix inner patch boundary and spine location)
+* :ghpull:`30098`: Fix label_outer in the presence of colorbars.
+* :ghpull:`30223`: Polar log scale: fix inner patch boundary and spine location
+* :ghpull:`30217`: Backport PR #30198 on branch v3.10.x (Implement Path.__deepcopy__ avoiding infinite recursion)
+* :ghpull:`30198`: Implement Path.__deepcopy__ avoiding infinite recursion
+* :ghpull:`30213`: Backport PR #30212 on branch v3.10.x ([Doc]: fix bug in release notes for matplotlib v3.5.0 and v3.7.0)
+* :ghpull:`30189`: Backport PR #30180 on branch v3.10.x (DOC: expand polar example)
+* :ghpull:`30167`: Backport PR #30162 on branch v3.10.x (TST: Fix runtime error checking NaN input to format_cursor_data)
+* :ghpull:`30162`: TST: Fix runtime error checking NaN input to format_cursor_data
+* :ghpull:`30146`: Backport PR #30144 on branch v3.10.x (js: Fix externally-controlled format strings)
+* :ghpull:`30144`: js: Fix externally-controlled format strings
+* :ghpull:`30140`: Backport PR #30118 on branch v3.10.x (CI: Skip jobs on forks)
+* :ghpull:`30120`: Backport PR #30114 on branch v3.10.x (Fix _is_tensorflow_array.)
+* :ghpull:`30122`: Backport PR #30119 on branch v3.10.x (Add some types to _mathtext.py)
+* :ghpull:`30119`: Add some types to _mathtext.py
+* :ghpull:`30114`: Fix _is_tensorflow_array.
+* :ghpull:`30106`: Backport PR #30089 on branch v3.10.x (FIX: fix submerged margins algorithm being applied twice)
+* :ghpull:`30089`: FIX: fix submerged margins algorithm being applied twice
+* :ghpull:`30101`: Backport PR #30096 on branch v3.10.x (Fix OffsetBox custom picker)
+* :ghpull:`30096`: Fix OffsetBox custom picker
+* :ghpull:`30081`: Backport PR #30079 on branch v3.10.x (FIX: cast legend handles to list)
+* :ghpull:`30079`: FIX: cast legend handles to list
+* :ghpull:`30057`: Backport PR #29895 on branch v3.10.x (The 'lines.markeredgecolor' now doesn't interfere on the color of errorbar caps)"
+* :ghpull:`29895`: The 'lines.markeredgecolor' now doesn't interfere on the color of errorbar caps
+* :ghpull:`30033`: Backport PR #30029 on branch v3.10.x (Update diagram in subplots_adjust documentation to clarify parameters)
 
-Issues (16):
+Issues (18):
 
-* :ghissue:`29183`: [Bug]: I give an RGB image to imsave but I don't have the right color map!
-* :ghissue:`29797`: [MNT]: Flaky Windows_py31x tests on Azure Pipelines
-* :ghissue:`26827`: [Bug]: ImportError when using Matplotlib v3.8.0 in Python package tests
-* :ghissue:`29964`: [Doc]: object description for "spines"of matplot.axes.Axes not found
-* :ghissue:`29917`: [Bug]: Contour plots using mollweide-projection
-* :ghissue:`29540`: [Bug]: matshow(..., fignum=...) broken
-* :ghissue:`29142`: [MNT]: Draggable legend gets stuck on cursor after scroll event
-* :ghissue:`29857`: [Bug]: Unexpected behavior of the line style specifiers in the histogram method
-* :ghissue:`29766`: [MNT]: ci: ubuntu-20.04 GitHub Actions runner will soon be unmaintained
-* :ghissue:`29812`: [MNT]: Backport request for #29552 to 3.10.x
-* :ghissue:`29779`: [Bug]: get_default_filename removes '0' from file name instead of '\0' from window title
-* :ghissue:`29713`: [Bug]: Matplotlib selects TkAgg backend on LXC containers
-* :ghissue:`29717`: [Bug]: Using a linestyle tuple with a histogram crashes with matplotlib 3.10
-* :ghissue:`29522`: [Bug]: Image color limits not correctly updated with set_clim() IFF color bar present AND new norm.vmin > old norm.vmax
-* :ghissue:`17339`: Clarify that constrained_layout and tight_layout conflict with each other
-* :ghissue:`28884`: [ENH]: Expand ``hist()`` signature to support aliases and plural kwargs
+* :ghissue:`30370`: [Bug]: matplotlib simple example fails in Python 3.14
+* :ghissue:`30218`: [Bug]: Rendering on Wayland with fractional scaling looks bad
+* :ghissue:`30318`: [Bug]: type annotation of ``Axes.get_legend()`` misses ``None``
+* :ghissue:`30169`: [Doc]: Incorrect FAQ Link on Tutorials Page
+* :ghissue:`30285`: [Bug]: Missing whitespace in _axes.py error message
+* :ghissue:`30280`: [Bug]: Pillow 11.3 raises a deprecation warning when using TkAgg
+* :ghissue:`30158`: [Bug]: Stackplot in SubFigure raises when drawing Legend
+* :ghissue:`30216`: [Bug]: stem complaining about PyTorch's Tensor
+* :ghissue:`30242`: [Bug]: Cannot create empty FancyArrow (expired numpy deprecation)
+* :ghissue:`30249`: [Bug]: DeprecationWarning from Pillow 11.3.0 about 'mode' parameter of PIL.Image.fromarray()
+* :ghissue:`29688`: [Bug]: "Bad file descriptor" raised repeatedly when plt.pause() interrupted in IPython
+* :ghissue:`27305`: [Bug]: Axes.label_outer() does not work when there is a colorbar
+* :ghissue:`30179`: [Bug]: Inner border is not rendered correctly when using log-scale and polar projection.
+* :ghissue:`29157`: FUTURE BUG: reconsider how we deep-copy path objects
+* :ghissue:`30152`: [Bug]: Test pipeline failure on windows
+* :ghissue:`30076`: [Bug]:  Layout Managers are confused by complex arrangement of sub-figures and  gridspec's
+* :ghissue:`30078`: [Bug]: legend no longer works with itertools.chain
+* :ghissue:`29780`: [Bug]: Setting 'lines.markeredgecolor' affects color of errorbar caps.
 
 
 Previous GitHub statistics
