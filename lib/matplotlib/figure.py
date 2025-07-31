@@ -3003,7 +3003,12 @@ None}, default: None
         This is used upon initialization of the Figure, but also
         to reset the canvas when decoupling from pyplot.
         """
+        # check if we have changed the API due to hi-dpi screens
+        orig_dpi = getattr(self, '_original_dpi', self._dpi)
         FigureCanvasBase(self)  # Set self.canvas as a side-effect
+        # put it back to what it was
+        if orig_dpi != self._dpi:
+            self.dpi = orig_dpi
 
     def set_canvas(self, canvas):
         """
