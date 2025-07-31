@@ -704,6 +704,11 @@ const char *PyFT2Font_set_text__doc__ = R"""(
 
         .. versionchanged:: 3.10
             This now takes an `.ft2font.LoadFlags` instead of an int.
+    features : tuple[str, ...]
+        The font feature tags to use for the font.
+
+        Available font feature tags may be found at
+        https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
 
     Returns
     -------
@@ -713,7 +718,8 @@ const char *PyFT2Font_set_text__doc__ = R"""(
 
 static py::array_t<double>
 PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0,
-                   std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
+                   std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT,
+                   std::optional<std::vector<std::string>> features = std::nullopt)
 {
     std::vector<double> xys;
     LoadFlags flags;
@@ -733,7 +739,7 @@ PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0
         throw py::type_error("flags must be LoadFlags or int");
     }
 
-    self->x->set_text(text, angle, static_cast<FT_Int32>(flags), xys);
+    self->x->set_text(text, angle, static_cast<FT_Int32>(flags), features, xys);
 
     py::ssize_t dims[] = { static_cast<py::ssize_t>(xys.size()) / 2, 2 };
     py::array_t<double> result(dims);
@@ -1620,7 +1626,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("get_kerning", &PyFT2Font_get_kerning, "left"_a, "right"_a, "mode"_a,
              PyFT2Font_get_kerning__doc__)
         .def("set_text", &PyFT2Font_set_text,
-             "string"_a, "angle"_a=0.0, "flags"_a=LoadFlags::FORCE_AUTOHINT,
+             "string"_a, "angle"_a=0.0, "flags"_a=LoadFlags::FORCE_AUTOHINT, py::kw_only(),
+             "features"_a=nullptr,
              PyFT2Font_set_text__doc__)
         .def("_get_fontmap", &PyFT2Font_get_fontmap, "string"_a,
              PyFT2Font_get_fontmap__doc__)
