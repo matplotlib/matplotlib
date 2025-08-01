@@ -3301,22 +3301,24 @@ class MultiNorm(Norm):
     A class which contains multiple scalar norms.
     """
 
-    def __init__(self, norms, vmin=None, vmax=None, clip=False):
+    def __init__(self, norms, vmin=None, vmax=None, clip=None):
         """
         Parameters
         ----------
         norms : list of (str or `Normalize`)
             The constituent norms. The list must have a minimum length of 2.
-        vmin, vmax : float or None or list of (float or None)
+        vmin, vmax : None or list of (float or None)
             Limits of the constituent norms.
-            If a list, each value is assigned to each of the constituent
-            norms. Single values are repeated to form a list of appropriate size.
-
-        clip : bool or list of bools, default: False
+            If a list, one value is assigned to each of the constituent
+            norms.
+            If None, the limits of the constituent norms
+            are not changed.
+        clip : None or list of bools, default: None
             Determines the behavior for mapping values outside the range
             ``[vmin, vmax]`` for the constituent norms.
             If a list, each value is assigned to each of the constituent
-            norms. Single values are repeated to form a list of appropriate size.
+            norms.
+            If None, the behaviour of the constituent norms is not changed.
         """
         if cbook.is_scalar_or_string(norms):
             raise ValueError(
@@ -3365,11 +3367,14 @@ class MultiNorm(Norm):
 
     @vmin.setter
     def vmin(self, values):
-        values = np.broadcast_to(values, self.n_components)
+        if values is None:
+            return
+        if not np.iterable(values) or len(values) != self.n_components:
+            raise ValueError("*vmin* must have one component for each norm. "
+                             f"Expected an iterable of length {self.n_components}")
         with self.callbacks.blocked():
             for norm, v in zip(self.norms, values):
-                if v is not None:
-                    norm.vmin = v
+                norm.vmin = v
         self._changed()
 
     @property
@@ -3379,11 +3384,14 @@ class MultiNorm(Norm):
 
     @vmax.setter
     def vmax(self, values):
-        values = np.broadcast_to(values, self.n_components)
+        if values is None:
+            return
+        if not np.iterable(values) or len(values) != self.n_components:
+            raise ValueError("*vmax* must have one component for each norm. "
+                             f"Expected an iterable of length {self.n_components}")
         with self.callbacks.blocked():
             for norm, v in zip(self.norms, values):
-                if v is not None:
-                    norm.vmax = v
+                norm.vmax = v
         self._changed()
 
     @property
@@ -3393,11 +3401,14 @@ class MultiNorm(Norm):
 
     @clip.setter
     def clip(self, values):
-        values = np.broadcast_to(values, self.n_components)
+        if values is None:
+            return
+        if not np.iterable(values) or len(values) != self.n_components:
+            raise ValueError("*clip* must have one component for each norm. "
+                             f"Expected an iterable of length {self.n_components}")
         with self.callbacks.blocked():
             for norm, v in zip(self.norms, values):
-                if v is not None:
-                    norm.clip = v
+                norm.clip = v
         self._changed()
 
     def _changed(self):
@@ -3423,7 +3434,7 @@ class MultiNorm(Norm):
             - If structured array, must have `n_components` fields. Each field
               is normalized through the corresponding norm.
 
-        clip : list of bools or bool or None, optional
+        clip : list of bools or None, optional
             Determines the behavior for mapping values outside the range
             ``[vmin, vmax]``. See the description of the parameter *clip* in
             `.Normalize`.
@@ -3442,8 +3453,9 @@ class MultiNorm(Norm):
         """
         if clip is None:
             clip = self.clip
-        elif not np.iterable(clip):
-            clip = [clip]*self.n_components
+        if not np.iterable(clip) or len(clip) != self.n_components:
+            raise ValueError("*clip* must have one component for each norm. "
+                             f"Expected an iterable of length {self.n_components}")
 
         values = self._iterable_components_in_data(values, self.n_components)
         result = tuple(n(v, clip=c) for n, v, c in zip(self.norms, values, clip))
