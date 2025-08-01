@@ -3298,7 +3298,7 @@ class NoNorm(Normalize):
 
 class MultiNorm(Norm):
     """
-    A class which contains multiple scalar norms
+    A class which contains multiple scalar norms.
     """
 
     def __init__(self, norms, vmin=None, vmax=None, clip=False):
@@ -3421,7 +3421,7 @@ class MultiNorm(Norm):
             - If iterable, must be of length `n_components`. Each element can be a
               scalar or array-like and is normalized through the correspong norm.
             - If structured array, must have `n_components` fields. Each field
-              is normalized through the the corresponding norm.
+              is normalized through the corresponding norm.
 
         clip : list of bools or bool or None, optional
             Determines the behavior for mapping values outside the range
@@ -3429,7 +3429,6 @@ class MultiNorm(Norm):
             `.Normalize`.
             If ``None``, defaults to ``self.clip`` (which defaults to
             ``False``).
-
 
         Returns
         -------
@@ -3471,7 +3470,7 @@ class MultiNorm(Norm):
 
     def autoscale(self, A):
         """
-        For each constituent norm, Set *vmin*, *vmax* to min, max of the corresponding
+        For each constituent norm, set *vmin*, *vmax* to min, max of the corresponding
         component in *A*.
 
         Parameters
@@ -3485,8 +3484,6 @@ class MultiNorm(Norm):
               is used for the limits of one constituent norm.
         """
         with self.callbacks.blocked():
-            # Pause callbacks while we are updating so we only get
-            # a single update signal at the end
             A = self._iterable_components_in_data(A, self.n_components)
             for n, a in zip(self.norms, A):
                 n.autoscale(a)
@@ -3532,7 +3529,6 @@ class MultiNorm(Norm):
 
             - If iterable, must be of length `n_components`
             - If structured array, must have `n_components` fields.
-
 
         Returns
         -------
