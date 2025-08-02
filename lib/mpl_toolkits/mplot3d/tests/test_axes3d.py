@@ -1217,7 +1217,7 @@ def _test_proj_draw_axes(M, s=1, *args, **kwargs):
 
     fig, ax = plt.subplots(*args, **kwargs)
     linec = LineCollection(lines)
-    ax.add_collection(linec)
+    ax.add_collection(linec, autolim="_datalim_only")
     for x, y, t in zip(txs, tys, ['o', 'x', 'y', 'z']):
         ax.text(x, y, t)
 
