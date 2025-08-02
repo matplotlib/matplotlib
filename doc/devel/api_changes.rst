@@ -220,7 +220,7 @@ folder:
 +-------------------+-----------------------------+----------------------------------------------+
 |                   |   versioning directive      |  announcement folder                         |
 +===================+=============================+==============================================+
-| new feature       | ``.. versionadded:: 3.N``   | :file:`doc/users/next_whats_new/`            |
+| new feature       | ``.. versionadded:: 3.N``   | :file:`doc/release/next_whats_new/`          |
 +-------------------+-----------------------------+----------------------------------------------+
 | API change        | ``.. versionchanged:: 3.N`` | :file:`doc/api/next_api_changes/[kind]`      |
 +-------------------+-----------------------------+----------------------------------------------+
@@ -306,7 +306,7 @@ API change notes
 What's new notes
 """"""""""""""""
 
-.. include:: ../users/next_whats_new/README.rst
+.. include:: ../release/next_whats_new/README.rst
    :start-after: whats-new-guide-start
    :end-before: whats-new-guide-end
 
