@@ -51,4 +51,8 @@ the current canvas to save the figure (if possible). Since `.FigureCanvasBase`
 is Agg-based any Agg-based backend will create the same file output. There may
 be slight differences for non-Agg backends; e.g. if you use "GTK4Cairo" as
 interactive backend, ``fig.savefig("file.png")`` may create a slightly different
-image depending on whether the figure is registered with pyplot or not.
+image depending on whether the figure is registered with pyplot or not. In
+general, you should not store a reference to the canvas, but rather always
+obtain it from the figure with ``fig.canvas``. This will return the current
+canvas, which is either the original `.FigureCanvasBase` or a backend-dependent
+subclass, depending on whether the figure is registered with pyplot or not.
