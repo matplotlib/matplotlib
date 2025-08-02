@@ -8,6 +8,8 @@ from matplotlib import _preprocess_data
 from matplotlib.axes import Axes
 from matplotlib.testing import subprocess_run_for_testing
 from matplotlib.testing.decorators import check_figures_equal
+from matplotlib.testing._markers import starts_subprocess
+
 
 # Notes on testing the plotting functions itself
 # *   the individual decorated plotting functions are tested in 'test_axes.py'
@@ -245,6 +247,7 @@ def test_docstring_addition():
                          funcy.__doc__)
 
 
+@starts_subprocess
 def test_data_parameter_replacement():
     """
     Test that the docstring contains the correct *data* parameter stub
