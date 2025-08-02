@@ -412,7 +412,7 @@ def test_textarea_properties():
     assert ta.get_multilinebaseline()
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png'])
 def test_textarea_set_text(fig_test, fig_ref):
     ax_ref = fig_ref.add_subplot()
     text0 = AnchoredText("Foo", "upper left")
