@@ -1035,11 +1035,10 @@ class PdfFile:
         fontdict['Encoding'] = self._generate_encoding(encoding)
         fc = fontdict['FirstChar'] = min(encoding.keys(), default=0)
         lc = fontdict['LastChar'] = max(encoding.keys(), default=255)
-
         # Convert glyph widths from TeX 12.20 fixed point to 1/1000 text space units
-        tfm = dvifont._tfm
-        widths = [(1000 * metrics.tex_width) >> 20
-                  if (metrics := tfm.get_metrics(char)) else 0
+        font_metrics = dvifont._metrics
+        widths = [(1000 * glyph_metrics.tex_width) >> 20
+                  if (glyph_metrics := font_metrics.get_metrics(char)) else 0
                   for char in range(fc, lc + 1)]
         fontdict['Widths'] = widthsObject = self.reserveObject('glyph widths')
         self.writeObject(widthsObject, widths)
