@@ -5,6 +5,7 @@ Classes for including text in a figure.
 import functools
 import logging
 import math
+import numbers
 from numbers import Real
 import weakref
 
@@ -1862,6 +1863,7 @@ or callable, default: value of *xycoords*
                                  xy,
                                  xycoords=xycoords,
                                  annotation_clip=annotation_clip)
+        self.xytext = xytext
         # warn about wonky input data
         if (xytext is None and
                 textcoords is not None and
@@ -2027,7 +2029,12 @@ or callable, default: value of *xycoords*
         # docstring inherited
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible() or not self._check_xy(renderer):
+
+        visible = (self.get_visible() and
+                   self._check_xy(renderer) and
+                   self._check_xytext())
+
+        if not visible:
             return
         # Update text positions before `Text.draw` would, so that the
         # FancyArrowPatch is correctly positioned.
@@ -2046,7 +2053,10 @@ or callable, default: value of *xycoords*
         # docstring inherited
         # This block is the same as in Text.get_window_extent, but we need to
         # set the renderer before calling update_positions().
-        if not self.get_visible() or not self._check_xy(renderer):
+        visible = (self.get_visible() and
+                   self._check_xy(renderer) and
+                   self._check_xytext())
+        if not visible:
             return Bbox.unit()
         if renderer is not None:
             self._renderer = renderer
@@ -2072,4 +2082,10 @@ or callable, default: value of *xycoords*
         return super().get_tightbbox(renderer)
 
 
+    def _check_xytext(self, renderer=None):
+        """Check whether the annotation at *xy_pixel* should be drawn."""
+        valid = True
+        if all(isinstance(xyt, numbers.Number) for xyt in self.xytext):
+            valid = not np.isnan(self.xytext).any()
+        return valid
 _docstring.interpd.register(Annotation=Annotation.__init__.__doc__)
