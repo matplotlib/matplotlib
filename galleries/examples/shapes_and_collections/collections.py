@@ -47,53 +47,36 @@ fig.subplots_adjust(top=0.92, left=0.07, right=0.97,
 
 
 col = collections.LineCollection(
-    [spiral], offsets=xyo, offset_transform=ax1.transData)
+    [spiral], offsets=xyo, offset_transform=ax1.transData, color=colors)
+# transform the line segments such that their size is given in points
 trans = fig.dpi_scale_trans + transforms.Affine2D().scale(1.0/72.0)
 col.set_transform(trans)  # the points to pixels transform
-# Note: the first argument to the collection initializer
-# must be a list of sequences of (x, y) tuples; we have only
-# one sequence, but we still have to put it in a list.
-ax1.add_collection(col, autolim=True)
-# autolim=True enables autoscaling.  For collections with
-# offsets like this, it is neither efficient nor accurate,
-# but it is good enough to generate a plot that you can use
-# as a starting point.  If you know beforehand the range of
-# x and y that you want to show, it is better to set them
-# explicitly, set the *autolim* keyword argument to False.
-
-# Make a transform for the line segments such that their size is
-# given in points:
-col.set_color(colors)
-
+ax1.add_collection(col)
 ax1.set_title('LineCollection using offsets')
 
 
 # The same data as above, but fill the curves.
 col = collections.PolyCollection(
-    [spiral], offsets=xyo, offset_transform=ax2.transData)
+    [spiral], offsets=xyo, offset_transform=ax2.transData, color=colors)
 trans = transforms.Affine2D().scale(fig.dpi/72.0)
 col.set_transform(trans)  # the points to pixels transform
-ax2.add_collection(col, autolim=True)
-col.set_color(colors)
-
-
+ax2.add_collection(col)
 ax2.set_title('PolyCollection using offsets')
 
-# 7-sided regular polygons
 
+# 7-sided regular polygons
 col = collections.RegularPolyCollection(
-    7, sizes=np.abs(xx) * 10.0, offsets=xyo, offset_transform=ax3.transData)
+    7, sizes=np.abs(xx) * 10.0, offsets=xyo, offset_transform=ax3.transData,
+    color=colors)
 trans = transforms.Affine2D().scale(fig.dpi / 72.0)
 col.set_transform(trans)  # the points to pixels transform
-ax3.add_collection(col, autolim=True)
-col.set_color(colors)
+ax3.add_collection(col)
 ax3.set_title('RegularPolyCollection using offsets')
 
 
 # Simulate a series of ocean current profiles, successively
 # offset by 0.1 m/s so that they form what is sometimes called
 # a "waterfall" plot or a "stagger" plot.
-
 nverts = 60
 ncurves = 20
 offs = (0.1, 0.0)
@@ -107,15 +90,12 @@ for i in range(ncurves):
     curve = np.column_stack([xxx, yy * 100])
     segs.append(curve)
 
-col = collections.LineCollection(segs, offsets=offs)
-ax4.add_collection(col, autolim=True)
-col.set_color(colors)
+col = collections.LineCollection(segs, offsets=offs, color=colors)
+ax4.add_collection(col)
 ax4.set_title('Successive data offsets')
 ax4.set_xlabel('Zonal velocity component (m/s)')
 ax4.set_ylabel('Depth (m)')
-# Reverse the y-axis so depth increases downward
-ax4.set_ylim(ax4.get_ylim()[::-1])
-
+ax4.invert_yaxis()  # so that depth increases downward
 
 plt.show()
 
