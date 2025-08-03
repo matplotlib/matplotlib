@@ -524,7 +524,7 @@ def test_regularpolycollection_rotate():
         col = mcollections.RegularPolyCollection(
             4, sizes=(100,), rotation=alpha,
             offsets=[xy], offset_transform=ax.transData)
-        ax.add_collection(col, autolim=True)
+        ax.add_collection(col)
 
 
 @image_comparison(['regularpolycollection_scale.png'], remove_text=True)
@@ -552,7 +552,7 @@ def test_regularpolycollection_scale():
     circle_areas = [np.pi / 2]
     squares = SquareCollection(
         sizes=circle_areas, offsets=xy, offset_transform=ax.transData)
-    ax.add_collection(squares, autolim=True)
+    ax.add_collection(squares)
     ax.axis([-1, 1, -1, 1])
 
 
