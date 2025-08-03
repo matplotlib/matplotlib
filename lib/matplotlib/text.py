@@ -2085,6 +2085,9 @@ or callable, default: value of *xycoords*
     def _check_xytext(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
         valid = True
+        if self.xytext is None:
+            return valid
+
         if all(isinstance(xyt, numbers.Number) for xyt in self.xytext):
             valid = not np.isnan(self.xytext).any()
         return valid
