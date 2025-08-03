@@ -2089,6 +2089,6 @@ or callable, default: value of *xycoords*
             return valid
 
         if all(isinstance(xyt, numbers.Number) for xyt in self.xytext):
-            valid = not np.isnan(self.xytext).any()
+            valid = not np.isnan(self.xytext).any() and np.isfinite(self.xytext).all()
         return valid
 _docstring.interpd.register(Annotation=Annotation.__init__.__doc__)
