@@ -400,3 +400,12 @@ def test_document_font_size():
              label=r'\normalsize the document font size is \the\fontdimen6\font'
              )
     plt.legend()
+
+
+@pytest.mark.backend("pgf")
+def test_pgf_documentclass_written():
+    from matplotlib.backends.backend_pgf import LatexManager
+
+    mpl.rcParams["pgf.documentclass"] = "IEEEtran"
+    header = LatexManager._build_latex_header()
+    assert r"\documentclass{IEEEtran}" in header
