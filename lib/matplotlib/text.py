@@ -2030,9 +2030,9 @@ or callable, default: value of *xycoords*
         if renderer is not None:
             self._renderer = renderer
 
-        visible = (self.get_visible() and
-                   self._check_xy(renderer) and
-                   self._check_xytext())
+        visible = self.get_visible() and self._check_xy(renderer)
+
+        self._check_xytext()
 
         if not visible:
             return
@@ -2053,9 +2053,10 @@ or callable, default: value of *xycoords*
         # docstring inherited
         # This block is the same as in Text.get_window_extent, but we need to
         # set the renderer before calling update_positions().
-        visible = (self.get_visible() and
-                   self._check_xy(renderer) and
-                   self._check_xytext())
+        visible = self.get_visible() and self._check_xy(renderer)
+
+        self._check_xytext()
+
         if not visible:
             return Bbox.unit()
         if renderer is not None:
@@ -2085,10 +2086,16 @@ or callable, default: value of *xycoords*
     def _check_xytext(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
         valid = True
+
         if self.xytext is None:
             return valid
 
-        if all(isinstance(xyt, numbers.Number) for xyt in self.xytext):
-            valid = not np.isnan(self.xytext).any() and np.isfinite(self.xytext).all()
+        coords = np.array(self.get_transform().transform(self.xytext))
+
+        if all(isinstance(xyt, numbers.Number) for xyt in coords):
+            valid = not np.isnan(coords).any() and np.isfinite(coords).all()
+
+        if not valid:
+            raise ValueError("xytext coordinates must be finite numbers")
         return valid
 _docstring.interpd.register(Annotation=Annotation.__init__.__doc__)
