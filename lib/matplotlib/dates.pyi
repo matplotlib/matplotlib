@@ -6,7 +6,6 @@ import numpy as np
 import numpy.typing as npt
 
 TZ = str | datetime.tzinfo
-DateNum = float | Sequence[float]
 
 def _get_tzinfo(tz: TZ | None) -> datetime.tzinfo: ...
 def _reset_epoch_test_example() -> None: ...
