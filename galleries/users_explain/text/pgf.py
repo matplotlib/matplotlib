@@ -145,7 +145,6 @@ using ``unicode-math`` for example, or for loading additional packages. Also,
 if you want to do the font configuration yourself instead of using the fonts
 specified in the rc parameters, make sure to disable :rc:`pgf.rcfonts`.
 
-
 .. code-block:: python
 
     import matplotlib as mpl
@@ -174,7 +173,7 @@ specified in the rc parameters, make sure to disable :rc:`pgf.rcfonts`.
 
 You can also change the LaTeX document class used when generating PGF figures.
 By default, Matplotlib uses ``article``, but you can override this using
-the ``pgf.documentclass`` rcParam::
+the :rc:`pgf.documentclass`:
 
     import matplotlib.pyplot as plt
     plt.rcParams["pgf.documentclass"] = "IEEEtran"

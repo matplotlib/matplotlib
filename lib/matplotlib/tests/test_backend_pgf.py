@@ -402,7 +402,6 @@ def test_document_font_size():
     plt.legend()
 
 
-@pytest.mark.backend("pgf")
 def test_pgf_documentclass_written():
     from matplotlib.backends.backend_pgf import LatexManager
 

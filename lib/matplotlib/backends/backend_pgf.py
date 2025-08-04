@@ -202,7 +202,7 @@ class LatexManager:
     @staticmethod
     def _build_latex_header():
         latex_header = [
-            rf"\documentclass{{{mpl.rcParams.get('pgf.documentclass', 'article')}}}",
+            rf"\documentclass{{{mpl.rcParams['pgf.documentclass']}}}",
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
@@ -828,11 +828,10 @@ class FigureCanvasPgf(FigureCanvasBase):
         # print figure to pgf and compile it with latex
         with TemporaryDirectory() as tmpdir:
             tmppath = pathlib.Path(tmpdir)
-            docclass = mpl.rcParams.get("pgf.documentclass", "article")
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
             (tmppath / "figure.tex").write_text(
                 "\n".join([
-                    rf"\documentclass{{{docclass}}}"
+                    rf"\documentclass{{{mpl.rcParams['pgf.documentclass']}}}"
                     r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
@@ -929,7 +928,7 @@ class PdfPages:
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
-            rf"\documentclass{{{mpl.rcParams.get('pgf.documentclass', 'article')}}}",
+            rf"\documentclass{{{mpl.rcParams['pgf.documentclass']}}}",
             r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
