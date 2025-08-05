@@ -3371,7 +3371,8 @@ class MultiNorm(Norm):
             return
         if not np.iterable(values) or len(values) != self.n_components:
             raise ValueError("*vmin* must have one component for each norm. "
-                             f"Expected an iterable of length {self.n_components}")
+                             f"Expected an iterable of length {self.n_components}, "
+                             f"but got {values!r}")
         with self.callbacks.blocked():
             for norm, v in zip(self.norms, values):
                 norm.vmin = v
@@ -3388,7 +3389,8 @@ class MultiNorm(Norm):
             return
         if not np.iterable(values) or len(values) != self.n_components:
             raise ValueError("*vmax* must have one component for each norm. "
-                             f"Expected an iterable of length {self.n_components}")
+                             f"Expected an iterable of length {self.n_components}, "
+                             f"but got {values!r}")
         with self.callbacks.blocked():
             for norm, v in zip(self.norms, values):
                 norm.vmax = v
@@ -3405,7 +3407,8 @@ class MultiNorm(Norm):
             return
         if not np.iterable(values) or len(values) != self.n_components:
             raise ValueError("*clip* must have one component for each norm. "
-                             f"Expected an iterable of length {self.n_components}")
+                             f"Expected an iterable of length {self.n_components}, "
+                             f"but got {values!r}")
         with self.callbacks.blocked():
             for norm, v in zip(self.norms, values):
                 norm.clip = v
@@ -3455,7 +3458,8 @@ class MultiNorm(Norm):
             clip = self.clip
         if not np.iterable(clip) or len(clip) != self.n_components:
             raise ValueError("*clip* must have one component for each norm. "
-                             f"Expected an iterable of length {self.n_components}")
+                             f"Expected an iterable of length {self.n_components}, "
+                             f"but got {clip!r}")
 
         values = self._iterable_components_in_data(values, self.n_components)
         result = tuple(n(v, clip=c) for n, v, c in zip(self.norms, values, clip))
