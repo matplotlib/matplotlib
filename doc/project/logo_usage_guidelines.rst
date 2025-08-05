@@ -14,7 +14,7 @@ Logo
 
 View the :doc:`/gallery/misc/logos2` to see the code to generate the logo using Matplotlib.
 
-Use the logo with the following guidelines. For more detailed information, see the NUMFOCUS Trademark Guidelines page.
+Use the logo with the following guidelines. For more detailed information, see the `NumFOCUS Trademark Guidelines <https://numfocus.org/trademark-guidelines>`_ page.
 
 * The logo is intended for reference as an indication of using Matplotlib for legal and :ref:`code_of_conduct` permitting use.
 * Production and distribution of items with the Matplotlib logo, or any otherwise modified versions, are prohibited.
