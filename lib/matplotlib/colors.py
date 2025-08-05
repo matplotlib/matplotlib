@@ -3330,7 +3330,7 @@ class MultiNorm(Norm):
 
         def resolve(norm):
             if isinstance(norm, str):
-                scale_cls = _get_scale_cls_from_str(norm)
+                scale_cls = _api.check_getitem(scale._scale_mapping, norm=norm)
                 return mpl.colorizer._auto_norm_from_scale(scale_cls)()
             elif isinstance(norm, Normalize):
                 return norm
@@ -4298,34 +4298,3 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
-
-
-def _get_scale_cls_from_str(scale_as_str):
-    """
-    Returns the scale class from a string.
-
-    Used in the creation of norms from a string to ensure a reasonable error
-    in the case where an invalid string is used. This would normally use
-    `_api.check_getitem()`, which would produce the error:
-    'not_a_norm' is not a valid value for norm; supported values are
-    'linear', 'log', 'symlog', 'asinh', 'logit', 'function', 'functionlog'.
-    which is misleading because the norm keyword also accepts `Normalize` objects.
-
-    Parameters
-    ----------
-    scale_as_str : string
-        A string corresponding to a scale
-
-    Returns
-    -------
-    A subclass of ScaleBase.
-
-    """
-    try:
-        scale_cls = scale._scale_mapping[scale_as_str]
-    except KeyError:
-        raise ValueError(
-            f"Invalid norm name {scale_as_str!r}; supported values are "
-            f"{', '.join(scale._scale_mapping)}"
-        ) from None
-    return scale_cls
