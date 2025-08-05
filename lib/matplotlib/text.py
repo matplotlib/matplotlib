@@ -2084,13 +2084,16 @@ or callable, default: value of *xycoords*
 
 
     def _check_xytext(self, renderer=None):
-        """Check whether the annotation at *xy_pixel* should be drawn."""
+        """Check whether the annotation text at *xy_pixel* should be drawn."""
         valid = True
 
         if self.xytext is None:
             return valid
 
-        coords = np.array(self.get_transform().transform(self.xytext))
+        try:
+            coords = np.array(self.get_transform().transform(self.xytext))
+        except TypeError:
+            valid = False
 
         if all(isinstance(xyt, numbers.Number) for xyt in coords):
             valid = not np.isnan(coords).any() and np.isfinite(coords).all()
