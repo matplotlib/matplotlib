@@ -2092,11 +2092,12 @@ or callable, default: value of *xycoords*
 
         try:
             coords = np.array(self.get_transform().transform(self.xytext))
+            if all(isinstance(xyt, numbers.Number) for xyt in coords):
+                valid = not np.isnan(coords).any() and np.isfinite(coords).all()
+
         except TypeError:
             valid = False
 
-        if all(isinstance(xyt, numbers.Number) for xyt in coords):
-            valid = not np.isnan(coords).any() and np.isfinite(coords).all()
 
         if not valid:
             raise ValueError("xytext coordinates must be finite numbers")
