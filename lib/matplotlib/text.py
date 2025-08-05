@@ -2091,13 +2091,19 @@ or callable, default: value of *xycoords*
             return valid
 
         try:
+            # transforming the coordinates
             coords = np.array(self.get_transform().transform(self.xytext))
             if all(isinstance(xyt, numbers.Number) for xyt in coords):
                 valid = not np.isnan(coords).any() and np.isfinite(coords).all()
-
         except TypeError:
-            valid = False
-
+            # If transformation fails, check raw coordinates
+            if all(isinstance(xyt, numbers.Number) for xyt in self.xytext):
+                is_numerical = not np.isnan(self.xytext).any()
+                finite = np.isfinite(self.xytext).all()
+                valid = is_numerical and finite
+            else:
+                # For non-number coordinates (like units), assume valid
+                valid = True
 
         if not valid:
             raise ValueError("xytext coordinates must be finite numbers")
