@@ -14,11 +14,11 @@ Logo
 
 View the :doc:`/gallery/misc/logos2` to see the code to generate the logo using Matplotlib.
 
-Use the logo with the following guidelines.
+Use the logo with the following guidelines. For more detailed information, see the NUMFOCUS Trademark Guidelines page.
 
-* Example
-* Example 2
-* Example 3
+* The logo is intended for reference as an indication of using Matplotlib for legal and :ref:`code_of_conduct` permitting use.
+* Production and distribution of items with the Matplotlib logo, or any otherwise modified versions, are prohibited.
+* The logo cannot be used as an endorsement of any organization or entity.
 
 Colors
 ------
