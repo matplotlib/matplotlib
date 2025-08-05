@@ -3043,7 +3043,7 @@ class Axes(_AxesBase):
             vertices.append([(x0, y0), (x0, y1), (x1, y1), (x1, y0)])
 
         col = mcoll.PolyCollection(np.array(vertices), **kwargs)
-        self.add_collection(col, autolim=True)
+        self.add_collection(col)
 
         return col
 
@@ -5821,7 +5821,7 @@ or pandas.DataFrame
         # Make sure units are handled for x and y values
         args = self._quiver_units(args, kwargs)
         q = mquiver.Quiver(self, *args, **kwargs)
-        self.add_collection(q, autolim=True)
+        self.add_collection(q)
         return q
 
     # args can be some combination of X, Y, U, V, C and all should be replaced
@@ -5832,7 +5832,7 @@ or pandas.DataFrame
         # Make sure units are handled for x and y values
         args = self._quiver_units(args, kwargs)
         b = mquiver.Barbs(self, *args, **kwargs)
-        self.add_collection(b, autolim=True)
+        self.add_collection(b)
         return b
 
     # Uses a custom implementation of data-kwarg handling in
