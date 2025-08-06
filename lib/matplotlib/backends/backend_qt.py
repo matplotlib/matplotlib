@@ -273,6 +273,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         window = self.window().windowHandle()
         current_version = tuple(int(x) for x in QtCore.qVersion().split('.', 2)[:2])
         if current_version >= (6, 6):
+            self._update_pixel_ratio()
             window.installEventFilter(self)
         else:
             window.screenChanged.connect(self._update_screen)
