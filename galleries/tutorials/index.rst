@@ -95,6 +95,7 @@ a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
    /tutorials/images
    /tutorials/lifecycle
    /tutorials/artists
+   /tutorials/rcparams
 
 .. only:: html
 
@@ -157,3 +158,8 @@ Toolkits
 ^^^^^^^^
 
 See :ref:`tutorials-toolkits`.
+
+RcParams
+~~~~~~~~
+
+See :ref:`rcparams`.
