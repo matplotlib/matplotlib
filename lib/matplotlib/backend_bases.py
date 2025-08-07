@@ -2574,6 +2574,41 @@ def button_press_handler(event, canvas=None, toolbar=None):
             toolbar.forward()
 
 
+def scroll_handler(event, canvas=None, toolbar=None):
+    ax = event.inaxes
+    if ax is None:
+        return
+
+    if toolbar is None:
+        if canvas is None:
+            canvas = event.canvas
+        toolbar = canvas.toolbar
+
+    if toolbar is None or toolbar.mode == _Mode.NONE:
+        return
+
+    if event.key is None:  # zoom towards the mouse position
+        toolbar.push_current()
+
+        xmin, xmax = ax.get_xlim()
+        ymin, ymax = ax.get_ylim()
+
+        # mouse position in data coordinates
+        x = event.xdata
+        y = event.ydata
+
+        scale_factor = 1.0 - 0.05 * event.step
+        new_xmin = x - (x - xmin) * scale_factor
+        new_xmax = x + (xmax - x) * scale_factor
+        new_ymin = y - (y - ymin) * scale_factor
+        new_ymax = y + (ymax - y) * scale_factor
+
+        ax.set_xlim(new_xmin, new_xmax)
+        ax.set_ylim(new_ymin, new_ymax)
+
+        ax.figure.canvas.draw_idle()
+
+
 class NonGuiException(Exception):
     """Raised when trying show a figure in a non-GUI backend."""
     pass
@@ -2653,11 +2688,14 @@ class FigureManagerBase:
 
         self.key_press_handler_id = None
         self.button_press_handler_id = None
+        self.scroll_handler_id = None
         if rcParams['toolbar'] != 'toolmanager':
             self.key_press_handler_id = self.canvas.mpl_connect(
                 'key_press_event', key_press_handler)
             self.button_press_handler_id = self.canvas.mpl_connect(
                 'button_press_event', button_press_handler)
+            self.scroll_handler_id = self.canvas.mpl_connect(
+                'scroll_event', scroll_handler)
 
         self.toolmanager = (ToolManager(canvas.figure)
                             if mpl.rcParams['toolbar'] == 'toolmanager'
