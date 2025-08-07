@@ -3605,12 +3605,12 @@ class MultiNorm(Norm):
         Parameters
         ----------
         n_components : int
-            Number of omponents in the data.
+            Number of components in the data.
         data : np.ndarray, PIL.Image or None
 
         Returns
         -------
-            np.ndarray, PIL.Image or None
+        np.ndarray, PIL.Image or None
         """
 
         if isinstance(data, np.ndarray):
