@@ -1,43 +1,13 @@
 from collections.abc import Callable
 import subprocess
-from typing import Any, IO, Literal, overload
+from typing import Any
 
 def set_font_settings_for_testing() -> None: ...
 def set_reproducibility_for_testing() -> None: ...
 def setup() -> None: ...
-@overload
 def subprocess_run_for_testing(
-    command: list[str],
-    env: dict[str, str] | None = ...,
-    timeout: float | None = ...,
-    stdout: int | IO[Any] | None = ...,
-    stderr: int | IO[Any] | None = ...,
-    check: bool = ...,
-    *,
-    text: Literal[True],
-    capture_output: bool = ...,
-) -> subprocess.CompletedProcess[str]: ...
-@overload
-def subprocess_run_for_testing(
-    command: list[str],
-    env: dict[str, str] | None = ...,
-    timeout: float | None = ...,
-    stdout: int | IO[Any] | None = ...,
-    stderr: int | IO[Any] | None = ...,
-    check: bool = ...,
-    text: Literal[False] = ...,
-    capture_output: bool = ...,
-) -> subprocess.CompletedProcess[bytes]: ...
-@overload
-def subprocess_run_for_testing(
-    command: list[str],
-    env: dict[str, str] | None = ...,
-    timeout: float | None = ...,
-    stdout: int | IO[Any] | None = ...,
-    stderr: int | IO[Any] | None = ...,
-    check: bool = ...,
-    text: bool = ...,
-    capture_output: bool = ...,
+    *args,
+    **kwargs
 ) -> subprocess.CompletedProcess[bytes] | subprocess.CompletedProcess[str]: ...
 def subprocess_run_helper(
     func: Callable[[], None],
