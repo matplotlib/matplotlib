@@ -64,7 +64,7 @@ class SliderBase(AxesWidget):
     valmax: float
     valstep: float | ArrayLike | None
     drag_active: bool
-    valfmt: str
+    valfmt: str | None
     def __init__(
         self,
         ax: Axes,
@@ -73,7 +73,7 @@ class SliderBase(AxesWidget):
         closedmax: bool,
         valmin: float,
         valmax: float,
-        valfmt: str,
+        valfmt: str | None,
         dragging: Slider | None,
         valstep: float | ArrayLike | None,
     ) -> None: ...
