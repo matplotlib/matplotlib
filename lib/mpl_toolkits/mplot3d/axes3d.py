@@ -14,6 +14,7 @@ from collections import defaultdict
 import itertools
 import math
 import textwrap
+from typing import Callable
 import warnings
 
 import numpy as np
@@ -56,6 +57,15 @@ class Axes3D(Axes):
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
     Axes._shared_axes["view"] = cbook.Grouper()
+
+    fmt_zdata: Callable[[float], str] | None
+    """
+    Callable to format the z-data in an interactive window.
+
+    The expected signature is ::
+
+        def fmt(val: float, /) -> str: ...
+    """
 
     def __init__(
         self, fig, rect=None, *args,
