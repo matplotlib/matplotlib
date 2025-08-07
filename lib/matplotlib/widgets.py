@@ -370,8 +370,9 @@ class Slider(SliderBase):
             The slider initial position.
 
         valfmt : str, default: None
-            %-format string used to format the slider value.  If None, a
-            `.ScalarFormatter` is used instead.
+            The way to format the slider value. If a string, it must be in %-format.
+            If a callable, it must have the signature ``valfmt(val: float) -> str``.
+            If None, a `.ScalarFormatter` is used.
 
         closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
@@ -553,7 +554,10 @@ class Slider(SliderBase):
     def _format(self, val):
         """Pretty-print *val*."""
         if self.valfmt is not None:
-            return self.valfmt % val
+            if callable(self.valfmt):
+                return self.valfmt(val)
+            else:
+                return self.valfmt % val
         else:
             _, s, _ = self._fmt.format_ticks([self.valmin, val, self.valmax])
             # fmt.get_offset is actually the multiplicative factor, if any.
@@ -650,9 +654,11 @@ class RangeSlider(SliderBase):
             The initial positions of the slider. If None the initial positions
             will be at the 25th and 75th percentiles of the range.
 
-        valfmt : str, default: None
-            %-format string used to format the slider values.  If None, a
-            `.ScalarFormatter` is used instead.
+        valfmt : str or callable, default: None
+            The way to format the range's minimal and maximal values. If a
+            string, it must be in %-format. If a callable, it must have the
+            signature ``valfmt(val: float) -> str``. If None, a
+            `.ScalarFormatter` is used.
 
         closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
@@ -896,7 +902,10 @@ class RangeSlider(SliderBase):
     def _format(self, val):
         """Pretty-print *val*."""
         if self.valfmt is not None:
-            return f"({self.valfmt % val[0]}, {self.valfmt % val[1]})"
+            if callable(self.valfmt):
+                return f"({self.valfmt(val[0])}, {self.valfmt(val[1])})"
+            else:
+                return f"({self.valfmt % val[0]}, {self.valfmt % val[1]})"
         else:
             _, s1, s2, _ = self._fmt.format_ticks(
                 [self.valmin, *val, self.valmax]
