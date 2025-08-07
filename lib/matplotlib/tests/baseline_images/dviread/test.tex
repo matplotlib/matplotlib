@@ -1,17 +1,19 @@
-% source file for test.dvi
 \documentclass{article}
+\usepackage{iftex}
+\iftutex\usepackage{fontspec}\fi % xetex or luatex
 \pagestyle{empty}
-\begin{document}
-This is a \LaTeX\ test document\\
-for testing matplotlib's dviread
 
-\noindent\rule{\textwidth}{1pt}
+\begin{document}
+A \LaTeX {
+  \iftutex\fontspec{DejaVuSans.ttf}[
+    FakeSlant=0.25, FakeStretch=1.25, FakeBold=2.5, Color=0000FF]\fi
+  doc.
+}
+
+\newpage
 
 \[ \int\limits_0^{\frac{\pi}{2}} \Bigl(\frac{x}{\sin x}\Bigr)^2\,\mathrm{d}x \]
 
 \special{Special!}
-
-\newpage
-another page
 
 \end{document}
