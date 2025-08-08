@@ -9,17 +9,3 @@
          fallback: ['freetype2', 'freetype_dep'],
          default_options: [
              'png=disabled',
---- a/src/meson.build	2025-03-26 03:59:08.651929905 -0400
-+++ b/src/meson.build	2025-03-26 04:00:09.537615893 -0400
-@@ -42,6 +42,11 @@
-     install: true,
- )
- 
-+libraqm_dep = declare_dependency(
-+    include_directories: include_directories('.'),
-+    link_with: libraqm,
-+)
-+
- libraqm_test = static_library(
-     'raqm-test',
-     'raqm.c',
