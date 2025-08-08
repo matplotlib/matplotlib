@@ -98,7 +98,7 @@ def _get_text_metrics_function(input_renderer, _cache=weakref.WeakKeyDictionary(
     the renderer is garbage collected.
 
     The inner layer is provided by an lru_cache with a large maximum size (such
-    that we do not expect it to be hit in very few actual use cases).  As the
+    that we expect very few cache misses in actual use cases).  As the
     dpi is mutable on the renderer, we need to explicitly include it as part of
     the cache key on the inner layer even though we do not directly use it (it is
     used in the method call on the renderer).
