@@ -244,7 +244,7 @@ class Axes3D(Axes):
                 (minx, maxy, maxz)]
         return proj3d._proj_points(xyzs, self.M)
 
-    def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
+    def set_aspect(self, aspect, adjustable=None, anchor=None):
         """
         Set the aspect ratios.
 
@@ -264,38 +264,24 @@ class Axes3D(Axes):
             =========   ==================================================
 
         adjustable : None or {'box', 'datalim'}, optional
-            If not *None*, this defines which parameter will be adjusted to
-            meet the required aspect. See `.set_adjustable` for further
-            details.
+            This parameter is not used for 3D axes but is present for
+            compatibility with 2D axes. It will be ignored.
 
         anchor : None or str or 2-tuple of float, optional
-            If not *None*, this defines where the Axes will be drawn if there
-            is extra space due to aspect constraints. The most common way to
-            specify the anchor are abbreviations of cardinal directions:
-
-            =====   =====================
-            value   description
-            =====   =====================
-            'C'     centered
-            'SW'    lower left corner
-            'S'     middle of bottom edge
-            'SE'    lower right corner
-            etc.
-            =====   =====================
-
-            See `~.Axes.set_anchor` for further details.
-
-        share : bool, default: False
-            If ``True``, apply the settings to all shared Axes.
+            .. deprecated:: 3.11
+               The `anchor` parameter is not used for 3D axes and will be
+               removed in a future version. It is ignored.
 
         See Also
         --------
         mpl_toolkits.mplot3d.axes3d.Axes3D.set_box_aspect
         """
+        if anchor is not None:
+            _api.warn_deprecated("3.11", name="anchor", removal="3.13")
         _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'),
                            aspect=aspect)
-        super().set_aspect(
-            aspect='auto', adjustable=adjustable, anchor=anchor, share=share)
+        if adjustable is not None:
+            self.set_adjustable(adjustable)
         self._aspect = aspect
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
