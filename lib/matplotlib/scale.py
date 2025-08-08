@@ -744,7 +744,6 @@ class LogitScale(ScaleBase):
                 It can already now be left out because of special preprocessing,
                 so that ``LogitScale()`` is valid.
 
-        Currently unused.
         nonpositive : {'mask', 'clip'}
             Determines the behavior for values beyond the open interval ]0, 1[.
             They can either be masked as invalid, or clipped to a number very
