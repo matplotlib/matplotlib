@@ -1,0 +1,36 @@
+diff -uPNr harfbuzz-11.2.0.orig/meson.build harfbuzz-11.2.0/meson.build
+--- harfbuzz-11.2.0.orig/meson.build	2025-04-28 08:56:32.000000000 -0400
++++ harfbuzz-11.2.0/meson.build	2025-05-03 03:25:39.602646412 -0400
+@@ -115,31 +115,7 @@
+   # Sadly, FreeType's versioning schemes are different between pkg-config and CMake
+ 
+   # Try pkg-config name
+-  freetype_dep = dependency('freetype2',
+-                            version: freetype_min_version,
+-                            method: 'pkg-config',
+-                            required: false,
+-                            allow_fallback: false)
+-  if not freetype_dep.found()
+-    # Try cmake name
+-    freetype_dep = dependency('Freetype',
+-                              version: freetype_min_version_actual,
+-                              method: 'cmake',
+-                              required: false,
+-                              allow_fallback: false)
+-    # Subproject fallback
+-    if not freetype_dep.found()
+-      freetype_proj = subproject('freetype2',
+-                                version: freetype_min_version_actual,
+-                                required: get_option('freetype'),
+-                                default_options: ['harfbuzz=disabled'])
+-      if freetype_proj.found()
+-        freetype_dep = freetype_proj.get_variable('freetype_dep')
+-      else
+-        freetype_dep = dependency('', required: false)
+-      endif
+-    endif
+-  endif
++  freetype_dep = dependency('freetype2', version: freetype_min_version)
+ endif
+ 
+ glib_dep = dependency('glib-2.0', version: glib_min_version, required: get_option('glib'))
