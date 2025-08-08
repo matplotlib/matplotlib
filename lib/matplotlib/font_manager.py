@@ -1504,6 +1504,9 @@ class FontManager:
                 default_prop.set_family(self.defaultFamily[fontext])
                 return self.findfont(default_prop, fontext, directory,
                                      fallback_to_default=False)
+            elif rebuild_if_missing:
+                # Continue to rebuild condition
+                result = ''
             else:
                 # This return instead of raise is intentional, as we wish to
                 # cache that it was not found, which will not occur if it was
