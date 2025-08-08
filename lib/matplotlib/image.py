@@ -903,6 +903,10 @@ class AxesImage(_ImageBase):
             **kwargs
         )
 
+        #support array value in imshow
+        if isinstance(self._alpha, np.ndarray):
+            self._set_alpha_for_array(self._alpha)
+
     def get_window_extent(self, renderer=None):
         x0, x1, y0, y1 = self._extent
         bbox = Bbox.from_extents([x0, y0, x1, y1])
@@ -1579,8 +1583,10 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
     .. note::
 
-       If you want to save a single channel image as gray scale please use an
-       image I/O library (such as pillow, tifffile, or imageio) directly.
+   If *arr* is a single-channel (MxN) image and you want to save it as a grayscale image 
+   (instead of applying a colormap), consider using a dedicated image I/O library like 
+   Pillow, imageio, or tifffile. `imsave` will apply a colormap by default.
+
 
     Parameters
     ----------
@@ -1658,6 +1664,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         else:
             sm = mcolorizer.Colorizer(cmap=cmap)
             sm.set_clim(vmin, vmax)
+
             rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:
             pil_kwargs = {}
