@@ -73,6 +73,48 @@ class BarContainer(Container):
         self.orientation = orientation
         super().__init__(patches, **kwargs)
 
+    @property
+    def bottoms(self):
+        """
+        Return the values at the lower end of the bars.
+
+        .. versionadded:: 3.11
+        """
+        if self.orientation == 'vertical':
+            return [p.get_y() for p in self.patches]
+        elif self.orientation == 'horizontal':
+            return [p.get_x() for p in self.patches]
+        else:
+            raise ValueError("orientation must be 'vertical' or 'horizontal'.")
+
+    @property
+    def tops(self):
+        """
+        Return the values at the upper end of the bars.
+
+        .. versionadded:: 3.11
+        """
+        if self.orientation == 'vertical':
+            return [p.get_y() + p.get_height() for p in self.patches]
+        elif self.orientation == 'horizontal':
+            return [p.get_x() + p.get_width() for p in self.patches]
+        else:
+            raise ValueError("orientation must be 'vertical' or 'horizontal'.")
+
+    @property
+    def position_centers(self):
+        """
+        Return the centers of bar positions.
+
+        .. versionadded:: 3.11
+        """
+        if self.orientation == 'vertical':
+            return [p.get_x() + p.get_width() / 2 for p in self.patches]
+        elif self.orientation == 'horizontal':
+            return [p.get_y() + p.get_height() / 2 for p in self.patches]
+        else:
+            raise ValueError("orientation must be 'vertical' or 'horizontal'.")
+
 
 class ErrorbarContainer(Container):
     """
