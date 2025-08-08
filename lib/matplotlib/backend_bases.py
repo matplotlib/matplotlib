@@ -2578,6 +2578,9 @@ def scroll_handler(event, canvas=None, toolbar=None):
     ax = event.inaxes
     if ax is None:
         return
+    if ax.name != "rectilinear":
+        # zooming is currently only supported on rectilinear axes
+        return
 
     if toolbar is None:
         if canvas is None:
