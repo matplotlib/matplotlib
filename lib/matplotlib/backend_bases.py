@@ -2583,9 +2583,7 @@ def scroll_handler(event, canvas=None, toolbar=None):
         return
 
     if toolbar is None:
-        if canvas is None:
-            canvas = event.canvas
-        toolbar = canvas.toolbar
+        toolbar = (canvas or event.canvas).toolbar
 
     if toolbar is None or toolbar.mode == _Mode.NONE:
         return
