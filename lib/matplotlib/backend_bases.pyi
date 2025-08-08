@@ -409,8 +409,8 @@ def button_press_handler(
 ) -> None: ...
 def scroll_handler(
     event: MouseEvent,
-        canvas: FigureCanvasBase | None = ...,
-        toolbar: NavigationToolbar2 | None = ...,
+    canvas: FigureCanvasBase | None = ...,
+    toolbar: NavigationToolbar2 | None = ...,
 ) -> None: ...
 
 class NonGuiException(Exception): ...
