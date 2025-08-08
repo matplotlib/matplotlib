@@ -31,25 +31,31 @@ else
 endif
 
 if get_option('system-libraqm')
-  libraqm_dep = dependency('raqm', version: '>=0.10.2')
+  libraqm_dep = dependency('raqm', version: '>=0.10.3')
 else
-  LOCAL_LIBRAQM_VERSION = '0.10.2'
-
   subproject('harfbuzz',
     default_options: [
       'default_library=static',
+      'cairo=disabled',
+      'coretext=disabled',
+      'directwrite=disabled',
+      'fontations=disabled',
       'freetype=enabled',
+      'gdi=disabled',
       'glib=disabled',
       'gobject=disabled',
-      'cairo=disabled',
+      'harfruzz=disabled',
       'icu=disabled',
       'tests=disabled',
     ]
   )
   subproject('sheenbidi', default_options: ['default_library=static'])
-  libraqm_proj = subproject(
-    f'libraqm-@LOCAL_LIBRAQM_VERSION@',
-    default_options: ['default_library=static', 'sheenbidi=true'])
+  libraqm_proj = subproject('libraqm-0.10.3',
+    default_options: [
+      'default_library=static',
+      'sheenbidi=true',
+    ]
+  )
   libraqm_dep = libraqm_proj.get_variable('libraqm_dep')
 endif
 
