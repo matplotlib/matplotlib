@@ -1177,7 +1177,7 @@ def test_check_buttons(fig_test, fig_ref):
 
 @check_figures_equal()
 def test_check_button_props(fig_test, fig_ref):
-    label_props = {'color': ['red'], 'fontsize': [24]}
+    label_props = {'color': 'red', 'fontsize': 24}
     frame_props = {'facecolor': 'green', 'edgecolor': 'blue', 'linewidth': 2}
     check_props = {'facecolor': 'red', 'linewidth': 2}
 

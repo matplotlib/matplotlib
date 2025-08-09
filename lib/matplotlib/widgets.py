@@ -1017,7 +1017,11 @@ class CheckButtons(AxesWidget):
             .. versionadded:: 3.7
 
         label_props : dict, optional
-            Dictionary of `.Text` properties to be used for the labels.
+            Dictionary of `.Text` properties to be used for the labels. Per dict
+            key, if the value is a list or a tuple, its length should be the
+            amount of labels, and then a value per label is set. If the dict's
+            value is not a list or a tuple, the same property value is applied
+            to all labels
 
             .. versionadded:: 3.7
         frame_props : dict, optional
@@ -1050,12 +1054,12 @@ class CheckButtons(AxesWidget):
 
         ys = np.linspace(1, 0, len(labels)+2)[1:-1]
 
-        label_props = _expand_text_props(label_props)
         self.labels = [
             ax.text(0.25, y, label, transform=ax.transAxes,
                     horizontalalignment="left", verticalalignment="center",
-                    **props)
-            for y, label, props in zip(ys, labels, label_props)]
+                    )
+            for y, label in zip(ys, labels)]
+        self.set_label_props(label_props)
         text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         frame_props = {
@@ -1117,12 +1121,26 @@ class CheckButtons(AxesWidget):
         Parameters
         ----------
         props : dict
-            Dictionary of `.Text` properties to be used for the labels.
+            Dictionary of `.Text` properties, just like `label_props` argument
+            of __init__ function.
         """
         _api.check_isinstance(dict, props=props)
         props = _expand_text_props(props)
-        for text, prop in zip(self.labels, props):
-            text.update(prop)
+        for propk,propv in props.items():
+            if isinstance(propv, (list, tuple)):
+                if len(propv) != len(self.labels):
+                    raise ValueError(
+                        f"When setting labels' property {propk}, we "
+                        f"encountered a {type(propv)} as a label dict value, "
+                        "with a length different from the amount of labels. "
+                        "Please use a single value, or a list of values per "
+                        "label."
+                    )
+                for text,propv_single in zip(self.labels, propv):
+                    text.update({propk: propv_single})
+            else:
+                for text in self.labels:
+                    text.update({propk: propv})
 
     def set_frame_props(self, props):
         """
