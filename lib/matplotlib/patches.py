@@ -2543,7 +2543,9 @@ class BoxStyle(_Style):
             dx = (y1 - y0) / 2
             dxx = dx / 2
 
-            x0 += pad / 1.4  # adjust by ~sqrt(2)
+            # Pad text to position text and its padding margin exactly inside arrow tail
+            padding_offset = (0.5 * pad) + (0.25 * mutation_size)
+            x0 -= padding_offset
 
             # The width adjustment is the distance that must be subtracted from
             # y0 and added to y1 to reach the non-tip vertices of the head.
@@ -2567,26 +2569,14 @@ class BoxStyle(_Style):
                 # (dx+width_adjustment)/(dxx+angle_adjustment).
                 angle_adjustment = ((dx + width_adjustment) / tan_half_angle) - dxx
 
-                # Check padding; the left end of the text should have a minimum
-                # clearance of pad from the head
-                if -width_adjustment < pad:
-                    # Only do this if the text fits into the head
-                    text_clearance = (width_adjustment / tan_half_angle) + \
-                        pad * ((1 / tan_half_angle) - 1)
+                # If there is sufficient space available, shorten the arrow tail to push
+                # some of the text padding margin into the head
+                if self.head_width > 1 and pad * tan_half_angle < width_adjustment:
+                    # Pad text into head
+                    x0 += pad
 
-                    if text_clearance < pad:
-                        # Lengthen arrow body to accommodate text
-                        x0 += text_clearance - pad
-                else:
-                    # Pad away from head straight-edge
-
-                    a, b = 1.214, 0.250  # Empirical factors
-                    padding_offset = (a * pad) + (b * mutation_size)
-
-                    x0 -= padding_offset
-
-                return Path._create_closed(
-                    [(x0 + dxx, y0),
+                return Path._create_closed([
+                    (x0 + dxx, y0),
                     (x1, y0),
                     (x1, y1),
                     (x0 + dxx, y1),
@@ -2597,14 +2587,6 @@ class BoxStyle(_Style):
                 ])
             else:
                 # Reversed arrow head (>---)
-
-                # Distance to pad x0 by, in order to ensure consistent spacing
-                a, b = 1.214, 0.250  # Empirical factors
-                padding_offset = (a * pad) + (b * mutation_size)
-
-                # No arrow head available for enclosed text to spill over into; add
-                # padding to left of text
-                x0 -= padding_offset
 
                 # tan(1/2 * angle subtended by arrow tip)
                 tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))
@@ -2704,7 +2686,10 @@ class BoxStyle(_Style):
             dx = (y1 - y0) / 2
             dxx = dx / 2
 
-            x0 += pad / 1.4  # adjust by ~sqrt(2)
+            # Pad text
+            padding_offset = (0.5 * pad) + (0.25 * mutation_size)
+            x0 -= padding_offset
+            x1 += padding_offset
 
             # The width adjustment is the distance that must be subtracted from
             # y0 and added to y1 to reach the non-tip vertices of the head.
@@ -2728,25 +2713,12 @@ class BoxStyle(_Style):
                 # (dx+width_adjustment)/(dxx+angle_adjustment).
                 angle_adjustment = ((dx + width_adjustment) / tan_half_angle) - dxx
 
-                # Check padding; the ends of the text should have a minimum
-                # clearance of pad from the heads
-                if -width_adjustment < pad:
-                    # Only do this if the text fits into the head
-                    text_clearance = (width_adjustment / tan_half_angle) + \
-                        pad * ((1 / tan_half_angle) - 1)
-
-                    if text_clearance < pad:
-                        # Lengthen arrow body to accommodate text
-                        x0 -= pad - text_clearance
-                        x1 += pad - text_clearance
-                else:
-                    # Pad away from head straight-edges
-
-                    a, b = 1.214, 0.250  # Empirical factors
-                    padding_offset = (a * pad) + (b * mutation_size)
-
-                    x0 -= padding_offset
-                    x1 += padding_offset
+                # If there is sufficient space available, shorten the arrow tail to push
+                # some of the text padding margin into the heads
+                if self.head_width > 1 and pad * tan_half_angle < width_adjustment:
+                    # Pad text into heads
+                    x0 += pad
+                    x1 -= pad
 
                 return Path._create_closed([
                     (x0 + dxx, y0),
@@ -2763,15 +2735,6 @@ class BoxStyle(_Style):
                 ])
             else:
                 # Reversed arrow heads (>---<)
-
-                # Distance to pad x0 and x1 by, in order to ensure consistent spacing
-                a, b = 1.214, 0.250  # Empirical factors
-                padding_offset = (a * pad) + (b * mutation_size)
-
-                # No arrow head available for enclosed text to spill over into; add
-                # padding to both sides of text
-                x0 -= padding_offset
-                x1 += padding_offset
 
                 # tan(1/2 * angle subtended by arrow tip)
                 tan_half_angle = -np.tan(self.head_angle * (math.pi / 360))

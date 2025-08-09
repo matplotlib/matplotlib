@@ -65,7 +65,7 @@ def test_boxarrow_adjustment():
     ]
 
     # Horizontal and vertical spacings of arrow centres
-    spacing_horizontal = 3.5
+    spacing_horizontal = 3.75
     spacing_vertical = 1.6
 
     # Numbers of styles and cases
