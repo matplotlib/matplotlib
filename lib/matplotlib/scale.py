@@ -75,12 +75,13 @@ class ScaleBase:
         The following note is for scale implementers.
 
         For back-compatibility reasons, scales take an `~matplotlib.axis.Axis`
-        object as first argument. We plan to remove it in the future, because
-        we want to make a scale object usable by multiple
-        `~matplotlib.axis.Axis`\es at the same time.
+        object as first argument. 
 
         The current recommendation for `.ScaleBase` subclasses is to have the
-        *axis* parameter for API compatibility, but not make use of it.
+        *axis* parameter for API compatibility, but not make use of it. This is
+        because we plan to remove this argument to make a scale object usable
+        by multiple `~matplotlib.axis.Axis`\es at the same time.
+
         """
 
     def get_transform(self):
