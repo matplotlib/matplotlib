@@ -75,7 +75,7 @@ class ScaleBase:
         The following note is for scale implementers.
 
         For back-compatibility reasons, scales take an `~matplotlib.axis.Axis`
-        object as first argument. 
+        object as the first argument. 
 
         The current recommendation for `.ScaleBase` subclasses is to have the
         *axis* parameter for API compatibility, but not make use of it. This is
@@ -242,8 +242,8 @@ class FuncScale(ScaleBase):
             The axis for the scale.
 
             .. note::
-                This parameter is unused and about to be removed in the future.
-                It can already now be left out because of special preprocessing,
+                This parameter is unused and will be removed in an imminent release.
+                It can already be left out because of special preprocessing,
                 so that ``FuncScale(functions)`` is valid.
 
         functions : (callable, callable)
