@@ -9888,7 +9888,6 @@ def test_bar_shape_mismatch():
 
 
 def test_caps_color():
-
     # Creates a simple plot with error bars and a specified ecolor
     x = np.linspace(0, 10, 10)
     mpl.rcParams['lines.markeredgecolor'] = 'green'
@@ -9903,7 +9902,6 @@ def test_caps_color():
 
 
 def test_caps_no_ecolor():
-
     # Creates a simple plot with error bars without specifying ecolor
     x = np.linspace(0, 10, 10)
     mpl.rcParams['lines.markeredgecolor'] = 'green'

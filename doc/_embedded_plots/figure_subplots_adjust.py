@@ -7,8 +7,8 @@ fig.subplots_adjust(0.1, 0.1, 0.9, 0.9, 0.4, 0.4)
 
 overlay = fig.add_axes([0, 0, 1, 1], zorder=100)
 overlay.axis("off")
-xycoords='figure fraction'
-arrowprops=dict(arrowstyle="<->", shrinkA=0, shrinkB=0)
+xycoords = 'figure fraction'
+arrowprops = dict(arrowstyle="<->", shrinkA=0, shrinkB=0)
 
 for ax in axs.flat:
     ax.set(xticks=[], yticks=[])
