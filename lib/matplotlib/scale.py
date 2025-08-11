@@ -75,7 +75,7 @@ class ScaleBase:
         The following note is for scale implementers.
 
         For back-compatibility reasons, scales take an `~matplotlib.axis.Axis`
-        object as the first argument. 
+        object as the first argument.
 
         The current recommendation for `.ScaleBase` subclasses is to have the
         *axis* parameter for API compatibility, but not make use of it. This is
