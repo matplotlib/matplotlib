@@ -2084,7 +2084,7 @@ or callable, default: value of *xycoords*
 
 
     def _check_xytext(self, renderer=None):
-        """Check whether the annotation text at *xy_pixel* should be drawn."""
+        """Check whether the annotation text at *xy_pixel* can be drawn."""
         valid = True
 
         if self.xytext is None:
