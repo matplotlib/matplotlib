@@ -81,7 +81,6 @@ class ScaleBase:
         *axis* parameter for API compatibility, but not make use of it. This is
         because we plan to remove this argument to make a scale object usable
         by multiple `~matplotlib.axis.Axis`\es at the same time.
-
         """
 
     def get_transform(self):
