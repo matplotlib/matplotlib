@@ -737,9 +737,8 @@ class Patch3DCollection(PatchCollection):
         depthshade : bool
             Whether to shade the patches in order to give the appearance of
             depth.
-        depthshade_minalpha : float, default: None
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
             Sets the minimum alpha value used by depth-shading.
-            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
 
             .. versionadded:: 3.11
         """
@@ -1112,17 +1111,15 @@ def patch_collection_2d_to_3d(
     zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
         See `.get_dir_vector` for a description of the values.
-    depthshade : bool, default: None
+    depthshade : bool, default: :rc:`axes3d.depthshade`
         Whether to shade the patches to give a sense of depth.
-        If None, use the value from rcParams['axes3d.depthshade'].
     axlim_clip : bool, default: False
         Whether to hide patches with a vertex outside the axes view limits.
 
         .. versionadded:: 3.10
 
-    depthshade_minalpha : float, default: None
+    depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
         Sets the minimum alpha value used by depth-shading.
-        If None, use the value from rcParams['axes3d.depthshade_minalpha'].
 
         .. versionadded:: 3.11
     """
