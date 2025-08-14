@@ -2198,9 +2198,12 @@ class Axes3D(Axes):
         vmin, vmax : float, optional
             Bounds for the normalization.
 
-        shade : bool, default: True
-            Whether to shade the facecolors.  Shading is always disabled when
-            *cmap* is specified.
+        shade : bool or "auto", default: "auto"
+            Whether to shade the facecolors.  "auto" will shade only if the facecolor is uniform,
+            i.e. neither *cmap* nor *facecolors* is given.
+
+            Furthermore, shading is generally not compatible with colormapping and
+            ``shade=True, cmap=...`` will raise an error.
 
         lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
@@ -2251,8 +2254,10 @@ class Axes3D(Axes):
         fcolors = kwargs.pop('facecolors', None)
 
         cmap = kwargs.get('cmap', None)
-        shade = kwargs.pop('shade', cmap is None)
-        if shade is None:
+        shade = kwargs.pop('shade', "auto")
+        if shade == "auto":
+            shade = cmap is None and fcolors is None
+        elif shade is None:
             raise ValueError("shade cannot be None.")
 
         colset = []  # the sampled facecolor
