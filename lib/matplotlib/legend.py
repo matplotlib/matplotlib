@@ -604,17 +604,14 @@ class Legend(Artist):
                     if isinstance(color, np.ndarray):
                         if color.size == 0:
                             continue
-                        elif (
-                            color.shape[0] == 1
-                            or np.isclose(color, color[0]).all()
-                        ):
+                        elif (color.shape[0] == 1 or np.isclose(color, color[0]).all()):
                             text.set_color(color[0])
                         else:
                             pass
                     elif cbook._str_lower_equal(color, 'none'):
                         continue
                     elif mpl.colors.to_rgba(color)[3] == 0:
-                            continue
+                        continue
                     else:
                         text.set_color(color)
                     break
