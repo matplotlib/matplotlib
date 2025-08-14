@@ -703,7 +703,7 @@ def test_surface3d_masked():
     z = np.ma.masked_less(matrix, 0)
     norm = mcolors.Normalize(vmax=z.max(), vmin=z.min())
     colors = mpl.colormaps["plasma"](norm(z))
-    ax.plot_surface(x, y, z, facecolors=colors)
+    ax.plot_surface(x, y, z, facecolors=colors, shade=True)
     ax.view_init(30, -80, 0)
 
 
