@@ -1,0 +1,17 @@
+3rd party scales do not need to have an *axis* parameter anymore
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since matplotlib 3.1 `PR 12831 <https://github.com/matplotlib/matplotlib/pull/12831>`_
+scale objects should be reusable and therefore independent of any particular Axis.
+Therefore, the use of the *axis* parameter in the ``__init__`` had been discouraged.
+However, having that parameter in the signature was still necessary for API
+backwards-compatibility. This is no longer the case.
+
+`.register_scale` now accepts scale classes with or without this parameter.
+
+The *axis* parameter is pending-deprecated. It will be deprecated in matplotlib 3.13,
+and removed in matplotlib 3.15.
+
+3rd-party scales are recommended to remove the *axis* parameter now if they can
+afford to restrict compatibility to matplotlib >= 3.11 already. Otherwise, they may
+keep the *axis* parameter and remove it in time for matplotlib 3.13.
