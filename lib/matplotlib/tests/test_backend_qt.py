@@ -175,45 +175,30 @@ def test_device_pixel_ratio_change(qt_core):
             assert qt_canvas.device_pixel_ratio == ratio
 
         qt_canvas.manager.show()
+        qt_canvas.draw()
+        qt_canvas.flush_events()
         size = qt_canvas.size()
-        set_device_pixel_ratio(3)
 
-        # The DPI and the renderer width/height change
-        assert fig.dpi == 360
-        assert qt_canvas.renderer.width == 1800
-        assert qt_canvas.renderer.height == 720
+        options = [
+            (None, 360, 1800, 720),  # Use ratio at startup time.
+            (3, 360, 1800, 720),  # Change to same ratio.
+            (2, 240, 1200, 480),  # Change to different ratio.
+            (1.5, 180, 900, 360),  # Fractional ratio.
+        ]
+        for ratio, dpi, width, height in options:
+            if ratio is not None:
+                set_device_pixel_ratio(ratio)
 
-        # The actual widget size and figure logical size don't change.
-        assert size.width() == 600
-        assert size.height() == 240
-        assert qt_canvas.get_width_height() == (600, 240)
-        assert (fig.get_size_inches() == (5, 2)).all()
+            # The DPI and the renderer width/height change
+            assert fig.dpi == dpi
+            assert qt_canvas.renderer.width == width
+            assert qt_canvas.renderer.height == height
 
-        set_device_pixel_ratio(2)
-
-        # The DPI and the renderer width/height change
-        assert fig.dpi == 240
-        assert qt_canvas.renderer.width == 1200
-        assert qt_canvas.renderer.height == 480
-
-        # The actual widget size and figure logical size don't change.
-        assert size.width() == 600
-        assert size.height() == 240
-        assert qt_canvas.get_width_height() == (600, 240)
-        assert (fig.get_size_inches() == (5, 2)).all()
-
-        set_device_pixel_ratio(1.5)
-
-        # The DPI and the renderer width/height change
-        assert fig.dpi == 180
-        assert qt_canvas.renderer.width == 900
-        assert qt_canvas.renderer.height == 360
-
-        # The actual widget size and figure logical size don't change.
-        assert size.width() == 600
-        assert size.height() == 240
-        assert qt_canvas.get_width_height() == (600, 240)
-        assert (fig.get_size_inches() == (5, 2)).all()
+            # The actual widget size and figure logical size don't change.
+            assert size.width() == 600
+            assert size.height() == 240
+            assert qt_canvas.get_width_height() == (600, 240)
+            assert (fig.get_size_inches() == (5, 2)).all()
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
