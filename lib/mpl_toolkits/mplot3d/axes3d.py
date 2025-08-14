@@ -70,7 +70,7 @@ class Axes3D(Axes):
         ----------
         fig : Figure
             The parent figure.
-        rect : tuple (left, bottom, width, height), default: None.
+        rect : tuple (left, bottom, width, height), default: (0, 0, 1, 1)
             The ``(left, bottom, width, height)`` Axes position.
         elev : float, default: 30
             The elevation angle in degrees rotates the camera above and below
@@ -2049,9 +2049,10 @@ class Axes3D(Axes):
             - 'auto': If the points all lie on the same 3D plane, 'polygon' is
               used. Otherwise, 'quad' is used.
 
-        facecolors : list of :mpltype:`color`, default: None
+        facecolors : :mpltype:`color` or list of :mpltype:`color`, optional
             Colors of each individual patch, or a single color to be used for
-            all patches.
+            all patches. If not given, the next color from the patch color
+            cycle is used.
 
         shade : bool, default: None
             Whether to shade the facecolors. If *None*, then defaults to *True*
@@ -2943,15 +2944,13 @@ class Axes3D(Axes):
             - A 2D array in which the rows are RGB or RGBA.
 
             For more details see the *c* argument of `~.axes.Axes.scatter`.
-        depthshade : bool, default: None
+        depthshade : bool, default: :rc:`axes3d.depthshade`
             Whether to shade the scatter markers to give the appearance of
             depth. Each call to ``scatter()`` will perform its depthshading
             independently.
-            If None, use the value from rcParams['axes3d.depthshade'].
 
-        depthshade_minalpha : float, default: None
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
             The lowest alpha value applied by depth-shading.
-            If None, use the value from rcParams['axes3d.depthshade_minalpha'].
 
             .. versionadded:: 3.11
 
@@ -3627,12 +3626,12 @@ class Axes3D(Axes):
             Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : :mpltype:`color`, default: None
-            The color of the errorbar lines.  If None, use the color of the
+        ecolor : :mpltype:`color`, optional
+            The color of the errorbar lines. If not given, use the color of the
             line connecting the markers.
 
-        elinewidth : float, default: None
-            The linewidth of the errorbar lines. If None, the linewidth of
+        elinewidth : float, optional
+            The linewidth of the errorbar lines. If not given, the linewidth of
             the current style is used.
 
         capsize : float, default: :rc:`errorbar.capsize`
