@@ -2892,7 +2892,7 @@ class Axes3D(Axes):
             if isinstance(col, art3d.Line3DCollection):
                 # Handle ragged arrays in Line3DCollection by extracting coordinates separately
                 all_points = np.concatenate(col._segments3d)
-                self.auto_scale_xyz(all_points[:, 0], all_points[:, 1], 
+                self.auto_scale_xyz(all_points[:, 0], all_points[:, 1],
                                     all_points[:, 2], had_data=had_data)
             elif isinstance(col, art3d.Poly3DCollection):
                 self.auto_scale_xyz(col._faces[..., 0],
