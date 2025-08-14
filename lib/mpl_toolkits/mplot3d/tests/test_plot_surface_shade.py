@@ -5,7 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import Normalize
-import pytest
 
 
 def test_plot_surface_auto_shade_with_facecolors():
@@ -21,10 +20,10 @@ def test_plot_surface_auto_shade_with_facecolors():
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    
+
     # Test that when facecolors is provided, shade defaults to False
     surf = ax.plot_surface(X_mesh, Y_mesh, Z, facecolors=colors, edgecolor='none')
-    
+
     # We can't directly check shade attribute, but we can verify the plot works
     # and doesn't crash, which indicates our logic is working
     assert surf is not None
@@ -40,10 +39,10 @@ def test_plot_surface_auto_shade_without_facecolors():
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    
+
     # Test that when no facecolors or cmap is provided, shade defaults to True
     surf = ax.plot_surface(X_mesh, Y_mesh, Z)
-    
+
     assert surf is not None
     plt.close(fig)
 
@@ -57,10 +56,10 @@ def test_plot_surface_auto_shade_with_cmap():
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    
+
     # Test that when cmap is provided, shade defaults to False
     surf = ax.plot_surface(X_mesh, Y_mesh, Z, cmap=cm.viridis)
-    
+
     assert surf is not None
     plt.close(fig)
 
@@ -78,10 +77,10 @@ def test_plot_surface_explicit_shade_with_facecolors():
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    
+
     # Test that explicit shade=True works with facecolors
     surf = ax.plot_surface(X_mesh, Y_mesh, Z, facecolors=colors, shade=True)
-    
+
     assert surf is not None
     plt.close(fig)
 
@@ -95,10 +94,10 @@ def test_plot_surface_explicit_shade_false_without_facecolors():
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    
+
     # Test that explicit shade=False works without facecolors
     surf = ax.plot_surface(X_mesh, Y_mesh, Z, shade=False)
-    
+
     assert surf is not None
     plt.close(fig)
 
@@ -126,7 +125,7 @@ def test_plot_surface_shade_auto_behavior_comprehensive():
     for kwargs, description in test_cases:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        
+
         # All these should work without crashing
         surf = ax.plot_surface(X_mesh, Y_mesh, Z, **kwargs)
         assert surf is not None, f"Failed: {description}"
