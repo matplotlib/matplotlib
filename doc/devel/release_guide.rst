@@ -83,8 +83,11 @@ Micro versions should instead read::
 Check all active milestones for consistency. Older milestones should also backport
 to higher meso versions (e.g. ``v3.6.3`` and ``v3.6-doc`` should backport to both
 ``v3.6.x`` and ``v3.7.x`` once the ``v3.7.x`` branch exists and while PR backports are
-still targeting ``v3.6.x``). Close milestones (and remilestone any issues/PRs) for versions
-which are unlikely to be produced.
+still targeting ``v3.6.x``).
+
+Close milestones for versions that are unlikely to be released, e.g. micro versions of
+older meso releases. Remilestone issues/PRs that are now untagged to the appropriate
+future release milestone.
 
 Create the milestone for the next-next meso release (i.e. ``v3.9.0``, as ``v3.8.0``
 should already exist). While most active items should go in the next meso release,
@@ -296,7 +299,8 @@ it is important to move all branches away from the commit with the tag [#]_::
   git commit --allow-empty
 
 Push the branch to GitHub. This is done prior to pushing the tag as a last step in ensuring
-that the branch was fully up to date::
+that the branch was fully up to date. If it fails, re-fetch and recreate commits and
+tag over an up to date branch::
 
   git push DANGER v3.7.x
 
