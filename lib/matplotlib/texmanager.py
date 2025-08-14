@@ -228,8 +228,6 @@ class TexManager:
             r"\begin{document}",
             r"% The empty hbox ensures that a page is printed even for empty",
             r"% inputs, except when using psfrag which gets confused by it.",
-            r"% matplotlibbaselinemarker is used by dviread to detect the",
-            r"% last line's baseline.",
             rf"\fontsize{{{fontsize}}}{{{baselineskip}}}%",
             r"\ifdefined\psfrag\else\hbox{}\fi%",
             rf"{{{fontcmd} {tex}}}%",
