@@ -865,3 +865,15 @@ def test_contourf_rasterize():
     circle = mpatches.Circle([0.5, 0.5], 0.5, transform=ax.transAxes)
     cs = ax.contourf(data, clip_path=circle, rasterized=True)
     assert cs._rasterized
+
+
+@check_figures_equal(extensions=["png"])
+def test_contour_aliases(fig_test, fig_ref):
+    data = np.arange(100).reshape((10, 10)) ** 2
+    fig_test.add_subplot().contour(data, linestyle=":")
+    fig_ref.add_subplot().contour(data, linestyles="dotted")
+
+
+def test_contour_singular_color():
+    with pytest.raises(TypeError):
+        plt.figure().add_subplot().contour([[0, 1], [2, 3]], color="r")
