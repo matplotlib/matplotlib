@@ -1897,17 +1897,20 @@ def test_multi_norm_creation():
 
     # test wrong input
     with pytest.raises(ValueError,
-                       match="MultiNorm must be assigned multiple norms"):
+                       match="MultiNorm must be assigned an iterable"):
         mcolors.MultiNorm("linear")
     with pytest.raises(ValueError,
-                       match="MultiNorm must be assigned at least two"):
-        mcolors.MultiNorm(["linear"])
+                       match="MultiNorm must be assigned at least one"):
+        mcolors.MultiNorm([])
     with pytest.raises(ValueError,
-                       match="MultiNorm must be assigned multiple norms, "):
+                       match="MultiNorm must be assigned an iterable"):
         mcolors.MultiNorm(None)
     with pytest.raises(ValueError,
                        match="not a valid"):
         mcolors.MultiNorm(["linear", "bad_norm_name"])
+    with pytest.raises(ValueError,
+                       match="Each norm assgned to MultiNorm"):
+        mcolors.MultiNorm(["linear", object()])
 
     norm = mpl.colors.MultiNorm(['linear', 'linear'])
 
@@ -1988,8 +1991,7 @@ def test_mult_norm_call_types():
                           (1.5, 1.75)])
 
     # test structured array as input
-    structured_target = rfn.unstructured_to_structured(target)
-    from_mn= mn(rfn.unstructured_to_structured(vals))
+    from_mn = mn(rfn.unstructured_to_structured(vals))
     assert_array_almost_equal(from_mn,
                               target.T)
 
@@ -2024,8 +2026,8 @@ def test_mult_norm_call_types():
     mn_no_norm = mpl.colors.MultiNorm(['linear', mcolors.NoNorm()])
     no_norm_out = mn_no_norm(rfn.unstructured_to_structured(vals))
     assert_array_almost_equal(no_norm_out,
-                                  [[0., 0.5, 1.],
-                                   [1, 3, 5]])
+                              [[0., 0.5, 1.],
+                               [1, 3, 5]])
 
     # test single int as input
     with pytest.raises(ValueError,
@@ -2040,7 +2042,7 @@ def test_mult_norm_call_types():
     # last axis matches, len(data.shape) > 2
     with pytest.raises(ValueError,
                        match=(r"`data_as_list = \[data\[..., i\] for i in "
-                             r"range\(data.shape\[-1\]\)\]`")):
+                              r"range\(data.shape\[-1\]\)\]`")):
         mn(np.zeros((3, 3, 2)))
 
     # last axis matches, len(data.shape) == 2

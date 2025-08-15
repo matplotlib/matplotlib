@@ -3306,7 +3306,7 @@ class MultiNorm(Norm):
         Parameters
         ----------
         norms : list of (str or `Normalize`)
-            The constituent norms. The list must have a minimum length of 2.
+            The constituent norms. The list must have a minimum length of 1.
         vmin, vmax : None or list of (float or None)
             Limits of the constituent norms.
             If a list, one value is assigned to each of the constituent
@@ -3322,11 +3322,11 @@ class MultiNorm(Norm):
         """
         if cbook.is_scalar_or_string(norms):
             raise ValueError(
-                    "MultiNorm must be assigned multiple norms, where each norm "
-                    f"is of type `str`, or `Normalize`, not {type(norms)}")
+                    "MultiNorm must be assigned an iterable of norms, where each "
+                    f"norm is of type `str`, or `Normalize`, not {type(norms)}")
 
-        if len(norms) < 2:
-            raise ValueError("MultiNorm must be assigned at least two norms")
+        if len(norms) < 1:
+            raise ValueError("MultiNorm must be assigned at least one norm")
 
         def resolve(norm):
             if isinstance(norm, str):
@@ -3336,8 +3336,8 @@ class MultiNorm(Norm):
                 return norm
             else:
                 raise ValueError(
-                    "MultiNorm must be assigned multiple norms, where each norm "
-                    f"is of type `str`, or `Normalize`, not {type(norm)}")
+                    "Each norm assgned to MultiNorm must be "
+                    f"of type `str`, or `Normalize`, not {type(norm)}")
 
         self._norms = tuple(resolve(norm) for norm in norms)
 
@@ -3588,81 +3588,6 @@ class MultiNorm(Norm):
                 )
 
         return tuple(data[i] for i in range(n_elements))
-
-
-    @staticmethod
-    def _ensure_multicomponent_data(data, n_components):
-        """
-        Ensure that the data has dtype with n_components.
-        Input data of shape (n_components, n, m) is converted to an array of shape
-        (n, m) with data type np.dtype(f'{data.dtype}, ' * n_components)
-        Complex data is returned as a view with dtype np.dtype('float64, float64')
-        or np.dtype('float32, float32')
-        If n_components is 1 and data is not of type np.ndarray (i.e. PIL.Image),
-        the data is returned unchanged.
-        If data is None, the function returns None
-
-        Parameters
-        ----------
-        n_components : int
-            Number of components in the data.
-        data : np.ndarray, PIL.Image or None
-
-        Returns
-        -------
-        np.ndarray, PIL.Image or None
-        """
-
-        if isinstance(data, np.ndarray):
-            if len(data.dtype.descr) == n_components:
-                # pass scalar data
-                # and already formatted data
-                return data
-            elif data.dtype in [np.complex64, np.complex128]:
-                # pass complex data
-                if data.dtype == np.complex128:
-                    dt = np.dtype('float64, float64')
-                else:
-                    dt = np.dtype('float32, float32')
-                reconstructed = np.ma.frombuffer(data.data,
-                                                 dtype=dt).reshape(data.shape)
-                if np.ma.is_masked(data):
-                    for descriptor in dt.descr:
-                        reconstructed[descriptor[0]][data.mask] = np.ma.masked
-                return reconstructed
-
-        if n_components > 1 and len(data) == n_components:
-            # convert data from shape (n_components, n, m)
-            # to (n,m) with a new dtype
-            data = [np.ma.array(part, copy=False) for part in data]
-            dt = np.dtype(', '.join([f'{part.dtype}' for part in data]))
-            fields = [descriptor[0] for descriptor in dt.descr]
-            reconstructed = np.ma.empty(data[0].shape, dtype=dt)
-            for i, f in enumerate(fields):
-                if data[i].shape != reconstructed.shape:
-                    raise ValueError("For mutlicomponent data all components must "
-                                     f"have same shape, not {data[0].shape} "
-                                     f"and {data[i].shape}")
-                reconstructed[f] = data[i]
-                if np.ma.is_masked(data[i]):
-                    reconstructed[f][data[i].mask] = np.ma.masked
-            return reconstructed
-
-        if data is None:
-            return data
-
-        if n_components == 1:
-            # PIL.Image also gets passed here
-            return data
-
-        elif n_components == 2:
-            raise ValueError("Invalid data entry for mutlicomponent data. The data "
-                             "must contain complex numbers, or have a first dimension "
-                             "2, or be of a dtype with 2 fields")
-        else:
-            raise ValueError("Invalid data entry for mutlicomponent data. The shape "
-                             f"of the data must have a first dimension {n_components} "
-                             f"or be of a dtype with {n_components} fields")
 
 
 def rgb_to_hsv(arr):
