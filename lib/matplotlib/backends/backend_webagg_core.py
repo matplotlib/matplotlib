@@ -178,6 +178,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # Track mouse events to fill in the x, y position of key events.
         self._last_mouse_xy = (None, None)
 
+        # Control whether scroll events prevent default browser behavior
+        self._capture_scroll = False
+
     def show(self):
         # show the figure window
         from matplotlib.pyplot import show
@@ -223,6 +226,28 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         if self._current_image_mode != mode:
             self._current_image_mode = mode
             self.handle_send_image_mode(None)
+
+    def set_capture_scroll(self, capture):
+        """
+        Set whether the scroll events on the canvas will scroll the page.
+
+        Parameters
+        ----------
+        capture : bool
+        """
+        if self._capture_scroll != capture:
+            self._capture_scroll = capture
+            self.send_event("capture_scroll", capture_scroll=capture)
+
+    def get_capture_scroll(self):
+        """
+        Get whether scroll events are currently captured by the canvas.
+
+        Returns
+        -------
+        bool
+        """
+        return self._capture_scroll
 
     def get_diff_image(self):
         if self._png_is_old:
@@ -335,6 +360,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # Normal toolbar init would refresh this, but it happens before the
             # browser canvas is set up.
             self.toolbar.set_history_buttons()
+        # Send the current capture_scroll state to newly connected clients
+        self.send_event('capture_scroll', capture_scroll=self._capture_scroll)
         self.draw_idle()
 
     def handle_resize(self, event):
