@@ -329,3 +329,23 @@ testpaths = ["lib"]
 addopts = [
     "--import-mode=importlib",
 ]
+
+[tool.cibuildwheel.pyodide]
+test-requires = "pytest"
+test-command = [
+    # Wheels are built without test images, so copy them into the testing directory.
+    "basedir=$(python -c 'import pathlib, matplotlib; print(pathlib.Path(matplotlib.__file__).parent.parent)')",
+    "cp -a {package}/lib/matplotlib/tests/data $basedir/matplotlib/tests/",
+    """
+    for subdir in matplotlib mpl_toolkits/axes_grid1 mpl_toolkits/axisartist mpl_toolkits/mplot3d; do
+        cp -a {package}/lib/${subdir}/tests/baseline_images $basedir/${subdir}/tests/
+    done""",
+    # Test installed, not repository, copy as we aren't using an editable install.
+    "pytest -p no:cacheprovider --pyargs matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d",
+]
+[tool.cibuildwheel.pyodide.environment]
+# Exceptions are needed for pybind11:
+# https://github.com/pybind/pybind11/pull/5298
+CFLAGS = "-fexceptions"
+CXXFLAGS = "-fexceptions"
+LDFLAGS = "-fexceptions"
