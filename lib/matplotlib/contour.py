@@ -602,7 +602,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                  hatches=(None,), alpha=None, origin=None, extent=None,
                  cmap=None, colors=None, norm=None, vmin=None, vmax=None,
                  colorizer=None, extend='neither', antialiased=None, nchunk=0,
-                 locator=None, transform=None, negative_linestyles=None, clip_path=None,
+                 locator=None, transform=None, negative_linestyles=None,
                  **kwargs):
         """
         Draw contour lines or filled regions, depending on
@@ -656,7 +656,6 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         super().__init__(
             antialiaseds=antialiased,
             alpha=alpha,
-            clip_path=clip_path,
             transform=transform,
             colorizer=colorizer,
         )
@@ -671,6 +670,9 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         self.nchunk = nchunk
         self.locator = locator
+
+        if "color" in kwargs:
+            raise _api.kwarg_error("ContourSet.__init__", "color")
 
         if colorizer:
             self._set_colorizer_check_keywords(colorizer, cmap=cmap,
@@ -764,23 +766,18 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 _api.warn_external('linewidths is ignored by contourf')
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
-            self.set(
-                edgecolor="none",
-                # Default zorder taken from Collection
-                zorder=kwargs.pop("zorder", 1),
-                rasterized=kwargs.pop("rasterized", False),
-            )
-
+            self.set(edgecolor="none")
         else:
             self.set(
                 facecolor="none",
                 linewidths=self._process_linewidths(linewidths),
                 linestyle=self._process_linestyles(linestyles),
+                label="_nolegend_",
                 # Default zorder taken from LineCollection, which is higher
                 # than for filled contours so that lines are displayed on top.
-                zorder=kwargs.pop("zorder", 2),
-                label="_nolegend_",
+                zorder=2,
             )
+        self.set(**kwargs)  # Let user-set values override defaults.
 
         self.axes.add_collection(self, autolim=False)
         self.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
@@ -789,12 +786,6 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         self.axes.autoscale_view(tight=True)
 
         self.changed()  # set the colors
-
-        if kwargs:
-            _api.warn_external(
-                'The following kwargs were not used by contour: ' +
-                ", ".join(map(repr, kwargs))
-            )
 
     allsegs = property(lambda self: [
         [subp.vertices for subp in p._iter_connected_components()]
