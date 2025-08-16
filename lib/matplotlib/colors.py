@@ -2343,7 +2343,7 @@ class Norm(ABC):
         """
         The number of normalized components.
 
-        This is number of elements of the parameter to ``__call__`` and of
+        This is the number of elements of the parameter to ``__call__`` and of
         *vmin*, *vmax*.
         """
         pass
@@ -2563,7 +2563,7 @@ class Normalize(Norm):
         """
         The number of distinct components supported (1).
 
-        This is number of elements of the parameter to ``__call__`` and of
+        This is the number of elements of the parameter to ``__call__`` and of
         *vmin*, *vmax*.
 
         This class support only a single component, as opposed to `MultiNorm`
@@ -3336,7 +3336,7 @@ class MultiNorm(Norm):
                 return norm
             else:
                 raise ValueError(
-                    "Each norm assgned to MultiNorm must be "
+                    "Each norm assigned to MultiNorm must be "
                     f"of type `str`, or `Normalize`, not {type(norm)}")
 
         self._norms = tuple(resolve(norm) for norm in norms)
@@ -3433,7 +3433,7 @@ class MultiNorm(Norm):
             The input data, as an iterable or a structured numpy array.
 
             - If iterable, must be of length `n_components`. Each element can be a
-              scalar or array-like and is normalized through the correspong norm.
+              scalar or array-like and is normalized through the corresponding norm.
             - If structured array, must have `n_components` fields. Each field
               is normalized through the corresponding norm.
 
@@ -3475,7 +3475,7 @@ class MultiNorm(Norm):
             The input data, as an iterable or a structured numpy array.
 
             - If iterable, must be of length `n_components`. Each element can be a
-              scalar or array-like and is mapped through the correspong norm.
+              scalar or array-like and is mapped through the corresponding norm.
             - If structured array, must have `n_components` fields. Each field
               is mapped through the the corresponding norm.
 

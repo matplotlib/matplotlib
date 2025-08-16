@@ -1909,7 +1909,7 @@ def test_multi_norm_creation():
                        match="not a valid"):
         mcolors.MultiNorm(["linear", "bad_norm_name"])
     with pytest.raises(ValueError,
-                       match="Each norm assgned to MultiNorm"):
+                       match="Each norm assigned to MultiNorm"):
         mcolors.MultiNorm(["linear", object()])
 
     norm = mpl.colors.MultiNorm(['linear', 'linear'])
