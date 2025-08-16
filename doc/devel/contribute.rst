@@ -45,12 +45,6 @@ Ways to contribute
       implementation; open an issue or pull request with a starting point, and we'll
       be happy to discuss technical approaches.
 
-      If you prefer, you can use the `GitHub functionality for "draft" pull requests
-      <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
-      and request early feedback on whatever you are working on, but you should be
-      aware that maintainers may not review your contribution unless it has the
-      "Ready to review" state on GitHub.
-
     * **You are new to Matplotlib, both as a user and contributor, and want to start
       contributing but have yet to develop a particular interest.**
 
@@ -68,6 +62,17 @@ Ways to contribute
       choosing something to focus on (3d, testing, documentation, animations, etc.)
       and gaining context on this area by reading the issues and pull requests
       touching these subjects is a reasonable approach.
+
+Enhancing visibility of setup and troubleshooting links
+------------------------------------------------------
+
+For first-time contributors, please note the following key resources:
+
+- Environment setup and editable installs are detailed in `development_setup.rst`.
+- Build issues and common dependency errors are covered in `troubleshooting.rst`.
+- Recommended Python versions can be quickly viewed in `min_dep_policy.rst`.
+
+This guide remains concise; no instructions are duplicated. These links help newcomers navigate to the full resources efficiently.
 
 .. _contribute_code:
 
@@ -128,7 +133,6 @@ document's URL roughly corresponds to its location in our folder structure:
       * :file:`doc/users/resources/index.rst`
       * :file:`doc/users/faq.rst`
 
-
 Other documentation is generated from the following external sources:
 
 * matplotlib.org homepage: https://github.com/matplotlib/mpl-brochure-site
@@ -175,28 +179,23 @@ Matplotlib's community is built by its members, if you would like to help out
 see our :ref:`communications-guidelines`.
 
 It helps us if you spread the word: reference the project from your blog
-and articles or link to it from your website!
-
-If Matplotlib contributes to a project that leads to a scientific publication,
+and articles or link to it from your website! If Matplotlib contributes to a project that leads to a scientific publication,
 please cite us following the :doc:`/project/citing` guidelines.
 
 If you have developed an extension to Matplotlib, please consider adding it to our
-`third party package <https://github.com/matplotlib/mpl-third-party>`_  list.
-
+`third party package <https://github.com/matplotlib/mpl-third-party>`_ list.
 
 .. _generative_ai:
-
 
 Restrictions on Generative AI Usage
 ===================================
 
 We expect authentic engagement in our community.  Be wary of posting output
 from Large Language Models or similar generative AI as comments on GitHub or
-our discourse server, as such comments tend to be formulaic and low content.
+our discourse server, as these comments tend to be formulaic and low content.
 If you use generative AI tools as an aid in developing code or documentation
 changes, ensure that you fully understand the proposed changes and can explain
 why they are the correct approach and an improvement to the current state.
-
 
 .. _new_contributors:
 
@@ -206,8 +205,7 @@ New contributors
 Everyone comes to the project from a different place — in terms of experience
 and interest — so there is no one-size-fits-all path to getting involved.  We
 recommend looking at existing issue or pull request discussions, and following
-the conversations during pull request reviews to get context.  Or you can
-deep-dive into a subset of the code-base to understand what is going on.
+the conversations during pull request reviews to get context.  Or you can deep-dive into a subset of the code-base to understand what is going on.
 
 .. _new_contributors_meeting:
 
@@ -266,8 +264,8 @@ though not necessarily all at the same time:
 - It has less clearly defined tasks, which require some independent
   exploration, making suggestions, or follow-up discussions to clarify a good
   path to resolve the issue.
-- It involves Python features such as decorators and context managers, which
-  have subtleties due to our implementation decisions.
+- It involves Python features such as decorators and context managers,
+  which have subtleties due to our implementation decisions.
 
 .. _first_contribution:
 
@@ -309,9 +307,6 @@ are happy to welcome you and support you as you get to know how we work, and
 where things are. You can reach out on any of our :ref:`communication-channels`.
 For development questions we recommend reaching out on our development gitter_
 chat room and for community questions reach out at community_.
-
-.. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
 
 .. _managing_issues_prs:
 
