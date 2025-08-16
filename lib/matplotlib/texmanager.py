@@ -276,11 +276,9 @@ class TexManager:
 
         Return the file name.
         """
-        basefile = cls.get_basefile(tex, fontsize)
-        dvifile = '%s.dvi' % basefile
-        if not os.path.exists(dvifile):
-            texfile = Path(cls.make_tex(tex, fontsize))
-            # Generate the dvi in a temporary directory to avoid race
+        dvifile = Path(cls.get_basefile(tex, fontsize)).with_suffix(".dvi")
+        if not dvifile.exists():
+            # Generate the tex and dvi in a temporary directory to avoid race
             # conditions e.g. if multiple processes try to process the same tex
             # string at the same time.  Having tmpdir be a subdirectory of the
             # final output dir ensures that they are on the same filesystem,
@@ -289,15 +287,17 @@ class TexManager:
             # the absolute path may contain characters (e.g. ~) that TeX does
             # not support; n.b. relative paths cannot traverse parents, or it
             # will be blocked when `openin_any = p` in texmf.cnf).
-            cwd = Path(dvifile).parent
-            with TemporaryDirectory(dir=cwd) as tmpdir:
-                tmppath = Path(tmpdir)
+            with TemporaryDirectory(dir=dvifile.parent) as tmpdir:
+                Path(tmpdir, "file.tex").write_text(
+                    cls._get_tex_source(tex, fontsize), encoding='utf-8')
                 cls._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
-                     f"--output-directory={tmppath.name}",
-                     f"{texfile.name}"], tex, cwd=cwd)
-                (tmppath / Path(dvifile).name).replace(dvifile)
-        return dvifile
+                     "file.tex"], tex, cwd=tmpdir)
+                Path(tmpdir, "file.dvi").replace(dvifile)
+                # Also move the tex source to the main cache directory, but
+                # only for backcompat.
+                Path(tmpdir, "file.tex").replace(dvifile.with_suffix(".tex"))
+        return str(dvifile)
 
     @classmethod
     def make_png(cls, tex, fontsize, dpi):
@@ -306,22 +306,23 @@ class TexManager:
 
         Return the file name.
         """
-        basefile = cls.get_basefile(tex, fontsize, dpi)
-        pngfile = '%s.png' % basefile
+        pngfile = Path(cls.get_basefile(tex, fontsize, dpi)).with_suffix(".png")
         # see get_rgba for a discussion of the background
-        if not os.path.exists(pngfile):
+        if not pngfile.exists():
             dvifile = cls.make_dvi(tex, fontsize)
-            cmd = ["dvipng", "-bg", "Transparent", "-D", str(dpi),
-                   "-T", "tight", "-o", pngfile, dvifile]
-            # When testing, disable FreeType rendering for reproducibility; but
-            # dvipng 1.16 has a bug (fixed in f3ff241) that breaks --freetype0
-            # mode, so for it we keep FreeType enabled; the image will be
-            # slightly off.
-            if (getattr(mpl, "_called_from_pytest", False) and
-                    mpl._get_executable_info("dvipng").raw_version != "1.16"):
-                cmd.insert(1, "--freetype0")
-            cls._run_checked_subprocess(cmd, tex)
-        return pngfile
+            with TemporaryDirectory(dir=pngfile.parent) as tmpdir:
+                cmd = ["dvipng", "-bg", "Transparent", "-D", str(dpi),
+                       "-T", "tight", "-o", "file.png", dvifile]
+                # When testing, disable FreeType rendering for reproducibility;
+                # but dvipng 1.16 has a bug (fixed in f3ff241) that breaks
+                # --freetype0 mode, so for it we keep FreeType enabled; the
+                # image will be slightly off.
+                if (getattr(mpl, "_called_from_pytest", False) and
+                        mpl._get_executable_info("dvipng").raw_version != "1.16"):
+                    cmd.insert(1, "--freetype0")
+                cls._run_checked_subprocess(cmd, tex, cwd=tmpdir)
+                Path(tmpdir, "file.png").replace(pngfile)
+        return str(pngfile)
 
     @classmethod
     def get_grey(cls, tex, fontsize=None, dpi=None):
