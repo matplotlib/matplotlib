@@ -1863,7 +1863,7 @@ or callable, default: value of *xycoords*
                                  xy,
                                  xycoords=xycoords,
                                  annotation_clip=annotation_clip)
-        self.xytext = xytext
+        self._xytext = xytext
         # warn about wonky input data
         if (xytext is None and
                 textcoords is not None and
