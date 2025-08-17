@@ -1632,6 +1632,34 @@ class _AnnotationBase:
             return self.axes.contains_point(xy_pixel)
         return True
 
+    def _check_xytext(self, renderer=None):
+        """Check whether the annotation text at *xy_pixel* can be drawn."""
+        valid = True
+
+        if self._xytext is None:
+            return valid
+
+        try:
+            # transforming the coordinates
+            coords = np.array(self.get_transform().transform(self._xytext))
+            valid = not np.isnan(coords).any() and np.isfinite(coords).all()
+            # DEBUG
+            print("###")
+            print(coords)
+        except TypeError:
+            # If transformation fails, check raw coordinates
+            if all(isinstance(xyt, numbers.Number) for xyt in self._xytext):
+                is_numerical = not np.isnan(self._xytext).any()
+                finite = np.isfinite(self._xytext).all()
+                valid = is_numerical and finite
+            else:
+                # For non-number coordinates (like units), assume valid
+                valid = True
+
+        if not valid:
+            raise ValueError("xytext coordinates must be finite numbers")
+        return valid
+
     def draggable(self, state=None, use_blit=False):
         """
         Set whether the annotation is draggable with the mouse.
@@ -2032,13 +2060,13 @@ or callable, default: value of *xycoords*
 
         visible = self.get_visible() and self._check_xy(renderer)
 
-        self._check_xytext()
 
         if not visible:
             return
         # Update text positions before `Text.draw` would, so that the
         # FancyArrowPatch is correctly positioned.
         self.update_positions(renderer)
+        self._check_xytext()
         self.update_bbox_position_size(renderer)
         if self.arrow_patch is not None:  # FancyArrowPatch
             if (self.arrow_patch.get_figure(root=False) is None and
@@ -2055,7 +2083,6 @@ or callable, default: value of *xycoords*
         # set the renderer before calling update_positions().
         visible = self.get_visible() and self._check_xy(renderer)
 
-        self._check_xytext()
 
         if not visible:
             return Bbox.unit()
@@ -2067,6 +2094,7 @@ or callable, default: value of *xycoords*
             raise RuntimeError('Cannot get window extent without renderer')
 
         self.update_positions(self._renderer)
+        self._check_xytext()
 
         text_bbox = Text.get_window_extent(self)
         bboxes = [text_bbox]
@@ -2083,29 +2111,4 @@ or callable, default: value of *xycoords*
         return super().get_tightbbox(renderer)
 
 
-    def _check_xytext(self, renderer=None):
-        """Check whether the annotation text at *xy_pixel* can be drawn."""
-        valid = True
-
-        if self.xytext is None:
-            return valid
-
-        try:
-            # transforming the coordinates
-            coords = np.array(self.get_transform().transform(self.xytext))
-            if all(isinstance(xyt, numbers.Number) for xyt in coords):
-                valid = not np.isnan(coords).any() and np.isfinite(coords).all()
-        except TypeError:
-            # If transformation fails, check raw coordinates
-            if all(isinstance(xyt, numbers.Number) for xyt in self.xytext):
-                is_numerical = not np.isnan(self.xytext).any()
-                finite = np.isfinite(self.xytext).all()
-                valid = is_numerical and finite
-            else:
-                # For non-number coordinates (like units), assume valid
-                valid = True
-
-        if not valid:
-            raise ValueError("xytext coordinates must be finite numbers")
-        return valid
 _docstring.interpd.register(Annotation=Annotation.__init__.__doc__)
