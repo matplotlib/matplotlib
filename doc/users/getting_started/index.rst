@@ -22,6 +22,12 @@ Installation quick-start
 
             conda install -c conda-forge matplotlib
 
+.. note::
+
+   It is recommended to install Matplotlib inside a virtual environment
+   (using ``python -m venv <envname>`` or ``conda create --name <envname>``),
+   so that dependencies are managed cleanly and do not interfere with other projects.
+
 Further details are available in the :doc:`Installation Guide </install/index>`.
 
 
@@ -41,15 +47,19 @@ Here is a minimal example plot:
    y = np.sin(x)
 
    fig, ax = plt.subplots()
-   ax.plot(x, y)
+   ax.plot(x, y, label="sin(x)")
+   ax.set_title("A Simple Sine Curve")
+   ax.set_xlabel("x values (radians)")
+   ax.set_ylabel("sin(x)")
+   ax.legend()
    plt.show()
 
 If a plot does not show up please check :ref:`troubleshooting-faq`.
 
+
 Where to go next
 ----------------
 
-- Check out :doc:`Plot types </plot_types/index>` to get an overview of the
-  types of plots you can create with Matplotlib.
-- Learn Matplotlib from the ground up in the :ref:`Quick-start guide
-  <quick_start>`.
+- Explore different :doc:`Plot types </plot_types/index>` available in Matplotlib.
+- For a more detailed introduction, see the :ref:`Quick-start guide <quick_start>`.
+- Browse the :doc:`Gallery </gallery/index>` for many examples you can copy and modify.
