@@ -1,0 +1,69 @@
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
+# Create figure and axis
+fig, ax = plt.subplots(figsize=(12, 10))
+
+# Room dimensions (converted to meters for better scaling)
+room_width = 4.27
+room_depth = 3.23
+
+# Draw room
+ax.add_patch(patches.Rectangle((0, 0), room_width, room_depth, fill=False, edgecolor='black', linewidth=2))
+ax.text(room_width/2, room_depth/2, f'Izba\n{427}x{323}cm', ha='center', va='center', fontsize=12, weight='bold')
+
+# Draw door (on the longer wall)
+door_width = 0.95
+ax.add_patch(patches.Rectangle((0, 0.5), 0, door_width, fill=True, edgecolor='brown', facecolor='lightyellow', linewidth=2))
+ax.text(-0.1, 0.5+door_width/2, 'Dvere\n95cm', ha='right', va='center', fontsize=10)
+
+# Draw window (on the right wall)
+window_width = 1.72
+ax.add_patch(patches.Rectangle((room_width, 1.0), 0, window_width, fill=True, edgecolor='blue', facecolor='lightblue', linewidth=2))
+ax.text(room_width+0.1, 1.0+window_width/2, 'Okno\n172cm', ha='left', va='center', fontsize=10)
+
+# Draw furniture with exact dimensions
+furniture = [
+    # Bed
+    {'x': 1.1, 'y': 0.5, 'width': 2.045, 'height': 1.255, 'label': 'Posteľ\n204.5x125.5cm', 'color': 'lightcoral'},
+    # Nightstand
+    {'x': 0.8, 'y': 0.5, 'width': 0.37, 'height': 0.35, 'label': 'Nočný stolík\n37x35cm', 'color': 'lightgreen'},
+    # Wardrobe 1
+    {'x': 0.1, 'y': 2.0, 'width': 1.71, 'height': 0.62, 'label': 'Skriňa\n171x62cm', 'color': 'lightgray'},
+    # Wardrobe 2
+    {'x': 0.1, 'y': 1.3, 'width': 0.79, 'height': 0.53, 'label': 'Skriňa\n79x53cm', 'color': 'lightgray'},
+    # Dresser
+    {'x': 3.0, 'y': 0.1, 'width': 1.295, 'height': 0.38, 'label': 'Komoda\n129.5x38cm', 'color': 'lightyellow'},
+    # Shelf
+    {'x': 0.1, 'y': 1.0, 'width': 0.6, 'height': 0.33, 'label': 'Regál\n60x33cm', 'color': 'wheat'},
+    # Table
+    {'x': 1.5, 'y': 2.0, 'width': 1.1, 'height': 0.6, 'label': 'Stôl\n110x60cm', 'color': 'cyan'}
+]
+
+for item in furniture:
+    ax.add_patch(patches.Rectangle(
+        (item['x'], item['y']), item['width'], item['height'],
+        fill=True, edgecolor='black', facecolor=item['color'], alpha=0.7
+    ))
+    ax.text(
+        item['x'] + item['width']/2, item['y'] + item['height']/2,
+        item['label'], ha='center', va='center', fontsize=8
+    )
+
+# Set aspect ratio and limits
+ax.set_aspect('equal')
+ax.set_xlim(-0.5, room_width + 0.5)
+ax.set_ylim(-0.5, room_depth + 0.5)
+ax.set_xlabel('Šírka (m)')
+ax.set_ylabel('Hĺbka (m)')
+ax.set_title('Rozmiestnenie nábytku v izbe', fontsize=14, weight='bold')
+
+# Add grid
+ax.grid(True, linestyle='--', alpha=0.7)
+
+# Add legend
+ax.legend([patches.Patch(facecolor=item['color'], label=item['label'].split('\n')[0]) for item in furniture],
+          [item['label'].split('\n')[0] for item in furniture], bbox_to_anchor=(1.05, 1), loc='upper left')
+
+plt.tight_layout()
+plt.show()
