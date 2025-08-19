@@ -52,7 +52,7 @@ plt.rc('axes', prop_cycle=default_cycler)
 
 # %%
 # Now we'll generate a figure with two Axes, one on top of the other. On the
-# first axis, we'll plot with the default cycler. On the second axis, we'll
+# first axes, we'll plot with the default cycler. On the second axes, we'll
 # set the ``prop_cycle`` using :func:`matplotlib.axes.Axes.set_prop_cycle`,
 # which will only set the ``prop_cycle`` for this :mod:`matplotlib.axes.Axes`
 # instance. We'll use a second ``cycler`` that combines a color cycler and a
