@@ -40,19 +40,16 @@ Here is a minimal example plot:
    :include-source:
    :align: center
 
-   import matplotlib.pyplot as plt
-   import numpy as np
+import matplotlib.pyplot as plt
+import numpy as np
 
-   x = np.linspace(0, 2 * np.pi, 200)
-   y = np.sin(x)
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
 
-   fig, ax = plt.subplots()
-   ax.plot(x, y, label="sin(x)")
-   ax.set_title("A Simple Sine Curve")
-   ax.set_xlabel("x values (radians)")
-   ax.set_ylabel("sin(x)")
-   ax.legend()
-   plt.show()
+fig, ax = plt.subplots()
+ax.plot(x, y)
+
+plt.show()
 
 If a plot does not show up please check :ref:`troubleshooting-faq`.
 
