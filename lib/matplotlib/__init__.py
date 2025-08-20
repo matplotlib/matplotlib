@@ -1024,7 +1024,7 @@ def rc(group, **kwargs):
 
       font = {'family' : 'monospace',
               'weight' : 'bold',
-              'size'   : 'larger'}
+              'size'   : 'large'}
       rc('font', **font)  # pass in the font dict as kwargs
 
     This enables you to easily switch between several configurations.  Use

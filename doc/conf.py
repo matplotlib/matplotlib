@@ -57,7 +57,7 @@ def _parse_skip_subdirs_file():
     can make partial builds very fast.
     """
     default_skip_subdirs = [
-        'users/prev_whats_new/*', 'users/explain/*', 'api/*', 'gallery/*',
+        'release/prev_whats_new/*', 'users/explain/*', 'api/*', 'gallery/*',
         'tutorials/*', 'plot_types/*', 'devel/*']
     try:
         with open(".mpl_skip_subdirs.yaml", 'r') as fin:
@@ -595,7 +595,7 @@ html_sidebars = {
     # no sidebar for release notes, because that page is only a collection of links
     # to sub-pages. The sidebar would repeat all the titles of the sub-pages and
     # thus basically repeat all the content of the page.
-    "users/release_notes": ["empty_sidebar.html"],
+    "release/release_notes": ["empty_sidebar.html"],
     # '**': ['localtoc.html', 'pagesource.html']
 }
 
