@@ -1010,8 +1010,11 @@ class CheckButtons(AxesWidget):
 
             .. versionadded:: 3.7
 
-        label_props : dict, optional
-            Dictionary of `.Text` properties to be used for the labels.
+        label_props : dict of lists, optional
+            Dictionary of `.Text` properties to be used for the labels. Each
+            dictionary value should be a list of at least a single element. If
+            the list is of length M, its values are cycled such that the Nth
+            label gets the (N mod M) property.
 
             .. versionadded:: 3.7
         frame_props : dict, optional
@@ -1111,7 +1114,8 @@ class CheckButtons(AxesWidget):
         Parameters
         ----------
         props : dict
-            Dictionary of `.Text` properties to be used for the labels.
+            Dictionary of `.Text` properties to be used for the labels. Same
+            format as label_props argument of :class:`CheckButtons`.
         """
         _api.check_isinstance(dict, props=props)
         props = _expand_text_props(props)
@@ -1579,8 +1583,11 @@ class RadioButtons(AxesWidget):
 
             .. versionadded:: 3.7
 
-        label_props : dict or list of dict, optional
-            Dictionary of `.Text` properties to be used for the labels.
+        label_props : dict of lists, optional
+            Dictionary of `.Text` properties to be used for the labels. Each
+            dictionary value should be a list of at least a single element. If
+            the list is of length M, its values are cycled such that the Nth
+            label gets the (N mod M) property.
 
             .. versionadded:: 3.7
         radio_props : dict, optional
@@ -1689,7 +1696,8 @@ class RadioButtons(AxesWidget):
         Parameters
         ----------
         props : dict
-            Dictionary of `.Text` properties to be used for the labels.
+            Dictionary of `.Text` properties to be used for the labels. Same
+            format as label_props argument of :class:`RadioButtons`.
         """
         _api.check_isinstance(dict, props=props)
         props = _expand_text_props(props)
