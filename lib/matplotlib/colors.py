@@ -3481,7 +3481,7 @@ class MultiNorm(Norm):
 
         """
         values = self._iterable_components_in_data(values, self.n_components)
-        result = [n.inverse(v) for n, v in zip(self.norms, values)]
+        result = tuple(n.inverse(v) for n, v in zip(self.norms, values))
         return result
 
     def autoscale(self, A):
@@ -3571,9 +3571,9 @@ class MultiNorm(Norm):
                 if len(data.shape) == 2:
                     raise ValueError(
                         f"MultiNorm expects a sequence with one element per component. "
-                        "You can use `data_transposed = data.T`"
+                        "You can use `data_transposed = data.T` "
                         "to convert the input data of shape "
-                        f"{data.shape} to a compatible shape {data.shape[::-1]} ")
+                        f"{data.shape} to a compatible shape {data.shape[::-1]}")
                 else:
                     raise ValueError(
                         f"MultiNorm expects a sequence with one element per component. "

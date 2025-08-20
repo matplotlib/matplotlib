@@ -2047,7 +2047,7 @@ def test_mult_norm_call_types():
 
     # last axis matches, len(data.shape) == 2
     with pytest.raises(ValueError,
-                       match=r"You can use `data_transposed = data.T`to convert"):
+                       match=r"You can use `data_transposed = data.T` to convert"):
         mn(np.zeros((3, 2)))
 
     # incompatible arrays where no relevant axis matches
