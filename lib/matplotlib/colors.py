@@ -2337,6 +2337,17 @@ class Norm(ABC):
         """
         self.callbacks.process('changed')
 
+    @property
+    @abstractmethod
+    def n_components(self):
+        """
+        The number of normalized components.
+
+        This is the number of elements of the parameter to ``__call__`` and of
+        *vmin*, *vmax*.
+        """
+        pass
+
 
 class Normalize(Norm):
     """
@@ -2546,6 +2557,19 @@ class Normalize(Norm):
     def scaled(self):
         # docstring inherited
         return self.vmin is not None and self.vmax is not None
+
+    @property
+    def n_components(self):
+        """
+        The number of distinct components supported (1).
+
+        This is the number of elements of the parameter to ``__call__`` and of
+        *vmin*, *vmax*.
+
+        This class support only a single component, as opposed to `MultiNorm`
+        which supports multiple components.
+        """
+        return 1
 
 
 class TwoSlopeNorm(Normalize):
@@ -3270,6 +3294,300 @@ class NoNorm(Normalize):
         if np.iterable(value):
             return np.ma.array(value)
         return value
+
+
+class MultiNorm(Norm):
+    """
+    A class which contains multiple scalar norms.
+    """
+
+    def __init__(self, norms, vmin=None, vmax=None, clip=None):
+        """
+        Parameters
+        ----------
+        norms : list of (str or `Normalize`)
+            The constituent norms. The list must have a minimum length of 1.
+        vmin, vmax : None or list of (float or None)
+            Limits of the constituent norms.
+            If a list, one value is assigned to each of the constituent
+            norms.
+            If None, the limits of the constituent norms
+            are not changed.
+        clip : None or list of bools, default: None
+            Determines the behavior for mapping values outside the range
+            ``[vmin, vmax]`` for the constituent norms.
+            If a list, each value is assigned to each of the constituent
+            norms.
+            If None, the behaviour of the constituent norms is not changed.
+        """
+        if cbook.is_scalar_or_string(norms):
+            raise ValueError(
+                    "MultiNorm must be assigned an iterable of norms, where each "
+                    f"norm is of type `str`, or `Normalize`, not {type(norms)}")
+
+        if len(norms) < 1:
+            raise ValueError("MultiNorm must be assigned at least one norm")
+
+        def resolve(norm):
+            if isinstance(norm, str):
+                scale_cls = _api.check_getitem(scale._scale_mapping, norm=norm)
+                return mpl.colorizer._auto_norm_from_scale(scale_cls)()
+            elif isinstance(norm, Normalize):
+                return norm
+            else:
+                raise ValueError(
+                    "Each norm assigned to MultiNorm must be "
+                    f"of type `str`, or `Normalize`, not {type(norm)}")
+
+        self._norms = tuple(resolve(norm) for norm in norms)
+
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+
+        self.vmin = vmin
+        self.vmax = vmax
+        self.clip = clip
+
+        for n in self._norms:
+            n.callbacks.connect('changed', self._changed)
+
+    @property
+    def n_components(self):
+        """Number of norms held by this `MultiNorm`."""
+        return len(self._norms)
+
+    @property
+    def norms(self):
+        """The individual norms held by this `MultiNorm`."""
+        return self._norms
+
+    @property
+    def vmin(self):
+        """The lower limit of each constituent norm."""
+        return tuple(n.vmin for n in self._norms)
+
+    @vmin.setter
+    def vmin(self, values):
+        if values is None:
+            return
+        if not np.iterable(values) or len(values) != self.n_components:
+            raise ValueError("*vmin* must have one component for each norm. "
+                             f"Expected an iterable of length {self.n_components}, "
+                             f"but got {values!r}")
+        with self.callbacks.blocked():
+            for norm, v in zip(self.norms, values):
+                norm.vmin = v
+        self._changed()
+
+    @property
+    def vmax(self):
+        """The upper limit of each constituent norm."""
+        return tuple(n.vmax for n in self._norms)
+
+    @vmax.setter
+    def vmax(self, values):
+        if values is None:
+            return
+        if not np.iterable(values) or len(values) != self.n_components:
+            raise ValueError("*vmax* must have one component for each norm. "
+                             f"Expected an iterable of length {self.n_components}, "
+                             f"but got {values!r}")
+        with self.callbacks.blocked():
+            for norm, v in zip(self.norms, values):
+                norm.vmax = v
+        self._changed()
+
+    @property
+    def clip(self):
+        """The clip behaviour of each constituent norm."""
+        return tuple(n.clip for n in self._norms)
+
+    @clip.setter
+    def clip(self, values):
+        if values is None:
+            return
+        if not np.iterable(values) or len(values) != self.n_components:
+            raise ValueError("*clip* must have one component for each norm. "
+                             f"Expected an iterable of length {self.n_components}, "
+                             f"but got {values!r}")
+        with self.callbacks.blocked():
+            for norm, v in zip(self.norms, values):
+                norm.clip = v
+        self._changed()
+
+    def _changed(self):
+        """
+        Call this whenever the norm is changed to notify all the
+        callback listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+
+    def __call__(self, values, clip=None):
+        """
+        Normalize the data and return the normalized data.
+
+        Each component of the input is normalized via the constituent norm.
+
+        Parameters
+        ----------
+        values : array-like
+            The input data, as an iterable or a structured numpy array.
+
+            - If iterable, must be of length `n_components`. Each element can be a
+              scalar or array-like and is normalized through the corresponding norm.
+            - If structured array, must have `n_components` fields. Each field
+              is normalized through the corresponding norm.
+
+        clip : list of bools or None, optional
+            Determines the behavior for mapping values outside the range
+            ``[vmin, vmax]``. See the description of the parameter *clip* in
+            `.Normalize`.
+            If ``None``, defaults to ``self.clip`` (which defaults to
+            ``False``).
+
+        Returns
+        -------
+        tuple
+            Normalized input values
+
+        Notes
+        -----
+        If not already initialized, ``self.vmin`` and ``self.vmax`` are
+        initialized using ``self.autoscale_None(values)``.
+        """
+        if clip is None:
+            clip = self.clip
+        if not np.iterable(clip) or len(clip) != self.n_components:
+            raise ValueError("*clip* must have one component for each norm. "
+                             f"Expected an iterable of length {self.n_components}, "
+                             f"but got {clip!r}")
+
+        values = self._iterable_components_in_data(values, self.n_components)
+        result = tuple(n(v, clip=c) for n, v, c in zip(self.norms, values, clip))
+        return result
+
+    def inverse(self, values):
+        """
+        Map the normalized values (i.e., index in the colormap) back to data values.
+
+        Parameters
+        ----------
+        values : array-like
+            The input data, as an iterable or a structured numpy array.
+
+            - If iterable, must be of length `n_components`. Each element can be a
+              scalar or array-like and is mapped through the corresponding norm.
+            - If structured array, must have `n_components` fields. Each field
+              is mapped through the the corresponding norm.
+
+        """
+        values = self._iterable_components_in_data(values, self.n_components)
+        result = tuple(n.inverse(v) for n, v in zip(self.norms, values))
+        return result
+
+    def autoscale(self, A):
+        """
+        For each constituent norm, set *vmin*, *vmax* to min, max of the corresponding
+        component in *A*.
+
+        Parameters
+        ----------
+        A : array-like
+            The input data, as an iterable or a structured numpy array.
+
+            - If iterable, must be of length `n_components`. Each element
+              is used for the limits of one constituent norm.
+            - If structured array, must have `n_components` fields. Each field
+              is used for the limits of one constituent norm.
+        """
+        with self.callbacks.blocked():
+            A = self._iterable_components_in_data(A, self.n_components)
+            for n, a in zip(self.norms, A):
+                n.autoscale(a)
+        self._changed()
+
+    def autoscale_None(self, A):
+        """
+        If *vmin* or *vmax* are not set on any constituent norm,
+        use the min/max of the corresponding component in *A* to set them.
+
+        Parameters
+        ----------
+        A : array-like
+            The input data, as an iterable or a structured numpy array.
+
+            - If iterable, must be of length `n_components`. Each element
+              is used for the limits of one constituent norm.
+            - If structured array, must have `n_components` fields. Each field
+              is used for the limits of one constituent norm.
+        """
+        with self.callbacks.blocked():
+            A = self._iterable_components_in_data(A, self.n_components)
+            for n, a in zip(self.norms, A):
+                n.autoscale_None(a)
+        self._changed()
+
+    def scaled(self):
+        """Return whether both *vmin* and *vmax* are set on all constituent norms."""
+        return all(n.scaled() for n in self.norms)
+
+    @staticmethod
+    def _iterable_components_in_data(data, n_components):
+        """
+        Provides an iterable over the components contained in the data.
+
+        An input array with `n_components` fields is returned as a tuple of length n
+        referencing slices of the original array.
+
+        Parameters
+        ----------
+        data : array-like
+            The input data, as an iterable or a structured numpy array.
+
+            - If iterable, must be of length `n_components`
+            - If structured array, must have `n_components` fields.
+
+        Returns
+        -------
+        tuple of np.ndarray
+
+        """
+        if isinstance(data, np.ndarray) and data.dtype.fields is not None:
+            # structured array
+            if len(data.dtype.fields) != n_components:
+                raise ValueError(
+                    "Structured array inputs to MultiNorm must have the same "
+                    "number of fields as components in the MultiNorm. Expected "
+                    f"{n_components}, but got {len(data.dtype.fields)} fields"
+                    )
+            else:
+                return tuple(data[field] for field in data.dtype.names)
+        try:
+            n_elements = len(data)
+        except TypeError:
+            raise ValueError("MultiNorm expects a sequence with one element per "
+                             f"component as input, but got {data!r} instead")
+        if n_elements != n_components:
+            if isinstance(data, np.ndarray) and data.shape[-1] == n_components:
+                if len(data.shape) == 2:
+                    raise ValueError(
+                        f"MultiNorm expects a sequence with one element per component. "
+                        "You can use `data_transposed = data.T` "
+                        "to convert the input data of shape "
+                        f"{data.shape} to a compatible shape {data.shape[::-1]}")
+                else:
+                    raise ValueError(
+                        f"MultiNorm expects a sequence with one element per component. "
+                        "You can use `data_as_list = [data[..., i] for i in "
+                        "range(data.shape[-1])]` to convert the input data of shape "
+                        f" {data.shape} to a compatible list")
+
+            raise ValueError(
+                "MultiNorm expects a sequence with one element per component. "
+                f"This MultiNorm has {n_components} components, but got a sequence "
+                f"with {n_elements} elements"
+                )
+
+        return tuple(data[i] for i in range(n_elements))
 
 
 def rgb_to_hsv(arr):
