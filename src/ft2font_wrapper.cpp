@@ -175,19 +175,20 @@ const char *PyFT2Image_draw_rect_filled__doc__ = R"""(
  * */
 
 struct PyPositionedBitmap {
+    FT_Library _ft2Library;
     FT_Int left, top;
     bool owning;
     FT_Bitmap bitmap;
 
-    PyPositionedBitmap(FT_GlyphSlot slot) :
-        left{slot->bitmap_left}, top{slot->bitmap_top}, owning{true}
+    PyPositionedBitmap(FT_Library ft2Library, FT_GlyphSlot slot) :
+        _ft2Library{ft2Library}, left{slot->bitmap_left}, top{slot->bitmap_top}, owning{true}
     {
         FT_Bitmap_Init(&bitmap);
         FT_CHECK(FT_Bitmap_Convert, _ft2Library, &slot->bitmap, &bitmap, 1);
     }
 
-    PyPositionedBitmap(FT_BitmapGlyph bg) :
-        left{bg->left}, top{bg->top}, owning{true}
+    PyPositionedBitmap(FT_Library ft2Library, FT_BitmapGlyph bg) :
+        _ft2Library{ft2Library}, left{bg->left}, top{bg->top}, owning{true}
     {
         FT_Bitmap_Init(&bitmap);
         FT_CHECK(FT_Bitmap_Convert, _ft2Library, &bg->bitmap, &bitmap, 1);
@@ -196,7 +197,8 @@ struct PyPositionedBitmap {
     PyPositionedBitmap(PyPositionedBitmap& other) = delete;  // Non-copyable.
 
     PyPositionedBitmap(PyPositionedBitmap&& other) :
-        left{other.left}, top{other.top}, owning{true}, bitmap{other.bitmap}
+        _ft2Library{other._ft2Library}, left{other.left}, top{other.top}, owning{true},
+        bitmap{other.bitmap}
     {
         other.owning = false;  // Prevent double deletion.
     }
@@ -396,7 +398,8 @@ const char *PyFT2Font_init__doc__ = R"""(
 )""";
 
 static PyFT2Font *
-PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nullopt,
+PyFT2Font_init(FT_Library ft2Library, py::object filename,
+               std::optional<long> hinting_factor = std::nullopt,
                FT_Long face_index = 0,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
                std::optional<int> kerning_factor = std::nullopt,
@@ -468,7 +471,7 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
         self->stream.close = nullptr;
     }
 
-    self->open(open_args, face_index);
+    self->open(ft2Library, open_args, face_index);
 
     return self;
 }
@@ -1396,12 +1399,14 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
 
 PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 {
-    if (FT_Init_FreeType(&_ft2Library)) {  // initialize library
+    FT_Library ft2Library = nullptr;
+
+    if (FT_Init_FreeType(&ft2Library)) {  // initialize library
         throw std::runtime_error("Could not initialize the freetype2 library");
     }
     FT_Int major, minor, patch;
     char version_string[64];
-    FT_Library_Version(_ft2Library, &major, &minor, &patch);
+    FT_Library_Version(ft2Library, &major, &minor, &patch);
     snprintf(version_string, sizeof(version_string), "%d.%d.%d", major, minor, patch);
 
     py::native_enum<FT_Kerning_Mode>(m, "Kerning", "enum.Enum", Kerning__doc__)
@@ -1559,11 +1564,21 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
     py::classh<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
                           PyFT2Font__doc__)
-        .def(py::init(&PyFT2Font_init),
+        .def(py::init(
+            [ft2Library](
+                py::object filename,
+                std::optional<long> hinting_factor = std::nullopt,
+                FT_Long face_index = 0,
+                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
+                std::optional<int> kerning_factor = std::nullopt,
+                bool warn_if_used = false) -> PyFT2Font *
+            {
+                return PyFT2Font_init(ft2Library, filename, hinting_factor, face_index,
+                                      fallback_list, kerning_factor, warn_if_used);
+            }),
              "filename"_a, "hinting_factor"_a=py::none(), py::kw_only(),
-             "face_index"_a=0,
-             "_fallback_list"_a=py::none(), "_kerning_factor"_a=py::none(),
-             "_warn_if_used"_a=false,
+             "face_index"_a=0, "_fallback_list"_a=py::none(),
+             "_kerning_factor"_a=py::none(), "_warn_if_used"_a=false,
              PyFT2Font_init__doc__)
         .def("clear", &PyFT2Font::clear, PyFT2Font_clear__doc__)
         .def("set_size", &PyFT2Font::set_size, "ptsize"_a, "dpi"_a,
@@ -1728,13 +1743,27 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         })
 
         .def("_render_glyph",
-             [](PyFT2Font *self, FT_UInt idx, LoadFlags flags, FT_Render_Mode render_mode) {
+            [ft2Library](PyFT2Font *self, FT_UInt idx, LoadFlags flags,
+                         FT_Render_Mode render_mode)
+            {
                 auto face = self->get_face();
                 FT_CHECK(FT_Load_Glyph, face, idx, static_cast<FT_Int32>(flags));
                 FT_CHECK(FT_Render_Glyph, face->glyph, render_mode);
-                return PyPositionedBitmap{face->glyph};
+                return PyPositionedBitmap{ft2Library, face->glyph};
             })
         ;
+
+    // Ensure FreeType library is closed after all instances of FT2Font are gone by
+    // tying a weak ref to the class itself.
+    (void)py::weakref(
+        m.attr("FT2Font"),
+        py::cpp_function(
+            [ft2Library](py::handle weakref) {
+                FT_Done_FreeType(ft2Library);
+                weakref.dec_ref();
+            }
+        )
+    ).release();
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
