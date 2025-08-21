@@ -1,8 +1,15 @@
 #include "_tri.h"
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 using namespace pybind11::literals;
 
-PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
+PYBIND11_MODULE(_tri, m, py::mod_gil_not_used()
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+                ,py::multiple_interpreters::per_interpreter_gil()
+#endif
+)
 {
     py::classh<Triangulation>(m, "Triangulation", py::is_final())
         .def(py::init<const Triangulation::CoordinateArray&,

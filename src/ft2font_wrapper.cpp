@@ -3,6 +3,9 @@
 #include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #include "ft2font.h"
 
@@ -1475,7 +1478,11 @@ ft2font__getattr__(std::string name) {
         "module 'matplotlib.ft2font' has no attribute {!r}"_s.format(name));
 }
 
-PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
+PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used()
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+                ,py::multiple_interpreters::per_interpreter_gil()
+#endif
+)
 {
     FT_Library ft2Library = nullptr;
 
