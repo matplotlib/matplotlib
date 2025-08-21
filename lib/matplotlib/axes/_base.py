@@ -724,7 +724,6 @@ class _AxesBase(martist.Artist):
         self.fmt_ydata = None
 
         self.set_navigate(True)
-        self.set_navigate_mode(None)
 
         if xscale:
             self.set_xscale(xscale)
@@ -2337,6 +2336,23 @@ class _AxesBase(martist.Artist):
     def add_collection(self, collection, autolim=True):
         """
         Add a `.Collection` to the Axes; return the collection.
+
+        Parameters
+        ----------
+        collection : `.Collection`
+            The collection to add.
+        autolim : bool
+            Whether to update data and view limits.
+
+            .. versionchanged:: 3.11
+
+               This now also updates the view limits, making explicit
+               calls to `~.Axes.autoscale_view` unnecessary.
+
+            As an implementation detail, the value "_datalim_only" is
+            supported to smooth the internal transition from pre-3.11
+            behavior. This is not a public interface and will be removed
+            again in the future.
         """
         _api.check_isinstance(mcoll.Collection, collection=collection)
         if not collection.get_label():
@@ -2361,7 +2377,19 @@ class _AxesBase(martist.Artist):
                 # the call so that self.dataLim will update its own minpos.
                 # This ensures that log scales see the correct minimum.
                 points = np.concatenate([points, [datalim.minpos]])
-            self.update_datalim(points)
+            # only update the dataLim for x/y if the collection uses transData
+            # in this direction.
+            x_is_data, y_is_data = (collection.get_transform()
+                                    .contains_branch_seperately(self.transData))
+            ox_is_data, oy_is_data = (collection.get_offset_transform()
+                                      .contains_branch_seperately(self.transData))
+            self.update_datalim(
+                points,
+                updatex=x_is_data or ox_is_data,
+                updatey=y_is_data or oy_is_data,
+            )
+            if autolim != "_datalim_only":
+                self._request_autoscale_view()
 
         self.stale = True
         return collection
@@ -4177,17 +4205,22 @@ class _AxesBase(martist.Artist):
         """
         Get the navigation toolbar button status: 'PAN', 'ZOOM', or None.
         """
-        return self._navigate_mode
+        toolbar = self.figure.canvas.toolbar
+        if toolbar:
+            return None if toolbar.mode.name == "NONE" else toolbar.mode.name
+        manager = self.figure.canvas.manager
+        if manager and manager.toolmanager:
+            mode = manager.toolmanager.active_toggle.get("default")
+            return None if mode is None else mode.upper()
 
+    @_api.deprecated("3.11")
     def set_navigate_mode(self, b):
         """
         Set the navigation toolbar button status.
 
         .. warning::
             This is not a user-API function.
-
         """
-        self._navigate_mode = b
 
     def _get_view(self):
         """

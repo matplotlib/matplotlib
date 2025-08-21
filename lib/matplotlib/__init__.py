@@ -292,8 +292,8 @@ def set_loglevel(level):
     - set the root logger handler's level, creating the handler
       if it does not exist yet
 
-    Typically, one should call ``set_loglevel("info")`` or
-    ``set_loglevel("debug")`` to get additional debugging information.
+    Typically, one should call ``set_loglevel("INFO")`` or
+    ``set_loglevel("DEBUG")`` to get additional debugging information.
 
     Users or applications that are installing their own logging handlers
     may want to directly manipulate ``logging.getLogger('matplotlib')`` rather
@@ -301,8 +301,12 @@ def set_loglevel(level):
 
     Parameters
     ----------
-    level : {"notset", "debug", "info", "warning", "error", "critical"}
-        The log level of the handler.
+    level : {"NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+        The log level as defined in `Python logging levels
+        <https://docs.python.org/3/library/logging.html#logging-levels>`__.
+
+        For backwards compatibility, the levels are case-insensitive, but
+        the capitalized version is preferred in analogy to `logging.Logger.setLevel`.
 
     Notes
     -----
@@ -743,12 +747,11 @@ class RcParams(MutableMapping, dict):
                 and val is rcsetup._auto_backend_sentinel
                 and "backend" in self):
             return
+        valid_key = _api.check_getitem(
+            self.validate, rcParam=key, _error_cls=KeyError
+        )
         try:
-            cval = self.validate[key](val)
-        except KeyError as err:
-            raise KeyError(
-                f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                f"a list of valid parameters)") from err
+            cval = valid_key(val)
         except ValueError as ve:
             raise ValueError(f"Key {key}: {ve}") from None
         if key == "text.kerning_factor" and cval is not None:
@@ -1023,7 +1026,7 @@ def rc(group, **kwargs):
 
       font = {'family' : 'monospace',
               'weight' : 'bold',
-              'size'   : 'larger'}
+              'size'   : 'large'}
       rc('font', **font)  # pass in the font dict as kwargs
 
     This enables you to easily switch between several configurations.  Use

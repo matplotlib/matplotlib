@@ -151,8 +151,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import numpy as np
 
-    from matplotlib.ticker import (MultipleLocator, NullFormatter,
-                                   ScalarFormatter)
+    from matplotlib.ticker import MultipleLocator, NullFormatter, ScalarFormatter
 
     # Some example data.
     data_txt = '''

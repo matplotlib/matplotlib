@@ -25,6 +25,7 @@ from contextlib import nullcontext
 from math import radians, cos, sin
 
 import numpy as np
+from PIL import features
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
@@ -520,7 +521,19 @@ class FigureCanvasAgg(FigureCanvasBase):
     def print_webp(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
         self._print_pil(filename_or_obj, "webp", pil_kwargs, metadata)
 
-    print_gif.__doc__, print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
+    def print_avif(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
+        if not features.check("avif"):
+            raise RuntimeError(
+                "The installed pillow version does not support avif. Full "
+                "avif support has been added in pillow 11.3."
+            )
+        self._print_pil(filename_or_obj, "avif", pil_kwargs, metadata)
+
+    (print_gif.__doc__,
+     print_jpg.__doc__,
+     print_tif.__doc__,
+     print_webp.__doc__,
+     print_avif.__doc__) = map(
         """
         Write the figure to a {} file.
 
@@ -528,10 +541,13 @@ class FigureCanvasAgg(FigureCanvasBase):
         ----------
         filename_or_obj : str or path-like or file-like
             The file to write to.
+        metadata : None
+            Unused for pillow-based writers. All supported options
+            can be passed via *pil_kwargs*.
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
-        """.format, ["GIF", "JPEG", "TIFF", "WebP"])
+        """.format, ["GIF", "JPEG", "TIFF", "WebP", "AVIF"])
 
 
 @_Backend.export

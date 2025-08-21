@@ -84,8 +84,8 @@ class Grid:
             ``121``), or as a `~.SubplotSpec`.
         nrows_ncols : (int, int)
             Number of rows and columns in the grid.
-        n_axes : int or None, default: None
-            If not None, only the first *n_axes* axes in the grid are created.
+        n_axes : int, optional
+            If given, only the first *n_axes* axes in the grid are created.
         direction : {"row", "column"}, default: "row"
             Whether axes are created in row-major ("row by row") or
             column-major order ("column by column").  This also affects the
@@ -322,8 +322,8 @@ class ImageGrid(Grid):
             as a three-digit subplot position code (e.g., "121").
         nrows_ncols : (int, int)
             Number of rows and columns in the grid.
-        n_axes : int or None, default: None
-            If not None, only the first *n_axes* axes in the grid are created.
+        n_axes : int, optional
+            If given, only the first *n_axes* axes in the grid are created.
         direction : {"row", "column"}, default: "row"
             Whether axes are created in row-major ("row by row") or
             column-major order ("column by column").  This also affects the
@@ -364,7 +364,7 @@ class ImageGrid(Grid):
         cbar_set_cax : bool, default: True
             If True, each axes in the grid has a *cax* attribute that is bound
             to associated *cbar_axes*.
-        axes_class : subclass of `matplotlib.axes.Axes`, default: None
+        axes_class : subclass of `matplotlib.axes.Axes`, default: `.mpl_axes.Axes`
         """
         _api.check_in_list(["each", "single", "edge", None],
                            cbar_mode=cbar_mode)

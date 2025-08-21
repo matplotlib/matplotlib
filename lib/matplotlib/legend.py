@@ -576,7 +576,11 @@ class Legend(Artist):
         # set the text color
 
         color_getters = {  # getter function depends on line or patch
-            'linecolor':       ['get_color',           'get_facecolor'],
+            'linecolor':       ['get_markerfacecolor',
+                                'get_facecolor',
+                                'get_markeredgecolor',
+                                'get_edgecolor',
+                                'get_color'],
             'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
             'mfc':             ['get_markerfacecolor', 'get_facecolor'],
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
@@ -595,19 +599,22 @@ class Legend(Artist):
                 for getter_name in getter_names:
                     try:
                         color = getattr(handle, getter_name)()
-                        if isinstance(color, np.ndarray):
-                            if (
-                                    color.shape[0] == 1
-                                    or np.isclose(color, color[0]).all()
-                            ):
-                                text.set_color(color[0])
-                            else:
-                                pass
-                        else:
-                            text.set_color(color)
-                        break
                     except AttributeError:
-                        pass
+                        continue
+                    if isinstance(color, np.ndarray):
+                        if color.size == 0:
+                            continue
+                        elif (color.shape[0] == 1 or np.isclose(color, color[0]).all()):
+                            text.set_color(color[0])
+                        else:
+                            pass
+                    elif cbook._str_lower_equal(color, 'none'):
+                        continue
+                    elif mpl.colors.to_rgba(color)[3] == 0:
+                        continue
+                    else:
+                        text.set_color(color)
+                    break
         elif cbook._str_equal(labelcolor, 'none'):
             for text in self.texts:
                 text.set_color(labelcolor)
@@ -1140,9 +1147,10 @@ class Legend(Artist):
         parentbbox : `~matplotlib.transforms.Bbox`
             A parent box which will contain the bbox, in display coordinates.
         """
+        pad = self.borderaxespad * renderer.points_to_pixels(self._fontsize)
         return offsetbox._get_anchored_bbox(
             loc, bbox, parentbbox,
-            self.borderaxespad * renderer.points_to_pixels(self._fontsize))
+            pad, pad)
 
     def _find_best_position(self, width, height, renderer):
         """Determine the best location to place the legend."""

@@ -262,12 +262,22 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             screen.physicalDotsPerInchChanged.connect(self._update_pixel_ratio)
             screen.logicalDotsPerInchChanged.connect(self._update_pixel_ratio)
 
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.Type.DevicePixelRatioChange:
+            self._update_pixel_ratio()
+        return super().eventFilter(source, event)
+
     def showEvent(self, event):
         # Set up correct pixel ratio, and connect to any signal changes for it,
         # once the window is shown (and thus has these attributes).
         window = self.window().windowHandle()
-        window.screenChanged.connect(self._update_screen)
-        self._update_screen(window.screen())
+        current_version = tuple(int(x) for x in QtCore.qVersion().split('.', 2)[:2])
+        if current_version >= (6, 6):
+            self._update_pixel_ratio()
+            window.installEventFilter(self)
+        else:
+            window.screenChanged.connect(self._update_screen)
+            self._update_screen(window.screen())
 
     def set_cursor(self, cursor):
         # docstring inherited

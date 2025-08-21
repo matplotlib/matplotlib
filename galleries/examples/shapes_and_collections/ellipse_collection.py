@@ -30,7 +30,6 @@ ec = EllipseCollection(ww, hh, aa, units='x', offsets=XY,
                        offset_transform=ax.transData)
 ec.set_array((X + Y).ravel())
 ax.add_collection(ec)
-ax.autoscale_view()
 ax.set_xlabel('X')
 ax.set_ylabel('y')
 cbar = plt.colorbar(ec)
@@ -47,5 +46,4 @@ plt.show()
 #    - `matplotlib.collections`
 #    - `matplotlib.collections.EllipseCollection`
 #    - `matplotlib.axes.Axes.add_collection`
-#    - `matplotlib.axes.Axes.autoscale_view`
 #    - `matplotlib.cm.ScalarMappable.set_array`

@@ -164,7 +164,7 @@ fig.suptitle('Big Suptitle')
 # Legends
 # =======
 #
-# Legends can be placed outside of their parent axis.
+# Legends can be placed outside of their parent axes.
 # *Constrained layout* is designed to handle this for :meth:`.Axes.legend`.
 # However, *constrained layout* does *not* handle legends being created via
 # :meth:`.Figure.legend` (yet).

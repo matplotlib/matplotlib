@@ -47,9 +47,9 @@ def test_linecollection_scaled_dashes():
     lc3 = art3d.Line3DCollection(lines3, linestyles=":", lw=.5)
 
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    ax.add_collection(lc1)
-    ax.add_collection(lc2)
-    ax.add_collection(lc3)
+    ax.add_collection(lc1, autolim="_datalim_only")
+    ax.add_collection(lc2, autolim="_datalim_only")
+    ax.add_collection(lc3, autolim="_datalim_only")
 
     leg = ax.legend([lc1, lc2, lc3], ['line1', 'line2', 'line 3'])
     h1, h2, h3 = leg.legend_handles

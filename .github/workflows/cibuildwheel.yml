@@ -41,7 +41,7 @@ jobs:
       SDIST_NAME: ${{ steps.sdist.outputs.SDIST_NAME }}
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -127,7 +127,9 @@ jobs:
           - os: ubuntu-24.04-arm
             cibw_archs: "aarch64"
           - os: windows-latest
-            cibw_archs: "auto64"
+            cibw_archs: "AMD64"
+          - os: windows-11-arm
+            cibw_archs: "ARM64"
           - os: macos-13
             cibw_archs: "x86_64"
           - os: macos-14
@@ -135,7 +137,7 @@ jobs:
 
     steps:
       - name: Download sdist
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           name: cibw-sdist
           path: dist/
@@ -145,7 +147,7 @@ jobs:
         run: Remove-Item -Recurse C:\Strawberry
 
       - name: Build wheels for CPython 3.14
-        uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
+        uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865  # v3.1.3
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -159,7 +161,7 @@ jobs:
             --upgrade --pre --only-binary=:all: contourpy numpy pillow
 
       - name: Build wheels for CPython 3.13
-        uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
+        uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865  # v3.1.3
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -168,7 +170,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
+        uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865  # v3.1.3
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -176,7 +178,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
+        uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865  # v3.1.3
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -184,14 +186,14 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
+        uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865  # v3.1.3
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
           CIBW_BUILD: "pp311-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_ENABLE: pypy
-        if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest'
+        if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest' && matrix.os != 'windows-11-arm'
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
@@ -211,7 +213,7 @@ jobs:
       contents: read
     steps:
       - name: Download packages
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           pattern: cibw-*
           path: dist

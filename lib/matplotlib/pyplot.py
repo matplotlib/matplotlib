@@ -144,6 +144,7 @@ if TYPE_CHECKING:
         MouseEventType,
         PickEventType,
         ResizeEventType,
+        LogLevel
     )
     from matplotlib.widgets import SubplotTool
 
@@ -351,7 +352,7 @@ draw_all = _pylab_helpers.Gcf.draw_all
 
 # Ensure this appears in the pyplot docs.
 @_copy_docstring_and_deprecators(matplotlib.set_loglevel)
-def set_loglevel(level: str) -> None:
+def set_loglevel(level: LogLevel) -> None:
     return matplotlib.set_loglevel(level)
 
 
@@ -3221,12 +3222,17 @@ def boxplot(
 def broken_barh(
     xranges: Sequence[tuple[float, float]],
     yrange: tuple[float, float],
+    align: Literal["bottom", "center", "top"] = "bottom",
     *,
     data=None,
     **kwargs,
 ) -> PolyCollection:
     return gca().broken_barh(
-        xranges, yrange, **({"data": data} if data is not None else {}), **kwargs
+        xranges,
+        yrange,
+        align=align,
+        **({"data": data} if data is not None else {}),
+        **kwargs,
     )
 
 

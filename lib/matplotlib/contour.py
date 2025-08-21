@@ -76,7 +76,7 @@ class ContourLabeler:
             a subset of ``cs.levels``. If not given, all levels are labeled.
 
         fontsize : str or float, default: :rc:`font.size`
-            Size in points or relative size e.g., 'smaller', 'x-large'.
+            Size in points or relative size e.g., 'small', 'x-large'.
             See `.Text.set_size` for accepted string values.
 
         colors : :mpltype:`color` or colors or None, default: None

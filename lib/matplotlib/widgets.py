@@ -117,7 +117,9 @@ class AxesWidget(Widget):
         self.ax = ax
         self._cids = []
 
-    canvas = property(lambda self: self.ax.get_figure(root=True).canvas)
+    canvas = property(
+        lambda self: getattr(self.ax.get_figure(root=True), 'canvas', None)
+    )
 
     def connect_event(self, event, callback):
         """
@@ -143,6 +145,10 @@ class AxesWidget(Widget):
         # because that can introduce floating point errors for synthetic events.
         return ((event.xdata, event.ydata) if event.inaxes is self.ax
                 else self.ax.transData.inverted().transform((event.x, event.y)))
+
+    def ignore(self, event):
+        # docstring inherited
+        return super().ignore(event) or self.canvas is None
 
 
 class Button(AxesWidget):
@@ -364,8 +370,9 @@ class Slider(SliderBase):
             The slider initial position.
 
         valfmt : str, default: None
-            %-format string used to format the slider value.  If None, a
-            `.ScalarFormatter` is used instead.
+            The way to format the slider value. If a string, it must be in %-format.
+            If a callable, it must have the signature ``valfmt(val: float) -> str``.
+            If None, a `.ScalarFormatter` is used.
 
         closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
@@ -547,7 +554,10 @@ class Slider(SliderBase):
     def _format(self, val):
         """Pretty-print *val*."""
         if self.valfmt is not None:
-            return self.valfmt % val
+            if callable(self.valfmt):
+                return self.valfmt(val)
+            else:
+                return self.valfmt % val
         else:
             _, s, _ = self._fmt.format_ticks([self.valmin, val, self.valmax])
             # fmt.get_offset is actually the multiplicative factor, if any.
@@ -644,9 +654,11 @@ class RangeSlider(SliderBase):
             The initial positions of the slider. If None the initial positions
             will be at the 25th and 75th percentiles of the range.
 
-        valfmt : str, default: None
-            %-format string used to format the slider values.  If None, a
-            `.ScalarFormatter` is used instead.
+        valfmt : str or callable, default: None
+            The way to format the range's minimal and maximal values. If a
+            string, it must be in %-format. If a callable, it must have the
+            signature ``valfmt(val: float) -> str``. If None, a
+            `.ScalarFormatter` is used.
 
         closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
@@ -890,7 +902,10 @@ class RangeSlider(SliderBase):
     def _format(self, val):
         """Pretty-print *val*."""
         if self.valfmt is not None:
-            return f"({self.valfmt % val[0]}, {self.valfmt % val[1]})"
+            if callable(self.valfmt):
+                return f"({self.valfmt(val[0])}, {self.valfmt(val[1])})"
+            else:
+                return f"({self.valfmt % val[0]}, {self.valfmt % val[1]})"
         else:
             _, s1, s2, _ = self._fmt.format_ticks(
                 [self.valmin, *val, self.valmax]
@@ -1010,8 +1025,11 @@ class CheckButtons(AxesWidget):
 
             .. versionadded:: 3.7
 
-        label_props : dict, optional
-            Dictionary of `.Text` properties to be used for the labels.
+        label_props : dict of lists, optional
+            Dictionary of `.Text` properties to be used for the labels. Each
+            dictionary value should be a list of at least a single element. If
+            the list is of length M, its values are cycled such that the Nth
+            label gets the (N mod M) property.
 
             .. versionadded:: 3.7
         frame_props : dict, optional
@@ -1111,7 +1129,8 @@ class CheckButtons(AxesWidget):
         Parameters
         ----------
         props : dict
-            Dictionary of `.Text` properties to be used for the labels.
+            Dictionary of `.Text` properties to be used for the labels. Same
+            format as label_props argument of :class:`CheckButtons`.
         """
         _api.check_isinstance(dict, props=props)
         props = _expand_text_props(props)
@@ -1579,8 +1598,11 @@ class RadioButtons(AxesWidget):
 
             .. versionadded:: 3.7
 
-        label_props : dict or list of dict, optional
-            Dictionary of `.Text` properties to be used for the labels.
+        label_props : dict of lists, optional
+            Dictionary of `.Text` properties to be used for the labels. Each
+            dictionary value should be a list of at least a single element. If
+            the list is of length M, its values are cycled such that the Nth
+            label gets the (N mod M) property.
 
             .. versionadded:: 3.7
         radio_props : dict, optional
@@ -1689,7 +1711,8 @@ class RadioButtons(AxesWidget):
         Parameters
         ----------
         props : dict
-            Dictionary of `.Text` properties to be used for the labels.
+            Dictionary of `.Text` properties to be used for the labels. Same
+            format as label_props argument of :class:`RadioButtons`.
         """
         _api.check_isinstance(dict, props=props)
         props = _expand_text_props(props)
@@ -2181,7 +2204,9 @@ class _SelectorWidget(AxesWidget):
 
     def ignore(self, event):
         # docstring inherited
-        if not self.active or not self.ax.get_visible():
+        if super().ignore(event):
+            return True
+        if not self.ax.get_visible():
             return True
         # If canvas was locked
         if not self.canvas.widgetlock.available(self):

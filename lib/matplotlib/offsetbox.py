@@ -946,8 +946,13 @@ class AnchoredOffsetbox(OffsetBox):
             See the parameter *loc* of `.Legend` for details.
         pad : float, default: 0.4
             Padding around the child as fraction of the fontsize.
-        borderpad : float, default: 0.5
+        borderpad : float or (float, float), default: 0.5
             Padding between the offsetbox frame and the *bbox_to_anchor*.
+            If a float, the same padding is used for both x and y.
+            If a tuple of two floats, it specifies the (x, y) padding.
+
+            .. versionadded:: 3.11
+               The *borderpad* parameter now accepts a tuple of (x, y) paddings.
         child : `.OffsetBox`
             The box that will be anchored.
         prop : `.FontProperties`
@@ -1054,12 +1059,22 @@ class AnchoredOffsetbox(OffsetBox):
     @_compat_get_offset
     def get_offset(self, bbox, renderer):
         # docstring inherited
-        pad = (self.borderpad
-               * renderer.points_to_pixels(self.prop.get_size_in_points()))
+        fontsize_in_pixels = renderer.points_to_pixels(self.prop.get_size_in_points())
+        try:
+            borderpad_x, borderpad_y = self.borderpad
+        except TypeError:
+            borderpad_x = self.borderpad
+            borderpad_y = self.borderpad
+        pad_x_pixels = borderpad_x * fontsize_in_pixels
+        pad_y_pixels = borderpad_y * fontsize_in_pixels
         bbox_to_anchor = self.get_bbox_to_anchor()
         x0, y0 = _get_anchored_bbox(
-            self.loc, Bbox.from_bounds(0, 0, bbox.width, bbox.height),
-            bbox_to_anchor, pad)
+            self.loc,
+            Bbox.from_bounds(0, 0, bbox.width, bbox.height),
+            bbox_to_anchor,
+            pad_x_pixels,
+            pad_y_pixels
+        )
         return x0 - bbox.x0, y0 - bbox.y0
 
     def update_frame(self, bbox, fontsize=None):
@@ -1084,15 +1099,15 @@ class AnchoredOffsetbox(OffsetBox):
         self.stale = False
 
 
-def _get_anchored_bbox(loc, bbox, parentbbox, borderpad):
+def _get_anchored_bbox(loc, bbox, parentbbox, pad_x, pad_y):
     """
     Return the (x, y) position of the *bbox* anchored at the *parentbbox* with
-    the *loc* code with the *borderpad*.
+    the *loc* code with the *borderpad* and padding *pad_x*, *pad_y*.
     """
     # This is only called internally and *loc* should already have been
     # validated.  If 0 (None), we just let ``bbox.anchored`` raise.
     c = [None, "NE", "NW", "SW", "SE", "E", "W", "E", "S", "N", "C"][loc]
-    container = parentbbox.padded(-borderpad)
+    container = parentbbox.padded(-pad_x, -pad_y)
     return bbox.anchored(c, container=container).p0
 
 

@@ -8,6 +8,7 @@ import abc
 import copy
 import enum
 import functools
+import itertools
 import logging
 import math
 import os
@@ -410,14 +411,14 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             metrics = self.get_metrics(
                 fontname, mpl.rcParams['mathtext.default'], 'x', fontsize, dpi)
             return metrics.iceberg
-        xHeight = (pclt['xHeight'] / 64.0) * (fontsize / 12.0) * (dpi / 100.0)
-        return xHeight
+        x_height = (pclt['xHeight'] / 64) * (fontsize / 12) * (dpi / 100)
+        return x_height
 
     def get_underline_thickness(self, font: str, fontsize: float, dpi: float) -> float:
         # This function used to grab underline thickness from the font
         # metrics, but that information is just too un-reliable, so it
         # is now hardcoded.
-        return ((0.75 / 12.0) * fontsize * dpi) / 72.0
+        return ((0.75 / 12) * fontsize * dpi) / 72
 
     def get_kern(self, font1: str, fontclass1: str, sym1: str, fontsize1: float,
                  font2: str, fontclass2: str, sym2: str, fontsize2: float,
@@ -1228,21 +1229,13 @@ class Hlist(List):
         linked list.
         """
         new_children = []
-        num_children = len(self.children)
-        if num_children:
-            for i in range(num_children):
-                elem = self.children[i]
-                if i < num_children - 1:
-                    next = self.children[i + 1]
-                else:
-                    next = None
-
-                new_children.append(elem)
-                kerning_distance = elem.get_kerning(next)
-                if kerning_distance != 0.:
-                    kern = Kern(kerning_distance)
-                    new_children.append(kern)
-            self.children = new_children
+        for elem0, elem1 in itertools.zip_longest(self.children, self.children[1:]):
+            new_children.append(elem0)
+            kerning_distance = elem0.get_kerning(elem1)
+            if kerning_distance != 0.:
+                kern = Kern(kerning_distance)
+                new_children.append(kern)
+        self.children = new_children
 
     def hpack(self, w: float = 0.0,
               m: T.Literal['additional', 'exactly'] = 'additional') -> None:
@@ -1536,11 +1529,9 @@ class AutoHeightChar(Hlist):
 
     def __init__(self, c: str, height: float, depth: float, state: ParserState,
                  always: bool = False, factor: float | None = None):
-        alternatives = state.fontset.get_sized_alternatives_for_symbol(
-            state.font, c)
+        alternatives = state.fontset.get_sized_alternatives_for_symbol(state.font, c)
 
-        xHeight = state.fontset.get_xheight(
-            state.font, state.fontsize, state.dpi)
+        x_height = state.fontset.get_xheight(state.font, state.fontsize, state.dpi)
 
         state = state.copy()
         target_total = height + depth
@@ -1548,8 +1539,8 @@ class AutoHeightChar(Hlist):
             state.font = fontname
             char = Char(sym, state)
             # Ensure that size 0 is chosen when the text is regular sized but
-            # with descender glyphs by subtracting 0.2 * xHeight
-            if char.height + char.depth >= target_total - 0.2 * xHeight:
+            # with descender glyphs by subtracting 0.2 * x_height
+            if char.height + char.depth >= target_total - 0.2 * x_height:
                 break
 
         shift = 0.0
@@ -1576,8 +1567,7 @@ class AutoWidthChar(Hlist):
 
     def __init__(self, c: str, width: float, state: ParserState, always: bool = False,
                  char_class: type[Char] = Char):
-        alternatives = state.fontset.get_sized_alternatives_for_symbol(
-            state.font, c)
+        alternatives = state.fontset.get_sized_alternatives_for_symbol(state.font, c)
 
         state = state.copy()
         for fontname, sym in alternatives:
@@ -2470,7 +2460,7 @@ class Parser:
         state = self.get_state()
         rule_thickness = state.fontset.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        xHeight = state.fontset.get_xheight(
+        x_height = state.fontset.get_xheight(
             state.font, state.fontsize, state.dpi)
 
         if napostrophes:
@@ -2539,24 +2529,21 @@ class Parser:
             nucleus = Hlist([nucleus])
 
         # Handle regular sub/superscripts
-        constants = _get_font_constant_set(state)
+        consts = _get_font_constant_set(state)
         lc_height   = last_char.height
         lc_baseline = 0
         if self.is_dropsub(last_char):
             lc_baseline = last_char.depth
 
         # Compute kerning for sub and super
-        superkern = constants.delta * xHeight
-        subkern = constants.delta * xHeight
+        superkern = consts.delta * x_height
+        subkern = consts.delta * x_height
         if self.is_slanted(last_char):
-            superkern += constants.delta * xHeight
-            superkern += (constants.delta_slanted *
-                          (lc_height - xHeight * 2. / 3.))
+            superkern += consts.delta * x_height
+            superkern += consts.delta_slanted * (lc_height - x_height * 2 / 3)
             if self.is_dropsub(last_char):
-                subkern = (3 * constants.delta -
-                           constants.delta_integral) * lc_height
-                superkern = (3 * constants.delta +
-                             constants.delta_integral) * lc_height
+                subkern = (3 * consts.delta - consts.delta_integral) * lc_height
+                superkern = (3 * consts.delta + consts.delta_integral) * lc_height
             else:
                 subkern = 0
 
@@ -2569,28 +2556,28 @@ class Parser:
             x = Hlist([Kern(subkern), T.cast(Node, sub)])
             x.shrink()
             if self.is_dropsub(last_char):
-                shift_down = lc_baseline + constants.subdrop * xHeight
+                shift_down = lc_baseline + consts.subdrop * x_height
             else:
-                shift_down = constants.sub1 * xHeight
+                shift_down = consts.sub1 * x_height
             x.shift_amount = shift_down
         else:
             x = Hlist([Kern(superkern), super])
             x.shrink()
             if self.is_dropsub(last_char):
-                shift_up = lc_height - constants.subdrop * xHeight
+                shift_up = lc_height - consts.subdrop * x_height
             else:
-                shift_up = constants.sup1 * xHeight
+                shift_up = consts.sup1 * x_height
             if sub is None:
                 x.shift_amount = -shift_up
             else:  # Both sub and superscript
                 y = Hlist([Kern(subkern), sub])
                 y.shrink()
                 if self.is_dropsub(last_char):
-                    shift_down = lc_baseline + constants.subdrop * xHeight
+                    shift_down = lc_baseline + consts.subdrop * x_height
                 else:
-                    shift_down = constants.sub2 * xHeight
+                    shift_down = consts.sub2 * x_height
                 # If sub and superscript collide, move super up
-                clr = (2.0 * rule_thickness -
+                clr = (2 * rule_thickness -
                        ((shift_up - x.depth) - (y.height - shift_down)))
                 if clr > 0.:
                     shift_up += clr
@@ -2601,7 +2588,7 @@ class Parser:
                 x.shift_amount = shift_down
 
         if not self.is_dropsub(last_char):
-            x.width += constants.script_space * xHeight
+            x.width += consts.script_space * x_height
 
         # Do we need to add a space after the nucleus?
         # To find out, check the flag set by operatorname
@@ -2626,12 +2613,13 @@ class Parser:
         width = max(num.width, den.width)
         cnum.hpack(width, 'exactly')
         cden.hpack(width, 'exactly')
-        vlist = Vlist([cnum,                      # numerator
-                       Vbox(0, thickness * 2.0),  # space
-                       Hrule(state, rule),        # rule
-                       Vbox(0, thickness * 2.0),  # space
-                       cden                       # denominator
-                       ])
+        vlist = Vlist([
+            cnum,                    # numerator
+            Vbox(0, 2 * thickness),  # space
+            Hrule(state, rule),      # rule
+            Vbox(0, 2 * thickness),  # space
+            cden,                    # denominator
+        ])
 
         # Shift so the fraction line sits in the middle of the
         # equals sign
@@ -2639,20 +2627,12 @@ class Parser:
             state.font, mpl.rcParams['mathtext.default'],
             '=', state.fontsize, state.dpi)
         shift = (cden.height -
-                 ((metrics.ymax + metrics.ymin) / 2 -
-                  thickness * 3.0))
+                 ((metrics.ymax + metrics.ymin) / 2 - 3 * thickness))
         vlist.shift_amount = shift
 
-        result = [Hlist([vlist, Hbox(thickness * 2.)])]
+        result: list[Box | Char | str] = [Hlist([vlist, Hbox(2 * thickness)])]
         if ldelim or rdelim:
-            if ldelim == '':
-                ldelim = '.'
-            if rdelim == '':
-                rdelim = '.'
-            return self._auto_sized_delimiter(ldelim,
-                                              T.cast(list[Box | Char | str],
-                                                     result),
-                                              rdelim)
+            return self._auto_sized_delimiter(ldelim or ".", result, rdelim or ".")
         return result
 
     def style_literal(self, toks: ParseResults) -> T.Any:
@@ -2721,7 +2701,7 @@ class Parser:
 
         # Determine the height of the body, and add a little extra to
         # the height so it doesn't seem cramped
-        height = body.height - body.shift_amount + thickness * 5.0
+        height = body.height - body.shift_amount + 5 * thickness
         depth = body.depth + body.shift_amount
         check = AutoHeightChar(r'\__sqrt__', height, depth, state, always=True)
         height = check.height - check.shift_amount
@@ -2731,13 +2711,13 @@ class Parser:
         padded_body = Hlist([Hbox(2 * thickness), body, Hbox(2 * thickness)])
         rightside = Vlist([Hrule(state), Glue('fill'), padded_body])
         # Stretch the glue between the hrule and the body
-        rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
+        rightside.vpack(height + (state.fontsize * state.dpi) / (100 * 12),
                         'exactly', depth)
 
         # Add the root and shift it upward so it is above the tick.
         # The value of 0.6 is a hard-coded hack ;)
         if not root:
-            root = Box(check.width * 0.5, 0., 0.)
+            root = Box(0.5 * check.width, 0., 0.)
         else:
             root = Hlist(root)
             root.shrink()
@@ -2746,11 +2726,12 @@ class Parser:
         root_vlist = Vlist([Hlist([root])])
         root_vlist.shift_amount = -height * 0.6
 
-        hlist = Hlist([root_vlist,               # Root
-                       # Negative kerning to put root over tick
-                       Kern(-check.width * 0.5),
-                       check,                    # Check
-                       rightside])               # Body
+        hlist = Hlist([
+            root_vlist,                # Root
+            Kern(-0.5 * check.width),  # Negative kerning to put root over tick
+            check,                     # Check
+            rightside,                 # Body
+        ])
         return [hlist]
 
     def overline(self, toks: ParseResults) -> T.Any:
@@ -2759,14 +2740,14 @@ class Parser:
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
 
-        height = body.height - body.shift_amount + thickness * 3.0
+        height = body.height - body.shift_amount + 3 * thickness
         depth = body.depth + body.shift_amount
 
         # Place overline above body
         rightside = Vlist([Hrule(state), Glue('fill'), Hlist([body])])
 
         # Stretch the glue between the hrule and the body
-        rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
+        rightside.vpack(height + (state.fontsize * state.dpi) / (100 * 12),
                         'exactly', depth)
 
         hlist = Hlist([rightside])
@@ -2812,10 +2793,7 @@ class Parser:
 
     def auto_delim(self, toks: ParseResults) -> T.Any:
         return self._auto_sized_delimiter(
-            toks["left"],
-            # if "mid" in toks ... can be removed when requiring pyparsing 3.
-            toks["mid"].as_list() if "mid" in toks else [],
-            toks["right"])
+            toks["left"], toks["mid"].as_list(), toks["right"])
 
     def boldsymbol(self, toks: ParseResults) -> T.Any:
         self.push_state()

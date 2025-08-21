@@ -215,7 +215,7 @@ If an end-user of Matplotlib sets up `logging` to display at levels more
 verbose than ``logging.WARNING`` in their code with the Matplotlib-provided
 helper::
 
-  plt.set_loglevel("debug")
+  plt.set_loglevel("DEBUG")
 
 or manually with ::
 

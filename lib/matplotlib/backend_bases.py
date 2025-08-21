@@ -76,6 +76,7 @@ _default_filetypes = {
     'tif': 'Tagged Image File Format',
     'tiff': 'Tagged Image File Format',
     'webp': 'WebP Image Format',
+    'avif': 'AV1 Image File Format',
 }
 _default_backends = {
     'eps': 'matplotlib.backends.backend_ps',
@@ -93,6 +94,7 @@ _default_backends = {
     'tif': 'matplotlib.backends.backend_agg',
     'tiff': 'matplotlib.backends.backend_agg',
     'webp': 'matplotlib.backends.backend_agg',
+    'avif': 'matplotlib.backends.backend_agg',
 }
 
 
@@ -1411,6 +1413,23 @@ class MouseEvent(LocationEvent):
         self.step = step
         self.dblclick = dblclick
 
+    @classmethod
+    def _from_ax_coords(cls, name, ax, xy, *args, **kwargs):
+        """
+        Generate a synthetic event at a given axes coordinate.
+
+        This method is intended for creating events during testing.  The event
+        can be emitted by calling its ``_process()`` method.
+
+        args and kwargs are mapped to `.MouseEvent.__init__` parameters,
+        starting with `button`.
+        """
+        x, y = ax.transData.transform(xy)
+        event = cls(name, ax.figure.canvas, x, y, *args, **kwargs)
+        event.inaxes = ax
+        event.xdata, event.ydata = xy  # Force exact xy to avoid fp roundtrip issues.
+        return event
+
     def __str__(self):
         return (f"{self.name}: "
                 f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
@@ -1502,6 +1521,22 @@ class KeyEvent(LocationEvent):
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
         super().__init__(name, canvas, x, y, guiEvent=guiEvent)
         self.key = key
+
+    @classmethod
+    def _from_ax_coords(cls, name, ax, xy, key, *args, **kwargs):
+        """
+        Generate a synthetic event at a given axes coordinate.
+
+        This method is intended for creating events during testing.  The event
+        can be emitted by calling its ``_process()`` method.
+        """
+        # Separate from MouseEvent._from_ax_coords instead of being defined in the base
+        # class, due to different parameter order in the constructor signature.
+        x, y = ax.transData.transform(xy)
+        event = cls(name, ax.figure.canvas, key, x, y, *args, **kwargs)
+        event.inaxes = ax
+        event.xdata, event.ydata = xy  # Force exact xy to avoid fp roundtrip issues.
+        return event
 
 
 # Default callback for key events.
@@ -2763,10 +2798,6 @@ class _Mode(str, Enum):
     def __str__(self):
         return self.value
 
-    @property
-    def _navigate_mode(self):
-        return self.name if self is not _Mode.NONE else None
-
 
 class NavigationToolbar2:
     """
@@ -3037,8 +3068,6 @@ class NavigationToolbar2:
         else:
             self.mode = _Mode.PAN
             self.canvas.widgetlock(self)
-        for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self.mode._navigate_mode)
 
     _PanInfo = namedtuple("_PanInfo", "button axes cid")
 
@@ -3099,8 +3128,6 @@ class NavigationToolbar2:
         else:
             self.mode = _Mode.ZOOM
             self.canvas.widgetlock(self)
-        for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self.mode._navigate_mode)
 
     _ZoomInfo = namedtuple("_ZoomInfo", "button start_xy axes cid cbar")
 
