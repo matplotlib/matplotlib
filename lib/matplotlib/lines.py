@@ -18,6 +18,7 @@ from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
 from ._enums import JoinStyle, CapStyle
+from ._containers import containerize_draw
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -424,6 +425,7 @@ class Line2D(Artist):
         self._transformed_path = None
         self._subslice = False
         self._x_filled = None  # used in subslicing; only x is needed
+        self._container = None
 
         self.set_data(xdata, ydata)
 
@@ -744,7 +746,8 @@ class Line2D(Artist):
         super().set_transform(t)
 
     @allow_rasterization
-    def draw(self, renderer):
+    @containerize_draw
+    def draw(self, renderer, *, graph=None):
         # docstring inherited
 
         if not self.get_visible():
