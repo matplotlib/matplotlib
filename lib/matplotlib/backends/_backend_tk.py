@@ -39,7 +39,8 @@ except ImportError as e:
             raise ImportError(
                 "Failed to import tkagg backend. You are using a uv-installed python "
                 "executable, which is not compatible with Tk. "
-                "Please use another Python interpreter or select another backend."
+                "Please update your python via: "
+                "`uv self update && uv python upgrade --reinstall`"
                 ) from e
         else:
             raise ImportError(
