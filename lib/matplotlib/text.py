@@ -5,7 +5,6 @@ Classes for including text in a figure.
 import functools
 import logging
 import math
-import numbers
 from numbers import Real
 import weakref
 
@@ -1639,22 +1638,15 @@ class _AnnotationBase:
         if self._xytext is None:
             return valid
 
-        try:
-            # transforming the coordinates
-            coords = np.array(self.get_transform().transform(self._xytext))
-            valid = not np.isnan(coords).any() and np.isfinite(coords).all()
-            # DEBUG
-            print("###")
-            print(coords)
-        except TypeError:
-            # If transformation fails, check raw coordinates
-            if all(isinstance(xyt, numbers.Number) for xyt in self._xytext):
-                is_numerical = not np.isnan(self._xytext).any()
-                finite = np.isfinite(self._xytext).all()
-                valid = is_numerical and finite
-            else:
-                # For non-number coordinates (like units), assume valid
-                valid = True
+        # transforming the coordinates
+        x = self.convert_xunits(self._xytext[0])
+        y = self.convert_yunits(self._xytext[1])
+        unitless_coords = (x, y)
+        coords = np.array(self.get_transform().transform(unitless_coords))
+        valid = not np.isnan(coords).any() and np.isfinite(coords).all()
+        # DEBUG
+        print("###")
+        print(coords)
 
         if not valid:
             raise ValueError("xytext coordinates must be finite numbers")
