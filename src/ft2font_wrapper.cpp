@@ -379,7 +379,7 @@ const char *PyFT2Font_init__doc__ = R"""(
 )""";
 
 static PyFT2Font *
-PyFT2Font_init(py::object filename, long hinting_factor = 8,
+PyFT2Font_init(FT_Library ft2Library, py::object filename, long hinting_factor = 8,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
                int kerning_factor = 0, bool warn_if_used = false)
 {
@@ -430,8 +430,8 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
         self->stream.close = nullptr;
     }
 
-    self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn,
-                          warn_if_used);
+    self->x = new FT2Font(ft2Library, open_args, hinting_factor, fallback_fonts,
+                          ft_glyph_warn, warn_if_used);
 
     self->x->set_kerning_factor(kerning_factor);
 
@@ -1477,12 +1477,14 @@ ft2font__getattr__(std::string name) {
 
 PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 {
-    if (FT_Init_FreeType(&_ft2Library)) {  // initialize library
+    FT_Library ft2Library = nullptr;
+
+    if (FT_Init_FreeType(&ft2Library)) {  // initialize library
         throw std::runtime_error("Could not initialize the freetype2 library");
     }
     FT_Int major, minor, patch;
     char version_string[64];
-    FT_Library_Version(_ft2Library, &major, &minor, &patch);
+    FT_Library_Version(ft2Library, &major, &minor, &patch);
     snprintf(version_string, sizeof(version_string), "%d.%d.%d", major, minor, patch);
 
     py::native_enum<FT_Kerning_Mode>(m, "Kerning", "enum.Enum", Kerning__doc__)
@@ -1597,7 +1599,14 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
     py::classh<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
                           PyFT2Font__doc__)
-        .def(py::init(&PyFT2Font_init),
+        .def(py::init(
+            [ft2Library](py::object filename, long hinting_factor = 8,
+                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
+                int kerning_factor = 0, bool warn_if_used = false) -> PyFT2Font *
+            {
+                return PyFT2Font_init(ft2Library, filename, hinting_factor,
+                                      fallback_list, kerning_factor, warn_if_used);
+            }),
              "filename"_a, "hinting_factor"_a=8, py::kw_only(),
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=0,
              "_warn_if_used"_a=false,
@@ -1753,6 +1762,18 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
             return self.x->get_image().request();
         });
+
+    // Ensure FreeType library is closed after all instances of FT2Font are gone by
+    // tying a weak ref to the class itself.
+    (void)py::weakref(
+        m.attr("FT2Font"),
+        py::cpp_function(
+            [ft2Library](py::handle weakref) {
+                FT_Done_FreeType(ft2Library);
+                weakref.dec_ref();
+            }
+        )
+    ).release();
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
