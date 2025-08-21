@@ -7,6 +7,9 @@
  */
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #ifdef _MSC_VER
 /* The Qhull header does not declare this as extern "C", but only MSVC seems to
@@ -284,7 +287,12 @@ delaunay(const CoordArray& x, const CoordArray& y, int verbose)
     return delaunay_impl(npoints, x.data(), y.data(), verbose == 0);
 }
 
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+PYBIND11_MODULE(_qhull, m,
+                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
+#else
 PYBIND11_MODULE(_qhull, m, py::mod_gil_not_used())
+#endif
 {
     m.doc() = "Computing Delaunay triangulations.\n";
 

@@ -3,6 +3,9 @@
 #include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #include "ft2font.h"
 
@@ -1393,11 +1396,12 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
     return items;
 }
 
-/**********************************************************************
- * Deprecations
- * */
-
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+PYBIND11_MODULE(ft2font, m,
+                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
+#else
 PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
+#endif
 {
     FT_Library ft2Library = nullptr;
 

@@ -1,6 +1,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #include <algorithm>
 
@@ -288,7 +291,12 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
 }
 
 
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+PYBIND11_MODULE(_image, m,
+                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
+#else
 PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
+#endif
 {
     py::native_enum<interpolation_e>(m, "_InterpolationType", "enum.Enum")
         .value("NEAREST", NEAREST)
