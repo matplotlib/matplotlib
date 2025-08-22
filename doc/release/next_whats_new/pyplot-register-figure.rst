@@ -48,7 +48,8 @@ Technical detail: Standalone figures use `.FigureCanvasBase` as canvas. This is
 replaced by a backend-dependent subclass when registering with pyplot, and is
 reset to `.FigureCanvasBase` when the figure is closed. `.Figure.savefig` uses
 the current canvas to save the figure (if possible). Since `.FigureCanvasBase`
-can not render the figure, when using save fig it will fallback to `.FigureCanvasAgg` which is Agg-based.  Any Agg-based backend will create the same file output, however
+can not render the figure, when using savefig it will fallback to`.FigureCanvasAgg`
+which is Agg-based.  Any Agg-based backend will create the same file output, however
 There may be slight differences for non-Agg backends; e.g. if you use "GTK4Cairo" as
 interactive backend, ``fig.savefig("file.png")`` may create a slightly different
 image depending on whether the figure is registered with pyplot or not. In
