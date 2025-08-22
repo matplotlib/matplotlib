@@ -37,10 +37,10 @@ except ImportError as e:
         is_uv_python = "/uv/python" in (os.path.realpath(sys.executable))
         if is_uv_python:
             raise ImportError(
-                "Failed to import tkagg backend. You are using a uv-installed python "
-                "executable, which is not compatible with Tk. "
-                "Please update your python via: "
-                "`uv self update && uv python upgrade --reinstall`"
+                "Failed to import tkagg backend. You appear to be using an outdated "
+                "version of uv's managed Python distribution which is not compatible with Tk. "
+                "Please upgrade to the latest uv version, then update Python with:"
+                "`uv python upgrade --reinstall`"
                 ) from e
         else:
             raise ImportError(
