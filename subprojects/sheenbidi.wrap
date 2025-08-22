@@ -1,0 +1,5 @@
+[wrap-file]
+directory = SheenBidi-2.9.0
+source_url = https://github.com/Tehreer/SheenBidi/archive/refs/tags/v2.9.0/sheenbidi-2.9.0.tar.gz
+source_filename = sheenbidi-2.9.0.tar.gz
+source_hash = e90ae142c6fc8b94366f3526f84b349a2c10137f87093db402fe51f6eace6d13
