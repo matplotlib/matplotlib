@@ -534,12 +534,12 @@ def _get_config_or_cache_dir(xdg_base_getter):
         # as _xdg_base_getter can throw.
         try:
             configdir = Path(xdg_base_getter(), "matplotlib")
-        except RuntimeError:
+        except RuntimeError:  # raised if Path.home() is not available
             pass
     else:
         try:
             configdir = Path.home() / ".matplotlib"
-        except RuntimeError:
+        except RuntimeError:  # raised if Path.home() is not available
             pass
 
     if configdir:
