@@ -810,7 +810,7 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.triplot(...)
 
-    @pytest.mark.parametrize(("orientation"), ["vertical", "horizontal"])
+    @pytest.mark.parametrize("orientation", ["vertical", "horizontal"])
     @mpl.style.context("default")
     def test_violin(self, orientation):
         fig, ax = plt.subplots()
