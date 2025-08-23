@@ -1073,15 +1073,41 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.Bind(wx.EVT_TOOL, getattr(self, callback),
                       id=self.wx_ids[text])
 
-        self._coordinates = coordinates
-        if self._coordinates:
-            self.AddStretchableSpace()
-            self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
+        if coordinates:
+            # Each OS appears to require its own (non-interchangeable) strategy
+            # to position the coordinates text box to the right of the toolbar.
+            # On Linux (wxGTK), the StaticText is pushed to the right with
+            # a StretchableSpace.  On Windows and macOS, instead, the size
+            # of the StaticText is adjusted to fill all the remaining space
+            # beyond the toolbar buttons, via a EVT_SIZE callback.  On Windows,
+            # wx.ToolBar does not receive all EVT_SIZE, so we connect to the
+            # canvas' EVT_SIZE.  On macOS, the canvas' EVT_SIZE is not called
+            # at init, so we connect to the toolbar's EVT_SIZE.
+            if wx.Platform == "__WXGTK__":
+                self.AddStretchableSpace()
+                self._label_text = wx.StaticText(
+                    self, label="\n", style=wx.ALIGN_RIGHT)
+            else:
+                self._label_text = wx.StaticText(
+                    self, label="\n", style=wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE)
             self.AddControl(self._label_text)
+            if wx.Platform == "__WXMSW__":
+                canvas.Bind(wx.EVT_SIZE, self._on_size)
+            elif wx.Platform == "__WXMAC__":
+                self.Bind(wx.EVT_SIZE, self._on_size)
+        else:
+            self._label_text = None
 
         self.Realize()
 
         NavigationToolbar2.__init__(self, canvas)
+
+    def _on_size(self, event):
+        text = self._label_text
+        # During initialization, on Windows, the toolbar size (self.Size) is
+        # not properly updated, but event.Size is correct, hence its use here.
+        text.SetSize(event.Size.Width - text.Position.x, text.Size.Height)
+        event.Skip()
 
     @staticmethod
     def _icon(name):
@@ -1179,7 +1205,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.canvas.Refresh()
 
     def set_message(self, s):
-        if self._coordinates:
+        if self._label_text:
             self._label_text.SetLabel(s)
 
     def set_history_buttons(self):
@@ -1201,9 +1227,22 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
             parent = toolmanager.canvas.GetParent()
         ToolContainerBase.__init__(self, toolmanager)
         wx.ToolBar.__init__(self, parent, -1, style=style)
-        self._space = self.AddStretchableSpace()
-        self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
+        if wx.Platform == "__WXGTK__":
+            self.AddStretchableSpace()
+            self._label_text = wx.StaticText(
+                self, label="\n", style=wx.ALIGN_RIGHT)
+        else:
+            self._label_text = wx.StaticText(
+                self, label="\n", style=wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE)
         self.AddControl(self._label_text)
+        if wx.Platform == "__WXMSW__":
+            toolmanager.canvas.Bind(
+                wx.EVT_SIZE,
+                functools.partial(NavigationToolbar2Wx._on_size, self))
+        elif wx.Platform == "__WXMAC__":
+            self.Bind(
+                wx.EVT_SIZE,
+                functools.partial(NavigationToolbar2Wx._on_size, self))
         self._toolitems = {}
         self._groups = {}  # Mapping of groups to the separator after them.
 
@@ -1222,8 +1261,9 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
                      toggle):
         # Find or create the separator that follows this group.
         if group not in self._groups:
+            # On wxGTK we add a StretchableSpace which must also be skipped.
             self._groups[group] = self.InsertSeparator(
-                self._get_tool_pos(self._space))
+                self.ToolsCount - (2 if wx.Platform == "__WXGTK__" else 1))
         sep = self._groups[group]
         # List all separators.
         seps = [t for t in map(self.GetToolByPos, range(self.ToolsCount))
