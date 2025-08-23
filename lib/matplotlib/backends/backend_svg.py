@@ -1023,19 +1023,19 @@ class RendererSVG(RendererBase):
         writer = self.writer
         if glyph_map_new:
             writer.start('defs')
-            for char_id, (vertices, codes) in glyph_map_new.items():
-                char_id = self._adjust_char_id(char_id)
+            for glyph_id, (vertices, codes) in glyph_map_new.items():
+                glyph_id = self._adjust_glyph_id(glyph_id)
                 # x64 to go back to FreeType's internal (integral) units.
                 path_data = self._convert_path(
                     Path(vertices * 64, codes), simplify=False)
                 writer.element(
-                    'path', id=char_id, d=path_data,
+                    'path', id=glyph_id, d=path_data,
                     transform=_generate_transform([('scale', (1 / 64,))]))
             writer.end('defs')
             self._glyph_map.update(glyph_map_new)
 
-    def _adjust_char_id(self, char_id):
-        return char_id.replace("%20", "_")
+    def _adjust_glyph_id(self, glyph_id):
+        return glyph_id.replace("%20", "_")
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath, mtext=None):
         # docstring inherited
@@ -1067,9 +1067,8 @@ class RendererSVG(RendererBase):
 
         if not ismath:
             font = text2path._get_font(prop)
-            _glyphs = text2path.get_glyphs_with_font(
+            glyph_info, glyph_map_new, rects = text2path.get_glyphs_with_font(
                 font, s, glyph_map=glyph_map, return_new_glyphs_only=True)
-            glyph_info, glyph_map_new, rects = _glyphs
             self._update_glyph_map_defs(glyph_map_new)
 
             for glyph_id, xposition, yposition, scale in glyph_info:
@@ -1091,15 +1090,15 @@ class RendererSVG(RendererBase):
             glyph_info, glyph_map_new, rects = _glyphs
             self._update_glyph_map_defs(glyph_map_new)
 
-            for char_id, xposition, yposition, scale in glyph_info:
-                char_id = self._adjust_char_id(char_id)
+            for glyph_id, xposition, yposition, scale in glyph_info:
+                glyph_id = self._adjust_glyph_id(glyph_id)
                 writer.element(
                     'use',
                     transform=_generate_transform([
                         ('translate', (xposition, yposition)),
                         ('scale', (scale,)),
                         ]),
-                    attrib={'xlink:href': f'#{char_id}'})
+                    attrib={'xlink:href': f'#{glyph_id}'})
 
             for verts, codes in rects:
                 path = Path(verts, codes)
@@ -1223,7 +1222,12 @@ class RendererSVG(RendererBase):
 
             # Sort the characters by font, and output one tspan for each.
             spans = {}
-            for font, fontsize, thetext, new_x, new_y in glyphs:
+            font_charmaps = {}
+            for font, fontsize, glyph_index, new_x, new_y in glyphs:
+                if font not in font_charmaps:
+                    font_charmaps[font] = {
+                        gind: ccode for ccode, gind in font.get_charmap().items()}
+                ccode = font_charmaps[font].get(glyph_index)
                 entry = fm.ttfFontProperty(font)
                 font_style = {}
                 # Separate font style in its separate attributes
@@ -1238,9 +1242,9 @@ class RendererSVG(RendererBase):
                 if entry.stretch != 'normal':
                     font_style['font-stretch'] = entry.stretch
                 style = _generate_css({**font_style, **color_style})
-                if thetext == 32:
-                    thetext = 0xa0  # non-breaking space
-                spans.setdefault(style, []).append((new_x, -new_y, thetext))
+                if ccode == 32:
+                    ccode = 0xa0  # non-breaking space
+                spans.setdefault(style, []).append((new_x, -new_y, ccode))
 
             for style, chars in spans.items():
                 chars.sort()  # Sort by increasing x position
