@@ -46,8 +46,9 @@ except ImportError as e:
             raise ImportError(
                 "Failed to import tkagg backend. This is likely caused by using a "
                 "Python executable based on python-build-standalone, which is not "
-                "compatible with Tk. "
-                "Please use another Python interpreter or select another backend."
+                "compatible with Tk. Recent versions of python-build-standalone "
+                "should be compatible with Tk. Please update your python version "
+                "or select another backend."
                 ) from e
     else:
         raise
