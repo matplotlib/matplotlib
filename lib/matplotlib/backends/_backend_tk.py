@@ -38,9 +38,9 @@ except ImportError as e:
         if is_uv_python:
             raise ImportError(
                 "Failed to import tkagg backend. You appear to be using an outdated "
-                "version of uv's managed Python distribution which is not compatible with Tk. "
-                "Please upgrade to the latest uv version, then update Python with:"
-                "`uv python upgrade --reinstall`"
+                "version of uv's managed Python distribution which is not compatible "
+                " with Tk. Please upgrade to the latest uv version, then update "
+                " Python with: `uv python upgrade --reinstall`"
                 ) from e
         else:
             raise ImportError(
