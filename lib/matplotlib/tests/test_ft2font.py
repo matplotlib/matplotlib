@@ -1,6 +1,7 @@
 import itertools
 import io
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import pytest
@@ -168,6 +169,12 @@ def test_ft2font_invalid_args(tmp_path):
     # kerning_factor argument.
     with pytest.raises(TypeError, match='incompatible constructor arguments'):
         ft2font.FT2Font(file, _kerning_factor=1.3)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='text.kerning_factor rcParam was deprecated .+ 3.11'):
+        mpl.rcParams['text.kerning_factor'] = 0
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='_kerning_factor parameter was deprecated .+ 3.11'):
+        ft2font.FT2Font(file, _kerning_factor=123)
 
 
 def test_ft2font_clear():
@@ -188,8 +195,8 @@ def test_ft2font_clear():
 
 def test_ft2font_set_size():
     file = fm.findfont('DejaVu Sans')
-    # Default is 12pt @ 72 dpi.
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=1)
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    font.set_size(12, 72)
     font.set_text('ABabCDcd')
     orig = font.get_width_height()
     font.set_size(24, 72)
@@ -235,7 +242,7 @@ def test_ft2font_charmaps():
     assert unic == after
 
     # This is just a random sample from FontForge.
-    glyph_names = {
+    glyph_names = cast(dict[str, ft2font.GlyphIndexType], {
         'non-existent-glyph-name': 0,
         'plusminus': 115,
         'Racute': 278,
@@ -247,7 +254,7 @@ def test_ft2font_charmaps():
         'uni2A02': 4464,
         'u1D305': 5410,
         'u1F0A1': 5784,
-    }
+    })
     for name, index in glyph_names.items():
         assert font.get_name_index(name) == index
         if name == 'non-existent-glyph-name':
@@ -708,16 +715,16 @@ def test_ft2font_get_sfnt_table(font_name, header):
 
 @pytest.mark.parametrize('left, right, unscaled, unfitted, default', [
     # These are all the same class.
-    ('A', 'A', 57, 248, 256), ('A', 'À', 57, 248, 256), ('A', 'Á', 57, 248, 256),
-    ('A', 'Â', 57, 248, 256), ('A', 'Ã', 57, 248, 256), ('A', 'Ä', 57, 248, 256),
+    ('A', 'A', 57, 247, 256), ('A', 'À', 57, 247, 256), ('A', 'Á', 57, 247, 256),
+    ('A', 'Â', 57, 247, 256), ('A', 'Ã', 57, 247, 256), ('A', 'Ä', 57, 247, 256),
     # And a few other random ones.
-    ('D', 'A', -36, -156, -128), ('T', '.', -243, -1056, -1024),
+    ('D', 'A', -36, -156, -128), ('T', '.', -243, -1055, -1024),
     ('X', 'C', -149, -647, -640), ('-', 'J', 114, 495, 512),
 ])
 def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
     file = fm.findfont('DejaVu Sans')
     # With unscaled, these settings should produce exact values found in FontForge.
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file, hinting_factor=1)
     font.set_size(100, 100)
     assert font.get_kerning(font.get_char_index(ord(left)),
                             font.get_char_index(ord(right)),
@@ -756,7 +763,8 @@ def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
 
 def test_ft2font_set_text():
     file = fm.findfont('DejaVu Sans')
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    font.set_size(12, 72)
     xys = font.set_text('')
     np.testing.assert_array_equal(xys, np.empty((0, 2)))
     assert font.get_width_height() == (0, 0)
@@ -777,7 +785,8 @@ def test_ft2font_set_text():
 
 def test_ft2font_loading():
     file = fm.findfont('DejaVu Sans')
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    font.set_size(12, 72)
     for glyph in [font.load_char(ord('M')),
                   font.load_glyph(font.get_char_index(ord('M')))]:
         assert glyph is not None
@@ -817,12 +826,14 @@ def test_ft2font_drawing():
     ])
     expected *= 255
     file = fm.findfont('DejaVu Sans')
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    font.set_size(12, 72)
     font.set_text('M')
     font.draw_glyphs_to_bitmap(antialiased=False)
     image = font.get_image()
     np.testing.assert_array_equal(image, expected)
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    font.set_size(12, 72)
     glyph = font.load_char(ord('M'))
     image = np.zeros(expected.shape, np.uint8)
     font.draw_glyph_to_bitmap(image, -1, 1, glyph, antialiased=False)
@@ -831,7 +842,8 @@ def test_ft2font_drawing():
 
 def test_ft2font_get_path():
     file = fm.findfont('DejaVu Sans')
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    font.set_size(12, 72)
     vertices, codes = font.get_path()
     assert vertices.shape == (0, 2)
     assert codes.shape == (0, )

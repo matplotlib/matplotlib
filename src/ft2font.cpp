@@ -7,7 +7,6 @@
 #include <cstdio>
 #include <iterator>
 #include <set>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -207,38 +206,43 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
     codes.push_back(CLOSEPOLY);
 }
 
-FT2Font::FT2Font(FT_Open_Args &open_args,
-                 long hinting_factor_,
-                 std::vector<FT2Font *> &fallback_list,
-                 FT2Font::WarnFunc warn, bool warn_if_used)
-    : ft_glyph_warn(warn), warn_if_used(warn_if_used), image({1, 1}), face(nullptr),
+FT2Font::FT2Font(long hinting_factor_, std::vector<FT2Font *> &fallback_list,
+                 bool warn_if_used)
+    : warn_if_used(warn_if_used), image({1, 1}), face(nullptr), fallbacks(fallback_list),
       hinting_factor(hinting_factor_),
       // set default kerning factor to 0, i.e., no kerning manipulation
       kerning_factor(0)
 {
     clear();
-    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, 0, &face);
-    if (open_args.stream != nullptr) {
-        face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
-    }
-    try {
-        set_size(12., 72.);  // Set a default fontsize 12 pt at 72dpi.
-    } catch (...) {
-        FT_Done_Face(face);
-        throw;
-    }
-    // Set fallbacks
-    std::copy(fallback_list.begin(), fallback_list.end(), std::back_inserter(fallbacks));
 }
 
 FT2Font::~FT2Font()
 {
+    close();
+}
+
+void FT2Font::open(FT_Open_Args &open_args)
+{
+    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, 0, &face);
+    if (open_args.stream != nullptr) {
+        face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
+    }
+}
+
+void FT2Font::close()
+{
+    // This should be idempotent, in case a user manually calls close before the
+    // destructor does. Note for example, that PyFT2Font _does_ call this before the
+    // base destructor to ensure internal pointers are cleared early enough.
+
     for (auto & glyph : glyphs) {
         FT_Done_Glyph(glyph);
     }
+    glyphs.clear();
 
     if (face) {
         FT_Done_Face(face);
+        face = nullptr;
     }
 }
 
@@ -253,7 +257,6 @@ void FT2Font::clear()
     }
 
     glyphs.clear();
-    glyph_to_font.clear();
     char_to_font.clear();
 
     for (auto & fallback : fallbacks) {
@@ -287,35 +290,13 @@ void FT2Font::select_charmap(unsigned long i)
     FT_CHECK(FT_Select_Charmap, face, (FT_Encoding)i);
 }
 
-int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode,
-                         bool fallback = false)
-{
-    if (fallback && glyph_to_font.find(left) != glyph_to_font.end() &&
-        glyph_to_font.find(right) != glyph_to_font.end()) {
-        FT2Font *left_ft_object = glyph_to_font[left];
-        FT2Font *right_ft_object = glyph_to_font[right];
-        if (left_ft_object != right_ft_object) {
-            // we do not know how to do kerning between different fonts
-            return 0;
-        }
-        // if left_ft_object is the same as right_ft_object,
-        // do the exact same thing which set_text does.
-        return right_ft_object->get_kerning(left, right, mode, false);
-    }
-    else
-    {
-        FT_Vector delta;
-        return get_kerning(left, right, mode, delta);
-    }
-}
-
-int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode,
-                         FT_Vector &delta)
+int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode)
 {
     if (!FT_HAS_KERNING(face)) {
         return 0;
     }
 
+    FT_Vector delta;
     if (!FT_Get_Kerning(face, left, right, mode, &delta)) {
         return (int)(delta.x) / (hinting_factor << kerning_factor);
     } else {
@@ -364,7 +345,7 @@ void FT2Font::set_text(
         std::set<FT_String*> glyph_seen_fonts;
         FT2Font *ft_object_with_glyph = this;
         bool was_found = load_char_with_fallback(ft_object_with_glyph, glyph_index, glyphs,
-                                                 char_to_font, glyph_to_font, codepoint, flags,
+                                                 char_to_font, codepoint, flags,
                                                  charcode_error, glyph_error, glyph_seen_fonts, false);
         if (!was_found) {
             ft_glyph_warn((FT_ULong)codepoint, glyph_seen_fonts);
@@ -372,8 +353,7 @@ void FT2Font::set_text(
             // come back to top-most font
             ft_object_with_glyph = this;
             char_to_font[codepoint] = ft_object_with_glyph;
-            glyph_to_font[glyph_index] = ft_object_with_glyph;
-            ft_object_with_glyph->load_glyph(glyph_index, flags, ft_object_with_glyph, false);
+            ft_object_with_glyph->load_glyph(glyph_index, flags);
         } else if (ft_object_with_glyph->warn_if_used) {
             ft_glyph_warn((FT_ULong)codepoint, glyph_seen_fonts);
         }
@@ -383,8 +363,7 @@ void FT2Font::set_text(
             ft_object_with_glyph->has_kerning() &&           // if the font knows how to kern
             previous && glyph_index                          // and we really have 2 glyphs
             ) {
-            FT_Vector delta;
-            pen.x += ft_object_with_glyph->get_kerning(previous, glyph_index, FT_KERNING_DEFAULT, delta);
+            pen.x += ft_object_with_glyph->get_kerning(previous, glyph_index, FT_KERNING_DEFAULT);
         }
 
         // extract glyph image and store it in our table
@@ -434,7 +413,7 @@ void FT2Font::load_char(long charcode, FT_Int32 flags, FT2Font *&ft_object, bool
         FT_Error charcode_error, glyph_error;
         FT2Font *ft_object_with_glyph = this;
         bool was_found = load_char_with_fallback(ft_object_with_glyph, final_glyph_index,
-                                                 glyphs, char_to_font, glyph_to_font,
+                                                 glyphs, char_to_font,
                                                  charcode, flags, charcode_error, glyph_error,
                                                  glyph_seen_fonts, true);
         if (!was_found) {
@@ -493,7 +472,6 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
                                       FT_UInt &final_glyph_index,
                                       std::vector<FT_Glyph> &parent_glyphs,
                                       std::unordered_map<long, FT2Font *> &parent_char_to_font,
-                                      std::unordered_map<FT_UInt, FT2Font *> &parent_glyph_to_font,
                                       long charcode,
                                       FT_Int32 flags,
                                       FT_Error &charcode_error,
@@ -523,7 +501,6 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
         // need to store this for anytime a character is loaded from a parent
         // FT2Font object or to generate a mapping of individual characters to fonts
         ft_object_with_glyph = this;
-        parent_glyph_to_font[final_glyph_index] = this;
         parent_char_to_font[charcode] = this;
         parent_glyphs.push_back(thisGlyph);
         return true;
@@ -532,7 +509,7 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
         for (auto & fallback : fallbacks) {
             bool was_found = fallback->load_char_with_fallback(
                 ft_object_with_glyph, final_glyph_index, parent_glyphs,
-                parent_char_to_font, parent_glyph_to_font, charcode, flags,
+                parent_char_to_font, charcode, flags,
                 charcode_error, glyph_error, glyph_seen_fonts, override);
             if (was_found) {
                 return true;
@@ -540,21 +517,6 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
         }
         return false;
     }
-}
-
-void FT2Font::load_glyph(FT_UInt glyph_index,
-                         FT_Int32 flags,
-                         FT2Font *&ft_object,
-                         bool fallback = false)
-{
-    // cache is only for parent FT2Font
-    if (fallback && glyph_to_font.find(glyph_index) != glyph_to_font.end()) {
-        ft_object = glyph_to_font[glyph_index];
-    } else {
-        ft_object = this;
-    }
-
-    ft_object->load_glyph(glyph_index, flags);
 }
 
 void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
@@ -581,10 +543,9 @@ FT_UInt FT2Font::get_char_index(FT_ULong charcode, bool fallback = false)
     return FT_Get_Char_Index(ft_object->get_face(), charcode);
 }
 
-void FT2Font::get_width_height(long *width, long *height)
+std::tuple<long, long> FT2Font::get_width_height()
 {
-    *width = advance;
-    *height = bbox.yMax - bbox.yMin;
+    return {advance, bbox.yMax - bbox.yMin};
 }
 
 long FT2Font::get_descent()
@@ -592,10 +553,9 @@ long FT2Font::get_descent()
     return -bbox.yMin;
 }
 
-void FT2Font::get_bitmap_offset(long *x, long *y)
+std::tuple<long, long> FT2Font::get_bitmap_offset()
 {
-    *x = bbox.xMin;
-    *y = 0;
+    return {bbox.xMin, 0};
 }
 
 void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
@@ -644,15 +604,11 @@ void FT2Font::draw_glyph_to_bitmap(
     draw_bitmap(im, &bitmap->bitmap, x + bitmap->left, y);
 }
 
-void FT2Font::get_glyph_name(unsigned int glyph_number, std::string &buffer,
-                             bool fallback = false)
+std::string FT2Font::get_glyph_name(unsigned int glyph_number)
 {
-    if (fallback && glyph_to_font.find(glyph_number) != glyph_to_font.end()) {
-        // cache is only for parent FT2Font
-        FT2Font *ft_object = glyph_to_font[glyph_number];
-        ft_object->get_glyph_name(glyph_number, buffer, false);
-        return;
-    }
+    std::string buffer;
+    buffer.resize(128);
+
     if (!FT_HAS_GLYPH_NAMES(face)) {
         /* Note that this generated name must match the name that
            is generated by ttconv in ttfont_CharStrings_getname. */
@@ -669,6 +625,8 @@ void FT2Font::get_glyph_name(unsigned int glyph_number, std::string &buffer,
             buffer.resize(len);
         }
     }
+
+    return buffer;
 }
 
 long FT2Font::get_name_index(char *name)
