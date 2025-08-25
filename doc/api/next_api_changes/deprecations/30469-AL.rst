@@ -1,0 +1,4 @@
+The *axes* parameter of ``RadialLocator``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated. `~.polar.RadialLocator` now fetches the relevant information
+from the Axis' parent Axes.
