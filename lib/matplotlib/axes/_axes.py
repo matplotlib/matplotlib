@@ -1183,7 +1183,7 @@ class Axes(_AxesBase):
             if self.name == "rectilinear":
                 datalim = lines.get_datalim(self.transData)
                 t = lines.get_transform()
-                updatex, updatey = t.contains_branch_seperately(self.transData)
+                updatex, updatey = t.contains_branch_separately(self.transData)
                 minx = np.nanmin(datalim.xmin)
                 maxx = np.nanmax(datalim.xmax)
                 miny = np.nanmin(datalim.ymin)
@@ -1275,7 +1275,7 @@ class Axes(_AxesBase):
             if self.name == "rectilinear":
                 datalim = lines.get_datalim(self.transData)
                 t = lines.get_transform()
-                updatex, updatey = t.contains_branch_seperately(self.transData)
+                updatex, updatey = t.contains_branch_separately(self.transData)
                 minx = np.nanmin(datalim.xmin)
                 maxx = np.nanmax(datalim.xmax)
                 miny = np.nanmin(datalim.ymin)
@@ -6809,7 +6809,7 @@ or pandas.DataFrame
                 hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
-        if t and any(t.contains_branch_seperately(self.transData)):
+        if t and any(t.contains_branch_separately(self.transData)):
             trans_to_data = t - self.transData
             coords = trans_to_data.transform(coords)
 
