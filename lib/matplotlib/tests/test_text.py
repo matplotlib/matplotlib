@@ -113,6 +113,26 @@ def test_font_styles():
     ax.set_yticks([])
 
 
+@image_comparison(['complex.png'])
+def test_complex_shaping():
+    # Raqm is Arabic for writing; note that because Arabic is RTL, the characters here
+    # may seem to be in a different order than expected, but libraqm will order them
+    # correctly for us.
+    text = (
+        'Arabic: \N{Arabic Letter REH}\N{Arabic FATHA}\N{Arabic Letter QAF}'
+        '\N{Arabic SUKUN}\N{Arabic Letter MEEM}')
+    math_signs = '\N{N-ary Product}\N{N-ary Coproduct}\N{N-ary summation}\N{Integral}'
+    text = math_signs + text + math_signs
+    fig = plt.figure(figsize=(6, 2))
+    fig.text(0.5, 0.75, text, size=32, ha='center', va='center')
+    # Also check fallback behaviour:
+    # - English should use cmr10
+    # - Math signs should use DejaVu Sans Display (and thus be larger than the rest)
+    # - Arabic should use DejaVu Sans
+    fig.text(0.5, 0.25, text, size=32, ha='center', va='center',
+             family=['cmr10', 'DejaVu Sans Display', 'DejaVu Sans'])
+
+
 @image_comparison(['multiline'])
 def test_multiline():
     plt.figure()
@@ -824,18 +844,6 @@ def test_invalid_color():
 def test_pdf_kerning():
     plt.figure()
     plt.figtext(0.1, 0.5, "ATATATATATATATATATA", size=30)
-
-
-def test_unsupported_script(recwarn):
-    fig = plt.figure()
-    t = fig.text(.5, .5, "\N{BENGALI DIGIT ZERO}")
-    fig.canvas.draw()
-    assert all(isinstance(warn.message, UserWarning) for warn in recwarn)
-    assert (
-        [warn.message.args for warn in recwarn] ==
-        [(r"Glyph 2534 (\N{BENGALI DIGIT ZERO}) missing from font(s) "
-            + f"{t.get_fontname()}.",),
-         (r"Matplotlib currently does not support Bengali natively.",)])
 
 
 # See gh-26152 for more information on this xfail
