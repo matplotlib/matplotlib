@@ -397,13 +397,14 @@ jobs:
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             LCOV_IGNORE_ERRORS=','  # do not ignore any lcov errors by default
             if [[ "${{ matrix.os }}" = ubuntu-24.04 ]]; then
-              # filter mismatch and unused-entity errors detected by lcov 2.x
-              LCOV_IGNORE_ERRORS='mismatch,unused'
+              # filter mismatch errors detected by lcov 2.x
+              LCOV_IGNORE_ERRORS='mismatch'
             fi
             lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
-              --capture --directory . --output-file coverage.info
+              --capture --directory . --exclude $PWD/subprojects --exclude $PWD/build \
+              --output-file coverage.info
             lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
-              --output-file coverage.info --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
+              --output-file coverage.info --extract coverage.info $PWD/src/'*'
             lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
               --list coverage.info
             find . -name '*.gc*' -delete
