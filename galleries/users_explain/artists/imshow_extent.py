@@ -3,8 +3,8 @@
 
 .. _imshow_extent:
 
-The *origin* and *extent* in `~.Axes.imshow`
-============================================
+Positioning and orientation of `~.Axes.imshow` images
+=====================================================
 
 :meth:`~.Axes.imshow` allows you to render an image (either a 2D array which
 will be color-mapped (based on *norm* and *cmap*) or a 3D RGB(A) array which
