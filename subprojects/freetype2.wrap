@@ -1,3 +1,7 @@
+# This is the version of FreeType to use when building a local version. It
+# must match the value in `lib/matplotlib.__init__.py`. Also update the docs
+# in `docs/devel/dependencies.rst`. Bump the cache key in
+# `.circleci/config.yml` when changing requirements.
 [wrap-file]
 directory = freetype-2.13.3
 source_url = https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.xz

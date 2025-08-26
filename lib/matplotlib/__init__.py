@@ -1333,7 +1333,7 @@ def _val_or_rc(val, *rc_names):
 
 def _init_tests():
     # The version of FreeType to install locally for running the tests. This must match
-    # the value in `meson.build`.
+    # the value in `subprojects/freetype2.wrap`.
     LOCAL_FREETYPE_VERSION = '2.13.3'
 
     from matplotlib import ft2font

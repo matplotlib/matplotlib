@@ -9,14 +9,8 @@ subdir('agg24-svn')
 if get_option('system-freetype')
   freetype_dep = dependency('freetype2', version: '>=9.11.3')
 else
-  # This is the version of FreeType to use when building a local version. It
-  # must match the value in `lib/matplotlib.__init__.py`. Also update the docs
-  # in `docs/devel/dependencies.rst`. Bump the cache key in
-  # `.circleci/config.yml` when changing requirements.
-  LOCAL_FREETYPE_VERSION = '2.13.3'
-
   freetype_proj = subproject(
-    f'freetype-@LOCAL_FREETYPE_VERSION@',
+    'freetype2',
     default_options: [
       'default_library=static',
       'brotli=disabled',
