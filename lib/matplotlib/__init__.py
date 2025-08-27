@@ -1362,8 +1362,8 @@ def _init_tests():
 
 def _replacer(data, value):
     """
-    Either returns ``data[value]`` or passes ``data`` back, converts either to
-    a sequence.
+    Either returns ``data[value]`` or passes ``data`` back, converting any
+    ``MappingView`` to a sequence.
     """
     try:
         # if key isn't a string don't bother
