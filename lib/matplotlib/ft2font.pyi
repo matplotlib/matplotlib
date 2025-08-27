@@ -8,6 +8,7 @@ from numpy.typing import NDArray
 
 __freetype_build_type__: str
 __freetype_version__: str
+__libraqm_version__: str
 
 # We can't change the type hints for standard library chr/ord, so character codes are a
 # simple type alias.
@@ -242,7 +243,12 @@ class FT2Font(Buffer):
     def set_charmap(self, i: int) -> None: ...
     def set_size(self, ptsize: float, dpi: float) -> None: ...
     def set_text(
-        self, string: str, angle: float = ..., flags: LoadFlags = ...
+        self,
+        string: str,
+        angle: float = ...,
+        flags: LoadFlags = ...,
+        *,
+        language: str | list[tuple[str, int, int]] | None = ...,
     ) -> NDArray[np.float64]: ...
     @property
     def ascender(self) -> int: ...

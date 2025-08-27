@@ -775,12 +775,43 @@ def test_ft2font_set_text():
     xys = font.set_text('AADAT.XC-J')
     np.testing.assert_array_equal(
         xys,
-        [(0, 0), (512, 0), (1024, 0), (1600, 0), (2112, 0), (2496, 0), (2688, 0),
-         (3200, 0), (3712, 0), (4032, 0)])
-    assert font.get_width_height() == (4288, 768)
+        [(0, 0), (533, 0), (1045, 0), (1608, 0), (2060, 0), (2417, 0), (2609, 0),
+         (3065, 0), (3577, 0), (3940, 0)])
+    assert font.get_width_height() == (4196, 768)
     assert font.get_num_glyphs() == 10
     assert font.get_descent() == 192
     assert font.get_bitmap_offset() == (6, 0)
+
+
+@pytest.mark.parametrize(
+    'input',
+    [
+        [1, 2, 3],
+        [(1, 2)],
+        [('en', 'foo', 2)],
+        [('en', 1, 'foo')],
+    ],
+    ids=[
+        'nontuple',
+        'wrong length',
+        'wrong start type',
+        'wrong end type',
+    ],
+)
+def test_ft2font_language_invalid(input):
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    with pytest.raises(TypeError):
+        font.set_text('foo', language=input)
+
+
+def test_ft2font_language():
+    # This is just a smoke test.
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    font.set_text('foo')
+    font.set_text('foo', language='en')
+    font.set_text('foo', language=[('en', 1, 2)])
 
 
 def test_ft2font_loading():

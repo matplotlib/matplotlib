@@ -25,25 +25,8 @@ def warn_on_missing_glyph(codepoint, fontnames):
         f"({chr(codepoint).encode('ascii', 'namereplace').decode('ascii')}) "
         f"missing from font(s) {fontnames}.")
 
-    block = ("Hebrew" if 0x0590 <= codepoint <= 0x05ff else
-             "Arabic" if 0x0600 <= codepoint <= 0x06ff else
-             "Devanagari" if 0x0900 <= codepoint <= 0x097f else
-             "Bengali" if 0x0980 <= codepoint <= 0x09ff else
-             "Gurmukhi" if 0x0a00 <= codepoint <= 0x0a7f else
-             "Gujarati" if 0x0a80 <= codepoint <= 0x0aff else
-             "Oriya" if 0x0b00 <= codepoint <= 0x0b7f else
-             "Tamil" if 0x0b80 <= codepoint <= 0x0bff else
-             "Telugu" if 0x0c00 <= codepoint <= 0x0c7f else
-             "Kannada" if 0x0c80 <= codepoint <= 0x0cff else
-             "Malayalam" if 0x0d00 <= codepoint <= 0x0d7f else
-             "Sinhala" if 0x0d80 <= codepoint <= 0x0dff else
-             None)
-    if block:
-        _api.warn_external(
-            f"Matplotlib currently does not support {block} natively.")
 
-
-def layout(string, font, *, kern_mode=Kerning.DEFAULT):
+def layout(string, font, *, kern_mode=Kerning.DEFAULT, language=None):
     """
     Render *string* with *font*.
 
@@ -58,6 +41,9 @@ def layout(string, font, *, kern_mode=Kerning.DEFAULT):
         The font.
     kern_mode : Kerning
         A FreeType kerning mode.
+    language : str, optional
+        The language of the text in a format accepted by libraqm, namely `a BCP47
+        language code <https://www.w3.org/International/articles/language-tags/>`_.
 
     Yields
     ------
@@ -65,7 +51,7 @@ def layout(string, font, *, kern_mode=Kerning.DEFAULT):
     """
     x = 0
     prev_glyph_idx = None
-    char_to_font = font._get_fontmap(string)
+    char_to_font = font._get_fontmap(string)  # TODO: Pass in language.
     base_font = font
     for char in string:
         # This has done the fallback logic
