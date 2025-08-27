@@ -2345,6 +2345,11 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
         fontsize = prop.get_size_in_points()
+        if mtext is not None:
+            features = mtext.get_fontfeatures()
+            language = mtext.get_language()
+        else:
+            features = language = None
 
         if mpl.rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
@@ -2355,7 +2360,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             fonttype = mpl.rcParams['pdf.fonttype']
 
         if gc.get_url() is not None:
-            font.set_text(s)
+            font.set_text(s, features=features, language=language)
             width, height = font.get_width_height()
             self.file._annotations[-1][1].append(_get_link_annotation(
                 gc, x, y, width / 64, height / 64, angle))
@@ -2389,7 +2394,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             multibyte_glyphs = []
             prev_was_multibyte = True
             prev_font = font
-            for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED):
+            for item in _text_helpers.layout(s, font, features=features,
+                                             kern_mode=Kerning.UNFITTED,
+                                             language=language):
                 if _font_supports_glyph(fonttype, ord(item.char)):
                     if prev_was_multibyte or item.ft_object != prev_font:
                         singlebyte_chunks.append((item.ft_object, item.x, []))
