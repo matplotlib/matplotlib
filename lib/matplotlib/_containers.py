@@ -1,6 +1,5 @@
 from mpl_data_containers.description import Desc, desc_like
-from mpl_data_containers.graph import Graph
-from mpl_data_containers.conversion_edge import TransformEdge
+from mpl_data_containers.conversion_edge import Graph, TransformEdge
 
 
 def containerize_draw(draw_func):
