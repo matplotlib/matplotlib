@@ -6352,7 +6352,7 @@ or pandas.DataFrame
         `~matplotlib.pyplot.imshow` expects RGB images adopting the straight
         (unassociated) alpha representation.
         """
-        im = mimage.AxesImage(self, cmap=cmap, norm=norm, colorizer=colorizer,
+        im = mimage.AxesImage(self, A=X, cmap=cmap, norm=norm, colorizer=colorizer,
                               interpolation=interpolation, origin=origin,
                               extent=extent, filternorm=filternorm,
                               filterrad=filterrad, resample=resample,
@@ -6366,7 +6366,6 @@ or pandas.DataFrame
         if aspect is not None:
             self.set_aspect(aspect)
 
-        im.set_data(X)
         im.set_alpha(alpha)
         if im.get_clip_path() is None:
             # image does not already have clipping set, clip to Axes patch

@@ -9,6 +9,7 @@ python_sources = [
   '_cm_multivar.py',
   '_color_data.py',
   '_constrained_layout.py',
+  '_containers.py',
   '_docstring.py',
   '_enums.py',
   '_fontconfig_pattern.py',
