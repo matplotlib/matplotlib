@@ -215,7 +215,7 @@ On social media, Matplotlib:
 * Highlights various parts of the library, especially the more obscure bits and
   bobbles.
 * Acknowledges that it is a sometimes frustrating tangle of bits & bobbles that
-  can confuse even the folks who work on it & signal boosts their confuzzlment.
+  can confuse even the folks who work on it & signal boosts their confuzzlement.
 
 
 Behavior

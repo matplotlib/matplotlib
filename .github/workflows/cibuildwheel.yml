@@ -151,10 +151,6 @@ jobs:
           CIBW_ENABLE: "cpython-freethreading cpython-prerelease"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-          CIBW_BEFORE_TEST: >-
-            python -m pip install
-            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
-            --upgrade --pre --only-binary=:all: contourpy numpy pillow
 
       - name: Build wheels for CPython 3.13
         uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865  # v3.1.3

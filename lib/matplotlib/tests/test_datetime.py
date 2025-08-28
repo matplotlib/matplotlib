@@ -810,11 +810,32 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.triplot(...)
 
-    @pytest.mark.xfail(reason="Test for violin not written yet")
+    @pytest.mark.parametrize("orientation", ["vertical", "horizontal"])
     @mpl.style.context("default")
-    def test_violin(self):
+    def test_violin(self, orientation):
         fig, ax = plt.subplots()
-        ax.violin(...)
+        datetimes = [
+            datetime.datetime(2023, 2, 10),
+            datetime.datetime(2023, 5, 18),
+            datetime.datetime(2023, 6, 6)
+        ]
+        ax.violin(
+            [
+                {
+                    'coords': datetimes,
+                    'vals': [0.1, 0.5, 0.2],
+                    'mean': datetimes[1],
+                    'median': datetimes[1],
+                    'min': datetimes[0],
+                    'max': datetimes[-1],
+                    'quantiles': datetimes
+                }
+            ],
+            orientation=orientation,
+            # TODO: It should be possible for positions to be datetimes too
+            # https://github.com/matplotlib/matplotlib/issues/30417
+            # positions=[datetime.datetime(2020, 1, 1)]
+        )
 
     @pytest.mark.xfail(reason="Test for violinplot not written yet")
     @mpl.style.context("default")

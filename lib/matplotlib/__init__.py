@@ -532,19 +532,30 @@ def _get_config_or_cache_dir(xdg_base_getter):
     elif sys.platform.startswith(('linux', 'freebsd')):
         # Only call _xdg_base_getter here so that MPLCONFIGDIR is tried first,
         # as _xdg_base_getter can throw.
-        configdir = Path(xdg_base_getter(), "matplotlib")
+        try:
+            configdir = Path(xdg_base_getter(), "matplotlib")
+        except RuntimeError:  # raised if Path.home() is not available
+            pass
     else:
-        configdir = Path.home() / ".matplotlib"
-    # Resolve the path to handle potential issues with inaccessible symlinks.
-    configdir = configdir.resolve()
-    try:
-        configdir.mkdir(parents=True, exist_ok=True)
-    except OSError as exc:
-        _log.warning("mkdir -p failed for path %s: %s", configdir, exc)
+        try:
+            configdir = Path.home() / ".matplotlib"
+        except RuntimeError:  # raised if Path.home() is not available
+            pass
+
+    if configdir:
+        # Resolve the path to handle potential issues with inaccessible symlinks.
+        configdir = configdir.resolve()
+        try:
+            configdir.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            _log.warning("mkdir -p failed for path %s: %s", configdir, exc)
+        else:
+            if os.access(str(configdir), os.W_OK) and configdir.is_dir():
+                return str(configdir)
+            _log.warning("%s is not a writable directory", configdir)
+        issue_msg = "the default path ({configdir})"
     else:
-        if os.access(str(configdir), os.W_OK) and configdir.is_dir():
-            return str(configdir)
-        _log.warning("%s is not a writable directory", configdir)
+        issue_msg = "resolving the home directory"
     # If the config or cache directory cannot be created or is not a writable
     # directory, create a temporary one.
     try:
@@ -552,17 +563,17 @@ def _get_config_or_cache_dir(xdg_base_getter):
     except OSError as exc:
         raise OSError(
             f"Matplotlib requires access to a writable cache directory, but there "
-            f"was an issue with the default path ({configdir}), and a temporary "
+            f"was an issue with {issue_msg}, and a temporary "
             f"directory could not be created; set the MPLCONFIGDIR environment "
             f"variable to a writable directory") from exc
     os.environ["MPLCONFIGDIR"] = tmpdir
     atexit.register(shutil.rmtree, tmpdir)
     _log.warning(
         "Matplotlib created a temporary cache directory at %s because there was "
-        "an issue with the default path (%s); it is highly recommended to set the "
+        "an issue with %s; it is highly recommended to set the "
         "MPLCONFIGDIR environment variable to a writable directory, in particular to "
         "speed up the import of Matplotlib and to better support multiprocessing.",
-        tmpdir, configdir)
+        tmpdir, issue_msg)
     return tmpdir
 
 
@@ -1351,8 +1362,8 @@ def _init_tests():
 
 def _replacer(data, value):
     """
-    Either returns ``data[value]`` or passes ``data`` back, converts either to
-    a sequence.
+    Either returns ``data[value]`` or passes ``data`` back, converting any
+    ``MappingView`` to a sequence.
     """
     try:
         # if key isn't a string don't bother

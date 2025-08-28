@@ -7,6 +7,9 @@
 Installation
 ************
 
+.. include:: quick_install.inc.rst
+
+.. _install-official:
 
 Install an official release
 ===========================
@@ -35,6 +38,7 @@ precompiled wheel for your OS and Python.
    animations and a larger selection of file formats, you can
    install :ref:`optional dependencies <optional_dependencies>`.
 
+.. _install-third-party:
 
 Third-party distributions
 =========================
@@ -75,7 +79,7 @@ you can install Matplotlib via your package manager, e.g.:
 
 .. redirect-from:: /users/installing/installing_source
 
-.. _install_from_source:
+.. _install-nightly-build:
 
 Install a nightly build
 =======================
@@ -93,6 +97,7 @@ scientific-python-nightly-wheels as the package index to query::
     --extra-index-url https://pypi.org/simple \
     matplotlib
 
+.. _install-source:
 
 Install from source
 ===================
