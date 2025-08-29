@@ -2376,25 +2376,14 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # the regular text show command (TJ) with appropriate kerning between
         # chunks, whereas multibyte characters use the XObject command (Do).
         else:
-            # List of (ft_object, start_x, [prev_kern, char, char, ...]),
-            # w/o zero kerns.
-            singlebyte_chunks = []
-            # List of (ft_object, start_x, glyph_index).
-            multibyte_glyphs = []
-            prev_was_multibyte = True
-            prev_font = font
-            for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED):
-                if _font_supports_glyph(fonttype, ord(item.char)):
-                    if prev_was_multibyte or item.ft_object != prev_font:
-                        singlebyte_chunks.append((item.ft_object, item.x, []))
-                        prev_font = item.ft_object
-                    if item.prev_kern:
-                        singlebyte_chunks[-1][2].append(item.prev_kern)
-                    singlebyte_chunks[-1][2].append(item.char)
-                    prev_was_multibyte = False
-                else:
-                    multibyte_glyphs.append((item.ft_object, item.x, item.glyph_index))
-                    prev_was_multibyte = True
+            def output_singlebyte_chunk(kerns_or_chars):
+                self.file.output(
+                    # See pdf spec "Text space details" for the 1000/fontsize
+                    # (aka. 1000/T_fs) factor.
+                    [(-1000 * next(group) / fontsize) if tp == float  # a kern
+                     else self.encode_string("".join(group), fonttype)
+                     for tp, group in itertools.groupby(kerns_or_chars, type)],
+                    Op.showkern)
             # Do the rotation and global translation as a single matrix
             # concatenation up front
             self.file.output(Op.gsave)
@@ -2402,21 +2391,33 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self.file.output(math.cos(a), math.sin(a),
                              -math.sin(a), math.cos(a),
                              x, y, Op.concat_matrix)
+            # List of [prev_kern, char, char, ...] w/o zero kerns.
+            singlebyte_chunk = []
+            # List of (ft_object, start_x, glyph_index).
+            multibyte_glyphs = []
+            prev_font = None
+            prev_start_x = 0
             # Emit all the 1-byte characters in a BT/ET group.
             self.file.output(Op.begin_text)
-            prev_start_x = 0
-            for ft_object, start_x, kerns_or_chars in singlebyte_chunks:
-                ft_name = self.file.fontName(ft_object.fname)
-                self.file.output(ft_name, fontsize, Op.selectfont)
-                self._setup_textpos(start_x, 0, 0, prev_start_x, 0, 0)
-                self.file.output(
-                    # See pdf spec "Text space details" for the 1000/fontsize
-                    # (aka. 1000/T_fs) factor.
-                    [-1000 * next(group) / fontsize if tp == float  # a kern
-                     else self.encode_string("".join(group), fonttype)
-                     for tp, group in itertools.groupby(kerns_or_chars, type)],
-                    Op.showkern)
-                prev_start_x = start_x
+            for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED):
+                if _font_supports_glyph(fonttype, ord(item.char)):
+                    if item.ft_object != prev_font:
+                        if singlebyte_chunk:
+                            output_singlebyte_chunk(singlebyte_chunk)
+                        ft_name = self.file.fontName(item.ft_object.fname)
+                        self.file.output(ft_name, fontsize, Op.selectfont)
+                        self._setup_textpos(item.x, 0, 0, prev_start_x, 0, 0)
+                        singlebyte_chunk = []
+                        prev_font = item.ft_object
+                        prev_start_x = item.x
+                    if item.prev_kern:
+                        singlebyte_chunk.append(item.prev_kern)
+                    singlebyte_chunk.append(item.char)
+                else:
+                    prev_font = None
+                    multibyte_glyphs.append((item.ft_object, item.x, item.glyph_index))
+            if singlebyte_chunk:
+                output_singlebyte_chunk(singlebyte_chunk)
             self.file.output(Op.end_text)
             # Then emit all the multibyte characters, one at a time.
             for ft_object, start_x, glyph_index in multibyte_glyphs:
