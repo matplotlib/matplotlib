@@ -28,11 +28,20 @@ precompiled wheel for your OS and Python.
 
 .. note::
 
-   The following backends work out of the box: Agg, ps, pdf, svg
+   The following non-interactive backends work out of the box: Agg,
+   ps, pdf, svg
 
-   Python is typically shipped with tk bindings which are used by
-   TkAgg. Notably, python-build-standalone – used by ``uv`` – does
-   not include tk bindings that are usable by Matplotlib.
+   The TkAgg interactive backend also typically works out of the box.
+   It requires Tk bindings, which are usually provided via the Python
+   standard library's ``tkinter`` module. On some OSes, you may need
+   to install a separate package like ``python3-tk`` to add this
+   component of the standard library.
+
+   Some tools like ``uv`` make use of Python builds from the
+   python-build-standalone project, which only gained usable Tk
+   bindings recently (August 2025). If you are having trouble with the
+   TkAgg backend, ensure you have an up-to-date build, e.g. ``uv self
+   update && uv python upgrade --reinstall``.
 
    For support of other GUI frameworks, LaTeX rendering, saving
    animations and a larger selection of file formats, you can
