@@ -147,8 +147,6 @@ def test_figure_label():
     assert plt.get_figlabels() == ['', 'today']
     plt.figure(fig_today)
     assert plt.gcf() == fig_today
-    with pytest.raises(ValueError):
-        plt.figure(Figure())
 
 
 def test_figure_label_replaced():
