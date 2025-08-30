@@ -1631,6 +1631,27 @@ class _AnnotationBase:
             return self.axes.contains_point(xy_pixel)
         return True
 
+    def _check_xytext(self, renderer=None):
+        """Check whether the annotation text at *xy_pixel* can be drawn."""
+        valid = True
+
+        if self._xytext is None:
+            return valid
+
+        # transforming the coordinates
+        x = self.convert_xunits(self._xytext[0])
+        y = self.convert_yunits(self._xytext[1])
+        unitless_coords = (x, y)
+        coords = np.array(self.get_transform().transform(unitless_coords))
+        valid = not np.isnan(coords).any() and np.isfinite(coords).all()
+        # DEBUG
+        print("###")
+        print(coords)
+
+        if not valid:
+            raise ValueError("xytext coordinates must be finite numbers")
+        return valid
+
     def draggable(self, state=None, use_blit=False):
         """
         Set whether the annotation is draggable with the mouse.
@@ -1862,6 +1883,7 @@ or callable, default: value of *xycoords*
                                  xy,
                                  xycoords=xycoords,
                                  annotation_clip=annotation_clip)
+        self._xytext = xytext
         # warn about wonky input data
         if (xytext is None and
                 textcoords is not None and
@@ -2027,11 +2049,16 @@ or callable, default: value of *xycoords*
         # docstring inherited
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible() or not self._check_xy(renderer):
+
+        visible = self.get_visible() and self._check_xy(renderer)
+
+
+        if not visible:
             return
         # Update text positions before `Text.draw` would, so that the
         # FancyArrowPatch is correctly positioned.
         self.update_positions(renderer)
+        self._check_xytext()
         self.update_bbox_position_size(renderer)
         if self.arrow_patch is not None:  # FancyArrowPatch
             if (self.arrow_patch.get_figure(root=False) is None and
@@ -2046,7 +2073,10 @@ or callable, default: value of *xycoords*
         # docstring inherited
         # This block is the same as in Text.get_window_extent, but we need to
         # set the renderer before calling update_positions().
-        if not self.get_visible() or not self._check_xy(renderer):
+        visible = self.get_visible() and self._check_xy(renderer)
+
+
+        if not visible:
             return Bbox.unit()
         if renderer is not None:
             self._renderer = renderer
@@ -2056,6 +2086,7 @@ or callable, default: value of *xycoords*
             raise RuntimeError('Cannot get window extent without renderer')
 
         self.update_positions(self._renderer)
+        self._check_xytext()
 
         text_bbox = Text.get_window_extent(self)
         bboxes = [text_bbox]
