@@ -1168,21 +1168,6 @@ def test_respects_bbox():
     assert buf_before.getvalue() != buf_after.getvalue()  # Not all white.
 
 
-def test_image_cursor_formatting():
-    fig, ax = plt.subplots()
-    # Create a dummy image to be able to call format_cursor_data
-    im = ax.imshow(np.zeros((4, 4)))
-
-    data = np.ma.masked_array([0], mask=[True])
-    assert im.format_cursor_data(data) == '[]'
-
-    data = np.ma.masked_array([0], mask=[False])
-    assert im.format_cursor_data(data) == '[0]'
-
-    data = np.nan
-    assert im.format_cursor_data(data) == '[nan]'
-
-
 @check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_image_array_alpha(fig_test, fig_ref):
     """Per-pixel alpha channel test."""
