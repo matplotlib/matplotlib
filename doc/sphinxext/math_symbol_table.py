@@ -1,4 +1,5 @@
 import re
+import math
 from docutils.parsers.rst import Directive
 
 from matplotlib import _mathtext, _mathtext_data
@@ -86,7 +87,7 @@ def run(state_machine):
         return f'\\{sym}' if sym in ('\\', '|', '+', '-', '*') else sym
 
     lines = []
-    for category, columns, syms in symbols:
+    for category, _columns, syms in symbols:
         syms = sorted(syms,
                       # Sort by Unicode and place variants immediately
                       # after standard versions.
@@ -94,7 +95,7 @@ def run(state_machine):
                                        sym.startswith(r"\var")),
                       reverse=(category == "Hebrew"))  # Hebrew is rtl
         rendered_syms = [f"{render_symbol(sym)} ``{sym}``" for sym in syms]
-        columns = min(columns, len(syms))
+        columns = max(3, int(math.ceil(math.sqrt(len(syms)))))
         lines.append("**%s**" % category)
         lines.append('')
         max_width = max(map(len, rendered_syms))
