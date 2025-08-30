@@ -377,7 +377,7 @@ them will be skipped by pytest.
 .. _pandas: https://pypi.org/project/pandas/
 .. _pikepdf: https://pypi.org/project/pikepdf/
 .. _psutil: https://pypi.org/project/psutil/
-.. _pytz: https://fonts.google.com/noto/use#faq
+.. _pytz: https://pypi.org/project/pytz/
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _pytest-timeout: https://pypi.org/project/pytest-timeout/
 .. _pytest-xdist: https://pypi.org/project/pytest-xdist/
