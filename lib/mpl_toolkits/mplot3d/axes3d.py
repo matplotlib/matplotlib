@@ -608,6 +608,25 @@ class Axes3D(Axes):
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
 
+    def auto_scale_lim(self, bbox3d, had_data=False):
+        """
+        Expand the 3D axes data limits to include the given Bbox3d.
+
+        Parameters
+        ----------
+        bbox3d : _Bbox3d
+            The 3D bounding box to incorporate into the data limits.
+        had_data : bool, default: False
+            Whether the axes already had data limits set before.
+        """
+        self.xy_dataLim.update_from_bbox(bbox3d.to_bbox_xy(), ignore=not had_data)
+        self.zz_dataLim.update_from_bbox(bbox3d.to_bbox_zz(), ignore=not had_data)
+        if not had_data:
+            self._xy_dataLim_set = True
+            self._zz_dataLim_set = True
+        self.autoscale_view()
+
+
     def autoscale_view(self, tight=None,
                        scalex=True, scaley=True, scalez=True):
         """
@@ -2889,18 +2908,16 @@ class Axes3D(Axes):
             col.set_sort_zpos(zsortval)
 
         if autolim:
-            if isinstance(col, art3d.Line3DCollection):
-                self.auto_scale_xyz(*np.array(col._segments3d).transpose(),
-                                    had_data=had_data)
-            elif isinstance(col, art3d.Poly3DCollection):
-                self.auto_scale_xyz(col._faces[..., 0],
-                                    col._faces[..., 1],
-                                    col._faces[..., 2], had_data=had_data)
-            elif isinstance(col, art3d.Patch3DCollection):
-                pass
-                # FIXME: Implement auto-scaling function for Patch3DCollection
-                # Currently unable to do so due to issues with Patch3DCollection
-                # See https://github.com/matplotlib/matplotlib/issues/14298 for details
+            if hasattr(col, "_get_datalim3d"):
+                bbox3d = col._get_datalim3d()
+                self.auto_scale_lim(bbox3d, had_data=had_data)
+            else:
+                warnings.warn(
+                    (f"{type(col).__name__} does not implement `_get_datalim3d`,"
+                    " so it will not be autoscaled."),
+                    category=UserWarning,
+                    stacklevel=2
+                )
 
         collection = super().add_collection(col, autolim="_datalim_only")
         return collection
