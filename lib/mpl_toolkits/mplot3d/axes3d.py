@@ -2254,7 +2254,7 @@ class Axes3D(Axes):
         fcolors = kwargs.pop('facecolors', None)
 
         cmap = kwargs.get('cmap', None)
-        shade = kwargs.pop('shade', "auto")
+        shade = kwargs.pop('shade', 'auto')
         if shade == "auto":
             shade = cmap is None and fcolors is None
         elif shade is None:
