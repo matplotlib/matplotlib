@@ -1333,7 +1333,7 @@ class QuadContourSet(ContourSet):
             # if the transform is not trans data, and some part of it
             # contains transData, transform the xs and ys to data coordinates
             if (t != self.axes.transData and
-                    any(t.contains_branch_seperately(self.axes.transData))):
+                    any(t.contains_branch_separately(self.axes.transData))):
                 trans_to_data = t - self.axes.transData
                 pts = np.vstack([x.flat, y.flat]).T
                 transformed_pts = trans_to_data.transform(pts)
