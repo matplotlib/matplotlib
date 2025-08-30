@@ -2172,6 +2172,11 @@ class _SelectorWidget(AxesWidget):
         # `release` can call a draw event even when `ignore` is True.
         if not self.useblit:
             return
+        # Skip blitting if we are saving to disk or if the backend doesn’t support it
+        if getattr(self.canvas, "_is_saving", False):
+            return
+        if not hasattr(self.canvas, "copy_from_bbox"):
+            return
         # Make sure that widget artists don't get accidentally included in the
         # background, by re-rendering the background if needed (and then
         # re-re-rendering the canvas with the visible widget artists).
