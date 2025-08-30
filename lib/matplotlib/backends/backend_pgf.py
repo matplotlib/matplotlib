@@ -29,9 +29,6 @@ from matplotlib._pylab_helpers import Gcf
 _log = logging.getLogger(__name__)
 
 
-_DOCUMENTCLASS = r"\documentclass{article}"
-
-
 # Note: When formatting floating point values, it is important to use the
 # %f/{:f} format rather than %s/{} to avoid triggering scientific notation,
 # which is not recognized by TeX.
@@ -205,7 +202,7 @@ class LatexManager:
     @staticmethod
     def _build_latex_header():
         latex_header = [
-            _DOCUMENTCLASS,
+            rf"\documentclass{{{mpl.rcParams['pgf.documentclass']}}}",
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
@@ -834,7 +831,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
             (tmppath / "figure.tex").write_text(
                 "\n".join([
-                    _DOCUMENTCLASS,
+                    rf"\documentclass{{{mpl.rcParams['pgf.documentclass']}}}"
                     r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
@@ -931,7 +928,7 @@ class PdfPages:
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
-            _DOCUMENTCLASS,
+            rf"\documentclass{{{mpl.rcParams['pgf.documentclass']}}}",
             r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
