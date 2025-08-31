@@ -2711,5 +2711,3 @@ def test_line3dcollection_autolim_ragged():
     assert np.allclose(ax.get_xlim3d(), (-0.08333333333333333, 4.083333333333333))
     assert np.allclose(ax.get_ylim3d(), (-0.0625, 3.0625))
     assert np.allclose(ax.get_zlim3d(), (-0.08333333333333333, 4.083333333333333))
-
-    plt.close(fig)
