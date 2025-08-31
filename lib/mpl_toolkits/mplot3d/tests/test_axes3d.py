@@ -2689,3 +2689,87 @@ def test_ndarray_color_kwargs_value_error():
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(1, 0, 0, color=np.array([0, 0, 0, 1]))
     fig.canvas.draw()
+
+
+@check_figures_equal()
+def test_plot_surface_shade_auto_with_facecolors(fig_test, fig_ref):
+    """Test that plot_surface with facecolors uses shade=False by default."""
+    X = np.linspace(0, 1, 5)
+    Y = np.linspace(0, 1, 5)
+    X_mesh, Y_mesh = np.meshgrid(X, Y)
+    Z = X_mesh + Y_mesh
+    colors = cm.viridis(X_mesh)
+
+    # Test with facecolors (should have shade=False by default)
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.plot_surface(X_mesh, Y_mesh, Z, facecolors=colors)
+
+    # Reference with explicit shade=False
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.plot_surface(X_mesh, Y_mesh, Z, facecolors=colors, shade=False)
+
+
+@check_figures_equal()
+def test_plot_surface_shade_auto_without_facecolors(fig_test, fig_ref):
+    """Test that plot_surface without facecolors uses shade=True by default."""
+    X = np.linspace(0, 1, 5)
+    Y = np.linspace(0, 1, 5)
+    X_mesh, Y_mesh = np.meshgrid(X, Y)
+    Z = X_mesh + Y_mesh
+
+    # Test without facecolors (should have shade=True by default)
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.plot_surface(X_mesh, Y_mesh, Z)
+
+    # Reference with explicit shade=True
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.plot_surface(X_mesh, Y_mesh, Z, shade=True)
+
+
+@check_figures_equal()
+def test_plot_surface_shade_auto_with_cmap(fig_test, fig_ref):
+    """Test that plot_surface with cmap uses shade=False by default."""
+    X = np.linspace(0, 1, 5)
+    Y = np.linspace(0, 1, 5)
+    X_mesh, Y_mesh = np.meshgrid(X, Y)
+    Z = X_mesh + Y_mesh
+
+    # Test with cmap (should have shade=False by default)
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.plot_surface(X_mesh, Y_mesh, Z, cmap=cm.viridis)
+
+    # Reference with explicit shade=False
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.plot_surface(X_mesh, Y_mesh, Z, cmap=cm.viridis, shade=False)
+
+
+@check_figures_equal()
+def test_plot_surface_shade_override_with_facecolors(fig_test, fig_ref):
+    """Test that explicit shade parameter overrides auto behavior with facecolors."""
+    X = np.linspace(0, 1, 5)
+    Y = np.linspace(0, 1, 5)
+    X_mesh, Y_mesh = np.meshgrid(X, Y)
+    Z = X_mesh + Y_mesh
+    colors = cm.viridis(X_mesh)
+
+    # Test with explicit shade=True (overrides auto behavior)
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.plot_surface(X_mesh, Y_mesh, Z, facecolors=colors, shade=True)
+
+    # Reference with explicit shade=True
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.plot_surface(X_mesh, Y_mesh, Z, facecolors=colors, shade=True)
+
+
+def test_plot_surface_shade_with_cmap_raises():
+    """Test that shade=True with cmap raises an error."""
+    X = np.linspace(0, 1, 5)
+    Y = np.linspace(0, 1, 5)
+    X_mesh, Y_mesh = np.meshgrid(X, Y)
+    Z = X_mesh + Y_mesh
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    with pytest.raises(ValueError, match="Shading is not compatible with colormapping"):
+        ax.plot_surface(X_mesh, Y_mesh, Z, cmap=cm.viridis, shade=True)

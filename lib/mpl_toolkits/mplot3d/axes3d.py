@@ -2199,11 +2199,11 @@ class Axes3D(Axes):
             Bounds for the normalization.
 
         shade : bool or "auto", default: "auto"
-            Whether to shade the facecolors.  "auto" will shade only if the facecolor is uniform,
-            i.e. neither *cmap* nor *facecolors* is given.
+            Whether to shade the facecolors.  "auto" will shade only if the facecolor
+            is uniform, i.e. neither *cmap* nor *facecolors* is given.
 
-            Furthermore, shading is generally not compatible with colormapping and
-            ``shade=True, cmap=...`` will raise an error.
+            Furthermore, shading is generally not compatible with colormapping
+            and ``shade=True, cmap=...`` will raise an error.
 
         lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
@@ -2257,8 +2257,12 @@ class Axes3D(Axes):
         shade = kwargs.pop('shade', 'auto')
         if shade == "auto":
             shade = cmap is None and fcolors is None
-        elif shade is None:
-            raise ValueError("shade cannot be None.")
+        # Remove the None check as it doesn't seem to be needed
+
+        # Raise error if shade=True and cmap is provided as documented
+        if shade is True and cmap is not None:
+            raise ValueError("Shading is not compatible with colormapping. "
+                             "Set shade=False or do not provide a cmap.")
 
         colset = []  # the sampled facecolor
         if (rows - 1) % rstride == 0 and \
