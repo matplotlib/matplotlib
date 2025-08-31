@@ -2173,7 +2173,7 @@ class _SelectorWidget(AxesWidget):
         if not self.useblit:
             return
         # Skip blitting if we are saving to disk or if the backend doesn’t support it
-        if getattr(self.canvas, "_is_saving", False):
+        if self.canvas.is_saving():
             return
         if not hasattr(self.canvas, "copy_from_bbox"):
             return
