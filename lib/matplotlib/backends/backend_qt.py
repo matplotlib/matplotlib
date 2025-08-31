@@ -664,7 +664,6 @@ class FigureManagerQT(FigureManagerBase):
             self.window.raise_()
 
     def destroy(self, *args):
-        super().destroy()
         # check for qApp first, as PySide deletes it in its atexit handler
         if QtWidgets.QApplication.instance() is None:
             return
@@ -674,6 +673,7 @@ class FigureManagerQT(FigureManagerBase):
         if self.toolbar:
             self.toolbar.destroy()
         self.window.close()
+        super().destroy()
 
     def get_window_title(self):
         return self.window.windowTitle()
