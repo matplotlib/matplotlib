@@ -6,6 +6,7 @@ from .figure import Figure
 from .lines import Line2D
 from .patches import Polygon, Rectangle
 from .text import Text
+from .backend_tools import Cursors
 
 import PIL.Image
 
@@ -38,6 +39,7 @@ class AxesWidget(Widget):
     def canvas(self) -> FigureCanvasBase | None: ...
     def connect_event(self, event: Event, callback: Callable) -> None: ...
     def disconnect_events(self) -> None: ...
+    def _set_cursor(self, cursor: Cursors) -> None: ...
 
 class Button(AxesWidget):
     label: Text
@@ -398,6 +400,7 @@ class RectangleSelector(_SelectorWidget):
     minspany: float
     spancoords: Literal["data", "pixels"]
     grab_range: float
+    _active_handle: None | Literal["C", "N", "NE", "E", "SE", "S", "SW", "W", "NW"]
     def __init__(
         self,
         ax: Axes,

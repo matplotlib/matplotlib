@@ -150,6 +150,10 @@ class AxesWidget(Widget):
         # docstring inherited
         return super().ignore(event) or self.canvas is None
 
+    def _set_cursor(self, cursor):
+        """Update the canvas cursor."""
+        self.ax.get_figure(root=True).canvas.set_cursor(cursor)
+
 
 class Button(AxesWidget):
     """
@@ -2643,7 +2647,7 @@ class SpanSelector(_SelectorWidget):
         else:
             return ()
 
-    def _set_cursor(self, enabled):
+    def _set_span_cursor(self, enabled):
         """Update the canvas cursor based on direction of the selector."""
         if enabled:
             cursor = (backend_tools.Cursors.RESIZE_HORIZONTAL
@@ -2652,7 +2656,7 @@ class SpanSelector(_SelectorWidget):
         else:
             cursor = backend_tools.Cursors.POINTER
 
-        self.ax.get_figure(root=True).canvas.set_cursor(cursor)
+        self._set_cursor(cursor)
 
     def connect_default_events(self):
         # docstring inherited
@@ -2662,7 +2666,7 @@ class SpanSelector(_SelectorWidget):
 
     def _press(self, event):
         """Button press event handler."""
-        self._set_cursor(True)
+        self._set_span_cursor(True)
         if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
         else:
@@ -2712,7 +2716,7 @@ class SpanSelector(_SelectorWidget):
 
     def _release(self, event):
         """Button release event handler."""
-        self._set_cursor(False)
+        self._set_span_cursor(False)
 
         if not self._interactive:
             self._selection_artist.set_visible(False)
@@ -2754,7 +2758,7 @@ class SpanSelector(_SelectorWidget):
             return
 
         _, e_dist = self._edge_handles.closest(event.x, event.y)
-        self._set_cursor(e_dist <= self.grab_range)
+        self._set_span_cursor(e_dist <= self.grab_range)
 
     def _onmove(self, event):
         """Motion notify event handler."""
@@ -3278,10 +3282,24 @@ class RectangleSelector(_SelectorWidget):
         self._rotation_on_press = self._rotation
         self._set_aspect_ratio_correction()
 
+        match self._get_action():
+            case "rotate":
+                # TODO: set to a rotate cursor if possible?
+                pass
+            case "move":
+                self._set_cursor(backend_tools.cursors.MOVE)
+            case "resize":
+                # TODO: set to a resize cursor if possible?
+                pass
+            case "create":
+                self._set_cursor(backend_tools.cursors.SELECT_REGION)
+
+
         return False
 
     def _release(self, event):
         """Button release event handler."""
+        self._set_cursor(backend_tools.Cursors.POINTER)
         if not self._interactive:
             self._selection_artist.set_visible(False)
 
@@ -3325,8 +3343,22 @@ class RectangleSelector(_SelectorWidget):
         self.update()
         self._active_handle = None
         self._extents_on_press = None
-
         return False
+
+    def _get_action(self):
+        """
+        Return one of "rotate", "move", "resize", "create"
+        """
+        state = self._state
+        if 'rotate' in state and self._active_handle in self._corner_order:
+            return 'rotate'
+        elif self._active_handle == 'C':
+            return 'move'
+        elif self._active_handle:
+            return 'resize'
+
+        return 'create'
+
 
     def _onmove(self, event):
         """
@@ -3342,12 +3374,10 @@ class RectangleSelector(_SelectorWidget):
         # The calculations are done for rotation at zero: we apply inverse
         # transformation to events except when we rotate and move
         state = self._state
-        rotate = 'rotate' in state and self._active_handle in self._corner_order
-        move = self._active_handle == 'C'
-        resize = self._active_handle and not move
+        action = self._get_action()
 
         xdata, ydata = self._get_data_coords(event)
-        if resize:
+        if action == "resize":
             inv_tr = self._get_rotation_transform().inverted()
             xdata, ydata = inv_tr.transform([xdata, ydata])
             eventpress.xdata, eventpress.ydata = inv_tr.transform(
@@ -3367,7 +3397,7 @@ class RectangleSelector(_SelectorWidget):
 
         x0, x1, y0, y1 = self._extents_on_press
         # rotate an existing shape
-        if rotate:
+        if action == "rotate":
             # calculate angle abc
             a = (eventpress.xdata, eventpress.ydata)
             b = self.center
@@ -3376,7 +3406,7 @@ class RectangleSelector(_SelectorWidget):
                      np.arctan2(a[1]-b[1], a[0]-b[0]))
             self.rotation = np.rad2deg(self._rotation_on_press + angle)
 
-        elif resize:
+        elif action == "resize":
             size_on_press = [x1 - x0, y1 - y0]
             center = (x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2)
 
@@ -3427,7 +3457,7 @@ class RectangleSelector(_SelectorWidget):
                         sign = np.sign(xdata - x0)
                         x1 = x0 + sign * abs(y1 - y0) * self._aspect_ratio_correction
 
-        elif move:
+        elif action == "move":
             x0, x1, y0, y1 = self._extents_on_press
             dx = xdata - eventpress.xdata
             dy = ydata - eventpress.ydata
