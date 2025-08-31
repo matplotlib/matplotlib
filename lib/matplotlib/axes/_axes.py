@@ -2966,7 +2966,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     @_docstring.interpd
-    def broken_barh(self, xranges, yrange, **kwargs):
+    def broken_barh(self, xranges, yrange, align="bottom", **kwargs):
         """
         Plot a horizontal sequence of rectangles.
 
@@ -2979,8 +2979,16 @@ class Axes(_AxesBase):
             The x-positions and extents of the rectangles. For each tuple
             (*xmin*, *xwidth*) a rectangle is drawn from *xmin* to *xmin* +
             *xwidth*.
-        yrange : (*ymin*, *yheight*)
+        yrange : (*ypos*, *yheight*)
             The y-position and extent for all the rectangles.
+        align : {"bottom", "center", "top"}, default: 'bottom'
+            The alignment of the yrange with respect to the y-position. One of:
+
+            - "bottom": Resulting y-range [ypos, ypos + yheight]
+            - "center": Resulting y-range [ypos - yheight/2, ypos + yheight/2]
+            - "top": Resulting y-range [ypos - yheight, ypos]
+
+            .. versionadded:: 3.11
 
         Returns
         -------
@@ -3015,7 +3023,15 @@ class Axes(_AxesBase):
 
         vertices = []
         y0, dy = yrange
-        y0, y1 = self.convert_yunits((y0, y0 + dy))
+
+        _api.check_in_list(['bottom', 'center', 'top'], align=align)
+        if align == "bottom":
+            y0, y1 = self.convert_yunits((y0, y0 + dy))
+        elif align == "center":
+            y0, y1 = self.convert_yunits((y0 - dy/2, y0 + dy/2))
+        else:
+            y0, y1 = self.convert_yunits((y0 - dy, y0))
+
         for xr in xranges:  # convert the absolute values, not the x and dx
             try:
                 x0, dx = xr
@@ -3027,8 +3043,7 @@ class Axes(_AxesBase):
             vertices.append([(x0, y0), (x0, y1), (x1, y1), (x1, y0)])
 
         col = mcoll.PolyCollection(np.array(vertices), **kwargs)
-        self.add_collection(col, autolim=True)
-        self._request_autoscale_view()
+        self.add_collection(col)
 
         return col
 
@@ -5337,7 +5352,6 @@ or pandas.DataFrame
                 self.set_ymargin(0.05)
 
         self.add_collection(collection)
-        self._request_autoscale_view()
 
         return collection
 
@@ -5807,8 +5821,7 @@ or pandas.DataFrame
         # Make sure units are handled for x and y values
         args = self._quiver_units(args, kwargs)
         q = mquiver.Quiver(self, *args, **kwargs)
-        self.add_collection(q, autolim=True)
-        self._request_autoscale_view()
+        self.add_collection(q)
         return q
 
     # args can be some combination of X, Y, U, V, C and all should be replaced
@@ -5819,8 +5832,7 @@ or pandas.DataFrame
         # Make sure units are handled for x and y values
         args = self._quiver_units(args, kwargs)
         b = mquiver.Barbs(self, *args, **kwargs)
-        self.add_collection(b, autolim=True)
-        self._request_autoscale_view()
+        self.add_collection(b)
         return b
 
     # Uses a custom implementation of data-kwarg handling in
@@ -5980,7 +5992,6 @@ or pandas.DataFrame
             where=where, interpolate=interpolate, step=step, **kwargs)
 
         self.add_collection(collection)
-        self._request_autoscale_view()
         return collection
 
     def _fill_between_process_units(self, ind_dir, dep_dir, ind, dep1, dep2, **kwargs):

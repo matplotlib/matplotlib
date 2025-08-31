@@ -341,10 +341,15 @@ def inset_axes(parent_axes, width, height, loc='upper right',
 
         %(Axes:kwdoc)s
 
-    borderpad : float, default: 0.5
+    borderpad : float or (float, float), default: 0.5
         Padding between inset axes and the bbox_to_anchor.
+        If a float, the same padding is used for both x and y.
+        If a tuple of two floats, it specifies the (x, y) padding.
         The units are axes font size, i.e. for a default font size of 10 points
         *borderpad = 0.5* is equivalent to a padding of 5 points.
+
+        .. versionadded:: 3.11
+           The *borderpad* parameter now accepts a tuple of (x, y) paddings.
 
     Returns
     -------

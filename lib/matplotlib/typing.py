@@ -150,3 +150,23 @@ EventType: TypeAlias = Literal[
     ResizeEventType,
     CloseEventType,
 ]
+
+LegendLocType: TypeAlias = (
+    Literal[
+        # for simplicity, we don't distinguish the between allowed positions for
+        # Axes legend and figure legend. It's still better to limit the allowed
+        # range to the union of both rather than to accept arbitrary strings
+        "upper right", "upper left", "lower left", "lower right",
+        "right", "center left", "center right", "lower center", "upper center",
+        "center",
+        # Axes only
+        "best",
+        # Figure only
+        "outside upper left", "outside upper center", "outside upper right",
+        "outside right upper", "outside right center", "outside right lower",
+        "outside lower right", "outside lower center", "outside lower left",
+        "outside left lower", "outside left center", "outside left upper",
+    ] |
+    tuple[float, float] |
+    int
+)

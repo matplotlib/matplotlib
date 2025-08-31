@@ -90,7 +90,7 @@ jobs:
             pygobject-ver: '<3.52.0'
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -179,7 +179,7 @@ jobs:
           esac
 
       - name: Cache pip
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809  # v4.2.4
         if: startsWith(runner.os, 'Linux')
         with:
           path: ~/.cache/pip
@@ -187,7 +187,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache pip
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809  # v4.2.4
         if: startsWith(runner.os, 'macOS')
         with:
           path: ~/Library/Caches/pip
@@ -195,7 +195,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache ccache
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809  # v4.2.4
         with:
           path: |
             ~/.ccache
@@ -203,7 +203,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-
       - name: Cache Matplotlib
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809  # v4.2.4
         with:
           path: |
             ~/.cache/matplotlib
@@ -344,34 +344,29 @@ jobs:
       - name: Cleanup non-failed image files
         if: failure()
         run: |
-          function remove_files() {
-              local extension=$1
-              find ./result_images -name "*-expected*.$extension" | while read file; do
-                  if [[ $file == *"-expected_pdf"* ]]; then
-                      base=${file%-expected_pdf.$extension}_pdf
-                  elif [[ $file == *"-expected_eps"* ]]; then
-                      base=${file%-expected_eps.$extension}_eps
-                  elif [[ $file == *"-expected_svg"* ]]; then
-                      base=${file%-expected_svg.$extension}_svg
-                  elif [[ $file == *"-expected_gif"* ]]; then
-                      base=${file%-expected_gif.$extension}_gif
-                  else
-                      base=${file%-expected.$extension}
-                  fi
-                  if [[ ! -e "${base}-failed-diff.$extension" ]]; then
-                      if [[ -e "$file" ]]; then
-                          rm "$file"
-                          echo "Removed $file"
-                      fi
-                      if [[ -e "${base}.$extension" ]]; then
-                          rm "${base}.$extension"
-                          echo " Removed ${base}.$extension"
-                      fi
-                  fi
+          find ./result_images -name "*-expected*.png" | while read file; do
+            if [[ $file == *-expected_???.png ]]; then
+              extension=${file: -7:3}
+              base=${file%*-expected_$extension.png}_$extension
+            else
+              extension="png"
+              base=${file%-expected.png}
+            fi
+            if [[ ! -e ${base}-failed-diff.png ]]; then
+              indent=""
+              list=($file $base.png)
+              if [[ $extension != "png" ]]; then
+                list+=(${base%_$extension}-expected.$extension ${base%_$extension}.$extension)
+              fi
+              for to_remove in "${list[@]}"; do
+                if [[ -e $to_remove ]]; then
+                  rm $to_remove
+                  echo "${indent}Removed $to_remove"
+                fi
+                indent+=" "
               done
-          }
-
-          remove_files "png"; remove_files "svg"; remove_files "pdf"; remove_files "eps"; remove_files "gif";
+            fi
+          done
 
           if [ "$(find ./result_images -mindepth 1 -type d)" ]; then
               find ./result_images/* -type d -empty -delete

@@ -163,7 +163,7 @@ What's new
         .. toctree::
             :maxdepth: 1
 
-            users/release_notes.rst
+            release/release_notes.rst
 
 
 Contribute

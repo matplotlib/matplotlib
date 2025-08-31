@@ -44,6 +44,7 @@ pip-wheel-metadata/*
 .tox
 # build subproject files
 subprojects/*/
+subprojects/.*
 !subprojects/packagefiles/
 
 # OS generated files #

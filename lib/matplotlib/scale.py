@@ -75,9 +75,12 @@ class ScaleBase:
         The following note is for scale implementers.
 
         For back-compatibility reasons, scales take an `~matplotlib.axis.Axis`
-        object as first argument.  However, this argument should not
-        be used: a single scale object should be usable by multiple
-        `~matplotlib.axis.Axis`\es at the same time.
+        object as the first argument.
+
+        The current recommendation for `.ScaleBase` subclasses is to have the
+        *axis* parameter for API compatibility, but not make use of it. This is
+        because we plan to remove this argument to make a scale object usable
+        by multiple `~matplotlib.axis.Axis`\es at the same time.
         """
 
     def get_transform(self):
@@ -236,6 +239,12 @@ class FuncScale(ScaleBase):
         ----------
         axis : `~matplotlib.axis.Axis`
             The axis for the scale.
+
+            .. note::
+                This parameter is unused and will be removed in an imminent release.
+                It can already be left out because of special preprocessing,
+                so that ``FuncScale(functions)`` is valid.
+
         functions : (callable, callable)
             two-tuple of the forward and inverse functions for the scale.
             The forward function must be monotonic.
@@ -336,6 +345,12 @@ class LogScale(ScaleBase):
         ----------
         axis : `~matplotlib.axis.Axis`
             The axis for the scale.
+
+            .. note::
+                This parameter is unused and about to be removed in the future.
+                It can already now be left out because of special preprocessing,
+                so that ``LogScale(base=2)`` is valid.
+
         base : float, default: 10
             The base of the logarithm.
         nonpositive : {'clip', 'mask'}, default: 'clip'
@@ -485,6 +500,14 @@ class SymmetricalLogScale(ScaleBase):
 
     Parameters
     ----------
+    axis : `~matplotlib.axis.Axis`
+        The axis for the scale.
+
+        .. note::
+            This parameter is unused and about to be removed in the future.
+            It can already now be left out because of special preprocessing,
+            so that ``SymmetricalLocSacle(base=2)`` is valid.
+
     base : float, default: 10
         The base of the logarithm.
 
@@ -606,6 +629,14 @@ class AsinhScale(ScaleBase):
         """
         Parameters
         ----------
+        axis : `~matplotlib.axis.Axis`
+            The axis for the scale.
+
+            .. note::
+                This parameter is unused and about to be removed in the future.
+                It can already now be left out because of special preprocessing,
+                so that ``AsinhScale()`` is valid.
+
         linear_width : float, default: 1
             The scale parameter (elsewhere referred to as :math:`a_0`)
             defining the extent of the quasi-linear region,
@@ -706,7 +737,13 @@ class LogitScale(ScaleBase):
         Parameters
         ----------
         axis : `~matplotlib.axis.Axis`
-            Currently unused.
+            The axis for the scale.
+
+            .. note::
+                This parameter is unused and about to be removed in the future.
+                It can already now be left out because of special preprocessing,
+                so that ``LogitScale()`` is valid.
+
         nonpositive : {'mask', 'clip'}
             Determines the behavior for values beyond the open interval ]0, 1[.
             They can either be masked as invalid, or clipped to a number very

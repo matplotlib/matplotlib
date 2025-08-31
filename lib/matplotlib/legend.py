@@ -1140,9 +1140,10 @@ class Legend(Artist):
         parentbbox : `~matplotlib.transforms.Bbox`
             A parent box which will contain the bbox, in display coordinates.
         """
+        pad = self.borderaxespad * renderer.points_to_pixels(self._fontsize)
         return offsetbox._get_anchored_bbox(
             loc, bbox, parentbbox,
-            self.borderaxespad * renderer.points_to_pixels(self._fontsize))
+            pad, pad)
 
     def _find_best_position(self, width, height, renderer):
         """Determine the best location to place the legend."""

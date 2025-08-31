@@ -157,7 +157,7 @@ class AnchoredOffsetbox(OffsetBox):
         loc: str,
         *,
         pad: float = ...,
-        borderpad: float = ...,
+        borderpad: float | tuple[float, float] = ...,
         child: OffsetBox | None = ...,
         prop: FontProperties | None = ...,
         frameon: bool = ...,
@@ -185,7 +185,7 @@ class AnchoredText(AnchoredOffsetbox):
         loc: str,
         *,
         pad: float = ...,
-        borderpad: float = ...,
+        borderpad: float | tuple[float, float] = ...,
         prop: dict[str, Any] | None = ...,
         **kwargs
     ) -> None: ...

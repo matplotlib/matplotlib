@@ -1,3 +1,4 @@
+import functools
 import numbers
 
 import numpy as np
@@ -145,10 +146,25 @@ class SecondaryAxis(_AxesBase):
         self._set_lims()
         super().apply_aspect(position)
 
-    @_docstring.copy(Axis.set_ticks)
-    def set_ticks(self, ticks, labels=None, *, minor=False, **kwargs):
-        ret = self._axis.set_ticks(ticks, labels, minor=minor, **kwargs)
-        self.stale = True
+    @functools.wraps(_AxesBase.set_xticks)
+    def set_xticks(self, *args, **kwargs):
+        if self._orientation == "y":
+            raise TypeError("Cannot set xticks on a secondary y-axis")
+        ret = super().set_xticks(*args, **kwargs)
+        self._ticks_set = True
+        return ret
+
+    @functools.wraps(_AxesBase.set_yticks)
+    def set_yticks(self, *args, **kwargs):
+        if self._orientation == "x":
+            raise TypeError("Cannot set yticks on a secondary x-axis")
+        ret = super().set_yticks(*args, **kwargs)
+        self._ticks_set = True
+        return ret
+
+    @functools.wraps(Axis.set_ticks)
+    def set_ticks(self, *args, **kwargs):
+        ret = self._axis.set_ticks(*args, **kwargs)
         self._ticks_set = True
         return ret
 

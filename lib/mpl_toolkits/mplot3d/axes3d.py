@@ -2133,7 +2133,7 @@ class Axes3D(Axes):
 
         polyc = art3d.Poly3DCollection(polys, facecolors=facecolors, shade=shade,
                                        axlim_clip=axlim_clip, **kwargs)
-        self.add_collection(polyc)
+        self.add_collection(polyc, autolim="_datalim_only")
 
         self.auto_scale_xyz([x1, x2], [y1, y2], [z1, z2], had_data)
         return polyc
@@ -2332,7 +2332,7 @@ class Axes3D(Axes):
                 polys, facecolors=color, shade=shade, lightsource=lightsource,
                 axlim_clip=axlim_clip, **kwargs)
 
-        self.add_collection(polyc)
+        self.add_collection(polyc, autolim="_datalim_only")
         self.auto_scale_xyz(X, Y, Z, had_data)
 
         return polyc
@@ -2458,7 +2458,7 @@ class Axes3D(Axes):
 
         lines = list(row_lines) + list(col_lines)
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
-        self.add_collection(linec)
+        self.add_collection(linec, autolim="_datalim_only")
 
         return linec
 
@@ -2559,7 +2559,7 @@ class Axes3D(Axes):
                 verts, *args, shade=shade, lightsource=lightsource,
                 facecolors=color, axlim_clip=axlim_clip, **kwargs)
 
-        self.add_collection(polyc)
+        self.add_collection(polyc, autolim="_datalim_only")
         self.auto_scale_xyz(tri.x, tri.y, z, had_data)
 
         return polyc
@@ -2901,7 +2901,7 @@ class Axes3D(Axes):
                 # Currently unable to do so due to issues with Patch3DCollection
                 # See https://github.com/matplotlib/matplotlib/issues/14298 for details
 
-        collection = super().add_collection(col)
+        collection = super().add_collection(col, autolim="_datalim_only")
         return collection
 
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
@@ -3231,7 +3231,7 @@ class Axes3D(Axes):
                                      lightsource=lightsource,
                                      axlim_clip=axlim_clip,
                                      *args, **kwargs)
-        self.add_collection(col)
+        self.add_collection(col, autolim="_datalim_only")
 
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
@@ -3328,7 +3328,7 @@ class Axes3D(Axes):
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
             linec = art3d.Line3DCollection([], **kwargs)
-            self.add_collection(linec)
+            self.add_collection(linec, autolim="_datalim_only")
             return linec
 
         shaft_dt = np.array([0., length], dtype=float)
@@ -3366,7 +3366,7 @@ class Axes3D(Axes):
             lines = []
 
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
-        self.add_collection(linec)
+        self.add_collection(linec, autolim="_datalim_only")
 
         self.auto_scale_xyz(XYZ[:, 0], XYZ[:, 1], XYZ[:, 2], had_data)
 
@@ -3897,7 +3897,7 @@ class Axes3D(Axes):
             errline = art3d.Line3DCollection(np.array(coorderr).T,
                                              axlim_clip=axlim_clip,
                                              **eb_lines_style)
-            self.add_collection(errline)
+            self.add_collection(errline, autolim="_datalim_only")
             errlines.append(errline)
             coorderrs.append(coorderr)
 
@@ -4047,7 +4047,7 @@ class Axes3D(Axes):
         stemlines = art3d.Line3DCollection(
             lines, linestyles=linestyle, colors=linecolor, label='_nolegend_',
             axlim_clip=axlim_clip)
-        self.add_collection(stemlines)
+        self.add_collection(stemlines, autolim="_datalim_only")
         markerline, = self.plot(x, y, z, markerfmt, label='_nolegend_')
 
         stem_container = StemContainer((markerline, stemlines, baseline),
