@@ -2703,7 +2703,7 @@ def test_line3dcollection_autolim_ragged():
         [(1, 0, 1), (2, 1, 2), (3, 2, 3), (4, 3, 4)]  # 4 points
     ]
 
-    # This should not raise an exception with the fix
+    # This should not raise an exception.
     collections = ax.add_collection3d(art3d.Line3DCollection(edges), autolim=True)
 
     # Check that limits were computed correctly with margins
