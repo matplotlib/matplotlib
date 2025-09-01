@@ -2650,7 +2650,7 @@ class SpanSelector(_SelectorWidget):
         else:
             return ()
 
-    def _set_span_cursor(self, enabled):
+    def _set_span_cursor(self, *, enabled):
         """Update the canvas cursor based on direction of the selector."""
         if enabled:
             cursor = (backend_tools.Cursors.RESIZE_HORIZONTAL
@@ -2669,7 +2669,7 @@ class SpanSelector(_SelectorWidget):
 
     def _press(self, event):
         """Button press event handler."""
-        self._set_span_cursor(True)
+        self._set_span_cursor(enabled=True)
         if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
         else:
@@ -2719,7 +2719,7 @@ class SpanSelector(_SelectorWidget):
 
     def _release(self, event):
         """Button release event handler."""
-        self._set_span_cursor(False)
+        self._set_span_cursor(enabled=False)
 
         if not self._interactive:
             self._selection_artist.set_visible(False)
@@ -2761,7 +2761,7 @@ class SpanSelector(_SelectorWidget):
             return
 
         _, e_dist = self._edge_handles.closest(event.x, event.y)
-        self._set_span_cursor(e_dist <= self.grab_range)
+        self._set_span_cursor(enabled=e_dist <= self.grab_range)
 
     def _onmove(self, event):
         """Motion notify event handler."""
