@@ -11,6 +11,7 @@ wide and tall you want your Axes to be to accommodate your widget.
 
 from contextlib import ExitStack
 import copy
+import enum
 import itertools
 from numbers import Integral, Number
 
@@ -3151,6 +3152,13 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     """
 
 
+class _RectangleSelectorState(enum.Enum):
+    ROTATE = enum.auto()
+    MOVE = enum.auto()
+    RESIZE = enum.auto()
+    CREATE = enum.auto()
+
+
 @_docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
     '__ARTIST_NAME__', 'rectangle'))
 class RectangleSelector(_SelectorWidget):
@@ -3285,17 +3293,16 @@ class RectangleSelector(_SelectorWidget):
         self._set_aspect_ratio_correction()
 
         match self._get_action():
-            case "rotate":
+            case _RectangleSelectorState.ROTATE:
                 # TODO: set to a rotate cursor if possible?
                 pass
-            case "move":
+            case _RectangleSelectorState.MOVE:
                 self._set_cursor(backend_tools.cursors.MOVE)
-            case "resize":
+            case _RectangleSelectorState.RESIZE:
                 # TODO: set to a resize cursor if possible?
                 pass
-            case "create":
+            case _RectangleSelectorState.CREATE:
                 self._set_cursor(backend_tools.cursors.SELECT_REGION)
-
 
         return False
 
@@ -3348,18 +3355,15 @@ class RectangleSelector(_SelectorWidget):
         return False
 
     def _get_action(self):
-        """
-        Return one of "rotate", "move", "resize", "create"
-        """
         state = self._state
         if 'rotate' in state and self._active_handle in self._corner_order:
-            return 'rotate'
+            return _RectangleSelectorState.ROTATE
         elif self._active_handle == 'C':
-            return 'move'
+            return _RectangleSelectorState.MOVE
         elif self._active_handle:
-            return 'resize'
+            return _RectangleSelectorState.RESIZE
 
-        return 'create'
+        return _RectangleSelectorState.CREATE
 
 
     def _onmove(self, event):
@@ -3379,7 +3383,7 @@ class RectangleSelector(_SelectorWidget):
         action = self._get_action()
 
         xdata, ydata = self._get_data_coords(event)
-        if action == "resize":
+        if action == _RectangleSelectorState.RESIZE:
             inv_tr = self._get_rotation_transform().inverted()
             xdata, ydata = inv_tr.transform([xdata, ydata])
             eventpress.xdata, eventpress.ydata = inv_tr.transform(
@@ -3399,7 +3403,7 @@ class RectangleSelector(_SelectorWidget):
 
         x0, x1, y0, y1 = self._extents_on_press
         # rotate an existing shape
-        if action == "rotate":
+        if action == _RectangleSelectorState.ROTATE:
             # calculate angle abc
             a = (eventpress.xdata, eventpress.ydata)
             b = self.center
@@ -3408,7 +3412,7 @@ class RectangleSelector(_SelectorWidget):
                      np.arctan2(a[1]-b[1], a[0]-b[0]))
             self.rotation = np.rad2deg(self._rotation_on_press + angle)
 
-        elif action == "resize":
+        elif action == _RectangleSelectorState.RESIZE:
             size_on_press = [x1 - x0, y1 - y0]
             center = (x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2)
 
@@ -3459,7 +3463,7 @@ class RectangleSelector(_SelectorWidget):
                         sign = np.sign(xdata - x0)
                         x1 = x0 + sign * abs(y1 - y0) * self._aspect_ratio_correction
 
-        elif action == "move":
+        elif action == _RectangleSelectorState.MOVE:
             x0, x1, y0, y1 = self._extents_on_press
             dx = xdata - eventpress.xdata
             dy = ydata - eventpress.ydata
