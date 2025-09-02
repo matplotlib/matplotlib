@@ -2157,6 +2157,8 @@ class _SelectorWidget(AxesWidget):
         # `release` can call a draw event even when `ignore` is True.
         if not self.useblit:
             return
+        if self.canvas.is_saving():
+            return  # saving does not use blitting
         # Make sure that widget artists don't get accidentally included in the
         # background, by re-rendering the background if needed (and then
         # re-re-rendering the canvas with the visible widget artists).
