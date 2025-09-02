@@ -283,7 +283,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
         offsets = self.get_offsets()
 
-        if any(transform.contains_branch_seperately(transData)):
+        if any(transform.contains_branch_separately(transData)):
             # collections that are just in data units (like quiver)
             # can properly have the axes limits set by their shape +
             # offset.  LineCollections that have no offsets can
