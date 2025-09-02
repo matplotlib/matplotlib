@@ -38,7 +38,7 @@ from matplotlib.axes._base import (
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.transforms import _ScaledRotation
-
+import datetime
 _log = logging.getLogger(__name__)
 
 
@@ -9050,6 +9050,17 @@ such objects
             positions = range(1, N + 1)
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
+
+        #Checkif positions are datetime-like, widths must be timedelta-like.
+        if any(isinstance(p, (datetime.datetime, datetime.date)) for p in positions):
+            _widths = widths if not np.isscalar(widths) else [widths] * N
+            if any(not isinstance(w, (datetime.timedelta, np.timedelta64))
+                   for w in _widths):
+                raise TypeError(
+                    "If positions are datetime/date values, pass widths as "
+                    "datetime.timedelta (e.g., datetime.timedelta(days=10)) "
+                    "or numpy.timedelta64."
+                )
 
         # Validate widths
         if np.isscalar(widths):
