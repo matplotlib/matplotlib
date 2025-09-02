@@ -38,7 +38,8 @@ from matplotlib.axes._base import (
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.transforms import _ScaledRotation
-
+import matplotlib.dates as mdates
+import datetime
 _log = logging.getLogger(__name__)
 
 
@@ -9050,6 +9051,22 @@ such objects
             positions = range(1, N + 1)
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
+
+        #Checks if position is datetime; Converts to float if it is
+        if positions is not None:
+            positions = [
+                mdates.date2num(pos) if isinstance(pos, (datetime.datetime, datetime.date)) else pos
+                for pos in positions
+            ]
+
+        #Check if width is provided as time difference; convert to days if it is
+        if widths is not None:
+            if np.isscalar(widths):
+                widths = [widths] * N
+            widths = [
+                w.days if isinstance(w, datetime.timedelta) else w
+                for w in widths
+            ]
 
         # Validate widths
         if np.isscalar(widths):
