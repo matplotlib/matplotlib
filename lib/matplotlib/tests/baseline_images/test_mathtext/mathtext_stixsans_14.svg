@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.org/) -->
-<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2025-07-15T18:44:36.352417</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.0.dev1080+g9eab1d3926, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
  <defs>
-  <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;}
-  </style>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
  </defs>
  <g id="figure_1">
   <g id="patch_1">
@@ -15,53 +26,55 @@ L 378 54
 L 378 0 
 L 0 0 
 z
-" style="fill:#ffffff;"/>
+" style="fill: #ffffff"/>
   </g>
   <g id="text_1">
    <!-- $x_2$ -->
-   <defs>
-    <path d="M 46.90625 7.09375 
-L 44 0 
-L 3.5 0 
-L 3.5 2.09375 
-L 21 23.5 
-L 21 23.40625 
-L 26.59375 30.203125 
-Q 30.5 34.90625 32.09375 36.953125 
-Q 33.703125 39 35.203125 41.953125 
-Q 36.703125 44.90625 36.703125 47.5 
-Q 36.703125 53.703125 33.34375 57.09375 
-Q 30 60.5 24.203125 60.5 
-Q 19.59375 60.5 15.75 56.703125 
-Q 11.90625 52.90625 10.90625 45.90625 
-L 3.703125 47.59375 
-Q 5.296875 56.5 11.1875 62.046875 
-Q 17.09375 67.59375 24.90625 67.59375 
-Q 33.59375 67.59375 39.09375 62.1875 
-Q 44.59375 56.796875 44.59375 49.09375 
-Q 44.59375 43.5 42.5 39.453125 
-Q 40.40625 35.40625 33.703125 27 
-L 17.703125 7.09375 
+   <g transform="translate(183.84 30.31125) scale(0.12 -0.12)">
+    <defs>
+     <path id="STIXGeneral-Italic-1d639" d="M 3482 2899 
+L 2202 1510 
+L 2893 0 
+L 2291 0 
+L 1786 1120 
+L 794 0 
+L 192 0 
+L 1600 1530 
+L 986 2899 
+L 1587 2899 
+L 2022 1933 
+L 2880 2899 
+L 3482 2899 
 z
-" id="STIXGeneral-Regular-1d7e4"/>
-    <path d="M 54.40625 45.296875 
-L 34.40625 23.59375 
-L 45.203125 0 
-L 35.796875 0 
-L 27.90625 17.5 
-L 12.40625 0 
-L 3 0 
-L 25 23.90625 
-L 15.40625 45.296875 
-L 24.796875 45.296875 
-L 31.59375 30.203125 
-L 45 45.296875 
+" transform="scale(0.015625)"/>
+     <path id="STIXGeneral-Regular-1d7e4" d="M 3002 454 
+L 2816 0 
+L 224 0 
+L 224 134 
+L 1344 1504 
+L 1344 1498 
+L 1702 1933 
+Q 1952 2234 2054 2365 
+Q 2157 2496 2253 2685 
+Q 2349 2874 2349 3040 
+Q 2349 3437 2134 3654 
+Q 1920 3872 1549 3872 
+Q 1254 3872 1008 3629 
+Q 762 3386 698 2938 
+L 237 3046 
+Q 339 3616 716 3971 
+Q 1094 4326 1594 4326 
+Q 2150 4326 2502 3980 
+Q 2854 3635 2854 3142 
+Q 2854 2784 2720 2525 
+Q 2586 2266 2157 1728 
+L 1133 454 
+L 3002 454 
 z
-" id="STIXGeneral-Italic-1d639"/>
-   </defs>
-   <g transform="translate(183.840000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.703125)" xlink:href="#STIXGeneral-Italic-1d639"/>
-    <use transform="translate(48.199997 -12.885937)scale(0.700000)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+" transform="scale(0.015625)"/>
+    </defs>
+    <use xlink:href="#STIXGeneral-Italic-1d639" transform="translate(0 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Regular-1d7e4" transform="translate(48.199951 -12.885937) scale(0.7)"/>
    </g>
   </g>
  </g>
