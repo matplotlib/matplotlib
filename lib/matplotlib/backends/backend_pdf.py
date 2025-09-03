@@ -19,7 +19,6 @@ import struct
 import sys
 import time
 import types
-import warnings
 import zlib
 
 import numpy as np
@@ -369,19 +368,10 @@ def pdfRepr(obj):
                         "objects")
 
 
-def _font_supports_glyph(fonttype, glyph):
-    """
-    Returns True if the font is able to provide codepoint *glyph* in a PDF.
-
-    For a Type 3 font, this method returns True only for single-byte
-    characters. For Type 42 fonts this method return True if the character is
-    from the Basic Multilingual Plane.
-    """
-    if fonttype == 3:
-        return glyph <= 255
-    if fonttype == 42:
-        return glyph <= 65535
-    raise NotImplementedError()
+_FONT_MAX_GLYPH = {
+    3: 256,
+    42: 65536,
+}
 
 
 class Reference:
@@ -700,7 +690,8 @@ class PdfFile:
         self._internal_font_seq = (Name(f'F{i}') for i in itertools.count(1))
         self._fontNames = {}     # maps filenames to internal font names
         self._dviFontInfo = {}   # maps pdf names to dvifonts
-        self._character_tracker = _backend_pdf_ps.CharacterTracker()
+        self._character_tracker = _backend_pdf_ps.CharacterTracker(
+            _FONT_MAX_GLYPH.get(mpl.rcParams['pdf.fonttype'], 0))
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
@@ -715,7 +706,6 @@ class PdfFile:
         self._image_seq = (Name(f'I{i}') for i in itertools.count(1))
 
         self.markers = {}
-        self.multi_byte_charprocs = {}
 
         self.paths = []
 
@@ -742,6 +732,7 @@ class PdfFile:
         self.writeObject(self.resourceObject, resources)
 
     fontNames = _api.deprecated("3.11")(property(lambda self: self._fontNames))
+    multi_byte_charprocs = _api.deprecated("3.11")(property(lambda _: {}))
     type1Descriptors = _api.deprecated("3.11")(property(lambda _: {}))
 
     @_api.deprecated("3.11")
@@ -829,7 +820,7 @@ class PdfFile:
 
     @staticmethod
     def _get_subsetted_psname(ps_name, charmap):
-        return PdfFile._get_subset_prefix(frozenset(charmap.keys())) + ps_name
+        return PdfFile._get_subset_prefix(frozenset(charmap.values())) + ps_name
 
     def finalize(self):
         """Write out the various deferred objects and the pdf end matter."""
@@ -845,8 +836,6 @@ class PdfFile:
             name: ob for image, name, ob in self._images.values()}
         for tup in self.markers.values():
             xobjects[tup[0]] = tup[1]
-        for name, value in self.multi_byte_charprocs.items():
-            xobjects[name] = value
         for name, path, trans, ob, join, cap, padding, filled, stroked \
                 in self.paths:
             xobjects[name] = ob
@@ -903,7 +892,7 @@ class PdfFile:
         for annotsObject, annotations in self._annotations:
             self.writeObject(annotsObject, annotations)
 
-    def fontName(self, fontprop):
+    def fontName(self, fontprop, subset=0):
         """
         Select a font based on fontprop and return a name suitable for
         ``Op.selectfont``. If fontprop is a string, it will be interpreted
@@ -920,13 +909,13 @@ class PdfFile:
             filenames = _fontManager._find_fonts_by_props(fontprop)
         first_Fx = None
         for fname in filenames:
-            Fx = self._fontNames.get(fname)
+            Fx = self._fontNames.get((fname, subset))
             if not first_Fx:
                 first_Fx = Fx
             if Fx is None:
                 Fx = next(self._internal_font_seq)
-                self._fontNames[fname] = Fx
-                _log.debug('Assigning font %s = %r', Fx, fname)
+                self._fontNames[(fname, subset)] = Fx
+                _log.debug('Assigning font %s (subset %d) = %r', Fx, subset, fname)
                 if not first_Fx:
                     first_Fx = Fx
 
@@ -950,9 +939,8 @@ class PdfFile:
         for pdfname, dvifont in sorted(self._dviFontInfo.items()):
             _log.debug('Embedding Type-1 font %s from dvi.', dvifont.texname)
             fonts[pdfname] = self._embedTeXFont(dvifont)
-        for filename in sorted(self._fontNames):
-            Fx = self._fontNames[filename]
-            _log.debug('Embedding font %s.', filename)
+        for (filename, subset), Fx in sorted(self._fontNames.items()):
+            _log.debug('Embedding font %s:%d.', filename, subset)
             if filename.endswith('.afm'):
                 # from pdf.use14corefonts
                 _log.debug('Writing AFM font.')
@@ -960,7 +948,7 @@ class PdfFile:
             else:
                 # a normal TrueType font
                 _log.debug('Writing TrueType font.')
-                charmap = self._character_tracker.used.get((filename, 0))
+                charmap = self._character_tracker.used.get((filename, subset))
                 if charmap:
                     fonts[Fx] = self.embedTTF(filename, charmap)
         self.writeObject(self.fontObject, fonts)
@@ -1108,13 +1096,6 @@ class PdfFile:
 
         return fontdescObject
 
-    def _get_xobject_glyph_name(self, filename, glyph_name):
-        Fx = self.fontName(filename)
-        return "-".join([
-            Fx.name.decode(),
-            os.path.splitext(os.path.basename(filename))[0],
-            glyph_name])
-
     _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
 12 dict begin
 begincmap
@@ -1159,7 +1140,7 @@ end"""
             fontdictObject = self.reserveObject('font dictionary')
             charprocsObject = self.reserveObject('character procs')
             differencesArray = []
-            firstchar, lastchar = 0, 255
+            firstchar, lastchar = min(charmap), max(charmap)
             bbox = [cvt(x, nearest=False) for x in font.bbox]
 
             fontdict = {
@@ -1181,32 +1162,19 @@ end"""
 
             # Make the "Widths" array
             def get_char_width(charcode):
-                width = font.load_char(
-                    charcode,
+                width = font.load_glyph(
+                    charmap.get(charcode, 0),
                     flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING).horiAdvance
                 return cvt(width)
-            with warnings.catch_warnings():
-                # Ignore 'Required glyph missing from current font' warning
-                # from ft2font: here we're just building the widths table, but
-                # the missing glyphs may not even be used in the actual string.
-                warnings.filterwarnings("ignore")
-                widths = [get_char_width(charcode)
-                          for charcode in range(firstchar, lastchar+1)]
+            widths = [get_char_width(charcode)
+                      for charcode in range(firstchar, lastchar+1)]
             descriptor['MaxWidth'] = max(widths)
 
-            # Make the "Differences" array, sort the ccodes < 255 from
-            # the multi-byte ccodes, and build the whole set of glyph ids
-            # that we need from this font.
-            differences = []
-            multi_byte_chars = set()
-            for ccode, gind in charmap.items():
-                glyph_name = font.get_glyph_name(gind)
-                if ccode is not None and ccode <= 255:
-                    differences.append((ccode, glyph_name))
-                else:
-                    multi_byte_chars.add(glyph_name)
-            differences.sort()
-
+            # Make the "Differences" array with the whole set of character codes that we
+            # need from this font.
+            differences = sorted([
+                (ccode, font.get_glyph_name(gind)) for ccode, gind in charmap.items()
+            ])
             last_c = -2
             for c, name in differences:
                 if c != last_c + 1:
@@ -1219,30 +1187,9 @@ end"""
             charprocs = {}
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]
-                charprocDict = {}
-                # The 2-byte characters are used as XObjects, so they
-                # need extra info in their dictionary
-                if charname in multi_byte_chars:
-                    charprocDict = {'Type': Name('XObject'),
-                                    'Subtype': Name('Form'),
-                                    'BBox': bbox}
-                    # Each glyph includes bounding box information,
-                    # but xpdf and ghostscript can't handle it in a
-                    # Form XObject (they segfault!!!), so we remove it
-                    # from the stream here.  It's not needed anyway,
-                    # since the Form XObject includes it in its BBox
-                    # value.
-                    stream = stream[stream.find(b"d1") + 2:]
                 charprocObject = self.reserveObject('charProc')
-                self.outputStream(charprocObject, stream, extra=charprocDict)
-
-                # Send the glyphs with ccode > 255 to the XObject dictionary,
-                # and the others to the font itself
-                if charname in multi_byte_chars:
-                    name = self._get_xobject_glyph_name(filename, charname)
-                    self.multi_byte_charprocs[name] = charprocObject
-                else:
-                    charprocs[charname] = charprocObject
+                self.outputStream(charprocObject, stream)
+                charprocs[charname] = charprocObject
 
             # Write everything out
             self.writeObject(fontdictObject, fontdict)
@@ -1270,9 +1217,6 @@ end"""
                 "SUBSET %s %d -> %d", filename,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
             )
-
-            # We need this ref for XObjects
-            full_font = font
 
             # reload the font object from the subset
             # (all the necessary data could probably be obtained directly
@@ -1351,32 +1295,6 @@ end"""
             unicode_cmap = (self._identityToUnicodeCMap %
                             (len(unicode_groups), b"\n".join(unicode_bfrange)))
 
-            # Add XObjects for unsupported chars
-            glyph_indices = [
-                glyph_index for ccode, glyph_index in charmap.items()
-                if not _font_supports_glyph(fonttype, ccode)
-            ]
-
-            bbox = [cvt(x, nearest=False) for x in full_font.bbox]
-            rawcharprocs = _get_pdf_charprocs(filename, glyph_indices)
-            for charname in sorted(rawcharprocs):
-                stream = rawcharprocs[charname]
-                charprocDict = {'Type': Name('XObject'),
-                                'Subtype': Name('Form'),
-                                'BBox': bbox}
-                # Each glyph includes bounding box information,
-                # but xpdf and ghostscript can't handle it in a
-                # Form XObject (they segfault!!!), so we remove it
-                # from the stream here.  It's not needed anyway,
-                # since the Form XObject includes it in its BBox
-                # value.
-                stream = stream[stream.find(b"d1") + 2:]
-                charprocObject = self.reserveObject('charProc')
-                self.outputStream(charprocObject, stream, extra=charprocDict)
-
-                name = self._get_xobject_glyph_name(filename, charname)
-                self.multi_byte_charprocs[name] = charprocObject
-
             # CIDToGIDMap stream
             cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
             self.outputStream(cidToGidMapObject, cid_to_gid_map)
@@ -1396,10 +1314,7 @@ end"""
 
         # Beginning of main embedTTF function...
 
-        ps_name = self._get_subsetted_psname(
-            font.postscript_name,
-            font.get_charmap()
-        )
+        ps_name = self._get_subsetted_psname(font.postscript_name, charmap)
         ps_name = ps_name.encode('ascii', 'replace')
         ps_name = Name(ps_name)
         pclt = font.get_sfnt_table('pclt') or {'capHeight': 0, 'xHeight': 0}
@@ -2203,29 +2118,21 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.check_gc(gc, gc._rgb)
         prev_font = None, None
         oldx, oldy = 0, 0
-        unsupported_chars = []
 
         self.file.output(Op.begin_text)
         for font, fontsize, ccode, glyph_index, ox, oy in glyphs:
-            self.file._character_tracker.track_glyph(font, ccode, glyph_index)
+            subset_index, subset_charcode = self.file._character_tracker.track_glyph(
+                font, ccode, glyph_index)
             fontname = font.fname
-            if not _font_supports_glyph(fonttype, ccode):
-                # Unsupported chars (i.e. multibyte in Type 3 or beyond BMP in
-                # Type 42) must be emitted separately (below).
-                unsupported_chars.append((font, fontsize, ox, oy, glyph_index))
-            else:
-                self._setup_textpos(ox, oy, 0, oldx, oldy)
-                oldx, oldy = ox, oy
-                if (fontname, fontsize) != prev_font:
-                    self.file.output(self.file.fontName(fontname), fontsize,
-                                     Op.selectfont)
-                    prev_font = fontname, fontsize
-                self.file.output(self.encode_string(chr(ccode), fonttype),
-                                 Op.show)
+            self._setup_textpos(ox, oy, 0, oldx, oldy)
+            oldx, oldy = ox, oy
+            if (fontname, subset_index, fontsize) != prev_font:
+                self.file.output(self.file.fontName(fontname, subset_index), fontsize,
+                                 Op.selectfont)
+                prev_font = fontname, subset_index, fontsize
+            self.file.output(self._encode_glyphs([subset_charcode], fonttype),
+                             Op.show)
         self.file.output(Op.end_text)
-
-        for font, fontsize, ox, oy, glyph_index in unsupported_chars:
-            self._draw_xobject_glyph(font, fontsize, glyph_index, ox, oy)
 
         # Draw any horizontal lines in the math layout
         for ox, oy, width, height in rects:
@@ -2319,6 +2226,11 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                          [0, 0]], pathops)
             self.draw_path(boxgc, path, mytrans, gc._rgb)
 
+    def _encode_glyphs(self, subset, fonttype):
+        if fonttype in (1, 3):
+            return bytes(subset)
+        return b''.join(glyph.to_bytes(2, 'big') for glyph in subset)
+
     def encode_string(self, s, fonttype):
         match fonttype:
             case 1:
@@ -2345,7 +2257,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
-            self.file._character_tracker.track(font, s)
             fonttype = mpl.rcParams['pdf.fonttype']
 
         if gc.get_url() is not None:
@@ -2365,23 +2276,23 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         # A sequence of characters is broken into multiple chunks. The chunking
         # serves two purposes:
-        #   - For Type 3 fonts, there is no way to access multibyte characters,
-        #     as they cannot have a CIDMap.  Therefore, in this case we break
-        #     the string into chunks, where each chunk contains either a string
-        #     of consecutive 1-byte characters or a single multibyte character.
-        #   - A sequence of 1-byte characters is split into chunks to allow for
-        #     kerning adjustments between consecutive chunks.
+        #   - For Type 3 fonts, there is no way to access multibyte characters, as they
+        #     cannot have a CIDMap. Therefore, in this case we break the string into
+        #     chunks, where each chunk contains a string of consecutive 1-byte
+        #     characters in a 256-character subset of the font. A distinct version of
+        #     the original font is created for each 256-character subset.
+        #   - A sequence of characters is split into chunks to allow for kerning
+        #     adjustments between consecutive chunks.
         #
-        # Each chunk is emitted with a separate command: 1-byte characters use
-        # the regular text show command (TJ) with appropriate kerning between
-        # chunks, whereas multibyte characters use the XObject command (Do).
+        # Each chunk is emitted with the regular text show command (TJ) with appropriate
+        # kerning between chunks.
         else:
             def output_singlebyte_chunk(kerns_or_chars):
                 self.file.output(
                     # See pdf spec "Text space details" for the 1000/fontsize
                     # (aka. 1000/T_fs) factor.
                     [(-1000 * next(group) / fontsize) if tp == float  # a kern
-                     else self.encode_string("".join(group), fonttype)
+                     else self._encode_glyphs(group, fonttype)
                      for tp, group in itertools.groupby(kerns_or_chars, type)],
                     Op.showkern)
             # Do the rotation and global translation as a single matrix
@@ -2393,50 +2304,30 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                              x, y, Op.concat_matrix)
             # List of [prev_kern, char, char, ...] w/o zero kerns.
             singlebyte_chunk = []
-            # List of (ft_object, start_x, glyph_index).
-            multibyte_glyphs = []
             prev_font = None
             prev_start_x = 0
-            # Emit all the 1-byte characters in a BT/ET group.
+            # Emit all the characters in a BT/ET group.
             self.file.output(Op.begin_text)
             for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED,
                                              language=language):
-                if _font_supports_glyph(fonttype, ord(item.char)):
-                    if item.ft_object != prev_font:
-                        if singlebyte_chunk:
-                            output_singlebyte_chunk(singlebyte_chunk)
-                        ft_name = self.file.fontName(item.ft_object.fname)
-                        self.file.output(ft_name, fontsize, Op.selectfont)
-                        self._setup_textpos(item.x, 0, 0, prev_start_x, 0, 0)
-                        singlebyte_chunk = []
-                        prev_font = item.ft_object
-                        prev_start_x = item.x
-                    if item.prev_kern:
-                        singlebyte_chunk.append(item.prev_kern)
-                    singlebyte_chunk.append(item.char)
-                else:
-                    prev_font = None
-                    multibyte_glyphs.append((item.ft_object, item.x, item.glyph_index))
+                subset, charcode = self.file._character_tracker.track_glyph(
+                    item.ft_object, ord(item.char), item.glyph_index)
+                if (item.ft_object, subset) != prev_font:
+                    if singlebyte_chunk:
+                        output_singlebyte_chunk(singlebyte_chunk)
+                    ft_name = self.file.fontName(item.ft_object.fname, subset)
+                    self.file.output(ft_name, fontsize, Op.selectfont)
+                    self._setup_textpos(item.x, 0, 0, prev_start_x, 0, 0)
+                    singlebyte_chunk = []
+                    prev_font = (item.ft_object, subset)
+                    prev_start_x = item.x
+                if item.prev_kern:
+                    singlebyte_chunk.append(item.prev_kern)
+                singlebyte_chunk.append(charcode)
             if singlebyte_chunk:
                 output_singlebyte_chunk(singlebyte_chunk)
             self.file.output(Op.end_text)
-            # Then emit all the multibyte characters, one at a time.
-            for ft_object, start_x, glyph_index in multibyte_glyphs:
-                self._draw_xobject_glyph(
-                    ft_object, fontsize, glyph_index, start_x, 0
-                )
             self.file.output(Op.grestore)
-
-    def _draw_xobject_glyph(self, font, fontsize, glyph_index, x, y):
-        """Draw a multibyte character from a Type 3 font as an XObject."""
-        glyph_name = font.get_glyph_name(glyph_index)
-        name = self.file._get_xobject_glyph_name(font.fname, glyph_name)
-        self.file.output(
-            Op.gsave,
-            0.001 * fontsize, 0, 0, 0.001 * fontsize, x, y, Op.concat_matrix,
-            Name(name), Op.use_xobject,
-            Op.grestore,
-        )
 
     def new_gc(self):
         # docstring inherited
