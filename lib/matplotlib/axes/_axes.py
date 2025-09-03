@@ -9055,7 +9055,7 @@ such objects
         #Checks if position is datetime; Converts to float if it is
         if positions is not None:
             positions = [
-                mdates.date2num(pos) if isinstance(pos, 
+                mdates.date2num(pos) if isinstance(pos,
                 (datetime.datetime, datetime.date)) else pos
                 for pos in positions
             ]
