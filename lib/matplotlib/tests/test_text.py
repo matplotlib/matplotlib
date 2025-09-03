@@ -1242,7 +1242,7 @@ def test_text_language():
     t.set_language('ru')
     assert t.get_language() == 'ru'
     t = fig.text(0.4, 0.05, cyrillic * 4, fontsize=32,
-             language=[('ru', 0, 1), ('sr', 1, 2), ('ru', 2, 3), ('sr', 3, 4)])
+                 language=[('ru', 0, 1), ('sr', 1, 2), ('ru', 2, 3), ('sr', 3, 4)])
     assert t.get_language() == (('ru', 0, 1), ('sr', 1, 2), ('ru', 2, 3), ('sr', 3, 4))
 
     # Or the Sámi family of languages in the Latin alphabet.
