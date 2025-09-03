@@ -54,7 +54,7 @@ def setup():
 
 def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
                                stderr=None, check=False, text=True,
-                               capture_output=False):
+                               capture_output=False, **kwargs):
     """
     Create and run a subprocess.
 
@@ -97,7 +97,7 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
             command, env=env,
             timeout=timeout, check=check,
             stdout=stdout, stderr=stderr,
-            text=text
+            text=text, **kwargs
         )
     except BlockingIOError:
         if sys.platform == "cygwin":

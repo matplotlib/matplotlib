@@ -16,6 +16,7 @@ def subprocess_run_for_testing(
     *,
     text: Literal[True],
     capture_output: bool = ...,
+    **kwargs,
 ) -> subprocess.CompletedProcess[str]: ...
 @overload
 def subprocess_run_for_testing(
@@ -27,6 +28,7 @@ def subprocess_run_for_testing(
     check: bool = ...,
     text: Literal[False] = ...,
     capture_output: bool = ...,
+    **kwargs,
 ) -> subprocess.CompletedProcess[bytes]: ...
 @overload
 def subprocess_run_for_testing(
@@ -38,6 +40,7 @@ def subprocess_run_for_testing(
     check: bool = ...,
     text: bool = ...,
     capture_output: bool = ...,
+    **kwargs,
 ) -> subprocess.CompletedProcess[bytes] | subprocess.CompletedProcess[str]: ...
 def subprocess_run_helper(
     func: Callable[[], None],
