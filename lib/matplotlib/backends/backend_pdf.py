@@ -950,7 +950,7 @@ class PdfFile:
                 _log.debug('Writing TrueType font.')
                 charmap = self._character_tracker.used.get((filename, subset))
                 if charmap:
-                    fonts[Fx] = self.embedTTF(filename, charmap)
+                    fonts[Fx] = self.embedTTF(filename, subset, charmap)
         self.writeObject(self.fontObject, fonts)
 
     def _write_afm_font(self, filename):
@@ -1117,7 +1117,7 @@ CMapName currentdict /CMap defineresource pop
 end
 end"""
 
-    def embedTTF(self, filename, charmap):
+    def embedTTF(self, filename, subset_index, charmap):
         """Embed the TTF font from the named file into the document."""
         font = get_font(filename)
         fonttype = mpl.rcParams['pdf.fonttype']
@@ -1133,12 +1133,40 @@ end"""
             else:
                 return math.ceil(value)
 
-        def embedTTFType3(font, charmap, descriptor):
+        def generate_unicode_cmap(subset_index, charmap):
+            # Make the ToUnicode CMap.
+            last_ccode = -2
+            unicode_groups = []
+            for ccode in sorted(charmap.keys()):
+                if ccode != last_ccode + 1:
+                    unicode_groups.append([ccode, ccode])
+                else:
+                    unicode_groups[-1][1] = ccode
+                last_ccode = ccode
+
+            width = 2 if fonttype == 3 else 4
+            unicode_bfrange = []
+            for start, end in unicode_groups:
+                real_start = self._character_tracker.subset_to_unicode(subset_index,
+                                                                       start)
+                real_end = self._character_tracker.subset_to_unicode(subset_index, end)
+                real_values = ' '.join('<%s>' % chr(x).encode('utf-16be').hex()
+                                       for x in range(real_start, real_end+1))
+                unicode_bfrange.append(
+                    f'<{start:0{width}x}> <{end:0{width}x}> [{real_values}]')
+            unicode_cmap = (self._identityToUnicodeCMap %
+                            (len(unicode_groups),
+                             '\n'.join(unicode_bfrange).encode('ascii')))
+
+            return unicode_cmap
+
+        def embedTTFType3(font, subset_index, charmap, descriptor):
             """The Type 3-specific part of embedding a Truetype font"""
             widthsObject = self.reserveObject('font widths')
             fontdescObject = self.reserveObject('font descriptor')
             fontdictObject = self.reserveObject('font dictionary')
             charprocsObject = self.reserveObject('character procs')
+            toUnicodeMapObject = self.reserveObject('ToUnicode map')
             differencesArray = []
             firstchar, lastchar = min(charmap), max(charmap)
             bbox = [cvt(x, nearest=False) for x in font.bbox]
@@ -1157,8 +1185,9 @@ end"""
                 'Encoding': {
                     'Type': Name('Encoding'),
                     'Differences': differencesArray},
-                'Widths': widthsObject
-                }
+                'Widths': widthsObject,
+                'ToUnicode': toUnicodeMapObject,
+            }
 
             # Make the "Widths" array
             def get_char_width(charcode):
@@ -1191,15 +1220,18 @@ end"""
                 self.outputStream(charprocObject, stream)
                 charprocs[charname] = charprocObject
 
+            unicode_cmap = generate_unicode_cmap(subset_index, charmap)
+
             # Write everything out
             self.writeObject(fontdictObject, fontdict)
             self.writeObject(fontdescObject, descriptor)
             self.writeObject(widthsObject, widths)
             self.writeObject(charprocsObject, charprocs)
+            self.outputStream(toUnicodeMapObject, unicode_cmap)
 
             return fontdictObject
 
-        def embedTTFType42(font, charmap, descriptor):
+        def embedTTFType42(font, subset_index, charmap, descriptor):
             """The Type 42-specific part of embedding a Truetype font"""
             fontdescObject = self.reserveObject('font descriptor')
             cidFontDictObject = self.reserveObject('CID font dictionary')
@@ -1209,12 +1241,12 @@ end"""
             wObject = self.reserveObject('Type 0 widths')
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
-            _log.debug("SUBSET %s characters: %s", filename, charmap)
+            _log.debug("SUBSET %s:%d characters: %s", filename, subset_index, charmap)
             with _backend_pdf_ps.get_glyphs_subset(filename,
                                                    charmap.values()) as subset:
                 fontdata = _backend_pdf_ps.font_as_file(subset)
             _log.debug(
-                "SUBSET %s %d -> %d", filename,
+                "SUBSET %s:%d %d -> %d", filename, subset_index,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
             )
 
@@ -1251,8 +1283,7 @@ end"""
                 fontfileObject, fontdata.getvalue(),
                 extra={'Length1': fontdata.getbuffer().nbytes})
 
-            # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
-            # at the same time
+            # Make the 'W' (Widths) array and CidToGidMap at the same time.
             cid_to_gid_map = ['\0'] * 65536
             widths = []
             max_ccode = 0
@@ -1260,8 +1291,7 @@ end"""
                 glyph = font.load_glyph(gind,
                                         flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING)
                 widths.append((ccode, cvt(glyph.horiAdvance)))
-                if ccode < 65536:
-                    cid_to_gid_map[ccode] = chr(gind)
+                cid_to_gid_map[ccode] = chr(gind)
                 max_ccode = max(ccode, max_ccode)
             widths.sort()
             cid_to_gid_map = cid_to_gid_map[:max_ccode + 1]
@@ -1269,37 +1299,21 @@ end"""
             last_ccode = -2
             w = []
             max_width = 0
-            unicode_groups = []
             for ccode, width in widths:
                 if ccode != last_ccode + 1:
                     w.append(ccode)
                     w.append([width])
-                    unicode_groups.append([ccode, ccode])
                 else:
                     w[-1].append(width)
-                    unicode_groups[-1][1] = ccode
                 max_width = max(max_width, width)
                 last_ccode = ccode
-
-            unicode_bfrange = []
-            for start, end in unicode_groups:
-                # Ensure the CID map contains only chars from BMP
-                if start > 65535:
-                    continue
-                end = min(65535, end)
-
-                unicode_bfrange.append(
-                    b"<%04x> <%04x> [%s]" %
-                    (start, end,
-                     b" ".join(b"<%04x>" % x for x in range(start, end+1))))
-            unicode_cmap = (self._identityToUnicodeCMap %
-                            (len(unicode_groups), b"\n".join(unicode_bfrange)))
 
             # CIDToGIDMap stream
             cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
             self.outputStream(cidToGidMapObject, cid_to_gid_map)
 
             # ToUnicode CMap
+            unicode_cmap = generate_unicode_cmap(subset_index, charmap)
             self.outputStream(toUnicodeMapObject, unicode_cmap)
 
             descriptor['MaxWidth'] = max_width
@@ -1355,9 +1369,9 @@ end"""
             }
 
         if fonttype == 3:
-            return embedTTFType3(font, charmap, descriptor)
+            return embedTTFType3(font, subset_index, charmap, descriptor)
         elif fonttype == 42:
-            return embedTTFType42(font, charmap, descriptor)
+            return embedTTFType42(font, subset_index, charmap, descriptor)
 
     def alphaState(self, alpha):
         """Return name of an ExtGState that sets alpha to the given value."""
