@@ -19,7 +19,6 @@ import struct
 import sys
 import time
 import types
-import typing
 import warnings
 import zlib
 
@@ -36,8 +35,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
-from matplotlib.ft2font import (
-    FT2Font, FaceFlags, GlyphIndexType, Kerning, LoadFlags, StyleFlags)
+from matplotlib.ft2font import FT2Font, FaceFlags, Kerning, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -962,9 +960,9 @@ class PdfFile:
             else:
                 # a normal TrueType font
                 _log.debug('Writing TrueType font.')
-                glyphs = self._character_tracker.used.get(filename)
-                if glyphs:
-                    fonts[Fx] = self.embedTTF(filename, glyphs)
+                charmap = self._character_tracker.used.get((filename, 0))
+                if charmap:
+                    fonts[Fx] = self.embedTTF(filename, charmap)
         self.writeObject(self.fontObject, fonts)
 
     def _write_afm_font(self, filename):
@@ -1006,8 +1004,9 @@ class PdfFile:
 
         # Reduce the font to only the glyphs used in the document, get the encoding
         # for that subset, and compute various properties based on the encoding.
-        chars = frozenset(self._character_tracker.used[dvifont.fname])
-        t1font = t1font.subset(chars, self._get_subset_prefix(chars))
+        charmap = self._character_tracker.used[(dvifont.fname, 0)]
+        chars = frozenset(charmap.keys())
+        t1font = t1font.subset(chars, self._get_subset_prefix(charmap.values()))
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
         # createType1Descriptor writes the font data as a side effect
         fontdict['FontDescriptor'] = self.createType1Descriptor(t1font)
@@ -1138,7 +1137,7 @@ CMapName currentdict /CMap defineresource pop
 end
 end"""
 
-    def embedTTF(self, filename, glyphs):
+    def embedTTF(self, filename, charmap):
         """Embed the TTF font from the named file into the document."""
         font = get_font(filename)
         fonttype = mpl.rcParams['pdf.fonttype']
@@ -1154,7 +1153,7 @@ end"""
             else:
                 return math.ceil(value)
 
-        def embedTTFType3(font, glyphs, descriptor):
+        def embedTTFType3(font, charmap, descriptor):
             """The Type 3-specific part of embedding a Truetype font"""
             widthsObject = self.reserveObject('font widths')
             fontdescObject = self.reserveObject('font descriptor')
@@ -1201,10 +1200,8 @@ end"""
             # that we need from this font.
             differences = []
             multi_byte_chars = set()
-            charmap = {gind: ccode for ccode, gind in font.get_charmap().items()}
-            for gind in glyphs:
+            for ccode, gind in charmap.items():
                 glyph_name = font.get_glyph_name(gind)
-                ccode = charmap.get(gind)
                 if ccode is not None and ccode <= 255:
                     differences.append((ccode, glyph_name))
                 else:
@@ -1219,7 +1216,7 @@ end"""
                 last_c = c
 
             # Make the charprocs array.
-            rawcharprocs = _get_pdf_charprocs(filename, glyphs)
+            rawcharprocs = _get_pdf_charprocs(filename, charmap.values())
             charprocs = {}
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]
@@ -1256,7 +1253,7 @@ end"""
 
             return fontdictObject
 
-        def embedTTFType42(font, glyphs, descriptor):
+        def embedTTFType42(font, charmap, descriptor):
             """The Type 42-specific part of embedding a Truetype font"""
             fontdescObject = self.reserveObject('font descriptor')
             cidFontDictObject = self.reserveObject('CID font dictionary')
@@ -1266,8 +1263,9 @@ end"""
             wObject = self.reserveObject('Type 0 widths')
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
-            _log.debug("SUBSET %s characters: %s", filename, glyphs)
-            with _backend_pdf_ps.get_glyphs_subset(filename, glyphs) as subset:
+            _log.debug("SUBSET %s characters: %s", filename, charmap)
+            with _backend_pdf_ps.get_glyphs_subset(filename,
+                                                   charmap.values()) as subset:
                 fontdata = _backend_pdf_ps.font_as_file(subset)
             _log.debug(
                 "SUBSET %s %d -> %d", filename,
@@ -1315,11 +1313,9 @@ end"""
             cid_to_gid_map = ['\0'] * 65536
             widths = []
             max_ccode = 0
-            charmap = {gind: ccode for ccode, gind in font.get_charmap().items()}
-            for gind in glyphs:
+            for ccode, gind in charmap.items():
                 glyph = font.load_glyph(gind,
                                         flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING)
-                ccode = charmap[gind]
                 widths.append((ccode, cvt(glyph.horiAdvance)))
                 if ccode < 65536:
                     cid_to_gid_map[ccode] = chr(gind)
@@ -1358,8 +1354,8 @@ end"""
 
             # Add XObjects for unsupported chars
             glyph_indices = [
-                glyph_index for glyph_index in glyphs
-                if not _font_supports_glyph(fonttype, charmap[glyph_index])
+                glyph_index for ccode, glyph_index in charmap.items()
+                if not _font_supports_glyph(fonttype, ccode)
             ]
 
             bbox = [cvt(x, nearest=False) for x in full_font.bbox]
@@ -1445,9 +1441,9 @@ end"""
             }
 
         if fonttype == 3:
-            return embedTTFType3(font, glyphs, descriptor)
+            return embedTTFType3(font, charmap, descriptor)
         elif fonttype == 42:
-            return embedTTFType42(font, glyphs, descriptor)
+            return embedTTFType42(font, charmap, descriptor)
 
     def alphaState(self, alpha):
         """Return name of an ExtGState that sets alpha to the given value."""
@@ -2212,7 +2208,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         self.file.output(Op.begin_text)
         for font, fontsize, ccode, glyph_index, ox, oy in glyphs:
-            self.file._character_tracker.track_glyph(font, glyph_index)
+            self.file._character_tracker.track_glyph(font, ccode, glyph_index)
             fontname = font.fname
             if not _font_supports_glyph(fonttype, ccode):
                 # Unsupported chars (i.e. multibyte in Type 3 or beyond BMP in
@@ -2268,11 +2264,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 seq += [['font', pdfname, text.font.size]]
                 oldfont = text.font
             seq += [['text', text.x, text.y, [bytes([text.glyph])], text.x+text.width]]
-            # TODO: This should use glyph indices, not character codes, but will be
-            # fixed soon.
-            self.file._character_tracker.track_glyph(text.font,
-                                                     typing.cast('GlyphIndexType',
-                                                                 text.glyph))
+            self.file._character_tracker.track_glyph(text.font, text.glyph, text.index)
 
         # Find consecutive text strings with constant y coordinate and
         # combine into a sequence of strings and kerns, or just one
