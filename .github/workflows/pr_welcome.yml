@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/first-interaction@753c925c8d1ac6fede23781875376600628d9b5d  # v3.0.0
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          pr-message: >+
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_message: >+
             Thank you for opening your first PR into Matplotlib!
 
 
