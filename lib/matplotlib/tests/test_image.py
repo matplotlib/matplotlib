@@ -463,6 +463,7 @@ def test_format_cursor_data_multinorm(data, text):
     from matplotlib.backend_bases import MouseEvent
     fig, ax = plt.subplots()
     cmap_bivar = mpl.bivar_colormaps['BiOrangeBlue']
+    cmap_multivar = mpl.multivar_colormaps['2VarAddA']
 
     # This is a test for ColorizingArtist._format_cursor_data_override()
     # with data with multiple channels.
@@ -480,6 +481,10 @@ def test_format_cursor_data_multinorm(data, text):
     mpl.colorizer.ColorizingArtist.set_array(im, data)
 
     xdisp, ydisp = ax.transData.transform([0, 0])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.format_cursor_data(im.get_cursor_data(event)) == text
+
+    im.colorizer._cmap = cmap_multivar
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
     assert im.format_cursor_data(im.get_cursor_data(event)) == text
 

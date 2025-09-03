@@ -642,7 +642,7 @@ mpl._docstring.interpd.register(
 cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
     The Colormap instance or registered colormap name used to map scalar data
     to colors.""",
-        multi_cmap_doc="""\
+    multi_cmap_doc="""\
 cmap : str, `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`\
     or `~matplotlib.colors.MultivarColormap`, default: :rc:`image.cmap`
     The Colormap instance or registered colormap name used to map
@@ -910,9 +910,6 @@ def _ensure_multivariate_data(data, n_components):
             if np.ma.is_masked(data[i]):
                 reconstructed[f][data[i].mask] = np.ma.masked
         return reconstructed
-
-    if data is None:
-        return data
 
     if n_components == 1:
         # PIL.Image gets passed here
