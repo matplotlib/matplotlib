@@ -2599,7 +2599,7 @@ def scroll_handler(event, canvas=None, toolbar=None):
         # mouse position in scaled (e.g., log) data coordinates
         x, y = ax.transScale.transform((event.xdata, event.ydata))
 
-        scale_factor = 1.0 - 0.05 * event.step
+        scale_factor = 1.0 - 0.1 * event.step
         new_xmin = x - (x - xmin) * scale_factor
         new_xmax = x + (xmax - x) * scale_factor
         new_ymin = y - (y - ymin) * scale_factor
