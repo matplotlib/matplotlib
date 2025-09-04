@@ -219,7 +219,6 @@ class Colorizer:
         ----------
         cmap : `.Colormap` or str or None
         """
-        # bury import to avoid circular imports
         in_init = self._cmap is None
         cmap_obj = _ensure_cmap(cmap, accept_multivariate=True)
         if not in_init and self.norm.n_components != cmap_obj.n_variates:
@@ -258,9 +257,6 @@ class Colorizer:
                     vmin, vmax = vmin
                 except (TypeError, ValueError):
                     pass
-        # If the norm's limits are updated self.changed() will be called
-        # through the callbacks attached to the norm, this causes an inconsistent
-        # state, to prevent this blocked context manager is used
 
         orig_vmin_vmax = self.norm.vmin, self.norm.vmax
 
@@ -472,24 +468,24 @@ class _ColorizerInterface:
         # Note if cm.ScalarMappable is depreciated, this functionality should be
         # implemented as format_cursor_data() on ColorizingArtist.
         if np.ma.getmask(data) or data is None:
+            # NOTE: for multivariate data, if *any* of the fields are masked,
+            # "[]" is returned here
             return "[]"
-        if len(data.dtype.descr) > 1:
-            # We have multivariate data encoded as a data type with multiple fields
-            # NOTE: If any of the fields are masked, "[]" would be returned via
-            # the if statement above.
-            s_sig_digits_list = []
+
+        if isinstance(self.norm, colors.MultiNorm):
+            norms = self.norm.norms
             if isinstance(self.cmap, colors.BivarColormap):
                 n_s = (self.cmap.N, self.cmap.M)
-            else:
+            else:  # colors.MultivarColormap
                 n_s = [part.N for part in self.cmap]
-            os = [f"{d:-#.{self._sig_digits_from_norm(no, d, n)}g}"
-                  for no, d, n in zip(self.norm.norms, data, n_s)]
-            return f"[{', '.join(os)}]"
+        else:  # colors.Colormap
+            norms = [self.norm]
+            data = [data]
+            n_s = [self.cmap.N]
 
-        # scalar data
-        n = self.cmap.N
-        g_sig_digits = self._sig_digits_from_norm(self.norm, data, n)
-        return f"[{data:-#.{g_sig_digits}g}]"
+        os = [f"{d:-#.{self._sig_digits_from_norm(no, d, n)}g}"
+              for no, d, n in zip(norms, data, n_s)]
+        return f"[{', '.join(os)}]"
 
     @staticmethod
     def _sig_digits_from_norm(norm, data, n):
@@ -503,16 +499,13 @@ class _ColorizerInterface:
                 cur_idx = np.argmin(np.abs(norm.boundaries - data))
                 neigh_idx = max(0, cur_idx - 1)
                 # use max diff to prevent delta == 0
-                delta = np.diff(
-                    norm.boundaries[neigh_idx:cur_idx + 2]
-                ).max()
+                delta = np.diff(norm.boundaries[neigh_idx:cur_idx + 2]).max()
             elif norm.vmin == norm.vmax:
                 # singular norms, use delta of 10% of only value
                 delta = np.abs(norm.vmin * .1)
             else:
                 # Midpoints of neighboring color intervals.
-                neighbors = norm.inverse(
-                    (int(normed * n) + np.array([0, 1])) / n)
+                neighbors = norm.inverse((int(normed * n) + np.array([0, 1])) / n)
                 delta = abs(neighbors - data).max()
 
             g_sig_digits = cbook._g_sig_digits(data, delta)
@@ -803,7 +796,7 @@ def _ensure_cmap(cmap, accept_multivariate=False):
         - if a string, look it up in three corresponding databases
           when not found: raise an error based on the expected shape
         - if None, look up the default color map in mpl.colormaps
-    accept_multivariate : bool, default True
+    accept_multivariate : bool, default False
         - if False, accept only Colormap, string in mpl.colormaps or None
 
     Returns
@@ -811,27 +804,20 @@ def _ensure_cmap(cmap, accept_multivariate=False):
     Colormap
 
     """
-    if not accept_multivariate:
-        if isinstance(cmap, colors.Colormap):
-            return cmap
-        cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
-        # use check_in_list to ensure type stability of the exception raised by
-        # the internal usage of this (ValueError vs KeyError)
-        if cmap_name not in mpl.colormaps:
-            _api.check_in_list(sorted(mpl.colormaps), cmap=cmap_name)
+    if accept_multivariate:
+        types = (colors.Colormap, colors.BivarColormap, colors.MultivarColormap)
+        mappings = (mpl.colormaps, mpl.multivar_colormaps, mpl.bivar_colormaps)
+    else:
+        types = (colors.Colormap, )
+        mappings = (mpl.colormaps, )
 
-    if isinstance(cmap, (colors.Colormap,
-                         colors.BivarColormap,
-                         colors.MultivarColormap)):
+    if isinstance(cmap, types):
         return cmap
 
     cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
-    if cmap_name in mpl.colormaps:
-        return mpl.colormaps[cmap_name]
-    if cmap_name in mpl.multivar_colormaps:
-        return mpl.multivar_colormaps[cmap_name]
-    if cmap_name in mpl.bivar_colormaps:
-        return mpl.bivar_colormaps[cmap_name]
+    for mapping in mappings:
+        if cmap_name in mapping:
+            return mapping[cmap_name]
 
     # this error message is a variant of _api.check_in_list but gives
     # additional hints as to how to access multivariate colormaps
@@ -843,13 +829,6 @@ def _ensure_cmap(cmap, accept_multivariate=False):
                      " `matplotlib.multivar_colormaps()` for"
                      " bivariate and multivariate colormaps")
 
-    if isinstance(cmap, colors.Colormap):
-        return cmap
-    cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
-    # use check_in_list to ensure type stability of the exception raised by
-    # the internal usage of this (ValueError vs KeyError)
-    if cmap_name not in cm.colormaps:
-        _api.check_in_list(sorted(cm.colormaps), cmap=cmap_name)
     return cm.colormaps[cmap_name]
 
 
@@ -881,6 +860,11 @@ def _ensure_multivariate_data(data, n_components):
             # and already formatted data
             return data
         elif data.dtype in [np.complex64, np.complex128]:
+            if n_components != 2:
+                raise ValueError("Invalid data entry for multivariate data. "
+                                 "Complex numbers are incompatible with "
+                                 f"{n_components} variates.")
+
             # pass complex data
             if data.dtype == np.complex128:
                 dt = np.dtype('float64, float64')

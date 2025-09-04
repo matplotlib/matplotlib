@@ -474,7 +474,8 @@ def test_format_cursor_data_multinorm(data, text):
     # and use set_array() on the ColorizingArtist rather than the _ImageBase
     # but this workaround should be replaced by:
     #  `ax.imshow(data, cmap=cmap_bivar, vmin=(0,0), vmax=(1,1))`
-    # once the functionality is available
+    # once the functionality is available.
+    # see https://github.com/matplotlib/matplotlib/issues/14168
     im = ax.imshow([[0, 1]])
     im.colorizer._cmap = cmap_bivar
     im.colorizer._norm = colors.MultiNorm([im.norm, im.norm])

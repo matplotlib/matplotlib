@@ -2098,9 +2098,9 @@ def test_ensure_multivariate_data():
         mcolorizer._ensure_multivariate_data(data, 3)
 
     # test input of ints as list of lists
-    data = [[0, 0], [1, 1]]
+    data = [[0, 0, 0], [1, 1, 1]]
     mdata = mcolorizer._ensure_multivariate_data(data, 2)
-    assert mdata.shape == (2,)
+    assert mdata.shape == (3,)
     assert mdata.dtype.fields['f0'][0] == np.int64
     assert mdata.dtype.fields['f1'][0] == np.int64
 
@@ -2157,9 +2157,11 @@ def test_colorizer_multinorm_implicit():
                      [0.99853516, 0.50048437, 0.00244141, 1.]]])
     assert_array_almost_equal(ca.to_rgba(data), res)
 
-    with pytest.raises(ValueError):
-        ca.to_rgba([[0.1, 0.2, 0.3]])
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=("This MultiNorm has 2 components, "
+                                          "but got a sequence with 3 elements")):
+        ca.to_rgba([0.1, 0.2, 0.3])
+    with pytest.raises(ValueError, match=("This MultiNorm has 2 components, "
+                                          "but got a sequence with 1 elements")):
         ca.to_rgba([[0.1]])
 
     # test multivariate
@@ -2219,10 +2221,23 @@ def test_colorizer_bivar_cmap():
     # ensure masked value is propagated from input
     a = np.arange(3)
     cartist.set_array((a, np.ma.masked_where(a > 1, a)))
+    assert cartist.get_array()['f0'].mask[0] is np.False_
+    assert cartist.get_array()['f0'].mask[1] is np.False_
     assert cartist.get_array()['f0'].mask[2] is np.False_
-    assert cartist.get_array()['f1'].mask[2] is np.True_
+    assert cartist.get_array()['f1'].mask[0] is np.False_
     assert cartist.get_array()['f1'].mask[1] is np.False_
+    assert cartist.get_array()['f1'].mask[2] is np.True_
 
     # test clearing data
     cartist.set_array(None)
     cartist.get_array() is None
+
+
+def test_colorizer_multivar_cmap():
+    ca = mcolorizer.Colorizer('3VarAddA', [mcolors.Normalize(),
+                                           mcolors.Normalize(),
+                                           'log'])
+    cartist = mcolorizer.ColorizingArtist(ca)
+    cartist.set_array(np.zeros((3, 5, 5)))
+    with pytest.raises(ValueError, match='Complex numbers are incompatible with'):
+        cartist.set_array(np.zeros((5, 5), dtype='complex128'))
