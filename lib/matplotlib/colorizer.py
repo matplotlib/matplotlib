@@ -222,8 +222,7 @@ class Colorizer:
         # bury import to avoid circular imports
         in_init = self._cmap is None
         cmap_obj = _ensure_cmap(cmap, accept_multivariate=True)
-        if not in_init:
-            if self.norm.n_components != cmap_obj.n_variates:
+        if not in_init and self.norm.n_components != cmap_obj.n_variates:
                 raise ValueError(f"The colormap {cmap} does not support "
                                  f"{self.norm.n_components} variates as required by "
                                  f"the {type(self.norm)} on this Colorizer")
@@ -784,9 +783,7 @@ def _ensure_norm(norm, n_components=1):
         if isinstance(norm, colors.MultiNorm) and norm.n_components == n_components:
             return norm
         raise ValueError(
-                "Invalid norm for multivariate colormap with "
-                f"{n_components} inputs"
-            )
+            f"Invalid norm for multivariate colormap with {n_components} inputs")
 
 
 def _ensure_cmap(cmap, accept_multivariate=False):
@@ -870,12 +867,12 @@ def _ensure_multivariate_data(data, n_components):
     Parameters
     ----------
     n_components : int
-        -  number of variates in the data
+        Number of variates in the data.
     data : np.ndarray, PIL.Image or None
 
     Returns
     -------
-        np.ndarray, PIL.Image or None
+    np.ndarray, PIL.Image or None
     """
 
     if isinstance(data, np.ndarray):

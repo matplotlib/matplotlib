@@ -467,7 +467,7 @@ def test_format_cursor_data_multinorm(data, text):
 
     # This is a test for ColorizingArtist._format_cursor_data_override()
     # with data with multiple channels.
-    # It includes is a workaround so that we can test this functionality
+    # It includes a workaround so that we can test this functionality
     # before the MultiVar/BiVariate colormaps and MultiNorm are exposed
     # via the top-level methods (ax.imshow())
     # i.e. we here set the hidden variables _cmap and _norm

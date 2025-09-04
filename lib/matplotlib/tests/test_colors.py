@@ -2184,7 +2184,7 @@ def test_colorizer_multinorm_explicit():
 
     with pytest.raises(ValueError,
                        match=("Invalid norm for multivariate colormap with 2 inputs")):
-        ca = mcolorizer.Colorizer('BiOrangeBlue', ['linear', 'linear', "log"])
+        ca = mcolorizer.Colorizer('BiOrangeBlue', ['linear', 'linear', 'log'])
 
     # valid explicit construction
     ca = mcolorizer.Colorizer('BiOrangeBlue', [mcolors.Normalize(), 'log'])

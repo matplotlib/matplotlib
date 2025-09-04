@@ -701,7 +701,7 @@ def safe_masked_invalid(x, copy=False):
             try:
                 mask = np.empty(x.shape, dtype=np.dtype('bool, '*len(x.dtype.descr)))
                 for dd, dm in zip(x.dtype.descr, mask.dtype.descr):
-                    mask[dm[0]] = ~(np.isfinite(x[dd[0]]))
+                    mask[dm[0]] = ~np.isfinite(x[dd[0]])
                 xm = np.ma.array(x, mask=mask, copy=False)
             except TypeError:
                 return x
