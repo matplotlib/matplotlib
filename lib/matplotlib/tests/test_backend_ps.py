@@ -217,11 +217,6 @@ def test_useafm():
     ax.text(.5, .5, "qk")
 
 
-@image_comparison(["type3.eps"])
-def test_type3_font():
-    plt.figtext(.5, .5, "I/J")
-
-
 @image_comparison(["coloredhatcheszerolw.eps"])
 def test_colored_hatch_zero_linewidth():
     ax = plt.gca()

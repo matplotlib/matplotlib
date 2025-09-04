@@ -38,7 +38,7 @@ from .ft2font import FT2Font, Kerning, LoadFlags
 
 if T.TYPE_CHECKING:
     from collections.abc import Iterable
-    from .ft2font import CharacterCodeType, Glyph
+    from .ft2font import CharacterCodeType, Glyph, GlyphIndexType
 
 
 ParserElement.enable_packrat()
@@ -87,7 +87,7 @@ class VectorParse(NamedTuple):
     width: float
     height: float
     depth: float
-    glyphs: list[tuple[FT2Font, float, CharacterCodeType, float, float]]
+    glyphs: list[tuple[FT2Font, float, CharacterCodeType, GlyphIndexType, float, float]]
     rects: list[tuple[float, float, float, float]]
 
 VectorParse.__module__ = "matplotlib.mathtext"
@@ -132,7 +132,8 @@ class Output:
     def to_vector(self) -> VectorParse:
         w, h, d = map(
             np.ceil, [self.box.width, self.box.height, self.box.depth])
-        gs = [(info.font, info.fontsize, info.num, ox, h - oy + info.offset)
+        gs = [(info.font, info.fontsize, info.num, info.glyph_index,
+               ox, h - oy + info.offset)
               for ox, oy, info in self.glyphs]
         rs = [(x1, h - y2, x2 - x1, y2 - y1)
               for x1, y1, x2, y2 in self.rects]
@@ -215,6 +216,7 @@ class FontInfo(NamedTuple):
     postscript_name: str
     metrics: FontMetrics
     num: CharacterCodeType
+    glyph_index: GlyphIndexType
     glyph: Glyph
     offset: float
 
@@ -375,7 +377,8 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
                   dpi: float) -> FontInfo:
         font, num, slanted = self._get_glyph(fontname, font_class, sym)
         font.set_size(fontsize, dpi)
-        glyph = font.load_char(num, flags=self.load_glyph_flags)
+        glyph_index = font.get_char_index(num)
+        glyph = font.load_glyph(glyph_index, flags=self.load_glyph_flags)
 
         xmin, ymin, xmax, ymax = (val / 64 for val in glyph.bbox)
         offset = self._get_offset(font, glyph, fontsize, dpi)
@@ -398,6 +401,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             postscript_name=font.postscript_name,
             metrics=metrics,
             num=num,
+            glyph_index=glyph_index,
             glyph=glyph,
             offset=offset
         )
@@ -427,8 +431,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
-            return font.get_kerning(font.get_char_index(info1.num),
-                                    font.get_char_index(info2.num),
+            return font.get_kerning(info1.glyph_index, info2.glyph_index,
                                     Kerning.DEFAULT) / 64
         return super().get_kern(font1, fontclass1, sym1, fontsize1,
                                 font2, fontclass2, sym2, fontsize2, dpi)

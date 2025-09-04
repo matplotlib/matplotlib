@@ -39,11 +39,9 @@ class TextToPath:
     def _get_hinting_flag(self):
         return LoadFlags.NO_HINTING
 
-    def _get_char_id(self, font, ccode):
-        """
-        Return a unique id for the given font and character-code set.
-        """
-        return urllib.parse.quote(f"{font.postscript_name}-{ccode:x}")
+    def _get_glyph_id(self, font, glyph):
+        """Return a unique id for the given font and glyph index."""
+        return urllib.parse.quote(f"{font.postscript_name}-{glyph:x}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
         fontsize = prop.get_size_in_points()
@@ -146,11 +144,11 @@ class TextToPath:
         xpositions = []
         glyph_ids = []
         for item in _text_helpers.layout(s, font):
-            char_id = self._get_char_id(item.ft_object, ord(item.char))
-            glyph_ids.append(char_id)
+            glyph_id = self._get_glyph_id(item.ft_object, item.glyph_index)
+            glyph_ids.append(glyph_id)
             xpositions.append(item.x)
-            if char_id not in glyph_map:
-                glyph_map_new[char_id] = item.ft_object.get_path()
+            if glyph_id not in glyph_map:
+                glyph_map_new[glyph_id] = item.ft_object.get_path()
 
         ypositions = [0] * len(xpositions)
         sizes = [1.] * len(xpositions)
@@ -185,17 +183,17 @@ class TextToPath:
         glyph_ids = []
         sizes = []
 
-        for font, fontsize, ccode, ox, oy in glyphs:
-            char_id = self._get_char_id(font, ccode)
-            if char_id not in glyph_map:
+        for font, fontsize, ccode, glyph_index, ox, oy in glyphs:
+            glyph_id = self._get_glyph_id(font, glyph_index)
+            if glyph_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
-                font.load_char(ccode, flags=LoadFlags.NO_HINTING)
-                glyph_map_new[char_id] = font.get_path()
+                font.load_glyph(glyph_index, flags=LoadFlags.NO_HINTING)
+                glyph_map_new[glyph_id] = font.get_path()
 
             xpositions.append(ox)
             ypositions.append(oy)
-            glyph_ids.append(char_id)
+            glyph_ids.append(glyph_id)
             size = fontsize / self.FONT_SCALE
             sizes.append(size)
 
@@ -232,17 +230,16 @@ class TextToPath:
 
         # Gather font information and do some setup for combining
         # characters into strings.
-        t1_encodings = {}
         for text in page.text:
             font = get_font(text.font_path)
-            char_id = self._get_char_id(font, text.glyph)
-            if char_id not in glyph_map:
+            glyph_id = self._get_glyph_id(font, text.index)
+            if glyph_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
                 font.load_glyph(text.index, flags=LoadFlags.TARGET_LIGHT)
-                glyph_map_new[char_id] = font.get_path()
+                glyph_map_new[glyph_id] = font.get_path()
 
-            glyph_ids.append(char_id)
+            glyph_ids.append(glyph_id)
             xpositions.append(text.x)
             ypositions.append(text.y)
             sizes.append(text.font_size / self.FONT_SCALE)

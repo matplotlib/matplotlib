@@ -14,7 +14,7 @@ from .ft2font import FT2Font, GlyphIndexType, Kerning, LoadFlags
 class LayoutItem:
     ft_object: FT2Font
     char: str
-    glyph_idx: GlyphIndexType
+    glyph_index: GlyphIndexType
     x: float
     prev_kern: float
 
@@ -47,19 +47,19 @@ def layout(string, font, *, kern_mode=Kerning.DEFAULT):
     LayoutItem
     """
     x = 0
-    prev_glyph_idx = None
+    prev_glyph_index = None
     char_to_font = font._get_fontmap(string)
     base_font = font
     for char in string:
         # This has done the fallback logic
         font = char_to_font.get(char, base_font)
-        glyph_idx = font.get_char_index(ord(char))
+        glyph_index = font.get_char_index(ord(char))
         kern = (
-            base_font.get_kerning(prev_glyph_idx, glyph_idx, kern_mode) / 64
-            if prev_glyph_idx is not None else 0.
+            base_font.get_kerning(prev_glyph_index, glyph_index, kern_mode) / 64
+            if prev_glyph_index is not None else 0.
         )
         x += kern
-        glyph = font.load_glyph(glyph_idx, flags=LoadFlags.NO_HINTING)
-        yield LayoutItem(font, char, glyph_idx, x, kern)
+        glyph = font.load_glyph(glyph_index, flags=LoadFlags.NO_HINTING)
+        yield LayoutItem(font, char, glyph_index, x, kern)
         x += glyph.linearHoriAdvance / 65536
-        prev_glyph_idx = glyph_idx
+        prev_glyph_index = glyph_index

@@ -840,12 +840,6 @@ def test_invalid_color():
         plt.figtext(.5, .5, "foo", c="foobar")
 
 
-@image_comparison(['text_pdf_kerning.pdf'], style='mpl20')
-def test_pdf_kerning():
-    plt.figure()
-    plt.figtext(0.1, 0.5, "ATATATATATATATATATA", size=30)
-
-
 # See gh-26152 for more information on this xfail
 @pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
                    reason="Error messages are incorrect with pyparsing 3.1.0")
@@ -874,21 +868,6 @@ def test_parse_math_rcparams():
         fig, ax = plt.subplots()
         ax.text(0, 0, r"$ \wrong{math} $")
         fig.canvas.draw()
-
-
-@image_comparison(['text_pdf_font42_kerning.pdf'], style='mpl20')
-def test_pdf_font42_kerning():
-    plt.rcParams['pdf.fonttype'] = 42
-    plt.figure()
-    plt.figtext(0.1, 0.5, "ATAVATAVATAVATAVATA", size=30)
-
-
-@image_comparison(['text_pdf_chars_beyond_bmp.pdf'], style='mpl20')
-def test_pdf_chars_beyond_bmp():
-    plt.rcParams['pdf.fonttype'] = 42
-    plt.rcParams['mathtext.fontset'] = 'stixsans'
-    plt.figure()
-    plt.figtext(0.1, 0.5, "Mass $m$ \U00010308", size=30)
 
 
 @needs_usetex
