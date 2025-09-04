@@ -1073,6 +1073,7 @@ _validators = {
     # text props
     "text.color":          validate_color,
     "text.usetex":         validate_bool,
+    "text.latex.engine":   ["latex", "latex+dvipng"],
     "text.latex.preamble": validate_string,
     "text.hinting":        ["default", "no_autohint", "force_autohint",
                             "no_hinting", "auto", "native", "either", "none"],
@@ -1830,6 +1831,20 @@ _params = [
                     "charter, serif, sans-serif, helvetica, avant garde, courier, "
                     "monospace, computer modern roman, computer modern sans serif, "
                     "computer modern typewriter"
+    ),
+    _Param(
+        "text.latex.engine",
+        default="latex",
+        validator=["latex", "latex+dvipng"],
+        description=(
+            "The TeX engine/format to use.  The following values are supported:\n"
+            "- 'latex': The classic TeX engine (the current default).  All backends "
+            "render TeX's output by parsing the DVI output into glyphs and boxes and "
+            "emitting those one by one.\n"
+            "- 'latex+dvipng': The same as 'latex', with the exception that Agg-based "
+            "backends rely on dvipng to rasterize TeX's output.  This value was the "
+            "default up to Matplotlib 3.10."
+        )
     ),
     _Param(
         "text.latex.preamble",

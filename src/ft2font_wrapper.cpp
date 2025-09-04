@@ -971,7 +971,7 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
     image : 2d array of uint8
         The image buffer on which to draw the glyph.
     x, y : int
-        The pixel location at which to draw the glyph.
+        The position of the glyph's top left corner.
     glyph : Glyph
         The glyph to draw.
     antialiased : bool, default: True
