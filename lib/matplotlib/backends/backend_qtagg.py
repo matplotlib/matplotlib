@@ -68,6 +68,19 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
                 ctypes.c_long.from_address(id(buf)).value = 1
 
             self._draw_rect_callback(painter)
+
+            figx = self.mouse_xy[0] / rect.width()
+            figy = 1 - self.mouse_xy[1] / rect.height()
+            x0 = rect.left()
+            x1 = rect.left() + rect.width()
+            y0 = rect.top()
+            y1 = rect.top() + rect.height()
+            x = rect.left() + int(figx * rect.width())
+            y = rect.top() + int(figy * rect.height())
+            painter.setPen(QtGui.QPen(QtCore.Qt.GlobalColor.red))
+            painter.drawLine(x0, y, x1, y)
+            painter.drawLine(x, y0, x, y1)
+
         finally:
             painter.end()
 

@@ -239,6 +239,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_OpaquePaintEvent)
         self.setMouseTracking(True)
+        self.mouse_xy = (0, 0)
         self.resize(*self.get_width_height())
 
         palette = QtGui.QPalette(QtGui.QColor("white"))
@@ -344,8 +345,10 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     def mouseMoveEvent(self, event):
         if self.figure is None:
             return
+        self.mouse_xy = self.mouseEventCoords(event)
+        self.repaint()
         MouseEvent("motion_notify_event", self,
-                   *self.mouseEventCoords(event),
+                   *self.mouse_xy,
                    buttons=self._mpl_buttons(event.buttons()),
                    modifiers=self._mpl_modifiers(),
                    guiEvent=event)._process()
