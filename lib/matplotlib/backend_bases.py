@@ -2593,16 +2593,21 @@ def scroll_handler(event, canvas=None, toolbar=None):
 
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
+        xmin, ymin = ax.transScale.transform((xmin, ymin))
+        xmax, ymax = ax.transScale.transform((xmax, ymax))
 
-        # mouse position in data coordinates
-        x = event.xdata
-        y = event.ydata
+        # mouse position in scaled (e.g., log) data coordinates
+        x, y = ax.transScale.transform((event.xdata, event.ydata))
 
         scale_factor = 1.0 - 0.05 * event.step
         new_xmin = x - (x - xmin) * scale_factor
         new_xmax = x + (xmax - x) * scale_factor
         new_ymin = y - (y - ymin) * scale_factor
         new_ymax = y + (ymax - y) * scale_factor
+
+        inv_scale = ax.transScale.inverted()
+        new_xmin, new_ymin = inv_scale.transform((new_xmin, new_ymin))
+        new_xmax, new_ymax = inv_scale.transform((new_xmax, new_ymax))
 
         ax.set_xlim(new_xmin, new_xmax)
         ax.set_ylim(new_ymin, new_ymax)
