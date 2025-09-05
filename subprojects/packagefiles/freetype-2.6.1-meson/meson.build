@@ -179,11 +179,17 @@ ft_config_headers += [configure_file(input: 'include/freetype/config/ftoption.h.
   output: 'ftoption.h',
   configuration: conf)]
 
+if cc.get_id() == 'emscripten'
+  kwargs = {}
+else
+  kwargs = {'gnu_symbol_visibility': 'inlineshidden'}
+endif
+
 libfreetype = static_library('freetype', base_sources,
   include_directories: incbase,
   dependencies: deps,
   c_args: c_args,
-  gnu_symbol_visibility: 'inlineshidden',
+  kwargs: kwargs
 )
 
 freetype_dep = declare_dependency(

@@ -215,8 +215,8 @@ def test_imsave_rgba_origin(origin):
 
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
-def test_imsave_fspath(fmt):
-    plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
+def test_imsave_fspath(fmt, tmp_path):
+    plt.imsave(tmp_path / f'unused.{fmt}', np.array([[0, 1]]), format=fmt)
 
 
 def test_imsave_color_alpha():
