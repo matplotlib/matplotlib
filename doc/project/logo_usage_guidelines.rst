@@ -16,13 +16,18 @@ View the :doc:`/gallery/misc/logos2` to see the code to generate the logo using 
 - Keep the ratio consistent
 - Maintain the same colors
 
-.. grid:: 2
+.. grid:: 3
 
-    .. grid-item-card::  Primary logo
+    .. grid-item-card::  Primary logo light
 
         .. image:: /_static/logo2.svg
 
-    .. grid-item-card::  Logo mark
+    .. grid-item-card::  Primary logo dark
+
+        .. image:: /_static/logo_dark.svg
+            :class: dark_background_image
+
+    .. grid-item-card::  Logo mark, same for both
 
         .. image:: /_static/large_logo.svg
 
@@ -44,6 +49,12 @@ The Matplotlib logo's official colors below show both hex code and RGB values fo
           <div style="display:inline-block; width:20px; height:20px; background-color:#285479;"></div>
      - ``#285479``
      - ``40, 84, 121``
+   * - Light blue
+     - .. raw:: html
+
+          <div style="display:inline-block; width:20px; height:20px; background-color:#65baea;"></div>
+     - ``#65baea``
+     - ``101, 186, 234``
    * - Red
      - .. raw:: html
 
