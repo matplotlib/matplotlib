@@ -260,6 +260,32 @@ class ImageContainer:
         # TODO hash
 
 
+@dataclass
+class NonUniformImageContainer(ImageContainer):
+    def describe(self):
+        imshape = list(self.image.shape)
+        imshape[:2] = ("M", "N")
+
+        return {
+            "x": Desc(("M",), "data"),
+            "y": Desc(("N",), "data"),
+            "image": Desc(tuple(imshape), "data"),
+        }
+
+
+@dataclass
+class PcolorImageContainer(ImageContainer):
+    def describe(self):
+        imshape = list(self.image.shape)
+        imshape[:2] = ("M", "N")
+
+        return {
+            "x": Desc(("M+1",), "data"),
+            "y": Desc(("N+1",), "data"),
+            "image": Desc(tuple(imshape), "data"),
+        }
+
+
 class _ImageBase(mcolorizer.ColorizingArtist):
     """
     Base class for images.
@@ -333,6 +359,8 @@ class _ImageBase(mcolorizer.ColorizingArtist):
     def _get_graph(self):
         # TODO see about getting rid of self.axes
         ax = self.axes
+        if ax is None:
+            return Graph([])
         desc: Desc = Desc(("N",), coordinates="data")
         xy: dict[str, Desc] = {"x": desc, "y": desc}
         implicit_graph = Graph(
@@ -1038,7 +1066,7 @@ class AxesImage(_ImageBase):
         will redo the autoscaling in accord with `~.Axes.dataLim`.
         """
         if not isinstance(self._container, ImageContainer):
-            raise TypeError("Cannot use 'set_data' on custom container types")
+            raise TypeError("Cannot use 'set_extent' on custom container types")
 
         if extent is None:
             sz = self.get_size()
@@ -1145,6 +1173,11 @@ class NonUniformImage(AxesImage):
             )
         super().__init__(ax, **kwargs)
         self.set_interpolation(interpolation)
+        self._container = NonUniformImageContainer(
+            np.array([0.,1.]),
+            np.array([0.,1.]),
+            np.array([[np.nan]]),
+        )
 
     def _check_unsampled_image(self):
         """Return False. Do not use unsampled image."""
@@ -1152,11 +1185,15 @@ class NonUniformImage(AxesImage):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        if self._A is None:
-            raise RuntimeError('You must first set the image array')
         if unsampled:
             raise ValueError('unsampled not supported on NonUniformImage')
-        A = self._A
+
+        q, _ = self._container.query(self._get_graph())
+        Ax = q["x"]
+        Ay = q["y"]
+
+        A = q["image"]
+
         if A.ndim == 2:
             if A.dtype != np.uint8:
                 A = self.to_rgba(A, bytes=True)
@@ -1182,8 +1219,8 @@ class NonUniformImage(AxesImage):
             [(l, y) for y in np.linspace(b, t, height)])[:, 1]
 
         if self._interpolation == "nearest":
-            x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
-            y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
+            x_mid = (Ax[:-1] + Ax[1:]) / 2
+            y_mid = (Ay[:-1] + Ay[1:]) / 2
             x_int = x_mid.searchsorted(x_pix)
             y_int = y_mid.searchsorted(y_pix)
             # The following is equal to `A[y_int[:, None], x_int[None, :]]`,
@@ -1196,16 +1233,16 @@ class NonUniformImage(AxesImage):
         else:  # self._interpolation == "bilinear"
             # Use np.interp to compute x_int/x_float has similar speed.
             x_int = np.clip(
-                self._Ax.searchsorted(x_pix) - 1, 0, len(self._Ax) - 2)
+                Ax.searchsorted(x_pix) - 1, 0, len(Ax) - 2)
             y_int = np.clip(
-                self._Ay.searchsorted(y_pix) - 1, 0, len(self._Ay) - 2)
+                Ay.searchsorted(y_pix) - 1, 0, len(Ay) - 2)
             idx_int = np.add.outer(y_int * A.shape[1], x_int)
             x_frac = np.clip(
-                np.divide(x_pix - self._Ax[x_int], np.diff(self._Ax)[x_int],
+                np.divide(x_pix - Ax[x_int], np.diff(Ax)[x_int],
                           dtype=np.float32),  # Downcasting helps with speed.
                 0, 1)
             y_frac = np.clip(
-                np.divide(y_pix - self._Ay[y_int], np.diff(self._Ay)[y_int],
+                np.divide(y_pix - Ay[y_int], np.diff(Ay)[y_int],
                           dtype=np.float32),
                 0, 1)
             f00 = np.outer(1 - y_frac, 1 - x_frac)
@@ -1237,14 +1274,16 @@ class NonUniformImage(AxesImage):
             (M, N) `~numpy.ndarray` or masked array of values to be
             colormapped, or (M, N, 3) RGB array, or (M, N, 4) RGBA array.
         """
+        if not isinstance(self._container, NonUniformImageContainer):
+            raise TypeError("Cannot use 'set_data' on custom container types")
         A = self._normalize_image_array(A)
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
         if not (x.ndim == y.ndim == 1 and A.shape[:2] == y.shape + x.shape):
             raise TypeError("Axes don't match array shape")
-        self._A = A
-        self._Ax = x
-        self._Ay = y
+        self._container.image = A
+        self._container.x = x
+        self._container.y = y
         self._imcache = None
         self.stale = True
 
@@ -1263,11 +1302,6 @@ class NonUniformImage(AxesImage):
                                       'bilinear interpolations are supported')
         super().set_interpolation(s)
 
-    def get_extent(self):
-        if self._A is None:
-            raise RuntimeError('Must set data first')
-        return self._Ax[0], self._Ax[-1], self._Ay[0], self._Ay[-1]
-
     def set_filternorm(self, filternorm):
         pass
 
@@ -1275,24 +1309,29 @@ class NonUniformImage(AxesImage):
         pass
 
     def set_norm(self, norm):
-        if self._A is not None:
-            raise RuntimeError('Cannot change colors after loading data')
+        #if self._A is not None:
+        #    raise RuntimeError('Cannot change colors after loading data')
         super().set_norm(norm)
 
     def set_cmap(self, cmap):
-        if self._A is not None:
-            raise RuntimeError('Cannot change colors after loading data')
+        #if self._A is not None:
+        #    raise RuntimeError('Cannot change colors after loading data')
         super().set_cmap(cmap)
 
     def get_cursor_data(self, event):
         # docstring inherited
+        q, _ = self._container.query(self._get_graph())
+        Ax = q["x"]
+        Ay = q["y"]
+        A = q["image"]
+
         x, y = event.xdata, event.ydata
-        if (x < self._Ax[0] or x > self._Ax[-1] or
-                y < self._Ay[0] or y > self._Ay[-1]):
+        if (x < Ax[0] or x > Ax[-1] or
+                y < Ay[0] or y > Ay[-1]):
             return None
-        j = np.searchsorted(self._Ax, x) - 1
-        i = np.searchsorted(self._Ay, y) - 1
-        return self._A[i, j]
+        j = np.searchsorted(Ax, x) - 1
+        i = np.searchsorted(Ay, y) - 1
+        return A[i, j]
 
 
 class PcolorImage(AxesImage):
@@ -1339,18 +1378,27 @@ class PcolorImage(AxesImage):
         """
         super().__init__(ax, norm=norm, cmap=cmap, colorizer=colorizer)
         self._internal_update(kwargs)
+        self._container = PcolorImageContainer(
+            np.array([0.,1.]),
+            np.array([0.,1.]),
+            np.array([[np.nan]]),
+        )
         if A is not None:
             self.set_data(x, y, A)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        if self._A is None:
-            raise RuntimeError('You must first set the image array')
         if unsampled:
-            raise ValueError('unsampled not supported on PColorImage')
+            raise ValueError('unsampled not supported on PcolorImage')
+
+        q, _ = self._container.query(self._get_graph())
+        Ax = q["x"]
+        Ay = q["y"]
+
+        A = q["image"]
 
         if self._imcache is None:
-            A = self.to_rgba(self._A, bytes=True)
+            A = self.to_rgba(A, bytes=True)
             self._imcache = np.pad(A, [(1, 1), (1, 1), (0, 0)], "constant")
         padded_A = self._imcache
         bg = mcolors.to_rgba(self.axes.patch.get_facecolor(), 0)
@@ -1367,8 +1415,8 @@ class PcolorImage(AxesImage):
 
         x_pix = np.linspace(vl.x0, vl.x1, width)
         y_pix = np.linspace(vl.y0, vl.y1, height)
-        x_int = self._Ax.searchsorted(x_pix)
-        y_int = self._Ay.searchsorted(y_pix)
+        x_int = Ax.searchsorted(x_pix)
+        y_int = Ay.searchsorted(y_pix)
         im = (  # See comment in NonUniformImage.make_image re: performance.
             padded_A.view(np.uint32).ravel()[
                 np.add.outer(y_int * padded_A.shape[1], x_int)]
@@ -1396,6 +1444,8 @@ class PcolorImage(AxesImage):
             - (M, N, 3): RGB array
             - (M, N, 4): RGBA array
         """
+        if not isinstance(self._container, PcolorImageContainer):
+            raise TypeError("Cannot use 'set_data' on custom container types")
         A = self._normalize_image_array(A)
         x = np.arange(0., A.shape[1] + 1) if x is None else np.array(x, float).ravel()
         y = np.arange(0., A.shape[0] + 1) if y is None else np.array(y, float).ravel()
@@ -1410,9 +1460,9 @@ class PcolorImage(AxesImage):
         if y[-1] < y[0]:
             y = y[::-1]
             A = A[::-1]
-        self._A = A
-        self._Ax = x
-        self._Ay = y
+        self._container.image = A
+        self._container.x = x
+        self._container.y = y
         self._imcache = None
         self.stale = True
 
@@ -1421,13 +1471,18 @@ class PcolorImage(AxesImage):
 
     def get_cursor_data(self, event):
         # docstring inherited
+        q, _ = self._container.query(self._get_graph())
+        Ax = q["x"]
+        Ay = q["y"]
+        A = q["image"]
+
         x, y = event.xdata, event.ydata
-        if (x < self._Ax[0] or x > self._Ax[-1] or
-                y < self._Ay[0] or y > self._Ay[-1]):
+        if (x < Ax[0] or x > Ax[-1] or
+                y < Ay[0] or y > Ay[-1]):
             return None
-        j = np.searchsorted(self._Ax, x) - 1
-        i = np.searchsorted(self._Ay, y) - 1
-        return self._A[i, j]
+        j = np.searchsorted(Ax, x) - 1
+        i = np.searchsorted(Ay, y) - 1
+        return A[i, j]
 
 
 class FigureImage(_ImageBase):
