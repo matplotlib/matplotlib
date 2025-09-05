@@ -8,6 +8,9 @@ from collections.abc import Generator
 from typing import NamedTuple
 from typing import Self
 
+from .ft2font import GlyphIndexType
+
+
 class _dvistate(Enum):
     pre = ...
     outer = ...
@@ -41,9 +44,9 @@ class Text(NamedTuple):
     @property
     def font_effects(self) -> dict[str, float]: ...
     @property
-    def index(self) -> int: ...  # type: ignore[override]
+    def index(self) -> GlyphIndexType: ...  # type: ignore[override]
     @property
-    def glyph_name_or_index(self) -> int | str: ...
+    def glyph_name_or_index(self) -> GlyphIndexType | str: ...
 
 class Dvi:
     file: io.BufferedReader

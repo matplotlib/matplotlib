@@ -1539,7 +1539,7 @@ class FontManager:
         return _cached_realpath(result)
 
 
-@lru_cache
+@_api.deprecated("3.11")
 def is_opentype_cff_font(filename):
     """
     Return whether the given font is a Postscript Compact Font Format Font
