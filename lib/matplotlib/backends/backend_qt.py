@@ -1,3 +1,4 @@
+from collections import namedtuple
 import functools
 import os
 import sys
@@ -213,6 +214,9 @@ class TimerQT(TimerBase):
         self._timer.stop()
 
 
+Crosshair = namedtuple('Crosshair', 'x, y, x0, x1, y0, y1')
+
+
 class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     required_interactive_framework = "qt"
     _timer_cls = TimerQT
@@ -231,6 +235,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     def __init__(self, figure=None):
         _create_qApp()
         super().__init__(figure=figure)
+        self._crosshair = None
 
         self._draw_pending = False
         self._is_drawing = False
@@ -239,7 +244,6 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_OpaquePaintEvent)
         self.setMouseTracking(True)
-        self.mouse_xy = (0, 0)
         self.resize(*self.get_width_height())
 
         palette = QtGui.QPalette(QtGui.QColor("white"))
@@ -306,6 +310,21 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         y = self.figure.bbox.height / self.device_pixel_ratio - pos.y()
         return x * self.device_pixel_ratio, y * self.device_pixel_ratio
 
+    def _update_crosshair(self, x, y):
+        previous_crosshair = self._crosshair
+        ax = self.inaxes((x, y))
+        if ax is None:
+            self._crosshair = None
+        else:
+            bbox = ax.get_position()  # in figure coords
+            x0 = int(bbox.x0 * self.width())
+            x1 = int(bbox.x1 * self.width())
+            y0 = int((1 - bbox.y0) * self.height())
+            y1 = int((1 - bbox.y1) * self.height())
+            self._crosshair = Crosshair(x, y, x0, x1, y0, y1)
+        needs_repaint = previous_crosshair is not None or self._crosshair is not None
+        return needs_repaint
+
     def enterEvent(self, event):
         # Force querying of the modifiers, as the cached modifier state can
         # have been invalidated while the window was out of focus.
@@ -345,10 +364,12 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     def mouseMoveEvent(self, event):
         if self.figure is None:
             return
-        self.mouse_xy = self.mouseEventCoords(event)
-        self.repaint()
+        mouse_xy = self.mouseEventCoords(event)
+        needs_repaint = self._update_crosshair(*mouse_xy)
+        if needs_repaint:
+           self.repaint()
         MouseEvent("motion_notify_event", self,
-                   *self.mouse_xy,
+                   *mouse_xy,
                    buttons=self._mpl_buttons(event.buttons()),
                    modifiers=self._mpl_modifiers(),
                    guiEvent=event)._process()
