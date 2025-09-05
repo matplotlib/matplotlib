@@ -244,6 +244,8 @@ class Axes3D(Axes):
                 (minx, maxy, maxz)]
         return proj3d._proj_points(xyzs, self.M)
 
+    @_api.delete_parameter("3.11", "share")
+    @_api.delete_parameter("3.11", "anchor")
     def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
         Set the aspect ratios.
@@ -263,39 +265,31 @@ class Axes3D(Axes):
             'equalyz'   adapt the y and z axes to have equal aspect ratios.
             =========   ==================================================
 
-        adjustable : None or {'box', 'datalim'}, optional
-            If not *None*, this defines which parameter will be adjusted to
-            meet the required aspect. See `.set_adjustable` for further
-            details.
+        adjustable : {'box', 'datalim'}, default: 'box'
+            Defines which parameter to adjust to meet the aspect ratio.
+
+            - 'box': Change the physical dimensions of the axes bounding box.
+            - 'datalim': Change the x, y, or z data limits.
 
         anchor : None or str or 2-tuple of float, optional
-            If not *None*, this defines where the Axes will be drawn if there
-            is extra space due to aspect constraints. The most common way to
-            specify the anchor are abbreviations of cardinal directions:
-
-            =====   =====================
-            value   description
-            =====   =====================
-            'C'     centered
-            'SW'    lower left corner
-            'S'     middle of bottom edge
-            'SE'    lower right corner
-            etc.
-            =====   =====================
-
-            See `~.Axes.set_anchor` for further details.
+            .. deprecated:: 3.11
+                This parameter has no effect.
 
         share : bool, default: False
-            If ``True``, apply the settings to all shared Axes.
+            .. deprecated:: 3.11
+                This parameter has no effect.
 
         See Also
         --------
         mpl_toolkits.mplot3d.axes3d.Axes3D.set_box_aspect
         """
+        if adjustable is None:
+            adjustable = 'box'
+        _api.check_in_list(['box', 'datalim'], adjustable=adjustable)
         _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'),
                            aspect=aspect)
-        super().set_aspect(
-            aspect='auto', adjustable=adjustable, anchor=anchor, share=share)
+
+        self.set_adjustable(adjustable)
         self._aspect = aspect
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
@@ -2890,8 +2884,10 @@ class Axes3D(Axes):
 
         if autolim:
             if isinstance(col, art3d.Line3DCollection):
-                self.auto_scale_xyz(*np.array(col._segments3d).transpose(),
-                                    had_data=had_data)
+                # Handle ragged arrays by extracting coordinates separately
+                all_points = np.concatenate(col._segments3d)
+                self.auto_scale_xyz(all_points[:, 0], all_points[:, 1],
+                                    all_points[:, 2], had_data=had_data)
             elif isinstance(col, art3d.Poly3DCollection):
                 self.auto_scale_xyz(col._faces[..., 0],
                                     col._faces[..., 1],

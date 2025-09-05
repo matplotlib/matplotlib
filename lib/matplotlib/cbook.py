@@ -43,16 +43,20 @@ class _ExceptionInfo:
     users and result in incorrect tracebacks.
     """
 
-    def __init__(self, cls, *args):
+    def __init__(self, cls, *args, notes=None):
         self._cls = cls
         self._args = args
+        self._notes = notes if notes is not None else []
 
     @classmethod
     def from_exception(cls, exc):
-        return cls(type(exc), *exc.args)
+        return cls(type(exc), *exc.args, notes=getattr(exc, "__notes__", []))
 
     def to_exception(self):
-        return self._cls(*self._args)
+        exc = self._cls(*self._args)
+        for note in self._notes:
+            exc.add_note(note)
+        return exc
 
 
 def _get_running_interactive_framework():
