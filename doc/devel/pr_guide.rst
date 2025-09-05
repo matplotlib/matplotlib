@@ -12,7 +12,7 @@ We value contributions from people with all levels of experience. In particular,
 if this is your first PR not everything has to be perfect. We'll guide you
 through the PR process. Nevertheless, please try to follow our guidelines as well
 as you can to help make the PR process quick and smooth. If your pull request is
-incomplete or a work-in-progress, please mark it as a `draft pull requests <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_
+incomplete or a work-in-progress, please mark it as a :ref:`draft pull request <draft-pr>`
 on GitHub and specify what feedback from the developers would be helpful.
 
 Please be patient with reviewers. We try our best to respond quickly, but we have
@@ -117,6 +117,22 @@ Workflow
 
 Detailed guidelines
 ===================
+
+.. _draft-pr:
+
+Draft PRs
+---------
+
+Authors may create a `draft PR`_ (or change to draft status later) if the code
+is not yet ready for a regular full review. Typical use cases are posting code
+as a basis for discussion or signalling that you intend to rework the code as
+a result of feedback. Authors should clearly communicate why the PR has draft
+status and what needs to be done to make it ready for review. In particular,
+they should explicitly ask for targeted feedback if needed. By default,
+reviewers will not look at the code of a draft PR and only respond to specific
+questions by the author.
+
+.. _draft PR: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests
 
 .. _pr-documentation:
 

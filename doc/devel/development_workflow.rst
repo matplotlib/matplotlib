@@ -179,9 +179,9 @@ Enter a title for the set of changes with some explanation of what you've done.
 Mention anything you'd like particular attention for - such as a
 complicated change or some code you are not happy with.
 
-If you don't think your request is ready to be merged, just say so in your pull
-request message and use the "Draft PR" feature of GitHub. This is a good way of
-getting some preliminary code review.
+If you don't think your request is ready to be merged, make a
+:ref:`draft pull request <draft-pr>` and state what aspects you want to have
+feedback on. This is a good way of getting some preliminary code review.
 
 For more guidance on the mechanics of making a pull request, see GitHub's
 `pull request tutorial <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork>`_.
