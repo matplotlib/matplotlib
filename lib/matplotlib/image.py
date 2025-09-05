@@ -14,8 +14,8 @@ import numpy as np
 import PIL.Image
 import PIL.PngImagePlugin
 
-from mpl_data_containers.description import Desc
-from mpl_data_containers.conversion_edge import Graph
+from mpl_data_containers.description import Desc, desc_like
+from mpl_data_containers.conversion_edge import Graph, TransformEdge
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
@@ -331,8 +331,28 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         return self._container
 
     def _get_graph(self):
-        # TODO actually fill out graph
-        return Graph([])
+        # TODO see about getting rid of self.axes
+        ax = self.axes
+        desc: Desc = Desc(("N",), coordinates="data")
+        xy: dict[str, Desc] = {"x": desc, "y": desc}
+        implicit_graph = Graph(
+            [
+                TransformEdge(
+                    "data",
+                    xy,
+                    desc_like(xy, coordinates="axes"),
+                    transform=ax.transData - ax.transAxes,
+                ),
+                TransformEdge(
+                    "axes",
+                    desc_like(xy, coordinates="axes"),
+                    desc_like(xy, coordinates="display"),
+                    transform=ax.transAxes,
+                ),
+            ],
+            aliases=(("parent", "axes"),),
+        )
+        return implicit_graph
 
     def __str__(self):
         try:
