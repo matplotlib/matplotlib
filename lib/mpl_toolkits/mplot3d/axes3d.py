@@ -3126,6 +3126,10 @@ class Axes3D(Axes):
             Any additional keyword arguments are passed onto
             `~.art3d.Poly3DCollection`.
 
+        See Also
+        --------
+        mpl_toolkits.mplot3d.axes3d.Axes3D.bar3d_grid
+
         Returns
         -------
         collection : `~.art3d.Poly3DCollection`
@@ -3231,6 +3235,115 @@ class Axes3D(Axes):
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
         return col
+
+    @_preprocess_data()
+    def bar3d_grid(self, x, y, z, dxy='0.8', z0=0, **kwargs):
+        """
+        Generate a 3D barplot.
+
+        This method creates three-dimensional barplot for bars on a regular
+        xy-grid and on the same level z-plane. Color of the bars can be
+        set uniquely, or cmap can be provided to map the bar heights *z* to
+        colors.
+
+        Parameters
+        ----------
+        x, y : array-like
+            The coordinates of the anchor point of the bars.
+
+        z :  array-like
+            The height of the bars.
+
+        dxy : str, tuple[str], optional
+            Width of the bars as a fraction of the data step, by default '0.8'
+
+        z0 : float
+            z-position of the base of the bars. All bars share the same base
+            value.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Any additional keyword arguments are forwarded to
+            `~.art3d.Poly3DCollection`.
+
+        See Also
+        --------
+        mpl_toolkits.mplot3d.axes3d.Axes3D.bar3d
+
+        Returns
+        -------
+        bars : `~.art3d.Bar3DCollection`
+            A collection of three-dimensional polygons representing the bars
+            (rectangular prisms).
+        """
+
+        bars = art3d.Bar3DCollection(x, y, z, dxy, z0, **kwargs)
+        self.add_collection(bars)
+
+        # compute axes limits
+        viewlim = np.array([(np.min(x), np.max(x) + bars.dx),
+                            (np.min(y), np.max(y) + bars.dy),
+                            (min(bars.z0, np.min(z)), np.max(z))])
+
+        self.auto_scale_xyz(*viewlim, False)
+
+        return bars
+
+    @_preprocess_data()
+    def hexbar3d(self, x, y, z, dxy='0.8', z0=0, **kwargs):
+        """
+        This method creates three-dimensional barplot with hexagonal bars for a
+        regular xy-grid on the same level z-plane. Color of the bars can be set
+        uniquely, or cmap can be provided to map the bar heights *z* to colors.
+
+        Parameters
+        ----------
+        x, y: array-like
+            The coordinates of the anchor point of the bars.
+
+        z:  array-like
+            The height of the bars.
+
+        dxy : str, optional
+            _description_, by default '0.8'
+
+        z0 : float
+            z-position of the base of the bars. All bars share the same base
+            value.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Any additional keyword arguments are forwarded to
+            `~.art3d.Poly3DCollection`.
+
+        See Also
+        --------
+        mpl_toolkits.mplot3d.axes3d.Axes3D.bar3d
+
+        Returns
+        -------
+        bars : `~.art3d.HexBar3DCollection`
+            A collection of three-dimensional polygons representing the bars
+            (hexagonal prisms).
+        """
+
+        bars = art3d.HexBar3DCollection(x, y, z, dxy, z0, **kwargs)
+        self.add_collection(bars)
+
+        # compute axes limits
+        dx = bars.dx / 2
+        dy = bars.dy / 2
+        viewlim = np.array([(np.min(x) - dx, np.max(x) + dx),
+                            (np.min(y) - dy, np.max(y) + dy),
+                            (min(bars.z0, np.min(z)), np.max(z))])
+
+        self.auto_scale_xyz(*viewlim, False)
+
+        return bars
 
     def set_title(self, label, fontdict=None, loc='center', **kwargs):
         # docstring inherited
