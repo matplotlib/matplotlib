@@ -1,10 +1,7 @@
-import pytest
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import datetime
-import numpy as np
 
-from matplotlib.testing.decorators import image_comparison
 
 def violin_plot_stats():
     # Stats for violin plot
@@ -31,6 +28,7 @@ def violin_plot_stats():
         'quantiles': datetimes
     }]
 
+
 def test_violin_datetime_positions_timedelta_widths():
     fig, ax = plt.subplots()
     vpstats = violin_plot_stats()
@@ -38,6 +36,7 @@ def test_violin_datetime_positions_timedelta_widths():
     widths = [datetime.timedelta(days=10), datetime.timedelta(days=20)]
     ax.violin(vpstats, positions=positions, widths=widths)
     plt.close(fig)
+
 
 def test_violin_date_positions_float_widths():
     fig, ax = plt.subplots()
@@ -47,17 +46,19 @@ def test_violin_date_positions_float_widths():
     ax.violin(vpstats, positions=positions, widths=widths)
     plt.close(fig)
 
+
 def test_violin_mixed_positions_widths():
     fig, ax = plt.subplots()
     vpstats = violin_plot_stats()
-    positions = [datetime.datetime(2020, 1, 1), mdates.date2num(datetime.datetime(2021, 1, 1))]
+    positions = [datetime.datetime(2020, 1, 1),
+                 mdates.date2num(datetime.datetime(2021, 1, 1))]
     widths = [datetime.timedelta(days=3), 2.0]
     ax.violin(vpstats, positions=positions, widths=widths)
     plt.close(fig)
+
 
 def test_violin_default_positions_widths():
     fig, ax = plt.subplots()
     vpstats = violin_plot_stats()
     ax.violin(vpstats)
     plt.close(fig)
-
