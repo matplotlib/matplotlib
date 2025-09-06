@@ -1180,13 +1180,11 @@ end"""
                 'Widths': widthsObject
                 }
 
-            from encodings import cp1252
-
             # Make the "Widths" array
             def get_char_width(charcode):
-                s = ord(cp1252.decoding_table[charcode])
                 width = font.load_char(
-                    s, flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING).horiAdvance
+                    charcode,
+                    flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING).horiAdvance
                 return cvt(width)
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
@@ -2331,9 +2329,13 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self.draw_path(boxgc, path, mytrans, gc._rgb)
 
     def encode_string(self, s, fonttype):
-        if fonttype in (1, 3):
-            return s.encode('cp1252', 'replace')
-        return s.encode('utf-16be', 'replace')
+        match fonttype:
+            case 1:
+                return s.encode('cp1252', 'replace')
+            case 3:
+                return s.encode('latin-1', 'replace')
+            case _:
+                return s.encode('utf-16be', 'replace')
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
