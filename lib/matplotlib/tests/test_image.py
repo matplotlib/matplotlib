@@ -1809,19 +1809,21 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
     axs_ref[0][2].imshow(im_rgba, interpolation_stage=intp_stage)
 
     # When the image already has an alpha channel, multiply it by the
-    # scalar alpha param, or replace it by the array alpha param
+    # scalar alpha param, or blend it with the array alpha param
     axs_tst[1][0].imshow(im_rgba)
     axs_ref[1][0].imshow(im_rgb, alpha=array_alpha)
     axs_tst[1][1].imshow(im_rgba, interpolation_stage=intp_stage, alpha=scalar_alpha)
     axs_ref[1][1].imshow(
-        np.concatenate(  # combine rgb channels with scaled array alpha
-            (im_rgb, scalar_alpha * array_alpha.reshape((ny, nx, 1))), axis=-1
-        ), interpolation_stage=intp_stage
-    )
+        np.concatenate(
+            (im_rgb,
+             (scalar_alpha * array_alpha).reshape((ny, nx, 1))),
+            axis=-1),
+        interpolation_stage=intp_stage)
     new_array_alpha = np.random.rand(ny, nx)
     axs_tst[1][2].imshow(im_rgba, interpolation_stage=intp_stage, alpha=new_array_alpha)
     axs_ref[1][2].imshow(
-        np.concatenate(  # combine rgb channels with new array alpha
-            (im_rgb, new_array_alpha.reshape((ny, nx, 1))), axis=-1
-        ), interpolation_stage=intp_stage
-    )
+        np.concatenate(
+            (im_rgb,
+             (array_alpha * new_array_alpha).reshape((ny, nx, 1))),
+            axis=-1),
+        interpolation_stage=intp_stage)
