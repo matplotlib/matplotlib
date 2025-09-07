@@ -22,8 +22,36 @@ from matplotlib.backend_bases import (
     TimerBase, ToolContainerBase, cursors, _Mode, MouseButton,
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 from matplotlib._pylab_helpers import Gcf
-from . import _tkagg
-from ._tkagg import TK_PHOTO_COMPOSITE_OVERLAY, TK_PHOTO_COMPOSITE_SET
+
+try:
+    from . import _tkagg
+    from ._tkagg import TK_PHOTO_COMPOSITE_OVERLAY, TK_PHOTO_COMPOSITE_SET
+except ImportError as e:
+    # catch incompatibility of python-build-standalone with Tk
+    cause1 = getattr(e, '__cause__', None)
+    cause2 = getattr(cause1, '__cause__', None)
+    if (isinstance(cause1, ImportError) and
+            isinstance(cause2, AttributeError) and
+            "'_tkinter' has no attribute '__file__'" in str(cause2)):
+
+        is_uv_python = "/uv/python" in (os.path.realpath(sys.executable))
+        if is_uv_python:
+            raise ImportError(
+                "Failed to import tkagg backend. You appear to be using an outdated "
+                "version of uv's managed Python distribution which is not compatible "
+                "with Tk. Please upgrade to the latest uv version, then update "
+                "Python with: `uv python upgrade --reinstall`"
+                ) from e
+        else:
+            raise ImportError(
+                "Failed to import tkagg backend. This is likely caused by using a "
+                "Python executable based on python-build-standalone, which is not "
+                "compatible with Tk. Recent versions of python-build-standalone "
+                "should be compatible with Tk. Please update your python version "
+                "or select another backend."
+                ) from e
+    else:
+        raise
 
 
 _log = logging.getLogger(__name__)

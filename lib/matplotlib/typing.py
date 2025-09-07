@@ -12,7 +12,8 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Callable, Literal, TypeAlias, TypeVar, Union
+from typing import Any, Literal, TypeAlias, TypeVar, Union
+from collections.abc import Callable
 
 from . import path
 from ._enums import JoinStyle, CapStyle
@@ -49,7 +50,7 @@ ColourType: TypeAlias = ColorType
 
 LineStyleType: TypeAlias = (
     Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",
-    "", "none", " ", "None"] |
+            "", "none", " ", "None"] |
     tuple[float, Sequence[float]]
 )
 """
@@ -58,7 +59,7 @@ See :doc:`/gallery/lines_bars_and_markers/linestyles`.
 """
 
 DrawStyleType: TypeAlias = Literal["default", "steps", "steps-pre", "steps-mid",
-"steps-post"]
+                                   "steps-post"]
 """See :doc:`/gallery/lines_bars_and_markers/step_demo`."""
 
 MarkEveryType: TypeAlias = (
@@ -69,7 +70,16 @@ MarkEveryType: TypeAlias = (
 )
 """See :doc:`/gallery/lines_bars_and_markers/markevery_demo`."""
 
-MarkerType: TypeAlias = str | path.Path | MarkerStyle
+MarkerType: TypeAlias = (
+    path.Path | MarkerStyle | str |  # str required for "$...$" marker
+    Literal[
+        ".", ",", "o", "v", "^", "<", ">",
+        "1", "2", "3", "4", "8", "s", "p",
+        "P", "*", "h", "H", "+", "x", "X",
+        "D", "d", "|", "_", "none", " ",
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+    ] | list[tuple[int, int]] | tuple[int, Literal[0, 1, 2], int]
+)
 """
 Marker specification. See :doc:`/gallery/lines_bars_and_markers/marker_reference`.
 """
@@ -82,6 +92,9 @@ JoinStyleType: TypeAlias = JoinStyle | Literal["miter", "round", "bevel"]
 
 CapStyleType: TypeAlias = CapStyle | Literal["butt", "projecting", "round"]
 """Line cap styles. See :doc:`/gallery/lines_bars_and_markers/capstyle`."""
+
+LogLevel: TypeAlias = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+"""Literal type for valid logging levels accepted by `set_loglevel()`."""
 
 CoordsBaseType = Union[
     str,
@@ -137,6 +150,26 @@ EventType: TypeAlias = Literal[
     ResizeEventType,
     CloseEventType,
 ]
+
+LegendLocType: TypeAlias = (
+    Literal[
+        # for simplicity, we don't distinguish the between allowed positions for
+        # Axes legend and figure legend. It's still better to limit the allowed
+        # range to the union of both rather than to accept arbitrary strings
+        "upper right", "upper left", "lower left", "lower right",
+        "right", "center left", "center right", "lower center", "upper center",
+        "center",
+        # Axes only
+        "best",
+        # Figure only
+        "outside upper left", "outside upper center", "outside upper right",
+        "outside right upper", "outside right center", "outside right lower",
+        "outside lower right", "outside lower center", "outside lower left",
+        "outside left lower", "outside left center", "outside left upper",
+    ] |
+    tuple[float, float] |
+    int
+)
 
 RcKeyType: TypeAlias = Literal[
     "agg.path.chunksize",

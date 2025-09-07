@@ -26,21 +26,19 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
     mpl.use(fmt)
     mpl.rcParams.update({'svg.hashsalt': 'asdf', 'text.usetex': usetex})
 
-    fig = plt.figure()
-
-    if 'm' in objects:
+    def plot_markers(fig):
         # use different markers...
-        ax1 = fig.add_subplot(1, 6, 1)
+        ax = fig.add_subplot()
         x = range(10)
-        ax1.plot(x, [1] * 10, marker='D')
-        ax1.plot(x, [2] * 10, marker='x')
-        ax1.plot(x, [3] * 10, marker='^')
-        ax1.plot(x, [4] * 10, marker='H')
-        ax1.plot(x, [5] * 10, marker='v')
+        ax.plot(x, [1] * 10, marker='D')
+        ax.plot(x, [2] * 10, marker='x')
+        ax.plot(x, [3] * 10, marker='^')
+        ax.plot(x, [4] * 10, marker='H')
+        ax.plot(x, [5] * 10, marker='v')
 
-    if 'h' in objects:
+    def plot_hatch(fig):
         # also use different hatch patterns
-        ax2 = fig.add_subplot(1, 6, 2)
+        ax2 = fig.add_subplot()
         bars = (ax2.bar(range(1, 5), range(1, 5)) +
                 ax2.bar(range(1, 5), [6] * 4, bottom=range(1, 5)))
         ax2.set_xticks([1.5, 2.5, 3.5, 4.5])
@@ -49,17 +47,17 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
         for bar, pattern in zip(bars, patterns):
             bar.set_hatch(pattern)
 
-    if 'i' in objects:
+    def plot_image(fig):
+        axs = fig.subplots(1, 3, sharex=True, sharey=True)
         # also use different images
         A = [[1, 2, 3], [2, 3, 1], [3, 1, 2]]
-        fig.add_subplot(1, 6, 3).imshow(A, interpolation='nearest')
+        axs[0].imshow(A, interpolation='nearest')
         A = [[1, 3, 2], [1, 2, 3], [3, 1, 2]]
-        fig.add_subplot(1, 6, 4).imshow(A, interpolation='bilinear')
+        axs[1].imshow(A, interpolation='bilinear')
         A = [[2, 3, 1], [1, 2, 3], [2, 1, 3]]
-        fig.add_subplot(1, 6, 5).imshow(A, interpolation='bicubic')
+        axs[2].imshow(A, interpolation='bicubic')
 
-    if 'p' in objects:
-
+    def plot_paths(fig):
         # clipping support class, copied from demo_text_path.py gallery example
         class PathClippedImagePatch(PathPatch):
             """
@@ -85,13 +83,15 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
                 self.bbox_image.draw(renderer)
                 super().draw(renderer)
 
+        subfigs = fig.subfigures(1, 3)
+
         # add a polar projection
-        px = fig.add_subplot(projection="polar")
+        px = subfigs[0].add_subplot(projection="polar")
         pimg = px.imshow([[2]])
         pimg.set_clip_path(Circle((0, 1), radius=0.3333))
 
         # add a text-based clipping path (origin: demo_text_path.py)
-        (ax1, ax2) = fig.subplots(2)
+        ax = subfigs[1].add_subplot()
         arr = plt.imread(get_sample_data("grace_hopper.jpg"))
         text_path = TextPath((0, 0), "!?", size=150)
         p = PathClippedImagePatch(text_path, arr, ec="k")
@@ -99,7 +99,7 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
         offsetbox.add_artist(p)
         ao = AnchoredOffsetbox(loc='upper left', child=offsetbox, frameon=True,
                                borderpad=0.2)
-        ax1.add_artist(ao)
+        ax.add_artist(ao)
 
         # add a 2x2 grid of path-clipped axes (origin: test_artist.py)
         exterior = Path.unit_rectangle().deepcopy()
@@ -112,7 +112,8 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
         star = Path.unit_regular_star(6).deepcopy()
         star.vertices *= 2.6
 
-        (row1, row2) = fig.subplots(2, 2, sharex=True, sharey=True)
+        (row1, row2) = subfigs[2].subplots(2, 2, sharex=True, sharey=True,
+                                           gridspec_kw=dict(hspace=0, wspace=0))
         for row in (row1, row2):
             ax1, ax2 = row
             collection = PathCollection([star], lw=5, edgecolor='blue',
@@ -128,8 +129,22 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
             ax1.set_xlim([-3, 3])
             ax1.set_ylim([-3, 3])
 
+    nfigs = len(objects) + 1
+    fig = plt.figure(figsize=(7, 3 * nfigs))
+    subfigs = iter(fig.subfigures(nfigs, squeeze=False).flat)
+    fig.subplots_adjust(bottom=0.15)
+
+    if 'm' in objects:
+        plot_markers(next(subfigs))
+    if 'h' in objects:
+        plot_hatch(next(subfigs))
+    if 'i' in objects:
+        plot_image(next(subfigs))
+    if 'p' in objects:
+        plot_paths(next(subfigs))
+
     x = range(5)
-    ax = fig.add_subplot(1, 6, 6)
+    ax = next(subfigs).add_subplot()
     ax.plot(x, x)
     ax.set_title('A string $1+2+\\sigma$')
     ax.set_xlabel('A string $1+2+\\sigma$')
@@ -147,8 +162,7 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
         ("i", "pdf", False),
         ("mhip", "pdf", False),
         ("mhip", "ps", False),
-        pytest.param(
-            "mhip", "ps", True, marks=[needs_usetex, needs_ghostscript]),
+        pytest.param("mhip", "ps", True, marks=[needs_usetex, needs_ghostscript]),
         ("p", "svg", False),
         ("mhip", "svg", False),
         pytest.param("mhip", "svg", True, marks=needs_usetex),
@@ -156,8 +170,7 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
 )
 def test_determinism_check(objects, fmt, usetex):
     """
-    Output three times the same graphs and checks that the outputs are exactly
-    the same.
+    Output the same graph three times and check that the outputs are exactly the same.
 
     Parameters
     ----------
@@ -197,10 +210,11 @@ def test_determinism_check(objects, fmt, usetex):
 )
 def test_determinism_source_date_epoch(fmt, string):
     """
-    Test SOURCE_DATE_EPOCH support. Output a document with the environment
-    variable SOURCE_DATE_EPOCH set to 2000-01-01 00:00 UTC and check that the
-    document contains the timestamp that corresponds to this date (given as an
-    argument).
+    Test SOURCE_DATE_EPOCH support.
+
+    Output a document with the environment variable SOURCE_DATE_EPOCH set to
+    2000-01-01 00:00 UTC and check that the document contains the timestamp that
+    corresponds to this date (given as an argument).
 
     Parameters
     ----------

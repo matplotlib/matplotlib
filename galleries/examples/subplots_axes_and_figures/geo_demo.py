@@ -6,7 +6,7 @@ Geographic Projections
 This shows 4 possible geographic projections.  Cartopy_ supports more
 projections.
 
-.. _Cartopy: https://scitools.org.uk/cartopy/
+.. _Cartopy: https://cartopy.readthedocs.io
 """
 
 import matplotlib.pyplot as plt

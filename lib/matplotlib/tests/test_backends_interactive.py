@@ -127,6 +127,7 @@ def _get_testable_interactive_backends():
 
 # Reasonable safe values for slower CI/Remote and local architectures.
 _test_timeout = 120 if is_ci_environment() else 20
+_retry_count = 3 if is_ci_environment() else 0
 
 
 def _test_toolbar_button_la_mode_icon(fig):
@@ -237,7 +238,7 @@ def _test_interactive_impl():
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 @pytest.mark.parametrize("toolbar", ["toolbar2", "toolmanager"])
-@pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=_retry_count)
 def test_interactive_backend(env, toolbar):
     if env["MPLBACKEND"] == "macosx":
         if toolbar == "toolmanager":
@@ -329,7 +330,7 @@ for param in _thread_safe_backends:
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
-@pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=_retry_count)
 def test_interactive_thread_safety(env):
     proc = _run_helper(_test_thread_impl, timeout=_test_timeout, extra_env=env)
     assert proc.stdout.count("CloseEvent") == 1
@@ -617,7 +618,7 @@ for param in _blit_backends:
 
 @pytest.mark.parametrize("env", _blit_backends)
 # subprocesses can struggle to get the display, so rerun a few times
-@pytest.mark.flaky(reruns=4)
+@pytest.mark.flaky(reruns=_retry_count)
 def test_blitting_events(env):
     proc = _run_helper(
         _test_number_of_draws_script, timeout=_test_timeout, extra_env=env)

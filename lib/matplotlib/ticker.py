@@ -2522,10 +2522,12 @@ class LogLocator(Locator):
 
         if (len(subs) > 1
                 and stride == 1
-                and ((vmin <= ticklocs) & (ticklocs <= vmax)).sum() <= 1):
+                and (len(decades) - 2  # major
+                     + ((vmin <= ticklocs) & (ticklocs <= vmax)).sum())  # minor
+                     <= 1):
             # If we're a minor locator *that expects at least two ticks per
             # decade* and the major locator stride is 1 and there's no more
-            # than one minor tick, switch to AutoLocator.
+            # than one major or minor tick, switch to AutoLocator.
             return AutoLocator().tick_values(vmin, vmax)
         else:
             return self.raise_if_exceeds(ticklocs)

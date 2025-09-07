@@ -207,7 +207,7 @@ class InvertedPolarTransform(mtransforms.Transform):
         # docstring inherited
         x, y = values.T
         r = np.hypot(x, y)
-        theta = (np.arctan2(y, x) + 2 * np.pi) % (2 * np.pi)
+        theta = np.arctan2(y, x) % (2 * np.pi)
         if self._use_rmin and self._axis is not None:
             r += self._axis.get_rorigin()
             r *= self._axis.get_rsign()
@@ -431,6 +431,7 @@ class RadialLocator(mticker.Locator):
     scale of the *r*-axis).
     """
 
+    @_api.delete_parameter("3.11", "axes")
     def __init__(self, base, axes=None):
         self.base = base
         self._axes = axes
@@ -440,11 +441,11 @@ class RadialLocator(mticker.Locator):
 
     def __call__(self):
         # Ensure previous behaviour with full circle non-annular views.
-        if self._axes:
-            if _is_full_circle_rad(*self._axes.viewLim.intervalx):
-                rorigin = self._axes.get_rorigin() * self._axes.get_rsign()
-                if self._axes.get_rmin() <= rorigin:
-                    return [tick for tick in self.base() if tick > rorigin]
+        ax = self.base.axis.axes
+        if _is_full_circle_rad(*ax.viewLim.intervalx):
+            rorigin = ax.get_rorigin() * ax.get_rsign()
+            if ax.get_rmin() <= rorigin:
+                return [tick for tick in self.base() if tick > rorigin]
         return self.base()
 
     def _zero_in_bounds(self):
@@ -452,7 +453,7 @@ class RadialLocator(mticker.Locator):
         Return True if zero is within the valid values for the
         scale of the radial axis.
         """
-        vmin, vmax = self._axes.yaxis._scale.limit_range_for_scale(0, 1, 1e-5)
+        vmin, vmax = self.base.axis._scale.limit_range_for_scale(0, 1, 1e-5)
         return vmin == 0
 
     def nonsingular(self, vmin, vmax):
@@ -681,7 +682,7 @@ class RadialAxis(maxis.YAxis):
 
     def set_major_locator(self, locator):
         if not isinstance(locator, RadialLocator):
-            locator = RadialLocator(locator, self.axes)
+            locator = RadialLocator(locator)
         super().set_major_locator(locator)
 
     def clear(self):

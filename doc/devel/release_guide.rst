@@ -83,7 +83,11 @@ Micro versions should instead read::
 Check all active milestones for consistency. Older milestones should also backport
 to higher meso versions (e.g. ``v3.6.3`` and ``v3.6-doc`` should backport to both
 ``v3.6.x`` and ``v3.7.x`` once the ``v3.7.x`` branch exists and while PR backports are
-still targeting ``v3.6.x``)
+still targeting ``v3.6.x``).
+
+Close milestones for versions that are unlikely to be released, e.g. micro versions of
+older meso releases. Remilestone issues/PRs that are now untagged to the appropriate
+future release milestone.
 
 Create the milestone for the next-next meso release (i.e. ``v3.9.0``, as ``v3.8.0``
 should already exist). While most active items should go in the next meso release,
@@ -125,22 +129,22 @@ prepare this list:
 
 1. Archive the existing GitHub statistics page.
 
-   a. Copy the current :file:`doc/users/github_stats.rst` to
-      :file:`doc/users/prev_whats_new/github_stats_{X}.{Y}.{Z}.rst`.
+   a. Copy the current :file:`doc/release/github_stats.rst` to
+      :file:`doc/release/prev_whats_new/github_stats_{X}.{Y}.{Z}.rst`.
    b. Change the link target at the top of the file.
    c. Remove the "Previous GitHub Stats" section at the end.
 
    For example, when updating from v3.7.0 to v3.7.1::
 
-      cp doc/users/github_stats.rst doc/users/prev_whats_new/github_stats_3.7.0.rst
-      $EDITOR doc/users/prev_whats_new/github_stats_3.7.0.rst
+      cp doc/release/github_stats.rst doc/release/prev_whats_new/github_stats_3.7.0.rst
+      $EDITOR doc/release/prev_whats_new/github_stats_3.7.0.rst
       # Change contents as noted above.
-      git add doc/users/prev_whats_new/github_stats_3.7.0.rst
+      git add doc/release/prev_whats_new/github_stats_3.7.0.rst
 
 2. Re-generate the updated stats::
 
        python tools/github_stats.py --since-tag v3.7.0 --milestone=v3.7.1 \
-           --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
+           --project 'matplotlib/matplotlib' --links > doc/release/github_stats.rst
 
 3. Review and commit changes. Some issue/PR titles may not be valid reST (the most
    common issue is ``*`` which is interpreted as unclosed markup). Also confirm that
@@ -194,8 +198,8 @@ What's new
 *Only needed for macro and meso releases. Bugfix releases should not have new
 features.*
 
-Merge the contents of all the files in :file:`doc/users/next_whats_new/` into a single
-file :file:`doc/users/prev_whats_new/whats_new_{X}.{Y}.0.rst` and delete the individual
+Merge the contents of all the files in :file:`doc/release/next_whats_new/` into a single
+file :file:`doc/release/prev_whats_new/whats_new_{X}.{Y}.0.rst` and delete the individual
 files.
 
 API changes
@@ -211,7 +215,7 @@ individual files.
 Release notes TOC
 ^^^^^^^^^^^^^^^^^
 
-Update :file:`doc/users/release_notes.rst`:
+Update :file:`doc/release/release_notes.rst`:
 
 - For macro and meso releases add a new section
 
@@ -294,9 +298,15 @@ it is important to move all branches away from the commit with the tag [#]_::
 
   git commit --allow-empty
 
+Push the branch to GitHub. This is done prior to pushing the tag as a last step in ensuring
+that the branch was fully up to date. If it fails, re-fetch and recreate commits and
+tag over an up to date branch::
+
+  git push DANGER v3.7.x
+
 Finally, push the tag to GitHub::
 
-  git push DANGER v3.7.x v3.7.0
+  git push DANGER v3.7.0
 
 Congratulations, the scariest part is done!
 This assumes the release branch has already been made.

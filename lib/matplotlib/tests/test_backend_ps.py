@@ -354,7 +354,11 @@ def test_path_collection():
     sizes = [0.02, 0.04]
     pc = mcollections.PathCollection(paths, sizes, zorder=-1,
                                      facecolors='yellow', offsets=offsets)
-    ax.add_collection(pc)
+    # Note: autolim=False is used to keep the view limits as is for now,
+    # given the updated behavior of autolim=True to also update the view
+    # limits. It may be reasonable to test the limits handling in the future
+    # as well. This will require regenerating the reference image.
+    ax.add_collection(pc, autolim=False)
     ax.set_xlim(0, 1)
 
 

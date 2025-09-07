@@ -14,10 +14,10 @@ from typing import (
     Generic,
     IO,
     Literal,
-    Sequence,
     TypeVar,
     overload,
 )
+from collections.abc import Sequence
 
 _T = TypeVar("_T")
 
@@ -133,7 +133,10 @@ ls_mapper_r: dict[str, str]
 def contiguous_regions(mask: ArrayLike) -> list[np.ndarray]: ...
 def is_math_text(s: str) -> bool: ...
 def violin_stats(
-    X: ArrayLike, method: Callable, points: int = ..., quantiles: ArrayLike | None = ...
+    X: ArrayLike,
+    method: tuple[Literal["GaussianKDE"], Literal["scott", "silverman"] | float | Callable] | Callable = ...,
+    points: int = ...,
+    quantiles: ArrayLike | None = ...
 ) -> list[dict[str, Any]]: ...
 def pts_to_prestep(x: ArrayLike, *args: ArrayLike) -> np.ndarray: ...
 def pts_to_poststep(x: ArrayLike, *args: ArrayLike) -> np.ndarray: ...

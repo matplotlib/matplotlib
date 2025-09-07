@@ -41,6 +41,8 @@ from packaging.version import Version
 from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.typing import RcKeyType, RcGroupKeyType
 from typing import Any, Literal, NamedTuple, overload
+from matplotlib.typing import LogLevel
+
 
 class _VersionInfo(NamedTuple):
     major: int
@@ -53,7 +55,7 @@ __bibtex__: str
 __version__: str
 __version_info__: _VersionInfo
 
-def set_loglevel(level: str) -> None: ...
+def set_loglevel(level: LogLevel) -> None: ...
 
 class _ExecInfo(NamedTuple):
     executable: str

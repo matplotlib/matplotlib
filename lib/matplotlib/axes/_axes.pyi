@@ -36,7 +36,7 @@ from collections.abc import Callable, Iterable, Sequence
 from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
-from matplotlib.typing import ColorType, MarkerType, LineStyleType
+from matplotlib.typing import ColorType, MarkerType, LegendLocType, LineStyleType
 import pandas as pd
 
 
@@ -65,13 +65,16 @@ class Axes(_AxesBase):
     @overload
     def legend(self) -> Legend: ...
     @overload
-    def legend(self, handles: Iterable[Artist | tuple[Artist, ...]], labels: Iterable[str], **kwargs) -> Legend: ...
+    def legend(self, handles: Iterable[Artist | tuple[Artist, ...]], labels: Iterable[str],
+               *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, *, handles: Iterable[Artist | tuple[Artist, ...]], **kwargs) -> Legend: ...
+    def legend(self, *, handles: Iterable[Artist | tuple[Artist, ...]],
+               loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, labels: Iterable[str], **kwargs) -> Legend: ...
+    def legend(self, labels: Iterable[str],
+               *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, **kwargs) -> Legend: ...
+    def legend(self, *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
 
     def inset_axes(
         self,
@@ -268,6 +271,7 @@ class Axes(_AxesBase):
         self,
         xranges: Sequence[tuple[float, float]],
         yrange: tuple[float, float],
+        align: Literal["bottom", "center", "top"] = ...,
         *,
         data=...,
         **kwargs

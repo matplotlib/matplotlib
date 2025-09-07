@@ -10,20 +10,15 @@ import numpy as np
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 import mpl_toolkits.axisartist as axisartist
-import mpl_toolkits.axisartist.angle_helper as angle_helper
-import mpl_toolkits.axisartist.grid_finder as grid_finder
-from mpl_toolkits.axisartist.grid_helper_curvelinear import \
-    GridHelperCurveLinear
+from mpl_toolkits.axisartist import angle_helper, grid_finder
+from mpl_toolkits.axisartist.grid_helper_curvelinear import GridHelperCurveLinear
 
 
 def setup_axes(fig, rect):
     """Polar projection, but in a rectangular box."""
     # see demo_curvelinear_grid.py for details
     grid_helper = GridHelperCurveLinear(
-        (
-            Affine2D().scale(np.pi/180., 1.) +
-            PolarAxes.PolarTransform()
-        ),
+        Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform(),
         extreme_finder=angle_helper.ExtremeFinderCycle(
             20, 20,
             lon_cycle=360, lat_cycle=None,

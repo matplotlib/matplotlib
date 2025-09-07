@@ -54,7 +54,7 @@ def setup():
 
 def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
                                stderr=None, check=False, text=True,
-                               capture_output=False):
+                               capture_output=False, **kwargs):
     """
     Create and run a subprocess.
 
@@ -97,7 +97,7 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
             command, env=env,
             timeout=timeout, check=check,
             stdout=stdout, stderr=stderr,
-            text=text
+            text=text, **kwargs
         )
     except BlockingIOError:
         if sys.platform == "cygwin":
@@ -105,6 +105,16 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
             import pytest
             pytest.xfail("Fork failure")
         raise
+    except subprocess.CalledProcessError as e:
+        if e.stdout:
+            _log.error(f"Subprocess output:\n{e.stdout}")
+        if e.stderr:
+            _log.error(f"Subprocess error:\n{e.stderr}")
+        raise e
+    if proc.stdout:
+        _log.debug(f"Subprocess output:\n{proc.stdout}")
+    if proc.stderr:
+        _log.debug(f"Subprocess error:\n{proc.stderr}")
     return proc
 
 

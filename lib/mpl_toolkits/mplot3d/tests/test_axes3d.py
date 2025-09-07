@@ -13,11 +13,11 @@ from matplotlib.backend_bases import (MouseButton, MouseEvent,
 from matplotlib import cm
 from matplotlib import colors as mcolors, patches as mpatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.testing.widgets import mock_event
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.text import Text
+from matplotlib import  _api
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -1218,7 +1218,7 @@ def _test_proj_draw_axes(M, s=1, *args, **kwargs):
 
     fig, ax = plt.subplots(*args, **kwargs)
     linec = LineCollection(lines)
-    ax.add_collection(linec)
+    ax.add_collection(linec, autolim="_datalim_only")
     for x, y, t in zip(txs, tys, ['o', 'x', 'y', 'z']):
         ax.text(x, y, t)
 
@@ -2012,11 +2012,11 @@ def test_rotate(style):
             ax.figure.canvas.draw()
 
             # drag mouse to change orientation
-            ax._button_press(
-                mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=0))
-            ax._on_move(
-                mock_event(ax, button=MouseButton.LEFT,
-                           xdata=s*dx*ax._pseudo_w, ydata=s*dy*ax._pseudo_h))
+            MouseEvent._from_ax_coords(
+                "button_press_event", ax, (0, 0), MouseButton.LEFT)._process()
+            MouseEvent._from_ax_coords(
+                "motion_notify_event", ax, (s*dx*ax._pseudo_w, s*dy*ax._pseudo_h),
+                MouseButton.LEFT)._process()
             ax.figure.canvas.draw()
 
             c = np.sqrt(3)/2
@@ -2076,10 +2076,10 @@ def test_pan():
     z_center0, z_range0 = convert_lim(*ax.get_zlim3d())
 
     # move mouse diagonally to pan along all axis.
-    ax._button_press(
-        mock_event(ax, button=MouseButton.MIDDLE, xdata=0, ydata=0))
-    ax._on_move(
-        mock_event(ax, button=MouseButton.MIDDLE, xdata=1, ydata=1))
+    MouseEvent._from_ax_coords(
+        "button_press_event", ax, (0, 0), MouseButton.MIDDLE)._process()
+    MouseEvent._from_ax_coords(
+        "motion_notify_event", ax, (1, 1), MouseButton.MIDDLE)._process()
 
     x_center, x_range = convert_lim(*ax.get_xlim3d())
     y_center, y_range = convert_lim(*ax.get_ylim3d())
@@ -2553,11 +2553,10 @@ def test_on_move_vertical_axis(vertical_axis: str) -> None:
     ax.get_figure().canvas.draw()
 
     proj_before = ax.get_proj()
-    event_click = mock_event(ax, button=MouseButton.LEFT, xdata=0, ydata=1)
-    ax._button_press(event_click)
-
-    event_move = mock_event(ax, button=MouseButton.LEFT, xdata=0.5, ydata=0.8)
-    ax._on_move(event_move)
+    MouseEvent._from_ax_coords(
+        "button_press_event", ax, (0, 1), MouseButton.LEFT)._process()
+    MouseEvent._from_ax_coords(
+        "motion_notify_event", ax, (.5, .8), MouseButton.LEFT)._process()
 
     assert ax._axis_names.index(vertical_axis) == ax._vertical_axis
 
@@ -2691,3 +2690,53 @@ def test_ndarray_color_kwargs_value_error():
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(1, 0, 0, color=np.array([0, 0, 0, 1]))
     fig.canvas.draw()
+
+
+def test_line3dcollection_autolim_ragged():
+    """Test Line3DCollection with autolim=True and lines of different lengths."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    # Create lines with different numbers of points (ragged arrays)
+    edges = [
+        [(0, 0, 0), (1, 1, 1), (2, 2, 2)],  # 3 points
+        [(0, 1, 0), (1, 2, 1)],             # 2 points
+        [(1, 0, 1), (2, 1, 2), (3, 2, 3), (4, 3, 4)]  # 4 points
+    ]
+
+    # This should not raise an exception.
+    collections = ax.add_collection3d(art3d.Line3DCollection(edges), autolim=True)
+
+    # Check that limits were computed correctly with margins
+    # The limits should include all points with default margins
+    assert np.allclose(ax.get_xlim3d(), (-0.08333333333333333, 4.083333333333333))
+    assert np.allclose(ax.get_ylim3d(), (-0.0625, 3.0625))
+    assert np.allclose(ax.get_zlim3d(), (-0.08333333333333333, 4.083333333333333))
+
+
+def test_axes3d_set_aspect_deperecated_params():
+    """
+    Test that using the deprecated 'anchor' and 'share' kwargs in
+    set_aspect raises the correct warning.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    # Test that providing the `anchor` parameter raises a deprecation warning.
+    with pytest.warns(_api.MatplotlibDeprecationWarning, match="'anchor' parameter"):
+        ax.set_aspect('equal', anchor='C')
+
+    # Test that using the 'share' parameter is now deprecated.
+    with pytest.warns(_api.MatplotlibDeprecationWarning, match="'share' parameter"):
+        ax.set_aspect('equal', share=True)
+
+    # Test that the `adjustable` parameter is correctly processed to satisfy
+    # code coverage.
+    ax.set_aspect('equal', adjustable='box')
+    assert ax.get_adjustable() == 'box'
+
+    ax.set_aspect('equal', adjustable='datalim')
+    assert ax.get_adjustable() == 'datalim'
+
+    with pytest.raises(ValueError, match="adjustable"):
+        ax.set_aspect('equal', adjustable='invalid_value')

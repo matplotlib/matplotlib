@@ -64,7 +64,7 @@ class SliderBase(AxesWidget):
     valmax: float
     valstep: float | ArrayLike | None
     drag_active: bool
-    valfmt: str
+    valfmt: str | Callable[[float], str] | None
     def __init__(
         self,
         ax: Axes,
@@ -73,7 +73,7 @@ class SliderBase(AxesWidget):
         closedmax: bool,
         valmin: float,
         valmax: float,
-        valfmt: str,
+        valfmt: str | Callable[[float], str] | None,
         dragging: Slider | None,
         valstep: float | ArrayLike | None,
     ) -> None: ...
@@ -130,7 +130,7 @@ class RangeSlider(SliderBase):
         valmax: float,
         *,
         valinit: tuple[float, float] | None = ...,
-        valfmt: str | None = ...,
+        valfmt: str | Callable[[float], str] | None = ...,
         closedmin: bool = ...,
         closedmax: bool = ...,
         dragging: bool = ...,
@@ -154,11 +154,11 @@ class CheckButtons(AxesWidget):
         actives: Iterable[bool] | None = ...,
         *,
         useblit: bool = ...,
-        label_props: dict[str, Any] | None = ...,
+        label_props: dict[str, Sequence[Any]] | None = ...,
         frame_props: dict[str, Any] | None = ...,
         check_props: dict[str, Any] | None = ...,
     ) -> None: ...
-    def set_label_props(self, props: dict[str, Any]) -> None: ...
+    def set_label_props(self, props: dict[str, Sequence[Any]]) -> None: ...
     def set_frame_props(self, props: dict[str, Any]) -> None: ...
     def set_check_props(self, props: dict[str, Any]) -> None: ...
     def set_active(self, index: int, state: bool | None = ...) -> None: ...  # type: ignore[override]
@@ -208,10 +208,10 @@ class RadioButtons(AxesWidget):
         activecolor: ColorType | None = ...,
         *,
         useblit: bool = ...,
-        label_props: dict[str, Any] | Sequence[dict[str, Any]] | None = ...,
+        label_props: dict[str, Sequence[Any]] | None = ...,
         radio_props: dict[str, Any] | None = ...,
     ) -> None: ...
-    def set_label_props(self, props: dict[str, Any]) -> None: ...
+    def set_label_props(self, props: dict[str, Sequence[Any]]) -> None: ...
     def set_radio_props(self, props: dict[str, Any]) -> None: ...
     def set_active(self, index: int) -> None: ...
     def clear(self) -> None: ...

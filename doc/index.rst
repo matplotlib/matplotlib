@@ -14,59 +14,12 @@ and interactive visualizations.
 Install
 =======
 
-.. tab-set::
-    :class: sd-width-content-min
+.. include:: install/quick_install.inc.rst
 
-    .. tab-item:: pip
+.. toctree::
+    :hidden:
 
-        .. code-block:: bash
-
-            pip install matplotlib
-
-    .. tab-item:: conda
-
-        .. code-block:: bash
-
-            conda install -c conda-forge matplotlib
-
-    .. tab-item:: pixi
-
-        .. code-block:: bash
-
-            pixi add matplotlib
-
-    .. tab-item:: uv
-
-        .. code-block:: bash
-
-            uv add matplotlib
-
-        .. warning::
-
-           If you install Python with ``uv`` then the ``tkagg`` backend
-           will not be available because python-build-standalone (used by uv
-           to distribute Python) does not contain tk bindings that are usable by
-           Matplotlib (see `this issue`_ for details).  If you want Matplotlib
-           to be able to display plots in a window, you should install one of
-           the other :ref:`supported GUI frameworks <optional_dependencies>`,
-           e.g.
-
-           .. code-block:: bash
-
-               uv add matplotlib pyside6
-
-           .. _this issue: https://github.com/astral-sh/uv/issues/6893#issuecomment-2565965851
-
-    .. tab-item:: other
-
-        .. rst-class:: section-toc
-        .. toctree::
-            :maxdepth: 2
-
-            install/index
-
-For more detailed instructions, see the
-:doc:`installation guide <install/index>`.
+    install/index
 
 Learn
 =====
@@ -163,7 +116,7 @@ What's new
         .. toctree::
             :maxdepth: 1
 
-            users/release_notes.rst
+            release/release_notes.rst
 
 
 Contribute

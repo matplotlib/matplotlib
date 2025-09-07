@@ -275,9 +275,9 @@ class Colorizer:
         # until both vmin and vmax are updated
         with self.norm.callbacks.blocked(signal='changed'):
             if vmin is not None:
-                self.norm.vmin = colors._sanitize_extrema(vmin)
+                self.norm.vmin = vmin
             if vmax is not None:
-                self.norm.vmax = colors._sanitize_extrema(vmax)
+                self.norm.vmax = vmax
 
         # emit a update signal if the limits are changed
         if orig_vmin_vmax != (self.norm.vmin, self.norm.vmax):

@@ -27,7 +27,7 @@ from matplotlib.text import Text
 from matplotlib.transforms import Affine2D, Bbox, BboxBase, Transform
 from mpl_toolkits.mplot3d import Axes3D
 
-from .typing import ColorType, HashableList
+from .typing import ColorType, HashableList, LegendLocType
 
 _T = TypeVar("_T")
 
@@ -152,13 +152,16 @@ class FigureBase(Artist):
     @overload
     def legend(self) -> Legend: ...
     @overload
-    def legend(self, handles: Iterable[Artist], labels: Iterable[str], **kwargs) -> Legend: ...
+    def legend(self, handles: Iterable[Artist], labels: Iterable[str],
+               *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, *, handles: Iterable[Artist], **kwargs) -> Legend: ...
+    def legend(self, *, handles: Iterable[Artist],
+               loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, labels: Iterable[str], **kwargs) -> Legend: ...
+    def legend(self, labels: Iterable[str],
+               *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, **kwargs) -> Legend: ...
+    def legend(self, *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
 
     def text(
         self,
@@ -193,9 +196,22 @@ class FigureBase(Artist):
     @overload
     def subfigures(
         self,
+        nrows: int,
+        ncols: int,
+        squeeze: Literal[False],
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        **kwargs
+    ) -> np.ndarray: ...
+    @overload
+    def subfigures(
+        self,
         nrows: int = ...,
         ncols: int = ...,
-        squeeze: Literal[False] = ...,
+        *,
+        squeeze: Literal[False],
         wspace: float | None = ...,
         hspace: float | None = ...,
         width_ratios: ArrayLike | None = ...,

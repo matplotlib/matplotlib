@@ -146,6 +146,7 @@ if TYPE_CHECKING:
         RcGroupKeyType,
         RcKeyType,
         ResizeEventType,
+        LogLevel
     )
     from matplotlib.widgets import SubplotTool
 
@@ -353,7 +354,7 @@ draw_all = _pylab_helpers.Gcf.draw_all
 
 # Ensure this appears in the pyplot docs.
 @_copy_docstring_and_deprecators(matplotlib.set_loglevel)
-def set_loglevel(level: str) -> None:
+def set_loglevel(level: LogLevel) -> None:
     return matplotlib.set_loglevel(level)
 
 
@@ -1342,7 +1343,7 @@ def axes(
 
         - *None*: A new full window Axes is added using
           ``subplot(**kwargs)``.
-        - 4-tuple of floats *rect* = ``(left, bottom, width, height)``.
+        - 4-tuple of float *rect* = ``(left, bottom, width, height)``.
           A new Axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
 
@@ -3223,12 +3224,17 @@ def boxplot(
 def broken_barh(
     xranges: Sequence[tuple[float, float]],
     yrange: tuple[float, float],
+    align: Literal["bottom", "center", "top"] = "bottom",
     *,
     data=None,
     **kwargs,
 ) -> PolyCollection:
     return gca().broken_barh(
-        xranges, yrange, **({"data": data} if data is not None else {}), **kwargs
+        xranges,
+        yrange,
+        align=align,
+        **({"data": data} if data is not None else {}),
+        **kwargs,
     )
 
 

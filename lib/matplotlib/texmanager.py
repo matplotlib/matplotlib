@@ -23,7 +23,6 @@ NumPy arrays.
 import functools
 import hashlib
 import logging
-import os
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -63,7 +62,7 @@ class TexManager:
     Repeated calls to this constructor always return the same instance.
     """
 
-    _texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
+    _cache_dir = Path(mpl.get_cachedir(), 'tex.cache')
     _grey_arrayd = {}
 
     _font_families = ('serif', 'sans-serif', 'cursive', 'monospace')
@@ -109,7 +108,7 @@ class TexManager:
 
     @functools.lru_cache  # Always return the same instance.
     def __new__(cls):
-        Path(cls._texcache).mkdir(parents=True, exist_ok=True)
+        cls._cache_dir.mkdir(parents=True, exist_ok=True)
         return object.__new__(cls)
 
     @classmethod
@@ -167,23 +166,30 @@ class TexManager:
         return preamble, fontcmd
 
     @classmethod
-    def get_basefile(cls, tex, fontsize, dpi=None):
+    def _get_base_path(cls, tex, fontsize, dpi=None):
         """
-        Return a filename based on a hash of the string, fontsize, and dpi.
+        Return a file path based on a hash of the string, fontsize, and dpi.
         """
         src = cls._get_tex_source(tex, fontsize) + str(dpi)
         filehash = hashlib.sha256(
             src.encode('utf-8'),
             usedforsecurity=False
         ).hexdigest()
-        filepath = Path(cls._texcache)
+        filepath = cls._cache_dir
 
         num_letters, num_levels = 2, 2
         for i in range(0, num_letters*num_levels, num_letters):
-            filepath = filepath / Path(filehash[i:i+2])
+            filepath = filepath / filehash[i:i+2]
 
         filepath.mkdir(parents=True, exist_ok=True)
-        return os.path.join(filepath, filehash)
+        return filepath / filehash
+
+    @classmethod
+    def get_basefile(cls, tex, fontsize, dpi=None):  # Kept for backcompat.
+        """
+        Return a filename based on a hash of the string, fontsize, and dpi.
+        """
+        return str(cls._get_base_path(tex, fontsize, dpi))
 
     @classmethod
     def get_font_preamble(cls):
@@ -228,8 +234,6 @@ class TexManager:
             r"\begin{document}",
             r"% The empty hbox ensures that a page is printed even for empty",
             r"% inputs, except when using psfrag which gets confused by it.",
-            r"% matplotlibbaselinemarker is used by dviread to detect the",
-            r"% last line's baseline.",
             rf"\fontsize{{{fontsize}}}{{{baselineskip}}}%",
             r"\ifdefined\psfrag\else\hbox{}\fi%",
             rf"{{{fontcmd} {tex}}}%",
@@ -243,17 +247,16 @@ class TexManager:
 
         Return the file name.
         """
-        texfile = cls.get_basefile(tex, fontsize) + ".tex"
-        Path(texfile).write_text(cls._get_tex_source(tex, fontsize),
-                                 encoding='utf-8')
-        return texfile
+        texpath = cls._get_base_path(tex, fontsize).with_suffix(".tex")
+        texpath.write_text(cls._get_tex_source(tex, fontsize), encoding='utf-8')
+        return str(texpath)
 
     @classmethod
     def _run_checked_subprocess(cls, command, tex, *, cwd=None):
         _log.debug(cbook._pformat_subprocess(command))
         try:
             report = subprocess.check_output(
-                command, cwd=cwd if cwd is not None else cls._texcache,
+                command, cwd=cwd if cwd is not None else cls._cache_dir,
                 stderr=subprocess.STDOUT)
         except FileNotFoundError as exc:
             raise RuntimeError(
@@ -281,11 +284,9 @@ class TexManager:
 
         Return the file name.
         """
-        basefile = cls.get_basefile(tex, fontsize)
-        dvifile = '%s.dvi' % basefile
-        if not os.path.exists(dvifile):
-            texfile = Path(cls.make_tex(tex, fontsize))
-            # Generate the dvi in a temporary directory to avoid race
+        dvipath = cls._get_base_path(tex, fontsize).with_suffix(".dvi")
+        if not dvipath.exists():
+            # Generate the tex and dvi in a temporary directory to avoid race
             # conditions e.g. if multiple processes try to process the same tex
             # string at the same time.  Having tmpdir be a subdirectory of the
             # final output dir ensures that they are on the same filesystem,
@@ -294,15 +295,17 @@ class TexManager:
             # the absolute path may contain characters (e.g. ~) that TeX does
             # not support; n.b. relative paths cannot traverse parents, or it
             # will be blocked when `openin_any = p` in texmf.cnf).
-            cwd = Path(dvifile).parent
-            with TemporaryDirectory(dir=cwd) as tmpdir:
-                tmppath = Path(tmpdir)
+            with TemporaryDirectory(dir=dvipath.parent) as tmpdir:
+                Path(tmpdir, "file.tex").write_text(
+                    cls._get_tex_source(tex, fontsize), encoding='utf-8')
                 cls._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
-                     f"--output-directory={tmppath.name}",
-                     f"{texfile.name}"], tex, cwd=cwd)
-                (tmppath / Path(dvifile).name).replace(dvifile)
-        return dvifile
+                     "file.tex"], tex, cwd=tmpdir)
+                Path(tmpdir, "file.dvi").replace(dvipath)
+                # Also move the tex source to the main cache directory, but
+                # only for backcompat.
+                Path(tmpdir, "file.tex").replace(dvipath.with_suffix(".tex"))
+        return str(dvipath)
 
     @classmethod
     def make_png(cls, tex, fontsize, dpi):
@@ -311,22 +314,22 @@ class TexManager:
 
         Return the file name.
         """
-        basefile = cls.get_basefile(tex, fontsize, dpi)
-        pngfile = '%s.png' % basefile
-        # see get_rgba for a discussion of the background
-        if not os.path.exists(pngfile):
-            dvifile = cls.make_dvi(tex, fontsize)
-            cmd = ["dvipng", "-bg", "Transparent", "-D", str(dpi),
-                   "-T", "tight", "-o", pngfile, dvifile]
-            # When testing, disable FreeType rendering for reproducibility; but
-            # dvipng 1.16 has a bug (fixed in f3ff241) that breaks --freetype0
-            # mode, so for it we keep FreeType enabled; the image will be
-            # slightly off.
-            if (getattr(mpl, "_called_from_pytest", False) and
-                    mpl._get_executable_info("dvipng").raw_version != "1.16"):
-                cmd.insert(1, "--freetype0")
-            cls._run_checked_subprocess(cmd, tex)
-        return pngfile
+        pngpath = cls._get_base_path(tex, fontsize, dpi).with_suffix(".png")
+        if not pngpath.exists():
+            dvipath = cls.make_dvi(tex, fontsize)
+            with TemporaryDirectory(dir=pngpath.parent) as tmpdir:
+                cmd = ["dvipng", "-bg", "Transparent", "-D", str(dpi),
+                       "-T", "tight", "-o", "file.png", dvipath]
+                # When testing, disable FreeType rendering for reproducibility;
+                # but dvipng 1.16 has a bug (fixed in f3ff241) that breaks
+                # --freetype0 mode, so for it we keep FreeType enabled; the
+                # image will be slightly off.
+                if (getattr(mpl, "_called_from_pytest", False) and
+                        mpl._get_executable_info("dvipng").raw_version != "1.16"):
+                    cmd.insert(1, "--freetype0")
+                cls._run_checked_subprocess(cmd, tex, cwd=tmpdir)
+                Path(tmpdir, "file.png").replace(pngpath)
+        return str(pngpath)
 
     @classmethod
     def get_grey(cls, tex, fontsize=None, dpi=None):
@@ -337,7 +340,7 @@ class TexManager:
         alpha = cls._grey_arrayd.get(key)
         if alpha is None:
             pngfile = cls.make_png(tex, fontsize, dpi)
-            rgba = mpl.image.imread(os.path.join(cls._texcache, pngfile))
+            rgba = mpl.image.imread(pngfile)
             cls._grey_arrayd[key] = alpha = rgba[:, :, -1]
         return alpha
 
@@ -363,9 +366,9 @@ class TexManager:
         """Return width, height and descent of the text."""
         if tex.strip() == '':
             return 0, 0, 0
-        dvifile = cls.make_dvi(tex, fontsize)
+        dvipath = cls.make_dvi(tex, fontsize)
         dpi_fraction = renderer.points_to_pixels(1.) if renderer else 1
-        with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
+        with dviread.Dvi(dvipath, 72 * dpi_fraction) as dvi:
             page, = dvi
         # A total height (including the descent) needs to be returned.
         return page.width, page.height + page.descent, page.descent

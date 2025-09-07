@@ -274,14 +274,15 @@ You can also run tox on a subset of environments:
 
     $ tox -e py310,py311
 
-Tox processes everything serially so it can take a long time to test
-several environments. To speed it up, you might try using a new,
-parallelized version of tox called ``detox``. Give this a try:
+Tox processes environments sequentially by default,
+which can be slow when testing multiple environments.
+To speed this up, tox now includes built-in parallelization support
+via the --parallel flag. Give it a try:
 
 .. code-block:: bash
 
-    $ pip install -U -i http://pypi.testrun.org detox
-    $ detox
+    $ tox --parallel auto
+
 
 Tox is configured using a file called ``tox.ini``. You may need to
 edit this file if you want to add new environments to test (e.g.,

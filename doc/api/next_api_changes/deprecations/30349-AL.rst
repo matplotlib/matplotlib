@@ -1,0 +1,3 @@
+``Axes.set_navigate_mode`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... with no replacement.
