@@ -144,6 +144,7 @@ if TYPE_CHECKING:
         MouseEventType,
         PickEventType,
         RcGroupKeyType,
+        RcKeyType,
         ResizeEventType,
     )
     from matplotlib.widgets import SubplotTool
@@ -793,7 +794,7 @@ def rc(group: RcGroupKeyType, **kwargs) -> None:
 
 @_copy_docstring_and_deprecators(matplotlib.rc_context)
 def rc_context(
-    rc: dict[str, Any] | None = None,
+    rc: dict[RcKeyType, Any] | None = None,
     fname: str | pathlib.Path | os.PathLike | None = None,
 ) -> AbstractContextManager[None]:
     return matplotlib.rc_context(rc, fname)
