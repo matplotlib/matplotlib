@@ -29,7 +29,8 @@ Ways to contribute
     * **You are a Matplotlib user, and you see a bug, a potential improvement, or
       something that annoys you, and you can fix it.**
 
-      You can search our issue tracker for an existing issue that describes your problem or
+      You can search our `issue tracker <https://github.com/matplotlib/matplotlib/issues>`__
+      for an existing issue that describes your problem or
       open a new issue to inform us of the problem you observed and discuss the best approach
       to fix it. If your contributions would not be captured on GitHub (social media,
       communication, educational content), you can also reach out to us on gitter_,
@@ -42,14 +43,11 @@ Ways to contribute
 
       Awesome — you have a focus on a specific application and domain and can
       start there. In this case, maintainers can help you figure out the best
-      implementation; open an issue or pull request with a starting point, and we'll
-      be happy to discuss technical approaches.
+      implementation; `open an issue <https://github.com/matplotlib/matplotlib/issues/new/choose>`__
+      in our issue tracker, and we'll be happy to discuss technical approaches.
 
-      If you prefer, you can use the `GitHub functionality for "draft" pull requests
-      <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
-      and request early feedback on whatever you are working on, but you should be
-      aware that maintainers may not review your contribution unless it has the
-      "Ready to review" state on GitHub.
+      If you can implement the solution yourself, even better! Consider contributing
+      the change as a :ref:`pull request <how-to-pull-request>` right away.
 
     * **You are new to Matplotlib, both as a user and contributor, and want to start
       contributing but have yet to develop a particular interest.**
@@ -287,7 +285,7 @@ guide you through each step:
 4. Check existing pull requests (e.g., :ghpull:`28476`) and filter by the issue number to make sure the issue is not in progress:
 
    * If the issue has a pull request (is in progress), tag the user working on the issue, and ask to collaborate (optional).
-   * If a pull request does not exist, create a `draft pull request <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_ and follow the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
+   * If there is no pull request, :ref:`create a new pull request <how-to-pull-request>`.
 5. Please familiarize yourself with the pull request template (see below),
    and ensure you understand/are able to complete the template when you open your pull request.
    Additional information can be found in the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
