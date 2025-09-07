@@ -1625,10 +1625,18 @@ class _AnnotationBase:
         if renderer is None:
             renderer = self.get_figure(root=True)._get_renderer()
         b = self.get_annotation_clip()
+        not_none = (b is None and
+                    callable(self.xycoords) and
+                    self.xycoords(renderer) is not None)
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the Axes.
             xy_pixel = self._get_position_xy(renderer)
             return self.axes.contains_point(xy_pixel)
+
+        if not_none:
+            if self.xycoords(renderer).is_null():
+                return False
+
         return True
 
     def _check_xytext(self, renderer=None):

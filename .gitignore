@@ -106,7 +106,6 @@ lib/z.lib
 
 # Environments #
 ################
-.env
 .venv
 env/
 venv/
@@ -125,3 +124,5 @@ lib/matplotlib/backends/web_backend/node_modules/
 lib/matplotlib/backends/web_backend/package-lock.json
 
 LICENSE/LICENSE_QHULL
+config.bat
+node_modules
