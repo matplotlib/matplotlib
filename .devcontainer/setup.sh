@@ -1,32 +1,36 @@
-#!/bin/bash
-set -euo pipefail  
+#!/usr/bin/env bash
+set -euo pipefail
 
 MM_VERSION="${MM_VERSION:-latest}"
 
-if [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
-    MM_PLATFORM="linux-64"
-else
-    echo "Unsupported platform: $(uname -s)-$(uname -m)" >&2
-    exit 1
-fi
+case "$(uname -s)-$(uname -m)" in
+  Linux-x86_64)   MM_PLATFORM="linux-64"  ;;
+  Linux-aarch64)  MM_PLATFORM="linux-aarch64" ;;
+  Darwin-x86_64)  MM_PLATFORM="osx-64" ;;
+  Darwin-arm64)   MM_PLATFORM="osx-arm64" ;;
+  *) echo "Unsupported platform: $(uname -s)-$(uname -m)" >&2; exit 1 ;;
+esac
 
 INSTALL_DIR="/usr/local/bin"
-if ! command -v micromamba &> /dev/null; then
-    curl -Ls "https://micro.mamba.pm/api/micromamba/${MM_PLATFORM}/${MM_VERSION}" \
-        | tar -xvj -C "${INSTALL_DIR}" bin/micromamba --strip-components=1
+
+if ! command -v micromamba >/dev/null; then
+  tmp_tar=$(mktemp)
+  curl -Ls "https://micro.mamba.pm/api/micromamba/${MM_PLATFORM}/${MM_VERSION}" -o "${tmp_tar}"
+  tar --no-same-owner --strip-components=1 -xvjf "${tmp_tar}" -C "${INSTALL_DIR}" "bin/micromamba"
+  rm -f "${tmp_tar}"
 fi
 
-export MAMBA_ROOT_PREFIX="${MAMBA_ROOT_PREFIX:-/home/codespace/micromamba}"
-eval "$(micromamba shell hook --shell=bash)"
+export MAMBA_ROOT_PREFIX="${MAMBA_ROOT_PREFIX:-${HOME}/micromamba}"
+eval "$(micromamba shell hook --shell bash)"
 
-micromamba env create -f environment.yml --yes || \
-    micromamba env update -f environment.yml --yes --prune
+micromamba env create --file environment.yml --platform "${MM_PLATFORM}" --yes \
+|| micromamba env update --file environment.yml --platform "${MM_PLATFORM}" --yes --prune
 
-if [ -d "/opt/conda" ]; then
-    echo "envs_dirs:
-  - ${MAMBA_ROOT_PREFIX}/envs" > /opt/conda/.condarc
+if [[ -d /opt/conda ]]; then
+  { echo 'envs_dirs:'; echo "  - ${MAMBA_ROOT_PREFIX}/envs"; } | sudo tee /opt/conda/.condarc >/dev/null || true
 fi
 
-ENV_NAME=$(sed -n 's/^name:\s*\(["\x27]\?\)\([^"\x27]*\)\1\s*$/\2/p' environment.yml || echo "mpl-dev")
+env_name=$(grep -E '^name:' environment.yml | sed -E 's/^name:[[:space:]]*//')
+env_name=${env_name:-mpl-dev}
 
-echo "Installation complete. To activate, run: micromamba activate ${ENV_NAME}"
+echo "micromamba ready. Activate with: micromamba activate ${env_name}"
