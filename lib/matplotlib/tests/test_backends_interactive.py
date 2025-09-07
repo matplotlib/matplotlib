@@ -18,6 +18,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
+from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_tools import ToolToggleBase
 from matplotlib.testing import subprocess_run_helper as _run_helper, is_ci_environment
 
@@ -229,6 +230,7 @@ def _test_interactive_impl():
 
     # When the figure is closed, it's manager is removed and the canvas is reset to
     # FigureCanvasBase. Saving should still be possible.
+    assert type(fig.canvas) == FigureCanvasBase
     result_after = io.BytesIO()
     fig.savefig(result_after, format='png', dpi=100)
 

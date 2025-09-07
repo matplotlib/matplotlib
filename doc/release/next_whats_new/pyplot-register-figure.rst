@@ -58,3 +58,6 @@ general, you should not store a reference to the canvas, but rather always
 obtain it from the figure with ``fig.canvas``. This will return the current
 canvas, which is either the original `.FigureCanvasBase` or a backend-dependent
 subclass, depending on whether the figure is registered with pyplot or not.
+Additionally, the swapping of the canvas currently does not play well with
+blitting of matplotlib widgets; in such cases either deactivate blitting or do not
+continue to use the figure (e.g. saving it after closing the window).
