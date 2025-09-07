@@ -1,21 +1,11 @@
 """
-==========================================
+===================================================
 Alpha parameter behavior with different image types
-==========================================
+===================================================
 
 Demonstrate how the alpha parameter interacts with different image data types
 (2D arrays, RGB, RGBA) and colormaps in matplotlib's imshow function.
 
-This example shows the behavior of the alpha parameter when applied to:
-- 2D scalar data with default colormap
-- 2D scalar data with custom alpha-aware colormap
-- RGB images
-- RGBA images with existing alpha channels
-
-The alpha parameter can be:
-- None (default, no transparency)
-- A scalar float (uniform transparency)
-- A 2D array (per-pixel transparency)
 """
 
 import matplotlib.pyplot as plt
