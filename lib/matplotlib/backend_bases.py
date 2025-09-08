@@ -2582,12 +2582,18 @@ def scroll_handler(event, canvas=None, toolbar=None):
         # zooming is currently only supported on rectilinear axes
         return
 
-    if event.key == "control":  # zoom towards the mouse position
-        if toolbar is None:
-            toolbar = (canvas or event.canvas).toolbar
+    if toolbar is None:
+        toolbar = (canvas or event.canvas).toolbar
 
-        if toolbar is not None:
-            toolbar.push_current()  # update view history
+    if toolbar is None:
+        # technically we do not need a toolbar, but until wheel zoom was
+        # introduced, any interactive modification was only possible through
+        # the toolbar tools. For now, we keep the restriction that a toolbar
+        # is required for interactive navigation.
+        return
+
+    if event.key == "control":  # zoom towards the mouse position
+        toolbar.push_current()
 
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
