@@ -190,7 +190,8 @@ class RendererAgg(RendererBase):
         font = self._prepare_font(prop)
         # We pass '0' for angle here, since it will be rotated (in raster
         # space) in the following call to draw_text_image).
-        font.set_text(s, 0, flags=get_hinting_flag())
+        font.set_text(s, 0, flags=get_hinting_flag(),
+                      language=mtext.get_language() if mtext is not None else None)
         font.draw_glyphs_to_bitmap(
             antialiased=gc.get_antialiased())
         d = font.get_descent() / 64.0
