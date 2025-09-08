@@ -479,60 +479,40 @@ class BakomaFonts(TruetypeFonts):
         else:
             return self._stix_fallback._get_glyph(fontname, font_class, sym)
 
-    # The Bakoma fonts contain many pre-sized alternatives for the
-    # delimiters.  The AutoSizedChar class will use these alternatives
-    # and select the best (closest sized) glyph.
+    # The Bakoma fonts contain many pre-sized alternatives for the delimiters. The
+    # Auto(Height|Width)Char classes will use these alternatives and select the best
+    # (closest sized) glyph.
+    _latex_sizes = ('big', 'Big', 'bigg', 'Bigg')
     _size_alternatives = {
-        '(':           [('rm', '('), ('ex', '\xa1'), ('ex', '\xb3'),
-                        ('ex', '\xb5'), ('ex', '\xc3')],
-        ')':           [('rm', ')'), ('ex', '\xa2'), ('ex', '\xb4'),
-                        ('ex', '\xb6'), ('ex', '\x21')],
-        '{':           [('cal', '{'), ('ex', '\xa9'), ('ex', '\x6e'),
-                        ('ex', '\xbd'), ('ex', '\x28')],
-        '}':           [('cal', '}'), ('ex', '\xaa'), ('ex', '\x6f'),
-                        ('ex', '\xbe'), ('ex', '\x29')],
-        # The fourth size of '[' is mysteriously missing from the BaKoMa
-        # font, so I've omitted it for both '[' and ']'
-        '[':           [('rm', '['), ('ex', '\xa3'), ('ex', '\x68'),
-                        ('ex', '\x22')],
-        ']':           [('rm', ']'), ('ex', '\xa4'), ('ex', '\x69'),
-                        ('ex', '\x23')],
-        r'\lfloor':    [('ex', '\xa5'), ('ex', '\x6a'),
-                        ('ex', '\xb9'), ('ex', '\x24')],
-        r'\rfloor':    [('ex', '\xa6'), ('ex', '\x6b'),
-                        ('ex', '\xba'), ('ex', '\x25')],
-        r'\lceil':     [('ex', '\xa7'), ('ex', '\x6c'),
-                        ('ex', '\xbb'), ('ex', '\x26')],
-        r'\rceil':     [('ex', '\xa8'), ('ex', '\x6d'),
-                        ('ex', '\xbc'), ('ex', '\x27')],
-        r'\langle':    [('ex', '\xad'), ('ex', '\x44'),
-                        ('ex', '\xbf'), ('ex', '\x2a')],
-        r'\rangle':    [('ex', '\xae'), ('ex', '\x45'),
-                        ('ex', '\xc0'), ('ex', '\x2b')],
-        r'\__sqrt__':  [('ex', '\x70'), ('ex', '\x71'),
-                        ('ex', '\x72'), ('ex', '\x73')],
-        r'\backslash': [('ex', '\xb2'), ('ex', '\x2f'),
-                        ('ex', '\xc2'), ('ex', '\x2d')],
-        r'/':          [('rm', '/'), ('ex', '\xb1'), ('ex', '\x2e'),
-                        ('ex', '\xcb'), ('ex', '\x2c')],
-        r'\widehat':   [('rm', '\x5e'), ('ex', '\x62'), ('ex', '\x63'),
-                        ('ex', '\x64')],
-        r'\widetilde': [('rm', '\x7e'), ('ex', '\x65'), ('ex', '\x66'),
-                        ('ex', '\x67')],
-        r'<':          [('cal', 'h'), ('ex', 'D')],
-        r'>':          [('cal', 'i'), ('ex', 'E')]
-        }
+        '(': [('rm', '('), *[('ex', fr'\__parenleft{s}__') for s in _latex_sizes]],
+        ')': [('rm', ')'), *[('ex', fr'\__parenright{s}__') for s in _latex_sizes]],
+        '{': [('ex', fr'\__braceleft{s}__') for s in _latex_sizes],
+        '}': [('ex', fr'\__braceright{s}__') for s in _latex_sizes],
+        '[': [('rm', '['), *[('ex', fr'\__bracketleft{s}__') for s in _latex_sizes]],
+        ']': [('rm', ']'), *[('ex', fr'\__bracketright{s}__') for s in _latex_sizes]],
+        '<': [('cal', r'\__angbracketleft__'),
+              *[('ex', fr'\__angbracketleft{s}__') for s in _latex_sizes]],
+        '>': [('cal', r'\__angbracketright__'),
+              *[('ex', fr'\__angbracketright{s}__') for s in _latex_sizes]],
+        r'\lfloor': [('ex', fr'\__floorleft{s}__') for s in _latex_sizes],
+        r'\rfloor': [('ex', fr'\__floorright{s}__') for s in _latex_sizes],
+        r'\lceil': [('ex', fr'\__ceilingleft{s}__') for s in _latex_sizes],
+        r'\rceil': [('ex', fr'\__ceilingright{s}__') for s in _latex_sizes],
+        r'\__sqrt__': [('ex', fr'\__radical{s}__') for s in _latex_sizes],
+        r'\backslash': [('ex', fr'\__backslash{s}__') for s in _latex_sizes],
+        r'/': [('rm', '/'), *[('ex', fr'\__slash{s}__') for s in _latex_sizes]],
+        r'\widehat': [('rm', '\x5e'), ('ex', r'\__hatwide__'), ('ex', r'\__hatwider__'),
+                      ('ex', r'\__hatwidest__')],
+        r'\widetilde': [('rm', '\x7e'), ('ex', r'\__tildewide__'),
+                        ('ex', r'\__tildewider__'), ('ex', r'\__tildewidest__')],
+    }
 
-    for alias, target in [(r'\leftparen', '('),
-                          (r'\rightparen', ')'),
-                          (r'\leftbrace', '{'),
-                          (r'\rightbrace', '}'),
-                          (r'\leftbracket', '['),
-                          (r'\rightbracket', ']'),
-                          (r'\{', '{'),
-                          (r'\}', '}'),
-                          (r'\[', '['),
-                          (r'\]', ']')]:
+    for alias, target in [(r'\leftparen', '('), (r'\rightparen', ')'),
+                          (r'\leftbrace', '{'), (r'\rightbrace', '}'),
+                          (r'\leftbracket', '['), (r'\rightbracket', ']'),
+                          (r'\langle', '<'), (r'\rangle', '>'),
+                          (r'\{', '{'), (r'\}', '}'),
+                          (r'\[', '['), (r'\]', ']')]:
         _size_alternatives[alias] = _size_alternatives[target]
 
     def get_sized_alternatives_for_symbol(self, fontname: str,
@@ -1528,7 +1508,7 @@ class AutoHeightChar(Hlist):
     """
 
     def __init__(self, c: str, height: float, depth: float, state: ParserState,
-                 always: bool = False, factor: float | None = None):
+                 factor: float | None = None):
         alternatives = state.fontset.get_sized_alternatives_for_symbol(state.font, c)
 
         x_height = state.fontset.get_xheight(state.font, state.fontsize, state.dpi)
@@ -1565,7 +1545,7 @@ class AutoWidthChar(Hlist):
     always just return a scaled version of the glyph.
     """
 
-    def __init__(self, c: str, width: float, state: ParserState, always: bool = False,
+    def __init__(self, c: str, width: float, state: ParserState,
                  char_class: type[Char] = Char):
         alternatives = state.fontset.get_sized_alternatives_for_symbol(state.font, c)
 
@@ -2703,7 +2683,7 @@ class Parser:
         # the height so it doesn't seem cramped
         height = body.height - body.shift_amount + 5 * thickness
         depth = body.depth + body.shift_amount
-        check = AutoHeightChar(r'\__sqrt__', height, depth, state, always=True)
+        check = AutoHeightChar(r'\__sqrt__', height, depth, state)
         height = check.height - check.shift_amount
         depth = check.depth + check.shift_amount
 
