@@ -18,7 +18,6 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
-from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_tools import ToolToggleBase
 from matplotlib.testing import subprocess_run_helper as _run_helper, is_ci_environment
 
@@ -163,7 +162,7 @@ def _test_interactive_impl():
 
     import matplotlib as mpl
     from matplotlib import pyplot as plt
-    from matplotlib.backend_bases import KeyEvent
+    from matplotlib.backend_bases import KeyEvent, FigureCanvasBase
     mpl.rcParams.update({
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
@@ -230,7 +229,7 @@ def _test_interactive_impl():
 
     # When the figure is closed, it's manager is removed and the canvas is reset to
     # FigureCanvasBase. Saving should still be possible.
-    assert type(fig.canvas) == FigureCanvasBase
+    assert type(fig.canvas) == FigureCanvasBase, str(fig.canvas)
     result_after = io.BytesIO()
     fig.savefig(result_after, format='png', dpi=100)
 
