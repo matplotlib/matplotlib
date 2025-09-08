@@ -207,6 +207,19 @@ def test_ft2font_set_size():
     assert font.get_width_height() == tuple(pytest.approx(2 * x, 1e-1) for x in orig)
 
 
+def test_ft2font_features():
+    # Smoke test that these are accepted as intended.
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    font.set_text('foo', features=None)  # unset
+    font.set_text('foo', features=['calt', 'dlig'])  # list
+    font.set_text('foo', features=('calt', 'dlig'))  # tuple
+    with pytest.raises(TypeError):
+        font.set_text('foo', features=123)
+    with pytest.raises(TypeError):
+        font.set_text('foo', features=[123, 456])
+
+
 def test_ft2font_charmaps():
     def enc(name):
         # We don't expose the encoding enum from FreeType, but can generate it here.
@@ -781,6 +794,37 @@ def test_ft2font_set_text():
     assert font.get_num_glyphs() == 10
     assert font.get_descent() == 192
     assert font.get_bitmap_offset() == (6, 0)
+
+
+@pytest.mark.parametrize(
+    'input',
+    [
+        [1, 2, 3],
+        [(1, 2)],
+        [('en', 'foo', 2)],
+        [('en', 1, 'foo')],
+    ],
+    ids=[
+        'nontuple',
+        'wrong length',
+        'wrong start type',
+        'wrong end type',
+    ],
+)
+def test_ft2font_language_invalid(input):
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    with pytest.raises(TypeError):
+        font.set_text('foo', language=input)
+
+
+def test_ft2font_language():
+    # This is just a smoke test.
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file, hinting_factor=1)
+    font.set_text('foo')
+    font.set_text('foo', language='en')
+    font.set_text('foo', language=[('en', 1, 2)])
 
 
 def test_ft2font_loading():
