@@ -686,6 +686,7 @@ FigureManager_destroy(FigureManager* self)
 {
     [self->window close];
     self->window = NULL;
+    [super destroy];
     Py_RETURN_NONE;
 }
 
