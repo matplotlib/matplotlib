@@ -1,11 +1,8 @@
-Scroll-to-zoom in GUIs
-~~~~~~~~~~~~~~~~~~~~~~
+Zooming using mouse wheel
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a plot manipulation tool (pan or zoom tool) in plot windows is enabled,
-a mouse scroll operation results in a zoom focussing on the mouse pointer, keeping the
-aspect ratio of the axes.
+``Ctrl+MouseWheel`` can be used to zoom in the plot windows.
 
-There is no effect if no manipulation tool is selected. This is intentional to
-keep a state in which accidental manipulation of the plot is avoided.
+The zoom focusses on the mouse pointer, and keeps the aspect ratio of the axes.
 
 Zooming is currently only supported on rectilinear Axes.

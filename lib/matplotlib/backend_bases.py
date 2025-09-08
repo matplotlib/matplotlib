@@ -2582,14 +2582,12 @@ def scroll_handler(event, canvas=None, toolbar=None):
         # zooming is currently only supported on rectilinear axes
         return
 
-    if toolbar is None:
-        toolbar = (canvas or event.canvas).toolbar
+    if event.key == "control":  # zoom towards the mouse position
+        if toolbar is None:
+            toolbar = (canvas or event.canvas).toolbar
 
-    if toolbar is None or toolbar.mode == _Mode.NONE:
-        return
-
-    if event.key is None:  # zoom towards the mouse position
-        toolbar.push_current()
+        if toolbar is not None:
+            toolbar.push_current()  # update view history
 
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
