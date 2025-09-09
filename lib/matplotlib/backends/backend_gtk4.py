@@ -18,7 +18,12 @@ try:
     # required, or unavailable.
     gi.require_version("Gtk", "4.0")
     # Also require GioUnix to avoid PyGIWarning when Gio is imported
-    gi.require_version("GioUnix", "2.0")
+    # GioUnix is platform-specific and may not be available on all systems
+    try:
+        gi.require_version("GioUnix", "2.0")
+    except ValueError:
+        # GioUnix is not available on this platform, which is fine
+        pass
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
