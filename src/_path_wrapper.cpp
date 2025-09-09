@@ -68,15 +68,15 @@ Py_get_path_collection_extents(agg::trans_affine master_transform,
 
     py::ssize_t dims[] = { 2, 2 };
     py::array_t<double> extents(dims);
-    *extents.mutable_data(0, 0) = e.x0;
-    *extents.mutable_data(0, 1) = e.y0;
-    *extents.mutable_data(1, 0) = e.x1;
-    *extents.mutable_data(1, 1) = e.y1;
+    *extents.mutable_data(0, 0) = e.start.x;
+    *extents.mutable_data(0, 1) = e.start.y;
+    *extents.mutable_data(1, 0) = e.end.x;
+    *extents.mutable_data(1, 1) = e.end.y;
 
     py::ssize_t minposdims[] = { 2 };
     py::array_t<double> minpos(minposdims);
-    *minpos.mutable_data(0) = e.xm;
-    *minpos.mutable_data(1) = e.ym;
+    *minpos.mutable_data(0) = e.minpos.x;
+    *minpos.mutable_data(1) = e.minpos.y;
 
     return py::make_tuple(extents, minpos);
 }
