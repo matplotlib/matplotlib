@@ -26,6 +26,8 @@ struct XY
     double x;
     double y;
 
+    XY() : x(0), y(0) {}
+
     XY(double x_, double y_) : x(x_), y(y_)
     {
     }
@@ -521,12 +523,14 @@ struct bisectx
     {
     }
 
-    inline void bisect(double sx, double sy, double px, double py, double *bx, double *by) const
+    inline XY bisect(const XY s, const XY p) const
     {
-        *bx = m_x;
-        double dx = px - sx;
-        double dy = py - sy;
-        *by = sy + dy * ((m_x - sx) / dx);
+        double dx = p.x - s.x;
+        double dy = p.y - s.y;
+        return {
+            m_x,
+            s.y + dy * ((m_x - s.x) / dx),
+        };
     }
 };
 
@@ -536,9 +540,9 @@ struct xlt : public bisectx
     {
     }
 
-    inline bool is_inside(double x, double y) const
+    inline bool is_inside(const XY point) const
     {
-        return x <= m_x;
+        return point.x <= m_x;
     }
 };
 
@@ -548,9 +552,9 @@ struct xgt : public bisectx
     {
     }
 
-    inline bool is_inside(double x, double y) const
+    inline bool is_inside(const XY point) const
     {
-        return x >= m_x;
+        return point.x >= m_x;
     }
 };
 
@@ -562,12 +566,14 @@ struct bisecty
     {
     }
 
-    inline void bisect(double sx, double sy, double px, double py, double *bx, double *by) const
+    inline XY bisect(const XY s, const XY p) const
     {
-        *by = m_y;
-        double dx = px - sx;
-        double dy = py - sy;
-        *bx = sx + dx * ((m_y - sy) / dy);
+        double dx = p.x - s.x;
+        double dy = p.y - s.y;
+        return {
+            s.x + dx * ((m_y - s.y) / dy),
+            m_y,
+        };
     }
 };
 
@@ -577,9 +583,9 @@ struct ylt : public bisecty
     {
     }
 
-    inline bool is_inside(double x, double y) const
+    inline bool is_inside(const XY point) const
     {
-        return y <= m_y;
+        return point.y <= m_y;
     }
 };
 
@@ -589,9 +595,9 @@ struct ygt : public bisecty
     {
     }
 
-    inline bool is_inside(double x, double y) const
+    inline bool is_inside(const XY point) const
     {
-        return y >= m_y;
+        return point.y >= m_y;
     }
 };
 }
@@ -606,46 +612,30 @@ inline void clip_to_rect_one_step(const Polygon &polygon, Polygon &result, const
         return;
     }
 
-    auto [sx, sy] = polygon.back();
-    for (auto [px, py] : polygon) {
-        sinside = filter.is_inside(sx, sy);
-        pinside = filter.is_inside(px, py);
+    auto s = polygon.back();
+    for (auto p : polygon) {
+        sinside = filter.is_inside(s);
+        pinside = filter.is_inside(p);
 
         if (sinside ^ pinside) {
-            double bx, by;
-            filter.bisect(sx, sy, px, py, &bx, &by);
-            result.emplace_back(bx, by);
+            result.emplace_back(filter.bisect(s, p));
         }
 
         if (pinside) {
-            result.emplace_back(px, py);
+            result.emplace_back(p);
         }
 
-        sx = px;
-        sy = py;
+        s = p;
     }
 }
 
 template <class PathIterator>
-void
-clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vector<Polygon> &results)
+auto
+clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside)
 {
-    double xmin, ymin, xmax, ymax;
-    if (rect.x1 < rect.x2) {
-        xmin = rect.x1;
-        xmax = rect.x2;
-    } else {
-        xmin = rect.x2;
-        xmax = rect.x1;
-    }
-
-    if (rect.y1 < rect.y2) {
-        ymin = rect.y1;
-        ymax = rect.y2;
-    } else {
-        ymin = rect.y2;
-        ymax = rect.y1;
-    }
+    rect.normalize();
+    auto xmin = rect.x1, xmax = rect.x2;
+    auto ymin = rect.y1, ymax = rect.y2;
 
     if (!inside) {
         std::swap(xmin, xmax);
@@ -656,26 +646,27 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
     curve_t curve(path);
 
     Polygon polygon1, polygon2;
-    double x = 0, y = 0;
+    XY point;
     unsigned code = 0;
     curve.rewind(0);
+    std::vector<Polygon> results;
 
     do {
         // Grab the next subpath and store it in polygon1
         polygon1.clear();
         do {
             if (code == agg::path_cmd_move_to) {
-                polygon1.emplace_back(x, y);
+                polygon1.emplace_back(point);
             }
 
-            code = curve.vertex(&x, &y);
+            code = curve.vertex(&point.x, &point.y);
 
             if (code == agg::path_cmd_stop) {
                 break;
             }
 
             if (code != agg::path_cmd_move_to) {
-                polygon1.emplace_back(x, y);
+                polygon1.emplace_back(point);
             }
         } while ((code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
 
@@ -694,6 +685,8 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
     } while (code != agg::path_cmd_stop);
 
     _finalize_polygon(results, true);
+
+    return results;
 }
 
 template <class VerticesArray, class ResultArray>
