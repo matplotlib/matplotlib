@@ -43,7 +43,8 @@ struct XY
 
 typedef std::vector<XY> Polygon;
 
-void _finalize_polygon(std::vector<Polygon> &result, int closed_only)
+inline void
+_finalize_polygon(std::vector<Polygon> &result, bool closed_only)
 {
     if (result.size() == 0) {
         return;
@@ -691,12 +692,12 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
 
         // Empty polygons aren't very useful, so skip them
         if (polygon1.size()) {
-            _finalize_polygon(results, 1);
+            _finalize_polygon(results, true);
             results.push_back(polygon1);
         }
     } while (code != agg::path_cmd_stop);
 
-    _finalize_polygon(results, 1);
+    _finalize_polygon(results, true);
 }
 
 template <class VerticesArray, class ResultArray>
@@ -956,7 +957,7 @@ void convert_path_to_polygons(PathIterator &path,
                               agg::trans_affine &trans,
                               double width,
                               double height,
-                              int closed_only,
+                              bool closed_only,
                               std::vector<Polygon> &result)
 {
     typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
@@ -980,7 +981,7 @@ void convert_path_to_polygons(PathIterator &path,
 
     while ((code = curve.vertex(&x, &y)) != agg::path_cmd_stop) {
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
-            _finalize_polygon(result, 1);
+            _finalize_polygon(result, true);
             polygon = &result.emplace_back();
         } else {
             if (code == agg::path_cmd_move_to) {
