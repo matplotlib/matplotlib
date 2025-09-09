@@ -2687,9 +2687,8 @@ class BoxStyle(_Style):
             dxx = dx / 2
 
             # Pad text
-            padding_offset = (0.5 * pad) + (0.25 * mutation_size)
-            x0 -= padding_offset
-            x1 += padding_offset
+            x0 -= (0.5 * pad) + (0.25 * mutation_size)
+            x1 += 2 * pad
 
             # The width adjustment is the distance that must be subtracted from
             # y0 and added to y1 to reach the non-tip vertices of the head.
