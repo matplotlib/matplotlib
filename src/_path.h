@@ -312,43 +312,39 @@ inline bool point_on_path(
 
 struct extent_limits
 {
-    double x0;
-    double y0;
-    double x1;
-    double y1;
-    double xm;
-    double ym;
+    XY start;
+    XY end;
+    /* minpos is the minimum positive values in the data; used by log scaling. */
+    XY minpos;
+
+    extent_limits() : start{0,0}, end{0,0}, minpos{0,0} {
+        reset();
+    }
+
+    void reset()
+    {
+        start.x = std::numeric_limits<double>::infinity();
+        start.y = std::numeric_limits<double>::infinity();
+        end.x = -std::numeric_limits<double>::infinity();
+        end.y = -std::numeric_limits<double>::infinity();
+        minpos.x = std::numeric_limits<double>::infinity();
+        minpos.y = std::numeric_limits<double>::infinity();
+    }
+
+    void update(double x, double y)
+    {
+        start.x = std::min(start.x, x);
+        start.y = std::min(start.y, y);
+        end.x = std::max(end.x, x);
+        end.y = std::max(end.y, y);
+        if (x > 0.0) {
+            minpos.x = std::min(minpos.x, x);
+        }
+        if (y > 0.0) {
+            minpos.y = std::min(minpos.y, y);
+        }
+    }
 };
-
-void reset_limits(extent_limits &e)
-{
-    e.x0 = std::numeric_limits<double>::infinity();
-    e.y0 = std::numeric_limits<double>::infinity();
-    e.x1 = -std::numeric_limits<double>::infinity();
-    e.y1 = -std::numeric_limits<double>::infinity();
-    /* xm and ym are the minimum positive values in the data, used
-       by log scaling */
-    e.xm = std::numeric_limits<double>::infinity();
-    e.ym = std::numeric_limits<double>::infinity();
-}
-
-inline void update_limits(double x, double y, extent_limits &e)
-{
-    if (x < e.x0)
-        e.x0 = x;
-    if (y < e.y0)
-        e.y0 = y;
-    if (x > e.x1)
-        e.x1 = x;
-    if (y > e.y1)
-        e.y1 = y;
-    /* xm and ym are the minimum positive values in the data, used
-       by log scaling */
-    if (x > 0.0 && x < e.xm)
-        e.xm = x;
-    if (y > 0.0 && y < e.ym)
-        e.ym = y;
-}
 
 template <class PathIterator>
 void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_limits &extents)
@@ -367,7 +363,7 @@ void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_li
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
             continue;
         }
-        update_limits(x, y, extents);
+        extents.update(x, y);
     }
 }
 
@@ -390,7 +386,7 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
 
     agg::trans_affine trans;
 
-    reset_limits(extent);
+    extent.reset();
 
     for (auto i = 0; i < N; ++i) {
         typename PathGenerator::path_iterator path(paths(i % Npaths));
