@@ -16,20 +16,22 @@ View the :doc:`/gallery/misc/logos2` to see the code to generate the logo using 
 - Keep the ratio consistent
 - Maintain the same colors
 
-.. grid:: 3
+.. grid:: 2
 
     .. grid-item-card::  Primary logo light
 
         .. image:: /_static/logo2.svg
 
     .. grid-item-card::  Primary logo dark
+            
+        .. image:: /_static/logo2_dark.svg
 
-        .. image:: /_static/logo_dark.svg
-            :class: dark_background_image
+.. grid:: 2
 
     .. grid-item-card::  Logo mark, same for both
 
-        .. image:: /_static/large_logo.svg
+        .. image:: /_static/large_logo_light.svg
+        .. image:: /_static/large_logo_dark.svg
 
 Colors
 ******
