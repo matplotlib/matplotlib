@@ -22,7 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: Set up reviewdog
-        uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252  # v1.3.9
+        uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252  # v1.4.0
 
       - name: Install tox
         run: python -m pip install tox
