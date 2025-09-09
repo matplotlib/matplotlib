@@ -29,7 +29,7 @@ except ImportError:
     from numpy import VisibleDeprecationWarning
 
 import matplotlib
-from matplotlib import _api, _c_internal_utils
+from matplotlib import _api, _c_internal_utils, mlab
 
 
 class _ExceptionInfo:
@@ -1434,7 +1434,7 @@ def _reshape_2D(X, name):
         return result
 
 
-def violin_stats(X, method, points=100, quantiles=None):
+def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None):
     """
     Return a list of dictionaries of data which can be used to draw a series
     of violin plots.
@@ -1453,11 +1453,23 @@ def violin_stats(X, method, points=100, quantiles=None):
         Sample data that will be used to produce the gaussian kernel density
         estimates. Must have 2 or fewer dimensions.
 
-    method : callable
+    method : (name, bw_method) or callable,
         The method used to calculate the kernel density estimate for each
-        column of data. When called via ``method(v, coords)``, it should
-        return a vector of the values of the KDE evaluated at the values
-        specified in coords.
+        column of data. Valid values:
+
+        - a tuple of the form ``(name, bw_method)`` where *name* currently must
+          always be ``"GaussianKDE"`` and *bw_method* is the method used to
+          calculate the estimator bandwidth. Supported values are 'scott',
+          'silverman' or a float or a callable. If a float, this will be used
+          directly as `!kde.factor`.  If a callable, it should take a
+          `matplotlib.mlab.GaussianKDE` instance as its only parameter and
+          return a float.
+
+        - a callable with the signature ::
+
+             def method(data: ndarray, coords: ndarray) -> ndarray
+
+          It should return the KDE of *data* evaluated at *coords*.
 
     points : int, default: 100
         Defines the number of points to evaluate each of the gaussian kernel
@@ -1485,6 +1497,20 @@ def violin_stats(X, method, points=100, quantiles=None):
         - max: The maximum value for this column of data.
         - quantiles: The quantile values for this column of data.
     """
+    if isinstance(method, tuple):
+        name, bw_method = method
+        if name != "GaussianKDE":
+            raise ValueError(f"Unknown KDE method name {name!r}. The only supported "
+                             'named method is "GaussianKDE"')
+
+        def _kde_method(x, coords):
+            # fallback gracefully if the vector contains only one value
+            if np.all(x[0] == x):
+                return (x[0] == coords).astype(float)
+            kde = mlab.GaussianKDE(x, bw_method)
+            return kde.evaluate(coords)
+
+        method = _kde_method
 
     # List of dictionaries describing each of the violins.
     vpstats = []
