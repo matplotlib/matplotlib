@@ -109,9 +109,7 @@ Py_path_in_path(mpl::PathIterator a, agg::trans_affine atrans,
 static py::list
 Py_clip_path_to_rect(mpl::PathIterator path, agg::rect_d rect, bool inside)
 {
-    std::vector<Polygon> result;
-
-    clip_path_to_rect(path, rect, inside, result);
+    auto result = clip_path_to_rect(path, rect, inside);
 
     return convert_polygon_vector(result);
 }
