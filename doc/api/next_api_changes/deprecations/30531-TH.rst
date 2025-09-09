@@ -1,6 +1,6 @@
 In-place modifications of colormaps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Colormaps are planned to become immuatable in the long term.
+Colormaps are planned to become immutable in the long term.
 
 As a first step, in-place modifications of colormaps are now pending-deprecated.
 This affects the following methods of `.Colormap`:
