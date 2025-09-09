@@ -17,6 +17,8 @@ try:
     # :raises ValueError: If module/version is already loaded, already
     # required, or unavailable.
     gi.require_version("Gtk", "4.0")
+    gi.require_version("Gdk", "4.0")
+    gi.require_version("GdkPixbuf", "2.0")
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
