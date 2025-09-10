@@ -1322,7 +1322,7 @@ class ListedColormap(Colormap):
                 "and will be removed in %(removal)s. Please ensure the list "
                 "of passed colors is the required length instead."
     )
-    def __init__(self, colors, name='from_list', N=None, *,
+    def __init__(self, colors, name='unnamed', N=None, *,
                  bad=None, under=None, over=None):
         if N is None:
             self.colors = colors

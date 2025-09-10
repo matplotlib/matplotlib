@@ -2574,6 +2574,51 @@ def button_press_handler(event, canvas=None, toolbar=None):
             toolbar.forward()
 
 
+def scroll_handler(event, canvas=None, toolbar=None):
+    ax = event.inaxes
+    if ax is None:
+        return
+    if ax.name != "rectilinear":
+        # zooming is currently only supported on rectilinear axes
+        return
+
+    if toolbar is None:
+        toolbar = (canvas or event.canvas).toolbar
+
+    if toolbar is None:
+        # technically we do not need a toolbar, but until wheel zoom was
+        # introduced, any interactive modification was only possible through
+        # the toolbar tools. For now, we keep the restriction that a toolbar
+        # is required for interactive navigation.
+        return
+
+    if event.key == "control":  # zoom towards the mouse position
+        toolbar.push_current()
+
+        xmin, xmax = ax.get_xlim()
+        ymin, ymax = ax.get_ylim()
+        (xmin, ymin), (xmax, ymax) = ax.transScale.transform(
+            [(xmin, ymin), (xmax, ymax)])
+
+        # mouse position in scaled (e.g., log) data coordinates
+        x, y = ax.transScale.transform((event.xdata, event.ydata))
+
+        scale_factor = 0.85 ** event.step
+        new_xmin = x - (x - xmin) * scale_factor
+        new_xmax = x + (xmax - x) * scale_factor
+        new_ymin = y - (y - ymin) * scale_factor
+        new_ymax = y + (ymax - y) * scale_factor
+
+        inv_scale = ax.transScale.inverted()
+        (new_xmin, new_ymin), (new_xmax, new_ymax) = inv_scale.transform(
+            [(new_xmin, new_ymin), (new_xmax, new_ymax)])
+
+        ax.set_xlim(new_xmin, new_xmax)
+        ax.set_ylim(new_ymin, new_ymax)
+
+        ax.figure.canvas.draw_idle()
+
+
 class NonGuiException(Exception):
     """Raised when trying show a figure in a non-GUI backend."""
     pass
@@ -2653,11 +2698,14 @@ class FigureManagerBase:
 
         self.key_press_handler_id = None
         self.button_press_handler_id = None
+        self.scroll_handler_id = None
         if rcParams['toolbar'] != 'toolmanager':
             self.key_press_handler_id = self.canvas.mpl_connect(
                 'key_press_event', key_press_handler)
             self.button_press_handler_id = self.canvas.mpl_connect(
                 'button_press_event', button_press_handler)
+            self.scroll_handler_id = self.canvas.mpl_connect(
+                'scroll_event', scroll_handler)
 
         self.toolmanager = (ToolManager(canvas.figure)
                             if mpl.rcParams['toolbar'] == 'toolmanager'

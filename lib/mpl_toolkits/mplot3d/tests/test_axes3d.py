@@ -17,6 +17,7 @@ from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.text import Text
+from matplotlib import  _api
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -2711,3 +2712,31 @@ def test_line3dcollection_autolim_ragged():
     assert np.allclose(ax.get_xlim3d(), (-0.08333333333333333, 4.083333333333333))
     assert np.allclose(ax.get_ylim3d(), (-0.0625, 3.0625))
     assert np.allclose(ax.get_zlim3d(), (-0.08333333333333333, 4.083333333333333))
+
+
+def test_axes3d_set_aspect_deperecated_params():
+    """
+    Test that using the deprecated 'anchor' and 'share' kwargs in
+    set_aspect raises the correct warning.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    # Test that providing the `anchor` parameter raises a deprecation warning.
+    with pytest.warns(_api.MatplotlibDeprecationWarning, match="'anchor' parameter"):
+        ax.set_aspect('equal', anchor='C')
+
+    # Test that using the 'share' parameter is now deprecated.
+    with pytest.warns(_api.MatplotlibDeprecationWarning, match="'share' parameter"):
+        ax.set_aspect('equal', share=True)
+
+    # Test that the `adjustable` parameter is correctly processed to satisfy
+    # code coverage.
+    ax.set_aspect('equal', adjustable='box')
+    assert ax.get_adjustable() == 'box'
+
+    ax.set_aspect('equal', adjustable='datalim')
+    assert ax.get_adjustable() == 'datalim'
+
+    with pytest.raises(ValueError, match="adjustable"):
+        ax.set_aspect('equal', adjustable='invalid_value')
