@@ -3080,8 +3080,10 @@ class PowerNorm(Normalize):
     clip : bool, default: False
         Determines the behavior for mapping values outside the range
         ``[vmin, vmax]``.
+    scale : float, default: 1.0
+        Scale factor applied to the input values before normalization.
 
-        If clipping is off, values above *vmax* are transformed by the power
+        If clipping is off, values above *vmax* are transformed by the powerxw
         function, resulting in values above 1, and values below *vmin* are linearly
         transformed resulting in values below 0. This behavior is usually desirable, as
         colormaps can mark these *under* and *over* values with specific colors.
@@ -3100,9 +3102,10 @@ class PowerNorm(Normalize):
 
     For input values below *vmin*, gamma is set to one.
     """
-    def __init__(self, gamma, vmin=None, vmax=None, clip=False):
+    def __init__(self, gamma, vmin=None, vmax=None, clip=False, scale=1.0):
         super().__init__(vmin, vmax, clip)
         self.gamma = gamma
+        self.scale = scale
 
     def __call__(self, value, clip=None):
         if clip is None:
@@ -3123,6 +3126,7 @@ class PowerNorm(Normalize):
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                      mask=mask)
             resdat = result.data
+            resdat *= self.scale 
             resdat -= vmin
             resdat /= (vmax - vmin)
             resdat[resdat > 0] = np.power(resdat[resdat > 0], gamma)
@@ -3145,6 +3149,7 @@ class PowerNorm(Normalize):
         resdat[resdat > 0] = np.power(resdat[resdat > 0], 1 / gamma)
         resdat *= (vmax - vmin)
         resdat += vmin
+        resdat /= self.scale
 
         result = np.ma.array(resdat, mask=result.mask, copy=False)
         if is_scalar:
