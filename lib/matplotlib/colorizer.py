@@ -24,7 +24,7 @@ import functools
 import numpy as np
 from numpy import ma
 
-from matplotlib import _api, colors, cbook, artist, cm, scale
+from matplotlib import _api, colors, cbook, artist, scale
 import matplotlib as mpl
 
 mpl._docstring.interpd.register(
@@ -222,9 +222,9 @@ class Colorizer:
         in_init = self._cmap is None
         cmap_obj = _ensure_cmap(cmap, accept_multivariate=True)
         if not in_init and self.norm.n_components != cmap_obj.n_variates:
-                raise ValueError(f"The colormap {cmap} does not support "
-                                 f"{self.norm.n_components} variates as required by "
-                                 f"the {type(self.norm)} on this Colorizer")
+            raise ValueError(f"The colormap {cmap} does not support "
+                             f"{self.norm.n_components} variates as required by "
+                             f"the {type(self.norm)} on this Colorizer")
         self._cmap = cmap_obj
         if not in_init:
             self.changed()  # Things are not set up properly yet.
@@ -814,7 +814,8 @@ def _ensure_cmap(cmap, accept_multivariate=False):
     if isinstance(cmap, types):
         return cmap
 
-    cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
+    cmap_name = mpl._val_or_rc(cmap, "image.cmap")
+
     for mapping in mappings:
         if cmap_name in mapping:
             return mapping[cmap_name]
@@ -828,8 +829,6 @@ def _ensure_cmap(cmap, accept_multivariate=False):
                      "See `matplotlib.bivar_colormaps()` and"
                      " `matplotlib.multivar_colormaps()` for"
                      " bivariate and multivariate colormaps")
-
-    return cm.colormaps[cmap_name]
 
 
 def _ensure_multivariate_data(data, n_components):
@@ -870,7 +869,8 @@ def _ensure_multivariate_data(data, n_components):
                 dt = np.dtype('float64, float64')
             else:
                 dt = np.dtype('float32, float32')
-            reconstructed = np.ma.frombuffer(data.data, dtype=dt).reshape(data.shape)
+
+            reconstructed = np.ma.array(np.ma.getdata(data).view(dt))
             if np.ma.is_masked(data):
                 for descriptor in dt.descr:
                     reconstructed[descriptor[0]][data.mask] = np.ma.masked

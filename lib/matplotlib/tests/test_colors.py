@@ -2105,16 +2105,16 @@ def test_ensure_multivariate_data():
     assert mdata.dtype.fields['f1'][0] == np.int64
 
     # test input of floats, ints as tuple of lists
-    data = ([0.0, 0], [1, 1])
+    data = ([0.0, 0.0], [1, 1])
     mdata = mcolorizer._ensure_multivariate_data(data, 2)
     assert mdata.shape == (2,)
     assert mdata.dtype.fields['f0'][0] == np.float64
     assert mdata.dtype.fields['f1'][0] == np.int64
 
     # test input of array of floats
-    data = np.array([[0.0, 0], [1, 1]])
+    data = np.array([[0.0, 0, 0], [1, 1, 1]])
     mdata = mcolorizer._ensure_multivariate_data(data, 2)
-    assert mdata.shape == (2,)
+    assert mdata.shape == (3,)
     assert mdata.dtype.fields['f0'][0] == np.float64
     assert mdata.dtype.fields['f1'][0] == np.float64
 
