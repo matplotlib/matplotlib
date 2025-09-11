@@ -203,6 +203,22 @@ def test_colormap_invalid():
     assert_array_equal(cmap(np.nan), [0., 0., 0., 0.])
 
 
+def test_colormap_by_index():
+    cmap = mpl.colormaps["plasma"]
+    N = cmap.N
+    assert_array_equal(cmap([0., 0.5, 1.]), cmap([0., 0.5, 1.], by_index=False))
+    # auto-detection based on input type by default
+    assert_array_equal(cmap([0., 0.5, 1.]), cmap([0, N//2, N]))
+    # by_index=True forces floats as index interpretation
+    assert_array_equal(cmap([0., N/2, float(N)], by_index=True), cmap([0, N//2, N]))
+
+    cmap = mpl.colormaps["plasma"].with_extremes(over='r', under='b', bad='g')
+
+    assert cmap(1) == cmap(1/N)
+    assert cmap(1., by_index=True) == cmap(1/N)
+    assert cmap(1, by_index=False) == cmap(1.)
+
+
 def test_colormap_return_types():
     """
     Make sure that tuples are returned for scalar input and
