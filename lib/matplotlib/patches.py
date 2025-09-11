@@ -2531,6 +2531,10 @@ class BoxStyle(_Style):
             # Set arrow-head angle to within [0, 360 deg)
             self.head_angle = head_angle % 360.
 
+            if self.head_angle == 0:
+                # This would cause a division by zero ('infinitely long' arrow head)
+                raise ValueError("Head angle of zero is not valid.")
+
         def __call__(self, x0, y0, width, height, mutation_size):
             # scaled padding
             pad = mutation_size * self.pad
@@ -2554,10 +2558,7 @@ class BoxStyle(_Style):
             # the total 'width' of arrow-head not within the body.
             width_adjustment = (self.head_width - 1) * dx
 
-            if self.head_angle == 0:
-                # This would cause a division by zero ('infinitely long' arrow head)
-                raise ValueError("Head angle of zero is not valid.")
-            elif self.head_angle <= 180:
+            if self.head_angle <= 180:
                 # Non-reversed arrow head (<---)
 
                 # tan(1/2 * angle subtended by arrow tip)
@@ -2659,7 +2660,9 @@ class BoxStyle(_Style):
                 The amount of padding around the original box.
             head_width : float, default: 1.5
                 The width of each arrow head, relative to that of the arrow body.
-                Only positive values are accepted.
+                Only positive valuesif self.head_angle == 0:
+                # This would cause a division by zero ('infinitely long' arrow head)
+                raise ValueError("Head angle of zero is not valid.") are accepted.
             head_angle : float, default: 90.0
                 The angle subtended by the tip of each arrow head, in degrees.
                 Only nonzero angles are accepted.
@@ -2673,6 +2676,10 @@ class BoxStyle(_Style):
 
             # Set arrow-head angle to within [0, 360 deg)
             self.head_angle = head_angle % 360.
+
+            if self.head_angle == 0:
+                # This would cause a division by zero ('infinitely long' arrow head)
+                raise ValueError("Head angle of zero is not valid.")
 
         def __call__(self, x0, y0, width, height, mutation_size):
             # scaled padding
@@ -2698,10 +2705,7 @@ class BoxStyle(_Style):
             # the total 'width' of arrow-head not within the body.
             width_adjustment = (self.head_width - 1) * dx
 
-            if self.head_angle == 0:
-                # This would cause a division by zero ('infinitely long' arrow head)
-                raise ValueError("Head angle of zero is not valid.")
-            elif self.head_angle <= 180:
+            if self.head_angle <= 180:
                 # Non-reversed arrow heads (<--->)
 
                 # tan(1/2 * angle subtended by arrow tip)
