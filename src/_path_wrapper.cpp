@@ -2,9 +2,9 @@
 #include <pybind11/stl.h>
 
 #include <array>
-#include <limits>
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "_path.h"
@@ -16,14 +16,21 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
+template <class T>
 py::list
-convert_polygon_vector(std::vector<Polygon> &polygons)
+convert_polygon_vector(std::vector<T> &polygons)
 {
+    static_assert(std::is_same_v<Polygon, T> || std::is_same_v<Polygon3D, T>,
+                  "Vector must contain Polygon or Polygon3D");
+
     auto result = py::list(polygons.size());
 
     for (size_t i = 0; i < polygons.size(); ++i) {
         const auto& poly = polygons[i];
-        py::ssize_t dims[] = { static_cast<py::ssize_t>(poly.size()), 2 };
+        py::ssize_t dims[] = {
+            static_cast<py::ssize_t>(poly.size()),
+            sizeof(typename T::value_type) / sizeof(double)
+        };
         result[i] = py::array(dims, reinterpret_cast<const double *>(poly.data()));
     }
 
@@ -110,6 +117,16 @@ static py::list
 Py_clip_path_to_rect(mpl::PathIterator path, agg::rect_d rect, bool inside)
 {
     auto result = clip_path_to_rect(path, rect, inside);
+
+    return convert_polygon_vector(result);
+}
+
+static py::list
+Py_clip_paths_to_box(py::array_t<double, 3> paths,
+                     std::array<std::pair<double, double>, 3> box,
+                     bool inside)
+{
+    auto result = clip_paths_to_box(paths, box, inside);
 
     return convert_polygon_vector(result);
 }
@@ -319,6 +336,8 @@ PYBIND11_MODULE(_path, m, py::mod_gil_not_used())
           "path_a"_a, "trans_a"_a, "path_b"_a, "trans_b"_a);
     m.def("clip_path_to_rect", &Py_clip_path_to_rect,
           "path"_a, "rect"_a, "inside"_a);
+    m.def("clip_paths_to_box", &Py_clip_paths_to_box,
+          "path"_a, "box"_a, "inside"_a);
     m.def("affine_transform", &Py_affine_transform,
           "points"_a, "trans"_a);
     m.def("count_bboxes_overlapping_bbox", &Py_count_bboxes_overlapping_bbox,

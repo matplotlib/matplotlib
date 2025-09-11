@@ -45,14 +45,36 @@ struct XY
 
 typedef std::vector<XY> Polygon;
 
-inline void
-_finalize_polygon(std::vector<Polygon> &result, bool closed_only)
+struct XYZ
+{
+    double x;
+    double y;
+    double z;
+
+    XYZ() : x(0), y(0), z(0) {}
+    XYZ(double x_, double y_, double z_ = 0.0) : x(x_), y(y_), z(z_) {}
+
+    bool operator==(const XYZ& o)
+    {
+        return (x == o.x && y == o.y && z == o.z);
+    }
+
+    bool operator!=(const XYZ& o)
+    {
+        return (x != o.x || y != o.y || z != o.z);
+    }
+};
+
+typedef std::vector<XYZ> Polygon3D;
+
+template <class PolygonT>
+void _finalize_polygon(std::vector<PolygonT> &result, bool closed_only)
 {
     if (result.size() == 0) {
         return;
     }
 
-    Polygon &polygon = result.back();
+    PolygonT &polygon = result.back();
 
     /* Clean up the last polygon in the result.  */
     if (polygon.size() == 0) {
@@ -511,10 +533,13 @@ bool path_in_path(PathIterator1 &a,
 
 namespace clip_to_rect_filters
 {
-/* There are four different passes needed to create/remove
-   vertices (one for each side of the rectangle).  The differences
-   between those passes are encapsulated in these functor classes.
+/* In 2D, there are four different passes needed to create/remove vertices (one for each
+ * side of the rectangle). In 3d, there are six passes instead (one for each side of the
+ * cube).
+ *
+ * The differences between those passes are encapsulated in these functor classes.
 */
+template <class PointT>
 struct bisectx
 {
     double m_x;
@@ -523,41 +548,49 @@ struct bisectx
     {
     }
 
-    inline XY bisect(const XY s, const XY p) const
+    inline PointT bisect(const PointT s, const PointT p) const
     {
         double dx = p.x - s.x;
         double dy = p.y - s.y;
-        return {
+        auto result = PointT{
             m_x,
             s.y + dy * ((m_x - s.x) / dx),
         };
+        if constexpr (std::is_same_v<PointT, XYZ>) {
+            double dz = p.z - s.z;
+            result.z = s.z + dz * ((m_x - s.x) / dx);
+        }
+        return result;
     }
 };
 
-struct xlt : public bisectx
+template <class PointT>
+struct xlt : public bisectx<PointT>
 {
-    xlt(double x) : bisectx(x)
+    xlt(double x) : bisectx<PointT>(x)
     {
     }
 
-    inline bool is_inside(const XY point) const
+    inline bool is_inside(const PointT point) const
     {
-        return point.x <= m_x;
+        return point.x <= this->m_x;
     }
 };
 
-struct xgt : public bisectx
+template <class PointT>
+struct xgt : public bisectx<PointT>
 {
-    xgt(double x) : bisectx(x)
+    xgt(double x) : bisectx<PointT>(x)
     {
     }
 
-    inline bool is_inside(const XY point) const
+    inline bool is_inside(const PointT point) const
     {
-        return point.x >= m_x;
+        return point.x >= this->m_x;
     }
 };
 
+template <class PointT>
 struct bisecty
 {
     double m_y;
@@ -566,44 +599,90 @@ struct bisecty
     {
     }
 
-    inline XY bisect(const XY s, const XY p) const
+    inline PointT bisect(const PointT s, const PointT p) const
     {
         double dx = p.x - s.x;
         double dy = p.y - s.y;
-        return {
+        auto result = PointT{
             s.x + dx * ((m_y - s.y) / dy),
             m_y,
+        };
+        if constexpr (std::is_same_v<PointT, XYZ>) {
+            double dz = p.z - s.z;
+            result.z = s.z + dz * ((m_y - s.y) / dy);
+        }
+        return result;
+    }
+};
+
+template <class PointT>
+struct ylt : public bisecty<PointT>
+{
+    ylt(double y) : bisecty<PointT>(y)
+    {
+    }
+
+    inline bool is_inside(const PointT point) const
+    {
+        return point.y <= this->m_y;
+    }
+};
+
+template <class PointT>
+struct ygt : public bisecty<PointT>
+{
+    ygt(double y) : bisecty<PointT>(y)
+    {
+    }
+
+    inline bool is_inside(const PointT point) const
+    {
+        return point.y >= this->m_y;
+    }
+};
+
+struct bisectz
+{
+    double m_z;
+
+    bisectz(double z) : m_z(z) {}
+
+    inline XYZ bisect(const XYZ s, const XYZ p) const
+    {
+        double dx = p.x - s.x;
+        double dy = p.y - s.y;
+        double dz = p.z - s.z;
+        return {
+            s.x + dx * ((m_z - s.z) / dz),
+            s.y + dy * ((m_z - s.z) / dz),
+            m_z,
         };
     }
 };
 
-struct ylt : public bisecty
+struct zlt : public bisectz
 {
-    ylt(double y) : bisecty(y)
-    {
-    }
+    zlt(double z) : bisectz(z) {}
 
-    inline bool is_inside(const XY point) const
+    inline bool is_inside(const XYZ point) const
     {
-        return point.y <= m_y;
+        return point.z <= m_z;
     }
 };
 
-struct ygt : public bisecty
+struct zgt : public bisectz
 {
-    ygt(double y) : bisecty(y)
-    {
-    }
+    zgt(double z) : bisectz(z) {}
 
-    inline bool is_inside(const XY point) const
+    inline bool is_inside(const XYZ point) const
     {
-        return point.y >= m_y;
+        return point.z >= m_z;
     }
 };
 }
 
-template <class Filter>
-inline void clip_to_rect_one_step(const Polygon &polygon, Polygon &result, const Filter &filter)
+template <class PolygonT, class Filter>
+inline void clip_to_rect_one_step(const PolygonT &polygon, PolygonT &result, const Filter &filter)
 {
     bool sinside, pinside;
     result.clear();
@@ -672,10 +751,10 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside)
 
         // The result of each step is fed into the next (note the
         // swapping of polygon1 and polygon2 at each step).
-        clip_to_rect_one_step(polygon1, polygon2, clip_to_rect_filters::xlt(xmax));
-        clip_to_rect_one_step(polygon2, polygon1, clip_to_rect_filters::xgt(xmin));
-        clip_to_rect_one_step(polygon1, polygon2, clip_to_rect_filters::ylt(ymax));
-        clip_to_rect_one_step(polygon2, polygon1, clip_to_rect_filters::ygt(ymin));
+        clip_to_rect_one_step(polygon1, polygon2, clip_to_rect_filters::xlt<XY>(xmax));
+        clip_to_rect_one_step(polygon2, polygon1, clip_to_rect_filters::xgt<XY>(xmin));
+        clip_to_rect_one_step(polygon1, polygon2, clip_to_rect_filters::ylt<XY>(ymax));
+        clip_to_rect_one_step(polygon2, polygon1, clip_to_rect_filters::ygt<XY>(ymin));
 
         // Empty polygons aren't very useful, so skip them
         if (polygon1.size()) {
@@ -683,6 +762,67 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside)
             results.push_back(polygon1);
         }
     } while (code != agg::path_cmd_stop);
+
+    _finalize_polygon(results, true);
+
+    return results;
+}
+
+inline std::vector<Polygon3D>
+clip_paths_to_box(py::array_t<double> paths,
+                  std::array<std::pair<double, double>, 3> &box,
+                  bool inside)
+{
+    auto xmin = std::get<0>(box).first, xmax = std::get<0>(box).second;
+    auto ymin = std::get<1>(box).first, ymax = std::get<1>(box).second;
+    auto zmin = std::get<2>(box).first, zmax = std::get<2>(box).second;
+
+    if (xmin > xmax) {
+        std::swap(xmin, xmax);
+    }
+    if (ymin > ymax) {
+        std::swap(ymin, ymax);
+    }
+    if (zmin > zmax) {
+        std::swap(zmin, zmax);
+    }
+
+    if (!inside) {
+        std::swap(xmin, xmax);
+        std::swap(ymin, ymax);
+        std::swap(zmin, zmax);
+    }
+
+    Polygon3D polygon1, polygon2;
+    std::vector<Polygon3D> results;
+
+    auto paths_iter = paths.unchecked<3>();
+    for (auto i = 0; i < paths.shape(0); i++) {
+        // Grab the next subpath and store it in polygon1
+        polygon1.clear();
+        for (auto j = 0; j < paths.shape(1); j++) {
+            polygon1.emplace_back(
+                paths_iter(i, j, 0),
+                paths_iter(i, j, 1),
+                paths_iter(i, j, 2)
+            );
+        }
+
+        // The result of each step is fed into the next (note the
+        // swapping of polygon1 and polygon2 at each step).
+        clip_to_rect_one_step(polygon1, polygon2, clip_to_rect_filters::xlt<XYZ>(xmax));
+        clip_to_rect_one_step(polygon2, polygon1, clip_to_rect_filters::xgt<XYZ>(xmin));
+        clip_to_rect_one_step(polygon1, polygon2, clip_to_rect_filters::ylt<XYZ>(ymax));
+        clip_to_rect_one_step(polygon2, polygon1, clip_to_rect_filters::ygt<XYZ>(ymin));
+        clip_to_rect_one_step(polygon1, polygon2, clip_to_rect_filters::zlt(zmax));
+        clip_to_rect_one_step(polygon2, polygon1, clip_to_rect_filters::zgt(zmin));
+
+        // Empty polygons aren't very useful, so skip them
+        if (polygon1.size()) {
+            _finalize_polygon(results, true);
+            results.push_back(polygon1);
+        }
+    }
 
     _finalize_polygon(results, true);
 
