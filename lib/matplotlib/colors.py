@@ -752,16 +752,13 @@ class Colormap:
         #: `matplotlib.colorbar.Colorbar` constructor.
         self.colorbar_extend = False
 
-    def __call__(self, X, alpha=None, bytes=False):
+    def __call__(self, X, alpha=None, bytes=False, by_index='auto'):
         r"""
         Parameters
         ----------
         X : float or int or array-like
-            The data value(s) to convert to RGBA.
-            For floats, *X* should be in the interval ``[0.0, 1.0]`` to
-            return the RGBA values ``X*100`` percent along the Colormap line.
-            For integers, *X* should be in the interval ``[0, Colormap.N)`` to
-            return RGBA values *indexed* from the Colormap with index ``X``.
+            The data value(s) to convert to RGBA. The interpretation (normalized
+            values or index values) depends on *by_index*.
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
             floats with shape matching X, or None.
@@ -769,27 +766,35 @@ class Colormap:
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
             interval ``[0, 255]``.
+        by_index: bool or 'auto', default: 'auto'
+            How the input *X* is interpreted:
+
+            - If True, *X* is treated as an array of indices into the Colormap
+              lookup table, i.e. the range ``[0, Colormap.N)`` covers the colormap.
+            - If False, *X* is treated normalized values, i.e. the range
+              ``[0.0, 1.0]`` covers the colormap.
+            - If 'auto', the type of *X* is used to determine the interpretation.
+              float inputs are treated like ``by_index=False``, integer inputs
+              are treated like ``by_index=True``.
 
         Returns
         -------
         Tuple of RGBA values if X is scalar, otherwise an array of
         RGBA values with a shape of ``X.shape + (4, )``.
         """
-        rgba, mask = self._get_rgba_and_mask(X, alpha=alpha, bytes=bytes)
+        rgba, mask = self._get_rgba_and_mask(X, alpha=alpha, bytes=bytes,
+                                             by_index=by_index)
         if not np.iterable(X):
             rgba = tuple(rgba)
         return rgba
 
-    def _get_rgba_and_mask(self, X, alpha=None, bytes=False):
+    def _get_rgba_and_mask(self, X, alpha=None, bytes=False, by_index='auto'):
         r"""
         Parameters
         ----------
         X : float or int or array-like
-            The data value(s) to convert to RGBA.
-            For floats, *X* should be in the interval ``[0.0, 1.0]`` to
-            return the RGBA values ``X*100`` percent along the Colormap line.
-            For integers, *X* should be in the interval ``[0, Colormap.N)`` to
-            return RGBA values *indexed* from the Colormap with index ``X``.
+            The data value(s) to convert to RGBA. The interpretation (normalized
+            values or index values) depends on *by_index*.
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
             floats with shape matching X, or None.
@@ -797,6 +802,16 @@ class Colormap:
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
             interval ``[0, 255]``.
+        by_index: bool or 'auto', default: 'auto'
+            How the input *X* is interpreted:
+
+            - If True, *X* is treated as an array of indices into the Colormap
+              lookup table, i.e. the range ``[0, Colormap.N)`` covers the colormap.
+            - If False, *X* is treated normalized values, i.e. the range
+              ``[0.0, 1.0]`` covers the colormap.
+            - If 'auto', the type of *X* is used to determine the interpretation.
+              float inputs are treated like ``by_index=False``, integer inputs
+              are treated like ``by_index=True``.
 
         Returns
         -------
@@ -812,7 +827,7 @@ class Colormap:
         if not xa.dtype.isnative:
             # Native byteorder is faster.
             xa = xa.byteswap().view(xa.dtype.newbyteorder())
-        if xa.dtype.kind == "f":
+        if by_index is False or (by_index == 'auto' and xa.dtype.kind == "f"):
             xa *= self.N
             # xa == 1 (== N after multiplication) is not out of range.
             xa[xa == self.N] = self.N - 1
