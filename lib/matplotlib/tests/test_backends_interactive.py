@@ -227,7 +227,7 @@ def _test_interactive_impl():
     # Ensure that the window is really closed.
     plt.pause(0.5)
 
-    # When the figure is closed, it's manager is removed and the canvas is reset to
+    # When the figure is closed, its manager is removed and the canvas is reset to
     # FigureCanvasBase. Saving should still be possible.
     assert type(fig.canvas) == FigureCanvasBase, str(fig.canvas)
     result_after = io.BytesIO()
