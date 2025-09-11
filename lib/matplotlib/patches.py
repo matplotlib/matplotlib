@@ -2660,7 +2660,7 @@ class BoxStyle(_Style):
                 The amount of padding around the original box.
             head_width : float, default: 1.5
                 The width of each arrow head, relative to that of the arrow body.
-                Only positive valuesif self.head_angle == 0:
+                Only positive values are accepted.
                 # This would cause a division by zero ('infinitely long' arrow head)
                 raise ValueError("Head angle of zero is not valid.") are accepted.
             head_angle : float, default: 90.0
