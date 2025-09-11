@@ -2547,7 +2547,7 @@ class BoxStyle(_Style):
             dx = (y1 - y0) / 2
             dxx = dx / 2
 
-            # Pad text to position text and its padding margin exactly inside arrow tail
+            # Pad to position original box and its margins exactly inside arrow shaft
             padding_offset = (0.5 * pad) + (0.25 * mutation_size)
             x0 -= padding_offset
 
@@ -2571,9 +2571,9 @@ class BoxStyle(_Style):
                 angle_adjustment = ((dx + width_adjustment) / tan_half_angle) - dxx
 
                 # If there is sufficient space available, shorten the arrow tail to push
-                # some of the text padding margin into the head
+                # some of the padding margin into the head
                 if self.head_width > 1 and pad * tan_half_angle < width_adjustment:
-                    # Pad text into head
+                    # Pad original box into head
                     x0 += pad
 
                 return Path._create_closed([
@@ -2625,8 +2625,8 @@ class BoxStyle(_Style):
                     # Trapezium-shaped reversed arrow (reversed triangle 'cut off' by
                     # end of body
 
-                    # Vertical distance between top of text at end furthest from arrow
-                    # head and corner of trapezium
+                    # Vertical distance between top of original box at end furthest from
+                    # arrow head and corner of trapezium
                     vertical_offset = width_adjustment + ((x0 - x1) * tan_half_angle)
 
                     return Path._create_closed([
@@ -2693,7 +2693,7 @@ class BoxStyle(_Style):
             dx = (y1 - y0) / 2
             dxx = dx / 2
 
-            # Pad text
+            # Pad original box
             padding_offset = (0.5 * pad) + (0.25 * mutation_size)
             x0 -= padding_offset
             x1 += 2 * pad
@@ -2718,9 +2718,9 @@ class BoxStyle(_Style):
                 angle_adjustment = ((dx + width_adjustment) / tan_half_angle) - dxx
 
                 # If there is sufficient space available, shorten the arrow tail to push
-                # some of the text padding margin into the heads
+                # some of the padding margin into the heads
                 if self.head_width > 1 and pad * tan_half_angle < width_adjustment:
-                    # Pad text into heads
+                    # Pad original box into heads
                     x0 += pad
                     x1 -= pad
 
