@@ -20,8 +20,6 @@
 #ifndef AGG_IMAGE_FILTERS_INCLUDED
 #define AGG_IMAGE_FILTERS_INCLUDED
 
-#define MPL_FIX_IMAGE_FILTER_LUT_BUGS
-
 #include "agg_array.h"
 #include "agg_math.h"
 
@@ -55,7 +53,7 @@ namespace agg
             double r = filter.radius();
             realloc_lut(r);
             unsigned i;
-#ifndef MPL_FIX_IMAGE_FILTER_LUT_BUGS
+#ifndef MPL_FIX_AGG_IMAGE_FILTER_LUT_BUGS
             unsigned pivot = diameter() << (image_subpixel_shift - 1);
             for(i = 0; i < pivot; i++)
             {
