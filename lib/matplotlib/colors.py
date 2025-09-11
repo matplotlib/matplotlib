@@ -875,6 +875,10 @@ class Colormap:
             self._init()
         return np.array(self._lut[self._i_bad])
 
+    @_api.deprecated(
+        "3.11",
+        pending=True,
+        alternative="cmap.with_extremes(bad=...) or Colormap(bad=...)")
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
         self._rgba_bad = to_rgba(color, alpha)
@@ -887,6 +891,10 @@ class Colormap:
             self._init()
         return np.array(self._lut[self._i_under])
 
+    @_api.deprecated(
+        "3.11",
+        pending=True,
+        alternative="cmap.with_extremes(under=...) or Colormap(under=...)")
     def set_under(self, color='k', alpha=None):
         """Set the color for low out-of-range values."""
         self._rgba_under = to_rgba(color, alpha)
@@ -899,12 +907,21 @@ class Colormap:
             self._init()
         return np.array(self._lut[self._i_over])
 
+    @_api.deprecated(
+        "3.11",
+        pending=True,
+        alternative="cmap.with_extremes(over=...) or Colormap(over=...)")
     def set_over(self, color='k', alpha=None):
         """Set the color for high out-of-range values."""
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
+    @_api.deprecated(
+        "3.11",
+        pending=True,
+        alternative="cmap.with_extremes(bad=..., under=..., over=...) or "
+                    "Colormap(bad=..., under=..., over=...)")
     def set_extremes(self, *, bad=None, under=None, over=None):
         """
         Set the colors for masked (*bad*) values and, when ``norm.clip =

@@ -1,0 +1,16 @@
+In-place modifications of colormaps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Colormaps are planned to become immutable in the long term.
+
+As a first step, in-place modifications of colormaps are now pending-deprecated.
+This affects the following methods of `.Colormap`:
+
+- `.Colormap.set_bad` - use ``cmap.with_extremes(bad=...)`` instead
+- `.Colormap.set_under` - use ``cmap.with_extremes(under=...)`` instead
+- `.Colormap.set_over` - use ``cmap.with_extremes(over=...)`` instead
+- `.Colormap.set_extremes` - use ``cmap.with_extremes(...)`` instead
+
+Use the respective `.Colormap.with_extremes` and appropriate keyword arguments
+instead which returns a copy of the colormap (available since matplotlib 3.4).
+Alternatively, if you create the colormap yourself, you can also pass the
+respective arguments to the constructor (available since matplotlib 3.11).
