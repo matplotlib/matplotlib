@@ -717,6 +717,7 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
     bboxparent = layoutgrids[gs].get_bbox_for_cb(rows=cb_rspans,
                                                  cols=cb_cspans)
     pb = layoutgrids[gs].get_inner_bbox(rows=cb_rspans, cols=cb_cspans)
+    pb = parents[0].get_position()
 
     location = cbax._colorbar_info['location']
     anchor = cbax._colorbar_info['anchor']
