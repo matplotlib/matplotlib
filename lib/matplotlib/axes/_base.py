@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Sequence, Callable
 from contextlib import ExitStack
 import functools
 import inspect
@@ -7,7 +7,6 @@ from numbers import Real
 from operator import attrgetter
 import re
 import textwrap
-from typing import Callable
 import types
 
 import numpy as np
