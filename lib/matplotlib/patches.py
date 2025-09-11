@@ -2525,8 +2525,8 @@ class BoxStyle(_Style):
 
             if head_width < 0:
                 raise ValueError("The relative head width must be a positive number.")
-            else:
-                self.head_width = head_width
+
+            self.head_width = head_width
 
             # Set arrow-head angle to within [0, 360 deg)
             self.head_angle = head_angle % 360.
@@ -2668,8 +2668,8 @@ class BoxStyle(_Style):
 
             if head_width < 0:
                 raise ValueError("The relative head width must be a positive number.")
-            else:
-                self.head_width = head_width
+
+            self.head_width = head_width
 
             # Set arrow-head angle to within [0, 360 deg)
             self.head_angle = head_angle % 360.
