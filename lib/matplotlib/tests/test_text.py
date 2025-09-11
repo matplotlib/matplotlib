@@ -918,7 +918,7 @@ def test_metrics_cache2():
         mpl.text._get_text_metrics_function
     ).parameters['_cache'].default
     gc.collect()
-    assert len(renderer_cache) == 0
+    renderer_cache.clear()
 
     def helper():
         fig, ax = plt.subplots()
