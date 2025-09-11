@@ -11,10 +11,10 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 from collections import defaultdict
+from collections.abc import Callable
 import itertools
 import math
 import textwrap
-from typing import Callable
 import warnings
 
 import numpy as np
