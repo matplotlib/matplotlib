@@ -572,6 +572,41 @@ def test_PowerNorm():
     out = pnorm(a, clip=True)
     assert_array_equal(out.mask, [True, False])
 
+def test_PowerNorm_scale():
+    """Test that PowerNorm scale parameter works correctly."""
+    # Test basic functionality with scale parameter
+    a = np.array([1, 2, 3, 4], dtype=float)
+    
+    # Test with scale=1.0 (should be same as no scaling)
+    pnorm_no_scale = mcolors.PowerNorm(gamma=2, vmin=1, vmax=4, scale=1.0)
+    pnorm_baseline = mcolors.PowerNorm(gamma=2, vmin=1, vmax=4)
+    
+    # Results should be identical when scale=1.0
+    assert_array_almost_equal(pnorm_no_scale(a), pnorm_baseline(a))
+    
+    # Test with scale=2.0
+    pnorm_scaled = mcolors.PowerNorm(gamma=2, vmin=1, vmax=4, scale=2.0)
+    result_scaled = pnorm_scaled(a)
+    result_baseline = pnorm_baseline(a)
+    
+    # Results should be different when scale != 1.0
+    assert not np.allclose(result_scaled, result_baseline), \
+        "Scale parameter should change the normalization result"
+    
+    # Test that scaling works as expected
+    # When scale=2, input [1,2,3,4] becomes [2,4,6,8] before normalization
+    scaled_input = a * 2.0
+    pnorm_manual = mcolors.PowerNorm(gamma=2, vmin=1, vmax=4)
+    expected = pnorm_manual(scaled_input)
+    
+    assert_array_almost_equal(result_scaled, expected, decimal=10)
+    
+    # Test inverse works correctly with scaling
+    a_roundtrip = pnorm_scaled.inverse(pnorm_scaled(a))
+    assert_array_almost_equal(a, a_roundtrip, decimal=10)
+    
+    # Test that inverse preserves mask
+    assert_array_equal(a_roundtrip.mask, np.zeros(a.shape, dtype=bool))
 
 def test_PowerNorm_translation_invariance():
     a = np.array([0, 1/2, 1], dtype=float)
