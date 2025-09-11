@@ -4,6 +4,7 @@ import datetime
 import pytest
 import matplotlib.pyplot as plt
 
+
 def make_vpstats():
     """Create minimal valid stats for a violin plot."""
     datetimes = [
@@ -29,8 +30,11 @@ def make_vpstats():
         'quantiles': datetimes
     }]
 
+
 def test_datetime_positions_with_float_widths_raises():
-    """Test that datetime positions with float widths raise TypeError."""
+    """Test that datetime positions with
+    float widths raise TypeError.
+    """
     fig, ax = plt.subplots()
     try:
         vpstats = make_vpstats()
@@ -42,8 +46,11 @@ def test_datetime_positions_with_float_widths_raises():
     finally:
         plt.close(fig)
 
+
 def test_datetime_positions_with_scalar_float_width_raises():
-    """Test that datetime positions with scalar float width raise TypeError."""
+    """Test that datetime positions with scalar
+    float width raise TypeError.
+    """
     fig, ax = plt.subplots()
     try:
         vpstats = make_vpstats()
@@ -55,8 +62,11 @@ def test_datetime_positions_with_scalar_float_width_raises():
     finally:
         plt.close(fig)
 
+
 def test_numeric_positions_with_float_widths_ok():
-    """Test that numeric positions with float widths work."""
+    """Test that numeric positions with
+    float widths work.
+    """
     fig, ax = plt.subplots()
     try:
         vpstats = make_vpstats()
@@ -66,8 +76,11 @@ def test_numeric_positions_with_float_widths_ok():
     finally:
         plt.close(fig)
 
+
 def test_mixed_positions_datetime_and_numeric_behaves():
-    """Test that mixed datetime and numeric positions with float widths raise TypeError."""
+    """Test that mixed datetime and numeric positions with
+    float widths raise TypeError.
+    """
     fig, ax = plt.subplots()
     try:
         vpstats = make_vpstats()
