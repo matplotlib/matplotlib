@@ -2540,10 +2540,10 @@ class BoxStyle(_Style):
             pad = mutation_size * self.pad
             # add padding to width and height
             width, height = width + 2 * pad, height + 2 * pad
-            # boundary points of the padded box (arrow tail/body)
+            # boundary points of the padded box (used as arrow shaft)
             x0, y0 = x0 - pad, y0 - pad,
             x1, y1 = x0 + width, y0 + height
-            # half-width and quarter-width of arrow tail
+            # half-width and quarter-width of arrow shaft
             dx = (y1 - y0) / 2
             dxx = dx / 2
 
@@ -2570,8 +2570,8 @@ class BoxStyle(_Style):
                 # (dx+width_adjustment)/(dxx+angle_adjustment).
                 angle_adjustment = ((dx + width_adjustment) / tan_half_angle) - dxx
 
-                # If there is sufficient space available, shorten the arrow tail to push
-                # some of the padding margin into the head
+                # If there is sufficient space available, shorten the arrow shaft to
+                # push some of the padding margin into the head
                 if self.head_width > 1 and pad * tan_half_angle < width_adjustment:
                     # Pad original box into head
                     x0 += pad
@@ -2686,10 +2686,10 @@ class BoxStyle(_Style):
             pad = mutation_size * self.pad
             # add padding to height
             height = height + 2 * pad
-            # boundary points of the padded box (arrow tail/body)
+            # boundary points of the padded box (used as arrow shaft)
             x0, y0 = x0 - pad, y0 - pad
             x1, y1 = x0 + width, y0 + height
-            # half-width and quarter-width of arrow tail
+            # half-width and quarter-width of arrow shaft
             dx = (y1 - y0) / 2
             dxx = dx / 2
 
@@ -2717,8 +2717,8 @@ class BoxStyle(_Style):
                 # (dx+width_adjustment)/(dxx+angle_adjustment).
                 angle_adjustment = ((dx + width_adjustment) / tan_half_angle) - dxx
 
-                # If there is sufficient space available, shorten the arrow tail to push
-                # some of the padding margin into the heads
+                # If there is sufficient space available, shorten the arrow shaft to
+                # push some of the padding margin into the heads
                 if self.head_width > 1 and pad * tan_half_angle < width_adjustment:
                     # Pad original box into heads
                     x0 += pad
