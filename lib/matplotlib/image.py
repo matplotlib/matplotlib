@@ -286,6 +286,20 @@ class PcolorImageContainer(ImageContainer):
         }
 
 
+@dataclass
+class FigureImageContainer(ImageContainer):
+    def describe(self):
+        imshape = list(self.image.shape)
+        imshape[:2] = ("M", "N")
+
+        return {
+            "x": Desc((), "data"),
+            "y": Desc((), "data"),
+            "image": Desc(tuple(imshape), "data"),
+        }
+
+
+
 class _ImageBase(mcolorizer.ColorizingArtist):
     """
     Base class for images.
@@ -358,6 +372,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
     def _get_graph(self):
         # TODO see about getting rid of self.axes
+        # TODO move to cbook or similar
         ax = self.axes
         if ax is None:
             return Graph([])
@@ -1516,39 +1531,47 @@ class FigureImage(_ImageBase):
             origin=origin
         )
         self.set_figure(fig)
-        self.ox = offsetx
-        self.oy = offsety
+        self._container = FigureImageContainer(
+            np.array(offsetx),
+            np.array(offsety),
+            np.array([[]]),
+        )
         self._internal_update(kwargs)
         self.magnification = 1.0
 
     def get_extent(self):
         """Return the image extent as tuple (left, right, bottom, top)."""
-        numrows, numcols = self.get_size()
-        return (-0.5 + self.ox, numcols-0.5 + self.ox,
-                -0.5 + self.oy, numrows-0.5 + self.oy)
+        q, _ = self._container.query(self._get_graph())
+        ox = q["x"]
+        oy = q["y"]
+        A = q["image"]
+
+        numrows, numcols, *_ = A.shape
+        return (-0.5 + ox, numcols-0.5 + ox,
+                -0.5 + oy, numrows-0.5 + oy)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
+        q, _ = self._container.query(self._get_graph())
+        ox = q["x"]
+        oy = q["y"]
+        A = q["image"]
+
         fig = self.get_figure(root=True)
         fac = renderer.dpi/fig.dpi
         # fac here is to account for pdf, eps, svg backends where
         # figure.dpi is set to 72.  This means we need to scale the
         # image (using magnification) and offset it appropriately.
-        bbox = Bbox([[self.ox/fac, self.oy/fac],
-                     [(self.ox/fac + self._A.shape[1]),
-                     (self.oy/fac + self._A.shape[0])]])
+        bbox = Bbox([[ox/fac, oy/fac],
+                     [(ox/fac + A.shape[1]),
+                     (oy/fac + A.shape[0])]])
         width, height = fig.get_size_inches()
         width *= renderer.dpi
         height *= renderer.dpi
         clip = Bbox([[0, 0], [width, height]])
         return self._make_image(
-            self._A, bbox, bbox, clip, magnification=magnification / fac,
+            A, bbox, bbox, clip, magnification=magnification / fac,
             unsampled=unsampled, round_to_pixel_border=False)
-
-    def set_data(self, A):
-        """Set the image array."""
-        super().set_data(A)
-        self.stale = True
 
 
 class BboxImage(_ImageBase):
@@ -1625,6 +1648,12 @@ class BboxImage(_ImageBase):
         )
         self.bbox = bbox
 
+        self._container = ImageContainer(
+            np.asarray([]),  # Unused for BboxImage, kept for container hierarchy
+            np.asarray([]),  # Unused for BboxImage, kept for container hierarchy
+            np.asarray([[]]),
+        )
+
     def get_window_extent(self, renderer=None):
         if isinstance(self.bbox, BboxBase):
             return self.bbox
@@ -1645,6 +1674,9 @@ class BboxImage(_ImageBase):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
+        q, _ = self._container.query(self._get_graph())
+        A = q["image"]
+
         width, height = renderer.get_canvas_width_height()
         bbox_in = self.get_window_extent(renderer).frozen()
         bbox_in._points /= [width, height]
@@ -1652,7 +1684,7 @@ class BboxImage(_ImageBase):
         clip = Bbox([[0, 0], [width, height]])
         self._transform = BboxTransformTo(clip)
         return self._make_image(
-            self._A,
+            A,
             bbox_in, bbox_out, clip, magnification, unsampled=unsampled)
 
 
