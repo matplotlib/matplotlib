@@ -6,6 +6,7 @@ from matplotlib.transforms import Transform
 from matplotlib.projections.polar import _AxisWrapper
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 class _DummyAxis:
     __name__: str
@@ -296,6 +297,26 @@ class AutoMinorLocator(Locator):
     ndivs: int
     def __init__(self, n: int | None = ...) -> None: ...
 
+class WilkinsonLocator(Locator):
+    target_ticks: int
+    steps: ArrayLike
+    weights: ArrayLike
+    tick_range: ArrayLike
+    def __init__(
+        self, 
+        target_ticks: int = ...,
+        steps: ArrayLike = ...,
+        weights: ArrayLike = ...,
+        tick_range: ArrayLike =...
+    ) -> None: ...
+    def set_params(
+        self,
+        target_ticks: int | None = ...,
+        steps: ArrayLike | None = ...,
+        weights: ArrayLike | None = ...,
+        tick_range: ArrayLike | None = ...
+    ) -> None : ...
+
 __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
            'StrMethodFormatter', 'ScalarFormatter', 'LogFormatter',
@@ -305,4 +326,5 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator', 'AsinhLocator', 'LogitLocator')
+           'SymmetricalLogLocator', 'AsinhLocator', 'LogitLocator',
+           'WilkinsonLocator')
