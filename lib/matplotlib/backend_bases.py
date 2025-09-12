@@ -2592,7 +2592,7 @@ def scroll_handler(event, canvas=None, toolbar=None):
         # is required for interactive navigation.
         return
 
-    if event.key in {"control", "x", "X", "y", "Y"}:  # zoom towards the mouse position
+    if event.key in {"control", "x", "y"}:  # zoom towards the mouse position
         toolbar.push_current()
 
         xmin, xmax = ax.get_xlim()
