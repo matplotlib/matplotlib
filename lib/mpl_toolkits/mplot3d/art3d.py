@@ -97,6 +97,33 @@ def _viewlim_mask(xs, ys, zs, axes):
     return mask
 
 
+def _clip_to_axes_bbox(axes, paths):
+    """
+    Return an Axes-clipped copy of paths.
+
+    Parameters
+    ----------
+    axes : Axes3D
+        The axes to clip the paths against.
+    paths : array-like
+        A list of polygons, each comprised of a path of vertices. May also be a 3D NumPy
+        array, if all polygons contain paths of the same length.
+
+    Returns
+    -------
+    list of np.ndarray
+        A copy of *paths* with each polygon clipped to the *axes*.
+    """
+    result = mpath._path.clip_paths_to_box(
+        paths,
+        [axes.xy_viewLim.intervalx,
+         axes.xy_viewLim.intervaly,
+         axes.zz_viewLim.intervalx],
+        True)  # TODO: Pass in mask?
+
+    return result
+
+
 class Text3D(mtext.Text):
     """
     Text object with 3D position and direction.
@@ -580,9 +607,11 @@ class Patch3D(Patch):
     def do_3d_projection(self):
         s = self._segment3d
         if self._axlim_clip:
-            mask = _viewlim_mask(*zip(*s), self.axes)
-            xs, ys, zs = np.ma.array(zip(*s),
-                                     dtype=float, mask=mask).filled(np.nan)
+            clipped = _clip_to_axes_bbox(self.axes, [s])
+            if not clipped:
+                self._path2d = mpath.Path(np.empty((0, 2)))
+                return 0
+            xs, ys, zs = clipped[0].T
         else:
             xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
@@ -1339,22 +1368,28 @@ class Poly3DCollection(PolyCollection):
             if self._edge_is_mapped:
                 self._edgecolor3d = self._edgecolors
 
-        needs_masking = np.any(self._invalid_vertices)
-        num_faces = len(self._faces)
-        mask = self._invalid_vertices
+        if self._axlim_clip:
+            # TODO: Apply `self._invalid_vertices` for proper masking.
+            pfaces = _clip_to_axes_bbox(self.axes, self._faces)
+            num_faces = len(pfaces)
+            num_verts = np.fromiter(map(len, pfaces), dtype=np.intp)
+            max_verts = num_verts.max(initial=0)
+            segments = np.empty((num_faces, max_verts, 3))
+            for i, face in enumerate(pfaces):
+                segments[i, :len(face)] = face
+            pfaces = segments
+            mask = np.arange(max_verts) >= num_verts[:, None]
+            needs_masking = np.any(mask)
+        else:
+            pfaces = self._faces
+            needs_masking = np.any(self._invalid_vertices)
+            num_faces = len(self._faces)
+            mask = self._invalid_vertices
 
         # Some faces might contain masked vertices, so we want to ignore any
         # errors that those might cause
         with np.errstate(invalid='ignore', divide='ignore'):
-            pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
-
-        if self._axlim_clip:
-            viewlim_mask = _viewlim_mask(self._faces[..., 0], self._faces[..., 1],
-                                         self._faces[..., 2], self.axes)
-            if np.any(viewlim_mask):
-                needs_masking = True
-                mask = mask | viewlim_mask
-
+            pfaces = proj3d._proj_transform_vectors(pfaces, self.axes.M)
         pzs = pfaces[..., 2]
         if needs_masking:
             pzs = np.ma.MaskedArray(pzs, mask=mask)
@@ -1385,8 +1420,7 @@ class Poly3DCollection(PolyCollection):
         if self._codes3d is not None and len(self._codes3d) > 0:
             if needs_masking:
                 segment_mask = ~mask[face_order, :]
-                faces_2d = [face[mask, :] for face, mask
-                               in zip(faces_2d, segment_mask)]
+                faces_2d = [face[mask, :] for face, mask in zip(faces_2d, segment_mask)]
             codes = [self._codes3d[idx] for idx in face_order]
             PolyCollection.set_verts_and_codes(self, faces_2d, codes)
         else:
