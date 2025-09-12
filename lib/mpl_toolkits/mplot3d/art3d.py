@@ -607,9 +607,11 @@ class Patch3D(Patch):
     def do_3d_projection(self):
         s = self._segment3d
         if self._axlim_clip:
-            mask = _viewlim_mask(*zip(*s), self.axes)
-            xs, ys, zs = np.ma.array(zip(*s),
-                                     dtype=float, mask=mask).filled(np.nan)
+            clipped = _clip_to_axes_bbox(self.axes, [s])
+            if not clipped:
+                self._path2d = mpath.Path(np.empty((0, 2)))
+                return 0
+            xs, ys, zs = clipped[0].T
         else:
             xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
