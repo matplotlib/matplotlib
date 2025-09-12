@@ -2605,8 +2605,8 @@ def scroll_handler(event, canvas=None, toolbar=None):
 
         scale_factor = 0.85 ** event.step
         # Determine which axes to scale based on key
-        zoom_x = event.key in {"control", "x", "X"}
-        zoom_y = event.key in {"control", "y", "Y"}
+        zoom_x = event.key in {"control", "x"}
+        zoom_y = event.key in {"control", "y"}
 
         if zoom_x:
             new_xmin = x - (x - xmin) * scale_factor
