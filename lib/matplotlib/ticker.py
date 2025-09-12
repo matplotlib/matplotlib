@@ -154,7 +154,8 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator', 'AsinhLocator', 'LogitLocator')
+           'SymmetricalLogLocator', 'AsinhLocator', 'LogitLocator',
+           'WilkinsonLocator')
 
 
 class _DummyAxis:
@@ -3042,3 +3043,254 @@ class AutoMinorLocator(Locator):
     def tick_values(self, vmin, vmax):
         raise NotImplementedError(
             f"Cannot get tick locations for a {type(self).__name__}")
+
+class WilkinsonLocator(Locator):
+    """
+    Place ticks following the algorithm created by Wilkinson and extended by Talbot et al.
+    Primarily focuses on balancing four weights: simplicity, coverage, density, and legibility
+    """
+
+    def __init__(self, target_ticks=5, steps=None, weights=None, tick_range=None):
+        """
+        Parameters
+        ----------
+        target_ticks : int, default: 5
+            Target number of ticks
+        steps : array-like, default: [1, 5, 2, 2.5, 4, 3]
+            Preference-ordered list of nice step sizes.
+        weights : array-like, default: [0.2, 0.25, 0.5, 0.05]
+            Weights for [simplicity, coverage, density, legibility] components.
+            *   Simplicity: Favors round numbers from the steps list and sequences
+                that include zero when the range crosses zero
+            *   Coverage: Ensurees labels appropriately span the data range without
+                excessive whitespace
+            *   Density: Controls spacing to match the target tick density
+            *   Legibility: Prevents overlapping labels
+            If fewer than 4 weights are provided, missing values are filled with
+            defaults. If more than 4 are provided, only the first 4 are used.
+        tick_range : array-like, default: None
+            Range of ticks to use for tick marks
+        """
+        if steps is None:
+            steps = [1, 5, 2, 2.5, 4, 3]
+        if weights is None:
+            weights = [0.2, 0.25, 0.5, 0.05]
+        if tick_range is None:
+            tick_range = np.arange(max(np.floor(target_ticks / 2), 2), np.ceil(target_ticks * 6))
+
+        self.target_ticks = target_ticks
+        self.steps = np.asarray(steps, dtype=float)
+        self.weights = np.asarray(weights, dtype=float)
+        self.tick_range = tick_range
+        print("Initializing...")
+
+    def set_params(self, target_ticks=None, steps=None, weights=None, tick_range=None):
+        """
+        Set parameters within this locator.
+        ----------
+        target_ticks : int, default: 5
+            Target number of ticks
+        steps : array-like, default: [1, 5, 2, 2.5, 4, 3]
+            Preference-ordered list of nice step sizes.
+        weights : array-like, default: [0.2, 0.25, 0.5, 0.05]
+            Weights for [simplicity, coverage, density, legibility] components.
+            *   Simplicity: Favors round numbers from the steps list and sequences
+                that include zero when the range crosses zero
+            *   Coverage: Ensurees labels appropriately span the data range without
+                excessive whitespace
+            *   Density: Controls spacing to match the target tick density
+            *   Legibility: Prevents overlapping labels
+            If fewer than 4 weights are provided, missing values are filled with
+            defaults. If more than 4 are provided, only the first 4 are used.
+        tick_range : array-like, default: None
+            Range of ticks to use for tick marks
+        """
+        if target_ticks is not None:
+            self.target_ticks = target_ticks
+        if steps is not None:
+            self.steps = np.asarray(steps, dtype=float)
+        if weights is not None:
+            self.weights = np.asarray(weights, dtype=float)
+        if tick_range is not None:
+            self.tick_range = tick_range
+
+    def __call__(self):
+        vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
+
+    def tick_values(self, vmin, vmax):
+        best = dict()
+        best["score"] = -2
+        s_weight = self.weights[0]
+        c_weight = self.weights[1]
+        d_weight = self.weights[2]
+        l_weight = self.weights[3]
+
+        skip_amount = 1
+        while skip_amount < np.inf:
+            for step in self.steps:
+                s_max = self._simplicity_max(step, skip_amount)
+                if s_weight * s_max + c_weight + d_weight + l_weight < best["score"]:
+                    skip_amount = np.inf
+                    break
+
+                num_ticks = 2
+                while num_ticks < np.inf:
+                    d_max = self._density_max(num_ticks)
+                    if s_weight * s_max + c_weight + d_weight * d_max + l_weight < best["score"]:
+                        break
+
+                    scaling_factor = np.ceil(np.log10((vmax - vmin) / (num_ticks + 1) / skip_amount / step))
+
+                    while scaling_factor < np.inf:
+                        lstep = skip_amount * step * 10 ** scaling_factor
+                        c_max = self._coverage_max(vmin, vmax, lstep * (num_ticks - 1))
+                        if s_weight * s_max + c_weight * c_max + d_weight * d_max + l_weight < best["score"]:
+                            break
+
+                        min_start = skip_amount * (np.floor(vmax / lstep) - (num_ticks - 1))
+                        max_start = skip_amount * np.ceil(vmin / lstep)
+
+                        if min_start > max_start:
+                            scaling_factor = scaling_factor + 1
+                            continue
+
+                        for start in np.arange(min_start, max_start + 1):
+                            lmin = start * (lstep / skip_amount)
+                            lmax = lmin + lstep * (num_ticks - 1)
+
+                            coverage = self._coverage(vmin, vmax, lmin, lmax)
+                            simplicity = self._simplicity(step, skip_amount, lmin, lmax, lstep)
+                            density = self._density(vmin, vmax, lmin, lmax, num_ticks)
+                            legibility = self._legibility(lmin, lmax, lstep)
+
+                            score = (s_weight * simplicity + c_weight * coverage
+                                     + d_weight * density + l_weight * legibility)
+                            if score > best["score"] and (lmin <= vmin and lmax >= vmax):
+                                best = {
+                                    "lmin": lmin,
+                                    "lmax": lmax,
+                                    "lstep": lstep,
+                                    "score": score,
+                                }
+                        scaling_factor += 1
+                    num_ticks += 1
+            skip_amount += 1
+        return np.arange(best["lmin"], best["lmax"] + best["lstep"], best["lstep"])
+
+    def _simplicity(self, step, skip_amount, lmin, lmax, lstep):
+        eps = 1e-10
+        step_count = len(self.steps)
+        matches = np.where(self.steps == step)[0]
+        step_index = matches[0] if len(matches) > 0 else None
+        if step_index is None:
+            return None
+        includes_zero = 1 if lmin % lstep < eps and lmin <= 0 <= lmax else 0
+
+        return 1 - step_index / (step_count - 1) - skip_amount + includes_zero
+
+    def _simplicity_max(self, step, skip_amount):
+        step_count = len(self.steps)
+        matches = np.where(self.steps == step)[0]
+        step_index = matches[0] if len(matches) > 0 else None
+        if step_index is None:
+            return None
+        v = 1
+
+        return 1 - step_index / (step_count - 1) - skip_amount + 1
+
+    def _coverage(self, vmin, vmax, lmin, lmax):
+        v_range = vmax - vmin
+        return 1 - 0.5 * ((vmax - lmax) ** 2 + (vmin - lmin) ** 2) / ((0.1 * v_range) ** 2)
+
+    def _coverage_max(self, vmin, vmax, span):
+        v_range = vmax - vmin
+        if span > v_range:
+            half = (span - v_range) / 2
+            return 1 - 0.5 * (half ** 2 + half ** 2) / ((0.1 * v_range) ** 2)
+        return 1
+
+    def _density(self, vmin, vmax, lmin, lmax, num_ticks):
+        r = (num_ticks - 1) / (lmax - lmin)
+        rt = (self.target_ticks - 1) / (max(lmax, vmax) - min(lmin, vmin))
+        return 2 - max(r / rt, rt / r)
+
+    def _density_max(self, num_ticks):
+        if num_ticks >= self.target_ticks:
+            return 2 - (num_ticks - 1) / (self.target_ticks - 1)
+        return 1
+
+    def _legibility(self, lmin, lmax, lstep):
+        ticks = np.arange(lmin, lmax + lstep, lstep)
+
+        format_score = self._format_legibility(ticks)
+        # font_size
+        # orientation
+        # overlap
+
+        return format_score
+
+    def _format_legibility(self, ticks):
+        if len(ticks) == 0:
+            return 1.0
+
+        abs_max = max(abs(tick) for tick in ticks if tick != 0) if any(tick != 0 for tick in ticks) else 1.0
+        abs_min = min(abs(tick) for tick in ticks if tick != 0) if any(tick != 0 for tick in ticks) else 1.0
+
+        score = 0.8
+        if  1e-4 <= abs_min and 1e-4 <= abs_max < 1e6:
+            score = 1.0
+        elif 1e3 <= abs_min and abs_max < 1e6:
+            score = 0.75
+        elif 1e6 <= abs_min and abs_max < 1e9:
+            score = 0.75
+        elif abs_min <= 1e-4 and abs_max >= 1e6:
+            score = 0.25
+
+        includes_zero = any(abs(tick) < 1e-10 for tick in ticks)
+        if includes_zero:
+            score += 0.1
+
+        decimal_places = []
+        for tick in ticks:
+            if tick == 0:
+                decimal_places.append(0)
+            else:
+                str_tick = f"{tick:.10f}".rstrip('0').rstrip('.')
+                if '.' in str_tick:
+                    decimal_places.append(len(str_tick.split('.')[1]))
+                else:
+                    decimal_places.append(0)
+
+        if len(set(decimal_places)) == 1:
+            score += 0.05
+
+        return min(score, 1.0)
+
+    def _overlap_score(self, ticks):
+        sorted_ticks = np.sort(ticks)
+
+        axis_length = self._get_axis_length()
+        tick_range = sorted_ticks[-1] - sorted_ticks[0]
+
+        if tick_range <= 0:
+            return 1.0
+
+        min_spacing_em = 1.5
+        min_score = 1.0
+
+        for i in range(len(sorted_ticks) - 1):
+            tick_diff = sorted_ticks[i + 1] - sorted_ticks[i]
+
+            spacing_em = (tick_diff / tick_range) * axis_length / 12
+
+            if spacing_em <= 0:
+                return -np.inf
+            elif spacing_em < min_spacing_em:
+                score = 2 - min_spacing_em / spacing_em
+            else:
+                score = 1.0
+
+            min_score = min(min_score, score)
+
+        return min_score
