@@ -3228,6 +3228,12 @@ class NavigationToolbar2:
         elif key == "y":
             x1, x2 = ax.bbox.intervalx
 
+        # Single-axis zooms by moving less than 20 pixels
+        if (abs(event.x - start_xy[0]) < 20):
+            x1, x2 = ax.bbox.intervalx
+        elif (abs(event.y - start_xy[1]) < 20):
+            y1, y2 = ax.bbox.intervaly
+
         self.draw_rubberband(event, x1, y1, x2, y2)
 
     def release_zoom(self, event):
@@ -3249,12 +3255,6 @@ class NavigationToolbar2:
             key = "x"
         elif self._zoom_info.cbar == "vertical":
             key = "y"
-        # Ignore single clicks: 5 pixels is a threshold that allows the user to
-        # "cancel" a zoom action by zooming by less than 5 pixels.
-        if ((abs(event.x - start_x) < 5 and key != "y") or
-                (abs(event.y - start_y) < 5 and key != "x")):
-            self._cleanup_post_zoom()
-            return
 
         for i, ax in enumerate(self._zoom_info.axes):
             # Detect whether this Axes is twinned with an earlier Axes in the
@@ -3263,8 +3263,14 @@ class NavigationToolbar2:
                         for prev in self._zoom_info.axes[:i])
             twiny = any(ax.get_shared_y_axes().joined(ax, prev)
                         for prev in self._zoom_info.axes[:i])
+            # Handle release of single axis zooms
+            end_x, end_y = event.x, event.y
+            if abs(end_x - start_x) < 20:
+                start_x, end_x = ax.bbox.intervalx
+            if abs(end_y - start_y) < 20:
+                start_y, end_y = ax.bbox.intervaly
             ax._set_view_from_bbox(
-                (start_x, start_y, event.x, event.y),
+                (start_x, start_y, end_x, end_y),
                 direction, key, twinx, twiny)
 
         self._cleanup_post_zoom()
