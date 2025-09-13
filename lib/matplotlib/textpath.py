@@ -39,11 +39,9 @@ class TextToPath:
     def _get_hinting_flag(self):
         return LoadFlags.NO_HINTING
 
-    def _get_char_id(self, font, ccode):
-        """
-        Return a unique id for the given font and character-code set.
-        """
-        return urllib.parse.quote(f"{font.postscript_name}-{ccode:x}")
+    def _get_glyph_repr(self, font, glyph):
+        """Return a unique id for the given font and glyph index."""
+        return urllib.parse.quote(f"{font.postscript_name}-{glyph:x}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
         fontsize = prop.get_size_in_points()
@@ -114,8 +112,8 @@ class TextToPath:
             glyph_info, glyph_map, rects = self.get_glyphs_mathtext(prop, s)
 
         verts, codes = [], []
-        for glyph_id, xposition, yposition, scale in glyph_info:
-            verts1, codes1 = glyph_map[glyph_id]
+        for glyph_repr, xposition, yposition, scale in glyph_info:
+            verts1, codes1 = glyph_map[glyph_repr]
             verts.extend(verts1 * scale + [xposition, yposition])
             codes.extend(codes1)
         for verts1, codes1 in rects:
@@ -144,20 +142,20 @@ class TextToPath:
             glyph_map_new = glyph_map
 
         xpositions = []
-        glyph_ids = []
+        glyph_reprs = []
         for item in _text_helpers.layout(s, font):
-            char_id = self._get_char_id(item.ft_object, ord(item.char))
-            glyph_ids.append(char_id)
+            glyph_repr = self._get_glyph_repr(item.ft_object, item.glyph_index)
+            glyph_reprs.append(glyph_repr)
             xpositions.append(item.x)
-            if char_id not in glyph_map:
-                glyph_map_new[char_id] = item.ft_object.get_path()
+            if glyph_repr not in glyph_map:
+                glyph_map_new[glyph_repr] = item.ft_object.get_path()
 
         ypositions = [0] * len(xpositions)
         sizes = [1.] * len(xpositions)
 
         rects = []
 
-        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
+        return (list(zip(glyph_reprs, xpositions, ypositions, sizes)),
                 glyph_map_new, rects)
 
     def get_glyphs_mathtext(self, prop, s, glyph_map=None,
@@ -182,20 +180,20 @@ class TextToPath:
 
         xpositions = []
         ypositions = []
-        glyph_ids = []
+        glyph_reprs = []
         sizes = []
 
-        for font, fontsize, ccode, ox, oy in glyphs:
-            char_id = self._get_char_id(font, ccode)
-            if char_id not in glyph_map:
+        for font, fontsize, ccode, glyph_index, ox, oy in glyphs:
+            glyph_repr = self._get_glyph_repr(font, glyph_index)
+            if glyph_repr not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
-                font.load_char(ccode, flags=LoadFlags.NO_HINTING)
-                glyph_map_new[char_id] = font.get_path()
+                font.load_glyph(glyph_index, flags=LoadFlags.NO_HINTING)
+                glyph_map_new[glyph_repr] = font.get_path()
 
             xpositions.append(ox)
             ypositions.append(oy)
-            glyph_ids.append(char_id)
+            glyph_reprs.append(glyph_repr)
             size = fontsize / self.FONT_SCALE
             sizes.append(size)
 
@@ -208,7 +206,7 @@ class TextToPath:
                      Path.CLOSEPOLY]
             myrects.append((vert1, code1))
 
-        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
+        return (list(zip(glyph_reprs, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
 
     def get_glyphs_tex(self, prop, s, glyph_map=None,
@@ -228,21 +226,20 @@ class TextToPath:
         else:
             glyph_map_new = glyph_map
 
-        glyph_ids, xpositions, ypositions, sizes = [], [], [], []
+        glyph_reprs, xpositions, ypositions, sizes = [], [], [], []
 
         # Gather font information and do some setup for combining
         # characters into strings.
-        t1_encodings = {}
         for text in page.text:
             font = get_font(text.font_path)
-            char_id = self._get_char_id(font, text.glyph)
-            if char_id not in glyph_map:
+            glyph_repr = self._get_glyph_repr(font, text.index)
+            if glyph_repr not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
                 font.load_glyph(text.index, flags=LoadFlags.TARGET_LIGHT)
-                glyph_map_new[char_id] = font.get_path()
+                glyph_map_new[glyph_repr] = font.get_path()
 
-            glyph_ids.append(char_id)
+            glyph_reprs.append(glyph_repr)
             xpositions.append(text.x)
             ypositions.append(text.y)
             sizes.append(text.font_size / self.FONT_SCALE)
@@ -257,7 +254,7 @@ class TextToPath:
                      Path.CLOSEPOLY]
             myrects.append((vert1, code1))
 
-        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
+        return (list(zip(glyph_reprs, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
 
 

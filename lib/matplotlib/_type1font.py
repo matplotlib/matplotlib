@@ -837,17 +837,16 @@ class Type1Font:
 
         return bytes(data[:len0]), bytes(data[len0:])
 
-    def subset(self, characters, name_prefix):
+    def subset(self, glyph_indices, name_prefix):
         """
-        Return a new font that only defines the given characters.
+        Return a new font that only defines the given glyph indices.
 
         Parameters
         ----------
-        characters : sequence of bytes
-            The subset of characters to include. These are indices into the
-            font's encoding array. The encoding array of a Type-1 font can
-            only include 256 characters, but other glyphs may be accessed
-            via the seac operator.
+        glyph_indices : sequence of bytes
+            The subset of glyph indices to include. The encoding array of a Type-1 font
+            can only include 256 characters, but other glyphs may be accessed via the
+            seac operator.
         name_prefix : str
             Prefix to prepend to the font name.
 
@@ -855,17 +854,16 @@ class Type1Font:
         -------
         `Type1Font`
         """
-        characters = frozenset(characters)
+        glyph_indices = frozenset(glyph_indices)
         if _log.isEnabledFor(logging.DEBUG):
             _log.debug(
-                "Subsetting font %s to characters %s = %s",
+                "Subsetting font %s to glyph indices %s",
                 self.prop['FontName'],
-                sorted(characters),
-                [self.prop['Encoding'].get(code) for code in sorted(characters)],
+                sorted(glyph_indices),
             )
         encoding = {code: glyph
                     for code, glyph in self.prop['Encoding'].items()
-                    if code in characters}
+                    if glyph in glyph_indices}
         encoding[0] = '.notdef'
         # todo and done include strings (glyph names)
         todo = set(encoding.values())
