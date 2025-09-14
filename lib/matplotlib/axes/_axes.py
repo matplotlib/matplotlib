@@ -9052,9 +9052,8 @@ such objects
         # widths must be timedelta-like.
         if any(isinstance(p, (datetime.datetime, datetime.date))
                for p in positions):
-            _widths = widths if not np.isscalar(widths) else [widths] * N
-            if any(not isinstance(w, (datetime.timedelta, np.timedelta64))
-                   for w in _widths):
+            _widths = widths if not np.isscalar(widths) else [widths]
+            if not isinstance(_widths[0], (datetime.timedelta)):
                 raise TypeError(
                     "If positions are datetime/date values, pass widths as "
                     "datetime.timedelta (e.g., datetime.timedelta(days=10))"
