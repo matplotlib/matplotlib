@@ -259,6 +259,9 @@ class FigureCanvasTk(FigureCanvasBase):
 
         self._rubberband_rect_black = None
         self._rubberband_rect_white = None
+        self._whisker_line = None
+        self._whisker_cap1 = None
+        self._whisker_cap2 = None
 
     def _update_device_pixel_ratio(self, event=None):
         ratio = None
@@ -765,6 +768,41 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             self.canvas._tkcanvas.create_rectangle(
                 x0, y0, x1, y1, outline='white', dash=(3, 3)))
 
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws=20):
+        if self.canvas._whisker_line:
+            self.canvas._tkcanvas.delete(self.canvas._whisker_line)
+        if self.canvas._whisker_cap1:
+            self.canvas._tkcanvas.delete(self.canvas._whisker_cap1)
+        if self.canvas._whisker_cap2:
+            self.canvas._tkcanvas.delete(self.canvas._whisker_cap2)
+        height = self.canvas.figure.bbox.height
+        y0 = height - y0
+        y1 = height - y1
+        self.canvas._whisker_line = (
+            self.canvas._tkcanvas.create_line(x0, y0, x1, y1, fill='black', width=2)
+        )
+        if x1 == x0:  # vertical line
+            self.canvas._whisker_cap1 = (
+                self.canvas._tkcanvas.create_line(
+                    x0 - ws//2, y0, x0 + ws//2, y0, fill='black', width=2)
+            )
+            self.canvas._whisker_cap2 = (
+                self.canvas._tkcanvas.create_line(
+                    x1 - ws//2, y1, x1 + ws//2, y1, fill='black', width=2)
+            )
+        elif y1 == y0:  # horizontal line
+            self.canvas._whisker_cap1 = (
+                self.canvas._tkcanvas.create_line(
+                    x0, y0 - ws//2, x0, y0 + ws//2, fill='black', width=2)
+            )
+            self.canvas._whisker_cap2 = (
+                self.canvas._tkcanvas.create_line(
+                    x1, y1 - ws//2, x1, y1 + ws//2, fill='black', width=2)
+            )
+        else:  # Don't draw anything
+            self.canvas._tkcanvas.delete(self.canvas._whisker_line)
+            self.canvas._whisker_line = None
+
     def remove_rubberband(self):
         if self.canvas._rubberband_rect_white:
             self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_white)
@@ -772,6 +810,17 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if self.canvas._rubberband_rect_black:
             self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_black)
             self.canvas._rubberband_rect_black = None
+
+    def remove_whiskers(self):
+        if self.canvas._whisker_line:
+            self.canvas._tkcanvas.delete(self.canvas._whisker_line)
+            self.canvas._whisker_line = None
+        if self.canvas._whisker_cap1:
+            self.canvas._tkcanvas.delete(self.canvas._whisker_cap1)
+            self.canvas._whisker_cap1 = None
+        if self.canvas._whisker_cap2:
+            self.canvas._tkcanvas.delete(self.canvas._whisker_cap2)
+            self.canvas._whisker_cap2 = None
 
     def _set_image_for_button(self, button):
         """
