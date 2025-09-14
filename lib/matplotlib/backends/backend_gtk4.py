@@ -53,6 +53,8 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
 
         self._idle_draw_id = 0
         self._rubberband_rect = None
+        self._whiskers = None
+        self._whisker_size = 20
 
         self.set_draw_func(self._draw_func)
         self.connect('resize', self.resize_event)
@@ -269,41 +271,66 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         # TODO: Only update the rubberband area.
         self.queue_draw()
 
+    def _draw_whiskers(self, whisk, ws=20):
+        self._whiskers = whisk
+        self._whisker_size = ws
+        self.queue_draw()
+
     def _draw_func(self, drawing_area, ctx, width, height):
         self.on_draw_event(self, ctx)
         self._post_draw(self, ctx)
 
     def _post_draw(self, widget, ctx):
-        if self._rubberband_rect is None:
-            return
+        if self._rubberband_rect:
 
-        lw = 1
-        dash = 3
-        x0, y0, w, h = (dim / self.device_pixel_ratio
-                        for dim in self._rubberband_rect)
-        x1 = x0 + w
-        y1 = y0 + h
+            lw = 1
+            dash = 3
+            x0, y0, w, h = (dim / self.device_pixel_ratio
+                            for dim in self._rubberband_rect)
+            x1 = x0 + w
+            y1 = y0 + h
 
-        # Draw the lines from x0, y0 towards x1, y1 so that the
-        # dashes don't "jump" when moving the zoom box.
-        ctx.move_to(x0, y0)
-        ctx.line_to(x0, y1)
-        ctx.move_to(x0, y0)
-        ctx.line_to(x1, y0)
-        ctx.move_to(x0, y1)
-        ctx.line_to(x1, y1)
-        ctx.move_to(x1, y0)
-        ctx.line_to(x1, y1)
+            # Draw the lines from x0, y0 towards x1, y1 so that the
+            # dashes don't "jump" when moving the zoom box.
+            ctx.move_to(x0, y0)
+            ctx.line_to(x0, y1)
+            ctx.move_to(x0, y0)
+            ctx.line_to(x1, y0)
+            ctx.move_to(x0, y1)
+            ctx.line_to(x1, y1)
+            ctx.move_to(x1, y0)
+            ctx.line_to(x1, y1)
 
-        ctx.set_antialias(1)
-        ctx.set_line_width(lw)
-        ctx.set_dash((dash, dash), 0)
-        ctx.set_source_rgb(0, 0, 0)
-        ctx.stroke_preserve()
+            ctx.set_antialias(1)
+            ctx.set_line_width(lw)
+            ctx.set_dash((dash, dash), 0)
+            ctx.set_source_rgb(0, 0, 0)
+            ctx.stroke_preserve()
 
-        ctx.set_dash((dash, dash), dash)
-        ctx.set_source_rgb(1, 1, 1)
-        ctx.stroke()
+            ctx.set_dash((dash, dash), dash)
+            ctx.set_source_rgb(1, 1, 1)
+            ctx.stroke()
+
+        if self._whiskers:
+            x0, y0, x1, y1 = (dim / self.device_pixel_ratio
+                              for dim in self._whiskers)
+            ws = self._whisker_size / self.device_pixel_ratio
+
+            ctx.set_antialias(1)
+            ctx.set_line_width(2)
+            ctx.set_source_rgb(0, 0, 0)
+
+            # vertical line
+            ctx.move_to(x0, y0)
+            ctx.line_to(x0, y1)
+            # horizontal line
+            ctx.move_to(x0 - ws, y0)
+            ctx.line_to(x0 + ws, y0)
+            # horizontal line
+            ctx.move_to(x1 - ws, y1)
+            ctx.line_to(x1 + ws, y1)
+
+            ctx.stroke()
 
     def on_draw_event(self, widget, ctx):
         # to be overwritten by GTK4Agg or GTK4Cairo

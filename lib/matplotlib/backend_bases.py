@@ -2935,11 +2935,12 @@ class NavigationToolbar2:
     def remove_rubberband(self):
         """Remove the rubberband."""
 
-    def draw_whiskers(self, event, x0, y0, x1, y1):
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws):
         """
         Draw line with whiskers to indicate single axis zoom
 
         We expect that ``x0 == x1`` or ``y0 == y1``. Else nothing will draw
+        `ws` is the whisker size in pixels.
         """
 
     def remove_whiskers(self):
@@ -3244,7 +3245,7 @@ class NavigationToolbar2:
             whisk = (start_xy[0], y1, start_xy[0], y2)
         elif (abs(event.y - start_xy[1]) < 10) and (abs(event.x - start_xy[0]) > 20):
             y1, y2 = ax.bbox.intervaly
-            whisk = (x1, start_xy[1], x2, start_xy[1], 20)
+            whisk = (x1, start_xy[1], x2, start_xy[1])
         else:
             whisk = None
             self.remove_whiskers()

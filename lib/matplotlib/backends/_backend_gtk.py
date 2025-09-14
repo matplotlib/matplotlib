@@ -280,8 +280,19 @@ class _NavigationToolbar2GTK(NavigationToolbar2):
         rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
         self.canvas._draw_rubberband(rect)
 
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws=20):
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        x0, y0, x1, y1, ws = [int(val) for val in (x0, y0, x1, y1, ws)]
+        whisk = (x0, y0, x1, y1)
+        self.canvas._draw_whiskers(whisk, ws)
+
     def remove_rubberband(self):
         self.canvas._draw_rubberband(None)
+
+    def remove_whiskers(self):
+        self.canvas._draw_whiskers(None)
 
     def _update_buttons_checked(self):
         for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:

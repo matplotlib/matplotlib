@@ -68,6 +68,8 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
 
         self._idle_draw_id = 0
         self._rubberband_rect = None
+        self._whiskers = None
+        self._whisker_size = 20
 
         self.connect('scroll_event',         self.scroll_event)
         self.connect('button_press_event',   self.button_press_event)
@@ -249,35 +251,60 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
         # TODO: Only update the rubberband area.
         self.queue_draw()
 
+    def _draw_whiskers(self, whisk, ws=20):
+        self._whiskers = whisk  # x0, y0, x1, y1
+        self._whisker_size = ws
+        self.queue_draw()
+
     def _post_draw(self, widget, ctx):
-        if self._rubberband_rect is None:
-            return
+        if self._rubberband_rect:
 
-        x0, y0, w, h = (dim / self.device_pixel_ratio
-                        for dim in self._rubberband_rect)
-        x1 = x0 + w
-        y1 = y0 + h
+            x0, y0, w, h = (dim / self.device_pixel_ratio
+                            for dim in self._rubberband_rect)
+            x1 = x0 + w
+            y1 = y0 + h
 
-        # Draw the lines from x0, y0 towards x1, y1 so that the
-        # dashes don't "jump" when moving the zoom box.
-        ctx.move_to(x0, y0)
-        ctx.line_to(x0, y1)
-        ctx.move_to(x0, y0)
-        ctx.line_to(x1, y0)
-        ctx.move_to(x0, y1)
-        ctx.line_to(x1, y1)
-        ctx.move_to(x1, y0)
-        ctx.line_to(x1, y1)
+            # Draw the lines from x0, y0 towards x1, y1 so that the
+            # dashes don't "jump" when moving the zoom box.
+            ctx.move_to(x0, y0)
+            ctx.line_to(x0, y1)
+            ctx.move_to(x0, y0)
+            ctx.line_to(x1, y0)
+            ctx.move_to(x0, y1)
+            ctx.line_to(x1, y1)
+            ctx.move_to(x1, y0)
+            ctx.line_to(x1, y1)
 
-        ctx.set_antialias(1)
-        ctx.set_line_width(1)
-        ctx.set_dash((3, 3), 0)
-        ctx.set_source_rgb(0, 0, 0)
-        ctx.stroke_preserve()
+            ctx.set_antialias(1)
+            ctx.set_line_width(1)
+            ctx.set_dash((3, 3), 0)
+            ctx.set_source_rgb(0, 0, 0)
+            ctx.stroke_preserve()
 
-        ctx.set_dash((3, 3), 3)
-        ctx.set_source_rgb(1, 1, 1)
-        ctx.stroke()
+            ctx.set_dash((3, 3), 3)
+            ctx.set_source_rgb(1, 1, 1)
+            ctx.stroke()
+
+        if self._whiskers:
+            x0, y0, x1, y1 = (dim / self.device_pixel_ratio
+                              for dim in self._whiskers)
+            ws = self._whisker_size / self.device_pixel_ratio
+
+            ctx.set_antialias(1)
+            ctx.set_line_width(2)
+            ctx.set_source_rgb(0, 0, 0)
+
+            # vertical line
+            ctx.move_to(x0, y0)
+            ctx.line_to(x0, y1)
+            # horizontal line
+            ctx.move_to(x0 - ws, y0)
+            ctx.line_to(x0 + ws, y0)
+            # horizontal line
+            ctx.move_to(x1 - ws, y1)
+            ctx.line_to(x1 + ws, y1)
+
+            ctx.stroke()
 
     def on_draw_event(self, widget, ctx):
         # to be overwritten by GTK3Agg or GTK3Cairo
