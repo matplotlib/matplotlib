@@ -2935,6 +2935,16 @@ class NavigationToolbar2:
     def remove_rubberband(self):
         """Remove the rubberband."""
 
+    def draw_whiskers(self, event, x0, y0, x1, y1):
+        """
+        Draw line with whiskers to indicate single axis zoom
+
+        We expect that ``x0 == x1`` or ``y0 == y1``. Else nothing will draw
+        """
+
+    def remove_whiskers(self):
+        """Remove the whiskers."""
+
     def home(self, *args):
         """
         Restore the original view.
@@ -3231,8 +3241,12 @@ class NavigationToolbar2:
         # Single-axis zooms by moving less than 10 pixels
         if (abs(event.x - start_xy[0]) < 10) and (abs(event.y - start_xy[1]) > 20):
             x1, x2 = ax.bbox.intervalx
+            self.draw_whiskers(event, start_xy[0], y1, start_xy[0], y2)
         elif (abs(event.y - start_xy[1]) < 10) and (abs(event.x - start_xy[0]) > 20):
             y1, y2 = ax.bbox.intervaly
+            self.draw_whiskers(event, x1, start_xy[1], x2, start_xy[1])
+        else:
+            self.remove_whiskers()
 
         self.draw_rubberband(event, x1, y1, x2, y2)
 
@@ -3245,6 +3259,7 @@ class NavigationToolbar2:
         # by (pressing and) releasing another mouse button.
         self.canvas.mpl_disconnect(self._zoom_info.cid)
         self.remove_rubberband()
+        self.remove_whiskers()
 
         start_x, start_y = self._zoom_info.start_xy
         direction = "in" if self._zoom_info.button == 1 else "out"
