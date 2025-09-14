@@ -277,13 +277,10 @@ class SliderBase(AxesWidget):
         self.valstep = valstep
         self.drag_active = False
         self.valfmt = valfmt
+        self.ax = ax
 
-        if orientation == "vertical":
-            ax.set_ylim(valmin, valmax)
-            axis = ax.yaxis
-        else:
-            ax.set_xlim(valmin, valmax)
-            axis = ax.xaxis
+        self.update_bounds()
+        axis = self.ax.yaxis if self.orientation == "vertical" else self.ax.xaxis
 
         self._fmt = axis.get_major_formatter()
         if not isinstance(self._fmt, ticker.ScalarFormatter):
@@ -330,6 +327,15 @@ class SliderBase(AxesWidget):
         """Reset the slider to the initial value."""
         if np.any(self.val != self.valinit):
             self.set_val(self.valinit)
+
+    def update_bounds(self):
+        """
+        Update the slider bounds.
+        """
+        if self.orientation == "vertical":
+            self.ax.set_ylim((self.valmin, self.valmax))
+        else:
+            self.ax.set_xlim((self.valmin, self.valmax))
 
 
 class Slider(SliderBase):
@@ -583,6 +589,25 @@ class Slider(SliderBase):
         self.val = val
         if self.eventson:
             self._observers.process('changed', val)
+
+    def update_range(self, valmin, valmax):
+        """
+        Set slider minimum value to *valmin*.
+        Set slider maximum value to *valmax*.
+
+        Parameters
+        ----------
+        valmin : float
+        valmax : float
+        """
+        if valmin:
+            self.valmin = valmin
+        if valmax:
+            self.valmax = valmax
+        self.update_bounds()
+        val = self._value_in_bounds(self.val)
+        if val not in [None, self.val]:
+            self.set_val(val)
 
     def on_changed(self, func):
         """
