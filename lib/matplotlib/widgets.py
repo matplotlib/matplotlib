@@ -277,7 +277,6 @@ class SliderBase(AxesWidget):
         self.valstep = valstep
         self.drag_active = False
         self.valfmt = valfmt
-        self.ax = ax
 
         self.update_bounds()
         axis = self.ax.yaxis if self.orientation == "vertical" else self.ax.xaxis
