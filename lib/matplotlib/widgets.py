@@ -597,9 +597,9 @@ class Slider(SliderBase):
         valmin : float
         valmax : float
         """
-        if valmin:
+        if valmin is not None:
             self.valmin = valmin
-        if valmax:
+        if valmax is not None:
             self.valmax = valmax
         self._update_bounds()
         val = self._value_in_bounds(self.val)
