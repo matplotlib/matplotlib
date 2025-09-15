@@ -853,12 +853,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
         self.canvas.drawRectangle(rect)
 
-    def draw_whiskers(self, event, x0, y0, x1, y1):
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws=20):
         height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
         whisk = [int(val) for val in (x0, y0, x1, y1)]
-        self.canvas.drawWhiskers(whisk)
+        self.canvas.drawWhiskers(whisk, ws)
 
     def remove_rubberband(self):
         self.canvas.drawRectangle(None)

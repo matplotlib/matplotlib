@@ -623,11 +623,15 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             x0, y0, x1, y1 = map(round, self._whiskers)
             lines = [(x0, y0, x1, y1)]
             if x0 == x1:  # vertical line
-                lines += [(x0 - self._whiskers_size, y0, x0 + self._whiskers_size, y0),
-                          (x1 - self._whiskers_size, y1, x1 + self._whiskers_size, y1)]
+                lines += [(x0 - self._whiskers_size//2, y0,
+                           x0 + self._whiskers_size//2, y0),
+                          (x1 - self._whiskers_size//2, y1,
+                           x1 + self._whiskers_size//2, y1)]
             elif y0 == y1:  # horizontal line
-                lines += [(x0, y0 - self._whiskers_size, x0, y0 + self._whiskers_size),
-                          (x1, y1 - self._whiskers_size, x1, y1 + self._whiskers_size)]
+                lines += [(x0, y0 - self._whiskers_size//2, x0,
+                           y0 + self._whiskers_size//2),
+                          (x1, y1 - self._whiskers_size//2, x1,
+                           y1 + self._whiskers_size//2)]
             else:  # Don't draw
                 lines = []
 
