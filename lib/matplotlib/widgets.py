@@ -327,7 +327,7 @@ class SliderBase(AxesWidget):
         if np.any(self.val != self.valinit):
             self.set_val(self.valinit)
 
-    def update_bounds(self):
+    def _update_bounds(self):
         """
         Update the slider bounds.
         """
