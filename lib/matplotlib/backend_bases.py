@@ -2940,7 +2940,7 @@ class NavigationToolbar2:
         Draw line with whiskers to indicate single axis zoom
 
         We expect that ``x0 == x1`` or ``y0 == y1``. Else nothing will draw
-        `ws` is the whisker size in pixels.
+        *ws* is the whisker size in pixels.
         """
 
     def remove_whiskers(self):
