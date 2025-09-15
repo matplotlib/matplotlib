@@ -128,8 +128,14 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.set_rubberband(int(x0), int(y0), int(x1), int(y1))
 
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws=20):
+        self.canvas.set_whiskers(int(x0), int(y0), int(x1), int(y1), int(ws))
+
     def remove_rubberband(self):
         self.canvas.remove_rubberband()
+
+    def remove_whiskers(self):
+        self.canvas.remove_whiskers()
 
     def save_figure(self, *args):
         directory = os.path.expanduser(mpl.rcParams['savefig.directory'])
