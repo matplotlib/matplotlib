@@ -294,11 +294,17 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.Widget):
             ctx.set_line_width(2)
             ctx.set_source_rgb(0, 0, 0)
             ctx.move_to(x0, y0)
-            ctx.line_to(x0, y1)
-            ctx.move_to(x0 - ws, y0)
-            ctx.line_to(x0 + ws, y0)
-            ctx.move_to(x1 - ws, y1)
-            ctx.line_to(x1 + ws, y1)
+            ctx.line_to(x1, y1)
+            if x0 == x1:
+                ctx.move_to(x0 - ws//2, y0)
+                ctx.line_to(x0 + ws//2, y0)
+                ctx.move_to(x1 - ws//2, y1)
+                ctx.line_to(x1 + ws//2, y1)
+            if y0 == y1:
+                ctx.move_to(x0, y0 - ws//2)
+                ctx.line_to(x0, y0 + ws//2)
+                ctx.move_to(x1, y1 - ws//2)
+                ctx.line_to(x1, y1 + ws//2)
             ctx.stroke()
 
         if self._rubberband_rect is None:
