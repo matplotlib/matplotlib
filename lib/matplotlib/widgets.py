@@ -603,7 +603,7 @@ class Slider(SliderBase):
             self.valmin = valmin
         if valmax:
             self.valmax = valmax
-        self.update_bounds()
+        self._update_bounds()
         val = self._value_in_bounds(self.val)
         if val not in [None, self.val]:
             self.set_val(val)
