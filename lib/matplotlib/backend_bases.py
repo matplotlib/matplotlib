@@ -3239,11 +3239,11 @@ class NavigationToolbar2:
         elif key == "y":
             x1, x2 = ax.bbox.intervalx
 
-        # Single-axis zooms by moving less than 10 pixels
-        if (abs(event.x - start_xy[0]) < 10) and (abs(event.y - start_xy[1]) > 20):
+        # Single-axis zooms by moving less than 15 pixels
+        if (abs(event.x - start_xy[0]) < 15) and (abs(event.y - start_xy[1]) > 30):
             x1, x2 = ax.bbox.intervalx
             whisk = (start_xy[0], y1, start_xy[0], y2)
-        elif (abs(event.y - start_xy[1]) < 10) and (abs(event.x - start_xy[0]) > 20):
+        elif (abs(event.y - start_xy[1]) < 15) and (abs(event.x - start_xy[0]) > 30):
             y1, y2 = ax.bbox.intervaly
             whisk = (x1, start_xy[1], x2, start_xy[1])
         else:
@@ -3252,7 +3252,7 @@ class NavigationToolbar2:
 
         self.draw_rubberband(event, x1, y1, x2, y2)
         if whisk:
-            self.draw_whiskers(event, *whisk, ws=20)
+            self.draw_whiskers(event, *whisk, ws=30)
 
     def release_zoom(self, event):
         """Callback for mouse button release in zoom to rect mode."""
@@ -3284,9 +3284,9 @@ class NavigationToolbar2:
                         for prev in self._zoom_info.axes[:i])
             # Handle release of single axis zooms
             end_x, end_y = event.x, event.y
-            if (abs(end_x - start_x) < 10) and (abs(end_y - start_y) > 20):
+            if (abs(end_x - start_x) < 15) and (abs(end_y - start_y) > 30):
                 start_x, end_x = ax.bbox.intervalx
-            if (abs(end_y - start_y) < 10) and (abs(end_x - start_x) > 20):
+            if (abs(end_y - start_y) < 15) and (abs(end_x - start_x) > 30):
                 start_y, end_y = ax.bbox.intervaly
             ax._set_view_from_bbox(
                 (start_x, start_y, end_x, end_y),
