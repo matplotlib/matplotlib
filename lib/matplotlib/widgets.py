@@ -328,9 +328,7 @@ class SliderBase(AxesWidget):
             self.set_val(self.valinit)
 
     def _update_bounds(self):
-        """
-        Update the slider bounds.
-        """
+        """Update the slider bounds."""
         if self.orientation == "vertical":
             self.ax.set_ylim((self.valmin, self.valmax))
         else:
