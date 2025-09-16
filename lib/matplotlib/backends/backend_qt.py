@@ -740,9 +740,19 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         Construct a `.QIcon` from an image file *name*, including the extension
         and relative to Matplotlib's "images" data directory.
         """
-        # use a high-resolution icon with suffix '_large' if available
-        # note: user-provided icons may not have '_large' versions
+        # Check for SVG first, then fall back to PNG
         path_regular = cbook._get_data_path('images', name)
+
+        # Try SVG first
+        svg_path = path_regular.with_suffix('.svg')
+        if svg_path.exists():
+            try:
+                svg_icon = self._create_svg_icon(svg_path)
+                return svg_icon
+            except Exception:
+                pass
+
+        # Fall back to PNG with high-resolution support
         path_large = path_regular.with_name(
             path_regular.name.replace('.png', '_large.png'))
         filename = str(path_large if path_large.exists() else path_regular)
@@ -750,6 +760,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         pm = QtGui.QPixmap(filename)
         pm.setDevicePixelRatio(
             self.devicePixelRatioF() or 1)  # rarely, devicePixelRatioF=0
+
+        # Apply dark mode color adaptation for PNG icons,
+        # but for some reasons, it doesn't work.
         if self.palette().color(self.backgroundRole()).value() < 128:
             icon_color = self.palette().color(self.foregroundRole())
             mask = pm.createMaskFromColor(
@@ -758,6 +771,29 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             pm.fill(icon_color)
             pm.setMask(mask)
         return QtGui.QIcon(pm)
+
+    def _create_svg_icon(self, svg_path):
+        """
+        Create a QIcon from an SVG file with dark mode support.
+        """
+        svg_content = svg_path.read_bytes()
+        is_dark = self.palette().color(self.backgroundRole()).value() < 128
+
+        if is_dark:
+            svg_content = svg_content.replace(b'fill:black;', b'fill:white;')
+            svg_content = svg_content.replace(b'stroke:black;', b'stroke:white;')
+        from PyQt5.QtSvg import QSvgRenderer
+        renderer = QSvgRenderer(svg_content)
+        if renderer.isValid():
+            size = 24
+            pm = QtGui.QPixmap(size, size)
+            pm.fill(QtCore.Qt.GlobalColor.transparent)
+            painter = QtGui.QPainter(pm)
+            renderer.render(painter)
+            painter.end()
+            return QtGui.QIcon(pm)
+        else:
+            raise Exception("Invalid SVG content")
 
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
