@@ -83,7 +83,7 @@ jobs:
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-          - os: macos-14  # This runner is on M1 (arm64) chips.
+          - os: macos-15  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
