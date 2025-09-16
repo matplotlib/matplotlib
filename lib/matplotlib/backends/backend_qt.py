@@ -782,18 +782,42 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if is_dark:
             svg_content = svg_content.replace(b'fill:black;', b'fill:white;')
             svg_content = svg_content.replace(b'stroke:black;', b'stroke:white;')
-        from PyQt5.QtSvg import QSvgRenderer
-        renderer = QSvgRenderer(svg_content)
-        if renderer.isValid():
-            size = 24
-            pm = QtGui.QPixmap(size, size)
-            pm.fill(QtCore.Qt.GlobalColor.transparent)
-            painter = QtGui.QPainter(pm)
-            renderer.render(painter)
-            painter.end()
-            return QtGui.QIcon(pm)
-        else:
+
+        try:
+            from PyQt5.QtSvg import QSvgRenderer
+        except Exception:
+            from PySide2.QtSvg import QSvgRenderer
+
+        renderer = QSvgRenderer(QtCore.QByteArray(svg_content))
+        if not renderer.isValid():
             raise Exception("Invalid SVG content")
+
+        icon_size = self.iconSize()
+        if not icon_size.isValid() or icon_size.width() <= 0 or icon_size.height() <= 0:
+            if hasattr(self, 'style'):
+                style = self.style()
+            else:
+                style = QtWidgets.QApplication.style()
+            pm_metric = QtWidgets.QStyle.PixelMetric.PM_ToolBarIconSize
+            sz = style.pixelMetric(pm_metric)
+            icon_size = QtCore.QSize(sz, sz)
+
+        w = max(1, icon_size.width())
+        h = max(1, icon_size.height())
+
+        ratio = self.devicePixelRatioF() or 1
+        pm = QtGui.QPixmap(int(w * ratio), int(h * ratio))
+        pm.setDevicePixelRatio(ratio)
+        pm.fill(QtCore.Qt.GlobalColor.transparent)
+
+        painter = QtGui.QPainter()
+        try:
+            painter.begin(pm)
+            renderer.render(painter, QtCore.QRectF(0, 0, w, h))
+        finally:
+            if painter.isActive():
+                painter.end()
+        return QtGui.QIcon(pm)
 
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
