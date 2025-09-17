@@ -84,8 +84,10 @@ jobs:
             pyqt6-ver: '!=6.6.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
-          - os: macos-13  # This runner is on Intel chips.
+          - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.10'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
           - os: macos-14  # This runner is on M1 (arm64) chips.
@@ -94,7 +96,7 @@ jobs:
             pygobject-ver: '<3.52.0'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
-          - os: macos-14  # This runner is on M1 (arm64) chips.
+          - os: macos-15  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
