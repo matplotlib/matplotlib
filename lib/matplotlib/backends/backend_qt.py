@@ -253,6 +253,11 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             # that event.
             event = QtGui.QResizeEvent(self.size(), self.size())
             self.resizeEvent(event)
+            # Refresh toolbar icons to match the new DPR (if any).
+            manager = getattr(self, 'manager', None)
+            toolbar = getattr(manager, 'toolbar', None) if manager is not None else None
+            if toolbar is not None and hasattr(toolbar, 'refresh_icons_for_dpi'):
+                toolbar.refresh_icons_for_dpi()
 
     @QtCore.Slot(QtGui.QScreen)
     def _update_screen(self, screen):
@@ -699,6 +704,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
         self._subplot_dialog = None
+        # Keep track of icon keys to allow DPR-aware refresh when moving screens.
+        self._action_icon_files = {}
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
@@ -712,6 +719,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 a = self.addAction(self._icon(image_file + '.png'),
                                    text, slot)
                 self._actions[callback] = a
+                self._action_icon_files[callback] = image_file
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
                 if tooltip_text is not None:
@@ -734,6 +742,17 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             labelAction.setVisible(True)
 
         NavigationToolbar2.__init__(self, canvas)
+
+    def refresh_icons_for_dpi(self):
+        """
+        Rebuild toolbar icons using current devicePixelRatio.
+        This ensures crisp icons after moving the window between screens with
+        different scale factors (incl. Wayland fractional scaling updates).
+        """
+        for callback, action in self._actions.items():
+            image_key = self._action_icon_files.get(callback)
+            if image_key:
+                action.setIcon(self._icon(image_key + '.png'))
 
     def _icon(self, name):
         """
