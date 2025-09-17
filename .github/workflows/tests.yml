@@ -77,14 +77,15 @@ jobs:
             pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
             python-version: '3.12'
-          - os: macos-13  # This runner is on Intel chips.
-            # merge numpy and pandas install in nighties test when this runner is dropped
+          - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.11'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-          - os: macos-14  # This runner is on M1 (arm64) chips.
+          - os: macos-15  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
@@ -297,13 +298,7 @@ jobs:
           python -m pip install pytz tzdata  # Must be installed for Pandas.
           python -m pip install \
             --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-            --upgrade --only-binary=:all: numpy
-          # wheels for intel osx is not always available on nightly wheels index, merge this back into
-          # the above install command when the OSX-13 (intel) runners are dropped.
-          python -m pip install \
-            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-            --upgrade --only-binary=:all: pandas || true
-
+            --upgrade --only-binary=:all: numpy pandas
 
       - name: Install Matplotlib
         run: |
