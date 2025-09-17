@@ -764,12 +764,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         # Try SVG first
         svg_path = path_regular.with_suffix('.svg')
-        if svg_path.exists():
-            try:
-                svg_icon = self._create_svg_icon(svg_path)
-                return svg_icon
-            except Exception:
-                pass
+
+        try:
+            svg_icon = self._create_svg_icon(svg_path)
+            return svg_icon
+        except Exception:
+            pass
 
         # Fall back to PNG with high-resolution support
         path_large = path_regular.with_name(
