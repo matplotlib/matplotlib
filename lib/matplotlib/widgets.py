@@ -587,22 +587,26 @@ class Slider(SliderBase):
         if self.eventson:
             self._observers.process('changed', val)
 
-    def update_range(self, valmin, valmax):
+    def update_range(self, valmin, valstep, valmax):
         """
-        Set slider minimum value to *valmin*.
-        Set slider maximum value to *valmax*.
+        Set the slider range.
+
+        The slider value is coerced to the closest number
+        in the ``valstep`` grid.
 
         Parameters
         ----------
-        valmin : float
-        valmax : float
+        valmin, valstep, valmax : float or None
+            The range limits. If None, the respective limit is not updated.
         """
-        if valmin is not None:
+        if valmin:
             self.valmin = valmin
-        if valmax is not None:
+        if valstep:
+            self.valstep = valstep
+        if valmax:
             self.valmax = valmax
         self._update_bounds()
-        val = self._value_in_bounds(self.val)
+        val = self._value_in_bounds(self._value_in_bounds(self.val))
         if val not in [None, self.val]:
             self.set_val(val)
 
