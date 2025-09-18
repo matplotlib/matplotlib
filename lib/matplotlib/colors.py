@@ -918,7 +918,7 @@ class Colormap:
 
     def _set_extremes(self, bad=None, under=None, over=None):
         """
-        Set the colors for masked (*bad*) and out-of-range (*under* and *over) values.
+        Set the colors for masked (*bad*) and out-of-range (*under* and *over*) values.
 
         Parameters that are None are left unchanged.
         """
