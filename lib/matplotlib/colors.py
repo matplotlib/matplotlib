@@ -877,9 +877,7 @@ class Colormap:
 
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
-        self._rgba_bad = to_rgba(color, alpha)
-        if self._isinit:
-            self._set_extremes()
+        self._set_extremes(bad=(color, alpha))
 
     def get_under(self):
         """Get the color for low out-of-range values."""
@@ -889,9 +887,7 @@ class Colormap:
 
     def set_under(self, color='k', alpha=None):
         """Set the color for low out-of-range values."""
-        self._rgba_under = to_rgba(color, alpha)
-        if self._isinit:
-            self._set_extremes()
+        self._set_extremes(under=(color, alpha))
 
     def get_over(self):
         """Get the color for high out-of-range values."""
@@ -901,21 +897,14 @@ class Colormap:
 
     def set_over(self, color='k', alpha=None):
         """Set the color for high out-of-range values."""
-        self._rgba_over = to_rgba(color, alpha)
-        if self._isinit:
-            self._set_extremes()
+        self._set_extremes(over=(color, alpha))
 
     def set_extremes(self, *, bad=None, under=None, over=None):
         """
         Set the colors for masked (*bad*) values and, when ``norm.clip =
         False``, low (*under*) and high (*over*) out-of-range values.
         """
-        if bad is not None:
-            self.set_bad(bad)
-        if under is not None:
-            self.set_under(under)
-        if over is not None:
-            self.set_over(over)
+        self._set_extremes(bad=bad, under=under, over=over)
 
     def with_extremes(self, *, bad=None, under=None, over=None):
         """
@@ -924,10 +913,26 @@ class Colormap:
         out-of-range values, have been set accordingly.
         """
         new_cm = self.copy()
-        new_cm.set_extremes(bad=bad, under=under, over=over)
+        new_cm._set_extremes(bad=bad, under=under, over=over)
         return new_cm
 
-    def _set_extremes(self):
+    def _set_extremes(self, bad=None, under=None, over=None):
+        """
+        Set the colors for masked (*bad*) and out-of-range (*under* and *over*) values.
+
+        Parameters that are None are left unchanged.
+        """
+        if bad is not None:
+            self._rgba_bad = to_rgba(bad)
+        if under is not None:
+            self._rgba_under = to_rgba(under)
+        if over is not None:
+            self._rgba_over = to_rgba(over)
+        if self._isinit:
+            self._update_lut_extremes()
+
+    def _update_lut_extremes(self):
+        """Ensure than an existing lookup table has the correct extreme values."""
         if self._rgba_under:
             self._lut[self._i_under] = self._rgba_under
         else:
@@ -1154,7 +1159,7 @@ class LinearSegmentedColormap(Colormap):
             self._lut[:-3, 3] = _create_lookup_table(
                 self.N, self._segmentdata['alpha'], 1)
         self._isinit = True
-        self._set_extremes()
+        self._update_lut_extremes()
 
     def set_gamma(self, gamma):
         """Set a new gamma value and regenerate colormap."""
@@ -1346,7 +1351,7 @@ class ListedColormap(Colormap):
         self._lut = np.zeros((self.N + 3, 4), float)
         self._lut[:-3] = to_rgba_array(self.colors)
         self._isinit = True
-        self._set_extremes()
+        self._update_lut_extremes()
 
     @property
     def monochrome(self):
