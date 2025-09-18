@@ -253,11 +253,6 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             # that event.
             event = QtGui.QResizeEvent(self.size(), self.size())
             self.resizeEvent(event)
-            # Refresh toolbar icons to match the new DPR (if any).
-            manager = getattr(self, 'manager', None)
-            toolbar = getattr(manager, 'toolbar', None) if manager is not None else None
-            if toolbar is not None and hasattr(toolbar, 'refresh_icons_for_dpi'):
-                toolbar.refresh_icons_for_dpi()
 
     @QtCore.Slot(QtGui.QScreen)
     def _update_screen(self, screen):
@@ -687,6 +682,122 @@ class FigureManagerQT(FigureManagerBase):
         self.window.setWindowTitle(title)
 
 
+class IconEngine(QtGui.QIconEngine):
+    """
+    Custom QIconEngine that automatically handles DPI scaling for tools icons.
+
+    This engine provides icons on-demand with proper scaling based on the current
+    device pixel ratio, eliminating the need for manual refresh when DPI changes.
+    """
+
+    def __init__(self, image_path, toolbar=None):
+        super().__init__()
+        self.image_path = image_path
+        self.toolbar = toolbar
+
+    def paint(self, painter, rect, mode, state):
+        """Paint the icon at the requested size and state."""
+        pixmap = self.pixmap(rect.size(), mode, state)
+        if not pixmap.isNull():
+            painter.drawPixmap(rect, pixmap)
+
+    def pixmap(self, size, mode, state):
+        """Generate a pixmap for the requested size, mode, and state."""
+        if size.width() <= 0 or size.height() <= 0:
+            return QtGui.QPixmap()
+
+        # Get the current device pixel ratio
+        if self.toolbar:
+            dpr = self.toolbar.devicePixelRatioF() or 1
+        else:
+            dpr = 1
+
+        # Try SVG first, then fall back to PNG
+        if str(self.image_path).endswith('.svg'):
+            return self._create_pixmap(self.image_path, size, dpr, is_svg=True)
+        else:
+            # Try large version
+            large_path = self.image_path.with_name(
+                self.image_path.name.replace('.png', '_large.png'))
+            if large_path.exists():
+                return self._create_pixmap(large_path, size, dpr, is_svg=False)
+            else:
+                return self._create_pixmap(self.image_path, size, dpr, is_svg=False)
+
+
+    def _create_pixmap(self, image_path, size, dpr, is_svg=False):
+        """Create a pixmap from image file with proper scaling and dark mode support."""
+        # Create high-resolution pixmap
+        scaled_size = QtCore.QSize(int(size.width() * dpr), int(size.height() * dpr))
+        pixmap = QtGui.QPixmap(scaled_size)
+        pixmap.setDevicePixelRatio(dpr)
+        pixmap.fill(QtCore.Qt.GlobalColor.transparent)
+
+        if is_svg:
+            return self._render_svg(image_path, pixmap, size, dpr)
+        else:
+            return self._render_png(image_path, pixmap, scaled_size, dpr)
+
+    def _render_svg(self, svg_path, pixmap, size, dpr):
+        """Render SVG content to pixmap."""
+        try:
+            from PyQt5.QtSvg import QSvgRenderer
+        except Exception:
+            from PySide2.QtSvg import QSvgRenderer
+
+        svg_content = svg_path.read_bytes()
+
+        # Apply dark mode if needed
+        if (self.toolbar and
+            self.toolbar.palette().color(self.toolbar.backgroundRole()).value() < 128):
+
+            svg_content = svg_content.replace(b'fill:black;', b'fill:white;')
+            svg_content = svg_content.replace(b'stroke:black;', b'stroke:white;')
+
+        renderer = QSvgRenderer(QtCore.QByteArray(svg_content))
+        if not renderer.isValid():
+            return QtGui.QPixmap()
+
+        painter = QtGui.QPainter()
+        try:
+            painter.begin(pixmap)
+            renderer.render(painter, QtCore.QRectF(0, 0, size.width(), size.height()))
+        finally:
+            if painter.isActive():
+                painter.end()
+
+        return pixmap
+
+    def _render_png(self, png_path, pixmap, scaled_size, dpr):
+        """Render PNG content to pixmap with scaling and dark mode support."""
+        # Load PNG
+        source_pixmap = QtGui.QPixmap(str(png_path))
+        if source_pixmap.isNull():
+            return QtGui.QPixmap()
+
+        # Scale to requested size
+        scaled_pixmap = source_pixmap.scaled(
+            scaled_size,
+            QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            QtCore.Qt.TransformationMode.SmoothTransformation
+        )
+        scaled_pixmap.setDevicePixelRatio(dpr)
+
+        # Apply dark mode adaptation if needed
+        if (self.toolbar and
+            self.toolbar.palette().color(self.toolbar.backgroundRole()).value() < 128):
+
+            icon_color = self.toolbar.palette().color(self.toolbar.foregroundRole())
+            # For some reason, it may not work.
+            mask = scaled_pixmap.createMaskFromColor(
+                QtGui.QColor('black'),
+                QtCore.Qt.MaskMode.MaskOutColor)
+            scaled_pixmap.fill(icon_color)
+            scaled_pixmap.setMask(mask)
+
+        return scaled_pixmap
+
+
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     toolitems = [*NavigationToolbar2.toolitems]
     toolitems.insert(
@@ -704,8 +815,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
         self._subplot_dialog = None
-        # Keep track of icon keys to allow DPR-aware refresh when moving screens.
-        self._action_icon_files = {}
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
@@ -716,10 +825,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 slot = functools.wraps(slot)(functools.partial(slot))
                 slot = QtCore.Slot()(slot)
 
-                a = self.addAction(self._icon(image_file + '.png'),
+                a = self.addAction(self._icon(image_file + '.svg'),
                                    text, slot)
                 self._actions[callback] = a
-                self._action_icon_files[callback] = image_file
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
                 if tooltip_text is not None:
@@ -743,100 +851,21 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-    def refresh_icons_for_dpi(self):
-        """
-        Rebuild toolbar icons using current devicePixelRatio.
-        This ensures crisp icons after moving the window between screens with
-        different scale factors (incl. Wayland fractional scaling updates).
-        """
-        for callback, action in self._actions.items():
-            image_key = self._action_icon_files.get(callback)
-            if image_key:
-                action.setIcon(self._icon(image_key + '.png'))
 
     def _icon(self, name):
         """
         Construct a `.QIcon` from an image file *name*, including the extension
         and relative to Matplotlib's "images" data directory.
+
+        Uses IconEngine for automatic DPI scaling.
         """
-        # Check for SVG first, then fall back to PNG
+        # Get the image path
         path_regular = cbook._get_data_path('images', name)
 
-        # Try SVG first
-        svg_path = path_regular.with_suffix('.svg')
+        # Create icon using our custom engine for automatic DPI handling
+        engine = IconEngine(path_regular, self)
+        return QtGui.QIcon(engine)
 
-        try:
-            svg_icon = self._create_svg_icon(svg_path)
-            return svg_icon
-        except Exception:
-            pass
-
-        # Fall back to PNG with high-resolution support
-        path_large = path_regular.with_name(
-            path_regular.name.replace('.png', '_large.png'))
-        filename = str(path_large if path_large.exists() else path_regular)
-
-        pm = QtGui.QPixmap(filename)
-        pm.setDevicePixelRatio(
-            self.devicePixelRatioF() or 1)  # rarely, devicePixelRatioF=0
-
-        # Apply dark mode color adaptation for PNG icons,
-        # but for some reasons, it doesn't work.
-        if self.palette().color(self.backgroundRole()).value() < 128:
-            icon_color = self.palette().color(self.foregroundRole())
-            mask = pm.createMaskFromColor(
-                QtGui.QColor('black'),
-                QtCore.Qt.MaskMode.MaskOutColor)
-            pm.fill(icon_color)
-            pm.setMask(mask)
-        return QtGui.QIcon(pm)
-
-    def _create_svg_icon(self, svg_path):
-        """
-        Create a QIcon from an SVG file with dark mode support.
-        """
-        svg_content = svg_path.read_bytes()
-        is_dark = self.palette().color(self.backgroundRole()).value() < 128
-
-        if is_dark:
-            svg_content = svg_content.replace(b'fill:black;', b'fill:white;')
-            svg_content = svg_content.replace(b'stroke:black;', b'stroke:white;')
-
-        try:
-            from PyQt5.QtSvg import QSvgRenderer
-        except Exception:
-            from PySide2.QtSvg import QSvgRenderer
-
-        renderer = QSvgRenderer(QtCore.QByteArray(svg_content))
-        if not renderer.isValid():
-            raise Exception("Invalid SVG content")
-
-        icon_size = self.iconSize()
-        if not icon_size.isValid() or icon_size.width() <= 0 or icon_size.height() <= 0:
-            if hasattr(self, 'style'):
-                style = self.style()
-            else:
-                style = QtWidgets.QApplication.style()
-            pm_metric = QtWidgets.QStyle.PixelMetric.PM_ToolBarIconSize
-            sz = style.pixelMetric(pm_metric)
-            icon_size = QtCore.QSize(sz, sz)
-
-        w = max(1, icon_size.width())
-        h = max(1, icon_size.height())
-
-        ratio = self.devicePixelRatioF() or 1
-        pm = QtGui.QPixmap(int(w * ratio), int(h * ratio))
-        pm.setDevicePixelRatio(ratio)
-        pm.fill(QtCore.Qt.GlobalColor.transparent)
-
-        painter = QtGui.QPainter()
-        try:
-            painter.begin(pm)
-            renderer.render(painter, QtCore.QRectF(0, 0, w, h))
-        finally:
-            if painter.isActive():
-                painter.end()
-        return QtGui.QIcon(pm)
 
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
