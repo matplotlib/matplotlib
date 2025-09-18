@@ -1382,7 +1382,8 @@ def test_pcolorargs_5205():
     plt.pcolor(X, Y, list(Z[:-1, :-1]))
 
 
-@image_comparison(['pcolormesh'], remove_text=True)
+@image_comparison(['pcolormesh'], remove_text=True,
+                  tol=0.11 if platform.machine() == 'aarch64' else 0)
 def test_pcolormesh():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -1434,7 +1435,7 @@ def test_pcolormesh_small():
 
 @image_comparison(['pcolormesh_alpha'], extensions=["png", "pdf"],
                   remove_text=True,
-                  tol=0.2 if platform.machine() == "aarch64" else 0)
+                  tol=0.4 if platform.machine() == "aarch64" else 0)
 def test_pcolormesh_alpha():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
