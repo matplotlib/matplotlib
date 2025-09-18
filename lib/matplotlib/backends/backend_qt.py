@@ -682,7 +682,7 @@ class FigureManagerQT(FigureManagerBase):
         self.window.setWindowTitle(title)
 
 
-class IconEngine(QtGui.QIconEngine):
+class _IconEngine(QtGui.QIconEngine):
     """
     Custom QIconEngine that automatically handles DPI scaling for tools icons.
 
@@ -713,17 +713,15 @@ class IconEngine(QtGui.QIconEngine):
             dpr = 1
 
         # Try SVG first, then fall back to PNG
-        if str(self.image_path).endswith('.svg'):
+        if self.image_path.suffix == '.svg':
             return self._create_pixmap(self.image_path, size, dpr, is_svg=True)
         else:
             # Try large version
-            large_path = self.image_path.with_name(
-                self.image_path.name.replace('.png', '_large.png'))
+            large_path = self.image_path.with_name(self.image_path.stem + '_large.png')
             if large_path.exists():
                 return self._create_pixmap(large_path, size, dpr, is_svg=False)
             else:
                 return self._create_pixmap(self.image_path, size, dpr, is_svg=False)
-
 
     def _create_pixmap(self, image_path, size, dpr, is_svg=False):
         """Create a pixmap from image file with proper scaling and dark mode support."""
@@ -752,8 +750,9 @@ class IconEngine(QtGui.QIconEngine):
         svg_content = svg_path.read_bytes()
 
         # Apply dark mode if needed
-        if (self.toolbar and
-            self.toolbar.palette().color(self.toolbar.backgroundRole()).value() < 128):
+        toolbar = self.toolbar
+        if (toolbar and
+                toolbar.palette().color(toolbar.backgroundRole()).value() < 128):
 
             svg_content = svg_content.replace(b'fill:black;', b'fill:white;')
             svg_content = svg_content.replace(b'stroke:black;', b'stroke:white;')
@@ -774,7 +773,6 @@ class IconEngine(QtGui.QIconEngine):
 
     def _render_png(self, png_path, pixmap, scaled_size, dpr):
         """Render PNG content to pixmap with scaling and dark mode support."""
-        # Load PNG
         source_pixmap = QtGui.QPixmap(str(png_path))
         if source_pixmap.isNull():
             return QtGui.QPixmap()
@@ -788,11 +786,13 @@ class IconEngine(QtGui.QIconEngine):
         scaled_pixmap.setDevicePixelRatio(dpr)
 
         # Apply dark mode adaptation if needed
-        if (self.toolbar and
-            self.toolbar.palette().color(self.toolbar.backgroundRole()).value() < 128):
-
-            icon_color = self.toolbar.palette().color(self.toolbar.foregroundRole())
-            # For some reason, it may not work.
+        toolbar = self.toolbar
+        if (toolbar and
+                toolbar.palette().color(toolbar.backgroundRole()).value() < 128):
+            # On some platforms (e.g., macOS with Qt5 in dark mode), this may
+            # incorrectly return a black color instead of a light one.
+            # See issue #27590 for details.
+            icon_color = toolbar.palette().color(toolbar.foregroundRole())
             mask = scaled_pixmap.createMaskFromColor(
                 QtGui.QColor('black'),
                 QtCore.Qt.MaskMode.MaskOutColor)
@@ -861,13 +861,13 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         Construct a `.QIcon` from an image file *name*, including the extension
         and relative to Matplotlib's "images" data directory.
 
-        Uses IconEngine for automatic DPI scaling.
+        Uses _IconEngine for automatic DPI scaling.
         """
         # Get the image path
         path_regular = cbook._get_data_path('images', name)
 
         # Create icon using our custom engine for automatic DPI handling
-        engine = IconEngine(path_regular, self)
+        engine = _IconEngine(path_regular, self)
         return QtGui.QIcon(engine)
 
 
