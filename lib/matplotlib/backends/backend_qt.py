@@ -738,14 +738,9 @@ class _IconEngine(QtGui.QIconEngine):
 
     def _render_svg(self, svg_path, pixmap, size, dpr):
         """Render SVG content to pixmap."""
-        if QT_API == "PyQt5":
-            from PyQt5.QtSvg import QSvgRenderer
-        elif QT_API == "PySide2":
-            from PySide2.QtSvg import QSvgRenderer
-        elif QT_API == "PyQt6":
-            from PyQt6.QtSvg import QSvgRenderer
-        elif QT_API == "PySide6":
-            from PySide6.QtSvg import QSvgRenderer
+        QSvgRenderer = qt_compat.get_qsvg_renderer()
+        if QSvgRenderer is None:
+            return QtGui.QPixmap()
 
         svg_content = svg_path.read_bytes()
 

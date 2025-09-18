@@ -157,3 +157,26 @@ if (sys.platform == 'darwin' and
 def _exec(obj):
     # exec on PyQt6, exec_ elsewhere.
     obj.exec() if hasattr(obj, "exec") else obj.exec_()
+
+
+def get_qsvg_renderer():
+    """
+    Return the QtSvg QSvgRenderer class for the active binding, or None.
+    """
+    try:
+        if QT_API == QT_API_PYQT6:
+            from PyQt6.QtSvg import QSvgRenderer
+            return QSvgRenderer
+        elif QT_API == QT_API_PYSIDE6:
+            from PySide6.QtSvg import QSvgRenderer
+            return QSvgRenderer
+        elif QT_API == QT_API_PYQT5:
+            from PyQt5.QtSvg import QSvgRenderer
+            return QSvgRenderer
+        elif QT_API == QT_API_PYSIDE2:
+            from PySide2.QtSvg import QSvgRenderer
+            return QSvgRenderer
+        else:
+            return None
+    except Exception:
+        return None
