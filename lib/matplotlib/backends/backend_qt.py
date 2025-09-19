@@ -695,6 +695,9 @@ class _IconEngine(QtGui.QIconEngine):
         self.image_path = image_path
         self.toolbar = toolbar
 
+    def _is_dark_mode(self):
+        return self.toolbar.palette().color(self.toolbar.backgroundRole()).value() < 128
+
     def paint(self, painter, rect, mode, state):
         """Paint the icon at the requested size and state."""
         pixmap = self.pixmap(rect.size(), mode, state)
@@ -717,12 +720,9 @@ class _IconEngine(QtGui.QIconEngine):
         if svg_path.exists():
             return self._create_pixmap(svg_path, size, dpr, is_svg=True)
         else:
-            # Try large version
             large_path = self.image_path.with_name(self.image_path.stem + '_large.png')
-            if large_path.exists():
-                return self._create_pixmap(large_path, size, dpr, is_svg=False)
-            else:
-                return self._create_pixmap(self.image_path, size, dpr, is_svg=False)
+            path = large_path if large_path.exists() else self.image_path
+            return self._create_pixmap(path, size, dpr, is_svg=False)
 
     def _create_pixmap(self, image_path, size, dpr, is_svg=False):
         """Create a pixmap from image file with proper scaling and dark mode support."""
@@ -745,11 +745,7 @@ class _IconEngine(QtGui.QIconEngine):
 
         svg_content = svg_path.read_bytes()
 
-        # Apply dark mode if needed
-        toolbar = self.toolbar
-        if (toolbar and
-                toolbar.palette().color(toolbar.backgroundRole()).value() < 128):
-
+        if self._is_dark_mode():
             svg_content = svg_content.replace(b'fill:black;', b'fill:white;')
             svg_content = svg_content.replace(b'stroke:black;', b'stroke:white;')
 
@@ -781,14 +777,11 @@ class _IconEngine(QtGui.QIconEngine):
         )
         scaled_pixmap.setDevicePixelRatio(dpr)
 
-        # Apply dark mode adaptation if needed
-        toolbar = self.toolbar
-        if (toolbar and
-                toolbar.palette().color(toolbar.backgroundRole()).value() < 128):
+        if self._is_dark_mode():
             # On some platforms (e.g., macOS with Qt5 in dark mode), this may
             # incorrectly return a black color instead of a light one.
             # See issue #27590 for details.
-            icon_color = toolbar.palette().color(toolbar.foregroundRole())
+            icon_color = self.toolbar.palette().color(self.toolbar.foregroundRole())
             mask = scaled_pixmap.createMaskFromColor(
                 QtGui.QColor('black'),
                 QtCore.Qt.MaskMode.MaskOutColor)
