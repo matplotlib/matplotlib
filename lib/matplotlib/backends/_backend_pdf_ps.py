@@ -205,6 +205,25 @@ class CharacterTracker:
         self.used.setdefault((font.fname, subset), {})[subset_charcode] = glyph
         return (subset, subset_charcode)
 
+    def subset_to_unicode(self, index: int,
+                          charcode: CharacterCodeType) -> CharacterCodeType:
+        """
+        Map a subset index and character code to a Unicode character code.
+
+        Parameters
+        ----------
+        index : int
+            The subset index within a font.
+        charcode : CharacterCodeType
+            The character code within a subset to map back.
+
+        Returns
+        -------
+        CharacterCodeType
+            The Unicode character code corresponding to the subsetted one.
+        """
+        return index * self.subset_size + charcode
+
 
 class RendererPDFPSBase(RendererBase):
     # The following attributes must be defined by the subclasses:

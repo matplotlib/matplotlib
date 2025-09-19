@@ -276,11 +276,13 @@ def _gen_multi_font_text():
     latin1_supplement = [chr(x) for x in range(start, 0xFF+1)]
     latin_extended_A = [chr(x) for x in range(0x100, 0x17F+1)]
     latin_extended_B = [chr(x) for x in range(0x180, 0x24F+1)]
+    non_basic_multilingual_plane = [chr(x) for x in range(0x1F600, 0x1F610)]
     count = itertools.count(start - 0xA0)
     non_basic_characters = '\n'.join(
         ''.join(line)
         for _, line in itertools.groupby(  # Replace with itertools.batched for Py3.12+.
-            [*latin1_supplement, *latin_extended_A, *latin_extended_B],
+            [*latin1_supplement, *latin_extended_A, *latin_extended_B,
+             *non_basic_multilingual_plane],
             key=lambda x: next(count) // 32)  # 32 characters per line.
     )
     test_str = f"""There are basic characters
