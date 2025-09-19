@@ -1883,7 +1883,7 @@ def subplot_mosaic(
 
 @overload
 def subplot_mosaic(
-    mosaic: list[HashableList[_T]],
+    mosaic: Sequence[HashableList[_T]],
     *,
     sharex: bool = ...,
     sharey: bool = ...,
@@ -1899,7 +1899,7 @@ def subplot_mosaic(
 
 @overload
 def subplot_mosaic(
-    mosaic: list[HashableList[Hashable]],
+    mosaic: Sequence[HashableList[Hashable]],
     *,
     sharex: bool = ...,
     sharey: bool = ...,
@@ -1914,7 +1914,7 @@ def subplot_mosaic(
 
 
 def subplot_mosaic(
-    mosaic: str | list[HashableList[_T]] | list[HashableList[Hashable]],
+    mosaic: str | Sequence[HashableList[_T]] | Sequence[HashableList[Hashable]],
     *,
     sharex: bool = False,
     sharey: bool = False,
