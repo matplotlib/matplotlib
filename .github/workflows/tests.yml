@@ -60,10 +60,6 @@ jobs:
             extra-requirements: '-r requirements/testing/extra.txt'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
-          - os: ubuntu-22.04-arm
-            python-version: '3.12'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
           - name-suffix: "(Extra TeX packages)"
             os: ubuntu-22.04
             python-version: '3.13'
@@ -77,14 +73,17 @@ jobs:
             pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
             python-version: '3.12'
-          - os: macos-13  # This runner is on Intel chips.
-            # merge numpy and pandas install in nighties test when this runner is dropped
+          - os: ubuntu-24.04-arm
+            python-version: '3.12'
+          - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.11'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-          - os: macos-14  # This runner is on M1 (arm64) chips.
+          - os: macos-15  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
@@ -115,7 +114,7 @@ jobs:
           git commit -m 'Preload test images from branch text-overhaul-figures'
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
@@ -168,7 +167,7 @@ jobs:
             if [[ "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
               sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
             fi
-            if [[ "${{ matrix.os }}" = ubuntu-22.04 || "${{ matrix.os }}" = ubuntu-22.04-arm ]]; then
+            if [[ "${{ matrix.os }}" = ubuntu-22.04 ]]; then
               sudo apt-get install -yy --no-install-recommends \
                 gir1.2-gtk-4.0 \
                 libgirepository1.0-dev
@@ -275,7 +274,7 @@ jobs:
             )
 
           # PyQt5 does not have any wheels for ARM on Linux.
-          if [[ "${{ matrix.os }}" != 'ubuntu-22.04-arm' ]]; then
+          if [[ "${{ matrix.os }}" != 'ubuntu-24.04-arm' ]]; then
             python -mpip install --upgrade --only-binary :all: pyqt5 &&
               python -c 'import PyQt5.QtCore' &&
               echo 'PyQt5 is available' ||
@@ -316,13 +315,7 @@ jobs:
           python -m pip install pytz tzdata  # Must be installed for Pandas.
           python -m pip install \
             --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-            --upgrade --only-binary=:all: numpy
-          # wheels for intel osx is not always available on nightly wheels index, merge this back into
-          # the above install command when the OSX-13 (intel) runners are dropped.
-          python -m pip install \
-            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-            --upgrade --only-binary=:all: pandas || true
-
+            --upgrade --only-binary=:all: numpy pandas
 
       - name: Install Matplotlib
         run: |
@@ -396,7 +389,7 @@ jobs:
         run: |
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             LCOV_IGNORE_ERRORS=','  # do not ignore any lcov errors by default
-            if [[ "${{ matrix.os }}" = ubuntu-24.04 ]]; then
+            if [[ "${{ matrix.os }}" = ubuntu-24.04 || "${{ matrix.os }}" = ubuntu-24.04-arm ]]; then
               # filter mismatch errors detected by lcov 2.x
               LCOV_IGNORE_ERRORS='mismatch'
             fi
@@ -416,7 +409,7 @@ jobs:
           fi
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24  # v5.4.3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7  # v5.5.1
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}

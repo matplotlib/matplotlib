@@ -1012,6 +1012,7 @@ class FigureManagerWx(FigureManagerBase):
             # As this can be called from non-GUI thread from plt.close use
             # wx.CallAfter to ensure thread safety.
             wx.CallAfter(frame.Close)
+        super().destroy()
 
     def full_screen_toggle(self):
         # docstring inherited

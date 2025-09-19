@@ -107,13 +107,7 @@ def _get_available_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on macosx because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
-        elif (env['MPLBACKEND'] == 'tkagg' and
-              ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
-              sys.platform == 'darwin' and
-              sys.version_info[:2] < (3, 11)
-              ):
-            marks.append(  # https://github.com/actions/setup-python/issues/649
-                pytest.mark.xfail(reason='Tk version mismatch on Azure macOS CI'))
+
         envs.append(({**env, 'BACKEND_DEPS': ','.join(deps)}, marks))
     return envs
 
@@ -163,7 +157,7 @@ def _test_interactive_impl():
 
     import matplotlib as mpl
     from matplotlib import pyplot as plt
-    from matplotlib.backend_bases import KeyEvent
+    from matplotlib.backend_bases import KeyEvent, FigureCanvasBase
     mpl.rcParams.update({
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
@@ -221,19 +215,23 @@ def _test_interactive_impl():
     fig.canvas.mpl_connect("close_event", print)
 
     result = io.BytesIO()
-    fig.savefig(result, format='png')
+    fig.savefig(result, format='png', dpi=100)
 
     plt.show()
 
     # Ensure that the window is really closed.
     plt.pause(0.5)
 
-    # Test that saving works after interactive window is closed, but the figure
-    # is not deleted.
+    # When the figure is closed, its manager is removed and the canvas is reset to
+    # FigureCanvasBase. Saving should still be possible.
+    assert type(fig.canvas) == FigureCanvasBase, str(fig.canvas)
     result_after = io.BytesIO()
-    fig.savefig(result_after, format='png')
+    fig.savefig(result_after, format='png', dpi=100)
 
-    assert result.getvalue() == result_after.getvalue()
+    if backend.endswith("agg"):
+        # agg-based interactive backends should save the same image as a non-interactive
+        # figure
+        assert result.getvalue() == result_after.getvalue()
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
@@ -286,10 +284,13 @@ def _test_thread_impl():
     future = ThreadPoolExecutor().submit(fig.canvas.draw)
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
+    # stash the current canvas as closing the figure will reset the canvas on
+    # the figure
+    canvas = fig.canvas
     plt.close()  # backend is responsible for flushing any events here
     if plt.rcParams["backend"].lower().startswith("wx"):
         # TODO: debug why WX needs this only on py >= 3.8
-        fig.canvas.flush_events()
+        canvas.flush_events()
 
 
 _thread_safe_backends = _get_testable_interactive_backends()

@@ -195,6 +195,7 @@ class _FigureManagerGTK(FigureManagerBase):
         self._destroying = True
         self.window.destroy()
         self.canvas.destroy()
+        super().destroy()
 
     @classmethod
     def start_main_loop(cls):

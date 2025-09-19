@@ -1,0 +1,4 @@
+Default name of ``ListedColormap``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The default name of `.ListedColormap` has changed from "from_list" to "unnamed".

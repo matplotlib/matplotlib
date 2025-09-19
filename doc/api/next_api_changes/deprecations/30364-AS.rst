@@ -1,0 +1,4 @@
+Parameters ``Axes3D.set_aspect(..., anchor=..., share=...)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The parameters *anchor* and *share* of `.Axes3D.set_aspect` are deprecated.
+They had no effect on 3D axes and will be removed in a future version.

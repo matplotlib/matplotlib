@@ -1183,7 +1183,7 @@ class Axes(_AxesBase):
             if self.name == "rectilinear":
                 datalim = lines.get_datalim(self.transData)
                 t = lines.get_transform()
-                updatex, updatey = t.contains_branch_seperately(self.transData)
+                updatex, updatey = t.contains_branch_separately(self.transData)
                 minx = np.nanmin(datalim.xmin)
                 maxx = np.nanmax(datalim.xmax)
                 miny = np.nanmin(datalim.ymin)
@@ -1275,7 +1275,7 @@ class Axes(_AxesBase):
             if self.name == "rectilinear":
                 datalim = lines.get_datalim(self.transData)
                 t = lines.get_transform()
-                updatex, updatey = t.contains_branch_seperately(self.transData)
+                updatex, updatey = t.contains_branch_separately(self.transData)
                 minx = np.nanmin(datalim.xmin)
                 maxx = np.nanmax(datalim.xmax)
                 miny = np.nanmin(datalim.ymin)
@@ -6809,7 +6809,7 @@ or pandas.DataFrame
                 hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
-        if t and any(t.contains_branch_seperately(self.transData)):
+        if t and any(t.contains_branch_separately(self.transData)):
             trans_to_data = t - self.transData
             coords = trans_to_data.transform(coords)
 
@@ -8878,18 +8878,8 @@ such objects
         .Axes.violin : Draw a violin from pre-computed statistics.
         boxplot : Draw a box and whisker plot.
         """
-
-        def _kde_method(X, coords):
-            # Unpack in case of e.g. Pandas or xarray object
-            X = cbook._unpack_to_numpy(X)
-            # fallback gracefully if the vector contains only one value
-            if np.all(X[0] == X):
-                return (X[0] == coords).astype(float)
-            kde = mlab.GaussianKDE(X, bw_method)
-            return kde.evaluate(coords)
-
-        vpstats = cbook.violin_stats(dataset, _kde_method, points=points,
-                                     quantiles=quantiles)
+        vpstats = cbook.violin_stats(dataset, ("GaussianKDE", bw_method),
+                                     points=points, quantiles=quantiles)
         return self.violin(vpstats, positions=positions, vert=vert,
                            orientation=orientation, widths=widths,
                            showmeans=showmeans, showextrema=showextrema,
