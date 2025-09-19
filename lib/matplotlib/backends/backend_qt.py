@@ -713,8 +713,9 @@ class _IconEngine(QtGui.QIconEngine):
             dpr = 1
 
         # Try SVG first, then fall back to PNG
-        if self.image_path.suffix == '.svg':
-            return self._create_pixmap(self.image_path, size, dpr, is_svg=True)
+        svg_path = self.image_path.with_suffix('.svg')
+        if svg_path.exists():
+            return self._create_pixmap(svg_path, size, dpr, is_svg=True)
         else:
             # Try large version
             large_path = self.image_path.with_name(self.image_path.stem + '_large.png')
