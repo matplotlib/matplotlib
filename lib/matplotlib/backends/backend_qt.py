@@ -709,23 +709,18 @@ class _IconEngine(QtGui.QIconEngine):
         if size.width() <= 0 or size.height() <= 0:
             return QtGui.QPixmap()
 
-        # Get the current device pixel ratio
-        dpr = (self.toolbar.devicePixelRatioF() or 1) if self.toolbar else 1
-
         # Try SVG first, then fall back to PNG
         svg_path = self.image_path.with_suffix('.svg')
         if svg_path.exists():
-            return self._create_pixmap_from_svg(svg_path, size, dpr)
+            return self._create_pixmap_from_svg(svg_path, size)
         else:
-            large_path = self.image_path.with_name(self.image_path.stem + '_large.png')
-            path = large_path if large_path.exists() else self.image_path
-            scaled_size = QtCore.QSize(
-                int(size.width() * dpr),
-                int(size.height() * dpr)
-            )
-            return self._create_pixmap_from_png(path, scaled_size, dpr)
+            return self._create_pixmap_from_png(self.image_path, size)
 
-    def _create_pixmap_from_svg(self, svg_path, size, dpr):
+    def _devicePixelRatio(self):
+        """Return the current device pixel ratio for the toolbar, defaulting to 1."""
+        return (self.toolbar.devicePixelRatioF() or 1) if self.toolbar else 1
+
+    def _create_pixmap_from_svg(self, svg_path, size):
         """Create a pixmap from SVG with proper scaling and dark mode support."""
         QSvgRenderer = getattr(QtSvg, "QSvgRenderer", None)
         if QSvgRenderer is None:
@@ -741,6 +736,7 @@ class _IconEngine(QtGui.QIconEngine):
         if not renderer.isValid():
             return QtGui.QPixmap()
 
+        dpr = self._devicePixelRatio()
         scaled_size = QtCore.QSize(int(size.width() * dpr), int(size.height() * dpr))
         pixmap = QtGui.QPixmap(scaled_size)
         pixmap.setDevicePixelRatio(dpr)
@@ -756,15 +752,25 @@ class _IconEngine(QtGui.QIconEngine):
 
         return pixmap
 
-    def _create_pixmap_from_png(self, png_path, size, dpr):
-        """Create a pixmap from PNG with scaling and dark mode support."""
+    def _create_pixmap_from_png(self, base_path, size):
+        """
+        Create a pixmap from PNG with scaling and dark mode support.
+
+        Prefer to use the *_large.png with the same name; otherwise, use base_path.
+        """
+        large_path = base_path.with_name(base_path.stem + '_large.png')
+        png_path = large_path if large_path.exists() else base_path
+
+        dpr = self._devicePixelRatio()
+
         source_pixmap = QtGui.QPixmap(str(png_path))
         if source_pixmap.isNull():
             return QtGui.QPixmap()
 
         # Scale to requested size
+        scaled_size = QtCore.QSize(int(size.width() * dpr), int(size.height() * dpr))
         scaled_pixmap = source_pixmap.scaled(
-            size,
+            scaled_size,
             QtCore.Qt.AspectRatioMode.KeepAspectRatio,
             QtCore.Qt.TransformationMode.SmoothTransformation
         )
