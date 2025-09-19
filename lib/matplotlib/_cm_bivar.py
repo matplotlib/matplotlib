@@ -2,9 +2,8 @@
 # date: 2024-05-24
 
 import numpy as np
-from matplotlib.colors import SegmentedBivarColormap
 
-BiPeak = np.array(
+BiPeak = (
     [0.000, 0.674, 0.931, 0.000, 0.680, 0.922, 0.000, 0.685, 0.914, 0.000,
      0.691, 0.906, 0.000, 0.696, 0.898, 0.000, 0.701, 0.890, 0.000, 0.706,
      0.882, 0.000, 0.711, 0.875, 0.000, 0.715, 0.867, 0.000, 0.720, 0.860,
@@ -1273,9 +1272,10 @@ BiPeak = np.array(
      0.282, 0.946, 0.422, 0.263, 0.943, 0.417, 0.243, 0.939, 0.411, 0.223,
      0.935, 0.405, 0.202, 0.931, 0.399, 0.181, 0.927, 0.393, 0.158, 0.923,
      0.387, 0.134, 0.918, 0.381, 0.107,
-     ]).reshape((65, 65, 3))
+     ],
+    (65, 65, 3))
 
-BiOrangeBlue = np.array(
+BiOrangeBlue = (
     [0.000, 0.000, 0.000, 0.000, 0.062, 0.125, 0.000, 0.125, 0.250, 0.000,
      0.188, 0.375, 0.000, 0.250, 0.500, 0.000, 0.312, 0.625, 0.000, 0.375,
      0.750, 0.000, 0.438, 0.875, 0.000, 0.500, 1.000, 0.125, 0.062, 0.000,
@@ -1301,12 +1301,18 @@ BiOrangeBlue = np.array(
      0.562, 0.125, 1.000, 0.625, 0.250, 1.000, 0.688, 0.375, 1.000, 0.750,
      0.500, 1.000, 0.812, 0.625, 1.000, 0.875, 0.750, 1.000, 0.938, 0.875,
      1.000, 1.000, 1.000,
-     ]).reshape((9, 9, 3))
+     ],
+    (9, 9, 3))
 
 cmaps = {
-    "BiPeak": SegmentedBivarColormap(
-        BiPeak, 256, "square", (.5, .5), name="BiPeak"),
-    "BiOrangeBlue": SegmentedBivarColormap(
-        BiOrangeBlue, 256, "square", (0, 0), name="BiOrangeBlue"),
-    "BiCone": SegmentedBivarColormap(BiPeak, 256, "circle", (.5, .5), name="BiCone"),
+    "BiPeak": (*BiPeak, 256, "square", (.5, .5)),
+    "BiOrangeBlue": (*BiOrangeBlue, 256, "square", (0, 0)),
+    "BiCone": (*BiPeak, 256, "circle", (.5, .5)),
 }
+
+
+def cmap_init(name, cmap_spec):
+    from matplotlib.colors import SegmentedBivarColormap
+    data, shape, *args = cmap_spec
+    return SegmentedBivarColormap(np.array(data).reshape(shape), *args,
+                                  name=name)
