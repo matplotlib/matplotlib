@@ -14,7 +14,7 @@ from matplotlib.backend_bases import (
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, __version__, QT_API, _to_int, _isdeleted)
+    QtCore, QtGui, QtWidgets, QtSvg, __version__, QT_API, _to_int, _isdeleted)
 
 
 # SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name
@@ -710,36 +710,24 @@ class _IconEngine(QtGui.QIconEngine):
             return QtGui.QPixmap()
 
         # Get the current device pixel ratio
-        if self.toolbar:
-            dpr = self.toolbar.devicePixelRatioF() or 1
-        else:
-            dpr = 1
+        dpr = (self.toolbar.devicePixelRatioF() or 1) if self.toolbar else 1
 
         # Try SVG first, then fall back to PNG
         svg_path = self.image_path.with_suffix('.svg')
         if svg_path.exists():
-            return self._create_pixmap(svg_path, size, dpr, is_svg=True)
+            return self._create_pixmap_from_svg(svg_path, size, dpr)
         else:
             large_path = self.image_path.with_name(self.image_path.stem + '_large.png')
             path = large_path if large_path.exists() else self.image_path
-            return self._create_pixmap(path, size, dpr, is_svg=False)
+            scaled_size = QtCore.QSize(
+                int(size.width() * dpr),
+                int(size.height() * dpr)
+            )
+            return self._create_pixmap_from_png(path, scaled_size, dpr)
 
-    def _create_pixmap(self, image_path, size, dpr, is_svg=False):
-        """Create a pixmap from image file with proper scaling and dark mode support."""
-        # Create high-resolution pixmap
-        scaled_size = QtCore.QSize(int(size.width() * dpr), int(size.height() * dpr))
-        pixmap = QtGui.QPixmap(scaled_size)
-        pixmap.setDevicePixelRatio(dpr)
-        pixmap.fill(QtCore.Qt.GlobalColor.transparent)
-
-        if is_svg:
-            return self._render_svg(image_path, pixmap, size, dpr)
-        else:
-            return self._render_png(image_path, pixmap, scaled_size, dpr)
-
-    def _render_svg(self, svg_path, pixmap, size, dpr):
-        """Render SVG content to pixmap."""
-        QSvgRenderer = qt_compat.get_qsvg_renderer()
+    def _create_pixmap_from_svg(self, svg_path, size, dpr):
+        """Create a pixmap from SVG with proper scaling and dark mode support."""
+        QSvgRenderer = getattr(QtSvg, "QSvgRenderer", None)
         if QSvgRenderer is None:
             return QtGui.QPixmap()
 
@@ -753,6 +741,11 @@ class _IconEngine(QtGui.QIconEngine):
         if not renderer.isValid():
             return QtGui.QPixmap()
 
+        scaled_size = QtCore.QSize(int(size.width() * dpr), int(size.height() * dpr))
+        pixmap = QtGui.QPixmap(scaled_size)
+        pixmap.setDevicePixelRatio(dpr)
+        pixmap.fill(QtCore.Qt.GlobalColor.transparent)
+
         painter = QtGui.QPainter()
         try:
             painter.begin(pixmap)
@@ -763,15 +756,15 @@ class _IconEngine(QtGui.QIconEngine):
 
         return pixmap
 
-    def _render_png(self, png_path, pixmap, scaled_size, dpr):
-        """Render PNG content to pixmap with scaling and dark mode support."""
+    def _create_pixmap_from_png(self, png_path, size, dpr):
+        """Create a pixmap from PNG with scaling and dark mode support."""
         source_pixmap = QtGui.QPixmap(str(png_path))
         if source_pixmap.isNull():
             return QtGui.QPixmap()
 
         # Scale to requested size
         scaled_pixmap = source_pixmap.scaled(
-            scaled_size,
+            size,
             QtCore.Qt.AspectRatioMode.KeepAspectRatio,
             QtCore.Qt.TransformationMode.SmoothTransformation
         )
