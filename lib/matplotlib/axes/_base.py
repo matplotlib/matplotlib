@@ -1736,6 +1736,8 @@ class _AxesBase(martist.Artist):
         Return whether the Axes will adjust its physical dimension ('box') or
         its data limits ('datalim') to achieve the desired aspect ratio.
 
+        Newly created Axes default to 'box'.
+
         See Also
         --------
         matplotlib.axes.Axes.set_adjustable
@@ -1761,6 +1763,8 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
+        matplotlib.axes.Axes.get_adjustable
+            Return the current value of *adjustable*.
         matplotlib.axes.Axes.set_aspect
             For a description of aspect handling.
 
@@ -1792,7 +1796,7 @@ class _AxesBase(martist.Artist):
                              "Axes which override 'get_data_ratio'")
         for ax in axs:
             ax._adjustable = adjustable
-        self.stale = True
+            ax.stale = True
 
     def get_box_aspect(self):
         """
@@ -2380,9 +2384,9 @@ class _AxesBase(martist.Artist):
             # only update the dataLim for x/y if the collection uses transData
             # in this direction.
             x_is_data, y_is_data = (collection.get_transform()
-                                    .contains_branch_seperately(self.transData))
+                                    .contains_branch_separately(self.transData))
             ox_is_data, oy_is_data = (collection.get_offset_transform()
-                                      .contains_branch_seperately(self.transData))
+                                      .contains_branch_separately(self.transData))
             self.update_datalim(
                 points,
                 updatex=x_is_data or ox_is_data,
@@ -2451,7 +2455,7 @@ class _AxesBase(martist.Artist):
 
         if line_trf == self.transData:
             data_path = path
-        elif any(line_trf.contains_branch_seperately(self.transData)):
+        elif any(line_trf.contains_branch_separately(self.transData)):
             # Compute the transform from line coordinates to data coordinates.
             trf_to_data = line_trf - self.transData
             # If transData is affine we can use the cached non-affine component
@@ -2474,7 +2478,7 @@ class _AxesBase(martist.Artist):
         if not data_path.vertices.size:
             return
 
-        updatex, updatey = line_trf.contains_branch_seperately(self.transData)
+        updatex, updatey = line_trf.contains_branch_separately(self.transData)
         if self.name != "rectilinear":
             # This block is mostly intended to handle axvline in polar plots,
             # for which updatey would otherwise be True.
@@ -2527,7 +2531,7 @@ class _AxesBase(martist.Artist):
             vertices = np.vstack(vertices)
 
         patch_trf = patch.get_transform()
-        updatex, updatey = patch_trf.contains_branch_seperately(self.transData)
+        updatex, updatey = patch_trf.contains_branch_separately(self.transData)
         if not (updatex or updatey):
             return
         if self.name != "rectilinear":

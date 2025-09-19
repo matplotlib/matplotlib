@@ -1333,9 +1333,11 @@ class Axis(martist.Artist):
     def _get_ticklabel_bboxes(self, ticks, renderer):
         """Return lists of bboxes for ticks' label1's and label2's."""
         return ([tick.label1.get_window_extent(renderer)
-                 for tick in ticks if tick.label1.get_visible()],
+                 for tick in ticks
+                 if tick.label1.get_visible() and tick.label1.get_in_layout()],
                 [tick.label2.get_window_extent(renderer)
-                 for tick in ticks if tick.label2.get_visible()])
+                 for tick in ticks
+                 if tick.label2.get_visible() and tick.label2.get_in_layout()])
 
     def get_tightbbox(self, renderer=None, *, for_layout_only=False):
         """

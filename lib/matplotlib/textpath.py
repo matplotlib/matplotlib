@@ -231,7 +231,9 @@ class TextToPath:
         # Gather font information and do some setup for combining
         # characters into strings.
         for text in page.text:
-            font = get_font(text.font_path)
+            font = get_font(text.font.resolve_path())
+            if text.font.subfont:
+                raise NotImplementedError("Indexing TTC fonts is not supported yet")
             glyph_repr = self._get_glyph_repr(font, text.index)
             if glyph_repr not in glyph_map:
                 font.clear()

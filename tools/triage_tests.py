@@ -263,7 +263,7 @@ class Entry:
             ]
         self.thumbnails = [self.dir / x for x in self.thumbnails]
 
-        if not Path(self.destdir, self.generated).exists():
+        if self.destdir is None or not Path(self.destdir, self.generated).exists():
             # This case arises from a check_figures_equal test.
             self.status = 'autogen'
         elif ((self.dir / self.generated).read_bytes()
@@ -281,7 +281,6 @@ class Entry:
             path = self.source / baseline_dir / reldir
             if path.is_dir():
                 return path
-        raise ValueError(f"Can't find baseline dir for {reldir}")
 
     @property
     def display(self):

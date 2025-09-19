@@ -517,7 +517,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             if not self._draw_pending:
                 return
             self._draw_pending = False
-            if self.height() <= 0 or self.width() <= 0:
+            if _isdeleted(self) or self.height() <= 0 or self.width() <= 0:
                 return
             try:
                 self.draw()
@@ -674,6 +674,7 @@ class FigureManagerQT(FigureManagerBase):
         if self.toolbar:
             self.toolbar.destroy()
         self.window.close()
+        super().destroy()
 
     def get_window_title(self):
         return self.window.windowTitle()
