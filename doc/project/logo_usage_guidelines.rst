@@ -16,7 +16,7 @@ View the :doc:`/gallery/misc/logos2` to see the code to generate the logo using 
 - Keep the ratio consistent
 - Maintain the same colors
 
-.. grid:: 2
+.. grid:: 1
 
     .. grid-item-card::  Primary logo light
 
@@ -25,8 +25,6 @@ View the :doc:`/gallery/misc/logos2` to see the code to generate the logo using 
     .. grid-item-card::  Primary logo dark
             
         .. image:: /_static/logo2_dark.svg
-
-.. grid:: 2
 
     .. grid-item-card::  Logo mark, same for both
 
