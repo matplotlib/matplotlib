@@ -53,13 +53,9 @@ def test_resampled():
     colorlist[:, 1] = 0.2
     colorlist[:, 2] = np.linspace(1, 0, n)
     colorlist[:, 3] = 0.7
-    lsc = mcolors.LinearSegmentedColormap.from_list('lsc', colorlist)
-    lc = mcolors.ListedColormap(colorlist)
-    # Set some bad values for testing too
-    for cmap in [lsc, lc]:
-        cmap.set_under('r')
-        cmap.set_over('g')
-        cmap.set_bad('b')
+    lsc = mcolors.LinearSegmentedColormap.from_list(
+        'lsc', colorlist, under='red', over='green', bad='blue')
+    lc = mcolors.ListedColormap(colorlist, under='red', over='green', bad='blue')
     lsc3 = lsc.resampled(3)
     lc3 = lc.resampled(3)
     expected = np.array([[0.0, 0.2, 1.0, 0.7],
@@ -371,9 +367,7 @@ def test_BoundaryNorm():
     assert_array_equal(mynorm(x), ref)
 
     # Without interpolation
-    cmref = mcolors.ListedColormap(['blue', 'red'])
-    cmref.set_over('black')
-    cmref.set_under('white')
+    cmref = mcolors.ListedColormap(['blue', 'red'], under='white', over='black')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red', 'black'])
 
     assert mcolors.same_color(cmref.get_over(), 'black')
@@ -395,8 +389,7 @@ def test_BoundaryNorm():
     assert_array_equal(cmshould(mynorm(x)), cmref(refnorm(x)))
 
     # Just min
-    cmref = mcolors.ListedColormap(['blue', 'red'])
-    cmref.set_under('white')
+    cmref = mcolors.ListedColormap(['blue', 'red'], under='white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red'])
 
     assert mcolors.same_color(cmref.get_under(), 'white')
@@ -413,8 +406,7 @@ def test_BoundaryNorm():
     assert_array_equal(cmshould(mynorm(x)), cmref(refnorm(x)))
 
     # Just max
-    cmref = mcolors.ListedColormap(['blue', 'red'])
-    cmref.set_over('black')
+    cmref = mcolors.ListedColormap(['blue', 'red'], over='black')
     cmshould = mcolors.ListedColormap(['blue', 'red', 'black'])
 
     assert mcolors.same_color(cmref.get_over(), 'black')
@@ -928,7 +920,7 @@ def test_cmap_and_norm_from_levels_and_colors2():
     for extend, i1, cases in tests:
         cmap, norm = mcolors.from_levels_and_colors(levels, colors[0:i1],
                                                     extend=extend)
-        cmap.set_bad(bad)
+        cmap = cmap.with_extremes(bad=bad)
         for d_val, expected_color in cases.items():
             if d_val == masked_value:
                 d_val = np.ma.array([1], mask=True)

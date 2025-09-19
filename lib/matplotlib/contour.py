@@ -735,13 +735,12 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                     i0 = 1
 
             cmap = mcolors.ListedColormap(
-                cbook._resize_sequence(color_sequence[i0:], ncolors))
-
-            if use_set_under_over:
-                if self._extend_min:
-                    cmap.set_under(color_sequence[0])
-                if self._extend_max:
-                    cmap.set_over(color_sequence[-1])
+                cbook._resize_sequence(color_sequence[i0:], ncolors),
+                under=(color_sequence[0]
+                       if use_set_under_over and self._extend_min else None),
+                over=(color_sequence[-1]
+                      if use_set_under_over and self._extend_max else None),
+            )
 
         # label lists must be initialized here
         self.labelTexts = []

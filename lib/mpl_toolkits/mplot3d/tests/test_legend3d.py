@@ -90,8 +90,7 @@ def test_contourf_legend_elements():
     cs = ax.contourf(x, y, h, levels=[10, 30, 50],
                      colors=['#FFFF00', '#FF00FF', '#00FFFF'],
                      extend='both')
-    cs.cmap.set_over('red')
-    cs.cmap.set_under('blue')
+    cs.cmap = cs.cmap.with_extremes(over='red', under='blue')
     cs.changed()
     artists, labels = cs.legend_elements()
     assert labels == ['$x \\leq -1e+250s$',
