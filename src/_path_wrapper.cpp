@@ -1,5 +1,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #include <array>
 #include <limits>
@@ -303,7 +306,11 @@ Py_is_sorted_and_has_non_nan(py::object obj)
     return result;
 }
 
-PYBIND11_MODULE(_path, m, py::mod_gil_not_used())
+PYBIND11_MODULE(_path, m, py::mod_gil_not_used()
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+                ,py::multiple_interpreters::per_interpreter_gil()
+#endif
+)
 {
     m.def("point_in_path", &Py_point_in_path,
           "x"_a, "y"_a, "radius"_a, "path"_a, "trans"_a);
