@@ -511,12 +511,8 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
 
     transformed_path_t marker_path_transformed(marker_path, marker_trans);
     nan_removed_t marker_path_nan_removed(marker_path_transformed, true, marker_path.has_codes());
-    e_snap_mode snap_mode = gc.snap_mode;
-    if (snap_mode == SNAP_AUTO) {
-        snap_mode = SNAP_TRUE;
-    }
     snap_t marker_path_snapped(marker_path_nan_removed,
-                               snap_mode,
+                               gc.snap_mode,
                                marker_path.total_vertices(),
                                points_to_pixels(gc.linewidth));
     curve_t marker_path_curve(marker_path_snapped);
