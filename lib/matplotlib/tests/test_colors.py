@@ -111,7 +111,8 @@ def test_colormap_copy():
     with np.errstate(invalid='ignore'):
         ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     cmap2 = copy.copy(copied_cmap)
-    cmap2.set_bad('g')
+    with pytest.warns(PendingDeprecationWarning):
+        cmap2.set_bad('g')
     with np.errstate(invalid='ignore'):
         ret2 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     assert_array_equal(ret1, ret2)
@@ -121,7 +122,8 @@ def test_colormap_copy():
     with np.errstate(invalid='ignore'):
         ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     cmap2 = copy.copy(copied_cmap)
-    cmap2.set_bad('g')
+    with pytest.warns(PendingDeprecationWarning):
+        cmap2.set_bad('g')
     with np.errstate(invalid='ignore'):
         ret2 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     assert_array_equal(ret1, ret2)
@@ -135,7 +137,8 @@ def test_colormap_equals():
     # But the same data should be equal
     assert cm_copy == cmap
     # Change the copy
-    cm_copy.set_bad('y')
+    with pytest.warns(PendingDeprecationWarning):
+        cm_copy.set_bad('y')
     assert cm_copy != cmap
     # Make sure we can compare different sizes without failure
     cm_copy._lut = cm_copy._lut[:10, :]
@@ -1535,7 +1538,8 @@ def test_get_under_over_bad():
 def test_non_mutable_get_values(kind):
     cmap = copy.copy(mpl.colormaps['viridis'])
     init_value = getattr(cmap, f'get_{kind}')()
-    getattr(cmap, f'set_{kind}')('k')
+    with pytest.warns(PendingDeprecationWarning):
+        getattr(cmap, f'set_{kind}')('k')
     black_value = getattr(cmap, f'get_{kind}')()
     assert np.all(black_value == [0, 0, 0, 1])
     assert not np.all(init_value == black_value)
