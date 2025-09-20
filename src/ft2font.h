@@ -111,6 +111,8 @@ class FT2Font
     void close();
     void clear();
     void set_size(double ptsize, double dpi);
+    void _set_transform(
+        std::array<std::array<FT_Fixed, 2>, 2> matrix, std::array<FT_Fixed, 2> delta);
     void set_charmap(int i);
     void select_charmap(unsigned long i);
     void set_text(std::u32string_view codepoints, double angle, FT_Int32 flags,
@@ -136,6 +138,9 @@ class FT2Font
     void draw_glyph_to_bitmap(
         py::array_t<uint8_t, py::array::c_style> im,
         int x, int y, size_t glyphInd, bool antialiased);
+    void _draw_glyph_at(
+        py::array_t<uint8_t, py::array::c_style> im,
+        double x, double y, size_t glyphInd, bool antialiased);
     std::string get_glyph_name(unsigned int glyph_number);
     long get_name_index(char *name);
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);
