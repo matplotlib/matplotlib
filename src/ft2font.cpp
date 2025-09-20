@@ -319,7 +319,9 @@ void FT2Font::set_kerning_factor(int factor)
 }
 
 void FT2Font::set_text(
-    std::u32string_view text, double angle, FT_Int32 flags, std::vector<double> &xys)
+    std::u32string_view text, double angle, FT_Int32 flags,
+    LanguageType languages,
+    std::vector<double> &xys)
 {
     FT_Matrix matrix; /* transformation matrix */
 
@@ -357,6 +359,16 @@ void FT2Font::set_text(
     }
     if (!raqm_set_freetype_load_flags(rq, flags)) {
         throw std::runtime_error("failed to set text flags for layout");
+    }
+    if (languages) {
+        for (auto & [lang_str, start, end] : *languages) {
+            if (!raqm_set_language(rq, lang_str.c_str(), start, end - start)) {
+                throw std::runtime_error(
+                    "failed to set language between {} and {} characters "_s
+                    "to {!r} for layout"_s.format(
+                        start, end, lang_str));
+            }
+        }
     }
     if (!raqm_layout(rq)) {
         throw std::runtime_error("failed to layout text");
@@ -421,6 +433,16 @@ void FT2Font::set_text(
         }
         if (!raqm_set_freetype_load_flags(rq, flags)) {
             throw std::runtime_error("failed to set text flags for layout");
+        }
+        if (languages) {
+            for (auto & [lang_str, start, end] : *languages) {
+                if (!raqm_set_language(rq, lang_str.c_str(), start, end - start)) {
+                    throw std::runtime_error(
+                        "failed to set language between {} and {} characters "_s
+                        "to {!r} for layout"_s.format(
+                            start, end, lang_str));
+                }
+            }
         }
         if (!raqm_layout(rq)) {
             throw std::runtime_error("failed to layout text");

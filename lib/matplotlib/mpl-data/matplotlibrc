@@ -292,6 +292,11 @@
 ## for more information on text properties
 #text.color: black
 
+## The language of the text in a format accepted by libraqm, namely `a BCP47 language
+## code <https://www.w3.org/International/articles/language-tags/>`_. If None, then no
+## particular language will be implied, and default font settings will be used.
+#text.language: None
+
 ## FreeType hinting flag ("foo" corresponds to FT_LOAD_FOO); may be one of the
 ## following (Proprietary Matplotlib-specific synonyms are given in parentheses,
 ## but their use is discouraged):
