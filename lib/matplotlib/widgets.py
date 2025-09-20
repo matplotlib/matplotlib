@@ -117,6 +117,11 @@ class AxesWidget(Widget):
     def __init__(self, ax):
         self.ax = ax
         self._cids = []
+        self._blit_background_id = None
+
+    def __del__(self):
+        if self._blit_background_id is not None:
+            self.canvas._release_blit_background_id(self._blit_background_id)
 
     canvas = property(
         lambda self: getattr(self.ax.get_figure(root=True), 'canvas', None)
@@ -154,6 +159,26 @@ class AxesWidget(Widget):
     def _set_cursor(self, cursor):
         """Update the canvas cursor."""
         self.ax.get_figure(root=True).canvas.set_cursor(cursor)
+
+    def _save_blit_background(self, background):
+        """
+        Save a blit background.
+
+        The background is stored on the canvas in a uniquely identifiable way.
+        It should be read back via `._load_blit_background`. Be prepared that
+        some events may invalidate the background, in which case
+        `._load_blit_background` will return None.
+
+        This currently allows at most one background per widget, which is
+        good enough for all existing widgets.
+        """
+        if self._blit_background_id is None:
+            self._blit_background_id = self.canvas._get_blit_background_id()
+        self.canvas._blit_backgrounds[self._blit_background_id] = background
+
+    def _load_blit_background(self):
+        """Load a blit background; may be None at any time."""
+        return self.canvas._blit_backgrounds.get(self._blit_background_id)
 
 
 class Button(AxesWidget):
@@ -1063,7 +1088,6 @@ class CheckButtons(AxesWidget):
             actives = [False] * len(labels)
 
         self._useblit = useblit and self.canvas.supports_blit
-        self._background = None
 
         ys = np.linspace(1, 0, len(labels)+2)[1:-1]
 
@@ -1110,7 +1134,7 @@ class CheckButtons(AxesWidget):
         """Internal event handler to clear the buttons."""
         if self.ignore(event) or self.canvas.is_saving():
             return
-        self._background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
         self.ax.draw_artist(self._checks)
 
     def _clicked(self, event):
@@ -1215,8 +1239,9 @@ class CheckButtons(AxesWidget):
 
         if self.drawon:
             if self._useblit:
-                if self._background is not None:
-                    self.canvas.restore_region(self._background)
+                background = self._load_blit_background()
+                if background is not None:
+                    self.canvas.restore_region(background)
                 self.ax.draw_artist(self._checks)
                 self.canvas.blit(self.ax.bbox)
             else:
@@ -1650,7 +1675,6 @@ class RadioButtons(AxesWidget):
         ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
 
         self._useblit = useblit and self.canvas.supports_blit
-        self._background = None
 
         label_props = _expand_text_props(label_props)
         self.labels = [
@@ -1692,7 +1716,7 @@ class RadioButtons(AxesWidget):
         """Internal event handler to clear the buttons."""
         if self.ignore(event) or self.canvas.is_saving():
             return
-        self._background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
         self.ax.draw_artist(self._buttons)
 
     def _clicked(self, event):
@@ -1785,8 +1809,9 @@ class RadioButtons(AxesWidget):
 
         if self.drawon:
             if self._useblit:
-                if self._background is not None:
-                    self.canvas.restore_region(self._background)
+                background = self._load_blit_background()
+                if background is not None:
+                    self.canvas.restore_region(background)
                 self.ax.draw_artist(self._buttons)
                 self.canvas.blit(self.ax.bbox)
             else:
@@ -1942,7 +1967,6 @@ class Cursor(AxesWidget):
         self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
         self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
 
-        self.background = None
         self.needclear = False
 
     def clear(self, event):
@@ -1950,7 +1974,7 @@ class Cursor(AxesWidget):
         if self.ignore(event) or self.canvas.is_saving():
             return
         if self.useblit:
-            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+            self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
 
     def onmove(self, event):
         """Internal event handler to draw the cursor when the mouse moves."""
@@ -1975,8 +1999,9 @@ class Cursor(AxesWidget):
             return
         # Redraw.
         if self.useblit:
-            if self.background is not None:
-                self.canvas.restore_region(self.background)
+            background = self._load_blit_background()
+            if background is not None:
+                self.canvas.restore_region(background)
             self.ax.draw_artist(self.linev)
             self.ax.draw_artist(self.lineh)
             self.canvas.blit(self.ax.bbox)
@@ -2137,8 +2162,6 @@ class _SelectorWidget(AxesWidget):
         self._state_modifier_keys.update(state_modifier_keys or {})
         self._use_data_coordinates = use_data_coordinates
 
-        self.background = None
-
         if isinstance(button, Integral):
             self.validButtons = [button]
         else:
@@ -2194,7 +2217,7 @@ class _SelectorWidget(AxesWidget):
                 for artist in artists:
                     stack.enter_context(artist._cm_set(visible=False))
                 self.canvas.draw()
-            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+            self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
         if needs_redraw:
             for artist in artists:
                 self.ax.draw_artist(artist)
@@ -2241,8 +2264,9 @@ class _SelectorWidget(AxesWidget):
                 self.ax.get_figure(root=True)._get_renderer() is None):
             return
         if self.useblit:
-            if self.background is not None:
-                self.canvas.restore_region(self.background)
+            background = self._load_blit_background()
+            if background is not None:
+                self.canvas.restore_region(background)
             else:
                 self.update_background(None)
             # We need to draw all artists, which are not included in the
