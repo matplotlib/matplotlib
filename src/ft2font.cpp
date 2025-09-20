@@ -320,7 +320,7 @@ void FT2Font::set_kerning_factor(int factor)
 
 void FT2Font::set_text(
     std::u32string_view text, double angle, FT_Int32 flags,
-    LanguageType languages,
+    std::optional<std::vector<std::string>> features, LanguageType languages,
     std::vector<double> &xys)
 {
     FT_Matrix matrix; /* transformation matrix */
@@ -359,6 +359,13 @@ void FT2Font::set_text(
     }
     if (!raqm_set_freetype_load_flags(rq, flags)) {
         throw std::runtime_error("failed to set text flags for layout");
+    }
+    if (features) {
+        for (auto const& feature : *features) {
+            if (!raqm_add_font_feature(rq, feature.c_str(), feature.size())) {
+                throw std::runtime_error("failed to set font feature {}"_s.format(feature));
+            }
+        }
     }
     if (languages) {
         for (auto & [lang_str, start, end] : *languages) {
@@ -433,6 +440,14 @@ void FT2Font::set_text(
         }
         if (!raqm_set_freetype_load_flags(rq, flags)) {
             throw std::runtime_error("failed to set text flags for layout");
+        }
+        if (features) {
+            for (auto const& feature : *features) {
+                if (!raqm_add_font_feature(rq, feature.c_str(), feature.size())) {
+                    throw std::runtime_error(
+                        "failed to set font feature {}"_s.format(feature));
+                }
+            }
         }
         if (languages) {
             for (auto & [lang_str, start, end] : *languages) {
