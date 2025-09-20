@@ -111,6 +111,8 @@ class FT2Font
     void close();
     void clear();
     void set_size(double ptsize, double dpi);
+    void _set_transform(
+        std::array<std::array<FT_Fixed, 2>, 2> matrix, std::array<FT_Fixed, 2> delta);
     void set_charmap(int i);
     void select_charmap(unsigned long i);
     void set_text(std::u32string_view codepoints, double angle, FT_Int32 flags,
@@ -179,7 +181,9 @@ class FT2Font
     py::array_t<uint8_t, py::array::c_style> image;
     FT_Face face;
     FT_Vector pen;    /* untransformed origin  */
+  public:
     std::vector<FT_Glyph> glyphs;
+  private:
     std::vector<FT2Font *> fallbacks;
     std::unordered_map<long, FT2Font *> char_to_font;
     FT_BBox bbox;
