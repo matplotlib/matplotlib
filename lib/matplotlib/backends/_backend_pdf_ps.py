@@ -2,9 +2,12 @@
 Common functionality between the PDF and PS backends.
 """
 
+from __future__ import annotations
+
 from io import BytesIO
 import functools
 import logging
+import typing
 
 from fontTools import subset
 
@@ -14,24 +17,29 @@ from .._afm import AFM
 from ..backend_bases import RendererBase
 
 
+if typing.TYPE_CHECKING:
+    from .ft2font import CharacterCodeType, FT2Font, GlyphIndexType
+    from fontTools.ttLib import TTFont
+
+
 @functools.lru_cache(50)
 def _cached_get_afm_from_fname(fname):
     with open(fname, "rb") as fh:
         return AFM(fh)
 
 
-def get_glyphs_subset(fontfile, characters):
+def get_glyphs_subset(fontfile: str, glyphs: set[GlyphIndexType]) -> TTFont:
     """
-    Subset a TTF font
+    Subset a TTF font.
 
-    Reads the named fontfile and restricts the font to the characters.
+    Reads the named fontfile and restricts the font to the glyphs.
 
     Parameters
     ----------
     fontfile : str
         Path to the font file
-    characters : str
-        Continuous set of characters to include in subset
+    glyphs : set[GlyphIndexType]
+        Set of glyph indices to include in subset.
 
     Returns
     -------
@@ -39,8 +47,8 @@ def get_glyphs_subset(fontfile, characters):
         An open font object representing the subset, which needs to
         be closed by the caller.
     """
-
-    options = subset.Options(glyph_names=True, recommended_glyphs=True)
+    options = subset.Options(glyph_names=True, recommended_glyphs=True,
+                             retain_gids=True)
 
     # Prevent subsetting extra tables.
     options.drop_tables += [
@@ -71,7 +79,7 @@ def get_glyphs_subset(fontfile, characters):
 
     font = subset.load_font(fontfile, options)
     subsetter = subset.Subsetter(options=options)
-    subsetter.populate(text=characters)
+    subsetter.populate(gids=glyphs)
     subsetter.subset(font)
     return font
 
@@ -97,24 +105,105 @@ def font_as_file(font):
 
 class CharacterTracker:
     """
-    Helper for font subsetting by the pdf and ps backends.
+    Helper for font subsetting by the PDF and PS backends.
 
-    Maintains a mapping of font paths to the set of character codepoints that
-    are being used from that font.
+    Maintains a mapping of font paths to the set of characters and glyphs that are being
+    used from that font.
+
+    Attributes
+    ----------
+    subset_size : int
+        The size at which characters are grouped into subsets.
+    used : dict[tuple[str, int], dict[CharacterCodeType, GlyphIndexType]]
+        A dictionary of font files to character maps.
+
+        The key is a font filename and subset within that font.
+
+        The value is a dictionary mapping a character code to a glyph index. Note this
+        mapping is the inverse of FreeType, which maps glyph indices to character codes.
+
+        If *subset_size* is not set, then there will only be one subset per font
+        filename.
     """
 
-    def __init__(self):
-        self.used = {}
+    def __init__(self, subset_size: int = 0):
+        """
+        Parameters
+        ----------
+        subset_size : int, optional
+            The maximum size that is supported for an embedded font. If provided, then
+            characters will be grouped into these sized subsets.
+        """
+        self.used: dict[tuple[str, int], dict[CharacterCodeType, GlyphIndexType]] = {}
+        self.subset_size = subset_size
 
-    def track(self, font, s):
-        """Record that string *s* is being typeset using font *font*."""
+    def track(self, font: FT2Font, s: str) -> list[tuple[int, CharacterCodeType]]:
+        """
+        Record that string *s* is being typeset using font *font*.
+
+        Parameters
+        ----------
+        font : FT2Font
+            A font that is being used for the provided string.
+        s : str
+            The string that should be marked as tracked by the provided font.
+
+        Returns
+        -------
+        list[tuple[int, CharacterCodeType]]
+            A list of subset and character code pairs corresponding to the input string.
+            If a *subset_size* is specified on this instance, then the character code
+            will correspond with the given subset (and not necessarily the string as a
+            whole). If *subset_size* is not specified, then the subset will always be 0
+            and the character codes will be returned from the string unchanged.
+        """
+        font_glyphs = []
         char_to_font = font._get_fontmap(s)
         for _c, _f in char_to_font.items():
-            self.used.setdefault(_f.fname, set()).add(ord(_c))
+            charcode = ord(_c)
+            glyph_index = _f.get_char_index(charcode)
+            if self.subset_size != 0:
+                subset = charcode // self.subset_size
+                subset_charcode = charcode % self.subset_size
+            else:
+                subset = 0
+                subset_charcode = charcode
+            self.used.setdefault((_f.fname, subset), {})[subset_charcode] = glyph_index
+            font_glyphs.append((subset, subset_charcode))
+        return font_glyphs
 
-    def track_glyph(self, font, glyph):
-        """Record that codepoint *glyph* is being typeset using font *font*."""
-        self.used.setdefault(font.fname, set()).add(glyph)
+    def track_glyph(
+            self, font: FT2Font, charcode: CharacterCodeType,
+            glyph: GlyphIndexType) -> tuple[int, CharacterCodeType]:
+        """
+        Record character code *charcode* at glyph index *glyph* as using font *font*.
+
+        Parameters
+        ----------
+        font : FT2Font
+            A font that is being used for the provided string.
+        charcode : CharacterCodeType
+            The character code to record.
+        glyph : GlyphIndexType
+            The corresponding glyph index to record.
+
+        Returns
+        -------
+        subset : int
+            The subset in which the returned character code resides. If *subset_size*
+            was not specified on this instance, then this is always 0.
+        subset_charcode : CharacterCodeType
+            The character code within the above subset. If *subset_size* was not
+            specified on this instance, then this is just *charcode* unmodified.
+        """
+        if self.subset_size != 0:
+            subset = charcode // self.subset_size
+            subset_charcode = charcode % self.subset_size
+        else:
+            subset = 0
+            subset_charcode = charcode
+        self.used.setdefault((font.fname, subset), {})[subset_charcode] = glyph
+        return (subset, subset_charcode)
 
 
 class RendererPDFPSBase(RendererBase):
