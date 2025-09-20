@@ -1,5 +1,6 @@
 import itertools
 import io
+import os
 from pathlib import Path
 from typing import cast
 
@@ -132,6 +133,27 @@ def test_ft2font_stix_bold_attrs():
     assert font.max_advance_width == 1130
     assert font.max_advance_height == 2499
     assert font.bbox == (4, -355, 1185, 2095)
+
+
+def test_ft2font_valid_args():
+    class PathLikeClass:
+        def __init__(self, filename):
+            self.filename = filename
+
+        def __fspath__(self):
+            return self.filename
+
+    file_str = fm.findfont('DejaVu Sans')
+    file_bytes = os.fsencode(file_str)
+
+    font = ft2font.FT2Font(file_str)
+    assert font.fname == file_str
+    font = ft2font.FT2Font(file_bytes)
+    assert font.fname == file_bytes
+    font = ft2font.FT2Font(PathLikeClass(file_str))
+    assert font.fname == file_str
+    font = ft2font.FT2Font(PathLikeClass(file_bytes))
+    assert font.fname == file_bytes
 
 
 def test_ft2font_invalid_args(tmp_path):
