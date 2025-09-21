@@ -53,6 +53,8 @@ class Gcf:
         two managers share the same number.
         """
         if all(hasattr(num, attr) for attr in ["num", "destroy"]):
+            # num is a manager-like instance (not necessarily a
+            # FigureManagerBase subclass)
             manager = num
             if cls.figs.get(manager.num) is manager:
                 cls.figs.pop(manager.num)
