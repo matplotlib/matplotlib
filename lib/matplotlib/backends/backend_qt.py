@@ -674,6 +674,7 @@ class FigureManagerQT(FigureManagerBase):
         if self.toolbar:
             self.toolbar.destroy()
         self.window.close()
+        super().destroy()
 
     def get_window_title(self):
         return self.window.windowTitle()

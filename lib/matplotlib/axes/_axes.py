@@ -9050,8 +9050,7 @@ such objects
 
         # Proactive validation: if positions are datetime-like
         # widths must be timedelta-like.
-        if any(isinstance(p, (datetime.datetime, datetime.date))
-               for p in positions):
+        if (isinstance(positions[0], (datetime.datetime, datetime.date))):
             _widths = widths if not np.isscalar(widths) else [widths]
             if not isinstance(_widths[0], (datetime.timedelta)):
                 raise TypeError(

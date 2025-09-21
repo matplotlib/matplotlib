@@ -3,12 +3,12 @@
 #ifndef MPL_PATH_H
 #define MPL_PATH_H
 
-#include <limits>
-#include <math.h>
-#include <vector>
-#include <cmath>
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <limits>
 #include <string>
+#include <vector>
 
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
@@ -25,6 +25,8 @@ struct XY
 {
     double x;
     double y;
+
+    XY() : x(0), y(0) {}
 
     XY(double x_, double y_) : x(x_), y(y_)
     {
@@ -43,7 +45,8 @@ struct XY
 
 typedef std::vector<XY> Polygon;
 
-void _finalize_polygon(std::vector<Polygon> &result, int closed_only)
+inline void
+_finalize_polygon(std::vector<Polygon> &result, bool closed_only)
 {
     if (result.size() == 0) {
         return;
@@ -311,43 +314,39 @@ inline bool point_on_path(
 
 struct extent_limits
 {
-    double x0;
-    double y0;
-    double x1;
-    double y1;
-    double xm;
-    double ym;
+    XY start;
+    XY end;
+    /* minpos is the minimum positive values in the data; used by log scaling. */
+    XY minpos;
+
+    extent_limits() : start{0,0}, end{0,0}, minpos{0,0} {
+        reset();
+    }
+
+    void reset()
+    {
+        start.x = std::numeric_limits<double>::infinity();
+        start.y = std::numeric_limits<double>::infinity();
+        end.x = -std::numeric_limits<double>::infinity();
+        end.y = -std::numeric_limits<double>::infinity();
+        minpos.x = std::numeric_limits<double>::infinity();
+        minpos.y = std::numeric_limits<double>::infinity();
+    }
+
+    void update(double x, double y)
+    {
+        start.x = std::min(start.x, x);
+        start.y = std::min(start.y, y);
+        end.x = std::max(end.x, x);
+        end.y = std::max(end.y, y);
+        if (x > 0.0) {
+            minpos.x = std::min(minpos.x, x);
+        }
+        if (y > 0.0) {
+            minpos.y = std::min(minpos.y, y);
+        }
+    }
 };
-
-void reset_limits(extent_limits &e)
-{
-    e.x0 = std::numeric_limits<double>::infinity();
-    e.y0 = std::numeric_limits<double>::infinity();
-    e.x1 = -std::numeric_limits<double>::infinity();
-    e.y1 = -std::numeric_limits<double>::infinity();
-    /* xm and ym are the minimum positive values in the data, used
-       by log scaling */
-    e.xm = std::numeric_limits<double>::infinity();
-    e.ym = std::numeric_limits<double>::infinity();
-}
-
-inline void update_limits(double x, double y, extent_limits &e)
-{
-    if (x < e.x0)
-        e.x0 = x;
-    if (y < e.y0)
-        e.y0 = y;
-    if (x > e.x1)
-        e.x1 = x;
-    if (y > e.y1)
-        e.y1 = y;
-    /* xm and ym are the minimum positive values in the data, used
-       by log scaling */
-    if (x > 0.0 && x < e.xm)
-        e.xm = x;
-    if (y > 0.0 && y < e.ym)
-        e.ym = y;
-}
 
 template <class PathIterator>
 void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_limits &extents)
@@ -366,7 +365,7 @@ void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_li
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
             continue;
         }
-        update_limits(x, y, extents);
+        extents.update(x, y);
     }
 }
 
@@ -389,7 +388,7 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
 
     agg::trans_affine trans;
 
-    reset_limits(extent);
+    extent.reset();
 
     for (auto i = 0; i < N; ++i) {
         typename PathGenerator::path_iterator path(paths(i % Npaths));
@@ -524,12 +523,14 @@ struct bisectx
     {
     }
 
-    inline void bisect(double sx, double sy, double px, double py, double *bx, double *by) const
+    inline XY bisect(const XY s, const XY p) const
     {
-        *bx = m_x;
-        double dx = px - sx;
-        double dy = py - sy;
-        *by = sy + dy * ((m_x - sx) / dx);
+        double dx = p.x - s.x;
+        double dy = p.y - s.y;
+        return {
+            m_x,
+            s.y + dy * ((m_x - s.x) / dx),
+        };
     }
 };
 
@@ -539,9 +540,9 @@ struct xlt : public bisectx
     {
     }
 
-    inline bool is_inside(double x, double y) const
+    inline bool is_inside(const XY point) const
     {
-        return x <= m_x;
+        return point.x <= m_x;
     }
 };
 
@@ -551,9 +552,9 @@ struct xgt : public bisectx
     {
     }
 
-    inline bool is_inside(double x, double y) const
+    inline bool is_inside(const XY point) const
     {
-        return x >= m_x;
+        return point.x >= m_x;
     }
 };
 
@@ -565,12 +566,14 @@ struct bisecty
     {
     }
 
-    inline void bisect(double sx, double sy, double px, double py, double *bx, double *by) const
+    inline XY bisect(const XY s, const XY p) const
     {
-        *by = m_y;
-        double dx = px - sx;
-        double dy = py - sy;
-        *bx = sx + dx * ((m_y - sy) / dy);
+        double dx = p.x - s.x;
+        double dy = p.y - s.y;
+        return {
+            s.x + dx * ((m_y - s.y) / dy),
+            m_y,
+        };
     }
 };
 
@@ -580,9 +583,9 @@ struct ylt : public bisecty
     {
     }
 
-    inline bool is_inside(double x, double y) const
+    inline bool is_inside(const XY point) const
     {
-        return y <= m_y;
+        return point.y <= m_y;
     }
 };
 
@@ -592,9 +595,9 @@ struct ygt : public bisecty
     {
     }
 
-    inline bool is_inside(double x, double y) const
+    inline bool is_inside(const XY point) const
     {
-        return y >= m_y;
+        return point.y >= m_y;
     }
 };
 }
@@ -609,46 +612,30 @@ inline void clip_to_rect_one_step(const Polygon &polygon, Polygon &result, const
         return;
     }
 
-    auto [sx, sy] = polygon.back();
-    for (auto [px, py] : polygon) {
-        sinside = filter.is_inside(sx, sy);
-        pinside = filter.is_inside(px, py);
+    auto s = polygon.back();
+    for (auto p : polygon) {
+        sinside = filter.is_inside(s);
+        pinside = filter.is_inside(p);
 
         if (sinside ^ pinside) {
-            double bx, by;
-            filter.bisect(sx, sy, px, py, &bx, &by);
-            result.emplace_back(bx, by);
+            result.emplace_back(filter.bisect(s, p));
         }
 
         if (pinside) {
-            result.emplace_back(px, py);
+            result.emplace_back(p);
         }
 
-        sx = px;
-        sy = py;
+        s = p;
     }
 }
 
 template <class PathIterator>
-void
-clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vector<Polygon> &results)
+auto
+clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside)
 {
-    double xmin, ymin, xmax, ymax;
-    if (rect.x1 < rect.x2) {
-        xmin = rect.x1;
-        xmax = rect.x2;
-    } else {
-        xmin = rect.x2;
-        xmax = rect.x1;
-    }
-
-    if (rect.y1 < rect.y2) {
-        ymin = rect.y1;
-        ymax = rect.y2;
-    } else {
-        ymin = rect.y2;
-        ymax = rect.y1;
-    }
+    rect.normalize();
+    auto xmin = rect.x1, xmax = rect.x2;
+    auto ymin = rect.y1, ymax = rect.y2;
 
     if (!inside) {
         std::swap(xmin, xmax);
@@ -659,26 +646,27 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
     curve_t curve(path);
 
     Polygon polygon1, polygon2;
-    double x = 0, y = 0;
+    XY point;
     unsigned code = 0;
     curve.rewind(0);
+    std::vector<Polygon> results;
 
     do {
         // Grab the next subpath and store it in polygon1
         polygon1.clear();
         do {
             if (code == agg::path_cmd_move_to) {
-                polygon1.emplace_back(x, y);
+                polygon1.emplace_back(point);
             }
 
-            code = curve.vertex(&x, &y);
+            code = curve.vertex(&point.x, &point.y);
 
             if (code == agg::path_cmd_stop) {
                 break;
             }
 
             if (code != agg::path_cmd_move_to) {
-                polygon1.emplace_back(x, y);
+                polygon1.emplace_back(point);
             }
         } while ((code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
 
@@ -691,12 +679,14 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
 
         // Empty polygons aren't very useful, so skip them
         if (polygon1.size()) {
-            _finalize_polygon(results, 1);
+            _finalize_polygon(results, true);
             results.push_back(polygon1);
         }
     } while (code != agg::path_cmd_stop);
 
-    _finalize_polygon(results, 1);
+    _finalize_polygon(results, true);
+
+    return results;
 }
 
 template <class VerticesArray, class ResultArray>
@@ -956,7 +946,7 @@ void convert_path_to_polygons(PathIterator &path,
                               agg::trans_affine &trans,
                               double width,
                               double height,
-                              int closed_only,
+                              bool closed_only,
                               std::vector<Polygon> &result)
 {
     typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
@@ -980,7 +970,7 @@ void convert_path_to_polygons(PathIterator &path,
 
     while ((code = curve.vertex(&x, &y)) != agg::path_cmd_stop) {
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
-            _finalize_polygon(result, 1);
+            _finalize_polygon(result, true);
             polygon = &result.emplace_back();
         } else {
             if (code == agg::path_cmd_move_to) {
@@ -1051,15 +1041,14 @@ void cleanup_path(PathIterator &path,
 void quad2cubic(double x0, double y0,
                 double x1, double y1,
                 double x2, double y2,
-                double *outx, double *outy)
+                std::array<double, 3> &outx, std::array<double, 3> &outy)
 {
-
-    outx[0] = x0 + 2./3. * (x1 - x0);
-    outy[0] = y0 + 2./3. * (y1 - y0);
-    outx[1] = outx[0] + 1./3. * (x2 - x0);
-    outy[1] = outy[0] + 1./3. * (y2 - y0);
-    outx[2] = x2;
-    outy[2] = y2;
+    std::get<0>(outx) = x0 + 2./3. * (x1 - x0);
+    std::get<0>(outy) = y0 + 2./3. * (y1 - y0);
+    std::get<1>(outx) = std::get<0>(outx) + 1./3. * (x2 - x0);
+    std::get<1>(outy) = std::get<0>(outy) + 1./3. * (y2 - y0);
+    std::get<2>(outx) = x2;
+    std::get<2>(outy) = y2;
 }
 
 
@@ -1104,27 +1093,27 @@ void __add_number(double val, char format_code, int precision,
 template <class PathIterator>
 bool __convert_to_string(PathIterator &path,
                          int precision,
-                         char **codes,
+                         const std::array<std::string, 5> &codes,
                          bool postfix,
                          std::string& buffer)
 {
     const char format_code = 'f';
 
-    double x[3];
-    double y[3];
+    std::array<double, 3> x;
+    std::array<double, 3> y;
     double last_x = 0.0;
     double last_y = 0.0;
 
     unsigned code;
 
-    while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
+    while ((code = path.vertex(&std::get<0>(x), &std::get<0>(y))) != agg::path_cmd_stop) {
         if (code == CLOSEPOLY) {
-            buffer += codes[4];
+            buffer += std::get<4>(codes);
         } else if (code < 5) {
             size_t size = NUM_VERTICES[code];
 
             for (size_t i = 1; i < size; ++i) {
-                unsigned subcode = path.vertex(&x[i], &y[i]);
+                unsigned subcode = path.vertex(&x.at(i), &y.at(i));
                 if (subcode != code) {
                     return false;
                 }
@@ -1133,29 +1122,29 @@ bool __convert_to_string(PathIterator &path,
             /* For formats that don't support quad curves, convert to
                cubic curves */
             if (code == CURVE3 && codes[code - 1][0] == '\0') {
-                quad2cubic(last_x, last_y, x[0], y[0], x[1], y[1], x, y);
+                quad2cubic(last_x, last_y, x.at(0), y.at(0), x.at(1), y.at(1), x, y);
                 code++;
                 size = 3;
             }
 
             if (!postfix) {
-                buffer += codes[code - 1];
+                buffer += codes.at(code - 1);
                 buffer += ' ';
             }
 
             for (size_t i = 0; i < size; ++i) {
-                __add_number(x[i], format_code, precision, buffer);
+                __add_number(x.at(i), format_code, precision, buffer);
                 buffer += ' ';
-                __add_number(y[i], format_code, precision, buffer);
+                __add_number(y.at(i), format_code, precision, buffer);
                 buffer += ' ';
             }
 
             if (postfix) {
-                buffer += codes[code - 1];
+                buffer += codes.at(code - 1);
             }
 
-            last_x = x[size - 1];
-            last_y = y[size - 1];
+            last_x = x.at(size - 1);
+            last_y = y.at(size - 1);
         } else {
             // Unknown code value
             return false;
@@ -1174,7 +1163,7 @@ bool convert_to_string(PathIterator &path,
                        bool simplify,
                        SketchParams sketch_params,
                        int precision,
-                       char **codes,
+                       const std::array<std::string, 5> &codes,
                        bool postfix,
                        std::string& buffer)
 {
@@ -1211,7 +1200,6 @@ bool convert_to_string(PathIterator &path,
         sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
         return __convert_to_string(sketch, precision, codes, postfix, buffer);
     }
-
 }
 
 template<class T>
