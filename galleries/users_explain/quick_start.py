@@ -525,7 +525,7 @@ pc = axs[1, 0].imshow(Z**2 * 100, cmap='plasma', norm=LogNorm(vmin=0.01, vmax=10
 fig.colorbar(pc, ax=axs[1, 0], extend='both')
 axs[1, 0].set_title('imshow() with LogNorm()')
 
-pc = axs[1, 1].scatter(data1, data2, c=data3, cmap='RdBu_r')
+pc = axs[1, 1].scatter(X, Y, c=Z, cmap='RdBu_r')
 fig.colorbar(pc, ax=axs[1, 1], extend='both')
 axs[1, 1].set_title('scatter()')
 
