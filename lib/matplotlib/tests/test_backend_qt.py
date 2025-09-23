@@ -358,8 +358,18 @@ def test_legend_present_absent_toggle(has_legend_initial, target_visible):
             form_data = [general_block, curves_block, mappables_block]
 
             assert callback is not None
+            general_block_copy = list(general_block)
+            # shallow copy is enough for flat list
+            curves_block_copy = [list(row) for row in curves_block]
+            # copy the inner list(s) as well
             callback(form_data)
+            # Only provide (label, cmap, low, high) 4-tuple without interpolation/stage
+            mappables_block_len4 = [["heat", custom_cmap, low, high]]
+            callback([general_block_copy, curves_block_copy, mappables_block_len4])
 
+            # Basic assertions to confirm the branch executed without errors
+            assert img.get_cmap().name == custom_cmap.name
+            assert img.get_clim() == tuple(sorted((low, high)))
             # —— Assertions for legend —— #
             if target_visible:
                 assert ax.legend_ is not None
