@@ -712,9 +712,10 @@ class _IconEngine(QtGui.QIconEngine):
         # Try SVG first, then fall back to PNG
         svg_path = self.image_path.with_suffix('.svg')
         if svg_path.exists():
-            return self._create_pixmap_from_svg(svg_path, size)
-        else:
-            return self._create_pixmap_from_png(self.image_path, size)
+            pixmap = self._create_pixmap_from_svg(svg_path, size)
+            if not pixmap.isNull():
+                return pixmap
+        return self._create_pixmap_from_png(self.image_path, size)
 
     def _devicePixelRatio(self):
         """Return the current device pixel ratio for the toolbar, defaulting to 1."""
@@ -759,13 +760,18 @@ class _IconEngine(QtGui.QIconEngine):
         Prefer to use the *_large.png with the same name; otherwise, use base_path.
         """
         large_path = base_path.with_name(base_path.stem + '_large.png')
-        png_path = large_path if large_path.exists() else base_path
+        source_pixmap = QtGui.QPixmap()
+        for candidate in (large_path, base_path):
+            if not candidate.exists():
+                continue
+            candidate_pixmap = QtGui.QPixmap(str(candidate))
+            if not candidate_pixmap.isNull():
+                source_pixmap = candidate_pixmap
+                break
+        if source_pixmap.isNull():
+            return source_pixmap
 
         dpr = self._devicePixelRatio()
-
-        source_pixmap = QtGui.QPixmap(str(png_path))
-        if source_pixmap.isNull():
-            return QtGui.QPixmap()
 
         # Scale to requested size
         scaled_size = QtCore.QSize(int(size.width() * dpr), int(size.height() * dpr))
@@ -817,7 +823,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 slot = functools.wraps(slot)(functools.partial(slot))
                 slot = QtCore.Slot()(slot)
 
-                a = self.addAction(self._icon(image_file + '.svg'),
+                a = self.addAction(self._icon(image_file + '.png'),
                                    text, slot)
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
@@ -842,7 +848,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             labelAction.setVisible(True)
 
         NavigationToolbar2.__init__(self, canvas)
-
 
     def _icon(self, name):
         """
