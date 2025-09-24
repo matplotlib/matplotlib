@@ -83,7 +83,11 @@ from matplotlib import mlab  # for detrend_none, window_hanning
 from matplotlib.scale import get_scale_names  # noqa: F401
 
 from matplotlib.cm import _colormaps
-from matplotlib.colors import _color_sequences, Colormap
+from matplotlib.colors import (_color_sequences,
+                               Colormap,
+                               BivarColormap,
+                               MultivarColormap,
+                              )
 
 import numpy as np
 
@@ -160,7 +164,7 @@ if TYPE_CHECKING:
 
 
 # We may not need the following imports here:
-from matplotlib.colors import Normalize
+from matplotlib.colors import Norm, Normalize
 from matplotlib.lines import Line2D, AxLine
 from matplotlib.text import Text, Annotation
 from matplotlib.patches import Arrow, Circle, Rectangle  # noqa: F401
@@ -3735,14 +3739,14 @@ def hlines(
 @_copy_docstring_and_deprecators(Axes.imshow)
 def imshow(
     X: ArrayLike | PIL.Image.Image,
-    cmap: str | Colormap | None = None,
-    norm: str | Normalize | None = None,
+    cmap: str | Colormap | BivarColormap | MultivarColormap | None = None,
+    norm: str | Norm | None = None,
     *,
     aspect: Literal["equal", "auto"] | float | None = None,
     interpolation: str | None = None,
     alpha: float | ArrayLike | None = None,
-    vmin: float | None = None,
-    vmax: float | None = None,
+    vmin: float | tuple[float] | None = None,
+    vmax: float | tuple[float] | None = None,
     colorizer: Colorizer | None = None,
     origin: Literal["upper", "lower"] | None = None,
     extent: tuple[float, float, float, float] | None = None,
@@ -3854,10 +3858,10 @@ def pcolor(
     *args: ArrayLike,
     shading: Literal["flat", "nearest", "auto"] | None = None,
     alpha: float | None = None,
-    norm: str | Normalize | None = None,
-    cmap: str | Colormap | None = None,
-    vmin: float | None = None,
-    vmax: float | None = None,
+    norm: str | Norm | None = None,
+    cmap: str | Colormap | BivarColormap | MultivarColormap | None = None,
+    vmin: float | tuple[float] | None = None,
+    vmax: float | tuple[float] | None = None,
     colorizer: Colorizer | None = None,
     data=None,
     **kwargs,
@@ -3883,10 +3887,10 @@ def pcolor(
 def pcolormesh(
     *args: ArrayLike,
     alpha: float | None = None,
-    norm: str | Normalize | None = None,
-    cmap: str | Colormap | None = None,
-    vmin: float | None = None,
-    vmax: float | None = None,
+    norm: str | Norm | None = None,
+    cmap: str | Colormap | BivarColormap | MultivarColormap | None = None,
+    vmin: float | tuple[float] | None = None,
+    vmax: float | tuple[float] | None = None,
     colorizer: Colorizer | None = None,
     shading: Literal["flat", "nearest", "gouraud", "auto"] | None = None,
     antialiased: bool = False,

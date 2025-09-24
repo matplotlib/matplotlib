@@ -12,7 +12,13 @@ from matplotlib.collections import (
     QuadMesh,
 )
 from matplotlib.colorizer import Colorizer
-from matplotlib.colors import Colormap, Normalize
+from matplotlib.colors import (
+    Colormap,
+    BivarColormap,
+    MultivarColormap,
+    Norm,
+    Normalize,
+)
 from matplotlib.container import (
     BarContainer, PieContainer, ErrorbarContainer, StemContainer)
 from matplotlib.contour import ContourSet, QuadContourSet
@@ -500,14 +506,14 @@ class Axes(_AxesBase):
     def imshow(
         self,
         X: ArrayLike | PIL.Image.Image,
-        cmap: str | Colormap | None = ...,
-        norm: str | Normalize | None = ...,
+        cmap: str | Colormap | BivarColormap | MultivarColormap | None = ...,
+        norm: str | Norm | None = ...,
         *,
         aspect: Literal["equal", "auto"] | float | None = ...,
         interpolation: str | None = ...,
         alpha: float | ArrayLike | None = ...,
-        vmin: float | None = ...,
-        vmax: float | None = ...,
+        vmin: float | tuple[float] | None = ...,
+        vmax: float | tuple[float] | None = ...,
         colorizer: Colorizer | None = ...,
         origin: Literal["upper", "lower"] | None = ...,
         extent: tuple[float, float, float, float] | None = ...,
@@ -524,10 +530,10 @@ class Axes(_AxesBase):
         *args: ArrayLike,
         shading: Literal["flat", "nearest", "auto"] | None = ...,
         alpha: float | None = ...,
-        norm: str | Normalize | None = ...,
-        cmap: str | Colormap | None = ...,
-        vmin: float | None = ...,
-        vmax: float | None = ...,
+        norm: str | Norm | None = ...,
+        cmap: str | Colormap | BivarColormap | MultivarColormap | None = ...,
+        vmin: float | tuple[float] | None = ...,
+        vmax: float | tuple[float] | None = ...,
         colorizer: Colorizer | None = ...,
         data=...,
         **kwargs
@@ -536,10 +542,10 @@ class Axes(_AxesBase):
         self,
         *args: ArrayLike,
         alpha: float | None = ...,
-        norm: str | Normalize | None = ...,
-        cmap: str | Colormap | None = ...,
-        vmin: float | None = ...,
-        vmax: float | None = ...,
+        norm: str | Norm | None = ...,
+        cmap: str | Colormap | BivarColormap | MultivarColormap | None = ...,
+        vmin: float | tuple[float] | None = ...,
+        vmax: float | tuple[float] | None = ...,
         colorizer: Colorizer | None = ...,
         shading: Literal["flat", "nearest", "gouraud", "auto"] | None = ...,
         antialiased: bool = ...,
