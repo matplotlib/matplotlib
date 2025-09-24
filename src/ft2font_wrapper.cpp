@@ -1409,6 +1409,119 @@ PyFT2Font__get_type1_encoding_vector(PyFT2Font *self)
     return indices;
 }
 
+/**********************************************************************
+ * Layout items
+ * */
+
+struct LayoutItem {
+    PyFT2Font *ft_object;
+    std::u32string character;
+    int glyph_index;
+    double x;
+    double y;
+    double prev_kern;
+
+    LayoutItem(PyFT2Font *f, std::u32string c, int i, double x, double y, double k) :
+        ft_object(f), character(c), glyph_index(i), x(x), y(y), prev_kern(k) {}
+};
+
+const char *PyFT2Font_layout__doc__ = R"""(
+    Layout a string and yield information about each used glyph.
+
+    .. warning::
+        This API uses the fallback list and is both private and provisional: do not use
+        it directly.
+
+    .. versionadded:: 3.11
+
+    Parameters
+    ----------
+    text : str
+        The characters for which to find fonts.
+    flags : LoadFlags, default: `.LoadFlags.FORCE_AUTOHINT`
+        Any bitwise-OR combination of the `.LoadFlags` flags.
+    features : tuple[str, ...], optional
+        The font feature tags to use for the font.
+
+        Available font feature tags may be found at
+        https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
+    language : str, optional
+        The language of the text in a format accepted by libraqm, namely `a BCP47
+        language code <https://www.w3.org/International/articles/language-tags/>`_.
+
+    Returns
+    -------
+    list[LayoutItem]
+)""";
+
+static auto
+PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
+                 std::optional<std::vector<std::string>> features = std::nullopt,
+                 std::variant<FT2Font::LanguageType, std::string> languages_or_str = nullptr)
+{
+    const auto hinting_factor = self->get_hinting_factor();
+    const auto load_flags = static_cast<FT_Int32>(flags);
+
+    FT2Font::LanguageType languages;
+    if (auto value = std::get_if<FT2Font::LanguageType>(&languages_or_str)) {
+        languages = std::move(*value);
+    } else if (auto value = std::get_if<std::string>(&languages_or_str)) {
+        languages = std::vector<FT2Font::LanguageRange>{
+            FT2Font::LanguageRange{*value, 0, text.size()}
+        };
+    } else {
+        // NOTE: this can never happen as pybind11 would have checked the type in the
+        // Python wrapper before calling this function, but we need to keep the
+        // std::get_if instead of std::get for macOS 10.12 compatibility.
+        throw py::type_error("languages must be str or list of tuple");
+    }
+
+    std::set<FT_String*> glyph_seen_fonts;
+    auto glyphs = self->layout(text, load_flags, features, languages, glyph_seen_fonts);
+
+    std::set<decltype(raqm_glyph_t::cluster)> clusters;
+    for (auto &glyph : glyphs) {
+        clusters.emplace(glyph.cluster);
+    }
+
+    std::vector<LayoutItem> items;
+
+    double x = 0.0;
+    double y = 0.0;
+    std::optional<double> prev_advance = std::nullopt;
+    double prev_x = 0.0;
+    for (auto &glyph : glyphs) {
+        auto ft_object = static_cast<PyFT2Font *>(glyph.ftface->generic.data);
+
+        ft_object->load_glyph(glyph.index, load_flags);
+
+        double prev_kern = 0.0;
+        if (prev_advance) {
+            double actual_advance = (x + glyph.x_offset) - prev_x;
+            prev_kern = actual_advance - *prev_advance;
+        }
+
+        auto next = clusters.upper_bound(glyph.cluster);
+        auto end = (next != clusters.end()) ? *next : text.size();
+        auto substr = text.substr(glyph.cluster, end - glyph.cluster);
+
+        items.emplace_back(ft_object, substr, glyph.index,
+                           (x + glyph.x_offset) / 64.0, (y + glyph.y_offset) / 64.0,
+                           prev_kern / 64.0);
+        prev_x = x + glyph.x_offset;
+        x += glyph.x_advance;
+        y += glyph.y_advance;
+        // Note, linearHoriAdvance is a 16.16 instead of 26.6 fixed-point value.
+        prev_advance = ft_object->get_face()->glyph->linearHoriAdvance / 1024.0 / hinting_factor;
+    }
+
+    return items;
+}
+
+/**********************************************************************
+ * Deprecations
+ * */
+
 static py::object
 ft2font__getattr__(std::string name) {
     auto api = py::module_::import("matplotlib._api");
@@ -1543,6 +1656,32 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_property_readonly("bbox", &PyGlyph_get_bbox,
                                "The control box of the glyph.");
 
+    py::class_<LayoutItem>(m, "LayoutItem", py::is_final())
+        .def(py::init<>([]() -> LayoutItem {
+            // LayoutItem is not useful from Python, so mark it as not constructible.
+            throw std::runtime_error("LayoutItem is not constructible");
+        }))
+        .def_readonly("ft_object", &LayoutItem::ft_object,
+                      "The FT_Face of the item.")
+        .def_readonly("char", &LayoutItem::character,
+                      "The character code for the item.")
+        .def_readonly("glyph_index", &LayoutItem::glyph_index,
+                      "The glyph index for the item.")
+        .def_readonly("x", &LayoutItem::x,
+                      "The x position of the item.")
+        .def_readonly("y", &LayoutItem::y,
+                      "The y position of the item.")
+        .def_readonly("prev_kern", &LayoutItem::prev_kern,
+                      "The kerning between this item and the previous one.")
+        .def("__str__",
+            [](const LayoutItem& item) {
+                return
+                    "LayoutItem(ft_object={}, char={!r}, glyph_index={}, "_s
+                    "x={}, y={}, prev_kern={})"_s.format(
+                        PyFT2Font_fname(item.ft_object), item.character,
+                        item.glyph_index, item.x, item.y, item.prev_kern);
+                });
+
         auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
                                          PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
@@ -1559,6 +1698,9 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
              PyFT2Font_select_charmap__doc__)
         .def("get_kerning", &PyFT2Font_get_kerning, "left"_a, "right"_a, "mode"_a,
              PyFT2Font_get_kerning__doc__)
+        .def("_layout", &PyFT2Font_layout, "string"_a, "flags"_a, py::kw_only(),
+             "features"_a=nullptr, "language"_a=nullptr,
+             PyFT2Font_layout__doc__)
         .def("set_text", &PyFT2Font_set_text,
              "string"_a, "angle"_a=0.0, "flags"_a=LoadFlags::FORCE_AUTOHINT, py::kw_only(),
              "features"_a=nullptr, "language"_a=nullptr,
