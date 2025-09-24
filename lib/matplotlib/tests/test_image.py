@@ -1857,3 +1857,12 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
             (im_rgb, new_array_alpha.reshape((ny, nx, 1))), axis=-1
         ), interpolation_stage=intp_stage
     )
+
+
+def test_invalid_interpolation_stage_multinorm():
+    fig, ax = plt.subplots()
+    data = np.arange(24).reshape((2, 3, 4))
+
+    with pytest.raises(ValueError,
+            match="'data' is the only valid interpolation_stage"):
+        ax.imshow(data, cmap='2VarAddA', interpolation_stage='rgba')
