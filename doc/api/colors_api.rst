@@ -55,6 +55,7 @@ Multivariate Colormaps
    BivarColormap
    SegmentedBivarColormap
    BivarColormapFromImage
+   MultivarColormap
 
 Other classes
 -------------

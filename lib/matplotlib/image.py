@@ -268,7 +268,14 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
         self.set_interpolation(interpolation)
-        self.set_interpolation_stage(interpolation_stage)
+        if isinstance(self.norm, mcolors.MultiNorm):
+            if interpolation_stage not in [None, 'data', 'auto']:
+                raise ValueError("'data' is the only valid interpolation_stage "
+                                 "when using multiple color channels, not "
+                                 f"{interpolation_stage}")
+            self.set_interpolation_stage('data')
+        else:
+            self.set_interpolation_stage(interpolation_stage)
         self.set_resample(resample)
         self.axes = ax
 
@@ -460,30 +467,28 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 # input data is not going to match the size on the screen so we
                 # have to resample to the correct number of pixels
 
-                if A.dtype.kind == 'f':  # Float dtype: scale to same dtype.
-                    scaled_dtype = np.dtype("f8" if A.dtype.itemsize > 4 else "f4")
-                    if scaled_dtype.itemsize < A.dtype.itemsize:
-                        _api.warn_external(f"Casting input data from {A.dtype}"
-                                           f" to {scaled_dtype} for imshow.")
-                else:  # Int dtype, likely.
-                    # TODO slice input array first
-                    # Scale to appropriately sized float: use float32 if the
-                    # dynamic range is small, to limit the memory footprint.
-                    da = A.max().astype("f8") - A.min().astype("f8")
-                    scaled_dtype = "f8" if da > 1e8 else "f4"
+                if A.dtype.fields is None:  # scalar data and colormap
+                    arrs, norms, dtypes = [A], [self.norm], [A.dtype]
+                else:  # using a multivariate colormap
+                    arrs = [A[f] for f in A.dtype.fields]
+                    norms = self.norm.norms
+                    dtypes = [A.dtype.fields[f][0] for f in A.dtype.fields]
 
-                # resample the input data to the correct resolution and shape
-                A_resampled = _resample(self, A.astype(scaled_dtype), out_shape, t)
+                A_resampled = [_resample(self, a.astype(_get_scaled_dtype(a)),
+                                         out_shape, t)
+                               for a in arrs]
 
                 # if using NoNorm, cast back to the original datatype
-                if isinstance(self.norm, mcolors.NoNorm):
-                    A_resampled = A_resampled.astype(A.dtype)
+                for i, n in enumerate(norms):
+                    if isinstance(n, mcolors.NoNorm):
+                        A_resampled[i] = A_resampled[i].astype(dtypes[i])
 
                 # Compute out_mask (what screen pixels include "bad" data
                 # pixels) and out_alpha (to what extent screen pixels are
                 # covered by data pixels: 0 outside the data extent, 1 inside
                 # (even for bad data), and intermediate values at the edges).
-                mask = (np.where(A.mask, np.float32(np.nan), np.float32(1))
+                mask = (np.where(self._getmaskarray(A), np.float32(np.nan),
+                                 np.float32(1))
                         if A.mask.shape == A.shape  # nontrivial mask
                         else np.ones_like(A, np.float32))
                 # we always have to interpolate the mask to account for
@@ -496,8 +501,13 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 alpha = self.get_alpha()
                 if alpha is not None and np.ndim(alpha) > 0:
                     out_alpha *= _resample(self, alpha, out_shape, t, resample=True)
-                # mask and run through the norm
-                resampled_masked = np.ma.masked_array(A_resampled, out_mask)
+
+                # mask
+                resampled_masked = [np.ma.masked_array(r, out_mask)
+                                    for r in A_resampled]
+
+                if A.dtype.fields is None:
+                    resampled_masked = resampled_masked[0]
                 res = self.norm(resampled_masked)
             else:
                 if A.ndim == 2:  # interpolation_stage = 'rgba'
@@ -653,8 +663,15 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         """
         A = cbook.safe_masked_invalid(A, copy=True)
         if A.dtype != np.uint8 and not np.can_cast(A.dtype, float, "same_kind"):
-            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
-                            f"converted to float")
+            if A.dtype.fields is None:
+                raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                                f"converted to float")
+            else:
+                for key in A.dtype.fields:
+                    if not np.can_cast(A[key].dtype, float, "same_kind"):
+                        raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                                        f"converted to a sequence of floats")
+
         if A.ndim == 3 and A.shape[-1] == 1:
             A = A.squeeze(-1)  # If just (M, N, 1), assume scalar and apply colormap.
         if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in [3, 4]):
@@ -1828,3 +1845,20 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
     ax.imshow(im, aspect='auto', resample=True, interpolation=interpolation)
     fig.savefig(thumbfile, dpi=dpi)
     return fig
+
+
+def _get_scaled_dtype(A):
+
+    if A.dtype.kind == 'f':  # Float dtype: scale to same dtype.
+        scaled_dtype = np.dtype('f8' if A.dtype.itemsize > 4 else 'f4')
+        if scaled_dtype.itemsize < A.dtype.itemsize:
+            _api.warn_external(f"Casting input data from {A.dtype}"
+                               f" to {scaled_dtype} for imshow.")
+    else:  # Int dtype, likely.
+        # TODO slice input array first
+        # Scale to appropriately sized float: use float32 if the
+        # dynamic range is small, to limit the memory footprint.
+        da = A.max().astype("f8") - A.min().astype("f8")
+        scaled_dtype = "f8" if da > 1e8 else "f4"
+
+    return scaled_dtype

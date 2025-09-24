@@ -600,6 +600,18 @@ class _ScalarMappable(_ColorizerInterface):
         """
         return self._A
 
+    def _getmaskarray(self, A):
+        """
+        Similar to np.ma.getmaskarray but also handles the case where
+        the data has multiple fields.
+
+        The return array always has the same shape as the input, and dtype bool
+        """
+        mask = np.ma.getmaskarray(A)
+        if isinstance(self.norm, colors.MultiNorm):
+            mask = np.any(mask.view('bool').reshape((*A.shape, -1)), axis=-1)
+        return mask
+
     def changed(self):
         """
         Call this whenever the mappable is changed to notify all the
