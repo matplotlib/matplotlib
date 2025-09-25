@@ -13,8 +13,7 @@ import numpy as np
 import PIL.Image
 import PIL.PngImagePlugin
 
-from mpl_data_containers.description import Desc, desc_like
-from mpl_data_containers.conversion_edge import Graph, TransformEdge
+from mpl_data_containers.description import Desc
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
@@ -23,6 +22,7 @@ from matplotlib import _image
 # For user convenience, the names from _image are also imported into
 # the image namespace
 from matplotlib._image import *  # noqa: F401, F403
+from ._containers import _get_graph
 import matplotlib.artist as martist
 import matplotlib.colorizer as mcolorizer
 from matplotlib.backend_bases import FigureCanvasBase
@@ -366,7 +366,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
     @property
     def _image_array(self):
-        return self._container.query(self._get_graph())[0]["image"]
+        return self._container.query(_get_graph(self.axes))[0]["image"]
 
     @property
     def _A(self):
@@ -382,33 +382,6 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
     def get_container(self):
         return self._container
-
-    def _get_graph(self):
-        # TODO see about getting rid of self.axes
-        # TODO move to cbook or similar
-        ax = self.axes
-        if ax is None:
-            return Graph([])
-        desc: Desc = Desc(("N",), coordinates="data")
-        xy: dict[str, Desc] = {"x": desc, "y": desc}
-        implicit_graph = Graph(
-            [
-                TransformEdge(
-                    "data",
-                    xy,
-                    desc_like(xy, coordinates="axes"),
-                    transform=ax.transData - ax.transAxes,
-                ),
-                TransformEdge(
-                    "axes",
-                    desc_like(xy, coordinates="axes"),
-                    desc_like(xy, coordinates="display"),
-                    transform=ax.transAxes,
-                ),
-            ],
-            aliases=(("parent", "axes"),),
-        )
-        return implicit_graph
 
     def __str__(self):
         try:
@@ -1056,7 +1029,7 @@ class AxesImage(_ImageBase):
         return bbox.transformed(self.get_transform())
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
-        q, _ = self._container.query(self._get_graph())
+        q, _ = self._container.query(_get_graph(self.axes))
         x1, x2 = q["x"]
         y1, y2 = q["y"]
 
@@ -1144,7 +1117,7 @@ class AxesImage(_ImageBase):
 
     def get_extent(self):
         """Return the image extent as tuple (left, right, bottom, top)."""
-        q, _ = self._container.query(self._get_graph())
+        q, _ = self._container.query(_get_graph(self.axes))
         x = q["x"]
         y = q["y"]
         return x[0], x[-1], y[0], y[-1]
@@ -1219,7 +1192,7 @@ class NonUniformImage(AxesImage):
         if unsampled:
             raise ValueError('unsampled not supported on NonUniformImage')
 
-        q, _ = self._container.query(self._get_graph())
+        q, _ = self._container.query(_get_graph(self.axes))
         Ax = q["x"]
         Ay = q["y"]
 
@@ -1354,7 +1327,7 @@ class NonUniformImage(AxesImage):
 
     def get_cursor_data(self, event):
         # docstring inherited
-        q, _ = self._container.query(self._get_graph())
+        q, _ = self._container.query(_get_graph(self.axes))
         Ax = q["x"]
         Ay = q["y"]
         A = q["image"]
@@ -1425,7 +1398,7 @@ class PcolorImage(AxesImage):
         if unsampled:
             raise ValueError('unsampled not supported on PcolorImage')
 
-        q, _ = self._container.query(self._get_graph())
+        q, _ = self._container.query(_get_graph(self.axes))
         Ax = q["x"]
         Ay = q["y"]
 
@@ -1507,7 +1480,7 @@ class PcolorImage(AxesImage):
 
     def get_cursor_data(self, event):
         # docstring inherited
-        q, _ = self._container.query(self._get_graph())
+        q, _ = self._container.query(_get_graph(self.axes))
         Ax = q["x"]
         Ay = q["y"]
         A = q["image"]
@@ -1562,7 +1535,7 @@ class FigureImage(_ImageBase):
 
     def get_extent(self):
         """Return the image extent as tuple (left, right, bottom, top)."""
-        q, _ = self._container.query(self._get_graph())
+        q, _ = self._container.query(_get_graph(self.axes))
         ox = q["x"]
         oy = q["y"]
         A = q["image"]
@@ -1573,7 +1546,7 @@ class FigureImage(_ImageBase):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        q, _ = self._container.query(self._get_graph())
+        q, _ = self._container.query(_get_graph(self.axes))
         ox = q["x"]
         oy = q["y"]
         A = q["image"]
@@ -1695,7 +1668,7 @@ class BboxImage(_ImageBase):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        q, _ = self._container.query(self._get_graph())
+        q, _ = self._container.query(_get_graph(self.axes))
         A = q["image"]
 
         width, height = renderer.get_canvas_width_height()
