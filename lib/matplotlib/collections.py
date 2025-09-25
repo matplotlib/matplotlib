@@ -17,10 +17,112 @@ import warnings
 
 import numpy as np
 
+from mpl_data_containers.description import Desc
+
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
                _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
+from ._containers import _get_graph
 from ._enums import JoinStyle, CapStyle
+
+
+
+class CollectionContainer():
+    def __init__(
+        self,
+        x: np.array,
+        y: np.array,
+        edgecolors: np.array,
+        facecolors: np.array,
+        hatchcolors: np.array,
+    ):
+        self.x = x
+        self.y = y
+        self.edgecolors = edgecolors
+        self.facecolors = facecolors
+        self.hatchcolors = hatchcolors
+
+    def describe(self):
+        return {
+            "x": Desc(("N",), "data"),
+            "y": Desc(("N",), "data"),
+            # Colors are weird because it could look like (N, 3) or (N, 4),
+            # But also accepts strings or cmapped data at this level...
+            "edgecolors": Desc(("N",), "data"),
+            "facecolors": Desc(("N",), "data"),
+            "hatchcolors": Desc(("N",), "data"),
+            "transforms": Desc(("N", 3, 3), "data"),
+        }
+
+    def query(self, graph, parent_coordinates="axes"):
+        transforms = np.eye(3)[np.newaxis, :, :]
+        d = {
+            "x": self.x,
+            "y": self.y,
+            "edgecolors": self.edgecolors,
+            "facecolors": self.facecolors,
+            "hatchcolors": self.hatchcolors,
+            "transforms": transforms,
+        }
+        return d, ""
+        # TODO hash
+
+
+class SizedCollectionContainer(CollectionContainer):
+    def __init__(
+        self,
+        x: np.array,
+        y: np.array,
+        edgecolors: np.array,
+        facecolors: np.array,
+        hatchcolors: np.array,
+        sizes: np.array,
+        factor: float = 1.0,
+    ):
+        super().__init__(x, y, edgecolors, facecolors, hatchcolors)
+        self.sizes = np.atleast_1d(sizes)
+        self.factor = factor
+
+    def query(self, graph, parent_coordinates="axes"):
+        # TODO: get dpi from graph or refactor transform to be dpi independent
+        dpi = 100.0
+        d, hash = super().query(graph, parent_coordinates)
+        transforms = np.zeros((len(self.sizes), 3, 3))
+        scale = np.sqrt(self.sizes) * dpi / 72.0 * self.factor
+        transforms[:, 0, 0] = scale
+        transforms[:, 1, 1] = scale
+        transforms[:, 2, 2] = 1.0
+        d["transforms"] = transforms
+
+        return d, hash
+
+
+class RegularPolyCollectionContainer(SizedCollectionContainer):
+    def __init__(
+        self,
+        x: np.array,
+        y: np.array,
+        edgecolors: np.array,
+        facecolors: np.array,
+        hatchcolors: np.array,
+        sizes: np.array,
+        rotation: float,
+    ):
+        factor = np.pi ** (-1/2)
+        super().__init__(x, y, edgecolors, facecolors, hatchcolors, sizes, factor)
+        self.rotation = rotation
+
+    def query(self, graph, parent_coordinates="axes"):
+        d, hash = super().query(graph, parent_coordinates)
+        for i, t in enumerate(d["transforms"]):
+            d["transforms"][i, :, :] = (
+                    transforms.Affine2D(t)
+                    .rotate(-self.rotation)
+                    .get_matrix()
+            )
+
+        return d, hash
+
 
 
 # "color" is excluded; it is a compound setter, and its docstring differs
@@ -164,6 +266,9 @@ class Collection(mcolorizer.ColorizingArtist):
         """
 
         super().__init__(self._get_colorizer(cmap, norm, colorizer))
+
+        self._container = self._init_container()
+
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]
@@ -202,17 +307,22 @@ class Collection(mcolorizer.ColorizingArtist):
             self._joinstyle = None
 
         if offsets is not None:
-            offsets = np.asanyarray(offsets, float)
-            # Broadcast (2,) -> (1, 2) but nothing else.
-            if offsets.shape == (2,):
-                offsets = offsets[None, :]
+            self.set_offsets(offsets)
 
-        self._offsets = offsets
         self._offset_transform = offset_transform
 
         self._path_effects = None
         self._internal_update(kwargs)
         self._paths = None
+
+    def _init_container(self):
+        return CollectionContainer(
+            x=np.array([]),
+            y=np.array([]),
+            edgecolors=np.array([]),
+            facecolors=np.array([]),
+            hatchcolors=np.array([]),
+        )
 
     def get_paths(self):
         return self._paths
@@ -222,7 +332,8 @@ class Collection(mcolorizer.ColorizingArtist):
         self.stale = True
 
     def get_transforms(self):
-        return self._transforms
+        q, _ = self._container.query(_get_graph(self.axes))
+        return q["transforms"]
 
     def get_offset_transform(self):
         """Return the `.Transform` instance used by this artist offset."""
@@ -260,6 +371,7 @@ class Collection(mcolorizer.ColorizingArtist):
         #       for the limits (i.e. for scatter)
         #
         # 3. otherwise return a null Bbox.
+        q, _ = self._container.query(_get_graph(self.axes))
 
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
@@ -298,7 +410,7 @@ class Collection(mcolorizer.ColorizingArtist):
                 offset_trf.get_affine().frozen())
 
         # NOTE: None is the default case where no offsets were passed in
-        if self._offsets is not None:
+        if len(q["x"]):
             # this is for collections that have their paths (shapes)
             # in physical, axes-relative, or figure-relative units
             # (i.e. like scatter). We can't uniquely set limits based on
@@ -627,20 +739,27 @@ class Collection(mcolorizer.ColorizingArtist):
         ----------
         offsets : (N, 2) or (2,) array-like
         """
+        if not isinstance(self._container, CollectionContainer):
+            raise TypeError("Cannot use 'set_offsets' on custom container types")
         offsets = np.asanyarray(offsets)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
-        cstack = (np.ma.column_stack if isinstance(offsets, np.ma.MaskedArray)
-                  else np.column_stack)
-        self._offsets = cstack(
-            (np.asanyarray(self.convert_xunits(offsets[:, 0]), float),
-             np.asanyarray(self.convert_yunits(offsets[:, 1]), float)))
+
+        self._container.x = np.asanyarray(self.convert_xunits(offsets[:, 0]), float)
+        self._container.y = np.asanyarray(self.convert_yunits(offsets[:, 1]), float)
         self.stale = True
 
     def get_offsets(self):
         """Return the offsets for the collection."""
         # Default to zeros in the no-offset (None) case
-        return np.zeros((1, 2)) if self._offsets is None else self._offsets
+        q, _ = self._container.query(_get_graph(self.axes))
+        if len(q["x"]) == 0:
+            return np.zeros((1,2))
+        cstack = (np.ma.column_stack if
+                  isinstance(q["x"], np.ma.MaskedArray)
+                  or isinstance(q["y"], np.ma.MaskedArray)
+                  else np.column_stack)
+        return cstack([q["x"], q["y"]])
 
     def _get_default_linewidth(self):
         # This may be overridden in a subclass.
@@ -1080,6 +1199,20 @@ class _CollectionWithSizes(Collection):
     """
     _factor = 1.0
 
+    def __init__(self, sizes=None, **kwargs):
+        super().__init__(**kwargs)
+        self.set_sizes(sizes)
+
+    def _init_container(self):
+        return SizedCollectionContainer(
+            x=np.array([]),
+            y=np.array([]),
+            edgecolors=np.array([]),
+            facecolors=np.array([]),
+            hatchcolors=np.array([]),
+            sizes=np.array([]),
+        )
+
     def get_sizes(self):
         """
         Return the sizes ('areas') of the elements in the collection.
@@ -1089,7 +1222,9 @@ class _CollectionWithSizes(Collection):
         array
             The 'area' of each element.
         """
-        return self._sizes
+        if not isinstance(self._container, SizedCollectionContainer):
+            raise TypeError("Cannot use 'get_sizes' on custom container types")
+        return self._container.sizes
 
     def set_sizes(self, sizes, dpi=72.0):
         """
@@ -1103,22 +1238,12 @@ class _CollectionWithSizes(Collection):
         dpi : float, default: 72
             The dpi of the canvas.
         """
+        if not isinstance(self._container, SizedCollectionContainer):
+            raise TypeError("Cannot use 'set_sizes' on custom container types")
         if sizes is None:
-            self._sizes = np.array([])
-            self._transforms = np.empty((0, 3, 3))
-        else:
-            self._sizes = np.asarray(sizes)
-            self._transforms = np.zeros((len(self._sizes), 3, 3))
-            scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
-            self._transforms[:, 0, 0] = scale
-            self._transforms[:, 1, 1] = scale
-            self._transforms[:, 2, 2] = 1.0
+            sizes = np.array([])
+        self._container.sizes = np.atleast_1d(sizes)
         self.stale = True
-
-    @artist.allow_rasterization
-    def draw(self, renderer):
-        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
-        super().draw(renderer)
 
 
 class PathCollection(_CollectionWithSizes):
@@ -1653,29 +1778,27 @@ class RegularPolyCollection(_CollectionWithSizes):
                 offset_transform=ax.transData,
                 )
         """
-        super().__init__(**kwargs)
-        self.set_sizes(sizes)
+        super().__init__(sizes=sizes, **kwargs)
+        self._container.rotation = rotation
         self._numsides = numsides
-        self._paths = [self._path_generator(numsides)]
-        self._rotation = rotation
         self.set_transform(transforms.IdentityTransform())
+        self._paths = [self._path_generator(numsides)]
 
+    def _init_container(self):
+        return RegularPolyCollectionContainer(
+            x=np.array([]),
+            y=np.array([]),
+            edgecolors=np.array([]),
+            facecolors=np.array([]),
+            hatchcolors=np.array([]),
+            sizes=np.array([]),
+            rotation=0.0,
+        )
     def get_numsides(self):
         return self._numsides
 
     def get_rotation(self):
-        return self._rotation
-
-    @artist.allow_rasterization
-    def draw(self, renderer):
-        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
-        self._transforms = [
-            transforms.Affine2D(x).rotate(-self._rotation).get_matrix()
-            for x in self._transforms
-        ]
-        # Explicitly not super().draw, because set_sizes must be called before
-        # updating self._transforms.
-        Collection.draw(self, renderer)
+        return self._collection.rotation
 
 
 class StarPolygonCollection(RegularPolyCollection):
@@ -2107,7 +2230,6 @@ class EllipseCollection(Collection):
         self.set_angles(angles)
         self._units = units
         self.set_transform(transforms.IdentityTransform())
-        self._transforms = np.empty((0, 3, 3))
         self._paths = [mpath.Path.unit_circle()]
 
     def _set_transforms(self):
@@ -2135,16 +2257,16 @@ class EllipseCollection(Collection):
         else:
             raise ValueError(f'Unrecognized units: {self._units!r}')
 
-        self._transforms = np.zeros((len(self._widths), 3, 3))
+        self._container.transforms = np.zeros((len(self._widths), 3, 3))
         widths = self._widths * sc
         heights = self._heights * sc
         sin_angle = np.sin(self._angles)
         cos_angle = np.cos(self._angles)
-        self._transforms[:, 0, 0] = widths * cos_angle
-        self._transforms[:, 0, 1] = heights * -sin_angle
-        self._transforms[:, 1, 0] = widths * sin_angle
-        self._transforms[:, 1, 1] = heights * cos_angle
-        self._transforms[:, 2, 2] = 1.0
+        self._container.transforms[:, 0, 0] = widths * cos_angle
+        self._container.transforms[:, 0, 1] = heights * -sin_angle
+        self._container.transforms[:, 1, 0] = widths * sin_angle
+        self._container.transforms[:, 1, 1] = heights * cos_angle
+        self._container.transforms[:, 2, 2] = 1.0
 
         _affine = transforms.Affine2D
         if self._units == 'xy':
