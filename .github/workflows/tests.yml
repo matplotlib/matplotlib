@@ -60,10 +60,6 @@ jobs:
             extra-requirements: '-r requirements/testing/extra.txt'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
-          - os: ubuntu-22.04-arm
-            python-version: '3.12'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
           - name-suffix: "(Extra TeX packages)"
             os: ubuntu-22.04
             python-version: '3.13'
@@ -76,6 +72,8 @@ jobs:
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
+            python-version: '3.12'
+          - os: ubuntu-24.04-arm
             python-version: '3.12'
           - os: macos-14  # This runner is on M1 (arm64) chips.
             python-version: '3.11'
@@ -150,7 +148,7 @@ jobs:
             if [[ "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
               sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
             fi
-            if [[ "${{ matrix.os }}" = ubuntu-22.04 || "${{ matrix.os }}" = ubuntu-22.04-arm ]]; then
+            if [[ "${{ matrix.os }}" = ubuntu-22.04 ]]; then
               sudo apt-get install -yy --no-install-recommends \
                 gir1.2-gtk-4.0 \
                 libgirepository1.0-dev
@@ -257,7 +255,7 @@ jobs:
             )
 
           # PyQt5 does not have any wheels for ARM on Linux.
-          if [[ "${{ matrix.os }}" != 'ubuntu-22.04-arm' ]]; then
+          if [[ "${{ matrix.os }}" != 'ubuntu-24.04-arm' ]]; then
             python -mpip install --upgrade --only-binary :all: pyqt5 &&
               python -c 'import PyQt5.QtCore' &&
               echo 'PyQt5 is available' ||
@@ -372,7 +370,7 @@ jobs:
         run: |
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             LCOV_IGNORE_ERRORS=','  # do not ignore any lcov errors by default
-            if [[ "${{ matrix.os }}" = ubuntu-24.04 ]]; then
+            if [[ "${{ matrix.os }}" = ubuntu-24.04 || "${{ matrix.os }}" = ubuntu-24.04-arm ]]; then
               # filter mismatch and unused-entity errors detected by lcov 2.x
               LCOV_IGNORE_ERRORS='mismatch,unused'
             fi
