@@ -124,17 +124,15 @@ class Text3D(mtext.Text):
 
     def __init__(self, x=0, y=0, z=0, text='', zdir='z', axlim_clip=False,
                  **kwargs):
-        if kwargs.get('rotation', None) is not None:
-            warnings.showwarning(
+        if 'rotation' in kwargs:
+            _api.warn_external(
                 "The `rotation` parameter has not yet been implemented "
-                "and is currently ignored.",
-                UserWarning, 'mpl_toolkits.mplot3d.art3d.Text3D', ''
+                "and is currently ignored."
             )
-        if kwargs.get('rotation_mode', None) is not None:
-            warnings.showwarning(
+        if 'rotation_mode' in kwargs:
+            _api.warn_external(
                 "The `rotation_mode` parameter has not yet been implemented "
-                "and is currently ignored.",
-                UserWarning, 'mpl_toolkits.mplot3d.art3d.Text3D', ''
+                "and is currently ignored."
             )
         mtext.Text.__init__(self, x, y, text, **kwargs)
         self.set_3d_properties(z, zdir, axlim_clip)
