@@ -3,7 +3,6 @@ Classes for including text in a figure.
 """
 
 import functools
-import warnings
 import logging
 import math
 from numbers import Real
@@ -181,12 +180,6 @@ class Text(Artist):
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
-        if rotation is not None:
-            warnings.showwarning(
-                "The `rotation` parameter has not yet been implemented "
-                "and is currently ignored.",
-                UserWarning, 'Matplotlib - MPL Toolkits - MPlot3D', ''
-            )
         self.set_rotation(rotation)
         self._transform_rotates_text = transform_rotates_text
         self._bbox_patch = None  # a FancyBboxPatch instance
@@ -194,12 +187,6 @@ class Text(Artist):
         if linespacing is None:
             linespacing = 1.2  # Maybe use rcParam later.
         self.set_linespacing(linespacing)
-        if rotation_mode is not None:
-            warnings.showwarning(
-                "The `rotation_mode` parameter has not yet been implemented "
-                "and is currently ignored.",
-                UserWarning, 'Matplotlib - MPL Toolkits - MPlot3D', ''
-            )
         self.set_rotation_mode(rotation_mode)
         self.set_antialiased(mpl._val_or_rc(antialiased, 'text.antialiased'))
 
