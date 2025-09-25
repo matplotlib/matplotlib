@@ -1950,17 +1950,15 @@ class Axes3D(Axes):
         `.Text3D`
             The created `.Text3D` instance.
         """
-        if kwargs.get('rotation', None) is not None:
-            warnings.showwarning(
+        if 'rotation' in kwargs:
+            _api.warn_external(
                 "The `rotation` parameter has not yet been implemented "
-                "and is currently ignored.",
-                UserWarning, 'mpl_toolkits.mplot3d.axes3d.Axes3D.text', ''
+                "and is currently ignored."
             )
-        if kwargs.get('rotation_mode', None) is not None:
-            warnings.showwarning(
+        if 'rotation_mode' in kwargs:
+            _api.warn_external(
                 "The `rotation_mode` parameter has not yet been implemented "
-                "and is currently ignored.",
-                UserWarning, 'mpl_toolkits.mplot3d.axes3d.Axes3D.text', ''
+                "and is currently ignored."
             )
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir, axlim_clip)
