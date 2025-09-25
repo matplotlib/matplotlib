@@ -590,12 +590,18 @@ class RendererSVG(RendererBase):
             attrib['stroke'] = rgb2hex(rgb)
             if not forced_alpha and rgb[3] != 1.0:
                 attrib['stroke-opacity'] = _short_float_fmt(rgb[3])
-            if linewidth != 1.0:
-                attrib['stroke-width'] = _short_float_fmt(linewidth)
+            # Reference: https://www.w3.org/TR/SVG11/coords.html#Units
+            # The below formula, apart from linewidth, can be stored
+            # pre-calculated.
+            attrib['stroke-width'] = _short_float_fmt(
+                linewidth * 100.0 * np.sqrt(2) / \
+                    np.sqrt(self.width*self.width+self.height*self.height)
+            ) + '%'
             if gc.get_joinstyle() != 'round':
                 attrib['stroke-linejoin'] = gc.get_joinstyle()
             if gc.get_capstyle() != 'butt':
                 attrib['stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
+            attrib['vector-effect'] = 'non-scaling-stroke'
 
         return attrib
 
@@ -664,6 +670,201 @@ class RendererSVG(RendererBase):
         # docstring inherited
         return not mpl.rcParams['image.composite_image']
 
+    def _draw_shape_prefix(self, gc):
+        if gc.get_url() is not None:
+            self.writer.start('a', {'xlink:href': gc.get_url()})
+        clip_attrs = self._get_clip_attrs(gc)
+        if clip_attrs:
+            self.writer.start('g', **clip_attrs)
+            return True
+        return False
+
+    def _draw_shape_content(self, tag, gc, baseTransform, rgbFace, **kwargs):
+        def to_svg_string(transform_matrix):
+            return ('matrix('
+                f'{transform_matrix[0, 0]}, {transform_matrix[1, 0]}, '
+                f'{transform_matrix[0, 1]}, {transform_matrix[1, 1]}, '
+                f'{transform_matrix[0, 2]}, {transform_matrix[1, 2]}'
+            ')')
+        # Option-1: (preferred alternative; currently in use over here)
+        #   Set attrib['vector-effects'] = 'non-scaling-stroke'
+        #   in _get_style_dict()
+        #       Issue:
+        #           Part of SVG Tiny 1.2 and SVG 2 (active development)
+        #           Supported on modern browsers but not all image editors
+        #           Does not scale stroke-width on scaling/zooming,
+        #           though it zooms well on browsers while viewing.
+        #           Does not directly scale stroke-width when exporting to
+        #           higher resolution raster images (PNG); requires first
+        #           manually scaling the SVG by:
+        #               1. scaling the SVG width, height, and viewbox
+        #                   e.g.: current width = 480.0, height = 345.6
+        #                         viewbox = 0 0 480.0 345.6
+        #                         To obtain 4800px x 3456px image, set
+        #                         new width = 4800.0, height = 3456.0
+        #                         viewbox = 0 0 4800.0 3456.0
+        #               2. Applying transform scale() to the figure
+        #                   e.g.: (cont'd) scale factor = 4800 / 480 = 10
+        #                         so, change:  <g id="figure_1"> to:
+        #                         <g id="figure_1" transform="scale(10)">
+        # Option-2:
+        #   gc.set_linewidth(gc.get_linewidth() / transform_scale_factor)
+        #       Issue:
+        #           Works well if tranform_matrix consists only of
+        #           uniform scaling and translation, i.e.,
+        #           transform_scale_factor = abs(transform_matrix[0, 0])
+        #           Otherwise, it requires an advanced affine matrix
+        #           decomposition algorithm (SVD or Polar) to compute the
+        #           transform_scale_factor.
+        #           Still does not correct non-uniform stroke-width
+        #           caused by shearing/skewing.
+        # Option-3: (currently in use in main branch)
+        #   Convert all shapes to path, apply transformations to path,
+        #   and then draw path. This basically avoids all the above
+        #   mentioned pitfalls.
+        trans_and_flip_matrix =\
+            self._make_flip_transform(baseTransform).get_matrix()
+        transmat_string = to_svg_string(trans_and_flip_matrix)
+        kwargs['transform'] = (transmat_string + ' ' + kwargs['transform']) if\
+            'transform' in kwargs else transmat_string
+        kwargs['style'] = self._get_style(gc, rgbFace)
+        self.writer.element(tag, **kwargs)
+
+    def _draw_shape_suffix(self, gc, clip_attrs_exist):
+        if clip_attrs_exist:
+            self.writer.end('g')
+        if gc.get_url() is not None:
+            self.writer.end('a')
+
+    def _draw_shape(self, tag, gc, baseTransform, rgbFace, **kwargs):
+        clip_attrs_exist = self._draw_shape_prefix(gc)
+        self._draw_shape_content(tag, gc, baseTransform, rgbFace, **kwargs)
+        self._draw_shape_suffix(gc, clip_attrs_exist)
+
+    def draw_ellipse(self, gc, baseTransform, rgbFace, cxy, semi_major,
+                     semi_minor, angle):
+        self._draw_shape('ellipse', gc, baseTransform, rgbFace, cx=str(cxy[0]),
+            cy=str(cxy[1]), rx=str(semi_major), ry=str(semi_minor),
+            transform=(f'rotate({angle}, {cxy[0]}, {cxy[1]})' if\
+                angle else ''))
+
+    def draw_circle(self, gc, baseTransform, rgbFace, cxy, radius):
+        self._draw_shape('circle', gc, baseTransform, rgbFace,
+            cx=str(cxy[0]), cy=str(cxy[1]), r=str(radius))
+
+    def draw_annulus(self, gc, baseTransform, rgbFace, cxy,
+                     semi_major_outer, semi_minor_outer, width, angle):
+        clip_attrs_exist = self._draw_shape_prefix(gc)
+        self.writer.start('defs')
+        outer_shape_id = self._make_id('', '')
+        if semi_major_outer == semi_minor_outer:
+            self.writer.element('circle', id=outer_shape_id, cx=str(cxy[0]),
+                cy=str(cxy[1]), r=str(semi_major_outer))
+        else:
+            self.writer.element('ellipse', id=outer_shape_id, cx=str(cxy[0]),
+                cy=str(cxy[1]), rx=str(semi_major_outer),
+                ry=str(semi_minor_outer))
+        mask_id = self._make_id('', '')
+        self.writer.start('mask', {'id': mask_id})
+        self.writer.element('use', href=f'#{outer_shape_id}', fill='white')
+        semi_major_inner = semi_major_outer - width
+        if semi_major_outer == semi_minor_outer:
+            self.writer.element('circle', cx=str(cxy[0]), cy=str(cxy[1]),
+                r=str(semi_major_inner), fill='black')
+        else:
+            semi_minor_inner = semi_minor_outer - width
+            self.writer.element('ellipse', id=outer_shape_id, cx=str(cxy[0]),
+                cy=str(cxy[1]), rx=str(semi_major_inner),
+                ry=str(semi_minor_inner))
+        self.writer.end('mask')
+        self.writer.end('defs')
+        self._draw_shape_content('use', gc, baseTransform, rgbFace,
+            href=f'#{outer_shape_id}', mask=f'url(#{mask_id})',
+            transform=(f'rotate({angle}, {cxy[0]}, {cxy[1]})' if\
+                angle else ''))
+        self._draw_shape_suffix(gc, clip_attrs_exist)
+
+    def _get_arc_data(self, cxy, semi_major, semi_minor,
+                      angle, theta1, theta2):
+        # Reference: https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
+        delta_theta = theta2 - theta1
+        angle = np.radians(angle)
+        theta1 = np.radians(theta1)
+        theta2 = np.radians(theta2)
+        sin_phi = np.sin(angle)
+        cos_phi = np.cos(angle)
+        sin_theta1 = np.sin(theta1)
+        cos_theta1 = np.cos(theta1)
+        sin_theta2 = np.sin(theta2)
+        cos_theta2 = np.cos(theta2)
+        rx_cos_theta1 = semi_major * cos_theta1
+        ry_sin_theta1 = semi_minor * sin_theta1
+        rx_cos_theta2 = semi_major * cos_theta2
+        ry_sin_theta2 = semi_minor * sin_theta2
+        x1 = cos_phi*rx_cos_theta1 - sin_phi*ry_sin_theta1 + cxy[0]
+        y1 = sin_phi*rx_cos_theta1 + cos_phi*ry_sin_theta1 + cxy[1]
+        x2 = cos_phi*rx_cos_theta2 - sin_phi*ry_sin_theta2 + cxy[0]
+        y2 = sin_phi*rx_cos_theta2 + cos_phi*ry_sin_theta2 + cxy[1]
+        fA = 1 if abs(delta_theta) > 180 else 0
+        fS = 1 if delta_theta > 0 else 0
+        return (x1, y1), (x2, y2), fA, fS
+
+    def draw_arc(self, gc, baseTransform, rgbFace, cxy, semi_major, semi_minor,
+                 angle, theta1, theta2):
+        xy1, xy2, fA, fS = self._get_arc_data(cxy, semi_major, semi_minor,
+                                              angle, theta1, theta2)
+        arc_path_data = f'M {xy1[0]} {xy1[1]} A {semi_major} {semi_minor} '\
+                        f'{angle} {fA} {fS} {xy2[0]} {xy2[1]}'
+        self._draw_shape('path', gc, baseTransform, rgbFace, d=arc_path_data)
+
+    def draw_rectangle(self, gc, baseTransform, rgbFace, xy, cxy,
+                       width, height, angle, rotation_point):
+        self._draw_shape('rect', gc, baseTransform, rgbFace,
+            x=str(xy[0]), y=str(xy[1]), width=str(width), height=str(height),
+            transform=(f'rotate({angle}, {rotation_point[0]}, '\
+                f'{rotation_point[1]})' if angle else ''))
+
+    def draw_wedge(self, gc, baseTransform, rgbFace, cxy, outer_radius,
+                   theta1, theta2, width):
+        xy1_outer, xy2_outer, fA_outer, fS_outer = self._get_arc_data(
+            cxy, outer_radius, outer_radius, 0, theta2, theta1
+        )
+        if width:
+            inner_radius = outer_radius - width
+            xy1_inner, xy2_inner, fA_inner, fS_inner = self._get_arc_data(
+                cxy, inner_radius, inner_radius, 0, theta1, theta2
+            )
+            wedge_path_data = f'M {xy1_inner[0]} {xy1_inner[1]} '\
+                f'A {inner_radius} {inner_radius} 0 {fA_inner} {fS_inner} '\
+                f'{xy2_inner[0]} {xy2_inner[1]} '\
+                f'L {xy1_outer[0]} {xy1_outer[1]} '\
+                f'A {outer_radius} {outer_radius} 0 {fA_outer} {fS_outer} '\
+                f'{xy2_outer[0]} {xy2_outer[1]} z'
+        else:
+            wedge_path_data = f'M {cxy[0]} {cxy[1]} '\
+                f'L {xy1_outer[0]} {xy1_outer[1]} '\
+                f'A {outer_radius} {outer_radius} 0 {fA_outer} {fS_outer} '\
+                f'{xy2_outer[0]} {xy2_outer[1]} z'
+        self._draw_shape('path', gc, baseTransform, rgbFace, d=wedge_path_data)
+
+    def draw_polygon(self, gc, path, transform, rgbFace=None):
+        points_data = ' '.join(','.join(row.astype(str))\
+            for row in path.vertices)
+        self._draw_shape('polygon', gc, transform, rgbFace,
+            points=points_data)
+
+    def draw_polyline(self, gc, path, transform, rgbFace=None):
+        points_data = ' '.join(','.join(row.astype(str))\
+            for row in path.vertices)
+        self._draw_shape('polyline', gc, transform, rgbFace,
+            points=points_data)
+
+    def draw_steppatch(self, gc, isclosed, path, transform, rgbFace=None):
+        if isclosed:
+            self.draw_polygon(gc, path, transform, rgbFace)
+        else:
+            self.draw_polyline(gc, path, transform, rgbFace)
+
     def _convert_path(self, path, transform=None, clip=None, simplify=None,
                       sketch=None):
         if clip:
@@ -682,7 +883,6 @@ class RendererSVG(RendererBase):
         path_data = self._convert_path(
             path, trans_and_flip, clip=clip, simplify=simplify,
             sketch=gc.get_sketch_params())
-
         if gc.get_url() is not None:
             self.writer.start('a', {'xlink:href': gc.get_url()})
         self.writer.element('path', d=path_data, **self._get_clip_attrs(gc),

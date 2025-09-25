@@ -648,7 +648,67 @@ class Patch(artist.Artist):
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
         for draw_path_args in draw_path_args_list:
-            renderer.draw_path(gc, *draw_path_args)
+            draw_path_instead = False
+            # Below two lines are only for testing/comparing
+            # and can be removed
+            with open('pure_svg_mode', 'r') as f:
+                if f.read() == '1':
+                    from matplotlib.backends.backend_mixed import MixedModeRenderer
+                    if isinstance(renderer, MixedModeRenderer) and renderer.is_svg_renderer():
+                        patch = self
+                        base_transform = artist.Artist.get_transform(patch).get_affine()
+                        if isinstance(patch, Shadow):
+                            # base_transform += patch._shadow_transform
+                            # is incorrect as order matters over here.
+                            base_transform = patch._shadow_transform + base_transform
+                            patch = patch.patch
+                        common_args = (gc,
+                            base_transform,
+                            draw_path_args[2])  # rgbFace
+                        if isinstance(patch, (Polygon, RegularPolygon,
+                                CirclePolygon, Arrow, FancyArrow)
+                        ):
+                            renderer.draw_polygon(gc, *draw_path_args)
+                        elif isinstance(patch, Circle):
+                            renderer.draw_circle(*common_args,
+                                patch.get_center(), patch.get_radius())
+                        elif isinstance(patch, Arc):
+                            renderer.draw_arc(*common_args, patch.get_center(),
+                                patch.get_width()/2, patch.get_height()/2,
+                                patch.get_angle(), patch.theta1, patch.theta2)
+                        elif isinstance(patch, Ellipse):
+                            renderer.draw_ellipse(*common_args,
+                                patch.get_center(), patch.get_width()/2,
+                                patch.get_height()/2, patch.get_angle())
+                        elif isinstance(patch, Annulus):
+                            renderer.draw_annulus(*common_args,
+                                patch.get_center(), *patch.get_radii(),
+                                patch.get_width(), patch.get_angle())
+                        elif isinstance(patch, Rectangle):
+                            renderer.draw_rectangle(*common_args,
+                                patch.get_xy(), patch.get_center(),
+                                patch.get_width(), patch.get_height(),
+                                patch.get_angle(),
+                                patch._get_computed_rotation_point())
+                        elif isinstance(patch, Wedge):
+                            renderer.draw_wedge(*common_args,
+                                patch.center, patch.r, patch.theta1,
+                                patch.theta2, patch.width)
+                        elif isinstance(patch, StepPatch):
+                            renderer.draw_steppatch(gc,
+                                self.fill or (self._baseline is not None and \
+                                    self._baseline.ndim == 1),
+                                *draw_path_args)
+                        else:
+                            draw_path_instead = True
+                    else:
+                        draw_path_instead = True
+                # Below two lines are only for testing/comparing
+                # and can be removed
+                else:
+                    draw_path_instead = True
+            if draw_path_instead:
+                renderer.draw_path(gc, *draw_path_args)
 
         gc.restore()
         renderer.close_group('patch')
@@ -827,13 +887,7 @@ class Rectangle(Patch):
         # important to call the accessor method and not directly access the
         # transformation member variable.
         bbox = self.get_bbox()
-        if self.rotation_point == 'center':
-            width, height = bbox.x1 - bbox.x0, bbox.y1 - bbox.y0
-            rotation_point = bbox.x0 + width / 2., bbox.y0 + height / 2.
-        elif self.rotation_point == 'xy':
-            rotation_point = bbox.x0, bbox.y0
-        else:
-            rotation_point = self.rotation_point
+        rotation_point = self._get_computed_rotation_point()
         return transforms.BboxTransformTo(bbox) \
                 + transforms.Affine2D() \
                 .translate(-rotation_point[0], -rotation_point[1]) \
@@ -841,6 +895,16 @@ class Rectangle(Patch):
                 .rotate_deg(self.angle) \
                 .scale(1, 1 / self._aspect_ratio_correction) \
                 .translate(*rotation_point)
+
+    def _get_computed_rotation_point(self):
+        bbox = self.get_bbox()
+        if self.rotation_point == 'center':
+            width, height = bbox.x1 - bbox.x0, bbox.y1 - bbox.y0
+            return bbox.x0 + width / 2., bbox.y0 + height / 2.
+        elif self.rotation_point == 'xy':
+            return bbox.x0, bbox.y0
+        else:
+            return self.rotation_point
 
     @property
     def rotation_point(self):
