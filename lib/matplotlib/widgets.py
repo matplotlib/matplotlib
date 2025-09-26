@@ -222,7 +222,7 @@ class Button(AxesWidget):
                              horizontalalignment='center',
                              transform=ax.transAxes)
 
-        self._useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
@@ -256,7 +256,7 @@ class Button(AxesWidget):
         if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
-                if self._useblit:
+                if self._useblit and self.canvas.supports_blit:
                     self.ax.draw_artist(self.ax)
                     self.canvas.blit(self.ax.bbox)
                 else:
@@ -1078,7 +1078,7 @@ class CheckButtons(AxesWidget):
         if actives is None:
             actives = [False] * len(labels)
 
-        self._useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
 
         ys = np.linspace(1, 0, len(labels)+2)[1:-1]
 
@@ -1665,7 +1665,7 @@ class RadioButtons(AxesWidget):
 
         ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
 
-        self._useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
 
         label_props = _expand_text_props(label_props)
         self.labels = [
@@ -1951,7 +1951,7 @@ class Cursor(AxesWidget):
         self.visible = True
         self.horizOn = horizOn
         self.vertOn = vertOn
-        self.useblit = useblit and self.canvas.supports_blit
+        self.useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
 
         if self.useblit:
             lineprops['animated'] = True
@@ -2060,6 +2060,7 @@ class MultiCursor(Widget):
         self.useblit = (
             useblit
             and all(canvas.supports_blit for canvas in self._canvas_infos))
+            # TODO: make dynamic
 
         if self.useblit:
             lineprops['animated'] = True
@@ -2144,7 +2145,7 @@ class _SelectorWidget(AxesWidget):
             self.onselect = lambda *args: None
         else:
             self.onselect = onselect
-        self.useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit
         self.connect_default_events()
 
         self._state_modifier_keys = dict(move=' ', clear='escape',
@@ -2167,6 +2168,11 @@ class _SelectorWidget(AxesWidget):
         self._eventrelease = None
         self._prev_event = None
         self._state = set()
+
+    @property
+    def useblit(self):
+        """Return whether blitting is used (requested and supported by canvas)."""
+        return self._useblit and self.canvas.supports_blit
 
     def set_active(self, active):
         super().set_active(active)
@@ -2590,7 +2596,14 @@ class SpanSelector(_SelectorWidget):
         if props is None:
             props = dict(facecolor='red', alpha=0.5)
 
-        props['animated'] = self.useblit
+        # Note: We set this based on the user setting during ínitialization,
+        #       not on the actual capability of blitting. But the value is
+        #       irrelevant if the backend does not support blitting, so that
+        #       we don't have to dynamically update this on the backend.
+        #       This relies on the current behavior that the request for
+        #       useblit is fixed during initialization and cannot be changed
+        #       afterwards.
+        props['animated'] = self._useblit
 
         self.direction = direction
         self._extents_on_press = None
@@ -2656,7 +2669,7 @@ class SpanSelector(_SelectorWidget):
         self._edge_handles = ToolLineHandles(self.ax, positions,
                                              direction=self.direction,
                                              line_props=props,
-                                             useblit=self.useblit)
+                                             useblit=self._useblit)
 
     @property
     def _handles_artists(self):
@@ -3223,7 +3236,7 @@ class RectangleSelector(_SelectorWidget):
         if props is None:
             props = dict(facecolor='red', edgecolor='black',
                          alpha=0.2, fill=True)
-        props = {**props, 'animated': self.useblit}
+        props = {**props, 'animated': self._useblit}
         self._visible = props.pop('visible', self._visible)
         to_draw = self._init_shape(**props)
         self.ax.add_patch(to_draw)
@@ -3248,18 +3261,18 @@ class RectangleSelector(_SelectorWidget):
             xc, yc = self.corners
             self._corner_handles = ToolHandles(self.ax, xc, yc,
                                                marker_props=self._handle_props,
-                                               useblit=self.useblit)
+                                               useblit=self._useblit)
 
             self._edge_order = ['W', 'S', 'E', 'N']
             xe, ye = self.edge_centers
             self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
                                              marker_props=self._handle_props,
-                                             useblit=self.useblit)
+                                             useblit=self._useblit)
 
             xc, yc = self.center
             self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
                                               marker_props=self._handle_props,
-                                              useblit=self.useblit)
+                                              useblit=self._useblit)
 
             self._active_handle = None
 
@@ -3744,7 +3757,7 @@ class LassoSelector(_SelectorWidget):
             **(props if props is not None else {}),
             # Note that self.useblit may be != useblit, if the canvas doesn't
             # support blitting.
-            'animated': self.useblit, 'visible': False,
+            'animated': self._useblit, 'visible': False,
         }
         line = Line2D([], [], **props)
         self.ax.add_line(line)
@@ -3868,7 +3881,7 @@ class PolygonSelector(_SelectorWidget):
 
         if props is None:
             props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
-        props = {**props, 'animated': self.useblit}
+        props = {**props, 'animated': self._useblit}
         self._selection_artist = line = Line2D([], [], **props)
         self.ax.add_line(line)
 
@@ -3877,7 +3890,7 @@ class PolygonSelector(_SelectorWidget):
                                 markerfacecolor=props.get('color', 'k'))
         self._handle_props = handle_props
         self._polygon_handles = ToolHandles(self.ax, [], [],
-                                            useblit=self.useblit,
+                                            useblit=self._useblit,
                                             marker_props=self._handle_props)
 
         self._active_handle_idx = -1
@@ -3897,7 +3910,7 @@ class PolygonSelector(_SelectorWidget):
 
     def _add_box(self):
         self._box = RectangleSelector(self.ax,
-                                      useblit=self.useblit,
+                                      useblit=self._useblit,
                                       grab_range=self.grab_range,
                                       handle_props=self._box_handle_props,
                                       props=self._box_props,
@@ -4177,7 +4190,7 @@ class Lasso(AxesWidget):
     def __init__(self, ax, xy, callback, *, useblit=True, props=None):
         super().__init__(ax)
 
-        self.useblit = useblit and self.canvas.supports_blit
+        self.useblit = useblit and self.canvas.supports_blit  # TODO: Make dynamic
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
