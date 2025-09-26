@@ -861,7 +861,7 @@ class Animation:
     fig : `~matplotlib.figure.Figure`
         The figure object used to get needed events, such as draw or resize.
 
-    event_source : object, optional
+    event_source : object
         A class that can run a callback when desired events
         are generated, as well as be stopped and started.
 
@@ -877,7 +877,7 @@ class Animation:
     FuncAnimation,  ArtistAnimation
     """
 
-    def __init__(self, fig, event_source=None, blit=False):
+    def __init__(self, fig, event_source, blit=False):
         self._draw_was_started = False
 
         self._fig = fig
