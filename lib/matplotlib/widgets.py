@@ -112,6 +112,7 @@ class AxesWidget(Widget):
     active : bool
         If False, the widget does not respond to events.
     """
+    _useblit = False
 
     def __init__(self, ax):
         self.ax = ax
@@ -119,6 +120,16 @@ class AxesWidget(Widget):
 
     canvas = property(
         lambda self: getattr(self.ax.get_figure(root=True), 'canvas', None)
+    )
+
+    useblit = property(
+        fget=lambda self: (
+            self._useblit and
+            (canvas := self.canvas) is not None and
+            canvas.supports_blit
+        ),
+        fset=lambda self, useblit: setattr(self, '_useblit', useblit),
+        doc="If the user asked for blitting AND if the canvas supports it"
     )
 
     def connect_event(self, event, callback):
@@ -201,7 +212,7 @@ class Button(AxesWidget):
                              horizontalalignment='center',
                              transform=ax.transAxes)
 
-        self._useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
@@ -235,7 +246,7 @@ class Button(AxesWidget):
         if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
-                if self._useblit:
+                if self.useblit:
                     self.ax.draw_artist(self.ax)
                     self.canvas.blit(self.ax.bbox)
                 else:
@@ -1057,7 +1068,7 @@ class CheckButtons(AxesWidget):
         if actives is None:
             actives = [False] * len(labels)
 
-        self._useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit
         self._background = None
 
         ys = np.linspace(1, 0, len(labels)+2)[1:-1]
@@ -1086,7 +1097,7 @@ class CheckButtons(AxesWidget):
             **cbook.normalize_kwargs(check_props, collections.PathCollection),
             'marker': 'x',
             'transform': ax.transAxes,
-            'animated': self._useblit,
+            'animated': self.useblit,
         }
         check_props.setdefault('facecolor', check_props.pop('color', 'black'))
         self._checks = ax.scatter([0.15] * len(ys), ys, **check_props)
@@ -1096,7 +1107,7 @@ class CheckButtons(AxesWidget):
         self._init_status(actives)
 
         self.connect_event('button_press_event', self._clicked)
-        if self._useblit:
+        if self.useblit:
             self.connect_event('draw_event', self._clear)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
@@ -1105,7 +1116,8 @@ class CheckButtons(AxesWidget):
         """Internal event handler to clear the buttons."""
         if self.ignore(event) or self.canvas.is_saving():
             return
-        self._background = self.canvas.copy_from_bbox(self.ax.bbox)
+        if self.useblit:
+            self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._checks)
 
     def _clicked(self, event):
@@ -1209,7 +1221,7 @@ class CheckButtons(AxesWidget):
         self._checks.set_facecolor(facecolors)
 
         if self.drawon:
-            if self._useblit:
+            if self.useblit:
                 if self._background is not None:
                     self.canvas.restore_region(self._background)
                 self.ax.draw_artist(self._checks)
@@ -1644,7 +1656,7 @@ class RadioButtons(AxesWidget):
 
         ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
 
-        self._useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit
         self._background = None
 
         label_props = _expand_text_props(label_props)
@@ -1660,7 +1672,7 @@ class RadioButtons(AxesWidget):
             **radio_props,
             'marker': 'o',
             'transform': ax.transAxes,
-            'animated': self._useblit,
+            'animated': self.useblit,
         }
         radio_props.setdefault('edgecolor', radio_props.get('color', 'black'))
         radio_props.setdefault('facecolor',
@@ -1678,7 +1690,7 @@ class RadioButtons(AxesWidget):
              for i, activecolor in enumerate(self._active_colors)])
 
         self.connect_event('button_press_event', self._clicked)
-        if self._useblit:
+        if self.useblit:
             self.connect_event('draw_event', self._clear)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
@@ -1687,7 +1699,8 @@ class RadioButtons(AxesWidget):
         """Internal event handler to clear the buttons."""
         if self.ignore(event) or self.canvas.is_saving():
             return
-        self._background = self.canvas.copy_from_bbox(self.ax.bbox)
+        if self.useblit:
+            self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._buttons)
 
     def _clicked(self, event):
@@ -1779,7 +1792,7 @@ class RadioButtons(AxesWidget):
         self._buttons.set_facecolor(button_facecolors)
 
         if self.drawon:
-            if self._useblit:
+            if self.useblit:
                 if self._background is not None:
                     self.canvas.restore_region(self._background)
                 self.ax.draw_artist(self._buttons)
@@ -1930,7 +1943,7 @@ class Cursor(AxesWidget):
         self.visible = True
         self.horizOn = horizOn
         self.vertOn = vertOn
-        self.useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit
 
         if self.useblit:
             lineprops['animated'] = True
@@ -2015,6 +2028,17 @@ class MultiCursor(Widget):
     --------
     See :doc:`/gallery/widgets/multicursor`.
     """
+    _useblit = False
+
+    @property
+    def useblit(self):
+        return (
+            self._useblit and all(canvas.supports_blit for canvas in self._canvas_infos)
+        )
+
+    @useblit.setter
+    def useblit(self, useblit):
+        self._useblit = useblit
 
     def __init__(self, canvas, axes, *, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
@@ -2036,9 +2060,7 @@ class MultiCursor(Widget):
         ymid = 0.5 * (ymin + ymax)
 
         self.visible = True
-        self.useblit = (
-            useblit
-            and all(canvas.supports_blit for canvas in self._canvas_infos))
+        self._useblit = useblit
 
         if self.useblit:
             lineprops['animated'] = True
@@ -2123,7 +2145,7 @@ class _SelectorWidget(AxesWidget):
             self.onselect = lambda *args: None
         else:
             self.onselect = onselect
-        self.useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit
         self.connect_default_events()
 
         self._state_modifier_keys = dict(move=' ', clear='escape',
@@ -4157,7 +4179,7 @@ class Lasso(AxesWidget):
     def __init__(self, ax, xy, callback, *, useblit=True, props=None):
         super().__init__(ax)
 
-        self.useblit = useblit and self.canvas.supports_blit
+        self._useblit = useblit
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
