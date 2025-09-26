@@ -36,7 +36,7 @@ def get_glyphs_subset(fontfile: str, glyphs: set[GlyphIndexType]) -> TTFont:
 
     Parameters
     ----------
-    fontfile : str
+    fontfile : FontPath
         Path to the font file
     glyphs : set[GlyphIndexType]
         Set of glyph indices to include in subset.
@@ -74,8 +74,7 @@ def get_glyphs_subset(fontfile: str, glyphs: set[GlyphIndexType]) -> TTFont:
         'xref',  # The cross-reference table (some Apple font tooling information).
     ]
     # if fontfile is a ttc, specify font number
-    if fontfile.endswith(".ttc"):
-        options.font_number = 0
+    options.font_number = fontfile.face_index
 
     font = subset.load_font(fontfile, options)
     subsetter = subset.Subsetter(options=options)
@@ -168,7 +167,8 @@ class CharacterTracker:
             else:
                 subset = 0
                 subset_charcode = charcode
-            self.used.setdefault((_f.fname, subset), {})[subset_charcode] = glyph_index
+            font_path = font_manager.FontPath(_f.fname, _f.face_index)
+            self.used.setdefault((font_path, subset), {})[subset_charcode] = glyph_index
             font_glyphs.append((subset, subset_charcode))
         return font_glyphs
 
@@ -202,7 +202,8 @@ class CharacterTracker:
         else:
             subset = 0
             subset_charcode = charcode
-        self.used.setdefault((font.fname, subset), {})[subset_charcode] = glyph
+        font_path = font_manager.FontPath(font.fname, font.face_index)
+        self.used.setdefault((font_path, subset), {})[subset_charcode] = glyph
         return (subset, subset_charcode)
 
     def subset_to_unicode(self, index: int,
