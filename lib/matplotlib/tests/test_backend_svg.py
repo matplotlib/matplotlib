@@ -526,7 +526,7 @@ def test_svg_metadata():
 
 
 @image_comparison(["multi_font_aspath.svg"])
-def test_multi_font_type3():
+def test_multi_font_aspath():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
     plt.rc('svg', fonttype='path')
@@ -537,7 +537,7 @@ def test_multi_font_type3():
 
 
 @image_comparison(["multi_font_astext.svg"])
-def test_multi_font_type42():
+def test_multi_font_astext():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
     plt.rc('svg', fonttype='none')
