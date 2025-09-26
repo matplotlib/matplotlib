@@ -22,6 +22,7 @@ Still TODO:
 """
 
 from contextlib import nullcontext
+import math
 from math import radians, cos, sin
 
 import numpy as np
@@ -31,6 +32,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+from matplotlib.dviread import Dvi
 from matplotlib.font_manager import fontManager as _fontManager, get_font
 from matplotlib.ft2font import LoadFlags
 from matplotlib.mathtext import MathTextParser
@@ -220,7 +222,8 @@ class RendererAgg(RendererBase):
 
         _api.check_in_list(["TeX", True, False], ismath=ismath)
         if ismath == "TeX":
-            return super().get_text_width_height_descent(s, prop, ismath)
+            return [*map(
+                math.ceil, super().get_text_width_height_descent(s, prop, ismath))]
 
         if ismath:
             ox, oy, width, height, descent, font_image = \
@@ -239,19 +242,45 @@ class RendererAgg(RendererBase):
     def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         # todo, handle props, angle, origins
+
         size = prop.get_size_in_points()
+        dvifile = self.get_texmanager().make_dvi(s, size)
+        with Dvi(dvifile, self.dpi) as dvi:
+            page, = dvi
+        w = math.ceil(page.width)
+        h = math.ceil(page.height)
+        d = math.ceil(page.descent)
 
-        texmanager = self.get_texmanager()
+        image = np.zeros((h + d, w), np.uint8)
 
-        Z = texmanager.get_grey(s, size, self.dpi)
-        Z = np.array(Z * 255.0, np.uint8)
+        for text in page.text:
+            hf = mpl.rcParams["text.hinting_factor"]
+            font = get_font(text.font_path)
+            font.set_size(text.font_size, self.dpi)
+            slant = text.font_effects.get("slant", 0)
+            extend = text.font_effects.get("extend", 1)
+            matrix = [
+                [round(65536 * extend / hf), round(65536 * extend * slant)],
+                [0, 65536],
+            ]
+            font._set_transform(matrix, [0, 0])
+            glyph = font.load_glyph(text.index)
+            # text.y is upwards from baseline, _draw_glyph_at wants upwards from bottom.
+            font._draw_glyph_at(image, text.x, d + text.y, glyph,
+                               antialiased=gc.get_antialiased())
 
-        w, h, d = self.get_text_width_height_descent(s, prop, ismath="TeX")
+        for box in page.boxes:
+            x0 = round(box.x)
+            x1 = x0 + max(round(box.width), 1)
+            y1 = round(h - box.y)
+            y0 = y1 - max(round(box.height), 1)
+            image[y0:y1, x0:x1] = 0xff
+
         xd = d * sin(radians(angle))
         yd = d * cos(radians(angle))
         x = round(x + xd)
         y = round(y + yd)
-        self._renderer.draw_text_image(Z, x, y, angle, gc)
+        self._renderer.draw_text_image(image, x, y, angle, gc)
 
     def get_canvas_width_height(self):
         # docstring inherited
