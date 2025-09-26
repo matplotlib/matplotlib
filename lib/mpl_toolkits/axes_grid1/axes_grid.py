@@ -190,7 +190,7 @@ class Grid:
         return col, row
 
     n_axes = property(lambda self: len(self.axes_all))
-    ngrids = _api.deprecated(property(lambda self: len(self.axes_all)))
+    ngrids = _api.deprecated('3.11')(property(lambda self: len(self.axes_all)))
 
     # Good to propagate __len__ if we have __getitem__
     def __len__(self):
