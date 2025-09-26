@@ -53,6 +53,7 @@ namespace agg
             double r = filter.radius();
             realloc_lut(r);
             unsigned i;
+#ifndef MPL_FIX_AGG_IMAGE_FILTER_LUT_BUGS
             unsigned pivot = diameter() << (image_subpixel_shift - 1);
             for(i = 0; i < pivot; i++)
             {
@@ -63,6 +64,17 @@ namespace agg
             }
             unsigned end = (diameter() << image_subpixel_shift) - 1;
             m_weight_array[0] = m_weight_array[end];
+#else
+            unsigned pivot = (diameter() << (image_subpixel_shift - 1)) - 1;
+            for(i = 0; i <= pivot + 1; i++)
+            {
+                double x = double(i) / double(image_subpixel_scale);
+                double y = filter.calc_weight(x);
+                int16 value = iround(y * image_filter_scale);
+                m_weight_array[pivot + i] = value;
+                if(i <= pivot) m_weight_array[pivot - i] = value;
+            }
+#endif
             if(normalization) 
             {
                 normalize();
