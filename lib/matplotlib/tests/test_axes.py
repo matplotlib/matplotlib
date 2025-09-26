@@ -2966,8 +2966,7 @@ class TestScatter:
     @check_figures_equal()
     def test_scatter_invalid_color(self, fig_test, fig_ref):
         ax = fig_test.subplots()
-        cmap = mpl.colormaps["viridis"].resampled(16)
-        cmap.set_bad("k", 1)
+        cmap = mpl.colormaps["viridis"].resampled(16).with_extremes(bad="black")
         # Set a nonuniform size to prevent the last call to `scatter` (plotting
         # the invalid points separately in fig_ref) from using the marker
         # stamping fast path, which would result in slightly offset markers.
