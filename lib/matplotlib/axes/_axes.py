@@ -1,3 +1,4 @@
+import datetime
 import functools
 import itertools
 import logging
@@ -9046,6 +9047,18 @@ such objects
             widths = [widths] * N
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
+
+        # Proactive validation: if positions are datetime-like
+        # widths must be timedelta-like.
+        if (isinstance(positions[0], (datetime.datetime, datetime.date))):
+            _widths = widths if not np.isscalar(widths) else [widths]
+            if not isinstance(_widths[0], (datetime.timedelta)):
+                raise TypeError(
+                    "If positions are datetime/date values, pass widths as "
+                    "datetime.timedelta (e.g., datetime.timedelta(days=10))"
+                    "or numpy.timedelta64."
+                )
+
 
         # Validate side
         _api.check_in_list(["both", "low", "high"], side=side)
