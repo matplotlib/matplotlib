@@ -15,9 +15,9 @@ as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 # Now it's time for the pie. Starting with a pie recipe, we create the data
 # and a list of labels from it.
 #
-# We can provide a function to the ``autopct`` argument, which will expand
-# automatic percentage labeling by showing absolute values; we calculate
-# the latter back from relative data and the known sum of all values.
+# We can provide a format string to the *wedge_labels* parameter, to
+# automatically label each ingredient's wedge with its weight in grams and
+# percentages.
 #
 # We then create the pie and store the returned objects for later.  The first
 # returned element of the returned tuple is a list of the wedges.  Those are
@@ -31,31 +31,23 @@ as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
+fig, ax = plt.subplots(figsize=(6, 3))
 
 recipe = ["375 g flour",
           "75 g sugar",
           "250 g butter",
           "300 g berries"]
 
-data = [float(x.split()[0]) for x in recipe]
+data = [int(x.split()[0]) for x in recipe]
 ingredients = [x.split()[-1] for x in recipe]
 
-
-def func(pct, allvals):
-    absolute = int(np.round(pct/100.*np.sum(allvals)))
-    return f"{pct:.1f}%\n({absolute:d} g)"
-
-
-wedges, texts, autotexts = ax.pie(data, autopct=lambda pct: func(pct, data),
-                                  textprops=dict(color="w"))
+wedges, texts = ax.pie(data, wedge_labels='{frac:.1%}\n({absval:d}g)',
+                       textprops=dict(color="w", size=8, weight="bold"))
 
 ax.legend(wedges, ingredients,
           title="Ingredients",
           loc="center left",
           bbox_to_anchor=(1, 0, 0.5, 1))
-
-plt.setp(autotexts, size=8, weight="bold")
 
 ax.set_title("Matplotlib bakery: A pie")
 
@@ -97,7 +89,7 @@ recipe = ["225 g flour",
 
 data = [225, 90, 50, 60, 100, 5]
 
-wedges, texts = ax.pie(data, wedgeprops=dict(width=0.5), startangle=-40)
+wedges, _ = ax.pie(data, wedgeprops=dict(width=0.5), startangle=-40)
 
 bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
 kw = dict(arrowprops=dict(arrowstyle="-"),

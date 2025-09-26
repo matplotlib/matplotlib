@@ -1,0 +1,9 @@
+Return value of ``pie``
+~~~~~~~~~~~~~~~~~~~~~~~
+Previously, if no *labels* were passed to `~.Axes.pie`, and *labeldistance* was
+not ``None``, empty text labels would be added to the axes and returned.  This
+is no longer the case.  To continue creating empty labels, either pass an empty
+string with the new *wedge_labels* parameter ``wedge_labels=''`` or, for
+compatibility with older Matplotlib versions, pass an empty string for each wedge
+via the *labels* parameter, i.e. ``labels=[''] * number_of_wedges``.  Note the
+latter option will stop working at Matplotlib 3.16.
