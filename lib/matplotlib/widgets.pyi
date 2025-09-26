@@ -273,7 +273,7 @@ class MultiCursor(Widget):
 
 class _SelectorWidget(AxesWidget):
     onselect: Callable[[float, float], Any]
-    useblit: bool
+    _useblit: bool
     background: Any
     validButtons: list[MouseButton]
     def __init__(
@@ -285,6 +285,8 @@ class _SelectorWidget(AxesWidget):
         state_modifier_keys: dict[str, str] | None = ...,
         use_data_coordinates: bool = ...,
     ) -> None: ...
+    @property
+    def useblit(self) -> bool: ...
     def update_background(self, event: Event) -> None: ...
     def connect_default_events(self) -> None: ...
     def ignore(self, event: Event) -> bool: ...
