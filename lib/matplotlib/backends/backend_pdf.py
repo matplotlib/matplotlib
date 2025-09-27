@@ -993,7 +993,8 @@ class PdfFile:
         # for that subset, and compute various properties based on the encoding.
         charmap = self._character_tracker.used[dvifont.fname][0]
         chars = {
-            self._character_tracker.subset_to_unicode(dvifont.fname, 0, ccode)
+            # DVI type 1 fonts always map single glyph to single character.
+            ord(self._character_tracker.subset_to_unicode(dvifont.fname, 0, ccode))
             for ccode in charmap
         }
         t1font = t1font.subset(chars, self._get_subset_prefix(charmap.values()))
@@ -1147,10 +1148,10 @@ end"""
                 last_ccode = ccode
 
             def _to_unicode(ccode):
-                real_ccode = self._character_tracker.subset_to_unicode(
+                chars = self._character_tracker.subset_to_unicode(
                     filename, subset_index, ccode)
-                unicodestr = chr(real_ccode).encode('utf-16be').hex()
-                return f'<{unicodestr}>'
+                hexstr = chars.encode('utf-16be').hex()
+                return f'<{hexstr}>'
 
             width = 2 if fonttype == 3 else 4
             unicode_bfrange = []
@@ -2329,7 +2330,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED,
                                              language=language):
                 subset, charcode = self.file._character_tracker.track_glyph(
-                    item.ft_object, ord(item.char), item.glyph_index)
+                    item.ft_object, item.char, item.glyph_index)
                 if (item.ft_object, subset) != prev_font:
                     if singlebyte_chunk:
                         output_singlebyte_chunk(singlebyte_chunk)

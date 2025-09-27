@@ -107,11 +107,11 @@ class GlyphMap:
     """
     A two-way glyph mapping.
 
-    The forward glyph map is from (character code, glyph index)-pairs to (subset index,
-    subset character code)-pairs.
+    The forward glyph map is from (character string, glyph index)-pairs to
+    (subset index, subset character code)-pairs.
 
     The inverse glyph map is from to (subset index, subset character code)-pairs to
-    (character code, glyph index)-pairs.
+    (character string, glyph index)-pairs.
     """
 
     def __init__(self) -> None:
@@ -120,22 +120,21 @@ class GlyphMap:
         self._inverse: dict[tuple[int, CharacterCodeType],
                             tuple[CharacterCodeType, GlyphIndexType]] = {}
 
-    def get(self, charcode: CharacterCodeType,
+    def get(self, charcodes: str,
             glyph_index: GlyphIndexType) -> tuple[int, CharacterCodeType] | None:
         """
-        Get the forward mapping from a (character code, glyph index)-pair.
+        Get the forward mapping from a (character string, glyph index)-pair.
 
         This may return *None* if the pair is not currently mapped.
         """
-        return self._forward.get((charcode, glyph_index))
+        return self._forward.get((charcodes, glyph_index))
 
     def iget(self, subset: int,
-             subset_charcode: CharacterCodeType) -> tuple[CharacterCodeType,
-                                                          GlyphIndexType]:
+             subset_charcode: CharacterCodeType) -> tuple[str, GlyphIndexType]:
         """Get the inverse mapping from a (subset, subset charcode)-pair."""
         return self._inverse[(subset, subset_charcode)]
 
-    def add(self, charcode: CharacterCodeType, glyph_index: GlyphIndexType, subset: int,
+    def add(self, charcode: str, glyph_index: GlyphIndexType, subset: int,
             subset_charcode: CharacterCodeType) -> None:
         """
         Add a mapping to this instance.
@@ -219,9 +218,8 @@ class CharacterTracker:
             for c, f in font._get_fontmap(s).items()
         ]
 
-    def track_glyph(
-            self, font: FT2Font, charcode: CharacterCodeType,
-            glyph: GlyphIndexType) -> tuple[int, CharacterCodeType]:
+    def track_glyph(self, font: FT2Font, chars: str | CharacterCodeType,
+                    glyph: GlyphIndexType) -> tuple[int, CharacterCodeType]:
         """
         Record character code *charcode* at glyph index *glyph* as using font *font*.
 
@@ -229,8 +227,10 @@ class CharacterTracker:
         ----------
         font : FT2Font
             A font that is being used for the provided string.
-        charcode : CharacterCodeType
-            The character code to record.
+        chars : str or CharacterCodeType
+            The character(s) to record. This may be a single character code, or multiple
+            characters in a string, if the glyph maps to several characters. It will be
+            normalized to a string internally.
         glyph : GlyphIndexType
             The corresponding glyph index to record.
 
@@ -243,13 +243,21 @@ class CharacterTracker:
             The character code within the above subset. If *subset_size* was not
             specified on this instance, then this is just *charcode* unmodified.
         """
+        if isinstance(chars, str):
+            charcode = ord(chars[0])
+        else:
+            charcode = chars
+            chars = chr(chars)
+
         glyph_map = self.glyph_maps.setdefault(font.fname, GlyphMap())
-        if result := glyph_map.get(charcode, glyph):
+        if result := glyph_map.get(chars, glyph):
             return result
 
         subset_maps = self.used.setdefault(font.fname, [{}])
-        # Default to preserving the character code as it was.
         use_next_charmap = (
+            # Multi-character glyphs always go in the non-0 subset.
+            len(chars) > 1 or
+            # Default to preserving the character code as it was.
             self.subset_size != 0
             and (
                 # But start filling a new subset if outside the first block; this
@@ -270,11 +278,11 @@ class CharacterTracker:
             subset = 0
             subset_charcode = charcode
         subset_maps[subset][subset_charcode] = glyph
-        glyph_map.add(charcode, glyph, subset, subset_charcode)
+        glyph_map.add(chars, glyph, subset, subset_charcode)
         return (subset, subset_charcode)
 
     def subset_to_unicode(self, fontname: str, subset: int,
-                          subset_charcode: CharacterCodeType) -> CharacterCodeType:
+                          subset_charcode: CharacterCodeType) -> str:
         """
         Map a subset index and character code to a Unicode character code.
 
@@ -289,8 +297,8 @@ class CharacterTracker:
 
         Returns
         -------
-        CharacterCodeType
-            The Unicode character code corresponding to the subsetted one.
+        str
+            The Unicode character(s) corresponding to the subsetted character code.
         """
         return self.glyph_maps[fontname].iget(subset, subset_charcode)[0]
 
