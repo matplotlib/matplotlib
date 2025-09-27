@@ -137,6 +137,7 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
+        self._features = None
         self.set_language(None)
         self._reset_visual_defaults(
             text=text,
@@ -849,6 +850,12 @@ class Text(Artist):
         """
         return self._fontproperties.get_family()
 
+    def get_fontfeatures(self):
+        """
+        Return a tuple of font feature tags to enable.
+        """
+        return self._features
+
     def get_fontname(self):
         """
         Return the font name as a string.
@@ -1094,6 +1101,39 @@ class Text(Artist):
         .font_manager.FontProperties.set_family
         """
         self._fontproperties.set_family(fontname)
+        self.stale = True
+
+    def set_fontfeatures(self, features):
+        """
+        Set the feature tags to enable on the font.
+
+        Parameters
+        ----------
+        features : list of str, or tuple of str, or None
+            A list of feature tags to be used with the associated font. These strings
+            are eventually passed to HarfBuzz, and so all `string formats supported by
+            hb_feature_from_string()
+            <https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-from-string>`__
+            are supported. Note though that subranges are not explicitly supported and
+            behaviour may change in the future.
+
+            For example, if your desired font includes Stylistic Sets which enable
+            various typographic alternates including one that you do not wish to use
+            (e.g., Contextual Ligatures), then you can pass the following to enable one
+            and not the other::
+
+                fp.set_features([
+                    'ss01',  # Use Stylistic Set 1.
+                    '-clig',  # But disable Contextural Ligatures.
+                ])
+
+            Available font feature tags may be found at
+            https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
+        """
+        _api.check_isinstance((Sequence, None), features=features)
+        if features is not None:
+            features = tuple(features)
+        self._features = features
         self.stale = True
 
     def set_fontvariant(self, variant):

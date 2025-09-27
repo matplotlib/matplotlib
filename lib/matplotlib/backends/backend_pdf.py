@@ -34,7 +34,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
-from matplotlib.ft2font import FT2Font, FaceFlags, Kerning, LoadFlags, StyleFlags
+from matplotlib.ft2font import FT2Font, FaceFlags, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -2264,7 +2264,11 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
         fontsize = prop.get_size_in_points()
-        language = mtext.get_language() if mtext is not None else None
+        if mtext is not None:
+            features = mtext.get_fontfeatures()
+            language = mtext.get_language()
+        else:
+            features = language = None
 
         if mpl.rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
@@ -2274,7 +2278,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             fonttype = mpl.rcParams['pdf.fonttype']
 
         if gc.get_url() is not None:
-            font.set_text(s, language=language)
+            font.set_text(s, features=features, language=language)
             width, height = font.get_width_height()
             self.file._annotations[-1][1].append(_get_link_annotation(
                 gc, x, y, width / 64, height / 64, angle))
@@ -2282,6 +2286,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # If fonttype is neither 3 nor 42, emit the whole string at once
         # without manual kerning.
         if fonttype not in [3, 42]:
+            if not mpl.rcParams['pdf.use14corefonts']:
+                self.file._character_tracker.track(font, s)
             self.file.output(Op.begin_text,
                              self.file.fontName(prop), fontsize, Op.selectfont)
             self._setup_textpos(x, y, angle)
@@ -2322,7 +2328,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             prev_start_x = 0
             # Emit all the characters in a BT/ET group.
             self.file.output(Op.begin_text)
-            for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED,
+            for item in _text_helpers.layout(s, font, features=features,
                                              language=language):
                 subset, charcode = self.file._character_tracker.track_glyph(
                     item.ft_object, ord(item.char), item.glyph_index)

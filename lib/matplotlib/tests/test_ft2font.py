@@ -229,6 +229,19 @@ def test_ft2font_set_size():
     assert font.get_width_height() == tuple(pytest.approx(2 * x, 1e-1) for x in orig)
 
 
+def test_ft2font_features():
+    # Smoke test that these are accepted as intended.
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    font.set_text('foo', features=None)  # unset
+    font.set_text('foo', features=['calt', 'dlig'])  # list
+    font.set_text('foo', features=('calt', 'dlig'))  # tuple
+    with pytest.raises(TypeError):
+        font.set_text('foo', features=123)
+    with pytest.raises(TypeError):
+        font.set_text('foo', features=[123, 456])
+
+
 def test_ft2font_charmaps():
     def enc(name):
         # We don't expose the encoding enum from FreeType, but can generate it here.
@@ -959,7 +972,7 @@ def test_fallback_last_resort(recwarn):
            "Glyph 128579 (\\N{UPSIDE-DOWN FACE}) missing from font(s)")
 
 
-def test__get_fontmap():
+def test__layout():
     fonts, test_str = _gen_multi_font_text()
     # Add some glyphs that don't exist in either font to check the Last Resort fallback.
     missing_glyphs = '\n几个汉字'
@@ -968,11 +981,11 @@ def test__get_fontmap():
     ft = fm.get_font(
         fm.fontManager._find_fonts_by_props(fm.FontProperties(family=fonts))
     )
-    fontmap = ft._get_fontmap(test_str)
-    for char, font in fontmap.items():
-        if char in missing_glyphs:
-            assert Path(font.fname).name == 'LastResortHE-Regular.ttf'
-        elif ord(char) > 127:
-            assert Path(font.fname).name == 'DejaVuSans.ttf'
-        else:
-            assert Path(font.fname).name == 'cmr10.ttf'
+    for substr in test_str.split('\n'):
+        for item in ft._layout(substr, ft2font.LoadFlags.DEFAULT):
+            if item.char in missing_glyphs:
+                assert Path(item.ft_object.fname).name == 'LastResortHE-Regular.ttf'
+            elif ord(item.char) > 127:
+                assert Path(item.ft_object.fname).name == 'DejaVuSans.ttf'
+            else:
+                assert Path(item.ft_object.fname).name == 'cmr10.ttf'

@@ -540,7 +540,7 @@ def afmFontProperty(fontpath, font):
 
 def _cleanup_fontproperties_init(init_method):
     """
-    A decorator to limit the call signature to single a positional argument
+    A decorator to limit the call signature to a single positional argument
     or alternatively only keyword arguments.
 
     We still accept but deprecate all other call signatures.

@@ -769,7 +769,7 @@ grestore
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        stream = []  # list of (ps_name, x, char_name)
+        stream = []  # list of (ps_name, x, y, char_name)
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
@@ -787,25 +787,30 @@ grestore
                 kern = font.get_kern_dist_from_name(last_name, name)
                 last_name = name
                 thisx += kern * scale
-                stream.append((ps_name, thisx, name))
+                stream.append((ps_name, thisx, 0, name))
                 thisx += width * scale
 
         else:
-            language = mtext.get_language() if mtext is not None else None
+            if mtext is not None:
+                features = mtext.get_fontfeatures()
+                language = mtext.get_language()
+            else:
+                features = language = None
             font = self._get_font_ttf(prop)
-            self._character_tracker.track(font, s)
-            for item in _text_helpers.layout(s, font, language=language):
+            for item in _text_helpers.layout(s, font, features=features,
+                                             language=language):
+                self._character_tracker.track_glyph(item.ft_object, ord(item.char),
+                                                    item.glyph_index)
                 ps_name = (item.ft_object.postscript_name
                            .encode("ascii", "replace").decode("ascii"))
                 glyph_name = item.ft_object.get_glyph_name(item.glyph_index)
-                stream.append((ps_name, item.x, glyph_name))
+                stream.append((ps_name, item.x, item.y, glyph_name))
         self.set_color(*gc.get_rgb())
 
-        for ps_name, group in itertools. \
-                groupby(stream, lambda entry: entry[0]):
+        for ps_name, group in itertools.groupby(stream, lambda entry: entry[0]):
             self.set_font(ps_name, prop.get_size_in_points(), False)
-            thetext = "\n".join(f"{x:g} 0 m /{name:s} glyphshow"
-                                for _, x, name in group)
+            thetext = "\n".join(f"{x:g} {y:g} m /{name:s} glyphshow"
+                                for _, x, y, name in group)
             self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
