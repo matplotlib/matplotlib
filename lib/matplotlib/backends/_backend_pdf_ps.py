@@ -209,6 +209,10 @@ class CharacterTracker:
             # ASCII (for Type 3) or the Basic Multilingual Plane (for Type 42).
             if charcode >= self.subset_size:
                 use_next_charmap = True
+            # Or, use a new subset if the character code is already mapped for the first
+            # block. This means it's using an alternate glyph.
+            elif charcode in subset_maps[0]:
+                use_next_charmap = True
         if use_next_charmap:
             if len(subset_maps) == 1 or len(subset_maps[-1]) == self.subset_size:
                 subset_maps.append({})
