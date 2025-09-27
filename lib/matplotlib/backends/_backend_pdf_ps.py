@@ -114,16 +114,21 @@ class CharacterTracker:
     ----------
     subset_size : int
         The size at which characters are grouped into subsets.
-    used : dict[tuple[str, int], dict[CharacterCodeType, GlyphIndexType]]
+    used : dict
         A dictionary of font files to character maps.
 
-        The key is a font filename and subset within that font.
+        The key is a font filename.
 
-        The value is a dictionary mapping a character code to a glyph index. Note this
-        mapping is the inverse of FreeType, which maps glyph indices to character codes.
+        The value is a list of dictionaries, each mapping at most *subset_size*
+        character codes to glyph indices. Note this mapping is the inverse of FreeType,
+        which maps glyph indices to character codes.
 
         If *subset_size* is not set, then there will only be one subset per font
         filename.
+    glyph_map : dict
+        A dictionary of font files to glyph maps. The glyph map is from (character code,
+        glyph index)-pairs to (subset index, subset character code)-pairs. You probably
+        will want to use the `.subset_to_unicode` method instead of this attribute.
     """
 
     def __init__(self, subset_size: int = 0):
@@ -134,7 +139,10 @@ class CharacterTracker:
             The maximum size that is supported for an embedded font. If provided, then
             characters will be grouped into these sized subsets.
         """
-        self.used: dict[tuple[str, int], dict[CharacterCodeType, GlyphIndexType]] = {}
+        self.used: dict[str, list[dict[CharacterCodeType, GlyphIndexType]]] = {}
+        self.glyph_map: dict[str,
+                             dict[tuple[CharacterCodeType, GlyphIndexType],
+                                  tuple[int, CharacterCodeType]]] = {}
         self.subset_size = subset_size
 
     def track(self, font: FT2Font, s: str) -> list[tuple[int, CharacterCodeType]]:
@@ -186,22 +194,39 @@ class CharacterTracker:
             The character code within the above subset. If *subset_size* was not
             specified on this instance, then this is just *charcode* unmodified.
         """
+        glyph_map = self.glyph_map.setdefault(font.fname, {})
+        key = (charcode, glyph)
+        if key in glyph_map:
+            return glyph_map[key]
+
+        subset_maps = self.used.setdefault(font.fname, [{}])
+        # Default to preserving the character code as it was.
+        subset = 0
+        subset_charcode = charcode
+        use_next_charmap = False
         if self.subset_size != 0:
-            subset = charcode // self.subset_size
-            subset_charcode = charcode % self.subset_size
-        else:
-            subset = 0
-            subset_charcode = charcode
-        self.used.setdefault((font.fname, subset), {})[subset_charcode] = glyph
+            # But start filling a new subset if outside the first block; this preserves
+            # ASCII (for Type 3) or the Basic Multilingual Plane (for Type 42).
+            if charcode >= self.subset_size:
+                use_next_charmap = True
+        if use_next_charmap:
+            if len(subset_maps) == 1 or len(subset_maps[-1]) == self.subset_size:
+                subset_maps.append({})
+            subset = len(subset_maps) - 1
+            subset_charcode = len(subset_maps[-1])
+        subset_maps[subset][subset_charcode] = glyph
+        glyph_map[key] = (subset, subset_charcode)
         return (subset, subset_charcode)
 
-    def subset_to_unicode(self, index: int,
+    def subset_to_unicode(self, fontname: str, index: int,
                           charcode: CharacterCodeType) -> CharacterCodeType:
         """
         Map a subset index and character code to a Unicode character code.
 
         Parameters
         ----------
+        fontname : str
+            The name of the font, from the *used* dictionary key.
         index : int
             The subset index within a font.
         charcode : CharacterCodeType
@@ -212,7 +237,11 @@ class CharacterTracker:
         CharacterCodeType
             The Unicode character code corresponding to the subsetted one.
         """
-        return index * self.subset_size + charcode
+        search = (index, charcode)
+        for orig_info, subset_info in self.glyph_map[fontname].items():
+            if search == subset_info:
+                return orig_info[0]
+        raise ValueError(f'{charcode} does not exist in {fontname} subset {index}')
 
 
 class RendererPDFPSBase(RendererBase):
