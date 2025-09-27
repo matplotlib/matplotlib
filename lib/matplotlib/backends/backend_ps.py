@@ -1065,24 +1065,24 @@ class FigureCanvasPS(FigureCanvasBase):
             Ndict = len(_psDefs)
             print("%%BeginProlog", file=fh)
             if not mpl.rcParams['ps.useafm']:
-                Ndict += len(ps_renderer._character_tracker.used)
+                Ndict += sum(map(len, ps_renderer._character_tracker.used.values()))
             print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
             print("\n".join(_psDefs), file=fh)
             if not mpl.rcParams['ps.useafm']:
-                for (font, subset_index), charmap in \
-                        ps_renderer._character_tracker.used.items():
-                    if not charmap:
-                        continue
-                    fonttype = mpl.rcParams['ps.fonttype']
-                    # Can't use more than 255 chars from a single Type 3 font.
-                    if len(charmap) > 255:
-                        fonttype = 42
-                    fh.flush()
-                    if fonttype == 3:
-                        fh.write(_font_to_ps_type3(font, charmap.values()))
-                    else:  # Type 42 only.
-                        _font_to_ps_type42(font, charmap.values(), fh)
+                for font, subsets in ps_renderer._character_tracker.used.items():
+                    for charmap in subsets:
+                        if not charmap:
+                            continue
+                        fonttype = mpl.rcParams['ps.fonttype']
+                        # Can't use more than 255 chars from a single Type 3 font.
+                        if len(charmap) > 255:
+                            fonttype = 42
+                        fh.flush()
+                        if fonttype == 3:
+                            fh.write(_font_to_ps_type3(font, charmap.values()))
+                        else:  # Type 42 only.
+                            _font_to_ps_type42(font, charmap.values(), fh)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
