@@ -190,7 +190,8 @@ class RendererAgg(RendererBase):
         font = self._prepare_font(prop)
         # We pass '0' for angle here, since it will be rotated (in raster
         # space) in the following call to draw_text_image).
-        font.set_text(s, 0, flags=get_hinting_flag())
+        font.set_text(s, 0, flags=get_hinting_flag(),
+                      language=mtext.get_language() if mtext is not None else None)
         font.draw_glyphs_to_bitmap(
             antialiased=gc.get_antialiased())
         d = font.get_descent() / 64.0
@@ -198,10 +199,20 @@ class RendererAgg(RendererBase):
         xo, yo = font.get_bitmap_offset()
         xo /= 64.0
         yo /= 64.0
-        xd = d * sin(radians(angle))
-        yd = d * cos(radians(angle))
-        x = round(x + xo + xd)
-        y = round(y + yo + yd)
+
+        rad = radians(angle)
+        xd = d * sin(rad)
+        yd = d * cos(rad)
+        # Rotating the offset vector ensures text rotates around the anchor point.
+        # Without this, rotated text offsets incorrectly, causing a horizontal shift.
+        # Applying the 2D rotation matrix.
+        rotated_xo = xo * cos(rad) - yo * sin(rad)
+        rotated_yo = xo * sin(rad) + yo * cos(rad)
+        # Subtract rotated_yo to account for the inverted y-axis in computer graphics,
+        # compared to the mathematical convention.
+        x = round(x + rotated_xo + xd)
+        y = round(y - rotated_yo + yd)
+
         self._renderer.draw_text_image(font, x, y + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
