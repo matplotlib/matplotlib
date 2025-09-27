@@ -157,20 +157,10 @@ class CharacterTracker:
             whole). If *subset_size* is not specified, then the subset will always be 0
             and the character codes will be returned from the string unchanged.
         """
-        font_glyphs = []
-        char_to_font = font._get_fontmap(s)
-        for _c, _f in char_to_font.items():
-            charcode = ord(_c)
-            glyph_index = _f.get_char_index(charcode)
-            if self.subset_size != 0:
-                subset = charcode // self.subset_size
-                subset_charcode = charcode % self.subset_size
-            else:
-                subset = 0
-                subset_charcode = charcode
-            self.used.setdefault((_f.fname, subset), {})[subset_charcode] = glyph_index
-            font_glyphs.append((subset, subset_charcode))
-        return font_glyphs
+        return [
+            self.track_glyph(f, ord(c), f.get_char_index(ord(c)))
+            for c, f in font._get_fontmap(s).items()
+        ]
 
     def track_glyph(
             self, font: FT2Font, charcode: CharacterCodeType,
