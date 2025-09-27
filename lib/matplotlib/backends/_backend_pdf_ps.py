@@ -251,9 +251,15 @@ class CharacterTracker:
         # Default to preserving the character code as it was.
         use_next_charmap = (
             self.subset_size != 0
-            # But start filling a new subset if outside the first block; this preserves
-            # ASCII (for Type 3) or the Basic Multilingual Plane (for Type 42).
-            and charcode >= self.subset_size
+            and (
+                # But start filling a new subset if outside the first block; this
+                # preserves ASCII (for Type 3) or the Basic Multilingual Plane (for
+                # Type 42).
+                charcode >= self.subset_size
+                # Or, use a new subset if the character code is already mapped for the
+                # first block. This means it's using an alternate glyph.
+                or charcode in subset_maps[0]
+            )
         )
         if use_next_charmap:
             if len(subset_maps) == 1 or len(subset_maps[-1]) == self.subset_size:
