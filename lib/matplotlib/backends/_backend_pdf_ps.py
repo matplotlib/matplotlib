@@ -126,9 +126,10 @@ class CharacterTracker:
         If *subset_size* is not set, then there will only be one subset per font
         filename.
     glyph_map : dict
-        A dictionary of font files to glyph maps. The glyph map is from (character code,
-        glyph index)-pairs to (subset index, subset character code)-pairs. You probably
-        will want to use the `.subset_to_unicode` method instead of this attribute.
+        A dictionary of font files to glyph maps. The glyph map is from (character
+        code(s), glyph index)-pairs to (subset index, subset character code)-pairs. You
+        probably will want to use the `.subset_to_unicode` method instead of this
+        attribute.
     """
 
     def __init__(self, subset_size: int = 0):
@@ -141,7 +142,7 @@ class CharacterTracker:
         """
         self.used: dict[str, list[dict[CharacterCodeType, GlyphIndexType]]] = {}
         self.glyph_map: dict[str,
-                             dict[tuple[CharacterCodeType, GlyphIndexType],
+                             dict[tuple[tuple[CharacterCodeType, ...], GlyphIndexType],
                                   tuple[int, CharacterCodeType]]] = {}
         self.subset_size = subset_size
 
@@ -170,9 +171,8 @@ class CharacterTracker:
             for _c, _f in font._get_fontmap(s).items()
         ]
 
-    def track_glyph(
-            self, font: FT2Font, charcode: CharacterCodeType,
-            glyph: GlyphIndexType) -> tuple[int, CharacterCodeType]:
+    def track_glyph(self, font: FT2Font, chars: str | CharacterCodeType,
+                    glyph: GlyphIndexType) -> tuple[int, CharacterCodeType]:
         """
         Record character code *charcode* at glyph index *glyph* as using font *font*.
 
@@ -180,8 +180,9 @@ class CharacterTracker:
         ----------
         font : FT2Font
             A font that is being used for the provided string.
-        charcode : CharacterCodeType
-            The character code to record.
+        chars : str or CharacterCodeType
+            The character(s) to record. This may be a single character code, or multiple
+            characters in a string, if the glyph maps to several characters.
         glyph : GlyphIndexType
             The corresponding glyph index to record.
 
@@ -194,25 +195,38 @@ class CharacterTracker:
             The character code within the above subset. If *subset_size* was not
             specified on this instance, then this is just *charcode* unmodified.
         """
+        # Normalize for the key.
+        if isinstance(chars, str):
+            charcode = tuple(ord(c) for c in chars)
+        elif not isinstance(chars, tuple):
+            charcode = (chars, )
+        else:
+            charcode = chars
+
         glyph_map = self.glyph_map.setdefault(font.fname, {})
         key = (charcode, glyph)
         if key in glyph_map:
             return glyph_map[key]
 
         subset_maps = self.used.setdefault(font.fname, [{}])
-        # Default to preserving the character code as it was.
-        subset = 0
-        subset_charcode = charcode
         use_next_charmap = False
-        if self.subset_size != 0:
-            # But start filling a new subset if outside the first block; this preserves
-            # ASCII (for Type 3) or the Basic Multilingual Plane (for Type 42).
-            if charcode >= self.subset_size:
-                use_next_charmap = True
-            # Or, use a new subset if the character code is already mapped for the first
-            # block. This means it's using an alternate glyph.
-            elif charcode in subset_maps[0]:
-                use_next_charmap = True
+        if len(charcode) > 1:
+            # Multi-character glyphs always go in the non-0 subset.
+            use_next_charmap = True
+        else:
+            # Default to preserving the character code as it was.
+            subset = 0
+            subset_charcode = charcode[0]
+            if self.subset_size != 0:
+                # But start filling a new subset if outside the first block; this
+                # preserves ASCII (for Type 3) or the Basic Multilingual Plane
+                # (for Type 42).
+                if charcode[0] >= self.subset_size:
+                    use_next_charmap = True
+                # Or, use a new subset if the character code is already mapped for the
+                # first block. This means it's using an alternate glyph.
+                elif charcode[0] in subset_maps[0]:
+                    use_next_charmap = True
         if use_next_charmap:
             if len(subset_maps) == 1 or len(subset_maps[-1]) == self.subset_size:
                 subset_maps.append({})
@@ -223,7 +237,7 @@ class CharacterTracker:
         return (subset, subset_charcode)
 
     def subset_to_unicode(self, fontname: str, index: int,
-                          charcode: CharacterCodeType) -> CharacterCodeType:
+                          charcode: CharacterCodeType) -> tuple[CharacterCodeType, ...]:
         """
         Map a subset index and character code to a Unicode character code.
 
@@ -238,8 +252,8 @@ class CharacterTracker:
 
         Returns
         -------
-        CharacterCodeType
-            The Unicode character code corresponding to the subsetted one.
+        tuple of CharacterCodeType
+            The Unicode character code(s) corresponding to the subsetted one.
         """
         search = (index, charcode)
         for orig_info, subset_info in self.glyph_map[fontname].items():
