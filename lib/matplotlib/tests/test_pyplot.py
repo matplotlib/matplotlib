@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 
 
 def test_pyplot_up_to_date(tmp_path):
-    pytest.importorskip("black")
+    pytest.importorskip("black", minversion="24.1")
 
     gen_script = Path(mpl.__file__).parents[2] / "tools/boilerplate.py"
     if not gen_script.exists():

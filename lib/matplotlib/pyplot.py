@@ -3145,8 +3145,9 @@ def cohere(
     NFFT: int = 256,
     Fs: float = 2,
     Fc: int = 0,
-    detrend: Literal["none", "mean", "linear"]
-    | Callable[[ArrayLike], ArrayLike] = mlab.detrend_none,
+    detrend: (
+        Literal["none", "mean", "linear"] | Callable[[ArrayLike], ArrayLike]
+    ) = mlab.detrend_none,
     window: Callable[[ArrayLike], ArrayLike] | ArrayLike = mlab.window_hanning,
     noverlap: int = 0,
     pad_to: int | None = None,
@@ -3203,9 +3204,9 @@ def csd(
     NFFT: int | None = None,
     Fs: float | None = None,
     Fc: int | None = None,
-    detrend: Literal["none", "mean", "linear"]
-    | Callable[[ArrayLike], ArrayLike]
-    | None = None,
+    detrend: (
+        Literal["none", "mean", "linear"] | Callable[[ArrayLike], ArrayLike] | None
+    ) = None,
     window: Callable[[ArrayLike], ArrayLike] | ArrayLike | None = None,
     noverlap: int | None = None,
     pad_to: int | None = None,
@@ -3876,9 +3877,9 @@ def psd(
     NFFT: int | None = None,
     Fs: float | None = None,
     Fc: int | None = None,
-    detrend: Literal["none", "mean", "linear"]
-    | Callable[[ArrayLike], ArrayLike]
-    | None = None,
+    detrend: (
+        Literal["none", "mean", "linear"] | Callable[[ArrayLike], ArrayLike] | None
+    ) = None,
     window: Callable[[ArrayLike], ArrayLike] | ArrayLike | None = None,
     noverlap: int | None = None,
     pad_to: int | None = None,
@@ -3986,9 +3987,9 @@ def specgram(
     NFFT: int | None = None,
     Fs: float | None = None,
     Fc: int | None = None,
-    detrend: Literal["none", "mean", "linear"]
-    | Callable[[ArrayLike], ArrayLike]
-    | None = None,
+    detrend: (
+        Literal["none", "mean", "linear"] | Callable[[ArrayLike], ArrayLike] | None
+    ) = None,
     window: Callable[[ArrayLike], ArrayLike] | ArrayLike | None = None,
     noverlap: int | None = None,
     cmap: str | Colormap | None = None,
@@ -4299,10 +4300,9 @@ def violinplot(
     showmedians: bool = False,
     quantiles: Sequence[float | Sequence[float]] | None = None,
     points: int = 100,
-    bw_method: Literal["scott", "silverman"]
-    | float
-    | Callable[[GaussianKDE], float]
-    | None = None,
+    bw_method: (
+        Literal["scott", "silverman"] | float | Callable[[GaussianKDE], float] | None
+    ) = None,
     side: Literal["both", "low", "high"] = "both",
     *,
     data=None,
