@@ -1604,8 +1604,8 @@ def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
                       'accurately displayed.'):
         fig_test.canvas.draw()
 
-    array = np.zeros((1, 2))
-    array[:, 1] = 1
+    array = np.zeros((1, size // 2 + 1))
+    array[:, array.size // 2:] = 1
     if dim == 'col':
         array = array.T
     im = ax_ref.imshow(array, vmin=0, vmax=1, aspect='auto',
