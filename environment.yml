@@ -51,7 +51,7 @@ dependencies:
       - sphinxcontrib-video>=0.2.1
       - pikepdf
   # testing
-  - black<24
+  - black<26
   - coverage
   - flake8>=3.8,<7.2
   - flake8-docstrings>=1.4.0
