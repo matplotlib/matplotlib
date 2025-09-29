@@ -56,6 +56,10 @@ namespace agg
 #ifndef MPL_FIX_AGG_IMAGE_FILTER_LUT_BUGS
             unsigned pivot = diameter() << (image_subpixel_shift - 1);
             for(i = 0; i < pivot; i++)
+#else
+            unsigned pivot = (diameter() << (image_subpixel_shift - 1)) - 1;
+            for(i = 0; i < pivot + 1; i++)
+#endif
             {
                 double x = double(i) / double(image_subpixel_scale);
                 double y = filter.calc_weight(x);
@@ -63,17 +67,10 @@ namespace agg
                 m_weight_array[pivot - i] = (int16)iround(y * image_filter_scale);
             }
             unsigned end = (diameter() << image_subpixel_shift) - 1;
+#ifndef MPL_FIX_AGG_IMAGE_FILTER_LUT_BUGS
             m_weight_array[0] = m_weight_array[end];
 #else
-            unsigned pivot = (diameter() << (image_subpixel_shift - 1)) - 1;
-            for(i = 0; i <= pivot + 1; i++)
-            {
-                double x = double(i) / double(image_subpixel_scale);
-                double y = filter.calc_weight(x);
-                int16 value = iround(y * image_filter_scale);
-                m_weight_array[pivot + i] = value;
-                if(i <= pivot) m_weight_array[pivot - i] = value;
-            }
+            m_weight_array[end] = (int16)iround(filter.calc_weight(diameter() / 2) * image_filter_scale);
 #endif
             if(normalization) 
             {
