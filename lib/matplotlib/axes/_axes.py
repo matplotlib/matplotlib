@@ -9006,6 +9006,8 @@ such objects
         --------
         violinplot :
             Draw a violin plot from data instead of pre-computed statistics.
+        .cbook.violin_stats:
+            Calculate a *vpstats* dictionary from data, suitable for passing to violin.
         """
 
         # Statistical quantities to be plotted on the violins
