@@ -1347,7 +1347,11 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("filename")
     parser.add_argument("dpi", nargs="?", type=float, default=None)
+    parser.add_argument("-d", "--debug", action="store_true")
     args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
 
     def _print_fields(*args):
         print(" ".join(map("{:>11}".format, args)))
