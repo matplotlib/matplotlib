@@ -368,12 +368,6 @@ def pdfRepr(obj):
                         "objects")
 
 
-_FONT_MAX_GLYPH = {
-    3: 256,
-    42: 65536,
-}
-
-
 class Reference:
     """
     PDF reference object.
@@ -691,7 +685,7 @@ class PdfFile:
         self._fontNames = {}     # maps filenames to internal font names
         self._dviFontInfo = {}   # maps pdf names to dvifonts
         self._character_tracker = _backend_pdf_ps.CharacterTracker(
-            _FONT_MAX_GLYPH.get(mpl.rcParams['pdf.fonttype'], 0))
+            _backend_pdf_ps._FONT_MAX_GLYPH.get(mpl.rcParams['ps.fonttype'], 0))
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))

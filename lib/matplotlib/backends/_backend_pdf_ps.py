@@ -22,6 +22,12 @@ if typing.TYPE_CHECKING:
     from fontTools.ttLib import TTFont
 
 
+_FONT_MAX_GLYPH = {
+    3: 256,
+    42: 65536,
+}
+
+
 @functools.lru_cache(50)
 def _cached_get_afm_from_fname(fname):
     with open(fname, "rb") as fh:
