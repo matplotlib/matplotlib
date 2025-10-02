@@ -430,9 +430,9 @@ def test_EllipseCollection_setter_getter():
         offset_transform=ax.transData,
         )
 
-    assert_array_almost_equal(ec._widths, np.array(widths).ravel() * 0.5)
-    assert_array_almost_equal(ec._heights, np.array(heights).ravel() * 0.5)
-    assert_array_almost_equal(ec._angles, np.deg2rad(angles).ravel())
+    assert_array_almost_equal(ec._container.widths, np.array(widths).ravel() * 0.5)
+    assert_array_almost_equal(ec._container.heights, np.array(heights).ravel() * 0.5)
+    assert_array_almost_equal(ec._container.angles, np.deg2rad(angles).ravel())
 
     assert_array_almost_equal(ec.get_widths(), widths)
     assert_array_almost_equal(ec.get_heights(), heights)
