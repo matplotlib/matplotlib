@@ -58,7 +58,6 @@ from typing import IO, TYPE_CHECKING, cast, overload
 
 from cycler import cycler  # noqa: F401
 import matplotlib
-import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import _api
 # Re-exported (import x as x) for typing.
