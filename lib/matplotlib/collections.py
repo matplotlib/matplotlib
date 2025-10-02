@@ -17,7 +17,7 @@ import warnings
 
 import numpy as np
 
-from mpl_data_containers.description import Desc
+from mpl_data_containers.description import Desc, desc_like
 
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
@@ -120,6 +120,89 @@ class RegularPolyCollectionContainer(SizedCollectionContainer):
                     .rotate(-self.rotation)
                     .get_matrix()
             )
+
+        return d, hash
+
+
+class EllipseCollectionContainer(CollectionContainer):
+    def __init__(
+        self,
+        x: np.array,
+        y: np.array,
+        edgecolors: np.array,
+        facecolors: np.array,
+        hatchcolors: np.array,
+        widths: np.array,
+        heights: np.array,
+        angles: np.array,
+        units: str,
+    ):
+        super().__init__(x, y, edgecolors, facecolors, hatchcolors)
+        self.widths = np.atleast_1d(widths)
+        self.heights = np.atleast_1d(heights)
+        self.angles = np.atleast_1d(angles)
+        self.units = units
+
+    def query(self, graph, parent_coordinates="axes"):
+        # TODO: get dpi from graph or refactor transform to be dpi independent
+        dpi = 100.0
+        d, hash = super().query(graph, parent_coordinates)
+
+        # TODO: this section is verbose and likely to be useful elsewhere
+        # Consider moving to one or more helper methods
+        # For reference, this was originally from FuncContainer, with modifications
+        desc = Desc(("N",))
+        xy = {"x": desc, "y": desc}
+        data_lim = graph.evaluator(
+            desc_like(xy, coordinates="data"),
+            desc_like(xy, coordinates=parent_coordinates),
+        ).inverse
+
+        screen_size = graph.evaluator(
+            desc_like(xy, coordinates=parent_coordinates),
+            desc_like(xy, coordinates="display"),
+        )
+
+        screen_dims = screen_size.evaluate({"x": [0, 1], "y": [0, 1]})
+        xpix, ypix = np.ceil(np.abs(np.diff(screen_dims["x"]))), np.ceil(
+            np.abs(np.diff(screen_dims["y"]))
+        )
+        data_dims = data_lim.evaluate({"x": [0, 1], "y": [0, 1]})
+        xdata, ydata = np.abs(np.diff(data_dims["x"])), np.abs(np.diff(data_dims["y"]))
+
+        if self.units == 'xy':
+            sc = 1
+        elif self.units == 'x':
+            sc = xpix / xdata
+        elif self.units == 'y':
+            sc = ypix / ydata
+        elif self.units == 'inches':
+            sc = dpi
+        elif self.units == 'points':
+            sc = dpi / 72.0
+        elif self.units == 'width':
+            sc = xpix
+        elif self.units == 'height':
+            sc = ypix
+        elif self.units == 'dots':
+            sc = 1.0
+        else:
+            raise ValueError(f'Unrecognized units: {self._units!r}')
+
+
+        print(f"{sc=}, {self.units=}")
+        transforms = np.zeros((len(self.widths), 3, 3))
+        widths = self.widths * sc
+        heights = self.heights * sc
+        sin_angle = np.sin(self.angles)
+        cos_angle = np.cos(self.angles)
+        transforms[:, 0, 0] = widths * cos_angle
+        transforms[:, 0, 1] = heights * -sin_angle
+        transforms[:, 1, 0] = widths * sin_angle
+        transforms[:, 1, 1] = heights * cos_angle
+        transforms[:, 2, 2] = 1.0
+
+        d["transforms"] = transforms
 
         return d, hash
 
@@ -2228,82 +2311,72 @@ class EllipseCollection(Collection):
         self.set_widths(widths)
         self.set_heights(heights)
         self.set_angles(angles)
-        self._units = units
+        self._container.units = units
         self.set_transform(transforms.IdentityTransform())
         self._paths = [mpath.Path.unit_circle()]
 
-    def _set_transforms(self):
-        """Calculate transforms immediately before drawing."""
+    def _init_container(self):
+        return EllipseCollectionContainer(
+            x=np.array([]),
+            y=np.array([]),
+            edgecolors=np.array([]),
+            facecolors=np.array([]),
+            hatchcolors=np.array([]),
+            widths=np.array([]),
+            heights=np.array([]),
+            angles=np.array([]),
+            units="xy"
+        )
 
-        ax = self.axes
-        fig = self.get_figure(root=False)
 
-        if self._units == 'xy':
-            sc = 1
-        elif self._units == 'x':
-            sc = ax.bbox.width / ax.viewLim.width
-        elif self._units == 'y':
-            sc = ax.bbox.height / ax.viewLim.height
-        elif self._units == 'inches':
-            sc = fig.dpi
-        elif self._units == 'points':
-            sc = fig.dpi / 72.0
-        elif self._units == 'width':
-            sc = ax.bbox.width
-        elif self._units == 'height':
-            sc = ax.bbox.height
-        elif self._units == 'dots':
-            sc = 1.0
-        else:
-            raise ValueError(f'Unrecognized units: {self._units!r}')
-
-        self._container.transforms = np.zeros((len(self._widths), 3, 3))
-        widths = self._widths * sc
-        heights = self._heights * sc
-        sin_angle = np.sin(self._angles)
-        cos_angle = np.cos(self._angles)
-        self._container.transforms[:, 0, 0] = widths * cos_angle
-        self._container.transforms[:, 0, 1] = heights * -sin_angle
-        self._container.transforms[:, 1, 0] = widths * sin_angle
-        self._container.transforms[:, 1, 1] = heights * cos_angle
-        self._container.transforms[:, 2, 2] = 1.0
-
-        _affine = transforms.Affine2D
-        if self._units == 'xy':
-            m = ax.transData.get_affine().get_matrix().copy()
-            m[:2, 2:] = 0
-            self.set_transform(_affine(m))
+    def set_angles(self, angles):
+        """Set the angles of the first axes, degrees CCW from the x-axis."""
+        if not isinstance(self._container, EllipseCollectionContainer):
+            raise TypeError("Cannot use 'set_angles' on custom container types")
+        self._container.angles = np.deg2rad(angles).ravel()
+        self.stale = True
 
     def set_widths(self, widths):
         """Set the lengths of the first axes (e.g., major axis)."""
-        self._widths = 0.5 * np.asarray(widths).ravel()
+        if not isinstance(self._container, EllipseCollectionContainer):
+            raise TypeError("Cannot use 'set_widths' on custom container types")
+        self._container.widths = 0.5 * np.asarray(widths).ravel()
         self.stale = True
 
     def set_heights(self, heights):
         """Set the lengths of second axes (e.g., minor axes)."""
-        self._heights = 0.5 * np.asarray(heights).ravel()
-        self.stale = True
-
-    def set_angles(self, angles):
-        """Set the angles of the first axes, degrees CCW from the x-axis."""
-        self._angles = np.deg2rad(angles).ravel()
+        if not isinstance(self._container, EllipseCollectionContainer):
+            raise TypeError("Cannot use 'set_heights' on custom container types")
+        self._container.heights = 0.5 * np.asarray(heights).ravel()
         self.stale = True
 
     def get_widths(self):
         """Get the lengths of the first axes (e.g., major axis)."""
-        return self._widths * 2
+        if not isinstance(self._container, EllipseCollectionContainer):
+            raise TypeError("Cannot use 'get_widths' on custom container types")
+        return self._container.widths * 2
 
     def get_heights(self):
-        """Set the lengths of second axes (e.g., minor axes)."""
-        return self._heights * 2
+        """Get the lengths of second axes (e.g., minor axes)."""
+        if not isinstance(self._container, EllipseCollectionContainer):
+            raise TypeError("Cannot use 'get_heights' on custom container types")
+        return self._container.heights * 2
 
     def get_angles(self):
         """Get the angles of the first axes, degrees CCW from the x-axis."""
-        return np.rad2deg(self._angles)
+        if not isinstance(self._container, EllipseCollectionContainer):
+            raise TypeError("Cannot use 'get_angles' on custom container types")
+        return np.rad2deg(self._container.angles)
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self._set_transforms()
+        if (
+            isinstance(self._container, EllipseCollectionContainer)
+            and self._container.units == "xy"
+        ):
+            m = self.axes.transData.get_affine().get_matrix().copy()
+            m[:2, 2:] = 0
+            self.set_transform(transforms.Affine2D(m))
         super().draw(renderer)
 
 
