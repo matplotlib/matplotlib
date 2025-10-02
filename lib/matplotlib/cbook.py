@@ -1443,7 +1443,7 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
     dictionary.
 
     Users can skip this function and pass a user-defined set of dictionaries
-    with the same keys to `~.axes.Axes.violinplot` instead of using Matplotlib
+    with the same keys to `~.axes.Axes.violin` instead of using Matplotlib
     to do the calculations. See the *Returns* section below for the keys
     that must be present in the dictionaries.
 
@@ -1470,6 +1470,9 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
              def method(data: ndarray, coords: ndarray) -> ndarray
 
           It should return the KDE of *data* evaluated at *coords*.
+
+          .. versionadded:: 3.11
+             Support for ``(name, bw_method)`` tuple.
 
     points : int, default: 100
         Defines the number of points to evaluate each of the gaussian kernel

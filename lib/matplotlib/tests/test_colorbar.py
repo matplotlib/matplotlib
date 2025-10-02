@@ -946,9 +946,10 @@ def test_proportional_colorbars():
 
     levels = [-1.25, -0.5, -0.125, 0.125, 0.5, 1.25]
     cmap = mcolors.ListedColormap(
-        ['0.3', '0.5', 'white', 'lightblue', 'steelblue'])
-    cmap.set_under('darkred')
-    cmap.set_over('crimson')
+        ['0.3', '0.5', 'white', 'lightblue', 'steelblue'],
+        under='darkred',
+        over='crimson',
+    )
     norm = mcolors.BoundaryNorm(levels, cmap.N)
 
     extends = ['neither', 'both']
