@@ -368,12 +368,6 @@ def pdfRepr(obj):
                         "objects")
 
 
-_FONT_MAX_GLYPH = {
-    3: 256,
-    42: 65536,
-}
-
-
 class Reference:
     """
     PDF reference object.
@@ -691,7 +685,7 @@ class PdfFile:
         self._fontNames = {}     # maps filenames to internal font names
         self._dviFontInfo = {}   # maps pdf names to dvifonts
         self._character_tracker = _backend_pdf_ps.CharacterTracker(
-            _FONT_MAX_GLYPH.get(mpl.rcParams['pdf.fonttype'], 0))
+            _backend_pdf_ps._FONT_MAX_GLYPH.get(mpl.rcParams['ps.fonttype'], 0))
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
@@ -948,9 +942,8 @@ class PdfFile:
             else:
                 # a normal TrueType font
                 _log.debug('Writing TrueType font.')
-                charmap = self._character_tracker.used.get((filename, subset))
-                if charmap:
-                    fonts[Fx] = self.embedTTF(filename, subset, charmap)
+                charmap = self._character_tracker.used[filename][subset]
+                fonts[Fx] = self.embedTTF(filename, subset, charmap)
         self.writeObject(self.fontObject, fonts)
 
     def _write_afm_font(self, filename):
@@ -992,8 +985,12 @@ class PdfFile:
 
         # Reduce the font to only the glyphs used in the document, get the encoding
         # for that subset, and compute various properties based on the encoding.
-        charmap = self._character_tracker.used[(dvifont.fname, 0)]
-        chars = frozenset(charmap.keys())
+        charmap = self._character_tracker.used[dvifont.fname][0]
+        chars = {
+            # DVI type 1 fonts always map single glyph to single character.
+            ord(self._character_tracker.subset_to_unicode(dvifont.fname, 0, ccode))
+            for ccode in charmap
+        }
         t1font = t1font.subset(chars, self._get_subset_prefix(charmap.values()))
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
         # createType1Descriptor writes the font data as a side effect
@@ -1144,14 +1141,16 @@ end"""
                     unicode_groups[-1][1] = ccode
                 last_ccode = ccode
 
+            def _to_unicode(ccode):
+                chars = self._character_tracker.subset_to_unicode(
+                    filename, subset_index, ccode)
+                hexstr = chars.encode('utf-16be').hex()
+                return f'<{hexstr}>'
+
             width = 2 if fonttype == 3 else 4
             unicode_bfrange = []
             for start, end in unicode_groups:
-                real_start = self._character_tracker.subset_to_unicode(subset_index,
-                                                                       start)
-                real_end = self._character_tracker.subset_to_unicode(subset_index, end)
-                real_values = ' '.join('<%s>' % chr(x).encode('utf-16be').hex()
-                                       for x in range(real_start, real_end+1))
+                real_values = ' '.join(_to_unicode(x) for x in range(start, end+1))
                 unicode_bfrange.append(
                     f'<{start:0{width}x}> <{end:0{width}x}> [{real_values}]')
             unicode_cmap = (self._identityToUnicodeCMap %
@@ -2325,7 +2324,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED,
                                              language=language):
                 subset, charcode = self.file._character_tracker.track_glyph(
-                    item.ft_object, ord(item.char), item.glyph_index)
+                    item.ft_object, item.char, item.glyph_index)
                 if (item.ft_object, subset) != prev_font:
                     if singlebyte_chunk:
                         output_singlebyte_chunk(singlebyte_chunk)
