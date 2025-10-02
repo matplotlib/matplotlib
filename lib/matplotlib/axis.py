@@ -668,7 +668,11 @@ class Axis(martist.Artist):
             self._converter_is_explicit = False
             self.units = None
 
+        # Flags to track whether the user has manually set a limit,
+        # used to enable partial autoscaling.
         self._autoscale_on = True
+        self._autoscale_lower = True
+        self._autoscale_upper = True
 
     @property
     def isDefault_majloc(self):
@@ -1215,6 +1219,12 @@ class Axis(martist.Artist):
             Whether to turn on autoscaling of the x-axis. True turns on, False
             turns off, None leaves unchanged.
         """
+        if auto is False:
+            # On a manual limit set, update the autoscale flags. A `None`
+            # value implies the user wants that side to remain autoscaled.
+            self._autoscale_lower = (v0 is None)
+            self._autoscale_upper = (v1 is None)
+
         name = self._get_axis_name()
 
         self.axes._process_unit_info([(name, (v0, v1))], convert=False)

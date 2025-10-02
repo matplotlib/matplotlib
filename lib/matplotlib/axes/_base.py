@@ -3031,7 +3031,7 @@ class _AxesBase(martist.Artist):
         def handle_single_axis(
                 scale, shared_axes, name, axis, margin, stickies, set_bound):
 
-            if not (scale and axis._get_autoscale_on()):
+            if not (scale and (axis._get_autoscale_on() or axis._autoscale_lower or axis._autoscale_upper)):
                 return  # nothing to do...
 
             shared = shared_axes.get_siblings(self)
@@ -3087,6 +3087,15 @@ class _AxesBase(martist.Artist):
 
             if not self._tight:
                 x0, x1 = locator.view_limits(x0, x1)
+            
+            # If the user has previously set a partial limit (e.g., via
+            # `set_xlim(left=0, right=None)`), override the calculated
+            # autoscale limit with the user's fixed value.
+            if not axis._autoscale_lower:
+                x0 = axis.get_view_interval()[0]
+            if not axis._autoscale_upper:
+                x1 = axis.get_view_interval()[1]
+            
             set_bound(x0, x1)
             # End of definition of internal function 'handle_single_axis'.
 
