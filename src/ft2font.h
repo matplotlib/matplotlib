@@ -131,8 +131,7 @@ class FT2Font
                                  FT_Int32 flags,
                                  FT_Error &charcode_error,
                                  FT_Error &glyph_error,
-                                 std::set<FT_String*> &glyph_seen_fonts,
-                                 bool override);
+                                 std::set<FT_String*> &glyph_seen_fonts);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
     std::tuple<long, long> get_width_height();
     std::tuple<long, long> get_bitmap_offset();
