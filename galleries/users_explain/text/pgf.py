@@ -48,6 +48,7 @@ Parameter          Documentation
 pgf.preamble       Lines to be included in the LaTeX preamble
 pgf.rcfonts        Setup fonts from rc params using the fontspec package
 pgf.texsystem      Either "xelatex" (default), "lualatex" or "pdflatex"
+pgf.documentclass  The LaTeX document class to use (e.g., "article", "IEEEtran")
 =================  =====================================================
 
 .. note::
@@ -169,6 +170,17 @@ specified in the rc parameters, make sure to disable :rc:`pgf.rcfonts`.
     ax.set_xlabel("unicode text: я, ψ, €, ü")
     ax.set_ylabel(r"\url{https://matplotlib.org}")
     ax.legend(["unicode math: $λ=∑_i^∞ μ_i^2$"])
+
+You can also change the LaTeX document class used when generating PGF figures.
+By default, Matplotlib uses ``article``, but you can override this using
+the :rc:`pgf.documentclass`:
+
+    import matplotlib.pyplot as plt
+    plt.rcParams["pgf.documentclass"] = "IEEEtran"
+
+This is useful when including PGF figures into LaTeX documents using
+custom classes such as ``IEEEtran``, to avoid layout
+mismatches in font size or spacing.
 
 .. redirect-from:: /gallery/userdemo/pgf_texsystem
 
