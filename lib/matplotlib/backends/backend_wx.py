@@ -30,7 +30,7 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
 import wx
-import wx.svg
+import wx.svg  # noqa: F401
 
 _log = logging.getLogger(__name__)
 
