@@ -24,12 +24,11 @@ View the :doc:`/gallery/misc/logos2` to see the code to generate the logo using 
 
     .. grid-item-card::  Primary logo dark
             
-        .. image:: /_static/logo2_dark.svg
+        .. image:: /_static/logo_dark.svg
 
     .. grid-item-card::  Logo mark, same for both
 
-        .. image:: /_static/large_logo_light.svg
-        .. image:: /_static/large_logo_dark.svg
+        .. image:: /_static/large_logo.svg
 
 Colors
 ******
