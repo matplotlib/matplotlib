@@ -798,9 +798,14 @@ grestore
                 thisx += width * scale
 
         else:
-            language = mtext.get_language() if mtext is not None else None
+            if mtext is not None:
+                features = mtext.get_fontfeatures()
+                language = mtext.get_language()
+            else:
+                features = language = None
             font = self._get_font_ttf(prop)
-            for item in _text_helpers.layout(s, font, language=language):
+            for item in _text_helpers.layout(s, font, features=features,
+                                             language=language):
                 # NOTE: We ignore the character code in the subset, because PS uses the
                 # glyph name to write text. The subset is only used to ensure that each
                 # one does not overflow format limits.
