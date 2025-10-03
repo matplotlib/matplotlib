@@ -29,7 +29,7 @@ def setup(ax, title):
             fontsize=14, fontname='Monospace', color='tab:blue')
 
 
-fig, axs = plt.subplots(8, 1, figsize=(8, 6))
+fig, axs = plt.subplots(9, 1, figsize=(8, 6))
 
 # Null Locator
 setup(axs[0], title="NullLocator()")
@@ -72,6 +72,11 @@ axs[7].set_xlim(10**3, 10**10)
 axs[7].set_xscale('log')
 axs[7].xaxis.set_major_locator(ticker.LogLocator(base=10, numticks=15))
 
+# Wilkinson Locator
+setup(axs[8], title="WilkinsonLocator()")
+axs[8].xaxis.set_major_locator(ticker.WilkinsonLocator())
+axs[8].xaxis.set_minor_locator(ticker.WilkinsonLocator())
+
 plt.tight_layout()
 plt.show()
 
@@ -91,3 +96,4 @@ plt.show()
 #    - `matplotlib.ticker.AutoLocator`
 #    - `matplotlib.ticker.MaxNLocator`
 #    - `matplotlib.ticker.LogLocator`
+#    - `matplotlib.ticker.WilkinsonLocator`
