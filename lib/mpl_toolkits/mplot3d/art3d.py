@@ -18,7 +18,7 @@ from matplotlib import (
     path as mpath, rcParams)
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
-from matplotlib.patches import Patch
+from matplotlib.patches import Patch, FancyArrowPatch
 from . import proj3d
 
 
@@ -1665,3 +1665,25 @@ def _shade_colors(color, normals, lightsource=None):
         colors = np.asanyarray(color).copy()
 
     return colors
+
+
+class Arrow3D(FancyArrowPatch):
+    """
+    3D FancyArrowPatch object.
+    """
+    def __init__(self, posA, posB, *args, **kwargs):
+        """
+        Parameters
+        ----------
+            posA, posB : array-like
+                The coordinates of the arrow's start and end points.
+        """
+        super().__init__((0,0), (0,0), *args, **kwargs)
+        self._verts3d = list(zip(posA, posB))
+
+    def do_3d_projection(self, renderer=None):
+        """Projects the points according to the renderer matrix."""
+        xs3d, ys3d, zs3d = self._verts3d
+        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
+        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
+        return np.min(zs)
