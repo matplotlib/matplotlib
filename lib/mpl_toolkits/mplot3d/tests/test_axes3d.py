@@ -17,6 +17,7 @@ from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.text import Text
+from matplotlib import  _api
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -284,18 +285,11 @@ def test_contourf3d_extend(fig_test, fig_ref, extend, levels):
     # Z is in the range [0, 8]
     Z = X**2 + Y**2
 
-    # Manually set the over/under colors to be the end of the colormap
-    cmap = mpl.colormaps['viridis'].copy()
-    cmap.set_under(cmap(0))
-    cmap.set_over(cmap(255))
-    # Set vmin/max to be the min/max values plotted on the reference image
-    kwargs = {'vmin': 1, 'vmax': 7, 'cmap': cmap}
-
     ax_ref = fig_ref.add_subplot(projection='3d')
-    ax_ref.contourf(X, Y, Z, levels=[0, 2, 4, 6, 8], **kwargs)
+    ax_ref.contourf(X, Y, Z, levels=[0, 2, 4, 6, 8], vmin=1, vmax=7)
 
     ax_test = fig_test.add_subplot(projection='3d')
-    ax_test.contourf(X, Y, Z, levels, extend=extend, **kwargs)
+    ax_test.contourf(X, Y, Z, levels, extend=extend, vmin=1, vmax=7)
 
     for ax in [ax_ref, ax_test]:
         ax.set_xlim(-2, 2)
@@ -2711,3 +2705,31 @@ def test_line3dcollection_autolim_ragged():
     assert np.allclose(ax.get_xlim3d(), (-0.08333333333333333, 4.083333333333333))
     assert np.allclose(ax.get_ylim3d(), (-0.0625, 3.0625))
     assert np.allclose(ax.get_zlim3d(), (-0.08333333333333333, 4.083333333333333))
+
+
+def test_axes3d_set_aspect_deperecated_params():
+    """
+    Test that using the deprecated 'anchor' and 'share' kwargs in
+    set_aspect raises the correct warning.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    # Test that providing the `anchor` parameter raises a deprecation warning.
+    with pytest.warns(_api.MatplotlibDeprecationWarning, match="'anchor' parameter"):
+        ax.set_aspect('equal', anchor='C')
+
+    # Test that using the 'share' parameter is now deprecated.
+    with pytest.warns(_api.MatplotlibDeprecationWarning, match="'share' parameter"):
+        ax.set_aspect('equal', share=True)
+
+    # Test that the `adjustable` parameter is correctly processed to satisfy
+    # code coverage.
+    ax.set_aspect('equal', adjustable='box')
+    assert ax.get_adjustable() == 'box'
+
+    ax.set_aspect('equal', adjustable='datalim')
+    assert ax.get_adjustable() == 'datalim'
+
+    with pytest.raises(ValueError, match="adjustable"):
+        ax.set_aspect('equal', adjustable='invalid_value')

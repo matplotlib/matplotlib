@@ -2382,10 +2382,9 @@ class _Style:
 
     @classmethod
     @_api.deprecated(
-        '3.10.0',
+        '3.10',
         message="This method is never used internally.",
-        alternative="No replacement.  Please open an issue if you use this."
-    )
+        alternative="No replacement.  Please open an issue if you use this.")
     def register(cls, name, style):
         """Register a new style."""
         if not issubclass(style, cls._Base):

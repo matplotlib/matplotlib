@@ -31,8 +31,8 @@ except ImportError as e:
     cause1 = getattr(e, '__cause__', None)
     cause2 = getattr(cause1, '__cause__', None)
     if (isinstance(cause1, ImportError) and
-        isinstance(cause2, AttributeError) and
-        "'_tkinter' has no attribute '__file__'" in str(cause2)):
+            isinstance(cause2, AttributeError) and
+            "'_tkinter' has no attribute '__file__'" in str(cause2)):
 
         is_uv_python = "/uv/python" in (os.path.realpath(sys.executable))
         if is_uv_python:
@@ -634,6 +634,7 @@ class FigureManagerTk(FigureManagerBase):
         else:
             self.window.update()
             delayed_destroy()
+        super().destroy()
 
     def get_window_title(self):
         return self.window.wm_title()

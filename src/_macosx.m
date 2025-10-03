@@ -572,6 +572,8 @@ static PyTypeObject FigureCanvasType = {
     },
 };
 
+static PyTypeObject FigureManagerType;  // forward declaration, needed in destroy()
+
 typedef struct {
     PyObject_HEAD
     Window* window;
@@ -686,6 +688,25 @@ FigureManager_destroy(FigureManager* self)
 {
     [self->window close];
     self->window = NULL;
+
+    // call super(self, FigureManager).destroy() - it seems we need the
+    // explicit arguments, and just super() doesn't work in the C API.
+    PyObject *super_obj = PyObject_CallFunctionObjArgs(
+        (PyObject *)&PySuper_Type,
+        (PyObject *)&FigureManagerType,
+        self,
+        NULL
+    );
+    if (super_obj == NULL) {
+        return NULL; // error
+    }
+    PyObject *result = PyObject_CallMethod(super_obj, "destroy", NULL);
+    Py_DECREF(super_obj);
+    if (result == NULL) {
+        return NULL; // error
+    }
+    Py_DECREF(result);
+
     Py_RETURN_NONE;
 }
 

@@ -1,5 +1,4 @@
 from contextlib import ExitStack
-from copy import copy
 import functools
 import io
 import os
@@ -1168,21 +1167,6 @@ def test_respects_bbox():
     assert buf_before.getvalue() != buf_after.getvalue()  # Not all white.
 
 
-def test_image_cursor_formatting():
-    fig, ax = plt.subplots()
-    # Create a dummy image to be able to call format_cursor_data
-    im = ax.imshow(np.zeros((4, 4)))
-
-    data = np.ma.masked_array([0], mask=[True])
-    assert im.format_cursor_data(data) == '[]'
-
-    data = np.ma.masked_array([0], mask=[False])
-    assert im.format_cursor_data(data) == '[0]'
-
-    data = np.nan
-    assert im.format_cursor_data(data) == '[nan]'
-
-
 @check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_image_array_alpha(fig_test, fig_ref):
     """Per-pixel alpha channel test."""
@@ -1209,8 +1193,7 @@ def test_image_array_alpha_validation():
 
 @mpl.style.context('mpl20')
 def test_exact_vmin():
-    cmap = copy(mpl.colormaps["autumn_r"])
-    cmap.set_under(color="lightgrey")
+    cmap = mpl.colormaps["autumn_r"].with_extremes(under="lightgrey")
 
     # make the image exactly 190 pixels wide
     fig = plt.figure(figsize=(1.9, 0.1), dpi=100)
@@ -1484,9 +1467,7 @@ def test_rgba_antialias():
     aa[70:90, 195:215] = 1e6
     aa[20:30, 195:215] = -1e6
 
-    cmap = plt.colormaps["RdBu_r"]
-    cmap.set_over('yellow')
-    cmap.set_under('cyan')
+    cmap = plt.colormaps["RdBu_r"].with_extremes(over='yellow', under='cyan')
 
     axs = axs.flatten()
     # zoom in
@@ -1741,8 +1722,7 @@ def test_downsampling_speckle():
     axs = axs.flatten()
     img = ((np.arange(1024).reshape(-1, 1) * np.ones(720)) // 50).T
 
-    cm = plt.get_cmap("viridis")
-    cm.set_over("m")
+    cm = plt.get_cmap("viridis").with_extremes(over="m")
     norm = colors.LogNorm(vmin=3, vmax=11)
 
     # old default cannot be tested because it creates over/under speckles

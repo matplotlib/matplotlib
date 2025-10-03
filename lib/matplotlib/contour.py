@@ -735,13 +735,12 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                     i0 = 1
 
             cmap = mcolors.ListedColormap(
-                cbook._resize_sequence(color_sequence[i0:], ncolors))
-
-            if use_set_under_over:
-                if self._extend_min:
-                    cmap.set_under(color_sequence[0])
-                if self._extend_max:
-                    cmap.set_over(color_sequence[-1])
+                cbook._resize_sequence(color_sequence[i0:], ncolors),
+                under=(color_sequence[0]
+                       if use_set_under_over and self._extend_min else None),
+                over=(color_sequence[-1]
+                      if use_set_under_over and self._extend_max else None),
+            )
 
         # label lists must be initialized here
         self.labelTexts = []
@@ -1333,7 +1332,7 @@ class QuadContourSet(ContourSet):
             # if the transform is not trans data, and some part of it
             # contains transData, transform the xs and ys to data coordinates
             if (t != self.axes.transData and
-                    any(t.contains_branch_seperately(self.axes.transData))):
+                    any(t.contains_branch_separately(self.axes.transData))):
                 trans_to_data = t - self.axes.transData
                 pts = np.vstack([x.flat, y.flat]).T
                 transformed_pts = trans_to_data.transform(pts)
