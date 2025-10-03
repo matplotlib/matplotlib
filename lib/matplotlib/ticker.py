@@ -3082,7 +3082,6 @@ class WilkinsonLocator(Locator):
         self.steps = np.asarray(steps, dtype=float)
         self.weights = np.asarray(weights, dtype=float)
         self.tick_range = tick_range
-        print("Initializing...")
 
     def set_params(self, target_ticks=None, steps=None, weights=None, tick_range=None):
         """
@@ -3266,31 +3265,3 @@ class WilkinsonLocator(Locator):
             score += 0.05
 
         return min(score, 1.0)
-
-    def _overlap_score(self, ticks):
-        sorted_ticks = np.sort(ticks)
-
-        axis_length = self._get_axis_length()
-        tick_range = sorted_ticks[-1] - sorted_ticks[0]
-
-        if tick_range <= 0:
-            return 1.0
-
-        min_spacing_em = 1.5
-        min_score = 1.0
-
-        for i in range(len(sorted_ticks) - 1):
-            tick_diff = sorted_ticks[i + 1] - sorted_ticks[i]
-
-            spacing_em = (tick_diff / tick_range) * axis_length / 12
-
-            if spacing_em <= 0:
-                return -np.inf
-            elif spacing_em < min_spacing_em:
-                score = 2 - min_spacing_em / spacing_em
-            else:
-                score = 1.0
-
-            min_score = min(min_score, score)
-
-        return min_score
