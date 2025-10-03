@@ -749,6 +749,27 @@ class TestAsinhLocator:
                             [-625, -125, -25, -5, -1, -0.2, 0,
                              0.2, 1, 5, 25, 125, 625])
 
+class TestWilkinsonLocator:
+    def test_basic(self):
+        loc = mticker.WilkinsonLocator(target_ticks=2)
+        ticks = loc.tick_values(-0.8, 0.2)
+        assert 0 in ticks or any(abs(t) < 0.01 for t in ticks)
+        assert min(ticks) <= -0.8
+        assert max(ticks) >= 0.2
+        assert 3 <= len(ticks) <= 7
+
+    def test_target_ticks(self):
+        for tick_count in [3, 5, 7, 10]:
+            loc = mticker.WilkinsonLocator(target_ticks=tick_count)
+            ticks = loc.tick_values(0, 100)
+            assert len(ticks) <= tick_count + 3
+
+    def test_set_params(self):
+        loc = mticker.WilkinsonLocator(target_ticks=5)
+        loc.set_params(target_ticks=7, weights=[0.3, 0.3, 0.3, 0.2])
+        assert loc.target_ticks == 7
+        assert_almost_equal(loc.weights, [0.3, 0.3, 0.3, 0.2])
+
 
 class TestScalarFormatter:
     offset_data = [
