@@ -42,6 +42,20 @@ from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 DEBUG = False
 
 
+def _is_vector_renderer(renderer):
+    # 1. Check the renderer name
+    vector_bases = {'RendererPdf', 'RendererSVG', 'RendererPS'}
+    # If it's MixedModeRenderer, get the actual renderer recursively
+    actual_renderer = renderer
+    while type(actual_renderer).__name__ == 'MixedModeRenderer':
+        actual_renderer = getattr(actual_renderer, '_renderer', actual_renderer)
+    renderer_name = type(actual_renderer).__name__
+    if renderer_name in vector_bases:
+        return True
+    # 3. For unknown renderers, assume they are not vector
+    return False
+
+
 def _compat_get_offset(meth):
     """
     Decorator for the get_offset method of OffsetBox and subclasses, that
@@ -689,18 +703,33 @@ class DrawingArea(OffsetBox):
         self.dpi_transform.clear()
         self.dpi_transform.scale(dpi_cor)
 
-        # At this point the DrawingArea has a transform
-        # to the display space so the path created is
-        # good for clipping children
         tpath = mtransforms.TransformedPath(
             mpath.Path([[0, 0], [0, self.height],
                         [self.width, self.height],
                         [self.width, 0]]),
             self.get_transform())
         for c in self._children:
-            if self._clip_children and not (c.clipbox or c._clippath):
-                c.set_clip_path(tpath)
-            c.draw(renderer)
+            is_rasterized = getattr(c, 'get_rasterized', lambda: False)()
+            if is_rasterized and _is_vector_renderer(renderer):
+                # PDF/SVG backend uses 72 dpi in display units,
+                # so we need to scale the rasterized content accordingly
+                target_dpi = getattr(renderer, 'dpi', 72) or 72
+                dpi_correction = target_dpi / 72
+                # New transform to apply the dpi correction
+                corrected_transform = self.get_transform() \
+                    + mtransforms.Affine2D().scale(dpi_correction)
+                orig_transform = c.get_transform() \
+                    if hasattr(c, 'get_transform') else None
+                c.set_transform(corrected_transform)
+                if self._clip_children and not (c.clipbox or c._clippath):
+                    c.set_clip_path(tpath)
+                c.draw(renderer)
+                if orig_transform is not None:
+                    c.set_transform(orig_transform)
+            else:
+                if self._clip_children and not (c.clipbox or c._clippath):
+                    c.set_clip_path(tpath)
+                c.draw(renderer)
 
         _bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
