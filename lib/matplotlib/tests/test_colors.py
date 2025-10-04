@@ -2016,7 +2016,7 @@ def test_mult_norm_call_types():
                               [[0., 0.5, 1.],
                                [1, 3, 5]])
     assert no_norm_out[0].dtype == np.dtype('float64')
-    assert no_norm_out[1].dtype == np.dtype('int64')
+    assert no_norm_out[1].dtype == vals.dtype
 
     # test with NoNorm, structured array as input
     mn_no_norm = mpl.colors.MultiNorm(['linear', mcolors.NoNorm()])
