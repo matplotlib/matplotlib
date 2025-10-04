@@ -5,6 +5,7 @@ on: [pull_request_target]
 
 jobs:
   greeting:
+    name: PR Welcome
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
