@@ -73,9 +73,9 @@ axs[7].set_xscale('log')
 axs[7].xaxis.set_major_locator(ticker.LogLocator(base=10, numticks=15))
 
 # Wilkinson Locator
-setup(axs[8], title="WilkinsonLocator()")
-axs[8].xaxis.set_major_locator(ticker.WilkinsonLocator())
-axs[8].xaxis.set_minor_locator(ticker.WilkinsonLocator())
+setup(axs[8], title="WilkinsonLocator(target_ticks=5)")
+axs[8].xaxis.set_major_locator(ticker.WilkinsonLocator(target_ticks=5))
+axs[8].xaxis.set_minor_locator(ticker.WilkinsonLocator(target_ticks=10))
 
 plt.tight_layout()
 plt.show()
