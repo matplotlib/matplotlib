@@ -281,6 +281,17 @@ cb = fig.colorbar(pcm, shrink=0.6)
 cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 plt.show()
 
+# %%
+#
+# .. note::
+#    By default, the colorbar for norms with a `scale` will use that scale
+#    for the colorbar as well, which can cause it to be non-linear.  For example,
+#    for `TwoSlopeNorm`, the colorbar will be centered at the midpoint of the
+#    colorbar.  If you want a colorbar with linear spacing (e.g., as in
+#    Matplotlib versions before 3.5), call `cb.ax.set_yscale('linear')` after
+#    creating the colorbar.
+
+
 
 # %%
 # FuncNorm: Arbitrary function normalization
@@ -346,3 +357,4 @@ cb = fig.colorbar(pcm, shrink=0.6, extend='both')
 cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 
 plt.show()
+
