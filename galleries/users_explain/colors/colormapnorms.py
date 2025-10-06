@@ -357,4 +357,3 @@ cb = fig.colorbar(pcm, shrink=0.6, extend='both')
 cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 
 plt.show()
-
