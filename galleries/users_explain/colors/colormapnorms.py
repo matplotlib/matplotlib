@@ -286,8 +286,9 @@ plt.show()
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # By default, colorbars adopt the same scaling as their associated norm.
-# For example, if the `.TwoSlopeNorm` segments are distributed linearly according to the norm,
-# so is the tick positions also follow that nonlinear scaling.
+# For example, if the `.TwoSlopeNorm` segments are distributed linearly
+# according to the norm, so is the tick positions also follow that
+# nonlinear scaling.
 # For example, with a `.TwoSlopeNorm`, the colormap is split evenly between the two
 # halves, even if the ranges are uneven (as above and the left-hand colorbar
 # below).
@@ -324,6 +325,7 @@ plt.show()
 # If the above norms do not provide the normalization you want, you can use
 # `~.colors.FuncNorm` to define your own.  Note that this example is the same
 # as `~.colors.PowerNorm` with a power of 0.5:
+
 
 def _forward(x):
     return np.sqrt(x)
