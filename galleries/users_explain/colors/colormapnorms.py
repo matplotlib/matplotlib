@@ -282,16 +282,36 @@ cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 plt.show()
 
 # %%
+# Colorbar scale for norms with a scale
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# .. note::
-#    By default, the colorbar for norms with a ``scale`` will use that scale
-#    for the colorbar as well, which can cause it to be non-linear.  For example,
-#    for `.TwoSlopeNorm`, the colorbar will be centered at the midpoint of the
-#    colorbar.  If you want a colorbar with linear spacing (e.g., as in
-#    Matplotlib versions before 3.5), call ``cb.ax.set_yscale('linear')`` after
-#    creating the colorbar.
+# By default, the colorbar for norms with a ``scale`` will use that scale
+# for the colorbar as well. For `.TwoSlopeNorm`, this means the colorbar
+# will be centered at the midpoint visually. You can override this to get
+# linear spacing by calling ``cb.ax.set_yscale('linear')`` after creating
+# the colorbar.
 
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
 
+# Left plot: Default scaled colorbar (centered at midpoint)
+divnorm = colors.TwoSlopeNorm(vmin=-500., vcenter=0, vmax=4000)
+pcm1 = ax1.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
+                      cmap=terrain_map, shading='auto')
+ax1.set_aspect(1 / np.cos(np.deg2rad(49)))
+ax1.set_title('Default: Scaled colorbar')
+cb1 = fig.colorbar(pcm1, ax=ax1, shrink=0.6)
+cb1.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
+
+# Right plot: Linear colorbar spacing
+pcm2 = ax2.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
+                      cmap=terrain_map, shading='auto')
+ax2.set_aspect(1 / np.cos(np.deg2rad(49)))
+ax2.set_title('Linear colorbar spacing')
+cb2 = fig.colorbar(pcm2, ax=ax2, shrink=0.6)
+cb2.ax.set_yscale('linear')  # Set linear scale for colorbar
+cb2.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
+
+plt.show()
 
 # %%
 # FuncNorm: Arbitrary function normalization
@@ -300,6 +320,7 @@ plt.show()
 # If the above norms do not provide the normalization you want, you can use
 # `~.colors.FuncNorm` to define your own.  Note that this example is the same
 # as `~.colors.PowerNorm` with a power of 0.5:
+
 
 def _forward(x):
     return np.sqrt(x)
