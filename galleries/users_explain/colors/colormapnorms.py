@@ -316,7 +316,6 @@ cb2 = fig.colorbar(pcm2, ax=ax2, shrink=0.6)
 cb2.ax.set_yscale('linear')  # Set linear scale for colorbar
 cb2.set_ticks(np.arange(-500, 4001, 500))
 
-
 # %%
 # FuncNorm: Arbitrary function normalization
 # ------------------------------------------
