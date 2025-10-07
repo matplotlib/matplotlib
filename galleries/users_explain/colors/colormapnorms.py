@@ -282,14 +282,15 @@ cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 plt.show()
 
 # %%
-# Colorbar scale for norms with a scale
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Using a linear scale on the colormap
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# By default, the colorbar for norms with a ``scale`` will use that scale
-# for the colorbar as well. For `.TwoSlopeNorm`, this means the colorbar
-# will be centered at the midpoint visually. You can override this to get
-# linear spacing by calling ``cb.ax.set_yscale('linear')`` after creating
-# the colorbar.
+# By default, the colorbar for a .TwoSlopeNorm is divided into two equal
+# parts for the two branches. As a result, the scaling in the two segments
+# is different, i.e. the screen-space per data range. You can override this
+# to get linear scaling by calling `cb.ax.set_yscale('linear')`. This
+# redistributes the colors and values on the colorbar, but leaves the
+# color-to-value mapping unchanged.
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
 
