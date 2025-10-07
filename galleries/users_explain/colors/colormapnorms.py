@@ -322,7 +322,6 @@ plt.show()
 # `~.colors.FuncNorm` to define your own.  Note that this example is the same
 # as `~.colors.PowerNorm` with a power of 0.5:
 
-
 def _forward(x):
     return np.sqrt(x)
 
