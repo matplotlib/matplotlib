@@ -285,10 +285,10 @@ plt.show()
 # Using a linear scale on the colormap
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# By default, the colorbar for a .TwoSlopeNorm is divided into two equal
+# By default, the colorbar for a `.TwoSlopeNorm` is divided into two equal
 # parts for the two branches. As a result, the scaling in the two segments
 # is different, i.e. the screen-space per data range. You can override this
-# to get linear scaling by calling `cb.ax.set_yscale('linear')`. This
+# to get linear scaling by calling ``cb.ax.set_yscale('linear')``. This
 # redistributes the colors and values on the colorbar, but leaves the
 # color-to-value mapping unchanged.
 
