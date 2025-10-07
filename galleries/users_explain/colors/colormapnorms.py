@@ -305,7 +305,7 @@ pcm1 = ax1.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
 ax1.set_aspect(1 / np.cos(np.deg2rad(49)))
 ax1.set_title('Default: Scaled colorbar')
 cb1 = fig.colorbar(pcm1, ax=ax1, shrink=0.6)
-cb1.set_ticks([np.arange(-500, 4001, 500)])
+cb1.set_ticks(np.arange(-500, 4001, 500))
 
 # Right plot: Linear colorbar spacing
 pcm2 = ax2.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
@@ -314,7 +314,7 @@ ax2.set_aspect(1 / np.cos(np.deg2rad(49)))
 ax2.set_title('Linear colorbar spacing')
 cb2 = fig.colorbar(pcm2, ax=ax2, shrink=0.6)
 cb2.ax.set_yscale('linear')  # Set linear scale for colorbar
-cb2.set_ticks([np.arange(-500, 4001, 500)])
+cb2.set_ticks(np.arange(-500, 4001, 500))
 
 plt.show()
 
@@ -383,3 +383,4 @@ cb = fig.colorbar(pcm, shrink=0.6, extend='both')
 cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 
 plt.show()
+
