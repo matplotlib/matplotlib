@@ -285,16 +285,12 @@ plt.show()
 # Using a linear scale on the colormap
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# By default, colorbars adopt the same scaling as their associated norm.
-# For example, if the `.TwoSlopeNorm` segments are distributed linearly
-# according to the norm, so is the tick positions also follow that
-# nonlinear scaling.
-# For example, with a `.TwoSlopeNorm`, the colormap is split evenly between the two
-# halves, even if the ranges are uneven (as above and the left-hand colorbar
-# below).
-# To make the tick spacing linear instead, call ``cb.ax.set_yscale('linear')``, as
-# shown in the right-hand colorbar below. The ticks will then be evenly spaced, and
-# the colormap will appear compressed in the smaller of the two slope regions.
+# By default, colorbars adopt the same axis scaling as their associated norm.  
+# For example, for a `.TwoSlopeNorm`, colormap segments are distributed linearly and the 
+# colorbar ticks positions are spaced non-linearly (as above, and the left-hand colorbar below).
+# To make the tick spacing linear instead, you can change the scale by calling 
+# ``cb.ax.set_yscale('linear')``, as shown in the right-hand colorbar below. The ticks will then
+# be evenly spaced, the colormap will appear compressed in the smaller of the two slope regions.
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
 
