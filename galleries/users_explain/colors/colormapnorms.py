@@ -285,34 +285,26 @@ plt.show()
 # Using a linear scale on the colormap
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# By default, colorbars adopt the same axis scaling as their associated norm.  
-# For example, for a `.TwoSlopeNorm`, colormap segments are distributed linearly and the 
+# By default, colorbars adopt the same axis scaling as their associated norm.
+# For example, for a `.TwoSlopeNorm`, colormap segments are distributed linearly and the
 # colorbar ticks positions are spaced non-linearly (as above, and the left-hand colorbar below).
-# To make the tick spacing linear instead, you can change the scale by calling 
+# To make the tick spacing linear instead, you can change the scale by calling
 # ``cb.ax.set_yscale('linear')``, as shown in the right-hand colorbar below. The ticks will then
 # be evenly spaced, the colormap will appear compressed in the smaller of the two slope regions.
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
-
-# Left plot: Default scaled colorbar (centered at midpoint)
 divnorm = colors.TwoSlopeNorm(vmin=-500., vcenter=0, vmax=4000)
-pcm1 = ax1.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
-                      cmap=terrain_map, shading='auto')
-ax1.set_aspect(1 / np.cos(np.deg2rad(49)))
-ax1.set_title('Default: Scaled colorbar')
-cb1 = fig.colorbar(pcm1, ax=ax1, shrink=0.6)
-cb1.set_ticks(np.arange(-500, 4001, 500))
 
-# Right plot: Linear colorbar spacing
-pcm2 = ax2.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
-                      cmap=terrain_map, shading='auto')
-ax2.set_aspect(1 / np.cos(np.deg2rad(49)))
-ax2.set_title('Linear colorbar spacing')
-cb2 = fig.colorbar(pcm2, ax=ax2, shrink=0.6)
-cb2.ax.set_yscale('linear')  # Set linear scale for colorbar
-cb2.set_ticks(np.arange(-500, 4001, 500))
+for ax, title in zip([ax1, ax2], ['Default: Scaled colorbar', 'Linear colorbar spacing']):
+    pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
+                        cmap=terrain_map, shading='auto')
+    ax.set_aspect(1 / np.cos(np.deg2rad(49)))
+    ax.set_title(title)
+    cb = fig.colorbar(pcm, ax=ax, shrink=0.6)
+    cb.set_ticks(np.arange(-500, 4001, 500))
 
-# %%
+# Set linear scale for the right colorbar
+cb.ax.set_yscale('linear')# %%
 # FuncNorm: Arbitrary function normalization
 # ------------------------------------------
 #
