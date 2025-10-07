@@ -285,12 +285,15 @@ plt.show()
 # Using a linear scale on the colormap
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# By default, the colorbar for a `.TwoSlopeNorm` is divided into two equal
-# parts for the two branches. As a result, the scaling in the two segments
-# is different, i.e. the screen-space per data range. You can override this
-# to get linear scaling by calling ``cb.ax.set_yscale('linear')``. This
-# redistributes the colors and values on the colorbar, but leaves the
-# color-to-value mapping unchanged.
+# By default, colorbars adopt the same scaling as their associated norm.
+# For example, if the `.TwoSlopeNorm` segments are distributed linearly according to the norm,
+# so is the tick positions also follow that nonlinear scaling.
+# For example, with a `.TwoSlopeNorm`, the colormap is split evenly between the two
+# halves, even if the ranges are uneven (as above and the left-hand colorbar
+# below).
+# To make the tick spacing linear instead, call ``cb.ax.set_yscale('linear')``, as
+# shown in the right-hand colorbar below. The ticks will then be evenly spaced, and
+# the colormap will appear compressed in the smaller of the two slope regions.
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
 
@@ -301,7 +304,7 @@ pcm1 = ax1.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
 ax1.set_aspect(1 / np.cos(np.deg2rad(49)))
 ax1.set_title('Default: Scaled colorbar')
 cb1 = fig.colorbar(pcm1, ax=ax1, shrink=0.6)
-cb1.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
+cb1.set_ticks([np.arange(-500, 4001, 500)])
 
 # Right plot: Linear colorbar spacing
 pcm2 = ax2.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
@@ -310,7 +313,7 @@ ax2.set_aspect(1 / np.cos(np.deg2rad(49)))
 ax2.set_title('Linear colorbar spacing')
 cb2 = fig.colorbar(pcm2, ax=ax2, shrink=0.6)
 cb2.ax.set_yscale('linear')  # Set linear scale for colorbar
-cb2.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
+cb2.set_ticks([np.arange(-500, 4001, 500)])
 
 plt.show()
 
