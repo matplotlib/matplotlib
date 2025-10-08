@@ -41,6 +41,7 @@ class CollectionContainer():
         self.edgecolors = edgecolors
         self.facecolors = facecolors
         self.hatchcolors = hatchcolors
+        self.paths = None
 
     def describe(self):
         return {
@@ -52,6 +53,7 @@ class CollectionContainer():
             "facecolors": Desc(("N",), "data"),
             "hatchcolors": Desc(("N",), "data"),
             "transforms": Desc(("N", 3, 3), "data"),
+            "paths": Desc(("N",), "path"),
         }
 
     def query(self, graph, parent_coordinates="axes"):
@@ -63,6 +65,7 @@ class CollectionContainer():
             "facecolors": self.facecolors,
             "hatchcolors": self.hatchcolors,
             "transforms": transforms,
+            "paths": self.paths,
         }
         return d, ""
         # TODO hash
@@ -396,7 +399,6 @@ class Collection(mcolorizer.ColorizingArtist):
 
         self._path_effects = None
         self._internal_update(kwargs)
-        self._paths = None
 
     def _init_container(self):
         return CollectionContainer(
@@ -408,10 +410,10 @@ class Collection(mcolorizer.ColorizingArtist):
         )
 
     def get_paths(self):
-        return self._paths
+        return self._container.paths
 
     def set_paths(self, paths):
-        self._paths = paths
+        self._container.paths = paths
         self.stale = True
 
     def get_transforms(self):
@@ -1338,7 +1340,7 @@ class PathCollection(_CollectionWithSizes):
         self.stale = True
 
     def get_paths(self):
-        return self._paths
+        return self._container.paths
 
     def legend_elements(self, prop="colors", num="auto",
                         fmt=None, func=lambda x: x, **kwargs):
@@ -1528,7 +1530,7 @@ class PolyCollection(_CollectionWithSizes):
 
         # No need to do anything fancy if the path isn't closed.
         if not closed:
-            self._paths = [mpath.Path(xy) for xy in verts]
+            self._container.paths = [mpath.Path(xy) for xy in verts]
             return
 
         # Fast path for arrays
@@ -1539,16 +1541,16 @@ class PolyCollection(_CollectionWithSizes):
             template_path = mpath.Path(verts_pad[0], closed=True)
             codes = template_path.codes
             _make_path = mpath.Path._fast_from_codes_and_verts
-            self._paths = [_make_path(xy, codes, internals_from=template_path)
-                           for xy in verts_pad]
+            self._container.paths = [_make_path(xy, codes, internals_from=template_path)
+                                     for xy in verts_pad]
             return
 
-        self._paths = []
+        self._container.paths = []
         for xy in verts:
             if len(xy):
-                self._paths.append(mpath.Path._create_closed(xy))
+                self._container.paths.append(mpath.Path._create_closed(xy))
             else:
-                self._paths.append(mpath.Path(xy))
+                self._container.paths.append(mpath.Path(xy))
 
     set_paths = set_verts
 
@@ -1557,7 +1559,7 @@ class PolyCollection(_CollectionWithSizes):
         if len(verts) != len(codes):
             raise ValueError("'codes' must be a 1D list or array "
                              "with the same length of 'verts'")
-        self._paths = [mpath.Path(xy, cds) if len(xy) else mpath.Path(xy)
+        self._container.paths = [mpath.Path(xy, cds) if len(xy) else mpath.Path(xy)
                        for xy, cds in zip(verts, codes)]
         self.stale = True
 
@@ -1849,7 +1851,7 @@ class RegularPolyCollection(_CollectionWithSizes):
         self._container.rotation = rotation
         self._numsides = numsides
         self.set_transform(transforms.IdentityTransform())
-        self._paths = [self._path_generator(numsides)]
+        self._container.paths = [self._path_generator(numsides)]
 
     def _init_container(self):
         return RegularPolyCollectionContainer(
@@ -1946,9 +1948,9 @@ class LineCollection(Collection):
         if segments is None:
             return
 
-        self._paths = [mpath.Path(seg) if isinstance(seg, np.ma.MaskedArray)
-                       else mpath.Path(np.asarray(seg, float))
-                       for seg in segments]
+        self._container.paths = [mpath.Path(seg) if isinstance(seg, np.ma.MaskedArray)
+                                 else mpath.Path(np.asarray(seg, float))
+                                 for seg in segments]
         self.stale = True
 
     set_verts = set_segments  # for compatibility with PolyCollection
@@ -1964,7 +1966,7 @@ class LineCollection(Collection):
         """
         segments = []
 
-        for path in self._paths:
+        for path in self._container.paths:
             vertices = [
                 vertex
                 for vertex, _
@@ -2059,7 +2061,7 @@ class LineCollection(Collection):
             if ls == (0, None) else
             (path, mlines._get_inverse_dash_pattern(*ls))
             for (path, ls) in
-            zip(self._paths, itertools.cycle(self._linestyles))]
+            zip(self._container.paths, itertools.cycle(self._linestyles))]
 
         return zip(*path_patterns)
 
@@ -2264,7 +2266,7 @@ class CircleCollection(_CollectionWithSizes):
         super().__init__(**kwargs)
         self.set_sizes(sizes)
         self.set_transform(transforms.IdentityTransform())
-        self._paths = [mpath.Path.unit_circle()]
+        self._container.paths = [mpath.Path.unit_circle()]
 
 
 class EllipseCollection(Collection):
@@ -2297,7 +2299,7 @@ class EllipseCollection(Collection):
         self.set_angles(angles)
         self._container.units = units
         self.set_transform(transforms.IdentityTransform())
-        self._paths = [mpath.Path.unit_circle()]
+        self._container.paths = [mpath.Path.unit_circle()]
 
     def _init_container(self):
         return EllipseCollectionContainer(
@@ -2421,7 +2423,7 @@ class PatchCollection(Collection):
     def set_paths(self, patches):
         paths = [p.get_transform().transform_path(p.get_path())
                  for p in patches]
-        self._paths = paths
+        self._container.paths = paths
 
 
 class TriMesh(Collection):
@@ -2444,12 +2446,12 @@ class TriMesh(Collection):
         self._bbox.update_from_data_xy(xy)
 
     def get_paths(self):
-        if self._paths is None:
+        if self._container.paths is None:
             self.set_paths()
-        return self._paths
+        return self._container.paths
 
     def set_paths(self):
-        self._paths = self.convert_mesh_to_paths(self._triangulation)
+        self._container.paths = self.convert_mesh_to_paths(self._triangulation)
 
     @staticmethod
     def convert_mesh_to_paths(tri):
@@ -2687,12 +2689,12 @@ class QuadMesh(_MeshData, Collection):
         self.set_mouseover(False)
 
     def get_paths(self):
-        if self._paths is None:
+        if self._container.paths is None:
             self.set_paths()
-        return self._paths
+        return self._container.paths
 
     def set_paths(self):
-        self._paths = self._convert_mesh_to_paths(self._coordinates)
+        self._container.paths = self._convert_mesh_to_paths(self._coordinates)
         self.stale = True
 
     def get_datalim(self, transData):
