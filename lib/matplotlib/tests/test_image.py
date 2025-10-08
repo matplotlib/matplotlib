@@ -1669,6 +1669,8 @@ def test__resample_valid_output():
                  0.54, 0.62, 0.7, 0.78, 0.86, 0.9, 0.9, 0.9, 0.9, 0.9]])),
      (np.array([[0.1, 0.1]]), mimage.BILINEAR, np.full((1, 10), 0.1)),
      # Test at the subpixel level
+     (np.array([[0.1, 0.9]]), mimage.NEAREST,
+      np.concatenate([np.full(512, 0.1), np.full(512, 0.9)]).reshape(1, -1)),
      (np.array([[0.1, 0.9]]), mimage.BILINEAR,
       np.concatenate([np.full(256, 0.1),
                       np.linspace(0.5, 256, 512).astype(int) / 256 * 0.8 + 0.1,
