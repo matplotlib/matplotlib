@@ -17,18 +17,15 @@ TODO:
 
 import sys
 
-import numpy as np
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-    NavigationToolbar2QT as NavigationToolbar,
-)
-
-from PyQt5 import QtWidgets, QtCore
-
 import vtk
-
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+
+import numpy as np
+
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.qt_compat import QtCore, QtWidgets
+from matplotlib.figure import Figure
 
 
 def make_vtk_plane(ren):
