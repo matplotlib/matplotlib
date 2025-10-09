@@ -27,9 +27,9 @@ in the ParaView python shell ::
 """
 
 
-from PyQt5 import QtWidgets, QtCore
+import matplotlib.backends.backend_qtagg as backend_qt
+from matplotlib.backends.qt_compant import QtCore, QtWidgets
 from matplotlib.figure import Figure
-import matplotlib.backends.backend_qt5agg as backend_qt
 
 
 def get_main_window(target_name="pqClientMainWindow"):
