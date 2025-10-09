@@ -14,7 +14,6 @@ TODO:
 
 """
 
-
 import sys
 
 import vtk
@@ -29,7 +28,6 @@ from matplotlib.figure import Figure
 
 
 def make_vtk_plane(ren):
-
     # create source
     source = vtk.vtkPlaneSource()
     source.SetPoint1(-10, 10, 0)
@@ -50,7 +48,6 @@ def make_vtk_plane(ren):
 
 
 def make_vtk_cylinder(ren):
-
     # Create source
     source = vtk.vtkCylinderSource()
     source.SetCenter(0, 0, 0)

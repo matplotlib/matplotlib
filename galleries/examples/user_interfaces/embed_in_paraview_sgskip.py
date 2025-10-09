@@ -26,7 +26,6 @@ in the ParaView python shell ::
 
 """
 
-
 import matplotlib.backends.backend_qtagg as backend_qt
 from matplotlib.backends.qt_compant import QtCore, QtWidgets
 from matplotlib.figure import Figure
@@ -51,8 +50,7 @@ def get_main_window(target_name="pqClientMainWindow"):
     app = QtWidgets.QApplication.instance()
     if app is None:
         raise RuntimeError(
-            "No running QApplication found. "
-            "May not be running inside of ParaView"
+            "No running QApplication found. May not be running inside of ParaView"
         )
     tlw = app.topLevelWidgets()
     return next(iter(w for w in tlw if (w.objectName() == target_name)))
