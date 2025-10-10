@@ -8967,6 +8967,14 @@ such objects
 
             .. versionadded:: 3.11
 
+            For backward compatibility, if *facecolor* is not given, the body
+            will get an Artist-level transparency `alpha <.Artist.set_alpha>`
+            of 0.3, which will persist if you afterwards change the facecolor,
+            e.g. via ``result['bodies'][0].set_facecolor('red')``.
+            If *facecolor* is given, there is no Artist-level transparency.
+            To set transparency for *facecolor* or *edgecolor* use
+            ``(color, alpha)`` tuples.
+
         linecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             If provided, will set the line color(s) of the violins (the
             horizontal and vertical spines and body edges).
@@ -9074,13 +9082,14 @@ such objects
 
         if facecolor is not None:
             facecolor = cycle_color(facecolor)
+            body_artist_alpha = None
         else:
-            default_facealpha = 0.3
+            body_artist_alpha = 0.3
             # Use default colors if user doesn't provide them
             if mpl.rcParams['_internal.classic_mode']:
-                facecolor = cycle_color('y', alpha=default_facealpha)
+                facecolor = cycle_color('y')
             else:
-                facecolor = cycle_color(next_color, alpha=default_facealpha)
+                facecolor = cycle_color(next_color)
 
         if mpl.rcParams['_internal.classic_mode']:
             # Classic mode uses patch.force_edgecolor=True, so we need to
@@ -9129,7 +9138,8 @@ such objects
             bodies += [fill(stats['coords'],
                             -vals + pos if side in ['both', 'low'] else pos,
                             vals + pos if side in ['both', 'high'] else pos,
-                            facecolor=facecolor, edgecolor=body_edgecolor)]
+                            facecolor=facecolor, edgecolor=body_edgecolor,
+                            alpha=body_artist_alpha)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])
