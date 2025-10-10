@@ -91,6 +91,10 @@ class InsetIndicator(artist.Artist):
         # docstring inherited
         self._shared_setter('alpha', alpha)
 
+    def set_clip_on(self, clip_on):
+        # docstring inherited
+        self._shared_setter('clip_on', clip_on)
+
     def set_edgecolor(self, color):
         """
         Set the edge color of the rectangle and the connectors.
