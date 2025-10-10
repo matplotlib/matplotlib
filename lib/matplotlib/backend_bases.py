@@ -2948,6 +2948,17 @@ class NavigationToolbar2:
     def remove_rubberband(self):
         """Remove the rubberband."""
 
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws):
+        """
+        Draw line with whiskers to indicate single axis zoom
+
+        We expect that ``x0 == x1`` or ``y0 == y1``. Else nothing will draw
+        *ws* is the whisker size in pixels.
+        """
+
+    def remove_whiskers(self):
+        """Remove the whiskers."""
+
     def home(self, *args):
         """
         Restore the original view.
@@ -3241,7 +3252,20 @@ class NavigationToolbar2:
         elif key == "y":
             x1, x2 = ax.bbox.intervalx
 
+        # Single-axis zooms by moving less than 15 pixels
+        if (abs(event.x - start_xy[0]) < 15) and (abs(event.y - start_xy[1]) > 30):
+            x1, x2 = ax.bbox.intervalx
+            whisk = (start_xy[0], y1, start_xy[0], y2)
+        elif (abs(event.y - start_xy[1]) < 15) and (abs(event.x - start_xy[0]) > 30):
+            y1, y2 = ax.bbox.intervaly
+            whisk = (x1, start_xy[1], x2, start_xy[1])
+        else:
+            whisk = None
+            self.remove_whiskers()
+
         self.draw_rubberband(event, x1, y1, x2, y2)
+        if whisk:
+            self.draw_whiskers(event, *whisk, ws=30)
 
     def release_zoom(self, event):
         """Callback for mouse button release in zoom to rect mode."""
@@ -3252,6 +3276,7 @@ class NavigationToolbar2:
         # by (pressing and) releasing another mouse button.
         self.canvas.mpl_disconnect(self._zoom_info.cid)
         self.remove_rubberband()
+        self.remove_whiskers()
 
         start_x, start_y = self._zoom_info.start_xy
         direction = "in" if self._zoom_info.button == 1 else "out"
@@ -3262,12 +3287,6 @@ class NavigationToolbar2:
             key = "x"
         elif self._zoom_info.cbar == "vertical":
             key = "y"
-        # Ignore single clicks: 5 pixels is a threshold that allows the user to
-        # "cancel" a zoom action by zooming by less than 5 pixels.
-        if ((abs(event.x - start_x) < 5 and key != "y") or
-                (abs(event.y - start_y) < 5 and key != "x")):
-            self._cleanup_post_zoom()
-            return
 
         for i, ax in enumerate(self._zoom_info.axes):
             # Detect whether this Axes is twinned with an earlier Axes in the
@@ -3276,8 +3295,14 @@ class NavigationToolbar2:
                         for prev in self._zoom_info.axes[:i])
             twiny = any(ax.get_shared_y_axes().joined(ax, prev)
                         for prev in self._zoom_info.axes[:i])
+            # Handle release of single axis zooms
+            end_x, end_y = event.x, event.y
+            if (abs(end_x - start_x) < 15) and (abs(end_y - start_y) > 30):
+                start_x, end_x = ax.bbox.intervalx
+            if (abs(end_y - start_y) < 15) and (abs(end_x - start_x) > 30):
+                start_y, end_y = ax.bbox.intervaly
             ax._set_view_from_bbox(
-                (start_x, start_y, event.x, event.y),
+                (start_x, start_y, end_x, end_y),
                 direction, key, twinx, twiny)
 
         self._cleanup_post_zoom()
