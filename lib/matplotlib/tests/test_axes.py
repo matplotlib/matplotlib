@@ -6333,8 +6333,31 @@ def test_pie_default():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
     fig1, ax1 = plt.subplots(figsize=(8, 6))
-    ax1.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90)
+    ax1.pie(sizes, explode=explode, wedge_labels=[labels, '{frac:.1%}'],
+            wedge_label_distance=[1.1, 0.6], colors=colors, shadow=True, startangle=90)
+
+
+@image_comparison(['pie_default.png'], tol=0.01)
+def test_pie_default_legacy():
+    # Same as above, but uses old labels and autopct.
+    # The slices will be ordered and plotted counter-clockwise.
+    labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
+    sizes = [15, 30, 45, 10]
+    colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
+    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    fig1, ax1 = plt.subplots(figsize=(8, 6))
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ax1.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=90)
+
+
+def test_pie_wedge_labels_absval():
+    sizes = [15, 30, 45, 10]
+    fig, ax = plt.subplots()
+    _, wedge_texts = ax.pie(sizes, wedge_labels='{absval:03d}')
+
+    for text, size in zip(wedge_texts, sizes):
+        assert text.get_text() == '0' + str(size)
 
 
 @image_comparison(['pie_linewidth_0', 'pie_linewidth_0', 'pie_linewidth_0'],
@@ -6346,27 +6369,29 @@ def test_pie_linewidth_0():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode, wedge_labels=[labels, '{frac:.1%}'],
+            wedge_label_distance=[1.1, 0.6], colors=colors, shadow=True, startangle=90,
             wedgeprops={'linewidth': 0})
-    # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
-    # Reuse testcase from above for a labeled data test
+    # Reuse testcase from above for a labeled data test.  Include legend labels
+    # to smoke test that they are correctly unpacked.
     data = {"l": labels, "s": sizes, "c": colors, "ex": explode}
     fig = plt.figure()
     ax = fig.gca()
-    ax.pie("s", explode="ex", labels="l", colors="c",
-           autopct='%1.1f%%', shadow=True, startangle=90,
-           wedgeprops={'linewidth': 0}, data=data)
+    ax.pie("s", explode="ex", wedge_labels=["l", "{frac:.1%}"], colors="c",
+            wedge_label_distance=[1.1, 0.6], shadow=True, startangle=90,
+            labels="l", labeldistance=None, wedgeprops={'linewidth': 0},
+            data=data)
     ax.axis('equal')
 
     # And again to test the pyplot functions which should also be able to be
     # called with a data kwarg
     plt.figure()
-    plt.pie("s", explode="ex", labels="l", colors="c",
-            autopct='%1.1f%%', shadow=True, startangle=90,
-            wedgeprops={'linewidth': 0}, data=data)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.pie("s", explode="ex", labels="l", colors="c",
+                autopct='%1.1f%%', shadow=True, startangle=90,
+                wedgeprops={'linewidth': 0}, data=data)
     plt.axis('equal')
 
 
@@ -6378,8 +6403,8 @@ def test_pie_center_radius():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode, wedge_labels=[labels, '{frac:.1%}'],
+            wedge_label_distance=[1.1, 0.6], colors=colors, shadow=True, startangle=90,
             wedgeprops={'linewidth': 0}, center=(1, 2), radius=1.5)
 
     plt.annotate("Center point", xy=(1, 2), xytext=(1, 1.3),
@@ -6398,8 +6423,8 @@ def test_pie_linewidth_2():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode, wedge_labels=[labels, '{frac:.1%}'],
+            wedge_label_distance=[1.1, 0.6], colors=colors, shadow=True, startangle=90,
             wedgeprops={'linewidth': 2})
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
@@ -6413,9 +6438,9 @@ def test_pie_ccw_true():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
-            counterclock=True)
+    plt.pie(sizes, explode=explode, wedge_labels=[labels, '{frac:.1%}'],
+            wedge_label_distance=[1.1, 0.6], colors=colors, shadow=True, startangle=90,
+                counterclock=True)
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
@@ -6429,18 +6454,18 @@ def test_pie_frame_grid():
     # only "explode" the 2nd slice (i.e. 'Hogs')
     explode = (0, 0.1, 0, 0)
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode, wedge_labels=[labels, '{frac:.1%}'],
+            wedge_label_distance=[1.1, 0.6], colors=colors, shadow=True, startangle=90,
             wedgeprops={'linewidth': 0},
             frame=True, center=(2, 2))
 
-    plt.pie(sizes[::-1], explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes[::-1], explode=explode, wedge_labels=[labels, '{frac:.1%}'],
+            wedge_label_distance=[1.1, 0.6], colors=colors, shadow=True, startangle=90,
             wedgeprops={'linewidth': 0},
             frame=True, center=(5, 2))
 
-    plt.pie(sizes, explode=explode[::-1], labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode[::-1], wedge_labels=[labels, '{frac:.1%}'],
+            wedge_label_distance=[1.1, 0.6], colors=colors, shadow=True, startangle=90,
             wedgeprops={'linewidth': 0},
             frame=True, center=(3, 5))
     # Set aspect ratio to be equal so that pie is drawn as a circle.
@@ -6455,9 +6480,26 @@ def test_pie_rotatelabels_true():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
-            rotatelabels=True)
+    plt.pie(sizes, explode=explode, wedge_labels=[labels, '{frac:.1%}'],
+            wedge_label_distance=[1.1, 0.6], colors=colors, shadow=True, startangle=90,
+            rotate_wedge_labels=[True, False])
+    # Set aspect ratio to be equal so that pie is drawn as a circle.
+    plt.axis('equal')
+
+
+@image_comparison(['pie_rotatelabels_true.png'], style='mpl20', tol=0.009)
+def test_pie_rotatelabels_true_legacy():
+    # As above but using legacy labels and rotatelabels parameters
+    # The slices will be ordered and plotted counter-clockwise.
+    labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'
+    sizes = [15, 30, 45, 10]
+    colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
+    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+                wedge_labels='{frac:.1%}', shadow=True, startangle=90,
+                rotatelabels=True)
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
@@ -6469,7 +6511,7 @@ def test_pie_nolabel_but_legend():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
     plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90, labeldistance=None,
+            wedge_labels='{frac:.1%}', shadow=True, startangle=90, labeldistance=None,
             rotatelabels=True)
     plt.axis('equal')
     plt.ylim(-1.2, 1.2)
@@ -6510,8 +6552,33 @@ def test_pie_textprops():
                      rotation_mode="anchor",
                      size=12, color="red")
 
-    _, texts, autopct = plt.gca().pie(data, labels=labels, autopct='%.2f',
-                                      textprops=textprops)
+    fig, ax = plt.subplots()
+
+    _, texts = ax.pie(data, wedge_labels=[labels, '{frac:.1%}'],
+                      wedge_label_distance=[1.1, 0.6], textprops=textprops)
+    for labels in texts:
+        for tx in labels:
+            assert tx.get_ha() == textprops["horizontalalignment"]
+            assert tx.get_va() == textprops["verticalalignment"]
+            assert tx.get_rotation() == textprops["rotation"]
+            assert tx.get_rotation_mode() == textprops["rotation_mode"]
+            assert tx.get_size() == textprops["size"]
+            assert tx.get_color() == textprops["color"]
+
+
+def test_pie_textprops_legacy():
+    data = [23, 34, 45]
+    labels = ["Long name 1", "Long name 2", "Long name 3"]
+
+    textprops = dict(horizontalalignment="center",
+                     verticalalignment="top",
+                     rotation=90,
+                     rotation_mode="anchor",
+                     size=12, color="red")
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        _, texts, autopct = plt.gca().pie(data, labels=labels, autopct='%.2f',
+                                          textprops=textprops)
     for labels in [texts, autopct]:
         for tx in labels:
             assert tx.get_ha() == textprops["horizontalalignment"]
