@@ -14,17 +14,16 @@ Installation
 Install an official release
 ===========================
 
-Matplotlib releases are available as wheel packages for macOS, Windows and
-Linux on `PyPI <https://pypi.org/project/matplotlib/>`_. Install it using
-``pip``::
+Official Matplotlib releases are available as precompiled wheel packages for
+macOS, Windows, and Linux on `PyPI <https://pypi.org/project/matplotlib/>`_.
+You can install them easily using ``pip``::
 
   python -m pip install -U pip
   python -m pip install -U matplotlib
 
-If this command results in Matplotlib being compiled from source and
-there's trouble with the compilation, you can add ``--prefer-binary`` to
-select the newest version of Matplotlib for which there is a
-precompiled wheel for your OS and Python.
+If this command attempts to compile Matplotlib from source and you encounter
+issues, you can add the ``--prefer-binary`` flag to ensure the newest available
+prebuilt wheel is selected for your operating system and Python version.
 
 .. note::
 
@@ -33,18 +32,19 @@ precompiled wheel for your OS and Python.
 
    The TkAgg interactive backend also typically works out of the box.
    It requires Tk bindings, which are usually provided via the Python
-   standard library's ``tkinter`` module. On some OSes, you may need
-   to install a separate package like ``python3-tk`` to add this
+   standard library's ``tkinter`` module. On some operating systems, you may
+   need to install an additional package like ``python3-tk`` to include this
    component of the standard library.
 
-   Some tools like ``uv`` make use of Python builds from the
-   python-build-standalone project, which only gained usable Tk
-   bindings recently (August 2025). If you are having trouble with the
-   TkAgg backend, ensure you have an up-to-date build, e.g. ``uv self
-   update && uv python upgrade --reinstall``.
+   Some tools, such as ``uv``, use Python builds from the
+   *python-build-standalone* project, which only recently (August 2025)
+   introduced stable Tk bindings. If you encounter issues with the
+   TkAgg backend, ensure your build is up to date, for example::
+
+       uv self update && uv python upgrade --reinstall
 
    For support of other GUI frameworks, LaTeX rendering, saving
-   animations and a larger selection of file formats, you can
+   animations, and access to a wider selection of file formats, you can
    install :ref:`optional dependencies <optional_dependencies>`.
 
 .. _install-third-party:
