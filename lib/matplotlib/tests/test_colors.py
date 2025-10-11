@@ -1430,7 +1430,7 @@ def test_scalarmappable_nan_to_rgba(bytes):
 
     # Out-of-range fail
     x[1, 0, 0] = 42
-    with pytest.raises(ValueError, match='0..1 range'):
+    with pytest.raises(ValueError, match=r'\[0,1\] range'):
         sm.to_rgba(x[..., :3], bytes=bytes)
 
 

@@ -78,7 +78,7 @@ class Colorizer:
                 raise ValueError(
                     "Passing a Normalize instance simultaneously with "
                     "vmin/vmax is not supported.  Please pass vmin/vmax "
-                    "directly to the norm when creating it")
+                    "as arguments to the norm object when creating it")
 
         # always resolve the autoscaling so we have concrete limits
         # rather than deferring to draw time.
@@ -174,7 +174,7 @@ class Colorizer:
 
             if norm and (xx.max() > 1 or xx.min() < 0):
                 raise ValueError("Floating point image RGB values "
-                                 "must be in the 0..1 range")
+                                 "must be in the [0,1] range")
             if bytes:
                 xx = (xx * 255).astype(np.uint8)
         elif xx.dtype == np.uint8:
