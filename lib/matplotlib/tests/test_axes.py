@@ -4113,7 +4113,6 @@ def test_violinplot_sides():
 
 
 def violin_plot_stats():
-    # Stats for violin plot
     datetimes = [
         datetime.datetime(2023, 2, 10),
         datetime.datetime(2023, 5, 18),
@@ -4138,13 +4137,23 @@ def violin_plot_stats():
     }]
 
 
+def test_datetime_positions_with_datetime64():
+    """Test that datetime positions with float widths raise TypeError."""
+    fig, ax = plt.subplots()
+    positions = [np.datetime64('2020-01-01'), np.datetime64('2021-01-01')]
+    widths = [0.5, 1.0]
+    with pytest.raises(TypeError,
+    match="np.datetime64 'position' values, require np.timedelta64 'widths'"):
+        ax.violin(violin_plot_stats(), positions=positions, widths=widths)
+
+
 def test_datetime_positions_with_float_widths_raises():
     """Test that datetime positions with float widths raise TypeError."""
     fig, ax = plt.subplots()
     positions = [datetime.datetime(2020, 1, 1), datetime.datetime(2021, 1, 1)]
     widths = [0.5, 1.0]
     with pytest.raises(TypeError,
-    match="positions are datetime/date.*widths as datetime\\.timedelta"):
+    match="datetime/date 'position' values, require timedelta 'widths'"):
         ax.violin(violin_plot_stats(), positions=positions, widths=widths)
 
 
@@ -4154,7 +4163,7 @@ def test_datetime_positions_with_scalar_float_width_raises():
     positions = [datetime.datetime(2020, 1, 1), datetime.datetime(2021, 1, 1)]
     widths = 0.75
     with pytest.raises(TypeError,
-    match="positions are datetime/date.*widths as datetime\\.timedelta"):
+    match="datetime/date 'position' values, require timedelta 'widths'"):
         ax.violin(violin_plot_stats(), positions=positions, widths=widths)
 
 
@@ -4174,7 +4183,7 @@ def test_mixed_positions_datetime_and_numeric_behaves():
     positions = [datetime.datetime(2020, 1, 1), 2.0]
     widths = [0.5, 1.0]
     with pytest.raises(TypeError,
-    match="positions are datetime/date.*widths as datetime\\.timedelta"):
+    match="datetime/date 'position' values, require timedelta 'widths'"):
         ax.violin(violin_plot_stats(), positions=positions, widths=widths)
 
 

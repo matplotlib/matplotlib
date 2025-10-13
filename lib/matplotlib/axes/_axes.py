@@ -9048,19 +9048,19 @@ such objects
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
-        # Proactive validation: if positions are datetime-like
-        # widths must be timedelta-like.
-        if any(isinstance(p, (datetime.datetime, datetime.date))
-               for p in positions):
-            _widths = widths if not np.isscalar(widths) else [widths] * N
-            if any(not isinstance(w, (datetime.timedelta, np.timedelta64))
-                   for w in _widths):
-                raise TypeError(
-                    "If positions are datetime/date values, pass widths as "
-                    "datetime.timedelta (e.g., datetime.timedelta(days=10))"
-                    "or numpy.timedelta64."
-                )
-
+        # For usability / better error message:
+        # Validate that datetime-like positions have timedelta-like widths.
+        # Checking only the first element is good enough for standard misuse cases
+        pos0 = positions[0]
+        width0 = widths if np.isscalar(widths) else widths[0]
+        if (isinstance(pos0, (datetime.datetime, datetime.date))
+                and not isinstance(width0, datetime.timedelta)):
+            raise TypeError(
+                "datetime/date 'position' values, require timedelta 'widths'")
+        elif (isinstance(pos0, np.datetime64)
+                and not isinstance(width0, np.timedelta64)):
+            raise TypeError(
+                "np.datetime64 'position' values, require np.timedelta64 'widths'")
 
         # Validate side
         _api.check_in_list(["both", "low", "high"], side=side)
