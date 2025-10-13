@@ -53,13 +53,9 @@ def test_resampled():
     colorlist[:, 1] = 0.2
     colorlist[:, 2] = np.linspace(1, 0, n)
     colorlist[:, 3] = 0.7
-    lsc = mcolors.LinearSegmentedColormap.from_list('lsc', colorlist)
-    lc = mcolors.ListedColormap(colorlist)
-    # Set some bad values for testing too
-    for cmap in [lsc, lc]:
-        cmap.set_under('r')
-        cmap.set_over('g')
-        cmap.set_bad('b')
+    lsc = mcolors.LinearSegmentedColormap.from_list(
+        'lsc', colorlist, under='red', over='green', bad='blue')
+    lc = mcolors.ListedColormap(colorlist, under='red', over='green', bad='blue')
     lsc3 = lsc.resampled(3)
     lc3 = lc.resampled(3)
     expected = np.array([[0.0, 0.2, 1.0, 0.7],
@@ -115,7 +111,8 @@ def test_colormap_copy():
     with np.errstate(invalid='ignore'):
         ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     cmap2 = copy.copy(copied_cmap)
-    cmap2.set_bad('g')
+    with pytest.warns(PendingDeprecationWarning):
+        cmap2.set_bad('g')
     with np.errstate(invalid='ignore'):
         ret2 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     assert_array_equal(ret1, ret2)
@@ -125,7 +122,8 @@ def test_colormap_copy():
     with np.errstate(invalid='ignore'):
         ret1 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     cmap2 = copy.copy(copied_cmap)
-    cmap2.set_bad('g')
+    with pytest.warns(PendingDeprecationWarning):
+        cmap2.set_bad('g')
     with np.errstate(invalid='ignore'):
         ret2 = copied_cmap([-1, 0, .5, 1, np.nan, np.inf])
     assert_array_equal(ret1, ret2)
@@ -139,7 +137,8 @@ def test_colormap_equals():
     # But the same data should be equal
     assert cm_copy == cmap
     # Change the copy
-    cm_copy.set_bad('y')
+    with pytest.warns(PendingDeprecationWarning):
+        cm_copy.set_bad('y')
     assert cm_copy != cmap
     # Make sure we can compare different sizes without failure
     cm_copy._lut = cm_copy._lut[:10, :]
@@ -371,9 +370,7 @@ def test_BoundaryNorm():
     assert_array_equal(mynorm(x), ref)
 
     # Without interpolation
-    cmref = mcolors.ListedColormap(['blue', 'red'])
-    cmref.set_over('black')
-    cmref.set_under('white')
+    cmref = mcolors.ListedColormap(['blue', 'red'], under='white', over='black')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red', 'black'])
 
     assert mcolors.same_color(cmref.get_over(), 'black')
@@ -395,8 +392,7 @@ def test_BoundaryNorm():
     assert_array_equal(cmshould(mynorm(x)), cmref(refnorm(x)))
 
     # Just min
-    cmref = mcolors.ListedColormap(['blue', 'red'])
-    cmref.set_under('white')
+    cmref = mcolors.ListedColormap(['blue', 'red'], under='white')
     cmshould = mcolors.ListedColormap(['white', 'blue', 'red'])
 
     assert mcolors.same_color(cmref.get_under(), 'white')
@@ -413,8 +409,7 @@ def test_BoundaryNorm():
     assert_array_equal(cmshould(mynorm(x)), cmref(refnorm(x)))
 
     # Just max
-    cmref = mcolors.ListedColormap(['blue', 'red'])
-    cmref.set_over('black')
+    cmref = mcolors.ListedColormap(['blue', 'red'], over='black')
     cmshould = mcolors.ListedColormap(['blue', 'red', 'black'])
 
     assert mcolors.same_color(cmref.get_over(), 'black')
@@ -928,7 +923,7 @@ def test_cmap_and_norm_from_levels_and_colors2():
     for extend, i1, cases in tests:
         cmap, norm = mcolors.from_levels_and_colors(levels, colors[0:i1],
                                                     extend=extend)
-        cmap.set_bad(bad)
+        cmap = cmap.with_extremes(bad=bad)
         for d_val, expected_color in cases.items():
             if d_val == masked_value:
                 d_val = np.ma.array([1], mask=True)
@@ -1543,7 +1538,8 @@ def test_get_under_over_bad():
 def test_non_mutable_get_values(kind):
     cmap = copy.copy(mpl.colormaps['viridis'])
     init_value = getattr(cmap, f'get_{kind}')()
-    getattr(cmap, f'set_{kind}')('k')
+    with pytest.warns(PendingDeprecationWarning):
+        getattr(cmap, f'set_{kind}')('k')
     black_value = getattr(cmap, f'get_{kind}')()
     assert np.all(black_value == [0, 0, 0, 1])
     assert not np.all(init_value == black_value)
@@ -2020,7 +2016,7 @@ def test_mult_norm_call_types():
                               [[0., 0.5, 1.],
                                [1, 3, 5]])
     assert no_norm_out[0].dtype == np.dtype('float64')
-    assert no_norm_out[1].dtype == np.dtype('int64')
+    assert no_norm_out[1].dtype == vals.dtype
 
     # test with NoNorm, structured array as input
     mn_no_norm = mpl.colors.MultiNorm(['linear', mcolors.NoNorm()])

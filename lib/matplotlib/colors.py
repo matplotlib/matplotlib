@@ -805,8 +805,7 @@ class Colormap:
         mask : np.ndarray
             Boolean array with True where the input is ``np.nan`` or masked.
         """
-        if not self._isinit:
-            self._init()
+        self._ensure_inited()
 
         xa = np.array(X, copy=True)
         if not xa.dtype.isnative:
@@ -863,59 +862,60 @@ class Colormap:
                 self.colorbar_extend != other.colorbar_extend):
             return False
         # To compare lookup tables the Colormaps have to be initialized
-        if not self._isinit:
-            self._init()
-        if not other._isinit:
-            other._init()
+        self._ensure_inited()
+        other._ensure_inited()
         return np.array_equal(self._lut, other._lut)
 
     def get_bad(self):
         """Get the color for masked values."""
-        if not self._isinit:
-            self._init()
+        self._ensure_inited()
         return np.array(self._lut[self._i_bad])
 
+    @_api.deprecated(
+        "3.11",
+        pending=True,
+        alternative="cmap.with_extremes(bad=...) or Colormap(bad=...)")
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
-        self._rgba_bad = to_rgba(color, alpha)
-        if self._isinit:
-            self._set_extremes()
+        self._set_extremes(bad=(color, alpha))
 
     def get_under(self):
         """Get the color for low out-of-range values."""
-        if not self._isinit:
-            self._init()
+        self._ensure_inited()
         return np.array(self._lut[self._i_under])
 
+    @_api.deprecated(
+        "3.11",
+        pending=True,
+        alternative="cmap.with_extremes(under=...) or Colormap(under=...)")
     def set_under(self, color='k', alpha=None):
         """Set the color for low out-of-range values."""
-        self._rgba_under = to_rgba(color, alpha)
-        if self._isinit:
-            self._set_extremes()
+        self._set_extremes(under=(color, alpha))
 
     def get_over(self):
         """Get the color for high out-of-range values."""
-        if not self._isinit:
-            self._init()
+        self._ensure_inited()
         return np.array(self._lut[self._i_over])
 
+    @_api.deprecated(
+        "3.11",
+        pending=True,
+        alternative="cmap.with_extremes(over=...) or Colormap(over=...)")
     def set_over(self, color='k', alpha=None):
         """Set the color for high out-of-range values."""
-        self._rgba_over = to_rgba(color, alpha)
-        if self._isinit:
-            self._set_extremes()
+        self._set_extremes(over=(color, alpha))
 
+    @_api.deprecated(
+        "3.11",
+        pending=True,
+        alternative="cmap.with_extremes(bad=..., under=..., over=...) or "
+                    "Colormap(bad=..., under=..., over=...)")
     def set_extremes(self, *, bad=None, under=None, over=None):
         """
         Set the colors for masked (*bad*) values and, when ``norm.clip =
         False``, low (*under*) and high (*over*) out-of-range values.
         """
-        if bad is not None:
-            self.set_bad(bad)
-        if under is not None:
-            self.set_under(under)
-        if over is not None:
-            self.set_over(over)
+        self._set_extremes(bad=bad, under=under, over=over)
 
     def with_extremes(self, *, bad=None, under=None, over=None):
         """
@@ -924,10 +924,26 @@ class Colormap:
         out-of-range values, have been set accordingly.
         """
         new_cm = self.copy()
-        new_cm.set_extremes(bad=bad, under=under, over=over)
+        new_cm._set_extremes(bad=bad, under=under, over=over)
         return new_cm
 
-    def _set_extremes(self):
+    def _set_extremes(self, bad=None, under=None, over=None):
+        """
+        Set the colors for masked (*bad*) and out-of-range (*under* and *over*) values.
+
+        Parameters that are None are left unchanged.
+        """
+        if bad is not None:
+            self._rgba_bad = to_rgba(bad)
+        if under is not None:
+            self._rgba_under = to_rgba(under)
+        if over is not None:
+            self._rgba_over = to_rgba(over)
+        if self._isinit:
+            self._update_lut_extremes()
+
+    def _update_lut_extremes(self):
+        """Ensure than an existing lookup table has the correct extreme values."""
         if self._rgba_under:
             self._lut[self._i_under] = self._rgba_under
         else:
@@ -952,8 +968,7 @@ class Colormap:
         if not 0 <= alpha <= 1:
             raise ValueError("'alpha' must be between 0 and 1, inclusive")
         new_cm = self.copy()
-        if not new_cm._isinit:
-            new_cm._init()
+        new_cm._ensure_inited()
         new_cm._lut[:, 3] = alpha
         return new_cm
 
@@ -961,10 +976,13 @@ class Colormap:
         """Generate the lookup table, ``self._lut``."""
         raise NotImplementedError("Abstract class only")
 
-    def is_gray(self):
-        """Return whether the colormap is grayscale."""
+    def _ensure_inited(self):
         if not self._isinit:
             self._init()
+
+    def is_gray(self):
+        """Return whether the colormap is grayscale."""
+        self._ensure_inited()
         return (np.all(self._lut[:, 0] == self._lut[:, 1]) and
                 np.all(self._lut[:, 0] == self._lut[:, 2]))
 
@@ -1154,7 +1172,7 @@ class LinearSegmentedColormap(Colormap):
             self._lut[:-3, 3] = _create_lookup_table(
                 self.N, self._segmentdata['alpha'], 1)
         self._isinit = True
-        self._set_extremes()
+        self._update_lut_extremes()
 
     def set_gamma(self, gamma):
         """Set a new gamma value and regenerate colormap."""
@@ -1346,7 +1364,7 @@ class ListedColormap(Colormap):
         self._lut = np.zeros((self.N + 3, 4), float)
         self._lut[:-3] = to_rgba_array(self.colors)
         self._isinit = True
-        self._set_extremes()
+        self._update_lut_extremes()
 
     @property
     def monochrome(self):
@@ -1358,9 +1376,7 @@ class ListedColormap(Colormap):
         # TODO: It's a separate discussion whether we need this property on
         #       colormaps at all (at least as public API). It's a very special edge
         #       case and we only use it for contours internally.
-        if not self._isinit:
-            self._init()
-
+        self._ensure_inited()
         return self.N <= 1 or np.all(self._lut[0] == self._lut[1:self.N])
 
     def resampled(self, lutsize):
@@ -1615,14 +1631,16 @@ class MultivarColormap:
                                  f" i.e. be of length {len(new_cm)}.")
             else:
                 for c, b in zip(new_cm, under):
-                    c.set_under(b)
+                    # in-place change is ok, since we've just created c as a copy
+                    c._set_extremes(under=b)
         if over is not None:
             if not np.iterable(over) or len(over) != len(new_cm):
                 raise ValueError("*over* must contain a color for each scalar colormap"
                                  f" i.e. be of length {len(new_cm)}.")
             else:
                 for c, b in zip(new_cm, over):
-                    c.set_over(b)
+                    # in-place change is ok, since we've just created c as a copy
+                    c._set_extremes(over=b)
         return new_cm
 
     @property
@@ -2071,26 +2089,27 @@ class BivarColormap:
         """Creates and returns a colorbar along the selected axis"""
         if not self._isinit:
             self._init()
+        extremes = (
+            dict(bad=self._rgba_bad, over=self._rgba_outside, under=self._rgba_outside)
+            if self.shape in ['ignore', 'circleignore']
+            else dict(bad=self._rgba_bad)
+        )
         if item == 0:
             origin_1_as_int = int(self._origin[1]*self.M)
             if origin_1_as_int > self.M-1:
                 origin_1_as_int = self.M-1
             one_d_lut = self._lut[:, origin_1_as_int]
-            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_0')
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_0', **extremes)
 
         elif item == 1:
             origin_0_as_int = int(self._origin[0]*self.N)
             if origin_0_as_int > self.N-1:
                 origin_0_as_int = self.N-1
             one_d_lut = self._lut[origin_0_as_int, :]
-            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_1')
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_1', **extremes)
         else:
             raise KeyError(f"only 0 or 1 are"
                            f" valid keys for BivarColormap, not {item!r}")
-        new_cmap._rgba_bad = self._rgba_bad
-        if self.shape in ['ignore', 'circleignore']:
-            new_cmap.set_over(self._rgba_outside)
-            new_cmap.set_under(self._rgba_outside)
         return new_cmap
 
     def _repr_png_(self):

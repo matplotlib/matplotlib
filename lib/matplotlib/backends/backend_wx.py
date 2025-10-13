@@ -30,7 +30,7 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
 import wx
-import wx.svg
+import wx.svg  # noqa: F401
 
 _log = logging.getLogger(__name__)
 
@@ -1012,6 +1012,7 @@ class FigureManagerWx(FigureManagerBase):
             # As this can be called from non-GUI thread from plt.close use
             # wx.CallAfter to ensure thread safety.
             wx.CallAfter(frame.Close)
+        super().destroy()
 
     def full_screen_toggle(self):
         # docstring inherited

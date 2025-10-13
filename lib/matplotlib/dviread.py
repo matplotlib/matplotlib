@@ -32,6 +32,7 @@ from pathlib import Path
 import fontTools.agl
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import _api, cbook, font_manager
 from matplotlib.ft2font import LoadFlags
 
@@ -127,7 +128,13 @@ class Text(namedtuple('Text', 'x y font glyph width')):
     def _as_unicode_or_name(self):
         if self.font.subfont:
             raise NotImplementedError("Indexing TTC fonts is not supported yet")
-        face = font_manager.get_font(self.font.resolve_path())
+        path = self.font.resolve_path()
+        if path.name.lower().endswith("pk"):
+            # PK fonts have no encoding information; report glyphs as ASCII but
+            # with a "?" to indicate that this is just a guess.
+            return (f"{chr(self.glyph)}?" if chr(self.glyph).isprintable() else
+                    f"pk{self.glyph:#02x}")
+        face = font_manager.get_font(path)
         glyph_name = face.get_glyph_name(self.index)
         glyph_str = fontTools.agl.toUnicode(glyph_name)
         return glyph_str or glyph_name
@@ -758,13 +765,24 @@ class DviFont:
 
     def resolve_path(self):
         if self._path is None:
-            psfont = PsfontsMap(find_tex_file("pdftex.map"))[self.texname]
-            if psfont.filename is None:
-                raise ValueError("No usable font file found for {} ({}); "
-                                 "the font may lack a Type-1 version"
-                                 .format(psfont.psname.decode("ascii"),
-                                         psfont.texname.decode("ascii")))
-            self._path = Path(psfont.filename)
+            fontmap = PsfontsMap(find_tex_file("pdftex.map"))
+            try:
+                psfont = fontmap[self.texname]
+            except LookupError as exc:
+                try:
+                    find_tex_file(f"{self.texname.decode('ascii')}.mf")
+                except FileNotFoundError:
+                    raise exc from None
+                else:
+                    self._path = Path(find_tex_file(
+                        f"{self.texname.decode('ascii')}.600pk"))
+            else:
+                if psfont.filename is None:
+                    raise ValueError("No usable font file found for {} ({}); "
+                                     "the font may lack a Type-1 version"
+                                     .format(psfont.psname.decode("ascii"),
+                                             psfont.texname.decode("ascii")))
+                self._path = Path(psfont.filename)
         return self._path
 
     @cached_property
@@ -773,6 +791,8 @@ class DviFont:
 
     @cached_property
     def effects(self):
+        if self.resolve_path().match("*.600pk"):
+            return {}
         return PsfontsMap(find_tex_file("pdftex.map"))[self.texname].effects
 
     def _index_dvi_to_freetype(self, idx):
@@ -1233,9 +1253,12 @@ class _LuatexKpsewhich:
 
     def _new_proc(self):
         return subprocess.Popen(
-            ["luatex", "--luaonly",
-             str(cbook._get_data_path("kpsewhich.lua"))],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            ["luatex", "--luaonly", str(cbook._get_data_path("kpsewhich.lua"))],
+            # mktexpk logs to stderr; suppress that.
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            # Store generated pk fonts in our own cache.
+            env={"MT_VARTEXFONTS": str(Path(mpl.get_cachedir(), "vartexfonts")),
+                 **os.environ})
 
     def search(self, filename):
         if self._proc.poll() is not None:  # Dead, restart it.
@@ -1287,13 +1310,16 @@ def find_tex_file(filename):
             kwargs = {'env': {**os.environ, 'command_line_encoding': 'utf-8'},
                       'encoding': 'utf-8'}
         else:  # On POSIX, run through the equivalent of os.fsdecode().
-            kwargs = {'encoding': sys.getfilesystemencoding(),
+            kwargs = {'env': {**os.environ},
+                      'encoding': sys.getfilesystemencoding(),
                       'errors': 'surrogateescape'}
+        kwargs['env'].update(
+            MT_VARTEXFONTS=str(Path(mpl.get_cachedir(), "vartexfonts")))
 
         try:
-            path = (cbook._check_and_log_subprocess(['kpsewhich', filename],
-                                                    _log, **kwargs)
-                    .rstrip('\n'))
+            path = cbook._check_and_log_subprocess(
+                ['kpsewhich', '-mktex=pk', filename], _log, **kwargs,
+            ).rstrip('\n')
         except (FileNotFoundError, RuntimeError):
             path = None
 
@@ -1321,13 +1347,16 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("filename")
     parser.add_argument("dpi", nargs="?", type=float, default=None)
+    parser.add_argument("-d", "--debug", action="store_true")
     args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
 
     def _print_fields(*args):
         print(" ".join(map("{:>11}".format, args)))
 
     with Dvi(args.filename, args.dpi) as dvi:
-        fontmap = PsfontsMap(find_tex_file('pdftex.map'))
         for page in dvi:
             print(f"=== NEW PAGE === "
                   f"(w: {page.width}, h: {page.height}, d: {page.descent})")

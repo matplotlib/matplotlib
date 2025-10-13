@@ -194,6 +194,10 @@ def test_device_pixel_ratio_change():
             assert qt_canvas.get_width_height() == (600, 240)
             assert (fig.get_size_inches() == (5, 2)).all()
 
+        # check that closing the figure restores the original dpi
+        plt.close(fig)
+        assert fig.dpi == 120
+
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_subplottool():

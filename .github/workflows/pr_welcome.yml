@@ -9,7 +9,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/first-interaction@753c925c8d1ac6fede23781875376600628d9b5d  # v3.0.0
+      - uses: actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d  # v3.1.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           pr_message: >+

@@ -7773,13 +7773,15 @@ such objects
 
         Notes
         -----
-        - Currently ``hist2d`` calculates its own axis limits, and any limits
-          previously set are ignored.
-        - Rendering the histogram with a logarithmic color scale is
-          accomplished by passing a `.colors.LogNorm` instance to the *norm*
-          keyword argument. Likewise, power-law normalization (similar
-          in effect to gamma correction) can be accomplished with
-          `.colors.PowerNorm`.
+        Rendering the histogram with a logarithmic color scale is accomplished
+        by passing a `.colors.LogNorm` instance to the *norm* keyword
+        argument. Likewise, power-law normalization (similar in effect to gamma
+        correction) can be accomplished with `.colors.PowerNorm`.
+
+        .. versionchanged:: 3.11
+           Previously, `~.Axes.hist2d` would force the axes limits to match the
+           extents of the histogram; now, autoscaling also takes other plot
+           elements into account.
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
@@ -7791,8 +7793,6 @@ such objects
             h[h > cmax] = None
 
         pc = self.pcolormesh(xedges, yedges, h.T, **kwargs)
-        self.set_xlim(xedges[0], xedges[-1])
-        self.set_ylim(yedges[0], yedges[-1])
 
         return h, xedges, yedges, pc
 
@@ -9007,6 +9007,8 @@ such objects
         --------
         violinplot :
             Draw a violin plot from data instead of pre-computed statistics.
+        .cbook.violin_stats:
+            Calculate a *vpstats* dictionary from data, suitable for passing to violin.
         """
 
         # Statistical quantities to be plotted on the violins

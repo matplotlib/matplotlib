@@ -49,3 +49,6 @@ matplotlib\.figure\.FigureBase\.get_figure
 
 # getitem method only exists for 3.10 deprecation backcompatability
 matplotlib\.inset\.InsetIndicator\.__getitem__
+
+# only defined in stubs; not present at runtime
+matplotlib\.animation\.EventSourceProtocol
