@@ -2837,6 +2837,16 @@ def test_hist2d_density():
         obj.hist2d(x, y, density=True)
 
 
+@mpl.style.context("mpl20")
+def test_hist2d_autolimits():
+    x, y = np.random.random((2, 100))
+    ax = plt.figure().add_subplot()
+    ax.hist2d(x, y)
+    assert ax.get_xlim() == (x.min(), x.max())
+    assert ax.get_ylim() == (y.min(), y.max())
+    assert ax.get_autoscale_on()  # Autolimits have not been disabled.
+
+
 class TestScatter:
     @image_comparison(['scatter'], style='mpl20', remove_text=True)
     def test_scatter_plot(self):
@@ -2966,8 +2976,7 @@ class TestScatter:
     @check_figures_equal()
     def test_scatter_invalid_color(self, fig_test, fig_ref):
         ax = fig_test.subplots()
-        cmap = mpl.colormaps["viridis"].resampled(16)
-        cmap.set_bad("k", 1)
+        cmap = mpl.colormaps["viridis"].resampled(16).with_extremes(bad="black")
         # Set a nonuniform size to prevent the last call to `scatter` (plotting
         # the invalid points separately in fig_ref) from using the marker
         # stamping fast path, which would result in slightly offset markers.
