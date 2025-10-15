@@ -36,3 +36,4 @@ jobs:
           ascending: true
           exempt-issue-labels: "keep"
           exempt-pr-labels: "keep,status: orphaned PR"
+          sort-by: updated
