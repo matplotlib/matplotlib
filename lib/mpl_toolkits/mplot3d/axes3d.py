@@ -758,7 +758,7 @@ class Axes3D(Axes):
             is not modified.
         view_margin : float or None
             The margin to apply to the bounds. If *None*, the margin is handled
-            by `.set_zlim`.
+            by `~.set_zlim`.
 
         See Also
         --------
