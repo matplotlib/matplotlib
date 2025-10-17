@@ -1,0 +1,6 @@
+hist2d no longer forces axes limits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, `.Axes.hist2d` would force the axes x and y limits to the extents
+of the histogrammed data, ignoring any other artists.  `.Axes.hist2d` now
+behaves similarly to `.Axes.imshow`: axes limits are updated to fit the data,
+but autoscaling is not otherwise disabled.
