@@ -9,18 +9,18 @@ from matplotlib.backend_bases import (
     KeyEvent, LocationEvent, MouseEvent, ResizeEvent, CloseEvent)
 
 try:
-    import gi
+    from gi import require_version as gi_require_version
 except ImportError as err:
     raise ImportError("The GTK4 backends require PyGObject") from err
 
 try:
     # :raises ValueError: If module/version is already loaded, already
     # required, or unavailable.
-    gi.require_version("Gtk", "4.0")
+    gi_require_version("Gtk", "4.0")
     # Also require GioUnix to avoid PyGIWarning when Gio is imported
     # GioUnix is platform-specific and may not be available on all systems
     try:
-        gi.require_version("GioUnix", "2.0")
+        gi_require_version("GioUnix", "2.0")
     except ValueError:
         # GioUnix is not available on this platform, which is fine
         pass
@@ -29,6 +29,7 @@ except ValueError as e:
     # auto-backend selection logic correctly skips.
     raise ImportError(e) from e
 
+import gi
 from gi.repository import Gio, GLib, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
 from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
