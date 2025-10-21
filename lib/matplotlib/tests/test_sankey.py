@@ -6,7 +6,7 @@ from matplotlib.testing.decorators import check_figures_equal
 
 
 def test_sankey():
-    # Let's just create a sankey instance and check the code runs
+    # let's just create a sankey instance and check the code runs
     sankey = Sankey()
     sankey.add()
 
