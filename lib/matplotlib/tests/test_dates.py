@@ -275,7 +275,7 @@ def test_DateFormatter():
     import matplotlib.testing.jpl_units as units
     units.register()
 
-    # Lets make sure that DateFormatter will allow us to have tick marks
+    # Let's make sure that DateFormatter will allow us to have tick marks
     # at intervals of fractional seconds.
 
     t0 = datetime.datetime(2001, 1, 1, 0, 0, 0)
