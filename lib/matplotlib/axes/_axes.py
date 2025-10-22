@@ -5231,6 +5231,9 @@ or pandas.DataFrame
         orig_edgecolor = edgecolors
         if edgecolors is None:
             orig_edgecolor = kwargs.get('edgecolor', None)
+        # Store original facecolors value before parsing
+        orig_facecolors = kwargs.get('facecolors', kwargs.get('facecolor', None))
+        
         c, colors, edgecolors = \
             self._parse_scatter_color_args(
                 c, edgecolors, kwargs, x.size,
@@ -5308,9 +5311,20 @@ or pandas.DataFrame
 
         offsets = np.ma.column_stack([x, y])
 
+        # If orig_facecolors is 'none' and we're using colormapping (colors is None),
+        # then we need to map colors to edges instead of faces
+        if colors is None and cbook._str_lower_equal(orig_facecolors, 'none'):
+            facecolors_for_collection = 'none'
+            # Set edgecolors to None to allow color mapping to edges
+            # (unless the user explicitly set edgecolors)
+            if orig_edgecolor is None:
+                edgecolors = None
+        else:
+            facecolors_for_collection = colors
+
         collection = mcoll.PathCollection(
             (path,), scales,
-            facecolors=colors,
+            facecolors=facecolors_for_collection,
             edgecolors=edgecolors,
             linewidths=linewidths,
             offsets=offsets,
