@@ -2,7 +2,7 @@ from .artist import Artist
 from .backend_bases import RendererBase
 from .font_manager import FontProperties
 from .offsetbox import DraggableAnnotation
-from .path import Path
+from pathlib import Path
 from .patches import FancyArrowPatch, FancyBboxPatch
 from .textpath import (  # noqa: F401, reexported API
     TextPath as TextPath,
