@@ -2267,6 +2267,19 @@ def test_grouped_bar_return_value():
         assert bc not in ax.containers
 
 
+def test_grouped_bar_orientation_invalid():
+    """Passing an invalid orientation should raise an error."""
+    fig, ax = plt.subplots()
+    x = np.arange(3)
+    heights = [np.array([1, 2, 3]), np.array([2, 1, 2])]
+
+    invalid_orientations = ["invalid", 1, None, np.array([1, 2, 3])]
+
+    for inval in invalid_orientations:
+        with pytest.raises(ValueError, match="is not a valid value for orientation"):
+            ax.grouped_bar(heights, positions=x, orientation=inval)
+
+
 def test_boxplot_dates_pandas(pd):
     # smoke test for boxplot and dates in pandas
     data = np.random.rand(5, 2)

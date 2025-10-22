@@ -3309,6 +3309,8 @@ or pandas.DataFrame
             else:
                 group_distance = 1
 
+        if not isinstance(orientation, str):
+            raise ValueError(f"{orientation!r} is not a valid value for orientation")
         _api.check_in_list(["vertical", "horizontal"], orientation=orientation)
 
         if colors is None:
