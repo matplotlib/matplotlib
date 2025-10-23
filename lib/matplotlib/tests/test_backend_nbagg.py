@@ -9,6 +9,7 @@ from matplotlib.testing import subprocess_run_for_testing
 nbformat = pytest.importorskip('nbformat')
 pytest.importorskip('nbconvert')
 pytest.importorskip('ipykernel')
+pytestmark = pytest.mark.subprocess
 
 # From https://blog.thedataincubator.com/2016/06/testing-jupyter-notebooks/
 
