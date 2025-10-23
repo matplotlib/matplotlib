@@ -1,5 +1,3 @@
-from .colors import ListedColormap
-
 _magma_data = [[0.001462, 0.000466, 0.013866],
                [0.002258, 0.001295, 0.018331],
                [0.003279, 0.002305, 0.023708],
@@ -2832,16 +2830,15 @@ _vanimo_data = [
     [0.74458, 0.99141, 0.64748]]
 
 cmaps = {
-    name: ListedColormap(data, name=name) for name, data in [
-        ('magma', _magma_data),
-        ('inferno', _inferno_data),
-        ('plasma', _plasma_data),
-        ('viridis', _viridis_data),
-        ('cividis', _cividis_data),
-        ('twilight', _twilight_data),
-        ('twilight_shifted', _twilight_shifted_data),
-        ('turbo', _turbo_data),
-        ('berlin', _berlin_data),
-        ('managua', _managua_data),
-        ('vanimo', _vanimo_data),
-    ]}
+    'magma': _magma_data,
+    'inferno': _inferno_data,
+    'plasma': _plasma_data,
+    'viridis': _viridis_data,
+    'cividis': _cividis_data,
+    'twilight': _twilight_data,
+    'twilight_shifted': _twilight_shifted_data,
+    'turbo': _turbo_data,
+    'berlin': _berlin_data,
+    'managua': _managua_data,
+    'vanimo': _vanimo_data,
+}

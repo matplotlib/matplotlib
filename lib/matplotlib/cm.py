@@ -15,6 +15,7 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 """
 
 from collections.abc import Mapping
+import functools
 
 import matplotlib as mpl
 from matplotlib import _api, colors
@@ -22,8 +23,9 @@ from matplotlib import _api, colors
 from matplotlib.colorizer import _ScalarMappable as ScalarMappable  # noqa
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
-from matplotlib._cm_multivar import cmap_families as multivar_cmaps
-from matplotlib._cm_bivar import cmaps as bivar_cmaps
+from matplotlib._cm_multivar import (
+    cmap_families as multivar_cmaps, cmap_init as _multivar_cmap_init)
+from matplotlib._cm_bivar import cmaps as bivar_cmaps, cmap_init as _bivar_cmap_init
 
 
 _LUTSIZE = mpl.rcParams['image.lut']
@@ -34,15 +36,6 @@ def _gen_cmap_registry():
     Generate a dict mapping standard colormap names to standard colormaps, as
     well as the reversed colormaps.
     """
-    cmap_d = {**cmaps_listed}
-    for name, spec in datad.items():
-        cmap_d[name] = (  # Precache the cmaps at a fixed lutsize..
-            colors.LinearSegmentedColormap(name, spec, _LUTSIZE)
-            if 'red' in spec else
-            colors.ListedColormap(spec['listed'], name)
-            if 'listed' in spec else
-            colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
-
     # Register colormap aliases for gray and grey.
     aliases = {
         # alias -> original name
@@ -51,16 +44,30 @@ def _gen_cmap_registry():
         'gist_yerg': 'gist_yarg',
         'Grays': 'Greys',
     }
-    for alias, original_name in aliases.items():
-        cmap = cmap_d[original_name].copy()
-        cmap.name = alias
-        cmap_d[alias] = cmap
+    cmap_d = {**cmaps_listed, **datad, **aliases}
+    # Reversed cmaps.
+    for name in list(cmap_d.keys()):
+        cmap_d[f'{name}_r'] = name
 
-    # Generate reversed cmaps.
-    for cmap in list(cmap_d.values()):
-        rmap = cmap.reversed()
-        cmap_d[rmap.name] = rmap
-    return cmap_d
+    def cmap_init(name, cmap_spec):
+        if name in datad:
+            spec = cmap_spec
+            return (  # Precache the cmaps at a fixed lutsize..
+                colors.LinearSegmentedColormap(name, spec, _LUTSIZE)
+                if 'red' in spec else
+                colors.ListedColormap(spec['listed'], name)
+                if 'listed' in spec else
+                colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
+        if name in aliases:
+            cmap = cmap_init(cmap_spec, cmap_d[cmap_spec]).copy()
+            cmap.name = name
+            return cmap
+        if name.endswith('_r'):
+            # Generate reversed cmaps.
+            return cmap_init(cmap_spec, cmap_d[cmap_spec]).reversed()
+        return colors.ListedColormap(cmap_spec, name=name)
+
+    return cmap_d, cmap_init
 
 
 class ColormapRegistry(Mapping):
@@ -87,12 +94,15 @@ class ColormapRegistry(Mapping):
         from matplotlib import colormaps
         list(colormaps)
     """
-    def __init__(self, cmaps):
-        self._cmaps = cmaps
-        self._builtin_cmaps = tuple(cmaps)
+    def __init__(self, cmaps, init_func):
+        self._cmaps = {name: None for name in cmaps}
+        self._init_func = init_func
+        self._builtin_cmaps = cmaps
 
     def __getitem__(self, item):
         cmap = _api.check_getitem(self._cmaps, colormap=item, _error_cls=KeyError)
+        if cmap is None:
+            cmap = self._cmaps[item] = self._init_func(item, self._builtin_cmaps[item])
         return cmap.copy()
 
     def __iter__(self):
@@ -233,12 +243,11 @@ class ColormapRegistry(Mapping):
 # public access to the colormaps should be via `matplotlib.colormaps`. For now,
 # we still create the registry here, but that should stay an implementation
 # detail.
-_colormaps = ColormapRegistry(_gen_cmap_registry())
-globals().update(_colormaps)
+_colormaps = ColormapRegistry(*_gen_cmap_registry())
 
-_multivar_colormaps = ColormapRegistry(multivar_cmaps)
+_multivar_colormaps = ColormapRegistry(multivar_cmaps, _multivar_cmap_init)
 
-_bivar_colormaps = ColormapRegistry(bivar_cmaps)
+_bivar_colormaps = ColormapRegistry(bivar_cmaps, _bivar_cmap_init)
 
 
 def _ensure_cmap(cmap):
@@ -268,3 +277,10 @@ def _ensure_cmap(cmap):
     if cmap_name not in _colormaps:
         _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
     return mpl.colormaps[cmap_name]
+
+
+@functools.cache
+def __getattr__(name):
+    if name in _colormaps._builtin_cmaps:
+        return _colormaps[name]
+    raise AttributeError(f"module 'matplotlib.cm' has no attribute {name!r}")
