@@ -783,6 +783,14 @@ class Bbox(BboxBase):
         frozen_bbox._minpos = self.minpos.copy()
         return frozen_bbox
 
+    def is_null(self):
+        """
+        Return True if this bbox is a 'null' bbox, i.e.
+        [[inf, inf], [-inf, -inf]].
+        """
+        return (np.isposinf(self.x0) and np.isposinf(self.y0) and
+                np.isneginf(self.x1) and np.isneginf(self.y1))
+
     @staticmethod
     def unit():
         """Create a new unit `Bbox` from (0, 0) to (1, 1)."""
