@@ -220,8 +220,8 @@ class CharacterTracker:
             and the character codes will be returned from the string unchanged.
         """
         return [
-            self.track_glyph(f, ord(c), f.get_char_index(ord(c)))
-            for c, f in font._get_fontmap(s).items()
+            self.track_glyph(raqm_item.ft_object, raqm_item.char, raqm_item.glyph_index)
+            for raqm_item in font._layout(s, ft2font.LoadFlags.NO_HINTING)
         ]
 
     def track_glyph(self, font: FT2Font, chars: str | CharacterCodeType,
