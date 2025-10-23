@@ -242,24 +242,17 @@ inline void points_in_path(PointArray &points,
                            agg::trans_affine &trans,
                            ResultArray &result)
 {
-    typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> no_nans_t;
-    typedef agg::conv_curve<no_nans_t> curve_t;
-    typedef agg::conv_contour<curve_t> contour_t;
-
     for (auto i = 0; i < safe_first_shape(points); ++i) {
         result[i] = false;
     }
-
     if (path.total_vertices() < 3) {
         return;
     }
-
-    transformed_path_t trans_path(path, trans);
-    no_nans_t no_nans_path(trans_path, true, path.has_codes());
-    curve_t curved_path(no_nans_path);
+    auto trans_path = agg::conv_transform{path, trans};
+    auto no_nans_path = PathNanRemover{trans_path, true, path.has_codes()};
+    auto curved_path = agg::conv_curve{no_nans_path};
     if (r != 0.0) {
-        contour_t contoured_path(curved_path);
+        auto contoured_path = agg::conv_contour{curved_path};
         contoured_path.width(r);
         point_in_path_impl(points, contoured_path, result);
     } else {
@@ -289,11 +282,6 @@ template <class PathIterator>
 inline bool point_on_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
-    typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> no_nans_t;
-    typedef agg::conv_curve<no_nans_t> curve_t;
-    typedef agg::conv_stroke<curve_t> stroke_t;
-
     py::ssize_t shape[] = {1, 2};
     py::array_t<double> points_arr(shape);
     *points_arr.mutable_data(0, 0) = x;
@@ -303,10 +291,10 @@ inline bool point_on_path(
     int result[1];
     result[0] = 0;
 
-    transformed_path_t trans_path(path, trans);
-    no_nans_t nan_removed_path(trans_path, true, path.has_codes());
-    curve_t curved_path(nan_removed_path);
-    stroke_t stroked_path(curved_path);
+    auto trans_path = agg::conv_transform{path, trans};
+    auto nan_removed_path = PathNanRemover{trans_path, true, path.has_codes()};
+    auto curved_path = agg::conv_curve{nan_removed_path};
+    auto stroked_path = agg::conv_stroke{curved_path};
     stroked_path.width(r * 2.0);
     point_in_path_impl(points, stroked_path, result);
     return result[0] != 0;
@@ -351,13 +339,11 @@ struct extent_limits
 template <class PathIterator>
 void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_limits &extents)
 {
-    typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> nan_removed_t;
     double x, y;
     unsigned code;
 
-    transformed_path_t tpath(path, trans);
-    nan_removed_t nan_removed(tpath, true, path.has_codes());
+    auto tpath = agg::conv_transform{path, trans};
+    auto nan_removed = PathNanRemover{tpath, true, path.has_codes()};
 
     nan_removed.rewind(0);
 
@@ -480,17 +466,13 @@ bool path_in_path(PathIterator1 &a,
                   PathIterator2 &b,
                   agg::trans_affine &btrans)
 {
-    typedef agg::conv_transform<PathIterator2> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> no_nans_t;
-    typedef agg::conv_curve<no_nans_t> curve_t;
-
     if (a.total_vertices() < 3) {
         return false;
     }
 
-    transformed_path_t b_path_trans(b, btrans);
-    no_nans_t b_no_nans(b_path_trans, true, b.has_codes());
-    curve_t b_curved(b_no_nans);
+    auto b_path_trans = agg::conv_transform{b, btrans};
+    auto b_no_nans = PathNanRemover{b_path_trans, true, b.has_codes()};
+    auto b_curved = agg::conv_curve{b_no_nans};
 
     double x, y;
     b_curved.rewind(0);
@@ -642,8 +624,7 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside)
         std::swap(ymin, ymax);
     }
 
-    typedef agg::conv_curve<PathIterator> curve_t;
-    curve_t curve(path);
+    auto curve = agg::conv_curve{path};
 
     Polygon polygon1, polygon2;
     XY point;
@@ -839,18 +820,15 @@ inline bool segments_intersect(const double &x1,
 template <class PathIterator1, class PathIterator2>
 bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 {
-    typedef PathNanRemover<mpl::PathIterator> no_nans_t;
-    typedef agg::conv_curve<no_nans_t> curve_t;
-
     if (p1.total_vertices() < 2 || p2.total_vertices() < 2) {
         return false;
     }
 
-    no_nans_t n1(p1, true, p1.has_codes());
-    no_nans_t n2(p2, true, p2.has_codes());
+    auto n1 = PathNanRemover{p1, true, p1.has_codes()},
+         n2 = PathNanRemover{p2, true, p2.has_codes()};
 
-    curve_t c1(n1);
-    curve_t c2(n2);
+    auto c1 = agg::conv_curve{n1},
+         c2 = agg::conv_curve{n2};
 
     double x11, y11, x12, y12;
     double x21, y21, x22, y22;
@@ -903,15 +881,12 @@ bool path_intersects_rectangle(PathIterator &path,
                                double rect_x2, double rect_y2,
                                bool filled)
 {
-    typedef PathNanRemover<mpl::PathIterator> no_nans_t;
-    typedef agg::conv_curve<no_nans_t> curve_t;
-
     if (path.total_vertices() == 0) {
         return false;
     }
 
-    no_nans_t no_nans(path, true, path.has_codes());
-    curve_t curve(no_nans);
+    auto no_nans = PathNanRemover{path, true, path.has_codes()};
+    auto curve = agg::conv_curve{no_nans};
 
     double cx = (rect_x1 + rect_x2) * 0.5, cy = (rect_y1 + rect_y2) * 0.5;
     double w = fabs(rect_x1 - rect_x2), h = fabs(rect_y1 - rect_y2);
@@ -949,20 +924,14 @@ void convert_path_to_polygons(PathIterator &path,
                               bool closed_only,
                               std::vector<Polygon> &result)
 {
-    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> nan_removal_t;
-    typedef PathClipper<nan_removal_t> clipped_t;
-    typedef PathSimplifier<clipped_t> simplify_t;
-    typedef agg::conv_curve<simplify_t> curve_t;
-
     bool do_clip = width != 0.0 && height != 0.0;
     bool simplify = path.should_simplify();
 
-    transformed_path_t tpath(path, trans);
-    nan_removal_t nan_removed(tpath, true, path.has_codes());
-    clipped_t clipped(nan_removed, do_clip, width, height);
-    simplify_t simplified(clipped, simplify, path.simplify_threshold());
-    curve_t curve(simplified);
+    auto tpath = agg::conv_transform{path, trans};
+    auto nan_removed = PathNanRemover{tpath, true, path.has_codes()};
+    auto clipped = PathClipper(nan_removed, do_clip, width, height);
+    auto simplified = PathSimplifier{clipped, simplify, path.simplify_threshold()};
+    auto curve = agg::conv_curve{simplified};
 
     Polygon *polygon = &result.emplace_back();
     double x, y;
@@ -1012,19 +981,12 @@ void cleanup_path(PathIterator &path,
                   std::vector<double> &vertices,
                   std::vector<unsigned char> &codes)
 {
-    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> nan_removal_t;
-    typedef PathClipper<nan_removal_t> clipped_t;
-    typedef PathSnapper<clipped_t> snapped_t;
-    typedef PathSimplifier<snapped_t> simplify_t;
-    typedef agg::conv_curve<simplify_t> curve_t;
-    typedef Sketch<curve_t> sketch_t;
-
-    transformed_path_t tpath(path, trans);
-    nan_removal_t nan_removed(tpath, remove_nans, path.has_codes());
-    clipped_t clipped(nan_removed, do_clip, rect);
-    snapped_t snapped(clipped, snap_mode, path.total_vertices(), stroke_width);
-    simplify_t simplified(snapped, do_simplify, path.simplify_threshold());
+    auto tpath = agg::conv_transform{path, trans};
+    auto nan_removed = PathNanRemover{tpath, remove_nans, path.has_codes()};
+    auto clipped = PathClipper{nan_removed, do_clip, rect};
+    auto snapped = PathSnapper{
+        clipped, snap_mode, path.total_vertices(), stroke_width};
+    auto simplified = PathSimplifier{snapped, do_simplify, path.simplify_threshold()};
 
     vertices.reserve(path.total_vertices() * 2);
     codes.reserve(path.total_vertices());
@@ -1032,8 +994,9 @@ void cleanup_path(PathIterator &path,
     if (return_curves && sketch_params.scale == 0.0) {
         __cleanup_path(simplified, vertices, codes);
     } else {
-        curve_t curve(simplified);
-        sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
+        auto curve = agg::conv_curve{simplified};
+        auto sketch = Sketch{
+            curve, sketch_params.scale, sketch_params.length, sketch_params.randomness};
         __cleanup_path(sketch, vertices, codes);
     }
 }
@@ -1167,22 +1130,14 @@ bool convert_to_string(PathIterator &path,
                        bool postfix,
                        std::string& buffer)
 {
-    size_t buffersize;
-    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> nan_removal_t;
-    typedef PathClipper<nan_removal_t> clipped_t;
-    typedef PathSimplifier<clipped_t> simplify_t;
-    typedef agg::conv_curve<simplify_t> curve_t;
-    typedef Sketch<curve_t> sketch_t;
-
     bool do_clip = (clip_rect.x1 < clip_rect.x2 && clip_rect.y1 < clip_rect.y2);
 
-    transformed_path_t tpath(path, trans);
-    nan_removal_t nan_removed(tpath, true, path.has_codes());
-    clipped_t clipped(nan_removed, do_clip, clip_rect);
-    simplify_t simplified(clipped, simplify, path.simplify_threshold());
+    auto tpath = agg::conv_transform{path, trans};
+    auto nan_removed = PathNanRemover{tpath, true, path.has_codes()};
+    auto clipped = PathClipper{nan_removed, do_clip, clip_rect};
+    auto simplified = PathSimplifier{clipped, simplify, path.simplify_threshold()};
 
-    buffersize = (size_t) path.total_vertices() * (precision + 5) * 4;
+    size_t buffersize = (size_t) path.total_vertices() * (precision + 5) * 4;
     if (buffersize == 0) {
         return true;
     }
@@ -1196,8 +1151,9 @@ bool convert_to_string(PathIterator &path,
     if (sketch_params.scale == 0.0) {
         return __convert_to_string(simplified, precision, codes, postfix, buffer);
     } else {
-        curve_t curve(simplified);
-        sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
+        auto curve = agg::conv_curve{simplified};
+        auto sketch = Sketch{
+            curve, sketch_params.scale, sketch_params.length, sketch_params.randomness};
         return __convert_to_string(sketch, precision, codes, postfix, buffer);
     }
 }
