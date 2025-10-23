@@ -146,6 +146,8 @@ if TYPE_CHECKING:
         MarkerType,
         MouseEventType,
         PickEventType,
+        RcGroupKeyType,
+        RcKeyType,
         ResizeEventType,
         LogLevel
     )
@@ -790,13 +792,13 @@ def pause(interval: float) -> None:
 
 
 @_copy_docstring_and_deprecators(matplotlib.rc)
-def rc(group: str, **kwargs) -> None:
+def rc(group: RcGroupKeyType, **kwargs) -> None:
     matplotlib.rc(group, **kwargs)
 
 
 @_copy_docstring_and_deprecators(matplotlib.rc_context)
 def rc_context(
-    rc: dict[str, Any] | None = None,
+    rc: dict[RcKeyType, Any] | None = None,
     fname: str | pathlib.Path | os.PathLike | None = None,
 ) -> AbstractContextManager[None]:
     return matplotlib.rc_context(rc, fname)
