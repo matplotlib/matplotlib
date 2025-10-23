@@ -68,6 +68,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
                 ctypes.c_long.from_address(id(buf)).value = 1
 
             self._draw_rect_callback(painter)
+            self._draw_whisker_callback(painter)
         finally:
             painter.end()
 
