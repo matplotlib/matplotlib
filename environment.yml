@@ -2,7 +2,7 @@
 #
 #   conda env create -f environment.yml
 #   conda activate mpl-dev
-#   pip install --verbose --no-build-isolation --editable ".[dev]"
+#   pip install --verbose --no-build-isolation --group dev --editable .
 #
 ---
 name: mpl-dev
