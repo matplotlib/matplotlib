@@ -538,6 +538,18 @@ const char *PyFT2Font_set_size__doc__ = R"""(
         The DPI used for rendering the text.
 )""";
 
+const char *PyFT2Font__set_transform__doc__ = R"""(
+    Set the transform of the text.
+
+    This is a low-level function directly taking inputs in 26.6 format.  Refer
+    to the FreeType docs of FT_Set_Transform for further description.
+
+    Parameters
+    ----------
+    matrix : (2, 2) array of int
+    delta : (2,) array of int
+)""";
+
 const char *PyFT2Font_set_charmap__doc__ = R"""(
     Make the i-th charmap current.
 
@@ -938,7 +950,7 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
     image : 2d array of uint8
         The image buffer on which to draw the glyph.
     x, y : int
-        The pixel location at which to draw the glyph.
+        The position of the glyph's top left corner.
     glyph : Glyph
         The glyph to draw.
     antialiased : bool, default: True
@@ -960,6 +972,36 @@ PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, py::buffer &image,
     self->draw_glyph_to_bitmap(
         py::array_t<uint8_t, py::array::c_style>{image},
         xd, yd, glyph->glyphInd, antialiased);
+}
+
+const char *PyFT2Font__draw_glyph_at__doc__ = R"""(
+    Draw a single glyph to the bitmap at pixel locations x, y.
+
+    Parameters
+    ----------
+    image : FT2Image
+        The image buffer on which to draw the glyph.  If the buffer is too
+        small, the glyph will be cropped.
+    x, y : float
+        The position of the glyph's origin.
+    glyph : Glyph
+        The glyph to draw.
+    antialiased : bool, default: True
+        Whether to render glyphs 8-bit antialiased or in pure black-and-white.
+
+    See Also
+    --------
+    .draw_glyphs_to_bitmap
+)""";
+
+static void
+PyFT2Font__draw_glyph_at(PyFT2Font *self, py::buffer &image,
+                               double x, double y,
+                               PyGlyph *glyph, bool antialiased = true)
+{
+    self->_draw_glyph_at(
+        py::array_t<uint8_t, py::array::c_style>{image},
+        x, y, glyph->glyphInd, antialiased);
 }
 
 const char *PyFT2Font_get_glyph_name__doc__ = R"""(
@@ -1553,6 +1595,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("clear", &PyFT2Font::clear, PyFT2Font_clear__doc__)
         .def("set_size", &PyFT2Font::set_size, "ptsize"_a, "dpi"_a,
              PyFT2Font_set_size__doc__)
+        .def("_set_transform", &PyFT2Font::_set_transform, "matrix"_a, "delta"_a)
         .def("set_charmap", &PyFT2Font::set_charmap, "i"_a,
              PyFT2Font_set_charmap__doc__)
         .def("select_charmap", &PyFT2Font::select_charmap, "i"_a,
@@ -1594,6 +1637,9 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                 PyFT2Font_draw_glyph_to_bitmap__doc__);
         }
         cls
+        .def("_draw_glyph_at", &PyFT2Font__draw_glyph_at,
+             "image"_a, "x"_a, "y"_a, "glyph"_a, py::kw_only(), "antialiased"_a=true,
+             PyFT2Font__draw_glyph_at__doc__)
         .def("get_glyph_name", &PyFT2Font::get_glyph_name, "index"_a,
              PyFT2Font_get_glyph_name__doc__)
         .def("get_charmap", &PyFT2Font_get_charmap, PyFT2Font_get_charmap__doc__)
