@@ -2837,6 +2837,16 @@ def test_hist2d_density():
         obj.hist2d(x, y, density=True)
 
 
+@mpl.style.context("mpl20")
+def test_hist2d_autolimits():
+    x, y = np.random.random((2, 100))
+    ax = plt.figure().add_subplot()
+    ax.hist2d(x, y)
+    assert ax.get_xlim() == (x.min(), x.max())
+    assert ax.get_ylim() == (y.min(), y.max())
+    assert ax.get_autoscale_on()  # Autolimits have not been disabled.
+
+
 class TestScatter:
     @image_comparison(['scatter'], style='mpl20', remove_text=True)
     def test_scatter_plot(self):
@@ -2966,8 +2976,7 @@ class TestScatter:
     @check_figures_equal()
     def test_scatter_invalid_color(self, fig_test, fig_ref):
         ax = fig_test.subplots()
-        cmap = mpl.colormaps["viridis"].resampled(16)
-        cmap.set_bad("k", 1)
+        cmap = mpl.colormaps["viridis"].resampled(16).with_extremes(bad="black")
         # Set a nonuniform size to prevent the last call to `scatter` (plotting
         # the invalid points separately in fig_ref) from using the marker
         # stamping fast path, which would result in slightly offset markers.
@@ -2983,8 +2992,7 @@ class TestScatter:
     def test_scatter_no_invalid_color(self, fig_test, fig_ref):
         # With plotnonfinite=False we plot only 2 points.
         ax = fig_test.subplots()
-        cmap = mpl.colormaps["viridis"].resampled(16)
-        cmap.set_bad("k", 1)
+        cmap = mpl.colormaps["viridis"].resampled(16).with_extremes(bad="k")
         ax.scatter(range(4), range(4),
                    c=[1, np.nan, 2, np.nan], s=[1, 2, 3, 4],
                    cmap=cmap, plotnonfinite=False)
@@ -4173,6 +4181,10 @@ def test_violinplot_color_specification(fig_test, fig_ref):
         if facecolor is not None:
             for pc in parts['bodies']:
                 pc.set_facecolor(facecolor)
+                # disable alpha Artist property to counter the legacy behavior
+                # that applies an alpha of 0.3 to the bodies if no facecolor
+                # was set
+                pc.set_alpha(None)
         if linecolor is not None:
             for partname in ('cbars', 'cmins', 'cmaxes', 'cmeans', 'cmedians'):
                 if partname in parts:
@@ -4228,6 +4240,33 @@ def test_violinplot_color_sequence():
     for part in ["cbars", "cmins", "cmaxes", "cmeans", "cmedians"]:
         colors_test = parts_test[part].get_edgecolor()
         assert_colors_equal(colors_test, mcolors.to_rgba_array(linecolors))
+
+
+def test_violinplot_alpha():
+    matplotlib.style.use('default')
+    data = [(np.random.normal(0, 1, 100))]
+
+    fig, ax = plt.subplots()
+    parts = ax.violinplot(data, positions=[1])
+
+    # Case 1: If facecolor is unspecified, it's the first color from the color cycle
+    # with Artist-level alpha=0.3
+    facecolor = ('y' if mpl.rcParams['_internal.classic_mode']
+                 else plt.rcParams['axes.prop_cycle'].by_key()['color'][0])
+    assert mcolors.same_color(parts['bodies'][0].get_facecolor(), (facecolor, 0.3))
+    assert parts['bodies'][0].get_alpha() == 0.3
+    # setting a new facecolor maintains the alpha
+    parts['bodies'][0].set_facecolor('red')
+    assert mcolors.same_color(parts['bodies'][0].get_facecolor(), ('red', 0.3))
+
+    # Case 2: If facecolor is explicitly given, it's alpha does not become an
+    # Artist property
+    parts = ax.violinplot(data, positions=[1], facecolor=('blue', 0.3))
+    assert mcolors.same_color(parts['bodies'][0].get_facecolor(), ('blue', 0.3))
+    assert parts['bodies'][0].get_alpha() is None
+    # so setting a new color does not maintain the alpha
+    parts['bodies'][0].set_facecolor('red')
+    assert mcolors.same_color(parts['bodies'][0].get_facecolor(), 'red')
 
 
 @check_figures_equal()

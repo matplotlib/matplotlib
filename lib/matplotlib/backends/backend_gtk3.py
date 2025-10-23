@@ -10,18 +10,18 @@ from matplotlib.backend_bases import (
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 try:
-    import gi
+    from gi import require_version as gi_require_version
 except ImportError as err:
     raise ImportError("The GTK3 backends require PyGObject") from err
 
 try:
     # :raises ValueError: If module/version is already loaded, already
     # required, or unavailable.
-    gi.require_version("Gtk", "3.0")
+    gi_require_version("Gtk", "3.0")
     # Also require GioUnix to avoid PyGIWarning when Gio is imported
     # GioUnix is platform-specific and may not be available on all systems
     try:
-        gi.require_version("GioUnix", "2.0")
+        gi_require_version("GioUnix", "2.0")
     except ValueError:
         # GioUnix is not available on this platform, which is fine
         pass

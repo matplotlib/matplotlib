@@ -1433,7 +1433,7 @@ class MouseEvent(LocationEvent):
     def __str__(self):
         return (f"{self.name}: "
                 f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
-                f"button={self.button} dblclick={self.dblclick} "
+                f"button={self.button} dblclick={self.dblclick} step={self.step} "
                 f"inaxes={self.inaxes}")
 
 
@@ -2592,7 +2592,7 @@ def scroll_handler(event, canvas=None, toolbar=None):
         # is required for interactive navigation.
         return
 
-    if event.key == "control":  # zoom towards the mouse position
+    if event.key in {"control", "x", "y"}:  # zoom towards the mouse position
         toolbar.push_current()
 
         xmin, xmax = ax.get_xlim()
@@ -2604,10 +2604,21 @@ def scroll_handler(event, canvas=None, toolbar=None):
         x, y = ax.transScale.transform((event.xdata, event.ydata))
 
         scale_factor = 0.85 ** event.step
-        new_xmin = x - (x - xmin) * scale_factor
-        new_xmax = x + (xmax - x) * scale_factor
-        new_ymin = y - (y - ymin) * scale_factor
-        new_ymax = y + (ymax - y) * scale_factor
+        # Determine which axes to scale based on key
+        zoom_x = event.key in {"control", "x"}
+        zoom_y = event.key in {"control", "y"}
+
+        if zoom_x:
+            new_xmin = x - (x - xmin) * scale_factor
+            new_xmax = x + (xmax - x) * scale_factor
+        else:
+            new_xmin, new_xmax = xmin, xmax
+
+        if zoom_y:
+            new_ymin = y - (y - ymin) * scale_factor
+            new_ymax = y + (ymax - y) * scale_factor
+        else:
+            new_ymin, new_ymax = ymin, ymax
 
         inv_scale = ax.transScale.inverted()
         (new_xmin, new_ymin), (new_xmax, new_ymax) = inv_scale.transform(

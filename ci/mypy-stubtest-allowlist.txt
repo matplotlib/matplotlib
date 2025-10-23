@@ -50,6 +50,9 @@ matplotlib\.figure\.FigureBase\.get_figure
 # getitem method only exists for 3.10 deprecation backcompatability
 matplotlib\.inset\.InsetIndicator\.__getitem__
 
+# only defined in stubs; not present at runtime
+matplotlib\.animation\.EventSourceProtocol
+
 # Avoid a regression in NewType handling for stubtest
 # https://github.com/python/mypy/issues/19877
 matplotlib\.ft2font\.GlyphIndexType\.__init__
