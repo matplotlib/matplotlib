@@ -379,24 +379,20 @@ class Collection(mcolorizer.ColorizingArtist):
             from matplotlib.patheffects import PathEffectRenderer
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
-        # If the collection is made up of a single shape/color/stroke,
-        # it can be rendered once and blitted multiple times, using
-        # `draw_markers` rather than `draw_path_collection`.  This is
-        # *much* faster for Agg, and results in smaller file sizes in
-        # PDF/SVG/PS.
-
-        trans = self.get_transforms()
+        # Get facecolors and edgecolors
         facecolors = self.get_facecolor()
         edgecolors = self.get_edgecolor()
+
+        # Single path optimization
         do_single_path_optimization = False
-        if (len(paths) == 1 and len(trans) <= 1 and
+        if (len(paths) == 1 and len(self.get_transforms()) <= 1 and
                 len(facecolors) == 1 and len(edgecolors) == 1 and
                 len(self._linewidths) == 1 and
                 all(ls[1] is None for ls in self._linestyles) and
                 len(self._antialiaseds) == 1 and len(self._urls) == 1 and
                 self.get_hatch() is None):
-            if len(trans):
-                combined_transform = transforms.Affine2D(trans[0]) + transform
+            if len(self.get_transforms()):
+                combined_transform = transforms.Affine2D(self.get_transforms()[0]) + transform
             else:
                 combined_transform = transform
             extents = paths[0].get_extents(combined_transform)
@@ -420,86 +416,12 @@ class Collection(mcolorizer.ColorizingArtist):
                 gc, paths[0], combined_transform.frozen(),
                 mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
         else:
-            # The current new API of draw_path_collection() is provisional
-            # and will be changed in a future PR.
-
-            # Find whether renderer.draw_path_collection() takes hatchcolor parameter.
-            # Since third-party implementations of draw_path_collection() may not be
-            # introspectable, e.g. with inspect.signature, the only way is to try and
-            # call this with the hatchcolors parameter.
-            hatchcolors_arg_supported = True
-            try:
-                renderer.draw_path_collection(
-                    gc, transform.frozen(), [],
-                    self.get_transforms(), offsets, offset_trf,
-                    self.get_facecolor(), self.get_edgecolor(),
-                    self._linewidths, self._linestyles,
-                    self._antialiaseds, self._urls,
-                    "screen", hatchcolors=self.get_hatchcolor()
-                )
-            except TypeError:
-                # If the renderer does not support the hatchcolors argument,
-                # it will raise a TypeError. In this case, we will
-                # iterate over all paths and draw them one by one.
-                hatchcolors_arg_supported = False
-
-            # If the hatchcolors argument is not needed or not passed
-            # then we can skip the iteration over paths in case the
-            # argument is not supported by the renderer.
-            hatchcolors_not_needed = (self.get_hatch() is None or
-                                      self._original_hatchcolor is None)
-
-            if self._gapcolor is not None:
-                # First draw paths within the gaps.
-                ipaths, ilinestyles = self._get_inverse_paths_linestyles()
-                args = [offsets, offset_trf, [mcolors.to_rgba("none")], self._gapcolor,
-                        self._linewidths, ilinestyles, self._antialiaseds, self._urls,
-                        "screen"]
-
-                if hatchcolors_arg_supported:
-                    renderer.draw_path_collection(gc, transform.frozen(), ipaths,
-                                                  self.get_transforms(), *args,
-                                                  hatchcolors=self.get_hatchcolor())
-                else:
-                    if hatchcolors_not_needed:
-                        renderer.draw_path_collection(gc, transform.frozen(), ipaths,
-                                                      self.get_transforms(), *args)
-                    else:
-                        path_ids = renderer._iter_collection_raw_paths(
-                            transform.frozen(), ipaths, self.get_transforms())
-                        for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-                            gc, list(path_ids), *args,
-                            hatchcolors=self.get_hatchcolor(),
-                        ):
-                            path, transform = path_id
-                            if xo != 0 or yo != 0:
-                                transform = transform.frozen()
-                                transform.translate(xo, yo)
-                            renderer.draw_path(gc0, path, transform, rgbFace)
-
-            args = [offsets, offset_trf, self.get_facecolor(), self.get_edgecolor(),
+            args = [offsets, offset_trf, facecolors, edgecolors,
                     self._linewidths, self._linestyles, self._antialiaseds, self._urls,
                     "screen"]
 
-            if hatchcolors_arg_supported:
-                renderer.draw_path_collection(gc, transform.frozen(), paths,
-                                              self.get_transforms(), *args,
-                                              hatchcolors=self.get_hatchcolor())
-            else:
-                if hatchcolors_not_needed:
-                    renderer.draw_path_collection(gc, transform.frozen(), paths,
-                                                  self.get_transforms(), *args)
-                else:
-                    path_ids = renderer._iter_collection_raw_paths(
-                        transform.frozen(), paths, self.get_transforms())
-                    for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-                        gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
-                    ):
-                        path, transform = path_id
-                        if xo != 0 or yo != 0:
-                            transform = transform.frozen()
-                            transform.translate(xo, yo)
-                        renderer.draw_path(gc0, path, transform, rgbFace)
+            renderer.draw_path_collection(gc, transform.frozen(), paths,
+                                        self.get_transforms(), *args)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -836,7 +758,11 @@ class Collection(mcolorizer.ColorizingArtist):
         if c is None:
             c = self._get_default_facecolor()
 
-        self._facecolors = mcolors.to_rgba_array(c, self._alpha)
+        # Explicit handling for 'none'
+        if isinstance(c, str) and c.lower() == 'none':
+            self._facecolors = np.zeros((0, 4))  # No fill
+        else:
+            self._facecolors = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
 
     def set_facecolor(self, c):
@@ -851,6 +777,8 @@ class Collection(mcolorizer.ColorizingArtist):
         ----------
         c : :mpltype:`color` or list of :mpltype:`color`
         """
+        if c is None and self._original_facecolor is not None:
+            c = self._original_facecolor
         if isinstance(c, str) and c.lower() in ("none", "face"):
             c = c.lower()
         self._original_facecolor = c
@@ -999,9 +927,9 @@ class Collection(mcolorizer.ColorizingArtist):
         """
         if not self._set_mappable_flags():
             return
-        # Allow possibility to call 'self.set_array(None)'.
+
         if self._A is not None:
-            # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
+            # QuadMesh can map 2D arrays (but pcolormesh provides 1D array)
             if self._A.ndim > 1 and not isinstance(self, _MeshData):
                 raise ValueError('Collections can only map rank 1 arrays')
             if np.iterable(self._alpha):
