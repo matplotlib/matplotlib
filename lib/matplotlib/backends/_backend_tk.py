@@ -449,10 +449,58 @@ class FigureCanvasTk(FigureCanvasBase):
                  self._get_key(event), *self._event_mpl_coords(event),
                  guiEvent=event)._process()
 
+    def _tk_keysym_to_key(self, keysym):
+        """
+        Convert a Tk keysym to the canonical matplotlib key string.
+        Keep this mapping minimal and safe: lowercase single-letter keys
+        become that letter, common names are normalized (e.g. 'Return' -> 'enter'),
+        and modifiers can be recognized.
+        """
+        if keysym is None:
+            return None
+        k = str(keysym).lower()
+        if k == 'return':
+            return 'enter'
+        # Tk frequently uses names like 'Alt_L', 'Control_L' for modifier keys;
+        # leave others (arrows, function keys) lower-cased here.
+        return k
+
+
     def key_release(self, event):
-        KeyEvent("key_release_event", self,
-                 self._get_key(event), *self._event_mpl_coords(event),
-                 guiEvent=event)._process()
+        """
+        Tk callback for <KeyRelease>.
+
+        On release we should report the *physical* key that was released.
+        If the released key itself is a modifier (ctrl/alt/super/shift), then
+        report that modifier (e.g. 'alt'). If the released key is a
+        non-modifier (e.g. 'h'), report that key (e.g. 'h'), even if some
+        modifier like Alt remains depressed.
+        """
+        # Try to get the physical keysym from the native event.
+        tk_keysym = getattr(event, "keysym", None)
+        released = self._tk_keysym_to_key(tk_keysym)
+
+        # canonical names for modifiers
+        modifiers = {
+            "control": "ctrl", "ctrl_l": "ctrl", "ctrl_r": "ctrl",
+            "alt_l": "alt", "alt_r": "alt", "alt": "alt",
+            "super_l": "super", "super_r": "super", "super": "super",
+            "shift_l": "shift", "shift_r": "shift", "shift": "shift",
+        }
+
+        if released in modifiers:
+            key = modifiers[released]
+        else:
+            key = released
+
+        # Fallback to prior behavior to avoid regressions if keysym not available
+        if key is None:
+            key = getattr(self, "_last_key", None)
+
+        self.figure.canvas.key_release_event(key, guiEvent=event)
+        # clear stored key
+        self._last_key = None
+
 
     def new_timer(self, *args, **kwargs):
         # docstring inherited
