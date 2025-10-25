@@ -2840,3 +2840,70 @@ class Parser:
         vlt = Vlist(stack)
         result = [Hlist([vlt])]
         return result
+
+
+
+
+
+
+def _get_sphinx_symbol_table():
+    """
+    Return symbol categories for documentation generation.
+    
+    Returns
+    -------
+    list of tuples
+        Each tuple contains (category_name, columns, symbol_set)
+    """
+    import re
+    from matplotlib import _mathtext_data
+    
+    bb_pattern = re.compile("Bbb[A-Z]")
+    scr_pattern = re.compile("scr[a-zA-Z]")
+    frak_pattern = re.compile("frak[A-Z]")
+    
+    return [
+        ["Lower-case Greek", 4,
+         {r"\alpha", r"\beta", r"\gamma", r"\chi", r"\delta", r"\epsilon",
+          r"\eta", r"\iota", r"\kappa", r"\lambda", r"\mu", r"\nu", r"\omega",
+          r"\phi", r"\pi", r"\psi", r"\rho", r"\sigma", r"\tau", r"\theta",
+          r"\upsilon", r"\xi", r"\zeta", r"\digamma", r"\varepsilon", r"\varkappa",
+          r"\varphi", r"\varpi", r"\varrho", r"\varsigma", r"\vartheta"}],
+        ["Upper-case Greek", 4,
+         {r"\Delta", r"\Gamma", r"\Lambda", r"\Omega", r"\Phi", r"\Pi", r"\Psi",
+          r"\Sigma", r"\Theta", r"\Upsilon", r"\Xi"}],
+        ["Hebrew", 6,
+         {r"\aleph", r"\beth", r"\gimel", r"\daleth"}],
+        ["Latin named characters", 6,
+         set(r"\aa \AA \ae \AE \oe \OE \O \o \thorn \Thorn \ss \eth \dh \DH".split())],
+        ["Delimiters", 5, Parser._delims],
+        ["Big symbols", 5, Parser._overunder_symbols | Parser._dropsub_symbols],
+        ["Standard function names", 5,
+         {fr"\{fn}" for fn in Parser._function_names}],
+        ["Binary operation symbols", 4, Parser._binary_operators],
+        ["Relation symbols", 4, Parser._relation_symbols],
+        ["Arrow symbols", 4, Parser._arrow_symbols],
+        ["Dot symbols", 4,
+         set(r"\cdots \vdots \ldots \ddots \adots \Colon \therefore \because".split())],
+        ["Black-board characters", 6,
+         {fr"\{symbol}" for symbol in _mathtext_data.tex2uni
+          if re.match(bb_pattern, symbol)}],
+        ["Script characters", 6,
+         {fr"\{symbol}" for symbol in _mathtext_data.tex2uni
+          if re.match(scr_pattern, symbol)}],
+        ["Fraktur characters", 6,
+         {fr"\{symbol}" for symbol in _mathtext_data.tex2uni
+          if re.match(frak_pattern, symbol)}],
+        ["Miscellaneous symbols", 4,
+         set(r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
+             \nexists \measuredangle \emptyset \sphericalangle \clubsuit
+             \varnothing \complement \diamondsuit \imath \Finv \triangledown
+             \heartsuit \jmath \Game \spadesuit \ell \hbar \vartriangle
+             \hslash \blacksquare \blacktriangle \sharp \increment
+             \prime \blacktriangledown \Im \flat \backprime \Re \natural
+             \circledS \P \copyright \circledR \S \yen \checkmark \$
+             \cent \triangle \QED \sinewave \dag \ddag \perthousand \ac
+             \lambdabar \L \l \degree \danger \maltese \clubsuitopen
+             \i \hermitmatrix \sterling \nabla \mho""".split())],
+    ]
+
