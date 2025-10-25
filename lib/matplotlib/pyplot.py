@@ -3536,6 +3536,7 @@ def grouped_bar(
     labels: Sequence[str] | None = None,
     orientation: Literal["vertical", "horizontal"] = "vertical",
     colors: Iterable[ColorType] | None = None,
+    hatch: str | Sequence[str] | None = None,
     **kwargs,
 ) -> list[BarContainer]:
     return gca().grouped_bar(
@@ -3547,6 +3548,7 @@ def grouped_bar(
         labels=labels,
         orientation=orientation,
         colors=colors,
+        hatch=hatch,
         **kwargs,
     )
 
