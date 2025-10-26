@@ -18,6 +18,14 @@
 
 namespace py = pybind11;
 
+// NOTE:
+// This header defines a few lightweight helper types used by the AGG
+// backend and the pybind11 type casters that convert Python-side
+// values to the corresponding C++ representations.  The comments
+// below are intentionally short and non-intrusive to keep the file
+// easy to scan for contributors familiar with AGG and matplotlib's
+// pybind adapters.
+
 struct ClipPath
 {
     mpl::PathIterator path;
@@ -38,6 +46,9 @@ class Dashes
     dash_t dashes;
 
   public:
+        // Represents a dash pattern: pairs of (on_length, off_length),
+        // plus an offset.  This is kept minimal because the conversion
+        // to an AGG stroke happens in dash_to_stroke().
     double get_dash_offset() const
     {
         return dash_offset;
@@ -77,6 +88,10 @@ typedef std::vector<Dashes> DashesVector;
 class GCAgg
 {
   public:
+        // A compact representation of the matplotlib GraphicsContext
+        // attributes that the AGG backend needs.  This mirrors a subset
+        // of the Python-side GC; the pybind11 caster below fills this
+        // struct from the Python object.
     GCAgg()
         : linewidth(1.0),
           alpha(1.0),
@@ -124,6 +139,9 @@ class GCAgg
     GCAgg &operator=(const GCAgg &);
 };
 
+// Pybind11 type_casters: convert Python-level enums/tuples/objects
+// into the small C++ types used by the AGG backend.  These are
+// intentionally permissive and only perform the necessary casts.
 namespace PYBIND11_NAMESPACE { namespace detail {
     template <> struct type_caster<agg::line_cap_e> {
     public:
