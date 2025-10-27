@@ -220,7 +220,7 @@ Build dependencies
 Python
 ------
 
-``pip`` normally builds packages using :external+pip:doc:`build isolation <reference/build-system/pyproject-toml>`,
+``pip`` normally builds packages using :external+pip:doc:`build isolation <reference/build-system>`,
 which means that ``pip`` installs the dependencies listed here for the
 duration of the build process. However, build isolation is disabled via the the
 :external+pip:ref:`--no-build-isolation <install_--no-build-isolation>` flag
