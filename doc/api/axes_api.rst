@@ -73,6 +73,7 @@ Basic
    Axes.eventplot
 
    Axes.pie
+   Axes.pie_label
 
    Axes.stackplot
 

@@ -36,7 +36,9 @@ from matplotlib import _api, _docstring, _preprocess_data
 from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import (
+    BarContainer, ErrorbarContainer, PieContainer, StemContainer)
+from matplotlib.text import Text
 from matplotlib.transforms import _ScaledRotation
 
 _log = logging.getLogger(__name__)
@@ -3594,7 +3596,7 @@ or pandas.DataFrame
             keywords, properties passed to *wedgeprops* take precedence.
 
         textprops : dict, default: None
-            Dict of arguments to pass to the text objects.
+            Dict of arguments to pass to the `.Text` objects.
 
         center : (float, float), default: (0, 0)
             The coordinates of the center of the chart.
@@ -3615,15 +3617,11 @@ or pandas.DataFrame
 
         Returns
         -------
-        patches : list
-            A sequence of `matplotlib.patches.Wedge` instances
+        `.PieContainer`
+            Container with all the wedge patches and any associated text objects.
 
-        texts : list
-            A list of the label `.Text` instances.
-
-        autotexts : list
-            A list of `.Text` instances for the numeric labels. This will only
-            be returned if the parameter *autopct* is not *None*.
+        .. versionchanged:: 3.11
+           Previously the wedges and texts were returned in a tuple.
 
         Notes
         -----
@@ -3633,9 +3631,7 @@ or pandas.DataFrame
         The Axes aspect ratio can be controlled with `.Axes.set_aspect`.
         """
         self.set_aspect('equal')
-        # The use of float32 is "historical", but can't be changed without
-        # regenerating the test baselines.
-        x = np.asarray(x, np.float32)
+        x = np.asarray(x)
         if x.ndim > 1:
             raise ValueError("x must be 1D")
 
@@ -3651,9 +3647,11 @@ or pandas.DataFrame
             raise ValueError('All wedge sizes are zero')
 
         if normalize:
-            x = x / sx
+            fracs = x / sx
         elif sx > 1:
             raise ValueError('Cannot plot an unnormalized pie with sum(x) > 1')
+        else:
+            fracs = x
         if labels is None:
             labels = [''] * len(x)
         if explode is None:
@@ -3681,21 +3679,17 @@ or pandas.DataFrame
 
         if wedgeprops is None:
             wedgeprops = {}
-        if textprops is None:
-            textprops = {}
 
-        texts = []
         slices = []
-        autotexts = []
 
-        for frac, label, expl in zip(x, labels, explode):
-            x, y = center
+        for frac, label, expl in zip(fracs, labels, explode):
+            x_pos, y_pos = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
             thetam = 2 * np.pi * 0.5 * (theta1 + theta2)
-            x += expl * math.cos(thetam)
-            y += expl * math.sin(thetam)
+            x_pos += expl * math.cos(thetam)
+            y_pos += expl * math.sin(thetam)
 
-            w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
+            w = mpatches.Wedge((x_pos, y_pos), radius, 360. * min(theta1, theta2),
                                360. * max(theta1, theta2),
                                facecolor=get_next_color(),
                                hatch=next(hatch_cycle),
@@ -3713,28 +3707,28 @@ or pandas.DataFrame
                     shadow_dict.update(shadow)
                 self.add_patch(mpatches.Shadow(w, **shadow_dict))
 
-            if labeldistance is not None:
-                xt = x + labeldistance * radius * math.cos(thetam)
-                yt = y + labeldistance * radius * math.sin(thetam)
-                label_alignment_h = 'left' if xt > 0 else 'right'
-                label_alignment_v = 'center'
-                label_rotation = 'horizontal'
-                if rotatelabels:
-                    label_alignment_v = 'bottom' if yt > 0 else 'top'
-                    label_rotation = (np.rad2deg(thetam)
-                                      + (0 if xt > 0 else 180))
-                t = self.text(xt, yt, label,
-                              clip_on=False,
-                              horizontalalignment=label_alignment_h,
-                              verticalalignment=label_alignment_v,
-                              rotation=label_rotation,
-                              size=mpl.rcParams['xtick.labelsize'])
-                t.set(**textprops)
-                texts.append(t)
+            theta1 = theta2
 
-            if autopct is not None:
-                xt = x + pctdistance * radius * math.cos(thetam)
-                yt = y + pctdistance * radius * math.sin(thetam)
+        pc = PieContainer(slices, x, normalize)
+
+        if labeldistance is None:
+            # Insert an empty list of texts for backwards compatibility of the
+            # return value.
+            pc.add_texts([])
+        else:
+            # Add labels to the wedges.
+            labels_textprops = {
+                'fontsize': mpl.rcParams['xtick.labelsize'],
+                **cbook.normalize_kwargs(textprops or {}, Text)
+            }
+            self.pie_label(pc, labels, distance=labeldistance,
+                           alignment='outer', rotate=rotatelabels,
+                           textprops=labels_textprops)
+
+        if autopct is not None:
+            # Add automatic percentage labels to wedges
+            auto_labels = []
+            for frac in fracs:
                 if isinstance(autopct, str):
                     s = autopct % (100. * frac)
                 elif callable(autopct):
@@ -3742,17 +3736,15 @@ or pandas.DataFrame
                 else:
                     raise TypeError(
                         'autopct must be callable or a format string')
-                if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
+                if textprops is not None and mpl._val_or_rc(textprops.get("usetex"),
+                                                            "text.usetex"):
                     # escape % (i.e. \%) if it is not already escaped
                     s = re.sub(r"([^\\])%", r"\1\\%", s)
-                t = self.text(xt, yt, s,
-                              clip_on=False,
-                              horizontalalignment='center',
-                              verticalalignment='center')
-                t.set(**textprops)
-                autotexts.append(t)
+                auto_labels.append(s)
 
-            theta1 = theta2
+            self.pie_label(pc, auto_labels, distance=pctdistance,
+                           alignment='center',
+                           textprops=textprops)
 
         if frame:
             self._request_autoscale_view()
@@ -3761,10 +3753,107 @@ or pandas.DataFrame
                      xlim=(-1.25 + center[0], 1.25 + center[0]),
                      ylim=(-1.25 + center[1], 1.25 + center[1]))
 
-        if autopct is None:
-            return slices, texts
-        else:
-            return slices, texts, autotexts
+        return pc
+
+    def pie_label(self, container, /, labels, *, distance=0.6,
+                  textprops=None, rotate=False, alignment='auto'):
+        """
+        Label a pie chart.
+
+        .. versionadded:: 3.11
+
+        Adds labels to wedges in the given `.PieContainer`.
+
+        Parameters
+        ----------
+        container : `.PieContainer`
+            Container with all the wedges, likely returned from `.pie`.
+
+        labels : str or list of str
+            A sequence of strings providing the labels for each wedge, or a format
+            string with ``absval`` and/or ``frac`` placeholders.  For example, to label
+            each wedge with its value and the percentage in brackets::
+
+                wedge_labels="{absval:d} ({frac:.0%})"
+
+        distance : float, default: 0.6
+            The radial position of the labels, relative to the pie radius. Values > 1
+            are outside the wedge and values < 1 are inside the wedge.
+
+        textprops : dict, default: None
+            Dict of arguments to pass to the `.Text` objects.
+
+        rotate : bool, default: False
+            Rotate each label to the angle of the corresponding slice if true.
+
+        alignment : {'center', 'outer', 'auto'}, default: 'auto'
+            Controls the horizontal alignment of the text objects relative to their
+            nominal position.
+
+            - 'center': The labels are centered on their points.
+            - 'outer': Labels are aligned away from the center of the pie, i.e., labels
+              on the left side of the pie are right-aligned and labels on the right
+              side are left-aligned.
+            - 'auto': Translates to 'outer' if *distance* > 1 (so that the labels do not
+              overlap the wedges) and 'center' if *distance* < 1.
+
+            If *rotate* is True, the vertical alignment is also affected in an
+            analogous way.
+
+            - 'center': The labels are centered on their points.
+            - 'outer': Labels are aligned away from the center of the pie, i.e., labels
+              on the top half of the pie are bottom-aligned and labels on the bottom
+              half are top-aligned.
+
+        Returns
+        -------
+        list
+            A list of the label `.Text` instances.
+        """
+        _api.check_in_list(['center', 'outer', 'auto'], alignment=alignment)
+        if alignment == 'auto':
+            alignment = 'outer' if distance > 1 else 'center'
+
+        if textprops is None:
+            textprops = {}
+
+        if isinstance(labels, str):
+            # Assume we have a format string
+            labels = [labels.format(absval=val, frac=frac) for val, frac in
+                      zip(container.values, container.fracs)]
+            if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
+                # escape % (i.e. \%) if it is not already escaped
+                labels = [re.sub(r"([^\\])%", r"\1\\%", s) for s in labels]
+        elif (nw := len(container.wedges)) != (nl := len(labels)):
+            raise ValueError(
+                f'The number of labels ({nl}) must match the number of wedges ({nw})')
+
+        texts = []
+
+        for wedge, label in zip(container.wedges, labels):
+            thetam = 2 * np.pi * 0.5 * (wedge.theta1 + wedge.theta2) / 360
+            xt = wedge.center[0] + distance * wedge.r * math.cos(thetam)
+            yt = wedge.center[1] + distance * wedge.r * math.sin(thetam)
+            if alignment == 'outer':
+                label_alignment_h = 'left' if xt > 0 else 'right'
+            else:
+                label_alignment_h = 'center'
+            label_alignment_v = 'center'
+            label_rotation = 'horizontal'
+            if rotate:
+                if alignment == 'outer':
+                    label_alignment_v = 'bottom' if yt > 0 else 'top'
+                label_rotation = (np.rad2deg(thetam) + (0 if xt > 0 else 180))
+            t = self.text(xt, yt, label, clip_on=False, rotation=label_rotation,
+                          horizontalalignment=label_alignment_h,
+                          verticalalignment=label_alignment_v)
+            t.set(**textprops)
+            texts.append(t)
+
+        container.add_texts(texts)
+
+        return texts
+
 
     @staticmethod
     def _errorevery_to_mask(x, errorevery):
