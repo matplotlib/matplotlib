@@ -496,6 +496,90 @@ def test_CenteredNorm():
     assert norm.vcenter == 1
 
 
+def test_CenteredAsinhNorm():
+    """Test CenteredAsinhNorm - symmetric asinh normalization."""
+    np.random.seed(0)
+
+    # Test 1: Basic centering - vcenter should be in middle of vmin/vmax
+    norm = mcolors.CenteredAsinhNorm(vcenter=0)
+    norm.autoscale_None([-10, 50])  # Asymmetric data
+    assert norm.vmax + norm.vmin == 2 * norm.vcenter
+    assert norm.vmin == -50  # Symmetric around 0
+    assert norm.vmax == 50
+
+    # Test 2: halfrange is preserved when set explicitly
+    norm = mcolors.CenteredAsinhNorm(vcenter=0, halfrange=10)
+    norm.autoscale_None([1, 3000])
+    assert norm.halfrange == 10
+    assert norm.vmin == -10
+    assert norm.vmax == 10
+
+    # Test 3: Different vcenter values
+    vcenter = 5
+    norm = mcolors.CenteredAsinhNorm(vcenter=vcenter)
+    norm.autoscale_None([1, 10])
+    assert norm.vmax + norm.vmin == 2 * vcenter
+    assert norm.halfrange == 5  # max(5-1, 10-5) = 5
+    assert norm.vmin == 0
+    assert norm.vmax == 10
+
+    # Test 4: Center maps to 0.5
+    norm = mcolors.CenteredAsinhNorm(vcenter=0, halfrange=10, linear_width=1)
+    result = norm(0)
+    assert np.isclose(result, 0.5), f"Center should map to 0.5, got {result}"
+
+    # Test 5: Symmetry - equal distances from center
+    norm = mcolors.CenteredAsinhNorm(vcenter=0, halfrange=10)
+    val_pos = norm(5)
+    val_neg = norm(-5)
+    assert np.isclose(val_pos, 1 - val_neg), \
+        f"Symmetric values should map symmetrically: {val_pos} vs {1-val_neg}"
+
+    # Test 6: vcenter setter preserves halfrange
+    norm = mcolors.CenteredAsinhNorm(vcenter=0, halfrange=10)
+    assert norm.vmin == -10
+    assert norm.vmax == 10
+    norm.vcenter = 5
+    assert norm.halfrange == 10
+    assert norm.vmin == -5
+    assert norm.vmax == 15
+
+    # Test 7: halfrange setter
+    norm = mcolors.CenteredAsinhNorm(vcenter=0)
+    norm.halfrange = 20
+    assert norm.vmin == -20
+    assert norm.vmax == 20
+    assert norm.vcenter == 0
+
+    # Test 8: linear_width parameter (inherited from AsinhNorm)
+    norm = mcolors.CenteredAsinhNorm(vcenter=0, halfrange=10, linear_width=2)
+    assert norm.linear_width == 2
+    norm.linear_width = 5
+    assert norm.linear_width == 5
+
+    # Test 9: Negative vcenter
+    norm = mcolors.CenteredAsinhNorm(vcenter=-10, halfrange=5)
+    assert norm.vmin == -15
+    assert norm.vmax == -5
+    assert norm.vcenter == -10
+
+    # Test 10: autoscale with symmetric data
+    norm = mcolors.CenteredAsinhNorm(vcenter=0)
+    data = np.array([-5, -3, 0, 3, 5])
+    norm.autoscale(data)
+    assert norm.halfrange == 5
+    assert norm.vmin == -5
+    assert norm.vmax == 5
+
+    # Test 11: Main use case from issue #30679 - diverging colormaps
+    norm = mcolors.CenteredAsinhNorm(vcenter=0)
+    data = np.array([-10, -5, 0, 5, 50])  # Asymmetric data
+    normalized = norm(data)
+    center_idx = np.where(data == 0)[0][0]
+    assert np.isclose(normalized[center_idx], 0.5), \
+        "Center value should map to 0.5 for diverging colormaps"
+
+
 @pytest.mark.parametrize("vmin,vmax", [[-1, 2], [3, 1]])
 def test_lognorm_invalid(vmin, vmax):
     # Check that invalid limits in LogNorm error
