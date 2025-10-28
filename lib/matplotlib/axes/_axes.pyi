@@ -132,8 +132,8 @@ class Axes(_AxesBase):
     def annotate(
         self,
         text: str,
-        xy: tuple[float, float],
-        xytext: tuple[float, float] | None = ...,
+        xy: tuple[Any, Any],
+        xytext: tuple[Any, Any] | None = ...,
         xycoords: CoordsType = ...,
         textcoords: CoordsType | None = ...,
         arrowprops: dict[str, Any] | None = ...,
