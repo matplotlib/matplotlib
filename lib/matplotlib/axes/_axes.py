@@ -7017,16 +7017,1753 @@ or pandas.DataFrame
                     self, x, y, C,
                     cmap=cmap, norm=norm, colorizer=colorizer, alpha=alpha,
                     extent=extent, **kwargs)
-        if im.get_animated():
-            # Animated images should not be drawn as part of the static Axes
-            # background. For consistency with Line2D(animated=True), attach
-            # animated images as generic Artists rather than registering them
-            # in ``Axes.images`` via ``add_image``. This prevents
-            # ``imshow(..., animated=True)`` from being rendered in the initial
-            # frame and allows blitting logic to manage it. See gh-18985.
-            self.add_artist(im)
-        else:
             self.add_image(im)
+            ret = im
+
+        if np.ndim(C) == 2:  # C.ndim == 3 is RGB(A) so doesn't need scaling.
+            ret._scale_norm(norm, vmin, vmax)
+
+        if ret.get_clip_path() is None:
+            # image does not already have clipping set, clip to Axes patch
+            ret.set_clip_path(self.patch)
+
+        ret.sticky_edges.x[:] = [xl, xr]
+        ret.sticky_edges.y[:] = [yb, yt]
+        self.update_datalim(np.array([[xl, yb], [xr, yt]]))
+        self._request_autoscale_view(tight=True)
+        return ret
+
+    @_preprocess_data()
+    @_docstring.interpd
+    def contour(self, *args, **kwargs):
+        """
+        Plot contour lines.
+
+        Call signature::
+
+            contour([X, Y,] Z, /, [levels], **kwargs)
+
+        The arguments *X*, *Y*, *Z* are positional-only.
+        %(contour_doc)s
+        """
+        kwargs['filled'] = False
+        contours = mcontour.QuadContourSet(self, *args, **kwargs)
+        self._request_autoscale_view()
+        return contours
+
+    @_preprocess_data()
+    @_docstring.interpd
+    def contourf(self, *args, **kwargs):
+        """
+        Plot filled contours.
+
+        Call signature::
+
+            contourf([X, Y,] Z, /, [levels], **kwargs)
+
+        The arguments *X*, *Y*, *Z* are positional-only.
+        %(contour_doc)s
+        """
+        kwargs['filled'] = True
+        contours = mcontour.QuadContourSet(self, *args, **kwargs)
+        self._request_autoscale_view()
+        return contours
+
+    def clabel(self, CS, levels=None, **kwargs):
+        """
+        Label a contour plot.
+
+        Adds labels to line contours in given `.ContourSet`.
+
+        Parameters
+        ----------
+        CS : `.ContourSet` instance
+            Line contours to label.
+
+        levels : array-like, optional
+            A list of level values, that should be labeled. The list must be
+            a subset of ``CS.levels``. If not given, all levels are labeled.
+
+        **kwargs
+            All other parameters are documented in `~.ContourLabeler.clabel`.
+        """
+        return CS.clabel(levels, **kwargs)
+
+    #### Data analysis
+
+    @_api.make_keyword_only("3.10", "range")
+    @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
+    def hist(self, x, bins=None, range=None, density=False, weights=None,
+             cumulative=False, bottom=None, histtype='bar', align='mid',
+             orientation='vertical', rwidth=None, log=False,
+             color=None, label=None, stacked=False, **kwargs):
+        """
+        Compute and plot a histogram.
+
+        This method uses `numpy.histogram` to bin the data in *x* and count the
+        number of values in each bin, then draws the distribution either as a
+        `.BarContainer` or `.Polygon`. The *bins*, *range*, *density*, and
+        *weights* parameters are forwarded to `numpy.histogram`.
+
+        If the data has already been binned and counted, use `~.bar` or
+        `~.stairs` to plot the distribution::
+
+            counts, bins = np.histogram(x)
+            plt.stairs(counts, bins)
+
+        Alternatively, plot pre-computed bins and counts using ``hist()`` by
+        treating each bin as a single point with a weight equal to its count::
+
+            plt.hist(bins[:-1], bins, weights=counts)
+
+        The data input *x* can be a singular array, a list of datasets of
+        potentially different lengths ([*x0*, *x1*, ...]), or a 2D ndarray in
+        which each column is a dataset. Note that the ndarray form is
+        transposed relative to the list form. If the input is an array, then
+        the return value is a tuple (*n*, *bins*, *patches*); if the input is a
+        sequence of arrays, then the return value is a tuple
+        ([*n0*, *n1*, ...], *bins*, [*patches0*, *patches1*, ...]).
+
+        Masked arrays are not supported.
+
+        Parameters
+        ----------
+        x : (n,) array or sequence of (n,) arrays
+            Input values, this takes either a single array or a sequence of
+            arrays which are not required to be of the same length.
+
+        bins : int or sequence or str, default: :rc:`hist.bins`
+            If *bins* is an integer, it defines the number of equal-width bins
+            in the range.
+
+            If *bins* is a sequence, it defines the bin edges, including the
+            left edge of the first bin and the right edge of the last bin;
+            in this case, bins may be unequally spaced.  All but the last
+            (righthand-most) bin is half-open.  In other words, if *bins* is::
+
+                [1, 2, 3, 4]
+
+            then the first bin is ``[1, 2)`` (including 1, but excluding 2) and
+            the second ``[2, 3)``.  The last bin, however, is ``[3, 4]``, which
+            *includes* 4.
+
+            If *bins* is a string, it is one of the binning strategies
+            supported by `numpy.histogram_bin_edges`: 'auto', 'fd', 'doane',
+            'scott', 'stone', 'rice', 'sturges', or 'sqrt'.
+
+        range : tuple or None, default: None
+            The lower and upper range of the bins. Lower and upper outliers
+            are ignored. If not provided, *range* is ``(x.min(), x.max())``.
+            Range has no effect if *bins* is a sequence.
+
+            If *bins* is a sequence or *range* is specified, autoscaling
+            is based on the specified bin range instead of the
+            range of x.
+
+        density : bool, default: False
+            If ``True``, draw and return a probability density: each bin
+            will display the bin's raw count divided by the total number of
+            counts *and the bin width*
+            (``density = counts / (sum(counts) * np.diff(bins))``),
+            so that the area under the histogram integrates to 1
+            (``np.sum(density * np.diff(bins)) == 1``).
+
+            If *stacked* is also ``True``, the sum of the histograms is
+            normalized to 1.
+
+        weights : (n,) array-like or None, default: None
+            An array of weights, of the same shape as *x*.  Each value in
+            *x* only contributes its associated weight towards the bin count
+            (instead of 1).  If *density* is ``True``, the weights are
+            normalized, so that the integral of the density over the range
+            remains 1.
+
+        cumulative : bool or -1, default: False
+            If ``True``, then a histogram is computed where each bin gives the
+            counts in that bin plus all bins for smaller values. The last bin
+            gives the total number of datapoints.
+
+            If *density* is also ``True`` then the histogram is normalized such
+            that the last bin equals 1.
+
+            If *cumulative* is a number less than 0 (e.g., -1), the direction
+            of accumulation is reversed.  In this case, if *density* is also
+            ``True``, then the histogram is normalized such that the first bin
+            equals 1.
+
+        bottom : array-like or float, default: 0
+            Location of the bottom of each bin, i.e. bins are drawn from
+            ``bottom`` to ``bottom + hist(x, bins)`` If a scalar, the bottom
+            of each bin is shifted by the same amount. If an array, each bin
+            is shifted independently and the length of bottom must match the
+            number of bins. If None, defaults to 0.
+
+        histtype : {'bar', 'barstacked', 'step', 'stepfilled'}, default: 'bar'
+            The type of histogram to draw.
+
+            - 'bar' is a traditional bar-type histogram.  If multiple data
+              are given the bars are arranged side by side.
+            - 'barstacked' is a bar-type histogram where multiple
+              data are stacked on top of each other.
+            - 'step' generates a lineplot that is by default unfilled.
+            - 'stepfilled' generates a lineplot that is by default filled.
+
+        align : {'left', 'mid', 'right'}, default: 'mid'
+            The horizontal alignment of the histogram bars.
+
+            - 'left': bars are centered on the left bin edges.
+            - 'mid': bars are centered between the bin edges.
+            - 'right': bars are centered on the right bin edges.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', `~.Axes.barh` will be used for bar-type histograms
+            and the *bottom* kwarg will be the left edges.
+
+        rwidth : float or None, default: None
+            The relative width of the bars as a fraction of the bin width.  If
+            ``None``, automatically compute the width.
+
+            Ignored if *histtype* is 'step' or 'stepfilled'.
+
+        log : bool, default: False
+            If ``True``, the histogram axis will be set to a log scale.
+
+        color : :mpltype:`color` or list of :mpltype:`color` or None, default: None
+            Color or sequence of colors, one per dataset.  Default (``None``)
+            uses the standard line color sequence.
+
+        label : str or list of str, optional
+            String, or sequence of strings to match multiple datasets.  Bar
+            charts yield multiple patches per dataset, but only the first gets
+            the label, so that `~.Axes.legend` will work as expected.
+
+        stacked : bool, default: False
+            If ``True``, multiple data are stacked on top of each other If
+            ``False`` multiple data are arranged side by side if histtype is
+            'bar' or on top of each other if histtype is 'step'
+
+        Returns
+        -------
+        n : array or list of arrays
+            The values of the histogram bins. See *density* and *weights* for a
+            description of the possible semantics.  If input *x* is an array,
+            then this is an array of length *nbins*. If input is a sequence of
+            arrays ``[data1, data2, ...]``, then this is a list of arrays with
+            the values of the histograms for each of the arrays in the same
+            order.  The dtype of the array *n* (or of its element arrays) will
+            always be float even if no weighting or normalization is used.
+
+        bins : array
+            The edges of the bins. Length nbins + 1 (nbins left edges and right
+            edge of last bin).  Always a single array even when multiple data
+            sets are passed in.
+
+        patches : `.BarContainer` or list of a single `.Polygon` or list of \
+such objects
+            Container of individual artists used to create the histogram
+            or list of such containers if there are multiple input datasets.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            `~matplotlib.patches.Patch` properties. The following properties
+            additionally accept a sequence of values corresponding to the
+            datasets in *x*:
+            *edgecolor*, *facecolor*, *linewidth*, *linestyle*, *hatch*.
+
+            .. versionadded:: 3.10
+               Allowing sequences of values in above listed Patch properties.
+
+        See Also
+        --------
+        hist2d : 2D histogram with rectangular bins
+        hexbin : 2D histogram with hexagonal bins
+        stairs : Plot a pre-computed histogram
+        bar : Plot a pre-computed histogram
+
+        Notes
+        -----
+        For large numbers of bins (>1000), plotting can be significantly
+        accelerated by using `~.Axes.stairs` to plot a pre-computed histogram
+        (``plt.stairs(*np.histogram(data))``), or by setting *histtype* to
+        'step' or 'stepfilled' rather than 'bar' or 'barstacked'.
+        """
+        # Avoid shadowing the builtin.
+        bin_range = range
+        from builtins import range
+
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
+
+        if np.isscalar(x):
+            x = [x]
+
+        bins = mpl._val_or_rc(bins, 'hist.bins')
+
+        # Validate string inputs here to avoid cluttering subsequent code.
+        _api.check_in_list(['bar', 'barstacked', 'step', 'stepfilled'],
+                           histtype=histtype)
+        _api.check_in_list(['left', 'mid', 'right'], align=align)
+        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+
+        if histtype == 'barstacked' and not stacked:
+            stacked = True
+
+        # Massage 'x' for processing.
+        x = cbook._reshape_2D(x, 'x')
+        nx = len(x)  # number of datasets
+
+        # Process unit information.  _process_unit_info sets the unit and
+        # converts the first dataset; then we convert each following dataset
+        # one at a time.
+        if orientation == "vertical":
+            convert_units = self.convert_xunits
+            x = [*self._process_unit_info([("x", x[0])], kwargs),
+                 *map(convert_units, x[1:])]
+        else:  # horizontal
+            convert_units = self.convert_yunits
+            x = [*self._process_unit_info([("y", x[0])], kwargs),
+                 *map(convert_units, x[1:])]
+
+        if bin_range is not None:
+            bin_range = convert_units(bin_range)
+
+        if not cbook.is_scalar_or_string(bins):
+            bins = convert_units(bins)
+
+        # We need to do to 'weights' what was done to 'x'
+        if weights is not None:
+            w = cbook._reshape_2D(weights, 'weights')
+        else:
+            w = [None] * nx
+
+        if len(w) != nx:
+            raise ValueError('weights should have the same shape as x')
+
+        input_empty = True
+        for xi, wi in zip(x, w):
+            len_xi = len(xi)
+            if wi is not None and len(wi) != len_xi:
+                raise ValueError('weights should have the same shape as x')
+            if len_xi:
+                input_empty = False
+
+        if color is None:
+            colors = [self._get_lines.get_next_color() for i in range(nx)]
+        else:
+            colors = mcolors.to_rgba_array(color)
+            if len(colors) != nx:
+                raise ValueError(f"The 'color' keyword argument must have one "
+                                 f"color per dataset, but {nx} datasets and "
+                                 f"{len(colors)} colors were provided")
+
+        hist_kwargs = dict()
+
+        # if the bin_range is not given, compute without nan numpy
+        # does not do this for us when guessing the range (but will
+        # happily ignore nans when computing the histogram).
+        if bin_range is None:
+            xmin = np.inf
+            xmax = -np.inf
+            for xi in x:
+                if len(xi):
+                    # python's min/max ignore nan,
+                    # np.minnan returns nan for all nan input
+                    xmin = min(xmin, np.nanmin(xi))
+                    xmax = max(xmax, np.nanmax(xi))
+            if xmin <= xmax:  # Only happens if we have seen a finite value.
+                bin_range = (xmin, xmax)
+
+        # If bins are not specified either explicitly or via range,
+        # we need to figure out the range required for all datasets,
+        # and supply that to np.histogram.
+        if not input_empty and len(x) > 1:
+            if weights is not None:
+                _w = np.concatenate(w)
+            else:
+                _w = None
+            bins = np.histogram_bin_edges(
+                np.concatenate(x), bins, bin_range, _w)
+        else:
+            hist_kwargs['range'] = bin_range
+
+        density = bool(density)
+        if density and not stacked:
+            hist_kwargs['density'] = density
+
+        # List to store all the top coordinates of the histograms
+        tops = []  # Will have shape (n_datasets, n_bins).
+        # Loop through datasets
+        for i in range(nx):
+            # this will automatically overwrite bins,
+            # so that each histogram uses the same bins
+            m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
+            tops.append(m)
+        tops = np.array(tops, float)  # causes problems later if it's an int
+        bins = np.array(bins, float)  # causes problems if float16
+        if stacked:
+            tops = tops.cumsum(axis=0)
+            # If a stacked density plot, normalize so the area of all the
+            # stacked histograms together is 1
+            if density:
+                tops = (tops / np.diff(bins)) / tops[-1].sum()
+        if cumulative:
+            slc = slice(None)
+            if isinstance(cumulative, Number) and cumulative < 0:
+                slc = slice(None, None, -1)
+            if density:
+                tops = (tops * np.diff(bins))[:, slc].cumsum(axis=1)[:, slc]
+            else:
+                tops = tops[:, slc].cumsum(axis=1)[:, slc]
+
+        patches = []
+
+        if histtype.startswith('bar'):
+
+            totwidth = np.diff(bins)
+
+            if rwidth is not None:
+                dr = np.clip(rwidth, 0, 1)
+            elif (len(tops) > 1 and
+                  ((not stacked) or mpl.rcParams['_internal.classic_mode'])):
+                dr = 0.8
+            else:
+                dr = 1.0
+
+            if histtype == 'bar' and not stacked:
+                width = dr * totwidth / nx
+                dw = width
+                boffset = -0.5 * dr * totwidth * (1 - 1 / nx)
+            elif histtype == 'barstacked' or stacked:
+                width = dr * totwidth
+                boffset, dw = 0.0, 0.0
+
+            if align == 'mid':
+                boffset += 0.5 * totwidth
+            elif align == 'right':
+                boffset += totwidth
+
+            if orientation == 'horizontal':
+                _barfunc = self.barh
+                bottom_kwarg = 'left'
+            else:  # orientation == 'vertical'
+                _barfunc = self.bar
+                bottom_kwarg = 'bottom'
+
+            for top, color in zip(tops, colors):
+                if bottom is None:
+                    bottom = np.zeros(len(top))
+                if stacked:
+                    height = top - bottom
+                else:
+                    height = top
+                bars = _barfunc(bins[:-1]+boffset, height, width,
+                                align='center', log=log,
+                                color=color, **{bottom_kwarg: bottom})
+                patches.append(bars)
+                if stacked:
+                    bottom = top
+                boffset += dw
+            # Remove stickies from all bars but the lowest ones, as otherwise
+            # margin expansion would be unable to cross the stickies in the
+            # middle of the bars.
+            for bars in patches[1:]:
+                for patch in bars:
+                    patch.sticky_edges.x[:] = patch.sticky_edges.y[:] = []
+
+        elif histtype.startswith('step'):
+            # these define the perimeter of the polygon
+            x = np.zeros(4 * len(bins) - 3)
+            y = np.zeros(4 * len(bins) - 3)
+
+            x[0:2*len(bins)-1:2], x[1:2*len(bins)-1:2] = bins, bins[:-1]
+            x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
+
+            if bottom is None:
+                bottom = 0
+
+            y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = bottom
+            y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+
+            if log:
+                if orientation == 'horizontal':
+                    self.set_xscale('log', nonpositive='clip')
+                else:  # orientation == 'vertical'
+                    self.set_yscale('log', nonpositive='clip')
+
+            if align == 'left':
+                x -= 0.5*(bins[1]-bins[0])
+            elif align == 'right':
+                x += 0.5*(bins[1]-bins[0])
+
+            # If fill kwarg is set, it will be passed to the patch collection,
+            # overriding this
+            fill = (histtype == 'stepfilled')
+
+            xvals, yvals = [], []
+            for top in tops:
+                if stacked:
+                    # top of the previous polygon becomes the bottom
+                    y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+                # set the top of this polygon
+                y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = top + bottom
+
+                # The starting point of the polygon has not yet been
+                # updated. So far only the endpoint was adjusted. This
+                # assignment closes the polygon. The redundant endpoint is
+                # later discarded (for step and stepfilled).
+                y[0] = y[-1]
+
+                if orientation == 'horizontal':
+                    xvals.append(y.copy())
+                    yvals.append(x.copy())
+                else:
+                    xvals.append(x.copy())
+                    yvals.append(y.copy())
+
+            # stepfill is closed, step is not
+            split = -1 if fill else 2 * len(bins)
+            # add patches in reverse order so that when stacking,
+            # items lower in the stack are plotted on top of
+            # items higher in the stack
+            for x, y, color in reversed(list(zip(xvals, yvals, colors))):
+                patches.append(self.fill(
+                    x[:split], y[:split],
+                    closed=True if fill else None,
+                    facecolor=color,
+                    edgecolor=None if fill else color,
+                    fill=fill if fill else None,
+                    zorder=None if fill else mlines.Line2D.zorder))
+            for patch_list in patches:
+                for patch in patch_list:
+                    if orientation == 'vertical':
+                        patch.sticky_edges.y.append(0)
+                    elif orientation == 'horizontal':
+                        patch.sticky_edges.x.append(0)
+
+            # we return patches, so put it back in the expected order
+            patches.reverse()
+
+        # If None, make all labels None (via zip_longest below); otherwise,
+        # cast each element to str, but keep a single str as it.
+        labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
+
+        if histtype == "step":
+            ec = kwargs.get('edgecolor', colors)
+        else:
+            ec = kwargs.get('edgecolor', None)
+        if ec is None or cbook._str_lower_equal(ec, 'none'):
+            edgecolors = itertools.repeat(ec)
+        else:
+            edgecolors = itertools.cycle(mcolors.to_rgba_array(ec))
+
+        fc = kwargs.get('facecolor', colors)
+        if cbook._str_lower_equal(fc, 'none'):
+            facecolors = itertools.repeat(fc)
+        else:
+            facecolors = itertools.cycle(mcolors.to_rgba_array(fc))
+
+        hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
+        linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
+        if 'linestyle' in kwargs:
+            linestyles = itertools.cycle(mlines._get_dash_patterns(kwargs['linestyle']))
+        else:
+            linestyles = itertools.repeat(None)
+
+        for patch, lbl in itertools.zip_longest(patches, labels):
+            if not patch:
+                continue
+            p = patch[0]
+            kwargs.update({
+                'hatch': next(hatches),
+                'linewidth': next(linewidths),
+                'linestyle': next(linestyles),
+                'edgecolor': next(edgecolors),
+                'facecolor': next(facecolors),
+            })
+            p._internal_update(kwargs)
+            if lbl is not None:
+                p.set_label(lbl)
+            for p in patch[1:]:
+                p._internal_update(kwargs)
+                p.set_label('_nolegend_')
+
+        if nx == 1:
+            return tops[0], bins, patches[0]
+        else:
+            patch_type = ("BarContainer" if histtype.startswith("bar")
+                          else "list[Polygon]")
+            return tops, bins, cbook.silent_list(patch_type, patches)
+
+    @_preprocess_data()
+    def stairs(self, values, edges=None, *,
+               orientation='vertical', baseline=0, fill=False, **kwargs):
+        """
+        Draw a stepwise constant function as a line or a filled plot.
+
+        *edges* define the x-axis positions of the steps. *values* the function values
+        between these steps. Depending on *fill*, the function is drawn either as a
+        continuous line with vertical segments at the edges, or as a filled area.
+
+        Parameters
+        ----------
+        values : array-like
+            The step heights.
+
+        edges : array-like
+            The step positions, with ``len(edges) == len(vals) + 1``,
+            between which the curve takes on vals values.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            The direction of the steps. Vertical means that *values* are along
+            the y-axis, and edges are along the x-axis.
+
+        baseline : float, array-like or None, default: 0
+            The bottom value of the bounding edges or when
+            ``fill=True``, position of lower edge. If *fill* is
+            True or an array is passed to *baseline*, a closed
+            path is drawn.
+
+            If None, then drawn as an unclosed Path.
+
+        fill : bool, default: False
+            Whether the area under the step curve should be filled.
+
+            Passing both ``fill=True` and ``baseline=None`` will likely result in
+            undesired filling: the first and last points will be connected
+            with a straight line and the fill will be between this line and the stairs.
+
+
+        Returns
+        -------
+        StepPatch : `~matplotlib.patches.StepPatch`
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            `~matplotlib.patches.StepPatch` properties
+
+        """
+
+        if 'color' in kwargs:
+            _color = kwargs.pop('color')
+        else:
+            _color = self._get_lines.get_next_color()
+        if fill:
+            kwargs.setdefault('linewidth', 0)
+            kwargs.setdefault('facecolor', _color)
+        else:
+            kwargs.setdefault('edgecolor', _color)
+
+        if edges is None:
+            edges = np.arange(len(values) + 1)
+
+        edges, values, baseline = self._process_unit_info(
+            [("x", edges), ("y", values), ("y", baseline)], kwargs)
+
+        patch = mpatches.StepPatch(values,
+                                   edges,
+                                   baseline=baseline,
+                                   orientation=orientation,
+                                   fill=fill,
+                                   **kwargs)
+        self.add_patch(patch)
+        if baseline is None and fill:
+            _api.warn_external(
+                f"Both {baseline=} and {fill=} have been passed. "
+                "baseline=None is only intended for unfilled stair plots. "
+                "Because baseline is None, the Path used to draw the stairs will "
+                "not be closed, thus because fill is True the polygon will be closed "
+                "by drawing an (unstroked) edge from the first to last point.  It is "
+                "very likely that the resulting fill patterns is not the desired "
+                "result."
+            )
+
+        if baseline is not None:
+            if orientation == 'vertical':
+                patch.sticky_edges.y.append(np.min(baseline))
+                self.update_datalim([(edges[0], np.min(baseline))])
+            else:
+                patch.sticky_edges.x.append(np.min(baseline))
+                self.update_datalim([(np.min(baseline), edges[0])])
+        self._request_autoscale_view()
+        return patch
+
+    @_api.make_keyword_only("3.10", "range")
+    @_preprocess_data(replace_names=["x", "y", "weights"])
+    @_docstring.interpd
+    def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
+               cmin=None, cmax=None, **kwargs):
+        """
+        Make a 2D histogram plot.
+
+        Parameters
+        ----------
+        x, y : array-like, shape (n, )
+            Input values
+
+        bins : None or int or [int, int] or array-like or [array, array]
+
+            The bin specification:
+
+            - If int, the number of bins for the two dimensions
+              (``nx = ny = bins``).
+            - If ``[int, int]``, the number of bins in each dimension
+              (``nx, ny = bins``).
+            - If array-like, the bin edges for the two dimensions
+              (``x_edges = y_edges = bins``).
+            - If ``[array, array]``, the bin edges in each dimension
+              (``x_edges, y_edges = bins``).
+
+            The default value is 10.
+
+        range : array-like shape(2, 2), optional
+            The leftmost and rightmost edges of the bins along each dimension
+            (if not specified explicitly in the bins parameters): ``[[xmin,
+            xmax], [ymin, ymax]]``. All values outside of this range will be
+            considered outliers and not tallied in the histogram.
+
+        density : bool, default: False
+            Normalize histogram.  See the documentation for the *density*
+            parameter of `~.Axes.hist` for more details.
+
+        weights : array-like, shape (n, ), optional
+            An array of values w_i weighing each sample (x_i, y_i).
+
+        cmin, cmax : float, default: None
+            All bins that has count less than *cmin* or more than *cmax* will not be
+            displayed (set to NaN before passing to `~.Axes.pcolormesh`) and these count
+            values in the return value count histogram will also be set to nan upon
+            return.
+
+        Returns
+        -------
+        h : 2D array
+            The bi-dimensional histogram of samples x and y. Values in x are
+            histogrammed along the first dimension and values in y are
+            histogrammed along the second dimension.
+        xedges : 1D array
+            The bin edges along the x-axis.
+        yedges : 1D array
+            The bin edges along the y-axis.
+        image : `~.matplotlib.collections.QuadMesh`
+
+        Other Parameters
+        ----------------
+        %(cmap_doc)s
+
+        %(norm_doc)s
+
+        %(vmin_vmax_doc)s
+
+        %(colorizer_doc)s
+
+        alpha : ``0 <= scalar <= 1`` or ``None``, optional
+            The alpha blending value.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Additional parameters are passed along to the
+            `~.Axes.pcolormesh` method and `~matplotlib.collections.QuadMesh`
+            constructor.
+
+        See Also
+        --------
+        hist : 1D histogram plotting
+        hexbin : 2D histogram with hexagonal bins
+
+        Notes
+        -----
+        Rendering the histogram with a logarithmic color scale is accomplished
+        by passing a `.colors.LogNorm` instance to the *norm* keyword
+        argument. Likewise, power-law normalization (similar in effect to gamma
+        correction) can be accomplished with `.colors.PowerNorm`.
+
+        .. versionchanged:: 3.11
+           Previously, `~.Axes.hist2d` would force the axes limits to match the
+           extents of the histogram; now, autoscaling also takes other plot
+           elements into account.
+        """
+
+        h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
+                                           density=density, weights=weights)
+
+        if cmin is not None:
+            h[h < cmin] = None
+        if cmax is not None:
+            h[h > cmax] = None
+
+        pc = self.pcolormesh(xedges, yedges, h.T, **kwargs)
+
+        return h, xedges, yedges, pc
+
+    @_preprocess_data(replace_names=["x", "weights"], label_namer="x")
+    @_docstring.interpd
+    def ecdf(self, x, weights=None, *, complementary=False,
+             orientation="vertical", compress=False, **kwargs):
+        """
+        Compute and plot the empirical cumulative distribution function of *x*.
+
+        .. versionadded:: 3.8
+
+        Parameters
+        ----------
+        x : 1d array-like
+            The input data.  Infinite entries are kept (and move the relevant
+            end of the ecdf from 0/1), but NaNs and masked values are errors.
+
+        weights : 1d array-like or None, default: None
+            The weights of the entries; must have the same shape as *x*.
+            Weights corresponding to NaN data points are dropped, and then the
+            remaining weights are normalized to sum to 1.  If unset, all
+            entries have the same weight.
+
+        complementary : bool, default: False
+            Whether to plot a cumulative distribution function, which increases
+            from 0 to 1 (the default), or a complementary cumulative
+            distribution function, which decreases from 1 to 0.
+
+        orientation : {"vertical", "horizontal"}, default: "vertical"
+            Whether the entries are plotted along the x-axis ("vertical", the
+            default) or the y-axis ("horizontal").  This parameter takes the
+            same values as in `~.Axes.hist`.
+
+        compress : bool, default: False
+            Whether multiple entries with the same values are grouped together
+            (with a summed weight) before plotting.  This is mainly useful if
+            *x* contains many identical data points, to decrease the rendering
+            complexity of the plot. If *x* contains no duplicate points, this
+            has no effect and just uses some time and memory.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Keyword arguments control the `.Line2D` properties:
+
+            %(Line2D:kwdoc)s
+
+        Returns
+        -------
+        `.Line2D`
+
+        Notes
+        -----
+        The ecdf plot can be thought of as a cumulative histogram with one bin
+        per data entry; i.e. it reports on the entire dataset without any
+        arbitrary binning.
+
+        If *x* contains NaNs or masked entries, either remove them first from
+        the array (if they should not taken into account), or replace them by
+        -inf or +inf (if they should be sorted at the beginning or the end of
+        the array).
+        """
+        _api.check_in_list(["horizontal", "vertical"], orientation=orientation)
+        if "drawstyle" in kwargs or "ds" in kwargs:
+            raise TypeError("Cannot pass 'drawstyle' or 'ds' to ecdf()")
+        if np.ma.getmask(x).any():
+            raise ValueError("ecdf() does not support masked entries")
+        x = np.asarray(x)
+        if np.isnan(x).any():
+            raise ValueError("ecdf() does not support NaNs")
+        argsort = np.argsort(x)
+        x = x[argsort]
+        if weights is None:
+            # Ensure that we end at exactly 1, avoiding floating point errors.
+            cum_weights = (1 + np.arange(len(x))) / len(x)
+        else:
+            weights = np.take(weights, argsort)   # Reorder weights like we reordered x.
+            cum_weights = np.cumsum(weights / np.sum(weights))
+        if compress:
+            # Get indices of unique x values.
+            compress_idxs = [0, *(x[:-1] != x[1:]).nonzero()[0] + 1]
+            x = x[compress_idxs]
+            cum_weights = cum_weights[compress_idxs]
+        if orientation == "vertical":
+            if not complementary:
+                line, = self.plot([x[0], *x], [0, *cum_weights],
+                                  drawstyle="steps-post", **kwargs)
+            else:
+                line, = self.plot([*x, x[-1]], [1, *1 - cum_weights],
+                                  drawstyle="steps-pre", **kwargs)
+            line.sticky_edges.y[:] = [0, 1]
+        else:  # orientation == "horizontal":
+            if not complementary:
+                line, = self.plot([0, *cum_weights], [x[0], *x],
+                                  drawstyle="steps-pre", **kwargs)
+            else:
+                line, = self.plot([1, *1 - cum_weights], [*x, x[-1]],
+                                  drawstyle="steps-post", **kwargs)
+            line.sticky_edges.x[:] = [0, 1]
+        return line
+
+    @_api.make_keyword_only("3.10", "NFFT")
+    @_preprocess_data(replace_names=["x"])
+    @_docstring.interpd
+    def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
+            window=None, noverlap=None, pad_to=None,
+            sides=None, scale_by_freq=None, return_line=None, **kwargs):
+        r"""
+        Plot the power spectral density.
+
+        The power spectral density :math:`P_{xx}` by Welch's average
+        periodogram method.  The vector *x* is divided into *NFFT* length
+        segments.  Each segment is detrended by function *detrend* and
+        windowed by function *window*.  *noverlap* gives the length of
+        the overlap between segments.  The :math:`|\mathrm{fft}(i)|^2`
+        of each segment :math:`i` are averaged to compute :math:`P_{xx}`,
+        with a scaling to correct for power loss due to windowing.
+
+        If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
+
+        Parameters
+        ----------
+        x : 1-D array or sequence
+            Array or sequence containing the data
+
+        %(Spectral)s
+
+        %(PSD)s
+
+        noverlap : int, default: 0 (no overlap)
+            The number of points of overlap between segments.
+
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
+
+        return_line : bool, default: False
+            Whether to include the line object plotted in the returned values.
+
+        Returns
+        -------
+        Pxx : 1-D array
+            The values for the power spectrum :math:`P_{xx}` before scaling
+            (real valued).
+
+        freqs : 1-D array
+            The frequencies corresponding to the elements in *Pxx*.
+
+        line : `~matplotlib.lines.Line2D`
+            The line created by this function.
+            Only returned if *return_line* is True.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Keyword arguments control the `.Line2D` properties:
+
+            %(Line2D:kwdoc)s
+
+        See Also
+        --------
+        specgram
+            Differs in the default overlap; in not returning the mean of the
+            segment periodograms; in returning the times of the segments; and
+            in plotting a colormap instead of a line.
+        magnitude_spectrum
+            Plots the magnitude spectrum.
+        csd
+            Plots the spectral density between two signals.
+
+        Notes
+        -----
+        For plotting, the power is plotted as
+        :math:`10\log_{10}(P_{xx})` for decibels, though *Pxx* itself
+        is returned.
+
+        References
+        ----------
+        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
+        John Wiley & Sons (1986)
+        """
+        if Fc is None:
+            Fc = 0
+
+        pxx, freqs = mlab.psd(x=x, NFFT=NFFT, Fs=Fs, detrend=detrend,
+                              window=window, noverlap=noverlap, pad_to=pad_to,
+                              sides=sides, scale_by_freq=scale_by_freq)
+        freqs += Fc
+
+        if scale_by_freq in (None, True):
+            psd_units = 'dB/Hz'
+        else:
+            psd_units = 'dB'
+
+        line = self.plot(freqs, 10 * np.log10(pxx), **kwargs)
+        self.set_xlabel('Frequency')
+        self.set_ylabel('Power Spectral Density (%s)' % psd_units)
+        self.grid(True)
+
+        vmin, vmax = self.get_ybound()
+        step = max(10 * int(np.log10(vmax - vmin)), 1)
+        ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
+        self.set_yticks(ticks)
+
+        if return_line is None or not return_line:
+            return pxx, freqs
+        else:
+            return pxx, freqs, line
+
+    @_api.make_keyword_only("3.10", "NFFT")
+    @_preprocess_data(replace_names=["x", "y"], label_namer="y")
+    @_docstring.interpd
+    def csd(self, x, y, NFFT=None, Fs=None, Fc=None, detrend=None,
+            window=None, noverlap=None, pad_to=None,
+            sides=None, scale_by_freq=None, return_line=None, **kwargs):
+        r"""
+        Plot the cross-spectral density.
+
+        The cross spectral density :math:`P_{xy}` by Welch's average
+        periodogram method.  The vectors *x* and *y* are divided into
+        *NFFT* length segments.  Each segment is detrended by function
+        *detrend* and windowed by function *window*.  *noverlap* gives
+        the length of the overlap between segments.  The product of
+        the direct FFTs of *x* and *y* are averaged over each segment
+        to compute :math:`P_{xy}`, with a scaling to correct for power
+        loss due to windowing.
+
+        If len(*x*) < *NFFT* or len(*y*) < *NFFT*, they will be zero
+        padded to *NFFT*.
+
+        Parameters
+        ----------
+        x, y : 1-D arrays or sequences
+            Arrays or sequences containing the data.
+
+        %(Spectral)s
+
+        %(PSD)s
+
+        noverlap : int, default: 0 (no overlap)
+            The number of points of overlap between segments.
+
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
+
+        return_line : bool, default: False
+            Whether to include the line object plotted in the returned values.
+
+        Returns
+        -------
+        Pxy : 1-D array
+            The values for the cross spectrum :math:`P_{xy}` before scaling
+            (complex valued).
+
+        freqs : 1-D array
+            The frequencies corresponding to the elements in *Pxy*.
+
+        line : `~matplotlib.lines.Line2D`
+            The line created by this function.
+            Only returned if *return_line* is True.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Keyword arguments control the `.Line2D` properties:
+
+            %(Line2D:kwdoc)s
+
+        See Also
+        --------
+        psd : is equivalent to setting ``y = x``.
+
+        Notes
+        -----
+        For plotting, the power is plotted as
+        :math:`10 \log_{10}(P_{xy})` for decibels, though :math:`P_{xy}` itself
+        is returned.
+
+        References
+        ----------
+        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
+        John Wiley & Sons (1986)
+        """
+        if Fc is None:
+            Fc = 0
+
+        pxy, freqs = mlab.csd(x=x, y=y, NFFT=NFFT, Fs=Fs, detrend=detrend,
+                              window=window, noverlap=noverlap, pad_to=pad_to,
+                              sides=sides, scale_by_freq=scale_by_freq)
+        # pxy is complex
+        freqs += Fc
+
+        line = self.plot(freqs, 10 * np.log10(np.abs(pxy)), **kwargs)
+        self.set_xlabel('Frequency')
+        self.set_ylabel('Cross Spectrum Magnitude (dB)')
+        self.grid(True)
+
+        vmin, vmax = self.get_ybound()
+        step = max(10 * int(np.log10(vmax - vmin)), 1)
+        ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
+        self.set_yticks(ticks)
+
+        if return_line is None or not return_line:
+            return pxy, freqs
+        else:
+            return pxy, freqs, line
+
+    @_api.make_keyword_only("3.10", "Fs")
+    @_preprocess_data(replace_names=["x"])
+    @_docstring.interpd
+    def magnitude_spectrum(self, x, Fs=None, Fc=None, window=None,
+                           pad_to=None, sides=None, scale=None,
+                           **kwargs):
+        """
+        Plot the magnitude spectrum.
+
+        Compute the magnitude spectrum of *x*.  Data is padded to a
+        length of *pad_to* and the windowing function *window* is applied to
+        the signal.
+
+        Parameters
+        ----------
+        x : 1-D array or sequence
+            Array or sequence containing the data.
+
+        %(Spectral)s
+
+        %(Single_Spectrum)s
+
+        scale : {'default', 'linear', 'dB'}
+            The scaling of the values in the *spec*.  'linear' is no scaling.
+            'dB' returns the values in dB scale, i.e., the dB amplitude
+            (20 * log10). 'default' is 'linear'.
+
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
+
+        Returns
+        -------
+        spectrum : 1-D array
+            The values for the magnitude spectrum before scaling (real valued).
+
+        freqs : 1-D array
+            The frequencies corresponding to the elements in *spectrum*.
+
+        line : `~matplotlib.lines.Line2D`
+            The line created by this function.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Keyword arguments control the `.Line2D` properties:
+
+            %(Line2D:kwdoc)s
+
+        See Also
+        --------
+        psd
+            Plots the power spectral density.
+        angle_spectrum
+            Plots the angles of the corresponding frequencies.
+        phase_spectrum
+            Plots the phase (unwrapped angle) of the corresponding frequencies.
+        specgram
+            Can plot the magnitude spectrum of segments within the signal in a
+            colormap.
+        """
+        if Fc is None:
+            Fc = 0
+
+        spec, freqs = mlab.magnitude_spectrum(x=x, Fs=Fs, window=window,
+                                              pad_to=pad_to, sides=sides)
+        freqs += Fc
+
+        yunits = _api.check_getitem(
+            {None: 'energy', 'default': 'energy', 'linear': 'energy',
+             'dB': 'dB'},
+            scale=scale)
+        if yunits == 'energy':
+            Z = spec
+        else:  # yunits == 'dB'
+            Z = 20. * np.log10(spec)
+
+        line, = self.plot(freqs, Z, **kwargs)
+        self.set_xlabel('Frequency')
+        self.set_ylabel('Magnitude (%s)' % yunits)
+
+        return spec, freqs, line
+
+    @_api.make_keyword_only("3.10", "Fs")
+    @_preprocess_data(replace_names=["x"])
+    @_docstring.interpd
+    def angle_spectrum(self, x, Fs=None, Fc=None, window=None,
+                       pad_to=None, sides=None, **kwargs):
+        """
+        Plot the angle spectrum.
+
+        Compute the angle spectrum (wrapped phase spectrum) of *x*.
+        Data is padded to a length of *pad_to* and the windowing function
+        *window* is applied to the signal.
+
+        Parameters
+        ----------
+        x : 1-D array or sequence
+            Array or sequence containing the data.
+
+        %(Spectral)s
+
+        %(Single_Spectrum)s
+
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
+
+        Returns
+        -------
+        spectrum : 1-D array
+            The values for the angle spectrum in radians (real valued).
+
+        freqs : 1-D array
+            The frequencies corresponding to the elements in *spectrum*.
+
+        line : `~matplotlib.lines.Line2D`
+            The line created by this function.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Keyword arguments control the `.Line2D` properties:
+
+            %(Line2D:kwdoc)s
+
+        See Also
+        --------
+        magnitude_spectrum
+            Plots the magnitudes of the corresponding frequencies.
+        phase_spectrum
+            Plots the unwrapped version of this function.
+        specgram
+            Can plot the angle spectrum of segments within the signal in a
+            colormap.
+        """
+        if Fc is None:
+            Fc = 0
+
+        spec, freqs = mlab.angle_spectrum(x=x, Fs=Fs, window=window,
+                                          pad_to=pad_to, sides=sides)
+        freqs += Fc
+
+        lines = self.plot(freqs, spec, **kwargs)
+        self.set_xlabel('Frequency')
+        self.set_ylabel('Angle (radians)')
+
+        return spec, freqs, lines[0]
+
+    @_api.make_keyword_only("3.10", "Fs")
+    @_preprocess_data(replace_names=["x"])
+    @_docstring.interpd
+    def phase_spectrum(self, x, Fs=None, Fc=None, window=None,
+                       pad_to=None, sides=None, **kwargs):
+        """
+        Plot the phase spectrum.
+
+        Compute the phase spectrum (unwrapped angle spectrum) of *x*.
+        Data is padded to a length of *pad_to* and the windowing function
+        *window* is applied to the signal.
+
+        Parameters
+        ----------
+        x : 1-D array or sequence
+            Array or sequence containing the data
+
+        %(Spectral)s
+
+        %(Single_Spectrum)s
+
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
+
+        Returns
+        -------
+        spectrum : 1-D array
+            The values for the phase spectrum in radians (real valued).
+
+        freqs : 1-D array
+            The frequencies corresponding to the elements in *spectrum*.
+
+        line : `~matplotlib.lines.Line2D`
+            The line created by this function.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Keyword arguments control the `.Line2D` properties:
+
+            %(Line2D:kwdoc)s
+
+        See Also
+        --------
+        magnitude_spectrum
+            Plots the magnitudes of the corresponding frequencies.
+        angle_spectrum
+            Plots the wrapped version of this function.
+        specgram
+            Can plot the phase spectrum of segments within the signal in a
+            colormap.
+        """
+        if Fc is None:
+            Fc = 0
+
+        spec, freqs = mlab.phase_spectrum(x=x, Fs=Fs, window=window,
+                                          pad_to=pad_to, sides=sides)
+        freqs += Fc
+
+        lines = self.plot(freqs, spec, **kwargs)
+        self.set_xlabel('Frequency')
+        self.set_ylabel('Phase (radians)')
+
+        return spec, freqs, lines[0]
+
+    @_api.make_keyword_only("3.10", "NFFT")
+    @_preprocess_data(replace_names=["x", "y"])
+    @_docstring.interpd
+    def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
+               window=mlab.window_hanning, noverlap=0, pad_to=None,
+               sides='default', scale_by_freq=None, **kwargs):
+        r"""
+        Plot the coherence between *x* and *y*.
+
+        Coherence is the normalized cross spectral density:
+
+        .. math::
+
+          C_{xy} = \frac{|P_{xy}|^2}{P_{xx}P_{yy}}
+
+        Parameters
+        ----------
+        %(Spectral)s
+
+        %(PSD)s
+
+        noverlap : int, default: 0 (no overlap)
+            The number of points of overlap between blocks.
+
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
+
+        Returns
+        -------
+        Cxy : 1-D array
+            The coherence vector.
+
+        freqs : 1-D array
+            The frequencies for the elements in *Cxy*.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            Keyword arguments control the `.Line2D` properties:
+
+            %(Line2D:kwdoc)s
+
+        References
+        ----------
+        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
+        John Wiley & Sons (1986)
+        """
+        cxy, freqs = mlab.cohere(x=x, y=y, NFFT=NFFT, Fs=Fs, detrend=detrend,
+                                 window=window, noverlap=noverlap,
+                                 scale_by_freq=scale_by_freq, sides=sides,
+                                 pad_to=pad_to)
+        freqs += Fc
+
+        self.plot(freqs, cxy, **kwargs)
+        self.set_xlabel('Frequency')
+        self.set_ylabel('Coherence')
+        self.grid(True)
+
+        return cxy, freqs
+
+    @_api.make_keyword_only("3.10", "NFFT")
+    @_preprocess_data(replace_names=["x"])
+    @_docstring.interpd
+    def specgram(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
+                 window=None, noverlap=None,
+                 cmap=None, xextent=None, pad_to=None, sides=None,
+                 scale_by_freq=None, mode=None, scale=None,
+                 vmin=None, vmax=None, **kwargs):
+        """
+        Plot a spectrogram.
+
+        Compute and plot a spectrogram of data in *x*.  Data are split into
+        *NFFT* length segments and the spectrum of each section is
+        computed.  The windowing function *window* is applied to each
+        segment, and the amount of overlap of each segment is
+        specified with *noverlap*. The spectrogram is plotted as a colormap
+        (using imshow).
+
+        Parameters
+        ----------
+        x : 1-D array or sequence
+            Array or sequence containing the data.
+
+        %(Spectral)s
+
+        %(PSD)s
+
+        mode : {'default', 'psd', 'magnitude', 'angle', 'phase'}
+            What sort of spectrum to use.  Default is 'psd', which takes the
+            power spectral density.  'magnitude' returns the magnitude
+            spectrum.  'angle' returns the phase spectrum without unwrapping.
+            'phase' returns the phase spectrum with unwrapping.
+
+        noverlap : int, default: 128
+            The number of points of overlap between blocks.
+
+        scale : {'default', 'linear', 'dB'}
+            The scaling of the values in the *spec*.  'linear' is no scaling.
+            'dB' returns the values in dB scale.  When *mode* is 'psd',
+            this is dB power (10 * log10).  Otherwise, this is dB amplitude
+            (20 * log10). 'default' is 'dB' if *mode* is 'psd' or
+            'magnitude' and 'linear' otherwise.  This must be 'linear'
+            if *mode* is 'angle' or 'phase'.
+
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
+
+        cmap : `.Colormap`, default: :rc:`image.cmap`
+
+        xextent : *None* or (xmin, xmax)
+            The image extent along the x-axis. The default sets *xmin* to the
+            left border of the first bin (*spectrum* column) and *xmax* to the
+            right border of the last bin. Note that for *noverlap>0* the width
+            of the bins is smaller than those of the segments.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        vmin, vmax : float, optional
+            vmin and vmax define the data range that the colormap covers.
+            By default, the colormap covers the complete value range of the
+            data.
+
+        **kwargs
+            Additional keyword arguments are passed on to `~.axes.Axes.imshow`
+            which makes the specgram image. The origin keyword argument
+            is not supported.
+
+        Returns
+        -------
+        spectrum : 2D array
+            Columns are the periodograms of successive segments.
+
+        freqs : 1-D array
+            The frequencies corresponding to the rows in *spectrum*.
+
+        t : 1-D array
+            The times corresponding to midpoints of segments (i.e., the columns
+            in *spectrum*).
+
+        im : `.AxesImage`
+            The image created by imshow containing the spectrogram.
+
+        See Also
+        --------
+        psd
+            Differs in the default overlap; in returning the mean of the
+            segment periodograms; in not returning times; and in generating a
+            line plot instead of colormap.
+        magnitude_spectrum
+            A single spectrum, similar to having a single segment when *mode*
+            is 'magnitude'. Plots a line instead of a colormap.
+        angle_spectrum
+            A single spectrum, similar to having a single segment when *mode*
+            is 'angle'. Plots a line instead of a colormap.
+        phase_spectrum
+            A single spectrum, similar to having a single segment when *mode*
+            is 'phase'. Plots a line instead of a colormap.
+
+        Notes
+        -----
+        The parameters *detrend* and *scale_by_freq* do only apply when *mode*
+        is set to 'psd'.
+        """
+        if NFFT is None:
+            NFFT = 256  # same default as in mlab.specgram()
+        if Fc is None:
+            Fc = 0  # same default as in mlab._spectral_helper()
+        if noverlap is None:
+            noverlap = 128  # same default as in mlab.specgram()
+        if Fs is None:
+            Fs = 2  # same default as in mlab._spectral_helper()
+
+        if mode == 'complex':
+            raise ValueError('Cannot plot a complex specgram')
+
+        if scale is None or scale == 'default':
+            if mode in ['angle', 'phase']:
+                scale = 'linear'
+            else:
+                scale = 'dB'
+        elif mode in ['angle', 'phase'] and scale == 'dB':
+            raise ValueError('Cannot use dB scale with angle or phase mode')
+
+        spec, freqs, t = mlab.specgram(x=x, NFFT=NFFT, Fs=Fs,
+                                       detrend=detrend, window=window,
+                                       noverlap=noverlap, pad_to=pad_to,
+                                       sides=sides,
+                                       scale_by_freq=scale_by_freq,
+                                       mode=mode)
+
+        if scale == 'linear':
+            Z = spec
+        elif scale == 'dB':
+            if mode is None or mode == 'default' or mode == 'psd':
+                Z = 10. * np.log10(spec)
+            else:
+                Z = 20. * np.log10(spec)
+        else:
+            raise ValueError(f'Unknown scale {scale!r}')
+
+        Z = np.flipud(Z)
+
+        if xextent is None:
+            # padding is needed for first and last segment:
+            pad_xextent = (NFFT-noverlap) / Fs / 2
+            xextent = np.min(t) - pad_xextent, np.max(t) + pad_xextent
+        xmin, xmax = xextent
+        freqs += Fc
+        extent = xmin, xmax, freqs[0], freqs[-1]
+
+        if 'origin' in kwargs:
+            raise _api.kwarg_error("specgram", "origin")
+
+        im = self.imshow(Z, cmap, extent=extent, vmin=vmin, vmax=vmax,
+                         origin='upper', **kwargs)
+        self.axis('auto')
+
+        return spec, freqs, t, im
+
+    @_api.make_keyword_only("3.10", "precision")
+    @_docstring.interpd
+    def spy(self, Z, precision=0, marker=None, markersize=None,
+            aspect='equal', origin="upper", **kwargs):
+        """
+        Plot the sparsity pattern of a 2D array.
+
+        This visualizes the non-zero values of the array.
+
+        Two plotting styles are available: image and marker. Both
+        are available for full arrays, but only the marker style
+        works for `scipy.sparse.spmatrix` instances.
+
+        **Image style**
+
+        If *marker* and *markersize* are *None*, `~.Axes.imshow` is used. Any
+        extra remaining keyword arguments are passed to this method.
+
+        **Marker style**
+
+        If *Z* is a `scipy.sparse.spmatrix` or *marker* or *markersize* are
+        *None*, a `.Line2D` object will be returned with the value of marker
+        determining the marker type, and any remaining keyword arguments
+        passed to `~.Axes.plot`.
+
+        Parameters
+        ----------
+        Z : (M, N) array-like
+            The array to be plotted.
+
+        precision : float or 'present', default: 0
+            If *precision* is 0, any non-zero value will be plotted. Otherwise,
+            values of :math:`|Z| > precision` will be plotted.
+
+            For `scipy.sparse.spmatrix` instances, you can also
+            pass 'present'. In this case any value present in the array
+            will be plotted, even if it is identically zero.
+
+        aspect : {'equal', 'auto', None} or float, default: 'equal'
+            The aspect ratio of the Axes.  This parameter is particularly
+            relevant for images since it determines whether data pixels are
+            square.
+
+            This parameter is a shortcut for explicitly calling
+            `.Axes.set_aspect`. See there for further details.
+
+            - 'equal': Ensures an aspect ratio of 1. Pixels will be square.
+            - 'auto': The Axes is kept fixed and the aspect is adjusted so
+              that the data fit in the Axes. In general, this will result in
+              non-square pixels.
+            - *None*: Use :rc:`image.aspect`.
+
+        origin : {'upper', 'lower'}, default: :rc:`image.origin`
+            Place the [0, 0] index of the array in the upper left or lower left
+            corner of the Axes. The convention 'upper' is typically used for
+            matrices and images.
+
+        Returns
+        -------
+        `~matplotlib.image.AxesImage` or `.Line2D`
+            The return type depends on the plotting style (see above).
+
+        Other Parameters
+        ----------------
+        **kwargs
+            The supported additional parameters depend on the plotting style.
+
+            For the image style, you can pass the following additional
+            parameters of `~.Axes.imshow`:
+
+            - *cmap*
+            - *alpha*
+            - *url*
+            - any `.Artist` properties (passed on to the `.AxesImage`)
+
+            For the marker style, you can pass any `.Line2D` property except
+            for *linestyle*:
+
+            %(Line2D:kwdoc)s
+        """
+        if marker is None and markersize is None and hasattr(Z, 'tocoo'):
+            marker = 's'
+        _api.check_in_list(["upper", "lower"], origin=origin)
+        if marker is None and markersize is None:
+            Z = np.asarray(Z)
+            mask = np.abs(Z) > precision
+
+            if 'cmap' not in kwargs:
+                kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'],
+                                                        name='binary')
+            if 'interpolation' in kwargs:
+                raise _api.kwarg_error("spy", "interpolation")
+            if 'norm' not in kwargs:
+                kwargs['norm'] = mcolors.NoNorm()
+            ret = self.imshow(mask, interpolation='nearest',
+                              aspect=aspect, origin=origin,
+                              **kwargs)
+        else:
+            if hasattr(Z, 'tocoo'):
+                c = Z.tocoo()
+                if precision == 'present':
+                    y = c.row
+                    x = c.col
+                else:
+                    nonzero = np.abs(c.data) > precision
+                    y = c.row[nonzero]
+                    x = c.col[nonzero]
+            else:
+                Z = np.asarray(Z)
+                nonzero = np.abs(Z) > precision
+                y, x = np.nonzero(nonzero)
+            if marker is None:
+                marker = 's'
+            if markersize is None:
+                markersize = 10
+            if 'linestyle' in kwargs:
+                raise _api.kwarg_error("spy", "linestyle")
+            ret = mlines.Line2D(
+                x, y, linestyle='None', marker=marker, markersize=markersize,
+                **kwargs)
+            self.add_line(ret)
+            nr, nc = Z.shape
+            self.set_xlim(-0.5, nc - 0.5)
+            if origin == "upper":
+                self.set_ylim(nr - 0.5, -0.5)
+            else:
+                self.set_ylim(-0.5, nr - 0.5)
+            self.set_aspect(aspect)
+        self.title.set_y(1.05)
+        if origin == "upper":
+            self.xaxis.tick_top()
+        else:  # lower
+            self.xaxis.tick_bottom()
+        self.xaxis.set_ticks_position('both')
+        self.xaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
+        self.yaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
+        return ret
+
+    def matshow(self, Z, **kwargs):
+        """
+        Plot the values of a 2D matrix or array as color-coded image.
+
+        The matrix will be shown the way it would be printed, with the first
+        row at the top.  Row and column numbering is zero-based.
+
+        Parameters
+        ----------
+        Z : (M, N) array-like
+            The matrix to be displayed.
+
+        Returns
+        -------
+        `~matplotlib.image.AxesImage`
+
+        Other Parameters
+        ----------------
+        **kwargs : `~matplotlib.axes.Axes.imshow` arguments
+
+        See Also
+        --------
+        imshow : More general function to plot data on a 2D regular raster.
+
+        Notes
+        -----
+        This is just a convenience function wrapping `.imshow` to set useful
+        defaults for displaying a matrix. In particular:
+
+        - Set ``origin='upper'``.
+        - Set ``interpolation='nearest'``.
+        - Set ``aspect='equal'``.
+        - Ticks are placed to the left and above.
+        - Ticks are formatted to show integer indices.
+
+        """
+        Z = np.asanyarray(Z)
+        kw = {'origin': 'upper',
+              'interpolation': 'nearest',
+              'aspect': 'equal',          # (already the imshow default)
+              **kwargs}
+        im = self.imshow(Z, **kw)
+        self.title.set_y(1.05)
+        self.xaxis.tick_top()
+        self.xaxis.set_ticks_position('both')
+        self.xaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
+        self.yaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
         return im
 
     @_api.make_keyword_only("3.10", "vert")
