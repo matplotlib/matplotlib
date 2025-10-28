@@ -27,7 +27,7 @@ from cycler import Cycler
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Any, Literal, TypeVar, overload
+from typing import Any, Literal, TypeVar, overload, List
 from matplotlib.typing import ColorType
 
 _T = TypeVar("_T", bound=Artist)
@@ -40,6 +40,60 @@ class _axis_method_wrapper:
         self, attr_name: str, method_name: str, *, doc_sub: dict[str, str] | None = ...
     ) -> None: ...
     def __set_name__(self, owner: Any, name: str) -> None: ...
+
+class _TransformedBoundsLocator:
+    _bounds: Sequence[float]
+    _transform: Transform
+
+    def __init__(self, bounds: Sequence[float], transform: Transform) -> None: ...
+
+    def __call__(self, ax: Any, renderer: Any) -> Bbox: ...
+
+
+def _process_plot_format(
+    fmt: str,
+    *,
+    ambiguous_fmt_datakey: bool = False
+) -> tuple[str | None, str | None, ColorType | None]: ...
+
+class _process_plot_var_args:
+    output: str
+
+    def __init__(self, output: str = ...) -> None: ...
+
+    def set_prop_cycle(self, cycler: Any) -> None: ...
+
+    def __call__(
+        self,
+        axes: Any,
+        *args: Any,
+        data: Any | None = ...,
+        return_kwargs: bool = ...,
+        **kwargs: Any,
+    ) -> Iterator[Any]: ...
+
+    def get_next_color(self) -> Any: ...
+
+    def _getdefaults(self, kw: dict[str, Any], ignore: Any = ...) -> dict[str, Any]: ...
+
+    def _setdefaults(self, defaults: dict[str, Any], kw: dict[str, Any]) -> None: ...
+
+    def _make_line(self, axes: Any, x: Any, y: Any, kw: dict[str, Any], kwargs: dict[str, Any]) -> tuple[Any, dict[str, Any]]: ...
+
+    def _make_coordinates(self, axes: Any, x: Any, y: Any, kw: dict[str, Any], kwargs: dict[str, Any]) -> tuple[Any, dict[str, Any]]: ...
+
+    def _make_polygon(self, axes: Any, x: Any, y: Any, kw: dict[str, Any], kwargs: dict[str, Any]) -> tuple[Any, dict[str, Any]]: ...
+
+    def _plot_args(
+        self,
+        axes: Any,
+        tup: tuple[Any, ...],
+        kwargs: dict[str, Any],
+        *,
+        return_kwargs: bool = ...,
+        ambiguous_fmt_datakey: bool = ...,
+    ) -> Iterator[Any]: ...
+
 
 class _AxesBase(martist.Artist):
     name: str
@@ -64,6 +118,9 @@ class _AxesBase(martist.Artist):
     title: Text
     _axis_map: dict[str, Axis]
     _projection_init: Any
+    _axis_names: tuple[Literal['x'], Literal['y']] | tuple[Literal['x'], Literal['y'], Literal['z']]
+    _shared_axes: dict[str, cbook.Grouper]
+    _twinned_axes: list[cbook.Grouper]
 
     def __init__(
         self,
@@ -462,3 +519,10 @@ class _AxesBase(martist.Artist):
     ) -> list[Text]: ...
     def xaxis_date(self, tz: str | datetime.tzinfo | None = ...) -> None: ...
     def yaxis_date(self, tz: str | datetime.tzinfo | None = ...) -> None: ...
+
+
+def _draw_rasterized(
+    figure: Figure,
+    artists: List[Artist],
+    renderer: RendererBase,
+) -> None: ...
