@@ -194,6 +194,9 @@ of maintenance work. If you are writing code or documentation, following these p
 helps maintainers more easily review your work. If you are helping triage, community
 manage, or release manage, these guidelines describe how our current process works.
 
+Please also review our :ref:`Restrictions on Generative AI Usage <generative_ai>`, which
+explains how to use AI tools responsibly when contributing to Matplotlib.
+
 .. grid:: 1 1 2 2
    :class-row: sf-fs-1
    :gutter: 2
