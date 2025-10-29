@@ -766,7 +766,7 @@ def _ensure_norm(norm, n_components=1):
             scale_cls = _api.check_getitem(scale._scale_mapping, norm=norm)
             return _auto_norm_from_scale(scale_cls)()
         return norm
-    else:  # n_components > 1
+    elif n_components > 1:
         if not np.iterable(norm):
             _api.check_isinstance((colors.MultiNorm, None, tuple), norm=norm)
         if norm is None:
@@ -777,6 +777,9 @@ def _ensure_norm(norm, n_components=1):
             return norm
         raise ValueError(
             f"Invalid norm for multivariate colormap with {n_components} inputs")
+    else:  # n_components == 0
+        raise ValueError(
+            "Invalid cmap. A colorizer object must have a cmap with `n_variates` >= 1")
 
 
 def _ensure_cmap(cmap, accept_multivariate=False):
