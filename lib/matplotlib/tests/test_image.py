@@ -37,7 +37,7 @@ def test_alpha_interp():
     axr.imshow(img, interpolation="bilinear")
 
 
-@image_comparison(['interp_nearest_vs_none'],
+@image_comparison(['interp_nearest_vs_none'], tol=3.7,  # For Ghostscript 10.06+.
                   extensions=['pdf', 'svg'], remove_text=True)
 def test_interp_nearest_vs_none():
     """Test the effect of "nearest" and "none" interpolation"""

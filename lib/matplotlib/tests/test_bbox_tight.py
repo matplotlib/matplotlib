@@ -108,7 +108,7 @@ def test_bbox_inches_tight_clipping():
     plt.gcf().artists.append(patch)
 
 
-@image_comparison(['bbox_inches_tight_raster'],
+@image_comparison(['bbox_inches_tight_raster'], tol=0.15,  # For Ghostscript 10.06+.
                   remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_raster():
     """Test rasterization with tight_layout"""
