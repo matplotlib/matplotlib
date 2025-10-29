@@ -34,7 +34,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
-from matplotlib.ft2font import FT2Font, FaceFlags, Kerning, LoadFlags, StyleFlags
+from matplotlib.ft2font import FT2Font, FaceFlags, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -469,6 +469,7 @@ class Op(Enum):
     textpos = b'Td'
     selectfont = b'Tf'
     textmatrix = b'Tm'
+    textrise = b'Ts'
     show = b'Tj'
     showkern = b'TJ'
     setlinewidth = b'w'
@@ -2285,6 +2286,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # If fonttype is neither 3 nor 42, emit the whole string at once
         # without manual kerning.
         if fonttype not in [3, 42]:
+            if not mpl.rcParams['pdf.use14corefonts']:
+                self.file._character_tracker.track(font, s,
+                                                   features=features, language=language)
             self.file.output(Op.begin_text,
                              self.file.fontName(prop), fontsize, Op.selectfont)
             self._setup_textpos(x, y, angle)
@@ -2305,6 +2309,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # kerning between chunks.
         else:
             def output_singlebyte_chunk(kerns_or_chars):
+                if not kerns_or_chars:
+                    return
                 self.file.output(
                     # See pdf spec "Text space details" for the 1000/fontsize
                     # (aka. 1000/T_fs) factor.
@@ -2312,6 +2318,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                      else self._encode_glyphs(group, fonttype)
                      for tp, group in itertools.groupby(kerns_or_chars, type)],
                     Op.showkern)
+                kerns_or_chars.clear()
             # Do the rotation and global translation as a single matrix
             # concatenation up front
             self.file.output(Op.gsave)
@@ -2326,24 +2333,26 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             # Emit all the characters in a BT/ET group.
             self.file.output(Op.begin_text)
             for item in _text_helpers.layout(s, font, features=features,
-                                             kern_mode=Kerning.UNFITTED,
                                              language=language):
                 subset, charcode = self.file._character_tracker.track_glyph(
                     item.ft_object, item.char, item.glyph_index)
                 if (item.ft_object, subset) != prev_font:
-                    if singlebyte_chunk:
-                        output_singlebyte_chunk(singlebyte_chunk)
+                    output_singlebyte_chunk(singlebyte_chunk)
                     ft_name = self.file.fontName(item.ft_object.fname, subset)
                     self.file.output(ft_name, fontsize, Op.selectfont)
                     self._setup_textpos(item.x, 0, 0, prev_start_x, 0, 0)
-                    singlebyte_chunk = []
                     prev_font = (item.ft_object, subset)
                     prev_start_x = item.x
+                if item.y:
+                    output_singlebyte_chunk(singlebyte_chunk)
+                    self.file.output(item.y, Op.textrise)
                 if item.prev_kern:
                     singlebyte_chunk.append(item.prev_kern)
                 singlebyte_chunk.append(charcode)
-            if singlebyte_chunk:
-                output_singlebyte_chunk(singlebyte_chunk)
+                if item.y:
+                    output_singlebyte_chunk(singlebyte_chunk)
+                    self.file.output(0, Op.textrise)
+            output_singlebyte_chunk(singlebyte_chunk)
             self.file.output(Op.end_text)
             self.file.output(Op.grestore)
 

@@ -1048,6 +1048,11 @@ class RendererSVG(RendererBase):
         text2path = self._text2path
         color = rgb2hex(gc.get_rgb())
         fontsize = prop.get_size_in_points()
+        if mtext is not None:
+            features = mtext.get_fontfeatures()
+            language = mtext.get_language()
+        else:
+            features = language = None
 
         style = {}
         if color != '#000000':
@@ -1068,7 +1073,8 @@ class RendererSVG(RendererBase):
         if not ismath:
             font = text2path._get_font(prop)
             glyph_info, glyph_map_new, rects = text2path.get_glyphs_with_font(
-                font, s, glyph_map=glyph_map, return_new_glyphs_only=True)
+                font, s, features=features, language=language,
+                glyph_map=glyph_map, return_new_glyphs_only=True)
             self._update_glyph_map_defs(glyph_map_new)
 
             for glyph_repr, xposition, yposition, scale in glyph_info:

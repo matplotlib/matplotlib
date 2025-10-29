@@ -199,7 +199,10 @@ class CharacterTracker:
         self.glyph_maps: dict[str, GlyphMap] = {}
         self.subset_size = subset_size
 
-    def track(self, font: FT2Font, s: str) -> list[tuple[int, CharacterCodeType]]:
+    def track(self, font: FT2Font, s: str,
+              features: tuple[str, ...] | None = ...,
+              language: str | tuple[tuple[str, int, int], ...] | None = None
+              ) -> list[tuple[int, CharacterCodeType]]:
         """
         Record that string *s* is being typeset using font *font*.
 
@@ -209,6 +212,14 @@ class CharacterTracker:
             A font that is being used for the provided string.
         s : str
             The string that should be marked as tracked by the provided font.
+        features : tuple[str, ...], optional
+            The font feature tags to use for the font.
+
+            Available font feature tags may be found at
+            https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
+        language : str, optional
+            The language of the text in a format accepted by libraqm, namely `a BCP47
+            language code <https://www.w3.org/International/articles/language-tags/>`_.
 
         Returns
         -------
@@ -220,8 +231,9 @@ class CharacterTracker:
             and the character codes will be returned from the string unchanged.
         """
         return [
-            self.track_glyph(f, ord(c), f.get_char_index(ord(c)))
-            for c, f in font._get_fontmap(s).items()
+            self.track_glyph(raqm_item.ft_object, raqm_item.char, raqm_item.glyph_index)
+            for raqm_item in font._layout(s, ft2font.LoadFlags.NO_HINTING,
+                                          features=features, language=language)
         ]
 
     def track_glyph(self, font: FT2Font, chars: str | CharacterCodeType,
