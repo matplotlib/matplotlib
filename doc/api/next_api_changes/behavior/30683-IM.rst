@@ -1,0 +1,11 @@
+:orphan:
+
+grouped_bar hatch broadcasting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, `.Axes.grouped_bar` applied the same hatch pattern to all bars,
+even when plotting multiple datasets.  It now supports hatch broadcasting,
+allowing one hatch pattern per dataset, similar to color broadcasting.
+
+This change improves visual differentiation and consistency with other
+multi-dataset plotting functions such as `.Axes.hist`.
