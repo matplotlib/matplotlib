@@ -1383,8 +1383,7 @@ class Axis(martist.Artist):
                     bb.y0 = (bb.y0 + bb.y1) / 2 - 0.5
                     bb.y1 = bb.y0 + 1.0
             bboxes.append(bb)
-        bboxes = [b for b in bboxes
-                  if 0 < b.width < np.inf and 0 < b.height < np.inf]
+        bboxes = [b for b in bboxes if b._is_finite()]
         if bboxes:
             return mtransforms.Bbox.union(bboxes)
         else:
