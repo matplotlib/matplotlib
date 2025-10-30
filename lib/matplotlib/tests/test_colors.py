@@ -1425,7 +1425,7 @@ def test_scalarmappable_nan_to_rgba(bytes):
 
     # Out-of-range fail
     x[1, 0, 0] = 42
-    with pytest.raises(ValueError, match='0..1 range'):
+    with pytest.raises(ValueError, match=r'\[0,1\] range'):
         sm.to_rgba(x[..., :3], bytes=bytes)
 
 
@@ -1864,6 +1864,7 @@ def test_norm_abc():
         def scaled(self):
             return True
 
+        @property
         def n_components(self):
             return 1
 
@@ -2056,3 +2057,189 @@ def test_mult_norm_call_types():
     with pytest.raises(ValueError,
                        match="but got <object object"):
         mn(object())
+
+
+def test_ensure_multivariate_data():
+
+    # text complex input
+    for dtype, target in zip(["complex64", "complex128"], [np.float32, np.float64]):
+        data = np.arange(12).reshape((4, 3)).astype(dtype)
+        mdata = mcolorizer._ensure_multivariate_data(data, 2)
+        assert mdata.shape == (4, 3)
+        assert mdata.dtype.fields['f0'][0] == target
+        assert mdata.dtype.fields['f1'][0] == target
+        assert_array_almost_equal(mdata["f0"], np.arange(12).reshape((4, 3)))
+        assert_array_almost_equal(mdata["f1"], np.zeros(12).reshape((4, 3)))
+
+    # test complex masked
+    data = np.arange(12).reshape((4, 3)).astype('complex128')
+    data = np.ma.masked_where(data > 5, data)
+    mdata = mcolorizer._ensure_multivariate_data(data, 2)
+    assert np.all(mdata["f0"].mask[:2] == 0)
+    assert np.all(mdata["f0"].mask[2:] == 1)
+    assert np.all(mdata["f1"].mask[:2] == 0)
+    assert np.all(mdata["f1"].mask[2:] == 1)
+
+    # test tuple of data
+    data = [0, 1]
+    mdata = mcolorizer._ensure_multivariate_data(data, 2)
+    assert mdata.shape == ()
+
+    # test wrong input size
+    data = [[0, 1]]
+    with pytest.raises(ValueError, match="must contain complex numbers"):
+        mcolorizer._ensure_multivariate_data(data, 2)
+    data = [[0, 1]]
+    with pytest.raises(ValueError, match="have a first dimension 3"):
+        mcolorizer._ensure_multivariate_data(data, 3)
+
+    # test input of ints as list of lists
+    data = [[0, 0, 0], [1, 1, 1]]
+    mdata = mcolorizer._ensure_multivariate_data(data, 2)
+    assert mdata.shape == (3,)
+    assert mdata.dtype.fields['f0'][0] == np.int64
+    assert mdata.dtype.fields['f1'][0] == np.int64
+
+    # test input of floats, ints as tuple of lists
+    data = ([0.0, 0.0], [1, 1])
+    mdata = mcolorizer._ensure_multivariate_data(data, 2)
+    assert mdata.shape == (2,)
+    assert mdata.dtype.fields['f0'][0] == np.float64
+    assert mdata.dtype.fields['f1'][0] == np.int64
+
+    # test input of array of floats
+    data = np.array([[0.0, 0, 0], [1, 1, 1]])
+    mdata = mcolorizer._ensure_multivariate_data(data, 2)
+    assert mdata.shape == (3,)
+    assert mdata.dtype.fields['f0'][0] == np.float64
+    assert mdata.dtype.fields['f1'][0] == np.float64
+
+    # test more input dims
+    data = np.zeros((3, 4, 5, 6))
+    mdata = mcolorizer._ensure_multivariate_data(data, 3)
+    assert mdata.shape == (4, 5, 6)
+
+
+def test_colorizer_multinorm_implicit():
+    ca = mcolorizer.Colorizer('BiOrangeBlue')
+    ca.vmin = (0, 0)
+    ca.vmax = (1, 1)
+
+    # test call with two single values
+    data = [0.1, 0.2]
+    res = (0.10009765625, 0.1510859375, 0.20166015625, 1.0)
+    assert_array_almost_equal(ca.to_rgba(data), res)
+
+    # test call with two 1d arrays
+    data = [[0.1, 0.2], [0.3, 0.4]]
+    res = [[0.10009766, 0.19998877, 0.29931641, 1.],
+           [0.20166016, 0.30098633, 0.40087891, 1.]]
+    assert_array_almost_equal(ca.to_rgba(data), res)
+
+    # test call with two 2d arrays
+    data = [np.linspace(0, 1, 12).reshape(3, 4),
+            np.linspace(1, 0, 12).reshape(3, 4)]
+    res = np.array([[[0.00244141, 0.50048437, 0.99853516, 1.],
+                     [0.09228516, 0.50048437, 0.90869141, 1.],
+                     [0.18212891, 0.50048437, 0.81884766, 1.],
+                     [0.27197266, 0.50048437, 0.72900391, 1.]],
+                    [[0.36572266, 0.50048437, 0.63525391, 1.],
+                     [0.45556641, 0.50048438, 0.54541016, 1.],
+                     [0.54541016, 0.50048438, 0.45556641, 1.],
+                     [0.63525391, 0.50048437, 0.36572266, 1.]],
+                    [[0.72900391, 0.50048437, 0.27197266, 1.],
+                     [0.81884766, 0.50048437, 0.18212891, 1.],
+                     [0.90869141, 0.50048437, 0.09228516, 1.],
+                     [0.99853516, 0.50048437, 0.00244141, 1.]]])
+    assert_array_almost_equal(ca.to_rgba(data), res)
+
+    with pytest.raises(ValueError, match=("This MultiNorm has 2 components, "
+                                          "but got a sequence with 3 elements")):
+        ca.to_rgba([0.1, 0.2, 0.3])
+    with pytest.raises(ValueError, match=("This MultiNorm has 2 components, "
+                                          "but got a sequence with 1 elements")):
+        ca.to_rgba([[0.1]])
+
+    # test multivariate
+    ca = mcolorizer.Colorizer('3VarAddA')
+    ca.vmin = (-0.1, -0.2, -0.3)
+    ca.vmax = (0.1, 0.2, 0.3)
+
+    data = [0.1, 0.1, 0.1]
+    res = (0.712612, 0.896847, 0.954494, 1.0)
+    assert_array_almost_equal(ca.to_rgba(data), res)
+
+
+def test_colorizer_multinorm_explicit():
+
+    with pytest.raises(ValueError, match="MultiNorm must be assigned"):
+        ca = mcolorizer.Colorizer('BiOrangeBlue', 'linear')
+
+    with pytest.raises(TypeError,
+                       match=("'norm' must be an instance of matplotlib.colors.Norm"
+                              ", str or None, not a list")):
+        ca = mcolorizer.Colorizer('viridis', ['linear', 'linear'])
+
+    with pytest.raises(ValueError,
+                       match=("Invalid norm for multivariate colormap with 2 inputs")):
+        ca = mcolorizer.Colorizer('BiOrangeBlue', ['linear', 'linear', 'log'])
+
+    # valid explicit construction
+    ca = mcolorizer.Colorizer('BiOrangeBlue', [mcolors.Normalize(), 'log'])
+    ca.vmin = (0, 0.01)
+    ca.vmax = (1, 1)
+
+    # test call with two single values
+    data = [0.1, 0.2]
+    res = (0.100098, 0.375492, 0.650879, 1.)
+    assert_array_almost_equal(ca.to_rgba(data), res)
+
+
+def test_invalid_cmap_n_components_zero():
+    class CustomColormap(mcolors.Colormap):
+        def __init__(self):
+            super().__init__("custom")
+            self.n_variates = 0
+
+    with pytest.raises(ValueError, match='`n_variates` >= 1'):
+        ca = mcolorizer.Colorizer(CustomColormap())
+
+
+def test_colorizer_bivar_cmap():
+    ca = mcolorizer.Colorizer('BiOrangeBlue', [mcolors.Normalize(), 'log'])
+
+    with pytest.raises(ValueError, match='The colormap viridis'):
+        ca.cmap = 'viridis'
+
+    cartist = mcolorizer.ColorizingArtist(ca)
+    cartist.set_array(np.zeros((2, 4, 4)))
+
+    with pytest.raises(ValueError, match='Invalid data entry for multivariate'):
+        cartist.set_array(np.zeros((3, 4, 4)))
+
+    dt = np.dtype([('x', 'f4'), ('', 'object')])
+    with pytest.raises(TypeError, match='converted to a sequence of floats'):
+        cartist.set_array(np.zeros((2, 4, 4), dtype=dt))
+
+    with pytest.raises(ValueError, match='all variates must have same shape'):
+        cartist.set_array((np.zeros(3), np.zeros(4)))
+
+    # ensure masked value is propagated from input
+    a = np.arange(3)
+    cartist.set_array((a, np.ma.masked_where(a > 1, a)))
+    assert np.all(cartist.get_array()['f0'].mask == np.array([0, 0, 0], dtype=bool))
+    assert np.all(cartist.get_array()['f1'].mask == np.array([0, 0, 1], dtype=bool))
+
+    # test clearing data
+    cartist.set_array(None)
+    cartist.get_array() is None
+
+
+def test_colorizer_multivar_cmap():
+    ca = mcolorizer.Colorizer('3VarAddA', [mcolors.Normalize(),
+                                           mcolors.Normalize(),
+                                           'log'])
+    cartist = mcolorizer.ColorizingArtist(ca)
+    cartist.set_array(np.zeros((3, 5, 5)))
+    with pytest.raises(ValueError, match='Complex numbers are incompatible with'):
+        cartist.set_array(np.zeros((5, 5), dtype='complex128'))
