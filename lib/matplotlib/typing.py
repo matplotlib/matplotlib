@@ -217,6 +217,8 @@ RcKeyType: TypeAlias = Literal[
     "axes.ymargin",
     "axes.zmargin",
     "axes3d.automargin",
+    "axes3d.depthshade",
+    "axes3d.depthshade_minalpha",
     "axes3d.grid",
     "axes3d.mouserotationstyle",
     "axes3d.trackballborder",
@@ -304,6 +306,7 @@ RcKeyType: TypeAlias = Literal[
     "figure.titlesize",
     "figure.titleweight",
     "font.cursive",
+    "font.enable_last_resort",
     "font.family",
     "font.fantasy",
     "font.monospace",
@@ -318,6 +321,14 @@ RcKeyType: TypeAlias = Literal[
     "grid.color",
     "grid.linestyle",
     "grid.linewidth",
+    "grid.major.alpha",
+    "grid.major.color",
+    "grid.major.linestyle",
+    "grid.major.linewidth",
+    "grid.minor.alpha",
+    "grid.minor.color",
+    "grid.minor.linestyle",
+    "grid.minor.linewidth",
     "hatch.color",
     "hatch.linewidth",
     "hist.bins",
@@ -492,7 +503,7 @@ RcKeyType: TypeAlias = Literal[
     "ytick.minor.size",
     "ytick.minor.visible",
     "ytick.minor.width",
-    "ytick.right"
+    "ytick.right",
 ]
 
 RcGroupKeyType: TypeAlias = Literal[
@@ -524,6 +535,8 @@ RcGroupKeyType: TypeAlias = Literal[
     "figure.subplot",
     "font",
     "grid",
+    "grid.major",
+    "grid.minor",
     "hatch",
     "hist",
     "image",
@@ -546,6 +559,7 @@ RcGroupKeyType: TypeAlias = Literal[
     "scatter",
     "svg",
     "text",
+    "text.latex",
     "tk",
     "webagg",
     "xaxis",
@@ -555,5 +569,5 @@ RcGroupKeyType: TypeAlias = Literal[
     "yaxis",
     "ytick",
     "ytick.major",
-    "ytick.minor"
+    "ytick.minor",
 ]
