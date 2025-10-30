@@ -3191,8 +3191,10 @@ or pandas.DataFrame
             If not specified, the colors from the Axes property cycle will be used.
 
         hatch : str or sequence of str, optional
-            Hatching patterns to fill the bars. May be a single pattern applied
-            to all groups, or a sequence giving one hatch per dataset.
+            Hatch pattern(s) to apply per dataset. If a single string is given,
+            all bars share the same hatch. If a sequence is given, one hatch
+            pattern is applied per dataset. An empty string ``""`` disables
+            hatching for that dataset.
 
         **kwargs : `.Rectangle` properties
 
