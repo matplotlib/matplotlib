@@ -3349,7 +3349,7 @@ or pandas.DataFrame
         bar_containers = []
         for i, (hs, label, color, hatch_pattern) in enumerate(
                 zip(heights, labels, colors, hatches)):
-            lefts = (group_centers + 0.5 * group_distance - margin_abs
+            lefts = (group_centers - 0.5 * group_distance - margin_abs
                     + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
                 bc = self.bar(
