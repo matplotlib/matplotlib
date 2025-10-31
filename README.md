@@ -75,3 +75,10 @@ entry](https://matplotlib.org/stable/users/project/citing.html) is
 available.
 ### My Contribution
 - Minor documentation update by [Himani Devadiga](https://github.com/Himani-s-Devadiga)
+---
+### 🧠 Added by: Himani Devadiga
+
+**Contribution:** Improved documentation and explored the repository as part of my open-source learning journey.  
+**GitHub:** [Himani-s-Devadiga](https://github.com/Himani-s-Devadiga)
+---
+
