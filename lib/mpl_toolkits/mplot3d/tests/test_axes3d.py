@@ -645,7 +645,8 @@ def test_surface3d():
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
-@image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20', tol=0.07)
 def test_surface3d_label_offset_tick_position():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax = plt.figure().add_subplot(projection="3d")
@@ -741,7 +742,8 @@ def test_surface3d_masked_strides():
     ax.view_init(60, -45, 0)
 
 
-@mpl3d_image_comparison(['text3d.png'], remove_text=False, style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@mpl3d_image_comparison(['text3d.png'], remove_text=False, style='mpl20', tol=0.1)
 def test_text3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -1120,8 +1122,9 @@ def test_poly3dCollection_autoscaling():
     assert np.allclose(ax.get_zlim3d(), (-0.0833333333333333, 4.083333333333333))
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @mpl3d_image_comparison(['axes3d_labelpad.png'],
-                        remove_text=False, style='mpl20')
+                        remove_text=False, style='mpl20', tol=0.06)
 def test_axes3d_labelpad():
     fig = plt.figure()
     ax = fig.add_axes(Axes3D(fig))
