@@ -550,8 +550,8 @@ class _AxesBase(martist.Artist):
     # In practice, this is ('x', 'y') for all 2D Axes and ('x', 'y', 'z')
     # for Axes3D.
     _axis_names = ("x", "y")
-    _shared_axes = {name: cbook.Grouper() for name in _axis_names}
-    _twinned_axes = cbook.Grouper()
+    _shared_axes: dict[str, cbook.Grouper] = {name: cbook.Grouper() for name in _axis_names}
+    _twinned_axes: cbook.Grouper = cbook.Grouper()
 
     _subclass_uses_cla = False
 
