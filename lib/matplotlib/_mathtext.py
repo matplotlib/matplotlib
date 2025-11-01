@@ -2362,8 +2362,7 @@ class Parser:
             next_char_loc += len('operatorname{}')
         next_char = next((c for c in s[next_char_loc:] if c != ' '), '')
         delimiters = self._delims | {'^', '_'}
-        if (next_char not in delimiters and
-                name not in self._overunder_functions):
+        if next_char not in delimiters:
             # Add thin space except when followed by parenthesis, bracket, etc.
             hlist_list += [self._make_space(self._space_widths[r'\,'])]
         self.pop_state()
@@ -2483,7 +2482,12 @@ class Parser:
                 shift = hlist.height + vgap + nucleus.depth
             vlt = Vlist(vlist)
             vlt.shift_amount = shift
-            result = Hlist([vlt])
+            result = Hlist([
+                vlt,
+                *([self._make_space(self._space_widths[r'\,'])]
+                  if self._in_subscript_or_superscript else []),
+            ])
+            self._in_subscript_or_superscript = False
             return [result]
 
         # We remove kerning on the last character for consistency (otherwise
