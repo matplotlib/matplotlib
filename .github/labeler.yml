@@ -1,7 +1,9 @@
 ---
 "CI: Run cibuildwheel":
   - changed-files:
-      - any-glob-to-any-file: ['.github/workflows/cibuildwheel.yml']
+      - any-glob-to-any-file:
+          - '.github/workflows/cibuildwheel.yml'
+          - 'pyproject.toml'
 "CI: Run cygwin":
   - changed-files:
       - any-glob-to-any-file: ['.github/workflows/cygwin.yml']
