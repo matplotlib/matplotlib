@@ -53,6 +53,10 @@ namespace agg
         //----------------------------------------------------------------
         void begin(double x, double y, unsigned len)
         {
+#ifdef MPL_FIX_AGG_INTERPOLATION_ENDPOINT_BUG
+            len -= 1;
+#endif
+
             double tx;
             double ty;
 
@@ -75,6 +79,10 @@ namespace agg
         //----------------------------------------------------------------
         void resynchronize(double xe, double ye, unsigned len)
         {
+#ifdef MPL_FIX_AGG_INTERPOLATION_ENDPOINT_BUG
+            len -= 1;
+#endif
+
             m_trans->transform(&xe, &ye);
             m_li_x = dda2_line_interpolator(m_li_x.y(), iround(xe * subpixel_scale), len);
             m_li_y = dda2_line_interpolator(m_li_y.y(), iround(ye * subpixel_scale), len);
