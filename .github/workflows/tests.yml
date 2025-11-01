@@ -115,6 +115,7 @@ jobs:
               fonts-wqy-zenhei \
               gdb \
               gir1.2-gtk-3.0 \
+              gir1.2-gtk-4.0 \
               graphviz \
               inkscape \
               language-pack-de \
@@ -150,7 +151,6 @@ jobs:
             fi
             if [[ "${{ matrix.os }}" = ubuntu-22.04 ]]; then
               sudo apt-get install -yy --no-install-recommends \
-                gir1.2-gtk-4.0 \
                 libgirepository1.0-dev
             else  # ubuntu-24.04
               sudo apt-get install -yy --no-install-recommends \
