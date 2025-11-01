@@ -3050,7 +3050,7 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def grouped_bar(self, heights, *, positions=None, group_spacing=1.5, bar_spacing=0,
                     tick_labels=None, labels=None, orientation="vertical", colors=None,
-                    **kwargs):
+                    hatch=None, **kwargs):
         """
         Make a grouped bar plot.
 
@@ -3190,6 +3190,12 @@ or pandas.DataFrame
 
             If not specified, the colors from the Axes property cycle will be used.
 
+        hatch : str or sequence of str, optional
+            Hatch pattern(s) to apply per dataset. If a single string is given,
+            all bars share the same hatch. If a sequence is given, one hatch
+            pattern is applied per dataset. An empty string ``""`` disables
+            hatching for that dataset.
+
         **kwargs : `.Rectangle` properties
 
             %(Rectangle:kwdoc)s
@@ -3318,6 +3324,16 @@ or pandas.DataFrame
             # TODO: do we want to be more restrictive and check lengths?
             colors = itertools.cycle(colors)
 
+        # Normalize hatch argument similar to colors
+        if hatch is None or isinstance(hatch, str):
+            hatches = itertools.cycle([hatch])
+        else:
+            if len(hatch) != num_datasets:
+                raise ValueError(
+                     f"Expected {num_datasets} hatches, got {len(hatch)}"
+                 )
+            hatches = itertools.cycle(hatch)
+
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
         bar_spacing_abs = bar_spacing * bar_width
@@ -3331,15 +3347,20 @@ or pandas.DataFrame
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
         bar_containers = []
-        for i, (hs, label, color) in enumerate(zip(heights, labels, colors)):
-            lefts = (group_centers - 0.5 * group_distance + margin_abs
-                     + i * (bar_width + bar_spacing_abs))
+        for i, (hs, label, color, hatch_pattern) in enumerate(
+                zip(heights, labels, colors, hatches)):
+            lefts = (group_centers - 0.5 * group_distance - margin_abs
+                    + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
-                bc = self.bar(lefts, hs, width=bar_width, align="edge",
-                              label=label, color=color, **kwargs)
+                bc = self.bar(
+                    lefts, hs, width=bar_width, align="edge",
+                    label=label, color=color, hatch=hatch_pattern, **kwargs
+                )
             else:
-                bc = self.barh(lefts, hs, height=bar_width, align="edge",
-                               label=label, color=color, **kwargs)
+                bc = self.barh(
+                    lefts, hs, height=bar_width, align="edge",
+                    label=label, color=color, hatch=hatch_pattern, **kwargs
+                )
             bar_containers.append(bc)
 
         if tick_labels is not None:
