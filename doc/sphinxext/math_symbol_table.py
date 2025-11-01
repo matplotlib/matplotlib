@@ -9,6 +9,7 @@ from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 from matplotlib import _mathtext
 
+
 class MathSymbolTableDirective(SphinxDirective):
     """Generate tables of math symbols grouped by category."""
 
@@ -99,6 +100,7 @@ class MathSymbolTableDirective(SphinxDirective):
         node = nodes.paragraph()
         self.state.nested_parse(StringList(text.splitlines()), 0, node)
         return [node]
+
 
 def setup(app):
     """Register the Sphinx directive."""
