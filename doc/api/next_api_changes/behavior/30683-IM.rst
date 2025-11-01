@@ -1,10 +1,32 @@
+grouped_bar hatch patterns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-grouped_bar hatch broadcasting
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.Axes.grouped_bar` now accepts a list of strings describing hatch patterns,
+which are applied sequentially to the datasets, cycling if fewer patterns are
+provided—similar to how colors are handled.
 
-Previously, `.Axes.grouped_bar` applied the same hatch pattern to all bars,
-even when plotting multiple datasets.  It now supports hatch broadcasting,
-allowing one hatch pattern per dataset, similar to color broadcasting.
+.. plot::
 
-This change improves visual differentiation and consistency with other
-multi-dataset plotting functions such as `.Axes.hist`.
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
+
+   x = np.arange(3)
+   heights = [
+       [1, 2, 3],
+       [2, 1, 2],
+       [3, 2, 1],
+   ]
+
+   ax1.grouped_bar(heights, tick_labels=["A", "B", "C"], hatch="/")
+   ax2.grouped_bar(heights, tick_labels=["A", "B", "C"], hatch=["/", "\\\\", ".."])
+
+   ax1.set_title("hatch='/'")
+   ax2.set_title("hatch=['/', '\\\\', '..']")
+
+   plt.show()
+
+The first plot applies the same hatch to all bars.
+The second plot uses a different hatch for each dataset, cycling automatically
+if the list of hatches is shorter than the number of datasets.

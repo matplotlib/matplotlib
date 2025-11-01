@@ -2294,17 +2294,25 @@ def test_grouped_bar_hatch_sequence():
             assert rect.get_hatch() == hatches[gi]
 
 
-def test_grouped_bar_hatch_length_mismatch():
-    """Passing a hatch sequence with length different from
-    number of datasets should raise an error.
+def test_grouped_bar_hatch_cycles_when_shorter_than_datasets():
+    """When the hatch list is shorter than the number of datasets,
+    patterns should cycle.
     """
 
     fig, ax = plt.subplots()
     x = np.arange(2)
-    heights = [np.array([1, 2]), np.array([2, 3]), np.array([3, 4])]
-    hatches = ['//', 'xx']  # only 2 hatches for 3 datasets
-    with pytest.raises(ValueError, match="Expected 3 hatches, got 2"):
-        ax.grouped_bar(heights, positions=x, hatch=hatches)
+    heights = [
+        np.array([1, 2]),
+        np.array([2, 3]),
+        np.array([3, 4]),
+    ]
+    hatches = ['//', 'xx']  # shorter than number of datasets → should cycle
+    containers = ax.grouped_bar(heights, positions=x, hatch=hatches)
+
+    expected_hatches = ['//', 'xx', '//']  # cycle repeats
+    for gi, c in enumerate(containers.bar_containers):
+        for rect in c:
+            assert rect.get_hatch() == expected_hatches[gi]
 
 
 def test_grouped_bar_hatch_none():
