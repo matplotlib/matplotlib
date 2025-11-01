@@ -769,7 +769,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         y1 = height - y1
         self.canvas._rubberband_rect_black = (
             self.canvas._tkcanvas.create_rectangle(
-                x0, y0, x1, y1))
+                x0, y0, x1, y1, outline='black'))
         self.canvas._rubberband_rect_white = (
             self.canvas._tkcanvas.create_rectangle(
                 x0, y0, x1, y1, outline='white', dash=(3, 3)))
