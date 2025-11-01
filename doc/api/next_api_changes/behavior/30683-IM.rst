@@ -1,4 +1,3 @@
-:orphan:
 
 grouped_bar hatch broadcasting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
