@@ -4075,6 +4075,7 @@ def scatter(
     data=None,
     **kwargs,
 ) -> PathCollection:
+    # print(f"scatter called with facecolors: {facecolors}")   # Adicionado para teste
     __ret = gca().scatter(
         x,
         y,
