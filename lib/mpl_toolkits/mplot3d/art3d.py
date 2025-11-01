@@ -8,6 +8,7 @@ artists into 3D versions which can be added to an Axes3D.
 """
 
 import math
+import warnings
 
 import numpy as np
 
@@ -123,6 +124,16 @@ class Text3D(mtext.Text):
 
     def __init__(self, x=0, y=0, z=0, text='', zdir='z', axlim_clip=False,
                  **kwargs):
+        if 'rotation' in kwargs:
+            _api.warn_external(
+                "The `rotation` parameter has not yet been implemented "
+                "and is currently ignored."
+            )
+        if 'rotation_mode' in kwargs:
+            _api.warn_external(
+                "The `rotation_mode` parameter has not yet been implemented "
+                "and is currently ignored."
+            )
         mtext.Text.__init__(self, x, y, text, **kwargs)
         self.set_3d_properties(z, zdir, axlim_clip)
 
