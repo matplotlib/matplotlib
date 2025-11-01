@@ -3083,6 +3083,56 @@ class AsinhNorm(Normalize):
         self._scale.linear_width = value
 
 
+class CenteredAsinhNorm(AsinhNorm):
+    def __init__(self, vcenter=0, halfrange=None, linear_width=1, clip=False):
+        # Initialize with AsinhNorm, vmin/vmax set via halfrange setter
+        super().__init__(linear_width=linear_width, vmin=None, vmax=None, clip=clip)
+        self._vcenter = vcenter
+        self.halfrange = halfrange
+
+    def autoscale(self, A):
+        """Set *halfrange* to ``max(abs(A-vcenter))``, then set *vmin* and *vmax*."""
+        A = np.asanyarray(A)
+        self.halfrange = max(self._vcenter - A.min(),
+                             A.max() - self._vcenter)
+
+    def autoscale_None(self, A):
+        """Set *vmin* and *vmax* if not already set."""
+        A = np.asanyarray(A)
+        if self.halfrange is None and A.size:
+            self.autoscale(A)
+
+    @property
+    def vcenter(self):
+        """The center value of the normalization."""
+        return self._vcenter
+
+    @vcenter.setter
+    def vcenter(self, vcenter):
+        """Set center value and update vmin/vmax accordingly."""
+        if vcenter != self._vcenter:
+            self._vcenter = vcenter
+            self.halfrange = self.halfrange  # Recalculate vmin/vmax
+            self._changed()
+
+    @property
+    def halfrange(self):
+        """The half-range of the normalization. Returns None if vmin or vmax is not set."""
+        if self.vmin is None or self.vmax is None:
+            return None
+        return (self.vmax - self.vmin) / 2
+
+    @halfrange.setter
+    def halfrange(self, halfrange):
+        """Set half-range and update vmin/vmax symmetrically around vcenter."""
+        if halfrange is None:
+            self.vmin = None
+            self.vmax = None
+        else:
+            self.vmin = self.vcenter - abs(halfrange)
+            self.vmax = self.vcenter + abs(halfrange)
+
+
 class PowerNorm(Normalize):
     r"""
     Linearly map a given value to the 0-1 range and then apply

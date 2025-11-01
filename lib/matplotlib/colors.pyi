@@ -388,6 +388,26 @@ class AsinhNorm(Normalize):
     @linear_width.setter
     def linear_width(self, value: float) -> None: ...
 
+class CenteredAsinhNorm(AsinhNorm):
+    """Type stub for CenteredAsinhNorm - symmetric asinh normalization."""
+    def __init__(
+        self,
+        vcenter: float = ...,
+        halfrange: float | None = ...,
+        linear_width: float = ...,
+        clip: bool = ...,
+    ) -> None: ...
+    @property
+    def vcenter(self) -> float: ...
+    @vcenter.setter
+    def vcenter(self, vcenter: float) -> None: ...
+    @property
+    def halfrange(self) -> float | None: ...
+    @halfrange.setter
+    def halfrange(self, halfrange: float | None) -> None: ...
+    def autoscale(self, A: ArrayLike) -> None: ...
+    def autoscale_None(self, A: ArrayLike) -> None: ...
+
 class PowerNorm(Normalize):
     gamma: float
     def __init__(
