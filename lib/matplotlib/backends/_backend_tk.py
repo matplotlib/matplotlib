@@ -602,6 +602,8 @@ class FigureManagerTk(FigureManagerBase):
                 self.window.protocol("WM_DELETE_WINDOW", destroy)
                 self.window.deiconify()
                 self.canvas._tkcanvas.focus_set()
+                if self._window_dpi.get() != 96:
+                    self._update_window_dpi()
             else:
                 self.canvas.draw_idle()
             if mpl.rcParams['figure.raise_window']:
