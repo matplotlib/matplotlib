@@ -38,6 +38,7 @@ class FigureCanvasQTCairo(FigureCanvasCairo, FigureCanvasQT):
         painter.eraseRect(event.rect())
         painter.drawImage(0, 0, qimage)
         self._draw_rect_callback(painter)
+        self._draw_whisker_callback(painter)
         painter.end()
 
 

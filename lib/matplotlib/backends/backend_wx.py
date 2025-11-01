@@ -484,6 +484,9 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self._rubberband_rect = None
         self._rubberband_pen_black = wx.Pen('BLACK', 1, wx.PENSTYLE_SHORT_DASH)
         self._rubberband_pen_white = wx.Pen('WHITE', 1, wx.PENSTYLE_SOLID)
+        self._whiskers = None
+        self._whiskers_size = 20
+        self._whiskers_pen = wx.Pen('BLACK', 2, wx.PENSTYLE_SOLID)
 
         self.Bind(wx.EVT_SIZE, self._on_size)
         self.Bind(wx.EVT_PAINT, self._on_paint)
@@ -616,6 +619,24 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                     (x0, y0, x0, y1), (x0, y1, x1, y1)]
             drawDC.DrawLineList(rect, self._rubberband_pen_white)
             drawDC.DrawLineList(rect, self._rubberband_pen_black)
+        if self._whiskers is not None:
+            x0, y0, x1, y1 = map(round, self._whiskers)
+            lines = [(x0, y0, x1, y1)]
+            if x0 == x1:  # vertical line
+                lines += [(x0 - self._whiskers_size//2, y0,
+                           x0 + self._whiskers_size//2, y0),
+                          (x1 - self._whiskers_size//2, y1,
+                           x1 + self._whiskers_size//2, y1)]
+            elif y0 == y1:  # horizontal line
+                lines += [(x0, y0 - self._whiskers_size//2, x0,
+                           y0 + self._whiskers_size//2),
+                          (x1, y1 - self._whiskers_size//2, x1,
+                           y1 + self._whiskers_size//2)]
+            else:  # Don't draw
+                lines = []
+
+            drawDC.DrawLineList(lines, self._whiskers_pen)
+
 
     filetypes = {
         **FigureCanvasBase.filetypes,
@@ -1175,8 +1196,20 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                                         x1/sf, (height - y1)/sf)
         self.canvas.Refresh()
 
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws=20):
+        height = self.canvas.figure.bbox.height
+        sf = 1 if wx.Platform == '__WXMSW__' else self.canvas.GetDPIScaleFactor()
+        self.canvas._whiskers = (x0/sf, (height - y0)/sf,
+                                 x1/sf, (height - y1)/sf)
+        self.canvas._whiskers_size = int(ws/sf)
+        self.canvas.Refresh()
+
     def remove_rubberband(self):
         self.canvas._rubberband_rect = None
+        self.canvas.Refresh()
+
+    def remove_whiskers(self):
+        self.canvas._whiskers = None
         self.canvas.Refresh()
 
     def set_message(self, s):

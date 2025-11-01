@@ -433,8 +433,14 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.send_event("rubberband", x0=x0, y0=y0, x1=x1, y1=y1)
 
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws=20):
+        self.canvas.send_event("whiskers", x0=x0, y0=y0, x1=x1, y1=y1, ws=ws)
+
     def remove_rubberband(self):
         self.canvas.send_event("rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
+
+    def remove_whiskers(self):
+        self.canvas.send_event("whiskers", x0=-1, y0=-1, x1=-1, y1=-1, ws=20)
 
     def save_figure(self, *args):
         """Save the current figure."""

@@ -235,6 +235,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         self._draw_pending = False
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
+        self._draw_whisker_callback = lambda painter: None
         self._in_resize_event = False
 
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_OpaquePaintEvent)
@@ -524,6 +525,43 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             except Exception:
                 # Uncaught exceptions are fatal for PyQt5, so catch them.
                 traceback.print_exc()
+
+    def drawWhiskers(self, line, ws=20):
+        # Draw single axis zoom whiskers
+        if line is None:
+            def _draw_whisker_callback(painter):
+                return
+        else:
+            x0, y0, x1, y1 = [int(pt / self.device_pixel_ratio) for pt in line]
+            ws = int(ws / self.device_pixel_ratio)
+            if x0 == x1:  # vertical line
+                def _draw_whisker_callback(painter):
+                    pen = QtGui.QPen(
+                        QtGui.QColor("black"),
+                        2 / self.device_pixel_ratio
+                    )
+
+                    painter.setPen(pen)
+                    painter.drawLine(x0 - ws // 2, y0, x0 + ws // 2, y0)
+                    painter.drawLine(x0 - ws // 2, y1, x0 + ws // 2, y1)
+                    painter.drawLine(x0, y0, x0, y1)
+
+            elif y0 == y1:  # horizontal line
+                def _draw_whisker_callback(painter):
+                    pen = QtGui.QPen(
+                        QtGui.QColor("black"),
+                        2 / self.device_pixel_ratio
+                    )
+
+                    painter.setPen(pen)
+                    painter.drawLine(x0, y0 - ws // 2, x0, y0 + ws // 2)
+                    painter.drawLine(x1, y0 - ws // 2, x1, y0 + ws // 2)
+                    painter.drawLine(x0, y0, x1, y0)
+            else:
+                def _draw_whisker_callback(painter):
+                    return
+        self._draw_whisker_callback = _draw_whisker_callback
+        self.update()
 
     def drawRectangle(self, rect):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
@@ -921,8 +959,18 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
         self.canvas.drawRectangle(rect)
 
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws=20):
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        whisk = [int(val) for val in (x0, y0, x1, y1)]
+        self.canvas.drawWhiskers(whisk, ws)
+
     def remove_rubberband(self):
         self.canvas.drawRectangle(None)
+
+    def remove_whiskers(self):
+        self.canvas.drawWhiskers(None)
 
     def configure_subplots(self):
         if self._subplot_dialog is None:
