@@ -2289,9 +2289,9 @@ def test_grouped_bar_hatch_sequence():
     containers = ax.grouped_bar(heights, positions=x, hatch=hatches)
 
     # Verify each dataset gets the corresponding hatch
-    for gi, c in enumerate(containers.bar_containers):
+    for hatch, c in zip(hatches, containers.bar_containers):
         for rect in c:
-            assert rect.get_hatch() == hatches[gi]
+            assert rect.get_hatch() == hatch
 
 
 def test_grouped_bar_hatch_cycles_when_shorter_than_datasets():
