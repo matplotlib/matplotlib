@@ -106,6 +106,9 @@ def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
     ----------
     values : iterable
         Sequence of values to check on.
+
+        Note: All values must support == comparisons.
+        This means in particular the entries must not be numpy arrays.
     _print_supported_values : bool, default: True
         Whether to print *values* when raising ValueError.
     **kwargs : dict
@@ -123,7 +126,18 @@ def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
     if not kwargs:
         raise TypeError("No argument to check!")
     for key, val in kwargs.items():
-        if val not in values:
+        try:
+            exists = val in values
+        except ValueError:
+            # `in` internally uses `val == values[i]`. There are some objects
+            # that do not support == to arbitrary other objects, in particular
+            # numpy arrays.
+            # Since such objects are not allowed in values, we can gracefully
+            # handle the case that val (typically provided by users) is of such
+            # type and directly state it's not in the list instead of letting
+            # the individual `val == values[i]` ValueError surface.
+            exists = False
+        if not exists:
             msg = f"{val!r} is not a valid value for {key}"
             if _print_supported_values:
                 msg += f"; supported values are {', '.join(map(repr, values))}"
