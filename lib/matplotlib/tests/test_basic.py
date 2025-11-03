@@ -11,7 +11,7 @@ def test_simple():
 
 
 def test_override_builtins():
-    import pylab  # type: ignore
+    import pylab  # type: ignore[import]
     ok_to_override = {
         '__name__',
         '__doc__',

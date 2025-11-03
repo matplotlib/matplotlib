@@ -317,7 +317,7 @@ def test_remove_from_figure_cl():
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
-    Colorbar(ax, cmap=plt.cm.bone)
+    Colorbar(ax, cmap=plt.colormaps["bone"])
 
 
 def test_parentless_mappable():
@@ -332,11 +332,11 @@ def test_colorbar_closed_patch():
     plt.rcParams['pcolormesh.snap'] = False
 
     fig = plt.figure(figsize=(8, 6))
-    ax1 = fig.add_axes([0.05, 0.85, 0.9, 0.1])
-    ax2 = fig.add_axes([0.1, 0.65, 0.75, 0.1])
-    ax3 = fig.add_axes([0.05, 0.45, 0.9, 0.1])
-    ax4 = fig.add_axes([0.05, 0.25, 0.9, 0.1])
-    ax5 = fig.add_axes([0.05, 0.05, 0.9, 0.1])
+    ax1 = fig.add_axes((0.05, 0.85, 0.9, 0.1))
+    ax2 = fig.add_axes((0.1, 0.65, 0.75, 0.1))
+    ax3 = fig.add_axes((0.05, 0.45, 0.9, 0.1))
+    ax4 = fig.add_axes((0.05, 0.25, 0.9, 0.1))
+    ax5 = fig.add_axes((0.05, 0.05, 0.9, 0.1))
 
     cmap = mpl.colormaps["RdBu"].resampled(5)
 
@@ -491,12 +491,13 @@ def test_colorbar_autotickslog():
         pcm = ax[1].pcolormesh(X, Y, 10**Z, norm=LogNorm())
         cbar2 = fig.colorbar(pcm, ax=ax[1], extend='both',
                              orientation='vertical', shrink=0.4)
+
+        fig.draw_without_rendering()
         # note only -12 to +12 are visible
-        np.testing.assert_almost_equal(cbar.ax.yaxis.get_ticklocs(),
-                                       10**np.arange(-16., 16.2, 4.))
-        # note only -24 to +24 are visible
-        np.testing.assert_almost_equal(cbar2.ax.yaxis.get_ticklocs(),
-                                       10**np.arange(-24., 25., 12.))
+        np.testing.assert_equal(np.log10(cbar.ax.yaxis.get_ticklocs()),
+                                [-18, -12, -6, 0, +6, +12, +18])
+        np.testing.assert_equal(np.log10(cbar2.ax.yaxis.get_ticklocs()),
+                                [-36, -12, 12, +36])
 
 
 def test_colorbar_get_ticks():
@@ -597,7 +598,7 @@ def test_colorbar_renorm():
     norm = LogNorm(z.min(), z.max())
     im.set_norm(norm)
     np.testing.assert_allclose(cbar.ax.yaxis.get_majorticklocs(),
-                               np.logspace(-10, 7, 18))
+                               np.logspace(-9, 6, 16))
     # note that set_norm removes the FixedLocator...
     assert np.isclose(cbar.vmin, z.min())
     cbar.set_ticks([1, 2, 3])
@@ -844,16 +845,16 @@ def test_colorbar_change_lim_scale():
 
     pc = ax[1].pcolormesh(np.arange(100).reshape(10, 10)+1)
     cb = fig.colorbar(pc, ax=ax[1], extend='both')
-    cb.ax.set_ylim([20, 90])
+    cb.ax.set_ylim(20, 90)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_axes_handles_same_functions(fig_ref, fig_test):
     # prove that cax and cb.ax are functionally the same
     for nn, fig in enumerate([fig_ref, fig_test]):
         ax = fig.add_subplot()
         pc = ax.pcolormesh(np.ones(300).reshape(10, 30))
-        cax = fig.add_axes([0.9, 0.1, 0.03, 0.8])
+        cax = fig.add_axes((0.9, 0.1, 0.03, 0.8))
         cb = fig.colorbar(pc, cax=cax)
         if nn == 0:
             caxx = cax
@@ -893,7 +894,7 @@ def test_twoslope_colorbar():
     fig.colorbar(pc)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_remove_cb_whose_mappable_has_no_figure(fig_ref, fig_test):
     ax = fig_test.add_subplot()
     cb = fig_test.colorbar(cm.ScalarMappable(), cax=ax)
@@ -945,9 +946,10 @@ def test_proportional_colorbars():
 
     levels = [-1.25, -0.5, -0.125, 0.125, 0.5, 1.25]
     cmap = mcolors.ListedColormap(
-        ['0.3', '0.5', 'white', 'lightblue', 'steelblue'])
-    cmap.set_under('darkred')
-    cmap.set_over('crimson')
+        ['0.3', '0.5', 'white', 'lightblue', 'steelblue'],
+        under='darkred',
+        over='crimson',
+    )
     norm = mcolors.BoundaryNorm(levels, cmap.N)
 
     extends = ['neither', 'both']
@@ -1139,6 +1141,7 @@ def test_colorbar_set_formatter_locator():
     fmt = LogFormatter()
     cb.minorformatter = fmt
     assert cb.ax.yaxis.get_minor_formatter() is fmt
+    assert cb.long_axis is cb.ax.yaxis
 
 
 @image_comparison(['colorbar_extend_alpha.png'], remove_text=True,
@@ -1176,7 +1179,7 @@ def test_title_text_loc():
             cb.ax.spines['outline'].get_window_extent().ymax)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_passing_location(fig_ref, fig_test):
     ax_ref = fig_ref.add_subplot()
     im = ax_ref.imshow([[0, 1], [2, 3]])
@@ -1207,7 +1210,7 @@ def test_colorbar_errors(kwargs, error, message):
         fig.colorbar(im, **kwargs)
 
 
-def test_colorbar_axes_parmeters():
+def test_colorbar_axes_parameters():
     fig, ax = plt.subplots(2)
     im = ax[0].imshow([[0, 1], [2, 3]])
     # colorbar should accept any form of axes sequence:

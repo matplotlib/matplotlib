@@ -521,11 +521,13 @@ def match_submerged_margins(layoutgrids, fig):
     See test_constrained_layout::test_constrained_layout12 for an example.
     """
 
+    axsdone = []
     for sfig in fig.subfigs:
-        match_submerged_margins(layoutgrids, sfig)
+        axsdone += match_submerged_margins(layoutgrids, sfig)
 
     axs = [a for a in fig.get_axes()
-           if a.get_subplotspec() is not None and a.get_in_layout()]
+           if (a.get_subplotspec() is not None and a.get_in_layout() and
+               a not in axsdone)]
 
     for ax1 in axs:
         ss1 = ax1.get_subplotspec()
@@ -591,6 +593,8 @@ def match_submerged_margins(layoutgrids, fig):
                 lg1.edit_margin_min('top', maxsubt, cell=i)
             for i in ss1.rowspan[:-1]:
                 lg1.edit_margin_min('bottom', maxsubb, cell=i)
+
+    return axs
 
 
 def get_cb_parent_spans(cbax):

@@ -143,7 +143,6 @@ class _FigureManagerGTK(FigureManagerBase):
         super().__init__(canvas, num)
 
         if gtk_ver == 3:
-            self.window.set_wmclass("matplotlib", "Matplotlib")
             icon_ext = "png" if sys.platform == "win32" else "svg"
             self.window.set_icon_from_file(
                 str(cbook._get_data_path(f"images/matplotlib.{icon_ext}")))
@@ -196,6 +195,7 @@ class _FigureManagerGTK(FigureManagerBase):
         self._destroying = True
         self.window.destroy()
         self.canvas.destroy()
+        super().destroy()
 
     @classmethod
     def start_main_loop(cls):

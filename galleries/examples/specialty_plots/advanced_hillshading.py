@@ -16,7 +16,7 @@ def display_colorbar():
     y, x = np.mgrid[-4:2:200j, -4:2:200j]
     z = 10 * np.cos(x**2 + y**2)
 
-    cmap = plt.cm.copper
+    cmap = plt.colormaps["copper"]
     ls = LightSource(315, 45)
     rgb = ls.shade(z, cmap)
 
@@ -43,11 +43,11 @@ def avoid_outliers():
     ls = LightSource(315, 45)
     fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4.5))
 
-    rgb = ls.shade(z, plt.cm.copper)
+    rgb = ls.shade(z, plt.colormaps["copper"])
     ax1.imshow(rgb, interpolation='bilinear')
     ax1.set_title('Full range of data')
 
-    rgb = ls.shade(z, plt.cm.copper, vmin=-10, vmax=10)
+    rgb = ls.shade(z, plt.colormaps["copper"], vmin=-10, vmax=10)
     ax2.imshow(rgb, interpolation='bilinear')
     ax2.set_title('Manually set range')
 
@@ -61,7 +61,7 @@ def shade_other_data():
     z2 = np.cos(x**2 + y**2)  # Data to color
 
     norm = Normalize(z2.min(), z2.max())
-    cmap = plt.cm.RdBu
+    cmap = plt.colormaps["RdBu"]
 
     ls = LightSource(315, 45)
     rgb = ls.shade_rgb(cmap(norm(z2)), z1)

@@ -6,16 +6,16 @@ from matplotlib.backend_managers import ToolManager, ToolEvent
 from matplotlib.figure import Figure
 from matplotlib.scale import ScaleBase
 
-from typing import Any
+from typing import Any, cast
 
 class Cursors(enum.IntEnum):
-    POINTER: int
-    HAND: int
-    SELECT_REGION: int
-    MOVE: int
-    WAIT: int
-    RESIZE_HORIZONTAL: int
-    RESIZE_VERTICAL: int
+    POINTER = cast(int, ...)
+    HAND = cast(int, ...)
+    SELECT_REGION = cast(int, ...)
+    MOVE = cast(int, ...)
+    WAIT = cast(int, ...)
+    RESIZE_HORIZONTAL = cast(int, ...)
+    RESIZE_VERTICAL = cast(int, ...)
 
 cursors = Cursors
 
@@ -75,8 +75,8 @@ class ToolXScale(AxisScaleBase):
     def set_scale(self, ax, scale: str | ScaleBase) -> None: ...
 
 class ToolViewsPositions(ToolBase):
-    views: dict[Figure | Axes, cbook.Stack]
-    positions: dict[Figure | Axes, cbook.Stack]
+    views: dict[Figure | Axes, cbook._Stack]
+    positions: dict[Figure | Axes, cbook._Stack]
     home_views: dict[Figure, dict[Axes, tuple[float, float, float, float]]]
     def add_figure(self, figure: Figure) -> None: ...
     def clear(self, figure: Figure) -> None: ...

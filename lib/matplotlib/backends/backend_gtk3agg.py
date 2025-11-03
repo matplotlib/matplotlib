@@ -70,5 +70,5 @@ class FigureCanvasGTK3Agg(backend_agg.FigureCanvasAgg,
 
 
 @_BackendGTK3.export
-class _BackendGTK3Cairo(_BackendGTK3):
+class _BackendGTK3Agg(_BackendGTK3):
     FigureCanvas = FigureCanvasGTK3Agg

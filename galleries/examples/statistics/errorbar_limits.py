@@ -71,11 +71,13 @@ ax.errorbar(x, y + 2.1, xerr=xerr, yerr=yerr,
             linestyle='none')
 
 # tidy up the figure
-ax.set_xlim((0, 5.5))
+ax.set_xlim(0, 5.5)
 ax.set_title('Errorbar upper and lower limits')
 plt.show()
 
 # %%
+#
+# .. tags:: plot-type: errorbar, domain: statistics
 #
 # .. admonition:: References
 #

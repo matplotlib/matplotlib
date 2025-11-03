@@ -19,11 +19,39 @@ import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook, _c_internal_utils
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, ToolContainerBase, cursors, _Mode,
+    TimerBase, ToolContainerBase, cursors, _Mode, MouseButton,
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 from matplotlib._pylab_helpers import Gcf
-from . import _tkagg
-from ._tkagg import TK_PHOTO_COMPOSITE_OVERLAY, TK_PHOTO_COMPOSITE_SET
+
+try:
+    from . import _tkagg
+    from ._tkagg import TK_PHOTO_COMPOSITE_OVERLAY, TK_PHOTO_COMPOSITE_SET
+except ImportError as e:
+    # catch incompatibility of python-build-standalone with Tk
+    cause1 = getattr(e, '__cause__', None)
+    cause2 = getattr(cause1, '__cause__', None)
+    if (isinstance(cause1, ImportError) and
+            isinstance(cause2, AttributeError) and
+            "'_tkinter' has no attribute '__file__'" in str(cause2)):
+
+        is_uv_python = "/uv/python" in (os.path.realpath(sys.executable))
+        if is_uv_python:
+            raise ImportError(
+                "Failed to import tkagg backend. You appear to be using an outdated "
+                "version of uv's managed Python distribution which is not compatible "
+                "with Tk. Please upgrade to the latest uv version, then update "
+                "Python with: `uv python upgrade --reinstall`"
+                ) from e
+        else:
+            raise ImportError(
+                "Failed to import tkagg backend. This is likely caused by using a "
+                "Python executable based on python-build-standalone, which is not "
+                "compatible with Tk. Recent versions of python-build-standalone "
+                "should be compatible with Tk. Please update your python version "
+                "or select another backend."
+                ) from e
+    else:
+        raise
 
 
 _log = logging.getLogger(__name__)
@@ -296,6 +324,7 @@ class FigureCanvasTk(FigureCanvasBase):
     def motion_notify_event(self, event):
         MouseEvent("motion_notify_event", self,
                    *self._event_mpl_coords(event),
+                   buttons=self._mpl_buttons(event),
                    modifiers=self._mpl_modifiers(event),
                    guiEvent=event)._process()
 
@@ -358,12 +387,32 @@ class FigureCanvasTk(FigureCanvasBase):
                    guiEvent=event)._process()
 
     @staticmethod
+    def _mpl_buttons(event):  # See _mpl_modifiers.
+        # NOTE: This fails to report multiclicks on macOS; only one button is
+        # reported (multiclicks work correctly on Linux & Windows).
+        modifiers = [
+            # macOS appears to swap right and middle (look for "Swap buttons
+            # 2/3" in tk/macosx/tkMacOSXMouseEvent.c).
+            (MouseButton.LEFT, 1 << 8),
+            (MouseButton.RIGHT, 1 << 9),
+            (MouseButton.MIDDLE, 1 << 10),
+            (MouseButton.BACK, 1 << 11),
+            (MouseButton.FORWARD, 1 << 12),
+        ] if sys.platform == "darwin" else [
+            (MouseButton.LEFT, 1 << 8),
+            (MouseButton.MIDDLE, 1 << 9),
+            (MouseButton.RIGHT, 1 << 10),
+            (MouseButton.BACK, 1 << 11),
+            (MouseButton.FORWARD, 1 << 12),
+        ]
+        # State *before* press/release.
+        return [name for name, mask in modifiers if event.state & mask]
+
+    @staticmethod
     def _mpl_modifiers(event, *, exclude=None):
-        # add modifier keys to the key string. Bit details originate from
-        # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
-        # BIT_SHIFT = 0x001; BIT_CAPSLOCK = 0x002; BIT_CONTROL = 0x004;
-        # BIT_LEFT_ALT = 0x008; BIT_NUMLOCK = 0x010; BIT_RIGHT_ALT = 0x080;
-        # BIT_MB_1 = 0x100; BIT_MB_2 = 0x200; BIT_MB_3 = 0x400;
+        # Add modifier keys to the key string. Bit values are inferred from
+        # the implementation of tkinter.Event.__repr__ (1, 2, 4, 8, ... =
+        # Shift, Lock, Control, Mod1, ..., Mod5, Button1, ..., Button5)
         # In general, the modifier key is excluded from the modifier flag,
         # however this is not the case on "darwin", so double check that
         # we aren't adding repeat modifier flags to a modifier key.
@@ -585,6 +634,7 @@ class FigureManagerTk(FigureManagerBase):
         else:
             self.window.update()
             delayed_destroy()
+        super().destroy()
 
     def get_window_title(self):
         return self.window.wm_title()
@@ -617,6 +667,14 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             window = canvas.get_tk_widget().master
         tk.Frame.__init__(self, master=window, borderwidth=2,
                           width=int(canvas.figure.bbox.width), height=50)
+        # Avoid message_label expanding the toolbar size, and in turn expanding the
+        # canvas size.
+        # Without pack_propagate(False), when the user defines a small figure size
+        # (e.g. 2x2):
+        # 1. Figure size that is bigger than the user's expectation.
+        # 2. When message_label is refreshed by mouse enter/leave, the canvas
+        #    size will also be changed.
+        self.pack_propagate(False)
 
         self._buttons = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
@@ -711,7 +769,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         y1 = height - y1
         self.canvas._rubberband_rect_black = (
             self.canvas._tkcanvas.create_rectangle(
-                x0, y0, x1, y1))
+                x0, y0, x1, y1, outline='black'))
         self.canvas._rubberband_rect_white = (
             self.canvas._tkcanvas.create_rectangle(
                 x0, y0, x1, y1, outline='white', dash=(3, 3)))
@@ -754,7 +812,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             image_data = np.asarray(image).copy()
             black_mask = (image_data[..., :3] == 0).all(axis=-1)
             image_data[black_mask, :3] = color
-            return Image.fromarray(image_data, mode="RGBA")
+            return Image.fromarray(image_data)
 
         # Use the high-resolution (48x48 px) icon if it exists and is needed
         with Image.open(path_large if (size > 24 and path_large.exists())
@@ -870,7 +928,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             )
 
         if fname in ["", ()]:
-            return
+            return None
         # Save dir for next time, unless empty str (i.e., use cwd).
         if initialdir != "":
             mpl.rcParams['savefig.directory'] = (
@@ -885,6 +943,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         try:
             self.canvas.figure.savefig(fname, format=extension)
+            return fname
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
 

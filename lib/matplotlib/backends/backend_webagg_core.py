@@ -22,7 +22,7 @@ from PIL import Image
 from matplotlib import _api, backend_bases, backend_tools
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import (
-    _Backend, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    _Backend, MouseButton, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 _log = logging.getLogger(__name__)
 
@@ -178,6 +178,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # Track mouse events to fill in the x, y position of key events.
         self._last_mouse_xy = (None, None)
 
+        # Control whether scroll events prevent default browser behavior
+        self._capture_scroll = False
+
     def show(self):
         # show the figure window
         from matplotlib.pyplot import show
@@ -223,6 +226,28 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         if self._current_image_mode != mode:
             self._current_image_mode = mode
             self.handle_send_image_mode(None)
+
+    def set_capture_scroll(self, capture):
+        """
+        Set whether the scroll events on the canvas will scroll the page.
+
+        Parameters
+        ----------
+        capture : bool
+        """
+        if self._capture_scroll != capture:
+            self._capture_scroll = capture
+            self.send_event("capture_scroll", capture_scroll=capture)
+
+    def get_capture_scroll(self):
+        """
+        Get whether scroll events are currently captured by the canvas.
+
+        Returns
+        -------
+        bool
+        """
+        return self._capture_scroll
 
     def get_diff_image(self):
         if self._png_is_old:
@@ -283,10 +308,17 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         y = event['y']
         y = self.get_renderer().height - y
         self._last_mouse_xy = x, y
-        # JavaScript button numbers and Matplotlib button numbers are off by 1.
-        button = event['button'] + 1
-
         e_type = event['type']
+        button = event['button'] + 1  # JS numbers off by 1 compared to mpl.
+        buttons = {  # JS ordering different compared to mpl.
+            button for button, mask in [
+                (MouseButton.LEFT, 1),
+                (MouseButton.RIGHT, 2),
+                (MouseButton.MIDDLE, 4),
+                (MouseButton.BACK, 8),
+                (MouseButton.FORWARD, 16),
+            ] if event['buttons'] & mask  # State *after* press/release.
+        }
         modifiers = event['modifiers']
         guiEvent = event.get('guiEvent')
         if e_type in ['button_press', 'button_release']:
@@ -300,10 +332,12 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                        modifiers=modifiers, guiEvent=guiEvent)._process()
         elif e_type == 'motion_notify':
             MouseEvent(e_type + '_event', self, x, y,
-                       modifiers=modifiers, guiEvent=guiEvent)._process()
+                       buttons=buttons, modifiers=modifiers, guiEvent=guiEvent,
+                       )._process()
         elif e_type in ['figure_enter', 'figure_leave']:
             LocationEvent(e_type + '_event', self, x, y,
                           modifiers=modifiers, guiEvent=guiEvent)._process()
+
     handle_button_press = handle_button_release = handle_dblclick = \
         handle_figure_enter = handle_figure_leave = handle_motion_notify = \
         handle_scroll = _handle_mouse
@@ -319,15 +353,15 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         getattr(self.toolbar, event['name'])()
 
     def handle_refresh(self, event):
-        figure_label = self.figure.get_label()
-        if not figure_label:
-            figure_label = f"Figure {self.manager.num}"
-        self.send_event('figure_label', label=figure_label)
+        if self.manager:
+            self.send_event('figure_label', label=self.manager.get_window_title())
         self._force_full = True
         if self.toolbar:
             # Normal toolbar init would refresh this, but it happens before the
             # browser canvas is set up.
             self.toolbar.set_history_buttons()
+        # Send the current capture_scroll state to newly connected clients
+        self.send_event('capture_scroll', capture_scroll=self._capture_scroll)
         self.draw_idle()
 
     def handle_resize(self, event):
@@ -403,8 +437,9 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         self.canvas.send_event("rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
 
     def save_figure(self, *args):
-        """Save the current figure"""
+        """Save the current figure."""
         self.canvas.send_event('save')
+        return self.UNKNOWN_SAVED_STATUS
 
     def pan(self):
         super().pan()

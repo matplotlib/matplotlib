@@ -87,3 +87,9 @@ r_square = (np.mgrid[-1:1:1j * nx, -1:1:1j * ny, -1:1:1j * nz] ** 2).sum(0)
 
 figure_3D_array_slices(r_square, cmap='viridis_r')
 plt.show()
+
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: advanced

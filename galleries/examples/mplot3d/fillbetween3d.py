@@ -26,3 +26,9 @@ ax = fig.add_subplot(projection='3d')
 ax.fill_between(x1, y1, z1, x2, y2, z2, alpha=0.5, edgecolor='k')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    plot-type: fill_between,
+#    level: beginner

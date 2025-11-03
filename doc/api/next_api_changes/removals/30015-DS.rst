@@ -1,0 +1,9 @@
+*nth_coord* parameter to axisartist helpers for fixed axis
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Helper APIs in `.axisartist` for generating a "fixed" axis on rectilinear axes
+(`.FixedAxisArtistHelperRectilinear`) no longer take a *nth_coord* parameter.
+That parameter is entirely inferred from the (required) *loc* parameter.
+
+For curvilinear axes, the *nth_coord* parameter remains supported (it affects
+the *ticks*, not the axis position itself), but it is now keyword-only.

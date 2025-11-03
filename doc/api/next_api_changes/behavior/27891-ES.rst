@@ -1,5 +1,0 @@
-ft2font classes are now final
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The ft2font classes `.ft2font.FT2Font`, and `.ft2font.FT2Image` are now final
-and can no longer be subclassed.

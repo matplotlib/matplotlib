@@ -500,11 +500,12 @@ class RendererSVG(RendererBase):
         edge = gc.get_hatch_color()
         if edge is not None:
             edge = tuple(edge)
-        dictkey = (gc.get_hatch(), rgbFace, edge)
+        lw = gc.get_hatch_linewidth()
+        dictkey = (gc.get_hatch(), rgbFace, edge, lw)
         oid = self._hatchd.get(dictkey)
         if oid is None:
             oid = self._make_id('h', dictkey)
-            self._hatchd[dictkey] = ((gc.get_hatch_path(), rgbFace, edge), oid)
+            self._hatchd[dictkey] = ((gc.get_hatch_path(), rgbFace, edge, lw), oid)
         else:
             _, oid = oid
         return oid
@@ -515,7 +516,7 @@ class RendererSVG(RendererBase):
         HATCH_SIZE = 72
         writer = self.writer
         writer.start('defs')
-        for (path, face, stroke), oid in self._hatchd.values():
+        for (path, face, stroke, lw), oid in self._hatchd.values():
             writer.start(
                 'pattern',
                 id=oid,
@@ -539,7 +540,7 @@ class RendererSVG(RendererBase):
             hatch_style = {
                     'fill': rgb2hex(stroke),
                     'stroke': rgb2hex(stroke),
-                    'stroke-width': str(mpl.rcParams['hatch.linewidth']),
+                    'stroke-width': str(lw),
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
                     }
@@ -735,7 +736,9 @@ class RendererSVG(RendererBase):
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
+                             offset_position, *, hatchcolors=None):
+        if hatchcolors is None:
+            hatchcolors = []
         # Is the optimization worth it? Rough calculation:
         # cost of emitting a path in-line is
         #    (len_path + 5) * uses_per_path
@@ -751,7 +754,7 @@ class RendererSVG(RendererBase):
                 gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position)
+                offset_position, hatchcolors=hatchcolors)
 
         writer = self.writer
         path_codes = []
@@ -769,7 +772,7 @@ class RendererSVG(RendererBase):
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
             url = gc0.get_url()
             if url is not None:
                 writer.start('a', attrib={'xlink:href': url})

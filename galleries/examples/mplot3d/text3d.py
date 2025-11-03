@@ -44,3 +44,9 @@ ax.set_ylabel('Y axis')
 ax.set_zlabel('Z axis')
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    component: annotation,
+#    level: beginner

@@ -14,7 +14,7 @@ import weakref
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, font_manager as fm
+from matplotlib import cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase
 )
@@ -898,9 +898,7 @@ class PdfPages:
     ...     pdf.savefig()
     """
 
-    _UNSET = object()
-
-    def __init__(self, filename, *, keep_empty=_UNSET, metadata=None):
+    def __init__(self, filename, *, metadata=None):
         """
         Create a new PdfPages object.
 
@@ -909,10 +907,6 @@ class PdfPages:
         filename : str or path-like
             Plots using `PdfPages.savefig` will be written to a file at this
             location. Any older file with the same name is overwritten.
-
-        keep_empty : bool, default: True
-            If set to False, then empty pdf files will be deleted automatically
-            when closed.
 
         metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
@@ -929,16 +923,9 @@ class PdfPages:
         """
         self._output_name = filename
         self._n_figures = 0
-        if keep_empty and keep_empty is not self._UNSET:
-            _api.warn_deprecated("3.8", message=(
-                "Keeping empty pdf files is deprecated since %(since)s and support "
-                "will be removed %(removal)s."))
-        self._keep_empty = keep_empty
         self._metadata = (metadata or {}).copy()
         self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
         self._file = BytesIO()
-
-    keep_empty = _api.deprecate_privatize_attribute("3.8")
 
     def _write_header(self, width_inches, height_inches):
         pdfinfo = ','.join(
@@ -969,11 +956,6 @@ class PdfPages:
         self._file.write(rb'\end{document}\n')
         if self._n_figures > 0:
             self._run_latex()
-        elif self._keep_empty:
-            _api.warn_deprecated("3.8", message=(
-                "Keeping empty pdf files is deprecated since %(since)s and support "
-                "will be removed %(removal)s."))
-            open(self._output_name, 'wb').close()
         self._file.close()
 
     def _run_latex(self):

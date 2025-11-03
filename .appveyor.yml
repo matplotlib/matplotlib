@@ -17,7 +17,7 @@ skip_commits:
 
 clone_depth: 50
 
-image: Visual Studio 2019
+image: Visual Studio 2022
 
 environment:
 
@@ -45,9 +45,8 @@ cache:
 
 init:
   - ps:
-      # Pinned due to https://github.com/mamba-org/mamba/issues/3467
       Invoke-Webrequest
-      -URI https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-win-64.tar.bz2
+      -URI https://micro.mamba.pm/api/micromamba/win-64/latest
       -OutFile C:\projects\micromamba.tar.bz2
   - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar.bz2 -aoa -oC:\projects\
   - ps: C:\PROGRA~1\7-Zip\7z.exe x C:\projects\micromamba.tar -ttar -aoa -oC:\projects\
@@ -55,6 +54,7 @@ init:
   - micromamba shell init --shell cmd.exe
   - micromamba config set always_yes true
   - micromamba config prepend channels conda-forge
+  - micromamba info
 
 install:
   - micromamba env create -f environment.yml python=%PYTHON_VERSION% pywin32
@@ -63,7 +63,7 @@ install:
 test_script:
   # Now build the thing..
   - set LINK=/LIBPATH:%cd%\lib
-  - pip install -v --no-build-isolation --config-settings=setup-args="--vsenv" --editable .[dev]
+  - pip install -v --no-build-isolation --editable .[dev]
   # this should show no freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
@@ -91,7 +91,7 @@ artifacts:
 
 on_finish:
   - micromamba install codecov
-  - codecov -e PYTHON_VERSION PLATFORM -n "$PYTHON_VERSION Windows"
+  - codecov -e PYTHON_VERSION PLATFORM -n "%PYTHON_VERSION% Windows"
 
 on_failure:
   # Generate a html for visual tests

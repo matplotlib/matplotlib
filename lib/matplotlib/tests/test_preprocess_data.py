@@ -267,7 +267,7 @@ class TestPlotTypes:
     plotters = [Axes.scatter, Axes.bar, Axes.plot]
 
     @pytest.mark.parametrize('plotter', plotters)
-    @check_figures_equal(extensions=['png'])
+    @check_figures_equal()
     def test_dict_unpack(self, plotter, fig_test, fig_ref):
         x = [1, 2, 3]
         y = [4, 5, 6]
@@ -278,7 +278,7 @@ class TestPlotTypes:
         plotter(fig_ref.subplots(), x, y)
 
     @pytest.mark.parametrize('plotter', plotters)
-    @check_figures_equal(extensions=['png'])
+    @check_figures_equal()
     def test_data_kwarg(self, plotter, fig_test, fig_ref):
         x = [1, 2, 3]
         y = [4, 5, 6]

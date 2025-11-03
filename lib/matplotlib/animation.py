@@ -1,5 +1,6 @@
 import abc
 import base64
+import collections
 import contextlib
 from io import BytesIO, TextIOWrapper
 import itertools
@@ -27,13 +28,6 @@ _log = logging.getLogger(__name__)
 # window. See for example https://stackoverflow.com/q/24130623/
 subprocess_creation_flags = (
     subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0)
-
-# Other potential writing methods:
-# * http://pymedia.org/
-# * libming (produces swf) python wrappers: https://github.com/libming/libming
-# * Wrap x264 API:
-
-# (https://stackoverflow.com/q/2940671/)
 
 
 def adjusted_figsize(w, h, dpi, n):
@@ -184,6 +178,14 @@ class AbstractMovieWriter(abc.ABC):
         """A tuple ``(width, height)`` in pixels of a movie frame."""
         w, h = self.fig.get_size_inches()
         return int(w * self.dpi), int(h * self.dpi)
+
+    def _supports_transparency(self):
+        """
+        Whether this writer supports transparency.
+
+        Writers may consult output file type and codec to determine this at runtime.
+        """
+        return False
 
     @abc.abstractmethod
     def grab_frame(self, **savefig_kwargs):
@@ -475,6 +477,9 @@ class FileMovieWriter(MovieWriter):
 
 @writers.register('pillow')
 class PillowWriter(AbstractMovieWriter):
+    def _supports_transparency(self):
+        return True
+
     @classmethod
     def isAvailable(cls):
         return True
@@ -488,8 +493,15 @@ class PillowWriter(AbstractMovieWriter):
         buf = BytesIO()
         self.fig.savefig(
             buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
-        self._frames.append(Image.frombuffer(
-            "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1))
+        im = Image.frombuffer(
+            "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1)
+        if im.getextrema()[3][0] < 255:
+            # This frame has transparency, so we'll just add it as is.
+            self._frames.append(im)
+        else:
+            # Without transparency, we switch to RGB mode, which converts to P mode a
+            # little better if needed (specifically, this helps with GIF output.)
+            self._frames.append(im.convert("RGB"))
 
     def finish(self):
         self._frames[0].save(
@@ -510,11 +522,26 @@ class FFMpegBase:
     _exec_key = 'animation.ffmpeg_path'
     _args_key = 'animation.ffmpeg_args'
 
+    def _supports_transparency(self):
+        suffix = Path(self.outfile).suffix
+        if suffix in {'.apng', '.avif', '.gif', '.webm', '.webp'}:
+            return True
+        # This list was found by going through `ffmpeg -codecs` for video encoders,
+        # running them with _support_transparency() forced to True, and checking that
+        # the "Pixel format" in Kdenlive included alpha. Note this is not a guarantee
+        # that transparency will work; you may also need to pass `-pix_fmt`, but we
+        # trust the user has done so if they are asking for these formats.
+        return self.codec in {
+            'apng', 'avrp', 'bmp', 'cfhd', 'dpx', 'ffv1', 'ffvhuff', 'gif', 'huffyuv',
+            'jpeg2000', 'ljpeg', 'png', 'prores', 'prores_aw', 'prores_ks', 'qtrle',
+            'rawvideo', 'targa', 'tiff', 'utvideo', 'v408', }
+
     @property
     def output_args(self):
         args = []
-        if Path(self.outfile).suffix == '.gif':
-            self.codec = 'gif'
+        suffix = Path(self.outfile).suffix
+        if suffix in {'.apng', '.avif', '.gif', '.webm', '.webp'}:
+            self.codec = suffix[1:]
         else:
             args.extend(['-vcodec', self.codec])
         extra_args = (self.extra_args if self.extra_args is not None
@@ -525,11 +552,17 @@ class FFMpegBase:
         # macOS). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
-        # For GIF, we're telling FFMPEG to split the video stream, to generate
+        # For GIF, we're telling FFmpeg to split the video stream, to generate
         # a palette, and then use it for encoding.
         elif self.codec == 'gif' and '-filter_complex' not in extra_args:
             args.extend(['-filter_complex',
                          'split [a][b];[a] palettegen [p];[b][p] paletteuse'])
+        # For AVIF, we're telling FFmpeg to split the video stream, extract the alpha,
+        # in order to place it in a secondary stream, as needed by AVIF-in-FFmpeg.
+        elif self.codec == 'avif' and '-filter_complex' not in extra_args:
+            args.extend(['-filter_complex',
+                         'split [rgb][rgba]; [rgba] alphaextract [alpha]',
+                         '-map', '[rgb]', '-map', '[alpha]'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
         for k, v in self.metadata.items():
@@ -616,6 +649,10 @@ class ImageMagickBase:
 
     _exec_key = 'animation.convert_path'
     _args_key = 'animation.convert_args'
+
+    def _supports_transparency(self):
+        suffix = Path(self.outfile).suffix
+        return suffix in {'.apng', '.avif', '.gif', '.webm', '.webp'}
 
     def _args(self):
         # ImageMagick does not recognize "raw".
@@ -824,7 +861,7 @@ class Animation:
     fig : `~matplotlib.figure.Figure`
         The figure object used to get needed events, such as draw or resize.
 
-    event_source : object, optional
+    event_source : object
         A class that can run a callback when desired events
         are generated, as well as be stopped and started.
 
@@ -840,7 +877,7 @@ class Animation:
     FuncAnimation,  ArtistAnimation
     """
 
-    def __init__(self, fig, event_source=None, blit=False):
+    def __init__(self, fig, event_source, blit=False):
         self._draw_was_started = False
 
         self._fig = fig
@@ -855,6 +892,7 @@ class Animation:
         # that cause the frame sequence to be iterated.
         self.frame_seq = self.new_frame_seq()
         self.event_source = event_source
+        self.event_source.add_callback(self._step)
 
         # Instead of starting the event source now, we connect to the figure's
         # draw_event, so that we only start once the figure has been drawn.
@@ -887,13 +925,9 @@ class Animation:
             return
         # First disconnect our draw event handler
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
-
         # Now do any initial draw
         self._init_draw()
-
-        # Add our callback for stepping the animation and
-        # actually start the event_source.
-        self.event_source.add_callback(self._step)
+        # Actually start the event_source.
         self.event_source.start()
 
     def _stop(self, *args):
@@ -1052,22 +1086,23 @@ class Animation:
         # since GUI widgets are gone. Either need to remove extra code to
         # allow for this non-existent use case or find a way to make it work.
 
-        facecolor = savefig_kwargs.get('facecolor',
-                                       mpl.rcParams['savefig.facecolor'])
-        if facecolor == 'auto':
-            facecolor = self._fig.get_facecolor()
-
         def _pre_composite_to_white(color):
             r, g, b, a = mcolors.to_rgba(color)
             return a * np.array([r, g, b]) + 1 - a
 
-        savefig_kwargs['facecolor'] = _pre_composite_to_white(facecolor)
-        savefig_kwargs['transparent'] = False   # just to be safe!
         # canvas._is_saving = True makes the draw_event animation-starting
         # callback a no-op; canvas.manager = None prevents resizing the GUI
         # widget (both are likewise done in savefig()).
         with (writer.saving(self._fig, filename, dpi),
               cbook._setattr_cm(self._fig.canvas, _is_saving=True, manager=None)):
+            if not writer._supports_transparency():
+                facecolor = savefig_kwargs.get('facecolor',
+                                               mpl.rcParams['savefig.facecolor'])
+                if facecolor == 'auto':
+                    facecolor = self._fig.get_facecolor()
+                savefig_kwargs['facecolor'] = _pre_composite_to_white(facecolor)
+                savefig_kwargs['transparent'] = False   # just to be safe!
+
             for anim in all_anim:
                 anim._init_draw()  # Clear the initial frame
             frame_number = 0
@@ -1674,13 +1709,13 @@ class FuncAnimation(TimedAnimation):
         self._cache_frame_data = cache_frame_data
 
         # Needs to be initialized so the draw functions work without checking
-        self._save_seq = []
+        self._save_seq = collections.deque([], self._save_count)
 
         super().__init__(fig, **kwargs)
 
         # Need to reset the saved seq, since right now it will contain data
         # for a single frame from init, which is not what we want.
-        self._save_seq = []
+        self._save_seq.clear()
 
     def new_frame_seq(self):
         # Use the generating function to generate a new frame sequence
@@ -1693,8 +1728,7 @@ class FuncAnimation(TimedAnimation):
         if self._save_seq:
             # While iterating we are going to update _save_seq
             # so make a copy to safely iterate over
-            self._old_saved_seq = list(self._save_seq)
-            return iter(self._old_saved_seq)
+            return iter([*self._save_seq])
         else:
             if self._save_count is None:
                 frame_seq = self.new_frame_seq()
@@ -1735,17 +1769,16 @@ class FuncAnimation(TimedAnimation):
             self._drawn_artists = self._init_func()
             if self._blit:
                 if self._drawn_artists is None:
-                    raise RuntimeError('The init_func must return a '
-                                       'sequence of Artist objects.')
+                    raise RuntimeError('When blit=True, the init_func must '
+                                       'return a sequence of Artist objects.')
                 for a in self._drawn_artists:
                     a.set_animated(self._blit)
-        self._save_seq = []
+        self._save_seq.clear()
 
     def _draw_frame(self, framedata):
         if self._cache_frame_data:
             # Save the data for potential saving of movies.
             self._save_seq.append(framedata)
-            self._save_seq = self._save_seq[-self._save_count:]
 
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
@@ -1753,8 +1786,8 @@ class FuncAnimation(TimedAnimation):
 
         if self._blit:
 
-            err = RuntimeError('The animation function must return a sequence '
-                               'of Artist objects.')
+            err = RuntimeError('When blit=True, the animation function must '
+                               'return a sequence of Artist objects.')
             try:
                 # check if a sequence
                 iter(self._drawn_artists)

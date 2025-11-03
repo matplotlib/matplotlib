@@ -14,7 +14,7 @@ from matplotlib.backend_bases import (
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, __version__, QT_API, _to_int, _isdeleted)
+    QtCore, QtGui, QtWidgets, QtSvg, __version__, QT_API, _to_int, _isdeleted)
 
 
 # SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name
@@ -169,9 +169,14 @@ def _allow_interrupt_qt(qapp_or_eventloop):
                 # be forgiving about reading an empty socket.
                 pass
 
-        return sn  # Actually keep the notifier alive.
+        # We return the QSocketNotifier so that the caller holds a reference, and we
+        # also explicitly clean it up in handle_sigint(). Without doing both, deletion
+        # of the socket notifier can happen prematurely or not at all.
+        return sn
 
-    def handle_sigint():
+    def handle_sigint(sn):
+        sn.deleteLater()
+        QtCore.QCoreApplication.sendPostedEvents(sn, QtCore.QEvent.Type.DeferredDelete)
         if hasattr(qapp_or_eventloop, 'closeAllWindows'):
             qapp_or_eventloop.closeAllWindows()
         qapp_or_eventloop.quit()
@@ -239,6 +244,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         palette = QtGui.QPalette(QtGui.QColor("white"))
         self.setPalette(palette)
 
+    @QtCore.Slot()
     def _update_pixel_ratio(self):
         if self._set_device_pixel_ratio(
                 self.devicePixelRatioF() or 1):  # rarely, devicePixelRatioF=0
@@ -248,6 +254,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             event = QtGui.QResizeEvent(self.size(), self.size())
             self.resizeEvent(event)
 
+    @QtCore.Slot(QtGui.QScreen)
     def _update_screen(self, screen):
         # Handler for changes to a window's attached screen.
         self._update_pixel_ratio()
@@ -255,12 +262,22 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             screen.physicalDotsPerInchChanged.connect(self._update_pixel_ratio)
             screen.logicalDotsPerInchChanged.connect(self._update_pixel_ratio)
 
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.Type.DevicePixelRatioChange:
+            self._update_pixel_ratio()
+        return super().eventFilter(source, event)
+
     def showEvent(self, event):
         # Set up correct pixel ratio, and connect to any signal changes for it,
         # once the window is shown (and thus has these attributes).
         window = self.window().windowHandle()
-        window.screenChanged.connect(self._update_screen)
-        self._update_screen(window.screen())
+        current_version = tuple(int(x) for x in QtCore.qVersion().split('.', 2)[:2])
+        if current_version >= (6, 6):
+            self._update_pixel_ratio()
+            window.installEventFilter(self)
+        else:
+            window.screenChanged.connect(self._update_screen)
+            self._update_screen(window.screen())
 
     def set_cursor(self, cursor):
         # docstring inherited
@@ -329,6 +346,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             return
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
+                   buttons=self._mpl_buttons(event.buttons()),
                    modifiers=self._mpl_modifiers(),
                    guiEvent=event)._process()
 
@@ -395,6 +413,13 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def minimumSizeHint(self):
         return QtCore.QSize(10, 10)
+
+    @staticmethod
+    def _mpl_buttons(buttons):
+        buttons = _to_int(buttons)
+        # State *after* press/release.
+        return {button for mask, button in FigureCanvasQT.buttond.items()
+                if _to_int(mask) & buttons}
 
     @staticmethod
     def _mpl_modifiers(modifiers=None, *, exclude=None):
@@ -492,7 +517,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             if not self._draw_pending:
                 return
             self._draw_pending = False
-            if self.height() <= 0 or self.width() <= 0:
+            if _isdeleted(self) or self.height() <= 0 or self.width() <= 0:
                 return
             try:
                 self.draw()
@@ -649,6 +674,7 @@ class FigureManagerQT(FigureManagerBase):
         if self.toolbar:
             self.toolbar.destroy()
         self.window.close()
+        super().destroy()
 
     def get_window_title(self):
         return self.window.windowTitle()
@@ -657,10 +683,121 @@ class FigureManagerQT(FigureManagerBase):
         self.window.setWindowTitle(title)
 
 
-class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
-    _message = QtCore.Signal(str)  # Remove once deprecation below elapses.
-    message = _api.deprecate_privatize_attribute("3.8")
+class _IconEngine(QtGui.QIconEngine):
+    """
+    Custom QIconEngine that automatically handles DPI scaling for tools icons.
 
+    This engine provides icons on-demand with proper scaling based on the current
+    device pixel ratio, eliminating the need for manual refresh when DPI changes.
+    """
+
+    def __init__(self, image_path, toolbar=None):
+        super().__init__()
+        self.image_path = image_path
+        self.toolbar = toolbar
+
+    def _is_dark_mode(self):
+        return self.toolbar.palette().color(self.toolbar.backgroundRole()).value() < 128
+
+    def paint(self, painter, rect, mode, state):
+        """Paint the icon at the requested size and state."""
+        pixmap = self.pixmap(rect.size(), mode, state)
+        if not pixmap.isNull():
+            painter.drawPixmap(rect, pixmap)
+
+    def pixmap(self, size, mode, state):
+        """Generate a pixmap for the requested size, mode, and state."""
+        if size.width() <= 0 or size.height() <= 0:
+            return QtGui.QPixmap()
+
+        # Try SVG first, then fall back to PNG
+        svg_path = self.image_path.with_suffix('.svg')
+        if svg_path.exists():
+            pixmap = self._create_pixmap_from_svg(svg_path, size)
+            if not pixmap.isNull():
+                return pixmap
+        return self._create_pixmap_from_png(self.image_path, size)
+
+    def _devicePixelRatio(self):
+        """Return the current device pixel ratio for the toolbar, defaulting to 1."""
+        return (self.toolbar.devicePixelRatioF() or 1) if self.toolbar else 1
+
+    def _create_pixmap_from_svg(self, svg_path, size):
+        """Create a pixmap from SVG with proper scaling and dark mode support."""
+        QSvgRenderer = getattr(QtSvg, "QSvgRenderer", None)
+        if QSvgRenderer is None:
+            return QtGui.QPixmap()
+
+        svg_content = svg_path.read_bytes()
+
+        if self._is_dark_mode():
+            svg_content = svg_content.replace(b'fill:black;', b'fill:white;')
+            svg_content = svg_content.replace(b'stroke:black;', b'stroke:white;')
+
+        renderer = QSvgRenderer(QtCore.QByteArray(svg_content))
+        if not renderer.isValid():
+            return QtGui.QPixmap()
+
+        dpr = self._devicePixelRatio()
+        scaled_size = QtCore.QSize(int(size.width() * dpr), int(size.height() * dpr))
+        pixmap = QtGui.QPixmap(scaled_size)
+        pixmap.setDevicePixelRatio(dpr)
+        pixmap.fill(QtCore.Qt.GlobalColor.transparent)
+
+        painter = QtGui.QPainter()
+        try:
+            painter.begin(pixmap)
+            renderer.render(painter, QtCore.QRectF(0, 0, size.width(), size.height()))
+        finally:
+            if painter.isActive():
+                painter.end()
+
+        return pixmap
+
+    def _create_pixmap_from_png(self, base_path, size):
+        """
+        Create a pixmap from PNG with scaling and dark mode support.
+
+        Prefer to use the *_large.png with the same name; otherwise, use base_path.
+        """
+        large_path = base_path.with_name(base_path.stem + '_large.png')
+        source_pixmap = QtGui.QPixmap()
+        for candidate in (large_path, base_path):
+            if not candidate.exists():
+                continue
+            candidate_pixmap = QtGui.QPixmap(str(candidate))
+            if not candidate_pixmap.isNull():
+                source_pixmap = candidate_pixmap
+                break
+        if source_pixmap.isNull():
+            return source_pixmap
+
+        dpr = self._devicePixelRatio()
+
+        # Scale to requested size
+        scaled_size = QtCore.QSize(int(size.width() * dpr), int(size.height() * dpr))
+        scaled_pixmap = source_pixmap.scaled(
+            scaled_size,
+            QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            QtCore.Qt.TransformationMode.SmoothTransformation
+        )
+        scaled_pixmap.setDevicePixelRatio(dpr)
+
+        if self._is_dark_mode():
+            # On some platforms (e.g., macOS with Qt5 in dark mode), this may
+            # incorrectly return a black color instead of a light one.
+            # See issue #27590 for details.
+            icon_color = self.toolbar.palette().color(self.toolbar.foregroundRole())
+            mask = scaled_pixmap.createMaskFromColor(
+                QtGui.QColor('black'),
+                QtCore.Qt.MaskMode.MaskOutColor)
+            scaled_pixmap.fill(icon_color)
+            scaled_pixmap.setMask(mask)
+
+        return scaled_pixmap
+
+
+class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     toolitems = [*NavigationToolbar2.toolitems]
     toolitems.insert(
         # Add 'customize' action after 'subplots'
@@ -717,25 +854,16 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         """
         Construct a `.QIcon` from an image file *name*, including the extension
         and relative to Matplotlib's "images" data directory.
-        """
-        # use a high-resolution icon with suffix '_large' if available
-        # note: user-provided icons may not have '_large' versions
-        path_regular = cbook._get_data_path('images', name)
-        path_large = path_regular.with_name(
-            path_regular.name.replace('.png', '_large.png'))
-        filename = str(path_large if path_large.exists() else path_regular)
 
-        pm = QtGui.QPixmap(filename)
-        pm.setDevicePixelRatio(
-            self.devicePixelRatioF() or 1)  # rarely, devicePixelRatioF=0
-        if self.palette().color(self.backgroundRole()).value() < 128:
-            icon_color = self.palette().color(self.foregroundRole())
-            mask = pm.createMaskFromColor(
-                QtGui.QColor('black'),
-                QtCore.Qt.MaskMode.MaskOutColor)
-            pm.fill(icon_color)
-            pm.setMask(mask)
-        return QtGui.QIcon(pm)
+        Uses _IconEngine for automatic DPI scaling.
+        """
+        # Get the image path
+        path_regular = cbook._get_data_path('images', name)
+
+        # Create icon using our custom engine for automatic DPI handling
+        engine = _IconEngine(path_regular, self)
+        return QtGui.QIcon(engine)
+
 
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
@@ -783,7 +911,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._update_buttons_checked()
 
     def set_message(self, s):
-        self._message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
 
@@ -839,6 +966,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     self, "Error saving file", str(e),
                     QtWidgets.QMessageBox.StandardButton.Ok,
                     QtWidgets.QMessageBox.StandardButton.NoButton)
+        return fname
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
@@ -851,7 +979,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
 class SubplotToolQt(QtWidgets.QDialog):
     def __init__(self, targetfig, parent):
-        super().__init__()
+        super().__init__(parent)
         self.setWindowIcon(QtGui.QIcon(
             str(cbook._get_data_path("images/matplotlib.png"))))
         self.setObjectName("SubplotTool")

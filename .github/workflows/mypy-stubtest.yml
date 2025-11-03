@@ -4,22 +4,25 @@ on: [pull_request]
 
 permissions:
   contents: read
-  checks: write
 
 jobs:
   mypy-stubtest:
     name: mypy-stubtest
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Set up Python 3
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Set up reviewdog
-        uses: reviewdog/action-setup@v1
+        uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252  # v1.4.0
 
       - name: Install tox
         run: python -m pip install tox
@@ -30,7 +33,7 @@ jobs:
         run: |
           set -o pipefail
           tox -e stubtest | \
-              sed -e "s!.tox/stubtest/lib/python3.10/site-packages!lib!g" | \
+              sed -e "s!.tox/stubtest/lib/python3.11/site-packages!lib!g" | \
               reviewdog \
                 -efm '%Eerror: %m' \
                 -efm '%CStub: in file %f:%l' \

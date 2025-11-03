@@ -178,7 +178,7 @@ plot_color_gradients('Sequential (2)',
 #
 # Berlin, Managua, and Vanimo are dark-mode diverging colormaps, with minimum
 # lightness at the center, and maximum at the extremes. These are taken from
-# F. Crameri's [scientific colour maps]_ version 8.0.1.
+# F. Crameri's [scientific-colour-maps]_ version 8.0.1.
 
 plot_color_gradients('Diverging',
                      ['PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu', 'RdYlBu',
@@ -446,4 +446,4 @@ for cmap_category, cmap_list in cmaps.items():
 # .. [colorblindness] http://www.color-blindness.com/
 # .. [IBM] https://doi.org/10.1109/VISUAL.1995.480803
 # .. [turbo] https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html
-# .. [scientific colour maps] https://doi.org/10.5281/zenodo.1243862
+# .. [scientific-colour-maps] https://doi.org/10.5281/zenodo.1243862

@@ -55,11 +55,11 @@ if __name__ == '__main__':
     width = 10
     height = 10*yn/xn
     fig = plt.figure(figsize=(width, height), dpi=dpi)
-    ax = fig.add_axes([0, 0, 1, 1], frameon=False, aspect=1)
+    ax = fig.add_axes((0, 0, 1, 1), frameon=False, aspect=1)
 
     # Shaded rendering
     light = colors.LightSource(azdeg=315, altdeg=10)
-    M = light.shade(M, cmap=plt.cm.hot, vert_exag=1.5,
+    M = light.shade(M, cmap=plt.colormaps["hot"], vert_exag=1.5,
                     norm=colors.PowerNorm(0.3), blend_mode='hsv')
     ax.imshow(M, extent=[xmin, xmax, ymin, ymax], interpolation="bicubic")
     ax.set_xticks([])

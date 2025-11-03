@@ -51,7 +51,7 @@ C = ax.contourf(
 xmin, xmax = X.min(), X.max()
 ymin, ymax = Y.min(), Y.max()
 zmin, zmax = Z.min(), Z.max()
-ax.set(xlim=[xmin, xmax], ylim=[ymin, ymax], zlim=[zmin, zmax])
+ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax), zlim=(zmin, zmax))
 
 # Plot edges
 edges_kw = dict(color='0.4', linewidth=1, zorder=1e3)
@@ -76,3 +76,8 @@ fig.colorbar(C, ax=ax, fraction=0.02, pad=0.1, label='Name [units]')
 
 # Show Figure
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    level: intermediate

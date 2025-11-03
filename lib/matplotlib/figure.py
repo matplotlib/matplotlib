@@ -194,14 +194,15 @@ class FigureBase(Artist):
             Selects which ticklabels to rotate.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
-        allsubplots = all(ax.get_subplotspec() for ax in self.axes)
-        if len(self.axes) == 1:
+        axes = [ax for ax in self.axes if ax._label != '<colorbar>']
+        allsubplots = all(ax.get_subplotspec() for ax in axes)
+        if len(axes) == 1:
             for label in self.axes[0].get_xticklabels(which=which):
                 label.set_ha(ha)
                 label.set_rotation(rotation)
         else:
             if allsubplots:
-                for ax in self.get_axes():
+                for ax in axes:
                     if ax.get_subplotspec().is_last_row():
                         for label in ax.get_xticklabels(which=which):
                             label.set_ha(ha)
@@ -211,7 +212,8 @@ class FigureBase(Artist):
                             label.set_visible(False)
                         ax.set_xlabel('')
 
-        if allsubplots:
+        engine = self.get_layout_engine()
+        if allsubplots and (engine is None or engine.adjust_compatible):
             self.subplots_adjust(bottom=bottom)
         self.stale = True
 
@@ -378,7 +380,7 @@ default: %(va)s
         self.stale = True
         return suplab
 
-    @_docstring.Substitution(x0=0.5, y0=0.98, name='suptitle', ha='center',
+    @_docstring.Substitution(x0=0.5, y0=0.98, name='super title', ha='center',
                              va='top', rc='title')
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
@@ -393,7 +395,7 @@ default: %(va)s
         text_obj = self._suptitle
         return "" if text_obj is None else text_obj.get_text()
 
-    @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
+    @_docstring.Substitution(x0=0.5, y0=0.01, name='super xlabel', ha='center',
                              va='bottom', rc='label')
     @_docstring.copy(_suplabels)
     def supxlabel(self, t, **kwargs):
@@ -408,7 +410,7 @@ default: %(va)s
         text_obj = self._supxlabel
         return "" if text_obj is None else text_obj.get_text()
 
-    @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
+    @_docstring.Substitution(x0=0.02, y0=0.5, name='super ylabel', ha='left',
                              va='center', rc='label')
     @_docstring.copy(_suplabels)
     def supylabel(self, t, **kwargs):
@@ -613,22 +615,22 @@ default: %(va)s
         """
 
         if not len(args) and 'rect' not in kwargs:
-            raise TypeError(
-                "add_axes() missing 1 required positional argument: 'rect'")
+            raise TypeError("add_axes() missing 1 required positional argument: 'rect'")
         elif 'rect' in kwargs:
             if len(args):
-                raise TypeError(
-                    "add_axes() got multiple values for argument 'rect'")
+                raise TypeError("add_axes() got multiple values for argument 'rect'")
             args = (kwargs.pop('rect'), )
+        if len(args) != 1:
+            raise _api.nargs_error("add_axes", 1, len(args))
 
         if isinstance(args[0], Axes):
-            a, *extra_args = args
+            a, = args
             key = a._projection_init
             if a.get_figure(root=False) is not self:
                 raise ValueError(
                     "The Axes must have been created in the present figure")
         else:
-            rect, *extra_args = args
+            rect, = args
             if not np.isfinite(rect).all():
                 raise ValueError(f'all entries in rect must be finite not {rect}')
             projection_class, pkw = self._process_projection_requirements(**kwargs)
@@ -637,11 +639,6 @@ default: %(va)s
             a = projection_class(self, rect, **pkw)
             key = (projection_class, pkw)
 
-        if extra_args:
-            _api.warn_deprecated(
-                "3.8",
-                name="Passing more than one positional argument to Figure.add_axes",
-                addendum="Any additional positional arguments are currently ignored.")
         return self._add_axes_internal(a, key)
 
     @_docstring.interpd
@@ -992,6 +989,7 @@ default: %(va)s
         self.texts = []
         self.images = []
         self.legends = []
+        self.subplotpars.reset()
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
         self._suptitle = None
@@ -1202,17 +1200,18 @@ default: %(va)s
         Parameters
         ----------
         mappable
-            The `matplotlib.cm.ScalarMappable` (i.e., `.AxesImage`,
+            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`,
             `.ContourSet`, etc.) described by this colorbar.  This argument is
             mandatory for the `.Figure.colorbar` method but optional for the
             `.pyplot.colorbar` function, which sets the default to the current
             image.
 
-            Note that one can create a `.ScalarMappable` "on-the-fly" to
-            generate colorbars not attached to a previously drawn artist, e.g.
+            Note that one can create a `.colorizer.ColorizingArtist` "on-the-fly"
+            to generate colorbars not attached to a previously drawn artist, e.g.
             ::
 
-                fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
+                cr = colorizer.Colorizer(norm=norm, cmap=cmap)
+                fig.colorbar(colorizer.ColorizingArtist(cr), ax=ax)
 
         cax : `~matplotlib.axes.Axes`, optional
             Axes into which the colorbar will be drawn.  If `None`, then a new
@@ -1385,16 +1384,15 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
         Example with rotated xtick labels::
 
             fig, axs = plt.subplots(1, 2)
-            for tick in axs[0].get_xticklabels():
-                tick.set_rotation(55)
+            axs[0].tick_params(axis='x', rotation=55)
             axs[0].set_xlabel('XLabel 0')
             axs[1].set_xlabel('XLabel 1')
             fig.align_xlabels()
@@ -1447,8 +1445,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1503,8 +1501,8 @@ default: %(va)s
 
         Notes
         -----
-        This assumes that ``axs`` are from the same `.GridSpec`, so that
-        their `.SubplotSpec` positions correspond to figure positions.
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
 
         Examples
         --------
@@ -1547,6 +1545,11 @@ default: %(va)s
         matplotlib.figure.Figure.align_xlabels
         matplotlib.figure.Figure.align_ylabels
         matplotlib.figure.Figure.align_titles
+
+        Notes
+        -----
+        This assumes that all Axes in ``axs`` are from the same `.GridSpec`,
+        so that their `.SubplotSpec` positions correspond to figure positions.
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
@@ -2121,9 +2124,9 @@ default: %(va)s
             # go through the unique keys,
             for name in unique_ids:
                 # sort out where each axes starts/ends
-                indx = np.argwhere(mosaic == name)
-                start_row, start_col = np.min(indx, axis=0)
-                end_row, end_col = np.max(indx, axis=0) + 1
+                index = np.argwhere(mosaic == name)
+                start_row, start_col = np.min(index, axis=0)
+                end_row, end_col = np.max(index, axis=0) + 1
                 # and construct the slice object
                 slc = (slice(start_row, end_row), slice(start_col, end_col))
                 # some light error checking
@@ -2268,10 +2271,8 @@ class SubFigure(FigureBase):
         super().__init__(**kwargs)
         if facecolor is None:
             facecolor = "none"
-        if edgecolor is None:
-            edgecolor = mpl.rcParams['figure.edgecolor']
-        if frameon is None:
-            frameon = mpl.rcParams['figure.frameon']
+        edgecolor = mpl._val_or_rc(edgecolor, 'figure.edgecolor')
+        frameon = mpl._val_or_rc(frameon, 'figure.frameon')
 
         self._subplotspec = subplotspec
         self._parent = parent
@@ -2476,8 +2477,13 @@ class Figure(FigureBase):
         """
         Parameters
         ----------
-        figsize : 2-tuple of floats, default: :rc:`figure.figsize`
-            Figure dimension ``(width, height)`` in inches.
+        figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
+            The figure dimensions. This can be
+
+            - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
+              "cm" (centimenter), "px" (pixel).
+            - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
+              ``(width, height, "in")``.
 
         dpi : float, default: :rc:`figure.dpi`
             Dots per inch.
@@ -2607,16 +2613,13 @@ None}, default: None
         self._button_pick_id = connect('button_press_event', self.pick)
         self._scroll_pick_id = connect('scroll_event', self.pick)
 
-        if figsize is None:
-            figsize = mpl.rcParams['figure.figsize']
-        if dpi is None:
-            dpi = mpl.rcParams['figure.dpi']
-        if facecolor is None:
-            facecolor = mpl.rcParams['figure.facecolor']
-        if edgecolor is None:
-            edgecolor = mpl.rcParams['figure.edgecolor']
-        if frameon is None:
-            frameon = mpl.rcParams['figure.frameon']
+        figsize = mpl._val_or_rc(figsize, 'figure.figsize')
+        dpi = mpl._val_or_rc(dpi, 'figure.dpi')
+        facecolor = mpl._val_or_rc(facecolor, 'figure.facecolor')
+        edgecolor = mpl._val_or_rc(edgecolor, 'figure.edgecolor')
+        frameon = mpl._val_or_rc(frameon, 'figure.frameon')
+
+        figsize = _parse_figsize(figsize, dpi)
 
         if not np.isfinite(figsize).all() or (np.array(figsize) < 0).any():
             raise ValueError('figure size must be positive finite not '
@@ -2639,7 +2642,7 @@ None}, default: None
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
-        FigureCanvasBase(self)  # Set self.canvas.
+        self._set_base_canvas()
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -2813,6 +2816,36 @@ None}, default: None
 
     get_axes = axes.fget
 
+    @property
+    def number(self):
+        """The figure id, used to identify figures in `.pyplot`."""
+        # Historically, pyplot dynamically added a number attribute to figure.
+        # However, this number must stay in sync with the figure manager.
+        # AFAICS overwriting the number attribute does not have the desired
+        # effect for pyplot. But there are some repos in GitHub that do change
+        # number. So let's take it slow and properly migrate away from writing.
+        #
+        # Making the dynamic attribute private and wrapping it in a property
+        # allows to maintain current behavior and deprecate write-access.
+        #
+        # When the deprecation expires, there's no need for duplicate state
+        # anymore and the private _number attribute can be replaced by
+        # `self.canvas.manager.num` if that exists and None otherwise.
+        if hasattr(self, '_number'):
+            return self._number
+        else:
+            raise AttributeError(
+                "'Figure' object has no attribute 'number'. In the future this"
+                "will change to returning 'None' instead.")
+
+    @number.setter
+    def number(self, num):
+        _api.warn_deprecated(
+            "3.10",
+            message="Changing 'Figure.number' is deprecated since %(since)s and "
+                    "will raise an error starting %(removal)s")
+        self._number = num
+
     def _get_renderer(self):
         if hasattr(self.canvas, 'get_renderer'):
             return self.canvas.get_renderer()
@@ -2859,8 +2892,7 @@ None}, default: None
             If a dict, pass it as kwargs to `.Figure.tight_layout`, overriding the
             default paddings.
         """
-        if tight is None:
-            tight = mpl.rcParams['figure.autolayout']
+        tight = mpl._val_or_rc(tight, 'figure.autolayout')
         _tight = 'tight' if bool(tight) else 'none'
         _tight_parameters = tight if isinstance(tight, dict) else {}
         self.set_layout_engine(_tight, **_tight_parameters)
@@ -2891,8 +2923,7 @@ None}, default: None
         ----------
         constrained : bool or dict or None
         """
-        if constrained is None:
-            constrained = mpl.rcParams['figure.constrained_layout.use']
+        constrained = mpl._val_or_rc(constrained, 'figure.constrained_layout.use')
         _constrained = 'constrained' if bool(constrained) else 'none'
         _parameters = constrained if isinstance(constrained, dict) else {}
         self.set_layout_engine(_constrained, **_parameters)
@@ -2965,6 +2996,20 @@ None}, default: None
 
         return w_pad, h_pad, wspace, hspace
 
+    def _set_base_canvas(self):
+        """
+        Initialize self.canvas with a FigureCanvasBase instance.
+
+        This is used upon initialization of the Figure, but also
+        to reset the canvas when decoupling from pyplot.
+        """
+        # check if we have changed the DPI due to hi-dpi screens
+        orig_dpi = getattr(self, '_original_dpi', self._dpi)
+        FigureCanvasBase(self)  # Set self.canvas as a side-effect
+        # put it back to what it was
+        if orig_dpi != self._dpi:
+            self.dpi = orig_dpi
+
     def set_canvas(self, canvas):
         """
         Set the canvas that contains the figure
@@ -2977,7 +3022,8 @@ None}, default: None
 
     @_docstring.interpd
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
-                 vmin=None, vmax=None, origin=None, resize=False, **kwargs):
+                 vmin=None, vmax=None, origin=None, resize=False, *,
+                 colorizer=None, **kwargs):
         """
         Add a non-resampled image to the figure.
 
@@ -3020,6 +3066,10 @@ None}, default: None
         resize : bool
             If *True*, resize the figure to match the given image size.
 
+        %(colorizer_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
+
         Returns
         -------
         `matplotlib.image.FigureImage`
@@ -3053,6 +3103,7 @@ None}, default: None
             self.set_size_inches(figsize, forward=True)
 
         im = mimage.FigureImage(self, cmap=cmap, norm=norm,
+                                colorizer=colorizer,
                                 offsetx=xo, offsety=yo,
                                 origin=origin, **kwargs)
         im.stale_callback = _stale_figure_callback
@@ -3060,6 +3111,7 @@ None}, default: None
         im.set_array(X)
         im.set_alpha(alpha)
         if norm is None:
+            im._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
             im.set_clim(vmin, vmax)
         self.images.append(im)
         im._remove_method = self.images.remove
@@ -3412,8 +3464,7 @@ None}, default: None
         """
 
         kwargs.setdefault('dpi', mpl.rcParams['savefig.dpi'])
-        if transparent is None:
-            transparent = mpl.rcParams['savefig.transparent']
+        transparent = mpl._val_or_rc(transparent, 'savefig.transparent')
 
         with ExitStack() as stack:
             if transparent:
@@ -3626,8 +3677,8 @@ def figaspect(arg):
 
     Returns
     -------
-    width, height : float
-        The figure size in inches.
+    size : (2,) array
+        The width and height of the figure in inches.
 
     Notes
     -----
@@ -3643,7 +3694,7 @@ def figaspect(arg):
 
         w, h = figaspect(2.)
         fig = Figure(figsize=(w, h))
-        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+        ax = fig.add_axes((0.1, 0.1, 0.8, 0.8))
         ax.imshow(A, **kwargs)
 
     Make a figure with the proper aspect for an array::
@@ -3651,7 +3702,7 @@ def figaspect(arg):
         A = rand(5, 3)
         w, h = figaspect(A)
         fig = Figure(figsize=(w, h))
-        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+        ax = fig.add_axes((0.1, 0.1, 0.8, 0.8))
         ax.imshow(A, **kwargs)
     """
 
@@ -3685,3 +3736,46 @@ def figaspect(arg):
     # the min/max dimensions (we don't want figures 10 feet tall!)
     newsize = np.clip(newsize, figsize_min, figsize_max)
     return newsize
+
+
+def _parse_figsize(figsize, dpi):
+    """
+    Convert a figsize expression to (width, height) in inches.
+
+    Parameters
+    ----------
+    figsize : (float, float) or (float, float, str)
+        This can be
+
+        - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
+          "cm" (centimenter), "px" (pixel).
+        - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
+          ``(width, height, "in")``.
+
+    dpi : float
+        The dots-per-inch; used for converting 'px' to 'in'.
+    """
+    num_parts = len(figsize)
+    if num_parts == 2:
+        return figsize
+    elif num_parts == 3:
+        x, y, unit = figsize
+        if unit == 'in':
+            pass
+        elif unit == 'cm':
+            x /= 2.54
+            y /= 2.54
+        elif unit == 'px':
+            x /= dpi
+            y /= dpi
+        else:
+            raise ValueError(
+                f"Invalid unit {unit!r} in 'figsize'; "
+                "supported units are 'in', 'cm', 'px'"
+            )
+        return x, y
+    else:
+        raise ValueError(
+            "Invalid figsize format, expected (x, y) or (x, y, unit) but got "
+            f"{figsize!r}"
+        )

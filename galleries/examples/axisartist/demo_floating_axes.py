@@ -22,8 +22,7 @@ from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 import mpl_toolkits.axisartist.angle_helper as angle_helper
 import mpl_toolkits.axisartist.floating_axes as floating_axes
-from mpl_toolkits.axisartist.grid_finder import (DictFormatter, FixedLocator,
-                                                 MaxNLocator)
+from mpl_toolkits.axisartist.grid_finder import DictFormatter, FixedLocator, MaxNLocator
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -54,7 +53,7 @@ def setup_axes2(fig, rect):
     With custom locator and formatter.
     Note that the extreme values are swapped.
     """
-    tr = PolarAxes.PolarTransform(apply_theta_transforms=False)
+    tr = PolarAxes.PolarTransform()
 
     pi = np.pi
     angle_ticks = [(0, r"$0$"),
@@ -99,8 +98,7 @@ def setup_axes3(fig, rect):
     # scale degree to radians
     tr_scale = Affine2D().scale(np.pi/180., 1.)
 
-    tr = tr_rotate + tr_scale + PolarAxes.PolarTransform(
-        apply_theta_transforms=False)
+    tr = tr_rotate + tr_scale + PolarAxes.PolarTransform()
 
     grid_locator1 = angle_helper.LocatorHMS(4)
     tick_formatter1 = angle_helper.FormatterHMS()

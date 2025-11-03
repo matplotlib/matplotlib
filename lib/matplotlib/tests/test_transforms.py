@@ -9,9 +9,10 @@ from matplotlib import scale
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
-from matplotlib.transforms import Affine2D, Bbox, TransformedBbox
+from matplotlib.transforms import Affine2D, Bbox, TransformedBbox, _ScaledRotation
 from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from unittest.mock import MagicMock
 
 
 class TestAffine2D:
@@ -693,9 +694,9 @@ class TestBasicTransform:
         assert not self.stack1.contains_branch(self.tn1 + self.ta2)
 
         blend = mtransforms.BlendedGenericTransform(self.tn2, self.stack2)
-        x, y = blend.contains_branch_seperately(self.stack2_subset)
+        x, y = blend.contains_branch_separately(self.stack2_subset)
         stack_blend = self.tn3 + blend
-        sx, sy = stack_blend.contains_branch_seperately(self.stack2_subset)
+        sx, sy = stack_blend.contains_branch_separately(self.stack2_subset)
         assert x is sx is False
         assert y is sy is True
 
@@ -834,6 +835,16 @@ def assert_bbox_eq(bbox1, bbox2):
     assert_array_equal(bbox1.bounds, bbox2.bounds)
 
 
+def test_bbox_is_finite():
+    assert not Bbox([(1, 1), (1, 1)])._is_finite()
+    assert not Bbox([(0, 0), (np.inf, 1)])._is_finite()
+    assert not Bbox([(-np.inf, 0), (2, 2)])._is_finite()
+    assert not Bbox([(np.nan, 0), (2, 2)])._is_finite()
+    assert Bbox([(0, 0), (0, 2)])._is_finite()
+    assert Bbox([(0, 0), (2, 0)])._is_finite()
+    assert Bbox([(0, 0), (1, 2)])._is_finite()
+
+
 def test_bbox_frozen_copies_minpos():
     bbox = mtransforms.Bbox.from_extents(0.0, 0.0, 1.0, 1.0, minpos=1.0)
     frozen = bbox.frozen()
@@ -890,8 +901,7 @@ CompositeGenericTransform(
                 Affine2D().scale(1.0))),
         PolarTransform(
             PolarAxes(0.125,0.1;0.775x0.8),
-            use_rmin=True,
-            apply_theta_transforms=False)),
+            use_rmin=True)),
     CompositeGenericTransform(
         CompositeGenericTransform(
             PolarAffine(
@@ -986,12 +996,6 @@ def test_transformed_path():
                     [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)],
                     atol=1e-15)
 
-    # Changing the path does not change the result (it's cached).
-    path.points = [(0, 0)] * 4
-    assert_allclose(trans_path.get_fully_transformed_path().vertices,
-                    [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)],
-                    atol=1e-15)
-
 
 def test_transformed_patch_path():
     trans = mtransforms.Affine2D()
@@ -1052,7 +1056,7 @@ def test_transformwrapper():
         t.set(scale.LogTransform(10))
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_scale_swapping(fig_test, fig_ref):
     np.random.seed(19680801)
     samples = np.random.normal(size=10)
@@ -1104,3 +1108,27 @@ def test_interval_contains_open():
     assert not mtransforms.interval_contains_open((0, 1), -1)
     assert not mtransforms.interval_contains_open((0, 1), 2)
     assert mtransforms.interval_contains_open((1, 0), 0.5)
+
+
+def test_scaledrotation_initialization():
+    """Test that the ScaledRotation object is initialized correctly."""
+    theta = 1.0  # Arbitrary theta value for testing
+    trans_shift = MagicMock()  # Mock the trans_shift transformation
+    scaled_rot = _ScaledRotation(theta, trans_shift)
+    assert scaled_rot._theta == theta
+    assert scaled_rot._trans_shift == trans_shift
+    assert scaled_rot._mtx is None
+
+
+def test_scaledrotation_get_matrix_invalid():
+    """Test get_matrix when the matrix is invalid and needs recalculation."""
+    theta = np.pi / 2
+    trans_shift = MagicMock(transform=MagicMock(return_value=[[theta, 0]]))
+    scaled_rot = _ScaledRotation(theta, trans_shift)
+    scaled_rot._invalid = True
+    matrix = scaled_rot.get_matrix()
+    trans_shift.transform.assert_called_once_with([[theta, 0]])
+    expected_rotation = np.array([[0, -1],
+                                  [1,  0]])
+    assert matrix is not None
+    assert_allclose(matrix[:2, :2], expected_rotation, atol=1e-15)

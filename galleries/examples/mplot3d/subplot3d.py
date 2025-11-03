@@ -9,7 +9,6 @@ Demonstrate including 3D plots as subplots.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib import cm
 from mpl_toolkits.mplot3d.axes3d import get_test_data
 
 # set up a figure twice as wide as it is tall
@@ -27,7 +26,7 @@ Y = np.arange(-5, 5, 0.25)
 X, Y = np.meshgrid(X, Y)
 R = np.sqrt(X**2 + Y**2)
 Z = np.sin(R)
-surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap="coolwarm",
                        linewidth=0, antialiased=False)
 ax.set_zlim(-1.01, 1.01)
 fig.colorbar(surf, shrink=0.5, aspect=10)
@@ -43,3 +42,9 @@ X, Y, Z = get_test_data(0.05)
 ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    component: subplot,
+#    level: advanced

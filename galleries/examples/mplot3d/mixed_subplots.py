@@ -44,3 +44,9 @@ surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
 ax.set_zlim(-1, 1)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    component: subplot,
+#    level: beginner

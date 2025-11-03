@@ -17,7 +17,7 @@ import logging
 
 import numpy as np
 
-from matplotlib import _api, ticker, units
+from matplotlib import _api, cbook, ticker, units
 
 
 _log = logging.getLogger(__name__)
@@ -55,7 +55,8 @@ class StrCategoryConverter(units.ConversionInterface):
         values = np.atleast_1d(np.array(value, dtype=object))
         # force an update so it also does type checking
         unit.update(values)
-        return np.vectorize(unit._mapping.__getitem__, otypes=[float])(values)
+        s = np.vectorize(unit._mapping.__getitem__, otypes=[float])(values)
+        return s if not cbook.is_scalar_or_string(value) else s[0]
 
     @staticmethod
     def axisinfo(unit, axis):
@@ -227,7 +228,8 @@ class UnitData:
 
 
 # Register the converter with Matplotlib's unit framework
-units.registry[str] = StrCategoryConverter()
-units.registry[np.str_] = StrCategoryConverter()
-units.registry[bytes] = StrCategoryConverter()
-units.registry[np.bytes_] = StrCategoryConverter()
+# Intentionally set to a single instance
+units.registry[str] = \
+    units.registry[np.str_] = \
+    units.registry[bytes] = \
+    units.registry[np.bytes_] = StrCategoryConverter()

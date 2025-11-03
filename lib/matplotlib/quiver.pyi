@@ -45,6 +45,7 @@ class QuiverKey(martist.Artist):
         labelpos: Literal["N", "S", "E", "W"] = ...,
         labelcolor: ColorType | None = ...,
         fontproperties: dict[str, Any] | None = ...,
+        zorder: float | None = ...,
         **kwargs
     ) -> None: ...
     @property

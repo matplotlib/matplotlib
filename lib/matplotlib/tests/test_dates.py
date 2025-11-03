@@ -199,7 +199,7 @@ def test_too_many_date_ticks(caplog):
     tf = datetime.datetime(2000, 1, 20)
     fig, ax = plt.subplots()
     with pytest.warns(UserWarning) as rec:
-        ax.set_xlim((t0, tf), auto=True)
+        ax.set_xlim(t0, tf, auto=True)
         assert len(rec) == 1
         assert ('Attempting to set identical low and high xlims'
                 in str(rec[0].message))
@@ -275,7 +275,7 @@ def test_DateFormatter():
     import matplotlib.testing.jpl_units as units
     units.register()
 
-    # Lets make sure that DateFormatter will allow us to have tick marks
+    # Let's make sure that DateFormatter will allow us to have tick marks
     # at intervals of fractional seconds.
 
     t0 = datetime.datetime(2001, 1, 1, 0, 0, 0)
@@ -668,10 +668,12 @@ def test_concise_converter_stays():
     fig, ax = plt.subplots()
     ax.plot(x, y)
     # Bypass Switchable date converter
-    ax.xaxis.converter = conv = mdates.ConciseDateConverter()
+    conv = mdates.ConciseDateConverter()
+    with pytest.warns(UserWarning, match="already has a converter"):
+        ax.xaxis.set_converter(conv)
     assert ax.xaxis.units is None
     ax.set_xlim(*x)
-    assert ax.xaxis.converter == conv
+    assert ax.xaxis.get_converter() == conv
 
 
 def test_offset_changes():

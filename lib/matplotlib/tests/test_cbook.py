@@ -186,7 +186,7 @@ class Hashable:
 
 
 class Unhashable:
-    __hash__ = None  # type: ignore
+    __hash__ = None  # type: ignore[assignment]
     def dummy(self): pass
 
 
@@ -461,6 +461,23 @@ def test_sanitize_sequence():
     assert i == sorted(cbook.sanitize_sequence(d.items()))
     assert i == cbook.sanitize_sequence(i)
     assert k == cbook.sanitize_sequence(k)
+
+
+def test_resize_sequence():
+    a_list = [1, 2, 3]
+    arr = np.array([1, 2, 3])
+
+    # already same length: passthrough
+    assert cbook._resize_sequence(a_list, 3) is a_list
+    assert cbook._resize_sequence(arr, 3) is arr
+
+    # shortening
+    assert cbook._resize_sequence(a_list, 2) == [1, 2]
+    assert_array_equal(cbook._resize_sequence(arr, 2), [1, 2])
+
+    # extending
+    assert cbook._resize_sequence(a_list, 5) == [1, 2, 3, 1, 2]
+    assert_array_equal(cbook._resize_sequence(arr, 5), [1, 2, 3, 1, 2])
 
 
 fail_mapping: tuple[tuple[dict, dict], ...] = (
@@ -983,6 +1000,7 @@ def test_unpack_to_numpy_from_torch():
     torch_tensor = torch.Tensor(data)
 
     result = cbook._unpack_to_numpy(torch_tensor)
+    assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
     # is the same Python object, just the same values.
@@ -1011,6 +1029,7 @@ def test_unpack_to_numpy_from_jax():
     jax_array = jax.Array(data)
 
     result = cbook._unpack_to_numpy(jax_array)
+    assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
     # is the same Python object, just the same values.
@@ -1040,6 +1059,7 @@ def test_unpack_to_numpy_from_tensorflow():
     tf_tensor = tensorflow.Tensor(data)
 
     result = cbook._unpack_to_numpy(tf_tensor)
+    assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
     # is the same Python object, just the same values.

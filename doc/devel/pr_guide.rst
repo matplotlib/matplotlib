@@ -12,13 +12,15 @@ We value contributions from people with all levels of experience. In particular,
 if this is your first PR not everything has to be perfect. We'll guide you
 through the PR process. Nevertheless, please try to follow our guidelines as well
 as you can to help make the PR process quick and smooth. If your pull request is
-incomplete or a work-in-progress, please mark it as a `draft pull requests <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_
+incomplete or a work-in-progress, please mark it as a :ref:`draft pull request <draft-pr>`
 on GitHub and specify what feedback from the developers would be helpful.
 
 Please be patient with reviewers. We try our best to respond quickly, but we have
 limited bandwidth. If there is no feedback within a couple of days, please ping
 us by posting a comment to your PR or reaching out on a :ref:`communication channel <communication-channels>`
 
+
+.. _pr-author-guidelines:
 
 Summary for pull request authors
 ================================
@@ -39,7 +41,7 @@ guidelines before submitting a pull request:
 * For high-level plotting functions, consider adding a small example to the
   :ref:`examples gallery <gallery>`.
 
-* If you add a major new feature or change the API in a backward-incompatible
+* If you add a new feature or change the API in a backward-incompatible
   way, please document it as described in :ref:`api_changes`.
 
 * Code should follow our conventions as documented in our :ref:`coding_guidelines`.
@@ -107,14 +109,31 @@ Workflow
 * The PR should :ref:`target the main branch <pr-branch-selection>`.
 * Tag with descriptive :ref:`labels <pr-labels>`.
 * Set the :ref:`milestone <pr-milestones>`.
-* Keep an eye on the :ref:`number of commits <pr-squashing>`.
+* :ref:`Review <pr-review>` the contents.
 * Approve if all of the above topics are handled.
-* :ref:`Merge  <pr-merging>` if a sufficient number of approvals is reached.
+* Keep an eye on the :ref:`number of commits <pr-squashing>`.
+* :ref:`Merge <pr-merging>` if a :ref:`sufficient number of approvals <pr-approval>` is reached.
 
 .. _pr-guidelines-details:
 
 Detailed guidelines
 ===================
+
+.. _draft-pr:
+
+Draft PRs
+---------
+
+Authors may create a `draft PR`_ (or change to draft status later) if the code
+is not yet ready for a regular full review. Typical use cases are posting code
+as a basis for discussion or signalling that you intend to rework the code as
+a result of feedback. Authors should clearly communicate why the PR has draft
+status and what needs to be done to make it ready for review. In particular,
+they should explicitly ask for targeted feedback if needed. By default,
+reviewers will not look at the code of a draft PR and only respond to specific
+questions by the author.
+
+.. _draft PR: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests
 
 .. _pr-documentation:
 
@@ -172,10 +191,27 @@ All Pull Requests should target the main branch. The milestone tag triggers
 an :ref:`automatic backport <automated-backports>` for milestones which have
 a corresponding branch.
 
-.. _pr-merging:
+.. _pr-review:
 
-Merging
--------
+Review
+------
+
+* Do not let perfect be the enemy of the good, particularly for
+  documentation or example PRs.  If you find yourself making many
+  small suggestions, either open a PR against the original branch,
+  push changes to the contributor branch, or merge the PR and then
+  open a new PR against upstream.
+
+* If you push to a contributor branch leave a comment explaining what
+  you did, ex "I took the liberty of pushing a small clean-up PR to
+  your branch, thanks for your work.".  If you are going to make
+  substantial changes to the code or intent of the PR please check
+  with the contributor first.
+
+.. _pr-approval:
+
+Approval
+--------
 As a guiding principle, we require two `approvals`_ from core developers (those
 with commit rights) before merging a pull request. This two-pairs-of-eyes
 strategy shall ensure a consistent project direction and prevent accidental
@@ -211,17 +247,21 @@ Some explicit rules following from this:
     A core dev should only champion one PR at a time and we should try to keep
     the flow of championed PRs reasonable.
 
-After giving the last required approval, the author of the approval should
-merge the PR. PR authors should not self-merge except for when another reviewer
-explicitly allows it (e.g., "Approve modulo CI passing, may self merge when
-green", or "Take or leave the comments. You may self merge".).
-
 .. _pr-automated-tests:
 
 Automated tests
 ---------------
 Before being merged, a PR should pass the :ref:`automated-tests`. If you are
 unsure why a test is failing, ask on the PR or in our :ref:`communication-channels`
+
+.. _pr-merging:
+
+Merging
+-------
+After giving the last required :ref:`approval <pr-approval>`, the author of the
+approval should merge the PR. PR authors should not self-merge except for when
+another reviewer explicitly allows it (e.g., "Approve modulo CI passing, may
+self-merge when green", or "Take or leave the comments. You may self merge".).
 
 .. _pr-squashing:
 
@@ -233,19 +273,6 @@ Number of commits and squashing
   history usable for bisecting.  The only time we are really strict
   about it is to eliminate binary files (ex multiple test image
   re-generations) and to remove upstream merges.
-
-* Do not let perfect be the enemy of the good, particularly for
-  documentation or example PRs.  If you find yourself making many
-  small suggestions, either open a PR against the original branch,
-  push changes to the contributor branch, or merge the PR and then
-  open a new PR against upstream.
-
-* If you push to a contributor branch leave a comment explaining what
-  you did, ex "I took the liberty of pushing a small clean-up PR to
-  your branch, thanks for your work.".  If you are going to make
-  substantial changes to the code or intent of the PR please check
-  with the contributor first.
-
 
 .. _branches_and_backports:
 

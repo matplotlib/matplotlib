@@ -169,6 +169,8 @@ Units
    Axis.convert_units
    Axis.set_units
    Axis.get_units
+   Axis.set_converter
+   Axis.get_converter
    Axis.update_units
 
 

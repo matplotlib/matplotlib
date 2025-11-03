@@ -168,7 +168,9 @@ def test_never_update():
     plt.show(block=False)
 
     plt.draw()  # Test FigureCanvasTkAgg.
-    fig.canvas.toolbar.configure_subplots()  # Test NavigationToolbar2Tk.
+    tool = fig.canvas.toolbar.configure_subplots()  # Test NavigationToolbar2Tk.
+    assert tool is not None
+    assert tool == fig.canvas.toolbar.configure_subplots()  # Tool is reused internally.
     # Test FigureCanvasTk filter_destroy callback
     fig.canvas.get_tk_widget().after(100, plt.close, fig)
 
@@ -194,6 +196,23 @@ def test_missing_back_button():
     print("success")
     Toolbar(fig.canvas, fig.canvas.manager.window)  # This should not raise.
     print("success")
+
+
+@_isolated_tk_test(success_count=2)
+def test_save_figure_return():
+    import matplotlib.pyplot as plt
+    from unittest import mock
+    fig = plt.figure()
+    prop = "tkinter.filedialog.asksaveasfilename"
+    with mock.patch(prop, return_value="foobar.png"):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        os.remove("foobar.png")
+        assert fname == "foobar.png"
+        print("success")
+    with mock.patch(prop, return_value=""):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        assert fname is None
+        print("success")
 
 
 @_isolated_tk_test(success_count=1)

@@ -78,7 +78,10 @@ def _get_available_interactive_backends():
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
         if missing:
             reason = "{} cannot be imported".format(", ".join(missing))
-        elif env["MPLBACKEND"] == "tkagg" and _is_linux_and_xdisplay_invalid:
+        elif _is_linux_and_xdisplay_invalid and (
+                env["MPLBACKEND"] == "tkagg"
+                # Remove when https://github.com/wxWidgets/Phoenix/pull/2638 is out.
+                or env["MPLBACKEND"].startswith("wx")):
             reason = "$DISPLAY is unset"
         elif _is_linux_and_display_invalid:
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
@@ -86,7 +89,7 @@ def _get_available_interactive_backends():
             reason = "macosx backend fails on Azure"
         elif env["MPLBACKEND"].startswith('gtk'):
             try:
-                import gi  # type: ignore
+                import gi  # type: ignore[import]
             except ImportError:
                 # Though we check that `gi` exists above, it is possible that its
                 # C-level dependencies are not available, and then it still raises an
@@ -104,13 +107,7 @@ def _get_available_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on macosx because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
-        elif (env['MPLBACKEND'] == 'tkagg' and
-              ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
-              sys.platform == 'darwin' and
-              sys.version_info[:2] < (3, 11)
-              ):
-            marks.append(  # https://github.com/actions/setup-python/issues/649
-                pytest.mark.xfail(reason='Tk version mismatch on Azure macOS CI'))
+
         envs.append(({**env, 'BACKEND_DEPS': ','.join(deps)}, marks))
     return envs
 
@@ -124,6 +121,7 @@ def _get_testable_interactive_backends():
 
 # Reasonable safe values for slower CI/Remote and local architectures.
 _test_timeout = 120 if is_ci_environment() else 20
+_retry_count = 3 if is_ci_environment() else 0
 
 
 def _test_toolbar_button_la_mode_icon(fig):
@@ -159,7 +157,7 @@ def _test_interactive_impl():
 
     import matplotlib as mpl
     from matplotlib import pyplot as plt
-    from matplotlib.backend_bases import KeyEvent
+    from matplotlib.backend_bases import KeyEvent, FigureCanvasBase
     mpl.rcParams.update({
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
@@ -217,30 +215,37 @@ def _test_interactive_impl():
     fig.canvas.mpl_connect("close_event", print)
 
     result = io.BytesIO()
-    fig.savefig(result, format='png')
+    fig.savefig(result, format='png', dpi=100)
 
     plt.show()
 
     # Ensure that the window is really closed.
     plt.pause(0.5)
 
-    # Test that saving works after interactive window is closed, but the figure
-    # is not deleted.
+    # When the figure is closed, its manager is removed and the canvas is reset to
+    # FigureCanvasBase. Saving should still be possible.
+    assert type(fig.canvas) == FigureCanvasBase, str(fig.canvas)
     result_after = io.BytesIO()
-    fig.savefig(result_after, format='png')
+    fig.savefig(result_after, format='png', dpi=100)
 
-    assert result.getvalue() == result_after.getvalue()
+    if backend.endswith("agg"):
+        # agg-based interactive backends should save the same image as a non-interactive
+        # figure
+        assert result.getvalue() == result_after.getvalue()
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 @pytest.mark.parametrize("toolbar", ["toolbar2", "toolmanager"])
-@pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=_retry_count)
 def test_interactive_backend(env, toolbar):
     if env["MPLBACKEND"] == "macosx":
         if toolbar == "toolmanager":
             pytest.skip("toolmanager is not implemented for macosx.")
     if env["MPLBACKEND"] == "wx":
         pytest.skip("wx backend is deprecated; tests failed on appveyor")
+    if env["MPLBACKEND"] == "wxagg" and toolbar == "toolmanager":
+        pytest.skip("Temporarily deactivated: show() changes figure height "
+                    "and thus fails the test")
     try:
         proc = _run_helper(
             _test_interactive_impl,
@@ -279,10 +284,13 @@ def _test_thread_impl():
     future = ThreadPoolExecutor().submit(fig.canvas.draw)
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
+    # stash the current canvas as closing the figure will reset the canvas on
+    # the figure
+    canvas = fig.canvas
     plt.close()  # backend is responsible for flushing any events here
     if plt.rcParams["backend"].lower().startswith("wx"):
         # TODO: debug why WX needs this only on py >= 3.8
-        fig.canvas.flush_events()
+        canvas.flush_events()
 
 
 _thread_safe_backends = _get_testable_interactive_backends()
@@ -323,7 +331,7 @@ for param in _thread_safe_backends:
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
-@pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=_retry_count)
 def test_interactive_thread_safety(env):
     proc = _run_helper(_test_thread_impl, timeout=_test_timeout, extra_env=env)
     assert proc.stdout.count("CloseEvent") == 1
@@ -449,6 +457,9 @@ def qt5_and_qt6_pairs():
             yield from ([qt5, qt6], [qt6, qt5])
 
 
+@pytest.mark.skipif(
+    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    reason="$DISPLAY and $WAYLAND_DISPLAY are unset")
 @pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
 def test_cross_Qt_imports(host, mpl):
     try:
@@ -608,7 +619,7 @@ for param in _blit_backends:
 
 @pytest.mark.parametrize("env", _blit_backends)
 # subprocesses can struggle to get the display, so rerun a few times
-@pytest.mark.flaky(reruns=4)
+@pytest.mark.flaky(reruns=_retry_count)
 def test_blitting_events(env):
     proc = _run_helper(
         _test_number_of_draws_script, timeout=_test_timeout, extra_env=env)
@@ -620,17 +631,29 @@ def test_blitting_events(env):
     assert 0 < ndraws < 5
 
 
+def _fallback_check():
+    import IPython.core.interactiveshell as ipsh
+    import matplotlib.pyplot
+    ipsh.InteractiveShell.instance()
+    matplotlib.pyplot.figure()
+
+
+def test_fallback_to_different_backend():
+    pytest.importorskip("IPython")
+    # Runs the process that caused the GH issue 23770
+    # making sure that this doesn't crash
+    # since we're supposed to be switching to a different backend instead.
+    response = _run_helper(_fallback_check, timeout=_test_timeout)
+
+
 def _impl_test_interactive_timers():
     # A timer with <1 millisecond gets converted to int and therefore 0
     # milliseconds, which the mac framework interprets as singleshot.
     # We only want singleshot if we specify that ourselves, otherwise we want
     # a repeating timer
-    import os
     from unittest.mock import Mock
     import matplotlib.pyplot as plt
-    # increase pause duration on CI to let things spin up
-    # particularly relevant for gtk3cairo
-    pause_time = 2 if os.getenv("CI") else 0.5
+    pause_time = 0.5
     fig = plt.figure()
     plt.pause(pause_time)
     timer = fig.canvas.new_timer(0.1)

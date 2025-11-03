@@ -13,10 +13,8 @@ from gi.repository import Gtk
 
 import numpy as np
 
-from matplotlib.backends.backend_gtk3 import \
-    NavigationToolbar2GTK3 as NavigationToolbar
-from matplotlib.backends.backend_gtk3agg import \
-    FigureCanvasGTK3Agg as FigureCanvas
+from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
+from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 from matplotlib.figure import Figure
 
 win = Gtk.Window()

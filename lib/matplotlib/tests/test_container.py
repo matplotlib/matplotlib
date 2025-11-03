@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.testing import assert_array_equal
 import matplotlib.pyplot as plt
 
 
@@ -35,3 +36,20 @@ def test_nonstring_label():
     # Test for #26824
     plt.bar(np.arange(10), np.random.rand(10), label=1)
     plt.legend()
+
+
+def test_barcontainer_position_centers__bottoms__tops():
+    fig, ax = plt.subplots()
+    pos = [1, 2, 4]
+    bottoms = np.array([1, 5, 3])
+    heights = np.array([2, 3, 4])
+
+    container = ax.bar(pos, heights, bottom=bottoms)
+    assert_array_equal(container.position_centers, pos)
+    assert_array_equal(container.bottoms, bottoms)
+    assert_array_equal(container.tops, bottoms + heights)
+
+    container = ax.barh(pos, heights, left=bottoms)
+    assert_array_equal(container.position_centers, pos)
+    assert_array_equal(container.bottoms, bottoms)
+    assert_array_equal(container.tops, bottoms + heights)

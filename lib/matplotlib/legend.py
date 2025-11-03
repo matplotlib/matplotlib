@@ -204,7 +204,7 @@ mode : {"expand", None}
 bbox_transform : None or `~matplotlib.transforms.Transform`
     The transform for the bounding box (*bbox_to_anchor*). For a value
     of ``None`` (default) the Axes'
-    :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
+    :data:`!matplotlib.axes.Axes.transAxes` transform will be used.
 
 title : str or None
     The legend's title. Default is no title (``None``).
@@ -454,25 +454,12 @@ class Legend(Artist):
         self.borderaxespad = mpl._val_or_rc(borderaxespad, 'legend.borderaxespad')
         self.columnspacing = mpl._val_or_rc(columnspacing, 'legend.columnspacing')
         self.shadow = mpl._val_or_rc(shadow, 'legend.shadow')
-        # trim handles and labels if illegal label...
-        _lab, _hand = [], []
-        for label, handle in zip(labels, handles):
-            if isinstance(label, str) and label.startswith('_'):
-                _api.warn_deprecated("3.8", message=(
-                    "An artist whose label starts with an underscore was passed to "
-                    "legend(); such artists will no longer be ignored in the future.  "
-                    "To suppress this warning, explicitly filter out such artists, "
-                    "e.g. with `[art for art in artists if not "
-                    "art.get_label().startswith('_')]`."))
-            else:
-                _lab.append(label)
-                _hand.append(handle)
-        labels, handles = _lab, _hand
 
         if reverse:
-            labels.reverse()
-            handles.reverse()
+            labels = [*reversed(labels)]
+            handles = [*reversed(handles)]
 
+        handles = list(handles)
         if len(handles) < 2:
             ncols = 1
         self._ncols = ncols if ncols != 1 else ncol
@@ -589,15 +576,18 @@ class Legend(Artist):
         # set the text color
 
         color_getters = {  # getter function depends on line or patch
-            'linecolor':       ['get_color',           'get_facecolor'],
+            'linecolor':       ['get_markerfacecolor',
+                                'get_facecolor',
+                                'get_markeredgecolor',
+                                'get_edgecolor',
+                                'get_color'],
             'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
             'mfc':             ['get_markerfacecolor', 'get_facecolor'],
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
             'mec':             ['get_markeredgecolor', 'get_edgecolor'],
         }
-        labelcolor = mpl._val_or_rc(labelcolor, 'legend.labelcolor')
-        if labelcolor is None:
-            labelcolor = mpl.rcParams['text.color']
+        labelcolor = mpl._val_or_rc(mpl._val_or_rc(labelcolor, 'legend.labelcolor'),
+                                    'text.color')
         if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legend_handles, self.texts):
@@ -609,19 +599,22 @@ class Legend(Artist):
                 for getter_name in getter_names:
                     try:
                         color = getattr(handle, getter_name)()
-                        if isinstance(color, np.ndarray):
-                            if (
-                                    color.shape[0] == 1
-                                    or np.isclose(color, color[0]).all()
-                            ):
-                                text.set_color(color[0])
-                            else:
-                                pass
-                        else:
-                            text.set_color(color)
-                        break
                     except AttributeError:
-                        pass
+                        continue
+                    if isinstance(color, np.ndarray):
+                        if color.size == 0:
+                            continue
+                        elif (color.shape[0] == 1 or np.isclose(color, color[0]).all()):
+                            text.set_color(color[0])
+                        else:
+                            pass
+                    elif cbook._str_lower_equal(color, 'none'):
+                        continue
+                    elif mpl.colors.to_rgba(color)[3] == 0:
+                        continue
+                    else:
+                        text.set_color(color)
+                    break
         elif cbook._str_equal(labelcolor, 'none'):
             for text in self.texts:
                 text.set_color(labelcolor)
@@ -948,7 +941,7 @@ class Legend(Artist):
         self.texts = text_list
         self.legend_handles = handle_list
 
-    def _auto_legend_data(self):
+    def _auto_legend_data(self, renderer):
         """
         Return display coordinates for hit testing for "best" positioning.
 
@@ -983,7 +976,7 @@ class Legend(Artist):
                 if len(hoffsets):
                     offsets.extend(transOffset.transform(hoffsets))
             elif isinstance(artist, Text):
-                bboxes.append(artist.get_window_extent())
+                bboxes.append(artist.get_window_extent(renderer))
 
         return bboxes, lines, offsets
 
@@ -1154,9 +1147,10 @@ class Legend(Artist):
         parentbbox : `~matplotlib.transforms.Bbox`
             A parent box which will contain the bbox, in display coordinates.
         """
+        pad = self.borderaxespad * renderer.points_to_pixels(self._fontsize)
         return offsetbox._get_anchored_bbox(
             loc, bbox, parentbbox,
-            self.borderaxespad * renderer.points_to_pixels(self._fontsize))
+            pad, pad)
 
     def _find_best_position(self, width, height, renderer):
         """Determine the best location to place the legend."""
@@ -1164,7 +1158,7 @@ class Legend(Artist):
 
         start_time = time.perf_counter()
 
-        bboxes, lines, offsets = self._auto_legend_data()
+        bboxes, lines, offsets = self._auto_legend_data(renderer)
 
         bbox = Bbox.from_bounds(0, 0, width, height)
 
@@ -1301,7 +1295,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         legend(handles=handles, labels=labels)
 
     The behavior for a mixture of positional and keyword handles and labels
-    is undefined and issues a warning; it will be an error in the future.
+    is undefined and raises an error.
 
     Parameters
     ----------
@@ -1334,10 +1328,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     handlers = kwargs.get('handler_map')
 
     if (handles is not None or labels is not None) and args:
-        _api.warn_deprecated("3.9", message=(
-            "You have mixed positional and keyword arguments, some input may "
-            "be discarded.  This is deprecated since %(since)s and will "
-            "become an error in %(removal)s."))
+        raise TypeError("When passing handles and labels, they must both be "
+                        "passed positionally or both as keywords.")
 
     if (hasattr(handles, "__len__") and
             hasattr(labels, "__len__") and

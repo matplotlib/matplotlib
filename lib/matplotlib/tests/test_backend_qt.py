@@ -15,19 +15,15 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib import _c_internal_utils
 
 try:
-    from matplotlib.backends.qt_compat import QtGui, QtWidgets  # type: ignore # noqa
+    from matplotlib.backends.qt_compat import QtCore  # type: ignore[attr-defined]
+    from matplotlib.backends.qt_compat import QtGui  # type: ignore[attr-defined]  # noqa: E501, F401
+    from matplotlib.backends.qt_compat import QtWidgets  # type: ignore[attr-defined]
     from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt bindings')
 
 
 _test_timeout = 60  # A reasonably safe value for slower architectures.
-
-
-@pytest.fixture
-def qt_core(request):
-    from matplotlib.backends.qt_compat import QtCore
-    return QtCore
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
@@ -100,7 +96,7 @@ def test_fig_close():
         'QtAgg',
         marks=pytest.mark.backend('QtAgg', skip_on_importerror=True)),
 ])
-def test_correct_key(backend, qt_core, qt_key, qt_mods, answer, monkeypatch):
+def test_correct_key(backend, qt_key, qt_mods, answer, monkeypatch):
     """
     Make a figure.
     Send a key_press_event event (using non-public, qtX backend specific api).
@@ -153,11 +149,18 @@ def test_device_pixel_ratio_change():
         def set_device_pixel_ratio(ratio):
             p.return_value = ratio
 
-            # The value here doesn't matter, as we can't mock the C++ QScreen
-            # object, but can override the functional wrapper around it.
-            # Emitting this event is simply to trigger the DPI change handler
-            # in Matplotlib in the same manner that it would occur normally.
-            screen.logicalDotsPerInchChanged.emit(96)
+            window = qt_canvas.window().windowHandle()
+            current_version = tuple(int(x) for x in QtCore.qVersion().split('.', 2)[:2])
+            if current_version >= (6, 6):
+                QtCore.QCoreApplication.sendEvent(
+                    window,
+                    QtCore.QEvent(QtCore.QEvent.Type.DevicePixelRatioChange))
+            else:
+                # The value here doesn't matter, as we can't mock the C++ QScreen
+                # object, but can override the functional wrapper around it.
+                # Emitting this event is simply to trigger the DPI change handler
+                # in Matplotlib in the same manner that it would occur normally.
+                window.screen().logicalDotsPerInchChanged.emit(96)
 
             qt_canvas.draw()
             qt_canvas.flush_events()
@@ -166,53 +169,43 @@ def test_device_pixel_ratio_change():
             assert qt_canvas.device_pixel_ratio == ratio
 
         qt_canvas.manager.show()
+        qt_canvas.draw()
+        qt_canvas.flush_events()
         size = qt_canvas.size()
-        screen = qt_canvas.window().windowHandle().screen()
-        set_device_pixel_ratio(3)
 
-        # The DPI and the renderer width/height change
-        assert fig.dpi == 360
-        assert qt_canvas.renderer.width == 1800
-        assert qt_canvas.renderer.height == 720
+        options = [
+            (None, 360, 1800, 720),  # Use ratio at startup time.
+            (3, 360, 1800, 720),  # Change to same ratio.
+            (2, 240, 1200, 480),  # Change to different ratio.
+            (1.5, 180, 900, 360),  # Fractional ratio.
+        ]
+        for ratio, dpi, width, height in options:
+            if ratio is not None:
+                set_device_pixel_ratio(ratio)
 
-        # The actual widget size and figure logical size don't change.
-        assert size.width() == 600
-        assert size.height() == 240
-        assert qt_canvas.get_width_height() == (600, 240)
-        assert (fig.get_size_inches() == (5, 2)).all()
+            # The DPI and the renderer width/height change
+            assert fig.dpi == dpi
+            assert qt_canvas.renderer.width == width
+            assert qt_canvas.renderer.height == height
 
-        set_device_pixel_ratio(2)
+            # The actual widget size and figure logical size don't change.
+            assert size.width() == 600
+            assert size.height() == 240
+            assert qt_canvas.get_width_height() == (600, 240)
+            assert (fig.get_size_inches() == (5, 2)).all()
 
-        # The DPI and the renderer width/height change
-        assert fig.dpi == 240
-        assert qt_canvas.renderer.width == 1200
-        assert qt_canvas.renderer.height == 480
-
-        # The actual widget size and figure logical size don't change.
-        assert size.width() == 600
-        assert size.height() == 240
-        assert qt_canvas.get_width_height() == (600, 240)
-        assert (fig.get_size_inches() == (5, 2)).all()
-
-        set_device_pixel_ratio(1.5)
-
-        # The DPI and the renderer width/height change
-        assert fig.dpi == 180
-        assert qt_canvas.renderer.width == 900
-        assert qt_canvas.renderer.height == 360
-
-        # The actual widget size and figure logical size don't change.
-        assert size.width() == 600
-        assert size.height() == 240
-        assert qt_canvas.get_width_height() == (600, 240)
-        assert (fig.get_size_inches() == (5, 2)).all()
+        # check that closing the figure restores the original dpi
+        plt.close(fig)
+        assert fig.dpi == 120
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_subplottool():
     fig, ax = plt.subplots()
     with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
-        fig.canvas.manager.toolbar.configure_subplots()
+        tool = fig.canvas.manager.toolbar.configure_subplots()
+        assert tool is not None
+        assert tool == fig.canvas.manager.toolbar.configure_subplots()
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
@@ -223,6 +216,21 @@ def test_figureoptions():
     ax.scatter(range(3), range(3), c=range(3))
     with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
         fig.canvas.manager.toolbar.edit_parameters()
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_save_figure_return(tmp_path):
+    fig, ax = plt.subplots()
+    ax.imshow([[1]])
+    expected = tmp_path / "foobar.png"
+    prop = "matplotlib.backends.qt_compat.QtWidgets.QFileDialog.getSaveFileName"
+    with mock.patch(prop, return_value=(str(expected), None)):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        assert fname == str(expected)
+        assert expected.exists()
+    with mock.patch(prop, return_value=(None, None)):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        assert fname is None
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
@@ -318,7 +326,7 @@ def _get_testable_qt_backends():
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_fig_sigint_override(qt_core):
+def test_fig_sigint_override():
     from matplotlib.backends.backend_qt5 import _BackendQT5
     # Create a figure
     plt.figure()
@@ -333,10 +341,10 @@ def test_fig_sigint_override(qt_core):
         event_loop_handler = signal.getsignal(signal.SIGINT)
 
         # Request event loop exit
-        qt_core.QCoreApplication.exit()
+        QtCore.QCoreApplication.exit()
 
     # Timer to exit event loop
-    qt_core.QTimer.singleShot(0, fire_signal_and_quit)
+    QtCore.QTimer.singleShot(0, fire_signal_and_quit)
 
     # Save original SIGINT handler
     original_handler = signal.getsignal(signal.SIGINT)
@@ -361,7 +369,7 @@ def test_fig_sigint_override(qt_core):
 
         # Repeat again to test that SIG_DFL and SIG_IGN will not be overridden
         for custom_handler in (signal.SIG_DFL, signal.SIG_IGN):
-            qt_core.QTimer.singleShot(0, fire_signal_and_quit)
+            QtCore.QTimer.singleShot(0, fire_signal_and_quit)
             signal.signal(signal.SIGINT, custom_handler)
 
             _BackendQT5.mainloop()

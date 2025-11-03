@@ -232,12 +232,13 @@ class Spine(mpatches.Patch):
         """
         self._position = None  # clear position
 
-    def _adjust_location(self):
-        """Automatically set spine bounds to the view interval."""
+    def _get_bounds_or_viewLim(self):
+        """
+        Get the bounds of the spine.
 
-        if self.spine_type == 'circle':
-            return
-
+        If self._bounds is None, return self.axes.viewLim.intervalx
+        or self.axes.viewLim.intervaly based on self.spine_type
+        """
         if self._bounds is not None:
             low, high = self._bounds
         elif self.spine_type in ('left', 'right'):
@@ -245,7 +246,16 @@ class Spine(mpatches.Patch):
         elif self.spine_type in ('top', 'bottom'):
             low, high = self.axes.viewLim.intervalx
         else:
-            raise ValueError(f'unknown spine spine_type: {self.spine_type}')
+            raise ValueError(f'spine_type: {self.spine_type} not supported')
+        return low, high
+
+    def _adjust_location(self):
+        """Automatically set spine bounds to the view interval."""
+
+        if self.spine_type == 'circle':
+            return
+
+        low, high = self._get_bounds_or_viewLim()
 
         if self._patch_type == 'arc':
             if self.spine_type in ('bottom', 'top'):
@@ -265,11 +275,17 @@ class Spine(mpatches.Patch):
                 self._path = mpath.Path.arc(np.rad2deg(low), np.rad2deg(high))
 
                 if self.spine_type == 'bottom':
-                    rmin, rmax = self.axes.viewLim.intervaly
+                    if self.axis is None:
+                        tr = mtransforms.IdentityTransform()
+                    else:
+                        tr = self.axis.get_transform()
+                    rmin, rmax = tr.transform(self.axes.viewLim.intervaly)
                     try:
                         rorigin = self.axes.get_rorigin()
                     except AttributeError:
                         rorigin = rmin
+                    else:
+                        rorigin = tr.transform(rorigin)
                     scaled_diameter = (rmin - rorigin) / (rmax - rorigin)
                     self._height = scaled_diameter
                     self._width = scaled_diameter
@@ -418,7 +434,7 @@ class Spine(mpatches.Patch):
                 'set_bounds() method incompatible with circular spines')
         if high is None and np.iterable(low):
             low, high = low
-        old_low, old_high = self.get_bounds() or (None, None)
+        old_low, old_high = self._get_bounds_or_viewLim()
         if low is None:
             low = old_low
         if high is None:

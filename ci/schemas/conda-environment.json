@@ -1,6 +1,6 @@
 {
     "title": "conda environment file",
-    "description": "Support for conda's enviroment.yml files (e.g. `conda env export > environment.yml`)",
+    "description": "Support for conda's environment.yml files (e.g. `conda env export > environment.yml`)",
     "id": "https://raw.githubusercontent.com/Microsoft/vscode-python/main/schemas/conda-environment.json",
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {

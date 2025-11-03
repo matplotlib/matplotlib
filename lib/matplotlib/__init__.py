@@ -160,6 +160,7 @@ from packaging.version import parse as parse_version
 # definitions, so it is safe to import from it here.
 from . import _api, _version, cbook, _docstring, rcsetup
 from matplotlib._api import MatplotlibDeprecationWarning
+from matplotlib.colors import _color_sequences as color_sequences
 from matplotlib.rcsetup import cycler  # noqa: F401
 
 
@@ -252,7 +253,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.3.1"),
-            ("numpy", "1.23"),
+            ("numpy", "1.25"),
             ("pyparsing", "2.3.1"),
     ]:
         module = importlib.import_module(modname)
@@ -291,8 +292,8 @@ def set_loglevel(level):
     - set the root logger handler's level, creating the handler
       if it does not exist yet
 
-    Typically, one should call ``set_loglevel("info")`` or
-    ``set_loglevel("debug")`` to get additional debugging information.
+    Typically, one should call ``set_loglevel("INFO")`` or
+    ``set_loglevel("DEBUG")`` to get additional debugging information.
 
     Users or applications that are installing their own logging handlers
     may want to directly manipulate ``logging.getLogger('matplotlib')`` rather
@@ -300,8 +301,12 @@ def set_loglevel(level):
 
     Parameters
     ----------
-    level : {"notset", "debug", "info", "warning", "error", "critical"}
-        The log level of the handler.
+    level : {"NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+        The log level as defined in `Python logging levels
+        <https://docs.python.org/3/library/logging.html#logging-levels>`__.
+
+        For backwards compatibility, the levels are case-insensitive, but
+        the capitalized version is preferred in analogy to `logging.Logger.setLevel`.
 
     Notes
     -----
@@ -399,12 +404,15 @@ def _get_executable_info(name):
         try:
             output = subprocess.check_output(
                 args, stderr=subprocess.STDOUT,
-                text=True, errors="replace")
+                text=True, errors="replace", timeout=30)
         except subprocess.CalledProcessError as _cpe:
             if ignore_exit_code:
                 output = _cpe.output
             else:
                 raise ExecutableNotFoundError(str(_cpe)) from _cpe
+        except subprocess.TimeoutExpired as _te:
+            msg = f"Timed out running {cbook._pformat_subprocess(args)}"
+            raise ExecutableNotFoundError(msg) from _te
         except OSError as _ose:
             raise ExecutableNotFoundError(str(_ose)) from _ose
         match = re.search(regex, output)
@@ -474,7 +482,8 @@ def _get_executable_info(name):
                     "Failed to find an ImageMagick installation")
         else:
             path = "convert"
-        info = impl([path, "--version"], r"^Version: ImageMagick (\S*)")
+        # Ignore deprecation warning for "convert" on IM>=7.1.1-33.
+        info = impl([path, "--version"], r"(?sm:.*^)Version: ImageMagick (\S*)")
         if info.raw_version == "7.0.10-34":
             # https://github.com/ImageMagick/ImageMagick/issues/2720
             raise ExecutableNotFoundError(
@@ -523,19 +532,30 @@ def _get_config_or_cache_dir(xdg_base_getter):
     elif sys.platform.startswith(('linux', 'freebsd')):
         # Only call _xdg_base_getter here so that MPLCONFIGDIR is tried first,
         # as _xdg_base_getter can throw.
-        configdir = Path(xdg_base_getter(), "matplotlib")
+        try:
+            configdir = Path(xdg_base_getter(), "matplotlib")
+        except RuntimeError:  # raised if Path.home() is not available
+            pass
     else:
-        configdir = Path.home() / ".matplotlib"
-    # Resolve the path to handle potential issues with inaccessible symlinks.
-    configdir = configdir.resolve()
-    try:
-        configdir.mkdir(parents=True, exist_ok=True)
-    except OSError as exc:
-        _log.warning("mkdir -p failed for path %s: %s", configdir, exc)
+        try:
+            configdir = Path.home() / ".matplotlib"
+        except RuntimeError:  # raised if Path.home() is not available
+            pass
+
+    if configdir:
+        # Resolve the path to handle potential issues with inaccessible symlinks.
+        configdir = configdir.resolve()
+        try:
+            configdir.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            _log.warning("mkdir -p failed for path %s: %s", configdir, exc)
+        else:
+            if os.access(str(configdir), os.W_OK) and configdir.is_dir():
+                return str(configdir)
+            _log.warning("%s is not a writable directory", configdir)
+        issue_msg = "the default path ({configdir})"
     else:
-        if os.access(str(configdir), os.W_OK) and configdir.is_dir():
-            return str(configdir)
-        _log.warning("%s is not a writable directory", configdir)
+        issue_msg = "resolving the home directory"
     # If the config or cache directory cannot be created or is not a writable
     # directory, create a temporary one.
     try:
@@ -543,17 +563,17 @@ def _get_config_or_cache_dir(xdg_base_getter):
     except OSError as exc:
         raise OSError(
             f"Matplotlib requires access to a writable cache directory, but there "
-            f"was an issue with the default path ({configdir}), and a temporary "
+            f"was an issue with {issue_msg}, and a temporary "
             f"directory could not be created; set the MPLCONFIGDIR environment "
             f"variable to a writable directory") from exc
     os.environ["MPLCONFIGDIR"] = tmpdir
     atexit.register(shutil.rmtree, tmpdir)
     _log.warning(
         "Matplotlib created a temporary cache directory at %s because there was "
-        "an issue with the default path (%s); it is highly recommended to set the "
+        "an issue with %s; it is highly recommended to set the "
         "MPLCONFIGDIR environment variable to a writable directory, in particular to "
         "speed up the import of Matplotlib and to better support multiprocessing.",
-        tmpdir, configdir)
+        tmpdir, issue_msg)
     return tmpdir
 
 
@@ -636,18 +656,6 @@ def matplotlib_fname():
 
     raise RuntimeError("Could not find matplotlibrc file; your Matplotlib "
                        "install is broken")
-
-
-# rcParams deprecated and automatically mapped to another key.
-# Values are tuples of (version, new_name, f_old2new, f_new2old).
-_deprecated_map = {}
-# rcParams deprecated; some can manually be mapped to another key.
-# Values are tuples of (version, new_name_or_None).
-_deprecated_ignore_map = {}
-# rcParams deprecated; can use None to suppress warnings; remain actually
-# listed in the rcParams.
-# Values are tuples of (version,)
-_deprecated_remain_as_none = {}
 
 
 @_docstring.Substitution(
@@ -746,56 +754,27 @@ class RcParams(MutableMapping, dict):
         dict.setdefault(self, "backend", rcsetup._auto_backend_sentinel)
 
     def __setitem__(self, key, val):
+        if (key == "backend"
+                and val is rcsetup._auto_backend_sentinel
+                and "backend" in self):
+            return
+        valid_key = _api.check_getitem(
+            self.validate, rcParam=key, _error_cls=KeyError
+        )
         try:
-            if key in _deprecated_map:
-                version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-                _api.warn_deprecated(
-                    version, name=key, obj_type="rcparam", alternative=alt_key)
-                key = alt_key
-                val = alt_val(val)
-            elif key in _deprecated_remain_as_none and val is not None:
-                version, = _deprecated_remain_as_none[key]
-                _api.warn_deprecated(version, name=key, obj_type="rcparam")
-            elif key in _deprecated_ignore_map:
-                version, alt_key = _deprecated_ignore_map[key]
-                _api.warn_deprecated(
-                    version, name=key, obj_type="rcparam", alternative=alt_key)
-                return
-            elif key == 'backend':
-                if val is rcsetup._auto_backend_sentinel:
-                    if 'backend' in self:
-                        return
-            try:
-                cval = self.validate[key](val)
-            except ValueError as ve:
-                raise ValueError(f"Key {key}: {ve}") from None
-            self._set(key, cval)
-        except KeyError as err:
-            raise KeyError(
-                f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                f"a list of valid parameters)") from err
+            cval = valid_key(val)
+        except ValueError as ve:
+            raise ValueError(f"Key {key}: {ve}") from None
+        self._set(key, cval)
 
     def __getitem__(self, key):
-        if key in _deprecated_map:
-            version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-            _api.warn_deprecated(
-                version, name=key, obj_type="rcparam", alternative=alt_key)
-            return inverse_alt(self._get(alt_key))
-
-        elif key in _deprecated_ignore_map:
-            version, alt_key = _deprecated_ignore_map[key]
-            _api.warn_deprecated(
-                version, name=key, obj_type="rcparam", alternative=alt_key)
-            return self._get(alt_key) if alt_key else None
-
         # In theory, this should only ever be used after the global rcParams
         # has been set up, but better be safe e.g. in presence of breakpoints.
-        elif key == "backend" and self is globals().get("rcParams"):
+        if key == "backend" and self is globals().get("rcParams"):
             val = self._get(key)
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
-
         return self._get(key)
 
     def _get_backend_or_none(self):
@@ -817,6 +796,8 @@ class RcParams(MutableMapping, dict):
 
     def __iter__(self):
         """Yield sorted list of keys."""
+        # Deprecation warnings are silenced to cover the case where some
+        # rcParams entries are being deprecated.
         with _api.suppress_matplotlib_deprecation_warning():
             yield from sorted(dict.__iter__(self))
 
@@ -835,13 +816,13 @@ class RcParams(MutableMapping, dict):
 
         """
         pattern_re = re.compile(pattern)
-        return RcParams((key, value)
-                        for key, value in self.items()
-                        if pattern_re.search(key))
+        return self.__class__(
+            (key, value) for key, value in self.items() if pattern_re.search(key)
+        )
 
     def copy(self):
         """Copy this RcParams instance."""
-        rccopy = RcParams()
+        rccopy = self.__class__()
         for k in self:  # Skip deprecations and revalidation.
             rccopy._set(k, self._get(k))
         return rccopy
@@ -938,11 +919,6 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 except Exception as msg:
                     _log.warning('Bad value in file %r, line %d (%r): %s',
                                  fname, line_no, line.rstrip('\n'), msg)
-        elif key in _deprecated_ignore_map:
-            version, alt_key = _deprecated_ignore_map[key]
-            _api.warn_deprecated(
-                version, name=key, alternative=alt_key, obj_type='rcparam',
-                addendum="Please update your matplotlibrc.")
         else:
             # __version__ must be looked up as an attribute to trigger the
             # module-level __getattr__.
@@ -1036,9 +1012,9 @@ def rc(group, **kwargs):
 
     The following aliases are available to save typing for interactive users:
 
-    =====   =================
+    ======  =================
     Alias   Property
-    =====   =================
+    ======  =================
     'lw'    'linewidth'
     'ls'    'linestyle'
     'c'     'color'
@@ -1046,7 +1022,8 @@ def rc(group, **kwargs):
     'ec'    'edgecolor'
     'mew'   'markeredgewidth'
     'aa'    'antialiased'
-    =====   =================
+    'sans'  'sans-serif'
+    ======  =================
 
     Thus you could abbreviate the above call as::
 
@@ -1058,7 +1035,7 @@ def rc(group, **kwargs):
 
       font = {'family' : 'monospace',
               'weight' : 'bold',
-              'size'   : 'larger'}
+              'size'   : 'large'}
       rc('font', **font)  # pass in the font dict as kwargs
 
     This enables you to easily switch between several configurations.  Use
@@ -1080,6 +1057,7 @@ def rc(group, **kwargs):
         'ec':  'edgecolor',
         'mew': 'markeredgewidth',
         'aa':  'antialiased',
+        'sans': 'sans-serif',
         }
 
     if isinstance(group, str):
@@ -1296,15 +1274,37 @@ if os.environ.get('MPLBACKEND'):
     rcParams['backend'] = os.environ.get('MPLBACKEND')
 
 
-def get_backend():
+def get_backend(*, auto_select=True):
     """
     Return the name of the current backend.
+
+    Parameters
+    ----------
+    auto_select : bool, default: True
+        Whether to trigger backend resolution if no backend has been
+        selected so far. If True, this ensures that a valid backend
+        is returned. If False, this returns None if no backend has been
+        selected so far.
+
+        .. versionadded:: 3.10
+
+        .. admonition:: Provisional
+
+           The *auto_select* flag is provisional. It may be changed or removed
+           without prior warning.
 
     See Also
     --------
     matplotlib.use
     """
-    return rcParams['backend']
+    if auto_select:
+        return rcParams['backend']
+    else:
+        backend = rcParams._get('backend')
+        if backend is rcsetup._auto_backend_sentinel:
+            return None
+        else:
+            return backend
 
 
 def interactive(b):
@@ -1326,11 +1326,18 @@ def is_interactive():
     return rcParams['interactive']
 
 
-def _val_or_rc(val, rc_name):
+def _val_or_rc(val, *rc_names):
     """
-    If *val* is None, return ``mpl.rcParams[rc_name]``, otherwise return val.
+    If *val* is None, the first not-None value in ``mpl.rcParams[rc_names[i]]``.
+    If all are None returns ``mpl.rcParams[rc_names[-1]]``.
     """
-    return val if val is not None else rcParams[rc_name]
+    if val is not None:
+        return val
+
+    for rc_name in rc_names[:-1]:
+        if rcParams[rc_name] is not None:
+            return rcParams[rc_name]
+    return rcParams[rc_names[-1]]
 
 
 def _init_tests():
@@ -1355,8 +1362,8 @@ def _init_tests():
 
 def _replacer(data, value):
     """
-    Either returns ``data[value]`` or passes ``data`` back, converts either to
-    a sequence.
+    Either returns ``data[value]`` or passes ``data`` back, converting any
+    ``MappingView`` to a sequence.
     """
     try:
         # if key isn't a string don't bother
@@ -1551,4 +1558,3 @@ def validate_backend(s):
 from matplotlib.cm import _colormaps as colormaps  # noqa: E402
 from matplotlib.cm import _multivar_colormaps as multivar_colormaps  # noqa: E402
 from matplotlib.cm import _bivar_colormaps as bivar_colormaps  # noqa: E402
-from matplotlib.colors import _color_sequences as color_sequences  # noqa: E402

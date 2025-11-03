@@ -25,11 +25,11 @@ def test_clipping():
 
     fig, ax = plt.subplots()
     ax.plot(t, s, linewidth=1.0)
-    ax.set_ylim((-0.20, -0.28))
+    ax.set_ylim(-0.20, -0.28)
 
 
 @image_comparison(['overflow'], remove_text=True,
-                  tol=0.007 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.007)
 def test_overflow():
     x = np.array([1.0, 2.0, 3.0, 2.0e5])
     y = np.arange(len(x))
@@ -244,11 +244,11 @@ def test_simplify_curve():
 
     fig, ax = plt.subplots()
     ax.add_patch(pp1)
-    ax.set_xlim((0, 2))
-    ax.set_ylim((0, 2))
+    ax.set_xlim(0, 2)
+    ax.set_ylim(0, 2)
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_closed_path_nan_removal(fig_test, fig_ref):
     ax_test = fig_test.subplots(2, 2).flatten()
     ax_ref = fig_ref.subplots(2, 2).flatten()
@@ -356,7 +356,7 @@ def test_closed_path_nan_removal(fig_test, fig_ref):
     remove_ticks_and_titles(fig_ref)
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_closed_path_clipping(fig_test, fig_ref):
     vertices = []
     for roll in range(8):
@@ -401,8 +401,8 @@ def test_closed_path_clipping(fig_test, fig_ref):
 def test_hatch():
     fig, ax = plt.subplots()
     ax.add_patch(plt.Rectangle((0, 0), 1, 1, fill=False, hatch="/"))
-    ax.set_xlim((0.45, 0.55))
-    ax.set_ylim((0.45, 0.55))
+    ax.set_xlim(0.45, 0.55)
+    ax.set_ylim(0.45, 0.55)
 
 
 @image_comparison(['fft_peaks'], remove_text=True)
@@ -518,3 +518,54 @@ def test_clipping_full():
     simplified = list(p.iter_segments(clip=[0, 0, 100, 100]))
     assert ([(list(x), y) for x, y in simplified] ==
             [([50, 40], 1)])
+
+
+def test_simplify_closepoly():
+    # The values of the vertices in a CLOSEPOLY should always be ignored,
+    # in favor of the most recent MOVETO's vertex values
+    paths = [Path([(1, 1), (2, 1), (2, 2), (np.nan, np.nan)],
+                  [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]),
+             Path([(1, 1), (2, 1), (2, 2), (40, 50)],
+                  [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])]
+    expected_path = Path([(1, 1), (2, 1), (2, 2), (1, 1), (1, 1), (0, 0)],
+                         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                          Path.LINETO, Path.STOP])
+
+    for path in paths:
+        simplified_path = path.cleaned(simplify=True)
+        assert_array_equal(expected_path.vertices, simplified_path.vertices)
+        assert_array_equal(expected_path.codes, simplified_path.codes)
+
+    # test that a compound path also works
+    path = Path([(1, 1), (2, 1), (2, 2), (np.nan, np.nan),
+                 (-1, 0), (-2, 0), (-2, 1), (np.nan, np.nan)],
+                [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY,
+                 Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    expected_path = Path([(1, 1), (2, 1), (2, 2), (1, 1),
+                          (-1, 0), (-2, 0), (-2, 1), (-1, 0), (-1, 0), (0, 0)],
+                         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                          Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                          Path.LINETO, Path.STOP])
+
+    simplified_path = path.cleaned(simplify=True)
+    assert_array_equal(expected_path.vertices, simplified_path.vertices)
+    assert_array_equal(expected_path.codes, simplified_path.codes)
+
+    # test for a path with an invalid MOVETO
+    # CLOSEPOLY with an invalid MOVETO should be ignored
+    path = Path([(1, 0), (1, -1), (2, -1),
+                 (np.nan, np.nan), (-1, -1), (-2, 1), (-1, 1),
+                 (2, 2), (0, -1)],
+                [Path.MOVETO, Path.LINETO, Path.LINETO,
+                 Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                 Path.CLOSEPOLY, Path.LINETO])
+    expected_path = Path([(1, 0), (1, -1), (2, -1),
+                          (np.nan, np.nan), (-1, -1), (-2, 1), (-1, 1),
+                          (0, -1), (0, -1), (0, 0)],
+                         [Path.MOVETO, Path.LINETO, Path.LINETO,
+                          Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                          Path.LINETO, Path.LINETO, Path.STOP])
+
+    simplified_path = path.cleaned(simplify=True)
+    assert_array_equal(expected_path.vertices, simplified_path.vertices)
+    assert_array_equal(expected_path.codes, simplified_path.codes)

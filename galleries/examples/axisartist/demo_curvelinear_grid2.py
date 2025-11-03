@@ -14,10 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from mpl_toolkits.axisartist.axislines import Axes
-from mpl_toolkits.axisartist.grid_finder import (ExtremeFinderSimple,
-                                                 MaxNLocator)
-from mpl_toolkits.axisartist.grid_helper_curvelinear import \
-    GridHelperCurveLinear
+from mpl_toolkits.axisartist.grid_finder import ExtremeFinderSimple, MaxNLocator
+from mpl_toolkits.axisartist.grid_helper_curvelinear import GridHelperCurveLinear
 
 
 def curvelinear_test1(fig):
@@ -41,7 +39,7 @@ def curvelinear_test1(fig):
     # itself (i.e., transData) is not affected by the given transform.
 
     ax1.imshow(np.arange(25).reshape(5, 5),
-               vmax=50, cmap=plt.cm.gray_r, origin="lower")
+               vmax=50, cmap="gray_r", origin="lower")
 
 
 if __name__ == "__main__":

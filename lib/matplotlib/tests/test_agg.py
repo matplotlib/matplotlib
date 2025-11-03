@@ -199,7 +199,7 @@ def test_agg_filter():
 
 
 def test_too_large_image():
-    fig = plt.figure(figsize=(300, 1000))
+    fig = plt.figure(figsize=(300, 2**25))
     buff = io.BytesIO()
     with pytest.raises(ValueError):
         fig.savefig(buff)
@@ -263,11 +263,52 @@ def test_pil_kwargs_webp():
     assert buf_large.getbuffer().nbytes > buf_small.getbuffer().nbytes
 
 
+@pytest.mark.skipif(not features.check("avif"), reason="AVIF support not available")
+def test_pil_kwargs_avif():
+    plt.plot([0, 1, 2], [0, 1, 0])
+    buf_small = io.BytesIO()
+    pil_kwargs_low = {"quality": 1}
+    plt.savefig(buf_small, format="avif", pil_kwargs=pil_kwargs_low)
+    assert len(pil_kwargs_low) == 1
+    buf_large = io.BytesIO()
+    pil_kwargs_high = {"quality": 100}
+    plt.savefig(buf_large, format="avif", pil_kwargs=pil_kwargs_high)
+    assert len(pil_kwargs_high) == 1
+    assert buf_large.getbuffer().nbytes > buf_small.getbuffer().nbytes
+
+
+def test_gif_no_alpha():
+    plt.plot([0, 1, 2], [0, 1, 0])
+    buf = io.BytesIO()
+    plt.savefig(buf, format="gif", transparent=False)
+    im = Image.open(buf)
+    assert im.mode == "P"
+    assert im.info["transparency"] >= len(im.palette.colors)
+
+
+def test_gif_alpha():
+    plt.plot([0, 1, 2], [0, 1, 0])
+    buf = io.BytesIO()
+    plt.savefig(buf, format="gif", transparent=True)
+    im = Image.open(buf)
+    assert im.mode == "P"
+    assert im.info["transparency"] < len(im.palette.colors)
+
+
 @pytest.mark.skipif(not features.check("webp"), reason="WebP support not available")
 def test_webp_alpha():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf = io.BytesIO()
     plt.savefig(buf, format="webp", transparent=True)
+    im = Image.open(buf)
+    assert im.mode == "RGBA"
+
+
+@pytest.mark.skipif(not features.check("avif"), reason="AVIF support not available")
+def test_avif_alpha():
+    plt.plot([0, 1, 2], [0, 1, 0])
+    buf = io.BytesIO()
+    plt.savefig(buf, format="avif", transparent=True)
     im = Image.open(buf)
     assert im.mode == "RGBA"
 

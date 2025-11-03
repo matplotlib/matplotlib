@@ -205,7 +205,7 @@ vertically across the multiple subplots, which can be unattractive.
 By default, Matplotlib positions the x location of the ylabel so that
 it does not overlap any of the y ticks.  You can override this default
 behavior by specifying the coordinates of the label. To learn how, see
-:doc:`/gallery/text_labels_and_annotations/align_ylabels`
+:doc:`/gallery/subplots_axes_and_figures/align_labels_demo`
 
 .. _howto-set-zorder:
 
@@ -281,12 +281,28 @@ locators as desired because the two axes are independent.
 Generate images without having a window appear
 ----------------------------------------------
 
-Simply do not call `~matplotlib.pyplot.show`, and directly save the figure to
-the desired format::
+The recommended approach since matplotlib 3.1 is to explicitly create a Figure
+instance::
+
+    from matplotlib.figure import Figure
+    fig = Figure()
+    ax = fig.subplots()
+    ax.plot([1, 2, 3])
+    fig.savefig('myfig.png')
+
+This prevents any interaction with GUI frameworks and the window manager.
+
+It's alternatively still possible to use the pyplot interface. Instead of
+calling `matplotlib.pyplot.show`, call `matplotlib.pyplot.savefig`.
+
+Additionally, you must ensure to close the figure after saving it. Not
+closing the figure is a memory leak, because pyplot keeps references
+to all not-yet-shown figures::
 
     import matplotlib.pyplot as plt
     plt.plot([1, 2, 3])
     plt.savefig('myfig.png')
+    plt.close()
 
 .. seealso::
 
@@ -351,7 +367,7 @@ provide the following information in your e-mail to the `mailing list
 * Matplotlib provides debugging information through the `logging` library, and
   a helper function to set the logging level: one can call ::
 
-    plt.set_loglevel("info")  # or "debug" for more info
+    plt.set_loglevel("INFO")  # or "DEBUG" for more info
 
   to obtain this debugging information.
 

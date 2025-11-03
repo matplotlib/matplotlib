@@ -3,18 +3,16 @@ name: PR Greetings
 
 on: [pull_request_target]
 
-permissions:
-  pull-requests: write
-
 jobs:
   greeting:
     runs-on: ubuntu-latest
-
+    permissions:
+      pull-requests: write
     steps:
-      - uses: actions/first-interaction@v1
+      - uses: actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d  # v3.1.0
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          pr-message: >+
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_message: >+
             Thank you for opening your first PR into Matplotlib!
 
 

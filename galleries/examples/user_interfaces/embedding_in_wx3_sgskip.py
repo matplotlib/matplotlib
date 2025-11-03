@@ -30,7 +30,6 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wxagg import \
     NavigationToolbar2WxAgg as NavigationToolbar
 import matplotlib.cbook as cbook
-import matplotlib.cm as cm
 from matplotlib.figure import Figure
 
 ERR_TOL = 1e-5  # floating point slop for peak-detection
@@ -61,7 +60,7 @@ class PlotPanel(wx.Panel):
         y = np.arange(100.0) * 2 * np.pi / 50.0
         self.x, self.y = np.meshgrid(x, y)
         z = np.sin(self.x) + np.cos(self.y)
-        self.im = ax.imshow(z, cmap=cm.RdBu, origin='lower')
+        self.im = ax.imshow(z, cmap="RdBu", origin='lower')
 
         zmax = np.max(z) - ERR_TOL
         ymax_i, xmax_i = np.nonzero(z >= zmax)

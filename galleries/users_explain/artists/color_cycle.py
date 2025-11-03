@@ -52,7 +52,7 @@ plt.rc('axes', prop_cycle=default_cycler)
 
 # %%
 # Now we'll generate a figure with two Axes, one on top of the other. On the
-# first axis, we'll plot with the default cycler. On the second axis, we'll
+# first axes, we'll plot with the default cycler. On the second axes, we'll
 # set the ``prop_cycle`` using :func:`matplotlib.axes.Axes.set_prop_cycle`,
 # which will only set the ``prop_cycle`` for this :mod:`matplotlib.axes.Axes`
 # instance. We'll use a second ``cycler`` that combines a color cycler and a
@@ -76,9 +76,22 @@ plt.show()
 # ----------------------------------------------------------------------
 #
 # Remember, a custom cycler can be set in your :file:`matplotlibrc`
-# file or a style file (:file:`style.mplstyle`) under ``axes.prop_cycle``:
+# file or a style file (:file:`style.mplstyle`) under ``axes.prop_cycle``, e.g.
 #
-# .. code-block:: python
+# .. code-block:: none
+#
+#    axes.prop_cycle : cycler(color=['red', 'royalblue', 'gray'])
+#
+# For colors, a single string may be used either for one of the
+# :doc:`/gallery/color/color_sequences`
+#
+# .. code-block:: none
+#
+#    axes.prop_cycle : cycler(color='Accent')
+#
+# or if each color has a single character name:
+#
+# .. code-block:: none
 #
 #    axes.prop_cycle : cycler(color='bgrcmyk')
 #

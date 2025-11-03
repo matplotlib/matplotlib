@@ -6,7 +6,7 @@ from matplotlib.artist import Artist
 from matplotlib.backend_bases import TimerBase
 from matplotlib.figure import Figure
 
-from typing import Any
+from typing import Any, Protocol
 
 subprocess_creation_flags: int
 
@@ -152,11 +152,17 @@ class HTMLWriter(FileMovieWriter):
     def grab_frame(self, **savefig_kwargs): ...
     def finish(self) -> None: ...
 
+class EventSourceProtocol(Protocol):
+    def add_callback(self, func: Callable): ...
+    def remove_callback(self, func: Callable): ...
+    def start(self): ...
+    def stop(self): ...
+
 class Animation:
     frame_seq: Iterable[Artist]
-    event_source: Any
+    event_source: EventSourceProtocol | None  # TODO: We should remove None
     def __init__(
-        self, fig: Figure, event_source: Any | None = ..., blit: bool = ...
+        self, fig: Figure, event_source: EventSourceProtocol, blit: bool = ...
     ) -> None: ...
     def __del__(self) -> None: ...
     def save(
@@ -206,9 +212,9 @@ class FuncAnimation(TimedAnimation):
     def __init__(
         self,
         fig: Figure,
-        func: Callable[..., Iterable[Artist]],
+        func: Callable[..., Iterable[Artist] | None],
         frames: Iterable | int | Callable[[], Generator] | None = ...,
-        init_func: Callable[[], Iterable[Artist]] | None = ...,
+        init_func: Callable[[], Iterable[Artist] | None] | None = ...,
         fargs: tuple[Any, ...] | None = ...,
         save_count: int | None = ...,
         *,

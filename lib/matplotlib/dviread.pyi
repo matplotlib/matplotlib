@@ -1,3 +1,4 @@
+import dataclasses
 from pathlib import Path
 import io
 import os
@@ -5,14 +6,14 @@ from enum import Enum
 from collections.abc import Generator
 
 from typing import NamedTuple
-from typing_extensions import Self  # < Py 3.11
+from typing import Self
 
 class _dvistate(Enum):
-    pre: int
-    outer: int
-    inpage: int
-    post_post: int
-    finale: int
+    pre = ...
+    outer = ...
+    inpage = ...
+    post_post = ...
+    finale = ...
 
 class Page(NamedTuple):
     text: list[Text]
@@ -40,6 +41,8 @@ class Text(NamedTuple):
     @property
     def font_effects(self) -> dict[str, float]: ...
     @property
+    def index(self) -> int: ...  # type: ignore[override]
+    @property
     def glyph_name_or_index(self) -> int | str: ...
 
 class Dvi:
@@ -55,25 +58,56 @@ class Dvi:
 
 class DviFont:
     texname: bytes
-    size: float
-    widths: list[int]
     def __init__(
-        self, scale: float, tfm: Tfm, texname: bytes, vf: Vf | None
+        self, scale: float, metrics: Tfm | TtfMetrics, texname: bytes, vf: Vf | None
     ) -> None: ...
+    @classmethod
+    def from_luatex(cls, scale: float, texname: bytes) -> DviFont: ...
+    @classmethod
+    def from_xetex(
+        cls, scale: float, texname: bytes, subfont: int, effects: dict[str, float]
+    ) -> DviFont: ...
     def __eq__(self, other: object) -> bool: ...
     def __ne__(self, other: object) -> bool: ...
+    @property
+    def size(self) -> float: ...
+    @property
+    def widths(self) -> list[int]: ...
+    @property
+    def fname(self) -> str: ...
+    def resolve_path(self) -> Path: ...
+    @property
+    def subfont(self) -> int: ...
+    @property
+    def effects(self) -> dict[str, float]: ...
 
 class Vf(Dvi):
     def __init__(self, filename: str | os.PathLike) -> None: ...
     def __getitem__(self, code: int) -> Page: ...
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TexMetrics:
+    tex_width: int
+    tex_height: int
+    tex_depth: int
+    # work around mypy not respecting kw_only=True in stub files
+    __match_args__ = ()
+
 class Tfm:
     checksum: int
     design_size: int
-    width: dict[int, int]
-    height: dict[int, int]
-    depth: dict[int, int]
     def __init__(self, filename: str | os.PathLike) -> None: ...
+    def get_metrics(self, idx: int) -> TexMetrics | None: ...
+    @property
+    def width(self) -> dict[int, int]: ...
+    @property
+    def height(self) -> dict[int, int]: ...
+    @property
+    def depth(self) -> dict[int, int]: ...
+
+class TtfMetrics:
+    def __init__(self, filename: str | os.PathLike) -> None: ...
+    def get_metrics(self, idx: int) -> TexMetrics: ...
 
 class PsFont(NamedTuple):
     texname: bytes

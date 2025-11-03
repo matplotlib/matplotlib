@@ -104,6 +104,9 @@ typedef int (*Tk_PhotoPutBlock_t) (Tcl_Interp *interp, Tk_PhotoHandle handle,
 /* Tcl_SetVar typedef */
 typedef const char *(*Tcl_SetVar_t)(Tcl_Interp *interp, const char *varName,
                                     const char *newValue, int flags);
+/* Tcl_SetVar2 typedef */
+typedef const char *(*Tcl_SetVar2_t)(Tcl_Interp *interp, const char *part1, const char *part2,
+                                     const char *newValue, int flags);
 
 #ifdef __cplusplus
 }

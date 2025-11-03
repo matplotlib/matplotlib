@@ -204,6 +204,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
 
             if extension not in comparable_formats():
                 reason = {
+                    'gif': 'because ImageMagick is not installed',
                     'pdf': 'because Ghostscript is not installed',
                     'eps': 'because Ghostscript is not installed',
                     'svg': 'because Inkscape is not installed',
@@ -279,7 +280,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     extensions : None or list of str
         The list of extensions to test, e.g. ``['png', 'pdf']``.
 
-        If *None*, defaults to all supported extensions: png, pdf, and svg.
+        If *None*, defaults to: png, pdf, and svg.
 
         When testing a single extension, it can be directly included in the
         names passed to *baseline_images*.  In that case, *extensions* must not
@@ -346,7 +347,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         savefig_kwargs=savefig_kwarg, style=style)
 
 
-def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
+def check_figures_equal(*, extensions=("png", ), tol=0):
     """
     Decorator for test cases that generate and compare two figures.
 
@@ -359,8 +360,13 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
     Parameters
     ----------
-    extensions : list, default: ["png", "pdf", "svg"]
-        The extensions to test.
+    extensions : list, default: ["png"]
+        The extensions to test. Supported extensions are "png", "pdf", "svg".
+
+        Testing with the one default extension is sufficient if the output is not
+        format dependent, e.g. if you test that a ``bar()`` plot yields the same
+        result as some manually placed Rectangles. You should use all extensions
+        if a renderer property is involved, e.g. correct alpha blending.
     tol : float
         The RMS threshold above which the test is considered failed.
 

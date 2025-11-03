@@ -35,8 +35,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
-from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
-                                LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
+from matplotlib.ft2font import FT2Font, FaceFlags, Kerning, LoadFlags, StyleFlags
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -617,7 +616,7 @@ def _get_pdf_charprocs(font_path, glyph_ids):
     conv = 1000 / font.units_per_EM  # Conversion to PS units (1/1000's).
     procs = {}
     for glyph_id in glyph_ids:
-        g = font.load_glyph(glyph_id, LOAD_NO_SCALE)
+        g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
         # NOTE: We should be using round(), but instead use
         # "(x+.5).astype(int)" to keep backcompat with the old ttconv code
         # (this is different for negative x's).
@@ -720,11 +719,9 @@ class PdfFile:
 
         self.infoDict = _create_pdf_info_dict('pdf', metadata or {})
 
-        self.fontNames = {}     # maps filenames to internal font names
         self._internal_font_seq = (Name(f'F{i}') for i in itertools.count(1))
-        self.dviFontInfo = {}   # maps dvi font names to embedding information
-        # differently encoded Type-1 fonts may share the same descriptor
-        self.type1Descriptors = {}
+        self._fontNames = {}     # maps filenames to internal font names
+        self._dviFontInfo = {}   # maps pdf names to dvifonts
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
@@ -732,7 +729,7 @@ class PdfFile:
         self._soft_mask_states = {}
         self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
         self._soft_mask_groups = []
-        self.hatchPatterns = {}
+        self._hatch_patterns = {}
         self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
@@ -765,6 +762,31 @@ class PdfFile:
                      'Shading': self.gouraudObject,
                      'ProcSet': procsets}
         self.writeObject(self.resourceObject, resources)
+
+    fontNames = _api.deprecated("3.11")(property(lambda self: self._fontNames))
+    type1Descriptors = _api.deprecated("3.11")(property(lambda _: {}))
+
+    @_api.deprecated("3.11")
+    @property
+    def dviFontInfo(self):
+        d = {}
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+        for pdfname, dvifont in self._dviFontInfo.items():
+            psfont = tex_font_map[dvifont.texname]
+            if psfont.filename is None:
+                raise ValueError(
+                    "No usable font file found for {} (TeX: {}); "
+                    "the font may lack a Type-1 version"
+                    .format(psfont.psname, dvifont.texname))
+            d[dvifont.texname] = types.SimpleNamespace(
+                dvifont=dvifont,
+                pdfname=pdfname,
+                fontfile=psfont.filename,
+                basefont=psfont.psname,
+                encodingfile=psfont.encoding,
+                effects=psfont.effects,
+            )
+        return d
 
     def newPage(self, width, height):
         self.endStream()
@@ -804,7 +826,14 @@ class PdfFile:
                    }
         self.pageAnnotations.append(theNote)
 
-    def _get_subsetted_psname(self, ps_name, charmap):
+    @staticmethod
+    def _get_subset_prefix(charset):
+        """
+        Get a prefix for a subsetted font name.
+
+        The prefix is six uppercase letters followed by a plus sign;
+        see PDF reference section 5.5.3 Font Subsets.
+        """
         def toStr(n, base):
             if n < base:
                 return string.ascii_uppercase[n]
@@ -814,11 +843,15 @@ class PdfFile:
                 )
 
         # encode to string using base 26
-        hashed = hash(frozenset(charmap.keys())) % ((sys.maxsize + 1) * 2)
+        hashed = hash(charset) % ((sys.maxsize + 1) * 2)
         prefix = toStr(hashed, 26)
 
         # get first 6 characters from prefix
-        return prefix[:6] + "+" + ps_name
+        return prefix[:6] + "+"
+
+    @staticmethod
+    def _get_subsetted_psname(ps_name, charmap):
+        return PdfFile._get_subset_prefix(frozenset(charmap.keys())) + ps_name
 
     def finalize(self):
         """Write out the various deferred objects and the pdf end matter."""
@@ -895,7 +928,7 @@ class PdfFile:
     def fontName(self, fontprop):
         """
         Select a font based on fontprop and return a name suitable for
-        Op.selectfont. If fontprop is a string, it will be interpreted
+        ``Op.selectfont``. If fontprop is a string, it will be interpreted
         as the filename of the font.
         """
 
@@ -909,12 +942,12 @@ class PdfFile:
             filenames = _fontManager._find_fonts_by_props(fontprop)
         first_Fx = None
         for fname in filenames:
-            Fx = self.fontNames.get(fname)
+            Fx = self._fontNames.get(fname)
             if not first_Fx:
                 first_Fx = Fx
             if Fx is None:
                 Fx = next(self._internal_font_seq)
-                self.fontNames[fname] = Fx
+                self._fontNames[fname] = Fx
                 _log.debug('Assigning font %s = %r', Fx, fname)
                 if not first_Fx:
                     first_Fx = Fx
@@ -926,41 +959,21 @@ class PdfFile:
     def dviFontName(self, dvifont):
         """
         Given a dvi font object, return a name suitable for Op.selectfont.
-        This registers the font information in ``self.dviFontInfo`` if not yet
-        registered.
+
+        Register the font internally (in ``_dviFontInfo``) if not yet registered.
         """
-
-        dvi_info = self.dviFontInfo.get(dvifont.texname)
-        if dvi_info is not None:
-            return dvi_info.pdfname
-
-        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
-        psfont = tex_font_map[dvifont.texname]
-        if psfont.filename is None:
-            raise ValueError(
-                "No usable font file found for {} (TeX: {}); "
-                "the font may lack a Type-1 version"
-                .format(psfont.psname, dvifont.texname))
-
-        pdfname = next(self._internal_font_seq)
+        pdfname = Name(f"F-{dvifont.texname.decode('ascii')}")
         _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
-        self.dviFontInfo[dvifont.texname] = types.SimpleNamespace(
-            dvifont=dvifont,
-            pdfname=pdfname,
-            fontfile=psfont.filename,
-            basefont=psfont.psname,
-            encodingfile=psfont.encoding,
-            effects=psfont.effects)
-        return pdfname
+        self._dviFontInfo[pdfname] = dvifont
+        return Name(pdfname)
 
     def writeFonts(self):
         fonts = {}
-        for dviname, info in sorted(self.dviFontInfo.items()):
-            Fx = info.pdfname
-            _log.debug('Embedding Type-1 font %s from dvi.', dviname)
-            fonts[Fx] = self._embedTeXFont(info)
-        for filename in sorted(self.fontNames):
-            Fx = self.fontNames[filename]
+        for pdfname, dvifont in sorted(self._dviFontInfo.items()):
+            _log.debug('Embedding Type-1 font %s from dvi.', dvifont.texname)
+            fonts[pdfname] = self._embedTeXFont(dvifont)
+        for filename in sorted(self._fontNames):
+            Fx = self._fontNames[filename]
             _log.debug('Embedding font %s.', filename)
             if filename.endswith('.afm'):
                 # from pdf.use14corefonts
@@ -986,65 +999,67 @@ class PdfFile:
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def _embedTeXFont(self, fontinfo):
-        _log.debug('Embedding TeX font %s - fontinfo=%s',
-                   fontinfo.dvifont.texname, fontinfo.__dict__)
+    def _embedTeXFont(self, dvifont):
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+        psfont = tex_font_map[dvifont.texname]
+        if psfont.filename is None:
+            raise ValueError(
+                "No usable font file found for {} (TeX: {}); "
+                "the font may lack a Type-1 version"
+                .format(psfont.psname, dvifont.texname))
 
-        # Widths
-        widthsObject = self.reserveObject('font widths')
-        self.writeObject(widthsObject, fontinfo.dvifont.widths)
-
-        # Font dictionary
+        # The font dictionary is the top-level object describing a font
         fontdictObject = self.reserveObject('font dictionary')
         fontdict = {
             'Type':      Name('Font'),
             'Subtype':   Name('Type1'),
-            'FirstChar': 0,
-            'LastChar':  len(fontinfo.dvifont.widths) - 1,
-            'Widths':    widthsObject,
-            }
+        }
 
-        # Encoding (if needed)
-        if fontinfo.encodingfile is not None:
-            fontdict['Encoding'] = {
-                'Type': Name('Encoding'),
-                'Differences': [
-                    0, *map(Name, dviread._parse_enc(fontinfo.encodingfile))],
-            }
+        # Read the font file and apply any encoding changes and effects
+        t1font = _type1font.Type1Font(psfont.filename)
+        if psfont.encoding is not None:
+            t1font = t1font.with_encoding(
+                {i: c for i, c in enumerate(dviread._parse_enc(psfont.encoding))}
+            )
+        if psfont.effects:
+            t1font = t1font.transform(psfont.effects)
 
-        # If no file is specified, stop short
-        if fontinfo.fontfile is None:
-            _log.warning(
-                "Because of TeX configuration (pdftex.map, see updmap option "
-                "pdftexDownloadBase14) the font %s is not embedded. This is "
-                "deprecated as of PDF 1.5 and it may cause the consumer "
-                "application to show something that was not intended.",
-                fontinfo.basefont)
-            fontdict['BaseFont'] = Name(fontinfo.basefont)
-            self.writeObject(fontdictObject, fontdict)
-            return fontdictObject
-
-        # We have a font file to embed - read it in and apply any effects
-        t1font = _type1font.Type1Font(fontinfo.fontfile)
-        if fontinfo.effects:
-            t1font = t1font.transform(fontinfo.effects)
+        # Reduce the font to only the glyphs used in the document, get the encoding
+        # for that subset, and compute various properties based on the encoding.
+        chars = frozenset(self._character_tracker.used[dvifont.fname])
+        t1font = t1font.subset(chars, self._get_subset_prefix(chars))
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
-
-        # Font descriptors may be shared between differently encoded
-        # Type-1 fonts, so only create a new descriptor if there is no
-        # existing descriptor for this font.
-        effects = (fontinfo.effects.get('slant', 0.0),
-                   fontinfo.effects.get('extend', 1.0))
-        fontdesc = self.type1Descriptors.get((fontinfo.fontfile, effects))
-        if fontdesc is None:
-            fontdesc = self.createType1Descriptor(t1font, fontinfo.fontfile)
-            self.type1Descriptors[(fontinfo.fontfile, effects)] = fontdesc
-        fontdict['FontDescriptor'] = fontdesc
-
+        # createType1Descriptor writes the font data as a side effect
+        fontdict['FontDescriptor'] = self.createType1Descriptor(t1font)
+        encoding = t1font.prop['Encoding']
+        fontdict['Encoding'] = self._generate_encoding(encoding)
+        fc = fontdict['FirstChar'] = min(encoding.keys(), default=0)
+        lc = fontdict['LastChar'] = max(encoding.keys(), default=255)
+        # Convert glyph widths from TeX 12.20 fixed point to 1/1000 text space units
+        font_metrics = dvifont._metrics
+        widths = [(1000 * glyph_metrics.tex_width) >> 20
+                  if (glyph_metrics := font_metrics.get_metrics(char)) else 0
+                  for char in range(fc, lc + 1)]
+        fontdict['Widths'] = widthsObject = self.reserveObject('glyph widths')
+        self.writeObject(widthsObject, widths)
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def createType1Descriptor(self, t1font, fontfile):
+    def _generate_encoding(self, encoding):
+        prev = -2
+        result = []
+        for code, name in sorted(encoding.items()):
+            if code != prev + 1:
+                result.append(code)
+            prev = code
+            result.append(Name(name))
+        return {
+            'Type': Name('Encoding'),
+            'Differences': result
+        }
+
+    @_api.delete_parameter("3.11", "fontfile")
+    def createType1Descriptor(self, t1font, fontfile=None):
         # Create and write the font descriptor and the font file
         # of a Type-1 font
         fontdescObject = self.reserveObject('font descriptor')
@@ -1079,24 +1094,31 @@ class PdfFile:
         if 0:
             flags |= 1 << 18
 
-        ft2font = get_font(fontfile)
+        encoding = t1font.prop['Encoding']
+        charset = ''.join(
+            sorted(
+                f'/{c}' for c in encoding.values()
+                if c != '.notdef'
+            )
+        )
 
         descriptor = {
             'Type':        Name('FontDescriptor'),
             'FontName':    Name(t1font.prop['FontName']),
             'Flags':       flags,
-            'FontBBox':    ft2font.bbox,
+            'FontBBox':    t1font.prop['FontBBox'],
             'ItalicAngle': italic_angle,
-            'Ascent':      ft2font.ascender,
-            'Descent':     ft2font.descender,
+            'Ascent':      t1font.prop['FontBBox'][3],
+            'Descent':     t1font.prop['FontBBox'][1],
             'CapHeight':   1000,  # TODO: find this out
             'XHeight':     500,  # TODO: this one too
             'FontFile':    fontfileObject,
             'FontFamily':  t1font.prop['FamilyName'],
             'StemV':       50,  # TODO
+            'CharSet':     charset,
             # (see also revision 3874; but not all TeX distros have AFM files!)
             # 'FontWeight': a number where 400 = Regular, 700 = Bold
-            }
+        }
 
         self.writeObject(fontdescObject, descriptor)
 
@@ -1185,7 +1207,7 @@ end"""
             def get_char_width(charcode):
                 s = ord(cp1252.decoding_table[charcode])
                 width = font.load_char(
-                    s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
+                    s, flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING).horiAdvance
                 return cvt(width)
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
@@ -1270,7 +1292,8 @@ end"""
 
             subset_str = "".join(chr(c) for c in characters)
             _log.debug("SUBSET %s characters: %s", filename, subset_str)
-            fontdata = _backend_pdf_ps.get_glyphs_subset(filename, subset_str)
+            with _backend_pdf_ps.get_glyphs_subset(filename, subset_str) as subset:
+                fontdata = _backend_pdf_ps.font_as_file(subset)
             _log.debug(
                 "SUBSET %s %d -> %d", filename,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
@@ -1321,7 +1344,7 @@ end"""
                 ccode = c
                 gind = font.get_char_index(ccode)
                 glyph = font.load_char(ccode,
-                                       flags=LOAD_NO_SCALE | LOAD_NO_HINTING)
+                                       flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING)
                 widths.append((ccode, cvt(glyph.horiAdvance)))
                 if ccode < 65536:
                     cid_to_gid_map[ccode] = chr(gind)
@@ -1417,7 +1440,7 @@ end"""
 
         flags = 0
         symbolic = False  # ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
-        if ff & FIXED_WIDTH:
+        if FaceFlags.FIXED_WIDTH in ff:
             flags |= 1 << 0
         if 0:  # TODO: serif
             flags |= 1 << 1
@@ -1425,7 +1448,7 @@ end"""
             flags |= 1 << 2
         else:
             flags |= 1 << 5
-        if sf & ITALIC:
+        if StyleFlags.ITALIC in sf:
             flags |= 1 << 6
         if 0:  # TODO: all caps
             flags |= 1 << 16
@@ -1534,26 +1557,29 @@ end"""
 
     def hatchPattern(self, hatch_style):
         # The colors may come in as numpy arrays, which aren't hashable
-        if hatch_style is not None:
-            edge, face, hatch = hatch_style
-            if edge is not None:
-                edge = tuple(edge)
-            if face is not None:
-                face = tuple(face)
-            hatch_style = (edge, face, hatch)
+        edge, face, hatch, lw = hatch_style
+        if edge is not None:
+            edge = tuple(edge)
+        if face is not None:
+            face = tuple(face)
+        hatch_style = (edge, face, hatch, lw)
 
-        pattern = self.hatchPatterns.get(hatch_style, None)
+        pattern = self._hatch_patterns.get(hatch_style, None)
         if pattern is not None:
             return pattern
 
         name = next(self._hatch_pattern_seq)
-        self.hatchPatterns[hatch_style] = name
+        self._hatch_patterns[hatch_style] = name
         return name
+
+    hatchPatterns = _api.deprecated("3.10")(property(lambda self: {
+        k: (e, f, h) for k, (e, f, h, l) in self._hatch_patterns.items()
+    }))
 
     def writeHatches(self):
         hatchDict = dict()
         sidelen = 72.0
-        for hatch_style, name in self.hatchPatterns.items():
+        for hatch_style, name in self._hatch_patterns.items():
             ob = self.reserveObject('hatch pattern')
             hatchDict[name] = ob
             res = {'Procsets':
@@ -1568,7 +1594,7 @@ end"""
                  # Change origin to match Agg at top-left.
                  'Matrix': [1, 0, 0, 1, 0, self.height * 72]})
 
-            stroke_rgb, fill_rgb, hatch = hatch_style
+            stroke_rgb, fill_rgb, hatch, lw = hatch_style
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
                         Op.setrgb_stroke)
             if fill_rgb is not None:
@@ -1576,8 +1602,10 @@ end"""
                             Op.setrgb_nonstroke,
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
+            self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
+                        Op.setrgb_nonstroke)
 
-            self.output(mpl.rcParams['hatch.linewidth'], Op.setlinewidth)
+            self.output(lw, Op.setlinewidth)
 
             self.output(*self.pathOperations(
                 Path.hatch(hatch),
@@ -1755,7 +1783,7 @@ end"""
                          data[:, :, 2])
                 indices = np.argsort(palette24).astype(np.uint8)
                 rgb8 = indices[np.searchsorted(palette24, rgb24, sorter=indices)]
-                img = Image.fromarray(rgb8, mode='P')
+                img = Image.fromarray(rgb8).convert("P")
                 img.putpalette(palette)
                 png_data, bit_depth, palette = self._writePng(img)
                 if bit_depth is None or palette is None:
@@ -2027,13 +2055,16 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
+                             offset_position, *, hatchcolors=None):
         # We can only reuse the objects if the presence of fill and
         # stroke (and the amount of alpha for each) is the same for
         # all of them
         can_do_optimization = True
         facecolors = np.asarray(facecolors)
         edgecolors = np.asarray(edgecolors)
+
+        if hatchcolors is None:
+            hatchcolors = []
 
         if not len(facecolors):
             filled = False
@@ -2069,7 +2100,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position)
+                offset_position, hatchcolors=hatchcolors)
 
         padding = np.max(linewidths)
         path_codes = []
@@ -2085,7 +2116,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
 
             self.check_gc(gc0, rgbFace)
             dx, dy = xo - lastx, yo - lasty
@@ -2264,6 +2295,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
             seq += [['text', x1, y1, [bytes([glyph])], x1+width]]
+            self.file._character_tracker.track(dvifont, chr(glyph))
 
         # Find consecutive text strings with constant y coordinate and
         # combine into a sequence of strings and kerns, or just one
@@ -2378,7 +2410,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             multibyte_glyphs = []
             prev_was_multibyte = True
             prev_font = font
-            for item in _text_helpers.layout(s, font, kern_mode=KERNING_UNFITTED):
+            for item in _text_helpers.layout(s, font, kern_mode=Kerning.UNFITTED):
                 if _font_supports_glyph(fonttype, ord(item.char)):
                     if prev_was_multibyte or item.ft_object != prev_font:
                         singlebyte_chunks.append((item.ft_object, item.x, []))
@@ -2508,14 +2540,14 @@ class GraphicsContextPdf(GraphicsContextBase):
         name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
-    def hatch_cmd(self, hatch, hatch_color):
+    def hatch_cmd(self, hatch, hatch_color, hatch_linewidth):
         if not hatch:
             if self._fillcolor is not None:
                 return self.fillcolor_cmd(self._fillcolor)
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
-            hatch_style = (hatch_color, self._fillcolor, hatch)
+            hatch_style = (hatch_color, self._fillcolor, hatch, hatch_linewidth)
             name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]
@@ -2580,8 +2612,8 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_dashes',), dash_cmd),
         (('_rgb',), rgb_cmd),
         # must come after fillcolor and rgb
-        (('_hatch', '_hatch_color'), hatch_cmd),
-        )
+        (('_hatch', '_hatch_color', '_hatch_linewidth'), hatch_cmd),
+    )
 
     def delta(self, other):
         """
@@ -2600,7 +2632,10 @@ class GraphicsContextPdf(GraphicsContextBase):
                         different = ours is not theirs
                     else:
                         different = bool(ours != theirs)
-                except ValueError:
+                except (ValueError, DeprecationWarning):
+                    # numpy version < 1.25 raises DeprecationWarning when array shapes
+                    # mismatch, unlike numpy >= 1.25 which raises ValueError.
+                    # This should be removed when numpy < 1.25 is no longer supported.
                     ours = np.asarray(ours)
                     theirs = np.asarray(theirs)
                     different = (ours.shape != theirs.shape or
@@ -2609,11 +2644,11 @@ class GraphicsContextPdf(GraphicsContextBase):
                     break
 
             # Need to update hatching if we also updated fillcolor
-            if params == ('_hatch', '_hatch_color') and fill_performed:
+            if cmd.__name__ == 'hatch_cmd' and fill_performed:
                 different = True
 
             if different:
-                if params == ('_fillcolor',):
+                if cmd.__name__ == 'fillcolor_cmd':
                     fill_performed = True
                 theirs = [getattr(other, p) for p in params]
                 cmds.extend(cmd(self, *theirs))
@@ -2663,9 +2698,9 @@ class PdfPages:
     confusion when using `~.pyplot.savefig` and forgetting the format argument.
     """
 
-    _UNSET = object()
-
-    def __init__(self, filename, keep_empty=_UNSET, metadata=None):
+    @_api.delete_parameter("3.10", "keep_empty",
+                           addendum="This parameter does nothing.")
+    def __init__(self, filename, keep_empty=None, metadata=None):
         """
         Create a new PdfPages object.
 
@@ -2675,10 +2710,6 @@ class PdfPages:
             Plots using `PdfPages.savefig` will be written to a file at this location.
             The file is opened when a figure is saved for the first time (overwriting
             any older file with the same name).
-
-        keep_empty : bool, optional
-            If set to False, then empty pdf files will be deleted automatically
-            when closed.
 
         metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
@@ -2693,13 +2724,6 @@ class PdfPages:
         self._filename = filename
         self._metadata = metadata
         self._file = None
-        if keep_empty and keep_empty is not self._UNSET:
-            _api.warn_deprecated("3.8", message=(
-                "Keeping empty pdf files is deprecated since %(since)s and support "
-                "will be removed %(removal)s."))
-        self._keep_empty = keep_empty
-
-    keep_empty = _api.deprecate_privatize_attribute("3.8")
 
     def __enter__(self):
         return self
@@ -2721,11 +2745,6 @@ class PdfPages:
             self._file.finalize()
             self._file.close()
             self._file = None
-        elif self._keep_empty:  # True *or* UNSET.
-            _api.warn_deprecated("3.8", message=(
-                "Keeping empty pdf files is deprecated since %(since)s and support "
-                "will be removed %(removal)s."))
-            PdfFile(self._filename, metadata=self._metadata).close()  # touch the file.
 
     def infodict(self):
         """

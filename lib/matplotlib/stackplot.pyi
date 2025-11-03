@@ -16,3 +16,5 @@ def stackplot(
     baseline: Literal["zero", "sym", "wiggle", "weighted_wiggle"] = ...,
     **kwargs
 ) -> list[PolyCollection]: ...
+
+__all__ = ['stackplot']

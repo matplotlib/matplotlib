@@ -11,6 +11,7 @@ wide and tall you want your Axes to be to accommodate your widget.
 
 from contextlib import ExitStack
 import copy
+import enum
 import itertools
 from numbers import Integral, Number
 
@@ -117,7 +118,9 @@ class AxesWidget(Widget):
         self.ax = ax
         self._cids = []
 
-    canvas = property(lambda self: self.ax.get_figure(root=True).canvas)
+    canvas = property(
+        lambda self: getattr(self.ax.get_figure(root=True), 'canvas', None)
+    )
 
     def connect_event(self, event, callback):
         """
@@ -143,6 +146,14 @@ class AxesWidget(Widget):
         # because that can introduce floating point errors for synthetic events.
         return ((event.xdata, event.ydata) if event.inaxes is self.ax
                 else self.ax.transData.inverted().transform((event.x, event.y)))
+
+    def ignore(self, event):
+        # docstring inherited
+        return super().ignore(event) or self.canvas is None
+
+    def _set_cursor(self, cursor):
+        """Update the canvas cursor."""
+        self.ax.get_figure(root=True).canvas.set_cursor(cursor)
 
 
 class Button(AxesWidget):
@@ -273,10 +284,10 @@ class SliderBase(AxesWidget):
         self.valfmt = valfmt
 
         if orientation == "vertical":
-            ax.set_ylim((valmin, valmax))
+            ax.set_ylim(valmin, valmax)
             axis = ax.yaxis
         else:
-            ax.set_xlim((valmin, valmax))
+            ax.set_xlim(valmin, valmax)
             axis = ax.xaxis
 
         self._fmt = axis.get_major_formatter()
@@ -364,8 +375,9 @@ class Slider(SliderBase):
             The slider initial position.
 
         valfmt : str, default: None
-            %-format string used to format the slider value.  If None, a
-            `.ScalarFormatter` is used instead.
+            The way to format the slider value. If a string, it must be in %-format.
+            If a callable, it must have the signature ``valfmt(val: float) -> str``.
+            If None, a `.ScalarFormatter` is used.
 
         closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
@@ -547,7 +559,10 @@ class Slider(SliderBase):
     def _format(self, val):
         """Pretty-print *val*."""
         if self.valfmt is not None:
-            return self.valfmt % val
+            if callable(self.valfmt):
+                return self.valfmt(val)
+            else:
+                return self.valfmt % val
         else:
             _, s, _ = self._fmt.format_ticks([self.valmin, val, self.valmax])
             # fmt.get_offset is actually the multiplicative factor, if any.
@@ -644,9 +659,11 @@ class RangeSlider(SliderBase):
             The initial positions of the slider. If None the initial positions
             will be at the 25th and 75th percentiles of the range.
 
-        valfmt : str, default: None
-            %-format string used to format the slider values.  If None, a
-            `.ScalarFormatter` is used instead.
+        valfmt : str or callable, default: None
+            The way to format the range's minimal and maximal values. If a
+            string, it must be in %-format. If a callable, it must have the
+            signature ``valfmt(val: float) -> str``. If None, a
+            `.ScalarFormatter` is used.
 
         closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
@@ -890,7 +907,10 @@ class RangeSlider(SliderBase):
     def _format(self, val):
         """Pretty-print *val*."""
         if self.valfmt is not None:
-            return f"({self.valfmt % val[0]}, {self.valfmt % val[1]})"
+            if callable(self.valfmt):
+                return f"({self.valfmt(val[0])}, {self.valfmt(val[1])})"
+            else:
+                return f"({self.valfmt % val[0]}, {self.valfmt % val[1]})"
         else:
             _, s1, s2, _ = self._fmt.format_ticks(
                 [self.valmin, *val, self.valmax]
@@ -1010,8 +1030,11 @@ class CheckButtons(AxesWidget):
 
             .. versionadded:: 3.7
 
-        label_props : dict, optional
-            Dictionary of `.Text` properties to be used for the labels.
+        label_props : dict of lists, optional
+            Dictionary of `.Text` properties to be used for the labels. Each
+            dictionary value should be a list of at least a single element. If
+            the list is of length M, its values are cycled such that the Nth
+            label gets the (N mod M) property.
 
             .. versionadded:: 3.7
         frame_props : dict, optional
@@ -1111,7 +1134,8 @@ class CheckButtons(AxesWidget):
         Parameters
         ----------
         props : dict
-            Dictionary of `.Text` properties to be used for the labels.
+            Dictionary of `.Text` properties to be used for the labels. Same
+            format as label_props argument of :class:`CheckButtons`.
         """
         _api.check_isinstance(dict, props=props)
         props = _expand_text_props(props)
@@ -1159,7 +1183,7 @@ class CheckButtons(AxesWidget):
         """
         Modify the state of a check button by index.
 
-        Callbacks will be triggered if :attr:`eventson` is True.
+        Callbacks will be triggered if :attr:`!eventson` is True.
 
         Parameters
         ----------
@@ -1579,8 +1603,11 @@ class RadioButtons(AxesWidget):
 
             .. versionadded:: 3.7
 
-        label_props : dict or list of dict, optional
-            Dictionary of `.Text` properties to be used for the labels.
+        label_props : dict of lists, optional
+            Dictionary of `.Text` properties to be used for the labels. Each
+            dictionary value should be a list of at least a single element. If
+            the list is of length M, its values are cycled such that the Nth
+            label gets the (N mod M) property.
 
             .. versionadded:: 3.7
         radio_props : dict, optional
@@ -1689,7 +1716,8 @@ class RadioButtons(AxesWidget):
         Parameters
         ----------
         props : dict
-            Dictionary of `.Text` properties to be used for the labels.
+            Dictionary of `.Text` properties to be used for the labels. Same
+            format as label_props argument of :class:`RadioButtons`.
         """
         _api.check_isinstance(dict, props=props)
         props = _expand_text_props(props)
@@ -1734,7 +1762,7 @@ class RadioButtons(AxesWidget):
         """
         Select button with number *index*.
 
-        Callbacks will be triggered if :attr:`eventson` is True.
+        Callbacks will be triggered if :attr:`!eventson` is True.
 
         Parameters
         ----------
@@ -1841,7 +1869,7 @@ class SubplotTool(Widget):
         self.sliderbottom.slidermax = self.slidertop
         self.slidertop.slidermin = self.sliderbottom
 
-        bax = toolfig.add_axes([0.8, 0.05, 0.15, 0.075])
+        bax = toolfig.add_axes((0.8, 0.05, 0.15, 0.075))
         self.buttonreset = Button(bax, 'Reset')
         self.buttonreset.on_clicked(self._on_reset)
 
@@ -2149,6 +2177,8 @@ class _SelectorWidget(AxesWidget):
         # `release` can call a draw event even when `ignore` is True.
         if not self.useblit:
             return
+        if self.canvas.is_saving():
+            return  # saving does not use blitting
         # Make sure that widget artists don't get accidentally included in the
         # background, by re-rendering the background if needed (and then
         # re-re-rendering the canvas with the visible widget artists).
@@ -2181,7 +2211,9 @@ class _SelectorWidget(AxesWidget):
 
     def ignore(self, event):
         # docstring inherited
-        if not self.active or not self.ax.get_visible():
+        if super().ignore(event):
+            return True
+        if not self.ax.get_visible():
             return True
         # If canvas was locked
         if not self.canvas.widgetlock.available(self):
@@ -2349,11 +2381,6 @@ class _SelectorWidget(AxesWidget):
     def get_visible(self):
         """Get the visibility of the selector artists."""
         return self._visible
-
-    @property
-    def visible(self):
-        _api.warn_deprecated("3.8", alternative="get_visible")
-        return self.get_visible()
 
     def clear(self):
         """Clear the selection and set the selector ready to make a new one."""
@@ -2623,7 +2650,7 @@ class SpanSelector(_SelectorWidget):
         else:
             return ()
 
-    def _set_cursor(self, enabled):
+    def _set_span_cursor(self, *, enabled):
         """Update the canvas cursor based on direction of the selector."""
         if enabled:
             cursor = (backend_tools.Cursors.RESIZE_HORIZONTAL
@@ -2632,7 +2659,7 @@ class SpanSelector(_SelectorWidget):
         else:
             cursor = backend_tools.Cursors.POINTER
 
-        self.ax.get_figure(root=True).canvas.set_cursor(cursor)
+        self._set_cursor(cursor)
 
     def connect_default_events(self):
         # docstring inherited
@@ -2642,7 +2669,7 @@ class SpanSelector(_SelectorWidget):
 
     def _press(self, event):
         """Button press event handler."""
-        self._set_cursor(True)
+        self._set_span_cursor(enabled=True)
         if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
         else:
@@ -2692,7 +2719,7 @@ class SpanSelector(_SelectorWidget):
 
     def _release(self, event):
         """Button release event handler."""
-        self._set_cursor(False)
+        self._set_span_cursor(enabled=False)
 
         if not self._interactive:
             self._selection_artist.set_visible(False)
@@ -2734,7 +2761,7 @@ class SpanSelector(_SelectorWidget):
             return
 
         _, e_dist = self._edge_handles.closest(event.x, event.y)
-        self._set_cursor(e_dist <= self.grab_range)
+        self._set_span_cursor(enabled=e_dist <= self.grab_range)
 
     def _onmove(self, event):
         """Motion notify event handler."""
@@ -4149,6 +4176,13 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     """
 
 
+class _RectangleSelectorAction(enum.Enum):
+    ROTATE = enum.auto()
+    MOVE = enum.auto()
+    RESIZE = enum.auto()
+    CREATE = enum.auto()
+
+
 @_docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
     '__ARTIST_NAME__', 'rectangle'))
 class RectangleSelector(_SelectorWidget):
@@ -4282,10 +4316,23 @@ class RectangleSelector(_SelectorWidget):
         self._rotation_on_press = self._rotation
         self._set_aspect_ratio_correction()
 
+        match self._get_action():
+            case _RectangleSelectorAction.ROTATE:
+                # TODO: set to a rotate cursor if possible?
+                pass
+            case _RectangleSelectorAction.MOVE:
+                self._set_cursor(backend_tools.cursors.MOVE)
+            case _RectangleSelectorAction.RESIZE:
+                # TODO: set to a resize cursor if possible?
+                pass
+            case _RectangleSelectorAction.CREATE:
+                self._set_cursor(backend_tools.cursors.SELECT_REGION)
+
         return False
 
     def _release(self, event):
         """Button release event handler."""
+        self._set_cursor(backend_tools.Cursors.POINTER)
         if not self._interactive:
             self._selection_artist.set_visible(False)
 
@@ -4329,8 +4376,19 @@ class RectangleSelector(_SelectorWidget):
         self.update()
         self._active_handle = None
         self._extents_on_press = None
-
         return False
+
+    def _get_action(self):
+        state = self._state
+        if 'rotate' in state and self._active_handle in self._corner_order:
+            return _RectangleSelectorAction.ROTATE
+        elif self._active_handle == 'C':
+            return _RectangleSelectorAction.MOVE
+        elif self._active_handle:
+            return _RectangleSelectorAction.RESIZE
+
+        return _RectangleSelectorAction.CREATE
+
 
     def _onmove(self, event):
         """
@@ -4346,12 +4404,10 @@ class RectangleSelector(_SelectorWidget):
         # The calculations are done for rotation at zero: we apply inverse
         # transformation to events except when we rotate and move
         state = self._state
-        rotate = 'rotate' in state and self._active_handle in self._corner_order
-        move = self._active_handle == 'C'
-        resize = self._active_handle and not move
+        action = self._get_action()
 
         xdata, ydata = self._get_data_coords(event)
-        if resize:
+        if action == _RectangleSelectorAction.RESIZE:
             inv_tr = self._get_rotation_transform().inverted()
             xdata, ydata = inv_tr.transform([xdata, ydata])
             eventpress.xdata, eventpress.ydata = inv_tr.transform(
@@ -4371,7 +4427,7 @@ class RectangleSelector(_SelectorWidget):
 
         x0, x1, y0, y1 = self._extents_on_press
         # rotate an existing shape
-        if rotate:
+        if action == _RectangleSelectorAction.ROTATE:
             # calculate angle abc
             a = (eventpress.xdata, eventpress.ydata)
             b = self.center
@@ -4380,7 +4436,7 @@ class RectangleSelector(_SelectorWidget):
                      np.arctan2(a[1]-b[1], a[0]-b[0]))
             self.rotation = np.rad2deg(self._rotation_on_press + angle)
 
-        elif resize:
+        elif action == _RectangleSelectorAction.RESIZE:
             size_on_press = [x1 - x0, y1 - y0]
             center = (x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2)
 
@@ -4431,7 +4487,7 @@ class RectangleSelector(_SelectorWidget):
                         sign = np.sign(xdata - x0)
                         x1 = x0 + sign * abs(y1 - y0) * self._aspect_ratio_correction
 
-        elif move:
+        elif action == _RectangleSelectorAction.MOVE:
             x0, x1, y0, y1 = self._extents_on_press
             dx = xdata - eventpress.xdata
             dy = ydata - eventpress.ydata

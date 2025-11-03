@@ -26,7 +26,7 @@ def _get_packed_offsets(
 class OffsetBox(martist.Artist):
     width: float | None
     height: float | None
-    def __init__(self, *args, **kwargs) -> None: ...
+    def __init__(self, **kwargs) -> None: ...
     def set_figure(self, fig: Figure | SubFigure) -> None: ...
     def set_offset(
         self,
@@ -157,7 +157,7 @@ class AnchoredOffsetbox(OffsetBox):
         loc: str,
         *,
         pad: float = ...,
-        borderpad: float = ...,
+        borderpad: float | tuple[float, float] = ...,
         child: OffsetBox | None = ...,
         prop: FontProperties | None = ...,
         frameon: bool = ...,
@@ -185,7 +185,7 @@ class AnchoredText(AnchoredOffsetbox):
         loc: str,
         *,
         pad: float = ...,
-        borderpad: float = ...,
+        borderpad: float | tuple[float, float] = ...,
         prop: dict[str, Any] | None = ...,
         **kwargs
     ) -> None: ...

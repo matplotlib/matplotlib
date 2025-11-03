@@ -20,16 +20,16 @@ When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.10)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.11)
 * `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
 * `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
-* `NumPy <https://numpy.org>`_ (>= 1.23)
+* `NumPy <https://numpy.org>`_ (>= 1.25)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
-* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
-* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
+* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 3)
 
 
 .. _optional_dependencies:
@@ -220,7 +220,7 @@ Build dependencies
 Python
 ------
 
-``pip`` normally builds packages using :external+pip:doc:`build isolation <reference/build-system/pyproject-toml>`,
+``pip`` normally builds packages using :external+pip:doc:`build isolation <reference/build-system>`,
 which means that ``pip`` installs the dependencies listed here for the
 duration of the build process. However, build isolation is disabled via the the
 :external+pip:ref:`--no-build-isolation <install_--no-build-isolation>` flag
@@ -229,10 +229,7 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 (recommended) or by manually installing the following packages:
 
 - `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.13.1).
-- `ninja <https://ninja-build.org/>`_ (>= 1.8.2). This may be available in your package
-  manager or bundled with Meson, but may be installed via ``pip`` if otherwise not
-  available.
-- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.6). Used to connect C/C++ code
+- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.13.2). Used to connect C/C++ code
   with Python.
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
@@ -240,10 +237,22 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 - `NumPy <https://numpy.org>`_ (>= 1.22).  Also a runtime dependency.
 
 
+.. _compile-build-dependencies:
+
+Compilers and external build tools
+----------------------------------
+
+When setting up a virtual environment for development, `ninja <https://ninja-build.org/>`_
+(>= 1.8.2) may need to be installed separately. This may be available
+as a `pre-built binary <https://github.com/ninja-build/ninja/releases>`_ or from a
+`package manager <https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages>`_
+or bundled with Meson. Ninja may also be installed via ``pip`` if otherwise not
+available.
+
 .. _compile-dependencies:
 
-Compiled extensions
--------------------
+Compilers
+^^^^^^^^^
 
 Matplotlib requires a C++ compiler that supports C++17, and each platform has a
 development environment that must be installed before a compiler can be installed.
@@ -256,7 +265,7 @@ source files.
    .. tab-item:: Linux
 
       On some Linux systems, you can install a meta-build package. For example,
-      on  Ubuntu ``apt install build-essential``
+      on  Ubuntu ``apt install build-essential`` with elevated privileges.
 
       Otherwise, use the system distribution's package manager to install
       :ref:`gcc <compiler-table>`.
@@ -337,7 +346,6 @@ otherwise they must be installed manually:
 - pikepdf_ used in some tests for the pgf and pdf backends
 - psutil_ used in testing the interactive backends
 - pytest-cov_ (>= 2.3.1) to collect coverage information
-- pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
 - pytest-xdist_ to run tests in parallel
 - pytest-xvfb_ to run tests without windows popping up (Linux)
@@ -364,15 +372,13 @@ them will be skipped by pytest.
 .. _Ghostscript: https://ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _WenQuanYi Zen Hei: http://wenq.org/en/
-.. _flake8: https://pypi.org/project/flake8/
 .. _nbconvert: https://pypi.org/project/nbconvert/
 .. _nbformat: https://pypi.org/project/nbformat/
 .. _pandas: https://pypi.org/project/pandas/
 .. _pikepdf: https://pypi.org/project/pikepdf/
 .. _psutil: https://pypi.org/project/psutil/
-.. _pytz: https://fonts.google.com/noto/use#faq
+.. _pytz: https://pypi.org/project/pytz/
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
-.. _pytest-flake8: https://pypi.org/project/pytest-flake8/
 .. _pytest-timeout: https://pypi.org/project/pytest-timeout/
 .. _pytest-xdist: https://pypi.org/project/pytest-xdist/
 .. _pytest-xvfb: https://pypi.org/project/pytest-xvfb/
@@ -413,18 +419,53 @@ The documentation requires LaTeX and Graphviz.  These are not
 Python packages and must be installed separately.
 
 * `Graphviz <http://www.graphviz.org/download>`_
-* a minimal working LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
+* a LaTeX distribution, e.g. `TeX Live <https://www.tug.org/texlive/>`_ or
   `MikTeX <https://miktex.org/>`_
 
-The following LaTeX packages:
+.. _tex-dependencies:
+
+LaTeX dependencies
+""""""""""""""""""
+
+The following collections must be installed. When using a distribution that does not
+support collections, the packages listed for each collection must be installed. You may
+need to install some packages that are not listed here.  The complete version of many
+LaTeX distribution installers, e.g. "texlive-full" or "texlive-all",
+will often automatically include these collections.
+
++-----------------------------+--------------------------------------------------+
+| collection                  | packages                                         |
++=============================+==================================================+
+| collection-basic            | `cm <https://ctan.org/pkg/cm>`_,                 |
+|                             | luahbtex                                         |
++-----------------------------+--------------------------------------------------+
+| collection-fontsrecommended | `cm-super <https://ctan.org/pkg/cm-super>`_,     |
+|                             | `lm <https://ctan.org/pkg/lm>`_,                 |
+|                             | `txfonts <https://ctan.org/pkg/txfonts>`_        |
++-----------------------------+--------------------------------------------------+
+| collection-latex            | `fix-cm <https://ctan.org/pkg/fix-cm>`_,         |
+|                             | `geometry <https://ctan.org/pkg/geometry>`_,     |
+|                             | `hyperref <https://ctan.org/pkg/hyperref>`_,     |
+|                             | `latex <https://ctan.org/pkg/latex>`_,           |
+|                             | latex-bin,                                       |
+|                             | `psnfss <https://ctan.org/pkg/psnfss>`_          |
++-----------------------------+--------------------------------------------------+
+| collection-latexextra       | `import <https://ctan.org/pkg/import>`_,         |
+|                             | `sfmath <https://ctan.org/pkg/sfmath>`_,         |
+|                             | `type1cm <https://ctan.org/pkg/type1cm>`_        |
++-----------------------------+--------------------------------------------------+
+| collection-latexrecommended | `fontspec <https://ctan.org/pkg/fontspec>`_,     |
+|                             | `underscore <https://ctan.org/pkg/underscore>`_, |
++-----------------------------+--------------------------------------------------+
+| collection-xetex            | `xetex <https://ctan.org/pkg/xetex>`_,           |
+|                             | xetex-bin                                        |
++-----------------------------+--------------------------------------------------+
+
+The following packages must also be installed:
 
 * `dvipng <https://ctan.org/pkg/dvipng>`_
-* `underscore <https://ctan.org/pkg/underscore>`_
-* `cm-super <https://ctan.org/pkg/cm-super>`_
-* ``collection-fontsrecommended``
+* `pgf <https://ctan.org/pkg/pgf>`_ (if using the pgf backend)
 
-The complete version of many LaTex distribution installers, e.g.
-"texlive-full" or "texlive-all", will often automatically include these packages.
 
 Optional
 ^^^^^^^^
@@ -434,5 +475,5 @@ process will raise various warnings.
 
 * `Inkscape <https://inkscape.org>`_
 * `optipng <http://optipng.sourceforge.net>`_
-* the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <http://comicneue.com/>`_
+* the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_
 * the font "Times New Roman"

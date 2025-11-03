@@ -5,29 +5,40 @@ import os
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import (
-    ToolContainerBase, KeyEvent, LocationEvent, MouseEvent, ResizeEvent,
-    CloseEvent)
+    ToolContainerBase, MouseButton,
+    KeyEvent, LocationEvent, MouseEvent, ResizeEvent, CloseEvent)
 
 try:
-    import gi
+    from gi import require_version as gi_require_version
 except ImportError as err:
     raise ImportError("The GTK4 backends require PyGObject") from err
 
 try:
     # :raises ValueError: If module/version is already loaded, already
     # required, or unavailable.
-    gi.require_version("Gtk", "4.0")
+    gi_require_version("Gtk", "4.0")
+    # Also require GioUnix to avoid PyGIWarning when Gio is imported
+    # GioUnix is platform-specific and may not be available on all systems
+    try:
+        gi_require_version("GioUnix", "2.0")
+    except ValueError:
+        # GioUnix is not available on this platform, which is fine
+        pass
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
     raise ImportError(e) from e
 
+import gi
 from gi.repository import Gio, GLib, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
 from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
     _BackendGTK, _FigureCanvasGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK4,
 )
+
+_GOBJECT_GE_3_47 = gi.version_info >= (3, 47, 0)
+_GTK_GE_4_12 = Gtk.check_version(4, 12, 0) is None
 
 
 class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
@@ -46,7 +57,10 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
 
         self.set_draw_func(self._draw_func)
         self.connect('resize', self.resize_event)
-        self.connect('notify::scale-factor', self._update_device_pixel_ratio)
+        if _GTK_GE_4_12:
+            self.connect('realize', self._realize_event)
+        else:
+            self.connect('notify::scale-factor', self._update_device_pixel_ratio)
 
         click = Gtk.GestureClick()
         click.set_button(0)  # All buttons.
@@ -115,6 +129,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         MouseEvent(
             "scroll_event", self, *self._mpl_coords(), step=dy,
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         return True
 
@@ -123,6 +138,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_press_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         self.grab_focus()
 
@@ -131,12 +147,14 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
             "button_release_event", self, *self._mpl_coords((x, y)),
             controller.get_current_button(),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def key_press_event(self, controller, keyval, keycode, state):
         KeyEvent(
             "key_press_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         return True
 
@@ -144,25 +162,30 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         KeyEvent(
             "key_release_event", self, self._get_key(keyval, keycode, state),
             *self._mpl_coords(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
         return True
 
     def motion_notify_event(self, controller, x, y):
         MouseEvent(
             "motion_notify_event", self, *self._mpl_coords((x, y)),
+            buttons=self._mpl_buttons(controller),
             modifiers=self._mpl_modifiers(controller),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def enter_notify_event(self, controller, x, y):
         LocationEvent(
             "figure_enter_event", self, *self._mpl_coords((x, y)),
             modifiers=self._mpl_modifiers(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def leave_notify_event(self, controller):
         LocationEvent(
             "figure_leave_event", self, *self._mpl_coords(),
             modifiers=self._mpl_modifiers(),
+            guiEvent=controller.get_current_event() if _GOBJECT_GE_3_47 else None,
         )._process()
 
     def resize_event(self, area, width, height):
@@ -173,6 +196,26 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         self.figure.set_size_inches(winch, hinch, forward=False)
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
+
+    def _mpl_buttons(self, controller):
+        # NOTE: This spews "Broken accounting of active state" warnings on
+        # right click on macOS.
+        surface = self.get_native().get_surface()
+        is_over, x, y, event_state = surface.get_device_position(
+            self.get_display().get_default_seat().get_pointer())
+        # NOTE: alternatively we could use
+        #   event_state = controller.get_current_event_state()
+        # but for button_press/button_release this would report the state
+        # *prior* to the event rather than after it; the above reports the
+        # state *after* it.
+        mod_table = [
+            (MouseButton.LEFT, Gdk.ModifierType.BUTTON1_MASK),
+            (MouseButton.MIDDLE, Gdk.ModifierType.BUTTON2_MASK),
+            (MouseButton.RIGHT, Gdk.ModifierType.BUTTON3_MASK),
+            (MouseButton.BACK, Gdk.ModifierType.BUTTON4_MASK),
+            (MouseButton.FORWARD, Gdk.ModifierType.BUTTON5_MASK),
+        ]
+        return {name for name, mask in mod_table if event_state & mask}
 
     def _mpl_modifiers(self, controller=None):
         if controller is None:
@@ -206,10 +249,20 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
                 and not (mod == "shift" and unikey.isprintable()))]
         return "+".join([*mods, key])
 
+    def _realize_event(self, obj):
+        surface = self.get_native().get_surface()
+        surface.connect('notify::scale', self._update_device_pixel_ratio)
+        self._update_device_pixel_ratio()
+
     def _update_device_pixel_ratio(self, *args, **kwargs):
         # We need to be careful in cases with mixed resolution displays if
         # device_pixel_ratio changes.
-        if self._set_device_pixel_ratio(self.get_scale_factor()):
+        if _GTK_GE_4_12:
+            scale = self.get_native().get_surface().get_scale()
+        else:
+            scale = self.get_scale_factor()
+        assert scale is not None
+        if self._set_device_pixel_ratio(scale):
             self.draw()
 
     def _draw_rubberband(self, rect):
@@ -385,6 +438,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
                 msg.show()
 
         dialog.show()
+        return self.UNKNOWN_SAVED_STATUS
 
 
 class ToolbarGTK4(ToolContainerBase, Gtk.Box):

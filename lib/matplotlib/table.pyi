@@ -10,6 +10,8 @@ from .typing import ColorType
 from collections.abc import Sequence
 from typing import Any, Literal
 
+from pandas import DataFrame
+
 class Cell(Rectangle):
     PAD: float
     def __init__(
@@ -68,7 +70,7 @@ class Table(Artist):
 
 def table(
     ax: Axes,
-    cellText: Sequence[Sequence[str]] | None = ...,
+    cellText: Sequence[Sequence[str]] | DataFrame | None = ...,
     cellColours: Sequence[Sequence[ColorType]] | None = ...,
     cellLoc: Literal["left", "center", "right"] = ...,
     colWidths: Sequence[float] | None = ...,

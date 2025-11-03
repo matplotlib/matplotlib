@@ -2,10 +2,8 @@ import datetime
 from unittest.mock import Mock
 
 import numpy as np
-import pytest
 
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 from matplotlib.path import Path
 from matplotlib.table import CustomCell, Table
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -57,7 +55,7 @@ def test_label_colours():
     dim = 3
 
     c = np.linspace(0, 1, dim)
-    colours = plt.cm.RdYlGn(c)
+    colours = plt.colormaps["RdYlGn"](c)
     cellText = [['1'] * dim] * dim
 
     fig = plt.figure()
@@ -89,13 +87,13 @@ def test_label_colours():
               loc='best')
 
 
-@image_comparison(['table_cell_manipulation.png'], remove_text=True)
-def test_diff_cell_table():
+@image_comparison(['table_cell_manipulation.png'], style='mpl20')
+def test_diff_cell_table(text_placeholders):
     cells = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
     cellText = [['1'] * len(cells)] * 2
     colWidths = [0.1] * len(cells)
 
-    _, axs = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
+    _, axs = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1), layout='tight')
     for ax, cell in zip(axs, cells):
         ax.table(
                 colWidths=colWidths,
@@ -104,7 +102,6 @@ def test_diff_cell_table():
                 edges=cell,
                 )
         ax.axis('off')
-    plt.tight_layout()
 
 
 def test_customcell():
@@ -128,10 +125,9 @@ def test_customcell():
 
 @image_comparison(['table_auto_column.png'])
 def test_auto_column():
-    fig = plt.figure()
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1)
 
     # iterable list input
-    ax1 = fig.add_subplot(4, 1, 1)
     ax1.axis('off')
     tb1 = ax1.table(
         cellText=[['Fit Text', 2],
@@ -144,7 +140,6 @@ def test_auto_column():
     tb1.auto_set_column_width([-1, 0, 1])
 
     # iterable tuple input
-    ax2 = fig.add_subplot(4, 1, 2)
     ax2.axis('off')
     tb2 = ax2.table(
         cellText=[['Fit Text', 2],
@@ -157,7 +152,6 @@ def test_auto_column():
     tb2.auto_set_column_width((-1, 0, 1))
 
     # 3 single inputs
-    ax3 = fig.add_subplot(4, 1, 3)
     ax3.axis('off')
     tb3 = ax3.table(
         cellText=[['Fit Text', 2],
@@ -171,8 +165,8 @@ def test_auto_column():
     tb3.auto_set_column_width(0)
     tb3.auto_set_column_width(1)
 
-    # 4 non integer iterable input
-    ax4 = fig.add_subplot(4, 1, 4)
+    # 4 this used to test non-integer iterable input, which did nothing, but only
+    # remains to avoid re-generating the test image.
     ax4.axis('off')
     tb4 = ax4.table(
         cellText=[['Fit Text', 2],
@@ -182,12 +176,6 @@ def test_auto_column():
         loc="center")
     tb4.auto_set_font_size(False)
     tb4.set_fontsize(12)
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="'col' must be an int or sequence of ints"):
-        tb4.auto_set_column_width("-101")  # type: ignore [arg-type]
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="'col' must be an int or sequence of ints"):
-        tb4.auto_set_column_width(["-101"])  # type: ignore [list-item]
 
 
 def test_table_cells():
@@ -208,7 +196,7 @@ def test_table_cells():
     plt.setp(table)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_table_bbox(fig_test, fig_ref):
     data = [[2, 3],
             [4, 5]]
@@ -235,7 +223,7 @@ def test_table_bbox(fig_test, fig_ref):
                   )
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_table_unit(fig_test, fig_ref):
     # test that table doesn't participate in unit machinery, instead uses repr/str
 
@@ -264,3 +252,32 @@ def test_table_unit(fig_test, fig_ref):
 
     munits.registry.pop(FakeUnit)
     assert not munits.registry.get_converter(FakeUnit)
+
+
+def test_table_dataframe(pd):
+    # Test if Pandas Data Frame can be passed in cellText
+
+    data = {
+        'Letter': ['A', 'B', 'C'],
+        'Number': [100, 200, 300]
+    }
+
+    df = pd.DataFrame(data)
+    fig, ax = plt.subplots()
+    table = ax.table(df, loc='center')
+
+    for r, (index, row) in enumerate(df.iterrows()):
+        for c, col in enumerate(df.columns if r == 0 else row.values):
+            assert table[r if r == 0 else r+1, c].get_text().get_text() == str(col)
+
+
+def test_table_fontsize():
+    # Test that the passed fontsize propagates to cells
+    tableData = [['a', 1], ['b', 2]]
+    fig, ax = plt.subplots()
+    test_fontsize = 20
+    t = ax.table(cellText=tableData, loc='top', fontsize=test_fontsize)
+    cell_fontsize = t[(0, 0)].get_fontsize()
+    assert cell_fontsize == test_fontsize, f"Actual:{test_fontsize},got:{cell_fontsize}"
+    cell_fontsize = t[(1, 1)].get_fontsize()
+    assert cell_fontsize == test_fontsize, f"Actual:{test_fontsize},got:{cell_fontsize}"

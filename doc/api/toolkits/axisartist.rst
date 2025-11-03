@@ -4,7 +4,7 @@
 ===========================
 
 The *axisartist* namespace provides a derived Axes implementation
-(:class:`mpl_toolkits.axisartist.Axes`), designed to support curvilinear
+(:class:`~mpl_toolkits.axisartist.axislines.Axes`), designed to support curvilinear
 grids.  The biggest difference is that the artists that are responsible for
 drawing axis lines, ticks, ticklabels, and axis labels are separated out from
 Matplotlib's Axis class.
@@ -34,8 +34,6 @@ You can find a tutorial describing usage of axisartist at the
 
    axisartist.angle_helper
    axisartist.axes_divider
-   axisartist.axes_grid
-   axisartist.axes_rgb
    axisartist.axis_artist
    axisartist.axisline_style
    axisartist.axislines

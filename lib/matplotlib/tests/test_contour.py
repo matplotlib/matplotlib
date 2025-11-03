@@ -86,7 +86,7 @@ def test_contour_Nlevels():
     assert (cs1.levels == cs2.levels).all()
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_contour_set_paths(fig_test, fig_ref):
     cs_test = fig_test.subplots().contour([[0, 1], [1, 2]])
     cs_ref = fig_ref.subplots().contour([[1, 0], [2, 1]])
@@ -140,7 +140,7 @@ def test_contour_label_with_disconnected_segments():
 
 
 @image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True,
-                  tol=0.018 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.018)
 def test_given_colors_levels_and_extends():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -169,6 +169,14 @@ def test_given_colors_levels_and_extends():
                            levels=levels, extend=extend)
 
         plt.colorbar(c, ax=ax)
+
+
+@image_comparison(['contourf_hatch_colors'],
+                  remove_text=True, style='mpl20', extensions=['png'])
+def test_hatch_colors():
+    fig, ax = plt.subplots()
+    cf = ax.contourf([[0, 1], [1, 2]], hatches=['-', '/', '\\', '//'], cmap='gray')
+    cf.set_edgecolors(["blue", "grey", "yellow", "red"])
 
 
 @pytest.mark.parametrize('color, extend', [('darkred', 'neither'),
@@ -204,6 +212,21 @@ def test_log_locator_levels():
     assert_array_almost_equal(c.levels, np.power(10.0, np.arange(-6, 3)))
     cb = fig.colorbar(c, ax=ax)
     assert_array_almost_equal(cb.ax.get_yticks(), c.levels)
+
+
+@pytest.mark.parametrize("n_levels", [2, 3, 4, 5, 6])
+def test_lognorm_levels(n_levels):
+    x, y = np.mgrid[1:10:0.1, 1:10:0.1]
+    data = np.abs(np.sin(x)*np.exp(y))
+
+    fig, ax = plt.subplots()
+    im = ax.contour(x, y, data, norm=LogNorm(), levels=n_levels)
+    fig.colorbar(im, ax=ax)
+
+    levels = im.levels
+    visible_levels = levels[(levels <= data.max()) & (levels >= data.min())]
+    # levels parameter promises "no more than n+1 "nice" contour levels "
+    assert len(visible_levels) <= n_levels + 1
 
 
 @image_comparison(['contour_datetime_axis.png'], style='mpl20')
@@ -391,8 +414,11 @@ def test_contourf_log_extension():
     levels = np.power(10., levels_exp)
 
     # original data
+    # FIXME: Force tick locations for now for backcompat with old test
+    # (log-colorbar extension is not really optimal anyways).
     c1 = ax1.contourf(data,
-                      norm=LogNorm(vmin=data.min(), vmax=data.max()))
+                      norm=LogNorm(vmin=data.min(), vmax=data.max()),
+                      locator=mpl.ticker.FixedLocator(10.**np.arange(-8, 12, 2)))
     # just show data in levels
     c2 = ax2.contourf(data, levels=levels,
                       norm=LogNorm(vmin=levels.min(), vmax=levels.max()),
@@ -408,10 +434,8 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c3, ax=ax3)
 
 
-@image_comparison(
-    ['contour_addlines.png'], remove_text=True, style='mpl20',
-    tol=0.15 if platform.machine() in ('aarch64', 'arm64', 'ppc64le', 's390x')
-        else 0.03)
+@image_comparison(['contour_addlines.png'], remove_text=True, style='mpl20',
+                  tol=0.03 if platform.machine() == 'x86_64' else 0.15)
 # tolerance is because image changed minutely when tick finding on
 # colorbars was cleaned up...
 def test_contour_addlines():
@@ -592,8 +616,7 @@ def test_contourf_legend_elements():
     cs = plt.contourf(h, levels=[10, 30, 50],
                       colors=['#FFFF00', '#FF00FF', '#00FFFF'],
                       extend='both')
-    cs.cmap.set_over('red')
-    cs.cmap.set_under('blue')
+    cs.cmap = cs.cmap.with_extremes(over='red', under='blue')
     cs.changed()
     artists, labels = cs.legend_elements()
     assert labels == ['$x \\leq -1e+250s$',
@@ -831,3 +854,25 @@ def test_allsegs_allkinds():
         assert len(result) == 2
         assert len(result[0]) == 5
         assert len(result[1]) == 4
+
+
+@image_comparison(baseline_images=['contour_rasterization'],
+                  extensions=['pdf'], style='mpl20', savefig_kwarg={'dpi': 25})
+def test_contourf_rasterize():
+    fig, ax = plt.subplots()
+    data = [[0, 1], [1, 0]]
+    circle = mpatches.Circle([0.5, 0.5], 0.5, transform=ax.transAxes)
+    cs = ax.contourf(data, clip_path=circle, rasterized=True)
+    assert cs._rasterized
+
+
+@check_figures_equal(extensions=["png"])
+def test_contour_aliases(fig_test, fig_ref):
+    data = np.arange(100).reshape((10, 10)) ** 2
+    fig_test.add_subplot().contour(data, linestyle=":")
+    fig_ref.add_subplot().contour(data, linestyles="dotted")
+
+
+def test_contour_singular_color():
+    with pytest.raises(TypeError):
+        plt.figure().add_subplot().contour([[0, 1], [2, 3]], color="r")
