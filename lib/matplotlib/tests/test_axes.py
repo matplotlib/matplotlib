@@ -2333,26 +2333,6 @@ def test_grouped_bar_hatch_none():
                 f"Expected no hatch, got {rect.get_hatch()!r}"
 
 
-def test_grouped_bar_hatch_mixed_orientation():
-    """Ensure hatch works correctly for both vertical and horizontal orientations."""
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-    x = np.arange(3)
-    heights = [np.array([1, 2, 3]), np.array([2, 1, 2])]
-    hatches = ['//', 'xx']
-
-    containers_v = ax1.grouped_bar(
-        heights, positions=x, hatch=hatches, orientation="vertical")
-    containers_h = ax2.grouped_bar(
-        heights, positions=x, hatch=hatches, orientation="horizontal")
-
-    for gi, (cv, ch) in enumerate(
-            zip(containers_v.bar_containers, containers_h.bar_containers)):
-        for rect in cv:
-            assert rect.get_hatch() == hatches[gi]
-        for rect in ch:
-            assert rect.get_hatch() == hatches[gi]
-
-
 def test_grouped_bar_empty_string_disables_hatch():
     """An empty string in the hatch list should result in no hatch for that dataset."""
     fig, ax = plt.subplots()

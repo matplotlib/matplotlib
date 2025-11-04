@@ -3386,12 +3386,14 @@ or pandas.DataFrame
         ):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
+
+            common_kwargs = dict(
+                align="edge", label=label, color=color, hatch=hatch_pattern, **kwargs
+            )
             if orientation == "vertical":
-                bc = self.bar(lefts, hs, width=bar_width, align="edge",
-                              label=label, color=color, hatch=hatch_pattern, **kwargs)
+                bc = self.bar(lefts, hs, width=bar_width, **common_kwargs, **kwargs)
             else:
-                bc = self.barh(lefts, hs, height=bar_width, align="edge",
-                               label=label, color=color, hatch=hatch_pattern,**kwargs)
+                bc = self.barh(lefts, hs, height=bar_width, **common_kwargs, **kwargs)
             bar_containers.append(bc)
 
         if tick_labels is not None:
