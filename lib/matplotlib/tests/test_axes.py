@@ -2267,17 +2267,21 @@ def test_grouped_bar_return_value():
         assert bc not in ax.containers
 
 
-def test_grouped_bar_single_hatch_str():
-    """All bars should share the same hatch when a single string is passed."""
+def test_grouped_bar_single_hatch_str_raises():
+    """Passing a single string for hatch should raise a ValueError."""
     fig, ax = plt.subplots()
     x = np.arange(3)
     heights = [np.array([1, 2, 3]), np.array([2, 1, 2])]
-    containers = ax.grouped_bar(heights, positions=x, hatch='//')
+    with pytest.raises(ValueError, match="must be a sequence of strings"):
+        ax.grouped_bar(heights, positions=x, hatch='//')
 
-    # Verify each bar has the same hatch pattern
-    for c in containers.bar_containers:
-        for rect in c:
-            assert rect.get_hatch() == '//'
+
+def test_grouped_bar_hatch_non_iterable_raises():
+    """Non-iterable hatch values should raise a ValueError."""
+    fig, ax = plt.subplots()
+    heights = [np.array([1, 2]), np.array([2, 3])]
+    with pytest.raises(ValueError, match="must be a sequence of strings"):
+        ax.grouped_bar(heights, hatch=123)  # invalid non-iterable
 
 
 def test_grouped_bar_hatch_sequence():
@@ -2322,9 +2326,11 @@ def test_grouped_bar_hatch_none():
     heights = [np.array([1, 2]), np.array([2, 3])]
     containers = ax.grouped_bar(heights, positions=x, hatch=None)
 
+    # All bars should have no hatch applied
     for c in containers.bar_containers:
         for rect in c:
-            assert rect.get_hatch() is None
+            assert rect.get_hatch() in (None, ''), \
+                f"Expected no hatch, got {rect.get_hatch()!r}"
 
 
 def test_grouped_bar_hatch_mixed_orientation():

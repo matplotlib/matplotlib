@@ -3190,15 +3190,18 @@ or pandas.DataFrame
 
             If not specified, the colors from the Axes property cycle will be used.
 
-        hatch : str or sequence of str, optional
+        hatch : sequence of str or None, optional
             Hatch pattern(s) to apply per dataset.
 
-         - If a single string is given, all bars share the same hatch.
-         - If a sequence of strings is given, the patterns are cycled through,
-           similar to *colors*.
+            - If ``None`` (default), no hatching is applied.
+            - If a sequence of strings is provided (e.g., ``['//', 'xx', '..']``),
+              the patterns are cycled across datasets.
+            - Single string values (e.g., ``'//'``) are **not supported**.
 
-         This behavior mirrors how *colors* are cycled in most Matplotlib plotting
-         functions and does not enforce sequence length.
+        Raises
+        ------
+        ValueError
+            If ``hatch`` is a single string or a non-iterable value.
 
         **kwargs : `.Rectangle` properties
 
@@ -3328,12 +3331,35 @@ or pandas.DataFrame
             # TODO: do we want to be more restrictive and check lengths?
             colors = itertools.cycle(colors)
 
-        if hatch is None or isinstance(hatch, str):
-            # Single string or None: apply the same hatch to all datasets
-            hatches = itertools.cycle([hatch])
+        if hatch is None:
+            # No hatch specified: disable hatching entirely by cycling [None].
+            hatches = itertools.cycle([None])
+
+            # TODO: Discussion —
+            #   Should grouped_bar() apply a default hatch pattern (e.g., '//')
+            #   when none is provided ?
+
+        elif isinstance(hatch, str) or not hasattr(hatch, "__iter__"):
+            # Single strings or non-iterable values are not supported here.
+            # Explicit sequences of hatch patterns are required, ensuring
+            # predictable one-to-one mapping between datasets and hatches.
+            raise ValueError(
+                "'hatch' must be a sequence of strings with one entry per dataset"
+            )
+
         else:
-            # Allow cycling through provided hatches, same as colors
+            # Sequence of hatch patterns: cycle through them as needed.
+            # Example: hatch=['//', 'xx', '..'] → patterns repeat across datasets.
             hatches = itertools.cycle(hatch)
+
+            # TODO: Discussion —
+            #   We may later introduce optional strict validation:
+            #       if len(hatch) != num_datasets:
+            #           raise ValueError(
+            #               f"Expected {num_datasets} hatches, got {len(hatch)}"
+            #           )
+            #   This would enforce a strict 1:1 correspondence between
+            #   datasets and provided hatches, preventing silent cycling.
 
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
@@ -3348,6 +3374,13 @@ or pandas.DataFrame
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
         bar_containers = []
+
+        # Both colors and hatches are cycled indefinitely using itertools.cycle.
+        # heights and labels, however, are finite (length = num_datasets).
+        # Because zip() stops at the shortest iterable, this loop executes exactly
+        # num_datasets times even though colors and hatches are infinite.
+        # This ensures one (color, hatch) pair per dataset
+        # without explicit length checks.
         for i, (hs, label, color, hatch_pattern) in enumerate(
                 zip(heights, labels, colors, hatches)
         ):
