@@ -3548,6 +3548,7 @@ def grouped_bar(
         labels=labels,
         orientation=orientation,
         colors=colors,
+        hatch=hatch,
         **kwargs,
     )
 

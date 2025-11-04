@@ -3196,6 +3196,8 @@ or pandas.DataFrame
             - If ``None`` (default), no hatching is applied.
             - If a sequence of strings is provided (e.g., ``['//', 'xx', '..']``),
               the patterns are cycled across datasets.
+            - If the sequence contains a single element (e.g., ``['//']``),
+              the same pattern is repeated for all datasets.
             - Single string values (e.g., ``'//'``) are **not supported**.
 
         Raises
@@ -3334,23 +3336,32 @@ or pandas.DataFrame
         if hatch is None:
             # No hatch specified: disable hatching entirely by cycling [None].
             hatches = itertools.cycle([None])
-
             # TODO: Discussion —
             #   Should grouped_bar() apply a default hatch pattern (e.g., '//')
             #   when none is provided ?
 
-        elif isinstance(hatch, str) or not hasattr(hatch, "__iter__"):
-            # Single strings or non-iterable values are not supported here.
-            # Explicit sequences of hatch patterns are required, ensuring
-            # predictable one-to-one mapping between datasets and hatches.
-            raise ValueError(
-                "'hatch' must be a sequence of strings with one entry per dataset"
+        elif isinstance(hatch, str):
+            raise ValueError("'hatch' must be a sequence of strings "
+                             "(e.g., ['//']) or None; "
+                             "a single string like '//' is not allowed."
             )
 
         else:
+            try:
+                hatch_list = list(hatch)
+            except TypeError:
+                raise ValueError("'hatch' must be a sequence of strings"
+                                 "(e.g., ['//']) or None") from None
+
+            if not hatch_list:
+                # Empty sequence → treat as no hatch.
+                hatches = itertools.cycle([None])
+            elif not all(isinstance(h, str) for h in hatch_list):
+                raise TypeError("All entries in 'hatch' must be strings")
+            else:
             # Sequence of hatch patterns: cycle through them as needed.
             # Example: hatch=['//', 'xx', '..'] → patterns repeat across datasets.
-            hatches = itertools.cycle(hatch)
+                 hatches = itertools.cycle(hatch)
 
             # TODO: Discussion —
             #   We may later introduce optional strict validation:
