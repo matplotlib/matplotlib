@@ -3050,7 +3050,7 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def grouped_bar(self, heights, *, positions=None, group_spacing=1.5, bar_spacing=0,
                     tick_labels=None, labels=None, orientation="vertical", colors=None,
-                    **kwargs):
+                    hatch=None,**kwargs):
         """
         Make a grouped bar plot.
 
@@ -3190,6 +3190,19 @@ or pandas.DataFrame
 
             If not specified, the colors from the Axes property cycle will be used.
 
+        hatch : sequence of str or None, optional
+            Hatch pattern(s) to apply per dataset.
+
+            - If ``None`` (default), no hatching is applied.
+            - If a sequence of strings is provided (e.g., ``['//', 'xx', '..']``),
+              the patterns are cycled across datasets.
+            - Single string values (e.g., ``'//'``) are **not supported**.
+
+        Raises
+        ------
+        ValueError
+            If ``hatch`` is a single string or a non-iterable value.
+
         **kwargs : `.Rectangle` properties
 
             %(Rectangle:kwdoc)s
@@ -3318,6 +3331,36 @@ or pandas.DataFrame
             # TODO: do we want to be more restrictive and check lengths?
             colors = itertools.cycle(colors)
 
+        if hatch is None:
+            # No hatch specified: disable hatching entirely by cycling [None].
+            hatches = itertools.cycle([None])
+
+            # TODO: Discussion —
+            #   Should grouped_bar() apply a default hatch pattern (e.g., '//')
+            #   when none is provided ?
+
+        elif isinstance(hatch, str) or not hasattr(hatch, "__iter__"):
+            # Single strings or non-iterable values are not supported here.
+            # Explicit sequences of hatch patterns are required, ensuring
+            # predictable one-to-one mapping between datasets and hatches.
+            raise ValueError(
+                "'hatch' must be a sequence of strings with one entry per dataset"
+            )
+
+        else:
+            # Sequence of hatch patterns: cycle through them as needed.
+            # Example: hatch=['//', 'xx', '..'] → patterns repeat across datasets.
+            hatches = itertools.cycle(hatch)
+
+            # TODO: Discussion —
+            #   We may later introduce optional strict validation:
+            #       if len(hatch) != num_datasets:
+            #           raise ValueError(
+            #               f"Expected {num_datasets} hatches, got {len(hatch)}"
+            #           )
+            #   This would enforce a strict 1:1 correspondence between
+            #   datasets and provided hatches, preventing silent cycling.
+
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
         bar_spacing_abs = bar_spacing * bar_width
@@ -3331,15 +3374,24 @@ or pandas.DataFrame
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
         bar_containers = []
-        for i, (hs, label, color) in enumerate(zip(heights, labels, colors)):
+
+        # Both colors and hatches are cycled indefinitely using itertools.cycle.
+        # heights and labels, however, are finite (length = num_datasets).
+        # Because zip() stops at the shortest iterable, this loop executes exactly
+        # num_datasets times even though colors and hatches are infinite.
+        # This ensures one (color, hatch) pair per dataset
+        # without explicit length checks.
+        for i, (hs, label, color, hatch_pattern) in enumerate(
+                zip(heights, labels, colors, hatches)
+        ):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
                 bc = self.bar(lefts, hs, width=bar_width, align="edge",
-                              label=label, color=color, **kwargs)
+                              label=label, color=color, hatch=hatch_pattern, **kwargs)
             else:
                 bc = self.barh(lefts, hs, height=bar_width, align="edge",
-                               label=label, color=color, **kwargs)
+                               label=label, color=color, hatch=hatch_pattern,**kwargs)
             bar_containers.append(bc)
 
         if tick_labels is not None:
