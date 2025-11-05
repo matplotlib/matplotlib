@@ -3200,11 +3200,6 @@ or pandas.DataFrame
               the same pattern is repeated for all datasets.
             - Single string values (e.g., ``'//'``) are **not supported**.
 
-        Raises
-        ------
-        ValueError
-            If ``hatch`` is a single string or a non-iterable value.
-
         **kwargs : `.Rectangle` properties
 
             %(Rectangle:kwdoc)s
@@ -3336,9 +3331,6 @@ or pandas.DataFrame
         if hatch is None:
             # No hatch specified: disable hatching entirely by cycling [None].
             hatches = itertools.cycle([None])
-            # TODO: Discussion —
-            #   Should grouped_bar() apply a default hatch pattern (e.g., '//')
-            #   when none is provided ?
 
         elif isinstance(hatch, str):
             raise ValueError("'hatch' must be a sequence of strings "
@@ -3362,15 +3354,6 @@ or pandas.DataFrame
             # Sequence of hatch patterns: cycle through them as needed.
             # Example: hatch=['//', 'xx', '..'] → patterns repeat across datasets.
                  hatches = itertools.cycle(hatch)
-
-            # TODO: Discussion —
-            #   We may later introduce optional strict validation:
-            #       if len(hatch) != num_datasets:
-            #           raise ValueError(
-            #               f"Expected {num_datasets} hatches, got {len(hatch)}"
-            #           )
-            #   This would enforce a strict 1:1 correspondence between
-            #   datasets and provided hatches, preventing silent cycling.
 
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
