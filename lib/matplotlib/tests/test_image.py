@@ -1228,6 +1228,32 @@ def test_image_array_alpha_validation():
         plt.imshow(np.zeros((2, 2)), alpha=[1, 1])
 
 
+@image_comparison(['image_array_alpha_rgb.png'], style='mpl20',
+                  remove_text=True, tol=0.01)
+def test_image_array_alpha_rgb():
+    """Test that array alpha works with RGB images (issue #26092)."""
+    np.random.seed(19680801)
+    arr = np.random.random((10, 10))
+    
+    # Convert grayscale to RGB
+    cmap = mpl.colormaps['gray']
+    arr_rgb = cmap(colors.Normalize()(arr))[:, :, :3]
+    
+    # Create an alpha array with varying transparency
+    alpha = np.ones_like(arr)
+    alpha[:5] = 0.3  # Top half more transparent
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
+    
+    # Grayscale with array alpha (reference)
+    ax1.imshow(arr, alpha=alpha, cmap='gray', interpolation='nearest')
+    ax1.set_title('Grayscale + array alpha')
+    
+    # RGB with array alpha (should match the pattern)
+    ax2.imshow(arr_rgb, alpha=alpha, interpolation='nearest')
+    ax2.set_title('RGB + array alpha')
+
+
 @mpl.style.context('mpl20')
 def test_exact_vmin():
     cmap = mpl.colormaps["autumn_r"].with_extremes(under="lightgrey")

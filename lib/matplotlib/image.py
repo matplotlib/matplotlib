@@ -546,7 +546,8 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
         else:
             if self._imcache is None:
-                self._imcache = self.to_rgba(A, bytes=True, norm=(A.ndim == 2))
+                self._imcache = self.to_rgba(A, bytes=True, norm=(A.ndim == 2),
+                                              alpha=self.get_alpha())
             output = self._imcache
 
             # Subset the input image to only the part that will be displayed.
