@@ -47,7 +47,7 @@ def test_interp_nearest_vs_none():
     rcParams['savefig.dpi'] = 3
     X = np.array([[[218, 165, 32], [122, 103, 238]],
                   [[127, 255, 0], [255, 99, 71]]], dtype=np.uint8)
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    (ax1, ax2) = plt.subplots(1, 2)
     ax1.imshow(X, interpolation='none')
     ax1.set_title('interpolation none')
     ax2.imshow(X, interpolation='nearest')
@@ -950,7 +950,7 @@ def test_mask_image_over_under():
 
     palette = plt.colormaps["gray"].with_extremes(over='r', under='g', bad='b')
     Zm = np.ma.masked_where(Z > 1.2, Z)
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    (ax1, ax2) = plt.subplots(1, 2)
     im = ax1.imshow(Zm, interpolation='bilinear',
                     cmap=palette,
                     norm=colors.Normalize(vmin=-1.0, vmax=1.0, clip=False),
@@ -973,7 +973,7 @@ def test_mask_image_over_under():
 def test_mask_image():
     # Test mask image two ways: Using nans and using a masked array.
 
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    (ax1, ax2) = plt.subplots(1, 2)
 
     A = np.ones((5, 5))
     A[1:2, 1:2] = np.nan
@@ -1001,7 +1001,7 @@ def test_imshow_endianess():
     X, Y = np.meshgrid(x, x)
     Z = np.hypot(X - 5, Y - 5)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    (ax1, ax2) = plt.subplots(1, 2)
 
     kwargs = dict(origin="lower", interpolation='nearest', cmap='viridis')
 
@@ -1234,16 +1234,15 @@ def test_image_array_alpha_rgb():
     """Test that array alpha works with RGB images (issue #26092)."""
     np.random.seed(19680801)
     arr = np.random.random((10, 10))
-    
     # Convert grayscale to RGB
     cmap = mpl.colormaps['gray']
     arr_rgb = cmap(colors.Normalize()(arr))[:, :, :3]
     
     # Create an alpha array with varying transparency
     alpha = np.ones_like(arr)
-    alpha[:5] = 0.3  # Top half more transparent
+    alpha[:5] = 0.3  # First 5 rows (top half) more transparent
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
+    (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
     
     # Grayscale with array alpha (reference)
     ax1.imshow(arr, alpha=alpha, cmap='gray', interpolation='nearest')
