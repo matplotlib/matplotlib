@@ -35,6 +35,43 @@ See the [install
 documentation](https://matplotlib.org/stable/users/installing/index.html),
 which is generated from `/doc/install/index.rst`
 
+## Quick Example
+
+Here's a simple example to plot a line chart using Matplotlib:
+
+```python
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4]
+y = [10, 20, 25, 30]
+
+plt.plot(x, y, marker='o')
+plt.title("Sample Line Plot")
+plt.xlabel("X-axis")
+plt.ylabel("Y-axis")
+plt.grid(True)
+plt.show()
+```
+Description:-
+
+This example demonstrates how to create a simple line chart using Matplotlib in Python.
+We define two lists x and y, where:
+
+x → Values plotted along the X-axis
+
+y → Corresponding values on the Y-axis
+
+Then:
+
+plt.plot() draws the line graph and marks each data point with circles (marker='o').
+
+plt.title(), plt.xlabel(), and plt.ylabel() add a title and axis labels.
+
+plt.grid(True) displays a background grid for better readability.
+
+Finally, plt.show() renders the plot window.
+
+
 ## Contribute
 
 You've discovered a bug or something else you want to change — excellent!
