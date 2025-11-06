@@ -1242,7 +1242,7 @@ def test_image_array_alpha_rgb():
     alpha = np.ones_like(arr)
     alpha[:5] = 0.3  # First 5 rows (top half) more transparent
     
-    (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
     
     # Grayscale with array alpha (reference)
     ax1.imshow(arr, alpha=alpha, cmap='gray', interpolation='nearest')
