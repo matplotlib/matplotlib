@@ -2132,7 +2132,7 @@ class Parser:
         self._math_expression = p.math
 
         # To add space to nucleus operators after sub/superscripts
-        self._in_subscript_or_superscript = False
+        self._needs_space_after_subsuper = False
 
     def parse(self, s: str, fonts_object: Fonts, fontsize: float, dpi: float) -> Hlist:
         """
@@ -2150,7 +2150,7 @@ class Parser:
             # explain becomes a plain method on pyparsing 3 (err.explain(0)).
             raise ValueError("\n" + ParseException.explain(err, 0)) from None
         self._state_stack = []
-        self._in_subscript_or_superscript = False
+        self._needs_space_after_subsuper = False
         # prevent operator spacing from leaking into a new expression
         self._em_width_cache = {}
         ParserElement.reset_cache()
@@ -2260,7 +2260,7 @@ class Parser:
             prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
             # Binary operators at start of string should not be spaced
             # Also, operators in sub- or superscripts should not be spaced
-            if (self._in_subscript_or_superscript or (
+            if (self._needs_space_after_subsuper or (
                     c in self._binary_operators and (
                     len(s[:loc].split()) == 0 or prev_char in {
                         '{', *self._left_delims, *self._relation_symbols}))):
@@ -2362,18 +2362,13 @@ class Parser:
             next_char_loc += len('operatorname{}')
         next_char = next((c for c in s[next_char_loc:] if c != ' '), '')
         delimiters = self._delims | {'^', '_'}
-        if (next_char not in delimiters and
-                name not in self._overunder_functions):
+        if next_char not in delimiters:
             # Add thin space except when followed by parenthesis, bracket, etc.
             hlist_list += [self._make_space(self._space_widths[r'\,'])]
         self.pop_state()
-        # if followed by a super/subscript, set flag to true
-        # This flag tells subsuper to add space after this operator
-        if next_char in {'^', '_'}:
-            self._in_subscript_or_superscript = True
-        else:
-            self._in_subscript_or_superscript = False
-
+        # If followed by a sub/superscript, set flag to true to tell subsuper
+        # to add space after this operator.
+        self._needs_space_after_subsuper = next_char in {'^', '_'}
         return Hlist(hlist_list)
 
     def start_group(self, toks: ParseResults) -> T.Any:
@@ -2483,7 +2478,10 @@ class Parser:
                 shift = hlist.height + vgap + nucleus.depth
             vlt = Vlist(vlist)
             vlt.shift_amount = shift
-            result = Hlist([vlt])
+            optional_spacing = ([self._make_space(self._space_widths[r'\,'])]
+                                if self._needs_space_after_subsuper else [])
+            self._needs_space_after_subsuper = False
+            result = Hlist([vlt, *optional_spacing])
             return [result]
 
         # We remove kerning on the last character for consistency (otherwise
@@ -2575,12 +2573,10 @@ class Parser:
 
         # Do we need to add a space after the nucleus?
         # To find out, check the flag set by operatorname
-        spaced_nucleus: list[Node] = [nucleus, x]
-        if self._in_subscript_or_superscript:
-            spaced_nucleus += [self._make_space(self._space_widths[r'\,'])]
-            self._in_subscript_or_superscript = False
-
-        result = Hlist(spaced_nucleus)
+        optional_spacing = ([self._make_space(self._space_widths[r'\,'])]
+                            if self._needs_space_after_subsuper else [])
+        self._needs_space_after_subsuper = False
+        result = Hlist([nucleus, x, *optional_spacing])
         return [result]
 
     def _genfrac(self, ldelim: str, rdelim: str, rule: float | None, style: _MathStyle,
