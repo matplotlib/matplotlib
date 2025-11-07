@@ -2334,15 +2334,24 @@ def test_grouped_bar_hatch_none():
 
 
 def test_grouped_bar_empty_string_disables_hatch():
-    """An empty string in the hatch list should result in no hatch for that dataset."""
+    """
+    Empty strings or None in the hatch list should result in no hatch
+    for the corresponding dataset, while valid strings should apply
+    the hatch pattern normally.
+    """
     fig, ax = plt.subplots()
     x = np.arange(3)
-    heights = [np.array([1, 2, 3]), np.array([2, 1, 2])]
-    hatches = ["", "xx"]
+    heights = [np.array([1, 2, 3]), np.array([2, 1, 2]), np.array([3, 2, 1])]
+    hatches = ["", "xx", None]
     containers = ax.grouped_bar(heights, positions=x, hatch=hatches)
+    # Collect the hatch pattern for each bar in each dataset
     counts = [[rect.get_hatch() for rect in bc] for bc in containers.bar_containers]
-    assert all(h == '' or h is None for h in counts[0])  # first dataset: no hatch
-    assert all(h == 'xx' for h in counts[1])             # second dataset: hatched
+    # First dataset: empty string disables hatch
+    assert all(h in ("", None) for h in counts[0])
+    # Second dataset: hatch pattern applied
+    assert all(h == "xx" for h in counts[1])
+    # Third dataset: None disables hatch
+    assert all(h in ("", None) for h in counts[2])
 
 
 def test_grouped_bar_dict_with_labels_forbidden():

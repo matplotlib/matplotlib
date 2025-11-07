@@ -3347,8 +3347,8 @@ or pandas.DataFrame
             if not hatch_list:
                 # Empty sequence → treat as no hatch.
                 hatches = itertools.cycle([None])
-            elif not all(isinstance(h, str) for h in hatch_list):
-                raise TypeError("All entries in 'hatch' must be strings")
+            elif not all(h is None or isinstance(h, str) for h in hatch_list):
+                raise TypeError("All entries in 'hatch' must be strings or None")
             else:
             # Sequence of hatch patterns: cycle through them as needed.
             # Example: hatch=['//', 'xx', '..'] → patterns repeat across datasets.
