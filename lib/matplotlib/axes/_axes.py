@@ -3050,7 +3050,7 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def grouped_bar(self, heights, *, positions=None, group_spacing=1.5, bar_spacing=0,
                     tick_labels=None, labels=None, orientation="vertical", colors=None,
-                    hatch=None,**kwargs):
+                    hatch=None, **kwargs):
         """
         Make a grouped bar plot.
 
