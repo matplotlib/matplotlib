@@ -1,3 +1,4 @@
+# TODO: Dynamically resize the mathtext symbol tables (see issue #26143)
 import re
 from docutils.parsers.rst import Directive
 
@@ -6,15 +7,26 @@ from matplotlib import _mathtext, _mathtext_data
 bb_pattern = re.compile("Bbb[A-Z]")
 scr_pattern = re.compile("scr[a-zA-Z]")
 frak_pattern = re.compile("frak[A-Z]")
+def dynamic_columns(symbols_list, max_columns=6):
+    """
+    Dynamically decide the number of columns for a list of symbols.
+    It tries to make the table width adapt to the number of symbols.
+    """
+    return min(max_columns, max(2, len(symbols_list) // 5))
 
 symbols = [
-    ["Lower-case Greek",
-     4,
-     (r"\alpha", r"\beta", r"\gamma",  r"\chi", r"\delta", r"\epsilon",
-      r"\eta", r"\iota",  r"\kappa", r"\lambda", r"\mu", r"\nu",  r"\omega",
-      r"\phi",  r"\pi", r"\psi", r"\rho",  r"\sigma",  r"\tau", r"\theta",
-      r"\upsilon", r"\xi", r"\zeta",  r"\digamma", r"\varepsilon", r"\varkappa",
-      r"\varphi", r"\varpi", r"\varrho", r"\varsigma",  r"\vartheta")],
+ symbols_list = [
+  r"\alpha", r"\beta", r"\gamma", r"\chi", r"\delta", r"\epsilon",
+  r"\eta", r"\iota", r"\kappa", r"\lambda", r"\mu", r"\nu", r"\omega",
+  r"\pi", r"\psi", r"\rho", r"\sigma", r"\tau", r"\theta",
+  r"\upsilon", r"\xi", r"\zeta", r"\digamma", r"\varepsilon",
+  r"\varkappa", r"\varphi", r"\varpi", r"\varrho", r"\varsigma",
+  r"\vartheta"
+]
+
+symbols = [
+  ["Lower-case Greek", dynamic_columns(symbols_list), symbols_list],
+
     ["Upper-case Greek",
      4,
      (r"\Delta", r"\Gamma", r"\Lambda", r"\Omega", r"\Phi", r"\Pi", r"\Psi",
