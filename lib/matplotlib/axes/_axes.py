@@ -3198,7 +3198,6 @@ or pandas.DataFrame
               the patterns are cycled across datasets.
             - If the sequence contains a single element (e.g., ``['//']``),
               the same pattern is repeated for all datasets.
-            - Single string values (e.g., ``'//'``) are **not supported**.
 
         **kwargs : `.Rectangle` properties
 
