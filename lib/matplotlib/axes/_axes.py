@@ -3190,7 +3190,7 @@ or pandas.DataFrame
 
             If not specified, the colors from the Axes property cycle will be used.
 
-        hatch : sequence of str or None, optional
+        hatch : sequence of :mpltype:`hatch` or None, optional
             Hatch pattern(s) to apply per dataset.
 
             - If ``None`` (default), no hatching is applied.
