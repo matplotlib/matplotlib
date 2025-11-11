@@ -27,7 +27,7 @@ from cycler import Cycler
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Any, Literal, TypeVar, overload, List
+from typing import Any, Literal, TypeVar, overload
 from matplotlib.typing import ColorType
 
 _T = TypeVar("_T", bound=Artist)
@@ -523,6 +523,6 @@ class _AxesBase(martist.Artist):
 
 def _draw_rasterized(
     figure: Figure,
-    artists: List[Artist],
+    artists: list[Artist],
     renderer: RendererBase,
 ) -> None: ...
