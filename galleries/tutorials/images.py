@@ -7,40 +7,6 @@
 Image tutorial
 ==============
 
-A short tutorial on plotting images with Matplotlib.
-
-.. _imaging_startup:
-
-Startup commands
-===================
-
-First, let's start IPython.  It is a most excellent enhancement to the
-standard Python prompt, and it ties in especially well with
-Matplotlib.  Start IPython either directly at a shell, or with the Jupyter
-Notebook (where IPython as a running kernel).
-
-With IPython started, we now need to connect to a GUI event loop.  This
-tells IPython where (and how) to display plots.  To connect to a GUI
-loop, execute the **%matplotlib** magic at your IPython prompt.  There's more
-detail on exactly what this does at `IPython's documentation on GUI
-event loops
-<https://ipython.readthedocs.io/en/stable/interactive/reference.html#gui-event-loop-support>`_.
-
-If you're using Jupyter Notebook, the same commands are available, but
-people commonly use a specific argument to the %matplotlib magic:
-
-.. sourcecode:: ipython
-
-    In [1]: %matplotlib inline
-
-This turns on inline plotting, where plot graphics will appear in your notebook.  This
-has important implications for interactivity.  For inline plotting, commands in
-cells below the cell that outputs a plot will not affect the plot.  For example,
-changing the colormap is not possible from cells below the cell that creates a plot.
-However, for other backends, such as Qt, that open a separate window,
-cells below those that create the plot will change the plot - it is a
-live object in memory.
-
 This tutorial will use Matplotlib's implicit plotting interface, pyplot.  This
 interface maintains global state, and is very useful for quickly and easily
 experimenting with various plot settings.  The alternative is the explicit,
@@ -147,15 +113,6 @@ imgplot.set_cmap('nipy_spectral')
 
 # %%
 #
-# .. note::
-#
-#    However, remember that in the Jupyter Notebook with the inline backend,
-#    you can't make changes to plots that have already been rendered.  If you
-#    create imgplot here in one cell, you cannot call set_cmap() on it in a later
-#    cell and expect the earlier plot to change.  Make sure that you enter these
-#    commands together in one cell.  plt commands will not change plots from earlier
-#    cells.
-#
 # There are many other colormap schemes available.  See the :ref:`list and images
 # of the colormaps<colormaps>`.
 #
@@ -201,9 +158,7 @@ plt.imshow(lum_img, clim=(0, 175))
 # %%
 # This can also be done by calling the
 # :meth:`~matplotlib.cm.ScalarMappable.set_clim` method of the returned image
-# plot object, but make sure that you do so in the same cell as your plot
-# command when working with the Jupyter Notebook - it will not change
-# plots from earlier cells.
+# plot object.
 
 imgplot = plt.imshow(lum_img)
 imgplot.set_clim(0, 175)

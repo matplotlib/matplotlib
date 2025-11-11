@@ -15,14 +15,14 @@
 [![Codecov status](https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=main&service=github)](https://app.codecov.io/gh/matplotlib/matplotlib)
 [![EffVer Versioning](https://img.shields.io/badge/version_scheme-EffVer-0097a7)](https://jacobtomlinson.dev/effver)
 
-![Matplotlib logotype](https://matplotlib.org/_static/logo2.svg)
+![Matplotlib logotype](https://matplotlib.org/stable/_static/logo2.svg)
 
 Matplotlib is a comprehensive library for creating static, animated, and
 interactive visualizations in Python.
 
 Check out our [home page](https://matplotlib.org/) for more information.
 
-![image](https://matplotlib.org/_static/readme_preview.png)
+![image](https://matplotlib.org/stable/_static/readme_preview.png)
 
 Matplotlib produces publication-quality figures in a variety of hardcopy
 formats and interactive environments across platforms. Matplotlib can be
