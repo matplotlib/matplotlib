@@ -266,6 +266,7 @@ def _mpl_init():
     # implementation detail.
     globals().update(_colormaps)
 
+
     # Initialize multivariate and bivariate colormap registries
     _multivar_colormaps = ColormapRegistry(multivar_cmaps)
     _bivar_colormaps = ColormapRegistry(bivar_cmaps)
@@ -298,3 +299,4 @@ def _ensure_cmap(cmap):
     if cmap_name not in _colormaps:
         _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
     return mpl.colormaps[cmap_name]
+

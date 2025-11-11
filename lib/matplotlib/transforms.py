@@ -377,6 +377,29 @@ class BboxBase(TransformNode):
     def get_points(self):
         raise NotImplementedError
 
+    def _is_finite(self):
+        """
+        Return whether the bounding box is finite and not degenerate to a
+        single point.
+
+        We count the box as finite if neither width nor height are infinite
+        and at least one direction is non-zero; i.e. a point is not finite,
+        but a horizontal or vertical line is.
+
+        .. versionadded:: 3.11
+
+        Notes
+        -----
+        We keep this private for now because concise naming is hard and
+        because we are not sure how universal the concept is. It is
+        currently used only for filtering bboxes to be included in
+        tightbbox calculation, but I'm unsure whether single points
+        should be included there as well.
+        """
+        width = self.width
+        height = self.height
+        return (width > 0 or height > 0) and width < np.inf and height < np.inf
+
     def containsx(self, x):
         """
         Return whether *x* is in the closed (:attr:`x0`, :attr:`x1`) interval.

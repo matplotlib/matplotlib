@@ -570,7 +570,7 @@ class UnicodeFonts(TruetypeFonts):
 
         super().__init__(default_font_prop, load_glyph_flags)
         for texfont in "cal rm tt it bf sf bfit".split():
-            prop = mpl.rcParams['mathtext.' + texfont]
+            prop = mpl.rcParams['mathtext.' + texfont]  # type: ignore[index]
             font = findfont(prop)
             self.fontmap[texfont] = font
         prop = FontProperties('cmex10')
