@@ -995,6 +995,35 @@ if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
 
 
+def _run_submodule_inits():
+    """
+    Initialize matplotlib submodules that require deferred initialization.
+
+    This function is called once after rcParams have been loaded, providing
+    a centralized orchestration point for all submodule initialization logic.
+    This decouples module imports from initialization, making the codebase
+    more maintainable and less fragile to import order issues.
+
+    Submodules that need mandatory initialization should implement a
+    ``_mpl_init()`` function, which will be called by this orchestrator.
+
+    See Also
+    --------
+    Issue #29813 : Cleanup internal import dependencies and initialization logic
+    """
+    # Import and initialize submodules in dependency order
+    # Each submodule's _mpl_init() is responsible for its own setup
+
+    # Initialize colormap registry (depends on rcParams['image.lut'])
+    from matplotlib import cm
+    if hasattr(cm, '_mpl_init'):
+        cm._mpl_init()
+
+
+# Run submodule initialization after rcParams are loaded
+_run_submodule_inits()
+
+
 def rc(group, **kwargs):
     """
     Set the current `.rcParams`.  *group* is the grouping for the rc, e.g.,
@@ -1553,8 +1582,7 @@ def validate_backend(s):
     return rcsetup.validate_backend(s)
 
 
-# workaround: we must defer colormaps import to after loading rcParams, because
-# colormap creation depends on rcParams
+# Import colormap registries (they are now safely initialized via _mpl_init())
 from matplotlib.cm import _colormaps as colormaps  # noqa: E402
 from matplotlib.cm import _multivar_colormaps as multivar_colormaps  # noqa: E402
 from matplotlib.cm import _bivar_colormaps as bivar_colormaps  # noqa: E402
