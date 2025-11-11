@@ -1,4 +1,5 @@
 import os
+import threading
 from pathlib import Path
 
 import pytest
@@ -84,3 +85,25 @@ def _test_save_figure_return():
 def test_save_figure_return():
     subprocess_run_helper(_test_save_figure_return, timeout=_test_timeout,
                           extra_env={"MPLBACKEND": "macosx"})
+
+
+def _test_create_figure_on_worker_thread_fails():
+    def create_figure():
+        warn_msg = "Matplotlib GUI outside of the main thread will likely fail."
+        err_msg = "Cannot create a GUI FigureManager outside the main thread"
+        with pytest.warns(UserWarning, match=warn_msg):
+            with pytest.raises(RuntimeError, match=err_msg):
+                plt.gcf()
+
+    worker = threading.Thread(target=create_figure)
+    worker.start()
+    worker.join()
+
+
+@pytest.mark.backend('macosx', skip_on_importerror=True)
+def test_create_figure_on_worker_thread_fails():
+    subprocess_run_helper(
+        _test_create_figure_on_worker_thread_fails,
+        timeout=_test_timeout,
+        extra_env={"MPLBACKEND": "macosx"}
+    )

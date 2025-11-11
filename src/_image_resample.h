@@ -496,7 +496,7 @@ typedef enum {
 } interpolation_e;
 
 
-// T is rgba if and only if it has an T::r field.
+// T is rgba if and only if it has a T::r field.
 template<typename T, typename = void> struct is_grayscale : std::true_type {};
 template<typename T> struct is_grayscale<T, std::void_t<decltype(T::r)>> : std::false_type {};
 template<typename T> constexpr bool is_grayscale_v = is_grayscale<T>::value;

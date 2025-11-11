@@ -5275,7 +5275,7 @@ or pandas.DataFrame
         if not marker_obj.is_filled():
             if orig_edgecolor is not None:
                 _api.warn_external(
-                    f"You passed a edgecolor/edgecolors ({orig_edgecolor!r}) "
+                    f"You passed an edgecolor/edgecolors ({orig_edgecolor!r}) "
                     f"for an unfilled marker ({marker!r}).  Matplotlib is "
                     "ignoring the edgecolor in favor of the facecolor.  This "
                     "behavior may change in the future."

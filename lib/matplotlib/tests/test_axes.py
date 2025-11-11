@@ -9104,7 +9104,7 @@ def test_patch_bounds():  # PR 19078
 @mpl.style.context('default')
 def test_warn_ignored_scatter_kwargs():
     with pytest.warns(UserWarning,
-                      match=r"You passed a edgecolor/edgecolors"):
+                      match=r"You passed an edgecolor/edgecolors"):
         plt.scatter([0], [0], marker="+", s=500, facecolor="r", edgecolor="b")
 
 
