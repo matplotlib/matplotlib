@@ -3311,6 +3311,11 @@ or pandas.DataFrame
 
         _api.check_in_list(["vertical", "horizontal"], orientation=orientation)
 
+        # Remove 'label' and 'color' from kwargs to avoid passing them twice
+        # (they are already handled explicitly)
+        kwargs.pop('label', None)
+        kwargs.pop('color', None)
+
         if colors is None:
             colors = itertools.cycle([None])
         else:
