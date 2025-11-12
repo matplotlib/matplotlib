@@ -5066,7 +5066,7 @@ or pandas.DataFrame
                                      "facecolors", "color"],
                       label_namer="y")
     @_docstring.interpd
-    def scatter(self, x, y, z=0, s=None, c=None, marker=None, cmap=None, norm=None,
+    def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None, *,
                 edgecolors=None, colorizer=None, plotnonfinite=False, **kwargs):
         """

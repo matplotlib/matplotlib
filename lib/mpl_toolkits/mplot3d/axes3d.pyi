@@ -1,12 +1,6 @@
-from __future__ import annotations
-
-__all__ = ["Axes3D", "_Quaternion", "get_test_data"]
-
-from typing import Literal, Sequence, Tuple
-
+from typing import Sequence, Literal
 import numpy as np
 import numpy.typing as npt
-
 from matplotlib.text import Text
 from matplotlib.axes import Axes
 from matplotlib.colors import LightSource, Normalize
@@ -14,6 +8,7 @@ from matplotlib.artist import Artist
 from matplotlib.figure import Figure
 from matplotlib.typing import ColorType
 from matplotlib.contour import QuadContourSet
+from matplotlib.container import BarContainer, StemContainer
 from matplotlib.collections import Collection, PathCollection
 from matplotlib.transforms import Bbox
 from matplotlib.backend_bases import RendererBase, MouseButton
@@ -105,7 +100,7 @@ class Axes3D(Axes):
 
     def auto_scale_xyz(
         self,
-        X: ArrayLike, Y:ArrayLike, Z:ArrayLike,
+        X: ArrayLike, Y: ArrayLike, Z: ArrayLike,
         had_data: bool
     ) -> None: ...
 
@@ -323,13 +318,13 @@ class Axes3D(Axes):
 
     def invert_zaxis(self) -> None: ...
 
-    def get_zbound(self) -> Tuple[float, float]: ...
+    def get_zbound(self) -> tuple[float, float]: ...
 
     def text(
         self,
         x: float, y: float, z: float,
         s: str,
-        zdir: None | Literal['x'] | Literal['y'] | Literal['z'] | tuple,
+        zdir: None | str | tuple,
         axlim_clip: bool
     ) -> Text: ...
 
@@ -430,6 +425,14 @@ class Axes3D(Axes):
         axlim_clip: bool
     ) -> TriContourSet: ...
 
+    def _auto_scale_contourf(
+        self,
+        X, Y, Z,
+        zdir: str,
+        levels,
+        had_data: bool
+    ) -> None: ...
+
     def contourf(
         self,
         X: ArrayLike, Y: ArrayLike, Z: ArrayLike,
@@ -453,12 +456,11 @@ class Axes3D(Axes):
         autolim: bool,
         axlim_clip: bool
     ) -> Collection: ...
-        
-    
+
     def scatter(
         self,
-        xs: ArrayLike, ys: ArrayLike, 
-        zs: float | ArrayLike, 
+        xs: ArrayLike, ys: ArrayLike,
+        zs: float | ArrayLike,
         zdir: str,
         s: float | ArrayLike,
         c: ArrayLike | Sequence[ColorType] | ColorType | None,
@@ -467,15 +469,71 @@ class Axes3D(Axes):
         axlim_clip: bool
     ) -> PathCollection: ...
 
-    def _auto_scale_contourf(
-        self, 
-        X, Y, Z,
+    def bar(
+        self,
+        left: ArrayLike,
+        height: ArrayLike,
+        zs: float,
         zdir: str,
-        levels,
-        had_data: bool
-    ) -> None: ...
+        axlim_clip: bool
+    ) -> BarContainer: ...
 
+    def bar3d(
+        self,
+        x: ArrayLike, y: ArrayLike, z: ArrayLike,
+        dx: float, dy: float, dz: float,
+        color: None | Sequence,
+        zsort: str,
+        shade: bool,
+        lightsource: None | LightSource,
+        axlim_clip: bool
+    ) -> Poly3DCollection: ...
 
+    def set_title(
+        self,
+        label: str,
+        fontdict: dict,
+        loc: str
+    ) -> Text: ...
+
+    def quiver(
+        self,
+        X: ArrayLike, Y: ArrayLike, Z: ArrayLike,
+        U: ArrayLike, V: ArrayLike, W: ArrayLike,
+        length: float, arrow_length_ratio: float,
+        pivot: str, normalize: bool,
+        axlim_clip: bool
+    ) -> Line3DCollection: ...
+
+    def voxels(
+        self,
+        facecolors: None | ArrayLike,
+        edgecolors: None | ArrayLike,
+        shade: bool,
+        lightsource: LightSource,
+        axlim_clip: bool
+    ) -> dict: ...
+
+    def errorbar(
+        self,
+        x: float | ArrayLike,
+        y: float | ArrayLike,
+        z: float | ArrayLike,
+        zerr: float | ArrayLike,
+        yerr: float | ArrayLike,
+        xerr: float | ArrayLike,
+        fmt: str,
+        barsabove: bool,
+        errorevery: int | tuple,
+        ecolor,
+        elinewidth: None | float,
+        capsize: None | float,
+        capthick: None | float,
+        xlolims: bool, xuplims: bool,
+        ylolims: bool, yuplims: bool,
+        zlolims: bool, zuplims: bool,
+        axlim_clip: bool
+    ) -> tuple[list, list, list]: ...
 
     def get_tightbbox(
             self,
@@ -485,10 +543,18 @@ class Axes3D(Axes):
             for_layout_only: bool
     ) -> Bbox: ...
 
+    def stem(
+        self,
+        x: ArrayLike, y: ArrayLike, z: ArrayLike,
+        linefmt: str, markerfmt: str, basefmt: str,
+        bottom: int, label: str | None, orientation: str,
+        axlim_clip: bool
+    ) -> StemContainer: ...
+
 
 def get_test_data(
     delta: float = 0.05
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     ...
 
 
@@ -531,4 +597,4 @@ class _Quaternion:
     ) -> "_Quaternion":
         ...
 
-    def as_cardan_angles(self) -> Tuple[float, float, float]: ...
+    def as_cardan_angles(self) -> tuple[float, float, float]: ...
