@@ -478,3 +478,112 @@ def test_font_bitstream_charter():
     ax.text(0.1, 0.3, r"fi ffl 1234", usetex=True, fontsize=50)
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+def test_scatter_offaxis_colored_pdf_size():
+    """
+    Test that off-axis scatter plots with per-point colors don't bloat PDFs.
+
+    Regression test for issue #2488. When scatter points with per-point colors
+    are completely outside the visible axes, the PDF backend should skip
+    writing those markers to significantly reduce file size.
+    """
+    # Use John Hunter's birthday as random seed for reproducibility
+    rng = np.random.default_rng(19680801)
+
+    n_points = 1000
+    x = rng.random(n_points) * 10
+    y = rng.random(n_points) * 10
+    c = rng.random(n_points)
+
+    # Test 1: Scatter with per-point colors, all points OFF-AXIS
+    fig1, ax1 = plt.subplots()
+    ax1.scatter(x, y, c=c)
+    ax1.set_xlim(20, 30)  # Move view completely away from data (x is 0-10)
+    ax1.set_ylim(20, 30)  # Move view completely away from data (y is 0-10)
+
+    buf1 = io.BytesIO()
+    fig1.savefig(buf1, format='pdf')
+    size_offaxis_colored = buf1.tell()
+    plt.close(fig1)
+
+    # Test 2: Empty scatter (baseline - smallest possible)
+    fig2, ax2 = plt.subplots()
+    ax2.set_xlim(20, 30)
+    ax2.set_ylim(20, 30)
+
+    buf2 = io.BytesIO()
+    fig2.savefig(buf2, format='pdf')
+    size_empty = buf2.tell()
+    plt.close(fig2)
+
+    # The off-axis colored scatter should be close to empty size
+    # Allow up to 50KB overhead for axes/metadata, but should be much smaller
+    # than if all 1000 markers were written (which would add ~200-400KB)
+    assert size_offaxis_colored < size_empty + 50_000, (
+        f"Off-axis colored scatter PDF ({size_offaxis_colored} bytes) is too large. "
+        f"Expected close to empty figure size ({size_empty} bytes). "
+        f"Markers may not be properly skipped."
+    )
+
+
+@check_figures_equal(extensions=["pdf"])
+def test_scatter_offaxis_colored_visual(fig_test, fig_ref):
+    """
+    Test that on-axis scatter with per-point colors still renders correctly.
+
+    Ensures the optimization for off-axis markers doesn't break normal
+    scatter rendering.
+    """
+    rng = np.random.default_rng(19680801)
+
+    n_points = 100
+    x = rng.random(n_points) * 5
+    y = rng.random(n_points) * 5
+    c = rng.random(n_points)
+
+    # Test figure: scatter with clipping optimization
+    ax_test = fig_test.subplots()
+    ax_test.scatter(x, y, c=c, s=50)
+    ax_test.set_xlim(0, 10)
+    ax_test.set_ylim(0, 10)
+
+    # Reference figure: should look identical
+    ax_ref = fig_ref.subplots()
+    ax_ref.scatter(x, y, c=c, s=50)
+    ax_ref.set_xlim(0, 10)
+    ax_ref.set_ylim(0, 10)
+
+
+@check_figures_equal(extensions=["pdf"])
+def test_scatter_mixed_onoff_axis(fig_test, fig_ref):
+    """
+    Test scatter with some points on-axis and some off-axis.
+
+    Ensures the optimization correctly handles the common case where only
+    some markers are outside the visible area.
+    """
+    rng = np.random.default_rng(19680801)
+
+    # Create points: half on-axis (0-5), half off-axis (15-20)
+    n_points = 50
+    x_on = rng.random(n_points) * 5
+    y_on = rng.random(n_points) * 5
+    x_off = rng.random(n_points) * 5 + 15
+    y_off = rng.random(n_points) * 5 + 15
+
+    x = np.concatenate([x_on, x_off])
+    y = np.concatenate([y_on, y_off])
+    c = rng.random(2 * n_points)
+
+    # Test figure: scatter with mixed points
+    ax_test = fig_test.subplots()
+    ax_test.scatter(x, y, c=c, s=50)
+    ax_test.set_xlim(0, 10)
+    ax_test.set_ylim(0, 10)
+
+    # Reference figure: only the on-axis points should be visible
+    ax_ref = fig_ref.subplots()
+    ax_ref.scatter(x_on, y_on, c=c[:n_points], s=50)
+    ax_ref.set_xlim(0, 10)
+    ax_ref.set_ylim(0, 10)

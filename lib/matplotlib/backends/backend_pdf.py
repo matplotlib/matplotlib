@@ -2118,6 +2118,12 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
 
+            # Skip markers outside visible canvas bounds to reduce PDF size
+            # (same optimization as in draw_markers).
+            if not (0 <= xo <= self.file.width * 72
+                    and 0 <= yo <= self.file.height * 72):
+                continue
+
             self.check_gc(gc0, rgbFace)
             dx, dy = xo - lastx, yo - lasty
             output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id,
