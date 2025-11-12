@@ -2104,11 +2104,25 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         padding = np.max(linewidths)
         path_codes = []
+
+        # Calculate maximum marker extent for conservative bounds checking.
+        # We need to account for marker size, not just position.
+        max_marker_extent = 0
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
+            if len(path.vertices):
+                # Get the bounding box of the transformed marker path.
+                # Use get_extents() which is more efficient than transforming
+                # all vertices, and add padding for stroke width.
+                bbox = path.get_extents(transform)
+                max_marker_extent = max(max_marker_extent,
+                                      bbox.width / 2, bbox.height / 2)
             name = self.file.pathCollectionObject(
                 gc, path, transform, padding, filled, stroked)
             path_codes.append(name)
+
+        # Add padding for stroke width.
+        max_marker_extent += padding
 
         output = self.file.output
         output(*self.gc.push())
@@ -2118,10 +2132,13 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
 
-            # Skip markers outside visible canvas bounds to reduce PDF size
-            # (same optimization as in draw_markers).
-            if not (0 <= xo <= self.file.width * 72
-                    and 0 <= yo <= self.file.height * 72):
+            # Skip markers outside visible canvas bounds to reduce PDF size.
+            # Add max_marker_extent margin to account for marker size - a marker
+            # may be partially visible even if its center is outside the canvas.
+            canvas_width = self.file.width * 72
+            canvas_height = self.file.height * 72
+            if not (-max_marker_extent <= xo <= canvas_width + max_marker_extent
+                    and -max_marker_extent <= yo <= canvas_height + max_marker_extent):
                 continue
 
             self.check_gc(gc0, rgbFace)
