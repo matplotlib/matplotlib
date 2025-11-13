@@ -2104,25 +2104,28 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         padding = np.max(linewidths)
         path_codes = []
-
-        # Calculate maximum marker extent for conservative bounds checking.
-        # We need to account for marker size, not just position.
-        max_marker_extent = 0
+        path_extents = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
-            if len(path.vertices):
-                # Get the bounding box of the transformed marker path.
-                # Use get_extents() which is more efficient than transforming
-                # all vertices, and add padding for stroke width.
-                bbox = path.get_extents(transform)
-                max_marker_extent = max(max_marker_extent,
-                                      bbox.width / 2, bbox.height / 2)
             name = self.file.pathCollectionObject(
                 gc, path, transform, padding, filled, stroked)
             path_codes.append(name)
+            # Compute the extent of each marker path to enable per-marker
+            # bounds checking. This allows us to skip markers that are
+            # completely outside the visible canvas while preserving markers
+            # that are partially visible.
+            if len(path.vertices):
+                bbox = path.get_extents(transform)
+                # Store half-width and half-height for efficient bounds checking
+                path_extents.append((bbox.width / 2, bbox.height / 2))
+            else:
+                path_extents.append((0, 0))
 
-        # Add padding for stroke width.
-        max_marker_extent += padding
+        # Create a mapping from path_id to extent for efficient lookup
+        path_extent_map = dict(zip(path_codes, path_extents))
+
+        canvas_width = self.file.width * 72
+        canvas_height = self.file.height * 72
 
         output = self.file.output
         output(*self.gc.push())
@@ -2132,13 +2135,13 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
 
-            # Skip markers outside visible canvas bounds to reduce PDF size.
-            # Add max_marker_extent margin to account for marker size - a marker
-            # may be partially visible even if its center is outside the canvas.
-            canvas_width = self.file.width * 72
-            canvas_height = self.file.height * 72
-            if not (-max_marker_extent <= xo <= canvas_width + max_marker_extent
-                    and -max_marker_extent <= yo <= canvas_height + max_marker_extent):
+            # Skip markers completely outside visible canvas bounds to reduce
+            # PDF file size. Use per-marker extents to handle large markers
+            # correctly: only skip if the marker's bounding box doesn't
+            # intersect the canvas at all.
+            extent_x, extent_y = path_extent_map[path_id]
+            if not (-extent_x <= xo <= canvas_width + extent_x
+                    and -extent_y <= yo <= canvas_height + extent_y):
                 continue
 
             self.check_gc(gc0, rgbFace)
