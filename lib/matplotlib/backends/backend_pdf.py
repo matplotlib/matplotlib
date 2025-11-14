@@ -2135,6 +2135,19 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
 
+            # Optimization: Fast path for markers with centers inside canvas.
+            # This avoids the dictionary lookup for the common case where
+            # markers are visible, improving performance for large scatter plots.
+            if 0 <= xo <= canvas_width and 0 <= yo <= canvas_height:
+                # Marker center is inside canvas - definitely render it
+                self.check_gc(gc0, rgbFace)
+                dx, dy = xo - lastx, yo - lasty
+                output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id,
+                       Op.use_xobject)
+                lastx, lasty = xo, yo
+                continue
+
+            # Marker center is outside canvas - check if partially visible.
             # Skip markers completely outside visible canvas bounds to reduce
             # PDF file size. Use per-marker extents to handle large markers
             # correctly: only skip if the marker's bounding box doesn't
