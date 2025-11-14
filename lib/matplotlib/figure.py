@@ -3321,8 +3321,9 @@ None}, default: None
         self.__dict__ = state
 
         # re-initialise some of the unstored state information
-        FigureCanvasBase(self)  # Set self.canvas.
-
+        self._set_base_canvas()
+        # force the bounding boxes to respect current dpi
+        self.dpi_scale_trans.clear().scale(self._dpi)
         if restore_to_pylab:
             # lazy import to avoid circularity
             import matplotlib.pyplot as plt
