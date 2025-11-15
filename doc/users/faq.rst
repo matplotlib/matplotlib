@@ -91,7 +91,7 @@ background patch. This definition could be checked via::
 
 We've decided not to include this as a figure method because this is only one
 way of defining empty, and checking the above is only rarely necessary.
-Whether or not something has been added to the figure is usually defined 
+Whether or not something has been added to the figure is usually defined
 within the context of the program.
 
 The only reliable way to check whether a figure would render empty is to
