@@ -734,37 +734,54 @@ class RendererSVG(RendererBase):
         writer.end('g')
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offset_trans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
-                             offset_position, *, hatchcolors=None):
+                            offsets, offset_trans, facecolors, edgecolors,
+                            linewidths, linestyles, antialiaseds, urls,
+                            offset_position, *, hatchcolors=None):
+        # Optional pre-simplification at render time (parity with PDF):
+        # respects rcParams['path.simplify'] and ['path.simplify_threshold'] to
+        # reduce the emitted geometry without affecting autoscale/ticks
+
         if hatchcolors is None:
             hatchcolors = []
-        # Is the optimization worth it? Rough calculation:
-        # cost of emitting a path in-line is
-        #    (len_path + 5) * uses_per_path
-        # cost of definition+use is
-        #    (len_path + 3) + 9 * uses_per_path
-        len_path = len(paths[0].vertices) if len(paths) > 0 else 0
+        if not paths:
+            return
+
+        # 1) Pre-simplify
+        if (mpl.rcParams.get('path.simplify', False)
+                and mpl.rcParams.get('path.simplify_threshold', 0) > 0
+                and any(getattr(p, "should_simplify", False) for p in paths)):
+            try:
+                paths = [p.cleaned(simplify=True) for p in paths]
+            except Exception:
+                pass  # keeps original on fallback
+
+        # 2) Heuristics (recalculation after possible simplification):
+        #    cost(inline)   = (len_path + 5) * uses_per_path
+        #    cost(defs+use) = (len_path + 3) + 9 * uses_per_path
+        len_path = len(paths[0].vertices) if paths else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        should_do_optimization = \
-            len_path + 9 * uses_per_path + 3 < (len_path + 5) * uses_per_path
+        should_do_optimization = (len_path + 9 * uses_per_path + 3
+                                < (len_path + 5) * uses_per_path)
+
         if not should_do_optimization:
+            # Fallback stills uses 'paths' possible cleans.
             return super().draw_path_collection(
                 gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position, hatchcolors=hatchcolors)
 
+        # 3) Optimized Route: <defs> + <use>
         writer = self.writer
         path_codes = []
         writer.start('defs')
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
+            # keep simplify=False.
             d = self._convert_path(path, transform, simplify=False)
-            oid = 'C{:x}_{:x}_{}'.format(
-                self._path_collection_id, i, self._make_id('', d))
+            oid = f"C{self._path_collection_id:x}_{i:x}_{self._make_id('', d)}"
             writer.element('path', id=oid, d=d)
             path_codes.append(oid)
         writer.end('defs')
@@ -779,13 +796,12 @@ class RendererSVG(RendererBase):
             clip_attrs = self._get_clip_attrs(gc0)
             if clip_attrs:
                 writer.start('g', **clip_attrs)
-            attrib = {
+            writer.element('use', attrib={
                 'xlink:href': f'#{path_id}',
                 'x': _short_float_fmt(xo),
                 'y': _short_float_fmt(self.height - yo),
-                'style': self._get_style(gc0, rgbFace)
-                }
-            writer.element('use', attrib=attrib)
+                'style': self._get_style(gc0, rgbFace),
+            })
             if clip_attrs:
                 writer.end('g')
             if url is not None:
