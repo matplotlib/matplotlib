@@ -5077,10 +5077,6 @@ or pandas.DataFrame
         x, y : float or array-like, shape (n, )
             The data positions.
 
-        zs : float or array-like, default: 0
-            The z-positions. Either an array of the same length as *xs* and
-            *ys* or a single value to place all points in the same plane.
-
         s : float or array-like, shape (n, ), optional
             The marker size in points**2 (typographic points are 1/72 in.).
             Default is ``rcParams['lines.markersize'] ** 2``.

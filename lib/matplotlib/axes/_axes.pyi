@@ -413,7 +413,6 @@ class Axes(_AxesBase):
         self,
         x: float | ArrayLike,
         y: float | ArrayLike,
-        z: float | ArrayLike,
         s: float | ArrayLike | None = ...,
         c: ArrayLike | Sequence[ColorType] | ColorType | None = ...,
         *,
