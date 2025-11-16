@@ -4756,13 +4756,15 @@ class _AxesBase(martist.Artist):
         ax2.yaxis.units = self.yaxis.units
         return ax2
 
-    def get_shared_x_axes(self):
+    @classmethod
+    def get_shared_x_axes(cls):
         """Return an immutable view on the shared x-axes Grouper."""
-        return cbook.GrouperView(self._shared_axes["x"])
+        return cbook.GrouperView(cls._shared_axes["x"])
 
-    def get_shared_y_axes(self):
+    @classmethod
+    def get_shared_y_axes(cls):
         """Return an immutable view on the shared y-axes Grouper."""
-        return cbook.GrouperView(self._shared_axes["y"])
+        return cbook.GrouperView(cls._shared_axes["y"])
 
     def label_outer(self, remove_inner_ticks=False):
         """

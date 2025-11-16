@@ -622,6 +622,7 @@ def test_grouper():
     g.join(*objs)
     assert set(list(g)[0]) == set(objs)
     assert set(g.get_siblings(a)) == set(objs)
+    assert a not in g.get_siblings(a, include_self=False)
 
     for other in objs[1:]:
         assert g.joined(a, other)
