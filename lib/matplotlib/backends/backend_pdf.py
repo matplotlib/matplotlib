@@ -2053,12 +2053,10 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file.output(self.gc.paint())
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offset_trans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
-                             offset_position, *, hatchcolors=None):
-        # We can only reuse the objects if the presence of fill and
-        # stroke (and the amount of alpha for each) is the same for
-        # all of them
+                            offsets, offset_trans, facecolors, edgecolors,
+                            linewidths, linestyles, antialiaseds, urls,
+                            offset_position, *, hatchcolors=None):
+        # Optional pre-simplification at render time (parity with SVG):
         can_do_optimization = True
         facecolors = np.asarray(facecolors)
         edgecolors = np.asarray(edgecolors)
@@ -2099,8 +2097,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         len_path = len(paths[0].vertices) if paths else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        should_do_optimization = \
-            len_path + uses_per_path + 5 < len_path * uses_per_path
+        should_do_optimization = (len_path + uses_per_path + 5
+                                < len_path * uses_per_path)
 
         if (not can_do_optimization) or (not should_do_optimization):
             return RendererBase.draw_path_collection(
@@ -2109,6 +2107,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position, hatchcolors=hatchcolors)
 
+        # 3) Emission through XObject
         padding = np.max(linewidths)
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
@@ -2125,10 +2124,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
 
-            self.check_gc(gc0, rgbFace)
+            self.check_gc(gc0, rgbFace)  # style/alpha/hatch/clip preserved through GC
             dx, dy = xo - lastx, yo - lasty
-            output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id,
-                   Op.use_xobject)
+            output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id, Op.use_xobject)
             lastx, lasty = xo, yo
         output(*self.gc.pop())
 
