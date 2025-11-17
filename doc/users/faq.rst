@@ -77,8 +77,8 @@ empty if it was rendered pure white (there may be artists present, but they
 could be outside the drawing area or transparent)?
 
 For the purpose here, we define empty as: "The figure does not contain any
-artists except it's background patch." The exception for the background is
-necessary, because by default every figure contains a `.Rectangle` as it's
+artists except its background patch." The exception for the background is
+necessary, because by default every figure contains a `.Rectangle` as its
 background patch. This definition could be checked via::
 
     def is_empty(figure):
@@ -91,8 +91,8 @@ background patch. This definition could be checked via::
 
 We've decided not to include this as a figure method because this is only one
 way of defining empty, and checking the above is only rarely necessary.
-Usually the user or program handling the figure know if they have added
-something to the figure.
+Whether or not something has been added to the figure is usually defined
+within the context of the program.
 
 The only reliable way to check whether a figure would render empty is to
 actually perform such a rendering and inspect the result.

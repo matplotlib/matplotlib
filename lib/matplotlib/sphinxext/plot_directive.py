@@ -84,6 +84,11 @@ The ``.. plot::`` directive supports the following options:
     figure. This overwrites the caption given in the content, when the plot
     is generated from a file.
 
+``:code-caption:`` : str
+    If specified, the option's argument will be used as a caption for the
+    code block (when ``:include-source:`` is used). This is added as the
+    ``:caption:`` option to the ``.. code-block::`` directive.
+
 Additionally, this directive supports all the options of the `image directive
 <https://docutils.sourceforge.io/docs/ref/rst/directives.html#image>`_,
 except for ``:target:`` (since plot will add its own target).  These include
@@ -281,6 +286,7 @@ class PlotDirective(Directive):
         'context': _option_context,
         'nofigs': directives.flag,
         'caption': directives.unchanged,
+        'code-caption': directives.unchanged,
         }
 
     def run(self):
@@ -952,8 +958,11 @@ def run(arguments, content, options, state_machine, state, lineno):
             if is_doctest:
                 lines = ['', *code_piece.splitlines()]
             else:
-                lines = ['.. code-block:: python', '',
-                         *textwrap.indent(code_piece, '    ').splitlines()]
+                lines = ['.. code-block:: python']
+                if 'code-caption' in options:
+                    code_caption = options['code-caption'].replace('\n', ' ')
+                    lines.append(f'   :caption: {code_caption}')
+                lines.extend(['', *textwrap.indent(code_piece, '    ').splitlines()])
             source_code = "\n".join(lines)
         else:
             source_code = ""
