@@ -1,0 +1,55 @@
+import pandas as pd
+
+csv_text = """py_ver,mpl_ver,backend,tmax,thresh,svg_minmax,size_minmax,svg_fill,size_fill,pdf_fill,size_pdf,mode
+3.12.10,3.10.7,tkagg,20000,0.0,plot_minmax_t20000_thr0.0_noflag.svg,1040295,plot_fill_t20000_thr0.0_noflag.svg,1039862,plot_fill_t20000_thr0.0_noflag.pdf,385677,natural_should_simplify
+3.12.10,3.10.7,tkagg,20000,0.0,plot_minmax_t20000_thr0.0_flag.svg,1040295,plot_fill_t20000_thr0.0_flag.svg,1039862,plot_fill_t20000_thr0.0_flag.pdf,385677,forced_should_simplify
+3.12.10,3.10.7,tkagg,20000,0.5,plot_minmax_t20000_thr0.5_noflag.svg,114351,plot_fill_t20000_thr0.5_noflag.svg,736523,plot_fill_t20000_thr0.5_noflag.pdf,276830,natural_should_simplify
+3.12.10,3.10.7,tkagg,20000,0.5,plot_minmax_t20000_thr0.5_flag.svg,114351,plot_fill_t20000_thr0.5_flag.svg,736523,plot_fill_t20000_thr0.5_flag.pdf,276830,forced_should_simplify
+3.12.10,3.10.7,tkagg,20000,1.0,plot_minmax_t20000_thr1.0_noflag.svg,64193,plot_fill_t20000_thr1.0_noflag.svg,499030,plot_fill_t20000_thr1.0_noflag.pdf,189607,natural_should_simplify
+3.12.10,3.10.7,tkagg,20000,1.0,plot_minmax_t20000_thr1.0_flag.svg,64193,plot_fill_t20000_thr1.0_flag.svg,499030,plot_fill_t20000_thr1.0_flag.pdf,189607,forced_should_simplify
+3.12.10,3.10.7,tkagg,50000,0.0,plot_minmax_t50000_thr0.0_noflag.svg,2581043,plot_fill_t50000_thr0.0_noflag.svg,2576189,plot_fill_t50000_thr0.0_noflag.pdf,927086,natural_should_simplify
+3.12.10,3.10.7,tkagg,50000,0.0,plot_minmax_t50000_thr0.0_flag.svg,2581043,plot_fill_t50000_thr0.0_flag.svg,2576189,plot_fill_t50000_thr0.0_flag.pdf,927086,forced_should_simplify
+3.12.10,3.10.7,tkagg,50000,0.5,plot_minmax_t50000_thr0.5_noflag.svg,112547,plot_fill_t50000_thr0.5_noflag.svg,1817969,plot_fill_t50000_thr0.5_noflag.pdf,666444,natural_should_simplify
+3.12.10,3.10.7,tkagg,50000,0.5,plot_minmax_t50000_thr0.5_flag.svg,112547,plot_fill_t50000_thr0.5_flag.svg,1817969,plot_fill_t50000_thr0.5_flag.pdf,666444,forced_should_simplify
+3.12.10,3.10.7,tkagg,50000,1.0,plot_minmax_t50000_thr1.0_noflag.svg,62591,plot_fill_t50000_thr1.0_noflag.svg,1227880,plot_fill_t50000_thr1.0_noflag.pdf,456464,natural_should_simplify
+3.12.10,3.10.7,tkagg,50000,1.0,plot_minmax_t50000_thr1.0_flag.svg,62591,plot_fill_t50000_thr1.0_flag.svg,1227880,plot_fill_t50000_thr1.0_flag.pdf,456464,forced_should_simplify
+3.12.10,3.10.7,tkagg,100000,0.0,plot_minmax_t100000_thr0.0_noflag.svg,5151090,plot_fill_t100000_thr0.0_noflag.svg,5142043,plot_fill_t100000_thr0.0_noflag.pdf,1833004,natural_should_simplify
+3.12.10,3.10.7,tkagg,100000,0.0,plot_minmax_t100000_thr0.0_flag.svg,5151090,plot_fill_t100000_thr0.0_flag.svg,5142043,plot_fill_t100000_thr0.0_flag.pdf,1833004,forced_should_simplify
+3.12.10,3.10.7,tkagg,100000,0.5,plot_minmax_t100000_thr0.5_noflag.svg,113394,plot_fill_t100000_thr0.5_noflag.svg,3614529,plot_fill_t100000_thr0.5_noflag.pdf,1305043,natural_should_simplify
+3.12.10,3.10.7,tkagg,100000,0.5,plot_minmax_t100000_thr0.5_flag.svg,113394,plot_fill_t100000_thr0.5_flag.svg,3614529,plot_fill_t100000_thr0.5_flag.pdf,1305043,forced_should_simplify
+3.12.10,3.10.7,tkagg,100000,1.0,plot_minmax_t100000_thr1.0_noflag.svg,62642,plot_fill_t100000_thr1.0_noflag.svg,2445998,plot_fill_t100000_thr1.0_noflag.pdf,892933,natural_should_simplify
+3.12.10,3.10.7,tkagg,100000,1.0,plot_minmax_t100000_thr1.0_flag.svg,62642,plot_fill_t100000_thr1.0_flag.svg,2445998,plot_fill_t100000_thr1.0_flag.pdf,892933,forced_should_simplify
+"""
+
+df = pd.read_csv(pd.io.common.StringIO(csv_text))
+
+# vamos olhar só modo "natural_should_simplify" para não duplicar linhas
+nat = df[df["mode"] == "natural_should_simplify"].copy()
+
+def reduction_vs_thr(sub, col):
+    base0 = sub[sub["thresh"] == 0.0][col].iloc[0]
+    base05 = sub[sub["thresh"] == 0.5][col].iloc[0]
+    base10 = sub[sub["thresh"] == 1.0][col].iloc[0]
+    r05 = 1 - base05 / base0
+    r10 = 1 - base10 / base0
+    return base0, base05, base10, r05, r10
+
+rows = []
+for tmax in sorted(nat["tmax"].unique()):
+    sub = nat[nat["tmax"] == tmax]
+    for colname, label in [("size_minmax","minmax_svg"),
+                           ("size_fill","fill_svg"),
+                           ("size_pdf","fill_pdf")]:
+        b0,b05,b10,r05,r10 = reduction_vs_thr(sub,colname)
+        rows.append({
+            "tmax": tmax,
+            "target": label,
+            "size@0.0": b0,
+            "size@0.5": b05,
+            "size@1.0": b10,
+            "red_0.5_vs_0.0_%": round(r05*100,2),
+            "red_1.0_vs_0.0_%": round(r10*100,2),
+        })
+
+summary = pd.DataFrame(rows)
+summary

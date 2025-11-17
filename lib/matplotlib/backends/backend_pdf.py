@@ -42,6 +42,8 @@ from matplotlib.dates import UTC
 from matplotlib import _path
 from . import _backend_pdf_ps
 
+from matplotlib.backend_bases import RendererBase
+
 _log = logging.getLogger(__name__)
 
 # Overview
@@ -2053,16 +2055,15 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file.output(self.gc.paint())
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                            offsets, offset_trans, facecolors, edgecolors,
-                            linewidths, linestyles, antialiaseds, urls,
-                            offset_position, *, hatchcolors=None):
-        # Optional pre-simplification at render time (parity with SVG):
+                             offsets, offset_trans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
+        # We can only reuse the objects if the presence of fill and
+        # stroke (and the amount of alpha for each) is the same for
+        # all of them
         can_do_optimization = True
         facecolors = np.asarray(facecolors)
         edgecolors = np.asarray(edgecolors)
-
-        if hatchcolors is None:
-            hatchcolors = []
 
         if not len(facecolors):
             filled = False
@@ -2083,29 +2084,33 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             else:
                 can_do_optimization = False
 
-        # 1) Pre-simplify (follow rcParams only)
+        # Optional pre-simplification at render time (parity with SVG/Line2D):
+        # respects rcParams['path.simplify'] and ['path.simplify_threshold'] to
+        # reduce the emitted geometry without affecting autoscale/ticks.
         if (mpl.rcParams.get('path.simplify', False)
                 and mpl.rcParams.get('path.simplify_threshold', 0) > 0):
-             try:
-                 paths = [p.cleaned(simplify=True) for p in paths]
-             except Exception:
-                 pass
+            try:
+                paths = [p.cleaned(simplify=True) for p in paths]
+            except Exception:
+                pass
 
-        # 2) Heuristics (PDF original):
-        #    cost(inline) = len_path * uses_per_path
-        #    cost(XObj)   = len_path + 5 (definition) + uses_per_path
-        len_path = len(paths[0].vertices) if paths else 0
+        # Is the optimization worth it? Rough calculation:
+        # cost of emitting a path in-line is len_path * uses_per_path
+        # cost of XObject is len_path + 5 for the definition,
+        #    uses_per_path for the uses
+        len_path = len(paths[0].vertices) if len(paths) > 0 else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        should_do_optimization = (len_path + uses_per_path + 5
-                                < len_path * uses_per_path)
+        should_do_optimization = (
+            len_path + uses_per_path + 5 < len_path * uses_per_path
+        )
 
         if (not can_do_optimization) or (not should_do_optimization):
             return RendererBase.draw_path_collection(
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position, hatchcolors=hatchcolors)
+                offset_position)
 
         # 3) Emission through XObject
         padding = np.max(linewidths)
@@ -2122,14 +2127,15 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
+                antialiaseds, urls, offset_position):
 
-            self.check_gc(gc0, rgbFace)  # style/alpha/hatch/clip preserved through GC
+            # style/alpha/hatch/clip preserved through GC
+            self.check_gc(gc0, rgbFace)
             dx, dy = xo - lastx, yo - lasty
-            output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id, Op.use_xobject)
+            output(1, 0, 0, 1, dx, dy,
+                   Op.concat_matrix, path_id, Op.use_xobject)
             lastx, lasty = xo, yo
         output(*self.gc.pop())
-
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
         # docstring inherited

@@ -24,6 +24,8 @@ from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 
+from matplotlib.backend_bases import RendererBase
+
 
 _log = logging.getLogger(__name__)
 
@@ -757,11 +759,11 @@ class RendererSVG(RendererBase):
         # 2) Heuristics (recalculation after possible simplification):
         #    cost(inline)   = (len_path + 5) * uses_per_path
         #    cost(defs+use) = (len_path + 3) + 9 * uses_per_path
-        len_path = len(paths[0].vertices) if paths else 0
+        len_path = len(paths[0].vertices) if len(paths) > 0 else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        should_do_optimization = (len_path + 9 * uses_per_path + 3
-                                < (len_path + 5) * uses_per_path)
+        should_do_optimization = \
+        len_path + 9 * uses_per_path + 3 < (len_path + 5) * uses_per_path
 
         if not should_do_optimization:
             # Fallback stills uses 'paths' possible cleans.

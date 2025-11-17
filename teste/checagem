@@ -1,0 +1,15 @@
+import matplotlib as mpl
+import matplotlib.backends.backend_svg as bsvg
+import matplotlib.backends.backend_pdf as bpdf
+import inspect
+
+
+print("mpl from:", mpl.__file__)
+print("svg backend from:", bsvg.__file__)
+print("pdf backend from:", bpdf.__file__)
+
+print("\nSVG draw_path_collection:")
+print(inspect.getsource(bsvg.RendererSVG.draw_path_collection))
+
+print("\nPDF draw_path_collection:")
+print(inspect.getsource(bpdf.RendererPdf.draw_path_collection))
