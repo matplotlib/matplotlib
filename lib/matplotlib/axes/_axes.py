@@ -3345,14 +3345,19 @@ or pandas.DataFrame
                                  "(e.g., ['//']) or None") from None
 
             if not hatch_list:
-                # Empty sequence → treat as no hatch.
-                hatches = itertools.cycle([None])
+               # Empty sequence is invalid → raise instead of treating as no hatch.
+               raise ValueError(
+                    "'hatch' must be a non-empty sequence of strings or None; "
+                     "use hatch=None for no hatching."
+                )
+
             elif not all(h is None or isinstance(h, str) for h in hatch_list):
                 raise TypeError("All entries in 'hatch' must be strings or None")
+
             else:
-            # Sequence of hatch patterns: cycle through them as needed.
-            # Example: hatch=['//', 'xx', '..'] → patterns repeat across datasets.
-                 hatches = itertools.cycle(hatch)
+                # Sequence of hatch patterns: cycle through them as needed.
+                # Example: hatch=['//', 'xx', '..'] → patterns repeat across datasets.
+                hatches = itertools.cycle(hatch_list)
 
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))

@@ -2354,6 +2354,17 @@ def test_grouped_bar_empty_string_disables_hatch():
     assert all(h in ("", None) for h in counts[2])
 
 
+def test_grouped_bar_empty_hatch_sequence_raises():
+    """An empty hatch sequence should raise a ValueError."""
+    fig, ax = plt.subplots()
+    heights = [np.array([1, 2]), np.array([2, 3])]
+    with pytest.raises(
+        ValueError,
+        match="must be a non-empty sequence of strings or None"
+    ):
+        ax.grouped_bar(heights, hatch=[])
+
+
 def test_grouped_bar_dict_with_labels_forbidden():
     """Passing labels along with dict input should raise an error."""
     fig, ax = plt.subplots()
