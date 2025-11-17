@@ -2382,6 +2382,15 @@ def test_grouped_bar_positions_not_equidistant():
         ax.grouped_bar(heights, positions=x)
 
 
+def test_grouped_bar_label_and_hatch():
+    fig, ax = plt.subplots()
+    x = np.arange(2)
+    heights = [np.array([1, 2]), np.array([2, 3])]
+    ax.grouped_bar(heights, positions=x, labels=["dataset", "dataset2"], hatch=["//"])
+    assert ax.get_legend_handles_labels()[1] == ["dataset", "dataset2"]
+    assert all(rect.get_hatch() == "//" for rect in ax.patches)
+
+
 def test_boxplot_dates_pandas(pd):
     # smoke test for boxplot and dates in pandas
     data = np.random.rand(5, 2)
