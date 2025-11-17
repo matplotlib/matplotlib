@@ -1667,3 +1667,150 @@ def test_boxplot_legend_labels():
     bp4 = axs[3].boxplot(data, label='box A')
     assert bp4['medians'][0].get_label() == 'box A'
     assert all(x.get_label().startswith("_") for x in bp4['medians'][1:])
+
+
+def test_patchcollection_legend():
+    # Test that PatchCollection labels show up in legend (issue #23998)
+    fig, ax = plt.subplots()
+
+    # Create some patches
+    p1 = mpatches.Polygon([[0, 0], [100, 100], [200, 0]])
+    p2 = mpatches.Polygon([[400, 0], [500, 100], [600, 0]])
+
+    # Create a PatchCollection with a label
+    pc = mcollections.PatchCollection([p1, p2], label="patch collection",
+                                      facecolor='blue', edgecolor='black')
+    ax.add_collection(pc, autolim=True)
+    ax.autoscale_view()
+
+    # Create the legend
+    leg = ax.legend()
+
+    # Check that the legend contains our label
+    assert len(leg.get_texts()) == 1
+    assert leg.get_texts()[0].get_text() == "patch collection"
+
+    # Check that there's a legend handle
+    handles = leg.legend_handles
+    assert len(handles) == 1
+    assert isinstance(handles[0], mpatches.Rectangle)
+
+
+def test_patchcollection_legend_properties():
+    # Test that PatchCollection legend preserves visual properties
+    fig, ax = plt.subplots()
+
+    # Create patches with specific properties
+    p1 = mpatches.Circle((0, 0), 1)
+    p2 = mpatches.Circle((2, 0), 1)
+
+    # Create a PatchCollection with specific visual properties
+    pc = mcollections.PatchCollection(
+        [p1, p2],
+        label="styled patches",
+        facecolor='red',
+        edgecolor='blue',
+        linewidths=3,
+        linestyle='--'
+    )
+    ax.add_collection(pc)
+    ax.autoscale_view()
+
+    # Create the legend
+    leg = ax.legend()
+    legend_patch = leg.legend_handles[0]
+
+    # Verify that visual properties are preserved
+    assert_allclose(legend_patch.get_facecolor()[:3],
+                    pc.get_facecolor()[0][:3], rtol=1e-5)
+    assert_allclose(legend_patch.get_edgecolor()[:3],
+                    pc.get_edgecolor()[0][:3], rtol=1e-5)
+    assert legend_patch.get_linewidth() == pc.get_linewidths()[0]
+    assert legend_patch.get_linestyle() == pc.get_linestyles()[0]
+
+
+def test_patchcollection_legend_match_original():
+    # Test PatchCollection legend with match_original=True
+    fig, ax = plt.subplots()
+
+    # Create patches with individual colors
+    p1 = mpatches.Rectangle((0, 0), 1, 1, facecolor='red', edgecolor='black')
+    p2 = mpatches.Rectangle((2, 0), 1, 1, facecolor='green', edgecolor='blue')
+
+    # Create a PatchCollection with match_original=True
+    # This should use the first patch's colors
+    pc = mcollections.PatchCollection([p1, p2], match_original=True,
+                                      label="original colors")
+    ax.add_collection(pc)
+    ax.autoscale_view()
+
+    # Create the legend
+    leg = ax.legend()
+    legend_patch = leg.legend_handles[0]
+
+    # The legend should show the first patch's colors (red face, black edge)
+    # Note: colors are normalized to RGBA tuples
+    assert_allclose(legend_patch.get_facecolor()[:3],
+                    pc.get_facecolor()[0][:3], rtol=1e-5)
+    assert_allclose(legend_patch.get_edgecolor()[:3],
+                    pc.get_edgecolor()[0][:3], rtol=1e-5)
+
+
+def test_patchcollection_legend_empty():
+    # Test that empty PatchCollection doesn't crash
+    fig, ax = plt.subplots()
+
+    # Create an empty PatchCollection
+    pc = mcollections.PatchCollection([], label="empty collection")
+    ax.add_collection(pc)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    # This should not crash
+    leg = ax.legend()
+
+    # Check that the label still appears
+    assert len(leg.get_texts()) == 1
+    assert leg.get_texts()[0].get_text() == "empty collection"
+
+    # The legend handle should exist (with default/transparent colors)
+    assert len(leg.legend_handles) == 1
+    assert isinstance(leg.legend_handles[0], mpatches.Rectangle)
+
+
+@image_comparison(['patchcollection_legend.png'], remove_text=True)
+def test_patchcollection_legend_rendering():
+    # Visual regression test for PatchCollection legend (issue #23998)
+    fig, ax = plt.subplots()
+
+    # Create various patch shapes
+    patches = [
+        mpatches.Circle((0.2, 0.5), 0.15),
+        mpatches.Rectangle((0.5, 0.3), 0.2, 0.4),
+        mpatches.Polygon([[0.8, 0.2], [1.0, 0.7], [0.9, 0.3]]),
+    ]
+
+    # Create three PatchCollections with different styles
+    pc1 = mcollections.PatchCollection(
+        patches, facecolor='red', edgecolor='darkred',
+        linewidths=2, alpha=0.7, label='Red patches'
+    )
+
+    pc2 = mcollections.PatchCollection(
+        [mpatches.Rectangle((0, 0), 0.1, 0.1) for _ in range(3)],
+        facecolor='blue', edgecolor='navy',
+        linewidths=1, linestyle='--', label='Blue dashed'
+    )
+
+    pc3 = mcollections.PatchCollection(
+        [mpatches.Circle((0, 0), 0.1) for _ in range(2)],
+        facecolor='green', edgecolor='none',
+        label='Green no edge'
+    )
+
+    for pc in [pc1, pc2, pc3]:
+        ax.add_collection(pc)
+
+    ax.set_xlim(0, 1.1)
+    ax.set_ylim(0, 0.8)
+    ax.legend(loc='upper left')

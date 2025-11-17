@@ -809,3 +809,20 @@ class HandlerPolyCollection(HandlerBase):
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
+
+
+class HandlerPatchCollection(HandlerPolyCollection):
+    """
+    Handler for `.PatchCollection` instances.
+
+    This handler creates a rectangular legend entry that matches the visual
+    properties (colors, line styles, etc.) of the first patch in the collection.
+
+    See Also
+    --------
+    matplotlib.collections.PatchCollection : The collection class this handles.
+    """
+    # PatchCollection and PolyCollection have the same API for accessing
+    # colors, line properties, etc., so we can reuse HandlerPolyCollection
+    # implementation directly via inheritance.
+    pass
