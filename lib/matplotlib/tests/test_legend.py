@@ -1695,6 +1695,8 @@ def test_patchcollection_legend():
     assert len(handles) == 1
     assert isinstance(handles[0], mpatches.Rectangle)
 
+    plt.close(fig)
+
 
 def test_patchcollection_legend_properties():
     # Test that PatchCollection legend preserves visual properties
@@ -1728,6 +1730,8 @@ def test_patchcollection_legend_properties():
     assert legend_patch.get_linewidth() == pc.get_linewidths()[0]
     assert legend_patch.get_linestyle() == pc.get_linestyles()[0]
 
+    plt.close(fig)
+
 
 def test_patchcollection_legend_match_original():
     # Test PatchCollection legend with match_original=True
@@ -1755,6 +1759,8 @@ def test_patchcollection_legend_match_original():
     assert_allclose(legend_patch.get_edgecolor()[:3],
                     pc.get_edgecolor()[0][:3], rtol=1e-5)
 
+    plt.close(fig)
+
 
 def test_patchcollection_legend_empty():
     # Test that empty PatchCollection doesn't crash
@@ -1776,3 +1782,5 @@ def test_patchcollection_legend_empty():
     # The legend handle should exist (with default/transparent colors)
     assert len(leg.legend_handles) == 1
     assert isinstance(leg.legend_handles[0], mpatches.Rectangle)
+
+    plt.close(fig)
