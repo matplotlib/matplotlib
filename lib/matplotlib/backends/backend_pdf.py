@@ -1597,6 +1597,16 @@ end"""
                  'Matrix': [1, 0, 0, 1, 0, self.height * 72]})
 
             stroke_rgb, fill_rgb, hatch, lw = hatch_style
+
+            # NEW: Robustness for cases where the edge/stroke is set to None.
+            if stroke_rgb is None:
+            # If there is fill, use the same color for the stroke;
+            # If there is no fill, fall back to black (neutral fallback)
+                if fill_rgb is not None:
+                    stroke_rgb = fill_rgb
+                else:
+                    stroke_rgb = (0, 0, 0)
+            
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
                         Op.setrgb_stroke)
             if fill_rgb is not None:
@@ -2084,26 +2094,27 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             else:
                 can_do_optimization = False
 
-        # Optional pre-simplification at render time (parity with SVG/Line2D):
-        # respects rcParams['path.simplify'] and ['path.simplify_threshold'] to
-        # reduce the emitted geometry without affecting autoscale/ticks.
-        if (mpl.rcParams.get('path.simplify', False)
-                and mpl.rcParams.get('path.simplify_threshold', 0) > 0):
+        # Optionally simplify the paths to display coordinates before
+        # deciding whether to use `<defs>/<use>`. Uses the same rcParam as Line2D.
+
+        if (mpl.rcParams.get("path.simplify", False)
+                and mpl.rcParams.get("path.simplify_threshold", 0) > 0):
             try:
                 paths = [p.cleaned(simplify=True) for p in paths]
             except Exception:
+                # Fallback silencioso pra manter compatibilidade se algo der ruim.
                 pass
 
         # Is the optimization worth it? Rough calculation:
-        # cost of emitting a path in-line is len_path * uses_per_path
-        # cost of XObject is len_path + 5 for the definition,
-        #    uses_per_path for the uses
-        len_path = len(paths[0].vertices) if len(paths) > 0 else 0
+        # cost of emitting a path inline is
+        #    (len_path  5) * uses_per_path
+        # cost of definitionuse is
+        #    (len_path  3)  9 * uses_per_path
+        len_path = len(paths[0].vertices) if paths else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        should_do_optimization = (
+        should_do_optimization = \
             len_path + uses_per_path + 5 < len_path * uses_per_path
-        )
 
         if (not can_do_optimization) or (not should_do_optimization):
             return RendererBase.draw_path_collection(
@@ -2112,7 +2123,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)
 
-        # 3) Emission through XObject
         padding = np.max(linewidths)
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
@@ -2129,13 +2139,13 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
 
-            # style/alpha/hatch/clip preserved through GC
             self.check_gc(gc0, rgbFace)
             dx, dy = xo - lastx, yo - lasty
-            output(1, 0, 0, 1, dx, dy,
-                   Op.concat_matrix, path_id, Op.use_xobject)
+            output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id,
+                   Op.use_xobject)
             lastx, lasty = xo, yo
         output(*self.gc.pop())
+
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
         # docstring inherited

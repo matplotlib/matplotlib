@@ -739,34 +739,32 @@ class RendererSVG(RendererBase):
                             offsets, offset_trans, facecolors, edgecolors,
                             linewidths, linestyles, antialiaseds, urls,
                             offset_position, *, hatchcolors=None):
-        # Optional pre-simplification at render time (parity with PDF):
-        # respects rcParams['path.simplify'] and ['path.simplify_threshold'] to
-        # reduce the emitted geometry without affecting autoscale/ticks
+        # Optionally simplify the paths here, in display coordinates,
+        # using the same rcParams knob as Line2D. This only affects the geometry
+        # that the backend sees, not the autoscale.
+        if (mpl.rcParams.get('path.simplify', False)
+                and mpl.rcParams.get('path.simplify_threshold', 0) > 0):
+            try:
+                paths = [p.cleaned(simplify=True) for p in paths]
+            except Exception:
+                pass
 
         if hatchcolors is None:
             hatchcolors = []
-        if not paths:
-            return
-
-        # 1) Pre-simplify (follow rcParams only)
-        if (mpl.rcParams.get('path.simplify', False)
-                and mpl.rcParams.get('path.simplify_threshold', 0) > 0):
-             try:
-                 paths = [p.cleaned(simplify=True) for p in paths]
-             except Exception:
-                 pass
 
         # 2) Heuristics (recalculation after possible simplification):
         #    cost(inline)   = (len_path + 5) * uses_per_path
         #    cost(defs+use) = (len_path + 3) + 9 * uses_per_path
-        len_path = len(paths[0].vertices) if len(paths) > 0 else 0
+        len_path = len(paths[0].vertices) if paths else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        should_do_optimization = \
-        len_path + 9 * uses_per_path + 3 < (len_path + 5) * uses_per_path
+        should_do_optimization = (
+            len_path + 9 * uses_per_path + 3
+            < (len_path + 5) * uses_per_path
+        )
 
         if not should_do_optimization:
-            # Fallback stills uses 'paths' possible cleans.
+            # Fallback ainda se beneficia de 'paths' possivelmente já limpos.
             return super().draw_path_collection(
                 gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
@@ -790,7 +788,8 @@ class RendererSVG(RendererBase):
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
+                antialiaseds, urls, offset_position,
+                hatchcolors=hatchcolors):
             url = gc0.get_url()
             if url is not None:
                 writer.start('a', attrib={'xlink:href': url})
