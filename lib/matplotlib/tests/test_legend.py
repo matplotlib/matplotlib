@@ -1713,9 +1713,9 @@ def test_patchcollection_legend_properties():
 
     # Create the legend
     leg = ax.legend()
-    legend_patch = leg.legend_handles[0]
 
     # Verify that visual properties are preserved
+    legend_patch = leg.legend_handles[0]
     assert_allclose(legend_patch.get_facecolor()[:3],
                     pc.get_facecolor()[0][:3], rtol=1e-5)
     assert_allclose(legend_patch.get_edgecolor()[:3],
