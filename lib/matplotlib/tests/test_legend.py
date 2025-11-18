@@ -1755,8 +1755,6 @@ def test_patchcollection_legend_match_original():
     assert_allclose(legend_patch.get_edgecolor()[:3],
                     pc.get_edgecolor()[0][:3], rtol=1e-5)
 
-    plt.close(fig)
-
 
 def test_patchcollection_legend_empty():
     # Test that empty PatchCollection doesn't crash
