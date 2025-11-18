@@ -1673,13 +1673,13 @@ def test_patchcollection_legend():
     # Test that PatchCollection labels show up in legend (issue #23998)
     fig, ax = plt.subplots()
 
-    # Create some patches
-    p1 = mpatches.Polygon([[0, 0], [100, 100], [200, 0]])
-    p2 = mpatches.Polygon([[400, 0], [500, 100], [600, 0]])
-
-    # Create a PatchCollection with a label
-    pc = mcollections.PatchCollection([p1, p2], label="patch collection",
-                                      facecolor='blue', edgecolor='black')
+    pc = mcollections.PatchCollection(
+        [
+            mpatches.Polygon([[0, 0], [100, 100], [200, 0]]),
+            mpatches.Polygon([[400, 0], [500, 100], [600, 0]]),
+        ],
+        label="patch collection", facecolor='blue', edgecolor='black'
+    )
     ax.add_collection(pc, autolim=True)
     ax.autoscale_view()
 
