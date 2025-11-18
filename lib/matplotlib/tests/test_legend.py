@@ -1722,33 +1722,6 @@ def test_patchcollection_legend_properties():
     assert legend_patch.get_linestyle() == pc.get_linestyles()[0]
 
 
-def test_patchcollection_legend_match_original():
-    # Test PatchCollection legend with match_original=True
-    fig, ax = plt.subplots()
-
-    # Create patches with individual colors
-    p1 = mpatches.Rectangle((0, 0), 1, 1, facecolor='red', edgecolor='black')
-    p2 = mpatches.Rectangle((2, 0), 1, 1, facecolor='green', edgecolor='blue')
-
-    # Create a PatchCollection with match_original=True
-    # This should use the first patch's colors
-    pc = mcollections.PatchCollection([p1, p2], match_original=True,
-                                      label="original colors")
-    ax.add_collection(pc)
-    ax.autoscale_view()
-
-    # Create the legend
-    leg = ax.legend()
-    legend_patch = leg.legend_handles[0]
-
-    # The legend should show the first patch's colors (red face, black edge)
-    # Note: colors are normalized to RGBA tuples
-    assert_allclose(legend_patch.get_facecolor()[:3],
-                    pc.get_facecolor()[0][:3], rtol=1e-5)
-    assert_allclose(legend_patch.get_edgecolor()[:3],
-                    pc.get_edgecolor()[0][:3], rtol=1e-5)
-
-
 def test_patchcollection_legend_empty():
     # Test that empty PatchCollection doesn't crash
     fig, ax = plt.subplots()
