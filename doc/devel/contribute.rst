@@ -188,13 +188,20 @@ If you have developed an extension to Matplotlib, please consider adding it to o
 Restrictions on Generative AI Usage
 ===================================
 
-We expect authentic engagement in our community.  Be wary of posting output
-from Large Language Models or similar generative AI as comments on GitHub or
-our discourse server, as such comments tend to be formulaic and low content.
-If you use generative AI tools as an aid in developing code or documentation
-changes, ensure that you fully understand the proposed changes and can explain
-why they are the correct approach and an improvement to the current state.
+We expect authentic engagement in our community.
 
+- Do not post output from Large Language Models or similar generative AI as
+  comments on GitHub or our discourse server, as such comments tend to be
+  formulaic and low content.
+- If you use generative AI tools as an aid in developing code or documentation
+  changes, ensure that you fully understand the proposed changes and can
+  explain why they are the correct approach.
+
+Make sure you have added value based on your personal competency to your
+contributions. Just taking some input, feeding it to an AI and posting the
+result is not of value to the project. To preserve precious core developer
+capacity, we reserve the right to rigorously reject seemingly AI generated
+low-value contributions.
 
 .. _new_contributors:
 
