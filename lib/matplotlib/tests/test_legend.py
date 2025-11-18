@@ -1695,8 +1695,6 @@ def test_patchcollection_legend():
     assert len(handles) == 1
     assert isinstance(handles[0], mpatches.Rectangle)
 
-    plt.close(fig)
-
 
 def test_patchcollection_legend_properties():
     # Test that PatchCollection legend preserves visual properties
