@@ -1776,5 +1776,3 @@ def test_patchcollection_legend_empty():
     # The legend handle should exist (with default/transparent colors)
     assert len(leg.legend_handles) == 1
     assert isinstance(leg.legend_handles[0], mpatches.Rectangle)
-
-    plt.close(fig)
