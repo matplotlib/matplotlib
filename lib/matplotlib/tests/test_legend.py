@@ -1728,8 +1728,6 @@ def test_patchcollection_legend_properties():
     assert legend_patch.get_linewidth() == pc.get_linewidths()[0]
     assert legend_patch.get_linestyle() == pc.get_linestyles()[0]
 
-    plt.close(fig)
-
 
 def test_patchcollection_legend_match_original():
     # Test PatchCollection legend with match_original=True
