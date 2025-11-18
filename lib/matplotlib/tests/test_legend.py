@@ -1700,18 +1700,13 @@ def test_patchcollection_legend_properties():
     # Test that PatchCollection legend preserves visual properties
     fig, ax = plt.subplots()
 
-    # Create patches with specific properties
-    p1 = mpatches.Circle((0, 0), 1)
-    p2 = mpatches.Circle((2, 0), 1)
-
-    # Create a PatchCollection with specific visual properties
     pc = mcollections.PatchCollection(
-        [p1, p2],
+        [mpatches.Circle((0, 0), 1), mpatches.Circle((2, 0), 1)],
         label="styled patches",
         facecolor='red',
         edgecolor='blue',
         linewidths=3,
-        linestyle='--'
+        linestyle='--',
     )
     ax.add_collection(pc)
     ax.autoscale_view()
