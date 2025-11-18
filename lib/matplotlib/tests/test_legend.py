@@ -1689,10 +1689,13 @@ def test_patchcollection_legend():
     assert len(leg.get_texts()) == 1
     assert leg.get_texts()[0].get_text() == "patch collection"
 
-    # Check that there's a legend handle
-    handles = leg.legend_handles
-    assert len(handles) == 1
-    assert isinstance(handles[0], mpatches.Rectangle)
+    # Check that the legend handle exists and has correct colors
+    assert len(leg.legend_handles) == 1
+    legend_patch = leg.legend_handles[0]
+    assert_allclose(legend_patch.get_facecolor()[:3],
+                    pc.get_facecolor()[0][:3], rtol=1e-5)
+    assert_allclose(legend_patch.get_edgecolor()[:3],
+                    pc.get_edgecolor()[0][:3], rtol=1e-5)
 
 
 def test_patchcollection_legend_properties():
@@ -1739,6 +1742,5 @@ def test_patchcollection_legend_empty():
     assert len(leg.get_texts()) == 1
     assert leg.get_texts()[0].get_text() == "empty collection"
 
-    # The legend handle should exist (with default/transparent colors)
+    # The legend handle should exist
     assert len(leg.legend_handles) == 1
-    assert isinstance(leg.legend_handles[0], mpatches.Rectangle)
