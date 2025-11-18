@@ -1683,7 +1683,6 @@ def test_patchcollection_legend():
     ax.add_collection(pc, autolim=True)
     ax.autoscale_view()
 
-    # Create the legend
     leg = ax.legend()
 
     # Check that the legend contains our label
