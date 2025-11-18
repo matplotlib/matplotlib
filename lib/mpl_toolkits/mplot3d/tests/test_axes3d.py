@@ -2757,23 +2757,19 @@ def test_axis_get_tightbbox_includes_offset_text():
     # Get the z-axis (which should have the offset text)
     zaxis = ax.zaxis
 
-    # Get the tight bbox
-    bbox = zaxis.get_tightbbox(renderer)
-
-    # The offset text should be visible and have a bbox
+    # The offset text should be visible
     assert zaxis.offsetText.get_visible()
     offset_bbox = zaxis.offsetText.get_window_extent(renderer)
-
-    # The tight bbox should contain the offset text bbox
-    # We check that the offset text bbox is within or overlaps with the axis bbox
-    assert bbox is not None
     assert offset_bbox is not None
 
-    # The union should not change if offset_bbox is already included
-    # This is a way to verify offset_bbox is part of the tight bbox
-    from matplotlib.transforms import Bbox
-    union_bbox = Bbox.union([bbox, offset_bbox])
+    # Get the tight bbox - this should include the offset text
+    bbox = zaxis.get_tightbbox(renderer)
+    assert bbox is not None
 
-    # If offset_bbox was already included in bbox, the union should equal bbox
-    # We use a tolerance for floating point comparison
-    np.testing.assert_allclose(union_bbox.bounds, bbox.bounds, rtol=1e-10)
+    # The tight bbox should fully contain the offset text bbox
+    # Check that offset_bbox is within bbox bounds (with small tolerance for
+    # floating point errors)
+    assert bbox.x0 <= offset_bbox.x0 + 1e-6
+    assert bbox.y0 <= offset_bbox.y0 + 1e-6
+    assert bbox.x1 >= offset_bbox.x1 - 1e-6
+    assert bbox.y1 >= offset_bbox.y1 - 1e-6
