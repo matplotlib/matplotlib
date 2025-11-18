@@ -1711,7 +1711,6 @@ def test_patchcollection_legend_properties():
     ax.add_collection(pc)
     ax.autoscale_view()
 
-    # Create the legend
     leg = ax.legend()
 
     # Verify that visual properties are preserved
