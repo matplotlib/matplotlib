@@ -2780,5 +2780,3 @@ def test_axis_get_tightbbox_includes_offset_text():
             f"bbox.x1 ({bbox.x1}) should be >= offset_bbox.x1 ({offset_bbox.x1})"
         assert bbox.y1 >= offset_bbox.y1 - 1e-6, \
             f"bbox.y1 ({bbox.y1}) should be >= offset_bbox.y1 ({offset_bbox.y1})"
-
-    plt.close(fig)
