@@ -147,15 +147,16 @@ class TextToPath:
             glyph_map_new = glyph_map
 
         xpositions = []
+        ypositions = []
         glyph_reprs = []
         for item in _text_helpers.layout(s, font, features=features, language=language):
             glyph_repr = self._get_glyph_repr(item.ft_object, item.glyph_index)
             glyph_reprs.append(glyph_repr)
             xpositions.append(item.x)
+            ypositions.append(item.y)
             if glyph_repr not in glyph_map:
                 glyph_map_new[glyph_repr] = item.ft_object.get_path()
 
-        ypositions = [0] * len(xpositions)
         sizes = [1.] * len(xpositions)
 
         rects = []

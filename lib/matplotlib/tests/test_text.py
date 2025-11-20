@@ -115,7 +115,7 @@ def test_font_styles():
     ax.set_yticks([])
 
 
-@image_comparison(['complex.png'])
+@image_comparison(['complex'], extensions=['png', 'pdf', 'svg', 'eps'])
 def test_complex_shaping():
     # Raqm is Arabic for writing; note that because Arabic is RTL, the characters here
     # may seem to be in a different order than expected, but libraqm will order them
@@ -1240,7 +1240,8 @@ def test_ytick_rotation_mode():
     plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)
 
 
-@image_comparison(baseline_images=['features.png'], remove_text=False, style='mpl20')
+@image_comparison(['features'], remove_text=False, style='mpl20',
+                  extensions=['png', 'pdf', 'svg', 'eps'])
 def test_text_features():
     fig = plt.figure(figsize=(5, 1.5))
     t = fig.text(1, 0.7, 'Default: fi ffi fl st',
@@ -1270,7 +1271,8 @@ def test_text_language_invalid(input, match):
         Text(0, 0, 'foo', language=input)
 
 
-@image_comparison(baseline_images=['language.png'], remove_text=False, style='mpl20')
+@image_comparison(['language'], remove_text=False, style='mpl20',
+                  extensions=['png', 'pdf', 'svg', 'eps'])
 def test_text_language():
     fig = plt.figure(figsize=(5, 3))
 
