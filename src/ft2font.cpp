@@ -222,9 +222,9 @@ FT2Font::~FT2Font()
     close();
 }
 
-void FT2Font::open(FT_Open_Args &open_args)
+void FT2Font::open(FT_Open_Args &open_args, FT_Long face_index)
 {
-    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, 0, &face);
+    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, face_index, &face);
     if (open_args.stream != nullptr) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }
@@ -280,6 +280,17 @@ void FT2Font::set_size(double ptsize, double dpi)
 
     for (auto & fallback : fallbacks) {
         fallback->set_size(ptsize, dpi);
+    }
+}
+
+void FT2Font::_set_transform(
+    std::array<std::array<FT_Fixed, 2>, 2> matrix, std::array<FT_Fixed, 2> delta)
+{
+    FT_Matrix m = {matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1]};
+    FT_Vector d = {delta[0], delta[1]};
+    FT_Set_Transform(face, &m, &d);
+    for (auto & fallback : fallbacks) {
+        fallback->_set_transform(matrix, delta);
     }
 }
 

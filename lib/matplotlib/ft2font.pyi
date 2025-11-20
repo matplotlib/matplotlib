@@ -70,6 +70,14 @@ class LoadFlags(Flag):
     TARGET_LCD = cast(int, ...)
     TARGET_LCD_V = cast(int, ...)
 
+class RenderMode(Enum):
+    NORMAL = cast(int, ...)
+    LIGHT = cast(int, ...)
+    MONO = cast(int, ...)
+    LCD = cast(int, ...)
+    LCD_V = cast(int, ...)
+    SDF = cast(int, ...)
+
 class StyleFlags(Flag):
     NORMAL = cast(int, ...)
     ITALIC = cast(int, ...)
@@ -214,6 +222,7 @@ class FT2Font(Buffer):
         filename: str | bytes | PathLike | BinaryIO,
         hinting_factor: int = ...,
         *,
+        face_index: int = ...,
         _fallback_list: list[FT2Font] | None = ...,
         _kerning_factor: int | None = ...
     ) -> None: ...
@@ -282,6 +291,8 @@ class FT2Font(Buffer):
     def descender(self) -> int: ...
     @property
     def face_flags(self) -> FaceFlags: ...
+    @property
+    def face_index(self) -> int: ...
     @property
     def family_name(self) -> str: ...
     @property
