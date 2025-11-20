@@ -430,6 +430,9 @@ const char *PyFT2Font_init__doc__ = R"""(
     hinting_factor : int, optional
         Must be positive. Used to scale the hinting in the x-direction.
 
+    face_index : int, optional
+        The index of the face in the font file to load.
+
     _fallback_list : list of FT2Font, optional
         A list of FT2Font objects used to find missing glyphs.
 
@@ -444,7 +447,7 @@ const char *PyFT2Font_init__doc__ = R"""(
 )""";
 
 static PyFT2Font *
-PyFT2Font_init(py::object filename, long hinting_factor = 8,
+PyFT2Font_init(py::object filename, long hinting_factor = 8, FT_Long face_index = 0,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
                std::optional<int> kerning_factor = std::nullopt,
                bool warn_if_used = false)
@@ -458,6 +461,10 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
         warn("since"_a="3.11", "name"_a="_kerning_factor", "obj_type"_a="parameter");
     } else {
         kerning_factor = 0;
+    }
+
+    if (face_index < 0 || face_index > 0xffff) {
+        throw std::range_error("face_index must be between 0 and 65535, inclusive");
     }
 
     std::vector<FT2Font *> fallback_fonts;
@@ -509,7 +516,7 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
         self->stream.close = nullptr;
     }
 
-    self->open(open_args);
+    self->open(open_args, face_index);
 
     return self;
 }
@@ -1637,7 +1644,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
                                          PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
-             "filename"_a, "hinting_factor"_a=8, py::kw_only(),
+             "filename"_a, "hinting_factor"_a=8, py::kw_only(), "face_index"_a=0,
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=py::none(),
              "_warn_if_used"_a=false,
              PyFT2Font_init__doc__)
@@ -1714,8 +1721,12 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
           }, "PostScript name of the font.")
         .def_property_readonly(
           "num_faces", [](PyFT2Font *self) {
-            return self->get_face()->num_faces;
+            return self->get_face()->num_faces & 0xffff;
           }, "Number of faces in file.")
+        .def_property_readonly(
+          "face_index", [](PyFT2Font *self) {
+            return self->get_face()->face_index;
+          }, "The index of the font in the file.")
         .def_property_readonly(
           "family_name", [](PyFT2Font *self) {
             if (const char *name = self->get_face()->family_name) {
