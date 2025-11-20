@@ -283,6 +283,17 @@ void FT2Font::set_size(double ptsize, double dpi)
     }
 }
 
+void FT2Font::_set_transform(
+    std::array<std::array<FT_Fixed, 2>, 2> matrix, std::array<FT_Fixed, 2> delta)
+{
+    FT_Matrix m = {matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1]};
+    FT_Vector d = {delta[0], delta[1]};
+    FT_Set_Transform(face, &m, &d);
+    for (auto & fallback : fallbacks) {
+        fallback->_set_transform(matrix, delta);
+    }
+}
+
 void FT2Font::set_charmap(int i)
 {
     if (i >= face->num_charmaps) {
