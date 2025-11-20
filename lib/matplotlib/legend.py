@@ -787,7 +787,7 @@ class Legend(Artist):
         BarContainer: legend_handler.HandlerPatch(
             update_func=legend_handler.update_from_first_child),
         tuple: legend_handler.HandlerTuple(),
-        PatchCollection: legend_handler.HandlerPatchCollection(),
+        PatchCollection: legend_handler.HandlerPolyCollection(),
         PathCollection: legend_handler.HandlerPathCollection(),
         PolyCollection: legend_handler.HandlerPolyCollection()
         }

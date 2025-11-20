@@ -1692,10 +1692,10 @@ def test_patchcollection_legend():
     # Check that the legend handle exists and has correct colors
     assert len(leg.legend_handles) == 1
     legend_patch = leg.legend_handles[0]
-    assert_allclose(legend_patch.get_facecolor()[:3],
-                    pc.get_facecolor()[0][:3], rtol=1e-5)
-    assert_allclose(legend_patch.get_edgecolor()[:3],
-                    pc.get_edgecolor()[0][:3], rtol=1e-5)
+    assert_allclose(legend_patch.get_facecolor(),
+                    pc.get_facecolor()[0], rtol=1e-5)
+    assert_allclose(legend_patch.get_edgecolor(),
+                    pc.get_edgecolor()[0], rtol=1e-5)
 
 
 def test_patchcollection_legend_properties():
@@ -1717,10 +1717,10 @@ def test_patchcollection_legend_properties():
 
     # Verify that visual properties are preserved
     legend_patch = leg.legend_handles[0]
-    assert_allclose(legend_patch.get_facecolor()[:3],
-                    pc.get_facecolor()[0][:3], rtol=1e-5)
-    assert_allclose(legend_patch.get_edgecolor()[:3],
-                    pc.get_edgecolor()[0][:3], rtol=1e-5)
+    assert_allclose(legend_patch.get_facecolor(),
+                    pc.get_facecolor()[0], rtol=1e-5)
+    assert_allclose(legend_patch.get_edgecolor(),
+                    pc.get_edgecolor()[0], rtol=1e-5)
     assert legend_patch.get_linewidth() == pc.get_linewidths()[0]
     assert legend_patch.get_linestyle() == pc.get_linestyles()[0]
 
@@ -1732,8 +1732,6 @@ def test_patchcollection_legend_empty():
     # Create an empty PatchCollection
     pc = mcollections.PatchCollection([], label="empty collection")
     ax.add_collection(pc)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
 
     # This should not crash
     leg = ax.legend()
