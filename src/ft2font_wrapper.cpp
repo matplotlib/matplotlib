@@ -4,6 +4,7 @@
 #include <pybind11/stl.h>
 
 #include "ft2font.h"
+#include "mplutils.h"
 #include "_enums.h"
 
 #include <set>
@@ -688,20 +689,15 @@ PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0
                    std::variant<FT2Font::LanguageType, std::string> languages_or_str = nullptr)
 {
     std::vector<double> xys;
-
-    FT2Font::LanguageType languages;
-    if (auto value = std::get_if<FT2Font::LanguageType>(&languages_or_str)) {
-        languages = std::move(*value);
-    } else if (auto value = std::get_if<std::string>(&languages_or_str)) {
-        languages = std::vector<FT2Font::LanguageRange>{
-            FT2Font::LanguageRange{*value, 0, text.size()}
-        };
-    } else {
-        // NOTE: this can never happen as pybind11 would have checked the type in the
-        // Python wrapper before calling this function, but we need to keep the
-        // std::get_if instead of std::get for macOS 10.12 compatibility.
-        throw py::type_error("languages must be str or list of tuple");
-    }
+    FT2Font::LanguageType languages = std::visit(overloaded {
+        [](FT2Font::LanguageType languages) {
+            return languages;
+        },
+        [&](std::string value) {
+            return FT2Font::LanguageType{{
+                FT2Font::LanguageRange{value, 0, text.size()}}};
+        }
+    }, languages_or_str);
 
     self->set_text(text, angle, static_cast<FT_Int32>(flags), features, languages, xys);
 
@@ -1411,19 +1407,15 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
 {
     const auto load_flags = static_cast<FT_Int32>(flags);
 
-    FT2Font::LanguageType languages;
-    if (auto value = std::get_if<FT2Font::LanguageType>(&languages_or_str)) {
-        languages = std::move(*value);
-    } else if (auto value = std::get_if<std::string>(&languages_or_str)) {
-        languages = std::vector<FT2Font::LanguageRange>{
-            FT2Font::LanguageRange{*value, 0, text.size()}
-        };
-    } else {
-        // NOTE: this can never happen as pybind11 would have checked the type in the
-        // Python wrapper before calling this function, but we need to keep the
-        // std::get_if instead of std::get for macOS 10.12 compatibility.
-        throw py::type_error("languages must be str or list of tuple");
-    }
+    FT2Font::LanguageType languages = std::visit(overloaded {
+        [](FT2Font::LanguageType languages) {
+            return languages;
+        },
+        [&](std::string value) {
+            return FT2Font::LanguageType{{
+                FT2Font::LanguageRange{value, 0, text.size()}}};
+        }
+    }, languages_or_str);
 
     std::set<FT_String*> glyph_seen_fonts;
     auto glyphs = self->layout(text, load_flags, features, languages, glyph_seen_fonts);

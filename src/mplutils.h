@@ -49,8 +49,6 @@ enum {
 };
 
 #ifdef __cplusplus  // not for macosx.m
-// Check that array has shape (N, d1) or (N, d1, d2).  We cast d1, d2 to longs
-// so that we don't need to access the NPY_INTP_FMT macro here.
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <array>
@@ -59,6 +57,12 @@ enum {
 namespace py = pybind11;
 using namespace pybind11::literals;
 
+// Helper for std::visit.
+template<typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+// Check that array has shape (N, d1) or (N, d1, d2).  We cast d1, d2 to longs
+// so that we don't need to access the NPY_INTP_FMT macro here.
 template<typename T>
 inline void check_trailing_shape(T array, char const* name, long d1)
 {
@@ -97,11 +101,10 @@ inline void check_trailing_shape(T array, char const* name, long d1, long d2)
     }
 }
 
-/* In most cases, code should use safe_first_shape(obj) instead of obj.shape(0), since
-   safe_first_shape(obj) == 0 when any dimension is 0. */
+// In most cases, code should use safe_first_shape(obj) instead of
+// obj.shape(0), since safe_first_shape(obj) == 0 when any dimension is 0.
 template <typename T, py::ssize_t ND>
-py::ssize_t
-safe_first_shape(const py::detail::unchecked_reference<T, ND> &a)
+py::ssize_t safe_first_shape(const py::detail::unchecked_reference<T, ND> &a)
 {
     bool empty = (ND == 0);
     for (py::ssize_t i = 0; i < ND; i++) {
