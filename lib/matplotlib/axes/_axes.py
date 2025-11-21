@@ -3373,12 +3373,7 @@ or pandas.DataFrame
         # are handled separately below
         bar_containers = []
 
-        # Both colors and hatches are cycled indefinitely using itertools.cycle.
-        # heights and labels, however, are finite (length = num_datasets).
-        # Because zip() stops at the shortest iterable, this loop executes exactly
-        # num_datasets times even though colors and hatches are infinite.
-        # This ensures one (color, hatch) pair per dataset
-        # without explicit length checks.
+       
         for i, (hs, label, color, hatch_pattern) in enumerate(
                 zip(heights, labels, colors, hatches)
         ):
