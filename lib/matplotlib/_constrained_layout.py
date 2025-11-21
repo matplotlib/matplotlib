@@ -727,22 +727,28 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=Fa
     aspect = cbax._colorbar_info['aspect']
     shrink = cbax._colorbar_info['shrink']
 
-    # For vertical colorbars with a single parent in compressed layout,
-    # use the actual visual height of the parent axis after apply_aspect()
+    # For colorbars with a single parent in compressed layout,
+    # use the actual visual size of the parent axis after apply_aspect()
     # has been called. This ensures colorbars align with their parent axes.
     # This fix is specific to single-parent colorbars where alignment is critical.
-    if compress and location in ('left', 'right') and len(parents) == 1:
+    if compress and len(parents) == 1:
+        from matplotlib.transforms import Bbox
         # Get the actual parent position after apply_aspect()
         parent_ax = parents[0]
         actual_pos = parent_ax.get_position(original=False)
         # Transform to figure coordinates
         actual_pos_fig = actual_pos.transformed(fig.transSubfigure - fig.transFigure)
 
-        # Use the actual parent bbox height for colorbar sizing
-        # Keep the pb x-coordinates but use actual y-coordinates
-        from matplotlib.transforms import Bbox
-        pb = Bbox.from_extents(pb.x0, actual_pos_fig.y0,
-                               pb.x1, actual_pos_fig.y1)
+        if location in ('left', 'right'):
+            # For vertical colorbars, use the actual parent bbox height for colorbar sizing
+            # Keep the pb x-coordinates but use actual y-coordinates
+            pb = Bbox.from_extents(pb.x0, actual_pos_fig.y0,
+                                   pb.x1, actual_pos_fig.y1)
+        elif location in ('top', 'bottom'):
+            # For horizontal colorbars, use the actual parent bbox width for colorbar sizing
+            # Keep the pb y-coordinates but use actual x-coordinates
+            pb = Bbox.from_extents(actual_pos_fig.x0, pb.y0,
+                                   actual_pos_fig.x1, pb.y1)
 
     cbpos, cbbbox = get_pos_and_bbox(cbax, renderer)
 
