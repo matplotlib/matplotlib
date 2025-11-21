@@ -5420,8 +5420,9 @@ or pandas.DataFrame
             - If *None*, no binning is applied; the color of each hexagon
               directly corresponds to its count value.
             - If 'log', use a logarithmic scale for the colormap.
-              Internally, :math:`log_{10}(i+1)` is used to determine the
+              Internally, :math:`log_{10}(i)` is used to determine the
               hexagon color. This is equivalent to ``norm=LogNorm()``.
+              Note that 0 counts are thus marked with the "bad" color.
             - If an integer, divide the counts in the specified number
               of bins, and color the hexagons accordingly.
             - If a sequence of values, the values of the lower bound of
