@@ -7,10 +7,8 @@ import pickle
 
 BASE_DIR = Path(__file__).resolve().parent
 
-# onde está o data.pkl (pode ser em teste, mesmo o script estando em tools)
 pkl_path = (BASE_DIR / "data.pkl").resolve()
 
-# pasta onde VAMOS salvar tudo = mesma pasta do data.pkl
 OUT_DIR = pkl_path.parent
 
 t: np.ndarray
