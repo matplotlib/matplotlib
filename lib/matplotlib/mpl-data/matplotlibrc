@@ -580,6 +580,7 @@
 #legend.handletextpad: 0.8  # the space between the legend line and legend text
 #legend.borderaxespad: 0.5  # the border between the axes and legend edge
 #legend.columnspacing: 2.0  # column separation
+#legend.linewidth:     None # line width of the legend frame, None means inherit from axes.linewidth
 
 
 ## ***************************************************************************

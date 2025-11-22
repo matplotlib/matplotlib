@@ -1167,6 +1167,7 @@ _validators = {
     # legend properties
     "legend.fancybox": validate_bool,
     "legend.loc": _validate_legend_loc,
+    "legend.linewidth": validate_float_or_None,  # linewidth of legend frame
 
     # the number of points in the legend line
     "legend.numpoints":      validate_int,
