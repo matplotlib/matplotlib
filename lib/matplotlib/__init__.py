@@ -1502,6 +1502,8 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
 
     @functools.wraps(func)
     def inner(ax, *args, data=None, **kwargs):
+        __tracebackhide__ = True
+
         if data is None:
             return func(
                 ax,
