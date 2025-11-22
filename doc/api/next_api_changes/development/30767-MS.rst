@@ -12,7 +12,7 @@ The `.Legend` constructor also accepts a new *linewidth* parameter to set the
 legend frame line width directly, overriding the rcParam value::
 
     import matplotlib.pyplot as plt
-    
+
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], label='data')
     ax.legend(linewidth=2.0)  # Thick legend box edge
