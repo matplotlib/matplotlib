@@ -3,12 +3,15 @@ import numpy as np
 import matplotlib as mpl
 from pathlib import Path
 import matplotlib.pyplot as plt
-
 import pickle
 
 BASE_DIR = Path(__file__).resolve().parent
 
-pkl_path = BASE_DIR / "data.pkl"
+# onde está o data.pkl (pode ser em teste, mesmo o script estando em tools)
+pkl_path = (BASE_DIR / "data.pkl").resolve()
+
+# pasta onde VAMOS salvar tudo = mesma pasta do data.pkl
+OUT_DIR = pkl_path.parent
 
 t: np.ndarray
 t_max: int
@@ -18,12 +21,7 @@ with open(pkl_path, "rb") as f:
     t, t_max, data = pickle.load(f)
 
 print("Loaded from:", pkl_path)
-'''
-rng = np.random.default_rng(424242)
-t_max = 100_000
-t = np.arange(1, t_max + 1)
-data = rng.normal(size=(10, t_max))
-'''
+print("Will save outputs in:", OUT_DIR)
 
 def run_case(thresh: float):
     # Adjusts rcParams
@@ -36,8 +34,8 @@ def run_case(thresh: float):
     plt.plot(t, data.max(0), alpha=.75)
     plt.xlim(1, t_max)
 
-    svg_min = f"plot_minmax_thr{thresh}.svg"
-    pdf_min = f"plot_minmax_thr{thresh}.pdf"
+    svg_min = OUT_DIR / f"plot_minmax_thr{thresh}.svg"
+    pdf_min = OUT_DIR / f"plot_minmax_thr{thresh}.pdf"
     plt.savefig(svg_min)
     plt.savefig(pdf_min)
     plt.close()
@@ -47,8 +45,8 @@ def run_case(thresh: float):
     plt.fill_between(t, data.min(0), data.max(0), alpha=.5)
     plt.xlim(1, t_max)
 
-    svg_fill = f"plot_fill_thr{thresh}.svg"
-    pdf_fill = f"plot_fill_thr{thresh}.pdf"
+    svg_fill = OUT_DIR / f"plot_fill_thr{thresh}.svg"
+    pdf_fill = OUT_DIR / f"plot_fill_thr{thresh}.pdf"
     plt.savefig(svg_fill)
     plt.savefig(pdf_fill)
     plt.close()
@@ -64,7 +62,8 @@ def run_case(thresh: float):
 files_0 = run_case(0.0)
 files_1 = run_case(1.0)
 
-def size(path): return os.path.getsize(path)
+def size(path: Path) -> int:
+    return os.path.getsize(path)
 
 print("=== size (bytes) ===")
 for label in ["svg_min", "pdf_min", "svg_fill", "pdf_fill"]:
