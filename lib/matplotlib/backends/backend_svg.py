@@ -755,6 +755,7 @@ class RendererSVG(RendererBase):
         # 2) Heuristics (recalculation after possible simplification):
         #    cost(inline)   = (len_path + 5) * uses_per_path
         #    cost(defs+use) = (len_path + 3) + 9 * uses_per_path
+        
         len_path = len(paths[0].vertices) if paths else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
