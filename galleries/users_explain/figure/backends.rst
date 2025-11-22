@@ -253,6 +253,42 @@ backend, use ``module://name.of.the.backend`` as the backend name, e.g.
 
 Information for backend implementers is available at :ref:`writing_backend_interface`.
 
+Backend API versions
+--------------------
+Matplotlib commits to maintain strong backward compatibility on backends. Nevertheless,
+we want to be able to evolve the backend API to support new features. Versioning the
+backend API allows us to talk to backends through the API version they understand.
+
+Backends should define a constant ``MATPLOTLIB_BACKEND_API_VERSION`` in their modules.
+A missing constant is interpreted as version ``"1.0"``.
+
+.. note::
+
+    The variable ``MATPLOTLIB_BACKEND_API_VERSION`` is currently unused, because the
+    detection of API version 1.1 is handled via introspection. We nevertheless
+    encourage third-party backends to start providing this variable as a communication
+    of intent.
+
+The following backend API versions exist
+
+.. list-table::
+   :header-rows: 1
+
+   * - API version
+     - Supported since
+     - Description
+   * - 1.0
+     - matplotlib 1.0
+     - The backend API has been unmodified for a long time. We retroactively declare
+       this the backend version 1.0
+   * - 1.1
+     - matplotlib 3.11
+     - `.RendererBase.draw_path_collection` gained a new optional parameter
+       *hatchcolor*.
+
+There is currently no plan to remove support for older API versions.
+
+
 .. _figures-not-showing:
 
 Debugging the figure windows not showing
