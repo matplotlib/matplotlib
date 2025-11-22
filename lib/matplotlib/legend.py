@@ -196,9 +196,11 @@ edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
     The legend's background patch edge color.
     If ``"inherit"``, use :rc:`axes.edgecolor`.
 
-linewidth : float, default: :rc:`legend.linewidth`
+linewidth : float or None, default: :rc:`legend.linewidth`
     The legend's background patch edge linewidth.
     If ``None``, use :rc:`axes.linewidth`.
+
+    .. versionadded:: 3.10
 
 mode : {"expand", None}
     If *mode* is set to ``"expand"`` the legend will be horizontally
