@@ -739,9 +739,16 @@ class RendererSVG(RendererBase):
                             offsets, offset_trans, facecolors, edgecolors,
                             linewidths, linestyles, antialiaseds, urls,
                             offset_position, *, hatchcolors=None):
-        # Optionally simplify the paths here, in display coordinates,
-        # using the same rcParams knob as Line2D. This only affects the geometry
-        # that the backend sees, not the autoscale.
+        # Optional pre-simplification at render time (parity with PDF):
+        # respects rcParams['path.simplify'] and ['path.simplify_threshold'] to
+        # reduce the emitted geometry without affecting autoscale/ticks
+
+        if hatchcolors is None:
+            hatchcolors = []
+        if not paths:
+            return
+
+        # 1) Pre-simplify (follow rcParams only)
         if (mpl.rcParams.get('path.simplify', False)
                 and mpl.rcParams.get('path.simplify_threshold', 0) > 0):
             try:
@@ -749,39 +756,32 @@ class RendererSVG(RendererBase):
             except Exception:
                 pass
 
-        if hatchcolors is None:
-            hatchcolors = []
-
         # 2) Heuristics (recalculation after possible simplification):
         #    cost(inline)   = (len_path + 5) * uses_per_path
         #    cost(defs+use) = (len_path + 3) + 9 * uses_per_path
-        
-        len_path = len(paths[0].vertices) if paths else 0
+        len_path = len(paths[0].vertices) if len(paths) > 0 else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        should_do_optimization = (
-            len_path + 9 * uses_per_path + 3
-            < (len_path + 5) * uses_per_path
-        )
+        should_do_optimization = \
+        len_path + 9 * uses_per_path + 3 < (len_path + 5) * uses_per_path
 
         if not should_do_optimization:
-            # Fallback ainda se beneficia de 'paths' possivelmente já limpos.
+            # Fallback stills uses 'paths' possible cleans.
             return super().draw_path_collection(
                 gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position, hatchcolors=hatchcolors)
+                offset_position)
 
-        # 3) Optimized Route: <defs> + <use>
         writer = self.writer
         path_codes = []
         writer.start('defs')
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
-            # keep simplify=False.
             d = self._convert_path(path, transform, simplify=False)
-            oid = f"C{self._path_collection_id:x}_{i:x}_{self._make_id('', d)}"
+            oid = 'C{:x}_{:x}_{}'.format(
+                self._path_collection_id, i, self._make_id('', d))
             writer.element('path', id=oid, d=d)
             path_codes.append(oid)
         writer.end('defs')
@@ -797,12 +797,13 @@ class RendererSVG(RendererBase):
             clip_attrs = self._get_clip_attrs(gc0)
             if clip_attrs:
                 writer.start('g', **clip_attrs)
-            writer.element('use', attrib={
+            attrib = {
                 'xlink:href': f'#{path_id}',
                 'x': _short_float_fmt(xo),
                 'y': _short_float_fmt(self.height - yo),
-                'style': self._get_style(gc0, rgbFace),
-            })
+                'style': self._get_style(gc0, rgbFace)
+                }
+            writer.element('use', attrib=attrib)
             if clip_attrs:
                 writer.end('g')
             if url is not None:
