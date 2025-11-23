@@ -534,8 +534,6 @@ class Legend(Artist):
         fancybox = mpl._val_or_rc(fancybox, "legend.fancybox")
 
         linewidth = mpl._val_or_rc(linewidth, "legend.linewidth")
-        if linewidth is None:
-            linewidth = mpl.rcParams["patch.linewidth"]
 
         self.legendPatch = FancyBboxPatch(
             xy=(0, 0), width=1, height=1,
