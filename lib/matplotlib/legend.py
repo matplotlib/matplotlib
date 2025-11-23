@@ -198,9 +198,9 @@ edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
 
 linewidth : float or None, default: :rc:`legend.linewidth`
     The legend's background patch edge linewidth.
-    If ``None``, use :rc:`axes.linewidth`.
+    If ``None``, use :rc:`patch.linewidth`.
 
-    .. versionadded:: 3.10
+    .. versionadded:: 3.11
 
 mode : {"expand", None}
     If *mode* is set to ``"expand"`` the legend will be horizontally
@@ -535,7 +535,7 @@ class Legend(Artist):
 
         linewidth = mpl._val_or_rc(linewidth, "legend.linewidth")
         if linewidth is None:
-            linewidth = mpl.rcParams["axes.linewidth"]
+            linewidth = mpl.rcParams["patch.linewidth"]
 
         self.legendPatch = FancyBboxPatch(
             xy=(0, 0), width=1, height=1,

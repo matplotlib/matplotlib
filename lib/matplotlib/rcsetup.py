@@ -1167,7 +1167,6 @@ _validators = {
     # legend properties
     "legend.fancybox": validate_bool,
     "legend.loc": _validate_legend_loc,
-    "legend.linewidth": validate_float_or_None,  # linewidth of legend frame
 
     # the number of points in the legend line
     "legend.numpoints":      validate_int,
@@ -1185,6 +1184,8 @@ _validators = {
     "legend.frameon":        validate_bool,
     # alpha value of the legend frame
     "legend.framealpha":     validate_float_or_None,
+    # linewidth of legend frame
+    "legend.linewidth": validate_float_or_None,  
 
     ## the following dimensions are in fraction of the font size
     "legend.borderpad":      validate_float,  # units are fontsize
