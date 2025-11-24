@@ -740,13 +740,13 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=Fa
         actual_pos_fig = actual_pos.transformed(fig.transSubfigure - fig.transFigure)
 
         if location in ('left', 'right'):
-            # For vertical colorbars, use the actual parent bbox height 
+            # For vertical colorbars, use the actual parent bbox height
             # for colorbar sizing
             # Keep the pb x-coordinates but use actual y-coordinates
             pb = Bbox.from_extents(pb.x0, actual_pos_fig.y0,
                                    pb.x1, actual_pos_fig.y1)
         elif location in ('top', 'bottom'):
-            # For horizontal colorbars, use the actual parent bbox width 
+            # For horizontal colorbars, use the actual parent bbox width
             # for colorbar sizing
             # Keep the pb y-coordinates but use actual x-coordinates
             pb = Bbox.from_extents(actual_pos_fig.x0, pb.y0,
