@@ -419,6 +419,23 @@ def make_keyword_only(since, name, func=None):
     When used on a method that has a pyplot wrapper, this should be the
     outermost decorator, so that :file:`boilerplate.py` can access the original
     signature.
+
+    Examples
+    --------
+    Assume we want to only allow *dataset* and *positions* as positional
+    parameters on the method ::
+
+        def violinplot(self, dataset, positions=None, vert=None, ...)
+
+    Introduce the deprecation by adding the decorator ::
+
+        @_api.make_keyword_only("3.10", "vert")
+        def violinplot(self, dataset, positions=None, vert=None, ...)
+
+    When the deprecation expires, switch to ::
+
+        def violinplot(self, dataset, positions=None, *, vert=None, ...)
+
     """
 
     decorator = functools.partial(make_keyword_only, since, name)
