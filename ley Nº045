@@ -1,0 +1,19 @@
+import matplotlib.pyplot as plt
+
+# Datos
+labels = ['Sí', 'No']
+questions = {
+    "¿Conoces de qué trata la Ley Nº045?": [5, 16],
+    "¿Sabes la diferencia entre racismo y discriminación?": [7, 14],
+    "¿Conocías las penas que tiene esta ley?": [1, 20]
+}
+
+# Crear gráficos
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+for ax, (pregunta, valores) in zip(axes, questions.items()):
+    ax.pie(valores, labels=labels, autopct='%1.1f%%')
+    ax.set_title(pregunta)
+
+plt.tight_layout()
+plt.show()
