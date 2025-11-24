@@ -16,22 +16,22 @@ This glossary defines concepts and terminology specific to Matplotlib.
 
     Figure
         The outermost container for a Matplotlib graphic. Think of this as the
-        sheet of paper to draw on.
+        canvas to draw on.
 
-        This is impolemented in the class `.Figure`. For more details see
+        This is implemented in the class `.Figure`. For more details see
         :ref:`figure-intro`.
 
     Axes
-        This is what is often colloquially called "a plot". A data area with
-        :term:`Axis`\ es, i.e. coordinate directions. This includes also
-        decoration like title, axis labels, legend and data artists
-        like lines, bars etc.
+        This is container for is often colloquially called a plot/chart/graph.
+        It's a data area with :term:`Axis`\ es, i.e. coordinate directions,
+        and includes the data artists like lines, bars etc. as well as
+        decoration like title, axis labels, legend.
 
         Since most "plotting operations" are realized as methods on `~.axes.Axes`
         this is the object users will mostly interact with.
 
         Note: The term *Axes* was taken over from MATLAB. Think of this as
-        A container spanned by the *x*- and *y*-axis, including decoration
+        a container spanned by the *x*- and *y*-axis, including decoration
         and data.
 
     Axis
@@ -41,4 +41,4 @@ This glossary defines concepts and terminology specific to Matplotlib.
 
     Artist
         The base class for all graphical element that can be drawn.
-        Examples are Lines, Rectangles, Text, Ticks, Lengend, Axes, ...
+        Examples are Lines, Rectangles, Text, Ticks, Legend, Axes, ...
