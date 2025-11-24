@@ -432,7 +432,7 @@ def make_keyword_only(since, name, func=None):
         @_api.make_keyword_only("3.10", "vert")
         def violinplot(self, dataset, positions=None, vert=None, ...)
 
-    When the deprecation expires, switch to
+    When the deprecation expires, switch to ::
 
         def violinplot(self, dataset, positions=None, *, vert=None, ...)
 
