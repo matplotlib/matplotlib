@@ -4,10 +4,9 @@
 Previously, labels on `~.PatchCollection` objects were ignored by the legend
 system, requiring users to create manual legend entries.
 
-The legend entry displays a rectangle matching the visual properties (colors,
-line styles, line widths) of the first patch in the collection.
-
-.. code-block:: python
+.. plot::
+   :include-source: true
+   :alt: The legend entry displays a rectangle matching the visual properties (colors, line styles, line widths) of the first patch in the collection.
 
     import matplotlib.pyplot as plt
     import matplotlib.patches as mpatches
