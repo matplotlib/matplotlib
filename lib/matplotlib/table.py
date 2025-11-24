@@ -667,7 +667,7 @@ def table(ax,
 
     .. note::
 
-        ``table()`` has some fundamental design limitations and is not
+        ``table()`` has some fundamental design limitations and will not be
         developed further. If you need more functionality, consider
         `blume <https://github.com/swfiua/blume>`__.
 
