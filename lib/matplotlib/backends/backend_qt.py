@@ -55,7 +55,7 @@ SPECIAL_KEYS = {
         ("Key_F8", "f8"),
         ("Key_F9", "f9"),
         ("Key_F10", "f10"),
-        ("Key_F10", "f11"),
+        ("Key_F11", "f11"),
         ("Key_F12", "f12"),
         ("Key_Super_L", "super"),
         ("Key_Super_R", "super"),
