@@ -2125,7 +2125,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             should_do_optimization = True
 
         if (not can_do_optimization) or (not should_do_optimization):
-            # 🔴 importante: passar hatchcolors pra base também
             return RendererBase.draw_path_collection(
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,

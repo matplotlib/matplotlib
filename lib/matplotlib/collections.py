@@ -1434,7 +1434,7 @@ class FillBetweenPolyCollection(PolyCollection):
             for p in self._paths:
                 setattr(p, "should_simplify", True)
 
-    # importante: garantir que set_paths também use essa versão
+    # make sure set_paths also uses this version of set_verts
     set_paths = set_verts
 
     @staticmethod

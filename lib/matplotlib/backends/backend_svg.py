@@ -677,7 +677,7 @@ class RendererSVG(RendererBase):
             simplify = (
                 mpl.rcParams.get("path.simplify", False)
                 and mpl.rcParams.get("path.simplify_threshold", 0) > 0
-                # <<<<<< aqui: default = False, só simplifica quem for marcado
+                # default = False, only simplifies what's already marked
                 and getattr(path, "should_simplify", False)
             )
 
@@ -778,11 +778,11 @@ class RendererSVG(RendererBase):
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
 
-            # transform já está em display coords (escala invertida aqui):
+            # transform on display coords
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
 
-            # Deixa o _convert_path decidir se simplifica, com base em rcParams
-            # e em alguma flag tipo "path.should_simplify".
+            # _convert_path decides wheter or not to simplify, based on rcParams
+            # and a flag like "path.should_simplify".
             simplify = None  # None == "use default / rcParams / path flag"
             d = self._convert_path(path, transform, simplify=simplify)
 
