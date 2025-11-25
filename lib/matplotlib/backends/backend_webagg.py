@@ -53,10 +53,9 @@ class FigureManagerWebAgg(core.FigureManagerWebAgg):
 
         if mpl.rcParams['webagg.open_in_browser']:
             import webbrowser
-            if not webbrowser.open(url):
-                print(f"To view figure, visit {url}")
-        else:
-            print(f"To view figure, visit {url}")
+            webbrowser.open(url)
+
+        print(f"To view figure, visit {url}")
 
         WebAggApplication.start()
 
