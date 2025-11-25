@@ -5991,9 +5991,6 @@ or pandas.DataFrame
             ind_dir, ind, dep1, dep2,
             where=where, interpolate=interpolate, step=step, **kwargs)
         
-        for p in collection.get_paths():
-            setattr(p, "should_simplify", True)
-
         self.add_collection(collection)
         return collection
 
