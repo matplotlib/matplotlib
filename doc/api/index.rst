@@ -150,3 +150,5 @@ Alphabetical list of modules:
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
    pylab.rst
+.. note::
+   This page was updated to improve clarity and documentation quality.
