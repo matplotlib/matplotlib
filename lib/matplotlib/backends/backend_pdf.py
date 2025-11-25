@@ -1884,12 +1884,28 @@ end"""
             self.endStream()
 
     def pathCollectionObject(self, gc, path, trans, padding, filled, stroked):
+        simplify = (
+            mpl.rcParams.get("path.simplify", False)
+            and mpl.rcParams.get("path.simplify_threshold", 0) > 0
+            # default False: só simplifica quem for marcado
+            and getattr(path, "should_simplify", False)
+        )
+
+        if simplify and trans is not None:
+            try:
+                cleaned = path.cleaned(transform=trans, simplify=True)
+                path = cleaned
+                trans = mtransforms.IdentityTransform()
+            except Exception:
+                pass
+
         name = Name('P%d' % len(self.paths))
         ob = self.reserveObject('path %d' % len(self.paths))
         self.paths.append(
             (name, path, trans, ob, gc.get_joinstyle(), gc.get_capstyle(),
-             padding, filled, stroked))
+            padding, filled, stroked))
         return name
+
 
     def writePathCollectionTemplates(self):
         for (name, path, trans, ob, joinstyle, capstyle, padding, filled,
@@ -1924,7 +1940,7 @@ end"""
     def writePath(self, path, transform, clip=False, sketch=None):
         if clip:
             clip = (0.0, 0.0, self.width * 72, self.height * 72)
-            simplify = path.should_simplify
+            simplify = getattr(path, "should_simplify", False)
         else:
             clip = None
             simplify = False
@@ -2065,12 +2081,10 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file.output(self.gc.paint())
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offset_trans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
-        # We can only reuse the objects if the presence of fill and
-        # stroke (and the amount of alpha for each) is the same for
-        # all of them
+                            offsets, offset_trans, facecolors, edgecolors,
+                            linewidths, linestyles, antialiaseds, urls,
+                            offset_position, *, hatchcolors=None):
+
         can_do_optimization = True
         facecolors = np.asarray(facecolors)
         edgecolors = np.asarray(edgecolors)
@@ -2094,41 +2108,38 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             else:
                 can_do_optimization = False
 
-        # Optionally simplify the paths to display coordinates before
-        # deciding whether to use `<defs>/<use>`. Uses the same rcParam as Line2D.
-
-        if (mpl.rcParams.get("path.simplify", False)
-                and mpl.rcParams.get("path.simplify_threshold", 0) > 0):
-            try:
-                paths = [p.cleaned(simplify=True) for p in paths]
-            except Exception:
-                # Fallback silencioso pra manter compatibilidade se algo der ruim.
-                pass
-
-        # Is the optimization worth it? Rough calculation:
-        # cost of emitting a path inline is
-        #    (len_path  5) * uses_per_path
-        # cost of definitionuse is
-        #    (len_path  3)  9 * uses_per_path
         len_path = len(paths[0].vertices) if paths else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        should_do_optimization = \
-            len_path + uses_per_path + 5 < len_path * uses_per_path
+
+        any_should_simplify = any(
+            getattr(p, "should_simplify", False) for p in paths
+        )
+
+        should_do_optimization = (
+            (len_path + 3) + 9 * uses_per_path
+            < (len_path + 5) * uses_per_path
+        )
+
+        if any_should_simplify:
+            should_do_optimization = True
 
         if (not can_do_optimization) or (not should_do_optimization):
+            # 🔴 importante: passar hatchcolors pra base também
             return RendererBase.draw_path_collection(
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position)
+                offset_position, hatchcolors=hatchcolors)
 
         padding = np.max(linewidths)
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
+
             name = self.file.pathCollectionObject(
-                gc, path, transform, padding, filled, stroked)
+                gc, path, transform, padding, filled, stroked
+            )
             path_codes.append(name)
 
         output = self.file.output
@@ -2137,12 +2148,13 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, urls, offset_position,
+                hatchcolors=hatchcolors):
 
             self.check_gc(gc0, rgbFace)
             dx, dy = xo - lastx, yo - lasty
             output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id,
-                   Op.use_xobject)
+                Op.use_xobject)
             lastx, lasty = xo, yo
         output(*self.gc.pop())
 

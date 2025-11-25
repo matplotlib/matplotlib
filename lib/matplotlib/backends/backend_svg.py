@@ -667,20 +667,32 @@ class RendererSVG(RendererBase):
         return not mpl.rcParams['image.composite_image']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None,
-                      sketch=None):
+                    sketch=None):
         if clip:
             clip = (0.0, 0.0, self.width, self.height)
         else:
             clip = None
+
+        if simplify is None:
+            simplify = (
+                mpl.rcParams.get("path.simplify", False)
+                and mpl.rcParams.get("path.simplify_threshold", 0) > 0
+                # <<<<<< aqui: default = False, só simplifica quem for marcado
+                and getattr(path, "should_simplify", False)
+            )
+
         return _path.convert_to_string(
             path, transform, clip, simplify, sketch, 6,
-            [b'M', b'L', b'Q', b'C', b'z'], False).decode('ascii')
+            [b'M', b'L', b'Q', b'C', b'z'], False
+        ).decode('ascii')
+
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
         trans_and_flip = self._make_flip_transform(transform)
         clip = (rgbFace is None and gc.get_hatch_path() is None)
-        simplify = path.should_simplify and clip
+        should = getattr(path, "should_simplify", False)
+        simplify = should
         path_data = self._convert_path(
             path, trans_and_flip, clip=clip, simplify=simplify,
             sketch=gc.get_sketch_params())
@@ -739,34 +751,21 @@ class RendererSVG(RendererBase):
                             offsets, offset_trans, facecolors, edgecolors,
                             linewidths, linestyles, antialiaseds, urls,
                             offset_position, *, hatchcolors=None):
-        # Optional pre-simplification at render time (parity with PDF):
-        # respects rcParams['path.simplify'] and ['path.simplify_threshold'] to
-        # reduce the emitted geometry without affecting autoscale/ticks
 
         if hatchcolors is None:
             hatchcolors = []
         if not paths:
             return
 
-        # 1) Pre-simplify (follow rcParams only)
-        if (mpl.rcParams.get('path.simplify', False)
-                and mpl.rcParams.get('path.simplify_threshold', 0) > 0):
-            try:
-                paths = [p.cleaned(simplify=True) for p in paths]
-            except Exception:
-                pass
-
-        # 2) Heuristics (recalculation after possible simplification):
-        #    cost(inline)   = (len_path + 5) * uses_per_path
-        #    cost(defs+use) = (len_path + 3) + 9 * uses_per_path
-        len_path = len(paths[0].vertices) if len(paths) > 0 else 0
+        len_path = len(paths[0].vertices) if paths else 0
         uses_per_path = self._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
-        should_do_optimization = \
-        len_path + 9 * uses_per_path + 3 < (len_path + 5) * uses_per_path
+        should_do_optimization = (
+            (len_path + 3) + 9 * uses_per_path
+            < (len_path + 5) * uses_per_path
+        )
 
         if not should_do_optimization:
-            # Fallback stills uses 'paths' possible cleans.
             return super().draw_path_collection(
                 gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
@@ -778,8 +777,15 @@ class RendererSVG(RendererBase):
         writer.start('defs')
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
+
+            # transform já está em display coords (escala invertida aqui):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
-            d = self._convert_path(path, transform, simplify=False)
+
+            # Deixa o _convert_path decidir se simplifica, com base em rcParams
+            # e em alguma flag tipo "path.should_simplify".
+            simplify = None  # None == "use default / rcParams / path flag"
+            d = self._convert_path(path, transform, simplify=simplify)
+
             oid = 'C{:x}_{:x}_{}'.format(
                 self._path_collection_id, i, self._make_id('', d))
             writer.element('path', id=oid, d=d)
@@ -791,6 +797,7 @@ class RendererSVG(RendererBase):
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position,
                 hatchcolors=hatchcolors):
+
             url = gc0.get_url()
             if url is not None:
                 writer.start('a', attrib={'xlink:href': url})
@@ -801,8 +808,8 @@ class RendererSVG(RendererBase):
                 'xlink:href': f'#{path_id}',
                 'x': _short_float_fmt(xo),
                 'y': _short_float_fmt(self.height - yo),
-                'style': self._get_style(gc0, rgbFace)
-                }
+                'style': self._get_style(gc0, rgbFace),
+            }
             writer.element('use', attrib=attrib)
             if clip_attrs:
                 writer.end('g')
