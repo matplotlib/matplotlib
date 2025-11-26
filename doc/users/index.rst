@@ -103,3 +103,4 @@ Using Matplotlib
 
     getting_started/index
     ../install/index
+    glossary
