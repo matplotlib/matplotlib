@@ -37,7 +37,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
                                 StepPatch)
 from matplotlib.collections import (
-    Collection, CircleCollection, LineCollection, PathCollection,
+    Collection, CircleCollection, LineCollection, PatchCollection, PathCollection,
     PolyCollection, RegularPolyCollection)
 from matplotlib.text import Text
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
@@ -787,6 +787,7 @@ class Legend(Artist):
         BarContainer: legend_handler.HandlerPatch(
             update_func=legend_handler.update_from_first_child),
         tuple: legend_handler.HandlerTuple(),
+        PatchCollection: legend_handler.HandlerPolyCollection(),
         PathCollection: legend_handler.HandlerPathCollection(),
         PolyCollection: legend_handler.HandlerPolyCollection()
         }
