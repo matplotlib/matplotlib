@@ -22,10 +22,10 @@ This glossary defines concepts and terminology specific to Matplotlib.
         :ref:`figure-intro`.
 
     Axes
-        This is container for is often colloquially called a plot/chart/graph.
+        This is a container for what is often colloquially called a plot/chart/graph.
         It's a data area with :term:`Axis`\ es, i.e. coordinate directions,
-        and includes the data artists like lines, bars etc. as well as
-        decoration like title, axis labels, legend.
+        and includes data artists like lines, bars etc. as well as
+        decorations like title, axis labels, legend.
 
         Since most "plotting operations" are realized as methods on `~.axes.Axes`
         this is the object users will mostly interact with.
