@@ -725,7 +725,7 @@ def test_compressed_suptitle_colorbar():
 @image_comparison(['test_compressed_supylabel_colorbar.png'], style='mpl20')
 def test_compressed_supylabel_colorbar():
     """
-    Test that horizontal colorbars align with axes 
+    Test that horizontal colorbars align with axes
     in compressed layout with supylabel.
     """
     arr = np.arange(100).reshape((10, 10))
