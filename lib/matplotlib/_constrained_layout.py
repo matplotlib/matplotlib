@@ -137,7 +137,8 @@ def do_constrained_layout(fig, h_pad, w_pad,
                 layoutgrids[fig].update_variables()
                 if check_no_collapsed_axes(layoutgrids, fig):
                     reposition_axes(layoutgrids, fig, renderer, h_pad=h_pad,
-                                    w_pad=w_pad, hspace=hspace, wspace=wspace)
+                                    w_pad=w_pad, hspace=hspace, wspace=wspace,
+                                    compress=True)
                 else:
                     _api.warn_external(warn_collapsed)
 
@@ -651,7 +652,7 @@ def get_pos_and_bbox(ax, renderer):
 
 
 def reposition_axes(layoutgrids, fig, renderer, *,
-                    w_pad=0, h_pad=0, hspace=0, wspace=0):
+                    w_pad=0, h_pad=0, hspace=0, wspace=0, compress=False):
     """
     Reposition all the Axes based on the new inner bounding box.
     """
@@ -662,7 +663,7 @@ def reposition_axes(layoutgrids, fig, renderer, *,
             bbox=bbox.transformed(trans_fig_to_subfig))
         reposition_axes(layoutgrids, sfig, renderer,
                         w_pad=w_pad, h_pad=h_pad,
-                        wspace=wspace, hspace=hspace)
+                        wspace=wspace, hspace=hspace, compress=compress)
 
     for ax in fig._localaxes:
         if ax.get_subplotspec() is None or not ax.get_in_layout():
@@ -689,10 +690,10 @@ def reposition_axes(layoutgrids, fig, renderer, *,
         for nn, cbax in enumerate(ax._colorbars[::-1]):
             if ax == cbax._colorbar_info['parents'][0]:
                 reposition_colorbar(layoutgrids, cbax, renderer,
-                                    offset=offset)
+                                    offset=offset, compress=compress)
 
 
-def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
+def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=False):
     """
     Place the colorbar in its new place.
 
@@ -706,6 +707,8 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
     offset : array-like
         Offset the colorbar needs to be pushed to in order to
         account for multiple colorbars.
+    compress : bool
+        Whether we're in compressed layout mode.
     """
 
     parents = cbax._colorbar_info['parents']
@@ -723,6 +726,31 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
     fraction = cbax._colorbar_info['fraction']
     aspect = cbax._colorbar_info['aspect']
     shrink = cbax._colorbar_info['shrink']
+
+    # For colorbars with a single parent in compressed layout,
+    # use the actual visual size of the parent axis after apply_aspect()
+    # has been called. This ensures colorbars align with their parent axes.
+    # This fix is specific to single-parent colorbars where alignment is critical.
+    if compress and len(parents) == 1:
+        from matplotlib.transforms import Bbox
+        # Get the actual parent position after apply_aspect()
+        parent_ax = parents[0]
+        actual_pos = parent_ax.get_position(original=False)
+        # Transform to figure coordinates
+        actual_pos_fig = actual_pos.transformed(fig.transSubfigure - fig.transFigure)
+
+        if location in ('left', 'right'):
+            # For vertical colorbars, use the actual parent bbox height
+            # for colorbar sizing
+            # Keep the pb x-coordinates but use actual y-coordinates
+            pb = Bbox.from_extents(pb.x0, actual_pos_fig.y0,
+                                   pb.x1, actual_pos_fig.y1)
+        elif location in ('top', 'bottom'):
+            # For horizontal colorbars, use the actual parent bbox width
+            # for colorbar sizing
+            # Keep the pb y-coordinates but use actual x-coordinates
+            pb = Bbox.from_extents(actual_pos_fig.x0, pb.y0,
+                                   actual_pos_fig.x1, pb.y1)
 
     cbpos, cbbbox = get_pos_and_bbox(cbax, renderer)
 
