@@ -1854,6 +1854,7 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
     axs_tst[1][2].imshow(im_rgba, interpolation_stage=intp_stage, alpha=new_array_alpha)
     axs_ref[1][2].imshow(
         np.concatenate(  # combine rgb channels with multiplied array alpha
-            (im_rgb, array_alpha.reshape((ny, nx, 1)) * new_array_alpha.reshape((ny, nx, 1))), axis=-1
+            (im_rgb, array_alpha.reshape((ny, nx, 1))
+             * new_array_alpha.reshape((ny, nx, 1))), axis=-1
         ), interpolation_stage=intp_stage
     )
