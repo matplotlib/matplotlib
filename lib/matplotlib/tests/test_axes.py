@@ -8,6 +8,7 @@ import inspect
 import io
 from itertools import product
 import platform
+import re
 import sys
 from types import SimpleNamespace
 
@@ -6606,6 +6607,57 @@ def test_pie_hatch_multi(fig_test, fig_ref):
     fig_test.subplots().pie(x, hatch=hatch)
     wedges, _ = fig_ref.subplots().pie(x)
     [w.set_hatch(hp) for w, hp in zip(wedges, hatch)]
+
+
+def test_pie_label_formatter():
+    fig, ax = plt.subplots()
+    pie = ax.pie([2, 3])
+
+    texts = ax.pie_label(pie, '{absval:03d}')
+    assert texts[0].get_text() == '002'
+    assert texts[1].get_text() == '003'
+
+    texts = ax.pie_label(pie, '{frac:.1%}')
+    assert texts[0].get_text() == '40.0%'
+    assert texts[1].get_text() == '60.0%'
+
+
+@pytest.mark.parametrize('distance', [0.6, 1.1])
+@pytest.mark.parametrize('rotate', [False, True])
+def test_pie_label_auto_align(distance, rotate):
+    fig, ax = plt.subplots()
+    pie = ax.pie([1, 1], startangle=45)
+
+    texts = ax.pie_label(
+        pie, ['spam', 'eggs'], distance=distance, rotate=rotate, alignment='auto')
+
+    if distance < 1:
+        for text in texts:
+            # labels within the pie should be centered
+            assert text.get_horizontalalignment() == 'center'
+            assert text.get_verticalalignment() == 'center'
+
+    else:
+        # labels outside the pie should be aligned away from it
+        h_expected = ['right', 'left']
+        v_expected = ['bottom', 'top']
+        for text, h_align, v_align in zip(texts, h_expected, v_expected):
+            assert text.get_horizontalalignment() == h_align
+            if rotate:
+                assert text.get_verticalalignment() == v_align
+            else:
+                assert text.get_verticalalignment() == 'center'
+
+
+def test_pie_label_fail():
+    sizes = 15, 30, 45, 10
+    labels = 'Frogs', 'Hogs'
+    fig, ax = plt.subplots()
+    pie = ax.pie(sizes)
+
+    match = re.escape("The number of labels (2) must match the number of wedges (4)")
+    with pytest.raises(ValueError, match=match):
+        ax.pie_label(pie, labels)
 
 
 @image_comparison(['set_get_ticklabels.png'],

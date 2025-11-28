@@ -28,16 +28,16 @@ explode = (0, 0.05, 0, 0)
 
 # We want to draw the shadow for each pie, but we will not use "shadow"
 # option as it doesn't save the references to the shadow patches.
-pies = ax.pie(fracs, explode=explode, labels=labels, autopct='%1.1f%%')
+pie = ax.pie(fracs, explode=explode, labels=labels, autopct='%1.1f%%')
 
-for w in pies[0]:
+for w in pie.wedges:
     # set the id with the label.
     w.set_gid(w.get_label())
 
     # we don't want to draw the edge of the pie
     w.set_edgecolor("none")
 
-for w in pies[0]:
+for w in pie.wedges:
     # create shadow patch
     s = Shadow(w, -0.01, -0.01)
     s.set_gid(w.get_gid() + "_shadow")

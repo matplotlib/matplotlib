@@ -1,11 +1,13 @@
 from matplotlib.artist import Artist
 from matplotlib.lines import Line2D
 from matplotlib.collections import LineCollection
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, Wedge
+from matplotlib.text import Text
 
 from collections.abc import Callable
 from typing import Any, Literal
 from numpy.typing import ArrayLike
+from numpy import ndarray
 
 class Container(tuple):
     def __new__(cls, *args, **kwargs): ...
@@ -49,6 +51,24 @@ class ErrorbarContainer(Container):
         has_xerr: bool = ...,
         has_yerr: bool = ...,
         **kwargs
+    ) -> None: ...
+
+class PieContainer(Container):
+    wedges: list[Wedge]
+    def __init__(
+        self,
+        wedges: list[Wedge],
+        values: ndarray,
+        normalize: bool,
+    ) -> None: ...
+    @property
+    def texts(self) -> list[list[Text]]: ...
+    @property
+    def values(self) -> ndarray: ...
+    @property
+    def fracs(self) -> ndarray: ...
+    def add_texts(self,
+        texts: list[Text],
     ) -> None: ...
 
 class StemContainer(Container):

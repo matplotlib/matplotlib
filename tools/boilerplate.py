@@ -263,6 +263,7 @@ def boilerplate_gen():
         'pcolormesh',
         'phase_spectrum',
         'pie',
+        'pie_label',
         'plot',
         'psd',
         'quiver',
