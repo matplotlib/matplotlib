@@ -1,8 +1,11 @@
 *alpha* parameter handling on images
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When passing and array to ``imshow(..., alpha=...)``, the parameter was silently ignored
-if the image data was an RGB or RBGA image or if :rc:`image.interpolation_stage`
-resolved to "rbga".
+Prior to Matplotlib 3.10.1, when passing an array to ``imshow(..., alpha=...)``, the
+parameter was silently ignored if the image data was an RGB or RGBA image or if
+:rc:`image.interpolation_stage` resolved to "rbga".
 
-This is now fixed, and the alpha array overwrites any previous transparency information.
+Matplotlib 3.10.1 changed this to apply the alpha array as the alpha channel,
+overwriting any existing transparency information in the image data. Matplotlib v3.11.0
+further fixes the handling for RGBA images: the existing alpha channel is now multiplied
+by the alpha array, consistent with how scalar alpha values are handled.
