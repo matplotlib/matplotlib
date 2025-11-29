@@ -25,7 +25,7 @@ for wheel in sys.argv[1:]:
     with zipfile.ZipFile(wheel) as f:
         wheel_license_file_names = {Path(path).name
                                     for path in sorted(f.namelist())
-                                    if '.dist-info/LICENSE' in path}
+                                    if '.dist-info/licenses/LICENSE' in path}
         if not (len(wheel_license_file_names) and
                 wheel_license_file_names.issuperset(license_file_names)):
             sys.exit(f'LICENSE file(s) missing:\n'
