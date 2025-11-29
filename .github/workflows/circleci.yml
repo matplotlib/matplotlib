@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Post warnings/errors as review
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
         with:
           persist-credentials: false
 
@@ -41,7 +41,7 @@ jobs:
 
       - name: Set up reviewdog
         if: "${{ steps.fetch-artifacts.outputs.count != 0 }}"
-        uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252  # v1.4.0
+        uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f  # v1.5.0
         with:
           reviewdog_version: latest
 
