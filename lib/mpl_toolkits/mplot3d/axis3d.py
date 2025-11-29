@@ -708,6 +708,8 @@ class Axis(maxis.XAxis):
         bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer)
         other = []
 
+        if self.offsetText.get_visible() and self.offsetText.get_text():
+            other.append(self.offsetText.get_window_extent(renderer))
         if self.line.get_visible():
             other.append(self.line.get_window_extent(renderer))
         if (self.label.get_visible() and not for_layout_only and
