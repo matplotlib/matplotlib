@@ -703,7 +703,7 @@ class Axis(martist.Artist):
         self.minor._formatter_is_default = value
 
     def _get_shared_axes(self):
-        """Return Grouper of shared Axes for current axis."""
+        """Return a list of shared Axes for current axis."""
         return self.axes._shared_axes[
             self._get_axis_name()].get_siblings(self.axes)
 
