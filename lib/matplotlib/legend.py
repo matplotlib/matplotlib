@@ -196,6 +196,12 @@ edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
     The legend's background patch edge color.
     If ``"inherit"``, use :rc:`axes.edgecolor`.
 
+linewidth : float or None, default: :rc:`legend.linewidth`
+    The legend's background patch edge linewidth.
+    If ``None``, use :rc:`patch.linewidth`.
+
+    .. versionadded:: 3.11
+
 mode : {"expand", None}
     If *mode* is set to ``"expand"`` the legend will be horizontally
     expanded to fill the Axes area (or *bbox_to_anchor* if defines
@@ -385,6 +391,7 @@ class Legend(Artist):
         framealpha=None,      # set frame alpha
         edgecolor=None,       # frame patch edgecolor
         facecolor=None,       # frame patch facecolor
+        linewidth=None,       # frame patch linewidth
 
         bbox_to_anchor=None,  # bbox to which the legend will be anchored
         bbox_transform=None,  # transform for the bbox
@@ -526,9 +533,12 @@ class Legend(Artist):
 
         fancybox = mpl._val_or_rc(fancybox, "legend.fancybox")
 
+        linewidth = mpl._val_or_rc(linewidth, "legend.linewidth")
+
         self.legendPatch = FancyBboxPatch(
             xy=(0, 0), width=1, height=1,
             facecolor=facecolor, edgecolor=edgecolor,
+            linewidth=linewidth,
             # If shadow is used, default to alpha=1 (#8943).
             alpha=(framealpha if framealpha is not None
                    else 1 if shadow
