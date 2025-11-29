@@ -309,7 +309,7 @@ def get_epoch():
 
 def _dt64_to_ordinalf(d):
     """
-    Convert `numpy.datetime64` or an `numpy.ndarray` of those types to
+    Convert a `numpy.ndarray` of np.datetime64 to
     Gregorian date as UTC float relative to the epoch (see `.get_epoch`).
     Roundoff is float64 precision.  Practically: microseconds for dates
     between 290301 BC, 294241 AD, milliseconds for larger dates
