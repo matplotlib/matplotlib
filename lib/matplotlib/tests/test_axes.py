@@ -4129,20 +4129,20 @@ def violin_plot_stats():
     ]
     return [{
         'coords': datetimes,
-        'vals': [0.1, 0.5, 0.2],
-        'mean': 0.5,
-        'median': 0.5,
-        'min': 0.1,
-        'max': 0.2,
-        'quantiles': [0.1, 0.5, 0.2]
+        'vals': [1.2, 2.8, 1.5, 3.1, 2.0, 1.8, 2.5],
+        'mean': 2.1285714285714286,
+        'median': 2.0,
+        'min': 1.2,
+        'max': 3.1,
+        'quantiles': [1.5, 2.0, 2.5]
     }, {
         'coords': datetimes,
-        'vals': [0.2, 0.3, 0.4],
-        'mean': 0.3,
-        'median': 0.3,
-        'min': 0.2,
-        'max': 0.4,
-        'quantiles': [0.2, 0.3, 0.4]
+        'vals': [0.8, 1.1, 0.9, 1.4, 1.0, 1.3, 1.2],
+        'mean': 1.1,
+        'median': 1.1,
+        'min': 0.8,
+        'max': 1.4,
+        'quantiles': [0.95, 1.1, 1.25]
     }]
 
 
