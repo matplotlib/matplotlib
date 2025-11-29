@@ -1,0 +1,8 @@
+The *canvas* parameter to ``MultiCursor``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is deprecated. It has been unused for a while already.
+
+Please remove the parameter and change the call from
+``MultiCursor(canvas, axes)`` to ``MultiCursor(axes)``. Both calls are
+valid throughout the deprecation period.
