@@ -1698,7 +1698,8 @@ def test_legend_linewidth():
         ax.plot([1, 2, 3], label='data')
         leg = ax.legend(linewidth=4.0)
         assert leg.legendPatch.get_linewidth() == 4.0
-        
+
+
 def test_patchcollection_legend():
     # Test that PatchCollection labels show up in legend and preserve visual
     # properties (issue #23998)
