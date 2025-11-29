@@ -3052,7 +3052,7 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def grouped_bar(self, heights, *, positions=None, group_spacing=1.5, bar_spacing=0,
                     tick_labels=None, labels=None, orientation="vertical", colors=None,
-                    **kwargs):
+                    hatch=None, **kwargs):
         """
         Make a grouped bar plot.
 
@@ -3192,6 +3192,15 @@ or pandas.DataFrame
 
             If not specified, the colors from the Axes property cycle will be used.
 
+        hatch : sequence of :mpltype:`hatch` or None, optional
+            Hatch pattern(s) to apply per dataset.
+
+            - If ``None`` (default), no hatching is applied.
+            - If a sequence of strings is provided (e.g., ``['//', 'xx', '..']``),
+              the patterns are cycled across datasets.
+            - If the sequence contains a single element (e.g., ``['//']``),
+              the same pattern is repeated for all datasets.
+
         **kwargs : `.Rectangle` properties
 
             %(Rectangle:kwdoc)s
@@ -3320,6 +3329,38 @@ or pandas.DataFrame
             # TODO: do we want to be more restrictive and check lengths?
             colors = itertools.cycle(colors)
 
+        if hatch is None:
+            # No hatch specified: disable hatching entirely by cycling [None].
+            hatches = itertools.cycle([None])
+
+        elif isinstance(hatch, str):
+            raise ValueError("'hatch' must be a sequence of strings "
+                             "(e.g., ['//']) or None; "
+                             "a single string like '//' is not allowed."
+            )
+
+        else:
+            try:
+                hatch_list = list(hatch)
+            except TypeError:
+                raise ValueError("'hatch' must be a sequence of strings"
+                                 "(e.g., ['//']) or None") from None
+
+            if not hatch_list:
+               # Empty sequence is invalid → raise instead of treating as no hatch.
+               raise ValueError(
+                    "'hatch' must be a non-empty sequence of strings or None; "
+                     "use hatch=None for no hatching."
+                )
+
+            elif not all(h is None or isinstance(h, str) for h in hatch_list):
+                raise TypeError("All entries in 'hatch' must be strings or None")
+
+            else:
+                # Sequence of hatch patterns: cycle through them as needed.
+                # Example: hatch=['//', 'xx', '..'] → patterns repeat across datasets.
+                hatches = itertools.cycle(hatch_list)
+
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
         bar_spacing_abs = bar_spacing * bar_width
@@ -3333,15 +3374,19 @@ or pandas.DataFrame
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
         bar_containers = []
-        for i, (hs, label, color) in enumerate(zip(heights, labels, colors)):
+
+       
+        for i, (hs, label, color, hatch_pattern) in enumerate(
+                zip(heights, labels, colors, hatches)
+        ):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
                 bc = self.bar(lefts, hs, width=bar_width, align="edge",
-                              label=label, color=color, **kwargs)
+                              label=label, color=color, hatch=hatch_pattern, **kwargs)
             else:
                 bc = self.barh(lefts, hs, height=bar_width, align="edge",
-                               label=label, color=color, **kwargs)
+                               label=label, color=color, hatch=hatch_pattern,**kwargs)
             bar_containers.append(bc)
 
         if tick_labels is not None:
