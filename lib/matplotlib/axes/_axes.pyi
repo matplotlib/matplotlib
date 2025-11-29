@@ -310,6 +310,8 @@ class Axes(_AxesBase):
         explode: ArrayLike | None = ...,
         labels: Sequence[str] | None = ...,
         colors: ColorType | Sequence[ColorType] | None = ...,
+        wedge_labels: str | Sequence | None = ...,
+        wedge_label_distance: float | Sequence = ...,
         autopct: str | Callable[[float], str] | None = ...,
         pctdistance: float = ...,
         shadow: bool = ...,

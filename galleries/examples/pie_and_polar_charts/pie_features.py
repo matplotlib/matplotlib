@@ -15,15 +15,15 @@ This example illustrates various parameters of `~matplotlib.axes.Axes.pie`.
 # ------------
 #
 # Plot a pie chart of animals and label the slices. To add
-# labels, pass a list of labels to the *labels* parameter
+# labels, pass a list of labels to the *wedge_labels* parameter.
 
 import matplotlib.pyplot as plt
 
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
-sizes = [15, 30, 45, 10]
+sizes = [12, 24, 36, 8]
 
 fig, ax = plt.subplots()
-ax.pie(sizes, labels=labels)
+ax.pie(sizes, wedge_labels=labels)
 
 # %%
 # Each slice of the pie chart is a `.patches.Wedge` object; therefore in
@@ -31,16 +31,44 @@ ax.pie(sizes, labels=labels)
 # the *wedgeprops* argument, as demonstrated in
 # :doc:`/gallery/pie_and_polar_charts/nested_pie`.
 #
+# Controlling label positions
+# ---------------------------
+# If you want the labels outside the pie, set a *wedge_label_distance* greater than 1.
+# This is the distance from the center of the pie as a fraction of its radius.
+
+fig, ax = plt.subplots()
+ax.pie(sizes, wedge_labels=labels, wedge_label_distance=1.1)
+
+# %%
+#
 # Auto-label slices
 # -----------------
 #
-# Pass a function or format string to *autopct* to label slices.
+# Pass a format string to *wedge_labels* to label slices with their values...
 
 fig, ax = plt.subplots()
-ax.pie(sizes, labels=labels, autopct='%1.1f%%')
+ax.pie(sizes, wedge_labels='{absval:.1f}')
 
 # %%
-# By default, the label values are obtained from the percent size of the slice.
+#
+# ...or with their percentages...
+
+fig, ax = plt.subplots()
+ax.pie(sizes, wedge_labels='{frac:.1%}')
+
+# %%
+#
+# ...or both.
+
+fig, ax = plt.subplots()
+ax.pie(sizes, wedge_labels='{absval:d}\n{frac:.1%}')
+
+# %%
+#
+# For more control over labels, or to add multiple sets, see
+# :doc:`/gallery/pie_and_polar_charts/pie_label`.
+
+# %%
 #
 # Color slices
 # ------------
@@ -48,8 +76,7 @@ ax.pie(sizes, labels=labels, autopct='%1.1f%%')
 # Pass a list of colors to *colors* to set the color of each slice.
 
 fig, ax = plt.subplots()
-ax.pie(sizes, labels=labels,
-       colors=['olivedrab', 'rosybrown', 'gray', 'saddlebrown'])
+ax.pie(sizes, colors=['olivedrab', 'rosybrown', 'gray', 'saddlebrown'])
 
 # %%
 # Hatch slices
@@ -58,22 +85,9 @@ ax.pie(sizes, labels=labels,
 # Pass a list of hatch patterns to *hatch* to set the pattern of each slice.
 
 fig, ax = plt.subplots()
-ax.pie(sizes, labels=labels, hatch=['**O', 'oO', 'O.O', '.||.'])
+ax.pie(sizes, hatch=['**O', 'oO', 'O.O', '.||.'])
 
 # %%
-# Swap label and autopct text positions
-# -------------------------------------
-# Use the *labeldistance* and *pctdistance* parameters to position the *labels*
-# and *autopct* text respectively.
-
-fig, ax = plt.subplots()
-ax.pie(sizes, labels=labels, autopct='%1.1f%%',
-       pctdistance=1.25, labeldistance=.6)
-
-# %%
-# *labeldistance* and *pctdistance* are ratios of the radius; therefore they
-# vary between ``0`` for the center of the pie and ``1`` for the edge of the
-# pie, and can be set to greater than ``1`` to place text outside the pie.
 #
 # Explode, shade, and rotate slices
 # ---------------------------------
@@ -86,11 +100,10 @@ ax.pie(sizes, labels=labels, autopct='%1.1f%%',
 #
 # This example orders the slices, separates (explodes) them, and rotates them.
 
-explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+explode = (0, 0.2, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
 fig, ax = plt.subplots()
-ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
-       shadow=True, startangle=90)
+ax.pie(sizes, explode=explode, wedge_labels='{frac:.1%}', shadow=True, startangle=90)
 plt.show()
 
 # %%
@@ -107,8 +120,7 @@ plt.show()
 
 fig, ax = plt.subplots()
 
-ax.pie(sizes, labels=labels, autopct='%.0f%%',
-       textprops={'size': 'small'}, radius=0.5)
+ax.pie(sizes, wedge_labels='{frac:.1%}', textprops={'size': 'small'}, radius=0.5)
 plt.show()
 
 # %%
@@ -119,8 +131,8 @@ plt.show()
 # the `.Shadow` patch. This can be used to modify the default shadow.
 
 fig, ax = plt.subplots()
-ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
-       shadow={'ox': -0.04, 'edgecolor': 'none', 'shade': 0.9}, startangle=90)
+ax.pie(sizes, explode=explode, shadow={'ox': -0.04, 'edgecolor': 'none', 'shade': 0.9},
+       startangle=90)
 plt.show()
 
 # %%
