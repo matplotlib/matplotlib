@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import shutil
+import sys
 
 from matplotlib import cbook, dviread as dr
 from matplotlib.testing import subprocess_run_for_testing, _has_tex_package
@@ -61,7 +62,7 @@ def test_PsfontsMap(monkeypatch):
         fontmap[b'%']
 
 
-@pytest.mark.skipif(shutil.which("kpsewhich") is None,
+@pytest.mark.skipif(sys.platform == "emscripten" or shutil.which("kpsewhich") is None,
                     reason="kpsewhich is not available")
 @pytest.mark.parametrize("engine", ["pdflatex", "xelatex", "lualatex"])
 def test_dviread(tmp_path, engine, monkeypatch):
