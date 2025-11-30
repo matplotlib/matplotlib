@@ -74,7 +74,7 @@ class Colorizer:
         """
         if vmin is not None or vmax is not None:
             self.set_clim(vmin, vmax)
-            if isinstance(norm, colors.Normalize):
+            if isinstance(norm, colors.Norm):
                 raise ValueError(
                     "Passing a Normalize instance simultaneously with "
                     "vmin/vmax is not supported.  Please pass vmin/vmax "
