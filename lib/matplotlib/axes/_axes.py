@@ -6264,8 +6264,9 @@ or pandas.DataFrame
             See :doc:`/gallery/images_contours_and_fields/image_antialiasing` for
             a discussion of image antialiasing.
 
-            Only 'data' is available when using `~matplotlib.colors.BivarColormap`
-            or `~matplotlib.colors.MultivarColormap`
+            When using a `~matplotlib.colors.BivarColormap` or
+            `~matplotlib.colors.MultivarColormap`, 'data' is the only valid
+            interpolation_stage.
 
         alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -6528,10 +6529,10 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        C : 2D or 3D array-like
+        C : 2D (I, J) or 3D (v, I, J) array-like
             The color-mapped values.  Color-mapping is controlled by *cmap*,
             *norm*, *vmin*, and *vmax*. 3D arrays are supported only if the
-            cmap supports v channels, where v is the size along the first axis.
+            cmap supports v channels.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6658,12 +6659,14 @@ or pandas.DataFrame
             shading = mpl.rcParams['pcolor.shading']
         shading = shading.lower()
 
+        mcolorizer.ColorizingArtist._check_exclusionary_keywords(colorizer,
+                                                                 vmin=vmin, vmax=vmax,
+                                                                 norm=norm, cmap=cmap)
         if colorizer is None:
-            cmap = mcolorizer._ensure_cmap(cmap, accept_multivariate=True)
-            C = mcolorizer._ensure_multivariate_data(args[-1], cmap.n_variates)
-        else:
-            C = mcolorizer._ensure_multivariate_data(args[-1],
-                                                     colorizer.cmap.n_variates)
+            colorizer = mcolorizer.Colorizer(cmap=cmap, norm=norm)
+
+        C = mcolorizer._ensure_multivariate_data(args[-1],
+                                                 colorizer.cmap.n_variates)
 
         X, Y, C, shading = self._pcolorargs('pcolor', *args[:-1], C,
                                             shading=shading, kwargs=kwargs)
@@ -6702,9 +6705,7 @@ or pandas.DataFrame
         coords = stack([X, Y], axis=-1)
 
         collection = mcoll.PolyQuadMesh(
-            coords, array=C, cmap=cmap, norm=norm, colorizer=colorizer,
-            alpha=alpha, **kwargs)
-        collection._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
+            coords, array=C, colorizer=colorizer, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
@@ -6909,13 +6910,14 @@ or pandas.DataFrame
         shading = mpl._val_or_rc(shading, 'pcolor.shading').lower()
         kwargs.setdefault('edgecolors', 'none')
 
+        mcolorizer.ColorizingArtist._check_exclusionary_keywords(colorizer,
+                                                                 vmin=vmin, vmax=vmax,
+                                                                 norm=norm, cmap=cmap)
         if colorizer is None:
-            cmap = mcolorizer._ensure_cmap(cmap, accept_multivariate=True)
-            C = mcolorizer._ensure_multivariate_data(args[-1], cmap.n_variates)
-        else:
-            C = mcolorizer._ensure_multivariate_data(args[-1],
-                                                     colorizer.cmap.n_variates)
+            colorizer = mcolorizer.Colorizer(cmap=cmap, norm=norm)
 
+        C = mcolorizer._ensure_multivariate_data(args[-1],
+                                                 colorizer.cmap.n_variates)
 
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args[:-1], C,
                                             shading=shading, kwargs=kwargs)
@@ -6925,8 +6927,7 @@ or pandas.DataFrame
 
         collection = mcoll.QuadMesh(
             coords, antialiased=antialiased, shading=shading,
-            array=C, cmap=cmap, norm=norm, colorizer=colorizer, alpha=alpha, **kwargs)
-        collection._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
+            array=C, colorizer=colorizer, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y

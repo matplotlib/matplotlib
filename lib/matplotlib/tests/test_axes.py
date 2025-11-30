@@ -10196,7 +10196,7 @@ def test_multivariate_visualizations():
 
     fig, axes = plt.subplots(1, 6, figsize=(10, 2))
 
-    axes[0].imshow((x_0, x_1, x_2), cmap='3VarAddA', interpolation='nearest')
+    axes[0].imshow((x_0, x_1, x_2), cmap='3VarAddA')
     axes[1].matshow((x_0, x_1, x_2), cmap='3VarAddA')
     axes[2].pcolor((x_0, x_1, x_2), cmap='3VarAddA')
     axes[3].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA')
@@ -10276,9 +10276,8 @@ def test_multivariate_imshow_alpha():
 def test_multivariate_pcolormesh_norm():
     """
     Test vmin, vmax and norm
-    Norm is checked via a LogNorm, as this converts
-    A LogNorm converts the input to a masked array, masking for X <= 0
-    By using a LogNorm, this functionality is also tested.
+    Norm is checked via a LogNorm, as this converts the input to a masked array,
+    masking for X <= 0. By using a LogNorm, this functionality is also tested.
     This test covers all plotting modes that use the same pipeline
     (inherit from Collection).
     """
@@ -10291,8 +10290,8 @@ def test_multivariate_pcolormesh_norm():
     axes[0, 0].pcolormesh(x_1)
     axes[0, 1].pcolormesh((x_0, x_1), cmap='BiPeak')
     axes[0, 2].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA')
-    axes[0, 3].pcolormesh((x_0, x_1), cmap='BiPeak')
-    axes[0, 4].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA')
+    axes[0, 3].pcolormesh((x_0, x_1), cmap='BiPeak')  # repeated for visual consistency
+    axes[0, 4].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA')  # repeated
 
     vmin = 1
     vmax = 3
@@ -10305,13 +10304,13 @@ def test_multivariate_pcolormesh_norm():
     axes[1, 4].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA',
                           vmin=(None, vmin, None), vmax=(None, vmax, None))
 
-    n = mcolors.LogNorm(vmin=1, vmax=5)
-    axes[2, 0].pcolormesh(x_1, norm=n)
-    axes[2, 1].pcolormesh((x_0, x_1), cmap='BiPeak', norm=(n, n))
-    axes[2, 2].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA', norm=(n, n, n))
-    axes[2, 3].pcolormesh((x_0, x_1), cmap='BiPeak', norm=('linear', n))
+    norm = mcolors.LogNorm(vmin=1, vmax=5)
+    axes[2, 0].pcolormesh(x_1, norm=norm)
+    axes[2, 1].pcolormesh((x_0, x_1), cmap='BiPeak', norm=(norm, norm))
+    axes[2, 2].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA', norm=(norm, norm, norm))
+    axes[2, 3].pcolormesh((x_0, x_1), cmap='BiPeak', norm=('linear', norm))
     axes[2, 4].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA',
-                          norm=('linear', n, 'linear'))
+                          norm=('linear', norm, 'linear'))
 
     remove_ticks_and_titles(fig)
 
@@ -10378,7 +10377,7 @@ def test_bivariate_cmap_shapes():
                    interpolation='nearest')
 
     # shape = ignore
-    cmap = mpl.bivar_colormaps['BiCone']
+    cmap = mpl.bivar_colormaps['BiPeak']
     cmap = cmap.with_extremes(shape='ignore')
     axes[2].imshow((x_0, x_1), cmap=cmap, vmin=(1, 1), vmax=(8, 8),
                    interpolation='nearest')
