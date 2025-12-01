@@ -1578,7 +1578,8 @@ class RadioButtons(AxesWidget):
     value_selected : str
         The label text of the currently selected button.
     index_selected : int
-        The index of the selected button.
+        The index of the selected button in the flattened array. For 2D grids,
+        this is the index when reading left-to-right, top-to-bottom.
     """
 
     def __init__(self, ax, labels, active=0, activecolor=None, *,
@@ -1590,10 +1591,16 @@ class RadioButtons(AxesWidget):
         ----------
         ax : `~matplotlib.axes.Axes`
             The Axes to add the buttons to.
-        labels : list of str
-            The button labels.
+        labels : list of str or list of list of str
+            The button labels. If a list of strings, buttons are arranged
+            vertically. If a list of lists of strings, buttons are arranged
+            in a 2D grid where each inner list represents a row. For simple
+            horizontal radio buttons, use:
+            ``labels=[['button1', 'button2', 'button3']]``
         active : int
-            The index of the initially selected button.
+            The index of the initially selected button in the flattened array.
+            For 2D grids, this is the index when reading left-to-right,
+            top-to-bottom.
         activecolor : :mpltype:`color`
             The color of the selected button. The default is ``'blue'`` if not
             specified here or in *radio_props*.
@@ -1606,8 +1613,8 @@ class RadioButtons(AxesWidget):
         label_props : dict of lists, optional
             Dictionary of `.Text` properties to be used for the labels. Each
             dictionary value should be a list of at least a single element. If
-            the list is of length M, its values are cycled such that the Nth
-            label gets the (N mod M) property.
+            the flat list of labels is of length M, its values are cycled such
+            that the Nth label gets the (N mod M) property.
 
             .. versionadded:: 3.7
         radio_props : dict, optional
@@ -1627,6 +1634,14 @@ class RadioButtons(AxesWidget):
         _api.check_isinstance((dict, None), label_props=label_props,
                               radio_props=radio_props)
 
+        # Check if labels is 2D (list of lists)
+        _is_2d = isinstance(labels[0], (list, tuple))
+
+        if _is_2d:
+            flat_labels = [item for row in labels for item in row]
+        else:
+            flat_labels = list(labels)
+
         radio_props = cbook.normalize_kwargs(radio_props,
                                              collections.PathCollection)
         if activecolor is not None:
@@ -1640,24 +1655,98 @@ class RadioButtons(AxesWidget):
 
         self._activecolor = activecolor
         self._initial_active = active
-        self.value_selected = labels[active]
+        self.value_selected = flat_labels[active]
         self.index_selected = active
 
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_navigate(False)
 
-        ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
-
         self._useblit = useblit and self.canvas.supports_blit
         self._background = None
 
         label_props = _expand_text_props(label_props)
+        # Calculate positions based on layout
+        text_x_offset = 0.10
+
+        if _is_2d:
+            n_rows = len(labels)
+            n_cols = max(len(row) for row in labels)
+            # Y positions with margins
+            y_margin = 0.05
+            y_spacing = (1 - 2 * y_margin) / max(1, n_rows - 1) if n_rows > 1 else 0
+
+            # Create temporary text objects to measure widths
+            flat_label_list = []
+            temp_texts = []
+            for i, row in enumerate(labels):
+                for j, label in enumerate(row):
+                    flat_label_list.append(label)
+            for label, props in zip(flat_label_list, label_props):
+                temp_texts.append(ax.text(
+                    0,
+                    0,
+                    label,
+                    transform=ax.transAxes,
+                    **props,
+                ))
+            # Force a draw to get accurate text measurements
+            ax.figure.canvas.draw()
+            # Calculate max text width per column (in axes coordinates)
+            col_widths = []
+            for col_idx in range(n_cols):
+                col_texts = []
+                for row_idx, row in enumerate(labels):
+                    if col_idx < len(row):
+                        col_texts.append(temp_texts[
+                            sum(len(labels[r]) for r in range(row_idx)) + col_idx
+                        ])
+                if col_texts:
+                    col_widths.append(
+                        max(
+                            text.get_window_extent(
+                                ax.figure.canvas.get_renderer()
+                            ).width
+                            for text in col_texts
+                        ) / ax.bbox.width
+                    )
+                else:
+                    col_widths.append(0)
+            # Remove temporary text objects
+            for text in temp_texts:
+                text.remove()
+            # Calculate x positions based on text widths
+            # TODO: Should these be arguments?
+            button_x_margin = 0.07  # Left margin for first button
+            col_spacing = 0.07  # Space between columns
+
+            col_x_positions = [button_x_margin]  # First column starts at left margin
+            for col_idx in range(n_cols - 1):
+                col_x_positions.append(sum([
+                    col_x_positions[-1],
+                    text_x_offset,
+                    col_widths[col_idx],
+                    col_spacing
+                ]))
+            # Create final positions
+            positions = []
+            for i, row in enumerate(labels):
+                y = 1 - y_margin - i * y_spacing
+                for j, label in enumerate(row):
+                    x = col_x_positions[j]
+                    positions.append((x, y))
+            xs = [pos[0] for pos in positions]
+            ys = [pos[1] for pos in positions]
+        else:
+            ys = np.linspace(1, 0, len(flat_labels) + 2)[1:-1]
+            xs = [0.15] * len(ys)
+            flat_label_list = flat_labels
+
         self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
+            ax.text(x + text_x_offset, y, label, transform=ax.transAxes,
                     horizontalalignment="left", verticalalignment="center",
                     **props)
-            for y, label, props in zip(ys, labels, label_props)]
+            for x, y, label, props in zip(xs, ys, flat_label_list, label_props)]
         text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         radio_props = {
@@ -1670,13 +1759,13 @@ class RadioButtons(AxesWidget):
         radio_props.setdefault('edgecolor', radio_props.get('color', 'black'))
         radio_props.setdefault('facecolor',
                                radio_props.pop('color', activecolor))
-        self._buttons = ax.scatter([.15] * len(ys), ys, **radio_props)
+        self._buttons = ax.scatter(xs, ys, **radio_props)
         # The user may have passed custom colours in radio_props, so we need to
         # create the radios, and modify the visibility after getting whatever
         # the user set.
         self._active_colors = self._buttons.get_facecolor()
         if len(self._active_colors) == 1:
-            self._active_colors = np.repeat(self._active_colors, len(labels),
+            self._active_colors = np.repeat(self._active_colors, len(flat_labels),
                                             axis=0)
         self._buttons.set_facecolor(
             [activecolor if i == active else "none"
