@@ -278,7 +278,10 @@ class Colorizer:
         """
         Return the values (min, max) that are mapped to the colormap limits.
         """
-        return self.norm.vmin, self.norm.vmax
+        if self.norm.n_components == 1:
+            return (self.norm.vmin, ), (self.norm.vmax, )
+        else:
+            return self.norm.vmin, self.norm.vmax
 
     def changed(self):
         """
@@ -306,7 +309,10 @@ class Colorizer:
 
     @property
     def clip(self):
-        return self.norm.clip
+        if self.norm.n_components == 1:
+            return (self.norm.clip, )
+        else:
+            return self.norm.clip
 
     @clip.setter
     def clip(self, clip):
@@ -360,8 +366,14 @@ class _ColorizerInterface:
     def get_clim(self):
         """
         Return the values (min, max) that are mapped to the colormap limits.
+
+        This function is not available for multivariate data.
         """
-        return self._colorizer.get_clim()
+        if self._colorizer.norm.n_components > 1:
+            raise AttributeError("`.get_clim()` is unavailable when using a colormap "
+                                 "with multiple components. Use "
+                                 "`.colorizer.get_clim()` instead")
+        return self.colorizer.norm.vmin, self.colorizer.norm.vmax
 
     def set_clim(self, vmin=None, vmax=None):
         """
@@ -376,9 +388,15 @@ class _ColorizerInterface:
              tuple (*vmin*, *vmax*) as a single positional argument.
 
              .. ACCEPTS: (vmin: float, vmax: float)
+
+        This function is not available for multivariate data.
         """
         # If the norm's limits are updated self.changed() will be called
         # through the callbacks attached to the norm
+        if self._colorizer.norm.n_components > 1:
+            raise AttributeError("`.set_clim(vmin, vmax)` is unavailable "
+                                 "when using a colormap with multiple components. Use "
+                                 "`.colorizer.set_clim(vmin, vmax)` instead")
         self._colorizer.set_clim(vmin, vmax)
 
     def get_alpha(self):
