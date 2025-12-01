@@ -201,6 +201,7 @@ class TextBox(AxesWidget):
 class RadioButtons(AxesWidget):
     activecolor: ColorType
     value_selected: str
+    index_selected: int
     labels: list[Text]
     def __init__(
         self,
