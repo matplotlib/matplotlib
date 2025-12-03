@@ -17,6 +17,7 @@ python_sources = [
   '_mathtext.py',
   '_mathtext_data.py',
   '_pylab_helpers.py',
+  '_style_helpers.py',
   '_text_helpers.py',
   '_tight_bbox.py',
   '_tight_layout.py',

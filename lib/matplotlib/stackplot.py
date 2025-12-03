@@ -6,11 +6,10 @@ https://stackoverflow.com/q/2225995/
 (https://stackoverflow.com/users/66549/doug)
 """
 
-import itertools
 
 import numpy as np
 
-from matplotlib import _api
+from matplotlib import cbook, collections, _api, _style_helpers
 
 __all__ = ['stackplot']
 
@@ -71,7 +70,14 @@ def stackplot(axes, x, *args,
         DATA_PARAMETER_PLACEHOLDER
 
     **kwargs
-        All other keyword arguments are passed to `.Axes.fill_between`.
+        All other keyword arguments are passed to `.Axes.fill_between`.  The
+            following parameters additionally accept a sequence of values
+            corresponding to the *y* datasets:
+            *edgecolor(s)*, *facecolor(s)*, *linewidth(s)*, *linestyle(s)*.
+
+            .. versionadded:: 3.11
+               Allowing sequences of values in above listed `.Axes.fill_between`
+               parameters.
 
     Returns
     -------
@@ -83,15 +89,14 @@ def stackplot(axes, x, *args,
     y = np.vstack(args)
 
     labels = iter(labels)
-    if colors is not None:
-        colors = itertools.cycle(colors)
-    else:
-        colors = (axes._get_lines.get_next_color() for _ in y)
+    if colors is None:
+        colors = [axes._get_lines.get_next_color() for _ in y]
 
-    if hatch is None or isinstance(hatch, str):
-        hatch = itertools.cycle([hatch])
-    else:
-        hatch = itertools.cycle(hatch)
+    kwargs['hatch'] = hatch
+    kwargs = cbook.normalize_kwargs(kwargs, collections.PolyCollection)
+    kwargs.setdefault('facecolor', colors)
+
+    kwargs, style_gen = _style_helpers.style_generator(kwargs)
 
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
@@ -130,18 +135,14 @@ def stackplot(axes, x, *args,
 
     # Color between x = 0 and the first array.
     coll = axes.fill_between(x, first_line, stack[0, :],
-                             facecolor=next(colors),
-                             hatch=next(hatch),
                              label=next(labels, None),
-                             **kwargs)
+                             **next(style_gen), **kwargs)
     coll.sticky_edges.y[:] = [0]
     r = [coll]
 
     # Color between array i-1 and array i
     for i in range(len(y) - 1):
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
-                                   facecolor=next(colors),
-                                   hatch=next(hatch),
                                    label=next(labels, None),
-                                   **kwargs))
+                                   **next(style_gen), **kwargs))
     return r
