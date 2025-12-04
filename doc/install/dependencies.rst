@@ -234,7 +234,7 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
   Also a runtime dependency for editable installs.
-- `NumPy <https://numpy.org>`_ (>= 1.22).  Also a runtime dependency.
+- NumPy_ (>= 1.22).  Also a runtime dependency.
 
 
 .. _compile-build-dependencies:
@@ -473,7 +473,7 @@ Optional
 The documentation can be built without Inkscape and optipng, but the build
 process will raise various warnings.
 
-* `Inkscape <https://inkscape.org>`_
+* Inkscape_
 * `optipng <http://optipng.sourceforge.net>`_
 * the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_
 * the font "Times New Roman"
