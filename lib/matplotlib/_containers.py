@@ -32,6 +32,12 @@ def _get_graph(ax):
                 desc_like(xy, coordinates="display"),
                 transform=ax.transAxes,
             ),
+            TransformEdge(
+                "dpi",
+                desc_like(xy, coordinates="display_inches"),
+                desc_like(xy, coordinates="display"),
+                transform=ax.figure.dpi_scale_trans,
+            ),
         ],
         aliases=(("parent", "axes"),),
     )
