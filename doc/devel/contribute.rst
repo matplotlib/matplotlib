@@ -245,11 +245,11 @@ process works, technical questions about the code, what makes for good
 documentation or a blog post, how to get involved in community work, or get a
 "pre-review" on your PR.
 
-To join, please go to our public community_ channel, and ask to be added to
+To join, please go to our public `community gitter`_ channel, and ask to be added to
 ``#incubator``. One of our core developers will see your message and will add you.
 
 .. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
+.. _community gitter: https://gitter.im/matplotlib/community
 
 .. _good_first_issues:
 
@@ -313,10 +313,7 @@ active contributors, many of whom felt just like you when they started out and
 are happy to welcome you and support you as you get to know how we work, and
 where things are. You can reach out on any of our :ref:`communication-channels`.
 For development questions we recommend reaching out on our development gitter_
-chat room and for community questions reach out at community_.
-
-.. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
+chat room and for community questions reach out at `community gitter`_.
 
 .. _managing_issues_prs:
 
