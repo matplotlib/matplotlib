@@ -1,6 +1,8 @@
 Getting started
 ===============
 
+This guide will help you install Matplotlib and create your first visualization in minutes.
+
 Installation quick-start
 ------------------------
 
