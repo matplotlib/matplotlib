@@ -87,8 +87,13 @@ class SizedCollectionContainer(CollectionContainer):
         self.factor = factor
 
     def query(self, graph, parent_coordinates="axes"):
-        # TODO: get dpi from graph or refactor transform to be dpi independent
-        dpi = 100.0
+        desc = Desc(("N",))
+        dpi_eval = graph.evaluator(
+            desc_like({"x": desc, "y": desc}, coordinates="display_inches"),
+            desc_like({"x": desc, "y": desc}, coordinates="display"),
+        )
+        dpi = dpi_eval.evaluate({"x": [1], "y": [1]})["x"][0]
+
         d, hash = super().query(graph, parent_coordinates)
         transforms = np.zeros((len(self.sizes), 3, 3))
         scale = np.sqrt(self.sizes) * dpi / 72.0 * self.factor
@@ -147,8 +152,13 @@ class EllipseCollectionContainer(CollectionContainer):
         self.units = units
 
     def query(self, graph, parent_coordinates="axes"):
-        # TODO: get dpi from graph or refactor transform to be dpi independent
-        dpi = 100.0
+        desc = Desc(("N",))
+        dpi_eval = graph.evaluator(
+            desc_like({"x": desc, "y": desc}, coordinates="display_inches"),
+            desc_like({"x": desc, "y": desc}, coordinates="display"),
+        )
+        dpi = dpi_eval.evaluate({"x": [1], "y": [1]})["x"][0]
+
         d, hash = super().query(graph, parent_coordinates)
 
         # TODO: this section is verbose and likely to be useful elsewhere
@@ -193,7 +203,6 @@ class EllipseCollectionContainer(CollectionContainer):
             raise ValueError(f'Unrecognized units: {self._units!r}')
 
 
-        print(f"{sc=}, {self.units=}")
         transforms = np.zeros((len(self.widths), 3, 3))
         widths = self.widths * sc
         heights = self.heights * sc
