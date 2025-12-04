@@ -204,6 +204,25 @@ P11X_DECLARE_ENUM(
     {"TARGET_LCD_V", LoadFlags::TARGET_LCD_V},
 );
 
+const char *RenderMode__doc__ = R"""(
+    Render modes.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-glyph_retrieval.html#ft_render_mode>`_.
+
+    .. versionadded:: 3.10
+)""";
+
+P11X_DECLARE_ENUM(
+    "RenderMode", "Enum",
+    {"NORMAL", FT_RENDER_MODE_NORMAL},
+    {"LIGHT", FT_RENDER_MODE_LIGHT},
+    {"MONO", FT_RENDER_MODE_MONO},
+    {"LCD", FT_RENDER_MODE_LCD},
+    {"LCD_V", FT_RENDER_MODE_LCD_V},
+    {"SDF", FT_RENDER_MODE_SDF},
+);
+
 const char *StyleFlags__doc__ = R"""(
     Flags returned by `FT2Font.style_flags`.
 
@@ -264,6 +283,53 @@ PyFT2Image_draw_rect_filled(FT2Image *self,
 
     self->draw_rect_filled(x0, y0, x1, y1);
 }
+
+/**********************************************************************
+ * Positioned Bitmap; owns the FT_Bitmap!
+ * */
+
+struct PyPositionedBitmap {
+    FT_Int left, top;
+    bool owning;
+    FT_Bitmap bitmap;
+
+    PyPositionedBitmap(FT_GlyphSlot slot) :
+        left{slot->bitmap_left}, top{slot->bitmap_top}, owning{true}
+    {
+        FT_Bitmap_Init(&bitmap);
+        if (slot->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
+            FT_CHECK(FT_Bitmap_Convert, _ft2Library, &slot->bitmap, &bitmap, 1);
+        } else {
+            FT_CHECK(FT_Bitmap_Copy, _ft2Library, &slot->bitmap, &bitmap);
+        }
+    }
+
+    PyPositionedBitmap(FT_BitmapGlyph bg) :
+        left{bg->left}, top{bg->top}, owning{true}
+    {
+        FT_Bitmap_Init(&bitmap);
+        if (bg->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
+            FT_CHECK(FT_Bitmap_Convert, _ft2Library, &bg->bitmap, &bitmap, 1);
+        } else {
+            FT_CHECK(FT_Bitmap_Copy, _ft2Library, &bg->bitmap, &bitmap);
+        }
+    }
+
+    PyPositionedBitmap(PyPositionedBitmap& other) = delete;  // Non-copyable.
+
+    PyPositionedBitmap(PyPositionedBitmap&& other) :
+        left{other.left}, top{other.top}, owning{true}, bitmap{other.bitmap}
+    {
+        other.owning = false;  // Prevent double deletion.
+    }
+
+    ~PyPositionedBitmap()
+    {
+        if (owning) {
+            FT_Bitmap_Done(_ft2Library, &bitmap);
+        }
+    }
+};
 
 /**********************************************************************
  * Glyph
@@ -543,6 +609,19 @@ const char *PyFT2Font_set_size__doc__ = R"""(
         The size of the text in points.
     dpi : float
         The DPI used for rendering the text.
+)""";
+
+const char *PyFT2Font__set_transform__doc__ = R"""(
+    Set the transform of the text.
+
+    This is a low-level function, where *matrix* and *delta* are directly in
+    16.16 and 26.6 formats respectively.  Refer to the FreeType docs of
+    FT_Set_Transform for further description.
+
+    Parameters
+    ----------
+    matrix : (2, 2) array of int
+    delta : (2,) array of int
 )""";
 
 const char *PyFT2Font_set_charmap__doc__ = R"""(
@@ -1565,6 +1644,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
     p11x::bind_enums(m);
     p11x::enums["Kerning"].attr("__doc__") = Kerning__doc__;
     p11x::enums["LoadFlags"].attr("__doc__") = LoadFlags__doc__;
+    p11x::enums["RenderMode"].attr("__doc__") = RenderMode__doc__;
     p11x::enums["FaceFlags"].attr("__doc__") = FaceFlags__doc__;
     p11x::enums["StyleFlags"].attr("__doc__") = StyleFlags__doc__;
 
@@ -1590,6 +1670,27 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             std::vector<py::size_t> strides { self.get_width(), 1 };
             return py::buffer_info(self.get_buffer(), shape, strides);
         });
+
+    py::class_<PyPositionedBitmap>(m, "_PositionedBitmap", py::is_final())
+        .def_readonly("left", &PyPositionedBitmap::left)
+        .def_readonly("top", &PyPositionedBitmap::top)
+        .def_property_readonly(
+          "buffer", [](PyPositionedBitmap &self) -> py::array {
+            if (self.bitmap.pixel_mode == FT_PIXEL_MODE_BGRA) {
+                return {
+                    py::array::ShapeContainer({self.bitmap.rows, self.bitmap.width, 4}),
+                    py::array::StridesContainer({self.bitmap.pitch, 4, 1}),
+                    self.bitmap.buffer
+                };
+            } else {
+                return {
+                    {self.bitmap.rows, self.bitmap.width},
+                    {self.bitmap.pitch, 1},
+                    self.bitmap.buffer
+                };
+            }
+        })
+        ;
 
     py::class_<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
         .def(py::init<>([]() -> PyGlyph {
@@ -1651,6 +1752,8 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("clear", &PyFT2Font::clear, PyFT2Font_clear__doc__)
         .def("set_size", &PyFT2Font::set_size, "ptsize"_a, "dpi"_a,
              PyFT2Font_set_size__doc__)
+        .def("_set_transform", &PyFT2Font::_set_transform, "matrix"_a, "delta"_a,
+             PyFT2Font__set_transform__doc__)
         .def("set_charmap", &PyFT2Font::set_charmap, "i"_a,
              PyFT2Font_set_charmap__doc__)
         .def("select_charmap", &PyFT2Font::select_charmap, "i"_a,
@@ -1813,10 +1916,22 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_property_readonly(
           "fname", &PyFT2Font_fname,
           "The original filename for this object.")
+        .def_property_readonly(
+          "_hinting_factor", &PyFT2Font::get_hinting_factor,
+          "The hinting factor.")
 
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
             return self.get_image().request();
-        });
+        })
+
+        .def("_render_glyph",
+             [](PyFT2Font *self, FT_UInt idx, LoadFlags flags, FT_Render_Mode render_mode) {
+                auto face = self->get_face();
+                FT_CHECK(FT_Load_Glyph, face, idx, static_cast<FT_Int32>(flags));
+                FT_CHECK(FT_Render_Glyph, face->glyph, render_mode);
+                return PyPositionedBitmap{face->glyph};
+            })
+        ;
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;
