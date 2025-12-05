@@ -1594,7 +1594,9 @@ class RadioButtons(AxesWidget):
         labels : list of str or list of list of str
             The button labels. If a list of strings, buttons are arranged
             vertically. If a list of lists of strings, buttons are arranged
-            in a 2D grid where each inner list represents a row.
+            in a 2D grid where each inner list represents a row. For simple
+            horizontal radio buttons, use:
+            ``labels=[['button1', 'button2', 'button3']]``
         active : int
             The index of the initially selected button in the flattened array.
             For 2D grids, this is the index when reading left-to-right,
