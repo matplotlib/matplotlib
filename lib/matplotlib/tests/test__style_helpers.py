@@ -2,7 +2,7 @@ import pytest
 
 import matplotlib.colors as mcolors
 from matplotlib.lines import _get_dash_pattern
-from matplotlib._style_helpers import style_generator
+from matplotlib._style_helpers import iterate_styles
 
 
 @pytest.mark.parametrize('key, value', [('facecolor', ["b", "g", "r"]),
@@ -10,21 +10,20 @@ from matplotlib._style_helpers import style_generator
                                         ('hatch', ["/", "\\", "."]),
                                         ('linestyle', ["-", "--", ":"]),
                                         ('linewidth', [1, 1.5, 2])])
-def test_style_generator_list(key, value):
+def test_iterate_styles_list(key, value):
     kw = {'foo': 12, key: value}
-    new_kw, gen = style_generator(kw)
-
-    assert new_kw == {'foo': 12}
+    gen_kw = iterate_styles(kw)
 
     for v in value * 2:  # Result should repeat
-        style_dict = next(gen)
-        assert len(style_dict) == 1
+        kw_dict = next(gen_kw)
+        assert len(kw_dict) == 2
+        assert kw_dict['foo'] == 12
         if key.endswith('color'):
-            assert mcolors.same_color(v, style_dict[key])
+            assert mcolors.same_color(v, kw_dict[key])
         elif key == 'linestyle':
-            assert _get_dash_pattern(v) == style_dict[key]
+            assert _get_dash_pattern(v) == kw_dict[key]
         else:
-            assert v == style_dict[key]
+            assert v == kw_dict[key]
 
 
 @pytest.mark.parametrize('key, value', [('facecolor', "b"),
@@ -32,46 +31,46 @@ def test_style_generator_list(key, value):
                                         ('hatch', "/"),
                                         ('linestyle', "-"),
                                         ('linewidth', 1)])
-def test_style_generator_single(key, value):
+def test_iterate_styles_single(key, value):
     kw = {'foo': 12, key: value}
-    new_kw, gen = style_generator(kw)
+    gen_kw = iterate_styles(kw)
 
-    assert new_kw == {'foo': 12}
     for _ in range(2):  # Result should repeat
-        style_dict = next(gen)
+        kw_dict = next(gen_kw)
+        assert len(kw_dict) == 2
+        assert kw_dict['foo'] == 12
         if key.endswith('color'):
-            assert mcolors.same_color(value, style_dict[key])
-        elif key == 'linestyle':
-            assert _get_dash_pattern(value) == style_dict[key]
+            assert mcolors.same_color(value, kw_dict[key])
         else:
-            assert value == style_dict[key]
+            assert value == kw_dict[key]
 
 
 @pytest.mark.parametrize('key', ['facecolor', 'hatch', 'linestyle'])
-def test_style_generator_empty(key):
+def test_iterate_styles_empty(key):
     kw = {key: []}
+    gen_kw = iterate_styles(kw)
     with pytest.raises(TypeError, match=f'{key} must not be an empty sequence'):
-        style_generator(kw)
+        next(gen_kw)
 
 
-def test_style_generator_sequence_type_styles():
+def test_iterate_styles_sequence_type_styles():
     kw = {'facecolor':  ('r', 0.5),
           'edgecolor': [0.5, 0.5, 0.5],
           'linestyle': (0, (1, 1))}
 
-    _, gen = style_generator(kw)
+    gen_kw = iterate_styles(kw)
     for _ in range(2):  # Result should repeat
-        style_dict = next(gen)
-        mcolors.same_color(kw['facecolor'], style_dict['facecolor'])
-        mcolors.same_color(kw['edgecolor'], style_dict['edgecolor'])
-        kw['linestyle'] == style_dict['linestyle']
+        kw_dict = next(gen_kw)
+        mcolors.same_color(kw['facecolor'], kw_dict['facecolor'])
+        mcolors.same_color(kw['edgecolor'], kw_dict['edgecolor'])
+        kw['linestyle'] == kw_dict['linestyle']
 
 
-def test_style_generator_none():
+def test_iterate_styles_none():
     kw = {'facecolor': 'none',
           'edgecolor': 'none'}
-    _, gen = style_generator(kw)
+    gen_kw = iterate_styles(kw)
     for _ in range(2):  # Result should repeat
-        style_dict = next(gen)
-        assert style_dict['facecolor'] == 'none'
-        assert style_dict['edgecolor'] == 'none'
+        kw_dict = next(gen_kw)
+        assert kw_dict['facecolor'] == 'none'
+        assert kw_dict['edgecolor'] == 'none'
