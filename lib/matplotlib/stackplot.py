@@ -96,7 +96,7 @@ def stackplot(axes, x, *args,
     kwargs = cbook.normalize_kwargs(kwargs, collections.PolyCollection)
     kwargs.setdefault('facecolor', colors)
 
-    kwargs, style_gen = _style_helpers.style_generator(kwargs)
+    kwargs_gen = _style_helpers.iterate_styles(kwargs)
 
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
@@ -136,7 +136,7 @@ def stackplot(axes, x, *args,
     # Color between x = 0 and the first array.
     coll = axes.fill_between(x, first_line, stack[0, :],
                              label=next(labels, None),
-                             **next(style_gen), **kwargs)
+                             **next(kwargs_gen))
     coll.sticky_edges.y[:] = [0]
     r = [coll]
 
@@ -144,5 +144,5 @@ def stackplot(axes, x, *args,
     for i in range(len(y) - 1):
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    label=next(labels, None),
-                                   **next(style_gen), **kwargs))
+                                   **next(kwargs_gen)))
     return r
