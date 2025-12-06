@@ -327,6 +327,7 @@
                      # zapf chancery, charter, serif, sans-serif, helvetica,
                      # avant garde, courier, monospace, computer modern roman,
                      # computer modern sans serif, computer modern typewriter
+#text.latex.engine: latex
 #text.latex.preamble:   # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
                         # AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
                         # IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
