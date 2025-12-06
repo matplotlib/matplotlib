@@ -370,6 +370,7 @@ RcKeyType: TypeAlias = Literal[
     "legend.handletextpad",
     "legend.labelcolor",
     "legend.labelspacing",
+    "legend.linewidth",
     "legend.loc",
     "legend.markerscale",
     "legend.numpoints",
