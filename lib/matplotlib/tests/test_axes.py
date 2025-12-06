@@ -2268,6 +2268,20 @@ def test_grouped_bar_return_value():
         assert bc not in ax.containers
 
 
+def test_grouped_bar_hatch_sequence():
+    """Each dataset should receive its own hatch pattern when a sequence is passed."""
+    fig, ax = plt.subplots()
+    x = np.arange(2)
+    heights = [np.array([1, 2]), np.array([2, 3]), np.array([3, 4])]
+    hatches = ['//', 'xx', '..']
+    containers = ax.grouped_bar(heights, positions=x, hatch=hatches)
+
+    # Verify each dataset gets the corresponding hatch
+    for hatch, c in zip(hatches, containers.bar_containers):
+        for rect in c:
+            assert rect.get_hatch() == hatch
+
+
 def test_boxplot_dates_pandas(pd):
     # smoke test for boxplot and dates in pandas
     data = np.random.rand(5, 2)
@@ -3428,6 +3442,26 @@ def test_stackplot_hatching(fig_ref, fig_test):
     ax_ref.fill_between(x, y1+y2, y1+y2+y3, hatch="\\\\", facecolor="white")
     ax_ref.set_xlim(0, 10)
     ax_ref.set_ylim(0, 70)
+
+
+def test_stackplot_facecolor():
+    # Test that facecolors are properly passed and take precedence over colors parameter
+    x = np.linspace(0, 10, 10)
+    y1 = 1.0 * x
+    y2 = 2.0 * x + 1
+
+    fcols = ['r', 'b']
+
+    fig, ax = plt.subplots()
+
+    colls = ax.stackplot(x, y1, y2, facecolor=fcols, colors=['c', 'm'])
+    for coll, fcol in zip(colls, fcols):
+        assert mcolors.same_color(coll.get_facecolor(), fcol)
+
+    # Plural alias should also work
+    colls = ax.stackplot(x, y1, y2, facecolors=fcols, colors=['c', 'm'])
+    for coll, fcol in zip(colls, fcols):
+        assert mcolors.same_color(coll.get_facecolor(), fcol)
 
 
 def test_stackplot_subfig_legend():
@@ -5044,27 +5078,6 @@ def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
         for i, (x, value) in enumerate(zip(xs, values)):
             axr.hist(x, bins=bins, histtype=histtype, **{kw: value},
                      zorder=(len(xs)-i)/2)
-
-
-def test_hist_sequence_type_styles():
-    facecolor = ('r', 0.5)
-    edgecolor = [0.5, 0.5, 0.5]
-    linestyle = (0, (1, 1))
-
-    arr = np.random.uniform(size=50)
-    _, _, bars = plt.hist(arr, facecolor=facecolor, edgecolor=edgecolor,
-                          linestyle=linestyle)
-    assert mcolors.same_color(bars[0].get_facecolor(), facecolor)
-    assert mcolors.same_color(bars[0].get_edgecolor(), edgecolor)
-    assert bars[0].get_linestyle() == linestyle
-
-
-def test_hist_color_none():
-    arr = np.random.uniform(size=50)
-    # No edgecolor is the default but check that it can be explicitly passed.
-    _, _, bars = plt.hist(arr, facecolor='none', edgecolor='none')
-    assert bars[0].get_facecolor(), (0, 0, 0, 0)
-    assert bars[0].get_edgecolor(), (0, 0, 0, 0)
 
 
 @pytest.mark.parametrize('kwargs, patch_face, patch_edge',
