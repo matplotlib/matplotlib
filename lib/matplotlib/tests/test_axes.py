@@ -6365,8 +6365,23 @@ def test_pie_default():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
     fig1, ax1 = plt.subplots(figsize=(8, 6))
-    ax1.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90)
+    ax1.pie(sizes, explode=explode, wedge_labels=labels, wedge_label_distance=1.1,
+            colors=colors, autopct='%1.1f%%', shadow=True, startangle=90)
+
+
+@image_comparison(['pie_default.png'], tol=0.01)
+def test_pie_default_legacy():
+    # Same as above, but uses labels parameter.  Remove after labeldistance
+    # parameter deprecation expires.
+    # The slices will be ordered and plotted counter-clockwise.
+    labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
+    sizes = [15, 30, 45, 10]
+    colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
+    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+    fig1, ax1 = plt.subplots(figsize=(8, 6))
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ax1.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=90)
 
 
 @image_comparison(['pie_linewidth_0', 'pie_linewidth_0', 'pie_linewidth_0'],
@@ -6378,27 +6393,30 @@ def test_pie_linewidth_0():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode, wedge_labels=labels, wedge_label_distance=1.1,
+            colors=colors, autopct='%1.1f%%', shadow=True, startangle=90,
             wedgeprops={'linewidth': 0})
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
-    # Reuse testcase from above for a labeled data test
+    # Reuse testcase from above for a labeled data test.  Include legend labels
+    # to smoke test that they are correctly unpacked.
     data = {"l": labels, "s": sizes, "c": colors, "ex": explode}
     fig = plt.figure()
     ax = fig.gca()
-    ax.pie("s", explode="ex", labels="l", colors="c",
+    ax.pie("s", explode="ex", wedge_labels="l", colors="c", wedge_label_distance=1.1,
            autopct='%1.1f%%', shadow=True, startangle=90,
-           wedgeprops={'linewidth': 0}, data=data)
+           labels="l", labeldistance=None, wedgeprops={'linewidth': 0},
+           data=data)
     ax.axis('equal')
 
     # And again to test the pyplot functions which should also be able to be
     # called with a data kwarg
     plt.figure()
-    plt.pie("s", explode="ex", labels="l", colors="c",
+    plt.pie("s", explode="ex", wedge_labels="l", colors="c", wedge_label_distance=1.1,
             autopct='%1.1f%%', shadow=True, startangle=90,
-            wedgeprops={'linewidth': 0}, data=data)
+            labels="l", labeldistance=None, wedgeprops={'linewidth': 0},
+            data=data)
     plt.axis('equal')
 
 
@@ -6410,8 +6428,8 @@ def test_pie_center_radius():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode, wedge_labels=labels, wedge_label_distance=1.1,
+            colors=colors, autopct='%1.1f%%', shadow=True, startangle=90,
             wedgeprops={'linewidth': 0}, center=(1, 2), radius=1.5)
 
     plt.annotate("Center point", xy=(1, 2), xytext=(1, 1.3),
@@ -6430,8 +6448,8 @@ def test_pie_linewidth_2():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode, wedge_labels=labels, wedge_label_distance=1.1,
+            colors=colors, autopct='%1.1f%%', shadow=True, startangle=90,
             wedgeprops={'linewidth': 2})
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
@@ -6445,8 +6463,8 @@ def test_pie_ccw_true():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode, wedge_labels=labels, wedge_label_distance=1.1,
+            colors=colors, autopct='%1.1f%%', shadow=True, startangle=90,
             counterclock=True)
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
@@ -6461,18 +6479,18 @@ def test_pie_frame_grid():
     # only "explode" the 2nd slice (i.e. 'Hogs')
     explode = (0, 0.1, 0, 0)
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode, wedge_labels=labels, wedge_label_distance=1.1,
+            colors=colors, autopct='%1.1f%%', shadow=True, startangle=90,
             wedgeprops={'linewidth': 0},
             frame=True, center=(2, 2))
 
-    plt.pie(sizes[::-1], explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes[::-1], explode=explode, wedge_labels=labels, wedge_label_distance=1.1,
+            colors=colors, autopct='%1.1f%%', shadow=True, startangle=90,
             wedgeprops={'linewidth': 0},
             frame=True, center=(5, 2))
 
-    plt.pie(sizes, explode=explode[::-1], labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
+    plt.pie(sizes, explode=explode[::-1], wedge_labels=labels, wedge_label_distance=1.1,
+            colors=colors, autopct='%1.1f%%', shadow=True, startangle=90,
             wedgeprops={'linewidth': 0},
             frame=True, center=(3, 5))
     # Set aspect ratio to be equal so that pie is drawn as a circle.
@@ -6480,16 +6498,34 @@ def test_pie_frame_grid():
 
 
 @image_comparison(['pie_rotatelabels_true.png'], style='mpl20', tol=0.009)
-def test_pie_rotatelabels_true():
+def test_pie_label_rotate():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'
     sizes = [15, 30, 45, 10]
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90,
-            rotatelabels=True)
+    pie = plt.pie(sizes, explode=explode, wedge_labels='{frac:.1%}', colors=colors,
+                  shadow=True, startangle=90)
+    plt.pie_label(pie, labels, distance=1.1, rotate=True)
+    # Set aspect ratio to be equal so that pie is drawn as a circle.
+    plt.axis('equal')
+
+
+@image_comparison(['pie_rotatelabels_true.png'], style='mpl20', tol=0.009)
+def test_pie_rotatelabels_true():
+    # As above but using legacy labels and rotatelabels parameters.  Remove
+    # when the labeldistance parameter deprecation expires.
+    # The slices will be ordered and plotted counter-clockwise.
+    labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'
+    sizes = [15, 30, 45, 10]
+    colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
+    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=90,
+                rotatelabels=True)
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
@@ -6501,7 +6537,7 @@ def test_pie_nolabel_but_legend():
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
     plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=90, labeldistance=None,
+            wedge_labels='{frac:.1%}', shadow=True, startangle=90, labeldistance=None,
             rotatelabels=True)
     plt.axis('equal')
     plt.ylim(-1.2, 1.2)
@@ -6542,9 +6578,13 @@ def test_pie_textprops():
                      rotation_mode="anchor",
                      size=12, color="red")
 
-    _, texts, autopct = plt.gca().pie(data, labels=labels, autopct='%.2f',
-                                      textprops=textprops)
-    for labels in [texts, autopct]:
+    fig, ax = plt.subplots()
+
+    pie1 = ax.pie(data, wedge_labels=labels, autopct='%.2f', textprops=textprops)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        pie2 = ax.pie(data, labels=labels, textprops=textprops)
+
+    for labels in pie1.texts + pie2.texts:
         for tx in labels:
             assert tx.get_ha() == textprops["horizontalalignment"]
             assert tx.get_va() == textprops["verticalalignment"]
@@ -6572,7 +6612,7 @@ def test_pie_invalid_labels():
     # Test ValueError raised when feeding short labels list to axes.pie
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
-        ax.pie([1, 2, 3], labels=["One", "Two"])
+        ax.pie([1, 2, 3], labels=["One", "Two"], labeldistance=None)
 
 
 def test_pie_invalid_radius():
@@ -6580,6 +6620,13 @@ def test_pie_invalid_radius():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.pie([1, 2, 3], radius=-5)
+
+
+def test_pie_wedge_labels_and_labels():
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match='wedge_labels is a replacement for labels'):
+        ax.pie([1, 2], wedge_labels=['spam', 'eggs'], labels=['bacon', 'beans'],
+               labeldistance=1.2)
 
 
 def test_normalize_kwarg_pie():
@@ -10011,10 +10058,10 @@ def test_pie_non_finite_values():
     df = [5, float('nan'), float('inf')]
 
     with pytest.raises(ValueError, match='Wedge sizes must be finite numbers'):
-        ax.pie(df, labels=['A', 'B', 'C'])
+        ax.pie(df)
 
 
 def test_pie_all_zeros():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match="All wedge sizes are zero"):
-        ax.pie([0, 0], labels=["A", "B"])
+        ax.pie([0, 0])
