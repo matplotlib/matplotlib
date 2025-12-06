@@ -3324,7 +3324,7 @@ or pandas.DataFrame
             # TODO: do we want to be more restrictive and check lengths?
             colors = itertools.cycle(colors)
 
-        kwargs_gen = _style_helpers.iterate_styles(kwargs)
+        kwargs, style_gen = _style_helpers.style_generator(kwargs)
 
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
@@ -3339,15 +3339,16 @@ or pandas.DataFrame
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
         bar_containers = []
-        for i, (hs, label, color) in enumerate(zip(heights, labels, colors)):
+        for i, (hs, label, color, styles) in enumerate(zip(heights, labels, colors,
+                                                           style_gen)):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
                 bc = self.bar(lefts, hs, width=bar_width, align="edge",
-                              label=label, color=color, **next(kwargs_gen))
+                              label=label, color=color, **styles, **kwargs)
             else:
                 bc = self.barh(lefts, hs, height=bar_width, align="edge",
-                               label=label, color=color, **next(kwargs_gen))
+                               label=label, color=color, **styles, **kwargs)
             bar_containers.append(bc)
 
         if tick_labels is not None:
@@ -7640,18 +7641,18 @@ such objects
         if histtype == "step":
             kwargs.setdefault('edgecolor', colors)
 
-        kwargs_gen = _style_helpers.iterate_styles(kwargs)
+        kwargs, style_gen = _style_helpers.style_generator(kwargs)
 
         for patch, lbl in itertools.zip_longest(patches, labels):
             if not patch:
                 continue
-            kw = next(kwargs_gen)
             p = patch[0]
-            p._internal_update(kw)
+            kwargs.update(next(style_gen))
+            p._internal_update(kwargs)
             if lbl is not None:
                 p.set_label(lbl)
             for p in patch[1:]:
-                p._internal_update(kw)
+                p._internal_update(kwargs)
                 p.set_label('_nolegend_')
 
         if nx == 1:
