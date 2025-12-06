@@ -1,0 +1,15 @@
+``mathtext.VectorParse`` now includes glyph indices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For a *path*-outputting `.MathTextParser`, in the return value of
+`~.MathTextParser.parse`, (a `.VectorParse`), the *glyphs* field is now a list
+containing tuples of:
+
+- font: `.FT2Font`
+- fontsize: `float`
+- character code: `int`
+- glyph index: `int`
+- x: `float`
+- y: `float`
+
+Specifically, the glyph index was added after the character code.

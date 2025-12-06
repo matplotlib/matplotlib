@@ -1,0 +1,8 @@
+[wrap-file]
+source_url = https://github.com/HOST-Oman/libraqm/archive/v0.10.3/libraqm-0.10.3.tar.gz
+source_filename = libraqm-0.10.3.tar.gz
+source_hash = fe1fe28b32f97ef97b325ca5d2defb0704da1ef048372ec20e85e1f587e20965
+
+# First patch allows using our bundled FreeType.
+# Second patch is for use as a subproject https://github.com/HOST-Oman/libraqm/pull/203
+diff_files = libraqm-0.10.2-bundle-freetype.patch, libraqm-203.patch

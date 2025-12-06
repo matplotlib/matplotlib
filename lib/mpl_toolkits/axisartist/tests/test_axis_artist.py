@@ -26,9 +26,6 @@ def test_ticks():
 
 @image_comparison(['axis_artist_labelbase.png'], style='default')
 def test_labelbase():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig, ax = plt.subplots()
 
     ax.plot([0.5], [0.5], "o")
@@ -43,9 +40,6 @@ def test_labelbase():
 
 @image_comparison(['axis_artist_ticklabels.png'], style='default')
 def test_ticklabels():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig, ax = plt.subplots()
 
     ax.xaxis.set_visible(False)
@@ -78,9 +72,6 @@ def test_ticklabels():
 
 @image_comparison(['axis_artist.png'], style='default')
 def test_axis_artist():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig, ax = plt.subplots()
 
     ax.xaxis.set_visible(False)
