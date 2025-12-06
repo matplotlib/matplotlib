@@ -25,8 +25,9 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0.1 if platform.machine() == 'x86_64' else 0.1)
 def test_align_labels():
     fig = plt.figure(layout='tight')
     gs = gridspec.GridSpec(3, 3)
@@ -66,9 +67,10 @@ def test_align_labels():
     fig.align_labels()
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['figure_align_titles_tight.png',
                    'figure_align_titles_constrained.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.022,
+                  tol=0.3 if platform.machine() == 'x86_64' else 0.04,
                   style='mpl20')
 def test_align_titles():
     for layout in ['tight', 'constrained']:
@@ -320,7 +322,8 @@ def test_add_subplot_invalid():
         fig.add_subplot(ax)
 
 
-@image_comparison(['figure_suptitle.png'])
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['figure_suptitle.png'], tol=0.02)
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
@@ -1396,8 +1399,9 @@ def test_subfigure_ss():
     fig.suptitle('Figure suptitle', fontsize='xx-large')
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['test_subfigure_double.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'})
+                  savefig_kwarg={'facecolor': 'teal'}, tol=0.02)
 def test_subfigure_double():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
