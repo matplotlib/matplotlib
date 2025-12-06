@@ -288,6 +288,7 @@ class Axes(_AxesBase):
         bar_spacing: float | None = ...,
         orientation: Literal["vertical", "horizontal"] = ...,
         colors: Iterable[ColorType] | None = ...,
+        hatch: Iterable[str] | None = ...,
         **kwargs
     ) -> list[BarContainer]: ...
     def stem(

@@ -2268,6 +2268,130 @@ def test_grouped_bar_return_value():
         assert bc not in ax.containers
 
 
+def test_grouped_bar_single_hatch_str_raises():
+    """Passing a single string for hatch should raise a ValueError."""
+    fig, ax = plt.subplots()
+    x = np.arange(3)
+    heights = [np.array([1, 2, 3]), np.array([2, 1, 2])]
+    with pytest.raises(ValueError, match="must be a sequence of strings"):
+        ax.grouped_bar(heights, positions=x, hatch='//')
+
+
+def test_grouped_bar_hatch_non_iterable_raises():
+    """Non-iterable hatch values should raise a ValueError."""
+    fig, ax = plt.subplots()
+    heights = [np.array([1, 2]), np.array([2, 3])]
+    with pytest.raises(ValueError, match="must be a sequence of strings"):
+        ax.grouped_bar(heights, hatch=123)  # invalid non-iterable
+
+
+def test_grouped_bar_hatch_sequence():
+    """Each dataset should receive its own hatch pattern when a sequence is passed."""
+    fig, ax = plt.subplots()
+    x = np.arange(2)
+    heights = [np.array([1, 2]), np.array([2, 3]), np.array([3, 4])]
+    hatches = ['//', 'xx', '..']
+    containers = ax.grouped_bar(heights, positions=x, hatch=hatches)
+
+    # Verify each dataset gets the corresponding hatch
+    for hatch, c in zip(hatches, containers.bar_containers):
+        for rect in c:
+            assert rect.get_hatch() == hatch
+
+
+def test_grouped_bar_hatch_cycles_when_shorter_than_datasets():
+    """When the hatch list is shorter than the number of datasets,
+    patterns should cycle.
+    """
+
+    fig, ax = plt.subplots()
+    x = np.arange(2)
+    heights = [
+        np.array([1, 2]),
+        np.array([2, 3]),
+        np.array([3, 4]),
+    ]
+    hatches = ['//', 'xx']  # shorter than number of datasets → should cycle
+    containers = ax.grouped_bar(heights, positions=x, hatch=hatches)
+
+    expected_hatches = ['//', 'xx', '//']  # cycle repeats
+    for gi, c in enumerate(containers.bar_containers):
+        for rect in c:
+            assert rect.get_hatch() == expected_hatches[gi]
+
+
+def test_grouped_bar_hatch_none():
+    """Passing hatch=None should result in bars with no hatch."""
+    fig, ax = plt.subplots()
+    x = np.arange(2)
+    heights = [np.array([1, 2]), np.array([2, 3])]
+    containers = ax.grouped_bar(heights, positions=x, hatch=None)
+
+    # All bars should have no hatch applied
+    for c in containers.bar_containers:
+        for rect in c:
+            assert rect.get_hatch() in (None, ''), \
+                f"Expected no hatch, got {rect.get_hatch()!r}"
+
+
+def test_grouped_bar_empty_string_disables_hatch():
+    """
+    Empty strings or None in the hatch list should result in no hatch
+    for the corresponding dataset, while valid strings should apply
+    the hatch pattern normally.
+    """
+    fig, ax = plt.subplots()
+    x = np.arange(3)
+    heights = [np.array([1, 2, 3]), np.array([2, 1, 2]), np.array([3, 2, 1])]
+    hatches = ["", "xx", None]
+    containers = ax.grouped_bar(heights, positions=x, hatch=hatches)
+    # Collect the hatch pattern for each bar in each dataset
+    counts = [[rect.get_hatch() for rect in bc] for bc in containers.bar_containers]
+    # First dataset: empty string disables hatch
+    assert all(h in ("", None) for h in counts[0])
+    # Second dataset: hatch pattern applied
+    assert all(h == "xx" for h in counts[1])
+    # Third dataset: None disables hatch
+    assert all(h in ("", None) for h in counts[2])
+
+
+def test_grouped_bar_empty_hatch_sequence_raises():
+    """An empty hatch sequence should raise a ValueError."""
+    fig, ax = plt.subplots()
+    heights = [np.array([1, 2]), np.array([2, 3])]
+    with pytest.raises(
+        ValueError,
+        match="must be a non-empty sequence of strings or None"
+    ):
+        ax.grouped_bar(heights, hatch=[])
+
+
+def test_grouped_bar_dict_with_labels_forbidden():
+    """Passing labels along with dict input should raise an error."""
+    fig, ax = plt.subplots()
+    data = {"a": [1, 2], "b": [2, 1]}
+    with pytest.raises(ValueError, match="cannot be used if 'heights' is a mapping"):
+        ax.grouped_bar(data, labels=["x", "y"])
+
+
+def test_grouped_bar_positions_not_equidistant():
+    """Passing non-equidistant positions should raise an error."""
+    fig, ax = plt.subplots()
+    x = np.array([0, 1, 3])
+    heights = [np.array([1, 2, 3]), np.array([2, 1, 2])]
+    with pytest.raises(ValueError, match="must be equidistant"):
+        ax.grouped_bar(heights, positions=x)
+
+
+def test_grouped_bar_label_and_hatch():
+    fig, ax = plt.subplots()
+    x = np.arange(2)
+    heights = [np.array([1, 2]), np.array([2, 3])]
+    ax.grouped_bar(heights, positions=x, labels=["dataset", "dataset2"], hatch=["//"])
+    assert ax.get_legend_handles_labels()[1] == ["dataset", "dataset2"]
+    assert all(rect.get_hatch() == "//" for rect in ax.patches)
+
+
 def test_boxplot_dates_pandas(pd):
     # smoke test for boxplot and dates in pandas
     data = np.random.rand(5, 2)
