@@ -1,0 +1,62 @@
+# Pinned requirements for matplotlib v3.6.x bug-fix branches
+# This ensures reproducible testing environments when working with backports
+# Last updated: Aug 2022 for matplotlib 3.6.x series
+
+# Core runtime dependencies - these are absolutely required
+numpy==1.21.6
+python-dateutil==2.8.2
+packaging==21.3
+pyparsing==3.0.9
+pillow==9.2.0
+fonttools==4.37.4
+kiwisolver==1.4.4
+cycler==0.11.0
+contourpy==1.0.5
+
+# Python compatibility layer
+six==1.16.0
+importlib-metadata==4.12.0; python_version<"3.10"
+
+# GUI backend support (optional but commonly used)
+# Qt backends
+PyQt5==5.15.7
+PyQt5-sip==12.11.0
+PyQt6==6.3.1
+PyQt6-sip==13.4.0
+
+# Cairo backend
+cairocffi==1.4.0
+pycairo==1.21.0
+
+# Web backend
+tornado==6.2
+
+# Animation writers
+pillow==9.2.0
+ffmpeg-python==0.2.0
+
+# Development and testing tools
+pytest==7.1.2
+pytest-cov==3.0.0
+pytest-timeout==2.1.0
+pytest-xdist==2.5.0
+coverage==6.4.2
+
+# Build requirements
+setuptools-scm==7.0.5
+setuptools==63.4.1
+wheel==0.37.1
+
+# Documentation (minimal for testing docs)
+sphinx==5.1.1
+
+# Common transitive deps that cause issues if not pinned
+certifi==2022.6.15
+urllib3==1.26.12
+requests==2.28.1
+attrs==22.1.0
+pluggy==1.0.0
+iniconfig==1.1.1
+tomli==2.0.1
+typing-extensions==4.3.0
+zipp==3.8.1
