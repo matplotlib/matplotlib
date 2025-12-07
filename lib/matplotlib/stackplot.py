@@ -15,7 +15,7 @@ __all__ = ['stackplot']
 
 
 def stackplot(axes, x, *args,
-              labels=(), colors=None, hatch=None, baseline='zero',
+              labels=(), colors=None, baseline='zero',
               **kwargs):
     """
     Draw a stacked area plot or a streamgraph.
@@ -54,18 +54,6 @@ def stackplot(axes, x, *args,
 
         If not specified, the colors from the Axes property cycle will be used.
 
-    hatch : list of str, default: None
-        A sequence of hatching styles.  See
-        :doc:`/gallery/shapes_and_collections/hatch_style_reference`.
-        The sequence will be cycled through for filling the
-        stacked areas from bottom to top.
-        It need not be exactly the same length as the number
-        of provided *y*, in which case the styles will repeat from the
-        beginning.
-
-        .. versionadded:: 3.9
-           Support for list input
-
     data : indexable object, optional
         DATA_PARAMETER_PLACEHOLDER
 
@@ -73,7 +61,16 @@ def stackplot(axes, x, *args,
         All other keyword arguments are passed to `.Axes.fill_between`.  The
             following parameters additionally accept a sequence of values
             corresponding to the *y* datasets:
-            *edgecolor(s)*, *facecolor(s)*, *linewidth(s)*, *linestyle(s)*.
+
+            - *hatch*
+
+            .. versionadded:: 3.9
+               Allowing a sequence of strings for *hatch*
+
+            - *edgecolor*
+            - *facecolor*
+            - *linewidth*
+            - *linestyle*
 
             .. versionadded:: 3.11
                Allowing sequences of values in above listed `.Axes.fill_between`
@@ -92,7 +89,6 @@ def stackplot(axes, x, *args,
     if colors is None:
         colors = [axes._get_lines.get_next_color() for _ in y]
 
-    kwargs['hatch'] = hatch
     kwargs = cbook.normalize_kwargs(kwargs, collections.PolyCollection)
     kwargs.setdefault('facecolor', colors)
 
