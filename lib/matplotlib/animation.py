@@ -605,6 +605,7 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
 class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     """
     File-based ffmpeg writer.
+
     Parameters
     ----------
     *args, **kwargs
