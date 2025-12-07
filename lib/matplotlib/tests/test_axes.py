@@ -3450,18 +3450,18 @@ def test_stackplot_facecolor():
     y1 = 1.0 * x
     y2 = 2.0 * x + 1
 
-    fcols = ['r', 'b']
+    facecolors = ['r', 'b']
 
     fig, ax = plt.subplots()
 
-    colls = ax.stackplot(x, y1, y2, facecolor=fcols, colors=['c', 'm'])
-    for coll, fcol in zip(colls, fcols):
-        assert mcolors.same_color(coll.get_facecolor(), fcol)
+    colls = ax.stackplot(x, y1, y2, facecolor=facecolors, colors=['c', 'm'])
+    for coll, fcol in zip(colls, facecolors):
+        assert mcolors.same_color(coll.get_facecolor(), facecolors)
 
     # Plural alias should also work
-    colls = ax.stackplot(x, y1, y2, facecolors=fcols, colors=['c', 'm'])
-    for coll, fcol in zip(colls, fcols):
-        assert mcolors.same_color(coll.get_facecolor(), fcol)
+    colls = ax.stackplot(x, y1, y2, facecolors=facecolors, colors=['c', 'm'])
+    for coll, fcol in zip(colls, facecolors):
+        assert mcolors.same_color(coll.get_facecolor(), facecolors)
 
 
 def test_stackplot_subfig_legend():

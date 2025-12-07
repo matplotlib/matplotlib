@@ -11,6 +11,7 @@ from matplotlib._style_helpers import style_generator
                                         ('linestyle', ["-", "--", ":"]),
                                         ('linewidth', [1, 1.5, 2])])
 def test_style_generator_list(key, value):
+    """Test that style parameter lists are distributed to the generator."""
     kw = {'foo': 12, key: value}
     new_kw, gen = style_generator(kw)
 
@@ -33,6 +34,7 @@ def test_style_generator_list(key, value):
                                         ('linestyle', "-"),
                                         ('linewidth', 1)])
 def test_style_generator_single(key, value):
+    """Test that single-value style parameters are distributed to the generator."""
     kw = {'foo': 12, key: value}
     new_kw, gen = style_generator(kw)
 
@@ -48,13 +50,17 @@ def test_style_generator_single(key, value):
 
 
 @pytest.mark.parametrize('key', ['facecolor', 'hatch', 'linestyle'])
-def test_style_generator_empty(key):
+def test_style_generator_raises_on_empty_style_parameter_list(key):
     kw = {key: []}
     with pytest.raises(TypeError, match=f'{key} must not be an empty sequence'):
         style_generator(kw)
 
 
 def test_style_generator_sequence_type_styles():
+    """
+    Test that sequence type style values are detected as single value
+    and passed to a all elements of the generator.
+    """
     kw = {'facecolor':  ('r', 0.5),
           'edgecolor': [0.5, 0.5, 0.5],
           'linestyle': (0, (1, 1))}
