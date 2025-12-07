@@ -148,7 +148,7 @@ interfaces and how to translate from one to the other.
   - Axes: ``label = ax.get_xlabel()``
   - pyplot: ``label = plt.xlabel()``
 
-- Functions that set properties like the property in pyplot and are prefixed with
+- Functions that set properties are named like the property in pyplot and are prefixed with
   ``set_`` on the Axes. Example:
 
   - Axes: ``ax.set_xlabel("time")``
