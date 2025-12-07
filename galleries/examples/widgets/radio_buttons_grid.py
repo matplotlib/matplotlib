@@ -5,8 +5,8 @@ Radio Buttons Grid
 
 Using radio buttons in a 2D grid layout.
 
-Radio buttons can be arranged in a 2D grid by passing a list of lists of
-strings as the *labels* parameter. This is useful when you have multiple
+Radio buttons can be arranged in a 2D grid by passing a ``(rows, cols)``
+tuple to the *layout* parameter. This is useful when you have multiple
 related options that are best displayed in a grid format rather than a
 vertical list.
 
@@ -27,7 +27,7 @@ fig, (ax_plot, ax_buttons) = plt.subplots(
     1,
     2,
     figsize=(8, 4),
-    width_ratios=[4, 1],
+    width_ratios=[4, 1.4],
 )
 
 # Create initial plot
@@ -41,12 +41,8 @@ ax_plot.grid(True, alpha=0.3)
 ax_buttons.set_facecolor("lightgray")
 ax_buttons.set_title("Line Color", fontsize=12, pad=10)
 # Create a 2D grid of color options (3 rows x 2 columns)
-colors = [
-    ["red", "yellow"],
-    ["green", "purple"],
-    ["brown", "gray"],
-]
-radio = RadioButtons(ax_buttons, colors, active=0)
+colors = ["red", "yellow", "green", "purple", "brown", "gray"]
+radio = RadioButtons(ax_buttons, colors, active=0, layout=(3, 2))
 
 
 def color_func(label):

@@ -1,16 +1,17 @@
-RadioButtons widget supports 2D grid layout
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RadioButtons widget supports flexible layouts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `.widgets.RadioButtons` widget now supports arranging buttons in a 2D grid
-layout. Pass a list of lists of strings as the *labels* parameter to arrange
-buttons in a grid where each inner list represents a row.
+The `.widgets.RadioButtons` widget now supports arranging buttons in different
+layouts via the new *layout* parameter. You can arrange buttons vertically
+(default), horizontally, or in a 2D grid by passing a ``(rows, cols)`` tuple.
 
 The *active* parameter and the ``RadioButtons.index_selected`` attribute
-continue to use a single integer index into the flattened array, reading
-left-to-right, top-to-bottom. The column positions are automatically calculated
-based on the maximum text width in each column, ensuring optimal spacing.
+continue to use a single integer index into the labels list. For grid layouts,
+buttons are positioned left-to-right, top-to-bottom. The column positions are
+automatically calculated based on the maximum text width in each column,
+ensuring optimal spacing.
 
-See :doc:`/gallery/widgets/radio_buttons_grid` for a complete example.
+See :doc:`/gallery/widgets/radio_buttons_grid` for a ``(rows, cols)`` example.
 
 .. plot::
     :include-source: true
@@ -23,23 +24,22 @@ See :doc:`/gallery/widgets/radio_buttons_grid` for a complete example.
     t = np.arange(0.0, 2.0, 0.01)
     s = np.sin(2*np.pi*t)
 
-    fig, (ax_plot, ax_buttons) = plt.subplots(1, 2, figsize=(8, 4),
-                                               width_ratios=[3, 1])
+    fig, axes = plt.subplot_mosaic(
+        [
+            ['main'],
+            ['.'],
+            ['buttons'],
+        ],
+        height_ratios=[8, 0.4, 1],
+    )
 
-    line, = ax_plot.plot(t, s, lw=2, color='red')
-    ax_plot.set_xlabel('Time (s)')
-    ax_plot.set_ylabel('Amplitude')
+    line, = axes['main'].plot(t, s, lw=2, color='red')
+    axes['main'].set_xlabel('Time (s)')
+    axes['main'].set_ylabel('Amplitude')
 
-    ax_buttons.set_facecolor('lightgray')
-    ax_buttons.set_title('Line Color', fontsize=12, pad=10)
-
-    colors = [
-        ['red', 'orange', 'yellow'],
-        ['green', 'blue', 'purple'],
-        ['brown', 'pink', 'gray'],
-    ]
-
-    radio = RadioButtons(ax_buttons, colors, active=0)
+    axes['buttons'].set_facecolor('lightgray')
+    colors = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'brown', 'black']
+    radio = RadioButtons(axes['buttons'], colors, active=0, layout='horizontal')
 
     def color_func(label):
         line.set_color(label)
