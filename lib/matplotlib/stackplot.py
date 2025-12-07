@@ -63,14 +63,13 @@ def stackplot(axes, x, *args,
             corresponding to the *y* datasets:
 
             - *hatch*
-
-            .. versionadded:: 3.9
-               Allowing a sequence of strings for *hatch*.
-
             - *edgecolor*
             - *facecolor*
             - *linewidth*
             - *linestyle*
+
+            .. versionadded:: 3.9
+               Allowing a sequence of strings for *hatch*.
 
             .. versionadded:: 3.11
                Allowing sequences of values in above listed `.Axes.fill_between`
