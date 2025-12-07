@@ -605,6 +605,10 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
 class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     """
     File-based ffmpeg writer.
+    Parameters
+    ----------
+    *args, **kwargs
+        All arguments are forwarded to `FileMovieWriter`.
 
     Frames are written to temporary files on disk and then stitched together at the end.
 
