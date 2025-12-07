@@ -3197,7 +3197,7 @@ or pandas.DataFrame
             Properties applied to all bars. The following properties additionally
             accept a sequence of values corresponding to the datasets in
             *heights*:
-            
+
             - *edgecolor*
             - *facecolor*
             - *linewidth*

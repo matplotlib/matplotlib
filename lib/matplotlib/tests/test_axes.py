@@ -3455,13 +3455,13 @@ def test_stackplot_facecolor():
     fig, ax = plt.subplots()
 
     colls = ax.stackplot(x, y1, y2, facecolor=facecolors, colors=['c', 'm'])
-    for coll, fcol in zip(colls, facecolors):
-        assert mcolors.same_color(coll.get_facecolor(), facecolors)
+    for coll, fcolor in zip(colls, facecolors):
+        assert mcolors.same_color(coll.get_facecolor(), fcolor)
 
     # Plural alias should also work
     colls = ax.stackplot(x, y1, y2, facecolors=facecolors, colors=['c', 'm'])
-    for coll, fcol in zip(colls, facecolors):
-        assert mcolors.same_color(coll.get_facecolor(), facecolors)
+    for coll, fcolor in zip(colls, facecolors):
+        assert mcolors.same_color(coll.get_facecolor(), fcolor)
 
 
 def test_stackplot_subfig_legend():
