@@ -210,7 +210,7 @@ class RadioButtons(AxesWidget):
         active: int = ...,
         activecolor: ColorType | None = ...,
         *,
-        layout: Literal["vertical", "horizontal"] | tuple[int, int] = ...,
+        layout: Literal["vertical", "horizontal"] | tuple[int, int] | None = ...,
         useblit: bool = ...,
         label_props: dict[str, Sequence[Any]] | None = ...,
         radio_props: dict[str, Any] | None = ...,
