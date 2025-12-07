@@ -206,10 +206,11 @@ class RadioButtons(AxesWidget):
     def __init__(
         self,
         ax: Axes,
-        labels: Iterable[str] | Iterable[Iterable[str]],
+        labels: Iterable[str],
         active: int = ...,
         activecolor: ColorType | None = ...,
         *,
+        layout: Literal["vertical", "horizontal"] | tuple[int, int] = ...,
         useblit: bool = ...,
         label_props: dict[str, Sequence[Any]] | None = ...,
         radio_props: dict[str, Any] | None = ...,
