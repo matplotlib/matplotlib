@@ -606,15 +606,16 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     """
     File-based ffmpeg writer.
 
-    Parameters
-    ----------
-    *args, **kwargs
-        All arguments are forwarded to `FileMovieWriter`.
-
     Frames are written to temporary files on disk and then stitched together at the end.
 
     This effectively works as a slideshow input to ffmpeg with the fps passed as
     ``-framerate``, so see also `their notes on frame rates`_ for further details.
+
+    Parameters
+    ----------
+    *args, **kwargs
+        All arguments are forwarded to `FileMovieWriter`. See
+        `FileMovieWriter` for a list of all possible parameters.
 
     .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
