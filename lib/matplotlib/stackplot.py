@@ -65,7 +65,7 @@ def stackplot(axes, x, *args,
             - *hatch*
 
             .. versionadded:: 3.9
-               Allowing a sequence of strings for *hatch*
+               Allowing a sequence of strings for *hatch*.
 
             - *edgecolor*
             - *facecolor*
