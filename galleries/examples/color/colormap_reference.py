@@ -24,9 +24,8 @@ cmaps = [('Perceptually Uniform Sequential', [
             'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
             'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn']),
          ('Sequential (2)', [
-            'binary', 'gist_yarg', 'gist_gray', 'gray', 'bone', 'pink',
-            'spring', 'summer', 'autumn', 'winter', 'cool', 'Wistia',
-            'hot', 'afmhot', 'gist_heat', 'copper']),
+            'gray', 'bone', 'pink', 'spring', 'summer', 'autumn', 'winter',
+            'cool', 'Wistia', 'hot', 'afmhot', 'gist_heat', 'copper']),
          ('Diverging', [
             'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu',
             'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic',
@@ -70,6 +69,22 @@ for cmap_category, cmap_list in cmaps:
 
 
 # %%
+#
+# .. admonition:: Discouraged
+#
+#    For backward compatibility we additionally support the following colormap
+#    names, which are identical to other builtin colormaps. Their use is
+#    discouraged. Use the suggested replacement instead.
+#
+#    =========  =================================
+#    Colormap   Use identical replacement instead
+#    =========  =================================
+#    gist_gray 	gray
+#    gist_yarg 	gray_r
+#    binary 	gray_r
+#    =========  =================================
+#
+#
 # .. _reverse-cmap:
 #
 # Reversed colormaps

@@ -161,11 +161,26 @@ plot_color_gradients('Sequential',
 # an excellent example of this).
 
 plot_color_gradients('Sequential (2)',
-                     ['binary', 'gist_yarg', 'gist_gray', 'gray', 'bone',
-                      'pink', 'spring', 'summer', 'autumn', 'winter', 'cool',
-                      'Wistia', 'hot', 'afmhot', 'gist_heat', 'copper'])
+                     ['gray', 'bone', 'pink', 'spring', 'summer', 'autumn',
+                      'winter', 'cool', 'Wistia', 'hot', 'afmhot', 'gist_heat',
+                      'copper'])
 
 # %%
+# .. admonition:: Discouraged
+#
+#    For backward compatibility we additionally support the following colormap
+#    names, which are identical to other builtin colormaps. Their use is
+#    discouraged. Use the suggested replacement instead.
+#
+#    =========  =================================
+#    Colormap   Use identical replacement instead
+#    =========  =================================
+#    gist_gray 	gray
+#    gist_yarg 	gray_r
+#    binary 	gray_r
+#    =========  =================================
+#
+#
 # Diverging
 # ---------
 #
