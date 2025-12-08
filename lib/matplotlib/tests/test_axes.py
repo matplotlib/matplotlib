@@ -11,6 +11,7 @@ import platform
 import re
 import sys
 from types import SimpleNamespace
+import unittest.mock
 
 import dateutil.tz
 
@@ -45,7 +46,6 @@ from numpy.testing import (
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
 from matplotlib.testing._markers import needs_usetex
-
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
 #       different baseline images to prevent race conditions when pytest runs
@@ -10018,3 +10018,20 @@ def test_pie_all_zeros():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match="All wedge sizes are zero"):
         ax.pie([0, 0], labels=["A", "B"])
+
+
+def test_animated_artists_not_drawn_by_default():
+    fig, (ax1, ax2) = plt.subplots(ncols=2)
+
+    imdata = np.random.random((20, 20))
+    lndata = imdata[0]
+
+    im = ax1.imshow(imdata, animated=True)
+    (ln,) = ax2.plot(lndata, animated=True)
+
+    with (unittest.mock.patch.object(im, "draw", name="im.draw") as mocked_im_draw,
+          unittest.mock.patch.object(ln, "draw", name="ln.draw") as mocked_ln_draw):
+        fig.draw_without_rendering()
+
+    mocked_im_draw.assert_not_called()
+    mocked_ln_draw.assert_not_called()
