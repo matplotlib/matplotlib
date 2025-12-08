@@ -10,6 +10,7 @@ from itertools import product
 import platform
 import sys
 from types import SimpleNamespace
+import unittest.mock
 
 import dateutil.tz
 
