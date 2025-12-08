@@ -1010,7 +1010,7 @@ class CheckButtons(AxesWidget):
         The text label objects of the check buttons.
     """
 
-    def __init__(self, ax, labels, actives=None, *, useblit=True,
+    def __init__(self, ax, labels, actives=None, *, layout=None, useblit=True,
                  label_props=None, frame_props=None, check_props=None):
         """
         Add check buttons to `~.axes.Axes` instance *ax*.
@@ -1024,6 +1024,31 @@ class CheckButtons(AxesWidget):
         actives : list of bool, optional
             The initial check states of the buttons. The list must have the
             same length as *labels*. If not given, all buttons are unchecked.
+        layout : None or "vertical" or "horizontal" or (int, int), default: None
+            The layout of the check buttons. Options are:
+
+            - ``None``: Use legacy vertical layout (default, keeps backward
+              compatibility with fixed button and label positions).
+            - ``"vertical"``: Arrange buttons in a single column with
+              dynamic positioning based on text widths.
+            - ``"horizontal"``: Arrange buttons in a single row with
+              dynamic positioning based on text widths.
+            - ``(rows, cols)`` tuple: Arrange buttons in a grid with the
+              specified number of rows and columns. Buttons are placed
+              left-to-right, top-to-bottom with dynamic positioning.
+
+            The layout options "vertical", "horizontal" and ``(rows, cols)``
+            temporarily manipulate the figure and redraw to determine
+            exact text sizes. This is usually ok, but may cause side-effects
+            and has a slight performance impact.
+
+            .. admonition:: Provisional
+                The the new layout options are provisional. Their algorithmic
+                behavior, including if and when a figure redraw happens, as well
+                as the the exact positions of buttons and labels may still change
+                without prior warning.
+
+            .. versionadded:: 3.11
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :ref:`blitting` for details.
@@ -1065,14 +1090,18 @@ class CheckButtons(AxesWidget):
         self._useblit = useblit and self.canvas.supports_blit
         self._background = None
 
-        ys = np.linspace(1, 0, len(labels)+2)[1:-1]
-
         label_props = _expand_text_props(label_props)
+
+        # Calculate button and label positions
+        button_xs, button_ys, label_xs, label_ys = _calculate_widget_button_layout(
+            ax, labels, label_props, layout
+        )
+
         self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
+            ax.text(x, y, label, transform=ax.transAxes,
                     horizontalalignment="left", verticalalignment="center",
                     **props)
-            for y, label, props in zip(ys, labels, label_props)]
+            for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
         text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         frame_props = {
@@ -1084,7 +1113,7 @@ class CheckButtons(AxesWidget):
         }
         frame_props.setdefault('facecolor', frame_props.get('color', 'none'))
         frame_props.setdefault('edgecolor', frame_props.pop('color', 'black'))
-        self._frames = ax.scatter([0.15] * len(ys), ys, **frame_props)
+        self._frames = ax.scatter(button_xs, button_ys, **frame_props)
         check_props = {
             'linewidth': 1,
             's': text_size**2,
@@ -1094,7 +1123,7 @@ class CheckButtons(AxesWidget):
             'animated': self._useblit,
         }
         check_props.setdefault('facecolor', check_props.pop('color', 'black'))
-        self._checks = ax.scatter([0.15] * len(ys), ys, **check_props)
+        self._checks = ax.scatter(button_xs, button_ys, **check_props)
         # The user may have passed custom colours in check_props, so we need to
         # create the checks (above), and modify the visibility after getting
         # whatever the user set.
