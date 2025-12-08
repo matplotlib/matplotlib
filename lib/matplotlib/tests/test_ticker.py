@@ -1999,3 +1999,81 @@ def test_minorticks_on_multi_fig():
 
     assert ax.get_xgridlines()
     assert isinstance(ax.xaxis.get_minor_locator(), mpl.ticker.AutoMinorLocator)
+
+def test_engformatter_significant_digits():
+    """Test EngFormatter with significant digits parameter."""
+    formatter = mticker.EngFormatter(unit='Hz', digits=4)
+    # Test various magnitudes - checking key parts since exact format may vary
+    result1 = formatter.format_data(12345.6)
+    assert "12.35" in result1 and "kHz" in result1
+    
+    result2 = formatter.format_data(123.456)
+    assert "123.5" in result2 and "Hz" in result2
+    
+    result3 = formatter.format_data(1.23456)
+    assert "1.235" in result3 and "Hz" in result3
+
+
+def test_engformatter_places_digits_mutually_exclusive():
+    """Test that places and digits cannot both be set."""
+    with pytest.raises(ValueError, match="Cannot specify.*places.*digits"):
+        mticker.EngFormatter(places=2, digits=4)
+
+
+def test_engformatter_default_unchanged():
+    """Test that default behavior is unchanged."""
+    formatter = mticker.EngFormatter(unit='Hz')
+    # Default should use 'g' format (up to 6 sig figs)
+    result = formatter.format_data(123456)
+    assert "kHz" in result
+
+
+def test_engformatter_boundary_rollover():
+    """Test rollover at 1000 boundaries."""
+    formatter = mticker.EngFormatter(digits=4)
+    # Just below threshold
+    assert "999.4" in formatter.format_data(999.4)
+    
+    # Rounds up to 1000 -> should become 1.000 k
+    result = formatter.format_data(999.95)
+    assert "1.000" in result
+    assert "k" in result
+
+
+def test_engformatter_trim_zeros():
+    """Test trim_zeros parameter."""
+    formatter_keep = mticker.EngFormatter(digits=5, trim_zeros="keep")
+    formatter_trim = mticker.EngFormatter(digits=5, trim_zeros="trim")
+    
+    # Value with trailing zeros
+    assert formatter_keep.format_data(12300) == "12.300 k"
+    assert formatter_trim.format_data(12300) == "12.3 k"
+    
+    # Value without trailing zeros
+    assert formatter_keep.format_data(12345) == "12.345 k"
+    assert formatter_trim.format_data(12345) == "12.345 k"
+
+
+def test_engformatter_edge_cases():
+    """Test edge cases with digits parameter."""
+    formatter = mticker.EngFormatter(digits=4)
+    
+    # Zero - check it contains "0"
+    result_zero = formatter.format_data(0)
+    assert "0" in result_zero
+    
+    # Negative values
+    result = formatter.format_data(-12345)
+    assert "-12.35" in result
+    assert "k" in result
+    
+    # Very small
+    result = formatter.format_data(1.234e-9)
+    assert "1.234" in result
+    assert "n" in result
+
+
+def test_engformatter_trim_zeros_validation():
+    """Test that trim_zeros parameter is validated."""
+    with pytest.raises(ValueError, match="trim_zeros must be"):
+        mticker.EngFormatter(trim_zeros="invalid")
