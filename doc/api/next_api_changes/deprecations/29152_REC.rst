@@ -1,0 +1,11 @@
+``pie`` *labels* and *labeldistance* parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Currently the *labels* parameter of `~.Axes.pie` is used both for annotating the
+pie wedges directly, and for automatic legend entries.  For consistency
+with other plotting methods, in future *labels* will only be used for the legend.
+
+The *labeldistance* parameter will therefore default to ``None`` from Matplotlib
+3.14, when it will also be deprecated and then removed in Matplotlib 3.16.  To
+preserve the existing behavior for now, set ``labeldistance=1.1``.  For the longer
+term, use the new *wedge_labels* parameter of `~.Axes.pie` or the `~.Axes.pie_label`
+method instead of *labels*.
