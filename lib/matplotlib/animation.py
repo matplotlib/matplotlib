@@ -612,6 +612,12 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     ``-framerate``, so see also `their notes on frame rates`_ for further details.
 
     .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
+
+    Parameters
+    ----------
+    *args, **kwargs
+        All arguments are forwarded to `FileMovieWriter`. See
+        `FileMovieWriter` for a list of all possible parameters.
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
