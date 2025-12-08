@@ -55,7 +55,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib import _api, _cm, cbook, scale, _image
+from matplotlib import _api, _cm, cbook, scale
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -2211,16 +2211,37 @@ class SegmentedBivarColormap(BivarColormap):
         super().__init__(N, N, shape, origin, name=name)
 
     def _init(self):
-        s = self.patch.shape
-        _patch = np.empty((s[0], s[1], 4))
-        _patch[:, :, :3] = self.patch
-        _patch[:, :, 3] = 1
-        transform = mpl.transforms.Affine2D().translate(-0.5, -0.5)\
-                                .scale(self.N / (s[1] - 1), self.N / (s[0] - 1))
-        self._lut = np.empty((self.N, self.N, 4))
+        # Perform bilinear interpolation
 
-        _image.resample(_patch, self._lut, transform, _image.BILINEAR,
-                        resample=False, alpha=1)
+        s = self.patch.shape
+
+        # Indices (whole and fraction) of the new grid points
+        row = np.linspace(0, s[0] - 1, self.N)[:, np.newaxis]
+        col = np.linspace(0, s[1] - 1, self.N)[np.newaxis, :]
+        left = np.floor(row).astype(int)
+        top = np.floor(col).astype(int)
+        row_frac = (row - left)[:, :, np.newaxis]
+        col_frac = (col - top)[:, :, np.newaxis]
+
+        # Indices of the next edges, clipping where needed
+        right = np.clip(left + 1, 0, s[0] - 1)
+        bottom = np.clip(top + 1, 0, s[1] - 1)
+
+        # Values at the corners
+        tl = self.patch[left, top, :]
+        tr = self.patch[right, top, :]
+        bl = self.patch[left, bottom, :]
+        br = self.patch[right, bottom, :]
+
+        # Interpolate between the corners
+        lut = (tl * (1 - row_frac) * (1 - col_frac) +
+               tr * row_frac * (1 - col_frac) +
+               bl * (1 - row_frac) * col_frac +
+               br * row_frac * col_frac)
+
+        # Add the alpha channel
+        self._lut = np.concatenate([lut, np.ones((self.N, self.N, 1))], axis=2)
+
         self._isinit = True
 
 
