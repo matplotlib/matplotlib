@@ -9766,10 +9766,9 @@ def test_animated_artists_not_drawn_by_default():
     im = ax1.imshow(imdata, animated=True)
     (ln,) = ax2.plot(lndata, animated=True)
 
-    im.draw = MagicMock(name="im.draw")
-    ln.draw = MagicMock(name="ln.draw")
+    with (mock.patch.object(im, "draw", name="im.draw") as mocked_im_draw,
+          mock.patch.object(ln, "draw", name="ln.draw") as mocked_ln_draw):
+        fig.draw_without_rendering()
 
-    canvas.draw()
-
-    im.draw.assert_not_called()
-    ln.draw.assert_not_called()
+    mocked_im_draw.assert_not_called()
+    mocked_ln_draw.assert_not_called()
