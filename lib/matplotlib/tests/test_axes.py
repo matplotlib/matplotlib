@@ -9757,7 +9757,6 @@ def test_pie_all_zeros():
 
 def test_animated_artists_not_drawn_by_default():
     fig, (ax1, ax2) = plt.subplots(ncols=2)
-    canvas = FigureCanvasAgg(fig)
 
     imdata = np.random.random((20, 20))
     lndata = imdata[0]
