@@ -1622,12 +1622,8 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
         The button labels.
     label_props : iterable of dict
         Text properties for each label (from _expand_text_props).
-    layout : None, "vertical", "horizontal", or (int, int)
-        The layout specification:
-        - None: Use legacy vertical layout (fixed positions).
-        - "vertical": Arrange buttons in a single column.
-        - "horizontal": Arrange buttons in a single row.
-        - (rows, cols): Arrange buttons in a grid.
+    layout : None or "vertical" or "horizontal" or (int, int)
+        Same layout argument as in `.widgets.RadioButtons`.
 
     Returns
     -------
@@ -1793,7 +1789,7 @@ class RadioButtons(AxesWidget):
         activecolor : :mpltype:`color`
             The color of the selected button. The default is ``'blue'`` if not
             specified here or in *radio_props*.
-        layout : None, {"vertical", "horizontal"} or (int, int), default: None
+        layout : None or "vertical" or "horizontal" or (int, int), default: None
             The layout of the radio buttons. Options are:
 
             - ``None``: Use legacy vertical layout (default, keeps backward
@@ -1805,6 +1801,17 @@ class RadioButtons(AxesWidget):
             - ``(rows, cols)`` tuple: Arrange buttons in a grid with the
               specified number of rows and columns. Buttons are placed
               left-to-right, top-to-bottom with dynamic positioning.
+
+            The layout options "vertical", "horizontal" and ``(rows, cols)``
+            temporarily manipulate the figure and redraw to determine
+            exact text sizes. This is usually ok, but may cause side-effects
+            and has a slight performance impact.
+
+            .. admonition:: Provisional
+                The the new layout options are provisional. Their algorithmic
+                behavior, including if and when a figure redraw happens, as well
+                as the the exact positions of buttons and labels may still change
+                without prior warning.
 
             .. versionadded:: 3.11
         useblit : bool, default: True
@@ -1836,9 +1843,6 @@ class RadioButtons(AxesWidget):
 
         _api.check_isinstance((dict, None), label_props=label_props,
                               radio_props=radio_props)
-
-        labels = list(labels)
-        n_labels = len(labels)
 
         radio_props = cbook.normalize_kwargs(radio_props,
                                              collections.PathCollection)
@@ -1894,7 +1898,7 @@ class RadioButtons(AxesWidget):
         # the user set.
         self._active_colors = self._buttons.get_facecolor()
         if len(self._active_colors) == 1:
-            self._active_colors = np.repeat(self._active_colors, n_labels,
+            self._active_colors = np.repeat(self._active_colors, len(labels),
                                             axis=0)
         self._buttons.set_facecolor(
             [activecolor if i == active else "none"

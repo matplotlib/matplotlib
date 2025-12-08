@@ -38,11 +38,11 @@ ax_plot.set_title("Sine Wave - Click a color!")
 ax_plot.grid(True, alpha=0.3)
 
 # Configure the radio buttons axes
-ax_buttons.set_facecolor("lightgray")
+ax_buttons.set_facecolor("0.9")
 ax_buttons.set_title("Line Color", fontsize=12, pad=10)
 # Create a 2D grid of color options (3 rows x 2 columns)
 colors = ["red", "yellow", "green", "purple", "brown", "gray"]
-radio = RadioButtons(ax_buttons, colors, active=0, layout=(3, 2))
+radio = RadioButtons(ax_buttons, colors, layout=(3, 2))
 
 
 def color_func(label):
