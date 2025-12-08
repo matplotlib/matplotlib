@@ -600,6 +600,9 @@
                                # the pyplot interface before emitting a warning.
                                # If less than one this feature is disabled.
 #figure.raise_window : True    # Raise the GUI window to front when show() is called.
+                               # If set to False, we currently do not take any further
+                               # actions and whether the window appears on the front
+                               # may depend on the GUI framework and window manager.
 
 ## The figure subplot parameters.  All dimensions are a fraction of the figure width and height.
 #figure.subplot.left:   0.125  # the left side of the subplots of the figure
