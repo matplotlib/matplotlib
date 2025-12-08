@@ -612,7 +612,7 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     ``-framerate``, so see also `their notes on frame rates`_ for further details.
 
     .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
-    
+
     Parameters
     ----------
     *args, **kwargs
