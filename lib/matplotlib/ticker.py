@@ -1398,6 +1398,33 @@ class EngFormatter(ScalarFormatter):
             * ``sep="\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
             * ``sep="\N{NO-BREAK SPACE}"`` (``U+00A0``).
 
+        digits : int, default: None
+            Number of significant digits to display in the mantissa.
+            This provides consistent precision across different magnitudes.
+            For example, with ``digits=4``, the values 12345, 123.45, and
+            0.001234 will be formatted as "12.35 k", "123.5", and "1.234 m"
+            respectively, all displaying exactly 4 significant figures.
+            Mutually exclusive with *places*.
+
+            If neither *places* nor *digits* is specified, the formatter
+            uses Python's '%g' format, which displays up to 6 significant
+            digits.
+
+            .. versionadded:: 3.11
+        
+        trim_zeros : {"keep", "trim"}, default: "keep"
+            Whether to remove trailing zeros from the mantissa after formatting.
+
+            ``"keep"``: Preserve trailing zeros to maintain the specified
+            precision (e.g., "12.300 k" with ``digits=5``).
+            ``"trim"``: Remove trailing zeros for cleaner appearance 
+            (e.g., "12.3 k" with ``digits=5``).
+
+            The default ``"keep"`` preserves mathematical significance, as
+            trailing zeros indicate the precision of the measurement.
+
+            .. versionadded:: 3.11
+
         usetex : bool, default: :rc:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             numbers in the formatter.
