@@ -2218,8 +2218,8 @@ class SegmentedBivarColormap(BivarColormap):
         # Indices (whole and fraction) of the new grid points
         row = np.linspace(0, s[0] - 1, self.N)[:, np.newaxis]
         col = np.linspace(0, s[1] - 1, self.N)[np.newaxis, :]
-        left = np.floor(row).astype(int)
-        top = np.floor(col).astype(int)
+        left = row.astype(int)  # floor not needed because all values are nonnegative
+        top = col.astype(int)  # floor not needed because all values are nonnegative
         row_frac = (row - left)[:, :, np.newaxis]
         col_frac = (col - top)[:, :, np.newaxis]
 
