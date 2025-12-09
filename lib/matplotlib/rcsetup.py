@@ -1327,6 +1327,8 @@ _validators = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
     "ps.pathtext":        validate_bool,  # enables text-to-vector image
 =======
     "ps.pathtext":        validate_bool, # enables text-to-vector image  
@@ -1337,6 +1339,12 @@ _validators = {
 =======
     "ps.pathtext":        validate_bool,  # enables text-to-vector image
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
+=======
+    "ps.pathtext":        validate_bool,  # enables text-to-vector image
+>>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
+=======
+    "ps.pathtext":        validate_bool,  # enables text-to-vector image
+>>>>>>> dd02737ba2 (Removed trailing whitespace)
     "ps.distiller.res":   validate_int,  # dpi
     "ps.fonttype":        validate_fonttype,  # 3 (Type3) or 42 (Truetype)
     "pdf.compression":    validate_int,  # 0-9 compression level; 0 to disable

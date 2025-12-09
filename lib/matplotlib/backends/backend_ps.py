@@ -464,6 +464,8 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 7819eadefd (Fixed coding style)
     def _draw_text_as_path(self, 
@@ -478,6 +480,8 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 =======
 =======
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
+=======
+>>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
     def _draw_text_as_path(self,
                            gc: GraphicsContextBase,
                            x: float,
@@ -487,9 +491,20 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                            angle: float,
                            ismath=False,
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 9eb51af777 (Implemented pytest for new feature)
 =======
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
+=======
+    def _draw_text_as_path(self,
+                           gc: GraphicsContextBase,
+                           x: float,
+                           y: float,
+                           s: str,
+                           prop: FontProperties,
+                           angle: float,
+                           ismath=False,
+>>>>>>> dd02737ba2 (Removed trailing whitespace)
                            mtext=None):
 =======
     def _draw_text_as_path(self, gc: GraphicsContextBase, x, y, s, prop: FontProperties, angle, ismath=False, mtext=None):
@@ -498,6 +513,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                            mtext=None):
 >>>>>>> 7819eadefd (Fixed coding style)
         # Get path data from text2path
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         tp = textpath.TextToPath()
@@ -520,11 +536,25 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         # Handle math text
         verts, codes = tp.get_text_path(prop, s, ismath=ismath)
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
+=======
+                           mtext=None):
+        # Get path data from text2path
+        tp = textpath.TextToPath()
+        # Handle math text
+        verts, codes = tp.get_text_path(prop, s, ismath=ismath)
+>>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
+=======
+        tp = textpath.TextToPath()
+        # Handle math text
+        verts, codes = tp.get_text_path(prop, s, ismath=ismath)
+>>>>>>> 9eb51af777 (Implemented pytest for new feature)
         # Create Path object
         path = Path(verts, codes)
         # Create transformation
         transform = Affine2D().translate(x, y).rotate_deg(angle)
         # Scale to correct size (text2path returns units that need scaling)
+<<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         fontsize = prop.get_size()
@@ -534,6 +564,12 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 =======
         fontsize = prop.get_size()
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
+=======
+        fontsize = prop.get_size()
+>>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
+=======
+        fontsize = prop.get_size()
+>>>>>>> 723f9f5931 (Updated backend_ps.py to call the proper function)
         unitsperem = 1000.0
         scale = fontsize / unitsperem
         transform.scale(scale, scale)
@@ -857,6 +893,8 @@ grestore
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
         if mpl.rcParams['ps.pathtext']:
             return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
 =======
@@ -870,6 +908,14 @@ grestore
         if mpl.rcParams['ps.pathtext']:
             return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
+=======
+        if mpl.rcParams['ps.pathtext']:
+            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
+>>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
+=======
+        if mpl.rcParams['ps.pathtext']:
+            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
+>>>>>>> 9eb51af777 (Implemented pytest for new feature)
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
