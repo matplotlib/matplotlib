@@ -459,6 +459,29 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # Get path data from text2path
+        if ismath:
+            # Handle math text
+            verts, codes = self._text2path.get_text_path(prop, s, ismath=True)
+        else:
+            # Handle regular text
+            verts, codes = self._text2path.get_text_path(prop, s, ismath=False)
+    
+        # Create Path object
+        path = Path(verts, codes)
+    
+        # Create transformation
+        transform = Affine2D().translate(x, y).rotate_deg(angle)
+    
+        # Scale to correct size (text2path returns units that need scaling)
+        fontsize = prop.get_size_in_points()
+        scale = fontsize / self._text2path.FONT_SCALE
+        transform.scale(scale, scale)
+    
+        # Draw the path
+        self.draw_path(gc, path, transform, rgbFace=gc.get_rgb())
+
     @staticmethod
     def _linejoin_cmd(linejoin):
         # Support for directly passing integer values is for backcompat.
@@ -772,6 +795,9 @@ grestore
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
         stream = []  # list of (ps_name, x, char_name)
+
+        if mpl.rcParams['ps.fonttype'] == 'path':
+            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)

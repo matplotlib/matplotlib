@@ -1325,7 +1325,7 @@ _validators = {
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,
     "ps.distiller.res":   validate_int,  # dpi
-    "ps.fonttype":        validate_fonttype,  # 3 (Type3) or 42 (Truetype)
+    "ps.fonttype":        [validate_fonttype, 'path'],  # 3 (Type3) or 42 (Truetype)
     "pdf.compression":    validate_int,  # 0-9 compression level; 0 to disable
     "pdf.inheritcolor":   validate_bool,  # skip color setting commands
     # use only the 14 PDF core fonts embedded in every PDF viewing application
