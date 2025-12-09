@@ -25,9 +25,9 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _api, cbook, _path, _text_helpers
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase, GraphicsContextBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
-from matplotlib.font_manager import get_font
+from matplotlib.font_manager import get_font, FontProperties
 from matplotlib.ft2font import LoadFlags
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
@@ -35,6 +35,7 @@ from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from . import _backend_pdf_ps
+from matplotlib import textpath
 
 
 _log = logging.getLogger(__name__)
@@ -459,6 +460,31 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
+    def _draw_text_as_path(self,
+                           gc: GraphicsContextBase,
+                           x: float,
+                           y: float,
+                           s: str,
+                           prop: FontProperties,
+                           angle: float,
+                           ismath=False,
+                           mtext=None):
+        # Get path data from text2path
+        tp = textpath.TextToPath()
+        # Handle math text
+        verts, codes = tp.get_text_path(prop, s, ismath=ismath)
+        # Create Path object
+        path = Path(verts, codes)
+        # Create transformation
+        transform = Affine2D().translate(x, y).rotate_deg(angle)
+        # Scale to correct size (text2path returns units that need scaling)
+        fontsize = prop.get_size()
+        unitsperem = 1000.0
+        scale = fontsize / unitsperem
+        transform.scale(scale, scale)
+        # Draw the path
+        self.draw_path(gc, path, transform, rgbFace=gc.get_rgb())
+
     @staticmethod
     def _linejoin_cmd(linejoin):
         # Support for directly passing integer values is for backcompat.
@@ -765,13 +791,16 @@ grestore
         if self._is_transparent(gc.get_rgb()):
             return  # Special handling for fully transparent.
 
-        if ismath == 'TeX':
+        if ismath == 'TeX' and not mpl.rcParams['ps.pathtext']:
             return self.draw_tex(gc, x, y, s, prop, angle)
 
-        if ismath:
+        if ismath and not mpl.rcParams['ps.pathtext']:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
         stream = []  # list of (ps_name, x, char_name)
+
+        if mpl.rcParams['ps.pathtext']:
+            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
