@@ -3,18 +3,23 @@ from matplotlib.testing.decorators import image_comparison
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 9eb51af777 (Implemented pytest for new feature)
 =======
 
 >>>>>>> 28390f61bd (Fixed coding style)
+=======
+
+>>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
 @image_comparison(baseline_images=['text_as_path.eps'])
 def test_text_as_path_ps():
     plt.rcParams['ps.pathtext'] = True
     fig, ax = plt.subplots()
     ax.text(0.25, 0.25, 'c')
     ax.text(0.25, 0.5, 'a')
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     ax.text(0.25, 0.75, 'x')
@@ -37,3 +42,6 @@ def test_text_as_path_ps():
 >>>>>>> 4828055021 (Further fixed coding style)
 =======
 >>>>>>> 7a60bcb9c3 (Further fixed coding style. Sigh.)
+=======
+    ax.text(0.25, 0.75, 'x')
+>>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)

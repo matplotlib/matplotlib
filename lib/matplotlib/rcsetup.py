@@ -1324,7 +1324,19 @@ _validators = {
     "ps.useafm":          validate_bool,
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
     "ps.pathtext":        validate_bool,  # enables text-to-vector image
+=======
+    "ps.pathtext":        validate_bool, # enables text-to-vector image  
+>>>>>>> c13f88acb3 (Properly implemented the new feature from)
+=======
+    "ps.pathtext":        validate_bool,  # enables text-to-vector image  
+>>>>>>> 7819eadefd (Fixed coding style)
+=======
+    "ps.pathtext":        validate_bool,  # enables text-to-vector image
+>>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
     "ps.distiller.res":   validate_int,  # dpi
     "ps.fonttype":        validate_fonttype,  # 3 (Type3) or 42 (Truetype)
     "pdf.compression":    validate_int,  # 0-9 compression level; 0 to disable
