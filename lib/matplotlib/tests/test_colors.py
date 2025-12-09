@@ -2127,13 +2127,13 @@ def test_colorizer_multinorm_implicit():
 
     # test call with two single values
     data = [0.1, 0.2]
-    res = (0.098039, 0.149212, 0.2, 1.0)
+    res = (0.098039, 0.149020, 0.2, 1.0)
     assert_array_almost_equal(ca.to_rgba(data), res)
 
     # test call with two 1d arrays
     data = [[0.1, 0.2], [0.3, 0.4]]
-    res = [[0.09803922, 0.19832211, 0.29803922, 1.],
-           [0.2, 0.29972, 0.4, 1.]]
+    res = [[0.09803922, 0.19803922, 0.29803922, 1.],
+           [0.2, 0.3, 0.4, 1.]]
     assert_array_almost_equal(ca.to_rgba(data), res)
 
     # test call with two 2d arrays
@@ -2191,7 +2191,7 @@ def test_colorizer_multinorm_explicit():
 
     # test call with two single values
     data = [0.1, 0.2]
-    res = (0.098039, 0.374506, 0.65098, 1.)
+    res = (0.098039, 0.374510, 0.65098, 1.)
     assert_array_almost_equal(ca.to_rgba(data), res)
 
 

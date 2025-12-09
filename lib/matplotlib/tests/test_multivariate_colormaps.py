@@ -220,10 +220,18 @@ def test_bivar_cmap_call_tuple():
 
 def test_bivar_cmap_lut_smooth():
     cmap = mpl.bivar_colormaps['BiOrangeBlue']
+
     assert_allclose(cmap.lut[:, 0, 0], np.linspace(0, 1, 256))
-    assert_allclose(cmap.lut[:, 0, 1], np.linspace(0, 0.5, 256), atol=1e-3)
-    assert_allclose(cmap.lut[0, :, 1], np.linspace(0, 0.5, 256), atol=1e-3)
+    assert_allclose(cmap.lut[:, 255, 0], np.linspace(0, 1, 256))
+    assert_allclose(cmap.lut[:, 0, 1], np.linspace(0, 0.5, 256))
+    assert_allclose(cmap.lut[:, 153, 1], np.linspace(0.3, 0.8, 256))
+    assert_allclose(cmap.lut[:, 255, 1], np.linspace(0.5, 1, 256))
+
+    assert_allclose(cmap.lut[0, :, 1], np.linspace(0, 0.5, 256))
+    assert_allclose(cmap.lut[102, :, 1], np.linspace(0.2, 0.7, 256))
+    assert_allclose(cmap.lut[255, :, 1], np.linspace(0.5, 1, 256))
     assert_allclose(cmap.lut[0, :, 2], np.linspace(0, 1, 256))
+    assert_allclose(cmap.lut[255, :, 2], np.linspace(0, 1, 256))
 
 
 def test_bivar_cmap_call():
@@ -326,27 +334,31 @@ def test_bivar_cmap_1d_origin():
     """
     Test getting 1D colormaps with different origins
     """
-    cmap = mpl.bivar_colormaps['BiOrangeBlue']
-    assert_allclose(cmap[0](1.), (1., 0.5, 0., 1.))
-    assert_allclose(cmap[1](1.), (0., 0.5, 1., 1.))
+    cmap0 = mpl.bivar_colormaps['BiOrangeBlue']
+    assert_allclose(cmap0[0].colors[:, 0], np.linspace(0, 1, 256))
+    assert_allclose(cmap0[0].colors[:, 1], np.linspace(0, 0.5, 256))
+    assert_allclose(cmap0[0].colors[:, 2], 0)
+    assert_allclose(cmap0[1].colors[:, 0], 0)
+    assert_allclose(cmap0[1].colors[:, 1], np.linspace(0, 0.5, 256))
+    assert_allclose(cmap0[1].colors[:, 2], np.linspace(0, 1, 256))
 
-    cmap = mpl.bivar_colormaps['BiOrangeBlue'].with_extremes(origin=(0, 1))
-    assert_allclose(cmap[0](1.), (1., 1., 1., 1.))
-    assert_allclose(cmap[1](1.), (0., 0.5, 1., 1.))
+    cmap1 = cmap0.with_extremes(origin=(0, 1))
+    assert_allclose(cmap1[0].colors[:, 0], np.linspace(0, 1, 256))
+    assert_allclose(cmap1[0].colors[:, 1], np.linspace(0.5, 1, 256))
+    assert_allclose(cmap1[0].colors[:, 2], 1)
+    assert_allclose(cmap1[1].colors, cmap0[1].colors)
 
-    cmap = mpl.bivar_colormaps['BiOrangeBlue'].with_extremes(origin=(0.5, 0.5))
-    assert_allclose(cmap[0](0.5),
-                    (0.5019607843137255, 0.5019453440984237, 0.5019607843137255, 1))
-    assert_allclose(cmap[1](0.5),
-                    (0.5019607843137255, 0.5019453440984237, 0.5019607843137255, 1))
-
-    cmap = mpl.bivar_colormaps['BiOrangeBlue'].with_extremes(origin=(1, 1))
-    assert_allclose(cmap[0](1.), (1., 1., 1., 1.))
-    assert_allclose(cmap[1](1.), (1., 1., 1., 1.))
+    cmap2 = cmap0.with_extremes(origin=(0.2, 0.4))
+    assert_allclose(cmap2[0].colors[:, 0], np.linspace(0, 1, 256))
+    assert_allclose(cmap2[0].colors[:, 1], np.linspace(0.2, 0.7, 256))
+    assert_allclose(cmap2[0].colors[:, 2], 0.4)
+    assert_allclose(cmap2[1].colors[:, 0], 0.2)
+    assert_allclose(cmap2[1].colors[:, 1], np.linspace(0.1, 0.6, 256))
+    assert_allclose(cmap2[1].colors[:, 2], np.linspace(0, 1, 256))
 
     with pytest.raises(KeyError,
                        match="only 0 or 1 are valid keys"):
-        cs = cmap[2]
+        cs = cmap0[2]
 
 
 def test_bivar_getitem():
@@ -454,22 +466,18 @@ def test_bivar_cmap_from_image():
 
 
 def test_bivar_resample():
-    cmap = mpl.bivar_colormaps['BiOrangeBlue'].resampled((2, 2))
-    assert_allclose(cmap((0.25, 0.25)), (0, 0, 0, 1))
+    cmap = mpl.bivar_colormaps['BiOrangeBlue']
 
-    cmap = mpl.bivar_colormaps['BiOrangeBlue'].resampled((-2, 2))
-    assert_allclose(cmap((0.25, 0.25)), (1., 0.5, 0., 1.))
+    assert_allclose(cmap.resampled((2, 2))((0.25, 0.25)), (0, 0, 0, 1))
+    assert_allclose(cmap.resampled((-2, 2))((0.25, 0.25)), (1., 0.5, 0., 1.))
+    assert_allclose(cmap.resampled((2, -2))((0.25, 0.25)), (0., 0.5, 1., 1.))
+    assert_allclose(cmap.resampled((-2, -2))((0.25, 0.25)), (1, 1, 1, 1))
 
-    cmap = mpl.bivar_colormaps['BiOrangeBlue'].resampled((2, -2))
-    assert_allclose(cmap((0.25, 0.25)), (0., 0.5, 1., 1.))
+    assert_allclose(cmap((0.8, 0.4)), (0.8, 0.6, 0.4, 1.))
+    assert_allclose(cmap.reversed()((1 - 0.8, 1 - 0.4)), (0.8, 0.6, 0.4, 1.))
 
-    cmap = mpl.bivar_colormaps['BiOrangeBlue'].resampled((-2, -2))
-    assert_allclose(cmap((0.25, 0.25)), (1, 1, 1, 1))
-
-    cmap = mpl.bivar_colormaps['BiOrangeBlue'].reversed()
-    assert_allclose(cmap((0.25, 0.25)), (0.74902, 0.74902, 0.74902, 1.), atol=1e-5)
-    cmap = mpl.bivar_colormaps['BiOrangeBlue'].transposed()
-    assert_allclose(cmap((0.25, 0.25)), (0.25098, 0.25098, 0.25098, 1.), atol=1e-5)
+    assert_allclose(cmap((0.6, 0.2)), (0.6, 0.4, 0.2, 1.))
+    assert_allclose(cmap.transposed()((0.2, 0.6)), (0.6, 0.4, 0.2, 1.))
 
     with pytest.raises(ValueError, match="lutshape must be of length"):
         cmap = cmap.resampled(4)
