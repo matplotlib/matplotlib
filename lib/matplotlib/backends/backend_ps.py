@@ -467,18 +467,14 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         else:
             # Handle regular text
             verts, codes = self._text2path.get_text_path(prop, s, ismath=False)
-    
         # Create Path object
         path = Path(verts, codes)
-    
         # Create transformation
         transform = Affine2D().translate(x, y).rotate_deg(angle)
-    
         # Scale to correct size (text2path returns units that need scaling)
         fontsize = prop.get_size_in_points()
         scale = fontsize / self._text2path.FONT_SCALE
         transform.scale(scale, scale)
-    
         # Draw the path
         self.draw_path(gc, path, transform, rgbFace=gc.get_rgb())
 
