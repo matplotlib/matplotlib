@@ -1518,7 +1518,6 @@ class EngFormatter(ScalarFormatter):
         '-1.00 \N{MICRO SIGN}'
         """
         sign = 1
-        fmt = "g" if self.places is None and self.digits is None else None
 
         if value < 0:
             sign = -1
@@ -1551,6 +1550,8 @@ class EngFormatter(ScalarFormatter):
         elif self.places is not None:
             # Original behavior
             fmt = f".{self.places:d}f"
+        else:
+            fmt = "g"
         
         # Format the mantissa
         formatted_mant = format(mant, fmt)
@@ -1571,6 +1572,8 @@ class EngFormatter(ScalarFormatter):
                 fmt = f".{decimal_places}f"
             elif self.places is not None:
                 fmt = f".{self.places:d}f"
+            else:
+                fmt = "g"
             
             formatted_mant = format(mant, fmt)
         
