@@ -725,10 +725,12 @@ class _AxesBase(martist.Artist):
 
         self.set_navigate(True)
 
-        if xscale is None: xscale = mpl.rcParams["axes.xscale"]
+        if xscale is None:
+            xscale = mpl.rcParams["axes.xscale"]
         if xscale:
             self.set_xscale(xscale)
-        if yscale is None: yscale = mpl.rcParams["axes.yscale"]
+        if yscale is None:
+            yscale = mpl.rcParams["axes.yscale"]
         if yscale:
             self.set_yscale(yscale)
 
