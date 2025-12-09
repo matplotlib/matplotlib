@@ -1103,6 +1103,8 @@ _validators = {
     "axes.titley":        validate_float_or_None,
     # pad from Axes top decoration to title in points
     "axes.titlepad":      validate_float,
+    "axes.xscale":        validate_string,
+    "axes.yscale":        validate_string,
     "axes.grid":          validate_bool,  # display grid or not
     "axes.grid.which":    ["minor", "both", "major"],  # which grids are drawn
     "axes.grid.axis":     ["x", "y", "both"],  # grid type
