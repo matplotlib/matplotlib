@@ -459,14 +459,14 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
-    def _draw_text_as_path(self, 
-                           gc: GraphicsContextBase, 
-                           x, 
-                           y, 
-                           s, 
-                           prop: FontProperties, 
-                           angle, 
-                           ismath=False, 
+    def _draw_text_as_path(self,
+                           gc: GraphicsContextBase,
+                           x,
+                           y,
+                           s,
+                           prop: FontProperties,
+                           angle,
+                           ismath=False,
                            mtext=None):
         # Get path data from text2path
         if ismath:

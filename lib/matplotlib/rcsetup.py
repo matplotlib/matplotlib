@@ -1324,7 +1324,7 @@ _validators = {
     "ps.useafm":          validate_bool,
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,
-    "ps.pathtext":        validate_bool,  # enables text-to-vector image  
+    "ps.pathtext":        validate_bool,  # enables text-to-vector image
     "ps.distiller.res":   validate_int,  # dpi
     "ps.fonttype":        validate_fonttype,  # 3 (Type3) or 42 (Truetype)
     "pdf.compression":    validate_int,  # 0-9 compression level; 0 to disable
