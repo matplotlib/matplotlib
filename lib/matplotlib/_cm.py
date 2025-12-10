@@ -869,7 +869,7 @@ _Accent_data = (
 
 # Okabe-Ito accessible color palette (2002).
 # By Masataka Okabe (Jikei Medical School) and Kei Ito (University of Tokyo).
-# Qualitative color palette that is unambiguous both to colorblinds and non-colorblinds.
+# Qualitative color palette that is unambiguous regardless of whether the viewer has colorblindness.
 # https://jfly.uni-koeln.de/color/#pallet
 
 _Accessible_data = (
