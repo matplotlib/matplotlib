@@ -3,6 +3,7 @@
 """
 
 import copy
+from dataclasses import dataclass
 
 from numbers import Integral, Number, Real
 import logging
@@ -227,6 +228,14 @@ def _mark_every_path(markevery, tpath, affine, ax):
         raise ValueError(f"markevery={markevery!r} is not a recognized value")
 
 
+
+@dataclass
+class _LineStyle:
+    """Container for Line2D style properties."""
+    linewidth: float = None
+    linestyle: str = None
+    color: object = None
+
 @_docstring.interpd
 @_api.define_aliases({
     "antialiased": ["aa"],
@@ -334,6 +343,7 @@ class Line2D(Artist):
 
         """
         super().__init__()
+        self._style = _LineStyle()
 
         # Convert sequences to NumPy arrays.
         if not np.iterable(xdata):
@@ -366,7 +376,7 @@ class Line2D(Artist):
 
         self._linestyles = None
         self._drawstyle = None
-        self._linewidth = linewidth
+        self._style.linewidth = linewidth
         self._unscaled_dash_pattern = (0, None)  # offset, dash
         self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
 
@@ -777,7 +787,7 @@ class Line2D(Artist):
                 gc.set_url(self.get_url())
 
                 gc.set_antialiased(self._antialiased)
-                gc.set_linewidth(self._linewidth)
+                gc.set_linewidth(self._style.linewidth)
 
                 if self.is_dashed():
                     cap = self._dashcapstyle
@@ -931,7 +941,7 @@ class Line2D(Artist):
 
         See also `~.Line2D.set_linewidth`.
         """
-        return self._linewidth
+        return self._style.linewidth
 
     def get_marker(self):
         """
@@ -1138,9 +1148,9 @@ class Line2D(Artist):
             Line width, in points.
         """
         w = float(w)
-        if self._linewidth != w:
+        if self._style.linewidth != w:
             self.stale = True
-        self._linewidth = w
+        self._style.linewidth = w
         self._dash_pattern = _scale_dashes(*self._unscaled_dash_pattern, w)
 
     def set_linestyle(self, ls):
@@ -1185,7 +1195,7 @@ class Line2D(Artist):
             self._linestyle = '--'
         self._unscaled_dash_pattern = _get_dash_pattern(ls)
         self._dash_pattern = _scale_dashes(
-            *self._unscaled_dash_pattern, self._linewidth)
+            *self._unscaled_dash_pattern, self._style.linewidth)
         self.stale = True
 
     @_docstring.interpd
@@ -1340,7 +1350,7 @@ class Line2D(Artist):
         """Copy properties from *other* to self."""
         super().update_from(other)
         self._linestyle = other._linestyle
-        self._linewidth = other._linewidth
+        self._style.linewidth = other._linewidth
         self._color = other._color
         self._gapcolor = other._gapcolor
         self._markersize = other._markersize
