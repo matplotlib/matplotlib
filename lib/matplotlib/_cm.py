@@ -877,7 +877,7 @@ _Dark2_data = (
     (0.4,                 0.4,                 0.4                ),
     )
 
-# Okabe-Ito accessible and print-friendly color palette (2002).
+# Okabe-Ito accessible and print-friendly color palette .
 # By Masataka Okabe (Jikei Medical School) and Kei Ito (University of Tokyo).
 # Qualitative color palette that is unambiguous regardless of whether
 # the viewer has colorblindness. https://jfly.uni-koeln.de/color/#pallet
@@ -1484,7 +1484,7 @@ datad = {
     'winter': _winter_data,
     # Qualitative
     'Accent': {'listed': _Accent_data},
-    'Okabe-Ito': {'listed': _Okabe_Ito_data},
+    'Okabe_Ito': {'listed': _Okabe_Ito_data},
     'Dark2': {'listed': _Dark2_data},
     'Paired': {'listed': _Paired_data},
     'Pastel1': {'listed': _Pastel1_data},
