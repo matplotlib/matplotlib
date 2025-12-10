@@ -35,6 +35,7 @@ from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from . import _backend_pdf_ps
+from matplotlib import textpath
 
 
 _log = logging.getLogger(__name__)
@@ -459,28 +460,25 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
-    def _draw_text_as_path(self, 
-                           gc: GraphicsContextBase, 
-                           x, 
-                           y, 
-                           s, 
-                           prop: FontProperties, 
-                           angle, 
-                           ismath=False, 
+    def _draw_text_as_path(self,
+                           gc: GraphicsContextBase,
+                           x: float,
+                           y: float,
+                           s: str,
+                           prop: FontProperties,
+                           angle: float,
+                           ismath=False,
                            mtext=None):
         # Get path data from text2path
-        if ismath:
-            # Handle math text
-            verts, codes = self._draw_text_as_path(prop, s, ismath=True)
-        else:
-            # Handle regular text
-            verts, codes = self._draw_text_as_path(prop, s, ismath=False)
+        tp = textpath.TextToPath()
+        # Handle math text
+        verts, codes = tp.get_text_path(prop, s, ismath=ismath)
         # Create Path object
         path = Path(verts, codes)
         # Create transformation
         transform = Affine2D().translate(x, y).rotate_deg(angle)
         # Scale to correct size (text2path returns units that need scaling)
-        fontsize = prop.get_size_in_points()
+        fontsize = prop.get_size()
         unitsperem = 1000.0
         scale = fontsize / unitsperem
         transform.scale(scale, scale)
@@ -793,16 +791,16 @@ grestore
         if self._is_transparent(gc.get_rgb()):
             return  # Special handling for fully transparent.
 
-        if ismath == 'TeX':
+        if ismath == 'TeX' and not mpl.rcParams['ps.pathtext']:
             return self.draw_tex(gc, x, y, s, prop, angle)
 
-        if ismath:
+        if ismath and not mpl.rcParams['ps.pathtext']:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
         stream = []  # list of (ps_name, x, char_name)
 
-        if mpl.rcParams['ps.fonttype'] == 3 and mpl.rcParams['ps.pathtext']:
-            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
+        if mpl.rcParams['ps.pathtext']:
+            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
