@@ -459,7 +459,15 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
-    def _draw_text_as_path(self, gc: GraphicsContextBase, x, y, s, prop: FontProperties, angle, ismath=False, mtext=None):
+    def _draw_text_as_path(self, 
+                           gc: GraphicsContextBase, 
+                           x, 
+                           y, 
+                           s, 
+                           prop: FontProperties, 
+                           angle, 
+                           ismath=False, 
+                           mtext=None):
         # Get path data from text2path
         if ismath:
             # Handle math text
@@ -793,7 +801,7 @@ grestore
 
         stream = []  # list of (ps_name, x, char_name)
 
-        if mpl.rcParams['ps.fonttype'] == 3 and mpl.rcParams['ps.pathtext'] == True:
+        if mpl.rcParams['ps.fonttype'] == 3 and mpl.rcParams['ps.pathtext']:
             return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
 
         if mpl.rcParams['ps.useafm']:
