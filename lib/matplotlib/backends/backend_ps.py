@@ -25,9 +25,9 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _api, cbook, _path, _text_helpers
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase, GraphicsContextBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
-from matplotlib.font_manager import get_font
+from matplotlib.font_manager import get_font, FontProperties
 from matplotlib.ft2font import LoadFlags
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
@@ -459,21 +459,22 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
-    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+    def _draw_text_as_path(self, gc: GraphicsContextBase, x, y, s, prop: FontProperties, angle, ismath=False, mtext=None):
         # Get path data from text2path
         if ismath:
             # Handle math text
-            verts, codes = self._text2path.get_text_path(prop, s, ismath=True)
+            verts, codes = self._draw_text_as_path(prop, s, ismath=True)
         else:
             # Handle regular text
-            verts, codes = self._text2path.get_text_path(prop, s, ismath=False)
+            verts, codes = self._draw_text_as_path(prop, s, ismath=False)
         # Create Path object
         path = Path(verts, codes)
         # Create transformation
         transform = Affine2D().translate(x, y).rotate_deg(angle)
         # Scale to correct size (text2path returns units that need scaling)
         fontsize = prop.get_size_in_points()
-        scale = fontsize / self._text2path.FONT_SCALE
+        unitsperem = 1000.0
+        scale = fontsize / unitsperem
         transform.scale(scale, scale)
         # Draw the path
         self.draw_path(gc, path, transform, rgbFace=gc.get_rgb())
@@ -792,7 +793,7 @@ grestore
 
         stream = []  # list of (ps_name, x, char_name)
 
-        if mpl.rcParams['ps.fonttype'] == 'path':
+        if mpl.rcParams['ps.fonttype'] == 3 and mpl.rcParams['ps.pathtext'] == True:
             return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
 
         if mpl.rcParams['ps.useafm']:
