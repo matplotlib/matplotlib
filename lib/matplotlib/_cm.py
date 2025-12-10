@@ -852,7 +852,6 @@ _YlOrRd_data = (
     (0.50196078431372548, 0.0                 , 0.14901960784313725)
     )
 
-
 # ColorBrewer's qualitative maps, implemented using ListedColormap
 # for use with mpl.colors.NoNorm
 
@@ -867,22 +866,6 @@ _Accent_data = (
     (0.4,                 0.4,                 0.4                ),
     )
 
-# Okabe-Ito accessible color palette (2002).
-# By Masataka Okabe (Jikei Medical School) and Kei Ito (University of Tokyo).
-# Qualitative color palette that is unambiguous regardless of whether the viewer has colorblindness.
-# https://jfly.uni-koeln.de/color/#pallet
-
-_Accessible_data = (
-    (0.0, 0.0, 0.0),                        # black
-    (0.901960784, 0.623529412, 0.0),        # e69f00
-    (0.337254902, 0.705882353, 0.91372549),  # 56b4e9
-    (0.0, 0.619607843, 0.450980392),        # 009e73
-    (0.9412, 0.894117647, 0.258823529),     # f0e442
-    (0.0, 0.447058824, 0.698039216),        # 0072b2
-    (0.835294118, 0.368627451, 0.0),        # d55e00
-    (0.8, 0.474509804, 0.654901961),        # cc79a7
-)
-
 _Dark2_data = (
     (0.10588235294117647, 0.61960784313725492, 0.46666666666666667),
     (0.85098039215686272, 0.37254901960784315, 0.00784313725490196),
@@ -893,6 +876,22 @@ _Dark2_data = (
     (0.65098039215686276, 0.46274509803921571, 0.11372549019607843),
     (0.4,                 0.4,                 0.4                ),
     )
+
+# Okabe-Ito accessible and print-friendly color palette (2002).
+# By Masataka Okabe (Jikei Medical School) and Kei Ito (University of Tokyo).
+# Qualitative color palette that is unambiguous regardless of whether
+# the viewer has colorblindness. https://jfly.uni-koeln.de/color/#pallet
+
+_Okabe_Ito_data = (
+    (0.0, 0.0, 0.0),                        # black
+    (0.901960784, 0.623529412, 0.0),        # e69f00
+    (0.337254902, 0.705882353, 0.91372549),  # 56b4e9
+    (0.0, 0.619607843, 0.450980392),        # 009e73
+    (0.9412, 0.894117647, 0.258823529),     # f0e442
+    (0.0, 0.447058824, 0.698039216),        # 0072b2
+    (0.835294118, 0.368627451, 0.0),        # d55e00
+    (0.8, 0.474509804, 0.654901961),        # cc79a7
+)
 
 _Paired_data = (
     (0.65098039215686276, 0.80784313725490198, 0.8901960784313725 ),
@@ -1485,7 +1484,7 @@ datad = {
     'winter': _winter_data,
     # Qualitative
     'Accent': {'listed': _Accent_data},
-    'Accessible': {'listed': _Accessible_data},
+    'Okabe-Ito': {'listed': _Okabe_Ito_data},
     'Dark2': {'listed': _Dark2_data},
     'Paired': {'listed': _Paired_data},
     'Pastel1': {'listed': _Pastel1_data},

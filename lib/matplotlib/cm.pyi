@@ -96,8 +96,8 @@ summer: colors.Colormap
 terrain: colors.Colormap
 winter: colors.Colormap
 Accent: colors.Colormap
-Accessible: colors.Colormap
 Dark2: colors.Colormap
+Okabe_Ito: colors.Colormap
 Paired: colors.Colormap
 Pastel1: colors.Colormap
 Pastel2: colors.Colormap
@@ -188,8 +188,8 @@ summer_r: colors.Colormap
 terrain_r: colors.Colormap
 winter_r: colors.Colormap
 Accent_r: colors.Colormap
-Accessible_r: colors.Colormap
 Dark2_r: colors.Colormap
+Okabe_Ito_r: colors.Colormap
 Paired_r: colors.Colormap
 Pastel1_r: colors.Colormap
 Pastel2_r: colors.Colormap
