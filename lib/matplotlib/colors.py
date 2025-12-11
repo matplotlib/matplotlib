@@ -3631,11 +3631,10 @@ def rgb_to_hsv(arr):
                          f"shape {arr.shape} was found.")
 
     in_shape = arr.shape
-    arr = np.array(
-        arr, copy=False,
-        dtype=np.promote_types(arr.dtype, np.float32),  # Don't work on ints.
-        ndmin=2,  # In case input was 1D.
-    )
+    # ensure numerics are done at least on float32; ints are cast as well
+    arr = np.asarray(arr, dtype=np.promote_types(arr.dtype, np.float32))
+    if arr.ndim == 1:
+        arr = np.expand_dims(arr, axis=0)  # ensure arr is 2D
 
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
