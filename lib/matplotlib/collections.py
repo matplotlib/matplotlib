@@ -17,12 +17,12 @@ import warnings
 
 import numpy as np
 
-from mpl_data_containers.description import Desc, desc_like
+from ._data_containers.description import Desc, desc_like
 
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
                _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
-from ._containers import _get_graph
+from ._data_containers._helpers import _get_graph
 from ._enums import JoinStyle, CapStyle
 
 

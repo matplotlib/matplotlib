@@ -14,7 +14,6 @@ import numpy as np
 import PIL.Image
 import PIL.PngImagePlugin
 
-from mpl_data_containers.description import Desc
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
@@ -23,7 +22,8 @@ from matplotlib import _image
 # For user convenience, the names from _image are also imported into
 # the image namespace
 from matplotlib._image import *  # noqa: F401, F403
-from ._containers import _get_graph
+from ._data_containers.description import Desc
+from ._data_containers._helpers import _get_graph
 import matplotlib.artist as martist
 import matplotlib.colorizer as mcolorizer
 from matplotlib.backend_bases import FigureCanvasBase

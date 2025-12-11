@@ -18,7 +18,7 @@ from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
 from ._enums import JoinStyle, CapStyle
-from ._containers import containerize_draw
+from ._data_containers._helpers import containerize_draw
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
