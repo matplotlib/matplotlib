@@ -192,32 +192,3 @@ jobs:
           name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
           path: ./wheelhouse/*.whl
           if-no-files-found: error
-
-  publish:
-    if: github.repository == 'matplotlib/matplotlib' && github.event_name == 'push' && github.ref_type == 'tag'
-    name: Upload release to PyPI
-    needs: [build_sdist, build_wheels]
-    runs-on: ubuntu-latest
-    environment: release
-    permissions:
-      id-token: write
-      attestations: write
-      contents: read
-    steps:
-      - name: Download packages
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
-        with:
-          pattern: cibw-*
-          path: dist
-          merge-multiple: true
-
-      - name: Print out packages
-        run: ls dist
-
-      - name: Generate artifact attestation for sdist and wheel
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a  # v3.0.0
-        with:
-          subject-path: dist/matplotlib-*
-
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0
