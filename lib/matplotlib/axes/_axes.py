@@ -5309,12 +5309,12 @@ or pandas.DataFrame
             s = (20 if mpl.rcParams['_internal.classic_mode'] else
                  mpl.rcParams['lines.markersize'] ** 2.0)
         s = np.ma.ravel(s)
-        if (len(s) not in (1, x.size) or
-                (not np.issubdtype(s.dtype, np.floating) and
-                 not np.issubdtype(s.dtype, np.integer))):
-            raise ValueError(
-                "s must be a scalar, "
-                "or float array-like with the same size as x and y")
+        if not (np.issubdtype(s.dtype, np.floating)
+                or np.issubdtype(s.dtype, np.integer)):
+            raise ValueError(f"s must be float, but has type {s.dtype}")
+        if len(s) not in (1, x.size):
+            raise ValueError(f"s (size {len(s)}) cannot be broadcast "
+                             f"to match x and y (size {len(x)})")
 
         # get the original edgecolor the user passed before we normalize
         orig_edgecolor = edgecolors
