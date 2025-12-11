@@ -17,13 +17,8 @@ try:
     # :raises ValueError: If module/version is already loaded, already
     # required, or unavailable.
     gi_require_version("Gtk", "4.0")
-    # Also require GioUnix to avoid PyGIWarning when Gio is imported
-    # GioUnix is platform-specific and may not be available on all systems
-    try:
-        gi_require_version("GioUnix", "2.0")
-    except ValueError:
-        # GioUnix is not available on this platform, which is fine
-        pass
+    gi_require_version("Gdk", "4.0")
+    gi_require_version("GdkPixbuf", "2.0")
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
