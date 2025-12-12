@@ -1315,13 +1315,37 @@ def test_set_offset_units():
 
 
 def test_set_offset_empty():
-    expected = mcollections.Collection(offsets=np.column_stack([[], []]))
+    # Test with (0, 2) shaped array (the correct empty shape per (N, 2) docs)
+    # Using np.zeros((0, 2))
+    modified = mcollections.Collection(offsets=np.column_stack([[0, 1], [0, 1]]))
+    modified.set_offsets(np.zeros((0, 2)))
+    assert modified.get_offsets().shape == (0, 2)
 
-    modified = mcollections.Collection(
-        offsets=np.column_stack([[0, 1], [0, 1]])
-    )
-    modified.set_offsets([[], []])
-    np.testing.assert_allclose(expected.get_offsets(), modified.get_offsets())
+    # Using np.column_stack([[], []])
+    modified2 = mcollections.Collection(offsets=np.column_stack([[0, 1], [0, 1]]))
+    modified2.set_offsets(np.column_stack([[], []]))
+    assert modified2.get_offsets().shape == (0, 2)
+
+
+def test_set_offset_wrong_shape_error():
+    # Test that arrays with wrong shape raise an error
+    coll = mcollections.Collection(offsets=np.column_stack([[0, 1], [0, 1]]))
+
+    # Wrong ndim
+    with pytest.raises(ValueError, match=r"offsets must have shape \(N, 2\)"):
+        coll.set_offsets([1, 2, 3])  # (3,) - wrong ndim
+    with pytest.raises(ValueError, match=r"offsets must have shape \(N, 2\)"):
+        coll.set_offsets([[[1, 2]]])  # (1, 1, 2) - 3D array
+
+    # Wrong second dimension
+    with pytest.raises(ValueError, match=r"use np.column_stack"):
+        coll.set_offsets([[], []])  # (2, 0) - special error with suggestion
+    with pytest.raises(ValueError, match=r"offsets must have shape \(N, 2\)"):
+        coll.set_offsets([[1], [2]])  # (2, 1)
+    with pytest.raises(ValueError, match=r"offsets must have shape \(N, 2\)"):
+        coll.set_offsets([[1, 2, 3], [4, 5, 6]])  # (2, 3)
+    with pytest.raises(ValueError, match=r"offsets must have shape \(N, 2\)"):
+        coll.set_offsets([[1, 2, 3], [4, 5, 6], [7, 8, 9]])  # (3, 3)
 
 
 @image_comparison(baseline_images=["test_check_masked_offsets"],

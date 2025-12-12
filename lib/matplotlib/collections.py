@@ -630,8 +630,16 @@ class Collection(mcolorizer.ColorizingArtist):
         offsets = np.asanyarray(offsets)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
-        if offsets.shape == (2, 0):  # Transpose (2, 0) -> (0, 2) for [[], []] input.
-            offsets = offsets.T
+        if offsets.ndim != 2 or offsets.shape[1] != 2:
+            if offsets.shape == (2, 0):
+                raise ValueError(
+                    "offsets must have shape (N, 2), got (2, 0). "
+                    "If you want an empty collection, use "
+                    "np.column_stack([[], []]) or np.empty((0, 2))."
+                )
+            raise ValueError(
+                f"offsets must have shape (N, 2), or (2,) got {offsets.shape}."
+            )
         cstack = (np.ma.column_stack if isinstance(offsets, np.ma.MaskedArray)
                   else np.column_stack)
         self._offsets = cstack(
