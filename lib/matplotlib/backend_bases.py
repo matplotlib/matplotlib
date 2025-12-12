@@ -1262,7 +1262,7 @@ class LocationEvent(Event):
     xdata, ydata : float or None
         Data coordinates of the mouse within *inaxes*, or *None* if the mouse
         is not over an Axes.
-    modifiers : frozenset
+    modifiers : frozenset[str]
         The keyboard modifiers currently being pressed (except for KeyEvent).
     """
 
