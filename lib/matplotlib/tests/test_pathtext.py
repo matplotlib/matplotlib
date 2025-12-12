@@ -19,6 +19,7 @@ def test_text_as_path_ps():
 <<<<<<< HEAD
     ax.text(0.25, 0.75, 'x')
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
     
@@ -30,3 +31,6 @@ def test_text_as_path_ps():
     ax.text(0.25, 0.75, 'x')
     
 >>>>>>> 28390f61bd (Fixed coding style)
+=======
+  
+>>>>>>> 4828055021 (Further fixed coding style)
