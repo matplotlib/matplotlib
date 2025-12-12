@@ -19,8 +19,10 @@ body:
         have used generative AI as an aid see
         https://matplotlib.org/devdocs/devel/contribute.html#restrictions-on-generative-ai-usage
 
-        Consider using [inline script metadata](https://packaging.python.org/en/latest/specifications/inline-script-metadata/)
-        so that calling `uv run issue.py` reproduces the issue when copied into `issue.py` (not strictly required).
+        Consider using
+        [inline script metadata](https://packaging.python.org/en/latest/specifications/inline-script-metadata/)
+        so that calling `uv run issue.py` reproduces the issue when copied into
+        `issue.py` (not strictly required).
 
         This field is automatically formatted as Python code.
       render: Python
@@ -46,7 +48,13 @@ body:
         # Please delete this header if you have _not_ tested this script with `uv run`!
 
         import matplotlib
-        print(matplotlib.__version__)
+        print("matplotlib version:", matplotlib.__version__)
+        print("backend:", matplotlib.get_backend())
+
+        import platform
+        print("python version:", platform.python_version())
+        print("platform:", platform.platform())
+
         import matplotlib.pyplot as plt
         # your reproducer code ...
     validations:
