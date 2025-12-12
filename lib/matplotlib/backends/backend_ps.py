@@ -478,7 +478,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         # Create transformation
         transform = Affine2D().translate(x, y).rotate_deg(angle)
         # Scale to correct size (text2path returns units that need scaling)
-        fontsize = prop.get_size_in_points()
+        fontsize = prop.get_size()
         unitsperem = 1000.0
         scale = fontsize / unitsperem
         transform.scale(scale, scale)

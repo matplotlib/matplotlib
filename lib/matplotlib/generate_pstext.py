@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 
 plt.rcParams['ps.pathtext'] = True
 fig, ax = plt.subplots()
+ax.set_xlabel('Testing X')
+ax.set_ylabel('Testing Y')
 ax.text(0.25, 0.25, 'c')
 ax.text(0.25, 0.5, 'a')
 ax.text(0.25, 0.75, 'x')
