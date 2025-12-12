@@ -8,6 +8,9 @@ fig, ax = plt.subplots()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
 ax.set_xlabel('Testing X')
 ax.set_ylabel('Testing Y')
 =======
@@ -19,6 +22,7 @@ ax.set_ylabel('Testing Y')
 =======
 ax.set_xlabel('Testing X')
 ax.set_ylabel('Testing Y')
+<<<<<<< HEAD
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
 =======
 ax.set_xlabel('Testing X')
@@ -30,6 +34,9 @@ ax.set_ylabel('Testing Y')
 ax.set_xlabel('Testing X')
 ax.set_ylabel('Testing Y')
 >>>>>>> 723f9f5931 (Updated backend_ps.py to call the proper function)
+=======
+>>>>>>> 646cec28d9ed402921f628deedd345a58b588a9a
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
 ax.text(0.25, 0.25, 'c')
 ax.text(0.25, 0.5, 'a')
 ax.text(0.25, 0.75, 'x')

@@ -1329,6 +1329,7 @@ _validators = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "ps.pathtext":        validate_bool,  # enables text-to-vector image
 =======
     "ps.pathtext":        validate_bool, # enables text-to-vector image  
@@ -1345,6 +1346,9 @@ _validators = {
 =======
     "ps.pathtext":        validate_bool,  # enables text-to-vector image
 >>>>>>> dd02737ba2 (Removed trailing whitespace)
+=======
+    "ps.pathtext":        validate_bool,  # enables text-to-vector image
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
     "ps.distiller.res":   validate_int,  # dpi
     "ps.fonttype":        validate_fonttype,  # 3 (Type3) or 42 (Truetype)
     "pdf.compression":    validate_int,  # 0-9 compression level; 0 to disable

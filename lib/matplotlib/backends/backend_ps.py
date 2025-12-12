@@ -466,8 +466,11 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 7819eadefd (Fixed coding style)
+=======
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
     def _draw_text_as_path(self, 
                            gc: GraphicsContextBase, 
                            x, 
@@ -477,11 +480,17 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                            angle, 
                            ismath=False, 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
 =======
 >>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
+=======
+=======
+=======
+>>>>>>> 646cec28d9ed402921f628deedd345a58b588a9a
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
     def _draw_text_as_path(self,
                            gc: GraphicsContextBase,
                            x: float,
@@ -490,6 +499,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                            prop: FontProperties,
                            angle: float,
                            ismath=False,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 9eb51af777 (Implemented pytest for new feature)
@@ -537,22 +547,31 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         verts, codes = tp.get_text_path(prop, s, ismath=ismath)
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
 =======
+=======
+>>>>>>> 9eb51af777 (Implemented pytest for new feature)
+=======
+>>>>>>> 646cec28d9ed402921f628deedd345a58b588a9a
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
                            mtext=None):
         # Get path data from text2path
         tp = textpath.TextToPath()
         # Handle math text
         verts, codes = tp.get_text_path(prop, s, ismath=ismath)
+<<<<<<< HEAD
 >>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
 =======
         tp = textpath.TextToPath()
         # Handle math text
         verts, codes = tp.get_text_path(prop, s, ismath=ismath)
 >>>>>>> 9eb51af777 (Implemented pytest for new feature)
+=======
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
         # Create Path object
         path = Path(verts, codes)
         # Create transformation
         transform = Affine2D().translate(x, y).rotate_deg(angle)
         # Scale to correct size (text2path returns units that need scaling)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -570,6 +589,9 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 =======
         fontsize = prop.get_size()
 >>>>>>> 723f9f5931 (Updated backend_ps.py to call the proper function)
+=======
+        fontsize = prop.get_size()
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
         unitsperem = 1000.0
         scale = fontsize / unitsperem
         transform.scale(scale, scale)
@@ -895,6 +917,7 @@ grestore
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         if mpl.rcParams['ps.pathtext']:
             return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
 =======
@@ -916,6 +939,10 @@ grestore
         if mpl.rcParams['ps.pathtext']:
             return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
 >>>>>>> 9eb51af777 (Implemented pytest for new feature)
+=======
+        if mpl.rcParams['ps.pathtext']:
+            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)

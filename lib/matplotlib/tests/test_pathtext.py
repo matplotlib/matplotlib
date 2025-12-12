@@ -7,6 +7,9 @@ from matplotlib.testing.decorators import image_comparison
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
 
 =======
 >>>>>>> 9eb51af777 (Implemented pytest for new feature)
@@ -15,6 +18,7 @@ from matplotlib.testing.decorators import image_comparison
 >>>>>>> 28390f61bd (Fixed coding style)
 =======
 
+<<<<<<< HEAD
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
 =======
 
@@ -24,6 +28,9 @@ from matplotlib.testing.decorators import image_comparison
 =======
 
 >>>>>>> 28390f61bd (Fixed coding style)
+=======
+>>>>>>> 646cec28d9ed402921f628deedd345a58b588a9a
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
 @image_comparison(baseline_images=['text_as_path.eps'])
 def test_text_as_path_ps():
     plt.rcParams['ps.pathtext'] = True
@@ -37,12 +44,18 @@ def test_text_as_path_ps():
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
     ax.text(0.25, 0.75, 'x')
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
 =======
 
     
@@ -61,6 +74,7 @@ def test_text_as_path_ps():
 >>>>>>> 7a60bcb9c3 (Further fixed coding style. Sigh.)
 =======
     ax.text(0.25, 0.75, 'x')
+<<<<<<< HEAD
 >>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
 =======
     ax.text(0.25, 0.75, 'x')
@@ -82,3 +96,6 @@ def test_text_as_path_ps():
 >>>>>>> 4828055021 (Further fixed coding style)
 =======
 >>>>>>> 7a60bcb9c3 (Further fixed coding style. Sigh.)
+=======
+>>>>>>> 646cec28d9ed402921f628deedd345a58b588a9a
+>>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
