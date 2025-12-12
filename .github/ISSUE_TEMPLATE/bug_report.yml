@@ -18,8 +18,37 @@ body:
         If possible, please provide a minimum self-contained example.  If you
         have used generative AI as an aid see
         https://matplotlib.org/devdocs/devel/contribute.html#restrictions-on-generative-ai-usage
-      placeholder: Paste your code here. This field is automatically formatted as Python code.
+
+        Consider using [inline script metadata](https://packaging.python.org/en/latest/specifications/inline-script-metadata/)
+        so that calling `uv run issue.py` reproduces the issue when copied into `issue.py` (not strictly required).
+
+        This field is automatically formatted as Python code.
       render: Python
+      value: |
+        # /// script
+        # requires-python = ">=3.11"
+        # dependencies = [
+        #   "matplotlib",
+        # ]
+        #
+        # [[tool.uv.index]]
+        # name = "scientific-python-nightly-wheels"
+        # url = "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple/"
+        #
+        # [tool.uv.sources]
+        # matplotlib = { index = "scientific-python-nightly-wheels" }
+        #
+        # [tool.uv]
+        # prerelease = "allow"
+        # ///
+        #
+        # This script uses the nightly development build of matplotlib.
+        # Please delete this header if you have _not_ tested this script with `uv run`!
+
+        import matplotlib
+        print(matplotlib.__version__)
+        import matplotlib.pyplot as plt
+        # your reproducer code ...
     validations:
       required: true
   - type: textarea
