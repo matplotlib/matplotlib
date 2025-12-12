@@ -229,6 +229,9 @@ class CallbackRegistry:
         >>> callbacks.process('drink', 123)
         drink 123
 
+        >>> callbacks.disconnect_func('drink', ondrink)  # disconnect by func
+        >>> callbacks.process('drink', 123)      # nothing will be called
+
     In practice, one should always disconnect all callbacks when they are
     no longer needed to avoid dangling references (and thus memory leaks).
     However, real code in Matplotlib rarely does so, and due to its design,
@@ -348,6 +351,15 @@ class CallbackRegistry:
         self._func_cid_map.pop((signal, proxy))
         if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
+
+    def disconnect_func(self, signal, func):
+        """
+        Disconnect the callback for *func* registered to *signal*.
+
+        No error is raised if such a callback does not exist.
+        """
+        proxy = _weak_or_strong_ref(func, None)
+        self._remove_proxy(signal, proxy)
 
     def process(self, s, *args, **kwargs):
         """
