@@ -460,6 +460,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
+<<<<<<< HEAD
     def _draw_text_as_path(self, 
                            gc: GraphicsContextBase, 
                            x, 
@@ -468,6 +469,16 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                            prop: FontProperties, 
                            angle, 
                            ismath=False, 
+=======
+    def _draw_text_as_path(self,
+                           gc: GraphicsContextBase,
+                           x: float,
+                           y: float,
+                           s: str,
+                           prop: FontProperties,
+                           angle: float,
+                           ismath=False,
+>>>>>>> 9eb51af777 (Implemented pytest for new feature)
                            mtext=None):
         # Get path data from text2path
         tp = textpath.TextToPath()
