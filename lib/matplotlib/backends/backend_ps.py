@@ -460,17 +460,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.linewidth = linewidth
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 7819eadefd (Fixed coding style)
-=======
->>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
+
     def _draw_text_as_path(self, 
                            gc: GraphicsContextBase, 
                            x, 
@@ -478,123 +468,41 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                            s, 
                            prop: FontProperties, 
                            angle, 
-                           ismath=False, 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
-=======
->>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
-=======
-=======
-=======
->>>>>>> 646cec28d9ed402921f628deedd345a58b588a9a
->>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
-    def _draw_text_as_path(self,
-                           gc: GraphicsContextBase,
-                           x: float,
-                           y: float,
-                           s: str,
-                           prop: FontProperties,
-                           angle: float,
-                           ismath=False,
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 9eb51af777 (Implemented pytest for new feature)
-=======
->>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
-=======
-    def _draw_text_as_path(self,
-                           gc: GraphicsContextBase,
-                           x: float,
-                           y: float,
-                           s: str,
-                           prop: FontProperties,
-                           angle: float,
-                           ismath=False,
->>>>>>> dd02737ba2 (Removed trailing whitespace)
-                           mtext=None):
-=======
-    def _draw_text_as_path(self, gc: GraphicsContextBase, x, y, s, prop: FontProperties, angle, ismath=False, mtext=None):
->>>>>>> c13f88acb3 (Properly implemented the new feature from)
-=======
-                           mtext=None):
->>>>>>> 7819eadefd (Fixed coding style)
-        # Get path data from text2path
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        tp = textpath.TextToPath()
-        # Handle math text
-        verts, codes = tp.get_text_path(prop, s, ismath=ismath)
-=======
-        if ismath:
-            # Handle math text
-            verts, codes = self._draw_text_as_path(prop, s, ismath=True)
-        else:
-            # Handle regular text
-<<<<<<< HEAD
-            verts, codes = self._text2path.get_text_path(prop, s, ismath=False)
->>>>>>> b28cd17790 (Removed trailing whitespace in backend_ps.py)
-=======
-            verts, codes = self._draw_text_as_path(prop, s, ismath=False)
->>>>>>> c13f88acb3 (Properly implemented the new feature from)
-=======
-        tp = textpath.TextToPath()
-        # Handle math text
-        verts, codes = tp.get_text_path(prop, s, ismath=ismath)
->>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
-=======
-=======
->>>>>>> 9eb51af777 (Implemented pytest for new feature)
-=======
->>>>>>> 646cec28d9ed402921f628deedd345a58b588a9a
->>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
-                           mtext=None):
+                           ismath=False):
         # Get path data from text2path
         tp = textpath.TextToPath()
         # Handle math text
         verts, codes = tp.get_text_path(prop, s, ismath=ismath)
-<<<<<<< HEAD
->>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
-=======
-        tp = textpath.TextToPath()
-        # Handle math text
-        verts, codes = tp.get_text_path(prop, s, ismath=ismath)
->>>>>>> 9eb51af777 (Implemented pytest for new feature)
-=======
->>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
         # Create Path object
         path = Path(verts, codes)
         # Create transformation
         transform = Affine2D().translate(x, y).rotate_deg(angle)
         # Scale to correct size (text2path returns units that need scaling)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         fontsize = prop.get_size()
-=======
-        fontsize = prop.get_size_in_points()
->>>>>>> c13f88acb3 (Properly implemented the new feature from)
-=======
-        fontsize = prop.get_size()
->>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
-=======
-        fontsize = prop.get_size()
->>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
-=======
-        fontsize = prop.get_size()
->>>>>>> 723f9f5931 (Updated backend_ps.py to call the proper function)
-=======
-        fontsize = prop.get_size()
->>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
         unitsperem = 1000.0
         scale = fontsize / unitsperem
         transform.scale(scale, scale)
+
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # Get path data from text2path
+        if ismath:
+            # Handle math text
+            verts, codes = self._text2path.get_text_path(prop, s, ismath=True)
+        else:
+            # Handle regular text
+            verts, codes = self._text2path.get_text_path(prop, s, ismath=False)
+    
+        # Create Path object
+        path = Path(verts, codes)
+    
+        # Create transformation
+        transform = Affine2D().translate(x, y).rotate_deg(angle)
+    
+        # Scale to correct size (text2path returns units that need scaling)
+        fontsize = prop.get_size_in_points()
+        scale = fontsize / self._text2path.FONT_SCALE
+        transform.scale(scale, scale)
+
         # Draw the path
         self.draw_path(gc, path, transform, rgbFace=gc.get_rgb())
 
@@ -912,37 +820,8 @@ grestore
 
         stream = []  # list of (ps_name, x, char_name)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         if mpl.rcParams['ps.pathtext']:
             return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
-=======
-        if mpl.rcParams['ps.fonttype'] == 3 and mpl.rcParams['ps.pathtext'] == True:
-=======
-        if mpl.rcParams['ps.fonttype'] == 3 and mpl.rcParams['ps.pathtext']:
->>>>>>> 7819eadefd (Fixed coding style)
-            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
->>>>>>> c13f88acb3 (Properly implemented the new feature from)
-=======
-        if mpl.rcParams['ps.pathtext']:
-            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
->>>>>>> 36ebb70f4c (Added pytest for new feature, rebased commits)
-=======
-        if mpl.rcParams['ps.pathtext']:
-            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
->>>>>>> 63af2cefba (Added text-as-path functionality to backend_ps.py)
-=======
-        if mpl.rcParams['ps.pathtext']:
-            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
->>>>>>> 9eb51af777 (Implemented pytest for new feature)
-=======
-        if mpl.rcParams['ps.pathtext']:
-            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath=False)
->>>>>>> a424f555d13ebadbb6089ecca939ea831ddd2d40
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
