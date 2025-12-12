@@ -9,4 +9,4 @@ def test_text_as_path_ps():
     ax.text(0.25, 0.25, 'c')
     ax.text(0.25, 0.5, 'a')
     ax.text(0.25, 0.75, 'x')
-    
+  
