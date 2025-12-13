@@ -1,7 +1,7 @@
 from collections.abc import Iterable, Sequence
 from typing import Any
 
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase
+from matplotlib.backend_bases import RendererBase, GraphicsContextBase, VectorizedGraphicsContextBase
 from matplotlib.path import Path
 from matplotlib.patches import Patch
 from matplotlib.transforms import Transform
@@ -42,7 +42,7 @@ class PathEffectRenderer(RendererBase):
     ) -> None: ...
     def draw_path_collection(
         self,
-        gc: GraphicsContextBase,
+        vgc: GraphicsContextBase | VectorizedGraphicsContextBase,
         master_transform: Transform,
         paths: Sequence[Path],
         *args,
