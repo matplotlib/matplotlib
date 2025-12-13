@@ -1,8 +1,10 @@
 *alpha* parameter handling on images
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When passing and array to ``imshow(..., alpha=...)``, the parameter was silently ignored
-if the image data was a RGB or RBGA image or if :rc:`interpolation_state`
-resolved to "rbga".
+When passing an array to ``imshow(..., alpha=...)``, the parameter was silently ignored
+if the image data was a RGB or RGBA image or if :rc:`interpolation_stage`
+resolved to "rgba".
 
-This is now fixed, and the alpha array overwrites any previous transparency information.
+This is now fixed. For RGB images, the alpha array is used directly as the alpha channel.
+For RGBA images, the alpha array is multiplied with the existing alpha channel, consistent
+with how scalar alpha values are handled.
