@@ -255,8 +255,6 @@ class FigureCanvasTk(FigureCanvasBase):
                 CloseEvent("close_event", self)._process()
         filter_destroy_id = root.bind("<Destroy>", filter_destroy, "+")
 
-        self._tkcanvas.focus_set()
-
         self._rubberband_rect_black = None
         self._rubberband_rect_white = None
 
