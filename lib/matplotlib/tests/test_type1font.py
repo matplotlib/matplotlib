@@ -126,12 +126,48 @@ def test_tokenize():
 
 
 def test_tokenize_errors():
-    with pytest.raises(ValueError):
+    with pytest.raises(t1f._ParseError, match='Unterminated string'):
         list(t1f._tokenize(b'1234 (this (string) is unterminated\\)', True))
-    with pytest.raises(ValueError):
+    with pytest.raises(t1f._ParseError, match='Unterminated hex string'):
         list(t1f._tokenize(b'/Foo<01234', True))
-    with pytest.raises(ValueError):
+    with pytest.raises(t1f._ParseError, match='Malformed hex string'):
         list(t1f._tokenize(b'/Foo<01234abcg>/Bar', True))
+    with pytest.raises(t1f._ParseError, match='expected subroutine count'):
+        t1f.Type1Font((
+            b'currentfile eexec',
+            t1f.Type1Font._encrypt(b'/Subrs -1 array', 'eexec'),
+            b''
+        ))
+    with pytest.raises(t1f._ParseError, match='expected subroutine index'):
+        t1f.Type1Font((
+            b'currentfile eexec',
+            t1f.Type1Font._encrypt(b'/Subrs 5 array dup -1', 'eexec'),
+            b''
+        ))
+    with pytest.raises(t1f._ParseError, match='expected subroutine length'):
+        t1f.Type1Font((
+            b'currentfile eexec',
+            t1f.Type1Font._encrypt(b'/Subrs 5 array dup 0 -1', 'eexec'),
+            b''
+        ))
+    with pytest.raises(t1f._ParseError, match='expected charstring count'):
+        t1f.Type1Font((
+            b'currentfile eexec',
+            t1f.Type1Font._encrypt(b'/CharStrings -1 begin', 'eexec'),
+            b''
+        ))
+    with pytest.raises(t1f._ParseError, match='expected charstring length'):
+        t1f.Type1Font((
+            b'currentfile eexec',
+            t1f.Type1Font._encrypt(b'/CharStrings 5 begin /x -1', 'eexec'),
+            b''
+        ))
+    with pytest.raises(t1f._ParseError, match='expected encoding index'):
+        t1f.Type1Font((
+            b'/Encoding 256 array dup -1 /Gamma put',
+            b'',
+            b''
+        ))
 
 
 def test_overprecision():
