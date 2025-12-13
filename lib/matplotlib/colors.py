@@ -2215,7 +2215,8 @@ class SegmentedBivarColormap(BivarColormap):
         _patch = np.empty((s[0], s[1], 4))
         _patch[:, :, :3] = self.patch
         _patch[:, :, 3] = 1
-        transform = mpl.transforms.Affine2D().translate(-0.5, -0.5)\
+        # Shift by an additional Agg subpixel (1/256 pixel) to match previous behavior
+        transform = mpl.transforms.Affine2D().translate(-0.5 - 1/256, -0.5 - 1/256)\
                                 .scale(self.N / (s[1] - 1), self.N / (s[0] - 1))
         self._lut = np.empty((self.N, self.N, 4))
 
