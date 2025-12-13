@@ -294,6 +294,73 @@ class Test_callback_registry:
 
     @pytest.mark.parametrize('pickle', [True, False])
     @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect_func(self, pickle, cls):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # create a class for testing
+        mini_me = cls()
+
+        # test that we can add a callback
+        self.connect(self.signal, mini_me.dummy, pickle)
+        self.is_not_empty()
+
+        # disconnect by function reference
+        self.callbacks.disconnect_func(self.signal, mini_me.dummy)
+
+        # check we now have no callbacks registered
+        self.is_empty()
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect_func_wrong(self, pickle, cls):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # create a class for testing
+        mini_me = cls()
+
+        # test that we can add a callback
+        self.connect(self.signal, mini_me.dummy, pickle)
+        self.is_not_empty()
+
+        # try to disconnect with wrong signal - should do nothing
+        self.callbacks.disconnect_func('wrong_signal', mini_me.dummy)
+
+        # check we still have callbacks registered
+        self.is_not_empty()
+
+        # try to disconnect with wrong function - should do nothing
+        mini_me2 = cls()
+        self.callbacks.disconnect_func(self.signal, mini_me2.dummy)
+
+        # check we still have callbacks registered
+        self.is_not_empty()
+
+    def test_callback_disconnect_func_redefined(self):
+        # Test that redefining a function name doesn't affect disconnect_func.
+        # When you redefine a function, it creates a new function object,
+        # so disconnect_func should not disconnect the original.
+        self.is_empty()
+
+        def func():
+            pass
+
+        self.callbacks.connect(self.signal, func)
+        self.is_not_empty()
+
+        # Redefine func - this creates a new function object
+        def func():
+            pass
+
+        # Try to disconnect with the redefined function
+        self.callbacks.disconnect_func(self.signal, func)
+
+        # Original callback should still be registered
+        self.is_not_empty()
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
     def test_registration_on_non_empty_registry(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
