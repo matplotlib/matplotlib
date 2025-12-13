@@ -38,7 +38,8 @@ from .ft2font import FT2Font, Kerning, LoadFlags
 
 if T.TYPE_CHECKING:
     from collections.abc import Iterable
-    from .ft2font import Glyph
+    from .ft2font import CharacterCodeType, Glyph, GlyphIndexType
+
 
 ParserElement.enable_packrat()
 _log = logging.getLogger("matplotlib.mathtext")
@@ -48,7 +49,7 @@ _log = logging.getLogger("matplotlib.mathtext")
 # FONTS
 
 
-def get_unicode_index(symbol: str) -> int:  # Publicly exported.
+def get_unicode_index(symbol: str) -> CharacterCodeType:  # Publicly exported.
     r"""
     Return the integer index (from the Unicode table) of *symbol*.
 
@@ -86,7 +87,7 @@ class VectorParse(NamedTuple):
     width: float
     height: float
     depth: float
-    glyphs: list[tuple[FT2Font, float, int, float, float]]
+    glyphs: list[tuple[FT2Font, float, CharacterCodeType, GlyphIndexType, float, float]]
     rects: list[tuple[float, float, float, float]]
 
 VectorParse.__module__ = "matplotlib.mathtext"
@@ -131,7 +132,8 @@ class Output:
     def to_vector(self) -> VectorParse:
         w, h, d = map(
             np.ceil, [self.box.width, self.box.height, self.box.depth])
-        gs = [(info.font, info.fontsize, info.num, ox, h - oy + info.offset)
+        gs = [(info.font, info.fontsize, info.num, info.glyph_index,
+               ox, h - oy + info.offset)
               for ox, oy, info in self.glyphs]
         rs = [(x1, h - y2, x2 - x1, y2 - y1)
               for x1, y1, x2, y2 in self.rects]
@@ -213,7 +215,8 @@ class FontInfo(NamedTuple):
     fontsize: float
     postscript_name: str
     metrics: FontMetrics
-    num: int
+    num: CharacterCodeType
+    glyph_index: GlyphIndexType
     glyph: Glyph
     offset: float
 
@@ -366,7 +369,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
         return 0.
 
     def _get_glyph(self, fontname: str, font_class: str,
-                   sym: str) -> tuple[FT2Font, int, bool]:
+                   sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         raise NotImplementedError
 
     # The return value of _get_info is cached per-instance.
@@ -374,7 +377,8 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
                   dpi: float) -> FontInfo:
         font, num, slanted = self._get_glyph(fontname, font_class, sym)
         font.set_size(fontsize, dpi)
-        glyph = font.load_char(num, flags=self.load_glyph_flags)
+        glyph_index = font.get_char_index(num)
+        glyph = font.load_glyph(glyph_index, flags=self.load_glyph_flags)
 
         xmin, ymin, xmax, ymax = (val / 64 for val in glyph.bbox)
         offset = self._get_offset(font, glyph, fontsize, dpi)
@@ -397,6 +401,7 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             postscript_name=font.postscript_name,
             metrics=metrics,
             num=num,
+            glyph_index=glyph_index,
             glyph=glyph,
             offset=offset
         )
@@ -426,7 +431,8 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
-            return font.get_kerning(info1.num, info2.num, Kerning.DEFAULT) / 64
+            return font.get_kerning(info1.glyph_index, info2.glyph_index,
+                                    Kerning.DEFAULT) / 64
         return super().get_kern(font1, fontclass1, sym1, fontsize1,
                                 font2, fontclass2, sym2, fontsize2, dpi)
 
@@ -460,7 +466,7 @@ class BakomaFonts(TruetypeFonts):
     _slanted_symbols = set(r"\int \oint".split())
 
     def _get_glyph(self, fontname: str, font_class: str,
-                   sym: str) -> tuple[FT2Font, int, bool]:
+                   sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         font = None
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
@@ -476,60 +482,40 @@ class BakomaFonts(TruetypeFonts):
         else:
             return self._stix_fallback._get_glyph(fontname, font_class, sym)
 
-    # The Bakoma fonts contain many pre-sized alternatives for the
-    # delimiters.  The AutoSizedChar class will use these alternatives
-    # and select the best (closest sized) glyph.
+    # The Bakoma fonts contain many pre-sized alternatives for the delimiters. The
+    # Auto(Height|Width)Char classes will use these alternatives and select the best
+    # (closest sized) glyph.
+    _latex_sizes = ('big', 'Big', 'bigg', 'Bigg')
     _size_alternatives = {
-        '(':           [('rm', '('), ('ex', '\xa1'), ('ex', '\xb3'),
-                        ('ex', '\xb5'), ('ex', '\xc3')],
-        ')':           [('rm', ')'), ('ex', '\xa2'), ('ex', '\xb4'),
-                        ('ex', '\xb6'), ('ex', '\x21')],
-        '{':           [('cal', '{'), ('ex', '\xa9'), ('ex', '\x6e'),
-                        ('ex', '\xbd'), ('ex', '\x28')],
-        '}':           [('cal', '}'), ('ex', '\xaa'), ('ex', '\x6f'),
-                        ('ex', '\xbe'), ('ex', '\x29')],
-        # The fourth size of '[' is mysteriously missing from the BaKoMa
-        # font, so I've omitted it for both '[' and ']'
-        '[':           [('rm', '['), ('ex', '\xa3'), ('ex', '\x68'),
-                        ('ex', '\x22')],
-        ']':           [('rm', ']'), ('ex', '\xa4'), ('ex', '\x69'),
-                        ('ex', '\x23')],
-        r'\lfloor':    [('ex', '\xa5'), ('ex', '\x6a'),
-                        ('ex', '\xb9'), ('ex', '\x24')],
-        r'\rfloor':    [('ex', '\xa6'), ('ex', '\x6b'),
-                        ('ex', '\xba'), ('ex', '\x25')],
-        r'\lceil':     [('ex', '\xa7'), ('ex', '\x6c'),
-                        ('ex', '\xbb'), ('ex', '\x26')],
-        r'\rceil':     [('ex', '\xa8'), ('ex', '\x6d'),
-                        ('ex', '\xbc'), ('ex', '\x27')],
-        r'\langle':    [('ex', '\xad'), ('ex', '\x44'),
-                        ('ex', '\xbf'), ('ex', '\x2a')],
-        r'\rangle':    [('ex', '\xae'), ('ex', '\x45'),
-                        ('ex', '\xc0'), ('ex', '\x2b')],
-        r'\__sqrt__':  [('ex', '\x70'), ('ex', '\x71'),
-                        ('ex', '\x72'), ('ex', '\x73')],
-        r'\backslash': [('ex', '\xb2'), ('ex', '\x2f'),
-                        ('ex', '\xc2'), ('ex', '\x2d')],
-        r'/':          [('rm', '/'), ('ex', '\xb1'), ('ex', '\x2e'),
-                        ('ex', '\xcb'), ('ex', '\x2c')],
-        r'\widehat':   [('rm', '\x5e'), ('ex', '\x62'), ('ex', '\x63'),
-                        ('ex', '\x64')],
-        r'\widetilde': [('rm', '\x7e'), ('ex', '\x65'), ('ex', '\x66'),
-                        ('ex', '\x67')],
-        r'<':          [('cal', 'h'), ('ex', 'D')],
-        r'>':          [('cal', 'i'), ('ex', 'E')]
-        }
+        '(': [('rm', '('), *[('ex', fr'\__parenleft{s}__') for s in _latex_sizes]],
+        ')': [('rm', ')'), *[('ex', fr'\__parenright{s}__') for s in _latex_sizes]],
+        '{': [('ex', fr'\__braceleft{s}__') for s in _latex_sizes],
+        '}': [('ex', fr'\__braceright{s}__') for s in _latex_sizes],
+        '[': [('rm', '['), *[('ex', fr'\__bracketleft{s}__') for s in _latex_sizes]],
+        ']': [('rm', ']'), *[('ex', fr'\__bracketright{s}__') for s in _latex_sizes]],
+        '<': [('cal', r'\__angbracketleft__'),
+              *[('ex', fr'\__angbracketleft{s}__') for s in _latex_sizes]],
+        '>': [('cal', r'\__angbracketright__'),
+              *[('ex', fr'\__angbracketright{s}__') for s in _latex_sizes]],
+        r'\lfloor': [('ex', fr'\__floorleft{s}__') for s in _latex_sizes],
+        r'\rfloor': [('ex', fr'\__floorright{s}__') for s in _latex_sizes],
+        r'\lceil': [('ex', fr'\__ceilingleft{s}__') for s in _latex_sizes],
+        r'\rceil': [('ex', fr'\__ceilingright{s}__') for s in _latex_sizes],
+        r'\__sqrt__': [('ex', fr'\__radical{s}__') for s in _latex_sizes],
+        r'\backslash': [('ex', fr'\__backslash{s}__') for s in _latex_sizes],
+        r'/': [('rm', '/'), *[('ex', fr'\__slash{s}__') for s in _latex_sizes]],
+        r'\widehat': [('rm', '\x5e'), ('ex', r'\__hatwide__'), ('ex', r'\__hatwider__'),
+                      ('ex', r'\__hatwidest__')],
+        r'\widetilde': [('rm', '\x7e'), ('ex', r'\__tildewide__'),
+                        ('ex', r'\__tildewider__'), ('ex', r'\__tildewidest__')],
+    }
 
-    for alias, target in [(r'\leftparen', '('),
-                          (r'\rightparen', ')'),
-                          (r'\leftbrace', '{'),
-                          (r'\rightbrace', '}'),
-                          (r'\leftbracket', '['),
-                          (r'\rightbracket', ']'),
-                          (r'\{', '{'),
-                          (r'\}', '}'),
-                          (r'\[', '['),
-                          (r'\]', ']')]:
+    for alias, target in [(r'\leftparen', '('), (r'\rightparen', ')'),
+                          (r'\leftbrace', '{'), (r'\rightbrace', '}'),
+                          (r'\leftbracket', '['), (r'\rightbracket', ']'),
+                          (r'\langle', '<'), (r'\rangle', '>'),
+                          (r'\{', '{'), (r'\}', '}'),
+                          (r'\[', '['), (r'\]', ']')]:
         _size_alternatives[alias] = _size_alternatives[target]
 
     def get_sized_alternatives_for_symbol(self, fontname: str,
@@ -552,7 +538,7 @@ class UnicodeFonts(TruetypeFonts):
     # Some glyphs are not present in the `cmr10` font, and must be brought in
     # from `cmsy10`. Map the Unicode indices of those glyphs to the indices at
     # which they are found in `cmsy10`.
-    _cmr10_substitutions = {
+    _cmr10_substitutions: dict[CharacterCodeType, CharacterCodeType] = {
         0x00D7: 0x00A3,  # Multiplication sign.
         0x2212: 0x00A1,  # Minus sign.
     }
@@ -595,11 +581,11 @@ class UnicodeFonts(TruetypeFonts):
     _slanted_symbols = set(r"\int \oint".split())
 
     def _map_virtual_font(self, fontname: str, font_class: str,
-                          uniindex: int) -> tuple[str, int]:
+                          uniindex: CharacterCodeType) -> tuple[str, CharacterCodeType]:
         return fontname, uniindex
 
     def _get_glyph(self, fontname: str, font_class: str,
-                   sym: str) -> tuple[FT2Font, int, bool]:
+                   sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         try:
             uniindex = get_unicode_index(sym)
             found_symbol = True
@@ -608,8 +594,7 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             _log.warning("No TeX to Unicode mapping for %a.", sym)
 
-        fontname, uniindex = self._map_virtual_font(
-            fontname, font_class, uniindex)
+        fontname, uniindex = self._map_virtual_font(fontname, font_class, uniindex)
 
         new_fontname = fontname
 
@@ -694,7 +679,7 @@ class DejaVuFonts(UnicodeFonts, metaclass=abc.ABCMeta):
             self.fontmap[name] = fullpath
 
     def _get_glyph(self, fontname: str, font_class: str,
-                   sym: str) -> tuple[FT2Font, int, bool]:
+                   sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         # Override prime symbol to use Bakoma.
         if sym == r'\prime':
             return self.bakoma._get_glyph(fontname, font_class, sym)
@@ -784,7 +769,7 @@ class StixFonts(UnicodeFonts):
             self.fontmap[name] = fullpath
 
     def _map_virtual_font(self, fontname: str, font_class: str,
-                          uniindex: int) -> tuple[str, int]:
+                          uniindex: CharacterCodeType) -> tuple[str, CharacterCodeType]:
         # Handle these "fonts" that are actually embedded in
         # other fonts.
         font_mapping = stix_virtual_fonts.get(fontname)
@@ -1171,7 +1156,7 @@ class List(Box):
         self.glue_sign    = 0    # 0: normal, -1: shrinking, 1: stretching
         self.glue_order   = 0    # The order of infinity (0 - 3) for the glue
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{}<w={:.02f} h={:.02f} d={:.02f} s={:.02f}>[{}]".format(
             super().__repr__(),
             self.width, self.height,
@@ -1526,7 +1511,7 @@ class AutoHeightChar(Hlist):
     """
 
     def __init__(self, c: str, height: float, depth: float, state: ParserState,
-                 always: bool = False, factor: float | None = None):
+                 factor: float | None = None):
         alternatives = state.fontset.get_sized_alternatives_for_symbol(state.font, c)
 
         x_height = state.fontset.get_xheight(state.font, state.fontsize, state.dpi)
@@ -1563,7 +1548,7 @@ class AutoWidthChar(Hlist):
     always just return a scaled version of the glyph.
     """
 
-    def __init__(self, c: str, width: float, state: ParserState, always: bool = False,
+    def __init__(self, c: str, width: float, state: ParserState,
                  char_class: type[Char] = Char):
         alternatives = state.fontset.get_sized_alternatives_for_symbol(state.font, c)
 
@@ -2147,7 +2132,7 @@ class Parser:
         self._math_expression = p.math
 
         # To add space to nucleus operators after sub/superscripts
-        self._in_subscript_or_superscript = False
+        self._needs_space_after_subsuper = False
 
     def parse(self, s: str, fonts_object: Fonts, fontsize: float, dpi: float) -> Hlist:
         """
@@ -2165,7 +2150,7 @@ class Parser:
             # explain becomes a plain method on pyparsing 3 (err.explain(0)).
             raise ValueError("\n" + ParseException.explain(err, 0)) from None
         self._state_stack = []
-        self._in_subscript_or_superscript = False
+        self._needs_space_after_subsuper = False
         # prevent operator spacing from leaking into a new expression
         self._em_width_cache = {}
         ParserElement.reset_cache()
@@ -2275,7 +2260,7 @@ class Parser:
             prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
             # Binary operators at start of string should not be spaced
             # Also, operators in sub- or superscripts should not be spaced
-            if (self._in_subscript_or_superscript or (
+            if (self._needs_space_after_subsuper or (
                     c in self._binary_operators and (
                     len(s[:loc].split()) == 0 or prev_char in {
                         '{', *self._left_delims, *self._relation_symbols}))):
@@ -2377,18 +2362,13 @@ class Parser:
             next_char_loc += len('operatorname{}')
         next_char = next((c for c in s[next_char_loc:] if c != ' '), '')
         delimiters = self._delims | {'^', '_'}
-        if (next_char not in delimiters and
-                name not in self._overunder_functions):
+        if next_char not in delimiters:
             # Add thin space except when followed by parenthesis, bracket, etc.
             hlist_list += [self._make_space(self._space_widths[r'\,'])]
         self.pop_state()
-        # if followed by a super/subscript, set flag to true
-        # This flag tells subsuper to add space after this operator
-        if next_char in {'^', '_'}:
-            self._in_subscript_or_superscript = True
-        else:
-            self._in_subscript_or_superscript = False
-
+        # If followed by a sub/superscript, set flag to true to tell subsuper
+        # to add space after this operator.
+        self._needs_space_after_subsuper = next_char in {'^', '_'}
         return Hlist(hlist_list)
 
     def start_group(self, toks: ParseResults) -> T.Any:
@@ -2498,7 +2478,10 @@ class Parser:
                 shift = hlist.height + vgap + nucleus.depth
             vlt = Vlist(vlist)
             vlt.shift_amount = shift
-            result = Hlist([vlt])
+            optional_spacing = ([self._make_space(self._space_widths[r'\,'])]
+                                if self._needs_space_after_subsuper else [])
+            self._needs_space_after_subsuper = False
+            result = Hlist([vlt, *optional_spacing])
             return [result]
 
         # We remove kerning on the last character for consistency (otherwise
@@ -2590,12 +2573,10 @@ class Parser:
 
         # Do we need to add a space after the nucleus?
         # To find out, check the flag set by operatorname
-        spaced_nucleus: list[Node] = [nucleus, x]
-        if self._in_subscript_or_superscript:
-            spaced_nucleus += [self._make_space(self._space_widths[r'\,'])]
-            self._in_subscript_or_superscript = False
-
-        result = Hlist(spaced_nucleus)
+        optional_spacing = ([self._make_space(self._space_widths[r'\,'])]
+                            if self._needs_space_after_subsuper else [])
+        self._needs_space_after_subsuper = False
+        result = Hlist([nucleus, x, *optional_spacing])
         return [result]
 
     def _genfrac(self, ldelim: str, rdelim: str, rule: float | None, style: _MathStyle,
@@ -2701,7 +2682,7 @@ class Parser:
         # the height so it doesn't seem cramped
         height = body.height - body.shift_amount + 5 * thickness
         depth = body.depth + body.shift_amount
-        check = AutoHeightChar(r'\__sqrt__', height, depth, state, always=True)
+        check = AutoHeightChar(r'\__sqrt__', height, depth, state)
         height = check.height - check.shift_amount
         depth = check.depth + check.shift_amount
 

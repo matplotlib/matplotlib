@@ -1,0 +1,27 @@
+From 8cedfc989998bb2cf23c2c1b40802effad72b0ed Mon Sep 17 00:00:00 2001
+From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+Date: Thu, 7 Aug 2025 18:07:15 -0400
+Subject: [PATCH] Add dependency override for use as a subproject
+
+---
+ src/meson.build | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/src/meson.build b/src/meson.build
+index 0a32f832..ca7c13d1 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -42,6 +42,13 @@ libraqm = library(
+     install: true,
+ )
+ 
++libraqm_dep = declare_dependency(
++    include_directories: include_directories('.'),
++    link_with: libraqm,
++)
++
++meson.override_dependency(meson.project_name(), libraqm_dep)
++
+ libraqm_test = static_library(
+     'raqm-test',
+     'raqm.c',

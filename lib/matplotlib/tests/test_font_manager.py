@@ -1,4 +1,4 @@
-from io import BytesIO, StringIO
+from io import BytesIO
 import gc
 import multiprocessing
 import os
@@ -67,12 +67,14 @@ def test_json_serialization(tmp_path):
 def test_otf():
     fname = '/usr/share/fonts/opentype/freefont/FreeMono.otf'
     if Path(fname).exists():
-        assert is_opentype_cff_font(fname)
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            assert is_opentype_cff_font(fname)
     for f in fontManager.ttflist:
         if 'otf' in f.fname:
             with open(f.fname, 'rb') as fd:
                 res = fd.read(4) == b'OTTO'
-            assert res == is_opentype_cff_font(f.fname)
+            with pytest.warns(mpl.MatplotlibDeprecationWarning):
+                assert res == is_opentype_cff_font(f.fname)
 
 
 @pytest.mark.skipif(sys.platform == "win32" or not has_fclist,
@@ -135,6 +137,32 @@ def test_find_noto():
         fig.savefig(BytesIO(), format=fmt)
 
 
+def test_find_valid():
+    class PathLikeClass:
+        def __init__(self, filename):
+            self.filename = filename
+
+        def __fspath__(self):
+            return self.filename
+
+    file_str = findfont('DejaVu Sans')
+    file_bytes = os.fsencode(file_str)
+
+    font = get_font(file_str)
+    assert font.fname == file_str
+    font = get_font(file_bytes)
+    assert font.fname == file_bytes
+    font = get_font(PathLikeClass(file_str))
+    assert font.fname == file_str
+    font = get_font(PathLikeClass(file_bytes))
+    assert font.fname == file_bytes
+
+    # Note, fallbacks are not currently accessible.
+    font = get_font([file_str, file_bytes,
+                     PathLikeClass(file_str), PathLikeClass(file_bytes)])
+    assert font.fname == file_str
+
+
 def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
@@ -145,11 +173,6 @@ def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         get_font(bytes(tmp_path / 'non-existent-font-name.ttf'))
-
-    # Not really public, but get_font doesn't expose non-filename constructor.
-    from matplotlib.ft2font import FT2Font
-    with pytest.raises(TypeError, match='font file or a binary-mode file'):
-        FT2Font(StringIO())  # type: ignore[arg-type]
 
 
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,

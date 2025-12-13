@@ -142,6 +142,10 @@ jobs:
           name: cibw-sdist
           path: dist/
 
+      - name: Purge Strawberry Perl
+        if: startsWith(matrix.os, 'windows-')
+        run: Remove-Item -Recurse C:\Strawberry
+
       - name: Build wheels for CPython 3.14
         uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
