@@ -126,26 +126,40 @@ class InsetIndicator(artist.Artist):
         """
         Set the linestyle of the rectangle and the connectors.
 
-        =======================================================  ================
-        linestyle                                                description
-        =======================================================  ================
-        ``'-'`` or ``'solid'``                                   solid line
-        ``'--'`` or ``'dashed'``                                 dashed line
-        ``'-.'`` or ``'dashdot'``                                dash-dotted line
-        ``':'`` or ``'dotted'``                                  dotted line
-        ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
-        =======================================================  ================
-
-        Alternatively a dash tuple of the following form can be provided::
-
-            (offset, onoffseq)
-
-        where ``onoffseq`` is an even length tuple of on and off ink in points.
-
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
-            The line style.
+        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq)
+            Possible values:
+
+            - A string:
+
+              =======================================================  ================
+              linestyle                                                description
+              =======================================================  ================
+              ``'-'`` or ``'solid'``                                   solid line
+              ``'--'`` or ``'dashed'``                                 dashed line
+              ``'-.'`` or ``'dashdot'``                                dash-dotted line
+              ``':'`` or ``'dotted'``                                  dotted line
+              ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
+              =======================================================  ================
+
+            - A tuple describing the start position and lengths of dashes and spaces:
+
+                  (offset, onoffseq)
+
+              where
+
+              - *offset* is a float specifying the offset (in points); i.e. how much
+                is the dash pattern shifted.
+              - *onoffseq* is a sequence of on and off ink in points. There can be
+                arbitrary many pairs of on and off values.
+
+              Example: The tuple ``(0, (10, 5, 1, 5))`` means that the pattern starts
+              at the beginning of the line. It draws a 10 point long dash,
+              then a 5 point long space, then a 1 point long dash, followed by a 5 point
+              long space, and then the pattern repeats.
+
+            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         self._shared_setter('linestyle', ls)
 
