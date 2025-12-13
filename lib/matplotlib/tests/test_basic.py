@@ -3,6 +3,7 @@ import os
 import sys
 import textwrap
 
+from matplotlib.testing._markers import starts_subprocess
 from matplotlib.testing import subprocess_run_for_testing
 
 
@@ -28,6 +29,7 @@ def test_override_builtins():
     assert overridden <= ok_to_override
 
 
+@starts_subprocess
 def test_lazy_imports():
     source = textwrap.dedent("""
     import sys
