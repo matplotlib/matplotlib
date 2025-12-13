@@ -1989,12 +1989,19 @@ class MultiCursor(Widget):
     Provide a vertical (default) and/or horizontal line cursor shared between
     multiple Axes.
 
+    Call signatures::
+
+        MultiCursor(axes, *, ...)
+        MultiCursor(canvas, axes, *, ...)  # deprecated
+
     For the cursor to remain responsive you must keep a reference to it.
 
     Parameters
     ----------
     canvas : object
-        This parameter is entirely unused and only kept for back-compatibility.
+        This parameter is entirely unused.
+
+        .. deprecated:: 3.11
 
     axes : list of `~matplotlib.axes.Axes`
         The `~.axes.Axes` to attach the cursor to.
@@ -2021,11 +2028,25 @@ class MultiCursor(Widget):
     See :doc:`/gallery/widgets/multicursor`.
     """
 
-    def __init__(self, canvas, axes, *, useblit=True, horizOn=False, vertOn=True,
+    def __init__(self, *args, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
-        # canvas is stored only to provide the deprecated .canvas attribute;
-        # once it goes away the unused argument won't need to be stored at all.
-        self._canvas = canvas
+        # Deprecation of canvas as the first attribute. When the deprecation exprires:
+        # - change the signature to __init__(self, axes, *, ...)
+        # - delete the "Call signatures" block in the docstring
+        # - delete this block
+        kwargs = {k: lineprops.pop(k)
+                  for k in list(lineprops) if k in ("canvas", "axes")}
+        params = _api.select_matching_signature(
+            [lambda axes: locals(), lambda canvas, axes: locals()], *args, **kwargs)
+        if "canvas" in params:
+            _api.warn_deprecated(
+                "3.11",
+                message="The canvas parameter in MultiCursor is unused and deprecated "
+                "since  %(since)s. Please remove it and call MultiCursor(axes) "
+                "instead of MultiCursor(canvas, axes). The latter will start raising "
+                "an error in %(removal)s"
+            )
+        axes = params["axes"]
 
         self.axes = axes
         self.horizOn = horizOn
