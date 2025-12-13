@@ -882,7 +882,7 @@ _Dark2_data = (
 # Qualitative color palette that is unambiguous regardless of whether
 # the viewer has colorblindness. https://jfly.uni-koeln.de/color/#pallet
 
-_Okabe_Ito_data = (
+_okabe_ito_data = (
     (0.0, 0.0, 0.0),                        # black
     (0.901960784, 0.623529412, 0.0),        # e69f00
     (0.337254902, 0.705882353, 0.91372549),  # 56b4e9
@@ -1484,7 +1484,7 @@ datad = {
     'winter': _winter_data,
     # Qualitative
     'Accent': {'listed': _Accent_data},
-    'Okabe_Ito': {'listed': _Okabe_Ito_data},
+    'okabe_ito': {'listed': _okabe_ito_data},
     'Dark2': {'listed': _Dark2_data},
     'Paired': {'listed': _Paired_data},
     'Pastel1': {'listed': _Pastel1_data},
