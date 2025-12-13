@@ -1263,7 +1263,7 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
     -----
     pyplot maintains a reference to figures created with `figure()`. When
     work on the figure is completed, it should be closed, i.e. deregistered
-    from pyplot, to free its memory (see also :rc:figure.max_open_warning).
+    from pyplot, to free its memory (see also :rc:`figure.max_open_warning`).
     Closing a figure window created by `show()` automatically deregisters the
     figure. For all other use cases, most prominently `savefig()` without
     `show()`, the figure must be deregistered explicitly using `close()`.
