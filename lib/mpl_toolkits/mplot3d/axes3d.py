@@ -246,7 +246,7 @@ class Axes3D(Axes):
 
     @_api.delete_parameter("3.11", "share")
     @_api.delete_parameter("3.11", "anchor")
-    def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
+    def set_aspect(self, aspect, adjustable=None):
         """
         Set the aspect ratios.
 
@@ -663,10 +663,10 @@ class Axes3D(Axes):
 
     def get_w_lims(self):
         """Get 3D world limits."""
-        minx, maxx = self.get_xlim3d()
-        miny, maxy = self.get_ylim3d()
-        minz, maxz = self.get_zlim3d()
-        return minx, maxx, miny, maxy, minz, maxz
+        minx, maxx = self.get_xlim()
+        miny, maxy = self.get_ylim()
+        minz, maxz = self.get_zlim()
+        return (minx, maxx, miny, maxy, minz, maxz)
 
     def _set_bound3d(self, get_bound, set_lim, axis_inverted,
                      lower=None, upper=None, view_margin=None):
@@ -1013,7 +1013,7 @@ class Axes3D(Axes):
 
     def get_xlim(self):
         # docstring inherited
-        return tuple(self.xy_viewLim.intervalx)
+        return (self.xy_viewLim.intervalx)
 
     def get_ylim(self):
         # docstring inherited
@@ -1192,7 +1192,7 @@ class Axes3D(Axes):
             self._focal_length = np.inf
 
     def _roll_to_vertical(
-        self, arr: "np.typing.ArrayLike", reverse: bool = False
+        self, arr, reverse: bool = False
     ) -> np.ndarray:
         """
         Roll arrays to match the different vertical axis.
@@ -1215,9 +1215,9 @@ class Axes3D(Axes):
         # Transform to uniform world coordinates 0-1, 0-1, 0-1
         box_aspect = self._roll_to_vertical(self._box_aspect)
         worldM = proj3d.world_transformation(
-            *self.get_xlim3d(),
-            *self.get_ylim3d(),
-            *self.get_zlim3d(),
+            *self.get_xlim(),
+            *self.get_ylim(),
+            *self.get_zlim(),
             pb_aspect=box_aspect,
         )
 
@@ -1502,7 +1502,7 @@ class Axes3D(Axes):
         p2 = p1 - scale*vec
         return p2, pane_idx
 
-    def _arcball(self, x: float, y: float) -> np.ndarray:
+    def _arcball(self, x, y):
         """
         Convert a point (x, y) to a point on a virtual trackball.
 
@@ -1808,7 +1808,7 @@ class Axes3D(Axes):
         dx = (maxx - minx)
         dy = (maxy - miny)
         dz = (maxz - minz)
-        return cx, cy, cz, dx, dy, dz
+        return (cx, cy, cz, dx, dy, dz)
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         """
@@ -2559,9 +2559,18 @@ class Axes3D(Axes):
 
         return polyc
 
-    def _3d_extend_contour(self, cset, stride=5):
+    def _3d_extend_contour(self, cset, stride = 5) -> None:
         """
-        Extend a contour in 3D by creating
+        Extend a 2D contour set into 3D space by generating vertical faces between
+        contour levels.
+
+        Parameters
+        ----------
+        cset : matplotlib.contour.QuadContourSet
+            The contour set (returned by plt.contour or ax.contour) whose levels
+            and paths will be extended into 3D.
+        stride : int, optional
+            Sampling stride for contour segments to reduce polygon count.
         """
 
         dz = (cset.levels[1] - cset.levels[0]) / 2
@@ -2986,7 +2995,7 @@ class Axes3D(Axes):
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
             zs = zs.copy()
 
-        patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
+        patches = super().scatter(xs, ys, zs, s=s, c=c, *args, **kwargs)
         art3d.patch_collection_2d_to_3d(
             patches,
             zs=zs,
