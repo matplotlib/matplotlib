@@ -306,7 +306,7 @@ class Test_callback_registry:
         self.is_not_empty()
 
         # disconnect by function reference
-        self.callbacks.disconnect_func(self.signal, mini_me.dummy)
+        self.callbacks.disconnect(mini_me.dummy, signal=self.signal)
 
         # check we now have no callbacks registered
         self.is_empty()
@@ -325,22 +325,22 @@ class Test_callback_registry:
         self.is_not_empty()
 
         # try to disconnect with wrong signal - should do nothing
-        self.callbacks.disconnect_func('wrong_signal', mini_me.dummy)
+        self.callbacks.disconnect(mini_me.dummy, signal='wrong_signal')
 
         # check we still have callbacks registered
         self.is_not_empty()
 
         # try to disconnect with wrong function - should do nothing
         mini_me2 = cls()
-        self.callbacks.disconnect_func(self.signal, mini_me2.dummy)
+        self.callbacks.disconnect(mini_me2.dummy, signal=self.signal)
 
         # check we still have callbacks registered
         self.is_not_empty()
 
     def test_callback_disconnect_func_redefined(self):
-        # Test that redefining a function name doesn't affect disconnect_func.
+        # Test that redefining a function name doesn't affect disconnect.
         # When you redefine a function, it creates a new function object,
-        # so disconnect_func should not disconnect the original.
+        # so disconnect should not disconnect the original.
         self.is_empty()
 
         def func():
@@ -354,10 +354,64 @@ class Test_callback_registry:
             pass
 
         # Try to disconnect with the redefined function
-        self.callbacks.disconnect_func(self.signal, func)
+        self.callbacks.disconnect(func, signal=self.signal)
 
         # Original callback should still be registered
         self.is_not_empty()
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect_func_all_signals(self, pickle, cls):
+        # Test disconnecting a callback from all signals at once
+        self.is_empty()
+
+        mini_me = cls()
+
+        # Connect to multiple signals
+        self.callbacks.connect('signal1', mini_me.dummy)
+        self.callbacks.connect('signal2', mini_me.dummy)
+        assert len(list(self.callbacks._func_cid_map)) == 2
+
+        # Disconnect from all signals at once (no signal specified)
+        self.callbacks.disconnect(mini_me.dummy)
+
+        # All callbacks should be removed
+        self.is_empty()
+
+    def test_disconnect_cid_with_signal_raises(self):
+        # Passing signal with a cid should raise an error
+        self.is_empty()
+        cid = self.callbacks.connect(self.signal, lambda: None)
+        with pytest.raises(ValueError, match="signal cannot be specified"):
+            self.callbacks.disconnect(cid, signal=self.signal)
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect_func_selective(self, pickle, cls):
+        # Test selectively disconnecting a callback from one signal
+        # while keeping it connected to another
+        self.is_empty()
+
+        mini_me = cls()
+
+        # Connect same function to multiple signals
+        self.callbacks.connect('signal1', mini_me.dummy)
+        self.callbacks.connect('signal2', mini_me.dummy)
+        assert len(list(self.callbacks._func_cid_map)) == 2
+
+        # Disconnect from only signal1
+        self.callbacks.disconnect(mini_me.dummy, signal='signal1')
+
+        # Should still have one callback registered (on signal2)
+        assert len(list(self.callbacks._func_cid_map)) == 1
+        assert 'signal2' in self.callbacks.callbacks
+        assert 'signal1' not in self.callbacks.callbacks
+
+        # Disconnect from signal2
+        self.callbacks.disconnect(mini_me.dummy, signal='signal2')
+
+        # Now all should be removed
+        self.is_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
     @pytest.mark.parametrize('cls', [Hashable, Unhashable])
