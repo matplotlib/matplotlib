@@ -6133,6 +6133,28 @@ def test_grid():
     assert not ax.xaxis.majorTicks[0].gridline.get_visible()
 
 
+def test_grid_color_with_alpha():
+    """Test that grid(color=(..., alpha)) respects the alpha value."""
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1])
+    
+    # Test 1: Color tuple with alpha
+    ax.grid(True, color=(0.5, 0.6, 0.7, 0.3))
+    fig.canvas.draw()
+    
+    # Check that alpha is extracted from color tuple
+    for tick in ax.xaxis.get_major_ticks():
+        assert tick.gridline.get_alpha() == 0.3, \
+            f"Expected alpha=0.3, got {tick.gridline.get_alpha()}"
+        # Color should be RGB only, without alpha component
+        color = tick.gridline.get_color()
+        assert len(color) in (3, 4), f"Unexpected color format: {color}"
+        
+    for tick in ax.yaxis.get_major_ticks():
+        assert tick.gridline.get_alpha() == 0.3, \
+            f"Expected alpha=0.3, got {tick.gridline.get_alpha()}"
+
+
 def test_reset_grid():
     fig, ax = plt.subplots()
     ax.tick_params(reset=True, which='major', labelsize=10)
