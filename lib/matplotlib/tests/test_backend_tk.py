@@ -215,33 +215,48 @@ def test_save_figure_return():
         print("success")
 
 
-@_isolated_tk_test(success_count=1)
+@_isolated_tk_test(success_count=3)
 def test_canvas_focus():
+    import matplotlib
     import tkinter as tk
     import matplotlib.pyplot as plt
-    success = []
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    matplotlib.use('Tkagg')
 
-    def check_focus():
-        tkcanvas = fig.canvas.get_tk_widget()
-        # Give the plot window time to appear
-        if not tkcanvas.winfo_viewable():
-            tkcanvas.wait_visibility()
-        # Make sure the canvas has the focus, so that it's able to receive
-        # keyboard events.
-        if tkcanvas.focus_lastfor() == tkcanvas:
-            success.append(True)
-        plt.close()
-        root.destroy()
+    def assert_focus(widget, expected_focus_state):
+        if not widget.winfo_viewable():
+            widget.wait_visibility()
+
+        has_focus = (widget.focus_get() == widget)
+
+        if has_focus == expected_focus_state:
+            print("success")
 
     root = tk.Tk()
     fig = plt.figure()
-    plt.plot([1, 2, 3])
-    root.after(0, plt.show)
-    root.after(100, check_focus)
-    root.mainloop()
+    canvas = FigureCanvasTkAgg(fig, root)
+    tkcanvas = canvas.get_tk_widget()
+    tkcanvas.pack()
 
-    if success:
-        print("success")
+    # Test 1: Default Behavior (No Focus Stealing)
+    assert_focus(tkcanvas, expected_focus_state=False)
+
+    # Test 2: Explicit Focus
+    tkcanvas.focus_force()
+    assert_focus(tkcanvas, expected_focus_state=True)
+
+    plt.close(fig)
+    root.destroy()
+
+    # Test 3: Showing the plot should grab focus
+    fig2 = plt.figure()
+    tkcanvas2 = fig2.canvas.get_tk_widget()
+
+    plt.show(block=False)
+
+    assert_focus(tkcanvas2, expected_focus_state=True)
+
+    plt.close(fig2)
 
 
 @_isolated_tk_test(success_count=2)
