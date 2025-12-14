@@ -1,10 +1,9 @@
-``CallbackRegistry.disconnect_func`` to disconnect callbacks by function
+``CallbackRegistry.disconnect`` allows directly callbacks by function
 -------------------------------------------------------------------------
 
-`.CallbackRegistry` now has a `~.CallbackRegistry.disconnect_func` method that
-allows disconnecting a callback by passing the signal and function directly,
-instead of needing to track the callback ID returned by
-`~.CallbackRegistry.connect`.
+`.CallbackRegistry` now allows directly passing a function and optionally signal
+`~.CallbackRegistry.disconnect` to disconnect instead of needing to track the callback
+ID returned by `~.CallbackRegistry.connect`.
 
 .. code-block:: python
 
@@ -17,4 +16,4 @@ instead of needing to track the callback ID returned by
     callbacks.connect('my_signal', my_callback)
 
     # Disconnect by function reference instead of callback ID
-    callbacks.disconnect_func('my_signal', my_callback)
+    callbacks.disconnect('my_signal', my_callback)
