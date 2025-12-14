@@ -1,9 +1,9 @@
 ``CallbackRegistry.disconnect`` allows directly callbacks by function
 -------------------------------------------------------------------------
 
-`.CallbackRegistry` now allows directly passing a function and optionally signal
-`~.CallbackRegistry.disconnect` to disconnect instead of needing to track the callback
-ID returned by `~.CallbackRegistry.connect`.
+`.CallbackRegistry` now allows directly passing a function and optionally signal to
+`~.CallbackRegistry.disconnect` instead of needing to track the callback ID
+returned by `~.CallbackRegistry.connect`.
 
 .. code-block:: python
 
