@@ -928,8 +928,11 @@ class GraphicsContextBase:
         self._joinstyle = JoinStyle(js)
 
     def set_linewidth(self, w):
-        """Set the linewidth in points."""
-        self._linewidth = float(w)
+        """
+        Set the linewidth in points.
+        Any infinite, NaN, or negative values will be set to 0.
+        """
+        self._linewidth = float(w) if np.isfinite(w) and w > 0 else 0.0
 
     def set_url(self, url):
         """Set the url for links in compatible backends."""
