@@ -22,7 +22,7 @@ from ._data_containers.description import Desc, desc_like
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
                _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
-from ._data_containers._helpers import _get_graph
+from ._data_containers._helpers import _get_graph, check_container
 from ._enums import JoinStyle, CapStyle
 
 
@@ -32,15 +32,9 @@ class CollectionContainer():
         self,
         x: np.array,
         y: np.array,
-        edgecolors: np.array,
-        facecolors: np.array,
-        hatchcolors: np.array,
     ):
         self.x = x
         self.y = y
-        self.edgecolors = edgecolors
-        self.facecolors = facecolors
-        self.hatchcolors = hatchcolors
         self.paths = None
 
     def describe(self):
@@ -49,9 +43,6 @@ class CollectionContainer():
             "y": Desc(("N",), "data"),
             # Colors are weird because it could look like (N, 3) or (N, 4),
             # But also accepts strings or cmapped data at this level...
-            "edgecolors": Desc(("N",), "data"),
-            "facecolors": Desc(("N",), "data"),
-            "hatchcolors": Desc(("N",), "data"),
             "transforms": Desc(("N", 3, 3), "data"),
             "paths": Desc(("N",), "path"),
         }
@@ -61,9 +52,6 @@ class CollectionContainer():
         d = {
             "x": self.x,
             "y": self.y,
-            "edgecolors": self.edgecolors,
-            "facecolors": self.facecolors,
-            "hatchcolors": self.hatchcolors,
             "transforms": transforms,
             "paths": self.paths,
         }
@@ -76,13 +64,10 @@ class SizedCollectionContainer(CollectionContainer):
         self,
         x: np.array,
         y: np.array,
-        edgecolors: np.array,
-        facecolors: np.array,
-        hatchcolors: np.array,
         sizes: np.array,
         factor: float = 1.0,
     ):
-        super().__init__(x, y, edgecolors, facecolors, hatchcolors)
+        super().__init__(x, y)
         self.sizes = np.atleast_1d(sizes)
         self.factor = factor
 
@@ -110,14 +95,11 @@ class RegularPolyCollectionContainer(SizedCollectionContainer):
         self,
         x: np.array,
         y: np.array,
-        edgecolors: np.array,
-        facecolors: np.array,
-        hatchcolors: np.array,
         sizes: np.array,
         rotation: float,
     ):
         factor = np.pi ** (-1/2)
-        super().__init__(x, y, edgecolors, facecolors, hatchcolors, sizes, factor)
+        super().__init__(x, y, sizes, factor)
         self.rotation = rotation
 
     def query(self, graph, parent_coordinates="axes"):
@@ -137,15 +119,12 @@ class EllipseCollectionContainer(CollectionContainer):
         self,
         x: np.array,
         y: np.array,
-        edgecolors: np.array,
-        facecolors: np.array,
-        hatchcolors: np.array,
         widths: np.array,
         heights: np.array,
         angles: np.array,
         units: str,
     ):
-        super().__init__(x, y, edgecolors, facecolors, hatchcolors)
+        super().__init__(x, y)
         self.widths = np.atleast_1d(widths)
         self.heights = np.atleast_1d(heights)
         self.angles = np.atleast_1d(angles)
@@ -363,6 +342,7 @@ class Collection(mcolorizer.ColorizingArtist):
         super().__init__(self._get_colorizer(cmap, norm, colorizer))
 
         self._container = self._init_container()
+        self.__query = None
 
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
@@ -409,24 +389,40 @@ class Collection(mcolorizer.ColorizingArtist):
         self._path_effects = None
         self._internal_update(kwargs)
 
+    def set_container(self, container):
+        self._container = container
+        self.stale = True
+
+    def get_container(self):
+        return self._container
+
     def _init_container(self):
         return CollectionContainer(
             x=np.array([]),
             y=np.array([]),
-            edgecolors=np.array([]),
-            facecolors=np.array([]),
-            hatchcolors=np.array([]),
         )
 
+    @property
+    def _query(self):
+        if self.__query is not None:
+            return self.__query
+        return self._container.query(_get_graph(self.axes))[0]
+
+    def _cache_query(self):
+        self.__query = self._container.query(_get_graph(self.axes))[0]
+
+
     def get_paths(self):
+        check_container(self, CollectionContainer, "'get_paths'")
         return self._container.paths
 
     def set_paths(self, paths):
+        check_container(self, CollectionContainer, "'set_paths'")
         self._container.paths = paths
         self.stale = True
 
     def get_transforms(self):
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         return q["transforms"]
 
     def get_offset_transform(self):
@@ -465,7 +461,7 @@ class Collection(mcolorizer.ColorizingArtist):
         #       for the limits (i.e. for scatter)
         #
         # 3. otherwise return a null Bbox.
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
 
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
@@ -564,6 +560,7 @@ class Collection(mcolorizer.ColorizingArtist):
     def draw(self, renderer):
         if not self.get_visible():
             return
+        self._cache_query()
         renderer.open_group(self.__class__.__name__, self.get_gid())
 
         self.update_scalarmappable()
@@ -833,8 +830,7 @@ class Collection(mcolorizer.ColorizingArtist):
         ----------
         offsets : (N, 2) or (2,) array-like
         """
-        if not isinstance(self._container, CollectionContainer):
-            raise TypeError("Cannot use 'set_offsets' on custom container types")
+        check_container(self, CollectionContainer, "'set_offsets'")
         offsets = np.asanyarray(offsets)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
@@ -846,7 +842,7 @@ class Collection(mcolorizer.ColorizingArtist):
     def get_offsets(self):
         """Return the offsets for the collection."""
         # Default to zeros in the no-offset (None) case
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         if len(q["x"]) == 0:
             return np.zeros((1,2))
         cstack = (np.ma.column_stack if
@@ -1301,9 +1297,6 @@ class _CollectionWithSizes(Collection):
         return SizedCollectionContainer(
             x=np.array([]),
             y=np.array([]),
-            edgecolors=np.array([]),
-            facecolors=np.array([]),
-            hatchcolors=np.array([]),
             sizes=np.array([]),
         )
 
@@ -1316,8 +1309,7 @@ class _CollectionWithSizes(Collection):
         array
             The 'area' of each element.
         """
-        if not isinstance(self._container, SizedCollectionContainer):
-            raise TypeError("Cannot use 'get_sizes' on custom container types")
+        check_container(self, CollectionContainer, "'get_sizes'")
         return self._container.sizes
 
     def set_sizes(self, sizes, dpi=72.0):
@@ -1332,8 +1324,7 @@ class _CollectionWithSizes(Collection):
         dpi : float, default: 72
             The dpi of the canvas.
         """
-        if not isinstance(self._container, SizedCollectionContainer):
-            raise TypeError("Cannot use 'set_sizes' on custom container types")
+        check_container(self, CollectionContainer, "'set_sizes'")
         if sizes is None:
             sizes = np.array([])
         self._container.sizes = np.atleast_1d(sizes)
@@ -1882,9 +1873,6 @@ class RegularPolyCollection(_CollectionWithSizes):
         return RegularPolyCollectionContainer(
             x=np.array([]),
             y=np.array([]),
-            edgecolors=np.array([]),
-            facecolors=np.array([]),
-            hatchcolors=np.array([]),
             sizes=np.array([]),
             rotation=0.0,
         )
@@ -2330,9 +2318,6 @@ class EllipseCollection(Collection):
         return EllipseCollectionContainer(
             x=np.array([]),
             y=np.array([]),
-            edgecolors=np.array([]),
-            facecolors=np.array([]),
-            hatchcolors=np.array([]),
             widths=np.array([]),
             heights=np.array([]),
             angles=np.array([]),
@@ -2342,41 +2327,35 @@ class EllipseCollection(Collection):
 
     def set_angles(self, angles):
         """Set the angles of the first axes, degrees CCW from the x-axis."""
-        if not isinstance(self._container, EllipseCollectionContainer):
-            raise TypeError("Cannot use 'set_angles' on custom container types")
+        check_container(self, EllipseCollectionContainer, "'set_angles'")
         self._container.angles = np.deg2rad(angles).ravel()
         self.stale = True
 
     def set_widths(self, widths):
         """Set the lengths of the first axes (e.g., major axis)."""
-        if not isinstance(self._container, EllipseCollectionContainer):
-            raise TypeError("Cannot use 'set_widths' on custom container types")
+        check_container(self, EllipseCollectionContainer, "'set_widths'")
         self._container.widths = 0.5 * np.asarray(widths).ravel()
         self.stale = True
 
     def set_heights(self, heights):
         """Set the lengths of second axes (e.g., minor axes)."""
-        if not isinstance(self._container, EllipseCollectionContainer):
-            raise TypeError("Cannot use 'set_heights' on custom container types")
+        check_container(self, EllipseCollectionContainer, "'set_heights'")
         self._container.heights = 0.5 * np.asarray(heights).ravel()
         self.stale = True
 
     def get_widths(self):
         """Get the lengths of the first axes (e.g., major axis)."""
-        if not isinstance(self._container, EllipseCollectionContainer):
-            raise TypeError("Cannot use 'get_widths' on custom container types")
+        check_container(self, EllipseCollectionContainer, "'get_widths'")
         return self._container.widths * 2
 
     def get_heights(self):
         """Get the lengths of second axes (e.g., minor axes)."""
-        if not isinstance(self._container, EllipseCollectionContainer):
-            raise TypeError("Cannot use 'get_heights' on custom container types")
+        check_container(self, EllipseCollectionContainer, "'get_heights'")
         return self._container.heights * 2
 
     def get_angles(self):
         """Get the angles of the first axes, degrees CCW from the x-axis."""
-        if not isinstance(self._container, EllipseCollectionContainer):
-            raise TypeError("Cannot use 'get_angles' on custom container types")
+        check_container(self, EllipseCollectionContainer, "'get_angles'")
         return np.rad2deg(self._container.angles)
 
     @artist.allow_rasterization
@@ -2494,6 +2473,7 @@ class TriMesh(Collection):
     def draw(self, renderer):
         if not self.get_visible():
             return
+        self._cache_query()
         renderer.open_group(self.__class__.__name__, gid=self.get_gid())
         transform = self.get_transform()
 
@@ -2729,6 +2709,7 @@ class QuadMesh(_MeshData, Collection):
     def draw(self, renderer):
         if not self.get_visible():
             return
+        self._cache_query()
         renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
