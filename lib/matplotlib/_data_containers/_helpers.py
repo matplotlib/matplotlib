@@ -42,3 +42,8 @@ def _get_graph(ax):
         aliases=(("parent", "axes"),),
     )
     return implicit_graph
+
+
+def check_container(artist, container_cls, operation="This operation"):
+    if not isinstance(artist._container, container_cls):
+        raise TypeError(f"{operation} is not available with a custom container class")

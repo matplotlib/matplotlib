@@ -23,7 +23,7 @@ from matplotlib import _image
 # the image namespace
 from matplotlib._image import *  # noqa: F401, F403
 from ._data_containers.description import Desc
-from ._data_containers._helpers import _get_graph
+from ._data_containers._helpers import _get_graph, check_container
 import matplotlib.artist as martist
 import matplotlib.colorizer as mcolorizer
 from matplotlib.backend_bases import FigureCanvasBase
@@ -347,13 +347,23 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             np.array([0.,1.]),
             np.array([[]]),
         )
+        self.__query = None
         self._imcache = None
 
         self._internal_update(kwargs)
 
     @property
+    def _query(self):
+        if self.__query is not None:
+            return self.__query
+        return self._container.query(_get_graph(self.axes))[0]
+
+    def _cache_query(self):
+        self.__query = self._container.query(_get_graph(self.axes))[0]
+
+    @property
     def _image_array(self):
-        return self._container.query(_get_graph(self.axes))[0]["image"]
+        return self._query["image"]
 
     @property
     def _A(self):
@@ -361,7 +371,14 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
     @_A.setter
     def _A(self, val):
-        return
+        if val is None:
+            # This case is needed for the transition because
+            # ColorizingArtist sets `_A = None` during init
+            return
+        check_container(self, ImageContainer, "Setting _A")
+        self._container.image = self._normalize_image_array(val)
+        self._imcache = None
+        self.stale = True
 
     def set_container(self, container):
         self._container = container
@@ -379,7 +396,11 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
     def __getstate__(self):
         # Save some space on the pickle by not saving the cache.
-        return {**super().__getstate__(), "_imcache": None}
+        return {
+            **super().__getstate__(),
+            "_imcache": None,
+            "_ImageBase__query": None,
+        }
 
     def get_size(self):
         """Return the size of the image as tuple (numrows, numcols)."""
@@ -689,6 +710,8 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         if not self.get_visible():
             self.stale = False
             return
+        # Update the cached version of the query
+        self._cache_query()
         # for empty images, there is nothing to draw!
         if self.get_array().size == 0:
             self.stale = False
@@ -781,11 +804,9 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         ----------
         A : array-like or `PIL.Image.Image`
         """
-        if not isinstance(self._container, ImageContainer):
-            raise TypeError("Cannot use 'set_data' on custom container types")
+        check_container(self, ImageContainer, "'set_data'")
         if isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
-        # self._A = self._normalize_image_array(A)
         self._container.image = self._normalize_image_array(A)
         self._imcache = None
         self.stale = True
@@ -1013,7 +1034,7 @@ class AxesImage(_ImageBase):
         return bbox.transformed(self.get_transform())
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         x1, x2 = q["x"]
         y1, y2 = q["y"]
 
@@ -1053,8 +1074,7 @@ class AxesImage(_ImageBase):
         state is not changed, so a subsequent call to `.Axes.autoscale_view`
         will redo the autoscaling in accord with `~.Axes.dataLim`.
         """
-        if not isinstance(self._container, ImageContainer):
-            raise TypeError("Cannot use 'set_extent' on custom container types")
+        check_container(self, ImageContainer, "'set_extent'")
 
         if extent is None:
             sz = self.get_size()
@@ -1101,7 +1121,7 @@ class AxesImage(_ImageBase):
 
     def get_extent(self):
         """Return the image extent as tuple (left, right, bottom, top)."""
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         x = q["x"]
         y = q["y"]
         return x[0], x[-1], y[0], y[-1]
@@ -1176,7 +1196,7 @@ class NonUniformImage(AxesImage):
         if unsampled:
             raise ValueError('unsampled not supported on NonUniformImage')
 
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         Ax = q["x"]
         Ay = q["y"]
 
@@ -1262,8 +1282,7 @@ class NonUniformImage(AxesImage):
             (M, N) `~numpy.ndarray` or masked array of values to be
             colormapped, or (M, N, 3) RGB array, or (M, N, 4) RGBA array.
         """
-        if not isinstance(self._container, NonUniformImageContainer):
-            raise TypeError("Cannot use 'set_data' on custom container types")
+        check_container(self, NonUniformImageContainer, "'set_data'")
         A = self._normalize_image_array(A)
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
@@ -1308,7 +1327,7 @@ class NonUniformImage(AxesImage):
 
     def get_cursor_data(self, event):
         # docstring inherited
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         Ax = q["x"]
         Ay = q["y"]
         A = q["image"]
@@ -1379,7 +1398,7 @@ class PcolorImage(AxesImage):
         if unsampled:
             raise ValueError('unsampled not supported on PcolorImage')
 
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         Ax = q["x"]
         Ay = q["y"]
 
@@ -1432,8 +1451,7 @@ class PcolorImage(AxesImage):
             - (M, N, 3): RGB array
             - (M, N, 4): RGBA array
         """
-        if not isinstance(self._container, PcolorImageContainer):
-            raise TypeError("Cannot use 'set_data' on custom container types")
+        check_container(self, PcolorImageContainer, "'set_data'")
         A = self._normalize_image_array(A)
         x = np.arange(0., A.shape[1] + 1) if x is None else np.array(x, float).ravel()
         y = np.arange(0., A.shape[0] + 1) if y is None else np.array(y, float).ravel()
@@ -1459,7 +1477,7 @@ class PcolorImage(AxesImage):
 
     def get_cursor_data(self, event):
         # docstring inherited
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         Ax = q["x"]
         Ay = q["y"]
         A = q["image"]
@@ -1514,7 +1532,7 @@ class FigureImage(_ImageBase):
 
     def get_extent(self):
         """Return the image extent as tuple (left, right, bottom, top)."""
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         ox = q["x"]
         oy = q["y"]
         A = q["image"]
@@ -1525,7 +1543,7 @@ class FigureImage(_ImageBase):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         ox = q["x"]
         oy = q["y"]
         A = q["image"]
@@ -1647,7 +1665,7 @@ class BboxImage(_ImageBase):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        q, _ = self._container.query(_get_graph(self.axes))
+        q = self._query
         A = q["image"]
 
         width, height = renderer.get_canvas_width_height()
