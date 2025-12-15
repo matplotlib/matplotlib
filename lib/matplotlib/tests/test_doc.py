@@ -7,7 +7,7 @@ def test_sphinx_gallery_example_header():
     This test monitors that the version we have copied is still the same as
     the EXAMPLE_HEADER in sphinx-gallery. If sphinx-gallery changes its
     EXAMPLE_HEADER, this test will start to fail. In that case, please update
-    the monkey-patching of EXAMPLE_HEADER in conf.py.
+    the monkey-patching of EXAMPLE_HEADER in sphinxext/util.py.
     """
     pytest.importorskip('sphinx_gallery', minversion='0.20.0')
     from sphinx_gallery import gen_rst
