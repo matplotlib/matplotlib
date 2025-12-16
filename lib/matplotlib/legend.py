@@ -305,7 +305,7 @@ _loc_doc_best = """
     locations defined so far, with the minimum overlap with other drawn
     artists.  This currently takes into account most, but not all, artists
     added to the Axes via plotting functions. In particular it does not consider
-    inset axes or moved titles or axis labels.
+    inset axes, titles, or axis labels.
 
     The computation of the best position can be expensive for plots with large
     amounts of data. If speed becomes a concern, you may may benefit from
