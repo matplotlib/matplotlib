@@ -303,8 +303,13 @@ loc : str or pair of floats, default: {default}
 _loc_doc_best = """
     The string ``'best'`` places the legend at the location, among the nine
     locations defined so far, with the minimum overlap with other drawn
-    artists.  This option can be quite slow for plots with large amounts of
-    data; your plotting speed may benefit from providing a specific location.
+    artists.  This currently takes into account most, but not all, artists
+    added to the Axes via plotting functions. In particular it does not consider
+    inset axes, titles, or axis labels.
+
+    The computation of the best position can be expensive for plots with large
+    amounts of data. If speed becomes a concern, you may may benefit from
+    providing a specific location.
 """
 
 _legend_kw_axes_st = (
