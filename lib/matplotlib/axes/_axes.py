@@ -7447,6 +7447,8 @@ such objects
         if color is None:
             colors = [self._get_lines.get_next_color() for i in range(nx)]
         else:
+            if mcolors.is_color_like(color):
+                color = [color]*nx
             colors = mcolors.to_rgba_array(color)
             if len(colors) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
