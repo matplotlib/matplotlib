@@ -152,3 +152,11 @@ def desc_like(desc, shape=None, coordinates=None):
     if coordinates is None:
         coordinates = desc.coordinates
     return Desc(shape, coordinates)
+
+
+# Monkey patch mpl_data_containers for Desc isinstance checks
+try:
+    from mpl_data_containers import description
+    description.Desc = Desc
+except ImportError:
+    pass
