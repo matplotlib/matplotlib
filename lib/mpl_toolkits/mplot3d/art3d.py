@@ -58,11 +58,11 @@ def get_dir_vector(zdir):
     x, y, z : array
         The direction vector.
     """
-    if zdir == 'x':
+    if cbook._str_equal(zdir, 'x'):
         return np.array((1, 0, 0))
-    elif zdir == 'y':
+    elif cbook._str_equal(zdir, 'y'):
         return np.array((0, 1, 0))
-    elif zdir == 'z':
+    elif cbook._str_equal(zdir, 'z'):
         return np.array((0, 0, 1))
     elif zdir is None:
         return np.array((0, 0, 0))
