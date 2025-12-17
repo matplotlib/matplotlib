@@ -13,23 +13,31 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib.font_manager import (
-    findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
-    json_dump, json_load, get_font, is_opentype_cff_font,
-    MSUserFontDirectories, ttfFontProperty,
-    _get_fontconfig_fonts, _normalize_weight)
+    findfont,
+    findSystemFonts,
+    FontEntry,
+    FontProperties,
+    fontManager,
+    json_dump,
+    json_load,
+    get_font,
+    is_opentype_cff_font,
+    MSUserFontDirectories,
+    ttfFontProperty,
+    _get_fontconfig_fonts,
+    _normalize_weight,
+)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
 
-has_fclist = shutil.which('fc-list') is not None
+has_fclist = shutil.which("fc-list") is not None
 
 
 def test_font_priority():
-    with rc_context(rc={
-            'font.sans-serif':
-            ['cmmi10', 'Bitstream Vera Sans']}):
+    with rc_context(rc={"font.sans-serif": ["cmmi10", "Bitstream Vera Sans"]}):
         fontfile = findfont(FontProperties(family=["sans-serif"]))
-    assert Path(fontfile).name == 'cmmi10.ttf'
+    assert Path(fontfile).name == "cmmi10.ttf"
 
     # Smoketest get_charmap, which isn't used internally anymore
     font = get_font(fontfile)
@@ -41,12 +49,19 @@ def test_font_priority():
 def test_score_weight():
     assert 0 == fontManager.score_weight("regular", "regular")
     assert 0 == fontManager.score_weight("bold", "bold")
-    assert (0 < fontManager.score_weight(400, 400) <
-            fontManager.score_weight("normal", "bold"))
-    assert (0 < fontManager.score_weight("normal", "regular") <
-            fontManager.score_weight("normal", "bold"))
-    assert (fontManager.score_weight("normal", "regular") ==
-            fontManager.score_weight(400, 400))
+    assert (
+        0
+        < fontManager.score_weight(400, 400)
+        < fontManager.score_weight("normal", "bold")
+    )
+    assert (
+        0
+        < fontManager.score_weight("normal", "regular")
+        < fontManager.score_weight("normal", "bold")
+    )
+    assert fontManager.score_weight("normal", "regular") == fontManager.score_weight(
+        400, 400
+    )
 
 
 def test_json_serialization(tmp_path):
@@ -55,56 +70,62 @@ def test_json_serialization(tmp_path):
     json_dump(fontManager, tmp_path / "fontlist.json")
     copy = json_load(tmp_path / "fontlist.json")
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', 'findfont: Font family.*not found')
-        for prop in ({'family': 'STIXGeneral'},
-                     {'family': 'Bitstream Vera Sans', 'weight': 700},
-                     {'family': 'no such font family'}):
+        warnings.filterwarnings("ignore", "findfont: Font family.*not found")
+        for prop in (
+            {"family": "STIXGeneral"},
+            {"family": "Bitstream Vera Sans", "weight": 700},
+            {"family": "no such font family"},
+        ):
             fp = FontProperties(**prop)
-            assert (fontManager.findfont(fp, rebuild_if_missing=False) ==
-                    copy.findfont(fp, rebuild_if_missing=False))
+            assert fontManager.findfont(fp, rebuild_if_missing=False) == copy.findfont(
+                fp, rebuild_if_missing=False
+            )
 
 
 def test_otf():
-    fname = '/usr/share/fonts/opentype/freefont/FreeMono.otf'
+    fname = "/usr/share/fonts/opentype/freefont/FreeMono.otf"
     if Path(fname).exists():
         assert is_opentype_cff_font(fname)
     for f in fontManager.ttflist:
-        if 'otf' in f.fname:
-            with open(f.fname, 'rb') as fd:
-                res = fd.read(4) == b'OTTO'
+        if "otf" in f.fname:
+            with open(f.fname, "rb") as fd:
+                res = fd.read(4) == b"OTTO"
             assert res == is_opentype_cff_font(f.fname)
 
 
-@pytest.mark.skipif(sys.platform == "win32" or not has_fclist,
-                    reason='no fontconfig installed')
+@pytest.mark.skipif(
+    sys.platform == "win32" or not has_fclist, reason="no fontconfig installed"
+)
 def test_get_fontconfig_fonts():
     assert len(_get_fontconfig_fonts()) > 1
 
 
-@pytest.mark.parametrize('factor', [2, 4, 6, 8])
+@pytest.mark.parametrize("factor", [2, 4, 6, 8])
 def test_hinting_factor(factor):
     font = findfont(FontProperties(family=["sans-serif"]))
 
     font1 = get_font(font, hinting_factor=1)
     font1.clear()
     font1.set_size(12, 100)
-    font1.set_text('abc')
+    font1.set_text("abc")
     expected = font1.get_width_height()
 
     hinted_font = get_font(font, hinting_factor=factor)
     hinted_font.clear()
     hinted_font.set_size(12, 100)
-    hinted_font.set_text('abc')
+    hinted_font.set_text("abc")
     # Check that hinting only changes text layout by a small (10%) amount.
-    np.testing.assert_allclose(hinted_font.get_width_height(), expected,
-                               rtol=0.1)
+    np.testing.assert_allclose(hinted_font.get_width_height(), expected, rtol=0.1)
 
 
 def test_utf16m_sfnt():
     try:
         # seguisbi = Microsoft Segoe UI Semibold
-        entry = next(entry for entry in fontManager.ttflist
-                     if Path(entry.fname).name == "seguisbi.ttf")
+        entry = next(
+            entry
+            for entry in fontManager.ttflist
+            if Path(entry.fname).name == "seguisbi.ttf"
+        )
     except StopIteration:
         pytest.skip("Couldn't find seguisbi.ttf font to test against.")
     else:
@@ -118,7 +139,7 @@ def test_find_ttc():
     if Path(findfont(fp)).name != "wqy-zenhei.ttc":
         pytest.skip("Font wqy-zenhei.ttc may be missing")
     fig, ax = plt.subplots()
-    ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
+    ax.text(0.5, 0.5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
     for fmt in ["raw", "svg", "pdf", "ps"]:
         fig.savefig(BytesIO(), format=fmt)
 
@@ -130,7 +151,7 @@ def test_find_noto():
         pytest.skip(f"Noto Sans CJK SC font may be missing (found {name})")
 
     fig, ax = plt.subplots()
-    ax.text(0.5, 0.5, 'Hello, 你好', fontproperties=fp)
+    ax.text(0.5, 0.5, "Hello, 你好", fontproperties=fp)
     for fmt in ["raw", "svg", "pdf", "ps"]:
         fig.savefig(BytesIO(), format=fmt)
 
@@ -138,38 +159,43 @@ def test_find_noto():
 def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
-        get_font(tmp_path / 'non-existent-font-name.ttf')
+        get_font(tmp_path / "non-existent-font-name.ttf")
 
     with pytest.raises(FileNotFoundError):
-        get_font(str(tmp_path / 'non-existent-font-name.ttf'))
+        get_font(str(tmp_path / "non-existent-font-name.ttf"))
 
     with pytest.raises(FileNotFoundError):
-        get_font(bytes(tmp_path / 'non-existent-font-name.ttf'))
+        get_font(bytes(tmp_path / "non-existent-font-name.ttf"))
 
     # Not really public, but get_font doesn't expose non-filename constructor.
     from matplotlib.ft2font import FT2Font
-    with pytest.raises(TypeError, match='font file or a binary-mode file'):
+
+    with pytest.raises(TypeError, match="font file or a binary-mode file"):
         FT2Font(StringIO())  # type: ignore[arg-type]
 
 
-@pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
-                    reason='only Linux with fontconfig installed')
+@pytest.mark.skipif(
+    sys.platform != "linux" or not has_fclist,
+    reason="only Linux with fontconfig installed",
+)
 def test_user_fonts_linux(tmpdir, monkeypatch):
-    font_test_file = 'mpltest.ttf'
+    font_test_file = "mpltest.ttf"
 
     # Precondition: the test font should not be available
     fonts = findSystemFonts()
     if any(font_test_file in font for font in fonts):
-        pytest.skip(f'{font_test_file} already exists in system fonts')
+        pytest.skip(f"{font_test_file} already exists in system fonts")
 
     # Prepare a temporary user font directory
-    user_fonts_dir = tmpdir.join('fonts')
+    user_fonts_dir = tmpdir.join("fonts")
     user_fonts_dir.ensure(dir=True)
-    shutil.copyfile(Path(__file__).parent / 'data' / font_test_file,
-                    user_fonts_dir.join(font_test_file))
+    shutil.copyfile(
+        Path(__file__).parent / "data" / font_test_file,
+        user_fonts_dir.join(font_test_file),
+    )
 
     with monkeypatch.context() as m:
-        m.setenv('XDG_DATA_HOME', str(tmpdir))
+        m.setenv("XDG_DATA_HOME", str(tmpdir))
         _get_fontconfig_fonts.cache_clear()
         # Now, the font should be available
         fonts = findSystemFonts()
@@ -181,33 +207,37 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
 
 def test_addfont_as_path():
     """Smoke test that addfont() accepts pathlib.Path."""
-    font_test_file = 'mpltest.ttf'
-    path = Path(__file__).parent / 'data' / font_test_file
+    font_test_file = "mpltest.ttf"
+    path = Path(__file__).parent / "data" / font_test_file
     try:
         fontManager.addfont(path)
-        added, = (font for font in fontManager.ttflist
-                  if font.fname.endswith(font_test_file))
+        (added,) = (
+            font for font in fontManager.ttflist if font.fname.endswith(font_test_file)
+        )
         fontManager.ttflist.remove(added)
     finally:
-        to_remove = [font for font in fontManager.ttflist
-                     if font.fname.endswith(font_test_file)]
+        to_remove = [
+            font for font in fontManager.ttflist if font.fname.endswith(font_test_file)
+        ]
         for font in to_remove:
             fontManager.ttflist.remove(font)
 
 
-@pytest.mark.skipif(sys.platform != 'win32', reason='Windows only')
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows only")
 def test_user_fonts_win32():
-    if not (os.environ.get('APPVEYOR') or os.environ.get('TF_BUILD')):
-        pytest.xfail("This test should only run on CI (appveyor or azure) "
-                     "as the developer's font directory should remain "
-                     "unchanged.")
+    if not (os.environ.get("APPVEYOR") or os.environ.get("TF_BUILD")):
+        pytest.xfail(
+            "This test should only run on CI (appveyor or azure) "
+            "as the developer's font directory should remain "
+            "unchanged."
+        )
     pytest.xfail("We need to update the registry for this test to work")
-    font_test_file = 'mpltest.ttf'
+    font_test_file = "mpltest.ttf"
 
     # Precondition: the test font should not be available
     fonts = findSystemFonts()
     if any(font_test_file in font for font in fonts):
-        pytest.skip(f'{font_test_file} already exists in system fonts')
+        pytest.skip(f"{font_test_file} already exists in system fonts")
 
     user_fonts_dir = MSUserFontDirectories[0]
 
@@ -216,7 +246,7 @@ def test_user_fonts_win32():
     os.makedirs(user_fonts_dir)
 
     # Copy the test font to the user font directory
-    shutil.copy(Path(__file__).parent / 'data' / font_test_file, user_fonts_dir)
+    shutil.copy(Path(__file__).parent / "data" / font_test_file, user_fonts_dir)
 
     # Now, the font should be available
     fonts = findSystemFonts()
@@ -229,8 +259,9 @@ def _model_handler(_):
     plt.close()
 
 
-@pytest.mark.skipif(not hasattr(os, "register_at_fork"),
-                    reason="Cannot register at_fork handlers")
+@pytest.mark.skipif(
+    not hasattr(os, "register_at_fork"), reason="Cannot register at_fork handlers"
+)
 def test_fork():
     _model_handler(0)  # Make sure the font cache is filled.
     ctx = multiprocessing.get_context("fork")
@@ -243,8 +274,7 @@ def test_missing_family(caplog):
     with caplog.at_level("WARNING"):
         findfont("sans")
     assert [rec.getMessage() for rec in caplog.records] == [
-        "findfont: Font family ['sans'] not found. "
-        "Falling back to DejaVu Sans.",
+        "findfont: Font family ['sans'] not found. " "Falling back to DejaVu Sans.",
         "findfont: Generic family 'sans' not found because none of the "
         "following families were found: this-font-does-not-exist",
     ]
@@ -284,9 +314,9 @@ def _test_threading():
 
 
 def test_fontcache_thread_safe():
-    pytest.importorskip('threading')
+    pytest.importorskip("threading")
 
-    subprocess_run_helper(_test_threading, timeout=10)
+    subprocess_run_helper(_test_threading, timeout=30)
 
 
 def test_lockfilefailure(tmp_path):
@@ -304,15 +334,15 @@ def test_lockfilefailure(tmp_path):
             "import os;"
             "p = matplotlib.get_cachedir();"
             "os.chmod(p, 0o555);"
-            "import matplotlib.font_manager;"
+            "import matplotlib.font_manager;",
         ],
-        env={**os.environ, 'MPLCONFIGDIR': str(tmp_path)},
-        check=True
+        env={**os.environ, "MPLCONFIGDIR": str(tmp_path)},
+        check=True,
     )
 
 
 def test_fontentry_dataclass():
-    fontent = FontEntry(name='font-name')
+    fontent = FontEntry(name="font-name")
 
     png = fontent._repr_png_()
     img = Image.open(BytesIO(png))
@@ -320,20 +350,20 @@ def test_fontentry_dataclass():
     assert img.height > 0
 
     html = fontent._repr_html_()
-    assert html.startswith("<img src=\"data:image/png;base64")
+    assert html.startswith('<img src="data:image/png;base64')
 
 
 def test_fontentry_dataclass_invalid_path():
     with pytest.raises(FileNotFoundError):
-        fontent = FontEntry(fname='/random', name='font-name')
+        fontent = FontEntry(fname="/random", name="font-name")
         fontent._repr_html_()
 
 
-@pytest.mark.skipif(sys.platform == 'win32', reason='Linux or OS only')
+@pytest.mark.skipif(sys.platform == "win32", reason="Linux or OS only")
 def test_get_font_names():
-    paths_mpl = [cbook._get_data_path('fonts', subdir) for subdir in ['ttf']]
-    fonts_mpl = findSystemFonts(paths_mpl, fontext='ttf')
-    fonts_system = findSystemFonts(fontext='ttf')
+    paths_mpl = [cbook._get_data_path("fonts", subdir) for subdir in ["ttf"]]
+    fonts_mpl = findSystemFonts(paths_mpl, fontext="ttf")
+    fonts_system = findSystemFonts(fontext="ttf")
     ttf_fonts = []
     for path in fonts_mpl + fonts_system:
         try:
@@ -358,11 +388,11 @@ def test_donot_cache_tracebacks():
         x = SomeObject()
         fig = mfigure.Figure()
         ax = fig.subplots()
-        fig.text(.5, .5, 'aardvark', family='doesnotexist')
+        fig.text(0.5, 0.5, "aardvark", family="doesnotexist")
         with BytesIO() as out:
             with warnings.catch_warnings():
-                warnings.filterwarnings('ignore')
-                fig.savefig(out, format='raw')
+                warnings.filterwarnings("ignore")
+                fig.savefig(out, format="raw")
 
     inner()
 
@@ -412,25 +442,25 @@ def test_fontproperties_init_deprecation():
 
 def test_normalize_weights():
     assert _normalize_weight(300) == 300  # passthrough
-    assert _normalize_weight('ultralight') == 100
-    assert _normalize_weight('light') == 200
-    assert _normalize_weight('normal') == 400
-    assert _normalize_weight('regular') == 400
-    assert _normalize_weight('book') == 400
-    assert _normalize_weight('medium') == 500
-    assert _normalize_weight('roman') == 500
-    assert _normalize_weight('semibold') == 600
-    assert _normalize_weight('demibold') == 600
-    assert _normalize_weight('demi') == 600
-    assert _normalize_weight('bold') == 700
-    assert _normalize_weight('heavy') == 800
-    assert _normalize_weight('extra bold') == 800
-    assert _normalize_weight('black') == 900
+    assert _normalize_weight("ultralight") == 100
+    assert _normalize_weight("light") == 200
+    assert _normalize_weight("normal") == 400
+    assert _normalize_weight("regular") == 400
+    assert _normalize_weight("book") == 400
+    assert _normalize_weight("medium") == 500
+    assert _normalize_weight("roman") == 500
+    assert _normalize_weight("semibold") == 600
+    assert _normalize_weight("demibold") == 600
+    assert _normalize_weight("demi") == 600
+    assert _normalize_weight("bold") == 700
+    assert _normalize_weight("heavy") == 800
+    assert _normalize_weight("extra bold") == 800
+    assert _normalize_weight("black") == 900
     with pytest.raises(KeyError):
-        _normalize_weight('invalid')
+        _normalize_weight("invalid")
 
 
 def test_font_match_warning(caplog):
     findfont(FontProperties(family=["DejaVu Sans"], weight=750))
     logs = [rec.message for rec in caplog.records]
-    assert 'findfont: Failed to find font weight 750, now using 700.' in logs
+    assert "findfont: Failed to find font weight 750, now using 700." in logs
