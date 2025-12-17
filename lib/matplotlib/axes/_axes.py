@@ -7326,7 +7326,7 @@ or pandas.DataFrame
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
-            .. versionadded:: 3.10.9
+            .. versionadded:: 3.10
                It is now possible to use a single color with multiple datasets.
 
         label : str or list of str, optional
