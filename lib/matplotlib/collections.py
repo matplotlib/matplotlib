@@ -18,21 +18,34 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
-               _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
+from . import (
+    _api,
+    _path,
+    artist,
+    cbook,
+    colorizer as mcolorizer,
+    colors as mcolors,
+    _docstring,
+    hatch as mhatch,
+    lines as mlines,
+    path as mpath,
+    transforms,
+)
 from ._enums import JoinStyle, CapStyle
 
 
 # "color" is excluded; it is a compound setter, and its docstring differs
 # in LineCollection.
-@_api.define_aliases({
-    "antialiased": ["antialiaseds", "aa"],
-    "edgecolor": ["edgecolors", "ec"],
-    "facecolor": ["facecolors", "fc"],
-    "linestyle": ["linestyles", "dashes", "ls"],
-    "linewidth": ["linewidths", "lw"],
-    "offset_transform": ["transOffset"],
-})
+@_api.define_aliases(
+    {
+        "antialiased": ["antialiaseds", "aa"],
+        "edgecolor": ["edgecolors", "ec"],
+        "facecolor": ["facecolors", "fc"],
+        "linestyle": ["linestyles", "dashes", "ls"],
+        "linewidth": ["linewidths", "lw"],
+        "offset_transform": ["transOffset"],
+    }
+)
 class Collection(mcolorizer.ColorizingArtist):
     r"""
     Base class for Collections. Must be subclassed to be usable.
@@ -63,6 +76,7 @@ class Collection(mcolorizer.ColorizingArtist):
     mappable will be used to set the ``facecolors`` and ``edgecolors``,
     ignoring those that were manually passed in.
     """
+
     #: Either a list of 3x3 arrays or an Nx3x3 array (representing N
     #: transforms), suitable for the `all_transforms` argument to
     #: `~matplotlib.backend_bases.RendererBase.draw_path_collection`;
@@ -76,26 +90,28 @@ class Collection(mcolorizer.ColorizingArtist):
     _edge_default = False
 
     @_docstring.interpd
-    def __init__(self, *,
-                 edgecolors=None,
-                 facecolors=None,
-                 hatchcolors=None,
-                 linewidths=None,
-                 linestyles='solid',
-                 capstyle=None,
-                 joinstyle=None,
-                 antialiaseds=None,
-                 offsets=None,
-                 offset_transform=None,
-                 norm=None,  # optional for ScalarMappable
-                 cmap=None,  # ditto
-                 colorizer=None,
-                 pickradius=5.0,
-                 hatch=None,
-                 urls=None,
-                 zorder=1,
-                 **kwargs
-                 ):
+    def __init__(
+        self,
+        *,
+        edgecolors=None,
+        facecolors=None,
+        hatchcolors=None,
+        linewidths=None,
+        linestyles="solid",
+        capstyle=None,
+        joinstyle=None,
+        antialiaseds=None,
+        offsets=None,
+        offset_transform=None,
+        norm=None,  # optional for ScalarMappable
+        cmap=None,  # ditto
+        colorizer=None,
+        pickradius=5.0,
+        hatch=None,
+        urls=None,
+        zorder=1,
+        **kwargs,
+    ):
         """
         Parameters
         ----------
@@ -179,7 +195,7 @@ class Collection(mcolorizer.ColorizingArtist):
         self._face_is_mapped = None
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
-        self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
+        self._hatch_linewidth = mpl.rcParams["hatch.linewidth"]
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
@@ -228,10 +244,10 @@ class Collection(mcolorizer.ColorizingArtist):
         """Return the `.Transform` instance used by this artist offset."""
         if self._offset_transform is None:
             self._offset_transform = transforms.IdentityTransform()
-        elif (not isinstance(self._offset_transform, transforms.Transform)
-              and hasattr(self._offset_transform, '_as_mpl_transform')):
-            self._offset_transform = \
-                self._offset_transform._as_mpl_transform(self.axes)
+        elif not isinstance(self._offset_transform, transforms.Transform) and hasattr(
+            self._offset_transform, "_as_mpl_transform"
+        ):
+            self._offset_transform = self._offset_transform._as_mpl_transform(self.axes)
         return self._offset_transform
 
     def set_offset_transform(self, offset_transform):
@@ -263,8 +279,10 @@ class Collection(mcolorizer.ColorizingArtist):
 
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
-        if not (isinstance(offset_trf, transforms.IdentityTransform)
-                or offset_trf.contains_branch(transData)):
+        if not (
+            isinstance(offset_trf, transforms.IdentityTransform)
+            or offset_trf.contains_branch(transData)
+        ):
             # if the offsets are in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
@@ -292,10 +310,12 @@ class Collection(mcolorizer.ColorizingArtist):
                 offsets = offsets.filled(np.nan)
                 # get_path_collection_extents handles nan but not masked arrays
             return mpath.get_path_collection_extents(
-                transform.get_affine() - transData, paths,
+                transform.get_affine() - transData,
+                paths,
                 self.get_transforms(),
                 offset_trf.transform_non_affine(offsets),
-                offset_trf.get_affine().frozen())
+                offset_trf.get_affine().frozen(),
+            )
 
         # NOTE: None is the default case where no offsets were passed in
         if self._offsets is not None:
@@ -339,8 +359,7 @@ class Collection(mcolorizer.ColorizingArtist):
             offsets = np.ma.column_stack([xs, ys])
 
         if not transform.is_affine:
-            paths = [transform.transform_path_non_affine(path)
-                     for path in paths]
+            paths = [transform.transform_path_non_affine(path) for path in paths]
             transform = transform.get_affine()
         if not offset_trf.is_affine:
             offsets = offset_trf.transform_non_affine(offsets)
@@ -377,6 +396,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
         if self.get_path_effects():
             from matplotlib.patheffects import PathEffectRenderer
+
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
         # If the collection is made up of a single shape/color/stroke,
@@ -389,19 +409,26 @@ class Collection(mcolorizer.ColorizingArtist):
         facecolors = self.get_facecolor()
         edgecolors = self.get_edgecolor()
         do_single_path_optimization = False
-        if (len(paths) == 1 and len(trans) <= 1 and
-                len(facecolors) == 1 and len(edgecolors) == 1 and
-                len(self._linewidths) == 1 and
-                all(ls[1] is None for ls in self._linestyles) and
-                len(self._antialiaseds) == 1 and len(self._urls) == 1 and
-                self.get_hatch() is None):
+        if (
+            len(paths) == 1
+            and len(trans) <= 1
+            and len(facecolors) == 1
+            and len(edgecolors) == 1
+            and len(self._linewidths) == 1
+            and all(ls[1] is None for ls in self._linestyles)
+            and len(self._antialiaseds) == 1
+            and len(self._urls) == 1
+            and self.get_hatch() is None
+        ):
             if len(trans):
                 combined_transform = transforms.Affine2D(trans[0]) + transform
             else:
                 combined_transform = transform
             extents = paths[0].get_extents(combined_transform)
-            if (extents.width < self.get_figure(root=True).bbox.width
-                    and extents.height < self.get_figure(root=True).bbox.height):
+            if (
+                extents.width < self.get_figure(root=True).bbox.width
+                and extents.height < self.get_figure(root=True).bbox.height
+            ):
                 do_single_path_optimization = True
 
         if self._joinstyle:
@@ -417,8 +444,13 @@ class Collection(mcolorizer.ColorizingArtist):
             gc.set_antialiased(self._antialiaseds[0])
             gc.set_url(self._urls[0])
             renderer.draw_markers(
-                gc, paths[0], combined_transform.frozen(),
-                mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
+                gc,
+                paths[0],
+                combined_transform.frozen(),
+                mpath.Path(offsets),
+                offset_trf,
+                tuple(facecolors[0]),
+            )
         else:
             # The current new API of draw_path_collection() is provisional
             # and will be changed in a future PR.
@@ -430,12 +462,20 @@ class Collection(mcolorizer.ColorizingArtist):
             hatchcolors_arg_supported = True
             try:
                 renderer.draw_path_collection(
-                    gc, transform.frozen(), [],
-                    self.get_transforms(), offsets, offset_trf,
-                    self.get_facecolor(), self.get_edgecolor(),
-                    self._linewidths, self._linestyles,
-                    self._antialiaseds, self._urls,
-                    "screen", hatchcolors=self.get_hatchcolor()
+                    gc,
+                    transform.frozen(),
+                    [],
+                    self.get_transforms(),
+                    offsets,
+                    offset_trf,
+                    self.get_facecolor(),
+                    self.get_edgecolor(),
+                    self._linewidths,
+                    self._linestyles,
+                    self._antialiaseds,
+                    self._urls,
+                    "screen",
+                    hatchcolors=self.get_hatchcolor(),
                 )
             except TypeError:
                 # If the renderer does not support the hatchcolors argument,
@@ -446,29 +486,47 @@ class Collection(mcolorizer.ColorizingArtist):
             # If the hatchcolors argument is not needed or not passed
             # then we can skip the iteration over paths in case the
             # argument is not supported by the renderer.
-            hatchcolors_not_needed = (self.get_hatch() is None or
-                                      self._original_hatchcolor is None)
+            hatchcolors_not_needed = (
+                self.get_hatch() is None or self._original_hatchcolor is None
+            )
 
             if self._gapcolor is not None:
                 # First draw paths within the gaps.
                 ipaths, ilinestyles = self._get_inverse_paths_linestyles()
-                args = [offsets, offset_trf, [mcolors.to_rgba("none")], self._gapcolor,
-                        self._linewidths, ilinestyles, self._antialiaseds, self._urls,
-                        "screen"]
+                args = [
+                    offsets,
+                    offset_trf,
+                    [mcolors.to_rgba("none")],
+                    self._gapcolor,
+                    self._linewidths,
+                    ilinestyles,
+                    self._antialiaseds,
+                    self._urls,
+                    "screen",
+                ]
 
                 if hatchcolors_arg_supported:
-                    renderer.draw_path_collection(gc, transform.frozen(), ipaths,
-                                                  self.get_transforms(), *args,
-                                                  hatchcolors=self.get_hatchcolor())
+                    renderer.draw_path_collection(
+                        gc,
+                        transform.frozen(),
+                        ipaths,
+                        self.get_transforms(),
+                        *args,
+                        hatchcolors=self.get_hatchcolor(),
+                    )
                 else:
                     if hatchcolors_not_needed:
-                        renderer.draw_path_collection(gc, transform.frozen(), ipaths,
-                                                      self.get_transforms(), *args)
+                        renderer.draw_path_collection(
+                            gc, transform.frozen(), ipaths, self.get_transforms(), *args
+                        )
                     else:
                         path_ids = renderer._iter_collection_raw_paths(
-                            transform.frozen(), ipaths, self.get_transforms())
+                            transform.frozen(), ipaths, self.get_transforms()
+                        )
                         for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-                            gc, list(path_ids), *args,
+                            gc,
+                            list(path_ids),
+                            *args,
                             hatchcolors=self.get_hatchcolor(),
                         ):
                             path, transform = path_id
@@ -477,23 +535,41 @@ class Collection(mcolorizer.ColorizingArtist):
                                 transform.translate(xo, yo)
                             renderer.draw_path(gc0, path, transform, rgbFace)
 
-            args = [offsets, offset_trf, self.get_facecolor(), self.get_edgecolor(),
-                    self._linewidths, self._linestyles, self._antialiaseds, self._urls,
-                    "screen"]
+            args = [
+                offsets,
+                offset_trf,
+                self.get_facecolor(),
+                self.get_edgecolor(),
+                self._linewidths,
+                self._linestyles,
+                self._antialiaseds,
+                self._urls,
+                "screen",
+            ]
 
             if hatchcolors_arg_supported:
-                renderer.draw_path_collection(gc, transform.frozen(), paths,
-                                              self.get_transforms(), *args,
-                                              hatchcolors=self.get_hatchcolor())
+                renderer.draw_path_collection(
+                    gc,
+                    transform.frozen(),
+                    paths,
+                    self.get_transforms(),
+                    *args,
+                    hatchcolors=self.get_hatchcolor(),
+                )
             else:
                 if hatchcolors_not_needed:
-                    renderer.draw_path_collection(gc, transform.frozen(), paths,
-                                                  self.get_transforms(), *args)
+                    renderer.draw_path_collection(
+                        gc, transform.frozen(), paths, self.get_transforms(), *args
+                    )
                 else:
                     path_ids = renderer._iter_collection_raw_paths(
-                        transform.frozen(), paths, self.get_transforms())
+                        transform.frozen(), paths, self.get_transforms()
+                    )
                     for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-                        gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
+                        gc,
+                        list(path_ids),
+                        *args,
+                        hatchcolors=self.get_hatchcolor(),
                     ):
                         path, transform = path_id
                         if xo != 0 or yo != 0:
@@ -516,7 +592,8 @@ class Collection(mcolorizer.ColorizingArtist):
         """
         if not isinstance(pickradius, Real):
             raise ValueError(
-                f"pickradius must be a real-valued number, not {pickradius!r}")
+                f"pickradius must be a real-valued number, not {pickradius!r}"
+            )
         self._pickradius = pickradius
 
     def get_pickradius(self):
@@ -533,9 +610,10 @@ class Collection(mcolorizer.ColorizingArtist):
             return False, {}
         pickradius = (
             float(self._picker)
-            if isinstance(self._picker, Number) and
-               self._picker is not True  # the bool, not just nonzero or 1
-            else self._pickradius)
+            if isinstance(self._picker, Number)
+            and self._picker is not True  # the bool, not just nonzero or 1
+            else self._pickradius
+        )
         if self.axes:
             self.axes._unstale_viewLim()
         transform, offset_trf, offsets, paths = self._prepare_points()
@@ -545,9 +623,16 @@ class Collection(mcolorizer.ColorizingArtist):
         # following the path. If pickradius <= 0, then we instead simply check
         # if the point is *inside* of the path instead.
         ind = _path.point_in_path_collection(
-            mouseevent.x, mouseevent.y, pickradius,
-            transform.frozen(), paths, self.get_transforms(),
-            offsets, offset_trf, pickradius <= 0)
+            mouseevent.x,
+            mouseevent.y,
+            pickradius,
+            transform.frozen(),
+            paths,
+            self.get_transforms(),
+            offsets,
+            offset_trf,
+            pickradius <= 0,
+        )
         return len(ind) > 0, dict(ind=ind)
 
     def set_urls(self, urls):
@@ -630,11 +715,17 @@ class Collection(mcolorizer.ColorizingArtist):
         offsets = np.asanyarray(offsets)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
-        cstack = (np.ma.column_stack if isinstance(offsets, np.ma.MaskedArray)
-                  else np.column_stack)
+        cstack = (
+            np.ma.column_stack
+            if isinstance(offsets, np.ma.MaskedArray)
+            else np.column_stack
+        )
         self._offsets = cstack(
-            (np.asanyarray(self.convert_xunits(offsets[:, 0]), float),
-             np.asanyarray(self.convert_yunits(offsets[:, 1]), float)))
+            (
+                np.asanyarray(self.convert_xunits(offsets[:, 0]), float),
+                np.asanyarray(self.convert_yunits(offsets[:, 1]), float),
+            )
+        )
         self.stale = True
 
     def get_offsets(self):
@@ -644,7 +735,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
     def _get_default_linewidth(self):
         # This may be overridden in a subclass.
-        return mpl.rcParams['patch.linewidth']  # validated as float
+        return mpl.rcParams["patch.linewidth"]  # validated as float
 
     def set_linewidth(self, lw):
         """
@@ -663,7 +754,8 @@ class Collection(mcolorizer.ColorizingArtist):
 
         # scale all of the dash patterns.
         self._linewidths, self._linestyles = self._bcast_lwls(
-            self._us_lw, self._us_linestyles)
+            self._us_lw, self._us_linestyles
+        )
         self.stale = True
 
     def set_linestyle(self, ls):
@@ -697,7 +789,8 @@ class Collection(mcolorizer.ColorizingArtist):
 
         # broadcast and scale the lw and dash patterns
         self._linewidths, self._linestyles = self._bcast_lwls(
-            self._us_lw, self._us_linestyles)
+            self._us_lw, self._us_linestyles
+        )
 
     @_docstring.interpd
     def set_capstyle(self, cs):
@@ -765,7 +858,7 @@ class Collection(mcolorizer.ColorizingArtist):
         linewidths, dashes : list
             Will be the same length, dashes are scaled by paired linewidth
         """
-        if mpl.rcParams['_internal.classic_mode']:
+        if mpl.rcParams["_internal.classic_mode"]:
             return linewidths, dashes
         # make sure they are the same length so we can zip them
         if len(dashes) != len(linewidths):
@@ -776,8 +869,9 @@ class Collection(mcolorizer.ColorizingArtist):
             linewidths = list(linewidths) * (l_dashes // gcd)
 
         # scale the dash patterns
-        dashes = [mlines._scale_dashes(o, d, lw)
-                  for (o, d), lw in zip(dashes, linewidths)]
+        dashes = [
+            mlines._scale_dashes(o, d, lw) for (o, d), lw in zip(dashes, linewidths)
+        ]
 
         return linewidths, dashes
 
@@ -806,7 +900,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
     def _get_default_antialiased(self):
         # This may be overridden in a subclass.
-        return mpl.rcParams['patch.antialiased']
+        return mpl.rcParams["patch.antialiased"]
 
     def set_color(self, c):
         """
@@ -830,7 +924,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
     def _get_default_facecolor(self):
         # This may be overridden in a subclass.
-        return mpl.rcParams['patch.facecolor']
+        return mpl.rcParams["patch.facecolor"]
 
     def _set_facecolor(self, c):
         if c is None:
@@ -860,33 +954,36 @@ class Collection(mcolorizer.ColorizingArtist):
         return self._facecolors
 
     def get_edgecolor(self):
-        if cbook._str_equal(self._edgecolors, 'face'):
+        if cbook._str_equal(self._edgecolors, "face"):
             return self.get_facecolor()
         else:
             return self._edgecolors
 
     def _get_default_edgecolor(self):
         # This may be overridden in a subclass.
-        return mpl.rcParams['patch.edgecolor']
+        return mpl.rcParams["patch.edgecolor"]
 
     def get_hatchcolor(self):
-        if cbook._str_equal(self._hatchcolors, 'edge'):
+        if cbook._str_equal(self._hatchcolors, "edge"):
             if len(self.get_edgecolor()) == 0:
-                return mpl.colors.to_rgba_array(self._get_default_edgecolor(),
-                                                self._alpha)
+                return mpl.colors.to_rgba_array(
+                    self._get_default_edgecolor(), self._alpha
+                )
             return self.get_edgecolor()
         return self._hatchcolors
 
     def _set_edgecolor(self, c):
         if c is None:
-            if (mpl.rcParams['patch.force_edgecolor']
-                    or self._edge_default
-                    or cbook._str_equal(self._original_facecolor, 'none')):
+            if (
+                mpl.rcParams["patch.force_edgecolor"]
+                or self._edge_default
+                or cbook._str_equal(self._original_facecolor, "none")
+            ):
                 c = self._get_default_edgecolor()
             else:
-                c = 'none'
-        if cbook._str_lower_equal(c, 'face'):
-            self._edgecolors = 'face'
+                c = "none"
+        if cbook._str_lower_equal(c, "face"):
+            self._edgecolors = "face"
             self.stale = True
             return
         self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
@@ -911,9 +1008,9 @@ class Collection(mcolorizer.ColorizingArtist):
         self._set_edgecolor(c)
 
     def _set_hatchcolor(self, c):
-        c = mpl._val_or_rc(c, 'hatch.color')
-        if cbook._str_equal(c, 'edge'):
-            self._hatchcolors = 'edge'
+        c = mpl._val_or_rc(c, "hatch.color")
+        if cbook._str_equal(c, "edge"):
+            self._hatchcolors = "edge"
         else:
             self._hatchcolors = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
@@ -976,18 +1073,21 @@ class Collection(mcolorizer.ColorizingArtist):
         self._edge_is_mapped = False
         self._face_is_mapped = False
         if self._A is not None:
-            if not cbook._str_equal(self._original_facecolor, 'none'):
+            if not cbook._str_equal(self._original_facecolor, "none"):
                 self._face_is_mapped = True
-                if cbook._str_equal(self._original_edgecolor, 'face'):
+                if cbook._str_equal(self._original_edgecolor, "face"):
                     self._edge_is_mapped = True
             else:
                 if self._original_edgecolor is None:
                     self._edge_is_mapped = True
 
         mapped = self._face_is_mapped or self._edge_is_mapped
-        changed = (edge0 is None or face0 is None
-                   or self._edge_is_mapped != edge0
-                   or self._face_is_mapped != face0)
+        changed = (
+            edge0 is None
+            or face0 is None
+            or self._edge_is_mapped != edge0
+            or self._face_is_mapped != face0
+        )
         return mapped or changed
 
     def update_scalarmappable(self):
@@ -1003,17 +1103,18 @@ class Collection(mcolorizer.ColorizingArtist):
         if self._A is not None:
             # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
             if self._A.ndim > 1 and not isinstance(self, _MeshData):
-                raise ValueError('Collections can only map rank 1 arrays')
+                raise ValueError("Collections can only map rank 1 arrays")
             if np.iterable(self._alpha):
                 if self._alpha.size != self._A.size:
                     raise ValueError(
-                        f'Data array shape, {self._A.shape} '
-                        'is incompatible with alpha array shape, '
-                        f'{self._alpha.shape}. '
-                        'This can occur with the deprecated '
+                        f"Data array shape, {self._A.shape} "
+                        "is incompatible with alpha array shape, "
+                        f"{self._alpha.shape}. "
+                        "This can occur with the deprecated "
                         'behavior of the "flat" shading option, '
-                        'in which a row and/or column of the data '
-                        'array is dropped.')
+                        "in which a row and/or column of the data "
+                        "array is dropped."
+                    )
                 # pcolormesh, scatter, maybe others flatten their _A
                 self._alpha = self._alpha.reshape(self._A.shape)
             self._mapped_colors = self.to_rgba(self._A, self._alpha)
@@ -1062,6 +1163,7 @@ class _CollectionWithSizes(Collection):
     """
     Base class for collections that have an array of sizes.
     """
+
     _factor = 1.0
 
     def get_sizes(self):
@@ -1132,8 +1234,9 @@ class PathCollection(_CollectionWithSizes):
     def get_paths(self):
         return self._paths
 
-    def legend_elements(self, prop="colors", num="auto",
-                        fmt=None, func=lambda x: x, **kwargs):
+    def legend_elements(
+        self, prop="colors", num="auto", fmt=None, func=lambda x: x, **kwargs
+    ):
         """
         Create legend handles and labels for a PathCollection.
 
@@ -1206,9 +1309,11 @@ class PathCollection(_CollectionWithSizes):
 
         if prop == "colors":
             if not hasarray:
-                warnings.warn("Collection without array used. Make sure to "
-                              "specify the values to be colormapped via the "
-                              "`c` argument.")
+                warnings.warn(
+                    "Collection without array used. Make sure to "
+                    "specify the values to be colormapped via the "
+                    "`c` argument."
+                )
                 return handles, labels
             u = np.unique(self.get_array())
             size = kwargs.pop("size", mpl.rcParams["lines.markersize"])
@@ -1216,8 +1321,10 @@ class PathCollection(_CollectionWithSizes):
             u = np.unique(self.get_sizes())
             color = kwargs.pop("color", "k")
         else:
-            raise ValueError("Valid values for `prop` are 'colors' or "
-                             f"'sizes'. You supplied '{prop}' instead.")
+            raise ValueError(
+                "Valid values for `prop` are 'colors' or "
+                f"'sizes'. You supplied '{prop}' instead."
+            )
 
         fu = func(u)
         fmt.axis.set_view_interval(fu.min(), fu.max())
@@ -1240,20 +1347,22 @@ class PathCollection(_CollectionWithSizes):
                 loc = mpl.ticker.FixedLocator(num)
             else:
                 num = int(num)
-                loc = mpl.ticker.MaxNLocator(nbins=num, min_n_ticks=num-1,
-                                             steps=[1, 2, 2.5, 3, 5, 6, 8, 10])
+                loc = mpl.ticker.MaxNLocator(
+                    nbins=num, min_n_ticks=num - 1, steps=[1, 2, 2.5, 3, 5, 6, 8, 10]
+                )
             label_values = loc.tick_values(func(arr).min(), func(arr).max())
-            cond = ((label_values >= func(arr).min()) &
-                    (label_values <= func(arr).max()))
+            cond = (label_values >= func(arr).min()) & (label_values <= func(arr).max())
             label_values = label_values[cond]
             yarr = np.linspace(arr.min(), arr.max(), 256)
             xarr = func(yarr)
             ix = np.argsort(xarr)
             values = np.interp(label_values, xarr[ix], yarr[ix])
 
-        kw = {"markeredgewidth": self.get_linewidths()[0],
-              "alpha": self.get_alpha(),
-              **kwargs}
+        kw = {
+            "markeredgewidth": self.get_linewidths()[0],
+            "alpha": self.get_alpha(),
+            **kwargs,
+        }
 
         for val, lab in zip(values, label_values):
             if prop == "colors":
@@ -1262,8 +1371,9 @@ class PathCollection(_CollectionWithSizes):
                 size = np.sqrt(val)
                 if np.isclose(size, 0.0):
                     continue
-            h = mlines.Line2D([0], [0], ls="", color=color, ms=size,
-                              marker=self.get_paths()[0], **kw)
+            h = mlines.Line2D(
+                [0], [0], ls="", color=color, ms=size, marker=self.get_paths()[0], **kw
+            )
             handles.append(h)
             if hasattr(fmt, "set_locs"):
                 fmt.set_locs(label_values)
@@ -1328,17 +1438,29 @@ class PolyCollection(_CollectionWithSizes):
             verts_pad = np.concatenate((verts, verts[:, :1]), axis=1)
             # It's faster to create the codes and internal flags once in a
             # template path and reuse them.
-            template_path = mpath.Path(verts_pad[0], closed=True)
+            if closed and verts.shape[1] >= 128:
+                template_path = mpath.Path(verts_pad[0], closed=False)
+            else:
+                template_path = mpath.Path(verts_pad[0], closed=True)
             codes = template_path.codes
             _make_path = mpath.Path._fast_from_codes_and_verts
-            self._paths = [_make_path(xy, codes, internals_from=template_path)
-                           for xy in verts_pad]
+            self._paths = [
+                _make_path(xy, codes, internals_from=template_path) for xy in verts_pad
+            ]
             return
 
         self._paths = []
         for xy in verts:
             if len(xy):
-                self._paths.append(mpath.Path._create_closed(xy))
+                if closed and len(xy) >= 128:
+                    if isinstance(xy, np.ma.MaskedArray):
+                        xy = xy.filled(np.nan)
+                    xy = np.asanyarray(xy)
+                    if len(xy) and (xy[0] != xy[-1]).any():
+                        xy = np.concatenate([xy, xy[:1]])
+                    self._paths.append(mpath.Path(xy, closed=False))
+                else:
+                    self._paths.append(mpath.Path._create_closed(xy))
             else:
                 self._paths.append(mpath.Path(xy))
 
@@ -1347,10 +1469,13 @@ class PolyCollection(_CollectionWithSizes):
     def set_verts_and_codes(self, verts, codes):
         """Initialize vertices with path codes."""
         if len(verts) != len(codes):
-            raise ValueError("'codes' must be a 1D list or array "
-                             "with the same length of 'verts'")
-        self._paths = [mpath.Path(xy, cds) if len(xy) else mpath.Path(xy)
-                       for xy, cds in zip(verts, codes)]
+            raise ValueError(
+                "'codes' must be a 1D list or array " "with the same length of 'verts'"
+            )
+        self._paths = [
+            mpath.Path(xy, cds) if len(xy) else mpath.Path(xy)
+            for xy, cds in zip(verts, codes)
+        ]
         self.stale = True
 
 
@@ -1358,9 +1483,19 @@ class FillBetweenPolyCollection(PolyCollection):
     """
     `.PolyCollection` that fills the area between two x- or y-curves.
     """
+
     def __init__(
-            self, t_direction, t, f1, f2, *,
-            where=None, interpolate=False, step=None, **kwargs):
+        self,
+        t_direction,
+        t,
+        f1,
+        f2,
+        *,
+        where=None,
+        interpolate=False,
+        step=None,
+        **kwargs,
+    ):
         """
         Parameters
         ----------
@@ -1473,7 +1608,8 @@ class FillBetweenPolyCollection(PolyCollection):
         .PolyCollection.set_verts, .Line2D.set_data
         """
         t, f1, f2 = self.axes._fill_between_process_units(
-            self.t_direction, self._f_direction, t, f1, f2)
+            self.t_direction, self._f_direction, t, f1, f2
+        )
 
         verts = self._make_verts(t, f1, f2, where)
         self.set_verts(verts)
@@ -1481,8 +1617,11 @@ class FillBetweenPolyCollection(PolyCollection):
     def get_datalim(self, transData):
         """Calculate the data limits and return them as a `.Bbox`."""
         datalim = transforms.Bbox.null()
-        datalim.update_from_data_xy((self.get_transform() - transData).transform(
-            np.concatenate([self._bbox, [self._bbox.minpos]])))
+        datalim.update_from_data_xy(
+            (self.get_transform() - transData).transform(
+                np.concatenate([self._bbox, [self._bbox.minpos]])
+            )
+        )
         return datalim
 
     def _make_verts(self, t, f1, f2, where):
@@ -1495,8 +1634,13 @@ class FillBetweenPolyCollection(PolyCollection):
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
 
         self._bbox = transforms.Bbox.null()
-        self._bbox.update_from_data_xy(self._fix_pts_xy_order(np.concatenate([
-            np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)])))
+        self._bbox.update_from_data_xy(
+            self._fix_pts_xy_order(
+                np.concatenate(
+                    [np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)]
+                )
+            )
+        )
 
         return [
             self._make_verts_for_region(t, f1, f2, idx0, idx1)
@@ -1516,10 +1660,12 @@ class FillBetweenPolyCollection(PolyCollection):
             where = np.asarray(where, dtype=bool)
             if where.size != t.size:
                 msg = "where size ({}) does not match {!r} size ({})".format(
-                    where.size, self.t_direction, t.size)
+                    where.size, self.t_direction, t.size
+                )
                 raise ValueError(msg)
         return where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmaskarray, [t, f1, f2]))
+            np.logical_or, map(np.ma.getmaskarray, [t, f1, f2])
+        )
 
     @staticmethod
     def _validate_shapes(t_dir, f_dir, t, f1, f2):
@@ -1530,7 +1676,8 @@ class FillBetweenPolyCollection(PolyCollection):
                 raise ValueError(f"{name!r} is not 1-dimensional")
             if t.size > 1 and array.size > 1 and t.size != array.size:
                 msg = "{!r} has size {}, but {!r} has an unequal size of {}".format(
-                    t_dir, t.size, name, array.size)
+                    t_dir, t.size, name, array.size
+                )
                 raise ValueError(msg)
 
     def _make_verts_for_region(self, t, f1, f2, idx0, idx1):
@@ -1554,11 +1701,14 @@ class FillBetweenPolyCollection(PolyCollection):
             start = t_slice[0], f2_slice[0]
             end = t_slice[-1], f2_slice[-1]
 
-        pts = np.concatenate((
-            np.asarray([start]),
-            np.stack((t_slice, f1_slice), axis=-1),
-            np.asarray([end]),
-            np.stack((t_slice, f2_slice), axis=-1)[::-1]))
+        pts = np.concatenate(
+            (
+                np.asarray([start]),
+                np.stack((t_slice, f1_slice), axis=-1),
+                np.asarray([end]),
+                np.stack((t_slice, f2_slice), axis=-1)[::-1],
+            )
+        )
 
         return self._fix_pts_xy_order(pts)
 
@@ -1566,9 +1716,9 @@ class FillBetweenPolyCollection(PolyCollection):
     def _get_interpolating_points(cls, t, f1, f2, idx):
         """Calculate interpolating points."""
         im1 = max(idx - 1, 0)
-        t_values = t[im1:idx+1]
-        diff_values = f1[im1:idx+1] - f2[im1:idx+1]
-        f1_values = f1[im1:idx+1]
+        t_values = t[im1 : idx + 1]
+        diff_values = f1[im1 : idx + 1] - f2[im1 : idx + 1]
+        f1_values = f1[im1 : idx + 1]
 
         if len(diff_values) == 2:
             if np.ma.is_masked(diff_values[1]):
@@ -1600,14 +1750,9 @@ class RegularPolyCollection(_CollectionWithSizes):
     """A collection of n-sided regular polygons."""
 
     _path_generator = mpath.Path.unit_regular_polygon
-    _factor = np.pi ** (-1/2)
+    _factor = np.pi ** (-1 / 2)
 
-    def __init__(self,
-                 numsides,
-                 *,
-                 rotation=0,
-                 sizes=(1,),
-                 **kwargs):
+    def __init__(self, numsides, *, rotation=0, sizes=(1,), **kwargs):
         """
         Parameters
         ----------
@@ -1664,11 +1809,13 @@ class RegularPolyCollection(_CollectionWithSizes):
 
 class StarPolygonCollection(RegularPolyCollection):
     """Draw a collection of regular stars with *numsides* points."""
+
     _path_generator = mpath.Path.unit_regular_star
 
 
 class AsteriskPolygonCollection(RegularPolyCollection):
     """Draw a collection of regular asterisks with *numsides* points."""
+
     _path_generator = mpath.Path.unit_regular_asterisk
 
 
@@ -1692,11 +1839,9 @@ class LineCollection(Collection):
 
     _edge_default = True
 
-    def __init__(self, segments,  # Can be None.
-                 *,
-                 zorder=2,        # Collection.zorder is 1
-                 **kwargs
-                 ):
+    def __init__(
+        self, segments, *, zorder=2, **kwargs  # Can be None.  # Collection.zorder is 1
+    ):
         """
         Parameters
         ----------
@@ -1730,19 +1875,22 @@ class LineCollection(Collection):
             Forwarded to `.Collection`.
         """
         # Unfortunately, mplot3d needs this explicit setting of 'facecolors'.
-        kwargs.setdefault('facecolors', 'none')
-        super().__init__(
-            zorder=zorder,
-            **kwargs)
+        kwargs.setdefault("facecolors", "none")
+        super().__init__(zorder=zorder, **kwargs)
         self.set_segments(segments)
 
     def set_segments(self, segments):
         if segments is None:
             return
 
-        self._paths = [mpath.Path(seg) if isinstance(seg, np.ma.MaskedArray)
-                       else mpath.Path(np.asarray(seg, float))
-                       for seg in segments]
+        self._paths = [
+            (
+                mpath.Path(seg)
+                if isinstance(seg, np.ma.MaskedArray)
+                else mpath.Path(np.asarray(seg, float))
+            )
+            for seg in segments
+        ]
         self.stale = True
 
     set_verts = set_segments  # for compatibility with PolyCollection
@@ -1773,16 +1921,16 @@ class LineCollection(Collection):
         return segments
 
     def _get_default_linewidth(self):
-        return mpl.rcParams['lines.linewidth']
+        return mpl.rcParams["lines.linewidth"]
 
     def _get_default_antialiased(self):
-        return mpl.rcParams['lines.antialiased']
+        return mpl.rcParams["lines.antialiased"]
 
     def _get_default_edgecolor(self):
-        return mpl.rcParams['lines.color']
+        return mpl.rcParams["lines.color"]
 
     def _get_default_facecolor(self):
-        return 'none'
+        return "none"
 
     def set_alpha(self, alpha):
         # docstring inherited
@@ -1849,11 +1997,13 @@ class LineCollection(Collection):
         to nans to prevent drawing an inverse line.
         """
         path_patterns = [
-            (mpath.Path(np.full((1, 2), np.nan)), ls)
-            if ls == (0, None) else
-            (path, mlines._get_inverse_dash_pattern(*ls))
-            for (path, ls) in
-            zip(self._paths, itertools.cycle(self._linestyles))]
+            (
+                (mpath.Path(np.full((1, 2), np.nan)), ls)
+                if ls == (0, None)
+                else (path, mlines._get_inverse_dash_pattern(*ls))
+            )
+            for (path, ls) in zip(self._paths, itertools.cycle(self._linestyles))
+        ]
 
         return zip(*path_patterns)
 
@@ -1868,18 +2018,19 @@ class EventCollection(LineCollection):
 
     _edge_default = True
 
-    def __init__(self,
-                 positions,  # Cannot be None.
-                 orientation='horizontal',
-                 *,
-                 lineoffset=0,
-                 linelength=1,
-                 linewidth=None,
-                 color=None,
-                 linestyle='solid',
-                 antialiased=None,
-                 **kwargs
-                 ):
+    def __init__(
+        self,
+        positions,  # Cannot be None.
+        orientation="horizontal",
+        *,
+        lineoffset=0,
+        linelength=1,
+        linewidth=None,
+        color=None,
+        linestyle="solid",
+        antialiased=None,
+        **kwargs,
+    ):
         """
         Parameters
         ----------
@@ -1916,10 +2067,14 @@ class EventCollection(LineCollection):
         --------
         .. plot:: gallery/lines_bars_and_markers/eventcollection_demo.py
         """
-        super().__init__([],
-                         linewidths=linewidth, linestyles=linestyle,
-                         colors=color, antialiaseds=antialiased,
-                         **kwargs)
+        super().__init__(
+            [],
+            linewidths=linewidth,
+            linestyles=linestyle,
+            colors=color,
+            antialiaseds=antialiased,
+            **kwargs,
+        )
         self._is_horizontal = True  # Initial value, may be switched below.
         self._linelength = linelength
         self._lineoffset = lineoffset
@@ -1938,7 +2093,7 @@ class EventCollection(LineCollection):
         if positions is None:
             positions = []
         if np.ndim(positions) != 1:
-            raise ValueError('positions must be one-dimensional')
+            raise ValueError("positions must be one-dimensional")
         lineoffset = self.get_lineoffset()
         linelength = self.get_linelength()
         pos_idx = 0 if self.is_horizontal() else 1
@@ -1950,12 +2105,12 @@ class EventCollection(LineCollection):
 
     def add_positions(self, position):
         """Add one or more events at the specified positions."""
-        if position is None or (hasattr(position, 'len') and
-                                len(position) == 0):
+        if position is None or (hasattr(position, "len") and len(position) == 0):
             return
         positions = self.get_positions()
         positions = np.hstack([positions, np.asanyarray(position)])
         self.set_positions(positions)
+
     extend_positions = append_positions = add_positions
 
     def is_horizontal(self):
@@ -1966,7 +2121,7 @@ class EventCollection(LineCollection):
         """
         Return the orientation of the event line ('horizontal' or 'vertical').
         """
-        return 'horizontal' if self.is_horizontal() else 'vertical'
+        return "horizontal" if self.is_horizontal() else "vertical"
 
     def switch_orientation(self):
         """
@@ -1989,8 +2144,8 @@ class EventCollection(LineCollection):
         orientation : {'horizontal', 'vertical'}
         """
         is_horizontal = _api.check_getitem(
-            {"horizontal": True, "vertical": False},
-            orientation=orientation)
+            {"horizontal": True, "vertical": False}, orientation=orientation
+        )
         if is_horizontal == self.is_horizontal():
             return
         self.switch_orientation()
@@ -2007,8 +2162,8 @@ class EventCollection(LineCollection):
         segments = self.get_segments()
         pos = 1 if self.is_horizontal() else 0
         for segment in segments:
-            segment[0, pos] = lineoffset + linelength / 2.
-            segment[1, pos] = lineoffset - linelength / 2.
+            segment[0, pos] = lineoffset + linelength / 2.0
+            segment[1, pos] = lineoffset - linelength / 2.0
         self.set_segments(segments)
         self._linelength = linelength
 
@@ -2024,8 +2179,8 @@ class EventCollection(LineCollection):
         segments = self.get_segments()
         pos = 1 if self.is_horizontal() else 0
         for segment in segments:
-            segment[0, pos] = lineoffset + linelength / 2.
-            segment[1, pos] = lineoffset - linelength / 2.
+            segment[0, pos] = lineoffset + linelength / 2.0
+            segment[1, pos] = lineoffset - linelength / 2.0
         self.set_segments(segments)
         self._lineoffset = lineoffset
 
@@ -2044,7 +2199,7 @@ class EventCollection(LineCollection):
 class CircleCollection(_CollectionWithSizes):
     """A collection of circles, drawn using splines."""
 
-    _factor = np.pi ** (-1/2)
+    _factor = np.pi ** (-1 / 2)
 
     def __init__(self, sizes, **kwargs):
         """
@@ -2064,7 +2219,7 @@ class CircleCollection(_CollectionWithSizes):
 class EllipseCollection(Collection):
     """A collection of ellipses, drawn using splines."""
 
-    def __init__(self, widths, heights, angles, *, units='points', **kwargs):
+    def __init__(self, widths, heights, angles, *, units="points", **kwargs):
         """
         Parameters
         ----------
@@ -2100,24 +2255,24 @@ class EllipseCollection(Collection):
         ax = self.axes
         fig = self.get_figure(root=False)
 
-        if self._units == 'xy':
+        if self._units == "xy":
             sc = 1
-        elif self._units == 'x':
+        elif self._units == "x":
             sc = ax.bbox.width / ax.viewLim.width
-        elif self._units == 'y':
+        elif self._units == "y":
             sc = ax.bbox.height / ax.viewLim.height
-        elif self._units == 'inches':
+        elif self._units == "inches":
             sc = fig.dpi
-        elif self._units == 'points':
+        elif self._units == "points":
             sc = fig.dpi / 72.0
-        elif self._units == 'width':
+        elif self._units == "width":
             sc = ax.bbox.width
-        elif self._units == 'height':
+        elif self._units == "height":
             sc = ax.bbox.height
-        elif self._units == 'dots':
+        elif self._units == "dots":
             sc = 1.0
         else:
-            raise ValueError(f'Unrecognized units: {self._units!r}')
+            raise ValueError(f"Unrecognized units: {self._units!r}")
 
         self._transforms = np.zeros((len(self._widths), 3, 3))
         widths = self._widths * sc
@@ -2131,7 +2286,7 @@ class EllipseCollection(Collection):
         self._transforms[:, 2, 2] = 1.0
 
         _affine = transforms.Affine2D
-        if self._units == 'xy':
+        if self._units == "xy":
             m = ax.transData.get_affine().get_matrix().copy()
             m[:2, 2:] = 0
             self.set_transform(_affine(m))
@@ -2208,24 +2363,24 @@ class PatchCollection(Collection):
         """
 
         if match_original:
+
             def determine_facecolor(patch):
                 if patch.get_fill():
                     return patch.get_facecolor()
                 return [0, 0, 0, 0]
 
-            kwargs['facecolors'] = [determine_facecolor(p) for p in patches]
-            kwargs['edgecolors'] = [p.get_edgecolor() for p in patches]
-            kwargs['linewidths'] = [p.get_linewidth() for p in patches]
-            kwargs['linestyles'] = [p.get_linestyle() for p in patches]
-            kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
+            kwargs["facecolors"] = [determine_facecolor(p) for p in patches]
+            kwargs["edgecolors"] = [p.get_edgecolor() for p in patches]
+            kwargs["linewidths"] = [p.get_linewidth() for p in patches]
+            kwargs["linestyles"] = [p.get_linestyle() for p in patches]
+            kwargs["antialiaseds"] = [p.get_antialiased() for p in patches]
 
         super().__init__(**kwargs)
 
         self.set_paths(patches)
 
     def set_paths(self, patches):
-        paths = [p.get_transform().transform_path(p.get_path())
-                 for p in patches]
+        paths = [p.get_transform().transform_path(p.get_path()) for p in patches]
         self._paths = paths
 
 
@@ -2235,17 +2390,17 @@ class TriMesh(Collection):
 
     A triangular mesh is a `~matplotlib.tri.Triangulation` object.
     """
+
     def __init__(self, triangulation, **kwargs):
         super().__init__(**kwargs)
         self._triangulation = triangulation
-        self._shading = 'gouraud'
+        self._shading = "gouraud"
 
         self._bbox = transforms.Bbox.unit()
 
         # Unfortunately this requires a copy, unless Triangulation
         # was rewritten.
-        xy = np.hstack((triangulation.x.reshape(-1, 1),
-                        triangulation.y.reshape(-1, 1)))
+        xy = np.hstack((triangulation.x.reshape(-1, 1), triangulation.y.reshape(-1, 1)))
         self._bbox.update_from_data_xy(xy)
 
     def get_paths(self):
@@ -2318,7 +2473,8 @@ class _MeshData:
 
     shading : {'flat', 'gouraud'}, default: 'flat'
     """
-    def __init__(self, coordinates, *, shading='flat'):
+
+    def __init__(self, coordinates, *, shading="flat"):
         _api.check_shape((None, None, 2), coordinates=coordinates)
         self._coordinates = coordinates
         self._shading = shading
@@ -2346,7 +2502,7 @@ class _MeshData:
             shading.
         """
         height, width = self._coordinates.shape[0:-1]
-        if self._shading == 'flat':
+        if self._shading == "flat":
             h, w = height - 1, width - 1
         else:
             h, w = height, width
@@ -2357,7 +2513,8 @@ class _MeshData:
                 raise ValueError(
                     f"For X ({width}) and Y ({height}) with {self._shading} "
                     f"shading, A should have shape "
-                    f"{' or '.join(map(str, ok_shapes))}, not {A.shape}")
+                    f"{' or '.join(map(str, ok_shapes))}, not {A.shape}"
+                )
         return super().set_array(A)
 
     def get_coordinates(self):
@@ -2394,13 +2551,9 @@ class _MeshData:
             c = coordinates.data
         else:
             c = coordinates
-        points = np.concatenate([
-            c[:-1, :-1],
-            c[:-1, 1:],
-            c[1:, 1:],
-            c[1:, :-1],
-            c[:-1, :-1]
-        ], axis=2).reshape((-1, 5, 2))
+        points = np.concatenate(
+            [c[:-1, :-1], c[:-1, 1:], c[1:, 1:], c[1:, :-1], c[:-1, :-1]], axis=2
+        ).reshape((-1, 5, 2))
         return [mpath.Path(x) for x in points]
 
     def _convert_mesh_to_triangles(self, coordinates):
@@ -2419,12 +2572,23 @@ class _MeshData:
         p_c = p[1:, 1:]
         p_d = p[1:, :-1]
         p_center = (p_a + p_b + p_c + p_d) / 4.0
-        triangles = np.concatenate([
-            p_a, p_b, p_center,
-            p_b, p_c, p_center,
-            p_c, p_d, p_center,
-            p_d, p_a, p_center,
-        ], axis=2).reshape((-1, 3, 2))
+        triangles = np.concatenate(
+            [
+                p_a,
+                p_b,
+                p_center,
+                p_b,
+                p_c,
+                p_center,
+                p_c,
+                p_d,
+                p_center,
+                p_d,
+                p_a,
+                p_center,
+            ],
+            axis=2,
+        ).reshape((-1, 3, 2))
 
         c = self.get_facecolor().reshape((*coordinates.shape[:2], 4))
         z = self.get_array()
@@ -2436,12 +2600,23 @@ class _MeshData:
         c_c = c[1:, 1:]
         c_d = c[1:, :-1]
         c_center = (c_a + c_b + c_c + c_d) / 4.0
-        colors = np.concatenate([
-            c_a, c_b, c_center,
-            c_b, c_c, c_center,
-            c_c, c_d, c_center,
-            c_d, c_a, c_center,
-        ], axis=2).reshape((-1, 3, 4))
+        colors = np.concatenate(
+            [
+                c_a,
+                c_b,
+                c_center,
+                c_b,
+                c_c,
+                c_center,
+                c_c,
+                c_d,
+                c_center,
+                c_d,
+                c_a,
+                c_center,
+            ],
+            axis=2,
+        ).reshape((-1, 3, 4))
         tmask = np.isnan(colors[..., 2, 3])
         return triangles[~tmask], colors[~tmask]
 
@@ -2480,8 +2655,7 @@ class QuadMesh(_MeshData, Collection):
 
     """
 
-    def __init__(self, coordinates, *, antialiased=True, shading='flat',
-                 **kwargs):
+    def __init__(self, coordinates, *, antialiased=True, shading="flat", **kwargs):
         kwargs.setdefault("pickradius", 0)
         super().__init__(coordinates=coordinates, shading=shading)
         Collection.__init__(self, **kwargs)
@@ -2536,18 +2710,23 @@ class QuadMesh(_MeshData, Collection):
         self._set_gc_clip(gc)
         gc.set_linewidth(self.get_linewidth()[0])
 
-        if self._shading == 'gouraud':
+        if self._shading == "gouraud":
             triangles, colors = self._convert_mesh_to_triangles(coordinates)
-            renderer.draw_gouraud_triangles(
-                gc, triangles, colors, transform.frozen())
+            renderer.draw_gouraud_triangles(gc, triangles, colors, transform.frozen())
         else:
             renderer.draw_quad_mesh(
-                gc, transform.frozen(),
-                coordinates.shape[1] - 1, coordinates.shape[0] - 1,
-                coordinates, offsets, offset_trf,
+                gc,
+                transform.frozen(),
+                coordinates.shape[1] - 1,
+                coordinates.shape[0] - 1,
+                coordinates,
+                offsets,
+                offset_trf,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
-                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
+                self._antialiased,
+                self.get_edgecolors().reshape((-1, 4)),
+            )
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
@@ -2606,7 +2785,7 @@ class PolyQuadMesh(_MeshData, PolyCollection):
         mask = np.any(np.ma.getmaskarray(self._coordinates), axis=-1)
 
         # We want the shape of the polygon, which is the corner of each X/Y array
-        mask = (mask[0:-1, 0:-1] | mask[1:, 1:] | mask[0:-1, 1:] | mask[1:, 0:-1])
+        mask = mask[0:-1, 0:-1] | mask[1:, 1:] | mask[0:-1, 1:] | mask[1:, 0:-1]
         arr = self.get_array()
         if arr is not None:
             arr = np.ma.getmaskarray(arr)
