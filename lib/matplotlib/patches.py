@@ -792,6 +792,10 @@ class Rectangle(Patch):
         ----------------
         **kwargs : `~matplotlib.patches.Patch` properties
             %(Patch:kwdoc)s
+
+        See Also
+        --------
+        FancyBboxPatch : A rectangle with a fancy box style, e.g. rounded corners.
         """
         super().__init__(**kwargs)
         self._x0 = xy[0]
