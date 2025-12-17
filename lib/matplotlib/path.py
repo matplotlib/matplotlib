@@ -76,31 +76,27 @@ class Path:
         made up front in the constructor that will not change when the
         data changes.
     """
-
     code_type = np.uint8
 
     # Path codes
-    STOP = code_type(0)  # 1 vertex
-    MOVETO = code_type(1)  # 1 vertex
-    LINETO = code_type(2)  # 1 vertex
-    CURVE3 = code_type(3)  # 2 vertices
-    CURVE4 = code_type(4)  # 3 vertices
-    CLOSEPOLY = code_type(79)  # 1 vertex
+    STOP = code_type(0)         # 1 vertex
+    MOVETO = code_type(1)       # 1 vertex
+    LINETO = code_type(2)       # 1 vertex
+    CURVE3 = code_type(3)       # 2 vertices
+    CURVE4 = code_type(4)       # 3 vertices
+    CLOSEPOLY = code_type(79)   # 1 vertex
 
     #: A dictionary mapping Path codes to the number of vertices that the
     #: code expects.
-    NUM_VERTICES_FOR_CODE = {
-        STOP: 1,
-        MOVETO: 1,
-        LINETO: 1,
-        CURVE3: 2,
-        CURVE4: 3,
-        CLOSEPOLY: 1,
-    }
+    NUM_VERTICES_FOR_CODE = {STOP: 1,
+                             MOVETO: 1,
+                             LINETO: 1,
+                             CURVE3: 2,
+                             CURVE4: 3,
+                             CLOSEPOLY: 1}
 
-    def __init__(
-        self, vertices, codes=None, _interpolation_steps=1, closed=False, readonly=False
-    ):
+    def __init__(self, vertices, codes=None, _interpolation_steps=1,
+                 closed=False, readonly=False):
         """
         Create a new path with the given vertices and codes.
 
@@ -135,18 +131,14 @@ class Path:
         if codes is not None and len(vertices):
             codes = np.asarray(codes, self.code_type)
             if codes.ndim != 1 or len(codes) != len(vertices):
-                raise ValueError(
-                    "'codes' must be a 1D list or array with the "
-                    "same length of 'vertices'. "
-                    f"Your vertices have shape {vertices.shape} "
-                    f"but your codes have shape {codes.shape}"
-                )
+                raise ValueError("'codes' must be a 1D list or array with the "
+                                 "same length of 'vertices'. "
+                                 f"Your vertices have shape {vertices.shape} "
+                                 f"but your codes have shape {codes.shape}")
             if len(codes) and codes[0] != self.MOVETO:
-                raise ValueError(
-                    "The first element of 'code' must be equal "
-                    f"to 'MOVETO' ({self.MOVETO}).  "
-                    f"Your first code is {codes[0]}"
-                )
+                raise ValueError("The first element of 'code' must be equal "
+                                 f"to 'MOVETO' ({self.MOVETO}).  "
+                                 f"Your first code is {codes[0]}")
         elif closed and len(vertices):
             codes = np.empty(len(vertices), dtype=self.code_type)
             codes[0] = self.MOVETO
@@ -191,7 +183,7 @@ class Path:
             pth._interpolation_steps = internals_from._interpolation_steps
         else:
             pth._should_simplify = True
-            pth._simplify_threshold = mpl.rcParams["path.simplify_threshold"]
+            pth._simplify_threshold = mpl.rcParams['path.simplify_threshold']
             pth._interpolation_steps = 1
         return pth
 
@@ -207,12 +199,12 @@ class Path:
         return cls(np.concatenate([v, v[:1]]), closed=True)
 
     def _update_values(self):
-        self._simplify_threshold = mpl.rcParams["path.simplify_threshold"]
+        self._simplify_threshold = mpl.rcParams['path.simplify_threshold']
         self._should_simplify = (
-            self._simplify_threshold > 0
-            and mpl.rcParams["path.simplify"]
-            and len(self._vertices) >= 128
-            and (self._codes is None or np.all(self._codes <= Path.LINETO))
+            self._simplify_threshold > 0 and
+            mpl.rcParams['path.simplify'] and
+            len(self._vertices) >= 128 and
+            (self._codes is None or np.all(self._codes <= Path.LINETO))
         )
 
     @property
@@ -358,9 +350,9 @@ class Path:
             if path.codes is None:
                 if size:
                     codes[i] = cls.MOVETO
-                    codes[i + 1 : i + size] = cls.LINETO
+                    codes[i+1:i+size] = cls.LINETO
             else:
-                codes[i : i + size] = path.codes
+                codes[i:i+size] = path.codes
             i += size
         not_stop_mask = codes != cls.STOP  # Remove STOPs, as internal STOPs are a bug.
         return cls(vertices[not_stop_mask], codes[not_stop_mask])
@@ -371,17 +363,9 @@ class Path:
     def __len__(self):
         return len(self.vertices)
 
-    def iter_segments(
-        self,
-        transform=None,
-        remove_nans=True,
-        clip=None,
-        snap=False,
-        stroke_width=1.0,
-        simplify=None,
-        curves=True,
-        sketch=None,
-    ):
+    def iter_segments(self, transform=None, remove_nans=True, clip=None,
+                      snap=False, stroke_width=1.0, simplify=None,
+                      curves=True, sketch=None):
         """
         Iterate over all curve segments in the path.
 
@@ -423,16 +407,11 @@ class Path:
         if not len(self):
             return
 
-        cleaned = self.cleaned(
-            transform=transform,
-            remove_nans=remove_nans,
-            clip=clip,
-            snap=snap,
-            stroke_width=stroke_width,
-            simplify=simplify,
-            curves=curves,
-            sketch=sketch,
-        )
+        cleaned = self.cleaned(transform=transform,
+                               remove_nans=remove_nans, clip=clip,
+                               snap=snap, stroke_width=stroke_width,
+                               simplify=simplify, curves=curves,
+                               sketch=sketch)
 
         # Cache these object lookups for performance in the loop.
         NUM_VERTICES_FOR_CODE = self.NUM_VERTICES_FOR_CODE
@@ -484,11 +463,11 @@ class Path:
             elif code == Path.LINETO:  # "CURVE2"
                 yield BezierSegment(np.array([prev_vert, verts])), code
             elif code == Path.CURVE3:
-                yield BezierSegment(np.array([prev_vert, verts[:2], verts[2:]])), code
+                yield BezierSegment(np.array([prev_vert, verts[:2],
+                                              verts[2:]])), code
             elif code == Path.CURVE4:
-                yield BezierSegment(
-                    np.array([prev_vert, verts[:2], verts[2:4], verts[4:]])
-                ), code
+                yield BezierSegment(np.array([prev_vert, verts[:2],
+                                              verts[2:4], verts[4:]])), code
             elif code == Path.CLOSEPOLY:
                 yield BezierSegment(np.array([prev_vert, first_vert])), code
             elif code == Path.STOP:
@@ -505,21 +484,11 @@ class Path:
             idxs = np.append((self.codes == Path.MOVETO).nonzero()[0], len(self.codes))
             for sl in map(slice, idxs, idxs[1:]):
                 yield Path._fast_from_codes_and_verts(
-                    self.vertices[sl], self.codes[sl], self
-                )
+                    self.vertices[sl], self.codes[sl], self)
 
-    def cleaned(
-        self,
-        transform=None,
-        remove_nans=False,
-        clip=None,
-        *,
-        simplify=False,
-        curves=False,
-        stroke_width=1.0,
-        snap=False,
-        sketch=None,
-    ):
+    def cleaned(self, transform=None, remove_nans=False, clip=None,
+                *, simplify=False, curves=False,
+                stroke_width=1.0, snap=False, sketch=None):
         """
         Return a new `Path` with vertices and codes cleaned according to the
         parameters.
@@ -529,16 +498,8 @@ class Path:
         Path.iter_segments : for details of the keyword arguments.
         """
         vertices, codes = _path.cleanup_path(
-            self,
-            transform,
-            remove_nans,
-            clip,
-            snap,
-            stroke_width,
-            simplify,
-            curves,
-            sketch,
-        )
+            self, transform, remove_nans, clip, snap, stroke_width, simplify,
+            curves, sketch)
         pth = Path._fast_from_codes_and_verts(vertices, codes, self)
         if not simplify:
             pth._should_simplify = False
@@ -554,9 +515,8 @@ class Path:
             A specialized path class that will cache the transformed result and
             automatically update when the transform changes.
         """
-        return Path(
-            transform.transform(self.vertices), self.codes, self._interpolation_steps
-        )
+        return Path(transform.transform(self.vertices), self.codes,
+                    self._interpolation_steps)
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
@@ -650,7 +610,7 @@ class Path:
         if transform is not None:
             transform = transform.frozen()
         result = _path.points_in_path(points, radius, self, transform)
-        return result.astype("bool")
+        return result.astype('bool')
 
     def contains_path(self, path, transform=None):
         """
@@ -680,7 +640,6 @@ class Path:
             The extents of the path Bbox([[xmin, ymin], [xmax, ymax]])
         """
         from .transforms import Bbox
-
         if transform is not None:
             self = transform.transform_path(self)
         if self.codes is None:
@@ -690,7 +649,8 @@ class Path:
             # Instead of iterating through each curve, consider
             # each line segment's end-points
             # (recall that STOP and CLOSEPOLY vertices are ignored)
-            xys = self.vertices[np.isin(self.codes, [Path.MOVETO, Path.LINETO])]
+            xys = self.vertices[np.isin(self.codes,
+                                        [Path.MOVETO, Path.LINETO])]
         else:
             xys = []
             for curve, code in self.iter_bezier(**kwargs):
@@ -723,8 +683,7 @@ class Path:
         The bounding box is always considered filled.
         """
         return _path.path_intersects_rectangle(
-            self, bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled
-        )
+            self, bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
     def interpolated(self, steps):
         """
@@ -747,16 +706,10 @@ class Path:
 
         if self.codes is not None and self.MOVETO in self.codes[1:]:
             return self.make_compound_path(
-                *(p.interpolated(steps) for p in self._iter_connected_components())
-            )
+                *(p.interpolated(steps) for p in self._iter_connected_components()))
 
-        if (
-            self.codes is not None
-            and self.CLOSEPOLY in self.codes
-            and not np.all(
-                self.vertices[self.codes == self.CLOSEPOLY] == self.vertices[0]
-            )
-        ):
+        if self.codes is not None and self.CLOSEPOLY in self.codes and not np.all(
+                self.vertices[self.codes == self.CLOSEPOLY] == self.vertices[0]):
             vertices = self.vertices.copy()
             vertices[self.codes == self.CLOSEPOLY] = vertices[0]
         else:
@@ -765,9 +718,8 @@ class Path:
         vertices = simple_linear_interpolation(vertices, steps)
         codes = self.codes
         if codes is not None:
-            new_codes = np.full(
-                (len(codes) - 1) * steps + 1, Path.LINETO, dtype=self.code_type
-            )
+            new_codes = np.full((len(codes) - 1) * steps + 1, Path.LINETO,
+                                dtype=self.code_type)
             new_codes[0::steps] = codes
         else:
             new_codes = None
@@ -818,8 +770,7 @@ class Path:
         # Deal with the case where there are curves and/or multiple
         # subpaths (using extension code)
         return _path.convert_path_to_polygons(
-            self, transform, width, height, closed_only
-        )
+            self, transform, width, height, closed_only)
 
     _unit_rectangle = None
 
@@ -829,9 +780,8 @@ class Path:
         Return a `Path` instance of the unit rectangle from (0, 0) to (1, 1).
         """
         if cls._unit_rectangle is None:
-            cls._unit_rectangle = cls(
-                [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]], closed=True, readonly=True
-            )
+            cls._unit_rectangle = cls([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]],
+                                      closed=True, readonly=True)
         return cls._unit_rectangle
 
     _unit_regular_polygons = WeakValueDictionary()
@@ -848,12 +798,10 @@ class Path:
         else:
             path = None
         if path is None:
-            theta = (
-                (2 * np.pi / numVertices) * np.arange(numVertices + 1)
-                # This initial rotation is to make sure the polygon always
-                # "points-up".
-                + np.pi / 2
-            )
+            theta = ((2 * np.pi / numVertices) * np.arange(numVertices + 1)
+                     # This initial rotation is to make sure the polygon always
+                     # "points-up".
+                     + np.pi / 2)
             verts = np.column_stack((np.cos(theta), np.sin(theta)))
             path = cls(verts, closed=True, readonly=True)
             if numVertices <= 16:
@@ -874,7 +822,7 @@ class Path:
             path = None
         if path is None:
             ns2 = numVertices * 2
-            theta = 2 * np.pi / ns2 * np.arange(ns2 + 1)
+            theta = (2*np.pi/ns2 * np.arange(ns2 + 1))
             # This initial rotation is to make sure the polygon always
             # "points-up"
             theta += np.pi / 2.0
@@ -904,11 +852,12 @@ class Path:
         For most cases, :func:`Path.circle` will be what you want.
         """
         if cls._unit_circle is None:
-            cls._unit_circle = cls.circle(center=(0, 0), radius=1, readonly=True)
+            cls._unit_circle = cls.circle(center=(0, 0), radius=1,
+                                          readonly=True)
         return cls._unit_circle
 
     @classmethod
-    def circle(cls, center=(0.0, 0.0), radius=1.0, readonly=False):
+    def circle(cls, center=(0., 0.), radius=1., readonly=False):
         """
         Return a `Path` representing a circle of a given radius and center.
 
@@ -933,37 +882,42 @@ class Path:
         SQRTHALF = np.sqrt(0.5)
         MAGIC45 = SQRTHALF * MAGIC
 
-        vertices = np.array(
-            [
-                [0.0, -1.0],
-                [MAGIC, -1.0],
-                [SQRTHALF - MAGIC45, -SQRTHALF - MAGIC45],
-                [SQRTHALF, -SQRTHALF],
-                [SQRTHALF + MAGIC45, -SQRTHALF + MAGIC45],
-                [1.0, -MAGIC],
-                [1.0, 0.0],
-                [1.0, MAGIC],
-                [SQRTHALF + MAGIC45, SQRTHALF - MAGIC45],
-                [SQRTHALF, SQRTHALF],
-                [SQRTHALF - MAGIC45, SQRTHALF + MAGIC45],
-                [MAGIC, 1.0],
-                [0.0, 1.0],
-                [-MAGIC, 1.0],
-                [-SQRTHALF + MAGIC45, SQRTHALF + MAGIC45],
-                [-SQRTHALF, SQRTHALF],
-                [-SQRTHALF - MAGIC45, SQRTHALF - MAGIC45],
-                [-1.0, MAGIC],
-                [-1.0, 0.0],
-                [-1.0, -MAGIC],
-                [-SQRTHALF - MAGIC45, -SQRTHALF + MAGIC45],
-                [-SQRTHALF, -SQRTHALF],
-                [-SQRTHALF + MAGIC45, -SQRTHALF - MAGIC45],
-                [-MAGIC, -1.0],
-                [0.0, -1.0],
-                [0.0, -1.0],
-            ],
-            dtype=float,
-        )
+        vertices = np.array([[0.0, -1.0],
+
+                             [MAGIC, -1.0],
+                             [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
+                             [SQRTHALF, -SQRTHALF],
+
+                             [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
+                             [1.0, -MAGIC],
+                             [1.0, 0.0],
+
+                             [1.0, MAGIC],
+                             [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
+                             [SQRTHALF, SQRTHALF],
+
+                             [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
+                             [MAGIC, 1.0],
+                             [0.0, 1.0],
+
+                             [-MAGIC, 1.0],
+                             [-SQRTHALF+MAGIC45, SQRTHALF+MAGIC45],
+                             [-SQRTHALF, SQRTHALF],
+
+                             [-SQRTHALF-MAGIC45, SQRTHALF-MAGIC45],
+                             [-1.0, MAGIC],
+                             [-1.0, 0.0],
+
+                             [-1.0, -MAGIC],
+                             [-SQRTHALF-MAGIC45, -SQRTHALF+MAGIC45],
+                             [-SQRTHALF, -SQRTHALF],
+
+                             [-SQRTHALF+MAGIC45, -SQRTHALF-MAGIC45],
+                             [-MAGIC, -1.0],
+                             [0.0, -1.0],
+
+                             [0.0, -1.0]],
+                            dtype=float)
 
         codes = [cls.CURVE4] * 26
         codes[0] = cls.MOVETO
@@ -985,24 +939,27 @@ class Path:
             MAGIC45 = SQRTHALF * MAGIC
 
             vertices = np.array(
-                [
-                    [0.0, -1.0],
-                    [MAGIC, -1.0],
-                    [SQRTHALF - MAGIC45, -SQRTHALF - MAGIC45],
-                    [SQRTHALF, -SQRTHALF],
-                    [SQRTHALF + MAGIC45, -SQRTHALF + MAGIC45],
-                    [1.0, -MAGIC],
-                    [1.0, 0.0],
-                    [1.0, MAGIC],
-                    [SQRTHALF + MAGIC45, SQRTHALF - MAGIC45],
-                    [SQRTHALF, SQRTHALF],
-                    [SQRTHALF - MAGIC45, SQRTHALF + MAGIC45],
-                    [MAGIC, 1.0],
-                    [0.0, 1.0],
-                    [0.0, -1.0],
-                ],
-                float,
-            )
+                [[0.0, -1.0],
+
+                 [MAGIC, -1.0],
+                 [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
+                 [SQRTHALF, -SQRTHALF],
+
+                 [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
+                 [1.0, -MAGIC],
+                 [1.0, 0.0],
+
+                 [1.0, MAGIC],
+                 [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
+                 [SQRTHALF, SQRTHALF],
+
+                 [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
+                 [MAGIC, 1.0],
+                 [0.0, 1.0],
+
+                 [0.0, -1.0]],
+
+                float)
 
             codes = np.full(14, cls.CURVE4, dtype=cls.code_type)
             codes[0] = cls.MOVETO
@@ -1083,10 +1040,10 @@ class Path:
 
         vertices[vertex_offset:end:3, 0] = xA + alpha * xA_dot
         vertices[vertex_offset:end:3, 1] = yA + alpha * yA_dot
-        vertices[vertex_offset + 1 : end : 3, 0] = xB - alpha * xB_dot
-        vertices[vertex_offset + 1 : end : 3, 1] = yB - alpha * yB_dot
-        vertices[vertex_offset + 2 : end : 3, 0] = xB
-        vertices[vertex_offset + 2 : end : 3, 1] = yB
+        vertices[vertex_offset+1:end:3, 0] = xB - alpha * xB_dot
+        vertices[vertex_offset+1:end:3, 1] = yB - alpha * yB_dot
+        vertices[vertex_offset+2:end:3, 0] = xB
+        vertices[vertex_offset+2:end:3, 1] = yB
 
         return cls(vertices, codes, readonly=True)
 
@@ -1117,8 +1074,8 @@ class Path:
         number of lines per unit square.
         """
         from matplotlib.hatch import get_path
-
-        return get_path(hatchpattern, density) if hatchpattern is not None else None
+        return (get_path(hatchpattern, density)
+                if hatchpattern is not None else None)
 
     def clip_to_bbox(self, bbox, inside=True):
         """
@@ -1136,8 +1093,7 @@ class Path:
 
 
 def get_path_collection_extents(
-    master_transform, paths, transforms, offsets, offset_transform
-):
+        master_transform, paths, transforms, offsets, offset_transform):
     r"""
     Get bounding box of a `.PathCollection`\s internal objects.
 
@@ -1167,12 +1123,11 @@ def get_path_collection_extents(
     - (C, α, O)
     """
     from .transforms import Bbox
-
     if len(paths) == 0:
         raise ValueError("No paths provided")
     if len(offsets) == 0:
         raise ValueError("No offsets provided")
     extents, minpos = _path.get_path_collection_extents(
-        master_transform, paths, np.atleast_3d(transforms), offsets, offset_transform
-    )
+        master_transform, paths, np.atleast_3d(transforms),
+        offsets, offset_transform)
     return Bbox.from_extents(*extents, minpos=minpos)
