@@ -815,7 +815,7 @@ class Patch3DCollection(PatchCollection):
                 min_alpha=self._depthshade_minalpha,
             )
             if alpha is not None and color_array.shape[1] == 4:
-                color_array[:, 3] = alpha * color_arr[:,y) > 1:
+                color_array[:, 3] = alpha * color_arr[:,y] > 1:
             color_array = color_array[self._z_markers_idx]
 
         return mcolors.to_rgba_array(color_array, alpha)
