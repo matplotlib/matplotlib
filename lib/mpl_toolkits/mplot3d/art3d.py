@@ -819,6 +819,8 @@ class Patch3DCollection(PatchCollection):
             return np.nan
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
+        # Adjust the color_array alpha values if point depths are defined
+        # and depth shading is active
         alpha = self._alpha
         if self._vzs is not None and self._depthshade:
             color_array = _zalpha(
@@ -829,6 +831,8 @@ class Patch3DCollection(PatchCollection):
             if alpha is not None and color_array.shape[1] == 4:
                 color_array[:, 3] = alpha * color_array[:, 3]
 
+        # Adjust the order of the color_array using the _z_markers_idx,
+        # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
 
@@ -1070,6 +1074,8 @@ class Path3DCollection(PathCollection):
                 self._offsets = old_offset
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
+        # Adjust the color_array alpha values if point depths are defined
+        # and depth shading is active
         alpha = self._alpha
         if self._vzs is not None and self._depthshade:
             color_array = _zalpha(
@@ -1080,6 +1086,8 @@ class Path3DCollection(PathCollection):
             if alpha is not None and color_array.shape[1] == 4:
                 color_array[:, 3] = alpha * color_array[:, 3]
 
+        # Adjust the order of the color_array using the _z_markers_idx,
+        # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
 
