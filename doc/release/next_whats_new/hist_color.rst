@@ -1,6 +1,5 @@
-Handle single color for multiple datasets in hist
------------------
+``hist()`` supports a single color for multiple datasets
+--------------------------------------------------------
 
-It is now possible to use a single color with multiple datasets in ``hist``.
-Up to now, the 'color' keyword argument required one color per dataset.
-Using a single color with multiple datasets would previously lead to a ValueError.
+It is now possible pass a single *color* value to `~.Axes.hist()`. This value
+is applied to all datasets.
