@@ -1,6 +1,6 @@
 """
 ===========
-Fill Spiral
+Fill spiral
 ===========
 
 """

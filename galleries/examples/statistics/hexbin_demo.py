@@ -29,11 +29,13 @@ cb = fig.colorbar(hb, ax=ax0, label='counts')
 hb = ax1.hexbin(x, y, gridsize=50, bins='log', cmap='inferno')
 ax1.set(xlim=xlim, ylim=ylim)
 ax1.set_title("With a log color scale")
-cb = fig.colorbar(hb, ax=ax1, label='log10(N)')
+cb = fig.colorbar(hb, ax=ax1, label='counts')
 
 plt.show()
 
 # %%
+#
+# .. tags:: plot-type: histogram, plot-type: hexbin, domain: statistics
 #
 # .. admonition:: References
 #

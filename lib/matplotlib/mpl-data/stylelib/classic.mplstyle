@@ -61,7 +61,7 @@ hist.bins              : 10
 #
 # The font.variant property has two values: normal or small-caps.  For
 # TrueType fonts, which are scalable fonts, small-caps is equivalent
-# to using a font size of 'smaller', or about 83% of the current font
+# to using a font size of 'small', or about 83% of the current font
 # size.
 #
 # The font.weight property has effectively 13 values: normal, bold,
@@ -86,12 +86,12 @@ font.stretch        : normal
 # special text sizes tick labels, axes, labels, title, etc, see the rc
 # settings for axes and ticks. Special text sizes can be defined
 # relative to font.size, using the following values: xx-small, x-small,
-# small, medium, large, x-large, xx-large, larger, or smaller
+# small, medium, large, x-large, xx-large
 font.size           : 12.0
 font.serif     : DejaVu Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 font.sans-serif: DejaVu Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 font.cursive   : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
-font.fantasy   : Comic Sans MS, Chicago, Charcoal, ImpactWestern, Humor Sans, fantasy
+font.fantasy   : Comic Sans MS, Chicago, Charcoal, ImpactWestern, xkcd script, fantasy
 font.monospace : DejaVu Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 ### TEXT
@@ -122,8 +122,8 @@ text.latex.preamble :  # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURE
                        # Note that it has to be put on a single line, which may
                        # become quite long.
                        # The following packages are always loaded with usetex, so
-                       # beware of package collisions: color, geometry, graphicx,
-                       # type1cm, textcomp.
+                       # beware of package collisions:
+                       #   color, fix-cm, geometry, graphicx, textcomp.
                        # Adobe Postscript (PSSNFS) font packages may also be
                        # loaded, depending on your font settings.
 
@@ -223,7 +223,10 @@ axes.spines.left    : True
 axes.spines.right   : True
 axes.spines.top     : True
 polaraxes.grid      : True    # display grid on polar axes
-axes3d.grid         : True    # display grid on 3d axes
+axes3d.grid         : True    # display grid on 3D axes
+axes3d.automargin   : False   # automatically add margin when manually setting 3D axis limits
+axes3d.depthshade   : False   # depth shade for 3D scatter plots
+axes3d.depthshade_minalpha : 0.3  # minimum alpha value for depth shading
 
 date.autoformatter.year   : %Y
 date.autoformatter.month  : %b %Y
@@ -379,7 +382,6 @@ boxplot.showbox: True
 boxplot.showcaps: True
 boxplot.showfliers: True
 boxplot.showmeans: False
-boxplot.vertical: True
 boxplot.whiskerprops.color: b
 boxplot.whiskerprops.linestyle: --
 boxplot.whiskerprops.linewidth: 1.0

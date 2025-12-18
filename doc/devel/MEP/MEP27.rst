@@ -51,26 +51,26 @@ Two main places for generic code appear in the classes derived from
 
 1. ``FigureManagerBase`` has **three** jobs at the moment:
 
-    1. The documentation describes it as a *Helper class for pyplot
-       mode, wraps everything up into a neat bundle*
-    2. But it doesn't just wrap the canvas and toolbar, it also does
-       all of the windowing tasks itself.  The conflation of these two
-       tasks gets seen the best in the following line:
-       ``self.set_window_title("Figure %d" % num)`` This combines
-       backend specific code ``self.set_window_title(title)`` with
-       matplotlib generic code ``title = "Figure %d" % num``.
-    3. Currently the backend specific subclass of ``FigureManager``
-       decides when to end the mainloop.  This also seems very wrong
-       as the figure should have no control over the other figures.
+   1. The documentation describes it as a *Helper class for pyplot
+      mode, wraps everything up into a neat bundle*
+   2. But it doesn't just wrap the canvas and toolbar, it also does
+      all of the windowing tasks itself.  The conflation of these two
+      tasks gets seen the best in the following line:
+      ``self.set_window_title("Figure %d" % num)`` This combines
+      backend specific code ``self.set_window_title(title)`` with
+      matplotlib generic code ``title = "Figure %d" % num``.
+   3. Currently the backend specific subclass of ``FigureManager``
+      decides when to end the mainloop.  This also seems very wrong
+      as the figure should have no control over the other figures.
 
 
 2. ``ShowBase`` has two jobs:
 
-    1. It has the job of going through all figure managers registered
-       in ``_pylab_helpers.Gcf`` and telling them to show themselves.
-    2. And secondly it has the job of performing the backend specific
-       ``mainloop`` to block the main programme and thus keep the
-       figures from dying.
+   1. It has the job of going through all figure managers registered
+      in ``_pylab_helpers.Gcf`` and telling them to show themselves.
+   2. And secondly it has the job of performing the backend specific
+      ``mainloop`` to block the main programme and thus keep the
+      figures from dying.
 
 Implementation
 ==============

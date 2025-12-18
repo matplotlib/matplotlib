@@ -73,6 +73,10 @@ Matplotlib recognizes the following formats to specify a color.
 |                                      |                                      |
 | .. versionadded:: 3.8                |                                      |
 +--------------------------------------+--------------------------------------+
+| The special value "none" is fully    | - ``'none'``                         |
+| transparent, i.e. equivalent to a    |                                      |
+| RGBA value ``(0.0, 0.0, 0.0, 0.0)``  |                                      |
++--------------------------------------+--------------------------------------+
 
 .. _xkcd color survey: https://xkcd.com/color/rgb/
 
@@ -193,7 +197,7 @@ overlap = {name for name in mcolors.CSS4_COLORS
            if f'xkcd:{name}' in mcolors.XKCD_COLORS}
 
 fig = plt.figure(figsize=[9, 5])
-ax = fig.add_axes([0, 0, 1, 1])
+ax = fig.add_axes((0, 0, 1, 1))
 
 n_groups = 3
 n_rows = len(overlap) // n_groups + 1

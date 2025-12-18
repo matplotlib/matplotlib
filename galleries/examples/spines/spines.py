@@ -21,7 +21,7 @@ import numpy as np
 x = np.linspace(0, 2 * np.pi, 100)
 y = 2 * np.sin(x)
 
-# Constrained layout makes sure the labels don't overlap the axes.
+# Constrained layout makes sure the labels don't overlap the Axes.
 fig, (ax0, ax1, ax2) = plt.subplots(nrows=3, layout='constrained')
 
 ax0.plot(x, y)
@@ -46,10 +46,12 @@ ax2.spines.top.set_visible(False)
 
 plt.show()
 
+# %%
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
 #    in this example:
 #
-#    - `matplotlib.spines.Spine.set_visible`
+#    - `matplotlib.artist.Artist.set_visible`
 #    - `matplotlib.spines.Spine.set_bounds`

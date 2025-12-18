@@ -1,7 +1,7 @@
 """
-==================
-Usetex Fonteffects
-==================
+===================
+Usetex font effects
+===================
 
 This script demonstrates that font effects specified in your pdftex.map
 are now supported in usetex mode.

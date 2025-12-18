@@ -13,7 +13,8 @@ class ParasiteAxesBase:
         self.transAux = aux_transform
         self.set_viewlim_mode(viewlim_mode)
         kwargs["frameon"] = False
-        super().__init__(parent_axes.figure, parent_axes._position, **kwargs)
+        super().__init__(parent_axes.get_figure(root=False),
+                         parent_axes._position, **kwargs)
 
     def clear(self):
         super().clear()
@@ -23,6 +24,9 @@ class ParasiteAxesBase:
             "xlim_changed", self._sync_lims)
         self._parent_axes.callbacks._connect_picklable(
             "ylim_changed", self._sync_lims)
+
+    def get_axes_locator(self):
+        return self._parent_axes.get_axes_locator()
 
     def pick(self, mouseevent):
         # This most likely goes to Artist.pick (depending on axes_class given
@@ -105,7 +109,7 @@ class HostAxesBase:
         axes_class : subclass type of `~matplotlib.axes.Axes`, optional
             The `~.axes.Axes` subclass that is instantiated.  If None, the base
             class of the host axes is used.
-        kwargs
+        **kwargs
             Other parameters are forwarded to the parasite axes constructor.
         """
         if axes_class is None:
@@ -215,8 +219,7 @@ class HostAxesBase:
         self.axis[tuple(restore)].set_visible(True)
         self.axis[tuple(restore)].toggle(ticklabels=False, label=False)
 
-    @_api.make_keyword_only("3.8", "call_axes_locator")
-    def get_tightbbox(self, renderer=None, call_axes_locator=True,
+    def get_tightbbox(self, renderer=None, *, call_axes_locator=True,
                       bbox_extra_artists=None):
         bbs = [
             *[ax.get_tightbbox(renderer, call_axes_locator=call_axes_locator)

@@ -54,6 +54,8 @@ plt.show()
 
 # %%
 #
+# .. tags:: plot-type: violin, plot-type: boxplot, domain: statistics
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown

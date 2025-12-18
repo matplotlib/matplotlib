@@ -397,7 +397,9 @@ namespace agg
                 fg += weight * *fg_ptr;
 
                 fg >>= image_filter_shift;
+#ifndef MPL_DISABLE_AGG_GRAY_CLIPPING
                 if(fg > color_type::full_value()) fg = color_type::full_value();
+#endif
 
                 span->v = (value_type)fg;
                 span->a = color_type::full_value();
@@ -491,8 +493,10 @@ namespace agg
                 }
 
                 fg = color_type::downshift(fg, image_filter_shift);
+#ifndef MPL_DISABLE_AGG_GRAY_CLIPPING
                 if(fg < 0) fg = 0;
                 if(fg > color_type::full_value()) fg = color_type::full_value();
+#endif
                 span->v = (value_type)fg;
                 span->a = color_type::full_value();
 
@@ -593,8 +597,10 @@ namespace agg
                 }
 
                 fg /= total_weight;
+#ifndef MPL_DISABLE_AGG_GRAY_CLIPPING
                 if(fg < 0) fg = 0;
                 if(fg > color_type::full_value()) fg = color_type::full_value();
+#endif
 
                 span->v = (value_type)fg;
                 span->a = color_type::full_value();
@@ -701,8 +707,10 @@ namespace agg
                 }
 
                 fg /= total_weight;
+#ifndef MPL_DISABLE_AGG_GRAY_CLIPPING
                 if(fg < 0) fg = 0;
                 if(fg > color_type::full_value()) fg = color_type::full_value();
+#endif
 
                 span->v = (value_type)fg;
                 span->a = color_type::full_value();

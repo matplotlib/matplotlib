@@ -73,5 +73,5 @@ def test_fontconfig_str():
 
 
 def test_fontconfig_unknown_constant():
-    with pytest.warns(DeprecationWarning):
+    with pytest.raises(ValueError, match="ParseException"):
         FontProperties(":unknown")

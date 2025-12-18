@@ -4,7 +4,7 @@ Title positioning
 =================
 
 Matplotlib can display plot titles centered, flush with the left side of
-a set of axes, and flush with the right side of a set of axes.
+a set of Axes, and flush with the right side of a set of Axes.
 
 """
 import matplotlib.pyplot as plt

@@ -1,19 +1,37 @@
 """
 Scales define the distribution of data values on an axis, e.g. a log scaling.
-They are defined as subclasses of `ScaleBase`.
 
-See also `.axes.Axes.set_xscale` and the scales examples in the documentation.
+The mapping is implemented through `.Transform` subclasses.
 
-See :doc:`/gallery/scales/custom_scale` for a full example of defining a custom
-scale.
+The following scales are built-in:
 
-Matplotlib also supports non-separable transformations that operate on both
-`~.axis.Axis` at the same time.  They are known as projections, and defined in
-`matplotlib.projections`.
-"""
+.. _builtin_scales:
+
+============= ===================== ================================ =================================
+Name          Class                 Transform                        Inverted transform
+============= ===================== ================================ =================================
+"asinh"       `AsinhScale`          `AsinhTransform`                 `InvertedAsinhTransform`
+"function"    `FuncScale`           `FuncTransform`                  `FuncTransform`
+"functionlog" `FuncScaleLog`        `FuncTransform` + `LogTransform` `InvertedLogTransform` + `FuncTransform`
+"linear"      `LinearScale`         `.IdentityTransform`             `.IdentityTransform`
+"log"         `LogScale`            `LogTransform`                   `InvertedLogTransform`
+"logit"       `LogitScale`          `LogitTransform`                 `LogisticTransform`
+"symlog"      `SymmetricalLogScale` `SymmetricalLogTransform`        `InvertedSymmetricalLogTransform`
+============= ===================== ================================ =================================
+
+A user will often only use the scale name, e.g. when setting the scale through
+`~.Axes.set_xscale`: ``ax.set_xscale("log")``.
+
+See also the :ref:`scales examples <sphx_glr_gallery_scales>` in the documentation.
+
+Custom scaling can be achieved through `FuncScale`, or by creating your own
+`ScaleBase` subclass and corresponding transforms (see :doc:`/gallery/scales/custom_scale`).
+Third parties can register their scales by name through `register_scale`.
+"""  # noqa: E501
 
 import inspect
 import textwrap
+from functools import wraps
 
 import numpy as np
 
@@ -34,7 +52,7 @@ class ScaleBase:
 
     Subclasses should override
 
-    :attr:`name`
+    :attr:`!name`
         The scale's name.
     :meth:`get_transform`
         A method returning a `.Transform`, which converts data coordinates to
@@ -54,12 +72,23 @@ class ScaleBase:
 
         Notes
         -----
-        The following note is for scale implementors.
+        The following note is for scale implementers.
 
         For back-compatibility reasons, scales take an `~matplotlib.axis.Axis`
-        object as first argument.  However, this argument should not
-        be used: a single scale object should be usable by multiple
-        `~matplotlib.axis.Axis`\es at the same time.
+        object as the first argument.
+
+        .. deprecated:: 3.11
+
+           The *axis* parameter is now optional, i.e. matplotlib is compatible
+           with `.ScaleBase` subclasses that do not take an *axis* parameter.
+
+           The *axis* parameter is pending-deprecated. It will be deprecated
+           in matplotlib 3.13, and removed in matplotlib 3.15.
+
+           3rd-party scales are recommended to remove the *axis* parameter now
+           if they can afford to restrict compatibility to matplotlib >= 3.11
+           already. Otherwise, they may keep the *axis* parameter and remove it
+           in time for matplotlib 3.13.
         """
 
     def get_transform(self):
@@ -86,6 +115,53 @@ class ScaleBase:
         return vmin, vmax
 
 
+def _make_axis_parameter_optional(init_func):
+    """
+    Decorator to allow leaving out the *axis* parameter in scale constructors.
+
+    This decorator ensures backward compatibility for scale classes that
+    previously required an *axis* parameter. It allows constructors to be
+    callerd with or without the *axis* parameter.
+
+    For simplicity, this does not handle the case when *axis*
+    is passed as a keyword. However,
+    scanning GitHub, there's no evidence that that is used anywhere.
+
+    Parameters
+    ----------
+    init_func : callable
+        The original __init__ method of a scale class.
+
+    Returns
+    -------
+    callable
+        A wrapped version of *init_func* that handles the optional *axis*.
+
+    Notes
+    -----
+    If the wrapped constructor defines *axis* as its first argument, the
+    parameter is preserved when present. Otherwise, the value `None` is injected
+    as the first argument.
+
+    Examples
+    --------
+    >>> from matplotlib.scale import ScaleBase
+    >>> class CustomScale(ScaleBase):
+    ...     @_make_axis_parameter_optional
+    ...     def __init__(self, axis, custom_param=1):
+    ...         self.custom_param = custom_param
+    """
+    @wraps(init_func)
+    def wrapper(self, *args, **kwargs):
+        if args and isinstance(args[0], mpl.axis.Axis):
+            return init_func(self, *args, **kwargs)
+        else:
+            # Remove 'axis' from kwargs to avoid double assignment
+            axis = kwargs.pop('axis', None)
+            return init_func(self, axis, *args, **kwargs)
+    return wrapper
+
+
 class LinearScale(ScaleBase):
     """
     The default linear scale.
@@ -93,6 +169,7 @@ class LinearScale(ScaleBase):
 
     name = 'linear'
 
+    @_make_axis_parameter_optional
     def __init__(self, axis):
         # This method is present only to prevent inheritance of the base class'
         # constructor docstring, which would otherwise end up interpolated into
@@ -163,12 +240,19 @@ class FuncScale(ScaleBase):
 
     name = 'function'
 
+    @_make_axis_parameter_optional
     def __init__(self, axis, functions):
         """
         Parameters
         ----------
         axis : `~matplotlib.axis.Axis`
             The axis for the scale.
+
+            .. note::
+                This parameter is unused and will be removed in an imminent release.
+                It can already be left out because of special preprocessing,
+                so that ``FuncScale(functions)`` is valid.
+
         functions : (callable, callable)
             two-tuple of the forward and inverse functions for the scale.
             The forward function must be monotonic.
@@ -213,7 +297,6 @@ class LogTransform(Transform):
         return "{}(base={}, nonpositive={!r})".format(
             type(self).__name__, self.base, "clip" if self._clip else "mask")
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         # Ignore invalid values due to nans being passed to the transform.
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -250,7 +333,6 @@ class InvertedLogTransform(Transform):
     def __str__(self):
         return f"{type(self).__name__}(base={self.base})"
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         return np.power(self.base, values)
 
@@ -264,12 +346,19 @@ class LogScale(ScaleBase):
     """
     name = 'log'
 
-    def __init__(self, axis, *, base=10, subs=None, nonpositive="clip"):
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, *, base=10, subs=None, nonpositive="clip"):
         """
         Parameters
         ----------
         axis : `~matplotlib.axis.Axis`
             The axis for the scale.
+
+            .. note::
+                This parameter is unused and about to be removed in the future.
+                It can already now be left out because of special preprocessing,
+                so that ``LogScale(base=2)`` is valid.
+
         base : float, default: 10
             The base of the logarithm.
         nonpositive : {'clip', 'mask'}, default: 'clip'
@@ -315,6 +404,7 @@ class FuncScaleLog(LogScale):
 
     name = 'functionlog'
 
+    @_make_axis_parameter_optional
     def __init__(self, axis, functions, base=10):
         """
         Parameters
@@ -362,7 +452,6 @@ class SymmetricalLogTransform(Transform):
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
         self._log_base = np.log(base)
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -390,7 +479,6 @@ class InvertedSymmetricalLogTransform(Transform):
         self.linscale = linscale
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -416,8 +504,18 @@ class SymmetricalLogScale(ScaleBase):
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
 
+    See :doc:`/gallery/scales/symlog_demo` for a detailed description.
+
     Parameters
     ----------
+    axis : `~matplotlib.axis.Axis`
+        The axis for the scale.
+
+        .. note::
+            This parameter is unused and about to be removed in the future.
+            It can already now be left out because of special preprocessing,
+            so that ``SymmetricalLocSacle(base=2)`` is valid.
+
     base : float, default: 10
         The base of the logarithm.
 
@@ -440,7 +538,8 @@ class SymmetricalLogScale(ScaleBase):
     """
     name = 'symlog'
 
-    def __init__(self, axis, *, base=10, linthresh=2, subs=None, linscale=1):
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, *, base=10, linthresh=2, subs=None, linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
 
@@ -472,7 +571,6 @@ class AsinhTransform(Transform):
                              "must be strictly positive")
         self.linear_width = linear_width
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         return self.linear_width * np.arcsinh(values / self.linear_width)
 
@@ -488,7 +586,6 @@ class InvertedAsinhTransform(Transform):
         super().__init__()
         self.linear_width = linear_width
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         return self.linear_width * np.sinh(values / self.linear_width)
 
@@ -534,11 +631,20 @@ class AsinhScale(ScaleBase):
         1024: (256, 512)
     }
 
-    def __init__(self, axis, *, linear_width=1.0,
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, *, linear_width=1.0,
                  base=10, subs='auto', **kwargs):
         """
         Parameters
         ----------
+        axis : `~matplotlib.axis.Axis`
+            The axis for the scale.
+
+            .. note::
+                This parameter is unused and about to be removed in the future.
+                It can already now be left out because of special preprocessing,
+                so that ``AsinhScale()`` is valid.
+
         linear_width : float, default: 1
             The scale parameter (elsewhere referred to as :math:`a_0`)
             defining the extent of the quasi-linear region,
@@ -589,7 +695,6 @@ class LogitTransform(Transform):
         self._nonpositive = nonpositive
         self._clip = {"clip": True, "mask": False}[nonpositive]
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         """logit transform (base 10), masked or clipped"""
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -613,7 +718,6 @@ class LogisticTransform(Transform):
         super().__init__()
         self._nonpositive = nonpositive
 
-    @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         """logistic transform (base 10)"""
         return 1.0 / (1 + 10**(-values))
@@ -634,13 +738,20 @@ class LogitScale(ScaleBase):
     """
     name = 'logit'
 
-    def __init__(self, axis, nonpositive='mask', *,
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, nonpositive='mask', *,
                  one_half=r"\frac{1}{2}", use_overline=False):
         r"""
         Parameters
         ----------
         axis : `~matplotlib.axis.Axis`
-            Currently unused.
+            The axis for the scale.
+
+            .. note::
+                This parameter is unused and about to be removed in the future.
+                It can already now be left out because of special preprocessing,
+                so that ``LogitScale()`` is valid.
+
         nonpositive : {'mask', 'clip'}
             Determines the behavior for values beyond the open interval ]0, 1[.
             They can either be masked as invalid, or clipped to a number very
@@ -698,6 +809,20 @@ _scale_mapping = {
     'functionlog': FuncScaleLog,
     }
 
+# caching of signature info
+# For backward compatibility, the built-in scales will keep the *axis* parameter
+# in their constructors until matplotlib 3.15, i.e. as long as the *axis* parameter
+# is still supported.
+_scale_has_axis_parameter = {
+    'linear': True,
+    'log': True,
+    'symlog': True,
+    'asinh': True,
+    'logit': True,
+    'function': True,
+    'functionlog': True,
+}
+
 
 def get_scale_names():
     """Return the names of the available scales."""
@@ -714,7 +839,11 @@ def scale_factory(scale, axis, **kwargs):
     axis : `~matplotlib.axis.Axis`
     """
     scale_cls = _api.check_getitem(_scale_mapping, scale=scale)
-    return scale_cls(axis, **kwargs)
+
+    if _scale_has_axis_parameter[scale]:
+        return scale_cls(axis, **kwargs)
+    else:
+        return scale_cls(**kwargs)
 
 
 if scale_factory.__doc__:
@@ -733,6 +862,20 @@ def register_scale(scale_class):
     """
     _scale_mapping[scale_class.name] = scale_class
 
+    # migration code to handle the *axis* parameter
+    has_axis_parameter = "axis" in inspect.signature(scale_class).parameters
+    _scale_has_axis_parameter[scale_class.name] = has_axis_parameter
+    if has_axis_parameter:
+        _api.warn_deprecated(
+            "3.11",
+            message=f"The scale {scale_class.__qualname__!r} uses an 'axis' parameter "
+                    "in the constructors. This parameter is pending-deprecated since "
+                    "matplotlib 3.11. It will be fully deprecated in 3.13 and removed "
+                    "in 3.15. Starting with 3.11, 'register_scale()' accepts scales "
+                    "without the *axis* parameter.",
+            pending=True,
+        )
+
 
 def _get_scale_docs():
     """
@@ -750,7 +893,7 @@ def _get_scale_docs():
     return "\n".join(docs)
 
 
-_docstring.interpd.update(
+_docstring.interpd.register(
     scale_type='{%s}' % ', '.join([repr(x) for x in get_scale_names()]),
     scale_docs=_get_scale_docs().rstrip(),
     )

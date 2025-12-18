@@ -20,13 +20,13 @@ the builtin styles.
 .. imported variables have to be specified explicitly due to
    https://github.com/sphinx-doc/sphinx/issues/6607
 
-.. data:: matplotlib.style.library
+.. data:: library
 
-   A dict mapping from style name to `.RcParams` defining that style.
+   A dict mapping from style name to `.rcParams` defining that style.
 
    This is meant to be read-only. Use `.reload_library` to update.
 
-.. data:: matplotlib.style.available
+.. data:: available
 
    List of the names of the available styles.
 

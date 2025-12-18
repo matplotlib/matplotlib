@@ -4,26 +4,7 @@ Getting started
 Installation quick-start
 ------------------------
 
-.. grid:: 1 1 2 2
-
-    .. grid-item::
-
-        Install using `pip <https://pypi.org/project/matplotlib>`__:
-
-        .. code-block:: bash
-
-            pip install matplotlib
-
-    .. grid-item::
-
-        Install using `conda <https://docs.continuum.io/anaconda/>`__:
-
-        .. code-block:: bash
-
-            conda install -c conda-forge matplotlib
-
-Further details are available in the :doc:`Installation Guide </users/installing/index>`.
-
+.. include:: /install/quick_install.inc.rst
 
 Draw a first plot
 -----------------

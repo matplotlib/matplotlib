@@ -85,3 +85,9 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.fill` / `matplotlib.pyplot.fill`
 #    - `matplotlib.axes.Axes.axis` / `matplotlib.pyplot.axis`
+#
+# .. tags::
+#
+#    styling: shape
+#    level: beginner
+#    purpose: showcase

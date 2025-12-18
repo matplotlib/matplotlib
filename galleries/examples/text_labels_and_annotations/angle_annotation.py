@@ -30,7 +30,7 @@ the :ref:`angle-annotation-usage` section.
 
 # %%
 # AngleAnnotation class
-# ~~~~~~~~~~~~~~~~~~~~~
+# ---------------------
 # The essential idea here is to subclass `~.patches.Arc` and set its transform
 # to the `~.transforms.IdentityTransform`, making the parameters of the arc
 # defined in pixel space.
@@ -215,7 +215,7 @@ class AngleAnnotation(Arc):
 # .. _angle-annotation-usage:
 #
 # Usage
-# ~~~~~
+# -----
 #
 # Required arguments to ``AngleAnnotation`` are the center of the arc, *xy*,
 # and two points, such that the arc spans between the two vectors connecting
@@ -254,7 +254,7 @@ am5 = AngleAnnotation(p[1], p[0], p[2], ax=ax, size=40, text=r"$\Phi$",
 
 # %%
 # ``AngleLabel`` options
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ----------------------
 #
 # The *textposition* and *unit* keyword arguments may be used to modify the
 # location of the text label, as shown below:

@@ -33,7 +33,7 @@ extent = (-3, 4, -4, 3)
 ZS = [Z[i::3, :] for i in range(3)]
 extent = extent[0], extent[1]/3., extent[2], extent[3]
 
-# *** Demo 1: colorbar at each axes ***
+# *** Demo 1: colorbar at each Axes ***
 grid = ImageGrid(
     # 211 = at the position of fig.add_subplot(211)
     fig, 211, nrows_ncols=(1, 3), axes_pad=0.05, label_mode="1", share_all=True,
@@ -60,7 +60,7 @@ clim = (np.min(ZS), np.max(ZS))
 for ax, z in zip(grid2, ZS):
     im = ax.imshow(z, clim=clim, origin="lower", extent=extent)
 
-# With cbar_mode="single", cax attribute of all axes are identical.
+# With cbar_mode="single", cax attribute of all Axes are identical.
 ax.cax.colorbar(im)
 
 for ax, im_title in zip(grid2, ["(a)", "(b)", "(c)"]):

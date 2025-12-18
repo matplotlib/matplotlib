@@ -78,3 +78,10 @@ plt.show()
 #    - `matplotlib.axes.Axes.barh` / `matplotlib.pyplot.barh`
 #    - `matplotlib.axes.Axes.bar_label` / `matplotlib.pyplot.bar_label`
 #    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
+#
+# .. tags::
+#
+#    domain: statistics
+#    component: label
+#    plot-type: bar
+#    level: beginner

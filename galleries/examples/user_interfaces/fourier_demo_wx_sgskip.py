@@ -164,7 +164,7 @@ class FourierDemoFrame(wx.Frame):
         if self.state == '':
             return
         x, y = event.xdata, event.ydata
-        if x is None:  # outside the axes
+        if x is None:  # outside the Axes
             return
         x0, y0, f0Init, AInit = self.mouseInfo
         self.A.set(AInit + (AInit * (y - y0) / y0), self)
@@ -194,10 +194,10 @@ class FourierDemoFrame(wx.Frame):
         self.subplot1.set_xlabel("frequency f", fontsize=8)
         self.subplot2.set_ylabel("Time Domain Waveform x(t)", fontsize=8)
         self.subplot2.set_xlabel("time t", fontsize=8)
-        self.subplot1.set_xlim([-6, 6])
-        self.subplot1.set_ylim([0, 1])
-        self.subplot2.set_xlim([-2, 2])
-        self.subplot2.set_ylim([-2, 2])
+        self.subplot1.set_xlim(-6, 6)
+        self.subplot1.set_ylim(0, 1)
+        self.subplot2.set_xlim(-2, 2)
+        self.subplot2.set_ylim(-2, 2)
         self.subplot1.text(0.05, .95,
                            r'$X(f) = \mathcal{F}\{x(t)\}$',
                            verticalalignment='top',

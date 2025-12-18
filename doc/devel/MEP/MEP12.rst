@@ -112,11 +112,11 @@ sections described above. "Clean-up" should involve:
 * Replace uses of `pylab` interface with `.pyplot` (+ `numpy`,
   etc.). See `c25ef1e
   <https://github.com/tonysyu/matplotlib/commit/c25ef1e02b3a0ecb279492409dac0de9b3d2c0e2>`_
-* Remove shebang line, e.g.:
+* Remove shebang line, e.g.::
 
       #!/usr/bin/env python
 
-* Use consistent imports. In particular:
+* Use consistent imports. In particular::
 
       import numpy as np
 

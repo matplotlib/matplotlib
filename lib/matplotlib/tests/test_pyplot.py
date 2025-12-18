@@ -1,4 +1,5 @@
 import difflib
+import inspect
 
 import numpy as np
 import sys
@@ -11,14 +12,14 @@ from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
 
 
-def test_pyplot_up_to_date(tmpdir):
-    pytest.importorskip("black")
+def test_pyplot_up_to_date(tmp_path):
+    pytest.importorskip("black", minversion="24.1")
 
     gen_script = Path(mpl.__file__).parents[2] / "tools/boilerplate.py"
     if not gen_script.exists():
         pytest.skip("boilerplate.py not found")
     orig_contents = Path(plt.__file__).read_text()
-    plt_file = tmpdir.join('pyplot.py')
+    plt_file = tmp_path / 'pyplot.py'
     plt_file.write_text(orig_contents, 'utf-8')
 
     subprocess_run_for_testing(
@@ -43,8 +44,8 @@ def test_pyplot_up_to_date(tmpdir):
 
 
 def test_copy_docstring_and_deprecators(recwarn):
-    @mpl._api.rename_parameter("(version)", "old", "new")
-    @mpl._api.make_keyword_only("(version)", "kwo")
+    @mpl._api.rename_parameter(mpl.__version__, "old", "new")
+    @mpl._api.make_keyword_only(mpl.__version__, "kwo")
     def func(new, kwo=None):
         pass
 
@@ -163,8 +164,9 @@ def test_close():
     try:
         plt.close(1.1)
     except TypeError as e:
-        assert str(e) == "close() argument must be a Figure, an int, " \
-                         "a string, or None, not <class 'float'>"
+        assert str(e) == (
+            "'fig' must be an instance of matplotlib.figure.Figure, int, str "
+            "or None, not a float")
 
 
 def test_subplot_reuse():
@@ -380,7 +382,7 @@ def test_doc_pyplot_summary():
                :nosignatures:
 
                plot
-               plot_date
+               errorbar
 
         """
         functions = []
@@ -440,7 +442,7 @@ def test_switch_backend_no_close():
     plt.switch_backend('agg')
     assert len(plt.get_fignums()) == 2
     plt.switch_backend('svg')
-    assert len(plt.get_fignums()) == 0
+    assert len(plt.get_fignums()) == 2
 
 
 def figure_hook_example(figure):
@@ -456,3 +458,77 @@ def test_figure_hook():
         fig = plt.figure()
 
     assert fig._test_was_here
+
+
+def test_multiple_same_figure_calls():
+    fig = plt.figure(1, figsize=(1, 2))
+    with pytest.warns(UserWarning, match="Ignoring specified arguments in this call"):
+        fig2 = plt.figure(1, figsize=np.array([3, 4]))
+    with pytest.warns(UserWarning, match="Ignoring specified arguments in this call"):
+        plt.figure(fig, figsize=np.array([5, 6]))
+    assert fig is fig2
+    fig3 = plt.figure(1)  # Checks for false warnings
+    assert fig is fig3
+
+
+def test_register_existing_figure_with_pyplot():
+    from matplotlib.figure import Figure
+    # start with a standalone figure
+    fig = Figure()
+    assert fig.canvas.manager is None
+    with pytest.raises(AttributeError):
+        # Heads-up: This will change to returning None in the future
+        # See docstring for the Figure.number property
+        fig.number
+    # register the Figure with pyplot
+    plt.figure(fig)
+    assert fig.number == 1
+    # the figure can now be used in pyplot
+    plt.suptitle("my title")
+    assert fig.get_suptitle() == "my title"
+    # it also has a manager that is properly wired up in the pyplot state
+    assert plt._pylab_helpers.Gcf.get_fig_manager(fig.number) is fig.canvas.manager
+    # and we can regularly switch the pyplot state
+    fig2 = plt.figure()
+    assert fig2.number == 2
+    assert plt.figure(1) is fig
+    assert plt.gcf() is fig
+
+
+def test_close_all_warning():
+    fig1 = plt.figure()
+
+    # Check that the warning is issued when 'all' is passed to plt.figure
+    with pytest.warns(UserWarning, match="closes all existing figures"):
+        fig2 = plt.figure("all")
+
+
+def test_matshow():
+    fig = plt.figure()
+    arr = [[0, 1], [1, 2]]
+
+    # Smoke test that matshow does not ask for a new figsize on the existing figure
+    plt.matshow(arr, fignum=fig.number)
+
+
+def assert_same_signature(func1, func2):
+    """
+    Assert that `func1` and `func2` have the same arguments,
+    i.e. same parameter count, names and kinds.
+
+    :param func1: First function to check
+    :param func2: Second function to check
+    """
+    params1 = inspect.signature(func1).parameters
+    params2 = inspect.signature(func2).parameters
+
+    assert len(params1) == len(params2)
+    assert all([
+        params1[p].name == params2[p].name and
+        params1[p].kind == params2[p].kind
+        for p in params1
+    ])
+
+
+def test_setloglevel_signature():
+    assert_same_signature(plt.set_loglevel, mpl.set_loglevel)

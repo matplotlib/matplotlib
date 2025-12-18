@@ -36,12 +36,16 @@ if "%1" == "show" goto show
 if "%1" == "clean" (
 	REM workaround because sphinx does not completely clean up (#11139)
 	rmdir /s /q "%SOURCEDIR%\build"
+	rmdir /s /q "%SOURCEDIR%\_tags"
 	rmdir /s /q "%SOURCEDIR%\api\_as_gen"
 	rmdir /s /q "%SOURCEDIR%\gallery"
 	rmdir /s /q "%SOURCEDIR%\plot_types"
 	rmdir /s /q "%SOURCEDIR%\tutorials"
+	rmdir /s /q "%SOURCEDIR%\users\explain"
 	rmdir /s /q "%SOURCEDIR%\savefig"
 	rmdir /s /q "%SOURCEDIR%\sphinxext\__pycache__"
+	del /q "%SOURCEDIR%\_static\constrained_layout*.png"
+	del /q "%SOURCEDIR%\sg_execution_times.rst"
 )
 goto end
 

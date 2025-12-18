@@ -1,3 +1,4 @@
+import platform
 import re
 
 import numpy as np
@@ -142,20 +143,20 @@ def test_nonlinear_containment():
     ax.set(xscale="log", ylim=(0, 1))
     polygon = ax.axvspan(1, 10)
     assert polygon.get_path().contains_point(
-        ax.transData.transform((5, .5)), ax.transData)
+        ax.transData.transform((5, .5)), polygon.get_transform())
     assert not polygon.get_path().contains_point(
-        ax.transData.transform((.5, .5)), ax.transData)
+        ax.transData.transform((.5, .5)), polygon.get_transform())
     assert not polygon.get_path().contains_point(
-        ax.transData.transform((50, .5)), ax.transData)
+        ax.transData.transform((50, .5)), polygon.get_transform())
 
 
-@image_comparison(['arrow_contains_point.png'],
-                  remove_text=True, style='mpl20')
+@image_comparison(['arrow_contains_point.png'], remove_text=True, style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.027)
 def test_arrow_contains_point():
     # fix bug (#8384)
     fig, ax = plt.subplots()
-    ax.set_xlim((0, 2))
-    ax.set_ylim((0, 2))
+    ax.set_xlim(0, 2)
+    ax.set_ylim(0, 2)
 
     # create an arrow with Curve style
     arrow = patches.FancyArrowPatch((0.5, 0.25), (1.5, 0.75),
@@ -281,7 +282,8 @@ def test_marker_paths_pdf():
 
 
 @image_comparison(['nan_path'], style='default', remove_text=True,
-                  extensions=['pdf', 'svg', 'eps', 'png'])
+                  extensions=['pdf', 'svg', 'eps', 'png'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_nan_isolated_points():
 
     y0 = [0, np.nan, 2, np.nan, 4, 5, 6]
@@ -353,15 +355,49 @@ def test_path_deepcopy():
     # Should not raise any error
     verts = [[0, 0], [1, 1]]
     codes = [Path.MOVETO, Path.LINETO]
-    path1 = Path(verts)
-    path2 = Path(verts, codes)
+    path1 = Path(verts, readonly=True)
+    path2 = Path(verts, codes, readonly=True)
     path1_copy = path1.deepcopy()
     path2_copy = path2.deepcopy()
     assert path1 is not path1_copy
     assert path1.vertices is not path1_copy.vertices
+    assert_array_equal(path1.vertices, path1_copy.vertices)
+    assert path1.readonly
+    assert not path1_copy.readonly
     assert path2 is not path2_copy
     assert path2.vertices is not path2_copy.vertices
+    assert_array_equal(path2.vertices, path2_copy.vertices)
     assert path2.codes is not path2_copy.codes
+    assert_array_equal(path2.codes, path2_copy.codes)
+    assert path2.readonly
+    assert not path2_copy.readonly
+
+
+def test_path_deepcopy_cycle():
+    class PathWithCycle(Path):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.x = self
+
+    p = PathWithCycle([[0, 0], [1, 1]], readonly=True)
+    p_copy = p.deepcopy()
+    assert p_copy is not p
+    assert p.readonly
+    assert not p_copy.readonly
+    assert p_copy.x is p_copy
+
+    class PathWithCycle2(Path):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.x = [self] * 2
+
+    p2 = PathWithCycle2([[0, 0], [1, 1]], readonly=True)
+    p2_copy = p2.deepcopy()
+    assert p2_copy is not p2
+    assert p2.readonly
+    assert not p2_copy.readonly
+    assert p2_copy.x[0] is p2_copy
+    assert p2_copy.x[1] is p2_copy
 
 
 def test_path_shallowcopy():
@@ -539,3 +575,84 @@ def test_cleanup_closepoly():
         cleaned = p.cleaned(remove_nans=True)
         assert len(cleaned) == 1
         assert cleaned.codes[0] == Path.STOP
+
+
+def test_interpolated_moveto():
+    # Initial path has two subpaths with two LINETOs each
+    vertices = np.array([[0, 0],
+                         [0, 1],
+                         [1, 2],
+                         [4, 4],
+                         [4, 5],
+                         [5, 5]])
+    codes = [Path.MOVETO, Path.LINETO, Path.LINETO] * 2
+
+    path = Path(vertices, codes)
+    result = path.interpolated(3)
+
+    # Result should have two subpaths with six LINETOs each
+    expected_subpath_codes = [Path.MOVETO] + [Path.LINETO] * 6
+    np.testing.assert_array_equal(result.codes, expected_subpath_codes * 2)
+
+
+def test_interpolated_closepoly():
+    codes = [Path.MOVETO] + [Path.LINETO]*2 + [Path.CLOSEPOLY]
+    vertices = [(4, 3), (5, 4), (5, 3), (0, 0)]
+
+    path = Path(vertices, codes)
+    result = path.interpolated(2)
+
+    expected_vertices = np.array([[4, 3],
+                                  [4.5, 3.5],
+                                  [5, 4],
+                                  [5, 3.5],
+                                  [5, 3],
+                                  [4.5, 3],
+                                  [4, 3]])
+    expected_codes = [Path.MOVETO] + [Path.LINETO]*5 + [Path.CLOSEPOLY]
+
+    np.testing.assert_allclose(result.vertices, expected_vertices)
+    np.testing.assert_array_equal(result.codes, expected_codes)
+
+    # Usually closepoly is the last vertex but does not have to be.
+    codes += [Path.LINETO]
+    vertices += [(2, 1)]
+
+    path = Path(vertices, codes)
+    result = path.interpolated(2)
+
+    extra_expected_vertices = np.array([[3, 2],
+                                        [2, 1]])
+    expected_vertices = np.concatenate([expected_vertices, extra_expected_vertices])
+
+    expected_codes += [Path.LINETO] * 2
+
+    np.testing.assert_allclose(result.vertices, expected_vertices)
+    np.testing.assert_array_equal(result.codes, expected_codes)
+
+
+def test_interpolated_moveto_closepoly():
+    # Initial path has two closed subpaths
+    codes = ([Path.MOVETO] + [Path.LINETO]*2 + [Path.CLOSEPOLY]) * 2
+    vertices = [(4, 3), (5, 4), (5, 3), (0, 0), (8, 6), (10, 8), (10, 6), (0, 0)]
+
+    path = Path(vertices, codes)
+    result = path.interpolated(2)
+
+    expected_vertices1 = np.array([[4, 3],
+                                   [4.5, 3.5],
+                                   [5, 4],
+                                   [5, 3.5],
+                                   [5, 3],
+                                   [4.5, 3],
+                                   [4, 3]])
+    expected_vertices = np.concatenate([expected_vertices1, expected_vertices1 * 2])
+    expected_codes = ([Path.MOVETO] + [Path.LINETO]*5 + [Path.CLOSEPOLY]) * 2
+
+    np.testing.assert_allclose(result.vertices, expected_vertices)
+    np.testing.assert_array_equal(result.codes, expected_codes)
+
+
+def test_interpolated_empty_path():
+    path = Path(np.zeros((0, 2)))
+    assert path.interpolated(42) is path

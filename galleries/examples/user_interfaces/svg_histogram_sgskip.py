@@ -9,7 +9,7 @@ are hidden or shown by clicking on legend markers.
 The interactivity is encoded in ecmascript (javascript) and inserted in
 the SVG code in a post-processing step. To render the image, open it in
 a web browser. SVG is supported in most web browsers used by Linux and
-OSX users. Windows IE9 supports SVG, but earlier versions do not.
+macOS users. Windows IE9 supports SVG, but earlier versions do not.
 
 Notes
 -----

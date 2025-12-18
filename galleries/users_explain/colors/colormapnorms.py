@@ -4,7 +4,7 @@
 
 .. _colormapnorms:
 
-Colormap Normalization
+Colormap normalization
 ======================
 
 Objects that use colormaps by default linearly map the colors in the
@@ -49,7 +49,6 @@ can clearly be seen:
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib import cm
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 
@@ -101,7 +100,7 @@ Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (0.9*Z1 - 0.5*Z2) * 2
 
 # select a divergent colormap
-cmap = cm.coolwarm
+cmap = "coolwarm"
 
 fig, (ax1, ax2) = plt.subplots(ncols=2)
 pc = ax1.pcolormesh(Z, cmap=cmap)
@@ -262,8 +261,8 @@ latitude = dem['latitude']
 fig, ax = plt.subplots()
 # make a colormap that has land and ocean clearly delineated and of the
 # same length (256 + 256)
-colors_undersea = plt.cm.terrain(np.linspace(0, 0.17, 256))
-colors_land = plt.cm.terrain(np.linspace(0.25, 1, 256))
+colors_undersea = plt.colormaps["terrain"](np.linspace(0, 0.17, 256))
+colors_land = plt.colormaps["terrain"](np.linspace(0.25, 1, 256))
 all_colors = np.vstack((colors_undersea, colors_land))
 terrain_map = colors.LinearSegmentedColormap.from_list(
     'terrain_map', all_colors)
@@ -282,6 +281,32 @@ cb = fig.colorbar(pcm, shrink=0.6)
 cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 plt.show()
 
+# %%
+# Using a linear scale on the colormap
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# By default, colorbars adopt the same axis scaling as their associated norm.
+# For example, for a `.TwoSlopeNorm`, colormap segments are distributed
+# linearly and the colorbar ticks positions are spaced non-linearly (as above,
+# and the left-hand colorbar below). To make the tick spacing linear instead,
+# you can change the scale by calling ``cb.ax.set_yscale('linear')``, as shown
+# in the right-hand colorbar below. The ticks will then be evenly spaced, the
+# colormap will appear compressed in the smaller of the two slope regions.
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+divnorm = colors.TwoSlopeNorm(vmin=-500., vcenter=0, vmax=4000)
+
+for ax, title in zip([ax1, ax2],
+                     ['Default: Scaled colorbar', 'Linear colorbar spacing']):
+    pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
+                        cmap=terrain_map, shading='auto')
+    ax.set_aspect(1 / np.cos(np.deg2rad(49)))
+    ax.set_title(title)
+    cb = fig.colorbar(pcm, ax=ax, shrink=0.6)
+    cb.set_ticks(np.arange(-500, 4001, 500))
+
+# Set linear scale for the right colorbar
+cb.ax.set_yscale('linear')
 
 # %%
 # FuncNorm: Arbitrary function normalization
@@ -290,6 +315,7 @@ plt.show()
 # If the above norms do not provide the normalization you want, you can use
 # `~.colors.FuncNorm` to define your own.  Note that this example is the same
 # as `~.colors.PowerNorm` with a power of 0.5:
+
 
 def _forward(x):
     return np.sqrt(x)

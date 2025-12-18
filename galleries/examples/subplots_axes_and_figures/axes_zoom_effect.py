@@ -1,16 +1,14 @@
 """
 ================
-Axes Zoom Effect
+Axes zoom effect
 ================
 
 """
 
 import matplotlib.pyplot as plt
 
-from matplotlib.transforms import (Bbox, TransformedBbox,
-                                   blended_transform_factory)
-from mpl_toolkits.axes_grid1.inset_locator import (BboxConnector,
-                                                   BboxConnectorPatch,
+from matplotlib.transforms import Bbox, TransformedBbox, blended_transform_factory
+from mpl_toolkits.axes_grid1.inset_locator import (BboxConnector, BboxConnectorPatch,
                                                    BboxPatch)
 
 
@@ -42,17 +40,17 @@ def connect_bbox(bbox1, bbox2,
 
 def zoom_effect01(ax1, ax2, xmin, xmax, **kwargs):
     """
-    Connect *ax1* and *ax2*. The *xmin*-to-*xmax* range in both axes will
+    Connect *ax1* and *ax2*. The *xmin*-to-*xmax* range in both Axes will
     be marked.
 
     Parameters
     ----------
     ax1
-        The main axes.
+        The main Axes.
     ax2
-        The zoomed axes.
+        The zoomed Axes.
     xmin, xmax
-        The limits of the colored area in both plot axes.
+        The limits of the colored area in both plot Axes.
     **kwargs
         Arguments passed to the patch constructor.
     """
@@ -80,8 +78,8 @@ def zoom_effect01(ax1, ax2, xmin, xmax, **kwargs):
 
 def zoom_effect02(ax1, ax2, **kwargs):
     """
-    ax1 : the main axes
-    ax1 : the zoomed axes
+    ax1 : the main Axes
+    ax1 : the zoomed Axes
 
     Similar to zoom_effect01.  The xmin & xmax will be taken from the
     ax1.viewLim.
@@ -120,3 +118,10 @@ axs["zoom2"].set(xlim=(2, 3))
 zoom_effect02(axs["zoom2"], axs["main"])
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: subplot
+#    component: transform
+#    level: advanced

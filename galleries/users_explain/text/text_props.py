@@ -34,7 +34,7 @@ name or fontname            string e.g., [``'Sans'`` | ``'Courier'`` | ``'Helvet
 picker                      [None|float|bool|callable]
 position                    (x, y)
 rotation                    [ angle in degrees | ``'vertical'`` | ``'horizontal'`` ]
-size or fontsize            [ size in points | relative size, e.g., ``'smaller'``, ``'x-large'`` ]
+        size or fontsize            [ size in points | relative size, e.g., ``'small'``, ``'x-large'`` ]
 style or fontstyle          [ ``'normal'`` | ``'italic'`` | ``'oblique'`` ]
 text                        string or anything printable with '%s' conversion
 transform                   `~matplotlib.transforms.Transform` subclass
@@ -48,6 +48,9 @@ zorder                      any number
 ==========================  ======================================================================================================================
 
 
+Text alignment
+==============
+
 You can lay out text with the alignment arguments
 ``horizontalalignment``, ``verticalalignment``, and
 ``multialignment``.  ``horizontalalignment`` controls whether the x
@@ -59,8 +62,8 @@ separated strings only, controls whether the different lines are left,
 center or right justified.  Here is an example which uses the
 :func:`~matplotlib.pyplot.text` command to show the various alignment
 possibilities.  The use of ``transform=ax.transAxes`` throughout the
-code indicates that the coordinates are given relative to the axes
-bounding box, with (0, 0) being the lower left of the axes and (1, 1) the
+code indicates that the coordinates are given relative to the Axes
+bounding box, with (0, 0) being the lower left of the Axes and (1, 1) the
 upper right.
 """
 
@@ -69,13 +72,13 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 # build a rectangle in axes coords
-left, width = .25, .5
-bottom, height = .25, .5
+left, width = 0.25, 0.5
+bottom, height = 0.25, 0.5
 right = left + width
 top = bottom + height
 
 fig = plt.figure()
-ax = fig.add_axes([0, 0, 1, 1])
+ax = fig.add_axes((0, 0, 1, 1))
 
 # axes coordinates: (0, 0) is bottom left and (1, 1) is upper right
 p = patches.Rectangle(
@@ -144,6 +147,25 @@ ax.set_axis_off()
 plt.show()
 
 # %%
+# Relative font sizes
+# ===================
+#
+# Font sizes can be specified in points, or as a string that indicates the size
+# relative to the default font size. The following are valid values for relative font sizes:
+#
+# ====================    ================================
+# Relative font size      Scaling of default font size
+# ====================    ================================
+# xx-small                0.579
+# x-small                 0.694
+# small                   0.833
+# medium                  1.000
+# large                   1.200
+# x-large                 1.440
+# xx-large                1.728
+# ====================    ================================
+#
+#
 # ==============
 #  Default Font
 # ==============

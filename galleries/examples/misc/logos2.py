@@ -36,7 +36,7 @@ def get_font_properties():
 
 def create_icon_axes(fig, ax_position, lw_bars, lw_grid, lw_border, rgrid):
     """
-    Create a polar axes containing the matplotlib radar plot.
+    Create a polar Axes containing the matplotlib radar plot.
 
     Parameters
     ----------

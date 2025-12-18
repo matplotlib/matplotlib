@@ -6,7 +6,7 @@ from matplotlib.artist import Artist
 from matplotlib.backend_bases import TimerBase
 from matplotlib.figure import Figure
 
-from typing import Any
+from typing import Any, Protocol
 
 subprocess_creation_flags: int
 
@@ -41,7 +41,7 @@ class AbstractMovieWriter(abc.ABC, metaclass=abc.ABCMeta):
     dpi: float
 
     @abc.abstractmethod
-    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...): ...
+    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...) -> None: ...
     @property
     def frame_size(self) -> tuple[int, int]: ...
     @abc.abstractmethod
@@ -65,7 +65,7 @@ class MovieWriter(AbstractMovieWriter):
         extra_args: list[str] | None = ...,
         metadata: dict[str, str] | None = ...,
     ) -> None: ...
-    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...): ...
+    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...) -> None: ...
     def grab_frame(self, **savefig_kwargs) -> None: ...
     def finish(self) -> None: ...
     @classmethod
@@ -152,17 +152,23 @@ class HTMLWriter(FileMovieWriter):
     def grab_frame(self, **savefig_kwargs): ...
     def finish(self) -> None: ...
 
+class EventSourceProtocol(Protocol):
+    def add_callback(self, func: Callable): ...
+    def remove_callback(self, func: Callable): ...
+    def start(self): ...
+    def stop(self): ...
+
 class Animation:
     frame_seq: Iterable[Artist]
-    event_source: Any
+    event_source: EventSourceProtocol | None  # TODO: We should remove None
     def __init__(
-        self, fig: Figure, event_source: Any | None = ..., blit: bool = ...
+        self, fig: Figure, event_source: EventSourceProtocol, blit: bool = ...
     ) -> None: ...
     def __del__(self) -> None: ...
     def save(
         self,
         filename: str | Path,
-        writer: MovieWriter | str | None = ...,
+        writer: AbstractMovieWriter | str | None = ...,
         fps: int | None = ...,
         dpi: float | None = ...,
         codec: str | None = ...,
@@ -183,11 +189,11 @@ class Animation:
         embed_frames: bool = ...,
         default_mode: str | None = ...,
     ) -> str: ...
+    def _repr_html_(self) -> str: ...
     def pause(self) -> None: ...
     def resume(self) -> None: ...
 
 class TimedAnimation(Animation):
-    repeat: bool
     def __init__(
         self,
         fig: Figure,
@@ -203,13 +209,12 @@ class ArtistAnimation(TimedAnimation):
     def __init__(self, fig: Figure, artists: Sequence[Collection[Artist]], *args, **kwargs) -> None: ...
 
 class FuncAnimation(TimedAnimation):
-    save_count: int
     def __init__(
         self,
         fig: Figure,
-        func: Callable[..., Iterable[Artist]],
-        frames: Iterable[Artist] | int | Callable[[], Generator] | None = ...,
-        init_func: Callable[[], Iterable[Artist]] | None = ...,
+        func: Callable[..., Iterable[Artist] | None],
+        frames: Iterable | int | Callable[[], Generator] | None = ...,
+        init_func: Callable[[], Iterable[Artist] | None] | None = ...,
         fargs: tuple[Any, ...] | None = ...,
         save_count: int | None = ...,
         *,

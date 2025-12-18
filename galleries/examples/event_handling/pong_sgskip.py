@@ -134,9 +134,9 @@ class Game:
         # create the initial line
         self.ax = ax
         ax.xaxis.set_visible(False)
-        ax.set_xlim([0, 7])
+        ax.set_xlim(0, 7)
         ax.yaxis.set_visible(False)
-        ax.set_ylim([-1, 1])
+        ax.set_ylim(-1, 1)
         pad_a_x = 0
         pad_b_x = .50
         pad_a_y = pad_b_y = .30
@@ -234,7 +234,7 @@ class Game:
                 puck.disp.set_offsets([[puck.x, puck.y]])
                 self.ax.draw_artist(puck.disp)
 
-        # just redraw the axes rectangle
+        # just redraw the Axes rectangle
         self.canvas.blit(self.ax.bbox)
         self.canvas.flush_events()
         if self.cnt == 50000:
@@ -327,3 +327,10 @@ tstart = time.time()
 
 plt.show()
 print('FPS: %f' % (animation.cnt/(time.time() - tstart)))
+
+#
+# %%
+# .. tags::
+#
+#    interactivity: event-handling
+#    purpose: fun

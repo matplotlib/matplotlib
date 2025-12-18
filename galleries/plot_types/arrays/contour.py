@@ -2,6 +2,7 @@
 ================
 contour(X, Y, Z)
 ================
+Plot contour lines.
 
 See `~matplotlib.axes.Axes.contour`.
 """

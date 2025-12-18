@@ -1,3 +1,5 @@
+import platform
+
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
@@ -5,6 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 from matplotlib.path import Path
 import matplotlib.patches as patches
+from matplotlib.backend_bases import RendererBase
+from matplotlib.patheffects import PathEffectRenderer
 
 
 @image_comparison(['patheffect1'], remove_text=True)
@@ -25,7 +29,8 @@ def test_patheffect1():
     ax1.grid(True, linestyle="-", path_effects=pe)
 
 
-@image_comparison(['patheffect2'], remove_text=True, style='mpl20')
+@image_comparison(['patheffect2'], remove_text=True, style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.06)
 def test_patheffect2():
 
     ax2 = plt.subplot()
@@ -40,7 +45,8 @@ def test_patheffect2():
                                                    foreground="w")])
 
 
-@image_comparison(['patheffect3'])
+@image_comparison(['patheffect3'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.019)
 def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
     p1.set_path_effects([path_effects.SimpleLineShadow(),
@@ -81,7 +87,7 @@ def test_patheffects_stroked_text():
     ]
     font_size = 50
 
-    ax = plt.axes([0, 0, 1, 1])
+    ax = plt.axes((0, 0, 1, 1))
     for i, chunk in enumerate(text_chunks):
         text = ax.text(x=0.01, y=(0.9 - i * 0.13), s=chunk,
                        fontdict={'ha': 'left', 'va': 'center',
@@ -129,9 +135,8 @@ def test_collection():
                        'edgecolor': 'blue'})
 
 
-@image_comparison(['tickedstroke'], remove_text=True, extensions=['png'],
-                  tol=0.22)  # Increased tolerance due to fixed clipping.
-def test_tickedstroke():
+@image_comparison(['tickedstroke.png'], remove_text=True, style='mpl20')
+def test_tickedstroke(text_placeholders):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(12, 4))
     path = Path.unit_circle()
     patch = patches.PathPatch(path, facecolor='none', lw=2, path_effects=[
@@ -143,13 +148,13 @@ def test_tickedstroke():
     ax1.set_xlim(-2, 2)
     ax1.set_ylim(-2, 2)
 
-    ax2.plot([0, 1], [0, 1], label=' ',
+    ax2.plot([0, 1], [0, 1], label='C0',
              path_effects=[path_effects.withTickedStroke(spacing=7,
                                                          angle=135)])
     nx = 101
     x = np.linspace(0.0, 1.0, nx)
     y = 0.3 * np.sin(x * 8) + 0.4
-    ax2.plot(x, y, label=' ', path_effects=[path_effects.withTickedStroke()])
+    ax2.plot(x, y, label='C1', path_effects=[path_effects.withTickedStroke()])
 
     ax2.legend()
 
@@ -192,3 +197,20 @@ def test_patheffects_spaces_and_newlines():
                     bbox={'color': 'thistle'})
     text1.set_path_effects([path_effects.Normal()])
     text2.set_path_effects([path_effects.Normal()])
+
+
+def test_patheffects_overridden_methods_open_close_group():
+    class CustomRenderer(RendererBase):
+        def __init__(self):
+            super().__init__()
+
+        def open_group(self, s, gid=None):
+            return "open_group overridden"
+
+        def close_group(self, s):
+            return "close_group overridden"
+
+    renderer = PathEffectRenderer([path_effects.Normal()], CustomRenderer())
+
+    assert renderer.open_group('s') == "open_group overridden"
+    assert renderer.close_group('s') == "close_group overridden"

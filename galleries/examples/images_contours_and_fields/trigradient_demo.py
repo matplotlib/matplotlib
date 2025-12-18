@@ -9,8 +9,7 @@ Demonstrates computation of gradient with
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib.tri import (CubicTriInterpolator, Triangulation,
-                            UniformTriRefiner)
+from matplotlib.tri import CubicTriInterpolator, Triangulation, UniformTriRefiner
 
 
 # ----------------------------------------------------------------------------

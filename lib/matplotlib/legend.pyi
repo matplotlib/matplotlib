@@ -14,12 +14,13 @@ from matplotlib.transforms import (
     BboxBase,
     Transform,
 )
+from matplotlib.typing import ColorType, LegendLocType
 
 
 import pathlib
 from collections.abc import Iterable
 from typing import Any, Literal, overload
-from .typing import ColorType
+
 
 class DraggableLegend(DraggableOffsetBox):
     legend: Legend
@@ -52,10 +53,10 @@ class Legend(Artist):
     def __init__(
         self,
         parent: Axes | Figure,
-        handles: Iterable[Artist],
+        handles: Iterable[Artist | tuple[Artist, ...]],
         labels: Iterable[str],
         *,
-        loc: str | tuple[float, float] | int | None = ...,
+        loc: LegendLocType | None = ...,
         numpoints: int | None = ...,
         markerscale: float | None = ...,
         markerfirst: bool = ...,
@@ -84,6 +85,7 @@ class Legend(Artist):
         framealpha: float | None = ...,
         edgecolor: Literal["inherit"] | ColorType | None = ...,
         facecolor: Literal["inherit"] | ColorType | None = ...,
+        linewidth: float | None = ...,
         bbox_to_anchor: BboxBase
         | tuple[float, float]
         | tuple[float, float, float, float]
@@ -118,7 +120,7 @@ class Legend(Artist):
     def get_texts(self) -> list[Text]: ...
     def set_alignment(self, alignment: Literal["center", "left", "right"]) -> None: ...
     def get_alignment(self) -> Literal["center", "left", "right"]: ...
-    def set_loc(self, loc: str | tuple[float, float] | int | None = ...) -> None: ...
+    def set_loc(self, loc: LegendLocType | None = ...) -> None: ...
     def set_title(
         self, title: str, prop: FontProperties | str | pathlib.Path | None = ...
     ) -> None: ...
@@ -128,7 +130,12 @@ class Legend(Artist):
     draw_frame = set_frame_on
     def get_bbox_to_anchor(self) -> BboxBase: ...
     def set_bbox_to_anchor(
-        self, bbox: BboxBase, transform: Transform | None = ...
+        self,
+        bbox: BboxBase
+        | tuple[float, float]
+        | tuple[float, float, float, float]
+        | None,
+        transform: Transform | None = ...
     ) -> None: ...
     @overload
     def set_draggable(
@@ -145,5 +152,3 @@ class Legend(Artist):
         update: Literal["loc", "bbox"] = ...,
     ) -> None: ...
     def get_draggable(self) -> bool: ...
-    @property
-    def legendHandles(self) -> list[Artist | None]: ...

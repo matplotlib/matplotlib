@@ -155,14 +155,19 @@ reliability and consistency in documentation. They are not interchangeable.
   |                  |                          |   rotational |              |
   |                  |                          |   motion."   |              |
   +------------------+--------------------------+--------------+--------------+
-  | Explicit,        | Explicit approach of     | - Explicit   | - object     |
-  | Object Oriented  | programming in           | - explicit   |   oriented   |
-  | Programming (OOP)| Matplotlib.              | - OOP        | - OO-style   |
+  | Axes interface   | Usage pattern in which   | - Axes       | - explicit   |
+  |                  | one calls methods on     |   interface  |   interface  |
+  |                  | Axes and Figure (and     | - call       | - object     |
+  |                  | sometimes other Artist)  |   methods on |   oriented   |
+  |                  | objects to configure the |   the Axes / | - OO-style   |
+  |                  | plot.                    |   Figure     | - OOP        |
+  |                  |                          |   object     |              |
   +------------------+--------------------------+--------------+--------------+
-  | Implicit,        | Implicit approach of     | - Implicit   | - MATLAB like|
-  | ``pyplot``       | programming in Matplotlib| - implicit   | - Pyplot     |
-  |                  | with ``pyplot`` module.  | - ``pyplot`` | - pyplot     |
-  |                  |                          |              |   interface  |
+  | pyplot interface | Usage pattern in which   | - ``pyplot`` | - implicit   |
+  |                  | one only calls `.pyplot` |   interface  |   interface  |
+  |                  | functions to configure   | - call       | - MATLAB like|
+  |                  | the plot.                |   ``pyplot`` | - Pyplot     |
+  |                  |                          |   functions  |              |
   +------------------+--------------------------+--------------+--------------+
 
 .. |Figure| replace:: :class:`~matplotlib.figure.Figure`

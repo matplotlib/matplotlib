@@ -64,7 +64,7 @@ plt.show()
 # automatically followed with the "normal" effect, whereas the latter
 # explicitly defines the two path effects to draw.
 #
-# Making an artist stand out
+# Making an Artist stand out
 # --------------------------
 #
 # One nice way of making artists visually stand out is to draw an outline in
@@ -93,7 +93,7 @@ plt.show()
 # its user interface.
 #
 #
-# Greater control of the path effect artist
+# Greater control of the path effect Artist
 # -----------------------------------------
 #
 # As already mentioned, some of the path effects operate at a lower level

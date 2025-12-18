@@ -2,6 +2,7 @@
 ==========================
 errorbar(x, y, yerr, xerr)
 ==========================
+Plot y versus x as lines and/or markers with attached errorbars.
 
 See `~matplotlib.axes.Axes.errorbar`.
 """

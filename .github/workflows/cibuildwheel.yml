@@ -23,30 +23,33 @@ permissions:
 
 jobs:
   build_sdist:
-    if: |
-      github.event_name == 'push' ||
-      github.event_name == 'pull_request' && (
-        (
-          github.event.action == 'labeled' &&
-          github.event.label.name == 'CI: Run cibuildwheel'
-        ) ||
-        contains(github.event.pull_request.labels.*.name,
-                 'CI: Run cibuildwheel')
+    if: >-
+      github.repository == 'matplotlib/matplotlib' && (
+        github.event_name == 'push' ||
+        github.event_name == 'pull_request' && (
+          (
+            github.event.action == 'labeled' &&
+            github.event.label.name == 'CI: Run cibuildwheel'
+          ) ||
+          contains(github.event.pull_request.labels.*.name,
+                   'CI: Run cibuildwheel')
+        )
       )
     name: Build sdist
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       SDIST_NAME: ${{ steps.sdist.outputs.SDIST_NAME }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         name: Install Python
         with:
-          python-version: 3.9
+          python-version: '3.11'
 
       # Something changed somewhere that prevents the downloaded-at-build-time
       # licenses from being included in built wheels, so pre-download them so
@@ -69,107 +72,123 @@ jobs:
         run: twine check dist/*
 
       - name: Upload sdist result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
         with:
-          name: sdist
+          name: cibw-sdist
           path: dist/*.tar.gz
           if-no-files-found: error
 
   build_wheels:
-    if: |
-      github.event_name == 'push' ||
-      github.event_name == 'pull_request' && (
-        (
-          github.event.action == 'labeled' &&
-          github.event.label.name == 'CI: Run cibuildwheel'
-        ) ||
-        contains(github.event.pull_request.labels.*.name,
-                 'CI: Run cibuildwheel')
+    if: >-
+      github.repository == 'matplotlib/matplotlib' && (
+        github.event_name == 'push' ||
+        github.event_name == 'pull_request' && (
+          (
+            github.event.action == 'labeled' &&
+            github.event.label.name == 'CI: Run cibuildwheel'
+          ) ||
+          contains(github.event.pull_request.labels.*.name,
+                   'CI: Run cibuildwheel')
+        )
       )
     needs: build_sdist
-    name: Build wheels on ${{ matrix.os }}
+    name: Build wheels on ${{ matrix.os }} for ${{ matrix.cibw_archs }}
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BEFORE_BUILD: >-
-        pip install certifi oldest-supported-numpy &&
         rm -rf {package}/build
       CIBW_BEFORE_BUILD_WINDOWS: >-
-        pip install certifi delvewheel oldest-supported-numpy &&
+        pip install delvewheel &&
         rm -rf {package}/build
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
       CIBW_AFTER_BUILD: >-
         twine check {wheel} &&
         python {package}/ci/check_wheel_licenses.py {wheel}
+      # On Windows, we explicitly request MSVC compilers (as GitHub Action runners have
+      # MinGW on PATH that would be picked otherwise), switch to a static build for
+      # runtimes, but use dynamic linking for `VCRUNTIME140.dll`, `VCRUNTIME140_1.dll`,
+      # and the UCRT. This avoids requiring specific versions of `MSVCP140.dll`, while
+      # keeping shared state with the rest of the Python process/extensions.
+      CIBW_CONFIG_SETTINGS_WINDOWS: >-
+        setup-args="--vsenv"
+        setup-args="-Db_vscrt=mt"
+        setup-args="-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-      CIBW_SKIP: "*-musllinux*"
+      CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: >-
         python {package}/ci/check_version_number.py
-      # Apple Silicon machines are not available for testing, so silence the
-      # warning from cibuildwheel. Remove the skip when they're available.
-      CIBW_TEST_SKIP: "*-macosx_arm64"
       MACOSX_DEPLOYMENT_TARGET: "10.12"
-      MPL_DISABLE_FH4: "yes"
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             cibw_archs: "x86_64"
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04-arm
             cibw_archs: "aarch64"
           - os: windows-latest
-            cibw_archs: "auto64"
-          - os: macos-11
-            cibw_archs: "x86_64 arm64"
+            cibw_archs: "AMD64"
+          - os: windows-11-arm
+            cibw_archs: "ARM64"
+          - os: macos-15-intel
+            cibw_archs: "x86_64"
+          - os: macos-14
+            cibw_archs: "arm64"
 
     steps:
-      - name: Set up QEMU
-        if: matrix.cibw_archs == 'aarch64'
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: arm64
-
       - name: Download sdist
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
         with:
-          name: sdist
+          name: cibw-sdist
           path: dist/
 
+      - name: Build wheels for CPython 3.14
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
+        with:
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: "cp314-* cp314t-*"
+          CIBW_ENABLE: "cpython-freethreading cpython-prerelease"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+
+      - name: Build wheels for CPython 3.13
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
+        with:
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: "cp313-* cp313t-*"
+          CIBW_ENABLE: cpython-freethreading
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
+      - name: Build wheels for CPython 3.12
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
+        with:
+          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
+        env:
+          CIBW_BUILD: "cp312-*"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@0ecddd92b62987d7a2ae8911f4bb8ec9e2e4496a # v2.13.1
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
           CIBW_BUILD: "cp311-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
-      - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@0ecddd92b62987d7a2ae8911f4bb8ec9e2e4496a # v2.13.1
-        with:
-          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
-        env:
-          CIBW_BUILD: "cp310-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-
-      - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@0ecddd92b62987d7a2ae8911f4bb8ec9e2e4496a # v2.13.1
-        with:
-          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
-        env:
-          CIBW_BUILD: "cp39-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@0ecddd92b62987d7a2ae8911f4bb8ec9e2e4496a # v2.13.1
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
-          CIBW_BUILD: "pp39-*"
+          CIBW_BUILD: "pp311-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-        if: matrix.cibw_archs != 'aarch64'
+          CIBW_ENABLE: pypy
+        if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest' && matrix.os != 'windows-11-arm'
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
         with:
-          name: wheels
+          name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
           path: ./wheelhouse/*.whl
           if-no-files-found: error

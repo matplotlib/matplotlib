@@ -44,8 +44,7 @@ these new features.
 Numpy docstring format
 ----------------------
 
-`Numpy docstring format
-<https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_:
+`Numpy docstring format <https://numpydoc.readthedocs.io/en/stable/format.html>`_:
 This format divides the docstring into clear sections, each having
 different parsing rules that make the docstring easy to read both as
 raw text and as HTML.  We could consider alternatives, or invent our

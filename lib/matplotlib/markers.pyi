@@ -26,7 +26,7 @@ class MarkerStyle:
 
     def __init__(
         self,
-        marker: str | ArrayLike | Path | MarkerStyle | None,
+        marker: str | ArrayLike | Path | MarkerStyle,
         fillstyle: FillStyleType | None = ...,
         transform: Transform | None = ...,
         capstyle: CapStyleType | None = ...,

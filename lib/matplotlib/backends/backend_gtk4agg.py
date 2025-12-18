@@ -2,7 +2,7 @@ import numpy as np
 
 from .. import cbook
 from . import backend_agg, backend_gtk4
-from .backend_gtk4 import Gtk, _BackendGTK4
+from .backend_gtk4 import GLib, Gtk, _BackendGTK4
 
 import cairo  # Presence of cairo is already checked by _backend_gtk.
 
@@ -11,6 +11,11 @@ class FigureCanvasGTK4Agg(backend_agg.FigureCanvasAgg,
                           backend_gtk4.FigureCanvasGTK4):
 
     def on_draw_event(self, widget, ctx):
+        if self._idle_draw_id:
+            GLib.source_remove(self._idle_draw_id)
+            self._idle_draw_id = 0
+            self.draw()
+
         scale = self.device_pixel_ratio
         allocation = self.get_allocation()
 

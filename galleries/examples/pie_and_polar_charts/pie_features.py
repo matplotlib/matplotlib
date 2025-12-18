@@ -108,7 +108,7 @@ plt.show()
 fig, ax = plt.subplots()
 
 ax.pie(sizes, labels=labels, autopct='%.0f%%',
-       textprops={'size': 'smaller'}, radius=0.5)
+       textprops={'size': 'small'}, radius=0.5)
 plt.show()
 
 # %%
@@ -130,3 +130,8 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`
+#
+# .. tags::
+#
+#    plot-type: pie
+#    level: beginner

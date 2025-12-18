@@ -1,7 +1,7 @@
 """
-===========================================
-Changing colors of lines intersecting a box
-===========================================
+==================================
+Identify whether artists intersect
+==================================
 
 The lines intersecting the rectangle are colored in red, while the others
 are left as blue lines. This example showcases the `.intersects_bbox` function.

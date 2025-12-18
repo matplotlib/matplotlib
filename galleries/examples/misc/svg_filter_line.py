@@ -1,7 +1,7 @@
 """
-===============
-SVG Filter Line
-===============
+==========================
+Apply SVG filter to a line
+==========================
 
 Demonstrate SVG filtering effects which might be used with Matplotlib.
 
@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
 fig1 = plt.figure()
-ax = fig1.add_axes([0.1, 0.1, 0.8, 0.8])
+ax = fig1.add_axes((0.1, 0.1, 0.8, 0.8))
 
 # draw lines
 l1, = ax.plot([0.1, 0.5, 0.9], [0.1, 0.9, 0.5], "bo-",

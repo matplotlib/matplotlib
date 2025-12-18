@@ -60,7 +60,7 @@ The examples below show what you can do with ImageGrid.
    :target: /gallery/axes_grid1/demo_axes_grid.html
    :align: center
 
-AxesDivider Class
+AxesDivider class
 -----------------
 
 Behind the scenes, ImageGrid (and RGBAxes, described below) rely on
@@ -81,12 +81,12 @@ side ("left", "right", "top", "bottom") of the original axes.
 colorbar whose height (or width) is in sync with the main axes
 --------------------------------------------------------------
 
-.. figure:: /gallery/axes_grid1/images/sphx_glr_simple_colorbar_001.png
-   :target: /gallery/axes_grid1/simple_colorbar.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_demo_colorbar_with_axes_divider_001.png
+   :target: /gallery/axes_grid1/demo_colorbar_with_axes_divider.html
    :align: center
 
 scatter_hist.py with AxesDivider
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :doc:`/gallery/lines_bars_and_markers/scatter_hist` example can be
 rewritten using `~.axes_grid1.axes_divider.make_axes_locatable`::
@@ -141,14 +141,14 @@ parasite axes.  To create a host axes, you may use ``host_subplot`` or
 ``host_axes`` command.
 
 Example 1: twinx
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
 .. figure:: /gallery/axes_grid1/images/sphx_glr_parasite_simple_001.png
    :target: /gallery/axes_grid1/parasite_simple.html
    :align: center
 
 Example 2: twin
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
 
 ``twin`` without a transform argument assumes that the parasite axes has the
 same data transform as the host. This can be useful when you want the

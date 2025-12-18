@@ -1,17 +1,14 @@
 import functools
 import io
+import operator
 from unittest import mock
 
-import matplotlib as mpl
-from matplotlib.backend_bases import MouseEvent
+from matplotlib.backend_bases import DrawEvent, KeyEvent, MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-from matplotlib.lines import Line2D
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from matplotlib.testing.widgets import (click_and_drag, do_event, get_ax,
-                                        mock_event, noop)
+from matplotlib.testing.widgets import click_and_drag, get_ax, noop
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -72,12 +69,11 @@ def test_save_blitted_widget_as_pdf():
 def test_rectangle_selector(ax, kwargs):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.RectangleSelector(ax, onselect, **kwargs)
-    do_event(tool, 'press', xdata=100, ydata=100, button=1)
-    do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
-
+    tool = widgets.RectangleSelector(ax, onselect=onselect, **kwargs)
+    MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1)._process()
+    MouseEvent._from_ax_coords("motion_notify_event", ax, (199, 199), 1)._process()
     # purposely drag outside of axis for release
-    do_event(tool, 'release', xdata=250, ydata=250, button=1)
+    MouseEvent._from_ax_coords("button_release_event", ax, (250, 250), 1)._process()
 
     if kwargs.get('drawtype', None) not in ['line', 'none']:
         assert_allclose(tool.geometry,
@@ -106,7 +102,7 @@ def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
         minspanx, minspany = (ax.transData.transform((x1, y1)) -
                               ax.transData.transform((x0, y0)))
 
-    tool = widgets.RectangleSelector(ax, onselect, interactive=True,
+    tool = widgets.RectangleSelector(ax, onselect=onselect, interactive=True,
                                      spancoords=spancoords,
                                      minspanx=minspanx, minspany=minspany)
     # Too small to create a selector
@@ -132,24 +128,14 @@ def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
     assert kwargs == {}
 
 
-def test_deprecation_selector_visible_attribute(ax):
-    tool = widgets.RectangleSelector(ax, lambda *args: None)
-
-    assert tool.get_visible()
-
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="was deprecated in Matplotlib 3.8"):
-        tool.visible
-
-
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
                          [[True, (60, 75)],
                           [False, (30, 20)]])
 def test_rectangle_drag(ax, drag_from_anywhere, new_center):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True,
+    tool = widgets.RectangleSelector(ax, interactive=True,
                                      drag_from_anywhere=drag_from_anywhere)
     # Create rectangle
-    click_and_drag(tool, start=(0, 10), end=(100, 120))
+    click_and_drag(tool, start=(10, 10), end=(90, 120))
     assert tool.center == (50, 65)
     # Drag inside rectangle, but away from centre handle
     #
@@ -167,7 +153,7 @@ def test_rectangle_drag(ax, drag_from_anywhere, new_center):
 
 
 def test_rectangle_selector_set_props_handle_props(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True,
+    tool = widgets.RectangleSelector(ax, interactive=True,
                                      props=dict(facecolor='b', alpha=0.2),
                                      handle_props=dict(alpha=0.5))
     # Create rectangle
@@ -188,10 +174,10 @@ def test_rectangle_selector_set_props_handle_props(ax):
 
 
 def test_rectangle_resize(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
-    click_and_drag(tool, start=(0, 10), end=(100, 120))
-    assert tool.extents == (0.0, 100.0, 10.0, 120.0)
+    click_and_drag(tool, start=(10, 10), end=(100, 120))
+    assert tool.extents == (10.0, 100.0, 10.0, 120.0)
 
     # resize NE handle
     extents = tool.extents
@@ -223,7 +209,7 @@ def test_rectangle_resize(ax):
 
 
 def test_rectangle_add_state(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(125, 130))
 
@@ -239,7 +225,7 @@ def test_rectangle_add_state(ax):
 
 @pytest.mark.parametrize('add_state', [True, False])
 def test_rectangle_resize_center(ax, add_state):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(125, 130))
     assert tool.extents == (70.0, 125.0, 65.0, 130.0)
@@ -313,7 +299,7 @@ def test_rectangle_resize_center(ax, add_state):
 
 @pytest.mark.parametrize('add_state', [True, False])
 def test_rectangle_resize_square(ax, add_state):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(120, 115))
     assert tool.extents == (70.0, 120.0, 65.0, 115.0)
@@ -386,7 +372,7 @@ def test_rectangle_resize_square(ax, add_state):
 
 
 def test_rectangle_resize_square_center(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(120, 115))
     tool.add_state('square')
@@ -451,18 +437,18 @@ def test_rectangle_resize_square_center(ax):
 @pytest.mark.parametrize('selector_class',
                          [widgets.RectangleSelector, widgets.EllipseSelector])
 def test_rectangle_rotate(ax, selector_class):
-    tool = selector_class(ax, onselect=noop, interactive=True)
+    tool = selector_class(ax, interactive=True)
     # Draw rectangle
     click_and_drag(tool, start=(100, 100), end=(130, 140))
     assert tool.extents == (100, 130, 100, 140)
     assert len(tool._state) == 0
 
     # Rotate anticlockwise using top-right corner
-    do_event(tool, 'on_key_press', key='r')
+    KeyEvent("key_press_event", ax.figure.canvas, "r")._process()
     assert tool._state == {'rotate'}
     assert len(tool._state) == 1
     click_and_drag(tool, start=(130, 140), end=(120, 145))
-    do_event(tool, 'on_key_press', key='r')
+    KeyEvent("key_press_event", ax.figure.canvas, "r")._process()
     assert len(tool._state) == 0
     # Extents shouldn't change (as shape of rectangle hasn't changed)
     assert tool.extents == (100, 130, 100, 140)
@@ -484,7 +470,7 @@ def test_rectangle_rotate(ax, selector_class):
 
 
 def test_rectangle_add_remove_set(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Draw rectangle
     click_and_drag(tool, start=(100, 100), end=(130, 140))
     assert tool.extents == (100, 130, 100, 140)
@@ -500,7 +486,7 @@ def test_rectangle_add_remove_set(ax):
 def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
     ax.set_aspect(0.8)
 
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True,
+    tool = widgets.RectangleSelector(ax, interactive=True,
                                      use_data_coordinates=use_data_coordinates)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(120, 115))
@@ -532,8 +518,7 @@ def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
 
 def test_ellipse(ax):
     """For ellipse, test out the key modifiers"""
-    tool = widgets.EllipseSelector(ax, onselect=noop,
-                                   grab_range=10, interactive=True)
+    tool = widgets.EllipseSelector(ax, grab_range=10, interactive=True)
     tool.extents = (100, 150, 100, 150)
 
     # drag the rectangle
@@ -559,9 +544,7 @@ def test_ellipse(ax):
 
 
 def test_rectangle_handles(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop,
-                                     grab_range=10,
-                                     interactive=True,
+    tool = widgets.RectangleSelector(ax, grab_range=10, interactive=True,
                                      handle_props={'markerfacecolor': 'r',
                                                    'markeredgecolor': 'b'})
     tool.extents = (100, 150, 100, 150)
@@ -596,7 +579,7 @@ def test_rectangle_selector_onselect(ax, interactive):
     # check when press and release events take place at the same position
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.RectangleSelector(ax, onselect, interactive=interactive)
+    tool = widgets.RectangleSelector(ax, onselect=onselect, interactive=interactive)
     # move outside of axis
     click_and_drag(tool, start=(100, 110), end=(150, 120))
 
@@ -612,7 +595,7 @@ def test_rectangle_selector_onselect(ax, interactive):
 def test_rectangle_selector_ignore_outside(ax, ignore_event_outside):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.RectangleSelector(ax, onselect,
+    tool = widgets.RectangleSelector(ax, onselect=onselect,
                                      ignore_event_outside=ignore_event_outside)
     click_and_drag(tool, start=(100, 110), end=(150, 120))
     onselect.assert_called_once()
@@ -651,10 +634,10 @@ def test_span_selector(ax, orientation, onmove_callback, kwargs):
     tax = ax.twinx()
 
     tool = widgets.SpanSelector(ax, onselect, orientation, **kwargs)
-    do_event(tool, 'press', xdata=100, ydata=100, button=1)
+    MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1)._process()
     # move outside of axis
-    do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
-    do_event(tool, 'release', xdata=250, ydata=250, button=1)
+    MouseEvent._from_ax_coords("motion_notify_event", ax, (199, 199), 1)._process()
+    MouseEvent._from_ax_coords("button_release_event", ax, (250, 250), 1)._process()
 
     onselect.assert_called_once_with(100, 199)
     if onmove_callback:
@@ -774,10 +757,11 @@ def test_span_selector_set_props_handle_props(ax):
 
 @pytest.mark.parametrize('selector', ['span', 'rectangle'])
 def test_selector_clear(ax, selector):
-    kwargs = dict(ax=ax, onselect=noop, interactive=True)
+    kwargs = dict(ax=ax, interactive=True)
     if selector == 'span':
         Selector = widgets.SpanSelector
         kwargs['direction'] = 'horizontal'
+        kwargs['onselect'] = noop
     else:
         Selector = widgets.RectangleSelector
 
@@ -797,7 +781,7 @@ def test_selector_clear(ax, selector):
     click_and_drag(tool, start=(130, 130), end=(130, 130))
     assert tool._selection_completed
 
-    do_event(tool, 'on_key_press', key='escape')
+    KeyEvent("key_press_event", ax.figure.canvas, "escape")._process()
     assert not tool._selection_completed
 
 
@@ -808,7 +792,7 @@ def test_selector_clear_method(ax, selector):
                                     interactive=True,
                                     ignore_event_outside=True)
     else:
-        tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+        tool = widgets.RectangleSelector(ax, interactive=True)
     click_and_drag(tool, start=(10, 10), end=(100, 120))
     assert tool._selection_completed
     assert tool.get_visible()
@@ -864,7 +848,7 @@ def test_tool_line_handle(ax):
 def test_span_selector_bound(direction):
     fig, ax = plt.subplots(1, 1)
     ax.plot([10, 20], [10, 30])
-    ax.figure.canvas.draw()
+    fig.canvas.draw()
     x_bound = ax.get_xbound()
     y_bound = ax.get_ybound()
 
@@ -875,8 +859,8 @@ def test_span_selector_bound(direction):
     bound = x_bound if direction == 'horizontal' else y_bound
     assert tool._edge_handles.positions == list(bound)
 
-    press_data = [10.5, 11.5]
-    move_data = [11, 13]  # Updating selector is done in onmove
+    press_data = (10.5, 11.5)
+    move_data = (11, 13)  # Updating selector is done in onmove
     release_data = move_data
     click_and_drag(tool, start=press_data, end=move_data)
 
@@ -919,10 +903,8 @@ def test_span_selector_animated_artists_callback():
 
     # Add span selector and check that the line is draw after it was updated
     # by the callback
-    press_data = [1, 2]
-    move_data = [2, 2]
-    do_event(span, 'press', xdata=press_data[0], ydata=press_data[1], button=1)
-    do_event(span, 'onmove', xdata=move_data[0], ydata=move_data[1], button=1)
+    MouseEvent._from_ax_coords("button_press_event", ax, (1, 2), 1)._process()
+    MouseEvent._from_ax_coords("motion_notify_event", ax, (2, 2), 1)._process()
     assert span._get_animated_artists() == (ln, ln2)
     assert ln.stale is False
     assert ln2.stale
@@ -932,16 +914,12 @@ def test_span_selector_animated_artists_callback():
 
     # Change span selector and check that the line is drawn/updated after its
     # value was updated by the callback
-    press_data = [4, 0]
-    move_data = [5, 2]
-    release_data = [5, 2]
-    do_event(span, 'press', xdata=press_data[0], ydata=press_data[1], button=1)
-    do_event(span, 'onmove', xdata=move_data[0], ydata=move_data[1], button=1)
+    MouseEvent._from_ax_coords("button_press_event", ax, (4, 0), 1)._process()
+    MouseEvent._from_ax_coords("motion_notify_event", ax, (5, 2), 1)._process()
     assert ln.stale is False
     assert ln2.stale
     assert_allclose(ln2.get_ydata(), -0.9424150707548072)
-    do_event(span, 'release', xdata=release_data[0],
-             ydata=release_data[1], button=1)
+    MouseEvent._from_ax_coords("button_release_event", ax, (5, 2), 1)._process()
     assert ln2.stale is False
 
 
@@ -976,6 +954,23 @@ def test_span_selector_snap(ax):
     assert tool.extents == (17, 35)
 
 
+def test_span_selector_extents(ax):
+    tool = widgets.SpanSelector(
+        ax, lambda a, b: None, "horizontal", ignore_event_outside=True
+        )
+    tool.extents = (5, 10)
+
+    assert tool.extents == (5, 10)
+    assert tool._selection_completed
+
+    # Since `ignore_event_outside=True`, this event should be ignored
+    press_data = (12, 14)
+    release_data = (20, 14)
+    click_and_drag(tool, start=press_data, end=release_data)
+
+    assert tool.extents == (5, 10)
+
+
 @pytest.mark.parametrize('kwargs', [
     dict(),
     dict(useblit=False, props=dict(color='red')),
@@ -984,10 +979,10 @@ def test_span_selector_snap(ax):
 def test_lasso_selector(ax, kwargs):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.LassoSelector(ax, onselect, **kwargs)
-    do_event(tool, 'press', xdata=100, ydata=100, button=1)
-    do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
-    do_event(tool, 'release', xdata=150, ydata=150, button=1)
+    tool = widgets.LassoSelector(ax, onselect=onselect, **kwargs)
+    MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1)._process()
+    MouseEvent._from_ax_coords("motion_notify_event", ax, (125, 125), 1)._process()
+    MouseEvent._from_ax_coords("button_release_event", ax, (150, 150), 1)._process()
 
     onselect.assert_called_once_with([(100, 100), (125, 125), (150, 150)])
 
@@ -995,7 +990,8 @@ def test_lasso_selector(ax, kwargs):
 def test_lasso_selector_set_props(ax):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.LassoSelector(ax, onselect, props=dict(color='b', alpha=0.2))
+    tool = widgets.LassoSelector(ax, onselect=onselect,
+                                 props=dict(color='b', alpha=0.2))
 
     artist = tool._selection_artist
     assert mcolors.same_color(artist.get_color(), 'b')
@@ -1005,11 +1001,45 @@ def test_lasso_selector_set_props(ax):
     assert artist.get_alpha() == 0.3
 
 
+def test_lasso_set_props(ax):
+    onselect = mock.Mock(spec=noop, return_value=None)
+    tool = widgets.Lasso(ax, (100, 100), onselect)
+    line = tool.line
+    assert mcolors.same_color(line.get_color(), 'black')
+    assert line.get_linestyle() == '-'
+    assert line.get_lw() == 2
+    tool = widgets.Lasso(ax, (100, 100), onselect, props=dict(
+        linestyle='-', color='darkblue', alpha=0.2, lw=1))
+
+    line = tool.line
+    assert mcolors.same_color(line.get_color(), 'darkblue')
+    assert line.get_alpha() == 0.2
+    assert line.get_lw() == 1
+    assert line.get_linestyle() == '-'
+    line.set_color('r')
+    line.set_alpha(0.3)
+    assert mcolors.same_color(line.get_color(), 'r')
+    assert line.get_alpha() == 0.3
+
+
 def test_CheckButtons(ax):
-    check = widgets.CheckButtons(ax, ('a', 'b', 'c'), (True, False, True))
+    labels = ('a', 'b', 'c')
+    check = widgets.CheckButtons(ax, labels, (True, False, True))
     assert check.get_status() == [True, False, True]
     check.set_active(0)
     assert check.get_status() == [False, False, True]
+    assert check.get_checked_labels() == ['c']
+    check.clear()
+    assert check.get_status() == [False, False, False]
+    assert check.get_checked_labels() == []
+
+    for invalid_index in [-1, len(labels), len(labels)+5]:
+        with pytest.raises(ValueError):
+            check.set_active(index=invalid_index)
+
+    for invalid_value in ['invalid', -1]:
+        with pytest.raises(TypeError):
+            check.set_active(1, state=invalid_value)
 
     cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
@@ -1028,7 +1058,7 @@ def test_TextBox(ax, toolbar):
 
     assert tool.text == ''
 
-    do_event(tool, '_click')
+    MouseEvent._from_ax_coords("button_press_event", ax, (.5, .5), 1)._process()
 
     tool.set_val('x**2')
 
@@ -1040,33 +1070,37 @@ def test_TextBox(ax, toolbar):
 
     assert submit_event.call_count == 2
 
-    do_event(tool, '_click', xdata=.5, ydata=.5)  # Ensure the click is in the axes.
-    do_event(tool, '_keypress', key='+')
-    do_event(tool, '_keypress', key='5')
+    MouseEvent._from_ax_coords("button_press_event", ax, (.5, .5), 1)._process()
+    KeyEvent("key_press_event", ax.figure.canvas, "+")._process()
+    KeyEvent("key_press_event", ax.figure.canvas, "5")._process()
 
     assert text_change_event.call_count == 3
+
+
+def test_RadioButtons(ax):
+    radio = widgets.RadioButtons(ax, ('Radio 1', 'Radio 2', 'Radio 3'))
+    radio.set_active(1)
+    assert radio.value_selected == 'Radio 2'
+    assert radio.index_selected == 1
+    radio.clear()
+    assert radio.value_selected == 'Radio 1'
+    assert radio.index_selected == 0
 
 
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
 def test_check_radio_buttons_image():
     ax = get_ax()
-    fig = ax.figure
+    fig = ax.get_figure(root=False)
     fig.subplots_adjust(left=0.3)
 
-    rax1 = fig.add_axes([0.05, 0.7, 0.2, 0.15])
+    rax1 = fig.add_axes((0.05, 0.7, 0.2, 0.15))
     rb1 = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
-    with pytest.warns(DeprecationWarning,
-                      match='The circles attribute was deprecated'):
-        rb1.circles  # Trigger the old-style elliptic radiobuttons.
 
-    rax2 = fig.add_axes([0.05, 0.5, 0.2, 0.15])
+    rax2 = fig.add_axes((0.05, 0.5, 0.2, 0.15))
     cb1 = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                                (False, True, True))
-    with pytest.warns(DeprecationWarning,
-                      match='The rectangles attribute was deprecated'):
-        cb1.rectangles  # Trigger old-style Rectangle check boxes
 
-    rax3 = fig.add_axes([0.05, 0.3, 0.2, 0.15])
+    rax3 = fig.add_axes((0.05, 0.3, 0.2, 0.15))
     rb3 = widgets.RadioButtons(
         rax3, ('Radio 1', 'Radio 2', 'Radio 3'),
         label_props={'fontsize': [8, 12, 16],
@@ -1074,7 +1108,7 @@ def test_check_radio_buttons_image():
         radio_props={'edgecolor': ['red', 'green', 'blue'],
                      'facecolor': ['mistyrose', 'palegreen', 'lightblue']})
 
-    rax4 = fig.add_axes([0.05, 0.1, 0.2, 0.15])
+    rax4 = fig.add_axes((0.05, 0.1, 0.2, 0.15))
     cb4 = widgets.CheckButtons(
         rax4, ('Check 1', 'Check 2', 'Check 3'), (False, True, True),
         label_props={'fontsize': [8, 12, 16],
@@ -1084,7 +1118,7 @@ def test_check_radio_buttons_image():
         check_props={'color': ['red', 'green', 'blue']})
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_radio_buttons(fig_test, fig_ref):
     widgets.RadioButtons(fig_test.subplots(), ["tea", "coffee"])
     ax = fig_ref.add_subplot(xticks=[], yticks=[])
@@ -1094,7 +1128,7 @@ def test_radio_buttons(fig_test, fig_ref):
     ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_radio_buttons_props(fig_test, fig_ref):
     label_props = {'color': ['red'], 'fontsize': [24]}
     radio_props = {'facecolor': 'green', 'edgecolor': 'blue', 'linewidth': 2}
@@ -1118,7 +1152,7 @@ def test_radio_button_active_conflict(ax):
     assert mcolors.same_color(rb._buttons.get_facecolor(), ['green', 'none'])
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_radio_buttons_activecolor_change(fig_test, fig_ref):
     widgets.RadioButtons(fig_ref.subplots(), ['tea', 'coffee'],
                          activecolor='green')
@@ -1129,7 +1163,7 @@ def test_radio_buttons_activecolor_change(fig_test, fig_ref):
     cb.activecolor = 'green'
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_check_buttons(fig_test, fig_ref):
     widgets.CheckButtons(fig_test.subplots(), ["tea", "coffee"], [True, True])
     ax = fig_ref.add_subplot(xticks=[], yticks=[])
@@ -1141,7 +1175,7 @@ def test_check_buttons(fig_test, fig_ref):
     ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
 
 
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_check_button_props(fig_test, fig_ref):
     label_props = {'color': ['red'], 'fontsize': [24]}
     frame_props = {'facecolor': 'green', 'edgecolor': 'blue', 'linewidth': 2}
@@ -1162,57 +1196,6 @@ def test_check_button_props(fig_test, fig_ref):
     # This means we cannot pass facecolor to both setters directly.
     check_props['edgecolor'] = check_props.pop('facecolor')
     cb.set_check_props({**check_props, 's': (24 / 2)**2})
-
-
-@check_figures_equal(extensions=["png"])
-def test_check_buttons_rectangles(fig_test, fig_ref):
-    # Test should be removed once .rectangles is removed
-    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""],
-                              [False, False])
-    with pytest.warns(DeprecationWarning,
-                      match='The rectangles attribute was deprecated'):
-        cb.rectangles
-    ax = fig_ref.add_subplot(xticks=[], yticks=[])
-    ys = [2/3, 1/3]
-    dy = 1/3
-    w, h = dy / 2, dy / 2
-    rectangles = [
-        Rectangle(xy=(0.05, ys[i] - h / 2), width=w, height=h,
-                  edgecolor="black",
-                  facecolor="none",
-                  transform=ax.transAxes
-                  )
-        for i, y in enumerate(ys)
-    ]
-    for rectangle in rectangles:
-        ax.add_patch(rectangle)
-
-
-@check_figures_equal(extensions=["png"])
-def test_check_buttons_lines(fig_test, fig_ref):
-    # Test should be removed once .lines is removed
-    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""], [True, True])
-    with pytest.warns(DeprecationWarning,
-                      match='The lines attribute was deprecated'):
-        cb.lines
-    for rectangle in cb._rectangles:
-        rectangle.set_visible(False)
-    ax = fig_ref.add_subplot(xticks=[], yticks=[])
-    ys = [2/3, 1/3]
-    dy = 1/3
-    w, h = dy / 2, dy / 2
-    lineparams = {'color': 'k', 'linewidth': 1.25,
-                    'transform': ax.transAxes,
-                    'solid_capstyle': 'butt'}
-    for i, y in enumerate(ys):
-        x, y = 0.05, y - h / 2
-        l1 = Line2D([x, x + w], [y + h, y], **lineparams)
-        l2 = Line2D([x, x + w], [y, y + h], **lineparams)
-
-        l1.set_visible(True)
-        l2.set_visible(True)
-        ax.add_line(l1)
-        ax.add_line(l2)
 
 
 def test_slider_slidermin_slidermax_invalid():
@@ -1352,182 +1335,178 @@ def test_range_slider_same_init_values(orientation):
     assert_allclose(box.get_points().flatten()[idx], [0, 0.25, 0, 0.75])
 
 
-def check_polygon_selector(event_sequence, expected_result, selections_count,
-                           **kwargs):
+def check_polygon_selector(events, expected, selections_count, **kwargs):
     """
     Helper function to test Polygon Selector.
 
     Parameters
     ----------
-    event_sequence : list of tuples (etype, dict())
-        A sequence of events to perform. The sequence is a list of tuples
-        where the first element of the tuple is an etype (e.g., 'onmove',
-        'press', etc.), and the second element of the tuple is a dictionary of
-         the arguments for the event (e.g., xdata=5, key='shift', etc.).
-    expected_result : list of vertices (xdata, ydata)
-        The list of vertices that are expected to result from the event
-        sequence.
+    events : list[MouseEvent]
+        A sequence of events to perform.
+    expected : list of vertices (xdata, ydata)
+        The list of vertices expected to result from the event sequence.
     selections_count : int
         Wait for the tool to call its `onselect` function `selections_count`
-        times, before comparing the result to the `expected_result`
+        times, before comparing the result to the `expected`
     **kwargs
         Keyword arguments are passed to PolygonSelector.
     """
-    ax = get_ax()
-
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.PolygonSelector(ax, onselect, **kwargs)
+    ax = events[0].canvas.figure.axes[0]
+    tool = widgets.PolygonSelector(ax, onselect=onselect, **kwargs)
 
-    for (etype, event_args) in event_sequence:
-        do_event(tool, etype, **event_args)
+    for event in events:
+        event._process()
 
     assert onselect.call_count == selections_count
-    assert onselect.call_args == ((expected_result, ), {})
+    assert onselect.call_args == ((expected, ), {})
 
 
-def polygon_place_vertex(xdata, ydata):
-    return [('onmove', dict(xdata=xdata, ydata=ydata)),
-            ('press', dict(xdata=xdata, ydata=ydata)),
-            ('release', dict(xdata=xdata, ydata=ydata))]
+def polygon_place_vertex(ax, xy):
+    return [
+        MouseEvent._from_ax_coords("motion_notify_event", ax, xy),
+        MouseEvent._from_ax_coords("button_press_event", ax, xy, 1),
+        MouseEvent._from_ax_coords("button_release_event", ax, xy, 1),
+    ]
 
 
-def polygon_remove_vertex(xdata, ydata):
-    return [('onmove', dict(xdata=xdata, ydata=ydata)),
-            ('press', dict(xdata=xdata, ydata=ydata, button=3)),
-            ('release', dict(xdata=xdata, ydata=ydata, button=3))]
+def polygon_remove_vertex(ax, xy):
+    return [
+        MouseEvent._from_ax_coords("motion_notify_event", ax, xy),
+        MouseEvent._from_ax_coords("button_press_event", ax, xy, 3),
+        MouseEvent._from_ax_coords("button_release_event", ax, xy, 3),
+    ]
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-def test_polygon_selector(draw_bounding_box):
+def test_polygon_selector(ax, draw_bounding_box):
     check_selector = functools.partial(
         check_polygon_selector, draw_bounding_box=draw_bounding_box)
 
     # Simple polygon
     expected_result = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
-        *polygon_place_vertex(50, 50),
-        *polygon_place_vertex(150, 50),
-        *polygon_place_vertex(50, 150),
-        *polygon_place_vertex(50, 50),
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
     # Move first vertex before completing the polygon.
     expected_result = [(75, 50), (150, 50), (50, 150)]
     event_sequence = [
-        *polygon_place_vertex(50, 50),
-        *polygon_place_vertex(150, 50),
-        ('on_key_press', dict(key='control')),
-        ('onmove', dict(xdata=50, ydata=50)),
-        ('press', dict(xdata=50, ydata=50)),
-        ('onmove', dict(xdata=75, ydata=50)),
-        ('release', dict(xdata=75, ydata=50)),
-        ('on_key_release', dict(key='control')),
-        *polygon_place_vertex(50, 150),
-        *polygon_place_vertex(75, 50),
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        KeyEvent("key_press_event", ax.figure.canvas, "control"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (50, 50)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (50, 50), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (75, 50)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (75, 50), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "control"),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (75, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
     # Move first two vertices at once before completing the polygon.
     expected_result = [(50, 75), (150, 75), (50, 150)]
     event_sequence = [
-        *polygon_place_vertex(50, 50),
-        *polygon_place_vertex(150, 50),
-        ('on_key_press', dict(key='shift')),
-        ('onmove', dict(xdata=100, ydata=100)),
-        ('press', dict(xdata=100, ydata=100)),
-        ('onmove', dict(xdata=100, ydata=125)),
-        ('release', dict(xdata=100, ydata=125)),
-        ('on_key_release', dict(key='shift')),
-        *polygon_place_vertex(50, 150),
-        *polygon_place_vertex(50, 75),
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        KeyEvent("key_press_event", ax.figure.canvas, "shift"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 125)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (100, 125), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "shift"),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (50, 75)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
     # Move first vertex after completing the polygon.
-    expected_result = [(75, 50), (150, 50), (50, 150)]
+    expected_result = [(85, 50), (150, 50), (50, 150)]
     event_sequence = [
-        *polygon_place_vertex(50, 50),
-        *polygon_place_vertex(150, 50),
-        *polygon_place_vertex(50, 150),
-        *polygon_place_vertex(50, 50),
-        ('onmove', dict(xdata=50, ydata=50)),
-        ('press', dict(xdata=50, ydata=50)),
-        ('onmove', dict(xdata=75, ydata=50)),
-        ('release', dict(xdata=75, ydata=50)),
+        *polygon_place_vertex(ax, (60, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (60, 50)),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (60, 50)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (60, 50), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (85, 50)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (85, 50), 1),
     ]
     check_selector(event_sequence, expected_result, 2)
 
     # Move all vertices after completing the polygon.
     expected_result = [(75, 75), (175, 75), (75, 175)]
     event_sequence = [
-        *polygon_place_vertex(50, 50),
-        *polygon_place_vertex(150, 50),
-        *polygon_place_vertex(50, 150),
-        *polygon_place_vertex(50, 50),
-        ('on_key_press', dict(key='shift')),
-        ('onmove', dict(xdata=100, ydata=100)),
-        ('press', dict(xdata=100, ydata=100)),
-        ('onmove', dict(xdata=125, ydata=125)),
-        ('release', dict(xdata=125, ydata=125)),
-        ('on_key_release', dict(key='shift')),
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (50, 50)),
+        KeyEvent("key_press_event", ax.figure.canvas, "shift"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (125, 125)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (125, 125), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "shift"),
     ]
     check_selector(event_sequence, expected_result, 2)
 
     # Try to move a vertex and move all before placing any vertices.
     expected_result = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
-        ('on_key_press', dict(key='control')),
-        ('onmove', dict(xdata=100, ydata=100)),
-        ('press', dict(xdata=100, ydata=100)),
-        ('onmove', dict(xdata=125, ydata=125)),
-        ('release', dict(xdata=125, ydata=125)),
-        ('on_key_release', dict(key='control')),
-        ('on_key_press', dict(key='shift')),
-        ('onmove', dict(xdata=100, ydata=100)),
-        ('press', dict(xdata=100, ydata=100)),
-        ('onmove', dict(xdata=125, ydata=125)),
-        ('release', dict(xdata=125, ydata=125)),
-        ('on_key_release', dict(key='shift')),
-        *polygon_place_vertex(50, 50),
-        *polygon_place_vertex(150, 50),
-        *polygon_place_vertex(50, 150),
-        *polygon_place_vertex(50, 50),
+        KeyEvent("key_press_event", ax.figure.canvas, "control"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (125, 125)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (125, 125), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "control"),
+        KeyEvent("key_press_event", ax.figure.canvas, "shift"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (125, 125)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (125, 125), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "shift"),
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
     # Try to place vertex out-of-bounds, then reset, and start a new polygon.
     expected_result = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
-        *polygon_place_vertex(50, 50),
-        *polygon_place_vertex(250, 50),
-        ('on_key_press', dict(key='escape')),
-        ('on_key_release', dict(key='escape')),
-        *polygon_place_vertex(50, 50),
-        *polygon_place_vertex(150, 50),
-        *polygon_place_vertex(50, 150),
-        *polygon_place_vertex(50, 50),
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (250, 50)),
+        KeyEvent("key_press_event", ax.figure.canvas, "escape"),
+        KeyEvent("key_release_event", ax.figure.canvas, "escape"),
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
 def test_polygon_selector_set_props_handle_props(ax, draw_bounding_box):
-    tool = widgets.PolygonSelector(ax, onselect=noop,
+    tool = widgets.PolygonSelector(ax,
                                    props=dict(color='b', alpha=0.2),
                                    handle_props=dict(alpha=0.5),
                                    draw_bounding_box=draw_bounding_box)
 
-    event_sequence = [
-        *polygon_place_vertex(50, 50),
-        *polygon_place_vertex(150, 50),
-        *polygon_place_vertex(50, 150),
-        *polygon_place_vertex(50, 50),
-    ]
-
-    for (etype, event_args) in event_sequence:
-        do_event(tool, etype, **event_args)
+    for event in [
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (50, 50)),
+    ]:
+        event._process()
 
     artist = tool._selection_artist
     assert artist.get_color() == 'b'
@@ -1551,40 +1530,39 @@ def test_rect_visibility(fig_test, fig_ref):
     ax_test = fig_test.subplots()
     _ = fig_ref.subplots()
 
-    tool = widgets.RectangleSelector(ax_test, onselect=noop,
-                                     props={'visible': False})
+    tool = widgets.RectangleSelector(ax_test, props={'visible': False})
     tool.extents = (0.2, 0.8, 0.3, 0.7)
 
 
 # Change the order that the extra point is inserted in
 @pytest.mark.parametrize('idx', [1, 2, 3])
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-def test_polygon_selector_remove(idx, draw_bounding_box):
+def test_polygon_selector_remove(ax, idx, draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
-    event_sequence = [polygon_place_vertex(*verts[0]),
-                      polygon_place_vertex(*verts[1]),
-                      polygon_place_vertex(*verts[2]),
+    event_sequence = [polygon_place_vertex(ax, verts[0]),
+                      polygon_place_vertex(ax, verts[1]),
+                      polygon_place_vertex(ax, verts[2]),
                       # Finish the polygon
-                      polygon_place_vertex(*verts[0])]
+                      polygon_place_vertex(ax, verts[0])]
     # Add an extra point
-    event_sequence.insert(idx, polygon_place_vertex(200, 200))
+    event_sequence.insert(idx, polygon_place_vertex(ax, (200, 200)))
     # Remove the extra point
-    event_sequence.append(polygon_remove_vertex(200, 200))
+    event_sequence.append(polygon_remove_vertex(ax, (200, 200)))
     # Flatten list of lists
-    event_sequence = sum(event_sequence, [])
+    event_sequence = functools.reduce(operator.iadd, event_sequence, [])
     check_polygon_selector(event_sequence, verts, 2,
                            draw_bounding_box=draw_bounding_box)
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-def test_polygon_selector_remove_first_point(draw_bounding_box):
+def test_polygon_selector_remove_first_point(ax, draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
-        *polygon_place_vertex(*verts[0]),
-        *polygon_place_vertex(*verts[1]),
-        *polygon_place_vertex(*verts[2]),
-        *polygon_place_vertex(*verts[0]),
-        *polygon_remove_vertex(*verts[0]),
+        *polygon_place_vertex(ax, verts[0]),
+        *polygon_place_vertex(ax, verts[1]),
+        *polygon_place_vertex(ax, verts[2]),
+        *polygon_place_vertex(ax, verts[0]),
+        *polygon_remove_vertex(ax, verts[0]),
     ]
     check_polygon_selector(event_sequence, verts[1:], 2,
                            draw_bounding_box=draw_bounding_box)
@@ -1594,48 +1572,44 @@ def test_polygon_selector_remove_first_point(draw_bounding_box):
 def test_polygon_selector_redraw(ax, draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
-        *polygon_place_vertex(*verts[0]),
-        *polygon_place_vertex(*verts[1]),
-        *polygon_place_vertex(*verts[2]),
-        *polygon_place_vertex(*verts[0]),
+        *polygon_place_vertex(ax, verts[0]),
+        *polygon_place_vertex(ax, verts[1]),
+        *polygon_place_vertex(ax, verts[2]),
+        *polygon_place_vertex(ax, verts[0]),
         # Polygon completed, now remove first two verts.
-        *polygon_remove_vertex(*verts[1]),
-        *polygon_remove_vertex(*verts[2]),
+        *polygon_remove_vertex(ax, verts[1]),
+        *polygon_remove_vertex(ax, verts[2]),
         # At this point the tool should be reset so we can add more vertices.
-        *polygon_place_vertex(*verts[1]),
+        *polygon_place_vertex(ax, verts[1]),
     ]
 
-    tool = widgets.PolygonSelector(ax, onselect=noop,
-                                   draw_bounding_box=draw_bounding_box)
-    for (etype, event_args) in event_sequence:
-        do_event(tool, etype, **event_args)
+    tool = widgets.PolygonSelector(ax, draw_bounding_box=draw_bounding_box)
+    for event in event_sequence:
+        event._process()
     # After removing two verts, only one remains, and the
-    # selector should be automatically resete
+    # selector should be automatically reset
     assert tool.verts == verts[0:2]
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box):
     verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
     ax_test = fig_test.add_subplot()
 
-    tool_test = widgets.PolygonSelector(
-        ax_test, onselect=noop, draw_bounding_box=draw_bounding_box)
+    tool_test = widgets.PolygonSelector(ax_test, draw_bounding_box=draw_bounding_box)
     tool_test.verts = verts
     assert tool_test.verts == verts
 
     ax_ref = fig_ref.add_subplot()
-    tool_ref = widgets.PolygonSelector(
-        ax_ref, onselect=noop, draw_bounding_box=draw_bounding_box)
-    event_sequence = [
-        *polygon_place_vertex(*verts[0]),
-        *polygon_place_vertex(*verts[1]),
-        *polygon_place_vertex(*verts[2]),
-        *polygon_place_vertex(*verts[0]),
-    ]
-    for (etype, event_args) in event_sequence:
-        do_event(tool_ref, etype, **event_args)
+    tool_ref = widgets.PolygonSelector(ax_ref, draw_bounding_box=draw_bounding_box)
+    for event in [
+        *polygon_place_vertex(ax_ref, verts[0]),
+        *polygon_place_vertex(ax_ref, verts[1]),
+        *polygon_place_vertex(ax_ref, verts[2]),
+        *polygon_place_vertex(ax_ref, verts[0]),
+    ]:
+        event._process()
 
 
 def test_polygon_selector_box(ax):
@@ -1643,40 +1617,29 @@ def test_polygon_selector_box(ax):
     ax.set(xlim=(-10, 50), ylim=(-10, 50))
     verts = [(20, 0), (0, 20), (20, 40), (40, 20)]
     event_sequence = [
-        *polygon_place_vertex(*verts[0]),
-        *polygon_place_vertex(*verts[1]),
-        *polygon_place_vertex(*verts[2]),
-        *polygon_place_vertex(*verts[3]),
-        *polygon_place_vertex(*verts[0]),
+        *polygon_place_vertex(ax, verts[0]),
+        *polygon_place_vertex(ax, verts[1]),
+        *polygon_place_vertex(ax, verts[2]),
+        *polygon_place_vertex(ax, verts[3]),
+        *polygon_place_vertex(ax, verts[0]),
     ]
 
     # Create selector
-    tool = widgets.PolygonSelector(ax, onselect=noop, draw_bounding_box=True)
-    for (etype, event_args) in event_sequence:
-        do_event(tool, etype, **event_args)
-
-    # In order to trigger the correct callbacks, trigger events on the canvas
-    # instead of the individual tools
-    t = ax.transData
-    canvas = ax.figure.canvas
+    tool = widgets.PolygonSelector(ax, draw_bounding_box=True)
+    for event in event_sequence:
+        event._process()
 
     # Scale to half size using the top right corner of the bounding box
-    MouseEvent(
-        "button_press_event", canvas, *t.transform((40, 40)), 1)._process()
-    MouseEvent(
-        "motion_notify_event", canvas, *t.transform((20, 20)))._process()
-    MouseEvent(
-        "button_release_event", canvas, *t.transform((20, 20)), 1)._process()
+    MouseEvent._from_ax_coords("button_press_event", ax, (40, 40), 1)._process()
+    MouseEvent._from_ax_coords("motion_notify_event", ax, (20, 20))._process()
+    MouseEvent._from_ax_coords("button_release_event", ax, (20, 20), 1)._process()
     np.testing.assert_allclose(
         tool.verts, [(10, 0), (0, 10), (10, 20), (20, 10)])
 
     # Move using the center of the bounding box
-    MouseEvent(
-        "button_press_event", canvas, *t.transform((10, 10)), 1)._process()
-    MouseEvent(
-        "motion_notify_event", canvas, *t.transform((30, 30)))._process()
-    MouseEvent(
-        "button_release_event", canvas, *t.transform((30, 30)), 1)._process()
+    MouseEvent._from_ax_coords("button_press_event", ax, (10, 10), 1)._process()
+    MouseEvent._from_ax_coords("motion_notify_event", ax, (30, 30))._process()
+    MouseEvent._from_ax_coords("button_release_event", ax, (30, 30), 1)._process()
     np.testing.assert_allclose(
         tool.verts, [(30, 20), (20, 30), (30, 40), (40, 30)])
 
@@ -1684,10 +1647,8 @@ def test_polygon_selector_box(ax):
     np.testing.assert_allclose(
         tool._box.extents, (20.0, 40.0, 20.0, 40.0))
 
-    MouseEvent(
-        "button_press_event", canvas, *t.transform((30, 20)), 3)._process()
-    MouseEvent(
-        "button_release_event", canvas, *t.transform((30, 20)), 3)._process()
+    MouseEvent._from_ax_coords("button_press_event", ax, (30, 20), 3)._process()
+    MouseEvent._from_ax_coords("button_release_event", ax, (30, 20), 3)._process()
     np.testing.assert_allclose(
         tool.verts, [(20, 30), (30, 40), (40, 30)])
     np.testing.assert_allclose(
@@ -1700,9 +1661,9 @@ def test_polygon_selector_clear_method(ax):
 
     for result in ([(50, 50), (150, 50), (50, 150), (50, 50)],
                    [(50, 50), (100, 50), (50, 150), (50, 50)]):
-        for x, y in result:
-            for etype, event_args in polygon_place_vertex(x, y):
-                do_event(tool, etype, **event_args)
+        for xy in result:
+            for event in polygon_place_vertex(ax, xy):
+                event._process()
 
         artist = tool._selection_artist
 
@@ -1720,7 +1681,8 @@ def test_polygon_selector_clear_method(ax):
 @pytest.mark.parametrize("horizOn", [False, True])
 @pytest.mark.parametrize("vertOn", [False, True])
 def test_MultiCursor(horizOn, vertOn):
-    (ax1, ax3) = plt.figure().subplots(2, sharex=True)
+    fig = plt.figure()
+    (ax1, ax3) = fig.subplots(2, sharex=True)
     ax2 = plt.figure().subplots()
 
     # useblit=false to avoid having to draw the figure to cache the renderer
@@ -1732,13 +1694,9 @@ def test_MultiCursor(horizOn, vertOn):
     assert len(multi.vlines) == 2
     assert len(multi.hlines) == 2
 
-    # mock a motion_notify_event
-    # Can't use `do_event` as that helper requires the widget
-    # to have a single .ax attribute.
-    event = mock_event(ax1, xdata=.5, ydata=.25)
-    multi.onmove(event)
+    MouseEvent._from_ax_coords("motion_notify_event", ax1, (.5, .25))._process()
     # force a draw + draw event to exercise clear
-    ax1.figure.canvas.draw()
+    fig.canvas.draw()
 
     # the lines in the first two ax should both move
     for l in multi.vlines:
@@ -1754,8 +1712,7 @@ def test_MultiCursor(horizOn, vertOn):
     # After toggling settings, the opposite lines should be visible after move.
     multi.horizOn = not multi.horizOn
     multi.vertOn = not multi.vertOn
-    event = mock_event(ax1, xdata=.5, ydata=.25)
-    multi.onmove(event)
+    MouseEvent._from_ax_coords("motion_notify_event", ax1, (.5, .25))._process()
     assert len([line for line in multi.vlines if line.get_visible()]) == (
         0 if vertOn else 2)
     assert len([line for line in multi.hlines if line.get_visible()]) == (
@@ -1763,9 +1720,31 @@ def test_MultiCursor(horizOn, vertOn):
 
     # test a move event in an Axes not part of the MultiCursor
     # the lines in ax1 and ax2 should not have moved.
-    event = mock_event(ax3, xdata=.75, ydata=.75)
-    multi.onmove(event)
+    MouseEvent._from_ax_coords("motion_notify_event", ax3, (.75, .75))._process()
     for l in multi.vlines:
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:
         assert l.get_ydata() == (.25, .25)
+
+
+def test_parent_axes_removal():
+
+    fig, (ax_radio, ax_checks) = plt.subplots(1, 2)
+
+    radio = widgets.RadioButtons(ax_radio, ['1', '2'], 0)
+    checks = widgets.CheckButtons(ax_checks, ['1', '2'], [True, False])
+
+    ax_checks.remove()
+    ax_radio.remove()
+    with io.BytesIO() as out:
+        # verify that saving does not raise
+        fig.savefig(out, format='raw')
+
+    # verify that this method which is triggered by a draw_event callback when
+    # blitting is enabled does not raise.  Calling private methods is simpler
+    # than trying to force blitting to be enabled with Agg or use a GUI
+    # framework.
+    renderer = fig._get_renderer()
+    evt = DrawEvent('draw_event', fig.canvas, renderer)
+    radio._clear(evt)
+    checks._clear(evt)

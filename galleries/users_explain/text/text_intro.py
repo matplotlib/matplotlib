@@ -4,11 +4,9 @@
 
 .. _text_intro:
 
-========================
-Text in Matplotlib Plots
-========================
-
-Introduction to plotting and working with text in Matplotlib.
+==================
+Text in Matplotlib
+==================
 
 Matplotlib has extensive text support, including support for
 mathematical expressions, truetype support for raster and
@@ -124,8 +122,8 @@ y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1)
-ax.set_xlabel('Time [s]')
-ax.set_ylabel('Damped oscillation [V]')
+ax.set_xlabel('Time (s)')
+ax.set_ylabel('Damped oscillation (V)')
 
 plt.show()
 
@@ -137,26 +135,26 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1*10000)
-ax.set_xlabel('Time [s]')
-ax.set_ylabel('Damped oscillation [V]')
+ax.set_xlabel('Time (s)')
+ax.set_ylabel('Damped oscillation (V)')
 
 plt.show()
 
 # %%
 # If you want to move the labels, you can specify the *labelpad* keyword
 # argument, where the value is points (1/72", the same unit used to specify
-# fontsizes).
+# font sizes).
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1*10000)
-ax.set_xlabel('Time [s]')
-ax.set_ylabel('Damped oscillation [V]', labelpad=18)
+ax.set_xlabel('Time (s)')
+ax.set_ylabel('Damped oscillation (V)', labelpad=18)
 
 plt.show()
 
 # %%
-# Or, the labels accept all the `.Text` keyword arguments, including
+# Alternatively, the labels accept all the `.Text` keyword arguments, including
 # *position*, via which we can manually specify the label positions.  Here we
 # put the xlabel to the far left of the axis.  Note, that the y-coordinate of
 # this position has no effect - to adjust the y-position we need to use the
@@ -165,28 +163,25 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1)
-ax.set_xlabel('Time [s]', position=(0., 1e6), horizontalalignment='left')
-ax.set_ylabel('Damped oscillation [V]')
+ax.set_xlabel('Time (s)', position=(0., 1e6), horizontalalignment='left')
+ax.set_ylabel('Damped oscillation (V)')
 
 plt.show()
 
 # %%
 # All the labelling in this tutorial can be changed by manipulating the
 # `matplotlib.font_manager.FontProperties` method, or by named keyword
-# arguments to `~matplotlib.axes.Axes.set_xlabel`
+# arguments to `~matplotlib.axes.Axes.set_xlabel`.
 
 from matplotlib.font_manager import FontProperties
 
-font = FontProperties()
-font.set_family('serif')
-font.set_name('Times New Roman')
-font.set_style('italic')
+font = FontProperties(family='Times New Roman', style='italic')
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1)
-ax.set_xlabel('Time [s]', fontsize='large', fontweight='bold')
-ax.set_ylabel('Damped oscillation [V]', fontproperties=font)
+ax.set_xlabel('Time (s)', fontsize='large', fontweight='bold')
+ax.set_ylabel('Damped oscillation (V)', fontproperties=font)
 
 plt.show()
 
@@ -197,8 +192,8 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.2, left=0.2)
 ax.plot(x1, np.cumsum(y1**2))
-ax.set_xlabel('Time [s] \n This was a long experiment')
-ax.set_ylabel(r'$\int\ Y^2\ dt\ \ [V^2 s]$')
+ax.set_xlabel('Time (s) \n This was a long experiment')
+ax.set_ylabel(r'$\int\ Y^2\ dt\ \ (V^2 s)$')
 plt.show()
 
 
@@ -207,14 +202,14 @@ plt.show()
 # ======
 #
 # Subplot titles are set in much the same way as labels, but there is
-# the *loc* keyword arguments that can change the position and justification
-# from the default value of ``loc=center``.
+# the *loc* keyword argument that can change the position and justification
+# (the default value is "center").
 
 fig, axs = plt.subplots(3, 1, figsize=(5, 6), tight_layout=True)
 locs = ['center', 'left', 'right']
 for ax, loc in zip(axs, locs):
     ax.plot(x1, y1)
-    ax.set_title('Title with loc at '+loc, loc=loc)
+    ax.set_title('Title with loc at ' + loc, loc=loc)
 plt.show()
 
 # %%
@@ -238,9 +233,9 @@ plt.show()
 # locations, and how they are labelled.
 #
 # Terminology
-# ~~~~~~~~~~~
+# ^^^^^^^^^^^
 #
-# *Axes* have an `matplotlib.axis.Axis` object for the ``ax.xaxis`` and
+# *Axes* have a `matplotlib.axis.Axis` object for the ``ax.xaxis`` and
 # ``ax.yaxis`` that contain the information about how the labels in the axis
 # are laid out.
 #
@@ -254,13 +249,13 @@ plt.show()
 # that format the tick labels.
 #
 # Simple ticks
-# ~~~~~~~~~~~~
+# ^^^^^^^^^^^^
 #
 # It is often convenient to simply define the
 # tick values, and sometimes the tick labels, overriding the default
-# locators and formatters.  This is discouraged because it breaks interactive
-# navigation of the plot.  It also can reset the axis limits: note that
-# the second plot has the ticks we asked for, including ones that are
+# locators and formatters. However, this is discouraged because it breaks
+# interactive navigation of the plot. It also can reset the axis limits: note
+# that the second plot has the ticks we asked for, including ones that are
 # well outside the automatic view limits.
 
 fig, axs = plt.subplots(2, 1, figsize=(5, 3), tight_layout=True)
@@ -286,8 +281,8 @@ axs[1].set_xlim(axs[0].get_xlim())
 plt.show()
 
 # %%
-# Tick Locators and Formatters
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Tick locators and formatters
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # Instead of making a list of all the ticklabels, we could have
 # used `matplotlib.ticker.StrMethodFormatter` (new-style ``str.format()``
@@ -320,14 +315,14 @@ plt.show()
 
 # %%
 # The default formatter is the `matplotlib.ticker.MaxNLocator` called as
-# ``ticker.MaxNLocator(self, nbins='auto', steps=[1, 2, 2.5, 5, 10])``
-# The *steps* keyword contains a list of multiples that can be used for
-# tick values.  i.e. in this case, 2, 4, 6 would be acceptable ticks,
+# ``ticker.MaxNLocator(self, nbins='auto', steps=[1, 2, 2.5, 5, 10])``.
+# The ``steps`` argument contains a list of multiples that can be used for
+# tick values. In this case, 2, 4, 6 would be acceptable ticks,
 # as would 20, 40, 60 or 0.2, 0.4, 0.6. However, 3, 6, 9 would not be
 # acceptable because 3 doesn't appear in the list of steps.
 #
-# ``nbins=auto`` uses an algorithm to determine how many ticks will
-# be acceptable based on how long the axis is.  The fontsize of the
+# Setting ``nbins=auto`` uses an algorithm to determine how many ticks will
+# be acceptable based on the axis length. The fontsize of the
 # ticklabel is taken into account, but the length of the tick string
 # is not (because it's not yet known.)  In the bottom row, the
 # ticklabels are quite large, so we set ``nbins=4`` to make the
@@ -380,16 +375,16 @@ plt.show()
 
 # %%
 # Dateticks
-# ~~~~~~~~~
+# ^^^^^^^^^
 #
 # Matplotlib can accept `datetime.datetime` and `numpy.datetime64`
 # objects as plotting arguments.  Dates and times require special
 # formatting, which can often benefit from manual intervention. In
-# order to help, dates have special Locators and Formatters,
+# order to help, dates have special locators and formatters,
 # defined in the `matplotlib.dates` module.
 #
-# A simple example is as follows.  Note how we have to rotate the
-# tick labels so that they don't over-run each other.
+# The following simple example illustrates this concept. Note how we
+# rotate the tick labels so that they don't overlap.
 
 import datetime
 
@@ -402,11 +397,10 @@ ax.tick_params(axis='x', rotation=70)
 plt.show()
 
 # %%
-# We can pass a format to `matplotlib.dates.DateFormatter`.  Also note that the
-# 29th and the next month are very close together.  We can fix this by using
-# the `.dates.DayLocator` class, which allows us to specify a list of days of
-# the month to use. Similar formatters are listed in the `matplotlib.dates`
-# module.
+# We can pass a format to `matplotlib.dates.DateFormatter`. If two tick labels
+# are very close together, we can use the `.dates.DayLocator` class, which
+# allows us to specify a list of days of the month to use. Similar formatters
+# are listed in the `matplotlib.dates` module.
 
 import matplotlib.dates as mdates
 
@@ -421,9 +415,9 @@ ax.tick_params(axis='x', rotation=70)
 plt.show()
 
 # %%
-# Legends and Annotations
+# Legends and annotations
 # =======================
 #
-# - Legends: :ref:`legend_guide`
-# - Annotations: :ref:`annotations`
+# - :ref:`legend_guide`
+# - :ref:`annotations`
 #

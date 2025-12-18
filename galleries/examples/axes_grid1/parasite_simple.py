@@ -20,7 +20,7 @@ p2, = par.plot([0, 1, 2], [0, 3, 2], label="Temperature")
 
 host.legend(labelcolor="linecolor")
 
-host.yaxis.get_label().set_color(p1.get_color())
-par.yaxis.get_label().set_color(p2.get_color())
+host.yaxis.label.set_color(p1.get_color())
+par.yaxis.label.set_color(p2.get_color())
 
 plt.show()

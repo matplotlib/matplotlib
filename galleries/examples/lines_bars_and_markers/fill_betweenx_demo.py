@@ -1,7 +1,7 @@
 """
-==================
-Fill Betweenx Demo
-==================
+========================================
+Fill the area between two vertical lines
+========================================
 
 Using `~.Axes.fill_betweenx` to color along the horizontal direction between
 two curves.
@@ -52,3 +52,9 @@ ax1.set_title('regions with x2 > 1 are masked')
 # would be to interpolate all arrays to a very fine grid before plotting.
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: fill_between
+#    level: beginner

@@ -6,7 +6,7 @@ from typing import Literal
 from numpy.typing import ArrayLike
 
 class ScaleBase:
-    def __init__(self, axis: Axis) -> None: ...
+    def __init__(self, axis: Axis | None) -> None: ...
     def get_transform(self) -> Transform: ...
     def set_default_locators_and_formatters(self, axis: Axis) -> None: ...
     def limit_range_for_scale(
@@ -15,6 +15,10 @@ class ScaleBase:
 
 class LinearScale(ScaleBase):
     name: str
+    def __init__(
+            self,
+            axis:  Axis | None,
+        ) -> None: ...
 
 class FuncTransform(Transform):
     input_dims: int
@@ -30,7 +34,7 @@ class FuncScale(ScaleBase):
     name: str
     def __init__(
         self,
-        axis: Axis,
+        axis: Axis | None,
         functions: tuple[
             Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]
         ],
@@ -57,7 +61,7 @@ class LogScale(ScaleBase):
     subs: Iterable[int] | None
     def __init__(
         self,
-        axis: Axis,
+        axis: Axis | None = ...,
         *,
         base: float = ...,
         subs: Iterable[int] | None = ...,
@@ -70,7 +74,7 @@ class LogScale(ScaleBase):
 class FuncScaleLog(LogScale):
     def __init__(
         self,
-        axis: Axis,
+        axis: Axis | None,
         functions: tuple[
             Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]
         ],
@@ -104,7 +108,7 @@ class SymmetricalLogScale(ScaleBase):
     subs: Iterable[int] | None
     def __init__(
         self,
-        axis: Axis,
+        axis: Axis | None = ...,
         *,
         base: float = ...,
         linthresh: float = ...,
@@ -138,7 +142,7 @@ class AsinhScale(ScaleBase):
     auto_tick_multipliers: dict[int, tuple[int, ...]]
     def __init__(
         self,
-        axis: Axis,
+        axis: Axis | None = ...,
         *,
         linear_width: float = ...,
         base: float = ...,
@@ -165,7 +169,7 @@ class LogitScale(ScaleBase):
     name: str
     def __init__(
         self,
-        axis: Axis,
+        axis: Axis | None = ...,
         nonpositive: Literal["mask", "clip"] = ...,
         *,
         one_half: str = ...,
@@ -174,5 +178,6 @@ class LogitScale(ScaleBase):
     def get_transform(self) -> LogitTransform: ...
 
 def get_scale_names() -> list[str]: ...
-def scale_factory(scale: str, axis: Axis, **kwargs): ...
+def scale_factory(scale: str, axis: Axis, **kwargs) -> ScaleBase: ...
 def register_scale(scale_class: type[ScaleBase]) -> None: ...
+def _make_axis_parameter_optional(init_func: Callable[..., None]) -> Callable[..., None]: ...

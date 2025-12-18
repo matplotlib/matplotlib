@@ -21,7 +21,7 @@ values = np.arange(0, 2500, 500)
 value_increment = 1000
 
 # Get some pastel shades for the colors
-colors = plt.cm.BuPu(np.linspace(0, 0.5, len(rows)))
+colors = plt.colormaps["BuPu"](np.linspace(0, 0.5, len(rows)))
 n_rows = len(data)
 
 index = np.arange(len(columns)) + 0.3
@@ -40,7 +40,7 @@ for row in range(n_rows):
 colors = colors[::-1]
 cell_text.reverse()
 
-# Add a table at the bottom of the axes
+# Add a table at the bottom of the Axes
 the_table = plt.table(cellText=cell_text,
                       rowLabels=rows,
                       rowColours=colors,

@@ -21,7 +21,7 @@ ax.spines[["top", "right"]].set_visible(False)
 # case, one of the coordinates (0) is a data coordinate (i.e., y = 0 or x = 0,
 # respectively) and the other one (1) is an axes coordinate (i.e., at the very
 # right/top of the axes).  Also, disable clipping (clip_on=False) as the marker
-# actually spills out of the axes.
+# actually spills out of the Axes.
 ax.plot(1, 0, ">k", transform=ax.get_yaxis_transform(), clip_on=False)
 ax.plot(0, 1, "^k", transform=ax.get_xaxis_transform(), clip_on=False)
 

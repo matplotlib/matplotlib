@@ -1,9 +1,10 @@
 """
-Testing that skewed axes properly work.
+Testing that skewed Axes properly work.
 """
 
 from contextlib import ExitStack
 import itertools
+import platform
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
@@ -132,7 +133,7 @@ class SkewXAxes(Axes):
 register_projection(SkewXAxes)
 
 
-@image_comparison(['skew_axes'], remove_text=True)
+@image_comparison(['skew_axes.png'], remove_text=True)
 def test_set_line_coll_dash_image():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='skewx')
@@ -144,7 +145,8 @@ def test_set_line_coll_dash_image():
     ax.axvline(0, color='b')
 
 
-@image_comparison(['skew_rects'], remove_text=True)
+@image_comparison(['skew_rects.png'], remove_text=True,
+                  tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_skew_rectangle():
 
     fix, axes = plt.subplots(5, 5, sharex=True, sharey=True, figsize=(8, 8))

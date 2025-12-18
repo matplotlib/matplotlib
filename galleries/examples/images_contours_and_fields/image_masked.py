@@ -1,7 +1,7 @@
 """
-============
-Image Masked
-============
+========================
+Image with masked values
+========================
 
 imshow with masked array input and out-of-range colors.
 
@@ -25,7 +25,7 @@ Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (Z1 - Z2) * 2
 
 # Set up a colormap:
-palette = plt.cm.gray.with_extremes(over='r', under='g', bad='b')
+palette = plt.colormaps["gray"].with_extremes(over='r', under='g', bad='b')
 # Alternatively, we could use
 # palette.set_bad(alpha = 0.0)
 # to make the bad region transparent.  This is the default.

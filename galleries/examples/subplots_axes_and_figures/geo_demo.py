@@ -6,7 +6,7 @@ Geographic Projections
 This shows 4 possible geographic projections.  Cartopy_ supports more
 projections.
 
-.. _Cartopy: https://scitools.org.uk/cartopy/
+.. _Cartopy: https://cartopy.readthedocs.io
 """
 
 import matplotlib.pyplot as plt
@@ -40,3 +40,10 @@ plt.title("Mollweide")
 plt.grid(True)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: specialty
+#    component: projection
+#    domain: cartography

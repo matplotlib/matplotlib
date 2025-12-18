@@ -1,87 +1,106 @@
+
 .. _users-guide-index:
 
 .. redirect-from:: /contents
+.. redirect-from:: /users/explain
 
-##########
-User guide
-##########
+
+Using Matplotlib
+================
 
 .. grid:: 1 1 2 2
 
-   .. grid-item-card:: Starting information
-      :padding: 2
+    .. grid-item-card::
+        :padding: 2
 
-      .. plot::
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
 
-         rng = np.random.default_rng(seed=19680808)
-         x = np.linspace(0, 4, 1000)  # Sample data.
-         y = rng.normal(size=len(x)) * 1.5 + x**2 + np.cumsum(rng.normal(size=len(x))) / 6
-         x = x[::10]
-         y = y[::10]
-         fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
+            explain/quick_start
 
-         ax.plot(x, x**2, label='underlying data', linewidth=4, alpha=0.6, color='k')
-         ax.scatter(x, y, s=13 * rng.random(size=len(x)), c=rng.normal(size=len(x)),
-               label='noisy data')
-         # p = np.polyfit(x, y, deg=1)
-         # print(p)
-         p = np.array([ 3.81283983, -2.00111268])
-         out = np.polyval(p, x)
-         ax.plot(x, out, label='linear fit')  # Plot some data on the axes.
-         # p = np.polyfit(x, y, deg=2)
-         # print(p)
-         p = np.array([ 1.18076933, -0.86768725,  1.05989268])
-         out = np.polyval(p, x)
-         ax.plot(x, out, label='quadratic fit')
-         ax.set_xlabel('x label')
-         ax.set_ylabel('y label')
-         ax.set_title("Simple plot")
-         ax.legend()
+        .. toctree::
+            :maxdepth: 1
 
+            faq.rst
 
-      .. toctree::
-         :maxdepth: 1
+    .. grid-item-card::
+        :padding: 2
 
-         getting_started/index.rst
-         installing/index.rst
-         FAQ: How-to and troubleshooting <faq/index.rst>
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
 
-   .. grid-item-card:: Users guide
-      :padding: 2
+            explain/figure/index
 
-      .. toctree::
-         :maxdepth: 2
+    .. grid-item-card::
+        :padding: 2
 
-         explain/index.rst
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
 
-   .. grid-item-card:: Tutorials and examples
-      :padding: 2
-
-      .. toctree::
-         :maxdepth: 1
-
-         ../plot_types/index.rst
-         ../gallery/index.rst
-         ../tutorials/index.rst
-         resources/index.rst
+            explain/axes/index
 
 
-      .. raw:: html
+    .. grid-item-card::
+        :padding: 2
 
-         <div class="grid__intro" id="image_rotator"></div>
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/artists/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/customizing
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/colors/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/text/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/animations/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/toolkits/index
 
 
-   .. grid-item-card:: More information
-      :padding: 2
+.. toctree::
+    :hidden:
 
-      .. toctree::
-         :maxdepth: 1
-
-         Reference <../api/index.rst>
-         Contribute <../devel/index.rst>
-         Releases <release_notes.rst>
-
-      .. toctree::
-         :maxdepth: 2
-
-         project/index.rst
+    getting_started/index
+    ../install/index
+    glossary

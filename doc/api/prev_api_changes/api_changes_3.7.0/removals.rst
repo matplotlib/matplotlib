@@ -185,7 +185,7 @@ is thus removed as well.
 To test an installed copy, be sure to specify both ``matplotlib`` and
 ``mpl_toolkits`` with ``--pyargs``::
 
-    python -m pytest --pyargs matplotlib.tests mpl_toolkits.tests
+    pytest --pyargs matplotlib.tests mpl_toolkits.tests
 
 See :ref:`testing` for more details.
 
@@ -323,7 +323,7 @@ Miscellaneous removals
 - The *format* parameter of ``dviread.find_tex_file`` is removed (with no
   replacement).
 - ``FancyArrowPatch.get_path_in_displaycoord`` and
-  ``ConnectionPath.get_path_in_displaycoord`` are removed. The path in
+  ``ConnectionPatch.get_path_in_displaycoord`` are removed. The path in
   display coordinates can still be obtained, as for other patches, using
   ``patch.get_transform().transform_path(patch.get_path())``.
 - The ``font_manager.win32InstalledFonts`` and

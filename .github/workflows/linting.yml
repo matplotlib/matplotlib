@@ -1,0 +1,100 @@
+---
+name: Linting
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:
+    name: precommit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
+        with:
+          python-version: "3.x"
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd  # v3.0.1
+        with:
+          extra_args: --hook-stage manual --all-files
+
+  ruff:
+    name: ruff
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Install ruff
+        run: pip3 install ruff
+
+      - name: Set up reviewdog
+        uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252  # v1.4.0
+
+      - name: Run ruff
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -o pipefail
+          ruff check --output-format rdjson | \
+            reviewdog -f=rdjson \
+              -tee -reporter=github-check -filter-mode nofilter
+  mypy:
+    name: mypy
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Install mypy
+        run: pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt
+
+      - name: Set up reviewdog
+        uses: reviewdog/action-setup@d8edfce3dd5e1ec6978745e801f9c50b5ef80252  # v1.4.0
+
+      - name: Run mypy
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -o pipefail
+          mypy --config pyproject.toml | \
+            reviewdog -f=mypy -name=mypy \
+              -tee -reporter=github-check -filter-mode nofilter
+
+
+  eslint:
+    name: eslint
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: eslint
+        uses: reviewdog/action-eslint@556a3fdaf8b4201d4d74d406013386aa4f7dab96  # v1.34.0
+        with:
+          filter_mode: nofilter
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-check
+          workdir: 'lib/matplotlib/backends/web_backend/'

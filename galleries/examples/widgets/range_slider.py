@@ -1,7 +1,7 @@
 """
-======================================
-Thresholding an Image with RangeSlider
-======================================
+=================================
+Image scaling using a RangeSlider
+=================================
 
 Using the RangeSlider widget to control the thresholding of an image.
 
@@ -34,7 +34,7 @@ axs[1].hist(img.flatten(), bins='auto')
 axs[1].set_title('Histogram of pixel intensities')
 
 # Create the RangeSlider
-slider_ax = fig.add_axes([0.20, 0.1, 0.60, 0.03])
+slider_ax = fig.add_axes((0.20, 0.1, 0.60, 0.03))
 slider = RangeSlider(slider_ax, "Threshold", img.min(), img.max())
 
 # Create the Vertical lines on the histogram

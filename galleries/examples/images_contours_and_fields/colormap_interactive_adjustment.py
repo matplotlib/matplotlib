@@ -1,6 +1,6 @@
 """
 ========================================
-Interactive Adjustment of Colormap Range
+Interactive adjustment of colormap range
 ========================================
 
 Demonstration of how a colorbar can be used to interactively adjust the

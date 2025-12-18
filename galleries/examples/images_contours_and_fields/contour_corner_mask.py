@@ -1,6 +1,6 @@
 """
 ===================
-Contour Corner Mask
+Contour corner mask
 ===================
 
 Illustrate the difference between ``corner_mask=False`` and

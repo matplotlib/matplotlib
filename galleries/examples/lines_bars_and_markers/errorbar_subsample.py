@@ -38,3 +38,10 @@ ax2.errorbar(x, y2, yerr=y2err, errorevery=(3, 6))
 
 fig.suptitle('Errorbar subsampling')
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: error
+#    plot-type: errorbar
+#    level: beginner

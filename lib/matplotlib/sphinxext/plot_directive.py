@@ -32,7 +32,7 @@ The plot content may be defined in one of three ways:
 
         import matplotlib.pyplot as plt
         plt.plot([1, 2, 3], [4, 5, 6])
-        plt.title("A plotting exammple")
+        plt.title("A plotting example")
 
 3. Using **doctest** syntax::
 
@@ -47,36 +47,47 @@ Options
 
 The ``.. plot::`` directive supports the following options:
 
-    ``:format:`` : {'python', 'doctest'}
-        The format of the input.  If unset, the format is auto-detected.
+``:filename-prefix:`` : str
+    The base name (without the extension) of the outputted image and script
+    files. The default is to use the same name as the input script, or the
+    name of the RST document if no script is provided. The filename-prefix for
+    each plot directive must be unique.
 
-    ``:include-source:`` : bool
-        Whether to display the source code. The default can be changed using
-        the ``plot_include_source`` variable in :file:`conf.py` (which itself
-        defaults to False).
+``:format:`` : {'python', 'doctest'}
+    The format of the input.  If unset, the format is auto-detected.
 
-    ``:show-source-link:`` : bool
-        Whether to show a link to the source in HTML. The default can be
-        changed using the ``plot_html_show_source_link`` variable in
-        :file:`conf.py` (which itself defaults to True).
+``:include-source:`` : bool
+    Whether to display the source code. The default can be changed using
+    the ``plot_include_source`` variable in :file:`conf.py` (which itself
+    defaults to False).
 
-    ``:context:`` : bool or str
-        If provided, the code will be run in the context of all previous plot
-        directives for which the ``:context:`` option was specified.  This only
-        applies to inline code plot directives, not those run from files. If
-        the ``:context: reset`` option is specified, the context is reset
-        for this and future plots, and previous figures are closed prior to
-        running the code. ``:context: close-figs`` keeps the context but closes
-        previous figures before running the code.
+``:show-source-link:`` : bool
+    Whether to show a link to the source in HTML. The default can be
+    changed using the ``plot_html_show_source_link`` variable in
+    :file:`conf.py` (which itself defaults to True).
 
-    ``:nofigs:`` : bool
-        If specified, the code block will be run, but no figures will be
-        inserted.  This is usually useful with the ``:context:`` option.
+``:context:`` : bool or str
+    If provided, the code will be run in the context of all previous plot
+    directives for which the ``:context:`` option was specified.  This only
+    applies to inline code plot directives, not those run from files. If
+    the ``:context: reset`` option is specified, the context is reset
+    for this and future plots, and previous figures are closed prior to
+    running the code. ``:context: close-figs`` keeps the context but closes
+    previous figures before running the code.
 
-    ``:caption:`` : str
-        If specified, the option's argument will be used as a caption for the
-        figure. This overwrites the caption given in the content, when the plot
-        is generated from a file.
+``:nofigs:`` : bool
+    If specified, the code block will be run, but no figures will be
+    inserted.  This is usually useful with the ``:context:`` option.
+
+``:caption:`` : str
+    If specified, the option's argument will be used as a caption for the
+    figure. This overwrites the caption given in the content, when the plot
+    is generated from a file.
+
+``:code-caption:`` : str
+    If specified, the option's argument will be used as a caption for the
+    code block (when ``:include-source:`` is used). This is added as the
+    ``:caption:`` option to the ``.. code-block::`` directive.
 
 Additionally, this directive supports all the options of the `image directive
 <https://docutils.sourceforge.io/docs/ref/rst/directives.html#image>`_,
@@ -88,68 +99,68 @@ Configuration options
 
 The plot directive has the following configuration options:
 
-    plot_include_source
-        Default value for the include-source option (default: False).
+plot_include_source
+    Default value for the include-source option (default: False).
 
-    plot_html_show_source_link
-        Whether to show a link to the source in HTML (default: True).
+plot_html_show_source_link
+    Whether to show a link to the source in HTML (default: True).
 
-    plot_pre_code
-        Code that should be executed before each plot. If None (the default),
-        it will default to a string containing::
+plot_pre_code
+    Code that should be executed before each plot. If None (the default),
+    it will default to a string containing::
 
-            import numpy as np
-            from matplotlib import pyplot as plt
+        import numpy as np
+        from matplotlib import pyplot as plt
 
-    plot_basedir
-        Base directory, to which ``plot::`` file names are relative to.
-        If None or empty (the default), file names are relative to the
-        directory where the file containing the directive is.
+plot_basedir
+    Base directory, to which ``plot::`` file names are relative to.
+    If None or empty (the default), file names are relative to the
+    directory where the file containing the directive is.
 
-    plot_formats
-        File formats to generate (default: ['png', 'hires.png', 'pdf']).
-        List of tuples or strings::
+plot_formats
+    File formats to generate (default: ['png', 'hires.png', 'pdf']).
+    List of tuples or strings::
 
-            [(suffix, dpi), suffix, ...]
+        [(suffix, dpi), suffix, ...]
 
-        that determine the file format and the DPI. For entries whose
-        DPI was omitted, sensible defaults are chosen. When passing from
-        the command line through sphinx_build the list should be passed as
-        suffix:dpi,suffix:dpi, ...
+    that determine the file format and the DPI. For entries whose
+    DPI was omitted, sensible defaults are chosen. When passing from
+    the command line through sphinx_build the list should be passed as
+    suffix:dpi,suffix:dpi, ...
 
-    plot_html_show_formats
-        Whether to show links to the files in HTML (default: True).
+plot_html_show_formats
+    Whether to show links to the files in HTML (default: True).
 
-    plot_rcparams
-        A dictionary containing any non-standard rcParams that should
-        be applied before each plot (default: {}).
+plot_rcparams
+    A dictionary containing any non-standard rcParams that should
+    be applied before each plot (default: {}).
 
-    plot_apply_rcparams
-        By default, rcParams are applied when ``:context:`` option is not used
-        in a plot directive.  If set, this configuration option overrides this
-        behavior and applies rcParams before each plot.
+plot_apply_rcparams
+    By default, rcParams are applied when ``:context:`` option is not used
+    in a plot directive.  If set, this configuration option overrides this
+    behavior and applies rcParams before each plot.
 
-    plot_working_directory
-        By default, the working directory will be changed to the directory of
-        the example, so the code can get at its data files, if any.  Also its
-        path will be added to `sys.path` so it can import any helper modules
-        sitting beside it.  This configuration option can be used to specify
-        a central directory (also added to `sys.path`) where data files and
-        helper modules for all code are located.
+plot_working_directory
+    By default, the working directory will be changed to the directory of
+    the example, so the code can get at its data files, if any.  Also its
+    path will be added to `sys.path` so it can import any helper modules
+    sitting beside it.  This configuration option can be used to specify
+    a central directory (also added to `sys.path`) where data files and
+    helper modules for all code are located.
 
-    plot_template
-        Provide a customized template for preparing restructured text.
+plot_template
+    Provide a customized template for preparing restructured text.
 
-    plot_srcset
-        Allow the srcset image option for responsive image resolutions. List of
-        strings with the multiplicative factors followed by an "x".
-        e.g. ["2.0x", "1.5x"].  "2.0x" will create a png with the default "png"
-        resolution from plot_formats, multiplied by 2. If plot_srcset is
-        specified, the plot directive uses the
-        :doc:`/api/sphinxext_figmpl_directive_api` (instead of the usual figure
-        directive) in the intermediary rst file that is generated.
-        The plot_srcset option is incompatible with *singlehtml* builds, and an
-        error will be raised.
+plot_srcset
+    Allow the srcset image option for responsive image resolutions. List of
+    strings with the multiplicative factors followed by an "x".
+    e.g. ["2.0x", "1.5x"].  "2.0x" will create a png with the default "png"
+    resolution from plot_formats, multiplied by 2. If plot_srcset is
+    specified, the plot directive uses the
+    :doc:`/api/sphinxext_figmpl_directive_api` (instead of the usual figure
+    directive) in the intermediary rst file that is generated.
+    The plot_srcset option is incompatible with *singlehtml* builds, and an
+    error will be raised.
 
 Notes on how it works
 ---------------------
@@ -163,8 +174,10 @@ the ``*.png`` files in the ``plot_directive`` directory.  These translations can
 be customized by changing the *plot_template*.  See the source of
 :doc:`/api/sphinxext_plot_directive_api` for the templates defined in *TEMPLATE*
 and *TEMPLATE_SRCSET*.
+
 """
 
+from collections import defaultdict
 import contextlib
 import doctest
 from io import StringIO
@@ -182,6 +195,7 @@ from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.images import Image
 import jinja2  # Sphinx dependency.
 
+from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ExtensionError
 
 import matplotlib
@@ -265,12 +279,14 @@ class PlotDirective(Directive):
         'scale': directives.nonnegative_int,
         'align': Image.align,
         'class': directives.class_option,
+        'filename-prefix': directives.unchanged,
         'include-source': _option_boolean,
         'show-source-link': _option_boolean,
         'format': _option_format,
         'context': _option_context,
         'nofigs': directives.flag,
         'caption': directives.unchanged,
+        'code-caption': directives.unchanged,
         }
 
     def run(self):
@@ -312,7 +328,33 @@ def setup(app):
     app.connect('build-finished', _copy_css_file)
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
                 'version': matplotlib.__version__}
+    app.connect('builder-inited', init_filename_registry)
+    app.add_env_collector(_FilenameCollector)
     return metadata
+
+
+# -----------------------------------------------------------------------------
+# Handle Duplicate Filenames
+# -----------------------------------------------------------------------------
+
+def init_filename_registry(app):
+    env = app.builder.env
+    if not hasattr(env, 'mpl_plot_image_basenames'):
+        env.mpl_plot_image_basenames = defaultdict(set)
+
+
+class _FilenameCollector(EnvironmentCollector):
+    def process_doc(self, app, doctree):
+        pass
+
+    def clear_doc(self, app, env, docname):
+        if docname in env.mpl_plot_image_basenames:
+            del env.mpl_plot_image_basenames[docname]
+
+    def merge_other(self, app, env, docnames, other):
+        for docname in other.mpl_plot_image_basenames:
+            env.mpl_plot_image_basenames[docname].update(
+                other.mpl_plot_image_basenames[docname])
 
 
 # -----------------------------------------------------------------------------
@@ -600,6 +642,25 @@ def _parse_srcset(entries):
     return srcset
 
 
+def check_output_base_name(env, output_base):
+    docname = env.docname
+
+    if '.' in output_base or '/' in output_base or '\\' in output_base:
+        raise PlotError(
+            f"The filename-prefix '{output_base}' is invalid. "
+            f"It must not contain dots or slashes.")
+
+    for d in env.mpl_plot_image_basenames:
+        if output_base in env.mpl_plot_image_basenames[d]:
+            if d == docname:
+                raise PlotError(
+                    f"The filename-prefix {output_base!r} is used multiple times.")
+            raise PlotError(f"The filename-prefix {output_base!r} is used multiple"
+                            f"times (it is also used in {env.doc2path(d)}).")
+
+    env.mpl_plot_image_basenames[docname].add(output_base)
+
+
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False,
                    close_figs=False,
@@ -722,7 +783,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
 def run(arguments, content, options, state_machine, state, lineno):
     document = state_machine.document
-    config = document.settings.env.config
+    env = document.settings.env
+    config = env.config
     nofigs = 'nofigs' in options
 
     if config.plot_srcset and setup.app.builder.name == 'singlehtml':
@@ -734,6 +796,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     options.setdefault('include-source', config.plot_include_source)
     options.setdefault('show-source-link', config.plot_html_show_source_link)
+    options.setdefault('filename-prefix', None)
 
     if 'class' in options:
         # classes are parsed into a list of string, and output by simply
@@ -775,14 +838,22 @@ def run(arguments, content, options, state_machine, state, lineno):
             function_name = None
 
         code = Path(source_file_name).read_text(encoding='utf-8')
-        output_base = os.path.basename(source_file_name)
+        if options['filename-prefix']:
+            output_base = options['filename-prefix']
+            check_output_base_name(env, output_base)
+        else:
+            output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
         code = textwrap.dedent("\n".join(map(str, content)))
-        counter = document.attributes.get('_plot_counter', 0) + 1
-        document.attributes['_plot_counter'] = counter
-        base, ext = os.path.splitext(os.path.basename(source_file_name))
-        output_base = '%s-%d.py' % (base, counter)
+        if options['filename-prefix']:
+            output_base = options['filename-prefix']
+            check_output_base_name(env, output_base)
+        else:
+            base, ext = os.path.splitext(os.path.basename(source_file_name))
+            counter = document.attributes.get('_plot_counter', 0) + 1
+            document.attributes['_plot_counter'] = counter
+            output_base = '%s-%d.py' % (base, counter)
         function_name = None
         caption = options.get('caption', '')
 
@@ -846,7 +917,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # save script (if necessary)
     if options['show-source-link']:
-        Path(build_dir, output_base + source_ext).write_text(
+        Path(build_dir, output_base + (source_ext or '.py')).write_text(
             doctest.script_from_examples(code)
             if source_file_name == rst_file and is_doctest
             else code,
@@ -876,7 +947,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # Properly indent the caption
     if caption and config.plot_srcset:
-        caption = f':caption: {caption}'
+        caption = ':caption: ' + caption.replace('\n', ' ')
     elif caption:
         caption = '\n' + '\n'.join('      ' + line.strip()
                                    for line in caption.split('\n'))
@@ -887,14 +958,20 @@ def run(arguments, content, options, state_machine, state, lineno):
             if is_doctest:
                 lines = ['', *code_piece.splitlines()]
             else:
-                lines = ['.. code-block:: python', '',
-                         *textwrap.indent(code_piece, '    ').splitlines()]
+                lines = ['.. code-block:: python']
+                if 'code-caption' in options:
+                    code_caption = options['code-caption'].replace('\n', ' ')
+                    lines.append(f'   :caption: {code_caption}')
+                lines.extend(['', *textwrap.indent(code_piece, '    ').splitlines()])
             source_code = "\n".join(lines)
         else:
             source_code = ""
 
         if nofigs:
             images = []
+
+        if 'alt' in options:
+            options['alt'] = options['alt'].replace('\n', ' ')
 
         opts = [
             f':{key}: {val}' for key, val in options.items()
@@ -903,7 +980,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         # Not-None src_name signals the need for a source download in the
         # generated html
         if j == 0 and options['show-source-link']:
-            src_name = output_base + source_ext
+            src_name = output_base + (source_ext or '.py')
         else:
             src_name = None
         if config.plot_srcset:

@@ -26,3 +26,9 @@ ax.set_xlabel('Performance')
 ax.set_title('How fast do you want to go today?')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: bar
+#    level: beginner

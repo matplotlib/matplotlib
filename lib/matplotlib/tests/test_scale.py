@@ -6,8 +6,12 @@ from matplotlib.scale import (
     LogTransform, InvertedLogTransform,
     SymmetricalLogTransform)
 import matplotlib.scale as mscale
-from matplotlib.ticker import AsinhLocator, LogFormatterSciNotation
+from matplotlib.ticker import (
+    AsinhLocator, AutoLocator, LogFormatterSciNotation,
+    NullFormatter, NullLocator, ScalarFormatter
+)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.transforms import IdentityTransform
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -37,22 +41,22 @@ def test_symlog_mask_nan():
     x = np.arange(-1.5, 5, 0.5)
     out = slti.transform_non_affine(slt.transform_non_affine(x))
     assert_allclose(out, x)
-    assert type(out) == type(x)
+    assert type(out) is type(x)
 
     x[4] = np.nan
     out = slti.transform_non_affine(slt.transform_non_affine(x))
     assert_allclose(out, x)
-    assert type(out) == type(x)
+    assert type(out) is type(x)
 
     x = np.ma.array(x)
     out = slti.transform_non_affine(slt.transform_non_affine(x))
     assert_allclose(out, x)
-    assert type(out) == type(x)
+    assert type(out) is type(x)
 
     x[3] = np.ma.masked
     out = slti.transform_non_affine(slt.transform_non_affine(x))
     assert_allclose(out, x)
-    assert type(out) == type(x)
+    assert type(out) is type(x)
 
 
 @image_comparison(['logit_scales.png'], remove_text=True)
@@ -107,7 +111,8 @@ def test_logscale_mask():
     fig, ax = plt.subplots()
     ax.plot(np.exp(-xs**2))
     fig.canvas.draw()
-    ax.set(yscale="log")
+    ax.set(yscale="log",
+           yticks=10.**np.arange(-300, 0, 24))  # Backcompat tick selection.
 
 
 def test_extra_kwargs_raise():
@@ -162,6 +167,7 @@ def test_logscale_nonpos_values():
 
     ax4.set_yscale('log')
     ax4.set_xscale('log')
+    ax4.set_yticks([1e-2, 1, 1e+2])  # Backcompat tick selection.
 
 
 def test_invalid_log_lims():
@@ -293,3 +299,75 @@ class TestAsinhScale:
             AsinhScale(axis=None, linear_width=-1)
         s0 = AsinhScale(axis=None, )
         s1 = AsinhScale(axis=None, linear_width=3.0)
+
+
+def test_custom_scale_without_axis():
+    """
+    Test that one can register and use custom scales that don't take an *axis* param.
+    """
+    class CustomTransform(IdentityTransform):
+        pass
+
+    class CustomScale(mscale.ScaleBase):
+        name = "custom"
+
+        # Important: __init__ has no *axis* parameter
+        def __init__(self):
+            self._transform = CustomTransform()
+
+        def get_transform(self):
+            return self._transform
+
+        def set_default_locators_and_formatters(self, axis):
+            axis.set_major_locator(AutoLocator())
+            axis.set_major_formatter(ScalarFormatter())
+            axis.set_minor_locator(NullLocator())
+            axis.set_minor_formatter(NullFormatter())
+
+    try:
+        mscale.register_scale(CustomScale)
+        fig, ax = plt.subplots()
+        ax.set_xscale('custom')
+        assert isinstance(ax.xaxis.get_transform(), CustomTransform)
+    finally:
+        # cleanup - there's no public unregister_scale()
+        del mscale._scale_mapping["custom"]
+        del mscale._scale_has_axis_parameter["custom"]
+
+
+def test_custom_scale_with_axis():
+    """
+    Test that one can still register and use custom scales with an *axis*
+    parameter, but that registering issues a pending-deprecation warning.
+    """
+    class CustomTransform(IdentityTransform):
+        pass
+
+    class CustomScale(mscale.ScaleBase):
+        name = "custom"
+
+        # Important: __init__ still has the *axis* parameter
+        def __init__(self, axis):
+            self._transform = CustomTransform()
+
+        def get_transform(self):
+            return self._transform
+
+        def set_default_locators_and_formatters(self, axis):
+            axis.set_major_locator(AutoLocator())
+            axis.set_major_formatter(ScalarFormatter())
+            axis.set_minor_locator(NullLocator())
+            axis.set_minor_formatter(NullFormatter())
+
+    try:
+        with pytest.warns(
+                PendingDeprecationWarning,
+                match=r"'axis' parameter .* is pending-deprecated"):
+            mscale.register_scale(CustomScale)
+        fig, ax = plt.subplots()
+        ax.set_xscale('custom')
+        assert isinstance(ax.xaxis.get_transform(), CustomTransform)
+    finally:
+        # cleanup - there's no public unregister_scale()
+        del mscale._scale_mapping["custom"]
+        del mscale._scale_has_axis_parameter["custom"]

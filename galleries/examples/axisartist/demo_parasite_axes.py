@@ -3,7 +3,7 @@
 Parasite Axes demo
 ==================
 
-Create a parasite axes. Such axes would share the x scale with a host axes,
+Create a parasite Axes. Such Axes would share the x scale with a host Axes,
 but show a different scale in y direction.
 
 This approach uses `mpl_toolkits.axes_grid1.parasite_axes.HostAxes` and
@@ -24,7 +24,7 @@ from mpl_toolkits.axisartist.parasite_axes import HostAxes
 
 fig = plt.figure()
 
-host = fig.add_axes([0.15, 0.1, 0.65, 0.8], axes_class=HostAxes)
+host = fig.add_axes((0.15, 0.1, 0.65, 0.8), axes_class=HostAxes)
 par1 = host.get_aux_axes(viewlim_mode=None, sharex=host)
 par2 = host.get_aux_axes(viewlim_mode=None, sharex=host)
 

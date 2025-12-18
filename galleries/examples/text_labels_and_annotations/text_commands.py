@@ -1,7 +1,7 @@
 """
-=============
-Text Commands
-=============
+===============
+Text properties
+===============
 
 Plotting text of many different kinds.
 

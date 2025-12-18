@@ -48,8 +48,8 @@ def test_offsetbox_clipping():
     da.add_artist(bg)
     da.add_artist(line)
     ax.add_artist(anchored_box)
-    ax.set_xlim((0, 1))
-    ax.set_ylim((0, 1))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
 
 
 def test_offsetbox_clip_children():
@@ -257,7 +257,8 @@ def test_anchoredtext_horizontal_alignment():
     ax.add_artist(text2)
 
 
-def test_annotationbbox_extents():
+@pytest.mark.parametrize("extent_kind", ["window_extent", "tightbbox"])
+def test_annotationbbox_extents(extent_kind):
     plt.rcParams.update(plt.rcParamsDefault)
     fig, ax = plt.subplots(figsize=(4, 3), dpi=100)
 
@@ -284,31 +285,22 @@ def test_annotationbbox_extents():
                          arrowprops=dict(arrowstyle="->"))
     ax.add_artist(ab6)
 
-    fig.canvas.draw()
-    renderer = fig.canvas.get_renderer()
-
     # Test Annotation
-    bb1w = an1.get_window_extent(renderer)
-    bb1e = an1.get_tightbbox(renderer)
+    bb1 = getattr(an1, f"get_{extent_kind}")()
 
     target1 = [332.9, 242.8, 467.0, 298.9]
-    assert_allclose(bb1w.extents, target1, atol=2)
-    assert_allclose(bb1e.extents, target1, atol=2)
+    assert_allclose(bb1.extents, target1, atol=2)
 
     # Test AnnotationBbox
-    bb3w = ab3.get_window_extent(renderer)
-    bb3e = ab3.get_tightbbox(renderer)
+    bb3 = getattr(ab3, f"get_{extent_kind}")()
 
     target3 = [-17.6, 129.0, 200.7, 167.9]
-    assert_allclose(bb3w.extents, target3, atol=2)
-    assert_allclose(bb3e.extents, target3, atol=2)
+    assert_allclose(bb3.extents, target3, atol=2)
 
-    bb6w = ab6.get_window_extent(renderer)
-    bb6e = ab6.get_tightbbox(renderer)
+    bb6 = getattr(ab6, f"get_{extent_kind}")()
 
     target6 = [180.0, -32.0, 230.0, 92.9]
-    assert_allclose(bb6w.extents, target6, atol=2)
-    assert_allclose(bb6e.extents, target6, atol=2)
+    assert_allclose(bb6.extents, target6, atol=2)
 
     # Test bbox_inches='tight'
     buf = io.BytesIO()
@@ -458,3 +450,60 @@ def test_remove_draggable():
     an.draggable(True)
     an.remove()
     MouseEvent("button_release_event", fig.canvas, 1, 1)._process()
+
+
+def test_draggable_in_subfigure():
+    fig = plt.figure()
+    # Put annotation at lower left corner to make it easily pickable below.
+    ann = fig.subfigures().add_axes((0, 0, 1, 1)).annotate("foo", (0, 0))
+    ann.draggable(True)
+    fig.canvas.draw()  # Texts are non-pickable until the first draw.
+    MouseEvent("button_press_event", fig.canvas, 1, 1)._process()
+    assert ann._draggable.got_artist
+    # Stop dragging the annotation.
+    MouseEvent("button_release_event", fig.canvas, 1, 1)._process()
+    assert not ann._draggable.got_artist
+    # A scroll event should not initiate a drag.
+    MouseEvent("scroll_event", fig.canvas, 1, 1)._process()
+    assert not ann._draggable.got_artist
+    # An event outside the annotation should not initiate a drag.
+    bbox = ann.get_window_extent()
+    MouseEvent("button_press_event", fig.canvas, bbox.x1+2, bbox.y1+2)._process()
+    assert not ann._draggable.got_artist
+
+
+def test_anchored_offsetbox_tuple_and_float_borderpad():
+    """
+    Test AnchoredOffsetbox correctly handles both float and tuple for borderpad.
+    """
+
+    fig, ax = plt.subplots()
+
+    # Case 1: Establish a baseline with float value
+    text_float = AnchoredText("float", loc='lower left', borderpad=5)
+    ax.add_artist(text_float)
+
+    # Case 2: Test that a symmetric tuple gives the exact same result.
+    text_tuple_equal = AnchoredText("tuple", loc='lower left', borderpad=(5, 5))
+    ax.add_artist(text_tuple_equal)
+
+    # Case 3: Test that an asymmetric tuple with different values works as expected.
+    text_tuple_asym = AnchoredText("tuple_asym", loc='lower left', borderpad=(10, 4))
+    ax.add_artist(text_tuple_asym)
+
+    # Draw the canvas to calculate final positions
+    fig.canvas.draw()
+
+    pos_float = text_float.get_window_extent()
+    pos_tuple_equal = text_tuple_equal.get_window_extent()
+    pos_tuple_asym = text_tuple_asym.get_window_extent()
+
+    # Assertion 1: Prove that borderpad=5 is identical to borderpad=(5, 5).
+    assert pos_tuple_equal.x0 == pos_float.x0
+    assert pos_tuple_equal.y0 == pos_float.y0
+
+    # Assertion 2: Prove that the asymmetric padding moved the box
+    # further from the origin than the baseline in the x-direction and less far
+    # in the y-direction.
+    assert pos_tuple_asym.x0 > pos_float.x0
+    assert pos_tuple_asym.y0 < pos_float.y0

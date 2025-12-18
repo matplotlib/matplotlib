@@ -6,6 +6,9 @@
 #ifndef MPL_SCALAR_H
 #define MPL_SCALAR_H
 
+#include <cstddef>
+#include <stdexcept>
+
 namespace array
 {
 
@@ -29,7 +32,7 @@ class scalar
         return m_value;
     }
 
-    int dim(size_t i)
+    int shape(size_t i)
     {
         return 1;
     }
@@ -40,15 +43,20 @@ class scalar
     }
 };
 
+template <typename T, int ND>
+size_t
+safe_first_shape(scalar<T, ND>)
+{
+    return 1;
+}
+
 template <typename T>
 class empty
 {
   public:
     typedef empty<T> sub_t;
 
-    empty()
-    {
-    }
+    empty() = default;
 
     T &operator()(int i, int j = 0, int k = 0)
     {
@@ -65,7 +73,7 @@ class empty
         return empty<T>();
     }
 
-    int dim(size_t i) const
+    int shape(size_t i) const
     {
         return 0;
     }
@@ -75,6 +83,12 @@ class empty
         return 0;
     }
 };
+
+template <typename T>
+size_t safe_first_shape(empty<T>)
+{
+    return 0;
+}
 }
 
 #endif

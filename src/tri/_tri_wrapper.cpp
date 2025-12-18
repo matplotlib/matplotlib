@@ -1,7 +1,10 @@
 #include "_tri.h"
 
-PYBIND11_MODULE(_tri, m) {
-    py::class_<Triangulation>(m, "Triangulation")
+using namespace pybind11::literals;
+
+PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
+{
+    py::class_<Triangulation>(m, "Triangulation", py::is_final())
         .def(py::init<const Triangulation::CoordinateArray&,
                       const Triangulation::CoordinateArray&,
                       const Triangulation::TriangleArray&,
@@ -9,13 +12,13 @@ PYBIND11_MODULE(_tri, m) {
                       const Triangulation::EdgeArray&,
                       const Triangulation::NeighborArray&,
                       bool>(),
-            py::arg("x"),
-            py::arg("y"),
-            py::arg("triangles"),
-            py::arg("mask"),
-            py::arg("edges"),
-            py::arg("neighbors"),
-            py::arg("correct_triangle_orientations"),
+            "x"_a,
+            "y"_a,
+            "triangles"_a,
+            "mask"_a,
+            "edges"_a,
+            "neighbors"_a,
+            "correct_triangle_orientations"_a,
             "Create a new C++ Triangulation object.\n"
             "This should not be called directly, use the python class\n"
             "matplotlib.tri.Triangulation instead.\n")
@@ -28,11 +31,11 @@ PYBIND11_MODULE(_tri, m) {
         .def("set_mask", &Triangulation::set_mask,
             "Set or clear the mask array.");
 
-    py::class_<TriContourGenerator>(m, "TriContourGenerator")
+    py::class_<TriContourGenerator>(m, "TriContourGenerator", py::is_final())
         .def(py::init<Triangulation&,
                       const TriContourGenerator::CoordinateArray&>(),
-            py::arg("triangulation"),
-            py::arg("z"),
+            "triangulation"_a,
+            "z"_a,
             "Create a new C++ TriContourGenerator object.\n"
             "This should not be called directly, use the functions\n"
             "matplotlib.axes.tricontour and tricontourf instead.\n")
@@ -41,9 +44,9 @@ PYBIND11_MODULE(_tri, m) {
         .def("create_filled_contour", &TriContourGenerator::create_filled_contour,
             "Create and return a filled contour.");
 
-    py::class_<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder")
+    py::class_<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder", py::is_final())
         .def(py::init<Triangulation&>(),
-            py::arg("triangulation"),
+            "triangulation"_a,
             "Create a new C++ TrapezoidMapTriFinder object.\n"
             "This should not be called directly, use the python class\n"
             "matplotlib.tri.TrapezoidMapTriFinder instead.\n")

@@ -4,9 +4,9 @@
 
 .. _constrainedlayout_guide:
 
-================================
-Constrained Layout Guide
-================================
+========================
+Constrained layout guide
+========================
 
 Use *constrained layout* to fit plots within your figure cleanly.
 
@@ -40,15 +40,13 @@ Those are described in detail throughout the following sections.
 
 .. warning::
 
-    Calling ``plt.tight_layout()`` will turn off *constrained layout*!
+    Calling `~.pyplot.tight_layout` will turn off *constrained layout*!
 
 Simple example
 ==============
 
-In Matplotlib, the location of Axes (including subplots) are specified in
-normalized figure coordinates. It can happen that your axis labels or titles
-(or sometimes even ticklabels) go outside the figure area, and are thus
-clipped.
+With the default Axes positioning, the axes title, axis labels, or tick labels
+can sometimes go outside the figure area, and thus get clipped.
 """
 
 # sphinx_gallery_thumbnail_number = 18
@@ -166,7 +164,7 @@ fig.suptitle('Big Suptitle')
 # Legends
 # =======
 #
-# Legends can be placed outside of their parent axis.
+# Legends can be placed outside of their parent axes.
 # *Constrained layout* is designed to handle this for :meth:`.Axes.legend`.
 # However, *constrained layout* does *not* handle legends being created via
 # :meth:`.Figure.legend` (yet).
@@ -495,6 +493,35 @@ for ax in axs.flat:
     ax.imshow(arr)
 fig.suptitle("fixed-aspect plots, layout='compressed'")
 
+# %%
+# Compressed layout will also attempt to size colorbars to match the size of the
+# fixed-aspect-ratio parent Axes as the figure is resized or the aspect ratio changes.
+# In the following figure, the colorbar is taller than its parent Axes:
+
+fig, ax = plt.subplots(layout='constrained', figsize=(3, 3))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+ax.set_title("Colorbar with layout='constrained'", fontsize='medium')
+fig.colorbar(pcm, ax=ax)
+
+# %%
+# Compressed layout ensures that the height of the colorbar matches the height
+# of its parent Axes, maintaining a consistent appearance:
+
+fig, ax = plt.subplots(layout='compressed', figsize=(3, 3))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+ax.set_title("Colorbar with layout='compressed'", fontsize='medium')
+fig.colorbar(pcm, ax=ax)
+
+# %%
+# If the Axes is zoomed in or out, or the figure is resized, the colorbar will
+# dynamically resize to match the parent Axes. Whether this behavior is desired
+# depends on the specific application:
+
+fig, ax = plt.subplots(layout='compressed', figsize=(3, 3))
+pcm = ax.imshow(np.random.randn(10, 10), cmap='viridis')
+ax.set_ylim([4, 8])
+ax.set_title("Layout='compressed' with zoom", fontsize='medium')
+fig.colorbar(pcm, ax=ax)
 
 # %%
 # Manually turning off *constrained layout*
@@ -534,7 +561,7 @@ ax3 = plt.subplot(2, 2, (2, 4))
 example_plot(ax1)
 example_plot(ax2)
 example_plot(ax3)
-plt.suptitle('Homogenous nrows, ncols')
+plt.suptitle('Homogeneous nrows, ncols')
 
 # %%
 # but the following leads to a poor layout:

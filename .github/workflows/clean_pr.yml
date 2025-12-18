@@ -10,9 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: '0'
+          persist-credentials: false
       - name: Check for added-and-deleted files
         run: |
           git fetch --quiet origin "$GITHUB_BASE_REF"
@@ -48,5 +49,6 @@ jobs:
       - name: Check for branches opened against main
         if: github.ref_name == 'main'
         run: |
-          printf 'PR branch should not be main. See https://matplotlib.org/devdocs/devel/development_workflow.html#make-a-new-feature-branch'
+          echo 'PR branch should not be main.'
+          echo 'See https://matplotlib.org/devdocs/devel/development_workflow.html#make-a-new-feature-branch'
           exit 1

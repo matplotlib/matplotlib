@@ -25,10 +25,10 @@ def main():
     dem = cbook.get_sample_data('jacksboro_fault_dem.npz')
     elev = dem['elevation']
 
-    fig = compare(z, plt.cm.copper)
+    fig = compare(z, plt.colormaps["copper"])
     fig.suptitle('HSV Blending Looks Best with Smooth Surfaces', y=0.95)
 
-    fig = compare(elev, plt.cm.gist_earth, ve=0.05)
+    fig = compare(elev, plt.colormaps["gist_earth"], ve=0.05)
     fig.suptitle('Overlay Blending Looks Best with Rough Surfaces', y=0.95)
 
     plt.show()

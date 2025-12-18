@@ -3,26 +3,24 @@
 Scatter plot with histograms
 ============================
 
-Show the marginal distributions of a scatter plot as histograms at the sides of
-the plot.
+Add histograms to the x-axes and y-axes margins of a scatter plot.
 
-For a nice alignment of the main axes with the marginals, two options are shown
+This layout features a central scatter plot illustrating the relationship
+between x and y, a histogram at the top displaying the distribution of x, and a
+histogram on the right showing the distribution of y.
+
+For a nice alignment of the main Axes with the marginals, two options are shown
 below:
 
 .. contents::
    :local:
 
 While `.Axes.inset_axes` may be a bit more complex, it allows correct handling
-of main axes with a fixed aspect ratio.
+of main Axes with a fixed aspect ratio.
 
-An alternative method to produce a similar figure using the ``axes_grid1``
-toolkit is shown in the :doc:`/gallery/axes_grid1/scatter_hist_locatable_axes`
-example.  Finally, it is also possible to position all axes in absolute
-coordinates using `.Figure.add_axes` (not shown here).
-
-Let us first define a function that takes x and y data as input, as well
-as three axes, the main axes for the scatter, and two marginal axes. It will
-then create the scatter and histograms inside the provided axes.
+Let us first define a function that takes x and y data as input, as well as
+three Axes, the main Axes for the scatter, and two marginal Axes. It will then
+create the scatter and histograms inside the provided Axes.
 """
 
 import matplotlib.pyplot as plt
@@ -55,51 +53,45 @@ def scatter_hist(x, y, ax, ax_histx, ax_histy):
 
 
 # %%
+# Defining the Axes positions using subplot_mosaic
+# ------------------------------------------------
 #
-# Defining the axes positions using a gridspec
-# --------------------------------------------
-#
-# We define a gridspec with unequal width- and height-ratios to achieve desired
-# layout.  Also see the :ref:`arranging_axes` tutorial.
+# We use the `~.pyplot.subplot_mosaic` function to define the positions and
+# names of the three axes; the empty axes is specified by ``'.'``.  We manually
+# specify the size of the figure, and can make the different axes have
+# different sizes by specifying the *width_ratios* and *height_ratios*
+# arguments. The *layout* argument is set to ``'constrained'`` to optimize the
+# spacing between the axes.
 
-# Start with a square Figure.
-fig = plt.figure(figsize=(6, 6))
-# Add a gridspec with two rows and two columns and a ratio of 1 to 4 between
-# the size of the marginal axes and the main axes in both directions.
-# Also adjust the subplot parameters for a square plot.
-gs = fig.add_gridspec(2, 2,  width_ratios=(4, 1), height_ratios=(1, 4),
-                      left=0.1, right=0.9, bottom=0.1, top=0.9,
-                      wspace=0.05, hspace=0.05)
-# Create the Axes.
-ax = fig.add_subplot(gs[1, 0])
-ax_histx = fig.add_subplot(gs[0, 0], sharex=ax)
-ax_histy = fig.add_subplot(gs[1, 1], sharey=ax)
-# Draw the scatter plot and marginals.
-scatter_hist(x, y, ax, ax_histx, ax_histy)
+fig, axs = plt.subplot_mosaic([['histx', '.'],
+                               ['scatter', 'histy']],
+                              figsize=(6, 6),
+                              width_ratios=(4, 1), height_ratios=(1, 4),
+                              layout='constrained')
+scatter_hist(x, y, axs['scatter'], axs['histx'], axs['histy'])
 
 
 # %%
 #
-# Defining the axes positions using inset_axes
+# Defining the Axes positions using inset_axes
 # --------------------------------------------
 #
 # `~.Axes.inset_axes` can be used to position marginals *outside* the main
-# axes.  The advantage of doing so is that the aspect ratio of the main axes
+# Axes.  The advantage of doing so is that the aspect ratio of the main Axes
 # can be fixed, and the marginals will always be drawn relative to the position
-# of the axes.
+# of the Axes.
 
 # Create a Figure, which doesn't have to be square.
 fig = plt.figure(layout='constrained')
-# Create the main axes, leaving 25% of the figure space at the top and on the
-# right to position marginals.
-ax = fig.add_gridspec(top=0.75, right=0.75).subplots()
-# The main axes' aspect can be fixed.
-ax.set(aspect=1)
-# Create marginal axes, which have 25% of the size of the main axes.  Note that
-# the inset axes are positioned *outside* (on the right and the top) of the
-# main axes, by specifying axes coordinates greater than 1.  Axes coordinates
+# Create the main Axes.
+ax = fig.add_subplot()
+# The main Axes' aspect can be fixed.
+ax.set_aspect('equal')
+# Create marginal Axes, which have 25% of the size of the main Axes.  Note that
+# the inset Axes are positioned *outside* (on the right and the top) of the
+# main Axes, by specifying axes coordinates greater than 1.  Axes coordinates
 # less than 0 would likewise specify positions on the left and the bottom of
-# the main axes.
+# the main Axes.
 ax_histx = ax.inset_axes([0, 1.05, 1, 0.25], sharex=ax)
 ax_histy = ax.inset_axes([1.05, 0, 0.25, 1], sharey=ax)
 # Draw the scatter plot and marginals.
@@ -110,13 +102,34 @@ plt.show()
 
 # %%
 #
+# While we recommend using one of the two methods described above, there are
+# number of other ways to achieve a similar layout:
+#
+# - The Axes can be positioned manually in relative coordinates using
+#   `~matplotlib.figure.Figure.add_axes`.
+# - A gridspec can be used to create the layout
+#   (`~matplotlib.figure.Figure.add_gridspec`) and adding only the three desired
+#   axes (`~matplotlib.figure.Figure.add_subplot`).
+# - Four subplots can be created  using `~.pyplot.subplots`,  and the unused
+#   axes in the upper right can be removed manually.
+# - The ``axes_grid1`` toolkit can be used, as shown in
+#   :doc:`/gallery/axes_grid1/scatter_hist_locatable_axes`.
+#
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown
 #    in this example:
 #
+#    - `matplotlib.figure.Figure.subplot_mosaic`
+#    - `matplotlib.pyplot.subplot_mosaic`
 #    - `matplotlib.figure.Figure.add_subplot`
-#    - `matplotlib.figure.Figure.add_gridspec`
 #    - `matplotlib.axes.Axes.inset_axes`
 #    - `matplotlib.axes.Axes.scatter`
 #    - `matplotlib.axes.Axes.hist`
+#
+# .. tags::
+#
+#    component: axes
+#    plot-type: scatter
+#    plot-type: histogram
+#    level: intermediate

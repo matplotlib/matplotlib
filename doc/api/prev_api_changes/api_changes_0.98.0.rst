@@ -282,44 +282,33 @@ Old method                                    New method
 
 New methods:
 
-  * :meth:`draw_path(self, gc, path, transform, rgbFace)
-    <matplotlib.backend_bases.RendererBase.draw_path>`
-
-  * :meth:`draw_markers(self, gc, marker_path, marker_trans, path,
-    trans, rgbFace)
-    <matplotlib.backend_bases.RendererBase.draw_markers>`
-
-  * :meth:`draw_path_collection(self, master_transform, cliprect,
-    clippath, clippath_trans, paths, all_transforms, offsets,
-    offsetTrans, facecolors, edgecolors, linewidths, linestyles,
-    antialiaseds)
-    <matplotlib.backend_bases.RendererBase.draw_path_collection>`
-    *[optional]*
+* :meth:`draw_path(self, gc, path, transform, rgbFace)
+  <matplotlib.backend_bases.RendererBase.draw_path>`
+* :meth:`draw_markers(self, gc, marker_path, marker_trans, path,
+  trans, rgbFace)
+  <matplotlib.backend_bases.RendererBase.draw_markers>`
+* :meth:`draw_path_collection(self, master_transform, cliprect,
+  clippath, clippath_trans, paths, all_transforms, offsets,
+  offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+  antialiaseds)
+  <matplotlib.backend_bases.RendererBase.draw_path_collection>`
+  *[optional]*
 
 Changed methods:
 
-  * ``draw_image(self, x, y, im, bbox)`` is now
-    :meth:`draw_image(self, x, y, im, bbox, clippath, clippath_trans)
-    <matplotlib.backend_bases.RendererBase.draw_image>`
+* ``draw_image(self, x, y, im, bbox)`` is now
+  :meth:`draw_image(self, x, y, im, bbox, clippath, clippath_trans)
+  <matplotlib.backend_bases.RendererBase.draw_image>`
 
 Removed methods:
 
-  * ``draw_arc``
-
-  * ``draw_line_collection``
-
-  * ``draw_line``
-
-  * ``draw_lines``
-
-  * ``draw_point``
-
-  * ``draw_quad_mesh``
-
-  * ``draw_poly_collection``
-
-  * ``draw_polygon``
-
-  * ``draw_rectangle``
-
-  * ``draw_regpoly_collection``
+* ``draw_arc``
+* ``draw_line_collection``
+* ``draw_line``
+* ``draw_lines``
+* ``draw_point``
+* ``draw_quad_mesh``
+* ``draw_poly_collection``
+* ``draw_polygon``
+* ``draw_rectangle``
+* ``draw_regpoly_collection``

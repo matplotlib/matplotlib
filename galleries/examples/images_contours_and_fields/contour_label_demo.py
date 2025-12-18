@@ -43,7 +43,7 @@ def fmt(x):
 fig, ax = plt.subplots()
 CS = ax.contour(X, Y, Z)
 
-ax.clabel(CS, CS.levels, inline=True, fmt=fmt, fontsize=10)
+ax.clabel(CS, CS.levels, fmt=fmt, fontsize=10)
 
 # %%
 # Label contours with arbitrary strings using a dictionary
@@ -59,7 +59,7 @@ for l, s in zip(CS1.levels, strs):
     fmt[l] = s
 
 # Label every other level using strings
-ax1.clabel(CS1, CS1.levels[::2], inline=True, fmt=fmt, fontsize=10)
+ax1.clabel(CS1, CS1.levels[::2], fmt=fmt, fontsize=10)
 
 # %%
 # Use a Formatter

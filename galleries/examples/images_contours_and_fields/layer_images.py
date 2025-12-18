@@ -1,7 +1,7 @@
 """
-============
-Layer Images
-============
+================================
+Layer images with alpha blending
+================================
 
 Layer images above one another using alpha blending
 """
@@ -31,12 +31,12 @@ extent = np.min(x), np.max(x), np.min(y), np.max(y)
 fig = plt.figure(frameon=False)
 
 Z1 = np.add.outer(range(8), range(8)) % 2  # chessboard
-im1 = plt.imshow(Z1, cmap=plt.cm.gray, interpolation='nearest',
+im1 = plt.imshow(Z1, cmap="gray", interpolation='nearest',
                  extent=extent)
 
 Z2 = func3(X, Y)
 
-im2 = plt.imshow(Z2, cmap=plt.cm.viridis, alpha=.9, interpolation='bilinear',
+im2 = plt.imshow(Z2, cmap="viridis", alpha=.9, interpolation='bilinear',
                  extent=extent)
 
 plt.show()

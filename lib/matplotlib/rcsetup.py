@@ -22,7 +22,9 @@ import re
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import _api, cbook
+from matplotlib.backends import backend_registry
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
 from matplotlib._fontconfig_pattern import parse_fontconfig_pattern
@@ -30,22 +32,6 @@ from matplotlib._enums import JoinStyle, CapStyle
 
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
-
-
-# The capitalized forms are needed for ipython at present; this may
-# change for later versions.
-interactive_bk = [
-    'GTK3Agg', 'GTK3Cairo', 'GTK4Agg', 'GTK4Cairo',
-    'MacOSX',
-    'nbAgg',
-    'QtAgg', 'QtCairo', 'Qt5Agg', 'Qt5Cairo',
-    'TkAgg', 'TkCairo',
-    'WebAgg',
-    'WX', 'WXAgg', 'WXCairo',
-]
-non_interactive_bk = ['agg', 'cairo',
-                      'pdf', 'pgf', 'ps', 'svg', 'template']
-all_backends = interactive_bk + non_interactive_bk
 
 
 class ValidateInStrings:
@@ -82,6 +68,25 @@ class ValidateInStrings:
         raise ValueError(msg)
 
 
+def _single_string_color_list(s, scalar_validator):
+    """
+    Convert the string *s* to a list of colors interpreting it either as a
+    color sequence name, or a string containing single-letter colors.
+    """
+    try:
+        colors = mpl.color_sequences[s]
+    except KeyError:
+        try:
+            # Sometimes, a list of colors might be a single string
+            # of single-letter colornames. So give that a shot.
+            colors = [scalar_validator(v.strip()) for v in s if v.strip()]
+        except ValueError:
+            raise ValueError(f'{s!r} is neither a color sequence name nor can '
+                             'it be interpreted as a list of colors')
+
+    return colors
+
+
 @lru_cache
 def _listify_validator(scalar_validator, allow_stringlist=False, *,
                        n=None, doc=None):
@@ -92,9 +97,8 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *,
                        if v.strip()]
             except Exception:
                 if allow_stringlist:
-                    # Sometimes, a list of colors might be a single string
-                    # of single-letter colornames. So give that a shot.
-                    val = [scalar_validator(v.strip()) for v in s if v.strip()]
+                    # Special handling for colors
+                    val = _single_string_color_list(s, scalar_validator)
                 else:
                     raise
         # Allow any ordered sequence type -- generators, np.ndarray, pd.Series
@@ -179,7 +183,15 @@ def _make_type_validator(cls, *, allow_none=False):
 
     def validator(s):
         if (allow_none and
-                (s is None or isinstance(s, str) and s.lower() == "none")):
+                (s is None or cbook._str_lower_equal(s, "none"))):
+            if cbook._str_lower_equal(s, "none") and s != "None":
+                _api.warn_deprecated(
+                    "3.11",
+                    message=f"Using the capitalization {s!r} in matplotlibrc for "
+                            "*None* is deprecated in %(removal)s and will lead to an "
+                            "error from version 3.13 onward. Please use 'None' "
+                            "instead."
+                )
             return None
         if cls is str and not isinstance(s, str):
             raise ValueError(f'Could not convert {s!r} to str')
@@ -207,6 +219,20 @@ validate_float = _make_type_validator(float)
 validate_float_or_None = _make_type_validator(float, allow_none=True)
 validate_floatlist = _listify_validator(
     validate_float, doc='return a list of floats')
+
+
+def _validate_marker(s):
+    try:
+        return validate_int(s)
+    except ValueError as e:
+        try:
+            return validate_string(s)
+        except ValueError as e:
+            raise ValueError('Supported markers are [string, int]') from e
+
+
+_validate_markerlist = _listify_validator(
+    _validate_marker, doc='return a list of markers')
 
 
 def _validate_pathlike(s):
@@ -241,16 +267,16 @@ def validate_fonttype(s):
         return fonttype
 
 
-_validate_standard_backends = ValidateInStrings(
-    'backend', all_backends, ignorecase=True)
 _auto_backend_sentinel = object()
 
 
 def validate_backend(s):
-    backend = (
-        s if s is _auto_backend_sentinel or s.startswith("module://")
-        else _validate_standard_backends(s))
-    return backend
+    if s is _auto_backend_sentinel or backend_registry.is_valid_backend(s):
+        return s
+    else:
+        msg = (f"'{s}' is not a valid value for backend; supported values are "
+               f"{backend_registry.list_all()}")
+        raise ValueError(msg)
 
 
 def _validate_toolbar(s):
@@ -272,6 +298,12 @@ def validate_color_or_inherit(s):
 
 def validate_color_or_auto(s):
     if cbook._str_equal(s, 'auto'):
+        return s
+    return validate_color(s)
+
+
+def _validate_color_or_edge(s):
+    if cbook._str_equal(s, 'edge'):
         return s
     return validate_color(s)
 
@@ -327,6 +359,12 @@ def validate_color(s):
             return color
 
     raise ValueError(f'{s!r} does not look like a color arg')
+
+
+def _validate_color_or_None(s):
+    if s is None or cbook._str_equal(s, "None"):
+        return None
+    return validate_color(s)
 
 
 validate_colorlist = _listify_validator(
@@ -483,6 +521,13 @@ def _validate_linestyle(ls):
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
 
 
+def _validate_linestyle_or_None(s):
+    if s is None or cbook._str_equal(s, "None"):
+        return None
+
+    return _validate_linestyle(s)
+
+
 validate_fillstyle = ValidateInStrings(
     'markers.fillstyle', ['full', 'left', 'right', 'bottom', 'top', 'none'])
 
@@ -542,14 +587,17 @@ def validate_bbox(s):
 
 
 def validate_sketch(s):
+
     if isinstance(s, str):
-        s = s.lower()
+        s = s.lower().strip()
+        if s.startswith("(") and s.endswith(")"):
+            s = s[1:-1]
     if s == 'none' or s is None:
         return None
     try:
         return tuple(_listify_validator(validate_float, n=3)(s))
-    except ValueError:
-        raise ValueError("Expected a (scale, length, randomness) triplet")
+    except ValueError as exc:
+        raise ValueError("Expected a (scale, length, randomness) tuple") from exc
 
 
 def _validate_greaterthan_minushalf(s):
@@ -602,7 +650,7 @@ def _validate_minor_tick_ndivs(n):
     two major ticks.
     """
 
-    if isinstance(n, str) and n.lower() == 'auto':
+    if cbook._str_lower_equal(n, 'auto'):
         return n
     try:
         n = _validate_int_greaterequal0(n)
@@ -629,7 +677,7 @@ _prop_validators = {
         'markeredgecolor': validate_colorlist,
         'markevery': validate_markeverylist,
         'alpha': validate_floatlist,
-        'marker': validate_stringlist,
+        'marker': _validate_markerlist,
         'hatch': validate_hatchlist,
         'dashes': validate_dashlist,
     }
@@ -654,7 +702,7 @@ def cycler(*args, **kwargs):
     Call signatures::
 
       cycler(cycler)
-      cycler(label=values[, label2=values2[, ...]])
+      cycler(label=values, label2=values2, ...)
       cycler(label, values)
 
     Form 1 copies a given `~cycler.Cycler` object.
@@ -736,6 +784,51 @@ class _DunderChecker(ast.NodeVisitor):
         if node.attr.startswith("__") and node.attr.endswith("__"):
             raise ValueError("cycler strings with dunders are forbidden")
         self.generic_visit(node)
+
+
+# A validator dedicated to the named legend loc
+_validate_named_legend_loc = ValidateInStrings(
+    'legend.loc',
+    [
+        "best",
+        "upper right", "upper left", "lower left", "lower right", "right",
+        "center left", "center right", "lower center", "upper center",
+        "center"],
+    ignorecase=True)
+
+
+def _validate_legend_loc(loc):
+    """
+    Confirm that loc is a type which rc.Params["legend.loc"] supports.
+
+    .. versionadded:: 3.8
+
+    Parameters
+    ----------
+    loc : str | int | (float, float) | str((float, float))
+        The location of the legend.
+
+    Returns
+    -------
+    loc : str | int | (float, float) or raise ValueError exception
+        The location of the legend.
+    """
+    if isinstance(loc, str):
+        try:
+            return _validate_named_legend_loc(loc)
+        except ValueError:
+            pass
+        try:
+            loc = ast.literal_eval(loc)
+        except (SyntaxError, ValueError):
+            pass
+    if isinstance(loc, int):
+        if 0 <= loc <= 10:
+            return loc
+    if isinstance(loc, tuple):
+        if len(loc) == 2 and all(isinstance(e, Real) for e in loc):
+            return loc
+    raise ValueError(f"{loc} is not a valid legend location.")
 
 
 def validate_cycler(s):
@@ -847,7 +940,7 @@ _validators = {
     "lines.linewidth":       validate_float,  # line width in points
     "lines.linestyle":       _validate_linestyle,  # solid line
     "lines.color":           validate_color,  # first color in color cycle
-    "lines.marker":          validate_string,  # marker name
+    "lines.marker":          _validate_marker,  # marker name
     "lines.markerfacecolor": validate_color_or_auto,  # default color
     "lines.markeredgecolor": validate_color_or_auto,  # default color
     "lines.markeredgewidth": validate_float,
@@ -877,7 +970,7 @@ _validators = {
     "patch.antialiased":     validate_bool,  # antialiased (no jaggies)
 
     ## hatch props
-    "hatch.color":     validate_color,
+    "hatch.color":     _validate_color_or_edge,
     "hatch.linewidth": validate_float,
 
     ## Histogram properties
@@ -896,7 +989,7 @@ _validators = {
     "boxplot.meanline":    validate_bool,
 
     "boxplot.flierprops.color":           validate_color,
-    "boxplot.flierprops.marker":          validate_string,
+    "boxplot.flierprops.marker":          _validate_marker,
     "boxplot.flierprops.markerfacecolor": validate_color_or_auto,
     "boxplot.flierprops.markeredgecolor": validate_color,
     "boxplot.flierprops.markeredgewidth": validate_float,
@@ -921,7 +1014,7 @@ _validators = {
     "boxplot.medianprops.linestyle": _validate_linestyle,
 
     "boxplot.meanprops.color":           validate_color,
-    "boxplot.meanprops.marker":          validate_string,
+    "boxplot.meanprops.marker":          _validate_marker,
     "boxplot.meanprops.markerfacecolor": validate_color,
     "boxplot.meanprops.markeredgecolor": validate_color,
     "boxplot.meanprops.markersize":      validate_float,
@@ -929,6 +1022,7 @@ _validators = {
     "boxplot.meanprops.linewidth":       validate_float,
 
     ## font props
+    "font.enable_last_resort":     validate_bool,
     "font.family":     validate_stringlist,  # used by text object
     "font.style":      validate_string,
     "font.variant":    validate_string,
@@ -965,14 +1059,15 @@ _validators = {
                                 "bb", "frak", "scr", "regular"],
     "mathtext.fallback":       _validate_mathtext_fallback,
 
-    "image.aspect":          validate_aspect,  # equal, auto, a number
-    "image.interpolation":   validate_string,
-    "image.cmap":            _validate_cmap,  # gray, jet, etc.
-    "image.lut":             validate_int,  # lookup table
-    "image.origin":          ["upper", "lower"],
-    "image.resample":        validate_bool,
+    "image.aspect":              validate_aspect,  # equal, auto, a number
+    "image.interpolation":       validate_string,
+    "image.interpolation_stage": ["auto", "data", "rgba"],
+    "image.cmap":                _validate_cmap,  # gray, jet, etc.
+    "image.lut":                 validate_int,  # lookup table
+    "image.origin":              ["upper", "lower"],
+    "image.resample":            validate_bool,
     # Specify whether vector graphics backends will combine all images on a
-    # set of axes into a single composite image
+    # set of Axes into a single composite image
     "image.composite_image": validate_bool,
 
     # contour props
@@ -989,7 +1084,7 @@ _validators = {
     "xaxis.labellocation": ["left", "center", "right"],
     "yaxis.labellocation": ["bottom", "center", "top"],
 
-    # axes props
+    # Axes props
     "axes.axisbelow":        validate_axisbelow,
     "axes.facecolor":        validate_color,  # background color
     "axes.edgecolor":        validate_color,  # edge color
@@ -1000,13 +1095,13 @@ _validators = {
     "axes.spines.bottom":    validate_bool,  # denoting data boundary.
     "axes.spines.top":       validate_bool,
 
-    "axes.titlesize":     validate_fontsize,  # axes title fontsize
-    "axes.titlelocation": ["left", "center", "right"],  # axes title alignment
-    "axes.titleweight":   validate_fontweight,  # axes title font weight
-    "axes.titlecolor":    validate_color_or_auto,  # axes title font color
+    "axes.titlesize":     validate_fontsize,  # Axes title fontsize
+    "axes.titlelocation": ["left", "center", "right"],  # Axes title alignment
+    "axes.titleweight":   validate_fontweight,  # Axes title font weight
+    "axes.titlecolor":    validate_color_or_auto,  # Axes title font color
     # title location, axes units, None means auto
     "axes.titley":        validate_float_or_None,
-    # pad from axes top decoration to title in points
+    # pad from Axes top decoration to title in points
     "axes.titlepad":      validate_float,
     "axes.grid":          validate_bool,  # display grid or not
     "axes.grid.which":    ["minor", "both", "major"],  # which grids are drawn
@@ -1036,15 +1131,24 @@ _validators = {
     "axes.ymargin": _validate_greaterthan_minushalf,  # margin added to yaxis
     "axes.zmargin": _validate_greaterthan_minushalf,  # margin added to zaxis
 
-    "polaraxes.grid": validate_bool,  # display polar grid or not
-    "axes3d.grid":    validate_bool,  # display 3d grid
+    "polaraxes.grid":    validate_bool,  # display polar grid or not
+    "axes3d.grid":       validate_bool,  # display 3d grid
+    "axes3d.automargin": validate_bool,  # automatically add margin when
+                                         # manually setting 3D axis limits
 
     "axes3d.xaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.zaxis.panecolor":    validate_color,  # 3d background pane
 
+    "axes3d.depthshade": validate_bool,  # depth shade for 3D scatter plots
+    "axes3d.depthshade_minalpha": validate_float,  # min alpha value for depth shading
+
+    "axes3d.mouserotationstyle": ["azel", "trackball", "sphere", "arcball"],
+    "axes3d.trackballsize": validate_float,
+    "axes3d.trackballborder": validate_float,
+
     # scatter props
-    "scatter.marker":     validate_string,
+    "scatter.marker":     _validate_marker,
     "scatter.edgecolors": validate_string,
 
     "date.epoch": _validate_date,
@@ -1062,11 +1166,7 @@ _validators = {
 
     # legend properties
     "legend.fancybox": validate_bool,
-    "legend.loc": _ignorecase([
-        "best",
-        "upper right", "upper left", "lower left", "lower right", "right",
-        "center left", "center right", "lower center", "upper center",
-        "center"]),
+    "legend.loc": _validate_legend_loc,
 
     # the number of points in the legend line
     "legend.numpoints":      validate_int,
@@ -1084,6 +1184,8 @@ _validators = {
     "legend.frameon":        validate_bool,
     # alpha value of the legend frame
     "legend.framealpha":     validate_float_or_None,
+    # linewidth of legend frame
+    "legend.linewidth": validate_float_or_None,
 
     ## the following dimensions are in fraction of the font size
     "legend.borderpad":      validate_float,  # units are fontsize
@@ -1095,9 +1197,9 @@ _validators = {
     "legend.handleheight":   validate_float,
     # the space between the legend line and legend text
     "legend.handletextpad":  validate_float,
-    # the border between the axes and legend edge
+    # the border between the Axes and legend edge
     "legend.borderaxespad":  validate_float,
-    # the border between the axes and legend edge
+    # the border between the Axes and legend edge
     "legend.columnspacing":  validate_float,
     "legend.facecolor":      validate_color_or_inherit,
     "legend.edgecolor":      validate_color_or_inherit,
@@ -1155,6 +1257,16 @@ _validators = {
     "grid.linewidth":    validate_float,     # in points
     "grid.alpha":        validate_float,
 
+    "grid.major.color":        _validate_color_or_None,  # grid color
+    "grid.major.linestyle":    _validate_linestyle_or_None,  # solid
+    "grid.major.linewidth":    validate_float_or_None,     # in points
+    "grid.major.alpha":        validate_float_or_None,
+
+    "grid.minor.color":        _validate_color_or_None,  # grid color
+    "grid.minor.linestyle":    _validate_linestyle_or_None,  # solid
+    "grid.minor.linewidth":    validate_float_or_None,     # in points
+    "grid.minor.alpha":        validate_float_or_None,
+
     ## figure props
     # figure title
     "figure.titlesize":   validate_fontsize,
@@ -1173,6 +1285,7 @@ _validators = {
     "figure.autolayout":       validate_bool,
     "figure.max_open_warning": validate_int,
     "figure.raise_window":     validate_bool,
+    "macosx.window_mode":      ["system", "tab", "window"],
 
     "figure.subplot.left":   validate_float,
     "figure.subplot.right":  validate_float,
@@ -1186,7 +1299,7 @@ _validators = {
     # Much smaller than above because we don't need room for the text.
     "figure.constrained_layout.hspace": validate_float,
     "figure.constrained_layout.wspace": validate_float,
-    # buffer around the axes, in inches.
+    # buffer around the Axes, in inches.
     "figure.constrained_layout.h_pad": validate_float,
     "figure.constrained_layout.w_pad": validate_float,
 
@@ -1205,9 +1318,9 @@ _validators = {
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
 
     # Set the papersize/type
-    "ps.papersize":       _ignorecase(["auto", "letter", "legal", "ledger",
-                                      *[f"{ab}{i}"
-                                        for ab in "ab" for i in range(11)]]),
+    "ps.papersize":       _ignorecase(
+                                ["figure", "letter", "legal", "ledger",
+                                 *[f"{ab}{i}" for ab in "ab" for i in range(11)]]),
     "ps.useafm":          validate_bool,
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,
@@ -1227,6 +1340,7 @@ _validators = {
     "svg.image_inline": validate_bool,
     "svg.fonttype": ["none", "path"],  # save text as text ("none") or "paths"
     "svg.hashsalt": validate_string_or_None,
+    "svg.id": validate_string_or_None,
 
     # set this when you want to generate hardcopy docstring
     "docstring.hardcopy": validate_bool,

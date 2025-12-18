@@ -1,7 +1,7 @@
 """
-===========================================
-Embedding in GTK3 with a navigation toolbar
-===========================================
+=======================================
+Embed in GTK3 with a navigation toolbar
+=======================================
 
 Demonstrate NavigationToolbar with GTK3 accessed via pygobject.
 """
@@ -13,16 +13,14 @@ from gi.repository import Gtk
 
 import numpy as np
 
-from matplotlib.backends.backend_gtk3 import \
-    NavigationToolbar2GTK3 as NavigationToolbar
-from matplotlib.backends.backend_gtk3agg import \
-    FigureCanvasGTK3Agg as FigureCanvas
+from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
+from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 from matplotlib.figure import Figure
 
 win = Gtk.Window()
 win.connect("delete-event", Gtk.main_quit)
 win.set_default_size(400, 300)
-win.set_title("Embedding in GTK3")
+win.set_title("Embedded in GTK3")
 
 fig = Figure(figsize=(5, 4), dpi=100)
 ax = fig.add_subplot(1, 1, 1)

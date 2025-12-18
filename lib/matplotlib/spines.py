@@ -32,7 +32,7 @@ class Spine(mpatches.Patch):
     def __str__(self):
         return "Spine"
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, axes, spine_type, path, **kwargs):
         """
         Parameters
@@ -53,7 +53,7 @@ class Spine(mpatches.Patch):
         """
         super().__init__(**kwargs)
         self.axes = axes
-        self.set_figure(self.axes.figure)
+        self.set_figure(self.axes.get_figure(root=False))
         self.spine_type = spine_type
         self.set_facecolor('none')
         self.set_edgecolor(mpl.rcParams['axes.edgecolor'])
@@ -174,8 +174,9 @@ class Spine(mpatches.Patch):
             else:
                 padout = 0.5
                 padin = 0.5
-            padout = padout * tickl / 72 * self.figure.dpi
-            padin = padin * tickl / 72 * self.figure.dpi
+            dpi = self.get_figure(root=True).dpi
+            padout = padout * tickl / 72 * dpi
+            padin = padin * tickl / 72 * dpi
 
             if tick.tick1line.get_visible():
                 if self.spine_type == 'left':
@@ -214,22 +215,30 @@ class Spine(mpatches.Patch):
         properties when needed.
         """
         self.axis = axis
-        if self.axis is not None:
-            self.axis.clear()
         self.stale = True
 
     def clear(self):
         """Clear the current spine."""
-        self._position = None  # clear position
+        self._clear()
         if self.axis is not None:
             self.axis.clear()
 
-    def _adjust_location(self):
-        """Automatically set spine bounds to the view interval."""
+    def _clear(self):
+        """
+        Clear things directly related to the spine.
 
-        if self.spine_type == 'circle':
-            return
+        In this way it is possible to avoid clearing the Axis as well when calling
+        from library code where it is known that the Axis is cleared separately.
+        """
+        self._position = None  # clear position
 
+    def _get_bounds_or_viewLim(self):
+        """
+        Get the bounds of the spine.
+
+        If self._bounds is None, return self.axes.viewLim.intervalx
+        or self.axes.viewLim.intervaly based on self.spine_type
+        """
         if self._bounds is not None:
             low, high = self._bounds
         elif self.spine_type in ('left', 'right'):
@@ -237,7 +246,16 @@ class Spine(mpatches.Patch):
         elif self.spine_type in ('top', 'bottom'):
             low, high = self.axes.viewLim.intervalx
         else:
-            raise ValueError(f'unknown spine spine_type: {self.spine_type}')
+            raise ValueError(f'spine_type: {self.spine_type} not supported')
+        return low, high
+
+    def _adjust_location(self):
+        """Automatically set spine bounds to the view interval."""
+
+        if self.spine_type == 'circle':
+            return
+
+        low, high = self._get_bounds_or_viewLim()
 
         if self._patch_type == 'arc':
             if self.spine_type in ('bottom', 'top'):
@@ -257,11 +275,17 @@ class Spine(mpatches.Patch):
                 self._path = mpath.Path.arc(np.rad2deg(low), np.rad2deg(high))
 
                 if self.spine_type == 'bottom':
-                    rmin, rmax = self.axes.viewLim.intervaly
+                    if self.axis is None:
+                        tr = mtransforms.IdentityTransform()
+                    else:
+                        tr = self.axis.get_transform()
+                    rmin, rmax = tr.transform(self.axes.viewLim.intervaly)
                     try:
                         rorigin = self.axes.get_rorigin()
                     except AttributeError:
                         rorigin = rmin
+                    else:
+                        rorigin = tr.transform(rorigin)
                     scaled_diameter = (rmin - rorigin) / (rmax - rorigin)
                     self._height = scaled_diameter
                     self._width = scaled_diameter
@@ -361,7 +385,7 @@ class Spine(mpatches.Patch):
                 offset_dots = amount * np.array(offset_vec) / 72
                 return (base_transform
                         + mtransforms.ScaledTranslation(
-                            *offset_dots, self.figure.dpi_scale_trans))
+                            *offset_dots, self.get_figure(root=False).dpi_scale_trans))
         elif position_type == 'axes':
             if self.spine_type in ['left', 'right']:
                 # keep y unchanged, fix x at amount
@@ -410,7 +434,7 @@ class Spine(mpatches.Patch):
                 'set_bounds() method incompatible with circular spines')
         if high is None and np.iterable(low):
             low, high = low
-        old_low, old_high = self.get_bounds() or (None, None)
+        old_low, old_high = self._get_bounds_or_viewLim()
         if low is None:
             low = old_low
         if high is None:
@@ -465,7 +489,7 @@ class Spine(mpatches.Patch):
 
         Parameters
         ----------
-        c : color
+        c : :mpltype:`color`
 
         Notes
         -----

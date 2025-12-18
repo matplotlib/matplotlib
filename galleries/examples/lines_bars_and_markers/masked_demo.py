@@ -48,3 +48,9 @@ plt.plot(x*1.0, y4, 'o-', label='NaN values')
 plt.legend()
 plt.title('Masked and NaN data')
 plt.show()
+
+# %%
+# .. tags::
+#
+#    plot-type: line
+#    level: intermediate

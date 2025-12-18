@@ -2,6 +2,7 @@
 ============
 hist2d(x, y)
 ============
+Make a 2D histogram plot.
 
 See `~matplotlib.axes.Axes.hist2d`.
 """

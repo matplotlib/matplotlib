@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from matplotlib.artist import Artist
-import matplotlib.cm as cm
 from matplotlib.colors import LightSource
 import matplotlib.transforms as mtransforms
 
@@ -179,7 +178,7 @@ def filtered_text(ax):
 
     # draw
     ax.imshow(Z, interpolation='bilinear', origin='lower',
-              cmap=cm.gray, extent=(-3, 3, -2, 2), aspect='auto')
+              cmap="gray", extent=(-3, 3, -2, 2), aspect='auto')
     levels = np.arange(-1.2, 1.6, 0.2)
     CS = ax.contour(Z, levels,
                     origin='lower',
@@ -188,7 +187,6 @@ def filtered_text(ax):
 
     # contour label
     cl = ax.clabel(CS, levels[1::2],  # label every second level
-                   inline=True,
                    fmt='%1.1f',
                    fontsize=11)
 
@@ -271,19 +269,19 @@ def drop_shadow_patches(ax):
 def light_filter_pie(ax):
     fracs = [15, 30, 45, 10]
     explode = (0.1, 0.2, 0.1, 0.1)
-    pies = ax.pie(fracs, explode=explode)
+    pie = ax.pie(fracs, explode=explode)
 
     light_filter = LightFilter(9)
-    for p in pies[0]:
+    for p in pie.wedges:
         p.set_agg_filter(light_filter)
         p.set_rasterized(True)  # to support mixed-mode renderers
         p.set(ec="none",
               lw=2)
 
     gauss = DropShadowFilter(9, offsets=(3, -4), alpha=0.7)
-    shadow = FilteredArtistList(pies[0], gauss)
+    shadow = FilteredArtistList(pie.wedges, gauss)
     ax.add_artist(shadow)
-    shadow.set_zorder(pies[0][0].get_zorder() - 0.1)
+    shadow.set_zorder(pie.wedges[0].get_zorder() - 0.1)
 
 
 if __name__ == "__main__":

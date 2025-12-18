@@ -35,8 +35,8 @@ def _isolated_tk_test(success_count, func=None):
         reason="missing tkinter"
     )
     @pytest.mark.skipif(
-        sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
-        reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
+        sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
+        reason="$DISPLAY is unset"
     )
     @pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
         ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
@@ -81,9 +81,7 @@ def test_blit():
 
     fig, ax = plt.subplots()
     photoimage = fig.canvas._tkphoto
-    data = np.ones((4, 4, 4))
-    height, width = data.shape[:2]
-    dataptr = (height, width, data.ctypes.data)
+    data = np.ones((4, 4, 4), dtype=np.uint8)
     # Test out of bounds blitting.
     bad_boxes = ((-1, 2, 0, 2),
                  (2, 0, 0, 2),
@@ -94,8 +92,8 @@ def test_blit():
     for bad_box in bad_boxes:
         try:
             _tkagg.blit(
-                photoimage.tk.interpaddr(), str(photoimage), dataptr, 0,
-                (0, 1, 2, 3), bad_box)
+                photoimage.tk.interpaddr(), str(photoimage), data,
+                _tkagg.TK_PHOTO_COMPOSITE_OVERLAY, (0, 1, 2, 3), bad_box)
         except ValueError:
             print("success")
 
@@ -170,7 +168,9 @@ def test_never_update():
     plt.show(block=False)
 
     plt.draw()  # Test FigureCanvasTkAgg.
-    fig.canvas.toolbar.configure_subplots()  # Test NavigationToolbar2Tk.
+    tool = fig.canvas.toolbar.configure_subplots()  # Test NavigationToolbar2Tk.
+    assert tool is not None
+    assert tool == fig.canvas.toolbar.configure_subplots()  # Tool is reused internally.
     # Test FigureCanvasTk filter_destroy callback
     fig.canvas.get_tk_widget().after(100, plt.close, fig)
 
@@ -196,6 +196,23 @@ def test_missing_back_button():
     print("success")
     Toolbar(fig.canvas, fig.canvas.manager.window)  # This should not raise.
     print("success")
+
+
+@_isolated_tk_test(success_count=2)
+def test_save_figure_return():
+    import matplotlib.pyplot as plt
+    from unittest import mock
+    fig = plt.figure()
+    prop = "tkinter.filedialog.asksaveasfilename"
+    with mock.patch(prop, return_value="foobar.png"):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        os.remove("foobar.png")
+        assert fname == "foobar.png"
+        print("success")
+    with mock.patch(prop, return_value=""):
+        fname = fig.canvas.manager.toolbar.save_figure()
+        assert fname is None
+        print("success")
 
 
 @_isolated_tk_test(success_count=1)

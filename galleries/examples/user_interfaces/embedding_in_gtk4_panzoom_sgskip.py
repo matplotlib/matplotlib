@@ -1,7 +1,7 @@
 """
-===========================================
-Embedding in GTK4 with a navigation toolbar
-===========================================
+=======================================
+Embed in GTK4 with a navigation toolbar
+=======================================
 
 Demonstrate NavigationToolbar with GTK4 accessed via pygobject.
 """
@@ -13,17 +13,15 @@ from gi.repository import Gtk
 
 import numpy as np
 
-from matplotlib.backends.backend_gtk4 import \
-    NavigationToolbar2GTK4 as NavigationToolbar
-from matplotlib.backends.backend_gtk4agg import \
-    FigureCanvasGTK4Agg as FigureCanvas
+from matplotlib.backends.backend_gtk4 import NavigationToolbar2GTK4 as NavigationToolbar
+from matplotlib.backends.backend_gtk4agg import FigureCanvasGTK4Agg as FigureCanvas
 from matplotlib.figure import Figure
 
 
 def on_activate(app):
     win = Gtk.ApplicationWindow(application=app)
     win.set_default_size(400, 300)
-    win.set_title("Embedding in GTK4")
+    win.set_title("Embedded in GTK4")
 
     fig = Figure(figsize=(5, 4), dpi=100)
     ax = fig.add_subplot(1, 1, 1)
@@ -44,10 +42,9 @@ def on_activate(app):
     toolbar = NavigationToolbar(canvas)
     vbox.append(toolbar)
 
-    win.show()
+    win.present()
 
 
-app = Gtk.Application(
-    application_id='org.matplotlib.examples.EmbeddingInGTK4PanZoom')
+app = Gtk.Application(application_id='org.matplotlib.examples.EmbeddingInGTK4PanZoom')
 app.connect('activate', on_activate)
 app.run(None)

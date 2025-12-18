@@ -11,7 +11,8 @@ def draw_arrow(ax, t, r):
                                 fc="b", ec='k'))
 
 
-@image_comparison(['fancyarrow_test_image'])
+@image_comparison(['fancyarrow_test_image.png'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.012)
 def test_fancyarrow():
     # Added 0 to test division by zero error described in issue 3930
     r = [0.4, 0.3, 0.2, 0.1, 0]
@@ -58,8 +59,8 @@ def __prepare_fancyarrow_dpi_cor_test():
     """
     fig2 = plt.figure("fancyarrow_dpi_cor_test", figsize=(4, 3), dpi=50)
     ax = fig2.add_subplot()
-    ax.set_xlim([0, 1])
-    ax.set_ylim([0, 1])
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
     ax.add_patch(mpatches.FancyArrowPatch(posA=(0.3, 0.4), posB=(0.8, 0.6),
                                           lw=3, arrowstyle='->',
                                           mutation_scale=100))
@@ -115,7 +116,7 @@ def test_fancyarrow_dash():
 
 
 @image_comparison(['arrow_styles.png'], style='mpl20', remove_text=True,
-                  tol=0 if platform.machine() == 'x86_64' else 0.005)
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_arrow_styles():
     styles = mpatches.ArrowStyle.get_styles()
 
@@ -147,7 +148,8 @@ def test_arrow_styles():
             ax.add_patch(patch)
 
 
-@image_comparison(['connection_styles.png'], style='mpl20', remove_text=True)
+@image_comparison(['connection_styles.png'], style='mpl20', remove_text=True,
+                  tol=0 if platform.machine() == 'x86_64' else 0.013)
 def test_connection_styles():
     styles = mpatches.ConnectionStyle.get_styles()
 

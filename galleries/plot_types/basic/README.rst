@@ -1,6 +1,7 @@
 .. _basic_plots:
 
-Basic
------
+Pairwise data
+-------------
 
-Basic plot types, usually y versus x.
+Plots of pairwise :math:`(x, y)`, tabular :math:`(var\_0, \cdots, var\_n)`,
+and functional :math:`f(x)=y` data.

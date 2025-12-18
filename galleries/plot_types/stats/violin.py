@@ -2,6 +2,7 @@
 =============
 violinplot(D)
 =============
+Make a violin plot.
 
 See `~matplotlib.axes.Axes.violinplot`.
 """

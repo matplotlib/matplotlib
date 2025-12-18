@@ -2,37 +2,17 @@
 
 #define NO_IMPORT_ARRAY
 
+#include <Python.h>
 #include "_backend_agg.h"
-#include "mplutils.h"
-
-void BufferRegion::to_string_argb(uint8_t *buf)
-{
-    unsigned char *pix;
-    unsigned char tmp;
-    size_t i, j;
-
-    memcpy(buf, data, (size_t) height * stride);
-
-    for (i = 0; i < (size_t)height; ++i) {
-        pix = buf + i * stride;
-        for (j = 0; j < (size_t)width; ++j) {
-            // Convert rgba to argb
-            tmp = pix[2];
-            pix[2] = pix[0];
-            pix[0] = tmp;
-            pix += 4;
-        }
-    }
-}
 
 RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
     : width(width),
       height(height),
       dpi(dpi),
       NUMBYTES((size_t)width * (size_t)height * 4),
-      pixBuffer(NULL),
+      pixBuffer(nullptr),
       renderingBuffer(),
-      alphaBuffer(NULL),
+      alphaBuffer(nullptr),
       alphaMaskRenderingBuffer(),
       alphaMask(alphaMaskRenderingBuffer),
       pixfmtAlphaMask(alphaMaskRenderingBuffer),
@@ -46,9 +26,19 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
       rendererAA(),
       rendererBin(),
       theRasterizer(32768),
-      lastclippath(NULL),
+      lastclippath(nullptr),
       _fill_color(agg::rgba(1, 1, 1, 0))
 {
+    if (dpi <= 0.0) {
+        throw std::range_error("dpi must be positive");
+    }
+
+    if (width >= 1 << 23 || height >= 1 << 23) {
+        throw std::range_error(
+            "Image size of " + std::to_string(width) + "x" + std::to_string(height) +
+            " pixels is too large. It must be less than 2^23 in each direction.");
+    }
+
     unsigned stride(width * 4);
 
     pixBuffer = new agg::int8u[NUMBYTES];
@@ -85,7 +75,7 @@ BufferRegion *RendererAgg::copy_from_bbox(agg::rect_d in_rect)
     agg::rect_i rect(
         (int)in_rect.x1, height - (int)in_rect.y2, (int)in_rect.x2, height - (int)in_rect.y1);
 
-    BufferRegion *reg = NULL;
+    BufferRegion *reg = nullptr;
     reg = new BufferRegion(rect);
 
     agg::rendering_buffer rbuf;
@@ -100,21 +90,21 @@ BufferRegion *RendererAgg::copy_from_bbox(agg::rect_d in_rect)
 
 void RendererAgg::restore_region(BufferRegion &region)
 {
-    if (region.get_data() == NULL) {
+    if (region.get_data() == nullptr) {
         throw std::runtime_error("Cannot restore_region from NULL data");
     }
 
     agg::rendering_buffer rbuf;
     rbuf.attach(region.get_data(), region.get_width(), region.get_height(), region.get_stride());
 
-    rendererBase.copy_from(rbuf, 0, region.get_rect().x1, region.get_rect().y1);
+    rendererBase.copy_from(rbuf, nullptr, region.get_rect().x1, region.get_rect().y1);
 }
 
 // Restore the part of the saved region with offsets
 void
 RendererAgg::restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int yy2, int x, int y )
 {
-    if (region.get_data() == NULL) {
+    if (region.get_data() == nullptr) {
         throw std::runtime_error("Cannot restore_region from NULL data");
     }
 
@@ -128,11 +118,11 @@ RendererAgg::restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int
     rendererBase.copy_from(rbuf, &rect, x, y);
 }
 
-bool RendererAgg::render_clippath(py::PathIterator &clippath,
+bool RendererAgg::render_clippath(mpl::PathIterator &clippath,
                                   const agg::trans_affine &clippath_trans,
                                   e_snap_mode snap_mode)
 {
-    typedef agg::conv_transform<py::PathIterator> transformed_path_t;
+    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
     /* Unlike normal Paths, the clip path cannot be clipped to the Figure bbox,
      * because it needs to remain a complete closed path, so there is no

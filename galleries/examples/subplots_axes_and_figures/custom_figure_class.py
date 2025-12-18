@@ -50,3 +50,10 @@ plt.plot(x, y)
 #    - `matplotlib.pyplot.figure`
 #    - `matplotlib.figure.Figure`
 #    - `matplotlib.figure.Figure.text`
+#
+# .. tags::
+#
+#    component: figure
+#    plot-type: line
+#    level: intermediate
+#    purpose: showcase

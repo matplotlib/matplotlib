@@ -69,7 +69,7 @@ axs[1].set(xlim=(0, 2), ylim=(0, 2))
 # change shape or position if you pan or scale the plot.
 #
 # In this case we use `.patches.FancyArrowPatch`, and pass the keyword argument
-# ``transform=ax.transAxes`` where ``ax`` is the axes we are adding the patch
+# ``transform=ax.transAxes`` where ``ax`` is the Axes we are adding the patch
 # to.
 #
 # Note that when the axis limits are changed, the arrow shape and location

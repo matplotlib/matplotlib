@@ -1,6 +1,6 @@
 """
 =================
-Contourf Hatching
+Contourf hatching
 =================
 
 Demo filled contour plots with hatched patterns.

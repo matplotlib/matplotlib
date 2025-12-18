@@ -18,14 +18,33 @@ class SecondaryAxis(_AxesBase):
             Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]
         ]
         | Transform,
+        transform: Transform | None = ...,
         **kwargs
     ) -> None: ...
     def set_alignment(
         self, align: Literal["top", "bottom", "right", "left"]
     ) -> None: ...
     def set_location(
-        self, location: Literal["top", "bottom", "right", "left"] | float
+        self,
+        location: Literal["top", "bottom", "right", "left"] | float,
+        transform: Transform | None = ...
     ) -> None: ...
+    def set_xticks(
+        self,
+        ticks: ArrayLike,
+        labels: Iterable[str] | None = ...,
+        *,
+        minor: bool = ...,
+        **kwargs
+    ) -> list[Tick]: ...
+    def set_yticks(
+        self,
+        ticks: ArrayLike,
+        labels: Iterable[str] | None = ...,
+        *,
+        minor: bool = ...,
+        **kwargs
+    ) -> list[Tick]: ...
     def set_ticks(
         self,
         ticks: ArrayLike,
@@ -36,10 +55,7 @@ class SecondaryAxis(_AxesBase):
     ) -> list[Tick]: ...
     def set_functions(
         self,
-        functions: tuple[
-            Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]
-        ]
-        | Transform,
-    ): ...
+        functions: tuple[Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]] | Transform,
+    ) -> None: ...
     def set_aspect(self, *args, **kwargs) -> None: ...
     def set_color(self, color: ColorType) -> None: ...

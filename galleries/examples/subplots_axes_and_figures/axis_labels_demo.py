@@ -1,6 +1,6 @@
 """
 ===================
-Axis Label Position
+Axis label position
 ===================
 
 Choose axis label position when calling `~.Axes.set_xlabel` and
@@ -18,3 +18,10 @@ cbar = fig.colorbar(sc)
 cbar.set_label("ZLabel", loc='top')
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: axis
+#    styling: position
+#    level: beginner

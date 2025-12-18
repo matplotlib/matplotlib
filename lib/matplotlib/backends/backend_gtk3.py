@@ -6,18 +6,19 @@ from pathlib import Path
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import (
-    ToolContainerBase, CloseEvent, KeyEvent, LocationEvent, MouseEvent,
-    ResizeEvent)
+    ToolContainerBase, MouseButton,
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 try:
-    import gi
+    from gi import require_version as gi_require_version
 except ImportError as err:
     raise ImportError("The GTK3 backends require PyGObject") from err
 
 try:
     # :raises ValueError: If module/version is already loaded, already
     # required, or unavailable.
-    gi.require_version("Gtk", "3.0")
+    gi_require_version("Gtk", "3.0")
+    gi_require_version("Gdk", "3.0")
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
@@ -89,6 +90,7 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
 
     def destroy(self):
         CloseEvent("close_event", self)._process()
+        super().destroy()
 
     def set_cursor(self, cursor):
         # docstring inherited
@@ -156,6 +158,7 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
 
     def motion_notify_event(self, widget, event):
         MouseEvent("motion_notify_event", self, *self._mpl_coords(event),
+                   buttons=self._mpl_buttons(event.state),
                    modifiers=self._mpl_modifiers(event.state),
                    guiEvent=event)._process()
         return False  # finish event propagation?
@@ -181,6 +184,18 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
         self.figure.set_size_inches(winch, hinch, forward=False)
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
+
+    @staticmethod
+    def _mpl_buttons(event_state):
+        modifiers = [
+            (MouseButton.LEFT, Gdk.ModifierType.BUTTON1_MASK),
+            (MouseButton.MIDDLE, Gdk.ModifierType.BUTTON2_MASK),
+            (MouseButton.RIGHT, Gdk.ModifierType.BUTTON3_MASK),
+            (MouseButton.BACK, Gdk.ModifierType.BUTTON4_MASK),
+            (MouseButton.FORWARD, Gdk.ModifierType.BUTTON5_MASK),
+        ]
+        # State *before* press/release.
+        return [name for name, mask in modifiers if event_state & mask]
 
     @staticmethod
     def _mpl_modifiers(event_state, *, exclude=None):
@@ -339,7 +354,7 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
     def save_figure(self, *args):
         dialog = Gtk.FileChooserDialog(
             title="Save the figure",
-            parent=self.canvas.get_toplevel(),
+            transient_for=self.canvas.get_toplevel(),
             action=Gtk.FileChooserAction.SAVE,
             buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                      Gtk.STOCK_SAVE,   Gtk.ResponseType.OK),
@@ -371,16 +386,17 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
         fmt = self.canvas.get_supported_filetypes_grouped()[ff.get_name()][0]
         dialog.destroy()
         if response != Gtk.ResponseType.OK:
-            return
+            return None
         # Save dir for next time, unless empty str (which means use cwd).
         if mpl.rcParams['savefig.directory']:
             mpl.rcParams['savefig.directory'] = os.path.dirname(fname)
         try:
             self.canvas.figure.savefig(fname, format=fmt)
+            return fname
         except Exception as e:
             dialog = Gtk.MessageDialog(
-                parent=self.canvas.get_toplevel(), message_format=str(e),
-                type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK)
+                transient_for=self.canvas.get_toplevel(), text=str(e),
+                message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK)
             dialog.run()
             dialog.destroy()
 
@@ -446,15 +462,10 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
             toolitem.handler_unblock(signal)
 
     def remove_toolitem(self, name):
-        if name not in self._toolitems:
-            self.toolmanager.message_event(f'{name} not in toolbar', self)
-            return
-
-        for group in self._groups:
-            for toolitem, _signal in self._toolitems[name]:
+        for toolitem, _signal in self._toolitems.pop(name, []):
+            for group in self._groups:
                 if toolitem in self._groups[group]:
                     self._groups[group].remove(toolitem)
-        del self._toolitems[name]
 
     def _add_separator(self):
         sep = Gtk.Separator()

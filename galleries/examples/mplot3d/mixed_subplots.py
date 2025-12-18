@@ -1,6 +1,6 @@
 """
 =============================
-2D and 3D axes in same figure
+2D and 3D Axes in same figure
 =============================
 
 This example shows a how to plot a 2D and a 3D plot on the same figure.
@@ -44,3 +44,9 @@ surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
 ax.set_zlim(-1, 1)
 
 plt.show()
+
+# %%
+# .. tags::
+#    plot-type: 3D,
+#    component: subplot,
+#    level: beginner

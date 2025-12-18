@@ -1,7 +1,7 @@
 """
-===========================
-Scatter plots with a legend
-===========================
+==========================
+Scatter plot with a legend
+==========================
 
 To create a scatter plot with a legend one may use a loop and create one
 `~.Axes.scatter` plot per item to appear in the legend and set the ``label``
@@ -109,3 +109,9 @@ plt.show()
 #    - `matplotlib.axes.Axes.scatter` / `matplotlib.pyplot.scatter`
 #    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
 #    - `matplotlib.collections.PathCollection.legend_elements`
+#
+# .. tags::
+#
+#    component: legend
+#    plot-type: scatter
+#    level: intermediate

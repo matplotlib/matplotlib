@@ -22,8 +22,7 @@ from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 import mpl_toolkits.axisartist.angle_helper as angle_helper
 import mpl_toolkits.axisartist.floating_axes as floating_axes
-from mpl_toolkits.axisartist.grid_finder import (DictFormatter, FixedLocator,
-                                                 MaxNLocator)
+from mpl_toolkits.axisartist.grid_finder import DictFormatter, FixedLocator, MaxNLocator
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -76,7 +75,7 @@ def setup_axes2(fig, rect):
         rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
     ax1.grid()
 
-    # create a parasite axes whose transData in RA, cz
+    # create a parasite Axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
 
     aux_ax.patch = ax1.patch  # for aux_ax to have a clip path as in ax
@@ -134,7 +133,7 @@ def setup_axes3(fig, rect):
     ax1.axis["top"].label.set_text(r"$\alpha_{1950}$")
     ax1.grid()
 
-    # create a parasite axes whose transData in RA, cz
+    # create a parasite Axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
 
     aux_ax.patch = ax1.patch  # for aux_ax to have a clip path as in ax

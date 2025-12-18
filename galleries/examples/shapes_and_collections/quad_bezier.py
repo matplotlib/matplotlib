@@ -1,6 +1,6 @@
 """
 ============
-Bezier Curve
+Bezier curve
 ============
 
 This example showcases the `~.patches.PathPatch` object to create a Bezier

@@ -10,6 +10,7 @@ line segments).
 """
 
 import itertools
+import functools
 import math
 from numbers import Number, Real
 import warnings
@@ -17,8 +18,8 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, _path, artist, cbook, cm, colors as mcolors, _docstring,
-               hatch as mhatch, lines as mlines, path as mpath, transforms)
+from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
+               _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
 from ._enums import JoinStyle, CapStyle
 
 
@@ -32,7 +33,7 @@ from ._enums import JoinStyle, CapStyle
     "linewidth": ["linewidths", "lw"],
     "offset_transform": ["transOffset"],
 })
-class Collection(artist.Artist, cm.ScalarMappable):
+class Collection(mcolorizer.ColorizingArtist):
     r"""
     Base class for Collections. Must be subclassed to be usable.
 
@@ -78,6 +79,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def __init__(self, *,
                  edgecolors=None,
                  facecolors=None,
+                 hatchcolors=None,
                  linewidths=None,
                  linestyles='solid',
                  capstyle=None,
@@ -87,6 +89,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  offset_transform=None,
                  norm=None,  # optional for ScalarMappable
                  cmap=None,  # ditto
+                 colorizer=None,
                  pickradius=5.0,
                  hatch=None,
                  urls=None,
@@ -96,12 +99,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Parameters
         ----------
-        edgecolors : color or list of colors, default: :rc:`patch.edgecolor`
+        edgecolors : :mpltype:`color` or list of colors, default: :rc:`patch.edgecolor`
             Edge color for each patch making up the collection. The special
             value 'face' can be passed to make the edgecolor match the
             facecolor.
-        facecolors : color or list of colors, default: :rc:`patch.facecolor`
+        facecolors : :mpltype:`color` or list of colors, default: :rc:`patch.facecolor`
             Face color for each patch making up the collection.
+        hatchcolors : :mpltype:`color` or list of colors, default: :rc:`hatch.color`
+            Hatch color for each patch making up the collection. The color
+            can be set to the special value 'edge' to make the hatchcolor match the
+            edgecolor.
         linewidths : float or list of floats, default: :rc:`patch.linewidth`
             Line width for each patch making up the collection.
         linestyles : str or tuple or list thereof, default: 'solid'
@@ -113,10 +120,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             where *onoffseq* is an even length tuple of on and off ink lengths
             in points. For examples, see
             :doc:`/gallery/lines_bars_and_markers/linestyles`.
-        capstyle : `.CapStyle`-like, default: :rc:`patch.capstyle`
+        capstyle : `.CapStyle`-like, default: 'butt'
             Style to use for capping lines for all paths in the collection.
             Allowed values are %(CapStyle)s.
-        joinstyle : `.JoinStyle`-like, default: :rc:`patch.joinstyle`
+        joinstyle : `.JoinStyle`-like, default: 'round'
             Style to use for joining lines for all paths in the collection.
             Allowed values are %(JoinStyle)s.
         antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
@@ -151,9 +158,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         zorder : float, default: 1
             The drawing order, shared by all Patches in the Collection. See
             :doc:`/gallery/misc/zorder_demo` for all defaults and examples.
+        **kwargs
+            Remaining keyword arguments will be used to set properties as
+            ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
         """
-        artist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
+
+        super().__init__(self._get_colorizer(cmap, norm, colorizer))
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]
@@ -169,7 +179,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._face_is_mapped = None
         self._edge_is_mapped = None
         self._mapped_colors = None  # calculated in update_scalarmappable
-        self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
+        self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
@@ -178,6 +188,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_pickradius(pickradius)
         self.set_urls(urls)
         self.set_hatch(hatch)
+        self.set_hatchcolor(hatchcolors)
         self.set_zorder(zorder)
 
         if capstyle:
@@ -207,7 +218,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._paths
 
     def set_paths(self, paths):
-        raise NotImplementedError
+        self._paths = paths
+        self.stale = True
 
     def get_transforms(self):
         return self._transforms
@@ -256,7 +268,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # if the offsets are in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
-        offsets = self.get_offsets()
 
         paths = self.get_paths()
         if not len(paths):
@@ -270,7 +281,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # transforms.get_affine().contains_branch(transData).  But later,
             # be careful to only apply the affine part that remains.
 
-        if any(transform.contains_branch_seperately(transData)):
+        offsets = self.get_offsets()
+
+        if any(transform.contains_branch_separately(transData)):
             # collections that are just in data units (like quiver)
             # can properly have the axes limits set by their shape +
             # offset.  LineCollections that have no offsets can
@@ -357,7 +370,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
-            gc.set_hatch_color(self._hatch_color)
+            gc.set_hatch_linewidth(self._hatch_linewidth)
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -387,8 +400,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 combined_transform = transform
             extents = paths[0].get_extents(combined_transform)
-            if (extents.width < self.figure.bbox.width
-                    and extents.height < self.figure.bbox.height):
+            if (extents.width < self.get_figure(root=True).bbox.width
+                    and extents.height < self.get_figure(root=True).bbox.height):
                 do_single_path_optimization = True
 
         if self._joinstyle:
@@ -407,24 +420,86 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 gc, paths[0], combined_transform.frozen(),
                 mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
         else:
+            # The current new API of draw_path_collection() is provisional
+            # and will be changed in a future PR.
+
+            # Find whether renderer.draw_path_collection() takes hatchcolor parameter.
+            # Since third-party implementations of draw_path_collection() may not be
+            # introspectable, e.g. with inspect.signature, the only way is to try and
+            # call this with the hatchcolors parameter.
+            hatchcolors_arg_supported = True
+            try:
+                renderer.draw_path_collection(
+                    gc, transform.frozen(), [],
+                    self.get_transforms(), offsets, offset_trf,
+                    self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles,
+                    self._antialiaseds, self._urls,
+                    "screen", hatchcolors=self.get_hatchcolor()
+                )
+            except TypeError:
+                # If the renderer does not support the hatchcolors argument,
+                # it will raise a TypeError. In this case, we will
+                # iterate over all paths and draw them one by one.
+                hatchcolors_arg_supported = False
+
+            # If the hatchcolors argument is not needed or not passed
+            # then we can skip the iteration over paths in case the
+            # argument is not supported by the renderer.
+            hatchcolors_not_needed = (self.get_hatch() is None or
+                                      self._original_hatchcolor is None)
+
             if self._gapcolor is not None:
                 # First draw paths within the gaps.
                 ipaths, ilinestyles = self._get_inverse_paths_linestyles()
-                renderer.draw_path_collection(
-                    gc, transform.frozen(), ipaths,
-                    self.get_transforms(), offsets, offset_trf,
-                    [mcolors.to_rgba("none")], self._gapcolor,
-                    self._linewidths, ilinestyles,
-                    self._antialiaseds, self._urls,
-                    "screen")
+                args = [offsets, offset_trf, [mcolors.to_rgba("none")], self._gapcolor,
+                        self._linewidths, ilinestyles, self._antialiaseds, self._urls,
+                        "screen"]
 
-            renderer.draw_path_collection(
-                gc, transform.frozen(), paths,
-                self.get_transforms(), offsets, offset_trf,
-                self.get_facecolor(), self.get_edgecolor(),
-                self._linewidths, self._linestyles,
-                self._antialiaseds, self._urls,
-                "screen")  # offset_position, kept for backcompat.
+                if hatchcolors_arg_supported:
+                    renderer.draw_path_collection(gc, transform.frozen(), ipaths,
+                                                  self.get_transforms(), *args,
+                                                  hatchcolors=self.get_hatchcolor())
+                else:
+                    if hatchcolors_not_needed:
+                        renderer.draw_path_collection(gc, transform.frozen(), ipaths,
+                                                      self.get_transforms(), *args)
+                    else:
+                        path_ids = renderer._iter_collection_raw_paths(
+                            transform.frozen(), ipaths, self.get_transforms())
+                        for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+                            gc, list(path_ids), *args,
+                            hatchcolors=self.get_hatchcolor(),
+                        ):
+                            path, transform = path_id
+                            if xo != 0 or yo != 0:
+                                transform = transform.frozen()
+                                transform.translate(xo, yo)
+                            renderer.draw_path(gc0, path, transform, rgbFace)
+
+            args = [offsets, offset_trf, self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles, self._antialiaseds, self._urls,
+                    "screen"]
+
+            if hatchcolors_arg_supported:
+                renderer.draw_path_collection(gc, transform.frozen(), paths,
+                                              self.get_transforms(), *args,
+                                              hatchcolors=self.get_hatchcolor())
+            else:
+                if hatchcolors_not_needed:
+                    renderer.draw_path_collection(gc, transform.frozen(), paths,
+                                                  self.get_transforms(), *args)
+                else:
+                    path_ids = renderer._iter_collection_raw_paths(
+                        transform.frozen(), paths, self.get_transforms())
+                    for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+                        gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
+                    ):
+                        path, transform = path_id
+                        if xo != 0 or yo != 0:
+                            transform = transform.frozen()
+                            transform.translate(xo, yo)
+                        renderer.draw_path(gc0, path, transform, rgbFace)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -519,9 +594,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         hatchings are done.  If same letter repeats, it increases the
         density of hatching of that pattern.
 
-        Hatching is supported in the PostScript, PDF, SVG and Agg
-        backends only.
-
         Unlike other properties such as linewidth and colors, hatching
         can only be specified for the collection as a whole, not separately
         for each member.
@@ -538,6 +610,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_hatch(self):
         """Return the current hatching pattern."""
         return self._hatch
+
+    def set_hatch_linewidth(self, lw):
+        """Set the hatch linewidth."""
+        self._hatch_linewidth = lw
+
+    def get_hatch_linewidth(self):
+        """Return the hatch linewidth."""
+        return self._hatch_linewidth
 
     def set_offsets(self, offsets):
         """
@@ -612,17 +692,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
             complete description.
         """
-        try:
-            dashes = [mlines._get_dash_pattern(ls)]
-        except ValueError:
-            try:
-                dashes = [mlines._get_dash_pattern(x) for x in ls]
-            except ValueError as err:
-                emsg = f'Do not know how to convert {ls!r} to dashes'
-                raise ValueError(emsg) from err
-
         # get the list of raw 'unscaled' dash patterns
-        self._us_linestyles = dashes
+        self._us_linestyles = mlines._get_dash_patterns(ls)
 
         # broadcast and scale the lw and dash patterns
         self._linewidths, self._linestyles = self._bcast_lwls(
@@ -639,8 +710,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         self._capstyle = CapStyle(cs)
 
+    @_docstring.interpd
     def get_capstyle(self):
-        return self._capstyle.name
+        """
+        Return the cap style for the collection (for all its elements).
+
+        Returns
+        -------
+        %(CapStyle)s or None
+        """
+        return self._capstyle.name if self._capstyle else None
 
     @_docstring.interpd
     def set_joinstyle(self, js):
@@ -653,8 +732,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         self._joinstyle = JoinStyle(js)
 
+    @_docstring.interpd
     def get_joinstyle(self):
-        return self._joinstyle.name
+        """
+        Return the join style for the collection (for all its elements).
+
+        Returns
+        -------
+        %(JoinStyle)s or None
+        """
+        return self._joinstyle.name if self._joinstyle else None
 
     @staticmethod
     def _bcast_lwls(linewidths, dashes):
@@ -694,6 +781,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         return linewidths, dashes
 
+    def get_antialiased(self):
+        """
+        Get the antialiasing state for rendering.
+
+        Returns
+        -------
+        array of bools
+        """
+        return self._antialiaseds
+
     def set_antialiased(self, aa):
         """
         Set the antialiasing state for rendering.
@@ -713,19 +810,23 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_color(self, c):
         """
-        Set both the edgecolor and the facecolor.
+        Set the edgecolor, facecolor and hatchcolor.
+
+        .. versionchanged:: 3.11
+            Now sets the hatchcolor as well.
 
         Parameters
         ----------
-        c : color or list of RGBA tuples
+        c : :mpltype:`color` or list of RGBA tuples
 
         See Also
         --------
-        Collection.set_facecolor, Collection.set_edgecolor
-            For setting the edge or face color individually.
+        Collection.set_facecolor, Collection.set_edgecolor, Collection.set_hatchcolor
+            For setting the facecolor, edgecolor, and hatchcolor individually.
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
+        self.set_hatchcolor(c)
 
     def _get_default_facecolor(self):
         # This may be overridden in a subclass.
@@ -748,7 +849,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        c : color or list of colors
+        c : :mpltype:`color` or list of :mpltype:`color`
         """
         if isinstance(c, str) and c.lower() in ("none", "face"):
             c = c.lower()
@@ -768,8 +869,15 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # This may be overridden in a subclass.
         return mpl.rcParams['patch.edgecolor']
 
+    def get_hatchcolor(self):
+        if cbook._str_equal(self._hatchcolors, 'edge'):
+            if len(self.get_edgecolor()) == 0:
+                return mpl.colors.to_rgba_array(self._get_default_edgecolor(),
+                                                self._alpha)
+            return self.get_edgecolor()
+        return self._hatchcolors
+
     def _set_edgecolor(self, c):
-        set_hatch_color = True
         if c is None:
             if (mpl.rcParams['patch.force_edgecolor']
                     or self._edge_default
@@ -777,14 +885,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 c = self._get_default_edgecolor()
             else:
                 c = 'none'
-                set_hatch_color = False
         if cbook._str_lower_equal(c, 'face'):
             self._edgecolors = 'face'
             self.stale = True
             return
         self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
-        if set_hatch_color and len(self._edgecolors):
-            self._hatch_color = tuple(self._edgecolors[0])
         self.stale = True
 
     def set_edgecolor(self, c):
@@ -793,7 +898,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        c : color or list of colors or 'face'
+        c : :mpltype:`color` or list of :mpltype:`color` or 'face'
             The collection edgecolor(s).  If a sequence, the patches cycle
             through it.  If 'face', match the facecolor.
         """
@@ -804,6 +909,27 @@ class Collection(artist.Artist, cm.ScalarMappable):
             c = c.lower()
         self._original_edgecolor = c
         self._set_edgecolor(c)
+
+    def _set_hatchcolor(self, c):
+        c = mpl._val_or_rc(c, 'hatch.color')
+        if cbook._str_equal(c, 'edge'):
+            self._hatchcolors = 'edge'
+        else:
+            self._hatchcolors = mcolors.to_rgba_array(c, self._alpha)
+        self.stale = True
+
+    def set_hatchcolor(self, c):
+        """
+        Set the hatchcolor(s) of the collection.
+
+        Parameters
+        ----------
+        c : :mpltype:`color` or list of :mpltype:`color` or 'edge'
+            The collection hatchcolor(s).  If a sequence, the patches cycle
+            through it.
+        """
+        self._original_hatchcolor = c
+        self._set_hatchcolor(c)
 
     def set_alpha(self, alpha):
         """
@@ -820,6 +946,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         artist.Artist._set_alpha_for_array(self, alpha)
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
+        self._set_hatchcolor(self._original_hatchcolor)
 
     set_alpha.__doc__ = artist.Artist._set_alpha_for_array.__doc__
 
@@ -875,7 +1002,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Allow possibility to call 'self.set_array(None)'.
         if self._A is not None:
             # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
-            if self._A.ndim > 1 and not isinstance(self, QuadMesh):
+            if self._A.ndim > 1 and not isinstance(self, _MeshData):
                 raise ValueError('Collections can only map rank 1 arrays')
             if np.iterable(self._alpha):
                 if self._alpha.size != self._A.size:
@@ -922,6 +1049,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._us_linestyles = other._us_linestyles
         self._pickradius = other._pickradius
         self._hatch = other._hatch
+        self._hatchcolors = other._hatchcolors
 
         # update_from for scalarmappable
         self._A = other._A
@@ -973,7 +1101,7 @@ class _CollectionWithSizes(Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         super().draw(renderer)
 
 
@@ -1001,10 +1129,6 @@ class PathCollection(_CollectionWithSizes):
         self.set_sizes(sizes)
         self.stale = True
 
-    def set_paths(self, paths):
-        self._paths = paths
-        self.stale = True
-
     def get_paths(self):
         return self._paths
 
@@ -1014,12 +1138,12 @@ class PathCollection(_CollectionWithSizes):
         Create legend handles and labels for a PathCollection.
 
         Each legend handle is a `.Line2D` representing the Path that was drawn,
-        and each label is a string what each Path represents.
+        and each label is a string that represents the Path.
 
         This is useful for obtaining a legend for a `~.Axes.scatter` plot;
         e.g.::
 
-            scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3])
+            scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3], num=None)
             plt.legend(*scatter.legend_elements())
 
         creates three legend elements, one for each color with the numerical
@@ -1200,15 +1324,15 @@ class PolyCollection(_CollectionWithSizes):
             return
 
         # Fast path for arrays
-        if isinstance(verts, np.ndarray) and len(verts.shape) == 3:
+        if isinstance(verts, np.ndarray) and len(verts.shape) == 3 and verts.size:
             verts_pad = np.concatenate((verts, verts[:, :1]), axis=1)
-            # Creating the codes once is much faster than having Path do it
-            # separately each time by passing closed=True.
-            codes = np.empty(verts_pad.shape[1], dtype=mpath.Path.code_type)
-            codes[:] = mpath.Path.LINETO
-            codes[0] = mpath.Path.MOVETO
-            codes[-1] = mpath.Path.CLOSEPOLY
-            self._paths = [mpath.Path(xy, codes) for xy in verts_pad]
+            # It's faster to create the codes and internal flags once in a
+            # template path and reuse them.
+            template_path = mpath.Path(verts_pad[0], closed=True)
+            codes = template_path.codes
+            _make_path = mpath.Path._fast_from_codes_and_verts
+            self._paths = [_make_path(xy, codes, internals_from=template_path)
+                           for xy in verts_pad]
             return
 
         self._paths = []
@@ -1229,50 +1353,247 @@ class PolyCollection(_CollectionWithSizes):
                        for xy, cds in zip(verts, codes)]
         self.stale = True
 
-    @classmethod
-    @_api.deprecated("3.7", alternative="fill_between")
-    def span_where(cls, x, ymin, ymax, where, **kwargs):
-        """
-        Return a `.BrokenBarHCollection` that plots horizontal bars from
-        over the regions in *x* where *where* is True.  The bars range
-        on the y-axis from *ymin* to *ymax*
 
-        *kwargs* are passed on to the collection.
-        """
-        xranges = []
-        for ind0, ind1 in cbook.contiguous_regions(where):
-            xslice = x[ind0:ind1]
-            if not len(xslice):
-                continue
-            xranges.append((xslice[0], xslice[-1] - xslice[0]))
-        return BrokenBarHCollection(xranges, [ymin, ymax - ymin], **kwargs)
-
-
-@_api.deprecated("3.7")
-class BrokenBarHCollection(PolyCollection):
+class FillBetweenPolyCollection(PolyCollection):
     """
-    A collection of horizontal bars spanning *yrange* with a sequence of
-    *xranges*.
+    `.PolyCollection` that fills the area between two x- or y-curves.
     """
-    def __init__(self, xranges, yrange, **kwargs):
+    def __init__(
+            self, t_direction, t, f1, f2, *,
+            where=None, interpolate=False, step=None, **kwargs):
         """
         Parameters
         ----------
-        xranges : list of (float, float)
-            The sequence of (left-edge-position, width) pairs for each bar.
-        yrange : (float, float)
-            The (lower-edge, height) common to all bars.
+        t_direction : {{'x', 'y'}}
+            The axes on which the variable lies.
+
+            - 'x': the curves are ``(t, f1)`` and ``(t, f2)``.
+            - 'y': the curves are ``(f1, t)`` and ``(f2, t)``.
+
+        t : array-like
+            The ``t_direction`` coordinates of the nodes defining the curves.
+
+        f1 : array-like or float
+            The other coordinates of the nodes defining the first curve.
+
+        f2 : array-like or float
+            The other coordinates of the nodes defining the second curve.
+
+        where : array-like of bool, optional
+            Define *where* to exclude some {dir} regions from being filled.
+            The filled regions are defined by the coordinates ``t[where]``.
+            More precisely, fill between ``t[i]`` and ``t[i+1]`` if
+            ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in *where*
+            will not result in filling.  Both sides of the *True* position
+            remain unfilled due to the adjacent *False* values.
+
+        interpolate : bool, default: False
+            This option is only relevant if *where* is used and the two curves
+            are crossing each other.
+
+            Semantically, *where* is often used for *f1* > *f2* or
+            similar.  By default, the nodes of the polygon defining the filled
+            region will only be placed at the positions in the *t* array.
+            Such a polygon cannot describe the above semantics close to the
+            intersection.  The t-sections containing the intersection are
+            simply clipped.
+
+            Setting *interpolate* to *True* will calculate the actual
+            intersection point and extend the filled region up to this point.
+
+        step : {{'pre', 'post', 'mid'}}, optional
+            Define *step* if the filling should be a step function,
+            i.e. constant in between *t*.  The value determines where the
+            step will occur:
+
+            - 'pre': The f value is continued constantly to the left from
+              every *t* position, i.e. the interval ``(t[i-1], t[i]]`` has the
+              value ``f[i]``.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[t[i], t[i+1])`` has the
+              value ``f[i]``.
+            - 'mid': Steps occur half-way between the *t* positions.
+
         **kwargs
-            Forwarded to `.Collection`.
+            Forwarded to `.PolyCollection`.
+
+        See Also
+        --------
+        .Axes.fill_between, .Axes.fill_betweenx
         """
-        ymin, ywidth = yrange
-        ymax = ymin + ywidth
-        verts = [[(xmin, ymin),
-                  (xmin, ymax),
-                  (xmin + xwidth, ymax),
-                  (xmin + xwidth, ymin),
-                  (xmin, ymin)] for xmin, xwidth in xranges]
+        self.t_direction = t_direction
+        self._interpolate = interpolate
+        self._step = step
+        verts = self._make_verts(t, f1, f2, where)
         super().__init__(verts, **kwargs)
+
+    @staticmethod
+    def _f_dir_from_t(t_direction):
+        """The direction that is other than `t_direction`."""
+        if t_direction == "x":
+            return "y"
+        elif t_direction == "y":
+            return "x"
+        else:
+            msg = f"t_direction must be 'x' or 'y', got {t_direction!r}"
+            raise ValueError(msg)
+
+    @property
+    def _f_direction(self):
+        """The direction that is other than `self.t_direction`."""
+        return self._f_dir_from_t(self.t_direction)
+
+    def set_data(self, t, f1, f2, *, where=None):
+        """
+        Set new values for the two bounding curves.
+
+        Parameters
+        ----------
+        t : array-like
+            The ``self.t_direction`` coordinates of the nodes defining the curves.
+
+        f1 : array-like or float
+            The other coordinates of the nodes defining the first curve.
+
+        f2 : array-like or float
+            The other coordinates of the nodes defining the second curve.
+
+        where : array-like of bool, optional
+            Define *where* to exclude some {dir} regions from being filled.
+            The filled regions are defined by the coordinates ``t[where]``.
+            More precisely, fill between ``t[i]`` and ``t[i+1]`` if
+            ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in *where*
+            will not result in filling.  Both sides of the *True* position
+            remain unfilled due to the adjacent *False* values.
+
+        See Also
+        --------
+        .PolyCollection.set_verts, .Line2D.set_data
+        """
+        t, f1, f2 = self.axes._fill_between_process_units(
+            self.t_direction, self._f_direction, t, f1, f2)
+
+        verts = self._make_verts(t, f1, f2, where)
+        self.set_verts(verts)
+
+    def get_datalim(self, transData):
+        """Calculate the data limits and return them as a `.Bbox`."""
+        datalim = transforms.Bbox.null()
+        datalim.update_from_data_xy((self.get_transform() - transData).transform(
+            np.concatenate([self._bbox, [self._bbox.minpos]])))
+        return datalim
+
+    def _make_verts(self, t, f1, f2, where):
+        """
+        Make verts that can be forwarded to `.PolyCollection`.
+        """
+        self._validate_shapes(self.t_direction, self._f_direction, t, f1, f2)
+
+        where = self._get_data_mask(t, f1, f2, where)
+        t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
+
+        self._bbox = transforms.Bbox.null()
+        self._bbox.update_from_data_xy(self._fix_pts_xy_order(np.concatenate([
+            np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)])))
+
+        return [
+            self._make_verts_for_region(t, f1, f2, idx0, idx1)
+            for idx0, idx1 in cbook.contiguous_regions(where)
+        ]
+
+    def _get_data_mask(self, t, f1, f2, where):
+        """
+        Return a bool array, with True at all points that should eventually be rendered.
+
+        The array is True at a point if none of the data inputs
+        *t*, *f1*, *f2* is masked and if the input *where* is true at that point.
+        """
+        if where is None:
+            where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != t.size:
+                msg = "where size ({}) does not match {!r} size ({})".format(
+                    where.size, self.t_direction, t.size)
+                raise ValueError(msg)
+        return where & ~functools.reduce(
+            np.logical_or, map(np.ma.getmaskarray, [t, f1, f2]))
+
+    @staticmethod
+    def _validate_shapes(t_dir, f_dir, t, f1, f2):
+        """Validate that t, f1 and f2 are 1-dimensional and have the same length."""
+        names = (d + s for d, s in zip((t_dir, f_dir, f_dir), ("", "1", "2")))
+        for name, array in zip(names, [t, f1, f2]):
+            if array.ndim > 1:
+                raise ValueError(f"{name!r} is not 1-dimensional")
+            if t.size > 1 and array.size > 1 and t.size != array.size:
+                msg = "{!r} has size {}, but {!r} has an unequal size of {}".format(
+                    t_dir, t.size, name, array.size)
+                raise ValueError(msg)
+
+    def _make_verts_for_region(self, t, f1, f2, idx0, idx1):
+        """
+        Make ``verts`` for a contiguous region between ``idx0`` and ``idx1``, taking
+        into account ``step`` and ``interpolate``.
+        """
+        t_slice = t[idx0:idx1]
+        f1_slice = f1[idx0:idx1]
+        f2_slice = f2[idx0:idx1]
+        if self._step is not None:
+            step_func = cbook.STEP_LOOKUP_MAP["steps-" + self._step]
+            t_slice, f1_slice, f2_slice = step_func(t_slice, f1_slice, f2_slice)
+
+        if self._interpolate:
+            start = self._get_interpolating_points(t, f1, f2, idx0)
+            end = self._get_interpolating_points(t, f1, f2, idx1)
+        else:
+            # Handle scalar f2 (e.g. 0): the fill should go all
+            # the way down to 0 even if none of the dep1 sample points do.
+            start = t_slice[0], f2_slice[0]
+            end = t_slice[-1], f2_slice[-1]
+
+        pts = np.concatenate((
+            np.asarray([start]),
+            np.stack((t_slice, f1_slice), axis=-1),
+            np.asarray([end]),
+            np.stack((t_slice, f2_slice), axis=-1)[::-1]))
+
+        return self._fix_pts_xy_order(pts)
+
+    @classmethod
+    def _get_interpolating_points(cls, t, f1, f2, idx):
+        """Calculate interpolating points."""
+        im1 = max(idx - 1, 0)
+        t_values = t[im1:idx+1]
+        diff_values = f1[im1:idx+1] - f2[im1:idx+1]
+        f1_values = f1[im1:idx+1]
+
+        if len(diff_values) == 2:
+            if np.ma.is_masked(diff_values[1]):
+                return t[im1], f1[im1]
+            elif np.ma.is_masked(diff_values[0]):
+                return t[idx], f1[idx]
+
+        diff_root_t = cls._get_diff_root(0, diff_values, t_values)
+        diff_root_f = cls._get_diff_root(diff_root_t, t_values, f1_values)
+        return diff_root_t, diff_root_f
+
+    @staticmethod
+    def _get_diff_root(x, xp, fp):
+        """Calculate diff root."""
+        order = xp.argsort()
+        return np.interp(x, xp[order], fp[order])
+
+    def _fix_pts_xy_order(self, pts):
+        """
+        Fix pts calculation results with `self.t_direction`.
+
+        In the workflow, it is assumed that `self.t_direction` is 'x'. If this
+        is not true, we need to exchange the coordinates.
+        """
+        return pts[:, ::-1] if self.t_direction == "y" else pts
 
 
 class RegularPolyCollection(_CollectionWithSizes):
@@ -1331,7 +1652,7 @@ class RegularPolyCollection(_CollectionWithSizes):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
         self._transforms = [
             transforms.Affine2D(x).rotate(-self._rotation).get_matrix()
             for x in self._transforms
@@ -1379,16 +1700,16 @@ class LineCollection(Collection):
         """
         Parameters
         ----------
-        segments : list of array-like
-            A sequence of (*line0*, *line1*, *line2*), where::
+        segments : list of (N, 2) array-like
+            A sequence ``[line0, line1, ...]`` where each line is a (N, 2)-shape
+            array-like containing points::
 
-                linen = (x0, y0), (x1, y1), ... (xm, ym)
+                line0 = [(x0, y0), (x1, y1), ...]
 
-            or the equivalent numpy array with two columns. Each line
-            can have a different number of segments.
+            Each line can contain a different number of points.
         linewidths : float or list of float, default: :rc:`lines.linewidth`
             The width of each line in points.
-        colors : color or list of color, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
             A sequence of RGBA tuples (e.g., arbitrary color strings, etc, not
             allowed).
         antialiaseds : bool or list of bool, default: :rc:`lines.antialiased`
@@ -1396,7 +1717,7 @@ class LineCollection(Collection):
         zorder : float, default: 2
             zorder of the lines once drawn.
 
-        facecolors : color or list of color, default: 'none'
+        facecolors : :mpltype:`color` or list of :mpltype:`color`, default: 'none'
             When setting *facecolors*, each line is interpreted as a boundary
             for an area, implicitly closing the path from the last point to the
             first point. The enclosed area is filled with *facecolor*.
@@ -1475,7 +1796,7 @@ class LineCollection(Collection):
 
         Parameters
         ----------
-        c : color or list of colors
+        c : :mpltype:`color` or list of :mpltype:`color`
             Single color (all lines have same color), or a
             sequence of RGBA tuples; if it is a sequence the lines will
             cycle through the sequence.
@@ -1503,7 +1824,7 @@ class LineCollection(Collection):
 
         Parameters
         ----------
-        gapcolor : color or list of colors or None
+        gapcolor : :mpltype:`color` or list of :mpltype:`color` or None
             The color with which to fill the gaps. If None, the gaps are
             unfilled.
         """
@@ -1576,7 +1897,7 @@ class EventCollection(LineCollection):
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
         linewidth : float or list thereof, default: :rc:`lines.linewidth`
             The line width of the event lines, in points.
-        color : color or list of colors, default: :rc:`lines.color`
+        color : :mpltype:`color` or list of :mpltype:`color`, default: :rc:`lines.color`
             The color of the event lines.
         linestyle : str or tuple or list thereof, default: 'solid'
             Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
@@ -1765,9 +2086,9 @@ class EllipseCollection(Collection):
             Forwarded to `Collection`.
         """
         super().__init__(**kwargs)
-        self._widths = 0.5 * np.asarray(widths).ravel()
-        self._heights = 0.5 * np.asarray(heights).ravel()
-        self._angles = np.deg2rad(angles).ravel()
+        self.set_widths(widths)
+        self.set_heights(heights)
+        self.set_angles(angles)
         self._units = units
         self.set_transform(transforms.IdentityTransform())
         self._transforms = np.empty((0, 3, 3))
@@ -1777,7 +2098,7 @@ class EllipseCollection(Collection):
         """Calculate transforms immediately before drawing."""
 
         ax = self.axes
-        fig = self.figure
+        fig = self.get_figure(root=False)
 
         if self._units == 'xy':
             sc = 1
@@ -1814,6 +2135,33 @@ class EllipseCollection(Collection):
             m = ax.transData.get_affine().get_matrix().copy()
             m[:2, 2:] = 0
             self.set_transform(_affine(m))
+
+    def set_widths(self, widths):
+        """Set the lengths of the first axes (e.g., major axis)."""
+        self._widths = 0.5 * np.asarray(widths).ravel()
+        self.stale = True
+
+    def set_heights(self, heights):
+        """Set the lengths of second axes (e.g., minor axes)."""
+        self._heights = 0.5 * np.asarray(heights).ravel()
+        self.stale = True
+
+    def set_angles(self, angles):
+        """Set the angles of the first axes, degrees CCW from the x-axis."""
+        self._angles = np.deg2rad(angles).ravel()
+        self.stale = True
+
+    def get_widths(self):
+        """Get the lengths of the first axes (e.g., major axis)."""
+        return self._widths * 2
+
+    def get_heights(self):
+        """Set the lengths of second axes (e.g., minor axes)."""
+        return self._heights * 2
+
+    def get_angles(self):
+        """Get the angles of the first axes, degrees CCW from the x-axis."""
+        return np.rad2deg(self._angles)
 
     @artist.allow_rasterization
     def draw(self, renderer):
@@ -1944,9 +2292,11 @@ class TriMesh(Collection):
         renderer.close_group(self.__class__.__name__)
 
 
-class QuadMesh(Collection):
+class _MeshData:
     r"""
-    Class for the efficient drawing of a quadrilateral mesh.
+    Class for managing the two dimensional coordinates of Quadrilateral meshes
+    and the associated data with them. This class is a mixin and is intended to
+    be used with another collection that will implement the draw separately.
 
     A quadrilateral mesh is a grid of M by N adjacent quadrilaterals that are
     defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
@@ -1966,42 +2316,12 @@ class QuadMesh(Collection):
         The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
         of vertex (m, n).
 
-    antialiased : bool, default: True
-
     shading : {'flat', 'gouraud'}, default: 'flat'
-
-    Notes
-    -----
-    Unlike other `.Collection`\s, the default *pickradius* of `.QuadMesh` is 0,
-    i.e. `~.Artist.contains` checks whether the test point is within any of the
-    mesh quadrilaterals.
-
     """
-
-    def __init__(self, coordinates, *, antialiased=True, shading='flat',
-                 **kwargs):
-        kwargs.setdefault("pickradius", 0)
-        # end of signature deprecation code
-
+    def __init__(self, coordinates, *, shading='flat'):
         _api.check_shape((None, None, 2), coordinates=coordinates)
         self._coordinates = coordinates
-        self._antialiased = antialiased
         self._shading = shading
-        self._bbox = transforms.Bbox.unit()
-        self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
-        # super init delayed after own init because array kwarg requires
-        # self._coordinates and self._shading
-        super().__init__(**kwargs)
-        self.set_mouseover(False)
-
-    def get_paths(self):
-        if self._paths is None:
-            self.set_paths()
-        return self._paths
-
-    def set_paths(self):
-        self._paths = self._convert_mesh_to_paths(self._coordinates)
-        self.stale = True
 
     def set_array(self, A):
         """
@@ -2040,9 +2360,6 @@ class QuadMesh(Collection):
                     f"{' or '.join(map(str, ok_shapes))}, not {A.shape}")
         return super().set_array(A)
 
-    def get_datalim(self, transData):
-        return (self.get_transform() - transData).transform_bbox(self._bbox)
-
     def get_coordinates(self):
         """
         Return the vertices of the mesh as an (M+1, N+1, 2) array.
@@ -2052,6 +2369,18 @@ class QuadMesh(Collection):
         The last dimension specifies the components (x, y).
         """
         return self._coordinates
+
+    def get_edgecolor(self):
+        # docstring inherited
+        # Note that we want to return an array of shape (N*M, 4)
+        # a flattened RGBA collection
+        return super().get_edgecolor().reshape(-1, 4)
+
+    def get_facecolor(self):
+        # docstring inherited
+        # Note that we want to return an array of shape (N*M, 4)
+        # a flattened RGBA collection
+        return super().get_facecolor().reshape(-1, 4)
 
     @staticmethod
     def _convert_mesh_to_paths(coordinates):
@@ -2116,6 +2445,64 @@ class QuadMesh(Collection):
         tmask = np.isnan(colors[..., 2, 3])
         return triangles[~tmask], colors[~tmask]
 
+
+class QuadMesh(_MeshData, Collection):
+    r"""
+    Class for the efficient drawing of a quadrilateral mesh.
+
+    A quadrilateral mesh is a grid of M by N adjacent quadrilaterals that are
+    defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
+    defined by the vertices ::
+
+               (m+1, n) ----------- (m+1, n+1)
+                  /                   /
+                 /                 /
+                /               /
+            (m, n) -------- (m, n+1)
+
+    The mesh need not be regular and the polygons need not be convex.
+
+    Parameters
+    ----------
+    coordinates : (M+1, N+1, 2) array-like
+        The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
+        of vertex (m, n).
+
+    antialiased : bool, default: True
+
+    shading : {'flat', 'gouraud'}, default: 'flat'
+
+    Notes
+    -----
+    Unlike other `.Collection`\s, the default *pickradius* of `.QuadMesh` is 0,
+    i.e. `~.Artist.contains` checks whether the test point is within any of the
+    mesh quadrilaterals.
+
+    """
+
+    def __init__(self, coordinates, *, antialiased=True, shading='flat',
+                 **kwargs):
+        kwargs.setdefault("pickradius", 0)
+        super().__init__(coordinates=coordinates, shading=shading)
+        Collection.__init__(self, **kwargs)
+
+        self._antialiased = antialiased
+        self._bbox = transforms.Bbox.unit()
+        self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
+        self.set_mouseover(False)
+
+    def get_paths(self):
+        if self._paths is None:
+            self.set_paths()
+        return self._paths
+
+    def set_paths(self):
+        self._paths = self._convert_mesh_to_paths(self._coordinates)
+        self.stale = True
+
+    def get_datalim(self, transData):
+        return (self.get_transform() - transData).transform_bbox(self._bbox)
+
     @artist.allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
@@ -2170,3 +2557,114 @@ class QuadMesh(Collection):
         if contained and self.get_array() is not None:
             return self.get_array().ravel()[info["ind"]]
         return None
+
+
+class PolyQuadMesh(_MeshData, PolyCollection):
+    """
+    Class for drawing a quadrilateral mesh as individual Polygons.
+
+    A quadrilateral mesh is a grid of M by N adjacent quadrilaterals that are
+    defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
+    defined by the vertices ::
+
+               (m+1, n) ----------- (m+1, n+1)
+                  /                   /
+                 /                 /
+                /               /
+            (m, n) -------- (m, n+1)
+
+    The mesh need not be regular and the polygons need not be convex.
+
+    Parameters
+    ----------
+    coordinates : (M+1, N+1, 2) array-like
+        The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
+        of vertex (m, n).
+
+    Notes
+    -----
+    Unlike `.QuadMesh`, this class will draw each cell as an individual Polygon.
+    This is significantly slower, but allows for more flexibility when wanting
+    to add additional properties to the cells, such as hatching.
+
+    Another difference from `.QuadMesh` is that if any of the vertices or data
+    of a cell are masked, that Polygon will **not** be drawn and it won't be in
+    the list of paths returned.
+    """
+
+    def __init__(self, coordinates, **kwargs):
+        super().__init__(coordinates=coordinates)
+        PolyCollection.__init__(self, verts=[], **kwargs)
+        # Setting the verts updates the paths of the PolyCollection
+        # This is called after the initializers to make sure the kwargs
+        # have all been processed and available for the masking calculations
+        self._set_unmasked_verts()
+
+    def _get_unmasked_polys(self):
+        """Get the unmasked regions using the coordinates and array"""
+        # mask(X) | mask(Y)
+        mask = np.any(np.ma.getmaskarray(self._coordinates), axis=-1)
+
+        # We want the shape of the polygon, which is the corner of each X/Y array
+        mask = (mask[0:-1, 0:-1] | mask[1:, 1:] | mask[0:-1, 1:] | mask[1:, 0:-1])
+        arr = self.get_array()
+        if arr is not None:
+            arr = np.ma.getmaskarray(arr)
+            if arr.ndim == 3:
+                # RGB(A) case
+                mask |= np.any(arr, axis=-1)
+            elif arr.ndim == 2:
+                mask |= arr
+            else:
+                mask |= arr.reshape(self._coordinates[:-1, :-1, :].shape[:2])
+        return ~mask
+
+    def _set_unmasked_verts(self):
+        X = self._coordinates[..., 0]
+        Y = self._coordinates[..., 1]
+
+        unmask = self._get_unmasked_polys()
+        X1 = np.ma.filled(X[:-1, :-1])[unmask]
+        Y1 = np.ma.filled(Y[:-1, :-1])[unmask]
+        X2 = np.ma.filled(X[1:, :-1])[unmask]
+        Y2 = np.ma.filled(Y[1:, :-1])[unmask]
+        X3 = np.ma.filled(X[1:, 1:])[unmask]
+        Y3 = np.ma.filled(Y[1:, 1:])[unmask]
+        X4 = np.ma.filled(X[:-1, 1:])[unmask]
+        Y4 = np.ma.filled(Y[:-1, 1:])[unmask]
+        npoly = len(X1)
+
+        xy = np.ma.stack([X1, Y1, X2, Y2, X3, Y3, X4, Y4, X1, Y1], axis=-1)
+        verts = xy.reshape((npoly, 5, 2))
+        self.set_verts(verts)
+
+    def get_edgecolor(self):
+        # docstring inherited
+        # We only want to return the facecolors of the polygons
+        # that were drawn.
+        ec = super().get_edgecolor()
+        unmasked_polys = self._get_unmasked_polys().ravel()
+        if len(ec) != len(unmasked_polys):
+            # Mapping is off
+            return ec
+        return ec[unmasked_polys, :]
+
+    def get_facecolor(self):
+        # docstring inherited
+        # We only want to return the facecolors of the polygons
+        # that were drawn.
+        fc = super().get_facecolor()
+        unmasked_polys = self._get_unmasked_polys().ravel()
+        if len(fc) != len(unmasked_polys):
+            # Mapping is off
+            return fc
+        return fc[unmasked_polys, :]
+
+    def set_array(self, A):
+        # docstring inherited
+        prev_unmask = self._get_unmasked_polys()
+        super().set_array(A)
+        # If the mask has changed at all we need to update
+        # the set of Polys that we are drawing
+        if not np.array_equal(prev_unmask, self._get_unmasked_polys()):
+            self._set_unmasked_verts()

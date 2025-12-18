@@ -32,7 +32,7 @@ Changes for 0.90.1
     named units.ConversionInterface.convert.
 
     Axes.errorbar uses Axes.vlines and Axes.hlines to draw its error
-    limits int he vertical and horizontal direction.  As you'll see
+    limits in the vertical and horizontal direction.  As you'll see
     in the changes below, these functions now return a LineCollection
     rather than a list of lines.  The new return signature for
     errorbar is  ylins, caplines, errorcollections where

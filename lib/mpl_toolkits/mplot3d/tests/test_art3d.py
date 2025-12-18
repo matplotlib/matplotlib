@@ -1,6 +1,30 @@
+import numpy as np
+import numpy.testing as nptest
+import pytest
+
 import matplotlib.pyplot as plt
 
 from matplotlib.backend_bases import MouseEvent
+from mpl_toolkits.mplot3d.art3d import (
+    get_dir_vector,
+    Line3DCollection,
+    Poly3DCollection,
+    _all_points_on_plane,
+)
+
+
+@pytest.mark.parametrize("zdir, expected", [
+    ("x", (1, 0, 0)),
+    ("y", (0, 1, 0)),
+    ("z", (0, 0, 1)),
+    (None, (0, 0, 0)),
+    ((1, 2, 3), (1, 2, 3)),
+    (np.array([4, 5, 6]), (4, 5, 6)),
+])
+def test_get_dir_vector(zdir, expected):
+    res = get_dir_vector(zdir)
+    assert isinstance(res, np.ndarray)
+    nptest.assert_array_equal(res, expected)
 
 
 def test_scatter_3d_projection_conservation():
@@ -36,3 +60,60 @@ def test_scatter_3d_projection_conservation():
             assert contains is True
             assert len(ind["ind"]) == 1
             assert ind["ind"][0] == i
+
+
+def test_zordered_error():
+    # Smoke test for https://github.com/matplotlib/matplotlib/issues/26497
+    lc = [(np.fromiter([0.0, 0.0, 0.0], dtype="float"),
+           np.fromiter([1.0, 1.0, 1.0], dtype="float"))]
+    pc = [np.fromiter([0.0, 0.0], dtype="float"),
+          np.fromiter([0.0, 1.0], dtype="float"),
+          np.fromiter([1.0, 1.0], dtype="float")]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+    ax.add_collection(Line3DCollection(lc), autolim="_datalim_only")
+    ax.scatter(*pc, visible=False)
+    plt.draw()
+
+
+def test_all_points_on_plane():
+    # Non-coplanar points
+    points = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
+    assert not _all_points_on_plane(*points.T)
+
+    # Duplicate points
+    points = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 0]])
+    assert _all_points_on_plane(*points.T)
+
+    # NaN values
+    points = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, np.nan]])
+    assert _all_points_on_plane(*points.T)
+
+    # Less than 3 unique points
+    points = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
+    assert _all_points_on_plane(*points.T)
+
+    # All points lie on a line
+    points = np.array([[0, 0, 0], [0, 1, 0], [0, 2, 0], [0, 3, 0]])
+    assert _all_points_on_plane(*points.T)
+
+    # All points lie on two lines, with antiparallel vectors
+    points = np.array([[-2, 2, 0], [-1, 1, 0], [1, -1, 0],
+                       [0, 0, 0], [2, 0, 0], [1, 0, 0]])
+    assert _all_points_on_plane(*points.T)
+
+    # All points lie on a plane
+    points = np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0], [1, 1, 0], [1, 2, 0]])
+    assert _all_points_on_plane(*points.T)
+
+
+def test_generate_normals():
+    # Smoke test for https://github.com/matplotlib/matplotlib/issues/29156
+    vertices = ((0, 0, 0), (0, 5, 0), (5, 5, 0), (5, 0, 0))
+    shape = Poly3DCollection([vertices], edgecolors='r', shade=True)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.add_collection3d(shape)
+    plt.draw()

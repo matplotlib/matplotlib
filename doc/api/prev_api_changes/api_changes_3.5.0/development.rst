@@ -77,6 +77,6 @@ In order to avoid conflicting with the use of :file:`setup.cfg` by
 ``setup.cfg`` to ``mplsetup.cfg``.  The :file:`setup.cfg.template` has been
 correspondingly been renamed to :file:`mplsetup.cfg.template`.
 
-Note that the path to this configuration file can still be set via the
-:envvar:`MPLSETUPCFG` environment variable, which allows one to keep using the
-same file before and after this change.
+Note that the path to this configuration file can still be set via the ``MPLSETUPCFG``
+environment variable, which allows one to keep using the same file before and after this
+change.

@@ -2,6 +2,7 @@
 =========
 imshow(Z)
 =========
+Display data as an image, i.e., on a 2D regular raster.
 
 See `~matplotlib.axes.Axes.imshow`.
 """
@@ -18,6 +19,6 @@ Z = (1 - X/2 + X**5 + Y**3) * np.exp(-X**2 - Y**2)
 # plot
 fig, ax = plt.subplots()
 
-ax.imshow(Z)
+ax.imshow(Z, origin='lower')
 
 plt.show()

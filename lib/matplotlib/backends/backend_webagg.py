@@ -1,6 +1,4 @@
-"""
-Displays Agg images in the browser, with interactivity
-"""
+"""Displays Agg images in the browser, with interactivity."""
 
 # The WebAgg backend is divided into two modules:
 #
@@ -23,13 +21,11 @@ import signal
 import threading
 
 try:
-    import tornado
+    import tornado.web
+    import tornado.ioloop
+    import tornado.websocket
 except ImportError as err:
     raise RuntimeError("The WebAgg backend requires Tornado.") from err
-
-import tornado.web
-import tornado.ioloop
-import tornado.websocket
 
 import matplotlib as mpl
 from matplotlib.backend_bases import _Backend
@@ -37,12 +33,6 @@ from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
 from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
     TimerAsyncio, TimerTornado)
-
-
-@mpl._api.deprecated("3.7")
-class ServerThread(threading.Thread):
-    def run(self):
-        tornado.ioloop.IOLoop.instance().start()
 
 
 webagg_server_thread = threading.Thread(

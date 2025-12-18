@@ -12,6 +12,9 @@ def stackplot(
     *args: ArrayLike,
     labels: Iterable[str] = ...,
     colors: Iterable[ColorType] | None = ...,
+    hatch: Iterable[str] | str | None = ...,
     baseline: Literal["zero", "sym", "wiggle", "weighted_wiggle"] = ...,
     **kwargs
 ) -> list[PolyCollection]: ...
+
+__all__ = ['stackplot']

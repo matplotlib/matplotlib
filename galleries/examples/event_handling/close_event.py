@@ -1,6 +1,6 @@
 """
 ===========
-Close Event
+Close event
 ===========
 
 Example to show connecting events that occur when the figure closes.

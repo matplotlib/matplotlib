@@ -2,6 +2,7 @@
 =============
 triplot(x, y)
 =============
+Draw an unstructured triangular grid as lines and/or markers.
 
 See `~matplotlib.axes.Axes.triplot`.
 """

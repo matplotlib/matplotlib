@@ -52,6 +52,8 @@ To build the documentation you will need to
 particular the :ref:`additional dependencies <doc-dependencies>` required to
 build the documentation.
 
+.. _build_docs:
+
 Build the docs
 --------------
 
@@ -63,6 +65,11 @@ used. To build the documentation in html format, cd into :file:`doc/` and run:
 .. code-block:: sh
 
    make html
+
+.. note::
+
+   Since the documentation is very large, the first build may take 10-20 minutes,
+   depending on your machine.  Subsequent builds will be faster.
 
 Other useful invocations include
 
@@ -142,7 +149,7 @@ It is useful to strive for consistency in the Matplotlib documentation.  Here
 are some formatting and style conventions that are used.
 
 Section formatting
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 Use `sentence case <https://apastyle.apa.org/style-grammar-guidelines/capitalization/sentence-case>`__
 ``Upper lower`` for section titles, e.g., ``Possible hangups`` rather than
@@ -163,8 +170,27 @@ for section markup characters, i.e.:
 
 This may not yet be applied consistently in existing docs.
 
+Table formatting
+^^^^^^^^^^^^^^^^
+Given the size of the table and length of each entry, use:
+
++-------------+-------------------------------+--------------------+
+|             | small table                   | large table        |
++-------------+-------------------------------+--------------------+
+| short entry | `simple or grid table`_       | `grid table`_      |
++-------------+-------------------------------+--------------------+
+| long entry  | `list table`_                 | `csv table`_       |
++-------------+-------------------------------+--------------------+
+
+For more information, see `rst tables <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#tables>`_.
+
+.. _`simple or grid table`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#tables
+.. _`grid table`: https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#grid-tables
+.. _`list table`: https://docutils.sourceforge.io/docs/ref/rst/directives.html#list-table
+.. _`csv table`: https://docutils.sourceforge.io/docs/ref/rst/directives.html#csv-table-1
+
 Function arguments
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 Function arguments and keywords within docstrings should be referred to using
 the ``*emphasis*`` role. This will keep Matplotlib's documentation consistent
@@ -194,13 +220,28 @@ nor the ````literal```` role:
 Refer to other documents and sections
 -------------------------------------
 
-Sphinx_ allows internal references_ between documents.
+Sphinx_ supports internal references_:
 
-Documents can be linked with the ``:doc:`` directive:
+==========  ===============  ===========================================
+Role        Links target     Representation in rendered HTML
+==========  ===============  ===========================================
+|doc-dir|_  document         link to a page
+|ref-dir|_  reference label  link to an anchor associated with a heading
+==========  ===============  ===========================================
+
+.. The following is a hack to have a link with literal formatting
+   See https://stackoverflow.com/a/4836544
+
+.. |doc-dir| replace:: ``:doc:``
+.. _doc-dir: https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-doc
+.. |ref-dir| replace:: ``:ref:``
+.. _ref-dir: https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-ref
+
+Examples:
 
 .. code-block:: rst
 
-   See the :doc:`/users/installing/index`
+   See the :doc:`/install/index`
 
    See the tutorial :ref:`quick_start`
 
@@ -208,14 +249,14 @@ Documents can be linked with the ``:doc:`` directive:
 
 will render as:
 
-  See the :doc:`/users/installing/index`
+  See the :doc:`/install/index`
 
   See the tutorial :ref:`quick_start`
 
   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
-Sections can also be given reference names.  For instance from the
-:doc:`/users/installing/index` link:
+Sections can also be given reference labels.  For instance from the
+:doc:`/install/index` link:
 
 .. code-block:: rst
 
@@ -278,7 +319,10 @@ target is unambiguous you can simply leave them out:
 
   `.LineCollection`
 
-and the link still works: `.LineCollection`.
+and the link still works: `.LineCollection`. Note that you should typically include
+the leading dot. It tells Sphinx to look for the given name in the whole project.
+See also the explanation at `Sphinx: Cross-referencing Python objects
+<https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects>`_.
 
 If there are multiple code elements with the same name (e.g. ``plot()`` is a
 method in multiple classes), you'll have to extend the definition:
@@ -355,11 +399,14 @@ expression in the Matplotlib figure. In these cases, you can use the
 
 .. _writing-docstrings:
 
-Write docstrings
-================
+Write API documentation
+=======================
 
-Most of the API documentation is written in docstrings. These are comment
-blocks in source code that explain how the code works.
+The API reference documentation describes the library interfaces, e.g. inputs, outputs,
+and expected behavior. Most of the API documentation is written in docstrings. These are
+comment blocks in source code that explain how the code works. All docstrings should
+conform to the `numpydoc docstring guide`_. Much of the ReST_ syntax discussed above
+(:ref:`writing-rest-pages`) can be used for links and references.
 
 .. note::
 
@@ -368,11 +415,11 @@ blocks in source code that explain how the code works.
    you may see in the source code. Pull requests updating docstrings to
    the current style are very welcome.
 
-All new or edited docstrings should conform to the `numpydoc docstring guide`_.
-Much of the ReST_ syntax discussed above (:ref:`writing-rest-pages`) can be
-used for links and references.  These docstrings eventually populate the
-:file:`doc/api` directory and form the reference documentation for the
-library.
+The pages in :file:`doc/api` are purely technical definitions of
+layout; therefore new API reference documentation should be added to the module
+docstrings. This placement keeps all API reference documentation about a module in the
+same file. These module docstrings eventually populate the :file:`doc/api` directory
+and form the reference documentation for the library.
 
 Example docstring
 -----------------
@@ -430,7 +477,8 @@ and the Sphinx_ documentation.  Some Matplotlib-specific formatting conventions
 to keep in mind:
 
 Quote positions
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
+
 The quotes for single line docstrings are on the same line (pydocstyle D200)::
 
     def get_linewidth(self):
@@ -446,7 +494,8 @@ The quotes for multi-line docstrings are on separate lines (pydocstyle D213)::
         """
 
 Function arguments
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
+
 Function arguments and keywords within docstrings should be referred to
 using the ``*emphasis*`` role. This will keep Matplotlib's documentation
 consistent with Python's documentation:
@@ -463,7 +512,8 @@ Do not use the ```default role``` or the ````literal```` role:
 
 
 Quotes for strings
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
+
 Matplotlib does not have a convention whether to use single-quotes or
 double-quotes.  There is a mixture of both in the current code.
 
@@ -480,11 +530,16 @@ slightly improve the rendered docs, they are cumbersome to type and difficult
 to read in plain-text docs.
 
 Parameter type descriptions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The main goal for parameter type descriptions is to be readable and
 understandable by humans. If the possible types are too complex use a
 simplification for the type description and explain the type more
 precisely in the text.
+
+We do not use formal type annotation syntax for type descriptions in
+docstrings; e.g. we use ``list of str`` rather than  ``list[str]``; we
+use ``int or str`` rather than ``int | str`` or ``Union[int, str]``.
 
 Generally, the `numpydoc docstring guide`_ conventions apply. The following
 rules expand on them where the numpydoc conventions are not specific.
@@ -519,7 +574,8 @@ Non-numeric homogeneous sequences are described as lists, e.g.::
   list of `.Artist`
 
 Reference types
-~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^
+
 Generally, the rules from referring-to-other-code_ apply. More specifically:
 
 Use full references ```~matplotlib.colors.Normalize``` with an
@@ -535,7 +591,8 @@ Use abbreviated links ```.Normalize``` in the text.
         A `.Normalize` instance is used to scale luminance data to 0, 1.
 
 Default values
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
+
 As opposed to the numpydoc guide, parameters need not be marked as
 *optional* if they have a simple default:
 
@@ -577,7 +634,8 @@ effect.
 
 
 ``See also`` sections
-~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
+
 Sphinx automatically links code elements in the definition blocks of ``See
 also`` sections. No need to use backticks there::
 
@@ -587,7 +645,8 @@ also`` sections. No need to use backticks there::
    axhline : horizontal line across the Axes
 
 Wrap parameter lists
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
+
 Long parameter lists should be wrapped using a ``\`` for continuation and
 starting on the new line without any indent (no indent because pydoc will
 parse the docstring and strip the line continuation so that indent would
@@ -612,7 +671,8 @@ Alternatively, you can describe the valid parameter values in a dedicated
 section of the docstring.
 
 rcParams
-~~~~~~~~
+^^^^^^^^
+
 rcParams can be referenced with the custom ``:rc:`` role:
 :literal:`:rc:\`foo\`` yields ``rcParams["foo"] = 'default'``, which is a link
 to the :file:`matplotlibrc` file description.
@@ -653,7 +713,7 @@ in that case, they can be documented as an ``.. ACCEPTS:`` block, e.g. for
 
 .. code-block:: python
 
-   def set_xlim(self, ...):
+   def set_xlim(self, left=None, right=None):
        """
        Set the x-axis view limits.
 
@@ -813,6 +873,26 @@ Plots can also be directly placed inside docstrings.  Details are in
 An advantage of this style over referencing an example script is that the
 code will also appear in interactive docstrings.
 
+.. _inheritance-diagrams:
+
+Generate inheritance diagrams
+-----------------------------
+
+Class inheritance diagrams can be generated with the Sphinx
+`inheritance-diagram`_ directive.
+
+.. _inheritance-diagram: https://www.sphinx-doc.org/en/master/usage/extensions/inheritance.html
+
+Example:
+
+.. code-block:: rst
+
+    .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+       :parts: 2
+
+.. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+   :parts: 2
+
 .. _writing-examples-and-tutorials:
 
 Write examples and tutorials
@@ -843,8 +923,6 @@ these ``*.rst`` files from the source location to the build location (see
 In the Python files, to exclude an example from having a plot generated, insert
 "sgskip" somewhere in the filename.
 
-Format examples
----------------
 
 The format of these files is relatively straightforward.  Properly
 formatted comment blocks are treated as ReST_ text, the code is
@@ -886,7 +964,7 @@ like:
 The first comment block is treated as ReST_ text.  The other comment blocks
 render as comments in :doc:`/gallery/lines_bars_and_markers/simple_plot`.
 
-Tutorials are made with the exact same mechanism, except they are longer, and
+Tutorials are made with the exact same mechanism, except they are longer and
 typically have more than one comment block (i.e. :ref:`quick_start`).  The
 first comment block can be the same as the example above.  Subsequent blocks of
 ReST text are delimited by the line ``# %%`` :
@@ -1002,6 +1080,90 @@ subdirectory, but  :file:`galleries/users_explain/artists` has a mix of
 any ``*.rst`` files to a ``:toctree:``, either in the ``README.txt`` or in a
 manual ``index.rst``.
 
+Examples guidelines
+-------------------
+
+The gallery of examples contains visual demonstrations of matplotlib features. Gallery
+examples exist so that users can scan through visual examples. Unlike tutorials or user
+guides, gallery examples teach by demonstration, rather than by explanation or
+instruction.
+
+Gallery examples should contain a very brief description of *what* is being demonstrated
+and, when relevant, *how* it is achieved. Explanations should be brief, providing only
+the minimal context necessary for understanding the example. Cross-link related
+documentation (e.g. tutorials, user guides and API entries) and tag the example with
+related concepts.
+
+Format
+^^^^^^
+
+All :ref:`examples-index` should aim to follow these guidelines:
+
+:Title: Describe content in a short sentence (approx. 1-6 words). Do not use *demo* as
+        this is implied by being an example. Avoid implied verbs such as *create*,
+        *make*, etc, e.g. *annotated heatmaps* is preferred to *create annotated
+        heatmaps*. Use the simple present tense when a verb is necessary, e.g. *Fill the
+        area between two curves*
+
+:Description: In a short paragraph (approx 1-3 sentences) describe what visualization
+              technique is being demonstrated and how library features are used to
+              execute the technique, e.g. *Set bar color and bar label entries using the
+              color and label parameters of ~Axes.bar*
+
+:Plot: Clearly demonstrate the subject and, when possible, show edge cases and different
+       applications. While the plot should be visually appealing, prioritize keeping the
+       plot uncluttered.
+
+:Code: Write the minimum necessary to showcase the feature that is the focus of the
+       example. Avoid custom styling and annotation (titles, legends, colors, etc.)
+       when it will not improve the clarity of the example.
+
+       Use short comments sparingly to describe what hard to follow parts of code are
+       doing. When more context or explanation is required, add a text paragraph before
+       the code example.
+
+:doc:`/gallery/misc/bbox_intersect` demonstrates the point of visual examples.
+This example is "messy" in that it's hard to categorize, but the gallery is the right
+spot for it because it makes sense to find it by visual search
+
+:doc:`/gallery/images_contours_and_fields/colormap_interactive_adjustment` is an
+example of a good descriptive title that briefly summarizes how the showcased
+library features are used to implement the demonstrated visualization technique.
+
+:doc:`/gallery/lines_bars_and_markers/lines_with_ticks_demo` is an example of having a
+minimal amount of code necessary to showcase the feature. The lack of extraneous code
+makes it easier for the reader to map which parts of code correspond to which parts of
+the plot.
+
+Figure size
+^^^^^^^^^^^
+When customizing figure sizes, we aim to avoid downscaling in rendered HTML docs.
+The current width limit (induced by *pydata-sphinx-theme*) is 720px, i.e.
+``figsize=(7.2, ...)``, or 896px if the page does not have subsections and
+thus does not have the "On this page" navigation on the right-hand side.
+
+
+Plot types guidelines
+---------------------
+
+The :ref:`plot_types` gallery provides an overview of the types of visualizations that
+Matplotlib provides out of the box, meaning that there is a high-level API for
+generating each type of chart. Additions to this gallery are generally discouraged
+because this gallery is heavily curated and tightly scoped to methods on
+`matplotlib.axes.Axes`.
+
+Format
+^^^^^^
+:title: Method signature with required arguments, e.g. ``plot(x, y)``
+:description: In one sentence, describe the visualization that the method produces and
+              link to the API documentation, e.g. *Draws a bar chart. See ~Axes.bar*.
+              When necessary, add an additional sentence explaining the use case for
+              this function vs a very similar one, e.g. stairs vs step.
+:plot: Use data with a self explanatory structure to illustrate the type of data this
+       plotting method is typically used for.
+:code: The code should be about 5-10 lines with minimal customization. Plots in
+       this gallery use the ``_mpl-gallery`` stylesheet for a uniform aesthetic.
+
 Miscellaneous
 =============
 
@@ -1038,28 +1200,6 @@ Use the full path for this directive, relative to the doc root at
 found by users at ``http://matplotlib.org/stable/old_topic/old_info2``.
 For clarity, do not use relative links.
 
-
-.. _inheritance-diagrams:
-
-Generate inheritance diagrams
------------------------------
-
-Class inheritance diagrams can be generated with the Sphinx
-`inheritance-diagram`_ directive.
-
-.. _inheritance-diagram: https://www.sphinx-doc.org/en/master/usage/extensions/inheritance.html
-
-Example:
-
-.. code-block:: rst
-
-    .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
-       :parts: 2
-
-.. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
-   :parts: 2
-
-
 Navbar and style
 ----------------
 
@@ -1068,7 +1208,13 @@ are centralized as a sphinx theme at
 `mpl_sphinx_theme <https://github.com/matplotlib/mpl-sphinx-theme>`_.  Changes to the
 style or topbar should be made there to propagate across all subprojects.
 
-.. TODO: Add section about uploading docs
+
+Analytics
+==========
+
+Documentation page analytics are available at
+https://views.scientific-python.org/matplotlib.org.
+
 
 .. _ReST: https://docutils.sourceforge.io/rst.html
 .. _Sphinx: http://www.sphinx-doc.org

@@ -4,9 +4,8 @@ Artists
 
 Almost all objects you interact with on a Matplotlib plot are called "Artist"
 (and are subclasses of the `.Artist` class).  :doc:`Figure <../figure/index>`
-and :doc:`Axes <../axes/index>` are Artists, and generally contain :doc:`Axis
-<../axis/index>` Artists and Artists that contain data or annotation
-information.
+and :doc:`Axes <../axes/index>` are Artists, and generally contain
+`~.axis.Axis` Artists and Artists that contain data or annotation information.
 
 .. toctree::
     :maxdepth: 2

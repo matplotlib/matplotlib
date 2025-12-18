@@ -37,11 +37,11 @@ class Divider:
             Sizes for horizontal division.
         vertical : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`
             Sizes for vertical division.
-        aspect : bool
+        aspect : bool, optional
             Whether overall rectangular area is reduced so that the relative
             part of the horizontal and vertical scales have the same scale.
         anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', \
-'NW', 'W'}
+'NW', 'W'}, default: 'C'
             Placement of the reduced rectangle, when *aspect* is True.
         """
 
@@ -199,31 +199,6 @@ class Divider:
         locator.get_subplotspec = self.get_subplotspec
         return locator
 
-    @_api.deprecated(
-        "3.8", alternative="divider.new_locator(...)(ax, renderer)")
-    def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
-        """
-        Implementation of ``divider.new_locator().__call__``.
-
-        Parameters
-        ----------
-        nx, nx1 : int
-            Integers specifying the column-position of the cell. When *nx1* is
-            None, a single *nx*-th column is specified. Otherwise, the
-            location of columns spanning between *nx* to *nx1* (but excluding
-            *nx1*-th column) is specified.
-        ny, ny1 : int
-            Same as *nx* and *nx1*, but for row positions.
-        axes
-        renderer
-        """
-        xref = self._xrefindex
-        yref = self._yrefindex
-        return self._locate(
-            nx - xref, (nx + 1 if nx1 is None else nx1) - xref,
-            ny - yref, (ny + 1 if ny1 is None else ny1) - yref,
-            axes, renderer)
-
     def _locate(self, nx, ny, nx1, ny1, axes, renderer):
         """
         Implementation of ``divider.new_locator().__call__``.
@@ -294,7 +269,7 @@ class Divider:
         ----------
         use_axes : `~matplotlib.axes.Axes` or list of `~matplotlib.axes.Axes`
             The Axes whose decorations are taken into account.
-        pad : float, optional
+        pad : float, default: 0.1
             Additional padding in inches.
         adjust_dirs : list of {"left", "right", "bottom", "top"}, optional
             The sides where padding is added; defaults to all four sides.
@@ -303,57 +278,6 @@ class Divider:
             adjust_dirs = ["left", "right", "bottom", "top"]
         for d in adjust_dirs:
             self.append_size(d, Size._AxesDecorationsSize(use_axes, d) + pad)
-
-
-@_api.deprecated("3.8")
-class AxesLocator:
-    """
-    A callable object which returns the position and size of a given
-    `.AxesDivider` cell.
-    """
-
-    def __init__(self, axes_divider, nx, ny, nx1=None, ny1=None):
-        """
-        Parameters
-        ----------
-        axes_divider : `~mpl_toolkits.axes_grid1.axes_divider.AxesDivider`
-        nx, nx1 : int
-            Integers specifying the column-position of the
-            cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise, location of columns spanning between *nx*
-            to *nx1* (but excluding *nx1*-th column) is specified.
-        ny, ny1 : int
-            Same as *nx* and *nx1*, but for row positions.
-        """
-        self._axes_divider = axes_divider
-
-        _xrefindex = axes_divider._xrefindex
-        _yrefindex = axes_divider._yrefindex
-
-        self._nx, self._ny = nx - _xrefindex, ny - _yrefindex
-
-        if nx1 is None:
-            nx1 = len(self._axes_divider)
-        if ny1 is None:
-            ny1 = len(self._axes_divider[0])
-
-        self._nx1 = nx1 - _xrefindex
-        self._ny1 = ny1 - _yrefindex
-
-    def __call__(self, axes, renderer):
-
-        _xrefindex = self._axes_divider._xrefindex
-        _yrefindex = self._axes_divider._yrefindex
-
-        return self._axes_divider.locate(self._nx + _xrefindex,
-                                         self._ny + _yrefindex,
-                                         self._nx1 + _xrefindex,
-                                         self._ny1 + _yrefindex,
-                                         axes,
-                                         renderer)
-
-    def get_subplotspec(self):
-        return self._axes_divider.get_subplotspec()
 
 
 class SubplotDivider(Divider):
@@ -377,6 +301,16 @@ class SubplotDivider(Divider):
             If *nrows*, *ncols*, and *index* are all single digit numbers, then
             *args* can be passed as a single 3-digit number (e.g. 234 for
             (2, 3, 4)).
+        horizontal : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`, optional
+            Sizes for horizontal division.
+        vertical : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`, optional
+            Sizes for vertical division.
+        aspect : bool, optional
+            Whether overall rectangular area is reduced so that the relative
+            part of the horizontal and vertical scales have the same scale.
+        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', \
+'NW', 'W'}, default: 'C'
+            Placement of the reduced rectangle, when *aspect* is True.
         """
         self.figure = fig
         super().__init__(fig, [0, 0, 1, 1],

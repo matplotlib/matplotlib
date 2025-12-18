@@ -38,6 +38,15 @@ print("Try holding the 'ctrl' key to move a single vertex.")
 
 
 # %%
+# .. tags::
+#
+#    component: axes,
+#    styling: position,
+#    plot-type: line,
+#    level: intermediate,
+#    domain: cartography,
+#    domain: geometry,
+#    domain: statistics,
 #
 # .. admonition:: References
 #

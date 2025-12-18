@@ -80,14 +80,14 @@ the seaborn API to the underlying matplotlib functions.
 
 This will be achieved in the following way:
 
-  1. ``cbook.boxplot_stats`` will be modified to allow pre- and post-
-     computation transformation functions to be passed in (e.g., ``np.log``
-     and ``np.exp`` for lognormally distributed data)
-  2. ``Axes.boxplot`` will be modified to also accept and naïvely pass them
-     to ``cbook.boxplots_stats`` (Alt: pass the stat function and a dict
-     of its optional parameters).
-  3. Outdated parameters from ``Axes.boxplot`` will be deprecated and
-     later removed.
+1. ``cbook.boxplot_stats`` will be modified to allow pre- and post-
+   computation transformation functions to be passed in (e.g., ``np.log``
+   and ``np.exp`` for lognormally distributed data)
+2. ``Axes.boxplot`` will be modified to also accept and naïvely pass them
+   to ``cbook.boxplots_stats`` (Alt: pass the stat function and a dict
+   of its optional parameters).
+3. Outdated parameters from ``Axes.boxplot`` will be deprecated and
+   later removed.
 
 Importance
 ----------
@@ -164,9 +164,9 @@ and ``Axes.bxp``.
 
 The parameters to be deprecated and removed include:
 
-  1. ``usermedians`` - processed by 10 SLOC, 3 ``if`` blocks, a ``for`` loop
-  2. ``conf_intervals`` - handled by 15 SLOC, 6 ``if`` blocks, a ``for`` loop
-  3. ``sym`` - processed by 12 SLOC, 4 ``if`` blocks
+1. ``usermedians`` - processed by 10 SLOC, 3 ``if`` blocks, a ``for`` loop
+2. ``conf_intervals`` - handled by 15 SLOC, 6 ``if`` blocks, a ``for`` loop
+3. ``sym`` - processed by 12 SLOC, 4 ``if`` blocks
 
 Removing the ``sym`` option allows all code in handling the remaining
 styling parameters to be moved to ``Axes.bxp``. This doesn't remove
@@ -199,19 +199,20 @@ An accelerated timeline could look like the following:
 #. v2.0.1 add transforms to ``cbook.boxplots_stats``, expose in ``Axes.boxplot``
 #. v2.1.0 Initial Deprecations , and using 2D NumPy arrays as input
 
-    a. Using 2D NumPy arrays as input. The semantics around 2D arrays are generally confusing.
-    b. ``usermedians``, ``conf_intervals``, ``sym`` parameters
+   a. Using 2D NumPy arrays as input. The semantics around 2D arrays are generally confusing.
+   b. ``usermedians``, ``conf_intervals``, ``sym`` parameters
 
 #. v2.2.0
 
-    a. remove ``usermedians``, ``conf_intervals``, ``sym`` parameters
-    b. deprecate ``notch`` in favor of ``shownotches`` to be consistent with
-       other parameters and ``Axes.bxp``
+   a. remove ``usermedians``, ``conf_intervals``, ``sym`` parameters
+   b. deprecate ``notch`` in favor of ``shownotches`` to be consistent with
+      other parameters and ``Axes.bxp``
 
 #. v2.3.0
-    a. remove ``notch`` parameter
-    b. move all style and artist toggling logic to ``Axes.bxp`` such ``Axes.boxplot``
-       is little more than a broker between ``Axes.bxp`` and ``cbook.boxplots_stats``
+
+   a. remove ``notch`` parameter
+   b. move all style and artist toggling logic to ``Axes.bxp`` such ``Axes.boxplot``
+      is little more than a broker between ``Axes.bxp`` and ``cbook.boxplots_stats``
 
 
 Anticipated Impacts to Users
@@ -263,6 +264,7 @@ value of ``statfxn`` would be ``cbook.boxplot_stats``, but users could
 pass their own function. Then ``transform_in`` and ``transform_out`` would
 then be passed as elements of the ``statfxn_args`` parameter.
 
+.. rstcheck: ignore-next-code-block
 .. code:: python
 
    def boxplot_stats(data, ..., transform_in=None, transform_out=None):

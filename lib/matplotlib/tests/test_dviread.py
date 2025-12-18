@@ -2,12 +2,13 @@ import json
 from pathlib import Path
 import shutil
 
-import matplotlib.dviread as dr
+from matplotlib import cbook, dviread as dr
+from matplotlib.testing import subprocess_run_for_testing, _has_tex_package
 import pytest
 
 
 def test_PsfontsMap(monkeypatch):
-    monkeypatch.setattr(dr, 'find_tex_file', lambda x: x)
+    monkeypatch.setattr(dr, 'find_tex_file', lambda x: x.decode())
 
     filename = str(Path(__file__).parent / 'baseline_images/dviread/test.map')
     fontmap = dr.PsfontsMap(filename)
@@ -18,15 +19,15 @@ def test_PsfontsMap(monkeypatch):
         assert entry.texname == key
         assert entry.psname == b'PSfont%d' % n
         if n not in [3, 5]:
-            assert entry.encoding == b'font%d.enc' % n
+            assert entry.encoding == 'font%d.enc' % n
         elif n == 3:
-            assert entry.encoding == b'enc3.foo'
+            assert entry.encoding == 'enc3.foo'
         # We don't care about the encoding of TeXfont5, which specifies
         # multiple encodings.
         if n not in [1, 5]:
-            assert entry.filename == b'font%d.pfa' % n
+            assert entry.filename == 'font%d.pfa' % n
         else:
-            assert entry.filename == b'font%d.pfb' % n
+            assert entry.filename == 'font%d.pfb' % n
         if n == 4:
             assert entry.effects == {'slant': -0.1, 'extend': 1.2}
         else:
@@ -37,13 +38,13 @@ def test_PsfontsMap(monkeypatch):
     assert entry.encoding is None
     entry = fontmap[b'TeXfont7']
     assert entry.filename is None
-    assert entry.encoding == b'font7.enc'
+    assert entry.encoding == 'font7.enc'
     entry = fontmap[b'TeXfont8']
-    assert entry.filename == b'font8.pfb'
+    assert entry.filename == 'font8.pfb'
     assert entry.encoding is None
     entry = fontmap[b'TeXfont9']
     assert entry.psname == b'TeXfont9'
-    assert entry.filename == b'/absolute/font9.pfb'
+    assert entry.filename == '/absolute/font9.pfb'
     # First of duplicates only.
     entry = fontmap[b'TeXfontA']
     assert entry.psname == b'PSfontA1'
@@ -62,16 +63,85 @@ def test_PsfontsMap(monkeypatch):
 
 @pytest.mark.skipif(shutil.which("kpsewhich") is None,
                     reason="kpsewhich is not available")
-def test_dviread():
-    dirpath = Path(__file__).parent / 'baseline_images/dviread'
-    with (dirpath / 'test.json').open() as f:
-        correct = json.load(f)
-    with dr.Dvi(str(dirpath / 'test.dvi'), None) as dvi:
-        data = [{'text': [[t.x, t.y,
-                           chr(t.glyph),
-                           t.font.texname.decode('ascii'),
-                           round(t.font.size, 2)]
-                          for t in page.text],
-                 'boxes': [[b.x, b.y, b.height, b.width] for b in page.boxes]}
-                for page in dvi]
+@pytest.mark.parametrize("engine", ["pdflatex", "xelatex", "lualatex"])
+def test_dviread(tmp_path, engine, monkeypatch):
+    dirpath = Path(__file__).parent / "baseline_images/dviread"
+    shutil.copy(dirpath / "test.tex", tmp_path)
+    shutil.copy(cbook._get_data_path("fonts/ttf/DejaVuSans.ttf"), tmp_path)
+    cmd, fmt = {
+        "pdflatex": (["latex"], "dvi"),
+        "xelatex": (["xelatex", "-no-pdf"], "xdv"),
+        "lualatex": (["lualatex", "-output-format=dvi"], "dvi"),
+    }[engine]
+    if shutil.which(cmd[0]) is None:
+        pytest.skip(f"{cmd[0]} is not available")
+    subprocess_run_for_testing(
+        [*cmd, "test.tex"], cwd=tmp_path, check=True, capture_output=True)
+    # dviread must be run from the tmppath directory because {xe,lua}tex output
+    # records the path to DejaVuSans.ttf as it is written in the tex source,
+    # i.e. as a relative path.
+    monkeypatch.chdir(tmp_path)
+    with dr.Dvi(tmp_path / f"test.{fmt}", None) as dvi:
+        try:
+            pages = [*dvi]
+        except FileNotFoundError as exc:
+            for note in getattr(exc, "__notes__", []):
+                if "too-old version of luaotfload" in note:
+                    pytest.skip(note)
+            raise
+    data = [
+        {
+            "text": [
+                [
+                    t.x, t.y,
+                    t._as_unicode_or_name(),
+                    t.font.resolve_path().name,
+                    round(t.font.size, 2),
+                    t.font.effects,
+                ] for t in page.text
+            ],
+            "boxes": [[b.x, b.y, b.height, b.width] for b in page.boxes]
+        } for page in pages
+    ]
+    correct = json.loads((dirpath / f"{engine}.json").read_text())
+    assert data == correct
+
+
+@pytest.mark.skipif(shutil.which("latex") is None, reason="latex is not available")
+@pytest.mark.skipif(not _has_tex_package("concmath"), reason="needs concmath.sty")
+def test_dviread_pk(tmp_path):
+    (tmp_path / "test.tex").write_text(r"""
+        \documentclass{article}
+        \usepackage{concmath}
+        \pagestyle{empty}
+        \begin{document}
+        Hi!
+        \end{document}
+        """)
+    subprocess_run_for_testing(
+        ["latex", "test.tex"], cwd=tmp_path, check=True, capture_output=True)
+    with dr.Dvi(tmp_path / "test.dvi", None) as dvi:
+        pages = [*dvi]
+    data = [
+        {
+            "text": [
+                [
+                    t.x, t.y,
+                    t._as_unicode_or_name(),
+                    t.font.resolve_path().name,
+                    round(t.font.size, 2),
+                    t.font.effects,
+                ] for t in page.text
+            ],
+            "boxes": [[b.x, b.y, b.height, b.width] for b in page.boxes]
+        } for page in pages
+    ]
+    correct = [{
+        'boxes': [],
+        'text': [
+            [5046272, 4128768, 'H?', 'ccr10.600pk', 9.96, {}],
+            [5530510, 4128768, 'i?', 'ccr10.600pk', 9.96, {}],
+            [5716195, 4128768, '!?', 'ccr10.600pk', 9.96, {}],
+        ],
+    }]
     assert data == correct

@@ -4,10 +4,10 @@ Behaviour changes
 ``plt.get_cmap`` and ``matplotlib.cm.get_cmap`` return a copy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Formerly, `~.pyplot.get_cmap` and `.cm.get_cmap` returned a global version of a
-`.Colormap`. This was prone to errors as modification of the colormap would
-propagate from one location to another without warning. Now, a new copy of the
-colormap is returned.
+Formerly, `~.pyplot.get_cmap` and ``matplotlib.cm.get_cmap`` returned a global version
+of a `.Colormap`. This was prone to errors as modification of the colormap would
+propagate from one location to another without warning. Now, a new copy of the colormap
+is returned.
 
 Large ``imshow`` images are now downsampled
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -241,7 +241,7 @@ Specified exception types in ``Grid``
 
 In a few cases an `Exception` was thrown when an incorrect argument value was
 set in the `mpl_toolkits.axes_grid1.axes_grid.Grid` (=
-`mpl_toolkits.axisartist.axes_grid.Grid`) constructor. These are replaced as
+``mpl_toolkits.axisartist.axes_grid.Grid``) constructor. These are replaced as
 follows:
 
 * Providing an incorrect value for *ngrids* now raises a `ValueError`

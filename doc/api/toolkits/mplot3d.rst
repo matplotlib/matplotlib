@@ -63,7 +63,7 @@ the toolbar pan and zoom buttons are not used.
 ===================================
 
 .. note::
-   See :attr:`mpl_toolkits.mplot3d.axis3d._axinfo` for a dictionary containing
+   See :attr:`!mpl_toolkits.mplot3d.axis3d._axinfo` for a dictionary containing
    constants that may be modified for controlling the look and feel
    of mplot3d axes (e.g., label spacing, font colors and panel colors).
    Historically, axis3d has suffered from having hard-coded constants
@@ -118,12 +118,6 @@ the toolbar pan and zoom buttons are not used.
    :template: autosummary.rst
 
    proj3d.inv_transform
-   proj3d.persp_transformation
-   proj3d.proj_points
-   proj3d.proj_trans_points
    proj3d.proj_transform
    proj3d.proj_transform_clip
-   proj3d.rot_x
-   proj3d.transform
-   proj3d.view_transformation
    proj3d.world_transformation

@@ -61,12 +61,6 @@ def _compat_get_offset(meth):
     return get_offset
 
 
-@_api.deprecated("3.7", alternative='patches.bbox_artist')
-def bbox_artist(*args, **kwargs):
-    if DEBUG:
-        mbbox_artist(*args, **kwargs)
-
-
 # for debugging use
 def _bbox_artist(*args, **kwargs):
     if DEBUG:
@@ -107,7 +101,7 @@ def _get_packed_offsets(widths, total, sep, mode="fixed"):
         Widths of boxes to be packed.
     total : float or None
         Intended total length. *None* if not used.
-    sep : float
+    sep : float or None
         Spacing between boxes.
     mode : {'fixed', 'expand', 'equal'}
         The packing mode.
@@ -207,15 +201,15 @@ def _get_aligned_offsets(yspans, height, align="baseline"):
 
 class OffsetBox(martist.Artist):
     """
-    The OffsetBox is a simple container artist.
+    A simple container artist.
 
     The child artists are meant to be drawn at a relative position to its
     parent.
 
-    Being an artist itself, all parameters are passed on to `.Artist`.
+    Being an artist itself, all keyword arguments are passed on to `.Artist`.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args)
+    def __init__(self, **kwargs):
+        super().__init__()
         self._internal_update(kwargs)
         # Clipping has not been implemented in the OffsetBox family, so
         # disable the clip flag for consistency. It can always be turned back
@@ -366,36 +360,10 @@ class OffsetBox(martist.Artist):
         bbox, offsets = self._get_bbox_and_child_offsets(renderer)
         return bbox
 
-    @_api.deprecated("3.7", alternative="get_bbox and child.get_offset")
-    def get_extent_offsets(self, renderer):
-        """
-        Update offset of the children and return the extent of the box.
-
-        Parameters
-        ----------
-        renderer : `.RendererBase` subclass
-
-        Returns
-        -------
-        width
-        height
-        xdescent
-        ydescent
-        list of (xoffset, yoffset) pairs
-        """
-        bbox, offsets = self._get_bbox_and_child_offsets(renderer)
-        return bbox.width, bbox.height, -bbox.x0, -bbox.y0, offsets
-
-    @_api.deprecated("3.7", alternative="get_bbox")
-    def get_extent(self, renderer):
-        """Return a tuple ``width, height, xdescent, ydescent`` of the box."""
-        bbox = self.get_bbox(renderer)
-        return bbox.width, bbox.height, -bbox.x0, -bbox.y0
-
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
         bbox = self.get_bbox(renderer)
         try:  # Some subclasses redefine get_offset to take no args.
             px, py = self.get_offset(bbox, renderer)
@@ -468,6 +436,14 @@ class VPacker(PackerBase):
     """
     VPacker packs its children vertically, automatically adjusting their
     relative positions at draw time.
+
+    .. code-block:: none
+
+       +---------+
+       | Child 1 |
+       | Child 2 |
+       | Child 3 |
+       +---------+
     """
 
     def _get_bbox_and_child_offsets(self, renderer):
@@ -500,6 +476,12 @@ class HPacker(PackerBase):
     """
     HPacker packs its children horizontally, automatically adjusting their
     relative positions at draw time.
+
+    .. code-block:: none
+
+       +-------------------------------+
+       | Child 1    Child 2    Child 3 |
+       +-------------------------------+
     """
 
     def _get_bbox_and_child_offsets(self, renderer):
@@ -530,6 +512,26 @@ class PaddedBox(OffsetBox):
 
     The `.PaddedBox` contains a `.FancyBboxPatch` that is used to visualize
     it when rendering.
+
+    .. code-block:: none
+
+       +----------------------------+
+       |                            |
+       |                            |
+       |                            |
+       | <--pad--> Artist           |
+       |             ^              |
+       |            pad             |
+       |             v              |
+       +----------------------------+
+
+    Attributes
+    ----------
+    pad : float
+        The padding in points.
+    patch : `.FancyBboxPatch`
+        When *draw_frame* is True, this `.FancyBboxPatch` is made visible and
+        creates a border around the box.
     """
 
     def __init__(self, child, pad=0., *, draw_frame=False, patch_attrs=None):
@@ -676,7 +678,7 @@ class DrawingArea(OffsetBox):
             a.set_transform(self.get_transform())
         if self.axes is not None:
             a.axes = self.axes
-        fig = self.figure
+        fig = self.get_figure(root=False)
         if fig is not None:
             a.set_figure(fig)
 
@@ -792,9 +794,10 @@ class TextArea(OffsetBox):
         return self._offset
 
     def get_bbox(self, renderer):
-        _, h_, d_ = renderer.get_text_width_height_descent(
-            "lp", self._text._fontproperties,
-            ismath="TeX" if self._text.get_usetex() else False)
+        _, h_, d_ = mtext._get_text_metrics_with_cache(
+            renderer, "lp", self._text._fontproperties,
+            ismath="TeX" if self._text.get_usetex() else False,
+            dpi=self.get_figure(root=True).dpi)
 
         bbox, info, yd = self._text._get_layout(renderer)
         w, h = bbox.size
@@ -823,17 +826,18 @@ class TextArea(OffsetBox):
 
 class AuxTransformBox(OffsetBox):
     """
-    Offset Box with the aux_transform. Its children will be
-    transformed with the aux_transform first then will be
-    offsetted. The absolute coordinate of the aux_transform is meaning
-    as it will be automatically adjust so that the left-lower corner
-    of the bounding box of children will be set to (0, 0) before the
-    offset transform.
+    An OffsetBox with an auxiliary transform.
 
-    It is similar to drawing area, except that the extent of the box
-    is not predetermined but calculated from the window extent of its
-    children. Furthermore, the extent of the children will be
-    calculated in the transformed coordinate.
+    All child artists are first transformed with *aux_transform*, then
+    translated with an offset (the same for all children) so the bounding
+    box of the children matches the drawn box.  (In other words, adding an
+    arbitrary translation to *aux_transform* has no effect as it will be
+    cancelled out by the later offsetting.)
+
+    `AuxTransformBox` is similar to `.DrawingArea`, except that the extent of
+    the box is not predetermined but calculated from the window extent of its
+    children, and the extent of the children will be calculated in the
+    transformed coordinate.
     """
     def __init__(self, aux_transform):
         self.aux_transform = aux_transform
@@ -850,10 +854,7 @@ class AuxTransformBox(OffsetBox):
         self.stale = True
 
     def get_transform(self):
-        """
-        Return the :class:`~matplotlib.transforms.Transform` applied
-        to the children
-        """
+        """Return the `.Transform` applied to the children."""
         return (self.aux_transform
                 + self.ref_offset_transform
                 + self.offset_transform)
@@ -905,11 +906,11 @@ class AuxTransformBox(OffsetBox):
 
 class AnchoredOffsetbox(OffsetBox):
     """
-    An offset box placed according to location *loc*.
+    An OffsetBox placed according to location *loc*.
 
     AnchoredOffsetbox has a single child.  When multiple children are needed,
     use an extra OffsetBox to enclose them.  By default, the offset box is
-    anchored against its parent axes. You may explicitly specify the
+    anchored against its parent Axes. You may explicitly specify the
     *bbox_to_anchor*.
     """
     zorder = 5  # zorder of the legend
@@ -945,8 +946,13 @@ class AnchoredOffsetbox(OffsetBox):
             See the parameter *loc* of `.Legend` for details.
         pad : float, default: 0.4
             Padding around the child as fraction of the fontsize.
-        borderpad : float, default: 0.5
+        borderpad : float or (float, float), default: 0.5
             Padding between the offsetbox frame and the *bbox_to_anchor*.
+            If a float, the same padding is used for both x and y.
+            If a tuple of two floats, it specifies the (x, y) padding.
+
+            .. versionadded:: 3.11
+               The *borderpad* parameter now accepts a tuple of (x, y) paddings.
         child : `.OffsetBox`
             The box that will be anchored.
         prop : `.FontProperties`
@@ -1053,12 +1059,22 @@ class AnchoredOffsetbox(OffsetBox):
     @_compat_get_offset
     def get_offset(self, bbox, renderer):
         # docstring inherited
-        pad = (self.borderpad
-               * renderer.points_to_pixels(self.prop.get_size_in_points()))
+        fontsize_in_pixels = renderer.points_to_pixels(self.prop.get_size_in_points())
+        try:
+            borderpad_x, borderpad_y = self.borderpad
+        except TypeError:
+            borderpad_x = self.borderpad
+            borderpad_y = self.borderpad
+        pad_x_pixels = borderpad_x * fontsize_in_pixels
+        pad_y_pixels = borderpad_y * fontsize_in_pixels
         bbox_to_anchor = self.get_bbox_to_anchor()
         x0, y0 = _get_anchored_bbox(
-            self.loc, Bbox.from_bounds(0, 0, bbox.width, bbox.height),
-            bbox_to_anchor, pad)
+            self.loc,
+            Bbox.from_bounds(0, 0, bbox.width, bbox.height),
+            bbox_to_anchor,
+            pad_x_pixels,
+            pad_y_pixels
+        )
         return x0 - bbox.x0, y0 - bbox.y0
 
     def update_frame(self, bbox, fontsize=None):
@@ -1083,15 +1099,15 @@ class AnchoredOffsetbox(OffsetBox):
         self.stale = False
 
 
-def _get_anchored_bbox(loc, bbox, parentbbox, borderpad):
+def _get_anchored_bbox(loc, bbox, parentbbox, pad_x, pad_y):
     """
     Return the (x, y) position of the *bbox* anchored at the *parentbbox* with
-    the *loc* code with the *borderpad*.
+    the *loc* code with the *borderpad* and padding *pad_x*, *pad_y*.
     """
     # This is only called internally and *loc* should already have been
     # validated.  If 0 (None), we just let ``bbox.anchored`` raise.
     c = [None, "NE", "NW", "SW", "SE", "E", "W", "E", "S", "N", "C"][loc]
-    container = parentbbox.padded(-borderpad)
+    container = parentbbox.padded(-pad_x, -pad_y)
     return bbox.anchored(c, container=container).p0
 
 
@@ -1223,7 +1239,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     def __str__(self):
         return f"AnnotationBbox({self.xy[0]:g},{self.xy[1]:g})"
 
-    @_docstring.dedent_interpd
+    @_docstring.interpd
     def __init__(self, offsetbox, xy, xybox=None, xycoords='data', boxcoords=None, *,
                  frameon=True, pad=0.4,  # FancyBboxPatch boxstyle.
                  annotation_clip=None,
@@ -1262,13 +1278,13 @@ or callable, default: value of *xycoords*
 
         annotation_clip: bool or None, default: None
             Whether to clip (i.e. not draw) the annotation when the annotation
-            point *xy* is outside the axes area.
+            point *xy* is outside the Axes area.
 
             - If *True*, the annotation will be clipped when *xy* is outside
-              the axes.
+              the Axes.
             - If *False*, the annotation will always be drawn.
             - If *None*, the annotation will be clipped when *xy* is outside
-              the axes and *xycoords* is 'data'.
+              the Axes and *xycoords* is 'data'.
 
         pad : float, default: 0.4
             Padding around the offsetbox.
@@ -1375,9 +1391,7 @@ or callable, default: value of *xycoords*
 
         If *s* is not given, reset to :rc:`legend.fontsize`.
         """
-        if s is None:
-            s = mpl.rcParams["legend.fontsize"]
-
+        s = mpl._val_or_rc(s, "legend.fontsize")
         self.prop = FontProperties(size=s)
         self.stale = True
 
@@ -1388,12 +1402,16 @@ or callable, default: value of *xycoords*
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._get_renderer()
+            renderer = self.get_figure(root=True)._get_renderer()
+        self.update_positions(renderer)
         return Bbox.union([child.get_window_extent(renderer)
                            for child in self.get_children()])
 
     def get_tightbbox(self, renderer=None):
         # docstring inherited
+        if renderer is None:
+            renderer = self.get_figure(root=True)._get_renderer()
+        self.update_positions(renderer)
         return Bbox.union([child.get_tightbbox(renderer)
                            for child in self.get_children()])
 
@@ -1435,15 +1453,14 @@ or callable, default: value of *xycoords*
 
     def draw(self, renderer):
         # docstring inherited
-        if renderer is not None:
-            self._renderer = renderer
         if not self.get_visible() or not self._check_xy(renderer):
             return
         renderer.open_group(self.__class__.__name__, gid=self.get_gid())
         self.update_positions(renderer)
         if self.arrow_patch is not None:
-            if self.arrow_patch.figure is None and self.figure is not None:
-                self.arrow_patch.figure = self.figure
+            if (self.arrow_patch.get_figure(root=False) is None and
+                    (fig := self.get_figure(root=False)) is not None):
+                self.arrow_patch.set_figure(fig)
             self.arrow_patch.draw(renderer)
         self.patch.draw(renderer)
         self.offsetbox.draw(renderer)
@@ -1483,10 +1500,10 @@ class DraggableBase:
     def __init__(self, ref_artist, use_blit=False):
         self.ref_artist = ref_artist
         if not ref_artist.pickable():
-            ref_artist.set_picker(True)
+            ref_artist.set_picker(self._picker)
         self.got_artist = False
         self._use_blit = use_blit and self.canvas.supports_blit
-        callbacks = ref_artist.figure._canvas_callbacks
+        callbacks = self.canvas.callbacks
         self._disconnectors = [
             functools.partial(
                 callbacks.disconnect, callbacks._connect_picklable(name, func))
@@ -1497,9 +1514,15 @@ class DraggableBase:
             ]
         ]
 
-    # A property, not an attribute, to maintain picklability.
-    canvas = property(lambda self: self.ref_artist.figure.canvas)
+    @staticmethod
+    def _picker(artist, mouseevent):
+        # A custom picker to prevent dragging on mouse scroll events
+        if mouseevent.name == "scroll_event":
+            return False, {}
+        return artist.contains(mouseevent)
 
+    # A property, not an attribute, to maintain picklability.
+    canvas = property(lambda self: self.ref_artist.get_figure(root=True).canvas)
     cids = property(lambda self: [
         disconnect.args[0] for disconnect in self._disconnectors[:2]])
 
@@ -1511,35 +1534,38 @@ class DraggableBase:
             if self._use_blit:
                 self.canvas.restore_region(self.background)
                 self.ref_artist.draw(
-                    self.ref_artist.figure._get_renderer())
+                    self.ref_artist.get_figure(root=True)._get_renderer())
                 self.canvas.blit()
             else:
                 self.canvas.draw()
 
     def on_pick(self, evt):
-        if self._check_still_parented() and evt.artist == self.ref_artist:
-            self.mouse_x = evt.mouseevent.x
-            self.mouse_y = evt.mouseevent.y
-            self.got_artist = True
-            if self._use_blit:
+        if self._check_still_parented():
+            if evt.artist == self.ref_artist:
+                self.mouse_x = evt.mouseevent.x
+                self.mouse_y = evt.mouseevent.y
+                self.save_offset()
+                self.got_artist = True
+            if self.got_artist and self._use_blit:
                 self.ref_artist.set_animated(True)
                 self.canvas.draw()
-                self.background = \
-                    self.canvas.copy_from_bbox(self.ref_artist.figure.bbox)
-                self.ref_artist.draw(
-                    self.ref_artist.figure._get_renderer())
+                fig = self.ref_artist.get_figure(root=False)
+                self.background = self.canvas.copy_from_bbox(fig.bbox)
+                self.ref_artist.draw(fig._get_renderer())
                 self.canvas.blit()
-            self.save_offset()
 
     def on_release(self, event):
         if self._check_still_parented() and self.got_artist:
             self.finalize_offset()
             self.got_artist = False
             if self._use_blit:
+                self.canvas.restore_region(self.background)
+                self.ref_artist.draw(self.ref_artist.figure._get_renderer())
+                self.canvas.blit()
                 self.ref_artist.set_animated(False)
 
     def _check_still_parented(self):
-        if self.ref_artist.figure is None:
+        if self.ref_artist.get_figure(root=False) is None:
             self.disconnect()
             return False
         else:
@@ -1567,7 +1593,7 @@ class DraggableOffsetBox(DraggableBase):
 
     def save_offset(self):
         offsetbox = self.offsetbox
-        renderer = offsetbox.figure._get_renderer()
+        renderer = offsetbox.get_figure(root=True)._get_renderer()
         offset = offsetbox.get_offset(offsetbox.get_bbox(renderer), renderer)
         self.offsetbox_x, self.offsetbox_y = offset
         self.offsetbox.set_offset(offset)
@@ -1578,7 +1604,7 @@ class DraggableOffsetBox(DraggableBase):
 
     def get_loc_in_canvas(self):
         offsetbox = self.offsetbox
-        renderer = offsetbox.figure._get_renderer()
+        renderer = offsetbox.get_figure(root=True)._get_renderer()
         bbox = offsetbox.get_bbox(renderer)
         ox, oy = offsetbox._offset
         loc_in_canvas = (ox + bbox.x0, oy + bbox.y0)

@@ -8,7 +8,7 @@ Event handling and picking
 **************************
 
 Matplotlib works with a number of user interface toolkits (wxpython,
-tkinter, qt, gtk, and macosx) and in order to support features like
+tkinter, qt, gtk, and macOS) and in order to support features like
 interactive panning and zooming of figures, it is helpful to the
 developers to have an API for interacting with the figure via key
 presses and mouse movements that is "GUI neutral" so we don't have to
@@ -216,12 +216,12 @@ Event attributes
 All Matplotlib events inherit from the base class
 `matplotlib.backend_bases.Event`, which stores the attributes:
 
-    ``name``
-        the event name
-    ``canvas``
-        the FigureCanvas instance generating the event
-    ``guiEvent``
-        the GUI event that triggered the Matplotlib event
+``name``
+    the event name
+``canvas``
+    the FigureCanvas instance generating the event
+``guiEvent``
+    the GUI event that triggered the Matplotlib event
 
 The most common events that are the bread and butter of event handling
 are key press/release events and mouse press/release and movement
@@ -229,13 +229,13 @@ events.  The `.KeyEvent` and `.MouseEvent` classes that handle
 these events are both derived from the LocationEvent, which has the
 following attributes
 
-    ``x``, ``y``
-        mouse x and y position in pixels from left and bottom of canvas
-    ``inaxes``
-        the `~.axes.Axes` instance over which the mouse is, if any; else None
-    ``xdata``, ``ydata``
-        mouse x and y position in data coordinates, if the mouse is over an
-        axes
+``x``, ``y``
+    mouse x and y position in pixels from left and bottom of canvas
+``inaxes``
+    the `~.axes.Axes` instance over which the mouse is, if any; else None
+``xdata``, ``ydata``
+    mouse x and y position in data coordinates, if the mouse is over an
+    axes
 
 Let's look a simple example of a canvas, where a simple line segment
 is created every time a mouse is pressed::
@@ -251,7 +251,8 @@ is created every time a mouse is pressed::
 
         def __call__(self, event):
             print('click', event)
-            if event.inaxes!=self.line.axes: return
+            if event.inaxes != self.line.axes:
+                return
             self.xs.append(event.xdata)
             self.ys.append(event.ydata)
             self.line.set_data(self.xs, self.ys)
@@ -266,28 +267,30 @@ is created every time a mouse is pressed::
 
 The `.MouseEvent` that we just used is a `.LocationEvent`, so we have access to
 the data and pixel coordinates via ``(event.x, event.y)`` and ``(event.xdata,
-event.ydata)``.  In addition to the ``LocationEvent`` attributes, it also has
+event.ydata)``.  In addition to the ``LocationEvent`` attributes, it also has:
 
-    ``button``
-        the button pressed: None, `.MouseButton`, 'up', or 'down' (up and down are used for scroll events)
+``button``
+    the button pressed: None, `.MouseButton`, 'up', or 'down' (up and down are used for scroll events)
 
-    ``key``
-        the key pressed: None, any character, 'shift', 'win', or 'control'
+``key``
+    the key pressed: None, any character, 'shift', 'win', or 'control'
 
 Draggable rectangle exercise
 ----------------------------
 
-Write draggable rectangle class that is initialized with a
+Write a draggable rectangle class that is initialized with a
 `.Rectangle` instance but will move its ``xy``
-location when dragged.  Hint: you will need to store the original
-``xy`` location of the rectangle which is stored as rect.xy and
+location when dragged.
+
+Hint: You will need to store the original
+``xy`` location of the rectangle which is stored as ``rect.xy`` and
 connect to the press, motion and release mouse events.  When the mouse
 is pressed, check to see if the click occurs over your rectangle (see
-`.Rectangle.contains`) and if it does, store
-the rectangle xy and the location of the mouse click in data coords.
+`!.Rectangle.contains`) and if it does, store
+the rectangle xy and the location of the mouse click in data coordinates.
 In the motion event callback, compute the deltax and deltay of the
 mouse movement, and add those deltas to the origin of the rectangle
-you stored.  The redraw the figure.  On the button release event, just
+you stored, then redraw the figure.  On the button release event, just
 reset all the button press data you stored as None.
 
 Here is the solution::
@@ -523,18 +526,18 @@ as `.Line2D`, `.Text`, `.Patch`, `.Polygon`, `.AxesImage`, etc.)
 
 The ``picker`` property can be set using various types:
 
-    ``None``
-        Picking is disabled for this artist (default).
-    ``boolean``
-        If True, then picking will be enabled and the artist will fire a
-        pick event if the mouse event is over the artist.
-    ``callable``
-        If picker is a callable, it is a user supplied function which
-        determines whether the artist is hit by the mouse event.  The
-        signature is ``hit, props = picker(artist, mouseevent)`` to
-        determine the hit test.  If the mouse event is over the artist,
-        return ``hit = True``; ``props`` is a dictionary of properties that
-        become additional attributes on the `.PickEvent`.
+``None``
+    Picking is disabled for this artist (default).
+``boolean``
+    If True, then picking will be enabled and the artist will fire a
+    pick event if the mouse event is over the artist.
+``callable``
+    If picker is a callable, it is a user supplied function which
+    determines whether the artist is hit by the mouse event.  The
+    signature is ``hit, props = picker(artist, mouseevent)`` to
+    determine the hit test.  If the mouse event is over the artist,
+    return ``hit = True``; ``props`` is a dictionary of properties that
+    become additional attributes on the `.PickEvent`.
 
 The artist's ``pickradius`` property can additionally be set to a tolerance
 value in points (there are 72 points per inch) that determines how far the
@@ -551,11 +554,11 @@ pick callbacks on mouse press events.  The handler typically looks like ::
 
 The `.PickEvent` passed to your callback always has the following attributes:
 
-    ``mouseevent``
-        The `.MouseEvent` that generate the pick event.  See event-attributes_
-        for a list of useful attributes on the mouse event.
-    ``artist``
-        The `.Artist` that generated the pick event.
+``mouseevent``
+    The `.MouseEvent` that generate the pick event.  See event-attributes_
+    for a list of useful attributes on the mouse event.
+``artist``
+    The `.Artist` that generated the pick event.
 
 Additionally, certain artists like `.Line2D` and `.PatchCollection` may attach
 additional metadata, like the indices of the data that meet the
@@ -574,7 +577,7 @@ callback function simply prints the data that are under the pick
 location.  Different Matplotlib Artists can attach different data to
 the PickEvent.  For example, ``Line2D`` attaches the ind property,
 which are the indices into the line data under the pick point.  See
-`.Line2D.pick` for details on the ``PickEvent`` properties of the line.  ::
+`!.Line2D.pick` for details on the ``PickEvent`` properties of the line.  ::
 
     import numpy as np
     import matplotlib.pyplot as plt

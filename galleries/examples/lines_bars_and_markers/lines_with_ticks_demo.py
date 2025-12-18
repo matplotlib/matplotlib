@@ -30,3 +30,10 @@ ax.plot(x, y, label="Curve", path_effects=[patheffects.withTickedStroke()])
 ax.legend()
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    styling: linestyle
+#    plot-type: line
+#    level: beginner

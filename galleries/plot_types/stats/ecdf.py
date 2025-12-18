@@ -2,6 +2,7 @@
 =======
 ecdf(x)
 =======
+Compute and plot the empirical cumulative distribution function of x.
 
 See `~matplotlib.axes.Axes.ecdf`.
 """

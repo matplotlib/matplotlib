@@ -5,7 +5,7 @@ Introduction to Axes (or Subplots)
 
 Matplotlib `~.axes.Axes` are the gateway to creating your data visualizations.
 Once an Axes is placed on a figure there are many methods that can be used to
-add data to the Axes. An Axes typically has a pair of :doc:`Axis <../axis/index>`
+add data to the Axes. An Axes typically has a pair of `~.axis.Axis`
 Artists that define the data coordinate system, and include methods to add
 annotations like x- and y-labels, titles, and legends.
 
@@ -52,8 +52,8 @@ Axes are added using methods on `~.Figure` objects, or via the `~.pyplot` interf
 
 There are a number of other methods for adding Axes to a Figure:
 
-* `.Figure.add_axes`: manually position an Axes. ``fig.add_axes([0, 0, 1,
-  1])`` makes an Axes that fills the whole figure.
+* `.Figure.add_axes`: manually position an Axes. ``fig.add_axes((0, 0, 1, 1))`` makes an
+  Axes that fills the whole figure.
 * `.pyplot.subplots` and `.Figure.subplots`: add a grid of Axes as in the example
   above.  The pyplot version returns both the Figure object and an array of
   Axes.  Note that ``fig, ax = plt.subplots()`` adds a single Axes to a Figure.
@@ -130,7 +130,7 @@ Note that text can also be added to axes using `~.axes.Axes.text`, and `~.axes.A
 Axes limits, scales, and ticking
 --------------------------------
 
-Each Axes has two (or more) `~.axis.Axis` objects, that can be accessed via :attr:`~matplotlib.axes.Axes.xaxis` and :attr:`~matplotlib.axes.Axes.yaxis` properties.  These have substantial number of methods on them, and for highly customizable Axis-es it is useful to read more about that API (:doc:`../axis/index`).   However, the Axes class offers a number of helpers for the most common of these methods.  Indeed, the `~.axes.Axes.set_xlabel`, discussed above, is a helper for the `~.Axis.set_label_text`.
+Each Axes has two (or more) `~.axis.Axis` objects, that can be accessed via :attr:`!matplotlib.axes.Axes.xaxis` and :attr:`!matplotlib.axes.Axes.yaxis` properties.  These have substantial number of methods on them, and for highly customizable Axis-es it is useful to read the API at `~.axis.Axis`.   However, the Axes class offers a number of helpers for the most common of these methods.  Indeed, the `~.axes.Axes.set_xlabel`, discussed above, is a helper for the `~.Axis.set_label_text`.
 
 Other important methods set the extent on the axes (`~.axes.Axes.set_xlim`, `~.axes.Axes.set_ylim`), or more fundamentally the scale of the axes.  So for instance, we can make an Axis have a logarithmic scale, and zoom in on a sub-portion of the data:
 
@@ -143,7 +143,7 @@ Other important methods set the extent on the axes (`~.axes.Axes.set_xlim`, `~.a
     x = 2**np.cumsum(np.random.randn(200))
     linesx = ax.plot(t, x)
     ax.set_yscale('log')
-    ax.set_xlim([20, 180])
+    ax.set_xlim(20, 180)
 
 The Axes class also has helpers to deal with Axis ticks and their labels.  Most straight-forward is `~.axes.Axes.set_xticks` and `~.axes.Axes.set_yticks` which manually set the tick locations and optionally their labels.  Minor ticks can be toggled with `~.axes.Axes.minorticks_on` or `~.axes.Axes.minorticks_off`.
 
@@ -158,7 +158,7 @@ Many aspects of Axes ticks and tick labeling can be adjusted using `~.axes.Axes.
                    labelcolor='green')
 
 
-More fine-grained control on ticks, setting scales, and controlling the Axis can be highly customized beyond these Axes-level helpers.  An introduction to these methods can be found in :ref:`users_axis`, or the API reference for `.axis.Axis`.
+More fine-grained control on ticks, setting scales, and controlling the Axis can be highly customized beyond these Axes-level helpers.
 
 Axes layout
 -----------

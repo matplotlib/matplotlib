@@ -85,3 +85,9 @@ plt.show()
 #
 #    - `matplotlib.patches.PathPatch`
 #    - `matplotlib.path.Path`
+#
+# .. tags::
+#
+#    component: error
+#    plot-type: line
+#    level: intermediate

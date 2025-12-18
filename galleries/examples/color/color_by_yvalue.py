@@ -30,3 +30,10 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
+#
+# .. tags::
+#
+#    styling: color
+#    styling: conditional
+#    plot-type: line
+#    level: beginner

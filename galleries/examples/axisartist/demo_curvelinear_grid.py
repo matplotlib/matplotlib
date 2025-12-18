@@ -17,8 +17,7 @@ import numpy as np
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 from mpl_toolkits.axisartist import Axes, HostAxes, angle_helper
-from mpl_toolkits.axisartist.grid_helper_curvelinear import \
-    GridHelperCurveLinear
+from mpl_toolkits.axisartist.grid_helper_curvelinear import GridHelperCurveLinear
 
 
 def curvelinear_test1(fig):
@@ -90,7 +89,7 @@ def curvelinear_test2(fig):
 
     ax1.grid(True, zorder=0)
 
-    # A parasite axes with given transform
+    # A parasite Axes with given transform
     ax2 = ax1.get_aux_axes(tr)
     # note that ax2.transData == tr + ax1.transData
     # Anything you draw in ax2 will match the ticks and grids of ax1.

@@ -63,7 +63,7 @@ The following steps can be done simultaneously: 1, 2, and 3; 4 and 5;
 
 Only the following steps must be done in the same release: 4, 5,
 and 6.  All other changes can be done in separate releases.  8 should
-be done several major releases after everything else.
+be done several macro releases after everything else.
 
 Backward compatibility
 ======================

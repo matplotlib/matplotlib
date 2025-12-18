@@ -1,25 +1,42 @@
 """
-===========
-Invert Axes
-===========
+=============
+Inverted axis
+=============
 
-You can use decreasing axes by flipping the normal order of the axis
-limits
+This example demonstrates two ways to invert the direction of an axis:
+
+- If you want to set *explicit axis limits* anyway, e.g. via `~.Axes.set_xlim`, you
+  can swap the limit values: ``set_xlim(4, 0)`` instead of ``set_xlim(0, 4)``.
+- Use `.Axis.set_inverted` if you only want to invert the axis *without modifying
+  the limits*, i.e. keep existing limits or existing autoscaling behavior.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-t = np.arange(0.01, 5.0, 0.01)
-s = np.exp(-t)
+x = np.arange(0.01, 4.0, 0.01)
+y = np.exp(-x)
 
-fig, ax = plt.subplots()
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6.4,  4), layout="constrained")
+fig.suptitle('Inverted axis with ...')
 
-ax.plot(t, s)
-ax.set_xlim(5, 0)  # decreasing time
-ax.set_xlabel('decreasing time (s)')
-ax.set_ylabel('voltage (mV)')
-ax.set_title('Should be growing...')
-ax.grid(True)
+ax1.plot(x, y)
+ax1.set_xlim(4, 0)   # inverted fixed limits
+ax1.set_title('fixed limits: set_xlim(4, 0)')
+ax1.set_xlabel('decreasing x ⟶')
+ax1.grid(True)
+
+ax2.plot(x, y)
+ax2.xaxis.set_inverted(True)  # inverted axis with autoscaling
+ax2.set_title('autoscaling: set_inverted(True)')
+ax2.set_xlabel('decreasing x ⟶')
+ax2.grid(True)
 
 plt.show()
+
+# %%
+# .. tags::
+#
+#    component: axis
+#    plot-type: line
+#    level: beginner

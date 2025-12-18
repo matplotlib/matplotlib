@@ -1,7 +1,7 @@
 """
-====================================================
-Concatenating text objects with different properties
-====================================================
+==================================================
+Concatenate text objects with different properties
+==================================================
 
 The example strings together several Text objects with different properties
 (e.g., color or font), positioning each one after the other.  The first Text

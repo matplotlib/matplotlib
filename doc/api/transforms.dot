@@ -1,0 +1,141 @@
+digraph {
+    splines="polyline";
+
+    node [
+        fontname="DejaVu Sans, Vera Sans, Liberation Sans, Arial, Helvetica, sans",
+        shape=box,
+    ];
+    edge [
+        arrowsize=0.5,
+        fontname="DejaVu Sans, Vera Sans, Liberation Sans, Arial, Helvetica, sans",
+    ];
+
+    // Axes properties.
+    Axes__bbox [
+        label=<TransformedBbox<BR/><FONT POINT-SIZE="10">Axes.bbox</FONT>>,
+        target="_top",
+        tooltip="TransformedBbox",
+        URL="transformations.html#matplotlib.transforms.TransformedBbox",
+    ];
+    Axes__transAxes [
+        label=<BboxTransformTo<BR/><FONT POINT-SIZE="10">Axes.transAxes</FONT>>
+        target="_top",
+        tooltip="BboxTransformTo",
+        URL="transformations.html#matplotlib.transforms.BboxTransformTo",
+    ];
+    Axes__transData [
+        label=<CompositeGenericTransform<BR/><FONT
+               POINT-SIZE="10">Axes.transData</FONT>>
+        target="_top",
+        tooltip="CompositeGenericTransform",
+        URL="transformations.html#matplotlib.transforms.CompositeGenericTransform",
+    ];
+    Axes__transLimits [
+        label=<BboxTransformFrom<BR/><FONT POINT-SIZE="10">Axes.transLimits</FONT>>
+        target="_top",
+        tooltip="BboxTransformFrom",
+        URL="transformations.html#matplotlib.transforms.BboxTransformFrom",
+    ];
+    Axes__transScale [
+        label=<TransformWrapper<BR/><FONT POINT-SIZE="10">Axes.transScale</FONT>>
+        target="_top",
+        tooltip="TransformWrapper",
+        URL="transformations.html#matplotlib.transforms.TransformWrapper",
+    ];
+    Axes__position [
+        label=<Bbox<BR/><FONT POINT-SIZE="10">Axes.get_position()</FONT>>
+        target="_top",
+        tooltip="Bbox",
+        URL="transformations.html#matplotlib.transforms.Bbox",
+    ];
+    Axes__viewLim [
+        label = <Bbox<BR/><FONT POINT-SIZE="10">Axes._viewLim</FONT>>
+        target="_top",
+        tooltip="Bbox",
+        URL="transformations.html#matplotlib.transforms.Bbox",
+    ];
+
+    // Axis properties.
+    XAxis_transform [
+        label=<IdentityTransform<BR/><FONT
+               POINT-SIZE="10">Axes.xaxis.get_transform()</FONT>>
+        target="_top",
+        tooltip="IdentityTransform",
+        URL="transformations.html#matplotlib.transforms.IdentityTransform",
+    ];
+    YAxis_transform [
+        label=<IdentityTransform<BR/><FONT
+               POINT-SIZE="10">Axes.yaxis.get_transform()</FONT>>
+        target="_top",
+        tooltip="IdentityTransform",
+        URL="transformations.html#matplotlib.transforms.IdentityTransform",
+    ];
+
+    // Figure properties.
+    Figure__transFigure [
+        label=<BboxTransformTo<BR/><FONT POINT-SIZE="10">Figure.transFigure</FONT>>
+        target="_top",
+        tooltip="BboxTransformTo",
+        URL="transformations.html#matplotlib.transforms.BboxTransformTo",
+    ];
+    Figure__bbox [
+        label=<TransformedBbox<BR/><FONT POINT-SIZE="10">Figure.bbox</FONT>>
+        target="_top",
+        tooltip="TransformedBbox",
+        URL="transformations.html#matplotlib.transforms.TransformedBbox",
+    ];
+    Figure__bbox_inches [
+        label=<Bbox<BR/><FONT POINT-SIZE="10">Figure.bbox_inches</FONT>>
+        target="_top",
+        tooltip="Bbox",
+        URL="transformations.html#matplotlib.transforms.Bbox",
+    ];
+    Figure__dpi_scale_trans [
+        label=<Affine2D<BR/><FONT POINT-SIZE="10">Figure.dpi_scale_trans</FONT>>
+        target="_top",
+        tooltip="Affine2D",
+        URL="transformations.html#matplotlib.transforms.Affine2D",
+    ];
+
+    // Internal unnamed transform children.
+    Axes__transDataB [
+        label="CompositeGenericTransform",
+        target="_top",
+        tooltip="CompositeGenericTransform",
+        URL="transformations.html#matplotlib.transforms.CompositeGenericTransform",
+    ];
+    Axes__transLimitsBbox [
+        label="TransformedBbox",
+        target="_top",
+        tooltip="TransformedBbox",
+        URL="transformations.html#matplotlib.transforms.TransformedBbox",
+    ];
+    Axes__transScaleBlend [
+        label="BlendedAffine2D",
+        target="_top",
+        tooltip="BlendedAffine2D",
+        URL="transformations.html#matplotlib.transforms.BlendedAffine2D",
+    ];
+
+    // The actual Axes__transform tree follows:
+    Axes__transData -> Axes__transScale [label="a", labelangle=90];
+    Axes__transData -> Axes__transDataB [label="b"];
+    Axes__transDataB -> Axes__transLimits [label="a"];
+    Axes__transDataB -> Axes__transAxes [label="b"];
+
+    Axes__transScale -> Axes__transScaleBlend [label="child"];
+    Axes__transScaleBlend -> XAxis_transform [label="x_transform"];
+    Axes__transScaleBlend -> YAxis_transform [label="y_transform"];
+
+    Axes__transLimits -> Axes__transLimitsBbox [label="boxin"];
+    Axes__transLimitsBbox -> Axes__viewLim [label="bbox"];
+    Axes__transLimitsBbox -> Axes__transScale [label="transform"];
+
+    Axes__transAxes -> Axes__bbox [label="boxout"];
+    Axes__bbox -> Axes__position [label="bbox"];
+    Axes__bbox -> Figure__transFigure [label="transform"];
+
+    Figure__transFigure -> Figure__bbox [label="boxout"];
+    Figure__bbox -> Figure__bbox_inches [label="bbox"];
+    Figure__bbox -> Figure__dpi_scale_trans [label="transform"];
+}

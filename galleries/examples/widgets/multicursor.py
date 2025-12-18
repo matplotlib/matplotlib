@@ -5,9 +5,9 @@ Multicursor
 
 Showing a cursor on multiple plots simultaneously.
 
-This example generates three axes split over two different figures.  On
+This example generates three Axes split over two different figures.  On
 hovering the cursor over data in one subplot, the values of that datapoint are
-shown in all axes.
+shown in all Axes.
 """
 
 import matplotlib.pyplot as plt

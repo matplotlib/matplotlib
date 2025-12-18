@@ -1,6 +1,6 @@
 """
 =========================
-Date Precision and Epochs
+Date precision and epochs
 =========================
 
 Matplotlib can handle `.datetime` objects and `numpy.datetime64` objects using

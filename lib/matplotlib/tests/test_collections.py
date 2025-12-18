@@ -1,6 +1,7 @@
 from datetime import datetime
 import io
 import itertools
+import platform
 import re
 from types import SimpleNamespace
 
@@ -16,7 +17,13 @@ import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
                                     EventCollection, PolyCollection)
+from matplotlib.collections import FillBetweenPolyCollection
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+
+
+@pytest.fixture(params=["pcolormesh", "pcolor"])
+def pcfunc(request):
+    return request.param
 
 
 def generate_EventCollection_plot():
@@ -59,7 +66,7 @@ def generate_EventCollection_plot():
     return ax, coll, props
 
 
-@image_comparison(['EventCollection_plot__default'])
+@image_comparison(['EventCollection_plot__default.png'])
 def test__EventCollection__get_props():
     _, coll, props = generate_EventCollection_plot()
     # check that the default segments have the correct coordinates
@@ -85,7 +92,7 @@ def test__EventCollection__get_props():
         np.testing.assert_array_equal(color, props['color'])
 
 
-@image_comparison(['EventCollection_plot__set_positions'])
+@image_comparison(['EventCollection_plot__set_positions.png'])
 def test__EventCollection__set_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'], props['extra_positions']])
@@ -99,7 +106,7 @@ def test__EventCollection__set_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(['EventCollection_plot__add_positions'])
+@image_comparison(['EventCollection_plot__add_positions.png'])
 def test__EventCollection__add_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
@@ -117,7 +124,7 @@ def test__EventCollection__add_positions():
     splt.set_xlim(-1, 35)
 
 
-@image_comparison(['EventCollection_plot__append_positions'])
+@image_comparison(['EventCollection_plot__append_positions.png'])
 def test__EventCollection__append_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
@@ -133,7 +140,7 @@ def test__EventCollection__append_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(['EventCollection_plot__extend_positions'])
+@image_comparison(['EventCollection_plot__extend_positions.png'])
 def test__EventCollection__extend_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
@@ -149,7 +156,7 @@ def test__EventCollection__extend_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(['EventCollection_plot__switch_orientation'])
+@image_comparison(['EventCollection_plot__switch_orientation.png'])
 def test__EventCollection__switch_orientation():
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
@@ -166,7 +173,7 @@ def test__EventCollection__switch_orientation():
     splt.set_xlim(0, 2)
 
 
-@image_comparison(['EventCollection_plot__switch_orientation__2x'])
+@image_comparison(['EventCollection_plot__switch_orientation__2x.png'])
 def test__EventCollection__switch_orientation_2x():
     """
     Check that calling switch_orientation twice sets the orientation back to
@@ -187,7 +194,7 @@ def test__EventCollection__switch_orientation_2x():
     splt.set_title('EventCollection: switch_orientation 2x')
 
 
-@image_comparison(['EventCollection_plot__set_orientation'])
+@image_comparison(['EventCollection_plot__set_orientation.png'])
 def test__EventCollection__set_orientation():
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
@@ -204,7 +211,7 @@ def test__EventCollection__set_orientation():
     splt.set_xlim(0, 2)
 
 
-@image_comparison(['EventCollection_plot__set_linelength'])
+@image_comparison(['EventCollection_plot__set_linelength.png'])
 def test__EventCollection__set_linelength():
     splt, coll, props = generate_EventCollection_plot()
     new_linelength = 15
@@ -219,7 +226,7 @@ def test__EventCollection__set_linelength():
     splt.set_ylim(-20, 20)
 
 
-@image_comparison(['EventCollection_plot__set_lineoffset'])
+@image_comparison(['EventCollection_plot__set_lineoffset.png'])
 def test__EventCollection__set_lineoffset():
     splt, coll, props = generate_EventCollection_plot()
     new_lineoffset = -5.
@@ -235,9 +242,9 @@ def test__EventCollection__set_lineoffset():
 
 
 @image_comparison([
-    'EventCollection_plot__set_linestyle',
-    'EventCollection_plot__set_linestyle',
-    'EventCollection_plot__set_linewidth',
+    'EventCollection_plot__set_linestyle.png',
+    'EventCollection_plot__set_linestyle.png',
+    'EventCollection_plot__set_linewidth.png',
 ])
 def test__EventCollection__set_prop():
     for prop, value, expected in [
@@ -251,7 +258,7 @@ def test__EventCollection__set_prop():
         splt.set_title(f'EventCollection: set_{prop}')
 
 
-@image_comparison(['EventCollection_plot__set_color'])
+@image_comparison(['EventCollection_plot__set_color.png'])
 def test__EventCollection__set_color():
     splt, coll, _ = generate_EventCollection_plot()
     new_color = np.array([0, 1, 1, 1])
@@ -287,6 +294,16 @@ def check_segments(coll, positions, linelength, lineoffset, orientation):
         assert segment[1, pos2] == positions[i]
 
 
+def test_collection_norm_autoscale():
+    # norm should be autoscaled when array is set, not deferred to draw time
+    lines = np.arange(24).reshape((4, 3, 2))
+    coll = mcollections.LineCollection(lines, array=np.arange(4))
+    assert coll.norm(2) == 2 / 3
+    # setting a new array shouldn't update the already scaled limits
+    coll.set_array(np.arange(4) + 5)
+    assert coll.norm(2) == 2 / 3
+
+
 def test_null_collection_datalim():
     col = mcollections.PathCollection([])
     col_data_lim = col.get_datalim(mtransforms.IdentityTransform())
@@ -317,7 +334,7 @@ def test_add_collection():
 
 
 @mpl.style.context('mpl20')
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_collection_log_datalim(fig_test, fig_ref):
     # Data limits should respect the minimum x/y when using log scale.
     x_vals = [4.38462e-6, 5.54929e-6, 7.02332e-6, 8.88889e-6, 1.12500e-5,
@@ -373,7 +390,8 @@ def test_barb_limits():
                               decimal=1)
 
 
-@image_comparison(['EllipseCollection_test_image.png'], remove_text=True)
+@image_comparison(['EllipseCollection_test_image.png'], remove_text=True,
+                  tol=0 if platform.machine() == 'x86_64' else 0.021)
 def test_EllipseCollection():
     # Test basic functionality
     fig, ax = plt.subplots()
@@ -390,12 +408,55 @@ def test_EllipseCollection():
         ww, hh, aa, units='x', offsets=XY, offset_transform=ax.transData,
         facecolors='none')
     ax.add_collection(ec)
-    ax.autoscale_view()
+
+
+def test_EllipseCollection_setter_getter():
+    # Test widths, heights and angle setter
+    rng = np.random.default_rng(0)
+
+    widths = (2, )
+    heights = (3, )
+    angles = (45, )
+    offsets = rng.random((10, 2)) * 10
+
+    fig, ax = plt.subplots()
+
+    ec = mcollections.EllipseCollection(
+        widths=widths,
+        heights=heights,
+        angles=angles,
+        offsets=offsets,
+        units='x',
+        offset_transform=ax.transData,
+        )
+
+    assert_array_almost_equal(ec._widths, np.array(widths).ravel() * 0.5)
+    assert_array_almost_equal(ec._heights, np.array(heights).ravel() * 0.5)
+    assert_array_almost_equal(ec._angles, np.deg2rad(angles).ravel())
+
+    assert_array_almost_equal(ec.get_widths(), widths)
+    assert_array_almost_equal(ec.get_heights(), heights)
+    assert_array_almost_equal(ec.get_angles(), angles)
+
+    ax.add_collection(ec)
+    ax.set_xlim(-2, 12)
+    ax.set_ylim(-2, 12)
+
+    new_widths = rng.random((10, 2)) * 2
+    new_heights = rng.random((10, 2)) * 3
+    new_angles = rng.random((10, 2)) * 180
+
+    ec.set(widths=new_widths, heights=new_heights, angles=new_angles)
+
+    assert_array_almost_equal(ec.get_widths(), new_widths.ravel())
+    assert_array_almost_equal(ec.get_heights(), new_heights.ravel())
+    assert_array_almost_equal(ec.get_angles(), new_angles.ravel())
 
 
 @image_comparison(['polycollection_close.png'], remove_text=True, style='mpl20')
 def test_polycollection_close():
-    from mpl_toolkits.mplot3d import Axes3D  # type: ignore
+    from mpl_toolkits.mplot3d import Axes3D  # type: ignore[import]
+    plt.rcParams['axes3d.automargin'] = True
 
     vertsQuad = [
         [[0., 0.], [0., 1.], [1., 1.], [1., 0.]],
@@ -430,6 +491,28 @@ def test_polycollection_close():
     ax.set_ylim3d(0, 4)
 
 
+@check_figures_equal(extensions=["png"])
+def test_scalarmap_change_cmap(fig_test, fig_ref):
+    # Ensure that changing the colormap of a 3D scatter after draw updates the colors.
+
+    x, y, z = np.array(list(itertools.product(
+        np.arange(0, 5, 1),
+        np.arange(0, 5, 1),
+        np.arange(0, 5, 1)
+    ))).T
+    c = x + y
+
+    # test
+    ax_test = fig_test.add_subplot(111, projection='3d')
+    sc_test = ax_test.scatter(x, y, z, c=c, s=40, cmap='jet')
+    fig_test.canvas.draw()
+    sc_test.set_cmap('viridis')
+
+    # ref
+    ax_ref = fig_ref.add_subplot(111, projection='3d')
+    ax_ref.scatter(x, y, z, c=c, s=40, cmap='viridis')
+
+
 @image_comparison(['regularpolycollection_rotate.png'], remove_text=True)
 def test_regularpolycollection_rotate():
     xx, yy = np.mgrid[:10, :10]
@@ -441,8 +524,7 @@ def test_regularpolycollection_rotate():
         col = mcollections.RegularPolyCollection(
             4, sizes=(100,), rotation=alpha,
             offsets=[xy], offset_transform=ax.transData)
-        ax.add_collection(col, autolim=True)
-    ax.autoscale_view()
+        ax.add_collection(col)
 
 
 @image_comparison(['regularpolycollection_scale.png'], remove_text=True)
@@ -457,7 +539,7 @@ def test_regularpolycollection_scale():
             """Return transform scaling circle areas to data space."""
             ax = self.axes
 
-            pts2pixels = 72.0 / ax.figure.dpi
+            pts2pixels = 72.0 / ax.get_figure(root=True).dpi
 
             scale_x = pts2pixels * ax.bbox.width / ax.viewLim.width
             scale_y = pts2pixels * ax.bbox.height / ax.viewLim.height
@@ -470,7 +552,7 @@ def test_regularpolycollection_scale():
     circle_areas = [np.pi / 2]
     squares = SquareCollection(
         sizes=circle_areas, offsets=xy, offset_transform=ax.transData)
-    ax.add_collection(squares, autolim=True)
+    ax.add_collection(squares)
     ax.axis([-1, 1, -1, 1])
 
 
@@ -620,6 +702,8 @@ def test_set_wrong_linestyle():
 
 @mpl.style.context('default')
 def test_capstyle():
+    col = mcollections.PathCollection([])
+    assert col.get_capstyle() is None
     col = mcollections.PathCollection([], capstyle='round')
     assert col.get_capstyle() == 'round'
     col.set_capstyle('butt')
@@ -628,6 +712,8 @@ def test_capstyle():
 
 @mpl.style.context('default')
 def test_joinstyle():
+    col = mcollections.PathCollection([])
+    assert col.get_joinstyle() is None
     col = mcollections.PathCollection([], joinstyle='round')
     assert col.get_joinstyle() == 'round'
     col.set_joinstyle('miter')
@@ -765,6 +851,35 @@ def test_collection_set_verts_array():
         assert np.array_equal(ap._codes, atp._codes)
 
 
+@check_figures_equal()
+@pytest.mark.parametrize("kwargs", [{}, {"step": "pre"}])
+def test_fill_between_poly_collection_set_data(fig_test, fig_ref, kwargs):
+    t = np.linspace(0, 16)
+    f1 = np.sin(t)
+    f2 = f1 + 0.2
+
+    fig_ref.subplots().fill_between(t, f1, f2, **kwargs)
+
+    coll = fig_test.subplots().fill_between(t, -1, 1.2, **kwargs)
+    coll.set_data(t, f1, f2)
+
+
+@pytest.mark.parametrize(("t_direction", "f1", "shape", "where", "msg"), [
+    ("z", None, None, None, r"t_direction must be 'x' or 'y', got 'z'"),
+    ("x", None, (-1, 1), None, r"'x' is not 1-dimensional"),
+    ("x", None, None, [False] * 3, r"where size \(3\) does not match 'x' size \(\d+\)"),
+    ("y", [1, 2], None, None, r"'y' has size \d+, but 'x1' has an unequal size of \d+"),
+])
+def test_fill_between_poly_collection_raise(t_direction, f1, shape, where, msg):
+    t = np.linspace(0, 16)
+    f1 = np.sin(t) if f1 is None else np.asarray(f1)
+    f2 = f1 + 0.2
+    if shape:
+        t = t.reshape(*shape)
+    with pytest.raises(ValueError, match=msg):
+        FillBetweenPolyCollection(t_direction, t, f1, f2, where=where)
+
+
 def test_collection_set_array():
     vals = [*range(10)]
 
@@ -782,17 +897,24 @@ def test_collection_set_array():
 
 
 def test_blended_collection_autolim():
-    a = [1, 2, 4]
-    height = .2
-
-    xy_pairs = np.column_stack([np.repeat(a, 2), np.tile([0, height], len(a))])
-    line_segs = xy_pairs.reshape([len(a), 2, 2])
-
     f, ax = plt.subplots()
+
+    # sample data to give initial data limits
+    ax.plot([2, 3, 4], [0.4, 0.6, 0.5])
+    np.testing.assert_allclose((ax.dataLim.xmin, ax.dataLim.xmax), (2, 4))
+    data_ymin, data_ymax = ax.dataLim.ymin, ax.dataLim.ymax
+
+    # LineCollection with vertical lines spanning the Axes vertical, using transAxes
+    x = [1, 2, 3, 4, 5]
+    vertical_lines = [np.array([[xi, 0], [xi, 1]]) for xi in x]
     trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
-    ax.add_collection(LineCollection(line_segs, transform=trans))
-    ax.autoscale_view(scalex=True, scaley=False)
-    np.testing.assert_allclose(ax.get_xlim(), [1., 4.])
+    ax.add_collection(LineCollection(vertical_lines, transform=trans))
+
+    # check that the x data limits are updated to include the LineCollection
+    np.testing.assert_allclose((ax.dataLim.xmin, ax.dataLim.xmax), (1, 5))
+    # check that the y data limits are not updated (because they are not transData)
+    np.testing.assert_allclose((ax.dataLim.ymin, ax.dataLim.ymax),
+                               (data_ymin, data_ymax))
 
 
 def test_singleton_autolim():
@@ -818,12 +940,12 @@ def test_autolim_with_zeros(transform, expected):
     np.testing.assert_allclose(ax.get_xlim(), expected)
 
 
-def test_quadmesh_set_array_validation():
+def test_quadmesh_set_array_validation(pcfunc):
     x = np.arange(11)
     y = np.arange(8)
     z = np.random.random((7, 10))
     fig, ax = plt.subplots()
-    coll = ax.pcolormesh(x, y, z)
+    coll = getattr(ax, pcfunc)(x, y, z)
 
     with pytest.raises(ValueError, match=re.escape(
             "For X (11) and Y (8) with flat shading, A should have shape "
@@ -866,12 +988,60 @@ def test_quadmesh_set_array_validation():
     coll = ax.pcolormesh(x, y, z, shading='gouraud')
 
 
-def test_quadmesh_get_coordinates():
+def test_polyquadmesh_masked_vertices_array():
+    xx, yy = np.meshgrid([0, 1, 2], [0, 1, 2, 3])
+    # 2 x 3 mesh data
+    zz = (xx*yy)[:-1, :-1]
+    quadmesh = plt.pcolormesh(xx, yy, zz)
+    quadmesh.update_scalarmappable()
+    quadmesh_fc = quadmesh.get_facecolor()[1:, :]
+    # Mask the origin vertex in x
+    xx = np.ma.masked_where((xx == 0) & (yy == 0), xx)
+    polymesh = plt.pcolor(xx, yy, zz)
+    polymesh.update_scalarmappable()
+    # One cell should be left out
+    assert len(polymesh.get_paths()) == 5
+    # Poly version should have the same facecolors as the end of the quadmesh
+    assert_array_equal(quadmesh_fc, polymesh.get_facecolor())
+
+    # Mask the origin vertex in y
+    yy = np.ma.masked_where((xx == 0) & (yy == 0), yy)
+    polymesh = plt.pcolor(xx, yy, zz)
+    polymesh.update_scalarmappable()
+    # One cell should be left out
+    assert len(polymesh.get_paths()) == 5
+    # Poly version should have the same facecolors as the end of the quadmesh
+    assert_array_equal(quadmesh_fc, polymesh.get_facecolor())
+
+    # Mask the origin cell data
+    zz = np.ma.masked_where((xx[:-1, :-1] == 0) & (yy[:-1, :-1] == 0), zz)
+    polymesh = plt.pcolor(zz)
+    polymesh.update_scalarmappable()
+    # One cell should be left out
+    assert len(polymesh.get_paths()) == 5
+    # Poly version should have the same facecolors as the end of the quadmesh
+    assert_array_equal(quadmesh_fc, polymesh.get_facecolor())
+
+    # We should also be able to call set_array with a new mask and get
+    # updated polys
+    # Remove mask, should add all polys back
+    zz = np.arange(6).reshape((3, 2))
+    polymesh.set_array(zz)
+    polymesh.update_scalarmappable()
+    assert len(polymesh.get_paths()) == 6
+    # Add mask should remove polys
+    zz = np.ma.masked_less(zz, 2)
+    polymesh.set_array(zz)
+    polymesh.update_scalarmappable()
+    assert len(polymesh.get_paths()) == 4
+
+
+def test_quadmesh_get_coordinates(pcfunc):
     x = [0, 1, 2]
     y = [2, 4, 6]
     z = np.ones(shape=(2, 2))
     xx, yy = np.meshgrid(x, y)
-    coll = plt.pcolormesh(xx, yy, z)
+    coll = getattr(plt, pcfunc)(xx, yy, z)
 
     # shape (3, 3, 2)
     coords = np.stack([xx.T, yy.T]).T
@@ -908,23 +1078,23 @@ def test_quadmesh_set_array():
     assert np.array_equal(coll.get_array(), np.ones(16))
 
 
-def test_quadmesh_vmin_vmax():
+def test_quadmesh_vmin_vmax(pcfunc):
     # test when vmin/vmax on the norm changes, the quadmesh gets updated
     fig, ax = plt.subplots()
     cmap = mpl.colormaps['plasma']
     norm = mpl.colors.Normalize(vmin=0, vmax=1)
-    coll = ax.pcolormesh([[1]], cmap=cmap, norm=norm)
+    coll = getattr(ax, pcfunc)([[1]], cmap=cmap, norm=norm)
     fig.canvas.draw()
-    assert np.array_equal(coll.get_facecolors()[0, 0, :], cmap(norm(1)))
+    assert np.array_equal(coll.get_facecolors()[0, :], cmap(norm(1)))
 
     # Change the vmin/vmax of the norm so that the color is from
     # the bottom of the colormap now
     norm.vmin, norm.vmax = 1, 2
     fig.canvas.draw()
-    assert np.array_equal(coll.get_facecolors()[0, 0, :], cmap(norm(1)))
+    assert np.array_equal(coll.get_facecolors()[0, :], cmap(norm(1)))
 
 
-def test_quadmesh_alpha_array():
+def test_quadmesh_alpha_array(pcfunc):
     x = np.arange(4)
     y = np.arange(4)
     z = np.arange(9).reshape((3, 3))
@@ -932,26 +1102,26 @@ def test_quadmesh_alpha_array():
     alpha_flat = alpha.ravel()
     # Provide 2-D alpha:
     fig, (ax0, ax1) = plt.subplots(2)
-    coll1 = ax0.pcolormesh(x, y, z, alpha=alpha)
-    coll2 = ax1.pcolormesh(x, y, z)
+    coll1 = getattr(ax0, pcfunc)(x, y, z, alpha=alpha)
+    coll2 = getattr(ax0, pcfunc)(x, y, z)
     coll2.set_alpha(alpha)
     plt.draw()
-    assert_array_equal(coll1.get_facecolors()[..., -1], alpha)
-    assert_array_equal(coll2.get_facecolors()[..., -1], alpha)
+    assert_array_equal(coll1.get_facecolors()[:, -1], alpha_flat)
+    assert_array_equal(coll2.get_facecolors()[:, -1], alpha_flat)
     # Or provide 1-D alpha:
     fig, (ax0, ax1) = plt.subplots(2)
-    coll1 = ax0.pcolormesh(x, y, z, alpha=alpha)
-    coll2 = ax1.pcolormesh(x, y, z)
+    coll1 = getattr(ax0, pcfunc)(x, y, z, alpha=alpha)
+    coll2 = getattr(ax1, pcfunc)(x, y, z)
     coll2.set_alpha(alpha)
     plt.draw()
-    assert_array_equal(coll1.get_facecolors()[..., -1], alpha)
-    assert_array_equal(coll2.get_facecolors()[..., -1], alpha)
+    assert_array_equal(coll1.get_facecolors()[:, -1], alpha_flat)
+    assert_array_equal(coll2.get_facecolors()[:, -1], alpha_flat)
 
 
-def test_alpha_validation():
+def test_alpha_validation(pcfunc):
     # Most of the relevant testing is in test_artist and test_colors.
     fig, ax = plt.subplots()
-    pc = ax.pcolormesh(np.arange(12).reshape((3, 4)))
+    pc = getattr(ax, pcfunc)(np.arange(12).reshape((3, 4)))
     with pytest.raises(ValueError, match="^Data array shape"):
         pc.set_alpha([0.5, 0.6])
         pc.update_scalarmappable()
@@ -985,15 +1155,15 @@ def test_legend_inverse_size_label_relationship():
 
 
 @mpl.style.context('default')
-@pytest.mark.parametrize('pcfunc', [plt.pcolor, plt.pcolormesh])
 def test_color_logic(pcfunc):
+    pcfunc = getattr(plt, pcfunc)
     z = np.arange(12).reshape(3, 4)
     # Explicitly set an edgecolor.
     pc = pcfunc(z, edgecolors='red', facecolors='none')
     pc.update_scalarmappable()  # This is called in draw().
     # Define 2 reference "colors" here for multiple use.
     face_default = mcolors.to_rgba_array(pc._get_default_facecolor())
-    mapped = pc.get_cmap()(pc.norm(z.ravel() if pcfunc == plt.pcolor else z))
+    mapped = pc.get_cmap()(pc.norm(z.ravel()))
     # GitHub issue #1302:
     assert mcolors.same_color(pc.get_edgecolor(), 'red')
     # Check setting attributes after initialization:
@@ -1023,7 +1193,7 @@ def test_color_logic(pcfunc):
     assert mcolors.same_color(pc.get_edgecolor(), 'none')
     assert mcolors.same_color(pc.get_facecolor(), face_default)  # not mapped
     # Turn it back on by restoring the array (must be 1D!):
-    pc.set_array(z.ravel() if pcfunc == plt.pcolor else z)
+    pc.set_array(z)
     pc.update_scalarmappable()
     assert np.array_equal(pc.get_facecolor(), mapped)
     assert mcolors.same_color(pc.get_edgecolor(), 'none')
@@ -1068,18 +1238,20 @@ def test_LineCollection_args():
     assert mcolors.same_color(lc.get_facecolor(), 'none')
 
 
-def test_array_wrong_dimensions():
+def test_array_dimensions(pcfunc):
+    # Make sure we can set the 1D, 2D, and 3D array shapes
     z = np.arange(12).reshape(3, 4)
-    pc = plt.pcolor(z)
-    with pytest.raises(ValueError, match="^Collections can only map"):
-        pc.set_array(z)
-        pc.update_scalarmappable()
-    pc = plt.pcolormesh(z)
-    pc.set_array(z)  # 2D is OK for Quadmesh
+    pc = getattr(plt, pcfunc)(z)
+    # 1D
+    pc.set_array(z.ravel())
+    pc.update_scalarmappable()
+    # 2D
+    pc.set_array(z)
     pc.update_scalarmappable()
     # 3D RGB is OK as well
-    z = np.arange(36).reshape(3, 4, 3)
+    z = np.arange(36, dtype=np.uint8).reshape(3, 4, 3)
     pc.set_array(z)
+    pc.update_scalarmappable()
 
 
 def test_get_segments():
@@ -1161,7 +1333,7 @@ def test_check_masked_offsets():
     ax.scatter(unmasked_x, masked_y)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_masked_set_offsets(fig_ref, fig_test):
     x = np.ma.array([1, 2, 3, 4, 5], mask=[0, 0, 1, 1, 0])
     y = np.arange(1, 6)
@@ -1195,8 +1367,7 @@ def test_check_offsets_dtype():
 
 
 @pytest.mark.parametrize('gapcolor', ['orange', ['r', 'k']])
-@check_figures_equal(extensions=['png'])
-@mpl.rc_context({'lines.linewidth': 20})
+@check_figures_equal()
 def test_striped_lines(fig_test, fig_ref, gapcolor):
     ax_test = fig_test.add_subplot(111)
     ax_ref = fig_ref.add_subplot(111)
@@ -1208,11 +1379,162 @@ def test_striped_lines(fig_test, fig_ref, gapcolor):
     x = range(1, 6)
     linestyles = [':', '-', '--']
 
-    ax_test.vlines(x, 0, 1, linestyle=linestyles, gapcolor=gapcolor, alpha=0.5)
+    ax_test.vlines(x, 0, 1, linewidth=20, linestyle=linestyles, gapcolor=gapcolor,
+                   alpha=0.5)
 
     if isinstance(gapcolor, str):
         gapcolor = [gapcolor]
 
     for x, gcol, ls in zip(x, itertools.cycle(gapcolor),
                            itertools.cycle(linestyles)):
-        ax_ref.axvline(x, 0, 1, linestyle=ls, gapcolor=gcol, alpha=0.5)
+        ax_ref.axvline(x, 0, 1, linewidth=20, linestyle=ls, gapcolor=gcol, alpha=0.5)
+
+
+@check_figures_equal(extensions=['png', 'pdf', 'svg', 'eps'])
+def test_hatch_linewidth(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_ref = fig_ref.add_subplot()
+
+    lw = 2.0
+
+    polygons = [
+        [(0.1, 0.1), (0.1, 0.4), (0.4, 0.4), (0.4, 0.1)],
+        [(0.6, 0.6), (0.6, 0.9), (0.9, 0.9), (0.9, 0.6)],
+    ]
+    ref = PolyCollection(polygons, hatch="x")
+    ref.set_hatch_linewidth(lw)
+
+    with mpl.rc_context({"hatch.linewidth": lw}):
+        test = PolyCollection(polygons, hatch="x")
+
+    ax_ref.add_collection(ref)
+    ax_test.add_collection(test)
+
+    assert test.get_hatch_linewidth() == ref.get_hatch_linewidth() == lw
+
+
+def test_collection_hatchcolor_inherit_logic():
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+
+    edgecolors = ['purple', 'red', 'green', 'yellow']
+    hatchcolors = ['orange', 'cyan', 'blue', 'magenta']
+    with mpl.rc_context({'hatch.color': 'edge'}):
+        # edgecolor and hatchcolor is set
+        col = PathCollection([path], hatch='//',
+                              edgecolor=edgecolors, hatchcolor=hatchcolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+
+        # explicitly setting edgecolor and then hatchcolor
+        col = PathCollection([path], hatch='//')
+        col.set_edgecolor(edgecolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(edgecolors))
+        col.set_hatchcolor(hatchcolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+
+        # explicitly setting hatchcolor and then edgecolor
+        col = PathCollection([path], hatch='//')
+        col.set_hatchcolor(hatchcolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+        col.set_edgecolor(edgecolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+
+
+def test_collection_hatchcolor_fallback_logic():
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+
+    edgecolors = ['purple', 'red', 'green', 'yellow']
+    hatchcolors = ['orange', 'cyan', 'blue', 'magenta']
+
+    # hatchcolor parameter should take precedence over rcParam
+    # When edgecolor is not set
+    with mpl.rc_context({'hatch.color': 'green'}):
+        col = PathCollection([path], hatch='//', hatchcolor=hatchcolors)
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+    # When edgecolor is set
+    with mpl.rc_context({'hatch.color': 'green'}):
+        col = PathCollection([path], hatch='//',
+                             edgecolor=edgecolors, hatchcolor=hatchcolors)
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(hatchcolors))
+
+    # hatchcolor should not be overridden by edgecolor when
+    # hatchcolor parameter is not passed and hatch.color rcParam is set to a color
+    with mpl.rc_context({'hatch.color': 'green'}):
+        col = PathCollection([path], hatch='//')
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array('green'))
+        col.set_edgecolor(edgecolors)
+        assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array('green'))
+
+    # hatchcolor should match edgecolor when
+    # hatchcolor parameter is not passed and hatch.color rcParam is set to 'edge'
+    with mpl.rc_context({'hatch.color': 'edge'}):
+        col = PathCollection([path], hatch='//', edgecolor=edgecolors)
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(edgecolors))
+    # hatchcolor parameter is set to 'edge'
+    col = PathCollection([path], hatch='//', edgecolor=edgecolors, hatchcolor='edge')
+    assert_array_equal(col.get_hatchcolor(), mpl.colors.to_rgba_array(edgecolors))
+
+    # default hatchcolor should be used when hatchcolor parameter is not passed and
+    # hatch.color rcParam is set to 'edge' and edgecolor is not set
+    col = PathCollection([path], hatch='//')
+    assert_array_equal(col.get_hatchcolor(),
+                       mpl.colors.to_rgba_array(mpl.rcParams['patch.edgecolor']))
+
+
+@pytest.mark.parametrize('backend', ['agg', 'pdf', 'svg', 'ps'])
+def test_draw_path_collection_no_hatchcolor(backend):
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+
+    plt.switch_backend(backend)
+    fig, ax = plt.subplots()
+    renderer = fig._get_renderer()
+
+    col = PathCollection([path], hatch='//')
+    ax.add_collection(col)
+
+    gc = renderer.new_gc()
+    transform = mtransforms.IdentityTransform()
+    paths = col.get_paths()
+    transforms = col.get_transforms()
+    offsets = col.get_offsets()
+    offset_trf = col.get_offset_transform()
+    facecolors = col.get_facecolor()
+    edgecolors = col.get_edgecolor()
+    linewidths = col.get_linewidth()
+    linestyles = col.get_linestyle()
+    antialiaseds = col.get_antialiased()
+    urls = col.get_urls()
+    offset_position = "screen"
+
+    renderer.draw_path_collection(
+        gc, transform, paths, transforms, offsets, offset_trf,
+        facecolors, edgecolors, linewidths, linestyles,
+        antialiaseds, urls, offset_position
+    )
+
+
+def test_third_party_backend_hatchcolors_arg_fallback(monkeypatch):
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    renderer = canvas.get_renderer()
+
+    # monkeypatch the `draw_path_collection` method to simulate a third-party backend
+    # that does not support the `hatchcolors` argument.
+    def mock_draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                                  offsets, offset_trans, facecolors, edgecolors,
+                                  linewidths, linestyles, antialiaseds, urls,
+                                  offset_position):
+        pass
+
+    monkeypatch.setattr(renderer, 'draw_path_collection', mock_draw_path_collection)
+
+    # Create a PathCollection with hatch colors
+    from matplotlib.collections import PathCollection
+    path = mpath.Path.unit_rectangle()
+    coll = PathCollection([path], hatch='//', hatchcolor='red')
+
+    ax.add_collection(coll)
+
+    plt.draw()

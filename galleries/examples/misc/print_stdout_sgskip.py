@@ -1,7 +1,7 @@
 """
-============
-Print Stdout
-============
+=====================
+Print image to stdout
+=====================
 
 print png to standard out
 

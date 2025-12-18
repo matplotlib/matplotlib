@@ -16,12 +16,23 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
 from matplotlib.text import Text
-from matplotlib.transforms import Transform, TransformedPath, Bbox
+from matplotlib.transforms import Bbox, BboxBase, Transform, TransformedPath
 
 from collections.abc import Callable, Iterable, Sequence
-from typing import Any, IO, Literal, NamedTuple, TypeVar
+from typing import Any, IO, Literal, NamedTuple, TypeVar, overload
 from numpy.typing import ArrayLike
-from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
+from .typing import (
+    CapStyleType,
+    CloseEventType,
+    ColorType,
+    DrawEventType,
+    JoinStyleType,
+    KeyEventType,
+    LineStyleType,
+    MouseEventType,
+    PickEventType,
+    ResizeEventType,
+)
 
 def register_backend(
     format: str, backend: str | type[FigureCanvasBase], description: str | None = ...
@@ -63,6 +74,8 @@ class RendererBase:
         antialiaseds: bool | Sequence[bool],
         urls: str | Sequence[str],
         offset_position: Any,
+        *,
+        hatchcolors: ColorType | Sequence[ColorType] | None = None,
     ) -> None: ...
     def draw_quad_mesh(
         self,
@@ -76,13 +89,6 @@ class RendererBase:
         facecolors: Sequence[ColorType],
         antialiased: bool,
         edgecolors: Sequence[ColorType] | ColorType | None,
-    ): ...
-    def draw_gouraud_triangle(
-        self,
-        gc: GraphicsContextBase,
-        points: ArrayLike,
-        colors: ArrayLike,
-        transform: Transform,
     ) -> None: ...
     def draw_gouraud_triangles(
         self,
@@ -168,12 +174,13 @@ class GraphicsContextBase:
     def set_url(self, url: str | None) -> None: ...
     def set_gid(self, id: int | None) -> None: ...
     def set_snap(self, snap: bool | None) -> None: ...
-    def set_hatch(self, hatch: str) -> None: ...
+    def set_hatch(self, hatch: str | None) -> None: ...
     def get_hatch(self) -> str | None: ...
     def get_hatch_path(self, density: float = ...) -> Path: ...
     def get_hatch_color(self) -> ColorType: ...
     def set_hatch_color(self, hatch_color: ColorType) -> None: ...
     def get_hatch_linewidth(self) -> float: ...
+    def set_hatch_linewidth(self, hatch_linewidth: float) -> None: ...
     def get_sketch_params(self) -> tuple[float, float, float] | None: ...
     def set_sketch_params(
         self,
@@ -190,7 +197,7 @@ class TimerBase:
         callbacks: list[tuple[Callable, tuple, dict[str, Any]]] | None = ...,
     ) -> None: ...
     def __del__(self) -> None: ...
-    def start(self, interval: int | None = ...) -> None: ...
+    def start(self) -> None: ...
     def stop(self) -> None: ...
     @property
     def interval(self) -> int: ...
@@ -206,12 +213,10 @@ class TimerBase:
 class Event:
     name: str
     canvas: FigureCanvasBase
+    guiEvent: Any
     def __init__(
         self, name: str, canvas: FigureCanvasBase, guiEvent: Any | None = ...
     ) -> None: ...
-
-    @property
-    def guiEvent(self) -> Any: ...
 
 class DrawEvent(Event):
     renderer: RendererBase
@@ -227,12 +232,12 @@ class ResizeEvent(Event):
 class CloseEvent(Event): ...
 
 class LocationEvent(Event):
-    lastevent: Event | None
     x: int
     y: int
     inaxes: Axes | None
     xdata: float | None
     ydata: float | None
+    modifiers: frozenset[str]
     def __init__(
         self,
         name: str,
@@ -245,11 +250,11 @@ class LocationEvent(Event):
     ) -> None: ...
 
 class MouseButton(IntEnum):
-    LEFT: int
-    MIDDLE: int
-    RIGHT: int
-    BACK: int
-    FORWARD: int
+    LEFT = 1
+    MIDDLE = 2
+    RIGHT = 3
+    BACK = 8
+    FORWARD = 9
 
 class MouseEvent(LocationEvent):
     button: MouseButton | Literal["up", "down"] | None
@@ -268,6 +273,7 @@ class MouseEvent(LocationEvent):
         dblclick: bool = ...,
         guiEvent: Any | None = ...,
         *,
+        buttons: Iterable[MouseButton] | None = ...,
         modifiers: Iterable[str] | None = ...,
     ) -> None: ...
 
@@ -321,9 +327,9 @@ class FigureCanvasBase:
     @property
     def scroll_pick_id(self) -> int: ...
     @classmethod
-    def new_manager(cls, figure: Figure, num: int | str): ...
+    def new_manager(cls, figure: Figure, num: int | str) -> FigureManagerBase: ...
     def is_saving(self) -> bool: ...
-    def blit(self, bbox: Bbox | None = ...) -> None: ...
+    def blit(self, bbox: BboxBase | None = ...) -> None: ...
     def inaxes(self, xy: tuple[float, float]) -> Axes | None: ...
     def grab_mouse(self, ax: Axes) -> None: ...
     def release_mouse(self, ax: Axes) -> None: ...
@@ -351,19 +357,43 @@ class FigureCanvasBase:
         bbox_extra_artists: list[Artist] | None = ...,
         backend: str | None = ...,
         **kwargs
-    ): ...
+    ) -> Any: ...
     @classmethod
     def get_default_filetype(cls) -> str: ...
     def get_default_filename(self) -> str: ...
     _T = TypeVar("_T", bound=FigureCanvasBase)
-    def switch_backends(self, FigureCanvasClass: type[_T]) -> _T: ...
-    def mpl_connect(self, s: str, func: Callable[[Event], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(
+        self,
+        s: MouseEventType,
+        func: Callable[[MouseEvent], Any],
+    ) -> int: ...
+
+    @overload
+    def mpl_connect(
+        self,
+        s: KeyEventType,
+        func: Callable[[KeyEvent], Any],
+    ) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: PickEventType, func: Callable[[PickEvent], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: ResizeEventType, func: Callable[[ResizeEvent], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: CloseEventType, func: Callable[[CloseEvent], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
     def mpl_disconnect(self, cid: int) -> None: ...
     def new_timer(
         self,
         interval: int | None = ...,
         callbacks: list[tuple[Callable, tuple, dict[str, Any]]] | None = ...,
-    ): ...
+    ) -> TimerBase: ...
     def flush_events(self) -> None: ...
     def start_event_loop(self, timeout: float = ...) -> None: ...
     def stop_event_loop(self) -> None: ...
@@ -372,8 +402,13 @@ def key_press_handler(
     event: KeyEvent,
     canvas: FigureCanvasBase | None = ...,
     toolbar: NavigationToolbar2 | None = ...,
-): ...
+) -> None: ...
 def button_press_handler(
+    event: MouseEvent,
+    canvas: FigureCanvasBase | None = ...,
+    toolbar: NavigationToolbar2 | None = ...,
+) -> None: ...
+def scroll_handler(
     event: MouseEvent,
     canvas: FigureCanvasBase | None = ...,
     toolbar: NavigationToolbar2 | None = ...,
@@ -386,13 +421,14 @@ class FigureManagerBase:
     num: int | str
     key_press_handler_id: int | None
     button_press_handler_id: int | None
-    toolmanager: ToolManager
-    toolbar: NavigationToolbar2
+    scroll_handler_id: int | None
+    toolmanager: ToolManager | None
+    toolbar: NavigationToolbar2 | ToolContainerBase | None
     def __init__(self, canvas: FigureCanvasBase, num: int | str) -> None: ...
     @classmethod
     def create_with_canvas(
         cls, canvas_class: type[FigureCanvasBase], figure: Figure, num: int | str
-    ): ...
+    ) -> FigureManagerBase: ...
     @classmethod
     def start_main_loop(cls) -> None: ...
     @classmethod
@@ -407,12 +443,13 @@ class FigureManagerBase:
 cursors = Cursors
 
 class _Mode(str, Enum):
-    NONE: str
-    PAN: str
-    ZOOM: str
+    NONE = ""
+    PAN = "pan/zoom"
+    ZOOM = "zoom rect"
 
 class NavigationToolbar2:
     toolitems: tuple[tuple[str, ...] | tuple[None, ...], ...]
+    UNKNOWN_SAVED_STATUS: object
     canvas: FigureCanvasBase
     mode: _Mode
     def __init__(self, canvas: FigureCanvasBase) -> None: ...
@@ -429,7 +466,7 @@ class NavigationToolbar2:
 
     class _PanInfo(NamedTuple):
         button: MouseButton
-        axes: Axes
+        axes: list[Axes]
         cid: int
     def press_pan(self, event: Event) -> None: ...
     def drag_pan(self, event: Event) -> None: ...
@@ -437,9 +474,9 @@ class NavigationToolbar2:
     def zoom(self, *args) -> None: ...
 
     class _ZoomInfo(NamedTuple):
-        direction: Literal["in", "out"]
+        button: MouseButton
         start_xy: tuple[float, float]
-        axes: Axes
+        axes: list[Axes]
         cid: int
         cbar: Colorbar
     def press_zoom(self, event: Event) -> None: ...
@@ -447,8 +484,8 @@ class NavigationToolbar2:
     def release_zoom(self, event: Event) -> None: ...
     def push_current(self) -> None: ...
     subplot_tool: widgets.SubplotTool
-    def configure_subplots(self, *args): ...
-    def save_figure(self, *args) -> None: ...
+    def configure_subplots(self, *args: Any) -> widgets.SubplotTool: ...
+    def save_figure(self, *args) -> str | None | object: ...
     def update(self) -> None: ...
     def set_history_buttons(self) -> None: ...
 
@@ -476,9 +513,9 @@ class _Backend:
     FigureManager: type[FigureManagerBase]
     mainloop: None | Callable[[], Any]
     @classmethod
-    def new_figure_manager(cls, num: int | str, *args, **kwargs): ...
+    def new_figure_manager(cls, num: int | str, *args, **kwargs) -> FigureManagerBase: ...
     @classmethod
-    def new_figure_manager_given_figure(cls, num: int | str, figure: Figure): ...
+    def new_figure_manager_given_figure(cls, num: int | str, figure: Figure) -> FigureManagerBase: ...
     @classmethod
     def draw_if_interactive(cls) -> None: ...
     @classmethod
@@ -487,4 +524,4 @@ class _Backend:
     def export(cls) -> type[_Backend]: ...
 
 class ShowBase(_Backend):
-    def __call__(self, block: bool | None = ...): ...
+    def __call__(self, block: bool | None = ...) -> None: ...

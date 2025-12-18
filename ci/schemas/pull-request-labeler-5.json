@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json.schemastore.org/pull-request-labeler-5.json",
+  "$comment": "https://github.com/actions/labeler",
+  "$defs": {
+    "stringOrStringArray": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "match": {
+      "title": "Match",
+      "type": "object",
+      "properties": {
+        "changed-files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "any-glob-to-any-file": { "$ref": "#/$defs/stringOrStringArray" },
+              "any-glob-to-all-files": {
+                "$ref": "#/$defs/stringOrStringArray"
+              },
+              "all-globs-to-any-file": {
+                "$ref": "#/$defs/stringOrStringArray"
+              },
+              "all-globs-to-all-files": {
+                "$ref": "#/$defs/stringOrStringArray"
+              }
+            },
+            "oneOf": [
+              { "required": ["any-glob-to-any-file"] },
+              { "required": ["any-glob-to-all-files"] },
+              { "required": ["all-globs-to-any-file"] },
+              { "required": ["all-globs-to-all-files"] }
+            ],
+            "additionalProperties": false
+          }
+        },
+        "base-branch": { "$ref": "#/$defs/stringOrStringArray" },
+        "head-branch": { "$ref": "#/$defs/stringOrStringArray" }
+      },
+      "oneOf": [
+        { "required": ["changed-files"] },
+        { "required": ["base-branch"] },
+        { "required": ["head-branch"] }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": {
+    "title": "Label",
+    "type": "array",
+    "items": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "all": {
+              "title": "All",
+              "type": "array",
+              "items": { "$ref": "#/$defs/match" }
+            }
+          },
+          "additionalProperties": false,
+          "required": ["all"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "any": {
+              "title": "Any",
+              "type": "array",
+              "items": { "$ref": "#/$defs/match" }
+            }
+          },
+          "additionalProperties": false,
+          "required": ["any"]
+        },
+        { "$ref": "#/$defs/match" }
+      ]
+    }
+  },
+  "description": "A GitHub Action for automatically labelling pull requests.",
+  "title": "Pull Request Labeler",
+  "type": "object"
+}

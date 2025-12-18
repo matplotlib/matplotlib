@@ -4,7 +4,8 @@ Text alignment
 ==============
 
 Texts are aligned relative to their anchor point depending on the properties
-``horizontalalignment`` and ``verticalalignment``.
+``horizontalalignment`` (default: ``left``) and ``verticalalignment``
+(default: ``baseline``.)
 
 .. redirect-from:: /gallery/pyplots/text_layout
 

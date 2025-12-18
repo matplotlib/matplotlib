@@ -33,16 +33,15 @@ Changes for 0.98.x
   are given as a fraction of the font-size. Also, *scatteryoffsets*,
   *fancybox* and *columnspacing* are added as keyword parameters.
 
-        ================   ================
-        Deprecated         New
-        ================   ================
-        pad                borderpad
-        labelsep           labelspacing
-        handlelen          handlelength
-        handlestextsep     handletextpad
-        axespad            borderaxespad
-        ================   ================
-
+  ================   ================
+  Deprecated         New
+  ================   ================
+  pad                borderpad
+  labelsep           labelspacing
+  handlelen          handlelength
+  handlestextsep     handletextpad
+  axespad            borderaxespad
+  ================   ================
 
 * Removed the configobj and experimental traits rc support
 

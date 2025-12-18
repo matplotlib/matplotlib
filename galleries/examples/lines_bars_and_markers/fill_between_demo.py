@@ -1,7 +1,7 @@
 """
-==============================
-Filling the area between lines
-==============================
+===============================
+Fill the area between two lines
+===============================
 
 This example shows how to use `~.axes.Axes.fill_between` to color the area
 between two lines.
@@ -113,8 +113,8 @@ fig.tight_layout()
 # Selectively marking horizontal regions across the whole Axes
 # ------------------------------------------------------------
 # The same selection mechanism can be applied to fill the full vertical height
-# of the axes. To be independent of y-limits, we add a transform that
-# interprets the x-values in data coordinates and the y-values in axes
+# of the Axes. To be independent of y-limits, we add a transform that
+# interprets the x-values in data coordinates and the y-values in Axes
 # coordinates.
 #
 # The following example marks the regions in which the y-data are above a
@@ -139,3 +139,10 @@ ax.fill_between(x, 0, 1, where=y > threshold,
 #
 #    - `matplotlib.axes.Axes.fill_between` / `matplotlib.pyplot.fill_between`
 #    - `matplotlib.axes.Axes.get_xaxis_transform`
+#
+# .. tags::
+#
+#    styling: conditional
+#    plot-type: fill_between
+#    level: beginner
+#    purpose: showcase

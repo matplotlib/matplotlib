@@ -2,6 +2,7 @@
 ===================
 pcolormesh(X, Y, Z)
 ===================
+Create a pseudocolor plot with a non-regular rectangular grid.
 
 `~.axes.Axes.pcolormesh` is more flexible than `~.axes.Axes.imshow` in that
 the x and y vectors need not be equally spaced (indeed they can be skewed).

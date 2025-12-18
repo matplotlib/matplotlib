@@ -2,6 +2,7 @@
 =======================
 fill_between(x, y1, y2)
 =======================
+Fill the area between two horizontal curves.
 
 See `~matplotlib.axes.Axes.fill_between`.
 """

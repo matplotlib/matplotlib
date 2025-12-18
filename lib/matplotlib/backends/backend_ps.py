@@ -2,6 +2,7 @@
 A PostScript backend, which can produce both PostScript .ps and .eps.
 """
 
+import bisect
 import codecs
 import datetime
 from enum import Enum
@@ -9,23 +10,25 @@ import functools
 from io import StringIO
 import itertools
 import logging
+import math
 import os
 import pathlib
 import shutil
+import struct
 from tempfile import TemporaryDirectory
+import textwrap
 import time
 
+import fontTools
 import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api, cbook, _path, _text_helpers
-from matplotlib._afm import AFM
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
-from matplotlib.ft2font import LOAD_NO_SCALE, FT2Font
-from matplotlib._ttconv import convert_ttf_to_ps
+from matplotlib.ft2font import LoadFlags
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
@@ -36,20 +39,6 @@ from . import _backend_pdf_ps
 
 _log = logging.getLogger(__name__)
 debugPS = False
-
-
-@_api.deprecated("3.7")
-class PsBackendHelper:
-    def __init__(self):
-        self._cached = {}
-
-
-@_api.caching_module_getattr
-class __getattr__:
-    # module-level deprecations
-    ps_backend_helper = _api.deprecated("3.7", obj_type="")(
-        property(lambda self: PsBackendHelper()))
-    psDefs = _api.deprecated("3.8", obj_type="")(property(lambda self: _psDefs))
 
 
 papersize = {'letter': (8.5, 11),
@@ -77,15 +66,6 @@ papersize = {'letter': (8.5, 11),
              'b8': (2.51, 3.58),
              'b9': (1.76, 2.51),
              'b10': (1.26, 1.76)}
-
-
-def _get_papertype(w, h):
-    for key, (pw, ph) in sorted(papersize.items(), reverse=True):
-        if key.startswith('l'):
-            continue
-        if w < pw and h < ph:
-            return key
-    return 'a0'
 
 
 def _nums_to_str(*args, sep=" "):
@@ -167,7 +147,7 @@ FontName currentdict end definefont pop
 
     entries = []
     for glyph_id in glyph_ids:
-        g = font.load_glyph(glyph_id, LOAD_NO_SCALE)
+        g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
         v, c = font.get_path()
         entries.append(
             "/%(name)s{%(bbox)s sc\n" % {
@@ -205,26 +185,199 @@ def _font_to_ps_type42(font_path, chars, fh):
     subset_str = ''.join(chr(c) for c in chars)
     _log.debug("SUBSET %s characters: %s", font_path, subset_str)
     try:
-        fontdata = _backend_pdf_ps.get_glyphs_subset(font_path, subset_str)
-        _log.debug("SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
-                   fontdata.getbuffer().nbytes)
-
-        # Give ttconv a subsetted font along with updated glyph_ids.
-        font = FT2Font(fontdata)
-        glyph_ids = [font.get_char_index(c) for c in chars]
-        with TemporaryDirectory() as tmpdir:
-            tmpfile = os.path.join(tmpdir, "tmp.ttf")
-
-            with open(tmpfile, 'wb') as tmp:
-                tmp.write(fontdata.getvalue())
-
-            # TODO: allow convert_ttf_to_ps to input file objects (BytesIO)
-            convert_ttf_to_ps(os.fsencode(tmpfile), fh, 42, glyph_ids)
+        kw = {}
+        # fix this once we support loading more fonts from a collection
+        # https://github.com/matplotlib/matplotlib/issues/3135#issuecomment-571085541
+        if font_path.endswith('.ttc'):
+            kw['fontNumber'] = 0
+        with (fontTools.ttLib.TTFont(font_path, **kw) as font,
+              _backend_pdf_ps.get_glyphs_subset(font_path, subset_str) as subset):
+            fontdata = _backend_pdf_ps.font_as_file(subset).getvalue()
+            _log.debug(
+                "SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
+                len(fontdata)
+            )
+            fh.write(_serialize_type42(font, subset, fontdata))
     except RuntimeError:
         _log.warning(
-            "The PostScript backend does not currently "
-            "support the selected font.")
+            "The PostScript backend does not currently support the selected font (%s).",
+            font_path)
         raise
+
+
+def _serialize_type42(font, subset, fontdata):
+    """
+    Output a PostScript Type-42 format representation of font
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        The original font object
+    subset : fontTools.ttLib.ttFont.TTFont
+        The subset font object
+    fontdata : bytes
+        The raw font data in TTF format
+
+    Returns
+    -------
+    str
+        The Type-42 formatted font
+    """
+    version, breakpoints = _version_and_breakpoints(font.get('loca'), fontdata)
+    post = font['post']
+    name = font['name']
+    chars = _generate_charstrings(subset)
+    sfnts = _generate_sfnts(fontdata, subset, breakpoints)
+    return textwrap.dedent(f"""
+        %%!PS-TrueTypeFont-{version[0]}.{version[1]}-{font['head'].fontRevision:.7f}
+        10 dict begin
+        /FontType 42 def
+        /FontMatrix [1 0 0 1 0 0] def
+        /FontName /{name.getDebugName(6)} def
+        /FontInfo 7 dict dup begin
+        /FullName ({name.getDebugName(4)}) def
+        /FamilyName ({name.getDebugName(1)}) def
+        /Version ({name.getDebugName(5)}) def
+        /ItalicAngle {post.italicAngle} def
+        /isFixedPitch {'true' if post.isFixedPitch else 'false'} def
+        /UnderlinePosition {post.underlinePosition} def
+        /UnderlineThickness {post.underlineThickness} def
+        end readonly def
+        /Encoding StandardEncoding def
+        /FontBBox [{_nums_to_str(*_bounds(font))}] def
+        /PaintType 0 def
+        /CIDMap 0 def
+        {chars}
+        {sfnts}
+        FontName currentdict end definefont pop
+        """)
+
+
+def _version_and_breakpoints(loca, fontdata):
+    """
+    Read the version number of the font and determine sfnts breakpoints.
+
+    When a TrueType font file is written as a Type 42 font, it has to be
+    broken into substrings of at most 65535 bytes. These substrings must
+    begin at font table boundaries or glyph boundaries in the glyf table.
+    This function determines all possible breakpoints and it is the caller's
+    responsibility to do the splitting.
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    loca : fontTools.ttLib._l_o_c_a.table__l_o_c_a or None
+        The loca table of the font if available
+    fontdata : bytes
+        The raw data of the font
+
+    Returns
+    -------
+    version : tuple[int, int]
+        A 2-tuple of the major version number and minor version number.
+    breakpoints : list[int]
+        The breakpoints is a sorted list of offsets into fontdata; if loca is not
+        available, just the table boundaries.
+    """
+    v1, v2, numTables = struct.unpack('>3h', fontdata[:6])
+    version = (v1, v2)
+
+    tables = {}
+    for i in range(numTables):
+        tag, _, offset, _ = struct.unpack('>4sIII', fontdata[12 + i*16:12 + (i+1)*16])
+        tables[tag.decode('ascii')] = offset
+    if loca is not None:
+        glyf_breakpoints = {tables['glyf'] + offset for offset in loca.locations[:-1]}
+    else:
+        glyf_breakpoints = set()
+    breakpoints = sorted({*tables.values(), *glyf_breakpoints, len(fontdata)})
+
+    return version, breakpoints
+
+
+def _bounds(font):
+    """
+    Compute the font bounding box, as if all glyphs were written
+    at the same start position.
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        The font
+
+    Returns
+    -------
+    tuple
+        (xMin, yMin, xMax, yMax) of the combined bounding box
+        of all the glyphs in the font
+    """
+    gs = font.getGlyphSet(False)
+    pen = fontTools.pens.boundsPen.BoundsPen(gs)
+    for name in gs.keys():
+        gs[name].draw(pen)
+    return pen.bounds or (0, 0, 0, 0)
+
+
+def _generate_charstrings(font):
+    """
+    Transform font glyphs into CharStrings
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        The font
+
+    Returns
+    -------
+    str
+        A definition of the CharStrings dictionary in PostScript
+    """
+    go = font.getGlyphOrder()
+    s = f'/CharStrings {len(go)} dict dup begin\n'
+    for i, name in enumerate(go):
+        s += f'/{name} {i} def\n'
+    s += 'end readonly def'
+    return s
+
+
+def _generate_sfnts(fontdata, font, breakpoints):
+    """
+    Transform font data into PostScript sfnts format.
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    fontdata : bytes
+        The raw data of the font
+    font : fontTools.ttLib.ttFont.TTFont
+        The fontTools font object
+    breakpoints : list
+        Sorted offsets of possible breakpoints
+
+    Returns
+    -------
+    str
+        The sfnts array for the font definition, consisting
+        of hex-encoded strings in PostScript format
+    """
+    s = '/sfnts['
+    pos = 0
+    while pos < len(fontdata):
+        i = bisect.bisect_left(breakpoints, pos + 65534)
+        newpos = breakpoints[i-1]
+        if newpos <= pos:
+            # have to accept a larger string
+            newpos = breakpoints[-1]
+        s += f'<{fontdata[pos:newpos].hex()}00>'  # Always NUL terminate.
+        pos = newpos
+    s += ']def'
+    return '\n'.join(s[i:i+100] for i in range(0, len(s), 100))
 
 
 def _log_if_debug_on(meth):
@@ -253,7 +406,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     def __init__(self, width, height, pswriter, imagedpi=72):
         # Although postscript itself is dpi independent, we need to inform the
         # image code about a requested dpi to generate high resolution images
-        # and them scale them before embedding them.
+        # and then scale them before embedding them.
         super().__init__(width, height)
         self._pswriter = pswriter
         if mpl.rcParams['text.usetex']:
@@ -351,12 +504,11 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
                 self.fontname = fontname
                 self.fontsize = fontsize
 
-    def create_hatch(self, hatch):
+    def create_hatch(self, hatch, linewidth):
         sidelen = 72
         if hatch in self._hatches:
             return self._hatches[hatch]
         name = 'H%d' % len(self._hatches)
-        linewidth = mpl.rcParams['hatch.linewidth']
         pageheight = self.height * 72
         self._pswriter.write(f"""\
   << /PatternType 1
@@ -369,8 +521,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
      /PaintProc {{
         pop
         {linewidth:g} setlinewidth
-{self._convert_path(
-    Path.hatch(hatch), Affine2D().scale(sidelen), simplify=False)}
+{self._convert_path(Path.hatch(hatch), Affine2D().scale(sidelen), simplify=False)}
         gsave
         fill
         grestore
@@ -522,7 +673,9 @@ grestore
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
+                             offset_position, *, hatchcolors=None):
+        if hatchcolors is None:
+            hatchcolors = []
         # Is the optimization worth it? Rough calculation:
         # cost of emitting a path in-line is
         #     (len_path + 2) * uses_per_path
@@ -538,7 +691,7 @@ grestore
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
-                offset_position)
+                offset_position, hatchcolors=hatchcolors)
 
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
@@ -557,7 +710,7 @@ translate
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
             ps = f"{xo:g} {yo:g} {path_id}"
             self._draw_ps(ps, gc0, rgbFace)
 
@@ -588,8 +741,10 @@ translate
         s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
 
-        # Stick to the bottom alignment.
-        pos = _nums_to_str(x, y-bl)
+        # Stick to bottom-left alignment, so subtract descent from the text-normal
+        # direction since text is normally positioned by its baseline.
+        rangle = np.radians(angle + 90)
+        pos = _nums_to_str(x - bl * np.cos(rangle), y - bl * np.sin(rangle))
         self.psfrag.append(
             r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}' % (
                 thetext, angle, fontsize, fontsize*1.25, tex))
@@ -631,7 +786,7 @@ grestore
                     width = font.get_width_from_char_name(name)
                 except KeyError:
                     name = 'question'
-                    width = font.get_width_char('?')
+                    width = font.get_width_char(ord('?'))
                 kern = font.get_kern_dist_from_name(last_name, name)
                 last_name = name
                 thisx += kern * scale
@@ -679,20 +834,13 @@ grestore
                 lastfont = font.postscript_name, fontsize
                 self._pswriter.write(
                     f"/{font.postscript_name} {fontsize} selectfont\n")
-            glyph_name = (
-                font.get_name_char(chr(num)) if isinstance(font, AFM) else
-                font.get_glyph_name(font.get_char_index(num)))
+            glyph_name = font.get_glyph_name(font.get_char_index(num))
             self._pswriter.write(
                 f"{ox:g} {oy:g} moveto\n"
                 f"/{glyph_name} glyphshow\n")
         for ox, oy, w, h in rects:
             self._pswriter.write(f"{ox} {oy} {w} {h} rectfill\n")
         self._pswriter.write("grestore\n")
-
-    @_log_if_debug_on
-    def draw_gouraud_triangle(self, gc, points, colors, trans):
-        self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
-                                    colors.reshape((1, 3, 4)), trans)
 
     @_log_if_debug_on
     def draw_gouraud_triangles(self, gc, points, colors, trans):
@@ -783,7 +931,7 @@ grestore
                 write("grestore\n")
 
         if hatch:
-            hatch_name = self.create_hatch(hatch)
+            hatch_name = self.create_hatch(hatch, gc.get_hatch_linewidth())
             write("gsave\n")
             write(_nums_to_str(*gc.get_hatch_color()[:3]))
             write(f" {hatch_name} setpattern fill grestore\n")
@@ -839,7 +987,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
-        _api.check_in_list(['auto', *papersize], papertype=papertype)
+        _api.check_in_list(['figure', *papersize], papertype=papertype)
 
         orientation = _api.check_getitem(
             _Orientation, orientation=orientation.lower())
@@ -869,19 +1017,11 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
-        if papertype == 'auto':
-            papertype = _get_papertype(
-                *orientation.swap_if_landscape((width, height)))
-        paper_width, paper_height = orientation.swap_if_landscape(
-            papersize[papertype])
-
-        if mpl.rcParams['ps.usedistiller']:
-            # distillers improperly clip eps files if pagesize is too small
-            if width > paper_width or height > paper_height:
-                papertype = _get_papertype(
-                    *orientation.swap_if_landscape((width, height)))
-                paper_width, paper_height = orientation.swap_if_landscape(
-                    papersize[papertype])
+        if is_eps or papertype == 'figure':
+            paper_width, paper_height = width, height
+        else:
+            paper_width, paper_height = orientation.swap_if_landscape(
+                papersize[papertype])
 
         # center the figure on the paper
         xo = 72 * 0.5 * (paper_width - width)
@@ -913,14 +1053,14 @@ class FigureCanvasPS(FigureCanvasBase):
             if is_eps:
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else:
-                print(f"%!PS-Adobe-3.0\n"
-                      f"%%DocumentPaperSizes: {papertype}\n"
-                      f"%%Pages: 1\n",
-                      end="", file=fh)
+                print("%!PS-Adobe-3.0", file=fh)
+                if papertype != 'figure':
+                    print(f"%%DocumentPaperSizes: {papertype}", file=fh)
+                print("%%Pages: 1", file=fh)
             print(f"%%LanguageLevel: 3\n"
                   f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
-                  f"{get_bbox_header(bbox)[0]}\n"
+                  f"{_get_bbox_header(bbox)}\n"
                   f"%%EndComments\n",
                   end="", file=fh)
 
@@ -1029,7 +1169,7 @@ class FigureCanvasPS(FigureCanvasBase):
 %!PS-Adobe-3.0 EPSF-3.0
 %%LanguageLevel: 3
 {dsc_comments}
-{get_bbox_header(bbox)[0]}
+{_get_bbox_header(bbox)}
 %%EndComments
 %%BeginProlog
 /mpldict {len(_psDefs)} dict def
@@ -1053,12 +1193,10 @@ showpage
             # set the paper size to the figure size if is_eps. The
             # resulting ps file has the given size with correct bounding
             # box so that there is no need to call 'pstoeps'
-            if is_eps:
+            if is_eps or papertype == 'figure':
                 paper_width, paper_height = orientation.swap_if_landscape(
                     self.figure.get_size_inches())
             else:
-                if papertype == 'auto':
-                    papertype = _get_papertype(width, height)
                 paper_width, paper_height = papersize[papertype]
 
             psfrag_rotated = _convert_psfrags(
@@ -1149,9 +1287,14 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     """
 
     if eps:
-        paper_option = "-dEPSCrop"
+        paper_option = ["-dEPSCrop"]
+    elif ptype == "figure":
+        # The bbox will have its lower-left corner at (0, 0), so upper-right
+        # corner corresponds with paper size.
+        paper_option = [f"-dDEVICEWIDTHPOINTS={bbox[2]}",
+                        f"-dDEVICEHEIGHTPOINTS={bbox[3]}"]
     else:
-        paper_option = "-sPAPERSIZE=%s" % ptype
+        paper_option = [f"-sPAPERSIZE={ptype}"]
 
     psfile = tmpfile + '.ps'
     dpi = mpl.rcParams['ps.distiller.res']
@@ -1159,7 +1302,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     cbook._check_and_log_subprocess(
         [mpl._get_executable_info("gs").executable,
          "-dBATCH", "-dNOPAUSE", "-r%d" % dpi, "-sDEVICE=ps2write",
-         paper_option, "-sOutputFile=%s" % psfile, tmpfile],
+         *paper_option, f"-sOutputFile={psfile}", tmpfile],
         _log)
 
     os.remove(tmpfile)
@@ -1185,6 +1328,16 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     mpl._get_executable_info("gs")  # Effectively checks for ps2pdf.
     mpl._get_executable_info("pdftops")
 
+    if eps:
+        paper_option = ["-dEPSCrop"]
+    elif ptype == "figure":
+        # The bbox will have its lower-left corner at (0, 0), so upper-right
+        # corner corresponds with paper size.
+        paper_option = [f"-dDEVICEWIDTHPOINTS#{bbox[2]}",
+                        f"-dDEVICEHEIGHTPOINTS#{bbox[3]}"]
+    else:
+        paper_option = [f"-sPAPERSIZE#{ptype}"]
+
     with TemporaryDirectory() as tmpdir:
         tmppdf = pathlib.Path(tmpdir, "tmp.pdf")
         tmpps = pathlib.Path(tmpdir, "tmp.ps")
@@ -1197,7 +1350,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
              "-sAutoRotatePages#None",
              "-sGrayImageFilter#FlateEncode",
              "-sColorImageFilter#FlateEncode",
-             "-dEPSCrop" if eps else "-sPAPERSIZE#%s" % ptype,
+             *paper_option,
              tmpfile, tmppdf], _log)
         cbook._check_and_log_subprocess(
             ["pdftops", "-paper", "match", "-level3", tmppdf, tmpps], _log)
@@ -1206,21 +1359,17 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         pstoeps(tmpfile)
 
 
-def get_bbox_header(lbrt, rotated=False):
-    """
-    Return a postscript header string for the given bbox lbrt=(l, b, r, t).
-    Optionally, return rotate command.
-    """
-
+def _get_bbox_header(lbrt):
+    """Return a PostScript header string for bounding box *lbrt*=(l, b, r, t)."""
     l, b, r, t = lbrt
-    if rotated:
-        rotate = f"{l+r:.2f} {0:.2f} translate\n90 rotate"
-    else:
-        rotate = ""
-    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))
-    hires_bbox_info = f'%%HiResBoundingBox: {l:.6f} {b:.6f} {r:.6f} {t:.6f}'
+    return (f"%%BoundingBox: {int(l)} {int(b)} {math.ceil(r)} {math.ceil(t)}\n"
+            f"%%HiResBoundingBox: {l:.6f} {b:.6f} {r:.6f} {t:.6f}")
 
-    return '\n'.join([bbox_info, hires_bbox_info]), rotate
+
+def _get_rotate_command(lbrt):
+    """Return a PostScript 90° rotation command for bounding box *lbrt*=(l, b, r, t)."""
+    l, b, r, t = lbrt
+    return f"{l+r:.2f} {0:.2f} translate\n90 rotate"
 
 
 def pstoeps(tmpfile, bbox=None, rotated=False):
@@ -1230,12 +1379,6 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
     None, original bbox will be used.
     """
 
-    # if rotated==True, the output eps file need to be rotated
-    if bbox:
-        bbox_info, rotate = get_bbox_header(bbox, rotated=rotated)
-    else:
-        bbox_info, rotate = None, None
-
     epsfile = tmpfile + '.eps'
     with open(epsfile, 'wb') as epsh, open(tmpfile, 'rb') as tmph:
         write = epsh.write
@@ -1244,7 +1387,7 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
             if line.startswith(b'%!PS'):
                 write(b"%!PS-Adobe-3.0 EPSF-3.0\n")
                 if bbox:
-                    write(bbox_info.encode('ascii') + b'\n')
+                    write(_get_bbox_header(bbox).encode('ascii') + b'\n')
             elif line.startswith(b'%%EndComments'):
                 write(line)
                 write(b'%%BeginProlog\n'
@@ -1256,8 +1399,8 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
                       b'/setpagedevice {pop} def\n'
                       b'%%EndProlog\n'
                       b'%%Page 1 1\n')
-                if rotate:
-                    write(rotate.encode('ascii') + b'\n')
+                if rotated:  # The output eps file need to be rotated.
+                    write(_get_rotate_command(bbox).encode('ascii') + b'\n')
                 break
             elif bbox and line.startswith((b'%%Bound', b'%%HiResBound',
                                            b'%%DocumentMedia', b'%%Pages')):

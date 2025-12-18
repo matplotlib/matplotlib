@@ -3,7 +3,6 @@ import decimal
 import io
 import os
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pytest
@@ -14,10 +13,10 @@ from matplotlib import (
 )
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
-from matplotlib.font_manager import findfont, FontProperties
-from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
+from matplotlib.backends._backend_pdf_ps import get_glyphs_subset, font_as_file
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.patches import Rectangle
+from matplotlib.testing import _gen_multi_font_text, _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
 
@@ -40,22 +39,6 @@ and containing some French characters and the euro symbol:
             verticalalignment='bottom',
             fontsize=14)
     ax.axhline(0.5, linewidth=0.5)
-
-
-@pytest.mark.parametrize('fontname, fontfile', [
-    ('DejaVu Sans', 'DejaVuSans.ttf'),
-    ('WenQuanYi Zen Hei', 'wqy-zenhei.ttc'),
-])
-@pytest.mark.parametrize('fonttype', [3, 42])
-def test_embed_fonts(fontname, fontfile, fonttype):
-    if Path(findfont(FontProperties(family=[fontname]))).name != fontfile:
-        pytest.skip(f'Font {fontname!r} may be missing')
-
-    rcParams['pdf.fonttype'] = fonttype
-    fig, ax = plt.subplots()
-    ax.plot([1, 2, 3])
-    ax.set_title('Axes Title', font=fontname)
-    fig.savefig(io.BytesIO(), format='pdf')
 
 
 def test_multipage_pagecount():
@@ -81,35 +64,18 @@ def test_multipage_properfinalize():
     assert len(s) < 40000
 
 
-def test_multipage_keep_empty():
-    # test empty pdf files
-    # test that an empty pdf is left behind with keep_empty=True (default)
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp) as pdf:
-            filename = pdf._file.fh.name
-        assert os.path.exists(filename)
-    os.remove(filename)
-    # test if an empty pdf is deleting itself afterwards with keep_empty=False
-    with PdfPages(filename, keep_empty=False) as pdf:
+def test_multipage_keep_empty(tmp_path):
+    # An empty pdf deletes itself afterwards.
+    fn = tmp_path / "a.pdf"
+    with PdfPages(fn) as pdf:
         pass
-    assert not os.path.exists(filename)
-    # test pdf files with content, they should never be deleted
-    fig, ax = plt.subplots()
-    ax.plot([1, 2, 3])
-    # test that a non-empty pdf is left behind with keep_empty=True (default)
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp) as pdf:
-            filename = pdf._file.fh.name
-            pdf.savefig()
-        assert os.path.exists(filename)
-    os.remove(filename)
-    # test that a non-empty pdf is left behind with keep_empty=False
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp, keep_empty=False) as pdf:
-            filename = pdf._file.fh.name
-            pdf.savefig()
-        assert os.path.exists(filename)
-    os.remove(filename)
+    assert not fn.exists()
+
+    # Test pdf files with content, they should never be deleted.
+    fn = tmp_path / "b.pdf"
+    with PdfPages(fn) as pdf:
+        pdf.savefig(plt.figure())
+    assert fn.exists()
 
 
 def test_composite_image():
@@ -330,14 +296,16 @@ def test_pdfpages_fspath():
         pdf.savefig(plt.figure())
 
 
-@image_comparison(['hatching_legend.pdf'])
-def test_hatching_legend():
+@image_comparison(['hatching_legend.pdf'], style='mpl20')
+def test_hatching_legend(text_placeholders):
     """Test for correct hatching on patches in legend"""
     fig = plt.figure(figsize=(1, 2))
 
     a = Rectangle([0, 0], 0, 0, facecolor="green", hatch="XXXX")
     b = Rectangle([0, 0], 0, 0, facecolor="blue", hatch="XXXX")
 
+    # Verify that hatches in PDFs work after empty labels. See
+    # https://github.com/matplotlib/matplotlib/issues/4469
     fig.legend([a, b, a, b], ["", "", "", ""])
 
 
@@ -395,7 +363,8 @@ def test_glyphs_subset():
     nosubfont.set_text(chars)
 
     # subsetted FT2Font
-    subfont = FT2Font(get_glyphs_subset(fpath, chars))
+    with get_glyphs_subset(fpath, chars) as subset:
+        subfont = FT2Font(font_as_file(subset))
     subfont.set_text(chars)
 
     nosubcmap = nosubfont.get_charmap()
@@ -411,27 +380,101 @@ def test_glyphs_subset():
     assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
 
 
-@image_comparison(["multi_font_type3.pdf"], tol=4.6)
+@image_comparison(["multi_font_type3.pdf"])
 def test_multi_font_type3():
-    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
-        pytest.skip("Font may be missing")
-
-    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    fonts, test_str = _gen_multi_font_text()
+    plt.rc('font', family=fonts, size=16)
     plt.rc('pdf', fonttype=3)
 
     fig = plt.figure()
-    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+    fig.text(0.5, 0.5, test_str,
+             horizontalalignment='center', verticalalignment='center')
 
 
-@image_comparison(["multi_font_type42.pdf"], tol=2.2)
+@image_comparison(["multi_font_type42.pdf"])
 def test_multi_font_type42():
-    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
-        pytest.skip("Font may be missing")
-
-    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    fonts, test_str = _gen_multi_font_text()
+    plt.rc('font', family=fonts, size=16)
     plt.rc('pdf', fonttype=42)
 
     fig = plt.figure()
-    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+    fig.text(0.5, 0.5, test_str,
+             horizontalalignment='center', verticalalignment='center')
+
+
+@pytest.mark.parametrize('family_name, file_name',
+                         [("Noto Sans", "NotoSans-Regular.otf"),
+                          ("FreeMono", "FreeMono.otf")])
+def test_otf_font_smoke(family_name, file_name):
+    # checks that there's no segfault
+    fp = fm.FontProperties(family=[family_name])
+    if Path(fm.findfont(fp)).name != file_name:
+        pytest.skip(f"Font {family_name} may be missing")
+
+    plt.rc('font', family=[family_name], size=27)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "Привет мир!")
+    fig.savefig(io.BytesIO(), format="pdf")
+
+
+@image_comparison(["truetype-conversion.pdf"])
+# mpltest.ttf does not have "l"/"p" glyphs so we get a warning when trying to
+# get the font extents.
+def test_truetype_conversion(recwarn):
+    mpl.rcParams['pdf.fonttype'] = 3
+    fig, ax = plt.subplots()
+    ax.text(0, 0, "ABCDE",
+            font=Path(__file__).parent / "data/mpltest.ttf", fontsize=80)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+
+@pytest.mark.skipif(not _has_tex_package("heuristica"),
+                    reason="LaTeX lacks heuristica package")
+@image_comparison(["font-heuristica.pdf"])
+def test_font_heuristica():
+    # Heuristica uses the callothersubr operator for some glyphs
+    mpl.rcParams['text.latex.preamble'] = '\n'.join((
+        r'\usepackage{heuristica}',
+        r'\usepackage[T1]{fontenc}',
+        r'\usepackage[utf8]{inputenc}'
+    ))
+    fig, ax = plt.subplots()
+    ax.text(0.1, 0.1, r"BHTem fi ffl 1234", usetex=True, fontsize=50)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+
+@pytest.mark.skipif(not _has_tex_package("DejaVuSans"),
+                    reason="LaTeX lacks DejaVuSans package")
+@image_comparison(["font-dejavusans.pdf"])
+def test_font_dejavusans():
+    # DejaVuSans uses the seac operator to compose characters with diacritics
+    mpl.rcParams['text.latex.preamble'] = '\n'.join((
+        r'\usepackage{DejaVuSans}',
+        r'\usepackage[T1]{fontenc}',
+        r'\usepackage[utf8]{inputenc}'
+    ))
+
+    fig, ax = plt.subplots()
+    ax.text(0.1, 0.1, r"\textsf{ñäö ABCDabcd}", usetex=True, fontsize=50)
+    ax.text(0.1, 0.3, r"\textsf{fi ffl 1234}", usetex=True, fontsize=50)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+
+@pytest.mark.skipif(not _has_tex_package("charter"),
+                    reason="LaTeX lacks charter package")
+@image_comparison(["font-bitstream-charter.pdf"])
+def test_font_bitstream_charter():
+    mpl.rcParams['text.latex.preamble'] = '\n'.join((
+        r'\usepackage{charter}',
+        r'\usepackage[T1]{fontenc}',
+        r'\usepackage[utf8]{inputenc}'
+    ))
+    fig, ax = plt.subplots()
+    ax.text(0.1, 0.1, r"åüš ABCDabcd", usetex=True, fontsize=50)
+    ax.text(0.1, 0.3, r"fi ffl 1234", usetex=True, fontsize=50)
+    ax.set_xticks([])
+    ax.set_yticks([])

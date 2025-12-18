@@ -5,8 +5,8 @@ a gridspec.
 
 Each box is defined by left[ncols], right[ncols], bottom[nrows] and top[nrows],
 and by two editable margins for each side.  The main margin gets its value
-set by the size of ticklabels, titles, etc on each axes that is in the figure.
-The outer margin is the padding around the axes, and space for any
+set by the size of ticklabels, titles, etc on each Axes that is in the figure.
+The outer margin is the padding around the Axes, and space for any
 colorbars.
 
 The "inner" widths and heights of these boxes are then constrained to be the

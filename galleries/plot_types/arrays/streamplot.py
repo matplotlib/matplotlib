@@ -2,6 +2,7 @@
 ======================
 streamplot(X, Y, U, V)
 ======================
+Draw streamlines of a vector flow.
 
 See `~matplotlib.axes.Axes.streamplot`.
 """

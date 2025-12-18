@@ -1,7 +1,7 @@
 """
-=========================================
-Creating a colormap from a list of colors
-=========================================
+=======================================
+Create a colormap from a list of colors
+=======================================
 
 For more detail on creating and manipulating colormaps see
 :ref:`colormap-manipulation`.
@@ -279,4 +279,10 @@ plt.show()
 #    - `matplotlib.colors.LinearSegmentedColormap.from_list`
 #    - `matplotlib.cm`
 #    - `matplotlib.cm.ScalarMappable.set_cmap`
-#    - `matplotlib.cm.register_cmap`
+#    - `matplotlib.cm.ColormapRegistry.register`
+#
+# .. tags::
+#
+#    styling: colormap
+#    plot-type: imshow
+#    level: intermediate

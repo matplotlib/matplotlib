@@ -1,5 +1,5 @@
 ---
-# BasedOnStyle:  LLVM
+# BasedOnStyle: LLVM
 AccessModifierOffset: -2
 ConstructorInitializerIndentWidth: 4
 AlignEscapedNewlinesLeft: false
@@ -13,7 +13,7 @@ BreakBeforeBinaryOperators: false
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
 BinPackParameters: false
-ColumnLimit:     100
+ColumnLimit: 100
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 DerivePointerBinding: false
 ExperimentalAutoDetectBinPacking: false
@@ -30,14 +30,14 @@ PenaltyReturnTypeOnItsOwnLine: 60
 PointerBindsToType: false
 SpacesBeforeTrailingComments: 1
 Cpp11BracedListStyle: false
-Standard:        Cpp03
-IndentWidth:     4
-TabWidth:        8
-UseTab:          Never
+Standard: Cpp03
+IndentWidth: 4
+TabWidth: 8
+UseTab: Never
 BreakBeforeBraces: Linux
 IndentFunctionDeclarationAfterType: false
 SpacesInParentheses: false
-SpacesInAngles:  false
+SpacesInAngles: false
 SpaceInEmptyParentheses: false
 SpacesInCStyleCastParentheses: false
 SpaceAfterControlStatementKeyword: true

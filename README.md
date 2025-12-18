@@ -2,6 +2,7 @@
 [![Conda](https://img.shields.io/conda/vn/conda-forge/matplotlib)](https://anaconda.org/conda-forge/matplotlib)
 [![Downloads](https://img.shields.io/pypi/dm/matplotlib)](https://pypi.org/project/matplotlib)
 [![NUMFocus](https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A)](https://numfocus.org)
+[![LFX Health Score](https://insights.linuxfoundation.org/api/badge/health-score?project=matplotlib)](https://insights.linuxfoundation.org/project/matplotlib)
 
 [![Discourse help forum](https://img.shields.io/badge/help_forum-discourse-blue.svg)](https://discourse.matplotlib.org)
 [![Gitter](https://badges.gitter.im/matplotlib/matplotlib.svg)](https://gitter.im/matplotlib/matplotlib)
@@ -12,15 +13,16 @@
 [![Azure pipelines status](https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=main)](https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=main)
 [![AppVeyor status](https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=main&svg=true)](https://ci.appveyor.com/project/matplotlib/matplotlib)
 [![Codecov status](https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=main&service=github)](https://app.codecov.io/gh/matplotlib/matplotlib)
+[![EffVer Versioning](https://img.shields.io/badge/version_scheme-EffVer-0097a7)](https://jacobtomlinson.dev/effver)
 
-![Matplotlib logotype](https://matplotlib.org/_static/logo2.svg)
+![Matplotlib logotype](https://matplotlib.org/stable/_static/logo2.svg)
 
 Matplotlib is a comprehensive library for creating static, animated, and
 interactive visualizations in Python.
 
 Check out our [home page](https://matplotlib.org/) for more information.
 
-![image](https://matplotlib.org/_static/readme_preview.png)
+![image](https://matplotlib.org/stable/_static/readme_preview.png)
 
 Matplotlib produces publication-quality figures in a variety of hardcopy
 formats and interactive environments across platforms. Matplotlib can be
@@ -31,7 +33,7 @@ and various graphical user interface toolkits.
 
 See the [install
 documentation](https://matplotlib.org/stable/users/installing/index.html),
-which is generated from `/doc/users/installing/index.rst`
+which is generated from `/doc/install/index.rst`
 
 ## Contribute
 
@@ -42,7 +44,7 @@ You've worked out a way to fix it — even better!
 You want to tell us about it — best of all!
 
 Start at the [contributing
-guide](https://matplotlib.org/devdocs/devel/contributing.html)!
+guide](https://matplotlib.org/devdocs/devel/contribute.html)!
 
 ## Contact
 
