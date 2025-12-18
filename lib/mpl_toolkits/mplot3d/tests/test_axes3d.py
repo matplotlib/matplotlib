@@ -8,7 +8,7 @@ import pytest
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from mpl_toolkits.mplot3d.axes3d import _Quaternion as Quaternion
 import matplotlib as mpl
-from matplotlib.backend_bastest_scatter3d_linewidthes import (MouseButton, MouseEvent,
+from matplotlib.backend_bases import (MouseButton, MouseEvent,
                                       NavigationToolbar2)
 from matplotlib import cm
 from matplotlib import colors as mcolors, patches as mpatch
