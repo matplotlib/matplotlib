@@ -2030,7 +2030,7 @@ class MultiCursor(Widget):
 
     def __init__(self, *args, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
-        # Deprecation of canvas as the first attribute. When the deprecation exprires:
+        # Deprecation of canvas as the first attribute. When the deprecation expires:
         # - change the signature to __init__(self, axes, *, ...)
         # - delete the "Call signatures" block in the docstring
         # - delete this block
