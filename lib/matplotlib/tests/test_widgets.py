@@ -3,6 +3,7 @@ import io
 import operator
 from unittest import mock
 
+import matplotlib as mpl
 from matplotlib.backend_bases import DrawEvent, KeyEvent, MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
@@ -1689,15 +1690,22 @@ def test_polygon_selector_clear_method(ax):
 
 @pytest.mark.parametrize("horizOn", [False, True])
 @pytest.mark.parametrize("vertOn", [False, True])
-def test_MultiCursor(horizOn, vertOn):
+@pytest.mark.parametrize("with_deprecated_canvas", [False, True])
+def test_MultiCursor(horizOn, vertOn, with_deprecated_canvas):
     fig = plt.figure()
     (ax1, ax3) = fig.subplots(2, sharex=True)
     ax2 = plt.figure().subplots()
 
-    # useblit=false to avoid having to draw the figure to cache the renderer
-    multi = widgets.MultiCursor(
-        None, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
-    )
+    if with_deprecated_canvas:
+        with pytest.warns(mpl.MatplotlibDeprecationWarning, match=r"canvas.*deprecat"):
+            multi = widgets.MultiCursor(
+                None, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
+            )
+    else:
+        # useblit=false to avoid having to draw the figure to cache the renderer
+        multi = widgets.MultiCursor(
+            (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
+        )
 
     # Only two of the axes should have a line drawn on them.
     assert len(multi.vlines) == 2
