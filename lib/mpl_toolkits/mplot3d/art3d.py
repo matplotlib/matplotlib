@@ -1072,6 +1072,7 @@ class Path3DCollection(PathCollection):
                 color_array,
                 self._vzs,
                 min_alpha=self._depthshade_minalpha,
+                _data_scale=self._data_scale,
             )
             if alpha is not None and color_array.shape[1] == 4:
                 color_array[:, 3] = alpha * color_array[:, 3]
