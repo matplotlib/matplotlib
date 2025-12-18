@@ -2580,6 +2580,13 @@ def test_hist_zorder(histtype, zorder):
         assert patch.get_zorder() == zorder
 
 
+def test_hist_single_color_multiple_datasets():
+    # Test a single color for multiple datasets
+    # https://github.com/matplotlib/matplotlib/issues/30857
+    data = [[0, 1, 2], [3, 4, 5]]
+    plt.hist(data, color='k')
+
+
 def test_stairs_no_baseline_fill_warns():
     fig, ax = plt.subplots()
     with pytest.warns(UserWarning, match="baseline=None and fill=True"):
