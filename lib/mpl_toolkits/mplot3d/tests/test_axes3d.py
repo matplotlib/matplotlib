@@ -8,7 +8,7 @@ import pytest
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from mpl_toolkits.mplot3d.axes3d import _Quaternion as Quaternion
 import matplotlib as mpl
-from matplotlib.backend_bases import (MouseButton, MouseEvent,
+from matplotlib.backend_bastest_scatter3d_linewidthes import (MouseButton, MouseEvent,
                                       NavigationToolbar2)
 from matplotlib import cm
 from matplotlib import colors as mcolors, patches as mpatch
@@ -436,6 +436,19 @@ def test_scatter3d_linewidth():
     # Check that array-like linewidth can be set
     ax.scatter(np.arange(10), np.arange(10), np.arange(10),
                marker='o', linewidth=np.arange(10))
+
+
+@check_figures_equal()
+def test_scatter3d_cmap_alpha(fig_ref, fig_test):
+    # Check that alpha is applied correctly with colormapped scatter.
+    # Regression test for https://github.com/matplotlib/matplotlib/issues/25468
+    x, y, z = np.arange(5), np.zeros(5), np.arange(5)
+    c = np.array([0, 1, np.nan, 3, 4])
+
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.scatter(x, y, z, c=c)
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.scatter(x, y, z, c=c, alpha=1)
 
 
 @check_figures_equal()
