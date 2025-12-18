@@ -816,8 +816,8 @@ class Patch3DCollection(PatchCollection):
                 self._vzs,
                 min_alpha=self._depthshade_minalpha,
             )
-            if alpha is not None and color_array.shape[1] == 4:
-                color_array[:, 3] = alpha * color_array[:, 3]
+            if alpha is not None and color_array.shape[1] == 4:  # RGBA, not RGB
+                alpha = alpha * color_array[:, 3]
 
         # Adjust the order of the color_array using the _z_markers_idx,
         # which has been sorted by z-depth
@@ -1074,8 +1074,8 @@ class Path3DCollection(PathCollection):
                 min_alpha=self._depthshade_minalpha,
                 _data_scale=self._data_scale,
             )
-            if alpha is not None and color_array.shape[1] == 4:
-                color_array[:, 3] = alpha * color_array[:, 3]
+            if alpha is not None and color_array.shape[1] == 4:  # RGBA, not RGB
+                alpha = alpha * color_array[:, 3]
 
         # Adjust the order of the color_array using the _z_markers_idx,
         # which has been sorted by z-depth
