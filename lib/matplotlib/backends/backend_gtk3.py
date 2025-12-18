@@ -591,6 +591,17 @@ class FigureManagerGTK3(_FigureManagerGTK):
     _toolbar2_class = NavigationToolbar2GTK3
     _toolmanager_toolbar_class = ToolbarGTK3
 
+    def context_menu(self, event, labels=None, actions=None):
+        if labels is None or actions is None:
+            return
+        menu = Gtk.Menu()
+        for label, action in zip(labels, actions):
+            item = Gtk.MenuItem(label=label)
+            menu.append(item)
+            item.connect('activate', lambda _, a=action: a())
+            item.show()
+        menu.popup_at_pointer(event.guiEvent)
+
 
 @_BackendGTK.export
 class _BackendGTK3(_BackendGTK):

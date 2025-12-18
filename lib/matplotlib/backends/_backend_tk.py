@@ -646,6 +646,14 @@ class FigureManagerTk(FigureManagerBase):
         is_fullscreen = bool(self.window.attributes('-fullscreen'))
         self.window.attributes('-fullscreen', not is_fullscreen)
 
+    def context_menu(self, event, labels=None, actions=None):
+        if labels is None or actions is None:
+            return
+        menu = tk.Menu(self.window, tearoff=0)
+        for label, action in zip(labels, actions):
+            menu.add_command(label=label, command=action)
+        menu.tk_popup(event.guiEvent.x_root, event.guiEvent.y_root)
+
 
 class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
     def __init__(self, canvas, window=None, *, pack_toolbar=True):

@@ -8,6 +8,8 @@ from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     ResizeEvent, TimerBase, _allow_interrupt)
+from Foundation import NSObject
+import AppKit
 
 
 class TimerMac(_macosx.Timer, TimerBase):
@@ -145,6 +147,12 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         return filename
 
 
+class MenuCallback(NSObject):
+    def action_(self, sender):
+        if hasattr(self, 'callback'):
+            self.callback()
+
+
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac
 
@@ -160,6 +168,23 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         if mpl.is_interactive():
             self.show()
             self.canvas.draw_idle()
+
+    def context_menu(self, event, labels=None, actions=None):
+        if labels is None or actions is None:
+            return
+        menu = AppKit.NSMenu.alloc().init()
+        self._menu_callbacks = []
+        for label, action in zip(labels, actions):
+            target = MenuCallback.alloc().init()
+            target.callback = action
+            self._menu_callbacks.append(target)
+            item = AppKit.NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                label, "action:", ""
+            )
+            item.setTarget_(target)
+            menu.addItem_(item)
+        mouse_loc = AppKit.NSEvent.mouseLocation()
+        menu.popUpMenuPositioningItem_atLocation_inView_(None, mouse_loc, None)
 
     def _close_button_pressed(self):
         Gcf.destroy(self)
