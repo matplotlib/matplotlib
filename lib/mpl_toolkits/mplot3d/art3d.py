@@ -8,7 +8,6 @@ artists into 3D versions which can be added to an Axes3D.
 """
 
 import math
-import warnings
 
 import numpy as np
 
