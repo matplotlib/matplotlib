@@ -128,6 +128,7 @@ class ColorSequenceRegistry(Mapping):
         'Pastel2': _cm._Pastel2_data,
         'Paired': _cm._Paired_data,
         'Accent': _cm._Accent_data,
+        'okabe_ito': _cm._okabe_ito_data,
         'Dark2': _cm._Dark2_data,
         'Set1': _cm._Set1_data,
         'Set2': _cm._Set2_data,
