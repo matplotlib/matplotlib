@@ -3278,6 +3278,8 @@ def _generate_rst():  # pragma: no cover
 """
     for param in _params:
         text += f"""
+.. _rcparam_{param.name.replace('.', '_')}:
+
 {param.name}: ``{param.default!r}``
     {param.description if param.description else "*no description*"}
 """
