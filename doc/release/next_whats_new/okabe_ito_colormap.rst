@@ -1,5 +1,5 @@
-Okabe-Ito accessible colormap
------------------------------
+Okabe-Ito accessible color sequence
+-----------------------------------
 
 Matplotlib now includes the Okabe-Ito colormap. This addition provides more accessibility for categorical color needs and makes it easier to produce figures that are readable for viewers with common forms of color vision deficiency. This color sequence is unambiguous regardless of whether the viewer has colorblindness and is reliably print-friendly.
 
