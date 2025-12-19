@@ -1,9 +1,9 @@
 Okabe-Ito accessible color sequence
 -----------------------------------
 
-Matplotlib now includes the Okabe-Ito colormap. This addition provides more accessibility for categorical color needs and makes it easier to produce figures that are readable for viewers with common forms of color vision deficiency. This color sequence is unambiguous regardless of whether the viewer has colorblindness and is reliably print-friendly.
+Matplotlib now includes the `Okabe-Ito color sequence`_. Its colors remain distinguishable for common forms of color-vision deficiency and when printed.
 
-You can use the sequence anywhere a listed colormap or color cycle is accepted. It is available alongside other qualitative color sets as ``okabe_ito``.
+.. _Okabe-Ito color sequence: https://jfly.uni-koeln.de/color/#pallet
 
 For example, to set it as the default colormap for your plots and image-like artists, use:
 
@@ -15,7 +15,7 @@ For example, to set it as the default colormap for your plots and image-like art
     plt.rcParams['axes.prop_cycle'] = cycler('color', plt.colormaps['okabe_ito'].colors)
     plt.rcParams['image.cmap'] = 'okabe_ito'
 
-Or, when creating plots, you can pass the colormap explicitly:
+Or, when creating plots, you can pass it explicitly:
 
 .. plot::
 
