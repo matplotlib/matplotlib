@@ -4152,7 +4152,8 @@ def test_datetime_positions_with_datetime64():
     positions = [np.datetime64('2020-01-01'), np.datetime64('2021-01-01')]
     widths = [0.5, 1.0]
     with pytest.raises(TypeError,
-    match="np.datetime64 'position' values, require np.timedelta64 'widths'"):
+                       match=("np.datetime64 'position' values require "
+                              "np.timedelta64 'widths'")):
         ax.violin(violin_plot_stats(), positions=positions, widths=widths)
 
 
@@ -4162,7 +4163,8 @@ def test_datetime_positions_with_float_widths_raises():
     positions = [datetime.datetime(2020, 1, 1), datetime.datetime(2021, 1, 1)]
     widths = [0.5, 1.0]
     with pytest.raises(TypeError,
-    match="datetime/date 'position' values, require timedelta 'widths'"):
+                       match=("datetime/date 'position' values require "
+                              "timedelta 'widths'")):
         ax.violin(violin_plot_stats(), positions=positions, widths=widths)
 
 
@@ -4172,7 +4174,8 @@ def test_datetime_positions_with_scalar_float_width_raises():
     positions = [datetime.datetime(2020, 1, 1), datetime.datetime(2021, 1, 1)]
     widths = 0.75
     with pytest.raises(TypeError,
-    match="datetime/date 'position' values, require timedelta 'widths'"):
+                       match=("datetime/date 'position' values require "
+                              "timedelta 'widths'")):
         ax.violin(violin_plot_stats(), positions=positions, widths=widths)
 
 
@@ -4184,7 +4187,7 @@ def test_numeric_positions_with_float_widths_ok():
     ax.violin(violin_plot_stats(), positions=positions, widths=widths)
 
 
-def test_mixed_positions_datetime_and_numeric_behaves():
+def test_mixed_positions_datetime_and_numeric_raises():
     """Test that mixed datetime and numeric positions
     with float widths raise TypeError.
     """
@@ -4192,7 +4195,8 @@ def test_mixed_positions_datetime_and_numeric_behaves():
     positions = [datetime.datetime(2020, 1, 1), 2.0]
     widths = [0.5, 1.0]
     with pytest.raises(TypeError,
-    match="datetime/date 'position' values, require timedelta 'widths'"):
+                       match=("datetime/date 'position' values require "
+                              "timedelta 'widths'")):
         ax.violin(violin_plot_stats(), positions=positions, widths=widths)
 
 

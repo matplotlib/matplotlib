@@ -9031,6 +9031,11 @@ such objects
         artists = {}  # Collections to be returned
 
         N = len(vpstats)
+        if N == 0:
+            # Return empty artists dict for empty input
+            return {key: [] for key in [
+                'bodies', 'cmeans', 'cmins', 'cmaxes', 'cbars',
+                'cmedians', 'cquantiles']}
         datashape_message = ("List of violinplot statistics and `{0}` "
                              "values must have the same length")
 
@@ -9051,7 +9056,7 @@ such objects
             positions = range(1, N + 1)
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
-
+        pre_conversion_widths = widths
         # Validate widths
         if np.isscalar(widths):
             widths = [widths] * N
@@ -9061,18 +9066,21 @@ such objects
         # For usability / better error message:
         # Validate that datetime-like positions have timedelta-like widths.
         # Checking only the first element is good enough for standard misuse cases
-        pos0 = positions[0]
-        width0 = widths if np.isscalar(widths) else widths[0]
-        if (isinstance(pos0, (datetime.datetime, datetime.date))
+        if N > 0:  # No need to validate if there is not data
+            pos0 = positions[0]
+            width0 = (pre_conversion_widths if np.isscalar(pre_conversion_widths)
+                      else pre_conversion_widths[0])
+            if (isinstance(pos0, (datetime.datetime, datetime.date))
                 and not isinstance(width0, datetime.timedelta)):
-            raise TypeError(
-                "datetime/date 'position' values require timedelta 'widths'. "
-                "For example, use positions=[datetime.date(2024, 1, 1)] and widths=[datetime.timedelta(days=1)].")
-        elif (isinstance(pos0, np.datetime64)
+                raise TypeError(
+                    "datetime/date 'position' values require timedelta 'widths'. "
+                    "For example, use positions=[datetime.date(2024, 1, 1)] "
+                    "and widths=[datetime.timedelta(days=1)].")
+            elif (isinstance(pos0, np.datetime64)
                 and not isinstance(width0, np.timedelta64)):
-            raise TypeError(
-                "np.datetime64 'position' values require np.timedelta64 'widths'")
-        # Validate side
+                raise TypeError(
+                    "np.datetime64 'position' values require np.timedelta64 'widths'")
+    # Validate side
         _api.check_in_list(["both", "low", "high"], side=side)
 
         # Calculate ranges for statistics lines (shape (2, N)).
