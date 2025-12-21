@@ -9066,7 +9066,8 @@ such objects
         if (isinstance(pos0, (datetime.datetime, datetime.date))
                 and not isinstance(width0, datetime.timedelta)):
             raise TypeError(
-                "datetime/date 'position' values, require timedelta 'widths'")
+                "datetime/date 'position' values require timedelta 'widths'. "
+                "For example, use positions=[datetime.date(2024, 1, 1)] and widths=[datetime.timedelta(days=1)].")
         elif (isinstance(pos0, np.datetime64)
                 and not isinstance(width0, np.timedelta64)):
             raise TypeError(
