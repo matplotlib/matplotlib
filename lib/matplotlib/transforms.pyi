@@ -316,6 +316,13 @@ class TransformedPath(TransformNode):
 class TransformedPatchPath(TransformedPath):
     def __init__(self, patch: Patch) -> None: ...
 
+def _nonsingular(
+    vmin: float,
+    vmax: float,
+    expander: float = ...,
+    tiny: float = ...,
+    increasing: bool = ...,
+) -> tuple[float, float]: ...
 def nonsingular(
     vmin: float,
     vmax: float,

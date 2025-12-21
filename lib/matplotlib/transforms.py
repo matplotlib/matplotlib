@@ -2865,7 +2865,7 @@ class TransformedPatchPath(TransformedPath):
         super()._revalidate()
 
 
-def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
+def _nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     """
     Modify the endpoints of a range as needed to avoid singularities.
 
@@ -2921,6 +2921,12 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     if swapped and not increasing:
         vmin, vmax = vmax, vmin
     return vmin, vmax
+
+
+@_api.deprecated("3.11")
+def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
+    return _nonsingular(vmin, vmax, expander, tiny, increasing)
+nonsingular.__doc__ = _nonsingular.__doc__
 
 
 def interval_contains(interval, val):

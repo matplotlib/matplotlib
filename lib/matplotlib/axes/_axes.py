@@ -5662,8 +5662,8 @@ or pandas.DataFrame
             ymin, ymax = (ty.min(), ty.max()) if len(y) else (0, 1)
 
             # to avoid issues with singular data, expand the min/max pairs
-            xmin, xmax = mtransforms.nonsingular(xmin, xmax, expander=0.1)
-            ymin, ymax = mtransforms.nonsingular(ymin, ymax, expander=0.1)
+            xmin, xmax = mtransforms._nonsingular(xmin, xmax, expander=0.1)
+            ymin, ymax = mtransforms._nonsingular(ymin, ymax, expander=0.1)
 
         nx1 = nx + 1
         ny1 = ny + 1
