@@ -9068,8 +9068,7 @@ such objects
         # Checking only the first element is good enough for standard misuse cases
         if N > 0:  # No need to validate if there is not data
             pos0 = positions[0]
-            width0 = (pre_conversion_widths if np.isscalar(pre_conversion_widths)
-                      else pre_conversion_widths[0])
+            width0 = widths[0]
             if (isinstance(pos0, (datetime.datetime, datetime.date))
                 and not isinstance(width0, datetime.timedelta)):
                 raise TypeError(
