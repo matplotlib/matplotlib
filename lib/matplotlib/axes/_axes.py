@@ -9031,11 +9031,6 @@ such objects
         artists = {}  # Collections to be returned
 
         N = len(vpstats)
-        if N == 0:
-            # Return empty artists dict for empty input
-            return {key: [] for key in [
-                'bodies', 'cmeans', 'cmins', 'cmaxes', 'cbars',
-                'cmedians', 'cquantiles']}
         datashape_message = ("List of violinplot statistics and `{0}` "
                              "values must have the same length")
 
@@ -9056,7 +9051,6 @@ such objects
             positions = range(1, N + 1)
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
-        pre_conversion_widths = widths
         # Validate widths
         if np.isscalar(widths):
             widths = [widths] * N
@@ -9066,10 +9060,9 @@ such objects
         # For usability / better error message:
         # Validate that datetime-like positions have timedelta-like widths.
         # Checking only the first element is good enough for standard misuse cases
-        if N > 0:  # No need to validate if there is not data
+        if N > 0:  # No need to validate if there is no data
             pos0 = positions[0]
-            width0 = (pre_conversion_widths if np.isscalar(pre_conversion_widths)
-                      else pre_conversion_widths[0])
+            width0 = widths[0]
             if (isinstance(pos0, (datetime.datetime, datetime.date))
                 and not isinstance(width0, datetime.timedelta)):
                 raise TypeError(
