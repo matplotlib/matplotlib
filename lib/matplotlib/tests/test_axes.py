@@ -4184,7 +4184,7 @@ def test_numeric_positions_with_float_widths_ok():
     ax.violin(violin_plot_stats(), positions=positions, widths=widths)
 
 
-def test_mixed_positions_datetime_and_numeric_behaves():
+def test_mixed_positions_datetime_and_numeric_raises():
     """Test that mixed datetime and numeric positions
     with float widths raise TypeError.
     """
