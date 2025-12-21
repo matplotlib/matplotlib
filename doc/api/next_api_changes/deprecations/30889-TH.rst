@@ -1,7 +1,7 @@
 Transforms helper functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following functions in the `transforms` module are deprecated,
+The following functions in the `.transforms` module are deprecated,
 because they are considerer internal functionality and should not be used
 by end users:
 
