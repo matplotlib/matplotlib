@@ -9070,7 +9070,7 @@ such objects
         elif (isinstance(pos0, np.datetime64)
                 and not isinstance(width0, np.timedelta64)):
             raise TypeError(
-                "np.datetime64 'position' values, require np.timedelta64 'widths'")
+                "np.datetime64 'position' values require np.timedelta64 'widths'")
         # Validate side
         _api.check_in_list(["both", "low", "high"], side=side)
 
