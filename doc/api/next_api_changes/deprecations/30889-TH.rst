@@ -6,3 +6,4 @@ because they are considerer internal functionality and should not be used
 by end users:
 
 - ``matplotlib.transforms.nonsingular``
+- ``matplotlib.transforms.interval_contains_open``
