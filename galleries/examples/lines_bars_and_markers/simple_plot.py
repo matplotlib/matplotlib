@@ -1,3 +1,4 @@
+# sphinx_gallery_thumbnail_number = 1
 """
 =========
 Line plot
