@@ -2929,7 +2929,7 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
 nonsingular.__doc__ = _nonsingular.__doc__
 
 
-def interval_contains(interval, val):
+def _interval_contains(interval, val):
     """
     Check, inclusively, whether an interval includes a given value.
 
@@ -2949,6 +2949,12 @@ def interval_contains(interval, val):
     if a > b:
         a, b = b, a
     return a <= val <= b
+
+
+@_api.deprecated("3.11")
+def interval_contains(interval, val):
+    return _interval_contains(interval, val)
+interval_contains.__doc__ = _interval_contains.__doc__
 
 
 def _interval_contains_close(interval, val, rtol=1e-10):
