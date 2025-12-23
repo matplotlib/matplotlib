@@ -255,6 +255,15 @@ class FigureCanvasTk(FigureCanvasBase):
                 CloseEvent("close_event", self)._process()
         filter_destroy_id = root.bind("<Destroy>", filter_destroy, "+")
 
+        _api.warn_deprecated(
+            "3.11",
+            message="Automatic focus setting in FigureCanvasTkAgg.__init__ is "
+                    "deprecated since %(since)s and will be removed in %(removal)s. "
+                    "To maintain existing behavior, call canvas.focus_set() "
+                    "explicitly in your application."
+        )
+        self._tkcanvas.focus_set()
+
         self._rubberband_rect_black = None
         self._rubberband_rect_white = None
 
