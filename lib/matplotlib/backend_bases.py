@@ -1740,6 +1740,10 @@ class FigureCanvasBase:
 
     filetypes = _default_filetypes
 
+    # global counter to assign unique ids to blit backgrounds
+    # see _get_blit_background_id()
+    _last_blit_background_id = 0
+
     @_api.classproperty
     def supports_blit(cls):
         """If this Canvas sub-class supports blitting."""
@@ -1765,6 +1769,7 @@ class FigureCanvasBase:
         # We don't want to scale up the figure DPI more than once.
         figure._original_dpi = getattr(figure, '_original_dpi', figure.dpi)
         self._device_pixel_ratio = 1
+        self._blit_backgrounds = {}
         super().__init__()  # Typically the GUI widget init (if any).
 
     callbacks = property(lambda self: self.figure._canvas_callbacks)
@@ -1839,6 +1844,51 @@ class FigureCanvasBase:
 
     def blit(self, bbox=None):
         """Blit the canvas in bbox (default entire canvas)."""
+
+    @classmethod
+    def _get_blit_background_id(cls):
+        """
+        Get a globally unique id that can be used to store a blit background.
+
+        Blitting support is canvas-dependent, so blitting mechanisms should
+        store their backgrounds in the canvas, more precisely in
+        ``canvas._blit_backgrounds[id]``. The id must be obtained via this
+        function to ensure it is globally unique.
+
+        The content of ``canvas._blit_backgrounds[id]`` is not specified.
+        We leave this freedom to the blitting mechanism.
+
+        Blitting mechanisms must not expect that a background that they
+        have stored is still there at a later time. The canvas may have
+        been switched out, or we may add other mechanisms later that
+        invalidate blit backgrounds (e.g. dpi changes).
+        Therefore, always query as `_blit_backgrounds.get(id)` and be
+        prepared for a None return value.
+
+        Note: The blit background API is still experimental and may change
+        in the future without warning.
+        """
+        cls._last_blit_background_id += 1
+        return cls._last_blit_background_id
+
+    def _release_blit_background_id(self, bb_id):
+        """
+        Release a blit background id that is no longer needed.
+
+        This removes the respective entry from the internal storage, i.e.
+        the ``canvas._blit_backgrounds`` dict, and thus allows to free the
+        associated memory.
+
+        After releasing the id you must not use it anymore.
+
+        It is safe to release an id that has not been used with the canvas
+        or that has already been released.
+
+        Note: The blit background API is still experimental and may change
+        in the future without warning.
+        """
+        if bb_id in self._blit_backgrounds:
+            del self._blit_backgrounds[bb_id]
 
     def inaxes(self, xy):
         """
