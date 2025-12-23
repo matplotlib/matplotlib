@@ -2581,10 +2581,12 @@ def test_hist_zorder(histtype, zorder):
 
 
 def test_hist_single_color_multiple_datasets():
-    # Test a single color for multiple datasets
-    # https://github.com/matplotlib/matplotlib/issues/30857
     data = [[0, 1, 2], [3, 4, 5]]
-    plt.hist(data, color='k')
+_, _, bar_containers = plt.hist(data, color='k')
+for p in bar_containers[0].patches:
+    assert mcolor.same_color(p.get_facecolor(), 'k')
+for p in bar_containers[1].patches:
+    assert mcolor.same_color(p.get_facecolor(), 'k')
 
 
 def test_stairs_no_baseline_fill_warns():
