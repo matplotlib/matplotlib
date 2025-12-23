@@ -1950,6 +1950,16 @@ class Axes3D(Axes):
         `.Text3D`
             The created `.Text3D` instance.
         """
+        if 'rotation' in kwargs:
+            _api.warn_external(
+                "The `rotation` parameter has not yet been implemented "
+                "and is currently ignored."
+            )
+        if 'rotation_mode' in kwargs:
+            _api.warn_external(
+                "The `rotation_mode` parameter has not yet been implemented "
+                "and is currently ignored."
+            )
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir, axlim_clip)
         return text

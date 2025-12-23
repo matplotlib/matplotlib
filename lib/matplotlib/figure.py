@@ -3003,12 +3003,10 @@ None}, default: None
         This is used upon initialization of the Figure, but also
         to reset the canvas when decoupling from pyplot.
         """
-        # check if we have changed the DPI due to hi-dpi screens
-        orig_dpi = getattr(self, '_original_dpi', self._dpi)
         FigureCanvasBase(self)  # Set self.canvas as a side-effect
-        # put it back to what it was
-        if orig_dpi != self._dpi:
-            self.dpi = orig_dpi
+        # undo any high-dpi scaling
+        if self._dpi != self._original_dpi:
+            self.dpi = self._original_dpi
 
     def set_canvas(self, canvas):
         """
@@ -3323,8 +3321,9 @@ None}, default: None
         self.__dict__ = state
 
         # re-initialise some of the unstored state information
-        FigureCanvasBase(self)  # Set self.canvas.
-
+        self._set_base_canvas()
+        # force the bounding boxes to respect current dpi
+        self.dpi_scale_trans.clear().scale(self._dpi)
         if restore_to_pylab:
             # lazy import to avoid circularity
             import matplotlib.pyplot as plt

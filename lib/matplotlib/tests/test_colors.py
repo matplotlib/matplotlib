@@ -947,6 +947,11 @@ def test_rgb_hsv_round_trip():
             tt, mcolors.rgb_to_hsv(mcolors.hsv_to_rgb(tt)))
 
 
+def test_rgb_to_hsv_int():
+    # Test that int rgb values (still range 0-1) are processed correctly.
+    assert_array_equal(mcolors.rgb_to_hsv((0, 1, 0)), (1/3, 1, 1))  # green
+
+
 def test_autoscale_masked():
     # Test for #2336. Previously fully masked data would trigger a ValueError.
     data = np.ma.masked_all((12, 20))
@@ -1702,8 +1707,8 @@ def test_color_sequences():
     assert plt.color_sequences is matplotlib.color_sequences  # same registry
     assert list(plt.color_sequences) == [
         'tab10', 'tab20', 'tab20b', 'tab20c', 'Pastel1', 'Pastel2', 'Paired',
-        'Accent', 'Dark2', 'Set1', 'Set2', 'Set3', 'petroff6', 'petroff8',
-        'petroff10']
+        'Accent', 'okabe_ito', 'Dark2', 'Set1', 'Set2', 'Set3', 'petroff6',
+        'petroff8', 'petroff10']
     assert len(plt.color_sequences['tab10']) == 10
     assert len(plt.color_sequences['tab20']) == 20
 
@@ -2097,15 +2102,15 @@ def test_ensure_multivariate_data():
     data = [[0, 0, 0], [1, 1, 1]]
     mdata = mcolorizer._ensure_multivariate_data(data, 2)
     assert mdata.shape == (3,)
-    assert mdata.dtype.fields['f0'][0] == np.int64
-    assert mdata.dtype.fields['f1'][0] == np.int64
+    assert mdata.dtype.fields['f0'][0] == np.int_
+    assert mdata.dtype.fields['f1'][0] == np.int_
 
     # test input of floats, ints as tuple of lists
     data = ([0.0, 0.0], [1, 1])
     mdata = mcolorizer._ensure_multivariate_data(data, 2)
     assert mdata.shape == (2,)
     assert mdata.dtype.fields['f0'][0] == np.float64
-    assert mdata.dtype.fields['f1'][0] == np.int64
+    assert mdata.dtype.fields['f1'][0] == np.int_
 
     # test input of array of floats
     data = np.array([[0.0, 0, 0], [1, 1, 1]])

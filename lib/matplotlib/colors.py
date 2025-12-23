@@ -128,6 +128,7 @@ class ColorSequenceRegistry(Mapping):
         'Pastel2': _cm._Pastel2_data,
         'Paired': _cm._Paired_data,
         'Accent': _cm._Accent_data,
+        'okabe_ito': _cm._okabe_ito_data,
         'Dark2': _cm._Dark2_data,
         'Set1': _cm._Set1_data,
         'Set2': _cm._Set2_data,
@@ -3631,11 +3632,10 @@ def rgb_to_hsv(arr):
                          f"shape {arr.shape} was found.")
 
     in_shape = arr.shape
-    arr = np.array(
-        arr, copy=False,
-        dtype=np.promote_types(arr.dtype, np.float32),  # Don't work on ints.
-        ndmin=2,  # In case input was 1D.
-    )
+    # ensure numerics are done at least on float32; ints are cast as well
+    arr = np.asarray(arr, dtype=np.promote_types(arr.dtype, np.float32))
+    if arr.ndim == 1:
+        arr = np.expand_dims(arr, axis=0)  # ensure arr is 2D
 
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)

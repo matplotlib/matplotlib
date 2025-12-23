@@ -32,7 +32,7 @@ cmaps = [('Perceptually Uniform Sequential', [
             'berlin', 'managua', 'vanimo']),
          ('Cyclic', ['twilight', 'twilight_shifted', 'hsv']),
          ('Qualitative', [
-            'Pastel1', 'Pastel2', 'Paired', 'Accent',
+            'Pastel1', 'Pastel2', 'Paired', 'Accent', 'okabe_ito',
             'Dark2', 'Set1', 'Set2', 'Set3',
             'tab10', 'tab20', 'tab20b', 'tab20c']),
          ('Miscellaneous', [

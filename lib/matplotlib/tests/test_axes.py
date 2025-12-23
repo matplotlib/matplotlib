@@ -12,6 +12,7 @@ import re
 import sys
 from types import SimpleNamespace
 import warnings
+import unittest.mock
 
 import dateutil.tz
 
@@ -46,7 +47,6 @@ from numpy.testing import (
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
 from matplotlib.testing._markers import needs_usetex
-
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
 #       different baseline images to prevent race conditions when pytest runs
@@ -2319,6 +2319,20 @@ def test_grouped_bar_return_value():
         assert bc not in ax.containers
 
 
+def test_grouped_bar_hatch_sequence():
+    """Each dataset should receive its own hatch pattern when a sequence is passed."""
+    fig, ax = plt.subplots()
+    x = np.arange(2)
+    heights = [np.array([1, 2]), np.array([2, 3]), np.array([3, 4])]
+    hatches = ['//', 'xx', '..']
+    containers = ax.grouped_bar(heights, positions=x, hatch=hatches)
+
+    # Verify each dataset gets the corresponding hatch
+    for hatch, c in zip(hatches, containers.bar_containers):
+        for rect in c:
+            assert rect.get_hatch() == hatch
+
+
 def test_boxplot_dates_pandas(pd):
     # smoke test for boxplot and dates in pandas
     data = np.random.rand(5, 2)
@@ -3009,11 +3023,11 @@ class TestScatter:
 
     def test_scatter_size_arg_size(self):
         x = np.arange(4)
-        with pytest.raises(ValueError, match='same size as x and y'):
+        with pytest.raises(ValueError, match='cannot be broadcast to match x and y'):
             plt.scatter(x, x, x[1:])
-        with pytest.raises(ValueError, match='same size as x and y'):
+        with pytest.raises(ValueError, match='cannot be broadcast to match x and y'):
             plt.scatter(x[1:], x[1:], x)
-        with pytest.raises(ValueError, match='float array-like'):
+        with pytest.raises(ValueError, match='must be float'):
             plt.scatter(x, x, 'foo')
 
     def test_scatter_edgecolor_RGB(self):
@@ -3479,6 +3493,26 @@ def test_stackplot_hatching(fig_ref, fig_test):
     ax_ref.fill_between(x, y1+y2, y1+y2+y3, hatch="\\\\", facecolor="white")
     ax_ref.set_xlim(0, 10)
     ax_ref.set_ylim(0, 70)
+
+
+def test_stackplot_facecolor():
+    # Test that facecolors are properly passed and take precedence over colors parameter
+    x = np.linspace(0, 10, 10)
+    y1 = 1.0 * x
+    y2 = 2.0 * x + 1
+
+    facecolors = ['r', 'b']
+
+    fig, ax = plt.subplots()
+
+    colls = ax.stackplot(x, y1, y2, facecolor=facecolors, colors=['c', 'm'])
+    for coll, fcolor in zip(colls, facecolors):
+        assert mcolors.same_color(coll.get_facecolor(), fcolor)
+
+    # Plural alias should also work
+    colls = ax.stackplot(x, y1, y2, facecolors=facecolors, colors=['c', 'm'])
+    for coll, fcolor in zip(colls, facecolors):
+        assert mcolors.same_color(coll.get_facecolor(), fcolor)
 
 
 def test_stackplot_subfig_legend():
@@ -5095,27 +5129,6 @@ def test_hist_vectorized_params(fig_test, fig_ref, kwargs):
         for i, (x, value) in enumerate(zip(xs, values)):
             axr.hist(x, bins=bins, histtype=histtype, **{kw: value},
                      zorder=(len(xs)-i)/2)
-
-
-def test_hist_sequence_type_styles():
-    facecolor = ('r', 0.5)
-    edgecolor = [0.5, 0.5, 0.5]
-    linestyle = (0, (1, 1))
-
-    arr = np.random.uniform(size=50)
-    _, _, bars = plt.hist(arr, facecolor=facecolor, edgecolor=edgecolor,
-                          linestyle=linestyle)
-    assert mcolors.same_color(bars[0].get_facecolor(), facecolor)
-    assert mcolors.same_color(bars[0].get_edgecolor(), edgecolor)
-    assert bars[0].get_linestyle() == linestyle
-
-
-def test_hist_color_none():
-    arr = np.random.uniform(size=50)
-    # No edgecolor is the default but check that it can be explicitly passed.
-    _, _, bars = plt.hist(arr, facecolor='none', edgecolor='none')
-    assert bars[0].get_facecolor(), (0, 0, 0, 0)
-    assert bars[0].get_edgecolor(), (0, 0, 0, 0)
 
 
 @pytest.mark.parametrize('kwargs, patch_face, patch_edge',
@@ -10069,3 +10082,20 @@ def test_pie_all_zeros():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match="All wedge sizes are zero"):
         ax.pie([0, 0], labels=["A", "B"])
+
+
+def test_animated_artists_not_drawn_by_default():
+    fig, (ax1, ax2) = plt.subplots(ncols=2)
+
+    imdata = np.random.random((20, 20))
+    lndata = imdata[0]
+
+    im = ax1.imshow(imdata, animated=True)
+    (ln,) = ax2.plot(lndata, animated=True)
+
+    with (unittest.mock.patch.object(im, "draw", name="im.draw") as mocked_im_draw,
+          unittest.mock.patch.object(ln, "draw", name="ln.draw") as mocked_ln_draw):
+        fig.draw_without_rendering()
+
+    mocked_im_draw.assert_not_called()
+    mocked_ln_draw.assert_not_called()

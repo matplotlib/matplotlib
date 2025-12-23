@@ -32,7 +32,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.units as munits
-from matplotlib import _api, _docstring, _preprocess_data
+from matplotlib import _api, _docstring, _preprocess_data, _style_helpers
 from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
@@ -3194,6 +3194,16 @@ or pandas.DataFrame
 
         **kwargs : `.Rectangle` properties
 
+            Properties applied to all bars. The following properties additionally
+            accept a sequence of values corresponding to the datasets in
+            *heights*:
+
+            - *edgecolor*
+            - *facecolor*
+            - *linewidth*
+            - *linestyle*
+            - *hatch*
+
             %(Rectangle:kwdoc)s
 
         Returns
@@ -3320,6 +3330,8 @@ or pandas.DataFrame
             # TODO: do we want to be more restrictive and check lengths?
             colors = itertools.cycle(colors)
 
+        kwargs, style_gen = _style_helpers.style_generator(kwargs)
+
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
         bar_spacing_abs = bar_spacing * bar_width
@@ -3333,15 +3345,16 @@ or pandas.DataFrame
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
         bar_containers = []
-        for i, (hs, label, color) in enumerate(zip(heights, labels, colors)):
+        for i, (hs, label, color, styles) in enumerate(zip(heights, labels, colors,
+                                                           style_gen)):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
                 bc = self.bar(lefts, hs, width=bar_width, align="edge",
-                              label=label, color=color, **kwargs)
+                              label=label, color=color, **styles, **kwargs)
             else:
                 bc = self.barh(lefts, hs, height=bar_width, align="edge",
-                               label=label, color=color, **kwargs)
+                               label=label, color=color, **styles, **kwargs)
             bar_containers.append(bc)
 
         if tick_labels is not None:
@@ -5309,12 +5322,12 @@ or pandas.DataFrame
             s = (20 if mpl.rcParams['_internal.classic_mode'] else
                  mpl.rcParams['lines.markersize'] ** 2.0)
         s = np.ma.ravel(s)
-        if (len(s) not in (1, x.size) or
-                (not np.issubdtype(s.dtype, np.floating) and
-                 not np.issubdtype(s.dtype, np.integer))):
-            raise ValueError(
-                "s must be a scalar, "
-                "or float array-like with the same size as x and y")
+        if not (np.issubdtype(s.dtype, np.floating)
+                or np.issubdtype(s.dtype, np.integer)):
+            raise ValueError(f"s must be float, but has type {s.dtype}")
+        if len(s) not in (1, x.size):
+            raise ValueError(f"s (size {len(s)}) cannot be broadcast "
+                             f"to match x and y (size {len(x)})")
 
         # get the original edgecolor the user passed before we normalize
         orig_edgecolor = edgecolors
@@ -7632,38 +7645,15 @@ such objects
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
 
         if histtype == "step":
-            ec = kwargs.get('edgecolor', colors)
-        else:
-            ec = kwargs.get('edgecolor', None)
-        if ec is None or cbook._str_lower_equal(ec, 'none'):
-            edgecolors = itertools.repeat(ec)
-        else:
-            edgecolors = itertools.cycle(mcolors.to_rgba_array(ec))
+            kwargs.setdefault('edgecolor', colors)
 
-        fc = kwargs.get('facecolor', colors)
-        if cbook._str_lower_equal(fc, 'none'):
-            facecolors = itertools.repeat(fc)
-        else:
-            facecolors = itertools.cycle(mcolors.to_rgba_array(fc))
-
-        hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
-        linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
-        if 'linestyle' in kwargs:
-            linestyles = itertools.cycle(mlines._get_dash_patterns(kwargs['linestyle']))
-        else:
-            linestyles = itertools.repeat(None)
+        kwargs, style_gen = _style_helpers.style_generator(kwargs)
 
         for patch, lbl in itertools.zip_longest(patches, labels):
             if not patch:
                 continue
             p = patch[0]
-            kwargs.update({
-                'hatch': next(hatches),
-                'linewidth': next(linewidths),
-                'linestyle': next(linestyles),
-                'edgecolor': next(edgecolors),
-                'facecolor': next(facecolors),
-            })
+            kwargs.update(next(style_gen))
             p._internal_update(kwargs)
             if lbl is not None:
                 p.set_label(lbl)

@@ -237,6 +237,7 @@ class LocationEvent(Event):
     inaxes: Axes | None
     xdata: float | None
     ydata: float | None
+    modifiers: frozenset[str]
     def __init__(
         self,
         name: str,

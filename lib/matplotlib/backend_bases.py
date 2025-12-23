@@ -1262,7 +1262,7 @@ class LocationEvent(Event):
     xdata, ydata : float or None
         Data coordinates of the mouse within *inaxes*, or *None* if the mouse
         is not over an Axes.
-    modifiers : frozenset
+    modifiers : frozenset[str]
         The keyboard modifiers currently being pressed (except for KeyEvent).
     """
 
@@ -1763,7 +1763,7 @@ class FigureCanvasBase:
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
         # We don't want to scale up the figure DPI more than once.
-        figure._original_dpi = figure.dpi
+        figure._original_dpi = getattr(figure, '_original_dpi', figure.dpi)
         self._device_pixel_ratio = 1
         super().__init__()  # Typically the GUI widget init (if any).
 
