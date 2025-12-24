@@ -106,6 +106,17 @@ def _stale_axes_callback(self, val):
 
 _XYPair = namedtuple("_XYPair", "x y")
 
+# NOTE ON STYLE VS NON-STYLE PROPERTIES
+#
+# Style properties control the visual appearance of an Artist
+# (e.g., colors, line widths, markers, alpha) and are candidates
+# for future separation into dedicated style containers.
+#
+# Non-style properties control behavior, metadata, or rendering
+# (e.g., transforms, clipping, animation, picking, labels).
+#
+# This distinction is documented here to support future internal
+# refactoring efforts (see issue #30828).
 
 class Artist:
     """
