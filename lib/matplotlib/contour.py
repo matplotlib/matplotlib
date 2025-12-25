@@ -1123,15 +1123,24 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         if self.levels is None:
             if len(args) == 0:
-                levels_arg = 7  # Default, hard-wired.
+                levels_arg = None
             else:
                 levels_arg = args[0]
         else:
             levels_arg = self.levels
-        if isinstance(levels_arg, Integral):
-            self.levels = self._autolev(levels_arg)
+        if (levels_arg is None and getattr(self, "_is_bool_z", False)
+                and self.locator is None and not self.logscale):
+            if self.filled:
+                self.levels = np.array([0.0, 0.5, 1.0], dtype=np.float64)
+            else:
+                self.levels = np.array([0.5], dtype=np.float64)
         else:
-            self.levels = np.asarray(levels_arg, np.float64)
+            if levels_arg is None:
+                levels_arg = 7  # Default, hard-wired.
+            if isinstance(levels_arg, Integral):
+                self.levels = self._autolev(levels_arg)
+            else:
+                self.levels = np.asarray(levels_arg, np.float64)
 
         if not self.filled:
             inside = (self.levels > self.zmin) & (self.levels < self.zmax)
@@ -1446,8 +1455,11 @@ class QuadContourSet(ContourSet):
         else:
             fn = 'contour'
         nargs = len(args)
+        self._is_bool_z = False
         if nargs <= 2:
-            z = ma.asarray(args[0], dtype=np.float64)
+            z_input = args[0]
+            self._is_bool_z = ma.getdata(ma.asarray(z_input)).dtype.kind == "b"
+            z = ma.asarray(z_input, dtype=np.float64)
             x, y = self._initialize_x_y(z)
             args = args[1:]
         elif nargs <= 4:
@@ -1475,7 +1487,9 @@ class QuadContourSet(ContourSet):
 
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
-        z = ma.asarray(args[2], dtype=np.float64)
+        z_input = args[2]
+        self._is_bool_z = ma.getdata(ma.asarray(z_input)).dtype.kind == "b"
+        z = ma.asarray(z_input, dtype=np.float64)
 
         if z.ndim != 2:
             raise TypeError(f"Input z must be 2D, not {z.ndim}D")

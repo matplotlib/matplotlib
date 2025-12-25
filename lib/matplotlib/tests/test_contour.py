@@ -84,6 +84,57 @@ def test_contour_Nlevels():
     assert (cs1.levels == cs2.levels).all()
 
 
+def test_contour_bool_default_levels():
+    z = np.array([[True, False], [False, True]])
+
+    fig, ax = plt.subplots()
+    cs = ax.contour(z)
+    assert np.allclose(cs.levels, [0.5])
+
+
+def test_contourf_bool_default_levels():
+    z = np.array([[True, False], [False, True]])
+
+    fig, ax = plt.subplots()
+    cs = ax.contourf(z)
+    assert np.allclose(cs.levels, [0.0, 0.5, 1.0])
+
+
+def test_contour_bool_explicit_levels_preserved():
+    z = np.array([[True, False], [False, True]])
+
+    fig, ax = plt.subplots()
+    levels = [0.25, 0.75]
+    cs = ax.contour(z, levels=levels)
+    assert np.allclose(cs.levels, levels)
+
+
+def test_contourf_masked_bool_default_levels():
+    data = np.array([[True, False], [False, True]])
+    mask = [[False, True], [False, False]]
+    z = np.ma.array(data, mask=mask)
+
+    fig, ax = plt.subplots()
+    cs = ax.contourf(z)
+    assert np.allclose(cs.levels, [0.0, 0.5, 1.0])
+
+
+def test_contour_int_data_no_bool_special_case():
+    z = np.array([[1, 0], [0, 1]], dtype=int)
+
+    fig, ax = plt.subplots()
+    cs = ax.contour(z)
+    assert not np.allclose(cs.levels, [0.5])
+
+
+def test_contourf_bool_lognorm_no_override():
+    z = np.ones((2, 2), dtype=bool)
+
+    fig, ax = plt.subplots()
+    cs = ax.contourf(z, norm=LogNorm())
+    assert not np.allclose(cs.levels, [0.0, 0.5, 1.0])
+
+
 def test_contour_badlevel_fmt():
     # Test edge case from https://github.com/matplotlib/matplotlib/issues/9742
     # User supplied fmt for each level as a dictionary, but Matplotlib changed
