@@ -95,6 +95,13 @@ Colormaps and themes
    .. literalinclude:: ../../LICENSE/LICENSE_YORICK
       :language: none
 
+.. dropdown:: Turbo
+   :class-container: sdd
+
+   The Turbo colormap was contributed directly to Matplotlib by its author.
+   As such, it is licensed under the Matplotlib license, unless otherwise
+   explicitly stated.
+
 
 .. _licenses-fonts:
 
