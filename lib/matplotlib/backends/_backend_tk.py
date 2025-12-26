@@ -459,8 +459,18 @@ class FigureCanvasTk(FigureCanvasBase):
         return TimerTk(self._tkcanvas, *args, **kwargs)
 
     def flush_events(self):
-        # docstring inherited
-        self._tkcanvas.update()
+            # docstring inherited
+            # 1. Check if a draw is currently scheduled (waiting in the idle queue)
+            skip_draw = self._idle_draw_id is not None
+        
+            # 2. If yes, cancel it temporarily so 'update_idletasks' doesn't trigger it immediately
+            if skip_draw:
+                self._tkcanvas.after_cancel(self._idle_draw_id)
+                self._idle_draw_id = None
+
+            # 3. Process all pending GUI events (mouse moves, window updates, etc.)
+            self._tkcanvas.update_idletasks()
+
 
     def start_event_loop(self, timeout=0):
         # docstring inherited
