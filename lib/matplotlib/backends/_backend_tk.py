@@ -460,7 +460,7 @@ class FigureCanvasTk(FigureCanvasBase):
 
     def flush_events(self):
             skip_draw = self._idle_draw_id is not None
-        
+
             if skip_draw:
                 self._tkcanvas.after_cancel(self._idle_draw_id)
                 self._idle_draw_id = None
