@@ -98,7 +98,7 @@ Colormaps and themes
 .. dropdown:: Turbo
    :class-container: sdd
 
-   The Turbo colormap was contributed directly to Matplotlib by its author.
+   The Turbo colormap was contributed directly to Matplotlib by its author in :ghpull:`15275`
    As such, it is licensed under the Matplotlib license, unless otherwise
    explicitly stated.
 
