@@ -459,8 +459,13 @@ class FigureCanvasTk(FigureCanvasBase):
         return TimerTk(self._tkcanvas, *args, **kwargs)
 
     def flush_events(self):
-        # docstring inherited
-        self._tkcanvas.update()
+            skip_draw = self._idle_draw_id is not None
+            if skip_draw:
+                self._tkcanvas.after_cancel(self._idle_draw_id)
+                self._idle_draw_id = None
+
+            self._tkcanvas.update_idletasks()
+
 
     def start_event_loop(self, timeout=0):
         # docstring inherited
