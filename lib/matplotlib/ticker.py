@@ -1369,8 +1369,9 @@ class EngFormatter(ScalarFormatter):
          30: "Q"
     }
 
-    def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
-                 useMathText=None, useOffset=False):
+    def __init__(self, unit="", places=None, sep=" ", *,
+                 digits=None, trim_zeros="keep", 
+                 usetex=None, useMathText=None, useOffset=False):
         r"""
         Parameters
         ----------
@@ -1397,6 +1398,33 @@ class EngFormatter(ScalarFormatter):
             * ``sep="\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
             * ``sep="\N{NO-BREAK SPACE}"`` (``U+00A0``).
 
+        digits : int, default: None
+            Number of significant digits to display in the mantissa.
+            This provides consistent precision across different magnitudes.
+            For example, with ``digits=4``, the values 12345, 123.45, and
+            0.001234 will be formatted as "12.35 k", "123.5", and "1.234 m"
+            respectively, all displaying exactly 4 significant figures.
+            Mutually exclusive with *places*.
+
+            If neither *places* nor *digits* is specified, the formatter
+            uses Python's '%g' format, which displays up to 6 significant
+            digits.
+
+            .. versionadded:: 3.11
+        
+        trim_zeros : {"keep", "trim"}, default: "keep"
+            Whether to remove trailing zeros from the mantissa after formatting.
+
+            ``"keep"``: Preserve trailing zeros to maintain the specified
+            precision (e.g., "12.300 k" with ``digits=5``).
+            ``"trim"``: Remove trailing zeros for cleaner appearance 
+            (e.g., "12.3 k" with ``digits=5``).
+
+            The default ``"keep"`` preserves mathematical significance, as
+            trailing zeros indicate the precision of the measurement.
+
+            .. versionadded:: 3.11
+
         usetex : bool, default: :rc:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             numbers in the formatter.
@@ -1414,8 +1442,21 @@ class EngFormatter(ScalarFormatter):
 
             .. versionadded:: 3.10
         """
+        if places is not None and digits is not None:
+            raise ValueError(
+                "Cannot specify 'places' and 'digits'"
+            )
+        
+        if trim_zeros not in ("keep", "trim"):
+            raise ValueError(
+                f"trim_zeros must be 'keep' or 'trim', got {trim_zeros!r}"
+            )
+    
         self.unit = unit
         self.places = places
+        self.digits = digits
+        self.trim_zeros = trim_zeros
+
         self.sep = sep
         super().__init__(
             useOffset=useOffset,
@@ -1504,7 +1545,6 @@ class EngFormatter(ScalarFormatter):
         '-1.00 \N{MICRO SIGN}'
         """
         sign = 1
-        fmt = "g" if self.places is None else f".{self.places:d}f"
 
         if value < 0:
             sign = -1
@@ -1522,13 +1562,51 @@ class EngFormatter(ScalarFormatter):
         pow10 = np.clip(pow10, min(self.ENG_PREFIXES), max(self.ENG_PREFIXES))
 
         mant = sign * value / (10.0 ** pow10)
+        
+        # Determine format string based on digits or places
+        if self.digits is not None:
+            # Significant figures formatting
+            if mant == 0:
+                mant_int_digits = 1
+            else:
+                mant_int_digits = int(math.floor(math.log10(abs(mant)))) + 1
+            
+            # Calculate decimal places needed to achieve desired sig figs
+            decimal_places = max(0, self.digits - mant_int_digits)
+            fmt = f".{decimal_places}f"
+        elif self.places is not None:
+            # Original behavior
+            fmt = f".{self.places:d}f"
+        else:
+            fmt = "g"
+        
+        # Format the mantissa
+        formatted_mant = format(mant, fmt)
+        
         # Taking care of the cases like 999.9..., which may be rounded to 1000
         # instead of 1 k.  Beware of the corner case of values that are beyond
         # the range of SI prefixes (i.e. > 'Y').
-        if (abs(float(format(mant, fmt))) >= 1000
+        if (abs(float(formatted_mant)) >= 1000
                 and pow10 < max(self.ENG_PREFIXES)):
             mant /= 1000
             pow10 += 3
+            
+            # Reformat with adjusted exponent
+            if self.digits is not None:
+                # After dividing by 1000, we have 1 digit before decimal
+                mant_int_digits = 1
+                decimal_places = max(0, self.digits - mant_int_digits)
+                fmt = f".{decimal_places}f"
+            elif self.places is not None:
+                fmt = f".{self.places:d}f"
+            else:
+                fmt = "g"
+            
+            formatted_mant = format(mant, fmt)
+        
+        # Trim trailing zeros if requested
+        if self.trim_zeros == "trim" and "." in formatted_mant:
+            formatted_mant = formatted_mant.rstrip("0").rstrip(".")
 
         unit_prefix = self.ENG_PREFIXES[int(pow10)]
         if self.unit or unit_prefix:
@@ -1536,9 +1614,9 @@ class EngFormatter(ScalarFormatter):
         else:
             suffix = ""
         if self._usetex or self._useMathText:
-            return f"${mant:{fmt}}${suffix}"
+            return f"${formatted_mant}${suffix}"
         else:
-            return f"{mant:{fmt}}{suffix}"
+            return f"{formatted_mant}{suffix}"
 
 
 class PercentFormatter(Formatter):
