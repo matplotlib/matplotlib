@@ -2143,8 +2143,10 @@ class Axes3D(Axes):
         self.auto_scale_xyz([x1, x2], [y1, y2], [z1, z2], had_data)
         return polyc
 
-    def plot_surface(self, X, Y, Z, *, norm=None, vmin=None,
-                     vmax=None, lightsource=None, axlim_clip=False, **kwargs):
+    def plot_surface(
+    self, X, Y, Z, *, norm=None, vmin=None, vmax=None, lightsource=None,
+    axlim_clip=False, interpolation=None, **kwargs
+):
         """
         Create a surface plot.
 
@@ -2254,6 +2256,28 @@ class Axes3D(Axes):
 
         fcolors = kwargs.pop('facecolors', None)
 
+        if fcolors is not None and interpolation is not None:
+            try:
+                from scipy.ndimage import zoom
+            except ImportError:
+                raise ImportError("scipy is required for interpolation of facecolors")
+            fc = np.asarray(fcolors)
+            zoom_factors = [
+                X.shape[0] / fc.shape[0],
+                X.shape[1] / fc.shape[1]
+            ]
+            order = (
+                1 if interpolation == 'bilinear'
+                else 3 if interpolation == 'bicubic'
+                else 0
+            )
+            fc_interp = zoom(fc, zoom_factors, order=order)
+            if fc_interp.shape[2] not in (3, 4):
+                raise ValueError(
+                    "Interpolated facecolors must have 3 or 4 channels (RGB or RGBA)"
+                )
+            fcolors = fc_interp.astype(float)
+
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
         if shade is None:
@@ -2313,7 +2337,7 @@ class Axes3D(Axes):
 
         if fcolors is not None:
             polyc = art3d.Poly3DCollection(
-                polys, edgecolors=colset, facecolors=colset, shade=shade,
+                polys, facecolors=fcolors, shade=shade,
                 lightsource=lightsource, axlim_clip=axlim_clip, **kwargs)
         elif cmap:
             polyc = art3d.Poly3DCollection(polys, axlim_clip=axlim_clip, **kwargs)
@@ -2508,12 +2532,15 @@ class Axes3D(Axes):
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
             *cmap* is specified.
+
         lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
+
         axlim_clip : bool, default: False
             Whether to hide patches with a vertex outside the axes view limits.
 
             .. versionadded:: 3.10
+
         **kwargs
             All other keyword arguments are passed on to
             :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
