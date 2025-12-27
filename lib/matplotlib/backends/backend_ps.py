@@ -88,16 +88,18 @@ def _move_path_to_path_or_stream(src, dst):
         shutil.move(src, dst, copy_function=shutil.copyfile)
 
 
-def _font_to_ps_type3(font_path, chars):
+def _font_to_ps_type3(font_path, subset_index, glyph_indices):
     """
-    Subset *chars* from the font at *font_path* into a Type 3 font.
+    Subset *glyphs_indices* from the font at *font_path* into a Type 3 font.
 
     Parameters
     ----------
-    font_path : path-like
+    font_path : FontPath
         Path to the font to be subsetted.
-    chars : str
-        The characters to include in the subsetted font.
+    subset_index : int
+        The subset of the above font being created.
+    glyph_indices : set[int]
+        The glyphs to include in the subsetted font.
 
     Returns
     -------
@@ -106,13 +108,12 @@ def _font_to_ps_type3(font_path, chars):
         verbatim into a PostScript file.
     """
     font = get_font(font_path, hinting_factor=1)
-    glyph_ids = [font.get_char_index(c) for c in chars]
 
     preamble = """\
 %!PS-Adobe-3.0 Resource-Font
 %%Creator: Converted from TrueType to Type 3 by Matplotlib.
 10 dict begin
-/FontName /{font_name} def
+/FontName /{font_name}-{subset} def
 /PaintType 0 def
 /FontMatrix [{inv_units_per_em} 0 0 {inv_units_per_em} 0 0] def
 /FontBBox [{bbox}] def
@@ -120,12 +121,12 @@ def _font_to_ps_type3(font_path, chars):
 /Encoding [{encoding}] def
 /CharStrings {num_glyphs} dict dup begin
 /.notdef 0 def
-""".format(font_name=font.postscript_name,
+""".format(font_name=font.postscript_name, subset=subset_index,
            inv_units_per_em=1 / font.units_per_EM,
            bbox=" ".join(map(str, font.bbox)),
-           encoding=" ".join(f"/{font.get_glyph_name(glyph_id)}"
-                             for glyph_id in glyph_ids),
-           num_glyphs=len(glyph_ids) + 1)
+           encoding=" ".join(f"/{font.get_glyph_name(glyph_index)}"
+                             for glyph_index in glyph_indices),
+           num_glyphs=len(glyph_indices) + 1)
     postamble = """
 end readonly def
 
@@ -146,12 +147,12 @@ FontName currentdict end definefont pop
 """
 
     entries = []
-    for glyph_id in glyph_ids:
-        g = font.load_glyph(glyph_id, LoadFlags.NO_SCALE)
+    for glyph_index in glyph_indices:
+        g = font.load_glyph(glyph_index, LoadFlags.NO_SCALE)
         v, c = font.get_path()
         entries.append(
             "/%(name)s{%(bbox)s sc\n" % {
-                "name": font.get_glyph_name(glyph_id),
+                "name": font.get_glyph_name(glyph_index),
                 "bbox": " ".join(map(str, [g.horiAdvance, 0, *g.bbox])),
             }
             + _path.convert_to_string(
@@ -169,35 +170,32 @@ FontName currentdict end definefont pop
     return preamble + "\n".join(entries) + postamble
 
 
-def _font_to_ps_type42(font_path, chars, fh):
+def _font_to_ps_type42(font_path, subset_index, glyph_indices, fh):
     """
-    Subset *chars* from the font at *font_path* into a Type 42 font at *fh*.
+    Subset *glyph_indices* from the font at *font_path* into a Type 42 font at *fh*.
 
     Parameters
     ----------
-    font_path : path-like
+    font_path : FontPath
         Path to the font to be subsetted.
-    chars : str
-        The characters to include in the subsetted font.
+    subset_index : int
+        The subset of the above font being created.
+    glyph_indices : set[int]
+        The glyphs to include in the subsetted font.
     fh : file-like
         Where to write the font.
     """
-    subset_str = ''.join(chr(c) for c in chars)
-    _log.debug("SUBSET %s characters: %s", font_path, subset_str)
+    _log.debug("SUBSET %s:%d characters: %s", font_path, subset_index, glyph_indices)
     try:
-        kw = {}
-        # fix this once we support loading more fonts from a collection
-        # https://github.com/matplotlib/matplotlib/issues/3135#issuecomment-571085541
-        if font_path.endswith('.ttc'):
-            kw['fontNumber'] = 0
-        with (fontTools.ttLib.TTFont(font_path, **kw) as font,
-              _backend_pdf_ps.get_glyphs_subset(font_path, subset_str) as subset):
+        with (fontTools.ttLib.TTFont(font_path.path,
+                                     fontNumber=font_path.face_index) as font,
+              _backend_pdf_ps.get_glyphs_subset(font_path, glyph_indices) as subset):
             fontdata = _backend_pdf_ps.font_as_file(subset).getvalue()
             _log.debug(
-                "SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
-                len(fontdata)
+                "SUBSET %s:%d %d -> %d", font_path, subset_index,
+                os.stat(font_path).st_size, len(fontdata)
             )
-            fh.write(_serialize_type42(font, subset, fontdata))
+            fh.write(_serialize_type42(font, subset_index, subset, fontdata))
     except RuntimeError:
         _log.warning(
             "The PostScript backend does not currently support the selected font (%s).",
@@ -205,7 +203,7 @@ def _font_to_ps_type42(font_path, chars, fh):
         raise
 
 
-def _serialize_type42(font, subset, fontdata):
+def _serialize_type42(font, subset_index, subset, fontdata):
     """
     Output a PostScript Type-42 format representation of font
 
@@ -213,6 +211,8 @@ def _serialize_type42(font, subset, fontdata):
     ----------
     font : fontTools.ttLib.ttFont.TTFont
         The original font object
+    subset_index : int
+        The subset of the above font to be created.
     subset : fontTools.ttLib.ttFont.TTFont
         The subset font object
     fontdata : bytes
@@ -233,7 +233,7 @@ def _serialize_type42(font, subset, fontdata):
         10 dict begin
         /FontType 42 def
         /FontMatrix [1 0 0 1 0 0] def
-        /FontName /{name.getDebugName(6)} def
+        /FontName /{name.getDebugName(6)}-{subset_index} def
         /FontInfo 7 dict dup begin
         /FullName ({name.getDebugName(4)}) def
         /FamilyName ({name.getDebugName(1)}) def
@@ -427,7 +427,8 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._clip_paths = {}
         self._path_collection_id = 0
 
-        self._character_tracker = _backend_pdf_ps.CharacterTracker()
+        self._character_tracker = _backend_pdf_ps.CharacterTracker(
+            _backend_pdf_ps._FONT_MAX_GLYPH.get(mpl.rcParams['ps.fonttype'], 0))
         self._logwarn_once = functools.cache(_log.warning)
 
     def _is_transparent(self, rgb_or_rgba):
@@ -771,15 +772,14 @@ grestore
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        stream = []  # list of (ps_name, x, char_name)
+        stream = []  # list of (ps_name, x, y, char_name)
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
-            ps_name = (font.postscript_name.encode("ascii", "replace")
-                        .decode("ascii"))
+            ps_name = font.postscript_name.encode("ascii", "replace").decode("ascii")
             scale = 0.001 * prop.get_size_in_points()
             thisx = 0
-            last_name = None  # kerns returns 0 for None.
+            last_name = ''  # kerns returns 0 for ''.
             for c in s:
                 name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
                 try:
@@ -790,24 +790,33 @@ grestore
                 kern = font.get_kern_dist_from_name(last_name, name)
                 last_name = name
                 thisx += kern * scale
-                stream.append((ps_name, thisx, name))
+                stream.append((ps_name, thisx, 0, name))
                 thisx += width * scale
 
         else:
+            if mtext is not None:
+                features = mtext.get_fontfeatures()
+                language = mtext.get_language()
+            else:
+                features = language = None
             font = self._get_font_ttf(prop)
-            self._character_tracker.track(font, s)
-            for item in _text_helpers.layout(s, font):
+            for item in _text_helpers.layout(s, font, features=features,
+                                             language=language):
+                # NOTE: We ignore the character code in the subset, because PS uses the
+                # glyph name to write text. The subset is only used to ensure that each
+                # one does not overflow format limits.
+                subset, _ = self._character_tracker.track_glyph(
+                    item.ft_object, item.char, item.glyph_index)
                 ps_name = (item.ft_object.postscript_name
                            .encode("ascii", "replace").decode("ascii"))
-                glyph_name = item.ft_object.get_glyph_name(item.glyph_idx)
-                stream.append((ps_name, item.x, glyph_name))
+                glyph_name = item.ft_object.get_glyph_name(item.glyph_index)
+                stream.append((f'{ps_name}-{subset}', item.x, item.y, glyph_name))
         self.set_color(*gc.get_rgb())
 
-        for ps_name, group in itertools. \
-                groupby(stream, lambda entry: entry[0]):
+        for ps_name, group in itertools.groupby(stream, lambda entry: entry[0]):
             self.set_font(ps_name, prop.get_size_in_points(), False)
-            thetext = "\n".join(f"{x:g} 0 m /{name:s} glyphshow"
-                                for _, x, name in group)
+            thetext = "\n".join(f"{x:g} {y:g} m /{name:s} glyphshow"
+                                for _, x, y, name in group)
             self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
@@ -828,13 +837,17 @@ grestore
             f"{x:g} {y:g} translate\n"
             f"{angle:g} rotate\n")
         lastfont = None
-        for font, fontsize, num, ox, oy in glyphs:
-            self._character_tracker.track_glyph(font, num)
-            if (font.postscript_name, fontsize) != lastfont:
-                lastfont = font.postscript_name, fontsize
+        for font, fontsize, ccode, glyph_index, ox, oy in glyphs:
+            # NOTE: We ignore the character code in the subset, because PS uses the
+            # glyph name to write text. The subset is only used to ensure that each one
+            # does not overflow format limits.
+            subset, _ = self._character_tracker.track_glyph(
+                font, ccode, glyph_index)
+            if (font.postscript_name, subset, fontsize) != lastfont:
+                lastfont = font.postscript_name, subset, fontsize
                 self._pswriter.write(
-                    f"/{font.postscript_name} {fontsize} selectfont\n")
-            glyph_name = font.get_glyph_name(font.get_char_index(num))
+                    f"/{font.postscript_name}-{subset} {fontsize} selectfont\n")
+            glyph_name = font.get_glyph_name(glyph_index)
             self._pswriter.write(
                 f"{ox:g} {oy:g} moveto\n"
                 f"/{glyph_name} glyphshow\n")
@@ -1067,24 +1080,21 @@ class FigureCanvasPS(FigureCanvasBase):
             Ndict = len(_psDefs)
             print("%%BeginProlog", file=fh)
             if not mpl.rcParams['ps.useafm']:
-                Ndict += len(ps_renderer._character_tracker.used)
+                Ndict += sum(map(len, ps_renderer._character_tracker.used.values()))
             print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
             print("\n".join(_psDefs), file=fh)
             if not mpl.rcParams['ps.useafm']:
-                for font_path, chars \
-                        in ps_renderer._character_tracker.used.items():
-                    if not chars:
-                        continue
-                    fonttype = mpl.rcParams['ps.fonttype']
-                    # Can't use more than 255 chars from a single Type 3 font.
-                    if len(chars) > 255:
-                        fonttype = 42
-                    fh.flush()
-                    if fonttype == 3:
-                        fh.write(_font_to_ps_type3(font_path, chars))
-                    else:  # Type 42 only.
-                        _font_to_ps_type42(font_path, chars, fh)
+                for font, subsets in ps_renderer._character_tracker.used.items():
+                    for subset, charmap in enumerate(subsets):
+                        if not charmap:
+                            continue
+                        fonttype = mpl.rcParams['ps.fonttype']
+                        fh.flush()
+                        if fonttype == 3:
+                            fh.write(_font_to_ps_type3(font, subset, charmap.values()))
+                        else:  # Type 42 only.
+                            _font_to_ps_type42(font, subset, charmap.values(), fh)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
