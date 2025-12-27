@@ -78,6 +78,22 @@ def _depart_query_reference_node(self, node):
     self.depart_literal(node)
 
 
+# We sometimes want to use special notation in rcParam references, e.g.
+# to use wildcards. This mapping maps such special notations to real rcParams,
+# typically to the first relevant parameter in the group.
+_RC_WILDCARD_LINK_MAPPING = {
+    "animation.[name-of-encoder]_args": "animation.ffmpeg_args",
+    "figure.subplot.*": "figure.subplot.left",
+    "figure.subplot.[name]": "figure.subplot.left",
+    "font.*": "font.family",
+    "lines.*": "lines.linewidth",
+    "patch.*": "patch.edgecolor",
+    "grid.major.*": "grid.major.color",
+    "grid.minor.*": "grid.minor.color",
+    "grid.*": "grid.color",
+}
+
+
 def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=None):
     """
     Sphinx role ``:rc:`` to highlight and link ``rcParams`` entries.
@@ -89,7 +105,8 @@ def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=No
     # Generate a pending cross-reference so that Sphinx will ensure this link
     # isn't broken at some point in the future.
     title = f'rcParams["{text}"]'
-    target = 'matplotlibrc-sample'
+    rc_param_name = _RC_WILDCARD_LINK_MAPPING.get(text, text)
+    target = f'rcparam_{rc_param_name.replace(".", "_")}'
     ref_nodes, messages = inliner.interpreted(title, f'{title} <{target}>',
                                               'ref', lineno)
 
