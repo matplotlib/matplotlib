@@ -750,6 +750,7 @@
                             # Experimental: may produce smaller files.
                             # xpdf intended for production of publication quality files,
                             # but requires ghostscript, xpdf and ps2eps
+#ps.pathtext:       False   # Enable or Disable drawing text as a path
 #ps.distiller.res:  6000    # dpi
 #ps.fonttype:       3       # Output Type 3 (Type3) or Type 42 (TrueType)
 
