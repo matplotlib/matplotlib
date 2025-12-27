@@ -7326,6 +7326,9 @@ or pandas.DataFrame
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
+            .. versionadded:: 3.10
+               It is now possible to use a single color with multiple datasets.
+
         label : str or list of str, optional
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
@@ -7447,6 +7450,8 @@ such objects
         if color is None:
             colors = [self._get_lines.get_next_color() for i in range(nx)]
         else:
+            if mcolors.is_color_like(color):
+                color = [color]*nx
             colors = mcolors.to_rgba_array(color)
             if len(colors) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
