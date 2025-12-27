@@ -2865,7 +2865,7 @@ class TransformedPatchPath(TransformedPath):
         super()._revalidate()
 
 
-def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
+def _nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     """
     Modify the endpoints of a range as needed to avoid singularities.
 
@@ -2923,7 +2923,13 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     return vmin, vmax
 
 
-def interval_contains(interval, val):
+@_api.deprecated("3.11")
+def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
+    return _nonsingular(vmin, vmax, expander, tiny, increasing)
+nonsingular.__doc__ = _nonsingular.__doc__
+
+
+def _interval_contains(interval, val):
     """
     Check, inclusively, whether an interval includes a given value.
 
@@ -2943,6 +2949,12 @@ def interval_contains(interval, val):
     if a > b:
         a, b = b, a
     return a <= val <= b
+
+
+@_api.deprecated("3.11")
+def interval_contains(interval, val):
+    return _interval_contains(interval, val)
+interval_contains.__doc__ = _interval_contains.__doc__
 
 
 def _interval_contains_close(interval, val, rtol=1e-10):
@@ -2974,7 +2986,7 @@ def _interval_contains_close(interval, val, rtol=1e-10):
     return a - rtol <= val <= b + rtol
 
 
-def interval_contains_open(interval, val):
+def _interval_contains_open(interval, val):
     """
     Check, excluding endpoints, whether an interval includes a given value.
 
@@ -2992,6 +3004,12 @@ def interval_contains_open(interval, val):
     """
     a, b = interval
     return a < val < b or a > val > b
+
+
+@_api.deprecated("3.11")
+def interval_contains_open(interval, val):
+    return _interval_contains_open(interval, val)
+_interval_contains_open.__doc__ = _interval_contains_open.__doc__
 
 
 def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):

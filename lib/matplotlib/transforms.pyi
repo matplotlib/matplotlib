@@ -316,6 +316,13 @@ class TransformedPath(TransformNode):
 class TransformedPatchPath(TransformedPath):
     def __init__(self, patch: Patch) -> None: ...
 
+def _nonsingular(
+    vmin: float,
+    vmax: float,
+    expander: float = ...,
+    tiny: float = ...,
+    increasing: bool = ...,
+) -> tuple[float, float]: ...
 def nonsingular(
     vmin: float,
     vmax: float,
@@ -323,7 +330,9 @@ def nonsingular(
     tiny: float = ...,
     increasing: bool = ...,
 ) -> tuple[float, float]: ...
+def _interval_contains(interval: tuple[float, float], val: float) -> bool: ...
 def interval_contains(interval: tuple[float, float], val: float) -> bool: ...
+def _interval_contains_open(interval: tuple[float, float], val: float) -> bool: ...
 def interval_contains_open(interval: tuple[float, float], val: float) -> bool: ...
 def offset_copy(
     trans: Transform,
