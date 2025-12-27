@@ -17,6 +17,7 @@ Name          Class                 Transform                        Inverted tr
 "log"         `LogScale`            `LogTransform`                   `InvertedLogTransform`
 "logit"       `LogitScale`          `LogitTransform`                 `LogisticTransform`
 "symlog"      `SymmetricalLogScale` `SymmetricalLogTransform`        `InvertedSymmetricalLogTransform`
+"power"       `PowerScale`          `PowerTransform`                 `InvertedPowerTransform`
 ============= ===================== ================================ =================================
 
 A user will often only use the scale name, e.g. when setting the scale through
@@ -267,6 +268,111 @@ class FuncScale(ScaleBase):
 
     def get_transform(self):
         """Return the `.FuncTransform` associated with this scale."""
+        return self._transform
+
+    def set_default_locators_and_formatters(self, axis):
+        # docstring inherited
+        axis.set_major_locator(AutoLocator())
+        axis.set_major_formatter(ScalarFormatter())
+        axis.set_minor_formatter(NullFormatter())
+        # update the minor locator for x and y axis based on rcParams
+        if (axis.axis_name == 'x' and mpl.rcParams['xtick.minor.visible'] or
+                axis.axis_name == 'y' and mpl.rcParams['ytick.minor.visible']):
+            axis.set_minor_locator(AutoMinorLocator())
+        else:
+            axis.set_minor_locator(NullLocator())
+
+
+class PowerTransform(Transform):
+    """
+    A simple power transformation used by `.PowerScale`.
+
+    This transformation applies a power-law scaling to positive values, while
+    nonpositive values remain unchanged.
+    """
+    input_dims = output_dims = 1
+
+    def __init__(self, gamma):
+        """
+        Parameters
+        ----------
+        gamma : float
+            Power law exponent.
+        """
+        super().__init__()
+        self.gamma = gamma
+
+    def __str__(self):
+        return "{}(gamma={})".format(
+            type(self).__name__, self.gamma)
+
+    def transform_non_affine(self, a):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            mask = np.ma.getmask(a)
+            d = np.asarray(a.data)
+            out = np.where(d > 0, np.power(d, self.gamma), d)
+            mout = np.ma.masked_array(out, mask=mask)
+            return mout
+
+    def inverted(self):
+        return InvertedPowerTransform(self.gamma)
+
+
+class InvertedPowerTransform(Transform):
+    """
+    The inverse of the `.PowerTransform`.
+
+    This transformation applies an inverse power-law scaling to positive values,
+    while nonpositive values remain unchanged.
+    """
+    input_dims = output_dims = 1
+
+    def __init__(self, gamma):
+        """
+        Parameters
+        ----------
+        gamma : float
+            Power law exponent.
+        """
+        super().__init__()
+        if gamma == 0:
+            raise ValueError('gamma cannot be 0')
+        self.gamma = gamma
+
+    def transform_non_affine(self, a):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            input_mask = np.ma.getmask(a)
+            d = np.asarray(a.data)
+            out = np.where(d > 0, np.power(d, 1. / self.gamma), d)
+            mout = np.ma.array(out, mask=input_mask)
+            return mout
+
+    def inverted(self):
+        return PowerTransform(self.gamma)
+
+
+class PowerScale(ScaleBase):
+    """
+    A standard power scale
+    """
+    name = 'power'
+
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, *, gamma=0.5):
+        """
+        Parameters
+        ----------
+        axis : `~matplotlib.axis.Axis`
+            The axis for the scale.
+        gamma : float, default: 0.5
+            Power law exponent.
+        """
+        self._transform = PowerTransform(gamma)
+
+    gamma = property(lambda self: self._transform.gamma)
+
+    def get_transform(self):
+        """Return the `.PowerTransform` associated with this scale."""
         return self._transform
 
     def set_default_locators_and_formatters(self, axis):
@@ -807,6 +913,7 @@ _scale_mapping = {
     'logit':  LogitScale,
     'function': FuncScale,
     'functionlog': FuncScaleLog,
+    'power': PowerScale,
     }
 
 # caching of signature info
