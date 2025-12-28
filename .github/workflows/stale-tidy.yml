@@ -7,7 +7,7 @@ on:
 jobs:
   stale:
     if: github.repository == 'matplotlib/matplotlib'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/stale@997185467fa4f803885201cee163a9f38240193d  # v10.1.1
         with:

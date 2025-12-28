@@ -11,7 +11,7 @@ permissions: {}
 jobs:
   do-not-merge:
     name: Prevent Merging
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       has_tag: >-
          ${{contains(github.event.pull_request.labels.*.name, 'status: needs comment/discussion') ||
