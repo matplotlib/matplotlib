@@ -6,7 +6,8 @@ Scatter plot with a legend
 This example demonstrates how to create scatter plots with legends in Matplotlib.
 
 Legend labels are created by setting the 'label' parameter in the scatter() function.
-Each scatter plot call with a unique label will appear as a separate entry in the legend.
+Each scatter plot call with a unique label will appear as a separate
+entry in the legend.
 
 The example also shows how to adjust marker transparency using the 'alpha' parameter.
 """
