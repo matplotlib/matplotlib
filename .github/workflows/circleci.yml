@@ -6,7 +6,7 @@ jobs:
     if: "${{ github.event.context == 'ci/circleci: docs-python3' }}"
     permissions:
       statuses: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     name: Run CircleCI artifacts redirector
     steps:
       - name: GitHub Action step
@@ -25,7 +25,7 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     name: Post warnings/errors as review
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
