@@ -513,7 +513,11 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                         A = np.dstack([A, np.ones(A.shape[:2])])
                 elif np.ndim(alpha) > 0:  # Array alpha
                     # user-specified array alpha overrides the existing alpha channel
-                    A = np.dstack([A[..., :3], alpha])
+                    # For RGB images, we need to apply alpha after resampling, like for grayscale
+                    post_apply_alpha = True
+                    if A.shape[2] == 3:
+                        A = np.dstack([A, np.ones(A.shape[:2])])
+                    # Alpha array will be applied after resampling
                 else:  # Scalar alpha
                     if A.shape[2] == 3:  # broadcast scalar alpha
                         A = np.dstack([A, np.full(A.shape[:2], alpha, np.float32)])
@@ -530,7 +534,11 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 np.divide(res[..., :3], res[..., 3:], out=res[..., :3],
                             where=res[..., 3:] != 0)
                 if post_apply_alpha:
-                    res[..., 3] *= alpha
+                    if np.ndim(alpha) > 0:  # Array alpha - needs resampling
+                        alpha_resampled = _resample(self, alpha, out_shape, t, resample=True)
+                        res[..., 3] *= alpha_resampled
+                    else:  # Scalar alpha
+                        res[..., 3] *= alpha
 
             # res is now either a 2D array of normed (int or float) data
             # or an RGBA array of re-sampled input
