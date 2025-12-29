@@ -6597,8 +6597,9 @@ or pandas.DataFrame
             Whether to snap the mesh to pixel boundaries.
 
             .. versionchanged:: 3.4.0
-               The default value changed from *False* to *True* to improve transparency 
+               The default value changed from *False* to *True* to improve transparency
                handling. See :ref:`whats-new-3-4-0` for details.
+
         Returns
         -------
         `matplotlib.collections.PolyQuadMesh`
@@ -6814,7 +6815,7 @@ or pandas.DataFrame
             Whether to snap the mesh to pixel boundaries.
 
             .. versionchanged:: 3.4.0
-               The default value changed from *False* to *True* to improve transparency 
+               The default value changed from *False* to *True* to improve transparency
                handling. See :ref:`whats-new-3-4-0` for details.
 
         rasterized : bool, optional
@@ -7034,8 +7035,9 @@ or pandas.DataFrame
             Whether to snap the mesh to pixel boundaries.
 
             .. versionchanged:: 3.4.0
-               The default value changed from *False* to *True* to improve transparency 
+               The default value changed from *False* to *True* to improve transparency
                handling. See :ref:`whats-new-3-4-0` for details.
+
         Returns
         -------
         `.AxesImage` or `.PcolorImage` or `.QuadMesh`
