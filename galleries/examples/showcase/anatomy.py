@@ -4,6 +4,8 @@ Anatomy of a figure
 ===================
 
 This figure shows the name of several matplotlib elements composing a figure
+
+To see detailed information, see :ref:`axes_intro`.
 """
 
 
