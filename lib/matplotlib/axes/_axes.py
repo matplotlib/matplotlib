@@ -7030,7 +7030,7 @@ or pandas.DataFrame
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        snap : bool, default: :rc:`pcolormesh.snap` (True)
+        snap : bool, default: :rc:`pcolormesh.snap`
             Whether to snap the mesh to pixel boundaries.
 
             .. versionchanged:: 3.4.0
