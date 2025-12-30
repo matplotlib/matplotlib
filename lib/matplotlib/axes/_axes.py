@@ -6592,7 +6592,7 @@ or pandas.DataFrame
             and 1 (opaque). Note: The edgecolor is currently not affected by
             this.
 
-        snap : bool, default: :rc:`pcolormesh.snap` (True)
+        snap : bool, default: :rc:`pcolormesh.snap`
             Whether to snap the mesh to pixel boundaries.
 
             .. versionchanged:: 3.4.0
