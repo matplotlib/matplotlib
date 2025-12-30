@@ -6810,7 +6810,7 @@ or pandas.DataFrame
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
             for more description.
 
-        snap : bool, default: :rc:`pcolormesh.snap` (True)
+        snap : bool, default: :rc:`pcolormesh.snap`
             Whether to snap the mesh to pixel boundaries.
             Whether to snap the mesh to pixel boundaries.
 
