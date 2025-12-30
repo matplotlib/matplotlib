@@ -6809,8 +6809,7 @@ or pandas.DataFrame
             Whether to snap the mesh to pixel boundaries.
             .. versionchanged:: 3.4.0
                The default value changed from *False* to *True* to improve transparency
-               handling. See :ref:`whats-new-3-4-0` for details.
-               
+               handling. See :ref:`whats-new-3-4-0` for details.             
         rasterized : bool, optional
             Rasterize the pcolormesh when drawing vector graphics.  This can
             speed up rendering and produce smaller files for large data sets.
