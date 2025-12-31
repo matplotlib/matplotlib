@@ -1842,7 +1842,7 @@ def subplots(
         axs[0, 0].plot(x, y)
         axs[1, 1].scatter(x, y)
 
-        # Share a X axis with each column of subplots
+        # Share an X axis with each column of subplots
         plt.subplots(2, 2, sharex='col')
 
         # Share a Y axis with each row of subplots

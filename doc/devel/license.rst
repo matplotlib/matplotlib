@@ -10,7 +10,7 @@ another project make sure it has a PSF, BSD, MIT or compatible license
 licenses).  If it doesn't, you may consider contacting the author and
 asking them to relicense it.  GPL and LGPL code are not acceptable in
 the main code base, though we are considering an alternative way of
-distributing L/GPL code through an separate channel, possibly a
+distributing L/GPL code through a separate channel, possibly a
 toolkit.  If you include code, make sure you include a copy of that
 code's license in the license directory if the code's license requires
 you to distribute the license with it.  Non-BSD compatible licenses

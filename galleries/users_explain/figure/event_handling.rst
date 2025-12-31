@@ -605,7 +605,7 @@ Picking exercise
 
 Create a data set of 100 arrays of 1000 Gaussian random numbers and
 compute the sample mean and standard deviation of each of them (hint:
-NumPy arrays have a mean and std method) and make a xy marker plot of
+NumPy arrays have a mean and std method) and make an xy marker plot of
 the 100 means vs. the 100 standard deviations.  Connect the line
 created by the plot command to the pick event, and plot the original
 time series of the data that generated the clicked on points.  If more

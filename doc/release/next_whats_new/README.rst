@@ -34,7 +34,7 @@ Include contents of the form::
     details should be left out when they do not impact usage, for example
     implementation details.
 
-    The description may include a a short instructive example, if it helps to
+    The description may include a short instructive example, if it helps to
     understand the feature.
 
 Please avoid using references in section titles, as it causes links to be
