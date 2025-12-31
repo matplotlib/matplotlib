@@ -73,6 +73,8 @@ jobs:
             pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
             python-version: '3.12'
+          - os: ubuntu-24.04
+            python-version: '3.14'
           - os: ubuntu-24.04-arm
             python-version: '3.12'
           - os: macos-14  # This runner is on M1 (arm64) chips.
@@ -85,6 +87,10 @@ jobs:
             pygobject-ver: '<3.52.0'
           - os: macos-15  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
+          - os: macos-15  # This runner is on M1 (arm64) chips.
+            python-version: '3.14'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
 
