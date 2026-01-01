@@ -50,7 +50,7 @@ To create an Axes, ::
 
   import mpl_toolkits.axisartist as AA
   fig = plt.figure()
-  fig.add_axes([0.1, 0.1, 0.8, 0.8], axes_class=AA.Axes)
+  fig.add_axes((0.1, 0.1, 0.8, 0.8), axes_class=AA.Axes)
 
 or to create a subplot ::
 
@@ -131,7 +131,7 @@ few things that mpl_toolkits.axisartist.Axes is different from original
 Axes from Matplotlib.
 
 * Axis elements (axis line(spine), ticks, ticklabel and axis labels)
-  are drawn by a AxisArtist instance. Unlike Axis, left, right, top
+  are drawn by an AxisArtist instance. Unlike Axis, left, right, top
   and bottom axis are drawn by separate artists. And each of them may
   have different tick location and different tick labels.
 
@@ -569,7 +569,7 @@ See the first example of this page.
 Current limitations and TODO's
 ==============================
 
-The code need more refinement. Here is a incomplete list of issues and TODO's
+The code need more refinement. Here is an incomplete list of issues and TODO's
 
 * No easy way to support a user customized tick location (for
   curvilinear grid). A new Locator class needs to be created.

@@ -22,8 +22,9 @@ import re
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import _api, cbook
-from matplotlib.backends import BackendFilter, backend_registry
+from matplotlib.backends import backend_registry
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
 from matplotlib._fontconfig_pattern import parse_fontconfig_pattern
@@ -31,32 +32,6 @@ from matplotlib._enums import JoinStyle, CapStyle
 
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
-
-
-@_api.caching_module_getattr
-class __getattr__:
-    @_api.deprecated(
-        "3.9",
-        alternative="``matplotlib.backends.backend_registry.list_builtin"
-            "(matplotlib.backends.BackendFilter.INTERACTIVE)``")
-    @property
-    def interactive_bk(self):
-        return backend_registry.list_builtin(BackendFilter.INTERACTIVE)
-
-    @_api.deprecated(
-        "3.9",
-        alternative="``matplotlib.backends.backend_registry.list_builtin"
-            "(matplotlib.backends.BackendFilter.NON_INTERACTIVE)``")
-    @property
-    def non_interactive_bk(self):
-        return backend_registry.list_builtin(BackendFilter.NON_INTERACTIVE)
-
-    @_api.deprecated(
-        "3.9",
-        alternative="``matplotlib.backends.backend_registry.list_builtin()``")
-    @property
-    def all_backends(self):
-        return backend_registry.list_builtin()
 
 
 class ValidateInStrings:
@@ -93,6 +68,25 @@ class ValidateInStrings:
         raise ValueError(msg)
 
 
+def _single_string_color_list(s, scalar_validator):
+    """
+    Convert the string *s* to a list of colors interpreting it either as a
+    color sequence name, or a string containing single-letter colors.
+    """
+    try:
+        colors = mpl.color_sequences[s]
+    except KeyError:
+        try:
+            # Sometimes, a list of colors might be a single string
+            # of single-letter colornames. So give that a shot.
+            colors = [scalar_validator(v.strip()) for v in s if v.strip()]
+        except ValueError:
+            raise ValueError(f'{s!r} is neither a color sequence name nor can '
+                             'it be interpreted as a list of colors')
+
+    return colors
+
+
 @lru_cache
 def _listify_validator(scalar_validator, allow_stringlist=False, *,
                        n=None, doc=None):
@@ -103,9 +97,8 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *,
                        if v.strip()]
             except Exception:
                 if allow_stringlist:
-                    # Sometimes, a list of colors might be a single string
-                    # of single-letter colornames. So give that a shot.
-                    val = [scalar_validator(v.strip()) for v in s if v.strip()]
+                    # Special handling for colors
+                    val = _single_string_color_list(s, scalar_validator)
                 else:
                     raise
         # Allow any ordered sequence type -- generators, np.ndarray, pd.Series
@@ -368,6 +361,12 @@ def validate_color(s):
     raise ValueError(f'{s!r} does not look like a color arg')
 
 
+def _validate_color_or_None(s):
+    if s is None or cbook._str_equal(s, "None"):
+        return None
+    return validate_color(s)
+
+
 validate_colorlist = _listify_validator(
     validate_color, allow_stringlist=True, doc='return a list of colorspecs')
 
@@ -520,6 +519,13 @@ def _validate_linestyle(ls):
             return (offset, onoff)
 
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
+
+
+def _validate_linestyle_or_None(s):
+    if s is None or cbook._str_equal(s, "None"):
+        return None
+
+    return _validate_linestyle(s)
 
 
 validate_fillstyle = ValidateInStrings(
@@ -1016,6 +1022,7 @@ _validators = {
     "boxplot.meanprops.linewidth":       validate_float,
 
     ## font props
+    "font.enable_last_resort":     validate_bool,
     "font.family":     validate_stringlist,  # used by text object
     "font.style":      validate_string,
     "font.variant":    validate_string,
@@ -1133,6 +1140,9 @@ _validators = {
     "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.zaxis.panecolor":    validate_color,  # 3d background pane
 
+    "axes3d.depthshade": validate_bool,  # depth shade for 3D scatter plots
+    "axes3d.depthshade_minalpha": validate_float,  # min alpha value for depth shading
+
     "axes3d.mouserotationstyle": ["azel", "trackball", "sphere", "arcball"],
     "axes3d.trackballsize": validate_float,
     "axes3d.trackballborder": validate_float,
@@ -1174,6 +1184,8 @@ _validators = {
     "legend.frameon":        validate_bool,
     # alpha value of the legend frame
     "legend.framealpha":     validate_float_or_None,
+    # linewidth of legend frame
+    "legend.linewidth": validate_float_or_None,
 
     ## the following dimensions are in fraction of the font size
     "legend.borderpad":      validate_float,  # units are fontsize
@@ -1244,6 +1256,16 @@ _validators = {
     "grid.linestyle":    _validate_linestyle,  # solid
     "grid.linewidth":    validate_float,     # in points
     "grid.alpha":        validate_float,
+
+    "grid.major.color":        _validate_color_or_None,  # grid color
+    "grid.major.linestyle":    _validate_linestyle_or_None,  # solid
+    "grid.major.linewidth":    validate_float_or_None,     # in points
+    "grid.major.alpha":        validate_float_or_None,
+
+    "grid.minor.color":        _validate_color_or_None,  # grid color
+    "grid.minor.linestyle":    _validate_linestyle_or_None,  # solid
+    "grid.minor.linewidth":    validate_float_or_None,     # in points
+    "grid.minor.alpha":        validate_float_or_None,
 
     ## figure props
     # figure title

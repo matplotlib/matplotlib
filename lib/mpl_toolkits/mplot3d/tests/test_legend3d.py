@@ -28,7 +28,7 @@ def test_legend_bar():
 
 
 @image_comparison(['fancy.png'], remove_text=True, style='mpl20',
-                  tol=0.011 if platform.machine() == 'arm64' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.011)
 def test_fancy():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     ax.plot(np.arange(10), np.full(10, 5), np.full(10, 5), 'o--', label='line')
@@ -47,9 +47,9 @@ def test_linecollection_scaled_dashes():
     lc3 = art3d.Line3DCollection(lines3, linestyles=":", lw=.5)
 
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
-    ax.add_collection(lc1)
-    ax.add_collection(lc2)
-    ax.add_collection(lc3)
+    ax.add_collection(lc1, autolim="_datalim_only")
+    ax.add_collection(lc2, autolim="_datalim_only")
+    ax.add_collection(lc3, autolim="_datalim_only")
 
     leg = ax.legend([lc1, lc2, lc3], ['line1', 'line2', 'line 3'])
     h1, h2, h3 = leg.legend_handles
@@ -90,8 +90,7 @@ def test_contourf_legend_elements():
     cs = ax.contourf(x, y, h, levels=[10, 30, 50],
                      colors=['#FFFF00', '#FF00FF', '#00FFFF'],
                      extend='both')
-    cs.cmap.set_over('red')
-    cs.cmap.set_under('blue')
+    cs.cmap = cs.cmap.with_extremes(over='red', under='blue')
     cs.changed()
     artists, labels = cs.legend_elements()
     assert labels == ['$x \\leq -1e+250s$',

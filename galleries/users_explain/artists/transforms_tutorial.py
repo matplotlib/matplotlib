@@ -64,10 +64,9 @@ the *display* coordinates.  In the "Transformation Object" column, ``ax`` is a
 |                |is top right of the output in      |                             |
 |                |"display units".                   |                             |
 |                |                                   |                             |
-|                |The exact interpretation of the    |                             |
-|                |units depends on the back end. For |                             |
-|                |example it is pixels for Agg and   |                             |
-|                |points for svg/pdf.                |                             |
+|                |"Display units" depends on the     |                             |
+|                |backend. For example, Agg uses     |                             |
+|                |pixels, and SVG/PDF use points.    |                             |
 +----------------+-----------------------------------+-----------------------------+
 
 The `~matplotlib.transforms.Transform` objects are naive to the source and
@@ -401,7 +400,7 @@ plt.show()
 fig, ax = plt.subplots()
 xdata, ydata = (0.2, 0.7), (0.5, 0.5)
 ax.plot(xdata, ydata, "o")
-ax.set_xlim((0, 1))
+ax.set_xlim(0, 1)
 
 trans = (fig.dpi_scale_trans +
          transforms.ScaledTranslation(xdata[0], ydata[0], ax.transData))

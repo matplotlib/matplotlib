@@ -10,14 +10,15 @@ from matplotlib.backend_bases import (
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 try:
-    import gi
+    from gi import require_version as gi_require_version
 except ImportError as err:
     raise ImportError("The GTK3 backends require PyGObject") from err
 
 try:
     # :raises ValueError: If module/version is already loaded, already
     # required, or unavailable.
-    gi.require_version("Gtk", "3.0")
+    gi_require_version("Gtk", "3.0")
+    gi_require_version("Gdk", "3.0")
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
@@ -89,6 +90,7 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
 
     def destroy(self):
         CloseEvent("close_event", self)._process()
+        super().destroy()
 
     def set_cursor(self, cursor):
         # docstring inherited

@@ -14,31 +14,12 @@ and interactive visualizations.
 Install
 =======
 
-.. tab-set::
-    :class: sd-width-content-min
+.. include:: install/quick_install.inc.rst
 
-    .. tab-item:: pip
+.. toctree::
+    :hidden:
 
-        .. code-block:: bash
-
-            pip install matplotlib
-
-    .. tab-item:: conda
-
-        .. code-block:: bash
-
-            conda install -c conda-forge matplotlib
-
-    .. tab-item:: other
-
-        .. rst-class:: section-toc
-        .. toctree::
-            :maxdepth: 2
-
-            install/index
-
-For more detailed instructions, see the
-:doc:`installation guide <install/index>`.
+    install/index
 
 Learn
 =====
@@ -135,7 +116,7 @@ What's new
         .. toctree::
             :maxdepth: 1
 
-            users/release_notes.rst
+            release/release_notes.rst
 
 
 Contribute

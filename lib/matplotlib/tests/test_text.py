@@ -1,4 +1,6 @@
 from datetime import datetime
+import gc
+import inspect
 import io
 import warnings
 
@@ -144,8 +146,8 @@ def test_multiline2():
 
     fig, ax = plt.subplots()
 
-    ax.set_xlim([0, 1.4])
-    ax.set_ylim([0, 2])
+    ax.set_xlim(0, 1.4)
+    ax.set_ylim(0, 2)
     ax.axhline(0.5, color='C2', linewidth=0.3)
     sts = ['Line', '2 Lineg\n 2 Lg', '$\\sum_i x $', 'hi $\\sum_i x $\ntest',
            'test\n $\\sum_i x $', '$\\sum_i x $\n $\\sum_i x $']
@@ -206,13 +208,6 @@ def test_antialiasing():
              verticalalignment='center', antialiased=False)
 
     mpl.rcParams['text.antialiased'] = False  # Should not affect existing text.
-
-
-def test_afm_kerning():
-    fn = mpl.font_manager.findfont("Helvetica", fontext="afm")
-    with open(fn, 'rb') as fh:
-        afm = mpl._afm.AFM(fh)
-    assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
 
 
 @image_comparison(['text_contains.png'])
@@ -671,7 +666,7 @@ def test_annotation_update():
                            rtol=1e-6)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_annotation_units(fig_test, fig_ref):
     ax = fig_test.add_subplot()
     ax.plot(datetime.now(), 1, "o")  # Implicitly set axes extents.
@@ -761,7 +756,7 @@ def test_wrap_no_wrap():
     assert text._get_wrapped_text() == 'non wrapped text'
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_buffer_size(fig_test, fig_ref):
     # On old versions of the Agg renderer, large non-ascii single-character
     # strings (here, "€") would be rendered clipped because the rendering
@@ -881,7 +876,12 @@ def test_pdf_chars_beyond_bmp():
 
 @needs_usetex
 def test_metrics_cache():
-    mpl.text._get_text_metrics_with_cache_impl.cache_clear()
+    # dig into the signature to get the mutable default used as a cache
+    renderer_cache = inspect.signature(
+        mpl.text._get_text_metrics_function
+    ).parameters['_cache'].default
+
+    renderer_cache.clear()
 
     fig = plt.figure()
     fig.text(.3, .5, "foo\nbar")
@@ -889,6 +889,8 @@ def test_metrics_cache():
     fig.text(.5, .5, "foo\nbar", usetex=True)
     fig.canvas.draw()
     renderer = fig._get_renderer()
+    assert renderer in renderer_cache
+
     ys = {}  # mapping of strings to where they were drawn in y with draw_tex.
 
     def call(*args, **kwargs):
@@ -904,10 +906,37 @@ def test_metrics_cache():
     # get incorrectly reused by the first TeX string.
     assert len(ys["foo"]) == len(ys["bar"]) == 1
 
-    info = mpl.text._get_text_metrics_with_cache_impl.cache_info()
+    info = renderer_cache[renderer].cache_info()
     # Every string gets a miss for the first layouting (extents), then a hit
     # when drawing, but "foo\nbar" gets two hits as it's drawn twice.
     assert info.hits > info.misses
+
+
+def test_metrics_cache2():
+    # dig into the signature to get the mutable default used as a cache
+    renderer_cache = inspect.signature(
+        mpl.text._get_text_metrics_function
+    ).parameters['_cache'].default
+    gc.collect()
+    renderer_cache.clear()
+
+    def helper():
+        fig, ax = plt.subplots()
+        fig.draw_without_rendering()
+        # show we hit the outer cache
+        assert len(renderer_cache) == 1
+        func = renderer_cache[fig.canvas.get_renderer()]
+        cache_info = func.cache_info()
+        # show we hit the inner cache
+        assert cache_info.currsize > 0
+        assert cache_info.currsize == cache_info.misses
+        assert cache_info.hits > cache_info.misses
+        plt.close(fig)
+
+    helper()
+    gc.collect()
+    # show the outer cache has a lifetime tied to the renderer (via the figure)
+    assert len(renderer_cache) == 0
 
 
 def test_annotate_offset_fontsize():
@@ -958,7 +987,7 @@ def test_annotation_antialiased():
     assert annot4._antialiased == mpl.rcParams['text.antialiased']
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_annotate_and_offsetfrom_copy_input(fig_test, fig_ref):
     # Both approaches place the text (10, 0) pixels away from the center of the line.
     ax = fig_test.add_subplot()
@@ -974,7 +1003,7 @@ def test_annotate_and_offsetfrom_copy_input(fig_test, fig_ref):
     an_xy[:] = 2
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_text_antialiased_off_default_vs_manual(fig_test, fig_ref):
     fig_test.text(0.5, 0.5, '6 inches x 2 inches',
                              antialiased=False)
@@ -983,7 +1012,7 @@ def test_text_antialiased_off_default_vs_manual(fig_test, fig_ref):
     fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
 
 
-@check_figures_equal()
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_text_antialiased_on_default_vs_manual(fig_test, fig_ref):
     fig_test.text(0.5, 0.5, '6 inches x 2 inches', antialiased=True)
 
@@ -1135,3 +1164,58 @@ def test_font_wrap():
     plt.text(3, 4, t, family='monospace', ha='right', wrap=True)
     plt.text(-1, 0, t, fontsize=14, style='italic', ha='left', rotation=-15,
              wrap=True)
+
+
+def test_ha_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance._ha_for_angle(angle)
+        assert alignment in ['center', 'left', 'right']
+
+
+def test_va_for_angle():
+    text_instance = Text()
+    angles = np.arange(0, 360.1, 0.1)
+    for angle in angles:
+        alignment = text_instance._va_for_angle(angle)
+        assert alignment in ['center', 'top', 'baseline']
+
+
+@image_comparison(baseline_images=['xtick_rotation_mode'],
+                  remove_text=False, extensions=['png'], style='mpl20')
+def test_xtick_rotation_mode():
+    fig, ax = plt.subplots(figsize=(12, 1))
+    ax.set_yticks([])
+    ax2 = ax.twiny()
+
+    ax.set_xticks(range(37), ['foo'] * 37, rotation_mode="xtick")
+    ax2.set_xticks(range(37), ['foo'] * 37, rotation_mode="xtick")
+
+    angles = np.linspace(0, 360, 37)
+
+    for tick, angle in zip(ax.get_xticklabels(), angles):
+        tick.set_rotation(angle)
+    for tick, angle in zip(ax2.get_xticklabels(), angles):
+        tick.set_rotation(angle)
+
+    plt.subplots_adjust(left=0.01, right=0.99, top=.6, bottom=.4)
+
+
+@image_comparison(baseline_images=['ytick_rotation_mode'],
+                  remove_text=False, extensions=['png'], style='mpl20')
+def test_ytick_rotation_mode():
+    fig, ax = plt.subplots(figsize=(1, 12))
+    ax.set_xticks([])
+    ax2 = ax.twinx()
+
+    ax.set_yticks(range(37), ['foo'] * 37, rotation_mode="ytick")
+    ax2.set_yticks(range(37), ['foo'] * 37, rotation_mode='ytick')
+
+    angles = np.linspace(0, 360, 37)
+    for tick, angle in zip(ax.get_yticklabels(), angles):
+        tick.set_rotation(angle)
+    for tick, angle in zip(ax2.get_yticklabels(), angles):
+        tick.set_rotation(angle)
+
+    plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)

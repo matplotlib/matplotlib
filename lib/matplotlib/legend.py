@@ -37,7 +37,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
                                 StepPatch)
 from matplotlib.collections import (
-    Collection, CircleCollection, LineCollection, PathCollection,
+    Collection, CircleCollection, LineCollection, PatchCollection, PathCollection,
     PolyCollection, RegularPolyCollection)
 from matplotlib.text import Text
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
@@ -196,6 +196,12 @@ edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
     The legend's background patch edge color.
     If ``"inherit"``, use :rc:`axes.edgecolor`.
 
+linewidth : float or None, default: :rc:`legend.linewidth`
+    The legend's background patch edge linewidth.
+    If ``None``, use :rc:`patch.linewidth`.
+
+    .. versionadded:: 3.11
+
 mode : {"expand", None}
     If *mode* is set to ``"expand"`` the legend will be horizontally
     expanded to fill the Axes area (or *bbox_to_anchor* if defines
@@ -297,8 +303,13 @@ loc : str or pair of floats, default: {default}
 _loc_doc_best = """
     The string ``'best'`` places the legend at the location, among the nine
     locations defined so far, with the minimum overlap with other drawn
-    artists.  This option can be quite slow for plots with large amounts of
-    data; your plotting speed may benefit from providing a specific location.
+    artists.  This currently takes into account most, but not all, artists
+    added to the Axes via plotting functions. In particular it does not consider
+    inset axes, titles, or axis labels.
+
+    The computation of the best position can be expensive for plots with large
+    amounts of data. If speed becomes a concern, you may may benefit from
+    providing a specific location.
 """
 
 _legend_kw_axes_st = (
@@ -385,6 +396,7 @@ class Legend(Artist):
         framealpha=None,      # set frame alpha
         edgecolor=None,       # frame patch edgecolor
         facecolor=None,       # frame patch facecolor
+        linewidth=None,       # frame patch linewidth
 
         bbox_to_anchor=None,  # bbox to which the legend will be anchored
         bbox_transform=None,  # transform for the bbox
@@ -459,6 +471,7 @@ class Legend(Artist):
             labels = [*reversed(labels)]
             handles = [*reversed(handles)]
 
+        handles = list(handles)
         if len(handles) < 2:
             ncols = 1
         self._ncols = ncols if ncols != 1 else ncol
@@ -525,9 +538,12 @@ class Legend(Artist):
 
         fancybox = mpl._val_or_rc(fancybox, "legend.fancybox")
 
+        linewidth = mpl._val_or_rc(linewidth, "legend.linewidth")
+
         self.legendPatch = FancyBboxPatch(
             xy=(0, 0), width=1, height=1,
             facecolor=facecolor, edgecolor=edgecolor,
+            linewidth=linewidth,
             # If shadow is used, default to alpha=1 (#8943).
             alpha=(framealpha if framealpha is not None
                    else 1 if shadow
@@ -575,7 +591,11 @@ class Legend(Artist):
         # set the text color
 
         color_getters = {  # getter function depends on line or patch
-            'linecolor':       ['get_color',           'get_facecolor'],
+            'linecolor':       ['get_markerfacecolor',
+                                'get_facecolor',
+                                'get_markeredgecolor',
+                                'get_edgecolor',
+                                'get_color'],
             'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
             'mfc':             ['get_markerfacecolor', 'get_facecolor'],
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
@@ -594,19 +614,22 @@ class Legend(Artist):
                 for getter_name in getter_names:
                     try:
                         color = getattr(handle, getter_name)()
-                        if isinstance(color, np.ndarray):
-                            if (
-                                    color.shape[0] == 1
-                                    or np.isclose(color, color[0]).all()
-                            ):
-                                text.set_color(color[0])
-                            else:
-                                pass
-                        else:
-                            text.set_color(color)
-                        break
                     except AttributeError:
-                        pass
+                        continue
+                    if isinstance(color, np.ndarray):
+                        if color.size == 0:
+                            continue
+                        elif (color.shape[0] == 1 or np.isclose(color, color[0]).all()):
+                            text.set_color(color[0])
+                        else:
+                            pass
+                    elif cbook._str_lower_equal(color, 'none'):
+                        continue
+                    elif mpl.colors.to_rgba(color)[3] == 0:
+                        continue
+                    else:
+                        text.set_color(color)
+                    break
         elif cbook._str_equal(labelcolor, 'none'):
             for text in self.texts:
                 text.set_color(labelcolor)
@@ -779,6 +802,7 @@ class Legend(Artist):
         BarContainer: legend_handler.HandlerPatch(
             update_func=legend_handler.update_from_first_child),
         tuple: legend_handler.HandlerTuple(),
+        PatchCollection: legend_handler.HandlerPolyCollection(),
         PathCollection: legend_handler.HandlerPathCollection(),
         PolyCollection: legend_handler.HandlerPolyCollection()
         }
@@ -1139,9 +1163,10 @@ class Legend(Artist):
         parentbbox : `~matplotlib.transforms.Bbox`
             A parent box which will contain the bbox, in display coordinates.
         """
+        pad = self.borderaxespad * renderer.points_to_pixels(self._fontsize)
         return offsetbox._get_anchored_bbox(
             loc, bbox, parentbbox,
-            self.borderaxespad * renderer.points_to_pixels(self._fontsize))
+            pad, pad)
 
     def _find_best_position(self, width, height, renderer):
         """Determine the best location to place the legend."""
@@ -1286,7 +1311,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         legend(handles=handles, labels=labels)
 
     The behavior for a mixture of positional and keyword handles and labels
-    is undefined and issues a warning; it will be an error in the future.
+    is undefined and raises an error.
 
     Parameters
     ----------
@@ -1319,10 +1344,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     handlers = kwargs.get('handler_map')
 
     if (handles is not None or labels is not None) and args:
-        _api.warn_deprecated("3.9", message=(
-            "You have mixed positional and keyword arguments, some input may "
-            "be discarded.  This is deprecated since %(since)s and will "
-            "become an error in %(removal)s."))
+        raise TypeError("When passing handles and labels, they must both be "
+                        "passed positionally or both as keywords.")
 
     if (hasattr(handles, "__len__") and
             hasattr(labels, "__len__") and

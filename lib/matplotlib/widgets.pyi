@@ -6,6 +6,7 @@ from .figure import Figure
 from .lines import Line2D
 from .patches import Polygon, Rectangle
 from .text import Text
+from .backend_tools import Cursors
 
 import PIL.Image
 
@@ -34,10 +35,12 @@ class Widget:
 class AxesWidget(Widget):
     ax: Axes
     def __init__(self, ax: Axes) -> None: ...
+    def __del__(self) -> None: ...
     @property
     def canvas(self) -> FigureCanvasBase | None: ...
     def connect_event(self, event: Event, callback: Callable) -> None: ...
     def disconnect_events(self) -> None: ...
+    def _set_cursor(self, cursor: Cursors) -> None: ...
 
 class Button(AxesWidget):
     label: Text
@@ -64,7 +67,7 @@ class SliderBase(AxesWidget):
     valmax: float
     valstep: float | ArrayLike | None
     drag_active: bool
-    valfmt: str
+    valfmt: str | Callable[[float], str] | None
     def __init__(
         self,
         ax: Axes,
@@ -73,7 +76,7 @@ class SliderBase(AxesWidget):
         closedmax: bool,
         valmin: float,
         valmax: float,
-        valfmt: str,
+        valfmt: str | Callable[[float], str] | None,
         dragging: Slider | None,
         valstep: float | ArrayLike | None,
     ) -> None: ...
@@ -130,7 +133,7 @@ class RangeSlider(SliderBase):
         valmax: float,
         *,
         valinit: tuple[float, float] | None = ...,
-        valfmt: str | None = ...,
+        valfmt: str | Callable[[float], str] | None = ...,
         closedmin: bool = ...,
         closedmax: bool = ...,
         dragging: bool = ...,
@@ -154,11 +157,11 @@ class CheckButtons(AxesWidget):
         actives: Iterable[bool] | None = ...,
         *,
         useblit: bool = ...,
-        label_props: dict[str, Any] | None = ...,
+        label_props: dict[str, Sequence[Any]] | None = ...,
         frame_props: dict[str, Any] | None = ...,
         check_props: dict[str, Any] | None = ...,
     ) -> None: ...
-    def set_label_props(self, props: dict[str, Any]) -> None: ...
+    def set_label_props(self, props: dict[str, Sequence[Any]]) -> None: ...
     def set_frame_props(self, props: dict[str, Any]) -> None: ...
     def set_check_props(self, props: dict[str, Any]) -> None: ...
     def set_active(self, index: int, state: bool | None = ...) -> None: ...  # type: ignore[override]
@@ -208,10 +211,10 @@ class RadioButtons(AxesWidget):
         activecolor: ColorType | None = ...,
         *,
         useblit: bool = ...,
-        label_props: dict[str, Any] | Sequence[dict[str, Any]] | None = ...,
+        label_props: dict[str, Sequence[Any]] | None = ...,
         radio_props: dict[str, Any] | None = ...,
     ) -> None: ...
-    def set_label_props(self, props: dict[str, Any]) -> None: ...
+    def set_label_props(self, props: dict[str, Sequence[Any]]) -> None: ...
     def set_radio_props(self, props: dict[str, Any]) -> None: ...
     def set_active(self, index: int) -> None: ...
     def clear(self) -> None: ...
@@ -270,7 +273,7 @@ class MultiCursor(Widget):
 
 class _SelectorWidget(AxesWidget):
     onselect: Callable[[float, float], Any]
-    useblit: bool
+    _useblit: bool
     background: Any
     validButtons: list[MouseButton]
     def __init__(
@@ -282,6 +285,8 @@ class _SelectorWidget(AxesWidget):
         state_modifier_keys: dict[str, str] | None = ...,
         use_data_coordinates: bool = ...,
     ) -> None: ...
+    @property
+    def useblit(self) -> bool: ...
     def update_background(self, event: Event) -> None: ...
     def connect_default_events(self) -> None: ...
     def ignore(self, event: Event) -> bool: ...
@@ -335,6 +340,7 @@ class SpanSelector(_SelectorWidget):
         _props: dict[str, Any] | None = ...,
         _init: bool = ...,
     ) -> None: ...
+    def _set_span_cursor(self, *, enabled: bool) -> None: ...
     def connect_default_events(self) -> None: ...
     @property
     def direction(self) -> Literal["horizontal", "vertical"]: ...
@@ -398,6 +404,7 @@ class RectangleSelector(_SelectorWidget):
     minspany: float
     spancoords: Literal["data", "pixels"]
     grab_range: float
+    _active_handle: None | Literal["C", "N", "NE", "E", "SE", "S", "SW", "W", "NW"]
     def __init__(
         self,
         ax: Axes,

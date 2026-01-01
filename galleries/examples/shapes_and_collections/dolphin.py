@@ -119,3 +119,9 @@ plt.show()
 #    - `matplotlib.transforms`
 #    - `matplotlib.transforms.Affine2D`
 #    - `matplotlib.transforms.Affine2D.rotate_deg`
+#
+# .. tags::
+#
+#    component: patch
+#    styling: shape
+#    purpose: fun

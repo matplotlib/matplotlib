@@ -1,5 +1,7 @@
 """
 .. redirect-from:: /tutorials/intermediate/legend_guide
+.. redirect-from:: /gallery/userdemo/simple_legend01
+.. redirect-from:: /gallery/userdemo/simple_legend02
 
 .. _legend_guide:
 

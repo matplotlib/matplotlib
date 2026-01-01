@@ -151,7 +151,7 @@ class CapStyle(str, Enum):
         import matplotlib.pyplot as plt
 
         fig = plt.figure(figsize=(4, 1.2))
-        ax = fig.add_axes([0, 0, 1, 0.8])
+        ax = fig.add_axes((0, 0, 1, 0.8))
         ax.set_title('Cap style')
 
         for x, style in enumerate(['butt', 'round', 'projecting']):

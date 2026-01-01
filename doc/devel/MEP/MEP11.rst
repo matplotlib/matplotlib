@@ -130,7 +130,7 @@ ordered from best/hardest to worst/easiest):
 1. The distutils wininst installer allows a post-install script to
    run.  It might be possible to get this script to run pip_ to
    install the other dependencies.  (See `this thread
-   <http://grokbase.com/t/python/distutils-sig/109bdnfhp4/distutils-ann-setuptools-post-install-script-for-bdist-wininst>`_
+   <https://mail.python.org/pipermail/distutils-sig/2010-September/016857.html>`_
    for someone who has trod that ground before).
 
 2. Continue to ship dateutil_, pytz_, six_ and pyparsing_ in
@@ -177,4 +177,4 @@ out of the box.
 .. _pytz: https://pypi.org/project/pytz/
 .. _setuptools: https://pypi.org/project/setuptools/
 .. _six: https://pypi.org/project/six/
-.. _easy_install: https://setuptools.readthedocs.io/en/latest/easy_install.html
+.. _easy_install: https://setuptools.pypa.io/en/latest/deprecated/easy_install.html

@@ -51,7 +51,6 @@ Basic
    plot
    errorbar
    scatter
-   plot_date
    step
    loglog
    semilogx
@@ -61,9 +60,11 @@ Basic
    bar
    barh
    bar_label
+   grouped_bar
    stem
    eventplot
    pie
+   pie_label
    stackplot
    broken_barh
    vlines

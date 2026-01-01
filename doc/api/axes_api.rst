@@ -38,6 +38,7 @@ Attributes
 
    Axes.viewLim
    Axes.dataLim
+   Axes.spines
 
 Plotting
 ========
@@ -54,7 +55,6 @@ Basic
    Axes.errorbar
    Axes.scatter
 
-   Axes.plot_date
    Axes.step
 
    Axes.loglog
@@ -67,11 +67,13 @@ Basic
    Axes.bar
    Axes.barh
    Axes.bar_label
+   Axes.grouped_bar
 
    Axes.stem
    Axes.eventplot
 
    Axes.pie
+   Axes.pie_label
 
    Axes.stackplot
 
@@ -262,6 +264,7 @@ Property cycle
 
    Axes.set_prop_cycle
 
+.. _axes-api-axis:
 
 Axis / limits
 =============
@@ -269,11 +272,16 @@ Axis / limits
 .. For families of methods of the form {get,set}_{x,y}foo, try to list them in
    the order set_xfoo, get_xfoo, set_yfoo, get_yfoo
 
+Axis access
+-----------
+
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary.rst
    :nosignatures:
 
+   Axes.xaxis
+   Axes.yaxis
    Axes.get_xaxis
    Axes.get_yaxis
 

@@ -13,7 +13,7 @@ from matplotlib import _api
 
 
 if typing.TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 
 T = TypeVar('T')
 
@@ -150,3 +150,8 @@ def test_deprecation_alternative() -> None:
 def test_empty_check_in_list() -> None:
     with pytest.raises(TypeError, match="No argument to check!"):
         _api.check_in_list(["a"])
+
+
+def test_check_in_list_numpy() -> None:
+    with pytest.raises(ValueError, match=r"array\(5\) is not a valid value"):
+        _api.check_in_list(['a', 'b'], value=np.array(5))

@@ -1000,6 +1000,7 @@ def test_unpack_to_numpy_from_torch():
     torch_tensor = torch.Tensor(data)
 
     result = cbook._unpack_to_numpy(torch_tensor)
+    assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
     # is the same Python object, just the same values.
@@ -1028,6 +1029,7 @@ def test_unpack_to_numpy_from_jax():
     jax_array = jax.Array(data)
 
     result = cbook._unpack_to_numpy(jax_array)
+    assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
     # is the same Python object, just the same values.
@@ -1057,6 +1059,7 @@ def test_unpack_to_numpy_from_tensorflow():
     tf_tensor = tensorflow.Tensor(data)
 
     result = cbook._unpack_to_numpy(tf_tensor)
+    assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
     # is the same Python object, just the same values.

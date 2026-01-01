@@ -240,6 +240,13 @@ class Table(Artist):
     """
     A table of cells.
 
+    .. note::
+
+        ``table()`` has some fundamental design limitations and will not be
+        developed further. If you need more functionality, consider
+        `blume <https://github.com/swfiua/blume>`__.
+
+
     The table consists of a grid of cells, which are indexed by (row, column).
 
     For a simple table, you'll have a full grid of cells with indices from
@@ -657,6 +664,12 @@ def table(ax,
           **kwargs):
     """
     Add a table to an `~.axes.Axes`.
+
+    .. note::
+
+        ``table()`` has some fundamental design limitations and will not be
+        developed further. If you need more functionality, consider
+        `blume <https://github.com/swfiua/blume>`__.
 
     At least one of *cellText* or *cellColours* must be specified. These
     parameters must be 2D lists, in which the outer lists define the rows and

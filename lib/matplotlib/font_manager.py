@@ -30,12 +30,12 @@ from __future__ import annotations
 from base64 import b64encode
 import copy
 import dataclasses
-from functools import lru_cache
+from functools import cache, lru_cache
 import functools
 from io import BytesIO
 import json
 import logging
-from numbers import Number
+from numbers import Integral
 import os
 from pathlib import Path
 import plistlib
@@ -172,6 +172,10 @@ OSXFontDirectories = [
 ]
 
 
+def _normalize_weight(weight):
+    return weight if isinstance(weight, Integral) else weight_dict[weight]
+
+
 def get_fontext_synonyms(fontext):
     """
     Return a list of file extensions that are synonyms for
@@ -247,7 +251,7 @@ def _get_win32_installed_fonts():
     return items
 
 
-@lru_cache
+@cache
 def _get_fontconfig_fonts():
     """Cache and list the font paths known to ``fc-list``."""
     try:
@@ -261,7 +265,7 @@ def _get_fontconfig_fonts():
     return [Path(os.fsdecode(fname)) for fname in out.split(b'\n')]
 
 
-@lru_cache
+@cache
 def _get_macos_fonts():
     """Cache and list the font paths known to ``system_profiler SPFontsDataType``."""
     try:
@@ -1065,7 +1069,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
-    __version__ = 390
+    __version__ = '3.11.0a1'
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1256,8 +1260,8 @@ class FontManager:
         # exact match of the weight names, e.g. weight1 == weight2 == "regular"
         if cbook._str_equal(weight1, weight2):
             return 0.0
-        w1 = weight1 if isinstance(weight1, Number) else weight_dict[weight1]
-        w2 = weight2 if isinstance(weight2, Number) else weight_dict[weight2]
+        w1 = _normalize_weight(weight1)
+        w2 = _normalize_weight(weight2)
         return 0.95 * (abs(w1 - w2) / 1000) + 0.05
 
     def score_size(self, size1, size2):
@@ -1480,6 +1484,10 @@ class FontManager:
                 best_font = font
             if score == 0:
                 break
+        if best_font is not None and (_normalize_weight(prop.get_weight()) !=
+                                      _normalize_weight(best_font.weight)):
+            _log.warning('findfont: Failed to find font weight %s, now using %s.',
+                         prop.get_weight(), best_font.weight)
 
         if best_font is None or best_score >= 10.0:
             if fallback_to_default:
@@ -1546,19 +1554,39 @@ def is_opentype_cff_font(filename):
 
 
 @lru_cache(64)
-def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id):
+def _get_font(font_filepaths, hinting_factor, *, _kerning_factor, thread_id,
+              enable_last_resort):
     first_fontpath, *rest = font_filepaths
-    return ft2font.FT2Font(
+    fallback_list = [
+        ft2font.FT2Font(fpath, hinting_factor, _kerning_factor=_kerning_factor)
+        for fpath in rest
+    ]
+    last_resort_path = _cached_realpath(
+        cbook._get_data_path('fonts', 'ttf', 'LastResortHE-Regular.ttf'))
+    try:
+        last_resort_index = font_filepaths.index(last_resort_path)
+    except ValueError:
+        last_resort_index = -1
+        # Add Last Resort font so we always have glyphs regardless of font, unless we're
+        # already in the list.
+        if enable_last_resort:
+            fallback_list.append(
+                ft2font.FT2Font(last_resort_path, hinting_factor,
+                                _kerning_factor=_kerning_factor,
+                                _warn_if_used=True))
+            last_resort_index = len(fallback_list)
+    font = ft2font.FT2Font(
         first_fontpath, hinting_factor,
-        _fallback_list=[
-            ft2font.FT2Font(
-                fpath, hinting_factor,
-                _kerning_factor=_kerning_factor
-            )
-            for fpath in rest
-        ],
+        _fallback_list=fallback_list,
         _kerning_factor=_kerning_factor
     )
+    # Ensure we are using the right charmap for the Last Resort font; FreeType picks the
+    # Unicode one by default, but this exists only for Windows, and is empty.
+    if last_resort_index == 0:
+        font.set_charmap(0)
+    elif last_resort_index > 0:
+        fallback_list[last_resort_index - 1].set_charmap(0)
+    return font
 
 
 # FT2Font objects cannot be used across fork()s because they reference the same
@@ -1611,7 +1639,8 @@ def get_font(font_filepaths, hinting_factor=None):
         hinting_factor,
         _kerning_factor=mpl.rcParams['text.kerning_factor'],
         # also key on the thread ID to prevent segfaults with multi-threading
-        thread_id=threading.get_ident()
+        thread_id=threading.get_ident(),
+        enable_last_resort=mpl.rcParams['font.enable_last_resort'],
     )
 
 

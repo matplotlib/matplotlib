@@ -35,7 +35,6 @@ of how to use transforms.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
-import copy
 import functools
 import itertools
 import textwrap
@@ -98,7 +97,6 @@ class TransformNode:
     # Some metadata about the transform, used to determine whether an
     # invalidation is affine-only
     is_affine = False
-    is_bbox = _api.deprecated("3.9")(_api.classproperty(lambda cls: False))
 
     pass_through = False
     """
@@ -140,7 +138,9 @@ class TransformNode:
             for k, v in self._parents.items() if v is not None}
 
     def __copy__(self):
-        other = copy.copy(super())
+        cls = type(self)
+        other = cls.__new__(cls)
+        other.__dict__.update(self.__dict__)
         # If `c = a + b; a1 = copy(a)`, then modifications to `a1` do not
         # propagate back to `c`, i.e. we need to clear the parents of `a1`.
         other._parents = {}
@@ -216,7 +216,6 @@ class BboxBase(TransformNode):
     and height, but these are not stored explicitly.
     """
 
-    is_bbox = _api.deprecated("3.9")(_api.classproperty(lambda cls: True))
     is_affine = True
 
     if DEBUG:
@@ -377,6 +376,29 @@ class BboxBase(TransformNode):
 
     def get_points(self):
         raise NotImplementedError
+
+    def _is_finite(self):
+        """
+        Return whether the bounding box is finite and not degenerate to a
+        single point.
+
+        We count the box as finite if neither width nor height are infinite
+        and at least one direction is non-zero; i.e. a point is not finite,
+        but a horizontal or vertical line is.
+
+        .. versionadded:: 3.11
+
+        Notes
+        -----
+        We keep this private for now because concise naming is hard and
+        because we are not sure how universal the concept is. It is
+        currently used only for filtering bboxes to be included in
+        tightbbox calculation, but I'm unsure whether single points
+        should be included there as well.
+        """
+        width = self.width
+        height = self.height
+        return (width > 0 or height > 0) and width < np.inf and height < np.inf
 
     def containsx(self, x):
         """
@@ -867,52 +889,15 @@ class Bbox(BboxBase):
         if ignore is None:
             ignore = self._ignore
 
-        if path.vertices.size == 0:
+        if path.vertices.size == 0 or not (updatex or updatey):
             return
 
-        points, minpos, changed = self._calc_extents_from_path(path, ignore,
-                                                               updatex, updatey)
-
-        if changed:
-            self.invalidate()
-            if updatex:
-                self._points[:, 0] = points[:, 0]
-                self._minpos[0] = minpos[0]
-            if updatey:
-                self._points[:, 1] = points[:, 1]
-                self._minpos[1] = minpos[1]
-
-    def _calc_extents_from_path(self, path, ignore, updatex=True, updatey=True):
-        """
-        Calculate the new bounds and minimum positive values for a `Bbox` from
-        the path.
-
-        Parameters
-        ----------
-        path : `~matplotlib.path.Path`
-        ignore : bool
-            - When ``True``, ignore the existing bounds of the `Bbox`.
-            - When ``False``, include the existing bounds of the `Bbox`.
-        updatex : bool
-            When ``True``, update the x-values.
-        updatey : bool
-            When ``True``, update the y-values.
-
-        Returns
-        -------
-        points : (2, 2) array
-        minpos : (2,) array
-        changed : bool
-        """
         if ignore:
             points = np.array([[np.inf, np.inf], [-np.inf, -np.inf]])
             minpos = np.array([np.inf, np.inf])
         else:
             points = self._points.copy()
             minpos = self._minpos.copy()
-
-        if not (updatex or updatey):
-            return points, minpos, False
 
         valid_points = (np.isfinite(path.vertices[..., 0])
                         & np.isfinite(path.vertices[..., 1]))
@@ -928,9 +913,14 @@ class Bbox(BboxBase):
             points[1, 1] = max(points[1, 1], np.max(y, initial=-np.inf))
             minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
 
-        changed = np.any(points != self._points) or np.any(minpos != self._minpos)
-
-        return points, minpos, changed
+        if np.any(points != self._points) or np.any(minpos != self._minpos):
+            self.invalidate()
+            if updatex:
+                self._points[:, 0] = points[:, 0]
+                self._minpos[0] = minpos[0]
+            if updatey:
+                self._points[:, 1] = points[:, 1]
+                self._minpos[1] = minpos[1]
 
     def update_from_data_x(self, x, ignore=None):
         """
@@ -1451,7 +1441,7 @@ class Transform(TransformNode):
                 return True
         return False
 
-    def contains_branch_seperately(self, other_transform):
+    def contains_branch_separately(self, other_transform):
         """
         Return whether the given branch is a sub-tree of this transform on
         each separate dimension.
@@ -1459,15 +1449,20 @@ class Transform(TransformNode):
         A common use for this method is to identify if a transform is a blended
         transform containing an Axes' data transform. e.g.::
 
-            x_isdata, y_isdata = trans.contains_branch_seperately(ax.transData)
+            x_isdata, y_isdata = trans.contains_branch_separately(ax.transData)
 
         """
         if self.output_dims != 2:
-            raise ValueError('contains_branch_seperately only supports '
+            raise ValueError('contains_branch_separately only supports '
                              'transforms with 2 output dimensions')
         # for a non-blended transform each separate dimension is the same, so
         # just return the appropriate shape.
         return (self.contains_branch(other_transform), ) * 2
+
+    # Permanent alias for backwards compatibility (historical typo)
+    def contains_branch_seperately(self, other_transform):
+        """:meta private:"""
+        return self.contains_branch_separately(other_transform)
 
     def __sub__(self, other):
         """
@@ -2218,7 +2213,7 @@ class _BlendedMixin:
         else:
             return NotImplemented
 
-    def contains_branch_seperately(self, transform):
+    def contains_branch_separately(self, transform):
         return (self._x.contains_branch(transform),
                 self._y.contains_branch(transform))
 
@@ -2444,14 +2439,14 @@ class CompositeGenericTransform(Transform):
         for left, right in self._b._iter_break_from_left_to_right():
             yield self._a + left, right
 
-    def contains_branch_seperately(self, other_transform):
+    def contains_branch_separately(self, other_transform):
         # docstring inherited
         if self.output_dims != 2:
-            raise ValueError('contains_branch_seperately only supports '
+            raise ValueError('contains_branch_separately only supports '
                              'transforms with 2 output dimensions')
         if self == other_transform:
             return (True, True)
-        return self._b.contains_branch_seperately(other_transform)
+        return self._b.contains_branch_separately(other_transform)
 
     depth = property(lambda self: self._a.depth + self._b.depth)
     is_affine = property(lambda self: self._a.is_affine and self._b.is_affine)
@@ -2653,27 +2648,6 @@ class BboxTransformTo(Affine2DBase):
             self._mtx = np.array([[outw,  0.0, outl],
                                   [ 0.0, outh, outb],
                                   [ 0.0,  0.0,  1.0]],
-                                 float)
-            self._inverted = None
-            self._invalid = 0
-        return self._mtx
-
-
-@_api.deprecated("3.9")
-class BboxTransformToMaxOnly(BboxTransformTo):
-    """
-    `BboxTransformToMaxOnly` is a transformation that linearly transforms points from
-    the unit bounding box to a given `Bbox` with a fixed upper left of (0, 0).
-    """
-    def get_matrix(self):
-        # docstring inherited
-        if self._invalid:
-            xmax, ymax = self._boxout.max
-            if DEBUG and (xmax == 0 or ymax == 0):
-                raise ValueError("Transforming to a singular bounding box.")
-            self._mtx = np.array([[xmax,  0.0, 0.0],
-                                  [ 0.0, ymax, 0.0],
-                                  [ 0.0,  0.0, 1.0]],
                                  float)
             self._inverted = None
             self._invalid = 0

@@ -612,7 +612,7 @@ def test_triinterpcubic_cg_solver():
     # 1) A commonly used test involves a 2d Poisson matrix.
     def poisson_sparse_matrix(n, m):
         """
-        Return the sparse, (n*m, n*m) matrix in coo format resulting from the
+        Return the sparse, (n*m, n*m) matrix in COO format resulting from the
         discretisation of the 2-dimensional Poisson equation according to a
         finite difference numerical scheme on a uniform (n, m) grid.
         """

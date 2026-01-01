@@ -8,7 +8,7 @@ from .transforms import Bbox
 from .typing import ColorType
 
 from collections.abc import Sequence
-from typing import Any, Literal, TYPE_CHECKING
+from typing import Any, Literal
 
 from pandas import DataFrame
 

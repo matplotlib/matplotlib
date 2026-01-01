@@ -75,7 +75,7 @@
 namespace py = pybind11;
 
 
-/* An edge of a triangle consisting of an triangle index in the range 0 to
+/* An edge of a triangle consisting of a triangle index in the range 0 to
  * ntri-1 and an edge index in the range 0 to 2.  Edge i goes from the
  * triangle's point i to point (i+1)%3. */
 struct TriEdge final

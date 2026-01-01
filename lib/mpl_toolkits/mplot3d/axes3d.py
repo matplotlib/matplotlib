@@ -70,7 +70,7 @@ class Axes3D(Axes):
         ----------
         fig : Figure
             The parent figure.
-        rect : tuple (left, bottom, width, height), default: None.
+        rect : tuple (left, bottom, width, height), default: (0, 0, 1, 1)
             The ``(left, bottom, width, height)`` Axes position.
         elev : float, default: 30
             The elevation angle in degrees rotates the camera above and below
@@ -244,6 +244,8 @@ class Axes3D(Axes):
                 (minx, maxy, maxz)]
         return proj3d._proj_points(xyzs, self.M)
 
+    @_api.delete_parameter("3.11", "share")
+    @_api.delete_parameter("3.11", "anchor")
     def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
         Set the aspect ratios.
@@ -263,39 +265,31 @@ class Axes3D(Axes):
             'equalyz'   adapt the y and z axes to have equal aspect ratios.
             =========   ==================================================
 
-        adjustable : None or {'box', 'datalim'}, optional
-            If not *None*, this defines which parameter will be adjusted to
-            meet the required aspect. See `.set_adjustable` for further
-            details.
+        adjustable : {'box', 'datalim'}, default: 'box'
+            Defines which parameter to adjust to meet the aspect ratio.
+
+            - 'box': Change the physical dimensions of the axes bounding box.
+            - 'datalim': Change the x, y, or z data limits.
 
         anchor : None or str or 2-tuple of float, optional
-            If not *None*, this defines where the Axes will be drawn if there
-            is extra space due to aspect constraints. The most common way to
-            specify the anchor are abbreviations of cardinal directions:
-
-            =====   =====================
-            value   description
-            =====   =====================
-            'C'     centered
-            'SW'    lower left corner
-            'S'     middle of bottom edge
-            'SE'    lower right corner
-            etc.
-            =====   =====================
-
-            See `~.Axes.set_anchor` for further details.
+            .. deprecated:: 3.11
+                This parameter has no effect.
 
         share : bool, default: False
-            If ``True``, apply the settings to all shared Axes.
+            .. deprecated:: 3.11
+                This parameter has no effect.
 
         See Also
         --------
         mpl_toolkits.mplot3d.axes3d.Axes3D.set_box_aspect
         """
+        if adjustable is None:
+            adjustable = 'box'
+        _api.check_in_list(['box', 'datalim'], adjustable=adjustable)
         _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'),
                            aspect=aspect)
-        super().set_aspect(
-            aspect='auto', adjustable=adjustable, anchor=anchor, share=share)
+
+        self.set_adjustable(adjustable)
         self._aspect = aspect
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
@@ -1956,6 +1950,16 @@ class Axes3D(Axes):
         `.Text3D`
             The created `.Text3D` instance.
         """
+        if 'rotation' in kwargs:
+            _api.warn_external(
+                "The `rotation` parameter has not yet been implemented "
+                "and is currently ignored."
+            )
+        if 'rotation_mode' in kwargs:
+            _api.warn_external(
+                "The `rotation_mode` parameter has not yet been implemented "
+                "and is currently ignored."
+            )
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir, axlim_clip)
         return text
@@ -2049,9 +2053,10 @@ class Axes3D(Axes):
             - 'auto': If the points all lie on the same 3D plane, 'polygon' is
               used. Otherwise, 'quad' is used.
 
-        facecolors : list of :mpltype:`color`, default: None
+        facecolors : :mpltype:`color` or list of :mpltype:`color`, optional
             Colors of each individual patch, or a single color to be used for
-            all patches.
+            all patches. If not given, the next color from the patch color
+            cycle is used.
 
         shade : bool, default: None
             Whether to shade the facecolors. If *None*, then defaults to *True*
@@ -2133,7 +2138,7 @@ class Axes3D(Axes):
 
         polyc = art3d.Poly3DCollection(polys, facecolors=facecolors, shade=shade,
                                        axlim_clip=axlim_clip, **kwargs)
-        self.add_collection(polyc)
+        self.add_collection(polyc, autolim="_datalim_only")
 
         self.auto_scale_xyz([x1, x2], [y1, y2], [z1, z2], had_data)
         return polyc
@@ -2332,7 +2337,7 @@ class Axes3D(Axes):
                 polys, facecolors=color, shade=shade, lightsource=lightsource,
                 axlim_clip=axlim_clip, **kwargs)
 
-        self.add_collection(polyc)
+        self.add_collection(polyc, autolim="_datalim_only")
         self.auto_scale_xyz(X, Y, Z, had_data)
 
         return polyc
@@ -2458,7 +2463,7 @@ class Axes3D(Axes):
 
         lines = list(row_lines) + list(col_lines)
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
-        self.add_collection(linec)
+        self.add_collection(linec, autolim="_datalim_only")
 
         return linec
 
@@ -2559,7 +2564,7 @@ class Axes3D(Axes):
                 verts, *args, shade=shade, lightsource=lightsource,
                 facecolors=color, axlim_clip=axlim_clip, **kwargs)
 
-        self.add_collection(polyc)
+        self.add_collection(polyc, autolim="_datalim_only")
         self.auto_scale_xyz(tri.x, tri.y, z, had_data)
 
         return polyc
@@ -2889,8 +2894,10 @@ class Axes3D(Axes):
 
         if autolim:
             if isinstance(col, art3d.Line3DCollection):
-                self.auto_scale_xyz(*np.array(col._segments3d).transpose(),
-                                    had_data=had_data)
+                # Handle ragged arrays by extracting coordinates separately
+                all_points = np.concatenate(col._segments3d)
+                self.auto_scale_xyz(all_points[:, 0], all_points[:, 1],
+                                    all_points[:, 2], had_data=had_data)
             elif isinstance(col, art3d.Poly3DCollection):
                 self.auto_scale_xyz(col._faces[..., 0],
                                     col._faces[..., 1],
@@ -2901,15 +2908,17 @@ class Axes3D(Axes):
                 # Currently unable to do so due to issues with Patch3DCollection
                 # See https://github.com/matplotlib/matplotlib/issues/14298 for details
 
-        collection = super().add_collection(col)
+        collection = super().add_collection(col, autolim="_datalim_only")
         return collection
 
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
-    def scatter(self, xs, ys,
-                zs=0, zdir='z', s=20, c=None, depthshade=True, *args,
-                axlim_clip=False, **kwargs):
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=None,
+                *args,
+                depthshade_minalpha=None,
+                axlim_clip=False,
+                **kwargs):
         """
         Create a scatter plot.
 
@@ -2941,16 +2950,24 @@ class Axes3D(Axes):
             - A 2D array in which the rows are RGB or RGBA.
 
             For more details see the *c* argument of `~.axes.Axes.scatter`.
-        depthshade : bool, default: True
+        depthshade : bool, default: :rc:`axes3d.depthshade`
             Whether to shade the scatter markers to give the appearance of
             depth. Each call to ``scatter()`` will perform its depthshading
             independently.
+
+        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
+            The lowest alpha value applied by depth-shading.
+
+            .. versionadded:: 3.11
+
         axlim_clip : bool, default: False
             Whether to hide the scatter points outside the axes view limits.
 
             .. versionadded:: 3.10
+
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All other keyword arguments are passed on to `~.axes.Axes.scatter`.
 
@@ -2970,16 +2987,24 @@ class Axes3D(Axes):
             )
         if kwargs.get("color") is not None:
             kwargs['color'] = color
+        if depthshade is None:
+            depthshade = mpl.rcParams['axes3d.depthshade']
+        if depthshade_minalpha is None:
+            depthshade_minalpha = mpl.rcParams['axes3d.depthshade_minalpha']
 
         # For xs and ys, 2D scatter() will do the copying.
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
             zs = zs.copy()
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
-        art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
-                                        depthshade=depthshade,
-                                        axlim_clip=axlim_clip)
-
+        art3d.patch_collection_2d_to_3d(
+            patches,
+            zs=zs,
+            zdir=zdir,
+            depthshade=depthshade,
+            depthshade_minalpha=depthshade_minalpha,
+            axlim_clip=axlim_clip,
+        )
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
 
@@ -3211,7 +3236,7 @@ class Axes3D(Axes):
                                      lightsource=lightsource,
                                      axlim_clip=axlim_clip,
                                      *args, **kwargs)
-        self.add_collection(col)
+        self.add_collection(col, autolim="_datalim_only")
 
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
@@ -3308,7 +3333,7 @@ class Axes3D(Axes):
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
             linec = art3d.Line3DCollection([], **kwargs)
-            self.add_collection(linec)
+            self.add_collection(linec, autolim="_datalim_only")
             return linec
 
         shaft_dt = np.array([0., length], dtype=float)
@@ -3346,7 +3371,7 @@ class Axes3D(Axes):
             lines = []
 
         linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
-        self.add_collection(linec)
+        self.add_collection(linec, autolim="_datalim_only")
 
         self.auto_scale_xyz(XYZ[:, 0], XYZ[:, 1], XYZ[:, 2], had_data)
 
@@ -3607,12 +3632,12 @@ class Axes3D(Axes):
             Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : :mpltype:`color`, default: None
-            The color of the errorbar lines.  If None, use the color of the
+        ecolor : :mpltype:`color`, optional
+            The color of the errorbar lines. If not given, use the color of the
             line connecting the markers.
 
-        elinewidth : float, default: None
-            The linewidth of the errorbar lines. If None, the linewidth of
+        elinewidth : float, optional
+            The linewidth of the errorbar lines. If not given, the linewidth of
             the current style is used.
 
         capsize : float, default: :rc:`errorbar.capsize`
@@ -3877,7 +3902,7 @@ class Axes3D(Axes):
             errline = art3d.Line3DCollection(np.array(coorderr).T,
                                              axlim_clip=axlim_clip,
                                              **eb_lines_style)
-            self.add_collection(errline)
+            self.add_collection(errline, autolim="_datalim_only")
             errlines.append(errline)
             coorderrs.append(coorderr)
 
@@ -4027,7 +4052,7 @@ class Axes3D(Axes):
         stemlines = art3d.Line3DCollection(
             lines, linestyles=linestyle, colors=linecolor, label='_nolegend_',
             axlim_clip=axlim_clip)
-        self.add_collection(stemlines)
+        self.add_collection(stemlines, autolim="_datalim_only")
         markerline, = self.plot(x, y, z, markerfmt, label='_nolegend_')
 
         stem_container = StemContainer((markerline, stemlines, baseline),

@@ -144,7 +144,7 @@ scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'w
 
         length in y direction = $\\frac{v}{\\mathrm{scale}} \\mathrm{scale_unit}$
 
-    For example, ``(u, v) = (0.5, 0)`` with ``scale=10, scale_unit="width"`` results
+    For example, ``(u, v) = (0.5, 0)`` with ``scale=10, scale_units="width"`` results
     in a horizontal arrow with a length of *0.5 / 10 * "width"*, i.e. 0.05 times the
     Axes width.
 
@@ -490,11 +490,8 @@ class Quiver(mcollections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
 
-    The only API method is set_UVC(), which can be used
-    to change the size, orientation, and color of the
-    arrows; their locations are fixed when the class is
-    instantiated.  Possibly this method will be useful
-    in animations.
+    Use set_UVC to change the size, orientation, and color of the
+    arrows; their locations can be set using set_offsets().
 
     Much of the work in this class is done in the draw()
     method so that as much information as possible is available

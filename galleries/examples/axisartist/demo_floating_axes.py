@@ -22,8 +22,7 @@ from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 import mpl_toolkits.axisartist.angle_helper as angle_helper
 import mpl_toolkits.axisartist.floating_axes as floating_axes
-from mpl_toolkits.axisartist.grid_finder import (DictFormatter, FixedLocator,
-                                                 MaxNLocator)
+from mpl_toolkits.axisartist.grid_finder import DictFormatter, FixedLocator, MaxNLocator
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -54,24 +53,21 @@ def setup_axes2(fig, rect):
     With custom locator and formatter.
     Note that the extreme values are swapped.
     """
-    tr = PolarAxes.PolarTransform(apply_theta_transforms=False)
+    tr = PolarAxes.PolarTransform()
 
     pi = np.pi
-    angle_ticks = [(0, r"$0$"),
-                   (.25*pi, r"$\frac{1}{4}\pi$"),
-                   (.5*pi, r"$\frac{1}{2}\pi$")]
-    grid_locator1 = FixedLocator([v for v, s in angle_ticks])
-    tick_formatter1 = DictFormatter(dict(angle_ticks))
-
-    grid_locator2 = MaxNLocator(2)
-
+    angle_ticks = {
+        0: r"$0$",
+        pi/4: r"$\frac{1}{4}\pi$",
+        pi/2: r"$\frac{1}{2}\pi$",
+    }
     grid_helper = floating_axes.GridHelperCurveLinear(
         tr, extremes=(.5*pi, 0, 2, 1),
-        grid_locator1=grid_locator1,
-        grid_locator2=grid_locator2,
-        tick_formatter1=tick_formatter1,
-        tick_formatter2=None)
-
+        grid_locator1=FixedLocator([*angle_ticks]),
+        tick_formatter1=DictFormatter(angle_ticks),
+        grid_locator2=MaxNLocator(2),
+        tick_formatter2=None,
+    )
     ax1 = fig.add_subplot(
         rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
     ax1.grid()
@@ -93,31 +89,22 @@ def setup_axes3(fig, rect):
     Sometimes, things like axis_direction need to be adjusted.
     """
 
-    # rotate a bit for better orientation
-    tr_rotate = Affine2D().translate(-95, 0)
-
-    # scale degree to radians
-    tr_scale = Affine2D().scale(np.pi/180., 1.)
-
-    tr = tr_rotate + tr_scale + PolarAxes.PolarTransform(
-        apply_theta_transforms=False)
-
-    grid_locator1 = angle_helper.LocatorHMS(4)
-    tick_formatter1 = angle_helper.FormatterHMS()
-
-    grid_locator2 = MaxNLocator(3)
+    tr_rotate = Affine2D().translate(-95, 0)  # rotate a bit for better orientation
+    tr_scale = Affine2D().scale(np.pi/180., 1.)  # scale degree to radians
+    tr = tr_rotate + tr_scale + PolarAxes.PolarTransform()
 
     # Specify theta limits in degrees
     ra0, ra1 = 8.*15, 14.*15
     # Specify radial limits
     cz0, cz1 = 0, 14000
+
     grid_helper = floating_axes.GridHelperCurveLinear(
         tr, extremes=(ra0, ra1, cz0, cz1),
-        grid_locator1=grid_locator1,
-        grid_locator2=grid_locator2,
-        tick_formatter1=tick_formatter1,
-        tick_formatter2=None)
-
+        grid_locator1=angle_helper.LocatorHMS(4),
+        tick_formatter1=angle_helper.FormatterHMS(),
+        grid_locator2=MaxNLocator(3),
+        tick_formatter2=None,
+    )
     ax1 = fig.add_subplot(
         rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
 

@@ -21,6 +21,7 @@ Color norms
    :toctree: _as_gen/
    :template: autosummary.rst
 
+   Norm
    Normalize
    NoNorm
    AsinhNorm
@@ -31,6 +32,7 @@ Color norms
    PowerNorm
    SymLogNorm
    TwoSlopeNorm
+   MultiNorm
 
 Univariate Colormaps
 --------------------

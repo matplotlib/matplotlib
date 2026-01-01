@@ -15,20 +15,6 @@ import matplotlib.transforms as mtransforms
 from matplotlib.spines import Spine
 
 
-def _apply_theta_transforms_warn():
-    _api.warn_deprecated(
-                "3.9",
-                message=(
-                    "Passing `apply_theta_transforms=True` (the default) "
-                    "is deprecated since Matplotlib %(since)s. "
-                    "Support for this will be removed in Matplotlib in %(removal)s. "
-                    "To prevent this warning, set `apply_theta_transforms=False`, "
-                    "and make sure to shift theta values before being passed to "
-                    "this transform."
-                )
-            )
-
-
 class PolarTransform(mtransforms.Transform):
     r"""
     The base polar transform.
@@ -48,8 +34,7 @@ class PolarTransform(mtransforms.Transform):
 
     input_dims = output_dims = 2
 
-    def __init__(self, axis=None, use_rmin=True, *,
-                 apply_theta_transforms=True, scale_transform=None):
+    def __init__(self, axis=None, use_rmin=True, *, scale_transform=None):
         """
         Parameters
         ----------
@@ -64,15 +49,12 @@ class PolarTransform(mtransforms.Transform):
         super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
-        self._apply_theta_transforms = apply_theta_transforms
         self._scale_transform = scale_transform
-        if apply_theta_transforms:
-            _apply_theta_transforms_warn()
 
     __str__ = mtransforms._make_str_method(
         "_axis",
-        use_rmin="_use_rmin",
-        apply_theta_transforms="_apply_theta_transforms")
+        use_rmin="_use_rmin"
+    )
 
     def _get_rorigin(self):
         # Get lower r limit after being scaled by the radial scale transform
@@ -82,11 +64,6 @@ class PolarTransform(mtransforms.Transform):
     def transform_non_affine(self, values):
         # docstring inherited
         theta, r = np.transpose(values)
-        # PolarAxes does not use the theta transforms here, but apply them for
-        # backwards-compatibility if not being used by it.
-        if self._apply_theta_transforms and self._axis is not None:
-            theta *= self._axis.get_theta_direction()
-            theta += self._axis.get_theta_offset()
         if self._use_rmin and self._axis is not None:
             r = (r - self._get_rorigin()) * self._axis.get_rsign()
         r = np.where(r >= 0, r, np.nan)
@@ -148,10 +125,7 @@ class PolarTransform(mtransforms.Transform):
 
     def inverted(self):
         # docstring inherited
-        return PolarAxes.InvertedPolarTransform(
-            self._axis, self._use_rmin,
-            apply_theta_transforms=self._apply_theta_transforms
-        )
+        return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin)
 
 
 class PolarAffine(mtransforms.Affine2DBase):
@@ -209,8 +183,7 @@ class InvertedPolarTransform(mtransforms.Transform):
     """
     input_dims = output_dims = 2
 
-    def __init__(self, axis=None, use_rmin=True,
-                 *, apply_theta_transforms=True):
+    def __init__(self, axis=None, use_rmin=True):
         """
         Parameters
         ----------
@@ -225,26 +198,16 @@ class InvertedPolarTransform(mtransforms.Transform):
         super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
-        self._apply_theta_transforms = apply_theta_transforms
-        if apply_theta_transforms:
-            _apply_theta_transforms_warn()
 
     __str__ = mtransforms._make_str_method(
         "_axis",
-        use_rmin="_use_rmin",
-        apply_theta_transforms="_apply_theta_transforms")
+        use_rmin="_use_rmin")
 
     def transform_non_affine(self, values):
         # docstring inherited
         x, y = values.T
         r = np.hypot(x, y)
-        theta = (np.arctan2(y, x) + 2 * np.pi) % (2 * np.pi)
-        # PolarAxes does not use the theta transforms here, but apply them for
-        # backwards-compatibility if not being used by it.
-        if self._apply_theta_transforms and self._axis is not None:
-            theta -= self._axis.get_theta_offset()
-            theta *= self._axis.get_theta_direction()
-            theta %= 2 * np.pi
+        theta = np.arctan2(y, x) % (2 * np.pi)
         if self._use_rmin and self._axis is not None:
             r += self._axis.get_rorigin()
             r *= self._axis.get_rsign()
@@ -252,10 +215,7 @@ class InvertedPolarTransform(mtransforms.Transform):
 
     def inverted(self):
         # docstring inherited
-        return PolarAxes.PolarTransform(
-            self._axis, self._use_rmin,
-            apply_theta_transforms=self._apply_theta_transforms
-        )
+        return PolarAxes.PolarTransform(self._axis, self._use_rmin)
 
 
 class ThetaFormatter(mticker.Formatter):
@@ -471,6 +431,7 @@ class RadialLocator(mticker.Locator):
     scale of the *r*-axis).
     """
 
+    @_api.delete_parameter("3.11", "axes")
     def __init__(self, base, axes=None):
         self.base = base
         self._axes = axes
@@ -480,11 +441,11 @@ class RadialLocator(mticker.Locator):
 
     def __call__(self):
         # Ensure previous behaviour with full circle non-annular views.
-        if self._axes:
-            if _is_full_circle_rad(*self._axes.viewLim.intervalx):
-                rorigin = self._axes.get_rorigin() * self._axes.get_rsign()
-                if self._axes.get_rmin() <= rorigin:
-                    return [tick for tick in self.base() if tick > rorigin]
+        ax = self.base.axis.axes
+        if _is_full_circle_rad(*ax.viewLim.intervalx):
+            rorigin = ax.get_rorigin() * ax.get_rsign()
+            if ax.get_rmin() <= rorigin:
+                return [tick for tick in self.base() if tick > rorigin]
         return self.base()
 
     def _zero_in_bounds(self):
@@ -492,7 +453,7 @@ class RadialLocator(mticker.Locator):
         Return True if zero is within the valid values for the
         scale of the radial axis.
         """
-        vmin, vmax = self._axes.yaxis._scale.limit_range_for_scale(0, 1, 1e-5)
+        vmin, vmax = self.base.axis._scale.limit_range_for_scale(0, 1, 1e-5)
         return vmin == 0
 
     def nonsingular(self, vmin, vmax):
@@ -719,20 +680,15 @@ class RadialAxis(maxis.YAxis):
         super().__init__(*args, **kwargs)
         self.sticky_edges.y.append(0)
 
-    def _wrap_locator_formatter(self):
-        self.set_major_locator(RadialLocator(self.get_major_locator(),
-                                             self.axes))
-        self.isDefault_majloc = True
+    def set_major_locator(self, locator):
+        if not isinstance(locator, RadialLocator):
+            locator = RadialLocator(locator)
+        super().set_major_locator(locator)
 
     def clear(self):
         # docstring inherited
         super().clear()
         self.set_ticks_position('none')
-        self._wrap_locator_formatter()
-
-    def _set_scale(self, value, **kwargs):
-        super()._set_scale(value, **kwargs)
-        self._wrap_locator_formatter()
 
 
 def _is_full_circle_deg(thetamin, thetamax):
@@ -857,6 +813,10 @@ class PolarAxes(Axes):
         self.xaxis = ThetaAxis(self, clear=False)
         self.yaxis = RadialAxis(self, clear=False)
         self.spines['polar'].register_axis(self.yaxis)
+        inner_spine = self.spines.get('inner', None)
+        if inner_spine is not None:
+            # Subclasses may not have inner spine.
+            inner_spine.register_axis(self.yaxis)
 
     def _set_lim_and_transforms(self):
         # A view limit where the minimum radius can be locked if the user
@@ -895,7 +855,6 @@ class PolarAxes(Axes):
         # data.  This one is aware of rmin
         self.transProjection = self.PolarTransform(
             self,
-            apply_theta_transforms=False,
             scale_transform=self.transScale
         )
         # Add dependency on rorigin.
@@ -1002,7 +961,9 @@ class PolarAxes(Axes):
         thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
         if thetamin > thetamax:
             thetamin, thetamax = thetamax, thetamin
-        rmin, rmax = ((self._realViewLim.intervaly - self.get_rorigin()) *
+        rscale_tr = self.yaxis.get_transform()
+        rmin, rmax = ((rscale_tr.transform(self._realViewLim.intervaly) -
+                       rscale_tr.transform(self.get_rorigin())) *
                       self.get_rsign())
         if isinstance(self.patch, mpatches.Wedge):
             # Backwards-compatibility: Any subclassed Axes might override the
@@ -1282,11 +1243,6 @@ class PolarAxes(Axes):
             The angular position of the radius labels in degrees.
         """
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
-
-    def set_yscale(self, *args, **kwargs):
-        super().set_yscale(*args, **kwargs)
-        self.yaxis.set_major_locator(
-            self.RadialLocator(self.yaxis.get_major_locator(), self))
 
     def set_rscale(self, *args, **kwargs):
         return Axes.set_yscale(self, *args, **kwargs)

@@ -12,12 +12,15 @@ range as outliers above or below the whiskers whereas violin plots show
 the whole range of the data.
 
 A good general reference on boxplots and their history can be found
-here: http://vita.had.co.nz/papers/boxplots.pdf
+here: https://vita.had.co.nz/papers/boxplots.pdf
 
 Violin plots require matplotlib >= 1.4.
 
-For more information on violin plots, the scikit-learn docs have a great
-section: https://scikit-learn.org/stable/modules/density.html
+Violin plots show the distribution of the data as a rotated kernel density
+estimate (KDE) along with summary statistics similar to a box plot.
+
+For more information on violin plots, see:
+https://en.wikipedia.org/wiki/Violin_plot
 """
 
 import matplotlib.pyplot as plt

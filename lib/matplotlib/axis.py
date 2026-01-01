@@ -75,6 +75,7 @@ class Tick(martist.Artist):
         label2On=False,
         major=True,
         labelrotation=0,
+        labelrotation_mode=None,
         grid_color=None,
         grid_linestyle=None,
         grid_linewidth=None,
@@ -124,17 +125,34 @@ class Tick(martist.Artist):
                 zorder = mlines.Line2D.zorder
         self._zorder = zorder
 
-        grid_color = mpl._val_or_rc(grid_color, "grid.color")
-        grid_linestyle = mpl._val_or_rc(grid_linestyle, "grid.linestyle")
-        grid_linewidth = mpl._val_or_rc(grid_linewidth, "grid.linewidth")
+        grid_color = mpl._val_or_rc(
+            grid_color,
+            f"grid.{major_minor}.color",
+            "grid.color",
+        )
+        grid_linestyle = mpl._val_or_rc(
+            grid_linestyle,
+            f"grid.{major_minor}.linestyle",
+            "grid.linestyle",
+        )
+        grid_linewidth = mpl._val_or_rc(
+            grid_linewidth,
+            f"grid.{major_minor}.linewidth",
+            "grid.linewidth",
+        )
         if grid_alpha is None and not mcolors._has_alpha_channel(grid_color):
             # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
             # Note: only resolve to rcParams if the color does not have alpha
             # otherwise `grid(color=(1, 1, 1, 0.5))` would work like
             #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
             # so the that the rcParams default would override color alpha.
-            grid_alpha = mpl.rcParams["grid.alpha"]
-        grid_kw = {k[5:]: v for k, v in kwargs.items()}
+            grid_alpha = mpl._val_or_rc(
+                # grid_alpha is None so we can use the first key
+                mpl.rcParams[f"grid.{major_minor}.alpha"],
+                "grid.alpha",
+            )
+
+        grid_kw = {k[5:]: v for k, v in kwargs.items() if k != "rotation_mode"}
 
         self.tick1line = mlines.Line2D(
             [], [],
@@ -157,11 +175,13 @@ class Tick(martist.Artist):
         self.label1 = mtext.Text(
             np.nan, np.nan,
             fontsize=labelsize, color=labelcolor, visible=label1On,
-            fontfamily=labelfontfamily, rotation=self._labelrotation[1])
+            fontfamily=labelfontfamily, rotation=self._labelrotation[1],
+            rotation_mode=labelrotation_mode)
         self.label2 = mtext.Text(
             np.nan, np.nan,
             fontsize=labelsize, color=labelcolor, visible=label2On,
-            fontfamily=labelfontfamily, rotation=self._labelrotation[1])
+            fontfamily=labelfontfamily, rotation=self._labelrotation[1],
+            rotation_mode=labelrotation_mode)
 
         self._apply_tickdir(tickdir)
 
@@ -321,7 +341,8 @@ class Tick(martist.Artist):
             self.label2.set(rotation=self._labelrotation[1])
 
         label_kw = {k[5:]: v for k, v in kwargs.items()
-                    if k in ['labelsize', 'labelcolor', 'labelfontfamily']}
+                    if k in ['labelsize', 'labelcolor', 'labelfontfamily',
+                             'labelrotation_mode']}
         self.label1.set(**label_kw)
         self.label2.set(**label_kw)
 
@@ -1050,7 +1071,7 @@ class Axis(martist.Artist):
             'tick1On', 'tick2On', 'label1On', 'label2On',
             'length', 'direction', 'left', 'bottom', 'right', 'top',
             'labelleft', 'labelbottom', 'labelright', 'labeltop',
-            'labelrotation',
+            'labelrotation', 'labelrotation_mode',
             *_gridline_param_names]
 
         keymap = {
@@ -1058,6 +1079,7 @@ class Axis(martist.Artist):
             'length': 'size',
             'direction': 'tickdir',
             'rotation': 'labelrotation',
+            'rotation_mode': 'labelrotation_mode',
             'left': 'tick1On',
             'bottom': 'tick1On',
             'right': 'tick2On',
@@ -1308,14 +1330,14 @@ class Axis(martist.Artist):
 
         return ticks_to_draw
 
-    def _get_ticklabel_bboxes(self, ticks, renderer=None):
+    def _get_ticklabel_bboxes(self, ticks, renderer):
         """Return lists of bboxes for ticks' label1's and label2's."""
-        if renderer is None:
-            renderer = self.get_figure(root=True)._get_renderer()
         return ([tick.label1.get_window_extent(renderer)
-                 for tick in ticks if tick.label1.get_visible()],
+                 for tick in ticks
+                 if tick.label1.get_visible() and tick.label1.get_in_layout()],
                 [tick.label2.get_window_extent(renderer)
-                 for tick in ticks if tick.label2.get_visible()])
+                 for tick in ticks
+                 if tick.label2.get_visible() and tick.label2.get_in_layout()])
 
     def get_tightbbox(self, renderer=None, *, for_layout_only=False):
         """
@@ -1361,8 +1383,7 @@ class Axis(martist.Artist):
                     bb.y0 = (bb.y0 + bb.y1) / 2 - 0.5
                     bb.y1 = bb.y0 + 1.0
             bboxes.append(bb)
-        bboxes = [b for b in bboxes
-                  if 0 < b.width < np.inf and 0 < b.height < np.inf]
+        bboxes = [b for b in bboxes if b._is_finite()]
         if bboxes:
             return mtransforms.Bbox.union(bboxes)
         else:

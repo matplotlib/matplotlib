@@ -523,13 +523,6 @@ class _process_plot_var_args:
             labels = [label] * n_datasets
         elif len(label) == n_datasets:
             labels = label
-        elif n_datasets == 1:
-            msg = (f'Passing label as a length {len(label)} sequence when '
-                    'plotting a single dataset is deprecated in Matplotlib 3.9 '
-                    'and will error in 3.11.  To keep the current behavior, '
-                    'cast the sequence to string before passing.')
-            _api.warn_deprecated('3.9', message=msg)
-            labels = [label]
         else:
             raise ValueError(
                 f"label must be scalar or have the same length as the input "
@@ -564,6 +557,42 @@ class _AxesBase(martist.Artist):
 
     dataLim: mtransforms.Bbox
     """The bounding `.Bbox` enclosing all data displayed in the Axes."""
+
+    spines: mspines.Spines
+    """
+    The `.Spines` container for the Axes' spines, i.e. the lines denoting the
+    data area boundaries.
+    """
+
+    xaxis: maxis.XAxis
+    """
+    The `.XAxis` instance.
+
+    Common axis-related configuration can be achieved through high-level wrapper
+    methods on Axes; e.g. `ax.set_xticks <.Axes.set_xticks>` is a shortcut for
+    `ax.xaxis.set_ticks <.Axis.set_ticks>`. The *xaxis* attribute gives direct
+    direct access to the underlying `~.axis.Axis` if you need more control.
+
+    See also
+
+    - :ref:`Axis wrapper methods on Axes <axes-api-axis>`
+    - :doc:`Axis API </api/axis_api>`
+    """
+
+    yaxis: maxis.YAxis
+    """
+    The `.YAxis` instance.
+
+    Common axis-related configuration can be achieved through high-level wrapper
+    methods on Axes; e.g. `ax.set_yticks <.Axes.set_yticks>` is a shortcut for
+    `ax.yaxis.set_ticks <.Axis.set_ticks>`. The *yaxis* attribute gives direct
+    access to the underlying `~.axis.Axis` if you need more control.
+
+    See also
+
+    - :ref:`Axis wrapper methods on Axes <axes-api-axis>`
+    - :doc:`Axis API </api/axis_api>`
+    """
 
     def __str__(self):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
@@ -677,8 +706,9 @@ class _AxesBase(martist.Artist):
         self._colorbars = []
         self.spines = mspines.Spines.from_dict(self._gen_axes_spines())
 
-        # this call may differ for non-sep axes, e.g., polar
-        self._init_axis()
+        self.xaxis = None  # will be populated in _init_axis()
+        self.yaxis = None  # will be populated in _init_axis()
+        self._init_axis()  # this call may differ for non-sep axes, e.g., polar
         self._axis_map = {
             name: getattr(self, f"{name}axis") for name in self._axis_names
         }  # A mapping of axis names, e.g. 'x', to `Axis` instances.
@@ -694,7 +724,6 @@ class _AxesBase(martist.Artist):
         self.fmt_ydata = None
 
         self.set_navigate(True)
-        self.set_navigate_mode(None)
 
         if xscale:
             self.set_xscale(xscale)
@@ -867,7 +896,7 @@ class _AxesBase(martist.Artist):
         Mark a single axis, or all of them, as stale wrt. autoscaling.
 
         No computation is performed until the next autoscaling; thus, separate
-        calls to control individual axises incur negligible performance cost.
+        calls to control individual `Axis`s incur negligible performance cost.
 
         Parameters
         ----------
@@ -1576,7 +1605,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        cycler : `~cycler.Cycler`
+        cycler : `~cycler.Cycler` or ``None``
             Set the given Cycler. *None* resets to the cycle defined by the
             current style.
 
@@ -1707,6 +1736,8 @@ class _AxesBase(martist.Artist):
         Return whether the Axes will adjust its physical dimension ('box') or
         its data limits ('datalim') to achieve the desired aspect ratio.
 
+        Newly created Axes default to 'box'.
+
         See Also
         --------
         matplotlib.axes.Axes.set_adjustable
@@ -1732,6 +1763,8 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
+        matplotlib.axes.Axes.get_adjustable
+            Return the current value of *adjustable*.
         matplotlib.axes.Axes.set_aspect
             For a description of aspect handling.
 
@@ -1763,7 +1796,7 @@ class _AxesBase(martist.Artist):
                              "Axes which override 'get_data_ratio'")
         for ax in axs:
             ax._adjustable = adjustable
-        self.stale = True
+            ax.stale = True
 
     def get_box_aspect(self):
         """
@@ -2155,9 +2188,9 @@ class _AxesBase(martist.Artist):
                     xlim = self.get_xlim()
                     ylim = self.get_ylim()
                     edge_size = max(np.diff(xlim), np.diff(ylim))[0]
-                    self.set_xlim([xlim[0], xlim[0] + edge_size],
+                    self.set_xlim(xlim[0], xlim[0] + edge_size,
                                   emit=emit, auto=False)
-                    self.set_ylim([ylim[0], ylim[0] + edge_size],
+                    self.set_ylim(ylim[0], ylim[0] + edge_size,
                                   emit=emit, auto=False)
             else:
                 raise ValueError(f"Unrecognized string {arg!r} to axis; "
@@ -2212,7 +2245,7 @@ class _AxesBase(martist.Artist):
         .. admonition:: Discouraged
 
             The use of this function is discouraged. You should instead
-            directly access the attribute ``ax.xaxis``.
+            directly access the attribute `~.Axes.xaxis`.
         """
         return self.xaxis
 
@@ -2223,7 +2256,7 @@ class _AxesBase(martist.Artist):
         .. admonition:: Discouraged
 
             The use of this function is discouraged. You should instead
-            directly access the attribute ``ax.yaxis``.
+            directly access the attribute `~.Axes.yaxis`.
         """
         return self.yaxis
 
@@ -2307,6 +2340,23 @@ class _AxesBase(martist.Artist):
     def add_collection(self, collection, autolim=True):
         """
         Add a `.Collection` to the Axes; return the collection.
+
+        Parameters
+        ----------
+        collection : `.Collection`
+            The collection to add.
+        autolim : bool
+            Whether to update data and view limits.
+
+            .. versionchanged:: 3.11
+
+               This now also updates the view limits, making explicit
+               calls to `~.Axes.autoscale_view` unnecessary.
+
+            As an implementation detail, the value "_datalim_only" is
+            supported to smooth the internal transition from pre-3.11
+            behavior. This is not a public interface and will be removed
+            again in the future.
         """
         _api.check_isinstance(mcoll.Collection, collection=collection)
         if not collection.get_label():
@@ -2331,7 +2381,19 @@ class _AxesBase(martist.Artist):
                 # the call so that self.dataLim will update its own minpos.
                 # This ensures that log scales see the correct minimum.
                 points = np.concatenate([points, [datalim.minpos]])
-            self.update_datalim(points)
+            # only update the dataLim for x/y if the collection uses transData
+            # in this direction.
+            x_is_data, y_is_data = (collection.get_transform()
+                                    .contains_branch_separately(self.transData))
+            ox_is_data, oy_is_data = (collection.get_offset_transform()
+                                      .contains_branch_separately(self.transData))
+            self.update_datalim(
+                points,
+                updatex=x_is_data or ox_is_data,
+                updatey=y_is_data or oy_is_data,
+            )
+            if autolim != "_datalim_only":
+                self._request_autoscale_view()
 
         self.stale = True
         return collection
@@ -2393,7 +2455,7 @@ class _AxesBase(martist.Artist):
 
         if line_trf == self.transData:
             data_path = path
-        elif any(line_trf.contains_branch_seperately(self.transData)):
+        elif any(line_trf.contains_branch_separately(self.transData)):
             # Compute the transform from line coordinates to data coordinates.
             trf_to_data = line_trf - self.transData
             # If transData is affine we can use the cached non-affine component
@@ -2416,7 +2478,7 @@ class _AxesBase(martist.Artist):
         if not data_path.vertices.size:
             return
 
-        updatex, updatey = line_trf.contains_branch_seperately(self.transData)
+        updatex, updatey = line_trf.contains_branch_separately(self.transData)
         if self.name != "rectilinear":
             # This block is mostly intended to handle axvline in polar plots,
             # for which updatey would otherwise be True.
@@ -2469,7 +2531,7 @@ class _AxesBase(martist.Artist):
             vertices = np.vstack(vertices)
 
         patch_trf = patch.get_transform()
-        updatex, updatey = patch_trf.contains_branch_seperately(self.transData)
+        updatex, updatey = patch_trf.contains_branch_separately(self.transData)
         if not (updatex or updatey):
             return
         if self.name != "rectilinear":
@@ -3144,7 +3206,7 @@ class _AxesBase(martist.Artist):
         if not self.get_figure(root=True).canvas.is_saving():
             artists = [
                 a for a in artists
-                if not a.get_animated() or isinstance(a, mimage.AxesImage)]
+                if not a.get_animated()]
         artists = sorted(artists, key=attrgetter('zorder'))
 
         # rasterize artists with negative zorder
@@ -3469,7 +3531,9 @@ class _AxesBase(martist.Artist):
         labelbottom, labeltop, labelleft, labelright : bool
             Whether to draw the respective tick labels.
         labelrotation : float
-            Tick label rotation
+            Tick label rotation angle in degrees. See `.Text.set_rotation`.
+        labelrotation_mode : {'default', 'anchor', 'xtick', 'ytick'}
+            Tick label rotation mode. See `.Text.set_rotation_mode`.
         grid_color : :mpltype:`color`
             Gridline color.
         grid_alpha : float
@@ -4145,17 +4209,22 @@ class _AxesBase(martist.Artist):
         """
         Get the navigation toolbar button status: 'PAN', 'ZOOM', or None.
         """
-        return self._navigate_mode
+        toolbar = self.figure.canvas.toolbar
+        if toolbar:
+            return None if toolbar.mode.name == "NONE" else toolbar.mode.name
+        manager = self.figure.canvas.manager
+        if manager and manager.toolmanager:
+            mode = manager.toolmanager.active_toggle.get("default")
+            return None if mode is None else mode.upper()
 
+    @_api.deprecated("3.11")
     def set_navigate_mode(self, b):
         """
         Set the navigation toolbar button status.
 
         .. warning::
             This is not a user-API function.
-
         """
-        self._navigate_mode = b
 
     def _get_view(self):
         """
@@ -4563,9 +4632,7 @@ class _AxesBase(martist.Artist):
 
         for a in bbox_artists:
             bbox = a.get_tightbbox(renderer)
-            if (bbox is not None
-                    and 0 < bbox.width < np.inf
-                    and 0 < bbox.height < np.inf):
+            if bbox is not None and bbox._is_finite():
                 bb.append(bbox)
         return mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])
@@ -4717,14 +4784,25 @@ class _AxesBase(martist.Artist):
         self._label_outer_yaxis(skip_non_rectangular_axes=False,
                                 remove_inner_ticks=remove_inner_ticks)
 
+    def _get_subplotspec_with_optional_colorbar(self):
+        """
+        Return the subplotspec for this Axes, except that if this Axes has been
+        moved to a subgridspec to make room for a colorbar, then return the
+        subplotspec that encloses both this Axes and the colorbar Axes.
+        """
+        ss = self.get_subplotspec()
+        if any(cax.get_subplotspec() for cax in self._colorbars):
+            ss = ss.get_gridspec()._subplot_spec
+        return ss
+
     def _label_outer_xaxis(self, *, skip_non_rectangular_axes,
                            remove_inner_ticks=False):
         # see documentation in label_outer.
         if skip_non_rectangular_axes and not isinstance(self.patch,
                                                         mpl.patches.Rectangle):
             return
-        ss = self.get_subplotspec()
-        if not ss:
+        ss = self._get_subplotspec_with_optional_colorbar()
+        if ss is None:
             return
         label_position = self.xaxis.get_label_position()
         if not ss.is_first_row():  # Remove top label/ticklabels/offsettext.
@@ -4750,8 +4828,8 @@ class _AxesBase(martist.Artist):
         if skip_non_rectangular_axes and not isinstance(self.patch,
                                                         mpl.patches.Rectangle):
             return
-        ss = self.get_subplotspec()
-        if not ss:
+        ss = self._get_subplotspec_with_optional_colorbar()
+        if ss is None:
             return
         label_position = self.yaxis.get_label_position()
         if not ss.is_first_col():  # Remove left label/ticklabels/offsettext.

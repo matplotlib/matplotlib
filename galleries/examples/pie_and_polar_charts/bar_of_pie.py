@@ -25,8 +25,8 @@ labels = ['Approve', 'Disapprove', 'Undecided']
 explode = [0.1, 0, 0]
 # rotate so that first wedge is split by the x-axis
 angle = -180 * overall_ratios[0]
-wedges, *_ = ax1.pie(overall_ratios, autopct='%1.1f%%', startangle=angle,
-                     labels=labels, explode=explode)
+pie = ax1.pie(overall_ratios, autopct='%1.1f%%', startangle=angle,
+              labels=labels, explode=explode)
 
 # bar chart parameters
 age_ratios = [.33, .54, .07, .06]
@@ -47,8 +47,8 @@ ax2.axis('off')
 ax2.set_xlim(- 2.5 * width, 2.5 * width)
 
 # use ConnectionPatch to draw lines between the two plots
-theta1, theta2 = wedges[0].theta1, wedges[0].theta2
-center, r = wedges[0].center, wedges[0].r
+theta1, theta2 = pie.wedges[0].theta1, pie.wedges[0].theta2
+center, r = pie.wedges[0].center, pie.wedges[0].r
 bar_height = sum(age_ratios)
 
 # draw top connecting line

@@ -496,7 +496,7 @@ typedef enum {
 } interpolation_e;
 
 
-// T is rgba if and only if it has an T::r field.
+// T is rgba if and only if it has a T::r field.
 template<typename T, typename = void> struct is_grayscale : std::true_type {};
 template<typename T> struct is_grayscale<T, std::void_t<decltype(T::r)>> : std::false_type {};
 template<typename T> constexpr bool is_grayscale_v = is_grayscale<T>::value;
@@ -518,17 +518,6 @@ struct type_mapping
         is_grayscale_v<color_type>,
         agg::pixfmt_alpha_blend_gray<blender_type, agg::rendering_buffer>,
         agg::pixfmt_alpha_blend_rgba<blender_type, agg::rendering_buffer>
-    >;
-    using pixfmt_pre_type = std::conditional_t<
-        is_grayscale_v<color_type>,
-        pixfmt_type,
-        agg::pixfmt_alpha_blend_rgba<
-            std::conditional_t<
-                std::is_same_v<color_type, agg::rgba8>,
-                fixed_blender_rgba_pre<color_type, agg::order_rgba>,
-                agg::blender_rgba_pre<color_type, agg::order_rgba>
-            >,
-            agg::rendering_buffer>
     >;
     template<typename A> using span_gen_affine_type = std::conditional_t<
         is_grayscale_v<color_type>,

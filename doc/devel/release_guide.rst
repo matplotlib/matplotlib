@@ -83,7 +83,11 @@ Micro versions should instead read::
 Check all active milestones for consistency. Older milestones should also backport
 to higher meso versions (e.g. ``v3.6.3`` and ``v3.6-doc`` should backport to both
 ``v3.6.x`` and ``v3.7.x`` once the ``v3.7.x`` branch exists and while PR backports are
-still targeting ``v3.6.x``)
+still targeting ``v3.6.x``).
+
+Close milestones for versions that are unlikely to be released, e.g. micro versions of
+older meso releases. Remilestone issues/PRs that are now untagged to the appropriate
+future release milestone.
 
 Create the milestone for the next-next meso release (i.e. ``v3.9.0``, as ``v3.8.0``
 should already exist). While most active items should go in the next meso release,
@@ -125,22 +129,22 @@ prepare this list:
 
 1. Archive the existing GitHub statistics page.
 
-   a. Copy the current :file:`doc/users/github_stats.rst` to
-      :file:`doc/users/prev_whats_new/github_stats_{X}.{Y}.{Z}.rst`.
+   a. Copy the current :file:`doc/release/github_stats.rst` to
+      :file:`doc/release/prev_whats_new/github_stats_{X}.{Y}.{Z}.rst`.
    b. Change the link target at the top of the file.
    c. Remove the "Previous GitHub Stats" section at the end.
 
    For example, when updating from v3.7.0 to v3.7.1::
 
-      cp doc/users/github_stats.rst doc/users/prev_whats_new/github_stats_3.7.0.rst
-      $EDITOR doc/users/prev_whats_new/github_stats_3.7.0.rst
+      cp doc/release/github_stats.rst doc/release/prev_whats_new/github_stats_3.7.0.rst
+      $EDITOR doc/release/prev_whats_new/github_stats_3.7.0.rst
       # Change contents as noted above.
-      git add doc/users/prev_whats_new/github_stats_3.7.0.rst
+      git add doc/release/prev_whats_new/github_stats_3.7.0.rst
 
 2. Re-generate the updated stats::
 
        python tools/github_stats.py --since-tag v3.7.0 --milestone=v3.7.1 \
-           --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
+           --project 'matplotlib/matplotlib' --links > doc/release/github_stats.rst
 
 3. Review and commit changes. Some issue/PR titles may not be valid reST (the most
    common issue is ``*`` which is interpreted as unclosed markup). Also confirm that
@@ -194,8 +198,8 @@ What's new
 *Only needed for macro and meso releases. Bugfix releases should not have new
 features.*
 
-Merge the contents of all the files in :file:`doc/users/next_whats_new/` into a single
-file :file:`doc/users/prev_whats_new/whats_new_{X}.{Y}.0.rst` and delete the individual
+Merge the contents of all the files in :file:`doc/release/next_whats_new/` into a single
+file :file:`doc/release/prev_whats_new/whats_new_{X}.{Y}.0.rst` and delete the individual
 files.
 
 API changes
@@ -211,7 +215,7 @@ individual files.
 Release notes TOC
 ^^^^^^^^^^^^^^^^^
 
-Update :file:`doc/users/release_notes.rst`:
+Update :file:`doc/release/release_notes.rst`:
 
 - For macro and meso releases add a new section
 
@@ -233,15 +237,24 @@ Update :file:`doc/users/release_notes.rst`:
      ../api/prev_api_changes/api_changes_X.Y.Z.rst
      prev_whats_new/github_stats_X.Y.Z.rst
 
+.. _update-version-switcher:
+
 Update version switcher
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
-Update ``doc/_static/switcher.json``:
+The version switcher is populated from https://matplotlib.org/devdocs/_static/switcher.json.
 
-- If a micro release, :samp:`{X}.{Y}.{Z}`, no changes are needed.
-- If a meso release, :samp:`{X}.{Y}.0`, change the name of :samp:`name: {X}.{Y+1} (dev)`
-  and :samp:`name: {X}.{Y} (stable)` as well as adding a new version for the previous
-  stable (:samp:`name: {X}.{Y-1}`).
+Since it's always taken from devdocs, update the file :file:`doc/_static/switcher.json`
+on the main branch through a regular PR:
+
+- If a micro release, update the version from :samp:`{X}.{Y}.{Z-1}` to :samp:`{X}.{Y}.{Z}`
+- If a meso release :samp:`{X}.{Y}.0`:
+
+    + update the dev entry to :samp:`name: {X}.{Y+1} (dev)`
+    + update the stable entry to :samp:`name: {X}.{Y} (stable)`
+    + add a new entry for the previous stable (:samp:`name: {X}.{Y-1}`).
+
+Once that PR is merged, the devdocs site will be updated automatically.
 
 Verify that docs build
 ----------------------
@@ -285,9 +298,15 @@ it is important to move all branches away from the commit with the tag [#]_::
 
   git commit --allow-empty
 
+Push the branch to GitHub. This is done prior to pushing the tag as a last step in ensuring
+that the branch was fully up to date. If it fails, re-fetch and recreate commits and
+tag over an up to date branch::
+
+  git push DANGER v3.7.x
+
 Finally, push the tag to GitHub::
 
-  git push DANGER v3.7.x v3.7.0
+  git push DANGER v3.7.0
 
 Congratulations, the scariest part is done!
 This assumes the release branch has already been made.
@@ -364,12 +383,23 @@ Building binaries
 =================
 
 We distribute macOS, Windows, and many Linux wheels as well as a source tarball via
-PyPI. Most builders should trigger automatically once the tag is pushed to GitHub:
+PyPI.
 
 * Windows, macOS and manylinux wheels are built on GitHub Actions. Builds are triggered
-  by the GitHub Action defined in :file:`.github/workflows/cibuildwheel.yml`, and wheels
+  by the GitHub Action defined in a separate
+  `release repository <https://github.com/matplotlib/matplotlib-release>`__, and wheels
   will be available as artifacts of the build. Both a source tarball and the wheels will
   be automatically uploaded to PyPI once all of them have been built.
+* To trigger the build for the ``matplotlib-release`` repository:
+
+  * If not already created, create a release branch for the meso version (e.g. ``v3.10.x``)
+  * Edit the ``SOURCE_REF_TO_BUILD`` environment variable at the top of
+    `wheels.yml <https://github.com/matplotlib/matplotlib-release/blob/main/.github/workflows/wheels.yml>`__
+    on the release branch to point to the release tag.
+  * Run the workflow from the release branch, with "pypi" selected for the pypi environment
+    using the `Workflow Dispatch trigger <https://github.com/matplotlib/matplotlib-release/actions/workflows/wheels.yml>`__
+  * This will run cibuildwheel and upload to PyPI using the Trusted Publishers GitHub Action.
+
 * The auto-tick bot should open a pull request into the `conda-forge feedstock
   <https://github.com/conda-forge/matplotlib-feedstock>`__. Review and merge (if you
   have the power to).
@@ -451,7 +481,7 @@ which will copy the built docs over.  If this is a final release, link the
   rm stable
   ln -s 3.7.0 stable
 
-You will also need to edit :file:`sitemap.xml` and :file:`versions.html` to include
+You will also need to edit :file:`sitemap.xml` to include
 the newly released version.  Now commit and push everything to GitHub ::
 
   git add *
@@ -464,6 +494,8 @@ If you have access, clear the CloudFlare caches.
 
 It typically takes about 5-10 minutes for the website to process the push and update the
 live web page (remember to clear your browser cache).
+
+Remember to :ref:`update the version switcher <update-version-switcher>`!
 
 .. _release_merge_up:
 

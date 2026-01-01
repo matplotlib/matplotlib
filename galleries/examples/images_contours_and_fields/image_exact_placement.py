@@ -134,13 +134,13 @@ fig_width = left + nx + buffer
 fig = plt.figure(figsize=(fig_width / dpi, fig_height / dpi), facecolor='aliceblue')
 
 # the position posA must be normalized by the figure width and height:
-ax = fig.add_axes([posA[0] / fig_width, posA[1] / fig_height,
-                   posA[2] / fig_width, posA[3] / fig_height])
+ax = fig.add_axes((posA[0] / fig_width, posA[1] / fig_height,
+                   posA[2] / fig_width, posA[3] / fig_height))
 ax.imshow(A, vmin=-1, vmax=1)
 annotate_rect(ax)
 
-ax = fig.add_axes([posB[0] / fig_width, posB[1] / fig_height,
-                   posB[2] / fig_width, posB[3] / fig_height])
+ax = fig.add_axes((posB[0] / fig_width, posB[1] / fig_height,
+                   posB[2] / fig_width, posB[3] / fig_height))
 ax.imshow(B, vmin=-1, vmax=1)
 plt.show()
 # %%

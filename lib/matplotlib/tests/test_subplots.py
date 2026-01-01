@@ -4,6 +4,7 @@ import platform
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib.axes import Axes, SubplotBase
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -111,10 +112,15 @@ def test_shared():
 
 
 @pytest.mark.parametrize('remove_ticks', [True, False])
-def test_label_outer(remove_ticks):
-    f, axs = plt.subplots(2, 2, sharex=True, sharey=True)
+@pytest.mark.parametrize('layout_engine', ['none', 'tight', 'constrained'])
+@pytest.mark.parametrize('with_colorbar', [True, False])
+def test_label_outer(remove_ticks, layout_engine, with_colorbar):
+    fig = plt.figure(layout=layout_engine)
+    axs = fig.subplots(2, 2, sharex=True, sharey=True)
     for ax in axs.flat:
         ax.set(xlabel="foo", ylabel="bar")
+        if with_colorbar:
+            fig.colorbar(mpl.cm.ScalarMappable(), ax=ax)
         ax.label_outer(remove_inner_ticks=remove_ticks)
     check_ticklabel_visible(
         axs.flat, [False, False, True, True], [True, False, True, False])
@@ -174,8 +180,8 @@ def test_exceptions():
         plt.subplots(2, 2, sharey='blah')
 
 
-@image_comparison(['subplots_offset_text'],
-                  tol=0.028 if platform.machine() == 'arm64' else 0)
+@image_comparison(['subplots_offset_text.png'],
+                  tol=0 if platform.machine() == 'x86_64' else 0.028)
 def test_subplots_offsettext():
     x = np.arange(0, 1e10, 1e9)
     y = np.arange(0, 100, 10)+1e4
@@ -242,7 +248,7 @@ def test_dont_mutate_kwargs():
 
 @pytest.mark.parametrize("width_ratios", [None, [1, 3, 2]])
 @pytest.mark.parametrize("height_ratios", [None, [1, 2]])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_width_and_height_ratios(fig_test, fig_ref,
                                  height_ratios, width_ratios):
     fig_test.subplots(2, 3, height_ratios=height_ratios,
@@ -254,7 +260,7 @@ def test_width_and_height_ratios(fig_test, fig_ref,
 
 @pytest.mark.parametrize("width_ratios", [None, [1, 3, 2]])
 @pytest.mark.parametrize("height_ratios", [None, [1, 2]])
-@check_figures_equal(extensions=['png'])
+@check_figures_equal()
 def test_width_and_height_ratios_mosaic(fig_test, fig_ref,
                                         height_ratios, width_ratios):
     mosaic_spec = [['A', 'B', 'B'], ['A', 'C', 'D']]

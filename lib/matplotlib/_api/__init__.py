@@ -10,6 +10,7 @@ This documentation is only relevant for Matplotlib developers, not for users.
 
 """
 
+import difflib
 import functools
 import itertools
 import pathlib
@@ -23,6 +24,15 @@ from .deprecation import (  # noqa: F401
     deprecate_method_override, deprecate_privatize_attribute,
     suppress_matplotlib_deprecation_warning,
     MatplotlibDeprecationWarning)
+
+
+# A sentinel value for optional arguments, when None cannot be used as
+# default because we need to distinguish between None passed explicitly
+# and parameter not given. Usage: def foo(arg=_api.UNSET):
+class _Unset:
+    def __repr__(self):
+        return "<UNSET>"
+UNSET = _Unset()
 
 
 class classproperty:
@@ -106,6 +116,9 @@ def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
     ----------
     values : iterable
         Sequence of values to check on.
+
+        Note: All values must support == comparisons.
+        This means in particular the entries must not be numpy arrays.
     _print_supported_values : bool, default: True
         Whether to print *values* when raising ValueError.
     **kwargs : dict
@@ -123,7 +136,18 @@ def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
     if not kwargs:
         raise TypeError("No argument to check!")
     for key, val in kwargs.items():
-        if val not in values:
+        try:
+            exists = val in values
+        except ValueError:
+            # `in` internally uses `val == values[i]`. There are some objects
+            # that do not support == to arbitrary other objects, in particular
+            # numpy arrays.
+            # Since such objects are not allowed in values, we can gracefully
+            # handle the case that val (typically provided by users) is of such
+            # type and directly state it's not in the list instead of letting
+            # the individual `val == values[i]` ValueError surface.
+            exists = False
+        if not exists:
             msg = f"{val!r} is not a valid value for {key}"
             if _print_supported_values:
                 msg += f"; supported values are {', '.join(map(repr, values))}"
@@ -165,11 +189,16 @@ def check_shape(shape, /, **kwargs):
             )
 
 
-def check_getitem(mapping, /, **kwargs):
+def check_getitem(mapping, /, _error_cls=ValueError, **kwargs):
     """
     *kwargs* must consist of a single *key, value* pair.  If *key* is in
     *mapping*, return ``mapping[value]``; else, raise an appropriate
     ValueError.
+
+    Parameters
+    ----------
+    _error_cls :
+        Class of error to raise.
 
     Examples
     --------
@@ -181,9 +210,14 @@ def check_getitem(mapping, /, **kwargs):
     try:
         return mapping[v]
     except KeyError:
-        raise ValueError(
-            f"{v!r} is not a valid value for {k}; supported values are "
-            f"{', '.join(map(repr, mapping))}") from None
+        if len(mapping) > 5:
+            if len(best := difflib.get_close_matches(v, mapping.keys(), cutoff=0.5)):
+                suggestion = f"Did you mean one of {best}?"
+            else:
+                suggestion = ""
+        else:
+            suggestion = f"Supported values are {', '.join(map(repr, mapping))}"
+        raise _error_cls(f"{v!r} is not a valid value for {k}. {suggestion}") from None
 
 
 def caching_module_getattr(cls):

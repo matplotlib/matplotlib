@@ -15,7 +15,8 @@ import matplotlib as mpl
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
-    MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
+    MSUserFontDirectories, ttfFontProperty,
+    _get_fontconfig_fonts, _normalize_weight)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
@@ -164,7 +165,7 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
     # Prepare a temporary user font directory
     user_fonts_dir = tmpdir.join('fonts')
     user_fonts_dir.ensure(dir=True)
-    shutil.copyfile(Path(__file__).parent / font_test_file,
+    shutil.copyfile(Path(__file__).parent / 'data' / font_test_file,
                     user_fonts_dir.join(font_test_file))
 
     with monkeypatch.context() as m:
@@ -181,7 +182,7 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
 def test_addfont_as_path():
     """Smoke test that addfont() accepts pathlib.Path."""
     font_test_file = 'mpltest.ttf'
-    path = Path(__file__).parent / font_test_file
+    path = Path(__file__).parent / 'data' / font_test_file
     try:
         fontManager.addfont(path)
         added, = (font for font in fontManager.ttflist
@@ -215,7 +216,7 @@ def test_user_fonts_win32():
     os.makedirs(user_fonts_dir)
 
     # Copy the test font to the user font directory
-    shutil.copy(Path(__file__).parent / font_test_file, user_fonts_dir)
+    shutil.copy(Path(__file__).parent / 'data' / font_test_file, user_fonts_dir)
 
     # Now, the font should be available
     fonts = findSystemFonts()
@@ -407,3 +408,29 @@ def test_fontproperties_init_deprecation():
     # Since this case is not covered by docs, I've refrained from jumping
     # extra hoops to detect this possible API misuse.
     FontProperties(family="serif-24:style=oblique:weight=bold")
+
+
+def test_normalize_weights():
+    assert _normalize_weight(300) == 300  # passthrough
+    assert _normalize_weight('ultralight') == 100
+    assert _normalize_weight('light') == 200
+    assert _normalize_weight('normal') == 400
+    assert _normalize_weight('regular') == 400
+    assert _normalize_weight('book') == 400
+    assert _normalize_weight('medium') == 500
+    assert _normalize_weight('roman') == 500
+    assert _normalize_weight('semibold') == 600
+    assert _normalize_weight('demibold') == 600
+    assert _normalize_weight('demi') == 600
+    assert _normalize_weight('bold') == 700
+    assert _normalize_weight('heavy') == 800
+    assert _normalize_weight('extra bold') == 800
+    assert _normalize_weight('black') == 900
+    with pytest.raises(KeyError):
+        _normalize_weight('invalid')
+
+
+def test_font_match_warning(caplog):
+    findfont(FontProperties(family=["DejaVu Sans"], weight=750))
+    logs = [rec.message for rec in caplog.records]
+    assert 'findfont: Failed to find font weight 750, now using 700.' in logs

@@ -29,7 +29,8 @@ Ways to contribute
     * **You are a Matplotlib user, and you see a bug, a potential improvement, or
       something that annoys you, and you can fix it.**
 
-      You can search our issue tracker for an existing issue that describes your problem or
+      You can search our `issue tracker <https://github.com/matplotlib/matplotlib/issues>`__
+      for an existing issue that describes your problem or
       open a new issue to inform us of the problem you observed and discuss the best approach
       to fix it. If your contributions would not be captured on GitHub (social media,
       communication, educational content), you can also reach out to us on gitter_,
@@ -42,14 +43,11 @@ Ways to contribute
 
       Awesome — you have a focus on a specific application and domain and can
       start there. In this case, maintainers can help you figure out the best
-      implementation; open an issue or pull request with a starting point, and we'll
-      be happy to discuss technical approaches.
+      implementation; `open an issue <https://github.com/matplotlib/matplotlib/issues/new/choose>`__
+      in our issue tracker, and we'll be happy to discuss technical approaches.
 
-      If you prefer, you can use the `GitHub functionality for "draft" pull requests
-      <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
-      and request early feedback on whatever you are working on, but you should be
-      aware that maintainers may not review your contribution unless it has the
-      "Ready to review" state on GitHub.
+      If you can implement the solution yourself, even better! Consider contributing
+      the change as a :ref:`pull request <how-to-pull-request>` right away.
 
     * **You are new to Matplotlib, both as a user and contributor, and want to start
       contributing but have yet to develop a particular interest.**
@@ -190,13 +188,20 @@ If you have developed an extension to Matplotlib, please consider adding it to o
 Restrictions on Generative AI Usage
 ===================================
 
-We expect authentic engagement in our community.  Be wary of posting output
-from Large Language Models or similar generative AI as comments on GitHub or
-our discourse server, as such comments tend to be formulaic and low content.
-If you use generative AI tools as an aid in developing code or documentation
-changes, ensure that you fully understand the proposed changes and can explain
-why they are the correct approach and an improvement to the current state.
+We expect authentic engagement in our community.
 
+- Do not post output from Large Language Models or similar generative AI as
+  comments on GitHub or our discourse server, as such comments tend to be
+  formulaic and low content.
+- If you use generative AI tools as an aid in developing code or documentation
+  changes, ensure that you fully understand the proposed changes and can
+  explain why they are the correct approach.
+
+Make sure you have added value based on your personal competency to your
+contributions. Just taking some input, feeding it to an AI and posting the
+result is not of value to the project. To preserve precious core developer
+capacity, we reserve the right to rigorously reject seemingly AI generated
+low-value contributions.
 
 .. _new_contributors:
 
@@ -240,11 +245,11 @@ process works, technical questions about the code, what makes for good
 documentation or a blog post, how to get involved in community work, or get a
 "pre-review" on your PR.
 
-To join, please go to our public community_ channel, and ask to be added to
+To join, please go to our public `community gitter`_ channel, and ask to be added to
 ``#incubator``. One of our core developers will see your message and will add you.
 
 .. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
+.. _community gitter: https://gitter.im/matplotlib/community
 
 .. _good_first_issues:
 
@@ -287,7 +292,7 @@ guide you through each step:
 4. Check existing pull requests (e.g., :ghpull:`28476`) and filter by the issue number to make sure the issue is not in progress:
 
    * If the issue has a pull request (is in progress), tag the user working on the issue, and ask to collaborate (optional).
-   * If a pull request does not exist, create a `draft pull request <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_ and follow the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
+   * If there is no pull request, :ref:`create a new pull request <how-to-pull-request>`.
 5. Please familiarize yourself with the pull request template (see below),
    and ensure you understand/are able to complete the template when you open your pull request.
    Additional information can be found in the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
@@ -308,10 +313,7 @@ active contributors, many of whom felt just like you when they started out and
 are happy to welcome you and support you as you get to know how we work, and
 where things are. You can reach out on any of our :ref:`communication-channels`.
 For development questions we recommend reaching out on our development gitter_
-chat room and for community questions reach out at community_.
-
-.. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
+chat room and for community questions reach out at `community gitter`_.
 
 .. _managing_issues_prs:
 
@@ -335,7 +337,7 @@ Start a pull request
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
-then submit a "pull request" (PR). To work on a a pull request:
+then submit a "pull request" (PR). To work on a pull request:
 
 #. **First** set up a development environment, either by cloning a copy of the
    Matplotlib repository to your own computer or by using Github codespaces, by

@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import pytest
@@ -7,6 +8,13 @@ def test_equal():
     gs = gridspec.GridSpec(2, 1)
     assert gs[0, 0] == gs[0, 0]
     assert gs[:, 0] == gs[:, 0]
+
+
+def test_update():
+    gs = gridspec.GridSpec(2, 1)
+
+    gs.update(left=.1)
+    assert gs.left == .1
 
 
 def test_width_ratios():
@@ -25,6 +33,23 @@ def test_height_ratios():
     """
     with pytest.raises(ValueError):
         gridspec.GridSpec(1, 1, height_ratios=[2, 1, 3])
+
+
+def test_SubplotParams():
+    s = gridspec.SubplotParams(.1, .1, .9, .9)
+    assert s.left == 0.1
+
+    s.reset()
+    assert s.left == matplotlib.rcParams['figure.subplot.left']
+
+    with pytest.raises(ValueError, match='left cannot be >= right'):
+        s.update(left=s.right + .01)
+
+    with pytest.raises(ValueError, match='bottom cannot be >= top'):
+        s.update(bottom=s.top + .01)
+
+    with pytest.raises(ValueError, match='left cannot be >= right'):
+        gridspec.SubplotParams(.1, .1, .09, .9)
 
 
 def test_repr():

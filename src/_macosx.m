@@ -258,7 +258,7 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
 }
 
 static PyObject*
-stop(PyObject* self)
+stop(PyObject* self, PyObject* _ /* ignored */)
 {
     stopWithEvent();
     Py_RETURN_NONE;
@@ -572,6 +572,8 @@ static PyTypeObject FigureCanvasType = {
     },
 };
 
+static PyTypeObject FigureManagerType;  // forward declaration, needed in destroy()
+
 typedef struct {
     PyObject_HEAD
     Window* window;
@@ -580,6 +582,16 @@ typedef struct {
 static PyObject*
 FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    if (![NSThread isMainThread]) {
+        PyErr_SetString(
+            PyExc_RuntimeError,
+            "Cannot create a GUI FigureManager outside the main thread "
+            "using the MacOS backend. Use a non-interactive "
+            "backend like 'agg' to make plots on worker threads."
+        );
+        return NULL;
+    }
+
     lazy_init();
     Window* window = [Window alloc];
     if (!window) { return NULL; }
@@ -686,6 +698,25 @@ FigureManager_destroy(FigureManager* self)
 {
     [self->window close];
     self->window = NULL;
+
+    // call super(self, FigureManager).destroy() - it seems we need the
+    // explicit arguments, and just super() doesn't work in the C API.
+    PyObject *super_obj = PyObject_CallFunctionObjArgs(
+        (PyObject *)&PySuper_Type,
+        (PyObject *)&FigureManagerType,
+        self,
+        NULL
+    );
+    if (super_obj == NULL) {
+        return NULL; // error
+    }
+    PyObject *result = PyObject_CallMethod(super_obj, "destroy", NULL);
+    Py_DECREF(super_obj);
+    if (result == NULL) {
+        return NULL; // error
+    }
+    Py_DECREF(result);
+
     Py_RETURN_NONE;
 }
 
@@ -1003,7 +1034,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     // Make it a zero-width box if we don't have enough room
     rect.size.width = fmax(bounds.size.width - rect.origin.x, 0);
     rect.origin.x = bounds.size.width - rect.size.width;
-    NSTextView* messagebox = [[[NSTextView alloc] initWithFrame: rect] autorelease];
+    NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
     messagebox.textContainer.maximumNumberOfLines = 2;
     messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
     messagebox.alignment = NSTextAlignmentRight;
@@ -1013,7 +1044,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     /* if selectable, the messagebox can become first responder,
      * which is not supposed to happen */
     [[window contentView] addSubview: messagebox];
-    [messagebox release];
     [[window contentView] display];
 
     self->messagebox = messagebox;
@@ -1024,6 +1054,7 @@ static void
 NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 {
     [self->handler release];
+    [self->messagebox release];
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1863,7 +1894,7 @@ static struct PyModuleDef moduledef = {
             "written on the file descriptor given as argument.")},
         {"stop",
          (PyCFunction)stop,
-         METH_NOARGS,
+         METH_VARARGS,
          PyDoc_STR("Stop the NSApp.")},
         {"show",
          (PyCFunction)show,
@@ -1895,6 +1926,9 @@ PyInit__macosx(void)
         Py_XDECREF(m);
         return NULL;
     }
+#ifdef Py_GIL_DISABLED
+    PyUnstable_Module_SetGIL(m, Py_MOD_GIL_NOT_USED);
+#endif
     return m;
 }
 

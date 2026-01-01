@@ -9,19 +9,22 @@ from matplotlib.backend_bases import (
     KeyEvent, LocationEvent, MouseEvent, ResizeEvent, CloseEvent)
 
 try:
-    import gi
+    from gi import require_version as gi_require_version
 except ImportError as err:
     raise ImportError("The GTK4 backends require PyGObject") from err
 
 try:
     # :raises ValueError: If module/version is already loaded, already
     # required, or unavailable.
-    gi.require_version("Gtk", "4.0")
+    gi_require_version("Gtk", "4.0")
+    gi_require_version("Gdk", "4.0")
+    gi_require_version("GdkPixbuf", "2.0")
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
     raise ImportError(e) from e
 
+import gi
 from gi.repository import Gio, GLib, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
 from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
@@ -30,6 +33,7 @@ from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
 )
 
 _GOBJECT_GE_3_47 = gi.version_info >= (3, 47, 0)
+_GTK_GE_4_12 = Gtk.check_version(4, 12, 0) is None
 
 
 class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
@@ -48,7 +52,10 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
 
         self.set_draw_func(self._draw_func)
         self.connect('resize', self.resize_event)
-        self.connect('notify::scale-factor', self._update_device_pixel_ratio)
+        if _GTK_GE_4_12:
+            self.connect('realize', self._realize_event)
+        else:
+            self.connect('notify::scale-factor', self._update_device_pixel_ratio)
 
         click = Gtk.GestureClick()
         click.set_button(0)  # All buttons.
@@ -237,10 +244,20 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
                 and not (mod == "shift" and unikey.isprintable()))]
         return "+".join([*mods, key])
 
+    def _realize_event(self, obj):
+        surface = self.get_native().get_surface()
+        surface.connect('notify::scale', self._update_device_pixel_ratio)
+        self._update_device_pixel_ratio()
+
     def _update_device_pixel_ratio(self, *args, **kwargs):
         # We need to be careful in cases with mixed resolution displays if
         # device_pixel_ratio changes.
-        if self._set_device_pixel_ratio(self.get_scale_factor()):
+        if _GTK_GE_4_12:
+            scale = self.get_native().get_surface().get_scale()
+        else:
+            scale = self.get_scale_factor()
+        assert scale is not None
+        if self._set_device_pixel_ratio(scale):
             self.draw()
 
     def _draw_rubberband(self, rect):

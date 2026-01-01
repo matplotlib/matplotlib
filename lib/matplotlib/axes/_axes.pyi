@@ -2,7 +2,6 @@ from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
 from matplotlib.artist import Artist
-from matplotlib.backend_bases import RendererBase
 from matplotlib.collections import (
     Collection,
     FillBetweenPolyCollection,
@@ -14,7 +13,8 @@ from matplotlib.collections import (
 )
 from matplotlib.colorizer import Colorizer
 from matplotlib.colors import Colormap, Normalize
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import (
+    BarContainer, PieContainer, ErrorbarContainer, StemContainer)
 from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
 from matplotlib.inset import InsetIndicator
@@ -22,7 +22,7 @@ from matplotlib.legend import Legend
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D, AxLine
 from matplotlib.mlab import GaussianKDE
-from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch, Wedge
+from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
 from matplotlib.text import Annotation, Text
 from matplotlib.transforms import Transform
@@ -32,13 +32,19 @@ import matplotlib.table as mtable
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 
-import datetime
 import PIL.Image
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
-from matplotlib.typing import ColorType, MarkerType, LineStyleType
+from matplotlib.typing import ColorType, MarkerType, LegendLocType, LineStyleType
+import pandas as pd
+
+
+class _GroupedBarReturn:
+    bar_containers: list[BarContainer]
+    def __init__(self, bar_containers: list[BarContainer]) -> None: ...
+    def remove(self) -> None: ...
 
 class Axes(_AxesBase):
     def get_title(self, loc: Literal["left", "center", "right"] = ...) -> str: ...
@@ -60,13 +66,16 @@ class Axes(_AxesBase):
     @overload
     def legend(self) -> Legend: ...
     @overload
-    def legend(self, handles: Iterable[Artist | tuple[Artist, ...]], labels: Iterable[str], **kwargs) -> Legend: ...
+    def legend(self, handles: Iterable[Artist | tuple[Artist, ...]], labels: Iterable[str],
+               *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, *, handles: Iterable[Artist | tuple[Artist, ...]], **kwargs) -> Legend: ...
+    def legend(self, *, handles: Iterable[Artist | tuple[Artist, ...]],
+               loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, labels: Iterable[str], **kwargs) -> Legend: ...
+    def legend(self, labels: Iterable[str],
+               *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, **kwargs) -> Legend: ...
+    def legend(self, *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
 
     def inset_axes(
         self,
@@ -200,18 +209,6 @@ class Axes(_AxesBase):
         data=...,
         **kwargs
     ) -> list[Line2D]: ...
-    def plot_date(
-        self,
-        x: ArrayLike,
-        y: ArrayLike,
-        fmt: str = ...,
-        tz: str | datetime.tzinfo | None = ...,
-        xdate: bool = ...,
-        ydate: bool = ...,
-        *,
-        data=...,
-        **kwargs
-    ) -> list[Line2D]: ...
     def loglog(self, *args, **kwargs) -> list[Line2D]: ...
     def semilogx(self, *args, **kwargs) -> list[Line2D]: ...
     def semilogy(self, *args, **kwargs) -> list[Line2D]: ...
@@ -268,17 +265,31 @@ class Axes(_AxesBase):
         *,
         fmt: str | Callable[[float], str] = ...,
         label_type: Literal["center", "edge"] = ...,
-        padding: float = ...,
+        padding: float | ArrayLike = ...,
         **kwargs
     ) -> list[Annotation]: ...
     def broken_barh(
         self,
         xranges: Sequence[tuple[float, float]],
         yrange: tuple[float, float],
+        align: Literal["bottom", "center", "top"] = ...,
         *,
         data=...,
         **kwargs
     ) -> PolyCollection: ...
+    def grouped_bar(
+        self,
+        heights: Sequence[ArrayLike] | dict[str, ArrayLike] | np.ndarray | pd.DataFrame,
+        *,
+        positions: ArrayLike | None = ...,
+        tick_labels: Sequence[str] | None = ...,
+        labels: Sequence[str] | None = ...,
+        group_spacing: float | None = ...,
+        bar_spacing: float | None = ...,
+        orientation: Literal["vertical", "horizontal"] = ...,
+        colors: Iterable[ColorType] | None = ...,
+        **kwargs
+    ) -> list[BarContainer]: ...
     def stem(
         self,
         *args: ArrayLike | str,
@@ -314,9 +325,18 @@ class Axes(_AxesBase):
         normalize: bool = ...,
         hatch: str | Sequence[str] | None = ...,
         data=...,
-    ) -> tuple[list[Wedge], list[Text]] | tuple[
-        list[Wedge], list[Text], list[Text]
-    ]: ...
+    ) -> PieContainer: ...
+    def pie_label(
+        self,
+        container: PieContainer,
+        /,
+        labels: str | Sequence[str],
+        *,
+        distance: float = ...,
+        textprops: dict | None = ...,
+        rotate: bool = ...,
+        alignment: str = ...,
+    ) -> list[Text]: ...
     def errorbar(
         self,
         x: float | ArrayLike,
@@ -327,6 +347,7 @@ class Axes(_AxesBase):
         *,
         ecolor: ColorType | None = ...,
         elinewidth: float | None = ...,
+        elinestyle: LineStyleType | None = ...,
         capsize: float | None = ...,
         barsabove: bool = ...,
         lolims: bool | ArrayLike = ...,
@@ -602,7 +623,7 @@ class Axes(_AxesBase):
         weights: ArrayLike | None = ...,
         *,
         complementary: bool=...,
-        orientation: Literal["vertical", "horizonatal"]=...,
+        orientation: Literal["vertical", "horizontal"]=...,
         compress: bool=...,
         data=...,
         **kwargs
@@ -755,6 +776,8 @@ class Axes(_AxesBase):
         | Callable[[GaussianKDE], float]
         | None = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
         data=...,
     ) -> dict[str, Collection]: ...
     def violin(
@@ -769,6 +792,8 @@ class Axes(_AxesBase):
         showextrema: bool = ...,
         showmedians: bool = ...,
         side: Literal["both", "low", "high"] = ...,
+        facecolor: Sequence[ColorType] | ColorType | None = ...,
+        linecolor: Sequence[ColorType] | ColorType | None = ...,
     ) -> dict[str, Collection]: ...
 
     table = mtable.table

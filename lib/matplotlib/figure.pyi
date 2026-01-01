@@ -25,7 +25,9 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
 from matplotlib.transforms import Affine2D, Bbox, BboxBase, Transform
-from .typing import ColorType, HashableList
+from mpl_toolkits.mplot3d import Axes3D
+
+from .typing import ColorType, HashableList, LegendLocType
 
 _T = TypeVar("_T")
 
@@ -87,17 +89,20 @@ class FigureBase(Artist):
 
     # TODO: docstring indicates SubplotSpec a valid arg, but none of the listed signatures appear to be that
     @overload
+    def add_subplot(self, *args: Any, projection: Literal["3d"], **kwargs: Any) -> Axes3D: ...
+    @overload
     def add_subplot(
-        self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs
+        self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs: Any
     ) -> Axes: ...
     @overload
-    def add_subplot(self, pos: int, **kwargs) -> Axes: ...
+    def add_subplot(self, pos: int, **kwargs: Any) -> Axes: ...
     @overload
-    def add_subplot(self, ax: Axes, **kwargs) -> Axes: ...
+    def add_subplot(self, ax: Axes, **kwargs: Any) -> Axes: ...
     @overload
-    def add_subplot(self, ax: SubplotSpec, **kwargs) -> Axes: ...
+    def add_subplot(self, ax: SubplotSpec, **kwargs: Any) -> Axes: ...
     @overload
-    def add_subplot(self, **kwargs) -> Axes: ...
+    def add_subplot(self, **kwargs: Any) -> Axes: ...
+
     @overload
     def subplots(
         self,
@@ -147,13 +152,16 @@ class FigureBase(Artist):
     @overload
     def legend(self) -> Legend: ...
     @overload
-    def legend(self, handles: Iterable[Artist], labels: Iterable[str], **kwargs) -> Legend: ...
+    def legend(self, handles: Iterable[Artist], labels: Iterable[str],
+               *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, *, handles: Iterable[Artist], **kwargs) -> Legend: ...
+    def legend(self, *, handles: Iterable[Artist],
+               loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, labels: Iterable[str], **kwargs) -> Legend: ...
+    def legend(self, labels: Iterable[str],
+               *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
     @overload
-    def legend(self, **kwargs) -> Legend: ...
+    def legend(self, *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
 
     def text(
         self,
@@ -188,9 +196,22 @@ class FigureBase(Artist):
     @overload
     def subfigures(
         self,
+        nrows: int,
+        ncols: int,
+        squeeze: Literal[False],
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        **kwargs
+    ) -> np.ndarray: ...
+    @overload
+    def subfigures(
+        self,
         nrows: int = ...,
         ncols: int = ...,
-        squeeze: Literal[False] = ...,
+        *,
+        squeeze: Literal[False],
         wspace: float | None = ...,
         hspace: float | None = ...,
         width_ratios: ArrayLike | None = ...,
@@ -318,7 +339,9 @@ class Figure(FigureBase):
     subplotpars: SubplotParams
     def __init__(
         self,
-        figsize: tuple[float, float] | None = ...,
+        figsize: tuple[float, float]
+        | tuple[float, float, Literal["in", "cm", "px"]]
+        | None = ...,
         dpi: float | None = ...,
         *,
         facecolor: ColorType | None = ...,
@@ -418,4 +441,11 @@ class Figure(FigureBase):
         rect: tuple[float, float, float, float] | None = ...
     ) -> None: ...
 
-def figaspect(arg: float | ArrayLike) -> tuple[float, float]: ...
+def figaspect(
+    arg: float | ArrayLike,
+) -> np.ndarray[tuple[Literal[2]], np.dtype[np.float64]]: ...
+
+def _parse_figsize(
+    figsize: tuple[float, float] | tuple[float, float, Literal["in", "cm", "px"]],
+    dpi: float
+) -> tuple[float, float]: ...
