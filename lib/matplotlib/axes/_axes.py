@@ -6807,6 +6807,7 @@ or pandas.DataFrame
 
         snap : bool, default: :rc:`pcolormesh.snap`
             Whether to snap the mesh to pixel boundaries.
+
             .. versionchanged:: 3.4.0
                The default value changed from *False* to *True* to improve transparency
                handling. See :ref:`whats-new-3-4-0` for details.
