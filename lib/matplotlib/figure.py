@@ -2766,7 +2766,7 @@ None}, default: None
 
         .. warning::
 
-            This does not manage an GUI event loop. Consequently, the figure
+            This does not manage a GUI event loop. Consequently, the figure
             may only be shown briefly or not shown at all if you or your
             environment are not managing an event loop.
 

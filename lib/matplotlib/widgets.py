@@ -3177,7 +3177,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         (when already existing) or cancelled.
 
     minspany : float, default: 0
-        Selections with an y-span less than or equal to *minspanx* are removed
+        Selections with a y-span less than or equal to *minspanx* are removed
         (when already existing) or cancelled.
 
     useblit : bool, default: False

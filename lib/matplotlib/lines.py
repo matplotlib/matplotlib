@@ -183,7 +183,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
             if ax is None:
                 raise ValueError(
                     "markevery is specified relative to the Axes size, but "
-                    "the line does not have a Axes as parent")
+                    "the line does not have an Axes as parent")
 
             # calc cumulative distance along path (in display coords):
             fin = np.isfinite(verts).all(axis=1)

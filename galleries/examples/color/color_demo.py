@@ -16,7 +16,7 @@ Matplotlib recognizes the following formats to specify a color:
 5) a single letter string, i.e. one of
    ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``, which are short-hand notations
    for shades of blue, green, red, cyan, magenta, yellow, black, and white;
-6) a X11/CSS4 ("html") color name, e.g. ``"blue"``;
+6) an X11/CSS4 ("html") color name, e.g. ``"blue"``;
 7) a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__,
    prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``);
 8) a "Cn" color spec, i.e. ``'C'`` followed by a number, which is an index into

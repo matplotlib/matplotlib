@@ -337,7 +337,7 @@ Start a pull request
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
-then submit a "pull request" (PR). To work on a a pull request:
+then submit a "pull request" (PR). To work on a pull request:
 
 #. **First** set up a development environment, either by cloning a copy of the
    Matplotlib repository to your own computer or by using Github codespaces, by
