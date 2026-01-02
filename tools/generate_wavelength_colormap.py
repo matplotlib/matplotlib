@@ -14,8 +14,9 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy.interpolate import CubicSpline
 
 # Input CSV (must be present at repo root).
 # https://files.cie.co.at/CIE_lms_cf_2deg.csv
@@ -71,7 +72,6 @@ S = np.nan_to_num(np.array([r[3] for r in rows]), nan=0.0)
 # 2) Interpolate to 1 nm grid using local cubic splines.
 wl_min, wl_max = 390, 830
 wl_grid = np.arange(wl_min, wl_max + 1, 1.0)
-from scipy.interpolate import CubicSpline
 
 
 def local_cubic_spline(
@@ -122,7 +122,10 @@ else:
 RGB_gamma_pos = np.clip(RGB_gamma, 0.0, cross_val)
 minv = np.min(RGB_gamma_pos)
 maxv = np.max(RGB_gamma_pos)
-RGB_norm = (RGB_gamma_pos - minv) / (maxv - minv) if maxv > minv else RGB_gamma_pos * 0.0
+if maxv > minv:
+    RGB_norm = (RGB_gamma_pos - minv) / (maxv - minv)
+else:
+    RGB_norm = RGB_gamma_pos * 0.0
 
 # 7) Emit table (for insertion into _cm_listed.py).
 lines = ["["]

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
 import numpy as np
+
+from matplotlib.colors import Normalize
 
 rng = np.random.default_rng(4)
 
