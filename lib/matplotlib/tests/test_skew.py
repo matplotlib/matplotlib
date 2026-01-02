@@ -25,9 +25,9 @@ class SkewXTick(maxis.XTick):
             for artist in [self.gridline, self.tick1line, self.tick2line,
                            self.label1, self.label2]:
                 stack.callback(artist.set_visible, artist.get_visible())
-            needs_lower = transforms.interval_contains(
+            needs_lower = transforms._interval_contains(
                 self.axes.lower_xlim, self.get_loc())
-            needs_upper = transforms.interval_contains(
+            needs_upper = transforms._interval_contains(
                 self.axes.upper_xlim, self.get_loc())
             self.tick1line.set_visible(
                 self.tick1line.get_visible() and needs_lower)
