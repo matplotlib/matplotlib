@@ -673,7 +673,7 @@ class Collection(mcolorizer.ColorizingArtist):
         Parameters
         ----------
         ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq) or list thereof
-            If as list, the individual elements are assigned to the elements of the
+            If a list, the individual elements are assigned to the elements of the
             collection.
 
             Possible values:
