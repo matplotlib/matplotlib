@@ -660,11 +660,10 @@ class Collection(mcolorizer.ColorizingArtist):
             lw = self._get_default_linewidth()
         # get the un-scaled/broadcast lw
         self._us_lw = np.atleast_1d(lw)
-
+        self._us_lw = np.nan_to_num(self._us_lw, nan=0, posinf=0).clip(0)
         # scale all of the dash patterns.
         self._linewidths, self._linestyles = self._bcast_lwls(
             self._us_lw, self._us_linestyles)
-        self._linewidths = np.nan_to_num(self._linewidths, nan=0, posinf=0).clip(0)
         self.stale = True
 
     def set_linestyle(self, ls):
