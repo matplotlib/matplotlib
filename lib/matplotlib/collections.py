@@ -690,7 +690,7 @@ class Collection(mcolorizer.ColorizingArtist):
               ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
               =======================================================  ================
 
-            - A tuple describing the start position and lengths of dashes and spaxces:
+            - A tuple describing the start position and lengths of dashes and spaces:
 
                   (offset, onoffseq)
 
