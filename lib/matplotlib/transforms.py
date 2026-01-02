@@ -44,7 +44,7 @@ import math
 import numpy as np
 from numpy.linalg import inv
 
-from matplotlib import _api
+from matplotlib import _api, _docstring
 from matplotlib._path import affine_transform, count_bboxes_overlapping_bbox
 from .path import Path
 
@@ -2924,9 +2924,9 @@ def _nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
 
 
 @_api.deprecated("3.11")
+@_docstring.copy(_nonsingular)
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     return _nonsingular(vmin, vmax, expander, tiny, increasing)
-nonsingular.__doc__ = _nonsingular.__doc__
 
 
 def _interval_contains(interval, val):
@@ -2952,9 +2952,9 @@ def _interval_contains(interval, val):
 
 
 @_api.deprecated("3.11")
+@_docstring.copy(_interval_contains)
 def interval_contains(interval, val):
     return _interval_contains(interval, val)
-interval_contains.__doc__ = _interval_contains.__doc__
 
 
 def _interval_contains_close(interval, val, rtol=1e-10):
@@ -3007,9 +3007,9 @@ def _interval_contains_open(interval, val):
 
 
 @_api.deprecated("3.11")
+@_docstring.copy(_interval_contains_open)
 def interval_contains_open(interval, val):
     return _interval_contains_open(interval, val)
-_interval_contains_open.__doc__ = _interval_contains_open.__doc__
 
 
 def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
