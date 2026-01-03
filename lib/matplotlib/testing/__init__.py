@@ -93,7 +93,7 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
     if capture_output:
         stdout = stderr = subprocess.PIPE
     # Add CREATE_NO_WINDOW flag on Windows to prevent console window overhead
-    # This significantly reduces subprocess creation time and helps avoid timeouts
+    # This is added in an attempt to fix flaky timeouts of subprocesses on Windows
     if sys.platform == 'win32':
         if 'creationflags' not in kwargs:
             kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
