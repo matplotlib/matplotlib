@@ -20,5 +20,5 @@ jobs:
           close-issue-label: "status: closed as inactive"
           days-before-issue-close: 30
           ascending: true
-          exempt-issue-labels: "keep"
+          exempt-issue-labels: "keep,status: confirmed bug"
           exempt-pr-labels: "keep,status: orphaned PR"
