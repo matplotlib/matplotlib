@@ -33,7 +33,7 @@ def test_segment_hits():
 
 # Runtimes on a loaded system are inherently flaky. Not so much that a rerun
 # won't help, hopefully.
-@pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=5)
 def test_invisible_Line_rendering():
     """
     GitHub issue #1256 identified a bug in Line.draw method
