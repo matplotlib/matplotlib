@@ -2,10 +2,7 @@
 
 |DiscourseBadge|_ |Gitter|_ |GitHubIssues|_ |GitTutorial|_
 
-|Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_
-
-.. |Travis| image:: https://travis-ci.com/matplotlib/matplotlib.svg?branch=master
-.. _Travis: https://travis-ci.com/matplotlib/matplotlib
+|AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_
 
 .. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=master
 .. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=master
