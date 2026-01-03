@@ -4,7 +4,10 @@ Getting started
 Installation quick-start
 ------------------------
 
-.. include:: /install/quick_install.inc.rst
+For up-to-date installation instructions, please refer to the official
+Matplotlib installation guide:
+
+https://matplotlib.org/stable/#install
 
 Draw a first plot
 -----------------
