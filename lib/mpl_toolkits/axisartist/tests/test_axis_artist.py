@@ -24,7 +24,8 @@ def test_ticks():
     ax.add_artist(ticks_out)
 
 
-@image_comparison(['axis_artist_labelbase.png'], style='default')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['axis_artist_labelbase.png'], style='default', tol=0.02)
 def test_labelbase():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
@@ -41,7 +42,8 @@ def test_labelbase():
     ax.add_artist(label)
 
 
-@image_comparison(['axis_artist_ticklabels.png'], style='default')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['axis_artist_ticklabels.png'], style='default', tol=0.03)
 def test_ticklabels():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
@@ -76,7 +78,8 @@ def test_ticklabels():
     ax.set_ylim(0, 1)
 
 
-@image_comparison(['axis_artist.png'], style='default')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['axis_artist.png'], style='default', tol=0.03)
 def test_axis_artist():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
