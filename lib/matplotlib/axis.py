@@ -1263,7 +1263,14 @@ class Axis(martist.Artist):
             for other in self._get_shared_axes():
                 if other is self.axes:
                     continue
-                other._axis_map[name]._set_lim(v0, v1, emit=False, auto=auto)
+                # Skip propagating default (0, 1) limits from linear scale to
+                # non-linear scales during clear operations to avoid warnings
+                other_axis = other._axis_map[name]
+                if (self.get_scale() == 'linear' and
+                    other_axis.get_scale() != 'linear' and
+                    v0 == 0 and v1 == 1):
+                    continue
+                other_axis._set_lim(v0, v1, emit=False, auto=auto)
                 if emit:
                     other.callbacks.process(f"{name}lim_changed", other)
                 if ((other_fig := other.get_figure(root=False)) !=
