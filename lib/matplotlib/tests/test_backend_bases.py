@@ -32,13 +32,14 @@ def test_uses_per_path():
         rb = RendererBase()
         raw_paths = list(rb._iter_collection_raw_paths(
             master_transform, paths, all_transforms))
-        gc = rb.new_gc()
+        vgc = rb.new_vgc()
+        vgc._edgecolors = edgecolors
+        vgc._facecolors = facecolors
+        vgc._antialiaseds = [False]
         ids = [path_id for xo, yo, path_id, gc0, rgbFace in
                rb._iter_collection(
-                   gc, range(len(raw_paths)), offsets,
-                   transforms.AffineDeltaTransform(master_transform),
-                   facecolors, edgecolors, [], [], [False],
-                   [], 'screen', hatchcolors=[])]
+                   vgc, range(len(raw_paths)), offsets,
+                   transforms.AffineDeltaTransform(master_transform))]
         uses = rb._iter_collection_uses_per_path(
             paths, all_transforms, offsets, facecolors, edgecolors)
         if raw_paths:
