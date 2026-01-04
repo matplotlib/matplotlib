@@ -67,7 +67,7 @@ commands:
   fonts-install:
     steps:
       - restore_cache:
-          key: fonts-4
+          key: fonts-5
       - run:
           name: Install custom fonts
           command: |
@@ -80,7 +80,7 @@ commands:
               -O ~/.local/share/fonts/xkcd-Script.ttf || true
             fc-cache -f -v
       - save_cache:
-          key: fonts-4
+          key: fonts-5
           paths:
             - ~/.local/share/fonts/
 
@@ -125,7 +125,7 @@ commands:
                 --no-build-isolation --editable .[dev]
             fi
       - save_cache:
-          key: build-deps-2
+          key: build-deps-3
           paths:
             - subprojects/packagecache
 
