@@ -2805,7 +2805,8 @@ class CenteredNorm(Normalize):
             self.vmax = self.vcenter + abs(halfrange)
 
 
-def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
+def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None,
+                         norm_before_trf=False):
     """
     Decorator for building a `.Normalize` subclass from a `~.scale.ScaleBase`
     subclass.
@@ -2837,7 +2838,8 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     """
 
     if base_norm_cls is None:
-        return functools.partial(make_norm_from_scale, scale_cls, init=init)
+        return functools.partial(make_norm_from_scale, scale_cls, init=init,
+                                 norm_before_trf=norm_before_trf)
 
     if isinstance(scale_cls, functools.partial):
         scale_args = scale_cls.args
@@ -2851,13 +2853,13 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
 
     return _make_norm_from_scale(
         scale_cls, scale_args, scale_kwargs_items,
-        base_norm_cls, inspect.signature(init))
+        base_norm_cls, inspect.signature(init), norm_before_trf)
 
 
 @functools.cache
 def _make_norm_from_scale(
     scale_cls, scale_args, scale_kwargs_items,
-    base_norm_cls, bound_init_signature,
+    base_norm_cls, bound_init_signature, norm_before_trf
 ):
     """
     Helper for `make_norm_from_scale`.
@@ -2889,7 +2891,7 @@ def _make_norm_from_scale(
                 pass
             return (_picklable_norm_constructor,
                     (scale_cls, scale_args, scale_kwargs_items,
-                     base_norm_cls, bound_init_signature),
+                     base_norm_cls, bound_init_signature, norm_before_trf),
                     vars(self))
 
         def __init__(self, *args, **kwargs):
@@ -2918,6 +2920,14 @@ def _make_norm_from_scale(
                 clip = self.clip
             if clip:
                 value = np.clip(value, self.vmin, self.vmax)
+
+            if norm_before_trf:
+                value -= self.vmin
+                value /= (self.vmax - self.vmin)
+                t_value = self._trf.transform(value).reshape(np.shape(value))
+                t_value = np.ma.masked_invalid(t_value, copy=False)
+                return t_value[0] if is_scalar else t_value
+
             t_value = self._trf.transform(value).reshape(np.shape(value))
             t_vmin, t_vmax = self._trf.transform([self.vmin, self.vmax])
             if not np.isfinite([t_vmin, t_vmax]).all():
@@ -2932,10 +2942,17 @@ def _make_norm_from_scale(
                 raise ValueError("Not invertible until scaled")
             if self.vmin > self.vmax:
                 raise ValueError("vmin must be less or equal to vmax")
+            value, is_scalar = self.process_value(value)
+
+            if norm_before_trf:
+                value = self._trf.inverted().transform(value).reshape(np.shape(value))
+                rescaled = value * (self.vmax - self.vmin)
+                rescaled += self.vmin
+                return rescaled[0] if is_scalar else rescaled
+
             t_vmin, t_vmax = self._trf.transform([self.vmin, self.vmax])
             if not np.isfinite([t_vmin, t_vmax]).all():
                 raise ValueError("Invalid vmin or vmax")
-            value, is_scalar = self.process_value(value)
             rescaled = value * (t_vmax - t_vmin)
             rescaled += t_vmin
             value = (self._trf
@@ -3084,6 +3101,10 @@ class AsinhNorm(Normalize):
         self._scale.linear_width = value
 
 
+@make_norm_from_scale(
+    scale.PowerScale,
+    init=lambda gamma, vmin=None, vmax=None, clip=False: None,
+    norm_before_trf=True)
 class PowerNorm(Normalize):
     r"""
     Linearly map a given value to the 0-1 range and then apply
@@ -3120,56 +3141,13 @@ class PowerNorm(Normalize):
 
     For input values below *vmin*, gamma is set to one.
     """
-    def __init__(self, gamma, vmin=None, vmax=None, clip=False):
-        super().__init__(vmin, vmax, clip)
-        self.gamma = gamma
+    @property
+    def gamma(self):
+        return self._scale.gamma
 
-    def __call__(self, value, clip=None):
-        if clip is None:
-            clip = self.clip
-
-        result, is_scalar = self.process_value(value)
-
-        self.autoscale_None(result)
-        gamma = self.gamma
-        vmin, vmax = self.vmin, self.vmax
-        if vmin > vmax:
-            raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin == vmax:
-            result.fill(0)
-        else:
-            if clip:
-                mask = np.ma.getmask(result)
-                result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                     mask=mask)
-            resdat = result.data
-            resdat -= vmin
-            resdat /= (vmax - vmin)
-            resdat[resdat > 0] = np.power(resdat[resdat > 0], gamma)
-
-            result = np.ma.array(resdat, mask=result.mask, copy=False)
-        if is_scalar:
-            result = result[0]
-        return result
-
-    def inverse(self, value):
-        if not self.scaled():
-            raise ValueError("Not invertible until scaled")
-
-        result, is_scalar = self.process_value(value)
-
-        gamma = self.gamma
-        vmin, vmax = self.vmin, self.vmax
-
-        resdat = result.data
-        resdat[resdat > 0] = np.power(resdat[resdat > 0], 1 / gamma)
-        resdat *= (vmax - vmin)
-        resdat += vmin
-
-        result = np.ma.array(resdat, mask=result.mask, copy=False)
-        if is_scalar:
-            result = result[0]
-        return result
+    @gamma.setter
+    def gamma(self, value):
+        self._scale.gamma = value
 
 
 class BoundaryNorm(Normalize):
