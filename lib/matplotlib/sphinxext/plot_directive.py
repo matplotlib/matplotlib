@@ -585,7 +585,7 @@ def _run_code(code, code_path, ns=None, function_name=None):
         dirname = os.path.abspath(os.path.dirname(code_path))
         os.chdir(dirname)
 
-    with (warnings.catch_warnings() as caught_warnings,
+    with (warnings.catch_warnings(record=True) as caught_warnings,
         cbook._setattr_cm(
             sys, argv=[code_path], path=[os.getcwd(), *sys.path]), \
             contextlib.redirect_stdout(StringIO())):
@@ -611,6 +611,7 @@ def _run_code(code, code_path, ns=None, function_name=None):
             raise PlotError(traceback.format_exc()) from err
         finally:
             os.chdir(pwd)
+
         for warn in caught_warnings:
             _log.warning(
                 "[plot] Python warning during plot execution: %s (%s)",
