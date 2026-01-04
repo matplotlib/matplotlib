@@ -20,6 +20,7 @@ import time
 import traceback
 import types
 import weakref
+import warnings
 
 import numpy as np
 
@@ -1549,6 +1550,22 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
 
     # Zip x and quantiles
     for (x, q) in zip(X, quantiles):
+        x = np.asarray(x)
+
+        # Filter NaNs with warning
+        if np.isnan(x).any():
+            warnings.warn(
+                "NaN values encountered in violinplot data; "
+                "these values will be ignored.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            x = x[~np.isnan(x)]
+
+        # If all values are NaN, skip this violin
+        if x.size == 0:
+            continue
+
         # Dictionary of results for this distribution
         stats = {}
 
