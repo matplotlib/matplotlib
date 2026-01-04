@@ -405,14 +405,14 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             if alpha is not None:
                 color[-1] = alpha
             return tuple(color)
-        # wavelength in nm, e.g. "405nm" (no spaces).
+        # wavelength in nm, e.g. "455nm" (no spaces).
         match = re.fullmatch(r"\d+(?:\.\d+)?nm", c)
         if match:
-            wl = round(float(c[:-2]))
-            if wl < 390 or wl > 830:
+            wl = float(c[:-2])
+            if wl < 360 or wl > 830:
                 return (0., 0., 0., alpha if alpha is not None else 1.)
             cmap = mpl.colormaps["wavelength"]
-            t = (wl - 390) / (830 - 390)
+            t = (wl - 360) / (830 - 360)
             r, g, b, a = cmap(t)
             if alpha is not None:
                 a = alpha
