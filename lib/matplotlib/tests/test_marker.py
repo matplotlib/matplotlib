@@ -22,6 +22,7 @@ def test_marker_fillstyle():
     r'$\frac{1}{2}$',
     "$\u266B$",
     1,
+    np.int64(1),
     markers.TICKLEFT,
     [[-1, 0], [1, 0]],
     np.array([[-1, 0], [1, 0]]),
