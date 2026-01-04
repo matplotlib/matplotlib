@@ -406,7 +406,7 @@ jobs:
     needs: [test]
     permissions:
       issues: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     name: "Create issue on failure"
 
     steps:
