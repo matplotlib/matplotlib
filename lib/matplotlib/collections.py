@@ -1148,6 +1148,45 @@ class PathCollection(_CollectionWithSizes):
     def get_paths(self):
         return self._paths
 
+    def check_consistency(self):
+        """
+        Emit warnings if the lengths of certain properties do not match
+        the number of paths.
+
+        This method checks whether the lengths of `sizes` and `edgecolors`
+        are either 1 or equal to the number of paths in the collection.
+        If not, a warning is issued.
+
+        This is useful for identifying potential bugs or silent mismatches
+        in collection properties when plotting, especially when properties
+        are expected to be applied per-path.
+
+        Notes
+        -----
+        - This method does not raise an error, only a warning.
+        - It is recommended to call this at draw-time to ensure properties
+        have been fully set.
+
+        Warnings
+        --------
+        UserWarning
+            If the number of sizes or edgecolors does not match the number
+            of paths and is not a singleton (length 1).
+
+        Examples
+        --------
+        >>> paths = [Path(...), Path(...), Path(...)]
+        >>> pc = PathCollection(paths, sizes=[10, 20])  # 3 paths, 2 sizes
+        >>> pc.check_consistency()
+        UserWarning: Number of sizes does not match number of paths.
+        """
+        n_paths = len(self.get_paths())
+        if self._sizes is not None and len(self._sizes) not in (1, n_paths):
+            warnings.warn("Number of sizes does not match number of paths.")
+        if self._edgecolors is not None and len(self._edgecolors) not in (1, n_paths):
+            warnings.warn("Number of edgecolors does not match number of paths.")
+
+
     def legend_elements(self, prop="colors", num="auto",
                         fmt=None, func=lambda x: x, **kwargs):
         """
@@ -1287,6 +1326,21 @@ class PathCollection(_CollectionWithSizes):
             labels.append(l)
 
         return handles, labels
+
+    def draw(self, renderer):
+        """
+        Draw the collection using the given renderer.
+
+        This override adds consistency checks before delegating
+        to the base implementation.
+
+        Parameters
+        ----------
+        renderer : RendererBase instance
+        The renderer to use for drawing.
+        """
+        self.check_consistency()
+        return super().draw(renderer)
 
 
 class PolyCollection(_CollectionWithSizes):
