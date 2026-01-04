@@ -42,6 +42,7 @@ jobs:
       contents: read
     name: "Python ${{ matrix.python-version }} on ${{ matrix.os }} ${{ matrix.name-suffix }}"
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ contains(matrix.name-suffix, 'pre-release') }}
 
     strategy:
       fail-fast: false
@@ -71,6 +72,7 @@ jobs:
             python-version: '3.13t'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+            skip-interactive-backend-builds: true
           - os: ubuntu-24.04
             python-version: '3.12'
           - os: ubuntu-24.04-arm
@@ -87,6 +89,10 @@ jobs:
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
+          - name-suffix: "(Python pre-release)"
+            os: ubuntu-24.04
+            python-version: '3.14-dev'
+            skip-interactive-backend-builds: true
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
@@ -225,6 +231,12 @@ jobs:
             PRE="--pre"
           fi
 
+          # On pre-release builds, use nightly wheels
+          if ${{ contains(matrix.name-suffix, 'pre-release') }}; then
+            PRE="--pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple"
+            PRE+=" --prefer-binary"
+          fi
+
           # Install dependencies from PyPI.
           # Preinstall build requirements to enable no-build-isolation builds.
           python -m pip install --upgrade $PRE \
@@ -238,7 +250,7 @@ jobs:
           # Sphinx is needed to run sphinxext tests
           python -m pip install --upgrade sphinx!=6.1.2
 
-          if [[ "${{ matrix.python-version }}" != '3.13t' ]]; then
+          if [[ "${{ matrix.skip-interactive-backend-builds }}" != "true" ]]; then
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
           # whether the install was successful by trying to import the toolkit
@@ -264,8 +276,10 @@ jobs:
           # Even though PySide2 wheels can be installed on Python 3.12+, they are broken and since PySide2 is
           # deprecated, they are unlikely to be fixed. For the same deprecation reason, there are no wheels
           # on M1 macOS, so don't bother there either.
-          if [[ "${{ matrix.os }}" != 'macos-14'
-                && "${{ matrix.python-version }}" != '3.12' && "${{ matrix.python-version }}" != '3.13' ]]; then
+          version_atmost() {
+            printf "%s\n" "$1" "$2" | sort --version-sort --check=silent
+          }
+          if [[ "${{ matrix.os }}" != 'macos-14' ]] && version_atmost "${{ matrix.python-version }}" 3.11.999; then
             python -mpip install --upgrade pyside2 &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
@@ -287,7 +301,7 @@ jobs:
             echo 'wxPython is available' ||
             echo 'wxPython is not available'
 
-          fi  # Skip backends on Python 3.13t.
+          fi  # skip-interactive-backend-builds
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
@@ -326,11 +340,17 @@ jobs:
         if: matrix.delete-font-cache
 
       - name: Run pytest
+        timeout-minutes: 90
         run: |
           if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
             export PYTHON_GIL=0
           fi
-          pytest -rfEsXR -n auto \
+          if "${{ contains(matrix.name-suffix, 'pre-release') }}"; then
+            FLAGS=(-k 'not test_backends_interactive')
+          else
+            FLAGS=()
+          fi
+          pytest -rfEsXR -n auto "${FLAGS[@]}" \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
