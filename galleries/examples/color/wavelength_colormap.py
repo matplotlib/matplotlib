@@ -1,3 +1,12 @@
+"""
+===================
+Wavelength colormap
+===================
+
+Examples for mapping wavelengths in nanometers to colors using the
+``wavelength`` colormap.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -22,9 +31,9 @@ ax1.legend()
 # 2) Simulated spectrum: emission-like peaks with noise.
 
 cmap = plt.get_cmap("wavelength").with_extremes(under="black", over="black")
-norm = Normalize(390, 830)
+norm = Normalize(360, 830)
 
-wavelengths = np.arange(390, 831, 1.0)
+wavelengths = np.arange(360, 831, 1.0)
 baseline = 0.08
 peaks = (
     0.15 * np.exp(-0.5 * ((wavelengths - 430) / 7.0) ** 2)

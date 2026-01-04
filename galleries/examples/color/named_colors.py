@@ -22,6 +22,7 @@ import math
 import matplotlib.pyplot as plt
 
 import matplotlib.colors as mcolors
+from matplotlib.colors import Normalize
 from matplotlib.patches import Rectangle
 
 
@@ -77,6 +78,7 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True, sample=False):
 
     return fig
 
+
 # %%
 # -----------
 # Base colors
@@ -102,11 +104,21 @@ plt.show()
 
 # %%
 # ---------------
-# Spectral Colors
+# Wavelengths
 # ---------------
-# The full visible spectrum from 390nm to 780nm is supported in integers
-# e.g. ``"405nm"``. A sub sample of the defined colors by wavelength is shown below.
-plot_colortable(mcolors.SPECTRAL_COLORS, ncols=4, sort_colors=False, sample=True)
+# The full visible spectrum from 360nm to 830nm is supported.
+# The mapping uses the CIE 2006 2 deg LMS cone fundamentals
+# (https://doi.org/10.25039/CIE.DS.tijidesg).
+# <br>
+# A wavelength color can be directly called by string.
+#     plt.plot(x,y,c="455nm")
+#
+# For colormap usage with explicit bounds::
+
+cmap = plt.get_cmap("wavelength").with_extremes(under="black", over="black")
+norm = Normalize(360, 830)
+wavelength_colors = {f"{wl}nm": cmap(norm(wl)) for wl in range(360, 831)}
+plot_colortable(wavelength_colors, ncols=4, sort_colors=False, sample=True)
 
 # %%
 # -----------

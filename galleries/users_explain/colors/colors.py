@@ -48,9 +48,9 @@ Matplotlib recognizes the following formats to specify a color.
 | `xkcd color survey`_ with ``'xkcd:'``| - ``'xkcd:eggshell'``                |
 | prefix.                              |                                      |
 +--------------------------------------+--------------------------------------+
-| Case-insensitive spectral colors     | - ``'405nm'``                        |
+| Case-insensitive spectral colors     | - ``'455nm'``                        |
 | specified by wavelength in nano      | - ``'525nm'``                        |
-| meters (supported range 390..780)    | - ``'650nm'``                        |
+| meters (supported range 360..780)    | - ``'650nm'``                        |
 +--------------------------------------+--------------------------------------+
 | Case-insensitive Tableau Colors from | - ``'tab:blue'``                     |
 | 'T10' categorical palette.           | - ``'tab:orange'``                   |
