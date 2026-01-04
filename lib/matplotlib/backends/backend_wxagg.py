@@ -15,6 +15,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
         self.bitmap = self._create_bitmap()
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC)
+        self.Refresh()
 
     def blit(self, bbox=None):
         # docstring inherited
