@@ -339,14 +339,16 @@ def make_norm_from_scale(
     scale_cls: type[scale.ScaleBase],
     base_norm_cls: type[Normalize],
     *,
-    init: Callable | None = ...
+    init: Callable | None = ...,
+    norm_before_trf: bool = ...,
 ) -> type[Normalize]: ...
 @overload
 def make_norm_from_scale(
     scale_cls: type[scale.ScaleBase],
     base_norm_cls: None = ...,
     *,
-    init: Callable | None = ...
+    init: Callable | None = ...,
+    norm_before_trf: bool = ...,
 ) -> Callable[[type[Normalize]], type[Normalize]]: ...
 
 class FuncNorm(Normalize):
@@ -389,14 +391,17 @@ class AsinhNorm(Normalize):
     def linear_width(self, value: float) -> None: ...
 
 class PowerNorm(Normalize):
-    gamma: float
     def __init__(
         self,
-        gamma: float,
+        gamma: float = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,
         clip: bool = ...,
     ) -> None: ...
+    @property
+    def gamma(self) -> float: ...
+    @gamma.setter
+    def gamma(self, value: float) -> None: ...
 
 class BoundaryNorm(Normalize):
     boundaries: np.ndarray
