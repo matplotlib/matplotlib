@@ -886,10 +886,17 @@ class Grouper:
         for group in unique_groups.values():
             yield sorted(group, key=self._ordering.__getitem__)
 
-    def get_siblings(self, a):
-        """Return all of the items joined with *a*, including itself."""
+    def get_siblings(self, a, *, include_self=True):
+        """
+        Return all the items joined with *a*.
+
+        *a* is included in the list if *include_self* is True.
+        """
         siblings = self._mapping.get(a, [a])
-        return sorted(siblings, key=self._ordering.get)
+        result = sorted(siblings, key=self._ordering.get)
+        if not include_self:
+            result.remove(a)
+        return result
 
 
 class GrouperView:
@@ -905,11 +912,13 @@ class GrouperView:
         """
         return self._grouper.joined(a, b)
 
-    def get_siblings(self, a):
+    def get_siblings(self, a, *, include_self=True):
         """
-        Return all of the items joined with *a*, including itself.
+        Return all the items joined with *a*.
+
+        *a* is included in the list if *include_self* is True.
         """
-        return self._grouper.get_siblings(a)
+        return self._grouper.get_siblings(a, include_self=include_self)
 
 
 def simple_linear_interpolation(a, steps):
