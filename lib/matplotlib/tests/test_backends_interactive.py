@@ -208,6 +208,10 @@ def _test_interactive_impl():
     if fig.canvas.toolbar:  # i.e toolbar2.
         fig.canvas.toolbar.draw_rubberband(None, 1., 1, 2., 2)
 
+    if backend == 'webagg' and sys.version_info >= (3, 14):
+        import asyncio
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
     timer = fig.canvas.new_timer(1.)  # Test that floats are cast to int.
     timer.add_callback(KeyEvent("key_press_event", fig.canvas, "q")._process)
     # Trigger quitting upon draw.
