@@ -26,22 +26,28 @@ from matplotlib._cm_multivar import cmap_families as multivar_cmaps
 from matplotlib._cm_bivar import cmaps as bivar_cmaps
 
 
-_LUTSIZE = mpl.rcParams['image.lut']
+# _LUTSIZE will be set during _mpl_init() after rcParams are available
+_LUTSIZE = None
 
 
-def _gen_cmap_registry():
+def _gen_cmap_registry(lutsize):
     """
     Generate a dict mapping standard colormap names to standard colormaps, as
     well as the reversed colormaps.
+
+    Parameters
+    ----------
+    lutsize : int
+        The number of entries in the colormap lookup table.
     """
     cmap_d = {**cmaps_listed}
     for name, spec in datad.items():
         cmap_d[name] = (  # Precache the cmaps at a fixed lutsize..
-            colors.LinearSegmentedColormap(name, spec, _LUTSIZE)
+            colors.LinearSegmentedColormap(name, spec, lutsize)
             if 'red' in spec else
             colors.ListedColormap(spec['listed'], name)
             if 'listed' in spec else
-            colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
+            colors.LinearSegmentedColormap.from_list(name, spec, lutsize))
 
     # Register colormap aliases for gray and grey.
     aliases = {
@@ -230,12 +236,67 @@ class ColormapRegistry(Mapping):
         )
 
 
-# public access to the colormaps should be via `matplotlib.colormaps`. For now,
-# we still create the registry here, but that should stay an implementation
-# detail.
-_colormaps = ColormapRegistry(_gen_cmap_registry())
-globals().update(_colormaps)
+# Colormap registries - initialized by _mpl_init()
+_colormaps = None
+_multivar_colormaps = None
+_bivar_colormaps = None
 
-_multivar_colormaps = ColormapRegistry(multivar_cmaps)
 
-_bivar_colormaps = ColormapRegistry(bivar_cmaps)
+def _mpl_init():
+    """
+    Initialize the colormap registries.
+
+    This function is called by matplotlib.__init__._run_submodule_inits()
+    after rcParams have been loaded. This ensures that colormap creation
+    can access rcParams['image.lut'] without import order issues.
+
+    See Also
+    --------
+    Issue #29813 : Cleanup internal import dependencies and initialization logic
+    """
+    global _colormaps, _multivar_colormaps, _bivar_colormaps, _LUTSIZE
+
+    # Get the lookup table size from rcParams
+    _LUTSIZE = mpl.rcParams['image.lut']
+
+    # Initialize the main colormap registry
+    _colormaps = ColormapRegistry(_gen_cmap_registry(_LUTSIZE))
+    # public access to the colormaps should be via `matplotlib.colormaps`.
+    # For now, we still update globals here, but that should stay an
+    # implementation detail.
+    globals().update(_colormaps)
+
+
+    # Initialize multivariate and bivariate colormap registries
+    _multivar_colormaps = ColormapRegistry(multivar_cmaps)
+    _bivar_colormaps = ColormapRegistry(bivar_cmaps)
+
+
+def _ensure_cmap(cmap):
+    """
+    Ensure that we have a `.Colormap` object.
+
+    For internal use to preserve type stability of errors.
+
+    Parameters
+    ----------
+    cmap : None, str, Colormap
+
+        - if a `Colormap`, return it
+        - if a string, look it up in mpl.colormaps
+        - if None, look up the default color map in mpl.colormaps
+
+    Returns
+    -------
+    Colormap
+
+    """
+    if isinstance(cmap, colors.Colormap):
+        return cmap
+    cmap_name = mpl._val_or_rc(cmap, "image.cmap")
+    # use check_in_list to ensure type stability of the exception raised by
+    # the internal usage of this (ValueError vs KeyError)
+    if cmap_name not in _colormaps:
+        _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
+    return mpl.colormaps[cmap_name]
+
