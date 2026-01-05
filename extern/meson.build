@@ -30,17 +30,25 @@ else
   subproject('harfbuzz',
     default_options: [
       'default_library=static',
+      'benchmark=disabled',
       'cairo=disabled',
+      'chafa=disabled',
       'coretext=disabled',
       'directwrite=disabled',
+      'docs=disabled',
+      'doc_tests=false',
       'fontations=disabled',
       'freetype=enabled',
       'gdi=disabled',
       'glib=disabled',
       'gobject=disabled',
-      'harfruzz=disabled',
+      'harfrust=disabled',
       'icu=disabled',
+      'introspection=disabled',
+      'kbts=disabled',
       'tests=disabled',
+      'utilities=disabled',
+      'wasm=disabled',
     ]
   )
   subproject('sheenbidi', default_options: ['default_library=static'])
