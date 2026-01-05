@@ -121,8 +121,11 @@ class AxesWidget(Widget):
         self._blit_background_id = None
 
     def __del__(self):
-        if self._blit_background_id is not None:
-            self.canvas._release_blit_background_id(self._blit_background_id)
+        blit_background_id = getattr(self, '_blit_background_id', None)
+        if blit_background_id is not None:
+            canvas = getattr(self, 'canvas', None)
+            if canvas is not None:
+                canvas._release_blit_background_id(blit_background_id)
 
     canvas = property(
         lambda self: getattr(self.ax.get_figure(root=True), 'canvas', None)

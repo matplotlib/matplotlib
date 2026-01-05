@@ -517,6 +517,14 @@ def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
                                        46.25, 133.75])
 
 
+def test_axeswidget_del_on_failed_init():
+    fig, ax = plt.subplots()
+    try:
+        widgets.Button(ax, foo='bar')
+    except TypeError:
+        pass
+
+
 def test_ellipse(ax):
     """For ellipse, test out the key modifiers"""
     tool = widgets.EllipseSelector(ax, grab_range=10, interactive=True)
