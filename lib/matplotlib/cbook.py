@@ -1547,20 +1547,20 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
     if len(X) != len(quantiles):
         raise ValueError("List of violinplot statistics and quantiles values"
                          " must have the same length")
+    
+    has_nan = any(np.isnan(np.asarray(x)).any() for x in X)
+    if has_nan:
+        warnings.warn(
+            "NaN values encountered in violinplot data; "
+            "these values will be ignored.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
 
     # Zip x and quantiles
     for (x, q) in zip(X, quantiles):
         x = np.asarray(x)
-
-        # Filter NaNs with warning
-        if np.isnan(x).any():
-            warnings.warn(
-                "NaN values encountered in violinplot data; "
-                "these values will be ignored.",
-                RuntimeWarning,
-                stacklevel=2,
-            )
-            x = x[~np.isnan(x)]
+        x = x[~np.isnan(x)]
 
         # If all values are NaN, skip this violin
         if x.size == 0:
