@@ -4325,10 +4325,12 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        x : Array or a sequence of vectors.
-            The input data.  If a 2D array, a boxplot is drawn for each column
-            in *x*.  If a sequence of 1D arrays, a boxplot is drawn for each
-            array in *x*.
+        x : 1D array or sequence of 1D arrays or 2D array
+            The input data. Possible values:
+
+            - 1D array: A single box is drawn.
+            - sequence of 1D arrays: A box is drawn for each array in the sequence.
+            - 2D array: A box is drawn for each column in the array.
 
         notch : bool, default: :rc:`boxplot.notch`
             Whether to draw a notched boxplot (`True`), or a rectangular
@@ -8862,8 +8864,12 @@ such objects
 
         Parameters
         ----------
-        dataset : Array or a sequence of vectors.
-            The input data.
+        dataset : 1D array or sequence of 1D arrays or 2D array
+            The input data. Possible values:
+
+            - 1D array: A single violin is drawn.
+            - sequence of 1D arrays: A violin is drawn for each array in the sequence.
+            - 2D array: A violin is drawn for each column in the array.
 
         positions : array-like, default: [1, 2, ..., n]
             The positions of the violins; i.e. coordinates on the x-axis for
