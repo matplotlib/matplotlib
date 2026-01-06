@@ -1547,7 +1547,7 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
     if len(X) != len(quantiles):
         raise ValueError("List of violinplot statistics and quantiles values"
                          " must have the same length")
-    
+
     has_nan = any(np.isnan(np.asarray(x)).any() for x in X)
     if has_nan:
         warnings.warn(
