@@ -1089,10 +1089,8 @@ class CheckButtons(AxesWidget):
             and has a slight performance impact.
 
             .. admonition:: Provisional
-                The the new layout options are provisional. Their algorithmic
-                behavior, including if and when a figure redraw happens, as well
-                as the the exact positions of buttons and labels may still change
-                without prior warning.
+                The new layout options are provisional, meaning that their algorithmic behavior may change
+without prior warning. This behavior includes if and when a figure redraw happens and the computation of the exact positions of buttons and labels 
 
             .. versionadded:: 3.11
         useblit : bool, default: True
@@ -1678,29 +1676,21 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
 
     # New layout algorithm with text measurement
     # Parse layout parameter
-    bad_layout_raise_msg = \
-        "layout must be None, 'vertical', 'horizontal', or a (rows, cols) tuple; " \
-        f"got {layout!r}"
-    if isinstance(layout, str):
-        if layout == "vertical":
+    match layout:
+        case "vertical":
             n_rows, n_cols = n_labels, 1
-        elif layout == "horizontal":
+        case "horizontal":
             n_rows, n_cols = 1, n_labels
-        else:
-            raise ValueError(bad_layout_raise_msg)
-    elif isinstance(layout, tuple) and len(layout) == 2:
-        n_rows, n_cols = layout
-        if not (isinstance(n_rows, int) and isinstance(n_cols, int)):
-            raise TypeError(
-                f"layout tuple must contain two integers; got {layout!r}"
-            )
-        if n_rows * n_cols < n_labels:
+        case (int() as n_rows, int() as n_cols):
+            if n_rows * n_cols < n_labels:
+                raise ValueError(
+                    f"layout {layout} has {n_rows * n_cols} positions but "
+                    f"{n_labels} labels were provided"
+                )
+        case _:
             raise ValueError(
-                f"layout {layout} has {n_rows * n_cols} positions but "
-                f"{n_labels} labels were provided"
-            )
-    else:
-        raise ValueError(bad_layout_raise_msg)
+                "layout must be None, 'vertical', 'horizontal', or a (rows, cols) "
+                f"tuple; got {layout!r}")
 
     # Define spacing in display units (pixels) for consistency
     # across different axes sizes
@@ -1728,24 +1718,17 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
     ax.figure.canvas.draw()
 
     # Calculate max text width per column (in axes coordinates)
-    col_widths = []
-    for col_idx in range(n_cols):
-        col_texts = []
-        for row_idx in range(n_rows):
-            label_idx = row_idx * n_cols + col_idx
-            if label_idx < n_labels:
-                col_texts.append(temp_texts[label_idx])
-        if col_texts:
-            col_widths.append(
-                max(
-                    text.get_window_extent(
-                        ax.figure.canvas.get_renderer()
-                    ).width
-                    for text in col_texts
-                ) / axes_width_display
-            )
-        else:
-            col_widths.append(0)
+    col_widths = [
+        max(
+            (
+                text.get_window_extent(ax.figure.canvas.get_renderer()).width
+                for text in temp_texts[col_idx::n_cols]
+            ),
+            default=0,
+        )
+        / axes_width_display
+        for col_idx in range(n_cols)
+    ]
     # Remove temporary text objects
     for text in temp_texts:
         text.remove()
@@ -1761,20 +1744,11 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
             col_widths[col_idx] +
             col_spacing
         )
-    # Create final positions (left-to-right, top-to-bottom)
-    button_xs = []
-    button_ys = []
-    label_xs = []
-    label_ys = []
-    for label_idx in range(n_labels):
-        row_idx = label_idx // n_cols
-        col_idx = label_idx % n_cols
-        x = col_x_positions[col_idx]
-        y = ys_per_row[row_idx]
-        button_xs.append(x)
-        button_ys.append(y)
-        label_xs.append(x + button_text_offset)
-        label_ys.append(y)
+    label_idx = np.arange(n_labels)
+    button_xs = np.take(col_x_positions, label_idx % n_cols)
+    button_ys = ys_per_row[label_idx // n_cols]
+    label_xs = button_xs + button_text_offset
+    label_ys = button_ys
 
     return button_xs, button_ys, label_xs, label_ys
 
