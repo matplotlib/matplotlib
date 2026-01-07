@@ -1694,12 +1694,14 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
                 "layout must be None, 'vertical', 'horizontal', or a (rows, cols) "
                 f"tuple; got {layout!r}")
 
-    # Define spacing in display units (pixels) for consistency
-    # across different axes sizes
-    axes_width_display = ax.bbox.width
-    left_margin_display = 15  # pixels
-    button_text_offset_display = 6.5  # pixels
-    col_spacing_display = 15  # pixels
+    # Define spacing in points for DPI-independent sizing
+    fig = ax.get_figure(root=False)
+    axes_width_display = 72 * ax.bbox.transformed(
+        fig.dpi_scale_trans.inverted()
+    ).width
+    left_margin_display = 11  # points
+    button_text_offset_display = 5.5  # points
+    col_spacing_display = 11  # points
 
     # Convert to axes coordinates
     left_margin = left_margin_display / axes_width_display
@@ -1707,15 +1709,16 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
     col_spacing = col_spacing_display / axes_width_display
 
     # Create temporary text objects to measure widths
-    temp_texts = []
-    for label, props in zip(labels, label_props):
-        temp_texts.append(ax.text(
+    temp_texts = [
+        ax.text(
             0,
             0,
             label,
             transform=ax.transAxes,
             **props,
-        ))
+        )
+        for label, props in zip(labels, label_props)
+    ]
     # Force a draw to get accurate text measurements
     ax.figure.canvas.draw()
 
@@ -1723,7 +1726,11 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
     col_widths = [
         max(
             (
-                text.get_window_extent(ax.figure.canvas.get_renderer()).width
+                text.get_window_extent(
+                    ax.figure.canvas.get_renderer(),
+                ).transformed(
+                    fig.dpi_scale_trans.inverted()
+                ).width * 72
                 for text in temp_texts[col_idx::n_cols]
             ),
             default=0,
