@@ -1089,8 +1089,10 @@ class CheckButtons(AxesWidget):
             and has a slight performance impact.
 
             .. admonition:: Provisional
-                The new layout options are provisional, meaning that their algorithmic behavior may change
-without prior warning. This behavior includes if and when a figure redraw happens and the computation of the exact positions of buttons and labels 
+                The new layout options are provisional. Their algorithmic
+                behavior, including if and when a figure redraw happens, as well
+                as the the exact positions of buttons and labels may still change
+                without prior warning.
 
             .. versionadded:: 3.11
         useblit : bool, default: True
@@ -1811,7 +1813,7 @@ class RadioButtons(AxesWidget):
             and has a slight performance impact.
 
             .. admonition:: Provisional
-                The the new layout options are provisional. Their algorithmic
+                The new layout options are provisional. Their algorithmic
                 behavior, including if and when a figure redraw happens, as well
                 as the the exact positions of buttons and labels may still change
                 without prior warning.
