@@ -58,6 +58,13 @@ plt.show()
 # %%
 #
 # .. admonition:: References
+# .. tags::
+#
+#    styling: color
+#    styling: conditional
+#    plot-type: line
+#    level: intermediate
+#    purpose: showcase
 #
 #    The use of the following functions, methods, classes and modules is shown
 #    in this example:
