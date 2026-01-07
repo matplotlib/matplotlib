@@ -6529,7 +6529,7 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        C : 2D (I, J) or 3D (v, I, J) array-like
+        C : 2D (M, N) or 3D (v, M, N) array-like
             The color-mapped values.  Color-mapping is controlled by *cmap*,
             *norm*, *vmin*, and *vmax*. 3D arrays are supported only if the
             cmap supports v channels.
