@@ -2,20 +2,19 @@
 
 .. _github-stats:
 
-GitHub statistics for 3.10.7 (Oct 08, 2025)
+GitHub statistics for 3.10.8 (Nov 12, 2025)
 ===========================================
 
-GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2025/10/08
+GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2025/11/12
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
 We closed 4 issues and merged 16 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/105?closed=1>`__
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/106?closed=1>`__
 
-The following 32 authors contributed 422 commits.
+The following 35 authors contributed 445 commits.
 
 * Aasma Gupta
-* AASMA GUPTA
 * Antony Lee
 * Christine P. Chai
 * David Stansby
@@ -24,6 +23,7 @@ The following 32 authors contributed 422 commits.
 * G.D. McBain
 * Greg Lucas
 * hannah
+* heinrich5991
 * hu-xiaonan
 * Ian Thomas
 * Inês Cachola
@@ -31,19 +31,22 @@ The following 32 authors contributed 422 commits.
 * Jouni K. Seppänen
 * Khushi_29
 * Kyle Sunden
+* Lucas Gruwez
 * Lumberbot (aka Jack)
 * N R Navaneet
 * Nathan G. Wiseman
+* Nathan Goldbaum
+* Nick Coish
 * Oscar Gustafsson
 * Praful Gulani
 * Qian Zhang
+* Rafael Katri
 * Raphael Erik Hviding
 * Roman
 * Ruth Comer
 * saikarna913
 * Scott Shambaugh
 * Thomas A Caswell
-* Tim Heap
 * Tim Hoffmann
 * Trygve Magnus Ræder
 
@@ -51,29 +54,29 @@ GitHub issues and pull requests:
 
 Pull Requests (16):
 
-* :ghpull:`30628`: Backport PR #30626 on branch v3.10.x (MNT: Fix new F401 unused imports warnings)
-* :ghpull:`30626`: MNT: Fix new F401 unused imports warnings
-* :ghpull:`30589`: Backport PR #29745: Use PEP8 style method and function names from
-* :ghpull:`30614`: Backport PR #30612 on branch v3.10.x (MNT: update black pin)
-* :ghpull:`30612`: MNT: update black pin
-* :ghpull:`30572`: Backport PR #30571 on branch v3.10.x (CI: remove macos13)
-* :ghpull:`30571`: CI: remove macos13
-* :ghpull:`30570`: Backport PR #30558 on branch v3.10.x (Fix stubtest with mypy 18)
-* :ghpull:`30558`: Fix stubtest with mypy 18
-* :ghpull:`30540`: Backport PR #30539 on branch v3.10.x (Fix scale_unit/scale_units typo in quiver docs)
-* :ghpull:`30539`: Fix scale_unit/scale_units typo in quiver docs
-* :ghpull:`30518`: Backport PR #30497 on branch v3.10.x (TST: Use a temporary directory for test_save_figure_return)
-* :ghpull:`30497`: TST: Use a temporary directory for test_save_figure_return
-* :ghpull:`30506`: Backport PR #30490 on branch v3.10.x (Fix SVG rendering error in def update_background)
-* :ghpull:`30490`: Fix SVG rendering error in def update_background
-* :ghpull:`30494`: Backport PR #30492 on branch v3.10.x (DOC: pytz link should be from PyPI)
+* :ghpull:`30717`: Backport PR #30714 on branch v3.10.x (FIX: Gracefully handle numpy arrays as input to check_in_list())
+* :ghpull:`30714`: FIX: Gracefully handle numpy arrays as input to check_in_list()
+* :ghpull:`30560`: Consistent zoom boxes
+* :ghpull:`30711`: Backport PR #30697 on branch v3.10.x (BUG: raise when creating a MacOS FigureManager outside the main thread)
+* :ghpull:`30697`: BUG: raise when creating a MacOS FigureManager outside the main thread
+* :ghpull:`30656`: Backport PR #29810 on branch v3.10.x (Declare free-threaded support in MacOS backend extension)
+* :ghpull:`30702`: Backport PR #30624 on branch v3.10.x (TST: Increase tolerances for Ghostscript 10.06)
+* :ghpull:`30700`: Backport PR #30698 on branch v3.10.x (BLD: update trove metadata to support py3.14)
+* :ghpull:`30624`: TST: Increase tolerances for Ghostscript 10.06
+* :ghpull:`30698`: BLD: update trove metadata to support py3.14
+* :ghpull:`30688`: Backport PR #30687 on branch v3.10.x (DOC: Fix pip link)
+* :ghpull:`30675`: Backport PR #30657 on branch v3.10.x (Fix AttributeError: module 'gi' has no attribute 'require_version')
+* :ghpull:`30674`: Backport PR #30672 on branch v3.10.x (Use pathlib.Path instead of matplotlib.path.Path in text.pyi)
+* :ghpull:`30672`: Use pathlib.Path instead of matplotlib.path.Path in text.pyi
+* :ghpull:`30657`: Fix ``AttributeError: module 'gi' has no attribute 'require_version'``
+* :ghpull:`29810`: Declare free-threaded support in MacOS backend extension
 
 Issues (4):
 
-* :ghissue:`30611`: [MNT]: black version
-* :ghissue:`30551`: [Bug]: Mypy stubtest failure on disjoint_base
-* :ghissue:`30493`: [Bug]: test_save_figure_return seems flaky
-* :ghissue:`30485`: [Bug]: figures with SpanSelector(..., useblit=True) can't be saved to SVG or PDF
+* :ghissue:`30706`: [Bug]: Axes.grouped_bar() with non-string orientation (e.g., NumPy array) raises ambiguous truth-value error instead of clean ValueError
+* :ghissue:`30666`: [Bug]: calling pyplot.gca() outside the main thread crashes the interpreter with the MacOS backend
+* :ghissue:`30669`: [Bug]: Type hint for fontproperties keyword in text.pyi is wrong
+* :ghissue:`30654`: [Bug]: error plotting: AttributeError: module 'gi' has no attribute 'require_version'
 
 
 Previous GitHub statistics
