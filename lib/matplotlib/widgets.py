@@ -1708,20 +1708,16 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
     button_text_offset = button_text_offset_display / axes_width_display
     col_spacing = col_spacing_display / axes_width_display
 
-    # Create temporary text objects to measure widths
+    # Create temporary text objects to measure widths.
+    # We create Text objects directly rather than using ax.text() since we're
+    # only measuring them and don't need to add them to the axes.
     temp_texts = [
-        ax.text(
-            0,
-            0,
-            label,
-            transform=ax.transAxes,
-            **props,
-        )
+        mtext.Text(0, 0, text=label, transform=ax.transAxes, **props)
         for label, props in zip(labels, label_props)
     ]
-    # Force a draw to get accurate text measurements
-    ax.figure.canvas.draw()
-
+    # Set figure reference so Text objects can access figure properties
+    for text in temp_texts:
+        text.set_figure(fig)
     # Calculate max text width per column (in axes coordinates)
     col_widths = [
         max(
@@ -1738,9 +1734,6 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
         / axes_width_display
         for col_idx in range(n_cols)
     ]
-    # Remove temporary text objects
-    for text in temp_texts:
-        text.remove()
 
     # Center rows vertically in the axes
     ys_per_row = np.linspace(1, 0, n_rows + 2)[1:-1]
@@ -1814,10 +1807,10 @@ class RadioButtons(AxesWidget):
               left-to-right, top-to-bottom with dynamic positioning.
 
             The layout options "vertical", "horizontal" and ``(rows, cols)``
-            temporarily manipulate the figure and redraw to determine
-            exact text sizes. This is usually ok, but may cause side-effects
-            and has a slight performance impact, and the default ``None`` value
-            avoids this.
+            create temporary ``mtext.Text`` to determine exact text sizes.
+            This is usually ok, but may cause side-effects and has a slight
+            performance impact. Therefore the default ``None`` value avoids
+            this.
 
             .. admonition:: Provisional
                 The new layout options are provisional. Their algorithmic
