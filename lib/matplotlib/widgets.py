@@ -1073,8 +1073,7 @@ class CheckButtons(AxesWidget):
         layout : None or "vertical" or "horizontal" or (int, int), default: None
             The layout of the check buttons. Options are:
 
-            - ``None``: Use legacy vertical layout (default, keeps backward
-              compatibility with fixed button and label positions).
+            - ``None``: Use legacy vertical layout (default).
             - ``"vertical"``: Arrange buttons in a single column with
               dynamic positioning based on text widths.
             - ``"horizontal"``: Arrange buttons in a single row with
@@ -1086,7 +1085,8 @@ class CheckButtons(AxesWidget):
             The layout options "vertical", "horizontal" and ``(rows, cols)``
             temporarily manipulate the figure and redraw to determine
             exact text sizes. This is usually ok, but may cause side-effects
-            and has a slight performance impact.
+            and has a slight performance impact, and the default ``None`` value
+            avoids this.
 
             .. admonition:: Provisional
                 The new layout options are provisional. Their algorithmic
@@ -1652,7 +1652,7 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
     label_props : iterable of dict
         Text properties for each label (from _expand_text_props).
     layout : None or "vertical" or "horizontal" or (int, int)
-        Same layout argument as in `.widgets.RadioButtons`.
+        Same layout argument as in the relevant classes.
 
     Returns
     -------
@@ -1797,8 +1797,7 @@ class RadioButtons(AxesWidget):
         layout : None or "vertical" or "horizontal" or (int, int), default: None
             The layout of the radio buttons. Options are:
 
-            - ``None``: Use legacy vertical layout (default, keeps backward
-              compatibility with fixed button and label positions).
+            - ``None``: Use legacy vertical layout (default).
             - ``"vertical"``: Arrange buttons in a single column with
               dynamic positioning based on text widths.
             - ``"horizontal"``: Arrange buttons in a single row with
@@ -1810,7 +1809,8 @@ class RadioButtons(AxesWidget):
             The layout options "vertical", "horizontal" and ``(rows, cols)``
             temporarily manipulate the figure and redraw to determine
             exact text sizes. This is usually ok, but may cause side-effects
-            and has a slight performance impact.
+            and has a slight performance impact, and the default ``None`` value
+            avoids this.
 
             .. admonition:: Provisional
                 The new layout options are provisional. Their algorithmic
