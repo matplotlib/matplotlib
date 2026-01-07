@@ -1,3 +1,5 @@
+
+
 """
 ==============
 Frame grabbing
@@ -7,6 +9,9 @@ Use a MovieWriter directly to grab individual frames and write them to a
 file.  This avoids any event loop integration, and thus works even with the Agg
 backend.  This is not recommended for use in an interactive setting.
 """
+
+# sphinx_gallery_thumbnail_number = 1
+
 
 import numpy as np
 
