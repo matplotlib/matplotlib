@@ -1463,9 +1463,13 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
 
     Parameters
     ----------
-    X : array-like
+    X : 1D array or sequence of 1D arrays or 2D array
         Sample data that will be used to produce the gaussian kernel density
-        estimates. Must have 2 or fewer dimensions.
+        estimates. Possible values:
+
+        - 1D array: Statistics are computed for that array.
+        - sequence of 1D arrays: Statistics are computed for each array in the sequence.
+        - 2D array: Statistics are computed for each column in the array.
 
     method : (name, bw_method) or callable,
         The method used to calculate the kernel density estimate for each
