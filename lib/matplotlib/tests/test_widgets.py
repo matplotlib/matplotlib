@@ -518,6 +518,10 @@ def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
 
 
 def test_axeswidget_del_on_failed_init():
+    """Test that __del__ works correctly when __init__ fails."""
+    # __del__ is called implicitly as part of a failed initialization
+    # here, which could create an unraisable exception in __del__.
+    # Pytest would fail the test if such an exception occurred.
     fig, ax = plt.subplots()
     try:
         widgets.Button(ax, foo='bar')

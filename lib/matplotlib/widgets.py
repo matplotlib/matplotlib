@@ -122,6 +122,9 @@ class AxesWidget(Widget):
 
     def __del__(self):
         blit_background_id = getattr(self, '_blit_background_id', None)
+        # __del__ may be called on a partially initialized object, e.g.,
+        # when __init__ raises. Therefore, we handle missing attributes
+        # gracefully.
         if blit_background_id is not None:
             canvas = getattr(self, 'canvas', None)
             if canvas is not None:
