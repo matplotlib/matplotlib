@@ -523,10 +523,8 @@ def test_axeswidget_del_on_failed_init():
     # here, which could create an unraisable exception in __del__.
     # Pytest would fail the test if such an exception occurred.
     fig, ax = plt.subplots()
-    try:
-        widgets.Button(ax, foo='bar')
-    except TypeError:
-        pass
+    with pytest.raises(TypeError, match="unexpected keyword argument 'undefined'"):
+        widgets.Button(ax, undefined='bar')
 
 
 def test_ellipse(ax):
