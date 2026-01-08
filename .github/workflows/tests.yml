@@ -73,6 +73,8 @@ jobs:
             pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
             python-version: '3.12'
+          - os: ubuntu-24.04
+            python-version: '3.14'
           - os: ubuntu-24.04-arm
             python-version: '3.12'
           - os: macos-14  # This runner is on M1 (arm64) chips.
@@ -85,6 +87,10 @@ jobs:
             pygobject-ver: '<3.52.0'
           - os: macos-15  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
+          - os: macos-15  # This runner is on M1 (arm64) chips.
+            python-version: '3.14'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
 
@@ -264,8 +270,8 @@ jobs:
           # Even though PySide2 wheels can be installed on Python 3.12+, they are broken and since PySide2 is
           # deprecated, they are unlikely to be fixed. For the same deprecation reason, there are no wheels
           # on M1 macOS, so don't bother there either.
-          if [[ "${{ matrix.os }}" != 'macos-14'
-                && "${{ matrix.python-version }}" != '3.12' && "${{ matrix.python-version }}" != '3.13' ]]; then
+          if [[ "${{ matrix.os }}" != 'macos-14' && "${{ matrix.python-version }}" == '3.11'
+                ]]; then
             python -mpip install --upgrade pyside2 &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
