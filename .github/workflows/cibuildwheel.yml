@@ -41,12 +41,12 @@ jobs:
       SDIST_NAME: ${{ steps.sdist.outputs.SDIST_NAME }}
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
+      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
         name: Install Python
         with:
           python-version: '3.11'
@@ -72,7 +72,7 @@ jobs:
         run: twine check dist/*
 
       - name: Upload sdist result
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
@@ -137,13 +137,13 @@ jobs:
 
     steps:
       - name: Download sdist
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: cibw-sdist
           path: dist/
 
       - name: Build wheels for CPython 3.14
-        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
+        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -153,7 +153,7 @@ jobs:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
 
       - name: Build wheels for CPython 3.13
-        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
+        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -162,7 +162,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.12
-        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
+        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -170,7 +170,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
+        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -178,7 +178,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
+        uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e  # v3.3.1
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -187,37 +187,8 @@ jobs:
           CIBW_ENABLE: pypy
         if: matrix.cibw_archs != 'aarch64' && matrix.os != 'windows-latest' && matrix.os != 'windows-11-arm'
 
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: cibw-wheels-${{ runner.os }}-${{ matrix.cibw_archs }}
           path: ./wheelhouse/*.whl
           if-no-files-found: error
-
-  publish:
-    if: github.repository == 'matplotlib/matplotlib' && github.event_name == 'push' && github.ref_type == 'tag'
-    name: Upload release to PyPI
-    needs: [build_sdist, build_wheels]
-    runs-on: ubuntu-latest
-    environment: release
-    permissions:
-      id-token: write
-      attestations: write
-      contents: read
-    steps:
-      - name: Download packages
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53  # v6.0.0
-        with:
-          pattern: cibw-*
-          path: dist
-          merge-multiple: true
-
-      - name: Print out packages
-        run: ls dist
-
-      - name: Generate artifact attestation for sdist and wheel
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a  # v3.0.0
-        with:
-          subject-path: dist/matplotlib-*
-
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0

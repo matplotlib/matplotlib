@@ -183,7 +183,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
             if ax is None:
                 raise ValueError(
                     "markevery is specified relative to the Axes size, but "
-                    "the line does not have a Axes as parent")
+                    "the line does not have an Axes as parent")
 
             # calc cumulative distance along path (in display coords):
             fin = np.isfinite(verts).all(axis=1)
@@ -1149,7 +1149,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq)
             Possible values:
 
             - A string:
@@ -1164,13 +1164,23 @@ class Line2D(Artist):
               ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
               =======================================================  ================
 
-            - Alternatively a dash tuple of the following form can be
-              provided::
+            - A tuple describing the start position and lengths of dashes and spaces:
 
                   (offset, onoffseq)
 
-              where ``onoffseq`` is an even length tuple of on and off ink
-              in points. See also :meth:`set_dashes`.
+              where
+
+              - *offset* is a float specifying the offset (in points); i.e. how much
+                is the dash pattern shifted.
+              - *onoffseq* is a sequence of on and off ink in points. There can be
+                arbitrary many pairs of on and off values.
+
+              Example: The tuple ``(0, (10, 5, 1, 5))`` means that the pattern starts
+              at the beginning of the line. It draws a 10 point long dash,
+              then a 5 point long space, then a 1 point long dash, followed by a 5 point
+              long space, and then the pattern repeats.
+
+              See also :meth:`set_dashes`.
 
             For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """

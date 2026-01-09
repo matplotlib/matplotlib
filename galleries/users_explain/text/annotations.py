@@ -12,6 +12,7 @@ r"""
 .. redirect-from:: /gallery/userdemo/connect_simple01
 .. redirect-from:: /gallery/userdemo/connectionstyle_demo
 .. redirect-from:: /tutorials/text/annotations
+.. redirect-from:: /gallery/text_labels_and_annotations/annotate_transform
 
 .. _annotations:
 

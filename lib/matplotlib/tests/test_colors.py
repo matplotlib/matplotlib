@@ -947,6 +947,11 @@ def test_rgb_hsv_round_trip():
             tt, mcolors.rgb_to_hsv(mcolors.hsv_to_rgb(tt)))
 
 
+def test_rgb_to_hsv_int():
+    # Test that int rgb values (still range 0-1) are processed correctly.
+    assert_array_equal(mcolors.rgb_to_hsv((0, 1, 0)), (1/3, 1, 1))  # green
+
+
 def test_autoscale_masked():
     # Test for #2336. Previously fully masked data would trigger a ValueError.
     data = np.ma.masked_all((12, 20))
@@ -1702,8 +1707,8 @@ def test_color_sequences():
     assert plt.color_sequences is matplotlib.color_sequences  # same registry
     assert list(plt.color_sequences) == [
         'tab10', 'tab20', 'tab20b', 'tab20c', 'Pastel1', 'Pastel2', 'Paired',
-        'Accent', 'Dark2', 'Set1', 'Set2', 'Set3', 'petroff6', 'petroff8',
-        'petroff10']
+        'Accent', 'okabe_ito', 'Dark2', 'Set1', 'Set2', 'Set3', 'petroff6',
+        'petroff8', 'petroff10']
     assert len(plt.color_sequences['tab10']) == 10
     assert len(plt.color_sequences['tab20']) == 20
 
@@ -2097,15 +2102,15 @@ def test_ensure_multivariate_data():
     data = [[0, 0, 0], [1, 1, 1]]
     mdata = mcolorizer._ensure_multivariate_data(data, 2)
     assert mdata.shape == (3,)
-    assert mdata.dtype.fields['f0'][0] == np.int64
-    assert mdata.dtype.fields['f1'][0] == np.int64
+    assert mdata.dtype.fields['f0'][0] == np.int_
+    assert mdata.dtype.fields['f1'][0] == np.int_
 
     # test input of floats, ints as tuple of lists
     data = ([0.0, 0.0], [1, 1])
     mdata = mcolorizer._ensure_multivariate_data(data, 2)
     assert mdata.shape == (2,)
     assert mdata.dtype.fields['f0'][0] == np.float64
-    assert mdata.dtype.fields['f1'][0] == np.int64
+    assert mdata.dtype.fields['f1'][0] == np.int_
 
     # test input of array of floats
     data = np.array([[0.0, 0, 0], [1, 1, 1]])
@@ -2127,30 +2132,30 @@ def test_colorizer_multinorm_implicit():
 
     # test call with two single values
     data = [0.1, 0.2]
-    res = (0.10009765625, 0.1510859375, 0.20166015625, 1.0)
+    res = (0.098039, 0.149020, 0.2, 1.0)
     assert_array_almost_equal(ca.to_rgba(data), res)
 
     # test call with two 1d arrays
     data = [[0.1, 0.2], [0.3, 0.4]]
-    res = [[0.10009766, 0.19998877, 0.29931641, 1.],
-           [0.20166016, 0.30098633, 0.40087891, 1.]]
+    res = [[0.09803922, 0.19803922, 0.29803922, 1.],
+           [0.2, 0.3, 0.4, 1.]]
     assert_array_almost_equal(ca.to_rgba(data), res)
 
     # test call with two 2d arrays
     data = [np.linspace(0, 1, 12).reshape(3, 4),
             np.linspace(1, 0, 12).reshape(3, 4)]
-    res = np.array([[[0.00244141, 0.50048437, 0.99853516, 1.],
-                     [0.09228516, 0.50048437, 0.90869141, 1.],
-                     [0.18212891, 0.50048437, 0.81884766, 1.],
-                     [0.27197266, 0.50048437, 0.72900391, 1.]],
-                    [[0.36572266, 0.50048437, 0.63525391, 1.],
-                     [0.45556641, 0.50048438, 0.54541016, 1.],
-                     [0.54541016, 0.50048438, 0.45556641, 1.],
-                     [0.63525391, 0.50048437, 0.36572266, 1.]],
-                    [[0.72900391, 0.50048437, 0.27197266, 1.],
-                     [0.81884766, 0.50048437, 0.18212891, 1.],
-                     [0.90869141, 0.50048437, 0.09228516, 1.],
-                     [0.99853516, 0.50048437, 0.00244141, 1.]]])
+    res = np.array([[[0., 0.5, 1., 1.],
+                     [0.09019608, 0.5, 0.90980392, 1.],
+                     [0.18039216, 0.5, 0.81960784, 1.],
+                     [0.27058824, 0.5, 0.72941176, 1.]],
+                    [[0.36470588, 0.5, 0.63529412, 1.],
+                     [0.45490196, 0.5, 0.54509804, 1.],
+                     [0.54509804, 0.5, 0.45490196, 1.],
+                     [0.63529412, 0.5, 0.36470588, 1.]],
+                    [[0.72941176, 0.5, 0.27058824, 1.],
+                     [0.81960784, 0.5, 0.18039216, 1.],
+                     [0.90980392, 0.5, 0.09019608, 1.],
+                     [1., 0.5, 0., 1.]]])
     assert_array_almost_equal(ca.to_rgba(data), res)
 
     with pytest.raises(ValueError, match=("This MultiNorm has 2 components, "
@@ -2191,7 +2196,7 @@ def test_colorizer_multinorm_explicit():
 
     # test call with two single values
     data = [0.1, 0.2]
-    res = (0.100098, 0.375492, 0.650879, 1.)
+    res = (0.098039, 0.374510, 0.65098, 1.)
     assert_array_almost_equal(ca.to_rgba(data), res)
 
 

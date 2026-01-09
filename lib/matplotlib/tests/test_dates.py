@@ -373,7 +373,7 @@ def test_drange():
     end = datetime.datetime(2011, 1, 2, tzinfo=mdates.UTC)
     delta = datetime.timedelta(hours=1)
     # We expect 24 values in drange(start, end, delta), because drange returns
-    # dates from an half open interval [start, end)
+    # dates from a half open interval [start, end)
     assert len(mdates.drange(start, end, delta)) == 24
 
     # Same if interval ends slightly earlier

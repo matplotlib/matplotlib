@@ -1098,7 +1098,7 @@ class Colorbar:
             # If we still aren't scaled after autoscaling, use 0, 1 as default
             self.norm.vmin = 0
             self.norm.vmax = 1
-        self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
+        self.norm.vmin, self.norm.vmax = mtransforms._nonsingular(
             self.norm.vmin, self.norm.vmax, expander=0.1)
         if (not isinstance(self.norm, colors.BoundaryNorm) and
                 (self.boundaries is None)):

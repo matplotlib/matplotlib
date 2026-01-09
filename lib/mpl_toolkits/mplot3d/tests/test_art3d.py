@@ -1,13 +1,30 @@
 import numpy as np
+import numpy.testing as nptest
+import pytest
 
 import matplotlib.pyplot as plt
 
 from matplotlib.backend_bases import MouseEvent
 from mpl_toolkits.mplot3d.art3d import (
+    get_dir_vector,
     Line3DCollection,
     Poly3DCollection,
     _all_points_on_plane,
 )
+
+
+@pytest.mark.parametrize("zdir, expected", [
+    ("x", (1, 0, 0)),
+    ("y", (0, 1, 0)),
+    ("z", (0, 0, 1)),
+    (None, (0, 0, 0)),
+    ((1, 2, 3), (1, 2, 3)),
+    (np.array([4, 5, 6]), (4, 5, 6)),
+])
+def test_get_dir_vector(zdir, expected):
+    res = get_dir_vector(zdir)
+    assert isinstance(res, np.ndarray)
+    nptest.assert_array_equal(res, expected)
 
 
 def test_scatter_3d_projection_conservation():

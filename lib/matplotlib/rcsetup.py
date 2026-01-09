@@ -1184,6 +1184,8 @@ _validators = {
     "legend.frameon":        validate_bool,
     # alpha value of the legend frame
     "legend.framealpha":     validate_float_or_None,
+    # linewidth of legend frame
+    "legend.linewidth": validate_float_or_None,
 
     ## the following dimensions are in fraction of the font size
     "legend.borderpad":      validate_float,  # units are fontsize

@@ -62,13 +62,6 @@ colour maps version 8.0.1 (DOI: https://doi.org/10.5281/zenodo.1243862).
     ax[2].imshow(img, cmap="vanimo")
 
 
-
-Plotting and Annotation improvements
-====================================
-
-
-
-
 Plotting and Annotation improvements
 ====================================
 
