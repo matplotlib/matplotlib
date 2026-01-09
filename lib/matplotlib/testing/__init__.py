@@ -144,13 +144,26 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
             f"_module = importlib.util.module_from_spec(_spec);"
             f"_spec.loader.exec_module(_module);"
             f"_module.{target}()",
-            *args
+            *args,
         ],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
-        timeout=timeout, check=True,
+        env={
+            **os.environ,
+            "SOURCE_DATE_EPOCH": "0",
+            # subprocess_run_helper will set SOURCE_DATE_EPOCH=0, so for a dirty tree,
+            # the version will have the date 19700101 which breaks pickle tests with a
+            # warning if the working tree is dirty.
+            #
+            # This will also avoid at least one additional subprocess call for
+            # setuptools-scm query git, so we tell the subprocess what version
+            # to report as the test process.
+            "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_MATPLOTLIB": mpl.__version__,
+            **(extra_env or {}),
+        },
+        timeout=timeout,
+        check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
     )
     return proc
 
