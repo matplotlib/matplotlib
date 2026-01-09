@@ -576,7 +576,8 @@ vertices that are within the pick distance tolerance.  Our ``onpick``
 callback function simply prints the data that are under the pick
 location.  Different Matplotlib Artists can attach different data to
 the PickEvent.  For example, ``Line2D`` attaches the ind property,
-which are the indices into the line data under the pick point.  See
+which are the indices into the line data under the pick point, and the is_vert
+property, which indicates which of the indices are of the vertices.  See
 `!.Line2D.pick` for details on the ``PickEvent`` properties of the line.  ::
 
     import numpy as np
@@ -593,8 +594,10 @@ which are the indices into the line data under the pick point.  See
         xdata = thisline.get_xdata()
         ydata = thisline.get_ydata()
         ind = event.ind
-        points = tuple(zip(xdata[ind], ydata[ind]))
+        is_vert = event.is_vert
+        points = tuple(zip(xdata[ind[is_vert]], ydata[ind[is_vert]]))
         print('onpick points:', points)
+        print(f'onpick also hit {sum(~is_vert)} line edges')
 
     fig.canvas.mpl_connect('pick_event', onpick)
 
