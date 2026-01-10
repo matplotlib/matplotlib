@@ -1056,7 +1056,7 @@ class CheckButtons(AxesWidget):
         The text label objects of the check buttons.
     """
 
-    def __init__(self, ax, labels, actives=None, *, useblit=True,
+    def __init__(self, ax, labels, actives=None, *, layout=None, useblit=True,
                  label_props=None, frame_props=None, check_props=None):
         """
         Add check buttons to `~.axes.Axes` instance *ax*.
@@ -1070,6 +1070,31 @@ class CheckButtons(AxesWidget):
         actives : list of bool, optional
             The initial check states of the buttons. The list must have the
             same length as *labels*. If not given, all buttons are unchecked.
+        layout : None or "vertical" or "horizontal" or (int, int), default: None
+            The layout of the check buttons. Options are:
+
+            - ``None``: Use legacy vertical layout (default).
+            - ``"vertical"``: Arrange buttons in a single column with
+              dynamic positioning based on text widths.
+            - ``"horizontal"``: Arrange buttons in a single row with
+              dynamic positioning based on text widths.
+            - ``(rows, cols)`` tuple: Arrange buttons in a grid with the
+              specified number of rows and columns. Buttons are placed
+              left-to-right, top-to-bottom with dynamic positioning.
+
+            The layout options "vertical", "horizontal" and ``(rows, cols)``
+            temporarily manipulate the figure and redraw to determine
+            exact text sizes. This is usually ok, but may cause side-effects
+            and has a slight performance impact, and the default ``None`` value
+            avoids this.
+
+            .. admonition:: Provisional
+                The new layout options are provisional. Their algorithmic
+                behavior, including if and when a figure redraw happens, as well
+                as the the exact positions of buttons and labels may still change
+                without prior warning.
+
+            .. versionadded:: 3.11
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :ref:`blitting` for details.
@@ -1110,14 +1135,18 @@ class CheckButtons(AxesWidget):
 
         self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
 
-        ys = np.linspace(1, 0, len(labels)+2)[1:-1]
-
         label_props = _expand_text_props(label_props)
+
+        # Calculate button and label positions
+        button_xs, button_ys, label_xs, label_ys = _calculate_widget_button_layout(
+            ax, labels, label_props, layout
+        )
+
         self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
+            ax.text(x, y, label, transform=ax.transAxes,
                     horizontalalignment="left", verticalalignment="center",
                     **props)
-            for y, label, props in zip(ys, labels, label_props)]
+            for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
         text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         frame_props = {
@@ -1129,7 +1158,7 @@ class CheckButtons(AxesWidget):
         }
         frame_props.setdefault('facecolor', frame_props.get('color', 'none'))
         frame_props.setdefault('edgecolor', frame_props.pop('color', 'black'))
-        self._frames = ax.scatter([0.15] * len(ys), ys, **frame_props)
+        self._frames = ax.scatter(button_xs, button_ys, **frame_props)
         check_props = {
             'linewidth': 1,
             's': text_size**2,
@@ -1139,7 +1168,7 @@ class CheckButtons(AxesWidget):
             'animated': self._useblit,
         }
         check_props.setdefault('facecolor', check_props.pop('color', 'black'))
-        self._checks = ax.scatter([0.15] * len(ys), ys, **check_props)
+        self._checks = ax.scatter(button_xs, button_ys, **check_props)
         # The user may have passed custom colours in check_props, so we need to
         # create the checks (above), and modify the visibility after getting
         # whatever the user set.
@@ -1610,6 +1639,122 @@ class TextBox(AxesWidget):
         self._observers.disconnect(cid)
 
 
+def _calculate_widget_button_layout(ax, labels, label_props, layout):
+    """
+    Calculate positions for button widgets (RadioButtons, CheckButtons).
+
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        The Axes to calculate positions for.
+    labels : list of str
+        The button labels.
+    label_props : iterable of dict
+        Text properties for each label (from _expand_text_props).
+    layout : None or "vertical" or "horizontal" or (int, int)
+        Same layout argument as in the relevant classes.
+
+    Returns
+    -------
+    button_xs : list of float
+        X coordinates for buttons in axes coordinates.
+    button_ys : list of float
+        Y coordinates for buttons in axes coordinates.
+    label_xs : list of float
+        X coordinates for labels in axes coordinates.
+    label_ys : list of float
+        Y coordinates for labels in axes coordinates.
+    """
+    n_labels = len(labels)
+
+    if layout is None:
+        # Legacy behavior: simple vertical layout with fixed positions
+        ys = np.linspace(1, 0, n_labels + 2)[1:-1]
+        button_xs = [0.15] * n_labels
+        button_ys = list(ys)
+        label_xs = [0.25] * n_labels
+        label_ys = list(ys)
+        return button_xs, button_ys, label_xs, label_ys
+
+    # New layout algorithm with text measurement
+    # Parse layout parameter
+    match layout:
+        case "vertical":
+            n_rows, n_cols = n_labels, 1
+        case "horizontal":
+            n_rows, n_cols = 1, n_labels
+        case (int() as n_rows, int() as n_cols):
+            if n_rows * n_cols < n_labels:
+                raise ValueError(
+                    f"layout {layout} has {n_rows * n_cols} positions but "
+                    f"{n_labels} labels were provided"
+                )
+        case _:
+            raise ValueError(
+                "layout must be None, 'vertical', 'horizontal', or a (rows, cols) "
+                f"tuple; got {layout!r}")
+
+    # Define spacing in points for DPI-independent sizing
+    fig = ax.get_figure(root=False)
+    axes_width_display = 72 * ax.bbox.transformed(
+        fig.dpi_scale_trans.inverted()
+    ).width
+    left_margin_display = 11  # points
+    button_text_offset_display = 5.5  # points
+    col_spacing_display = 11  # points
+
+    # Convert to axes coordinates
+    left_margin = left_margin_display / axes_width_display
+    button_text_offset = button_text_offset_display / axes_width_display
+    col_spacing = col_spacing_display / axes_width_display
+
+    # Create temporary text objects to measure widths.
+    # We create Text objects directly rather than using ax.text() since we're
+    # only measuring them and don't need to add them to the axes.
+    temp_texts = [
+        mtext.Text(0, 0, text=label, transform=ax.transAxes, **props)
+        for label, props in zip(labels, label_props)
+    ]
+    # Set figure reference so Text objects can access figure properties
+    for text in temp_texts:
+        text.set_figure(fig)
+    # Calculate max text width per column (in axes coordinates)
+    col_widths = [
+        max(
+            (
+                text.get_window_extent(
+                    ax.figure.canvas.get_renderer(),
+                ).transformed(
+                    fig.dpi_scale_trans.inverted()
+                ).width * 72
+                for text in temp_texts[col_idx::n_cols]
+            ),
+            default=0,
+        )
+        / axes_width_display
+        for col_idx in range(n_cols)
+    ]
+
+    # Center rows vertically in the axes
+    ys_per_row = np.linspace(1, 0, n_rows + 2)[1:-1]
+    # Calculate x positions based on text widths
+    col_x_positions = [left_margin]  # First column starts at left margin
+    for col_idx in range(n_cols - 1):
+        col_x_positions.append(
+            col_x_positions[-1] +
+            button_text_offset +
+            col_widths[col_idx] +
+            col_spacing
+        )
+    label_idx = np.arange(n_labels)
+    button_xs = np.take(col_x_positions, label_idx % n_cols)
+    button_ys = ys_per_row[label_idx // n_cols]
+    label_xs = button_xs + button_text_offset
+    label_ys = button_ys
+
+    return button_xs, button_ys, label_xs, label_ys
+
+
 class RadioButtons(AxesWidget):
     """
     A GUI neutral radio button.
@@ -1634,7 +1779,7 @@ class RadioButtons(AxesWidget):
     """
 
     def __init__(self, ax, labels, active=0, activecolor=None, *,
-                 useblit=True, label_props=None, radio_props=None):
+                 layout=None, useblit=True, label_props=None, radio_props=None):
         """
         Add radio buttons to an `~.axes.Axes`.
 
@@ -1649,6 +1794,31 @@ class RadioButtons(AxesWidget):
         activecolor : :mpltype:`color`
             The color of the selected button. The default is ``'blue'`` if not
             specified here or in *radio_props*.
+        layout : None or "vertical" or "horizontal" or (int, int), default: None
+            The layout of the radio buttons. Options are:
+
+            - ``None``: Use legacy vertical layout (default).
+            - ``"vertical"``: Arrange buttons in a single column with
+              dynamic positioning based on text widths.
+            - ``"horizontal"``: Arrange buttons in a single row with
+              dynamic positioning based on text widths.
+            - ``(rows, cols)`` tuple: Arrange buttons in a grid with the
+              specified number of rows and columns. Buttons are placed
+              left-to-right, top-to-bottom with dynamic positioning.
+
+            The layout options "vertical", "horizontal" and ``(rows, cols)``
+            create temporary ``mtext.Text`` to determine exact text sizes.
+            This is usually ok, but may cause side-effects and has a slight
+            performance impact. Therefore the default ``None`` value avoids
+            this.
+
+            .. admonition:: Provisional
+                The new layout options are provisional. Their algorithmic
+                behavior, including if and when a figure redraw happens, as well
+                as the the exact positions of buttons and labels may still change
+                without prior warning.
+
+            .. versionadded:: 3.11
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :ref:`blitting` for details.
@@ -1704,11 +1874,17 @@ class RadioButtons(AxesWidget):
         self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
 
         label_props = _expand_text_props(label_props)
+
+        # Calculate button and label positions
+        button_xs, button_ys, label_xs, label_ys = _calculate_widget_button_layout(
+            ax, labels, label_props, layout
+        )
+
         self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
+            ax.text(x, y, label, transform=ax.transAxes,
                     horizontalalignment="left", verticalalignment="center",
                     **props)
-            for y, label, props in zip(ys, labels, label_props)]
+            for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
         text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         radio_props = {
@@ -1721,7 +1897,7 @@ class RadioButtons(AxesWidget):
         radio_props.setdefault('edgecolor', radio_props.get('color', 'black'))
         radio_props.setdefault('facecolor',
                                radio_props.pop('color', activecolor))
-        self._buttons = ax.scatter([.15] * len(ys), ys, **radio_props)
+        self._buttons = ax.scatter(button_xs, button_ys, **radio_props)
         # The user may have passed custom colours in radio_props, so we need to
         # create the radios, and modify the visibility after getting whatever
         # the user set.
