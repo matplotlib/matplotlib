@@ -131,6 +131,7 @@ and examples of using date locators and formatters.
 """
 
 import itertools
+import inspect
 import logging
 import locale
 import math
@@ -306,9 +307,9 @@ class FuncFormatter(Formatter):
     """
     Use a user-defined function for formatting.
 
-    The function should take in two inputs (a tick value ``x`` and a
-    position ``pos``), and return a string containing the corresponding
-    tick label.
+    The function can take in at most two inputs (a required tick value ``x``
+     and an optional position ``pos``), and must return a string containing
+     the corresponding tick label.
     """
 
     def __init__(self, func):
@@ -321,7 +322,36 @@ class FuncFormatter(Formatter):
 
         *x* and *pos* are passed through as-is.
         """
-        return self.func(x, pos)
+        if self._nargs == 1:
+            return self._func(x)
+        return self._func(x, pos)
+
+    @property
+    def func(self):
+        return self._func
+
+    @func.setter
+    def func(self, func):
+        try:
+            sig = inspect.signature(func)
+        except ValueError:
+            self._nargs = 2
+            cbook._warn_external("FuncFormatter may not support "
+                                  f"{func.__name__}. Please look at the "
+                                  "other formatters in `matplotlib.ticker`.")
+        else:
+            try:
+                sig.bind(None, None)
+                self._nargs = 2
+            except TypeError:
+                try:
+                    sig.bind(None)
+                    self._nargs = 1
+                except TypeError:
+                    raise TypeError(f"{func.__name__} must take "
+                                     "at most 2 arguments: "
+                                     "x (required), pos (optional).")
+        self._func = func
 
     def get_offset(self):
         return self.offset_string
