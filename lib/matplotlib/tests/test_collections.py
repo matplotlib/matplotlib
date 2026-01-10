@@ -430,9 +430,9 @@ def test_EllipseCollection_setter_getter():
         offset_transform=ax.transData,
         )
 
-    assert_array_almost_equal(ec._widths, np.array(widths).ravel() * 0.5)
-    assert_array_almost_equal(ec._heights, np.array(heights).ravel() * 0.5)
-    assert_array_almost_equal(ec._angles, np.deg2rad(angles).ravel())
+    assert_array_almost_equal(ec._container.widths, np.array(widths).ravel() * 0.5)
+    assert_array_almost_equal(ec._container.heights, np.array(heights).ravel() * 0.5)
+    assert_array_almost_equal(ec._container.angles, np.deg2rad(angles).ravel())
 
     assert_array_almost_equal(ec.get_widths(), widths)
     assert_array_almost_equal(ec.get_heights(), heights)
@@ -837,16 +837,16 @@ def test_collection_set_verts_array():
     verts = np.arange(80, dtype=np.double).reshape(10, 4, 2)
     col_arr = PolyCollection(verts)
     col_list = PolyCollection(list(verts))
-    assert len(col_arr._paths) == len(col_list._paths)
-    for ap, lp in zip(col_arr._paths, col_list._paths):
+    assert len(col_arr.get_paths()) == len(col_list.get_paths())
+    for ap, lp in zip(col_arr.get_paths(), col_list.get_paths()):
         assert np.array_equal(ap._vertices, lp._vertices)
         assert np.array_equal(ap._codes, lp._codes)
 
     verts_tuple = np.empty(10, dtype=object)
     verts_tuple[:] = [tuple(tuple(y) for y in x) for x in verts]
     col_arr_tuple = PolyCollection(verts_tuple)
-    assert len(col_arr._paths) == len(col_arr_tuple._paths)
-    for ap, atp in zip(col_arr._paths, col_arr_tuple._paths):
+    assert len(col_arr.get_paths()) == len(col_arr_tuple.get_paths())
+    for ap, atp in zip(col_arr.get_paths(), col_arr_tuple.get_paths()):
         assert np.array_equal(ap._vertices, atp._vertices)
         assert np.array_equal(ap._codes, atp._codes)
 
