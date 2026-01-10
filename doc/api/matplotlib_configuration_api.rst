@@ -28,7 +28,7 @@ Default values and styling
 
    The global configuration settings for Matplotlib.
 
-   This a dictionary-like variable that stores the current configuration
+   This is a dictionary-like variable that stores the current configuration
    settings.  Many of the values control styling, but others control
    various aspects of Matplotlib's behavior.
 
