@@ -1108,7 +1108,7 @@ class CheckButtons(AxesWidget):
         if actives is None:
             actives = [False] * len(labels)
 
-        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
+        self._useblit = useblit
 
         ys = np.linspace(1, 0, len(labels)+2)[1:-1]
 
@@ -1136,7 +1136,10 @@ class CheckButtons(AxesWidget):
             **cbook.normalize_kwargs(check_props, collections.PathCollection),
             'marker': 'x',
             'transform': ax.transAxes,
-            'animated': self._useblit,
+            'animated': self._useblit and self.canvas.supports_blit,
+            # TODO: This may need an update when switching out the canvas.
+            #       Can set this to `_useblit` only and live with the animated=True
+            #       overhead on unsupported backends.
         }
         check_props.setdefault('facecolor', check_props.pop('color', 'black'))
         self._checks = ax.scatter([0.15] * len(ys), ys, **check_props)
@@ -1155,7 +1158,8 @@ class CheckButtons(AxesWidget):
         """Internal event handler to clear the buttons."""
         if self.ignore(event) or self.canvas.is_saving():
             return
-        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
+        if self._useblit and self.canvas.supports_blit:
+            self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
         self.ax.draw_artist(self._checks)
 
     @_call_with_reparented_event
@@ -1260,7 +1264,7 @@ class CheckButtons(AxesWidget):
         self._checks.set_facecolor(facecolors)
 
         if self.drawon:
-            if self._useblit:
+            if self._useblit and self.canvas.supports_blit:
                 background = self._load_blit_background()
                 if background is not None:
                     self.canvas.restore_region(background)
@@ -1701,7 +1705,7 @@ class RadioButtons(AxesWidget):
 
         ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
 
-        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
+        self._useblit = useblit
 
         label_props = _expand_text_props(label_props)
         self.labels = [
@@ -1716,7 +1720,11 @@ class RadioButtons(AxesWidget):
             **radio_props,
             'marker': 'o',
             'transform': ax.transAxes,
-            'animated': self._useblit,
+            'animated': self._useblit and self.canvas.supports_blit,
+            # TODO: This may need an update when switching out the canvas.
+            #       Can set this to `_useblit` only and live with the animated=True
+            #       overhead on unsupported backends.
+
         }
         radio_props.setdefault('edgecolor', radio_props.get('color', 'black'))
         radio_props.setdefault('facecolor',
@@ -1743,7 +1751,8 @@ class RadioButtons(AxesWidget):
         """Internal event handler to clear the buttons."""
         if self.ignore(event) or self.canvas.is_saving():
             return
-        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
+        if self._useblit and self.canvas.supports_blit:
+            self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
         self.ax.draw_artist(self._buttons)
 
     @_call_with_reparented_event
@@ -1836,7 +1845,7 @@ class RadioButtons(AxesWidget):
         self._buttons.set_facecolor(button_facecolors)
 
         if self.drawon:
-            if self._useblit:
+            if self._useblit and self.canvas.supports_blit:
                 background = self._load_blit_background()
                 if background is not None:
                     self.canvas.restore_region(background)
