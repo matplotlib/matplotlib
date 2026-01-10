@@ -1,152 +1,105 @@
-import re
-from docutils.parsers.rst import Directive
+"""
+Sphinx extension that generates the math symbol table documentation
+for Matplotlib.
+"""
 
-from matplotlib import _mathtext, _mathtext_data
-
-bb_pattern = re.compile("Bbb[A-Z]")
-scr_pattern = re.compile("scr[a-zA-Z]")
-frak_pattern = re.compile("frak[A-Z]")
-
-symbols = [
-    ["Lower-case Greek",
-     4,
-     (r"\alpha", r"\beta", r"\gamma",  r"\chi", r"\delta", r"\epsilon",
-      r"\eta", r"\iota",  r"\kappa", r"\lambda", r"\mu", r"\nu",  r"\omega",
-      r"\phi",  r"\pi", r"\psi", r"\rho",  r"\sigma",  r"\tau", r"\theta",
-      r"\upsilon", r"\xi", r"\zeta",  r"\digamma", r"\varepsilon", r"\varkappa",
-      r"\varphi", r"\varpi", r"\varrho", r"\varsigma",  r"\vartheta")],
-    ["Upper-case Greek",
-     4,
-     (r"\Delta", r"\Gamma", r"\Lambda", r"\Omega", r"\Phi", r"\Pi", r"\Psi",
-      r"\Sigma", r"\Theta", r"\Upsilon", r"\Xi")],
-    ["Hebrew",
-     6,
-     (r"\aleph", r"\beth", r"\gimel", r"\daleth")],
-    ["Latin named characters",
-     6,
-     r"""\aa \AA \ae \AE \oe \OE \O \o \thorn \Thorn \ss \eth \dh \DH""".split()],
-    ["Delimiters",
-     5,
-     _mathtext.Parser._delims],
-    ["Big symbols",
-     5,
-     _mathtext.Parser._overunder_symbols | _mathtext.Parser._dropsub_symbols],
-    ["Standard function names",
-     5,
-     {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
-    ["Binary operation symbols",
-     4,
-     _mathtext.Parser._binary_operators],
-    ["Relation symbols",
-     4,
-     _mathtext.Parser._relation_symbols],
-    ["Arrow symbols",
-     4,
-     _mathtext.Parser._arrow_symbols],
-    ["Dot symbols",
-     4,
-     r"""\cdots \vdots \ldots \ddots \adots \Colon \therefore \because""".split()],
-    ["Black-board characters",
-     6,
-     [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
-      if re.match(bb_pattern, symbol)]],
-    ["Script characters",
-     6,
-     [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
-      if re.match(scr_pattern, symbol)]],
-    ["Fraktur characters",
-     6,
-     [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
-      if re.match(frak_pattern, symbol)]],
-    ["Miscellaneous symbols",
-     4,
-     r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
-     \nexists \measuredangle \emptyset \sphericalangle \clubsuit
-     \varnothing \complement \diamondsuit \imath \Finv \triangledown
-     \heartsuit \jmath \Game \spadesuit \ell \hbar \vartriangle
-     \hslash \blacksquare \blacktriangle \sharp \increment
-     \prime \blacktriangledown \Im \flat \backprime \Re \natural
-     \circledS \P \copyright \circledR \S \yen \checkmark \$
-     \cent \triangle \QED \sinewave \dag \ddag \perthousand \ac
-     \lambdabar \L \l \degree \danger \maltese \clubsuitopen
-     \i \hermitmatrix \sterling \nabla \mho""".split()],
-]
+from __future__ import annotations
+from textwrap import dedent
+from docutils.statemachine import StringList
+from docutils import nodes
+from sphinx.util.docutils import SphinxDirective
+from matplotlib import _mathtext
 
 
-def run(state_machine):
+class MathSymbolTableDirective(SphinxDirective):
+    """Generate tables of math symbols grouped by category."""
 
-    def render_symbol(sym, ignore_variant=False):
-        if ignore_variant and sym not in (r"\varnothing", r"\varlrtriangle"):
-            sym = sym.replace(r"\var", "\\")
-        if sym.startswith("\\"):
-            sym = sym.lstrip("\\")
-            if sym not in (_mathtext.Parser._overunder_functions |
-                           _mathtext.Parser._function_names):
-                sym = chr(_mathtext_data.tex2uni[sym])
-        return f'\\{sym}' if sym in ('\\', '|', '+', '-', '*') else sym
-
-    lines = []
-    for category, columns, syms in symbols:
-        syms = sorted(syms,
-                      # Sort by Unicode and place variants immediately
-                      # after standard versions.
-                      key=lambda sym: (render_symbol(sym, ignore_variant=True),
-                                       sym.startswith(r"\var")),
-                      reverse=(category == "Hebrew"))  # Hebrew is rtl
-        rendered_syms = [f"{render_symbol(sym)} ``{sym}``" for sym in syms]
-        columns = min(columns, len(syms))
-        lines.append("**%s**" % category)
-        lines.append('')
-        max_width = max(map(len, rendered_syms))
-        header = (('=' * max_width) + ' ') * columns
-        lines.append(header.rstrip())
-        for part in range(0, len(rendered_syms), columns):
-            row = " ".join(
-                sym.rjust(max_width) for sym in rendered_syms[part:part + columns])
-            lines.append(row)
-        lines.append(header.rstrip())
-        lines.append('')
-
-    state_machine.insert_input(lines, "Symbol table")
-    return []
-
-
-class MathSymbolTableDirective(Directive):
     has_content = False
-    required_arguments = 0
-    optional_arguments = 0
-    final_argument_whitespace = False
-    option_spec = {}
 
     def run(self):
-        return run(self.state_machine)
+        # Build RST lines to be parsed. We include a small CSS style and
+        # simple HTML wrappers so the result is responsive in the browser.
+        lines: list[str] = []
+
+        style = dedent(
+            "\n".join(
+                [
+                    "<style>",
+                    ".mpl-symbol-table { margin: 0 0 1rem 0; }",
+                    ".mpl-symbol-grid {",
+                    "  display: grid;",
+                    "  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));",
+                    "  gap: 0.5rem 1rem;",
+                    "  align-items: center;",
+                    "}",
+                    ".mpl-symbol-cell {",
+                    "  display: flex;",
+                    "  align-items: center;",
+                    "  gap: 0.6rem;",
+                    "  padding: 0.2rem 0.1rem;",
+                    "  white-space: nowrap;",
+                    "}",
+                    ".mpl-symbol-cell .label {",
+                    "  font-family: monospace;",
+                    "  font-size: 0.9em;",
+                    "  color: #333;",
+                    "}",
+                    ".mpl-symbol-cell .math {",
+                    "  font-size: 1.05em;",
+                    "}",
+                    "</style>",
+                ]
+            )
+        )
+
+        # Insert the style as raw HTML block
+        lines.append(".. raw:: html")
+        lines.append("")
+        for style_line in style.splitlines():
+            lines.append("   " + style_line)
+        lines.append("")
+
+        # Get symbol categories from matplotlib mathtext internals.
+        try:
+            categories = _mathtext._get_sphinx_symbol_table()
+        except Exception:
+            categories = []
+
+        for category, _, syms in categories:
+            # Ensure consistent ordering for reproducible output.
+            syms_list = sorted(list(syms), key=lambda s: str(s))
+
+            lines.append(f"**{category}**")
+            lines.append("")
+            lines.append(".. raw:: html")
+            lines.append("")
+            lines.append('   <div class="mpl-symbol-table">')
+            lines.append('     <div class="mpl-symbol-grid">')
+
+            for sym in syms_list:
+                s = str(sym)
+                # Use raw TeX inside \( ... \) so MathJax (Sphinx) renders it.
+                tex = s
+                html_line = (
+                    "       <div class=\"mpl-symbol-cell\">"
+                    f"<span class=\"math\">\\({tex}\\)</span>"
+                    f"<span class=\"label\">`{s}`</span>"
+                    "</div>"
+                )
+                lines.append(html_line)
+
+            lines.append("     </div>")
+            lines.append("   </div>")
+            lines.append("")
+
+        # Let Sphinx parse the lines so roles and references work.
+        text = "\n".join(lines)
+        node = nodes.paragraph()
+        self.state.nested_parse(StringList(text.splitlines()), 0, node)
+        return [node]
 
 
 def setup(app):
+    """Register the Sphinx directive."""
     app.add_directive("math_symbol_table", MathSymbolTableDirective)
-
-    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
-    return metadata
-
-
-if __name__ == "__main__":
-    # Do some verification of the tables
-
-    print("SYMBOLS NOT IN STIX:")
-    all_symbols = {}
-    for category, columns, syms in symbols:
-        if category == "Standard Function Names":
-            continue
-        for sym in syms:
-            if len(sym) > 1:
-                all_symbols[sym[1:]] = None
-                if sym[1:] not in _mathtext_data.tex2uni:
-                    print(sym)
-
-    # Add accents
-    all_symbols.update({v[1:]: k for k, v in _mathtext.Parser._accent_map.items()})
-    all_symbols.update({v: v for v in _mathtext.Parser._wide_accents})
-    print("SYMBOLS NOT IN TABLE:")
-    for sym, val in _mathtext_data.tex2uni.items():
-        if sym not in all_symbols:
-            print(f"{sym} = {chr(val)}")
+    return {"parallel_read_safe": True, "parallel_write_safe": True}
