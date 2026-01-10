@@ -1967,12 +1967,12 @@ class Axes3D(Axes):
     text3D = text
     text2D = Axes.text
 
-    def plot(self, xs, ys, *args, zdir='z', axlim_clip=False, **kwargs):
+    @_preprocess_data(replace_names=['xs', 'ys', 'zs'])
+    def plot(self, xs, ys, zs=0, fmt=None, *, zdir='z', axlim_clip=False, **kwargs):
         """
         Plot 2D or 3D data.
 
-        Parameters
-        ----------
+        .. versionchanged:: 3.10
         xs : 1D array-like
             x coordinates of vertices.
         ys : 1D array-like
@@ -1980,30 +1980,31 @@ class Axes3D(Axes):
         zs : float or 1D array-like
             z coordinates of vertices; either one for all points or one for
             each point.
+        The signature was changed to make the parameters *zs* and *fmt* explicit.
+
+        The unconventional but previously valid call signature
+        ``plot(xs, ys, 'ro', zs=zs)`` is no longer supported.
+
+        Parameters
+        ----------
         zdir : {'x', 'y', 'z'}, default: 'z'
             When plotting 2D data, the direction to use as z.
         axlim_clip : bool, default: False
             Whether to hide data that is outside the axes view limits.
-
-            .. versionadded:: 3.10
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs
-            Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
+            Other arguments are forwarded to 'Axes.plot'.
         """
         had_data = self.has_data()
 
-        # `zs` can be passed positionally or as keyword; checking whether
-        # args[0] is a string matches the behavior of 2D `plot` (via
-        # `_process_plot_var_args`).
-        if args and not isinstance(args[0], str):
-            zs, *args = args
-            if 'zs' in kwargs:
-                raise TypeError("plot() for multiple values for argument 'zs'")
-        else:
-            zs = kwargs.pop('zs', 0)
-
         xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
 
-        lines = super().plot(xs, ys, *args, **kwargs)
+        if fmt is not None:
+            lines = super().plot(xs, ys, fmt, **kwargs)
+        else:
+            lines = super().plot(xs, ys, **kwargs)
+
         for line in lines:
             art3d.line_2d_to_3d(line, zs=zs, zdir=zdir, axlim_clip=axlim_clip)
 
@@ -4047,7 +4048,7 @@ class Axes3D(Axes):
         linestyle = mpl._val_or_rc(linestyle, 'lines.linestyle')
 
         # Plot everything in required order.
-        baseline, = self.plot(basex, basey, basefmt, zs=bottom,
+        baseline, = self.plot(basex, basey, zs=bottom, fmt=basefmt,
                               zdir=orientation, label='_nolegend_')
         stemlines = art3d.Line3DCollection(
             lines, linestyles=linestyle, colors=linecolor, label='_nolegend_',
