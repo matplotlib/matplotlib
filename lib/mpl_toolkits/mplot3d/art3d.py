@@ -817,18 +817,24 @@ class Patch3DCollection(PatchCollection):
             return np.nan
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
-        color_array = (
-            _zalpha(
+        # Adjust the color_array alpha values if point depths are defined
+        # and depth shading is active
+        alpha = self._alpha
+        if self._vzs is not None and self._depthshade:
+            color_array = _zalpha(
                 color_array,
                 self._vzs,
                 min_alpha=self._depthshade_minalpha,
             )
-            if self._vzs is not None and self._depthshade
-            else color_array
-        )
+            if alpha is not None and color_array.shape[1] == 4:  # RGBA, not RGB
+                alpha = alpha * color_array[:, 3]
+
+        # Adjust the order of the color_array using the _z_markers_idx,
+        # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
-        return mcolors.to_rgba_array(color_array, self._alpha)
+
+        return mcolors.to_rgba_array(color_array, alpha)
 
     def get_facecolor(self):
         return self._maybe_depth_shade_and_sort_colors(super().get_facecolor())
@@ -1070,6 +1076,7 @@ class Path3DCollection(PathCollection):
     def _maybe_depth_shade_and_sort_colors(self, color_array):
         # Adjust the color_array alpha values if point depths are defined
         # and depth shading is active
+        alpha = self._alpha
         if self._vzs is not None and self._depthshade:
             color_array = _zalpha(
                 color_array,
@@ -1077,13 +1084,16 @@ class Path3DCollection(PathCollection):
                 min_alpha=self._depthshade_minalpha,
                 _data_scale=self._data_scale,
             )
+            if alpha is not None and color_array.shape[1] == 4:  # RGBA, not RGB
+                alpha = alpha * color_array[:, 3]
 
         # Adjust the order of the color_array using the _z_markers_idx,
         # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
 
-        return mcolors.to_rgba_array(color_array)
+        return mcolors.to_rgba_array(color_array, alpha)
+
 
     def get_facecolor(self):
         return self._maybe_depth_shade_and_sort_colors(super().get_facecolor())
