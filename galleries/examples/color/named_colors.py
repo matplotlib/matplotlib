@@ -22,15 +22,19 @@ import math
 import matplotlib.pyplot as plt
 
 import matplotlib.colors as mcolors
+from matplotlib.colors import Normalize
 from matplotlib.patches import Rectangle
 
 
-def plot_colortable(colors, *, ncols=4, sort_colors=True):
+def plot_colortable(colors, *, ncols=4, sort_colors=True, sample=False):
 
     cell_width = 212
     cell_height = 22
     swatch_width = 48
     margin = 12
+
+    if sample:
+        colors = dict(list(colors.items())[::10])
 
     # Sort colors by hue, saturation, value and name.
     if sort_colors is True:
@@ -74,6 +78,7 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
 
     return fig
 
+
 # %%
 # -----------
 # Base colors
@@ -96,6 +101,24 @@ plot_colortable(mcolors.TABLEAU_COLORS, ncols=2, sort_colors=False)
 # sphinx_gallery_thumbnail_number = 3
 plot_colortable(mcolors.CSS4_COLORS)
 plt.show()
+
+# %%
+# ---------------
+# Wavelengths
+# ---------------
+# The full visible spectrum from 360nm to 830nm is supported.
+# The mapping uses the CIE 2006 2 deg LMS cone fundamentals
+# (https://doi.org/10.25039/CIE.DS.tijidesg).
+# <br>
+# A wavelength color can be directly called by string.
+#     plt.plot(x,y,c="455nm")
+#
+# For colormap usage with explicit bounds::
+
+cmap = plt.get_cmap("wavelength").with_extremes(under="black", over="black")
+norm = Normalize(360, 830)
+wavelength_colors = {f"{wl}nm": cmap(norm(wl)) for wl in range(360, 831)}
+plot_colortable(wavelength_colors, ncols=4, sort_colors=False, sample=True)
 
 # %%
 # -----------

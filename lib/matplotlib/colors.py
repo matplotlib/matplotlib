@@ -40,8 +40,7 @@ Colors that Matplotlib recognizes are listed at
 """
 
 import base64
-from collections.abc import Sequence, Mapping
-from abc import ABC, abstractmethod
+from collections.abc import Sized, Sequence, Mapping
 import functools
 import importlib
 import inspect
@@ -109,7 +108,6 @@ class ColorSequenceRegistry(Mapping):
         import matplotlib as mpl
         colors = mpl.color_sequences['tab10']
 
-    For a list of built in color sequences, see :doc:`/gallery/color/color_sequences`.
     The returned lists are copies, so that their modification does not change
     the global definition of the color sequence.
 
@@ -128,13 +126,10 @@ class ColorSequenceRegistry(Mapping):
         'Pastel2': _cm._Pastel2_data,
         'Paired': _cm._Paired_data,
         'Accent': _cm._Accent_data,
-        'okabe_ito': _cm._okabe_ito_data,
         'Dark2': _cm._Dark2_data,
         'Set1': _cm._Set1_data,
         'Set2': _cm._Set2_data,
         'Set3': _cm._Set3_data,
-        'petroff6': _cm._petroff6_data,
-        'petroff8': _cm._petroff8_data,
         'petroff10': _cm._petroff10_data,
     }
 
@@ -376,31 +371,52 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             # This may turn c into a non-string, so we check again below.
             c = _colors_full_map[c]
         except KeyError:
-            if len(c) != 1:
+            if len(orig_c) != 1:
                 try:
                     c = _colors_full_map[c.lower()]
                 except KeyError:
                     pass
     if isinstance(c, str):
-        if re.fullmatch("#[a-fA-F0-9]+", c):
-            if len(c) == 7:  # #rrggbb hex format.
-                return (*[n / 0xff for n in bytes.fromhex(c[1:])],
-                        alpha if alpha is not None else 1.)
-            elif len(c) == 4:  # #rgb hex format, shorthand for #rrggbb.
-                return (*[int(n, 16) / 0xf for n in c[1:]],
-                        alpha if alpha is not None else 1.)
-            elif len(c) == 9:  # #rrggbbaa hex format.
-                color = [n / 0xff for n in bytes.fromhex(c[1:])]
-                if alpha is not None:
-                    color[-1] = alpha
-                return tuple(color)
-            elif len(c) == 5:  # #rgba hex format, shorthand for #rrggbbaa.
-                color = [int(n, 16) / 0xf for n in c[1:]]
-                if alpha is not None:
-                    color[-1] = alpha
-                return tuple(color)
-            else:
-                raise ValueError(f"Invalid hex color specifier: {orig_c!r}")
+        # hex color in #rrggbb format.
+        match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
+        if match:
+            return (tuple(int(n, 16) / 255
+                          for n in [c[1:3], c[3:5], c[5:7]])
+                    + (alpha if alpha is not None else 1.,))
+        # hex color in #rgb format, shorthand for #rrggbb.
+        match = re.match(r"\A#[a-fA-F0-9]{3}\Z", c)
+        if match:
+            return (tuple(int(n, 16) / 255
+                          for n in [c[1]*2, c[2]*2, c[3]*2])
+                    + (alpha if alpha is not None else 1.,))
+        # hex color with alpha in #rrggbbaa format.
+        match = re.match(r"\A#[a-fA-F0-9]{8}\Z", c)
+        if match:
+            color = [int(n, 16) / 255
+                     for n in [c[1:3], c[3:5], c[5:7], c[7:9]]]
+            if alpha is not None:
+                color[-1] = alpha
+            return tuple(color)
+        # hex color with alpha in #rgba format, shorthand for #rrggbbaa.
+        match = re.match(r"\A#[a-fA-F0-9]{4}\Z", c)
+        if match:
+            color = [int(n, 16) / 255
+                     for n in [c[1]*2, c[2]*2, c[3]*2, c[4]*2]]
+            if alpha is not None:
+                color[-1] = alpha
+            return tuple(color)
+        # wavelength in nm, e.g. "455nm" (no spaces).
+        match = re.fullmatch(r"\d+(?:\.\d+)?nm", c)
+        if match:
+            wl = float(c[:-2])
+            if wl < 360 or wl > 830:
+                return (0., 0., 0., alpha if alpha is not None else 1.)
+            cmap = mpl.colormaps["wavelength"]
+            t = (wl - 360) / (830 - 360)
+            r, g, b, a = cmap(t)
+            if alpha is not None:
+                a = alpha
+            return (r, g, b, a)
         # string gray.
         try:
             c = float(c)
@@ -806,7 +822,8 @@ class Colormap:
         mask : np.ndarray
             Boolean array with True where the input is ``np.nan`` or masked.
         """
-        self._ensure_inited()
+        if not self._isinit:
+            self._init()
 
         xa = np.array(X, copy=True)
         if not xa.dtype.isnative:
@@ -863,60 +880,59 @@ class Colormap:
                 self.colorbar_extend != other.colorbar_extend):
             return False
         # To compare lookup tables the Colormaps have to be initialized
-        self._ensure_inited()
-        other._ensure_inited()
+        if not self._isinit:
+            self._init()
+        if not other._isinit:
+            other._init()
         return np.array_equal(self._lut, other._lut)
 
     def get_bad(self):
         """Get the color for masked values."""
-        self._ensure_inited()
+        if not self._isinit:
+            self._init()
         return np.array(self._lut[self._i_bad])
 
-    @_api.deprecated(
-        "3.11",
-        pending=True,
-        alternative="cmap.with_extremes(bad=...) or Colormap(bad=...)")
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
-        self._set_extremes(bad=(color, alpha))
+        self._rgba_bad = to_rgba(color, alpha)
+        if self._isinit:
+            self._set_extremes()
 
     def get_under(self):
         """Get the color for low out-of-range values."""
-        self._ensure_inited()
+        if not self._isinit:
+            self._init()
         return np.array(self._lut[self._i_under])
 
-    @_api.deprecated(
-        "3.11",
-        pending=True,
-        alternative="cmap.with_extremes(under=...) or Colormap(under=...)")
     def set_under(self, color='k', alpha=None):
         """Set the color for low out-of-range values."""
-        self._set_extremes(under=(color, alpha))
+        self._rgba_under = to_rgba(color, alpha)
+        if self._isinit:
+            self._set_extremes()
 
     def get_over(self):
         """Get the color for high out-of-range values."""
-        self._ensure_inited()
+        if not self._isinit:
+            self._init()
         return np.array(self._lut[self._i_over])
 
-    @_api.deprecated(
-        "3.11",
-        pending=True,
-        alternative="cmap.with_extremes(over=...) or Colormap(over=...)")
     def set_over(self, color='k', alpha=None):
         """Set the color for high out-of-range values."""
-        self._set_extremes(over=(color, alpha))
+        self._rgba_over = to_rgba(color, alpha)
+        if self._isinit:
+            self._set_extremes()
 
-    @_api.deprecated(
-        "3.11",
-        pending=True,
-        alternative="cmap.with_extremes(bad=..., under=..., over=...) or "
-                    "Colormap(bad=..., under=..., over=...)")
     def set_extremes(self, *, bad=None, under=None, over=None):
         """
         Set the colors for masked (*bad*) values and, when ``norm.clip =
         False``, low (*under*) and high (*over*) out-of-range values.
         """
-        self._set_extremes(bad=bad, under=under, over=over)
+        if bad is not None:
+            self.set_bad(bad)
+        if under is not None:
+            self.set_under(under)
+        if over is not None:
+            self.set_over(over)
 
     def with_extremes(self, *, bad=None, under=None, over=None):
         """
@@ -925,26 +941,10 @@ class Colormap:
         out-of-range values, have been set accordingly.
         """
         new_cm = self.copy()
-        new_cm._set_extremes(bad=bad, under=under, over=over)
+        new_cm.set_extremes(bad=bad, under=under, over=over)
         return new_cm
 
-    def _set_extremes(self, bad=None, under=None, over=None):
-        """
-        Set the colors for masked (*bad*) and out-of-range (*under* and *over*) values.
-
-        Parameters that are None are left unchanged.
-        """
-        if bad is not None:
-            self._rgba_bad = to_rgba(bad)
-        if under is not None:
-            self._rgba_under = to_rgba(under)
-        if over is not None:
-            self._rgba_over = to_rgba(over)
-        if self._isinit:
-            self._update_lut_extremes()
-
-    def _update_lut_extremes(self):
-        """Ensure than an existing lookup table has the correct extreme values."""
+    def _set_extremes(self):
         if self._rgba_under:
             self._lut[self._i_under] = self._rgba_under
         else:
@@ -955,35 +955,14 @@ class Colormap:
             self._lut[self._i_over] = self._lut[self.N - 1]
         self._lut[self._i_bad] = self._rgba_bad
 
-    def with_alpha(self, alpha):
-        """
-        Return a copy of the colormap with a new uniform transparency.
-
-        Parameters
-        ----------
-        alpha : float
-             The alpha blending value, between 0 (transparent) and 1 (opaque).
-        """
-        if not isinstance(alpha, Real):
-            raise TypeError(f"'alpha' must be numeric or None, not {type(alpha)}")
-        if not 0 <= alpha <= 1:
-            raise ValueError("'alpha' must be between 0 and 1, inclusive")
-        new_cm = self.copy()
-        new_cm._ensure_inited()
-        new_cm._lut[:, 3] = alpha
-        return new_cm
-
     def _init(self):
         """Generate the lookup table, ``self._lut``."""
         raise NotImplementedError("Abstract class only")
 
-    def _ensure_inited(self):
-        if not self._isinit:
-            self._init()
-
     def is_gray(self):
         """Return whether the colormap is grayscale."""
-        self._ensure_inited()
+        if not self._isinit:
+            self._init()
         return (np.all(self._lut[:, 0] == self._lut[:, 1]) and
                 np.all(self._lut[:, 0] == self._lut[:, 2]))
 
@@ -1173,7 +1152,7 @@ class LinearSegmentedColormap(Colormap):
             self._lut[:-3, 3] = _create_lookup_table(
                 self.N, self._segmentdata['alpha'], 1)
         self._isinit = True
-        self._update_lut_extremes()
+        self._set_extremes()
 
     def set_gamma(self, gamma):
         """Set a new gamma value and regenerate colormap."""
@@ -1194,8 +1173,7 @@ class LinearSegmentedColormap(Colormap):
             range :math:`[0, 1]`; i.e. 0 maps to ``colors[0]`` and 1 maps to
             ``colors[-1]``.
             If (value, color) pairs are given, the mapping is from *value*
-            to *color*. This can be used to divide the range unevenly. The
-            values must increase monotonically from 0 to 1.
+            to *color*. This can be used to divide the range unevenly.
         N : int
             The number of RGB quantization levels.
         gamma : float
@@ -1210,26 +1188,14 @@ class LinearSegmentedColormap(Colormap):
         if not np.iterable(colors):
             raise ValueError('colors must be iterable')
 
-        try:
-            # Assume the passed colors are a list of colors
-            # and not a (value, color) tuple.
-            r, g, b, a = to_rgba_array(colors).T
+        if (isinstance(colors[0], Sized) and len(colors[0]) == 2
+                and not isinstance(colors[0], str)):
+            # List of value, color pairs
+            vals, colors = zip(*colors)
+        else:
             vals = np.linspace(0, 1, len(colors))
-        except Exception as e:
-            # Assume the passed values are a list of
-            # (value, color) tuples.
-            try:
-                _vals, _colors = itertools.zip_longest(*colors)
-            except Exception as e2:
-                raise e2 from e
-            vals = np.asarray(_vals)
-            if np.min(vals) < 0 or np.max(vals) > 1 or np.any(np.diff(vals) <= 0):
-                raise ValueError(
-                    "the values passed in the (value, color) pairs "
-                    "must increase monotonically from 0 to 1."
-                )
-            r, g, b, a = to_rgba_array(_colors).T
 
+        r, g, b, a = to_rgba_array(colors).T
         cdict = {
             "red": np.column_stack([vals, r, r]),
             "green": np.column_stack([vals, g, g]),
@@ -1341,7 +1307,7 @@ class ListedColormap(Colormap):
                 "and will be removed in %(removal)s. Please ensure the list "
                 "of passed colors is the required length instead."
     )
-    def __init__(self, colors, name='unnamed', N=None, *,
+    def __init__(self, colors, name='from_list', N=None, *,
                  bad=None, under=None, over=None):
         if N is None:
             self.colors = colors
@@ -1365,7 +1331,7 @@ class ListedColormap(Colormap):
         self._lut = np.zeros((self.N + 3, 4), float)
         self._lut[:-3] = to_rgba_array(self.colors)
         self._isinit = True
-        self._update_lut_extremes()
+        self._set_extremes()
 
     @property
     def monochrome(self):
@@ -1377,7 +1343,9 @@ class ListedColormap(Colormap):
         # TODO: It's a separate discussion whether we need this property on
         #       colormaps at all (at least as public API). It's a very special edge
         #       case and we only use it for contours internally.
-        self._ensure_inited()
+        if not self._isinit:
+            self._init()
+
         return self.N <= 1 or np.all(self._lut[0] == self._lut[1:self.N])
 
     def resampled(self, lutsize):
@@ -1632,16 +1600,14 @@ class MultivarColormap:
                                  f" i.e. be of length {len(new_cm)}.")
             else:
                 for c, b in zip(new_cm, under):
-                    # in-place change is ok, since we've just created c as a copy
-                    c._set_extremes(under=b)
+                    c.set_under(b)
         if over is not None:
             if not np.iterable(over) or len(over) != len(new_cm):
                 raise ValueError("*over* must contain a color for each scalar colormap"
                                  f" i.e. be of length {len(new_cm)}.")
             else:
                 for c, b in zip(new_cm, over):
-                    # in-place change is ok, since we've just created c as a copy
-                    c._set_extremes(over=b)
+                    c.set_over(b)
         return new_cm
 
     @property
@@ -2090,27 +2056,26 @@ class BivarColormap:
         """Creates and returns a colorbar along the selected axis"""
         if not self._isinit:
             self._init()
-        extremes = (
-            dict(bad=self._rgba_bad, over=self._rgba_outside, under=self._rgba_outside)
-            if self.shape in ['ignore', 'circleignore']
-            else dict(bad=self._rgba_bad)
-        )
         if item == 0:
             origin_1_as_int = int(self._origin[1]*self.M)
             if origin_1_as_int > self.M-1:
                 origin_1_as_int = self.M-1
             one_d_lut = self._lut[:, origin_1_as_int]
-            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_0', **extremes)
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_0')
 
         elif item == 1:
             origin_0_as_int = int(self._origin[0]*self.N)
             if origin_0_as_int > self.N-1:
                 origin_0_as_int = self.N-1
             one_d_lut = self._lut[origin_0_as_int, :]
-            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_1', **extremes)
+            new_cmap = ListedColormap(one_d_lut, name=f'{self.name}_1')
         else:
             raise KeyError(f"only 0 or 1 are"
                            f" valid keys for BivarColormap, not {item!r}")
+        new_cmap._rgba_bad = self._rgba_bad
+        if self.shape in ['ignore', 'circleignore']:
+            new_cmap.set_over(self._rgba_outside)
+            new_cmap.set_under(self._rgba_outside)
         return new_cmap
 
     def _repr_png_(self):
@@ -2299,98 +2264,7 @@ class BivarColormapFromImage(BivarColormap):
         self._isinit = True
 
 
-class Norm(ABC):
-    """
-    Abstract base class for normalizations.
-
-    Subclasses include `Normalize` which maps from a scalar to
-    a scalar. However, this class makes no such requirement, and subclasses may
-    support the normalization of multiple variates simultaneously, with
-    separate normalization for each variate.
-    """
-
-    def __init__(self):
-        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
-
-    @property
-    @abstractmethod
-    def vmin(self):
-        """Lower limit of the input data interval; maps to 0."""
-        pass
-
-    @property
-    @abstractmethod
-    def vmax(self):
-        """Upper limit of the input data interval; maps to 1."""
-        pass
-
-    @property
-    @abstractmethod
-    def clip(self):
-        """
-        Determines the behavior for mapping values outside the range ``[vmin, vmax]``.
-
-        See the *clip* parameter in `.Normalize`.
-        """
-        pass
-
-    @abstractmethod
-    def __call__(self, value, clip=None):
-        """
-        Normalize the data and return the normalized data.
-
-        Parameters
-        ----------
-        value
-            Data to normalize.
-        clip : bool, optional
-            See the description of the parameter *clip* in `.Normalize`.
-
-            If ``None``, defaults to ``self.clip`` (which defaults to
-            ``False``).
-
-        Notes
-        -----
-        If not already initialized, ``self.vmin`` and ``self.vmax`` are
-        initialized using ``self.autoscale_None(value)``.
-        """
-        pass
-
-    @abstractmethod
-    def autoscale(self, A):
-        """Set *vmin*, *vmax* to min, max of *A*."""
-        pass
-
-    @abstractmethod
-    def autoscale_None(self, A):
-        """If *vmin* or *vmax* are not set, use the min/max of *A* to set them."""
-        pass
-
-    @abstractmethod
-    def scaled(self):
-        """Return whether *vmin* and *vmax* are both set."""
-        pass
-
-    def _changed(self):
-        """
-        Call this whenever the norm is changed to notify all the
-        callback listeners to the 'changed' signal.
-        """
-        self.callbacks.process('changed')
-
-    @property
-    @abstractmethod
-    def n_components(self):
-        """
-        The number of normalized components.
-
-        This is the number of elements of the parameter to ``__call__`` and of
-        *vmin*, *vmax*.
-        """
-        pass
-
-
-class Normalize(Norm):
+class Normalize:
     """
     A class which, when called, maps values within the interval
     ``[vmin, vmax]`` linearly to the interval ``[0.0, 1.0]``. The mapping of
@@ -2440,15 +2314,14 @@ class Normalize(Norm):
         -----
         If ``vmin == vmax``, input data will be mapped to 0.
         """
-        super().__init__()
         self._vmin = _sanitize_extrema(vmin)
         self._vmax = _sanitize_extrema(vmax)
         self._clip = clip
         self._scale = None
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
     @property
     def vmin(self):
-        # docstring inherited
         return self._vmin
 
     @vmin.setter
@@ -2460,7 +2333,6 @@ class Normalize(Norm):
 
     @property
     def vmax(self):
-        # docstring inherited
         return self._vmax
 
     @vmax.setter
@@ -2472,7 +2344,6 @@ class Normalize(Norm):
 
     @property
     def clip(self):
-        # docstring inherited
         return self._clip
 
     @clip.setter
@@ -2480,6 +2351,13 @@ class Normalize(Norm):
         if value != self._clip:
             self._clip = value
             self._changed()
+
+    def _changed(self):
+        """
+        Call this whenever the norm is changed to notify all the
+        callback listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
 
     @staticmethod
     def process_value(value):
@@ -2522,7 +2400,24 @@ class Normalize(Norm):
         return result, is_scalar
 
     def __call__(self, value, clip=None):
-        # docstring inherited
+        """
+        Normalize the data and return the normalized data.
+
+        Parameters
+        ----------
+        value
+            Data to normalize.
+        clip : bool, optional
+            See the description of the parameter *clip* in `.Normalize`.
+
+            If ``None``, defaults to ``self.clip`` (which defaults to
+            ``False``).
+
+        Notes
+        -----
+        If not already initialized, ``self.vmin`` and ``self.vmax`` are
+        initialized using ``self.autoscale_None(value)``.
+        """
         if clip is None:
             clip = self.clip
 
@@ -2573,7 +2468,7 @@ class Normalize(Norm):
             return vmin + value * (vmax - vmin)
 
     def autoscale(self, A):
-        # docstring inherited
+        """Set *vmin*, *vmax* to min, max of *A*."""
         with self.callbacks.blocked():
             # Pause callbacks while we are updating so we only get
             # a single update signal at the end
@@ -2582,7 +2477,7 @@ class Normalize(Norm):
         self._changed()
 
     def autoscale_None(self, A):
-        # docstring inherited
+        """If *vmin* or *vmax* are not set, use the min/max of *A* to set them."""
         A = np.asanyarray(A)
 
         if isinstance(A, np.ma.MaskedArray):
@@ -2596,21 +2491,8 @@ class Normalize(Norm):
             self.vmax = A.max()
 
     def scaled(self):
-        # docstring inherited
+        """Return whether *vmin* and *vmax* are both set."""
         return self.vmin is not None and self.vmax is not None
-
-    @property
-    def n_components(self):
-        """
-        The number of distinct components supported (1).
-
-        This is the number of elements of the parameter to ``__call__`` and of
-        *vmin*, *vmax*.
-
-        This class support only a single component, as opposed to `MultiNorm`
-        which supports multiple components.
-        """
-        return 1
 
 
 class TwoSlopeNorm(Normalize):
@@ -2893,7 +2775,7 @@ def _make_norm_from_scale(
       unlike to arbitrary lambdas.
     """
 
-    class ScaleNorm(base_norm_cls):
+    class Norm(base_norm_cls):
         def __reduce__(self):
             cls = type(self)
             # If the class is toplevel-accessible, it is possible to directly
@@ -2973,15 +2855,15 @@ def _make_norm_from_scale(
             return super().autoscale_None(in_trf_domain)
 
     if base_norm_cls is Normalize:
-        ScaleNorm.__name__ = f"{scale_cls.__name__}Norm"
-        ScaleNorm.__qualname__ = f"{scale_cls.__qualname__}Norm"
+        Norm.__name__ = f"{scale_cls.__name__}Norm"
+        Norm.__qualname__ = f"{scale_cls.__qualname__}Norm"
     else:
-        ScaleNorm.__name__ = base_norm_cls.__name__
-        ScaleNorm.__qualname__ = base_norm_cls.__qualname__
-    ScaleNorm.__module__ = base_norm_cls.__module__
-    ScaleNorm.__doc__ = base_norm_cls.__doc__
+        Norm.__name__ = base_norm_cls.__name__
+        Norm.__qualname__ = base_norm_cls.__qualname__
+    Norm.__module__ = base_norm_cls.__module__
+    Norm.__doc__ = base_norm_cls.__doc__
 
-    return ScaleNorm
+    return Norm
 
 
 def _create_empty_object_of_class(cls):
@@ -3337,300 +3219,6 @@ class NoNorm(Normalize):
         return value
 
 
-class MultiNorm(Norm):
-    """
-    A class which contains multiple scalar norms.
-    """
-
-    def __init__(self, norms, vmin=None, vmax=None, clip=None):
-        """
-        Parameters
-        ----------
-        norms : list of (str or `Normalize`)
-            The constituent norms. The list must have a minimum length of 1.
-        vmin, vmax : None or list of (float or None)
-            Limits of the constituent norms.
-            If a list, one value is assigned to each of the constituent
-            norms.
-            If None, the limits of the constituent norms
-            are not changed.
-        clip : None or list of bools, default: None
-            Determines the behavior for mapping values outside the range
-            ``[vmin, vmax]`` for the constituent norms.
-            If a list, each value is assigned to each of the constituent
-            norms.
-            If None, the behaviour of the constituent norms is not changed.
-        """
-        if cbook.is_scalar_or_string(norms):
-            raise ValueError(
-                    "MultiNorm must be assigned an iterable of norms, where each "
-                    f"norm is of type `str`, or `Normalize`, not {type(norms)}")
-
-        if len(norms) < 1:
-            raise ValueError("MultiNorm must be assigned at least one norm")
-
-        def resolve(norm):
-            if isinstance(norm, str):
-                scale_cls = _api.check_getitem(scale._scale_mapping, norm=norm)
-                return mpl.colorizer._auto_norm_from_scale(scale_cls)()
-            elif isinstance(norm, Normalize):
-                return norm
-            else:
-                raise ValueError(
-                    "Each norm assigned to MultiNorm must be "
-                    f"of type `str`, or `Normalize`, not {type(norm)}")
-
-        self._norms = tuple(resolve(norm) for norm in norms)
-
-        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
-
-        self.vmin = vmin
-        self.vmax = vmax
-        self.clip = clip
-
-        for n in self._norms:
-            n.callbacks.connect('changed', self._changed)
-
-    @property
-    def n_components(self):
-        """Number of norms held by this `MultiNorm`."""
-        return len(self._norms)
-
-    @property
-    def norms(self):
-        """The individual norms held by this `MultiNorm`."""
-        return self._norms
-
-    @property
-    def vmin(self):
-        """The lower limit of each constituent norm."""
-        return tuple(n.vmin for n in self._norms)
-
-    @vmin.setter
-    def vmin(self, values):
-        if values is None:
-            return
-        if not np.iterable(values) or len(values) != self.n_components:
-            raise ValueError("*vmin* must have one component for each norm. "
-                             f"Expected an iterable of length {self.n_components}, "
-                             f"but got {values!r}")
-        with self.callbacks.blocked():
-            for norm, v in zip(self.norms, values):
-                norm.vmin = v
-        self._changed()
-
-    @property
-    def vmax(self):
-        """The upper limit of each constituent norm."""
-        return tuple(n.vmax for n in self._norms)
-
-    @vmax.setter
-    def vmax(self, values):
-        if values is None:
-            return
-        if not np.iterable(values) or len(values) != self.n_components:
-            raise ValueError("*vmax* must have one component for each norm. "
-                             f"Expected an iterable of length {self.n_components}, "
-                             f"but got {values!r}")
-        with self.callbacks.blocked():
-            for norm, v in zip(self.norms, values):
-                norm.vmax = v
-        self._changed()
-
-    @property
-    def clip(self):
-        """The clip behaviour of each constituent norm."""
-        return tuple(n.clip for n in self._norms)
-
-    @clip.setter
-    def clip(self, values):
-        if values is None:
-            return
-        if not np.iterable(values) or len(values) != self.n_components:
-            raise ValueError("*clip* must have one component for each norm. "
-                             f"Expected an iterable of length {self.n_components}, "
-                             f"but got {values!r}")
-        with self.callbacks.blocked():
-            for norm, v in zip(self.norms, values):
-                norm.clip = v
-        self._changed()
-
-    def _changed(self):
-        """
-        Call this whenever the norm is changed to notify all the
-        callback listeners to the 'changed' signal.
-        """
-        self.callbacks.process('changed')
-
-    def __call__(self, values, clip=None):
-        """
-        Normalize the data and return the normalized data.
-
-        Each component of the input is normalized via the constituent norm.
-
-        Parameters
-        ----------
-        values : array-like
-            The input data, as an iterable or a structured numpy array.
-
-            - If iterable, must be of length `n_components`. Each element can be a
-              scalar or array-like and is normalized through the corresponding norm.
-            - If structured array, must have `n_components` fields. Each field
-              is normalized through the corresponding norm.
-
-        clip : list of bools or None, optional
-            Determines the behavior for mapping values outside the range
-            ``[vmin, vmax]``. See the description of the parameter *clip* in
-            `.Normalize`.
-            If ``None``, defaults to ``self.clip`` (which defaults to
-            ``False``).
-
-        Returns
-        -------
-        tuple
-            Normalized input values
-
-        Notes
-        -----
-        If not already initialized, ``self.vmin`` and ``self.vmax`` are
-        initialized using ``self.autoscale_None(values)``.
-        """
-        if clip is None:
-            clip = self.clip
-        if not np.iterable(clip) or len(clip) != self.n_components:
-            raise ValueError("*clip* must have one component for each norm. "
-                             f"Expected an iterable of length {self.n_components}, "
-                             f"but got {clip!r}")
-
-        values = self._iterable_components_in_data(values, self.n_components)
-        result = tuple(n(v, clip=c) for n, v, c in zip(self.norms, values, clip))
-        return result
-
-    def inverse(self, values):
-        """
-        Map the normalized values (i.e., index in the colormap) back to data values.
-
-        Parameters
-        ----------
-        values : array-like
-            The input data, as an iterable or a structured numpy array.
-
-            - If iterable, must be of length `n_components`. Each element can be a
-              scalar or array-like and is mapped through the corresponding norm.
-            - If structured array, must have `n_components` fields. Each field
-              is mapped through the the corresponding norm.
-
-        """
-        values = self._iterable_components_in_data(values, self.n_components)
-        result = tuple(n.inverse(v) for n, v in zip(self.norms, values))
-        return result
-
-    def autoscale(self, A):
-        """
-        For each constituent norm, set *vmin*, *vmax* to min, max of the corresponding
-        component in *A*.
-
-        Parameters
-        ----------
-        A : array-like
-            The input data, as an iterable or a structured numpy array.
-
-            - If iterable, must be of length `n_components`. Each element
-              is used for the limits of one constituent norm.
-            - If structured array, must have `n_components` fields. Each field
-              is used for the limits of one constituent norm.
-        """
-        with self.callbacks.blocked():
-            A = self._iterable_components_in_data(A, self.n_components)
-            for n, a in zip(self.norms, A):
-                n.autoscale(a)
-        self._changed()
-
-    def autoscale_None(self, A):
-        """
-        If *vmin* or *vmax* are not set on any constituent norm,
-        use the min/max of the corresponding component in *A* to set them.
-
-        Parameters
-        ----------
-        A : array-like
-            The input data, as an iterable or a structured numpy array.
-
-            - If iterable, must be of length `n_components`. Each element
-              is used for the limits of one constituent norm.
-            - If structured array, must have `n_components` fields. Each field
-              is used for the limits of one constituent norm.
-        """
-        with self.callbacks.blocked():
-            A = self._iterable_components_in_data(A, self.n_components)
-            for n, a in zip(self.norms, A):
-                n.autoscale_None(a)
-        self._changed()
-
-    def scaled(self):
-        """Return whether both *vmin* and *vmax* are set on all constituent norms."""
-        return all(n.scaled() for n in self.norms)
-
-    @staticmethod
-    def _iterable_components_in_data(data, n_components):
-        """
-        Provides an iterable over the components contained in the data.
-
-        An input array with `n_components` fields is returned as a tuple of length n
-        referencing slices of the original array.
-
-        Parameters
-        ----------
-        data : array-like
-            The input data, as an iterable or a structured numpy array.
-
-            - If iterable, must be of length `n_components`
-            - If structured array, must have `n_components` fields.
-
-        Returns
-        -------
-        tuple of np.ndarray
-
-        """
-        if isinstance(data, np.ndarray) and data.dtype.fields is not None:
-            # structured array
-            if len(data.dtype.fields) != n_components:
-                raise ValueError(
-                    "Structured array inputs to MultiNorm must have the same "
-                    "number of fields as components in the MultiNorm. Expected "
-                    f"{n_components}, but got {len(data.dtype.fields)} fields"
-                    )
-            else:
-                return tuple(data[field] for field in data.dtype.names)
-        try:
-            n_elements = len(data)
-        except TypeError:
-            raise ValueError("MultiNorm expects a sequence with one element per "
-                             f"component as input, but got {data!r} instead")
-        if n_elements != n_components:
-            if isinstance(data, np.ndarray) and data.shape[-1] == n_components:
-                if len(data.shape) == 2:
-                    raise ValueError(
-                        f"MultiNorm expects a sequence with one element per component. "
-                        "You can use `data_transposed = data.T` "
-                        "to convert the input data of shape "
-                        f"{data.shape} to a compatible shape {data.shape[::-1]}")
-                else:
-                    raise ValueError(
-                        f"MultiNorm expects a sequence with one element per component. "
-                        "You can use `data_as_list = [data[..., i] for i in "
-                        "range(data.shape[-1])]` to convert the input data of shape "
-                        f" {data.shape} to a compatible list")
-
-            raise ValueError(
-                "MultiNorm expects a sequence with one element per component. "
-                f"This MultiNorm has {n_components} components, but got a sequence "
-                f"with {n_elements} elements"
-                )
-
-        return tuple(data[i] for i in range(n_elements))
-
-
 def rgb_to_hsv(arr):
     """
     Convert an array of float RGB values (in the range [0, 1]) to HSV values.
@@ -3653,10 +3241,11 @@ def rgb_to_hsv(arr):
                          f"shape {arr.shape} was found.")
 
     in_shape = arr.shape
-    # ensure numerics are done at least on float32; ints are cast as well
-    arr = np.asarray(arr, dtype=np.promote_types(arr.dtype, np.float32))
-    if arr.ndim == 1:
-        arr = np.expand_dims(arr, axis=0)  # ensure arr is 2D
+    arr = np.array(
+        arr, copy=False,
+        dtype=np.promote_types(arr.dtype, np.float32),  # Don't work on ints.
+        ndmin=2,  # In case input was 1D.
+    )
 
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
