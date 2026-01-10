@@ -124,6 +124,46 @@ class GCAgg
     GCAgg &operator=(const GCAgg &);
 };
 
+class VGCAgg
+{
+  public:
+    VGCAgg()
+    {
+    }
+    ~VGCAgg()
+    {
+    }
+
+    py::array_t<double> alphas;
+    py::array_t<uint8_t> forced_alphas;
+    py::array_t<uint8_t> antialiaseds;
+    py::array_t<double> linewidths;
+    py::array_t<double> edgecolors;
+    py::array_t<double> facecolors;
+
+    std::vector<agg::line_cap_e> capstyles;
+    std::vector<agg::line_join_e> joinstyles;
+
+    agg::rect_d cliprect;
+
+    ClipPath clippath;
+
+    std::vector<Dashes> dashes;
+
+    std::vector<mpl::PathIterator> hatchpaths;
+    py::array_t<double> hatch_colors;
+    py::array_t<double> hatch_linewidths;
+
+    std::vector<e_snap_mode> snap_modes;
+
+    std::vector<SketchParams> sketches;
+
+  private:
+    // prevent copying
+    VGCAgg(const VGCAgg &);
+    VGCAgg &operator=(const VGCAgg &);
+};
+
 namespace PYBIND11_NAMESPACE { namespace detail {
     template <> struct type_caster<agg::line_cap_e> {
     public:
@@ -246,6 +286,32 @@ namespace PYBIND11_NAMESPACE { namespace detail {
             value.hatch_color = src.attr("get_hatch_color")().cast<agg::rgba>();
             value.hatch_linewidth = src.attr("get_hatch_linewidth")().cast<double>();
             value.sketch = src.attr("get_sketch_params")().cast<SketchParams>();
+
+            return true;
+        }
+    };
+
+    template <> struct type_caster<VGCAgg> {
+    public:
+        PYBIND11_TYPE_CASTER(VGCAgg, const_name("VGCAgg"));
+
+        bool load(handle src, bool) {
+            value.alphas = src.attr("get_alphas")().cast<py::array_t<double>>();
+            value.forced_alphas = src.attr("get_forced_alphas")().cast<py::array_t<uint8_t>>();
+            value.antialiaseds = src.attr("get_antialiaseds")().cast<py::array_t<uint8_t>>();
+            value.capstyles = src.attr("get_capstyles")().cast<std::vector<agg::line_cap_e>>();
+            value.dashes = src.attr("get_dashes")().cast<std::vector<Dashes>>();
+            value.joinstyles = src.attr("get_joinstyles")().cast<std::vector<agg::line_join_e>>();
+            value.linewidths = src.attr("get_linewidths")().cast<py::array_t<double>>();
+            value.edgecolors = src.attr("get_edgecolors")().cast<py::array_t<double>>().reshape({-1, 4});
+            value.facecolors = src.attr("get_facecolors")().cast<py::array_t<double>>().reshape({-1, 4});
+            value.hatchpaths = src.attr("get_hatch_paths")().cast<std::vector<mpl::PathIterator>>();
+            value.hatch_colors = src.attr("get_hatch_colors")().cast<py::array_t<double>>().reshape({-1, 4});
+            value.hatch_linewidths = src.attr("get_hatch_linewidths")().cast<py::array_t<double>>();
+            value.snap_modes = src.attr("get_snaps")().cast<std::vector<e_snap_mode>>();
+            value.sketches = src.attr("get_sketches_params")().cast<std::vector<SketchParams>>();
+            value.cliprect = src.attr("get_clip_rectangle")().cast<agg::rect_d>();
+            value.clippath = src.attr("get_clip_path")().cast<ClipPath>();
 
             return true;
         }
