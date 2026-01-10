@@ -2591,9 +2591,9 @@ class Normalize(Norm):
                 A = A.data
 
         if self.vmin is None and A.size:
-            self.vmin = A.min()
+            self.vmin = np.nanmin(A)
         if self.vmax is None and A.size:
-            self.vmax = A.max()
+            self.vmax = np.nanmax(A)
 
     def scaled(self):
         # docstring inherited
