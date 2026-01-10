@@ -56,10 +56,11 @@ jobs:
             pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04
             python-version: '3.11'
-            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
+            lto: "--config-settings=setup-args=-Db_lto=false"  # Ensure that disabling LTO works.
             extra-requirements: '-r requirements/testing/extra.txt'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+            python-optimize: 'true'
           - name-suffix: "(Extra TeX packages)"
             os: ubuntu-22.04
             python-version: '3.13'
@@ -319,7 +320,7 @@ jobs:
           fi
 
           python -m pip install --no-deps --no-build-isolation --verbose \
-            --config-settings=setup-args="-DrcParams-backend=Agg" \
+            --config-settings=setup-args="-DrcParams-backend=Agg" ${{ matrix.lto }} \
             --editable .[dev]
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
@@ -336,7 +337,10 @@ jobs:
           if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
             export PYTHON_GIL=0
           fi
-          pytest -rfEsXR -n auto \
+          if [[ "${{ matrix.python-optimize }}" == 'true' ]]; then
+            export PYTHONOPTIMIZE=2
+          fi
+          pytest -rfEsXR -n auto -sv \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
