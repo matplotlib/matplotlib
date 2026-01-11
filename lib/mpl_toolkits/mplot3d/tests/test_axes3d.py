@@ -3,6 +3,7 @@ import itertools
 import platform
 import sys
 
+from packaging.version import parse as parse_version
 import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
@@ -181,7 +182,8 @@ def test_bar3d_shaded():
     fig.canvas.draw()
 
 
-@mpl3d_image_comparison(['bar3d_notshaded.png'], style='mpl20')
+@mpl3d_image_comparison(['bar3d_notshaded.png'], style='mpl20',
+                        tol=0.01 if parse_version(np.version.version).major < 2 else 0)
 def test_bar3d_notshaded():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')

@@ -6,7 +6,7 @@ import re
 from packaging.version import parse as parse_version
 
 import numpy as np
-from numpy.testing import assert_almost_equal, assert_array_equal
+from numpy.testing import assert_almost_equal, assert_array_equal, assert_allclose
 import pytest
 
 import matplotlib as mpl
@@ -1935,7 +1935,10 @@ def test_bad_locator_subs(sub):
 @mpl.style.context('default')
 def test_small_range_loglocator(numticks, lims, ticks):
     ll = mticker.LogLocator(numticks=numticks)
-    assert_array_equal(ll.tick_values(*lims), ticks)
+    if parse_version(np.version.version).major < 2:
+        assert_allclose(ll.tick_values(*lims), ticks, rtol=2e-16)
+    else:
+        assert_array_equal(ll.tick_values(*lims), ticks)
 
 
 @mpl.style.context('default')
