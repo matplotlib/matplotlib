@@ -1041,6 +1041,30 @@ def _expand_text_props(props):
 
 class _Buttons(AxesWidget):
 
+    def __init__(self, ax, labels, *, layout=None, useblit=True, label_props=None):
+        super().__init__(ax)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_navigate(False)
+
+        _api.check_isinstance((dict, None), label_props=label_props)
+
+        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
+
+        label_props = _expand_text_props(label_props)
+
+        # Calculate button and label positions
+        self._button_xs, self._button_ys, label_xs, label_ys = _calculate_widget_button_layout(
+            ax, labels, label_props, layout
+        )
+
+        self.labels = [
+            ax.text(x, y, label, transform=ax.transAxes,
+                    horizontalalignment="left", verticalalignment="center",
+                    **props)
+            for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
+        self._text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
+
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
         if self.ignore(event) or self.canvas.is_saving():
@@ -1190,33 +1214,15 @@ class CheckButtons(_Buttons):
 
             .. versionadded:: 3.7
         """
-        super().__init__(ax)
 
-        _api.check_isinstance((dict, None), label_props=label_props,
-                              frame_props=frame_props, check_props=check_props)
+        _api.check_isinstance((dict, None), frame_props=frame_props,
+                              check_props=check_props)
 
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_navigate(False)
+        super().__init__(ax, labels, layout=layout, useblit=useblit,
+                         label_props=label_props)
 
         if actives is None:
             actives = [False] * len(labels)
-
-        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
-
-        label_props = _expand_text_props(label_props)
-
-        # Calculate button and label positions
-        self._button_xs, self._button_ys, label_xs, label_ys = _calculate_widget_button_layout(
-            ax, labels, label_props, layout
-        )
-
-        self.labels = [
-            ax.text(x, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
-                    **props)
-            for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
-        self._text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         frame_props = {
             's': self._text_size**2,
@@ -1846,10 +1852,9 @@ class RadioButtons(_Buttons):
 
             .. versionadded:: 3.7
         """
-        super().__init__(ax)
-
         _api.check_isinstance((dict, None), label_props=label_props,
                               radio_props=radio_props)
+        super().__init__(ax, labels, layout=layout, label_props=label_props)
 
         radio_props = cbook.normalize_kwargs(radio_props,
                                              collections.PathCollection)
@@ -1866,26 +1871,6 @@ class RadioButtons(_Buttons):
         self._initial_active = active
         self.value_selected = labels[active]
         self.index_selected = active
-
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_navigate(False)
-
-        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
-
-        label_props = _expand_text_props(label_props)
-
-        # Calculate button and label positions
-        self._button_xs, self._button_ys, label_xs, label_ys = _calculate_widget_button_layout(
-            ax, labels, label_props, layout
-        )
-
-        self.labels = [
-            ax.text(x, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
-                    **props)
-            for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
-        self._text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         radio_props = {
             's': self._text_size**2,
