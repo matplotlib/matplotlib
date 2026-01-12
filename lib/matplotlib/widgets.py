@@ -1054,6 +1054,7 @@ class _Buttons(AxesWidget):
         label_props = _expand_text_props(label_props)
 
         # Calculate button and label positions
+        # TODO(@doronbehar -- @story645): This part and the self.labels created below will be modified once the classes structure will be agreed upon.
         self._button_xs, self._button_ys, label_xs, label_ys = _calculate_widget_button_layout(
             ax, labels, label_props, layout
         )
@@ -1183,8 +1184,8 @@ class CheckButtons(_Buttons):
 
             .. admonition:: Provisional
                 The new layout options are provisional. Their algorithmic
-                behavior, including if and when a figure redraw happens, as well
-                as the the exact positions of buttons and labels may still change
+                behavior, including the exact positions of buttons and labels
+                and if and when a figure redraw happens, may still change
                 without prior warning.
 
             .. versionadded:: 3.11
