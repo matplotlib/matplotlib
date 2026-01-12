@@ -1207,7 +1207,7 @@ class CheckButtons(_Buttons):
         label_props = _expand_text_props(label_props)
 
         # Calculate button and label positions
-        button_xs, button_ys, label_xs, label_ys = _calculate_widget_button_layout(
+        self._button_xs, self._button_ys, label_xs, label_ys = _calculate_widget_button_layout(
             ax, labels, label_props, layout
         )
 
@@ -1227,7 +1227,7 @@ class CheckButtons(_Buttons):
         }
         frame_props.setdefault('facecolor', frame_props.get('color', 'none'))
         frame_props.setdefault('edgecolor', frame_props.pop('color', 'black'))
-        self._frames = ax.scatter(button_xs, button_ys, **frame_props)
+        self._frames = ax.scatter(self._button_xs, self._button_ys, **frame_props)
         buttons_props = {
             'linewidth': 1,
             's': self._text_size**2,
@@ -1237,7 +1237,7 @@ class CheckButtons(_Buttons):
             'animated': self._useblit,
         }
         buttons_props.setdefault('facecolor', buttons_props.pop('color', 'black'))
-        self._buttons = ax.scatter(button_xs, button_ys, **buttons_props)
+        self._buttons = ax.scatter(self._button_xs, self._button_ys, **buttons_props)
         # The user may have passed custom colours in check_props, so we need to
         # create the checks (above), and modify the visibility after getting
         # whatever the user set.
@@ -1876,7 +1876,7 @@ class RadioButtons(_Buttons):
         label_props = _expand_text_props(label_props)
 
         # Calculate button and label positions
-        button_xs, button_ys, label_xs, label_ys = _calculate_widget_button_layout(
+        self._button_xs, self._button_ys, label_xs, label_ys = _calculate_widget_button_layout(
             ax, labels, label_props, layout
         )
 
@@ -1897,7 +1897,7 @@ class RadioButtons(_Buttons):
         radio_props.setdefault('edgecolor', radio_props.get('color', 'black'))
         radio_props.setdefault('facecolor',
                                radio_props.pop('color', activecolor))
-        self._buttons = ax.scatter(button_xs, button_ys, **radio_props)
+        self._buttons = ax.scatter(self._button_xs, self._button_ys, **radio_props)
         # The user may have passed custom colours in radio_props, so we need to
         # create the radios, and modify the visibility after getting whatever
         # the user set.
