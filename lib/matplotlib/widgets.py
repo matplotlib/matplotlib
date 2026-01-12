@@ -1039,7 +1039,76 @@ def _expand_text_props(props):
     return cycler(**props)() if props else itertools.repeat({})
 
 
-class CheckButtons(AxesWidget):
+class _Buttons(AxesWidget):
+
+    def _clear(self, event):
+        """Internal event handler to clear the buttons."""
+        if self.ignore(event) or self.canvas.is_saving():
+            return
+        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
+        self.ax.draw_artist(self._buttons)
+
+    def set_label_props(self, props):
+        """
+        Set properties of the `.Text` labels.
+
+        .. versionadded:: 3.7
+
+        Parameters
+        ----------
+        props : dict
+            Dictionary of `.Text` properties to be used for the labels. Same
+            format as label_props argument of :class:`RadioButtons`.
+        """
+        _api.check_isinstance(dict, props=props)
+        props = _expand_text_props(props)
+        for text, prop in zip(self.labels, props):
+            text.update(prop)
+
+    def clear(self):
+        """Reset the active button to the initially active one."""
+        self.set_active(self._initial_active)
+
+    def disconnect(self, cid):
+        """Remove the observer with connection id *cid*."""
+        self._observers.disconnect(cid)
+
+    def on_clicked(self, func):
+        """
+        Connect the callback function *func* to button click events.
+
+        Parameters
+        ----------
+        func : callable
+            When the button is clicked, call *func* with button label.
+            When all buttons are cleared, call *func* with None.
+            The callback func must have the signature::
+
+                def func(label: str | None) -> Any
+
+            Return values may exist, but are ignored.
+
+        Returns
+        -------
+        A connection id, which can be used to disconnect the callback.
+        """
+        return self._observers.connect('clicked', func)
+
+    @_call_with_reparented_event
+    def _clicked(self, event):
+        if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
+            return
+        idxs = [  # Indices of buttons and of texts that contain the event.
+            *self._buttons.contains(event)[1]["ind"],
+            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
+        if idxs:
+            coords = self._buttons.get_offset_transform().transform(
+                self._buttons.get_offsets())
+            self.set_active(  # Closest index, only looking in idxs.
+                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
+
+
+class CheckButtons(_Buttons):
     r"""
     A GUI neutral set of check buttons.
 
@@ -1180,43 +1249,6 @@ class CheckButtons(AxesWidget):
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
-    def _clear(self, event):
-        """Internal event handler to clear the buttons."""
-        if self.ignore(event) or self.canvas.is_saving():
-            return
-        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
-        self.ax.draw_artist(self._buttons)
-
-    @_call_with_reparented_event
-    def _clicked(self, event):
-        if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
-            return
-        idxs = [  # Indices of frames and of texts that contain the event.
-            *self._frames.contains(event)[1]["ind"],
-            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
-        if idxs:
-            coords = self._frames.get_offset_transform().transform(
-                self._frames.get_offsets())
-            self.set_active(  # Closest index, only looking in idxs.
-                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
-
-    def set_label_props(self, props):
-        """
-        Set properties of the `.Text` labels.
-
-        .. versionadded:: 3.7
-
-        Parameters
-        ----------
-        props : dict
-            Dictionary of `.Text` properties to be used for the labels. Same
-            format as label_props argument of :class:`CheckButtons`.
-        """
-        _api.check_isinstance(dict, props=props)
-        props = _expand_text_props(props)
-        for text, prop in zip(self.labels, props):
-            text.update(prop)
-
     def set_frame_props(self, props):
         """
         Set properties of the check button frames.
@@ -1317,11 +1349,6 @@ class CheckButtons(AxesWidget):
             [ec if active else "none"
              for ec, active in zip(self._active_check_colors, actives)])
 
-    def clear(self):
-        """Uncheck all checkboxes."""
-
-        self._buttons.set_facecolor(['none'] * len(self._active_check_colors))
-
         if hasattr(self, '_lines'):
             for l1, l2 in self._lines:
                 l1.set_visible(False)
@@ -1347,31 +1374,6 @@ class CheckButtons(AxesWidget):
         return [l.get_text() for l, box_checked in
                 zip(self.labels, self.get_status())
                 if box_checked]
-
-    def on_clicked(self, func):
-        """
-        Connect the callback function *func* to button click events.
-
-        Parameters
-        ----------
-        func : callable
-            When the button is clicked, call *func* with button label.
-            When all buttons are cleared, call *func* with None.
-            The callback func must have the signature::
-
-                def func(label: str | None) -> Any
-
-            Return values may exist, but are ignored.
-
-        Returns
-        -------
-        A connection id, which can be used to disconnect the callback.
-        """
-        return self._observers.connect('clicked', lambda text: func(text))
-
-    def disconnect(self, cid):
-        """Remove the observer with connection id *cid*."""
-        self._observers.disconnect(cid)
 
 
 class TextBox(AxesWidget):
@@ -1755,7 +1757,7 @@ def _calculate_widget_button_layout(ax, labels, label_props, layout):
     return button_xs, button_ys, label_xs, label_ys
 
 
-class RadioButtons(AxesWidget):
+class RadioButtons(_Buttons):
     """
     A GUI neutral radio button.
 
@@ -1915,43 +1917,6 @@ class RadioButtons(AxesWidget):
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
-    def _clear(self, event):
-        """Internal event handler to clear the buttons."""
-        if self.ignore(event) or self.canvas.is_saving():
-            return
-        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
-        self.ax.draw_artist(self._buttons)
-
-    @_call_with_reparented_event
-    def _clicked(self, event):
-        if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
-            return
-        idxs = [  # Indices of buttons and of texts that contain the event.
-            *self._buttons.contains(event)[1]["ind"],
-            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
-        if idxs:
-            coords = self._buttons.get_offset_transform().transform(
-                self._buttons.get_offsets())
-            self.set_active(  # Closest index, only looking in idxs.
-                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
-
-    def set_label_props(self, props):
-        """
-        Set properties of the `.Text` labels.
-
-        .. versionadded:: 3.7
-
-        Parameters
-        ----------
-        props : dict
-            Dictionary of `.Text` properties to be used for the labels. Same
-            format as label_props argument of :class:`RadioButtons`.
-        """
-        _api.check_isinstance(dict, props=props)
-        props = _expand_text_props(props)
-        for text, prop in zip(self.labels, props):
-            text.update(prop)
-
     def set_radio_props(self, props):
         """
         Set properties of the `.Text` labels.
@@ -2023,35 +1988,6 @@ class RadioButtons(AxesWidget):
 
         if self.eventson:
             self._observers.process('clicked', self.labels[index].get_text())
-
-    def clear(self):
-        """Reset the active button to the initially active one."""
-        self.set_active(self._initial_active)
-
-    def on_clicked(self, func):
-        """
-        Connect the callback function *func* to button click events.
-
-        Parameters
-        ----------
-        func : callable
-            When the button is clicked, call *func* with button label.
-            When all buttons are cleared, call *func* with None.
-            The callback func must have the signature::
-
-                def func(label: str | None) -> Any
-
-            Return values may exist, but are ignored.
-
-        Returns
-        -------
-        A connection id, which can be used to disconnect the callback.
-        """
-        return self._observers.connect('clicked', func)
-
-    def disconnect(self, cid):
-        """Remove the observer with connection id *cid*."""
-        self._observers.disconnect(cid)
 
 
 class SubplotTool(Widget):
