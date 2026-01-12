@@ -149,7 +149,7 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
         env={
             **os.environ,
             "SOURCE_DATE_EPOCH": "0",
-            # subprocess_run_helper will set SOURCE_DATE_EPOCH=0, so for a dirty tree,
+            # subprocess_run_helper sets SOURCE_DATE_EPOCH=0 above, so for a dirty tree,
             # the version will have the date 19700101 which breaks pickle tests with a
             # warning if the working tree is dirty.
             #
