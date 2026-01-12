@@ -1871,8 +1871,6 @@ class RadioButtons(_Buttons):
         ax.set_yticks([])
         ax.set_navigate(False)
 
-        ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
-
         self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
 
         label_props = _expand_text_props(label_props)
