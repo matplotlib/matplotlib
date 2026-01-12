@@ -34,6 +34,23 @@ a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Shorter call patterns">
+
+.. only:: html
+
+  .. image:: /tutorials/images/thumb/sphx_glr_coding_shortcuts_thumb.png
+    :alt: Shorter call patterns
+
+  :ref:`sphx_glr_tutorials_coding_shortcuts.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Shorter call patterns</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="A short tutorial on plotting images with Matplotlib.">
 
 .. only:: html
@@ -92,6 +109,7 @@ a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
    :hidden:
 
    /tutorials/pyplot
+   /tutorials/coding_shortcuts
    /tutorials/images
    /tutorials/lifecycle
    /tutorials/artists
