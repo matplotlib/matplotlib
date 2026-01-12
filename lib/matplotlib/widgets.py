@@ -1159,7 +1159,7 @@ class CheckButtons(AxesWidget):
         frame_props.setdefault('facecolor', frame_props.get('color', 'none'))
         frame_props.setdefault('edgecolor', frame_props.pop('color', 'black'))
         self._frames = ax.scatter(button_xs, button_ys, **frame_props)
-        check_props = {
+        buttons_props = {
             'linewidth': 1,
             's': text_size**2,
             **cbook.normalize_kwargs(check_props, collections.PathCollection),
@@ -1167,8 +1167,8 @@ class CheckButtons(AxesWidget):
             'transform': ax.transAxes,
             'animated': self._useblit,
         }
-        check_props.setdefault('facecolor', check_props.pop('color', 'black'))
-        self._checks = ax.scatter(button_xs, button_ys, **check_props)
+        buttons_props.setdefault('facecolor', buttons_props.pop('color', 'black'))
+        self._buttons = ax.scatter(button_xs, button_ys, **buttons_props)
         # The user may have passed custom colours in check_props, so we need to
         # create the checks (above), and modify the visibility after getting
         # whatever the user set.
@@ -1185,7 +1185,7 @@ class CheckButtons(AxesWidget):
         if self.ignore(event) or self.canvas.is_saving():
             return
         self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
-        self.ax.draw_artist(self._checks)
+        self.ax.draw_artist(self._buttons)
 
     @_call_with_reparented_event
     def _clicked(self, event):
@@ -1250,7 +1250,7 @@ class CheckButtons(AxesWidget):
         if 's' in props:  # Keep API consistent with constructor.
             props['sizes'] = np.broadcast_to(props.pop('s'), len(self.labels))
         actives = self.get_status()
-        self._checks.update(props)
+        self._buttons.update(props)
         # If new colours are supplied, then we must re-apply the status.
         self._init_status(actives)
 
@@ -1282,18 +1282,18 @@ class CheckButtons(AxesWidget):
 
         invisible = colors.to_rgba('none')
 
-        facecolors = self._checks.get_facecolor()
+        facecolors = self._buttons.get_facecolor()
         if state is None:
             state = colors.same_color(facecolors[index], invisible)
         facecolors[index] = self._active_check_colors[index] if state else invisible
-        self._checks.set_facecolor(facecolors)
+        self._buttons.set_facecolor(facecolors)
 
         if self.drawon:
             if self._useblit:
                 background = self._load_blit_background()
                 if background is not None:
                     self.canvas.restore_region(background)
-                self.ax.draw_artist(self._checks)
+                self.ax.draw_artist(self._buttons)
                 self.canvas.blit(self.ax.bbox)
             else:
                 self.canvas.draw()
@@ -1309,18 +1309,18 @@ class CheckButtons(AxesWidget):
         constructor, or to `.set_check_props`, so we need to modify the
         visibility after getting whatever the user set.
         """
-        self._active_check_colors = self._checks.get_facecolor()
+        self._active_check_colors = self._buttons.get_facecolor()
         if len(self._active_check_colors) == 1:
             self._active_check_colors = np.repeat(self._active_check_colors,
                                                   len(actives), axis=0)
-        self._checks.set_facecolor(
+        self._buttons.set_facecolor(
             [ec if active else "none"
              for ec, active in zip(self._active_check_colors, actives)])
 
     def clear(self):
         """Uncheck all checkboxes."""
 
-        self._checks.set_facecolor(['none'] * len(self._active_check_colors))
+        self._buttons.set_facecolor(['none'] * len(self._active_check_colors))
 
         if hasattr(self, '_lines'):
             for l1, l2 in self._lines:
@@ -1339,7 +1339,7 @@ class CheckButtons(AxesWidget):
         Return a list of the status (True/False) of all of the check buttons.
         """
         return [not colors.same_color(color, colors.to_rgba("none"))
-                for color in self._checks.get_facecolors()]
+                for color in self._buttons.get_facecolors()]
 
     def get_checked_labels(self):
         """Return a list of labels currently checked by user."""
