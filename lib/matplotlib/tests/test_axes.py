@@ -1576,6 +1576,9 @@ def test_pcolor_log_scale(fig_test, fig_ref):
     when using pcolor.
     """
     x = np.linspace(0, 1, 11)
+    # Ensuring second x value always falls slightly above 0.1 prevents flakiness with
+    # numpy v1 #30882. This can be removed once we require numpy >= 2.
+    x[1] += 0.00001
     y = np.linspace(1, 2, 5)
     X, Y = np.meshgrid(x, y)
     C = X[:-1, :-1] + Y[:-1, :-1]
