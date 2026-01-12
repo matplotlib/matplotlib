@@ -1216,10 +1216,10 @@ class CheckButtons(_Buttons):
                     horizontalalignment="left", verticalalignment="center",
                     **props)
             for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
-        text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
+        self._text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         frame_props = {
-            's': text_size**2,
+            's': self._text_size**2,
             'linewidth': 1,
             **cbook.normalize_kwargs(frame_props, collections.PathCollection),
             'marker': 's',
@@ -1230,7 +1230,7 @@ class CheckButtons(_Buttons):
         self._frames = ax.scatter(button_xs, button_ys, **frame_props)
         buttons_props = {
             'linewidth': 1,
-            's': text_size**2,
+            's': self._text_size**2,
             **cbook.normalize_kwargs(check_props, collections.PathCollection),
             'marker': 'x',
             'transform': ax.transAxes,
@@ -1885,10 +1885,10 @@ class RadioButtons(_Buttons):
                     horizontalalignment="left", verticalalignment="center",
                     **props)
             for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
-        text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
+        self._text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         radio_props = {
-            's': text_size**2,
+            's': self._text_size**2,
             **radio_props,
             'marker': 'o',
             'transform': ax.transAxes,
