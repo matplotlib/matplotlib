@@ -23,7 +23,6 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - font size is incomplete
 #   - default font algorithm needs improvement and testing
 #   - setWeights function needs improvement
-#   - 'light' is an invalid weight value, remove it.
 
 from __future__ import annotations
 
@@ -748,10 +747,7 @@ class FontProperties:
 
     def get_weight(self):
         """
-        Set the font weight.  Options are: A numeric value in the
-        range 0-1000 or one of 'light', 'normal', 'regular', 'book',
-        'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold',
-        'heavy', 'extra bold', 'black'
+        Return the font weight as an integer in the range 0-1000.
         """
         return self._weight
 
