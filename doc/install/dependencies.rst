@@ -31,6 +31,16 @@ reference.
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 3)
 
+.. note::
+
+   With **conda packages**, this set of minimal dependencies is realized in
+   the ``matplotlib-base`` conda package. Other packages in the conda
+   ecosystem that depend on Matplotlib should depend on ``matplotlib-base``.
+
+   The ``matplotlib`` conda package additionally comes with ``pyside6``
+   to have a working GUI backend out of the box for end users. This should
+   primarily be used to define end-user environments. See also the
+   `conda forge documentation <https://conda-forge.org/docs/maintainer/knowledge_base/#matplotlib>`__.
 
 .. _optional_dependencies:
 
