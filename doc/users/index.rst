@@ -59,6 +59,7 @@ Using Matplotlib
             :maxdepth: 2
             :includehidden:
 
+            explain/configuration
             explain/customizing
 
     .. grid-item-card::

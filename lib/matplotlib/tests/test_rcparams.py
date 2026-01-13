@@ -13,6 +13,7 @@ from matplotlib import _api, _c_internal_utils
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
+from matplotlib import rcsetup
 from matplotlib.rcsetup import (
     validate_bool,
     validate_color,
@@ -672,3 +673,21 @@ def test_rc_aliases(group, option, alias, value):
 
     rcParams_key = f"{group}.{option}"
     assert mpl.rcParams[rcParams_key] == value
+
+
+def test_all_params_defined_as_code():
+    assert set(p.name for p in rcsetup._params) == set(mpl.rcParams.keys())
+
+
+def test_validators_defined_as_code():
+    for param in rcsetup._params:
+        validator = rcsetup._convert_validator_spec(param.name, param.validator)
+        assert validator == rcsetup._validators[param.name]
+
+
+def test_defaults_as_code():
+    for param in rcsetup._params:
+        if param.name == 'backend':
+            # backend has special handling and no meaningful default
+            continue
+        assert param.default == mpl.rcParamsDefault[param.name], param.name
