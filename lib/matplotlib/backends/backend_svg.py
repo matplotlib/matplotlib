@@ -1135,6 +1135,7 @@ class RendererSVG(RendererBase):
             if prop.get_variant() != 'normal':
                 font_style['font-variant'] = prop.get_variant()
             weight = prop.get_weight()
+            weight = fm.weight_dict.get(weight, weight)  # convert to int
             if weight != 400:
                 font_style['font-weight'] = f'{weight}'
 
