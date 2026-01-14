@@ -23,6 +23,7 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - font size is incomplete
 #   - default font algorithm needs improvement and testing
 #   - setWeights function needs improvement
+#   - 'light' is an invalid weight value, remove it.
 
 from __future__ import annotations
 
