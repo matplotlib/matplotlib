@@ -73,7 +73,8 @@ def test_bold_font_output():
     ax.plot(np.arange(10), np.arange(10))
     ax.set_xlabel('nonbold-xlabel')
     ax.set_ylabel('bold-ylabel', fontweight='bold')
-    ax.set_title('bold-title', fontweight='bold')
+    # set weight as integer to assert it's handled properly
+    ax.set_title('bold-title', fontweight=600)
 
 
 @image_comparison(['bold_font_output_with_none_fonttype.svg'])
@@ -83,7 +84,8 @@ def test_bold_font_output_with_none_fonttype():
     ax.plot(np.arange(10), np.arange(10))
     ax.set_xlabel('nonbold-xlabel')
     ax.set_ylabel('bold-ylabel', fontweight='bold')
-    ax.set_title('bold-title', fontweight='bold')
+    # set weight as integer to assert it's handled properly
+    ax.set_title('bold-title', fontweight=600)
 
 
 @check_figures_equal(tol=20)
