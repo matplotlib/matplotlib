@@ -747,7 +747,10 @@ class FontProperties:
 
     def get_weight(self):
         """
-        Return the font weight as an integer in the range 0-1000.
+        Get the font weight.  Options are: A numeric value in the
+        range 0-1000 or one of 'light', 'normal', 'regular', 'book',
+        'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold',
+        'heavy', 'extra bold', 'black'
         """
         return self._weight
 
