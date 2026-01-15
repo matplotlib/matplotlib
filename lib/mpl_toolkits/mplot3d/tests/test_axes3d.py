@@ -647,6 +647,25 @@ def test_surface3d():
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
+@mpl3d_image_comparison(['surface3d_facecolors_interp.png'], style='mpl20')
+def test_surface3d_facecolors_interpolation():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    X = np.linspace(-2, 2, 5)
+    Y = np.linspace(-2, 2, 5)
+    X, Y = np.meshgrid(X, Y)
+    Z = np.sin(X**2 + Y**2)
+    # Facecolors: low-res RGB grid
+    C = np.zeros((4, 4, 3))
+    C[..., 0] = np.linspace(0, 1, 4)[:, None]  # Red gradient
+    C[..., 1] = np.linspace(1, 0, 4)[None, :]  # Green gradient
+    C[..., 2] = 0.5  # Blue constant
+
+    # Test bicubic interpolation
+    ax.plot_surface(X, Y, Z, facecolors=C, interpolation='bicubic', shade=False)
+    ax.set_title("plot_surface with facecolors and bicubic interpolation")
+
+
 @image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20')
 def test_surface3d_label_offset_tick_position():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
