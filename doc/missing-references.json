@@ -4,7 +4,7 @@
       "<unknown>:1"
     ],
     "matplotlib.axes._base._AxesBase": [
-      "doc/api/artist_api.rst:202"
+      "doc/api/artist_api.rst:203"
     ],
     "matplotlib.backend_bases._Backend": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ShowBase:1"
@@ -18,7 +18,7 @@
       "lib/matplotlib/backends/backend_tkcairo.py:docstring of matplotlib.backends.backend_tkcairo.FigureCanvasTkCairo:1"
     ],
     "matplotlib.image._ImageBase": [
-      "doc/api/artist_api.rst:202",
+      "doc/api/artist_api.rst:203",
       "lib/matplotlib/image.py:docstring of matplotlib.image.AxesImage:1",
       "lib/matplotlib/image.py:docstring of matplotlib.image.BboxImage:1",
       "lib/matplotlib/image.py:docstring of matplotlib.image.FigureImage:1"
@@ -67,7 +67,7 @@
       "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.MollweideTransform:1"
     ],
     "matplotlib.text._AnnotationBase": [
-      "doc/api/artist_api.rst:202",
+      "doc/api/artist_api.rst:203",
       "lib/matplotlib/offsetbox.py:docstring of matplotlib.offsetbox.AnnotationBbox:1",
       "lib/matplotlib/text.py:docstring of matplotlib.text.Annotation:1"
     ],
