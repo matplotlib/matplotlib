@@ -10068,6 +10068,7 @@ def test_violinplot_nan_values_plot():
     # NaNs are silently ignored; both datasets still produce violins
     assert len(parts["bodies"]) == 2
 
+
 def test_violinplot_all_nan_skipped():
     data = [[np.nan, np.nan], [1, 2, 3]]
 
