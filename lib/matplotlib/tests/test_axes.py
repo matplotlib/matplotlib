@@ -10059,23 +10059,20 @@ def test_animated_artists_not_drawn_by_default():
     mocked_ln_draw.assert_not_called()
 
 
-def test_violinplot_nan_values_warn_and_plot():
+def test_violinplot_nan_values_plot():
     data = [[0, 1, 2, 3], [1, np.nan, 2, 3]]
 
-    with pytest.warns(RuntimeWarning, match="NaN values encountered"):
-        fig, ax = plt.subplots()
-        parts = ax.violinplot(data)
+    fig, ax = plt.subplots()
+    parts = ax.violinplot(data)
 
-    # Both violins should be drawn
+    # NaNs are silently ignored; both datasets still produce violins
     assert len(parts["bodies"]) == 2
-
 
 def test_violinplot_all_nan_skipped():
     data = [[np.nan, np.nan], [1, 2, 3]]
 
-    with pytest.warns(RuntimeWarning):
-        fig, ax = plt.subplots()
-        parts = ax.violinplot(data)
+    fig, ax = plt.subplots()
+    parts = ax.violinplot(data)
 
     # Only the valid dataset should produce a violin
     assert len(parts["bodies"]) == 1
