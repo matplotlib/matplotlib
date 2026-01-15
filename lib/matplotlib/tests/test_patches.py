@@ -1101,3 +1101,77 @@ def test_empty_fancyarrow():
     fig, ax = plt.subplots()
     arrow = ax.arrow([], [], [], [])
     assert arrow is not None
+
+
+def test_patch_gapcolor_getter_setter():
+    """Test that gapcolor can be set and retrieved."""
+    patch = Rectangle((0, 0), 1, 1)
+    # Default is None
+    assert patch.get_gapcolor() is None
+
+    # Set to a color
+    patch.set_gapcolor('red')
+    assert mcolors.same_color(patch.get_gapcolor(), 'red')
+
+    # Set back to None
+    patch.set_gapcolor(None)
+    assert patch.get_gapcolor() is None
+
+
+def test_patch_gapcolor_init():
+    """Test that gapcolor can be passed in __init__."""
+    patch = Rectangle((0, 0), 1, 1, gapcolor='blue')
+    assert mcolors.same_color(patch.get_gapcolor(), 'blue')
+
+
+def test_patch_is_dashed():
+    """Test is_dashed method for patches."""
+    patch = Rectangle((0, 0), 1, 1)
+    patch.set_linestyle('solid')
+    assert not patch.is_dashed()
+
+    patch.set_linestyle('--')
+    assert patch.is_dashed()
+
+    patch.set_linestyle(':')
+    assert patch.is_dashed()
+
+    patch.set_linestyle('-.')
+    assert patch.is_dashed()
+
+
+def test_patch_gapcolor_update_from():
+    """Test that gapcolor is copied in update_from."""
+    patch1 = Rectangle((0, 0), 1, 1, gapcolor='green')
+    patch2 = Rectangle((1, 1), 2, 2)
+
+    patch2.update_from(patch1)
+    assert mcolors.same_color(patch2.get_gapcolor(), 'green')
+
+
+@image_comparison(['patch_gapcolor.png'], remove_text=True, style='mpl20')
+def test_patch_gapcolor_visual():
+    """Visual test for patch gapcolor (striped edges)."""
+    fig, ax = plt.subplots()
+
+    # Rectangle with gapcolor
+    rect = Rectangle((0.1, 0.1), 0.3, 0.3, fill=False,
+                      edgecolor='blue', gapcolor='orange',
+                      linestyle='--', linewidth=3)
+    ax.add_patch(rect)
+
+    # Ellipse with gapcolor
+    ellipse = Ellipse((0.7, 0.3), 0.3, 0.2, fill=False,
+                       edgecolor='red', gapcolor='yellow',
+                       linestyle=':', linewidth=3)
+    ax.add_patch(ellipse)
+
+    # Polygon with gapcolor
+    polygon = Polygon([[0.1, 0.6], [0.3, 0.9], [0.4, 0.6]], fill=False,
+                       edgecolor='green', gapcolor='purple',
+                       linestyle='-.', linewidth=3)
+    ax.add_patch(polygon)
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_aspect('equal')
