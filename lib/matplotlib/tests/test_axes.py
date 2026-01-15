@@ -2989,8 +2989,10 @@ class TestScatter:
         x = np.array([0, 1, 2])
         coll = plt.scatter(x, x, c=x, facecolors='none', cmap='viridis')
 
-        # Face colors should be empty (none)
-        assert coll.get_facecolors().shape == (0, 4)
+        # Face colors should be transparent (none)
+        face_colors = coll.get_facecolors()
+        assert face_colors.shape[1] == 4  # RGBA
+        assert_allclose(face_colors[:, 3], 0)  # Alpha channel should be 0
 
         # Edge colors should be mapped from c using the colormap
         edge_colors = coll.get_edgecolors()
