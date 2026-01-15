@@ -10,6 +10,7 @@ import warnings
 import numpy as np
 import pytest
 from PIL import Image
+from numpy.testing import assert_array_equal
 
 import matplotlib as mpl
 from matplotlib import gridspec
@@ -534,11 +535,14 @@ def test_invalid_figure_size(width, height):
         fig.set_size_inches(width, height)
 
 
+def test_add_axes():
+    fig, ax = plt.subplots()
+    ax2 = plt.figure(2).add_axes()
+    assert_array_equal(ax2.get_position().get_points(), ax.get_position().get_points())
+
+
 def test_invalid_figure_add_axes():
     fig = plt.figure()
-    with pytest.raises(TypeError,
-                       match="missing 1 required positional argument: 'rect'"):
-        fig.add_axes()
 
     with pytest.raises(ValueError):
         fig.add_axes((.1, .1, .5, np.nan))
@@ -553,10 +557,10 @@ def test_invalid_figure_add_axes():
         fig.add_axes(ax)
 
     fig2.delaxes(ax)
-    with pytest.raises(TypeError, match=r"add_axes\(\) takes 1 positional arguments"):
+    with pytest.raises(TypeError, match=r"add_axes\(\) takes 0 or 1 positional"):
         fig2.add_axes(ax, "extra positional argument")
 
-    with pytest.raises(TypeError, match=r"add_axes\(\) takes 1 positional arguments"):
+    with pytest.raises(TypeError, match=r"add_axes\(\) takes 0 or 1 positional"):
         fig.add_axes((0, 0, 1, 1), "extra positional argument")
 
 
