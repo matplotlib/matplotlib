@@ -20,7 +20,6 @@ import time
 import traceback
 import types
 import weakref
-import warnings
 
 import numpy as np
 
