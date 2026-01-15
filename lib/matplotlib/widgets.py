@@ -1039,7 +1039,101 @@ def _expand_text_props(props):
     return cycler(**props)() if props else itertools.repeat({})
 
 
-class CheckButtons(AxesWidget):
+class _Buttons(AxesWidget):
+
+    def __init__(self, ax, labels, *, layout=None, useblit=True, label_props=None):
+        super().__init__(ax)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_navigate(False)
+
+        _api.check_isinstance((dict, None), label_props=label_props)
+
+        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
+
+        label_props = _expand_text_props(label_props)
+
+        # Calculate button and label positions
+        # TODO(@doronbehar -- @story645): This part and the self.labels created below will be modified once the classes structure will be agreed upon.
+        self._button_xs, self._button_ys, label_xs, label_ys = _calculate_widget_button_layout(
+            ax, labels, label_props, layout
+        )
+
+        self.labels = [
+            ax.text(x, y, label, transform=ax.transAxes,
+                    horizontalalignment="left", verticalalignment="center",
+                    **props)
+            for x, y, label, props in zip(label_xs, label_ys, labels, label_props)]
+        self._text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
+
+    def _clear(self, event):
+        """Internal event handler to clear the buttons."""
+        if self.ignore(event) or self.canvas.is_saving():
+            return
+        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
+        self.ax.draw_artist(self._buttons)
+
+    def set_label_props(self, props):
+        """
+        Set properties of the `.Text` labels.
+
+        .. versionadded:: 3.7
+
+        Parameters
+        ----------
+        props : dict
+            Dictionary of `.Text` properties to be used for the labels. Same
+            format as label_props argument of :class:`RadioButtons`.
+        """
+        _api.check_isinstance(dict, props=props)
+        props = _expand_text_props(props)
+        for text, prop in zip(self.labels, props):
+            text.update(prop)
+
+    def clear(self):
+        """Reset the active button to the initially active one."""
+        self.set_active(self._initial_active)
+
+    def disconnect(self, cid):
+        """Remove the observer with connection id *cid*."""
+        self._observers.disconnect(cid)
+
+    def on_clicked(self, func):
+        """
+        Connect the callback function *func* to button click events.
+
+        Parameters
+        ----------
+        func : callable
+            When the button is clicked, call *func* with button label.
+            When all buttons are cleared, call *func* with None.
+            The callback func must have the signature::
+
+                def func(label: str | None) -> Any
+
+            Return values may exist, but are ignored.
+
+        Returns
+        -------
+        A connection id, which can be used to disconnect the callback.
+        """
+        return self._observers.connect('clicked', func)
+
+    @_call_with_reparented_event
+    def _clicked(self, event):
+        if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
+            return
+        idxs = [  # Indices of buttons and of texts that contain the event.
+            *self._buttons.contains(event)[1]["ind"],
+            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
+        if idxs:
+            coords = self._buttons.get_offset_transform().transform(
+                self._buttons.get_offsets())
+            self.set_active(  # Closest index, only looking in idxs.
+                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
+
+
+class CheckButtons(_Buttons):
     r"""
     A GUI neutral set of check buttons.
 
@@ -1056,7 +1150,7 @@ class CheckButtons(AxesWidget):
         The text label objects of the check buttons.
     """
 
-    def __init__(self, ax, labels, actives=None, *, useblit=True,
+    def __init__(self, ax, labels, actives=None, *, layout=None, useblit=True,
                  label_props=None, frame_props=None, check_props=None):
         """
         Add check buttons to `~.axes.Axes` instance *ax*.
@@ -1070,6 +1164,31 @@ class CheckButtons(AxesWidget):
         actives : list of bool, optional
             The initial check states of the buttons. The list must have the
             same length as *labels*. If not given, all buttons are unchecked.
+        layout : None or "vertical" or "horizontal" or (int, int), default: None
+            The layout of the check buttons. Options are:
+
+            - ``None``: Use legacy vertical layout (default).
+            - ``"vertical"``: Arrange buttons in a single column with
+              dynamic positioning based on text widths.
+            - ``"horizontal"``: Arrange buttons in a single row with
+              dynamic positioning based on text widths.
+            - ``(rows, cols)`` tuple: Arrange buttons in a grid with the
+              specified number of rows and columns. Buttons are placed
+              left-to-right, top-to-bottom with dynamic positioning.
+
+            The layout options "vertical", "horizontal" and ``(rows, cols)``
+            temporarily manipulate the figure and redraw to determine
+            exact text sizes. This is usually ok, but may cause side-effects
+            and has a slight performance impact, and the default ``None`` value
+            avoids this.
+
+            .. admonition:: Provisional
+                The new layout options are provisional. Their algorithmic
+                behavior, including the exact positions of buttons and labels
+                and if and when a figure redraw happens, may still change
+                without prior warning.
+
+            .. versionadded:: 3.11
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :ref:`blitting` for details.
@@ -1096,32 +1215,18 @@ class CheckButtons(AxesWidget):
 
             .. versionadded:: 3.7
         """
-        super().__init__(ax)
 
-        _api.check_isinstance((dict, None), label_props=label_props,
-                              frame_props=frame_props, check_props=check_props)
+        _api.check_isinstance((dict, None), frame_props=frame_props,
+                              check_props=check_props)
 
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_navigate(False)
+        super().__init__(ax, labels, layout=layout, useblit=useblit,
+                         label_props=label_props)
 
         if actives is None:
             actives = [False] * len(labels)
 
-        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
-
-        ys = np.linspace(1, 0, len(labels)+2)[1:-1]
-
-        label_props = _expand_text_props(label_props)
-        self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
-                    **props)
-            for y, label, props in zip(ys, labels, label_props)]
-        text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
-
         frame_props = {
-            's': text_size**2,
+            's': self._text_size**2,
             'linewidth': 1,
             **cbook.normalize_kwargs(frame_props, collections.PathCollection),
             'marker': 's',
@@ -1129,17 +1234,17 @@ class CheckButtons(AxesWidget):
         }
         frame_props.setdefault('facecolor', frame_props.get('color', 'none'))
         frame_props.setdefault('edgecolor', frame_props.pop('color', 'black'))
-        self._frames = ax.scatter([0.15] * len(ys), ys, **frame_props)
-        check_props = {
+        self._frames = ax.scatter(self._button_xs, self._button_ys, **frame_props)
+        buttons_props = {
             'linewidth': 1,
-            's': text_size**2,
+            's': self._text_size**2,
             **cbook.normalize_kwargs(check_props, collections.PathCollection),
             'marker': 'x',
             'transform': ax.transAxes,
             'animated': self._useblit,
         }
-        check_props.setdefault('facecolor', check_props.pop('color', 'black'))
-        self._checks = ax.scatter([0.15] * len(ys), ys, **check_props)
+        buttons_props.setdefault('facecolor', buttons_props.pop('color', 'black'))
+        self._buttons = ax.scatter(self._button_xs, self._button_ys, **buttons_props)
         # The user may have passed custom colours in check_props, so we need to
         # create the checks (above), and modify the visibility after getting
         # whatever the user set.
@@ -1150,43 +1255,6 @@ class CheckButtons(AxesWidget):
             self.connect_event('draw_event', self._clear)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
-
-    def _clear(self, event):
-        """Internal event handler to clear the buttons."""
-        if self.ignore(event) or self.canvas.is_saving():
-            return
-        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
-        self.ax.draw_artist(self._checks)
-
-    @_call_with_reparented_event
-    def _clicked(self, event):
-        if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
-            return
-        idxs = [  # Indices of frames and of texts that contain the event.
-            *self._frames.contains(event)[1]["ind"],
-            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
-        if idxs:
-            coords = self._frames.get_offset_transform().transform(
-                self._frames.get_offsets())
-            self.set_active(  # Closest index, only looking in idxs.
-                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
-
-    def set_label_props(self, props):
-        """
-        Set properties of the `.Text` labels.
-
-        .. versionadded:: 3.7
-
-        Parameters
-        ----------
-        props : dict
-            Dictionary of `.Text` properties to be used for the labels. Same
-            format as label_props argument of :class:`CheckButtons`.
-        """
-        _api.check_isinstance(dict, props=props)
-        props = _expand_text_props(props)
-        for text, prop in zip(self.labels, props):
-            text.update(prop)
 
     def set_frame_props(self, props):
         """
@@ -1221,7 +1289,7 @@ class CheckButtons(AxesWidget):
         if 's' in props:  # Keep API consistent with constructor.
             props['sizes'] = np.broadcast_to(props.pop('s'), len(self.labels))
         actives = self.get_status()
-        self._checks.update(props)
+        self._buttons.update(props)
         # If new colours are supplied, then we must re-apply the status.
         self._init_status(actives)
 
@@ -1253,18 +1321,18 @@ class CheckButtons(AxesWidget):
 
         invisible = colors.to_rgba('none')
 
-        facecolors = self._checks.get_facecolor()
+        facecolors = self._buttons.get_facecolor()
         if state is None:
             state = colors.same_color(facecolors[index], invisible)
         facecolors[index] = self._active_check_colors[index] if state else invisible
-        self._checks.set_facecolor(facecolors)
+        self._buttons.set_facecolor(facecolors)
 
         if self.drawon:
             if self._useblit:
                 background = self._load_blit_background()
                 if background is not None:
                     self.canvas.restore_region(background)
-                self.ax.draw_artist(self._checks)
+                self.ax.draw_artist(self._buttons)
                 self.canvas.blit(self.ax.bbox)
             else:
                 self.canvas.draw()
@@ -1280,18 +1348,13 @@ class CheckButtons(AxesWidget):
         constructor, or to `.set_check_props`, so we need to modify the
         visibility after getting whatever the user set.
         """
-        self._active_check_colors = self._checks.get_facecolor()
+        self._active_check_colors = self._buttons.get_facecolor()
         if len(self._active_check_colors) == 1:
             self._active_check_colors = np.repeat(self._active_check_colors,
                                                   len(actives), axis=0)
-        self._checks.set_facecolor(
+        self._buttons.set_facecolor(
             [ec if active else "none"
              for ec, active in zip(self._active_check_colors, actives)])
-
-    def clear(self):
-        """Uncheck all checkboxes."""
-
-        self._checks.set_facecolor(['none'] * len(self._active_check_colors))
 
         if hasattr(self, '_lines'):
             for l1, l2 in self._lines:
@@ -1310,7 +1373,7 @@ class CheckButtons(AxesWidget):
         Return a list of the status (True/False) of all of the check buttons.
         """
         return [not colors.same_color(color, colors.to_rgba("none"))
-                for color in self._checks.get_facecolors()]
+                for color in self._buttons.get_facecolors()]
 
     def get_checked_labels(self):
         """Return a list of labels currently checked by user."""
@@ -1318,31 +1381,6 @@ class CheckButtons(AxesWidget):
         return [l.get_text() for l, box_checked in
                 zip(self.labels, self.get_status())
                 if box_checked]
-
-    def on_clicked(self, func):
-        """
-        Connect the callback function *func* to button click events.
-
-        Parameters
-        ----------
-        func : callable
-            When the button is clicked, call *func* with button label.
-            When all buttons are cleared, call *func* with None.
-            The callback func must have the signature::
-
-                def func(label: str | None) -> Any
-
-            Return values may exist, but are ignored.
-
-        Returns
-        -------
-        A connection id, which can be used to disconnect the callback.
-        """
-        return self._observers.connect('clicked', lambda text: func(text))
-
-    def disconnect(self, cid):
-        """Remove the observer with connection id *cid*."""
-        self._observers.disconnect(cid)
 
 
 class TextBox(AxesWidget):
@@ -1610,7 +1648,123 @@ class TextBox(AxesWidget):
         self._observers.disconnect(cid)
 
 
-class RadioButtons(AxesWidget):
+def _calculate_widget_button_layout(ax, labels, label_props, layout):
+    """
+    Calculate positions for button widgets (RadioButtons, CheckButtons).
+
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        The Axes to calculate positions for.
+    labels : list of str
+        The button labels.
+    label_props : iterable of dict
+        Text properties for each label (from _expand_text_props).
+    layout : None or "vertical" or "horizontal" or (int, int)
+        Same layout argument as in the relevant classes.
+
+    Returns
+    -------
+    button_xs : list of float
+        X coordinates for buttons in axes coordinates.
+    button_ys : list of float
+        Y coordinates for buttons in axes coordinates.
+    label_xs : list of float
+        X coordinates for labels in axes coordinates.
+    label_ys : list of float
+        Y coordinates for labels in axes coordinates.
+    """
+    n_labels = len(labels)
+
+    if layout is None:
+        # Legacy behavior: simple vertical layout with fixed positions
+        ys = np.linspace(1, 0, n_labels + 2)[1:-1]
+        button_xs = [0.15] * n_labels
+        button_ys = list(ys)
+        label_xs = [0.25] * n_labels
+        label_ys = list(ys)
+        return button_xs, button_ys, label_xs, label_ys
+
+    # New layout algorithm with text measurement
+    # Parse layout parameter
+    match layout:
+        case "vertical":
+            n_rows, n_cols = n_labels, 1
+        case "horizontal":
+            n_rows, n_cols = 1, n_labels
+        case (int() as n_rows, int() as n_cols):
+            if n_rows * n_cols < n_labels:
+                raise ValueError(
+                    f"layout {layout} has {n_rows * n_cols} positions but "
+                    f"{n_labels} labels were provided"
+                )
+        case _:
+            raise ValueError(
+                "layout must be None, 'vertical', 'horizontal', or a (rows, cols) "
+                f"tuple; got {layout!r}")
+
+    # Define spacing in points for DPI-independent sizing
+    fig = ax.get_figure(root=False)
+    axes_width_display = 72 * ax.bbox.transformed(
+        fig.dpi_scale_trans.inverted()
+    ).width
+    left_margin_display = 11  # points
+    button_text_offset_display = 5.5  # points
+    col_spacing_display = 11  # points
+
+    # Convert to axes coordinates
+    left_margin = left_margin_display / axes_width_display
+    button_text_offset = button_text_offset_display / axes_width_display
+    col_spacing = col_spacing_display / axes_width_display
+
+    # Create temporary text objects to measure widths.
+    # We create Text objects directly rather than using ax.text() since we're
+    # only measuring them and don't need to add them to the axes.
+    temp_texts = [
+        mtext.Text(0, 0, text=label, transform=ax.transAxes, **props)
+        for label, props in zip(labels, label_props)
+    ]
+    # Set figure reference so Text objects can access figure properties
+    for text in temp_texts:
+        text.set_figure(fig)
+    # Calculate max text width per column (in axes coordinates)
+    col_widths = [
+        max(
+            (
+                text.get_window_extent(
+                    ax.figure.canvas.get_renderer(),
+                ).transformed(
+                    fig.dpi_scale_trans.inverted()
+                ).width * 72
+                for text in temp_texts[col_idx::n_cols]
+            ),
+            default=0,
+        )
+        / axes_width_display
+        for col_idx in range(n_cols)
+    ]
+
+    # Center rows vertically in the axes
+    ys_per_row = np.linspace(1, 0, n_rows + 2)[1:-1]
+    # Calculate x positions based on text widths
+    col_x_positions = [left_margin]  # First column starts at left margin
+    for col_idx in range(n_cols - 1):
+        col_x_positions.append(
+            col_x_positions[-1] +
+            button_text_offset +
+            col_widths[col_idx] +
+            col_spacing
+        )
+    label_idx = np.arange(n_labels)
+    button_xs = np.take(col_x_positions, label_idx % n_cols)
+    button_ys = ys_per_row[label_idx // n_cols]
+    label_xs = button_xs + button_text_offset
+    label_ys = button_ys
+
+    return button_xs, button_ys, label_xs, label_ys
+
+
+class RadioButtons(_Buttons):
     """
     A GUI neutral radio button.
 
@@ -1634,7 +1788,7 @@ class RadioButtons(AxesWidget):
     """
 
     def __init__(self, ax, labels, active=0, activecolor=None, *,
-                 useblit=True, label_props=None, radio_props=None):
+                 layout=None, useblit=True, label_props=None, radio_props=None):
         """
         Add radio buttons to an `~.axes.Axes`.
 
@@ -1649,6 +1803,31 @@ class RadioButtons(AxesWidget):
         activecolor : :mpltype:`color`
             The color of the selected button. The default is ``'blue'`` if not
             specified here or in *radio_props*.
+        layout : None or "vertical" or "horizontal" or (int, int), default: None
+            The layout of the radio buttons. Options are:
+
+            - ``None``: Use legacy vertical layout (default).
+            - ``"vertical"``: Arrange buttons in a single column with
+              dynamic positioning based on text widths.
+            - ``"horizontal"``: Arrange buttons in a single row with
+              dynamic positioning based on text widths.
+            - ``(rows, cols)`` tuple: Arrange buttons in a grid with the
+              specified number of rows and columns. Buttons are placed
+              left-to-right, top-to-bottom with dynamic positioning.
+
+            The layout options "vertical", "horizontal" and ``(rows, cols)``
+            create temporary ``mtext.Text`` to determine exact text sizes.
+            This is usually ok, but may cause side-effects and has a slight
+            performance impact. Therefore the default ``None`` value avoids
+            this.
+
+            .. admonition:: Provisional
+                The new layout options are provisional. Their algorithmic
+                behavior, including if and when a figure redraw happens, as well
+                as the the exact positions of buttons and labels may still change
+                without prior warning.
+
+            .. versionadded:: 3.11
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :ref:`blitting` for details.
@@ -1674,10 +1853,9 @@ class RadioButtons(AxesWidget):
 
             .. versionadded:: 3.7
         """
-        super().__init__(ax)
-
         _api.check_isinstance((dict, None), label_props=label_props,
                               radio_props=radio_props)
+        super().__init__(ax, labels, layout=layout, label_props=label_props)
 
         radio_props = cbook.normalize_kwargs(radio_props,
                                              collections.PathCollection)
@@ -1695,24 +1873,8 @@ class RadioButtons(AxesWidget):
         self.value_selected = labels[active]
         self.index_selected = active
 
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_navigate(False)
-
-        ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
-
-        self._useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
-
-        label_props = _expand_text_props(label_props)
-        self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
-                    **props)
-            for y, label, props in zip(ys, labels, label_props)]
-        text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
-
         radio_props = {
-            's': text_size**2,
+            's': self._text_size**2,
             **radio_props,
             'marker': 'o',
             'transform': ax.transAxes,
@@ -1721,7 +1883,7 @@ class RadioButtons(AxesWidget):
         radio_props.setdefault('edgecolor', radio_props.get('color', 'black'))
         radio_props.setdefault('facecolor',
                                radio_props.pop('color', activecolor))
-        self._buttons = ax.scatter([.15] * len(ys), ys, **radio_props)
+        self._buttons = ax.scatter(self._button_xs, self._button_ys, **radio_props)
         # The user may have passed custom colours in radio_props, so we need to
         # create the radios, and modify the visibility after getting whatever
         # the user set.
@@ -1738,43 +1900,6 @@ class RadioButtons(AxesWidget):
             self.connect_event('draw_event', self._clear)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
-
-    def _clear(self, event):
-        """Internal event handler to clear the buttons."""
-        if self.ignore(event) or self.canvas.is_saving():
-            return
-        self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
-        self.ax.draw_artist(self._buttons)
-
-    @_call_with_reparented_event
-    def _clicked(self, event):
-        if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
-            return
-        idxs = [  # Indices of buttons and of texts that contain the event.
-            *self._buttons.contains(event)[1]["ind"],
-            *[i for i, text in enumerate(self.labels) if text.contains(event)[0]]]
-        if idxs:
-            coords = self._buttons.get_offset_transform().transform(
-                self._buttons.get_offsets())
-            self.set_active(  # Closest index, only looking in idxs.
-                idxs[(((event.x, event.y) - coords[idxs]) ** 2).sum(-1).argmin()])
-
-    def set_label_props(self, props):
-        """
-        Set properties of the `.Text` labels.
-
-        .. versionadded:: 3.7
-
-        Parameters
-        ----------
-        props : dict
-            Dictionary of `.Text` properties to be used for the labels. Same
-            format as label_props argument of :class:`RadioButtons`.
-        """
-        _api.check_isinstance(dict, props=props)
-        props = _expand_text_props(props)
-        for text, prop in zip(self.labels, props):
-            text.update(prop)
 
     def set_radio_props(self, props):
         """
@@ -1847,35 +1972,6 @@ class RadioButtons(AxesWidget):
 
         if self.eventson:
             self._observers.process('clicked', self.labels[index].get_text())
-
-    def clear(self):
-        """Reset the active button to the initially active one."""
-        self.set_active(self._initial_active)
-
-    def on_clicked(self, func):
-        """
-        Connect the callback function *func* to button click events.
-
-        Parameters
-        ----------
-        func : callable
-            When the button is clicked, call *func* with button label.
-            When all buttons are cleared, call *func* with None.
-            The callback func must have the signature::
-
-                def func(label: str | None) -> Any
-
-            Return values may exist, but are ignored.
-
-        Returns
-        -------
-        A connection id, which can be used to disconnect the callback.
-        """
-        return self._observers.connect('clicked', func)
-
-    def disconnect(self, cid):
-        """Remove the observer with connection id *cid*."""
-        self._observers.disconnect(cid)
 
 
 class SubplotTool(Widget):
