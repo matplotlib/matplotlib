@@ -8,6 +8,8 @@ Plotting power spectral density (PSD) using `~.Axes.psd`.
 The PSD is a common plot in the field of signal processing. NumPy has
 many useful libraries for computing a PSD. Below we demo a few examples
 of how this can be accomplished and visualized with Matplotlib.
+
+.. redirect-from:: /gallery/lines_bars_and_markers/psd_demo
 """
 import matplotlib.pyplot as plt
 import numpy as np

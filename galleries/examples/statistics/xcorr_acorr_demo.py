@@ -5,6 +5,8 @@ Cross- and auto-correlation
 
 Example use of cross-correlation (`~.Axes.xcorr`) and auto-correlation
 (`~.Axes.acorr`) plots.
+
+.. redirect-from:: /gallery/lines_bars_and_markers/xcorr_acorr_demo
 """
 import matplotlib.pyplot as plt
 import numpy as np
