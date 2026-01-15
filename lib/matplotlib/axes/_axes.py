@@ -5252,6 +5252,8 @@ or pandas.DataFrame
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
+              If the face color is 'none', the edge color will be determined
+              from the mapped array *c* (if provided).
             - 'none': No patch boundary will be drawn.
             - A color or sequence of colors.
 
@@ -6584,7 +6586,8 @@ or pandas.DataFrame
             - 'none' or '': No edge.
             - *None*: :rc:`patch.edgecolor` will be used. Note that currently
               :rc:`patch.force_edgecolor` has to be True for this to work.
-            - 'face': Use the adjacent face color.
+            - 'face': Use the adjacent face color. If the face color is 'none',
+              the edge color will be determined from the mapped array.
             - A color or sequence of colors will set the edge color.
 
             The singular form *edgecolor* works as an alias.
@@ -6775,7 +6778,8 @@ or pandas.DataFrame
             - 'none' or '': No edge.
             - *None*: :rc:`patch.edgecolor` will be used. Note that currently
               :rc:`patch.force_edgecolor` has to be True for this to work.
-            - 'face': Use the adjacent face color.
+            - 'face': Use the adjacent face color. If the face color is 'none',
+              the edge color will be determined from the mapped array.
             - A color or sequence of colors will set the edge color.
 
             The singular form *edgecolor* works as an alias.

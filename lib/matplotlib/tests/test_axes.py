@@ -2984,8 +2984,8 @@ class TestScatter:
 
     @mpl.style.context('default')
     def test_scatter_facecolors_none_edgecolors_mapped(self):
-        # Test that facecolors='none' with c results in edge colors being
-        # mapped to the colormap (issue #24404)
+        # Test that facecolors='none', edgecolors='face' results in edge colors
+        # being mapped to the colormap (issue #24404)
         x = np.array([0, 1, 2])
         coll = plt.scatter(x, x, c=x, facecolors='none', cmap='viridis')
 
