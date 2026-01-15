@@ -3311,6 +3311,18 @@ def test_scatter_c_facecolor_warning_integration(c, facecolor):
         ax.scatter(x, y, c=c, facecolor=facecolor)
 
 
+def test_scatter_c_facecolors_none_no_warning():
+    """Test that no warning is raised when facecolors='none' with c."""
+    # When facecolors='none', c is used for edge colors, so no warning needed
+    fig, ax = plt.subplots()
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # Turn warnings into errors
+        # This should NOT raise a warning
+        ax.scatter([0, 1], [0, 1], c=[0, 1], facecolors='none')
+    plt.close(fig)
+
+
 def test_as_mpl_axes_api():
     # tests the _as_mpl_axes api
     class Polar:

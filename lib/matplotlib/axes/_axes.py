@@ -5089,7 +5089,9 @@ or pandas.DataFrame
             edgecolors = mpl.rcParams['scatter.edgecolors']
 
         # Raise a warning if both `c` and `facecolor` are set (issue #24404).
-        if c is not None and facecolors is not None:
+        # Don't warn if facecolors='none' because c will be used for edge colors.
+        if (c is not None and facecolors is not None
+                and not cbook._str_lower_equal(facecolors, 'none')):
             _api.warn_external(
                 "You passed both c and facecolor/facecolors for the markers. "
                 "c has precedence over facecolor/facecolors. "
