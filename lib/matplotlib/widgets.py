@@ -111,12 +111,21 @@ class AxesWidget(Widget):
         The parent figure canvas for the widget.
     active : bool
         If False, the widget does not respond to events.
+    useblit : bool
+        Whether usage of blitting is desired. The actual usage of
+        blitting also depends on the canvas supporting it.
+
+        Once set, this is read-only, as some widgets currently still
+        depend on the state statically. They still query _useblit.
+
+        .. versionadded:: 3.11
     """
 
-    def __init__(self, ax):
+    def __init__(self, ax, useblit=False):
         self.ax = ax
         self._cids = []
         self._blit_background_id = None
+        self._useblit = useblit
 
     def __del__(self):
         if self._blit_background_id is not None:
@@ -148,6 +157,34 @@ class AxesWidget(Widget):
     def _set_cursor(self, cursor):
         """Update the canvas cursor."""
         self.ax.get_figure(root=True).canvas.set_cursor(cursor)
+
+    def _may_use_blit(self):
+        """
+        Return whether blitting could potentially be used.
+
+        This is defined by the *useblit* parameter upon initialization
+        and currently cannot be changed afterwards. Widgets can
+        set up differently depending on this value. In particular they
+        can create Artists with ``animated=self._may_use_blit()``.
+        This makes sure these Artists properly work with blitting if
+        that is applied, but is also safe to use if blitting is not
+        applied.
+
+        Note: We define this separately from _useblit for semantic
+        clarity. Eventually, we want to migrate widget code away from
+        directly accessing _useblit.
+        """
+        return self._useblit
+
+    def _should_use_blit(self):
+        """
+        Return whether blitting should be used.
+
+        All blitting-related code must be guarded by this because
+        not all canvases support blit and canvases may be swapped
+        out during the lifetime of the widget.
+        """
+        return self._useblit and self.canvas.supports_blit
 
     def _save_blit_background(self, background):
         """
@@ -237,7 +274,7 @@ class Button(AxesWidget):
 
             .. versionadded:: 3.7
         """
-        super().__init__(ax)
+        super().__init__(ax, useblit=useblit)
 
         if image is not None:
             ax.imshow(image)
@@ -245,8 +282,6 @@ class Button(AxesWidget):
                              verticalalignment='center',
                              horizontalalignment='center',
                              transform=ax.transAxes)
-
-        self._useblit = useblit
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
@@ -283,7 +318,7 @@ class Button(AxesWidget):
         if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
-                if self._useblit and self.canvas.supports_blit:
+                if self._should_use_blit():
                     self.ax.draw_artist(self.ax)
                     self.canvas.blit(self.ax.bbox)
                 else:
@@ -1050,13 +1085,11 @@ class _Buttons(AxesWidget):
     """
 
     def __init__(self, ax, labels, *, useblit=True, label_props=None, **kwargs):
-        super().__init__(ax)
+        super().__init__(ax, useblit=useblit)
 
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_navigate(False)
-
-        self._useblit = useblit
 
         self._buttons_ys = np.linspace(1, 0, len(labels)+2)[1:-1]
 
@@ -1072,7 +1105,7 @@ class _Buttons(AxesWidget):
         self._init_props(text_size, **kwargs)
 
         self.connect_event('button_press_event', self._clicked)
-        if self._useblit:
+        if self._may_use_blit():
             self.connect_event('draw_event', self._clear)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
@@ -1084,7 +1117,7 @@ class _Buttons(AxesWidget):
         """Internal event handler to clear the buttons."""
         if self.ignore(event) or self.canvas.is_saving():
             return
-        if self._useblit and self.canvas.supports_blit:
+        if self._should_use_blit():
             self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
         self.ax.draw_artist(self._buttons)
 
@@ -1320,7 +1353,7 @@ class CheckButtons(_Buttons):
         self._buttons.set_facecolor(facecolors)
 
         if self.drawon:
-            if self._useblit and self.canvas.supports_blit:
+            if self._should_use_blit():
                 background = self._load_blit_background()
                 if background is not None:
                     self.canvas.restore_region(background)
@@ -1822,7 +1855,7 @@ class RadioButtons(_Buttons):
         self._buttons.set_facecolor(button_facecolors)
 
         if self.drawon:
-            if self._useblit and self.canvas.supports_blit:
+            if self._should_use_blit():
                 background = self._load_blit_background()
                 if background is not None:
                     self.canvas.restore_region(background)
@@ -1941,7 +1974,7 @@ class Cursor(AxesWidget):
     """
     def __init__(self, ax, *, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
-        super().__init__(ax)
+        super().__init__(ax, useblit=useblit)
 
         self.connect_event('motion_notify_event', self.onmove)
         self.connect_event('draw_event', self.clear)
@@ -1962,7 +1995,7 @@ class Cursor(AxesWidget):
         """Internal event handler to clear the cursor."""
         if self.ignore(event) or self.canvas.is_saving():
             return
-        if self.useblit:
+        if self._should_use_blit():
             self._save_blit_background(self.canvas.copy_from_bbox(self.ax.bbox))
 
     @_call_with_reparented_event
@@ -1987,7 +2020,7 @@ class Cursor(AxesWidget):
         if not (self.visible and (self.vertOn or self.horizOn)):
             return
         # Redraw.
-        if self.useblit:
+        if self._should_use_blit():
             background = self._load_blit_background()
             if background is not None:
                 self.canvas.restore_region(background)
@@ -2167,14 +2200,13 @@ class _SelectorWidget(AxesWidget):
 
     def __init__(self, ax, onselect=None, useblit=False, button=None,
                  state_modifier_keys=None, use_data_coordinates=False):
-        super().__init__(ax)
+        super().__init__(ax, useblit=useblit)
 
         self._visible = True
         if onselect is None:
             self.onselect = lambda *args: None
         else:
             self.onselect = onselect
-        self._useblit = useblit
         self.connect_default_events()
 
         self._state_modifier_keys = dict(move=' ', clear='escape',
@@ -2201,7 +2233,7 @@ class _SelectorWidget(AxesWidget):
     @property
     def useblit(self):
         """Return whether blitting is used (requested and supported by canvas)."""
-        return self._useblit and self.canvas.supports_blit
+        return self._should_use_blit()
 
     def set_active(self, active):
         super().set_active(active)
@@ -2224,7 +2256,7 @@ class _SelectorWidget(AxesWidget):
         """Force an update of the background."""
         # If you add a call to `ignore` here, you'll want to check edge case:
         # `release` can call a draw event even when `ignore` is True.
-        if not self.useblit:
+        if not self._should_use_blit():
             return
         if self.canvas.is_saving():
             return  # saving does not use blitting
@@ -2285,11 +2317,11 @@ class _SelectorWidget(AxesWidget):
                 event.button != self._eventpress.button)
 
     def update(self):
-        """Draw using blit() or draw_idle(), depending on ``self.useblit``."""
+        """Draw using blit() or draw_idle(), depending on blitting support."""
         if (not self.ax.get_visible() or
                 self.ax.get_figure(root=True)._get_renderer() is None):
             return
-        if self.useblit:
+        if self._should_use_blit():
             background = self._load_blit_background()
             if background is not None:
                 self.canvas.restore_region(background)
@@ -2462,7 +2494,7 @@ class _SelectorWidget(AxesWidget):
         artist = self._selection_artist
         props = cbook.normalize_kwargs(props, artist)
         artist.set(**props)
-        if self.useblit:
+        if self._should_use_blit():
             self.update()
 
     def set_handle_props(self, **handle_props):
@@ -2478,7 +2510,7 @@ class _SelectorWidget(AxesWidget):
         handle_props = cbook.normalize_kwargs(handle_props, artist)
         for handle in self._handles_artists:
             handle.set(**handle_props)
-        if self.useblit:
+        if self._should_use_blit():
             self.update()
         self._handle_props.update(handle_props)
 
@@ -2641,7 +2673,7 @@ class SpanSelector(_SelectorWidget):
         #       This relies on the current behavior that the request for
         #       useblit is fixed during initialization and cannot be changed
         #       afterwards.
-        props['animated'] = self._useblit
+        props['animated'] = self._may_use_blit()
 
         self.direction = direction
         self._extents_on_press = None
@@ -2707,7 +2739,7 @@ class SpanSelector(_SelectorWidget):
         self._edge_handles = ToolLineHandles(self.ax, positions,
                                              direction=self.direction,
                                              line_props=props,
-                                             useblit=self._useblit)
+                                             useblit=self._may_use_blit())
 
     @property
     def _handles_artists(self):
@@ -3281,7 +3313,7 @@ class RectangleSelector(_SelectorWidget):
         if props is None:
             props = dict(facecolor='red', edgecolor='black',
                          alpha=0.2, fill=True)
-        props = {**props, 'animated': self._useblit}
+        props = {**props, 'animated': self._may_use_blit()}
         self._visible = props.pop('visible', self._visible)
         to_draw = self._init_shape(**props)
         self.ax.add_patch(to_draw)
@@ -3306,18 +3338,18 @@ class RectangleSelector(_SelectorWidget):
             xc, yc = self.corners
             self._corner_handles = ToolHandles(self.ax, xc, yc,
                                                marker_props=self._handle_props,
-                                               useblit=self._useblit)
+                                               useblit=self._may_use_blit())
 
             self._edge_order = ['W', 'S', 'E', 'N']
             xe, ye = self.edge_centers
             self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
                                              marker_props=self._handle_props,
-                                             useblit=self._useblit)
+                                             useblit=self._may_use_blit())
 
             xc, yc = self.center
             self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
                                               marker_props=self._handle_props,
-                                              useblit=self._useblit)
+                                              useblit=self._may_use_blit())
 
             self._active_handle = None
 
@@ -3822,9 +3854,7 @@ class LassoSelector(_SelectorWidget):
         self.verts = None
         props = {
             **(props if props is not None else {}),
-            # Note that self.useblit may be != useblit, if the canvas doesn't
-            # support blitting.
-            'animated': self._useblit, 'visible': False,
+            'animated': self._may_use_blit(), 'visible': False,
         }
         line = Line2D([], [], **props)
         self.ax.add_line(line)
@@ -3949,7 +3979,7 @@ class PolygonSelector(_SelectorWidget):
 
         if props is None:
             props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
-        props = {**props, 'animated': self._useblit}
+        props = {**props, 'animated': self._may_use_blit()}
         self._selection_artist = line = Line2D([], [], **props)
         self.ax.add_line(line)
 
@@ -3958,7 +3988,7 @@ class PolygonSelector(_SelectorWidget):
                                 markerfacecolor=props.get('color', 'k'))
         self._handle_props = handle_props
         self._polygon_handles = ToolHandles(self.ax, [], [],
-                                            useblit=self._useblit,
+                                            useblit=self._may_use_blit(),
                                             marker_props=self._handle_props)
 
         self._active_handle_idx = -1
@@ -3978,7 +4008,7 @@ class PolygonSelector(_SelectorWidget):
 
     def _add_box(self):
         self._box = RectangleSelector(self.ax,
-                                      useblit=self._useblit,
+                                      useblit=self._may_use_blit(),
                                       grab_range=self.grab_range,
                                       handle_props=self._box_handle_props,
                                       props=self._box_props,
