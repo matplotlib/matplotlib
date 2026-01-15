@@ -5085,19 +5085,11 @@ or pandas.DataFrame
             if facecolors is None:
                 facecolors = kwcolor
 
-        # Check if facecolors is explicitly 'none' - this affects edge color handling
-        facecolors_is_none = cbook._str_lower_equal(facecolors, 'none')
-
-        # When facecolors='none' and c is provided for mapping, we want edge colors
-        # to be mapped instead. Don't set edgecolors to default 'face' in this case.
         if edgecolors is None and not mpl.rcParams['_internal.classic_mode']:
-            if not (facecolors_is_none and c is not None):
-                edgecolors = mpl.rcParams['scatter.edgecolors']
+            edgecolors = mpl.rcParams['scatter.edgecolors']
 
-        # Raise a warning if both `c` and `facecolor` are set (issue #24404),
-        # but not when facecolors='none' since that's a valid use case for
-        # mapping edge colors only.
-        if c is not None and facecolors is not None and not facecolors_is_none:
+        # Raise a warning if both `c` and `facecolor` are set (issue #24404).
+        if c is not None and facecolors is not None:
             _api.warn_external(
                 "You passed both c and facecolor/facecolors for the markers. "
                 "c has precedence over facecolor/facecolors. "
@@ -5170,12 +5162,6 @@ or pandas.DataFrame
                     raise invalid_shape_exception(len(colors), xsize)
         else:
             colors = None  # use cmap, norm after collection is created
-
-        # When facecolors='none' is explicitly set and c is being color-mapped,
-        # preserve facecolors='none' and let edge colors be mapped instead.
-        if facecolors_is_none and c_is_mapped:
-            colors = 'none'
-
         return c, colors, edgecolors
 
     @_api.make_keyword_only("3.10", "marker")
@@ -5436,10 +5422,7 @@ or pandas.DataFrame
             alpha=alpha,
         )
         collection.set_transform(mtransforms.IdentityTransform())
-        # Apply colormap when colors is None (normal case) or when colors='none'
-        # and edgecolors should be mapped (facecolors='none' with c for mapping).
-        colors_is_none_str = cbook._str_lower_equal(colors, 'none')
-        if colors is None or colors_is_none_str:
+        if colors is None:
             if colorizer:
                 collection._set_colorizer_check_keywords(colorizer, cmap=cmap,
                                                          norm=norm, vmin=vmin,
@@ -5449,7 +5432,7 @@ or pandas.DataFrame
                 collection.set_norm(norm)
             collection.set_array(c)
             collection._scale_norm(norm, vmin, vmax)
-        if colors is not None and not colors_is_none_str:
+        else:
             extra_kwargs = {
                     'cmap': cmap, 'norm': norm, 'vmin': vmin, 'vmax': vmax
                     }

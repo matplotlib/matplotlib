@@ -997,7 +997,10 @@ class Collection(mcolorizer.ColorizingArtist):
                 if cbook._str_equal(self._original_edgecolor, 'face'):
                     self._edge_is_mapped = True
             else:
-                if self._original_edgecolor is None:
+                # Map edges if edgecolor was not explicitly set, or if it was
+                # set to 'face' (which has no color to inherit from 'none')
+                if (self._original_edgecolor is None or
+                        cbook._str_equal(self._original_edgecolor, 'face')):
                     self._edge_is_mapped = True
 
         mapped = self._face_is_mapped or self._edge_is_mapped

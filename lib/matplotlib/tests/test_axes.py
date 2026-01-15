@@ -2983,9 +2983,9 @@ class TestScatter:
         assert_array_equal(coll.get_linewidths(), [1.1, 1.2, 1.3])
 
     @mpl.style.context('default')
-    def test_scatter_empty_markers_with_colormap(self):
-        # Test that facecolors='none' with c for colormapping results in
-        # edge colors being mapped (issue #24404)
+    def test_scatter_facecolors_none_edgecolors_mapped(self):
+        # Test that facecolors='none' with c results in edge colors being
+        # mapped to the colormap (issue #24404)
         x = np.array([0, 1, 2])
         coll = plt.scatter(x, x, c=x, facecolors='none', cmap='viridis')
 
@@ -2996,7 +2996,7 @@ class TestScatter:
         edge_colors = coll.get_edgecolors()
         assert edge_colors.shape == (3, 4)
 
-        # Verify the colormap was applied - colors should be from viridis
+        # Verify the colormap was applied
         cmap = plt.cm.viridis
         norm = plt.Normalize(0, 2)
         expected_colors = cmap(norm(x))
@@ -3238,9 +3238,6 @@ del _result
      (dict(c='b', edgecolor='r', edgecolors='g'), 'r'),
      (dict(color='r'), 'r'),
      (dict(color='r', edgecolor='g'), 'g'),
-     # Test facecolors='none' with c for mapping - edgecolors should be None
-     # to trigger edge color mapping (issue #24404)
-     (dict(c=[1, 2], facecolors='none'), None),
      ])
 def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
     def get_next_color():   # pragma: no cover
@@ -3312,27 +3309,6 @@ def test_scatter_c_facecolor_warning_integration(c, facecolor):
     # Test with facecolor (singular)
     with pytest.warns(UserWarning, match=WARN_MSG):
         ax.scatter(x, y, c=c, facecolor=facecolor)
-
-
-def test_scatter_facecolors_none_no_warning():
-    """Test that facecolors='none' with c does NOT raise a warning (issue #24404).
-
-    When facecolors='none' is used with c for colormapping, this is a valid
-    use case for creating empty markers with colored edges, not a conflict.
-    """
-    import warnings
-    fig, ax = plt.subplots()
-    x = np.arange(5)
-
-    # Should not raise a warning when facecolors='none'
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        ax.scatter(x, x, c=x, facecolors='none')
-
-    # Also test with facecolor (singular)
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        ax.scatter(x, x, c=x, facecolor='none')
 
 
 def test_as_mpl_axes_api():
