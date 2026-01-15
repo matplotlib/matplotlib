@@ -34,18 +34,18 @@ a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Shorter call patterns">
+    <div class="sphx-glr-thumbcontainer" tooltip="Coding shortcuts">
 
 .. only:: html
 
   .. image:: /tutorials/images/thumb/sphx_glr_coding_shortcuts_thumb.png
-    :alt: Shorter call patterns
+    :alt: Coding shortcuts
 
   :ref:`sphx_glr_tutorials_coding_shortcuts.py`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Shorter call patterns</div>
+      <div class="sphx-glr-thumbnail-title">Coding shortcuts</div>
     </div>
 
 
