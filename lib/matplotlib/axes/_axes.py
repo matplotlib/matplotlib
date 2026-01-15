@@ -5163,7 +5163,12 @@ or pandas.DataFrame
                     # Besides *colors* will be an empty array if c == 'none'.
                     raise invalid_shape_exception(len(colors), xsize)
         else:
-            colors = None  # use cmap, norm after collection is created
+            # use cmap, norm after collection is created
+            # But if user explicitly set facecolors='none', respect that
+            if cbook._str_lower_equal(facecolors, 'none'):
+                colors = 'none'
+            else:
+                colors = None
         return c, colors, edgecolors
 
     @_api.make_keyword_only("3.10", "marker")
@@ -5426,7 +5431,9 @@ or pandas.DataFrame
             alpha=alpha,
         )
         collection.set_transform(mtransforms.IdentityTransform())
-        if colors is None:
+        # Set up colormap when colors will be mapped (None) or when facecolors
+        # is 'none' but we still want edge colors mapped from c
+        if colors is None or cbook._str_lower_equal(colors, 'none'):
             if colorizer:
                 collection._set_colorizer_check_keywords(colorizer, cmap=cmap,
                                                          norm=norm, vmin=vmin,
