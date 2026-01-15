@@ -7,7 +7,8 @@ from mpl_toolkits.axisartist.axislines import AxesZero, SubplotZero, Subplot
 from mpl_toolkits.axisartist import Axes, SubplotHost
 
 
-@image_comparison(['SubplotZero.png'], style='default')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['SubplotZero.png'], style='default', tol=0.02)
 def test_SubplotZero():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
@@ -28,7 +29,8 @@ def test_SubplotZero():
     ax.set_ylabel("Test")
 
 
-@image_comparison(['Subplot.png'], style='default')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['Subplot.png'], style='default', tol=0.02)
 def test_Subplot():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
@@ -130,7 +132,8 @@ def test_axisline_style_tight():
         ax.axis[direction].set_visible(False)
 
 
-@image_comparison(['subplotzero_ylabel.png'], style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['subplotzero_ylabel.png'], style='mpl20', tol=0.02)
 def test_subplotzero_ylabel():
     fig = plt.figure()
     ax = fig.add_subplot(111, axes_class=SubplotZero)

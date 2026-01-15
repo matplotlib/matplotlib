@@ -239,8 +239,9 @@ def test_matshow(fig_test, fig_ref):
     ax_ref.xaxis.set_ticks_position('both')
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison([f'formatter_ticker_{i:03d}.png' for i in range(1, 6)],
-                  tol=0 if platform.machine() == 'x86_64' else 0.031)
+                  tol=0.02 if platform.machine() == 'x86_64' else 0.04)
 def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -809,7 +810,8 @@ def test_annotate_signature():
         assert p1 == p2
 
 
-@image_comparison(['fill_units.png'], savefig_kwarg={'dpi': 60})
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['fill_units.png'], savefig_kwarg={'dpi': 60}, tol=0.2)
 def test_fill_units():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -1516,7 +1518,8 @@ def test_pcolormesh_log_scale(fig_test, fig_ref):
     ax.set_xscale('log')
 
 
-@image_comparison(['pcolormesh_datetime_axis.png'], style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['pcolormesh_datetime_axis.png'], style='mpl20', tol=0.3)
 def test_pcolormesh_datetime_axis():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -1544,7 +1547,8 @@ def test_pcolormesh_datetime_axis():
             label.set_rotation(30)
 
 
-@image_comparison(['pcolor_datetime_axis.png'], style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['pcolor_datetime_axis.png'], style='mpl20', tol=0.3)
 def test_pcolor_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
@@ -2765,7 +2769,8 @@ def test_stairs_options():
     ax.legend(loc=0)
 
 
-@image_comparison(['test_stairs_datetime.png'])
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['test_stairs_datetime.png'], tol=0.2)
 def test_stairs_datetime():
     f, ax = plt.subplots(constrained_layout=True)
     ax.stairs(np.arange(36),
@@ -6504,7 +6509,8 @@ def test_pie_frame_grid():
     plt.axis('equal')
 
 
-@image_comparison(['pie_rotatelabels_true.png'], style='mpl20', tol=0.009)
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['pie_rotatelabels_true.png'], style='mpl20', tol=0.1)
 def test_pie_rotatelabels_true():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'

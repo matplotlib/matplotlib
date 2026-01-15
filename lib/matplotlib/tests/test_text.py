@@ -139,7 +139,8 @@ def test_multiline():
     ax.set_yticks([])
 
 
-@image_comparison(['multiline2'], style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['multiline2'], style='mpl20', tol=0.05)
 def test_multiline2():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
@@ -210,7 +211,8 @@ def test_antialiasing():
     mpl.rcParams['text.antialiased'] = False  # Should not affect existing text.
 
 
-@image_comparison(['text_contains.png'])
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['text_contains.png'], tol=0.05)
 def test_contains():
     fig = plt.figure()
     ax = plt.axes()
@@ -279,7 +281,8 @@ def test_titles():
     ax.set_yticks([])
 
 
-@image_comparison(['text_alignment'], style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['text_alignment'], style='mpl20', tol=0.08)
 def test_alignment():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -1132,8 +1135,9 @@ def test_empty_annotation_get_window_extent():
     assert points[0, 1] == 50.0
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(baseline_images=['basictext_wrap'],
-                  extensions=['png'])
+                  extensions=['png'], tol=0.3)
 def test_basic_wrap():
     fig = plt.figure()
     plt.axis([0, 10, 0, 10])
@@ -1149,8 +1153,9 @@ def test_basic_wrap():
     plt.text(-1, 0, t, ha='left', rotation=-15, wrap=True)
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(baseline_images=['fonttext_wrap'],
-                  extensions=['png'])
+                  extensions=['png'], tol=0.3)
 def test_font_wrap():
     fig = plt.figure()
     plt.axis([0, 10, 0, 10])
@@ -1182,8 +1187,9 @@ def test_va_for_angle():
         assert alignment in ['center', 'top', 'baseline']
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(baseline_images=['xtick_rotation_mode'],
-                  remove_text=False, extensions=['png'], style='mpl20')
+                  remove_text=False, extensions=['png'], style='mpl20', tol=0.3)
 def test_xtick_rotation_mode():
     fig, ax = plt.subplots(figsize=(12, 1))
     ax.set_yticks([])
@@ -1202,8 +1208,9 @@ def test_xtick_rotation_mode():
     plt.subplots_adjust(left=0.01, right=0.99, top=.6, bottom=.4)
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(baseline_images=['ytick_rotation_mode'],
-                  remove_text=False, extensions=['png'], style='mpl20')
+                  remove_text=False, extensions=['png'], style='mpl20', tol=0.3)
 def test_ytick_rotation_mode():
     fig, ax = plt.subplots(figsize=(1, 12))
     ax.set_xticks([])

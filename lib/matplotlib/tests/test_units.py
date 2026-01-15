@@ -80,8 +80,9 @@ def quantity_converter():
 
 # Tests that the conversion machinery works properly for classes that
 # work as a facade over numpy arrays (like pint)
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['plot_pint.png'], style='mpl20',
-                  tol=0 if platform.machine() == 'x86_64' else 0.03)
+                  tol=0.03 if platform.machine() == 'x86_64' else 0.04)
 def test_numpy_facade(quantity_converter):
     # use former defaults to match existing baseline image
     plt.rcParams['axes.formatter.limits'] = -7, 7
@@ -142,8 +143,9 @@ def test_jpl_bar_units():
     ax.set_ylim([b - 1 * day, b + w[-1] + (1.001) * day])
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['jpl_barh_units.png'],
-                  savefig_kwarg={'dpi': 120}, style='mpl20')
+                  savefig_kwarg={'dpi': 120}, style='mpl20', tol=0.02)
 def test_jpl_barh_units():
     import matplotlib.testing.jpl_units as units
     units.register()

@@ -569,23 +569,28 @@ class lookup_distortion
 {
 public:
     lookup_distortion(const double *mesh, int in_width, int in_height,
-                      int out_width, int out_height) :
+                      int out_width, int out_height, bool edge_aligned_subpixels) :
         m_mesh(mesh),
         m_in_width(in_width),
         m_in_height(in_height),
         m_out_width(out_width),
-        m_out_height(out_height)
+        m_out_height(out_height),
+        m_edge_aligned_subpixels(edge_aligned_subpixels)
     {}
 
     void calculate(int* x, int* y) {
         if (m_mesh) {
+            // Nearest-neighbor interpolation needs edge-aligned subpixels
+            // All other interpolation approaches need center-aligned subpixels
+            double offset = m_edge_aligned_subpixels ? 0 : 0.5;
+
             double dx = double(*x) / agg::image_subpixel_scale;
             double dy = double(*y) / agg::image_subpixel_scale;
             if (dx >= 0 && dx < m_out_width &&
                 dy >= 0 && dy < m_out_height) {
                 const double *coord = m_mesh + (int(dy) * m_out_width + int(dx)) * 2;
-                *x = int(coord[0] * agg::image_subpixel_scale);
-                *y = int(coord[1] * agg::image_subpixel_scale);
+                *x = int(coord[0] * agg::image_subpixel_scale + offset);
+                *y = int(coord[1] * agg::image_subpixel_scale + offset);
             }
         }
     }
@@ -596,6 +601,7 @@ protected:
     int m_in_height;
     int m_out_width;
     int m_out_height;
+    bool m_edge_aligned_subpixels;
 };
 
 
@@ -781,7 +787,7 @@ void resample(
             using span_conv_t = agg::span_converter<span_gen_t, span_conv_alpha_t>;
             using nn_renderer_t = agg::renderer_scanline_aa<renderer_t, span_alloc_t, span_conv_t>;
             lookup_distortion dist(
-                params.transform_mesh, in_width, in_height, out_width, out_height);
+                params.transform_mesh, in_width, in_height, out_width, out_height, true);
             arbitrary_interpolator_t interpolator(inverted, dist);
             span_gen_t span_gen(input_accessor, interpolator);
             span_conv_t span_conv(span_gen, conv_alpha);
@@ -806,7 +812,7 @@ void resample(
             using span_conv_t = agg::span_converter<span_gen_t, span_conv_alpha_t>;
             using int_renderer_t = agg::renderer_scanline_aa<renderer_t, span_alloc_t, span_conv_t>;
             lookup_distortion dist(
-                params.transform_mesh, in_width, in_height, out_width, out_height);
+                params.transform_mesh, in_width, in_height, out_width, out_height, false);
             arbitrary_interpolator_t interpolator(inverted, dist);
             span_gen_t span_gen(input_accessor, interpolator, filter);
             span_conv_t span_conv(span_gen, conv_alpha);

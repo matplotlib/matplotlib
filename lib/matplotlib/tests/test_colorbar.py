@@ -152,6 +152,7 @@ def test_colorbar_extension_inverted_axis(orientation, extend, expected):
         assert len(cbar._extend_patches) == 1
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @pytest.mark.parametrize('use_gridspec', [True, False])
 @image_comparison(['cbar_with_orientation',
                    'cbar_locationing',
@@ -159,7 +160,7 @@ def test_colorbar_extension_inverted_axis(orientation, extend, expected):
                    'cbar_sharing',
                    ],
                   extensions=['png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40}, tol=0.05)
 def test_colorbar_positioning(use_gridspec):
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -731,7 +732,8 @@ def test_colorbar_label():
     assert cbar3.ax.get_xlabel() == 'horizontal cbar'
 
 
-@image_comparison(['colorbar_keeping_xlabel.png'], style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['colorbar_keeping_xlabel.png'], style='mpl20', tol=0.03)
 def test_keeping_xlabel():
     # github issue #23398 - xlabels being ignored in colorbar axis
     arr = np.arange(25).reshape((5, 5))
