@@ -6,20 +6,16 @@ Horizontal bar chart
 This example showcases a simple horizontal bar chart.
 """
 import matplotlib.pyplot as plt
-import numpy as np
-
-# Fixing random state for reproducibility
-np.random.seed(19680801)
 
 fig, ax = plt.subplots()
 
 # Example data
 people = ('Tom', 'Dick', 'Harry', 'Slim', 'Jim')
-performance = 3 + 10 * np.random.rand(len(people))
-error = np.random.rand(len(people))
+performance = [5, 7, 6, 4, 9]
+error = [0.2, 0.4, 0.3, 0.6, 0.2]
 
 ax.barh(people, performance, xerr=error, align='center')
-ax.invert_yaxis()  # labels read top-to-bottom
+ax.yaxis.set_inverted(True)  # arrange data from top to bottom
 ax.set_xlabel('Performance')
 ax.set_title('How fast do you want to go today?')
 
