@@ -2,11 +2,53 @@
 ``matplotlib.widgets``
 **********************
 
-.. inheritance-diagram:: matplotlib.widgets
-   :parts: 1
-
+.. currentmodule:: matplotlib.widgets
 
 .. automodule:: matplotlib.widgets
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :no-members:
+   :no-undoc-members:
+
+
+Widget classes
+==============
+
+.. inheritance-diagram:: matplotlib.widgets.Widget
+   :parts: 1
+   :private-bases:
+   :include-subclasses:
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   Widget
+   AxesWidget
+   Cursor
+   MultiCursor
+   Button
+   CheckButtons
+   RadioButtons
+   SliderBase
+   Slider
+   RangeSlider
+   TextBox
+   _SelectorWidget
+   RectangleSelector
+   EllipseSelector
+   Lasso
+   LassoSelector
+   PolygonSelector
+   SpanSelector
+   SubplotTool
+
+Helper classes
+==============
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   LockDraw
+   ToolHandles
+   ToolLineHandles

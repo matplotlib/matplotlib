@@ -1,8 +1,6 @@
 """
-GUI neutral widgets
-===================
-
 Widgets that are designed to work for any of the GUI backends.
+
 All of these widgets require you to predefine an `~.axes.Axes`
 instance and pass that as the first parameter.  Matplotlib doesn't try to
 be too smart with respect to layout -- you will have to figure out how
@@ -2202,6 +2200,16 @@ class MultiCursor(Widget):
 
 
 class _SelectorWidget(AxesWidget):
+    """
+    The base class for selector widgets.
+
+    This class provides common functionality for selector widgets,
+    such as handling mouse and keyboard events, managing state modifier keys, etc.
+
+    The class itself is private and may be changed or removed without prior warning.
+    However, the public API it provides to subclasses is stable and considered
+    public on the subclasses.
+    """
 
     def __init__(self, ax, onselect=None, useblit=False, button=None,
                  state_modifier_keys=None, use_data_coordinates=False):
@@ -2506,7 +2514,7 @@ class _SelectorWidget(AxesWidget):
     def set_handle_props(self, **handle_props):
         """
         Set the properties of the handles selector artist. See the
-        `handle_props` argument in the selector docstring to know which
+        *handle_props* argument in the selector docstring to know which
         properties are supported.
         """
         if not hasattr(self, '_handles_artists'):
@@ -2530,13 +2538,15 @@ class _SelectorWidget(AxesWidget):
     def add_state(self, state):
         """
         Add a state to define the widget's behavior. See the
-        `state_modifier_keys` parameters for details.
+        *state_modifier_keys* parameter in the constructor of the concrete
+        selector class for details.
 
         Parameters
         ----------
         state : str
             Must be a supported state of the selector. See the
-            `state_modifier_keys` parameters for details.
+            *state_modifier_keys* parameter in the constructor of the concrete
+            selector class for details.
 
         Raises
         ------
@@ -2550,13 +2560,15 @@ class _SelectorWidget(AxesWidget):
     def remove_state(self, state):
         """
         Remove a state to define the widget's behavior. See the
-        `state_modifier_keys` parameters for details.
+        *state_modifier_keys* parameter in the constructor of the concrete
+        selector class for details.
 
         Parameters
         ----------
         state : str
             Must be a supported state of the selector. See the
-            `state_modifier_keys` parameters for details.
+            *state_modifier_keys* parameter in the constructor of the concrete
+            selector class for details.
 
         Raises
         ------
