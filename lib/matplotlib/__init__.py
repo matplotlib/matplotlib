@@ -537,18 +537,27 @@ def _get_config_or_cache_dir(xdg_base_getter):
         except RuntimeError:  # raised if Path.home() is not available
             pass
     elif sys.platform == 'win32':
-        # On Windows, use %LOCALAPPDATA%\matplotlib which is the proper location
-        # for non-roaming application data (cache and config).
+        # On Windows, prefer %LOCALAPPDATA%\matplotlib which is the proper
+        # location for non-roaming application data (cache and config).
         # See: https://docs.microsoft.com/en-us/windows/apps/design/app-settings/store-and-retrieve-app-data
-        localappdata = os.environ.get('LOCALAPPDATA')
-        if localappdata:
-            configdir = Path(localappdata) / "matplotlib"
-        else:
-            # Fall back to home directory if LOCALAPPDATA is not set
-            try:
-                configdir = Path.home() / ".matplotlib"
-            except RuntimeError:  # raised if Path.home() is not available
-                pass
+        #
+        # However, for backwards compatibility, if the old location
+        # (%USERPROFILE%\.matplotlib) exists, continue using it so existing
+        # users don't lose their config.
+        try:
+            old_configdir = Path.home() / ".matplotlib"
+            if old_configdir.is_dir():
+                configdir = old_configdir
+            else:
+                localappdata = os.environ.get('LOCALAPPDATA')
+                if localappdata:
+                    configdir = Path(localappdata) / "matplotlib"
+                else:
+                    configdir = old_configdir
+        except RuntimeError:  # raised if Path.home() is not available
+            localappdata = os.environ.get('LOCALAPPDATA')
+            if localappdata:
+                configdir = Path(localappdata) / "matplotlib"
     else:
         try:
             configdir = Path.home() / ".matplotlib"
