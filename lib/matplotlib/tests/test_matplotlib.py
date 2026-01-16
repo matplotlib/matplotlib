@@ -94,3 +94,25 @@ def test_get_executable_info_timeout(mock_check_output):
 
     with pytest.raises(matplotlib.ExecutableNotFoundError, match='Timed out'):
         matplotlib._get_executable_info.__wrapped__('inkscape')
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows-specific test")
+def test_configdir_uses_localappdata_on_windows(tmp_path):
+    """Test that on Windows, config/cache dir uses LOCALAPPDATA instead of home."""
+    # Clear cached values
+    matplotlib.get_configdir.cache_clear()
+    matplotlib.get_cachedir.cache_clear()
+
+    localappdata = str(tmp_path / "AppData" / "Local")
+    os.makedirs(localappdata, exist_ok=True)
+
+    proc = subprocess_run_for_testing(
+        [sys.executable, "-c",
+         "import matplotlib; print(matplotlib.get_configdir())"],
+        env={**os.environ, "LOCALAPPDATA": localappdata, "MPLCONFIGDIR": ""},
+        capture_output=True, text=True, check=True)
+
+    configdir = proc.stdout.strip()
+    # On Windows, should use LOCALAPPDATA\matplotlib
+    assert "matplotlib" in configdir
+    assert localappdata in configdir or "AppData" in configdir
