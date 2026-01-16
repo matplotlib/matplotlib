@@ -1247,6 +1247,21 @@ Supported properties are
         Parameters
         ----------
         props : dict
+            Dictionary of properties (keys) and their new values.
+
+        Returns
+        -------
+        list
+            A list of return values from the configured setters.
+
+        Notes
+        -----
+        This method is similar to `Artist.set`, but strictly requires
+        canonical property names. It does **not** support property aliases
+        (e.g., you must use 'linewidth' instead of 'lw').
+
+        For most use cases, `Artist.set` is preferred as it supports
+        aliases and is more flexible.
         """
         return self._update_props(
             props, "{cls.__name__!r} object has no property {prop_name!r}")
