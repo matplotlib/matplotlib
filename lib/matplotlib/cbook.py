@@ -1566,10 +1566,6 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
             vpstats.append(stats)
             continue
 
-        # Single-point input: skip (KDE cannot be computed)
-        if x_valid.size == 1:
-            continue
-
         # Normal case
         min_val = np.min(x_valid)
         max_val = np.max(x_valid)
