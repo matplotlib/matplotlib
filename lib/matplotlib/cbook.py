@@ -1550,14 +1550,22 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
     # Zip x and quantiles
     for (x, q) in zip(X, quantiles):
         x = np.asarray(x)
-        x = x[~np.isnan(x)]
+        mask = ~np.isnan(x)
+        x_valid = x[mask]
 
-        # If all values are NaN, skip this violin
-        if x.size == 0:
-            continue
-
-        # Dictionary of results for this distribution
         stats = {}
+
+        # All-NaN input: keep dataset but fill stats with NaNs
+        if x_valid.size == 0:
+            stats["coords"] = np.array([])
+            stats["vals"] = np.array([])
+            stats["mean"] = np.nan
+            stats["median"] = np.nan
+            stats["min"] = np.nan
+            stats["max"] = np.nan
+            stats["quantiles"] = np.full(len(q), np.nan)
+            vpstats.append(stats)
+            continue
 
         # Calculate basic stats for the distribution
         min_val = np.min(x)

@@ -10069,11 +10069,21 @@ def test_violinplot_nan_values_plot():
     assert len(parts["bodies"]) == 2
 
 
+def test_violinplot_nan_single_dataset():
+    data = [1, np.nan, 2, 3]
+
+    fig, ax = plt.subplots()
+    parts = ax.violinplot(data)
+
+    # Single dataset should still produce one violin
+    assert len(parts["bodies"]) == 1
+
+
 def test_violinplot_all_nan_skipped():
     data = [[np.nan, np.nan], [1, 2, 3]]
 
     fig, ax = plt.subplots()
     parts = ax.violinplot(data)
 
-    # Only the valid dataset should produce a violin
-    assert len(parts["bodies"]) == 1
+    # Both datasets exist, but the first has NaN stats
+    assert len(parts["bodies"]) == 2
