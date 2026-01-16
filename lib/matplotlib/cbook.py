@@ -1550,41 +1550,30 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
     # Zip x and quantiles
     for (x, q) in zip(X, quantiles):
         x = np.asarray(x)
-        mask = ~np.isnan(x)
-        x_valid = x[mask]
+        x_valid = x[~np.isnan(x)]
+
+        if x_valid.size < 2:
+            continue
 
         stats = {}
 
-        # All-NaN input: keep dataset but fill stats with NaNs
-        if x_valid.size == 0:
-            stats["coords"] = np.array([])
-            stats["vals"] = np.array([])
-            stats["mean"] = np.nan
-            stats["median"] = np.nan
-            stats["min"] = np.nan
-            stats["max"] = np.nan
-            stats["quantiles"] = np.full(len(q), np.nan)
-            vpstats.append(stats)
-            continue
-
-        # Calculate basic stats for the distribution
-        min_val = np.min(x)
-        max_val = np.max(x)
-        quantile_val = np.percentile(x, 100 * q)
+         # Calculate basic stats using valid data only
+        min_val = np.min(x_valid)
+        max_val = np.max(x_valid)
+        quantile_val = np.percentile(x_valid, 100 * q)
 
         # Evaluate the kernel density estimate
         coords = np.linspace(min_val, max_val, points)
-        stats['vals'] = method(x, coords)
-        stats['coords'] = coords
+        stats["vals"] = method(x_valid, coords)
+        stats["coords"] = coords
 
-        # Store additional statistics for this distribution
-        stats['mean'] = np.mean(x)
-        stats['median'] = np.median(x)
-        stats['min'] = min_val
-        stats['max'] = max_val
-        stats['quantiles'] = np.atleast_1d(quantile_val)
+        # Store additional statistics
+        stats["mean"] = np.mean(x_valid)
+        stats["median"] = np.median(x_valid)
+        stats["min"] = min_val
+        stats["max"] = max_val
+        stats["quantiles"] = np.atleast_1d(quantile_val)
 
-        # Append to output
         vpstats.append(stats)
 
     return vpstats
