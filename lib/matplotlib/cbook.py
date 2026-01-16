@@ -1552,22 +1552,33 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
         x = np.asarray(x)
         x_valid = x[~np.isnan(x)]
 
-        if x_valid.size < 2:
-            continue
-
         stats = {}
 
-         # Calculate basic stats using valid data only
+        # All-NaN input: keep dataset but make it non-drawable
+        if x_valid.size == 0:
+            stats["coords"] = np.array([])
+            stats["vals"] = np.array([])
+            stats["mean"] = np.nan
+            stats["median"] = np.nan
+            stats["min"] = np.nan
+            stats["max"] = np.nan
+            stats["quantiles"] = np.full(len(q), np.nan)
+            vpstats.append(stats)
+            continue
+
+        # Single-point input: skip (KDE cannot be computed)
+        if x_valid.size == 1:
+            continue
+
+        # Normal case
         min_val = np.min(x_valid)
         max_val = np.max(x_valid)
         quantile_val = np.percentile(x_valid, 100 * q)
 
-        # Evaluate the kernel density estimate
         coords = np.linspace(min_val, max_val, points)
         stats["vals"] = method(x_valid, coords)
         stats["coords"] = coords
 
-        # Store additional statistics
         stats["mean"] = np.mean(x_valid)
         stats["median"] = np.median(x_valid)
         stats["min"] = min_val
