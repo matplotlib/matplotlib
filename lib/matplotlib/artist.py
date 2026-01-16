@@ -1253,8 +1253,8 @@ Supported properties are
 
     def _internal_update(self, kwargs):
         """
-        Update artist properties without prenormalizing them, but generating
-        errors as if calling `set`.
+        Update artist properties generating errors as if calling `set`, but
+        without unpacking the dictionary to **kwargs.
 
         The lack of prenormalization is to maintain backcompatibility.
         """
@@ -1266,7 +1266,7 @@ Supported properties are
         # docstring and signature are auto-generated via
         # Artist._update_set_signature_and_docstring() at the end of the
         # module.
-        return self._internal_update(cbook.normalize_kwargs(kwargs, self))
+        return self._internal_update(kwargs)
 
     @contextlib.contextmanager
     def _cm_set(self, **kwargs):
