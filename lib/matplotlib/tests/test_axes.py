@@ -2984,11 +2984,12 @@ class TestScatter:
 
     @mpl.style.context('default')
     def test_scatter_facecolors_none_edgecolors_mapped(self):
-        # Test that facecolors='none', edgecolors='face' results in edge colors
-        # being mapped to the colormap (issue #24404)
+        # Test that facecolors='none', edgecolors='face' results edge colors being
+        # mapped to the colormap (issue #24404)
         x = np.array([0, 1, 2])
         fig, ax = plt.subplots()
-        coll = ax.scatter(x, x, c=x, facecolors='none', cmap='viridis')
+        cmap = plt.cm.viridis
+        coll = ax.scatter(x, x, c=x, facecolors='none', cmap=cmap)
 
         # Draw to trigger update_scalarmappable which computes mapped colors
         fig.canvas.draw()
@@ -3002,7 +3003,6 @@ class TestScatter:
         assert edge_colors.shape == (3, 4)
 
         # Verify the colormap was applied
-        cmap = plt.cm.viridis
         norm = plt.Normalize(0, 2)
         expected_colors = cmap(norm(x))
         assert_allclose(edge_colors, expected_colors, atol=1e-10)

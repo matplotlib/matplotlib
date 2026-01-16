@@ -5089,7 +5089,7 @@ or pandas.DataFrame
             edgecolors = mpl.rcParams['scatter.edgecolors']
 
         # Raise a warning if both `c` and `facecolor` are set (issue #24404).
-        # Don't warn if facecolors='none' because c will be used for edge colors.
+        # Don't warn if facecolors='none' because c may be used for edge colors.
         if (c is not None and facecolors is not None
                 and not cbook._str_lower_equal(facecolors, 'none')):
             _api.warn_external(
@@ -5164,11 +5164,7 @@ or pandas.DataFrame
                     raise invalid_shape_exception(len(colors), xsize)
         else:
             # use cmap, norm after collection is created
-            # But if user explicitly set facecolors='none', respect that
-            if cbook._str_lower_equal(facecolors, 'none'):
-                colors = 'none'
-            else:
-                colors = None
+            colors = 'none' if cbook._str_lower_equal(facecolors, 'none') else None
         return c, colors, edgecolors
 
     @_api.make_keyword_only("3.10", "marker")
