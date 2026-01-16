@@ -103,16 +103,15 @@ def test_configdir_uses_localappdata_on_windows(tmp_path):
     matplotlib.get_configdir.cache_clear()
     matplotlib.get_cachedir.cache_clear()
 
-    localappdata = str(tmp_path / "AppData" / "Local")
-    os.makedirs(localappdata, exist_ok=True)
+    localappdata = tmp_path / "AppData/Local"
+    localappdata.mkdir(parents=True)
 
     proc = subprocess_run_for_testing(
         [sys.executable, "-c",
          "import matplotlib; print(matplotlib.get_configdir())"],
-        env={**os.environ, "LOCALAPPDATA": localappdata, "MPLCONFIGDIR": ""},
+        env={**os.environ, "LOCALAPPDATA": str(localappdata), "MPLCONFIGDIR": ""},
         capture_output=True, text=True, check=True)
 
     configdir = proc.stdout.strip()
     # On Windows, should use LOCALAPPDATA\matplotlib
-    assert "matplotlib" in configdir
-    assert localappdata in configdir or "AppData" in configdir
+    assert configdir == str(localappdata / "matplotlib")
