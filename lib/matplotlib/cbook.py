@@ -1556,8 +1556,8 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
 
         # All-NaN input: keep dataset but make it non-drawable
         if x_valid.size == 0:
-            stats["coords"] = np.array([])
-            stats["vals"] = np.array([])
+            stats["coords"] = np.array([0.0])
+            stats["vals"] = np.array([0.0])
             stats["mean"] = np.nan
             stats["median"] = np.nan
             stats["min"] = np.nan
@@ -1569,10 +1569,18 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
         # Normal case
         min_val = np.min(x_valid)
         max_val = np.max(x_valid)
-        quantile_val = np.percentile(x_valid, 100 * q)
-
-        coords = np.linspace(min_val, max_val, points)
-        stats["vals"] = method(x_valid, coords)
+        quantile_val = (
+            np.percentile(x_valid, 100 * q)
+            if len(q) > 0 else np.array([])
+        )
+        coords = (
+            np.linspace(min_val, max_val, points)
+            if x_valid.size > 1 else np.array([min_val])
+        )
+        stats["vals"] = (
+            method(x_valid, coords)
+            if x_valid.size > 1 else np.array([1.0])
+        )
         stats["coords"] = coords
 
         stats["mean"] = np.mean(x_valid)
