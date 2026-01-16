@@ -592,7 +592,7 @@ class FigureManagerGTK3(_FigureManagerGTK):
     _toolmanager_toolbar_class = ToolbarGTK3
 
     def context_menu(self, event, labels=None, actions=None):
-        if labels is None or actions is None:
+        if not labels or not actions:
             return
         menu = Gtk.Menu()
         for label, action in zip(labels, actions):

@@ -1019,7 +1019,7 @@ class FigureManagerWx(FigureManagerBase):
         self.frame.ShowFullScreen(not self.frame.IsFullScreen())
 
     def context_menu(self, event, labels=None, actions=None):
-        if labels is None or actions is None:
+        if not labels or not actions:
             return
         menu = wx.Menu()
         for label, action in zip(labels, actions):

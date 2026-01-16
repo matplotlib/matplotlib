@@ -642,17 +642,19 @@ class FigureManagerGTK4(_FigureManagerGTK):
             return
         menu = Gio.Menu()
         action_group = Gio.SimpleActionGroup()
-        for i, (label, action) in enumerate(zip(labels, actions)):
-            action_name = f"{label}"
+        for label, action in zip(labels, actions):
+            action_name = label.replace(" ", "_")
             g_action = Gio.SimpleAction.new(action_name, None)
             g_action.connect("activate", lambda *_, a=action: a())
             action_group.add_action(g_action)
             menu.append(label, f"win.{action_name}")
+
         self.canvas.insert_action_group("win", action_group)
         popover = Gtk.PopoverMenu.new_from_model(menu)
         popover.set_parent(self.canvas)
         popover.set_has_arrow(False)
         popover.set_halign(Gtk.Align.START)
+
         scale = self.canvas.get_scale_factor()
         height = self.canvas.get_height()
         rect = Gdk.Rectangle()

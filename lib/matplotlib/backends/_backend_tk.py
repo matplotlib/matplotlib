@@ -647,7 +647,7 @@ class FigureManagerTk(FigureManagerBase):
         self.window.attributes('-fullscreen', not is_fullscreen)
 
     def context_menu(self, event, labels=None, actions=None):
-        if labels is None or actions is None:
+        if not labels or not actions:
             return
         menu = tk.Menu(self.window, tearoff=0)
         for label, action in zip(labels, actions):
