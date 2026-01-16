@@ -138,7 +138,7 @@ psd amplitude scaling
 
 Ryan May did a lot of work to rationalize the amplitude scaling of
 :func:`~matplotlib.pyplot.psd` and friends.  See
-:doc:`/gallery/lines_bars_and_markers/psd_demo`.
+:doc:`/gallery/statistics/psd_demo`.
 The changes should increase MATLAB
 compatibility and increase scaling options.
 
