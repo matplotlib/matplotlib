@@ -5349,6 +5349,9 @@ or pandas.DataFrame
                 c, edgecolors, kwargs, x.size,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
 
+        # Track if we need colormap mapping (before fillstyle logic modifies colors)
+        use_colormap = colors is None or cbook._str_lower_equal(colors, 'none')
+
         if plotnonfinite and colors is None:
             c = np.ma.masked_invalid(c)
             x, y, s, edgecolors, linewidths = \
@@ -5433,7 +5436,7 @@ or pandas.DataFrame
         collection.set_transform(mtransforms.IdentityTransform())
         # Set up colormap when colors will be mapped (None) or when facecolors
         # is 'none' but we still want edge colors mapped from c
-        if colors is None or cbook._str_lower_equal(colors, 'none'):
+        if use_colormap:
             if colorizer:
                 collection._set_colorizer_check_keywords(colorizer, cmap=cmap,
                                                          norm=norm, vmin=vmin,
