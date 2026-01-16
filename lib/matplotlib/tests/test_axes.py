@@ -2987,12 +2987,15 @@ class TestScatter:
         # Test that facecolors='none', edgecolors='face' results in edge colors
         # being mapped to the colormap (issue #24404)
         x = np.array([0, 1, 2])
-        coll = plt.scatter(x, x, c=x, facecolors='none', cmap='viridis')
+        fig, ax = plt.subplots()
+        coll = ax.scatter(x, x, c=x, facecolors='none', cmap='viridis')
+
+        # Draw to trigger update_scalarmappable which computes mapped colors
+        fig.canvas.draw()
 
         # Face colors should be transparent (none)
         face_colors = coll.get_facecolors()
-        assert face_colors.shape[1] == 4  # RGBA
-        assert_allclose(face_colors[:, 3], 0)  # Alpha channel should be 0
+        assert face_colors.shape == (0, 4)  # empty array for 'none'
 
         # Edge colors should be mapped from c using the colormap
         edge_colors = coll.get_edgecolors()
