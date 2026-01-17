@@ -1110,6 +1110,33 @@ class Axes3D(Axes):
     get_zscale = _axis_method_wrapper("zaxis", "get_scale")
 
     # Custom scale setters that handle limit validation for non-linear scales
+    def _set_axis_scale(self, axis, get_lim, set_lim, value, **kwargs):
+        """
+        Set scale for an axis and constrain limits to valid range.
+
+        Parameters
+        ----------
+        axis : Axis
+            The axis to set the scale on.
+        get_lim : callable
+            Function to get current axis limits.
+        set_lim : callable
+            Function to set axis limits.
+        value : str
+            The scale name.
+        **kwargs
+            Forwarded to scale constructor.
+        """
+        axis._set_axes_scale(value, **kwargs)
+        # After setting scale, constrain limits using scale's limit_range_for_scale
+        if hasattr(axis, '_scale') and axis._scale is not None:
+            vmin, vmax = get_lim()
+            minpos = getattr(axis, '_minpos', 1e-300)
+            new_vmin, new_vmax = axis._scale.limit_range_for_scale(
+                vmin, vmax, minpos)
+            if (new_vmin, new_vmax) != (vmin, vmax):
+                set_lim(new_vmin, new_vmax, auto=True)
+
     def set_xscale(self, value, **kwargs):
         """
         Set the x-axis scale.
@@ -1124,15 +1151,8 @@ class Axes3D(Axes):
             Keyword arguments are forwarded to the scale class.
             For example, ``base=2`` can be passed when using a log scale.
         """
-        self.xaxis._set_axes_scale(value, **kwargs)
-        # After setting scale, constrain limits using scale's limit_range_for_scale
-        if hasattr(self.xaxis, '_scale') and self.xaxis._scale is not None:
-            vmin, vmax = self.get_xlim()
-            minpos = getattr(self.xaxis, '_minpos', 1e-300)
-            new_vmin, new_vmax = self.xaxis._scale.limit_range_for_scale(
-                vmin, vmax, minpos)
-            if (new_vmin, new_vmax) != (vmin, vmax):
-                self.set_xlim(new_vmin, new_vmax, auto=True)
+        self._set_axis_scale(self.xaxis, self.get_xlim, self.set_xlim,
+                             value, **kwargs)
 
     def set_yscale(self, value, **kwargs):
         """
@@ -1148,15 +1168,8 @@ class Axes3D(Axes):
             Keyword arguments are forwarded to the scale class.
             For example, ``base=2`` can be passed when using a log scale.
         """
-        self.yaxis._set_axes_scale(value, **kwargs)
-        # After setting scale, constrain limits using scale's limit_range_for_scale
-        if hasattr(self.yaxis, '_scale') and self.yaxis._scale is not None:
-            vmin, vmax = self.get_ylim()
-            minpos = getattr(self.yaxis, '_minpos', 1e-300)
-            new_vmin, new_vmax = self.yaxis._scale.limit_range_for_scale(
-                vmin, vmax, minpos)
-            if (new_vmin, new_vmax) != (vmin, vmax):
-                self.set_ylim(new_vmin, new_vmax, auto=True)
+        self._set_axis_scale(self.yaxis, self.get_ylim, self.set_ylim,
+                             value, **kwargs)
 
     def set_zscale(self, value, **kwargs):
         """
@@ -1172,15 +1185,8 @@ class Axes3D(Axes):
             Keyword arguments are forwarded to the scale class.
             For example, ``base=2`` can be passed when using a log scale.
         """
-        self.zaxis._set_axes_scale(value, **kwargs)
-        # After setting scale, constrain limits using scale's limit_range_for_scale
-        if hasattr(self.zaxis, '_scale') and self.zaxis._scale is not None:
-            vmin, vmax = self.get_zlim()
-            minpos = getattr(self.zaxis, '_minpos', 1e-300)
-            new_vmin, new_vmax = self.zaxis._scale.limit_range_for_scale(
-                vmin, vmax, minpos)
-            if (new_vmin, new_vmax) != (vmin, vmax):
-                self.set_zlim(new_vmin, new_vmax, auto=True)
+        self._set_axis_scale(self.zaxis, self.get_zlim, self.set_zlim,
+                             value, **kwargs)
 
     get_zticks = _axis_method_wrapper("zaxis", "get_ticklocs")
     set_zticks = _axis_method_wrapper("zaxis", "set_ticks")
