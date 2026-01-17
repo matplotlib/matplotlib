@@ -631,6 +631,42 @@ class Axes3D(Axes):
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
 
+    def _autoscale_axis(self, axis, v0, v1, minpos, margin, set_bound, _tight):
+        """
+        Autoscale a single axis.
+
+        Parameters
+        ----------
+        axis : Axis
+            The axis to autoscale.
+        v0, v1 : float
+            Data interval limits.
+        minpos : float
+            Minimum positive value for log-scale handling.
+        margin : float
+            Margin to apply (e.g., self._xmargin).
+        set_bound : callable
+            Function to set the axis bound (e.g., self.set_xbound).
+        _tight : bool
+            Whether to use tight bounds.
+        """
+        locator = axis.get_major_locator()
+        v0, v1 = locator.nonsingular(v0, v1)
+        # Validate limits for the scale (e.g., positive for log scale)
+        v0, v1 = axis._scale.limit_range_for_scale(v0, v1, minpos)
+        if margin > 0:
+            # Apply margin in transformed space to handle non-linear scales
+            transform = axis.get_transform()
+            inverse_trans = transform.inverted()
+            v0t, v1t = transform.transform([v0, v1])
+            delta = (v1t - v0t) * margin
+            if not np.isfinite(delta):
+                delta = 0
+            v0, v1 = inverse_trans.transform([v0t - delta, v1t + delta])
+        if not _tight:
+            v0, v1 = locator.view_limits(v0, v1)
+        set_bound(v0, v1, self._view_margin)
+
     def autoscale_view(self, tight=None,
                        scalex=True, scaley=True, scalez=True):
         """
@@ -655,64 +691,22 @@ class Axes3D(Axes):
             _tight = self._tight = bool(tight)
 
         if scalex and self.get_autoscalex_on():
-            x0, x1 = self.xy_dataLim.intervalx
-            xlocator = self.xaxis.get_major_locator()
-            x0, x1 = xlocator.nonsingular(x0, x1)
-            # Validate limits for the scale (e.g., positive for log scale)
-            minpos = self.xy_dataLim.minposx
-            x0, x1 = self.xaxis._scale.limit_range_for_scale(x0, x1, minpos)
-            if self._xmargin > 0:
-                # Apply margin in transformed space to handle non-linear scales
-                transform = self.xaxis.get_transform()
-                inverse_trans = transform.inverted()
-                x0t, x1t = transform.transform([x0, x1])
-                delta = (x1t - x0t) * self._xmargin
-                if not np.isfinite(delta):
-                    delta = 0
-                x0, x1 = inverse_trans.transform([x0t - delta, x1t + delta])
-            if not _tight:
-                x0, x1 = xlocator.view_limits(x0, x1)
-            self.set_xbound(x0, x1, self._view_margin)
+            self._autoscale_axis(
+                self.xaxis, *self.xy_dataLim.intervalx,
+                self.xy_dataLim.minposx, self._xmargin,
+                self.set_xbound, _tight)
 
         if scaley and self.get_autoscaley_on():
-            y0, y1 = self.xy_dataLim.intervaly
-            ylocator = self.yaxis.get_major_locator()
-            y0, y1 = ylocator.nonsingular(y0, y1)
-            # Validate limits for the scale (e.g., positive for log scale)
-            minpos = self.xy_dataLim.minposy
-            y0, y1 = self.yaxis._scale.limit_range_for_scale(y0, y1, minpos)
-            if self._ymargin > 0:
-                # Apply margin in transformed space to handle non-linear scales
-                transform = self.yaxis.get_transform()
-                inverse_trans = transform.inverted()
-                y0t, y1t = transform.transform([y0, y1])
-                delta = (y1t - y0t) * self._ymargin
-                if not np.isfinite(delta):
-                    delta = 0
-                y0, y1 = inverse_trans.transform([y0t - delta, y1t + delta])
-            if not _tight:
-                y0, y1 = ylocator.view_limits(y0, y1)
-            self.set_ybound(y0, y1, self._view_margin)
+            self._autoscale_axis(
+                self.yaxis, *self.xy_dataLim.intervaly,
+                self.xy_dataLim.minposy, self._ymargin,
+                self.set_ybound, _tight)
 
         if scalez and self.get_autoscalez_on():
-            z0, z1 = self.zz_dataLim.intervalx
-            zlocator = self.zaxis.get_major_locator()
-            z0, z1 = zlocator.nonsingular(z0, z1)
-            # Validate limits for the scale (e.g., positive for log scale)
-            minpos = self.zz_dataLim.minposx
-            z0, z1 = self.zaxis._scale.limit_range_for_scale(z0, z1, minpos)
-            if self._zmargin > 0:
-                # Apply margin in transformed space to handle non-linear scales
-                transform = self.zaxis.get_transform()
-                inverse_trans = transform.inverted()
-                z0t, z1t = transform.transform([z0, z1])
-                delta = (z1t - z0t) * self._zmargin
-                if not np.isfinite(delta):
-                    delta = 0
-                z0, z1 = inverse_trans.transform([z0t - delta, z1t + delta])
-            if not _tight:
-                z0, z1 = zlocator.view_limits(z0, z1)
-            self.set_zbound(z0, z1, self._view_margin)
+            self._autoscale_axis(
+                self.zaxis, *self.zz_dataLim.intervalx,
+                self.zz_dataLim.minposx, self._zmargin,
+                self.set_zbound, _tight)
 
     def get_w_lims(self):
         """Get 3D world limits."""
