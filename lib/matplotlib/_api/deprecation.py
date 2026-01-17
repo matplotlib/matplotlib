@@ -194,6 +194,7 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                 removal=removal)
 
         def wrapper(*args, **kwargs):
+            __tracebackhide__ = True
             emit_warning()
             return func(*args, **kwargs)
 
@@ -286,6 +287,8 @@ def rename_parameter(since, old, new, func=None):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        __tracebackhide__ = True
+
         if old in kwargs:
             warn_deprecated(
                 since, message=f"The {old!r} parameter of {func.__name__}() "
@@ -376,6 +379,8 @@ def delete_parameter(since, name, func=None, **kwargs):
 
     @functools.wraps(func)
     def wrapper(*inner_args, **inner_kwargs):
+        __tracebackhide__ = True
+
         if len(inner_args) <= name_idx and name not in inner_kwargs:
             # Early return in the simple, non-deprecated case (much faster than
             # calling bind()).
@@ -458,6 +463,8 @@ def make_keyword_only(since, name, func=None):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        __tracebackhide__ = True
+
         # Don't use signature.bind here, as it would fail when stacked with
         # rename_parameter and an "old" argument name is passed in
         # (signature.bind would fail, but the actual call would succeed).
