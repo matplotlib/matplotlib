@@ -22,32 +22,6 @@ def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
-def _apply_scale_to_coord(coord, axes):
-    """
-    Apply scale transforms to a 3D coordinate.
-
-    Parameters
-    ----------
-    coord : array-like of length 3
-        The (x, y, z) coordinate in data space.
-    axes : Axes3D
-        The axes providing the scale transforms.
-
-    Returns
-    -------
-    array of length 3
-        The coordinate in scaled space.
-    """
-    coord = np.asarray(coord)
-    x_trans = axes.xaxis.get_transform()
-    y_trans = axes.yaxis.get_transform()
-    z_trans = axes.zaxis.get_transform()
-    return np.array([
-        x_trans.transform([coord[0]])[0],
-        y_trans.transform([coord[1]])[0],
-        z_trans.transform([coord[2]])[0],
-    ])
-
 
 def _tick_update_position(tick, tickxs, tickys, labelpos):
     """Update tick line and label position and style."""
@@ -318,8 +292,12 @@ class Axis(maxis.XAxis):
         ])
 
         # Project the bounds along the current position of the cube:
-        # Note: _transformed_cube expects data-space bounds and transforms them internally
-        bounds = data_mins[0], data_maxs[0], data_mins[1], data_maxs[1], data_mins[2], data_maxs[2]
+        # Note: _transformed_cube expects data-space bounds and transforms them
+        # internally
+        bounds = (data_mins[0], data_maxs[0],
+                  data_mins[1], data_maxs[1],
+                  data_mins[2], data_maxs[2]
+        )
         bounds_proj = self.axes._transformed_cube(bounds)
 
         # Determine which one of the parallel planes are higher up:
@@ -489,7 +467,8 @@ class Axis(maxis.XAxis):
         centers, deltas = self._calc_centers_deltas(maxs, mins)
 
         # Get the scale transform for this axis to transform tick locations
-        axis_trans = [self.axes.xaxis, self.axes.yaxis, self.axes.zaxis][index].get_transform()
+        axis = [self.axes.xaxis, self.axes.yaxis, self.axes.zaxis][index]
+        axis_trans = axis.get_transform()
 
         # Draw ticks:
         tickdir = self._get_tickdir(pos)
@@ -574,9 +553,8 @@ class Axis(maxis.XAxis):
         # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
         # from the variable 'highs'.
         # ---------------------------------------------------------------------
-        # Apply scale transforms before projection
-        centers_scaled = _apply_scale_to_coord(centers, self.axes)
-        centpt = proj3d.proj_transform(*centers_scaled, self.axes.M)
+        # centers is already in scaled space (from _get_coord_info)
+        centpt = proj3d.proj_transform(*centers, self.axes.M)
         if centpt[tickdir] > pep[tickdir, outerindex]:
             # if FT and if highs has an even number of Trues
             if (centpt[index] <= pep[index, outerindex]

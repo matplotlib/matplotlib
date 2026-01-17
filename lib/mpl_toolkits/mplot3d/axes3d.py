@@ -849,7 +849,8 @@ class Axes3D(Axes):
             lower_t, upper_t = transform.transform([lower, upper])
             delta = (upper_t - lower_t) * view_margin
             if np.isfinite(delta):
-                lower, upper = inverse_trans.transform([lower_t - delta, upper_t + delta])
+                new_range = [lower_t - delta, upper_t + delta]
+                lower, upper = inverse_trans.transform(new_range)
         else:
             delta = (upper - lower) * view_margin
             lower -= delta
