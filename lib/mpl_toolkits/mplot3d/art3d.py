@@ -76,8 +76,8 @@ def _apply_scale_transforms(xs, ys, zs, axes):
     """
     Apply axis scale transforms to 3D coordinates.
 
-    Transforms data coordinates through scale transforms (log, symlog, etc.)
-    to scaled coordinates for proper 3D projection. Preserves masked arrays.
+    Transforms data coordinates to transformed coordinates (applying log,
+    symlog, etc.) for 3D projection. Preserves masked arrays.
     """
     def transform_coord(coord, axis):
         coord = np.asanyarray(coord)
