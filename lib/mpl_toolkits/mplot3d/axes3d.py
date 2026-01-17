@@ -1328,35 +1328,6 @@ class Axes3D(Axes):
         else:
             return np.roll(arr, (self._vertical_axis - 2))
 
-    def _get_scale_transform(self, axis):
-        """
-        Return the scale transform for the given axis.
-
-        For non-linear scales (log, symlog, etc.), this returns the
-        transform that maps data coordinates to scaled coordinates.
-        For linear scales, returns an IdentityTransform.
-        """
-        return axis.get_transform()
-
-    def _transform_limit_to_scale(self, limit, transform):
-        """
-        Transform a limit value through the scale transform.
-
-        Parameters
-        ----------
-        limit : float
-            The limit value in data coordinates.
-        transform : Transform
-            The scale transform to apply.
-
-        Returns
-        -------
-        float
-            The limit value in scaled coordinates.
-        """
-        # Transform the limit through the scale
-        return transform.transform([limit])[0]
-
     def _get_scaled_limits(self):
         """
         Get axis limits transformed through their respective scale transforms.
@@ -1367,59 +1338,20 @@ class Axes3D(Axes):
             (xmin_scaled, xmax_scaled, ymin_scaled, ymax_scaled,
              zmin_scaled, zmax_scaled)
         """
-        x_trans = self._get_scale_transform(self.xaxis)
-        y_trans = self._get_scale_transform(self.yaxis)
-        z_trans = self._get_scale_transform(self.zaxis)
-
-        xmin, xmax = self.get_xlim3d()
-        ymin, ymax = self.get_ylim3d()
-        zmin, zmax = self.get_zlim3d()
-
-        return (
-            self._transform_limit_to_scale(xmin, x_trans),
-            self._transform_limit_to_scale(xmax, x_trans),
-            self._transform_limit_to_scale(ymin, y_trans),
-            self._transform_limit_to_scale(ymax, y_trans),
-            self._transform_limit_to_scale(zmin, z_trans),
-            self._transform_limit_to_scale(zmax, z_trans),
-        )
+        xmin, xmax = self.xaxis.get_transform().transform(self.get_xlim3d())
+        ymin, ymax = self.yaxis.get_transform().transform(self.get_ylim3d())
+        zmin, zmax = self.zaxis.get_transform().transform(self.get_zlim3d())
+        return xmin, xmax, ymin, ymax, zmin, zmax
 
     def _inverse_scale_transform(self, x, y, z):
         """
-        Apply inverse scale transforms to coordinates.
+        Apply inverse scale transforms to a point.
 
         Converts from scaled space back to data space.
-
-        Parameters
-        ----------
-        x, y, z : float or array-like
-            Coordinates in scaled space.
-
-        Returns
-        -------
-        x_data, y_data, z_data : float or ndarray
-            Coordinates in data space.
         """
-        x_inv = self.xaxis.get_transform().inverted()
-        y_inv = self.yaxis.get_transform().inverted()
-        z_inv = self.zaxis.get_transform().inverted()
-
-        x_arr = np.atleast_1d(x)
-        y_arr = np.atleast_1d(y)
-        z_arr = np.atleast_1d(z)
-
-        x_data = x_inv.transform(x_arr.ravel()).reshape(x_arr.shape)
-        y_data = y_inv.transform(y_arr.ravel()).reshape(y_arr.shape)
-        z_data = z_inv.transform(z_arr.ravel()).reshape(z_arr.shape)
-
-        # Return scalars if input was scalar (check original input)
-        if np.ndim(x) == 0:
-            x_data = float(x_data.flat[0])
-        if np.ndim(y) == 0:
-            y_data = float(y_data.flat[0])
-        if np.ndim(z) == 0:
-            z_data = float(z_data.flat[0])
-
+        x_data = self.xaxis.get_transform().inverted().transform([x])[0]
+        y_data = self.yaxis.get_transform().inverted().transform([y])[0]
+        z_data = self.zaxis.get_transform().inverted().transform([z])[0]
         return x_data, y_data, z_data
 
     def _set_lims_from_scaled(self, xmin_s, xmax_s, ymin_s, ymax_s,

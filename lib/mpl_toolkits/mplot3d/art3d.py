@@ -74,55 +74,27 @@ def get_dir_vector(zdir):
 
 def _apply_scale_transforms(xs, ys, zs, axes):
     """
-    Apply scale transforms to 3D coordinates.
+    Apply axis scale transforms to 3D coordinates.
 
-    This transforms data coordinates through the axis scale transforms
-    (log, symlog, etc.) to get scaled coordinates that can be properly
-    projected through the world transformation.
-
-    Parameters
-    ----------
-    xs, ys, zs : array-like
-        The x, y, z coordinates in data space.
-    axes : Axes3D
-        The axes providing the scale transforms.
-
-    Returns
-    -------
-    xs_scaled, ys_scaled, zs_scaled : np.ndarray
-        The coordinates in scaled space.
+    Transforms data coordinates through scale transforms (log, symlog, etc.)
+    to scaled coordinates for proper 3D projection. Preserves masked arrays.
     """
-    # Use asanyarray to preserve masked arrays
-    xs = np.asanyarray(xs)
-    ys = np.asanyarray(ys)
-    zs = np.asanyarray(zs)
+    def transform_coord(coord, axis):
+        coord = np.asanyarray(coord)
+        data = np.ma.getdata(coord).ravel()
+        return axis.get_transform().transform(data).reshape(coord.shape)
 
-    # Get the scale transforms for each axis
-    x_trans = axes.xaxis.get_transform()
-    y_trans = axes.yaxis.get_transform()
-    z_trans = axes.zaxis.get_transform()
+    xs_scaled = transform_coord(xs, axes.xaxis)
+    ys_scaled = transform_coord(ys, axes.yaxis)
+    zs_scaled = transform_coord(zs, axes.zaxis)
 
-    # Handle masked arrays by preserving the mask
-    x_mask = np.ma.getmask(xs) if np.ma.isMA(xs) else False
-    y_mask = np.ma.getmask(ys) if np.ma.isMA(ys) else False
-    z_mask = np.ma.getmask(zs) if np.ma.isMA(zs) else False
-
-    # Get the data (without mask) for transformation
-    xs_data = np.ma.getdata(xs).ravel() if np.ma.isMA(xs) else xs.ravel()
-    ys_data = np.ma.getdata(ys).ravel() if np.ma.isMA(ys) else ys.ravel()
-    zs_data = np.ma.getdata(zs).ravel() if np.ma.isMA(zs) else zs.ravel()
-
-    # Transform through scale
-    xs_scaled = x_trans.transform(xs_data).reshape(xs.shape)
-    ys_scaled = y_trans.transform(ys_data).reshape(ys.shape)
-    zs_scaled = z_trans.transform(zs_data).reshape(zs.shape)
-
-    # Reapply masks if needed
-    if x_mask is not False or y_mask is not False or z_mask is not False:
-        combined_mask = x_mask | y_mask | z_mask
-        xs_scaled = np.ma.array(xs_scaled, mask=combined_mask)
-        ys_scaled = np.ma.array(ys_scaled, mask=combined_mask)
-        zs_scaled = np.ma.array(zs_scaled, mask=combined_mask)
+    # Preserve combined mask from any masked input
+    masks = [np.ma.getmask(a) for a in [xs, ys, zs]]
+    if any(m is not np.ma.nomask for m in masks):
+        combined = np.ma.mask_or(np.ma.mask_or(masks[0], masks[1]), masks[2])
+        xs_scaled = np.ma.array(xs_scaled, mask=combined)
+        ys_scaled = np.ma.array(ys_scaled, mask=combined)
+        zs_scaled = np.ma.array(zs_scaled, mask=combined)
 
     return xs_scaled, ys_scaled, zs_scaled
 
