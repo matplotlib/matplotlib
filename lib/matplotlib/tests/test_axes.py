@@ -2332,9 +2332,8 @@ def test_pcolor_regression(pd):
 
     time_axis, y_axis = np.meshgrid(times, y_vals)
     shape = (len(y_vals) - 1, len(times) - 1)
-    z_data = np.arange(shape[0] * shape[1])
+    z_data = np.arange(shape[0] * shape[1]).reshape(shape)
 
-    z_data.shape = shape
     try:
         register_matplotlib_converters()
 
