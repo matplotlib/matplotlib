@@ -1866,7 +1866,7 @@ class Axes3D(Axes):
         R = -R / self._box_aspect * self._dist
         duvw_projected = R.T @ np.array([du, dv, dw])
 
-        # Calculate pan distance in transformed coordinates for non-linear scale handling
+        # Calculate pan distance in transformed coordinates for non-linear scales
         minx, maxx, miny, maxy, minz, maxz = self._get_scaled_limits()
         dx = (maxx - minx) * duvw_projected[0]
         dy = (maxy - miny) * duvw_projected[1]
@@ -2020,7 +2020,7 @@ class Axes3D(Axes):
         For non-linear scales (log, symlog, etc.), centers and ranges are
         computed in transformed coordinates to ensure uniform zoom/pan behavior.
         """
-        # Get limits in transformed coordinates for proper zoom/pan with non-linear scales
+        # Get limits in transformed coordinates for non-linear scale zoom/pan
         minx, maxx, miny, maxy, minz, maxz = self._get_scaled_limits()
         cx = (maxx + minx)/2
         cy = (maxy + miny)/2
