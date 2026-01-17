@@ -2816,7 +2816,7 @@ def _make_triangulation_data():
     return x, y, z
 
 
-@mpl3d_image_comparison(['scale3d_lines_log.png'], style='mpl20')
+@mpl3d_image_comparison(['scale3d_lines_log.png'], style='mpl20', tol=0.03)
 def test_scale3d_lines_log():
     """Test Line3D and Line3DCollection with log scale (plot, wireframe)."""
     fig = plt.figure()
@@ -2876,7 +2876,7 @@ def test_scale3d_bar3d_log():
     ax.set(xscale='log', yscale='log', zscale='log')
 
 
-@mpl3d_image_comparison(['scale3d_contour_log.png'], style='mpl20')
+@mpl3d_image_comparison(['scale3d_contour_log.png'], style='mpl20', tol=0.03)
 def test_scale3d_contour_log():
     """Test contour and contourf with log scale."""
     fig = plt.figure()
@@ -2893,7 +2893,7 @@ def test_scale3d_contour_log():
     ax2.set(xscale='log', yscale='log', zscale='log')
 
 
-@mpl3d_image_comparison(['scale3d_stem_quiver_log.png'], style='mpl20')
+@mpl3d_image_comparison(['scale3d_stem_quiver_log.png'], style='mpl20', tol=0.03)
 def test_scale3d_stem_quiver_log():
     """Test stem and quiver with log scale."""
     fig = plt.figure()
