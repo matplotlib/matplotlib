@@ -3380,7 +3380,8 @@ class Axes3D(Axes):
     quiver3D = quiver
 
     def voxels(self, *args, facecolors=None, edgecolors=None, shade=True,
-               lightsource=None, axlim_clip=False, **kwargs):
+               lightsource=None, axlim_clip=False, colorizer=None,
+               norm=None, cmap=None, vmin=None, vmax=None, **kwargs):
         """
         ax.voxels([x, y, z,] /, filled, facecolors=None, edgecolors=None, \
 **kwargs)
@@ -3393,9 +3394,10 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        filled : 3D np.array of bool
-            A 3D array of values, with truthy values indicating which voxels
-            to fill
+        filled : 3D np.array of bool or float
+            If bool, with truthy values indicate which voxels to fill.
+            If float, voxels with finite walues are shown with color
+            mapped via *cmap* and *norm*, while voxels with nan are ignored.
 
         x, y, z : 3D np.array, optional
             The coordinates of the corners of the voxels. This should broadcast
@@ -3432,6 +3434,19 @@ class Axes3D(Axes):
 
             .. versionadded:: 3.10
 
+        cmap : Colormap, optional
+            Colormap to use if facecolor is scalar.
+
+        norm : `~matplotlib.colors.Normalize`, optional
+            Normalization for the colormap.
+
+        vmin, vmax : float, optional
+            Bounds for the normalization.
+
+        colorizer : `~matplotlib.colorizer.Colorizer` or None, default: None
+            The Colorizer object used to map color to data. If None, a Colorizer
+            object is created from a *norm* and *cmap*.
+
         **kwargs
             Additional keyword arguments to pass onto
             `~mpl_toolkits.mplot3d.art3d.Poly3DCollection`.
@@ -3452,6 +3467,10 @@ class Axes3D(Axes):
         .. plot:: gallery/mplot3d/voxels_torus.py
         .. plot:: gallery/mplot3d/voxels_numpy_logo.py
         """
+        mpl.colorizer.ColorizingArtist._check_exclusionary_keywords(
+            colorizer, cmap=cmap, norm=norm, vmin=vmin, vmax=vmax)
+        if colorizer is None:
+            colorizer = mpl.colorizer.Colorizer(cmap, norm)
 
         # work out which signature we should be using, and use it to parse
         # the arguments. Name must be voxels for the correct error message
@@ -3464,6 +3483,12 @@ class Axes3D(Axes):
                 return None, filled, kwargs
 
         xyz, filled, kwargs = voxels(*args, **kwargs)
+
+        if filled.dtype == np.float64:
+            scalars = filled
+            filled = np.isfinite(filled)
+        else:
+            scalars = None
 
         # check dimensions
         if filled.ndim != 3:
@@ -3497,7 +3522,8 @@ class Axes3D(Axes):
         facecolors = _broadcast_color_arg(facecolors, 'facecolors')
 
         # broadcast but no default on edgecolors
-        edgecolors = _broadcast_color_arg(edgecolors, 'edgecolors')
+        if edgecolors is not None:
+            edgecolors = _broadcast_color_arg(edgecolors, 'edgecolors')
 
         # scale to the full array, even if the data is only in the center
         self.auto_scale_xyz(x, y, z)
@@ -3564,35 +3590,45 @@ class Axes3D(Axes):
                     if filled[ik]:
                         voxel_faces[ik].append(pk2 + square_rot_pos)
 
-        # iterate over the faces, and generate a Poly3DCollection for each
-        # voxel
-        polygons = {}
+        # iterate over the faces, and collect input for a Poly3DCollection
+        coords = []
+        faces_indexes = []
         for coord, faces_inds in voxel_faces.items():
-            # convert indices into 3D positions
-            if xyz is None:
-                faces = faces_inds
-            else:
-                faces = []
-                for face_inds in faces_inds:
-                    ind = face_inds[:, 0], face_inds[:, 1], face_inds[:, 2]
-                    face = np.empty(face_inds.shape)
-                    face[:, 0] = x[ind]
-                    face[:, 1] = y[ind]
-                    face[:, 2] = z[ind]
-                    faces.append(face)
+            coords.append([coord] * len(faces_inds))
+            faces_indexes.append(faces_inds)
+        coords = np.concatenate(coords, axis=0).T
+        faces_indexes = np.concatenate(faces_indexes, axis=0)
 
-            # shade the faces
-            facecolor = facecolors[coord]
-            edgecolor = edgecolors[coord]
+        if xyz is None:
+            faces = faces_indexes
+        else:
+            faces = []
+            for face_inds in faces_indexes:
+                ind = face_inds[:, 0], face_inds[:, 1], face_inds[:, 2]
+                face = np.empty(face_inds.shape)
+                face[:, 0] = x[ind]
+                face[:, 1] = y[ind]
+                face[:, 2] = z[ind]
+                faces.append(face)
 
-            poly = art3d.Poly3DCollection(
-                faces, facecolors=facecolor, edgecolors=edgecolor,
-                shade=shade, lightsource=lightsource, axlim_clip=axlim_clip,
-                **kwargs)
-            self.add_collection3d(poly)
-            polygons[coord] = poly
+        # shade the faces
+        facecolor = facecolors[*coords]
+        if edgecolors is not None:
+            edgecolor = edgecolors[*coords]
+        else:
+            edgecolor = None
 
-        return polygons
+        poly = art3d.Poly3DCollection(
+            faces, facecolors=facecolor, edgecolors=edgecolor,
+            shade=shade, lightsource=lightsource, axlim_clip=axlim_clip,
+            colorizer=colorizer,
+            **kwargs)
+
+        if scalars is not None:
+            poly.set_array(scalars[*coords])
+
+        self.add_collection3d(poly)
+        return poly
 
     @_preprocess_data(replace_names=["x", "y", "z", "xerr", "yerr", "zerr"])
     def errorbar(self, x, y, z, zerr=None, yerr=None, xerr=None, fmt='',

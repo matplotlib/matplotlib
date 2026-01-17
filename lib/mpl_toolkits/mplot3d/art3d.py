@@ -1206,22 +1206,26 @@ class Poly3DCollection(PolyCollection):
         and _edgecolors properties.
         """
         if shade:
-            normals = _generate_normals(verts)
+            self.shaded = True
+            self.normals = _generate_normals(verts)
+            self.lightsource = lightsource
             facecolors = kwargs.get('facecolors', None)
             if facecolors is not None:
                 kwargs['facecolors'] = _shade_colors(
-                    facecolors, normals, lightsource
+                    facecolors, self.normals, self.lightsource
                 )
 
             edgecolors = kwargs.get('edgecolors', None)
             if edgecolors is not None:
                 kwargs['edgecolors'] = _shade_colors(
-                    edgecolors, normals, lightsource
+                    edgecolors, self.normals, self.lightsource
                 )
             if facecolors is None and edgecolors is None:
                 raise ValueError(
                     "You must provide facecolors, edgecolors, or both for "
                     "shade to work.")
+        else:
+            self.shaded = False
         super().__init__(verts, *args, **kwargs)
         if isinstance(verts, np.ndarray):
             if verts.ndim != 3:
@@ -1232,6 +1236,37 @@ class Poly3DCollection(PolyCollection):
         self.set_zsort(zsort)
         self._codes3d = None
         self._axlim_clip = axlim_clip
+
+    def update_scalarmappable(self):
+        """
+        Update colors from the scalar mappable array, if any.
+
+        This overrides `Collection.update_scalarmappable()`.
+        This function differs in the following way:
+        1. This function only sets facecolors, never edgecolors
+        2. This function applies shading.
+        3. self._A is assumed to have the correct shape
+        """
+        if not self._set_mappable_flags():
+            return
+        # Allow possibility to call 'self.set_array(None)'.
+        if self._A is not None:
+            if np.iterable(self._alpha):
+                if self._alpha.size != self._A.size:
+                    raise ValueError(
+                        f'Data array shape, {self._A.shape} '
+                        'is incompatible with alpha array shape, '
+                        f'{self._alpha.shape}. '
+                        )
+                self._alpha = self._alpha.reshape(self._A.shape)
+            self._mapped_colors = self.to_rgba(self._A, self._alpha)
+            if self.shaded:
+                self._mapped_colors = _shade_colors(
+                        self._mapped_colors, self.normals, self.lightsource
+                    )
+
+            self._facecolors = self._mapped_colors
+        self.stale = True
 
     _zsort_functions = {
         'average': np.average,

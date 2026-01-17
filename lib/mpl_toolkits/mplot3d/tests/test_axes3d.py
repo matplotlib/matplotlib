@@ -1450,7 +1450,7 @@ class TestVoxels:
         v = ax.voxels(voxels, linewidths=3, edgecolor='C1')
 
         # change the edge color of one voxel
-        v[max(v.keys())].set_edgecolor('C2')
+        v.set_edgecolor('C2')
 
     @mpl3d_image_comparison(['voxels-named-colors.png'], style='mpl20')
     def test_named_colors(self):
@@ -1491,10 +1491,7 @@ class TestVoxels:
         colors[v1] = [0, 1, 0, 0.5]
         v = ax.voxels(voxels, facecolors=colors)
 
-        assert type(v) is dict
-        for coord, poly in v.items():
-            assert voxels[coord], "faces returned for absent voxel"
-            assert isinstance(poly, art3d.Poly3DCollection)
+        assert type(v) is art3d.Poly3DCollection
 
     @mpl3d_image_comparison(['voxels-xyz.png'],
                             tol=0.01, remove_text=False, style='mpl20')
@@ -1554,6 +1551,37 @@ class TestVoxels:
         with pytest.raises(AttributeError, match="keyword argument 'x'") as exec_info:
             ax.voxels(filled=filled, x=x, y=y, z=z)
         assert exec_info.value.name == 'x'
+
+    @mpl3d_image_comparison(['voxels-scalar.png'],
+                            tol=0.01, remove_text=False, style='mpl20')
+    def test_scalar_input(self):
+        Hist = np.zeros((9, 9, 9))
+        Hist[2, 5, 5], Hist[5, 5, 3], Hist[5, 7, 5], = 1, 55, 4
+        Hist[5, 0, 5], Hist[5, 1, 5] = 39, 39
+        Hist[Hist == 0] = np.nan
+
+        # plot
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        res = ax.voxels(Hist, cmap='rainbow', norm='log', alpha=0.5)
+        fig.colorbar(res)
+        res.colorizer.norm.vmin = 3
+
+    @mpl3d_image_comparison(['voxels-scalar-xyz.png'],
+                            tol=0.01, remove_text=False, style='mpl20')
+    def test_scalar_xyz_input(self):
+        X, Y, Z = np.meshgrid(np.linspace(0, 5, 10),
+                              np.linspace(0, 5, 10),
+                              np.linspace(0, 5, 10), indexing="ij")
+        Hist = np.zeros((9, 9, 9))
+        Hist[2, 5, 5], Hist[5, 5, 3], Hist[5, 7, 5], = 1, 55, 4
+        Hist[5, 0, 5], Hist[5, 1, 5] = 39, 39
+        Hist[Hist == 0] = np.nan
+
+        # plot
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        res = ax.voxels(X, Y, Z, Hist, cmap='rainbow', norm='log', alpha=0.5)
+        fig.colorbar(res)
+        res.colorizer.norm.vmin = 3
 
 
 def test_line3d_set_get_data_3d():
