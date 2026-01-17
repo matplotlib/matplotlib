@@ -1422,6 +1422,42 @@ class Axes3D(Axes):
 
         return x_data, y_data, z_data
 
+    def _set_lims_from_scaled(self, xmin_s, xmax_s, ymin_s, ymax_s,
+                               zmin_s, zmax_s):
+        """
+        Transform scaled limits back to data space, validate, and set.
+
+        Takes limits in scaled (transformed) space, converts back to data
+        space, applies limit_range_for_scale validation, and sets the axis
+        limits.
+
+        Parameters
+        ----------
+        xmin_s, xmax_s, ymin_s, ymax_s, zmin_s, zmax_s : float
+            Axis limits in scaled space.
+        """
+        # Transform back to data space
+        x_inv = self.xaxis.get_transform().inverted()
+        y_inv = self.yaxis.get_transform().inverted()
+        z_inv = self.zaxis.get_transform().inverted()
+
+        xmin, xmax = x_inv.transform([xmin_s, xmax_s])
+        ymin, ymax = y_inv.transform([ymin_s, ymax_s])
+        zmin, zmax = z_inv.transform([zmin_s, zmax_s])
+
+        # Validate limits for scale constraints (e.g., positive for log scale)
+        xmin, xmax = self.xaxis._scale.limit_range_for_scale(
+            xmin, xmax, self.xy_dataLim.minposx)
+        ymin, ymax = self.yaxis._scale.limit_range_for_scale(
+            ymin, ymax, self.xy_dataLim.minposy)
+        zmin, zmax = self.zaxis._scale.limit_range_for_scale(
+            zmin, zmax, self.zz_dataLim.minposx)
+
+        # Set the new axis limits
+        self.set_xlim3d(xmin, xmax, auto=None)
+        self.set_ylim3d(ymin, ymax, auto=None)
+        self.set_zlim3d(zmin, zmax, auto=None)
+
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
 
@@ -1891,37 +1927,10 @@ class Axes3D(Axes):
         dz = (maxz - minz) * duvw_projected[2]
 
         # Compute new limits in scaled space
-        new_xmin_scaled = minx + dx
-        new_xmax_scaled = maxx + dx
-        new_ymin_scaled = miny + dy
-        new_ymax_scaled = maxy + dy
-        new_zmin_scaled = minz + dz
-        new_zmax_scaled = maxz + dz
-
-        # Transform back to data space
-        x_inv = self.xaxis.get_transform().inverted()
-        y_inv = self.yaxis.get_transform().inverted()
-        z_inv = self.zaxis.get_transform().inverted()
-
-        new_xmin, new_xmax = x_inv.transform([new_xmin_scaled, new_xmax_scaled])
-        new_ymin, new_ymax = y_inv.transform([new_ymin_scaled, new_ymax_scaled])
-        new_zmin, new_zmax = z_inv.transform([new_zmin_scaled, new_zmax_scaled])
-
-        # Validate limits for scale constraints (e.g., positive for log scale)
-        minpos = self.xy_dataLim.minposx
-        new_xmin, new_xmax = self.xaxis._scale.limit_range_for_scale(
-            new_xmin, new_xmax, minpos)
-        minpos = self.xy_dataLim.minposy
-        new_ymin, new_ymax = self.yaxis._scale.limit_range_for_scale(
-            new_ymin, new_ymax, minpos)
-        minpos = self.zz_dataLim.minposx
-        new_zmin, new_zmax = self.zaxis._scale.limit_range_for_scale(
-            new_zmin, new_zmax, minpos)
-
-        # Set the new axis limits
-        self.set_xlim3d(new_xmin, new_xmax, auto=None)
-        self.set_ylim3d(new_ymin, new_ymax, auto=None)
-        self.set_zlim3d(new_zmin, new_zmax, auto=None)
+        self._set_lims_from_scaled(
+            minx + dx, maxx + dx,
+            miny + dy, maxy + dy,
+            minz + dz, maxz + dz)
 
     def _calc_view_axes(self, eye):
         """
@@ -2052,38 +2061,11 @@ class Axes3D(Axes):
         # Get the axis centers and ranges (in scaled space for non-linear scales)
         cx, cy, cz, dx, dy, dz = self._get_w_centers_ranges()
 
-        # Compute new limits in scaled space
-        new_xmin_scaled = cx - dx*scale_x/2
-        new_xmax_scaled = cx + dx*scale_x/2
-        new_ymin_scaled = cy - dy*scale_y/2
-        new_ymax_scaled = cy + dy*scale_y/2
-        new_zmin_scaled = cz - dz*scale_z/2
-        new_zmax_scaled = cz + dz*scale_z/2
-
-        # Transform back to data space
-        x_inv = self.xaxis.get_transform().inverted()
-        y_inv = self.yaxis.get_transform().inverted()
-        z_inv = self.zaxis.get_transform().inverted()
-
-        new_xmin, new_xmax = x_inv.transform([new_xmin_scaled, new_xmax_scaled])
-        new_ymin, new_ymax = y_inv.transform([new_ymin_scaled, new_ymax_scaled])
-        new_zmin, new_zmax = z_inv.transform([new_zmin_scaled, new_zmax_scaled])
-
-        # Validate limits for scale constraints (e.g., positive for log scale)
-        minpos = self.xy_dataLim.minposx
-        new_xmin, new_xmax = self.xaxis._scale.limit_range_for_scale(
-            new_xmin, new_xmax, minpos)
-        minpos = self.xy_dataLim.minposy
-        new_ymin, new_ymax = self.yaxis._scale.limit_range_for_scale(
-            new_ymin, new_ymax, minpos)
-        minpos = self.zz_dataLim.minposx
-        new_zmin, new_zmax = self.zaxis._scale.limit_range_for_scale(
-            new_zmin, new_zmax, minpos)
-
-        # Set the new axis limits
-        self.set_xlim3d(new_xmin, new_xmax, auto=None)
-        self.set_ylim3d(new_ymin, new_ymax, auto=None)
-        self.set_zlim3d(new_zmin, new_zmax, auto=None)
+        # Compute new limits in scaled space and set
+        self._set_lims_from_scaled(
+            cx - dx*scale_x/2, cx + dx*scale_x/2,
+            cy - dy*scale_y/2, cy + dy*scale_y/2,
+            cz - dz*scale_z/2, cz + dz*scale_z/2)
 
     def _get_w_centers_ranges(self):
         """
