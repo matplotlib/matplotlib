@@ -462,7 +462,7 @@ class Axis(maxis.XAxis):
 
         default_label_offset = 8.  # A rough estimate
         points = deltas_per_point * deltas
-        # All coordinates below are in scaled space for proper projection
+        # All coordinates below are in transformed coordinates for proper projection
         for tick in ticks:
             # Get tick line positions
             pos = edgep1.copy()
