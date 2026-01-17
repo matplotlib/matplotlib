@@ -1881,16 +1881,33 @@ class Axes3D(Axes):
         R = -R / self._box_aspect * self._dist
         duvw_projected = R.T @ np.array([du, dv, dw])
 
-        # Calculate pan distance
-        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+        # Calculate pan distance in scaled space for proper non-linear scale handling
+        minx, maxx, miny, maxy, minz, maxz = self._get_scaled_limits()
         dx = (maxx - minx) * duvw_projected[0]
         dy = (maxy - miny) * duvw_projected[1]
         dz = (maxz - minz) * duvw_projected[2]
 
+        # Compute new limits in scaled space
+        new_xmin_scaled = minx + dx
+        new_xmax_scaled = maxx + dx
+        new_ymin_scaled = miny + dy
+        new_ymax_scaled = maxy + dy
+        new_zmin_scaled = minz + dz
+        new_zmax_scaled = maxz + dz
+
+        # Transform back to data space
+        x_inv = self.xaxis.get_transform().inverted()
+        y_inv = self.yaxis.get_transform().inverted()
+        z_inv = self.zaxis.get_transform().inverted()
+
+        new_xmin, new_xmax = x_inv.transform([new_xmin_scaled, new_xmax_scaled])
+        new_ymin, new_ymax = y_inv.transform([new_ymin_scaled, new_ymax_scaled])
+        new_zmin, new_zmax = z_inv.transform([new_zmin_scaled, new_zmax_scaled])
+
         # Set the new axis limits
-        self.set_xlim3d(minx + dx, maxx + dx, auto=None)
-        self.set_ylim3d(miny + dy, maxy + dy, auto=None)
-        self.set_zlim3d(minz + dz, maxz + dz, auto=None)
+        self.set_xlim3d(new_xmin, new_xmax, auto=None)
+        self.set_ylim3d(new_ymin, new_ymax, auto=None)
+        self.set_zlim3d(new_zmin, new_zmax, auto=None)
 
     def _calc_view_axes(self, eye):
         """
@@ -2006,6 +2023,9 @@ class Axes3D(Axes):
         limits by scale factors. A scale factor > 1 zooms out and a scale
         factor < 1 zooms in.
 
+        For non-linear scales, the scaling happens in scaled space to ensure
+        uniform zoom behavior.
+
         Parameters
         ----------
         scale_x : float
@@ -2015,23 +2035,45 @@ class Axes3D(Axes):
         scale_z : float
             Scale factor for the z data axis.
         """
-        # Get the axis centers and ranges
+        # Get the axis centers and ranges (in scaled space for non-linear scales)
         cx, cy, cz, dx, dy, dz = self._get_w_centers_ranges()
 
-        # Set the scaled axis limits
-        self.set_xlim3d(cx - dx*scale_x/2, cx + dx*scale_x/2, auto=None)
-        self.set_ylim3d(cy - dy*scale_y/2, cy + dy*scale_y/2, auto=None)
-        self.set_zlim3d(cz - dz*scale_z/2, cz + dz*scale_z/2, auto=None)
+        # Compute new limits in scaled space
+        new_xmin_scaled = cx - dx*scale_x/2
+        new_xmax_scaled = cx + dx*scale_x/2
+        new_ymin_scaled = cy - dy*scale_y/2
+        new_ymax_scaled = cy + dy*scale_y/2
+        new_zmin_scaled = cz - dz*scale_z/2
+        new_zmax_scaled = cz + dz*scale_z/2
+
+        # Transform back to data space
+        x_inv = self.xaxis.get_transform().inverted()
+        y_inv = self.yaxis.get_transform().inverted()
+        z_inv = self.zaxis.get_transform().inverted()
+
+        new_xmin, new_xmax = x_inv.transform([new_xmin_scaled, new_xmax_scaled])
+        new_ymin, new_ymax = y_inv.transform([new_ymin_scaled, new_ymax_scaled])
+        new_zmin, new_zmax = z_inv.transform([new_zmin_scaled, new_zmax_scaled])
+
+        # Set the new axis limits
+        self.set_xlim3d(new_xmin, new_xmax, auto=None)
+        self.set_ylim3d(new_ymin, new_ymax, auto=None)
+        self.set_zlim3d(new_zmin, new_zmax, auto=None)
 
     def _get_w_centers_ranges(self):
-        """Get 3D world centers and axis ranges."""
-        # Calculate center of axis limits
-        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+        """
+        Get 3D world centers and axis ranges in scaled space.
+
+        For non-linear scales (log, symlog, etc.), centers and ranges are
+        computed in scaled coordinates to ensure uniform zoom/pan behavior.
+        """
+        # Get limits in scaled space for proper zoom/pan with non-linear scales
+        minx, maxx, miny, maxy, minz, maxz = self._get_scaled_limits()
         cx = (maxx + minx)/2
         cy = (maxy + miny)/2
         cz = (maxz + minz)/2
 
-        # Calculate range of axis limits
+        # Calculate range of axis limits in scaled space
         dx = (maxx - minx)
         dy = (maxy - miny)
         dz = (maxz - minz)
