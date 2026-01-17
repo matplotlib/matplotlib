@@ -1124,14 +1124,15 @@ class Axes3D(Axes):
             Keyword arguments are forwarded to the scale class.
             For example, ``base=2`` can be passed when using a log scale.
         """
-        # For non-linear scales, set valid limits before changing scale
-        # to avoid warnings about invalid limits
-        if value != 'linear':
-            vmin, vmax = self.get_xlim()
-            if vmin <= 0 or vmax <= 0:
-                # Set temporary valid limits before scale change
-                self.set_xlim(1, 10, auto=True)
         self.xaxis._set_axes_scale(value, **kwargs)
+        # After setting scale, constrain limits using scale's limit_range_for_scale
+        if hasattr(self.xaxis, '_scale') and self.xaxis._scale is not None:
+            vmin, vmax = self.get_xlim()
+            minpos = getattr(self.xaxis, '_minpos', 1e-300)
+            new_vmin, new_vmax = self.xaxis._scale.limit_range_for_scale(
+                vmin, vmax, minpos)
+            if (new_vmin, new_vmax) != (vmin, vmax):
+                self.set_xlim(new_vmin, new_vmax, auto=True)
 
     def set_yscale(self, value, **kwargs):
         """
@@ -1147,14 +1148,15 @@ class Axes3D(Axes):
             Keyword arguments are forwarded to the scale class.
             For example, ``base=2`` can be passed when using a log scale.
         """
-        # For non-linear scales, set valid limits before changing scale
-        # to avoid warnings about invalid limits
-        if value != 'linear':
-            vmin, vmax = self.get_ylim()
-            if vmin <= 0 or vmax <= 0:
-                # Set temporary valid limits before scale change
-                self.set_ylim(1, 10, auto=True)
         self.yaxis._set_axes_scale(value, **kwargs)
+        # After setting scale, constrain limits using scale's limit_range_for_scale
+        if hasattr(self.yaxis, '_scale') and self.yaxis._scale is not None:
+            vmin, vmax = self.get_ylim()
+            minpos = getattr(self.yaxis, '_minpos', 1e-300)
+            new_vmin, new_vmax = self.yaxis._scale.limit_range_for_scale(
+                vmin, vmax, minpos)
+            if (new_vmin, new_vmax) != (vmin, vmax):
+                self.set_ylim(new_vmin, new_vmax, auto=True)
 
     def set_zscale(self, value, **kwargs):
         """
@@ -1170,14 +1172,15 @@ class Axes3D(Axes):
             Keyword arguments are forwarded to the scale class.
             For example, ``base=2`` can be passed when using a log scale.
         """
-        # For non-linear scales, set valid limits before changing scale
-        # to avoid warnings about invalid limits
-        if value != 'linear':
-            vmin, vmax = self.get_zlim()
-            if vmin <= 0 or vmax <= 0:
-                # Set temporary valid limits before scale change
-                self.set_zlim(1, 10, auto=True)
         self.zaxis._set_axes_scale(value, **kwargs)
+        # After setting scale, constrain limits using scale's limit_range_for_scale
+        if hasattr(self.zaxis, '_scale') and self.zaxis._scale is not None:
+            vmin, vmax = self.get_zlim()
+            minpos = getattr(self.zaxis, '_minpos', 1e-300)
+            new_vmin, new_vmax = self.zaxis._scale.limit_range_for_scale(
+                vmin, vmax, minpos)
+            if (new_vmin, new_vmax) != (vmin, vmax):
+                self.set_zlim(new_vmin, new_vmax, auto=True)
 
     get_zticks = _axis_method_wrapper("zaxis", "get_ticklocs")
     set_zticks = _axis_method_wrapper("zaxis", "set_ticks")
@@ -1904,6 +1907,17 @@ class Axes3D(Axes):
         new_ymin, new_ymax = y_inv.transform([new_ymin_scaled, new_ymax_scaled])
         new_zmin, new_zmax = z_inv.transform([new_zmin_scaled, new_zmax_scaled])
 
+        # Validate limits for scale constraints (e.g., positive for log scale)
+        minpos = self.xy_dataLim.minposx
+        new_xmin, new_xmax = self.xaxis._scale.limit_range_for_scale(
+            new_xmin, new_xmax, minpos)
+        minpos = self.xy_dataLim.minposy
+        new_ymin, new_ymax = self.yaxis._scale.limit_range_for_scale(
+            new_ymin, new_ymax, minpos)
+        minpos = self.zz_dataLim.minposx
+        new_zmin, new_zmax = self.zaxis._scale.limit_range_for_scale(
+            new_zmin, new_zmax, minpos)
+
         # Set the new axis limits
         self.set_xlim3d(new_xmin, new_xmax, auto=None)
         self.set_ylim3d(new_ymin, new_ymax, auto=None)
@@ -2054,6 +2068,17 @@ class Axes3D(Axes):
         new_xmin, new_xmax = x_inv.transform([new_xmin_scaled, new_xmax_scaled])
         new_ymin, new_ymax = y_inv.transform([new_ymin_scaled, new_ymax_scaled])
         new_zmin, new_zmax = z_inv.transform([new_zmin_scaled, new_zmax_scaled])
+
+        # Validate limits for scale constraints (e.g., positive for log scale)
+        minpos = self.xy_dataLim.minposx
+        new_xmin, new_xmax = self.xaxis._scale.limit_range_for_scale(
+            new_xmin, new_xmax, minpos)
+        minpos = self.xy_dataLim.minposy
+        new_ymin, new_ymax = self.yaxis._scale.limit_range_for_scale(
+            new_ymin, new_ymax, minpos)
+        minpos = self.zz_dataLim.minposx
+        new_zmin, new_zmax = self.zaxis._scale.limit_range_for_scale(
+            new_zmin, new_zmax, minpos)
 
         # Set the new axis limits
         self.set_xlim3d(new_xmin, new_xmax, auto=None)
