@@ -92,9 +92,10 @@ def _apply_scale_transforms(xs, ys, zs, axes):
     xs_scaled, ys_scaled, zs_scaled : np.ndarray
         The coordinates in scaled space.
     """
-    xs = np.asarray(xs)
-    ys = np.asarray(ys)
-    zs = np.asarray(zs)
+    # Use asanyarray to preserve masked arrays
+    xs = np.asanyarray(xs)
+    ys = np.asanyarray(ys)
+    zs = np.asanyarray(zs)
 
     # Get the scale transforms for each axis
     x_trans = axes.xaxis.get_transform()
@@ -567,6 +568,11 @@ class Line3DCollection(LineCollection):
         Project the points according to renderer matrix.
         """
         segments = np.asanyarray(self._segments3d)
+
+        # Handle empty segments
+        if segments.size == 0:
+            LineCollection.set_segments(self, [])
+            return np.nan
 
         mask = False
         if np.ma.isMA(segments):
