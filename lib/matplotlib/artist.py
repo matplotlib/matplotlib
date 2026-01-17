@@ -1256,12 +1256,13 @@ Supported properties are
 
         Notes
         -----
-        This method is similar to `Artist.set`, but strictly requires
-        canonical property names. It does **not** support property aliases
-        (e.g., you must use 'linewidth' instead of 'lw').
+        This method is similar to `Artist.set`, but does not perform property
+        name normalization. It only supports properties where a corresponding
+        ``set_<prop>`` method explicitly exists.
 
-        For most use cases, `Artist.set` is preferred as it supports
-        aliases and is more flexible.
+        For example, ``a.update({'lw': 1})`` will fail if the artist does
+        not define ``set_lw``, whereas ``a.set(lw=1)`` would successfully
+        normalize it to ``set_linewidth``.
         """
         return self._update_props(
             props, "{cls.__name__!r} object has no property {prop_name!r}")
