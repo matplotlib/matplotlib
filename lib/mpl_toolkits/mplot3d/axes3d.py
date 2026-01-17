@@ -1652,7 +1652,7 @@ class Axes3D(Axes):
 
     def _get_camera_loc(self):
         """
-        Returns the current camera location in data coordinates.
+        Returns the current camera location in transformed coordinates.
         """
         cx, cy, cz, dx, dy, dz = self._get_w_centers_ranges()
         c = np.array([cx, cy, cz])
@@ -1676,25 +1676,16 @@ class Axes3D(Axes):
         else:  # perspective projection
             zv = -1 / self._focal_length
 
-        # Convert point on view plane to transformed coordinates
-        # (inv_transform returns scaled coords because M was built with scaled limits)
         p1 = np.array(proj3d.inv_transform(xv, yv, zv, self.invM)).ravel()
 
         # Get the vector from the camera to the point on the view plane
-        # Camera location is in data space, so transform it to transformed coordinates
-        cam_data = self._get_camera_loc()
-        cam_scaled = np.array(art3d._apply_scale_transforms(
-            cam_data[0], cam_data[1], cam_data[2], self)).ravel()
-        vec = cam_scaled - p1
+        vec = self._get_camera_loc() - p1
 
-        # Get the pane locations for each of the axes in data space
-        # and transform to transformed coordinates
+        # Get the pane locations for each of the axes
         pane_locs_data = []
         for axis in self._axis_map.values():
             xys, loc = axis.active_pane()
             pane_locs_data.append(loc)
-        pane_locs_scaled = np.array(art3d._apply_scale_transforms(
-            pane_locs_data[0], pane_locs_data[1], pane_locs_data[2], self)).ravel()
 
         # Find the distance to the nearest pane by projecting the view vector
         scales = np.zeros(3)
@@ -1702,16 +1693,15 @@ class Axes3D(Axes):
             if vec[i] == 0:
                 scales[i] = np.inf
             else:
-                scales[i] = (p1[i] - pane_locs_scaled[i]) / vec[i]
+                scales[i] = (pane_locs_data[i] - p1[i]) / vec[i]
         pane_idx = np.argmin(abs(scales))
         scale = scales[pane_idx]
 
-        # Calculate the point on the closest pane in transformed coordinates
-        p2_scaled = p1 - scale*vec
+        # Calculate the point on the closest pane
+        p2 = p1 + scale * vec
 
-        # Convert back to data coordinates
-        p2 = np.array(self._untransform_point(
-            p2_scaled[0], p2_scaled[1], p2_scaled[2]))
+        # Convert from transformed to data coordinates
+        p2 = np.array(self._untransform_point(p2[0], p2[1], p2[2]))
         return p2, pane_idx
 
     def _arcball(self, x: float, y: float) -> np.ndarray:
