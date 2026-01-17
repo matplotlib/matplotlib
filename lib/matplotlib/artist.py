@@ -1256,7 +1256,7 @@ Supported properties are
 
         Notes
         -----
-        This method is similar to `Artist.set`, but does not perform property
+        This method is similar to .Artist.set, but does not perform property
         name normalization. It only supports properties where a corresponding
         ``set_<prop>`` method explicitly exists.
 
