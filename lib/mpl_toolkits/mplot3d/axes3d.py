@@ -232,8 +232,19 @@ class Axes3D(Axes):
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
     def _transformed_cube(self, vals):
-        """Return cube with limits from *vals* transformed by self.M."""
+        """Return cube with limits from *vals* transformed by self.M.
+
+        The vals are in data space and are first transformed through the
+        axis scale transforms before being projected.
+        """
         minx, maxx, miny, maxy, minz, maxz = vals
+        # Transform from data space to scaled space
+        x_trans = self.xaxis.get_transform()
+        y_trans = self.yaxis.get_transform()
+        z_trans = self.zaxis.get_transform()
+        minx, maxx = x_trans.transform([minx, maxx])
+        miny, maxy = y_trans.transform([miny, maxy])
+        minz, maxz = z_trans.transform([minz, maxz])
         xyzs = [(minx, miny, minz),
                 (maxx, miny, minz),
                 (maxx, maxy, minz),
@@ -243,6 +254,24 @@ class Axes3D(Axes):
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
         return proj3d._proj_points(xyzs, self.M)
+
+    def _update_transScale(self):
+        """
+        Override transScale to always use identity/linear transforms.
+
+        In 3D axes, scale transforms (log, symlog, etc.) are applied during the
+        3D projection in do_3d_projection() methods. The resulting 2D coordinates
+        are already in normalized display space and should NOT go through
+        additional log transforms. Using linear transforms here ensures that
+        negative projected coordinates (which are valid in 3D projection) are
+        not clipped by log transforms.
+        """
+        # Always use identity transforms for 2D display, since 3D projection
+        # already handles scale transforms internally
+        self.transScale.set(
+            mtransforms.blended_transform_factory(
+                mtransforms.IdentityTransform(),
+                mtransforms.IdentityTransform()))
 
     @_api.delete_parameter("3.11", "share")
     @_api.delete_parameter("3.11", "anchor")
@@ -629,10 +658,18 @@ class Axes3D(Axes):
             x0, x1 = self.xy_dataLim.intervalx
             xlocator = self.xaxis.get_major_locator()
             x0, x1 = xlocator.nonsingular(x0, x1)
+            # Validate limits for the scale (e.g., positive for log scale)
+            minpos = self.xy_dataLim.minposx
+            x0, x1 = self.xaxis._scale.limit_range_for_scale(x0, x1, minpos)
             if self._xmargin > 0:
-                delta = (x1 - x0) * self._xmargin
-                x0 -= delta
-                x1 += delta
+                # Apply margin in transformed space to handle non-linear scales
+                transform = self.xaxis.get_transform()
+                inverse_trans = transform.inverted()
+                x0t, x1t = transform.transform([x0, x1])
+                delta = (x1t - x0t) * self._xmargin
+                if not np.isfinite(delta):
+                    delta = 0
+                x0, x1 = inverse_trans.transform([x0t - delta, x1t + delta])
             if not _tight:
                 x0, x1 = xlocator.view_limits(x0, x1)
             self.set_xbound(x0, x1, self._view_margin)
@@ -641,10 +678,18 @@ class Axes3D(Axes):
             y0, y1 = self.xy_dataLim.intervaly
             ylocator = self.yaxis.get_major_locator()
             y0, y1 = ylocator.nonsingular(y0, y1)
+            # Validate limits for the scale (e.g., positive for log scale)
+            minpos = self.xy_dataLim.minposy
+            y0, y1 = self.yaxis._scale.limit_range_for_scale(y0, y1, minpos)
             if self._ymargin > 0:
-                delta = (y1 - y0) * self._ymargin
-                y0 -= delta
-                y1 += delta
+                # Apply margin in transformed space to handle non-linear scales
+                transform = self.yaxis.get_transform()
+                inverse_trans = transform.inverted()
+                y0t, y1t = transform.transform([y0, y1])
+                delta = (y1t - y0t) * self._ymargin
+                if not np.isfinite(delta):
+                    delta = 0
+                y0, y1 = inverse_trans.transform([y0t - delta, y1t + delta])
             if not _tight:
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1, self._view_margin)
@@ -653,10 +698,18 @@ class Axes3D(Axes):
             z0, z1 = self.zz_dataLim.intervalx
             zlocator = self.zaxis.get_major_locator()
             z0, z1 = zlocator.nonsingular(z0, z1)
+            # Validate limits for the scale (e.g., positive for log scale)
+            minpos = self.zz_dataLim.minposx
+            z0, z1 = self.zaxis._scale.limit_range_for_scale(z0, z1, minpos)
             if self._zmargin > 0:
-                delta = (z1 - z0) * self._zmargin
-                z0 -= delta
-                z1 += delta
+                # Apply margin in transformed space to handle non-linear scales
+                transform = self.zaxis.get_transform()
+                inverse_trans = transform.inverted()
+                z0t, z1t = transform.transform([z0, z1])
+                delta = (z1t - z0t) * self._zmargin
+                if not np.isfinite(delta):
+                    delta = 0
+                z0, z1 = inverse_trans.transform([z0t - delta, z1t + delta])
             if not _tight:
                 z0, z1 = zlocator.view_limits(z0, z1)
             self.set_zbound(z0, z1, self._view_margin)
@@ -786,9 +839,21 @@ class Axes3D(Axes):
                 view_margin = self._view_margin
             else:
                 view_margin = 0
-        delta = (upper - lower) * view_margin
-        lower -= delta
-        upper += delta
+        # Apply margin in transformed space to handle non-linear scales properly
+        if view_margin > 0 and hasattr(axis, '_scale') and axis._scale is not None:
+            transform = axis.get_transform()
+            inverse_trans = transform.inverted()
+            # For log scale, need valid limits before transforming
+            minpos = max(1e-300, abs(lower) if lower > 0 else 1e-5)
+            lower, upper = axis._scale.limit_range_for_scale(lower, upper, minpos)
+            lower_t, upper_t = transform.transform([lower, upper])
+            delta = (upper_t - lower_t) * view_margin
+            if np.isfinite(delta):
+                lower, upper = inverse_trans.transform([lower_t - delta, upper_t + delta])
+        else:
+            delta = (upper - lower) * view_margin
+            lower -= delta
+            upper += delta
         return axis._set_lim(lower, upper, emit=emit, auto=auto)
 
     def set_xlim(self, left=None, right=None, *, emit=True, auto=False,
@@ -1043,25 +1108,75 @@ class Axes3D(Axes):
 
     get_zscale = _axis_method_wrapper("zaxis", "get_scale")
 
-    # Redefine all three methods to overwrite their docstrings.
-    set_xscale = _axis_method_wrapper("xaxis", "_set_axes_scale")
-    set_yscale = _axis_method_wrapper("yaxis", "_set_axes_scale")
-    set_zscale = _axis_method_wrapper("zaxis", "_set_axes_scale")
-    set_xscale.__doc__, set_yscale.__doc__, set_zscale.__doc__ = map(
+    # Custom scale setters that handle limit validation for non-linear scales
+    def set_xscale(self, value, **kwargs):
         """
-        Set the {}-axis scale.
+        Set the x-axis scale.
 
         Parameters
         ----------
-        value : {{"linear"}}
-            The axis scale type to apply.  3D Axes currently only support
-            linear scales; other scales yield nonsensical results.
+        value : {"linear", "log", "symlog", "logit", ...}
+            The axis scale type to apply. See `~.scale.ScaleBase` for
+            the list of available scales.
 
         **kwargs
-            Keyword arguments are nominally forwarded to the scale class, but
-            none of them is applicable for linear scales.
-        """.format,
-        ["x", "y", "z"])
+            Keyword arguments are forwarded to the scale class.
+            For example, ``base=2`` can be passed when using a log scale.
+        """
+        # For non-linear scales, set valid limits before changing scale
+        # to avoid warnings about invalid limits
+        if value != 'linear':
+            vmin, vmax = self.get_xlim()
+            if vmin <= 0 or vmax <= 0:
+                # Set temporary valid limits before scale change
+                self.set_xlim(1, 10, auto=True)
+        self.xaxis._set_axes_scale(value, **kwargs)
+
+    def set_yscale(self, value, **kwargs):
+        """
+        Set the y-axis scale.
+
+        Parameters
+        ----------
+        value : {"linear", "log", "symlog", "logit", ...}
+            The axis scale type to apply. See `~.scale.ScaleBase` for
+            the list of available scales.
+
+        **kwargs
+            Keyword arguments are forwarded to the scale class.
+            For example, ``base=2`` can be passed when using a log scale.
+        """
+        # For non-linear scales, set valid limits before changing scale
+        # to avoid warnings about invalid limits
+        if value != 'linear':
+            vmin, vmax = self.get_ylim()
+            if vmin <= 0 or vmax <= 0:
+                # Set temporary valid limits before scale change
+                self.set_ylim(1, 10, auto=True)
+        self.yaxis._set_axes_scale(value, **kwargs)
+
+    def set_zscale(self, value, **kwargs):
+        """
+        Set the z-axis scale.
+
+        Parameters
+        ----------
+        value : {"linear", "log", "symlog", "logit", ...}
+            The axis scale type to apply. See `~.scale.ScaleBase` for
+            the list of available scales.
+
+        **kwargs
+            Keyword arguments are forwarded to the scale class.
+            For example, ``base=2`` can be passed when using a log scale.
+        """
+        # For non-linear scales, set valid limits before changing scale
+        # to avoid warnings about invalid limits
+        if value != 'linear':
+            vmin, vmax = self.get_zlim()
+            if vmin <= 0 or vmax <= 0:
+                # Set temporary valid limits before scale change
+                self.set_zlim(1, 10, auto=True)
+        self.zaxis._set_axes_scale(value, **kwargs)
 
     get_zticks = _axis_method_wrapper("zaxis", "get_ticklocs")
     set_zticks = _axis_method_wrapper("zaxis", "set_ticks")
@@ -1209,15 +1324,114 @@ class Axes3D(Axes):
         else:
             return np.roll(arr, (self._vertical_axis - 2))
 
+    def _get_scale_transform(self, axis):
+        """
+        Return the scale transform for the given axis.
+
+        For non-linear scales (log, symlog, etc.), this returns the
+        transform that maps data coordinates to scaled coordinates.
+        For linear scales, returns an IdentityTransform.
+        """
+        return axis.get_transform()
+
+    def _transform_limit_to_scale(self, limit, transform):
+        """
+        Transform a limit value through the scale transform.
+
+        Parameters
+        ----------
+        limit : float
+            The limit value in data coordinates.
+        transform : Transform
+            The scale transform to apply.
+
+        Returns
+        -------
+        float
+            The limit value in scaled coordinates.
+        """
+        # Transform the limit through the scale
+        return transform.transform([limit])[0]
+
+    def _get_scaled_limits(self):
+        """
+        Get axis limits transformed through their respective scale transforms.
+
+        Returns
+        -------
+        tuple
+            (xmin_scaled, xmax_scaled, ymin_scaled, ymax_scaled,
+             zmin_scaled, zmax_scaled)
+        """
+        x_trans = self._get_scale_transform(self.xaxis)
+        y_trans = self._get_scale_transform(self.yaxis)
+        z_trans = self._get_scale_transform(self.zaxis)
+
+        xmin, xmax = self.get_xlim3d()
+        ymin, ymax = self.get_ylim3d()
+        zmin, zmax = self.get_zlim3d()
+
+        return (
+            self._transform_limit_to_scale(xmin, x_trans),
+            self._transform_limit_to_scale(xmax, x_trans),
+            self._transform_limit_to_scale(ymin, y_trans),
+            self._transform_limit_to_scale(ymax, y_trans),
+            self._transform_limit_to_scale(zmin, z_trans),
+            self._transform_limit_to_scale(zmax, z_trans),
+        )
+
+    def _inverse_scale_transform(self, x, y, z):
+        """
+        Apply inverse scale transforms to coordinates.
+
+        Converts from scaled space back to data space.
+
+        Parameters
+        ----------
+        x, y, z : float or array-like
+            Coordinates in scaled space.
+
+        Returns
+        -------
+        x_data, y_data, z_data : float or ndarray
+            Coordinates in data space.
+        """
+        x_inv = self.xaxis.get_transform().inverted()
+        y_inv = self.yaxis.get_transform().inverted()
+        z_inv = self.zaxis.get_transform().inverted()
+
+        x_arr = np.atleast_1d(x)
+        y_arr = np.atleast_1d(y)
+        z_arr = np.atleast_1d(z)
+
+        x_data = x_inv.transform(x_arr.ravel()).reshape(x_arr.shape)
+        y_data = y_inv.transform(y_arr.ravel()).reshape(y_arr.shape)
+        z_data = z_inv.transform(z_arr.ravel()).reshape(z_arr.shape)
+
+        # Return scalars if input was scalar (check original input)
+        if np.ndim(x) == 0:
+            x_data = float(x_data.flat[0])
+        if np.ndim(y) == 0:
+            y_data = float(y_data.flat[0])
+        if np.ndim(z) == 0:
+            z_data = float(z_data.flat[0])
+
+        return x_data, y_data, z_data
+
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
 
         # Transform to uniform world coordinates 0-1, 0-1, 0-1
+        # For non-linear scales, we use the scaled limits so the world
+        # transformation maps scaled coordinates (not data coordinates)
+        # to the unit cube
         box_aspect = self._roll_to_vertical(self._box_aspect)
+        # Use scaled limits for the world transformation. This ensures that
+        # for non-linear scales (log, symlog, etc.), the world transformation
+        # maps scaled coordinates to the unit cube.
+        scaled_limits = self._get_scaled_limits()
         worldM = proj3d.world_transformation(
-            *self.get_xlim3d(),
-            *self.get_ylim3d(),
-            *self.get_zlim3d(),
+            *scaled_limits,
             pb_aspect=box_aspect,
         )
 
@@ -1476,17 +1690,25 @@ class Axes3D(Axes):
         else:  # perspective projection
             zv = -1 / self._focal_length
 
-        # Convert point on view plane to data coordinates
+        # Convert point on view plane to scaled coordinates
+        # (inv_transform returns scaled coords because M was built with scaled limits)
         p1 = np.array(proj3d.inv_transform(xv, yv, zv, self.invM)).ravel()
 
         # Get the vector from the camera to the point on the view plane
-        vec = self._get_camera_loc() - p1
+        # Camera location is in data space, so transform it to scaled space
+        cam_data = self._get_camera_loc()
+        cam_scaled = np.array(art3d._apply_scale_transforms(
+            cam_data[0], cam_data[1], cam_data[2], self)).ravel()
+        vec = cam_scaled - p1
 
-        # Get the pane locations for each of the axes
-        pane_locs = []
+        # Get the pane locations for each of the axes (in data space)
+        # and transform to scaled space
+        pane_locs_data = []
         for axis in self._axis_map.values():
             xys, loc = axis.active_pane()
-            pane_locs.append(loc)
+            pane_locs_data.append(loc)
+        pane_locs_scaled = np.array(art3d._apply_scale_transforms(
+            pane_locs_data[0], pane_locs_data[1], pane_locs_data[2], self)).ravel()
 
         # Find the distance to the nearest pane by projecting the view vector
         scales = np.zeros(3)
@@ -1494,12 +1716,16 @@ class Axes3D(Axes):
             if vec[i] == 0:
                 scales[i] = np.inf
             else:
-                scales[i] = (p1[i] - pane_locs[i]) / vec[i]
+                scales[i] = (p1[i] - pane_locs_scaled[i]) / vec[i]
         pane_idx = np.argmin(abs(scales))
         scale = scales[pane_idx]
 
-        # Calculate the point on the closest pane
-        p2 = p1 - scale*vec
+        # Calculate the point on the closest pane (in scaled space)
+        p2_scaled = p1 - scale*vec
+
+        # Convert back to data coordinates
+        p2 = np.array(self._inverse_scale_transform(
+            p2_scaled[0], p2_scaled[1], p2_scaled[2]))
         return p2, pane_idx
 
     def _arcball(self, x: float, y: float) -> np.ndarray:

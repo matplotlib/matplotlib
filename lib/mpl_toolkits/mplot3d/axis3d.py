@@ -22,6 +22,33 @@ def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
+def _apply_scale_to_coord(coord, axes):
+    """
+    Apply scale transforms to a 3D coordinate.
+
+    Parameters
+    ----------
+    coord : array-like of length 3
+        The (x, y, z) coordinate in data space.
+    axes : Axes3D
+        The axes providing the scale transforms.
+
+    Returns
+    -------
+    array of length 3
+        The coordinate in scaled space.
+    """
+    coord = np.asarray(coord)
+    x_trans = axes.xaxis.get_transform()
+    y_trans = axes.yaxis.get_transform()
+    z_trans = axes.zaxis.get_transform()
+    return np.array([
+        x_trans.transform([coord[0]])[0],
+        y_trans.transform([coord[1]])[0],
+        z_trans.transform([coord[2]])[0],
+    ])
+
+
 def _tick_update_position(tick, tickxs, tickys, labelpos):
     """Update tick line and label position and style."""
 
@@ -267,14 +294,32 @@ class Axis(maxis.XAxis):
             return len(text) > 4
 
     def _get_coord_info(self):
-        mins, maxs = np.array([
+        # Get the data-space bounds
+        data_mins, data_maxs = np.array([
             self.axes.get_xbound(),
             self.axes.get_ybound(),
             self.axes.get_zbound(),
         ]).T
 
+        # Transform to scaled space for proper positioning with non-linear scales
+        x_trans = self.axes.xaxis.get_transform()
+        y_trans = self.axes.yaxis.get_transform()
+        z_trans = self.axes.zaxis.get_transform()
+
+        mins = np.array([
+            x_trans.transform([data_mins[0]])[0],
+            y_trans.transform([data_mins[1]])[0],
+            z_trans.transform([data_mins[2]])[0],
+        ])
+        maxs = np.array([
+            x_trans.transform([data_maxs[0]])[0],
+            y_trans.transform([data_maxs[1]])[0],
+            z_trans.transform([data_maxs[2]])[0],
+        ])
+
         # Project the bounds along the current position of the cube:
-        bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
+        # Note: _transformed_cube expects data-space bounds and transforms them internally
+        bounds = data_mins[0], data_maxs[0], data_mins[1], data_maxs[1], data_mins[2], data_maxs[2]
         bounds_proj = self.axes._transformed_cube(bounds)
 
         # Determine which one of the parallel planes are higher up:
@@ -443,6 +488,9 @@ class Axis(maxis.XAxis):
         mins, maxs, tc, highs = self._get_coord_info()
         centers, deltas = self._calc_centers_deltas(maxs, mins)
 
+        # Get the scale transform for this axis to transform tick locations
+        axis_trans = [self.axes.xaxis, self.axes.yaxis, self.axes.zaxis][index].get_transform()
+
         # Draw ticks:
         tickdir = self._get_tickdir(pos)
         tickdelta = deltas[tickdir] if highs[tickdir] else -deltas[tickdir]
@@ -459,9 +507,13 @@ class Axis(maxis.XAxis):
         points = deltas_per_point * deltas
         for tick in ticks:
             # Get tick line positions
+            # edgep1 is already in scaled space (from _get_coord_info)
             pos = edgep1.copy()
-            pos[index] = tick.get_loc()
+            # Transform tick location from data space to scaled space
+            tick_loc_scaled = axis_trans.transform([tick.get_loc()])[0]
+            pos[index] = tick_loc_scaled
             pos[tickdir] = out_tickdir
+            # pos is already in scaled space, project directly
             x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
             pos[tickdir] = in_tickdir
             x2, y2, z2 = proj3d.proj_transform(*pos, self.axes.M)
@@ -471,6 +523,7 @@ class Axis(maxis.XAxis):
 
             pos[tickdir] = edgep1_tickdir
             pos = _move_from_center(pos, centers, labeldeltas, self._axmask())
+            # pos is already in scaled space, project directly
             lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
 
             _tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
@@ -496,6 +549,7 @@ class Axis(maxis.XAxis):
 
         pos = _move_from_center(outeredgep, centers, labeldeltas,
                                 self._axmask())
+        # pos is already in scaled space, project directly
         olx, oly, olz = proj3d.proj_transform(*pos, self.axes.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
@@ -520,7 +574,9 @@ class Axis(maxis.XAxis):
         # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
         # from the variable 'highs'.
         # ---------------------------------------------------------------------
-        centpt = proj3d.proj_transform(*centers, self.axes.M)
+        # Apply scale transforms before projection
+        centers_scaled = _apply_scale_to_coord(centers, self.axes)
+        centpt = proj3d.proj_transform(*centers_scaled, self.axes.M)
         if centpt[tickdir] > pep[tickdir, outerindex]:
             # if FT and if highs has an even number of Trues
             if (centpt[index] <= pep[index, outerindex]
@@ -552,8 +608,10 @@ class Axis(maxis.XAxis):
         label = self._axinfo["label"]
 
         # Draw labels
+        # edgep1, edgep2, and centers are already in scaled space
         lxyz = 0.5 * (edgep1 + edgep2)
         lxyz = _move_from_center(lxyz, centers, labeldeltas, self._axmask())
+        # lxyz is in scaled space, project directly
         tlx, tly, tlz = proj3d.proj_transform(*lxyz, self.axes.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
@@ -589,7 +647,7 @@ class Axis(maxis.XAxis):
 
         for edgep1, edgep2, pos in zip(*self._get_all_axis_line_edge_points(
                                            minmax, maxmin, self._tick_position)):
-            # Project the edge points along the current position
+            # Edge points are already in scaled space (from _get_coord_info)
             pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
             pep = np.asarray(pep)
 
@@ -617,7 +675,7 @@ class Axis(maxis.XAxis):
 
         for edgep1, edgep2, pos in zip(*self._get_all_axis_line_edge_points(
                                            minmax, maxmin, self._label_position)):
-            # See comments above
+            # Edge points are already in scaled space (from _get_coord_info)
             pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
             pep = np.asarray(pep)
             dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
@@ -642,10 +700,19 @@ class Axis(maxis.XAxis):
             info = self._axinfo
             index = info["i"]
 
+            # For grid lines, we need data-space bounds since Line3DCollection
+            # applies scale transforms in do_3d_projection
+            data_mins, data_maxs = np.array([
+                self.axes.get_xbound(),
+                self.axes.get_ybound(),
+                self.axes.get_zbound(),
+            ]).T
+
+            # Get highs from the scaled-space projection
             mins, maxs, tc, highs = self._get_coord_info()
 
-            minmax = np.where(highs, maxs, mins)
-            maxmin = np.where(~highs, maxs, mins)
+            minmax = np.where(highs, data_maxs, data_mins)
+            maxmin = np.where(~highs, data_maxs, data_mins)
 
             # Grid points where the planes meet
             xyz0 = np.tile(minmax, (len(ticks), 1))
