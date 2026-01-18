@@ -2102,7 +2102,7 @@ class MultiCursor(Widget):
             _api.warn_deprecated(
                 "3.11",
                 message="The canvas parameter in MultiCursor is unused and deprecated "
-                "since  %(since)s. Please remove it and call MultiCursor(axes) "
+                "since %(since)s. Please remove it and call MultiCursor(axes) "
                 "instead of MultiCursor(canvas, axes). The latter will start raising "
                 "an error in %(removal)s"
             )
