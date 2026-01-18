@@ -3380,7 +3380,8 @@ class Axes3D(Axes):
     quiver3D = quiver
 
     def voxels(self, *args, facecolors=None, edgecolors=None, shade=True,
-               lightsource=None, axlim_clip=False, **kwargs):
+               lightsource=None, axlim_clip=False, colorizer=None,
+               norm=None, cmap=None, vmin=None, vmax=None, **kwargs):
         """
         ax.voxels([x, y, z,] /, filled, facecolors=None, edgecolors=None, \
 **kwargs)
@@ -3393,9 +3394,10 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        filled : 3D np.array of bool
-            A 3D array of values, with truthy values indicating which voxels
-            to fill
+        filled : 3D np.array of bool or float
+            If bool, with truthy values indicate which voxels to fill.
+            If float, voxels with finite walues are shown with color
+            mapped via *cmap* and *norm*, while voxels with nan are ignored.
 
         x, y, z : 3D np.array, optional
             The coordinates of the corners of the voxels. This should broadcast
@@ -3432,15 +3434,28 @@ class Axes3D(Axes):
 
             .. versionadded:: 3.10
 
+        cmap : Colormap, optional
+            Colormap to use if facecolor is scalar.
+
+        norm : `~matplotlib.colors.Normalize`, optional
+            Normalization for the colormap.
+
+        vmin, vmax : float, optional
+            Bounds for the normalization.
+
+        colorizer : `~matplotlib.colorizer.Colorizer` or None, default: None
+            The Colorizer object used to map color to data. If None, a Colorizer
+            object is created from a *norm* and *cmap*.
+
         **kwargs
             Additional keyword arguments to pass onto
             `~mpl_toolkits.mplot3d.art3d.Poly3DCollection`.
 
         Returns
         -------
-        faces : dict
-            A dictionary indexed by coordinate, where ``faces[i, j, k]`` is a
-            `.Poly3DCollection` of the faces drawn for the voxel
+        faces : VoxelDict
+            A dictionary subclass indexed by coordinate, where ``faces[i, j, k]``
+            is a `.Poly3DCollection` of the faces drawn for the voxel
             ``filled[i, j, k]``. If no faces were drawn for a given voxel,
             either because it was not asked to be drawn, or it is fully
             occluded, then ``(i, j, k) not in faces``.
@@ -3452,6 +3467,10 @@ class Axes3D(Axes):
         .. plot:: gallery/mplot3d/voxels_torus.py
         .. plot:: gallery/mplot3d/voxels_numpy_logo.py
         """
+        mpl.colorizer.ColorizingArtist._check_exclusionary_keywords(
+            colorizer, cmap=cmap, norm=norm, vmin=vmin, vmax=vmax)
+        if colorizer is None:
+            colorizer = mpl.colorizer.Colorizer(cmap, norm)
 
         # work out which signature we should be using, and use it to parse
         # the arguments. Name must be voxels for the correct error message
@@ -3464,6 +3483,13 @@ class Axes3D(Axes):
                 return None, filled, kwargs
 
         xyz, filled, kwargs = voxels(*args, **kwargs)
+
+        if filled.dtype == np.float64:
+            scalars = filled
+            filled = np.isfinite(filled)
+            #colorizer.autoscale_None(scalars[filled])
+        else:
+            scalars = None
 
         # check dimensions
         if filled.ndim != 3:
@@ -3566,7 +3592,7 @@ class Axes3D(Axes):
 
         # iterate over the faces, and generate a Poly3DCollection for each
         # voxel
-        polygons = {}
+        polygons = art3d.VoxelDict(self, colorizer)
         for coord, faces_inds in voxel_faces.items():
             # convert indices into 3D positions
             if xyz is None:
@@ -3588,9 +3614,18 @@ class Axes3D(Axes):
             poly = art3d.Poly3DCollection(
                 faces, facecolors=facecolor, edgecolors=edgecolor,
                 shade=shade, lightsource=lightsource, axlim_clip=axlim_clip,
+                colorizer=colorizer,
                 **kwargs)
             self.add_collection3d(poly)
             polygons[coord] = poly
+
+            poly.voxel_dict_cid = poly.callbacks.connect(
+                'changed', polygons.changed)
+
+        if scalars is not None:
+            A = scalars[*np.array([*polygons.keys()]).T]
+            polygons.colorizer.autoscale_None(A)
+            polygons.set_array(A)
 
         return polygons
 

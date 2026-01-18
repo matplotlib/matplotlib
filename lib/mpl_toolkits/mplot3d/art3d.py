@@ -1206,22 +1206,26 @@ class Poly3DCollection(PolyCollection):
         and _edgecolors properties.
         """
         if shade:
-            normals = _generate_normals(verts)
+            self.shaded = True
+            self.normals = _generate_normals(verts)
+            self.lightsource = lightsource
             facecolors = kwargs.get('facecolors', None)
             if facecolors is not None:
                 kwargs['facecolors'] = _shade_colors(
-                    facecolors, normals, lightsource
+                    facecolors, self.normals, self.lightsource
                 )
 
             edgecolors = kwargs.get('edgecolors', None)
             if edgecolors is not None:
                 kwargs['edgecolors'] = _shade_colors(
-                    edgecolors, normals, lightsource
+                    edgecolors, self.normals, self.lightsource
                 )
             if facecolors is None and edgecolors is None:
                 raise ValueError(
                     "You must provide facecolors, edgecolors, or both for "
                     "shade to work.")
+        else:
+            self.shaded = False
         super().__init__(verts, *args, **kwargs)
         if isinstance(verts, np.ndarray):
             if verts.ndim != 3:
@@ -1232,6 +1236,37 @@ class Poly3DCollection(PolyCollection):
         self.set_zsort(zsort)
         self._codes3d = None
         self._axlim_clip = axlim_clip
+
+    def update_scalarmappable(self):
+        """
+        Update colors from the scalar mappable array, if any.
+
+        This overrides `Collection.update_scalarmappable()`.
+        This function differs in the following way:
+        1. This function only sets facecolors, never edgecolors
+        2. This function applies shading.
+        3. self._A is assumed to have the correct shape
+        """
+        if not self._set_mappable_flags():
+            return
+        # Allow possibility to call 'self.set_array(None)'.
+        if self._A is not None:
+            if np.iterable(self._alpha):
+                if self._alpha.size != self._A.size:
+                    raise ValueError(
+                        f'Data array shape, {self._A.shape} '
+                        'is incompatible with alpha array shape, '
+                        f'{self._alpha.shape}. '
+                        )
+                self._alpha = self._alpha.reshape(self._A.shape)
+            self._mapped_colors = self.to_rgba(self._A, self._alpha)
+            if self.shaded:
+                self._mapped_colors = _shade_colors(
+                        self._mapped_colors, self.normals, self.lightsource
+                    )
+
+            self._facecolors = self._mapped_colors
+        self.stale = True
 
     _zsort_functions = {
         'average': np.average,
@@ -1675,3 +1710,134 @@ def _shade_colors(color, normals, lightsource=None):
         colors = np.asanyarray(color).copy()
 
     return colors
+
+
+class VoxelDict(dict):
+    """
+    A dictionary subclass indexed by coordinate, where ``faces[i, j, k]``
+    is a `.Poly3DCollection` of the faces drawn for the voxel
+    ``filled[i, j, k]``. If no faces were drawn for a given voxel,
+    either because it was not asked to be drawn, or it is fully
+    occluded, then ``(i, j, k) not in faces``.
+
+    This class also supports the functionality required to act as a mappable
+    for a colorbar.
+    """
+
+    def __init__(self, axes, colorizer):
+        """
+        Parameters
+        ----------
+        axes : `mplot3d.axes3d.Axes3D`
+            The axes the voxels are contained in.
+
+        colorizer : `mpl.colorizer.Colorizer`
+            The colorizer uset to convert data to color.
+        """
+        super().__init__(self)
+        self.axes = axes
+        self.colorizer = colorizer
+        self._callbacks = cbook.CallbackRegistry(signals=["changed"])
+        self._A = None
+
+    @property
+    def cmap(self):
+        return self.colorizer.cmap
+
+    @property
+    def norm(self):
+        return self.colorizer.norm
+
+    @property
+    def callbacks(self):
+        return self._callbacks
+
+    def get_array(self):
+        """
+        Return the array of values, that are mapped to colors.
+        """
+        return self._A
+
+    def set_array(self, A):
+        """
+        Set the value array from array-like *A*.
+
+        Parameters
+        ----------
+        A : array-like of length equal to the number of voxels.
+            The values that are mapped to colors.
+
+        """
+
+        self._A = A
+        for a, k in zip(A, self.keys()):
+            self[k].set_array(a)
+
+    def add_callback(self, func):
+        """
+        Add a callback function that will be called whenever one of the
+        `.Artist`'s properties changes.
+
+        Parameters
+        ----------
+        func : callable
+            The callback function. It must have the signature::
+
+                def func(artist: Artist) -> Any
+
+            where *artist* is the calling `.Artist`. Return values may exist
+            but are ignored.
+
+        Returns
+        -------
+        int
+            The observer id associated with the callback. This id can be
+            used for removing the callback with `.remove_callback` later.
+
+        See Also
+        --------
+        remove_callback
+        """
+        # Wrapping func in a lambda ensures it can be connected multiple times
+        # and never gets weakref-gc'ed.
+        return self._callbacks.connect("changed", lambda: func(self))
+
+    def remove_callback(self, oid):
+        """
+        Remove a callback based on its observer id.
+
+        See Also
+        --------
+        add_callback
+        """
+        self._callbacks.disconnect(oid)
+
+    def changed(self, *args):
+        """
+        Call all of the registered callbacks.
+
+        This function is triggered internally when a property is changed.
+
+        See Also
+        --------
+        add_callback
+        remove_callback
+        """
+        self._callbacks.process("changed")
+
+    def get_alpha(self):
+        return 1.0
+
+    def autoscale(self, A):
+        """
+        Autoscale the scalar limits on the norm instance using the
+        current array
+        """
+        self.colorizer.autoscale(A)
+
+    def autoscale_None(self):
+        """
+        Autoscale the scalar limits on the norm instance using the
+        current array, changing only limits that are None
+        """
+        self.colorizer.autoscale_None(self._A)
