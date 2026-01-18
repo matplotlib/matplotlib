@@ -1242,7 +1242,7 @@ Supported properties are
 
     def update(self, props):
         """
-        Update this artist's properties from the dict *props*.
+        Update this artist's properties from the dictionary *props*.
 
         Parameters
         ----------
@@ -1256,9 +1256,15 @@ Supported properties are
 
         Notes
         -----
-        This method is similar to .Artist.set, but does not perform property
-        name normalization. It only supports properties where a corresponding
-        ``set_<prop>`` method explicitly exists.
+        This method is similar to `.Artist.set`, but differs in two ways:
+
+        1. **No Normalization**: It does not normalize property names. It only
+           supports properties where a corresponding ``set_<prop>`` method
+           explicitly exists.
+        2. **No Validation**: It does not check for duplicate aliases. If both
+           an alias and its full name are passed (e.g., ``{'lw': 1, 'linewidth': 2}``),
+           the last value in the dictionary takes precedence, whereas `.set` would
+           raise an error.
 
         For example, if an Artist defines ``set_property`` but not ``set_alias``,
         ``set(alias=1)`` will work (via normalization), whereas
