@@ -1283,20 +1283,47 @@ class Axis(martist.Artist):
         Update ticks (position and labels) using the current data interval of
         the axes.  Return the list of ticks that will be drawn.
         """
-        major_locs = self.get_majorticklocs()
-        major_labels = self.major.formatter.format_ticks(major_locs)
-        major_ticks = self.get_major_ticks(len(major_locs))
-        for tick, loc, label in zip(major_ticks, major_locs, major_labels):
-            tick.update_position(loc)
-            tick.label1.set_text(label)
-            tick.label2.set_text(label)
-        minor_locs = self.get_minorticklocs()
-        minor_labels = self.minor.formatter.format_ticks(minor_locs)
-        minor_ticks = self.get_minor_ticks(len(minor_locs))
-        for tick, loc, label in zip(minor_ticks, minor_locs, minor_labels):
-            tick.update_position(loc)
-            tick.label1.set_text(label)
-            tick.label2.set_text(label)
+        # Check if major ticks should be computed.
+        # Skip if using NullLocator or if all visible components are off.
+        major_kw = self._major_tick_kw
+        major_visible = (major_kw.get('tick1On') is not False or
+                         major_kw.get('tick2On') is not False or
+                         major_kw.get('label1On') is not False or
+                         major_kw.get('label2On') is not False or
+                         major_kw.get('gridOn') is not False)
+
+        if (major_visible
+                and not isinstance(self.get_major_locator(), NullLocator)):
+            major_locs = self.get_majorticklocs()
+            major_labels = self.major.formatter.format_ticks(major_locs)
+            major_ticks = self.get_major_ticks(len(major_locs))
+            for tick, loc, label in zip(major_ticks, major_locs, major_labels):
+                tick.update_position(loc)
+                tick.label1.set_text(label)
+                tick.label2.set_text(label)
+        else:
+            major_ticks = []
+
+        # Check if minor ticks should be computed.
+        minor_kw = self._minor_tick_kw
+        minor_visible = (minor_kw.get('tick1On') is not False or
+                         minor_kw.get('tick2On') is not False or
+                         minor_kw.get('label1On') is not False or
+                         minor_kw.get('label2On') is not False or
+                         minor_kw.get('gridOn') is not False)
+
+        if (minor_visible
+                and not isinstance(self.get_minor_locator(), NullLocator)):
+            minor_locs = self.get_minorticklocs()
+            minor_labels = self.minor.formatter.format_ticks(minor_locs)
+            minor_ticks = self.get_minor_ticks(len(minor_locs))
+            for tick, loc, label in zip(minor_ticks, minor_locs, minor_labels):
+                tick.update_position(loc)
+                tick.label1.set_text(label)
+                tick.label2.set_text(label)
+        else:
+            minor_ticks = []
+
         ticks = [*major_ticks, *minor_ticks]
 
         view_low, view_high = self.get_view_interval()
