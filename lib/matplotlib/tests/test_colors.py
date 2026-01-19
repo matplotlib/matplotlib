@@ -632,8 +632,9 @@ def test_FuncNorm():
     norm = mcolors.FuncNorm((forward, inverse), vmin=0.1, vmax=10)
     lognorm = mcolors.LogNorm(vmin=0.1, vmax=10)
     assert_array_almost_equal(norm([0.2, 5, 10]), lognorm([0.2, 5, 10]))
-    assert_array_almost_equal(norm.inverse([0.2, 5, 10]),
-                              lognorm.inverse([0.2, 5, 10]))
+    # use assert_allclose here for rtol on large numbers
+    np.testing.assert_allclose(norm.inverse([0.2, 5, 10]),
+                               lognorm.inverse([0.2, 5, 10]))
 
 
 def test_TwoSlopeNorm_autoscale():
