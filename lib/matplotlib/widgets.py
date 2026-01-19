@@ -1049,6 +1049,37 @@ class _Buttons(AxesWidget):
     public on the subclasses.
     """
 
+    def __init__(self, ax, labels, *, useblit=True, label_props=None, **kwargs):
+        super().__init__(ax)
+
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_navigate(False)
+
+        self._useblit = useblit
+
+        self._buttons_ys = np.linspace(1, 0, len(labels)+2)[1:-1]
+
+        label_props = _expand_text_props(label_props)
+
+        self.labels = [
+            ax.text(0.25, y, label, transform=ax.transAxes,
+                    horizontalalignment="left", verticalalignment="center",
+                    **props)
+            for y, label, props in zip(self._buttons_ys, labels, label_props)]
+        text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
+
+        self._init_props(text_size, **kwargs)
+
+        self.connect_event('button_press_event', self._clicked)
+        if self._useblit:
+            self.connect_event('draw_event', self._clear)
+
+        self._observers = cbook.CallbackRegistry(signals=["clicked"])
+
+    def _init_props(self, text_size, **kwargs):
+        raise NotImplementedError("This method should be defined in subclasses")
+
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
         if self.ignore(event) or self.canvas.is_saving():
@@ -1171,40 +1202,24 @@ class CheckButtons(_Buttons):
 
             .. versionadded:: 3.7
         """
-        super().__init__(ax)
-
         _api.check_isinstance((dict, None), label_props=label_props,
                               frame_props=frame_props, check_props=check_props)
 
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_navigate(False)
+        super().__init__(ax, labels, useblit=useblit, label_props=label_props,
+                         actives=actives, frame_props=frame_props,
+                         check_props=check_props)
 
-        if actives is None:
-            actives = [False] * len(labels)
-
-        self._useblit = useblit
-
-        self._buttons_ys = np.linspace(1, 0, len(labels)+2)[1:-1]
-
-        label_props = _expand_text_props(label_props)
-        self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
-                    **props)
-            for y, label, props in zip(self._buttons_ys, labels, label_props)]
-        text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
-
+    def _init_props(self, text_size, actives, frame_props, check_props):
         frame_props = {
             's': text_size**2,
             'linewidth': 1,
             **cbook.normalize_kwargs(frame_props, collections.PathCollection),
             'marker': 's',
-            'transform': ax.transAxes,
+            'transform': self.ax.transAxes,
         }
         frame_props.setdefault('facecolor', frame_props.get('color', 'none'))
         frame_props.setdefault('edgecolor', frame_props.pop('color', 'black'))
-        self._frames = ax.scatter(
+        self._frames = self.ax.scatter(
             [0.15] * len(self._buttons_ys),
             self._buttons_ys,
             **frame_props,
@@ -1214,28 +1229,24 @@ class CheckButtons(_Buttons):
             's': text_size**2,
             **cbook.normalize_kwargs(check_props, collections.PathCollection),
             'marker': 'x',
-            'transform': ax.transAxes,
+            'transform': self.ax.transAxes,
             'animated': self._useblit and self.canvas.supports_blit,
             # TODO: This may need an update when switching out the canvas.
             #       Can set this to `_useblit` only and live with the animated=True
             #       overhead on unsupported backends.
         }
         check_props.setdefault('facecolor', check_props.pop('color', 'black'))
-        self._buttons = ax.scatter(
+        self._buttons = self.ax.scatter(
             [0.15] * len(self._buttons_ys),
             self._buttons_ys,
             **check_props
         )
+        if actives is None:
+            actives = [False] * len(self.labels)
         # The user may have passed custom colours in check_props, so we need to
         # create the checks (above), and modify the visibility after getting
         # whatever the user set.
         self._init_status(actives)
-
-        self.connect_event('button_press_event', self._clicked)
-        if self._useblit:
-            self.connect_event('draw_event', self._clear)
-
-        self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
     def set_frame_props(self, props):
         """
@@ -1698,8 +1709,6 @@ class RadioButtons(_Buttons):
 
             .. versionadded:: 3.7
         """
-        super().__init__(ax)
-
         _api.check_isinstance((dict, None), label_props=label_props,
                               radio_props=radio_props)
 
@@ -1713,33 +1722,21 @@ class RadioButtons(_Buttons):
                     '*activecolor* will be ignored.')
         else:
             activecolor = 'blue'  # Default.
+        super().__init__(ax, labels, useblit=useblit, label_props=label_props,
+                         active=active, activecolor=activecolor,
+                         radio_props=radio_props)
 
         self._activecolor = activecolor
         self._initial_active = active
         self.value_selected = labels[active]
         self.index_selected = active
 
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_navigate(False)
-
-        self._buttons_ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
-
-        self._useblit = useblit
-
-        label_props = _expand_text_props(label_props)
-        self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
-                    **props)
-            for y, label, props in zip(self._buttons_ys, labels, label_props)]
-        text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
-
+    def _init_props(self, text_size, active, activecolor, radio_props):
         radio_props = {
             's': text_size**2,
             **radio_props,
             'marker': 'o',
-            'transform': ax.transAxes,
+            'transform': self.ax.transAxes,
             'animated': self._useblit and self.canvas.supports_blit,
             # TODO: This may need an update when switching out the canvas.
             #       Can set this to `_useblit` only and live with the animated=True
@@ -1749,7 +1746,7 @@ class RadioButtons(_Buttons):
         radio_props.setdefault('edgecolor', radio_props.get('color', 'black'))
         radio_props.setdefault('facecolor',
                                radio_props.pop('color', activecolor))
-        self._buttons = ax.scatter(
+        self._buttons = self.ax.scatter(
             [.15] * len(self._buttons_ys),
             self._buttons_ys,
             **radio_props,
@@ -1759,17 +1756,11 @@ class RadioButtons(_Buttons):
         # the user set.
         self._active_colors = self._buttons.get_facecolor()
         if len(self._active_colors) == 1:
-            self._active_colors = np.repeat(self._active_colors, len(labels),
+            self._active_colors = np.repeat(self._active_colors, len(self.labels),
                                             axis=0)
         self._buttons.set_facecolor(
             [activecolor if i == active else "none"
              for i, activecolor in enumerate(self._active_colors)])
-
-        self.connect_event('button_press_event', self._clicked)
-        if self._useblit:
-            self.connect_event('draw_event', self._clear)
-
-        self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
     def set_radio_props(self, props):
         """
