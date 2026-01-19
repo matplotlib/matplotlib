@@ -405,7 +405,7 @@ class Axis(maxis.XAxis):
 
     def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
                     deltas_per_point, pos):
-        ticks = self._ticks_to_draw
+        ticks = self._ticks_to_draw  # Set with _update_ticks() in axes3d.draw()
         n_ticks = len(ticks)
         if n_ticks == 0:
             return
@@ -628,11 +628,11 @@ class Axis(maxis.XAxis):
         if not self.axes._draw_grid:
             return
 
-        renderer.open_group("grid3d", gid=self.get_gid())
-
-        ticks = self._ticks_to_draw
+        ticks = self._ticks_to_draw  # Set with _update_ticks() in axes3d.draw()
         if len(ticks) == 0:
             return
+
+        renderer.open_group("grid3d", gid=self.get_gid())
 
         # Get general axis information:
         info = self._axinfo
