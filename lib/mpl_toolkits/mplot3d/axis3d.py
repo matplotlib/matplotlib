@@ -158,6 +158,7 @@ class Axis(maxis.XAxis):
 
         self.axes._set_artist_props(self.line)
         self.axes._set_artist_props(self.pane)
+        self._ticks_to_draw = []
         self.gridlines = art3d.Line3DCollection([])
         self.axes._set_artist_props(self.gridlines)
         self.axes._set_artist_props(self.label)
@@ -403,7 +404,7 @@ class Axis(maxis.XAxis):
 
     def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
                     deltas_per_point, pos):
-        ticks = self._update_ticks()
+        ticks = self._ticks_to_draw
         info = self._axinfo
         index = info["i"]
         juggled = info["juggled"]
@@ -608,7 +609,7 @@ class Axis(maxis.XAxis):
 
         renderer.open_group("grid3d", gid=self.get_gid())
 
-        ticks = self._update_ticks()
+        ticks = self._ticks_to_draw
         if len(ticks):
             # Get general axis information:
             info = self._axinfo
