@@ -292,12 +292,22 @@ class LogTransform(Transform):
         self._base = base
         self._clip = _api.check_getitem(
             {"clip": True, "mask": False}, nonpositive=nonpositive)
-        self._log_func = {np.e: np.log, 2: np.log2, 10: np.log10}.get(base)
-        self._inv_log_base = 1.0 / np.log(base) if not self._log_func else 1
+        self._calc_log_params()
+
+    def _calc_log_params(self):
+        self._log_func = {np.e: np.log, 2: np.log2, 10: np.log10}.get(self._base)
+        self._inv_log_base = 1.0 / np.log(self._base) if not self._log_func else 1
 
     @property
     def base(self):
         return self._base
+
+    @base.setter
+    def base(self, value):
+        if value <= 0 or value == 1:
+            raise ValueError('The log base cannot be <= 0 or == 1')
+        self._base = value
+        self._calc_log_params()
 
     def __str__(self):
         return "{}(base={}, nonpositive={!r})".format(
@@ -333,12 +343,20 @@ class InvertedLogTransform(Transform):
     def __init__(self, base):
         super().__init__()
         self._base = base
-        self._exp_func = {np.e: np.exp, 2: np.exp2}.get(base)
-        self._exp_scale = 1.0 if self._exp_func else np.log(base)
+        self._calc_exp_params()
+
+    def _calc_exp_params(self):
+        self._exp_func = {np.e: np.exp, 2: np.exp2}.get(self._base)
+        self._exp_scale = 1.0 if self._exp_func else np.log(self._base)
 
     @property
     def base(self):
         return self._base
+
+    @base.setter
+    def base(self, value):
+        self._base = value
+        self._calc_exp_params()
 
     def __str__(self):
         return f"{type(self).__name__}(base={self.base})"
@@ -461,23 +479,47 @@ class SymmetricalLogTransform(Transform):
         self._base = base
         self._linthresh = linthresh
         self._linscale = linscale
-        self._linscale_adj = (linscale / (1.0 - base ** -1))
-        self._log_base = np.log(base)
+        self._calc_params()
+
+    def _calc_params(self):
+        self._linscale_adj = (self._linscale / (1.0 - self._base ** -1))
+        self._log_base = np.log(self._base)
         self._inv_log_base = 1.0 / self._log_base
         self._log_transform_const = (
-            self._linscale_adj - np.log(linthresh) * self._inv_log_base)
+            self._linscale_adj - np.log(self._linthresh) * self._inv_log_base)
 
     @property
     def base(self):
         return self._base
 
+    @base.setter
+    def base(self, value):
+        if value <= 1.0:
+            raise ValueError("'base' must be larger than 1")
+        self._base = value
+        self._calc_params()
+
     @property
     def linthresh(self):
         return self._linthresh
 
+    @linthresh.setter
+    def linthresh(self, value):
+        if value <= 0.0:
+            raise ValueError("'linthresh' must be positive")
+        self._linthresh = value
+        self._calc_params()
+
     @property
     def linscale(self):
         return self._linscale
+
+    @linscale.setter
+    def linscale(self, value):
+        if value <= 0.0:
+            raise ValueError("'linscale' must be positive")
+        self._linscale = value
+        self._calc_params()
 
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
@@ -500,21 +542,44 @@ class InvertedSymmetricalLogTransform(Transform):
 
     def __init__(self, base, linthresh, linscale):
         super().__init__()
-        symlog = SymmetricalLogTransform(base, linthresh, linscale)
+        if base <= 1.0:
+            raise ValueError("'base' must be larger than 1")
+        if linthresh <= 0.0:
+            raise ValueError("'linthresh' must be positive")
+        if linscale <= 0.0:
+            raise ValueError("'linscale' must be positive")
         self._base = base
         self._linthresh = linthresh
-        self._invlinthresh = symlog.transform(linthresh)
         self._linscale = linscale
-        self._linscale_adj = (linscale / (1.0 - base ** -1))
-        self._ln_base = np.log(base)
+        self._calc_params()
+
+    def _calc_params(self):
+        self._linscale_adj = (self._linscale / (1.0 - self._base ** -1))
+        self._ln_base = np.log(self._base)
+        symlog = SymmetricalLogTransform(self._base, self._linthresh, self._linscale)
+        self._invlinthresh = symlog.transform(self._linthresh)
 
     @property
     def base(self):
         return self._base
 
+    @base.setter
+    def base(self, value):
+        if value <= 1.0:
+            raise ValueError("'base' must be larger than 1")
+        self._base = value
+        self._calc_params()
+
     @property
     def linthresh(self):
         return self._linthresh
+
+    @linthresh.setter
+    def linthresh(self, value):
+        if value <= 0.0:
+            raise ValueError("'linthresh' must be positive")
+        self._linthresh = value
+        self._calc_params()
 
     @property
     def invlinthresh(self):
@@ -526,6 +591,13 @@ class InvertedSymmetricalLogTransform(Transform):
     @property
     def linscale(self):
         return self._linscale
+
+    @linscale.setter
+    def linscale(self, value):
+        if value <= 0.0:
+            raise ValueError("'linscale' must be positive")
+        self._linscale = value
+        self._calc_params()
 
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
