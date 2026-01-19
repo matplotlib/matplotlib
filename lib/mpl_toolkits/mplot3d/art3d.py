@@ -543,7 +543,11 @@ class Line3DCollection(LineCollection):
 
         # FIXME
         if len(xyzs) > 0:
-            minz = min(np.min(xyzs[..., 2][~mask]), 1e9)
+            zs = xyzs[..., 2]
+            if mask is False:
+                minz = min(np.min(zs), 1e9)
+            else:
+                minz = min(np.min(zs[~mask[..., 0]]), 1e9)
         else:
             minz = np.nan
         return minz
@@ -624,6 +628,8 @@ class Patch3D(Patch):
                 zs = np.where(mask, np.nan, zs)
         vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(xs, ys, zs, self.axes)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]))
+        if mask is False:
+            return np.min(vzs)
         return np.min(vzs[~mask])
 
 
@@ -687,6 +693,8 @@ class PathPatch3D(Patch3D):
         vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(xs, ys, zs, self.axes)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
 
+        if mask is False:
+            return np.min(vzs)
         return np.min(vzs[~mask])
 
 
@@ -836,6 +844,8 @@ class Patch3DCollection(PatchCollection):
         super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
+            if mask is False:
+                return np.min(vzs)
             return np.min(vzs[~mask])
         else:
             return np.nan
