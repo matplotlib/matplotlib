@@ -218,12 +218,11 @@ class Text3D(mtext.Text):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        pos3d = np.array([self._x, self._y, self._z], dtype=float)
         if self._axlim_clip:
             mask = _viewlim_mask(self._x, self._y, self._z, self.axes)
-            pos3d = np.ma.array([self._x, self._y, self._z],
-                                mask=mask, dtype=float).filled(np.nan)
-        else:
-            pos3d = np.array([self._x, self._y, self._z], dtype=float)
+            if np.any(mask):
+                pos3d = np.where(mask, np.nan, pos3d)
 
         # Apply scale transforms before projection
         pos3d_scaled = np.array(_apply_scale_transforms(
@@ -361,15 +360,13 @@ class Line3D(lines.Line2D):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        xs3d, ys3d, zs3d = self._verts3d
         if self._axlim_clip:
-            mask = np.broadcast_to(
-                _viewlim_mask(*self._verts3d, self.axes),
-                (len(self._verts3d), *self._verts3d[0].shape)
-            )
-            xs3d, ys3d, zs3d = np.ma.array(self._verts3d,
-                                           dtype=float, mask=mask).filled(np.nan)
-        else:
-            xs3d, ys3d, zs3d = self._verts3d
+            mask = _viewlim_mask(xs3d, ys3d, zs3d, self.axes)
+            if np.any(mask):
+                xs3d = np.where(mask, np.nan, xs3d)
+                ys3d = np.where(mask, np.nan, ys3d)
+                zs3d = np.where(mask, np.nan, zs3d)
         # Apply scale transforms before projection
         xs3d, ys3d, zs3d = _apply_scale_transforms(xs3d, ys3d, zs3d, self.axes)
         xs, ys, zs, tis = proj3d._proj_transform_clip(xs3d, ys3d, zs3d,
@@ -462,9 +459,14 @@ class Collection3D(Collection):
         """Project the points according to renderer matrix."""
         vs_list = [vs for vs, _ in self._3dverts_codes]
         if self._axlim_clip:
-            vs_list = [np.ma.array(vs, mask=np.broadcast_to(
-                       _viewlim_mask(*vs.T, self.axes), vs.shape))
-                       for vs in vs_list]
+            vs_list_new = []
+            for vs in vs_list:
+                mask = _viewlim_mask(*vs.T, self.axes)
+                if np.any(mask):
+                    vs = vs.astype(float, copy=True)
+                    vs[mask] = np.nan
+                vs_list_new.append(vs)
+            vs_list = vs_list_new
         # Apply scale transforms before projection
         xyzs_list = []
         for vs in vs_list:
@@ -472,10 +474,10 @@ class Collection3D(Collection):
                 vs[:, 0], vs[:, 1], vs[:, 2], self.axes)
             xyzs_list.append(proj3d.proj_transform(
                 xs_scaled, ys_scaled, zs_scaled, self.axes.M))
-        self._paths = [mpath.Path(np.ma.column_stack([xs, ys]), cs)
+        self._paths = [mpath.Path(np.column_stack([xs, ys]), cs)
                        for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
         zs = np.concatenate([zs for _, _, zs in xyzs_list])
-        return zs.min() if len(zs) else 1e9
+        return np.nanmin(zs) if len(zs) else 1e9
 
 
 def collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
@@ -566,14 +568,14 @@ class Line3DCollection(LineCollection):
             segments[..., 0], segments[..., 1], segments[..., 2], self.axes)
         segments_scaled = np.stack([xs_scaled, ys_scaled, zs_scaled], axis=-1)
 
-        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments_scaled, self.axes.M),
-                           mask=mask)
+        xyzs = np.asarray(proj3d._proj_transform_vectors(segments_scaled, self.axes.M))
+        xyzs[mask] = np.nan
         segments_2d = xyzs[..., 0:2]
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
         if len(xyzs) > 0:
-            minz = min(xyzs[..., 2].min(), 1e9)
+            minz = min(np.nanmin(xyzs[..., 2]), 1e9)
         else:
             minz = np.nan
         return minz
@@ -644,19 +646,20 @@ class Patch3D(Patch):
 
     def do_3d_projection(self):
         s = self._segment3d
+        xs, ys, zs = zip(*s)
         if self._axlim_clip:
-            mask = _viewlim_mask(*zip(*s), self.axes)
-            xs, ys, zs = np.ma.array(zip(*s),
-                                     dtype=float, mask=mask).filled(np.nan)
-        else:
-            xs, ys, zs = zip(*s)
+            mask = _viewlim_mask(xs, ys, zs, self.axes)
+            if np.any(mask):
+                xs = np.where(mask, np.nan, xs)
+                ys = np.where(mask, np.nan, ys)
+                zs = np.where(mask, np.nan, zs)
         # Apply scale transforms before projection
         xs, ys, zs = _apply_scale_transforms(xs, ys, zs, self.axes)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
-        self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]))
-        return min(vzs)
+        self._path2d = mpath.Path(np.column_stack([vxs, vys]))
+        return np.nanmin(vzs)
 
 
 class PathPatch3D(Patch3D):
@@ -708,19 +711,20 @@ class PathPatch3D(Patch3D):
 
     def do_3d_projection(self):
         s = self._segment3d
+        xs, ys, zs = zip(*s)
         if self._axlim_clip:
-            mask = _viewlim_mask(*zip(*s), self.axes)
-            xs, ys, zs = np.ma.array(zip(*s),
-                                     dtype=float, mask=mask).filled(np.nan)
-        else:
-            xs, ys, zs = zip(*s)
+            mask = _viewlim_mask(xs, ys, zs, self.axes)
+            if np.any(mask):
+                xs = np.where(mask, np.nan, xs)
+                ys = np.where(mask, np.nan, ys)
+                zs = np.where(mask, np.nan, zs)
         # Apply scale transforms before projection
         xs, ys, zs = _apply_scale_transforms(xs, ys, zs, self.axes)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
-        self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]), self._code3d)
-        return min(vzs)
+        self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
+        return np.nanmin(vzs)
 
 
 def _get_patch_verts(patch):
@@ -856,24 +860,23 @@ class Patch3DCollection(PatchCollection):
         self.stale = True
 
     def do_3d_projection(self):
+        xs, ys, zs = self._offsets3d
         if self._axlim_clip:
-            mask = _viewlim_mask(*self._offsets3d, self.axes)
-            xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
-        else:
-            xs, ys, zs = self._offsets3d
+            mask = _viewlim_mask(xs, ys, zs, self.axes)
+            if np.any(mask):
+                xs = np.where(mask, np.nan, xs)
+                ys = np.where(mask, np.nan, ys)
+                zs = np.where(mask, np.nan, zs)
         # Apply scale transforms before projection
         xs, ys, zs = _apply_scale_transforms(xs, ys, zs, self.axes)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
         self._vzs = vzs
-        if np.ma.isMA(vxs):
-            super().set_offsets(np.ma.column_stack([vxs, vys]))
-        else:
-            super().set_offsets(np.column_stack([vxs, vys]))
+        super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
-            return min(vzs)
+            return np.nanmin(vzs)
         else:
             return np.nan
 
