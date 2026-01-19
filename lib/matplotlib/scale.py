@@ -451,14 +451,18 @@ class SymmetricalLogTransform(Transform):
         self.linscale = linscale
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
         self._log_base = np.log(base)
+        self._inv_log_base = 1.0 / self._log_base
+        self._log_transform_const = (
+            self._linscale_adj - np.log(linthresh) * self._inv_log_base)
 
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
+        inside = abs_a <= self.linthresh
+        if np.all(inside):  # Fast path: all values in linear region
+            return values * self._linscale_adj
         with np.errstate(divide="ignore", invalid="ignore"):
             out = np.sign(values) * self.linthresh * (
-                self._linscale_adj +
-                np.log(abs_a / self.linthresh) / self._log_base)
-            inside = abs_a <= self.linthresh
+                self._log_transform_const + np.log(abs_a) * self._inv_log_base)
         out[inside] = values[inside] * self._linscale_adj
         return out
 
@@ -478,14 +482,16 @@ class InvertedSymmetricalLogTransform(Transform):
         self.invlinthresh = symlog.transform(linthresh)
         self.linscale = linscale
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
+        self._ln_base = np.log(base)
 
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
+        inside = abs_a <= self.invlinthresh
+        if np.all(inside):  # Fast path: all values in linear region
+            return values / self._linscale_adj
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(values) * self.linthresh * (
-                np.power(self.base,
-                         abs_a / self.linthresh - self._linscale_adj))
-            inside = abs_a <= self.invlinthresh
+            out = np.sign(values) * self.linthresh * np.exp(
+                (abs_a / self.linthresh - self._linscale_adj) * self._ln_base)
         out[inside] = values[inside] / self._linscale_adj
         return out
 
