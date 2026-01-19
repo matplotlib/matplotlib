@@ -267,38 +267,6 @@ class Axis(maxis.XAxis):
         else:
             return len(text) > 4
 
-    def _get_coord_info(self):
-        # Get scaled limits directly from the axes helper
-        xmin, xmax, ymin, ymax, zmin, zmax = self.axes._get_scaled_limits()
-        mins = np.array([xmin, ymin, zmin])
-        maxs = np.array([xmax, ymax, zmax])
-
-        # Get data-space bounds for _transformed_cube
-        bounds = (*self.axes.get_xbound(), *self.axes.get_ybound(),
-                  *self.axes.get_zbound())
-        bounds_proj = self.axes._transformed_cube(bounds)
-
-        # Determine which one of the parallel planes are higher up:
-        means_z0 = np.zeros(3)
-        means_z1 = np.zeros(3)
-        for i in range(3):
-            means_z0[i] = np.mean(bounds_proj[self._PLANES[2 * i], 2])
-            means_z1[i] = np.mean(bounds_proj[self._PLANES[2 * i + 1], 2])
-        highs = means_z0 < means_z1
-
-        # Special handling for edge-on views
-        equals = np.abs(means_z0 - means_z1) <= np.finfo(float).eps
-        if np.sum(equals) == 2:
-            vertical = np.where(~equals)[0][0]
-            if vertical == 2:  # looking at XY plane
-                highs = np.array([True, True, highs[2]])
-            elif vertical == 1:  # looking at XZ plane
-                highs = np.array([True, highs[1], False])
-            elif vertical == 0:  # looking at YZ plane
-                highs = np.array([highs[0], False, False])
-
-        return mins, maxs, bounds_proj, highs
-
     def _calc_centers_deltas(self, maxs, mins):
         centers = 0.5 * (maxs + mins)
         # In mpl3.8, the scale factor was 1/12. mpl3.9 changes this to
@@ -403,7 +371,7 @@ class Axis(maxis.XAxis):
         return tickdir
 
     def active_pane(self):
-        mins, maxs, tc, highs = self._get_coord_info()
+        mins, maxs, tc, highs = self.axes._get_coord_info()
         info = self._axinfo
         index = info['i']
         if not highs[index]:
@@ -441,7 +409,7 @@ class Axis(maxis.XAxis):
         index = info["i"]
         juggled = info["juggled"]
 
-        mins, maxs, tc, highs = self._get_coord_info()
+        mins, maxs, tc, highs = self.axes._get_coord_info()
         centers, deltas = self._calc_centers_deltas(maxs, mins)
 
         # Get the scale transform for this axis to transform tick locations
@@ -576,7 +544,7 @@ class Axis(maxis.XAxis):
         renderer.open_group("axis3d", gid=self.get_gid())
 
         # Get general axis information:
-        mins, maxs, tc, highs = self._get_coord_info()
+        mins, maxs, tc, highs = self.axes._get_coord_info()
         centers, deltas = self._calc_centers_deltas(maxs, mins)
 
         # Calculate offset distances
@@ -648,10 +616,9 @@ class Axis(maxis.XAxis):
             index = info["i"]
 
             # Grid lines use data-space bounds (Line3DCollection applies transforms)
-            mins, maxs, tc, highs = self._get_coord_info()
-            xlim, ylim, zlim = (self.axes.get_xbound(),
-                                self.axes.get_ybound(),
-                                self.axes.get_zbound())
+            mins, maxs, tc, highs = self.axes._get_coord_info()
+            bounds = self.axes._get_bounds()
+            xlim, ylim, zlim = bounds[0:2], bounds[2:4], bounds[4:6]
             data_mins = np.array([xlim[0], ylim[0], zlim[0]])
             data_maxs = np.array([xlim[1], ylim[1], zlim[1]])
             minmax = np.where(highs, data_maxs, data_mins)
