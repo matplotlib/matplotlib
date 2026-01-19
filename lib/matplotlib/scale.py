@@ -296,7 +296,9 @@ class LogTransform(Transform):
 
     def _calc_log_params(self):
         self._log_func = {np.e: np.log, 2: np.log2, 10: np.log10}.get(self._base)
-        self._inv_log_base = 1.0 / np.log(self._base) if not self._log_func else 1
+        if self._log_func is None:
+            inv_log_base = 1 / np.log(self._base)
+            self._log_func = lambda x: np.log(x) * inv_log_base
 
     @property
     def base(self):
@@ -316,10 +318,7 @@ class LogTransform(Transform):
     def transform_non_affine(self, values):
         # Ignore invalid values due to nans being passed to the transform.
         with np.errstate(divide="ignore", invalid="ignore"):
-            if self._log_func:  # If possible, do everything in a single call to NumPy.
-                out = self._log_func(values)
-            else:
-                out = np.log(values) * self._inv_log_base
+            out = self._log_func(values)
             if self._clip:
                 # SVG spec says that conforming viewers must support values up
                 # to 3.4e38 (C float); however experiments suggest that
@@ -347,7 +346,9 @@ class InvertedLogTransform(Transform):
 
     def _calc_exp_params(self):
         self._exp_func = {np.e: np.exp, 2: np.exp2}.get(self._base)
-        self._exp_scale = 1.0 if self._exp_func else np.log(self._base)
+        if self._exp_func is None:
+            exp_scale = np.log(self._base)
+            self._exp_func = lambda x: np.exp(x * exp_scale)
 
     @property
     def base(self):
@@ -362,9 +363,7 @@ class InvertedLogTransform(Transform):
         return f"{type(self).__name__}(base={self.base})"
 
     def transform_non_affine(self, values):
-        if self._exp_func:
-            return self._exp_func(values)
-        return np.exp(values * self._exp_scale)
+        return self._exp_func(values)
 
     def inverted(self):
         return LogTransform(self.base)
