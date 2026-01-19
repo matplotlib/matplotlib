@@ -575,7 +575,7 @@ class Line3DCollection(LineCollection):
 
         # FIXME
         if len(xyzs) > 0:
-            minz = min(np.nanmin(xyzs[..., 2]), 1e9)
+            minz = min(np.min(xyzs[..., 2][~mask]), 1e9)
         else:
             minz = np.nan
         return minz
@@ -646,6 +646,7 @@ class Patch3D(Patch):
 
     def do_3d_projection(self):
         s = self._segment3d
+        mask = False
         xs, ys, zs = zip(*s)
         if self._axlim_clip:
             mask = _viewlim_mask(xs, ys, zs, self.axes)
@@ -659,7 +660,7 @@ class Patch3D(Patch):
                                                          self.axes.M,
                                                          self.axes._focal_length)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]))
-        return np.nanmin(vzs)
+        return np.min(vzs[~mask])
 
 
 class PathPatch3D(Patch3D):
@@ -711,6 +712,7 @@ class PathPatch3D(Patch3D):
 
     def do_3d_projection(self):
         s = self._segment3d
+        mask = False
         xs, ys, zs = zip(*s)
         if self._axlim_clip:
             mask = _viewlim_mask(xs, ys, zs, self.axes)
@@ -724,7 +726,8 @@ class PathPatch3D(Patch3D):
                                                          self.axes.M,
                                                          self.axes._focal_length)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
-        return np.nanmin(vzs)
+
+        return np.min(vzs[~mask])
 
 
 def _get_patch_verts(patch):
@@ -861,6 +864,7 @@ class Patch3DCollection(PatchCollection):
 
     def do_3d_projection(self):
         xs, ys, zs = self._offsets3d
+        mask = False
         if self._axlim_clip:
             mask = _viewlim_mask(xs, ys, zs, self.axes)
             if np.any(mask):
@@ -876,7 +880,7 @@ class Patch3DCollection(PatchCollection):
         super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
-            return np.nanmin(vzs)
+            return np.min(vzs[~mask])
         else:
             return np.nan
 
