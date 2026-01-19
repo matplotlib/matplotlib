@@ -335,6 +335,9 @@ class LogTransform(Transform):
     def inverted(self):
         return InvertedLogTransform(self.base)
 
+    def __reduce__(self):
+        return (type(self), (self._base, "clip" if self._clip else "mask"))
+
 
 class InvertedLogTransform(Transform):
     input_dims = output_dims = 1
@@ -367,6 +370,9 @@ class InvertedLogTransform(Transform):
 
     def inverted(self):
         return LogTransform(self.base)
+
+    def __reduce__(self):
+        return (type(self), (self._base,))
 
 
 class LogScale(ScaleBase):
