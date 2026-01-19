@@ -1278,6 +1278,18 @@ class Axis(martist.Artist):
             return
         a.set_figure(self.get_figure(root=False))
 
+    @staticmethod
+    def _tick_group_visible(kw):
+        """
+        Check if any of the tick group components are visible.
+        Takes in self._major_tick_kw or self._minor_tick_kw.
+        """
+        return (kw.get('tick1On') is not False or
+                kw.get('tick2On') is not False or
+                kw.get('label1On') is not False or
+                kw.get('label2On') is not False or
+                kw.get('gridOn') is not False)
+
     def _update_ticks(self):
         """
         Update ticks (position and labels) using the current data interval of
@@ -1285,14 +1297,7 @@ class Axis(martist.Artist):
         """
         # Check if major ticks should be computed.
         # Skip if using NullLocator or if all visible components are off.
-        major_kw = self._major_tick_kw
-        major_visible = (major_kw.get('tick1On') is not False or
-                         major_kw.get('tick2On') is not False or
-                         major_kw.get('label1On') is not False or
-                         major_kw.get('label2On') is not False or
-                         major_kw.get('gridOn') is not False)
-
-        if (major_visible
+        if (self._tick_group_visible(self._major_tick_kw)
                 and not isinstance(self.get_major_locator(), NullLocator)):
             major_locs = self.get_majorticklocs()
             major_labels = self.major.formatter.format_ticks(major_locs)
@@ -1305,14 +1310,7 @@ class Axis(martist.Artist):
             major_ticks = []
 
         # Check if minor ticks should be computed.
-        minor_kw = self._minor_tick_kw
-        minor_visible = (minor_kw.get('tick1On') is not False or
-                         minor_kw.get('tick2On') is not False or
-                         minor_kw.get('label1On') is not False or
-                         minor_kw.get('label2On') is not False or
-                         minor_kw.get('gridOn') is not False)
-
-        if (minor_visible
+        if (self._tick_group_visible(self._minor_tick_kw)
                 and not isinstance(self.get_minor_locator(), NullLocator)):
             minor_locs = self.get_minorticklocs()
             minor_labels = self.minor.formatter.format_ticks(minor_locs)
