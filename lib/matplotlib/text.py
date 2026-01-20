@@ -6,10 +6,10 @@ from collections.abc import Sequence
 import functools
 import logging
 import math
-from numbers import Real
 import weakref
-
 import numpy as np
+from numbers import Real
+from functools import lru_cache
 
 import matplotlib as mpl
 from . import _api, artist, cbook, _docstring
@@ -22,6 +22,14 @@ from .transforms import (
 
 
 _log = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=128)
+def _rotate(theta):
+    """
+    Return an Affine2D object that rotates by the given angle in radians.
+    """
+    return Affine2D().rotate(theta)
 
 
 def _get_textbox(text, renderer):
@@ -39,8 +47,8 @@ def _get_textbox(text, renderer):
 
     projected_xys = []
 
-    theta = np.deg2rad(text.get_rotation())
-    tr = Affine2D().rotate(-theta)
+    theta = math.radians(text.get_rotation())
+    tr = _rotate(-theta)
 
     _, parts = text._get_layout(renderer)
 
@@ -57,7 +65,7 @@ def _get_textbox(text, renderer):
     xt_box, yt_box = min(projected_xs), min(projected_ys)
     w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
 
-    x_box, y_box = Affine2D().rotate(theta).transform((xt_box, yt_box))
+    x_box, y_box = _rotate(theta).transform((xt_box, yt_box))
 
     return x_box, y_box, w_box, h_box
 
@@ -497,7 +505,8 @@ class Text(Artist):
         ymin = ys[-1] - descent  # baseline of last line minus its descent
 
         # get the rotation matrix
-        M = Affine2D().rotate_deg(self.get_rotation())
+        rotation = self.get_rotation()
+        M = _rotate(math.radians(rotation))
 
         # now offset the individual text lines within the box
         malign = self._get_multialignment()
@@ -531,11 +540,10 @@ class Text(Artist):
 
         rotation_mode = self.get_rotation_mode()
         if rotation_mode != "anchor":
-            angle = self.get_rotation()
             if rotation_mode == 'xtick':
-                halign = self._ha_for_angle(angle)
+                halign = self._ha_for_angle(rotation)
             elif rotation_mode == 'ytick':
-                valign = self._va_for_angle(angle)
+                valign = self._va_for_angle(rotation)
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
             if halign == 'center':
