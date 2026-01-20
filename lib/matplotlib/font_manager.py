@@ -28,7 +28,6 @@ Future versions may implement the Level 2 or 2.1 specifications.
 from __future__ import annotations
 
 from base64 import b64encode
-import copy
 import dataclasses
 from functools import cache, lru_cache
 import functools
@@ -1021,9 +1020,22 @@ class FontProperties:
             _api.check_in_list(valid_fonts, math_fontfamily=fontfamily)
         self._math_fontfamily = fontfamily
 
+    def __copy__(self):
+        # Bypass __init__ for speed, since values are already validated
+        new = FontProperties.__new__(FontProperties)
+        new._family = self._family
+        new._slant = self._slant
+        new._variant = self._variant
+        new._weight = self._weight
+        new._stretch = self._stretch
+        new._size = self._size
+        new._file = self._file
+        new._math_fontfamily = self._math_fontfamily
+        return new
+
     def copy(self):
         """Return a copy of self."""
-        return copy.copy(self)
+        return self.__copy__()
 
     # Aliases
     set_name = set_family
