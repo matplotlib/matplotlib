@@ -683,15 +683,11 @@ class Line2D(Artist):
         else:
             y = self._y
 
-        # Fast path for common case where x and y have same shape
-        if x.shape == y.shape:
-            self._xy = np.empty((x.size, 2), dtype=float)
-            self._xy[:, 0] = x
-            self._xy[:, 1] = y
-        else:
-            self._xy = np.column_stack(np.broadcast_arrays(x, y)).astype(float)
-        self._x = self._xy[:, 0]  # view
-        self._y = self._xy[:, 1]  # view
+        self._xy = np.empty((max(len(x), len(y)), 2), dtype=float)
+        self._xy[:, 0] = x  # broadcast x and y to the same shape
+        self._xy[:, 1] = y
+        self._x = self._xy[:, 0]  # views of the x and y data
+        self._y = self._xy[:, 1]
 
         self._subslice = False
         if (self.axes
