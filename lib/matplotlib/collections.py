@@ -1511,8 +1511,15 @@ class FillBetweenPolyCollection(PolyCollection):
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
 
         self._bbox = transforms.Bbox.null()
-        self._bbox.update_from_data_xy(self._fix_pts_xy_order(np.concatenate([
-            np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)])))
+        t_w = t.data[where] if np.ma.isMA(t) else t[where]
+        n = len(t_w)
+        if n > 0:
+            pts = np.empty((2 * n, 2))
+            pts[:n, 0] = t_w
+            pts[:n, 1] = f1.data[where] if np.ma.isMA(f1) else f1[where]
+            pts[n:, 0] = t_w
+            pts[n:, 1] = f2.data[where] if np.ma.isMA(f2) else f2[where]
+            self._bbox.update_from_data_xy(self._fix_pts_xy_order(pts))
 
         return [
             self._make_verts_for_region(t, f1, f2, idx0, idx1)
@@ -1571,11 +1578,15 @@ class FillBetweenPolyCollection(PolyCollection):
             start = t_slice[0], f2_slice[0]
             end = t_slice[-1], f2_slice[-1]
 
-        pts = np.concatenate((
-            np.asarray([start]),
-            np.stack((t_slice, f1_slice), axis=-1),
-            np.asarray([end]),
-            np.stack((t_slice, f2_slice), axis=-1)[::-1]))
+        # Preallocate and fill for speed
+        n = len(t_slice)
+        pts = np.empty((2 * n + 2, 2))
+        pts[0] = start
+        pts[1:n+1, 0] = t_slice
+        pts[1:n+1, 1] = f1_slice
+        pts[n+1] = end
+        pts[n+2:, 0] = t_slice[::-1]
+        pts[n+2:, 1] = f2_slice[::-1]
 
         return self._fix_pts_xy_order(pts)
 
