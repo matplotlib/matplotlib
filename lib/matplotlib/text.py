@@ -525,11 +525,12 @@ class Text(Artist):
 
         # now rotate the bbox
         corners_rotated = M.transform(corners_horiz)
-        # compute the bounds of the rotated box
-        xmin = corners_rotated[:, 0].min()
-        xmax = corners_rotated[:, 0].max()
-        ymin = corners_rotated[:, 1].min()
-        ymax = corners_rotated[:, 1].max()
+        # compute the bounds of the rotated box (direct indexing for speed)
+        (x0, y0), (x1, y1), (x2, y2), (x3, y3) = corners_rotated.tolist()
+        xmin = min(x0, x1, x2, x3)
+        xmax = max(x0, x1, x2, x3)
+        ymin = min(y0, y1, y2, y3)
+        ymax = max(y0, y1, y2, y3)
         width = xmax - xmin
         height = ymax - ymin
 
