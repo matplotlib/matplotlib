@@ -901,17 +901,27 @@ class Bbox(BboxBase):
 
         valid_points = (np.isfinite(path.vertices[..., 0])
                         & np.isfinite(path.vertices[..., 1]))
+        if not valid_points.any():
+            return
 
         if updatex:
             x = path.vertices[..., 0][valid_points]
-            points[0, 0] = min(points[0, 0], np.min(x, initial=np.inf))
+            minx = np.min(x, initial=np.inf)
+            points[0, 0] = min(points[0, 0], minx)
             points[1, 0] = max(points[1, 0], np.max(x, initial=-np.inf))
-            minpos[0] = min(minpos[0], np.min(x[x > 0], initial=np.inf))
+            if minx > 0:
+                minpos[0] = min(minpos[0], minx)
+            else:
+                minpos[0] = min(minpos[0], np.min(x[x > 0], initial=np.inf))
         if updatey:
             y = path.vertices[..., 1][valid_points]
-            points[0, 1] = min(points[0, 1], np.min(y, initial=np.inf))
+            miny = np.min(y, initial=np.inf)
+            points[0, 1] = min(points[0, 1], miny)
             points[1, 1] = max(points[1, 1], np.max(y, initial=-np.inf))
-            minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
+            if miny > 0:
+                minpos[1] = min(minpos[1], miny)
+            else:
+                minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
 
         if np.any(points != self._points) or np.any(minpos != self._minpos):
             self.invalidate()
