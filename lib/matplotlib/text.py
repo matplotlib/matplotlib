@@ -503,10 +503,7 @@ class Text(Artist):
         xmax = width
         ymax = 0
         ymin = ys[-1] - descent  # baseline of last line minus its descent
-
-        # get the rotation matrix
-        rotation = self.get_rotation()
-        M = _rotate(math.radians(rotation))
+        height = ymax - ymin
 
         # now offset the individual text lines within the box
         malign = self._get_multialignment()
@@ -523,16 +520,19 @@ class Text(Artist):
         corners_horiz = np.array(
             [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
 
-        # now rotate the bbox
-        corners_rotated = M.transform(corners_horiz)
-        # compute the bounds of the rotated box (direct indexing for speed)
-        (x0, y0), (x1, y1), (x2, y2), (x3, y3) = corners_rotated.tolist()
-        xmin = min(x0, x1, x2, x3)
-        xmax = max(x0, x1, x2, x3)
-        ymin = min(y0, y1, y2, y3)
-        ymax = max(y0, y1, y2, y3)
-        width = xmax - xmin
-        height = ymax - ymin
+        # now rotate the bbox (skip if no rotation for speed)
+        rotation = self.get_rotation()
+        if rotation != 0:
+            M = _rotate(math.radians(rotation))
+            corners_rotated = M.transform(corners_horiz)
+            # compute the bounds of the rotated box (direct indexing for speed)
+            (x0, y0), (x1, y1), (x2, y2), (x3, y3) = corners_rotated.tolist()
+            xmin = min(x0, x1, x2, x3)
+            xmax = max(x0, x1, x2, x3)
+            ymin = min(y0, y1, y2, y3)
+            ymax = max(y0, y1, y2, y3)
+            width = xmax - xmin
+            height = ymax - ymin
 
         # Now move the box to the target position offset the display
         # bbox by alignment
@@ -586,7 +586,8 @@ class Text(Artist):
             else:
                 offsety = ymin1
 
-            offsetx, offsety = M.transform((offsetx, offsety))
+            if rotation != 0:
+                offsetx, offsety = M.transform((offsetx, offsety))
 
         xmin -= offsetx
         ymin -= offsety
@@ -594,7 +595,10 @@ class Text(Artist):
         bbox = Bbox.from_bounds(xmin, ymin, width, height)
 
         # now rotate the positions around the first (x, y) position
-        xys = M.transform(offset_layout) - (offsetx, offsety)
+        if rotation != 0:
+            xys = M.transform(offset_layout) - (offsetx, offsety)
+        else:
+            xys = np.array(offset_layout) - (offsetx, offsety)
 
         return bbox, list(zip(lines, wads, xys))
 
