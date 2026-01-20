@@ -22,6 +22,20 @@ def _comb(n, k):
     return np.prod((n + 1 - i)/i).astype(int)
 
 
+# Precomputed matrices for converting Bézier control points to polynomial
+# coefficients. _COEFF_MATRICES[n] @ control_points gives coefficients.
+# These avoid the slow _comb vectorized function for common cases.
+_COEFF_MATRICES = {
+    1: np.array([[1., 0.], [-1., 1.]]),
+    2: np.array([[1., 0., 0.], [-2., 2., 0.], [1., -2., 1.]]),
+    3: np.array([[1., 0., 0., 0.], [-3., 3., 0., 0.],
+                 [3., -6., 3., 0.], [-1., 3., -3., 1.]]),
+    4: np.array([[1., 0., 0., 0., 0.], [-4., 4., 0., 0., 0.],
+                 [6., -12., 6., 0., 0.], [-4., 12., -12., 4., 0.],
+                 [1., -4., 6., -4., 1.]]),
+}
+
+
 class NonIntersectingPathException(ValueError):
     pass
 
@@ -275,11 +289,14 @@ class BezierSegment:
         where :math:`P_i` are the control points of the curve.
         """
         n = self.degree
-        # matplotlib uses n <= 4. overflow plausible starting around n = 15.
+        P = self.control_points
+        # matplotlib uses n <= 4
+        if n in _COEFF_MATRICES:
+            return _COEFF_MATRICES[n] @ P
+        # Fallback for higher degrees. overflow plausible starting around n = 15.
         if n > 10:
             warnings.warn("Polynomial coefficients formula unstable for high "
                           "order Bezier curves!", RuntimeWarning)
-        P = self.control_points
         j = np.arange(n+1)[:, None]
         i = np.arange(n+1)[None, :]  # _comb is non-zero for i <= j
         prefactor = (-1)**(i + j) * _comb(j, i)  # j on axis 0, i on axis 1
