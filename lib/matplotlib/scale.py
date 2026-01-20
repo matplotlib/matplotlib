@@ -289,27 +289,10 @@ class LogTransform(Transform):
         super().__init__()
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
-        self._base = base
+        self.base = base
         self._clip = _api.check_getitem(
             {"clip": True, "mask": False}, nonpositive=nonpositive)
-        self._calc_log_params()
-
-    def _calc_log_params(self):
-        self._log_func = {np.e: np.log, 2: np.log2, 10: np.log10}.get(self._base)
-        if self._log_func is None:
-            inv_log_base = 1 / np.log(self._base)
-            self._log_func = lambda x: np.log(x) * inv_log_base
-
-    @property
-    def base(self):
-        return self._base
-
-    @base.setter
-    def base(self, value):
-        if value <= 0 or value == 1:
-            raise ValueError('The log base cannot be <= 0 or == 1')
-        self._base = value
-        self._calc_log_params()
+        self._log_funcs = {np.e: np.log, 2: np.log2, 10: np.log10}
 
     def __str__(self):
         return "{}(base={}, nonpositive={!r})".format(
@@ -318,7 +301,11 @@ class LogTransform(Transform):
     def transform_non_affine(self, values):
         # Ignore invalid values due to nans being passed to the transform.
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = self._log_func(values)
+            log_func = self._log_funcs.get(self.base)
+            if log_func:
+                out = log_func(values)
+            else:
+                out = np.log(values) / np.log(self.base)
             if self._clip:
                 # SVG spec says that conforming viewers must support values up
                 # to 3.4e38 (C float); however experiments suggest that
@@ -335,44 +322,27 @@ class LogTransform(Transform):
     def inverted(self):
         return InvertedLogTransform(self.base)
 
-    def __reduce__(self):
-        return (type(self), (self._base, "clip" if self._clip else "mask"))
-
 
 class InvertedLogTransform(Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base):
         super().__init__()
-        self._base = base
-        self._calc_exp_params()
-
-    def _calc_exp_params(self):
-        self._exp_func = {np.e: np.exp, 2: np.exp2}.get(self._base)
-        if self._exp_func is None:
-            exp_scale = np.log(self._base)
-            self._exp_func = lambda x: np.exp(x * exp_scale)
-
-    @property
-    def base(self):
-        return self._base
-
-    @base.setter
-    def base(self, value):
-        self._base = value
-        self._calc_exp_params()
+        self.base = base
+        self._exp_funcs = {np.e: np.exp, 2: np.exp2}
 
     def __str__(self):
         return f"{type(self).__name__}(base={self.base})"
 
     def transform_non_affine(self, values):
-        return self._exp_func(values)
+        exp_func = self._exp_funcs.get(self.base)
+        if exp_func:
+            return exp_func(values)
+        else:
+            return np.exp(values * np.log(self.base))
 
     def inverted(self):
         return LogTransform(self.base)
-
-    def __reduce__(self):
-        return (type(self), (self._base,))
 
 
 class LogScale(ScaleBase):
@@ -481,60 +451,23 @@ class SymmetricalLogTransform(Transform):
             raise ValueError("'linthresh' must be positive")
         if linscale <= 0.0:
             raise ValueError("'linscale' must be positive")
-        self._base = base
-        self._linthresh = linthresh
-        self._linscale = linscale
-        self._calc_params()
-
-    def _calc_params(self):
-        self._linscale_adj = (self._linscale / (1.0 - self._base ** -1))
-        self._log_base = np.log(self._base)
-        self._inv_log_base = 1.0 / self._log_base
-        self._log_transform_const = (
-            self._linscale_adj - np.log(self._linthresh) * self._inv_log_base)
-
-    @property
-    def base(self):
-        return self._base
-
-    @base.setter
-    def base(self, value):
-        if value <= 1.0:
-            raise ValueError("'base' must be larger than 1")
-        self._base = value
-        self._calc_params()
-
-    @property
-    def linthresh(self):
-        return self._linthresh
-
-    @linthresh.setter
-    def linthresh(self, value):
-        if value <= 0.0:
-            raise ValueError("'linthresh' must be positive")
-        self._linthresh = value
-        self._calc_params()
-
-    @property
-    def linscale(self):
-        return self._linscale
-
-    @linscale.setter
-    def linscale(self, value):
-        if value <= 0.0:
-            raise ValueError("'linscale' must be positive")
-        self._linscale = value
-        self._calc_params()
+        self.base = base
+        self.linthresh = linthresh
+        self.linscale = linscale
 
     def transform_non_affine(self, values):
+        linscale_adj = self.linscale / (1.0 - 1.0 / self.base)
+        log_base = np.log(self.base)
+
         abs_a = np.abs(values)
-        inside = abs_a <= self._linthresh
+        inside = abs_a <= self.linthresh
         if np.all(inside):  # Fast path: all values in linear region
-            return values * self._linscale_adj
+            return values * linscale_adj
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(values) * self._linthresh * (
-                self._log_transform_const + np.log(abs_a) * self._inv_log_base)
-        out[inside] = values[inside] * self._linscale_adj
+            out = np.sign(values) * self.linthresh * (
+                linscale_adj - np.log(self.linthresh) / log_base +
+                np.log(abs_a) / log_base)
+        out[inside] = values[inside] * linscale_adj
         return out
 
     def inverted(self):
@@ -553,71 +486,35 @@ class InvertedSymmetricalLogTransform(Transform):
             raise ValueError("'linthresh' must be positive")
         if linscale <= 0.0:
             raise ValueError("'linscale' must be positive")
-        self._base = base
-        self._linthresh = linthresh
-        self._linscale = linscale
-        self._calc_params()
-
-    def _calc_params(self):
-        self._linscale_adj = (self._linscale / (1.0 - self._base ** -1))
-        self._ln_base = np.log(self._base)
-        symlog = SymmetricalLogTransform(self._base, self._linthresh, self._linscale)
-        self._invlinthresh = symlog.transform(self._linthresh)
-
-    @property
-    def base(self):
-        return self._base
-
-    @base.setter
-    def base(self, value):
-        if value <= 1.0:
-            raise ValueError("'base' must be larger than 1")
-        self._base = value
-        self._calc_params()
-
-    @property
-    def linthresh(self):
-        return self._linthresh
-
-    @linthresh.setter
-    def linthresh(self, value):
-        if value <= 0.0:
-            raise ValueError("'linthresh' must be positive")
-        self._linthresh = value
-        self._calc_params()
+        self.base = base
+        self.linthresh = linthresh
+        self.linscale = linscale
 
     @property
     def invlinthresh(self):
         _api.warn_deprecated(
             "3.11", name="invlinthresh", obj_type="attribute",
-            alternative="SymmetricalLogTransform.transform(linthresh)")
-        return self._invlinthresh
-
-    @property
-    def linscale(self):
-        return self._linscale
-
-    @linscale.setter
-    def linscale(self, value):
-        if value <= 0.0:
-            raise ValueError("'linscale' must be positive")
-        self._linscale = value
-        self._calc_params()
+            alternative=".inverted().transform(linthresh)")
+        invlinthresh = self.inverted().transform(self.linthresh)
+        return invlinthresh
 
     def transform_non_affine(self, values):
+        linscale_adj = self.linscale / (1.0 - 1.0 / self.base)
+        invlinthresh = self.inverted().transform(self.linthresh)
+
         abs_a = np.abs(values)
-        inside = abs_a <= self._invlinthresh
+        inside = abs_a <= invlinthresh
         if np.all(inside):  # Fast path: all values in linear region
-            return values / self._linscale_adj
+            return values / linscale_adj
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(values) * self._linthresh * np.exp(
-                (abs_a / self._linthresh - self._linscale_adj) * self._ln_base)
-        out[inside] = values[inside] / self._linscale_adj
+            out = np.sign(values) * self.linthresh * np.exp(
+                (abs_a / self.linthresh - linscale_adj) * np.log(self.base))
+        out[inside] = values[inside] / linscale_adj
         return out
 
     def inverted(self):
-        return SymmetricalLogTransform(self._base,
-                                       self._linthresh, self._linscale)
+        return SymmetricalLogTransform(self.base,
+                                       self.linthresh, self.linscale)
 
 
 class SymmetricalLogScale(ScaleBase):

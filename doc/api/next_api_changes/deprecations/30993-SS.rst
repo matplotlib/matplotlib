@@ -2,4 +2,4 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``invlinthresh`` attribute of `.InvertedSymmetricalLogTransform` is
-deprecated. Use ``SymmetricalLogTransform.transform(linthresh)`` instead.
+deprecated. Use the ``.inverted().transform(linthresh)`` method instead.
