@@ -1311,10 +1311,10 @@ Supported properties are
             return
 
         try:
-            self.set(**{k: kwargs[k] for k in orig_vals})
+            self._internal_update({k: kwargs[k] for k in orig_vals})
             yield
         finally:
-            self.set(**orig_vals)
+            self._internal_update(orig_vals)
 
     def findobj(self, match=None, include_self=True):
         """
