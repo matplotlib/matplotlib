@@ -464,8 +464,7 @@ class Text(Artist):
                              for x, y, w in zip(xs, ys, ws)]
 
         # the corners of the unrotated bounding box
-        corners_horiz = np.array(
-            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
+        corners_horiz = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
 
         # now rotate the bbox (skip if no rotation for speed)
         rotation = self.get_rotation()
@@ -543,11 +542,13 @@ class Text(Artist):
 
         # now rotate the positions around the first (x, y) position
         if rotation != 0:
-            xys = M.transform(offset_layout) - (offsetx, offsety)
+            xys = (M.transform(offset_layout) - (offsetx, offsety)).tolist()
         else:
-            xys = np.array(offset_layout) - (offsetx, offsety)
+            xys = [(x - offsetx, y - offsety) for x, y in offset_layout]
 
-        return bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
+        info = [(ln, (w, h), xy[0], xy[1])
+                for ln, w, h, xy in zip(lines, ws, hs, xys)]
+        return bbox, info, descent
 
     def set_bbox(self, rectprops):
         """
