@@ -16,7 +16,7 @@ from weakref import WeakValueDictionary
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, _path
+from . import _path
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 from .bezier import BezierSegment
 
@@ -126,7 +126,10 @@ class Path:
             and codes as read-only arrays.
         """
         vertices = _to_unmasked_float_array(vertices)
-        _api.check_shape((None, 2), vertices=vertices)
+        if vertices.ndim != 2 or vertices.shape[1] != 2:
+            raise ValueError(
+                f"'vertices' must be 2D with shape (N, 2), "
+                f"but your input has shape {vertices.shape}")
 
         if codes is not None and len(vertices):
             codes = np.asarray(codes, self.code_type)
