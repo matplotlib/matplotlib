@@ -85,6 +85,7 @@ class Legend(Artist):
         framealpha: float | None = ...,
         edgecolor: Literal["inherit"] | ColorType | None = ...,
         facecolor: Literal["inherit"] | ColorType | None = ...,
+        linewidth: float | None = ...,
         bbox_to_anchor: BboxBase
         | tuple[float, float]
         | tuple[float, float, float, float]

@@ -3206,7 +3206,7 @@ class _AxesBase(martist.Artist):
         if not self.get_figure(root=True).canvas.is_saving():
             artists = [
                 a for a in artists
-                if not a.get_animated() or isinstance(a, mimage.AxesImage)]
+                if not a.get_animated()]
         artists = sorted(artists, key=attrgetter('zorder'))
 
         # rasterize artists with negative zorder
@@ -4632,9 +4632,7 @@ class _AxesBase(martist.Artist):
 
         for a in bbox_artists:
             bbox = a.get_tightbbox(renderer)
-            if (bbox is not None
-                    and 0 < bbox.width < np.inf
-                    and 0 < bbox.height < np.inf):
+            if bbox is not None and bbox._is_finite():
                 bb.append(bbox)
         return mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])

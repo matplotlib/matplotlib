@@ -38,7 +38,7 @@ Set up development environment
 ==============================
 
 You can either work locally on your machine, or online in
-`GitHub Codespaces <github-codespaces_>`_, a cloud-based in-browser development
+`GitHub Codespaces`_, a cloud-based in-browser development
 environment.
 
 
@@ -119,8 +119,8 @@ code, as described in :ref:`development-workflow`.
    * `GitHub-Contributing to a Project
      <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
    * `GitHub Skills <https://skills.github.com/>`_
-   * :ref:`using-git`
-   * :ref:`git-resources`
+   * :external+scipy:ref:`using-git`
+   * :external+scipy:ref:`git-resources`
    * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
    * `Managing remote repositories
      <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`_
@@ -219,7 +219,7 @@ need to be installed when working in codespaces.
 Create GitHub Codespace :octicon:`codespaces`
 ---------------------------------------------
 
-`GitHub Codespaces <github-codespaces_>`_ is a cloud-based
+`GitHub Codespaces`_ is a cloud-based
 in-browser development environment that comes with the appropriate setup to
 contribute to Matplotlib.
 
@@ -260,7 +260,7 @@ Use the "Extensions" icon in the activity bar to install the "Live Server"
 extension. Locate the ``doc/build/html`` folder in the Explorer, right click
 the file you want to open and select "Open with Live Server."
 
-.. _`github-codespaces`: https://docs.github.com/codespaces
+.. _Github Codespaces: https://docs.github.com/codespaces
 
 .. _development-install:
 

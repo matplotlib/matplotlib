@@ -161,11 +161,26 @@ plot_color_gradients('Sequential',
 # an excellent example of this).
 
 plot_color_gradients('Sequential (2)',
-                     ['binary', 'gist_yarg', 'gist_gray', 'gray', 'bone',
-                      'pink', 'spring', 'summer', 'autumn', 'winter', 'cool',
-                      'Wistia', 'hot', 'afmhot', 'gist_heat', 'copper'])
+                     ['gray', 'bone', 'pink', 'spring', 'summer', 'autumn',
+                      'winter', 'cool', 'Wistia', 'hot', 'afmhot', 'gist_heat',
+                      'copper'])
 
 # %%
+# .. admonition:: Discouraged
+#
+#    For backward compatibility we additionally support the following colormap
+#    names, which are identical to other builtin colormaps. Their use is
+#    discouraged. Use the suggested replacement instead.
+#
+#    =========  =================================
+#    Colormap   Use identical replacement instead
+#    =========  =================================
+#    gist_gray 	gray
+#    gist_yarg 	gray_r
+#    binary 	gray_r
+#    =========  =================================
+#
+#
 # Diverging
 # ---------
 #
@@ -215,9 +230,9 @@ plot_color_gradients('Cyclic', ['twilight', 'twilight_shifted', 'hsv'])
 # These would not be good options for use as perceptual colormaps.
 
 plot_color_gradients('Qualitative',
-                     ['Pastel1', 'Pastel2', 'Paired', 'Accent', 'Dark2',
-                      'Set1', 'Set2', 'Set3', 'tab10', 'tab20', 'tab20b',
-                      'tab20c'])
+                     ['Pastel1', 'Pastel2', 'Paired', 'Accent', 'okabe_ito',
+                      'Dark2', 'Set1', 'Set2', 'Set3', 'tab10', 'tab20',
+                      'tab20b', 'tab20c'])
 
 # %%
 # Miscellaneous

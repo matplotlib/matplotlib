@@ -158,7 +158,7 @@ from packaging.version import parse as parse_version
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import _api, _version, cbook, _docstring, rcsetup
+from . import _api, _version, cbook, rcsetup
 from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.colors import _color_sequences as color_sequences
 from matplotlib.rcsetup import cycler  # noqa: F401
@@ -658,23 +658,13 @@ def matplotlib_fname():
                        "install is broken")
 
 
-@_docstring.Substitution(
-    "\n".join(map("- {}".format, sorted(rcsetup._validators, key=str.lower)))
-)
 class RcParams(MutableMapping, dict):
     """
     A dict-like key-value store for config parameters, including validation.
 
-    Validating functions are defined and associated with rc parameters in
-    :mod:`matplotlib.rcsetup`.
+    This is the data structure behind `matplotlib.rcParams`.
 
-    The list of rcParams is:
-
-    %s
-
-    See Also
-    --------
-    :ref:`customizing-with-matplotlibrc-files`
+    The complete list of rcParams can be found in :doc:`/users/explain/configuration`.
     """
 
     validate = rcsetup._validators
@@ -1504,6 +1494,8 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
 
     @functools.wraps(func)
     def inner(ax, *args, data=None, **kwargs):
+        __tracebackhide__ = True
+
         if data is None:
             return func(
                 ax,

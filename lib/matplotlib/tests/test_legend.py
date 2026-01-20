@@ -1664,3 +1664,86 @@ def test_boxplot_legend_labels():
     bp4 = axs[3].boxplot(data, label='box A')
     assert bp4['medians'][0].get_label() == 'box A'
     assert all(x.get_label().startswith("_") for x in bp4['medians'][1:])
+
+
+def test_legend_linewidth():
+    """Test legend.linewidth parameter and rcParam."""
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], label='data')
+
+    # Test direct parameter
+    leg = ax.legend(linewidth=2.5)
+    assert leg.legendPatch.get_linewidth() == 2.5
+
+    # Test rcParam
+    with mpl.rc_context({'legend.linewidth': 3.0}):
+        fig, ax = plt.subplots()
+        ax.plot([1, 2, 3], label='data')
+        leg = ax.legend()
+        assert leg.legendPatch.get_linewidth() == 3.0
+
+    # Test None default (should inherit from patch.linewidth)
+    with mpl.rc_context({'legend.linewidth': None, 'patch.linewidth': 1.5}):
+        fig, ax = plt.subplots()
+        ax.plot([1, 2, 3], label='data')
+        leg = ax.legend()
+        assert leg.legendPatch.get_linewidth() == 1.5
+
+    # Test that direct parameter overrides rcParam
+    with mpl.rc_context({'legend.linewidth': 1.0}):
+        fig, ax = plt.subplots()
+        ax.plot([1, 2, 3], label='data')
+        leg = ax.legend(linewidth=4.0)
+        assert leg.legendPatch.get_linewidth() == 4.0
+
+
+def test_patchcollection_legend():
+    # Test that PatchCollection labels show up in legend and preserve visual
+    # properties (issue #23998)
+    fig, ax = plt.subplots()
+
+    pc = mcollections.PatchCollection(
+        [mpatches.Circle((0, 0), 1), mpatches.Circle((2, 0), 1)],
+        label="patch collection",
+        facecolor='red',
+        edgecolor='blue',
+        linewidths=3,
+        linestyle='--',
+    )
+    ax.add_collection(pc)
+    ax.autoscale_view()
+
+    leg = ax.legend()
+
+    # Check that the legend contains our label
+    assert len(leg.get_texts()) == 1
+    assert leg.get_texts()[0].get_text() == "patch collection"
+
+    # Check that the legend handle exists and has correct visual properties
+    assert len(leg.legend_handles) == 1
+    legend_patch = leg.legend_handles[0]
+    assert mpl.colors.same_color(legend_patch.get_facecolor(),
+                                  pc.get_facecolor()[0])
+    assert mpl.colors.same_color(legend_patch.get_edgecolor(),
+                                  pc.get_edgecolor()[0])
+    assert legend_patch.get_linewidth() == pc.get_linewidths()[0]
+    assert legend_patch.get_linestyle() == pc.get_linestyles()[0]
+
+
+def test_patchcollection_legend_empty():
+    # Test that empty PatchCollection doesn't crash
+    fig, ax = plt.subplots()
+
+    # Create an empty PatchCollection
+    pc = mcollections.PatchCollection([], label="empty collection")
+    ax.add_collection(pc)
+
+    # This should not crash
+    leg = ax.legend()
+
+    # Check that the label still appears
+    assert len(leg.get_texts()) == 1
+    assert leg.get_texts()[0].get_text() == "empty collection"
+
+    # The legend handle should exist
+    assert len(leg.legend_handles) == 1

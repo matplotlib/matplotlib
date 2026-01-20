@@ -140,17 +140,20 @@ class Tick(martist.Artist):
             f"grid.{major_minor}.linewidth",
             "grid.linewidth",
         )
-        if grid_alpha is None and not mcolors._has_alpha_channel(grid_color):
-            # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
-            # Note: only resolve to rcParams if the color does not have alpha
-            # otherwise `grid(color=(1, 1, 1, 0.5))` would work like
-            #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
-            # so the that the rcParams default would override color alpha.
-            grid_alpha = mpl._val_or_rc(
-                # grid_alpha is None so we can use the first key
-                mpl.rcParams[f"grid.{major_minor}.alpha"],
-                "grid.alpha",
-            )
+        if grid_alpha is None:
+            if mcolors._has_alpha_channel(grid_color):
+                # Extract alpha from the color
+                # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
+                rgba = mcolors.to_rgba(grid_color)
+                grid_color = rgba[:3]  # RGB only
+                grid_alpha = rgba[3]    # Alpha from color
+            else:
+                # No alpha in color, use rcParams
+                grid_alpha = mpl._val_or_rc(
+                    # grid_alpha is None so we can use the first key
+                    mpl.rcParams[f"grid.{major_minor}.alpha"],
+                    "grid.alpha",
+                )
 
         grid_kw = {k[5:]: v for k, v in kwargs.items() if k != "rotation_mode"}
 
@@ -348,6 +351,15 @@ class Tick(martist.Artist):
 
         grid_kw = {k[5:]: v for k, v in kwargs.items()
                    if k in _gridline_param_names}
+        # If grid_color has an alpha channel and grid_alpha is not explicitly
+        # set, extract the alpha from the color.
+        if 'color' in grid_kw and 'alpha' not in grid_kw:
+            grid_color = grid_kw['color']
+            if mcolors._has_alpha_channel(grid_color):
+                # Convert to rgba to extract alpha
+                rgba = mcolors.to_rgba(grid_color)
+                grid_kw['color'] = rgba[:3]  # RGB only
+                grid_kw['alpha'] = rgba[3]    # Alpha channel
         self.gridline.set(**grid_kw)
 
     def update_position(self, loc):
@@ -1383,8 +1395,7 @@ class Axis(martist.Artist):
                     bb.y0 = (bb.y0 + bb.y1) / 2 - 0.5
                     bb.y1 = bb.y0 + 1.0
             bboxes.append(bb)
-        bboxes = [b for b in bboxes
-                  if 0 < b.width < np.inf and 0 < b.height < np.inf]
+        bboxes = [b for b in bboxes if b._is_finite()]
         if bboxes:
             return mtransforms.Bbox.union(bboxes)
         else:

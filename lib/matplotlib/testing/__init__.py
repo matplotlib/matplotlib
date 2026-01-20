@@ -99,6 +99,13 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
     """
     if capture_output:
         stdout = stderr = subprocess.PIPE
+    # Add CREATE_NO_WINDOW flag on Windows to prevent console window overhead
+    # This is added in an attempt to fix flaky timeouts of subprocesses on Windows
+    if sys.platform == 'win32':
+        if 'creationflags' not in kwargs:
+            kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+        else:
+            kwargs['creationflags'] |= subprocess.CREATE_NO_WINDOW
     try:
         proc = subprocess.run(
             command, env=env,
@@ -151,13 +158,26 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
             f"_module = importlib.util.module_from_spec(_spec);"
             f"_spec.loader.exec_module(_module);"
             f"_module.{target}()",
-            *args
+            *args,
         ],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
-        timeout=timeout, check=True,
+        env={
+            **os.environ,
+            "SOURCE_DATE_EPOCH": "0",
+            # subprocess_run_helper sets SOURCE_DATE_EPOCH=0 above, so for a dirty tree,
+            # the version will have the date 19700101 which breaks pickle tests with a
+            # warning if the working tree is dirty.
+            #
+            # This will also avoid at least one additional subprocess call for
+            # setuptools-scm query git, so we tell the subprocess what version
+            # to report as the test process.
+            "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_MATPLOTLIB": mpl.__version__,
+            **(extra_env or {}),
+        },
+        timeout=timeout,
+        check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
     )
     return proc
 

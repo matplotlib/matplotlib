@@ -582,6 +582,16 @@ typedef struct {
 static PyObject*
 FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    if (![NSThread isMainThread]) {
+        PyErr_SetString(
+            PyExc_RuntimeError,
+            "Cannot create a GUI FigureManager outside the main thread "
+            "using the MacOS backend. Use a non-interactive "
+            "backend like 'agg' to make plots on worker threads."
+        );
+        return NULL;
+    }
+
     lazy_init();
     Window* window = [Window alloc];
     if (!window) { return NULL; }
@@ -1024,7 +1034,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     // Make it a zero-width box if we don't have enough room
     rect.size.width = fmax(bounds.size.width - rect.origin.x, 0);
     rect.origin.x = bounds.size.width - rect.size.width;
-    NSTextView* messagebox = [[[NSTextView alloc] initWithFrame: rect] autorelease];
+    NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
     messagebox.textContainer.maximumNumberOfLines = 2;
     messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
     messagebox.alignment = NSTextAlignmentRight;
@@ -1034,7 +1044,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     /* if selectable, the messagebox can become first responder,
      * which is not supposed to happen */
     [[window contentView] addSubview: messagebox];
-    [messagebox release];
     [[window contentView] display];
 
     self->messagebox = messagebox;
@@ -1045,6 +1054,7 @@ static void
 NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 {
     [self->handler release];
+    [self->messagebox release];
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 

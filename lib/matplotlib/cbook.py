@@ -694,7 +694,21 @@ def safe_masked_invalid(x, copy=False):
     try:
         xm = np.ma.masked_where(~(np.isfinite(x)), x, copy=False)
     except TypeError:
-        return x
+        if len(x.dtype.descr) == 1:
+            # Arrays with dtype 'object' get returned here.
+            # For example the 'c' kwarg of scatter, which supports multiple types.
+            # `plt.scatter([3, 4], [2, 5], c=[(1, 0, 0), 'y'])`
+            return x
+        else:
+            # In case of a dtype with multiple fields
+            # for example image data using a MultiNorm
+            try:
+                mask = np.empty(x.shape, dtype=np.dtype('bool, '*len(x.dtype.descr)))
+                for dd, dm in zip(x.dtype.descr, mask.dtype.descr):
+                    mask[dm[0]] = ~np.isfinite(x[dd[0]])
+                xm = np.ma.array(x, mask=mask, copy=False)
+            except TypeError:
+                return x
     return xm
 
 
@@ -1449,9 +1463,13 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
 
     Parameters
     ----------
-    X : array-like
+    X : 1D array or sequence of 1D arrays or 2D array
         Sample data that will be used to produce the gaussian kernel density
-        estimates. Must have 2 or fewer dimensions.
+        estimates. Possible values:
+
+        - 1D array: Statistics are computed for that array.
+        - sequence of 1D arrays: Statistics are computed for each array in the sequence.
+        - 2D array: Statistics are computed for each column in the array.
 
     method : (name, bw_method) or callable,
         The method used to calculate the kernel density estimate for each

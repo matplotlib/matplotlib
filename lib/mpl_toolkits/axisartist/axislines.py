@@ -16,7 +16,7 @@ grid. Here are a few reasons that I came up with a new axes class:
 In the new axes class, xaxis and yaxis is set to not visible by
 default, and new set of artist (AxisArtist) are defined to draw axis
 line, ticks, ticklabels and axis label. Axes.axis attribute serves as
-a dictionary of these artists, i.e., ax.axis["left"] is a AxisArtist
+a dictionary of these artists, i.e., ax.axis["left"] is an AxisArtist
 instance responsible to draw left y-axis. The default Axes.axis contains
 "bottom", "left", "top" and "right".
 

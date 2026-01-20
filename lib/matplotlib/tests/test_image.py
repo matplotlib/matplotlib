@@ -452,6 +452,43 @@ def test_format_cursor_data(data, text):
     assert im.format_cursor_data(im.get_cursor_data(event)) == text
 
 
+@pytest.mark.parametrize(
+    "data, text", [
+        ([[[10001, 10000]], [[0, 0]]], "[10001.000, 0.000]"),
+        ([[[.123, .987]], [[0.1, 0]]], "[0.123, 0.100]"),
+        ([[[np.nan, 1, 2]], [[0, 0, 0]]], "[]"),
+    ])
+def test_format_cursor_data_multinorm(data, text):
+    from matplotlib.backend_bases import MouseEvent
+    fig, ax = plt.subplots()
+    cmap_bivar = mpl.bivar_colormaps['BiOrangeBlue']
+    cmap_multivar = mpl.multivar_colormaps['2VarAddA']
+
+    # This is a test for ColorizingArtist._format_cursor_data_override()
+    # with data with multiple channels.
+    # It includes a workaround so that we can test this functionality
+    # before the MultiVar/BiVariate colormaps and MultiNorm are exposed
+    # via the top-level methods (ax.imshow())
+    # i.e. we here set the hidden variables _cmap and _norm
+    # and use set_array() on the ColorizingArtist rather than the _ImageBase
+    # but this workaround should be replaced by:
+    #  `ax.imshow(data, cmap=cmap_bivar, vmin=(0,0), vmax=(1,1))`
+    # once the functionality is available.
+    # see https://github.com/matplotlib/matplotlib/issues/14168
+    im = ax.imshow([[0, 1]])
+    im.colorizer._cmap = cmap_bivar
+    im.colorizer._norm = colors.MultiNorm([im.norm, im.norm])
+    mpl.colorizer.ColorizingArtist.set_array(im, data)
+
+    xdisp, ydisp = ax.transData.transform([0, 0])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.format_cursor_data(im.get_cursor_data(event)) == text
+
+    im.colorizer._cmap = cmap_multivar
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.format_cursor_data(im.get_cursor_data(event)) == text
+
+
 @image_comparison(['image_clip'], style='mpl20')
 def test_image_clip():
     d = [[1, 2], [3, 4]]
@@ -1567,8 +1604,8 @@ def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
                       'accurately displayed.'):
         fig_test.canvas.draw()
 
-    array = np.zeros((1, 2))
-    array[:, 1] = 1
+    array = np.zeros((1, size // 2 + 1))
+    array[:, array.size // 2:] = 1
     if dim == 'col':
         array = array.T
     im = ax_ref.imshow(array, vmin=0, vmax=1, aspect='auto',
@@ -1626,19 +1663,33 @@ def test__resample_valid_output():
     [(np.array([[0.1, 0.3, 0.2]]), mimage.NEAREST,
       np.array([[0.1, 0.1, 0.1, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2]])),
      (np.array([[0.1, 0.3, 0.2]]), mimage.BILINEAR,
-      np.array([[0.1, 0.1, 0.15078125, 0.21096191, 0.27033691,
-                 0.28476562, 0.2546875, 0.22460938, 0.20002441, 0.20002441]])),
+      np.array([[0.1, 0.1, 0.15, 0.21, 0.27, 0.285, 0.255, 0.225, 0.2, 0.2]])),
+     (np.array([[0.1, 0.9]]), mimage.BILINEAR,
+      np.array([[0.1, 0.1, 0.1, 0.1, 0.1, 0.14, 0.22, 0.3, 0.38, 0.46,
+                 0.54, 0.62, 0.7, 0.78, 0.86, 0.9, 0.9, 0.9, 0.9, 0.9]])),
+     (np.array([[0.1, 0.1]]), mimage.BILINEAR, np.full((1, 10), 0.1)),
+     # Test at the subpixel level
+     (np.array([[0.1, 0.9]]), mimage.NEAREST,
+      np.concatenate([np.full(512, 0.1), np.full(512, 0.9)]).reshape(1, -1)),
+     (np.array([[0.1, 0.9]]), mimage.BILINEAR,
+      np.concatenate([np.full(256, 0.1),
+                      np.linspace(0.5, 256, 512).astype(int) / 256 * 0.8 + 0.1,
+                      np.full(256, 0.9)]).reshape(1, -1)),
     ]
 )
 def test_resample_nonaffine(data, interpolation, expected):
-    # Test that equivalent affine and nonaffine transforms resample the same
+    # Test that both affine and nonaffine transforms resample to the correct answer
+
+    # If the array is constant, the tolerance can be tight
+    # Otherwise, the tolerance is limited by the subpixel approach in the agg backend
+    atol = 0 if np.all(data == data.ravel()[0]) else 2e-3
 
     # Create a simple affine transform for scaling the input array
     affine_transform = Affine2D().scale(sx=expected.shape[1] / data.shape[1], sy=1)
 
     affine_result = np.empty_like(expected)
     mimage.resample(data, affine_result, affine_transform, interpolation=interpolation)
-    assert_allclose(affine_result, expected)
+    assert_allclose(affine_result, expected, atol=atol)
 
     # Create a nonaffine version of the same transform
     # by compositing with a nonaffine identity transform
@@ -1647,13 +1698,13 @@ def test_resample_nonaffine(data, interpolation, expected):
         output_dims = 2
 
         def inverted(self):
-           return self
+            return self
     nonaffine_transform = NonAffineIdentityTransform() + affine_transform
 
     nonaffine_result = np.empty_like(expected)
     mimage.resample(data, nonaffine_result, nonaffine_transform,
                     interpolation=interpolation)
-    assert_allclose(nonaffine_result, expected, atol=5e-3)
+    assert_allclose(nonaffine_result, expected, atol=atol)
 
 
 def test_axesimage_get_shape():

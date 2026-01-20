@@ -4,6 +4,8 @@ Cross spectral density (CSD)
 ============================
 
 Plot the cross spectral density (CSD) of two signals using `~.Axes.csd`.
+
+.. redirect-from:: /gallery/lines_bars_and_markers/csd_demo
 """
 import matplotlib.pyplot as plt
 import numpy as np

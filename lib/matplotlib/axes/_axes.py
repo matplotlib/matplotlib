@@ -32,11 +32,13 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.units as munits
-from matplotlib import _api, _docstring, _preprocess_data
+from matplotlib import _api, _docstring, _preprocess_data, _style_helpers
 from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import (
+    BarContainer, ErrorbarContainer, PieContainer, StemContainer)
+from matplotlib.text import Text
 from matplotlib.transforms import _ScaledRotation
 
 _log = logging.getLogger(__name__)
@@ -3192,6 +3194,16 @@ or pandas.DataFrame
 
         **kwargs : `.Rectangle` properties
 
+            Properties applied to all bars. The following properties additionally
+            accept a sequence of values corresponding to the datasets in
+            *heights*:
+
+            - *edgecolor*
+            - *facecolor*
+            - *linewidth*
+            - *linestyle*
+            - *hatch*
+
             %(Rectangle:kwdoc)s
 
         Returns
@@ -3318,6 +3330,8 @@ or pandas.DataFrame
             # TODO: do we want to be more restrictive and check lengths?
             colors = itertools.cycle(colors)
 
+        kwargs, style_gen = _style_helpers.style_generator(kwargs)
+
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
         bar_spacing_abs = bar_spacing * bar_width
@@ -3331,15 +3345,16 @@ or pandas.DataFrame
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
         bar_containers = []
-        for i, (hs, label, color) in enumerate(zip(heights, labels, colors)):
+        for i, (hs, label, color, styles) in enumerate(zip(heights, labels, colors,
+                                                           style_gen)):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
                 bc = self.bar(lefts, hs, width=bar_width, align="edge",
-                              label=label, color=color, **kwargs)
+                              label=label, color=color, **styles, **kwargs)
             else:
                 bc = self.barh(lefts, hs, height=bar_width, align="edge",
-                               label=label, color=color, **kwargs)
+                               label=label, color=color, **styles, **kwargs)
             bar_containers.append(bc)
 
         if tick_labels is not None:
@@ -3594,7 +3609,7 @@ or pandas.DataFrame
             keywords, properties passed to *wedgeprops* take precedence.
 
         textprops : dict, default: None
-            Dict of arguments to pass to the text objects.
+            Dict of arguments to pass to the `.Text` objects.
 
         center : (float, float), default: (0, 0)
             The coordinates of the center of the chart.
@@ -3615,15 +3630,11 @@ or pandas.DataFrame
 
         Returns
         -------
-        patches : list
-            A sequence of `matplotlib.patches.Wedge` instances
+        `.PieContainer`
+            Container with all the wedge patches and any associated text objects.
 
-        texts : list
-            A list of the label `.Text` instances.
-
-        autotexts : list
-            A list of `.Text` instances for the numeric labels. This will only
-            be returned if the parameter *autopct* is not *None*.
+        .. versionchanged:: 3.11
+           Previously the wedges and texts were returned in a tuple.
 
         Notes
         -----
@@ -3633,9 +3644,7 @@ or pandas.DataFrame
         The Axes aspect ratio can be controlled with `.Axes.set_aspect`.
         """
         self.set_aspect('equal')
-        # The use of float32 is "historical", but can't be changed without
-        # regenerating the test baselines.
-        x = np.asarray(x, np.float32)
+        x = np.asarray(x)
         if x.ndim > 1:
             raise ValueError("x must be 1D")
 
@@ -3651,9 +3660,11 @@ or pandas.DataFrame
             raise ValueError('All wedge sizes are zero')
 
         if normalize:
-            x = x / sx
+            fracs = x / sx
         elif sx > 1:
             raise ValueError('Cannot plot an unnormalized pie with sum(x) > 1')
+        else:
+            fracs = x
         if labels is None:
             labels = [''] * len(x)
         if explode is None:
@@ -3681,21 +3692,17 @@ or pandas.DataFrame
 
         if wedgeprops is None:
             wedgeprops = {}
-        if textprops is None:
-            textprops = {}
 
-        texts = []
         slices = []
-        autotexts = []
 
-        for frac, label, expl in zip(x, labels, explode):
-            x, y = center
+        for frac, label, expl in zip(fracs, labels, explode):
+            x_pos, y_pos = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
             thetam = 2 * np.pi * 0.5 * (theta1 + theta2)
-            x += expl * math.cos(thetam)
-            y += expl * math.sin(thetam)
+            x_pos += expl * math.cos(thetam)
+            y_pos += expl * math.sin(thetam)
 
-            w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
+            w = mpatches.Wedge((x_pos, y_pos), radius, 360. * min(theta1, theta2),
                                360. * max(theta1, theta2),
                                facecolor=get_next_color(),
                                hatch=next(hatch_cycle),
@@ -3713,28 +3720,28 @@ or pandas.DataFrame
                     shadow_dict.update(shadow)
                 self.add_patch(mpatches.Shadow(w, **shadow_dict))
 
-            if labeldistance is not None:
-                xt = x + labeldistance * radius * math.cos(thetam)
-                yt = y + labeldistance * radius * math.sin(thetam)
-                label_alignment_h = 'left' if xt > 0 else 'right'
-                label_alignment_v = 'center'
-                label_rotation = 'horizontal'
-                if rotatelabels:
-                    label_alignment_v = 'bottom' if yt > 0 else 'top'
-                    label_rotation = (np.rad2deg(thetam)
-                                      + (0 if xt > 0 else 180))
-                t = self.text(xt, yt, label,
-                              clip_on=False,
-                              horizontalalignment=label_alignment_h,
-                              verticalalignment=label_alignment_v,
-                              rotation=label_rotation,
-                              size=mpl.rcParams['xtick.labelsize'])
-                t.set(**textprops)
-                texts.append(t)
+            theta1 = theta2
 
-            if autopct is not None:
-                xt = x + pctdistance * radius * math.cos(thetam)
-                yt = y + pctdistance * radius * math.sin(thetam)
+        pc = PieContainer(slices, x, normalize)
+
+        if labeldistance is None:
+            # Insert an empty list of texts for backwards compatibility of the
+            # return value.
+            pc.add_texts([])
+        else:
+            # Add labels to the wedges.
+            labels_textprops = {
+                'fontsize': mpl.rcParams['xtick.labelsize'],
+                **cbook.normalize_kwargs(textprops or {}, Text)
+            }
+            self.pie_label(pc, labels, distance=labeldistance,
+                           alignment='outer', rotate=rotatelabels,
+                           textprops=labels_textprops)
+
+        if autopct is not None:
+            # Add automatic percentage labels to wedges
+            auto_labels = []
+            for frac in fracs:
                 if isinstance(autopct, str):
                     s = autopct % (100. * frac)
                 elif callable(autopct):
@@ -3742,17 +3749,15 @@ or pandas.DataFrame
                 else:
                     raise TypeError(
                         'autopct must be callable or a format string')
-                if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
+                if textprops is not None and mpl._val_or_rc(textprops.get("usetex"),
+                                                            "text.usetex"):
                     # escape % (i.e. \%) if it is not already escaped
                     s = re.sub(r"([^\\])%", r"\1\\%", s)
-                t = self.text(xt, yt, s,
-                              clip_on=False,
-                              horizontalalignment='center',
-                              verticalalignment='center')
-                t.set(**textprops)
-                autotexts.append(t)
+                auto_labels.append(s)
 
-            theta1 = theta2
+            self.pie_label(pc, auto_labels, distance=pctdistance,
+                           alignment='center',
+                           textprops=textprops)
 
         if frame:
             self._request_autoscale_view()
@@ -3761,10 +3766,107 @@ or pandas.DataFrame
                      xlim=(-1.25 + center[0], 1.25 + center[0]),
                      ylim=(-1.25 + center[1], 1.25 + center[1]))
 
-        if autopct is None:
-            return slices, texts
-        else:
-            return slices, texts, autotexts
+        return pc
+
+    def pie_label(self, container, /, labels, *, distance=0.6,
+                  textprops=None, rotate=False, alignment='auto'):
+        """
+        Label a pie chart.
+
+        .. versionadded:: 3.11
+
+        Adds labels to wedges in the given `.PieContainer`.
+
+        Parameters
+        ----------
+        container : `.PieContainer`
+            Container with all the wedges, likely returned from `.pie`.
+
+        labels : str or list of str
+            A sequence of strings providing the labels for each wedge, or a format
+            string with ``absval`` and/or ``frac`` placeholders.  For example, to label
+            each wedge with its value and the percentage in brackets::
+
+                wedge_labels="{absval:d} ({frac:.0%})"
+
+        distance : float, default: 0.6
+            The radial position of the labels, relative to the pie radius. Values > 1
+            are outside the wedge and values < 1 are inside the wedge.
+
+        textprops : dict, default: None
+            Dict of arguments to pass to the `.Text` objects.
+
+        rotate : bool, default: False
+            Rotate each label to the angle of the corresponding slice if true.
+
+        alignment : {'center', 'outer', 'auto'}, default: 'auto'
+            Controls the horizontal alignment of the text objects relative to their
+            nominal position.
+
+            - 'center': The labels are centered on their points.
+            - 'outer': Labels are aligned away from the center of the pie, i.e., labels
+              on the left side of the pie are right-aligned and labels on the right
+              side are left-aligned.
+            - 'auto': Translates to 'outer' if *distance* > 1 (so that the labels do not
+              overlap the wedges) and 'center' if *distance* < 1.
+
+            If *rotate* is True, the vertical alignment is also affected in an
+            analogous way.
+
+            - 'center': The labels are centered on their points.
+            - 'outer': Labels are aligned away from the center of the pie, i.e., labels
+              on the top half of the pie are bottom-aligned and labels on the bottom
+              half are top-aligned.
+
+        Returns
+        -------
+        list
+            A list of the label `.Text` instances.
+        """
+        _api.check_in_list(['center', 'outer', 'auto'], alignment=alignment)
+        if alignment == 'auto':
+            alignment = 'outer' if distance > 1 else 'center'
+
+        if textprops is None:
+            textprops = {}
+
+        if isinstance(labels, str):
+            # Assume we have a format string
+            labels = [labels.format(absval=val, frac=frac) for val, frac in
+                      zip(container.values, container.fracs)]
+            if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
+                # escape % (i.e. \%) if it is not already escaped
+                labels = [re.sub(r"([^\\])%", r"\1\\%", s) for s in labels]
+        elif (nw := len(container.wedges)) != (nl := len(labels)):
+            raise ValueError(
+                f'The number of labels ({nl}) must match the number of wedges ({nw})')
+
+        texts = []
+
+        for wedge, label in zip(container.wedges, labels):
+            thetam = 2 * np.pi * 0.5 * (wedge.theta1 + wedge.theta2) / 360
+            xt = wedge.center[0] + distance * wedge.r * math.cos(thetam)
+            yt = wedge.center[1] + distance * wedge.r * math.sin(thetam)
+            if alignment == 'outer':
+                label_alignment_h = 'left' if xt > 0 else 'right'
+            else:
+                label_alignment_h = 'center'
+            label_alignment_v = 'center'
+            label_rotation = 'horizontal'
+            if rotate:
+                if alignment == 'outer':
+                    label_alignment_v = 'bottom' if yt > 0 else 'top'
+                label_rotation = (np.rad2deg(thetam) + (0 if xt > 0 else 180))
+            t = self.text(xt, yt, label, clip_on=False, rotation=label_rotation,
+                          horizontalalignment=label_alignment_h,
+                          verticalalignment=label_alignment_v)
+            t.set(**textprops)
+            texts.append(t)
+
+        container.add_texts(texts)
+
+        return texts
+
 
     @staticmethod
     def _errorevery_to_mask(x, errorevery):
@@ -4223,10 +4325,12 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        x : Array or a sequence of vectors.
-            The input data.  If a 2D array, a boxplot is drawn for each column
-            in *x*.  If a sequence of 1D arrays, a boxplot is drawn for each
-            array in *x*.
+        x : 1D array or sequence of 1D arrays or 2D array
+            The input data. Possible values:
+
+            - 1D array: A single box is drawn.
+            - sequence of 1D arrays: A box is drawn for each array in the sequence.
+            - 2D array: A box is drawn for each column in the array.
 
         notch : bool, default: :rc:`boxplot.notch`
             Whether to draw a notched boxplot (`True`), or a rectangular
@@ -5220,12 +5324,12 @@ or pandas.DataFrame
             s = (20 if mpl.rcParams['_internal.classic_mode'] else
                  mpl.rcParams['lines.markersize'] ** 2.0)
         s = np.ma.ravel(s)
-        if (len(s) not in (1, x.size) or
-                (not np.issubdtype(s.dtype, np.floating) and
-                 not np.issubdtype(s.dtype, np.integer))):
-            raise ValueError(
-                "s must be a scalar, "
-                "or float array-like with the same size as x and y")
+        if not (np.issubdtype(s.dtype, np.floating)
+                or np.issubdtype(s.dtype, np.integer)):
+            raise ValueError(f"s must be float, but has type {s.dtype}")
+        if len(s) not in (1, x.size):
+            raise ValueError(f"s (size {len(s)}) cannot be broadcast "
+                             f"to match x and y (size {len(x)})")
 
         # get the original edgecolor the user passed before we normalize
         orig_edgecolor = edgecolors
@@ -5271,7 +5375,7 @@ or pandas.DataFrame
         if not marker_obj.is_filled():
             if orig_edgecolor is not None:
                 _api.warn_external(
-                    f"You passed a edgecolor/edgecolors ({orig_edgecolor!r}) "
+                    f"You passed an edgecolor/edgecolors ({orig_edgecolor!r}) "
                     f"for an unfilled marker ({marker!r}).  Matplotlib is "
                     "ignoring the edgecolor in favor of the facecolor.  This "
                     "behavior may change in the future."
@@ -5420,8 +5524,9 @@ or pandas.DataFrame
             - If *None*, no binning is applied; the color of each hexagon
               directly corresponds to its count value.
             - If 'log', use a logarithmic scale for the colormap.
-              Internally, :math:`log_{10}(i+1)` is used to determine the
+              Internally, :math:`log_{10}(i)` is used to determine the
               hexagon color. This is equivalent to ``norm=LogNorm()``.
+              Note that 0 counts are thus marked with the "bad" color.
             - If an integer, divide the counts in the specified number
               of bins, and color the hexagons accordingly.
             - If a sequence of values, the values of the lower bound of
@@ -5559,8 +5664,8 @@ or pandas.DataFrame
             ymin, ymax = (ty.min(), ty.max()) if len(y) else (0, 1)
 
             # to avoid issues with singular data, expand the min/max pairs
-            xmin, xmax = mtransforms.nonsingular(xmin, xmax, expander=0.1)
-            ymin, ymax = mtransforms.nonsingular(ymin, ymax, expander=0.1)
+            xmin, xmax = mtransforms._nonsingular(xmin, xmax, expander=0.1)
+            ymin, ymax = mtransforms._nonsingular(ymin, ymax, expander=0.1)
 
         nx1 = nx + 1
         ny1 = ny + 1
@@ -6702,9 +6807,12 @@ or pandas.DataFrame
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
             for more description.
 
-        snap : bool, default: False
+        snap : bool, default: :rc:`pcolormesh.snap`
             Whether to snap the mesh to pixel boundaries.
 
+            .. versionchanged:: 3.4.0
+               The default value changed from *False* to *True* to improve transparency
+               handling. See :ref:`whats-new-3-4-0` for details.
         rasterized : bool, optional
             Rasterize the pcolormesh when drawing vector graphics.  This can
             speed up rendering and produce smaller files for large data sets.
@@ -7223,6 +7331,9 @@ or pandas.DataFrame
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
+            .. versionadded:: 3.10
+               It is now possible to use a single color with multiple datasets.
+
         label : str or list of str, optional
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
@@ -7344,6 +7455,8 @@ such objects
         if color is None:
             colors = [self._get_lines.get_next_color() for i in range(nx)]
         else:
+            if mcolors.is_color_like(color):
+                color = [color]*nx
             colors = mcolors.to_rgba_array(color)
             if len(colors) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
@@ -7542,38 +7655,15 @@ such objects
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
 
         if histtype == "step":
-            ec = kwargs.get('edgecolor', colors)
-        else:
-            ec = kwargs.get('edgecolor', None)
-        if ec is None or cbook._str_lower_equal(ec, 'none'):
-            edgecolors = itertools.repeat(ec)
-        else:
-            edgecolors = itertools.cycle(mcolors.to_rgba_array(ec))
+            kwargs.setdefault('edgecolor', colors)
 
-        fc = kwargs.get('facecolor', colors)
-        if cbook._str_lower_equal(fc, 'none'):
-            facecolors = itertools.repeat(fc)
-        else:
-            facecolors = itertools.cycle(mcolors.to_rgba_array(fc))
-
-        hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
-        linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
-        if 'linestyle' in kwargs:
-            linestyles = itertools.cycle(mlines._get_dash_patterns(kwargs['linestyle']))
-        else:
-            linestyles = itertools.repeat(None)
+        kwargs, style_gen = _style_helpers.style_generator(kwargs)
 
         for patch, lbl in itertools.zip_longest(patches, labels):
             if not patch:
                 continue
             p = patch[0]
-            kwargs.update({
-                'hatch': next(hatches),
-                'linewidth': next(linewidths),
-                'linestyle': next(linestyles),
-                'edgecolor': next(edgecolors),
-                'facecolor': next(facecolors),
-            })
+            kwargs.update(next(style_gen))
             p._internal_update(kwargs)
             if lbl is not None:
                 p.set_label(lbl)
@@ -8774,8 +8864,12 @@ such objects
 
         Parameters
         ----------
-        dataset : Array or a sequence of vectors.
-            The input data.
+        dataset : 1D array or sequence of 1D arrays or 2D array
+            The input data. Possible values:
+
+            - 1D array: A single violin is drawn.
+            - sequence of 1D arrays: A violin is drawn for each array in the sequence.
+            - 2D array: A violin is drawn for each column in the array.
 
         positions : array-like, default: [1, 2, ..., n]
             The positions of the violins; i.e. coordinates on the x-axis for

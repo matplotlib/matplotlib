@@ -188,13 +188,20 @@ If you have developed an extension to Matplotlib, please consider adding it to o
 Restrictions on Generative AI Usage
 ===================================
 
-We expect authentic engagement in our community.  Be wary of posting output
-from Large Language Models or similar generative AI as comments on GitHub or
-our discourse server, as such comments tend to be formulaic and low content.
-If you use generative AI tools as an aid in developing code or documentation
-changes, ensure that you fully understand the proposed changes and can explain
-why they are the correct approach and an improvement to the current state.
+We expect authentic engagement in our community.
 
+- Do not post output from Large Language Models or similar generative AI as
+  comments on GitHub or our discourse server, as such comments tend to be
+  formulaic and low content.
+- If you use generative AI tools as an aid in developing code or documentation
+  changes, ensure that you fully understand the proposed changes and can
+  explain why they are the correct approach.
+
+Make sure you have added value based on your personal competency to your
+contributions. Just taking some input, feeding it to an AI and posting the
+result is not of value to the project. To preserve precious core developer
+capacity, we reserve the right to rigorously reject seemingly AI generated
+low-value contributions.
 
 .. _new_contributors:
 
@@ -238,11 +245,11 @@ process works, technical questions about the code, what makes for good
 documentation or a blog post, how to get involved in community work, or get a
 "pre-review" on your PR.
 
-To join, please go to our public community_ channel, and ask to be added to
+To join, please go to our public `community gitter`_ channel, and ask to be added to
 ``#incubator``. One of our core developers will see your message and will add you.
 
 .. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
+.. _community gitter: https://gitter.im/matplotlib/community
 
 .. _good_first_issues:
 
@@ -306,10 +313,7 @@ active contributors, many of whom felt just like you when they started out and
 are happy to welcome you and support you as you get to know how we work, and
 where things are. You can reach out on any of our :ref:`communication-channels`.
 For development questions we recommend reaching out on our development gitter_
-chat room and for community questions reach out at community_.
-
-.. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
+chat room and for community questions reach out at `community gitter`_.
 
 .. _managing_issues_prs:
 
@@ -333,7 +337,7 @@ Start a pull request
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
-then submit a "pull request" (PR). To work on a a pull request:
+then submit a "pull request" (PR). To work on a pull request:
 
 #. **First** set up a development environment, either by cloning a copy of the
    Matplotlib repository to your own computer or by using Github codespaces, by

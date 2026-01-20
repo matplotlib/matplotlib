@@ -4,6 +4,8 @@ Plotting the coherence of two signals
 =====================================
 
 An example showing how to plot the coherence of two signals using `~.Axes.cohere`.
+
+.. redirect-from:: /gallery/lines_bars_and_markers/cohere
 """
 import matplotlib.pyplot as plt
 import numpy as np

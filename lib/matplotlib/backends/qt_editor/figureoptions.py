@@ -92,7 +92,7 @@ def figure_edit(axes, parent=None):
         `"None"`, `"none"` and `""` are synonyms); *init* is one shorthand
         of the initial style.
 
-        This function returns an list suitable for initializing a
+        This function returns a list suitable for initializing a
         FormLayout combobox, namely `[initial_name, (shorthand,
         style_name), (shorthand, style_name), ...]`.
         """
@@ -194,7 +194,7 @@ def figure_edit(axes, parent=None):
             raise ValueError("Unexpected field")
 
         title = general.pop(0)
-        axes.set_title(title)
+        axes.title.set_text(title)
         generate_legend = general.pop()
 
         for i, (name, axis) in enumerate(axis_map.items()):

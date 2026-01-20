@@ -813,7 +813,7 @@ class FontProperties:
 
     def get_weight(self):
         """
-        Set the font weight.  Options are: A numeric value in the
+        Get the font weight.  Options are: A numeric value in the
         range 0-1000 or one of 'light', 'normal', 'regular', 'book',
         'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold',
         'heavy', 'extra bold', 'black'
@@ -1413,9 +1413,11 @@ class FontManager:
         # Pass the relevant rcParams (and the font manager, as `self`) to
         # _findfont_cached so to prevent using a stale cache entry after an
         # rcParam was changed.
-        rc_params = tuple(tuple(mpl.rcParams[key]) for key in [
-            "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
-            "font.monospace"])
+        rc_params = [mpl.rcParams[f"font.{key}"] for key in [
+            "family", "style", "variant", "weight", "stretch", "size",
+            "serif", "sans-serif", "cursive", "fantasy", "monospace"]]
+        rc_params = tuple(tuple(e) if isinstance(e, list) else e
+                          for e in rc_params)  # Make this hashable.
         ret = self._findfont_cached(
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)

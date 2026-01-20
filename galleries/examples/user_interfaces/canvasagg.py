@@ -32,10 +32,6 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 
 fig = Figure(figsize=(5, 4), dpi=100)
-# A canvas must be manually attached to the figure (pyplot would automatically
-# do it).  This is done by instantiating the canvas with the figure as
-# argument.
-canvas = FigureCanvasAgg(fig)
 
 # Do some plotting.
 ax = fig.add_subplot()
@@ -45,8 +41,12 @@ ax.plot([1, 2, 3])
 # etc.).
 fig.savefig("test.png")
 
-# Option 2: Retrieve a memoryview on the renderer buffer, and convert it to a
+# Option 2 (low-level approach to directly save to a numpy array): Manually
+# attach a canvas to the figure (pyplot or savefig would automatically do
+# it), by instantiating the canvas with the figure as argument; then draw the
+# figure, retrieve a memoryview on the renderer buffer, and convert it to a
 # numpy array.
+canvas = FigureCanvasAgg(fig)
 canvas.draw()
 rgba = np.asarray(canvas.buffer_rgba())
 # ... and pass it to PIL.

@@ -3,6 +3,7 @@ import itertools
 import platform
 import sys
 
+from packaging.version import parse as parse_version
 import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
@@ -181,7 +182,8 @@ def test_bar3d_shaded():
     fig.canvas.draw()
 
 
-@mpl3d_image_comparison(['bar3d_notshaded.png'], style='mpl20')
+@mpl3d_image_comparison(['bar3d_notshaded.png'], style='mpl20',
+                        tol=0.01 if parse_version(np.version.version).major < 2 else 0)
 def test_bar3d_notshaded():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -645,7 +647,8 @@ def test_surface3d():
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
-@image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20', tol=0.07)
 def test_surface3d_label_offset_tick_position():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     ax = plt.figure().add_subplot(projection="3d")
@@ -741,7 +744,8 @@ def test_surface3d_masked_strides():
     ax.view_init(60, -45, 0)
 
 
-@mpl3d_image_comparison(['text3d.png'], remove_text=False, style='mpl20')
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
+@mpl3d_image_comparison(['text3d.png'], remove_text=False, style='mpl20', tol=0.1)
 def test_text3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -1120,8 +1124,9 @@ def test_poly3dCollection_autoscaling():
     assert np.allclose(ax.get_zlim3d(), (-0.0833333333333333, 4.083333333333333))
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @mpl3d_image_comparison(['axes3d_labelpad.png'],
-                        remove_text=False, style='mpl20')
+                        remove_text=False, style='mpl20', tol=0.06)
 def test_axes3d_labelpad():
     fig = plt.figure()
     ax = fig.add_axes(Axes3D(fig))
@@ -2733,3 +2738,50 @@ def test_axes3d_set_aspect_deperecated_params():
 
     with pytest.raises(ValueError, match="adjustable"):
         ax.set_aspect('equal', adjustable='invalid_value')
+
+
+def test_axis_get_tightbbox_includes_offset_text():
+    # Test that axis.get_tightbbox includes the offset_text
+    # Regression test for issue #30744
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Create data with high precision values that trigger offset text
+    Z = np.array([[0.1, 0.100000001], [0.100000000001, 0.100000000]])
+    ny, nx = Z.shape
+    x = np.arange(nx)
+    y = np.arange(ny)
+    X, Y = np.meshgrid(x, y)
+
+    ax.plot_surface(X, Y, Z)
+
+    # Force a draw to ensure offset text is created and positioned
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+
+    # Get the z-axis (which should have the offset text)
+    zaxis = ax.zaxis
+
+    # Check that offset text is visible and has content
+    # The offset text may not be visible on all backends/configurations,
+    # so we only test the inclusion when it's actually present
+    if (zaxis.offsetText.get_visible() and
+        zaxis.offsetText.get_text()):
+        offset_bbox = zaxis.offsetText.get_window_extent(renderer)
+
+        # Get the tight bbox - this should include the offset text
+        bbox = zaxis.get_tightbbox(renderer)
+        assert bbox is not None
+        assert offset_bbox is not None
+
+        # The tight bbox should fully contain the offset text bbox
+        # Check that offset_bbox is within bbox bounds (with small tolerance for
+        # floating point errors)
+        assert bbox.x0 <= offset_bbox.x0 + 1e-6, \
+            f"bbox.x0 ({bbox.x0}) should be <= offset_bbox.x0 ({offset_bbox.x0})"
+        assert bbox.y0 <= offset_bbox.y0 + 1e-6, \
+            f"bbox.y0 ({bbox.y0}) should be <= offset_bbox.y0 ({offset_bbox.y0})"
+        assert bbox.x1 >= offset_bbox.x1 - 1e-6, \
+            f"bbox.x1 ({bbox.x1}) should be >= offset_bbox.x1 ({offset_bbox.x1})"
+        assert bbox.y1 >= offset_bbox.y1 - 1e-6, \
+            f"bbox.y1 ({bbox.y1}) should be >= offset_bbox.y1 ({offset_bbox.y1})"

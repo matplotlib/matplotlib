@@ -612,6 +612,12 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     ``-framerate``, so see also `their notes on frame rates`_ for further details.
 
     .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
+
+    Parameters
+    ----------
+    *args, **kwargs
+        All arguments are forwarded to `FileMovieWriter`. See
+        `FileMovieWriter` for a list of all possible parameters.
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
@@ -949,9 +955,21 @@ class Animation:
         filename : str
             The output filename, e.g., :file:`mymovie.mp4`.
 
-        writer : `MovieWriter` or str, default: :rc:`animation.writer`
-            A `MovieWriter` instance to use or a key that identifies a
-            class to use, such as 'ffmpeg'.
+        writer : `AbstractMovieWriter` subclass or str, default: :rc:`animation.writer`
+            The writer used to grab the frames and create the movie file.
+            This can be an instance of an `AbstractMovieWriter` subclass or a
+            string. The builtin writers are
+
+            ==================  ==============================
+            str                 class
+            ==================  ==============================
+            'ffmpeg'            `.FFMpegWriter`
+            'ffmpeg_file'       `.FFMpegFileWriter`
+            'imagemagick'       `.ImageMagickWriter`
+            'imagemagick_file'  `.ImageMagickFileWriter`
+            'pillow'            `.PillowWriter`
+            'html'              `.HTMLWriter`
+            ==================  ==============================
 
         fps : int, optional
             Movie frame rate (per second).  If not set, the frame rate from the

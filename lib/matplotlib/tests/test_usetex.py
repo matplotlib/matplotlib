@@ -226,8 +226,9 @@ except mpl.ExecutableNotFoundError:
     _old_gs_version = True
 
 
+# TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(baseline_images=['rotation'], extensions=['eps', 'pdf', 'png', 'svg'],
-                  style='mpl20', tol=3.91 if _old_gs_version else 0)
+                  style='mpl20', tol=3.91 if _old_gs_version else 0.2)
 def test_rotation():
     mpl.rcParams['text.usetex'] = True
 

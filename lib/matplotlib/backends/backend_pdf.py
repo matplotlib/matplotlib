@@ -2529,10 +2529,7 @@ class GraphicsContextPdf(GraphicsContextBase):
                         different = ours is not theirs
                     else:
                         different = bool(ours != theirs)
-                except (ValueError, DeprecationWarning):
-                    # numpy version < 1.25 raises DeprecationWarning when array shapes
-                    # mismatch, unlike numpy >= 1.25 which raises ValueError.
-                    # This should be removed when numpy < 1.25 is no longer supported.
+                except ValueError:
                     ours = np.asarray(ours)
                     theirs = np.asarray(theirs)
                     different = (ours.shape != theirs.shape or

@@ -26,7 +26,7 @@ ax2.plot(t, s2)
 fig, ax3 = plt.subplots()
 ax3.plot(t, s3)
 
-multi = MultiCursor(None, (ax1, ax2, ax3), color='r', lw=1)
+multi = MultiCursor((ax1, ax2, ax3), color='r', lw=1)
 plt.show()
 
 # %%

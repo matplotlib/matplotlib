@@ -40,7 +40,7 @@ workflow is:
 
 #. Start a new *feature branch* from ``upstream/main``::
 
-    git checkout -b my-feature upstream/main
+    git checkout -b my-new-feature upstream/main
 
 #. When you're done editing, e.g., ``lib/matplotlib/collections.py``, record your changes in Git::
 
@@ -49,7 +49,7 @@ workflow is:
 
 #. Push the changes to your GitHub fork::
 
-     git push -u origin my-feature
+     git push -u origin my-new-feature
 
 
 .. _update-mirror-main:
@@ -250,15 +250,15 @@ If you notice you messed up after the rebase::
 If you forgot to make a backup branch::
 
    # look at the reflog of the branch
-   git reflog show cool-feature
+   git reflog show my-new-feature
 
-   8630830 cool-feature@{0}: commit: BUG: io: close file handles immediately
-   278dd2a cool-feature@{1}: rebase finished: refs/heads/my-feature-branch onto 11ee694744f2552d
-   26aa21a cool-feature@{2}: commit: BUG: lib: make seek_gzip_factory not leak gzip obj
+   8630830 my-new-feature@{0}: commit: BUG: io: close file handles immediately
+   278dd2a my-new-feature@{1}: rebase finished: refs/heads/my-new-feature onto 11ee694744f2552d
+   26aa21a my-new-feature@{2}: commit: BUG: lib: make seek_gzip_factory not leak gzip obj
    ...
 
    # reset the branch to where it was before the botched rebase
-   git reset --hard cool-feature@{2}
+   git reset --hard my-new-feature@{2}
 
 .. _rewriting-commit-history:
 
@@ -276,73 +276,85 @@ This can be done via *interactive rebasing*.
 
 Suppose that the commit history looks like this::
 
-    git log --oneline
-    eadc391 Fix some remaining bugs
-    a815645 Modify it so that it works
-    2dec1ac Fix a few bugs + disable
-    13d7934 First implementation
-    6ad92e5 * masked is now an instance of a new object, MaskedConstant
-    29001ed Add pre-nep for a copule of structured_array_extensions.
+    $ git log --oneline
+    b7e99a8659 (HEAD -> my-new-feature) Fix some remaining bugs
+    8a5de78b17 Modify it so that it works
+    34448c69eb Fix a few bugs + disable
+    9a5d1ca186 First implementation
+    d1da6fbf0b (upstream/main) Merge pull request #30778 from timhoffm/decorator-tracebackhide
+    6ad937ad83 Merge pull request #30838 from has2k1/fix-numpy-integer-markers
     ...
 
-and ``6ad92e5`` is the last commit in the ``cool-feature`` branch. Suppose we
+and ``b7e99a8659`` is the most recent commit in the ``my-new-feature`` branch. Suppose we
 want to make the following changes:
 
-* Rewrite the commit message for ``13d7934`` to something more sensible.
-* Combine the commits ``2dec1ac``, ``a815645``, ``eadc391`` into a single one.
+* Rewrite the commit message for ``9a5d1ca186`` to something more specific.
+* Combine the commits ``34448c69eb``, ``8a5de78b17``, ``b7e99a8659`` into a single one.
 
 We do as follows::
 
     # make a backup of the current state
     git branch tmp HEAD
     # interactive rebase
-    git rebase -i 6ad92e5
+    git rebase -i d1da6fbf0b
 
 This will open an editor with the following text in it::
 
-    pick 13d7934 First implementation
-    pick 2dec1ac Fix a few bugs + disable
-    pick a815645 Modify it so that it works
-    pick eadc391 Fix some remaining bugs
+    pick 9a5d1ca186 First implementation
+    pick 34448c69eb Fix a few bugs + disable
+    pick 8a5de78b17 Modify it so that it works
+    pick b7e99a8659 Fix some remaining bugs
 
-    # Rebase 6ad92e5..eadc391 onto 6ad92e5
+    # Rebase d1da6fbf0b..b7e99a8659 onto d1da6fbf0b (4 commands)
     #
     # Commands:
-    #  p, pick = use commit
-    #  r, reword = use commit, but edit the commit message
-    #  e, edit = use commit, but stop for amending
-    #  s, squash = use commit, but meld into previous commit
-    #  f, fixup = like "squash", but discard this commit's log message
+    # p, pick <commit> = use commit
+    # r, reword <commit> = use commit, but edit the commit message
+    # e, edit <commit> = use commit, but stop for amending
+    # s, squash <commit> = use commit, but meld into previous commit
+    # f, fixup [-C | -c] <commit> = like "squash" but keep only the previous
+    #                    commit's log message, unless -C is used, in which case
+    #                    keep only this commit's message; -c is same as -C but
+    #                    opens the editor
+    # x, exec <command> = run command (the rest of the line) using shell
+    # b, break = stop here (continue rebase later with 'git rebase --continue')
+    # d, drop <commit> = remove commit
+    # l, label <label> = label current HEAD with a name
+    # t, reset <label> = reset HEAD to a label
+    # m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+    #         create a merge commit using the original merge commit's
+    #         message (or the oneline, if no original merge commit was
+    #         specified); use -c <commit> to reword the commit message
+    # u, update-ref <ref> = track a placeholder for the <ref> to be updated
+    #                       to this position in the new commits. The <ref> is
+    #                       updated at the end of the rebase
+    #
+    # These lines can be re-ordered; they are executed from top to bottom.
     #
     # If you remove a line here THAT COMMIT WILL BE LOST.
+    #
     # However, if you remove everything, the rebase will be aborted.
     #
 
 To achieve what we want, we will make the following changes to it::
 
-    r 13d7934 First implementation
-    pick 2dec1ac Fix a few bugs + disable
-    f a815645 Modify it so that it works
-    f eadc391 Fix some remaining bugs
+    r 9a5d1ca186 First implementation
+    pick 34448c69eb Fix a few bugs + disable
+    f 8a5de78b17 Modify it so that it works
+    f b7e99a8659 Fix some remaining bugs
 
 This means that (i) we want to edit the commit message for
-``13d7934``, and (ii) collapse the last three commits into one. Now we
+``9a5d1ca186``, and (ii) collapse the last three commits into one. Now we
 save and quit the editor.
 
 Git will then immediately bring up an editor for editing the commit
-message. After revising it, we get the output::
+message. After revising it, the history looks like this::
 
-    [detached HEAD 721fc64] FOO: First implementation
-     2 files changed, 199 insertions(+), 66 deletions(-)
-    [detached HEAD 0f22701] Fix a few bugs + disable
-     1 files changed, 79 insertions(+), 61 deletions(-)
-    Successfully rebased and updated refs/heads/my-feature-branch.
-
-and now, the history looks like this::
-
-     0f22701 Fix a few bugs + disable
-     721fc64 ENH: Sophisticated feature
-     6ad92e5 * masked is now an instance of a new object, MaskedConstant
+    955f532b04 (HEAD -> my-new-feature) Fix a few bugs + disable
+    5a2046b5a7 Add my coolest of features
+    d1da6fbf0b (upstream/main) Merge pull request #30778 from timhoffm/decorator-tracebackhide
+    6ad937ad83 Merge pull request #30838 from has2k1/fix-numpy-integer-markers
+    ...
 
 If it went wrong, recovery is again possible as explained :ref:`above
 <recovering-from-mess-up>`.
@@ -359,14 +371,14 @@ Rebase onto ``upstream/main``
 
 Let's say you thought of some work you'd like to do. You
 :ref:`update-mirror-main` and :ref:`make-feature-branch` called
-``cool-feature``. At this stage, ``main`` is at some commit, let's call it E.
-Now you make some new commits on your ``cool-feature`` branch, let's call them
+``my-new-feature``. At this stage, ``main`` is at some commit, let's call it E.
+Now you make some new commits on your ``my-new-feature`` branch, let's call them
 A, B, C. Maybe your changes take a while, or you come back to them after a
 while. In the meantime, ``main`` has progressed from commit E to commit (say) G:
 
 .. code-block:: none
 
-          A---B---C cool-feature
+          A---B---C my-new-feature
          /
     D---E---F---G main
 
@@ -384,7 +396,7 @@ rebase, your history will look like this:
 
 .. code-block:: none
 
-                  A'--B'--C' cool-feature
+                  A'--B'--C' my-new-feature
                  /
     D---E---F---G main
 
@@ -397,13 +409,13 @@ To do a rebase on ``upstream/main``::
     # Fetch changes from upstream/main
     git fetch upstream
     # go to the feature branch
-    git checkout cool-feature
+    git checkout my-new-feature
     # make a backup in case you mess up
-    git branch tmp cool-feature
-    # rebase cool-feature onto main
-    git rebase --onto upstream/main upstream/main cool-feature
+    git branch tmp my-new-feature
+    # rebase my-new-feature onto main
+    git rebase --onto upstream/main upstream/main my-new-feature
 
-In this situation, where you are already on branch ``cool-feature``, the last
+In this situation, where you are already on branch ``my-new-feature``, the last
 command can be written more succinctly as::
 
     git rebase upstream/main
@@ -442,13 +454,13 @@ a git history that looks something like
 
 .. code-block:: none
 
-       A'--E cool-feature
+       A'--E my-new-feature
       /
-     D---A---B---C origin/cool-feature
+     D---A---B---C origin/my-new-feature
 
 where you have pushed the commits ``A,B,C`` to your fork on GitHub (under the
 remote name *origin*) but now have the commits ``A'`` and ``E`` on your local
-branch *cool-feature*.  If you try to push the new commits to GitHub, it will
+branch *my-new-feature*.  If you try to push the new commits to GitHub, it will
 fail and show an error that looks like ::
 
    $ git push
@@ -466,7 +478,7 @@ longer be referenced by any branch and they would be discarded:
 
 .. code-block:: none
 
-      D---A'---E cool-feature, origin/cool-feature
+      D---A'---E my-new-feature, origin/my-new-feature
 
 By default ``git push`` helpfully tries to protect you from accidentally
 discarding commits by rejecting the push to the remote.  When this happens,

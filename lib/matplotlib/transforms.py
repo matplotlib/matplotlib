@@ -44,7 +44,7 @@ import math
 import numpy as np
 from numpy.linalg import inv
 
-from matplotlib import _api
+from matplotlib import _api, _docstring
 from matplotlib._path import affine_transform, count_bboxes_overlapping_bbox
 from .path import Path
 
@@ -376,6 +376,29 @@ class BboxBase(TransformNode):
 
     def get_points(self):
         raise NotImplementedError
+
+    def _is_finite(self):
+        """
+        Return whether the bounding box is finite and not degenerate to a
+        single point.
+
+        We count the box as finite if neither width nor height are infinite
+        and at least one direction is non-zero; i.e. a point is not finite,
+        but a horizontal or vertical line is.
+
+        .. versionadded:: 3.11
+
+        Notes
+        -----
+        We keep this private for now because concise naming is hard and
+        because we are not sure how universal the concept is. It is
+        currently used only for filtering bboxes to be included in
+        tightbbox calculation, but I'm unsure whether single points
+        should be included there as well.
+        """
+        width = self.width
+        height = self.height
+        return (width > 0 or height > 0) and width < np.inf and height < np.inf
 
     def containsx(self, x):
         """
@@ -2842,7 +2865,7 @@ class TransformedPatchPath(TransformedPath):
         super()._revalidate()
 
 
-def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
+def _nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     """
     Modify the endpoints of a range as needed to avoid singularities.
 
@@ -2900,7 +2923,13 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     return vmin, vmax
 
 
-def interval_contains(interval, val):
+@_api.deprecated("3.11")
+@_docstring.copy(_nonsingular)
+def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
+    return _nonsingular(vmin, vmax, expander, tiny, increasing)
+
+
+def _interval_contains(interval, val):
     """
     Check, inclusively, whether an interval includes a given value.
 
@@ -2920,6 +2949,12 @@ def interval_contains(interval, val):
     if a > b:
         a, b = b, a
     return a <= val <= b
+
+
+@_api.deprecated("3.11")
+@_docstring.copy(_interval_contains)
+def interval_contains(interval, val):
+    return _interval_contains(interval, val)
 
 
 def _interval_contains_close(interval, val, rtol=1e-10):
@@ -2951,7 +2986,7 @@ def _interval_contains_close(interval, val, rtol=1e-10):
     return a - rtol <= val <= b + rtol
 
 
-def interval_contains_open(interval, val):
+def _interval_contains_open(interval, val):
     """
     Check, excluding endpoints, whether an interval includes a given value.
 
@@ -2969,6 +3004,12 @@ def interval_contains_open(interval, val):
     """
     a, b = interval
     return a < val < b or a > val > b
+
+
+@_api.deprecated("3.11")
+@_docstring.copy(_interval_contains_open)
+def interval_contains_open(interval, val):
+    return _interval_contains_open(interval, val)
 
 
 def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):

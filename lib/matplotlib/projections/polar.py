@@ -469,7 +469,7 @@ class RadialLocator(mticker.Locator):
         if self._zero_in_bounds() and vmax > vmin:
             # this allows inverted r/y-lims
             vmin = min(0, vmin)
-        return mtransforms.nonsingular(vmin, vmax)
+        return mtransforms._nonsingular(vmin, vmax)
 
 
 class _ThetaShift(mtransforms.ScaledTranslation):

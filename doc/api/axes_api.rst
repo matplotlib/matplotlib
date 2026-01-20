@@ -73,6 +73,7 @@ Basic
    Axes.eventplot
 
    Axes.pie
+   Axes.pie_label
 
    Axes.stackplot
 
@@ -627,6 +628,8 @@ Other
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data
    Axes.set
+   Axes.get_figure
+   Axes.figure
    Axes.remove
 
 .. autoclass:: matplotlib.axes.Axes.ArtistList
