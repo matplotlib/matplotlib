@@ -3,7 +3,7 @@ A module providing some utility functions regarding Bézier path manipulation.
 """
 
 from functools import lru_cache
-import math
+from math import comb, factorial
 import warnings
 
 import numpy as np
@@ -11,15 +11,23 @@ import numpy as np
 from matplotlib import _api
 
 
-# same algorithm as 3.8's math.comb
-@np.vectorize
-@lru_cache(maxsize=128)
-def _comb(n, k):
-    if k > n:
-        return 0
-    k = min(k, n - k)
-    i = np.arange(1, k + 1)
-    return np.prod((n + 1 - i)/i).astype(int)
+@lru_cache(maxsize=16)
+def _get_coeff_matrix(n):
+    """
+    Compute the matrix for converting Bezier control points to polynomial
+    coefficients for a curve of degree n.
+
+    The matrix M is such that M @ control_points gives polynomial coefficients.
+    Entry M[j, i] = C(n, j) * (-1)^(i+j) * C(j, i) where C is the binomial
+    coefficient.
+    """
+    def _comb(n, k):
+        return np.vectorize(comb)(n, k)
+
+    j = np.arange(n + 1)[:, None]
+    i = np.arange(n + 1)[None, :]  # _comb is non-zero for i <= j
+    prefactor = (-1) ** (i + j) * _comb(j, i)  # j on axis 0, i on axis 1
+    return (_comb(n, j) * prefactor).astype(float)
 
 
 class NonIntersectingPathException(ValueError):
@@ -203,8 +211,8 @@ class BezierSegment:
         self._cpoints = np.asarray(control_points)
         self._N, self._d = self._cpoints.shape
         self._orders = np.arange(self._N)
-        coeff = [math.factorial(self._N - 1)
-                 // (math.factorial(i) * math.factorial(self._N - 1 - i))
+        coeff = [factorial(self._N - 1)
+                 // (factorial(i) * factorial(self._N - 1 - i))
                  for i in range(self._N)]
         self._px = (self._cpoints.T * coeff).T
 
@@ -279,11 +287,7 @@ class BezierSegment:
         if n > 10:
             warnings.warn("Polynomial coefficients formula unstable for high "
                           "order Bezier curves!", RuntimeWarning)
-        P = self.control_points
-        j = np.arange(n+1)[:, None]
-        i = np.arange(n+1)[None, :]  # _comb is non-zero for i <= j
-        prefactor = (-1)**(i + j) * _comb(j, i)  # j on axis 0, i on axis 1
-        return _comb(n, j) * prefactor @ P  # j on axis 0, self.dimension on 1
+        return _get_coeff_matrix(n) @ self.control_points
 
     def axis_aligned_extrema(self):
         """
