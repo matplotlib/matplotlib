@@ -9,6 +9,82 @@ import warnings
 import numpy as np
 
 from matplotlib import _api
+from numpy.polynomial.polynomial import polyval as _polyval
+
+
+def _bisect_root_finder(f, a, b, tol=1e-12, max_iter=64):
+    """Find root of f in [a, b] using bisection. Assumes sign change exists."""
+    fa = f(a)
+    for _ in range(max_iter):
+        mid = (a + b) * 0.5
+        fm = f(mid)
+        if abs(fm) < tol or (b - a) < tol:
+            return mid
+        if fa * fm < 0:
+            b = mid
+        else:
+            a, fa = mid, fm
+    return (a + b) * 0.5
+
+
+def _real_roots_in_01(coeffs):
+    """
+    Find real roots of polynomial in [0, 1] using sampling and bisection.
+    coeffs in ascending order: c0 + c1*x + c2*x**2 + ...
+    """
+    deg = len(coeffs) - 1
+    n_samples = max(8, deg * 2)
+    ts = np.linspace(0, 1, n_samples)
+    vals = _polyval(ts, coeffs)
+
+    signs = np.sign(vals)
+    sign_changes = np.where((signs[:-1] != signs[1:]) & (signs[:-1] != 0))[0]
+
+    roots = []
+
+    def f(t):
+        return _polyval(t, coeffs)
+
+    max_iter = 53  # float64 fractional precision for [0, 1] interval
+    for i in sign_changes:
+        roots.append(_bisect_root_finder(f, ts[i], ts[i + 1], max_iter=max_iter))
+
+    # Check endpoints
+    if abs(vals[0]) < 1e-12:
+        roots.insert(0, 0.0)
+    if abs(vals[-1]) < 1e-12 and (not roots or abs(roots[-1] - 1.0) > 1e-10):
+        roots.append(1.0)
+
+    return np.asarray(roots)
+
+
+def _quadratic_roots_in_01(c0, c1, c2):
+    """Real roots of c0 + c1*x + c2*x**2 in [0, 1]."""
+    if abs(c2) < 1e-12:  # Linear
+        if abs(c1) < 1e-12:
+            return np.array([])
+        root = -c0 / c1
+        return np.array([root]) if 0 <= root <= 1 else np.array([])
+
+    disc = c1 * c1 - 4 * c2 * c0
+    if disc < 0:
+        return np.array([])
+
+    sqrt_disc = np.sqrt(disc)
+    # Numerically stable quadratic formula
+    if c1 >= 0:
+        q = -0.5 * (c1 + sqrt_disc)
+    else:
+        q = -0.5 * (c1 - sqrt_disc)
+
+    roots = []
+    if abs(q) > 1e-12:
+        roots.append(c0 / q)
+    if abs(c2) > 1e-12:
+        roots.append(q / c2)
+
+    roots = np.asarray(roots)
+    return roots[(roots >= 0) & (roots <= 1)]
 
 
 @lru_cache(maxsize=16)
@@ -309,17 +385,35 @@ class BezierSegment:
         if n <= 1:
             return np.array([]), np.array([])
         Cj = self.polynomial_coefficients
-        dCj = np.arange(1, n+1)[:, None] * Cj[1:]
-        dims = []
-        roots = []
+        dCj = np.arange(1, n + 1)[:, None] * Cj[1:]
+
+        all_dims = []
+        all_roots = []
+
         for i, pi in enumerate(dCj.T):
-            r = np.roots(pi[::-1])
-            roots.append(r)
-            dims.append(np.full_like(r, i))
-        roots = np.concatenate(roots)
-        dims = np.concatenate(dims)
-        in_range = np.isreal(roots) & (roots >= 0) & (roots <= 1)
-        return dims[in_range], np.real(roots)[in_range]
+            # Trim trailing near-zeros to get actual degree
+            deg = len(pi) - 1
+            while deg > 0 and abs(pi[deg]) < 1e-12:
+                deg -= 1
+
+            if deg == 0:
+                continue
+            elif deg == 1:
+                root = -pi[0] / pi[1]
+                r = np.array([root]) if 0 <= root <= 1 else np.array([])
+            elif deg == 2:
+                r = _quadratic_roots_in_01(pi[0], pi[1], pi[2])
+            else:
+                r = _real_roots_in_01(pi[:deg + 1])
+
+            if len(r) > 0:
+                all_roots.append(r)
+                all_dims.append(np.full(len(r), i))
+
+        if not all_roots:
+            return np.array([]), np.array([])
+
+        return np.concatenate(all_dims), np.concatenate(all_roots)
 
 
 def split_bezier_intersecting_with_closedpath(
