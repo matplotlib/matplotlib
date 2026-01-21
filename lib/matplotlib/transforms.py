@@ -909,7 +909,7 @@ class Bbox(BboxBase):
             minx = np.min(x, initial=np.inf)
             points[0, 0] = min(points[0, 0], minx)
             points[1, 0] = max(points[1, 0], np.max(x, initial=-np.inf))
-            if minx > 0:
+            if minx > 0:  # Fast path for all-positive x values
                 minpos[0] = min(minpos[0], minx)
             else:
                 minpos[0] = min(minpos[0], np.min(x[x > 0], initial=np.inf))
@@ -918,7 +918,7 @@ class Bbox(BboxBase):
             miny = np.min(y, initial=np.inf)
             points[0, 1] = min(points[0, 1], miny)
             points[1, 1] = max(points[1, 1], np.max(y, initial=-np.inf))
-            if miny > 0:
+            if miny > 0:  # Fast path for all-positive y values
                 minpos[1] = min(minpos[1], miny)
             else:
                 minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
