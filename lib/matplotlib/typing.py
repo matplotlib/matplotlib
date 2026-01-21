@@ -451,6 +451,7 @@ RcKeyType: TypeAlias = Literal[
     "text.hinting",
     "text.hinting_factor",
     "text.kerning_factor",
+    "text.language",
     "text.latex.preamble",
     "text.parse_math",
     "text.usetex",

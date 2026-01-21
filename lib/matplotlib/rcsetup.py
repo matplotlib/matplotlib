@@ -1762,8 +1762,19 @@ _params = [
         default="black",
         validator=validate_color
     ),
-    _Param("text.hinting",
-        default="force_autohint",
+    _Param(
+        "text.language",
+        default=None,
+        validator=validate_string_or_None,
+        description="The language of the text in a format accepted by libraqm, namely "
+                    "`a BCP47 language code "
+                    "<https://www.w3.org/International/articles/language-tags/>`_. If "
+                    "None, then no particular language will be implied, and default "
+                    "font settings will be used."
+    ),
+    _Param(
+        "text.hinting",
+        default="default",
         validator=[
             "default", "no_autohint", "force_autohint", "no_hinting", "auto", "native",
             "either", "none",
@@ -1781,7 +1792,7 @@ _params = [
     ),
     _Param(
         "text.hinting_factor",
-        default=8,
+        default=1,
         validator=validate_int,
         description="Specifies the amount of softness for hinting in the horizontal "
                     "direction.  A value of 1 will hint to full pixels.  A value of 2 "
@@ -1789,12 +1800,12 @@ _params = [
     ),
     _Param(
         "text.kerning_factor",
-        default=0,
-        validator=validate_int,
-        description="Specifies the scaling factor for kerning values. This is "
-                    "provided solely to allow old test images to remain unchanged. "
-                    "Set to 6 to obtain previous behavior. Values  other than 0 or 6 "
-                    "have no defined meaning."
+        default=None,
+        validator=validate_int_or_None,
+        description="[DEPRECATED] Specifies the scaling factor for kerning values. "
+                    "This is provided solely to allow old test images to remain "
+                    "unchanged. Set to 6 to obtain previous behavior. Values other "
+                    "than 0 or 6 have no defined meaning."
     ),
     _Param(
         "text.antialiased",
