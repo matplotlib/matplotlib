@@ -63,31 +63,30 @@ PyRendererAgg_draw_text_image(RendererAgg *self,
                               double angle,
                               GCAgg &gc)
 {
-    int x, y;
-
-    if (auto value = std::get_if<double>(&vx)) {
-        auto api = py::module_::import("matplotlib._api");
-        auto warn = api.attr("warn_deprecated");
-        warn("since"_a="3.10", "name"_a="x", "obj_type"_a="parameter as float",
-             "alternative"_a="int(x)");
-        x = static_cast<int>(*value);
-    } else if (auto value = std::get_if<int>(&vx)) {
-        x = *value;
-    } else {
-        throw std::runtime_error("Should not happen");
-    }
-
-    if (auto value = std::get_if<double>(&vy)) {
-        auto api = py::module_::import("matplotlib._api");
-        auto warn = api.attr("warn_deprecated");
-        warn("since"_a="3.10", "name"_a="y", "obj_type"_a="parameter as float",
-             "alternative"_a="int(y)");
-        y = static_cast<int>(*value);
-    } else if (auto value = std::get_if<int>(&vy)) {
-        y = *value;
-    } else {
-        throw std::runtime_error("Should not happen");
-    }
+    int x = std::visit(overloaded {
+        [&](double value) {
+            auto api = py::module_::import("matplotlib._api");
+            auto warn = api.attr("warn_deprecated");
+            warn("since"_a="3.10", "name"_a="x", "obj_type"_a="parameter as float",
+                 "alternative"_a="int(x)");
+            return static_cast<int>(value);
+        },
+        [](int value) {
+            return value;
+        }
+    }, vx);
+    int y = std::visit(overloaded {
+        [&](double value) {
+            auto api = py::module_::import("matplotlib._api");
+            auto warn = api.attr("warn_deprecated");
+            warn("since"_a="3.10", "name"_a="y", "obj_type"_a="parameter as float",
+                 "alternative"_a="int(x)");
+            return static_cast<int>(value);
+        },
+        [](int value) {
+            return value;
+        }
+    }, vy);
 
     // TODO: This really shouldn't be mutable, but Agg's renderer buffers aren't const.
     auto image = image_obj.mutable_unchecked<2>();
