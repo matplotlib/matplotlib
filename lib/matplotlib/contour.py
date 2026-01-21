@@ -1489,6 +1489,9 @@ levels : int or array-like, optional
     If an int *n*, use `~matplotlib.ticker.MaxNLocator`, which tries
     to automatically choose no more than *n+1* "nice" contour levels
     between minimum and maximum numeric values of *Z*.
+                            
+    If None (default), a reasonable default is chosen; for linear
+    scales, N=7 is the default.                        
 
     If array-like, draw contour lines at the specified levels.
     The values must be in increasing order.
