@@ -1410,12 +1410,11 @@ class Axes3D(Axes):
         bounds_proj = self._get_transformed_cube()
 
         # Determine which one of the parallel planes are higher up
-        from .axis3d import Axis
         means_z0 = np.zeros(3)
         means_z1 = np.zeros(3)
         for i in range(3):
-            means_z0[i] = np.mean(bounds_proj[Axis._PLANES[2 * i], 2])
-            means_z1[i] = np.mean(bounds_proj[Axis._PLANES[2 * i + 1], 2])
+            means_z0[i] = np.mean(bounds_proj[axis3d.Axis._PLANES[2 * i], 2])
+            means_z1[i] = np.mean(bounds_proj[axis3d.Axis._PLANES[2 * i + 1], 2])
         highs = means_z0 < means_z1
 
         # Special handling for edge-on views
