@@ -714,6 +714,7 @@ class Line2D(Artist):
             vertices = self._xy
         else:
             steps = step_func(*self._xy.T)
+            # Preallocate and fill for speed
             vertices = np.empty((steps.shape[1], 2))
             vertices[:, 0] = steps[0]
             vertices[:, 1] = steps[1]
@@ -735,6 +736,7 @@ class Line2D(Artist):
                 vertices = self._xy[subslice]
             else:
                 steps = step_func(*self._xy[subslice, :].T)
+                # Preallocate and fill for speed
                 vertices = np.empty((steps.shape[1], 2))
                 vertices[:, 0] = steps[0]
                 vertices[:, 1] = steps[1]
