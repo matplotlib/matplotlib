@@ -766,15 +766,7 @@ class FontProperties:
             return cls(**arg)
 
     def __hash__(self):
-        l = (tuple(self.get_family()),
-             self.get_slant(),
-             self.get_variant(),
-             self.get_weight(),
-             self.get_stretch(),
-             self.get_size(),
-             self.get_file(),
-             self.get_math_fontfamily())
-        return hash(l)
+        return hash(tuple(self.__dict__.values()))
 
     def __eq__(self, other):
         return hash(self) == hash(other)
@@ -790,7 +782,7 @@ class FontProperties:
         from their respective rcParams when searching for a matching font) in
         the order of preference.
         """
-        return self._family
+        return list(self._family)
 
     def get_name(self):
         """
@@ -859,8 +851,8 @@ class FontProperties:
         """
         family = mpl._val_or_rc(family, 'font.family')
         if isinstance(family, str):
-            family = [family]
-        self._family = family
+            family = (family,)
+        self._family = tuple(family)
 
     def set_style(self, style):
         """
@@ -1023,14 +1015,7 @@ class FontProperties:
     def __copy__(self):
         # Bypass __init__ for speed, since values are already validated
         new = FontProperties.__new__(FontProperties)
-        new._family = self._family
-        new._slant = self._slant
-        new._variant = self._variant
-        new._weight = self._weight
-        new._stretch = self._stretch
-        new._size = self._size
-        new._file = self._file
-        new._math_fontfamily = self._math_fontfamily
+        new.__dict__.update(self.__dict__)
         return new
 
     def copy(self):
