@@ -124,6 +124,30 @@ def _viewlim_mask(xs, ys, zs, axes):
     return mask
 
 
+def _apply_viewlim_mask_with_copy(xs, ys, zs, axes):
+    """
+    Mask points outside view limits by setting to nan. Allocates new arrays.
+
+    Parameters
+    ----------
+    xs, ys, zs : array-like
+        The points to mask. These should be in data coordinates.
+    axes : Axes3D
+        The axes to use for the view limits.
+
+    Returns
+    -------
+    xs, ys, zs : array-like
+        The coordinates with out-of-bounds points set to nan.
+    """
+    mask = _viewlim_mask(xs, ys, zs, axes)
+    if np.any(mask):
+        xs = np.where(mask, np.nan, xs)
+        ys = np.where(mask, np.nan, ys)
+        zs = np.where(mask, np.nan, zs)
+    return xs, ys, zs
+
+
 class Text3D(mtext.Text):
     """
     Text object with 3D position and direction.
@@ -222,7 +246,7 @@ class Text3D(mtext.Text):
         if self._axlim_clip:
             mask = _viewlim_mask(self._x, self._y, self._z, self.axes)
             if np.any(mask):
-                pos3d = np.where(mask, np.nan, pos3d)
+                pos3d[mask] = np.nan
 
         # Apply scale transforms before projection
         pos3d_scaled = np.array(_apply_scale_transforms(
@@ -362,11 +386,8 @@ class Line3D(lines.Line2D):
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
         if self._axlim_clip:
-            mask = _viewlim_mask(xs3d, ys3d, zs3d, self.axes)
-            if np.any(mask):
-                xs3d = np.where(mask, np.nan, xs3d)
-                ys3d = np.where(mask, np.nan, ys3d)
-                zs3d = np.where(mask, np.nan, zs3d)
+            xs3d, ys3d, zs3d = _apply_viewlim_mask_with_copy(xs3d, ys3d, zs3d,
+                                                             self.axes)
         # Apply scale transforms before projection
         xs3d, ys3d, zs3d = _apply_scale_transforms(xs3d, ys3d, zs3d, self.axes)
         xs, ys, zs, tis = proj3d._proj_transform_clip(xs3d, ys3d, zs3d,
@@ -650,23 +671,16 @@ class Patch3D(Patch):
 
     def do_3d_projection(self):
         s = self._segment3d
-        mask = False
         xs, ys, zs = zip(*s)
         if self._axlim_clip:
-            mask = _viewlim_mask(xs, ys, zs, self.axes)
-            if np.any(mask):
-                xs = np.where(mask, np.nan, xs)
-                ys = np.where(mask, np.nan, ys)
-                zs = np.where(mask, np.nan, zs)
+            xs, ys, zs = _apply_viewlim_mask_with_copy(xs, ys, zs, self.axes)
         # Apply scale transforms before projection
         xs, ys, zs = _apply_scale_transforms(xs, ys, zs, self.axes)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]))
-        if mask is False:
-            return np.min(vzs)
-        return np.min(vzs[~mask])
+        return np.nanmin(vzs)
 
 
 class PathPatch3D(Patch3D):
@@ -718,24 +732,16 @@ class PathPatch3D(Patch3D):
 
     def do_3d_projection(self):
         s = self._segment3d
-        mask = False
         xs, ys, zs = zip(*s)
         if self._axlim_clip:
-            mask = _viewlim_mask(xs, ys, zs, self.axes)
-            if np.any(mask):
-                xs = np.where(mask, np.nan, xs)
-                ys = np.where(mask, np.nan, ys)
-                zs = np.where(mask, np.nan, zs)
+            xs, ys, zs = _apply_viewlim_mask_with_copy(xs, ys, zs, self.axes)
         # Apply scale transforms before projection
         xs, ys, zs = _apply_scale_transforms(xs, ys, zs, self.axes)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
         self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
-
-        if mask is False:
-            return np.min(vzs)
-        return np.min(vzs[~mask])
+        return np.nanmin(vzs)
 
 
 def _get_patch_verts(patch):
@@ -872,13 +878,8 @@ class Patch3DCollection(PatchCollection):
 
     def do_3d_projection(self):
         xs, ys, zs = self._offsets3d
-        mask = False
         if self._axlim_clip:
-            mask = _viewlim_mask(xs, ys, zs, self.axes)
-            if np.any(mask):
-                xs = np.where(mask, np.nan, xs)
-                ys = np.where(mask, np.nan, ys)
-                zs = np.where(mask, np.nan, zs)
+            xs, ys, zs = _apply_viewlim_mask_with_copy(xs, ys, zs, self.axes)
         # Apply scale transforms before projection
         xs, ys, zs = _apply_scale_transforms(xs, ys, zs, self.axes)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
@@ -887,12 +888,7 @@ class Patch3DCollection(PatchCollection):
         self._vzs = vzs
         super().set_offsets(np.column_stack([vxs, vys]))
 
-        if vzs.size > 0:
-            if mask is False:
-                return np.min(vzs)
-            return np.min(vzs[~mask])
-        else:
-            return np.nan
+        return np.nanmin(vzs) if vzs.size > 0 else np.nan
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
         color_array = (
