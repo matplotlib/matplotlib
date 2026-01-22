@@ -630,8 +630,7 @@ class Axis(maxis.XAxis):
         self.stale = False
 
         # Reset cached values for next draw cycle, in case not called by Axes3D.draw()
-        self._cached_ticks_to_draw = None
-        self._cached_ticklabel_bboxes = None
+        self._clear_ticks_cache()
 
     @artist.allow_rasterization
     def draw_grid(self, renderer):

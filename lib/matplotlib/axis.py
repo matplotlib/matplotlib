@@ -1293,6 +1293,10 @@ class Axis(martist.Artist):
             return
         a.set_figure(self.get_figure(root=False))
 
+    def _clear_ticks_cache(self):
+        self._cached_ticks_to_draw = None
+        self._cached_ticklabel_bboxes = None
+
     def _update_ticks(self, *, _use_cache=False):
         """
         Update ticks (position and labels) using the current data interval of
@@ -1387,6 +1391,7 @@ class Axis(martist.Artist):
         # Don't use cached values here - get_tightbbox() is called during
         # layout calculations (e.g., constrained_layout) outside of draw(),
         # and must always recalculate to reflect current state.
+        self._clear_ticks_cache()
         ticks_to_draw = self._update_ticks(_use_cache=False)
 
         self._update_label_position(renderer, _use_cache=False)
@@ -1459,8 +1464,7 @@ class Axis(martist.Artist):
         self.stale = False
 
         # Reset cached values for next draw cycle, in case not called by Axes.draw()
-        self._cached_ticks_to_draw = None
-        self._cached_ticklabel_bboxes = None
+        self._clear_ticks_cache()
 
     def get_gridlines(self):
         r"""Return this Axis' grid lines as a list of `.Line2D`\s."""

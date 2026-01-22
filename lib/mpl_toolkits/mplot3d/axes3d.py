@@ -451,8 +451,7 @@ class Axes3D(Axes):
 
         if self._axis3don:
             for axis in self._axis_map.values():
-                axis._cached_ticks_to_draw = None
-                axis._cached_ticklabel_bboxes = None
+                axis._clear_ticks_cache()
             # Draw panes first
             for axis in self._axis_map.values():
                 axis.draw_pane(renderer)
