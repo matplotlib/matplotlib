@@ -3199,6 +3199,11 @@ class _AxesBase(martist.Artist):
 
         self._update_title_position(renderer)
 
+        # Clear axis tick caches for this draw cycle
+        for _axis in self._axis_map.values():
+            _axis._cached_ticks_to_draw = None
+            _axis._cached_ticklabel_bboxes = None
+
         if not self.axison:
             for _axis in self._axis_map.values():
                 artists.remove(_axis)
