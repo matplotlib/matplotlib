@@ -1871,3 +1871,41 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
             (im_rgb, new_array_alpha.reshape((ny, nx, 1))), axis=-1
         ), interpolation_stage=intp_stage
     )
+
+
+def test_imshow_pixel_rounding():
+    """
+    Test that imshow rounds output dimensions to the nearest integer
+    (matching grid snapping) rather than always ceiling them.
+    Regression test for: https://github.com/matplotlib/matplotlib/issues/31009
+    """
+    # 1. Setup a figure with known DPI
+    dpi = 100
+    fig = plt.figure(dpi=dpi)
+
+    # 2. Create an axes that occupies a precise fractional area
+    # We want the axes to be 10.4 pixels wide.
+    # width_inches = 10.4 / 100 = 0.104
+    fig.set_size_inches(1, 1)
+    ax = fig.add_axes([0, 0, 0.104, 0.104])  # [left, bottom, width, height]
+
+    # 3. Add an image that fills the axes
+    # Data is 1x1, Extent matches limits
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    im = ax.imshow([[1]], extent=[0, 1, 0, 1], interpolation='nearest')
+
+    # 4. Trigger the internal make_image call
+    # This invokes the logic we changed in image.py
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+
+    # im.make_image returns (image_array, x, y, transform)
+    # The image_array shape corresponds to the calculated pixel size
+    resampled_img, _, _, _ = im.make_image(renderer)
+    # 5. Assert the logic
+    # Theoretical width: 100 dpi * 1 inch * 0.104 fraction = 10.4 pixels.
+    # Old behavior (ceil): 11 pixels
+    # New behavior (round): 10 pixels
+    assert resampled_img.shape == (10, 10, 4), \
+        f"Expected 10x10 image (rounded), got {resampled_img.shape} (likely ceiled)"

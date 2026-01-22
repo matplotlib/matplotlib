@@ -3,7 +3,6 @@ The image module supports basic image loading, rescaling and display
 operations.
 """
 
-import math
 import os
 import logging
 from pathlib import Path
@@ -420,16 +419,29 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 .translate(-clipped_bbox.x0, -clipped_bbox.y0)
                 .scale(magnification)))
 
-        # So that the image is aligned with the edge of the Axes, we want to
-        # round up the output width to the next integer.  This also means
-        # scaling the transform slightly to account for the extra subpixel.
-        if ((not unsampled) and t.is_affine and round_to_pixel_border and
-                (out_width_base % 1.0 != 0.0 or out_height_base % 1.0 != 0.0)):
-            out_width = math.ceil(out_width_base)
-            out_height = math.ceil(out_height_base)
-            extra_width = (out_width - out_width_base) / out_width_base
-            extra_height = (out_height - out_height_base) / out_height_base
-            t += Affine2D().scale(1.0 + extra_width, 1.0 + extra_height)
+        # So that the image is aligned with the edge of the Axes, we round the
+        # output size to the nearest integer, and scale the transform slightly
+        # to account for any resulting subpixel difference.
+        if ((not unsampled) and t.is_affine and round_to_pixel_border):
+            out_width = round(out_width_base)
+            out_height = round(out_height_base)
+
+            if out_width > 0 and out_height > 0:
+                extra_width = (out_width - out_width_base) / out_width_base
+                extra_height = (out_height - out_height_base) / out_height_base
+                t += Affine2D().scale(1.0 + extra_width, 1.0 + extra_height)
+            else:
+                # Fallback for small positive base dimensions: ensure at least
+                # one pixel so we do not end up with a zero-sized output.
+                if out_width_base > 0:
+                    out_width = max(1, int(out_width_base))
+                else:
+                    out_width = int(out_width_base)
+
+                if out_height_base > 0:
+                    out_height = max(1, int(out_height_base))
+                else:
+                    out_height = int(out_height_base)
         else:
             out_width = int(out_width_base)
             out_height = int(out_height_base)

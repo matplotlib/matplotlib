@@ -1,0 +1,6 @@
+imshow pixel alignment
+~~~~~~~~~~~~~~~~~~~~~~
+``imshow`` now rounds the output image dimensions to the nearest integer pixel
+rather than always using ``math.ceil``. This ensures that the edges of raster
+pixels align correctly with vector grid lines and patches, preventing 1-pixel
+overlaps or gaps when the image is small or pixels are large.
