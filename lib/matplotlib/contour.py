@@ -1485,16 +1485,17 @@ Z : (M, N) array-like
 
 levels : int or array-like, optional
     Determines the number and positions of the contour lines / regions.
-    
-    If an int *n*, use `~matplotlib.ticker.MaxNLocator` to automatically
-    choose approximately *n+1* "nice" contour levels between the minimum
-    and maximum values of *Z*. Note that the actual number may be up to
-    *n+2* depending on the data range.
-    
+
+    If an int *n*, use `~.ticker.MaxNLocator`, which tries to
+    automatically choose approximately *n+1* "nice" contour levels
+    between minimum and maximum numeric values of Z. Note that this
+    locator optimizes for "nice" intervals, so the actual number of
+    levels may be up to *n+2* depending on the data range.
+
     If array-like, draw contour lines at the specified levels.
     The values must be in increasing order.
-    
-    If not specified, behaves as if ``levels=7`` was passed, typically
+
+    If not specified, the default corresponds to *n=7*, typically
     producing approximately 8 contour levels.
 
 Returns
