@@ -633,7 +633,10 @@ class FigureManagerQT(FigureManagerBase):
         menu = QtWidgets.QMenu(self.window)
         for label, action in zip(labels, actions):
             menu.addAction(label).triggered.connect(action)
-        menu.exec(event.guiEvent.globalPos())
+        if hasattr(event.guiEvent, 'globalPosition'):
+            menu.exec(event.guiEvent.globalPosition().toPoint())
+        else:
+            menu.exec(event.guiEvent.globalPos())
 
     def _widgetclosed(self):
         CloseEvent("close_event", self.canvas)._process()

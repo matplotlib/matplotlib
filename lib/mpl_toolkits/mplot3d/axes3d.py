@@ -1380,13 +1380,14 @@ class Axes3D(Axes):
                 self.view_init(elev=elev, azim=azim)
                 canvas.draw_idle()
 
-            canvas.manager.context_menu(
-                event,
-                labels=["Go to X-Y view", "Go to Y-Z view", "Go to X-Z view"],
-                actions=[functools.partial(draw_lambda, elev=90, azim=-90),
-                         functools.partial(draw_lambda, elev=0, azim=0),
-                         functools.partial(draw_lambda, elev=0, azim=-90)],
-            )
+            if hasattr(canvas.manager, "context_menu"):
+                canvas.manager.context_menu(
+                    event,
+                    labels=["Go to X-Y view", "Go to Y-Z view", "Go to X-Z view"],
+                    actions=[functools.partial(draw_lambda, elev=90, azim=-90),
+                            functools.partial(draw_lambda, elev=0, azim=0),
+                            functools.partial(draw_lambda, elev=0, azim=-90)],
+                )
 
         toolbar = self.get_figure(root=True).canvas.toolbar
         # backend_bases.release_zoom and backend_bases.release_pan call

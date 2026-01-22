@@ -600,6 +600,7 @@ class FigureManagerGTK3(_FigureManagerGTK):
             menu.append(item)
             item.connect('activate', lambda _, a=action: a())
             item.show()
+        menu.connect('selection-done', lambda m: m.destroy())
         menu.popup_at_pointer(event.guiEvent)
 
 
