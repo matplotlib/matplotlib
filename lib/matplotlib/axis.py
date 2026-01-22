@@ -674,6 +674,7 @@ class Axis(martist.Artist):
         self._minor_tick_kw = dict()
 
         self._cached_ticks_to_draw = None
+        self._cached_ticklabel_bboxes = None
 
         if clear:
             self.clear()
@@ -1350,14 +1351,22 @@ class Axis(martist.Artist):
         self._cached_ticks_to_draw = ticks_to_draw
         return ticks_to_draw
 
-    def _get_ticklabel_bboxes(self, ticks, renderer):
+    def _get_ticklabel_bboxes(self, ticks, renderer, *, _use_cached=False):
         """Return lists of bboxes for ticks' label1's and label2's."""
-        return ([tick.label1.get_window_extent(renderer)
-                 for tick in ticks
-                 if tick.label1.get_visible() and tick.label1.get_in_layout()],
-                [tick.label2.get_window_extent(renderer)
-                 for tick in ticks
-                 if tick.label2.get_visible() and tick.label2.get_in_layout()])
+        # Return cached result if available and requested
+        if _use_cached and self._cached_ticklabel_bboxes is not None:
+            return self._cached_ticklabel_bboxes
+
+        result = ([tick.label1.get_window_extent(renderer)
+                   for tick in ticks
+                   if tick.label1.get_visible() and tick.label1.get_in_layout()],
+                  [tick.label2.get_window_extent(renderer)
+                   for tick in ticks
+                   if tick.label2.get_visible() and tick.label2.get_in_layout()])
+
+        # Cache the result before returning
+        self._cached_ticklabel_bboxes = result
+        return result
 
     def get_tightbbox(self, renderer=None, *, for_layout_only=False):
         """
@@ -1381,7 +1390,8 @@ class Axis(martist.Artist):
         self._update_label_position(renderer)
 
         # go back to just this axis's tick labels
-        tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
+        tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer,
+                                                _use_cached=False)
 
         self._update_offset_text_position(tlb1, tlb2)
         self.offsetText.set_text(self.major.formatter.get_offset())
@@ -1428,11 +1438,13 @@ class Axis(martist.Artist):
             return
         renderer.open_group(__name__, gid=self.get_gid())
 
-        # Clear tick cache for this draw cycle
+        # Clear caches for this draw cycle
         self._cached_ticks_to_draw = None
+        self._cached_ticklabel_bboxes = None
 
         ticks_to_draw = self._update_ticks(_use_cached=True)
-        tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
+        tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer,
+                                                _use_cached=True)
 
         for tick in ticks_to_draw:
             tick.draw(renderer)
@@ -2269,7 +2281,8 @@ class Axis(martist.Artist):
         for ax in grouper.get_siblings(self.axes):
             axis = ax._axis_map[name]
             ticks_to_draw = axis._update_ticks(_use_cached=True)
-            tlb, tlb2 = axis._get_ticklabel_bboxes(ticks_to_draw, renderer)
+            tlb, tlb2 = axis._get_ticklabel_bboxes(ticks_to_draw, renderer,
+                                                   _use_cached=True)
             bboxes.extend(tlb)
             bboxes2.extend(tlb2)
         return bboxes, bboxes2
