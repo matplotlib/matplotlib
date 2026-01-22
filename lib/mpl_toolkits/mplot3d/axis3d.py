@@ -435,7 +435,7 @@ class Axis(maxis.XAxis):
 
     def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
                     deltas_per_point, pos):
-        ticks = self._update_ticks()
+        ticks = self._update_ticks(_use_cached=True)
         info = self._axinfo
         index = info["i"]
         juggled = info["juggled"]
@@ -629,6 +629,10 @@ class Axis(maxis.XAxis):
         renderer.close_group('axis3d')
         self.stale = False
 
+        # Reset cached values for next draw cycle, in case not called by Axes3D.draw()
+        self._cached_ticks_to_draw = None
+        self._cached_ticklabel_bboxes = None
+
     @artist.allow_rasterization
     def draw_grid(self, renderer):
         if not self.axes._draw_grid:
@@ -636,7 +640,7 @@ class Axis(maxis.XAxis):
 
         renderer.open_group("grid3d", gid=self.get_gid())
 
-        ticks = self._update_ticks()
+        ticks = self._update_ticks(_use_cached=True)
         if len(ticks):
             # Get general axis information:
             info = self._axinfo
@@ -705,7 +709,10 @@ class Axis(maxis.XAxis):
 
         ticks = ticks_to_draw
 
-        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer)
+        # Don't use cached values here - get_tightbbox() is called during
+        # layout calculations (e.g., constrained_layout) outside of draw(),
+        # and must always recalculate to reflect current state.
+        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer, _use_cached=False)
         other = []
 
         if self.offsetText.get_visible() and self.offsetText.get_text():
