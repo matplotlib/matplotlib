@@ -673,6 +673,8 @@ class Axis(martist.Artist):
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
 
+        self._cached_ticks_to_draw = None
+
         if clear:
             self.clear()
         else:
@@ -1290,11 +1292,15 @@ class Axis(martist.Artist):
             return
         a.set_figure(self.get_figure(root=False))
 
-    def _update_ticks(self):
+    def _update_ticks(self, *, _use_cached=False):
         """
         Update ticks (position and labels) using the current data interval of
         the axes.  Return the list of ticks that will be drawn.
         """
+        # Return cached result if available and requested
+        if _use_cached and self._cached_ticks_to_draw is not None:
+            return self._cached_ticks_to_draw
+
         major_locs = self.get_majorticklocs()
         major_labels = self.major.formatter.format_ticks(major_locs)
         major_ticks = self.get_major_ticks(len(major_locs))
@@ -1340,6 +1346,8 @@ class Axis(martist.Artist):
                 if mtransforms._interval_contains_close(interval_t, loc_t):
                     ticks_to_draw.append(tick)
 
+        # Cache the result before returning
+        self._cached_ticks_to_draw = ticks_to_draw
         return ticks_to_draw
 
     def _get_ticklabel_bboxes(self, ticks, renderer):
@@ -1365,7 +1373,10 @@ class Axis(martist.Artist):
             return
         if renderer is None:
             renderer = self.get_figure(root=True)._get_renderer()
-        ticks_to_draw = self._update_ticks()
+        # Don't use cached values here - get_tightbbox() is called during
+        # layout calculations (e.g., constrained_layout) outside of draw(),
+        # and must always recalculate to reflect current state.
+        ticks_to_draw = self._update_ticks(_use_cached=False)
 
         self._update_label_position(renderer)
 
@@ -1417,7 +1428,10 @@ class Axis(martist.Artist):
             return
         renderer.open_group(__name__, gid=self.get_gid())
 
-        ticks_to_draw = self._update_ticks()
+        # Clear tick cache for this draw cycle
+        self._cached_ticks_to_draw = None
+
+        ticks_to_draw = self._update_ticks(_use_cached=True)
         tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
 
         for tick in ticks_to_draw:
@@ -2254,7 +2268,7 @@ class Axis(martist.Artist):
         # If we want to align labels from other Axes:
         for ax in grouper.get_siblings(self.axes):
             axis = ax._axis_map[name]
-            ticks_to_draw = axis._update_ticks()
+            ticks_to_draw = axis._update_ticks(_use_cached=True)
             tlb, tlb2 = axis._get_ticklabel_bboxes(ticks_to_draw, renderer)
             bboxes.extend(tlb)
             bboxes2.extend(tlb2)
