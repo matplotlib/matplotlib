@@ -1388,17 +1388,18 @@ class Axis(martist.Artist):
             return
         if renderer is None:
             renderer = self.get_figure(root=True)._get_renderer()
-        # Don't use cached values here - get_tightbbox() is called during
-        # layout calculations (e.g., constrained_layout) outside of draw(),
-        # and must always recalculate to reflect current state.
+        # We need to reset the ticks cache here - get_tightbbox() is called
+        # during layout calculations (e.g., constrained_layout) outside of
+        # draw(), and must always recalculate to reflect current state.
         self._clear_ticks_cache()
-        ticks_to_draw = self._update_ticks(_use_cache=False)
 
-        self._update_label_position(renderer, _use_cache=False)
+        ticks_to_draw = self._update_ticks(_use_cache=True)
+
+        self._update_label_position(renderer, _use_cache=True)
 
         # go back to just this axis's tick labels
         tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer,
-                                                _use_cache=False)
+                                                _use_cache=True)
 
         self._update_offset_text_position(tlb1, tlb2)
         self.offsetText.set_text(self.major.formatter.get_offset())
@@ -1424,6 +1425,8 @@ class Axis(martist.Artist):
                     bb.y1 = bb.y0 + 1.0
             bboxes.append(bb)
         bboxes = [b for b in bboxes if b._is_finite()]
+        self._clear_ticks_cache()
+
         if bboxes:
             return mtransforms.Bbox.union(bboxes)
         else:
@@ -1445,6 +1448,8 @@ class Axis(martist.Artist):
             return
         renderer.open_group(__name__, gid=self.get_gid())
 
+        self._clear_ticks_cache()
+
         ticks_to_draw = self._update_ticks(_use_cache=True)
         tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer,
                                                 _use_cache=True)
@@ -1461,10 +1466,8 @@ class Axis(martist.Artist):
         self.offsetText.draw(renderer)
 
         renderer.close_group(__name__)
-        self.stale = False
-
-        # Reset cached values for next draw cycle, in case not called by Axes.draw()
         self._clear_ticks_cache()
+        self.stale = False
 
     def get_gridlines(self):
         r"""Return this Axis' grid lines as a list of `.Line2D`\s."""

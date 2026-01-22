@@ -569,6 +569,7 @@ class Axis(maxis.XAxis):
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
         renderer.open_group("axis3d", gid=self.get_gid())
+        self._clear_ticks_cache()
 
         # Get general axis information:
         mins, maxs, tc, highs = self._get_coord_info()
@@ -629,7 +630,6 @@ class Axis(maxis.XAxis):
         renderer.close_group('axis3d')
         self.stale = False
 
-        # Reset cached values for next draw cycle, in case not called by Axes3D.draw()
         self._clear_ticks_cache()
 
     @artist.allow_rasterization
