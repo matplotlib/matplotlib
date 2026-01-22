@@ -435,7 +435,7 @@ class Axis(maxis.XAxis):
 
     def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
                     deltas_per_point, pos):
-        ticks = self._update_ticks(_use_cached=True)
+        ticks = self._update_ticks(_use_cache=True)
         info = self._axinfo
         index = info["i"]
         juggled = info["juggled"]
@@ -640,7 +640,7 @@ class Axis(maxis.XAxis):
 
         renderer.open_group("grid3d", gid=self.get_gid())
 
-        ticks = self._update_ticks(_use_cached=True)
+        ticks = self._update_ticks(_use_cache=True)
         if len(ticks):
             # Get general axis information:
             info = self._axinfo
@@ -712,7 +712,7 @@ class Axis(maxis.XAxis):
         # Don't use cached values here - get_tightbbox() is called during
         # layout calculations (e.g., constrained_layout) outside of draw(),
         # and must always recalculate to reflect current state.
-        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer, _use_cached=False)
+        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer, _use_cache=False)
         other = []
 
         if self.offsetText.get_visible() and self.offsetText.get_text():

@@ -1293,13 +1293,13 @@ class Axis(martist.Artist):
             return
         a.set_figure(self.get_figure(root=False))
 
-    def _update_ticks(self, *, _use_cached=False):
+    def _update_ticks(self, *, _use_cache=False):
         """
         Update ticks (position and labels) using the current data interval of
         the axes.  Return the list of ticks that will be drawn.
         """
         # Return cached result if available and requested
-        if _use_cached and self._cached_ticks_to_draw is not None:
+        if _use_cache and self._cached_ticks_to_draw is not None:
             return self._cached_ticks_to_draw
 
         major_locs = self.get_majorticklocs()
@@ -1347,14 +1347,15 @@ class Axis(martist.Artist):
                 if mtransforms._interval_contains_close(interval_t, loc_t):
                     ticks_to_draw.append(tick)
 
-        # Cache the result before returning
-        self._cached_ticks_to_draw = ticks_to_draw
+        # Only cache the result when called from the draw path
+        if _use_cache:
+            self._cached_ticks_to_draw = ticks_to_draw
         return ticks_to_draw
 
-    def _get_ticklabel_bboxes(self, ticks, renderer, *, _use_cached=False):
+    def _get_ticklabel_bboxes(self, ticks, renderer, *, _use_cache=False):
         """Return lists of bboxes for ticks' label1's and label2's."""
         # Return cached result if available and requested
-        if _use_cached and self._cached_ticklabel_bboxes is not None:
+        if _use_cache and self._cached_ticklabel_bboxes is not None:
             return self._cached_ticklabel_bboxes
 
         result = ([tick.label1.get_window_extent(renderer)
@@ -1364,8 +1365,9 @@ class Axis(martist.Artist):
                    for tick in ticks
                    if tick.label2.get_visible() and tick.label2.get_in_layout()])
 
-        # Cache the result before returning
-        self._cached_ticklabel_bboxes = result
+        # Only cache the result when called from the draw path
+        if _use_cache:
+            self._cached_ticklabel_bboxes = result
         return result
 
     def get_tightbbox(self, renderer=None, *, for_layout_only=False):
@@ -1385,13 +1387,13 @@ class Axis(martist.Artist):
         # Don't use cached values here - get_tightbbox() is called during
         # layout calculations (e.g., constrained_layout) outside of draw(),
         # and must always recalculate to reflect current state.
-        ticks_to_draw = self._update_ticks(_use_cached=False)
+        ticks_to_draw = self._update_ticks(_use_cache=False)
 
-        self._update_label_position(renderer)
+        self._update_label_position(renderer, _use_cache=False)
 
         # go back to just this axis's tick labels
         tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer,
-                                                _use_cached=False)
+                                                _use_cache=False)
 
         self._update_offset_text_position(tlb1, tlb2)
         self.offsetText.set_text(self.major.formatter.get_offset())
@@ -1438,19 +1440,15 @@ class Axis(martist.Artist):
             return
         renderer.open_group(__name__, gid=self.get_gid())
 
-        # Clear caches for this draw cycle
-        self._cached_ticks_to_draw = None
-        self._cached_ticklabel_bboxes = None
-
-        ticks_to_draw = self._update_ticks(_use_cached=True)
+        ticks_to_draw = self._update_ticks(_use_cache=True)
         tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer,
-                                                _use_cached=True)
+                                                _use_cache=True)
 
         for tick in ticks_to_draw:
             tick.draw(renderer)
 
         # Shift label away from axes to avoid overlapping ticklabels.
-        self._update_label_position(renderer)
+        self._update_label_position(renderer, _use_cache=True)
         self.label.draw(renderer)
 
         self._update_offset_text_position(tlb1, tlb2)
@@ -1459,6 +1457,10 @@ class Axis(martist.Artist):
 
         renderer.close_group(__name__)
         self.stale = False
+
+        # Reset cached values for next draw cycle, in case not called by Axes.draw()
+        self._cached_ticks_to_draw = None
+        self._cached_ticklabel_bboxes = None
 
     def get_gridlines(self):
         r"""Return this Axis' grid lines as a list of `.Line2D`\s."""
@@ -2263,7 +2265,7 @@ class Axis(martist.Artist):
             self.set_ticklabels(labels, minor=minor, **kwargs)
         return result
 
-    def _get_tick_boxes_siblings(self, renderer):
+    def _get_tick_boxes_siblings(self, renderer, *, _use_cache=False):
         """
         Get the bounding boxes for this `.axis` and its siblings
         as set by `.Figure.align_xlabels` or  `.Figure.align_ylabels`.
@@ -2280,14 +2282,14 @@ class Axis(martist.Artist):
         # If we want to align labels from other Axes:
         for ax in grouper.get_siblings(self.axes):
             axis = ax._axis_map[name]
-            ticks_to_draw = axis._update_ticks(_use_cached=True)
+            ticks_to_draw = axis._update_ticks(_use_cache=_use_cache)
             tlb, tlb2 = axis._get_ticklabel_bboxes(ticks_to_draw, renderer,
-                                                   _use_cached=True)
+                                                   _use_cache=_use_cache)
             bboxes.extend(tlb)
             bboxes2.extend(tlb2)
         return bboxes, bboxes2
 
-    def _update_label_position(self, renderer):
+    def _update_label_position(self, renderer, *, _use_cache=False):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine.
@@ -2484,7 +2486,7 @@ class XAxis(Axis):
         self.label_position = position
         self.stale = True
 
-    def _update_label_position(self, renderer):
+    def _update_label_position(self, renderer, *, _use_cache=False):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
@@ -2494,7 +2496,8 @@ class XAxis(Axis):
 
         # get bounding boxes for this axis and any siblings
         # that have been set by `fig.align_xlabels()`
-        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer,
+                                                        _use_cache=_use_cache)
         x, y = self.label.get_position()
 
         if self.label_position == 'bottom':
@@ -2711,7 +2714,7 @@ class YAxis(Axis):
         self.label_position = position
         self.stale = True
 
-    def _update_label_position(self, renderer):
+    def _update_label_position(self, renderer, *, _use_cache=False):
         """
         Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
@@ -2721,7 +2724,8 @@ class YAxis(Axis):
 
         # get bounding boxes for this axis and any siblings
         # that have been set by `fig.align_ylabels()`
-        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+        bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer,
+                                                        _use_cache=_use_cache)
         x, y = self.label.get_position()
 
         if self.label_position == 'left':
