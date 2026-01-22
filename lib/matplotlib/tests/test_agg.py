@@ -1,4 +1,5 @@
 import io
+import warnings
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -15,6 +16,13 @@ from matplotlib.image import imread
 from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import IdentityTransform
+
+
+def require_pillow_feature(name):
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        available = features.check(name.lower())
+    return pytest.mark.skipif(not available, reason=f"{name} support not available")
 
 
 def test_repeated_save_with_alpha():
@@ -249,7 +257,7 @@ def test_pil_kwargs_tiff():
     assert tags["ImageDescription"] == "test image"
 
 
-@pytest.mark.skipif(not features.check("webp"), reason="WebP support not available")
+@require_pillow_feature('WebP')
 def test_pil_kwargs_webp():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf_small = io.BytesIO()
@@ -263,7 +271,7 @@ def test_pil_kwargs_webp():
     assert buf_large.getbuffer().nbytes > buf_small.getbuffer().nbytes
 
 
-@pytest.mark.skipif(not features.check("avif"), reason="AVIF support not available")
+@require_pillow_feature('AVIF')
 def test_pil_kwargs_avif():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf_small = io.BytesIO()
@@ -295,7 +303,7 @@ def test_gif_alpha():
     assert im.info["transparency"] < len(im.palette.colors)
 
 
-@pytest.mark.skipif(not features.check("webp"), reason="WebP support not available")
+@require_pillow_feature('WebP')
 def test_webp_alpha():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf = io.BytesIO()
@@ -304,7 +312,7 @@ def test_webp_alpha():
     assert im.mode == "RGBA"
 
 
-@pytest.mark.skipif(not features.check("avif"), reason="AVIF support not available")
+@require_pillow_feature('AVIF')
 def test_avif_alpha():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf = io.BytesIO()
