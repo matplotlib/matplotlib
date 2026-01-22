@@ -628,9 +628,8 @@ class Axis(maxis.XAxis):
             self._draw_labels(renderer, edgep1, edgep2, labeldeltas, centers, dx, dy)
 
         renderer.close_group('axis3d')
-        self.stale = False
-
         self._clear_ticks_cache()
+        self.stale = False
 
     @artist.allow_rasterization
     def draw_grid(self, renderer):
@@ -677,6 +676,12 @@ class Axis(maxis.XAxis):
         # docstring inherited
         if not self.get_visible():
             return
+
+        # We need to reset the ticks cache here - get_tightbbox() is called
+        # during layout calculations (e.g., constrained_layout) outside of
+        # draw(), and must always recalculate to reflect current state.
+        self._clear_ticks_cache()
+
         # We have to directly access the internal data structures
         # (and hope they are up to date) because at draw time we
         # shift the ticks and their labels around in (x, y) space
@@ -708,10 +713,7 @@ class Axis(maxis.XAxis):
 
         ticks = ticks_to_draw
 
-        # Don't use cached values here - get_tightbbox() is called during
-        # layout calculations (e.g., constrained_layout) outside of draw(),
-        # and must always recalculate to reflect current state.
-        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer, _use_cache=False)
+        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer, _use_cache=True)
         other = []
 
         if self.offsetText.get_visible() and self.offsetText.get_text():
@@ -722,6 +724,7 @@ class Axis(maxis.XAxis):
                 self.label.get_text()):
             other.append(self.label.get_window_extent(renderer))
 
+        self._clear_ticks_cache()
         return mtransforms.Bbox.union([*bb_1, *bb_2, *other])
 
     d_interval = _api.deprecated(
