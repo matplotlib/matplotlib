@@ -1491,7 +1491,7 @@ levels : int or array-like, optional
     between minimum and maximum numeric values of *Z*.
                             
     If None (default), a reasonable default is chosen; for linear
-    scales, *n*=7 is the default.                        
+    scales, *n*=7 is the default.
 
     If array-like, draw contour lines at the specified levels.
     The values must be in increasing order.
