@@ -33,7 +33,7 @@ def _get_textbox(text, renderer):
     # TODO : This function may move into the Text class as a method. As a
     # matter of fact, the information from the _get_textbox function
     # should be available during the Text._get_layout() call, which is
-    # called within the _get_textbox. So, it would better to move this
+    # called within the _get_textbox. So, it would be better to move this
     # function as a method with some refactoring of _get_layout method.
 
     projected_xs = []
