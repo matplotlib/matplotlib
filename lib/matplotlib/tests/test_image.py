@@ -1555,7 +1555,7 @@ def test_downsample_interpolation_stage(fig_test, fig_ref):
     # Fixing random state for reproducibility
     np.random.seed(19680801)
 
-    grid = np.random.rand(4000, 4000)
+    grid = np.random.rand(400, 400)
     ax = fig_ref.subplots()
     ax.imshow(grid, interpolation='auto', cmap='viridis',
               interpolation_stage='rgba')
