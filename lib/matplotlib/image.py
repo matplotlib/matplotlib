@@ -3,7 +3,6 @@ The image module supports basic image loading, rescaling and display
 operations.
 """
 
-import math
 import os
 import logging
 from pathlib import Path
@@ -393,10 +392,15 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         if clipped_bbox is None:
             return None, 0, 0, None
 
-        out_width_base = clipped_bbox.width * magnification
-        out_height_base = clipped_bbox.height * magnification
+        # Define the magnified bbox after clipping
+        magnified_extents = clipped_bbox.extents * magnification
+        if ((not unsampled) and round_to_pixel_border):
+            # Round to the nearest output pixel
+            magnified_bbox = Bbox.from_extents((magnified_extents + 0.5).astype(int))
+        else:
+            magnified_bbox = Bbox.from_extents(magnified_extents)
 
-        if out_width_base == 0 or out_height_base == 0:
+        if magnified_bbox.width == 0 or magnified_bbox.height == 0:
             return None, 0, 0, None
 
         if self.origin == 'upper':
@@ -417,23 +421,10 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
         t = (t0
              + (Affine2D()
-                .translate(-clipped_bbox.x0, -clipped_bbox.y0)
-                .scale(magnification)))
+                .scale(magnification)
+                .translate(-magnified_bbox.x0, -magnified_bbox.y0)))
 
-        # So that the image is aligned with the edge of the Axes, we want to
-        # round up the output width to the next integer.  This also means
-        # scaling the transform slightly to account for the extra subpixel.
-        if ((not unsampled) and t.is_affine and round_to_pixel_border and
-                (out_width_base % 1.0 != 0.0 or out_height_base % 1.0 != 0.0)):
-            out_width = math.ceil(out_width_base)
-            out_height = math.ceil(out_height_base)
-            extra_width = (out_width - out_width_base) / out_width_base
-            extra_height = (out_height - out_height_base) / out_height_base
-            t += Affine2D().scale(1.0 + extra_width, 1.0 + extra_height)
-        else:
-            out_width = int(out_width_base)
-            out_height = int(out_height_base)
-        out_shape = (out_height, out_width)
+        out_shape = (int(magnified_bbox.height), int(magnified_bbox.width))
 
         if not unsampled:
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
@@ -560,7 +551,10 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             t = Affine2D().translate(
                 int(max(subset.xmin, 0)), int(max(subset.ymin, 0))) + t
 
-        return output, clipped_bbox.x0, clipped_bbox.y0, t
+        return (output,
+                magnified_bbox.x0 / magnification,
+                magnified_bbox.y0 / magnification,
+                t)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         """
