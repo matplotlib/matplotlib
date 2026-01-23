@@ -1057,6 +1057,7 @@ class _Buttons(AxesWidget):
 
         self._useblit = useblit
 
+        self._buttons_xs = [0.15] * len(labels)
         self._buttons_ys = np.linspace(1, 0, len(labels)+2)[1:-1]
 
         label_props = _expand_text_props(label_props)
@@ -1219,7 +1220,7 @@ class CheckButtons(_Buttons):
         frame_props.setdefault('facecolor', frame_props.get('color', 'none'))
         frame_props.setdefault('edgecolor', frame_props.pop('color', 'black'))
         self._frames = self.ax.scatter(
-            [0.15] * len(self._buttons_ys),
+            self._buttons_xs,
             self._buttons_ys,
             **frame_props,
         )
@@ -1236,7 +1237,7 @@ class CheckButtons(_Buttons):
         }
         check_props.setdefault('facecolor', check_props.pop('color', 'black'))
         self._buttons = self.ax.scatter(
-            [0.15] * len(self._buttons_ys),
+            self._buttons_xs,
             self._buttons_ys,
             **check_props
         )
@@ -1746,7 +1747,7 @@ class RadioButtons(_Buttons):
         radio_props.setdefault('facecolor',
                                radio_props.pop('color', activecolor))
         self._buttons = self.ax.scatter(
-            [.15] * len(self._buttons_ys),
+            self._buttons_xs,
             self._buttons_ys,
             **radio_props,
         )
