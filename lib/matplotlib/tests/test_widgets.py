@@ -1229,8 +1229,7 @@ def test__buttons_callbacks(ax, widget):
         "button_press_event",
         ax,
         ax.transData.inverted().transform(ax.transAxes.transform(
-            # (x, y) of the 0th button defined at
-            # `{Check,Radio}Buttons._init_props`
+            # (x, y) of the 0th button defined at `_Buttons._init_layout`
             (0.15, 0.5),
         )),
         1,

@@ -1057,16 +1057,7 @@ class _Buttons(AxesWidget):
 
         self._useblit = useblit
 
-        self._buttons_xs = [0.15] * len(labels)
-        self._buttons_ys = np.linspace(1, 0, len(labels)+2)[1:-1]
-
-        label_props = _expand_text_props(label_props)
-
-        self.labels = [
-            ax.text(0.25, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
-                    **props)
-            for y, label, props in zip(self._buttons_ys, labels, label_props)]
+        self._init_layout(labels, label_props)
         text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         self._init_props(text_size, **kwargs)
@@ -1076,6 +1067,18 @@ class _Buttons(AxesWidget):
             self.connect_event('draw_event', self._clear)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
+
+    def _init_layout(self, labels, label_props):
+        self._buttons_xs = [0.15] * len(labels)
+        self._buttons_ys = np.linspace(1, 0, len(labels)+2)[1:-1]
+
+        label_props = _expand_text_props(label_props)
+
+        self.labels = [
+            self.ax.text(0.25, y, label, transform=self.ax.transAxes,
+                    horizontalalignment="left", verticalalignment="center",
+                    **props)
+            for y, label, props in zip(self._buttons_ys, labels, label_props)]
 
     def _init_props(self, text_size, **kwargs):
         raise NotImplementedError("This method should be defined in subclasses")
