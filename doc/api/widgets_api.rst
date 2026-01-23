@@ -27,6 +27,7 @@ Widget classes
    Cursor
    MultiCursor
    Button
+   _Buttons
    CheckButtons
    RadioButtons
    SliderBase
