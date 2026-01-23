@@ -15,6 +15,7 @@ from numpy.testing import (assert_array_equal, assert_approx_equal,
                            assert_array_almost_equal)
 import pytest
 
+import matplotlib as mpl
 from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
 from matplotlib.cbook import delete_masked_points, strip_math
@@ -480,30 +481,42 @@ def test_resize_sequence():
     assert_array_equal(cbook._resize_sequence(arr, 5), [1, 2, 3, 1, 2])
 
 
-fail_mapping: tuple[tuple[dict, dict], ...] = (
-    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
-    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-)
+fail_mapping: list[tuple[dict, dict]] = [
+    ({"a": 1, "b": 2}, {"a": ["b"]}),
+    ({"a": 1, "b": 2}, {"a": ["a", "b"]}),
+]
 
-pass_mapping: tuple[tuple[Any, dict, dict], ...] = (
+pass_mapping: list[tuple[Any, dict, dict]] = [
     (None, {}, {}),
-    ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
-    ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-)
+    ({"a": 1, "b": 2}, {"a": 1, "b": 2}, {}),
+    ({"b": 2}, {"a": 2}, {"a": ["a", "b"]}),
+]
 
 
-@pytest.mark.parametrize('inp, kwargs_to_norm', fail_mapping)
-def test_normalize_kwargs_fail(inp, kwargs_to_norm):
-    with pytest.raises(TypeError), _api.suppress_matplotlib_deprecation_warning():
-        cbook.normalize_kwargs(inp, **kwargs_to_norm)
+@pytest.mark.parametrize('inp, alias_def', fail_mapping)
+def test_normalize_kwargs_fail(inp, alias_def):
+
+    @_api.define_aliases(alias_def)
+    class Type(mpl.artist.Artist):
+        def get_a(self): return None
+
+    with pytest.raises(TypeError):
+        cbook.normalize_kwargs(inp, Type)
 
 
-@pytest.mark.parametrize('inp, expected, kwargs_to_norm',
-                         pass_mapping)
-def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
-    with _api.suppress_matplotlib_deprecation_warning():
-        # No other warning should be emitted.
-        assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
+@pytest.mark.parametrize('inp, expected, alias_def', pass_mapping)
+def test_normalize_kwargs_pass(inp, expected, alias_def):
+
+    @_api.define_aliases(alias_def)
+    class Type(mpl.artist.Artist):
+        def get_a(self): return None
+
+    assert expected == cbook.normalize_kwargs(inp, Type)
+    old_alias_map = {}
+    for alias, prop in Type._alias_to_prop.items():
+        old_alias_map.setdefault(prop, []).append(alias)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        assert expected == cbook.normalize_kwargs(inp, old_alias_map)
 
 
 def test_warn_external(recwarn):
