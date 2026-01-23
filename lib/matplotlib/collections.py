@@ -211,6 +211,7 @@ class Collection(mcolorizer.ColorizingArtist):
         self._offset_transform = offset_transform
 
         self._path_effects = None
+        self._simplify = False
         self._internal_update(kwargs)
         self._paths = None
 
@@ -219,6 +220,22 @@ class Collection(mcolorizer.ColorizingArtist):
 
     def set_paths(self, paths):
         self._paths = paths
+        self.stale = True
+
+    def get_simplify(self):
+        """Return whether this Artist should simplify its path."""
+        return self._simplify
+
+    def set_simplify(self, simplify):
+        """
+        Set whether this Artist should simplify its path.
+
+        Parameters
+        ----------
+        simplify : bool
+            Whether to simplify the path.
+        """
+        self._simplify = simplify
         self.stale = True
 
     def get_transforms(self):
@@ -363,6 +380,9 @@ class Collection(mcolorizer.ColorizingArtist):
         self.update_scalarmappable()
 
         transform, offset_trf, offsets, paths = self._prepare_points()
+
+        if self.get_simplify():
+            paths = [path.cleaned(simplify=True) for path in paths]
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
@@ -1443,6 +1463,7 @@ class FillBetweenPolyCollection(PolyCollection):
         self._step = step
         verts = self._make_verts(t, f1, f2, where)
         super().__init__(verts, **kwargs)
+        self.set_simplify(True)
 
     @staticmethod
     def _f_dir_from_t(t_direction):
