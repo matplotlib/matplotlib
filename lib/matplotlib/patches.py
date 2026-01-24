@@ -57,7 +57,7 @@ class Patch(artist.Artist):
                  capstyle=None,
                  joinstyle=None,
                  hatchcolor=None,
-                 gapcolor=None,
+                 edgegapcolor=None,
                  **kwargs):
         """
         The following kwarg properties are supported
@@ -89,6 +89,7 @@ class Patch(artist.Artist):
         self._linewidth = 0
         self._unscaled_dash_pattern = (0, None)  # offset, dash
         self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
+        self._gapcolor = None
 
         self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
@@ -96,8 +97,7 @@ class Patch(artist.Artist):
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
-        self._gapcolor = None
-        self.set_gapcolor(gapcolor)
+        self.set_edgegapcolor(edgegapcolor)
 
         if len(kwargs):
             self._internal_update(kwargs)
@@ -446,15 +446,15 @@ class Patch(artist.Artist):
         self._original_hatchcolor = color
         self._set_hatchcolor(color)
 
-    def get_gapcolor(self):
+    def get_edgegapcolor(self):
         """
-        Return the edge gapcolor.
+        Return the edge gap color.
 
-        See also `~.Patch.set_gapcolor`.
+        See also `~.Patch.set_edgegapcolor`.
         """
         return self._gapcolor
 
-    def set_gapcolor(self, gapcolor):
+    def set_edgegapcolor(self, edgegapcolor):
         """
         Set a color to fill the gaps in the dashed edge style.
 
@@ -468,13 +468,14 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        gapcolor : :mpltype:`color` or None
+        edgegapcolor : :mpltype:`color` or None
             The color with which to fill the gaps. If None, the gaps are
             unfilled.
         """
-        if gapcolor is not None:
-            colors._check_color_like(color=gapcolor)
-        self._gapcolor = gapcolor
+        if edgegapcolor is not None:
+            self._gapcolor = colors.to_rgba(edgegapcolor, self._alpha)
+        else:
+            self._gapcolor = None
         self.stale = True
 
     def set_alpha(self, alpha):
@@ -653,7 +654,7 @@ class Patch(artist.Artist):
         """Return the hatch linewidth."""
         return self._hatch_linewidth
 
-    def is_dashed(self):
+    def _has_dashed_edge(self):
         """
         Return whether the patch edge has a dashed linestyle.
 
@@ -662,7 +663,7 @@ class Patch(artist.Artist):
 
         See also `~.Patch.set_linestyle`.
         """
-        return self._linestyle in ('--', '-.', ':', 'dashed', 'dashdot', 'dotted')
+        return self._linestyle not in ('solid', '-')
 
     def _draw_paths_with_artist_properties(
             self, renderer, draw_path_args_list):
@@ -705,9 +706,8 @@ class Patch(artist.Artist):
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
         # Draw the gaps first if gapcolor is set
-        if self.is_dashed() and self._gapcolor is not None:
-            gc.set_foreground(colors.to_rgba(self._gapcolor, self._alpha),
-                              isRGBA=True)
+        if self._has_dashed_edge() and self._gapcolor is not None:
+            gc.set_foreground(self._gapcolor, isRGBA=True)
             offset_gaps, gaps = mlines._get_inverse_dash_pattern(
                 *self._dash_pattern)
             gc.set_dashes(offset_gaps, gaps)

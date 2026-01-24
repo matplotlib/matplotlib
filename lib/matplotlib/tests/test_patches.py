@@ -1103,72 +1103,76 @@ def test_empty_fancyarrow():
     assert arrow is not None
 
 
-def test_patch_gapcolor_getter_setter():
-    """Test that gapcolor can be set and retrieved."""
+def test_patch_edgegapcolor_getter_setter():
+    """Test that edgegapcolor can be set and retrieved."""
     patch = Rectangle((0, 0), 1, 1)
     # Default is None
-    assert patch.get_gapcolor() is None
+    assert patch.get_edgegapcolor() is None
 
     # Set to a color
-    patch.set_gapcolor('red')
-    assert mcolors.same_color(patch.get_gapcolor(), 'red')
+    patch.set_edgegapcolor('red')
+    assert mcolors.same_color(patch.get_edgegapcolor(), 'red')
 
     # Set back to None
-    patch.set_gapcolor(None)
-    assert patch.get_gapcolor() is None
+    patch.set_edgegapcolor(None)
+    assert patch.get_edgegapcolor() is None
 
 
-def test_patch_gapcolor_init():
-    """Test that gapcolor can be passed in __init__."""
-    patch = Rectangle((0, 0), 1, 1, gapcolor='blue')
-    assert mcolors.same_color(patch.get_gapcolor(), 'blue')
+def test_patch_edgegapcolor_init():
+    """Test that edgegapcolor can be passed in __init__."""
+    patch = Rectangle((0, 0), 1, 1, edgegapcolor='blue')
+    assert mcolors.same_color(patch.get_edgegapcolor(), 'blue')
 
 
-def test_patch_is_dashed():
-    """Test is_dashed method for patches."""
+def test_patch_has_dashed_edge():
+    """Test _has_dashed_edge method for patches."""
     patch = Rectangle((0, 0), 1, 1)
     patch.set_linestyle('solid')
-    assert not patch.is_dashed()
+    assert not patch._has_dashed_edge()
 
     patch.set_linestyle('--')
-    assert patch.is_dashed()
+    assert patch._has_dashed_edge()
 
     patch.set_linestyle(':')
-    assert patch.is_dashed()
+    assert patch._has_dashed_edge()
 
     patch.set_linestyle('-.')
-    assert patch.is_dashed()
+    assert patch._has_dashed_edge()
+
+    # Test custom linestyle
+    patch.set_linestyle((0, (2, 2, 10, 2)))
+    assert patch._has_dashed_edge()
 
 
-def test_patch_gapcolor_update_from():
-    """Test that gapcolor is copied in update_from."""
-    patch1 = Rectangle((0, 0), 1, 1, gapcolor='green')
+def test_patch_edgegapcolor_update_from():
+    """Test that edgegapcolor is copied in update_from."""
+    patch1 = Rectangle((0, 0), 1, 1, edgegapcolor='green')
     patch2 = Rectangle((1, 1), 2, 2)
 
     patch2.update_from(patch1)
-    assert mcolors.same_color(patch2.get_gapcolor(), 'green')
+    assert mcolors.same_color(patch2.get_edgegapcolor(), 'green')
 
 
-@image_comparison(['patch_gapcolor.png'], remove_text=True, style='mpl20')
-def test_patch_gapcolor_visual():
-    """Visual test for patch gapcolor (striped edges)."""
+@image_comparison(['patch_edgegapcolor.png'], remove_text=True, style='mpl20')
+def test_patch_edgegapcolor_visual():
+    """Visual test for patch edgegapcolor (striped edges)."""
     fig, ax = plt.subplots()
 
-    # Rectangle with gapcolor
+    # Rectangle with edgegapcolor
     rect = Rectangle((0.1, 0.1), 0.3, 0.3, fill=False,
-                      edgecolor='blue', gapcolor='orange',
+                      edgecolor='blue', edgegapcolor='orange',
                       linestyle='--', linewidth=3)
     ax.add_patch(rect)
 
-    # Ellipse with gapcolor
+    # Ellipse with edgegapcolor
     ellipse = Ellipse((0.7, 0.3), 0.3, 0.2, fill=False,
-                       edgecolor='red', gapcolor='yellow',
+                       edgecolor='red', edgegapcolor='yellow',
                        linestyle=':', linewidth=3)
     ax.add_patch(ellipse)
 
-    # Polygon with gapcolor
+    # Polygon with edgegapcolor
     polygon = Polygon([[0.1, 0.6], [0.3, 0.9], [0.4, 0.6]], fill=False,
-                       edgecolor='green', gapcolor='purple',
+                       edgecolor='green', edgegapcolor='purple',
                        linestyle='-.', linewidth=3)
     ax.add_patch(polygon)
 
