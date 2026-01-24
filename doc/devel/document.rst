@@ -70,49 +70,76 @@ used. To build the documentation in html format, cd into :file:`doc/` and run:
 
 Build options
 -------------
+Other useful invocations include:
 
-Other useful invocations include
+.. list-table::
+  :widths: 30 30 40
+  :header-rows: 1
+  :stub-columns: 1
 
-.. code-block:: sh
-
-   # Build the html documentation, but skip generation of the gallery images to
-   # save time.
-   make html-noplot
-
-   # Build the html documentation, but skip specific subdirectories.  If a gallery
-   # directory is skipped, the gallery images are not generated.  The first
-   # time this is run, it creates ``.mpl_skip_subdirs.yaml`` which can be edited
-   # to add or remove subdirectories
-   make html-skip-subdirs
-
-   # Delete built files.  May help if you get errors about missing paths or
-   # broken links.
-   make clean
-
-   # Build pdf docs.
-   make latexpdf
+  * - invocation
+    - description
+    - notes
+  * - ``make html-noplot``
+    - skip generation of the gallery images
+    -
+  * - ``make html-skip-subdirs``
+    - skip specific subdirectories
+    - If a gallery directory is skipped, the gallery images are not generated.  The first
+      time this is run, it creates ``.mpl_skip_subdirs.yaml`` which can be edited to add
+      or remove subdirectories
+  * - ``make clean``
+    - Delete built files.
+    - May help if you get errors about missing paths or broken links.
+  * - ``make latexpdf``
+    - Build pdf docs
+    -
 
 The ``SPHINXOPTS`` variable is set to ``-W --keep-going`` by default to build
-the complete docs but exit with exit status 1 if there are warnings.  To unset
-it, use
+the complete docs but exit with exit status 1 if there are warnings. To unset it, set
+the variable to a blank space. On Windows, set the options as environment variables.
 
-.. code-block:: sh
+.. tab-set::
+  :sync-group: category
 
-   make SPHINXOPTS= html
+  .. tab-item:: Linux & macOS
+    :sync: linux
+
+    .. code-block:: sh
+
+      make SPHINXOPTS= html
+
+  .. tab-ITEM:: Windows
+    :sync: windows
+
+    .. code-block:: bat
+
+      set SPHINXOPTS= & make html
 
 You can use the ``O`` variable to set additional options:
 
-* ``make O=-j4 html`` runs a parallel build with 4 processes.
-* ``make O=-Dplot_formats=png:100 html`` saves figures in low resolution.
+* ``O=-j4`` runs a parallel build with 4 processes.
+* ``O=-Dplot_formats=png:100`` saves figures in low resolution.
 
-Multiple options can be combined, e.g. ``make O='-j4 -Dplot_formats=png:100'
-html``.
+Multiple options can be combined, e.g:
 
-On Windows, set the options as environment variables, e.g.:
+.. tab-set::
+  :sync-group: category
 
-.. code-block:: bat
+  .. tab-item:: Linux & macOS
+    :sync: linux
 
-   set SPHINXOPTS= & set O=-j4 -Dplot_formats=png:100 & make html
+    .. code-block:: sh
+
+      make SPHINXOPTS= O='-j4 -Dplot_formats=png:100' html
+
+  .. tab-ITEM:: Windows
+    :sync: windows
+
+    .. code-block:: bat
+
+      set SPHINXOPTS= & set O=-j4 -Dplot_formats=png:100 & make html
+
 
 Show locally built docs
 -----------------------
