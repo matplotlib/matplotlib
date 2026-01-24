@@ -25,8 +25,7 @@ R = np.sqrt(X**2 + Y**2)
 Z = np.sin(R)
 
 # Plot the surface.
-surf = ax.plot_surface(X, Y, Z, cmap="coolwarm",
-                       linewidth=0, antialiased=False)
+ax.plot_surface(X, Y, Z, cmap="coolwarm", linewidth=0, antialiased=False)
 
 # Customize the z axis.
 ax.set_zlim(-1.01, 1.01)
@@ -35,7 +34,7 @@ ax.zaxis.set_major_locator(LinearLocator(10))
 ax.zaxis.set_major_formatter('{x:.02f}')
 
 # Add a color bar which maps values to colors.
-fig.colorbar(surf, shrink=0.5, aspect=5)
+ax.colorbar(shrink=0.5, aspect=5)
 
 plt.show()
 

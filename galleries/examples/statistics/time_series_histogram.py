@@ -77,15 +77,14 @@ x_fine = np.broadcast_to(x_fine, (num_series, num_fine)).ravel()
 cmap = plt.colormaps["plasma"]
 cmap = cmap.with_extremes(bad=cmap(0))
 h, xedges, yedges = np.histogram2d(x_fine, y_fine, bins=[400, 100])
-pcm = axes[1].pcolormesh(xedges, yedges, h.T, cmap=cmap,
-                         norm="log", vmax=1.5e2, rasterized=True)
-fig.colorbar(pcm, ax=axes[1], label="# points", pad=0)
+axes[1].pcolormesh(xedges, yedges, h.T, cmap=cmap,
+                   norm="log", vmax=1.5e2, rasterized=True)
+axes[1].colorbar(label="# points", pad=0)
 axes[1].set_title("2d histogram and log color scale")
 
 # Same data but on linear color scale
-pcm = axes[2].pcolormesh(xedges, yedges, h.T, cmap=cmap,
-                         vmax=1.5e2, rasterized=True)
-fig.colorbar(pcm, ax=axes[2], label="# points", pad=0)
+axes[2].pcolormesh(xedges, yedges, h.T, cmap=cmap, vmax=1.5e2, rasterized=True)
+axes[2].colorbar(label="# points", pad=0)
 axes[2].set_title("2d histogram and linear color scale")
 
 toc = time.time()

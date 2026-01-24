@@ -275,18 +275,18 @@ if __name__ == '__main__':
     Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
     Z = (Z1 - Z2) * 2
 
-    imv = axd['viridis'].imshow(
+    axd['viridis'].imshow(
         Z, interpolation='bilinear',
         origin='lower', extent=[-3, 3, -3, 3],
         vmax=abs(Z).max(), vmin=-abs(Z).max()
     )
-    fig.colorbar(imv)
-    imt = axd['turbo'].imshow(
+    axd['viridis'].colorbar()
+    axd['turbo'].imshow(
         Z, interpolation='bilinear', cmap='turbo',
         origin='lower', extent=[-3, 3, -3, 3],
         vmax=abs(Z).max(), vmin=-abs(Z).max()
     )
-    fig.colorbar(imt)
+    axd['turbo'].colorbar()
 
     # A sample image
     with cbook.get_sample_data('grace_hopper.jpg') as image_file:

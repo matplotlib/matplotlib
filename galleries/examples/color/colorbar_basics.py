@@ -22,26 +22,20 @@ Zneg = np.ma.masked_greater(Z, 0)
 
 fig, (ax1, ax2, ax3) = plt.subplots(figsize=(13, 3), ncols=3)
 
-# plot just the positive data and save the
-# color "mappable" object returned by ax1.imshow
-pos = ax1.imshow(Zpos, cmap='Blues', interpolation='none')
-
-# add the colorbar using the figure's method,
-# telling which mappable we're talking about and
-# which Axes object it should be near
-fig.colorbar(pos, ax=ax1)
+# plot just the positive data and add a colorbar
+ax1.imshow(Zpos, cmap='Blues', interpolation='none')
+ax1.colorbar()
 
 # repeat everything above for the negative data
 # you can specify location, anchor and shrink the colorbar
-neg = ax2.imshow(Zneg, cmap='Reds_r', interpolation='none')
-fig.colorbar(neg, ax=ax2, location='right', anchor=(0, 0.3), shrink=0.7)
+ax2.imshow(Zneg, cmap='Reds_r', interpolation='none')
+ax2.colorbar(location='right', anchor=(0, 0.3), shrink=0.7)
 
 # Plot both positive and negative values between +/- 1.2
-pos_neg_clipped = ax3.imshow(Z, cmap='RdBu', vmin=-1.2, vmax=1.2,
-                             interpolation='none')
+ax3.imshow(Z, cmap='RdBu', vmin=-1.2, vmax=1.2, interpolation='none')
 # Add minorticks on the colorbar to make it easy to read the
 # values off the colorbar.
-cbar = fig.colorbar(pos_neg_clipped, ax=ax3, extend='both')
+cbar = ax3.colorbar(extend='both')
 cbar.minorticks_on()
 plt.show()
 
