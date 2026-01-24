@@ -1048,7 +1048,8 @@ class _Buttons(AxesWidget):
     public on the subclasses.
     """
 
-    def __init__(self, ax, labels, *, useblit=True, label_props=None, **kwargs):
+    def __init__(self, ax, labels, *, useblit=True, label_props=None, layout=None,
+                 **kwargs):
         super().__init__(ax)
 
         ax.set_xticks([])
@@ -1057,7 +1058,7 @@ class _Buttons(AxesWidget):
 
         self._useblit = useblit
 
-        self._init_layout(labels, label_props)
+        self._init_layout(layout, labels, label_props)
         text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
         self._init_props(text_size, **kwargs)
@@ -1068,17 +1069,98 @@ class _Buttons(AxesWidget):
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
-    def _init_layout(self, labels, label_props):
-        self._buttons_xs = [0.15] * len(labels)
-        self._buttons_ys = np.linspace(1, 0, len(labels)+2)[1:-1]
+    def _init_layout(self, layout, labels, label_props):
 
         label_props = _expand_text_props(label_props)
 
+        if layout is None:
+            # legacy hard-coded vertical layout
+            self._buttons_xs = [0.15] * len(labels)
+            self._buttons_ys = np.linspace(1, 0, len(labels)+2)[1:-1]
+            self.labels = [
+                self.ax.text(0.25, y, label, transform=self.ax.transAxes,
+                        horizontalalignment="left", verticalalignment="center",
+                        **props)
+                for y, label, props in zip(self._buttons_ys, labels, label_props)]
+            return
+
+        # New layout algorithm with text measurement
+        # Parse layout parameter
+        n_labels = len(labels)
+        match layout:
+            case "vertical":
+                n_rows, n_cols = n_labels, 1
+            case "horizontal":
+                n_rows, n_cols = 1, n_labels
+            case (int() as n_rows, int() as n_cols):
+                if n_rows * n_cols < n_labels:
+                    raise ValueError(
+                        f"layout {layout} has {n_rows * n_cols} positions but "
+                        f"{n_labels} labels were provided"
+                    )
+            case _:
+                raise ValueError(
+                    "layout must be None, 'vertical', 'horizontal', or a (rows, cols) "
+                    f"tuple; got {layout!r}")
+
+        # Define spacing in points for DPI-independent sizing
+        fig = self.ax.get_figure(root=False)
+        axes_width_display = 72 * self.ax.bbox.transformed(
+            fig.dpi_scale_trans.inverted()
+        ).width
+        left_margin_display = 11  # points
+        button_text_offset_display = 5.5  # points
+        col_spacing_display = 11  # points
+
+        # Convert to axes coordinates
+        left_margin = left_margin_display / axes_width_display
+        button_text_offset = button_text_offset_display / axes_width_display
+        col_spacing = col_spacing_display / axes_width_display
+
+        # Create text objects to measure widths.
+        # We create Text objects directly rather than using ax.text() since we're
+        # only measuring them and only later add them to the axes.
         self.labels = [
-            self.ax.text(0.25, y, label, transform=self.ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center",
-                    **props)
-            for y, label, props in zip(self._buttons_ys, labels, label_props)]
+            mtext.Text(0, 0, text=label, transform=self.ax.transAxes,
+                       horizontalalignment="left", verticalalignment="center",
+                       **props)
+            for label, props in zip(labels, label_props)
+        ]
+        # Set figure reference so Text objects can access figure properties
+        for text in self.labels:
+            text.set_figure(fig)
+        # Calculate max text width per column (in axes coordinates)
+        renderer = self.ax.figure.canvas.get_renderer()
+        inv_trans = fig.dpi_scale_trans.inverted()
+        col_widths = [
+            max(
+                (
+                    text.get_window_extent(renderer).transformed(inv_trans).width * 72
+                    for text in self.labels[col_idx::n_cols]
+                ),
+                default=0,
+            )
+            / axes_width_display
+            for col_idx in range(n_cols)
+        ]
+
+        # Center rows vertically in the axes
+        ys_per_row = np.linspace(1, 0, n_rows + 2)[1:-1]
+        # Calculate x positions based on text widths
+        col_x_positions = [left_margin]  # First column starts at left margin
+        for col_idx in range(n_cols - 1):
+            col_x_positions.append(
+                col_x_positions[-1] +
+                button_text_offset +
+                col_widths[col_idx] +
+                col_spacing
+            )
+        label_idx = np.arange(n_labels)
+        self._buttons_xs = np.take(col_x_positions, label_idx % n_cols)
+        self._buttons_ys = ys_per_row[label_idx // n_cols]
+        for text, x, y in zip(self.labels, self._buttons_xs, self._buttons_ys):
+            text.set_position((x + button_text_offset, y))
+            self.ax.add_artist(text)
 
     def _init_props(self, text_size, **kwargs):
         raise NotImplementedError("This method should be defined in subclasses")
@@ -1165,7 +1247,7 @@ class CheckButtons(_Buttons):
         The text label objects of the check buttons.
     """
 
-    def __init__(self, ax, labels, actives=None, *, useblit=True,
+    def __init__(self, ax, labels, actives=None, *, layout=None, useblit=True,
                  label_props=None, frame_props=None, check_props=None):
         """
         Add check buttons to `~.axes.Axes` instance *ax*.
@@ -1179,6 +1261,30 @@ class CheckButtons(_Buttons):
         actives : list of bool, optional
             The initial check states of the buttons. The list must have the
             same length as *labels*. If not given, all buttons are unchecked.
+        layout : None or "vertical" or "horizontal" or (int, int), default: None
+            The layout of the check buttons. Options are:
+
+            - ``None``: Use legacy vertical layout (default).
+            - ``"vertical"``: Arrange buttons in a single column with
+              dynamic positioning based on text widths.
+            - ``"horizontal"``: Arrange buttons in a single row with
+              dynamic positioning based on text widths.
+            - ``(rows, cols)`` tuple: Arrange buttons in a grid with the
+              specified number of rows and columns. Buttons are placed
+              left-to-right, top-to-bottom with dynamic positioning.
+
+            The layout options "vertical", "horizontal" and ``(rows, cols)``
+            create ``mtext.Text`` objects to determine exact text sizes, and
+            then they are added to the Axes. This is usually okay, but may cause
+            side-effects and has a slight performance impact. Therefore the
+            default ``None`` value avoids this.
+
+            .. admonition:: Provisional
+                The new layout options are provisional. Their algorithmic
+                behavior, including the exact positions of buttons and labels,
+                may still change without prior warning.
+
+            .. versionadded:: 3.11
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :ref:`blitting` for details.
@@ -1208,9 +1314,9 @@ class CheckButtons(_Buttons):
         _api.check_isinstance((dict, None), label_props=label_props,
                               frame_props=frame_props, check_props=check_props)
 
-        super().__init__(ax, labels, useblit=useblit, label_props=label_props,
-                         actives=actives, frame_props=frame_props,
-                         check_props=check_props)
+        super().__init__(ax, labels, layout=layout, useblit=useblit,
+                         label_props=label_props, actives=actives,
+                         frame_props=frame_props, check_props=check_props)
 
     def _init_props(self, text_size, actives, frame_props, check_props):
         frame_props = {
@@ -1671,7 +1777,7 @@ class RadioButtons(_Buttons):
         The index of the selected button.
     """
 
-    def __init__(self, ax, labels, active=0, activecolor=None, *,
+    def __init__(self, ax, labels, active=0, activecolor=None, *, layout=None,
                  useblit=True, label_props=None, radio_props=None):
         """
         Add radio buttons to an `~.axes.Axes`.
@@ -1687,6 +1793,30 @@ class RadioButtons(_Buttons):
         activecolor : :mpltype:`color`
             The color of the selected button. The default is ``'blue'`` if not
             specified here or in *radio_props*.
+        layout : None or "vertical" or "horizontal" or (int, int), default: None
+            The layout of the radio buttons. Options are:
+
+            - ``None``: Use legacy vertical layout (default).
+            - ``"vertical"``: Arrange buttons in a single column with
+              dynamic positioning based on text widths.
+            - ``"horizontal"``: Arrange buttons in a single row with
+              dynamic positioning based on text widths.
+            - ``(rows, cols)`` tuple: Arrange buttons in a grid with the
+              specified number of rows and columns. Buttons are placed
+              left-to-right, top-to-bottom with dynamic positioning.
+
+            The layout options "vertical", "horizontal" and ``(rows, cols)``
+            create ``mtext.Text`` objects to determine exact text sizes, and
+            then they are added to the Axes. This is usually okay, but may cause
+            side-effects and has a slight performance impact. Therefore the
+            default ``None`` value avoids this.
+
+            .. admonition:: Provisional
+                The new layout options are provisional. Their algorithmic
+                behavior, including the exact positions of buttons and labels,
+                may still change without prior warning.
+
+            .. versionadded:: 3.11
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :ref:`blitting` for details.
@@ -1726,7 +1856,7 @@ class RadioButtons(_Buttons):
         else:
             activecolor = 'blue'  # Default.
         super().__init__(ax, labels, useblit=useblit, label_props=label_props,
-                         active=active, activecolor=activecolor,
+                         active=active, layout=layout, activecolor=activecolor,
                          radio_props=radio_props)
 
         self._activecolor = activecolor
