@@ -1,0 +1,4 @@
+``cbook.normalize_kwargs`` only supports passing artists and artist classes as second argument
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Support for directly passing an alias mapping or None as second argument to
+`.cbook.normalize_kwargs` has been deprecated.

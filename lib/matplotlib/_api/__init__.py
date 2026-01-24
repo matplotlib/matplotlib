@@ -269,8 +269,9 @@ def define_aliases(alias_d, cls=None):
     be done for setters.  If neither the getter nor the setter exists, an
     exception will be raised.
 
-    The alias map is stored as the ``_alias_map`` attribute on the class and
-    can be used by `.normalize_kwargs`.
+    The alias map is stored as the ``_alias_to_prop`` attribute under the format
+    ``{"alias": "property", ...}` on the class, and can be used by
+    `.normalize_kwargs`.
     """
     if cls is None:  # Return the actual class decorator.
         return functools.partial(define_aliases, alias_d)
@@ -295,17 +296,20 @@ def define_aliases(alias_d, cls=None):
             raise ValueError(
                 f"Neither getter nor setter exists for {prop!r}")
 
-    def get_aliased_and_aliases(d):
-        return {*d, *(alias for aliases in d.values() for alias in aliases)}
+    alias_to_prop = {
+        alias: prop for prop, aliases in alias_d.items() for alias in aliases}
 
-    preexisting_aliases = getattr(cls, "_alias_map", {})
+    def get_aliased_and_aliases(d):
+        return {*d.keys(), *d.values()}
+
+    preexisting_aliases = getattr(cls, "_alias_to_prop", {})
     conflicting = (get_aliased_and_aliases(preexisting_aliases)
-                   & get_aliased_and_aliases(alias_d))
+                   & get_aliased_and_aliases(alias_to_prop))
     if conflicting:
         # Need to decide on conflict resolution policy.
         raise NotImplementedError(
             f"Parent class already defines conflicting aliases: {conflicting}")
-    cls._alias_map = {**preexisting_aliases, **alias_d}
+    cls._alias_to_prop = {**preexisting_aliases, **alias_to_prop}
     return cls
 
 
