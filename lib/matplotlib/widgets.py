@@ -1152,7 +1152,7 @@ class CheckButtons(_Buttons):
     For the check buttons to remain responsive you must keep a
     reference to this object.
 
-    Connect to the CheckButtons with the `.on_clicked` method.
+    Connect to the CheckButtons with the `~._Buttons.on_clicked` method.
 
     Attributes
     ----------
@@ -1652,7 +1652,7 @@ class RadioButtons(_Buttons):
     For the buttons to remain responsive you must keep a reference to this
     object.
 
-    Connect to the RadioButtons with the `.on_clicked` method.
+    Connect to the RadioButtons with the `~._Buttons.on_clicked` method.
 
     Attributes
     ----------
