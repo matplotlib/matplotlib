@@ -15,11 +15,12 @@ from contextlib import contextmanager
 
 from matplotlib import (
     _api, artist, cbook, colors as mcolors, lines, text as mtext,
-    path as mpath, rcParams)
+    path as mpath, rcParams, colorizer as mcolorizer)
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.patches import Patch
 from . import proj3d
+import collections
 
 
 def _norm_angle(a):
@@ -1712,9 +1713,10 @@ def _shade_colors(color, normals, lightsource=None):
     return colors
 
 
-class VoxelDict(dict):
+class VoxelDict(mcolorizer._ColorbarMappable,
+                collections.abc.MutableMapping):
     """
-    A dictionary subclass indexed by coordinate, where ``faces[i, j, k]``
+    A mapping indexed by coordinate, where ``faces[i, j, k]``
     is a `.Poly3DCollection` of the faces drawn for the voxel
     ``filled[i, j, k]``. If no faces were drawn for a given voxel,
     either because it was not asked to be drawn, or it is fully
@@ -1724,33 +1726,37 @@ class VoxelDict(dict):
     for a colorbar.
     """
 
-    def __init__(self, axes, colorizer):
+    def __init__(self, colorizer, axes):
         """
         Parameters
         ----------
+        colorizer : `mpl.colorizer.Colorizer`
+            The colorizer uset to convert data to color.
+
         axes : `mplot3d.axes3d.Axes3D`
             The axes the voxels are contained in.
 
-        colorizer : `mpl.colorizer.Colorizer`
-            The colorizer uset to convert data to color.
         """
-        super().__init__(self)
+
+        super().__init__(colorizer)
         self.axes = axes
-        self.colorizer = colorizer
-        self._callbacks = cbook.CallbackRegistry(signals=["changed"])
         self._A = None
+        self._mapping = dict()
 
-    @property
-    def cmap(self):
-        return self.colorizer.cmap
+    def __getitem__(self, key):
+        return self._mapping[key]
 
-    @property
-    def norm(self):
-        return self.colorizer.norm
+    def __setitem__(self, key, val):
+        self._mapping[key] = val
 
-    @property
-    def callbacks(self):
-        return self._callbacks
+    def __delitem__(self, key):
+        del self._mapping[key]
+
+    def __len__(self):
+        return len(self._mapping)
+
+    def __iter__(self):
+        return reversed(self._mapping)
 
     def get_array(self):
         """
@@ -1772,72 +1778,3 @@ class VoxelDict(dict):
         self._A = A
         for a, k in zip(A, self.keys()):
             self[k].set_array(a)
-
-    def add_callback(self, func):
-        """
-        Add a callback function that will be called whenever one of the
-        `.Artist`'s properties changes.
-
-        Parameters
-        ----------
-        func : callable
-            The callback function. It must have the signature::
-
-                def func(artist: Artist) -> Any
-
-            where *artist* is the calling `.Artist`. Return values may exist
-            but are ignored.
-
-        Returns
-        -------
-        int
-            The observer id associated with the callback. This id can be
-            used for removing the callback with `.remove_callback` later.
-
-        See Also
-        --------
-        remove_callback
-        """
-        # Wrapping func in a lambda ensures it can be connected multiple times
-        # and never gets weakref-gc'ed.
-        return self._callbacks.connect("changed", lambda: func(self))
-
-    def remove_callback(self, oid):
-        """
-        Remove a callback based on its observer id.
-
-        See Also
-        --------
-        add_callback
-        """
-        self._callbacks.disconnect(oid)
-
-    def changed(self, *args):
-        """
-        Call all of the registered callbacks.
-
-        This function is triggered internally when a property is changed.
-
-        See Also
-        --------
-        add_callback
-        remove_callback
-        """
-        self._callbacks.process("changed")
-
-    def get_alpha(self):
-        return 1.0
-
-    def autoscale(self, A):
-        """
-        Autoscale the scalar limits on the norm instance using the
-        current array
-        """
-        self.colorizer.autoscale(A)
-
-    def autoscale_None(self):
-        """
-        Autoscale the scalar limits on the norm instance using the
-        current array, changing only limits that are None
-        """
-        self.colorizer.autoscale_None(self._A)

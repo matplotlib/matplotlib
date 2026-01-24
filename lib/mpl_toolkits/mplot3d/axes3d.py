@@ -3592,7 +3592,7 @@ class Axes3D(Axes):
 
         # iterate over the faces, and generate a Poly3DCollection for each
         # voxel
-        polygons = art3d.VoxelDict(self, colorizer)
+        polygons = art3d.VoxelDict(colorizer, self)
         for coord, faces_inds in voxel_faces.items():
             # convert indices into 3D positions
             if xyz is None:
