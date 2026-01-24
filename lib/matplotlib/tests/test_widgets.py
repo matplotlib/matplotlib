@@ -517,6 +517,17 @@ def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
                                        46.25, 133.75])
 
 
+def test_axeswidget_del_on_failed_init():
+    """
+    Test that an unraisable exception is not created when initialization
+    fails.
+    """
+    # Pytest would fail the test if such an exception occurred.
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError, match="unexpected keyword argument 'undefined'"):
+        widgets.Button(ax, undefined='bar')
+
+
 def test_ellipse(ax):
     """For ellipse, test out the key modifiers"""
     tool = widgets.EllipseSelector(ax, grab_range=10, interactive=True)

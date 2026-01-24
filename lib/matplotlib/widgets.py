@@ -12,6 +12,7 @@ import copy
 import enum
 import functools
 import itertools
+import weakref
 from numbers import Integral, Number
 
 from cycler import cycler
@@ -118,10 +119,6 @@ class AxesWidget(Widget):
         self._cids = []
         self._blit_background_id = None
 
-    def __del__(self):
-        if self._blit_background_id is not None:
-            self.canvas._release_blit_background_id(self._blit_background_id)
-
     canvas = property(
         lambda self: getattr(self.ax.get_figure(root=True), 'canvas', None)
     )
@@ -162,7 +159,9 @@ class AxesWidget(Widget):
         good enough for all existing widgets.
         """
         if self._blit_background_id is None:
-            self._blit_background_id = self.canvas._get_blit_background_id()
+            bbid = self.canvas._get_blit_background_id()
+            weakref.finalize(self, self.canvas._release_blit_background_id, bbid)
+            self._blit_background_id = bbid
         self.canvas._blit_backgrounds[self._blit_background_id] = background
 
     def _load_blit_background(self):
