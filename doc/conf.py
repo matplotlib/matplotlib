@@ -899,3 +899,4 @@ def setup(app):
     if sphinx.version_info[:2] < (7, 1):
         app.connect('html-page-context', add_html_cache_busting, priority=1000)
     generate_ScalarMappable_docs()
+    app.config.autodoc_use_legacy_class_based = True
