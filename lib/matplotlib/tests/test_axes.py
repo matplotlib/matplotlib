@@ -4172,6 +4172,85 @@ def test_violinplot_sides():
                       showextrema=True, showmedians=True, side=side)
 
 
+def violin_plot_stats():
+    datetimes = [
+        datetime.datetime(2023, 2, 10),
+        datetime.datetime(2023, 5, 18),
+        datetime.datetime(2023, 6, 6)
+    ]
+    return [{
+        'coords': datetimes,
+        'vals': [1.2, 2.8, 1.5],
+        'mean': 1.84,
+        'median': 1.5,
+        'min': 1.2,
+        'max': 2.8,
+        'quantiles': [1.2, 1.5, 2.8]
+    }, {
+        'coords': datetimes,
+        'vals': [0.8, 1.1, 0.9],
+        'mean': 0.94,
+        'median': 0.9,
+        'min': 0.8,
+        'max': 1.1,
+        'quantiles': [0.8, 0.9, 1.1]
+    }]
+
+
+def test_datetime_positions_with_datetime64():
+    """Test that datetime positions with float widths raise TypeError."""
+    fig, ax = plt.subplots()
+    positions = [np.datetime64('2020-01-01'), np.datetime64('2021-01-01')]
+    widths = [0.5, 1.0]
+    with pytest.raises(TypeError,
+                       match=("np.datetime64 'position' values require "
+                              "np.timedelta64 'widths'")):
+        ax.violin(violin_plot_stats(), positions=positions, widths=widths)
+
+
+def test_datetime_positions_with_float_widths_raises():
+    """Test that datetime positions with float widths raise TypeError."""
+    fig, ax = plt.subplots()
+    positions = [datetime.datetime(2020, 1, 1), datetime.datetime(2021, 1, 1)]
+    widths = [0.5, 1.0]
+    with pytest.raises(TypeError,
+                       match=("datetime/date 'position' values require "
+                              "timedelta 'widths'")):
+        ax.violin(violin_plot_stats(), positions=positions, widths=widths)
+
+
+def test_datetime_positions_with_scalar_float_width_raises():
+    """Test that datetime positions with scalar float width raise TypeError."""
+    fig, ax = plt.subplots()
+    positions = [datetime.datetime(2020, 1, 1), datetime.datetime(2021, 1, 1)]
+    widths = 0.75
+    with pytest.raises(TypeError,
+                       match=("datetime/date 'position' values require "
+                              "timedelta 'widths'")):
+        ax.violin(violin_plot_stats(), positions=positions, widths=widths)
+
+
+def test_numeric_positions_with_float_widths_ok():
+    """Test that numeric positions with float widths work."""
+    fig, ax = plt.subplots()
+    positions = [1.0, 2.0]
+    widths = [0.5, 1.0]
+    ax.violin(violin_plot_stats(), positions=positions, widths=widths)
+
+
+def test_mixed_positions_datetime_and_numeric_raises():
+    """Test that mixed datetime and numeric positions
+    with float widths raise TypeError.
+    """
+    fig, ax = plt.subplots()
+    positions = [datetime.datetime(2020, 1, 1), 2.0]
+    widths = [0.5, 1.0]
+    with pytest.raises(TypeError,
+                       match=("datetime/date 'position' values require "
+                              "timedelta 'widths'")):
+        ax.violin(violin_plot_stats(), positions=positions, widths=widths)
+
+
 def test_violinplot_bad_positions():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(47))
