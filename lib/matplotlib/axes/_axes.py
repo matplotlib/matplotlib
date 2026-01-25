@@ -9073,7 +9073,6 @@ such objects
                 and not isinstance(width0, np.timedelta64)):
                 raise TypeError(
                     "np.datetime64 'position' values require np.timedelta64 'widths'")
-    # Validate side
         _api.check_in_list(["both", "low", "high"], side=side)
 
         # Calculate ranges for statistics lines (shape (2, N)).
