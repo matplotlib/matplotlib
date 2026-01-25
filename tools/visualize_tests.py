@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# This builds a html page of all images from the image comparison tests
+# This builds an html page of all images from the image comparison tests
 # and opens that page in the browser.
 #
 #   $ python tools/visualize_tests.py

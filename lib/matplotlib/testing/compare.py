@@ -224,7 +224,7 @@ class _SVGConverter(_Converter):
 
 class _SVGWithMatplotlibFontsConverter(_SVGConverter):
     """
-    A SVG converter which explicitly adds the fonts shipped by Matplotlib to
+    An SVG converter which explicitly adds the fonts shipped by Matplotlib to
     Inkspace's font search path, to better support `svg.fonttype = "none"`
     (which is in particular used by certain mathtext tests).
     """
