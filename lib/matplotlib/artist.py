@@ -1870,7 +1870,7 @@ def kwdoc(artist):
     -------
     str
         The settable properties of *artist*, as plain text if
-        :rc:`docstring.hardcopy` is False and as a rst table (intended for
+        :rc:`docstring.hardcopy` is False and as an rst table (intended for
         use in Sphinx) if it is True.
     """
     ai = ArtistInspector(artist)
