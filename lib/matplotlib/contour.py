@@ -1487,17 +1487,16 @@ levels : int or array-like, optional
     Determines the number and positions of the contour lines / regions.
 
     If an int *n*, use `~matplotlib.ticker.MaxNLocator`, which tries to
-    automatically choose approximately *n+1* "nice" contour levels
-    between the minimum and maximum numeric values of *Z*. Note that the
-    actual number may be up to *n+2* depending on the data range.
+    automatically choose no more than *n+2* "nice" contour levels
+    between the minimum and maximum numeric values of *Z*.
 
     If array-like, draw contour lines at the specified levels.
     The values must be in increasing order.
 
     If not given, a reasonable default is automatically chosen. For linear
-    scales, this corresponds to *n*=7, typically producing approximately
-    8 contour levels. For logarithmic scales, `~matplotlib.ticker.LogLocator`
-    is used instead.
+    scales, `~matplotlib.ticker.MaxNLocator` is used with *nbins*=8,
+    producing up to 9 "nice" contour levels. For logarithmic scales,
+    `~matplotlib.ticker.LogLocator` is used instead.
 
 Returns
 -------
