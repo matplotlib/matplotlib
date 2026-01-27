@@ -7,7 +7,9 @@ The `.SpanSelector` is a mouse widget that enables selecting a range on an
 axis.
 
 Here, an x-range can be selected on the upper axis; a detailed view of the
-selected range is then plotted on the lower axis.
+selected range is then plotted on the lower axis. An additional callback
+registered with :meth:`~matplotlib.widgets.SpanSelector.on_select` displays
+the selection bounds.
 
 .. note::
 
@@ -35,6 +37,10 @@ ax1.set_title('Press left mouse button and drag '
 
 line2, = ax2.plot([], [])
 
+# Text to display selection bounds (updated via on_select callback)
+selection_info = ax1.text(0.02, 0.98, '', transform=ax1.transAxes,
+                          va='top', fontsize=10)
+
 
 def onselect(xmin, xmax):
     indmin, indmax = np.searchsorted(x, (xmin, xmax))
@@ -61,6 +67,20 @@ span = SpanSelector(
 )
 # Set useblit=True on most backends for enhanced performance.
 
+# Register an additional callback using on_select. This is useful when you want
+# multiple parts of your application to respond to selection changes without
+# modifying the original callback.
+
+
+def display_selection(xmin, xmax):
+    """Additional callback registered with on_select."""
+    selection_info.set_text(f'Selection: [{xmin:.2f}, {xmax:.2f}]')
+
+
+callback_id = span.on_select(display_selection)
+
+# To stop receiving callbacks, disconnect using the callback_id:
+# span.disconnect(callback_id)
 
 plt.show()
 
@@ -72,3 +92,4 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.widgets.SpanSelector`
+#    - `matplotlib.widgets.SpanSelector.on_select`
