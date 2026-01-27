@@ -1665,7 +1665,7 @@ def subplots(
     height_ratios: Sequence[float] | None = ...,
     subplot_kw: dict[str, Any] | None = ...,
     gridspec_kw: dict[str, Any] | None = ...,
-    **fig_kw
+    **fig_kw: Any
 ) -> tuple[Figure, Axes]:
     ...
 
@@ -1682,7 +1682,7 @@ def subplots(
     height_ratios: Sequence[float] | None = ...,
     subplot_kw: dict[str, Any] | None = ...,
     gridspec_kw: dict[str, Any] | None = ...,
-    **fig_kw
+    **fig_kw: Any
 ) -> tuple[Figure, np.ndarray]:  # TODO numpy/numpy#24738
     ...
 
@@ -1699,7 +1699,7 @@ def subplots(
     height_ratios: Sequence[float] | None = ...,
     subplot_kw: dict[str, Any] | None = ...,
     gridspec_kw: dict[str, Any] | None = ...,
-    **fig_kw
+    **fig_kw: Any
 ) -> tuple[Figure, Any]:
     ...
 
@@ -1713,7 +1713,7 @@ def subplots(
     height_ratios: Sequence[float] | None = None,
     subplot_kw: dict[str, Any] | None = None,
     gridspec_kw: dict[str, Any] | None = None,
-    **fig_kw
+    **fig_kw: Any
 ) -> tuple[Figure, Any]:
     """
     Create a figure and a set of subplots.
