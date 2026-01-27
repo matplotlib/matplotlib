@@ -34,7 +34,10 @@ jobs:
 
             For details on testing, writing docs, and our review process,
             please see [the developer
-            guide](https://matplotlib.org/devdocs/devel/index.html)
+            guide](https://matplotlib.org/devdocs/devel/index.html).
+
+            **Please let us know  if (and how) you use AI, it will help us give you
+            better feedback on your PR.**
 
 
             We strive to be a welcoming and open project. Please follow our
