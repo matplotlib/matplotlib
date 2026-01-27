@@ -259,6 +259,18 @@ def test_setp():
     assert sio.getvalue() == '  zorder: float\n'
 
 
+def test_setp_invalid_property_raises():
+    """
+    setp should raise for invalid property names.
+    """
+    fig, ax = plt.subplots()
+    line, = ax.plot([1, 2, 3])
+
+    with pytest.raises(AttributeError):
+        plt.setp(line, not_a_property=1)
+
+
+
 def test_None_zorder():
     fig, ax = plt.subplots()
     ln, = ax.plot(range(5), zorder=None)
