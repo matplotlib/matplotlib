@@ -258,6 +258,7 @@ def test_setp():
     plt.setp(lines1, 'zorder', file=sio)
     assert sio.getvalue() == '  zorder: float\n'
 
+
 def test_setp_invalid_property_raises():
     """
     setp should raise for invalid property names.
