@@ -1493,7 +1493,7 @@ levels : int or array-like, optional
 
     If array-like, draw contour lines at the specified levels.
     The values must be in increasing order.
-    
+
     If not given, a reasonable default is automatically chosen. For linear
     scales, this corresponds to *n*=7, typically producing approximately
     8 contour levels. For logarithmic scales, `~matplotlib.ticker.LogLocator`
