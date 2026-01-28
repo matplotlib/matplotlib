@@ -12,6 +12,7 @@ import matplotlib as mpl
 import matplotlib.category  # Register category unit converter as side effect.
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
+import matplotlib.colorbar as mcolorbar  # noqa: F401, needed for docstring substitution
 import matplotlib.colorizer as mcolorizer
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -355,6 +356,74 @@ class Axes(_AxesBase):
 
     def _remove_legend(self, legend):
         self.legend_ = None
+
+    @_docstring.interpd
+    def colorbar(self, mappable=None, *, use_gridspec=True, **kwargs):
+        """
+        Add a colorbar next to the Axes.
+
+        Parameters
+        ----------
+        mappable : `matplotlib.colorizer.ColorizingArtist`, optional
+            The `.ColorizingArtist` (i.e., `.AxesImage`, `.ContourSet`, etc.) described
+            by this colorbar.
+
+            If not given, the mappable is inferred from the Axes. If there is exactly
+            one image or collection, this is used as mappable. Otherwise, an error is
+            raised and you must specify the mappable explicitly.
+
+            Note that one can create a `.colorizer.ColorizingArtist` "on-the-fly"
+            to generate colorbars not attached to a previously drawn artist, e.g.
+
+            ::
+
+                cr = colorizer.Colorizer(norm=norm, cmap=cmap)
+                ax.colorbar(colorizer.ColorizingArtist(cr))
+
+        Returns
+        -------
+        colorbar : `~matplotlib.colorbar.Colorbar`
+
+        Other Parameters
+        ----------------
+        use_gridspec : bool, optional
+            If *ax* is positioned with a subplotspec and *use_gridspec*
+            is ``True``, then *cax* is also positioned with a subplotspec.
+
+        %(_make_axes_kw_doc)s
+        %(_colormap_kw_doc)s
+
+        Notes
+        -----
+        This method is a convenience shortcut if you want to place a colorbar
+        right next to an Axes. ``ax.colorbar(mappable)`` is equivalent to
+        ``fig.colorbar(mappable, ax=ax)``. In particular, if you have exactly one
+        mappable in the Axes, the general ::
+
+            im = ax.imshow(data)
+            fig.colorbar(im, ax=ax)
+
+        can be written more concisely as ::
+
+            ax.imshow(data)
+            ax.colorbar()
+
+        Use `.Figure.colorbar` if you need more control on placing the colorbar.
+        """
+        if mappable is None:
+            # autodetect the mappable
+            colormapped_artists = [*self.images, *self.collections]
+            if len(colormapped_artists) != 1:
+                raise RuntimeError(
+                    "Axes.colormap() requires exactly one colormapped Artist in the "
+                    f"Axes, but found {len(colormapped_artists)}. In ambiguous cases, "
+                    "please specify the mappable for the colorbar explicitly."
+                )
+            mappable = colormapped_artists[0]
+
+        return self.figure.colorbar(
+            mappable, ax=self, use_gridspec=use_gridspec, **kwargs
+        )
 
     def inset_axes(self, bounds, *, transform=None, zorder=5, **kwargs):
         """

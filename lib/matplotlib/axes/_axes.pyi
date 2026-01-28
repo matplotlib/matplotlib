@@ -11,7 +11,9 @@ from matplotlib.collections import (
     EventCollection,
     QuadMesh,
 )
-from matplotlib.colorizer import Colorizer
+from matplotlib.cm import ScalarMappable
+from matplotlib.colorbar import Colorbar
+from matplotlib.colorizer import Colorizer, ColorizingArtist
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.container import (
     BarContainer, PieContainer, ErrorbarContainer, StemContainer)
@@ -77,6 +79,13 @@ class Axes(_AxesBase):
     @overload
     def legend(self, *, loc: LegendLocType | None = ..., **kwargs) -> Legend: ...
 
+    def colorbar(
+        self,
+        mappable: ScalarMappable | ColorizingArtist | None = ...,
+        *,
+        use_gridspec: bool = ...,
+        **kwargs
+    ) -> Colorbar: ...
     def inset_axes(
         self,
         bounds: tuple[float, float, float, float],
