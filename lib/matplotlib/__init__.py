@@ -712,6 +712,14 @@ class RcParams(MutableMapping, dict):
 
         :meta public:
         """
+        if key == "backend":
+            _api.warn_deprecated(
+                "rcParams._get('backend') is deprecated since Matplotlib 3.11. "
+                "Use matplotlib.get_backend(auto_select=False) instead, which is "
+                "available since Matplotlib 3.10.",
+            )
+            # TODO: When removing this, also remove the suppression context in
+            #       RcParams.copy
         return dict.__getitem__(self, key)
 
     def _update_raw(self, other_params):
@@ -813,8 +821,11 @@ class RcParams(MutableMapping, dict):
     def copy(self):
         """Copy this RcParams instance."""
         rccopy = self.__class__()
-        for k in self:  # Skip deprecations and revalidation.
-            rccopy._set(k, self._get(k))
+        with _api.suppress_matplotlib_deprecation_warning():
+            # the suppression context is specifically for _get("backend"). This
+            # can be removed again, when "backend" is not a valid rcParam anymore.
+            for k in self:  # Skip deprecations and revalidation.
+                rccopy._set(k, self._get(k))
         return rccopy
 
 
@@ -1278,11 +1289,6 @@ def get_backend(*, auto_select=True):
 
         .. versionadded:: 3.10
 
-        .. admonition:: Provisional
-
-           The *auto_select* flag is provisional. It may be changed or removed
-           without prior warning.
-
     See Also
     --------
     matplotlib.use
@@ -1290,11 +1296,7 @@ def get_backend(*, auto_select=True):
     if auto_select:
         return rcParams['backend']
     else:
-        backend = rcParams._get('backend')
-        if backend is rcsetup._auto_backend_sentinel:
-            return None
-        else:
-            return backend
+        return rcParams._get_backend_or_none()
 
 
 def interactive(b):
