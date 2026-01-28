@@ -17,10 +17,186 @@ import warnings
 
 import numpy as np
 
+from ._data_containers.description import Desc, desc_like
+
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
                _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
+from ._data_containers._helpers import _get_graph, check_container
 from ._enums import JoinStyle, CapStyle
+
+
+
+class CollectionContainer():
+    def __init__(
+        self,
+        x: np.array,
+        y: np.array,
+    ):
+        self.x = x
+        self.y = y
+        self.paths = None
+
+    def describe(self):
+        return {
+            "x": Desc(("N",), "data"),
+            "y": Desc(("N",), "data"),
+            # Colors are weird because it could look like (N, 3) or (N, 4),
+            # But also accepts strings or cmapped data at this level...
+            "transforms": Desc(("N", 3, 3), "data"),
+            "paths": Desc(("N",), "path"),
+        }
+
+    def query(self, graph, parent_coordinates="axes"):
+        transforms = np.eye(3)[np.newaxis, :, :]
+        d = {
+            "x": self.x,
+            "y": self.y,
+            "transforms": transforms,
+            "paths": self.paths,
+        }
+        return d, ""
+        # TODO hash
+
+
+class SizedCollectionContainer(CollectionContainer):
+    def __init__(
+        self,
+        x: np.array,
+        y: np.array,
+        sizes: np.array,
+        factor: float = 1.0,
+    ):
+        super().__init__(x, y)
+        self.sizes = np.atleast_1d(sizes)
+        self.factor = factor
+
+    def query(self, graph, parent_coordinates="axes"):
+        desc = Desc(("N",))
+        dpi_eval = graph.evaluator(
+            desc_like({"x": desc, "y": desc}, coordinates="display_inches"),
+            desc_like({"x": desc, "y": desc}, coordinates="display"),
+        )
+        dpi = dpi_eval.evaluate({"x": [1], "y": [1]})["x"][0]
+
+        d, hash = super().query(graph, parent_coordinates)
+        transforms = np.zeros((len(self.sizes), 3, 3))
+        scale = np.sqrt(self.sizes) * dpi / 72.0 * self.factor
+        transforms[:, 0, 0] = scale
+        transforms[:, 1, 1] = scale
+        transforms[:, 2, 2] = 1.0
+        d["transforms"] = transforms
+
+        return d, hash
+
+
+class RegularPolyCollectionContainer(SizedCollectionContainer):
+    def __init__(
+        self,
+        x: np.array,
+        y: np.array,
+        sizes: np.array,
+        rotation: float,
+    ):
+        factor = np.pi ** (-1/2)
+        super().__init__(x, y, sizes, factor)
+        self.rotation = rotation
+
+    def query(self, graph, parent_coordinates="axes"):
+        d, hash = super().query(graph, parent_coordinates)
+        for i, t in enumerate(d["transforms"]):
+            d["transforms"][i, :, :] = (
+                    transforms.Affine2D(t)
+                    .rotate(-self.rotation)
+                    .get_matrix()
+            )
+
+        return d, hash
+
+
+class EllipseCollectionContainer(CollectionContainer):
+    def __init__(
+        self,
+        x: np.array,
+        y: np.array,
+        widths: np.array,
+        heights: np.array,
+        angles: np.array,
+        units: str,
+    ):
+        super().__init__(x, y)
+        self.widths = np.atleast_1d(widths)
+        self.heights = np.atleast_1d(heights)
+        self.angles = np.atleast_1d(angles)
+        self.units = units
+
+    def query(self, graph, parent_coordinates="axes"):
+        desc = Desc(("N",))
+        dpi_eval = graph.evaluator(
+            desc_like({"x": desc, "y": desc}, coordinates="display_inches"),
+            desc_like({"x": desc, "y": desc}, coordinates="display"),
+        )
+        dpi = dpi_eval.evaluate({"x": [1], "y": [1]})["x"][0]
+
+        d, hash = super().query(graph, parent_coordinates)
+
+        # TODO: this section is verbose and likely to be useful elsewhere
+        # Consider moving to one or more helper methods
+        # For reference, this was originally from FuncContainer, with modifications
+        desc = Desc(("N",))
+        xy = {"x": desc, "y": desc}
+        data_lim = graph.evaluator(
+            desc_like(xy, coordinates="data"),
+            desc_like(xy, coordinates=parent_coordinates),
+        ).inverse
+
+        screen_size = graph.evaluator(
+            desc_like(xy, coordinates=parent_coordinates),
+            desc_like(xy, coordinates="display"),
+        )
+
+        screen_dims = screen_size.evaluate({"x": [0, 1], "y": [0, 1]})
+        xpix, ypix = np.ceil(np.abs(np.diff(screen_dims["x"]))), np.ceil(
+            np.abs(np.diff(screen_dims["y"]))
+        )
+        data_dims = data_lim.evaluate({"x": [0, 1], "y": [0, 1]})
+        xdata, ydata = np.abs(np.diff(data_dims["x"])), np.abs(np.diff(data_dims["y"]))
+
+        if self.units == 'xy':
+            sc = 1
+        elif self.units == 'x':
+            sc = xpix / xdata
+        elif self.units == 'y':
+            sc = ypix / ydata
+        elif self.units == 'inches':
+            sc = dpi
+        elif self.units == 'points':
+            sc = dpi / 72.0
+        elif self.units == 'width':
+            sc = xpix
+        elif self.units == 'height':
+            sc = ypix
+        elif self.units == 'dots':
+            sc = 1.0
+        else:
+            raise ValueError(f'Unrecognized units: {self._units!r}')
+
+
+        transforms = np.zeros((len(self.widths), 3, 3))
+        widths = self.widths * sc
+        heights = self.heights * sc
+        sin_angle = np.sin(self.angles)
+        cos_angle = np.cos(self.angles)
+        transforms[:, 0, 0] = widths * cos_angle
+        transforms[:, 0, 1] = heights * -sin_angle
+        transforms[:, 1, 0] = widths * sin_angle
+        transforms[:, 1, 1] = heights * cos_angle
+        transforms[:, 2, 2] = 1.0
+
+        d["transforms"] = transforms
+
+        return d, hash
+
 
 
 # "color" is excluded; it is a compound setter, and its docstring differs
@@ -164,6 +340,10 @@ class Collection(mcolorizer.ColorizingArtist):
         """
 
         super().__init__(self._get_colorizer(cmap, norm, colorizer))
+
+        self._container = self._init_container()
+        self.__query = None
+
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
         self._us_linestyles = [(0, None)]
@@ -202,27 +382,48 @@ class Collection(mcolorizer.ColorizingArtist):
             self._joinstyle = None
 
         if offsets is not None:
-            offsets = np.asanyarray(offsets, float)
-            # Broadcast (2,) -> (1, 2) but nothing else.
-            if offsets.shape == (2,):
-                offsets = offsets[None, :]
+            self.set_offsets(offsets)
 
-        self._offsets = offsets
         self._offset_transform = offset_transform
 
         self._path_effects = None
         self._internal_update(kwargs)
-        self._paths = None
+
+    def set_container(self, container):
+        self._container = container
+        self.stale = True
+
+    def get_container(self):
+        return self._container
+
+    def _init_container(self):
+        return CollectionContainer(
+            x=np.array([]),
+            y=np.array([]),
+        )
+
+    @property
+    def _query(self):
+        if self.__query is not None:
+            return self.__query
+        return self._container.query(_get_graph(self.axes))[0]
+
+    def _cache_query(self):
+        self.__query = self._container.query(_get_graph(self.axes))[0]
+
 
     def get_paths(self):
-        return self._paths
+        check_container(self, CollectionContainer, "'get_paths'")
+        return self._container.paths
 
     def set_paths(self, paths):
-        self._paths = paths
+        check_container(self, CollectionContainer, "'set_paths'")
+        self._container.paths = paths
         self.stale = True
 
     def get_transforms(self):
-        return self._transforms
+        q = self._query
+        return q["transforms"]
 
     def get_offset_transform(self):
         """Return the `.Transform` instance used by this artist offset."""
@@ -260,6 +461,7 @@ class Collection(mcolorizer.ColorizingArtist):
         #       for the limits (i.e. for scatter)
         #
         # 3. otherwise return a null Bbox.
+        q = self._query
 
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
@@ -298,7 +500,7 @@ class Collection(mcolorizer.ColorizingArtist):
                 offset_trf.get_affine().frozen())
 
         # NOTE: None is the default case where no offsets were passed in
-        if self._offsets is not None:
+        if len(q["x"]):
             # this is for collections that have their paths (shapes)
             # in physical, axes-relative, or figure-relative units
             # (i.e. like scatter). We can't uniquely set limits based on
@@ -358,6 +560,7 @@ class Collection(mcolorizer.ColorizingArtist):
     def draw(self, renderer):
         if not self.get_visible():
             return
+        self._cache_query()
         renderer.open_group(self.__class__.__name__, self.get_gid())
 
         self.update_scalarmappable()
@@ -627,20 +830,26 @@ class Collection(mcolorizer.ColorizingArtist):
         ----------
         offsets : (N, 2) or (2,) array-like
         """
+        check_container(self, CollectionContainer, "'set_offsets'")
         offsets = np.asanyarray(offsets)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
-        cstack = (np.ma.column_stack if isinstance(offsets, np.ma.MaskedArray)
-                  else np.column_stack)
-        self._offsets = cstack(
-            (np.asanyarray(self.convert_xunits(offsets[:, 0]), float),
-             np.asanyarray(self.convert_yunits(offsets[:, 1]), float)))
+
+        self._container.x = np.asanyarray(self.convert_xunits(offsets[:, 0]), float)
+        self._container.y = np.asanyarray(self.convert_yunits(offsets[:, 1]), float)
         self.stale = True
 
     def get_offsets(self):
         """Return the offsets for the collection."""
         # Default to zeros in the no-offset (None) case
-        return np.zeros((1, 2)) if self._offsets is None else self._offsets
+        q = self._query
+        if len(q["x"]) == 0:
+            return np.zeros((1,2))
+        cstack = (np.ma.column_stack if
+                  isinstance(q["x"], np.ma.MaskedArray)
+                  or isinstance(q["y"], np.ma.MaskedArray)
+                  else np.column_stack)
+        return cstack([q["x"], q["y"]])
 
     def _get_default_linewidth(self):
         # This may be overridden in a subclass.
@@ -1080,6 +1289,17 @@ class _CollectionWithSizes(Collection):
     """
     _factor = 1.0
 
+    def __init__(self, sizes=None, **kwargs):
+        super().__init__(**kwargs)
+        self.set_sizes(sizes)
+
+    def _init_container(self):
+        return SizedCollectionContainer(
+            x=np.array([]),
+            y=np.array([]),
+            sizes=np.array([]),
+        )
+
     def get_sizes(self):
         """
         Return the sizes ('areas') of the elements in the collection.
@@ -1089,7 +1309,8 @@ class _CollectionWithSizes(Collection):
         array
             The 'area' of each element.
         """
-        return self._sizes
+        check_container(self, CollectionContainer, "'get_sizes'")
+        return self._container.sizes
 
     def set_sizes(self, sizes, dpi=72.0):
         """
@@ -1103,22 +1324,11 @@ class _CollectionWithSizes(Collection):
         dpi : float, default: 72
             The dpi of the canvas.
         """
+        check_container(self, CollectionContainer, "'set_sizes'")
         if sizes is None:
-            self._sizes = np.array([])
-            self._transforms = np.empty((0, 3, 3))
-        else:
-            self._sizes = np.asarray(sizes)
-            self._transforms = np.zeros((len(self._sizes), 3, 3))
-            scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
-            self._transforms[:, 0, 0] = scale
-            self._transforms[:, 1, 1] = scale
-            self._transforms[:, 2, 2] = 1.0
+            sizes = np.array([])
+        self._container.sizes = np.atleast_1d(sizes)
         self.stale = True
-
-    @artist.allow_rasterization
-    def draw(self, renderer):
-        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
-        super().draw(renderer)
 
 
 class PathCollection(_CollectionWithSizes):
@@ -1146,7 +1356,7 @@ class PathCollection(_CollectionWithSizes):
         self.stale = True
 
     def get_paths(self):
-        return self._paths
+        return self._container.paths
 
     def legend_elements(self, prop="colors", num="auto",
                         fmt=None, func=lambda x: x, **kwargs):
@@ -1336,7 +1546,7 @@ class PolyCollection(_CollectionWithSizes):
 
         # No need to do anything fancy if the path isn't closed.
         if not closed:
-            self._paths = [mpath.Path(xy) for xy in verts]
+            self._container.paths = [mpath.Path(xy) for xy in verts]
             return
 
         # Fast path for arrays
@@ -1347,16 +1557,16 @@ class PolyCollection(_CollectionWithSizes):
             template_path = mpath.Path(verts_pad[0], closed=True)
             codes = template_path.codes
             _make_path = mpath.Path._fast_from_codes_and_verts
-            self._paths = [_make_path(xy, codes, internals_from=template_path)
-                           for xy in verts_pad]
+            self._container.paths = [_make_path(xy, codes, internals_from=template_path)
+                                     for xy in verts_pad]
             return
 
-        self._paths = []
+        self._container.paths = []
         for xy in verts:
             if len(xy):
-                self._paths.append(mpath.Path._create_closed(xy))
+                self._container.paths.append(mpath.Path._create_closed(xy))
             else:
-                self._paths.append(mpath.Path(xy))
+                self._container.paths.append(mpath.Path(xy))
 
     set_paths = set_verts
 
@@ -1365,7 +1575,7 @@ class PolyCollection(_CollectionWithSizes):
         if len(verts) != len(codes):
             raise ValueError("'codes' must be a 1D list or array "
                              "with the same length of 'verts'")
-        self._paths = [mpath.Path(xy, cds) if len(xy) else mpath.Path(xy)
+        self._container.paths = [mpath.Path(xy, cds) if len(xy) else mpath.Path(xy)
                        for xy, cds in zip(verts, codes)]
         self.stale = True
 
@@ -1653,29 +1863,24 @@ class RegularPolyCollection(_CollectionWithSizes):
                 offset_transform=ax.transData,
                 )
         """
-        super().__init__(**kwargs)
-        self.set_sizes(sizes)
+        super().__init__(sizes=sizes, **kwargs)
+        self._container.rotation = rotation
         self._numsides = numsides
-        self._paths = [self._path_generator(numsides)]
-        self._rotation = rotation
         self.set_transform(transforms.IdentityTransform())
+        self._container.paths = [self._path_generator(numsides)]
 
+    def _init_container(self):
+        return RegularPolyCollectionContainer(
+            x=np.array([]),
+            y=np.array([]),
+            sizes=np.array([]),
+            rotation=0.0,
+        )
     def get_numsides(self):
         return self._numsides
 
     def get_rotation(self):
-        return self._rotation
-
-    @artist.allow_rasterization
-    def draw(self, renderer):
-        self.set_sizes(self._sizes, self.get_figure(root=True).dpi)
-        self._transforms = [
-            transforms.Affine2D(x).rotate(-self._rotation).get_matrix()
-            for x in self._transforms
-        ]
-        # Explicitly not super().draw, because set_sizes must be called before
-        # updating self._transforms.
-        Collection.draw(self, renderer)
+        return self._collection.rotation
 
 
 class StarPolygonCollection(RegularPolyCollection):
@@ -1756,9 +1961,9 @@ class LineCollection(Collection):
         if segments is None:
             return
 
-        self._paths = [mpath.Path(seg) if isinstance(seg, np.ma.MaskedArray)
-                       else mpath.Path(np.asarray(seg, float))
-                       for seg in segments]
+        self._container.paths = [mpath.Path(seg) if isinstance(seg, np.ma.MaskedArray)
+                                 else mpath.Path(np.asarray(seg, float))
+                                 for seg in segments]
         self.stale = True
 
     set_verts = set_segments  # for compatibility with PolyCollection
@@ -1774,7 +1979,7 @@ class LineCollection(Collection):
         """
         segments = []
 
-        for path in self._paths:
+        for path in self._container.paths:
             vertices = [
                 vertex
                 for vertex, _
@@ -1869,7 +2074,7 @@ class LineCollection(Collection):
             if ls == (0, None) else
             (path, mlines._get_inverse_dash_pattern(*ls))
             for (path, ls) in
-            zip(self._paths, itertools.cycle(self._linestyles))]
+            zip(self._container.paths, itertools.cycle(self._linestyles))]
 
         return zip(*path_patterns)
 
@@ -2074,7 +2279,7 @@ class CircleCollection(_CollectionWithSizes):
         super().__init__(**kwargs)
         self.set_sizes(sizes)
         self.set_transform(transforms.IdentityTransform())
-        self._paths = [mpath.Path.unit_circle()]
+        self._container.paths = [mpath.Path.unit_circle()]
 
 
 class EllipseCollection(Collection):
@@ -2105,83 +2310,63 @@ class EllipseCollection(Collection):
         self.set_widths(widths)
         self.set_heights(heights)
         self.set_angles(angles)
-        self._units = units
+        self._container.units = units
         self.set_transform(transforms.IdentityTransform())
-        self._transforms = np.empty((0, 3, 3))
-        self._paths = [mpath.Path.unit_circle()]
+        self._container.paths = [mpath.Path.unit_circle()]
 
-    def _set_transforms(self):
-        """Calculate transforms immediately before drawing."""
+    def _init_container(self):
+        return EllipseCollectionContainer(
+            x=np.array([]),
+            y=np.array([]),
+            widths=np.array([]),
+            heights=np.array([]),
+            angles=np.array([]),
+            units="xy"
+        )
 
-        ax = self.axes
-        fig = self.get_figure(root=False)
 
-        if self._units == 'xy':
-            sc = 1
-        elif self._units == 'x':
-            sc = ax.bbox.width / ax.viewLim.width
-        elif self._units == 'y':
-            sc = ax.bbox.height / ax.viewLim.height
-        elif self._units == 'inches':
-            sc = fig.dpi
-        elif self._units == 'points':
-            sc = fig.dpi / 72.0
-        elif self._units == 'width':
-            sc = ax.bbox.width
-        elif self._units == 'height':
-            sc = ax.bbox.height
-        elif self._units == 'dots':
-            sc = 1.0
-        else:
-            raise ValueError(f'Unrecognized units: {self._units!r}')
-
-        self._transforms = np.zeros((len(self._widths), 3, 3))
-        widths = self._widths * sc
-        heights = self._heights * sc
-        sin_angle = np.sin(self._angles)
-        cos_angle = np.cos(self._angles)
-        self._transforms[:, 0, 0] = widths * cos_angle
-        self._transforms[:, 0, 1] = heights * -sin_angle
-        self._transforms[:, 1, 0] = widths * sin_angle
-        self._transforms[:, 1, 1] = heights * cos_angle
-        self._transforms[:, 2, 2] = 1.0
-
-        _affine = transforms.Affine2D
-        if self._units == 'xy':
-            m = ax.transData.get_affine().get_matrix().copy()
-            m[:2, 2:] = 0
-            self.set_transform(_affine(m))
+    def set_angles(self, angles):
+        """Set the angles of the first axes, degrees CCW from the x-axis."""
+        check_container(self, EllipseCollectionContainer, "'set_angles'")
+        self._container.angles = np.deg2rad(angles).ravel()
+        self.stale = True
 
     def set_widths(self, widths):
         """Set the lengths of the first axes (e.g., major axis)."""
-        self._widths = 0.5 * np.asarray(widths).ravel()
+        check_container(self, EllipseCollectionContainer, "'set_widths'")
+        self._container.widths = 0.5 * np.asarray(widths).ravel()
         self.stale = True
 
     def set_heights(self, heights):
         """Set the lengths of second axes (e.g., minor axes)."""
-        self._heights = 0.5 * np.asarray(heights).ravel()
-        self.stale = True
-
-    def set_angles(self, angles):
-        """Set the angles of the first axes, degrees CCW from the x-axis."""
-        self._angles = np.deg2rad(angles).ravel()
+        check_container(self, EllipseCollectionContainer, "'set_heights'")
+        self._container.heights = 0.5 * np.asarray(heights).ravel()
         self.stale = True
 
     def get_widths(self):
         """Get the lengths of the first axes (e.g., major axis)."""
-        return self._widths * 2
+        check_container(self, EllipseCollectionContainer, "'get_widths'")
+        return self._container.widths * 2
 
     def get_heights(self):
-        """Set the lengths of second axes (e.g., minor axes)."""
-        return self._heights * 2
+        """Get the lengths of second axes (e.g., minor axes)."""
+        check_container(self, EllipseCollectionContainer, "'get_heights'")
+        return self._container.heights * 2
 
     def get_angles(self):
         """Get the angles of the first axes, degrees CCW from the x-axis."""
-        return np.rad2deg(self._angles)
+        check_container(self, EllipseCollectionContainer, "'get_angles'")
+        return np.rad2deg(self._container.angles)
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self._set_transforms()
+        if (
+            isinstance(self._container, EllipseCollectionContainer)
+            and self._container.units == "xy"
+        ):
+            m = self.axes.transData.get_affine().get_matrix().copy()
+            m[:2, 2:] = 0
+            self.set_transform(transforms.Affine2D(m))
         super().draw(renderer)
 
 
@@ -2242,7 +2427,7 @@ class PatchCollection(Collection):
     def set_paths(self, patches):
         paths = [p.get_transform().transform_path(p.get_path())
                  for p in patches]
-        self._paths = paths
+        self._container.paths = paths
 
 
 class TriMesh(Collection):
@@ -2265,12 +2450,12 @@ class TriMesh(Collection):
         self._bbox.update_from_data_xy(xy)
 
     def get_paths(self):
-        if self._paths is None:
+        if self._container.paths is None:
             self.set_paths()
-        return self._paths
+        return self._container.paths
 
     def set_paths(self):
-        self._paths = self.convert_mesh_to_paths(self._triangulation)
+        self._container.paths = self.convert_mesh_to_paths(self._triangulation)
 
     @staticmethod
     def convert_mesh_to_paths(tri):
@@ -2288,6 +2473,7 @@ class TriMesh(Collection):
     def draw(self, renderer):
         if not self.get_visible():
             return
+        self._cache_query()
         renderer.open_group(self.__class__.__name__, gid=self.get_gid())
         transform = self.get_transform()
 
@@ -2508,12 +2694,12 @@ class QuadMesh(_MeshData, Collection):
         self.set_mouseover(False)
 
     def get_paths(self):
-        if self._paths is None:
+        if self._container.paths is None:
             self.set_paths()
-        return self._paths
+        return self._container.paths
 
     def set_paths(self):
-        self._paths = self._convert_mesh_to_paths(self._coordinates)
+        self._container.paths = self._convert_mesh_to_paths(self._coordinates)
         self.stale = True
 
     def get_datalim(self, transData):
@@ -2523,6 +2709,7 @@ class QuadMesh(_MeshData, Collection):
     def draw(self, renderer):
         if not self.get_visible():
             return
+        self._cache_query()
         renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
