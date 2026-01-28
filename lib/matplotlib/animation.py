@@ -369,6 +369,8 @@ class MovieWriter(AbstractMovieWriter):
     @classmethod
     def isAvailable(cls):
         """Return whether a MovieWriter subclass is actually available."""
+        if sys.platform == 'emscripten':
+            return False
         return shutil.which(cls.bin_path()) is not None
 
 
