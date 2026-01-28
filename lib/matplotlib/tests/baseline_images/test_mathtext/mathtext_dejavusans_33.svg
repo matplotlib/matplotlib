@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:15.886036</dc:date>
+    <dc:date>2026-01-28T03:31:52.223175</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1773+g72dc8a699f, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $\sqrt[3]{\frac{X_2}{Y}}=5$ -->
-   <g transform="translate(165.78 33.3) scale(0.12 -0.12)">
+   <g transform="translate(165.66 33.18) scale(0.12 -0.12)">
     <defs>
-     <path id="DejaVuSans-33" d="M 2597 2516 
+     <path id="DejaVuSans-16" d="M 2597 2516 
 Q 3050 2419 3304 2112 
 Q 3559 1806 3559 1356 
 Q 3559 666 3084 287 
@@ -64,7 +64,7 @@ Q 3450 3153 3228 2886
 Q 3006 2619 2597 2516 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXSizeOneSym-Regular-221a" d="M 6970 9933 
+     <path id="STIXSizeOneSym-Regular-26" d="M 6970 9933 
 L 3373 -1888 
 L 3104 -1888 
 L 1626 2918 
@@ -80,7 +80,7 @@ L 6605 9933
 L 6970 9933 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-Oblique-58" d="M 878 4666 
+     <path id="DejaVuSans-Oblique-3b" d="M 878 4666 
 L 1516 4666 
 L 2316 2981 
 L 3763 4666 
@@ -95,7 +95,7 @@ L 1906 2509
 L 878 4666 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-32" d="M 1228 531 
+     <path id="DejaVuSans-15" d="M 1228 531 
 L 3431 531 
 L 3431 0 
 L 469 0 
@@ -119,7 +119,7 @@ Q 2828 2175 2409 1742
 Q 1991 1309 1228 531 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-Oblique-59" d="M 403 4666 
+     <path id="DejaVuSans-Oblique-3c" d="M 403 4666 
 L 1081 4666 
 L 1953 2747 
 L 3616 4666 
@@ -131,7 +131,7 @@ L 1575 2222
 L 403 4666 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-3d" d="M 678 2906 
+     <path id="DejaVuSans-20" d="M 678 2906 
 L 4684 2906 
 L 4684 2381 
 L 678 2381 
@@ -144,7 +144,7 @@ L 678 1100
 L 678 1631 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-35" d="M 691 4666 
+     <path id="DejaVuSans-18" d="M 691 4666 
 L 3169 4666 
 L 3169 4134 
 L 1269 4134 
@@ -170,25 +170,25 @@ L 691 4666
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSans-33" transform="translate(0 82.97625) scale(0.49)"/>
-    <use xlink:href="#STIXSizeOneSym-Regular-221a" transform="translate(-19.197411 -9.921875) scale(0.953168)"/>
-    <use xlink:href="#DejaVuSans-Oblique-58" transform="translate(94.047997 55.715625) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-32" transform="translate(142.002098 44.23125) scale(0.49)"/>
-    <use xlink:href="#DejaVuSans-Oblique-59" transform="translate(113.047997 -38.053125) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-3d" transform="translate(219.573875 0.440625)"/>
-    <use xlink:href="#DejaVuSans-35" transform="translate(322.84536 0.440625)"/>
-    <path d="M 81.547997 131.5 
-L 81.547997 137.75 
-L 200.091454 137.75 
-L 200.091454 131.5 
-L 81.547997 131.5 
+    <use xlink:href="#DejaVuSans-16" transform="translate(0 84.13125) scale(0.49)"/>
+    <use xlink:href="#STIXSizeOneSym-Regular-26" transform="translate(-20.840637 -12.75) scale(0.984367)"/>
+    <use xlink:href="#DejaVuSans-Oblique-3b" transform="translate(101.941223 57.715625) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-15" transform="translate(149.895325 46.23125) scale(0.49)"/>
+    <use xlink:href="#DejaVuSans-Oblique-3c" transform="translate(120.941223 -41.815625) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(221.217102 0.328125)"/>
+    <use xlink:href="#DejaVuSans-18" transform="translate(324.488586 0.328125)"/>
+    <path d="M 83.191223 133.5 
+L 83.191223 139.75 
+L 201.73468 139.75 
+L 201.73468 133.5 
+L 83.191223 133.5 
 z
 "/>
-    <path d="M 94.047997 19.23125 
-L 94.047997 25.48125 
-L 175.091454 25.48125 
-L 175.091454 19.23125 
-L 94.047997 19.23125 
+    <path d="M 101.941223 28.520313 
+L 101.941223 34.770313 
+L 182.98468 34.770313 
+L 182.98468 28.520313 
+L 101.941223 28.520313 
 z
 "/>
    </g>

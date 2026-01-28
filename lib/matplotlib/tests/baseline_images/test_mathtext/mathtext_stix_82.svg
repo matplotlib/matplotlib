@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:11.073962</dc:date>
+    <dc:date>2026-01-28T03:31:51.339478</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1773+g72dc8a699f, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $\dfrac{\$100.00}{y}$ -->
-   <g transform="translate(168.72 30.66) scale(0.12 -0.12)">
+   <g transform="translate(168.72 30.12) scale(0.12 -0.12)">
     <defs>
-     <path id="STIXGeneral-Regular-24" d="M 1690 4077 
+     <path id="STIXGeneral-Regular-7" d="M 1690 4077 
 L 1690 2502 
 Q 2234 2208 2445 2045 
 Q 2656 1882 2797 1664 
@@ -76,7 +76,7 @@ Q 2419 1235 2272 1427
 Q 2125 1619 1690 1875 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-31" d="M 2522 0 
+     <path id="STIXGeneral-Regular-14" d="M 2522 0 
 L 755 0 
 L 755 96 
 Q 1107 115 1235 227 
@@ -94,7 +94,7 @@ Q 2170 96 2522 96
 L 2522 0 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-30" d="M 3046 2112 
+     <path id="STIXGeneral-Regular-13" d="M 3046 2112 
 Q 3046 1683 2963 1302 
 Q 2880 922 2717 602 
 Q 2554 282 2266 96 
@@ -120,7 +120,7 @@ Q 2003 77 2217 598
 Q 2432 1120 2432 2080 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-2e" d="M 1158 275 
+     <path id="STIXGeneral-Regular-11" d="M 1158 275 
 Q 1158 134 1052 32 
 Q 947 -70 800 -70 
 Q 653 -70 550 32 
@@ -131,7 +131,7 @@ Q 947 640 1052 531
 Q 1158 422 1158 275 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Italic-79" d="M 1555 1190 
+     <path id="STIXGeneral-Italic-5c" d="M 1555 1190 
 L 1690 486 
 Q 2118 1190 2294 1558 
 Q 2470 1926 2470 2131 
@@ -168,19 +168,19 @@ Q 1472 1632 1555 1190
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Regular-24" transform="translate(0 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-31" transform="translate(49.999954 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(99.999908 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(149.999863 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-2e" transform="translate(199.999817 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(224.999786 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(274.999741 47.296875)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(140 -36.75)"/>
-    <path d="M 0 13.59375 
-L 0 19.84375 
-L 324.999695 19.84375 
-L 324.999695 13.59375 
-L 0 13.59375 
+    <use xlink:href="#STIXGeneral-Regular-7" transform="translate(6.25 71.296875)"/>
+    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(56.249954 71.296875)"/>
+    <use xlink:href="#STIXGeneral-Regular-13" transform="translate(106.249908 71.296875)"/>
+    <use xlink:href="#STIXGeneral-Regular-13" transform="translate(156.249863 71.296875)"/>
+    <use xlink:href="#STIXGeneral-Regular-11" transform="translate(206.249817 71.296875)"/>
+    <use xlink:href="#STIXGeneral-Regular-13" transform="translate(231.249786 71.296875)"/>
+    <use xlink:href="#STIXGeneral-Regular-13" transform="translate(281.249741 71.296875)"/>
+    <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(146.25 -69.803125)"/>
+    <path d="M 6.25 22.91875 
+L 6.25 29.16875 
+L 331.249695 29.16875 
+L 331.249695 22.91875 
+L 6.25 22.91875 
 z
 "/>
    </g>

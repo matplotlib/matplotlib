@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:09.113575</dc:date>
+    <dc:date>2026-01-28T03:31:51.101981</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1773+g72dc8a699f, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $\sqrt[3]{\frac{X_2}{Y}}=5$ -->
-   <g transform="translate(169.38 32.46) scale(0.12 -0.12)">
+   <g transform="translate(169.44 32.94) scale(0.12 -0.12)">
     <defs>
-     <path id="STIXGeneral-Regular-33" d="M 390 3264 
+     <path id="STIXGeneral-Regular-16" d="M 390 3264 
 L 288 3290 
 Q 435 3770 748 4048 
 Q 1062 4326 1542 4326 
@@ -61,7 +61,7 @@ Q 1670 3942 1344 3942
 Q 768 3942 390 3264 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXSizeOneSym-Regular-221a" d="M 6970 9933 
+     <path id="STIXSizeOneSym-Regular-26" d="M 6970 9933 
 L 3373 -1888 
 L 3104 -1888 
 L 1626 2918 
@@ -77,7 +77,7 @@ L 6605 9933
 L 6970 9933 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Italic-58" d="M 4192 4179 
+     <path id="STIXGeneral-Italic-3b" d="M 4192 4179 
 L 4192 4077 
 Q 3981 4006 3805 3875 
 Q 3629 3744 3392 3469 
@@ -118,7 +118,7 @@ L 2867 4179
 L 4192 4179 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-32" d="M 3034 877 
+     <path id="STIXGeneral-Regular-15" d="M 3034 877 
 L 2688 0 
 L 186 0 
 L 186 77 
@@ -142,7 +142,7 @@ Q 2790 653 2944 915
 L 3034 877 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Italic-59" d="M 4051 4179 
+     <path id="STIXGeneral-Italic-3c" d="M 4051 4179 
 L 4051 4077 
 Q 3917 4032 3846 3965 
 Q 3776 3898 3603 3686 
@@ -176,7 +176,7 @@ L 2842 4179
 L 4051 4179 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-3d" d="M 4077 2048 
+     <path id="STIXGeneral-Regular-20" d="M 4077 2048 
 L 307 2048 
 L 307 2470 
 L 4077 2470 
@@ -189,7 +189,7 @@ L 4077 1190
 L 4077 768 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-35" d="M 2803 4358 
+     <path id="STIXGeneral-Regular-18" d="M 2803 4358 
 L 2573 3814 
 Q 2534 3731 2400 3731 
 L 1158 3731 
@@ -219,25 +219,25 @@ L 2803 4358
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Regular-33" transform="translate(0 75.395625) scale(0.49)"/>
-    <use xlink:href="#STIXSizeOneSym-Regular-221a" transform="translate(-22.18975 -12.109375) scale(0.883446)"/>
-    <use xlink:href="#STIXGeneral-Italic-58" transform="translate(83.689705 48.042188) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(126.459667 38.7825) scale(0.49)"/>
-    <use xlink:href="#STIXGeneral-Italic-59" transform="translate(99.689705 -38.175312) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-3d" transform="translate(193.486194 0.989062)"/>
-    <use xlink:href="#STIXGeneral-Regular-35" transform="translate(276.42612 0.989062)"/>
-    <path d="M 71.189705 118.5 
-L 71.189705 124.75 
-L 179.046207 124.75 
-L 179.046207 118.5 
-L 71.189705 118.5 
+    <use xlink:href="#STIXGeneral-Regular-16" transform="translate(0 76.468375) scale(0.49)"/>
+    <use xlink:href="#STIXSizeOneSym-Regular-26" transform="translate(-21.363922 -7.6875) scale(0.867852)"/>
+    <use xlink:href="#STIXGeneral-Italic-3b" transform="translate(89.113877 50.042188) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(131.883838 40.7825) scale(0.49)"/>
+    <use xlink:href="#STIXGeneral-Italic-3c" transform="translate(105.113877 -33.295) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-20" transform="translate(192.660366 0.670938)"/>
+    <use xlink:href="#STIXGeneral-Regular-18" transform="translate(275.600292 0.670938)"/>
+    <path d="M 70.363877 120.5 
+L 70.363877 126.75 
+L 178.220378 126.75 
+L 178.220378 120.5 
+L 70.363877 120.5 
 z
 "/>
-    <path d="M 83.689705 13.7825 
-L 83.689705 20.0325 
-L 154.046207 20.0325 
-L 154.046207 13.7825 
-L 83.689705 13.7825 
+    <path d="M 89.113877 22.829063 
+L 89.113877 29.079063 
+L 159.470378 29.079063 
+L 159.470378 22.829063 
+L 89.113877 22.829063 
 z
 "/>
    </g>

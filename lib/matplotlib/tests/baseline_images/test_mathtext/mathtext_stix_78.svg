@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:10.872705</dc:date>
+    <dc:date>2026-01-28T03:31:51.064232</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1773+g72dc8a699f, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$ -->
-   <g transform="translate(117.72 30.42) scale(0.12 -0.12)">
+   <g transform="translate(117.72 29.88) scale(0.12 -0.12)">
     <defs>
-     <path id="STIXGeneral-Regular-36" d="M 2854 4378 
+     <path id="STIXGeneral-Regular-19" d="M 2854 4378 
 L 2867 4275 
 Q 2112 4154 1606 3664 
 Q 1101 3174 973 2451 
@@ -57,14 +57,14 @@ Q 2061 90 2240 394
 Q 2419 698 2419 1203 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-2212" d="M 3974 1408 
+     <path id="STIXGeneral-Regular-425" d="M 3974 1408 
 L 410 1408 
 L 410 1830 
 L 3974 1830 
 L 3974 1408 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-32" d="M 3034 877 
+     <path id="STIXGeneral-Regular-15" d="M 3034 877 
 L 2688 0 
 L 186 0 
 L 186 77 
@@ -88,7 +88,7 @@ Q 2790 653 2944 915
 L 3034 877 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-3b" d="M 750 3309 
+     <path id="DejaVuSans-1e" d="M 750 3309 
 L 1409 3309 
 L 1409 2516 
 L 750 2516 
@@ -103,8 +103,8 @@ L 750 256
 L 750 794 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-20" transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-30" d="M 3046 2112 
+     <path id="DejaVuSans-3" transform="scale(0.015625)"/>
+     <path id="STIXGeneral-Regular-13" d="M 3046 2112 
 Q 3046 1683 2963 1302 
 Q 2880 922 2717 602 
 Q 2554 282 2266 96 
@@ -130,7 +130,7 @@ Q 2003 77 2217 598
 Q 2432 1120 2432 2080 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-2b" d="M 4070 1408 
+     <path id="STIXGeneral-Regular-e" d="M 4070 1408 
 L 2400 1408 
 L 2400 -262 
 L 1978 -262 
@@ -145,7 +145,7 @@ L 4070 1830
 L 4070 1408 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-33" d="M 390 3264 
+     <path id="STIXGeneral-Regular-16" d="M 390 3264 
 L 288 3290 
 Q 435 3770 748 4048 
 Q 1062 4326 1542 4326 
@@ -175,33 +175,33 @@ Q 768 3942 390 3264
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Regular-36" transform="translate(0 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(64.439941 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(147.379868 0.459375)"/>
-    <use xlink:href="#DejaVuSans-3b" transform="translate(197.379822 0.459375)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(231.071228 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(262.858337 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(331.358276 0.459375)"/>
-    <use xlink:href="#DejaVuSans-3b" transform="translate(381.358231 0.459375)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(415.049637 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(446.836746 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(515.336685 0.459375)"/>
-    <use xlink:href="#DejaVuSans-3b" transform="translate(565.336639 0.459375)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(599.028046 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(630.815155 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(699.315094 0.459375)"/>
-    <use xlink:href="#DejaVuSans-3b" transform="translate(749.315048 0.459375)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(783.006454 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(814.793564 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(883.293503 0.459375)"/>
-    <use xlink:href="#DejaVuSans-3b" transform="translate(933.293457 0.459375)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(966.984863 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(998.771973 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-30" transform="translate(1048.771927 0.459375)"/>
-    <use xlink:href="#STIXGeneral-Regular-2b" transform="translate(1100.315162 36.684375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-33" transform="translate(1148.26512 36.684375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-2212" transform="translate(1100.315162 -25.996875) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-32" transform="translate(1148.26512 -25.996875) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-19" transform="translate(0 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(64.439941 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(147.379868 0.54375)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(197.379822 0.54375)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(231.071228 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(262.858337 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(331.358276 0.54375)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(381.358231 0.54375)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(415.049637 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(446.836746 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(515.336685 0.54375)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(565.336639 0.54375)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(599.028046 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(630.815155 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(699.315094 0.54375)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(749.315048 0.54375)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(783.006454 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(814.793564 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(883.293503 0.54375)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(933.293457 0.54375)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(966.984863 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(998.771973 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-13" transform="translate(1048.771927 0.54375)"/>
+    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(1100.315162 38.684375) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-16" transform="translate(1148.26512 38.684375) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(1100.315162 -36.496875) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(1148.26512 -36.496875) scale(0.7)"/>
    </g>
   </g>
  </g>

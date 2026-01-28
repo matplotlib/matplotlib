@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-15T18:44:34.116405</dc:date>
+    <dc:date>2026-01-28T03:31:50.807851</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1080+g9eab1d3926, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1773+g72dc8a699f, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $\Delta^j_{i+1}$ -->
-   <g transform="translate(176.94 30.84) scale(0.12 -0.12)">
+   <g transform="translate(176.94 30.36) scale(0.12 -0.12)">
     <defs>
-     <path id="STIXGeneral-Regular-394" d="M 4320 0 
+     <path id="STIXGeneral-Regular-254" d="M 4320 0 
 L 307 0 
 L 2221 4314 
 L 2349 4314 
@@ -44,7 +44,7 @@ L 870 589
 L 3354 589 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Italic-6a" d="M 1786 3827 
+     <path id="STIXGeneral-Italic-4d" d="M 1786 3827 
 Q 1786 3699 1690 3603 
 Q 1594 3507 1466 3507 
 Q 1318 3507 1219 3600 
@@ -78,7 +78,7 @@ Q 755 2682 1549 2822
 L 1574 2803 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Italic-69" d="M 1690 3834 
+     <path id="STIXGeneral-Italic-4c" d="M 1690 3834 
 Q 1690 3699 1597 3603 
 Q 1504 3507 1376 3507 
 Q 1235 3507 1152 3600 
@@ -107,7 +107,7 @@ Q 794 230 883 230
 Q 1043 230 1421 730 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-2b" d="M 4070 1408 
+     <path id="STIXGeneral-Regular-e" d="M 4070 1408 
 L 2400 1408 
 L 2400 -262 
 L 1978 -262 
@@ -122,7 +122,7 @@ L 4070 1830
 L 4070 1408 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-31" d="M 2522 0 
+     <path id="STIXGeneral-Regular-14" d="M 2522 0 
 L 755 0 
 L 755 96 
 Q 1107 115 1235 227 
@@ -141,11 +141,11 @@ L 2522 0
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Regular-394" transform="translate(0 0.50625)"/>
-    <use xlink:href="#STIXGeneral-Italic-6a" transform="translate(73.743217 48.357813) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-69" transform="translate(73.743217 -25.95) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-2b" transform="translate(103.311189 -25.95) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-31" transform="translate(161.369137 -25.95) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-254" transform="translate(0 0.590625)"/>
+    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(73.743217 50.357813) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-4c" transform="translate(73.743217 -36.45) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(103.311189 -36.45) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(161.369137 -36.45) scale(0.7)"/>
    </g>
   </g>
  </g>

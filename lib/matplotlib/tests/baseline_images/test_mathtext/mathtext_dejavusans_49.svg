@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-31T16:58:32.194068</dc:date>
+    <dc:date>2026-01-28T03:31:53.058965</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1122+g2f02990a02, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1773+g72dc8a699f, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,20 +30,21 @@ z
   </g>
   <g id="text_1">
    <!-- $\binom{n}{k/2}$ -->
-   <g transform="translate(176.04 28.74) scale(0.12 -0.12)">
+   <g transform="translate(176.34 29.4) scale(0.12 -0.12)">
     <defs>
-     <path id="STIXSizeOneSym-Regular-28" d="M 2445 -858 
-L 2445 -1050 
-Q 1728 -371 1309 630 
-Q 890 1632 890 2886 
-Q 890 4122 1309 5136 
-Q 1728 6150 2445 6822 
-L 2445 6630 
-Q 1408 5363 1408 2886 
-Q 1408 410 2445 -858 
+     <path id="STIXSizeTwoSym-Regular-4" d="M 3219 -1555 
+L 3219 -1786 
+Q 2144 -774 1517 730 
+Q 890 2234 890 4115 
+Q 890 6003 1533 7593 
+Q 2176 9184 3219 10022 
+L 3219 9811 
+Q 2490 9062 1994 7606 
+Q 1498 6150 1498 4115 
+Q 1498 563 3219 -1555 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-Oblique-6e" d="M 3566 2113 
+     <path id="DejaVuSans-Oblique-51" d="M 3566 2113 
 L 3156 0 
 L 2578 0 
 L 2988 2091 
@@ -66,7 +67,7 @@ Q 3622 2519 3608 2391
 Q 3594 2263 3566 2113 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-Oblique-6b" d="M 1172 4863 
+     <path id="DejaVuSans-Oblique-4e" d="M 1172 4863 
 L 1747 4863 
 L 1197 2028 
 L 3169 3500 
@@ -80,14 +81,14 @@ L 225 0
 L 1172 4863 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-2f" d="M 1625 4666 
+     <path id="DejaVuSans-12" d="M 1625 4666 
 L 2156 4666 
 L 531 -594 
 L 0 -594 
 L 1625 4666 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-32" d="M 1228 531 
+     <path id="DejaVuSans-15" d="M 1228 531 
 L 3431 531 
 L 3431 0 
 L 469 0 
@@ -111,24 +112,25 @@ Q 2828 2175 2409 1742
 Q 1991 1309 1228 531 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXSizeOneSym-Regular-29" d="M 550 6630 
-L 550 6822 
-Q 1267 6144 1686 5142 
-Q 2106 4141 2106 2886 
-Q 2106 1651 1686 636 
-Q 1267 -378 550 -1050 
-L 550 -858 
-Q 1587 410 1587 2886 
-Q 1587 5363 550 6630 
+     <path id="STIXSizeTwoSym-Regular-5" d="M 730 9792 
+L 730 10022 
+Q 1805 9011 2432 7507 
+Q 3059 6003 3059 4115 
+Q 3059 2234 2416 643 
+Q 1773 -947 730 -1786 
+L 730 -1574 
+Q 1459 -826 1955 633 
+Q 2451 2093 2451 4115 
+Q 2451 7674 730 9792 
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXSizeOneSym-Regular-28" transform="translate(0 -30.370312) scale(1.007203)"/>
-    <use xlink:href="#DejaVuSans-Oblique-6e" transform="translate(79.136368 37.8) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-Oblique-6b" transform="translate(47.136368 -40.389062) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-2f" transform="translate(87.673477 -40.389062) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-32" transform="translate(111.257462 -40.389062) scale(0.7)"/>
-    <use xlink:href="#STIXSizeOneSym-Regular-29" transform="translate(168.293594 -30.370312) scale(1.007203)"/>
+    <use xlink:href="#STIXSizeTwoSym-Regular-4" transform="translate(0 -27.775) scale(0.745647)"/>
+    <use xlink:href="#DejaVuSans-Oblique-51" transform="translate(82.167343 49.8) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-Oblique-4e" transform="translate(50.167343 -42.075) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-12" transform="translate(90.704453 -42.075) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-15" transform="translate(114.288437 -42.075) scale(0.7)"/>
+    <use xlink:href="#STIXSizeTwoSym-Regular-5" transform="translate(165.07457 -27.775) scale(0.745647)"/>
    </g>
   </g>
  </g>

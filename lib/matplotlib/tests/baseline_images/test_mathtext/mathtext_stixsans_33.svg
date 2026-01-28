@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:12.411694</dc:date>
+    <dc:date>2026-01-28T03:31:52.041071</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1773+g72dc8a699f, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $\sqrt[3]{\frac{X_2}{Y}}=5$ -->
-   <g transform="translate(169.02 32.46) scale(0.12 -0.12)">
+   <g transform="translate(169.08 32.82) scale(0.12 -0.12)">
     <defs>
-     <path id="STIXGeneral-Regular-1d7e5" d="M 723 3149 
+     <path id="STIXGeneral-Regular-cc2" d="M 723 3149 
 L 269 3258 
 Q 410 3757 736 4041 
 Q 1062 4326 1555 4326 
@@ -61,7 +61,7 @@ Q 1280 3872 1059 3689
 Q 838 3507 723 3149 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXSizeOneSym-Regular-221a" d="M 6970 9933 
+     <path id="STIXSizeOneSym-Regular-26" d="M 6970 9933 
 L 3373 -1888 
 L 3104 -1888 
 L 1626 2918 
@@ -77,7 +77,7 @@ L 6605 9933
 L 6970 9933 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Italic-1d61f" d="M 5158 4237 
+     <path id="STIXGeneral-Italic-3ce" d="M 5158 4237 
 L 3130 2234 
 L 4282 0 
 L 3610 0 
@@ -92,7 +92,7 @@ L 4474 4237
 L 5158 4237 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-1d7e4" d="M 3002 454 
+     <path id="STIXGeneral-Regular-cc1" d="M 3002 454 
 L 2816 0 
 L 224 0 
 L 224 134 
@@ -117,7 +117,7 @@ L 1133 454
 L 3002 454 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Italic-1d620" d="M 4954 4237 
+     <path id="STIXGeneral-Italic-3cf" d="M 4954 4237 
 L 2752 1843 
 L 2291 0 
 L 1734 0 
@@ -129,7 +129,7 @@ L 4346 4237
 L 4954 4237 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-3d" d="M 4077 2048 
+     <path id="STIXGeneral-Regular-20" d="M 4077 2048 
 L 307 2048 
 L 307 2470 
 L 4077 2470 
@@ -142,7 +142,7 @@ L 4077 1190
 L 4077 768 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-1d7e7" d="M 2931 4326 
+     <path id="STIXGeneral-Regular-cc4" d="M 2931 4326 
 L 2726 3872 
 L 1594 3872 
 L 1184 3059 
@@ -163,25 +163,25 @@ L 2931 4326
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Regular-1d7e5" transform="translate(0 75.049375) scale(0.49)"/>
-    <use xlink:href="#STIXSizeOneSym-Regular-221a" transform="translate(-22.619049 -13.375) scale(0.891683)"/>
-    <use xlink:href="#STIXGeneral-Italic-1d61f" transform="translate(84.119004 47.407813) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-1d7e4" transform="translate(133.118961 37.895469) scale(0.49)"/>
-    <use xlink:href="#STIXGeneral-Italic-1d620" transform="translate(99.119004 -39.696719) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-3d" transform="translate(199.324315 0.123437)"/>
-    <use xlink:href="#STIXGeneral-Regular-1d7e7" transform="translate(282.94424 0.123437)"/>
-    <path d="M 71.619004 118.5 
-L 71.619004 124.75 
-L 184.204329 124.75 
-L 184.204329 118.5 
-L 71.619004 118.5 
+    <use xlink:href="#STIXGeneral-Regular-cc2" transform="translate(0 75.938937) scale(0.49)"/>
+    <use xlink:href="#STIXSizeOneSym-Regular-26" transform="translate(-21.289581 -8.46875) scale(0.866431)"/>
+    <use xlink:href="#STIXGeneral-Italic-3ce" transform="translate(89.039536 48.407813) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-cc1" transform="translate(138.039493 38.895469) scale(0.49)"/>
+    <use xlink:href="#STIXGeneral-Italic-3cf" transform="translate(104.039536 -34.0325) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-20" transform="translate(197.994847 0.847344)"/>
+    <use xlink:href="#STIXGeneral-Regular-cc4" transform="translate(281.614772 0.847344)"/>
+    <path d="M 70.289536 119.5 
+L 70.289536 125.75 
+L 182.874861 125.75 
+L 182.874861 119.5 
+L 70.289536 119.5 
 z
 "/>
-    <path d="M 84.119004 12.895469 
-L 84.119004 19.145469 
-L 159.204329 19.145469 
-L 159.204329 12.895469 
-L 84.119004 12.895469 
+    <path d="M 89.039536 23.017969 
+L 89.039536 29.267969 
+L 164.124861 29.267969 
+L 164.124861 23.017969 
+L 89.039536 23.017969 
 z
 "/>
    </g>
