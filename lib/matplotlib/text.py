@@ -2,13 +2,12 @@
 Classes for including text in a figure.
 """
 
-import functools
 import logging
 import math
-from numbers import Real
 import weakref
-
 import numpy as np
+from numbers import Real
+from functools import lru_cache
 
 import matplotlib as mpl
 from . import _api, artist, cbook, _docstring
@@ -21,6 +20,14 @@ from .transforms import (
 
 
 _log = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=128)
+def _rotate(theta):
+    """
+    Return an Affine2D object that rotates by the given angle in radians.
+    """
+    return Affine2D().rotate(theta)
 
 
 def _get_textbox(text, renderer):
@@ -39,8 +46,8 @@ def _get_textbox(text, renderer):
     projected_xs = []
     projected_ys = []
 
-    theta = np.deg2rad(text.get_rotation())
-    tr = Affine2D().rotate(-theta)
+    theta = math.radians(text.get_rotation())
+    tr = _rotate(-theta)
 
     _, parts, d = text._get_layout(renderer)
 
@@ -57,32 +64,16 @@ def _get_textbox(text, renderer):
     xt_box, yt_box = min(projected_xs), min(projected_ys)
     w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
 
-    x_box, y_box = Affine2D().rotate(theta).transform((xt_box, yt_box))
+    x_box, y_box = _rotate(theta).transform((xt_box, yt_box))
 
     return x_box, y_box, w_box, h_box
 
 
 def _get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
-    """Call ``renderer.get_text_width_height_descent``, caching the results."""
-
-    # hit the outer cache layer and get the function to compute the metrics
-    # for this renderer instance
-    get_text_metrics = _get_text_metrics_function(renderer)
-    # call the function to compute the metrics and return
-    #
-    # We pass a copy of the fontprop because FontProperties is both mutable and
-    # has a `__hash__` that depends on that mutable state.  This is not ideal
-    # as it means the hash of an object is not stable over time which leads to
-    # very confusing behavior when used as keys in dictionaries or hashes.
-    return get_text_metrics(text, fontprop.copy(), ismath, dpi)
-
-
-def _get_text_metrics_function(input_renderer, _cache=weakref.WeakKeyDictionary()):
     """
-    Helper function to provide a two-layered cache for font metrics
+    Call ``renderer.get_text_width_height_descent``, caching the results.
 
-
-    To get the rendered size of a size of string we need to know:
+    To get the rendered size of a string we need to know:
       - what renderer we are using
       - the current dpi of the renderer
       - the string
@@ -97,56 +88,23 @@ def _get_text_metrics_function(input_renderer, _cache=weakref.WeakKeyDictionary(
     we will keep the cache alive, but it will be automatically dropped when
     the renderer is garbage collected.
 
-    The inner layer is provided by an lru_cache with a large maximum size (such
-    that we expect very few cache misses in actual use cases).  As the
-    dpi is mutable on the renderer, we need to explicitly include it as part of
-    the cache key on the inner layer even though we do not directly use it (it is
-    used in the method call on the renderer).
-
-    This function takes a renderer and returns a function that can be used to
-    get the font metrics.
-
-    Parameters
-    ----------
-    input_renderer : maplotlib.backend_bases.RendererBase
-        The renderer to set the cache up for.
-
-    _cache : dict, optional
-        We are using the mutable default value to attach the cache to the function.
-
-        In principle you could pass a different dict-like to this function to inject
-        a different cache, but please don't.  This is an internal function not meant to
-        be reused outside of the narrow context we need it for.
-
-        There is a possible race condition here between threads, we may need to drop the
-        mutable default and switch to a threadlocal variable in the future.
-
+    The inner layer is a plain dict keyed on (text, fontprop, ismath, dpi).
+    As the dpi is mutable on the renderer, we need to explicitly include it as
+    part of the cache key even though we do not directly use it (it is used in
+    the method call on the renderer).
     """
-    if (_text_metrics := _cache.get(input_renderer, None)) is None:
-        # We are going to include this in the closure we put as values in the
-        # cache.  Closing over a hard-ref would create an unbreakable reference
-        # cycle.
-        renderer_ref = weakref.ref(input_renderer)
+    inner_cache = _text_metrics_cache.setdefault(renderer, {})
 
-        # define the function locally to get a new lru_cache per renderer
-        @functools.lru_cache(4096)
-        # dpi is unused, but participates in cache invalidation (via the renderer).
-        def _text_metrics(text, fontprop, ismath, dpi):
-            # this should never happen under normal use, but this is a better error to
-            # raise than an AttributeError on `None`
-            if (local_renderer := renderer_ref()) is None:
-                raise RuntimeError(
-                    "Trying to get text metrics for a renderer that no longer exists.  "
-                    "This should never happen and is evidence of a bug elsewhere."
-                    )
-            # do the actual method call we need and return the result
-            return local_renderer.get_text_width_height_descent(text, fontprop, ismath)
+    cache_key = (text, fontprop, ismath, dpi)
+    result = inner_cache.get(cache_key)
+    if result is None:
+        result = renderer.get_text_width_height_descent(text, fontprop, ismath)
+        inner_cache[cache_key] = result
+    return result
 
-        # stash the function for later use.
-        _cache[input_renderer] = _text_metrics
 
-    # return the inner function
-    return _text_metrics
+# See _get_text_metrics_with_cache docstring for details on the cache structure.
+_text_metrics_cache = weakref.WeakKeyDictionary()
 
 
 @_docstring.interpd
@@ -492,9 +450,7 @@ class Text(Artist):
         xmax = width
         ymax = 0
         ymin = ys[-1] - descent  # baseline of last line minus its descent
-
-        # get the rotation matrix
-        M = Affine2D().rotate_deg(self.get_rotation())
+        height = ymax - ymin
 
         # now offset the individual text lines within the box
         malign = self._get_multialignment()
@@ -508,18 +464,21 @@ class Text(Artist):
                              for x, y, w in zip(xs, ys, ws)]
 
         # the corners of the unrotated bounding box
-        corners_horiz = np.array(
-            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
+        corners_horiz = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
 
-        # now rotate the bbox
-        corners_rotated = M.transform(corners_horiz)
-        # compute the bounds of the rotated box
-        xmin = corners_rotated[:, 0].min()
-        xmax = corners_rotated[:, 0].max()
-        ymin = corners_rotated[:, 1].min()
-        ymax = corners_rotated[:, 1].max()
-        width = xmax - xmin
-        height = ymax - ymin
+        # now rotate the bbox (skip if no rotation for speed)
+        rotation = self.get_rotation()
+        if rotation != 0:
+            M = _rotate(math.radians(rotation))
+            corners_rotated = M.transform(corners_horiz)
+            # compute the bounds of the rotated box (direct indexing for speed)
+            (x0, y0), (x1, y1), (x2, y2), (x3, y3) = corners_rotated.tolist()
+            xmin = min(x0, x1, x2, x3)
+            xmax = max(x0, x1, x2, x3)
+            ymin = min(y0, y1, y2, y3)
+            ymax = max(y0, y1, y2, y3)
+            width = xmax - xmin
+            height = ymax - ymin
 
         # Now move the box to the target position offset the display
         # bbox by alignment
@@ -528,11 +487,10 @@ class Text(Artist):
 
         rotation_mode = self.get_rotation_mode()
         if rotation_mode != "anchor":
-            angle = self.get_rotation()
             if rotation_mode == 'xtick':
-                halign = self._ha_for_angle(angle)
+                halign = self._ha_for_angle(rotation)
             elif rotation_mode == 'ytick':
-                valign = self._va_for_angle(angle)
+                valign = self._va_for_angle(rotation)
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
             if halign == 'center':
@@ -574,7 +532,8 @@ class Text(Artist):
             else:
                 offsety = ymin1
 
-            offsetx, offsety = M.transform((offsetx, offsety))
+            if rotation != 0:
+                offsetx, offsety = M.transform((offsetx, offsety))
 
         xmin -= offsetx
         ymin -= offsety
@@ -582,9 +541,14 @@ class Text(Artist):
         bbox = Bbox.from_bounds(xmin, ymin, width, height)
 
         # now rotate the positions around the first (x, y) position
-        xys = M.transform(offset_layout) - (offsetx, offsety)
+        if rotation != 0:
+            xys = (M.transform(offset_layout) - (offsetx, offsety)).tolist()
+        else:
+            xys = [(x - offsetx, y - offsety) for x, y in offset_layout]
 
-        return bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
+        info = [(ln, (w, h), xy[0], xy[1])
+                for ln, w, h, xy in zip(lines, ws, hs, xys)]
+        return bbox, info, descent
 
     def set_bbox(self, rectprops):
         """
