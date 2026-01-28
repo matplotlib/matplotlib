@@ -1,2 +1,3 @@
-from matplotlib.testing.conftest import (mpl_test_settings,  # noqa
-                                         pytest_configure, pytest_unconfigure)
+from matplotlib.testing.conftest import (  # noqa
+    pytest_configure, pytest_unconfigure,
+    high_memory, mpl_test_settings)
