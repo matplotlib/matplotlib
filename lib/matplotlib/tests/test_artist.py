@@ -377,6 +377,16 @@ def test_set_is_overwritten():
     assert MyArtist4.set is MyArtist3.set
 
 
+def test_set():
+    line = mlines.Line2D([], [])
+    line.set(linewidth=7)
+    assert line.get_linewidth() == 7
+
+    # Property aliases should work
+    line.set(lw=5)
+    assert line.get_linewidth() == 5
+
+
 def test_format_cursor_data_BoundaryNorm():
     """Test if cursor data is correct when using BoundaryNorm."""
     X = np.empty((3, 3))
