@@ -1273,12 +1273,27 @@ Supported properties are
         """
         `.Artist.set` context-manager that restores original values at exit.
         """
-        orig_vals = {k: getattr(self, f"get_{k}")() for k in kwargs}
+        orig_vals = {}
+        for k, v in kwargs.items():
+            orig = getattr(self, f"get_{k}")()
+            try:
+                changed = orig != v
+                if hasattr(changed, 'any'):  # Handle numpy arrays
+                    changed = changed.any()
+            except ValueError:
+                changed = True
+            if changed:
+                orig_vals[k] = orig
+
+        if not orig_vals:  # Nothing actually changed, no need to update
+            yield
+            return
+
         try:
-            self.set(**kwargs)
+            self._internal_update({k: kwargs[k] for k in orig_vals})
             yield
         finally:
-            self.set(**orig_vals)
+            self._internal_update(orig_vals)
 
     def findobj(self, match=None, include_self=True):
         """
