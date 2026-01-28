@@ -1219,6 +1219,19 @@ def test_check_button_props(fig_test, fig_ref):
     cb.set_check_props({**check_props, 's': (24 / 2)**2})
 
 
+@pytest.mark.parametrize("widget", [widgets.RadioButtons, widgets.CheckButtons])
+def test__buttons_callbacks(widget):
+    """Tests what https://github.com/matplotlib/matplotlib/pull/31031 fixed"""
+    ax = get_ax()
+    button = widget(ax, ["Test Button"])
+    ax.figure.canvas.callbacks.process(
+        "button_press_event",
+        MouseEvent(
+            name="test", canvas=ax.figure.canvas, x=200, y=200, button=1, key=None
+        ),
+    )
+
+
 def test_slider_slidermin_slidermax_invalid():
     fig, ax = plt.subplots()
     # test min/max with floats
