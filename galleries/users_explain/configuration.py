@@ -10,5 +10,5 @@ called :data:`matplotlib.rcParams` (also accessible via ``plt.rcParams``).
 The following is a comprehensive reference of all available rcParams and their
 default values.
 
-.. include:: /users/_rcparams_generated.rst
+.. rcparams::
 """
