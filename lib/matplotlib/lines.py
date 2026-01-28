@@ -45,12 +45,16 @@ def _get_dash_pattern(style):
         dashes = tuple(mpl.rcParams[f'lines.{style}_pattern'])
     #
     elif isinstance(style, tuple):
-        offset, dashes = style
+        if isinstance(style[1], tuple):
+            offset, dashes = style
+        else:
+            offset = 0
+            dashes = style
         if offset is None:
             raise ValueError(f'Unrecognized linestyle: {style!r}')
     else:
         raise ValueError(f'Unrecognized linestyle: {style!r}')
-
+    
     # normalize offset to be positive and shorter than the dash cycle
     if dashes is not None:
         dsum = sum(dashes)
@@ -1343,8 +1347,13 @@ class Line2D(Artist):
         """
         if seq == (None, None) or len(seq) == 0:
             self.set_linestyle('-')
-        else:
-            self.set_linestyle((0, seq))
+        elif isinstance(seq, str):
+            self.set_linestyle(seq)
+        elif isinstance(seq, tuple):
+            if isinstance(seq[1], tuple):
+                self.set_linestyle(seq)
+            else:
+                self.set_linestyle((0, seq))
 
     def update_from(self, other):
         """Copy properties from *other* to self."""
