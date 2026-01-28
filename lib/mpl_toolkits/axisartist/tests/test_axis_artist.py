@@ -19,7 +19,7 @@ def test_ticks():
     ticks_in.set_locs_angles(locs_angles)
     ax.add_artist(ticks_in)
 
-    ticks_out = Ticks(ticksize=10, tick_out=True, color='C3', axis=ax.xaxis)
+    ticks_out = Ticks(ticksize=10, tick_direction="out", color='C3', axis=ax.xaxis)
     ticks_out.set_locs_angles(locs_angles)
     ax.add_artist(ticks_out)
 
@@ -92,11 +92,11 @@ def test_axis_artist():
     for loc in ('left', 'right', 'bottom'):
         helper = AxisArtistHelperRectlinear.Fixed(ax, loc=loc)
         axisline = AxisArtist(ax, helper, offset=None, axis_direction=loc)
+        axisline.major_ticks.set_tick_direction("in")
         ax.add_artist(axisline)
 
     # Settings for bottom AxisArtist.
     axisline.set_label("TTT")
-    axisline.major_ticks.set_tick_out(False)
     axisline.label.set_pad(5)
 
     ax.set_ylabel("Test")
