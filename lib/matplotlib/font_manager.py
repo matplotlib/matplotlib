@@ -1712,7 +1712,7 @@ str, bytes, os.PathLike, FontPath
 
     hinting_factor = mpl._val_or_rc(hinting_factor, 'text.hinting_factor')
 
-    return _get_font(
+    font = _get_font(
         # must be a tuple to be cached
         paths,
         hinting_factor,
@@ -1721,6 +1721,10 @@ str, bytes, os.PathLike, FontPath
         thread_id=threading.get_ident(),
         enable_last_resort=mpl.rcParams['font.enable_last_resort'],
     )
+    # Ensure the transform is always consistent.
+    font._set_transform([[round(0x10000 / font._hinting_factor), 0], [0, 0x10000]],
+                        [0, 0])
+    return font
 
 
 def _load_fontmanager(*, try_read_cache=True):
