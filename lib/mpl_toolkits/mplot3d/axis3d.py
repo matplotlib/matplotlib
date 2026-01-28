@@ -22,6 +22,7 @@ def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
+
 def _tick_update_position(tick, tickxs, tickys, labelpos):
     """Update tick line and label position and style."""
 
@@ -267,14 +268,14 @@ class Axis(maxis.XAxis):
             return len(text) > 4
 
     def _get_coord_info(self):
-        mins, maxs = np.array([
-            self.axes.get_xbound(),
-            self.axes.get_ybound(),
-            self.axes.get_zbound(),
-        ]).T
+        # Get scaled limits directly from the axes helper
+        xmin, xmax, ymin, ymax, zmin, zmax = self.axes._get_scaled_limits()
+        mins = np.array([xmin, ymin, zmin])
+        maxs = np.array([xmax, ymax, zmax])
 
-        # Project the bounds along the current position of the cube:
-        bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
+        # Get data-space bounds for _transformed_cube
+        bounds = (*self.axes.get_xbound(), *self.axes.get_ybound(),
+                  *self.axes.get_zbound())
         bounds_proj = self.axes._transformed_cube(bounds)
 
         # Determine which one of the parallel planes are higher up:
@@ -443,6 +444,10 @@ class Axis(maxis.XAxis):
         mins, maxs, tc, highs = self._get_coord_info()
         centers, deltas = self._calc_centers_deltas(maxs, mins)
 
+        # Get the scale transform for this axis to transform tick locations
+        axis = [self.axes.xaxis, self.axes.yaxis, self.axes.zaxis][index]
+        axis_trans = axis.get_transform()
+
         # Draw ticks:
         tickdir = self._get_tickdir(pos)
         tickdelta = deltas[tickdir] if highs[tickdir] else -deltas[tickdir]
@@ -457,10 +462,11 @@ class Axis(maxis.XAxis):
 
         default_label_offset = 8.  # A rough estimate
         points = deltas_per_point * deltas
+        # All coordinates below are in transformed coordinates for proper projection
         for tick in ticks:
             # Get tick line positions
             pos = edgep1.copy()
-            pos[index] = tick.get_loc()
+            pos[index] = axis_trans.transform([tick.get_loc()])[0]
             pos[tickdir] = out_tickdir
             x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
             pos[tickdir] = in_tickdir
@@ -468,7 +474,6 @@ class Axis(maxis.XAxis):
 
             # Get position of label
             labeldeltas = (tick.get_pad() + default_label_offset) * points
-
             pos[tickdir] = edgep1_tickdir
             pos = _move_from_center(pos, centers, labeldeltas, self._axmask())
             lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
@@ -642,10 +647,15 @@ class Axis(maxis.XAxis):
             info = self._axinfo
             index = info["i"]
 
+            # Grid lines use data-space bounds (Line3DCollection applies transforms)
             mins, maxs, tc, highs = self._get_coord_info()
-
-            minmax = np.where(highs, maxs, mins)
-            maxmin = np.where(~highs, maxs, mins)
+            xlim, ylim, zlim = (self.axes.get_xbound(),
+                                self.axes.get_ybound(),
+                                self.axes.get_zbound())
+            data_mins = np.array([xlim[0], ylim[0], zlim[0]])
+            data_maxs = np.array([xlim[1], ylim[1], zlim[1]])
+            minmax = np.where(highs, data_maxs, data_mins)
+            maxmin = np.where(~highs, data_maxs, data_mins)
 
             # Grid points where the planes meet
             xyz0 = np.tile(minmax, (len(ticks), 1))
