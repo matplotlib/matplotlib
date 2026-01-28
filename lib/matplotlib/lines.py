@@ -43,7 +43,6 @@ def _get_dash_pattern(style):
     elif style in ['dashed', 'dashdot', 'dotted']:
         offset = 0
         dashes = tuple(mpl.rcParams[f'lines.{style}_pattern'])
-    #
     elif isinstance(style, tuple):
         if isinstance(style[1], tuple):
             offset, dashes = style
@@ -54,7 +53,6 @@ def _get_dash_pattern(style):
             raise ValueError(f'Unrecognized linestyle: {style!r}')
     else:
         raise ValueError(f'Unrecognized linestyle: {style!r}')
-    
     # normalize offset to be positive and shorter than the dash cycle
     if dashes is not None:
         dsum = sum(dashes)
