@@ -16,11 +16,24 @@ from matplotlib import (
     colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
+from matplotlib.patches import Rectangle
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.transforms import Bbox, Affine2D, Transform, TransformedBbox
 import matplotlib.ticker as mticker
 
 import pytest
+
+
+@pytest.fixture
+def nonaffine_identity():
+    """Non-affine identity transform for compositing with any affine transform"""
+    class NonAffineIdentityTransform(Transform):
+        input_dims = 2
+        output_dims = 2
+
+        def inverted(self):
+            return self
+    return NonAffineIdentityTransform()
 
 
 @image_comparison(['interp_alpha.png'], remove_text=True)
@@ -1677,7 +1690,7 @@ def test__resample_valid_output():
                       np.full(256, 0.9)]).reshape(1, -1)),
     ]
 )
-def test_resample_nonaffine(data, interpolation, expected):
+def test_resample_nonaffine(data, interpolation, expected, nonaffine_identity):
     # Test that both affine and nonaffine transforms resample to the correct answer
 
     # If the array is constant, the tolerance can be tight
@@ -1693,13 +1706,7 @@ def test_resample_nonaffine(data, interpolation, expected):
 
     # Create a nonaffine version of the same transform
     # by compositing with a nonaffine identity transform
-    class NonAffineIdentityTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-
-        def inverted(self):
-            return self
-    nonaffine_transform = NonAffineIdentityTransform() + affine_transform
+    nonaffine_transform = nonaffine_identity + affine_transform
 
     nonaffine_result = np.empty_like(expected)
     mimage.resample(data, nonaffine_result, nonaffine_transform,
@@ -1871,3 +1878,57 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
             (im_rgb, new_array_alpha.reshape((ny, nx, 1))), axis=-1
         ), interpolation_stage=intp_stage
     )
+
+
+@image_comparison(['nn_pixel_alignment.png'])
+def test_nn_pixel_alignment(nonaffine_identity):
+    fig, axs = plt.subplots(2, 3)
+
+    N = [3, 7, 11]
+
+    for j in range(3):
+        # In each column, the plots use the same data array
+        data = np.arange(N[j]**2).reshape((N[j], N[j])) % 4
+        seps = np.arange(-0.5, N[j])
+
+        for i in range(2):
+            if i == 0:
+                # Top row uses an affine transform
+                axs[i, j].imshow(data, cmap='Grays', interpolation='nearest')
+            else:
+                # Bottom row uses a non-affine transform
+                axs[i, j].imshow(data, cmap='Grays', interpolation='nearest',
+                                 transform=nonaffine_identity + axs[i, j].transData)
+
+            axs[i, j].set_axis_off()
+            axs[i, j].vlines(seps, -1, N[j], lw=0.5, color='red', ls='dashed')
+            axs[i, j].hlines(seps, -1, N[j], lw=0.5, color='red', ls='dashed')
+
+
+@image_comparison(['image_bounds_handling.png'], tol=0.006)
+def test_image_bounds_handling(nonaffine_identity):
+    fig, axs = plt.subplots(2, 3)
+
+    N = 11
+
+    interpolation = ['nearest', 'hanning', 'bilinear']
+
+    for j in range(3):
+        data = np.arange(N**2).reshape((N, N))
+        data = data / N**2 + (data % 4) / 6
+        rotation = Affine2D().rotate_around(N/2-0.5, N/2-0.5, 1)
+
+        for i in range(2):
+            transform = rotation + axs[i, j].transData
+            if i == 1:
+                # Bottom row uses a non-affine transform
+                transform = nonaffine_identity + transform
+
+            axs[i, j].imshow(data, cmap='Grays', interpolation=interpolation[j],
+                             transform=transform)
+
+            axs[i, j].set_axis_off()
+            box = Rectangle((-0.5, -0.5), N, N,
+                            edgecolor='red', facecolor='none', lw=0.5, ls='dashed',
+                            transform=rotation + axs[i, j].transData)
+            axs[i, j].add_artist(box)
