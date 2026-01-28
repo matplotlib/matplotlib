@@ -15,11 +15,12 @@ from contextlib import contextmanager
 
 from matplotlib import (
     _api, artist, cbook, colors as mcolors, lines, text as mtext,
-    path as mpath, rcParams)
+    path as mpath, rcParams, colorizer as mcolorizer)
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.patches import Patch
 from . import proj3d
+import collections
 
 
 def _norm_angle(a):
@@ -1206,22 +1207,26 @@ class Poly3DCollection(PolyCollection):
         and _edgecolors properties.
         """
         if shade:
-            normals = _generate_normals(verts)
+            self.shaded = True
+            self.normals = _generate_normals(verts)
+            self.lightsource = lightsource
             facecolors = kwargs.get('facecolors', None)
             if facecolors is not None:
                 kwargs['facecolors'] = _shade_colors(
-                    facecolors, normals, lightsource
+                    facecolors, self.normals, self.lightsource
                 )
 
             edgecolors = kwargs.get('edgecolors', None)
             if edgecolors is not None:
                 kwargs['edgecolors'] = _shade_colors(
-                    edgecolors, normals, lightsource
+                    edgecolors, self.normals, self.lightsource
                 )
             if facecolors is None and edgecolors is None:
                 raise ValueError(
                     "You must provide facecolors, edgecolors, or both for "
                     "shade to work.")
+        else:
+            self.shaded = False
         super().__init__(verts, *args, **kwargs)
         if isinstance(verts, np.ndarray):
             if verts.ndim != 3:
@@ -1232,6 +1237,37 @@ class Poly3DCollection(PolyCollection):
         self.set_zsort(zsort)
         self._codes3d = None
         self._axlim_clip = axlim_clip
+
+    def update_scalarmappable(self):
+        """
+        Update colors from the scalar mappable array, if any.
+
+        This overrides `Collection.update_scalarmappable()`.
+        This function differs in the following way:
+        1. This function only sets facecolors, never edgecolors
+        2. This function applies shading.
+        3. self._A is assumed to have the correct shape
+        """
+        if not self._set_mappable_flags():
+            return
+        # Allow possibility to call 'self.set_array(None)'.
+        if self._A is not None:
+            if np.iterable(self._alpha):
+                if self._alpha.size != self._A.size:
+                    raise ValueError(
+                        f'Data array shape, {self._A.shape} '
+                        'is incompatible with alpha array shape, '
+                        f'{self._alpha.shape}. '
+                        )
+                self._alpha = self._alpha.reshape(self._A.shape)
+            self._mapped_colors = self.to_rgba(self._A, self._alpha)
+            if self.shaded:
+                self._mapped_colors = _shade_colors(
+                        self._mapped_colors, self.normals, self.lightsource
+                    )
+
+            self._facecolors = self._mapped_colors
+        self.stale = True
 
     _zsort_functions = {
         'average': np.average,
@@ -1675,3 +1711,70 @@ def _shade_colors(color, normals, lightsource=None):
         colors = np.asanyarray(color).copy()
 
     return colors
+
+
+class VoxelDict(mcolorizer._ColorbarMappable,
+                collections.abc.MutableMapping):
+    """
+    A mapping indexed by coordinate, where ``faces[i, j, k]``
+    is a `.Poly3DCollection` of the faces drawn for the voxel
+    ``filled[i, j, k]``. If no faces were drawn for a given voxel,
+    either because it was not asked to be drawn, or it is fully
+    occluded, then ``(i, j, k) not in faces``.
+
+    This class also supports the functionality required to act as a mappable
+    for a colorbar.
+    """
+
+    def __init__(self, colorizer, axes):
+        """
+        Parameters
+        ----------
+        colorizer : `mpl.colorizer.Colorizer`
+            The colorizer uset to convert data to color.
+
+        axes : `mplot3d.axes3d.Axes3D`
+            The axes the voxels are contained in.
+
+        """
+
+        super().__init__(colorizer)
+        self.axes = axes
+        self._A = None
+        self._mapping = dict()
+
+    def __getitem__(self, key):
+        return self._mapping[key]
+
+    def __setitem__(self, key, val):
+        self._mapping[key] = val
+
+    def __delitem__(self, key):
+        del self._mapping[key]
+
+    def __len__(self):
+        return len(self._mapping)
+
+    def __iter__(self):
+        return reversed(self._mapping)
+
+    def get_array(self):
+        """
+        Return the array of values, that are mapped to colors.
+        """
+        return self._A
+
+    def set_array(self, A):
+        """
+        Set the value array from array-like *A*.
+
+        Parameters
+        ----------
+        A : array-like of length equal to the number of voxels.
+            The values that are mapped to colors.
+
+        """
+
+        self._A = A
+        for a, k in zip(A, self.keys()):
+            self[k].set_array(a)
