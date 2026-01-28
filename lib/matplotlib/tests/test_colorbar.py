@@ -15,6 +15,7 @@ from matplotlib.colors import (
     BoundaryNorm, LogNorm, PowerNorm, Normalize, NoNorm
 )
 from matplotlib.colorbar import Colorbar
+from matplotlib.colorizer import Colorizer, _ColorbarMappable
 from matplotlib.ticker import FixedLocator, LogFormatter, StrMethodFormatter
 from matplotlib.testing.decorators import check_figures_equal
 
@@ -1242,3 +1243,24 @@ def test_colorbar_format_string_and_old():
     plt.imshow([[0, 1]])
     cb = plt.colorbar(format="{x}%")
     assert isinstance(cb._formatter, StrMethodFormatter)
+
+
+def test_ColorbarMappable_as_input():
+    # check that _ColorbarMappable can function as a
+    # valid input for colorbar
+    fig, ax = plt.subplots()
+    norm = Normalize(vmin=-5, vmax=10)
+    cl = Colorizer(norm=norm)
+    cbm = _ColorbarMappable(cl)
+    # test without an axes on the mappable, no kwarg
+    with pytest.raises(ValueError, match='Unable to determine Axes to steal'):
+        cb = fig.colorbar(cbm)
+    # test without an axes on the mappable, with kwarg
+    cb = fig.colorbar(cbm, ax=ax)
+    cb = fig.colorbar(cbm, cax=ax)
+    # test without an axes on the mappable
+    cbm.axes = ax
+    cb = fig.colorbar(cbm)
+    assert cb.mappable is cbm
+    assert cb.vmin == -5
+    assert cb.vmax == 10

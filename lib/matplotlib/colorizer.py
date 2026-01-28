@@ -313,7 +313,7 @@ class Colorizer:
         self.norm.clip = clip
 
 
-class _ColorizerInterface:
+class _ColorbarMappable:
     """
     Base class that contains the interface to `Colorizer` objects from
     a `ColorizingArtist` or `.cm.ScalarMappable`.
@@ -322,8 +322,93 @@ class _ColorizerInterface:
     attribute. Other functions that as shared between `.ColorizingArtist`
     and `.cm.ScalarMappable` are not included.
     """
+
+    def __init__(self, colorizer, **kwargs):
+        """
+        Base class for objects that can connect to a colorbar.
+
+        All classes that can act as a mappable for `.Figure.colorbar`
+        will subclass this class.
+        """
+        super().__init__(**kwargs)
+        self._colorizer = colorizer
+        self.colorbar = None
+        self._id_colorizer = self._colorizer.callbacks.connect('changed', self.changed)
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+        self._axes = None
+        self._A = None
+
+    @property
+    def axes(self):
+        return self._axes
+
+    @axes.setter
+    def axes(self, axes):
+        self._axes = axes
+
+    @property
+    def colorizer(self):
+        return self._colorizer
+
+    @colorizer.setter
+    def colorizer(self, cl):
+        _api.check_isinstance(Colorizer, colorizer=cl)
+        self._colorizer.callbacks.disconnect(self._id_colorizer)
+        self._colorizer = cl
+        self._id_colorizer = cl.callbacks.connect('changed', self.changed)
+
+    def changed(self):
+        """
+        Call this whenever the mappable is changed to notify all the
+        callbackSM listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+        self.stale = True
+
     def _scale_norm(self, norm, vmin, vmax):
         self._colorizer._scale_norm(norm, vmin, vmax, self._A)
+
+    def set_array(self, A):
+        """
+        Set the value array from array-like *A*.
+
+        Parameters
+        ----------
+        A : array-like or None
+            The values that are mapped to colors.
+
+            The base class `.ScalarMappable` does not make any assumptions on
+            the dimensionality and shape of the value array *A*.
+        """
+        if A is None:
+            self._A = None
+            return
+
+        A = _ensure_multivariate_data(A, self.norm.n_components)
+
+        A = cbook.safe_masked_invalid(A, copy=True)
+        if not np.can_cast(A.dtype, float, "same_kind"):
+            if A.dtype.fields is None:
+
+                raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                                f"converted to float")
+            else:
+                for key in A.dtype.fields:
+                    if not np.can_cast(A[key].dtype, float, "same_kind"):
+                        raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                                        f"converted to a sequence of floats")
+        self._A = A
+        if not self.norm.scaled():
+            self._colorizer.autoscale_None(A)
+
+    def get_array(self):
+        """
+        Return the array of values, that are mapped to colors.
+
+        The base class `.ScalarMappable` does not make any assumptions on
+        the dimensionality and shape of the array.
+        """
+        return self._A
 
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
@@ -514,7 +599,7 @@ class _ColorizerInterface:
         return g_sig_digits
 
 
-class _ScalarMappable(_ColorizerInterface):
+class _ScalarMappable(_ColorbarMappable):
     """
     A mixin class to map one or multiple sets of scalar data to RGBA.
 
@@ -527,15 +612,8 @@ class _ScalarMappable(_ColorizerInterface):
     # and ColorizingArtist classes.
 
     # _ScalarMappable can be depreciated so that ColorizingArtist
-    # inherits directly from _ColorizerInterface.
-    # in this case, the following changes should occur:
-    # __init__() has its functionality moved to ColorizingArtist.
-    # set_array(), get_array(), _get_colorizer() and
-    # _check_exclusionary_keywords() are moved to ColorizingArtist.
-    # changed() can be removed so long as colorbar.Colorbar
-    # is changed to connect to the colorizer instead of the
-    # ScalarMappable/ColorizingArtist,
-    # otherwise changed() can be moved to ColorizingArtist.
+    # inherits directly from _ColorbarMappable.
+    # in this case, all functionality should be moved to ColorizingArtist.
     def __init__(self, norm=None, cmap=None, *, colorizer=None, **kwargs):
         """
         Parameters
@@ -550,63 +628,8 @@ class _ScalarMappable(_ColorizerInterface):
         cmap : str or `~matplotlib.colors.Colormap`
             The colormap used to map normalized data values to RGBA colors.
         """
-        super().__init__(**kwargs)
-        self._A = None
-        self._colorizer = self._get_colorizer(colorizer=colorizer, norm=norm, cmap=cmap)
-
-        self.colorbar = None
-        self._id_colorizer = self._colorizer.callbacks.connect('changed', self.changed)
-        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
-
-    def set_array(self, A):
-        """
-        Set the value array from array-like *A*.
-
-        Parameters
-        ----------
-        A : array-like or None
-            The values that are mapped to colors.
-
-            The base class `.ScalarMappable` does not make any assumptions on
-            the dimensionality and shape of the value array *A*.
-        """
-        if A is None:
-            self._A = None
-            return
-
-        A = _ensure_multivariate_data(A, self.norm.n_components)
-
-        A = cbook.safe_masked_invalid(A, copy=True)
-        if not np.can_cast(A.dtype, float, "same_kind"):
-            if A.dtype.fields is None:
-
-                raise TypeError(f"Image data of dtype {A.dtype} cannot be "
-                                f"converted to float")
-            else:
-                for key in A.dtype.fields:
-                    if not np.can_cast(A[key].dtype, float, "same_kind"):
-                        raise TypeError(f"Image data of dtype {A.dtype} cannot be "
-                                        f"converted to a sequence of floats")
-        self._A = A
-        if not self.norm.scaled():
-            self._colorizer.autoscale_None(A)
-
-    def get_array(self):
-        """
-        Return the array of values, that are mapped to colors.
-
-        The base class `.ScalarMappable` does not make any assumptions on
-        the dimensionality and shape of the array.
-        """
-        return self._A
-
-    def changed(self):
-        """
-        Call this whenever the mappable is changed to notify all the
-        callbackSM listeners to the 'changed' signal.
-        """
-        self.callbacks.process('changed', self)
-        self.stale = True
+        colorizer = self._get_colorizer(colorizer=colorizer, norm=norm, cmap=cmap)
+        super().__init__(colorizer, **kwargs)
 
     @staticmethod
     def _check_exclusionary_keywords(colorizer, **kwargs):
@@ -709,17 +732,6 @@ class ColorizingArtist(_ScalarMappable, artist.Artist):
         """
         _api.check_isinstance(Colorizer, colorizer=colorizer)
         super().__init__(colorizer=colorizer, **kwargs)
-
-    @property
-    def colorizer(self):
-        return self._colorizer
-
-    @colorizer.setter
-    def colorizer(self, cl):
-        _api.check_isinstance(Colorizer, colorizer=cl)
-        self._colorizer.callbacks.disconnect(self._id_colorizer)
-        self._colorizer = cl
-        self._id_colorizer = cl.callbacks.connect('changed', self.changed)
 
     def _set_colorizer_check_keywords(self, colorizer, **kwargs):
         """
