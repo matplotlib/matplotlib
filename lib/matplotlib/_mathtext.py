@@ -733,26 +733,6 @@ class DejaVuSansFonts(DejaVuFonts):
     }
 
 
-def _is_digit(codepoint):
-    return 0x30 <= codepoint <= 0x39
-
-
-def _is_latin_uppercase(codepoint):
-    return 0x41 <= codepoint <= 0x5a
-
-
-def _is_latin_lowercase(codepoint):
-    return 0x61 <= codepoint <= 0x7a
-
-
-def _is_greek_uppercase(codepoint):
-    return codepoint in greek_uppercase_domain
-
-
-def _is_greek_lowercase(codepoint):
-    return codepoint in greek_lowercase_domain
-
-
 class UnicodeMathFonts(TruetypeFonts):
     """
     A font handling class for unicode mathematics fonts.
@@ -804,6 +784,21 @@ class UnicodeMathFonts(TruetypeFonts):
 
         # from here on: use the Math font
         new_fontname = 'mathfont'
+
+        def _is_digit(codepoint):
+            return 0x30 <= codepoint <= 0x39
+
+        def _is_latin_uppercase(codepoint):
+            return 0x41 <= codepoint <= 0x5a
+
+        def _is_latin_lowercase(codepoint):
+            return 0x61 <= codepoint <= 0x7a
+
+        def _is_greek_uppercase(codepoint):
+            return codepoint in greek_uppercase_domain
+
+        def _is_greek_lowercase(codepoint):
+            return codepoint in greek_lowercase_domain
 
         # check if character is digit, latin letter, or greek letter
         if _is_digit(uniindex):
