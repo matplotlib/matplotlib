@@ -350,10 +350,12 @@
 ## The following settings allow you to select the fonts in math mode.
 #mathtext.fontset: dejavusans  # Should be 'dejavusans' (default),
                                # 'dejavuserif', 'cm' (Computer Modern), 'stix',
-                               # 'stixsans' or 'custom'
+                               # 'stixsans', 'unicodemath', or 'custom'
 ## "mathtext.fontset: custom" is defined by the mathtext.bf, .cal, .it, ...
 ## settings which map a TeX font name to a fontconfig font pattern.  (These
 ## settings are not used for other font sets.)
+## "mathtext.fontset: unicodemath" is defined by the mathtext.mathfont setting,
+## which accepts a OpenType mathematics font name (for example 'STIX Two Math').
 #mathtext.bf:  sans:bold
 #mathtext.bfit: sans:italic:bold
 #mathtext.cal: cursive
@@ -361,6 +363,7 @@
 #mathtext.rm:  sans
 #mathtext.sf:  sans
 #mathtext.tt:  monospace
+#mathtext.mathfont: STIX Two Math
 #mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'stix'
                         # 'stixsans'] when a symbol cannot be found in one of the
                         # custom math fonts. Select 'None' to not perform fallback
