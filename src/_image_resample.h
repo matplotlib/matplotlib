@@ -708,7 +708,8 @@ void resample(
     using scanline_t = agg::scanline32_u8;
 
     using reflect_t = agg::wrap_mode_reflect;
-    using image_accessor_t = agg::image_accessor_wrap<input_pixfmt_t, reflect_t, reflect_t>;
+    using image_accessor_wrap_t = agg::image_accessor_wrap<input_pixfmt_t, reflect_t, reflect_t>;
+    using image_accessor_clip_t = agg::image_accessor_clip<input_pixfmt_t>;
 
     using span_alloc_t = agg::span_allocator<color_type>;
     using span_conv_alpha_t = span_conv_alpha<color_type>;
@@ -742,7 +743,8 @@ void resample(
     input_buffer.attach(
         (unsigned char *)input, in_width, in_height, in_width * itemsize);
     input_pixfmt_t input_pixfmt(input_buffer);
-    image_accessor_t input_accessor(input_pixfmt);
+    image_accessor_wrap_t input_accessor_wrap(input_pixfmt);
+    image_accessor_clip_t input_accessor_clip(input_pixfmt, color_type::no_color());
 
     agg::rendering_buffer output_buffer;
     output_buffer.attach(
@@ -756,7 +758,7 @@ void resample(
     rasterizer.clip_box(0, 0, out_width, out_height);
 
     agg::path_storage path;
-    if (params.is_affine) {
+    if (params.is_affine && params.interpolation != NEAREST) {
         path.move_to(0, 0);
         path.line_to(in_width, 0);
         path.line_to(in_width, in_height);
@@ -775,22 +777,22 @@ void resample(
 
     if (params.interpolation == NEAREST) {
         if (params.is_affine) {
-            using span_gen_t = typename type_mapping_t::template span_gen_nn_type<image_accessor_t, nn_affine_interpolator_t>;
+            using span_gen_t = typename type_mapping_t::template span_gen_nn_type<image_accessor_clip_t, nn_affine_interpolator_t>;
             using span_conv_t = agg::span_converter<span_gen_t, span_conv_alpha_t>;
             using nn_renderer_t = agg::renderer_scanline_aa<renderer_t, span_alloc_t, span_conv_t>;
             nn_affine_interpolator_t interpolator(inverted);
-            span_gen_t span_gen(input_accessor, interpolator);
+            span_gen_t span_gen(input_accessor_clip, interpolator);
             span_conv_t span_conv(span_gen, conv_alpha);
             nn_renderer_t nn_renderer(renderer, span_alloc, span_conv);
             agg::render_scanlines(rasterizer, scanline, nn_renderer);
         } else {
-            using span_gen_t = typename type_mapping_t::template span_gen_nn_type<image_accessor_t, arbitrary_interpolator_t>;
+            using span_gen_t = typename type_mapping_t::template span_gen_nn_type<image_accessor_clip_t, arbitrary_interpolator_t>;
             using span_conv_t = agg::span_converter<span_gen_t, span_conv_alpha_t>;
             using nn_renderer_t = agg::renderer_scanline_aa<renderer_t, span_alloc_t, span_conv_t>;
             lookup_distortion dist(
                 params.transform_mesh, in_width, in_height, out_width, out_height, true);
             arbitrary_interpolator_t interpolator(inverted, dist);
-            span_gen_t span_gen(input_accessor, interpolator);
+            span_gen_t span_gen(input_accessor_clip, interpolator);
             span_conv_t span_conv(span_gen, conv_alpha);
             nn_renderer_t nn_renderer(renderer, span_alloc, span_conv);
             agg::render_scanlines(rasterizer, scanline, nn_renderer);
@@ -800,22 +802,22 @@ void resample(
         get_filter(params, filter);
 
         if (params.is_affine && params.resample) {
-            using span_gen_t = typename type_mapping_t::template span_gen_affine_type<image_accessor_t>;
+            using span_gen_t = typename type_mapping_t::template span_gen_affine_type<image_accessor_wrap_t>;
             using span_conv_t = agg::span_converter<span_gen_t, span_conv_alpha_t>;
             using int_renderer_t = agg::renderer_scanline_aa<renderer_t, span_alloc_t, span_conv_t>;
             affine_interpolator_t interpolator(inverted);
-            span_gen_t span_gen(input_accessor, interpolator, filter);
+            span_gen_t span_gen(input_accessor_wrap, interpolator, filter);
             span_conv_t span_conv(span_gen, conv_alpha);
             int_renderer_t int_renderer(renderer, span_alloc, span_conv);
             agg::render_scanlines(rasterizer, scanline, int_renderer);
         } else {
-            using span_gen_t = typename type_mapping_t::template span_gen_filter_type<image_accessor_t, arbitrary_interpolator_t>;
+            using span_gen_t = typename type_mapping_t::template span_gen_filter_type<image_accessor_wrap_t, arbitrary_interpolator_t>;
             using span_conv_t = agg::span_converter<span_gen_t, span_conv_alpha_t>;
             using int_renderer_t = agg::renderer_scanline_aa<renderer_t, span_alloc_t, span_conv_t>;
             lookup_distortion dist(
                 params.transform_mesh, in_width, in_height, out_width, out_height, false);
             arbitrary_interpolator_t interpolator(inverted, dist);
-            span_gen_t span_gen(input_accessor, interpolator, filter);
+            span_gen_t span_gen(input_accessor_wrap, interpolator, filter);
             span_conv_t span_conv(span_gen, conv_alpha);
             int_renderer_t int_renderer(renderer, span_alloc, span_conv);
             agg::render_scanlines(rasterizer, scanline, int_renderer);
