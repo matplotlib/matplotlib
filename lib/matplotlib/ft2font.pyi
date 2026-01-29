@@ -70,6 +70,14 @@ class LoadFlags(Flag):
     TARGET_LCD = cast(int, ...)
     TARGET_LCD_V = cast(int, ...)
 
+class RenderMode(Enum):
+    NORMAL = cast(int, ...)
+    LIGHT = cast(int, ...)
+    MONO = cast(int, ...)
+    LCD = cast(int, ...)
+    LCD_V = cast(int, ...)
+    SDF = cast(int, ...)
+
 class StyleFlags(Flag):
     NORMAL = cast(int, ...)
     ITALIC = cast(int, ...)
