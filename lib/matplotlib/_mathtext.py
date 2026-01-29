@@ -31,7 +31,8 @@ from pyparsing import (
 import matplotlib as mpl
 from . import cbook
 from ._mathtext_data import (
-    latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
+    latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni,
+    unicode_math_lut, greek_uppercase_domain, greek_lowercase_domain)
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import FT2Font, Kerning, LoadFlags
 
@@ -738,6 +739,124 @@ class DejaVuSansFonts(DejaVuFonts):
         'ex': 'DejaVu Sans Display',
         0:    'DejaVu Sans',
     }
+
+
+class UnicodeMathFonts(TruetypeFonts):
+    """
+    A font handling class for Unicode mathematics fonts.
+
+    In addition to what TruetypeFonts provides, this class:
+
+    - supports mapping alphanumeric characters (latin and greek) to different alphabet
+      styles (such as bold, italic, fraktur, script, double-struck, ...) defined in
+      the Unicode standard.
+
+    """
+
+    def __init__(self, default_font_prop: FontProperties, load_glyph_flags: LoadFlags):
+        TruetypeFonts.__init__(self, default_font_prop, load_glyph_flags)
+        prop = mpl.rcParams['mathtext.mathfont']  # type: ignore[index]
+        font = findfont(prop)
+        self.fontmap['mathfont'] = font
+
+    _slanted_symbols = set(r"\int \oint".split())
+
+    def _get_font(self, font: str | int) -> FT2Font:
+        # work around, since we only populate 'mathfont' in the fontmap
+        if font not in ('default', 'regular'):
+            font = 'mathfont'
+
+        return super()._get_font(font)
+
+    def _get_glyph(self, fontname: str, font_class: str,
+                   sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
+        # `fontname' is one of rm cal it tt sf bf bfit default bb frak scr regular
+        # font_class is not currently supported
+
+        # 1) map symbol to unicode index
+        try:
+            uniindex = get_unicode_index(sym)
+            found_symbol = True
+        except ValueError:
+            uniindex = ord('?')
+            found_symbol = False
+            _log.warning("No TeX to Unicode mapping for %a.", sym)
+
+        if fontname in ('default', 'regular'):
+            slanted = False
+            font = self._get_font(fontname)
+            return font, uniindex, slanted
+
+        # 2) remap unicode index based on fontname and font_class (bf, it, ...)
+        # Unicode mathematical alphanumeric symbols define all (relevant) variants
+
+        # from here on: use the Math font
+        new_fontname = 'mathfont'
+
+        def _is_digit(codepoint: CharacterCodeType) -> bool:
+            return 0x30 <= codepoint <= 0x39
+
+        def _is_latin_uppercase(codepoint: CharacterCodeType) -> bool:
+            return 0x41 <= codepoint <= 0x5a
+
+        def _is_latin_lowercase(codepoint: CharacterCodeType) -> bool:
+            return 0x61 <= codepoint <= 0x7a
+
+        def _is_greek_uppercase(codepoint: CharacterCodeType) -> bool:
+            return codepoint in greek_uppercase_domain
+
+        def _is_greek_lowercase(codepoint: CharacterCodeType) -> bool:
+            return codepoint in greek_lowercase_domain
+
+        # check if character is digit, latin letter, or greek letter
+        if _is_digit(uniindex):
+            # handle digits
+            _alphabet_map = {
+                'rm': 'up',
+                'it': 'up',  # convention! digits always upright - not handled in Parser
+                'tt': 'tt',
+                'sf': 'sfup',
+                'bf': 'bfup',
+                'bfit': 'bfup',
+                'bb': 'bb',
+            }
+            alphabet = _alphabet_map.get(fontname, 'up')
+            alphabet_lut = unicode_math_lut.get(alphabet, {})
+            new_uniindex = alphabet_lut.get(uniindex, uniindex)
+        elif _is_latin_uppercase(uniindex) or _is_latin_lowercase(uniindex):
+            _alphabet_map = {
+                'rm': 'up',
+                'cal': 'scr',
+                'it': 'it',
+                'tt': 'tt',
+                'sf': 'sfup',
+                'bf': 'bfup',
+                'bfit': 'bfit',
+                'bb': 'bb',
+                'frak': 'frak',
+                'scr': 'scr'
+            }
+            alphabet = _alphabet_map.get(fontname, 'up')
+            alphabet_lut = unicode_math_lut.get(alphabet, {})
+            new_uniindex = alphabet_lut.get(uniindex, uniindex)
+        elif _is_greek_uppercase(uniindex) or _is_greek_lowercase(uniindex):
+            _alphabet_map = {
+                'rm': 'up',
+                'it': 'it',
+                'bf': 'bfup',
+                'bfit': 'bfit',
+            }
+            alphabet = _alphabet_map.get(fontname, 'up')
+            alphabet_lut = unicode_math_lut.get(alphabet, {})
+            new_uniindex = alphabet_lut.get(uniindex, uniindex)
+        else:
+            alphabet = 'up'
+            new_uniindex = uniindex
+
+        slanted = (alphabet == 'it') or sym in self._slanted_symbols
+        font = self._get_font(new_fontname)
+
+        return font, new_uniindex, slanted
 
 
 class StixFonts(UnicodeFonts):
