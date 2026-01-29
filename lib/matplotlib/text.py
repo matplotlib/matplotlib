@@ -2,6 +2,7 @@
 Classes for including text in a figure.
 """
 
+from collections.abc import Sequence
 import functools
 import logging
 import math
@@ -208,6 +209,8 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
+        self._features = None
+        self.set_language(None)
         self._reset_visual_defaults(
             text=text,
             color=color,
@@ -868,6 +871,7 @@ class Text(Artist):
             gc.set_alpha(self.get_alpha())
             gc.set_url(self._url)
             gc.set_antialiased(self._antialiased)
+            gc.set_snap(self.get_snap())
             self._set_gc_clip(gc)
 
             angle = self.get_rotation()
@@ -918,6 +922,12 @@ class Text(Artist):
         .font_manager.FontProperties.get_family
         """
         return self._fontproperties.get_family()
+
+    def get_fontfeatures(self):
+        """
+        Return a tuple of font feature tags to enable.
+        """
+        return self._features
 
     def get_fontname(self):
         """
@@ -1164,6 +1174,39 @@ class Text(Artist):
         .font_manager.FontProperties.set_family
         """
         self._fontproperties.set_family(fontname)
+        self.stale = True
+
+    def set_fontfeatures(self, features):
+        """
+        Set the feature tags to enable on the font.
+
+        Parameters
+        ----------
+        features : list of str, or tuple of str, or None
+            A list of feature tags to be used with the associated font. These strings
+            are eventually passed to HarfBuzz, and so all `string formats supported by
+            hb_feature_from_string()
+            <https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-from-string>`__
+            are supported. Note though that subranges are not explicitly supported and
+            behaviour may change in the future.
+
+            For example, if your desired font includes Stylistic Sets which enable
+            various typographic alternates including one that you do not wish to use
+            (e.g., Contextual Ligatures), then you can pass the following to enable one
+            and not the other::
+
+                fp.set_features([
+                    'ss01',  # Use Stylistic Set 1.
+                    '-clig',  # But disable Contextural Ligatures.
+                ])
+
+            Available font feature tags may be found at
+            https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
+        """
+        _api.check_isinstance((Sequence, None), features=features)
+        if features is not None:
+            features = tuple(features)
+        self._features = features
         self.stale = True
 
     def set_fontvariant(self, variant):
@@ -1493,6 +1536,42 @@ class Text(Artist):
         elif 190 < angle < 260 or 10 < angle < 80:
             return 'baseline' if anchor_at_left else 'top'
         return 'top' if anchor_at_left else 'baseline'
+
+    def get_language(self):
+        """Return the language this Text is in."""
+        return self._language
+
+    def set_language(self, language):
+        """
+        Set the language of the text.
+
+        Parameters
+        ----------
+        language : str or None
+            The language of the text in a format accepted by libraqm, namely `a BCP47
+            language code <https://www.w3.org/International/articles/language-tags/>`_.
+
+            If None, then defaults to :rc:`text.language`.
+        """
+        _api.check_isinstance((Sequence, str, None), language=language)
+        language = mpl._val_or_rc(language, 'text.language')
+
+        if not cbook.is_scalar_or_string(language):
+            language = tuple(language)
+            for val in language:
+                if not isinstance(val, tuple) or len(val) != 3:
+                    raise TypeError('language must be list of tuple, not {language!r}')
+                sublang, start, end = val
+                if not isinstance(sublang, str):
+                    raise TypeError(
+                        'sub-language specification must be str, not {sublang!r}')
+                if not isinstance(start, int):
+                    raise TypeError('start location must be int, not {start!r}')
+                if not isinstance(end, int):
+                    raise TypeError('end location must be int, not {end!r}')
+
+        self._language = language
+        self.stale = True
 
 
 class OffsetFrom:
