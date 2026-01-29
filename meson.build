@@ -34,6 +34,7 @@ project(
 # Enable bug fixes in Agg
 add_project_arguments('-DMPL_FIX_AGG_IMAGE_FILTER_LUT_BUGS', language : 'cpp')
 add_project_arguments('-DMPL_FIX_AGG_INTERPOLATION_ENDPOINT_BUG', language : 'cpp')
+add_project_arguments('-DMPL_FIX_AGG_INTERPOLATION_AFFINE_NN', language : 'cpp')
 
 cc = meson.get_compiler('c')
 cpp = meson.get_compiler('cpp')

@@ -713,6 +713,7 @@ void resample(
     using span_alloc_t = agg::span_allocator<color_type>;
     using span_conv_alpha_t = span_conv_alpha<color_type>;
 
+    using nn_affine_interpolator_t = agg::span_interpolator_linear_double<>;
     using affine_interpolator_t = agg::span_interpolator_linear<>;
     using arbitrary_interpolator_t =
         agg::span_interpolator_adaptor<agg::span_interpolator_linear<>, lookup_distortion>;
@@ -755,7 +756,7 @@ void resample(
     rasterizer.clip_box(0, 0, out_width, out_height);
 
     agg::path_storage path;
-    if (params.is_affine) {
+    if (params.is_affine && params.interpolation != NEAREST) {
         path.move_to(0, 0);
         path.line_to(in_width, 0);
         path.line_to(in_width, in_height);
@@ -774,10 +775,10 @@ void resample(
 
     if (params.interpolation == NEAREST) {
         if (params.is_affine) {
-            using span_gen_t = typename type_mapping_t::template span_gen_nn_type<image_accessor_t, affine_interpolator_t>;
+            using span_gen_t = typename type_mapping_t::template span_gen_nn_type<image_accessor_t, nn_affine_interpolator_t>;
             using span_conv_t = agg::span_converter<span_gen_t, span_conv_alpha_t>;
             using nn_renderer_t = agg::renderer_scanline_aa<renderer_t, span_alloc_t, span_conv_t>;
-            affine_interpolator_t interpolator(inverted);
+            nn_affine_interpolator_t interpolator(inverted);
             span_gen_t span_gen(input_accessor, interpolator);
             span_conv_t span_conv(span_gen, conv_alpha);
             nn_renderer_t nn_renderer(renderer, span_alloc, span_conv);

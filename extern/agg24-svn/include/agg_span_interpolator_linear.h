@@ -109,8 +109,85 @@ namespace agg
     };
 
 
+#ifdef MPL_FIX_AGG_INTERPOLATION_AFFINE_NN
+    //================================================span_interpolator_linear_double
+    template<class Transformer = trans_affine, unsigned SubpixelShift = 8>
+    class span_interpolator_linear_double
+    {
+    public:
+        typedef Transformer trans_type;
 
+        enum subpixel_scale_e
+        {
+            subpixel_shift = SubpixelShift,
+            subpixel_scale  = 1 << subpixel_shift
+        };
 
+        //--------------------------------------------------------------------
+        span_interpolator_linear_double() {}
+        span_interpolator_linear_double(trans_type& trans) : m_trans(&trans) {}
+        span_interpolator_linear_double(trans_type& trans,
+                                 double x, double y, unsigned len) :
+            m_trans(&trans)
+        {
+            begin(x, y, len);
+        }
+
+        //----------------------------------------------------------------
+        const trans_type& transformer() const { return *m_trans; }
+        void transformer(trans_type& trans) { m_trans = &trans; }
+
+        //----------------------------------------------------------------
+        void begin(double x, double y, unsigned len)
+        {
+            m_len = len - 1;
+
+            m_stx1 = x;
+            m_sty1 = y;
+            m_trans->transform(&m_stx1, &m_sty1);
+            m_stx1 *= subpixel_scale;
+            m_sty1 *= subpixel_scale;
+
+            m_stx2 = x + m_len;
+            m_sty2 = y;
+            m_trans->transform(&m_stx2, &m_sty2);
+            m_stx2 *= subpixel_scale;
+            m_sty2 *= subpixel_scale;
+        }
+
+        //----------------------------------------------------------------
+        void resynchronize(double xe, double ye, unsigned len)
+        {
+            m_len = len - 1;
+
+            m_trans->transform(&xe, &ye);
+            m_stx2 = xe * subpixel_scale;
+            m_sty2 = ye * subpixel_scale;
+        }
+
+        //----------------------------------------------------------------
+        void operator++()
+        {
+            m_stx1 += (m_stx2 - m_stx1) / m_len;
+            m_sty1 += (m_sty2 - m_sty1) / m_len;
+            m_len--;
+        }
+
+        //----------------------------------------------------------------
+        void coordinates(int* x, int* y) const
+        {
+            // Truncate instead of round because this interpolator needs to
+	    // match the definitions for nearest-neighbor interpolation
+            *x = int(m_stx1);
+            *y = int(m_sty1);
+        }
+
+    private:
+        trans_type* m_trans;
+        unsigned m_len;
+        double m_stx1, m_sty1, m_stx2, m_sty2;
+    };
+#endif
 
 
     //=====================================span_interpolator_linear_subdiv
