@@ -167,17 +167,12 @@ image_resample(py::array input_array,
 
         if (is_affine) {
             convert_trans_affine(transform, params.affine);
-            // If affine parameters will make subpixels visible, treat as nonaffine instead
-            if (params.affine.sx >= agg::image_subpixel_scale / 2 || params.affine.sy >= agg::image_subpixel_scale / 2) {
-                is_affine = false;
-                params.affine = agg::trans_affine();  // reset to identity affine parameters
-            }
-        }
-        if (!is_affine) {
+            params.is_affine = is_affine;
+        } else {
             transform_mesh = _get_transform_mesh(transform, output_array.shape());
             params.transform_mesh = transform_mesh.data();
+            params.is_affine = false;
         }
-        params.is_affine = is_affine;
     }
 
     if (auto resampler =
