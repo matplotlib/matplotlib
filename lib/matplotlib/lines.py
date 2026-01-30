@@ -1329,20 +1329,36 @@ class Line2D(Artist):
         """
         Set the dash sequence.
 
-        The dash sequence is a sequence of floats of even length describing
-        the length of dashes and spaces in points.
+        This method accepts several forms of dash specifications and forwards
+        them to `~.Line2D.set_linestyle` as appropriate.
 
-        For example, (5, 2, 1, 2) describes a sequence of 5 point and 1 point
-        dashes separated by 2 point spaces.
+        If `seq` is a string, it is interpreted as a standard linestyle
+        specification and passed directly to `~.Line2D.set_linestyle`.
+
+        If `seq` is a sequence of floats of even length, it describes the
+        lengths of dashes and spaces in points. For example, ``(5, 2, 1, 2)``
+        corresponds to a 5-point dash, 2-point space, 1-point dash, and
+        2-point space.
+
+        If `seq` is a tuple whose second element is a sequence, it is
+        interpreted as a full dash specification of the form
+        ``(offset, (on_off_ink))``. Otherwise, a tuple is treated as a raw dash
+        sequence and wrapped as ``(0, seq)``.
 
         See also `~.Line2D.set_gapcolor`, which allows those spaces to be
         filled with a color.
 
         Parameters
         ----------
-        seq : sequence of floats (on/off ink in points) or (None, None)
-            If *seq* is empty or ``(None, None)``, the linestyle will be set
-            to solid.
+        seq : sequence of floats, tuple, or str
+            The dash specification. May be:
+
+            - A sequence of floats (on/off ink in points).
+            - A tuple ``(offset, (on_off_ink))``.
+            - A raw tuple of floats, which is wrapped as ``(0, seq)``.
+            - A string linestyle specification.
+            - An empty sequence or ``(None, None)``, which results in a solid
+            linestyle.
         """
         if seq == (None, None) or len(seq) == 0:
             self.set_linestyle('-')
