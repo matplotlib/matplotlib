@@ -54,7 +54,6 @@ def _get_dash_pattern(style):
     else:
         raise ValueError(f'Unrecognized linestyle: {style!r}')
     # normalize offset to be positive and shorter than the dash cycle
-    print(style, offset, dashes)
     if dashes is not None:
         dsum = sum(dashes)
         if dsum:
@@ -1340,7 +1339,7 @@ class Line2D(Artist):
         corresponds to a 5-point dash, 2-point space, 1-point dash, and
         2-point space.
 
-        If `seq` is a tuple whose second element is a sequence, it is
+        If `seq` is a tuple whose second element is a sequenceg, it is
         interpreted as a full dash specification of the form
         ``(offset, (on_off_ink))``. Otherwise, a tuple is treated as a raw dash
         sequence and wrapped as ``(0, seq)``.
