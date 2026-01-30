@@ -1055,21 +1055,24 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-        l, b, r, t = self.axes.bbox.extents
-        width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
-        height = int(((round(t) + 0.5) - (round(b) - 0.5)) * magnification)
+        magnified_extents = (self.axes.bbox.extents * magnification + 0.5).astype(int)
+        l, b, r, t = magnified_extents / magnification
+        width = int((r - l) * magnification)
+        height = int((t - b) * magnification)
 
         invertedTransform = self.axes.transData.inverted()
-        x_pix = invertedTransform.transform(
-            [(x, b) for x in np.linspace(l, r, width)])[:, 0]
-        y_pix = invertedTransform.transform(
-            [(l, y) for y in np.linspace(b, t, height)])[:, 1]
+        x_pix_edges = invertedTransform.transform(
+            [(x, b) for x in np.linspace(l, r, width + 1)])[:, 0]
+        y_pix_edges = invertedTransform.transform(
+            [(l, y) for y in np.linspace(b, t, height + 1)])[:, 1]
+        x_pix_centers = (x_pix_edges[:-1] + x_pix_edges[1:]) / 2
+        y_pix_centers = (y_pix_edges[:-1] + y_pix_edges[1:]) / 2
 
         if self._interpolation == "nearest":
             x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
             y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
-            x_int = x_mid.searchsorted(x_pix)
-            y_int = y_mid.searchsorted(y_pix)
+            x_int = x_mid.searchsorted(x_pix_centers)
+            y_int = y_mid.searchsorted(y_pix_centers)
             # The following is equal to `A[y_int[:, None], x_int[None, :]]`,
             # but many times faster.  Both casting to uint32 (to have an
             # effectively 1D array) and manual index flattening matter.
@@ -1080,16 +1083,16 @@ class NonUniformImage(AxesImage):
         else:  # self._interpolation == "bilinear"
             # Use np.interp to compute x_int/x_float has similar speed.
             x_int = np.clip(
-                self._Ax.searchsorted(x_pix) - 1, 0, len(self._Ax) - 2)
+                self._Ax.searchsorted(x_pix_centers) - 1, 0, len(self._Ax) - 2)
             y_int = np.clip(
-                self._Ay.searchsorted(y_pix) - 1, 0, len(self._Ay) - 2)
+                self._Ay.searchsorted(y_pix_centers) - 1, 0, len(self._Ay) - 2)
             idx_int = np.add.outer(y_int * A.shape[1], x_int)
             x_frac = np.clip(
-                np.divide(x_pix - self._Ax[x_int], np.diff(self._Ax)[x_int],
+                np.divide(x_pix_centers - self._Ax[x_int], np.diff(self._Ax)[x_int],
                           dtype=np.float32),  # Downcasting helps with speed.
                 0, 1)
             y_frac = np.clip(
-                np.divide(y_pix - self._Ay[y_int], np.diff(self._Ay)[y_int],
+                np.divide(y_pix_centers - self._Ay[y_int], np.diff(self._Ay)[y_int],
                           dtype=np.float32),
                 0, 1)
             f00 = np.outer(1 - y_frac, 1 - x_frac)
@@ -1242,22 +1245,24 @@ class PcolorImage(AxesImage):
         if (padded_A[0, 0] != bg).all():
             padded_A[[0, -1], :] = padded_A[:, [0, -1]] = bg
 
-        l, b, r, t = self.axes.bbox.extents
-        width = (round(r) + 0.5) - (round(l) - 0.5)
-        height = (round(t) + 0.5) - (round(b) - 0.5)
-        width = round(width * magnification)
-        height = round(height * magnification)
+        # Round to the nearest output pixels after magnification
+        l, b, r, t = (self.axes.bbox.extents * magnification + 0.5).astype(int)
+        width = r - l
+        height = t - b
+
         vl = self.axes.viewLim
 
-        x_pix = np.linspace(vl.x0, vl.x1, width)
-        y_pix = np.linspace(vl.y0, vl.y1, height)
-        x_int = self._Ax.searchsorted(x_pix)
-        y_int = self._Ay.searchsorted(y_pix)
+        x_pix_edges = np.linspace(vl.x0, vl.x1, width + 1)
+        y_pix_edges = np.linspace(vl.y0, vl.y1, height + 1)
+        x_pix_centers = (x_pix_edges[:-1] + x_pix_edges[1:]) / 2
+        y_pix_centers = (y_pix_edges[:-1] + y_pix_edges[1:]) / 2
+        x_int = self._Ax.searchsorted(x_pix_centers)
+        y_int = self._Ay.searchsorted(y_pix_centers)
         im = (  # See comment in NonUniformImage.make_image re: performance.
             padded_A.view(np.uint32).ravel()[
                 np.add.outer(y_int * padded_A.shape[1], x_int)]
             .view(np.uint8).reshape((height, width, 4)))
-        return im, l, b, IdentityTransform()
+        return im, l / magnification, b / magnification, IdentityTransform()
 
     def _check_unsampled_image(self):
         return False
