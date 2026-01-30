@@ -32,7 +32,6 @@ _log = logging.getLogger(__name__)
 
 def _get_dash_pattern(style):
     """Convert linestyle to dash pattern."""
-    print(style)
     # go from short hand -> full strings
     if isinstance(style, str):
         style = ls_mapper.get(style, style)
@@ -45,7 +44,7 @@ def _get_dash_pattern(style):
         offset = 0
         dashes = tuple(mpl.rcParams[f'lines.{style}_pattern'])
     elif isinstance(style, tuple):
-        if isinstance(style[1], tuple) or style[1] is None:
+        if isinstance(style[1], (tuple,list)) or style[1] is None:
             offset, dashes = style
         else:
             offset = 0
@@ -55,6 +54,7 @@ def _get_dash_pattern(style):
     else:
         raise ValueError(f'Unrecognized linestyle: {style!r}')
     # normalize offset to be positive and shorter than the dash cycle
+    print(style, offset, dashes)
     if dashes is not None:
         dsum = sum(dashes)
         if dsum:
