@@ -1263,8 +1263,9 @@ PyFT2Font_get_sfnt_table(PyFT2Font *self, std::string tagname)
     }
     case FT_SFNT_OS2: {
         auto t = static_cast<TT_OS2 *>(table);
-        return py::dict(
-            "version"_a=t->version,
+        auto version = t->version;
+        auto result = py::dict(
+            "version"_a=version,
             "xAvgCharWidth"_a=t->xAvgCharWidth,
             "usWeightClass"_a=t->usWeightClass,
             "usWidthClass"_a=t->usWidthClass,
@@ -1287,6 +1288,22 @@ PyFT2Font_get_sfnt_table(PyFT2Font *self, std::string tagname)
             "fsSelection"_a=t->fsSelection,
             "fsFirstCharIndex"_a=t->usFirstCharIndex,
             "fsLastCharIndex"_a=t->usLastCharIndex);
+        if (version >= 1) {
+            result["ulCodePageRange"] = py::make_tuple(t->ulCodePageRange1,
+                                                       t->ulCodePageRange2);
+        }
+        if (version >= 2) {
+            result["sxHeight"] = t->sxHeight;
+            result["sCapHeight"] = t->sCapHeight;
+            result["usDefaultChar"] = t->usDefaultChar;
+            result["usBreakChar"] = t->usBreakChar;
+            result["usMaxContext"] = t->usMaxContext;
+        }
+        if (version >= 5) {
+            result["usLowerOpticalPointSize"] = t->usLowerOpticalPointSize;
+            result["usUpperOpticalPointSize"] = t->usUpperOpticalPointSize;
+        }
+        return result;
     }
     case FT_SFNT_HHEA: {
         auto t = static_cast<TT_HoriHeader *>(table);

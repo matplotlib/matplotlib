@@ -590,6 +590,7 @@ _expected_sfnt_tables = {
             'ulCharRange': (3875565311, 3523280383, 170156073, 67117068),
             'achVendID': b'PfEd',
             'fsSelection': 64, 'fsFirstCharIndex': 32, 'fsLastCharIndex': 65535,
+            'ulCodePageRange': (1610613247, 3758030848),
         },
         'hhea': {
             'version': (1, 0),
@@ -736,6 +737,12 @@ _expected_sfnt_tables = {
             'ulCharRange': (3, 192, 0, 0),
             'achVendID': b'STIX',
             'fsSelection': 32, 'fsFirstCharIndex': 32, 'fsLastCharIndex': 10217,
+            'ulCodePageRange': (2688417793, 2432565248),
+            'sxHeight': 0,
+            'sCapHeight': 0,
+            'usDefaultChar': 0,
+            'usBreakChar': 32,
+            'usMaxContext': 1,
         },
         'hhea': {
             'version': (1, 0),
