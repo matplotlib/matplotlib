@@ -1932,3 +1932,61 @@ def test_image_bounds_handling(nonaffine_identity):
                             edgecolor='red', facecolor='none', lw=0.5, ls='dashed',
                             transform=rotation + axs[i, j].transData)
             axs[i, j].add_artist(box)
+
+
+@image_comparison(['rgba_clean_edges.png'], tol=0.003)
+def test_rgba_clean_edges():
+    np.random.seed(19680801+9)  # same as in test_upsampling()
+    data = np.random.rand(8, 8)
+    data = np.stack([data, data])
+    data[1, 2:4, 2:4] = np.nan
+
+    rotation = Affine2D().rotate_around(3.5, 3.5, 1)
+
+    fig, axs = plt.subplots(1, 2)
+
+    for i in range(2):
+        # Add background patches to check the fading to non-white colors
+        black = Rectangle((3.75, 2), 5, 5, color='black', zorder=0)
+        gray = Rectangle((0, -2), 3.75, 4, color='gray', zorder=0)
+        partly_black = Rectangle((3.75, -2), 5, 4, fc='black', ec='none',
+                                 alpha=0.5, zorder=0)
+        axs[i].add_patch(black)
+        axs[i].add_patch(gray)
+        axs[i].add_patch(partly_black)
+
+        axs[i].imshow(data[i, ...],
+                      interpolation='bilinear', interpolation_stage='rgba',
+                      transform=rotation + axs[i].transData)
+
+        axs[i].set_axis_off()
+        axs[i].set_xlim(-2.5, 9.5)
+        axs[i].set_ylim(-2.5, 9.5)
+
+
+@image_comparison(['affine_fill_to_edges.png'])
+def test_affine_fill_to_edges():
+    # The two rows show the two settings of origin
+    # The three columns show the original and the two mirror flips
+    fig, axs = plt.subplots(2, 3)
+
+    N = 7
+    data = np.arange(N**2).reshape((N, N)) % 3
+
+    transform = [Affine2D(),
+                 Affine2D().translate(0, -N + 1).scale(1, -1),
+                 Affine2D().translate(-N + 1, 0).scale(-1, 1)]
+
+    for j in range(3):
+        for i in range(2):
+            origin = 'upper' if i == 0 else 'lower'
+
+            axs[i, j].imshow(data, cmap='Grays',
+                             interpolation='hanning', origin=origin,
+                             transform=transform[j] + axs[i, j].transData)
+
+            axs[i, j].set_axis_off()
+            axs[i, j].vlines([-0.5, N - 0.5], -1, 2, lw=0.5, color='red')
+            axs[i, j].vlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')
+            axs[i, j].hlines([-0.5, N - 0.5], -1, 2, lw=0.5, color='red')
+            axs[i, j].hlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')
