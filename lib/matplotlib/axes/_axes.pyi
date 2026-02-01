@@ -134,7 +134,7 @@ class Axes(_AxesBase):
       self,
       text: str,
       xy: tuple[Any, Any] | Any,
-      xytext: tuple[Any, Any] | Any | None = ...,
+      xytext: tuple[Any, Any] | Any | None = None,
       xycoords: CoordsType = ...,
       textcoords: CoordsType | None = ...,
       arrowprops: dict[str, Any] | None = ...,
