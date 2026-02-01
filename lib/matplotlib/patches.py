@@ -450,6 +450,8 @@ class Patch(artist.Artist):
         """
         Return the edge gap color.
 
+        .. versionadded:: 3.11
+
         See also `~.Patch.set_edgegapcolor`.
         """
         return self._gapcolor
@@ -457,6 +459,8 @@ class Patch(artist.Artist):
     def set_edgegapcolor(self, edgegapcolor):
         """
         Set a color to fill the gaps in the dashed edge style.
+
+        .. versionadded:: 3.11
 
         .. note::
 
