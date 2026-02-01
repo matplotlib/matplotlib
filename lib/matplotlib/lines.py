@@ -1331,15 +1331,15 @@ class Line2D(Artist):
         This method accepts several forms of dash specifications and forwards
         them to `~.Line2D.set_linestyle` as appropriate.
 
-        If `seq` is a string, it is interpreted as a standard linestyle
+        If a string is passed, it is interpreted as a standard linestyle
         specification and passed directly to `~.Line2D.set_linestyle`.
 
-        If `seq` is a sequence of floats of even length, it describes the
+        If a sequence of floats of even length is passed, it describes the
         lengths of dashes and spaces in points. For example, ``(5, 2, 1, 2)``
         corresponds to a 5-point dash, 2-point space, 1-point dash, and
         2-point space.
 
-        If `seq` is a tuple whose second element is a sequenceg, it is
+        If a tuple is passed, whose second element is a sequence, it is
         interpreted as a full dash specification of the form
         ``(offset, (on_off_ink))``. Otherwise, a tuple is treated as a raw dash
         sequence and wrapped as ``(0, seq)``.
