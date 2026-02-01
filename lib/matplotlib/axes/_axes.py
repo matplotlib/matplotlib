@@ -4,7 +4,7 @@ import logging
 import math
 import datetime
 from numbers import Integral, Number, Real
-
+from typing import any
 import re
 import numpy as np
 
@@ -41,7 +41,7 @@ from matplotlib.container import (
     BarContainer, ErrorbarContainer, PieContainer, StemContainer)
 from matplotlib.text import Text
 from matplotlib.transforms import _ScaledRotation
-from typing import any
+
 _log = logging.getLogger(__name__)
 
 
