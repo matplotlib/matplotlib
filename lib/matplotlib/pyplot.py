@@ -166,6 +166,7 @@ from matplotlib.text import Text, Annotation
 from matplotlib.patches import Arrow, Circle, Rectangle  # noqa: F401
 from matplotlib.patches import Polygon
 from matplotlib.widgets import Button, Slider, Widget  # noqa: F401
+from matplotlib.overlay_manager import OverlayCoordinator, LayerSpec
 
 from .ticker import (  # noqa: F401
     TickHelper, Formatter, FixedFormatter, NullFormatter, FuncFormatter,
@@ -2853,6 +2854,35 @@ if rcParams["backend_fallback"]:
         and cbook._get_running_interactive_framework()
     ):
         rcParams._set("backend", rcsetup._auto_backend_sentinel)
+
+
+
+def overlay(layers: list[LayerSpec], ax: Axes | None = None) -> OverlayCoordinator:
+    """
+    Manage an overlay plot with multiple layers, automatic z-order, and unified legend.
+
+    Parameters
+    ----------
+    layers : list of LayerSpec
+        The layers to overlap. Each LayerSpec defines the method, data, kwargs, and target axis.
+    ax : Axes, optional
+        The primary axis to plot on. If None, uses plt.gca().
+
+    Returns
+    -------
+    OverlayCoordinator
+        The coordinator instance managing the overlay.
+    """
+    if ax is None:
+        ax = gca()
+    
+    coordinator = OverlayCoordinator(ax=ax)
+    for layer in layers:
+        coordinator.add_layer(layer)
+    
+    coordinator.finalize()
+    return coordinator
+
 
 # fmt: on
 
