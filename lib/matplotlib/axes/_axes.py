@@ -41,7 +41,7 @@ from matplotlib.container import (
     BarContainer, ErrorbarContainer, PieContainer, StemContainer)
 from matplotlib.text import Text
 from matplotlib.transforms import _ScaledRotation
-
+from typing import any
 _log = logging.getLogger(__name__)
 
 
@@ -729,7 +729,7 @@ class Axes(_AxesBase):
         return t
 
     @_docstring.interpd
-    def annotate(self, text, xy, xytext=None, xycoords='data', textcoords=None,
+    def annotate(self, text: str , xy:Any, xytext=None, xycoords='data', textcoords=None,
                  arrowprops=None, annotation_clip=None, **kwargs):
         # Signature must match Annotation. This is verified in
         # test_annotate_signature().
