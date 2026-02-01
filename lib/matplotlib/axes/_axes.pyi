@@ -1,3 +1,4 @@
+from typing import Any
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
@@ -131,15 +132,15 @@ class Axes(_AxesBase):
         **kwargs
     ) -> Text: ...
     def annotate(
-        self,
-        text: str,
-        xy: tuple[float, float],
-        xytext: tuple[float, float] | None = ...,
-        xycoords: CoordsType = ...,
-        textcoords: CoordsType | None = ...,
-        arrowprops: dict[str, Any] | None = ...,
-        annotation_clip: bool | None = ...,
-        **kwargs
+      self,
+      text: str,
+      xy: tuple[Any, Any] | Any,
+      xytext: tuple[Any, Any] | Any | None = ...,
+      xycoords: CoordsType = ...,
+      textcoords: CoordsType | None = ...,
+      arrowprops: dict[str, Any] | None = ...,
+      annotation_clip: bool | None = ...,
+      **kwargs
     ) -> Annotation: ...
     def axhline(
         self, y: float = ..., xmin: float = ..., xmax: float = ..., **kwargs
