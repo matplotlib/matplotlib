@@ -1,4 +1,3 @@
-from typing import Any
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._secondary_axes import SecondaryAxis
 
