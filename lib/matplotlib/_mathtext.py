@@ -1453,7 +1453,7 @@ class Rule(Box):
 
     def render(self, output: Output,  # type: ignore[override]
                x: float, y: float, w: float, h: float) -> None:
-        self.fontset.render_rect_filled(output, x, y, w, h)
+        self.fontset.render_rect_filled(output, x, y - h, w, h)
 
 
 class Hrule(Rule):
@@ -2699,12 +2699,11 @@ class Parser:
             delta = rule / 2
             num_clr = max((num_shift_up - cnum.depth) - (axis_height + delta), clr)
             den_clr = max((axis_height - delta) - (cden.height - den_shift_down), clr)
-            # Possible bug in fraction rendering. See GitHub PR 22852 comments.
-            vlist = Vlist([cnum,                     # numerator
-                           Vbox(0, num_clr - rule),  # space
-                           Hrule(state, rule),       # rule
-                           Vbox(0, den_clr + rule),  # space
-                           cden                      # denominator
+            vlist = Vlist([cnum,                # numerator
+                           Vbox(0, num_clr),    # space
+                           Hrule(state, rule),  # rule
+                           Vbox(0, den_clr),    # space
+                           cden                 # denominator
                            ])
             vlist.shift_amount = cden.height + den_clr + delta - axis_height
 
