@@ -1496,9 +1496,8 @@ levels : int or array-like, optional
     The values must be in increasing order.
 
     If not specified, a reasonable default is automatically chosen. For
-    linear scales, this corresponds to *n=7* (using `~.ticker.MaxNLocator`
-    with *nbins=8*), producing up to 9 "nice" contour boundaries. For
-    logarithmic scales, `~matplotlib.ticker.LogLocator` is used instead.
+    linear scales, this corresponds to *levels=7*. For logarithmic
+    scales, `~matplotlib.ticker.LogLocator` is used instead.
 
 Returns
 -------
