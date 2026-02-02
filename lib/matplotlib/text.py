@@ -852,67 +852,65 @@ class Text(Artist):
 
         renderer.open_group('text', self.get_gid())
 
-        with self._cm_set(text=self._get_wrapped_text()):
-            bbox, info = self._get_layout(renderer)
-            trans = self.get_transform()
+        bbox, info = self._get_layout(renderer)
+        trans = self.get_transform()
 
-            # don't use self.get_position here, which refers to text
-            # position in Text:
-            x, y = self._x, self._y
-            if np.ma.is_masked(x):
-                x = np.nan
-            if np.ma.is_masked(y):
-                y = np.nan
-            posx = float(self.convert_xunits(x))
-            posy = float(self.convert_yunits(y))
-            posx, posy = trans.transform((posx, posy))
-            if np.isnan(posx) or np.isnan(posy):
-                return  # don't throw a warning here
-            if not np.isfinite(posx) or not np.isfinite(posy):
-                _log.warning("posx and posy should be finite values")
-                return
-            canvasw, canvash = renderer.get_canvas_width_height()
+        # don't use self.get_position here, which refers to text
+        # position in Text:
+        x, y = self._x, self._y
+        if np.ma.is_masked(x):
+            x = np.nan
+        if np.ma.is_masked(y):
+            y = np.nan
+        posx = float(self.convert_xunits(x))
+        posy = float(self.convert_yunits(y))
+        posx, posy = trans.transform((posx, posy))
+        if np.isnan(posx) or np.isnan(posy):
+            return  # don't throw a warning here
+        if not np.isfinite(posx) or not np.isfinite(posy):
+            _log.warning("posx and posy should be finite values")
+            return
+        canvasw, canvash = renderer.get_canvas_width_height()
 
-            # Update the location and size of the bbox
-            # (`.patches.FancyBboxPatch`), and draw it.
-            if self._bbox_patch:
-                self.update_bbox_position_size(renderer)
-                self._bbox_patch.draw(renderer)
+        # Update the location and size of the bbox
+        # (`.patches.FancyBboxPatch`), and draw it.
+        if self._bbox_patch:
+            self.update_bbox_position_size(renderer)
+            self._bbox_patch.draw(renderer)
 
-            gc = renderer.new_gc()
-            gc.set_foreground(self.get_color())
-            gc.set_alpha(self.get_alpha())
-            gc.set_url(self._url)
-            gc.set_antialiased(self._antialiased)
-            gc.set_snap(self.get_snap())
-            self._set_gc_clip(gc)
+        gc = renderer.new_gc()
+        gc.set_foreground(mcolors.to_rgba(self.get_color()), isRGBA=True)
+        gc.set_alpha(self.get_alpha())
+        gc.set_url(self._url)
+        gc.set_antialiased(self._antialiased)
+        gc.set_snap(self.get_snap())
+        self._set_gc_clip(gc)
 
-            angle = self.get_rotation()
+        angle = self.get_rotation()
 
-            for line, wad, (x, y) in info:
+        for line, wad, (x, y) in info:
 
-                mtext = self if len(info) == 1 else None
-                x = x + posx
-                y = y + posy
-                if renderer.flipy():
-                    y = canvash - y
-                clean_line, ismath = self._preprocess_math(line)
+            mtext = self if len(info) == 1 else None
+            x = x + posx
+            y = y + posy
+            if renderer.flipy():
+                y = canvash - y
+            clean_line, ismath = self._preprocess_math(line)
 
-                if self.get_path_effects():
-                    from matplotlib.patheffects import PathEffectRenderer
-                    textrenderer = PathEffectRenderer(
-                        self.get_path_effects(), renderer)
-                else:
-                    textrenderer = renderer
+            if self.get_path_effects():
+                from matplotlib.patheffects import PathEffectRenderer
+                textrenderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            else:
+                textrenderer = renderer
 
-                if self.get_usetex():
-                    textrenderer.draw_tex(gc, x, y, clean_line,
-                                          self._fontproperties, angle,
-                                          mtext=mtext)
-                else:
-                    textrenderer.draw_text(gc, x, y, clean_line,
-                                           self._fontproperties, angle,
-                                           ismath=ismath, mtext=mtext)
+            if self.get_usetex():
+                textrenderer.draw_tex(gc, x, y, clean_line,
+                                      self._fontproperties, angle,
+                                      mtext=mtext)
+            else:
+                textrenderer.draw_text(gc, x, y, clean_line,
+                                       self._fontproperties, angle,
+                                       ismath=ismath, mtext=mtext)
 
         gc.restore()
         renderer.close_group('text')
