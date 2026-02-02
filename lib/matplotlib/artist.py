@@ -1243,9 +1243,9 @@ Supported properties are
     def update(self, props):
         """
         [*Discouraged*] Update this artist's properties from the dictionary *props*.
-        
+
         .. admonition:: Discouraged
-        
+
             This method exists for historic reasons. Please use `.Artist.set` instead.
             ``artist.update(props)`` is nowadays almost identical to
             ``artist.set(**props)`` with the only difference that ``set`` will
