@@ -169,6 +169,7 @@ class Artist:
 Set multiple properties at once.
 
 ::
+
     a.set(a=A, b=B, c=C)
 
 is equivalent to ::
@@ -177,8 +178,13 @@ is equivalent to ::
     a.set_b(B)
     a.set_c(C)
 
-The order of operations is not guaranteed, however most properties do not
-depend on each other.
+In addition to the full property names, aliases are also supported, e.g.
+``set(lw=2)`` is equivalent to ``set(linewidth=2)``, but it is an error
+to pass both simultaneously.
+
+The order of the individual setter calls matches the order of parameters
+in ``set()``. However, most properties do not depend on each other so
+that order is rarely relevant.
 
 Supported properties are
 
