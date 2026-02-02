@@ -375,6 +375,22 @@ Supported properties are
         """
         return Bbox([[0, 0], [0, 0]])
 
+    def _in_axes_domain(self, x, y):
+        """
+        Check if the data point (x, y) is within the valid domain of the axes
+        scales.
+
+        Returns True if no axes or if the point is in the valid domain.
+        """
+        ax = self.axes
+        if ax is None:
+            return True
+        for val, axis in [(x, ax.xaxis), (y, ax.yaxis)]:
+            vmin, vmax = axis.limit_range_for_scale(val, val)
+            if vmin != val or vmax != val:
+                return False
+        return True
+
     def get_tightbbox(self, renderer=None):
         """
         Get the artist's bounding box in display space, taking clipping into account.
