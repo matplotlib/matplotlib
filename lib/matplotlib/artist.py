@@ -1262,21 +1262,6 @@ Supported properties are
         list
             A list of return values from the configured setters.
 
-        Notes
-        -----
-        This method is similar to `.Artist.set`, but differs in two ways:
-
-        1. **No Normalization**: It does not normalize property names. It only
-           supports properties where a corresponding ``set_<prop>`` method
-           explicitly exists.
-        2. **No Validation**: It does not check for duplicate aliases. If both
-           an alias and its full name are passed (e.g., ``{'lw': 1, 'linewidth': 2}``),
-           the last value in the dictionary takes precedence, whereas `.set` would
-           raise an error.
-
-        For example, if an Artist defines ``set_property`` but not ``set_alias``,
-        ``set(alias=1)`` will work (via normalization), whereas
-        ``update({'alias': 1})`` will fail.
         """
         return self._update_props(
             props, "{cls.__name__!r} object has no property {prop_name!r}")
