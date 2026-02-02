@@ -1242,11 +1242,26 @@ Supported properties are
 
     def update(self, props):
         """
-        Update this artist's properties from the dict *props*.
+        [*Discouraged*] Update this artist's properties from the dictionary *props*.
+
+        .. admonition:: Discouraged
+
+            This method exists for historic reasons. Please use `.Artist.set` instead.
+            ``artist.update(props)`` is nowadays almost identical to
+            ``artist.set(**props)`` with the only difference that ``set`` will
+            additionally check that a property is not specified multiple times
+            through aliases.
 
         Parameters
         ----------
         props : dict
+            Dictionary of properties (keys) and their new values.
+
+        Returns
+        -------
+        list
+            A list of return values from the configured setters.
+
         """
         return self._update_props(
             props, "{cls.__name__!r} object has no property {prop_name!r}")
