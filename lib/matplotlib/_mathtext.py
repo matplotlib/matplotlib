@@ -127,7 +127,7 @@ class Output:
     def __init__(self, box: Box):
         self.box = box
         self.glyphs: list[tuple[float, float, FontInfo]] = []  # (ox, oy, info)
-        self.rects: list[tuple[float, float, float, float]] = []  # (x1, y1, x2, y2)
+        self.rects: list[tuple[float, float, float, float]] = []  # (x, y, w, h)
 
     def to_vector(self) -> VectorParse:
         w, h, d = map(
@@ -135,21 +135,22 @@ class Output:
         gs = [(info.font, info.fontsize, info.num, info.glyph_index,
                ox, h - oy + info.offset)
               for ox, oy, info in self.glyphs]
-        rs = [(x1, h - y2, x2 - x1, y2 - y1)
-              for x1, y1, x2, y2 in self.rects]
+        rs = [(bx, h - (by + bh), bw, bh)
+              for bx, by, bw, bh in self.rects]
+        # Output.rects has downwards ys, VectorParse.rects has upwards ys.
         return VectorParse(w, h + d, d, gs, rs)
 
     def to_raster(self, *, antialiased: bool) -> RasterParse:
         # Metrics y's and mathtext y's are oriented in opposite directions,
         # hence the switch between ymin and ymax.
         xmin = min([*[ox + info.metrics.xmin for ox, oy, info in self.glyphs],
-                    *[x1 for x1, y1, x2, y2 in self.rects], 0]) - 1
+                    *[x for x, y, w, h in self.rects], 0]) - 1
         ymin = min([*[oy - info.metrics.ymax for ox, oy, info in self.glyphs],
-                    *[y1 for x1, y1, x2, y2 in self.rects], 0]) - 1
+                    *[y for x, y, w, h in self.rects], 0]) - 1
         xmax = max([*[ox + info.metrics.xmax for ox, oy, info in self.glyphs],
-                    *[x2 for x1, y1, x2, y2 in self.rects], 0]) + 1
+                    *[x + w for x, y, w, h in self.rects], 0]) + 1
         ymax = max([*[oy - info.metrics.ymin for ox, oy, info in self.glyphs],
-                    *[y2 for x1, y1, x2, y2 in self.rects], 0]) + 1
+                    *[y + h for x, y, w, h in self.rects], 0]) + 1
         w = xmax - xmin
         h = ymax - ymin - self.box.depth
         d = ymax - ymin - self.box.height
@@ -165,15 +166,15 @@ class Output:
             info.font.draw_glyph_to_bitmap(
                 image, int(ox), int(oy - info.metrics.iceberg), info.glyph,
                 antialiased=antialiased)
-        for x1, y1, x2, y2 in shifted.rects:
-            height = max(int(y2 - y1) - 1, 0)
+        for x, y, bw, bh in shifted.rects:
+            height = max(int(bh) - 1, 0)
             if height == 0:
-                center = (y2 + y1) / 2
+                center = y + bh / 2
                 y = int(center - (height + 1) / 2)
             else:
-                y = int(y1)
-            x1 = math.floor(x1)
-            x2 = math.ceil(x2)
+                y = int(y)
+            x1 = math.floor(x)
+            x2 = math.ceil(x + bw)
             image[y:y+height+1, x1:x2+1] = 0xff
         return RasterParse(0, 0, w, h + d, d, image)
 
@@ -299,11 +300,11 @@ class Fonts(abc.ABC):
         output.glyphs.append((ox, oy, info))
 
     def render_rect_filled(self, output: Output,
-                           x1: float, y1: float, x2: float, y2: float) -> None:
+                           x: float, y: float, w: float, h: float) -> None:
         """
-        Draw a filled rectangle from (*x1*, *y1*) to (*x2*, *y2*).
+        Draw a filled rectangle at (*x*, *y*) with size (*w*, *h*).
         """
-        output.rects.append((x1, y1, x2, y2))
+        output.rects.append((x, y, w, h))
 
     def get_xheight(self, font: str, fontsize: float, dpi: float) -> float:
         """
@@ -1385,7 +1386,7 @@ class Rule(Box):
 
     def render(self, output: Output,  # type: ignore[override]
                x: float, y: float, w: float, h: float) -> None:
-        self.fontset.render_rect_filled(output, x, y, x + w, y + h)
+        self.fontset.render_rect_filled(output, x, y, w, h)
 
 
 class Hrule(Rule):
