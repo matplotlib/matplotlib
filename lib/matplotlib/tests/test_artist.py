@@ -259,6 +259,16 @@ def test_setp():
     assert sio.getvalue() == '  zorder: float\n'
 
 
+def test_artist_set():
+    line = mlines.Line2D([], [])
+    line.set(linewidth=7)
+    assert line.get_linewidth() == 7
+
+    # Property aliases should work
+    line.set(lw=5)
+    assert line.get_linewidth() == 5
+
+
 def test_artist_set_invalid_property_raises():
     """
     Test that set() raises AttributeError for invalid property names.
