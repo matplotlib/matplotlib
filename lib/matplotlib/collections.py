@@ -1512,13 +1512,15 @@ class FillBetweenPolyCollection(PolyCollection):
 
         self._bbox = transforms.Bbox.null()
         t_where = t.data[where] if np.ma.isMA(t) else t[where]
+        f1_where = f1.data[where] if np.ma.isMA(f1) else f1[where]
+        f2_where = f2.data[where] if np.ma.isMA(f2) else f2[where]
         n = len(t_where)
         if n > 0:
             pts = np.empty((2 * n, 2))  # Preallocate and fill for speed
             pts[:n, 0] = t_where
-            pts[:n, 1] = f1.data[where] if np.ma.isMA(f1) else f1[where]
+            pts[:n, 1] = f1_where
             pts[n:, 0] = t_where
-            pts[n:, 1] = f2.data[where] if np.ma.isMA(f2) else f2[where]
+            pts[n:, 1] = f2_where
             self._bbox.update_from_data_xy(self._fix_pts_xy_order(pts))
 
         return [
