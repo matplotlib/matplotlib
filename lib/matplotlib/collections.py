@@ -1517,10 +1517,8 @@ class FillBetweenPolyCollection(PolyCollection):
         n = len(t_where)
         if n > 0:
             pts = np.empty((2 * n, 2))  # Preallocate and fill for speed
-            pts[:n, 0] = t_where
-            pts[:n, 1] = f1_where
-            pts[n:, 0] = t_where
-            pts[n:, 1] = f2_where
+            pts[:n, 0], pts[:n, 1] = t_where, f1_where
+            pts[n:, 0], pts[n:, 1] = t_where[::-1], f2_where[::-1]
             self._bbox.update_from_data_xy(self._fix_pts_xy_order(pts))
 
         return [
@@ -1580,15 +1578,13 @@ class FillBetweenPolyCollection(PolyCollection):
             start = t_slice[0], f2_slice[0]
             end = t_slice[-1], f2_slice[-1]
 
+        # Build polygon: start -> along f1 -> end -> back along f2 (reversed)
         # Preallocate and fill for speed
         n = len(t_slice)
         pts = np.empty((2 * n + 2, 2))
-        pts[0] = start
-        pts[1:n+1, 0] = t_slice
-        pts[1:n+1, 1] = f1_slice
-        pts[n+1] = end
-        pts[n+2:, 0] = t_slice[::-1]
-        pts[n+2:, 1] = f2_slice[::-1]
+        pts[0], pts[n+1] = start, end
+        pts[1:n+1, 0], pts[1:n+1, 1] = t_slice, f1_slice
+        pts[n+2:, 0], pts[n+2:, 1] = t_slice[::-1], f2_slice[::-1]
 
         return self._fix_pts_xy_order(pts)
 
