@@ -1293,6 +1293,7 @@ Supported properties are
     def _cm_set(self, **kwargs):
         """
         `.Artist.set` context-manager that restores original values at exit.
+        This skips the `normalize_kwargs` check, for performance.
         """
         if not kwargs:
             yield
