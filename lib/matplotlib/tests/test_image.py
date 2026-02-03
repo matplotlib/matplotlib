@@ -1907,6 +1907,10 @@ def test_nn_pixel_alignment(nonaffine_identity):
 
 @image_comparison(['image_bounds_handling.png'], tol=0.006)
 def test_image_bounds_handling(nonaffine_identity):
+    # TODO: The second and third panels in the bottom row show that the handling of
+    # image bounds is bugged for non-affine transforms and non-nearest-neighbor
+    # interpolation.  If this bug gets fixed, the baseline image should be updated.
+
     fig, axs = plt.subplots(2, 3)
 
     N = 11
