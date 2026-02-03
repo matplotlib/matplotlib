@@ -205,7 +205,7 @@ class RendererAgg(RendererBase):
         gc1 = self.new_gc()
         gc1.set_linewidth(0)
         gc1.set_snap(gc.get_snap())
-        for dx, dy, w, h in parse.rects:  # dy is upwards & the rect top side.
+        for dx, dy, w, h in parse.rects:  # dy is upwards.
             if gc1.get_snap() in [None, True]:
                 # Prevent thin bars from disappearing by growing symmetrically.
                 if w < 1:
