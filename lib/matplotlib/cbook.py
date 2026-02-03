@@ -1691,7 +1691,7 @@ def pts_to_midstep(x, *args):
     return steps
 
 
-STEP_LOOKUP_MAP = {'default': None,  # Sentinel: use xy unchanged
+STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),
                    'steps': pts_to_prestep,
                    'steps-pre': pts_to_prestep,
                    'steps-post': pts_to_poststep,

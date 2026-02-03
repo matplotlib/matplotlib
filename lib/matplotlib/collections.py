@@ -1566,8 +1566,7 @@ class FillBetweenPolyCollection(PolyCollection):
         f2_slice = f2[idx0:idx1]
         if self._step is not None:
             step_func = cbook.STEP_LOOKUP_MAP["steps-" + self._step]
-            if step_func is not None:
-                t_slice, f1_slice, f2_slice = step_func(t_slice, f1_slice, f2_slice)
+            t_slice, f1_slice, f2_slice = step_func(t_slice, f1_slice, f2_slice)
 
         if self._interpolate:
             start = self._get_interpolating_points(t, f1, f2, idx0)

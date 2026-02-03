@@ -709,10 +709,10 @@ class Line2D(Artist):
             interpolation_steps = self._path._interpolation_steps
         else:
             interpolation_steps = 1
-        step_func = STEP_LOOKUP_MAP[self._drawstyle]
-        if step_func is None:
+        if self._drawstyle == 'default':
             vertices = self._xy
         else:
+            step_func = STEP_LOOKUP_MAP[self._drawstyle]
             vertices = np.asarray(step_func(*self._xy.T)).T
         self._path = Path(vertices, _interpolation_steps=interpolation_steps)
         self._transformed_path = None
@@ -727,10 +727,10 @@ class Line2D(Artist):
         """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
-            step_func = STEP_LOOKUP_MAP[self._drawstyle]
-            if step_func is None:
+            if self._drawstyle == 'default':
                 vertices = self._xy[subslice]
             else:
+                step_func = STEP_LOOKUP_MAP[self._drawstyle]
                 vertices = np.asarray(step_func(*self._xy[subslice, :].T)).T
             _path = Path(vertices,
                          _interpolation_steps=self._path._interpolation_steps)

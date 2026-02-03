@@ -901,8 +901,6 @@ class Bbox(BboxBase):
 
         valid_points = (np.isfinite(path.vertices[..., 0])
                         & np.isfinite(path.vertices[..., 1]))
-        if not valid_points.any():
-            return
 
         if updatex:
             x = path.vertices[..., 0][valid_points]
