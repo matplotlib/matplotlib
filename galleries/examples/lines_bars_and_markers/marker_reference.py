@@ -3,20 +3,19 @@
 Marker reference
 ================
 
-Matplotlib supports multiple categories of markers which are selected using
-the ``marker`` parameter of plot commands:
+This example shows a visual overview of the different marker styles available
+in Matplotlib and how they can be customized when plotting data.
 
-- `Unfilled markers`_
-- `Filled markers`_
-- `Markers created from TeX symbols`_
-- `Markers created from Paths`_
+The example demonstrates:
 
-For a list of all markers see also the `matplotlib.markers` documentation.
+- The difference between unfilled and filled markers
+- How marker fill styles and colors can be changed
+- Markers created using MathText symbols
+- Markers created from custom Paths
+- Rotating and transforming markers
+- Customizing marker cap styles and join styles
 
-For example usages see
-:doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
-
-.. redirect-from:: /gallery/shapes_and_collections/marker_path
+This helps users understand how to select and style markers effectively in plots.
 """
 
 import matplotlib.pyplot as plt
