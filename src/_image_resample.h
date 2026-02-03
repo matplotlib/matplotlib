@@ -511,7 +511,7 @@ struct type_mapping
         std::conditional_t<
             std::is_same_v<color_type, agg::rgba8>,
             fixed_blender_rgba_plain<color_type, agg::order_rgba>,
-            agg::blender_rgba_plain<color_type, agg::order_rgba>
+            agg::blender_rgba_pre<color_type, agg::order_rgba>
         >
     >;
     using pixfmt_type = std::conditional_t<
