@@ -356,7 +356,7 @@ class Table(Artist):
         """
         Set a custom cell in a given position.
         """
-        _api.check_isinstance(Cell, cell=cell)
+        _api.check_isinstance(Cell)("cell", cell)
         try:
             row, col = position[0], position[1]
         except Exception as err:

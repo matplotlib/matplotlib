@@ -212,7 +212,8 @@ def detrend_linear(y):
 
 
 def _stride_windows(x, n, noverlap=0):
-    _api.check_isinstance(Integral, n=n, noverlap=noverlap)
+    _api.check_isinstance(Integral)("n", n)
+    _api.check_isinstance(Integral)("noverlap", noverlap)
     x = np.asarray(x)
     step = n - noverlap
     shape = (n, (x.shape[-1]-noverlap)//step)

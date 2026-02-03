@@ -809,7 +809,7 @@ Supported properties are
             clipping for an artist added to an Axes.
 
         """
-        _api.check_isinstance((BboxBase, None), clipbox=clipbox)
+        _api.check_isinstance((BboxBase, None))("clipbox", clipbox)
         if clipbox != self.clipbox:
             self.clipbox = clipbox
             self.pchanged()

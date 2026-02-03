@@ -407,7 +407,7 @@ validate_colorlist = _listify_validator(
 
 
 def _validate_cmap(s):
-    _api.check_isinstance((str, Colormap), cmap=s)
+    _api.check_isinstance((str, Colormap))("cmap", s)
     return s
 
 
@@ -667,7 +667,7 @@ def validate_hatch(s):
     """
     if not isinstance(s, str):
         raise ValueError("Hatch pattern must be a string")
-    _api.check_isinstance(str, hatch_pattern=s)
+    _api.check_isinstance(str)("hatch_pattern", s)
     unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
     if unknown:
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))

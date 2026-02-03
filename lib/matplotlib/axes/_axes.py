@@ -3684,7 +3684,8 @@ or pandas.DataFrame
 
         hatch_cycle = itertools.cycle(np.atleast_1d(hatch))
 
-        _api.check_isinstance(Real, radius=radius, startangle=startangle)
+        _api.check_isinstance(Real)("radius", radius)
+        _api.check_isinstance(Real)("startangle", startangle)
         if radius <= 0:
             raise ValueError(f"'radius' must be a positive number, not {radius}")
 

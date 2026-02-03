@@ -214,7 +214,7 @@ class UnitData:
         convertible = True
         for val in OrderedDict.fromkeys(data):
             # OrderedDict just iterates over unique values in data.
-            _api.check_isinstance((str, bytes), value=val)
+            _api.check_isinstance((str, bytes))("value", val)
             if convertible:
                 # this will only be called so long as convertible is True.
                 convertible = self._str_is_convertible(val)

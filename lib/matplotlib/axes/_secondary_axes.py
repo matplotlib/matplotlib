@@ -99,7 +99,7 @@ class SecondaryAxis(_AxesBase):
             .. versionadded:: 3.9
         """
 
-        _api.check_isinstance((transforms.Transform, None), transform=transform)
+        _api.check_isinstance((transforms.Transform, None))("transform", transform)
 
         # This puts the rectangle into figure-relative coordinates.
         if isinstance(location, str):

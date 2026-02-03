@@ -76,7 +76,7 @@ class Fixed(_Base):
     """
 
     def __init__(self, fixed_size):
-        _api.check_isinstance(Real, fixed_size=fixed_size)
+        _api.check_isinstance(Real)("fixed_size", fixed_size)
         self.fixed_size = fixed_size
 
     def get_size(self, renderer):
@@ -211,7 +211,7 @@ class Fraction(_Base):
     """
 
     def __init__(self, fraction, ref_size):
-        _api.check_isinstance(Real, fraction=fraction)
+        _api.check_isinstance(Real)("fraction", fraction)
         self._fraction_ref = ref_size
         self._fraction = fraction
 

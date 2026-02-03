@@ -2031,7 +2031,8 @@ default: %(va)s
         per_subplot_kw = self._norm_per_subplot_kw(per_subplot_kw)
 
         # Only accept strict bools to allow a possible future API expansion.
-        _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
+        _api.check_isinstance(bool)("sharex", sharex)
+        _api.check_isinstance(bool)("sharey", sharey)
 
         def _make_array(inp):
             """

@@ -140,7 +140,7 @@ class ColormapRegistry(Mapping):
             registered name. True supports overwriting registered colormaps
             other than the builtin colormaps.
         """
-        _api.check_isinstance(colors.Colormap, cmap=cmap)
+        _api.check_isinstance(colors.Colormap)("cmap", cmap)
 
         name = name or cmap.name
         if name in self:

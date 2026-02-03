@@ -40,7 +40,7 @@ class TriRefiner:
     """
 
     def __init__(self, triangulation):
-        _api.check_isinstance(Triangulation, triangulation=triangulation)
+        _api.check_isinstance(Triangulation)("triangulation", triangulation)
         self._triangulation = triangulation
 
 
@@ -158,8 +158,8 @@ class UniformTriRefiner(TriRefiner):
             interp = matplotlib.tri.CubicTriInterpolator(
                 self._triangulation, z)
         else:
-            _api.check_isinstance(matplotlib.tri.TriInterpolator,
-                                  triinterpolator=triinterpolator)
+            _api.check_isinstance(matplotlib.tri.TriInterpolator)(
+                "triinterpolator", triinterpolator)
             interp = triinterpolator
 
         refi_tri, found_index = self.refine_triangulation(

@@ -1138,7 +1138,7 @@ class Text(Artist):
         ----------
         spacing : float (multiple of font size)
         """
-        _api.check_isinstance(Real, spacing=spacing)
+        _api.check_isinstance(Real)("spacing", spacing)
         self._linespacing = spacing
         self.stale = True
 
@@ -1564,7 +1564,7 @@ class OffsetFrom:
         elif isinstance(self._artist, Transform):
             x, y = self._artist.transform(self._ref_coord)
         else:
-            _api.check_isinstance((Artist, BboxBase, Transform), artist=self._artist)
+            _api.check_isinstance((Artist, BboxBase, Transform))("artist", self._artist)
         scale = 1 if self._unit == "pixels" else renderer.points_to_pixels(1)
         return Affine2D().scale(scale).translate(x, y)
 

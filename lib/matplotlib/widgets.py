@@ -1100,7 +1100,7 @@ class _Buttons(AxesWidget):
             format as label_props argument of :class:`RadioButtons` or
             :class:`CheckButtons`.
         """
-        _api.check_isinstance(dict, props=props)
+        _api.check_isinstance(dict)("props", props)
         props = _expand_text_props(props)
         for text, prop in zip(self.labels, props):
             text.update(prop)
@@ -1201,8 +1201,9 @@ class CheckButtons(_Buttons):
 
             .. versionadded:: 3.7
         """
-        _api.check_isinstance((dict, None), label_props=label_props,
-                              frame_props=frame_props, check_props=check_props)
+        _api.check_isinstance((dict, None))("label_props", label_props)
+        _api.check_isinstance((dict, None))("frame_props", frame_props)
+        _api.check_isinstance((dict, None))("check_props", check_props)
 
         super().__init__(ax, labels, useblit=useblit, label_props=label_props,
                          actives=actives, frame_props=frame_props,
@@ -1259,7 +1260,7 @@ class CheckButtons(_Buttons):
             Dictionary of `.Collection` properties to be used for the check
             button frames.
         """
-        _api.check_isinstance(dict, props=props)
+        _api.check_isinstance(dict)("props", props)
         if 's' in props:  # Keep API consistent with constructor.
             props['sizes'] = np.broadcast_to(props.pop('s'), len(self.labels))
         self._frames.update(props)
@@ -1276,7 +1277,7 @@ class CheckButtons(_Buttons):
             Dictionary of `.Collection` properties to be used for the check
             button check.
         """
-        _api.check_isinstance(dict, props=props)
+        _api.check_isinstance(dict)("props", props)
         if 's' in props:  # Keep API consistent with constructor.
             props['sizes'] = np.broadcast_to(props.pop('s'), len(self.labels))
         actives = self.get_status()
@@ -1308,7 +1309,7 @@ class CheckButtons(_Buttons):
         """
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid CheckButton index: {index}')
-        _api.check_isinstance((bool, None), state=state)
+        _api.check_isinstance((bool, None))("state", state)
 
         invisible = colors.to_rgba('none')
 
@@ -1708,8 +1709,8 @@ class RadioButtons(_Buttons):
 
             .. versionadded:: 3.7
         """
-        _api.check_isinstance((dict, None), label_props=label_props,
-                              radio_props=radio_props)
+        _api.check_isinstance((dict, None))("label_props", label_props)
+        _api.check_isinstance((dict, None))("radio_props", radio_props)
 
         radio_props = cbook.normalize_kwargs(radio_props,
                                              collections.PathCollection)
@@ -1773,7 +1774,7 @@ class RadioButtons(_Buttons):
             Dictionary of `.Collection` properties to be used for the radio
             buttons.
         """
-        _api.check_isinstance(dict, props=props)
+        _api.check_isinstance(dict)("props", props)
         if 's' in props:  # Keep API consistent with constructor.
             props['sizes'] = np.broadcast_to(props.pop('s'), len(self.labels))
         self._buttons.update(props)

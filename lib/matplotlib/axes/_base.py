@@ -666,7 +666,7 @@ class _AxesBase(martist.Artist):
                 raise TypeError(
                     "'rect' cannot be used together with positional arguments")
             rect = kwargs.pop("rect")
-            _api.check_isinstance((mtransforms.Bbox, Iterable), rect=rect)
+            _api.check_isinstance((mtransforms.Bbox, Iterable))("rect", rect)
             args = (rect,)
         subplotspec = None
         if len(args) == 1 and isinstance(args[0], mtransforms.Bbox):
@@ -1267,7 +1267,7 @@ class _AxesBase(martist.Artist):
         Axes, and cannot be used if the x-axis is already being shared with
         another Axes.  Note that it is not possible to unshare axes.
         """
-        _api.check_isinstance(_AxesBase, other=other)
+        _api.check_isinstance(_AxesBase)("other", other)
         if self._sharex is not None and other is not self._sharex:
             raise ValueError("x-axis is already shared")
         self._shared_axes["x"].join(self, other)
@@ -1286,7 +1286,7 @@ class _AxesBase(martist.Artist):
         Axes, and cannot be used if the y-axis is already being shared with
         another Axes.  Note that it is not possible to unshare axes.
         """
-        _api.check_isinstance(_AxesBase, other=other)
+        _api.check_isinstance(_AxesBase)("other", other)
         if self._sharey is not None and other is not self._sharey:
             raise ValueError("y-axis is already shared")
         self._shared_axes["y"].join(self, other)
@@ -2275,7 +2275,7 @@ class _AxesBase(martist.Artist):
         ``pyplot.viridis``, and other functions such as `~.pyplot.clim`.  The
         current image is an attribute of the current Axes.
         """
-        _api.check_isinstance((mcoll.Collection, mimage.AxesImage), im=im)
+        _api.check_isinstance((mcoll.Collection, mimage.AxesImage))("im", im)
         if im not in self._children:
             raise ValueError("Argument must be an image or collection in this Axes")
         self._current_image = im
@@ -2358,7 +2358,7 @@ class _AxesBase(martist.Artist):
             behavior. This is not a public interface and will be removed
             again in the future.
         """
-        _api.check_isinstance(mcoll.Collection, collection=collection)
+        _api.check_isinstance(mcoll.Collection)("collection", collection)
         if not collection.get_label():
             collection.set_label(f'_child{len(self._children)}')
         self._children.append(collection)
@@ -2402,7 +2402,7 @@ class _AxesBase(martist.Artist):
         """
         Add an `.AxesImage` to the Axes; return the image.
         """
-        _api.check_isinstance(mimage.AxesImage, image=image)
+        _api.check_isinstance(mimage.AxesImage)("image", image)
         self._set_artist_props(image)
         if not image.get_label():
             image.set_label(f'_child{len(self._children)}')
@@ -2419,7 +2419,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Line2D` to the Axes; return the line.
         """
-        _api.check_isinstance(mlines.Line2D, line=line)
+        _api.check_isinstance(mlines.Line2D)("line", line)
         self._set_artist_props(line)
         if line.get_clip_path() is None:
             line.set_clip_path(self.patch)
@@ -2436,7 +2436,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Text` to the Axes; return the text.
         """
-        _api.check_isinstance(mtext.Text, txt=txt)
+        _api.check_isinstance(mtext.Text)("txt", txt)
         self._set_artist_props(txt)
         self._children.append(txt)
         txt._remove_method = self._children.remove
@@ -2495,7 +2495,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Patch` to the Axes; return the patch.
         """
-        _api.check_isinstance(mpatches.Patch, p=p)
+        _api.check_isinstance(mpatches.Patch)("p", p)
         self._set_artist_props(p)
         if p.get_clip_path() is None:
             p.set_clip_path(self.patch)
@@ -2548,7 +2548,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Table` to the Axes; return the table.
         """
-        _api.check_isinstance(mtable.Table, tab=tab)
+        _api.check_isinstance(mtable.Table)("tab", tab)
         self._set_artist_props(tab)
         self._children.append(tab)
         if tab.get_clip_path() is None:

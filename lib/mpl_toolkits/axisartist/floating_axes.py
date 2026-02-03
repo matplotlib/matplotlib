@@ -225,7 +225,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 class FloatingAxesBase:
 
     def __init__(self, *args, grid_helper, **kwargs):
-        _api.check_isinstance(GridHelperCurveLinear, grid_helper=grid_helper)
+        _api.check_isinstance(GridHelperCurveLinear)("grid_helper", grid_helper)
         super().__init__(*args, grid_helper=grid_helper, **kwargs)
         self.set_aspect(1.)
 

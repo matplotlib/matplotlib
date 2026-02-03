@@ -1309,7 +1309,7 @@ class Axes3D(Axes):
         Axes, and cannot be used if the z-axis is already being shared with
         another Axes.  Note that it is not possible to unshare axes.
         """
-        _api.check_isinstance(Axes3D, other=other)
+        _api.check_isinstance(Axes3D)("other", other)
         if self._sharez is not None and other is not self._sharez:
             raise ValueError("z-axis is already shared")
         self._shared_axes["z"].join(self, other)
@@ -1328,7 +1328,7 @@ class Axes3D(Axes):
         Axes, and cannot be used if the view angles are already being shared
         with another Axes.  Note that it is not possible to unshare axes.
         """
-        _api.check_isinstance(Axes3D, other=other)
+        _api.check_isinstance(Axes3D)("other", other)
         if self._shareview is not None and other is not self._shareview:
             raise ValueError("view angles are already shared")
         self._shared_axes["view"].join(self, other)

@@ -707,7 +707,7 @@ class ColorizingArtist(_ScalarMappable, artist.Artist):
         ----------
         colorizer : `.colorizer.Colorizer`
         """
-        _api.check_isinstance(Colorizer, colorizer=colorizer)
+        _api.check_isinstance(Colorizer)("colorizer", colorizer)
         super().__init__(colorizer=colorizer, **kwargs)
 
     @property
@@ -716,7 +716,7 @@ class ColorizingArtist(_ScalarMappable, artist.Artist):
 
     @colorizer.setter
     def colorizer(self, cl):
-        _api.check_isinstance(Colorizer, colorizer=cl)
+        _api.check_isinstance(Colorizer)("colorizer", cl)
         self._colorizer.callbacks.disconnect(self._id_colorizer)
         self._colorizer = cl
         self._id_colorizer = cl.callbacks.connect('changed', self.changed)
@@ -759,7 +759,7 @@ def _auto_norm_from_scale(scale_cls):
 
 def _ensure_norm(norm, n_components=1):
     if n_components == 1:
-        _api.check_isinstance((colors.Norm, str, None), norm=norm)
+        _api.check_isinstance((colors.Norm, str, None))("norm", norm)
         if norm is None:
             norm = colors.Normalize()
         elif isinstance(norm, str):
@@ -768,7 +768,7 @@ def _ensure_norm(norm, n_components=1):
         return norm
     elif n_components > 1:
         if not np.iterable(norm):
-            _api.check_isinstance((colors.MultiNorm, None, tuple), norm=norm)
+            _api.check_isinstance((colors.MultiNorm, None, tuple))("norm", norm)
         if norm is None:
             norm = colors.MultiNorm(['linear']*n_components)
         else:  # iterable, i.e. multiple strings or Normalize objects

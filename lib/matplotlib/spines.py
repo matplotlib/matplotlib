@@ -70,7 +70,7 @@ class Spine(mpatches.Patch):
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
-        _api.check_isinstance(mpath.Path, path=path)
+        _api.check_isinstance(mpath.Path)("path", path)
         self._path = path
 
         # To support drawing both linear and circular spines, this

@@ -1289,7 +1289,7 @@ def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
         _pylab_helpers.Gcf.destroy_fig(fig)
     else:
         _api.check_isinstance(  # type: ignore[unreachable]
-            (Figure, int, str, None), fig=fig)
+            (Figure, int, str, None))("fig", fig)
 
 
 def clf() -> None:

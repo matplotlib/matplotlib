@@ -1135,8 +1135,8 @@ class TransformedBbox(BboxBase):
         bbox : `Bbox`
         transform : `Transform`
         """
-        _api.check_isinstance(BboxBase, bbox=bbox)
-        _api.check_isinstance(Transform, transform=transform)
+        _api.check_isinstance(BboxBase)("bbox", bbox)
+        _api.check_isinstance(Transform)("transform", transform)
         if transform.input_dims != 2 or transform.output_dims != 2:
             raise ValueError(
                 "The input and output dimensions of 'transform' must be 2")
@@ -1223,7 +1223,7 @@ class LockableBbox(BboxBase):
             The locked value for y1, or None to leave unlocked.
 
         """
-        _api.check_isinstance(BboxBase, bbox=bbox)
+        _api.check_isinstance(BboxBase)("bbox", bbox)
         super().__init__(**kwargs)
         self._bbox = bbox
         self.set_children(bbox)
@@ -1755,7 +1755,7 @@ class TransformWrapper(Transform):
         *child*: A `Transform` instance.  This child may later
         be replaced with :meth:`set`.
         """
-        _api.check_isinstance(Transform, child=child)
+        _api.check_isinstance(Transform)("child", child)
         super().__init__()
         self.set(child)
 
@@ -2008,7 +2008,7 @@ class Affine2D(Affine2DBase):
         Set this transformation from the frozen copy of another
         `Affine2DBase` object.
         """
-        _api.check_isinstance(Affine2DBase, other=other)
+        _api.check_isinstance(Affine2DBase)("other", other)
         self._mtx = other.get_matrix()
         self.invalidate()
 
@@ -2586,7 +2586,8 @@ class BboxTransform(Affine2DBase):
         Create a new `BboxTransform` that linearly transforms
         points from *boxin* to *boxout*.
         """
-        _api.check_isinstance(BboxBase, boxin=boxin, boxout=boxout)
+        _api.check_isinstance(BboxBase)("boxin", boxin)
+        _api.check_isinstance(BboxBase)("boxout", boxout)
 
         super().__init__(**kwargs)
         self._boxin = boxin
@@ -2629,7 +2630,7 @@ class BboxTransformTo(Affine2DBase):
         Create a new `BboxTransformTo` that linearly transforms
         points from the unit bounding box to *boxout*.
         """
-        _api.check_isinstance(BboxBase, boxout=boxout)
+        _api.check_isinstance(BboxBase)("boxout", boxout)
 
         super().__init__(**kwargs)
         self._boxout = boxout
@@ -2662,7 +2663,7 @@ class BboxTransformFrom(Affine2DBase):
     is_separable = True
 
     def __init__(self, boxin, **kwargs):
-        _api.check_isinstance(BboxBase, boxin=boxin)
+        _api.check_isinstance(BboxBase)("boxin", boxin)
 
         super().__init__(**kwargs)
         self._boxin = boxin
@@ -2786,7 +2787,7 @@ class TransformedPath(TransformNode):
         path : `~.path.Path`
         transform : `Transform`
         """
-        _api.check_isinstance(Transform, transform=transform)
+        _api.check_isinstance(Transform)("transform", transform)
         super().__init__()
         self._path = path
         self._transform = transform

@@ -664,7 +664,7 @@ class DviFont:
     """
 
     def __init__(self, scale, metrics, texname, vf):
-        _api.check_isinstance(bytes, texname=texname)
+        _api.check_isinstance(bytes)("texname", texname)
         self._scale = scale
         self._metrics = metrics
         self.texname = texname
