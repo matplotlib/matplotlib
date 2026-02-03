@@ -3,7 +3,7 @@ A module providing some utility functions regarding Bézier path manipulation.
 """
 
 from functools import lru_cache
-from math import comb, factorial
+import math
 import warnings
 
 import numpy as np
@@ -22,7 +22,7 @@ def _get_coeff_matrix(n):
     coefficient.
     """
     def _comb(n, k):
-        return np.vectorize(comb)(n, k)
+        return np.vectorize(math.comb)(n, k)
 
     j = np.arange(n + 1)[:, None]
     i = np.arange(n + 1)[None, :]  # _comb is non-zero for i <= j
@@ -211,8 +211,8 @@ class BezierSegment:
         self._cpoints = np.asarray(control_points)
         self._N, self._d = self._cpoints.shape
         self._orders = np.arange(self._N)
-        coeff = [factorial(self._N - 1)
-                 // (factorial(i) * factorial(self._N - 1 - i))
+        coeff = [math.factorial(self._N - 1)
+                 // (math.factorial(i) * math.factorial(self._N - 1 - i))
                  for i in range(self._N)]
         self._px = (self._cpoints.T * coeff).T
 
