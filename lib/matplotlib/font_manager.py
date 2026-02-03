@@ -807,7 +807,7 @@ class FontProperties:
         style : {'normal', 'italic', 'oblique'}, default: :rc:`font.style`
         """
         style = mpl._val_or_rc(style, 'font.style')
-        _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
+        _api.check_in_list(('normal', 'italic', 'oblique'))("style", style)
         self._slant = style
 
     def set_variant(self, variant):
@@ -819,7 +819,7 @@ class FontProperties:
         variant : {'normal', 'small-caps'}, default: :rc:`font.variant`
         """
         variant = mpl._val_or_rc(variant, 'font.variant')
-        _api.check_in_list(['normal', 'small-caps'], variant=variant)
+        _api.check_in_list(('normal', 'small-caps'))("variant", variant)
         self._variant = variant
 
     def set_weight(self, weight):
@@ -953,7 +953,7 @@ class FontProperties:
             valid_fonts = _validators['mathtext.fontset'].valid.values()
             # _check_in_list() Validates the parameter math_fontfamily as
             # if it were passed to rcParams['mathtext.fontset']
-            _api.check_in_list(valid_fonts, math_fontfamily=fontfamily)
+            _api.check_in_list(valid_fonts)("math_fontfamily", fontfamily)
         self._math_fontfamily = fontfamily
 
     def copy(self):

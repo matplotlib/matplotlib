@@ -1453,7 +1453,7 @@ class MultivarColormap:
                                  " Colormap or a name found in the colormap registry.")
 
         self._colormaps = colormaps
-        _api.check_in_list(['sRGB_add', 'sRGB_sub'], combination_mode=combination_mode)
+        _api.check_in_list(('sRGB_add', 'sRGB_sub'))("combination_mode", combination_mode)
         self._combination_mode = combination_mode
         self.n_variates = len(colormaps)
         self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
@@ -1711,7 +1711,7 @@ class BivarColormap:
         self.name = name
         self.N = int(N)  # ensure that N is always int
         self.M = int(M)
-        _api.check_in_list(['square', 'circle', 'ignore', 'circleignore'], shape=shape)
+        _api.check_in_list(('square', 'circle', 'ignore', 'circleignore'))("shape", shape)
         self._shape = shape
         self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
         self._rgba_outside = (1.0, 0.0, 1.0, 1.0)
@@ -2010,8 +2010,7 @@ class BivarColormap:
         if outside is not None:
             new_cm._rgba_outside = to_rgba(outside)
         if shape is not None:
-            _api.check_in_list(['square', 'circle', 'ignore', 'circleignore'],
-                               shape=shape)
+            _api.check_in_list(('square', 'circle', 'ignore', 'circleignore'))("shape", shape)
             new_cm._shape = shape
         if origin is not None:
             new_cm._origin = (float(origin[0]), float(origin[1]))
@@ -4246,7 +4245,7 @@ def from_levels_and_colors(levels, colors, extend='neither'):
         'max': slice(0, -1),
         'neither': slice(0, None),
     }
-    _api.check_in_list(slice_map, extend=extend)
+    _api.check_in_list(slice_map)("extend", extend)
     color_slice = slice_map[extend]
 
     n_data_colors = len(levels) - 1

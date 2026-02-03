@@ -987,7 +987,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
-        _api.check_in_list(['figure', *papersize], papertype=papertype)
+        _api.check_in_list(('figure', *papersize))("papertype", papertype)
 
         orientation = _api.check_getitem(
             _Orientation, orientation=orientation.lower())

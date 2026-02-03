@@ -263,7 +263,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                  ):
         super().__init__(self._get_colorizer(cmap, norm, colorizer))
         origin = mpl._val_or_rc(origin, 'image.origin')
-        _api.check_in_list(["upper", "lower"], origin=origin)
+        _api.check_in_list(("upper", "lower"))("origin", origin)
         self.origin = origin
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
@@ -733,7 +733,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'} or None
         """
         s = mpl._val_or_rc(s, 'image.interpolation').lower()
-        _api.check_in_list(interpolations_names, interpolation=s)
+        _api.check_in_list(interpolations_names)("interpolation", s)
         self._interpolation = s
         self.stale = True
 
@@ -757,7 +757,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             otherwise 'data' is used.
         """
         s = mpl._val_or_rc(s, 'image.interpolation_stage')
-        _api.check_in_list(['data', 'rgba', 'auto'], s=s)
+        _api.check_in_list(('data', 'rgba', 'auto'))("s", s)
         self._interpolation_stage = s
         self.stale = True
 
@@ -1645,7 +1645,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         # Don't bother creating an image; this avoids rounding errors on the
         # size when dividing and then multiplying by dpi.
         origin = mpl._val_or_rc(origin, "image.origin")
-        _api.check_in_list(('upper', 'lower'), origin=origin)
+        _api.check_in_list(('upper', 'lower'))("origin", origin)
         if origin == "lower":
             arr = arr[::-1]
         if (isinstance(arr, memoryview) and arr.format == "B"

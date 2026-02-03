@@ -54,7 +54,7 @@ class ParasiteAxesBase:
             super()._set_lim_and_transforms()
 
     def set_viewlim_mode(self, mode):
-        _api.check_in_list([None, "equal", "transform"], mode=mode)
+        _api.check_in_list((None, "equal", "transform"))("mode", mode)
         self._viewlim_mode = mode
 
     def get_viewlim_mode(self):
@@ -70,7 +70,7 @@ class ParasiteAxesBase:
         elif mode == "transform":
             self.viewLim.set(viewlim.transformed(self.transAux.inverted()))
         else:
-            _api.check_in_list([None, "equal", "transform"], mode=mode)
+            _api.check_in_list((None, "equal", "transform"))("mode", mode)
 
     # end of aux_transform support
 

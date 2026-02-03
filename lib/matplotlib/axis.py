@@ -203,7 +203,7 @@ class Tick(martist.Artist):
         else:
             mode = 'default'
             angle = labelrotation
-        _api.check_in_list(['auto', 'default'], labelrotation=mode)
+        _api.check_in_list(('auto', 'default'))("labelrotation", mode)
         self._labelrotation = (mode, angle)
 
     @property
@@ -217,7 +217,7 @@ class Tick(martist.Artist):
         # called through _apply_params, which further updates ticklabel positions using
         # the new pads.
         tickdir = mpl._val_or_rc(tickdir, f'{self.__name__}.direction')
-        _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
+        _api.check_in_list(('in', 'out', 'inout'))("tickdir", tickdir)
         self._tickdir = tickdir
 
     def get_tickdir(self):
@@ -972,7 +972,7 @@ class Axis(martist.Artist):
             View the current style settings for ticks, ticklabels, and
             gridlines.
         """
-        _api.check_in_list(['major', 'minor', 'both'], which=which)
+        _api.check_in_list(('major', 'minor', 'both'))("which", which)
         kwtrans = self._translate_tick_params(kwargs)
 
         # the kwargs are stored in self._major/minor_tick_kw so that any
@@ -1051,7 +1051,7 @@ class Axis(martist.Artist):
 
 
         """
-        _api.check_in_list(['major', 'minor'], which=which)
+        _api.check_in_list(('major', 'minor'))("which", which)
         if which == 'major':
             return self._translate_tick_params(
                 self._major_tick_kw, reverse=True
@@ -1507,7 +1507,7 @@ class Axis(martist.Artist):
             elif which == 'both':
                 return self.get_majorticklabels() + self.get_minorticklabels()
             else:
-                _api.check_in_list(['major', 'minor', 'both'], which=which)
+                _api.check_in_list(('major', 'minor', 'both'))("which", which)
         if minor:
             return self.get_minorticklabels()
         return self.get_majorticklabels()
@@ -1739,7 +1739,7 @@ class Axis(martist.Artist):
                                    'grid will be enabled.')
                 visible = True
         which = which.lower()
-        _api.check_in_list(['major', 'minor', 'both'], which=which)
+        _api.check_in_list(('major', 'minor', 'both'))("which", which)
         gridkw = {f'grid_{name}': value for name, value in kwargs.items()}
         if which in ['minor', 'both']:
             gridkw['gridOn'] = (not self._minor_tick_kw['gridOn']
@@ -2542,8 +2542,7 @@ class XAxis(Axis):
             self._tick_position = 'bottom'
             self.offsetText.set_verticalalignment('top')
         else:
-            _api.check_in_list(['top', 'bottom', 'both', 'default', 'none'],
-                               position=position)
+            _api.check_in_list(('top', 'bottom', 'both', 'default', 'none'))("position", position)
         self.stale = True
 
     def tick_top(self):
@@ -2770,8 +2769,7 @@ class YAxis(Axis):
             self.set_tick_params(which='both', right=True, labelright=False,
                                  left=True, labelleft=True)
         else:
-            _api.check_in_list(['left', 'right', 'both', 'default', 'none'],
-                               position=position)
+            _api.check_in_list(('left', 'right', 'both', 'default', 'none'))("position", position)
         self.stale = True
 
     def tick_right(self):

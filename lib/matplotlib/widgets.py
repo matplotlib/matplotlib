@@ -314,7 +314,7 @@ class SliderBase(AxesWidget):
             raise ValueError('Sliders cannot be added to 3D Axes')
 
         super().__init__(ax)
-        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+        _api.check_in_list(('horizontal', 'vertical'))("orientation", orientation)
 
         self.orientation = orientation
         self.closedmin = closedmin
@@ -2487,7 +2487,7 @@ class _SelectorWidget(AxesWidget):
             key for key, value in self._state_modifier_keys.items()
             if key != 'clear' and value != 'not-applicable'
             ]
-        _api.check_in_list(supported_state, state=state)
+        _api.check_in_list(supported_state)("state", state)
 
     def add_state(self, state):
         """
@@ -2769,7 +2769,7 @@ class SpanSelector(_SelectorWidget):
     @direction.setter
     def direction(self, direction):
         """Set the direction of the span selector."""
-        _api.check_in_list(['horizontal', 'vertical'], direction=direction)
+        _api.check_in_list(('horizontal', 'vertical'))("direction", direction)
         if hasattr(self, '_direction') and direction != self._direction:
             # remove previous artists
             self._selection_artist.remove()
@@ -2979,7 +2979,7 @@ class ToolLineHandles:
                  useblit=True):
         self.ax = ax
 
-        _api.check_in_list(['horizontal', 'vertical'], direction=direction)
+        _api.check_in_list(('horizontal', 'vertical'))("direction", direction)
         self._direction = direction
 
         line_props = {
@@ -3292,7 +3292,7 @@ class RectangleSelector(_SelectorWidget):
         self.minspanx = minspanx
         self.minspany = minspany
 
-        _api.check_in_list(['data', 'pixels'], spancoords=spancoords)
+        _api.check_in_list(('data', 'pixels'))("spancoords", spancoords)
         self.spancoords = spancoords
 
         self.grab_range = grab_range
@@ -3402,8 +3402,7 @@ class RectangleSelector(_SelectorWidget):
             spanx = abs(self._eventpress.x - self._eventrelease.x)
             spany = abs(self._eventpress.y - self._eventrelease.y)
         else:
-            _api.check_in_list(['data', 'pixels'],
-                               spancoords=self.spancoords)
+            _api.check_in_list(('data', 'pixels'))("spancoords", self.spancoords)
         # check if drawn distance (if it exists) is not too small in
         # either x or y-direction
         if spanx <= self.minspanx or spany <= self.minspany:

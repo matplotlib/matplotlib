@@ -759,8 +759,7 @@ class HTMLWriter(FileMovieWriter):
         extra_args = ()  # Don't lookup nonexistent rcParam[args_key].
         self.embed_frames = embed_frames
         self.default_mode = default_mode.lower()
-        _api.check_in_list(['loop', 'once', 'reflect'],
-                           default_mode=self.default_mode)
+        _api.check_in_list(('loop', 'once', 'reflect'))("default_mode", self.default_mode)
 
         # Save embed limit, which is given in MB
         self._bytes_limit = mpl._val_or_rc(embed_limit, 'animation.embed_limit')
@@ -771,7 +770,7 @@ class HTMLWriter(FileMovieWriter):
 
     def setup(self, fig, outfile, dpi=None, frame_dir=None):
         outfile = Path(outfile)
-        _api.check_in_list(['.html', '.htm'], outfile_extension=outfile.suffix)
+        _api.check_in_list(('.html', '.htm'))("outfile_extension", outfile.suffix)
 
         self._saved_frames = []
         self._total_bytes = 0

@@ -338,8 +338,8 @@ class GridHelperRectlinear(GridHelperBase):
         which : {"both", "major", "minor"}
         axis : {"both", "x", "y"}
         """
-        _api.check_in_list(["both", "major", "minor"], which=which)
-        _api.check_in_list(["both", "x", "y"], axis=axis)
+        _api.check_in_list(("both", "major", "minor"))("which", which)
+        _api.check_in_list(("both", "x", "y"))("axis", axis)
         gridlines = []
 
         if axis in ("both", "x"):

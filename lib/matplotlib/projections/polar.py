@@ -918,7 +918,7 @@ class PolarAxes(Axes):
             self._r_label_position + self.transData)
 
     def get_xaxis_transform(self, which='grid'):
-        _api.check_in_list(['tick1', 'tick2', 'grid'], which=which)
+        _api.check_in_list(('tick1', 'tick2', 'grid'))("which", which)
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -933,7 +933,7 @@ class PolarAxes(Axes):
         elif which == 'grid':
             return self._yaxis_transform
         else:
-            _api.check_in_list(['tick1', 'tick2', 'grid'], which=which)
+            _api.check_in_list(('tick1', 'tick2', 'grid'))("which", which)
 
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx

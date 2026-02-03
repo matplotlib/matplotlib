@@ -120,51 +120,31 @@ def check_isinstance(types, /):
     return check
 
 
-def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
+@functools.cache
+def _check_in_tuple(values, /):
+    def check(name, value, _values=values):
+        if value not in _values:
+            raise ValueError(
+                f"{value!r} is not a valid value for {name}; "
+                f"supported values are {', '.join(map(repr, _values))}")
+
+    return check
+
+
+def check_in_list(values, /):
     """
-    For each *key, value* pair in *kwargs*, check that *value* is in *values*;
-    if not, raise an appropriate ValueError.
+    Return a function that checks if a value is in the allowed list.
 
     Parameters
     ----------
     values : iterable
-        Sequence of values to check on.
-
-        Note: All values must support == comparisons.
-        This means in particular the entries must not be numpy arrays.
-    _print_supported_values : bool, default: True
-        Whether to print *values* when raising ValueError.
-    **kwargs : dict
-        *key, value* pairs as keyword arguments to find in *values*.
-
-    Raises
-    ------
-    ValueError
-        If any *value* in *kwargs* is not found in *values*.
+        Sequence of allowed values.
 
     Examples
     --------
-    >>> _api.check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
+    >>> _api.check_in_list(["foo", "bar"])("arg", arg)
     """
-    if not kwargs:
-        raise TypeError("No argument to check!")
-    for key, val in kwargs.items():
-        try:
-            exists = val in values
-        except ValueError:
-            # `in` internally uses `val == values[i]`. There are some objects
-            # that do not support == to arbitrary other objects, in particular
-            # numpy arrays.
-            # Since such objects are not allowed in values, we can gracefully
-            # handle the case that val (typically provided by users) is of such
-            # type and directly state it's not in the list instead of letting
-            # the individual `val == values[i]` ValueError surface.
-            exists = False
-        if not exists:
-            msg = f"{val!r} is not a valid value for {key}"
-            if _print_supported_values:
-                msg += f"; supported values are {', '.join(map(repr, values))}"
-            raise ValueError(msg)
+    return _check_in_tuple(tuple(values))
 
 
 def _raise_shape_error(name, shape, vshape):

@@ -127,7 +127,7 @@ class Grid:
         self._horiz_pad_size, self._vert_pad_size = map(
             Size.Fixed, np.broadcast_to(axes_pad, 2))
 
-        _api.check_in_list(["column", "row"], direction=direction)
+        _api.check_in_list(("column", "row"))("direction", direction)
         self._direction = direction
 
         if axes_class is None:
@@ -252,7 +252,7 @@ class Grid:
             - "all": All axes are labelled.
             - "keep": Do not do anything.
         """
-        _api.check_in_list(["all", "L", "1", "keep"], mode=mode)
+        _api.check_in_list(("all", "L", "1", "keep"))("mode", mode)
         if mode == "keep":
             return
         for i, j in np.ndindex(self._nrows, self._ncols):
@@ -366,10 +366,8 @@ class ImageGrid(Grid):
             to associated *cbar_axes*.
         axes_class : subclass of `matplotlib.axes.Axes`, default: `.mpl_axes.Axes`
         """
-        _api.check_in_list(["each", "single", "edge", None],
-                           cbar_mode=cbar_mode)
-        _api.check_in_list(["left", "right", "bottom", "top"],
-                           cbar_location=cbar_location)
+        _api.check_in_list(("each", "single", "edge", None))("cbar_mode", cbar_mode)
+        _api.check_in_list(("left", "right", "bottom", "top"))("cbar_location", cbar_location)
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         self._colorbar_pad = cbar_pad

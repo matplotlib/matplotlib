@@ -147,11 +147,11 @@ def test_deprecation_alternative() -> None:
     assert alternative in f.__doc__
 
 
-def test_empty_check_in_list() -> None:
-    with pytest.raises(TypeError, match="No argument to check!"):
-        _api.check_in_list(["a"])
+def test_check_in_list_valid() -> None:
+    # Should not raise for valid values
+    _api.check_in_list(("a", "b"))("arg", "a")
 
 
 def test_check_in_list_numpy() -> None:
     with pytest.raises(ValueError, match=r"array\(5\) is not a valid value"):
-        _api.check_in_list(['a', 'b'], value=np.array(5))
+        _api.check_in_list(('a', 'b'))("value", np.array(5))

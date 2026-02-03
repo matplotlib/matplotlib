@@ -273,7 +273,7 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
             sides = 'twosided'
         else:
             sides = 'onesided'
-    _api.check_in_list(['default', 'onesided', 'twosided'], sides=sides)
+    _api.check_in_list(('default', 'onesided', 'twosided'))("sides", sides)
 
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x) < NFFT:
@@ -398,7 +398,7 @@ def _single_spectrum_helper(
     Private helper implementing the commonality between the complex, magnitude,
     angle, and phase spectrums.
     """
-    _api.check_in_list(['complex', 'magnitude', 'angle', 'phase'], mode=mode)
+    _api.check_in_list(('complex', 'magnitude', 'angle', 'phase'))("mode", mode)
 
     if pad_to is None:
         pad_to = len(x)

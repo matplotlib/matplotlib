@@ -688,7 +688,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         else:
             self.logscale = False
 
-        _api.check_in_list([None, 'lower', 'upper', 'image'], origin=origin)
+        _api.check_in_list((None, 'lower', 'upper', 'image'))("origin", origin)
         if self.extent is not None and len(self.extent) != 4:
             raise ValueError(
                 "If given, 'extent' must be None or (x0, x1, y0, y1)")

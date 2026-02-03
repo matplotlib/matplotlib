@@ -114,7 +114,7 @@ class GeoAxes(Axes):
             .translate(0.5, 0.5)
 
     def get_xaxis_transform(self, which='grid'):
-        _api.check_in_list(['tick1', 'tick2', 'grid'], which=which)
+        _api.check_in_list(('tick1', 'tick2', 'grid'))("which", which)
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -124,7 +124,7 @@ class GeoAxes(Axes):
         return self._xaxis_text2_transform, 'top', 'center'
 
     def get_yaxis_transform(self, which='grid'):
-        _api.check_in_list(['tick1', 'tick2', 'grid'], which=which)
+        _api.check_in_list(('tick1', 'tick2', 'grid'))("which", which)
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):

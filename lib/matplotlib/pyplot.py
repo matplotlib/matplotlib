@@ -2699,7 +2699,7 @@ def get_cmap(name: Colormap | str | None = None, lut: int | None = None) -> Colo
         name = rcParams['image.cmap']
     if isinstance(name, Colormap):
         return name
-    _api.check_in_list(sorted(_colormaps), name=name)
+    _api.check_in_list(tuple(sorted(_colormaps)))("name", name)
     if lut is None:
         return _colormaps[name]
     else:

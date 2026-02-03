@@ -146,8 +146,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
 
-    _api.check_in_list(['both', 'forward', 'backward'],
-                       integration_direction=integration_direction)
+    _api.check_in_list(('both', 'forward', 'backward'))("integration_direction", integration_direction)
 
     if integration_direction == 'both':
         maxlength /= 2.

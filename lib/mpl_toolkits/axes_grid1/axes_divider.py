@@ -92,7 +92,7 @@ class Divider:
         .Axes.set_anchor
         """
         if isinstance(anchor, str):
-            _api.check_in_list(mtransforms.Bbox.coefs, anchor=anchor)
+            _api.check_in_list(tuple(mtransforms.Bbox.coefs))("anchor", anchor)
         elif not isinstance(anchor, (tuple, list)) or len(anchor) != 2:
             raise TypeError("anchor must be str or 2-tuple")
         self._anchor = anchor
@@ -247,8 +247,7 @@ class Divider:
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
     def append_size(self, position, size):
-        _api.check_in_list(["left", "right", "bottom", "top"],
-                           position=position)
+        _api.check_in_list(("left", "right", "bottom", "top"))("position", position)
         if position == "left":
             self._horizontal.insert(0, size)
             self._xrefindex += 1

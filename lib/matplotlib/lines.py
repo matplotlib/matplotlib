@@ -1098,7 +1098,7 @@ class Line2D(Artist):
         """
         if drawstyle is None:
             drawstyle = 'default'
-        _api.check_in_list(self.drawStyles, drawstyle=drawstyle)
+        _api.check_in_list(tuple(self.drawStyles))("drawstyle", drawstyle)
         if self._drawstyle != drawstyle:
             self.stale = True
             # invalidate to trigger a recache of the path
@@ -1187,7 +1187,7 @@ class Line2D(Artist):
         if isinstance(ls, str):
             if ls in [' ', '', 'none']:
                 ls = 'None'
-            _api.check_in_list([*self._lineStyles, *ls_mapper_r], ls=ls)
+            _api.check_in_list((*self._lineStyles, *ls_mapper_r))("ls", ls)
             if ls not in self._lineStyles:
                 ls = ls_mapper_r[ls]
             self._linestyle = ls

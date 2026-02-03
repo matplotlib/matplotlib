@@ -75,7 +75,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
 
         %(Collection:kwdoc)s
     """
-    _api.check_in_list(['flat', 'gouraud'], shading=shading)
+    _api.check_in_list(('flat', 'gouraud'))("shading", shading)
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
 

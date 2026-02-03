@@ -60,7 +60,7 @@ class Epoch:
                 "dnum= %s\n"
                 "dt  = %s" % (sec, jd, daynum, dt))
 
-        _api.check_in_list(self.allowed, frame=frame)
+        _api.check_in_list(tuple(self.allowed))("frame", frame)
         self._frame = frame
 
         if dt is not None:

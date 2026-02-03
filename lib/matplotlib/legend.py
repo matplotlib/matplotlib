@@ -69,7 +69,7 @@ class DraggableLegend(DraggableOffsetBox):
         """
         self.legend = legend
 
-        _api.check_in_list(["loc", "bbox"], update=update)
+        _api.check_in_list(("loc", "bbox"))("update", update)
         self._update = update
 
         super().__init__(legend, legend._legend_box, use_blit=use_blit)
@@ -558,7 +558,7 @@ class Legend(Artist):
         )
         self._set_artist_props(self.legendPatch)
 
-        _api.check_in_list(["center", "left", "right"], alignment=alignment)
+        _api.check_in_list(("center", "left", "right"))("alignment", alignment)
         self._alignment = alignment
 
         # init with null renderer
@@ -1030,7 +1030,7 @@ class Legend(Artist):
         alignment : {'center', 'left', 'right'}.
 
         """
-        _api.check_in_list(["center", "left", "right"], alignment=alignment)
+        _api.check_in_list(("center", "left", "right"))("alignment", alignment)
         self._alignment = alignment
         self._legend_box.align = alignment
 

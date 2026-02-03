@@ -222,7 +222,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         draw this mode may be changed if the resulting image has any
         transparent component.
         """
-        _api.check_in_list(['full', 'diff'], mode=mode)
+        _api.check_in_list(('full', 'diff'))("mode", mode)
         if self._current_image_mode != mode:
             self._current_image_mode = mode
             self.handle_send_image_mode(None)

@@ -207,7 +207,7 @@ class RendererAgg(RendererBase):
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
 
-        _api.check_in_list(["TeX", True, False], ismath=ismath)
+        _api.check_in_list(("TeX", True, False))("ismath", ismath)
         if ismath == "TeX":
             return super().get_text_width_height_descent(s, prop, ismath)
 

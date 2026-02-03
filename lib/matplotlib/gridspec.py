@@ -266,8 +266,9 @@ class GridSpecBase:
         if not isinstance(sharey, str):
             sharey = "all" if sharey else "none"
 
-        _api.check_in_list(["all", "row", "col", "none", False, True],
-                           sharex=sharex, sharey=sharey)
+        _valid_share = ("all", "row", "col", "none", False, True)
+        _api.check_in_list(_valid_share)("sharex", sharex)
+        _api.check_in_list(_valid_share)("sharey", sharey)
         if subplot_kw is None:
             subplot_kw = {}
         # don't mutate kwargs passed by user...

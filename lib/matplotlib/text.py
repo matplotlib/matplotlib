@@ -384,7 +384,7 @@ class Text(Artist):
         if m is None:
             m = "default"
         else:
-            _api.check_in_list(("anchor", "default", "xtick", "ytick"), rotation_mode=m)
+            _api.check_in_list(("anchor", "default", "xtick", "ytick"))("rotation_mode", m)
         self._rotation_mode = m
         self.stale = True
 
@@ -1108,7 +1108,7 @@ class Text(Artist):
         ----------
         align : {'left', 'center', 'right'}
         """
-        _api.check_in_list(['center', 'right', 'left'], align=align)
+        _api.check_in_list(('center', 'right', 'left'))("align", align)
         self._horizontalalignment = align
         self.stale = True
 
@@ -1124,7 +1124,7 @@ class Text(Artist):
         ----------
         align : {'left', 'right', 'center'}
         """
-        _api.check_in_list(['center', 'right', 'left'], align=align)
+        _api.check_in_list(('center', 'right', 'left'))("align", align)
         self._multialignment = align
         self.stale = True
 
@@ -1529,7 +1529,7 @@ class OffsetFrom:
         ----------
         unit : {'points', 'pixels'}
         """
-        _api.check_in_list(["points", "pixels"], unit=unit)
+        _api.check_in_list(("points", "pixels"))("unit", unit)
         self._unit = unit
 
     def get_unit(self):

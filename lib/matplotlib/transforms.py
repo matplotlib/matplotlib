@@ -3033,7 +3033,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     `Transform` subclass
         Transform with applied offset.
     """
-    _api.check_in_list(['dots', 'points', 'inches'], units=units)
+    _api.check_in_list(('dots', 'points', 'inches'))("units", units)
     if units == 'dots':
         return trans + Affine2D().translate(x, y)
     if fig is None:

@@ -22,7 +22,7 @@ class SecondaryAxis(_AxesBase):
         While there is no need for this to be private, it should really be
         called by those higher level functions.
         """
-        _api.check_in_list(["x", "y"], orientation=orientation)
+        _api.check_in_list(("x", "y"))("orientation", orientation)
         self._functions = functions
         self._parent = parent
         self._orientation = orientation
@@ -69,7 +69,7 @@ class SecondaryAxis(_AxesBase):
             Either 'top' or 'bottom' for orientation='x' or
             'left' or 'right' for orientation='y' axis.
         """
-        _api.check_in_list(self._locstrings, align=align)
+        _api.check_in_list(tuple(self._locstrings))("align", align)
         if align == self._locstrings[1]:  # Need to change the orientation.
             self._locstrings = self._locstrings[::-1]
         self.spines[self._locstrings[0]].set_visible(True)
@@ -103,7 +103,7 @@ class SecondaryAxis(_AxesBase):
 
         # This puts the rectangle into figure-relative coordinates.
         if isinstance(location, str):
-            _api.check_in_list(self._locstrings, location=location)
+            _api.check_in_list(tuple(self._locstrings))("location", location)
             self._pos = 1. if location in ('top', 'right') else 0.
         elif isinstance(location, numbers.Real):
             self._pos = location

@@ -97,8 +97,7 @@ def stackplot(axes, x, *args,
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
 
-    _api.check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
-                       baseline=baseline)
+    _api.check_in_list(('zero', 'sym', 'wiggle', 'weighted_wiggle'))("baseline", baseline)
     if baseline == 'zero':
         first_line = 0.
 

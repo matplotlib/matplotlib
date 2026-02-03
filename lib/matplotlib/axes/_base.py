@@ -215,7 +215,7 @@ class _process_plot_var_args:
     """
 
     def __init__(self, output='Line2D'):
-        _api.check_in_list(['Line2D', 'Polygon', 'coordinates'], output=output)
+        _api.check_in_list(('Line2D', 'Polygon', 'coordinates'))("output", output)
         self.output = output
         self.set_prop_cycle(None)
 
@@ -508,7 +508,7 @@ class _process_plot_var_args:
         elif self.output == 'coordinates':
             make_artist = self._make_coordinates
         else:
-            _api.check_in_list(['Line2D', 'Polygon', 'coordinates'], output=self.output)
+            _api.check_in_list(('Line2D', 'Polygon', 'coordinates'))("output", self.output)
 
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
@@ -1780,7 +1780,7 @@ class _AxesBase(martist.Artist):
         which the adjustments for aspect ratios are done sequentially
         and independently on each Axes as it is drawn.
         """
-        _api.check_in_list(["box", "datalim"], adjustable=adjustable)
+        _api.check_in_list(("box", "datalim"))("adjustable", adjustable)
         if share:
             axs = {sibling for name in self._axis_names
                    for sibling in self._shared_axes[name].get_siblings(self)}
@@ -2574,7 +2574,7 @@ class _AxesBase(martist.Artist):
         if event is None:  # Allow connecting `self._unit_change_handler(name)`
             return functools.partial(
                 self._unit_change_handler, axis_name, event=object())
-        _api.check_in_list(self._axis_map, axis_name=axis_name)
+        _api.check_in_list(tuple(self._axis_map))("axis_name", axis_name)
         for line in self.lines:
             line.recache_always()
         self.relim()
@@ -3362,7 +3362,7 @@ class _AxesBase(martist.Artist):
         use `.set_axisbelow` or, for more control, call the
         `~.Artist.set_zorder` method of each axis.
         """
-        _api.check_in_list(['x', 'y', 'both'], axis=axis)
+        _api.check_in_list(('x', 'y', 'both'))("axis", axis)
         if axis in ['x', 'both']:
             self.xaxis.grid(visible, which=which, **kwargs)
         if axis in ['y', 'both']:
@@ -3479,7 +3479,7 @@ class _AxesBase(martist.Artist):
             ax.locator_params(tight=True, nbins=4)
 
         """
-        _api.check_in_list([*self._axis_names, "both"], axis=axis)
+        _api.check_in_list((*self._axis_names, "both"))("axis", axis)
         for name in self._axis_names:
             if axis in [name, "both"]:
                 loc = self._axis_map[name].get_major_locator()
@@ -3555,7 +3555,7 @@ class _AxesBase(martist.Artist):
         also be red.  Gridlines will be red and translucent.
 
         """
-        _api.check_in_list(['x', 'y', 'both'], axis=axis)
+        _api.check_in_list(('x', 'y', 'both'))("axis", axis)
         if axis in ['x', 'both']:
             xkw = dict(kwargs)
             xkw.pop('left', None)
@@ -3644,7 +3644,7 @@ class _AxesBase(martist.Artist):
 
         else:
             loc = mpl._val_or_rc(loc, 'xaxis.labellocation')
-            _api.check_in_list(('left', 'center', 'right'), loc=loc)
+            _api.check_in_list(('left', 'center', 'right'))("loc", loc)
 
             x = {
                 'left': 0,
@@ -3912,7 +3912,7 @@ class _AxesBase(martist.Artist):
 
         else:
             loc = mpl._val_or_rc(loc, 'yaxis.labellocation')
-            _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
+            _api.check_in_list(('bottom', 'center', 'top'))("loc", loc)
 
             y, ha = {
                 'bottom': (0, 'left'),

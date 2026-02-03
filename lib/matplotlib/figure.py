@@ -193,7 +193,7 @@ class FigureBase(Artist):
         which : {'major', 'minor', 'both'}, default: 'major'
             Selects which ticklabels to rotate.
         """
-        _api.check_in_list(['major', 'minor', 'both'], which=which)
+        _api.check_in_list(('major', 'minor', 'both'))("which", which)
         axes = [ax for ax in self.axes if ax._label != '<colorbar>']
         allsubplots = all(ax.get_subplotspec() for ax in axes)
         if len(axes) == 1:

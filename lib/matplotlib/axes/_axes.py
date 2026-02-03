@@ -2199,7 +2199,7 @@ class Axes(_AxesBase):
         list of `.Line2D`
             Objects representing the plotted data.
         """
-        _api.check_in_list(('pre', 'post', 'mid'), where=where)
+        _api.check_in_list(('pre', 'post', 'mid'))("where", where)
         kwargs['drawstyle'] = 'steps-' + where
         return self.plot(x, y, *args, data=data, **kwargs)
 
@@ -2470,7 +2470,7 @@ class Axes(_AxesBase):
         # logic and drawing to bar(). It is considered internal and is
         # intentionally not mentioned in the docstring.
         orientation = kwargs.pop('orientation', 'vertical')
-        _api.check_in_list(['vertical', 'horizontal'], orientation=orientation)
+        _api.check_in_list(('vertical', 'horizontal'))("orientation", orientation)
         log = kwargs.pop('log', False)
         label = kwargs.pop('label', '')
         tick_labels = kwargs.pop('tick_label', None)
@@ -2569,7 +2569,7 @@ class Axes(_AxesBase):
 
         # We will now resolve the alignment and really have
         # left, bottom, width, height vectors
-        _api.check_in_list(['center', 'edge'], align=align)
+        _api.check_in_list(('center', 'edge'))("align", align)
         if align == 'center':
             if orientation == 'vertical':
                 try:
@@ -2857,7 +2857,7 @@ class Axes(_AxesBase):
         def sign(x):
             return 1 if x >= 0 else -1
 
-        _api.check_in_list(['edge', 'center'], label_type=label_type)
+        _api.check_in_list(('edge', 'center'))("label_type", label_type)
 
         bars = container.patches
         errorbar = container.errorbar
@@ -3027,7 +3027,7 @@ class Axes(_AxesBase):
         vertices = []
         y0, dy = yrange
 
-        _api.check_in_list(['bottom', 'center', 'top'], align=align)
+        _api.check_in_list(('bottom', 'center', 'top'))("align", align)
         if align == "bottom":
             y0, y1 = self.convert_yunits((y0, y0 + dy))
         elif align == "center":
@@ -3322,7 +3322,7 @@ or pandas.DataFrame
             else:
                 group_distance = 1
 
-        _api.check_in_list(["vertical", "horizontal"], orientation=orientation)
+        _api.check_in_list(("vertical", "horizontal"))("orientation", orientation)
 
         if colors is None:
             colors = itertools.cycle([None])
@@ -3450,7 +3450,7 @@ or pandas.DataFrame
         """
         if not 1 <= len(args) <= 3:
             raise _api.nargs_error('stem', '1-3', len(args))
-        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+        _api.check_in_list(('horizontal', 'vertical'))("orientation", orientation)
 
         if len(args) == 1:
             heads, = args
@@ -3825,7 +3825,7 @@ or pandas.DataFrame
         list
             A list of the label `.Text` instances.
         """
-        _api.check_in_list(['center', 'outer', 'auto'], alignment=alignment)
+        _api.check_in_list(('center', 'outer', 'auto'))("alignment", alignment)
         if alignment == 'auto':
             alignment = 'outer' if distance > 1 else 'center'
 
@@ -4840,7 +4840,7 @@ or pandas.DataFrame
             )
         if vert is False:
             orientation = 'horizontal'
-        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+        _api.check_in_list(('horizontal', 'vertical'))("orientation", orientation)
 
         if not mpl.rcParams['boxplot.vertical']:
             _api.warn_deprecated(
@@ -6393,7 +6393,7 @@ or pandas.DataFrame
 
         _valid_shading = ['gouraud', 'nearest', 'flat', 'auto']
         try:
-            _api.check_in_list(_valid_shading, shading=shading)
+            _api.check_in_list(_valid_shading)("shading", shading)
         except ValueError:
             _api.warn_external(f"shading value '{shading}' not in list of "
                                f"valid values {_valid_shading}. Setting "
@@ -7407,10 +7407,9 @@ such objects
         bins = mpl._val_or_rc(bins, 'hist.bins')
 
         # Validate string inputs here to avoid cluttering subsequent code.
-        _api.check_in_list(['bar', 'barstacked', 'step', 'stepfilled'],
-                           histtype=histtype)
-        _api.check_in_list(['left', 'mid', 'right'], align=align)
-        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+        _api.check_in_list(('bar', 'barstacked', 'step', 'stepfilled'))("histtype", histtype)
+        _api.check_in_list(('left', 'mid', 'right'))("align", align)
+        _api.check_in_list(('horizontal', 'vertical'))("orientation", orientation)
 
         if histtype == 'barstacked' and not stacked:
             stacked = True
@@ -7950,7 +7949,7 @@ such objects
         -inf or +inf (if they should be sorted at the beginning or the end of
         the array).
         """
-        _api.check_in_list(["horizontal", "vertical"], orientation=orientation)
+        _api.check_in_list(("horizontal", "vertical"))("orientation", orientation)
         if "drawstyle" in kwargs or "ds" in kwargs:
             raise TypeError("Cannot pass 'drawstyle' or 'ds' to ecdf()")
         if np.ma.getmask(x).any():
@@ -8740,7 +8739,7 @@ such objects
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
-        _api.check_in_list(["upper", "lower"], origin=origin)
+        _api.check_in_list(("upper", "lower"))("origin", origin)
         if marker is None and markersize is None:
             Z = np.asarray(Z)
             mask = np.abs(Z) > precision
@@ -9139,7 +9138,7 @@ such objects
                 alternative="orientation: {'vertical', 'horizontal'}",
             )
             orientation = 'vertical' if vert else 'horizontal'
-        _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
+        _api.check_in_list(('horizontal', 'vertical'))("orientation", orientation)
 
         # Validate positions
         if positions is None:
@@ -9168,7 +9167,7 @@ such objects
                 and not isinstance(width0, np.timedelta64)):
                 raise TypeError(
                     "np.datetime64 'position' values require np.timedelta64 'widths'")
-        _api.check_in_list(["both", "low", "high"], side=side)
+        _api.check_in_list(("both", "low", "high"))("side", side)
 
         # Calculate ranges for statistics lines (shape (2, N)).
         line_ends = [[-0.25 if side in ['both', 'low'] else 0],

@@ -297,7 +297,7 @@ class CallbackRegistry:
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
         if self._signals is not None:
-            _api.check_in_list(self._signals, signal=signal)
+            _api.check_in_list(tuple(self._signals))("signal", signal)
         proxy = _weak_or_strong_ref(func, functools.partial(self._remove_proxy, signal))
         try:
             return self._func_cid_map[signal, proxy]
@@ -357,7 +357,7 @@ class CallbackRegistry:
         called with ``*args`` and ``**kwargs``.
         """
         if self._signals is not None:
-            _api.check_in_list(self._signals, signal=s)
+            _api.check_in_list(tuple(self._signals))("signal", s)
         for ref in list(self.callbacks.get(s, {}).values()):
             func = ref()
             if func is not None:

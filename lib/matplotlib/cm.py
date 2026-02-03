@@ -221,7 +221,7 @@ class ColormapRegistry(Mapping):
         if isinstance(cmap, colors.Colormap):
             return cmap
         if isinstance(cmap, str):
-            _api.check_in_list(sorted(_colormaps), cmap=cmap)
+            _api.check_in_list(tuple(sorted(_colormaps)))("cmap", cmap)
             # otherwise, it must be a string so look it up
             return self[cmap]
         raise TypeError(

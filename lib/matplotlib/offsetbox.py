@@ -113,7 +113,7 @@ def _get_packed_offsets(widths, total, sep, mode="fixed"):
     offsets : array of float
         The left offsets of the boxes.
     """
-    _api.check_in_list(["fixed", "expand", "equal"], mode=mode)
+    _api.check_in_list(("fixed", "expand", "equal"))("mode", mode)
 
     if mode == "fixed":
         offsets_ = np.cumsum([0] + [w + sep for w in widths])

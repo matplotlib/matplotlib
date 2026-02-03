@@ -272,7 +272,7 @@ class LinearTriInterpolator(TriInterpolator):
     gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
-        _api.check_in_list(['z', 'dzdx', 'dzdy'], return_key=return_key)
+        _api.check_in_list(('z', 'dzdx', 'dzdy'))("return_key", return_key)
         if return_key == 'z':
             return (self._plane_coefficients[tri_index, 0]*x +
                     self._plane_coefficients[tri_index, 1]*y +
@@ -412,7 +412,7 @@ class CubicTriInterpolator(TriInterpolator):
         # Computing eccentricities
         self._eccs = self._compute_tri_eccentricities(self._tris_pts)
         # Computing dof estimations for HCT triangle shape function
-        _api.check_in_list(['user', 'geom', 'min_E'], kind=kind)
+        _api.check_in_list(('user', 'geom', 'min_E'))("kind", kind)
         self._dof = self._compute_dof(kind, dz=dz)
         # Loading HCT element
         self._ReferenceElement = _ReducedHCT_Element()
@@ -428,7 +428,7 @@ class CubicTriInterpolator(TriInterpolator):
     gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
-        _api.check_in_list(['z', 'dzdx', 'dzdy'], return_key=return_key)
+        _api.check_in_list(('z', 'dzdx', 'dzdy'))("return_key", return_key)
         tris_pts = self._tris_pts[tri_index]
         alpha = self._get_alpha_vec(x, y, tris_pts)
         ecc = self._eccs[tri_index]

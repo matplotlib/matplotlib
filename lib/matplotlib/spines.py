@@ -365,8 +365,7 @@ class Spine(mpatches.Patch):
                 position = ('data', 0)
         assert len(position) == 2, 'position should be 2-tuple'
         position_type, amount = position
-        _api.check_in_list(['axes', 'outward', 'data'],
-                           position_type=position_type)
+        _api.check_in_list(('axes', 'outward', 'data'))("position_type", position_type)
         if self.spine_type in ['left', 'right']:
             base_transform = self.axes.get_yaxis_transform(which='grid')
         elif self.spine_type in ['top', 'bottom']:

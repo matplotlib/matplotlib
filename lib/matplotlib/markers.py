@@ -283,7 +283,7 @@ class MarkerStyle:
             markerfacecolor.
         """
         fillstyle = mpl._val_or_rc(fillstyle, 'markers.fillstyle')
-        _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
+        _api.check_in_list(tuple(self.fillstyles))("fillstyle", fillstyle)
         self._fillstyle = fillstyle
 
     def get_joinstyle(self):

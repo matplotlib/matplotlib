@@ -285,9 +285,8 @@ class Axes3D(Axes):
         """
         if adjustable is None:
             adjustable = 'box'
-        _api.check_in_list(['box', 'datalim'], adjustable=adjustable)
-        _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'),
-                           aspect=aspect)
+        _api.check_in_list(('box', 'datalim'))("adjustable", adjustable)
+        _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'))("aspect", aspect)
 
         self.set_adjustable(adjustable)
         self._aspect = aspect
@@ -1177,7 +1176,7 @@ class Axes3D(Axes):
             The focal length can be computed from a desired Field Of View via
             the equation: focal_length = 1/tan(FOV/2)
         """
-        _api.check_in_list(['persp', 'ortho'], proj_type=proj_type)
+        _api.check_in_list(('persp', 'ortho'))("proj_type", proj_type)
         if proj_type == 'persp':
             if focal_length is None:
                 focal_length = 1
@@ -1865,7 +1864,7 @@ class Axes3D(Axes):
         .. note::
            Axes3D currently ignores some of these settings.
         """
-        _api.check_in_list(['x', 'y', 'z', 'both'], axis=axis)
+        _api.check_in_list(('x', 'y', 'z', 'both'))("axis", axis)
         if axis in ['x', 'y', 'both']:
             super().tick_params(axis, **kwargs)
         if axis in ['z', 'both']:
@@ -2076,7 +2075,7 @@ class Axes3D(Axes):
             A `.Poly3DCollection` containing the plotted polygons.
 
         """
-        _api.check_in_list(['auto', 'quad', 'polygon'], mode=mode)
+        _api.check_in_list(('auto', 'quad', 'polygon'))("mode", mode)
 
         had_data = self.has_data()
         x1, y1, z1, x2, y2, z2 = cbook._broadcast_with_masks(x1, y1, z1, x2, y2, z2)
@@ -3339,7 +3338,7 @@ class Axes3D(Axes):
         shaft_dt = np.array([0., length], dtype=float)
         arrow_dt = shaft_dt * arrow_length_ratio
 
-        _api.check_in_list(['tail', 'middle', 'tip'], pivot=pivot)
+        _api.check_in_list(('tail', 'middle', 'tip'))("pivot", pivot)
         if pivot == 'tail':
             shaft_dt -= length
         elif pivot == 'middle':
@@ -4018,7 +4017,7 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        _api.check_in_list(['x', 'y', 'z'], orientation=orientation)
+        _api.check_in_list(('x', 'y', 'z'))("orientation", orientation)
 
         xlim = (np.min(x), np.max(x))
         ylim = (np.min(y), np.max(y))
