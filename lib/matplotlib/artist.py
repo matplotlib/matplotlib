@@ -375,21 +375,22 @@ Supported properties are
         """
         return Bbox([[0, 0], [0, 0]])
 
-    def _in_axes_domain(self, x, y):
+    def _outside_axes_domain(self, x, y):
         """
-        Check if the data point (x, y) is within the valid domain of the axes
+        Check if the data point (x, y) is outside the valid domain of the axes
         scales.
 
-        Returns True if no axes or if the point is in the valid domain.
+        Returns True if the artist is in an Axes but the point is outside its
+        data range (eg. negative coordinates with a log scale).
         """
         ax = self.axes
         if ax is None:
-            return True
+            return False
         for val, axis in [(x, ax.xaxis), (y, ax.yaxis)]:
             vmin, vmax = axis.limit_range_for_scale(val, val)
             if vmin != val or vmax != val:
-                return False
-        return True
+                return True
+        return False
 
     def get_tightbbox(self, renderer=None):
         """
