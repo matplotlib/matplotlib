@@ -13,6 +13,7 @@ This documentation is only relevant for Matplotlib developers, not for users.
 import difflib
 import functools
 import itertools
+import operator
 import pathlib
 import re
 import sys
@@ -154,10 +155,24 @@ def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
             raise ValueError(msg)
 
 
-def check_shape(shape, /, **kwargs):
+def _raise_shape_error(name, shape, vshape):
+    """Build and raise the shape error."""
+    dim_labels = iter(itertools.chain(
+        'NMLKJIH', (f"D{i}" for i in itertools.count())))
+    text_shape = ", ".join([str(n) if n is not None else next(dim_labels)
+                            for n in shape[::-1]][::-1])
+    if len(shape) == 1:
+        text_shape += ","
+    raise ValueError(
+        f"{name!r} must be {len(shape)}D with shape ({text_shape}), "
+        f"but your input has shape {vshape}"
+    )
+
+
+@functools.cache
+def check_shape(shape, /):
     """
-    For each *key, value* pair in *kwargs*, check that *value* has the shape *shape*;
-    if not, raise an appropriate ValueError.
+    Return a function that checks array shape, raising ValueError on mismatch.
 
     *None* in the shape is treated as a "free" size that can have any length.
     e.g. (None, 2) -> (N, 2)
@@ -168,25 +183,27 @@ def check_shape(shape, /, **kwargs):
     --------
     To check for (N, 2) shaped arrays
 
-    >>> _api.check_shape((None, 2), arg=arg, other_arg=other_arg)
+    >>> _api.check_shape((None, 2))("arg", arg)
     """
-    for k, v in kwargs.items():
-        data_shape = v.shape
+    ndim = len(shape)
+    fixed = tuple((i, n) for i, n in enumerate(shape) if n is not None)
 
-        if (len(data_shape) != len(shape)
-                or any(s != t and t is not None for s, t in zip(data_shape, shape))):
-            dim_labels = iter(itertools.chain(
-                'NMLKJIH',
-                (f"D{i}" for i in itertools.count())))
-            text_shape = ", ".join([str(n) if n is not None else next(dim_labels)
-                                    for n in shape[::-1]][::-1])
-            if len(shape) == 1:
-                text_shape += ","
+    if not fixed:
+        # All dimensions are None, only check ndim
+        def check(name, value, _ndim=ndim, _shape=shape):
+            if len(value.shape) != _ndim:
+                _raise_shape_error(name, _shape, value.shape)
+    else:
+        # Use itemgetter for fixed dimension extraction
+        get_dims = operator.itemgetter(*(i for i, _ in fixed))
+        expected = get_dims(shape) if len(fixed) > 1 else shape[fixed[0][0]]
 
-            raise ValueError(
-                f"{k!r} must be {len(shape)}D with shape ({text_shape}), "
-                f"but your input has shape {v.shape}"
-            )
+        def check(name, value, _ndim=ndim, _get=get_dims, _exp=expected, _shape=shape):
+            vshape = value.shape
+            if len(vshape) != _ndim or _get(vshape) != _exp:
+                _raise_shape_error(name, _shape, vshape)
+
+    return check
 
 
 def check_getitem(mapping, /, _error_cls=ValueError, **kwargs):

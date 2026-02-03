@@ -33,7 +33,7 @@ def test_check_shape(target: tuple[int | None, ...],
         f"has shape {test_shape}")
     data = np.zeros(test_shape)
     with pytest.raises(ValueError, match=error_pattern):
-        _api.check_shape(target, aardvark=data)
+        _api.check_shape(target)("aardvark", data)
 
 
 def test_classproperty_deprecation() -> None:

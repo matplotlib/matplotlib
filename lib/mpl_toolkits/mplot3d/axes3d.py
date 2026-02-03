@@ -376,7 +376,7 @@ class Axes3D(Axes):
             aspect = np.asarray((4, 4, 3), dtype=float)
         else:
             aspect = np.asarray(aspect, dtype=float)
-            _api.check_shape((3,), aspect=aspect)
+            _api.check_shape((3,))("aspect", aspect)
         # The scale 1.8294640721620434 is tuned to match the mpl3.2 appearance.
         # The 25/24 factor is to compensate for the change in automargin
         # behavior in mpl3.9. This comes from the padding of 1/48 on both sides

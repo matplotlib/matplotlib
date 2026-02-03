@@ -1403,7 +1403,7 @@ def _safe_inv22_vectorized(M):
 
     *M* : array of (2, 2) matrices to inverse, shape (n, 2, 2)
     """
-    _api.check_shape((None, 2, 2), M=M)
+    _api.check_shape((None, 2, 2))("M", M)
     M_inv = np.empty_like(M)
     prod1 = M[:, 0, 0]*M[:, 1, 1]
     delta = prod1 - M[:, 0, 1]*M[:, 1, 0]
@@ -1437,7 +1437,7 @@ def _pseudo_inv22sym_vectorized(M):
 
     *M* : array of (2, 2) matrices to inverse, shape (n, 2, 2)
     """
-    _api.check_shape((None, 2, 2), M=M)
+    _api.check_shape((None, 2, 2))("M", M)
     M_inv = np.empty_like(M)
     prod1 = M[:, 0, 0]*M[:, 1, 1]
     delta = prod1 - M[:, 0, 1]*M[:, 1, 0]

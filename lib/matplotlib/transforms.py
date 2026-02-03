@@ -1700,8 +1700,8 @@ class Transform(TransformNode):
             raise NotImplementedError('Only defined in 2D')
         angles = np.asarray(angles)
         pts = np.asarray(pts)
-        _api.check_shape((None, 2), pts=pts)
-        _api.check_shape((None,), angles=angles)
+        _api.check_shape((None, 2))("pts", pts)
+        _api.check_shape((None,))("angles", angles)
         if len(angles) != len(pts):
             raise ValueError("There must be as many 'angles' as 'pts'")
         # Convert to radians if desired

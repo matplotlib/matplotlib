@@ -126,7 +126,7 @@ class Path:
             and codes as read-only arrays.
         """
         vertices = _to_unmasked_float_array(vertices)
-        _api.check_shape((None, 2), vertices=vertices)
+        _api.check_shape((None, 2))("vertices", vertices)
 
         if codes is not None and len(vertices):
             codes = np.asarray(codes, self.code_type)

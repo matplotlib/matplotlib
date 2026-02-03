@@ -672,7 +672,7 @@ def _create_lookup_table(N, data, gamma=1.0):
         adata = np.array(data)
     except Exception as err:
         raise TypeError("data must be convertible to an array") from err
-    _api.check_shape((None, 3), data=adata)
+    _api.check_shape((None, 3))("data", adata)
 
     x = adata[:, 0]
     y0 = adata[:, 1]
@@ -2207,7 +2207,7 @@ class SegmentedBivarColormap(BivarColormap):
 
     def __init__(self, patch, N=256, shape='square', origin=(0, 0),
                  name='segmented bivariate colormap'):
-        _api.check_shape((None, None, 3), patch=patch)
+        _api.check_shape((None, None, 3))("patch", patch)
         self.patch = patch
         super().__init__(N, N, shape, origin, name=name)
 

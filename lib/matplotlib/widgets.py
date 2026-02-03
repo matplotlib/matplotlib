@@ -993,7 +993,7 @@ class RangeSlider(SliderBase):
         val : tuple or array-like of float
         """
         val = np.sort(val)
-        _api.check_shape((2,), val=val)
+        _api.check_shape((2,))("val", val)
         # Reset value to allow _value_in_bounds() to work.
         self.val = (self.valmin, self.valmax)
         vmin, vmax = self._value_in_bounds(val)
