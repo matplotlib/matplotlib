@@ -79,7 +79,8 @@ def _get_running_interactive_framework():
         or sys.modules.get("PySide2.QtWidgets")
     )
     if QtWidgets and QtWidgets.QApplication.instance():
-        return "qt"
+        if QtWidgets.QApplication.activeWindow() is not None:
+            return "qt"
     Gtk = sys.modules.get("gi.repository.Gtk")
     if Gtk:
         if Gtk.MAJOR_VERSION == 4:
