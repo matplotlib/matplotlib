@@ -2324,12 +2324,13 @@ class Parser:
         if accent in self._wide_accents:
             accent_box = AutoWidthChar(
                 '\\' + accent, sym.width, state, char_class=Accent)
+            centered = HCentered([accent_box])
         else:
             accent_box = Accent(self._accent_map[accent], state)
-        if accent == 'mathring':
-            accent_box.shrink()
-            accent_box.shrink()
-        centered = HCentered([Hbox(sym.width / 4.0), accent_box])
+            if accent == 'mathring':
+                accent_box.shrink()
+                accent_box.shrink()
+            centered = HCentered([Hbox(sym.width / 4.0), accent_box])
         centered.hpack(sym.width, 'exactly')
         return Vlist([
                 centered,
