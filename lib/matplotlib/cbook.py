@@ -79,7 +79,8 @@ def _get_running_interactive_framework():
         or sys.modules.get("PySide2.QtWidgets")
     )
     if QtWidgets and QtWidgets.QApplication.instance():
-        if QtWidgets.QApplication.activeWindow() is not None:
+        app = QtWidgets.QApplication.instance()
+        if app.activeWindow() is not None or app.thread().eventDispatcher().processEvents(QtWidgets.QEventLoop.ProcessEventsFlag.AllEvents):
             return "qt"
     Gtk = sys.modules.get("gi.repository.Gtk")
     if Gtk:
