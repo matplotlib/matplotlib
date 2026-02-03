@@ -363,10 +363,10 @@ class Text(Artist):
         return (np.abs(size_accum - std_x)).argmin()
 
     def get_rotation(self):
-        """Return the text angle in degrees between 0 and 360."""
+        """Return the text angle in degrees in the range [0, 360)."""
         if self.get_transform_rotates_text():
             return self.get_transform().transform_angles(
-                [self._rotation], [self.get_unitless_position()]).item(0)
+                [self._rotation], [self.get_unitless_position()]).item(0) % 360
         else:
             return self._rotation
 
