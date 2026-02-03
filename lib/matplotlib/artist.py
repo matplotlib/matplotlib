@@ -169,6 +169,7 @@ class Artist:
 Set multiple properties at once.
 
 ::
+
     a.set(a=A, b=B, c=C)
 
 is equivalent to ::
@@ -177,8 +178,13 @@ is equivalent to ::
     a.set_b(B)
     a.set_c(C)
 
-The order of operations is not guaranteed, however most properties do not
-depend on each other.
+In addition to the full property names, aliases are also supported, e.g.
+``set(lw=2)`` is equivalent to ``set(linewidth=2)``, but it is an error
+to pass both simultaneously.
+
+The order of the individual setter calls matches the order of parameters
+in ``set()``. However, most properties do not depend on each other so
+that order is rarely relevant.
 
 Supported properties are
 
@@ -1222,19 +1228,18 @@ Supported properties are
         property name for "{prop_name}".
         """
         ret = []
-        with cbook._setattr_cm(self, eventson=False):
-            for k, v in props.items():
-                # Allow attributes we want to be able to update through
-                # art.update, art.set, setp.
-                if k == "axes":
-                    ret.append(setattr(self, k, v))
-                else:
-                    func = getattr(self, f"set_{k}", None)
-                    if not callable(func):
-                        raise AttributeError(
-                            errfmt.format(cls=type(self), prop_name=k),
-                            name=k)
-                    ret.append(func(v))
+        for k, v in props.items():
+            # Allow attributes we want to be able to update through
+            # art.update, art.set, setp.
+            if k == "axes":
+                ret.append(setattr(self, k, v))
+            else:
+                func = getattr(self, f"set_{k}", None)
+                if not callable(func):
+                    raise AttributeError(
+                        errfmt.format(cls=type(self), prop_name=k),
+                        name=k)
+                ret.append(func(v))
         if ret:
             self.pchanged()
             self.stale = True
@@ -1242,11 +1247,26 @@ Supported properties are
 
     def update(self, props):
         """
-        Update this artist's properties from the dict *props*.
+        [*Discouraged*] Update this artist's properties from the dictionary *props*.
+
+        .. admonition:: Discouraged
+
+            This method exists for historic reasons. Please use `.Artist.set` instead.
+            ``artist.update(props)`` is nowadays almost identical to
+            ``artist.set(**props)`` with the only difference that ``set`` will
+            additionally check that a property is not specified multiple times
+            through aliases.
 
         Parameters
         ----------
         props : dict
+            Dictionary of properties (keys) and their new values.
+
+        Returns
+        -------
+        list
+            A list of return values from the configured setters.
+
         """
         return self._update_props(
             props, "{cls.__name__!r} object has no property {prop_name!r}")
@@ -1271,14 +1291,17 @@ Supported properties are
     @contextlib.contextmanager
     def _cm_set(self, **kwargs):
         """
-        `.Artist.set` context-manager that restores original values at exit.
+        A context manager to temporarily set artist properties.
+
+        In contrast to `.Artist.set` and for performance, this skips the
+        `normalize_kwargs` check.
         """
         orig_vals = {k: getattr(self, f"get_{k}")() for k in kwargs}
         try:
-            self.set(**kwargs)
+            self._internal_update({k: kwargs[k] for k in orig_vals})
             yield
         finally:
-            self.set(**orig_vals)
+            self._internal_update(orig_vals)
 
     def findobj(self, match=None, include_self=True):
         """
@@ -1870,7 +1893,7 @@ def kwdoc(artist):
     -------
     str
         The settable properties of *artist*, as plain text if
-        :rc:`docstring.hardcopy` is False and as a rst table (intended for
+        :rc:`docstring.hardcopy` is False and as an rst table (intended for
         use in Sphinx) if it is True.
     """
     ai = ArtistInspector(artist)

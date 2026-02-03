@@ -256,6 +256,36 @@ def test_setp():
     assert sio.getvalue() == '  zorder: float\n'
 
 
+def test_artist_set():
+    line = mlines.Line2D([], [])
+    line.set(linewidth=7)
+    assert line.get_linewidth() == 7
+
+    # Property aliases should work
+    line.set(lw=5)
+    assert line.get_linewidth() == 5
+
+
+def test_artist_set_invalid_property_raises():
+    """
+    Test that set() raises AttributeError for invalid property names.
+    """
+    line = mlines.Line2D([0, 1], [0, 1])
+
+    with pytest.raises(AttributeError, match="unexpected keyword argument"):
+        line.set(not_a_property=1)
+
+
+def test_artist_set_duplicate_aliases_raises():
+    """
+    Test that set() raises TypeError when both a property and its alias are provided.
+    """
+    line = mlines.Line2D([0, 1], [0, 1])
+
+    with pytest.raises(TypeError, match="aliases of one another"):
+        line.set(lw=2, linewidth=3)
+
+
 def test_None_zorder():
     fig, ax = plt.subplots()
     ln, = ax.plot(range(5), zorder=None)

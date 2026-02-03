@@ -6,56 +6,53 @@
 Write documentation
 ===================
 
-Getting started
-===============
-
-General file structure
-----------------------
-
-All documentation is built from the :file:`doc/`.  The :file:`doc/`
-directory contains configuration files for Sphinx and reStructuredText
-(ReST_; ``.rst``) files that are rendered to documentation pages.
-
-Documentation is created in three ways.  First, API documentation
-(:file:`doc/api`) is created by Sphinx_ from
-the docstrings of the classes in the Matplotlib library.  Except for
-:file:`doc/api/api_changes/`,  ``.rst`` files in :file:`doc/api` are created
-when the documentation is built.  See :ref:`writing-docstrings` below.
-
-Second, our example pages, tutorials, and some of the narrative documentation
-are created by `Sphinx Gallery`_.  Sphinx Gallery converts example Python files
-to ``*.rst`` files with the result of Matplotlib plot calls as embedded images.
-See :ref:`writing-examples-and-tutorials` below.
-
-Third, Matplotlib has narrative docs written in ReST_ in subdirectories of
-:file:`doc/users/`.  If you would like to add new documentation that is suited
-to an ``.rst`` file rather than a gallery or tutorial example, choose an
-appropriate subdirectory to put it in, and add the file to the table of
-contents of :file:`index.rst` of the subdirectory.  See
-:ref:`writing-rest-pages` below.
+All documentation is built from the :file:`doc/` folder, but (as explained in this guide)
+some of these files are generated from inline docstrings or sphinx gallery files.
 
 .. note::
 
   Don't directly edit the ``.rst`` files in :file:`doc/plot_types`,
-  :file:`doc/gallery`,  :file:`doc/tutorials`, and :file:`doc/api`
-  (excepting :file:`doc/api/api_changes/`).  Sphinx_ regenerates
+  :file:`doc/gallery`,  :file:`doc/tutorials`, :file:`doc/users/explain` and
+  :file:`doc/api` (except :file:`doc/api/api_changes/`).  Sphinx_ regenerates
   files in these directories when building documentation.
 
-Set up the build
-----------------
+Overview
+========
+Documentation is created in three ways. First, API documentation (:file:`doc/api`) is
+created by Sphinx_ from the docstrings of the classes in the Matplotlib library.  Except
+for :file:`doc/api/api_changes/`,  ``.rst`` files in :file:`doc/api` are created
+when the documentation is built.  See :ref:`writing-docstrings`.
 
-The documentation for Matplotlib is generated from reStructuredText (ReST_)
-using the Sphinx_ documentation generation tool.
+Second, our example pages, tutorials, and some of the user guide are created by
+`Sphinx Gallery`_.  Sphinx Gallery converts Python files in :file:`galleries` to
+``*.rst`` files that contain the results of Matplotlib plot calls as embedded images.
+See :ref:`writing-examples-and-tutorials`.
 
-To build the documentation you will need to
-:ref:`set up Matplotlib for development <installing_for_devs>`. Note in
-particular the :ref:`additional dependencies <doc-dependencies>` required to
-build the documentation.
+Third, Matplotlib has informative documentation written in ReST in subdirectories of
+:file:`doc`. General and historical information about the project is in :file:`doc/project`,
+the installation guide is in :file:`doc/install`, and release notes are managed in
+:file:`doc/release`. Maintenance documentation is in :file:`doc\devel` and the website
+always redirects to the latest version of these documents. We also maintain a list of
+external resources in :file:`doc/users/resources/index.rst`. To improve these documents
+or add resources, see :ref:`writing-rest-pages`.
+
+Theme
+-----
+
+Matplotlib has a few subprojects that share the same navbar and style, so these
+are centralized as a sphinx theme at
+`mpl_sphinx_theme <https://github.com/matplotlib/mpl-sphinx-theme>`_.  Changes to the
+style or top bar should be made there to propagate across all subprojects.
 
 .. _build_docs:
 
 Build the docs
---------------
+==============
+The documentation for Matplotlib is generated from reStructuredText (ReST_)
+using the Sphinx_ documentation generation tool. To build the documentation you will
+need to :ref:`set up Matplotlib for development <installing_for_devs>`. Note in
+particular the :ref:`additional dependencies <doc-dependencies>` required to
+build the documentation.
 
 The documentation sources are found in the :file:`doc/` directory.
 The configuration file for Sphinx is :file:`doc/conf.py`. It controls which
@@ -71,48 +68,78 @@ used. To build the documentation in html format, cd into :file:`doc/` and run:
    Since the documentation is very large, the first build may take 10-20 minutes,
    depending on your machine.  Subsequent builds will be faster.
 
-Other useful invocations include
+Build options
+-------------
+Other useful invocations include:
 
-.. code-block:: sh
+.. list-table::
+  :widths: 30 30 40
+  :header-rows: 1
+  :stub-columns: 1
 
-   # Build the html documentation, but skip generation of the gallery images to
-   # save time.
-   make html-noplot
-
-   # Build the html documentation, but skip specific subdirectories.  If a gallery
-   # directory is skipped, the gallery images are not generated.  The first
-   # time this is run, it creates ``.mpl_skip_subdirs.yaml`` which can be edited
-   # to add or remove subdirectories
-   make html-skip-subdirs
-
-   # Delete built files.  May help if you get errors about missing paths or
-   # broken links.
-   make clean
-
-   # Build pdf docs.
-   make latexpdf
+  * - invocation
+    - description
+    - notes
+  * - ``make html-noplot``
+    - skip generation of the gallery images
+    -
+  * - ``make html-skip-subdirs``
+    - skip specific subdirectories
+    - If a gallery directory is skipped, the gallery images are not generated.  The first
+      time this is run, it creates ``.mpl_skip_subdirs.yaml`` which can be edited to add
+      or remove subdirectories
+  * - ``make clean``
+    - Delete built files.
+    - May help if you get errors about missing paths or broken links.
+  * - ``make latexpdf``
+    - Build pdf docs
+    -
 
 The ``SPHINXOPTS`` variable is set to ``-W --keep-going`` by default to build
-the complete docs but exit with exit status 1 if there are warnings.  To unset
-it, use
+the complete docs but exit with exit status 1 if there are warnings. To unset it, set
+the variable to a blank space. On Windows, set the options as environment variables.
 
-.. code-block:: sh
+.. tab-set::
+  :sync-group: category
 
-   make SPHINXOPTS= html
+  .. tab-item:: Linux & macOS
+    :sync: linux
+
+    .. code-block:: sh
+
+      make SPHINXOPTS= html
+
+  .. tab-ITEM:: Windows
+    :sync: windows
+
+    .. code-block:: bat
+
+      set SPHINXOPTS= & make html
 
 You can use the ``O`` variable to set additional options:
 
-* ``make O=-j4 html`` runs a parallel build with 4 processes.
-* ``make O=-Dplot_formats=png:100 html`` saves figures in low resolution.
+* ``O=-j4`` runs a parallel build with 4 processes.
+* ``O=-Dplot_formats=png:100`` saves figures in low resolution.
 
-Multiple options can be combined, e.g. ``make O='-j4 -Dplot_formats=png:100'
-html``.
+Multiple options can be combined, e.g:
 
-On Windows, set the options as environment variables, e.g.:
+.. tab-set::
+  :sync-group: category
 
-.. code-block:: bat
+  .. tab-item:: Linux & macOS
+    :sync: linux
 
-   set SPHINXOPTS= & set O=-j4 -Dplot_formats=png:100 & make html
+    .. code-block:: sh
+
+      make SPHINXOPTS= O='-j4 -Dplot_formats=png:100' html
+
+  .. tab-ITEM:: Windows
+    :sync: windows
+
+    .. code-block:: bat
+
+      set SPHINXOPTS= & set O=-j4 -Dplot_formats=png:100 & make html
+
 
 Show locally built docs
 -----------------------
@@ -123,6 +150,7 @@ for opening them in your default browser is:
 .. code-block:: sh
 
    make show
+
 
 .. _writing-rest-pages:
 
@@ -213,6 +241,18 @@ nor the ````literal```` role:
 .. code-block:: rst
 
    Do not describe ``argument`` like this.
+
+
+Write mathematical expressions
+------------------------------
+
+In most cases, you will likely want to use one of `Sphinx's builtin Math
+extensions <https://www.sphinx-doc.org/en/master/usage/extensions/math.html>`__.
+In rare cases we want the rendering of the mathematical text in the
+documentation html to exactly match with the rendering of the mathematical
+expression in the Matplotlib figure. In these cases, you can use the
+`matplotlib.sphinxext.mathmpl` Sphinx extension (See also the
+:doc:`../users/explain/text/mathtext` tutorial.)
 
 
 .. _internal-section-refs:
@@ -386,16 +426,38 @@ Note that the python script that generates the plot is referred to, rather than
 any plot that is created.  Sphinx-gallery will provide the correct reference
 when the documentation is built.
 
-Tools for writing mathematical expressions
-------------------------------------------
+Move documentation
+------------------
+Sometimes it is desirable to move or consolidate documentation.  With no
+action this will lead to links either going dead (404) or pointing to old
+versions of the documentation. Instead, replace the old page
+with an html refresh that immediately redirects the viewer to the new
+page. So, for example we move ``/doc/topic/old_info.rst`` to
+``/doc/topic/new_info.rst``.  We remove ``/doc/topic/old_info.rst`` and
+in ``/doc/topic/new_info.rst`` we insert a ``redirect-from`` directive that
+tells sphinx to still make the old file with the html refresh/redirect in it
+(probably near the top of the file to make it noticeable)
 
-In most cases, you will likely want to use one of `Sphinx's builtin Math
-extensions <https://www.sphinx-doc.org/en/master/usage/extensions/math.html>`__.
-In rare cases we want the rendering of the mathematical text in the
-documentation html to exactly match with the rendering of the mathematical
-expression in the Matplotlib figure. In these cases, you can use the
-`matplotlib.sphinxext.mathmpl` Sphinx extension (See also the
-:doc:`../users/explain/text/mathtext` tutorial.)
+.. code-block:: rst
+
+   .. redirect-from:: /topic/old_info
+
+In the built docs this will yield an html file
+``/build/html/topic/old_info.html`` that has a refresh to ``new_info.html``.
+If the two files are in different subdirectories:
+
+.. code-block:: rst
+
+   .. redirect-from:: /old_topic/old_info2
+
+will yield an html file ``/build/html/old_topic/old_info2.html`` that has a
+(relative) refresh to ``../topic/new_info.html``.
+
+Use the full path for this directive, relative to the doc root at
+``https://matplotlib.org/stable/``.  So ``/old_topic/old_info2`` would be
+found by users at ``http://matplotlib.org/stable/old_topic/old_info2``.
+For clarity, do not use relative links.
+
 
 .. _writing-docstrings:
 
@@ -1163,51 +1225,6 @@ Format
        plotting method is typically used for.
 :code: The code should be about 5-10 lines with minimal customization. Plots in
        this gallery use the ``_mpl-gallery`` stylesheet for a uniform aesthetic.
-
-Miscellaneous
-=============
-
-Move documentation
-------------------
-
-Sometimes it is desirable to move or consolidate documentation.  With no
-action this will lead to links either going dead (404) or pointing to old
-versions of the documentation.  Preferable is to replace the old page
-with an html refresh that immediately redirects the viewer to the new
-page. So, for example we move ``/doc/topic/old_info.rst`` to
-``/doc/topic/new_info.rst``.  We remove ``/doc/topic/old_info.rst`` and
-in ``/doc/topic/new_info.rst`` we insert a ``redirect-from`` directive that
-tells sphinx to still make the old file with the html refresh/redirect in it
-(probably near the top of the file to make it noticeable)
-
-.. code-block:: rst
-
-   .. redirect-from:: /topic/old_info
-
-In the built docs this will yield an html file
-``/build/html/topic/old_info.html`` that has a refresh to ``new_info.html``.
-If the two files are in different subdirectories:
-
-.. code-block:: rst
-
-   .. redirect-from:: /old_topic/old_info2
-
-will yield an html file ``/build/html/old_topic/old_info2.html`` that has a
-(relative) refresh to ``../topic/new_info.html``.
-
-Use the full path for this directive, relative to the doc root at
-``https://matplotlib.org/stable/``.  So ``/old_topic/old_info2`` would be
-found by users at ``http://matplotlib.org/stable/old_topic/old_info2``.
-For clarity, do not use relative links.
-
-Navbar and style
-----------------
-
-Matplotlib has a few subprojects that share the same navbar and style, so these
-are centralized as a sphinx theme at
-`mpl_sphinx_theme <https://github.com/matplotlib/mpl-sphinx-theme>`_.  Changes to the
-style or topbar should be made there to propagate across all subprojects.
-
 
 Analytics
 ==========

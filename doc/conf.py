@@ -132,8 +132,9 @@ extensions = [
     'sphinxext.math_symbol_table',
     'sphinxext.missing_references',
     'sphinxext.mock_gui_toolkits',
-    'sphinxext.skip_deprecated',
+    'sphinxext.rcparams',
     'sphinxext.redirect_from',
+    'sphinxext.skip_deprecated',
     'sphinx_copybutton',
     'sphinx_design',
     'sphinx_tags',
@@ -194,6 +195,7 @@ if parse_version(sphinx_gallery.__version__) >= parse_version('0.16.0'):
     gallery_order_sectionorder = 'sphinxext.gallery_order.sectionorder'
     gallery_order_subsectionorder = 'sphinxext.gallery_order.subsectionorder'
     clear_basic_units = 'sphinxext.util.clear_basic_units'
+    patch_header = 'sphinxext.util.patch_header'
     matplotlib_reduced_latex_scraper = 'sphinxext.util.matplotlib_reduced_latex_scraper'
 else:
     # gallery_order.py from the sphinxext folder provides the classes that
@@ -201,7 +203,8 @@ else:
     from sphinxext.gallery_order import (
         sectionorder as gallery_order_sectionorder,
         subsectionorder as gallery_order_subsectionorder)
-    from sphinxext.util import clear_basic_units, matplotlib_reduced_latex_scraper
+    from sphinxext.util import (clear_basic_units, matplotlib_reduced_latex_scraper,
+                                patch_header)
 
 if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
     sg_matplotlib_animations = (True, 'mp4')
@@ -305,7 +308,7 @@ sphinx_gallery_conf = {
     'reference_url': {'matplotlib': None, 'mpl_toolkits': None},
     'prefer_full_module': {r'mpl_toolkits\.'},
     'remove_config_comments': True,
-    'reset_modules': ('matplotlib', clear_basic_units, 'sphinxext.util.patch_header'),
+    'reset_modules': ('matplotlib', clear_basic_units, patch_header),
     'subsection_order': gallery_order_sectionorder,
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order_subsectionorder,
@@ -899,3 +902,4 @@ def setup(app):
     if sphinx.version_info[:2] < (7, 1):
         app.connect('html-page-context', add_html_cache_busting, priority=1000)
     generate_ScalarMappable_docs()
+    app.config.autodoc_use_legacy_class_based = True

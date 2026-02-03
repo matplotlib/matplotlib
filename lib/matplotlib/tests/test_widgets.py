@@ -517,6 +517,17 @@ def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
                                        46.25, 133.75])
 
 
+def test_axeswidget_del_on_failed_init():
+    """
+    Test that an unraisable exception is not created when initialization
+    fails.
+    """
+    # Pytest would fail the test if such an exception occurred.
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError, match="unexpected keyword argument 'undefined'"):
+        widgets.Button(ax, undefined='bar')
+
+
 def test_ellipse(ax):
     """For ellipse, test out the key modifiers"""
     tool = widgets.EllipseSelector(ax, grab_range=10, interactive=True)
@@ -1206,6 +1217,25 @@ def test_check_button_props(fig_test, fig_ref):
     # This means we cannot pass facecolor to both setters directly.
     check_props['edgecolor'] = check_props.pop('facecolor')
     cb.set_check_props({**check_props, 's': (24 / 2)**2})
+
+
+@pytest.mark.parametrize("widget", [widgets.RadioButtons, widgets.CheckButtons])
+def test__buttons_callbacks(ax, widget):
+    """Tests what https://github.com/matplotlib/matplotlib/pull/31031 fixed"""
+    on_clicked = mock.Mock(spec=noop, return_value=None)
+    button = widget(ax, ["Test Button"])
+    button.on_clicked(on_clicked)
+    MouseEvent._from_ax_coords(
+        "button_press_event",
+        ax,
+        ax.transData.inverted().transform(ax.transAxes.transform(
+            # (x, y) of the 0th button defined at
+            # `{Check,Radio}Buttons._init_props`
+            (0.15, 0.5),
+        )),
+        1,
+    )._process()
+    on_clicked.assert_called_once()
 
 
 def test_slider_slidermin_slidermax_invalid():

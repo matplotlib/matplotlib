@@ -35,7 +35,6 @@ class Widget:
 class AxesWidget(Widget):
     ax: Axes
     def __init__(self, ax: Axes) -> None: ...
-    def __del__(self) -> None: ...
     @property
     def canvas(self) -> FigureCanvasBase | None: ...
     def connect_event(self, event: Event, callback: Callable) -> None: ...
@@ -202,6 +201,7 @@ class TextBox(AxesWidget):
 class RadioButtons(AxesWidget):
     activecolor: ColorType
     value_selected: str
+    index_selected: int
     labels: list[Text]
     def __init__(
         self,
