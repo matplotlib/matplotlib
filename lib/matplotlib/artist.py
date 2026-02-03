@@ -1292,14 +1292,17 @@ Supported properties are
     @contextlib.contextmanager
     def _cm_set(self, **kwargs):
         """
-        `.Artist.set` context-manager that restores original values at exit.
+        A context manager to temporarily set artist properties.
+
+        In contrast to `.Artist.set` and for performance, this skips the
+        `normalize_kwargs` check.
         """
         orig_vals = {k: getattr(self, f"get_{k}")() for k in kwargs}
         try:
-            self.set(**kwargs)
+            self._internal_update({k: kwargs[k] for k in orig_vals})
             yield
         finally:
-            self.set(**orig_vals)
+            self._internal_update(orig_vals)
 
     def findobj(self, match=None, include_self=True):
         """
