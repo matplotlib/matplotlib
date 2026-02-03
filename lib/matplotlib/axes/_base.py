@@ -905,8 +905,8 @@ class _AxesBase(martist.Artist):
         tight : bool or None, default: None
         """
         axis_names = _api.check_getitem(
-            {**{k: [k] for k in self._axis_names}, "all": self._axis_names},
-            axis=axis)
+            {**{k: [k] for k in self._axis_names}, "all": self._axis_names})(
+                "axis", axis)
         for name in axis_names:
             self._stale_viewlims[name] = True
         if tight is not None:
@@ -3426,10 +3426,10 @@ class _AxesBase(martist.Artist):
                                  ) from err
         STYLES = {'sci': True, 'scientific': True, 'plain': False, '': None, None: None}
         # The '' option is included for backwards-compatibility.
-        is_sci_style = _api.check_getitem(STYLES, style=style)
+        is_sci_style = _api.check_getitem(STYLES)("style", style)
         axis_map = {**{k: [v] for k, v in self._axis_map.items()},
                     'both': list(self._axis_map.values())}
-        axises = _api.check_getitem(axis_map, axis=axis)
+        axises = _api.check_getitem(axis_map)("axis", axis)
         try:
             for axis in axises:
                 if is_sci_style is not None:

@@ -443,7 +443,7 @@ class AxesDivider(Divider):
             "right": (self.new_horizontal, False),
             "bottom": (self.new_vertical, True),
             "top": (self.new_vertical, False),
-        }, position=position)
+        })("position", position)
         ax = create_axes(
             size, pad, pack_start=pack_start, axes_class=axes_class, **kwargs)
         self._fig.add_axes(ax)

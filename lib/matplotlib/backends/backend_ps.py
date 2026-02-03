@@ -989,8 +989,7 @@ class FigureCanvasPS(FigureCanvasBase):
         papertype = papertype.lower()
         _api.check_in_list(('figure', *papersize))("papertype", papertype)
 
-        orientation = _api.check_getitem(
-            _Orientation, orientation=orientation.lower())
+        orientation = _api.check_getitem(_Orientation)("orientation", orientation.lower())
 
         printer = (self._print_figure_tex
                    if mpl.rcParams['text.usetex'] else

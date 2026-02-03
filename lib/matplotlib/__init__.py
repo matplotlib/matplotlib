@@ -749,8 +749,7 @@ class RcParams(MutableMapping, dict):
                 and "backend" in self):
             return
         valid_key = _api.check_getitem(
-            self.validate, rcParam=key, _error_cls=KeyError
-        )
+            self.validate, _error_cls=KeyError)("rcParam", key)
         try:
             cval = valid_key(val)
         except ValueError as ve:

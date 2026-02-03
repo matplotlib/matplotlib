@@ -689,7 +689,7 @@ class Legend(Artist):
                         locs = locs[::-1]
                     loc = locs[0] + ' ' + locs[1]
             # check that loc is in acceptable strings
-            loc = _api.check_getitem(self.codes, loc=loc)
+            loc = _api.check_getitem(self.codes)("loc", loc)
         elif np.iterable(loc):
             # coerce iterable into tuple
             loc = tuple(loc)

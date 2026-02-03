@@ -351,8 +351,7 @@ class Colorbar:
         self.extend = extend
         self._inside = _api.check_getitem(
             {'neither': slice(0, None), 'both': slice(1, -1),
-             'min': slice(1, None), 'max': slice(0, -1)},
-            extend=extend)
+             'min': slice(1, None), 'max': slice(0, -1)})("extend", extend)
         self.spacing = spacing
         self.orientation = orientation
         self.drawedges = drawedges
@@ -1349,7 +1348,7 @@ def _normalize_location_orientation(location, orientation):
                    "panchor": (0.5, 1.0), "pad": 0.05},
         "bottom": {"location": "bottom", "anchor": (0.5, 1.0),
                    "panchor": (0.5, 0.0), "pad": 0.15},
-    }, location=location)
+    })("location", location)
     loc_settings["orientation"] = _get_orientation_from_location(location)
     if orientation is not None and orientation != loc_settings["orientation"]:
         # Allow the user to pass both if they are consistent.
@@ -1360,13 +1359,13 @@ def _normalize_location_orientation(location, orientation):
 def _get_orientation_from_location(location):
     return _api.check_getitem(
         {None: None, "left": "vertical", "right": "vertical",
-         "top": "horizontal", "bottom": "horizontal"}, location=location)
+         "top": "horizontal", "bottom": "horizontal"})("location", location)
 
 
 def _get_ticklocation_from_orientation(orientation):
     return _api.check_getitem(
-        {None: "right", "vertical": "right", "horizontal": "bottom"},
-        orientation=orientation)
+        {None: "right", "vertical": "right", "horizontal": "bottom"})(
+            "orientation", orientation)
 
 
 @_docstring.interpd

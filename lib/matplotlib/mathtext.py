@@ -56,8 +56,8 @@ class MathTextParser:
             `RasterParse` ("agg", or its synonym "macosx").
         """
         self._output_type = _api.check_getitem(
-            {"path": "vector", "agg": "raster", "macosx": "raster"},
-            output=output.lower())
+            {"path": "vector", "agg": "raster", "macosx": "raster"})(
+                "output", output.lower())
 
     def parse(self, s, dpi=72, prop=None, *, antialiased=None):
         """
@@ -89,8 +89,7 @@ class MathTextParser:
     def _parse_cached(self, s, dpi, prop, antialiased, load_glyph_flags):
         if prop is None:
             prop = FontProperties()
-        fontset_class = _api.check_getitem(
-            self._font_type_mapping, fontset=prop.get_math_fontfamily())
+        fontset_class = _api.check_getitem(self._font_type_mapping)("fontset", prop.get_math_fontfamily())
         fontset = fontset_class(prop, load_glyph_flags)
         fontsize = prop.get_size_in_points()
 

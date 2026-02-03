@@ -70,9 +70,6 @@ class classproperty:
         return self._fget
 
 
-# In the following check_foo() functions, the first parameter is positional-only to make
-# e.g. `_api.check_isinstance([...], types=foo)` work.
-
 def _raise_isinstance_error(name, types, value):
     """Build and raise the isinstance error."""
     none_type = type(None)
@@ -198,35 +195,36 @@ def check_shape(shape, /):
     return check
 
 
-def check_getitem(mapping, /, _error_cls=ValueError, **kwargs):
+def check_getitem(mapping, /, _error_cls=ValueError):
     """
-    *kwargs* must consist of a single *key, value* pair.  If *key* is in
-    *mapping*, return ``mapping[value]``; else, raise an appropriate
-    ValueError.
+    Return a function that looks up a value in *mapping*, raising on invalid keys.
 
     Parameters
     ----------
+    mapping : dict
+        The mapping to look up values in.
     _error_cls :
-        Class of error to raise.
+        Class of error to raise on invalid key.
 
     Examples
     --------
-    >>> _api.check_getitem({"foo": "bar"}, arg=arg)
+    >>> _api.check_getitem({"foo": "bar"})("arg", arg)
     """
-    if len(kwargs) != 1:
-        raise ValueError("check_getitem takes a single keyword argument")
-    (k, v), = kwargs.items()
-    try:
-        return mapping[v]
-    except KeyError:
-        if len(mapping) > 5:
-            if len(best := difflib.get_close_matches(v, mapping.keys(), cutoff=0.5)):
-                suggestion = f"Did you mean one of {best}?"
+    def check(name, value, _mapping=mapping, _err=_error_cls):
+        try:
+            return _mapping[value]
+        except KeyError:
+            if len(_mapping) > 5:
+                best = difflib.get_close_matches(value, _mapping.keys(), cutoff=0.5)
+                if best:
+                    suggestion = f"Did you mean one of {best}?"
+                else:
+                    suggestion = ""
             else:
-                suggestion = ""
-        else:
-            suggestion = f"Supported values are {', '.join(map(repr, mapping))}"
-        raise _error_cls(f"{v!r} is not a valid value for {k}. {suggestion}") from None
+                suggestion = f"Supported values are {', '.join(map(repr, _mapping))}"
+            raise _err(f"{value!r} is not a valid value for {name}. {suggestion}") from None
+
+    return check
 
 
 def caching_module_getattr(cls):

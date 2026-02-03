@@ -165,7 +165,7 @@ class GridFinder:
         the future at the same time as axisartist-specific formatters.
         """
         fmt = _api.check_getitem(
-            {1: self.tick_formatter1, 2: self.tick_formatter2}, idx=idx)
+            {1: self.tick_formatter1, 2: self.tick_formatter2})("idx", idx)
         return (fmt.format_ticks(levels) if isinstance(fmt, mticker.Formatter)
                 else fmt(direction, factor, levels))
 

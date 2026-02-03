@@ -281,7 +281,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
     def set_cursor(self, cursor):
         # docstring inherited
-        self.setCursor(_api.check_getitem(cursord, cursor=cursor))
+        self.setCursor(_api.check_getitem(cursord)("cursor", cursor))
 
     def mouseEventCoords(self, pos=None):
         """

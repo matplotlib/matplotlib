@@ -763,7 +763,7 @@ def _ensure_norm(norm, n_components=1):
         if norm is None:
             norm = colors.Normalize()
         elif isinstance(norm, str):
-            scale_cls = _api.check_getitem(scale._scale_mapping, norm=norm)
+            scale_cls = _api.check_getitem(scale._scale_mapping)("norm", norm)
             return _auto_norm_from_scale(scale_cls)()
         return norm
     elif n_components > 1:

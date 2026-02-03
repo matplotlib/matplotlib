@@ -411,7 +411,7 @@ class QuiverKey(martist.Artist):
             "axes": self.Q.axes.transAxes,
             "figure": fig.transFigure,
             "inches": fig.dpi_scale_trans,
-        }, coordinates=self.coord))
+        })("coordinates", self.coord))
 
     def set_figure(self, fig):
         super().set_figure(fig)
@@ -622,7 +622,7 @@ class Quiver(mcollections.PolyCollection):
             'height': bb.height,
             'dots': 1.,
             'inches': self.axes.get_figure(root=True).dpi,
-        }, units=units)
+        })("units", units)
 
     def _set_transform(self):
         """

@@ -776,7 +776,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             cursors.WAIT: wx.CURSOR_WAIT,
             cursors.RESIZE_HORIZONTAL: wx.CURSOR_SIZEWE,
             cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
-        }, cursor=cursor))
+        })("cursor", cursor))
         self.SetCursor(cursor)
         self.Refresh()
 

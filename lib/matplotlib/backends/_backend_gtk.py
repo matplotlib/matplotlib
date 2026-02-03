@@ -75,7 +75,7 @@ def mpl_to_gtk_cursor_name(mpl_cursor):
         Cursors.WAIT: "wait",
         Cursors.RESIZE_HORIZONTAL: "ew-resize",
         Cursors.RESIZE_VERTICAL: "ns-resize",
-    }, cursor=mpl_cursor)
+    })("cursor", mpl_cursor)
 
 
 class TimerGTK(TimerBase):

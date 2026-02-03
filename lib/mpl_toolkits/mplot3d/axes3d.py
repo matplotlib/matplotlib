@@ -1146,9 +1146,8 @@ class Axes3D(Axes):
         if roll is None:
             roll = self.initial_roll
         vertical_axis = _api.check_getitem(
-            {name: idx for idx, name in enumerate(self._axis_names)},
-            vertical_axis=vertical_axis,
-        )
+            {name: idx for idx, name in enumerate(self._axis_names)})(
+                "vertical_axis", vertical_axis)
 
         if share:
             axes = {sibling for sibling
