@@ -490,11 +490,10 @@ class InvertedSymmetricalLogTransform(Transform):
         self.linthresh = linthresh
         self.linscale = linscale
 
+    @_api.deprecated("3.11", name="invlinthresh", obj_type="attribute",
+                     alternative=".inverted().transform(linthresh)")
     @property
     def invlinthresh(self):
-        _api.warn_deprecated(
-            "3.11", name="invlinthresh", obj_type="attribute",
-            alternative=".inverted().transform(linthresh)")
         invlinthresh = self.inverted().transform(self.linthresh)
         return invlinthresh
 
