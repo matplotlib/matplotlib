@@ -13,12 +13,21 @@ in Matplotlib and how they can be customized when plotting data:
 - Rotating and transforming markers
 - Customizing marker cap styles and join styles
 
+<<<<<<< HEAD
 For a list of all markers, see the `matplotlib.markers` documentation.
+=======
+For a list of all markers see also the `matplotlib.markers` documentation.
+>>>>>>> 0b612f225e (Address review: restore cross references, redirects, and apply Tex wording)
 
 For example usages see
 :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
 
+<<<<<<< HEAD
+=======
+.. redirect-from:: /gallery/shapes_and_collections/marker_path
+>>>>>>> 0b612f225e (Address review: restore cross references, redirects, and apply Tex wording)
 """
+
 
 import matplotlib.pyplot as plt
 
