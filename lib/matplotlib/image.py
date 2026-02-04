@@ -206,12 +206,24 @@ def _resample(
     out = np.zeros(out_shape + data.shape[2:], data.dtype)  # 2D->2D, 3D->3D.
     if resample is None:
         resample = image_obj.get_resample()
+
+    # When an output pixel falls exactly on the edge between two input pixels, the Agg
+    # resampler will use the right input pixel as the nearest neighbor.  We want the
+    # left input pixel to be chosen instead, so we flip the supplied transform.
+    if interpolation == 'nearest':
+        transform += Affine2D().translate(-out.shape[1], -out.shape[0]).scale(-1, -1)
+
     _image.resample(data, out, transform,
                     _interpd_[interpolation],
                     resample,
                     alpha,
                     image_obj.get_filternorm(),
                     image_obj.get_filterrad())
+
+    # Because we flipped the supplied transform, we then flip the output image back.
+    if interpolation == 'nearest':
+        out = np.flip(out, axis=(0, 1))
+
     return out
 
 
