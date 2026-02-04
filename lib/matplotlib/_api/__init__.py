@@ -70,27 +70,6 @@ class classproperty:
         return self._fget
 
 
-def _raise_isinstance_error(name, types, value):
-    """Build and raise the isinstance error."""
-    none_type = type(None)
-
-    def type_name(tp):
-        return ("None" if tp is none_type
-                else tp.__qualname__ if tp.__module__ == "builtins"
-                else f"{tp.__module__}.{tp.__qualname__}")
-
-    names = [*map(type_name, types)]
-    if "None" in names:  # Move it to the end for better wording.
-        names.remove("None")
-        names.append("None")
-    raise TypeError(
-        "{!r} must be an instance of {}, not a {}".format(
-            name,
-            ", ".join(names[:-1]) + " or " + names[-1]
-            if len(names) > 1 else names[0],
-            type_name(type(value))))
-
-
 @functools.cache
 def check_isinstance(types, /):
     """
@@ -110,9 +89,23 @@ def check_isinstance(types, /):
     else:
         types = tuple(none_type if tp is None else tp for tp in types)
 
+    def type_name(tp):
+        return ("None" if tp is none_type
+                else tp.__qualname__ if tp.__module__ == "builtins"
+                else f"{tp.__module__}.{tp.__qualname__}")
+
     def check(name, value, _types=types):
         if not isinstance(value, _types):
-            _raise_isinstance_error(name, _types, value)
+            names = [*map(type_name, types)]
+            if "None" in names:  # Move it to the end for better wording.
+                names.remove("None")
+                names.append("None")
+            raise TypeError(
+                "{!r} must be an instance of {}, not a {}".format(
+                    name,
+                    ", ".join(names[:-1]) + " or " + names[-1]
+                    if len(names) > 1 else names[0],
+                    type_name(type(value))))
 
     return check
 
@@ -144,20 +137,6 @@ def check_in_list(values, /):
     return _check_in_tuple(tuple(values))
 
 
-def _raise_shape_error(name, shape, vshape):
-    """Build and raise the shape error."""
-    dim_labels = iter(itertools.chain(
-        'NMLKJIH', (f"D{i}" for i in itertools.count())))
-    text_shape = ", ".join([str(n) if n is not None else next(dim_labels)
-                            for n in shape[::-1]][::-1])
-    if len(shape) == 1:
-        text_shape += ","
-    raise ValueError(
-        f"{name!r} must be {len(shape)}D with shape ({text_shape}), "
-        f"but your input has shape {vshape}"
-    )
-
-
 @functools.cache
 def check_shape(shape, /):
     """
@@ -174,23 +153,36 @@ def check_shape(shape, /):
 
     >>> _api.check_shape((None, 2))("arg", arg)
     """
+    def raise_error(name, vshape):
+        dim_labels = iter(itertools.chain(
+            'NMLKJIH', (f"D{i}" for i in itertools.count())))
+        text_shape = ", ".join([str(n) if n is not None else next(dim_labels)
+                                for n in shape[::-1]][::-1])
+        if len(shape) == 1:
+            text_shape += ","
+        raise ValueError(
+            f"{name!r} must be {len(shape)}D with shape ({text_shape}), "
+            f"but your input has shape {vshape}"
+        )
+
     ndim = len(shape)
     fixed = tuple((i, n) for i, n in enumerate(shape) if n is not None)
 
     if not fixed:
         # All dimensions are None, only check ndim
-        def check(name, value, _ndim=ndim, _shape=shape):
+        def check(name, value, _ndim=ndim, _raise=raise_error):
             if len(value.shape) != _ndim:
-                _raise_shape_error(name, _shape, value.shape)
+                _raise(name, value.shape)
     else:
         # Use itemgetter for fixed dimension extraction
         get_dims = operator.itemgetter(*(i for i, _ in fixed))
-        expected = get_dims(shape) if len(fixed) > 1 else shape[fixed[0][0]]
+        expected = get_dims(shape)
 
-        def check(name, value, _ndim=ndim, _get=get_dims, _exp=expected, _shape=shape):
+        def check(name, value,
+                  _ndim=ndim, _get=get_dims, _exp=expected, _raise=raise_error):
             vshape = value.shape
             if len(vshape) != _ndim or _get(vshape) != _exp:
-                _raise_shape_error(name, _shape, vshape)
+                _raise(name, vshape)
 
     return check
 
