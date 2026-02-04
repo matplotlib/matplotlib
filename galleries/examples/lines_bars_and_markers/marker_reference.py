@@ -1,13 +1,12 @@
+.. redirect-from:: /gallery/shapes_and_collections/marker_path
+
 """
 ================
 Marker reference
 ================
 
 This example shows a visual overview of the different marker styles available
-in Matplotlib and how they can be customized when plotting data.
-
-The example demonstrates:
-
+in Matplotlib and how they can be customized when plotting data:
 - The difference between unfilled and filled markers
 - How marker fill styles and colors can be changed
 - Markers created using TeX symbols
@@ -15,12 +14,10 @@ The example demonstrates:
 - Rotating and transforming markers
 - Customizing marker cap styles and join styles
 
-For a list of all markers see also the `matplotlib.markers` documentation.
+For a list of all markers, see the `matplotlib.markers` documentation.
 
 For example usages see
 :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
-
-.. redirect-from:: /gallery/shapes_and_collections/marker_path
 """
 
 
