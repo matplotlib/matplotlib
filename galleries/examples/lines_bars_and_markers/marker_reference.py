@@ -1,6 +1,5 @@
-.. redirect-from:: /gallery/shapes_and_collections/marker_path
-
 """
+.. redirect-from:: /gallery/shapes_and_collections/marker_path
 ================
 Marker reference
 ================
@@ -18,8 +17,8 @@ For a list of all markers, see the `matplotlib.markers` documentation.
 
 For example usages see
 :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
-"""
 
+"""
 
 import matplotlib.pyplot as plt
 
