@@ -3,6 +3,8 @@ import importlib
 import os
 import signal
 import sys
+import subprocess
+import textwrap
 
 from datetime import date, datetime
 from unittest import mock
@@ -28,21 +30,38 @@ _test_timeout = 60  # A reasonably safe value for slower architectures.
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_fig_close():
+    # Run in a subprocess to avoid leaking the QApplication instance 
+    # into the main test process.
+    code = textwrap.dedent("""
+        import matplotlib
+        matplotlib.use('QtAgg')
+        import matplotlib.pyplot as plt
+        from matplotlib._pylab_helpers import Gcf
+        import copy
 
-    # save the state of Gcf.figs
-    init_figs = copy.copy(Gcf.figs)
+        # Save the state of Gcf.figs (should be empty in new process)
+        init_figs = copy.copy(Gcf.figs)
 
-    # make a figure using pyplot interface
-    fig = plt.figure()
+        # Make a figure (this initializes QApplication)
+        fig = plt.figure()
 
-    # simulate user clicking the close button by reaching in
-    # and calling close on the underlying Qt object
-    fig.canvas.manager.window.close()
+        # Simulate user clicking the close button
+        fig.canvas.manager.window.close()
 
-    # assert that we have removed the reference to the FigureManager
-    # that got added by plt.figure()
-    assert init_figs == Gcf.figs
+        # Assert that we have removed the reference to the FigureManager
+        assert init_figs == Gcf.figs
+    """)
 
+    # Run the code using the current Python executable
+    run_result = subprocess.run(
+        [sys.executable, "-c", code], 
+        capture_output=True, 
+        text=True,
+        encoding="utf-8"
+    )
+
+    if run_result.returncode != 0:
+        pytest.fail(f"Subprocess failed with exit code {run_result.returncode}:\n{run_result.stderr}")
 
 @pytest.mark.parametrize(
     "qt_key, qt_mods, answer",
@@ -284,22 +303,49 @@ def test_canvas_reinit():
     assert called
 
 
+import sys
+import subprocess
+import textwrap
+import pytest
+
+# ... (기존 코드들) ...
+
 @pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_form_widget_get_with_datetime_and_date_fields():
-    from matplotlib.backends.backend_qt import _create_qApp
-    _create_qApp()
+    # Run in a subprocess to avoid leaking the QApplication instance 
+    # created by _create_qApp into the main test process.
+    code = textwrap.dedent("""
+        from datetime import date, datetime
+        from matplotlib.backends.backend_qt import _create_qApp
+        from matplotlib.backends.qt_editor import _formlayout
+        
+        # Create Qt application locally in the subprocess
+        _create_qApp()
 
-    form = [
-        ("Datetime field", datetime(year=2021, month=3, day=11)),
-        ("Date field", date(year=2021, month=3, day=11))
-    ]
-    widget = _formlayout.FormWidget(form)
-    widget.setup()
-    values = widget.get()
-    assert values == [
-        datetime(year=2021, month=3, day=11),
-        date(year=2021, month=3, day=11)
-    ]
+        form = [
+            ("Datetime field", datetime(year=2021, month=3, day=11)),
+            ("Date field", date(year=2021, month=3, day=11))
+        ]
+        widget = _formlayout.FormWidget(form)
+        widget.setup()
+        values = widget.get()
+        
+        expected = [
+            datetime(year=2021, month=3, day=11),
+            date(year=2021, month=3, day=11)
+        ]
+        assert values == expected
+    """)
+
+    run_result = subprocess.run(
+        [sys.executable, "-c", code], 
+        capture_output=True, 
+        text=True,
+        encoding="utf-8"
+    )
+
+    if run_result.returncode != 0:
+        pytest.fail(f"Subprocess failed with exit code {run_result.returncode}:\n{run_result.stderr}")
 
 
 def _get_testable_qt_backends():
