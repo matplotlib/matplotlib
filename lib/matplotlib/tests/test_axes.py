@@ -19,6 +19,7 @@ import numpy as np
 from numpy import ma
 from cycler import cycler
 import pytest
+pytestmark = pytest.mark.xdist_group("heavy_resource_group")
 
 import matplotlib
 import matplotlib as mpl

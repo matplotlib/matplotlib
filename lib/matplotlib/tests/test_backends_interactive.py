@@ -15,6 +15,7 @@ import urllib.request
 from PIL import Image
 
 import pytest
+pytestmark = pytest.mark.xdist_group("heavy_resource_group")
 
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
