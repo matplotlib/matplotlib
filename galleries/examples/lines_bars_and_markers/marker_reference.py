@@ -10,13 +10,19 @@ The example demonstrates:
 
 - The difference between unfilled and filled markers
 - How marker fill styles and colors can be changed
-- Markers created using MathText symbols
+- Markers created using TeX symbols
 - Markers created from custom Paths
 - Rotating and transforming markers
 - Customizing marker cap styles and join styles
 
-This helps users understand how to select and style markers effectively in plots.
+For a list of all markers see also the `matplotlib.markers` documentation.
+
+For example usages see
+:doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
+
+.. redirect-from:: /gallery/shapes_and_collections/marker_path
 """
+
 
 import matplotlib.pyplot as plt
 
