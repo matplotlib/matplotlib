@@ -1269,7 +1269,7 @@ class Colorbar:
         # Set the default value.
         extendlength = np.array([default, default])
         if isinstance(frac, str):
-            _api.check_in_list(('auto'))("extendfrac", frac.lower())
+            _api.check_in_list(('auto',))("extendfrac", frac.lower())
             # Use the provided values when 'auto' is required.
             extendlength[:] = [automin, automax]
         elif frac is not None:
