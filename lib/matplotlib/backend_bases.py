@@ -207,10 +207,10 @@ class RendererBase:
                                transforms.Affine2D().translate(x, y),
                                rgbFace)
 
-    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offset_trans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
-                             offset_position, *, hatchcolors=None):
+    def draw_path_collection(self, vgc, master_transform, paths, all_transforms,
+                             offsets, offset_trans, facecolors=None, edgecolors=None,
+                             linewidths=None, linestyles=None, antialiaseds=None,
+                             urls=None, offset_position=None, hatchcolors=None):
         """
         Draw a collection of *paths*.
 
@@ -243,10 +243,14 @@ class RendererBase:
         if hatchcolors is None:
             hatchcolors = []
 
+        if isinstance(gc := vgc, GraphicsContextBase):
+            vgc = VectorizedGraphicsContextBase()
+            vgc.copy_properties(gc, facecolors, edgecolors, linewidths, linestyles,
+                                antialiaseds, urls, hatchcolors)
+
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, list(path_ids), offsets, offset_trans,
-                facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
+            vgc, list(path_ids), offsets, offset_trans
+        ):
             path, transform = path_id
             # Only apply another translation if we have an offset, else we
             # reuse the initial transform.
@@ -343,9 +347,7 @@ class RendererBase:
         N = max(Npath_ids, len(offsets))
         return (N + Npath_ids - 1) // Npath_ids
 
-    def _iter_collection(self, gc, path_ids, offsets, offset_trans, facecolors,
-                         edgecolors, linewidths, linestyles,
-                         antialiaseds, urls, offset_position, *, hatchcolors):
+    def _iter_collection(self, vgc, path_ids, offsets, offset_trans):
         """
         Helper method (along with `_iter_collection_raw_paths`) to implement
         `draw_path_collection` in a memory-efficient manner.
@@ -371,18 +373,30 @@ class RendererBase:
         Npaths = len(path_ids)
         Noffsets = len(offsets)
         N = max(Npaths, Noffsets)
-        Nfacecolors = len(facecolors)
-        Nedgecolors = len(edgecolors)
-        Nhatchcolors = len(hatchcolors)
-        Nlinewidths = len(linewidths)
-        Nlinestyles = len(linestyles)
-        Nurls = len(urls)
+
+        Nalphas = len(vgc._alphas)
+        Nforced_alphas = len(vgc._forced_alphas)
+        Nantialiaseds = len(vgc._antialiaseds)
+        Ncapstyles = len(vgc._capstyles)
+        Ndashes = len(vgc._dashes)
+        Njoinstyles = len(vgc._joinstyles)
+        Nlinewidths = len(vgc._linewidths)
+        Nedgecolors = len(vgc._edgecolors)
+        Nfacecolors = len(vgc._facecolors)
+        Nhatches = len(vgc._hatches)
+        Nhatchcolors = len(vgc._hatchcolors)
+        Nhatch_linewidths = len(vgc._hatch_linewidths)
+        Nurls = len(vgc._urls)
+        Ngids = len(vgc._gids)
+        Nsnaps = len(vgc._snaps)
+        Nsketches = len(vgc._sketches)
 
         if (Nfacecolors == 0 and Nedgecolors == 0 and Nhatchcolors == 0) or Npaths == 0:
             return
 
-        gc0 = self.new_gc()
-        gc0.copy_properties(gc)
+        gc = self.new_gc()
+        gc.set_clip_path(vgc._clippath)
+        gc.set_clip_rectangle(vgc._cliprect)
 
         def cycle_or_default(seq, default=None):
             # Cycle over *seq* if it is not empty; else always yield *default*.
@@ -391,39 +405,76 @@ class RendererBase:
 
         pathids = cycle_or_default(path_ids)
         toffsets = cycle_or_default(offset_trans.transform(offsets), (0, 0))
-        fcs = cycle_or_default(facecolors)
-        ecs = cycle_or_default(edgecolors)
-        hcs = cycle_or_default(hatchcolors)
-        lws = cycle_or_default(linewidths)
-        lss = cycle_or_default(linestyles)
-        aas = cycle_or_default(antialiaseds)
-        urls = cycle_or_default(urls)
+
+        alphas = cycle_or_default(vgc._alphas)
+        forced_alphas = cycle_or_default(vgc._forced_alphas)
+        antialiaseds = cycle_or_default(vgc._antialiaseds)
+        capstyles = cycle_or_default(vgc._capstyles)
+        dashes = cycle_or_default(vgc._dashes)
+        joinstyles = cycle_or_default(vgc._joinstyles)
+        linewidths = cycle_or_default(vgc._linewidths)
+        edgecolors = cycle_or_default(vgc._edgecolors)
+        facecolors = cycle_or_default(vgc._facecolors)
+        hatches = cycle_or_default(vgc._hatches)
+        hatchcolors = cycle_or_default(vgc._hatchcolors)
+        hatch_linewidths = cycle_or_default(vgc._hatch_linewidths)
+        urls = cycle_or_default(vgc._urls)
+        gids = cycle_or_default(vgc._gids)
+        snaps = cycle_or_default(vgc._snaps)
+        sketches = cycle_or_default(vgc._sketches)
 
         if Nedgecolors == 0:
-            gc0.set_linewidth(0.0)
+            gc.set_linewidth(0.0)
 
-        for pathid, (xo, yo), fc, ec, hc, lw, ls, aa, url in itertools.islice(
-                zip(pathids, toffsets, fcs, ecs, hcs, lws, lss, aas, urls), N):
+        for (pathid, (xo, yo), alpha, forced_alpha, antialiased, capstyle, dash,
+             joinstyle, linewidth, edgecolor, facecolor, hatch, hatchcolor,
+             hatch_linewidth, url, gid, snap, sketch) in itertools.islice(
+                zip(pathids, toffsets, alphas, forced_alphas, antialiaseds, capstyles,
+                    dashes, joinstyles, linewidths, edgecolors, facecolors, hatches,
+                    hatchcolors, hatch_linewidths, urls, gids, snaps, sketches),
+                    N):
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
+
+            if forced_alpha is False:
+                gc.set_alpha(None)
+            elif Nalphas:
+                gc.set_alpha(alpha)
+            if Nantialiaseds:
+                gc.set_antialiased(antialiased)
+            if Ncapstyles:
+                gc.set_capstyle(CapStyle(capstyle))
+            if Njoinstyles:
+                gc.set_joinstyle(JoinStyle(joinstyle))
             if Nedgecolors:
                 if Nlinewidths:
-                    gc0.set_linewidth(lw)
-                if Nlinestyles:
-                    gc0.set_dashes(*ls)
-                if len(ec) == 4 and ec[3] == 0.0:
-                    gc0.set_linewidth(0)
+                    gc.set_linewidth(linewidth)
+                if Ndashes:
+                    gc.set_dashes(*dash)
+                if len(edgecolor) == 4 and edgecolor[3] == 0.0:
+                    gc.set_linewidth(0)
                 else:
-                    gc0.set_foreground(ec)
+                    gc.set_foreground(edgecolor)
+            if facecolor is not None and len(facecolor) == 4 and facecolor[3] == 0:
+                facecolor = None
+            if Nhatches:
+                gc.set_hatch(hatch)
             if Nhatchcolors:
-                gc0.set_hatch_color(hc)
-            if fc is not None and len(fc) == 4 and fc[3] == 0:
-                fc = None
-            gc0.set_antialiased(aa)
+                gc.set_hatch_color(hatchcolor)
+            if Nhatch_linewidths:
+                gc.set_hatch_linewidth(hatch_linewidth)
             if Nurls:
-                gc0.set_url(url)
-            yield xo, yo, pathid, gc0, fc
-        gc0.restore()
+                gc.set_url(url)
+            if Ngids:
+                gc.set_gid(gid)
+            if Nsnaps:
+                gc.set_snap(snap)
+            if Nsketches:
+                if sketch is not None:
+                    gc.set_sketch_params(*sketch)
+
+            yield xo, yo, pathid, gc, facecolor
+        gc.restore()
 
     def get_image_magnification(self):
         """
@@ -619,6 +670,9 @@ class RendererBase:
     def new_gc(self):
         """Return an instance of a `.GraphicsContextBase`."""
         return GraphicsContextBase()
+
+    def new_vgc(self):
+        return VectorizedGraphicsContextBase()
 
     def points_to_pixels(self, points):
         """
@@ -1019,6 +1073,223 @@ class GraphicsContextBase:
         self._sketch = (
             None if scale is None
             else (scale, length or 128., randomness or 16.))
+
+
+class VectorizedGraphicsContextBase:
+    def __init__(self):
+        self._alphas = []
+        self._forced_alphas = []
+        self._antialiaseds = []
+        self._capstyles = []
+        self._cliprect = None
+        self._clippath = None
+        self._dashes = []
+        self._joinstyles = []
+        self._linewidths = []
+        self._edgecolors = []
+        self._facecolors = []
+        self._hatches = []
+        self._hatchcolors = []
+        self._hatch_linewidths = []
+        self._urls = []
+        self._gids = []
+        self._snaps = []
+        self._sketches = [None]
+
+    def copy_properties(self, gc, facecolors, edgecolors, linewidths, linestyles,
+                        antialiaseds, urls, hatchcolors):
+        self._alphas = [gc._alpha]
+        self._forced_alphas = [gc._forced_alpha]
+        self._antialiaseds = antialiaseds
+        self._capstyles = [gc._capstyle]
+        self._cliprect = gc._cliprect
+        self._clippath = gc._clippath
+        self._dashes = linestyles
+        self._joinstyles = [gc._joinstyle]
+        self._linewidths = linewidths
+        self._edgecolors = edgecolors
+        self._facecolors = facecolors
+        self._hatches = [gc._hatch]
+        self._hatchcolors = hatchcolors
+        self._hatch_linewidths = [gc._hatch_linewidth]
+        self._urls = urls
+        self._gids = [gc._gid]
+        self._snaps = [gc._snap]
+        self._sketches = [gc._sketch]
+
+    def get_alphas(self):
+        return self._alphas
+
+    def get_forced_alphas(self):
+        return self._forced_alphas
+
+    def get_antialiaseds(self):
+        return self._antialiaseds
+
+    def get_capstyles(self):
+        return self._capstyles
+
+    def get_clip_rectangle(self):
+        return self._cliprect
+
+    def get_clip_path(self):
+        if self._clippath is not None:
+            tpath, tr = self._clippath.get_transformed_path_and_affine()
+            if np.all(np.isfinite(tpath.vertices)):
+                return tpath, tr
+            else:
+                _log.warning("Ill-defined clip_path detected. Returning None.")
+                return None, None
+        return None, None
+
+    def get_dashes(self):
+        return self._dashes
+
+    def get_joinstyles(self):
+        return self._joinstyles
+
+    def get_linewidths(self):
+        return self._linewidths
+
+    def get_edgecolors(self):
+        return self._edgecolors
+
+    def get_facecolors(self):
+        return self._facecolors
+
+    def get_hatches(self):
+        return self._hatches
+
+    def get_hatch_paths(self, density=6.0):
+        hatches = self.get_hatches()
+        if hatches == []:
+            return []
+        hatch_paths = [None] * len(hatches)
+        for i, hatch in enumerate(hatches):
+            hatch_paths[i] = Path.hatch(hatch, density)
+        return hatch_paths
+
+    def get_hatch_colors(self):
+        return self._hatchcolors
+
+    def get_hatch_linewidths(self):
+        return self._hatch_linewidths
+
+    def get_urls(self):
+        return self._urls
+
+    def get_gids(self):
+        return self._gids
+
+    def get_snaps(self):
+        return self._snaps
+
+    def get_sketches_params(self):
+        return self._sketches
+
+    def set_alphas(self, alphas):
+        n = len(alphas)
+        new_alphas = [None] * n
+        new_forced_alphas = [None] * n
+        for i, alpha in enumerate(alphas):
+            if alpha is not None:
+                new_alphas[i] = alpha
+                new_forced_alphas[i] = True
+            else:
+                new_alphas[i] = 1.0
+                new_forced_alphas[i] = False
+        self._alphas = new_alphas.copy()
+        self._forced_alphas = new_forced_alphas.copy()
+
+        isRGBA = [True] * n
+        self.set_edgecolors(self._edgecolors, isRGBA=isRGBA)
+
+    def set_antialiaseds(self, antialiaseds):
+        self._antialiaseds = [int(bool(b)) for b in antialiaseds]
+
+    def set_capstyles(self, capstyles):
+        self._capstyles = [CapStyle(cs) for cs in capstyles]
+
+    def set_clip_rectangle(self, rectangle):
+        self._cliprect = rectangle
+
+    def set_clip_path(self, path):
+        _api.check_isinstance((transforms.TransformedPath, None), path=path)
+        self._clippath = path
+
+    def set_dashes(self, dashes):
+        n = len(dashes)
+        new_dashes = [None] * n
+        for i, (dash_offset, dash_list) in enumerate(dashes):
+            if dash_list is not None:
+                dl = np.asarray(dash_list)
+                if np.any(dl < 0.0):
+                    raise ValueError(
+                        "All values in the dash list must be non-negative.")
+                if dl.size and not np.any(dl > 0.0):
+                    raise ValueError(
+                        "At least one value in the dash list must be positive.")
+            new_dashes[i] = (dash_offset, dash_list)
+        self._dashes = new_dashes.copy()
+
+    def set_joinstyles(self, joinstyles):
+        self._joinstyles = [JoinStyle(js) for js in joinstyles]
+
+    def set_linewidths(self, linewidths):
+        self._linewidths = linewidths.copy()
+
+    def set_edgecolors(self, edgecolors, isRGBA=None):
+        n = len(edgecolors)
+        if isRGBA is None:
+            isRGBA = [False] * n
+        elif len(isRGBA) < n:
+            isRGBA += [False] * (n - len(isRGBA))
+
+        if len(self._forced_alphas) < n:
+            self._forced_alphas += [False] * (n - len(self._forced_alphas))
+
+        new_edgecolors = [None] * n
+        for i, edgecolor in enumerate(edgecolors):
+            if self._forced_alphas[i] and isRGBA[i]:
+                new_edgecolors[i] = edgecolor[:3] + (self._alphas[i],)
+            elif self._forced_alphas[i]:
+                new_edgecolors[i] = colors.to_rgba(edgecolor, self._alphas[i])
+            elif isRGBA[i]:
+                new_edgecolors[i] = edgecolor
+            else:
+                new_edgecolors[i] = colors.to_rgba(edgecolor)
+        self._edgecolors = new_edgecolors.copy()
+
+    def set_facecolors(self, facecolors):
+        self._facecolors = facecolors.copy()
+
+    def set_urls(self, urls):
+        self._urls = urls.copy()
+
+    def set_gids(self, gids):
+        self._gids = gids.copy()
+
+    def set_snaps(self, snaps):
+        self._snaps = snaps.copy()
+
+    def set_hatches(self, hatches):
+        self._hatches = hatches.copy()
+
+    def set_hatch_colors(self, hatchcolors):
+        self._hatchcolors = hatchcolors.copy()
+
+    def set_hatch_linewidths(self, hatch_linewidths):
+        self._hatch_linewidths = hatch_linewidths.copy()
+
+    def set_sketches_params(self, sketches):
+        n = len(sketches)
+        new_sketches = [None] * n
+        for i, (scale, length, randomness) in enumerate(sketches):
+            if scale is None:
+                new_sketches[i] = None
+            else:
+                new_sketches[i] = (scale, length or 128.0, randomness or 16.0)
+        self._sketches = new_sketches.copy()
 
 
 class TimerBase:

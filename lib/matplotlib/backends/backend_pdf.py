@@ -30,7 +30,7 @@ from matplotlib import _api, _text_helpers, _type1font, cbook, dviread
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+    RendererBase, VectorizedGraphicsContextBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import get_font, fontManager as _fontManager
@@ -2052,23 +2052,29 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             gc.get_sketch_params())
         self.file.output(self.gc.paint())
 
-    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offset_trans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
-                             offset_position, *, hatchcolors=None):
-        # We can only reuse the objects if the presence of fill and
-        # stroke (and the amount of alpha for each) is the same for
-        # all of them
-        can_do_optimization = True
-        facecolors = np.asarray(facecolors)
-        edgecolors = np.asarray(edgecolors)
+    def draw_path_collection(self, vgc, master_transform, paths, all_transforms,
+                             offsets, offset_trans, facecolors=None, edgecolors=None,
+                             linewidths=None, linestyles=None, antialiaseds=None,
+                             urls=None, offset_position=None, hatchcolors=None):
 
         if hatchcolors is None:
             hatchcolors = []
 
+        if isinstance(gc := vgc, GraphicsContextBase):
+            vgc = VectorizedGraphicsContextBase()
+            vgc.copy_properties(gc, facecolors, edgecolors, linewidths, linestyles,
+                                antialiaseds, urls, hatchcolors)
+
+        # We can only reuse the objects if the presence of fill and
+        # stroke (and the amount of alpha for each) is the same for
+        # all of them
+        can_do_optimization = True
+        facecolors = np.asarray(vgc.get_facecolors())
+        edgecolors = np.asarray(vgc.get_edgecolors())
+
         if not len(facecolors):
             filled = False
-            can_do_optimization = not gc.get_hatch()
+            can_do_optimization = not vgc.get_hatches()
         else:
             if np.all(facecolors[:, 3] == facecolors[0, 3]):
                 filled = facecolors[0, 3] != 0.0
@@ -2091,21 +2097,27 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         #    uses_per_path for the uses
         len_path = len(paths[0].vertices) if len(paths) > 0 else 0
         uses_per_path = self._iter_collection_uses_per_path(
-            paths, all_transforms, offsets, facecolors, edgecolors)
+            paths, all_transforms, offsets, vgc.get_facecolors(), vgc.get_edgecolors())
         should_do_optimization = \
             len_path + uses_per_path + 5 < len_path * uses_per_path
 
         if (not can_do_optimization) or (not should_do_optimization):
             return RendererBase.draw_path_collection(
-                self, gc, master_transform, paths, all_transforms,
-                offsets, offset_trans, facecolors, edgecolors,
-                linewidths, linestyles, antialiaseds, urls,
-                offset_position, hatchcolors=hatchcolors)
+                self, vgc, master_transform, paths, all_transforms,
+                offsets, offset_trans)
 
-        padding = np.max(linewidths)
+        Njoinstyles = len(vgc._joinstyles)
+        Ncapstyles = len(vgc._capstyles)
+
+        padding = np.max(vgc.get_linewidths())
         path_codes = []
+        gc = self.new_gc()
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
+            if Njoinstyles:
+                gc.set_joinstyle(vgc.get_joinstyles()[i % Njoinstyles])
+            if Ncapstyles:
+                gc.set_capstyle(vgc.get_capstyles()[i % Ncapstyles])
             name = self.file.pathCollectionObject(
                 gc, path, transform, padding, filled, stroked)
             path_codes.append(name)
@@ -2114,9 +2126,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         output(*self.gc.push())
         lastx, lasty = 0, 0
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, path_codes, offsets, offset_trans,
-                facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
+                vgc, path_codes, offsets, offset_trans):
 
             self.check_gc(gc0, rgbFace)
             dx, dy = xo - lastx, yo - lasty

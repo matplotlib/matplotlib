@@ -126,7 +126,7 @@ class PathEffectRenderer(RendererBase):
             renderer.draw_markers(gc, marker_path, marker_trans, path,
                                   *args, **kwargs)
 
-    def draw_path_collection(self, gc, master_transform, paths, *args,
+    def draw_path_collection(self, vgc, master_transform, paths, *args,
                              **kwargs):
         # We do a little shimmy so that all paths are drawn for each path
         # effect in turn. Essentially, we induce recursion (depth 1) which is
@@ -134,14 +134,14 @@ class PathEffectRenderer(RendererBase):
         if len(self._path_effects) == 1:
             # Call the base path effect function - this uses the unoptimised
             # approach of calling "draw_path" multiple times.
-            return super().draw_path_collection(gc, master_transform, paths,
+            return super().draw_path_collection(vgc, master_transform, paths,
                                                 *args, **kwargs)
 
         for path_effect in self._path_effects:
             renderer = self.copy_with_path_effect([path_effect])
             # Recursively call this method, only next time we will only have
             # one path effect.
-            renderer.draw_path_collection(gc, master_transform, paths,
+            renderer.draw_path_collection(vgc, master_transform, paths,
                                           *args, **kwargs)
 
     def open_group(self, s, gid=None):

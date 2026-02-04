@@ -1515,13 +1515,13 @@ def test_draw_path_collection_no_hatchcolor(backend):
     )
 
 
-def test_third_party_backend_hatchcolors_arg_fallback(monkeypatch):
+def test_draw_path_collection_third_party_backend_fallback(monkeypatch):
     fig, ax = plt.subplots()
     canvas = fig.canvas
     renderer = canvas.get_renderer()
 
     # monkeypatch the `draw_path_collection` method to simulate a third-party backend
-    # that does not support the `hatchcolors` argument.
+    # that uses the old draw_path_collection signature.
     def mock_draw_path_collection(self, gc, master_transform, paths, all_transforms,
                                   offsets, offset_trans, facecolors, edgecolors,
                                   linewidths, linestyles, antialiaseds, urls,

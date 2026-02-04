@@ -16,7 +16,8 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import cbook, font_manager as fm
 from matplotlib.backend_bases import (
-     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase, GraphicsContextBase,
+     VectorizedGraphicsContextBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
@@ -733,12 +734,19 @@ class RendererSVG(RendererBase):
             self.writer.end('a')
         writer.end('g')
 
-    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offset_trans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
-                             offset_position, *, hatchcolors=None):
+    def draw_path_collection(self, vgc, master_transform, paths, all_transforms,
+                             offsets, offset_trans, facecolors=None, edgecolors=None,
+                             linewidths=None, linestyles=None, antialiaseds=None,
+                             urls=None, offset_position=None, hatchcolors=None):
+
         if hatchcolors is None:
             hatchcolors = []
+
+        if isinstance(gc := vgc, GraphicsContextBase):
+            vgc = VectorizedGraphicsContextBase()
+            vgc.copy_properties(gc, facecolors, edgecolors, linewidths, linestyles,
+                                antialiaseds, urls, hatchcolors)
+
         # Is the optimization worth it? Rough calculation:
         # cost of emitting a path in-line is
         #    (len_path + 5) * uses_per_path
@@ -746,15 +754,14 @@ class RendererSVG(RendererBase):
         #    (len_path + 3) + 9 * uses_per_path
         len_path = len(paths[0].vertices) if len(paths) > 0 else 0
         uses_per_path = self._iter_collection_uses_per_path(
-            paths, all_transforms, offsets, facecolors, edgecolors)
+            paths, all_transforms, offsets, vgc.get_facecolors(), vgc.get_edgecolors())
         should_do_optimization = \
             len_path + 9 * uses_per_path + 3 < (len_path + 5) * uses_per_path
+
         if not should_do_optimization:
             return super().draw_path_collection(
-                gc, master_transform, paths, all_transforms,
-                offsets, offset_trans, facecolors, edgecolors,
-                linewidths, linestyles, antialiaseds, urls,
-                offset_position, hatchcolors=hatchcolors)
+                vgc, master_transform, paths, all_transforms,
+                offsets, offset_trans)
 
         writer = self.writer
         path_codes = []
@@ -770,9 +777,7 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, path_codes, offsets, offset_trans,
-                facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
+                vgc, path_codes, offsets, offset_trans):
             url = gc0.get_url()
             if url is not None:
                 writer.start('a', attrib={'xlink:href': url})
