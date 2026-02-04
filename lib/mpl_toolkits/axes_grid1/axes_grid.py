@@ -367,7 +367,8 @@ class ImageGrid(Grid):
         axes_class : subclass of `matplotlib.axes.Axes`, default: `.mpl_axes.Axes`
         """
         _api.check_in_list(("each", "single", "edge", None))("cbar_mode", cbar_mode)
-        _api.check_in_list(("left", "right", "bottom", "top"))("cbar_location", cbar_location)
+        _api.check_in_list(
+            ("left", "right", "bottom", "top"))("cbar_location", cbar_location)
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         self._colorbar_pad = cbar_pad

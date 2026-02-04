@@ -384,7 +384,8 @@ class Text(Artist):
         if m is None:
             m = "default"
         else:
-            _api.check_in_list(("anchor", "default", "xtick", "ytick"))("rotation_mode", m)
+            _api.check_in_list(
+                ("anchor", "default", "xtick", "ytick"))("rotation_mode", m)
         self._rotation_mode = m
         self.stale = True
 

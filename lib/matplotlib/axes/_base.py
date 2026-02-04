@@ -508,7 +508,8 @@ class _process_plot_var_args:
         elif self.output == 'coordinates':
             make_artist = self._make_coordinates
         else:
-            _api.check_in_list(('Line2D', 'Polygon', 'coordinates'))("output", self.output)
+            _api.check_in_list(
+                ('Line2D', 'Polygon', 'coordinates'))("output", self.output)
 
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:

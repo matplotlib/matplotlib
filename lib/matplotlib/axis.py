@@ -2542,7 +2542,8 @@ class XAxis(Axis):
             self._tick_position = 'bottom'
             self.offsetText.set_verticalalignment('top')
         else:
-            _api.check_in_list(('top', 'bottom', 'both', 'default', 'none'))("position", position)
+            _api.check_in_list(
+                ('top', 'bottom', 'both', 'default', 'none'))("position", position)
         self.stale = True
 
     def tick_top(self):
@@ -2769,7 +2770,8 @@ class YAxis(Axis):
             self.set_tick_params(which='both', right=True, labelright=False,
                                  left=True, labelleft=True)
         else:
-            _api.check_in_list(('left', 'right', 'both', 'default', 'none'))("position", position)
+            _api.check_in_list(
+                ('left', 'right', 'both', 'default', 'none'))("position", position)
         self.stale = True
 
     def tick_right(self):

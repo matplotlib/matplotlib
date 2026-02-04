@@ -286,7 +286,8 @@ class Axes3D(Axes):
         if adjustable is None:
             adjustable = 'box'
         _api.check_in_list(('box', 'datalim'))("adjustable", adjustable)
-        _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'))("aspect", aspect)
+        _api.check_in_list(
+            ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'))("aspect", aspect)
 
         self.set_adjustable(adjustable)
         self._aspect = aspect
