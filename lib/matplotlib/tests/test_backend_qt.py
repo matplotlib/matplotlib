@@ -47,7 +47,11 @@ def test_fig_close():
 
     # Run the code using the current Python executable
     run_result = subprocess.run(
-        [sys.executable, "-c", code], capture_output=True, text=True, encoding="utf-8", env=os.environ 
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=os.environ 
     )
 
     if run_result.returncode != 0:
@@ -329,7 +333,11 @@ def test_form_widget_get_with_datetime_and_date_fields():
     """)
 
     run_result = subprocess.run(
-        [sys.executable, "-c", code], capture_output=True, text=True, encoding="utf-8",env=os.environ
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=os.environ
     )
 
     if run_result.returncode != 0:
