@@ -19,6 +19,10 @@ See also `.Line2D.set_linestyle`.  The specific on/off sequences of the
 as shown in :doc:`/gallery/lines_bars_and_markers/line_demo_dash_control`
 and passing a list of dash sequences using the keyword *dashes* to the
 cycler in :ref:`property_cycle <color_cycle>`.
+
+This example demonstrates how different linestyles are created and how
+custom dash patterns control the appearance of lines by alternating
+segments of drawn lines and spaces.
 """
 import matplotlib.pyplot as plt
 import numpy as np
