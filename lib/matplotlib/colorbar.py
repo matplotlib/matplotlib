@@ -316,12 +316,11 @@ class Colorbar:
         location_orientation = _get_orientation_from_location(location)
 
         _api.check_in_list(
-            [None, 'vertical', 'horizontal'], orientation=orientation)
+            [None, 'vertical', 'horizontal'])("orientation", orientation)
         _api.check_in_list(
-            ['auto', 'left', 'right', 'top', 'bottom'],
-            ticklocation=ticklocation)
+            ['auto', 'left', 'right', 'top', 'bottom'])("ticklocation", ticklocation)
         _api.check_in_list(
-            ['uniform', 'proportional'], spacing=spacing)
+            ['uniform', 'proportional'])("spacing", spacing)
 
         if location_orientation is not None and orientation is not None:
             if location_orientation != orientation:

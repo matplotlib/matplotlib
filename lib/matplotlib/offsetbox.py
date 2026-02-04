@@ -179,7 +179,7 @@ def _get_aligned_offsets(yspans, height, align="baseline"):
     """
 
     _api.check_in_list(
-        ["baseline", "left", "top", "right", "bottom", "center"], align=align)
+        ["baseline", "left", "top", "right", "bottom", "center"])("align", align)
     if height is None:
         height = max(y1 - y0 for y0, y1 in yspans)
 

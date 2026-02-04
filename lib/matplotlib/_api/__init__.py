@@ -222,7 +222,8 @@ def check_getitem(mapping, /, _error_cls=ValueError):
                     suggestion = ""
             else:
                 suggestion = f"Supported values are {', '.join(map(repr, _mapping))}"
-            raise _err(f"{value!r} is not a valid value for {name}. {suggestion}") from None
+            raise _err(f"{value!r} is not a valid value for {name}. "
+                       f"{suggestion}") from None
 
     return check
 

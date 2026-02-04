@@ -7407,7 +7407,8 @@ such objects
         bins = mpl._val_or_rc(bins, 'hist.bins')
 
         # Validate string inputs here to avoid cluttering subsequent code.
-        _api.check_in_list(('bar', 'barstacked', 'step', 'stepfilled'))("histtype", histtype)
+        _api.check_in_list(
+            ('bar', 'barstacked', 'step', 'stepfilled'))("histtype", histtype)
         _api.check_in_list(('left', 'mid', 'right'))("align", align)
         _api.check_in_list(('horizontal', 'vertical'))("orientation", orientation)
 

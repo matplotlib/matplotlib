@@ -1358,8 +1358,7 @@ class Text(Artist):
         align : {'baseline', 'bottom', 'center', 'center_baseline', 'top'}
         """
         _api.check_in_list(
-            ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
-            align=align)
+            ['top', 'bottom', 'center', 'baseline', 'center_baseline'])("align", align)
         self._verticalalignment = align
         self.stale = True
 

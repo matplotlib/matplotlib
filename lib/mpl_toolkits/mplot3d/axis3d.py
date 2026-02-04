@@ -195,7 +195,8 @@ class Axis(maxis.XAxis):
         position : {'lower', 'upper', 'both', 'default', 'none'}
             The position of the bolded axis lines, ticks, and tick labels.
         """
-        _api.check_in_list(('lower', 'upper', 'both', 'default', 'none'))("position", position)
+        _api.check_in_list(
+            ('lower', 'upper', 'both', 'default', 'none'))("position", position)
         self._tick_position = position
 
     def get_ticks_position(self):
@@ -218,7 +219,8 @@ class Axis(maxis.XAxis):
         position : {'lower', 'upper', 'both', 'default', 'none'}
             The position of the axis label.
         """
-        _api.check_in_list(('lower', 'upper', 'both', 'default', 'none'))("position", position)
+        _api.check_in_list(
+            ('lower', 'upper', 'both', 'default', 'none'))("position", position)
         self._label_position = position
 
     def get_label_position(self):
