@@ -1,3 +1,4 @@
+import copy
 import importlib
 import os
 import signal
@@ -5,27 +6,29 @@ import sys
 import subprocess
 import textwrap
 
-from datetime import datetime
+from datetime import date, datetime
 from unittest import mock
 
 import pytest
 
 import matplotlib
 from matplotlib import pyplot as plt
+from matplotlib._pylab_helpers import Gcf
 from matplotlib import _c_internal_utils
 
 try:
     from matplotlib.backends.qt_compat import QtCore  # type: ignore[attr-defined]
     from matplotlib.backends.qt_compat import QtGui  # type: ignore[attr-defined]  # noqa: E501, F401
     from matplotlib.backends.qt_compat import QtWidgets  # type: ignore[attr-defined]
+    from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
-    pytestmark = pytest.mark.skip("No usable Qt bindings")
+    pytestmark = pytest.mark.skip('No usable Qt bindings')
 
 
 _test_timeout = 60  # A reasonably safe value for slower architectures.
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_fig_close():
     # Run in a subprocess to avoid leaking the QApplication instance
     # into the main test process.
@@ -51,7 +54,7 @@ def test_fig_close():
         capture_output=True,
         text=True,
         encoding="utf-8",
-        env=os.environ
+        env=os.environ,
     )
 
     if run_result.returncode != 0:
@@ -91,31 +94,28 @@ def test_fig_close():
         ),
     ],
     ids=[
-        "shift",
-        "lower",
-        "control",
-        "unicode_upper",
-        "unicode_lower",
-        "alt_control",
-        "control_alt",
-        "modifier_order",
-        "non_unicode_key",
-        "backspace",
-        "backspace_mod",
-    ],
+        'shift',
+        'lower',
+        'control',
+        'unicode_upper',
+        'unicode_lower',
+        'alt_control',
+        'control_alt',
+        'modifier_order',
+        'non_unicode_key',
+        'backspace',
+        'backspace_mod',
+    ]
 )
-@pytest.mark.parametrize(
-    "backend",
-    [
-        # Note: the value is irrelevant; the important part is the marker.
-        pytest.param(
-            "Qt5Agg", marks=pytest.mark.backend("Qt5Agg", skip_on_importerror=True)
-        ),
-        pytest.param(
-            "QtAgg", marks=pytest.mark.backend("QtAgg", skip_on_importerror=True)
-        ),
-    ],
-)
+@pytest.mark.parametrize('backend', [
+    # Note: the value is irrelevant; the important part is the marker.
+    pytest.param(
+        'Qt5Agg',
+        marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
+    pytest.param(
+        'QtAgg',
+        marks=pytest.mark.backend('QtAgg', skip_on_importerror=True)),
+])
 def test_correct_key(backend, qt_key, qt_mods, answer, monkeypatch):
     """
     Make a figure.
@@ -135,34 +135,30 @@ def test_correct_key(backend, qt_key, qt_mods, answer, monkeypatch):
         qt_mod |= getattr(QtCore.Qt.KeyboardModifier, mod)
 
     class _Event:
-        def isAutoRepeat(self):
-            return False
+        def isAutoRepeat(self): return False
+        def key(self): return _to_int(getattr(QtCore.Qt.Key, qt_key))
 
-        def key(self):
-            return _to_int(getattr(QtCore.Qt.Key, qt_key))
-
-    monkeypatch.setattr(
-        QtWidgets.QApplication, "keyboardModifiers", lambda self: qt_mod
-    )
+    monkeypatch.setattr(QtWidgets.QApplication, "keyboardModifiers",
+                        lambda self: qt_mod)
 
     def on_key_press(event):
         nonlocal result
         result = event.key
 
     qt_canvas = plt.figure().canvas
-    qt_canvas.mpl_connect("key_press_event", on_key_press)
+    qt_canvas.mpl_connect('key_press_event', on_key_press)
     qt_canvas.keyPressEvent(_Event())
     assert result == answer
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_device_pixel_ratio_change():
     """
     Make sure that if the pixel ratio changes, the figure dpi changes but the
     widget remains the same logical size.
     """
 
-    prop = "matplotlib.backends.backend_qt.FigureCanvasQT.devicePixelRatioF"
+    prop = 'matplotlib.backends.backend_qt.FigureCanvasQT.devicePixelRatioF'
     with mock.patch(prop) as p:
         p.return_value = 3
 
@@ -174,11 +170,11 @@ def test_device_pixel_ratio_change():
             p.return_value = ratio
 
             window = qt_canvas.window().windowHandle()
-            current_version = tuple(int(x) for x in QtCore.qVersion().split(".", 2)[:2])
+            current_version = tuple(int(x) for x in QtCore.qVersion().split('.', 2)[:2])
             if current_version >= (6, 6):
                 QtCore.QCoreApplication.sendEvent(
-                    window, QtCore.QEvent(QtCore.QEvent.Type.DevicePixelRatioChange)
-                )
+                    window,
+                    QtCore.QEvent(QtCore.QEvent.Type.DevicePixelRatioChange))
             else:
                 # The value here doesn't matter, as we can't mock the C++ QScreen
                 # object, but can override the functional wrapper around it.
@@ -223,7 +219,7 @@ def test_device_pixel_ratio_change():
         assert fig.dpi == 120
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_subplottool():
     fig, ax = plt.subplots()
     with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
@@ -232,7 +228,7 @@ def test_subplottool():
         assert tool == fig.canvas.manager.toolbar.configure_subplots()
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_figureoptions():
     fig, ax = plt.subplots()
     ax.plot([1, 2])
@@ -242,7 +238,7 @@ def test_figureoptions():
         fig.canvas.manager.toolbar.edit_parameters()
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_save_figure_return(tmp_path):
     fig, ax = plt.subplots()
     ax.imshow([[1]])
@@ -257,16 +253,19 @@ def test_save_figure_return(tmp_path):
         assert fname is None
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_figureoptions_with_datetime_axes():
     fig, ax = plt.subplots()
-    xydata = [datetime(year=2021, month=1, day=1), datetime(year=2021, month=2, day=1)]
+    xydata = [
+        datetime(year=2021, month=1, day=1),
+        datetime(year=2021, month=2, day=1)
+    ]
     ax.plot(xydata, xydata)
     with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
         fig.canvas.manager.toolbar.edit_parameters()
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_double_resize():
     # Check that resizing a figure twice keeps the same window size
     fig, ax = plt.subplots()
@@ -275,8 +274,8 @@ def test_double_resize():
 
     w, h = 3, 2
     fig.set_size_inches(w, h)
-    assert fig.canvas.width() == w * matplotlib.rcParams["figure.dpi"]
-    assert fig.canvas.height() == h * matplotlib.rcParams["figure.dpi"]
+    assert fig.canvas.width() == w * matplotlib.rcParams['figure.dpi']
+    assert fig.canvas.height() == h * matplotlib.rcParams['figure.dpi']
 
     old_width = window.width()
     old_height = window.height()
@@ -286,7 +285,7 @@ def test_double_resize():
     assert window.height() == old_height
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_canvas_reinit():
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
@@ -305,7 +304,7 @@ def test_canvas_reinit():
     assert called
 
 
-@pytest.mark.backend("Qt5Agg", skip_on_importerror=True)
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_form_widget_get_with_datetime_and_date_fields():
     # Run in a subprocess to avoid leaking the QApplication instance
     # created by _create_qApp into the main test process.
@@ -337,7 +336,7 @@ def test_form_widget_get_with_datetime_and_date_fields():
         capture_output=True,
         text=True,
         encoding="utf-8",
-        env=os.environ
+        env=os.environ,
     )
 
     if run_result.returncode != 0:
@@ -346,32 +345,32 @@ def test_form_widget_get_with_datetime_and_date_fields():
             f"{run_result.stderr}"
         )
 
-
 def _get_testable_qt_backends():
     envs = []
     for deps, env in [
-        ([qt_api], {"MPLBACKEND": "qtagg", "QT_API": qt_api})
-        for qt_api in ["PyQt6", "PySide6", "PyQt5", "PySide2"]
+            ([qt_api], {"MPLBACKEND": "qtagg", "QT_API": qt_api})
+            for qt_api in ["PyQt6", "PySide6", "PyQt5", "PySide2"]
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if sys.platform == "linux" and not _c_internal_utils.display_is_valid():
+        if (sys.platform == "linux" and
+                not _c_internal_utils.display_is_valid()):
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
-        elif env["MPLBACKEND"] == "macosx" and os.environ.get("TF_BUILD"):
+        elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
         marks = []
         if reason:
-            marks.append(pytest.mark.skip(reason=f"Skipping {env} because {reason}"))
+            marks.append(pytest.mark.skip(
+                reason=f"Skipping {env} because {reason}"))
         envs.append(pytest.param(env, marks=marks, id=str(env)))
     return envs
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_fig_sigint_override():
     from matplotlib.backends.backend_qt5 import _BackendQT5
-
     # Create a figure
     plt.figure()
 
@@ -426,8 +425,7 @@ def test_fig_sigint_override():
         signal.signal(signal.SIGINT, original_handler)
 
 
-@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
-
     ipython_in_subprocess("qt", {(8, 24): "qtagg", (8, 15): "QtAgg", (7, 0): "Qt5Agg"})
