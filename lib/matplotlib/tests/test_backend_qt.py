@@ -51,7 +51,7 @@ def test_fig_close():
         capture_output=True,
         text=True,
         encoding="utf-8",
-        env=os.environ 
+        env=os.environ
     )
 
     if run_result.returncode != 0:
