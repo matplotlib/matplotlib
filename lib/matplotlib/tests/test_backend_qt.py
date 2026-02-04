@@ -302,14 +302,6 @@ def test_canvas_reinit():
     fig.stale = True
     assert called
 
-
-import sys
-import subprocess
-import textwrap
-import pytest
-
-# ... (기존 코드들) ...
-
 @pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_form_widget_get_with_datetime_and_date_fields():
     # Run in a subprocess to avoid leaking the QApplication instance 
