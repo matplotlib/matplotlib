@@ -132,7 +132,7 @@ class Axes(_AxesBase):
         titles = {'left': self._left_title,
                   'center': self.title,
                   'right': self._right_title}
-        title = _api.check_getitem(titles)("loc", loc.lower())
+        title = _api.getitem_checked(titles)("loc", loc.lower())
         return title.get_text()
 
     def set_title(self, label, fontdict=None, loc=None, pad=None, *, y=None,
@@ -199,7 +199,7 @@ class Axes(_AxesBase):
         titles = {'left': self._left_title,
                   'center': self.title,
                   'right': self._right_title}
-        title = _api.check_getitem(titles)("loc", loc)
+        title = _api.getitem_checked(titles)("loc", loc)
         default = {
             'fontsize': mpl.rcParams['axes.titlesize'],
             'fontweight': mpl.rcParams['axes.titleweight'],
@@ -8276,7 +8276,7 @@ such objects
                                               pad_to=pad_to, sides=sides)
         freqs += Fc
 
-        yunits = _api.check_getitem(
+        yunits = _api.getitem_checked(
             {None: 'energy', 'default': 'energy', 'linear': 'energy',
              'dB': 'dB'})("scale", scale)
         if yunits == 'energy':

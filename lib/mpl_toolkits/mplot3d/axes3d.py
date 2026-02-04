@@ -1145,7 +1145,7 @@ class Axes3D(Axes):
             azim = self.initial_azim
         if roll is None:
             roll = self.initial_roll
-        vertical_axis = _api.check_getitem(
+        vertical_axis = _api.getitem_checked(
             {name: idx for idx, name in enumerate(self._axis_names)})(
                 "vertical_axis", vertical_axis)
 

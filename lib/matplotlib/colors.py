@@ -3373,7 +3373,7 @@ class MultiNorm(Norm):
 
         def resolve(norm):
             if isinstance(norm, str):
-                scale_cls = _api.check_getitem(scale._scale_mapping)("norm", norm)
+                scale_cls = _api.getitem_checked(scale._scale_mapping)("norm", norm)
                 return mpl.colorizer._auto_norm_from_scale(scale_cls)()
             elif isinstance(norm, Normalize):
                 return norm

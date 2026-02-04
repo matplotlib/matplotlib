@@ -977,7 +977,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_child(child)
 
         if isinstance(loc, str):
-            loc = _api.check_getitem(self.codes)("loc", loc)
+            loc = _api.getitem_checked(self.codes)("loc", loc)
 
         self.loc = loc
         self.borderpad = borderpad

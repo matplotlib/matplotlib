@@ -187,7 +187,7 @@ def check_shape(shape, /):
     return check
 
 
-def check_getitem(mapping, /, _error_cls=ValueError):
+def getitem_checked(mapping, /, _error_cls=ValueError):
     """
     Return a function that looks up a value in *mapping*, raising on invalid keys.
 
@@ -200,7 +200,7 @@ def check_getitem(mapping, /, _error_cls=ValueError):
 
     Examples
     --------
-    >>> _api.check_getitem({"foo": "bar"})("arg", arg)
+    >>> _api.getitem_checked({"foo": "bar"})("arg", arg)
     """
     def check(name, value, _mapping=mapping, _err=_error_cls):
         try:

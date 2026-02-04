@@ -748,7 +748,7 @@ class RcParams(MutableMapping, dict):
                 and val is rcsetup._auto_backend_sentinel
                 and "backend" in self):
             return
-        valid_key = _api.check_getitem(
+        valid_key = _api.getitem_checked(
             self.validate, _error_cls=KeyError)("rcParam", key)
         try:
             cval = valid_key(val)

@@ -334,7 +334,7 @@ class AxisLabel(AttributeCopier, LabelBase):
         ----------
         d : {"left", "bottom", "right", "top"}
         """
-        va, ha = _api.check_getitem(self._default_alignments)("d", d)
+        va, ha = _api.getitem_checked(self._default_alignments)("d", d)
         self.set_va(va)
         self.set_ha(ha)
 
@@ -351,7 +351,7 @@ class AxisLabel(AttributeCopier, LabelBase):
         ----------
         d : {"left", "bottom", "right", "top"}
         """
-        self.set_rotation(_api.check_getitem(self._default_angles)("d", d))
+        self.set_rotation(_api.getitem_checked(self._default_angles)("d", d))
 
     def set_axis_direction(self, d):
         """
@@ -765,7 +765,7 @@ class AxisArtist(martist.Artist):
         ----------
         tick_direction : {"+", "-"}
         """
-        self._ticklabel_add_angle = _api.check_getitem(
+        self._ticklabel_add_angle = _api.getitem_checked(
             {"+": 0, "-": 180})("tick_direction", tick_direction)
 
     def invert_ticklabel_direction(self):
@@ -784,7 +784,7 @@ class AxisArtist(martist.Artist):
         ----------
         label_direction : {"+", "-"}
         """
-        self._axislabel_add_angle = _api.check_getitem(
+        self._axislabel_add_angle = _api.getitem_checked(
             {"+": 0, "-": 180})("label_direction", label_direction)
 
     def get_transform(self):

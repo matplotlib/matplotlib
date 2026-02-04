@@ -2451,7 +2451,7 @@ class XAxis(Axis):
         ----------
         position : {'top', 'bottom'}
         """
-        self.label.set_verticalalignment(_api.check_getitem({
+        self.label.set_verticalalignment(_api.getitem_checked({
             'top': 'baseline', 'bottom': 'top',
         })("position", position))
         self.label_position = position
@@ -2677,7 +2677,7 @@ class YAxis(Axis):
         position : {'left', 'right'}
         """
         self.label.set_rotation_mode('anchor')
-        self.label.set_verticalalignment(_api.check_getitem({
+        self.label.set_verticalalignment(_api.getitem_checked({
             'left': 'bottom', 'right': 'top',
         })("position", position))
         self.label_position = position
@@ -2732,7 +2732,7 @@ class YAxis(Axis):
         position : {'left', 'right'}
         """
         x, y = self.offsetText.get_position()
-        x = _api.check_getitem({'left': 0, 'right': 1})("position", position)
+        x = _api.getitem_checked({'left': 0, 'right': 1})("position", position)
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))
