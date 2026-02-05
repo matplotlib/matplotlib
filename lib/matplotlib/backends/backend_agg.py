@@ -177,12 +177,13 @@ class RendererAgg(RendererBase):
         cos = math.cos(math.radians(angle))
         sin = math.sin(math.radians(angle))
         load_flags = get_hinting_flag()
-        for font, size, glyph_index, dx, dy in glyphs:  # dy is upwards.
+        for font, size, glyph_index, slant, extend, dx, dy in glyphs:  # dy is upwards.
             font.set_size(size, self.dpi)
             hf = font._hinting_factor
             font._set_transform(
-                [[round(0x10000 * cos / hf), round(0x10000 * -sin)],
-                 [round(0x10000 * sin / hf), round(0x10000 * cos)]],
+                (0x10000 * np.array([[cos, -sin], [sin, cos]])
+                 @ [[extend, extend * slant], [0, 1]]
+                 @ [[1 / hf, 0], [0, 1]]).round().astype(int),
                 [round(0x40 * (x + dx * cos - dy * sin)),
                  # FreeType's y is upwards.
                  round(0x40 * (self.height - y + dx * sin + dy * cos))]
@@ -205,7 +206,7 @@ class RendererAgg(RendererBase):
             s, self.dpi, prop, antialiased=gc.get_antialiased())
         self._draw_text_glyphs(
             gc, x, y, angle,
-            ((font, size, glyph_index, dx, dy)
+            ((font, size, glyph_index, 0, 1, dx, dy)
              for font, size, _char, glyph_index, dx, dy in parse.glyphs))
         rgba = gc.get_rgb()
         if len(rgba) == 3 or gc.get_forced_alpha():
@@ -243,7 +244,7 @@ class RendererAgg(RendererBase):
         size = prop.get_size_in_points()
         self._draw_text_glyphs(
             gc, x, y, angle,
-            ((item.ft_object, size, item.glyph_index, item.x, item.y)
+            ((item.ft_object, size, item.glyph_index, 0, 1, item.x, item.y)
              for item in items))
 
     def get_text_width_height_descent(self, s, prop, ismath):
@@ -287,38 +288,12 @@ class RendererAgg(RendererBase):
         with Dvi(dvifile, self.dpi) as dvi:
             page, = dvi
 
-        cos = math.cos(math.radians(angle))
-        sin = math.sin(math.radians(angle))
-
-        for text in page.text:
-            hf = mpl.rcParams["text.hinting_factor"]
-            # Resolving text.index will implicitly call get_font(), which
-            # resets the font transform, so it has to be done before explicitly
-            # setting the font transform below.
-            index = text.index
-            font = get_font(text.font_path)
-            font.set_size(text.font_size, self.dpi)
-            slant = text.font_effects.get("slant", 0)
-            extend = text.font_effects.get("extend", 1)
-            font._set_transform(
-                (0x10000 * np.array([[cos, -sin], [sin, cos]])
-                 @ [[extend, extend * slant], [0, 1]]
-                 @ [[1 / hf, 0], [0, 1]]).round().astype(int),
-                [round(0x40 * (x + text.x * cos - text.y * sin)),
-                 # FreeType's y is upwards.
-                 round(0x40 * (self.height - y + text.x * sin + text.y * cos))]
-            )
-            bitmap = font._render_glyph(
-                index, get_hinting_flag(),
-                RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO)
-            buffer = np.asarray(bitmap.buffer)
-            if not gc.get_antialiased():
-                buffer *= 0xff
-            # draw_text_image's y is downwards & the bitmap bottom side.
-            self._renderer.draw_text_image(
-                buffer,
-                bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
-                0, gc)
+        self._draw_text_glyphs(
+            gc, x, y, angle,
+            ((get_font(text.font_path), text.font_size, text.index,
+              text.font_effects.get('slant', 0), text.font_effects.get('extend', 1),
+              text.x, text.y)
+             for text in page.text))
 
         rgba = gc.get_rgb()
         if len(rgba) == 3 or gc.get_forced_alpha():
