@@ -11,14 +11,14 @@ where alternating edge colors ensure the patch boundary remains visible.
 
 .. plot::
     :include-source: true
-    :alt: A rectangle with a dashed black edge and white gaps, demonstrating the edgegapcolor feature.
+    :alt: A rectangle with a dashed orange edge and blue gaps, demonstrating the edgegapcolor feature.
 
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
 
     fig, ax = plt.subplots()
     rect = Rectangle((0.1, 0.1), 0.6, 0.6, fill=False,
-                      edgecolor='black', edgegapcolor='white',
+                      edgecolor='orange', edgegapcolor='blue',
                       linestyle='--', linewidth=3)
     ax.add_patch(rect)
     plt.show()
