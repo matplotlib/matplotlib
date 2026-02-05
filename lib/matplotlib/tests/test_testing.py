@@ -16,6 +16,8 @@ def test_warn_to_fail():
 @check_figures_equal()
 @pytest.mark.parametrize("b", [1])
 def test_parametrize_with_check_figure_equal(a, fig_ref, b, fig_test):
+    fig_ref.add_subplot()
+    fig_test.add_subplot()
     assert a == b
 
 
