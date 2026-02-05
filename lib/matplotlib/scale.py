@@ -290,7 +290,7 @@ class LogTransform(Transform):
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
         self.base = base
-        self._clip = _api.check_getitem(
+        self._clip = _api.getitem_checked(
             {"clip": True, "mask": False}, nonpositive=nonpositive)
 
     def __str__(self):
@@ -838,7 +838,7 @@ def scale_factory(scale, axis, **kwargs):
     scale : {%(names)s}
     axis : `~matplotlib.axis.Axis`
     """
-    scale_cls = _api.check_getitem(_scale_mapping, scale=scale)
+    scale_cls = _api.getitem_checked(_scale_mapping, scale=scale)
 
     if _scale_has_axis_parameter[scale]:
         return scale_cls(axis, **kwargs)
