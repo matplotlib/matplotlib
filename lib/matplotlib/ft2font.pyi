@@ -1,7 +1,7 @@
 from enum import Enum, Flag
 from os import PathLike
 import sys
-from typing import BinaryIO, Literal, NewType, TypeAlias, TypedDict, cast, final, overload
+from typing import BinaryIO, Literal, NewType, NotRequired, TypeAlias, TypedDict, cast, final, overload
 from typing_extensions import Buffer  # < Py 3.12
 
 import numpy as np
@@ -142,6 +142,17 @@ class _SfntOs2Dict(TypedDict):
     fsSelection: int
     fsFirstCharIndex: int
     fsLastCharIndex: int
+    # version >= 1
+    ulCodePageRange: NotRequired[tuple[int, int]]
+    # version >= 2
+    sxHeight: NotRequired[int]
+    sCapHeight: NotRequired[int]
+    usDefaultChar: NotRequired[int]
+    usBreakChar: NotRequired[int]
+    usMaxContext: NotRequired[int]
+    # version >= 5
+    usLowerOpticalPointSize: NotRequired[int]
+    usUpperOpticalPointSize: NotRequired[int]
 
 class _SfntHheaDict(TypedDict):
     version: tuple[int, int]
