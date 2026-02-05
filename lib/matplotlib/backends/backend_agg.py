@@ -31,6 +31,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+from matplotlib.dviread import Dvi
 from matplotlib.font_manager import fontManager as _fontManager, get_font
 from matplotlib.ft2font import LoadFlags, RenderMode
 from matplotlib.mathtext import MathTextParser
@@ -266,19 +267,84 @@ class RendererAgg(RendererBase):
     def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         # todo, handle props, angle, origins
+
         size = prop.get_size_in_points()
 
-        texmanager = self.get_texmanager()
+        if mpl.rcParams["text.latex.engine"] == "latex+dvipng":
+            Z = self.get_texmanager().get_grey(s, size, self.dpi)
+            Z = (Z * 0xff).astype(np.uint8)
+            w, h, d = self.get_text_width_height_descent(s, prop, ismath="TeX")
+            xd = d * math.sin(math.radians(angle))
+            yd = d * math.cos(math.radians(angle))
+            x = round(x + xd)
+            y = round(y + yd)
+            self._renderer.draw_text_image(Z, x, y, angle, gc)
+            return
 
-        Z = texmanager.get_grey(s, size, self.dpi)
-        Z = np.array(Z * 255.0, np.uint8)
+        dvifile = self.get_texmanager().make_dvi(s, size)
+        with Dvi(dvifile, self.dpi) as dvi:
+            page, = dvi
 
-        w, h, d = self.get_text_width_height_descent(s, prop, ismath="TeX")
-        xd = d * math.sin(math.radians(angle))
-        yd = d * math.cos(math.radians(angle))
-        x = round(x + xd)
-        y = round(y + yd)
-        self._renderer.draw_text_image(Z, x, y, angle, gc)
+        cos = math.cos(math.radians(angle))
+        sin = math.sin(math.radians(angle))
+
+        for text in page.text:
+            hf = mpl.rcParams["text.hinting_factor"]
+            # Resolving text.index will implicitly call get_font(), which
+            # resets the font transform, so it has to be done before explicitly
+            # setting the font transform below.
+            index = text.index
+            font = get_font(text.font_path)
+            font.set_size(text.font_size, self.dpi)
+            slant = text.font_effects.get("slant", 0)
+            extend = text.font_effects.get("extend", 1)
+            font._set_transform(
+                (0x10000 * np.array([[cos, -sin], [sin, cos]])
+                 @ [[extend, extend * slant], [0, 1]]
+                 @ [[1 / hf, 0], [0, 1]]).round().astype(int),
+                [round(0x40 * (x + text.x * cos - text.y * sin)),
+                 # FreeType's y is upwards.
+                 round(0x40 * (self.height - y + text.x * sin + text.y * cos))]
+            )
+            bitmap = font._render_glyph(
+                index, get_hinting_flag(),
+                RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO)
+            buffer = np.asarray(bitmap.buffer)
+            if not gc.get_antialiased():
+                buffer *= 0xff
+            # draw_text_image's y is downwards & the bitmap bottom side.
+            self._renderer.draw_text_image(
+                buffer,
+                bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
+                0, gc)
+
+        rgba = gc.get_rgb()
+        if len(rgba) == 3 or gc.get_forced_alpha():
+            rgba = rgba[:3] + (gc.get_alpha(),)
+        gc1 = self.new_gc()
+        gc1.set_linewidth(0)
+        gc1.set_snap(gc.get_snap())
+        for box in page.boxes:
+            bx = box.x
+            by = box.y
+            bw = box.width
+            bh = box.height
+            if gc1.get_snap() in [None, True]:
+                # Prevent thin bars from disappearing by growing symmetrically.
+                if bw < 1:
+                    bx -= (1 - bw) / 2
+                    bw = 1
+                if bh < 1:
+                    by -= (1 - bh) / 2
+                    bh = 1
+            path = Path._create_closed([
+                (bx, by), (bx + bw, by), (bx + bw, by + bh), (bx, by + bh)])
+            self._renderer.draw_path(
+                gc1, path,
+                mpl.transforms.Affine2D()
+                .rotate_deg(angle).translate(x, self.height - y),
+                rgba)
+        gc1.restore()
 
     def get_canvas_width_height(self):
         # docstring inherited

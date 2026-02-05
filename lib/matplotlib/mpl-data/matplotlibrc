@@ -331,6 +331,16 @@
                      # zapf chancery, charter, serif, sans-serif, helvetica,
                      # avant garde, courier, monospace, computer modern roman,
                      # computer modern sans serif, computer modern typewriter
+
+## The TeX engine/format to use.  The following values are supported:
+## - "latex": The classic TeX engine (the current default).  All backends render
+##    TeX's output by parsing the DVI output into glyphs and boxes and emitting
+##    those one by one.
+## - "latex+dvipng": The same as "latex", with the exception that Agg-based
+##   backends rely on dvipng to rasterize TeX's output.  This value was the
+##   default up to Matplotlib 3.10.
+#text.latex.engine: latex
+
 #text.latex.preamble:   # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
                         # AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
                         # IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
