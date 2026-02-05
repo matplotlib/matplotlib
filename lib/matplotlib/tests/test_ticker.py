@@ -614,15 +614,11 @@ class TestIndexLocator:
 
         # Test case with fractional offset
         index = mticker.IndexLocator(base=1, offset=0.5)
-        ticks = index.tick_values(0, 4)
-        assert all(t <= 4 for t in ticks)
-        np.testing.assert_array_equal(ticks, [0.5, 1.5, 2.5, 3.5])
+        assert_array_equal(index.tick_values(0, 4), [0.5, 1.5, 2.5, 3.5])
 
         # Test case with base > 1
         index = mticker.IndexLocator(base=2, offset=0)
-        ticks = index.tick_values(0, 5)
-        assert all(t <= 5 for t in ticks)
-        np.testing.assert_array_equal(ticks, [0, 2, 4])
+        assert_array_equal(index.tick_values(0, 5), [0, 2, 4])
 
 
 class TestSymmetricalLogLocator:
