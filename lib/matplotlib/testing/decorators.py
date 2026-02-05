@@ -414,6 +414,10 @@ def check_figures_equal(*, extensions=("png", ), tol=0):
             fig_test = Figure()
             fig_ref = Figure()
             func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
+            if len(fig_test.get_children()) == 1 and len(fig_ref.get_children()) == 1:
+                raise RuntimeError("Both figures are empty.  Make sure you are "
+                                   "plotting to fig_test or fig_ref.")
+
             test_image_path = result_dir / (file_name + "." + ext)
             ref_image_path = result_dir / (file_name + "-expected." + ext)
             fig_test.savefig(test_image_path)

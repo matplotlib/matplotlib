@@ -24,3 +24,10 @@ def test_wrap_failure():
         @check_figures_equal()
         def should_fail(test, ref):
             pass
+
+
+@pytest.mark.xfail(raises=RuntimeError, strict=True,
+                   reason="Both figures are empty")
+@check_figures_equal()
+def test_check_figures_equal_empty_figs(fig_test, fig_ref):
+    pass
