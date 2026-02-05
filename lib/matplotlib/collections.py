@@ -2004,7 +2004,7 @@ class EventCollection(LineCollection):
         ----------
         orientation : {'horizontal', 'vertical'}
         """
-        is_horizontal = _api.check_getitem(
+        is_horizontal = _api.getitem_checked(
             {"horizontal": True, "vertical": False},
             orientation=orientation)
         if is_horizontal == self.is_horizontal():

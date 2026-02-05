@@ -189,7 +189,7 @@ def check_shape(shape, /, **kwargs):
             )
 
 
-def check_getitem(mapping, /, _error_cls=ValueError, **kwargs):
+def getitem_checked(mapping, /, _error_cls=ValueError, **kwargs):
     """
     *kwargs* must consist of a single *key, value* pair.  If *key* is in
     *mapping*, return ``mapping[value]``; else, raise an appropriate
@@ -202,10 +202,10 @@ def check_getitem(mapping, /, _error_cls=ValueError, **kwargs):
 
     Examples
     --------
-    >>> _api.check_getitem({"foo": "bar"}, arg=arg)
+    >>> _api.getitem_checked({"foo": "bar"}, arg=arg)
     """
     if len(kwargs) != 1:
-        raise ValueError("check_getitem takes a single keyword argument")
+        raise ValueError("getitem_checked takes a single keyword argument")
     (k, v), = kwargs.items()
     try:
         return mapping[v]
