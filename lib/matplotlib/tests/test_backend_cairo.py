@@ -2,6 +2,7 @@ import numpy as np
 
 import pytest
 
+import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib import (
     collections as mcollections, patches as mpatches, path as mpath)
@@ -46,3 +47,7 @@ def test_patch_alpha_coloring(fig_test, fig_ref):
                                       facecolor=(1, 0, 0, 0.5),
                                       edgecolor=(0, 0, 1, 0.75))
     ax.add_collection(col)
+
+    # TODO: Look into why the figures need to be pyplot figures to match
+    plt.figure(fig_ref)
+    plt.figure(fig_test)
