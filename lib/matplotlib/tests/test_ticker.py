@@ -611,9 +611,7 @@ class TestIndexLocator:
         """
         # Test case where offset=0 could cause vmax to be included incorrectly
         index = mticker.IndexLocator(base=1, offset=0)
-        ticks = index.tick_values(0, 4)
-        assert all(t <= 4 for t in ticks)
-        np.testing.assert_array_equal(ticks, [0, 1, 2, 3, 4])
+        assert_array_equal(index.tick_values(0, 4), [0, 1, 2, 3, 4])
 
         # Test case with fractional offset
         index = mticker.IndexLocator(base=1, offset=0.5)
