@@ -204,10 +204,13 @@ The following workflow is a good way to approach issue triaging:
 Triage team
 ===========
 
-
 If you would like to join the triage team:
 
-1. Correctly triage 2-3 issues.
+1. Correctly triage 2-3 issues or review 2-3 pull requests. Actually labeling or
+   closing issues and PRs require triage permissions, but you can verify with
+   comments if issues have enough information or are still valid, and suggest
+   changes to PRs, particularly if you can help contributors solve CI check
+   failures.
 2. Ask someone on in the Matplotlib organization (publicly or privately) to
    recommend you to the triage team (look for "Member" on the top-right of
    comments on GitHub).  If you worked with someone on the issues triaged, they
@@ -215,4 +218,6 @@ If you would like to join the triage team:
 3. Responsibly exercise your new power!
 
 Anyone with commit or triage rights may nominate a user to be invited to join
-the triage team by emailing matplotlib-steering-council@numfocus.org .
+the triage team by nominating them through the private "Triage team nominations"
+category on `Discourse <https://discourse.matplotlib.org>`__ (Note that only
+``Staff`` members can see this category).
