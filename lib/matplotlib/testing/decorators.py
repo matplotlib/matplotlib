@@ -415,6 +415,7 @@ def check_figures_equal(*, extensions=("png", ), tol=0):
             fig_ref = Figure()
             func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
             if len(fig_test.get_children()) == 1 and len(fig_ref.get_children()) == 1:
+                # no artists have been added. The only child is fig.patch.
                 raise RuntimeError("Both figures are empty.  Make sure you are "
                                    "plotting to fig_test or fig_ref.")
 
