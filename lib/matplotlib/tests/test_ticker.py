@@ -607,7 +607,6 @@ class TestIndexLocator:
     def test_tick_values_not_exceeding_vmax(self):
         """
         Test that tick_values does not return values greater than vmax.
-        Regression test for issue #31086.
         """
         # Test case where offset=0 could cause vmax to be included incorrectly
         index = mticker.IndexLocator(base=1, offset=0)
