@@ -1767,10 +1767,11 @@ class IndexLocator(Locator):
         return self.tick_values(dmin, dmax)
 
     def tick_values(self, vmin, vmax):
-        ticks = np.arange(vmin + self.offset, vmax + 1, self._base)
-        # Filter out ticks that exceed vmax to avoid off-by-one errors
-        ticks = ticks[ticks <= vmax]
-        return self.raise_if_exceeds(ticks)
+        # We want tick values in the closed interval [vmin, vmax].
+        # Since np.arange(start, stop) returns values in the semi-open interval
+        # [start, stop), we add a minimal offset so that stop = vmax + eps
+        tick_values = np.arange(vmin + self.offset, vmax + 1e-12, self._base)
+        return self.raise_if_exceeds(tick_values)
 
 
 class FixedLocator(Locator):
