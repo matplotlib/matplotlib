@@ -1306,6 +1306,7 @@ _validators = {
     # figure title
     "figure.titlesize":   validate_fontsize,
     "figure.titleweight": validate_fontweight,
+    "figure.titleloc":    ["center", "left", "right"],
 
     # figure labels
     "figure.labelsize":   validate_fontsize,
