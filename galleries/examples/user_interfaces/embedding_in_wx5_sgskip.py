@@ -47,7 +47,7 @@ def demo():
     # Alternatively you could use:
     # app = wx.App()
     # InspectableApp is a great debug tool, see:
-    # http://wiki.wxpython.org/Widget%20Inspection%20Tool
+    # https://wxpython.org/pages/overview/#tools
     app = wit.InspectableApp()
     frame = wx.Frame(None, -1, 'Plotter')
     plotter = PlotNotebook(frame)
