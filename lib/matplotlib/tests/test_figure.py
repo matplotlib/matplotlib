@@ -837,7 +837,7 @@ def test_tightbbox():
     ax.set_xlim(0, 1)
     t = ax.text(1., 0.5, 'This dangles over end')
     renderer = fig.canvas.get_renderer()
-    x1Nom0 = 9.035  # inches
+    x1Nom0 = 8.9875  # inches
     assert abs(t.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
     assert abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
     assert abs(fig.get_tightbbox(renderer).x1 - x1Nom0) < 0.05
@@ -1399,7 +1399,8 @@ def test_subfigure_dpi():
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'}, tol=0.02)
+                  savefig_kwarg={'facecolor': 'teal'},
+                  tol=0.022)
 def test_subfigure_ss():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)

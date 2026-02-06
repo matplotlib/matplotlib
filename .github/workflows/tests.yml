@@ -100,6 +100,25 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Preload test images
+        run: |
+          git config --global user.name 'Matplotlib'
+          git config --global user.email 'nobody@matplotlib.org'
+          git fetch https://github.com/QuLogic/matplotlib.git text-overhaul-figures:text-overhaul-figures
+          git merge --no-commit text-overhaul-figures || true
+          # If there are any conflicts in baseline images, then pick "ours",
+          # which should be the updated images in the PR.
+          conflicts=$(git diff --name-only --diff-filter=U \
+                      lib/matplotlib/tests/baseline_images \
+                      lib/mpl_toolkits/*/tests/baseline_images)
+          if [ -n "${conflicts}" ]; then
+            git checkout --ours -- ${conflicts}
+            git add -- ${conflicts}
+          fi
+          # If committing fails, there were conflicts other than the baseline images,
+          # which should not be allowed to happen, and should fail the build.
+          git commit -m 'Preload test images from branch text-overhaul-figures'
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
@@ -377,13 +396,14 @@ jobs:
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             LCOV_IGNORE_ERRORS=','  # do not ignore any lcov errors by default
             if [[ "${{ matrix.os }}" = ubuntu-24.04 || "${{ matrix.os }}" = ubuntu-24.04-arm ]]; then
-              # filter mismatch and unused-entity errors detected by lcov 2.x
-              LCOV_IGNORE_ERRORS='mismatch,unused'
+              # filter mismatch errors detected by lcov 2.x
+              LCOV_IGNORE_ERRORS='mismatch'
             fi
             lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
-              --capture --directory . --output-file coverage.info
+              --capture --directory . --exclude $PWD/subprojects --exclude $PWD/build \
+              --output-file coverage.info
             lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
-              --output-file coverage.info --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
+              --output-file coverage.info --extract coverage.info $PWD/src/'*'
             lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
               --list coverage.info
             find . -name '*.gc*' -delete

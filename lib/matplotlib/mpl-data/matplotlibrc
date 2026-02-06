@@ -292,6 +292,11 @@
 ## for more information on text properties
 #text.color: black
 
+## The language of the text in a format accepted by libraqm, namely `a BCP47 language
+## code <https://www.w3.org/International/articles/language-tags/>`_. If None, then no
+## particular language will be implied, and default font settings will be used.
+#text.language: None
+
 ## FreeType hinting flag ("foo" corresponds to FT_LOAD_FOO); may be one of the
 ## following (Proprietary Matplotlib-specific synonyms are given in parentheses,
 ## but their use is discouraged):
@@ -301,15 +306,14 @@
 ##                ("native" is a synonym.)
 ## - force_autohint: Use FreeType's auto-hinter.  ("auto" is a synonym.)
 ## - no_hinting: Disable hinting.  ("none" is a synonym.)
-#text.hinting: force_autohint
+#text.hinting: default
 
-#text.hinting_factor: 8  # Specifies the amount of softness for hinting in the
+#text.hinting_factor: 1  # Specifies the amount of softness for hinting in the
                          # horizontal direction.  A value of 1 will hint to full
                          # pixels.  A value of 2 will hint to half pixels etc.
-#text.kerning_factor: 0  # Specifies the scaling factor for kerning values.  This
-                         # is provided solely to allow old test images to remain
-                         # unchanged.  Set to 6 to obtain previous behavior.
-                         # Values  other than 0 or 6 have no defined meaning.
+#text.kerning_factor: None  # Specifies the scaling factor for kerning values. Values
+                            # other than 0, 6, or None have no defined meaning.
+                            # This setting is deprecated.
 #text.antialiased: True  # If True (default), the text will be antialiased.
                          # This only affects raster outputs.
 #text.parse_math: True  # Use mathtext if there is an even number of unescaped
@@ -327,6 +331,16 @@
                      # zapf chancery, charter, serif, sans-serif, helvetica,
                      # avant garde, courier, monospace, computer modern roman,
                      # computer modern sans serif, computer modern typewriter
+
+## The TeX engine/format to use.  The following values are supported:
+## - "latex": The classic TeX engine (the current default).  All backends render
+##    TeX's output by parsing the DVI output into glyphs and boxes and emitting
+##    those one by one.
+## - "latex+dvipng": The same as "latex", with the exception that Agg-based
+##   backends rely on dvipng to rasterize TeX's output.  This value was the
+##   default up to Matplotlib 3.10.
+#text.latex.engine: latex
+
 #text.latex.preamble:   # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
                         # AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
                         # IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.

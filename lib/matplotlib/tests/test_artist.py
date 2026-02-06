@@ -217,9 +217,6 @@ def test_remove():
 
 @image_comparison(["default_edges.png"], remove_text=True, style='default')
 def test_default_edges():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2)
 
     ax1.plot(np.arange(10), np.arange(10), 'x',

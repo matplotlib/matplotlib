@@ -1,0 +1,29 @@
+diff -uPNr freetype-2.14.1.orig/meson.build freetype-2.14.1/meson.build
+--- freetype-2.14.1.orig/meson.build	2025-09-11 07:12:24.000000000 -0400
++++ freetype-2.14.1/meson.build	2026-01-04 15:49:14.198061441 -0500
+@@ -364,6 +364,13 @@
+   endif
+ endif
+ 
++if harfbuzz_opt == 'static'
++  harfbuzz_dep = declare_dependency()
++  harfbuzz_opt = 'YES'
++  ftoption_command += ['--enable=FT_CONFIG_OPTION_USE_HARFBUZZ']
++  ft2_deps += [harfbuzz_dep]
++endif
++
+ if not harfbuzz_dep.found() and \
+    (harfbuzz_opt == 'dynamic' or harfbuzz_opt == 'auto')
+   # On Windows we don't need libdl, but on other platforms we need it.
+diff -uPNr freetype-2.14.1.orig/meson_options.txt freetype-2.14.1/meson_options.txt
+--- freetype-2.14.1.orig/meson_options.txt	2025-09-07 22:48:18.000000000 -0400
++++ freetype-2.14.1/meson_options.txt	2026-01-04 15:49:30.087034418 -0500
+@@ -24,7 +24,7 @@
+ 
+ option('harfbuzz',
+   type: 'combo',
+-  choices: ['auto', 'enabled', 'dynamic', 'disabled'],
++  choices: ['auto', 'enabled', 'dynamic', 'static', 'disabled'],
+   value: 'auto',
+   description: 'Use Harfbuzz library to improve auto-hinting;'
+                + ' if available, many glyphs not directly addressable'
