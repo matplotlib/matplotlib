@@ -172,27 +172,26 @@ class RendererAgg(RendererBase):
 
                 raise OverflowError(msg) from None
 
-    def draw_mathtext(self, gc, x, y, s, prop, angle):
-        """Draw mathtext using :mod:`matplotlib.mathtext`."""
+    def _draw_text_glyphs_and_boxes(self, gc, x, y, angle, glyphs, boxes):
         # y is downwards.
-        parse = self.mathtext_parser.parse(
-            s, self.dpi, prop, antialiased=gc.get_antialiased())
         cos = math.cos(math.radians(angle))
         sin = math.sin(math.radians(angle))
-        for font, size, _char, glyph_index, dx, dy in parse.glyphs:  # dy is upwards.
+        load_flags = get_hinting_flag()
+        for font, size, glyph_index, slant, extend, dx, dy in glyphs:  # dy is upwards.
             font.set_size(size, self.dpi)
             hf = font._hinting_factor
             font._set_transform(
-                [[round(0x10000 * cos / hf), round(0x10000 * -sin)],
-                 [round(0x10000 * sin / hf), round(0x10000 * cos)]],
+                (0x10000 * np.array([[cos, -sin], [sin, cos]])
+                 @ [[extend, extend * slant], [0, 1]]
+                 @ [[1 / hf, 0], [0, 1]]).round().astype(int),
                 [round(0x40 * (x + dx * cos - dy * sin)),
                  # FreeType's y is upwards.
                  round(0x40 * (self.height - y + dx * sin + dy * cos))]
             )
             bitmap = font._render_glyph(
-                glyph_index, get_hinting_flag(),
+                glyph_index, load_flags,
                 RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO)
-            buffer = np.asarray(bitmap.buffer)
+            buffer = bitmap.buffer
             if not gc.get_antialiased():
                 buffer *= 0xff
             # draw_text_image's y is downwards & the bitmap bottom side.
@@ -200,13 +199,14 @@ class RendererAgg(RendererBase):
                 buffer,
                 bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
                 0, gc)
+
         rgba = gc.get_rgb()
         if len(rgba) == 3 or gc.get_forced_alpha():
             rgba = rgba[:3] + (gc.get_alpha(),)
         gc1 = self.new_gc()
         gc1.set_linewidth(0)
         gc1.set_snap(gc.get_snap())
-        for dx, dy, w, h in parse.rects:  # dy is upwards.
+        for dx, dy, w, h in boxes:  # dy is upwards.
             if gc1.get_snap() in [None, True]:
                 # Prevent thin bars from disappearing by growing symmetrically.
                 if w < 1:
@@ -224,25 +224,31 @@ class RendererAgg(RendererBase):
                 rgba)
         gc1.restore()
 
+    def draw_mathtext(self, gc, x, y, s, prop, angle):
+        """Draw mathtext using :mod:`matplotlib.mathtext`."""
+        parse = self.mathtext_parser.parse(
+            s, self.dpi, prop, antialiased=gc.get_antialiased())
+        self._draw_text_glyphs_and_boxes(
+            gc, x, y, angle,
+            ((font, size, glyph_index, 0, 1, dx, dy)
+             for font, size, _char, glyph_index, dx, dy in parse.glyphs),
+            parse.rects)
+
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         font = self._prepare_font(prop)
-        font.set_text(s, angle, flags=get_hinting_flag(),
-                      features=mtext.get_fontfeatures() if mtext is not None else None,
-                      language=mtext.get_language() if mtext is not None else None)
-        for bitmap in font._render_glyphs(
-            x, self.height - y,
-            RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO,
-        ):
-            buffer = bitmap.buffer
-            if not gc.get_antialiased():
-                buffer *= 0xff
-            self._renderer.draw_text_image(
-                buffer,
-                bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
-                0, gc)
+        items = font._layout(
+            s, flags=get_hinting_flag(),
+            features=mtext.get_fontfeatures() if mtext is not None else None,
+            language=mtext.get_language() if mtext is not None else None)
+        size = prop.get_size_in_points()
+        self._draw_text_glyphs_and_boxes(
+            gc, x, y, angle,
+            ((item.ft_object, size, item.glyph_index, 0, 1, item.x, item.y)
+             for item in items),
+            [])
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
@@ -285,66 +291,13 @@ class RendererAgg(RendererBase):
         with Dvi(dvifile, self.dpi) as dvi:
             page, = dvi
 
-        cos = math.cos(math.radians(angle))
-        sin = math.sin(math.radians(angle))
-
-        for text in page.text:
-            hf = mpl.rcParams["text.hinting_factor"]
-            # Resolving text.index will implicitly call get_font(), which
-            # resets the font transform, so it has to be done before explicitly
-            # setting the font transform below.
-            index = text.index
-            font = get_font(text.font_path)
-            font.set_size(text.font_size, self.dpi)
-            slant = text.font_effects.get("slant", 0)
-            extend = text.font_effects.get("extend", 1)
-            font._set_transform(
-                (0x10000 * np.array([[cos, -sin], [sin, cos]])
-                 @ [[extend, extend * slant], [0, 1]]
-                 @ [[1 / hf, 0], [0, 1]]).round().astype(int),
-                [round(0x40 * (x + text.x * cos - text.y * sin)),
-                 # FreeType's y is upwards.
-                 round(0x40 * (self.height - y + text.x * sin + text.y * cos))]
-            )
-            bitmap = font._render_glyph(
-                index, get_hinting_flag(),
-                RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO)
-            buffer = np.asarray(bitmap.buffer)
-            if not gc.get_antialiased():
-                buffer *= 0xff
-            # draw_text_image's y is downwards & the bitmap bottom side.
-            self._renderer.draw_text_image(
-                buffer,
-                bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
-                0, gc)
-
-        rgba = gc.get_rgb()
-        if len(rgba) == 3 or gc.get_forced_alpha():
-            rgba = rgba[:3] + (gc.get_alpha(),)
-        gc1 = self.new_gc()
-        gc1.set_linewidth(0)
-        gc1.set_snap(gc.get_snap())
-        for box in page.boxes:
-            bx = box.x
-            by = box.y
-            bw = box.width
-            bh = box.height
-            if gc1.get_snap() in [None, True]:
-                # Prevent thin bars from disappearing by growing symmetrically.
-                if bw < 1:
-                    bx -= (1 - bw) / 2
-                    bw = 1
-                if bh < 1:
-                    by -= (1 - bh) / 2
-                    bh = 1
-            path = Path._create_closed([
-                (bx, by), (bx + bw, by), (bx + bw, by + bh), (bx, by + bh)])
-            self._renderer.draw_path(
-                gc1, path,
-                mpl.transforms.Affine2D()
-                .rotate_deg(angle).translate(x, self.height - y),
-                rgba)
-        gc1.restore()
+        self._draw_text_glyphs_and_boxes(
+            gc, x, y, angle,
+            ((get_font(text.font_path), text.font_size, text.index,
+              text.font_effects.get('slant', 0), text.font_effects.get('extend', 1),
+              text.x, text.y)
+             for text in page.text),
+            ((box.x, box.y, box.width, box.height) for box in page.boxes))
 
     def get_canvas_width_height(self):
         # docstring inherited

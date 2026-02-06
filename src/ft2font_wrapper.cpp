@@ -1933,16 +1933,6 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                 FT_CHECK(FT_Render_Glyph, face->glyph, render_mode);
                 return PyPositionedBitmap{face->glyph};
             })
-        .def("_render_glyphs",
-             [](PyFT2Font *self, double x, double y, FT_Render_Mode render_mode) {
-                auto origin = FT_Vector{std::lround(x * 64), std::lround(y * 64)};
-                auto pbs = std::vector<PyPositionedBitmap>{};
-                for (auto &g: self->get_glyphs()) {
-                    FT_CHECK(FT_Glyph_To_Bitmap, &g, render_mode, &origin, 1);
-                    pbs.emplace_back(reinterpret_cast<FT_BitmapGlyph>(g));
-                }
-                return pbs;
-            })
         ;
 
     m.attr("__freetype_version__") = version_string;
