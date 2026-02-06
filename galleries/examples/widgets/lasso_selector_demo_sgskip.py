@@ -58,6 +58,9 @@ class SelectFromCollection:
         self.lasso = LassoSelector(ax, onselect=self.onselect)
         self.ind = []
 
+        # Register an additional callback using on_select
+        self.lasso.on_select(self.print_selection_count)
+
     def onselect(self, verts):
         path = Path(verts)
         self.ind = np.nonzero(path.contains_points(self.xys))[0]
@@ -65,6 +68,12 @@ class SelectFromCollection:
         self.fc[self.ind, -1] = 1
         self.collection.set_facecolors(self.fc)
         self.canvas.draw_idle()
+
+    def print_selection_count(self, verts):
+        """Additional callback registered via on_select."""
+        path = Path(verts)
+        count = np.count_nonzero(path.contains_points(self.xys))
+        print(f"Selected {count} points")
 
     def disconnect(self):
         self.lasso.disconnect_events()
@@ -108,4 +117,5 @@ if __name__ == '__main__':
 #    in this example:
 #
 #    - `matplotlib.widgets.LassoSelector`
+#    - `matplotlib.widgets.LassoSelector.on_select`
 #    - `matplotlib.path.Path`

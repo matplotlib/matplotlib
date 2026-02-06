@@ -2169,11 +2169,14 @@ class _SelectorWidget(AxesWidget):
         super().__init__(ax)
 
         self._visible = True
-        if onselect is None:
-            self.onselect = lambda *args: None
-        else:
-            self.onselect = onselect
         self._useblit = useblit
+        self._observers = cbook.CallbackRegistry(signals=["select"])
+        self._onselect_cid = None
+        self._onselect = None
+
+        # Use property setter to register callback
+        self.onselect = onselect if onselect is not None else lambda *args: None
+
         self.connect_default_events()
 
         self._state_modifier_keys = dict(move=' ', clear='escape',
@@ -2201,6 +2204,28 @@ class _SelectorWidget(AxesWidget):
     def useblit(self):
         """Return whether blitting is used (requested and supported by canvas)."""
         return self._useblit and self.canvas.supports_blit
+
+    @property
+    def onselect(self):
+        """
+        The callback function called on selection.
+
+        .. note::
+            This property is provided for backward compatibility.
+            New code should use `on_select` to register callbacks.
+            This property may be deprecated in a future release.
+        """
+        return self._onselect
+
+    @onselect.setter
+    def onselect(self, func):
+        # Backward compatibility: allow setting onselect directly.
+        # This disconnects the old callback and registers the new one.
+        # Consider deprecating this in favor of on_select() in the future.
+        if self._onselect_cid is not None:
+            self._observers.disconnect(self._onselect_cid)
+        self._onselect = func
+        self._onselect_cid = self._observers.connect('select', func)
 
     def set_active(self, active):
         super().set_active(active)
@@ -2532,6 +2557,40 @@ class _SelectorWidget(AxesWidget):
         self._validate_state(state)
         self._state.remove(state)
 
+    def on_select(self, func):
+        """
+        Connect *func* as callback function to selection events.
+
+        Parameters
+        ----------
+        func : callable
+            Function to call when a selection is made or changed.
+            The function signature depends on the specific selector:
+
+            - `SpanSelector`: ``func(min, max)``
+            - `RectangleSelector` and `EllipseSelector`:
+              ``func(eclick, erelease)``
+            - `LassoSelector`: ``func(verts)``
+            - `PolygonSelector`: ``func(verts)``
+
+        Returns
+        -------
+        int
+            Connection id (which can be used to disconnect *func*).
+        """
+        return self._observers.connect('select', func)
+
+    def disconnect(self, cid):
+        """
+        Remove the observer with connection id *cid*.
+
+        Parameters
+        ----------
+        cid : int
+            Connection id of the observer to be removed.
+        """
+        self._observers.disconnect(cid)
+
 
 class SpanSelector(_SelectorWidget):
     """
@@ -2800,11 +2859,13 @@ class SpanSelector(_SelectorWidget):
             # Remove span and set self._selection_completed = False
             self.set_visible(False)
             if self._selection_completed:
-                # Call onselect, only when the span is already existing
-                self.onselect(vmin, vmax)
+                # Call callbacks only when the span is already existing
+                if self.eventson:
+                    self._observers.process('select', vmin, vmax)
             self._selection_completed = False
         else:
-            self.onselect(vmin, vmax)
+            if self.eventson:
+                self._observers.process('select', vmin, vmax)
             self._selection_completed = True
 
         self.update()
@@ -2941,6 +3002,26 @@ class SpanSelector(_SelectorWidget):
     def extents(self, extents):
         self._set_extents(extents)
         self._selection_completed = True
+
+    def on_select(self, func):
+        """
+        Connect *func* as callback function to selection events.
+
+        Parameters
+        ----------
+        func : callable
+            Function to call when a selection is made. Must have the signature::
+
+                def func(min: float, max: float) -> Any
+
+            where *min* and *max* are the selected range bounds.
+
+        Returns
+        -------
+        int
+            Connection id (which can be used to disconnect *func*).
+        """
+        return self._observers.connect('select', func)
 
     def _set_extents(self, extents):
         # Update displayed shape
@@ -3407,11 +3488,15 @@ class RectangleSelector(_SelectorWidget):
         # either x or y-direction
         if spanx <= self.minspanx or spany <= self.minspany:
             if self._selection_completed:
-                # Call onselect, only when the selection is already existing
-                self.onselect(self._eventpress, self._eventrelease)
+                # Call callbacks only when the selection is already existing
+                if self.eventson:
+                    self._observers.process(
+                        'select', self._eventpress, self._eventrelease)
             self._clear_without_update()
         else:
-            self.onselect(self._eventpress, self._eventrelease)
+            if self.eventson:
+                self._observers.process(
+                    'select', self._eventpress, self._eventrelease)
             self._selection_completed = True
 
         self.update()
@@ -3732,6 +3817,27 @@ class RectangleSelector(_SelectorWidget):
         else:
             return np.array(self._selection_artist.get_data())
 
+    def on_select(self, func):
+        """
+        Connect *func* as callback function to selection events.
+
+        Parameters
+        ----------
+        func : callable
+            Function to call when a selection is made. Must have the signature::
+
+                def func(eclick: MouseEvent, erelease: MouseEvent) -> Any
+
+            where *eclick* and *erelease* are the `.MouseEvent`s that
+            start and complete the selection.
+
+        Returns
+        -------
+        int
+            Connection id (which can be used to disconnect *func*).
+        """
+        return self._observers.connect('select', func)
+
 
 @_docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
     '__ARTIST_NAME__', 'ellipse'))
@@ -3837,7 +3943,8 @@ class LassoSelector(_SelectorWidget):
     def _release(self, event):
         if self.verts is not None:
             self.verts.append(self._get_data(event))
-            self.onselect(self.verts)
+            if self.eventson:
+                self._observers.process('select', self.verts)
         self._selection_artist.set_data([[], []])
         self._selection_artist.set_visible(False)
         self.verts = None
@@ -3849,6 +3956,27 @@ class LassoSelector(_SelectorWidget):
         self._selection_artist.set_data(list(zip(*self.verts)))
 
         self.update()
+
+    def on_select(self, func):
+        """
+        Connect *func* as callback function to selection events.
+
+        Parameters
+        ----------
+        func : callable
+            Function to call when a selection is made. Must have the signature::
+
+                def func(verts: list[tuple[float, float]]) -> Any
+
+            where *verts* is a list of (x, y) pairs representing the vertices
+            of the lasso path.
+
+        Returns
+        -------
+        int
+            Connection id (which can be used to disconnect *func*).
+        """
+        return self._observers.connect('select', func)
 
 
 class PolygonSelector(_SelectorWidget):
@@ -4092,7 +4220,8 @@ class PolygonSelector(_SelectorWidget):
             self._xys.insert(-1, (event.xdata, event.ydata))
 
         if self._selection_completed:
-            self.onselect(self.verts)
+            if self.eventson:
+                self._observers.process('select', self.verts)
 
     @_call_with_reparented_event
     def onmove(self, event):
@@ -4218,6 +4347,27 @@ class PolygonSelector(_SelectorWidget):
         if self._draw_box and self._box is None:
             self._add_box()
         self._draw_polygon()
+
+    def on_select(self, func):
+        """
+        Connect *func* as callback function to selection events.
+
+        Parameters
+        ----------
+        func : callable
+            Function to call when a selection is made. Must have the signature::
+
+                def func(verts: list[tuple[float, float]]) -> Any
+
+            where *verts* is a list of (x, y) pairs representing the vertices
+            of the polygon.
+
+        Returns
+        -------
+        int
+            Connection id (which can be used to disconnect *func*).
+        """
+        return self._observers.connect('select', func)
 
     def _clear_without_update(self):
         self._selection_completed = False
