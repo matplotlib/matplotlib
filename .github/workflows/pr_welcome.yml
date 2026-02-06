@@ -1,18 +1,23 @@
 ---
 name: PR Greetings
 
-on: [pull_request_target]
+on:
+  pull_request_target:
+    types: opened
+  issues:
+    types: opened
 
 jobs:
   greeting:
     runs-on: ubuntu-latest
     permissions:
+      issues: write
       pull-requests: write
     steps:
-      - uses: actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d  # v3.1.0
+      - uses: plbstl/first-contribution@4b2b042fffa26792504a18e49aa9543a87bec077  # v4.1.0
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_message: >+
+          labels: first-contribution
+          pr-opened-msg: >+
             Thank you for opening your first PR into Matplotlib!
 
 
@@ -35,3 +40,4 @@ jobs:
             We strive to be a welcoming and open project. Please follow our
             [Code of
             Conduct](https://github.com/matplotlib/matplotlib/blob/main/CODE_OF_CONDUCT.md).
+          issue-opened-msg: ""
