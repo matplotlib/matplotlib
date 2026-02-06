@@ -172,14 +172,12 @@ class RendererAgg(RendererBase):
 
                 raise OverflowError(msg) from None
 
-    def draw_mathtext(self, gc, x, y, s, prop, angle):
-        """Draw mathtext using :mod:`matplotlib.mathtext`."""
+    def _draw_text_glyphs(self, gc, x, y, angle, glyphs):
         # y is downwards.
-        parse = self.mathtext_parser.parse(
-            s, self.dpi, prop, antialiased=gc.get_antialiased())
         cos = math.cos(math.radians(angle))
         sin = math.sin(math.radians(angle))
-        for font, size, _char, glyph_index, dx, dy in parse.glyphs:  # dy is upwards.
+        load_flags = get_hinting_flag() | LoadFlags.COLOR | LoadFlags.NO_SVG
+        for font, size, glyph_index, dx, dy in glyphs:  # dy is upwards.
             font.set_size(size, self.dpi)
             hf = font._hinting_factor
             font._set_transform(
@@ -190,16 +188,31 @@ class RendererAgg(RendererBase):
                  round(0x40 * (self.height - y + dx * sin + dy * cos))]
             )
             bitmap = font._render_glyph(
-                glyph_index, get_hinting_flag(),
+                glyph_index, load_flags,
                 RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO)
-            buffer = np.asarray(bitmap.buffer)
-            if not gc.get_antialiased():
-                buffer *= 0xff
-            # draw_text_image's y is downwards & the bitmap bottom side.
-            self._renderer.draw_text_image(
-                buffer,
-                bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
-                0, gc)
+            buffer = bitmap.buffer
+            if buffer.ndim == 3:
+                self._renderer.draw_text_bgra_image(
+                    gc,
+                    bitmap.left, bitmap.top - buffer.shape[0],
+                    buffer)
+            else:
+                if not gc.get_antialiased():
+                    buffer *= 0xff
+                # draw_text_image's y is downwards & the bitmap bottom side.
+                self._renderer.draw_text_image(
+                    buffer,
+                    bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
+                    0, gc)
+
+    def draw_mathtext(self, gc, x, y, s, prop, angle):
+        """Draw mathtext using :mod:`matplotlib.mathtext`."""
+        parse = self.mathtext_parser.parse(
+            s, self.dpi, prop, antialiased=gc.get_antialiased())
+        self._draw_text_glyphs(
+            gc, x, y, angle,
+            ((font, size, glyph_index, dx, dy)
+             for font, size, _char, glyph_index, dx, dy in parse.glyphs))
         rgba = gc.get_rgb()
         if len(rgba) == 3 or gc.get_forced_alpha():
             rgba = rgba[:3] + (gc.get_alpha(),)
@@ -229,20 +242,15 @@ class RendererAgg(RendererBase):
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         font = self._prepare_font(prop)
-        font.set_text(s, angle, flags=get_hinting_flag(),
-                      features=mtext.get_fontfeatures() if mtext is not None else None,
-                      language=mtext.get_language() if mtext is not None else None)
-        for bitmap in font._render_glyphs(
-            x, self.height - y,
-            RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO,
-        ):
-            buffer = bitmap.buffer
-            if not gc.get_antialiased():
-                buffer *= 0xff
-            self._renderer.draw_text_image(
-                buffer,
-                bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
-                0, gc)
+        items = font._layout(
+            s, flags=get_hinting_flag() | LoadFlags.COLOR | LoadFlags.NO_SVG,
+            features=mtext.get_fontfeatures() if mtext is not None else None,
+            language=mtext.get_language() if mtext is not None else None)
+        size = prop.get_size_in_points()
+        self._draw_text_glyphs(
+            gc, x, y, angle,
+            ((item.ft_object, size, item.glyph_index, item.x, item.y)
+             for item in items))
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
@@ -256,7 +264,8 @@ class RendererAgg(RendererBase):
             return parse.width, parse.height, parse.depth
 
         font = self._prepare_font(prop)
-        font.set_text(s, 0.0, flags=get_hinting_flag())
+        font.set_text(s, 0.0,
+                      flags=get_hinting_flag() | LoadFlags.COLOR | LoadFlags.NO_SVG)
         w, h = font.get_width_height()  # width and height of unrotated string
         d = font.get_descent()
         w /= 64.0  # convert from subpixels

@@ -297,14 +297,22 @@ struct PyPositionedBitmap {
         left{slot->bitmap_left}, top{slot->bitmap_top}, owning{true}
     {
         FT_Bitmap_Init(&bitmap);
-        FT_CHECK(FT_Bitmap_Convert, _ft2Library, &slot->bitmap, &bitmap, 1);
+        if (slot->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
+            FT_CHECK(FT_Bitmap_Convert, _ft2Library, &slot->bitmap, &bitmap, 1);
+        } else {
+            FT_CHECK(FT_Bitmap_Copy, _ft2Library, &slot->bitmap, &bitmap);
+        }
     }
 
     PyPositionedBitmap(FT_BitmapGlyph bg) :
         left{bg->left}, top{bg->top}, owning{true}
     {
         FT_Bitmap_Init(&bitmap);
-        FT_CHECK(FT_Bitmap_Convert, _ft2Library, &bg->bitmap, &bitmap, 1);
+        if (bg->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
+            FT_CHECK(FT_Bitmap_Convert, _ft2Library, &bg->bitmap, &bitmap, 1);
+        } else {
+            FT_CHECK(FT_Bitmap_Copy, _ft2Library, &bg->bitmap, &bitmap);
+        }
     }
 
     PyPositionedBitmap(PyPositionedBitmap& other) = delete;  // Non-copyable.
@@ -1688,9 +1696,19 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_readonly("top", &PyPositionedBitmap::top)
         .def_property_readonly(
           "buffer", [](PyPositionedBitmap &self) -> py::array {
-            return {{self.bitmap.rows, self.bitmap.width},
+            if (self.bitmap.pixel_mode == FT_PIXEL_MODE_BGRA) {
+                return {
+                    {self.bitmap.rows, self.bitmap.width, 4u},
+                    {self.bitmap.pitch, 4, 1},
+                    self.bitmap.buffer
+                };
+            } else {
+                return {
+                    {self.bitmap.rows, self.bitmap.width},
                     {self.bitmap.pitch, 1},
-                    self.bitmap.buffer};
+                    self.bitmap.buffer
+                };
+            }
         })
         ;
 
@@ -1932,16 +1950,6 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                 FT_CHECK(FT_Load_Glyph, face, idx, static_cast<FT_Int32>(flags));
                 FT_CHECK(FT_Render_Glyph, face->glyph, render_mode);
                 return PyPositionedBitmap{face->glyph};
-            })
-        .def("_render_glyphs",
-             [](PyFT2Font *self, double x, double y, FT_Render_Mode render_mode) {
-                auto origin = FT_Vector{std::lround(x * 64), std::lround(y * 64)};
-                auto pbs = std::vector<PyPositionedBitmap>{};
-                for (auto &g: self->get_glyphs()) {
-                    FT_CHECK(FT_Glyph_To_Bitmap, &g, render_mode, &origin, 1);
-                    pbs.emplace_back(reinterpret_cast<FT_BitmapGlyph>(g));
-                }
-                return pbs;
             })
         ;
 

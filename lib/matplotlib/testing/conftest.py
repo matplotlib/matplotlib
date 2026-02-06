@@ -21,6 +21,8 @@ def pytest_configure(config):
         ("filterwarnings",
          r"ignore:DynamicImporter.find_spec\(\) not found; "
          r"falling back to find_module\(\):ImportWarning"),
+        ("filterwarnings",
+         r"ignore:Glyph .* \([lp]\) missing from font\(s\) OpenMoji MplSubset\."),
     ]:
         config.addinivalue_line(key, value)
 
