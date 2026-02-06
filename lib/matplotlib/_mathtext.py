@@ -958,53 +958,83 @@ class ComputerModernFontConstants(FontConstantsBase):
     # type 32). Now that we're using the rendered x-height, some font constants
     # have been increased by the same factor to compensate.
     script_space = 0.132861328125
-    supdrop = 0.354296875
-    subdrop = 0.354296875
-    sup1 = 0.79716796875
-    sub1 = 0.354296875
-    sub2 = 0.5314453125
     delta = 0.132861328125
     delta_slanted = 0.3
     delta_integral = 0.3
-    num1 = 1.5
-    num2 = 1.5
-    num3 = 1.5
-    denom1 = 1.6
-    denom2 = 1.2
+    _x_height = 451470
+    # These all come from the cmsy10.tfm metrics, divided by the design xheight from
+    # there, since we multiply these values by the scaled xheight later.
+    supdrop = 404864 / _x_height
+    subdrop = 52429 / _x_height
+    sup1 = 432949 / _x_height
+    sub1 = 157286 / _x_height
+    sub2 = 259226 / _x_height
+    num1 = 709370 / _x_height
+    num2 = 412858 / _x_height
+    num3 = 465286 / _x_height
+    denom1 = 719272 / _x_height
+    denom2 = 361592 / _x_height
 
 
 class STIXFontConstants(FontConstantsBase):
     script_space = 0.1
-    sup1 = 0.8
-    sub2 = 0.6
     delta = 0.05
     delta_slanted = 0.3
     delta_integral = 0.3
-    num1 = 1.6
-    num2 = 1.6
-    num3 = 1.6
-    denom1 = 1.6
+    # These values are extracted from the TeX table of STIXGeneral.ttf using FreeType,
+    # and then divided by design xheight, since we multiply these values by the scaled
+    # xheight later.
+    _x_height = 450
+    supdrop = 386 / _x_height
+    subdrop = 50.0002 / _x_height
+    sup1 = 413 / _x_height
+    sub1 = 150 / _x_height
+    sub2 = 309 / _x_height
+    num1 = 747 / _x_height
+    num2 = 424 / _x_height
+    num3 = 474 / _x_height
+    denom1 = 756 / _x_height
+    denom2 = 375 / _x_height
 
 
-class STIXSansFontConstants(FontConstantsBase):
+class STIXSansFontConstants(STIXFontConstants):
     script_space = 0.05
-    sup1 = 0.8
     delta_slanted = 0.6
     delta_integral = 0.3
-    num1 = 1.5
-    num3 = 1.5
-    denom1 = 1.5
 
 
 class DejaVuSerifFontConstants(FontConstantsBase):
-    num1 = 1.5
-    num2 = 1.6
-    num3 = 1.4
-    denom1 = 1.4
+    # These values are extracted from the TeX table of DejaVuSerif.ttf using FreeType,
+    # and then divided by design xheight, since we multiply these values by the scaled
+    # xheight later.
+    _x_height = 1063
+    supdrop = 790.527 / _x_height
+    subdrop = 102.4 / _x_height
+    sup1 = 845.824 / _x_height
+    sub1 = 307.199 / _x_height
+    sub2 = 632.832 / _x_height
+    num1 = 1529.86 / _x_height
+    num2 = 868.352 / _x_height
+    num3 = 970.752 / _x_height
+    denom1 = 1548.29 / _x_height
+    denom2 = 768 / _x_height
 
 
 class DejaVuSansFontConstants(FontConstantsBase):
-    pass
+    # These values are extracted from the TeX table of DejaVuSans.ttf using FreeType,
+    # and then divided by design xheight, since we multiply these values by the scaled
+    # xheight later.
+    _x_height = 1120
+    supdrop = 790.527 / _x_height
+    subdrop = 102.4 / _x_height
+    sup1 = 845.824 / _x_height
+    sub1 = 307.199 / _x_height
+    sub2 = 632.832 / _x_height
+    num1 = 1529.86 / _x_height
+    num2 = 868.352 / _x_height
+    num3 = 970.752 / _x_height
+    denom1 = 1548.29 / _x_height
+    denom2 = 768 / _x_height
 
 
 # Maps font family names to the FontConstantBase subclass to use
