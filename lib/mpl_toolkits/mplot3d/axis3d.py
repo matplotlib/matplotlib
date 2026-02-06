@@ -435,7 +435,7 @@ class Axis(maxis.XAxis):
 
     def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
                     deltas_per_point, pos):
-        ticks = self._update_ticks()
+        ticks = self._update_ticks(_use_cache=True)
         info = self._axinfo
         index = info["i"]
         juggled = info["juggled"]
@@ -569,6 +569,7 @@ class Axis(maxis.XAxis):
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
         renderer.open_group("axis3d", gid=self.get_gid())
+        self._clear_ticks_cache()
 
         # Get general axis information:
         mins, maxs, tc, highs = self._get_coord_info()
@@ -627,6 +628,7 @@ class Axis(maxis.XAxis):
             self._draw_labels(renderer, edgep1, edgep2, labeldeltas, centers, dx, dy)
 
         renderer.close_group('axis3d')
+        self._clear_ticks_cache()
         self.stale = False
 
     @artist.allow_rasterization
@@ -636,7 +638,7 @@ class Axis(maxis.XAxis):
 
         renderer.open_group("grid3d", gid=self.get_gid())
 
-        ticks = self._update_ticks()
+        ticks = self._update_ticks(_use_cache=True)
         if len(ticks):
             # Get general axis information:
             info = self._axinfo
@@ -674,6 +676,12 @@ class Axis(maxis.XAxis):
         # docstring inherited
         if not self.get_visible():
             return
+
+        # We need to reset the ticks cache here - get_tightbbox() is called
+        # during layout calculations (e.g., constrained_layout) outside of
+        # draw(), and must always recalculate to reflect current state.
+        self._clear_ticks_cache()
+
         # We have to directly access the internal data structures
         # (and hope they are up to date) because at draw time we
         # shift the ticks and their labels around in (x, y) space
@@ -705,7 +713,7 @@ class Axis(maxis.XAxis):
 
         ticks = ticks_to_draw
 
-        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer)
+        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer, _use_cache=True)
         other = []
 
         if self.offsetText.get_visible() and self.offsetText.get_text():
@@ -716,6 +724,7 @@ class Axis(maxis.XAxis):
                 self.label.get_text()):
             other.append(self.label.get_window_extent(renderer))
 
+        self._clear_ticks_cache()
         return mtransforms.Bbox.union([*bb_1, *bb_2, *other])
 
     d_interval = _api.deprecated(
