@@ -954,7 +954,7 @@ default: %(va)s
 
         for name in ax._axis_names:  # Break link between any shared Axes
             grouper = ax._shared_axes[name]
-            siblings = [other for other in grouper.get_siblings(ax) if other is not ax]
+            siblings = grouper.get_siblings(ax, include_self=False)
             if not siblings:  # Axes was not shared along this axis; we're done.
                 continue
             grouper.remove(ax)
