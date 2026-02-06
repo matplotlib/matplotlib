@@ -48,6 +48,6 @@ def test_patch_alpha_coloring(fig_test, fig_ref):
                                       edgecolor=(0, 0, 1, 0.75))
     ax.add_collection(col)
 
-    # TODO: Look into why the figures need to be pyplot figures to match
+    # Have pyplot manage the figures to ensure the cairo backend is used
     plt.figure(fig_ref)
     plt.figure(fig_test)
