@@ -525,12 +525,18 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 if float_rgba_in and np.ndim(alpha) == 0 and np.any(A[..., 3] < 1):
                     # Do not modify original RGBA input
                     A = A.copy()
+                # Store the original alpha before premultiplication
+                original_alpha = A[..., 3].copy() if np.ndim(alpha) > 0 else None
                 A[..., :3] *= A[..., 3:]
                 res = _resample(self, A, out_shape, t)
                 np.divide(res[..., :3], res[..., 3:], out=res[..., :3],
                             where=res[..., 3:] != 0)
                 if post_apply_alpha:
                     res[..., 3] *= alpha
+                elif original_alpha is not None:
+                    # Restore the original alpha array (before premultiplication)
+                    # to avoid artifacts from premultiplication/unpremultiplication
+                    res[..., 3] = _resample(self, original_alpha, out_shape, t)
 
             # res is now either a 2D array of normed (int or float) data
             # or an RGBA array of re-sampled input

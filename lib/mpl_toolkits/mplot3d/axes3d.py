@@ -1337,6 +1337,14 @@ class Axes3D(Axes):
         self.view_init(elev=other.elev, azim=other.azim, roll=other.roll,
                        vertical_axis=vertical_axis, share=True)
 
+    def get_shared_z_axes(self):
+        """Return an immutable view on the shared z-axes Grouper."""
+        return cbook.GrouperView(self._shared_axes["z"])
+
+    def get_shared_view_axes(self):
+        """Return an immutable view on the shared view-axes Grouper."""
+        return cbook.GrouperView(self._shared_axes["view"])
+
     def clear(self):
         # docstring inherited.
         super().clear()
