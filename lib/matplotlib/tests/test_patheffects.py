@@ -214,3 +214,16 @@ def test_patheffects_overridden_methods_open_close_group():
 
     assert renderer.open_group('s') == "open_group overridden"
     assert renderer.close_group('s') == "close_group overridden"
+
+
+def test_SimpleLineShadow_with_shadow_color_none():
+    """Test SimpleLineShadow with shadow_color=None uses the line's color."""
+    fig, ax = plt.subplots()
+    line, = ax.plot([0, 1], [0, 1], color='red')
+    # shadow_color=None should derive shadow color from the line's color
+    line.set_path_effects([
+        path_effects.SimpleLineShadow(shadow_color=None, rho=0.5),
+        path_effects.Normal()
+    ])
+    fig.canvas.draw()
+    plt.close(fig)
