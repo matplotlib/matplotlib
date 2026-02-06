@@ -759,13 +759,38 @@ void resample(
 
     agg::path_storage path;
     if (params.is_affine && params.interpolation != NEAREST) {
-        path.move_to(0, 0);
-        path.line_to(in_width, 0);
-        path.line_to(in_width, in_height);
-        path.line_to(0, in_height);
-        path.close_polygon();
-        agg::conv_transform<agg::path_storage> rectangle(path, params.affine);
-        rasterizer.add_path(rectangle);
+        if (params.affine.shx != 0 || params.affine.shy != 0) {
+            path.move_to(0, 0);
+            path.line_to(in_width, 0);
+            path.line_to(in_width, in_height);
+            path.line_to(0, in_height);
+            path.close_polygon();
+            agg::conv_transform<agg::path_storage> rectangle(path, params.affine);
+            rasterizer.add_path(rectangle);
+        } else {
+            // If there is no shear/rotation, bump out the rendering edges that are
+            // within a half pixel of a full pixel so that axes are visually filled.
+            // This bumping out is equivalent to treating any edge pixel that is at
+            // least half-covered by the source as fully covered by the source.
+            double left = 0;
+            double right = in_width;
+            double bottom = 0;
+            double top = in_height;
+            params.affine.transform(&left, &bottom);
+            params.affine.transform(&right, &top);
+            if (left > right) { std::swap(left, right); }
+            if (bottom > top) { std::swap(top, bottom); }
+            if (round(left) < left) { left = round(left); }
+            if (round(right) > right) { right = round(right); }
+            if (round(bottom) < bottom) { bottom = round(bottom); }
+            if (round(top) > top) { top = round(top); }
+            path.move_to(left, bottom);
+            path.line_to(right, bottom);
+            path.line_to(right, top);
+            path.line_to(left, top);
+            path.close_polygon();
+            rasterizer.add_path(path);
+        }
     } else {
         path.move_to(0, 0);
         path.line_to(out_width, 0);
