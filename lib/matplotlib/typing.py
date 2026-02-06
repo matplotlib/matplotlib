@@ -427,6 +427,7 @@ RcKeyType: TypeAlias = Literal[
     "pgf.texsystem",
     "polaraxes.grid",
     "ps.distiller.res",
+    "ps.pathtext",
     "ps.fonttype",
     "ps.papersize",
     "ps.useafm",
