@@ -349,7 +349,7 @@ class Colorbar:
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
-        self._inside = _api.check_getitem(
+        self._inside = _api.getitem_checked(
             {'neither': slice(0, None), 'both': slice(1, -1),
              'min': slice(1, None), 'max': slice(0, -1)},
             extend=extend)
@@ -1340,7 +1340,7 @@ ColorbarBase = Colorbar  # Backcompat API
 def _normalize_location_orientation(location, orientation):
     if location is None:
         location = _get_ticklocation_from_orientation(orientation)
-    loc_settings = _api.check_getitem({
+    loc_settings = _api.getitem_checked({
         "left":   {"location": "left", "anchor": (1.0, 0.5),
                    "panchor": (0.0, 0.5), "pad": 0.10},
         "right":  {"location": "right", "anchor": (0.0, 0.5),
@@ -1358,13 +1358,13 @@ def _normalize_location_orientation(location, orientation):
 
 
 def _get_orientation_from_location(location):
-    return _api.check_getitem(
+    return _api.getitem_checked(
         {None: None, "left": "vertical", "right": "vertical",
          "top": "horizontal", "bottom": "horizontal"}, location=location)
 
 
 def _get_ticklocation_from_orientation(orientation):
-    return _api.check_getitem(
+    return _api.getitem_checked(
         {None: "right", "vertical": "right", "horizontal": "bottom"},
         orientation=orientation)
 

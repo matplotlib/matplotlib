@@ -56,7 +56,7 @@ When opening a pull request on Github, please ensure that:
 
 * Changes were made on a :ref:`feature branch <make-feature-branch>`.
 
-* :ref:`pre-commit <pre-commit-hooks>` checks for spelling, formatting, etc pass
+* :ref:`prek <pre-commit-hooks>` checks for spelling, formatting, etc pass
 
 * The pull request targets the :ref:`main branch <pr-branch-selection>`
 

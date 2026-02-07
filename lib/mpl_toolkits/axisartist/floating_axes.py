@@ -33,7 +33,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
          nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
         """
         lon1, lon2, lat1, lat2 = grid_helper.grid_finder.extreme_finder(*[None] * 5)
-        value, nth_coord = _api.check_getitem(
+        value, nth_coord = _api.getitem_checked(
             dict(left=(lon1, 0), right=(lon2, 0), bottom=(lat1, 1), top=(lat2, 1)),
             side=side)
         super().__init__(grid_helper, nth_coord, value, axis_direction=side)

@@ -604,6 +604,22 @@ class TestIndexLocator:
         assert index._base == 7
         assert index.offset == 7
 
+    def test_tick_values_not_exceeding_vmax(self):
+        """
+        Test that tick_values does not return values greater than vmax.
+        """
+        # Test case where offset=0 could cause vmax to be included incorrectly
+        index = mticker.IndexLocator(base=1, offset=0)
+        assert_array_equal(index.tick_values(0, 4), [0, 1, 2, 3, 4])
+
+        # Test case with fractional offset
+        index = mticker.IndexLocator(base=1, offset=0.5)
+        assert_array_equal(index.tick_values(0, 4), [0.5, 1.5, 2.5, 3.5])
+
+        # Test case with base > 1
+        index = mticker.IndexLocator(base=2, offset=0)
+        assert_array_equal(index.tick_values(0, 5), [0, 2, 4])
+
 
 class TestSymmetricalLogLocator:
     def test_set_params(self):

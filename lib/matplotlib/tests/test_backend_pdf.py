@@ -478,3 +478,221 @@ def test_font_bitstream_charter():
     ax.text(0.1, 0.3, r"fi ffl 1234", usetex=True, fontsize=50)
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+def test_scatter_offaxis_colored_pdf_size():
+    """
+    Test that off-axis scatter plots with per-point colors don't bloat PDFs.
+
+    Regression test for issue #2488. When scatter points with per-point colors
+    are completely outside the visible axes, the PDF backend should skip
+    writing those markers to significantly reduce file size.
+    """
+    # Use John Hunter's birthday as random seed for reproducibility
+    rng = np.random.default_rng(19680801)
+
+    n_points = 1000
+    x = rng.random(n_points) * 10
+    y = rng.random(n_points) * 10
+    c = rng.random(n_points)
+
+    # Test 1: Scatter with per-point colors, all points OFF-AXIS
+    fig1, ax1 = plt.subplots()
+    ax1.scatter(x, y, c=c)
+    ax1.set_xlim(20, 30)  # Move view completely away from data (x is 0-10)
+    ax1.set_ylim(20, 30)  # Move view completely away from data (y is 0-10)
+
+    buf1 = io.BytesIO()
+    fig1.savefig(buf1, format='pdf')
+    size_offaxis_colored = buf1.tell()
+    plt.close(fig1)
+
+    # Test 2: Empty scatter (baseline - accounts for scatter call overhead)
+    fig2, ax2 = plt.subplots()
+    ax2.scatter([], [])  # Empty scatter to match the axes structure
+    ax2.set_xlim(20, 30)
+    ax2.set_ylim(20, 30)
+
+    buf2 = io.BytesIO()
+    fig2.savefig(buf2, format='pdf')
+    size_empty = buf2.tell()
+    plt.close(fig2)
+
+    # Test 3: Scatter with visible markers (should be much larger)
+    fig3, ax3 = plt.subplots()
+    ax3.scatter(x + 20, y + 20, c=c)  # Shift points to be visible
+    ax3.set_xlim(20, 30)
+    ax3.set_ylim(20, 30)
+
+    buf3 = io.BytesIO()
+    fig3.savefig(buf3, format='pdf')
+    size_visible = buf3.tell()
+    plt.close(fig3)
+
+    # The off-axis colored scatter should be close to empty size.
+    # Since the axes are identical, the difference should be minimal
+    # (just the scatter collection setup, no actual marker data).
+    # Use a tight tolerance since axes output is identical.
+    assert size_offaxis_colored < size_empty + 5_000, (
+        f"Off-axis colored scatter PDF ({size_offaxis_colored} bytes) is too large. "
+        f"Expected close to empty scatter size ({size_empty} bytes). "
+        f"Markers may not be properly skipped."
+    )
+
+    # The visible scatter should be significantly larger than both empty and
+    # off-axis, demonstrating the optimization is working.
+    assert size_visible > size_empty + 15_000, (
+        f"Visible scatter PDF ({size_visible} bytes) should be much larger "
+        f"than empty ({size_empty} bytes) to validate the test."
+    )
+    assert size_visible > size_offaxis_colored + 15_000, (
+        f"Visible scatter PDF ({size_visible} bytes) should be much larger "
+        f"than off-axis ({size_offaxis_colored} bytes) to validate optimization."
+    )
+
+
+@check_figures_equal(extensions=["pdf"])
+def test_scatter_offaxis_colored_visual(fig_test, fig_ref):
+    """
+    Test that on-axis scatter with per-point colors still renders correctly.
+
+    Ensures the optimization for off-axis markers doesn't break normal
+    scatter rendering.
+    """
+    rng = np.random.default_rng(19680801)
+
+    n_points = 100
+    x = rng.random(n_points) * 5
+    y = rng.random(n_points) * 5
+    c = rng.random(n_points)
+
+    # Test figure: scatter with clipping optimization
+    ax_test = fig_test.subplots()
+    ax_test.scatter(x, y, c=c, s=50)
+    ax_test.set_xlim(0, 10)
+    ax_test.set_ylim(0, 10)
+
+    # Reference figure: should look identical
+    ax_ref = fig_ref.subplots()
+    ax_ref.scatter(x, y, c=c, s=50)
+    ax_ref.set_xlim(0, 10)
+    ax_ref.set_ylim(0, 10)
+
+
+@check_figures_equal(extensions=["pdf"])
+def test_scatter_mixed_onoff_axis(fig_test, fig_ref):
+    """
+    Test scatter with some points on-axis and some off-axis.
+
+    Ensures the optimization correctly handles the common case where only
+    some markers are outside the visible area.
+    """
+    rng = np.random.default_rng(19680801)
+
+    # Create points: half on-axis (0-5), half off-axis (15-20)
+    n_points = 50
+    x_on = rng.random(n_points) * 5
+    y_on = rng.random(n_points) * 5
+    x_off = rng.random(n_points) * 5 + 15
+    y_off = rng.random(n_points) * 5 + 15
+
+    x = np.concatenate([x_on, x_off])
+    y = np.concatenate([y_on, y_off])
+    c = rng.random(2 * n_points)
+
+    # Test figure: scatter with mixed points
+    ax_test = fig_test.subplots()
+    ax_test.scatter(x, y, c=c, s=50)
+    ax_test.set_xlim(0, 10)
+    ax_test.set_ylim(0, 10)
+
+    # Reference figure: only the on-axis points should be visible
+    ax_ref = fig_ref.subplots()
+    ax_ref.scatter(x_on, y_on, c=c[:n_points], s=50)
+    ax_ref.set_xlim(0, 10)
+    ax_ref.set_ylim(0, 10)
+
+
+@check_figures_equal(extensions=["pdf"])
+def test_scatter_large_markers_partial_clip(fig_test, fig_ref):
+    """
+    Test that large markers are rendered when partially visible.
+
+    Addresses reviewer concern: markers with centers outside the canvas but
+    with edges extending into the visible area should still be rendered.
+    """
+    # Create markers just outside the visible area
+    # Canvas is 0-10, markers at x=-0.5 and x=10.5
+    x = np.array([-0.5, 10.5, 5])  # left edge, right edge, center
+    y = np.array([5, 5, -0.5])  # center, center, bottom edge
+    c = np.array([0.2, 0.5, 0.8])
+
+    # Test figure: large markers (s=500 ≈ 11 points radius)
+    # Centers are outside, but marker edges extend into visible area
+    ax_test = fig_test.subplots()
+    ax_test.scatter(x, y, c=c, s=500)
+    ax_test.set_xlim(0, 10)
+    ax_test.set_ylim(0, 10)
+
+    # Reference figure: same plot (should render identically)
+    ax_ref = fig_ref.subplots()
+    ax_ref.scatter(x, y, c=c, s=500)
+    ax_ref.set_xlim(0, 10)
+    ax_ref.set_ylim(0, 10)
+
+
+@check_figures_equal(extensions=["pdf"])
+def test_scatter_logscale(fig_test, fig_ref):
+    """
+    Test scatter optimization with logarithmic scales.
+
+    Ensures bounds checking works correctly in log-transformed coordinates.
+    """
+    rng = np.random.default_rng(19680801)
+
+    # Create points across several orders of magnitude
+    n_points = 50
+    x = 10 ** (rng.random(n_points) * 4)  # 1 to 10000
+    y = 10 ** (rng.random(n_points) * 4)
+    c = rng.random(n_points)
+
+    # Test figure: log scale with points mostly outside view
+    ax_test = fig_test.subplots()
+    ax_test.scatter(x, y, c=c, s=50)
+    ax_test.set_xscale('log')
+    ax_test.set_yscale('log')
+    ax_test.set_xlim(100, 1000)  # Only show middle range
+    ax_test.set_ylim(100, 1000)
+
+    # Reference figure: should render identically
+    ax_ref = fig_ref.subplots()
+    ax_ref.scatter(x, y, c=c, s=50)
+    ax_ref.set_xscale('log')
+    ax_ref.set_yscale('log')
+    ax_ref.set_xlim(100, 1000)
+    ax_ref.set_ylim(100, 1000)
+
+
+@check_figures_equal(extensions=["pdf"])
+def test_scatter_polar(fig_test, fig_ref):
+    """
+    Test scatter optimization with polar coordinates.
+
+    Ensures bounds checking works correctly in polar projections.
+    """
+    rng = np.random.default_rng(19680801)
+
+    n_points = 50
+    theta = rng.random(n_points) * 2 * np.pi
+    r = rng.random(n_points) * 3
+    c = rng.random(n_points)
+
+    # Test figure: polar projection
+    ax_test = fig_test.subplots(subplot_kw={'projection': 'polar'})
+    ax_test.scatter(theta, r, c=c, s=50)
+    ax_test.set_ylim(0, 2)  # Limit radial range
+
+    # Reference figure: should render identically
+    ax_ref = fig_ref.subplots(subplot_kw={'projection': 'polar'})
+    ax_ref.scatter(theta, r, c=c, s=50)
+    ax_ref.set_ylim(0, 2)

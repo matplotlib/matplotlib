@@ -458,7 +458,7 @@ class Type1Font:
         That number of bytes is discarded from the beginning of plaintext.
         """
 
-        key = _api.check_getitem({'eexec': 55665, 'charstring': 4330}, key=key)
+        key = _api.getitem_checked({'eexec': 55665, 'charstring': 4330}, key=key)
         plaintext = []
         for byte in ciphertext:
             plaintext.append(byte ^ (key >> 8))
@@ -483,7 +483,7 @@ class Type1Font:
         cryptanalysis.
         """
 
-        key = _api.check_getitem({'eexec': 55665, 'charstring': 4330}, key=key)
+        key = _api.getitem_checked({'eexec': 55665, 'charstring': 4330}, key=key)
         ciphertext = []
         for byte in b'\0' * ndiscard + plaintext:
             c = byte ^ (key >> 8)

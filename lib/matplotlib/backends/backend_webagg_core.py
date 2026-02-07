@@ -202,7 +202,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def set_cursor(self, cursor):
         # docstring inherited
-        cursor = _api.check_getitem({
+        cursor = _api.getitem_checked({
             backend_tools.Cursors.HAND: 'pointer',
             backend_tools.Cursors.POINTER: 'default',
             backend_tools.Cursors.SELECT_REGION: 'crosshair',
