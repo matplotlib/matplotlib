@@ -414,11 +414,15 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
         )
 
     def get_axis_height(self, fontname: str, fontsize: float, dpi: float) -> float:
-        # The fraction line (if present) must be aligned with the minus sign. Therefore,
-        # the height of the latter from the baseline is the axis height.
-        metrics = self.get_metrics(
-            fontname, mpl.rcParams['mathtext.default'], '\u2212', fontsize, dpi)
-        return (metrics.ymax + metrics.ymin) / 2
+        consts = _get_font_constants(self, fontname)
+        if consts.axis_height is not None:
+            return consts.axis_height * fontsize * dpi / 72
+        else:
+            # The fraction line (if present) must be aligned with the minus sign.
+            # Therefore, the height of the latter from the baseline is the axis height.
+            metrics = self.get_metrics(
+                fontname, mpl.rcParams['mathtext.default'], '\u2212', fontsize, dpi)
+            return (metrics.ymax + metrics.ymin) / 2
 
     def get_xheight(self, fontname: str, fontsize: float, dpi: float) -> float:
         # Some fonts report the wrong x-height, while some don't store it, so
@@ -950,6 +954,10 @@ class FontConstantsBase:
     # and scriptscript styles.
     denom2: T.ClassVar[float] = 1.1
 
+    # The height of a horizontal reference line used for positioning elements in a
+    # formula, similar to a baseline, as a multiple of design size.
+    axis_height: T.ClassVar[float | None] = None
+
 
 class ComputerModernFontConstants(FontConstantsBase):
     # Previously, the x-height of Computer Modern was obtained from the font
@@ -974,6 +982,9 @@ class ComputerModernFontConstants(FontConstantsBase):
     num3 = 465286 / _x_height
     denom1 = 719272 / _x_height
     denom2 = 361592 / _x_height
+    # These come from the cmsy10.tfm metrics, scaled so they are in multiples of design
+    # size.
+    axis_height = 262144 / 2**20
 
 
 class STIXFontConstants(FontConstantsBase):
@@ -981,7 +992,7 @@ class STIXFontConstants(FontConstantsBase):
     delta = 0.05
     delta_slanted = 0.3
     delta_integral = 0.3
-    # These values are extracted from the TeX table of STIXGeneral.ttf using FreeType,
+    # These values are extracted from the TeX table of STIXGeneral.ttf using FontForge,
     # and then divided by design xheight, since we multiply these values by the scaled
     # xheight later.
     _x_height = 450
@@ -995,6 +1006,9 @@ class STIXFontConstants(FontConstantsBase):
     num3 = 474 / _x_height
     denom1 = 756 / _x_height
     denom2 = 375 / _x_height
+    # These come from the same TeX table, scaled by Em size so they are in multiples of
+    # design size.
+    axis_height = 250 / 1000
 
 
 class STIXSansFontConstants(STIXFontConstants):
@@ -1004,7 +1018,7 @@ class STIXSansFontConstants(STIXFontConstants):
 
 
 class DejaVuSerifFontConstants(FontConstantsBase):
-    # These values are extracted from the TeX table of DejaVuSerif.ttf using FreeType,
+    # These values are extracted from the TeX table of DejaVuSerif.ttf using FontForge,
     # and then divided by design xheight, since we multiply these values by the scaled
     # xheight later.
     _x_height = 1063
@@ -1018,10 +1032,13 @@ class DejaVuSerifFontConstants(FontConstantsBase):
     num3 = 970.752 / _x_height
     denom1 = 1548.29 / _x_height
     denom2 = 768 / _x_height
+    # These come from the same TeX table, scaled by Em size so they are in multiples of
+    # design size.
+    axis_height = 512 / 2048
 
 
 class DejaVuSansFontConstants(FontConstantsBase):
-    # These values are extracted from the TeX table of DejaVuSans.ttf using FreeType,
+    # These values are extracted from the TeX table of DejaVuSans.ttf using FontForge,
     # and then divided by design xheight, since we multiply these values by the scaled
     # xheight later.
     _x_height = 1120
@@ -1035,6 +1052,9 @@ class DejaVuSansFontConstants(FontConstantsBase):
     num3 = 970.752 / _x_height
     denom1 = 1548.29 / _x_height
     denom2 = 768 / _x_height
+    # These come from the same TeX table, scaled by Em size so they are in multiples of
+    # design size.
+    axis_height = 512 / 2048
 
 
 # Maps font family names to the FontConstantBase subclass to use
@@ -1062,15 +1082,18 @@ _font_constant_mapping = {
     }
 
 
-def _get_font_constant_set(state: ParserState) -> type[FontConstantsBase]:
-    constants = _font_constant_mapping.get(
-        state.fontset._get_font(state.font).family_name, FontConstantsBase)
+def _get_font_constants(fontset: Fonts, font: str) -> type[FontConstantsBase]:
+    constants = _font_constant_mapping.get(fontset._get_font(font).family_name,
+                                           FontConstantsBase)
     # STIX sans isn't really its own fonts, just different code points
     # in the STIX fonts, so we have to detect this one separately.
-    if (constants is STIXFontConstants and
-            isinstance(state.fontset, StixSansFonts)):
+    if constants is STIXFontConstants and isinstance(fontset, StixSansFonts):
         return STIXSansFontConstants
     return constants
+
+
+def _get_font_constant_set(state: ParserState) -> type[FontConstantsBase]:
+    return _get_font_constants(state.fontset, state.font)
 
 
 class Node:
