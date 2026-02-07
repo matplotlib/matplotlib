@@ -6,12 +6,14 @@ Marker reference
 Matplotlib supports multiple categories of markers which are selected using
 the ``marker`` parameter of plot commands:
 
-- `Unfilled markers`_
-- `Filled markers`_
-- `Markers created from TeX symbols`_
-- `Markers created from Paths`_
+- The difference between unfilled and filled markers
+- How marker fill styles and colors can be changed
+- Markers created using TeX symbols
+- Markers created from custom Paths
+- Rotating and transforming markers
+- Customizing marker cap styles and join styles
 
-For a list of all markers see also the `matplotlib.markers` documentation.
+For a list of all markers, see the `matplotlib.markers` documentation.
 
 For example usages see
 :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
