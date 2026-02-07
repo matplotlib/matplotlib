@@ -1,11 +1,10 @@
 """
-.. redirect-from:: /gallery/shapes_and_collections/marker_path
 ================
 Marker reference
 ================
 
-This example shows a visual overview of the different marker styles available
-in Matplotlib and how they can be customized when plotting data:
+Matplotlib supports multiple categories of markers which are selected using
+the ``marker`` parameter of plot commands:
 
 - The difference between unfilled and filled markers
 - How marker fill styles and colors can be changed
@@ -18,7 +17,7 @@ For a list of all markers, see the `matplotlib.markers` documentation.
 
 For example usages see
 :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
-
+.. redirect-from:: /gallery/shapes_and_collections/marker_path
 """
 
 import matplotlib.pyplot as plt
