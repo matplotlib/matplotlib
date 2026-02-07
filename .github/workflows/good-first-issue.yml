@@ -7,7 +7,7 @@ on:
 jobs:
   add-comment:
     if: github.event.label.name == 'Good first issue'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       issues: write
     steps:
