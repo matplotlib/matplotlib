@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:28:14.175689</dc:date>
+    <dc:date>2026-02-07T01:55:32.448672</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1863+gf9f4c5717a.d20260207, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -199,24 +199,24 @@ L 1869 1478
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(0 0.0125)"/>
-    <use xlink:href="#STIXGeneral-Regular-13" transform="translate(50.099945 -14.685417) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(103.949275 0.0125)"/>
+    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(0 0.309375)"/>
+    <use xlink:href="#STIXGeneral-Regular-13" transform="translate(50.099945 -14.388542) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(103.949275 0.309375)"/>
     <use xlink:href="#STIXGeneral-Regular-14" transform="translate(339.139201 34.684375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(193.139201 -41.456875) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(228.209163 -51.745417) scale(0.49)"/>
-    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(265.903694 -41.456875) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(193.139201 -41.249063) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(228.209163 -51.537604) scale(0.49)"/>
+    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(265.903694 -41.249063) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Regular-14" transform="translate(410.336642 -17.186562) scale(0.49)"/>
-    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(328.336642 -70.485437) scale(0.49)"/>
-    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(352.885615 -77.687417) scale(0.343)"/>
-    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(379.271787 -70.485437) scale(0.49)"/>
+    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(328.336642 -70.339969) scale(0.49)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(352.885615 -77.541948) scale(0.343)"/>
+    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(379.271787 -70.339969) scale(0.49)"/>
     <use xlink:href="#STIXGeneral-Regular-14" transform="translate(458.974851 -53.496219) scale(0.343)"/>
-    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(422.974851 -90.805431) scale(0.343)"/>
-    <use xlink:href="#STIXGeneral-Regular-16" transform="translate(440.159132 -95.846817) scale(0.2401)"/>
-    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(458.629452 -90.805431) scale(0.343)"/>
+    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(422.974851 -90.703603) scale(0.343)"/>
+    <use xlink:href="#STIXGeneral-Regular-16" transform="translate(440.159132 -95.744989) scale(0.2401)"/>
+    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(458.629452 -90.703603) scale(0.343)"/>
     <use xlink:href="#STIXGeneral-Regular-14" transform="translate(494.221597 -78.912978) scale(0.2401)"/>
-    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(489.221597 -99.627856) scale(0.2401)"/>
-    <use xlink:href="#STIXGeneral-Regular-17" transform="translate(501.250594 -103.156826) scale(0.16807)"/>
+    <use xlink:href="#STIXGeneral-Italic-44" transform="translate(489.221597 -99.526028) scale(0.2401)"/>
+    <use xlink:href="#STIXGeneral-Regular-17" transform="translate(501.250594 -103.054997) scale(0.16807)"/>
     <path d="M 193.139201 22.184375 
 L 193.139201 28.434375 
 L 520.294027 28.434375 

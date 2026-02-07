@@ -10,21 +10,21 @@
    <!-- $\left[ M \middle/ ? \middle\backslash ? \right] \left[ \frac{M}{B} \middle/ ? \middle\backslash ? \right] \left[ \frac{\frac{M}{I}}{B} \middle/ ? \middle\backslash ? \right] \left[ \frac{\frac{M}{I}}{\frac{B}{U}} \middle/ ? \middle\backslash ? \right] \left[\frac{\frac{\frac{M}{I}}{N}}{\frac{\frac{B}{U}}{G}} \middle/ ? \middle\backslash ? \right]$ -->
    <g transform="translate(36.28 30.84)">
     <text>
-     <tspan x="0" y="-2.887813" style="font-size: 11.28125px; font-family: 'cmr10'">[</tspan>
-     <tspan x="44.825516" y="-2.887813" style="font-size: 11.28125px; font-family: 'cmr10'">]</tspan>
-     <tspan x="3.123276" y="-0.059688" style="font-size: 16px; font-family: 'cmmi10'">M</tspan>
-     <tspan x="18.646713" y="-2.887813" style="font-size: 11.28125px; font-family: 'cmmi10'">=</tspan>
-     <tspan x="24.287338" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="37.270828" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="75.976468" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="92.341687" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="133.995403" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="152.131573" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="197.404384" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="217.948314" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="266.552527" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="289.913199" y="-0.059688" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
-     <tspan x="31.842026" y="-10.965938" style="font-size: 9.407166px; font-family: 'cmex10'">²</tspan>
+     <tspan x="0" y="-2.895625" style="font-size: 11.28125px; font-family: 'cmr10'">[</tspan>
+     <tspan x="44.825516" y="-2.895625" style="font-size: 11.28125px; font-family: 'cmr10'">]</tspan>
+     <tspan x="3.123276" y="-0.0675" style="font-size: 16px; font-family: 'cmmi10'">M</tspan>
+     <tspan x="18.646713" y="-2.895625" style="font-size: 11.28125px; font-family: 'cmmi10'">=</tspan>
+     <tspan x="24.287338" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="37.270828" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="75.976468" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="92.341687" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="133.995403" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="152.131573" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="197.404384" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="217.948314" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="266.552527" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="289.913199" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="31.842026" y="-10.97375" style="font-size: 9.407166px; font-family: 'cmex10'">²</tspan>
      <tspan x="47.948792" y="-12.614375" style="font-size: 15.270358px; font-family: 'cmex10'">£</tspan>
      <tspan x="67.165936" y="-12.614375" style="font-size: 15.270358px; font-family: 'cmex10'">±</tspan>
      <tspan x="83.531155" y="-12.614375" style="font-size: 15.270358px; font-family: 'cmex10'">²</tspan>
