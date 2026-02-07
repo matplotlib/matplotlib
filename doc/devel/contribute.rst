@@ -203,6 +203,10 @@ result is not of value to the project. To preserve precious core developer
 capacity, we reserve the right to rigorously reject seemingly AI generated
 low-value contributions.
 
+In particular, it is also strictly forbidden to post AI generated
+content to issues or PRs via automated tooling such as bots or agents. We
+may ban such users and/or report them to GitHub.
+
 .. _new_contributors:
 
 New contributors
