@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:08.122401</dc:date>
+    <dc:date>2026-02-07T04:19:48.300248</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1864+g1cacc20611.d20260207, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $x+y\ x=y\ x&lt;y\ x:y\ x,y\ x@y$ -->
-   <g transform="translate(120.96 30.286875) scale(0.12 -0.12)">
+   <g transform="translate(115.2 30.286875) scale(0.12 -0.12)">
     <defs>
-     <path id="STIXGeneral-Italic-78" d="M 1555 2272 
+     <path id="STIXGeneral-Italic-5b" d="M 1555 2272 
 L 1632 1907 
 Q 1971 2426 2179 2624 
 Q 2387 2822 2598 2822 
@@ -79,7 +79,7 @@ Q 1350 2822 1420 2707
 Q 1491 2592 1555 2272 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-2b" d="M 4070 1408 
+     <path id="STIXGeneral-Regular-e" d="M 4070 1408 
 L 2400 1408 
 L 2400 -262 
 L 1978 -262 
@@ -94,7 +94,7 @@ L 4070 1830
 L 4070 1408 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Italic-79" d="M 1555 1190 
+     <path id="STIXGeneral-Italic-5c" d="M 1555 1190 
 L 1690 486 
 Q 2118 1190 2294 1558 
 Q 2470 1926 2470 2131 
@@ -130,7 +130,7 @@ Q 1082 2822 1277 2227
 Q 1472 1632 1555 1190 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-3d" d="M 4077 2048 
+     <path id="STIXGeneral-Regular-20" d="M 4077 2048 
 L 307 2048 
 L 307 2470 
 L 4077 2470 
@@ -143,7 +143,7 @@ L 4077 1190
 L 4077 768 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-3c" d="M 3974 -154 
+     <path id="STIXGeneral-Regular-1f" d="M 3974 -154 
 L 358 1594 
 L 358 1658 
 L 3974 3418 
@@ -153,7 +153,7 @@ L 3974 250
 L 3974 -154 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-3a" d="M 1123 2832 
+     <path id="STIXGeneral-Regular-1d" d="M 1123 2832 
 Q 1229 2726 1229 2579 
 Q 1229 2432 1126 2329 
 Q 1024 2227 877 2227 
@@ -174,7 +174,7 @@ Q 1018 640 1123 534
 Q 1229 429 1229 282 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-2c" d="M 531 -902 
+     <path id="STIXGeneral-Regular-f" d="M 531 -902 
 L 467 -781 
 Q 998 -422 998 -96 
 Q 998 -13 909 -13 
@@ -189,7 +189,7 @@ Q 1248 -198 1053 -473
 Q 858 -749 531 -902 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-40" d="M 4403 467 
+     <path id="STIXGeneral-Regular-23" d="M 4403 467 
 L 4480 275 
 Q 3712 -90 3085 -90 
 Q 2080 -90 1411 531 
@@ -237,24 +237,24 @@ Q 3661 2099 3661 2586
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(0 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-2b" transform="translate(58.839951 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(141.779877 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(210.246245 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-3d" transform="translate(269.086195 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(352.026121 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(420.492489 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-3c" transform="translate(479.33244 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(562.272366 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(630.738734 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-3a" transform="translate(689.578685 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(731.818644 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(800.285012 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-2c" transform="translate(844.684976 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(884.124933 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-78" transform="translate(952.591301 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-40" transform="translate(996.991264 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Italic-79" transform="translate(1089.091178 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(0 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(64.399963 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(152.899902 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(230.632866 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-20" transform="translate(295.032829 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(383.532768 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(461.265731 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-1f" transform="translate(525.665695 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(614.165634 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(691.898597 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-1d" transform="translate(756.298561 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(804.098533 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(881.831496 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-f" transform="translate(926.23146 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(971.231429 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(1048.964393 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-23" transform="translate(1093.364356 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(1185.464271 0.40625)"/>
    </g>
   </g>
  </g>
