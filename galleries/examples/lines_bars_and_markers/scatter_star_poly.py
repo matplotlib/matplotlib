@@ -3,7 +3,8 @@
 Marker examples
 ===============
 
-Example with different ways to specify markers.
+Demonstrates several ways to specify markers in scatter plots,
+including built-in marker styles and custom marker paths.
 
 See also the `matplotlib.markers` documentation for a list of all markers and
 :doc:`/gallery/lines_bars_and_markers/marker_reference` for more information
