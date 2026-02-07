@@ -312,6 +312,12 @@ class Fonts(abc.ABC):
         """
         raise NotImplementedError()
 
+    def get_quad(self, font: str, fontsize: float, dpi: float) -> float:
+        """
+        Get the size of a quad for the given *font* and *fontsize*.
+        """
+        raise NotImplementedError()
+
     def get_xheight(self, font: str, fontsize: float, dpi: float) -> float:
         """
         Get the xheight for the given *font* and *fontsize*.
@@ -423,6 +429,16 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             metrics = self.get_metrics(
                 fontname, mpl.rcParams['mathtext.default'], '\u2212', fontsize, dpi)
             return (metrics.ymax + metrics.ymin) / 2
+
+    def get_quad(self, fontname: str, fontsize: float, dpi: float) -> float:
+        consts = _get_font_constants(self, fontname)
+        if consts.quad is not None:
+            return consts.quad * fontsize * dpi / 72
+        else:
+            # With no other option, we measure the size of an 'm'.
+            metrics = self.get_metrics(
+                fontname, mpl.rcParams['mathtext.default'], 'm', fontsize, dpi)
+            return metrics.advance
 
     def get_xheight(self, fontname: str, fontsize: float, dpi: float) -> float:
         # Some fonts report the wrong x-height, while some don't store it, so
@@ -958,6 +974,9 @@ class FontConstantsBase:
     # formula, similar to a baseline, as a multiple of design size.
     axis_height: T.ClassVar[float | None] = None
 
+    # The size of a quad space in LaTeX, as a multiple of design size.
+    quad: T.ClassVar[float | None] = None
+
 
 class ComputerModernFontConstants(FontConstantsBase):
     # Previously, the x-height of Computer Modern was obtained from the font
@@ -985,6 +1004,7 @@ class ComputerModernFontConstants(FontConstantsBase):
     # These come from the cmsy10.tfm metrics, scaled so they are in multiples of design
     # size.
     axis_height = 262144 / 2**20
+    quad = 1048579 / 2**20
 
 
 class STIXFontConstants(FontConstantsBase):
@@ -1009,6 +1029,7 @@ class STIXFontConstants(FontConstantsBase):
     # These come from the same TeX table, scaled by Em size so they are in multiples of
     # design size.
     axis_height = 250 / 1000
+    quad = 1000 / 1000
 
 
 class STIXSansFontConstants(STIXFontConstants):
@@ -2329,10 +2350,7 @@ class Parser:
         key = (state.font, state.fontsize, state.dpi)
         width = self._em_width_cache.get(key)
         if width is None:
-            metrics = state.fontset.get_metrics(
-                'it', mpl.rcParams['mathtext.default'], 'm',
-                state.fontsize, state.dpi)
-            width = metrics.advance
+            width = state.fontset.get_quad('it', state.fontsize, state.dpi)
             self._em_width_cache[key] = width
         return Kern(width * percentage)
 
