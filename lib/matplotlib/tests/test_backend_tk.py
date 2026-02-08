@@ -129,7 +129,6 @@ def test_figuremanager_preserves_host_mainloop():
 @pytest.mark.skipif(platform.python_implementation() != 'CPython',
                     reason='PyPy does not support Tkinter threading: '
                            'https://foss.heptapod.net/pypy/pypy/-/issues/1929')
-@pytest.mark.flaky(reruns=3, reruns_delay=10, only_rerun=["subprocess.TimeoutExpired"])
 @_isolated_tk_test(success_count=1)
 def test_figuremanager_cleans_own_mainloop():
     import tkinter
@@ -156,7 +155,6 @@ def test_figuremanager_cleans_own_mainloop():
     thread.join()
 
 
-@pytest.mark.flaky(reruns=3, reruns_delay=10, only_rerun=["subprocess.TimeoutExpired"])
 @_isolated_tk_test(success_count=0)
 def test_never_update():
     import tkinter
