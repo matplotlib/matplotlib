@@ -1,3 +1,4 @@
+import gc
 import pytest
 import sys
 import matplotlib
@@ -78,6 +79,7 @@ def mpl_test_settings(request):
             if backend is not None:
                 plt.close("all")
                 matplotlib.use(prev_backend)
+            gc.collect()
 
 
 @pytest.fixture

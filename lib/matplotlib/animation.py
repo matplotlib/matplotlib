@@ -290,6 +290,7 @@ class MovieWriter(AbstractMovieWriter):
                          bitrate=bitrate)
         self.frame_format = self.supported_formats[0]
         self.extra_args = extra_args
+        self._proc = None
 
     def _adjust_frame_size(self):
         if self.codec == 'h264':
@@ -371,6 +372,16 @@ class MovieWriter(AbstractMovieWriter):
         """Return whether a MovieWriter subclass is actually available."""
         return shutil.which(cls.bin_path()) is not None
 
+    def __del__(self):
+        if self._proc:
+            self._proc.kill()
+            self._proc.wait()
+            for stream in filter(None, [self._proc.stdin,
+                                        self._proc.stdout,
+                                        self._proc.stderr]):
+                stream.close()
+            self._proc = None
+
 
 class FileMovieWriter(MovieWriter):
     """
@@ -421,6 +432,7 @@ class FileMovieWriter(MovieWriter):
         self.fname_format_str = '%s%%07d.%s'
 
     def __del__(self):
+        super().__del__()
         if hasattr(self, '_tmpdir') and self._tmpdir:
             self._tmpdir.cleanup()
 
