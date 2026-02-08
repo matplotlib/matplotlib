@@ -1,0 +1,7 @@
+Rendering of images now more accurate
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There have been several fixes to improve the accuracy of how images are
+resampled and placed during rendering.  Some inaccuracies were up to a pixel off
+in the output.  The most apparent improvement is that the alignment of data
+pixels with tick marks and grid lines is now reliable.  Nearly all image output
+has changed, but often only at a subtle level that is not obvious qualitatively.
