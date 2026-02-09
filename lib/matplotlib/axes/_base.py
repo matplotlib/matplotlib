@@ -4659,7 +4659,7 @@ class _AxesBase(martist.Artist):
         self._twinned_axes.join(self, twin)
         return twin
 
-    def twinx(self, axes_class=None, **kwargs):
+    def twinx(self, axes_class=None, overlay=True, **kwargs):
         """
         Create a twin Axes sharing the xaxis.
 
@@ -4679,6 +4679,14 @@ class _AxesBase(martist.Artist):
             By default, `~.axes.Axes` is used.
 
             .. versionadded:: 3.11
+
+        overlay : bool, default: True
+            If True (default), the twin Axes is drawn on top of the
+            original Axes.  If False, the twin Axes is drawn behind the
+            original, which is useful when the content of the original
+            (left) y-axis should take visual precedence.
+
+            .. versionadded:: 3.12
 
         kwargs : dict
             The keyword arguments passed to `.Figure.add_subplot` or `.Figure.add_axes`.
@@ -4705,10 +4713,13 @@ class _AxesBase(martist.Artist):
         self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
         ax2.patch.set_visible(False)
+        if not overlay:
+            self.patch.set_visible(False)
+            self.set_zorder(ax2.get_zorder() + 1)
         ax2.xaxis.units = self.xaxis.units
         return ax2
 
-    def twiny(self, axes_class=None, **kwargs):
+    def twiny(self, axes_class=None, overlay=True, **kwargs):
         """
         Create a twin Axes sharing the yaxis.
 
@@ -4728,6 +4739,14 @@ class _AxesBase(martist.Artist):
             By default, `~.axes.Axes` is used.
 
             .. versionadded:: 3.11
+
+        overlay : bool, default: True
+            If True (default), the twin Axes is drawn on top of the
+            original Axes.  If False, the twin Axes is drawn behind the
+            original, which is useful when the content of the original
+            (bottom) x-axis should take visual precedence.
+
+            .. versionadded:: 3.12
 
         kwargs : dict
             The keyword arguments passed to `.Figure.add_subplot` or `.Figure.add_axes`.
@@ -4753,6 +4772,9 @@ class _AxesBase(martist.Artist):
         self.xaxis.tick_bottom()
         ax2.yaxis.set_visible(False)
         ax2.patch.set_visible(False)
+        if not overlay:
+            self.patch.set_visible(False)
+            self.set_zorder(ax2.get_zorder() + 1)
         ax2.yaxis.units = self.yaxis.units
         return ax2
 

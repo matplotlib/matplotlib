@@ -8070,6 +8070,29 @@ def test_twinning_default_axes_class():
     assert type(twiny) is Axes
 
 
+@pytest.mark.parametrize("twin", ["x", "y"])
+def test_twin_overlay(twin):
+    """Test the overlay parameter of twinx/twiny."""
+    fig, ax = plt.subplots()
+
+    # Default (overlay=True): twin has same zorder, original patch visible
+    if twin == "x":
+        ax2 = ax.twinx()
+    else:
+        ax2 = ax.twiny()
+    assert ax.patch.get_visible()
+    assert ax.get_zorder() == ax2.get_zorder()
+
+    # overlay=False: original patch hidden, original zorder above twin
+    fig2, ax3 = plt.subplots()
+    if twin == "x":
+        ax4 = ax3.twinx(overlay=False)
+    else:
+        ax4 = ax3.twiny(overlay=False)
+    assert not ax3.patch.get_visible()
+    assert ax3.get_zorder() > ax4.get_zorder()
+
+
 def test_zero_linewidth():
     # Check that setting a zero linewidth doesn't error
     plt.plot([0, 1], [0, 1], ls='--', lw=0)
