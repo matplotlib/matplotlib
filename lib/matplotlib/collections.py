@@ -2684,3 +2684,4 @@ class PolyQuadMesh(_MeshData, PolyCollection):
         # the set of Polys that we are drawing
         if not np.array_equal(prev_unmask, self._get_unmasked_polys()):
             self._set_unmasked_verts()
+# Force update
