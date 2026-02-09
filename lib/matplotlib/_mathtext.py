@@ -269,8 +269,9 @@ class Fonts(abc.ABC):
         ----------
         font : str
             One of the TeX font names: "tt", "it", "rm", "cal", "sf", "bf",
-            "default", "regular", "bb", "frak", "scr".  "default" and "regular"
-            are synonyms and use the non-math font.
+            "default", "regular", "normal", "bb", "frak", "scr".  "default"
+            and "regular" are synonyms and use the non-math font.
+            "normal" denotes the normal math font.
         font_class : str
             One of the TeX font names (as for *font*), but **not** "bb",
             "frak", or "scr".  This is used to combine two font classes.  The
@@ -457,10 +458,11 @@ class BakomaFonts(TruetypeFonts):
     its own proprietary 8-bit encoding.
     """
     _fontmap = {
+        'normal': 'cmmi10',
         'cal': 'cmsy10',
         'rm':  'cmr10',
         'tt':  'cmtt10',
-        'it':  'cmmi10',
+        'it':  'cmti10',
         'bf':  'cmb10',
         'sf':  'cmss10',
         'ex':  'cmex10',
@@ -480,11 +482,17 @@ class BakomaFonts(TruetypeFonts):
     def _get_glyph(self, fontname: str, font_class: str,
                    sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         font = None
+
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
-            slanted = (basename == "cmmi10") or sym in self._slanted_symbols
+            slanted = (basename in ("cmmi10", "cmti10")) or sym in self._slanted_symbols
             font = self._get_font(basename)
         elif len(sym) == 1:
+            if fontname == "normal" and sym.isdigit():
+                # use digits from cmr (roman alphabet) instead of cmm (math alphabet),
+                # same as LaTeX does.
+                # This was previously mapped via `latex_to_bakoma`.
+                fontname = "rm"
             slanted = (fontname == "it")
             font = self._get_font(fontname)
             if font is not None:
@@ -616,11 +624,14 @@ class UnicodeFonts(TruetypeFonts):
         # Only characters in the "Letter" class should be italicized in 'it'
         # mode.  Greek capital letters should be Roman.
         if found_symbol:
-            if fontname == 'it' and uniindex < 0x10000:
+            if fontname == 'normal' and uniindex < 0x10000:
+                # normal mathematics font
                 char = chr(uniindex)
                 if (unicodedata.category(char)[0] != "L"
                         or unicodedata.name(char).startswith("GREEK CAPITAL")):
                     new_fontname = 'rm'
+                else:
+                    new_fontname = 'it'
 
             slanted = (new_fontname == 'it') or sym in self._slanted_symbols
             found_symbol = False
@@ -637,7 +648,7 @@ class UnicodeFonts(TruetypeFonts):
 
         if not found_symbol:
             if self._fallback_font:
-                if (fontname in ('it', 'regular')
+                if (fontname in ('it', 'regular', 'normal')
                         and isinstance(self._fallback_font, StixFonts)):
                     fontname = 'rm'
 
@@ -649,7 +660,7 @@ class UnicodeFonts(TruetypeFonts):
                 return g
 
             else:
-                if (fontname in ('it', 'regular')
+                if (fontname in ('it', 'regular', 'normal')
                         and isinstance(self, StixFonts)):
                     return self._get_glyph('rm', font_class, sym)
                 _log.warning("Font %r does not have a glyph for %a [U+%x], "
@@ -834,7 +845,7 @@ class StixFonts(UnicodeFonts):
                 fontname = mpl.rcParams['mathtext.default']
 
         # Fix some incorrect glyphs.
-        if fontname in ('rm', 'it'):
+        if fontname in ('rm', 'it', 'normal'):
             uniindex = stix_glyph_fixes.get(uniindex, uniindex)
 
         # Handle private use area glyphs
@@ -1840,6 +1851,10 @@ class ParserState:
     def font(self, name: str) -> None:
         if name in ('rm', 'it', 'bf', 'bfit'):
             self.font_class = name
+        if name == 'normal':
+            # workaround to keep hardcoded maps in _mathtext_data.py
+            # font_class is exclusively used by STIXFonts
+            self.font_class = 'it'
         self._font = name
 
     def get_current_underline_thickness(self) -> float:
@@ -2010,7 +2025,7 @@ class Parser:
     _dropsub_symbols = set(r'\int \oint \iint \oiint \iiint \oiiint \iiiint'.split())
 
     _fontnames = set("rm cal it tt sf bf bfit "
-                     "default bb frak scr regular".split())
+                     "default bb frak scr regular normal".split())
 
     _function_names = set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
@@ -2267,9 +2282,9 @@ class Parser:
         s = toks[0].replace(r'\$', '$')
         symbols = [Char(c, self.get_state()) for c in s]
         hlist = Hlist(symbols)
-        # We're going into math now, so set font to 'it'
+        # We're going into math now, so set font to 'normal'
         self.push_state()
-        self.get_state().font = mpl.rcParams['mathtext.default']
+        self.get_state().font = "normal"
         return [hlist]
 
     float_literal = staticmethod(pyparsing_common.convert_to_float)
