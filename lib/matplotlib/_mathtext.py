@@ -335,6 +335,9 @@ class Fonts(abc.ABC):
         """
         return [(fontname, sym)]
 
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        return FontConstantsBase
+
 
 class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
     """
@@ -531,6 +534,9 @@ class BakomaFonts(TruetypeFonts):
                                           sym: str) -> list[tuple[str, str]]:
         return self._size_alternatives.get(sym, [(fontname, sym)])
 
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        return ComputerModernFontConstants
+
 
 class UnicodeFonts(TruetypeFonts):
     """
@@ -721,6 +727,9 @@ class DejaVuSerifFonts(DejaVuFonts):
         0:    'DejaVu Serif',
     }
 
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        return DejaVuSerifFontConstants
+
 
 class DejaVuSansFonts(DejaVuFonts):
     """
@@ -738,6 +747,9 @@ class DejaVuSansFonts(DejaVuFonts):
         'ex': 'DejaVu Sans Display',
         0:    'DejaVu Sans',
     }
+
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        return DejaVuSansFontConstants
 
 
 class StixFonts(UnicodeFonts):
@@ -853,6 +865,12 @@ class StixFonts(UnicodeFonts):
         if sym == r'\__sqrt__':
             alternatives = alternatives[:-1]
         return alternatives
+
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        if self._sans:
+            return STIXSansFontConstants
+        else:
+            return STIXFontConstants
 
 
 class StixSansFonts(StixFonts):
@@ -1037,40 +1055,8 @@ class DejaVuSansFontConstants(FontConstantsBase):
     denom2 = 768 / _x_height
 
 
-# Maps font family names to the FontConstantBase subclass to use
-_font_constant_mapping = {
-    'DejaVu Sans': DejaVuSansFontConstants,
-    'DejaVu Sans Mono': DejaVuSansFontConstants,
-    'DejaVu Serif': DejaVuSerifFontConstants,
-    'cmb10': ComputerModernFontConstants,
-    'cmex10': ComputerModernFontConstants,
-    'cmmi10': ComputerModernFontConstants,
-    'cmr10': ComputerModernFontConstants,
-    'cmss10': ComputerModernFontConstants,
-    'cmsy10': ComputerModernFontConstants,
-    'cmtt10': ComputerModernFontConstants,
-    'STIXGeneral': STIXFontConstants,
-    'STIXNonUnicode': STIXFontConstants,
-    'STIXSizeFiveSym': STIXFontConstants,
-    'STIXSizeFourSym': STIXFontConstants,
-    'STIXSizeThreeSym': STIXFontConstants,
-    'STIXSizeTwoSym': STIXFontConstants,
-    'STIXSizeOneSym': STIXFontConstants,
-    # Map the fonts we used to ship, just for good measure
-    'Bitstream Vera Sans': DejaVuSansFontConstants,
-    'Bitstream Vera': DejaVuSansFontConstants,
-    }
-
-
 def _get_font_constant_set(state: ParserState) -> type[FontConstantsBase]:
-    constants = _font_constant_mapping.get(
-        state.fontset._get_font(state.font).family_name, FontConstantsBase)
-    # STIX sans isn't really its own fonts, just different code points
-    # in the STIX fonts, so we have to detect this one separately.
-    if (constants is STIXFontConstants and
-            isinstance(state.fontset, StixSansFonts)):
-        return STIXSansFontConstants
-    return constants
+    return state.fontset.get_font_constants()
 
 
 class Node:
