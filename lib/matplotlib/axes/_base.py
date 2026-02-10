@@ -29,6 +29,7 @@ import matplotlib.table as mtable
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
+import matplotlib.collections as mcollections
 
 _log = logging.getLogger(__name__)
 
@@ -2605,6 +2606,10 @@ class _AxesBase(martist.Artist):
                     self._update_patch_limits(artist)
                 elif isinstance(artist, mimage.AxesImage):
                     self._update_image_limits(artist)
+                elif isinstance(artist, mcollections.Collection):
+                  offsets = artist.get_offsets()
+                  if offsets is not None and len(offsets):
+                   self.update_datalim(offsets)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
