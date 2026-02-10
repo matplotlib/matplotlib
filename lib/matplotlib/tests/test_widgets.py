@@ -1164,6 +1164,29 @@ def test_radio_buttons_props(fig_test, fig_ref):
     cb.set_radio_props({**radio_props, 's': (24 / 2)**2})
 
 
+@image_comparison(['check_radio_grid_buttons.png'], style='mpl20', remove_text=True)
+def test_radio_grid_buttons():
+    fig = plt.figure()
+    rb_horizontal = widgets.RadioButtons(
+        fig.add_axes((0.1, 0.05, 0.65, 0.05)),
+        ["tea", "coffee", "chocolate milk", "water", "soda", "coke"],
+        layout='horizontal',
+        active=4,
+    )
+    cb_grid = widgets.CheckButtons(
+        fig.add_axes((0.1, 0.15, 0.25, 0.05*3)),
+        ["Chicken", "Salad", "Rice", "Sushi", "Pizza", "Fries"],
+        layout=(3, 2),
+        actives=[True, True, False, False, False, True],
+    )
+    rb_vertical = widgets.RadioButtons(
+        fig.add_axes((0.1, 0.35, 0.2, 0.05*4)),
+        ["Trinity Cream", "Cake", "Ice Cream", "Muhallebi"],
+        layout='vertical',
+        active=3,
+    )
+
+
 def test_radio_button_active_conflict(ax):
     with pytest.warns(UserWarning,
                       match=r'Both the \*activecolor\* parameter'):
@@ -1229,8 +1252,7 @@ def test__buttons_callbacks(ax, widget):
         "button_press_event",
         ax,
         ax.transData.inverted().transform(ax.transAxes.transform(
-            # (x, y) of the 0th button defined at
-            # `{Check,Radio}Buttons._init_props`
+            # (x, y) of the 0th button defined at `_Buttons._init_layout`
             (0.15, 0.5),
         )),
         1,
