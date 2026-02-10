@@ -2416,6 +2416,12 @@ class _AxesBase(martist.Artist):
         xmin, xmax, ymin, ymax = image.get_extent()
         self.axes.update_datalim(((xmin, ymin), (xmax, ymax)))
 
+    def _update_collection_limits(self, collection):
+     offsets = collection.get_offsets()
+     if offsets is not None and len(offsets):
+        self.update_datalim(offsets)
+
+
     def add_line(self, line):
         """
         Add a `.Line2D` to the Axes; return the line.
@@ -2607,9 +2613,7 @@ class _AxesBase(martist.Artist):
                 elif isinstance(artist, mimage.AxesImage):
                     self._update_image_limits(artist)
                 elif isinstance(artist, mcollections.Collection):
-                  offsets = artist.get_offsets()
-                  if offsets is not None and len(offsets):
-                   self.update_datalim(offsets)
+                 self._update_collection_limits(artist)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
