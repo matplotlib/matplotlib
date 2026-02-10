@@ -10160,6 +10160,7 @@ def test_animated_artists_not_drawn_by_default():
     mocked_im_draw.assert_not_called()
     mocked_ln_draw.assert_not_called()
 
+
 def test_relim_updates_scatter_offsets():
     import numpy as np
     import matplotlib.pyplot as plt
