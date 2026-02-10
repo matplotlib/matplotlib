@@ -411,10 +411,21 @@ class RendererBase:
                     gc0.set_linewidth(lw)
                 if Nlinestyles:
                     gc0.set_dashes(*ls)
-                if len(ec) == 4 and ec[3] == 0.0:
+                ec_is_seq = (
+                    isinstance(ec, (np.ndarray, list, tuple))
+                    and not isinstance(ec, str)
+                )
+                if isinstance(ec, np.ndarray):
+                    ec = tuple(ec.tolist())
+                elif isinstance(ec, list):
+                    ec = tuple(ec)
+                if ec_is_seq and len(ec) == 4 and ec[3] == 0.0:
                     gc0.set_linewidth(0)
                 else:
-                    gc0.set_foreground(ec)
+                    if ec_is_seq and len(ec) == 4:
+                        gc0.set_foreground(ec, isRGBA=True)
+                    else:
+                        gc0.set_foreground(ec)
             if Nhatchcolors:
                 gc0.set_hatch_color(hc)
             if fc is not None and len(fc) == 4 and fc[3] == 0:
