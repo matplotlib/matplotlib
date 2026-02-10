@@ -683,9 +683,7 @@ class Line2D(Artist):
         else:
             y = self._y
 
-        self._xy = np.empty((max(len(x), len(y)), 2), dtype=float)
-        self._xy[:, 0] = x  # broadcast x and y to the same shape
-        self._xy[:, 1] = y
+        self._xy = np.vstack(np.broadcast_arrays(x, y)).T
         self._x = self._xy[:, 0]  # views of the x and y data
         self._y = self._xy[:, 1]
 
