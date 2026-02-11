@@ -802,7 +802,7 @@ class Path:
                      # This initial rotation is to make sure the polygon always
                      # "points-up".
                      + np.pi / 2)
-            verts = np.column_stack((np.cos(theta), np.sin(theta)))
+            verts = np.vstack((np.cos(theta), np.sin(theta))).T
             path = cls(verts, closed=True, readonly=True)
             if numVertices <= 16:
                 cls._unit_regular_polygons[numVertices] = path

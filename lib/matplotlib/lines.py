@@ -683,7 +683,7 @@ class Line2D(Artist):
         else:
             y = self._y
 
-        self._xy = np.column_stack(np.broadcast_arrays(x, y)).astype(float)
+        self._xy = np.vstack(np.broadcast_arrays(x, y)).T.astype(float)
         self._x, self._y = self._xy.T  # views
 
         self._subslice = False

@@ -1131,7 +1131,7 @@ class StepPatch(PathPatch):
             else:  # no baseline
                 raise ValueError('Invalid `baseline` specified')
             if self.orientation == 'vertical':
-                xy = np.column_stack([x, y])
+                xy = np.vstack([x, y]).T
             else:
                 xy = np.column_stack([y, x])
             verts.append(xy)
