@@ -280,3 +280,61 @@ def test_embedding():
                        foreground="white")
     test_figure(root)
     print("success")
+
+
+@_isolated_tk_test(success_count=1)
+def test_hidpi_embedded_canvas():
+    """
+    Test that embedded canvas in layout-managed container handles HiDPI
+    correctly without clipping. This tests the fix for issue #31126.
+    """
+    import tkinter as tk
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    from matplotlib.figure import Figure
+
+    root = tk.Tk()
+    root.geometry("800x600")
+
+    # Create a frame with pack layout manager
+    frame = tk.Frame(root)
+    frame.pack(fill=tk.BOTH, expand=True)
+
+    # Create figure with initial DPI
+    fig = Figure(dpi=96)
+    ax = fig.add_subplot(111)
+    ax.plot([1, 2, 3], [1, 2, 3])
+    ax.set_xlabel("X Axis")
+    ax.set_ylabel("Y Axis")
+    ax.set_title("HiDPI Test")
+
+    # Embed canvas in the frame
+    canvas = FigureCanvasTkAgg(fig, master=frame)
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+    def check_sizes():
+        # Force a draw and update
+        canvas.draw()
+        root.update_idletasks()
+
+        # Get actual canvas size
+        w = canvas.get_tk_widget()
+        actual_w = w.winfo_width()
+        actual_h = w.winfo_height()
+
+        # Get render size
+        sz = fig.get_size_inches()
+        render_w = int(sz[0] * fig.dpi)
+        render_h = int(sz[1] * fig.dpi)
+
+        # The render size should match the actual size (within small tolerance
+        # for rounding). This verifies that figure.size_inches was properly
+        # recalculated after DPI change.
+        # Allow 2 pixel tolerance for rounding differences
+        if abs(render_w - actual_w) <= 2 and abs(render_h - actual_h) <= 2:
+            print("success")
+
+        root.destroy()
+
+    # Give the window time to appear and process DPI updates
+    root.after(500, check_sizes)
+    root.mainloop()

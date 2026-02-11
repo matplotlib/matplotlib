@@ -275,6 +275,17 @@ class FigureCanvasTk(FigureCanvasBase):
             # canvas backing store on that event.
             w, h = self.get_width_height(physical=True)
             self._tkcanvas.configure(width=w, height=h)
+            
+            # If the canvas is constrained by a layout manager (pack/grid),
+            # the actual displayed size may not match the configured size.
+            # In this case, <Configure> won't fire, so we need to explicitly
+            # call resize() to recalculate figure.size_inches with the new DPI.
+            self._tkcanvas.update_idletasks()
+            actual_w = self._tkcanvas.winfo_width()
+            actual_h = self._tkcanvas.winfo_height()
+            if actual_w > 0 and actual_h > 0 and (actual_w != w or actual_h != h):
+                # Create a mock event object with the actual dimensions
+                self.resize(type('Event', (), {'width': actual_w, 'height': actual_h})())
 
     def resize(self, event):
         width, height = event.width, event.height
