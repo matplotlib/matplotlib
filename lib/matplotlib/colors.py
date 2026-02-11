@@ -488,7 +488,7 @@ def to_rgba_array(c, alpha=None):
                                  " of alpha values if there are more than one"
                                  " of each.")
         if c.shape[1] == 3:
-            result = np.column_stack([c, np.zeros(len(c))])
+            result = np.hstack([c, np.zeros(len(c)).reshape(-1, 1)])
             result[:, -1] = alpha if alpha is not None else 1.
         elif c.shape[1] == 4:
             result = c.copy()
@@ -527,7 +527,7 @@ def to_rgba_array(c, alpha=None):
     if isinstance(c, Sequence):
         lens = {len(cc) if isinstance(cc, (list, tuple)) else -1 for cc in c}
         if lens == {3}:
-            rgba = np.column_stack([c, np.ones(len(c))])
+            rgba = np.hstack([c, np.ones(len(c)).reshape(-1, 1)])
         elif lens == {4}:
             rgba = np.array(c)
         else:
@@ -1231,10 +1231,10 @@ class LinearSegmentedColormap(Colormap):
             r, g, b, a = to_rgba_array(_colors).T
 
         cdict = {
-            "red": np.column_stack([vals, r, r]),
-            "green": np.column_stack([vals, g, g]),
-            "blue": np.column_stack([vals, b, b]),
-            "alpha": np.column_stack([vals, a, a]),
+            "red": np.vstack([vals, r, r]).T,
+            "green": np.vstack([vals, g, g]).T,
+            "blue": np.vstack([vals, b, b]).T,
+            "alpha": np.vstack([vals, a, a]).T,
         }
 
         return LinearSegmentedColormap(name, cdict, N, gamma,
