@@ -393,12 +393,6 @@ jobs:
             xcrun llvm-cov export -format="lcov" build/*/src/*.so \
               -instr-profile default.profdata > info.lcov
           fi
-          else
-            xcrun llvm-profdata merge -sparse default.*.profraw \
-              -o default.profdata
-            xcrun llvm-cov export -format="lcov" build/*/src/*.so \
-              -instr-profile default.profdata > info.lcov
-          fi
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de  # v5.5.2
