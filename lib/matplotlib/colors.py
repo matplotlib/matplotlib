@@ -831,7 +831,7 @@ class Colormap:
 
         lut = self._lut
         if bytes:
-            lut = (lut * 255).round().astype(np.uint8)
+            lut = (lut * 255).astype(np.uint8)
 
         rgba = lut.take(xa, axis=0, mode='clip')
 
@@ -1803,7 +1803,7 @@ class BivarColormap:
         rgba[mask_outside] = self._rgba_outside
         rgba[mask_bad] = self._rgba_bad
         if bytes:
-            rgba = (rgba * 255).round().astype(np.uint8)
+            rgba = (rgba * 255).astype(np.uint8)
         if alpha is not None:
             alpha = np.clip(alpha, 0, 1)
             if bytes:
@@ -2126,7 +2126,7 @@ class BivarColormap:
             pixels = np.repeat(pixels,
                                repeats=_BIVAR_REPR_PNG_SIZE//pixels.shape[1],
                                axis=1)[:, :256]
-        pixels = (pixels[::-1, :, :] * 255).round().astype(np.uint8)
+        pixels = (pixels[::-1, :, :] * 255).astype(np.uint8)
         png_bytes = io.BytesIO()
         title = self.name + ' BivarColormap'
         author = f'Matplotlib v{mpl.__version__}, https://matplotlib.org'
