@@ -62,7 +62,7 @@ def test_divider_append_axes():
 
 
 # Update style when regenerating the test image
-@image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1,
+@image_comparison(['twin_axes_empty_and_removed.png'], tol=1,
                   style=('classic', '_classic_test_patch'))
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)

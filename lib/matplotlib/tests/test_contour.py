@@ -128,8 +128,8 @@ def test_contour_manual_moveto():
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['contour_disconnected_segments'],
-                  remove_text=True, style='mpl20', extensions=['png'], tol=0.01)
+@image_comparison(['contour_disconnected_segments.png'],
+                  remove_text=True, style='mpl20', tol=0.01)
 def test_contour_label_with_disconnected_segments():
     x, y = np.mgrid[-1:1:21j, -1:1:21j]
     z = 1 / np.sqrt(0.01 + (x + 0.3) ** 2 + y ** 2)
@@ -172,8 +172,7 @@ def test_given_colors_levels_and_extends():
         plt.colorbar(c, ax=ax)
 
 
-@image_comparison(['contourf_hatch_colors'],
-                  remove_text=True, style='mpl20', extensions=['png'])
+@image_comparison(['contourf_hatch_colors.png'], remove_text=True, style='mpl20')
 def test_hatch_colors():
     fig, ax = plt.subplots()
     cf = ax.contourf([[0, 1], [1, 2]], hatches=['-', '/', '\\', '//'], cmap='gray')
@@ -455,8 +454,7 @@ def test_contour_addlines():
     assert_array_almost_equal(cb.ax.get_ylim(), [114.3091, 9972.30735], 3)
 
 
-@image_comparison(baseline_images=['contour_uneven'],
-                  extensions=['png'], remove_text=True, style='mpl20')
+@image_comparison(['contour_uneven.png'], remove_text=True, style='mpl20')
 def test_contour_uneven():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -494,8 +492,7 @@ def test_label_nonagg():
     plt.clabel(plt.contour([[1, 2], [3, 4]]))
 
 
-@image_comparison(baseline_images=['contour_closed_line_loop'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['contour_closed_line_loop.png'], remove_text=True)
 def test_contour_closed_line_loop():
     # github issue 19568.
     z = [[0, 0, 0], [0, 2, 0], [0, 0, 0], [2, 1, 2]]
@@ -519,8 +516,7 @@ def test_quadcontourset_reuse():
     assert qcs3._contour_generator == qcs1._contour_generator
 
 
-@image_comparison(baseline_images=['contour_manual'],
-                  extensions=['png'], remove_text=True, tol=0.89)
+@image_comparison(['contour_manual.png'], remove_text=True, tol=0.89)
 def test_contour_manual():
     # Manually specifying contour lines/polygons to plot.
     from matplotlib.contour import ContourSet
@@ -545,8 +541,7 @@ def test_contour_manual():
     ContourSet(ax, [2], [segs], [kinds], colors='k', linewidths=3)
 
 
-@image_comparison(baseline_images=['contour_line_start_on_corner_edge'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['contour_line_start_on_corner_edge.png'], remove_text=True)
 def test_contour_line_start_on_corner_edge():
     fig, ax = plt.subplots(figsize=(6, 5))
 
@@ -680,8 +675,7 @@ def test_algorithm_supports_corner_mask(algorithm):
             plt.contourf(z, algorithm=algorithm, corner_mask=True)
 
 
-@image_comparison(baseline_images=['contour_all_algorithms'],
-                  extensions=['png'], remove_text=True, tol=0.06)
+@image_comparison(['contour_all_algorithms.png'], remove_text=True, tol=0.06)
 def test_all_algorithms():
     algorithms = ['mpl2005', 'mpl2014', 'serial', 'threaded']
 
@@ -858,8 +852,8 @@ def test_allsegs_allkinds():
         assert len(result[1]) == 4
 
 
-@image_comparison(baseline_images=['contour_rasterization'],
-                  extensions=['pdf'], style='mpl20', savefig_kwarg={'dpi': 25})
+@image_comparison(['contour_rasterization.pdf'], savefig_kwarg={'dpi': 25},
+                  style='mpl20')
 def test_contourf_rasterize():
     fig, ax = plt.subplots()
     data = [[0, 1], [1, 0]]
@@ -868,7 +862,7 @@ def test_contourf_rasterize():
     assert cs._rasterized
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_contour_aliases(fig_test, fig_ref):
     data = np.arange(100).reshape((10, 10)) ** 2
     fig_test.add_subplot().contour(data, linestyle=":")
