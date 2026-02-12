@@ -450,6 +450,7 @@ Units
    Axes.convert_yunits
    Axes.have_units
 
+.. _axes-api-adding-artists:
 
 Adding artists
 ==============
