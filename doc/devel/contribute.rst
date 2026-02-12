@@ -256,23 +256,14 @@ To join, please go to our public `community gitter`_ channel, and ask to be adde
 Good first issues
 -----------------
 
-While any contributions are welcome, we have marked some issues as
-particularly suited for new contributors by the label `good first issue
-<https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_. These
-are well documented issues, that do not require a deep understanding of the
-internals of Matplotlib. The issues may additionally be tagged with a
-difficulty. ``Difficulty: Easy`` is suited for people with little Python
-experience. ``Difficulty: Medium`` and ``Difficulty: Hard`` require more
-programming experience. This could be for a variety of reasons, among them,
-though not necessarily all at the same time:
-
-- The issue is in areas of the code base which have more interdependencies,
-  or legacy code.
-- It has less clearly defined tasks, which require some independent
-  exploration, making suggestions, or follow-up discussions to clarify a good
-  path to resolve the issue.
-- It involves Python features such as decorators and context managers, which
-  have subtleties due to our implementation decisions.
+While most contributions are welcome, we have marked some issues as `good first issue
+<https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ because we
+think they are a good entry point into the process of submitting a pull request to
+Matplotlib. These issues are well documented, do not require a deep
+understanding of the internals of Matplotlib, and do not need urgent resolution.
+Pull requests that :ref:`use AI tools <generative_ai>_` to fix issues labeled as
+"good first issues" will be closed because good first issues are intended as a technical
+solution to the social problem of onboarding new contributors to the repository.
 
 .. _first_contribution:
 
@@ -329,6 +320,24 @@ submitting reviews of their code or commenting on the PR rather than opening
 a new PR; duplicate PRs are subject to being closed.  However, if the existing
 PR is an outline, unlikely to work, or stalled, and the original author is
 unresponsive, feel free to open a new PR referencing the old one.
+
+Difficulty
+----------
+Issues may additionally be tagged with a difficulty. ``Difficulty: Easy`` is suited
+for people with little Python experience. ``Difficulty: Medium`` and
+``Difficulty: Hard`` require more programming experience. This could be for a variety of
+reasons, among them, though not necessarily all at the same time:
+
+- The issue is in areas of the code base which have more interdependencies,
+  or legacy code.
+- It has less clearly defined tasks, which require some independent
+  exploration, making suggestions, or follow-up discussions to clarify a good
+  path to resolve the issue.
+- It involves Python features such as decorators and context managers, which
+  have subtleties due to our implementation decisions.
+
+ Generally, the issue difficulty level is also strongly correlated with how much
+ conceptual understanding of Matplotlib is required to resolve it.
 
 .. _how-to-pull-request:
 
