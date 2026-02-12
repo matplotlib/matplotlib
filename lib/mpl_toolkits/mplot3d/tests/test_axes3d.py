@@ -2200,9 +2200,7 @@ def test_subfigure_simple():
     ax = sf[1].add_subplot(1, 1, 1, projection='3d', label='other')
 
 
-# Update style when regenerating the test image
-@image_comparison(baseline_images=['computed_zorder'], remove_text=True,
-                  extensions=['png'], style=('mpl20'))
+@image_comparison(['computed_zorder.png'], remove_text=True, style='mpl20')
 def test_computed_zorder():
     plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()

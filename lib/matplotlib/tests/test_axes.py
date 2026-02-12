@@ -919,8 +919,7 @@ def test_structured_data():
     axs[1].plot("ones", "twos", "r", data=pts)
 
 
-@image_comparison(['aitoff_proj'], extensions=["png"],
-                  remove_text=True, style='mpl20')
+@image_comparison(['aitoff_proj.png'], remove_text=True, style='mpl20')
 def test_aitoff_proj():
     """
     Test aitoff projection ref.:
@@ -1410,7 +1409,7 @@ def test_pcolormesh():
     ax3.pcolormesh(Qx, Qz, Zm, shading="gouraud")
 
 
-@image_comparison(['pcolormesh_small'], extensions=["eps"])
+@image_comparison(['pcolormesh_small.eps'])
 def test_pcolormesh_small():
     n = 3
     x = np.linspace(-1.5, 1.5, n)
@@ -2915,7 +2914,7 @@ class TestScatter:
                     edgecolors=['k', 'r', 'g', 'b'],
                     marker=verts)
 
-    @image_comparison(['scatter_2D'], remove_text=True, extensions=['png'])
+    @image_comparison(['scatter_2D.png'], remove_text=True)
     def test_scatter_2D(self):
         x = np.arange(3)
         y = np.arange(2)
@@ -5683,8 +5682,7 @@ def test_axline_args():
         plt.draw()
 
 
-@image_comparison(['vlines_basic', 'vlines_with_nan', 'vlines_masked'],
-                  extensions=['png'])
+@image_comparison(['vlines_basic.png', 'vlines_with_nan.png', 'vlines_masked.png'])
 def test_vlines():
     # normal
     x1 = [2, 3, 4, 5, 7]
@@ -5730,8 +5728,7 @@ def test_vlines_default():
         assert mpl.colors.same_color(lines.get_color(), 'red')
 
 
-@image_comparison(['hlines_basic', 'hlines_with_nan', 'hlines_masked'],
-                  extensions=['png'])
+@image_comparison(['hlines_basic.png', 'hlines_with_nan.png', 'hlines_masked.png'])
 def test_hlines():
     # normal
     y1 = [2, 3, 4, 5, 7]
@@ -5795,8 +5792,7 @@ def test_lines_with_colors(fig_test, fig_ref, data):
                                         colors=expect_color, linewidth=5)
 
 
-@image_comparison(['vlines_hlines_blended_transform'],
-                  extensions=['png'], style='mpl20')
+@image_comparison(['vlines_hlines_blended_transform.png'], style='mpl20')
 def test_vlines_hlines_blended_transform():
     t = np.arange(5.0, 10.0, 0.1)
     s = np.exp(-t) + np.sin(2 * np.pi * t) + 10
@@ -6492,8 +6488,8 @@ def test_pie_default():
             autopct='%1.1f%%', shadow=True, startangle=90)
 
 
-@image_comparison(['pie_linewidth_0', 'pie_linewidth_0', 'pie_linewidth_0'],
-                  extensions=['png'], style='mpl20', tol=0.01)
+@image_comparison(['pie_linewidth_0.png', 'pie_linewidth_0.png', 'pie_linewidth_0.png'],
+                  style='mpl20', tol=0.01)
 def test_pie_linewidth_0():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'

@@ -847,8 +847,7 @@ def test_cmap_and_norm_from_levels_and_colors():
     ax.tick_params(labelleft=False, labelbottom=False)
 
 
-@image_comparison(baseline_images=['boundarynorm_and_colorbar'],
-                  extensions=['png'], tol=1.0)
+@image_comparison(['boundarynorm_and_colorbar.png'], tol=1.0)
 def test_boundarynorm_and_colorbarbase():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False

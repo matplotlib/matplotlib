@@ -813,7 +813,7 @@ def test_boxstyle_errors(fmt, match):
         BoxStyle(fmt)
 
 
-@image_comparison(baseline_images=['annulus'], extensions=['png'])
+@image_comparison(['annulus.png'])
 def test_annulus():
 
     fig, ax = plt.subplots()
@@ -825,7 +825,7 @@ def test_annulus():
     ax.set_aspect('equal')
 
 
-@image_comparison(baseline_images=['annulus'], extensions=['png'])
+@image_comparison(['annulus.png'])
 def test_annulus_setters():
 
     fig, ax = plt.subplots()
@@ -846,7 +846,7 @@ def test_annulus_setters():
     ell.angle = 45
 
 
-@image_comparison(baseline_images=['annulus'], extensions=['png'])
+@image_comparison(['annulus.png'])
 def test_annulus_setters2():
 
     fig, ax = plt.subplots()

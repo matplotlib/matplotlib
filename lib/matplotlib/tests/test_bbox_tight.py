@@ -167,8 +167,8 @@ def test_noop_tight_bbox():
     assert im.shape == (7, 10, 4)
 
 
-@image_comparison(['bbox_inches_fixed_aspect'], extensions=['png'],
-                  remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
+@image_comparison(['bbox_inches_fixed_aspect.png'], remove_text=True,
+                  savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_fixed_aspect():
     with plt.rc_context({'figure.constrained_layout.use': True}):
         fig, ax = plt.subplots()
@@ -177,9 +177,8 @@ def test_bbox_inches_fixed_aspect():
         ax.set_aspect('equal')
 
 
-@image_comparison(['bbox_inches_inset_rasterized'], extensions=['pdf'],
-                  remove_text=True, savefig_kwarg={'bbox_inches': 'tight'},
-                  style='mpl20')
+@image_comparison(['bbox_inches_inset_rasterized.pdf'], remove_text=True,
+                  savefig_kwarg={'bbox_inches': 'tight'}, style='mpl20')
 def test_bbox_inches_inset_rasterized():
     fig, ax = plt.subplots()
 
