@@ -368,7 +368,7 @@ class _ColorizerInterface:
         Return the values (min, max) that are mapped to the colormap limits.
 
         This function is not available for multivariate data.
-        Use `self.colorizer.get_clim()` instead.
+        Use `.Colorizer.get_clim()` via the .colorizer property instead.
         """
         if self._colorizer.norm.n_components > 1:
             raise AttributeError("`.get_clim()` is unavailable when using a colormap "
