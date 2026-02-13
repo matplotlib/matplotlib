@@ -1646,7 +1646,7 @@ def test_norm_callback():
     assert increment.call_count == 2
 
     # We only want autoscale() calls to send out one update signal
-    increment.call_count = 0
+    increment.reset_mock()
     norm.autoscale([0, 1, 2])
     assert increment.call_count == 1
 
