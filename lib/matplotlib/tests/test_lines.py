@@ -51,7 +51,7 @@ def test_invalid_line_data():
         line.set_ydata(0)
 
 
-@image_comparison(['line_dashes'], remove_text=True, tol=0.003)
+@image_comparison(['line_dashes'], remove_text=True, style='_classic_test', tol=0.003)
 def test_line_dashes():
     # Tolerance introduced after reordering of floating-point operations
     # Remove when regenerating the images
@@ -92,7 +92,7 @@ def test_valid_linestyles():
         line.set_linestyle('aardvark')
 
 
-@image_comparison(['drawstyle_variants.png'], remove_text=True,
+@image_comparison(['drawstyle_variants.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_drawstyle_variants():
     fig, axs = plt.subplots(6)
@@ -144,7 +144,7 @@ def test_set_line_coll_dash_image():
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
-@image_comparison(['marker_fill_styles.png'], remove_text=True)
+@image_comparison(['marker_fill_styles.png'], remove_text=True, style='_classic_test')
 def test_marker_fill_styles():
     colors = itertools.cycle([[0, 0, 1], 'g', '#ff0000', 'c', 'm', 'y',
                               np.array([0, 0, 0])])

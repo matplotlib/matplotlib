@@ -883,7 +883,7 @@ def test_fallback_missing(recwarn, font_list):
     assert all([font in recwarn[0].message.args[0] for font in font_list])
 
 
-@image_comparison(['last_resort'])
+@image_comparison(['last_resort'], style='_classic_test')
 def test_fallback_last_resort(recwarn):
     fig = plt.figure(figsize=(3, 0.5))
     fig.text(.5, .5, "Hello 🙃 World!", size=24,

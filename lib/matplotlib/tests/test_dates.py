@@ -140,7 +140,7 @@ def test_axhline():
     mdates._reset_epoch_test_example()
 
 
-@image_comparison(['date_axhspan.png'])
+@image_comparison(['date_axhspan.png'], style='_classic_test')
 def test_date_axhspan():
     # test axhspan with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -153,7 +153,7 @@ def test_date_axhspan():
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['date_axvspan.png'], tol=0.07)
+@image_comparison(['date_axvspan.png'], style='_classic_test', tol=0.07)
 def test_date_axvspan():
     # test axvspan with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -165,7 +165,7 @@ def test_date_axvspan():
     fig.autofmt_xdate()
 
 
-@image_comparison(['date_axhline.png'])
+@image_comparison(['date_axhline.png'], style='_classic_test')
 def test_date_axhline():
     # test axhline with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -178,7 +178,7 @@ def test_date_axhline():
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['date_axvline.png'], tol=0.09)
+@image_comparison(['date_axvline.png'], style='_classic_test', tol=0.09)
 def test_date_axvline():
     # test axvline with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -229,7 +229,7 @@ def _new_epoch_decorator(thefunc):
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['RRuleLocator_bounds.png'], tol=0.07)
+@image_comparison(['RRuleLocator_bounds.png'], style='_classic_test', tol=0.07)
 def test_RRuleLocator():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -274,7 +274,8 @@ def test_RRuleLocator_close_minmax():
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['DateFormatter_fractionalSeconds.png'], tol=0.11)
+@image_comparison(['DateFormatter_fractionalSeconds.png'], style='_classic_test',
+                  tol=0.11)
 def test_DateFormatter():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -957,7 +958,7 @@ def test_auto_date_locator_intmult_tz():
             assert st == expected
 
 
-@image_comparison(['date_inverted_limit.png'])
+@image_comparison(['date_inverted_limit.png'], style='_classic_test')
 def test_date_inverted_limit():
     # test ax hline with date inputs
     t0 = datetime.datetime(2009, 1, 20)

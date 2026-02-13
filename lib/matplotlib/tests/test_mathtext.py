@@ -215,7 +215,7 @@ def baseline_images(request, fontset, index, text):
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
-@image_comparison(baseline_images=None,
+@image_comparison(baseline_images=None, style='_classic_test',
                   tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
@@ -231,7 +231,8 @@ def test_mathtext_rendering(baseline_images, fontset, index, text):
 @image_comparison(
     baseline_images=None, extensions=['svg'],
     savefig_kwarg={'metadata': {  # Minimize image size.
-        'Creator': None, 'Date': None, 'Format': None, 'Type': None}})
+        'Creator': None, 'Date': None, 'Format': None, 'Type': None}},
+    style='_classic_test')
 def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     mpl.rcParams['svg.fonttype'] = 'none'  # Minimize image size.
@@ -245,7 +246,8 @@ def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
                          ids=range(len(lightweight_math_tests)))
 @pytest.mark.parametrize('fontset', ['dejavusans'])
 @pytest.mark.parametrize('baseline_images', ['mathtext1'], indirect=True)
-@image_comparison(baseline_images=None, extensions=['png'])
+@image_comparison(baseline_images=None, extensions=['png'],
+                  style='_classic_test')
 def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, text, math_fontfamily=fontset,
@@ -258,6 +260,7 @@ def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'],
+                  style='_classic_test',
                   tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathfont_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
@@ -468,7 +471,7 @@ def test_math_to_image(tmp_path):
 
 
 @image_comparison(baseline_images=['math_fontfamily_image.png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40}, style='_classic_test')
 def test_math_fontfamily():
     fig = plt.figure(figsize=(10, 3))
     fig.text(0.2, 0.7, r"$This\ text\ should\ have\ one\ font$",

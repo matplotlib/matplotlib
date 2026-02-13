@@ -828,7 +828,7 @@ def _mask_tester(norm_instance, vals):
     assert_array_equal(masked_array.mask, norm_instance(masked_array).mask)
 
 
-@image_comparison(['levels_and_colors.png'])
+@image_comparison(['levels_and_colors.png'], style='_classic_test')
 def test_cmap_and_norm_from_levels_and_colors():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -847,7 +847,7 @@ def test_cmap_and_norm_from_levels_and_colors():
     ax.tick_params(labelleft=False, labelbottom=False)
 
 
-@image_comparison(['boundarynorm_and_colorbar.png'], tol=1.0)
+@image_comparison(['boundarynorm_and_colorbar.png'], style='_classic_test', tol=1.0)
 def test_boundarynorm_and_colorbarbase():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -959,7 +959,7 @@ def test_autoscale_masked():
     plt.draw()
 
 
-@image_comparison(['light_source_shading_topo.png'])
+@image_comparison(['light_source_shading_topo.png'], style='_classic_test')
 def test_light_source_topo_surface():
     """Shades a DEM using different v.e.'s and blend modes."""
     dem = cbook.get_sample_data('jacksboro_fault_dem.npz')
@@ -1834,8 +1834,8 @@ def test_LinearSegmentedColormap_from_list_value_color_tuple():
     )
 
 
-@image_comparison(['test_norm_abc.png'], remove_text=True,
-                   tol=0 if platform.machine() == 'x86_64' else 0.05)
+@image_comparison(['test_norm_abc.png'], remove_text=True, style='_classic_test',
+                  tol=0 if platform.machine() == 'x86_64' else 0.05)
 def test_norm_abc():
 
     class CustomHalfNorm(mcolors.Norm):

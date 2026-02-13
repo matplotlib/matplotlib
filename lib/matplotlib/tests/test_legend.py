@@ -54,7 +54,7 @@ def test_legend_generator():
     ax.legend(handles, labels, loc='upper left')
 
 
-@image_comparison(['legend_auto1.png'], remove_text=True)
+@image_comparison(['legend_auto1.png'], remove_text=True, style='_classic_test')
 def test_legend_auto1():
     """Test automatic legend placement"""
     fig, ax = plt.subplots()
@@ -64,7 +64,7 @@ def test_legend_auto1():
     ax.legend(loc='best')
 
 
-@image_comparison(['legend_auto2.png'], remove_text=True)
+@image_comparison(['legend_auto2.png'], remove_text=True, style='_classic_test')
 def test_legend_auto2():
     """Test automatic legend placement"""
     fig, ax = plt.subplots()
@@ -74,7 +74,7 @@ def test_legend_auto2():
     ax.legend([b1[0], b2[0]], ['up', 'down'], loc='best')
 
 
-@image_comparison(['legend_auto3.png'])
+@image_comparison(['legend_auto3.png'], style='_classic_test')
 def test_legend_auto3():
     """Test automatic legend placement"""
     fig, ax = plt.subplots()
@@ -140,7 +140,8 @@ def test_legend_auto5():
     assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
 
 
-@image_comparison(['legend_various_labels.png'], remove_text=True)
+@image_comparison(['legend_various_labels.png'], remove_text=True,
+                  style='_classic_test')
 def test_various_labels():
     # tests all sorts of label types
     fig = plt.figure()
@@ -151,7 +152,7 @@ def test_various_labels():
     ax.legend(numpoints=1, loc='best')
 
 
-@image_comparison(['legend_labels_first.png'], remove_text=True,
+@image_comparison(['legend_labels_first.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.013)
 def test_labels_first():
     # test labels to left of markers
@@ -162,7 +163,7 @@ def test_labels_first():
     ax.legend(loc='best', markerfirst=False)
 
 
-@image_comparison(['legend_multiple_keys.png'], remove_text=True,
+@image_comparison(['legend_multiple_keys.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.013)
 def test_multiple_keys():
     # test legend entries with multiple keys
@@ -176,7 +177,7 @@ def test_multiple_keys():
                            (p2, p1): HandlerTuple(ndivide=None, pad=0)})
 
 
-@image_comparison(['rgba_alpha.png'], remove_text=True,
+@image_comparison(['rgba_alpha.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_alpha_rgba():
     fig, ax = plt.subplots()
@@ -185,7 +186,7 @@ def test_alpha_rgba():
     leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
 
 
-@image_comparison(['rcparam_alpha.png'], remove_text=True,
+@image_comparison(['rcparam_alpha.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_alpha_rcparam():
     fig, ax = plt.subplots()
@@ -199,7 +200,7 @@ def test_alpha_rcparam():
         leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
 
 
-@image_comparison(['fancy.png'], remove_text=True, tol=0.05)
+@image_comparison(['fancy.png'], remove_text=True, style='_classic_test', tol=0.05)
 def test_fancy():
     # Tolerance caused by changing default shadow "shade" from 0.3 to 1 - 0.7 =
     # 0.30000000000000004
@@ -213,7 +214,7 @@ def test_fancy():
                ncols=2, shadow=True, title="My legend", numpoints=1)
 
 
-@image_comparison(['framealpha'], remove_text=True,
+@image_comparison(['framealpha'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.024)
 def test_framealpha():
     x = np.linspace(1, 100, 100)
@@ -222,7 +223,8 @@ def test_framealpha():
     plt.legend(framealpha=0.5)
 
 
-@image_comparison(['scatter_rc3.png', 'scatter_rc1.png'], remove_text=True)
+@image_comparison(['scatter_rc3.png', 'scatter_rc1.png'], remove_text=True,
+                  style='_classic_test')
 def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.figure()
@@ -239,7 +241,7 @@ def test_rc():
               title="My legend")
 
 
-@image_comparison(['legend_expand.png'], remove_text=True)
+@image_comparison(['legend_expand.png'], remove_text=True, style='_classic_test')
 def test_legend_expand():
     """Test expand mode"""
     legend_modes = [None, "expand"]
@@ -519,7 +521,7 @@ def test_figure_legend_outside():
                         legbb[nn])
 
 
-@image_comparison(['legend_stackplot.png'],
+@image_comparison(['legend_stackplot.png'], style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.031)
 def test_legend_stackplot():
     """Test legend for PolyCollection using stackplot."""
@@ -578,7 +580,7 @@ def test_legend_repeatcheckok():
     assert len(lab) == 2
 
 
-@image_comparison(['not_covering_scatter.png'])
+@image_comparison(['not_covering_scatter.png'], style='_classic_test')
 def test_not_covering_scatter():
     colors = ['b', 'g', 'r']
 
@@ -590,7 +592,7 @@ def test_not_covering_scatter():
     plt.gca().set_ylim(-0.5, 2.2)
 
 
-@image_comparison(['not_covering_scatter_transform.png'])
+@image_comparison(['not_covering_scatter_transform.png'], style='_classic_test')
 def test_not_covering_scatter_transform():
     # Offsets point to top left, the default auto position
     offset = mtransforms.Affine2D().translate(-20, 20)

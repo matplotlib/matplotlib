@@ -141,6 +141,7 @@ def test_contour_label_with_disconnected_segments():
 
 
 @image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True,
+                  style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.018)
 def test_given_colors_levels_and_extends():
     # Remove this line when this test image is regenerated.
@@ -311,7 +312,7 @@ def test_label_contour_start():
 
 
 @image_comparison(['contour_corner_mask_False.png', 'contour_corner_mask_True.png'],
-                  remove_text=True, tol=1.88)
+                  remove_text=True, style='_classic_test', tol=1.88)
 def test_corner_mask():
     n = 60
     mask_level = 0.95
@@ -492,7 +493,8 @@ def test_label_nonagg():
     plt.clabel(plt.contour([[1, 2], [3, 4]]))
 
 
-@image_comparison(['contour_closed_line_loop.png'], remove_text=True)
+@image_comparison(['contour_closed_line_loop.png'], remove_text=True,
+                  style='_classic_test')
 def test_contour_closed_line_loop():
     # github issue 19568.
     z = [[0, 0, 0], [0, 2, 0], [0, 0, 0], [2, 1, 2]]
@@ -516,7 +518,8 @@ def test_quadcontourset_reuse():
     assert qcs3._contour_generator == qcs1._contour_generator
 
 
-@image_comparison(['contour_manual.png'], remove_text=True, tol=0.89)
+@image_comparison(['contour_manual.png'], remove_text=True, style='_classic_test',
+                  tol=0.89)
 def test_contour_manual():
     # Manually specifying contour lines/polygons to plot.
     from matplotlib.contour import ContourSet
@@ -541,7 +544,8 @@ def test_contour_manual():
     ContourSet(ax, [2], [segs], [kinds], colors='k', linewidths=3)
 
 
-@image_comparison(['contour_line_start_on_corner_edge.png'], remove_text=True)
+@image_comparison(['contour_line_start_on_corner_edge.png'], remove_text=True,
+                  style='_classic_test')
 def test_contour_line_start_on_corner_edge():
     fig, ax = plt.subplots(figsize=(6, 5))
 
@@ -675,7 +679,8 @@ def test_algorithm_supports_corner_mask(algorithm):
             plt.contourf(z, algorithm=algorithm, corner_mask=True)
 
 
-@image_comparison(['contour_all_algorithms.png'], remove_text=True, tol=0.06)
+@image_comparison(['contour_all_algorithms.png'], remove_text=True,
+                  style='_classic_test', tol=0.06)
 def test_all_algorithms():
     algorithms = ['mpl2005', 'mpl2014', 'serial', 'threaded']
 

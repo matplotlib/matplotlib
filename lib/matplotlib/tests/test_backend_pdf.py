@@ -21,7 +21,7 @@ from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
 
 
-@image_comparison(['pdf_use14corefonts.pdf'])
+@image_comparison(['pdf_use14corefonts.pdf'], style='_classic_test')
 def test_use14corefonts():
     rcParams['pdf.use14corefonts'] = True
     rcParams['font.family'] = 'sans-serif'
@@ -309,7 +309,7 @@ def test_hatching_legend(text_placeholders):
     fig.legend([a, b, a, b], ["", "", "", ""])
 
 
-@image_comparison(['grayscale_alpha.pdf'])
+@image_comparison(['grayscale_alpha.pdf'], style='_classic_test')
 def test_grayscale_alpha():
     """Masking images with NaN did not work for grayscale images"""
     x, y = np.ogrid[-2:2:.1, -2:2:.1]
@@ -346,7 +346,7 @@ def test_empty_rasterized():
     fig.savefig(io.BytesIO(), format="pdf")
 
 
-@image_comparison(['kerning.pdf'])
+@image_comparison(['kerning.pdf'], style='_classic_test')
 def test_kerning():
     fig = plt.figure()
     s = "AVAVAVAVAVAVAVAV€AAVV"
@@ -380,7 +380,7 @@ def test_glyphs_subset():
     assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
 
 
-@image_comparison(["multi_font_type3.pdf"])
+@image_comparison(["multi_font_type3.pdf"], style='_classic_test')
 def test_multi_font_type3():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
@@ -391,7 +391,7 @@ def test_multi_font_type3():
              horizontalalignment='center', verticalalignment='center')
 
 
-@image_comparison(["multi_font_type42.pdf"])
+@image_comparison(["multi_font_type42.pdf"], style='_classic_test')
 def test_multi_font_type42():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
@@ -418,7 +418,7 @@ def test_otf_font_smoke(family_name, file_name):
     fig.savefig(io.BytesIO(), format="pdf")
 
 
-@image_comparison(["truetype-conversion.pdf"])
+@image_comparison(["truetype-conversion.pdf"], style='_classic_test')
 # mpltest.ttf does not have "l"/"p" glyphs so we get a warning when trying to
 # get the font extents.
 def test_truetype_conversion(recwarn):
@@ -432,7 +432,7 @@ def test_truetype_conversion(recwarn):
 
 @pytest.mark.skipif(not _has_tex_package("heuristica"),
                     reason="LaTeX lacks heuristica package")
-@image_comparison(["font-heuristica.pdf"])
+@image_comparison(["font-heuristica.pdf"], style='_classic_test')
 def test_font_heuristica():
     # Heuristica uses the callothersubr operator for some glyphs
     mpl.rcParams['text.latex.preamble'] = '\n'.join((
@@ -448,7 +448,7 @@ def test_font_heuristica():
 
 @pytest.mark.skipif(not _has_tex_package("DejaVuSans"),
                     reason="LaTeX lacks DejaVuSans package")
-@image_comparison(["font-dejavusans.pdf"])
+@image_comparison(["font-dejavusans.pdf"], style='_classic_test')
 def test_font_dejavusans():
     # DejaVuSans uses the seac operator to compose characters with diacritics
     mpl.rcParams['text.latex.preamble'] = '\n'.join((
@@ -466,7 +466,7 @@ def test_font_dejavusans():
 
 @pytest.mark.skipif(not _has_tex_package("charter"),
                     reason="LaTeX lacks charter package")
-@image_comparison(["font-bitstream-charter.pdf"])
+@image_comparison(["font-bitstream-charter.pdf"], style='_classic_test')
 def test_font_bitstream_charter():
     mpl.rcParams['text.latex.preamble'] = '\n'.join((
         r'\usepackage{charter}',

@@ -23,7 +23,7 @@ import matplotlib.ticker as mticker
 import pytest
 
 
-@image_comparison(['interp_alpha.png'], remove_text=True)
+@image_comparison(['interp_alpha.png'], remove_text=True, style='_classic_test')
 def test_alpha_interp():
     """Test the interpolation of the alpha channel on RGBA images"""
     fig, (axl, axr) = plt.subplots(1, 2)
@@ -36,8 +36,9 @@ def test_alpha_interp():
     axr.imshow(img, interpolation="bilinear")
 
 
-@image_comparison(['interp_nearest_vs_none'], tol=3.7,  # For Ghostscript 10.06+.
-                  extensions=['pdf', 'svg'], remove_text=True)
+@image_comparison(['interp_nearest_vs_none'], extensions=['pdf', 'svg'],
+                  remove_text=True, style='_classic_test',
+                  tol=3.7)  # For Ghostscript 10.06+.
 def test_interp_nearest_vs_none():
     """Test the effect of "nearest" and "none" interpolation"""
     # Setting dpi to something really small makes the difference very
@@ -55,7 +56,7 @@ def test_interp_nearest_vs_none():
 
 
 @pytest.mark.parametrize('suppressComposite', [False, True])
-@image_comparison(['figimage'], extensions=['png', 'pdf'])
+@image_comparison(['figimage'], extensions=['png', 'pdf'], style='_classic_test')
 def test_figimage(suppressComposite):
     fig = plt.figure(figsize=(2, 2), dpi=100)
     fig.suppressComposite = suppressComposite
@@ -265,7 +266,7 @@ def test_imsave_pil_kwargs_tiff():
     assert tags["ImageDescription"] == "test image"
 
 
-@image_comparison(['image_alpha'], remove_text=True)
+@image_comparison(['image_alpha'], remove_text=True, style='_classic_test')
 def test_image_alpha():
     np.random.seed(0)
     Z = np.random.rand(6, 6)
@@ -540,7 +541,7 @@ def test_imshow_10_10_5():
         ax.imshow(arr)
 
 
-@image_comparison(['no_interpolation_origin'], remove_text=True)
+@image_comparison(['no_interpolation_origin'], remove_text=True, style='_classic_test')
 def test_no_interpolation_origin():
     fig, axs = plt.subplots(2)
     axs[0].imshow(np.arange(100).reshape((2, 50)), origin="lower",
@@ -548,7 +549,8 @@ def test_no_interpolation_origin():
     axs[1].imshow(np.arange(100).reshape((2, 50)), interpolation='none')
 
 
-@image_comparison(['image_shift'], remove_text=True, extensions=['pdf', 'svg'])
+@image_comparison(['image_shift'], extensions=['pdf', 'svg'], remove_text=True,
+                  style='_classic_test')
 def test_image_shift():
     imgData = [[1 / x + 1 / y for x in range(1, 100)] for y in range(1, 100)]
     tMin = 734717.945208
@@ -599,7 +601,8 @@ def test_image_composite_background():
     ax.set_xlim(0, 12)
 
 
-@image_comparison(['image_composite_alpha'], remove_text=True, tol=0.07)
+@image_comparison(['image_composite_alpha'], remove_text=True, style='_classic_test',
+                  tol=0.07)
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
@@ -866,7 +869,7 @@ def test_load_from_url():
         plt.imread(file)
 
 
-@image_comparison(['log_scale_image'], remove_text=True)
+@image_comparison(['log_scale_image'], remove_text=True, style='_classic_test')
 def test_log_scale_image():
     Z = np.zeros((10, 10))
     Z[::2] = 1
@@ -877,7 +880,7 @@ def test_log_scale_image():
     ax.set(yscale='log')
 
 
-@image_comparison(['rotate_image'], remove_text=True)
+@image_comparison(['rotate_image'], remove_text=True, style='_classic_test')
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
@@ -937,7 +940,8 @@ def test_image_preserve_size2():
                        np.identity(n, bool)[::-1])
 
 
-@image_comparison(['mask_image_over_under.png'], remove_text=True, tol=1.0)
+@image_comparison(['mask_image_over_under.png'], remove_text=True,
+                  style='_classic_test', tol=1.0)
 def test_mask_image_over_under():
 
     delta = 0.025
@@ -969,7 +973,7 @@ def test_mask_image_over_under():
                  orientation='horizontal', ax=ax2, aspect=10)
 
 
-@image_comparison(['mask_image'], remove_text=True)
+@image_comparison(['mask_image'], remove_text=True, style='_classic_test')
 def test_mask_image():
     # Test mask image two ways: Using nans and using a masked array.
 
@@ -995,7 +999,7 @@ def test_mask_image_all():
     fig.canvas.draw_idle()  # would emit a warning
 
 
-@image_comparison(['imshow_endianess.png'], remove_text=True)
+@image_comparison(['imshow_endianess.png'], remove_text=True, style='_classic_test')
 def test_imshow_endianess():
     x = np.arange(10)
     X, Y = np.meshgrid(x, x)

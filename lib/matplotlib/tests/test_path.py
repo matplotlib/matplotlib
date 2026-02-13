@@ -189,7 +189,7 @@ def test_arrow_contains_point():
                 ax.scatter(x, y, s=5, c="r")
 
 
-@image_comparison(['path_clipping.svg'], remove_text=True)
+@image_comparison(['path_clipping.svg'], remove_text=True, style='_classic_test')
 def test_path_clipping():
     fig = plt.figure(figsize=(6.0, 6.2))
 
@@ -242,7 +242,7 @@ def test_make_compound_path_stops():
     assert np.sum(compound_path.codes == Path.STOP) == 0
 
 
-@image_comparison(['xkcd.png'], remove_text=True)
+@image_comparison(['xkcd.png'], remove_text=True, style='_classic_test')
 def test_xkcd():
     np.random.seed(0)
 
@@ -254,7 +254,7 @@ def test_xkcd():
         ax.plot(x, y)
 
 
-@image_comparison(['xkcd_marker.png'], remove_text=True)
+@image_comparison(['xkcd_marker.png'], remove_text=True, style='_classic_test')
 def test_xkcd_marker():
     np.random.seed(0)
 
@@ -270,7 +270,7 @@ def test_xkcd_marker():
         ax.plot(x, y3, '^', ms=10)
 
 
-@image_comparison(['marker_paths.pdf'], remove_text=True)
+@image_comparison(['marker_paths.pdf'], remove_text=True, style='_classic_test')
 def test_marker_paths_pdf():
     N = 7
 

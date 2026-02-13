@@ -241,7 +241,7 @@ def test_negative_rect():
     assert_array_equal(np.roll(neg_vertices, 2, 0), pos_vertices)
 
 
-@image_comparison(['clip_to_bbox.png'])
+@image_comparison(['clip_to_bbox.png'], style='_classic_test')
 def test_clip_to_bbox():
     fig, ax = plt.subplots()
     ax.set_xlim([-18, 20])
@@ -269,7 +269,7 @@ def test_clip_to_bbox():
     ax.add_patch(result_patch)
 
 
-@image_comparison(['patch_alpha_coloring'], remove_text=True)
+@image_comparison(['patch_alpha_coloring'], remove_text=True, style='_classic_test')
 def test_patch_alpha_coloring():
     """
     Test checks that the patch and collection are rendered with the specified
@@ -300,7 +300,7 @@ def test_patch_alpha_coloring():
     ax.set_ylim(-1, 2)
 
 
-@image_comparison(['patch_alpha_override'], remove_text=True)
+@image_comparison(['patch_alpha_override'], remove_text=True, style='_classic_test')
 def test_patch_alpha_override():
     #: Test checks that specifying an alpha attribute for a patch or
     #: collection will override any alpha component of the facecolor
@@ -340,7 +340,7 @@ def test_patch_color_none():
     assert c.get_facecolor()[0] == 0
 
 
-@image_comparison(['patch_custom_linestyle'], remove_text=True)
+@image_comparison(['patch_custom_linestyle'], remove_text=True, style='_classic_test')
 def test_patch_custom_linestyle():
     #: A test to check that patches and collections accept custom dash
     #: patterns as linestyle and that they display correctly.
@@ -437,7 +437,7 @@ def test_wedge_movement():
         assert getattr(w, attr) == new_v
 
 
-@image_comparison(['wedge_range'], remove_text=True,
+@image_comparison(['wedge_range'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_wedge_range():
     ax = plt.axes()
@@ -550,7 +550,7 @@ def test_multi_color_hatch():
         ax.add_patch(r)
 
 
-@image_comparison(['units_rectangle.png'])
+@image_comparison(['units_rectangle.png'], style='_classic_test')
 def test_units_rectangle():
     import matplotlib.testing.jpl_units as U
     U.register()
@@ -813,7 +813,7 @@ def test_boxstyle_errors(fmt, match):
         BoxStyle(fmt)
 
 
-@image_comparison(['annulus.png'])
+@image_comparison(['annulus.png'], style='_classic_test')
 def test_annulus():
 
     fig, ax = plt.subplots()
@@ -825,7 +825,7 @@ def test_annulus():
     ax.set_aspect('equal')
 
 
-@image_comparison(['annulus.png'])
+@image_comparison(['annulus.png'], style='_classic_test')
 def test_annulus_setters():
 
     fig, ax = plt.subplots()
@@ -846,7 +846,7 @@ def test_annulus_setters():
     ell.angle = 45
 
 
-@image_comparison(['annulus.png'])
+@image_comparison(['annulus.png'], style='_classic_test')
 def test_annulus_setters2():
 
     fig, ax = plt.subplots()

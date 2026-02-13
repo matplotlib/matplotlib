@@ -232,7 +232,7 @@ def test_delaunay_robust():
     triang = mtri.Triangulation(tri_points[1:, 0], tri_points[1:, 1])
 
 
-@image_comparison(['tripcolor1.png'])
+@image_comparison(['tripcolor1.png'], style='_classic_test')
 def test_tripcolor():
     x = np.asarray([0, 0.5, 1, 0,   0.5, 1,   0, 0.5, 1, 0.75])
     y = np.asarray([0, 0,   0, 0.5, 0.5, 0.5, 1, 1,   1, 0.75])
@@ -865,7 +865,8 @@ def test_triinterp_transformations():
             matest.assert_array_almost_equal(interpz, interp_z0[interp_key])
 
 
-@image_comparison(['tri_smooth_contouring.png'], remove_text=True, tol=0.072)
+@image_comparison(['tri_smooth_contouring.png'], remove_text=True,
+                  style='_classic_test', tol=0.072)
 def test_tri_smooth_contouring():
     # Image comparison based on example tricontour_smooth_user.
     n_angles = 20
@@ -904,7 +905,8 @@ def test_tri_smooth_contouring():
     plt.tricontour(tri_refi, z_test_refi, levels=levels, colors="black")
 
 
-@image_comparison(['tri_smooth_gradient.png'], remove_text=True, tol=0.092)
+@image_comparison(['tri_smooth_gradient.png'], remove_text=True, style='_classic_test',
+                  tol=0.092)
 def test_tri_smooth_gradient():
     # Image comparison based on example trigradient_demo.
 
