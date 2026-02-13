@@ -62,19 +62,19 @@ jobs:
             pygobject-ver: '<3.52.0'
           - name-suffix: "(Extra TeX packages)"
             os: ubuntu-22.04
-            python-version: '3.13'
+            python-version: '3.13.11'
             extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
-            python-version: '3.13t'
+            python-version: '3.13.11t'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
             python-version: '3.12'
           - os: ubuntu-24.04
-            python-version: '3.14'
+            python-version: '3.14.2'
           - os: ubuntu-24.04-arm
             python-version: '3.12'
           - os: macos-14  # This runner is on M1 (arm64) chips.
@@ -86,11 +86,11 @@ jobs:
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
           - os: macos-15  # This runner is on M1 (arm64) chips.
-            python-version: '3.13'
+            python-version: '3.13.11'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
           - os: macos-15  # This runner is on M1 (arm64) chips.
-            python-version: '3.14'
+            python-version: '3.14.2'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
 
@@ -244,7 +244,7 @@ jobs:
           # Sphinx is needed to run sphinxext tests
           python -m pip install --upgrade sphinx!=6.1.2
 
-          if [[ "${{ matrix.python-version }}" != '3.13t' ]]; then
+          if [[ "${{ matrix.python-version }}" != '3.13.11t' ]]; then
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
           # whether the install was successful by trying to import the toolkit
@@ -293,7 +293,7 @@ jobs:
             echo 'wxPython is available' ||
             echo 'wxPython is not available'
 
-          fi  # Skip backends on Python 3.13t.
+          fi  # Skip backends on Python 3.13.11t.
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
@@ -333,7 +333,7 @@ jobs:
 
       - name: Run pytest
         run: |
-          if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
+          if [[ "${{ matrix.python-version }}" == '3.13.11t' ]]; then
             export PYTHON_GIL=0
           fi
           pytest -rfEsXR -n auto \
