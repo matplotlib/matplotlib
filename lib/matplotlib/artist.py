@@ -773,6 +773,19 @@ Supported properties are
         """
         Set the `.Figure` or `.SubFigure` instance the artist belongs to.
 
+        .. warning::
+
+            This function should typically not be called by users.
+
+            This is a low-level API and only modifies the internal state of the
+            Artist. Only modifying this is not enough and will typically lead
+            to an inconsistent state, because the state of the figure has to
+            be changed as well.
+
+            Users should typically instead call one of the high-level APIs, i.e.
+            `.Figure.add_artist` or one of the Axes methods
+            :ref:`axes-api-adding-artists`.
+
         Parameters
         ----------
         fig : `~matplotlib.figure.Figure` or `~matplotlib.figure.SubFigure`
