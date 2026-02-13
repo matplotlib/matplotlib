@@ -92,7 +92,8 @@ def test_long_path():
     fig.savefig(buff, format='png')
 
 
-@image_comparison(['agg_filter.png'], remove_text=True)
+@image_comparison(['agg_filter.png'], remove_text=True,
+                  style=('classic', '_classic_test_patch'))
 def test_agg_filter():
     def smooth1d(x, window_len):
         # copied from https://scipy-cookbook.readthedocs.io/

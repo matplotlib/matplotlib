@@ -47,6 +47,7 @@ def test_bbox_inches_tight(text_placeholders):
 
 @image_comparison(['bbox_inches_tight_suptile_legend'],
                   savefig_kwarg={'bbox_inches': 'tight'},
+                  style=('classic', '_classic_test_patch'),
                   tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_bbox_inches_tight_suptile_legend():
     plt.plot(np.arange(10), label='a straight line')
@@ -67,6 +68,7 @@ def test_bbox_inches_tight_suptile_legend():
 
 @image_comparison(['bbox_inches_tight_suptile_non_default.png'],
                   savefig_kwarg={'bbox_inches': 'tight'},
+                  style=('classic', '_classic_test_patch'),
                   tol=0.1)  # large tolerance because only testing clipping.
 def test_bbox_inches_tight_suptitle_non_default():
     fig, ax = plt.subplots()
@@ -90,7 +92,8 @@ def test_bbox_inches_tight_layout_notconstrained(tmp_path):
 
 
 @image_comparison(['bbox_inches_tight_clipping'],
-                  remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
+                  remove_text=True, savefig_kwarg={'bbox_inches': 'tight'},
+                  style=('classic', '_classic_test_patch'))
 def test_bbox_inches_tight_clipping():
     # tests bbox clipping on scatter points, and path clipping on a patch
     # to generate an appropriately tight bbox
@@ -110,8 +113,10 @@ def test_bbox_inches_tight_clipping():
     plt.gcf().artists.append(patch)
 
 
-@image_comparison(['bbox_inches_tight_raster'], tol=0.15,  # For Ghostscript 10.06+.
-                  remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
+@image_comparison(['bbox_inches_tight_raster'], remove_text=True,
+                  savefig_kwarg={'bbox_inches': 'tight'},
+                  style=('classic', '_classic_test_patch'),
+                  tol=0.15)  # For Ghostscript 10.06+.
 def test_bbox_inches_tight_raster():
     """Test rasterization with tight_layout"""
     fig, ax = plt.subplots()
@@ -168,7 +173,8 @@ def test_noop_tight_bbox():
 
 
 @image_comparison(['bbox_inches_fixed_aspect.png'], remove_text=True,
-                  savefig_kwarg={'bbox_inches': 'tight'})
+                  savefig_kwarg={'bbox_inches': 'tight'},
+                  style=('classic', '_classic_test_patch'))
 def test_bbox_inches_fixed_aspect():
     with plt.rc_context({'figure.constrained_layout.use': True}):
         fig, ax = plt.subplots()

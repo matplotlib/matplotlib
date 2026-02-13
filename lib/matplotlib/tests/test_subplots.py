@@ -181,6 +181,7 @@ def test_exceptions():
 
 
 @image_comparison(['subplots_offset_text.png'],
+                  style=('classic', '_classic_test_patch'),
                   tol=0 if platform.machine() == 'x86_64' else 0.028)
 def test_subplots_offsettext():
     x = np.arange(0, 1e10, 1e9)
