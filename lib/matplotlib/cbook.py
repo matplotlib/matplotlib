@@ -2411,6 +2411,18 @@ def _is_jax_array(x):
             and isinstance(x, tp))
 
 
+def _is_mlx_array(x):
+    """Return whether *x* is a MLX Array."""
+    try:
+        # We're intentionally not attempting to import mlx. If somebody
+        # has created a mlx array, mlx should already be in sys.modules.
+        tp = sys.modules.get("mlx.core").array
+    except AttributeError:
+        return False  # Module not imported or a nonstandard module with no Array attr.
+    return (isinstance(tp, type)  # Just in case it's a very nonstandard module.
+            and isinstance(x, tp))
+
+
 def _is_pandas_dataframe(x):
     """Check if *x* is a Pandas DataFrame."""
     try:
@@ -2454,7 +2466,10 @@ def _unpack_to_numpy(x):
         # so in this case we do not want to return a function
         if isinstance(xtmp, np.ndarray):
             return xtmp
-    if _is_torch_array(x) or _is_jax_array(x) or _is_tensorflow_array(x):
+    if _is_torch_array(x) \
+        or _is_jax_array(x) \
+        or _is_tensorflow_array(x) \
+        or _is_mlx_array(x):
         # using np.asarray() instead of explicitly __array__(), as the latter is
         # only _one_ of many methods, and it's the last resort, see also
         # https://numpy.org/devdocs/user/basics.interoperability.html#using-arbitrary-objects-in-numpy
