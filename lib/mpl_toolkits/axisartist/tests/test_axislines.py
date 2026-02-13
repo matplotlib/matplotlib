@@ -146,3 +146,21 @@ def test_subplotzero_ylabel():
     ax.axis["left", "right", "bottom", "top"].set_visible(False)
 
     zero_axis.set_axisline_style("->")
+
+
+def test_label_fontsize_from_axes():
+    """Test that AxisLabel inherits fontsize from the underlying axis label."""
+    fig = plt.figure()
+    ax = Subplot(fig, 1, 1, 1)
+    fig.add_subplot(ax)
+
+    # set_ylabel with fontsize should propagate to AxisLabel
+    ax.set_ylabel("Test", fontsize=20)
+    assert ax.axis["left"].label.get_fontsize() == 20
+
+    ax.set_ylabel("Test", fontsize=14)
+    assert ax.axis["left"].label.get_fontsize() == 14
+
+    # explicit set_fontsize on AxisLabel should override
+    ax.axis["left"].label.set_fontsize(30)
+    assert ax.axis["left"].label.get_fontsize() == 30
