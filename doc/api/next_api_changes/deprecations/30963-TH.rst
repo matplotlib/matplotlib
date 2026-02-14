@@ -1,0 +1,7 @@
+``rcParams._get("backend")``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``rcParams._get("backend")`` is deprecated. Instead, use the public API
+``matplotlib.get_backend(auto_select=False)`` to retrieve the current
+backend without triggering backend resolution. This API is available since
+Matplotlib 3.10.
