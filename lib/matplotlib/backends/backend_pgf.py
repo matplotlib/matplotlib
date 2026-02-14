@@ -38,9 +38,17 @@ _DOCUMENTCLASS = r"\documentclass{article}"
 
 def _get_preamble():
     """Prepare a LaTeX preamble based on the rcParams configuration."""
-    font_size_pt = FontProperties(
-        size=mpl.rcParams["font.size"]
-    ).get_size_in_points()
+    def _to_fontspec():
+        for command, family in [("setmainfont", "serif"),
+                                ("setsansfont", "sans\\-serif"),
+                                ("setmonofont", "monospace")]:
+            font_path = fm.findfont(family)
+            path = pathlib.Path(font_path)
+            yield r"  \%s{%s}[Path=\detokenize{%s/}%s]" % (
+                command, path.name, path.parent.as_posix(),
+                f',FontIndex={font_path.face_index:d}' if path.suffix == '.ttc' else '')
+
+    font_size_pt = FontProperties(size=mpl.rcParams["font.size"]).get_size_in_points()
     return "\n".join([
         # Remove Matplotlib's custom command \mathdefault.  (Not using
         # \mathnormal instead since this looks odd with Computer Modern.)
@@ -63,15 +71,8 @@ def _get_preamble():
         *([
             r"\ifdefined\pdftexversion\else  % non-pdftex case.",
             r"  \usepackage{fontspec}",
-        ] + [
-            r"  \%s{%s}[Path=\detokenize{%s/}]"
-            % (command, path.name, path.parent.as_posix())
-            for command, path in zip(
-                ["setmainfont", "setsansfont", "setmonofont"],
-                [pathlib.Path(fm.findfont(family))
-                 for family in ["serif", "sans\\-serif", "monospace"]]
-            )
-        ] + [r"\fi"] if mpl.rcParams["pgf.rcfonts"] else []),
+            *_to_fontspec(),
+            r"\fi"] if mpl.rcParams["pgf.rcfonts"] else []),
         # Documented as "must come last".
         mpl.texmanager._usepackage_if_not_loaded("underscore", option="strings"),
     ])

@@ -1,0 +1,16 @@
+# This is the version of FreeType to use when building a local version. It must match
+# the `LOCAL_FREETYPE_VERSION` value in `lib/matplotlib/__init__.py`. Bump the cache key
+# in `.circleci/config.yml` when changing requirements.
+[wrap-file]
+directory = freetype-2.14.1
+source_url = https://download.savannah.gnu.org/releases/freetype/freetype-2.14.1.tar.xz
+source_fallback_url = https://downloads.sourceforge.net/project/freetype/freetype2/2.14.1/freetype-2.14.1.tar.xz
+source_filename = freetype-2.14.1.tar.xz
+source_hash = 32427e8c471ac095853212a37aef816c60b42052d4d9e48230bab3bdf2936ccc
+
+# This patch allows using our bundled HarfBuzz.
+diff_files = freetype-2.14.1-static-harfbuzz.patch
+
+[provide]
+freetype2 = freetype_dep
+freetype = freetype_dep

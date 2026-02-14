@@ -1073,13 +1073,15 @@ _validators = {
     # text props
     "text.color":          validate_color,
     "text.usetex":         validate_bool,
+    "text.latex.engine":   ["latex", "latex+dvipng"],
     "text.latex.preamble": validate_string,
     "text.hinting":        ["default", "no_autohint", "force_autohint",
                             "no_hinting", "auto", "native", "either", "none"],
     "text.hinting_factor": validate_int,
-    "text.kerning_factor": validate_int,
+    "text.kerning_factor": validate_int_or_None,
     "text.antialiased":    validate_bool,
     "text.parse_math":     validate_bool,
+    "text.language":       validate_string_or_None,
 
     "mathtext.cal":            validate_font_properties,
     "mathtext.rm":             validate_font_properties,
@@ -1760,8 +1762,19 @@ _params = [
         default="black",
         validator=validate_color
     ),
-    _Param("text.hinting",
-        default="force_autohint",
+    _Param(
+        "text.language",
+        default=None,
+        validator=validate_string_or_None,
+        description="The language of the text in a format accepted by libraqm, namely "
+                    "`a BCP47 language code "
+                    "<https://www.w3.org/International/articles/language-tags/>`_. If "
+                    "None, then no particular language will be implied, and default "
+                    "font settings will be used."
+    ),
+    _Param(
+        "text.hinting",
+        default="default",
         validator=[
             "default", "no_autohint", "force_autohint", "no_hinting", "auto", "native",
             "either", "none",
@@ -1779,7 +1792,7 @@ _params = [
     ),
     _Param(
         "text.hinting_factor",
-        default=8,
+        default=1,
         validator=validate_int,
         description="Specifies the amount of softness for hinting in the horizontal "
                     "direction.  A value of 1 will hint to full pixels.  A value of 2 "
@@ -1787,12 +1800,12 @@ _params = [
     ),
     _Param(
         "text.kerning_factor",
-        default=0,
-        validator=validate_int,
-        description="Specifies the scaling factor for kerning values. This is "
-                    "provided solely to allow old test images to remain unchanged. "
-                    "Set to 6 to obtain previous behavior. Values  other than 0 or 6 "
-                    "have no defined meaning."
+        default=None,
+        validator=validate_int_or_None,
+        description="[DEPRECATED] Specifies the scaling factor for kerning values. "
+                    "This is provided solely to allow old test images to remain "
+                    "unchanged. Set to 6 to obtain previous behavior. Values other "
+                    "than 0 or 6 have no defined meaning."
     ),
     _Param(
         "text.antialiased",
@@ -1818,6 +1831,20 @@ _params = [
                     "charter, serif, sans-serif, helvetica, avant garde, courier, "
                     "monospace, computer modern roman, computer modern sans serif, "
                     "computer modern typewriter"
+    ),
+    _Param(
+        "text.latex.engine",
+        default="latex",
+        validator=["latex", "latex+dvipng"],
+        description=(
+            "The TeX engine/format to use.  The following values are supported:\n"
+            "- 'latex': The classic TeX engine (the current default).  All backends "
+            "render TeX's output by parsing the DVI output into glyphs and boxes and "
+            "emitting those one by one.\n"
+            "- 'latex+dvipng': The same as 'latex', with the exception that Agg-based "
+            "backends rely on dvipng to rasterize TeX's output.  This value was the "
+            "default up to Matplotlib 3.10."
+        )
     ),
     _Param(
         "text.latex.preamble",

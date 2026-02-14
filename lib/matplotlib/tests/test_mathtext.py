@@ -78,7 +78,7 @@ math_tests = [
     r'$x+{y}^{\frac{2}{k+1}}$',
     r'$\frac{a}{b/2}$',
     r'${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$',
-    r'${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$',
+    r'${a}_{0}+\dfrac{1}{{a}_{1}+\dfrac{1}{{a}_{2}+\dfrac{1}{{a}_{3}+\dfrac{1}{{a}_{4}}}}}$',
     r'$\binom{n}{k/2}$',
     r'$\binom{p}{2}{x}^{2}{y}^{p-2}-\frac{1}{1-x}\frac{1}{1-{x}^{2}}$',
     r'${x}^{2y}$',
@@ -125,12 +125,21 @@ math_tests = [
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
-    r'$a=-b-c$'  # github issue #28180
+    r'$a=-b-c$',  # github issue #28180
 ]
 # 'svgastext' tests switch svg output to embed text as text (rather than as
 # paths).
 svgastext_math_tests = [
     r'$-$-',
+    # Check all AutoHeightChar substitutions.
+    *[
+        r'$\left' + lc + r' M \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # Normal size.
+        r'\left' + lc + r' \frac{M}{B} \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # big size.
+        r'\left' + lc + r' \frac{\frac{M}{I}}{B} \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # bigg size.
+        r'\left' + lc + r' \frac{\frac{M}{I}}{\frac{B}{U}} \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # Big size.
+        r'\left' + lc + r'\frac{\frac{\frac{M}{I}}{N}}{\frac{\frac{B}{U}}{G}} \middle/ ? \middle\backslash ? \right' + rc + '$'  # Bigg size.
+        for lc, rc in ['()', '[]', '<>', (r'\{', r'\}'), (r'\lfloor', r'\rfloor'), (r'\lceil', r'\rceil')]
+    ],
 ]
 # 'lightweight' tests test only a single fontset (dejavusans, which is the
 # default) and only png outputs, in order to minimize the size of baseline
@@ -237,7 +246,7 @@ def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
     mpl.rcParams['svg.fonttype'] = 'none'  # Minimize image size.
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.patch.set(visible=False)  # Minimize image size.
-    fig.text(0.5, 0.5, text,
+    fig.text(0.5, 0.5, text, fontsize=16,
              horizontalalignment='center', verticalalignment='center')
 
 
@@ -391,7 +400,7 @@ def test_operator_space(fig_test, fig_ref):
     fig_test.text(0.1, 0.6, r"$\operatorname{op}[6]$")
     fig_test.text(0.1, 0.7, r"$\cos^2$")
     fig_test.text(0.1, 0.8, r"$\log_2$")
-    fig_test.text(0.1, 0.9, r"$\sin^2 \cos$")  # GitHub issue #17852
+    fig_test.text(0.1, 0.9, r"$\sin^2 \max \cos$")  # GitHub issue #17852
 
     fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
@@ -401,7 +410,7 @@ def test_operator_space(fig_test, fig_ref):
     fig_ref.text(0.1, 0.6, r"$\mathrm{op}[6]$")
     fig_ref.text(0.1, 0.7, r"$\mathrm{cos}^2$")
     fig_ref.text(0.1, 0.8, r"$\mathrm{log}_2$")
-    fig_ref.text(0.1, 0.9, r"$\mathrm{sin}^2 \mathrm{\,cos}$")
+    fig_ref.text(0.1, 0.9, r"$\mathrm{sin}^2 \mathrm{\,max} \mathrm{\,cos}$")
 
 
 @check_figures_equal()
@@ -568,14 +577,15 @@ def test_box_repr():
         _mathtext.DejaVuSansFonts(fm.FontProperties(), LoadFlags.NO_HINTING),
         fontsize=12, dpi=100))
     assert s == textwrap.dedent("""\
-        Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
+        Hlist<w=9.51 h=15.30 d=5.00 s=0.00>[
           Hlist<w=0.00 h=0.00 d=0.00 s=0.00>[],
-          Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
-            Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
-              Vlist<w=7.40 h=22.72 d=0.00 s=6.64>[
-                HCentered<w=7.40 h=8.67 d=0.00 s=0.00>[
+          Hlist<w=9.51 h=15.30 d=5.00 s=0.00>[
+            Hlist<w=9.51 h=15.30 d=5.00 s=0.00>[
+              Hbox,
+              Vlist<w=7.43 h=20.30 d=0.00 s=5.00>[
+                HCentered<w=7.43 h=8.51 d=0.00 s=0.00>[
                   Glue,
-                  Hlist<w=7.40 h=8.67 d=0.00 s=0.00>[
+                  Hlist<w=7.43 h=8.51 d=0.00 s=0.00>[
                     `1`,
                     k2.36,
                   ],
@@ -584,9 +594,9 @@ def test_box_repr():
                 Vbox,
                 Hrule,
                 Vbox,
-                HCentered<w=7.40 h=8.84 d=0.00 s=0.00>[
+                HCentered<w=7.43 h=8.66 d=0.00 s=0.00>[
                   Glue,
-                  Hlist<w=7.40 h=8.84 d=0.00 s=0.00>[
+                  Hlist<w=7.43 h=8.66 d=0.00 s=0.00>[
                     `2`,
                     k2.02,
                   ],
