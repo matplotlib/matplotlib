@@ -422,6 +422,7 @@ class Line2D(Artist):
         self._xy = None
         self._path = None
         self._transformed_path = None
+        self._transform_when_path_transformed = None
         self._subslice = False
         self._x_filled = None  # used in subslicing; only x is needed
 
@@ -729,6 +730,7 @@ class Line2D(Artist):
                          _interpolation_steps=self._path._interpolation_steps)
         else:
             _path = self._path
+        self._transform_when_path_transformed = self.get_transform().frozen()
         self._transformed_path = TransformedPath(_path, self.get_transform())
 
     def _get_transformed_path(self):
@@ -750,7 +752,7 @@ class Line2D(Artist):
         if not self.get_visible():
             return
 
-        if self._invalidy or self._invalidx:
+        if self._invalidy or self._invalidx or self.get_transform() != self._transform_when_path_transformed:
             self.recache()
         self.ind_offset = 0  # Needed for contains() method.
         if self._subslice and self.axes:
