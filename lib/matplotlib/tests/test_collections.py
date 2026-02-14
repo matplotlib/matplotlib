@@ -491,7 +491,7 @@ def test_polycollection_close():
     ax.set_ylim3d(0, 4)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_scalarmap_change_cmap(fig_test, fig_ref):
     # Ensure that changing the colormap of a 3D scatter after draw updates the colors.
 
@@ -1314,8 +1314,7 @@ def test_set_offset_units():
     np.testing.assert_allclose(off0, sc.get_offsets())
 
 
-@image_comparison(baseline_images=["test_check_masked_offsets"],
-                  extensions=["png"], remove_text=True, style="mpl20")
+@image_comparison(["test_check_masked_offsets.png"], remove_text=True, style="mpl20")
 def test_check_masked_offsets():
     # Check if masked data is respected by scatter
     # Ref: Issue #24545
