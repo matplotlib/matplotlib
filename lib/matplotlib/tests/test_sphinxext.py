@@ -16,6 +16,7 @@ pytest.importorskip('sphinx', minversion='4.1.3')
 tinypages = Path(__file__).parent / 'data/tinypages'
 
 
+@pytest.mark.subprocess
 def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
     # Build the pages with warnings turned into errors
     extra_args = [] if extra_args is None else extra_args
