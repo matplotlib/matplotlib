@@ -1297,7 +1297,7 @@ def find_tex_file(filename):
 
     try:
         lk = _LuatexKpsewhich()
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError):
         lk = None  # Fallback to directly calling kpsewhich, as below.
 
     if lk:
@@ -1320,7 +1320,7 @@ def find_tex_file(filename):
             path = cbook._check_and_log_subprocess(
                 ['kpsewhich', '-mktex=pk', filename], _log, **kwargs,
             ).rstrip('\n')
-        except (FileNotFoundError, RuntimeError):
+        except (FileNotFoundError, OSError, RuntimeError):
             path = None
 
     if path:
