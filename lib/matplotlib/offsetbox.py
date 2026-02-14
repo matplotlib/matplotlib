@@ -799,23 +799,24 @@ class TextArea(OffsetBox):
             ismath="TeX" if self._text.get_usetex() else False,
             dpi=self.get_figure(root=True).dpi)
 
-        bbox, info, yd = self._text._get_layout(renderer)
+        bbox, info = self._text._get_layout(renderer)
+        _last_line, (_last_width, _last_ascent, last_descent), _last_xy = info[-1]
         w, h = bbox.size
 
         self._baseline_transform.clear()
 
         if len(info) > 1 and self._multilinebaseline:
             yd_new = 0.5 * h - 0.5 * (h_ - d_)
-            self._baseline_transform.translate(0, yd - yd_new)
-            yd = yd_new
+            self._baseline_transform.translate(0, last_descent - yd_new)
+            last_descent = yd_new
         else:  # single line
-            h_d = max(h_ - d_, h - yd)
-            h = h_d + yd
+            h_d = max(h_ - d_, h - last_descent)
+            h = h_d + last_descent
 
         ha = self._text.get_horizontalalignment()
         x0 = {"left": 0, "center": -w / 2, "right": -w}[ha]
 
-        return Bbox.from_bounds(x0, -yd, w, h)
+        return Bbox.from_bounds(x0, -last_descent, w, h)
 
     def draw(self, renderer):
         # docstring inherited
