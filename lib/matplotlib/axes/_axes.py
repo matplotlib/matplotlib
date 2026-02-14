@@ -5090,7 +5090,9 @@ or pandas.DataFrame
             edgecolors = mpl.rcParams['scatter.edgecolors']
 
         # Raise a warning if both `c` and `facecolor` are set (issue #24404).
-        if c is not None and facecolors is not None:
+        # Don't warn if facecolors='none' because c may be used for edge colors.
+        if (c is not None and facecolors is not None
+                and not cbook._str_lower_equal(facecolors, 'none')):
             _api.warn_external(
                 "You passed both c and facecolor/facecolors for the markers. "
                 "c has precedence over facecolor/facecolors. "
@@ -5162,7 +5164,8 @@ or pandas.DataFrame
                     # Besides *colors* will be an empty array if c == 'none'.
                     raise invalid_shape_exception(len(colors), xsize)
         else:
-            colors = None  # use cmap, norm after collection is created
+            # use cmap, norm after collection is created
+            colors = 'none' if cbook._str_lower_equal(facecolors, 'none') else None
         return c, colors, edgecolors
 
     @_api.make_keyword_only("3.10", "marker")
@@ -5253,6 +5256,8 @@ or pandas.DataFrame
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
+              If the face color is 'none', the edge color will be determined
+              from the mapped array *c* (if provided).
             - 'none': No patch boundary will be drawn.
             - A color or sequence of colors.
 
@@ -5341,6 +5346,9 @@ or pandas.DataFrame
                 c, edgecolors, kwargs, x.size,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
 
+        # Track if we need colormap mapping (before fillstyle logic modifies colors)
+        use_colormap = colors is None or cbook._str_lower_equal(colors, 'none')
+
         if plotnonfinite and colors is None:
             c = np.ma.masked_invalid(c)
             x, y, s, edgecolors, linewidths = \
@@ -5423,7 +5431,9 @@ or pandas.DataFrame
             alpha=alpha,
         )
         collection.set_transform(mtransforms.IdentityTransform())
-        if colors is None:
+        # Set up colormap when colors will be mapped (None) or when facecolors
+        # is 'none' but we still want edge colors mapped from c
+        if use_colormap:
             if colorizer:
                 collection._set_colorizer_check_keywords(colorizer, cmap=cmap,
                                                          norm=norm, vmin=vmin,
@@ -6585,7 +6595,8 @@ or pandas.DataFrame
             - 'none' or '': No edge.
             - *None*: :rc:`patch.edgecolor` will be used. Note that currently
               :rc:`patch.force_edgecolor` has to be True for this to work.
-            - 'face': Use the adjacent face color.
+            - 'face': Use the adjacent face color. If the face color is 'none',
+              the edge color will be determined from the mapped array.
             - A color or sequence of colors will set the edge color.
 
             The singular form *edgecolor* works as an alias.
@@ -6776,7 +6787,8 @@ or pandas.DataFrame
             - 'none' or '': No edge.
             - *None*: :rc:`patch.edgecolor` will be used. Note that currently
               :rc:`patch.force_edgecolor` has to be True for this to work.
-            - 'face': Use the adjacent face color.
+            - 'face': Use the adjacent face color. If the face color is 'none',
+              the edge color will be determined from the mapped array.
             - A color or sequence of colors will set the edge color.
 
             The singular form *edgecolor* works as an alias.
