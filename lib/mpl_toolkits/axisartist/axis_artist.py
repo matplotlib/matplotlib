@@ -178,7 +178,8 @@ class Ticks(AttributeCopier, Line2D):
             return
 
         gc = renderer.new_gc()
-        gc.set_foreground(self.get_markeredgecolor())
+        edgecolor = mcolors.to_rgba(self.get_markeredgecolor())
+        gc.set_foreground(edgecolor, isRGBA=True)
         gc.set_linewidth(self.get_markeredgewidth())
         gc.set_alpha(self._alpha)
 

@@ -411,7 +411,7 @@ class Collection(mcolorizer.ColorizingArtist):
             gc.set_capstyle(self._capstyle)
 
         if do_single_path_optimization:
-            gc.set_foreground(tuple(edgecolors[0]))
+            gc.set_foreground(tuple(edgecolors[0]), isRGBA=True)
             gc.set_linewidth(self._linewidths[0])
             gc.set_dashes(*self._linestyles[0])
             gc.set_antialiased(self._antialiaseds[0])

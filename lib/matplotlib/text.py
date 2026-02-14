@@ -11,7 +11,7 @@ import weakref
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, artist, cbook, _docstring
+from . import _api, artist, cbook, _docstring, colors as mcolors
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -864,7 +864,7 @@ class Text(Artist):
                 self._bbox_patch.draw(renderer)
 
             gc = renderer.new_gc()
-            gc.set_foreground(self.get_color())
+            gc.set_foreground(mcolors.to_rgba(self.get_color()), isRGBA=True)
             gc.set_alpha(self.get_alpha())
             gc.set_url(self._url)
             gc.set_antialiased(self._antialiased)
