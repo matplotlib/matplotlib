@@ -2785,3 +2785,53 @@ def test_axis_get_tightbbox_includes_offset_text():
             f"bbox.x1 ({bbox.x1}) should be >= offset_bbox.x1 ({offset_bbox.x1})"
         assert bbox.y1 >= offset_bbox.y1 - 1e-6, \
             f"bbox.y1 ({bbox.y1}) should be >= offset_bbox.y1 ({offset_bbox.y1})"
+
+
+class DummyEvent:
+    def __init__(self, xdata=None, ydata=None, inaxes=None):
+        self.xdata = xdata
+        self.ydata = ydata
+        self.inaxes = inaxes
+        self.x = 0
+        self.y = 0
+        self.button = 1
+
+
+def _is_multiple_of_step(val, step):
+    return np.isclose(val, step * round(val / step), atol=5e-2)
+
+
+def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+
+    ax.M = np.eye(4)
+    ax._pseudo_w = 1
+    ax._pseudo_h = 1
+
+    ax.button_pressed = 1
+    ax._rotate_btn = [1]
+    ax._sx, ax._sy = 0.0, 0.0
+
+    ax.elev = 12.3
+    ax.azim = 33.7
+    ax.roll = 2.2
+
+    ax._snap_rotation = True
+
+    monkeypatch.setitem(plt.rcParams, "axes3d.mouserotationstyle", "azel")
+
+    captured = {}
+
+    def fake_view_init(elev=None, azim=None, roll=None, **kwargs):
+        captured["elev"] = elev
+        captured["azim"] = azim
+        captured["roll"] = roll
+
+    monkeypatch.setattr(ax, "view_init", fake_view_init)
+
+    event = DummyEvent(xdata=0.1, ydata=0.1, inaxes=ax)
+    ax._on_move(event)
+
+    assert _is_multiple_of_step(captured["elev"], 5)
+    assert _is_multiple_of_step(captured["azim"], 5)
