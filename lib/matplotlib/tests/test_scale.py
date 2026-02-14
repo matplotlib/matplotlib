@@ -59,7 +59,8 @@ def test_symlog_mask_nan():
     assert type(out) is type(x)
 
 
-@image_comparison(['logit_scales.png'], remove_text=True)
+@image_comparison(['logit_scales.png'], remove_text=True,
+                  style=('classic', '_classic_test_patch'))
 def test_logit_scales():
     fig, ax = plt.subplots()
 
@@ -102,7 +103,8 @@ def test_logscale_subs():
     fig.canvas.draw()
 
 
-@image_comparison(['logscale_mask.png'], remove_text=True)
+@image_comparison(['logscale_mask.png'], remove_text=True,
+                  style=('classic', '_classic_test_patch'))
 def test_logscale_mask():
     # Check that zero values are masked correctly on log scales.
     # See github issue 8045

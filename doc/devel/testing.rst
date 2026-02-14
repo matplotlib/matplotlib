@@ -153,6 +153,15 @@ tests it::
        fig, ax = plt.subplots()
        ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
 
+If you wish to compare only a single extension, then that may be included in the
+baseline image name as a shortcut::
+
+   @image_comparison(baseline_images=['line_dashes.png'], remove_text=True,
+                     style='mpl20')
+   def test_line_dashes():
+       fig, ax = plt.subplots()
+       ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
+
 The first time this test is run, there will be no baseline image to compare
 against, so the test will fail.  Copy the output images (in this case
 :file:`result_images/test_lines/test_line_dashes.png`) to the correct
