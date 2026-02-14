@@ -285,7 +285,9 @@ class AxisLabel(AttributeCopier, LabelBase):
         self._axis = axis
         self._pad = 5
         self._external_pad = 0  # in pixels
+        self._fontsize_from_default = True
         LabelBase.__init__(self, *args, **kwargs)
+        self._fontsize_from_default = True
         self.set_axis_direction(axis_direction)
 
     def set_pad(self, pad):
@@ -376,6 +378,24 @@ class AxisLabel(AttributeCopier, LabelBase):
         """
         self.set_default_alignment(d)
         self.set_default_angle(d)
+
+    def set_fontsize(self, fontsize):
+        # docstring inherited
+        self._fontsize_from_default = False
+        super().set_fontsize(fontsize)
+
+    set_size = set_fontsize
+
+    def get_fontsize(self):
+        # docstring inherited
+        if self._fontsize_from_default and self._axis is not None:
+            try:
+                return self.get_ref_artist().get_fontsize()
+            except (IndexError, AttributeError):
+                pass
+        return super().get_fontsize()
+
+    get_size = get_fontsize
 
     def get_color(self):
         return self.get_attribute_from_ref_artist("color")
