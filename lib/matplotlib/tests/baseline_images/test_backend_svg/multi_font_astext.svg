@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-09-04T01:17:08.023061</dc:date>
+    <dc:date>2026-02-14T03:34:22.273100</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1298+g01bc446b1a.d20250904, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1864+g6f7d0e9a17, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -29,24 +29,24 @@ z
 " style="fill: #ffffff"/>
   </g>
   <g id="text_1">
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(195.90875 46.018)">There are basic characters</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(34.73125 62.8635)">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(122.355 80.561)">0123456789 !"#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(203.9875 97.884)">and accented characters</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(144.63125 118.7885)">ÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(136.88375 138.748)">àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(121.97625 160.2435)">ĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(165.02625 181.394)">ĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĸĹĺĻļĽľĿ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(123.16625 203.2095)">ŀŁłŃńŅņŇňŉŊŋŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞş</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(128.32375 224.866)">ŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(120.95 245.9325)">ƀƁƂƃƄƅƆƇƈƉƊƋƌƍƎƏƐƑƒƓƔƕƖƗƘƙƚƛƜƝƞƟ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(124.28625 263.8815)">ƠơƢƣƤƥƦƧƨƩƪƫƬƭƮƯưƱƲƳƴƵƶƷƸƹƺƻƼƽƾƿ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(110.745 287.392)">ǀǁǂǃǄǅǆǇǈǉǊǋǌǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǝǞǟ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(90.0775 310.3995)">ǠǡǢǣǤǥǦǧǨǩǪǫǬǭǮǯǰǱǲǳǴǵǶǷǸǹǺǻǼǽǾǿ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(138.65625 331.657)">ȀȁȂȃȄȅȆȇȈȉȊȋȌȍȎȏȐȑȒȓȔȕȖȗȘșȚțȜȝȞȟ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(119.005 355.182)">ȠȡȢȣȤȥȦȧȨȩȪȫȬȭȮȯȰȱȲȳȴȵȶȷȸȹȺȻȼȽȾȿ</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(79.52375 376.784)">ɀɁɂɃɄɅɆɇɈɉɊɋɌɍɎɏ😀😁😂😃😄😅😆😇😈😉😊😋😌😍😎😏</text>
-   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(248.04625 393.982)">in between!</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(195.90875 45.7975)">There are basic characters</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(34.73125 62.643)">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(122.355 80.3405)">0123456789 !"#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(203.9875 97.6635)">and accented characters</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(144.63125 118.589)">ÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(136.88375 138.5485)">àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(121.97625 160.044)">ĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(165.02625 181.1945)">ĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĸĹĺĻļĽľĿ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(123.16625 203.01)">ŀŁłŃńŅņŇňŉŊŋŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞş</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(128.32375 224.6665)">ŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(120.95 245.733)">ƀƁƂƃƄƅƆƇƈƉƊƋƌƍƎƏƐƑƒƓƔƕƖƗƘƙƚƛƜƝƞƟ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(124.28625 263.682)">ƠơƢƣƤƥƦƧƨƩƪƫƬƭƮƯưƱƲƳƴƵƶƷƸƹƺƻƼƽƾƿ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(110.745 287.1925)">ǀǁǂǃǄǅǆǇǈǉǊǋǌǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǝǞǟ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(90.0775 310.2)">ǠǡǢǣǤǥǦǧǨǩǪǫǬǭǮǯǰǱǲǳǴǵǶǷǸǹǺǻǼǽǾǿ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(138.65625 331.4575)">ȀȁȂȃȄȅȆȇȈȉȊȋȌȍȎȏȐȑȒȓȔȕȖȗȘșȚțȜȝȞȟ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(119.005 354.9825)">ȠȡȢȣȤȥȦȧȨȩȪȫȬȭȮȯȰȱȲȳȴȵȶȷȸȹȺȻȼȽȾȿ</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(79.52375 376.5845)">ɀɁɂɃɄɅɆɇɈɉɊɋɌɍɎɏ😀😁😂😃😄😅😆😇😈😉😊😋😌😍😎😏</text>
+   <text style="font-size: 16px; font-family: 'cmr10', 'DejaVu Sans'" transform="translate(248.04625 394.2025)">in between!</text>
   </g>
  </g>
 </svg>

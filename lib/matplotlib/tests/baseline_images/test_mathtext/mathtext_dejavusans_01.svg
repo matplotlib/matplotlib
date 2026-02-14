@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:14.772270</dc:date>
+    <dc:date>2026-02-14T03:33:09.446861</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1864+g6f7d0e9a17, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $x\hspace{-0.2}\doteq\hspace{-0.2}y$ -->
-   <g transform="translate(176.82 30.286875) scale(0.12 -0.12)">
+   <g transform="translate(176.82 30.299062) scale(0.12 -0.12)">
     <defs>
-     <path id="DejaVuSans-Oblique-78" d="M 3841 3500 
+     <path id="DejaVuSans-Oblique-5b" d="M 3841 3500 
 L 2234 1784 
 L 3219 0 
 L 2559 0 
@@ -47,7 +47,7 @@ L 3144 3500
 L 3841 3500 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-2250" d="M 2350 3997 
+     <path id="DejaVuSans-cda" d="M 2350 3997 
 L 3010 3997 
 L 3010 3203 
 L 2350 3203 
@@ -66,7 +66,7 @@ L 678 1100
 L 678 1631 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-Oblique-79" d="M 1588 -325 
+     <path id="DejaVuSans-Oblique-5c" d="M 1588 -325 
 Q 1188 -997 936 -1164 
 Q 684 -1331 294 -1331 
 L -159 -1331 
@@ -84,9 +84,9 @@ L 1588 -325
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSans-Oblique-78" transform="translate(0 0.546875)"/>
-    <use xlink:href="#DejaVuSans-2250" transform="translate(59.179688 0.546875)"/>
-    <use xlink:href="#DejaVuSans-Oblique-79" transform="translate(142.96875 0.546875)"/>
+    <use xlink:href="#DejaVuSans-Oblique-5b" transform="translate(0 0.546875)"/>
+    <use xlink:href="#DejaVuSans-cda" transform="translate(59.179688 0.546875)"/>
+    <use xlink:href="#DejaVuSans-Oblique-5c" transform="translate(142.96875 0.546875)"/>
    </g>
   </g>
  </g>

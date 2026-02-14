@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:17.359297</dc:date>
+    <dc:date>2026-02-14T03:33:14.814202</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1864+g6f7d0e9a17, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $\mathring{A}  \AA$ -->
-   <g transform="translate(180.78 30.564375) scale(0.12 -0.12)">
+   <g transform="translate(180.78 31.812188) scale(0.12 -0.12)">
     <defs>
-     <path id="DejaVuSans-2218" d="M 2003 2603 
+     <path id="DejaVuSans-ca2" d="M 2003 2603 
 Q 1753 2603 1581 2429 
 Q 1409 2256 1409 2006 
 Q 1409 1759 1581 1589 
@@ -55,7 +55,7 @@ Q 1012 2425 1299 2715
 Q 1587 3006 2003 3006 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-Oblique-41" d="M 2356 4666 
+     <path id="DejaVuSans-Oblique-24" d="M 2356 4666 
 L 3072 4666 
 L 3938 0 
 L 3278 0 
@@ -71,7 +71,7 @@ L 2988 1722
 L 2584 4044 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-Oblique-c5" d="M 3188 5081 
+     <path id="DejaVuSans-Oblique-87" d="M 3188 5081 
 Q 3188 5278 3048 5417 
 Q 2909 5556 2713 5556 
 Q 2513 5556 2377 5420 
@@ -105,9 +105,9 @@ L 2584 4044
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSans-2218" transform="translate(27.336426 77.96875) scale(0.49)"/>
-    <use xlink:href="#DejaVuSans-Oblique-41" transform="translate(0 0.390625)"/>
-    <use xlink:href="#DejaVuSans-Oblique-c5" transform="translate(68.408203 0.390625)"/>
+    <use xlink:href="#DejaVuSans-ca2" transform="translate(27.336426 77.96875) scale(0.49)"/>
+    <use xlink:href="#DejaVuSans-Oblique-24" transform="translate(0 0.390625)"/>
+    <use xlink:href="#DejaVuSans-Oblique-87" transform="translate(68.408203 0.390625)"/>
    </g>
   </g>
  </g>
