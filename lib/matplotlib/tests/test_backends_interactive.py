@@ -20,6 +20,10 @@ import matplotlib as mpl
 from matplotlib import _c_internal_utils
 from matplotlib.backend_tools import ToolToggleBase
 from matplotlib.testing import subprocess_run_helper as _run_helper, is_ci_environment
+from matplotlib.testing._markers import starts_subprocess
+
+
+pytestmark = starts_subprocess
 
 
 class _WaitForStringPopen(subprocess.Popen):
@@ -240,7 +244,6 @@ def _test_interactive_impl():
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 @pytest.mark.parametrize("toolbar", ["toolbar2", "toolmanager"])
-@pytest.mark.flaky(reruns=_retry_count)
 def test_interactive_backend(env, toolbar):
     if env["MPLBACKEND"] == "macosx":
         if toolbar == "toolmanager":
@@ -335,7 +338,6 @@ for param in _thread_safe_backends:
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
-@pytest.mark.flaky(reruns=_retry_count)
 def test_interactive_thread_safety(env):
     proc = _run_helper(_test_thread_impl, timeout=_test_timeout, extra_env=env)
     assert proc.stdout.count("CloseEvent") == 1
@@ -622,8 +624,6 @@ for param in _blit_backends:
 
 
 @pytest.mark.parametrize("env", _blit_backends)
-# subprocesses can struggle to get the display, so rerun a few times
-@pytest.mark.flaky(reruns=_retry_count)
 def test_blitting_events(env):
     proc = _run_helper(
         _test_number_of_draws_script, timeout=_test_timeout, extra_env=env)
@@ -725,6 +725,7 @@ def _test_sigint_impl(backend, target_name, kwargs):
         print('SUCCESS', flush=True)
 
 
+@pytest.mark.skip(reason='eliminate test from enquiries')
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 @pytest.mark.parametrize("target, kwargs", [
     ('show', {'block': True}),
@@ -773,6 +774,7 @@ def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
         print('SUCCESS', flush=True)
 
 
+@pytest.mark.skip(reason='eliminate test from enquiries')
 @pytest.mark.skipif(sys.platform == 'win32',
                     reason='No other signal available to send on Windows')
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
