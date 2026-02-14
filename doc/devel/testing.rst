@@ -52,6 +52,9 @@ In the root directory of your development repository run::
 ``--capture=no`` or ``-s``     Do not capture stdout
 =============================  ===========
 
+Some tests may use a large amount of memory (>0.5GiB); to enable those tests, set the
+environment variable ``MPL_TEST_EXPENSIVE``.
+
 To run a single test from the command line, you can provide a file path, optionally
 followed by the function separated by two colons, e.g., (tests do not need to be
 installed, but Matplotlib should be)::
