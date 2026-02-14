@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: "3.x"
-      - uses: j178/prek-action@564dda4cfa5e96aafdc4a5696c4bf7b46baae5ac  # v1.1.0
+      - uses: j178/prek-action@0bb87d7f00b0c99306c8bcb8b8beba1eb581c037  # v1.1.1
         with:
           extra_args: --hook-stage manual --all-files
 
