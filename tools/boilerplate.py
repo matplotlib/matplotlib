@@ -313,7 +313,7 @@ def boilerplate_gen():
         'hist2d': 'sci(__ret[-1])',
         'imshow': 'sci(__ret)',
         'spy': (
-            'if isinstance(__ret, _ColorizerInterface):\n'
+            'if isinstance(__ret, _ColorbarMappable):\n'
             '        sci(__ret)'
         ),
         'quiver': 'sci(__ret)',
