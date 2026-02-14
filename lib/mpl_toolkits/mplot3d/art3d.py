@@ -72,6 +72,33 @@ def get_dir_vector(zdir):
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
 
 
+def _apply_scale_transforms(xs, ys, zs, axes):
+    """
+    Apply axis scale transforms to 3D coordinates.
+
+    Transforms data coordinates to transformed coordinates (applying log,
+    symlog, etc.) for 3D projection. Preserves masked arrays.
+    """
+    def transform_coord(coord, axis):
+        coord = np.asanyarray(coord)
+        data = np.ma.getdata(coord).ravel()
+        return axis.get_transform().transform(data).reshape(coord.shape)
+
+    xs_scaled = transform_coord(xs, axes.xaxis)
+    ys_scaled = transform_coord(ys, axes.yaxis)
+    zs_scaled = transform_coord(zs, axes.zaxis)
+
+    # Preserve combined mask from any masked input
+    masks = [np.ma.getmask(a) for a in [xs, ys, zs]]
+    if any(m is not np.ma.nomask for m in masks):
+        combined = np.ma.mask_or(np.ma.mask_or(masks[0], masks[1]), masks[2])
+        xs_scaled = np.ma.array(xs_scaled, mask=combined)
+        ys_scaled = np.ma.array(ys_scaled, mask=combined)
+        zs_scaled = np.ma.array(zs_scaled, mask=combined)
+
+    return xs_scaled, ys_scaled, zs_scaled
+
+
 def _viewlim_mask(xs, ys, zs, axes):
     """
     Return the mask of the points outside the axes view limits.
@@ -79,7 +106,7 @@ def _viewlim_mask(xs, ys, zs, axes):
     Parameters
     ----------
     xs, ys, zs : array-like
-        The points to mask.
+        The points to mask. These should be in data coordinates.
     axes : Axes3D
         The axes to use for the view limits.
 
@@ -198,7 +225,16 @@ class Text3D(mtext.Text):
         else:
             pos3d = np.array([self._x, self._y, self._z], dtype=float)
 
-        proj = proj3d._proj_trans_points([pos3d, pos3d + self._dir_vec], self.axes.M)
+        # Apply scale transforms before projection
+        pos3d_scaled = np.array(_apply_scale_transforms(
+            pos3d[0], pos3d[1], pos3d[2], self.axes))
+        # Also scale the direction vector endpoint
+        dir_end = pos3d + self._dir_vec
+        dir_end_scaled = np.array(_apply_scale_transforms(
+            dir_end[0], dir_end[1], dir_end[2], self.axes))
+
+        proj = proj3d._proj_trans_points(
+            [pos3d_scaled, dir_end_scaled], self.axes.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
@@ -334,6 +370,8 @@ class Line3D(lines.Line2D):
                                            dtype=float, mask=mask).filled(np.nan)
         else:
             xs3d, ys3d, zs3d = self._verts3d
+        # Apply scale transforms before projection
+        xs3d, ys3d, zs3d = _apply_scale_transforms(xs3d, ys3d, zs3d, self.axes)
         xs, ys, zs, tis = proj3d._proj_transform_clip(xs3d, ys3d, zs3d,
                                                       self.axes.M,
                                                       self.axes._focal_length)
@@ -427,7 +465,13 @@ class Collection3D(Collection):
             vs_list = [np.ma.array(vs, mask=np.broadcast_to(
                        _viewlim_mask(*vs.T, self.axes), vs.shape))
                        for vs in vs_list]
-        xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M) for vs in vs_list]
+        # Apply scale transforms before projection
+        xyzs_list = []
+        for vs in vs_list:
+            xs_scaled, ys_scaled, zs_scaled = _apply_scale_transforms(
+                vs[:, 0], vs[:, 1], vs[:, 2], self.axes)
+            xyzs_list.append(proj3d.proj_transform(
+                xs_scaled, ys_scaled, zs_scaled, self.axes.M))
         self._paths = [mpath.Path(np.ma.column_stack([xs, ys]), cs)
                        for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
         zs = np.concatenate([zs for _, _, zs in xyzs_list])
@@ -497,6 +541,11 @@ class Line3DCollection(LineCollection):
         """
         segments = np.asanyarray(self._segments3d)
 
+        # Handle empty segments
+        if segments.size == 0:
+            LineCollection.set_segments(self, [])
+            return np.nan
+
         mask = False
         if np.ma.isMA(segments):
             mask = segments.mask
@@ -511,7 +560,13 @@ class Line3DCollection(LineCollection):
                 viewlim_mask = np.broadcast_to(viewlim_mask[..., np.newaxis],
                                                (*viewlim_mask.shape, 3))
                 mask = mask | viewlim_mask
-        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M),
+
+        # Apply scale transforms before projection
+        xs_scaled, ys_scaled, zs_scaled = _apply_scale_transforms(
+            segments[..., 0], segments[..., 1], segments[..., 2], self.axes)
+        segments_scaled = np.stack([xs_scaled, ys_scaled, zs_scaled], axis=-1)
+
+        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments_scaled, self.axes.M),
                            mask=mask)
         segments_2d = xyzs[..., 0:2]
         LineCollection.set_segments(self, segments_2d)
@@ -595,6 +650,8 @@ class Patch3D(Patch):
                                      dtype=float, mask=mask).filled(np.nan)
         else:
             xs, ys, zs = zip(*s)
+        # Apply scale transforms before projection
+        xs, ys, zs = _apply_scale_transforms(xs, ys, zs, self.axes)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
@@ -657,6 +714,8 @@ class PathPatch3D(Patch3D):
                                      dtype=float, mask=mask).filled(np.nan)
         else:
             xs, ys, zs = zip(*s)
+        # Apply scale transforms before projection
+        xs, ys, zs = _apply_scale_transforms(xs, ys, zs, self.axes)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
@@ -802,6 +861,8 @@ class Patch3DCollection(PatchCollection):
             xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xs, ys, zs = self._offsets3d
+        # Apply scale transforms before projection
+        xs, ys, zs = _apply_scale_transforms(xs, ys, zs, self.axes)
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
@@ -1020,7 +1081,9 @@ class Path3DCollection(PathCollection):
             xyzs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xyzs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip(*xyzs,
+        # Apply scale transforms before projection
+        xyzs_scaled = _apply_scale_transforms(*xyzs, self.axes)
+        vxs, vys, vzs, vis = proj3d._proj_transform_clip(*xyzs_scaled,
                                                          self.axes.M,
                                                          self.axes._focal_length)
         self._data_scale = _get_data_scale(vxs, vys, vzs)
@@ -1353,10 +1416,16 @@ class Poly3DCollection(PolyCollection):
         num_faces = len(self._faces)
         mask = self._invalid_vertices
 
+        # Apply scale transforms to faces before projection
+        xs_scaled, ys_scaled, zs_scaled = _apply_scale_transforms(
+            self._faces[..., 0], self._faces[..., 1], self._faces[..., 2],
+            self.axes)
+        faces_scaled = np.stack([xs_scaled, ys_scaled, zs_scaled], axis=-1)
+
         # Some faces might contain masked vertices, so we want to ignore any
         # errors that those might cause
         with np.errstate(invalid='ignore', divide='ignore'):
-            pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
+            pfaces = proj3d._proj_transform_vectors(faces_scaled, self.axes.M)
 
         if self._axlim_clip:
             viewlim_mask = _viewlim_mask(self._faces[..., 0], self._faces[..., 1],
