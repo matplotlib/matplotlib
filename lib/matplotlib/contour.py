@@ -455,7 +455,7 @@ class ContourLabeler:
 
         idx_level_min, idx_vtx_min, proj = self._find_nearest_contour(
             (x, y), self.labelIndiceList)
-        path = self._paths[idx_level_min]
+        path = self._container.paths[idx_level_min]
         level = self.labelIndiceList.index(idx_level_min)
         label_width = self._get_nth_label_width(level)
         rotation, path = self._split_path_and_get_label_rotation(
@@ -464,7 +464,7 @@ class ContourLabeler:
                        self.labelCValueList[idx_level_min])
 
         if inline:
-            self._paths[idx_level_min] = path
+            self._container.paths[idx_level_min] = path
 
     def pop_label(self, index=-1):
         """Defaults to removing last label, but any index can be supplied"""
@@ -481,7 +481,7 @@ class ContourLabeler:
             trans = self.get_transform()
             label_width = self._get_nth_label_width(idx)
             additions = []
-            for subpath in self._paths[icon]._iter_connected_components():
+            for subpath in self._container.paths[icon]._iter_connected_components():
                 screen_xys = trans.transform(subpath.vertices)
                 # Check if long enough for a label
                 if self.print_label(screen_xys, label_width):
@@ -497,7 +497,7 @@ class ContourLabeler:
             # After looping over all segments on a contour, replace old path by new one
             # if inlining.
             if inline:
-                self._paths[icon] = Path.make_compound_path(*additions)
+                self._container.paths[icon] = Path.make_compound_path(*additions)
 
     def remove(self):
         super().remove()
@@ -757,8 +757,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         self.norm._changed()
         self._process_colors()
 
-        if self._paths is None:
-            self._paths = self._make_paths_from_contour_generator()
+        if self._container.paths is None:
+            self._container.paths = self._make_paths_from_contour_generator()
 
         if self.filled:
             if linewidths is not None:
@@ -839,7 +839,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         if self.filled:
             lowers, uppers = self._get_lowers_and_uppers()
-            n_levels = len(self._paths)
+            n_levels = len(self._container.paths)
             for idx in range(n_levels):
                 artists.append(mpatches.Rectangle(
                     (0, 0), 1, 1,
@@ -905,15 +905,15 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         # pathcodes.  However, kinds can also be None; in which case all paths in that
         # list are codeless (this case is normalized above).  These lists are used to
         # construct paths, which then get concatenated.
-        self._paths = [Path.make_compound_path(*map(Path, segs, kinds))
+        self._container.paths = [Path.make_compound_path(*map(Path, segs, kinds))
                        for segs, kinds in zip(allsegs, allkinds)]
 
         return kwargs
 
     def _make_paths_from_contour_generator(self):
         """Compute ``paths`` using C extension."""
-        if self._paths is not None:
-            return self._paths
+        if self._container.paths is not None:
+            return self._container.paths
         cg = self._contour_generator
         empty_path = Path(np.empty((0, 2)))
         vertices_and_codes = (
@@ -1180,13 +1180,13 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             raise ValueError("Method does not support filled contours")
 
         if indices is None:
-            indices = range(len(self._paths))
+            indices = range(len(self._container.paths))
 
         d2min = np.inf
         idx_level_min = idx_vtx_min = proj_min = None
 
         for idx_level in indices:
-            path = self._paths[idx_level]
+            path = self._container.paths[idx_level]
             idx_vtx_start = 0
             for subpath in path._iter_connected_components():
                 if not len(subpath.vertices):
@@ -1249,7 +1249,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         if i_level is not None:
             cc_cumlens = np.cumsum(
-                [*map(len, self._paths[i_level]._iter_connected_components())])
+                [*map(len, self._container.paths[i_level]._iter_connected_components())]
+            )
             segment = cc_cumlens.searchsorted(i_vtx, "right")
             index = i_vtx if segment == 0 else i_vtx - cc_cumlens[segment - 1]
             d2 = (xmin-x)**2 + (ymin-y)**2
@@ -1258,7 +1259,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        paths = self._paths
+        paths = self._container.paths
         n_paths = len(paths)
         if not self.filled or all(hatch is None for hatch in self.hatches):
             super().draw(renderer)
@@ -1268,15 +1269,22 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         if edgecolors.size == 0:
             edgecolors = ("none",)
         for idx in range(n_paths):
-            with self._cm_set(
-                paths=[paths[idx]],
-                hatch=self.hatches[idx % len(self.hatches)],
-                array=[self.get_array()[idx]],
-                linewidths=[self.get_linewidths()[idx % len(self.get_linewidths())]],
-                linestyles=[self.get_linestyles()[idx % len(self.get_linestyles())]],
-                edgecolors=edgecolors[idx % len(edgecolors)],
-            ):
-                super().draw(renderer)
+            contour = mcoll.PathCollection(paths=[paths[idx]])
+            contour.update_from(self)
+            contour.set_linewidths(
+                [self.get_linewidths()[idx % len(self.get_linewidths())]]
+            )
+            contour.set_linestyles(
+                [self.get_linestyles()[idx % len(self.get_linestyles())]]
+            )
+            contour.set_edgecolors(edgecolors[idx % len(edgecolors)])
+            contour.set_hatch(self.hatches[idx % len(self.hatches)])
+            contour.set_array([self.get_array()[idx]])
+            contour.set_norm(self.norm)
+            contour.set_cmap(self.cmap)
+
+            contour.set_transform(self.get_transform())
+            contour.draw(renderer)
 
 
 @_docstring.interpd
