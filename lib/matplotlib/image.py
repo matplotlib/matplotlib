@@ -152,7 +152,8 @@ def _draw_list_compositing_images(
 
         for a in artists:
             if (isinstance(a, _ImageBase) and a.can_composite() and
-                    a.get_clip_on() and not a.get_clip_path()):
+                    a.get_clip_on() and not a.get_clip_path() and
+                    a.get_blend_mode() == "normal"):
                 image_group.append(a)
             else:
                 flush_images()
@@ -604,6 +605,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_alpha(self._get_scalar_alpha())
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
         if (renderer.option_scale_image()  # Renderer supports transform kwarg.

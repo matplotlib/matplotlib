@@ -648,6 +648,7 @@ class Patch(artist.Artist):
         gc.set_snap(self.get_snap())
 
         gc.set_alpha(self._alpha)
+        gc.set_blend_mode(self.get_blend_mode())
 
         if self._hatch:
             gc.set_hatch(self._hatch)

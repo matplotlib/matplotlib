@@ -776,6 +776,7 @@ class Line2D(Artist):
                 self._set_gc_clip(gc)
                 gc.set_url(self.get_url())
 
+                gc.set_blend_mode(self.get_blend_mode())
                 gc.set_antialiased(self._antialiased)
                 gc.set_linewidth(self._linewidth)
 
@@ -813,6 +814,7 @@ class Line2D(Artist):
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
             gc.set_url(self.get_url())
+            gc.set_blend_mode(self.get_blend_mode())
             gc.set_linewidth(self._markeredgewidth)
             gc.set_antialiased(self._antialiased)
 

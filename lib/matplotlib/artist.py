@@ -201,6 +201,7 @@ Supported properties are
         self._visible = True
         self._animated = False
         self._alpha = None
+        self._blend_mode = "normal"
         self.clipbox = None
         self._clippath = None
         self._clipon = True
@@ -1217,6 +1218,7 @@ Supported properties are
         self._transformSet = other._transformSet
         self._visible = other._visible
         self._alpha = other._alpha
+        self._blend_mode = other._blend_mode
         self.clipbox = other.clipbox
         self._clipon = other._clipon
         self._clippath = other._clippath
@@ -1454,6 +1456,27 @@ Supported properties are
                 ax._mouseover_set.discard(self)
 
     mouseover = property(get_mouseover, set_mouseover)  # backcompat.
+
+    def set_blend_mode(self, blend_mode):
+        """
+        Set the blend mode for compositing - not supported on all backends.
+
+        Parameters
+        ----------
+        blend_mode : str
+        """
+        if blend_mode not in ["normal",
+                              "erase", "atop", "xor", "plus",
+                              "multiply", "screen", "overlay", "darken", "lighten",
+                              "color dodge", "color burn", "hard light", "soft light",
+                              "difference", "exclusion",
+                              "hue", "saturation", "color", "luminosity"]:
+            raise ValueError(f"{blend_mode} is not a supported blend mode")
+        self._blend_mode = blend_mode
+
+    def get_blend_mode(self):
+        """Return the blend mode for compositing - not supported on all backends."""
+        return self._blend_mode
 
 
 def _get_tightbbox_for_layout_only(obj, *args, **kwargs):
