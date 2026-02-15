@@ -17,7 +17,7 @@ from collections.abc import Callable, Mapping
 
 from . import path
 from ._enums import JoinStyle, CapStyle
-from .artist import Artist
+from .artist import Artist, BlendMode
 from .backend_bases import RendererBase
 from .markers import MarkerStyle
 from .transforms import Bbox, Transform
@@ -50,6 +50,16 @@ type RGBAColourType = RGBAColorType
 
 type ColourType = ColorType
 """Alias of `.ColorType`."""
+
+type BlendModeType = (
+    BlendMode |
+    Literal["normal", "multiply", "screen", "overlay", "darken", "lighten",
+            "color dodge", "color burn", "hard light", "soft light",
+            "difference", "exclusion",
+            "hue", "saturation", "color", "luminosity",
+            "knockout", "erase", "clear", "atop", "xor", "plus"]
+)
+"""Blend modes.  See :ref:`blend-modes`."""
 
 type LineStyleType = (
     Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",

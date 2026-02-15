@@ -1,6 +1,7 @@
 from collections import namedtuple
 from collections.abc import Sequence
 import contextlib
+from enum import StrEnum, auto
 from functools import cache, reduce, wraps
 import inspect
 from inspect import Signature, Parameter
@@ -19,6 +20,47 @@ from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, Transform
                          TransformedPatchPath, TransformedPath)
 
 _log = logging.getLogger(__name__)
+
+
+# Blend modes that are supported by all non-PS backends
+class _BlendModePDFSpec(StrEnum):
+    NORMAL = auto()
+    MULTIPLY = auto()
+    SCREEN = auto()
+    OVERLAY = auto()
+    DARKEN = auto()
+    LIGHTEN = auto()
+    COLOR_DODGE = "color dodge"
+    COLOR_BURN = "color burn"
+    HARD_LIGHT = "hard light"
+    SOFT_LIGHT = "soft light"
+    DIFFERENCE = auto()
+    EXCLUSION = auto()
+    HUE = auto()
+    SATURATION = auto()
+    COLOR = auto()
+    LUMINOSITY = auto()
+
+
+# Blend modes that are supported natively by only Agg and Cairo backends
+class _BlendModePorterDuff(StrEnum):
+    KNOCKOUT = auto()
+    ERASE = auto()
+    CLEAR = auto()
+    ATOP = auto()
+    XOR = auto()
+    PLUS = auto()
+
+
+# Merge the two enumerations into a single enumeration of all blend modes
+BlendMode = StrEnum(
+    "BlendMode", {**_BlendModePDFSpec.__members__, **_BlendModePorterDuff.__members__}
+)
+BlendMode.__doc__ = """\
+An enumeration of the allowed blend modes.
+
+See :ref:`blend-modes`.
+"""
 
 
 def _prevent_rasterization(draw):
@@ -202,6 +244,7 @@ Supported properties are
         self._visible = True
         self._animated = False
         self._alpha = None
+        self._blend_mode = "normal"
         self.clipbox = None
         self._clippath = None
         self._clipon = True
@@ -1234,6 +1277,7 @@ Supported properties are
         self._transformSet = other._transformSet
         self._visible = other._visible
         self._alpha = other._alpha
+        self._blend_mode = other._blend_mode
         self.clipbox = other.clipbox
         self._clipon = other._clipon
         self._clippath = other._clippath
@@ -1474,6 +1518,27 @@ Supported properties are
                 ax._mouseover_set.discard(self)
 
     mouseover = property(get_mouseover, set_mouseover)  # backcompat.
+
+    def set_blend_mode(self, blend_mode):
+        """
+        Set the blend mode for compositing - not supported on all backends.
+
+        Parameters
+        ----------
+        blend_mode : :mpltype:`blend mode`
+            The allowed string values are:
+            "normal", "multiply", "screen", "overlay",
+            "darken", "lighten", "color dodge", "color burn",
+            "hard light", "soft light", "difference", "exclusion",
+            "hue", "saturation", "color", "luminosity",
+            "knockout", "erase", "clear", "atop", "xor", and "plus".
+        """
+        _api.check_in_list(BlendMode, blend_mode=blend_mode)
+        self._blend_mode = blend_mode
+
+    def get_blend_mode(self):
+        """Return the blend mode for compositing - not supported on all backends."""
+        return self._blend_mode
 
 
 def _get_tightbbox_for_layout_only(obj, *args, **kwargs):
