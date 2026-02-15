@@ -604,6 +604,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_alpha(self._get_scalar_alpha())
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
         if (renderer.option_scale_image()  # Renderer supports transform kwarg.

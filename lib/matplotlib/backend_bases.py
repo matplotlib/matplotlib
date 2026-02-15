@@ -696,6 +696,7 @@ class GraphicsContextBase:
     def __init__(self):
         self._alpha = 1.0
         self._forced_alpha = False  # if True, _alpha overrides A from RGBA
+        self._blend_mode = "over"
         self._antialiased = 1  # use 0, 1 not True, False for extension code
         self._capstyle = CapStyle('butt')
         self._cliprect = None
@@ -717,6 +718,7 @@ class GraphicsContextBase:
         """Copy properties from *gc* to self."""
         self._alpha = gc._alpha
         self._forced_alpha = gc._forced_alpha
+        self._blend_mode = "over"
         self._antialiased = gc._antialiased
         self._capstyle = gc._capstyle
         self._cliprect = gc._cliprect
@@ -746,6 +748,9 @@ class GraphicsContextBase:
         backends.
         """
         return self._alpha
+
+    def get_blend_mode(self):
+        return self._blend_mode
 
     def get_antialiased(self):
         """Return whether the object should try to do antialiased rendering."""
@@ -840,6 +845,9 @@ class GraphicsContextBase:
             self._alpha = 1.0
             self._forced_alpha = False
         self.set_foreground(self._rgb, isRGBA=True)
+
+    def set_blend_mode(self, blend_mode):
+        self._blend_mode = blend_mode
 
     def set_antialiased(self, b):
         """Set whether object should be drawn with antialiased rendering."""
