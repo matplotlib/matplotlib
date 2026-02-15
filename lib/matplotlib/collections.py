@@ -369,6 +369,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_snap(self.get_snap())
 
         if self._hatch:
@@ -2320,6 +2321,7 @@ class TriMesh(Collection):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_linewidth(self.get_linewidth()[0])
         renderer.draw_gouraud_triangles(gc, verts, colors, transform.frozen())
         gc.restore()
@@ -2568,6 +2570,7 @@ class QuadMesh(_MeshData, Collection):
         gc = renderer.new_gc()
         gc.set_snap(self.get_snap())
         self._set_gc_clip(gc)
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_linewidth(self.get_linewidth()[0])
 
         if self._shading == 'gouraud':
