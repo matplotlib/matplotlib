@@ -11,6 +11,7 @@
 
 #include "agg_color_rgba.h"
 #include "agg_math_stroke.h"
+#include "agg_pixfmt_rgba.h"
 #include "agg_trans_affine.h"
 #include "path_converters.h"
 
@@ -80,6 +81,7 @@ class GCAgg
     GCAgg()
         : linewidth(1.0),
           alpha(1.0),
+          comp_op(agg::comp_op_src_over),
           cap(agg::butt_cap),
           join(agg::round_join),
           snap_mode(SNAP_FALSE)
@@ -93,6 +95,7 @@ class GCAgg
     double linewidth;
     double alpha;
     bool forced_alpha;
+    agg::comp_op_e comp_op;
     agg::rgba color;
     bool isaa;
 
@@ -125,6 +128,46 @@ class GCAgg
 };
 
 namespace PYBIND11_NAMESPACE { namespace detail {
+    template <> struct type_caster<agg::comp_op_e> {
+    public:
+        PYBIND11_TYPE_CASTER(agg::comp_op_e, const_name("comp_op_e"));
+
+        bool load(handle src, bool) {
+            const std::unordered_map<std::string, agg::comp_op_e> enum_values = {
+                //{"clear", agg::comp_op_clear},
+                //{"source", agg::comp_op_src},
+                //{"dest", agg::comp_op_dst},
+                {"normal", agg::comp_op_src_over},
+                //{"dst_over", agg::comp_op_dst_over},
+                //{"in", agg::comp_op_src_in},
+                //{"dst_in", agg::comp_op_dst_in},
+                //{"out", agg::comp_op_src_out},
+                {"erase", agg::comp_op_dst_out},
+                {"atop", agg::comp_op_src_atop},
+                //{"dst_atop", agg::comp_op_dst_atop},
+                {"xor", agg::comp_op_xor},
+                {"plus", agg::comp_op_plus},
+                {"multiply", agg::comp_op_multiply},
+                {"screen", agg::comp_op_screen},
+                {"overlay", agg::comp_op_overlay},
+                {"darken", agg::comp_op_darken},
+                {"lighten", agg::comp_op_lighten},
+                {"color dodge", agg::comp_op_color_dodge},
+                {"color burn", agg::comp_op_color_burn},
+                {"hard light", agg::comp_op_hard_light},
+                {"soft light", agg::comp_op_soft_light},
+                {"difference", agg::comp_op_difference},
+                {"exclusion", agg::comp_op_exclusion},
+                {"hue", agg::comp_op_hsl_hue},
+                {"saturation", agg::comp_op_hsl_saturation},
+                {"color", agg::comp_op_hsl_color},
+                {"luminosity", agg::comp_op_hsl_luminosity},
+            };
+            value = enum_values.at(src.cast<std::string>());
+            return true;
+        }
+    };
+
     template <> struct type_caster<agg::line_cap_e> {
     public:
         PYBIND11_TYPE_CASTER(agg::line_cap_e, const_name("line_cap_e"));
@@ -234,6 +277,7 @@ namespace PYBIND11_NAMESPACE { namespace detail {
             value.linewidth = src.attr("_linewidth").cast<double>();
             value.alpha = src.attr("_alpha").cast<double>();
             value.forced_alpha = src.attr("_forced_alpha").cast<bool>();
+            value.comp_op = src.attr("_blend_mode").cast<agg::comp_op_e>();
             value.color = src.attr("_rgb").cast<agg::rgba>();
             value.isaa = src.attr("_antialiased").cast<bool>();
             value.cap = src.attr("_capstyle").cast<agg::line_cap_e>();
