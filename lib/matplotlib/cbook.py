@@ -2406,7 +2406,7 @@ def _unpack_to_numpy(x):
     Parameters
     ----------
     x : object
-        The object to potentially unpack/convert.
+        The object to potentially unpack.
 
     Returns
     -------
@@ -2416,11 +2416,25 @@ def _unpack_to_numpy(x):
 
     Notes
     -----
-    This converts to numpy if the container object `x` is not supposed to go
-    through the units machinery.  It tries `to_numpy()`, then `values`, and
-    finally the numpy array protocol (`__array__`) as a last resort.  This
-    should allow array-like libraries to work without needing explicit support.
+    This function first checks if the object's type has a registered unit
+    converter in matplotlib.units.registry. If so, the object is returned
+    unchanged to allow the units machinery to handle it.
 
+    Otherwise, conversion to numpy is attempted in the following order: 1.
+    Return directly if already a numpy array or scalar 2. Call `to_numpy()`
+    method if available (pandas, xarray, pint) 3. Access `.values` property if
+    it returns a numpy array 4. Use numpy array protocol (`__array__`) for
+    array libraries
+       (torch, jax, tensorflow, cupy, dask, etc.)
+
+    This allows array-like libraries to work without explicit support.
+
+    This works on the _container_ type of the object.  The resulting numpy
+    arrays can still have elements that are subsequently converted to units by
+    the units machinery. For instance, if *x* is an array of datetime64, the
+    container type is a numpy array, so the conversion to numpy will succeed
+    and return *x* unchanged, and then the units machinery will convert the
+    datetime64 elements to matplotlib's internal date representation.
     """
 
     from matplotlib import units  # local import to avoid circular import
