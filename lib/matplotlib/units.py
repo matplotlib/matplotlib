@@ -164,7 +164,7 @@ class Registry(dict):
     def get_converter(self, x):
         """Get the converter interface instance for *x*, or None."""
         # Unpack in case of e.g. Pandas or xarray object
-        x = cbook._unpack_to_numpy(x)
+        x = cbook._unpack_to_numpy(x, registry=self)
 
         if isinstance(x, np.ndarray):
             # In case x in a masked array, access the underlying data (only its

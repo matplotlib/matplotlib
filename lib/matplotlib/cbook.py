@@ -2387,42 +2387,6 @@ def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
     return cls.__new__(cls)
 
 
-def _is_torch_array(x):
-    """Return whether *x* is a PyTorch Tensor."""
-    try:
-        # We're intentionally not attempting to import torch. If somebody
-        # has created a torch array, torch should already be in sys.modules.
-        tp = sys.modules.get("torch").Tensor
-    except AttributeError:
-        return False  # Module not imported or a nonstandard module with no Tensor attr.
-    return (isinstance(tp, type)  # Just in case it's a very nonstandard module.
-            and isinstance(x, tp))
-
-
-def _is_jax_array(x):
-    """Return whether *x* is a JAX Array."""
-    try:
-        # We're intentionally not attempting to import jax. If somebody
-        # has created a jax array, jax should already be in sys.modules.
-        tp = sys.modules.get("jax").Array
-    except AttributeError:
-        return False  # Module not imported or a nonstandard module with no Array attr.
-    return (isinstance(tp, type)  # Just in case it's a very nonstandard module.
-            and isinstance(x, tp))
-
-
-def _is_mlx_array(x):
-    """Return whether *x* is a MLX Array."""
-    try:
-        # We're intentionally not attempting to import mlx. If somebody
-        # has created a mlx array, mlx should already be in sys.modules.
-        tp = sys.modules.get("mlx.core").array
-    except AttributeError:
-        return False  # Module not imported or a nonstandard module with no Array attr.
-    return (isinstance(tp, type)  # Just in case it's a very nonstandard module.
-            and isinstance(x, tp))
-
-
 def _is_pandas_dataframe(x):
     """Check if *x* is a Pandas DataFrame."""
     try:
@@ -2435,27 +2399,30 @@ def _is_pandas_dataframe(x):
             and isinstance(x, tp))
 
 
-def _is_tensorflow_array(x):
-    """Return whether *x* is a TensorFlow Tensor or Variable."""
-    try:
-        # We're intentionally not attempting to import TensorFlow. If somebody
-        # has created a TensorFlow array, TensorFlow should already be in
-        # sys.modules we use `is_tensor` to not depend on the class structure
-        # of TensorFlow arrays, as `tf.Variables` are not instances of
-        # `tf.Tensor` (they both convert the same way).
-        is_tensor = sys.modules.get("tensorflow").is_tensor
-    except AttributeError:
-        return False
-    try:
-        return is_tensor(x)
-    except Exception:
-        return False  # Just in case it's a very nonstandard module.
+def _unpack_to_numpy(x, registry=None):
+    """
+    Internal helper to extract data from e.g. pandas and xarray objects.
 
+    Parameters
+    ----------
+    x : object
+        The object to potentially unpack/convert.
+    registry : dict-like, optional
+        A units registry (e.g., matplotlib.units.registry) to check whether
+        the object has a registered converter. If provided and the object's
+        type is in the registry, it will not be converted to numpy.
 
-def _unpack_to_numpy(x):
-    """Internal helper to extract data from e.g. pandas and xarray objects."""
+    Returns
+    -------
+    object
+        Either a numpy array (if conversion is appropriate) or the original
+        object (if it should go through units machinery or can't be converted).
+    """
     if isinstance(x, np.ndarray):
         # If numpy, return directly
+        return x
+    if isinstance(x, np.generic):
+        # If numpy scalar, return directly
         return x
     if hasattr(x, 'to_numpy'):
         # Assume that any to_numpy() method actually returns a numpy array
@@ -2466,19 +2433,34 @@ def _unpack_to_numpy(x):
         # so in this case we do not want to return a function
         if isinstance(xtmp, np.ndarray):
             return xtmp
-    if _is_torch_array(x) \
-        or _is_jax_array(x) \
-        or _is_tensorflow_array(x) \
-        or _is_mlx_array(x):
-        # using np.asarray() instead of explicitly __array__(), as the latter is
-        # only _one_ of many methods, and it's the last resort, see also
-        # https://numpy.org/devdocs/user/basics.interoperability.html#using-arbitrary-objects-in-numpy
-        # therefore, let arrays do better if they can
-        xtmp = np.asarray(x)
 
-        # In case np.asarray method does not return a numpy array in future
-        if isinstance(xtmp, np.ndarray):
-            return xtmp
+    # General fallback: try using numpy array protocols for any object with
+    # __array__. This handles external array libraries (torch, jax, tensorflow,
+    # cupy, dask, etc.) without needing explicit carveouts for each library.
+    # Only do this when a registry is provided to check against - otherwise we
+    # might convert objects that should go through units machinery.
+    if registry is not None and hasattr(x, '__array__'):
+        # Check if this type has a registered converter
+        for cls in type(x).__mro__:
+            if cls in registry:
+                # Has a registered converter, don't convert
+                return x
+
+        # No registered converter, try to convert
+        try:
+            xtmp = np.asarray(x)
+            # Only return if conversion succeeded, produced a numpy array that
+            # is not the original object, has more than 0 dimensions, and has
+            # a numeric dtype (not object). Object arrays typically contain
+            # things that need unit conversion (dates, strings, custom objects).
+            if (isinstance(xtmp, np.ndarray)
+                    and xtmp is not x
+                    and xtmp.ndim > 0
+                    and xtmp.dtype != object):
+                return xtmp
+        except Exception:
+            # Conversion failed, let it pass through to units machinery
+            pass
     return x
 
 
