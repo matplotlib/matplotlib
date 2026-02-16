@@ -2421,7 +2421,6 @@ def _unpack_to_numpy(x):
     finally the numpy array protocol (`__array__`) as a last resort.  This
     should allow array-like libraries to work without needing explicit support.
 
-
     """
 
     from matplotlib import units  # local import to avoid circular import
@@ -2431,11 +2430,8 @@ def _unpack_to_numpy(x):
             # Has a registered converter, don't convert
             return x
 
-    if isinstance(x, np.ndarray):
-        # If numpy, return directly
-        return x
-    if isinstance(x, np.generic):
-        # If numpy scalar, return directly
+    if isinstance(x, (np.ndarray, np.generic)):
+        # If numpy or numpy scalar, return directly
         return x
     if hasattr(x, 'to_numpy'):
         # Assume that any to_numpy() method actually returns a numpy array
