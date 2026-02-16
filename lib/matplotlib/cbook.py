@@ -2446,8 +2446,6 @@ def _unpack_to_numpy(x):
     # General fallback: try using numpy array protocols for any object with
     # __array__. This handles external array libraries (torch, jax, tensorflow,
     # cupy, dask, etc.) without needing explicit carveouts for each library.
-    # Only do this when a registry is provided to check against - otherwise we
-    # might convert objects that should go through units machinery.
     if hasattr(x, '__array__'):
         try:
             xtmp = np.asarray(x)
