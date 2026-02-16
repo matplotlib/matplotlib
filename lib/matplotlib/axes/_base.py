@@ -2606,15 +2606,15 @@ class _AxesBase(martist.Artist):
 
         for artist in self._children:
             if not visible_only or artist.get_visible():
+                if not artist.get_in_autoscale():
+                    continue
                 if isinstance(artist, mlines.Line2D):
                     self._update_line_limits(artist)
                 elif isinstance(artist, mpatches.Patch):
                     self._update_patch_limits(artist)
                 elif isinstance(artist, mimage.AxesImage):
                     self._update_image_limits(artist)
-                elif isinstance(artist, mcollections.Collection):
-                 self._update_collection_limits(artist)
-
+               
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
         Extend the `~.Axes.dataLim` Bbox to include the given points.

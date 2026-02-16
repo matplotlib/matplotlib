@@ -225,6 +225,7 @@ Supported properties are
         self._path_effects = mpl.rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
         self._in_layout = True
+        self._in_autoscale = True
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -902,7 +903,17 @@ Supported properties are
         ``fig.savefig(fname, bbox_inches='tight')``.
         """
         return self._in_layout
+    
+    def get_in_autoscale(self):
+        """
+        Return boolean flag, ``True`` if artist is included in autoscaling
+        calculations.
 
+        E.g. :ref:`autoscaling_guide` and
+        `.Axes.relim()`.
+        """
+        return self._in_autoscale
+    
     def _fully_clipped_to_axes(self):
         """
         Return a boolean flag, ``True`` if the artist is clipped to the Axes
@@ -1131,6 +1142,18 @@ Supported properties are
         in_layout : bool
         """
         self._in_layout = in_layout
+
+    def set_in_autoscale(self, in_autoscale):
+        """
+        Set if artist is to be included in autoscaling calculations,
+        E.g. :ref:`autoscaling_guide` and
+        `.Axes.relim()`.
+
+        Parameters
+        ----------
+        in_autoscale : bool
+        """
+        self._in_autoscale = in_autoscale
 
     def get_label(self):
         """Return the label used for this artist in the legend."""
