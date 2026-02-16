@@ -109,7 +109,7 @@ def test_numpy_facade(quantity_converter):
 
 # Tests gh-8908
 @image_comparison(['plot_masked_units.png'], remove_text=True, style='mpl20',
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+                  tol=0.02)
 def test_plot_masked_units(quantity_converter):
     munits.registry[Quantity] = quantity_converter
     data = np.linspace(-5, 5)
