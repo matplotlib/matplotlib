@@ -2399,7 +2399,7 @@ def _is_pandas_dataframe(x):
             and isinstance(x, tp))
 
 
-def _unpack_to_numpy(x, registry=None):
+def _unpack_to_numpy(x):
     """
     Internal helper to extract data from e.g. pandas and xarray objects.
 
@@ -2407,17 +2407,30 @@ def _unpack_to_numpy(x, registry=None):
     ----------
     x : object
         The object to potentially unpack/convert.
-    registry : dict-like, optional
-        A units registry (e.g., matplotlib.units.registry) to check whether
-        the object has a registered converter. If provided and the object's
-        type is in the registry, it will not be converted to numpy.
 
     Returns
     -------
     object
         Either a numpy array (if conversion is appropriate) or the original
         object (if it should go through units machinery or can't be converted).
+
+    Notes
+    -----
+    This converts to numpy if the container object `x` is not supposed to go
+    through the units machinery.  It tries `to_numpy()`, then `values`, and
+    finally the numpy array protocol (`__array__`) as a last resort.  This
+    should allow array-like libraries to work without needing explicit support.
+
+
     """
+
+    from matplotlib import units  # local import to avoid circular import
+
+    for cls in type(x).__mro__:
+        if cls in units.registry:
+            # Has a registered converter, don't convert
+            return x
+
     if isinstance(x, np.ndarray):
         # If numpy, return directly
         return x
@@ -2439,14 +2452,7 @@ def _unpack_to_numpy(x, registry=None):
     # cupy, dask, etc.) without needing explicit carveouts for each library.
     # Only do this when a registry is provided to check against - otherwise we
     # might convert objects that should go through units machinery.
-    if registry is not None and hasattr(x, '__array__'):
-        # Check if this type has a registered converter
-        for cls in type(x).__mro__:
-            if cls in registry:
-                # Has a registered converter, don't convert
-                return x
-
-        # No registered converter, try to convert
+    if hasattr(x, '__array__'):
         try:
             xtmp = np.asarray(x)
             # Only return if conversion succeeded, produced a numpy array that

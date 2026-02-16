@@ -1013,7 +1013,7 @@ def test_unpack_to_numpy_from_torch():
     torch_tensor = torch.Tensor(data)
 
     # Pass empty registry to trigger fallback conversion
-    result = cbook._unpack_to_numpy(torch_tensor, registry={})
+    result = cbook._unpack_to_numpy(torch_tensor)
     assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
@@ -1043,7 +1043,7 @@ def test_unpack_to_numpy_from_jax():
     jax_array = jax.Array(data)
 
     # Pass empty registry to trigger fallback conversion
-    result = cbook._unpack_to_numpy(jax_array, registry={})
+    result = cbook._unpack_to_numpy(jax_array)
     assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
@@ -1074,7 +1074,7 @@ def test_unpack_to_numpy_from_tensorflow():
     tf_tensor = tensorflow.Tensor(data)
 
     # Pass empty registry to trigger fallback conversion
-    result = cbook._unpack_to_numpy(tf_tensor, registry={})
+    result = cbook._unpack_to_numpy(tf_tensor)
     assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
@@ -1105,8 +1105,7 @@ def test_unpack_to_numpy_from_mlx():
     data = np.arange(10)
     mlx_array = mlx_core.array(data)
 
-    # Pass empty registry to trigger fallback conversion
-    result = cbook._unpack_to_numpy(mlx_array, registry={})
+    result = cbook._unpack_to_numpy(mlx_array)
     assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it
