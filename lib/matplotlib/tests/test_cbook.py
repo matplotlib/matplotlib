@@ -1012,7 +1012,6 @@ def test_unpack_to_numpy_from_torch():
     data = np.arange(10)
     torch_tensor = torch.Tensor(data)
 
-    # Pass empty registry to trigger fallback conversion
     result = cbook._unpack_to_numpy(torch_tensor)
     assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
@@ -1042,7 +1041,6 @@ def test_unpack_to_numpy_from_jax():
     data = np.arange(10)
     jax_array = jax.Array(data)
 
-    # Pass empty registry to trigger fallback conversion
     result = cbook._unpack_to_numpy(jax_array)
     assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
@@ -1073,7 +1071,6 @@ def test_unpack_to_numpy_from_tensorflow():
     data = np.arange(10)
     tf_tensor = tensorflow.Tensor(data)
 
-    # Pass empty registry to trigger fallback conversion
     result = cbook._unpack_to_numpy(tf_tensor)
     assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
