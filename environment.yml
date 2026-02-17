@@ -61,7 +61,7 @@ dependencies:
   - nbformat!=5.0.0,!=5.0.1
   - pandas!=0.25.0
   - psutil
-  - pre-commit
+  - prek
   - pydocstyle>=5.1.0
   - pytest!=4.6.0,!=5.4.0,!=8.1.0
   - pytest-cov

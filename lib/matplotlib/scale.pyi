@@ -98,8 +98,9 @@ class InvertedSymmetricalLogTransform(Transform):
     output_dims: int
     base: float
     linthresh: float
-    invlinthresh: float
     linscale: float
+    @property
+    def invlinthresh(self) -> float: ...
     def __init__(self, base: float, linthresh: float, linscale: float) -> None: ...
     def inverted(self) -> SymmetricalLogTransform: ...
 

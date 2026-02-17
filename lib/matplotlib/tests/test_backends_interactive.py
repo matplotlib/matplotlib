@@ -669,7 +669,7 @@ def _impl_test_interactive_timers():
     assert mock.call_count > 1
 
     # Now turn it into a single shot timer and verify only one gets triggered
-    mock.call_count = 0
+    mock.reset_mock()
     timer.single_shot = True
     timer.start()
     plt.pause(pause_time)

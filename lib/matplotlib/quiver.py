@@ -406,7 +406,7 @@ class QuiverKey(martist.Artist):
 
     def _set_transform(self):
         fig = self.Q.axes.get_figure(root=False)
-        self.set_transform(_api.check_getitem({
+        self.set_transform(_api.getitem_checked({
             "data": self.Q.axes.transData,
             "axes": self.Q.axes.transAxes,
             "figure": fig.transFigure,
@@ -614,7 +614,7 @@ class Quiver(mcollections.PolyCollection):
         """Return a scale factor for converting from units to pixels."""
         bb = self.axes.bbox
         vl = self.axes.viewLim
-        return _api.check_getitem({
+        return _api.getitem_checked({
             'x': bb.width / vl.width,
             'y': bb.height / vl.height,
             'xy': np.hypot(*bb.size) / np.hypot(*vl.size),

@@ -18,13 +18,16 @@ jobs:
           body: |
             ### Good first issue - notes for new contributors
 
-            This issue is suited to new contributors because it does not require understanding of the
-            Matplotlib internals. To get started, please see our [contributing
-            guide](https://matplotlib.org/stable/devel/index).
+            This issue is suited to new contributors because it does not require
+            understanding of the Matplotlib internals. This is a low priority task
+            intended for human contributors to learn how to contribute; therefore please
+            do not try to automate a solution using AI. To get started, please see our
+            [contributing guide](https://matplotlib.org/stable/devel/index).
 
-            **We do not assign issues**. Check the *Development* section in the sidebar for linked pull
-            requests (PRs). If there are none, feel free to start working on it. If there is an open PR, please
-            collaborate on the work by reviewing it rather than duplicating it in a competing PR.
+            **We do not assign issues**. Check the *Development* section in the sidebar
+            for linked pull requests (PRs). If there are none, feel free to start
+            working on it. If there is an open PR, please collaborate on the work by
+            reviewing it rather than duplicating it in a competing PR.
 
             If something is unclear, please reach out on any of our [communication
             channels](https://matplotlib.org/stable/devel/contributing.html#get-connected).

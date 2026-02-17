@@ -24,7 +24,7 @@ import numpy as np
 from numpy.typing import NDArray
 from pyparsing import (
     Empty, Forward, Literal, Group, NotAny, OneOrMore, Optional,
-    ParseBaseException, ParseException, ParseExpression, ParseFatalException,
+    ParseBaseException, ParseExpression, ParseFatalException,
     ParserElement, ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore,
     pyparsing_common, nested_expr, one_of)
 
@@ -2246,8 +2246,7 @@ class Parser:
         try:
             result = self._expression.parse_string(s)
         except ParseBaseException as err:
-            # explain becomes a plain method on pyparsing 3 (err.explain(0)).
-            raise ValueError("\n" + ParseException.explain(err, 0)) from None
+            raise ValueError("\n" + err.explain(0)) from None
         self._state_stack = []
         self._needs_space_after_subsuper = False
         # prevent operator spacing from leaking into a new expression
