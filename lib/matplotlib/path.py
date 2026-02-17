@@ -977,12 +977,19 @@ class Path:
         Parameters
         ----------
         theta1, theta2 : float
-            The angles (in degrees) defining the start (*theta1*) and end
-            (*theta2*) of the arc. If the arc spans more than 360 degrees, it
-            will be wrapped to fit within the range from *theta1* to *theta1* +
-            360, provided *wrap* is True. The arc is drawn counter-clockwise
-            from *theta1* to *theta2*. For instance, if *theta1* = 90 and
-            *theta2* = 70, the resulting arc will span 320 degrees.
+            The starting and ending angles (in degrees) of the arc, measured
+            counter-clockwise from the positive x-axis.
+
+            The arc is always drawn counter-clockwise from *theta1* to
+            *theta2*. If *theta2* < *theta1*, the arc wraps around. For
+            example, an arc from 90° to 70° travels 340° counter-clockwise
+            (through 90° → 180° → 270° → 360°/0° → 70°).
+
+            By default (*wrap*=True) the arc is limited to span at most 360°,
+            so an arc from 0° to 700° would be drawn as a 340° degree arc. If
+            *wrap* is False, the full span from *theta1* to *theta2* is drawn,
+            which can exceed 360° (e.g., 0° to 700° draws a full circle and a
+            340° arc).
 
         n : int, optional
             The number of spline segments to make.  If not provided, the number
@@ -990,19 +997,19 @@ class Path:
             *theta1* and *theta2*.
 
         is_wedge : bool, default: False
-            If True, the arc is a wedge.  The first vertex is the center of the
-            wedge, the second vertex is the start of the arc, and the last
-            vertex is the end of the arc.  The wedge is closed with a line
-            segment to the center of the wedge.  If False, the arc is a
-            polyline.  The first vertex is the start of the arc, and the last
-            vertex is the end of the arc.  The arc is closed with a line
-            segment to the start of the arc.  The wedge is not closed with a
-            line segment to the start of the arc.
+            If True, return a wedge: a pie-slice shape consisting of the arc
+            with lines connecting the endpoints to the origin (0, 0). If False,
+            return just the arc itself.
 
         wrap : bool, default: True
-            If True, the arc is wrapped to fit between *theta1* and *theta1* +
-            360 degrees.  If False, the arc is not wrapped.  The arc will be
-            drawn from *theta1* to *theta2*.
+            Whether to limit the arc to span at most 360°.
+
+            If True, the angular span (*theta2* - *theta1*) is wrapped using
+            modulo 360°. Spans that are exact multiples of 360° (e.g., 360°,
+            720°, 1080°) are preserved as full circles (360°), while other
+            spans are reduced (e.g., 400° becomes 40°). If False, the full span
+            from *theta1* to *theta2* is drawn, which can exceed 360° (e.g., 0°
+            to 700° draws a full circle and a 340° arc).
 
         Notes
         -----
@@ -1014,7 +1021,7 @@ class Path:
 
         eta1 = theta1
         if wrap:
-            # Wrap theta2 to 0-360 degrees from theta1.
+            # Limit theta2 to be at most 360 degrees from theta1.
             eta2 = np.mod(theta2 - theta1, 360.0) + theta1
             # Ensure 360-deg range is not flattened to 0 due to floating-point
             # errors, but don't try to expand existing 0 range.
@@ -1090,12 +1097,13 @@ class Path:
         Parameters
         ----------
         theta1, theta2 : float
-            The angles (in degrees) defining the start (*theta1*) and end
-            (*theta2*) of the arc. If the arc spans more than 360 degrees, it
-            will be wrapped to fit within the range from *theta1* to *theta1* +
-            360, provided *wrap* is True. The arc is drawn counter-clockwise
-            from *theta1* to *theta2*. For instance, if *theta1* = 90 and
-            *theta2* = 70, the resulting arc will span 320 degrees.
+            The starting and ending angles (in degrees) of the wedge, measured
+            counter-clockwise from the positive x-axis.
+
+            The wedge is always drawn counter-clockwise from *theta1* to
+            *theta2*. If *theta2* < *theta1*, the wedge wraps around. For
+            example, a wedge from 90° to 70° spans 340° counter-clockwise
+            (through 90° → 180° → 270° → 360°/0° → 70°).
 
         n : int, optional
             The number of spline segments to make.  If not provided, the number
@@ -1103,11 +1111,15 @@ class Path:
             *theta1* and *theta2*.
 
         wrap : bool, default: True
-            If True, the arc is wrapped to fit between *theta1* and *theta1* +
-            360 degrees.  If False, the arc is not wrapped.  The arc will be
-            drawn from *theta1* to *theta2*.
+            Whether to limit the wedge to span at most 360°.
+
+            If True, the angular span (*theta2* - *theta1*) is wrapped using
+            modulo 360°. Spans that are exact multiples of 360° (e.g., 360°,
+            720°, 1080°) are preserved as full circles (360°), while other spans
+            are reduced (e.g., 400° becomes 40°).
+            If False, the full span from *theta1* to *theta2* is drawn.
         """
-        return cls.arc(theta1, theta2, n, wedge=True, wrap=wrap)
+        return cls.arc(theta1, theta2, n, is_wedge=True, wrap=wrap)
 
     @staticmethod
     @lru_cache(8)
