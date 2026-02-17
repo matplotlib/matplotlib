@@ -9,7 +9,7 @@ import pytest
 from matplotlib import patches
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 from matplotlib.backend_bases import MouseEvent
@@ -511,20 +511,24 @@ def test_full_arc(offset):
     np.testing.assert_allclose(maxs, 1)
 
 
-@image_comparison(['arc_close360'], style='default', remove_text=True,
-                  extensions=['png'])
-def test_arc_close360():
-    _, ax = plt.subplots(ncols=3)
-    ax[0].add_patch(patches.PathPatch(Path.arc(theta1=-90 - 1e-14, theta2=270)))
-    #ax[0].set_title("arc(-90-1e-14, 270), should be a circle")
-    ax[1].add_patch(patches.PathPatch(Path.arc(theta1=-90, theta2=270)))
-    #ax[1].set_title("arc(-90, 270), is a circle")
-    ax[2].add_patch(patches.PathPatch(Path.arc(theta1=-90 - 1e-14, theta2=-90)))
-    #ax[2].set_title("arc(-90, -90-1e-14), should not be a circle")
-    for a in ax:
-        a.set_xlim(-1, 1)
-        a.set_ylim(-1, 1)
-        a.set_aspect("equal")
+@check_figures_equal()
+def test_arc_close360(fig_test, fig_ref):
+    # check that the wrap at 360 is treated properly.
+    axs_test = fig_test.subplots(1, 2)
+    axs_ref = fig_ref.subplots(1, 2)
+
+    # these should be the same
+    axs_ref[0].add_patch(patches.PathPatch(Path.arc(theta1=-90, theta2=270)))
+    axs_test[0].add_patch(patches.PathPatch(Path.arc(theta1=-90-1e-14, theta2=270)))
+
+    # there should be no patch drawn for the test case:
+    axs_test[1].add_patch(patches.PathPatch(Path.arc(theta1=-90-1e-14, theta2=-90)))
+
+    for a in [axs_test, axs_ref]:
+        for num in range(2):
+            a[num].set_xlim(-1, 1)
+            a[num].set_ylim(-1, 1)
+            a[num].set_aspect("equal")
 
 
 @image_comparison(['arc_wrap_false'], style='default', remove_text=True,
@@ -546,7 +550,6 @@ def test_arc_wrap_false():
         a.set_xlim(-1, 1)
         a.set_ylim(-1, 1)
         a.set_aspect("equal")
-
 
 
 def test_disjoint_zero_length_segment():
