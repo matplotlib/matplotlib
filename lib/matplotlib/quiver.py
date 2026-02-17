@@ -283,7 +283,7 @@ class QuiverKey(martist.Artist):
     def __init__(self, Q, X, Y, U, label,
                  *, angle=0, coordinates='axes', color=None, labelsep=0.1,
                  labelpos='N', labelcolor=None, fontproperties=None,
-                 zorder=None, **kwargs):
+                 zorder=None, visible=True, **kwargs):
         """
         Add a key to a quiver plot.
 
@@ -329,6 +329,8 @@ class QuiverKey(martist.Artist):
             *family*, *style*, *variant*, *size*, *weight*.
         zorder : float
             The zorder of the key. The default is 0.1 above *Q*.
+        visible : bool
+            Whether the key is visible or not.
         **kwargs
             Any additional keyword arguments are used to override vector
             properties taken from *Q*.
@@ -357,6 +359,7 @@ class QuiverKey(martist.Artist):
             self.text.set_color(self.labelcolor)
         self._dpi_at_last_init = None
         self.zorder = zorder if zorder is not None else Q.zorder + 0.1
+        self.set_visible(visible)
 
     @property
     def labelsep(self):
@@ -380,6 +383,7 @@ class QuiverKey(martist.Artist):
                 self.verts,
                 offsets=[(self.X, self.Y)],
                 offset_transform=self.get_transform(),
+                visible=self.get_visible(),
                 **kwargs)
             if self.color is not None:
                 self.vector.set_color(self.color)
@@ -426,6 +430,13 @@ class QuiverKey(martist.Artist):
                 self.vector.contains(mouseevent)[0]):
             return True, {}
         return False, {}
+
+    def set_visible(self, b):
+        super().set_visible(b)
+        self.text.set_visible(b)
+        # Vector only accessible after first draw
+        if hasattr(self, 'vector'):
+            self.vector.set_visible(b)
 
 
 def _parse_args(*args, caller_name='function'):
