@@ -531,7 +531,7 @@ def test_arc_close360():
 @image_comparison(['arc_wrap_false'], style='default', remove_text=True,
                   extensions=['png'])
 def test_arc_wrap_false():
-    _, ax = plt.subplots(2, 2)
+    _, ax = plt.subplots(3, 2)
     ax = ax.flatten()
     ax[0].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=20,
                                                is_wedge=True, wrap=True)))
@@ -541,6 +541,8 @@ def test_arc_wrap_false():
                                                is_wedge=True, wrap=False)))
     ax[3].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=740,
                                                is_wedge=True, wrap=False)))
+    ax[4].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=740,
+                                               is_wedge=True, wrap=True)))
     for a in ax:
         a.set_xlim(-1, 1)
         a.set_ylim(-1, 1)

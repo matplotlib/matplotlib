@@ -1026,7 +1026,7 @@ class Path:
 
         # number of curve segments to make
         if n is None:
-            if np.abs(eta2 - eta1) <= 2.2 * np.pi:
+            if np.abs(eta2 - eta1) <= 2 * np.pi + 1e-3:
                 # this doesn't need to grow exponentially, but we have left
                 # this way for back compatibility
                 n = int(2 ** np.ceil(2 * np.abs(eta2 - eta1) / np.pi))
