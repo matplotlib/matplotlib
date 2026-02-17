@@ -986,7 +986,7 @@ class Path:
             (through 90° → 180° → 270° → 360°/0° → 70°).
 
             By default (*wrap*=True) the arc is limited to span at most 360°,
-            so an arc from 0° to 700° would be drawn as a 340° degree arc. If
+            so an arc from 0° to 700° would be drawn as a 340° arc. If
             *wrap* is False, the full span from *theta1* to *theta2* is drawn,
             which can exceed 360° (e.g., 0° to 700° draws a full circle and a
             340° arc).
@@ -1105,6 +1105,12 @@ class Path:
             example, a wedge from 90° to 70° spans 340° counter-clockwise
             (through 90° → 180° → 270° → 360°/0° → 70°).
 
+            By default (*wrap*=True) the wedge is limited to span at most 360°,
+            so a wedge from 0° to 700° would be drawn as a 340° wedge. If
+            *wrap* is False, the full span from *theta1* to *theta2* is drawn,
+            which can exceed 360° (e.g., 0° to 700° draws a full circle and a
+            340° wedge).
+
         n : int, optional
             The number of spline segments to make.  If not provided, the number
             of spline segments is determined based on the delta between
@@ -1115,9 +1121,10 @@ class Path:
 
             If True, the angular span (*theta2* - *theta1*) is wrapped using
             modulo 360°. Spans that are exact multiples of 360° (e.g., 360°,
-            720°, 1080°) are preserved as full circles (360°), while other spans
-            are reduced (e.g., 400° becomes 40°).
-            If False, the full span from *theta1* to *theta2* is drawn.
+            720°, 1080°) are preserved as full circles (360°), while other
+            spans are reduced (e.g., 400° becomes 40°). If False, the full span
+            from *theta1* to *theta2* is drawn, which can exceed 360° (e.g., 0°
+            to 700° draws a full circle and a 340° arc).
         """
         return cls.arc(theta1, theta2, n, is_wedge=True, wrap=wrap)
 
