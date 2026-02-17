@@ -109,7 +109,7 @@ class RendererAgg
 {
   public:
 
-    typedef agg::comp_op_adaptor_rgba_plain<agg::rgba8, agg::order_rgba> comp_op_blender_plain;
+    typedef fixed_comp_op_adaptor_rgba8_plain<agg::order_rgba> comp_op_blender_plain;
     typedef agg::pixfmt_custom_blend_rgba<comp_op_blender_plain, agg::rendering_buffer> pixfmt;
     typedef agg::renderer_base<pixfmt> renderer_base;
     typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
