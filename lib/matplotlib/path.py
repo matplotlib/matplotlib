@@ -981,7 +981,7 @@ class Path:
             (*theta2*) of the arc. If the arc spans more than 360 degrees, it
             will be wrapped to fit within the range from *theta1* to *theta1* +
             360, provided *wrap* is True. The arc is drawn counter-clockwise
-            from *theta1* to *theta2*. For instance, if *theta1* =90 and
+            from *theta1* to *theta2*. For instance, if *theta1* = 90 and
             *theta2* = 70, the resulting arc will span 320 degrees.
 
         n : int, optional
@@ -1094,7 +1094,7 @@ class Path:
             (*theta2*) of the arc. If the arc spans more than 360 degrees, it
             will be wrapped to fit within the range from *theta1* to *theta1* +
             360, provided *wrap* is True. The arc is drawn counter-clockwise
-            from *theta1* to *theta2*. For instance, if *theta1* =90 and
+            from *theta1* to *theta2*. For instance, if *theta1* = 90 and
             *theta2* = 70, the resulting arc will span 320 degrees.
 
         n : int, optional
