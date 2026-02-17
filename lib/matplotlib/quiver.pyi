@@ -25,9 +25,6 @@ class QuiverKey(martist.Artist):
     color: ColorType | None
     label: str
     labelpos: Literal["N", "S", "E", "W"]
-    labelcolor: ColorType | None
-    fontproperties: dict[str, Any]
-    kw: dict[str, Any]
     text: Text
     zorder: float
     def __init__(
@@ -48,6 +45,14 @@ class QuiverKey(martist.Artist):
         zorder: float | None = ...,
         **kwargs
     ) -> None: ...
+    @property
+    def kw(self) -> dict[str, Any]: ...
+    @property
+    def fontproperties(self) -> dict[str, Any]: ...
+    @property
+    def labelcolor(self) -> ColorType | None: ...
+    @property
+    def verts(self) -> Sequence[ArrayLike]: ...
     @property
     def labelsep(self) -> float: ...
     def set_figure(self, fig: Figure | SubFigure) -> None: ...

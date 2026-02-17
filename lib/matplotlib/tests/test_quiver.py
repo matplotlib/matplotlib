@@ -266,7 +266,7 @@ def test_quiverkey_angles():
     qk = ax.quiverkey(q, 1, 1, 2, 'Label')
     # The arrows are only created when the key is drawn
     fig.canvas.draw()
-    assert len(qk.verts) == 1
+    assert len(qk.vector.get_paths()) == 1
 
 
 def test_quiverkey_angles_xy_aitoff():
@@ -295,7 +295,7 @@ def test_quiverkey_angles_xy_aitoff():
         qk = ax.quiverkey(q, 0, 0, 1, '1 units')
 
         fig.canvas.draw()
-        assert len(qk.verts) == 1
+        assert len(qk.vector.get_paths()) == 1
 
 
 def test_quiverkey_angles_scale_units_cartesian():
@@ -322,7 +322,7 @@ def test_quiverkey_angles_scale_units_cartesian():
         qk = ax.quiverkey(q, 0, 0, 1, '1 units')
 
         fig.canvas.draw()
-        assert len(qk.verts) == 1
+        assert len(qk.vector.get_paths()) == 1
 
 
 def test_quiver_setuvc_numbers():
