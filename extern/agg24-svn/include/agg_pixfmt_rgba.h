@@ -1159,6 +1159,98 @@ namespace agg
     };
 #endif
 
+#ifdef MPL_ADD_AGG_HSL_BLEND_MODES
+    // These four blend modes are implemented per the PDF specification
+
+    //=====================================================comp_op_rgba_hsl_hue
+    template<class ColorT, class Order>
+    struct comp_op_rgba_hsl_hue : blender_base<ColorT, Order>
+    {
+        typedef ColorT color_type;
+        typedef typename color_type::value_type value_type;
+        using blender_base<ColorT, Order>::get;
+        using blender_base<ColorT, Order>::set;
+
+        static AGG_INLINE void blend_pix(value_type* p,
+            value_type r, value_type g, value_type b, value_type a, cover_type cover)
+        {
+            rgba s = get(r, g, b, a, cover).demultiply();
+            rgba d = get(p).demultiply();
+            rgba blend = rgba(s);
+            blend.set_saturation(d.saturation()).set_luminosity(d.luminosity());
+            rgba comp = s * s.a * (1 - d.a) + blend * s.a * d.a + d * (1 - s.a) * d.a;
+            comp.a = s.a + d.a - s.a * d.a;
+            set(p, comp);
+        }
+    };
+
+    //=====================================================comp_op_rgba_hsl_saturation
+    template<class ColorT, class Order>
+    struct comp_op_rgba_hsl_saturation : blender_base<ColorT, Order>
+    {
+        typedef ColorT color_type;
+        typedef typename color_type::value_type value_type;
+        using blender_base<ColorT, Order>::get;
+        using blender_base<ColorT, Order>::set;
+
+        static AGG_INLINE void blend_pix(value_type* p,
+            value_type r, value_type g, value_type b, value_type a, cover_type cover)
+        {
+            rgba s = get(r, g, b, a, cover).demultiply();
+            rgba d = get(p).demultiply();
+            rgba blend = rgba(d);
+            blend.set_saturation(s.saturation()).set_luminosity(d.luminosity());
+            rgba comp = s * s.a * (1 - d.a) + blend * s.a * d.a + d * (1 - s.a) * d.a;
+            comp.a = s.a + d.a - s.a * d.a;
+            set(p, comp);
+        }
+    };
+
+    //=====================================================comp_op_rgba_hsl_color
+    template<class ColorT, class Order>
+    struct comp_op_rgba_hsl_color : blender_base<ColorT, Order>
+    {
+        typedef ColorT color_type;
+        typedef typename color_type::value_type value_type;
+        using blender_base<ColorT, Order>::get;
+        using blender_base<ColorT, Order>::set;
+
+        static AGG_INLINE void blend_pix(value_type* p,
+            value_type r, value_type g, value_type b, value_type a, cover_type cover)
+        {
+            rgba s = get(r, g, b, a, cover).demultiply();
+            rgba d = get(p).demultiply();
+            rgba blend = rgba(s);
+            blend.set_luminosity(d.luminosity());
+            rgba comp = s * s.a * (1 - d.a) + blend * s.a * d.a + d * (1 - s.a) * d.a;
+            comp.a = s.a + d.a - s.a * d.a;
+            set(p, comp);
+        }
+    };
+
+    //=====================================================comp_op_rgba_hsl_luminosity
+    template<class ColorT, class Order>
+    struct comp_op_rgba_hsl_luminosity : blender_base<ColorT, Order>
+    {
+        typedef ColorT color_type;
+        typedef typename color_type::value_type value_type;
+        using blender_base<ColorT, Order>::get;
+        using blender_base<ColorT, Order>::set;
+
+        static AGG_INLINE void blend_pix(value_type* p,
+            value_type r, value_type g, value_type b, value_type a, cover_type cover)
+        {
+            rgba s = get(r, g, b, a, cover).demultiply();
+            rgba d = get(p).demultiply();
+            rgba blend = rgba(d);
+            blend.set_luminosity(s.luminosity());
+            rgba comp = s * s.a * (1 - d.a) + blend * s.a * d.a + d * (1 - s.a) * d.a;
+            comp.a = s.a + d.a - s.a * d.a;
+            set(p, comp);
+        }
+    };
+#endif
+
 
     //======================================================comp_op_table_rgba
     template<class ColorT, class Order> struct comp_op_table_rgba
@@ -1207,6 +1299,14 @@ namespace agg
         //comp_op_rgba_contrast   <ColorT,Order>::blend_pix,
         //comp_op_rgba_invert     <ColorT,Order>::blend_pix,
         //comp_op_rgba_invert_rgb <ColorT,Order>::blend_pix,
+
+#ifdef MPL_ADD_AGG_HSL_BLEND_MODES
+        comp_op_rgba_hsl_hue        <ColorT,Order>::blend_pix,
+        comp_op_rgba_hsl_saturation <ColorT,Order>::blend_pix,
+        comp_op_rgba_hsl_color      <ColorT,Order>::blend_pix,
+        comp_op_rgba_hsl_luminosity <ColorT,Order>::blend_pix,
+#endif
+
         0
     };
 
@@ -1242,6 +1342,13 @@ namespace agg
         //comp_op_contrast,      //----comp_op_contrast
         //comp_op_invert,        //----comp_op_invert
         //comp_op_invert_rgb,    //----comp_op_invert_rgb
+
+#ifdef MPL_ADD_AGG_HSL_BLEND_MODES
+        comp_op_hsl_hue,
+        comp_op_hsl_saturation,
+        comp_op_hsl_color,
+        comp_op_hsl_luminosity,
+#endif
 
         end_of_comp_op_e
     };

@@ -178,6 +178,124 @@ namespace agg
             *this = from_wavelength(wavelen, gamma);
         }
 
+#ifdef MPL_ADD_AGG_HSL_BLEND_MODES
+        // The following functions are used for the non-separable blend modes
+
+        double max_rgb() const
+        {
+            double max_rg = ((r > g) ? r : g);
+            return (max_rg > b) ? max_rg : b;
+        }
+
+        double min_rgb() const
+        {
+            double min_rg = ((r < g) ? r : g);
+            return (min_rg < b) ? min_rg : b;
+        }
+
+        double luminosity() const
+        {
+            return 0.3*r + 0.59*g + 0.11*b;
+        }
+
+        rgba& clip_color()
+        {
+            double L = luminosity();
+            double N = min_rgb();
+            double X = max_rgb();
+            if (N < 0.)
+            {
+                r = L + (((r - L) * L) / (L - N));
+                g = L + (((g - L) * L) / (L - N));
+                b = L + (((b - L) * L) / (L - N));
+            }
+            if (X > 1.)
+            {
+                r = L + (((r - L) * (1 - L)) / (X - L));
+                g = L + (((g - L) * (1 - L)) / (X - L));
+                b = L + (((b - L) * (1 - L)) / (X - L));
+            }
+            return *this;
+        }
+
+        rgba& set_luminosity(double L)
+        {
+            double D = L - luminosity();
+            r += D;
+            g += D;
+            b += D;
+            return clip_color();
+        }
+
+        double saturation() const
+        {
+            return max_rgb() - min_rgb();
+        }
+
+        rgba& set_saturation(double S)
+        {
+            double *cmin, *cmid, *cmax;
+            if (r <= g)
+            {
+                if (g <= b)
+                {
+                    cmin = &r;
+                    cmid = &g;
+                    cmax = &b;
+                }
+                else
+                {
+                    cmax = &g;
+                    if (r <= b)
+                    {
+                        cmin = &r;
+                        cmid = &b;
+                    }
+                    else
+                    {
+                        cmin = &b;
+                        cmid = &r;
+                    }
+                }
+            }
+            else
+            {
+                if (r <= b)
+                {
+                    cmin = &g;
+                    cmid = &r;
+                    cmax = &b;
+                }
+                else
+                {
+                    cmax = &r;
+                    if (g <= b)
+                    {
+                        cmin = &g;
+                        cmid = &b;
+                    }
+                    else
+                    {
+                        cmin = &b;
+                        cmid = &g;
+                    }
+                }
+            }
+            if (*cmax > *cmin)
+            {
+                *cmid = ((*cmid - *cmin) * S) / (*cmax - *cmin);
+                *cmax = S;
+            }
+            else
+            {
+                *cmid = 0;
+                *cmax = 0;
+            }
+            *cmin = 0;
+            return *this;
+        }
+#endif
+
     };
 
     inline rgba operator+(const rgba& a, const rgba& b)
