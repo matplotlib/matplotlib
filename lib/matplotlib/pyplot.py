@@ -398,9 +398,6 @@ def switch_backend(newbackend: str) -> None:
     another interactive backend has started.  Switching to and from
     non-interactive backends is always possible.
 
-    If the new backend is different than the current backend then all open
-    Figures will be closed via ``plt.close('all')``.
-
     Parameters
     ----------
     newbackend : str
