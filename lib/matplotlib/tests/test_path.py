@@ -505,7 +505,6 @@ def test_full_arc(offset):
     high = 360 + offset
 
     path = Path.arc(low, high)
-    print(path.vertices)
     mins = np.min(path.vertices, axis=0)
     maxs = np.max(path.vertices, axis=0)
     np.testing.assert_allclose(mins, -1)
