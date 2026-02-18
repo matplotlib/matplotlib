@@ -264,12 +264,14 @@ def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
 @pytest.mark.parametrize(
     'index, text', enumerate(font_tests), ids=range(len(font_tests)))
 @pytest.mark.parametrize(
-    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
+    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif', 'unicodemath'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'],
                   tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathfont_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
+    mpl.font_manager.fontManager.addfont(
+        (Path(__file__).resolve().parent / 'data/STIXTwoMath-Regular.otf'))
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, text,
              horizontalalignment='center', verticalalignment='center')
