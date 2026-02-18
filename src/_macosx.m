@@ -2028,6 +2028,31 @@ static PyTypeObject TimerType = {
     },
 };
 
+static PyObject*
+get_screens(PyObject* unused, PyObject* noargs)
+{
+    NSArray<NSScreen*>* screens = [NSScreen screens];
+    PyObject* list = PyList_New([screens count]);
+    if (!list) { return NULL; }
+    for (NSUInteger i = 0; i < [screens count]; i++) {
+        NSScreen* screen = screens[i];
+        CGDirectDisplayID displayID =
+            [[[screen deviceDescription] objectForKey: @"NSScreenNumber"]
+             unsignedIntValue];
+        NSRect frame = [screen frame];
+        PyObject* item = Py_BuildValue("(kdddd)",
+                                      (unsigned long)displayID,
+                                      frame.origin.x, frame.origin.y,
+                                      frame.size.width, frame.size.height);
+        if (!item) {
+            Py_DECREF(list);
+            return NULL;
+        }
+        PyList_SET_ITEM(list, i, item);
+    }
+    return list;
+}
+
 static struct PyModuleDef moduledef = {
     .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "_macosx",
@@ -2061,6 +2086,13 @@ static struct PyModuleDef moduledef = {
          (PyCFunction)choose_save_file,
          METH_VARARGS,
          PyDoc_STR("Query the user for a location where to save a file.")},
+        {"get_screens",
+         (PyCFunction)get_screens,
+         METH_NOARGS,
+         PyDoc_STR(
+            "Return a list of (display_id, x, y, width, height) for every\n"
+            "connected screen, in Cocoa screen coordinates (origin at\n"
+            "bottom-left of the primary screen).")},
         {}  /* Sentinel */
     },
 };
