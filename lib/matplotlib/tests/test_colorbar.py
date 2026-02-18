@@ -154,13 +154,12 @@ def test_colorbar_extension_inverted_axis(orientation, extend, expected):
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @pytest.mark.parametrize('use_gridspec', [True, False])
-@image_comparison(['cbar_with_orientation',
-                   'cbar_locationing',
-                   'double_cbar',
-                   'cbar_sharing',
+@image_comparison(['cbar_with_orientation.png',
+                   'cbar_locationing.png',
+                   'double_cbar.png',
+                   'cbar_sharing.png',
                    ],
-                  extensions=['png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40}, tol=0.05)
+                  remove_text=True, savefig_kwarg={'dpi': 40}, tol=0.05)
 def test_colorbar_positioning(use_gridspec):
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
