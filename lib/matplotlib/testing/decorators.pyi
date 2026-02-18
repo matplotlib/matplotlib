@@ -17,7 +17,8 @@ def image_comparison(
     freetype_version: tuple[str, str] | str | None = ...,
     remove_text: bool = ...,
     savefig_kwarg: dict[str, Any] | None = ...,
-    style: RcStyleType = ...,
+    *,
+    style: RcStyleType,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
 def check_figures_equal(
     *, extensions: Sequence[str] = ..., tol: float = ...

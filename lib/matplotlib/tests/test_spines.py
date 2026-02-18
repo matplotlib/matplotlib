@@ -55,7 +55,8 @@ def test_spine_class():
         spines['top':]
 
 
-@image_comparison(['spines_axes_positions.png'])
+@image_comparison(['spines_axes_positions.png'],
+                  style=('classic', '_classic_test_patch'))
 def test_spines_axes_positions():
     # SF bug 2852168
     fig = plt.figure()
@@ -72,7 +73,8 @@ def test_spines_axes_positions():
     ax.spines.bottom.set_color('none')
 
 
-@image_comparison(['spines_data_positions.png'])
+@image_comparison(['spines_data_positions.png'],
+                  style=('classic', '_classic_test_patch'))
 def test_spines_data_positions():
     fig, ax = plt.subplots()
     ax.spines.left.set_position(('data', -1.5))
@@ -104,7 +106,7 @@ def test_spine_nonlinear_data_positions(fig_test, fig_ref):
     ax.tick_params(axis="y", labelleft=False, left=False, right=True)
 
 
-@image_comparison(['spines_capstyle.png'])
+@image_comparison(['spines_capstyle.png'], style=('classic', '_classic_test_patch'))
 def test_spines_capstyle():
     # issue 2542
     plt.rc('axes', linewidth=20)
@@ -142,7 +144,7 @@ def test_label_without_ticks():
         "X-Axis label not below the spine"
 
 
-@image_comparison(['black_axes.png'])
+@image_comparison(['black_axes.png'], style=('classic', '_classic_test_patch'))
 def test_spines_black_axes():
     # GitHub #18804
     plt.rcParams["savefig.pad_inches"] = 0
