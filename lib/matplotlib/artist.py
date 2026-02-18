@@ -903,7 +903,7 @@ Supported properties are
         ``fig.savefig(fname, bbox_inches='tight')``.
         """
         return self._in_layout
-    
+
     def _get_in_autoscale(self):
         """
         Return boolean flag, ``True`` if artist is included in autoscaling
@@ -911,7 +911,7 @@ Supported properties are
 
         E.g. `.axes.Axes.autoscale_view()`.
         """
-        return self._in_autoscale    
+        return self._in_autoscale
     def _fully_clipped_to_axes(self):
         """
         Return a boolean flag, ``True`` if the artist is clipped to the Axes
