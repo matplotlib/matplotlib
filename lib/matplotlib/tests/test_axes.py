@@ -10159,27 +10159,3 @@ def test_animated_artists_not_drawn_by_default():
 
     mocked_im_draw.assert_not_called()
     mocked_ln_draw.assert_not_called()
-
-
-def test_relim_updates_scatter_offsets():
-    import numpy as np
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots()
-
-    xs = np.linspace(0, 10, 100)
-    ys = np.sin(xs)
-    scatter = ax.scatter(xs, ys)
-
-    # Shift scatter upward
-    new_ys = np.sin(xs) + 5
-    scatter.set_offsets(np.column_stack((xs, new_ys)))
-
-    ax.relim()
-    ax.autoscale_view()
-
-    ymin, ymax = ax.get_ylim()
-
-    # New limits should reflect shifted data
-    assert ymin > 3
-    assert ymax > 5

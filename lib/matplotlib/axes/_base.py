@@ -2317,6 +2317,7 @@ class _AxesBase(martist.Artist):
         if a.get_clip_path() is None:
             a.set_clip_path(self.patch)
         self.stale = True
+        a._set_in_autoscale(False)
         return a
 
     def add_child_axes(self, ax):
@@ -2397,6 +2398,7 @@ class _AxesBase(martist.Artist):
                 self._request_autoscale_view()
 
         self.stale = True
+        collection._set_in_autoscale(autolim)
         return collection
 
     def add_image(self, image):
@@ -2410,6 +2412,7 @@ class _AxesBase(martist.Artist):
         self._children.append(image)
         image._remove_method = self._children.remove
         self.stale = True
+        image._set_in_autoscale(True)
         return image
 
     def _update_image_limits(self, image):
@@ -2437,6 +2440,7 @@ class _AxesBase(martist.Artist):
         self._children.append(line)
         line._remove_method = self._children.remove
         self.stale = True
+        line._set_in_autoscale(True)
         return line
 
     def _add_text(self, txt):
@@ -2509,6 +2513,7 @@ class _AxesBase(martist.Artist):
         self._update_patch_limits(p)
         self._children.append(p)
         p._remove_method = self._children.remove
+        p._set_in_autoscale(True)
         return p
 
     def _update_patch_limits(self, patch):
@@ -2606,7 +2611,7 @@ class _AxesBase(martist.Artist):
 
         for artist in self._children:
             if not visible_only or artist.get_visible():
-                if not artist.get_in_autoscale():
+                if not artist._get_in_autoscale():
                     continue
                 if isinstance(artist, mlines.Line2D):
                     self._update_line_limits(artist)
