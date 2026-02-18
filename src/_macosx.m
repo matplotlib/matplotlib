@@ -879,6 +879,12 @@ FigureManager_set_window_level(FigureManager* self, PyObject* args)
     Py_RETURN_NONE;
 }
 
+static PyObject*
+FigureManager_get_window_level(FigureManager* self)
+{
+    return PyBool_FromLong([self->window level] == NSFloatingWindowLevel);
+}
+
 static PyTypeObject FigureManagerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "matplotlib.backends._macosx.FigureManager",
@@ -936,6 +942,9 @@ static PyTypeObject FigureManagerType = {
         {"set_window_level",
          (PyCFunction)FigureManager_set_window_level,
          METH_VARARGS},
+        {"get_window_level",
+         (PyCFunction)FigureManager_get_window_level,
+         METH_NOARGS},
         {}  // sentinel
     },
 };
