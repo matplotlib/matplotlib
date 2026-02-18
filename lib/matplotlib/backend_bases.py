@@ -2876,6 +2876,9 @@ class FigureManagerBase:
     def full_screen_toggle(self):
         pass
 
+    def raise_window(self):
+        """For GUI backends, raise the figure window to the top."""
+
     def resize(self, w, h):
         """For GUI backends, resize the window (in physical pixels)."""
 
