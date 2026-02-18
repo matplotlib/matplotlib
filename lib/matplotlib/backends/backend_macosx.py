@@ -177,13 +177,19 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         Parameters
         ----------
         event_name : str
-            One of ``'window_resize_event'``, ``'window_move_event'``,
+            One of ``'window_resize_event'``, ``'window_resize_end_event'``,
+            ``'window_move_event'``, ``'window_move_end_event'``,
             ``'focus_in_event'``, ``'focus_out_event'``.
         callback : callable
             - ``'window_resize_event'``: called with ``(width, height)``
-              in logical pixels.
+              in logical pixels; fires continuously while resizing.
+            - ``'window_resize_end_event'``: called with no arguments;
+              fires once when the user releases the mouse after resizing.
             - ``'window_move_event'``: called with ``(x, y)`` in Cocoa
-              screen coordinates (origin at bottom-left of primary screen).
+              screen coordinates (origin at bottom-left of primary screen);
+              fires continuously while moving.
+            - ``'window_move_end_event'``: called with no arguments;
+              fires once when the user releases the mouse after moving.
             - ``'focus_in_event'``, ``'focus_out_event'``: called with
               no arguments.
 
@@ -201,8 +207,14 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     def _window_resize_event(self, width, height):
         self._window_event_callbacks.process('window_resize_event', width, height)
 
+    def _window_resize_end_event(self):
+        self._window_event_callbacks.process('window_resize_end_event')
+
     def _window_move_event(self, x, y):
         self._window_event_callbacks.process('window_move_event', x, y)
+
+    def _window_move_end_event(self):
+        self._window_event_callbacks.process('window_move_end_event')
 
     def _focus_in_event(self):
         self._window_event_callbacks.process('focus_in_event')

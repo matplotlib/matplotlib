@@ -140,6 +140,8 @@ static int wait_for_stdin() {
 {   PyObject* canvas;
     NSRect rubberband;
     @public double device_scale;
+    BOOL _in_move;
+    id _move_monitor;
 }
 - (void)dealloc;
 - (void)drawRect:(NSRect)rect;
@@ -147,6 +149,7 @@ static int wait_for_stdin() {
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification;
 - (void)windowDidResize:(NSNotification*)notification;
 - (void)windowDidMove:(NSNotification*)notification;
+- (void)windowDidEndLiveResize:(NSNotification*)notification;
 - (void)windowDidBecomeKey:(NSNotification*)notification;
 - (void)windowDidResignKey:(NSNotification*)notification;
 - (View*)initWithFrame:(NSRect)rect;
@@ -1283,11 +1286,18 @@ choose_save_file(PyObject* unused, PyObject* args)
     self = [super initWithFrame: rect];
     rubberband = NSZeroRect;
     device_scale = 1;
+    _in_move = NO;
+    _move_monitor = nil;
     return self;
 }
 
 - (void)dealloc
 {
+    if (_move_monitor) {
+        [NSEvent removeMonitor: _move_monitor];
+        [_move_monitor release];
+        _move_monitor = nil;
+    }
     FigureCanvas* fc = (FigureCanvas*)canvas;
     if (fc) { fc->view = NULL; }
     [super dealloc];
@@ -1484,6 +1494,29 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     else
         PyErr_Print();
     PyGILState_Release(gstate);
+
+    if (!_in_move) {
+        _in_move = YES;
+        __block id monitor;
+        __block View* blockSelf = self;
+        monitor = [[NSEvent
+            addLocalMonitorForEventsMatchingMask: NSEventMaskLeftMouseUp
+                                        handler: ^NSEvent*(NSEvent* event) {
+            blockSelf->_in_move = NO;
+            blockSelf->_move_monitor = nil;
+            [NSEvent removeMonitor: monitor];
+            [monitor release];
+            gil_call_method([(Window*)[blockSelf window] pyManager],
+                            "_window_move_end_event");
+            return event;
+        }] retain];
+        _move_monitor = monitor;
+    }
+}
+
+- (void)windowDidEndLiveResize:(NSNotification*)notification
+{
+    gil_call_method([(Window*)[self window] pyManager], "_window_resize_end_event");
 }
 
 - (void)windowDidBecomeKey:(NSNotification*)notification
