@@ -133,6 +133,7 @@ static int wait_for_stdin() {
 - (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager;
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen;
 - (BOOL)closeButtonPressed;
+- (PyObject*)pyManager;
 @end
 
 @interface View : NSView <NSWindowDelegate>
@@ -145,6 +146,9 @@ static int wait_for_stdin() {
 - (void)updateDevicePixelRatio:(double)scale;
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification;
 - (void)windowDidResize:(NSNotification*)notification;
+- (void)windowDidMove:(NSNotification*)notification;
+- (void)windowDidBecomeKey:(NSNotification*)notification;
+- (void)windowDidResignKey:(NSNotification*)notification;
 - (View*)initWithFrame:(NSRect)rect;
 - (void)setCanvas: (PyObject*)newCanvas;
 - (void)windowWillClose:(NSNotification*)notification;
@@ -1254,6 +1258,11 @@ choose_save_file(PyObject* unused, PyObject* args)
     return YES;
 }
 
+- (PyObject*)pyManager
+{
+    return manager;
+}
+
 - (void)close
 {
     [super close];
@@ -1452,8 +1461,39 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         Py_DECREF(result);
     else
         PyErr_Print();
+    result = PyObject_CallMethod(
+            [window pyManager], "_window_resize_event", "ii", width, height);
+    if (result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
     PyGILState_Release(gstate);
     [self setNeedsDisplay: YES];
+}
+
+- (void)windowDidMove:(NSNotification*)notification
+{
+    Window* window = (Window*)[self window];
+    NSRect frame = [window frame];
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* result = PyObject_CallMethod(
+            [window pyManager], "_window_move_event", "dd",
+            frame.origin.x, frame.origin.y);
+    if (result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
+    PyGILState_Release(gstate);
+}
+
+- (void)windowDidBecomeKey:(NSNotification*)notification
+{
+    gil_call_method([(Window*)[self window] pyManager], "_focus_in_event");
+}
+
+- (void)windowDidResignKey:(NSNotification*)notification
+{
+    gil_call_method([(Window*)[self window] pyManager], "_focus_out_event");
 }
 
 - (void)windowWillClose:(NSNotification*)notification
