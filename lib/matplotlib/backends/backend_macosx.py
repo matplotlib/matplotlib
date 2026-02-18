@@ -148,9 +148,14 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac
 
-    def __init__(self, canvas, num):
+    def __init__(self, canvas, num, *, x=None, y=None):
         self._shown = False
-        _macosx.FigureManager.__init__(self, canvas)
+        kwargs = {}
+        if x is not None:
+            kwargs['x'] = x
+        if y is not None:
+            kwargs['y'] = y
+        _macosx.FigureManager.__init__(self, canvas, **kwargs)
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
         FigureManagerBase.__init__(self, canvas, num)

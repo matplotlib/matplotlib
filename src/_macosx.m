@@ -609,7 +609,10 @@ static int
 FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 {
     PyObject* canvas;
-    if (!PyArg_ParseTuple(args, "O", &canvas)) {
+    double x = 100., y = 350.;
+    static char *kwlist[] = {"canvas", "x", "y", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|dd", kwlist,
+                                     &canvas, &x, &y)) {
         return -1;
     }
 
@@ -627,7 +630,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     }
     Py_DECREF(size);
 
-    NSRect rect = NSMakeRect( /* x */ 100, /* y */ 350, width, height);
+    NSRect rect = NSMakeRect(x, y, width, height);
 
     self->window = [self->window initWithContentRect: rect
                                          styleMask: NSWindowStyleMaskTitled
@@ -807,6 +810,68 @@ FigureManager_full_screen_toggle(FigureManager* self)
     Py_RETURN_NONE;
 }
 
+static PyObject*
+FigureManager_get_window_frame(FigureManager* self)
+{
+    NSRect frame = [self->window frame];
+    return Py_BuildValue("dddd",
+                         frame.origin.x, frame.origin.y,
+                         frame.size.width, frame.size.height);
+}
+
+static PyObject*
+FigureManager_set_window_frame(FigureManager* self, PyObject* args)
+{
+    double x, y, w, h;
+    if (!PyArg_ParseTuple(args, "dddd", &x, &y, &w, &h)) {
+        return NULL;
+    }
+    [self->window setFrame: NSMakeRect(x, y, w, h) display: YES];
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+FigureManager_get_screen_frame(FigureManager* self)
+{
+    NSScreen* screen = [self->window screen];
+    if (!screen) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Window is not associated with any screen");
+        return NULL;
+    }
+    NSRect frame = [screen frame];
+    return Py_BuildValue("dddd",
+                         frame.origin.x, frame.origin.y,
+                         frame.size.width, frame.size.height);
+}
+
+static PyObject*
+FigureManager_get_window_screen_id(FigureManager* self)
+{
+    NSScreen* screen = [self->window screen];
+    if (!screen) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Window is not associated with any screen");
+        return NULL;
+    }
+    CGDirectDisplayID displayID =
+        [[[screen deviceDescription] objectForKey: @"NSScreenNumber"]
+         unsignedIntValue];
+    return PyLong_FromUnsignedLong((unsigned long)displayID);
+}
+
+static PyObject*
+FigureManager_set_window_level(FigureManager* self, PyObject* args)
+{
+    int floating;
+    if (!PyArg_ParseTuple(args, "p", &floating)) {
+        return NULL;
+    }
+    [self->window setLevel: floating ? NSFloatingWindowLevel
+                                     : NSNormalWindowLevel];
+    Py_RETURN_NONE;
+}
+
 static PyTypeObject FigureManagerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "matplotlib.backends._macosx.FigureManager",
@@ -849,6 +914,21 @@ static PyTypeObject FigureManagerType = {
         {"full_screen_toggle",
          (PyCFunction)FigureManager_full_screen_toggle,
          METH_NOARGS},
+        {"get_window_frame",
+         (PyCFunction)FigureManager_get_window_frame,
+         METH_NOARGS},
+        {"set_window_frame",
+         (PyCFunction)FigureManager_set_window_frame,
+         METH_VARARGS},
+        {"get_screen_frame",
+         (PyCFunction)FigureManager_get_screen_frame,
+         METH_NOARGS},
+        {"get_window_screen_id",
+         (PyCFunction)FigureManager_get_window_screen_id,
+         METH_NOARGS},
+        {"set_window_level",
+         (PyCFunction)FigureManager_set_window_level,
+         METH_VARARGS},
         {}  // sentinel
     },
 };
