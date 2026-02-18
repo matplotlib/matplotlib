@@ -512,8 +512,11 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                     if A.shape[2] == 3:  # image has no alpha channel
                         A = np.dstack([A, np.ones(A.shape[:2])])
                 elif np.ndim(alpha) > 0:  # Array alpha
-                    # user-specified array alpha overrides the existing alpha channel
-                    A = np.dstack([A[..., :3], alpha])
+                    if A.shape[2] == 3:  # image has no alpha channel, so add one
+                        A = np.dstack([A, alpha])
+                    else:
+                        # Apply array alpha to existing alpha channel
+                        A = np.dstack([A[..., :3], A[..., 3] * alpha])
                 else:  # Scalar alpha
                     if A.shape[2] == 3:  # broadcast scalar alpha
                         A = np.dstack([A, np.full(A.shape[:2], alpha, np.float32)])
