@@ -1461,6 +1461,8 @@ Supported properties are
         """
         Set the blend mode for compositing - not supported on all backends.
 
+        See :ref:`blend-modes` for details.
+
         Parameters
         ----------
         blend_mode : str
