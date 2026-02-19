@@ -177,6 +177,7 @@ class RendererBase:
         Open a transparency group used for blending.
 
         This blend group can be an isolated group, a knockout group, both, or neither.
+        See :ref:`blend-groups` for details, and see also :ref:`blend-modes`.
 
         Isolated groups are supported by the Agg, Cairo, PDF, PGF, and SVG renderers:
 
