@@ -1485,7 +1485,10 @@ Supported properties are
 
     def set_blend_mode(self, blend_mode):
         """
-        Set the blend mode for compositing - not supported on all backends.
+        Set the mode for blending/compositing.
+
+        On vector backends, not all blend modes are natively supported.  See
+        :ref:`blend-modes` for details.
 
         Parameters
         ----------
@@ -1502,7 +1505,12 @@ Supported properties are
         self._blend_mode = blend_mode
 
     def get_blend_mode(self):
-        """Return the blend mode for compositing - not supported on all backends."""
+        """
+        Return the mode for blending/compositing.
+
+        On vector backends, not all blend modes are natively supported.  See
+        :ref:`blend-modes` for details.
+        """
         return self._blend_mode
 
 
