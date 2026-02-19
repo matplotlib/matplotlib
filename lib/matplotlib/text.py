@@ -24,44 +24,6 @@ from .transforms import (
 _log = logging.getLogger(__name__)
 
 
-def _get_textbox(text, renderer):
-    """
-    Calculate the bounding box of the text.
-
-    The bbox position takes text rotation into account, but the width and
-    height are those of the unrotated box (unlike `.Text.get_window_extent`).
-    """
-    # TODO : This function may move into the Text class as a method. As a
-    # matter of fact, the information from the _get_textbox function
-    # should be available during the Text._get_layout() call, which is
-    # called within the _get_textbox. So, it would be better to move this
-    # function as a method with some refactoring of _get_layout method.
-
-    projected_xys = []
-
-    theta = np.deg2rad(text.get_rotation())
-    tr = Affine2D().rotate(-theta)
-
-    _, parts = text._get_layout(renderer)
-
-    for t, (w, a, d), xy in parts:
-        xt, yt = tr.transform(xy)
-        projected_xys.extend([
-            (xt, yt + a),
-            (xt, yt - d),
-            (xt + w, yt + a),
-            (xt + w, yt - d),
-        ])
-    projected_xs, projected_ys = zip(*projected_xys)
-
-    xt_box, yt_box = min(projected_xs), min(projected_ys)
-    w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
-
-    x_box, y_box = Affine2D().rotate(theta).transform((xt_box, yt_box))
-
-    return x_box, y_box, w_box, h_box
-
-
 def _get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
     """Call ``renderer.get_text_width_height_descent``, caching the results."""
 
@@ -435,8 +397,11 @@ class Text(Artist):
         """
         Return
 
-        - the (rotated) text bbox, and
-        - a list of ``(line, (width, ascent, descent), xy)`` tuples for each line.
+        - the rotated, axis-aligned text bbox;
+        - a list of ``(line, (width, ascent, descent), xy)`` tuples for each line;
+        - a ``(xy, (width, height))` pair of the lower-left corner and size of the
+          rotated, *text-aligned* text box (i.e. describing how to draw the
+          text-surrounding box).
         """
         thisx, thisy = 0.0, 0.0
         lines = self._get_wrapped_text().split("\n")  # Ensures lines is not empty.
@@ -510,19 +475,17 @@ class Text(Artist):
             offset_layout = [(x + width - w, y)
                              for x, y, w in zip(xs, ys, ws)]
 
-        # the corners of the unrotated bounding box
-        corners_horiz = np.array(
-            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
-
+        # the unrotated bounding box
+        bbox = Bbox([(xmin, ymin), (xmax, ymax)])
         # now rotate the bbox
-        corners_rotated = M.transform(corners_horiz)
+        corners_rotated = M.transform(bbox.corners())
         # compute the bounds of the rotated box
         xmin = corners_rotated[:, 0].min()
         xmax = corners_rotated[:, 0].max()
         ymin = corners_rotated[:, 1].min()
         ymax = corners_rotated[:, 1].max()
-        width = xmax - xmin
-        height = ymax - ymin
+        rot_width = xmax - xmin
+        rot_height = ymax - ymin
 
         # Now move the box to the target position offset the display
         # bbox by alignment
@@ -538,56 +501,45 @@ class Text(Artist):
                 valign = self._va_for_angle(angle)
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
-            if halign == 'center':
-                offsetx = (xmin + xmax) / 2
-            elif halign == 'right':
-                offsetx = xmax
-            else:
-                offsetx = xmin
-
-            if valign == 'center':
-                offsety = (ymin + ymax) / 2
-            elif valign == 'top':
-                offsety = ymax
-            elif valign == 'baseline':
-                offsety = ymin + descent
-            elif valign == 'center_baseline':
-                offsety = ymin + height - baseline / 2.0
-            else:
-                offsety = ymin
+            offsetx = (
+                xmin if halign == "left" else
+                xmax if halign == "right" else
+                (xmin + xmax) / 2  # halign == "center"
+            )
+            offsety = (
+                ymin if valign == "bottom" else
+                ymax if valign == "top" else
+                (ymin + ymax) / 2 if valign == "center" else
+                ymin + descent if valign == "baseline" else
+                ymin + rot_height - baseline / 2  # valign == "center_baseline"
+            )
         else:
-            xmin1, ymin1 = corners_horiz[0]
-            xmax1, ymax1 = corners_horiz[2]
-
-            if halign == 'center':
-                offsetx = (xmin1 + xmax1) / 2.0
-            elif halign == 'right':
-                offsetx = xmax1
-            else:
-                offsetx = xmin1
-
-            if valign == 'center':
-                offsety = (ymin1 + ymax1) / 2.0
-            elif valign == 'top':
-                offsety = ymax1
-            elif valign == 'baseline':
-                offsety = ymax1 - baseline
-            elif valign == 'center_baseline':
-                offsety = ymax1 - baseline / 2.0
-            else:
-                offsety = ymin1
-
+            xmin1, ymin1 = bbox.p0
+            xmax1, ymax1 = bbox.p1
+            offsetx = (
+                xmin1 if halign == "left" else
+                xmax1 if halign == "right" else
+                (xmin1 + xmax1) / 2  # halign == "center"
+            )
+            offsety = (
+                ymin1 if valign == "bottom" else
+                ymax1 if valign == "top" else
+                (ymin1 + ymax1) / 2 if valign == "center" else
+                ymax1 - baseline if valign == "baseline" else
+                ymax1 - baseline / 2  # valign == "center_baseline"
+            )
             offsetx, offsety = M.transform((offsetx, offsety))
 
         xmin -= offsetx
         ymin -= offsety
 
-        bbox = Bbox.from_bounds(xmin, ymin, width, height)
+        rot_bbox = Bbox.from_bounds(xmin, ymin, rot_width, rot_height)
 
         # now rotate the positions around the first (x, y) position
         xys = M.transform(offset_layout) - (offsetx, offsety)
+        xy_corner = M.transform(bbox.p0) - (offsetx, offsety)
 
-        return bbox, list(zip(lines, wads, xys))
+        return rot_bbox, list(zip(lines, wads, xys)), (xy_corner, bbox.size)
 
     def set_bbox(self, rectprops):
         """
@@ -659,7 +611,7 @@ class Text(Artist):
             posy = float(self.convert_yunits(self._y))
             posx, posy = self.get_transform().transform((posx, posy))
 
-            x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
+            _, _, ((x_box, y_box), (w_box, h_box)) = self._get_layout(renderer)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
             self._bbox_patch.set_transform(
                 Affine2D()
@@ -840,7 +792,7 @@ class Text(Artist):
         renderer.open_group('text', self.get_gid())
 
         with self._cm_set(text=self._get_wrapped_text()):
-            bbox, info = self._get_layout(renderer)
+            bbox, info, _ = self._get_layout(renderer)
             trans = self.get_transform()
 
             # don't use self.get_position here, which refers to text
@@ -1064,7 +1016,7 @@ class Text(Artist):
                 "want to call 'figure.draw_without_rendering()' first.")
 
         with cbook._setattr_cm(fig, dpi=dpi):
-            bbox, _ = self._get_layout(self._renderer)
+            bbox, _, _ = self._get_layout(self._renderer)
             x, y = self.get_unitless_position()
             x, y = self.get_transform().transform((x, y))
             bbox = bbox.translated(x, y)
