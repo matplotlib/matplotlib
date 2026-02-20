@@ -2,8 +2,8 @@ import importlib
 
 from matplotlib import path, transforms
 from matplotlib.backend_bases import (
-    FigureCanvasBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
-    NavigationToolbar2, RendererBase)
+    FigureCanvasBase, FigureManagerBase, KeyEvent, LocationEvent, MouseButton,
+    MouseEvent, NavigationToolbar2, RendererBase)
 from matplotlib.backend_tools import RubberbandBase
 from matplotlib.figure import Figure
 from matplotlib.testing._markers import needs_pgf_xelatex
@@ -61,6 +61,12 @@ def test_uses_per_path():
 
 def test_canvas_ctor():
     assert isinstance(FigureCanvasBase().figure, Figure)
+
+
+def test_figure_manager_base_raise_window_noop():
+    canvas = FigureCanvasBase(Figure())
+    manager = FigureManagerBase(canvas, 1)
+    assert manager.raise_window() is None
 
 
 def test_get_default_filename():

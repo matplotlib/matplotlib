@@ -1002,7 +1002,11 @@ class FigureManagerWx(FigureManagerBase):
         self.frame.Show()
         self.canvas.draw()
         if mpl.rcParams['figure.raise_window']:
-            self.frame.Raise()
+            self.raise_window()
+
+    def raise_window(self):
+        # docstring inherited
+        self.frame.Raise()
 
     def destroy(self, *args):
         # docstring inherited

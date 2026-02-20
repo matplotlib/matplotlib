@@ -186,7 +186,11 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             self._show()
             self._shown = True
         if mpl.rcParams["figure.raise_window"]:
-            self._raise()
+            self.raise_window()
+
+    def raise_window(self):
+        # docstring inherited
+        self._raise()
 
 
 @_Backend.export

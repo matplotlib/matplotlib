@@ -605,9 +605,13 @@ class FigureManagerTk(FigureManagerBase):
             else:
                 self.canvas.draw_idle()
             if mpl.rcParams['figure.raise_window']:
-                self.canvas.manager.window.attributes('-topmost', 1)
-                self.canvas.manager.window.attributes('-topmost', 0)
+                self.raise_window()
             self._shown = True
+
+    def raise_window(self):
+        # docstring inherited
+        self.window.attributes('-topmost', 1)
+        self.window.attributes('-topmost', 0)
 
     def destroy(self, *args):
         if self.canvas._idle_draw_id:
