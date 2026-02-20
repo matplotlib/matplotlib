@@ -3014,15 +3014,17 @@ class _AxesBase(martist.Artist):
         x_stickies = y_stickies = np.array([])
         if self.use_sticky_edges:
             if self._xmargin and scalex and self.get_autoscalex_on():
-                x_stickies = np.sort(np.concatenate([
-                    artist.sticky_edges.x
-                    for ax in self._shared_axes["x"].get_siblings(self)
-                    for artist in ax.get_children()]))
+                edges = []
+                for ax in self._shared_axes["x"].get_siblings(self):
+                    for artist in ax.get_children():
+                        edges.extend(artist.sticky_edges.x)
+                x_stickies = np.sort(edges)
             if self._ymargin and scaley and self.get_autoscaley_on():
-                y_stickies = np.sort(np.concatenate([
-                    artist.sticky_edges.y
-                    for ax in self._shared_axes["y"].get_siblings(self)
-                    for artist in ax.get_children()]))
+                edges = []
+                for ax in self._shared_axes["y"].get_siblings(self):
+                    for artist in ax.get_children():
+                        edges.extend(artist.sticky_edges.y)
+                y_stickies = np.sort(edges)
         if self.get_xscale() == 'log':
             x_stickies = x_stickies[x_stickies > 0]
         if self.get_yscale() == 'log':
