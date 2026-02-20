@@ -210,15 +210,32 @@ class TexManager:
         font_preamble, fontcmd = cls._get_font_preamble_and_command()
         baselineskip = 1.25 * fontsize
         return "\n".join([
+            rf"% !TeX program = {mpl.rcParams['text.latex.engine']}",
             r"\RequirePackage{fix-cm}",
             r"\documentclass{article}",
             r"% Pass-through \mathdefault, which is used in non-usetex mode",
             r"% to use the default text font but was historically suppressed",
             r"% in usetex mode.",
             r"\newcommand{\mathdefault}[1]{#1}",
-            font_preamble,
+            r"\usepackage{iftex}",
+            r"\ifpdftex",
             r"\usepackage[utf8]{inputenc}",
             r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
+            font_preamble,
+            r"\fi",
+            r"\ifluatex",
+            r"\begingroup\catcode`\%=12\relax\gdef\percent{%}\endgroup",
+            r"\directlua{",
+            r"  v = luaotfload.version",
+            r"  major, minor = string.match(v, '(\percent d+).(\percent d+)')",
+            r"  major = tonumber(major)",
+            r"  minor = tonumber(minor) - (string.sub(v, -4) == '-dev' and .5 or 0)",
+            r"  if major < 3 or major == 3 and minor < 23 then",
+            r"    tex.error(string.format(",
+            r"      'luaotfload>=3.23 is required; you have \percent s', v))",
+            r"  end",
+            r"}",
+            r"\fi",
             r"% geometry is loaded before the custom preamble as ",
             r"% convert_psfrags relies on a custom preamble to change the ",
             r"% geometry.",
@@ -284,7 +301,9 @@ class TexManager:
 
         Return the file name.
         """
-        dvipath = cls._get_base_path(tex, fontsize).with_suffix(".dvi")
+        ext = {"latex": "dvi", "xelatex": "xdv", "lualatex": "dvi"}[
+            mpl.rcParams["text.latex.engine"]]
+        dvipath = cls._get_base_path(tex, fontsize).with_suffix(f".{ext}")
         if not dvipath.exists():
             # Generate the tex and dvi in a temporary directory to avoid race
             # conditions e.g. if multiple processes try to process the same tex
@@ -298,10 +317,15 @@ class TexManager:
             with TemporaryDirectory(dir=dvipath.parent) as tmpdir:
                 Path(tmpdir, "file.tex").write_text(
                     cls._get_tex_source(tex, fontsize), encoding='utf-8')
+                cmd = {
+                    "latex": ["latex"],
+                    "xelatex": ["xelatex", "-no-pdf"],
+                    "lualatex": ["lualatex", "--output-format=dvi"],
+                }[mpl.rcParams["text.latex.engine"]]
                 cls._run_checked_subprocess(
-                    ["latex", "-interaction=nonstopmode", "--halt-on-error",
+                    [*cmd, "-interaction=nonstopmode", "--halt-on-error",
                      "file.tex"], tex, cwd=tmpdir)
-                Path(tmpdir, "file.dvi").replace(dvipath)
+                Path(tmpdir, f"file.{ext}").replace(dvipath)
                 # Also move the tex source to the main cache directory, but
                 # only for backcompat.
                 Path(tmpdir, "file.tex").replace(dvipath.with_suffix(".tex"))
