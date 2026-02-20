@@ -62,4 +62,7 @@ slider_update.pack(side=tkinter.BOTTOM)
 toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
 canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
 
+# Explicitly set focus to canvas for it to receive key press events
+canvas.get_tk_widget().focus_set()
+
 tkinter.mainloop()
