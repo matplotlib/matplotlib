@@ -268,6 +268,29 @@ class RendererCairo(RendererBase):
 
         ctx.restore()
 
+    def draw_gouraud_triangles(self, gc, triangles_array, colors_array, transform):
+        # docstring inherited
+        transform = (transform
+                     + Affine2D().scale(1, -1).translate(0, self.height))
+        points_array = transform.transform(triangles_array.reshape((-1, 2)))
+        points_array = points_array.reshape((-1, 3, 2))
+
+        pattern = cairo.MeshPattern()
+        for points, colors in zip(points_array, colors_array):
+            pattern.begin_patch()
+            pattern.move_to(points[0, 0], points[0, 1])
+            pattern.line_to(points[1, 0], points[1, 1])
+            pattern.line_to(points[2, 0], points[2, 1])
+            for i in range(3):
+                pattern.set_corner_color_rgba(i, *colors[i, :])
+            pattern.end_patch()
+
+        ctx = gc.ctx
+        ctx.save()
+        ctx.set_source(pattern)
+        ctx.paint()
+        ctx.restore()
+
     def get_canvas_width_height(self):
         # docstring inherited
         return self.width, self.height
