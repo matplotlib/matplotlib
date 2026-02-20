@@ -345,47 +345,57 @@ class QuiverKey(martist.Artist):
         self._labelsep_inches = labelsep
 
         self.labelpos = labelpos
-        self.labelcolor = labelcolor
-        self.fontproperties = fontproperties or dict()
-        self.kw = kwargs
+        self._kw = kwargs  # Remove when kw deprecation elapses.
+        self.vector = mcollections.PolyCollection(
+            [], **{**self.Q.polykw, **kwargs})
         self.text = mtext.Text(
             text=label,
             horizontalalignment=self.halign[self.labelpos],
             verticalalignment=self.valign[self.labelpos],
-            fontproperties=self.fontproperties)
-        if self.labelcolor is not None:
-            self.text.set_color(self.labelcolor)
+            fontproperties=fontproperties or {})
+        if labelcolor is not None:
+            self.text.set_color(labelcolor)
         self._dpi_at_last_init = None
         self.zorder = zorder if zorder is not None else Q.zorder + 0.1
+
+    kw = _api.deprecated("3.11")(  # Also remove self._kw when deprecation elapses.
+        property(lambda self: self._kw))
+    fontproperties = _api.deprecated(
+        "3.11", alternative="quiverkey.text.get_fontproperties()")(
+            property(lambda self: self.text.get_fontproperties()))
+    labelcolor = _api.deprecated(
+        "3.11", alternative="quiverkey.text.get_color()")(
+            property(lambda self: self.text.get_color()))
+    verts = _api.deprecated(
+        "3.11", alternative="[p.vertices for p in quiverkey.vector.get_paths()]")(
+            property(lambda self: [p.vertices for p in self.vector.get_paths()]))
 
     @property
     def labelsep(self):
         return self._labelsep_inches * self.Q.axes.get_figure(root=True).dpi
 
     def _init(self):
-        if True:  # self._dpi_at_last_init != self.axes.get_figure().dpi
-            if self.Q._dpi_at_last_init != self.Q.axes.get_figure(root=True).dpi:
-                self.Q._init()
-            self._set_transform()
-            with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
-                                   # Hack: save and restore the Umask
-                                   Umask=ma.nomask):
-                u = self.U * np.cos(np.radians(self.angle))
-                v = self.U * np.sin(np.radians(self.angle))
-                self.verts = self.Q._make_verts([[0., 0.]],
-                                                np.array([u]), np.array([v]), 'uv')
-            kwargs = self.Q.polykw
-            kwargs.update(self.kw)
-            self.vector = mcollections.PolyCollection(
-                self.verts,
-                offsets=[(self.X, self.Y)],
-                offset_transform=self.get_transform(),
-                **kwargs)
-            if self.color is not None:
-                self.vector.set_color(self.color)
-            self.vector.set_transform(self.Q.get_transform())
-            self.vector.set_figure(self.get_figure())
-            self._dpi_at_last_init = self.Q.axes.get_figure(root=True).dpi
+        if False:  # self._dpi_at_last_init == self.axes.get_figure().dpi
+            return
+        if self.Q._dpi_at_last_init != self.Q.axes.get_figure(root=True).dpi:
+            self.Q._init()
+        self._set_transform()
+        with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
+                               # Hack: save and restore the Umask
+                               Umask=ma.nomask):
+            u = self.U * np.cos(np.radians([self.angle]))
+            v = self.U * np.sin(np.radians([self.angle]))
+            verts = self.Q._make_verts([[0., 0.]], u, v, 'uv')
+        self.vector.set(
+            verts=verts,
+            offsets=[(self.X, self.Y)],
+            offset_transform=self.get_transform(),
+            transform=self.Q.get_transform(),
+            figure=self.get_figure(),
+        )
+        if self.color is not None:
+            self.vector.set_color(self.color)
+        self._dpi_at_last_init = self.Q.axes.get_figure(root=True).dpi
 
     def _text_shift(self):
         return {
