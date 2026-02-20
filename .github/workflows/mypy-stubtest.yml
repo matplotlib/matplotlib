@@ -8,7 +8,7 @@ permissions:
 jobs:
   mypy-stubtest:
     name: mypy-stubtest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       checks: write
     steps:
