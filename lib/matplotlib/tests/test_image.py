@@ -36,6 +36,19 @@ def test_alpha_interp():
     axr.imshow(img, interpolation="bilinear")
 
 
+@check_figures_equal(extensions=["png"])
+def test_imshow_alpha_array_with_rgb(fig_test, fig_ref):
+    """Array alpha should work with RGB images (issue #26092)."""
+    np.random.seed(19680801)
+    arr_rgb = np.random.random((10, 10, 3))
+
+    alpha = np.ones((10, 10))
+    alpha[:5] = 0.2
+
+    fig_test.subplots().imshow(arr_rgb, alpha=alpha)
+    fig_ref.subplots().imshow(np.dstack([arr_rgb, alpha]))
+
+
 @image_comparison(['interp_nearest_vs_none'], tol=3.7,  # For Ghostscript 10.06+.
                   extensions=['pdf', 'svg'], remove_text=True)
 def test_interp_nearest_vs_none():
@@ -1867,7 +1880,8 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
     new_array_alpha = np.random.rand(ny, nx)
     axs_tst[1][2].imshow(im_rgba, interpolation_stage=intp_stage, alpha=new_array_alpha)
     axs_ref[1][2].imshow(
-        np.concatenate(  # combine rgb channels with new array alpha
-            (im_rgb, new_array_alpha.reshape((ny, nx, 1))), axis=-1
+        np.concatenate(  # combine rgb channels with multiplied alpha
+            (im_rgb, (array_alpha * new_array_alpha).reshape((ny, nx, 1))),
+            axis=-1
         ), interpolation_stage=intp_stage
     )
