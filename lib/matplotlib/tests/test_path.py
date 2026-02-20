@@ -9,7 +9,7 @@ import pytest
 from matplotlib import patches
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 from matplotlib.backend_bases import MouseEvent
@@ -509,6 +509,47 @@ def test_full_arc(offset):
     maxs = np.max(path.vertices, axis=0)
     np.testing.assert_allclose(mins, -1)
     np.testing.assert_allclose(maxs, 1)
+
+
+@check_figures_equal()
+def test_arc_close360(fig_test, fig_ref):
+    # check that the wrap at 360 is treated properly.
+    axs_test = fig_test.subplots(1, 2)
+    axs_ref = fig_ref.subplots(1, 2)
+
+    # these should be the same
+    axs_ref[0].add_patch(patches.PathPatch(Path.arc(theta1=-90, theta2=270)))
+    axs_test[0].add_patch(patches.PathPatch(Path.arc(theta1=-90-1e-14, theta2=270)))
+
+    # there should be no patch drawn for the test case:
+    axs_test[1].add_patch(patches.PathPatch(Path.arc(theta1=-90-1e-14, theta2=-90)))
+
+    for a in [axs_test, axs_ref]:
+        for num in range(2):
+            a[num].set_xlim(-1, 1)
+            a[num].set_ylim(-1, 1)
+            a[num].set_aspect("equal")
+
+
+@image_comparison(['arc_wrap_false'], style='default', remove_text=True,
+                  extensions=['png'])
+def test_arc_wrap_false():
+    _, ax = plt.subplots(3, 2)
+    ax = ax.flatten()
+    ax[0].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=20,
+                                               is_wedge=True, wrap=True)))
+    ax[1].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=380,
+                                               is_wedge=True, wrap=True)))
+    ax[2].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=20,
+                                               is_wedge=True, wrap=False)))
+    ax[3].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=740,
+                                               is_wedge=True, wrap=False)))
+    ax[4].add_patch(patches.PathPatch(Path.arc(theta1=10, theta2=740,
+                                               is_wedge=True, wrap=True)))
+    for a in ax:
+        a.set_xlim(-1, 1)
+        a.set_ylim(-1, 1)
+        a.set_aspect("equal")
 
 
 def test_disjoint_zero_length_segment():
