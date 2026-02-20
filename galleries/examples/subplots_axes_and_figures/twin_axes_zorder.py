@@ -13,9 +13,8 @@ Axes groups so that only the bottom-most Axes has a visible background patch
 Axes covering artists drawn on the underlying Axes.
 """
 
-import numpy as np
-
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 x = np.linspace(0, 10, 400)
