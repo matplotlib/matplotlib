@@ -598,6 +598,10 @@ class _AxesBase(martist.Artist):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
 
+    def set_zorder(self, level):
+        super().set_zorder(level)
+        self._update_twinned_axes_patch_visibility()
+
     def __init__(self, fig,
                  *args,
                  facecolor=None,  # defaults to rc axes.facecolor
@@ -3270,6 +3274,7 @@ class _AxesBase(martist.Artist):
         b : bool
         """
         self._frameon = b
+        self._update_twinned_axes_patch_visibility()
         self.stale = True
 
     def get_axisbelow(self):
