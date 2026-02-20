@@ -895,11 +895,12 @@ def test_twoslope_colorbar():
     fig.colorbar(pc)
 
 
-@check_figures_equal()
-def test_remove_cb_whose_mappable_has_no_figure(fig_ref, fig_test):
-    ax = fig_test.add_subplot()
-    cb = fig_test.colorbar(cm.ScalarMappable(), cax=ax)
+def test_remove_cb_whose_mappable_has_no_figure():
+    fig, ax = plt.subplots()
+    assert fig.get_axes() != []
+    cb = fig.colorbar(cm.ScalarMappable(), cax=ax)
     cb.remove()
+    assert fig.get_axes() == []
 
 
 def test_aspects():
