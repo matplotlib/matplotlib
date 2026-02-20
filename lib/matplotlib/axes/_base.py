@@ -4637,7 +4637,31 @@ class _AxesBase(martist.Artist):
         return mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])
 
-    def _make_twin_axes(self, *args, **kwargs):
+    def _update_twinned_axes_patch_visibility(self):
+        """
+        Update patch visibility for a group of twinned Axes.
+
+        Only the bottom-most Axes in the group (lowest zorder, breaking ties by
+        creation/insertion order) has a visible background patch.
+        """
+        if self not in self._twinned_axes:
+            return
+        twinned = list(self._twinned_axes.get_siblings(self))
+        if not twinned:
+            return
+        fig = self.get_figure(root=False)
+        fig_axes = fig.axes if fig is not None else []
+        insertion_order = {ax: idx for idx, ax in enumerate(fig_axes)}
+
+        twinned.sort(key=lambda ax: (ax.get_zorder(),
+                                     insertion_order.get(ax, len(fig_axes))))
+        bottom = twinned[0]
+        for ax in twinned:
+            patch = getattr(ax, "patch", None)
+            if patch is not None:
+                patch.set_visible((ax is bottom) and ax.get_frame_on())
+
+    def _make_twin_axes(self, *args, zorder=None, **kwargs):
         """Make a twinx Axes of self. This is used for twinx and twiny."""
         if 'sharex' in kwargs and 'sharey' in kwargs:
             # The following line is added in v2.2 to avoid breaking Seaborn,
@@ -4654,12 +4678,13 @@ class _AxesBase(martist.Artist):
                     [0, 0, 1, 1], self.transAxes))
         self.set_adjustable('datalim')
         twin.set_adjustable('datalim')
-        twin.set_zorder(self.zorder)
+        twin.set_zorder(self.zorder if zorder is None else zorder)
 
         self._twinned_axes.join(self, twin)
+        self._update_twinned_axes_patch_visibility()
         return twin
 
-    def twinx(self, axes_class=None, **kwargs):
+    def twinx(self, axes_class=None, *, zorder=None, **kwargs):
         """
         Create a twin Axes sharing the xaxis.
 
@@ -4680,6 +4705,10 @@ class _AxesBase(martist.Artist):
 
             .. versionadded:: 3.11
 
+        zorder : float, optional
+            The zorder of the twin Axes. By default, the twin has the same
+            zorder as the original Axes.
+
         kwargs : dict
             The keyword arguments passed to `.Figure.add_subplot` or `.Figure.add_axes`.
 
@@ -4697,18 +4726,17 @@ class _AxesBase(martist.Artist):
         """
         if axes_class:
             kwargs["axes_class"] = axes_class
-        ax2 = self._make_twin_axes(sharex=self, **kwargs)
+        ax2 = self._make_twin_axes(sharex=self, zorder=zorder, **kwargs)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
         ax2.set_autoscalex_on(self.get_autoscalex_on())
         self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
-        ax2.patch.set_visible(False)
         ax2.xaxis.units = self.xaxis.units
         return ax2
 
-    def twiny(self, axes_class=None, **kwargs):
+    def twiny(self, axes_class=None, *, zorder=None, **kwargs):
         """
         Create a twin Axes sharing the yaxis.
 
@@ -4729,6 +4757,10 @@ class _AxesBase(martist.Artist):
 
             .. versionadded:: 3.11
 
+        zorder : float, optional
+            The zorder of the twin Axes. By default, the twin has the same
+            zorder as the original Axes.
+
         kwargs : dict
             The keyword arguments passed to `.Figure.add_subplot` or `.Figure.add_axes`.
 
@@ -4746,13 +4778,12 @@ class _AxesBase(martist.Artist):
         """
         if axes_class:
             kwargs["axes_class"] = axes_class
-        ax2 = self._make_twin_axes(sharey=self, **kwargs)
+        ax2 = self._make_twin_axes(sharey=self, zorder=zorder, **kwargs)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         ax2.set_autoscaley_on(self.get_autoscaley_on())
         self.xaxis.tick_bottom()
         ax2.yaxis.set_visible(False)
-        ax2.patch.set_visible(False)
         ax2.yaxis.units = self.yaxis.units
         return ax2
 
