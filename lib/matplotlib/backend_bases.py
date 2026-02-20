@@ -2177,11 +2177,11 @@ class FigureCanvasBase:
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : float or 'layout', default: :rc:`savefig.pad_inches`
-            Amount of padding in inches around the figure when bbox_inches is
-            'tight'. If 'layout' use the padding from the constrained or
-            compressed layout engine; ignored if one of those engines is not in
-            use.
+        pad_inches : float, 4-tuple of floats, or 'layout',
+            default: :rc:`savefig.pad_inches`. Amount of padding in inches
+            around the figure when bbox_inches is 'tight'. If 'layout' use the
+            padding from the constrained or compressed layout engine; ignored
+            if one of those engines is not in use.
 
         bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
@@ -2250,13 +2250,20 @@ class FigureCanvasBase:
                         renderer, bbox_extra_artists=bbox_extra_artists)
                     if (isinstance(layout_engine, ConstrainedLayoutEngine) and
                             pad_inches == "layout"):
-                        h_pad = layout_engine.get()["h_pad"]
-                        w_pad = layout_engine.get()["w_pad"]
+                        b_pad = t_pad = layout_engine.get()["h_pad"]
+                        l_pad = r_pad = layout_engine.get()["w_pad"]
                     else:
-                        if pad_inches in [None, "layout"]:
+                        if isinstance(pad_inches, (int, float)):
+                            l_pad = r_pad = b_pad = t_pad = pad_inches
+                        elif pad_inches in [None, "layout"]:
                             pad_inches = rcParams['savefig.pad_inches']
-                        h_pad = w_pad = pad_inches
-                    bbox_inches = bbox_inches.padded(w_pad, h_pad)
+                            l_pad = r_pad = b_pad = t_pad = pad_inches
+                        else:
+                            l_pad = pad_inches[0]
+                            r_pad = pad_inches[1]
+                            b_pad = pad_inches[2]
+                            t_pad = pad_inches[3]
+                    bbox_inches = bbox_inches.padded_4sides(l_pad, r_pad, b_pad, t_pad)
 
                 # call adjust_bbox to save only the given area
                 restore_bbox = _tight_bbox.adjust_bbox(
