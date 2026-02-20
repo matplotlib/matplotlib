@@ -133,18 +133,25 @@ static int wait_for_stdin() {
 - (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager;
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen;
 - (BOOL)closeButtonPressed;
+- (PyObject*)pyManager;
 @end
 
 @interface View : NSView <NSWindowDelegate>
 {   PyObject* canvas;
     NSRect rubberband;
     @public double device_scale;
+    BOOL _in_move;
+    id _move_monitor;
 }
 - (void)dealloc;
 - (void)drawRect:(NSRect)rect;
 - (void)updateDevicePixelRatio:(double)scale;
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification;
 - (void)windowDidResize:(NSNotification*)notification;
+- (void)windowDidMove:(NSNotification*)notification;
+- (void)windowDidEndLiveResize:(NSNotification*)notification;
+- (void)windowDidBecomeKey:(NSNotification*)notification;
+- (void)windowDidResignKey:(NSNotification*)notification;
 - (View*)initWithFrame:(NSRect)rect;
 - (void)setCanvas: (PyObject*)newCanvas;
 - (void)windowWillClose:(NSNotification*)notification;
@@ -609,7 +616,10 @@ static int
 FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 {
     PyObject* canvas;
-    if (!PyArg_ParseTuple(args, "O", &canvas)) {
+    double x = 100., y = 350.;
+    static char *kwlist[] = {"canvas", "x", "y", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|dd", kwlist,
+                                     &canvas, &x, &y)) {
         return -1;
     }
 
@@ -627,7 +637,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     }
     Py_DECREF(size);
 
-    NSRect rect = NSMakeRect( /* x */ 100, /* y */ 350, width, height);
+    NSRect rect = NSMakeRect(x, y, width, height);
 
     self->window = [self->window initWithContentRect: rect
                                          styleMask: NSWindowStyleMaskTitled
@@ -807,6 +817,74 @@ FigureManager_full_screen_toggle(FigureManager* self)
     Py_RETURN_NONE;
 }
 
+static PyObject*
+FigureManager_get_window_frame(FigureManager* self)
+{
+    NSRect frame = [self->window frame];
+    return Py_BuildValue("dddd",
+                         frame.origin.x, frame.origin.y,
+                         frame.size.width, frame.size.height);
+}
+
+static PyObject*
+FigureManager_set_window_frame(FigureManager* self, PyObject* args)
+{
+    double x, y, w, h;
+    if (!PyArg_ParseTuple(args, "dddd", &x, &y, &w, &h)) {
+        return NULL;
+    }
+    [self->window setFrame: NSMakeRect(x, y, w, h) display: YES];
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+FigureManager_get_screen_frame(FigureManager* self)
+{
+    NSScreen* screen = [self->window screen];
+    if (!screen) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Window is not associated with any screen");
+        return NULL;
+    }
+    NSRect frame = [screen frame];
+    return Py_BuildValue("dddd",
+                         frame.origin.x, frame.origin.y,
+                         frame.size.width, frame.size.height);
+}
+
+static PyObject*
+FigureManager_get_window_screen_id(FigureManager* self)
+{
+    NSScreen* screen = [self->window screen];
+    if (!screen) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Window is not associated with any screen");
+        return NULL;
+    }
+    CGDirectDisplayID displayID =
+        [[[screen deviceDescription] objectForKey: @"NSScreenNumber"]
+         unsignedIntValue];
+    return PyLong_FromUnsignedLong((unsigned long)displayID);
+}
+
+static PyObject*
+FigureManager_set_window_level(FigureManager* self, PyObject* args)
+{
+    int floating;
+    if (!PyArg_ParseTuple(args, "p", &floating)) {
+        return NULL;
+    }
+    [self->window setLevel: floating ? NSFloatingWindowLevel
+                                     : NSNormalWindowLevel];
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+FigureManager_get_window_level(FigureManager* self)
+{
+    return PyBool_FromLong([self->window level] == NSFloatingWindowLevel);
+}
+
 static PyTypeObject FigureManagerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "matplotlib.backends._macosx.FigureManager",
@@ -848,6 +926,24 @@ static PyTypeObject FigureManagerType = {
          METH_VARARGS},
         {"full_screen_toggle",
          (PyCFunction)FigureManager_full_screen_toggle,
+         METH_NOARGS},
+        {"get_window_frame",
+         (PyCFunction)FigureManager_get_window_frame,
+         METH_NOARGS},
+        {"set_window_frame",
+         (PyCFunction)FigureManager_set_window_frame,
+         METH_VARARGS},
+        {"get_screen_frame",
+         (PyCFunction)FigureManager_get_screen_frame,
+         METH_NOARGS},
+        {"get_window_screen_id",
+         (PyCFunction)FigureManager_get_window_screen_id,
+         METH_NOARGS},
+        {"set_window_level",
+         (PyCFunction)FigureManager_set_window_level,
+         METH_VARARGS},
+        {"get_window_level",
+         (PyCFunction)FigureManager_get_window_level,
          METH_NOARGS},
         {}  // sentinel
     },
@@ -1174,6 +1270,11 @@ choose_save_file(PyObject* unused, PyObject* args)
     return YES;
 }
 
+- (PyObject*)pyManager
+{
+    return manager;
+}
+
 - (void)close
 {
     [super close];
@@ -1194,11 +1295,18 @@ choose_save_file(PyObject* unused, PyObject* args)
     self = [super initWithFrame: rect];
     rubberband = NSZeroRect;
     device_scale = 1;
+    _in_move = NO;
+    _move_monitor = nil;
     return self;
 }
 
 - (void)dealloc
 {
+    if (_move_monitor) {
+        [NSEvent removeMonitor: _move_monitor];
+        [_move_monitor release];
+        _move_monitor = nil;
+    }
     FigureCanvas* fc = (FigureCanvas*)canvas;
     if (fc) { fc->view = NULL; }
     [super dealloc];
@@ -1372,8 +1480,62 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         Py_DECREF(result);
     else
         PyErr_Print();
+    result = PyObject_CallMethod(
+            [window pyManager], "_window_resize_event", "ii", width, height);
+    if (result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
     PyGILState_Release(gstate);
     [self setNeedsDisplay: YES];
+}
+
+- (void)windowDidMove:(NSNotification*)notification
+{
+    Window* window = (Window*)[self window];
+    NSRect frame = [window frame];
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* result = PyObject_CallMethod(
+            [window pyManager], "_window_move_event", "dd",
+            frame.origin.x, frame.origin.y);
+    if (result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
+    PyGILState_Release(gstate);
+
+    if (!_in_move) {
+        _in_move = YES;
+        __block id monitor;
+        __block View* blockSelf = self;
+        monitor = [[NSEvent
+            addLocalMonitorForEventsMatchingMask: NSEventMaskLeftMouseUp
+                                        handler: ^NSEvent*(NSEvent* event) {
+            blockSelf->_in_move = NO;
+            blockSelf->_move_monitor = nil;
+            [NSEvent removeMonitor: monitor];
+            [monitor release];
+            gil_call_method([(Window*)[blockSelf window] pyManager],
+                            "_window_move_end_event");
+            return event;
+        }] retain];
+        _move_monitor = monitor;
+    }
+}
+
+- (void)windowDidEndLiveResize:(NSNotification*)notification
+{
+    gil_call_method([(Window*)[self window] pyManager], "_window_resize_end_event");
+}
+
+- (void)windowDidBecomeKey:(NSNotification*)notification
+{
+    gil_call_method([(Window*)[self window] pyManager], "_focus_in_event");
+}
+
+- (void)windowDidResignKey:(NSNotification*)notification
+{
+    gil_call_method([(Window*)[self window] pyManager], "_focus_out_event");
 }
 
 - (void)windowWillClose:(NSNotification*)notification
@@ -1875,6 +2037,31 @@ static PyTypeObject TimerType = {
     },
 };
 
+static PyObject*
+get_screens(PyObject* unused, PyObject* noargs)
+{
+    NSArray<NSScreen*>* screens = [NSScreen screens];
+    PyObject* list = PyList_New([screens count]);
+    if (!list) { return NULL; }
+    for (NSUInteger i = 0; i < [screens count]; i++) {
+        NSScreen* screen = screens[i];
+        CGDirectDisplayID displayID =
+            [[[screen deviceDescription] objectForKey: @"NSScreenNumber"]
+             unsignedIntValue];
+        NSRect frame = [screen frame];
+        PyObject* item = Py_BuildValue("(kdddd)",
+                                      (unsigned long)displayID,
+                                      frame.origin.x, frame.origin.y,
+                                      frame.size.width, frame.size.height);
+        if (!item) {
+            Py_DECREF(list);
+            return NULL;
+        }
+        PyList_SET_ITEM(list, i, item);
+    }
+    return list;
+}
+
 static struct PyModuleDef moduledef = {
     .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "_macosx",
@@ -1908,6 +2095,13 @@ static struct PyModuleDef moduledef = {
          (PyCFunction)choose_save_file,
          METH_VARARGS,
          PyDoc_STR("Query the user for a location where to save a file.")},
+        {"get_screens",
+         (PyCFunction)get_screens,
+         METH_NOARGS,
+         PyDoc_STR(
+            "Return a list of (display_id, x, y, width, height) for every\n"
+            "connected screen, in Cocoa screen coordinates (origin at\n"
+            "bottom-left of the primary screen).")},
         {}  /* Sentinel */
     },
 };
