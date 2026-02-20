@@ -380,11 +380,11 @@ jobs:
               # filter mismatch and unused-entity errors detected by lcov 2.x
               LCOV_IGNORE_ERRORS='mismatch,unused'
             fi
-            lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
+            lcov --rc lcov_branch_coverage=1 --ignore-errors "$LCOV_IGNORE_ERRORS" \
               --capture --directory . --output-file coverage.info
-            lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
+            lcov --rc lcov_branch_coverage=1 --ignore-errors "$LCOV_IGNORE_ERRORS" \
               --output-file coverage.info --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
-            lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
+            lcov --rc lcov_branch_coverage=1 --ignore-errors "$LCOV_IGNORE_ERRORS" \
               --list coverage.info
             find . -name '*.gc*' -delete
           else
