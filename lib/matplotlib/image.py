@@ -6,12 +6,14 @@ operations.
 import math
 import os
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 import warnings
 
 import numpy as np
 import PIL.Image
 import PIL.PngImagePlugin
+
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
@@ -20,6 +22,8 @@ from matplotlib import _image
 # For user convenience, the names from _image are also imported into
 # the image namespace
 from matplotlib._image import *  # noqa: F401, F403
+from ._data_containers.description import Desc
+from ._data_containers._helpers import _get_graph, check_container
 import matplotlib.artist as martist
 import matplotlib.colorizer as mcolorizer
 from matplotlib.backend_bases import FigureCanvasBase
@@ -27,6 +31,7 @@ import matplotlib.colors as mcolors
 from matplotlib.transforms import (
     Affine2D, BboxBase, Bbox, BboxTransform, BboxTransformTo,
     IdentityTransform, TransformedBbox)
+
 
 _log = logging.getLogger(__name__)
 
@@ -230,6 +235,71 @@ def _rgb_to_rgba(A):
     return rgba
 
 
+@dataclass
+class ImageContainer:
+    x: np.ndarray
+    y: np.ndarray
+    image: np.ndarray
+
+    def describe(self):
+        imshape = list(self.image.shape)
+        imshape[:2] = ("M", "N")
+
+        return {
+            "x": Desc((2,), "data"),
+            "y": Desc((2,), "data"),
+            "image": Desc(tuple(imshape), "data"),
+        }
+
+    def query(self, graph, parent_coordinates="axes"):
+        return {
+            "x": self.x,
+            "y": self.y,
+            "image": self.image,
+        }, ""
+        # TODO hash
+
+
+@dataclass
+class NonUniformImageContainer(ImageContainer):
+    def describe(self):
+        imshape = list(self.image.shape)
+        imshape[:2] = ("M", "N")
+
+        return {
+            "x": Desc(("M",), "data"),
+            "y": Desc(("N",), "data"),
+            "image": Desc(tuple(imshape), "data"),
+        }
+
+
+@dataclass
+class PcolorImageContainer(ImageContainer):
+    def describe(self):
+        imshape = list(self.image.shape)
+        imshape[:2] = ("M", "N")
+
+        return {
+            "x": Desc(("M+1",), "data"),
+            "y": Desc(("N+1",), "data"),
+            "image": Desc(tuple(imshape), "data"),
+        }
+
+
+@dataclass
+class FigureImageContainer(ImageContainer):
+    def describe(self):
+        imshape = list(self.image.shape)
+        imshape[:2] = ("M", "N")
+
+        return {
+            "x": Desc((), "data"),
+            "y": Desc((), "data"),
+            "image": Desc(tuple(imshape), "data"),
+        }
+
+
+
 class _ImageBase(mcolorizer.ColorizingArtist):
     """
     Base class for images.
@@ -272,9 +342,50 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         self.set_resample(resample)
         self.axes = ax
 
+        self._container = ImageContainer(
+            np.array([0.,1.]),
+            np.array([0.,1.]),
+            np.array([[]]),
+        )
+        self.__query = None
         self._imcache = None
 
         self._internal_update(kwargs)
+
+    @property
+    def _query(self):
+        if self.__query is not None:
+            return self.__query
+        return self._container.query(_get_graph(self.axes))[0]
+
+    def _cache_query(self):
+        self.__query = self._container.query(_get_graph(self.axes))[0]
+
+    @property
+    def _image_array(self):
+        return self._query["image"]
+
+    @property
+    def _A(self):
+        return self._image_array
+
+    @_A.setter
+    def _A(self, val):
+        if val is None:
+            # This case is needed for the transition because
+            # ColorizingArtist sets `_A = None` during init
+            return
+        check_container(self, ImageContainer, "Setting _A")
+        self._container.image = self._normalize_image_array(val)
+        self._imcache = None
+        self.stale = True
+
+    def set_container(self, container):
+        self._container = container
+        self.stale = True
+
+    def get_container(self):
+        return self._container
 
     def __str__(self):
         try:
@@ -285,7 +396,11 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
     def __getstate__(self):
         # Save some space on the pickle by not saving the cache.
-        return {**super().__getstate__(), "_imcache": None}
+        return {
+            **super().__getstate__(),
+            "_imcache": None,
+            "_ImageBase__query": None,
+        }
 
     def get_size(self):
         """Return the size of the image as tuple (numrows, numcols)."""
@@ -295,10 +410,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         """
         Return the shape of the image as tuple (numrows, numcols, channels).
         """
-        if self._A is None:
-            raise RuntimeError('You must first set the image array')
-
-        return self._A.shape
+        return self._image_array.shape
 
     def set_alpha(self, alpha):
         """
@@ -387,6 +499,8 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             raise RuntimeError("_make_image must get a non-empty image. "
                                "Your Artist's draw method must filter before "
                                "this method is called.")
+
+        A = np.ma.asanyarray(A)
 
         clipped_bbox = Bbox.intersection(out_bbox, clip_bbox)
 
@@ -596,6 +710,8 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         if not self.get_visible():
             self.stale = False
             return
+        # Update the cached version of the query
+        self._cache_query()
         # for empty images, there is nothing to draw!
         if self.get_array().size == 0:
             self.stale = False
@@ -688,11 +804,15 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         ----------
         A : array-like or `PIL.Image.Image`
         """
+        check_container(self, ImageContainer, "'set_data'")
         if isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
-        self._A = self._normalize_image_array(A)
+        self._container.image = self._normalize_image_array(A)
         self._imcache = None
         self.stale = True
+
+    def get_array(self):
+        return self._image_array
 
     def set_array(self, A):
         """
@@ -874,6 +994,7 @@ class AxesImage(_ImageBase):
 
     def __init__(self, ax,
                  *,
+                 A=None,
                  cmap=None,
                  norm=None,
                  colorizer=None,
@@ -886,8 +1007,6 @@ class AxesImage(_ImageBase):
                  interpolation_stage=None,
                  **kwargs
                  ):
-
-        self._extent = extent
 
         super().__init__(
             ax,
@@ -903,21 +1022,31 @@ class AxesImage(_ImageBase):
             **kwargs
         )
 
+        if A is not None:
+            self.set_data(A)
+            self.set_extent(extent)
+        elif extent is not None:
+            self.set_extent(extent)
+
     def get_window_extent(self, renderer=None):
-        x0, x1, y0, y1 = self._extent
+        x0, x1, y0, y1 = self.get_extent()
         bbox = Bbox.from_extents([x0, y0, x1, y1])
         return bbox.transformed(self.get_transform())
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
+        q = self._query
+        x1, x2 = q["x"]
+        y1, y2 = q["y"]
+
+        A = q["image"]
+
         # docstring inherited
         trans = self.get_transform()
-        # image is created in the canvas coordinate.
-        x1, x2, y1, y2 = self.get_extent()
         bbox = Bbox(np.array([[x1, y1], [x2, y2]]))
         transformed_bbox = TransformedBbox(bbox, trans)
         clip = ((self.get_clip_box() or self.axes.bbox) if self.get_clip_on()
                 else self.get_figure(root=True).bbox)
-        return self._make_image(self._A, bbox, transformed_bbox, clip,
+        return self._make_image(A, bbox, transformed_bbox, clip,
                                 magnification, unsampled=unsampled)
 
     def _check_unsampled_image(self):
@@ -945,6 +1074,16 @@ class AxesImage(_ImageBase):
         state is not changed, so a subsequent call to `.Axes.autoscale_view`
         will redo the autoscaling in accord with `~.Axes.dataLim`.
         """
+        check_container(self, ImageContainer, "'set_extent'")
+
+        if extent is None:
+            sz = self.get_size()
+            numrows, numcols = sz
+            if self.origin == 'upper':
+                extent = (-0.5, numcols-0.5, numrows-0.5, -0.5)
+            else:
+                extent = (-0.5, numcols-0.5, -0.5, numrows-0.5)
+
         (xmin, xmax), (ymin, ymax) = self.axes._process_unit_info(
             [("x", [extent[0], extent[1]]),
              ("y", [extent[2], extent[3]])],
@@ -961,7 +1100,15 @@ class AxesImage(_ImageBase):
             ymax, self.convert_yunits)
         extent = [xmin, xmax, ymin, ymax]
 
-        self._extent = extent
+        self._container.x[:] = extent[:2]
+        self._container.y[:] = extent[2:]
+        self._update_autolims(xmin, xmax, ymin, ymax)
+
+    def set_container(self, container):
+        super().set_container(container)
+        self._update_autolims(*self.get_extent())
+
+    def _update_autolims(self, xmin, xmax, ymin, ymax):
         corners = (xmin, ymin), (xmax, ymax)
         self.axes.update_datalim(corners)
         self.sticky_edges.x[:] = [xmin, xmax]
@@ -974,15 +1121,10 @@ class AxesImage(_ImageBase):
 
     def get_extent(self):
         """Return the image extent as tuple (left, right, bottom, top)."""
-        if self._extent is not None:
-            return self._extent
-        else:
-            sz = self.get_size()
-            numrows, numcols = sz
-            if self.origin == 'upper':
-                return (-0.5, numcols-0.5, numrows-0.5, -0.5)
-            else:
-                return (-0.5, numcols-0.5, -0.5, numrows-0.5)
+        q = self._query
+        x = q["x"]
+        y = q["y"]
+        return x[0], x[-1], y[0], y[-1]
 
     def get_cursor_data(self, event):
         """
@@ -1033,8 +1175,17 @@ class NonUniformImage(AxesImage):
         **kwargs
             All other keyword arguments are identical to those of `.AxesImage`.
         """
+        if "A" in kwargs:
+            raise RuntimeError(
+                "'NonUniformImage' does not support setting array in init"
+            )
         super().__init__(ax, **kwargs)
         self.set_interpolation(interpolation)
+        self._container = NonUniformImageContainer(
+            np.array([0.,1.]),
+            np.array([0.,1.]),
+            np.array([[np.nan]]),
+        )
 
     def _check_unsampled_image(self):
         """Return False. Do not use unsampled image."""
@@ -1042,11 +1193,15 @@ class NonUniformImage(AxesImage):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        if self._A is None:
-            raise RuntimeError('You must first set the image array')
         if unsampled:
             raise ValueError('unsampled not supported on NonUniformImage')
-        A = self._A
+
+        q = self._query
+        Ax = q["x"]
+        Ay = q["y"]
+
+        A = q["image"]
+
         if A.ndim == 2:
             if A.dtype != np.uint8:
                 A = self.to_rgba(A, bytes=True)
@@ -1072,8 +1227,8 @@ class NonUniformImage(AxesImage):
             [(l, y) for y in np.linspace(b, t, height)])[:, 1]
 
         if self._interpolation == "nearest":
-            x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
-            y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
+            x_mid = (Ax[:-1] + Ax[1:]) / 2
+            y_mid = (Ay[:-1] + Ay[1:]) / 2
             x_int = x_mid.searchsorted(x_pix)
             y_int = y_mid.searchsorted(y_pix)
             # The following is equal to `A[y_int[:, None], x_int[None, :]]`,
@@ -1086,16 +1241,16 @@ class NonUniformImage(AxesImage):
         else:  # self._interpolation == "bilinear"
             # Use np.interp to compute x_int/x_float has similar speed.
             x_int = np.clip(
-                self._Ax.searchsorted(x_pix) - 1, 0, len(self._Ax) - 2)
+                Ax.searchsorted(x_pix) - 1, 0, len(Ax) - 2)
             y_int = np.clip(
-                self._Ay.searchsorted(y_pix) - 1, 0, len(self._Ay) - 2)
+                Ay.searchsorted(y_pix) - 1, 0, len(Ay) - 2)
             idx_int = np.add.outer(y_int * A.shape[1], x_int)
             x_frac = np.clip(
-                np.divide(x_pix - self._Ax[x_int], np.diff(self._Ax)[x_int],
+                np.divide(x_pix - Ax[x_int], np.diff(Ax)[x_int],
                           dtype=np.float32),  # Downcasting helps with speed.
                 0, 1)
             y_frac = np.clip(
-                np.divide(y_pix - self._Ay[y_int], np.diff(self._Ay)[y_int],
+                np.divide(y_pix - Ay[y_int], np.diff(Ay)[y_int],
                           dtype=np.float32),
                 0, 1)
             f00 = np.outer(1 - y_frac, 1 - x_frac)
@@ -1127,14 +1282,15 @@ class NonUniformImage(AxesImage):
             (M, N) `~numpy.ndarray` or masked array of values to be
             colormapped, or (M, N, 3) RGB array, or (M, N, 4) RGBA array.
         """
+        check_container(self, NonUniformImageContainer, "'set_data'")
         A = self._normalize_image_array(A)
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
         if not (x.ndim == y.ndim == 1 and A.shape[:2] == y.shape + x.shape):
             raise TypeError("Axes don't match array shape")
-        self._A = A
-        self._Ax = x
-        self._Ay = y
+        self._container.image = A
+        self._container.x = x
+        self._container.y = y
         self._imcache = None
         self.stale = True
 
@@ -1153,11 +1309,6 @@ class NonUniformImage(AxesImage):
                                       'bilinear interpolations are supported')
         super().set_interpolation(s)
 
-    def get_extent(self):
-        if self._A is None:
-            raise RuntimeError('Must set data first')
-        return self._Ax[0], self._Ax[-1], self._Ay[0], self._Ay[-1]
-
     def set_filternorm(self, filternorm):
         pass
 
@@ -1165,24 +1316,29 @@ class NonUniformImage(AxesImage):
         pass
 
     def set_norm(self, norm):
-        if self._A is not None:
-            raise RuntimeError('Cannot change colors after loading data')
+        #if self._A is not None:
+        #    raise RuntimeError('Cannot change colors after loading data')
         super().set_norm(norm)
 
     def set_cmap(self, cmap):
-        if self._A is not None:
-            raise RuntimeError('Cannot change colors after loading data')
+        #if self._A is not None:
+        #    raise RuntimeError('Cannot change colors after loading data')
         super().set_cmap(cmap)
 
     def get_cursor_data(self, event):
         # docstring inherited
+        q = self._query
+        Ax = q["x"]
+        Ay = q["y"]
+        A = q["image"]
+
         x, y = event.xdata, event.ydata
-        if (x < self._Ax[0] or x > self._Ax[-1] or
-                y < self._Ay[0] or y > self._Ay[-1]):
+        if (x < Ax[0] or x > Ax[-1] or
+                y < Ay[0] or y > Ay[-1]):
             return None
-        j = np.searchsorted(self._Ax, x) - 1
-        i = np.searchsorted(self._Ay, y) - 1
-        return self._A[i, j]
+        j = np.searchsorted(Ax, x) - 1
+        i = np.searchsorted(Ay, y) - 1
+        return A[i, j]
 
 
 class PcolorImage(AxesImage):
@@ -1229,18 +1385,27 @@ class PcolorImage(AxesImage):
         """
         super().__init__(ax, norm=norm, cmap=cmap, colorizer=colorizer)
         self._internal_update(kwargs)
+        self._container = PcolorImageContainer(
+            np.array([0.,1.]),
+            np.array([0.,1.]),
+            np.array([[np.nan]]),
+        )
         if A is not None:
             self.set_data(x, y, A)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
-        if self._A is None:
-            raise RuntimeError('You must first set the image array')
         if unsampled:
-            raise ValueError('unsampled not supported on PColorImage')
+            raise ValueError('unsampled not supported on PcolorImage')
+
+        q = self._query
+        Ax = q["x"]
+        Ay = q["y"]
+
+        A = q["image"]
 
         if self._imcache is None:
-            A = self.to_rgba(self._A, bytes=True)
+            A = self.to_rgba(A, bytes=True)
             self._imcache = np.pad(A, [(1, 1), (1, 1), (0, 0)], "constant")
         padded_A = self._imcache
         bg = mcolors.to_rgba(self.axes.patch.get_facecolor(), 0)
@@ -1257,8 +1422,8 @@ class PcolorImage(AxesImage):
 
         x_pix = np.linspace(vl.x0, vl.x1, width)
         y_pix = np.linspace(vl.y0, vl.y1, height)
-        x_int = self._Ax.searchsorted(x_pix)
-        y_int = self._Ay.searchsorted(y_pix)
+        x_int = Ax.searchsorted(x_pix)
+        y_int = Ay.searchsorted(y_pix)
         im = (  # See comment in NonUniformImage.make_image re: performance.
             padded_A.view(np.uint32).ravel()[
                 np.add.outer(y_int * padded_A.shape[1], x_int)]
@@ -1286,6 +1451,7 @@ class PcolorImage(AxesImage):
             - (M, N, 3): RGB array
             - (M, N, 4): RGBA array
         """
+        check_container(self, PcolorImageContainer, "'set_data'")
         A = self._normalize_image_array(A)
         x = np.arange(0., A.shape[1] + 1) if x is None else np.array(x, float).ravel()
         y = np.arange(0., A.shape[0] + 1) if y is None else np.array(y, float).ravel()
@@ -1300,9 +1466,9 @@ class PcolorImage(AxesImage):
         if y[-1] < y[0]:
             y = y[::-1]
             A = A[::-1]
-        self._A = A
-        self._Ax = x
-        self._Ay = y
+        self._container.image = A
+        self._container.x = x
+        self._container.y = y
         self._imcache = None
         self.stale = True
 
@@ -1311,13 +1477,18 @@ class PcolorImage(AxesImage):
 
     def get_cursor_data(self, event):
         # docstring inherited
+        q = self._query
+        Ax = q["x"]
+        Ay = q["y"]
+        A = q["image"]
+
         x, y = event.xdata, event.ydata
-        if (x < self._Ax[0] or x > self._Ax[-1] or
-                y < self._Ay[0] or y > self._Ay[-1]):
+        if (x < Ax[0] or x > Ax[-1] or
+                y < Ay[0] or y > Ay[-1]):
             return None
-        j = np.searchsorted(self._Ax, x) - 1
-        i = np.searchsorted(self._Ay, y) - 1
-        return self._A[i, j]
+        j = np.searchsorted(Ax, x) - 1
+        i = np.searchsorted(Ay, y) - 1
+        return A[i, j]
 
 
 class FigureImage(_ImageBase):
@@ -1351,39 +1522,47 @@ class FigureImage(_ImageBase):
             origin=origin
         )
         self.set_figure(fig)
-        self.ox = offsetx
-        self.oy = offsety
+        self._container = FigureImageContainer(
+            np.array(offsetx),
+            np.array(offsety),
+            np.array([[]]),
+        )
         self._internal_update(kwargs)
         self.magnification = 1.0
 
     def get_extent(self):
         """Return the image extent as tuple (left, right, bottom, top)."""
-        numrows, numcols = self.get_size()
-        return (-0.5 + self.ox, numcols-0.5 + self.ox,
-                -0.5 + self.oy, numrows-0.5 + self.oy)
+        q = self._query
+        ox = q["x"]
+        oy = q["y"]
+        A = q["image"]
+
+        numrows, numcols, *_ = A.shape
+        return (-0.5 + ox, numcols-0.5 + ox,
+                -0.5 + oy, numrows-0.5 + oy)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
+        q = self._query
+        ox = q["x"]
+        oy = q["y"]
+        A = q["image"]
+
         fig = self.get_figure(root=True)
         fac = renderer.dpi/fig.dpi
         # fac here is to account for pdf, eps, svg backends where
         # figure.dpi is set to 72.  This means we need to scale the
         # image (using magnification) and offset it appropriately.
-        bbox = Bbox([[self.ox/fac, self.oy/fac],
-                     [(self.ox/fac + self._A.shape[1]),
-                     (self.oy/fac + self._A.shape[0])]])
+        bbox = Bbox([[ox/fac, oy/fac],
+                     [(ox/fac + A.shape[1]),
+                     (oy/fac + A.shape[0])]])
         width, height = fig.get_size_inches()
         width *= renderer.dpi
         height *= renderer.dpi
         clip = Bbox([[0, 0], [width, height]])
         return self._make_image(
-            self._A, bbox, bbox, clip, magnification=magnification / fac,
+            A, bbox, bbox, clip, magnification=magnification / fac,
             unsampled=unsampled, round_to_pixel_border=False)
-
-    def set_data(self, A):
-        """Set the image array."""
-        super().set_data(A)
-        self.stale = True
 
 
 class BboxImage(_ImageBase):
@@ -1460,6 +1639,12 @@ class BboxImage(_ImageBase):
         )
         self.bbox = bbox
 
+        self._container = ImageContainer(
+            np.asarray([]),  # Unused for BboxImage, kept for container hierarchy
+            np.asarray([]),  # Unused for BboxImage, kept for container hierarchy
+            np.asarray([[]]),
+        )
+
     def get_window_extent(self, renderer=None):
         if isinstance(self.bbox, BboxBase):
             return self.bbox
@@ -1480,6 +1665,9 @@ class BboxImage(_ImageBase):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
+        q = self._query
+        A = q["image"]
+
         width, height = renderer.get_canvas_width_height()
         bbox_in = self.get_window_extent(renderer).frozen()
         bbox_in._points /= [width, height]
@@ -1487,7 +1675,7 @@ class BboxImage(_ImageBase):
         clip = Bbox([[0, 0], [width, height]])
         self._transform = BboxTransformTo(clip)
         return self._make_image(
-            self._A,
+            A,
             bbox_in, bbox_out, clip, magnification, unsampled=unsampled)
 
 
