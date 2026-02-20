@@ -53,7 +53,7 @@ ax.set_aspect("equal")  # to make the arcs look circular
 line_collection = LineCollection(arcs, array=radii, cmap="rainbow")
 ax.add_collection(line_collection)
 
-fig.colorbar(line_collection, label="Radius")
+ax.colorbar(label="Radius")
 ax.set_title("Line Collection with mapped colors")
 
 plt.show()
