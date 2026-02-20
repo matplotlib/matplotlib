@@ -387,10 +387,18 @@ class _AxesBase(martist.Artist):
         for_layout_only: bool = ...
     ) -> Bbox | None: ...
     def twinx(
-        self, axes_class: Axes | None = ..., *, zorder: float | None = ..., **kwargs
+        self,
+        axes_class: Axes | None = ...,
+        *,
+        delta_zorder: float | None = ...,
+        **kwargs
     ) -> Axes: ...
     def twiny(
-        self, axes_class: Axes | None = ..., *, zorder: float | None = ..., **kwargs
+        self,
+        axes_class: Axes | None = ...,
+        *,
+        delta_zorder: float | None = ...,
+        **kwargs
     ) -> Axes: ...
     def get_shared_x_axes(self) -> cbook.GrouperView: ...
     def get_shared_y_axes(self) -> cbook.GrouperView: ...

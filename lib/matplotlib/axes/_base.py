@@ -4666,7 +4666,7 @@ class _AxesBase(martist.Artist):
             if patch is not None:
                 patch.set_visible((ax is bottom) and ax.get_frame_on())
 
-    def _make_twin_axes(self, *args, zorder=None, **kwargs):
+    def _make_twin_axes(self, *args, delta_zorder=None, **kwargs):
         """Make a twinx Axes of self. This is used for twinx and twiny."""
         if 'sharex' in kwargs and 'sharey' in kwargs:
             # The following line is added in v2.2 to avoid breaking Seaborn,
@@ -4683,13 +4683,15 @@ class _AxesBase(martist.Artist):
                     [0, 0, 1, 1], self.transAxes))
         self.set_adjustable('datalim')
         twin.set_adjustable('datalim')
-        twin.set_zorder(self.zorder if zorder is None else zorder)
+        original_zorder = self.get_zorder()
+        twin.set_zorder(original_zorder if delta_zorder is None
+                        else original_zorder + delta_zorder)
 
         self._twinned_axes.join(self, twin)
         self._update_twinned_axes_patch_visibility()
         return twin
 
-    def twinx(self, axes_class=None, *, zorder=None, **kwargs):
+    def twinx(self, axes_class=None, *, delta_zorder=None, **kwargs):
         """
         Create a twin Axes sharing the xaxis.
 
@@ -4710,9 +4712,11 @@ class _AxesBase(martist.Artist):
 
             .. versionadded:: 3.11
 
-        zorder : float, optional
-            The zorder of the twin Axes. By default, the twin has the same
-            zorder as the original Axes.
+        delta_zorder : float, optional
+            A zorder offset for the twin Axes, relative to the original Axes.
+            The twin's zorder is set to ``self.get_zorder() + delta_zorder``.
+            By default (*delta_zorder* is None), the twin has the same zorder
+            as the original Axes.
 
         kwargs : dict
             The keyword arguments passed to `.Figure.add_subplot` or `.Figure.add_axes`.
@@ -4731,7 +4735,8 @@ class _AxesBase(martist.Artist):
         """
         if axes_class:
             kwargs["axes_class"] = axes_class
-        ax2 = self._make_twin_axes(sharex=self, zorder=zorder, **kwargs)
+        ax2 = self._make_twin_axes(sharex=self, delta_zorder=delta_zorder,
+                                   **kwargs)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
@@ -4741,7 +4746,7 @@ class _AxesBase(martist.Artist):
         ax2.xaxis.units = self.xaxis.units
         return ax2
 
-    def twiny(self, axes_class=None, *, zorder=None, **kwargs):
+    def twiny(self, axes_class=None, *, delta_zorder=None, **kwargs):
         """
         Create a twin Axes sharing the yaxis.
 
@@ -4762,9 +4767,11 @@ class _AxesBase(martist.Artist):
 
             .. versionadded:: 3.11
 
-        zorder : float, optional
-            The zorder of the twin Axes. By default, the twin has the same
-            zorder as the original Axes.
+        delta_zorder : float, optional
+            A zorder offset for the twin Axes, relative to the original Axes.
+            The twin's zorder is set to ``self.get_zorder() + delta_zorder``.
+            By default (*delta_zorder* is None), the twin has the same zorder
+            as the original Axes.
 
         kwargs : dict
             The keyword arguments passed to `.Figure.add_subplot` or `.Figure.add_axes`.
@@ -4783,7 +4790,8 @@ class _AxesBase(martist.Artist):
         """
         if axes_class:
             kwargs["axes_class"] = axes_class
-        ax2 = self._make_twin_axes(sharey=self, zorder=zorder, **kwargs)
+        ax2 = self._make_twin_axes(sharey=self, delta_zorder=delta_zorder,
+                                   **kwargs)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         ax2.set_autoscaley_on(self.get_autoscaley_on())

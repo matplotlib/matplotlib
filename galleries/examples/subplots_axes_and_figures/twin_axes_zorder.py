@@ -1,11 +1,12 @@
 """
-=====================
-Twin Axes with zorder
-=====================
+===========================
+Twin Axes with delta_zorder
+===========================
 
 `~matplotlib.axes.Axes.twinx` and `~matplotlib.axes.Axes.twiny` accept a
-*zorder* keyword argument that controls whether the twin Axes is drawn in front
-of or behind the original Axes.
+*delta_zorder* keyword argument (a relative offset added to the original Axes'
+zorder) that controls whether the twin Axes is drawn in front of or behind the
+original Axes.
 
 Matplotlib also automatically manages background patch visibility for twinned
 Axes groups so that only the bottom-most Axes has a visible background patch
@@ -16,15 +17,14 @@ Axes covering artists drawn on the underlying Axes.
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 x = np.linspace(0, 10, 400)
 y_main = np.sin(x)
 y_twin = 0.4 * np.cos(x) + 0.6
 
 fig, ax = plt.subplots()
 
-# Put the twin Axes behind the original Axes.
-ax2 = ax.twinx(zorder=ax.get_zorder() - 1)
+# Put the twin Axes behind the original Axes (relative to the original zorder).
+ax2 = ax.twinx(delta_zorder=-1)
 
 # Draw something broad on the twin Axes so that the stacking is obvious.
 ax2.fill_between(x, 0, y_twin, color="C1", alpha=0.35, label="twin fill")
@@ -38,7 +38,7 @@ ax.plot(x, y_main, color="C0", lw=4)
 ax.set_xlabel("x")
 ax.set_ylabel("main y")
 ax2.set_ylabel("twin y")
-ax.set_title("Twin Axes drawn behind the main Axes using zorder")
+ax.set_title("Twin Axes drawn behind the main Axes using delta_zorder")
 
 fig.tight_layout()
 plt.show()

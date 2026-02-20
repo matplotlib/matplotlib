@@ -8075,7 +8075,7 @@ def test_twinning_patch_visibility_default():
 
 def test_twinning_patch_visibility_respects_zorder():
     _, ax = plt.subplots()
-    ax2 = ax.twinx(zorder=ax.get_zorder() - 1)
+    ax2 = ax.twinx(delta_zorder=-1)
     assert ax2.get_zorder() == ax.get_zorder() - 1
     assert ax2.patch.get_visible()
     assert not ax.patch.get_visible()
@@ -8092,8 +8092,8 @@ def test_twinning_patch_visibility_multiple_twins_same_zorder():
 
 def test_twinning_patch_visibility_updates_for_new_bottom():
     _, ax = plt.subplots()
-    ax2 = ax.twinx(zorder=ax.get_zorder() - 1)
-    ax3 = ax.twinx(zorder=ax.get_zorder() - 2)
+    ax2 = ax.twinx(delta_zorder=-1)
+    ax3 = ax.twinx(delta_zorder=-2)
     assert ax3.patch.get_visible()
     assert not ax2.patch.get_visible()
     assert not ax.patch.get_visible()
