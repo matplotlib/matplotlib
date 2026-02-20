@@ -1060,6 +1060,14 @@ class Text(Artist):
             bbox = bbox.translated(x, y)
             return bbox
 
+    def get_tightbbox(self, renderer=None):
+        # Exclude text at data coordinates outside the valid domain of the axes
+        # scales (e.g., negative coordinates with a log scale).
+        if (self._outside_axes_domain(*self.get_unitless_position())
+                and self.get_transform() == self.axes.transData):
+            return Bbox.null()
+        return super().get_tightbbox(renderer)
+
     def set_backgroundcolor(self, color):
         """
         Set the background color of the text.
