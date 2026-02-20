@@ -10155,3 +10155,33 @@ def test_animated_artists_not_drawn_by_default():
 
     mocked_im_draw.assert_not_called()
     mocked_ln_draw.assert_not_called()
+
+
+def test_violinplot_nan_values_plot():
+    data = [[0, 1, 2, 3], [1, np.nan, 2, 3]]
+
+    fig, ax = plt.subplots()
+    parts = ax.violinplot(data)
+
+    # NaNs are silently ignored; both datasets still produce violins
+    assert len(parts["bodies"]) == 2
+
+
+def test_violinplot_nan_single_dataset():
+    data = [1, np.nan, 2, 3]
+
+    fig, ax = plt.subplots()
+    parts = ax.violinplot(data)
+
+    # Single dataset should still produce one violin
+    assert len(parts["bodies"]) == 1
+
+
+def test_violinplot_all_nan_skipped():
+    data = [[np.nan, np.nan], [1, 2, 3]]
+
+    fig, ax = plt.subplots()
+    parts = ax.violinplot(data)
+
+    # Both datasets exist, but the first has NaN stats
+    assert len(parts["bodies"]) == 2
