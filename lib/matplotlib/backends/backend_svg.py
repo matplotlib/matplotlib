@@ -104,7 +104,7 @@ def _short_float_fmt(x):
     return f'{x:f}'.rstrip('0').rstrip('.')
 
 
-class XMLWriter:
+class _XMLWriter:
     """
     Parameters
     ----------
@@ -133,34 +133,32 @@ class XMLWriter:
             self.__write(_escape_cdata(data))
             self.__data = []
 
-    def start(self, tag, attrib=None, **extra):
+    def start(self, tag, **kwargs):
         """
-        Open a new element.  Attributes can be given as keyword
-        arguments, or as a string/string dictionary. The method returns
-        an opaque identifier that can be passed to the :meth:`close`
-        method, to close all open elements up to and including this one.
+        Open a new element.  Attributes can be given as keyword arguments
+        (use dict-unpacking to pass attributes that are not valid Python
+        identifiers).  The method returns an opaque identifier that can be
+        passed to the :meth:`close` method, to close all open elements up to
+        and including this one.
 
         Parameters
         ----------
         tag
             Element tag.
-        attrib
-            Attribute dictionary.  Alternatively, attributes can be given as
-            keyword arguments.
+        kwargs
+            Attributes dictionary.
 
         Returns
         -------
         An element identifier.
         """
-        if attrib is None:
-            attrib = {}
         self.__flush()
         tag = _escape_cdata(tag)
         self.__data = []
         self.__tags.append(tag)
         self.__write(self.__indentation[:len(self.__tags) - 1])
         self.__write(f"<{tag}")
-        for k, v in {**attrib, **extra}.items():
+        for k, v in kwargs.items():
             if v:
                 k = _escape_cdata(k)
                 v = _quote_escape_attrib(v)
@@ -234,15 +232,13 @@ class XMLWriter:
         while len(self.__tags) > id:
             self.end()
 
-    def element(self, tag, text=None, attrib=None, **extra):
+    def element(self, tag, text=None, **kwargs):
         """
         Add an entire element.  This is the same as calling :meth:`start`,
         :meth:`data`, and :meth:`end` in sequence. The *text* argument can be
         omitted.
         """
-        if attrib is None:
-            attrib = {}
-        self.start(tag, attrib, **extra)
+        self.start(tag, **kwargs)
         if text:
             self.data(text)
         self.end(indent=False)
@@ -250,6 +246,15 @@ class XMLWriter:
     def flush(self):
         """Flush the output stream."""
         pass  # replaced by the constructor
+
+
+@mpl._api.deprecated("3.11")
+class XMLWriter(_XMLWriter):
+    def start(self, tag, attrib=None, **extra):
+        super().start(tag, **{**(attrib or {}), **extra})
+
+    def element(self, tag, text=None, attrib=None, **extra):
+        super().element(tag, text, **{**(attrib or {}), **extra})
 
 
 def _generate_transform(transform_list):
@@ -295,7 +300,7 @@ class RendererSVG(RendererBase):
                  *, metadata=None):
         self.width = width
         self.height = height
-        self.writer = XMLWriter(svgwriter)
+        self.writer = _XMLWriter(svgwriter)
         self.image_dpi = image_dpi  # actual dpi at which we rasterize stuff
 
         if basename is None:
@@ -327,7 +332,7 @@ class RendererSVG(RendererBase):
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
             id=mpl.rcParams['svg.id'],
-            attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
+            **{'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
 
@@ -411,7 +416,7 @@ class RendererSVG(RendererBase):
             if mid is not None:
                 return mid
             mid = writer.start('metadata')
-            writer.start('rdf:RDF', attrib={
+            writer.start('rdf:RDF', **{
                 'xmlns:dc': "http://purl.org/dc/elements/1.1/",
                 'xmlns:cc': "http://creativecommons.org/ns#",
                 'xmlns:rdf': "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -422,7 +427,7 @@ class RendererSVG(RendererBase):
         uri = metadata.pop('Type', None)
         if uri is not None:
             mid = ensure_metadata(mid)
-            writer.element('dc:type', attrib={'rdf:resource': uri})
+            writer.element('dc:type', **{'rdf:resource': uri})
 
         # Single value only.
         for key in ['Title', 'Coverage', 'Date', 'Description', 'Format',
@@ -688,7 +693,7 @@ class RendererSVG(RendererBase):
             sketch=gc.get_sketch_params())
 
         if gc.get_url() is not None:
-            self.writer.start('a', {'xlink:href': gc.get_url()})
+            self.writer.start('a', **{'xlink:href': gc.get_url()})
         self.writer.element('path', d=path_data, **self._get_clip_attrs(gc),
                             style=self._get_style(gc, rgbFace))
         if gc.get_url() is not None:
@@ -721,18 +726,19 @@ class RendererSVG(RendererBase):
 
         writer.start('g', **self._get_clip_attrs(gc))
         if gc.get_url() is not None:
-            self.writer.start('a', {'xlink:href': gc.get_url()})
+            self.writer.start('a', **{'xlink:href': gc.get_url()})
         trans_and_flip = self._make_flip_transform(trans)
-        attrib = {'xlink:href': f'#{oid}'}
         clip = (0, 0, self.width*72, self.height*72)
         for vertices, code in path.iter_segments(
                 trans_and_flip, clip=clip, simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
-                attrib['x'] = _short_float_fmt(x)
-                attrib['y'] = _short_float_fmt(y)
-                attrib['style'] = self._get_style(gc, rgbFace)
-                writer.element('use', attrib=attrib)
+                writer.element(
+                    'use', **{'xlink:href': f'#{oid}'},
+                    x=_short_float_fmt(x),
+                    y=_short_float_fmt(y),
+                    style=self._get_style(gc, rgbFace),
+                )
         if gc.get_url() is not None:
             self.writer.end('a')
         writer.end('g')
@@ -779,17 +785,17 @@ class RendererSVG(RendererBase):
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
             url = gc0.get_url()
             if url is not None:
-                writer.start('a', attrib={'xlink:href': url})
+                writer.start('a', **{'xlink:href': url})
             clip_attrs = self._get_clip_attrs(gc0)
             if clip_attrs:
                 writer.start('g', **clip_attrs)
-            attrib = {
-                'xlink:href': f'#{path_id}',
-                'x': _short_float_fmt(xo),
-                'y': _short_float_fmt(self.height - yo),
-                'style': self._get_style(gc0, rgbFace)
-                }
-            writer.element('use', attrib=attrib)
+            writer.element(
+                'use',
+                **{'xlink:href': f'#{path_id}'},
+                x=_short_float_fmt(xo),
+                y=_short_float_fmt(self.height - yo),
+                style=self._get_style(gc0, rgbFace),
+            )
             if clip_attrs:
                 writer.end('g')
             if url is not None:
@@ -863,39 +869,35 @@ class RendererSVG(RendererBase):
                  f" L {_short_float_fmt(x2)},{_short_float_fmt(y2)}"
                  f" {_short_float_fmt(x3)},{_short_float_fmt(y3)} Z")
 
-        writer.element(
-            'path',
-            attrib={'d': dpath,
-                    'fill': rgb2hex(avg_color),
-                    'fill-opacity': '1',
-                    'shape-rendering': "crispEdges"})
-
-        writer.start(
-                'g',
-                attrib={'stroke': "none",
-                        'stroke-width': "0",
-                        'shape-rendering': "crispEdges",
-                        'filter': "url(#colorMat)"})
-
-        writer.element(
-            'path',
-            attrib={'d': dpath,
-                    'fill': f'url(#GR{self._n_gradients:x}_0)',
-                    'shape-rendering': "crispEdges"})
-
-        writer.element(
-            'path',
-            attrib={'d': dpath,
-                    'fill': f'url(#GR{self._n_gradients:x}_1)',
-                    'filter': 'url(#colorAdd)',
-                    'shape-rendering': "crispEdges"})
-
-        writer.element(
-            'path',
-            attrib={'d': dpath,
-                    'fill': f'url(#GR{self._n_gradients:x}_2)',
-                    'filter': 'url(#colorAdd)',
-                    'shape-rendering': "crispEdges"})
+        writer.element('path', **{
+            'd': dpath,
+            'fill': rgb2hex(avg_color),
+            'fill-opacity': '1',
+            'shape-rendering': 'crispEdges',
+        })
+        writer.start('g', **{
+            'stroke': 'none',
+            'stroke-width': '0',
+            'shape-rendering': 'crispEdges',
+            'filter': 'url(#colorMat)',
+        })
+        writer.element('path', **{
+            'd': dpath,
+            'fill': f'url(#GR{self._n_gradients:x}_0)',
+            'shape-rendering': 'crispEdges',
+        })
+        writer.element('path', **{
+            'd': dpath,
+            'fill': f'url(#GR{self._n_gradients:x}_1)',
+            'filter': 'url(#colorAdd)',
+            'shape-rendering': 'crispEdges',
+        })
+        writer.element('path', **{
+            'd': dpath,
+            'fill': f'url(#GR{self._n_gradients:x}_2)',
+            'filter': 'url(#colorAdd)',
+            'shape-rendering': 'crispEdges',
+        })
 
         writer.end('g')
 
@@ -915,7 +917,7 @@ class RendererSVG(RendererBase):
                 id='colorAdd')
             writer.element(
                 'feComposite',
-                attrib={'in': 'SourceGraphic'},
+                **{'in': 'SourceGraphic'},
                 in2='BackgroundImage',
                 operator='arithmetic',
                 k2="1", k3="1")
@@ -926,7 +928,7 @@ class RendererSVG(RendererBase):
                 id='colorMat')
             writer.element(
                 'feColorMatrix',
-                attrib={'type': 'matrix'},
+                type='matrix',
                 values='1 0 0 0 0 \n0 1 0 0 0 \n0 0 1 0 0 \n1 1 1 1 0 \n0 0 0 0 1 ')
             writer.end('filter')
 
@@ -957,7 +959,7 @@ class RendererSVG(RendererBase):
 
         url = gc.get_url()
         if url is not None:
-            self.writer.start('a', attrib={'xlink:href': url})
+            self.writer.start('a', **{'xlink:href': url})
 
         attrib = {}
         oid = gc.get_gid()
@@ -982,7 +984,6 @@ class RendererSVG(RendererBase):
         if transform is None:
             w = 72.0 * w / self.image_dpi
             h = 72.0 * h / self.image_dpi
-
             self.writer.element(
                 'image',
                 transform=_generate_transform([
@@ -990,29 +991,23 @@ class RendererSVG(RendererBase):
                 x=_short_float_fmt(x),
                 y=_short_float_fmt(-(self.height - y - h)),
                 width=_short_float_fmt(w), height=_short_float_fmt(h),
-                attrib=attrib)
+                **attrib,
+            )
         else:
             alpha = gc.get_alpha()
             if alpha != 1.0:
                 attrib['opacity'] = _short_float_fmt(alpha)
-
             flipped = (
-                Affine2D().scale(1.0 / w, 1.0 / h) +
-                transform +
-                Affine2D()
-                .translate(x, y)
-                .scale(1.0, -1.0)
-                .translate(0.0, self.height))
-
-            attrib['transform'] = _generate_transform(
-                [('matrix', flipped.frozen())])
-            attrib['style'] = (
-                'image-rendering:crisp-edges;'
-                'image-rendering:pixelated')
+                Affine2D().scale(1 / w, 1 / h)
+                + transform
+                + Affine2D().translate(x, y).scale(1, -1).translate(0, self.height))
             self.writer.element(
                 'image',
                 width=_short_float_fmt(w), height=_short_float_fmt(h),
-                attrib=attrib)
+                **attrib,
+                transform=_generate_transform([('matrix', flipped.frozen())]),
+                style='image-rendering:crisp-edges;image-rendering:pixelated',
+            )
 
         if url is not None:
             self.writer.end('a')
@@ -1060,14 +1055,15 @@ class RendererSVG(RendererBase):
         if alpha != 1:
             style['opacity'] = _short_float_fmt(alpha)
         font_scale = fontsize / text2path.FONT_SCALE
-        attrib = {
-            'style': _generate_css(style),
-            'transform': _generate_transform([
+        writer.start(
+            'g',
+            style=_generate_css(style),
+            transform=_generate_transform([
                 ('translate', (x, y)),
                 ('rotate', (-angle,)),
-                ('scale', (font_scale, -font_scale))]),
-        }
-        writer.start('g', attrib=attrib)
+                ('scale', (font_scale, -font_scale)),
+            ]),
+        )
 
         if not ismath:
             font = text2path._get_font(prop)
@@ -1083,7 +1079,7 @@ class RendererSVG(RendererBase):
                         ('translate', (xposition, yposition)),
                         ('scale', (scale,)),
                         ]),
-                    attrib={'xlink:href': f'#{glyph_id}'})
+                    **{'xlink:href': f'#{glyph_id}'})
 
         else:
             if ismath == "TeX":
@@ -1103,7 +1099,7 @@ class RendererSVG(RendererBase):
                         ('translate', (xposition, yposition)),
                         ('scale', (scale,)),
                         ]),
-                    attrib={'xlink:href': f'#{char_id}'})
+                    **{'xlink:href': f'#{char_id}'})
 
             for verts, codes in rects:
                 path = Path(verts, codes)
@@ -1207,7 +1203,7 @@ class RendererSVG(RendererBase):
                     ('translate', (x, y)),
                     ('rotate', (-angle,))])
 
-            writer.element('text', s, attrib=attrib)
+            writer.element('text', s, **attrib)
 
         else:
             writer.comment(s)
@@ -1280,7 +1276,7 @@ class RendererSVG(RendererBase):
             self.writer.start('g', **clip_attrs)
 
         if gc.get_url() is not None:
-            self.writer.start('a', {'xlink:href': gc.get_url()})
+            self.writer.start('a', **{'xlink:href': gc.get_url()})
 
         if mpl.rcParams['svg.fonttype'] == 'path':
             self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
