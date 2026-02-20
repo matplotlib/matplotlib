@@ -1791,16 +1791,30 @@ def test_is_color_like(input, expected):
     assert is_color_like(input) is expected
 
 
-def test_colorizer_vmin_vmax():
+def test_colorizer_vmin_vmax_clip():
     ca = mcolorizer.Colorizer()
-    assert ca.vmin is None
-    assert ca.vmax is None
+    assert len(ca.vmin) == 1
+    assert len(ca.vmax) == 1
+    assert ca.vmin[0] is None
+    assert ca.vmax[0] is None
     ca.vmin = 1
     ca.vmax = 3
-    assert ca.vmin == 1.0
-    assert ca.vmax == 3.0
+    assert ca.vmin == (1.0, )
+    assert ca.vmax == (3.0, )
     assert ca.norm.vmin == 1.0
     assert ca.norm.vmax == 3.0
+    assert ca.clip == (False, )
+
+    ca = mcolorizer.Colorizer('BiOrangeBlue')
+    assert len(ca.vmin) == 2
+    assert len(ca.vmax) == 2
+    ca.vmin = (1, 2)
+    ca.vmax = (3, 4)
+    assert ca.vmin == (1.0, 2.0)
+    assert ca.vmax == (3.0, 4.0)
+    assert ca.norm.vmin == (1.0, 2.0)
+    assert ca.norm.vmax == (3.0, 4.0)
+    assert ca.clip == (False, False)
 
 
 def test_LinearSegmentedColormap_from_list_color_alpha_tuple():
