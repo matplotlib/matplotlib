@@ -450,6 +450,8 @@ class Axes3D(Axes):
                 artist.do_3d_projection()
 
         if self._axis3don:
+            for axis in self._axis_map.values():
+                axis._clear_ticks_cache()
             # Draw panes first
             for axis in self._axis_map.values():
                 axis.draw_pane(renderer)

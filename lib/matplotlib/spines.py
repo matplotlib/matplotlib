@@ -155,7 +155,7 @@ class Spine(mpatches.Patch):
         if self.axis is None or not self.axis.get_visible():
             return bb
         bboxes = [bb]
-        drawn_ticks = self.axis._update_ticks()
+        drawn_ticks = self.axis._update_ticks(_use_cache=True)
 
         major_tick = next(iter({*drawn_ticks} & {*self.axis.majorTicks}), None)
         minor_tick = next(iter({*drawn_ticks} & {*self.axis.minorTicks}), None)
