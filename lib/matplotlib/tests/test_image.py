@@ -304,6 +304,7 @@ def test_imshow_alpha(fig_test, fig_ref):
 
 @pytest.mark.parametrize('n_channels, is_int, alpha_arr, opaque',
                          [(3, False, False, False),  # RGB float
+                          (3, False, True, False),   # RGB float with alpha array
                           (4, False, False, False),  # RGBA float
                           (4, False, True, False),   # RGBA float with alpha array
                           (4, False, False, True),   # RGBA float with solid color
@@ -1223,6 +1224,41 @@ def test_image_array_alpha(fig_test, fig_ref):
     ax.imshow(rgba, interpolation='nearest')
 
 
+@check_figures_equal(extensions=['png'])
+def test_image_array_alpha_rgb(fig_test, fig_ref):
+    """Array alpha should work with RGB images (not just 2D colormapped)."""
+    np.random.seed(19680801)
+    rgb = np.random.rand(6, 6, 3).astype(np.float32)
+    alpha = np.random.rand(6, 6).astype(np.float32)
+
+    ax_test = fig_test.add_subplot()
+    ax_test.imshow(rgb, alpha=alpha, interpolation='nearest')
+
+    # Reference: manually construct RGBA with the same alpha
+    rgba = np.dstack([rgb, alpha])
+    ax_ref = fig_ref.add_subplot()
+    ax_ref.imshow(rgba, interpolation='nearest')
+
+
+@check_figures_equal(extensions=['png'])
+def test_image_array_alpha_rgba(fig_test, fig_ref):
+    """Array alpha should multiply with existing RGBA alpha channel."""
+    np.random.seed(19680801)
+    rgb = np.random.rand(6, 6, 3).astype(np.float32)
+    existing_alpha = np.random.rand(6, 6).astype(np.float32)
+    rgba = np.dstack([rgb, existing_alpha])
+
+    user_alpha = np.random.rand(6, 6).astype(np.float32)
+
+    ax_test = fig_test.add_subplot()
+    ax_test.imshow(rgba, alpha=user_alpha, interpolation='nearest')
+
+    # Reference: RGBA with alpha = existing_alpha * user_alpha
+    blended_rgba = np.dstack([rgb, existing_alpha * user_alpha])
+    ax_ref = fig_ref.add_subplot()
+    ax_ref.imshow(blended_rgba, interpolation='nearest')
+
+
 def test_image_array_alpha_validation():
     with pytest.raises(TypeError, match="alpha must be a float, two-d"):
         plt.imshow(np.zeros((2, 2)), alpha=[1, 1])
@@ -1855,7 +1891,7 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
     axs_ref[0][2].imshow(im_rgba, interpolation_stage=intp_stage)
 
     # When the image already has an alpha channel, multiply it by the
-    # scalar alpha param, or replace it by the array alpha param
+    # scalar alpha param or the array alpha param
     axs_tst[1][0].imshow(im_rgba)
     axs_ref[1][0].imshow(im_rgb, alpha=array_alpha)
     axs_tst[1][1].imshow(im_rgba, interpolation_stage=intp_stage, alpha=scalar_alpha)
@@ -1867,7 +1903,7 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
     new_array_alpha = np.random.rand(ny, nx)
     axs_tst[1][2].imshow(im_rgba, interpolation_stage=intp_stage, alpha=new_array_alpha)
     axs_ref[1][2].imshow(
-        np.concatenate(  # combine rgb channels with new array alpha
-            (im_rgb, new_array_alpha.reshape((ny, nx, 1))), axis=-1
+        np.concatenate(  # combine rgb channels with multiplied array alpha
+            (im_rgb, (array_alpha * new_array_alpha).reshape((ny, nx, 1))), axis=-1
         ), interpolation_stage=intp_stage
     )
