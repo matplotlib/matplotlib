@@ -2985,6 +2985,31 @@ class TestScatter:
                                                    [0.5, 0.5, 0.5, 1]])
         assert_array_equal(coll.get_linewidths(), [1.1, 1.2, 1.3])
 
+    @mpl.style.context('default')
+    def test_scatter_facecolors_none_edgecolors_mapped(self):
+        # Test that facecolors='none', edgecolors='face' results edge colors being
+        # mapped to the colormap (issue #24404)
+        x = np.array([0, 1, 2])
+        fig, ax = plt.subplots()
+        cmap = plt.cm.viridis
+        coll = ax.scatter(x, x, c=x, facecolors='none', cmap=cmap)
+
+        # Draw to trigger update_scalarmappable which computes mapped colors
+        fig.canvas.draw()
+
+        # Face colors should be transparent (none)
+        face_colors = coll.get_facecolors()
+        assert face_colors.shape == (0, 4)  # empty array for 'none'
+
+        # Edge colors should be mapped from c using the colormap
+        edge_colors = coll.get_edgecolors()
+        assert edge_colors.shape == (3, 4)
+
+        # Verify the colormap was applied
+        norm = plt.Normalize(0, 2)
+        expected_colors = cmap(norm(x))
+        assert_allclose(edge_colors, expected_colors, atol=1e-10)
+
     def test_scatter_size_arg_size(self):
         x = np.arange(4)
         with pytest.raises(ValueError, match='cannot be broadcast to match x and y'):
@@ -3292,6 +3317,18 @@ def test_scatter_c_facecolor_warning_integration(c, facecolor):
     # Test with facecolor (singular)
     with pytest.warns(UserWarning, match=WARN_MSG):
         ax.scatter(x, y, c=c, facecolor=facecolor)
+
+
+def test_scatter_c_facecolors_none_no_warning():
+    """Test that no warning is raised when facecolors='none' with c."""
+    # When facecolors='none', c is used for edge colors, so no warning needed
+    fig, ax = plt.subplots()
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # Turn warnings into errors
+        # This should NOT raise a warning
+        ax.scatter([0, 1], [0, 1], c=[0, 1], facecolors='none')
+    plt.close(fig)
 
 
 def test_as_mpl_axes_api():
