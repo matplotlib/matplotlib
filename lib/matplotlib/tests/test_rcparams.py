@@ -529,6 +529,7 @@ def test_rcparams_reset_after_fail():
         assert mpl.rcParams['text.usetex'] is False
 
 
+@pytest.mark.subprocess
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 def test_backend_fallback_headless_invalid_backend(tmp_path):
     env = {**os.environ,
@@ -546,6 +547,7 @@ def test_backend_fallback_headless_invalid_backend(tmp_path):
             env=env, check=True, stderr=subprocess.DEVNULL)
 
 
+@pytest.mark.subprocess
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 def test_backend_fallback_headless_auto_backend(tmp_path):
     # specify a headless mpl environment, but request a graphical (tk) backend
@@ -568,6 +570,7 @@ def test_backend_fallback_headless_auto_backend(tmp_path):
     assert backend.strip().lower() == "agg"
 
 
+@pytest.mark.subprocess
 @pytest.mark.skipif(
     sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
     reason="headless")
