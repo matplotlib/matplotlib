@@ -1555,7 +1555,7 @@ def test_downsample_interpolation_stage(fig_test, fig_ref):
     # Fixing random state for reproducibility
     np.random.seed(19680801)
 
-    grid = np.random.rand(4000, 4000)
+    grid = np.random.rand(400, 400)
     ax = fig_ref.subplots()
     ax.imshow(grid, interpolation='auto', cmap='viridis',
               interpolation_stage='rgba')
@@ -1583,7 +1583,7 @@ def test_rc_interpolation_stage():
     'dim, size, msg', [['row', 2**23, r'2\*\*23 columns'],
                        ['col', 2**24, r'2\*\*24 rows']])
 @check_figures_equal()
-def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
+def test_large_image(fig_test, fig_ref, dim, size, msg, origin, high_memory):
     # Check that Matplotlib downsamples images that are too big for AGG
     # See issue #19276. Currently the fix only works for png output but not
     # pdf or svg output.

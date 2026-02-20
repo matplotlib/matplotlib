@@ -1,5 +1,8 @@
-import pytest
+import os
 import sys
+
+import pytest
+
 import matplotlib
 from matplotlib import _api
 
@@ -78,6 +81,13 @@ def mpl_test_settings(request):
             if backend is not None:
                 plt.close("all")
                 matplotlib.use(prev_backend)
+
+
+@pytest.fixture
+def high_memory(pytestconfig):
+    from matplotlib.testing import is_ci_environment
+    if not (os.environ.get('MPL_TEST_EXPENSIVE') or is_ci_environment()):
+        pytest.skip('Test uses too much memory')
 
 
 @pytest.fixture
