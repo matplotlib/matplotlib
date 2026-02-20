@@ -2878,6 +2878,7 @@ class FigureManagerBase:
 
     def raise_window(self):
         """For GUI backends, raise the figure window to the top."""
+        pass
 
     def resize(self, w, h):
         """For GUI backends, resize the window (in physical pixels)."""
