@@ -14,12 +14,14 @@ Additionally, please summarize the changes in the title, for example "Raise Valu
 non-numeric input to set_xlim" and avoid non-descriptive titles such as "Addresses
 issue #8576".
 
-If possible, please provide a minimum self-contained example.  If you have used
-generative AI as an aid in preparing this PR, see
-
-https://matplotlib.org/devdocs/devel/contribute.html#restrictions-on-generative-ai-usage
+If possible, please provide a minimum self-contained example.
 -->
 
+## AI Disclosure
+<!-- If you used AI in writing this PR, please briefly describe how.
+Read our policy at
+https://matplotlib.org/devdocs/devel/contribute.html#restrictions-on-generative-ai-usage
+-->
 
 ## PR checklist
 <!-- Please mark any checkboxes that do not apply to this PR as [N/A].-->
