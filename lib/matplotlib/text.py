@@ -2,6 +2,7 @@
 Classes for including text in a figure.
 """
 
+from collections.abc import Sequence
 import functools
 import logging
 import math
@@ -36,23 +37,22 @@ def _get_textbox(text, renderer):
     # called within the _get_textbox. So, it would be better to move this
     # function as a method with some refactoring of _get_layout method.
 
-    projected_xs = []
-    projected_ys = []
+    projected_xys = []
 
     theta = np.deg2rad(text.get_rotation())
     tr = Affine2D().rotate(-theta)
 
-    _, parts, d = text._get_layout(renderer)
+    _, parts = text._get_layout(renderer)
 
-    for t, wh, x, y in parts:
-        w, h = wh
-
-        xt1, yt1 = tr.transform((x, y))
-        yt1 -= d
-        xt2, yt2 = xt1 + w, yt1 + h
-
-        projected_xs.extend([xt1, xt2])
-        projected_ys.extend([yt1, yt2])
+    for t, (w, a, d), xy in parts:
+        xt, yt = tr.transform(xy)
+        projected_xys.extend([
+            (xt, yt + a),
+            (xt, yt - d),
+            (xt + w, yt + a),
+            (xt + w, yt - d),
+        ])
+    projected_xs, projected_ys = zip(*projected_xys)
 
     xt_box, yt_box = min(projected_xs), min(projected_ys)
     w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
@@ -208,6 +208,8 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
+        self._features = None
+        self.set_language(None)
         self._reset_visual_defaults(
             text=text,
             color=color,
@@ -431,15 +433,18 @@ class Text(Artist):
 
     def _get_layout(self, renderer):
         """
-        Return the extent (bbox) of the text together with
-        multiple-alignment information. Note that it returns an extent
-        of a rotated text when necessary.
+        Return
+
+        - the (rotated) text bbox, and
+        - a list of ``(line, (width, ascent, descent), xy)`` tuples for each line.
         """
         thisx, thisy = 0.0, 0.0
         lines = self._get_wrapped_text().split("\n")  # Ensures lines is not empty.
 
-        ws = []
-        hs = []
+        # Reminder:  The ascent (a) goes from the baseline to the top and the
+        # descent (d) from the baseline to the bottom; both are (typically)
+        # nonnegative.  The height h is the sum, h = a + d.
+        wads = []  # (width, ascents, descents)
         xs = []
         ys = []
 
@@ -448,7 +453,8 @@ class Text(Artist):
             renderer, "lp", self._fontproperties,
             ismath="TeX" if self.get_usetex() else False,
             dpi=self.get_figure(root=True).dpi)
-        min_dy = (lp_h - lp_d) * self._linespacing
+        lp_a = lp_h - lp_d
+        min_dy = lp_a * self._linespacing
 
         for i, line in enumerate(lines):
             clean_line, ismath = self._preprocess_math(line)
@@ -459,25 +465,21 @@ class Text(Artist):
             else:
                 w = h = d = 0
 
-            # For multiline text, increase the line spacing when the text
-            # net-height (excluding baseline) is larger than that of a "l"
-            # (e.g., use of superscripts), which seems what TeX does.
-            h = max(h, lp_h)
+            a = h - d
+            # To ensure good linespacing, pretend that the ascent (resp.
+            # descent) of all lines is at least as large as "l" (resp. "p").
+            a = max(a, lp_a)
             d = max(d, lp_d)
 
-            ws.append(w)
-            hs.append(h)
-
             # Metrics of the last line that are needed later:
-            baseline = (h - d) - thisy
+            baseline = a - thisy
 
-            if i == 0:
-                # position at baseline
-                thisy = -(h - d)
-            else:
-                # put baseline a good distance from bottom of previous line
-                thisy -= max(min_dy, (h - d) * self._linespacing)
+            if i == 0:  # position at baseline
+                thisy = -a
+            else:  # put baseline a good distance from bottom of previous line
+                thisy -= max(min_dy, a * self._linespacing)
 
+            wads.append((w, a, d))
             xs.append(thisx)  # == 0.
             ys.append(thisy)
 
@@ -487,6 +489,7 @@ class Text(Artist):
         descent = d
 
         # Bounding box definition:
+        ws = [w for w, a, d in wads]
         width = max(ws)
         xmin = 0
         xmax = width
@@ -584,7 +587,7 @@ class Text(Artist):
         # now rotate the positions around the first (x, y) position
         xys = M.transform(offset_layout) - (offsetx, offsety)
 
-        return bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
+        return bbox, list(zip(lines, wads, xys))
 
     def set_bbox(self, rectprops):
         """
@@ -837,7 +840,7 @@ class Text(Artist):
         renderer.open_group('text', self.get_gid())
 
         with self._cm_set(text=self._get_wrapped_text()):
-            bbox, info, descent = self._get_layout(renderer)
+            bbox, info = self._get_layout(renderer)
             trans = self.get_transform()
 
             # don't use self.get_position here, which refers to text
@@ -868,11 +871,12 @@ class Text(Artist):
             gc.set_alpha(self.get_alpha())
             gc.set_url(self._url)
             gc.set_antialiased(self._antialiased)
+            gc.set_snap(self.get_snap())
             self._set_gc_clip(gc)
 
             angle = self.get_rotation()
 
-            for line, wh, x, y in info:
+            for line, wad, (x, y) in info:
 
                 mtext = self if len(info) == 1 else None
                 x = x + posx
@@ -918,6 +922,12 @@ class Text(Artist):
         .font_manager.FontProperties.get_family
         """
         return self._fontproperties.get_family()
+
+    def get_fontfeatures(self):
+        """
+        Return a tuple of font feature tags to enable.
+        """
+        return self._features
 
     def get_fontname(self):
         """
@@ -1054,7 +1064,7 @@ class Text(Artist):
                 "want to call 'figure.draw_without_rendering()' first.")
 
         with cbook._setattr_cm(fig, dpi=dpi):
-            bbox, info, descent = self._get_layout(self._renderer)
+            bbox, _ = self._get_layout(self._renderer)
             x, y = self.get_unitless_position()
             x, y = self.get_transform().transform((x, y))
             bbox = bbox.translated(x, y)
@@ -1164,6 +1174,39 @@ class Text(Artist):
         .font_manager.FontProperties.set_family
         """
         self._fontproperties.set_family(fontname)
+        self.stale = True
+
+    def set_fontfeatures(self, features):
+        """
+        Set the feature tags to enable on the font.
+
+        Parameters
+        ----------
+        features : list of str, or tuple of str, or None
+            A list of feature tags to be used with the associated font. These strings
+            are eventually passed to HarfBuzz, and so all `string formats supported by
+            hb_feature_from_string()
+            <https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-from-string>`__
+            are supported. Note though that subranges are not explicitly supported and
+            behaviour may change in the future.
+
+            For example, if your desired font includes Stylistic Sets which enable
+            various typographic alternates including one that you do not wish to use
+            (e.g., Contextual Ligatures), then you can pass the following to enable one
+            and not the other::
+
+                fp.set_features([
+                    'ss01',  # Use Stylistic Set 1.
+                    '-clig',  # But disable Contextural Ligatures.
+                ])
+
+            Available font feature tags may be found at
+            https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
+        """
+        _api.check_isinstance((Sequence, None), features=features)
+        if features is not None:
+            features = tuple(features)
+        self._features = features
         self.stale = True
 
     def set_fontvariant(self, variant):
@@ -1493,6 +1536,42 @@ class Text(Artist):
         elif 190 < angle < 260 or 10 < angle < 80:
             return 'baseline' if anchor_at_left else 'top'
         return 'top' if anchor_at_left else 'baseline'
+
+    def get_language(self):
+        """Return the language this Text is in."""
+        return self._language
+
+    def set_language(self, language):
+        """
+        Set the language of the text.
+
+        Parameters
+        ----------
+        language : str or None
+            The language of the text in a format accepted by libraqm, namely `a BCP47
+            language code <https://www.w3.org/International/articles/language-tags/>`_.
+
+            If None, then defaults to :rc:`text.language`.
+        """
+        _api.check_isinstance((Sequence, str, None), language=language)
+        language = mpl._val_or_rc(language, 'text.language')
+
+        if not cbook.is_scalar_or_string(language):
+            language = tuple(language)
+            for val in language:
+                if not isinstance(val, tuple) or len(val) != 3:
+                    raise TypeError('language must be list of tuple, not {language!r}')
+                sublang, start, end = val
+                if not isinstance(sublang, str):
+                    raise TypeError(
+                        'sub-language specification must be str, not {sublang!r}')
+                if not isinstance(start, int):
+                    raise TypeError('start location must be int, not {start!r}')
+                if not isinstance(end, int):
+                    raise TypeError('end location must be int, not {end!r}')
+
+        self._language = language
+        self.stale = True
 
 
 class OffsetFrom:
