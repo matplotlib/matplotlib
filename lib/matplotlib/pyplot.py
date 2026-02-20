@@ -78,7 +78,7 @@ from matplotlib.axes import Axes
 from matplotlib.axes import Subplot  # noqa: F401
 from matplotlib.backends import BackendFilter, backend_registry
 from matplotlib.projections import PolarAxes
-from matplotlib.colorizer import _ColorizerInterface, ColorizingArtist, Colorizer
+from matplotlib.colorizer import _ColorbarMappable, ColorizingArtist, Colorizer
 from matplotlib import mlab  # for detrend_none, window_hanning
 from matplotlib.scale import get_scale_names  # noqa: F401
 
@@ -4198,7 +4198,7 @@ def spy(
         origin=origin,
         **kwargs,
     )
-    if isinstance(__ret, _ColorizerInterface):
+    if isinstance(__ret, _ColorbarMappable):
         sci(__ret)
     return __ret
 
