@@ -250,6 +250,49 @@ def test_missing_family(caplog):
     ]
 
 
+def test_expand_font_family_for_fallback_without_cjk(monkeypatch):
+    monkeypatch.setattr(fontManager, "ttflist", [])
+    assert fontManager._expand_font_family_for_fallback("sans-serif") == \
+        mpl.rcParams["font.sans-serif"]
+
+
+def test_expand_font_family_for_fallback_with_cjk(monkeypatch):
+    monkeypatch.setattr(
+        fontManager,
+        "ttflist",
+        [
+            FontEntry(name="DejaVu Sans"),
+            FontEntry(name="Noto Sans CJK SC"),
+            FontEntry(name="PingFang TC"),
+        ],
+    )
+
+    fallback = fontManager._expand_font_family_for_fallback("sans-serif")
+    assert "Noto Sans CJK SC" in fallback
+    assert "PingFang TC" in fallback
+
+
+def test_find_fonts_by_props_adds_cjk_fallback(monkeypatch):
+    monkeypatch.setattr(
+        fontManager,
+        "ttflist",
+        [FontEntry(name="Noto Sans CJK SC")],
+    )
+
+    calls = []
+
+    def mock_findfont(prop, *args, **kwargs):
+        family, = prop.get_family()
+        calls.append(family)
+        return f"{family}.ttf"
+
+    monkeypatch.setattr(fontManager, "findfont", mock_findfont)
+
+    fpaths = fontManager._find_fonts_by_props(FontProperties(family=["sans-serif"]))
+    assert "Noto Sans CJK SC" in calls
+    assert "Noto Sans CJK SC.ttf" in fpaths
+
+
 def _test_threading():
     import threading
     from matplotlib.ft2font import LoadFlags

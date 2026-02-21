@@ -132,6 +132,24 @@ font_family_aliases = {
     'sans',
 }
 
+_CJK_SANS_FALLBACK_FAMILIES = [
+    # Windows.
+    "Microsoft JhengHei",
+    "Microsoft YaHei",
+    "SimHei",
+    # macOS.
+    "PingFang TC",
+    "PingFang SC",
+    "Heiti TC",
+    "Heiti SC",
+    # Linux and cross-platform.
+    "Noto Sans CJK TC",
+    "Noto Sans CJK SC",
+    "Noto Sans CJK JP",
+    "Noto Sans CJK KR",
+    "WenQuanYi Zen Hei",
+]
+
 # OS Font paths
 try:
     _HOME = Path.home()
@@ -1168,6 +1186,24 @@ class FontManager:
             family = 'sans-serif'
         return mpl.rcParams['font.' + family]
 
+    def _get_cjk_sans_fallbacks(self):
+        """Return installed CJK sans-serif families in a stable order."""
+        available = {font.name for font in self.ttflist}
+        return [
+            family for family in _CJK_SANS_FALLBACK_FAMILIES
+            if family in available
+        ]
+
+    def _expand_font_family_for_fallback(self, family):
+        """Expand generic font family names with platform CJK fallback fonts."""
+        if family.lower() not in {"sans", "sans serif", "sans-serif"}:
+            return [family]
+        expanded = [
+            *self._expand_aliases("sans-serif"),
+            *self._get_cjk_sans_fallbacks(),
+        ]
+        return list(dict.fromkeys(expanded))
+
     # Each of the scoring functions below should return a value between
     # 0.0 (perfect match) and 1.0 (terrible match)
     def score_family(self, families, family2):
@@ -1409,26 +1445,33 @@ class FontManager:
 
         fpaths = []
         for family in prop.get_family():
-            cprop = prop.copy()
-            cprop.set_family(family)  # set current prop's family
+            for fallback_family in self._expand_font_family_for_fallback(family):
+                cprop = prop.copy()
+                cprop.set_family(fallback_family)  # set current prop's family
 
-            try:
-                fpaths.append(
-                    self.findfont(
-                        cprop, fontext, directory,
-                        fallback_to_default=False,  # don't fallback to default
-                        rebuild_if_missing=rebuild_if_missing,
+                try:
+                    fpaths.append(
+                        self.findfont(
+                            cprop, fontext, directory,
+                            fallback_to_default=False,  # don't fallback to default
+                            rebuild_if_missing=rebuild_if_missing,
+                        )
                     )
-                )
-            except ValueError:
-                if family in font_family_aliases:
-                    _log.warning(
-                        "findfont: Generic family %r not found because "
-                        "none of the following families were found: %s",
-                        family, ", ".join(self._expand_aliases(family))
-                    )
-                else:
-                    _log.warning("findfont: Font family %r not found.", family)
+                except ValueError:
+                    if fallback_family in font_family_aliases:
+                        _log.warning(
+                            "findfont: Generic family %r not found because "
+                            "none of the following families were found: %s",
+                            fallback_family,
+                            ", ".join(self._expand_aliases(fallback_family)),
+                        )
+                    else:
+                        _log.warning(
+                            "findfont: Font family %r not found.",
+                            fallback_family,
+                        )
+
+        fpaths = list(dict.fromkeys(fpaths))
 
         # only add default family if no other font was found and
         # fallback_to_default is enabled

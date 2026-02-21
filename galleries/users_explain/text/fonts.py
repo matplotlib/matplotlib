@@ -181,6 +181,13 @@ constructs a single `.ft2font.FT2Font` object that is aware of all of the fonts.
 Each glyph of the string is rendered using the first font in the list that
 contains that glyph.
 
+Matplotlib does not ship large CJK font files, so CJK rendering depends on
+fonts available on your system.  For the generic ``sans-serif`` family,
+Matplotlib also checks for common system-installed CJK sans-serif fonts and
+adds them to the fallback list when present.  If no such fonts are installed,
+font selection remains unchanged.  You can always override this by explicitly
+setting :rc:`font.sans-serif`.
+
 A majority of this work was done by Aitik Gupta supported by Google Summer of
 Code 2021.
 """  # noqa: E501
