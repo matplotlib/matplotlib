@@ -375,10 +375,10 @@
                         # 'stixsans'] when a symbol cannot be found in one of the
                         # custom math fonts. Select 'None' to not perform fallback
                         # and replace the missing character by a dummy symbol.
-#mathtext.default: it  # The default font to use for math.
-                       # Can be any of the LaTeX font names, including
-                       # the special name "regular" for the same font
-                       # used in regular text.
+#mathtext.default: normal  # The default font to use for math.
+                           # Can be any of the LaTeX font names (normal, it, bf,
+                           # etc.), including the special name "regular" for the
+                           # same font used in regular text.
 
 
 ## ***************************************************************************
