@@ -137,12 +137,16 @@ _CJK_SANS_FALLBACK_FAMILIES = [
     "Microsoft JhengHei",
     "Microsoft YaHei",
     "SimHei",
+    "Malgun Gothic",
     # macOS.
+    "PingFang HK",
     "PingFang TC",
     "PingFang SC",
+    "Apple SD Gothic Neo",
     "Heiti TC",
     "Heiti SC",
     # Linux and cross-platform.
+    "Nanum Gothic",
     "Noto Sans CJK TC",
     "Noto Sans CJK SC",
     "Noto Sans CJK JP",

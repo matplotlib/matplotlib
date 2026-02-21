@@ -272,6 +272,21 @@ def test_expand_font_family_for_fallback_with_cjk(monkeypatch):
     assert "PingFang TC" in fallback
 
 
+def test_expand_font_family_for_fallback_with_mac_kr_and_linux_kr(monkeypatch):
+    monkeypatch.setattr(
+        fontManager,
+        "ttflist",
+        [
+            FontEntry(name="Apple SD Gothic Neo"),
+            FontEntry(name="Nanum Gothic"),
+        ],
+    )
+
+    fallback = fontManager._expand_font_family_for_fallback("sans-serif")
+    assert "Apple SD Gothic Neo" in fallback
+    assert "Nanum Gothic" in fallback
+
+
 def test_find_fonts_by_props_adds_cjk_fallback(monkeypatch):
     monkeypatch.setattr(
         fontManager,
