@@ -182,6 +182,7 @@ class Ticks(AttributeCopier, Line2D):
         gc.set_foreground(edgecolor, isRGBA=True)
         gc.set_linewidth(self.get_markeredgewidth())
         gc.set_alpha(self._alpha)
+        gc.set_blend_mode(self.get_blend_mode())
 
         path_trans = self.get_transform()
         marker_transform = (Affine2D()

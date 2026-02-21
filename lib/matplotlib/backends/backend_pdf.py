@@ -726,6 +726,8 @@ class PdfFile:
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
+        self._blend_mode_states = {}
+        self._blend_mode_state_seq = (Name(f'BM{i}') for i in itertools.count(1))
         self._soft_mask_states = {}
         self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
         self._soft_mask_groups = []
@@ -1488,6 +1490,19 @@ end"""
                     'CA': alpha[0], 'ca': alpha[1]})
         return name
 
+    def _blend_mode_state(self, blend_mode):
+        """Return name of an ExtGState that sets blend mode to the given value."""
+
+        state = self._blend_mode_states.get(blend_mode, None)
+        if state is not None:
+            return state[0]
+
+        name = next(self._blend_mode_state_seq)
+        self._blend_mode_states[blend_mode] = \
+            (name, {'Type': Name('ExtGState'),
+                    'BM': blend_mode})
+        return name
+
     def _soft_mask_state(self, smask):
         """
         Return an ExtGState that sets the soft mask to the given shading.
@@ -1545,6 +1560,7 @@ end"""
             self._extGStateObject,
             dict([
                 *self.alphaStates.values(),
+                *self._blend_mode_states.values(),
                 *self._soft_mask_states.values()
             ])
         )
@@ -2579,6 +2595,34 @@ class GraphicsContextPdf(GraphicsContextBase):
         name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
+    def blendmode_cmd(self, blend_mode):
+        supported_blend_modes = {
+            "normal": Name("Normal"),
+            "multiply": Name("Multiply"),
+            "screen": Name("Screen"),
+            "overlay": Name("Overlay"),
+            "darken": Name("Darken"),
+            "lighten": Name("Lighten"),
+            "color dodge": Name("ColorDodge"),
+            "color burn": Name("ColorBurn"),
+            "hard light": Name("HardLight"),
+            "soft light": Name("SoftLight"),
+            "difference": Name("Difference"),
+            "exclusion": Name("Exclusion"),
+            "hue": Name("Hue"),
+            "saturation": Name("Saturation"),
+            "color": Name("Color"),
+            "luminosity": Name("Luminosity"),
+        }
+        if blend_mode not in supported_blend_modes:
+            _log.warning(f"The '{blend_mode}' blend mode is not supported by the PDF "
+                         f"backend. Falling back to the 'normal' blend mode.")
+            blend_mode = "Normal"
+        else:
+            blend_mode = supported_blend_modes[blend_mode]
+        name = self.file._blend_mode_state(blend_mode)
+        return [name, Op.setgstate]
+
     def hatch_cmd(self, hatch, hatch_color, hatch_linewidth):
         if not hatch:
             if self._fillcolor is not None:
@@ -2644,6 +2688,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         # must come first since may pop
         (('_cliprect', '_clippath'), clip_cmd),
         (('_alpha', '_forced_alpha', '_effective_alphas'), alpha_cmd),
+        (('_blend_mode',), blendmode_cmd),
         (('_capstyle',), capstyle_cmd),
         (('_fillcolor',), fillcolor_cmd),
         (('_joinstyle',), joinstyle_cmd),

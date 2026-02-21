@@ -87,6 +87,8 @@ Drawing
 
    Artist.set_alpha
    Artist.get_alpha
+   Artist.set_blend_mode
+   Artist.get_blend_mode
    Artist.set_snap
    Artist.get_snap
    Artist.set_visible

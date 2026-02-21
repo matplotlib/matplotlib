@@ -866,6 +866,7 @@ class Text(Artist):
             gc = renderer.new_gc()
             gc.set_foreground(mcolors.to_rgba(self.get_color()), isRGBA=True)
             gc.set_alpha(self.get_alpha())
+            gc.set_blend_mode(self.get_blend_mode())
             gc.set_url(self._url)
             gc.set_antialiased(self._antialiased)
             self._set_gc_clip(gc)
