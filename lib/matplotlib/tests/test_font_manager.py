@@ -11,11 +11,14 @@ import warnings
 import numpy as np
 import pytest
 
+from unittest.mock import MagicMock, patch
+
 import matplotlib as mpl
+import matplotlib.font_manager as fm_mod
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
-    MSUserFontDirectories, ttfFontProperty,
+    MSUserFontDirectories, ttfFontProperty, _get_font_alt_names,
     _get_fontconfig_fonts, _normalize_weight)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
@@ -334,19 +337,141 @@ def test_get_font_names():
     paths_mpl = [cbook._get_data_path('fonts', subdir) for subdir in ['ttf']]
     fonts_mpl = findSystemFonts(paths_mpl, fontext='ttf')
     fonts_system = findSystemFonts(fontext='ttf')
-    ttf_fonts = []
+    ttf_fonts = set()
     for path in fonts_mpl + fonts_system:
         try:
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
-            ttf_fonts.append(prop.name)
+            ttf_fonts.add(prop.name)
         except Exception:
             pass
-    available_fonts = sorted(list(set(ttf_fonts)))
-    mpl_font_names = sorted(fontManager.get_font_names())
-    assert set(available_fonts) == set(mpl_font_names)
-    assert len(available_fonts) == len(mpl_font_names)
-    assert available_fonts == mpl_font_names
+    # fontManager may contain additional entries for alternative family names
+    # (e.g. typographic family, platform-specific Name ID 1) registered by
+    # addfont(), so primary names must be a subset of the manager's names.
+    assert ttf_fonts <= set(fontManager.get_font_names())
+
+
+def test_addfont_alternative_names(tmp_path):
+    """
+    Fonts that advertise different family names across platforms or name IDs
+    should be registered under all of those names so users can address the font
+    by any of them.
+
+    Two real-world patterns are covered:
+
+    - **MS platform ID 1 differs from Mac platform ID 1** (e.g. Ubuntu Light):
+      FreeType returns the Mac ID 1 value as ``family_name``; the MS ID 1
+      value ("Ubuntu Light") is an equally valid name that users expect to work.
+    - **Name ID 16 (Typographic Family) differs from ID 1** (older fonts):
+      some fonts store a broader family name in ID 16.
+    """
+    mac_key = (1, 0, 0)
+    ms_key = (3, 1, 0x0409)
+
+    # Case 1: MS ID1 differs from Mac ID1 (Ubuntu Light pattern)
+    # Mac ID1="Test Family" → FreeType family_name (primary)
+    # MS  ID1="Test Family Light" → alternate name users expect to work
+    ubuntu_style_sfnt = {
+        (*mac_key, 1): "Test Family".encode("latin-1"),
+        (*ms_key,  1): "Test Family Light".encode("utf-16-be"),
+        (*mac_key, 2): "Light".encode("latin-1"),
+        (*ms_key,  2): "Regular".encode("utf-16-be"),
+    }
+    fake_font = MagicMock()
+    fake_font.get_sfnt.return_value = ubuntu_style_sfnt
+
+    assert _get_font_alt_names(fake_font, "Test Family") == [("Test Family Light", 400)]
+    assert _get_font_alt_names(fake_font, "Test Family Light") == [
+        ("Test Family", 300)]
+
+    # Case 2: ID 16 differs from ID 1 (older typographic-family pattern)
+    # ID 17 (typographic subfamily) is absent → defaults to weight 400
+    id16_sfnt = {
+        (*mac_key, 1):  "Test Family".encode("latin-1"),
+        (*ms_key,  1):  "Test Family".encode("utf-16-be"),
+        (*ms_key,  16): "Test Family Light".encode("utf-16-be"),
+    }
+    fake_font_id16 = MagicMock()
+    fake_font_id16.get_sfnt.return_value = id16_sfnt
+
+    assert _get_font_alt_names(
+        fake_font_id16, "Test Family"
+    ) == [("Test Family Light", 400)]
+
+    # Case 3: all entries agree → no alternates
+    same_sfnt = {
+        (*mac_key, 1): "Test Family".encode("latin-1"),
+        (*ms_key,  1): "Test Family".encode("utf-16-be"),
+    }
+    fake_font_same = MagicMock()
+    fake_font_same.get_sfnt.return_value = same_sfnt
+    assert _get_font_alt_names(fake_font_same, "Test Family") == []
+
+    # Case 4: get_sfnt() raises ValueError (e.g. non-SFNT font) → empty list
+    fake_font_no_sfnt = MagicMock()
+    fake_font_no_sfnt.get_sfnt.side_effect = ValueError
+    assert _get_font_alt_names(fake_font_no_sfnt, "Test Family") == []
+
+    fake_path = str(tmp_path / "fake.ttf")
+    primary_entry = FontEntry(fname=fake_path, name="Test Family",
+                              style="normal", variant="normal",
+                              weight=300, stretch="normal", size="scalable")
+
+    with patch("matplotlib.font_manager.ft2font.FT2Font",
+               return_value=fake_font), \
+         patch("matplotlib.font_manager.ttfFontProperty",
+               return_value=primary_entry):
+        fm_instance = fm_mod.FontManager.__new__(fm_mod.FontManager)
+        fm_instance.ttflist = []
+        fm_instance.afmlist = []
+        fm_instance._findfont_cached = MagicMock()
+        fm_instance._findfont_cached.cache_clear = MagicMock()
+        fm_instance.addfont(fake_path)
+
+    names = [e.name for e in fm_instance.ttflist]
+    assert names == ["Test Family", "Test Family Light"]
+    alt_entry = fm_instance.ttflist[1]
+    assert alt_entry.weight == 400
+    assert alt_entry.style == primary_entry.style
+    assert alt_entry.fname == primary_entry.fname
+
+
+@pytest.mark.parametrize("subfam,expected", [
+    ("Thin",        100),
+    ("ExtraLight",  200),
+    ("UltraLight",  200),
+    ("DemiLight",   350),
+    ("SemiLight",   350),
+    ("Light",       300),
+    ("Book",        380),
+    ("Regular",     400),
+    ("Normal",      400),
+    ("Medium",      500),
+    ("DemiBold",    600),
+    ("Demi",        600),
+    ("SemiBold",    600),
+    ("ExtraBold",   800),
+    ("SuperBold",   800),
+    ("UltraBold",   800),
+    ("Bold",        700),
+    ("UltraBlack", 1000),
+    ("SuperBlack", 1000),
+    ("ExtraBlack", 1000),
+    ("Ultra",      1000),
+    ("Black",       900),
+    ("Heavy",       900),
+    ("",            400),  # fallback: unrecognised → regular
+])
+def test_alt_name_weight_from_subfamily(subfam, expected):
+    """_get_font_alt_names derives weight from the paired subfamily string."""
+    ms_key = (3, 1, 0x0409)
+    fake_font = MagicMock()
+    fake_font.get_sfnt.return_value = {
+        (*ms_key, 1): "Family Alt".encode("utf-16-be"),
+        (*ms_key, 2): subfam.encode("utf-16-be"),
+    }
+    result = _get_font_alt_names(fake_font, "Family")
+    assert result == [("Family Alt", expected)]
 
 
 def test_donot_cache_tracebacks():
