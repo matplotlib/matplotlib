@@ -2284,7 +2284,7 @@ class Parser:
         hlist = Hlist(symbols)
         # We're going into math now, so set font to 'normal'
         self.push_state()
-        self.get_state().font = "normal"
+        self.get_state().font = mpl.rcParams['mathtext.default']
         return [hlist]
 
     float_literal = staticmethod(pyparsing_common.convert_to_float)
