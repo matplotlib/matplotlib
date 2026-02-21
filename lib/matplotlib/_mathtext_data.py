@@ -1340,7 +1340,7 @@ _stix_virtual_fonts: dict[str, dict[str, list[_EntryTypeIn]] | list[_EntryTypeIn
              "\N{DOUBLE-STRUCK CAPITAL PI}"),
             ("\N{GREEK CAPITAL LETTER SIGMA}",
              "\N{GREEK CAPITAL LETTER SIGMA}",
-             "rm",
+             "rm", # not in STIX italic
              "\N{DOUBLE-STRUCK N-ARY SUMMATION}"),  # \Sigma (not in beta STIX fonts)
             ("\N{GREEK SMALL LETTER GAMMA}",
              "\N{GREEK SMALL LETTER GAMMA}",
