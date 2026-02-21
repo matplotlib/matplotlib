@@ -1230,7 +1230,7 @@ inline void RendererAgg::_draw_gouraud_triangle(PointArray &points,
                       tpoints[1][1],
                       tpoints[2][0],
                       tpoints[2][1],
-                      0.5);
+                      0.0);
 
     theRasterizer.add_path(span_gen);
 
@@ -1268,7 +1268,8 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
             std::to_string(colors.shape(0)) + "colors");
     }
 
-    pixFmt.comp_op(gc.comp_op);
+    // Always "plus" blend mode because it will be rendered into an intermediate buffer
+    pixFmt.comp_op(agg::comp_op_plus);
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
