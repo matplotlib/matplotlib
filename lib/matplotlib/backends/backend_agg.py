@@ -84,7 +84,6 @@ class RendererAgg(RendererBase):
         self.__init__(state['width'], state['height'], state['dpi'])
 
     def _update_methods(self):
-        self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers
         self.draw_path_collection = self._renderer.draw_path_collection
@@ -242,6 +241,17 @@ class RendererAgg(RendererBase):
         y = round(y + yd)
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
+    def draw_gouraud_triangles(self, gc, triangles_array, colors_array, transform):
+        # docstring inherited
+        # The Gouraud triangles are rendered into a temporary buffer using the "plus"
+        # blend mode in order to get the colors of the edges and vertices correct.
+        # Afterwards, the temporary buffer is blended into the primary buffer using the
+        # specified blend mode.
+        self.start_filter()
+        self._renderer._draw_gouraud_triangles(gc, triangles_array, colors_array,
+                                               transform)
+        self.stop_filter(lambda im, dpi: (im, 0, 0), blend_mode=gc.get_blend_mode())
+
     def get_canvas_width_height(self):
         # docstring inherited
         return self.width, self.height
@@ -325,7 +335,7 @@ class RendererAgg(RendererBase):
                                       self.dpi)
         self._update_methods()
 
-    def stop_filter(self, post_processing):
+    def stop_filter(self, post_processing, *, blend_mode="normal"):
         """
         Save the current canvas as an image and apply post processing.
 
