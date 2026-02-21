@@ -1,5 +1,5 @@
 Improve CJK fallback for generic sans-serif text
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When text uses the generic ``sans-serif`` family, Matplotlib now appends a
 small list of common CJK sans-serif family names to the glyph fallback chain
