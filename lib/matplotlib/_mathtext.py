@@ -488,12 +488,13 @@ class BakomaFonts(TruetypeFonts):
             slanted = (basename in ("cmmi10", "cmti10")) or sym in self._slanted_symbols
             font = self._get_font(basename)
         elif len(sym) == 1:
+            slanted = (fontname in ("it", "normal"))
             if fontname == "normal" and sym.isdigit():
                 # use digits from cmr (roman alphabet) instead of cmm (math alphabet),
                 # same as LaTeX does.
                 # This was previously mapped via `latex_to_bakoma`.
                 fontname = "rm"
-            slanted = (fontname == "it")
+                slanted = False
             font = self._get_font(fontname)
             if font is not None:
                 num = ord(sym)
