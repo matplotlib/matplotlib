@@ -1606,14 +1606,14 @@ class MultivarColormap:
 
         Parameters
         ----------
-        bad: :mpltype:`color`, default: None
+        bad : :mpltype:`color`, default: None
             If Matplotlib color, the bad value is set accordingly in the copy
 
-        under tuple of :mpltype:`color`, default: None
+        under : tuple of :mpltype:`color`, default: None
             If tuple, the 'under' value of each component is set with the values
             from the tuple.
 
-        over tuple of :mpltype:`color`, default: None
+        over : tuple of :mpltype:`color`, default: None
             If tuple, the 'over' value of each component is set with the values
             from the tuple.
 

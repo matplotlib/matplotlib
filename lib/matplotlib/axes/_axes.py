@@ -6166,7 +6166,7 @@ or pandas.DataFrame
             - (M, N): an image with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
-            - (v, M, N): if coupled with a cmap that supports v scalars
+            - (K, M, N): if coupled with a cmap that supports K scalars
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -6529,10 +6529,10 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        C : 2D (M, N) or 3D (v, M, N) array-like
+        C : 2D (M, N) or 3D (K, M, N) array-like
             The color-mapped values.  Color-mapping is controlled by *cmap*,
             *norm*, *vmin*, and *vmax*. 3D arrays are supported only if the
-            cmap supports v channels.
+            cmap supports K channels.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6743,7 +6743,7 @@ or pandas.DataFrame
             - (M, N) or M*N: a mesh with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
-            - (v, M, N): if coupled with a cmap that supports v scalars
+            - (K, M, N): if coupled with a cmap that supports K scalars
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -8860,6 +8860,9 @@ such objects
 
         """
         Z = np.asanyarray(Z)
+        if Z.ndim != 2:
+            if Z.ndim != 3 or Z.shape[2] not in (1, 3, 4):
+                raise TypeError(f"Invalid shape {Z.shape} for image data")
         kw = {'origin': 'upper',
               'interpolation': 'nearest',
               'aspect': 'equal',          # (already the imshow default)

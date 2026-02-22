@@ -10157,22 +10157,35 @@ def test_animated_artists_not_drawn_by_default():
     mocked_ln_draw.assert_not_called()
 
 
+def test_matshow_not_multivariate():
+    """
+    matshow() currently does not support multivariate/bivariate colormaps.
+    This test is to ensure coverage for the if-statement that checks for this.
+
+    This test should be removed if matshow() is updated to support
+    multivariate/bivariate colormaps.
+    """
+    fig, axes = plt.subplots()
+    arr = np.arange(24).reshape((-1, 4, 2))
+    with pytest.raises(TypeError, match="Invalid shape"):
+        axes.matshow(arr)
+
+
 @image_comparison(["bivariate_visualizations.png"])
 def test_bivariate_visualizations():
     x_0 = np.arange(25, dtype='float32').reshape(5, 5) % 5
     x_1 = np.arange(25, dtype='float32').reshape(5, 5).T % 5
 
-    fig, axes = plt.subplots(1, 6, figsize=(10, 2))
+    fig, axes = plt.subplots(1, 5, figsize=(8, 2))
 
     axes[0].imshow((x_0, x_1), cmap='BiPeak', interpolation='nearest')
-    axes[1].matshow((x_0, x_1), cmap='BiPeak')
-    axes[2].pcolor((x_0, x_1), cmap='BiPeak')
-    axes[3].pcolormesh((x_0, x_1), cmap='BiPeak')
+    axes[1].pcolor((x_0, x_1), cmap='BiPeak')
+    axes[2].pcolormesh((x_0, x_1), cmap='BiPeak')
 
     x = np.arange(5)
     y = np.arange(5)
     X, Y = np.meshgrid(x, y)
-    axes[4].pcolormesh(X, Y, (x_0, x_1), cmap='BiPeak')
+    axes[3].pcolormesh(X, Y, (x_0, x_1), cmap='BiPeak')
 
     patches = [
         mpl.patches.Wedge((.3, .7), .1, 0, 360),             # Full circle
@@ -10184,7 +10197,7 @@ def test_bivariate_visualizations():
     colors_1 = np.arange(len(patches)) % 2
     p = mpl.collections.PatchCollection(patches, cmap='BiPeak', alpha=0.5)
     p.set_array((colors_0, colors_1))
-    axes[5].add_collection(p)
+    axes[4].add_collection(p)
     remove_ticks_and_titles(fig)
 
 
@@ -10194,17 +10207,16 @@ def test_multivariate_visualizations():
     x_1 = np.arange(25, dtype='float32').reshape(5, 5).T % 5
     x_2 = np.arange(25, dtype='float32').reshape(5, 5) % 6
 
-    fig, axes = plt.subplots(1, 6, figsize=(10, 2))
+    fig, axes = plt.subplots(1, 5, figsize=(8, 2))
 
     axes[0].imshow((x_0, x_1, x_2), cmap='3VarAddA')
-    axes[1].matshow((x_0, x_1, x_2), cmap='3VarAddA')
-    axes[2].pcolor((x_0, x_1, x_2), cmap='3VarAddA')
-    axes[3].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA')
+    axes[1].pcolor((x_0, x_1, x_2), cmap='3VarAddA')
+    axes[2].pcolormesh((x_0, x_1, x_2), cmap='3VarAddA')
 
     x = np.arange(5)
     y = np.arange(5)
     X, Y = np.meshgrid(x, y)
-    axes[4].pcolormesh(X, Y, (x_0, x_1, x_2), cmap='3VarAddA')
+    axes[3].pcolormesh(X, Y, (x_0, x_1, x_2), cmap='3VarAddA')
 
     patches = [
         mpl.patches.Wedge((.3, .7), .1, 0, 360),             # Full circle
@@ -10217,7 +10229,7 @@ def test_multivariate_visualizations():
     colors_2 = np.arange(len(patches)) % 3
     p = mpl.collections.PatchCollection(patches, cmap='3VarAddA', alpha=0.5)
     p.set_array((colors_0, colors_1, colors_2))
-    axes[5].add_collection(p)
+    axes[4].add_collection(p)
     remove_ticks_and_titles(fig)
 
 

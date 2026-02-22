@@ -270,8 +270,8 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         self.set_interpolation(interpolation)
         if isinstance(self.norm, mcolors.MultiNorm):
             if interpolation_stage not in [None, 'data', 'auto']:
-                raise ValueError("when using multiple color channels 'data' "
-                                 "is the only valid interpolation_stage, not "
+                raise ValueError("when using multivariate color mapping 'data' "
+                                 "is the only valid interpolation_stage, but got "
                                  f"{interpolation_stage}")
             self.set_interpolation_stage('data')
         else:
@@ -474,7 +474,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                     norms = self.norm.norms
                     dtypes = [A.dtype.fields[f][0] for f in A.dtype.fields]
 
-                def get_scaled_dt(A):
+                def get_scaled_dtype(A):
                     # gets the scaled dtype
                     if A.dtype.kind == 'f':  # Float dtype: scale to same dtype.
                         scaled_dtype = np.dtype('f8' if A.dtype.itemsize > 4 else 'f4')
@@ -490,7 +490,9 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
                     return scaled_dtype
 
-                A_resampled = [_resample(self, a.astype(get_scaled_dt(a)), out_shape, t)
+                A_resampled = [_resample(self,
+                                         a.astype(get_scaled_dtype(a)),
+                                         out_shape, t)
                                for a in arrs]
 
                 # if using NoNorm, cast back to the original datatype
