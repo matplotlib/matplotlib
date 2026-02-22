@@ -534,7 +534,7 @@ class Quiver(mcollections.PolyCollection):
         if pivot.lower() == 'mid':
             pivot = 'middle'
         self.pivot = pivot.lower()
-        _api.check_in_list(self._PIVOT_VALS, pivot=self.pivot)
+        _api.check_in_list(['tail', 'mid', 'middle', 'tip'], pivot=self.pivot)
 
         self.transform = kwargs.pop('transform', ax.transData)
         kwargs.setdefault('facecolors', color)
