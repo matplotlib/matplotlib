@@ -277,6 +277,11 @@ class Colorizer:
     def get_clim(self):
         """
         Return the values (min, max) that are mapped to the colormap limits.
+
+        This function always returns min and max as tuples to ensure type consistency
+        when working with both scalar and multivariate color mapping.
+        See also `.ColorizingArtist.get_clim()` which returns scalars but is unavailable
+        for multivariate color mapping.
         """
         if self.norm.n_components == 1:
             return (self.norm.vmin, ), (self.norm.vmax, )
