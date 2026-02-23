@@ -1449,31 +1449,52 @@ class FontManager:
 
         fpaths = []
         for family in prop.get_family():
-            for fallback_family in self._expand_font_family_for_fallback(family):
-                cprop = prop.copy()
-                cprop.set_family(fallback_family)  # set current prop's family
+            family_fpaths = []
+            cprop = prop.copy()
+            cprop.set_family(family)  # set current prop's family
 
-                try:
-                    fpaths.append(
-                        self.findfont(
-                            cprop, fontext, directory,
-                            fallback_to_default=False,  # don't fallback to default
-                            rebuild_if_missing=rebuild_if_missing,
-                        )
+            try:
+                family_fpaths.append(
+                    self.findfont(
+                        cprop, fontext, directory,
+                        fallback_to_default=False,  # don't fallback to default
+                        rebuild_if_missing=rebuild_if_missing,
                     )
-                except ValueError:
-                    if fallback_family in font_family_aliases:
-                        _log.warning(
-                            "findfont: Generic family %r not found because "
-                            "none of the following families were found: %s",
-                            fallback_family,
-                            ", ".join(self._expand_aliases(fallback_family)),
-                        )
-                    else:
-                        _log.warning(
-                            "findfont: Font family %r not found.",
-                            fallback_family,
-                        )
+                )
+            except ValueError:
+                pass
+
+            # Keep historical warning behavior for the primary family search.
+            # CJK supplemental lookups are exploratory and stay silent.
+            if family.lower() in {"sans", "sans serif", "sans-serif"}:
+                for cjk_family in self._get_cjk_sans_fallbacks():
+                    cprop = prop.copy()
+                    cprop.set_family(cjk_family)
+                    try:
+                        with cbook._setattr_cm(_log, disabled=True):
+                            family_fpaths.append(
+                                self.findfont(
+                                    cprop, fontext, directory,
+                                    fallback_to_default=False,
+                                    rebuild_if_missing=rebuild_if_missing,
+                                )
+                            )
+                    except ValueError:
+                        continue
+
+            # Preserve previous warning behavior: at most one warning per
+            # requested family if no candidate could be resolved.
+            if not family_fpaths:
+                if family in font_family_aliases:
+                    _log.warning(
+                        "findfont: Generic family %r not found because "
+                        "none of the following families were found: %s",
+                        family, ", ".join(self._expand_aliases(family))
+                    )
+                else:
+                    _log.warning("findfont: Font family %r not found.", family)
+
+            fpaths.extend(family_fpaths)
 
         fpaths = list(dict.fromkeys(fpaths))
 
