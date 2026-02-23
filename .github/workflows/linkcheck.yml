@@ -1,0 +1,50 @@
+---
+name: Sphinx linkcheck
+
+on:
+  # Run weekly on Sunday at 6:00 UTC
+  schedule:
+    - cron: "0 6 * * 0"
+  # Allow manual triggering
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linkcheck:
+    name: Check documentation links
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'matplotlib'
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: "3.12"
+
+      - name: Install Matplotlib and doc dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --no-build-isolation --editable .[dev]
+          python -m pip install -r requirements/doc/doc-requirements.txt
+
+      - name: Run sphinx linkcheck
+        continue-on-error: true
+        run: |
+          cd doc
+          python -msphinx -b linkcheck -D plot_gallery=0 . build/linkcheck
+        env:
+          PYTHONFAULTHANDLER: 1
+
+      - name: Upload linkcheck results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: linkcheck-results
+          path: doc/build/linkcheck/
+          retention-days: 30

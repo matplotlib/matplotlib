@@ -281,6 +281,29 @@ intersphinx_mapping = {
     'pip': ('https://pip.pypa.io/en/stable/', None),
 }
 
+# Linkcheck settings
+# URLs to skip during link checking (known redirect chains, rate-limited hosts,
+# or URLs that require authentication).
+linkcheck_ignore = [
+    # DOIs redirect through doi.org resolver — always reachable but flagged as
+    # redirect by linkcheck.
+    r'https?://doi\.org/',
+    # GitHub may rate-limit the linkcheck bot.
+    r'https://github\.com/matplotlib/matplotlib/(issues|pull|commit|blob|tree)/',
+    # Raw GitHub content redirects.
+    r'https://raw\.githubusercontent\.com/',
+    # SourceForge mailing-list archives are frequently slow or unreachable in CI.
+    r'https?://sourceforge\.net/mailarchive/',
+    # Zenodo DOI badges redirect to the resolver.
+    r'https://zenodo\.org/badge/',
+]
+
+# Timeout (seconds) for each linkcheck request.
+linkcheck_timeout = 30
+
+# Retry failed links up to 3 times before reporting a failure.
+linkcheck_retries = 3
+
 
 gallery_dirs = [f'{ed}' for ed in
                 ['gallery', 'tutorials', 'plot_types', 'users/explain']
