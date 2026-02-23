@@ -13,7 +13,7 @@ from numbers import Real
 from functools import lru_cache
 
 import matplotlib as mpl
-from . import _api, artist, cbook, _docstring
+from . import _api, artist, cbook, _docstring, colors as mcolors
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -33,14 +33,14 @@ def _rotate(theta):
     return Affine2D().rotate(theta)
 
 
-def _rotate_point(rotation, x, y):
+def _rotate_point(angle, x, y):
     """
     Rotate point (x, y) by rotation angle in degrees
     """
-    if rotation == 0:
+    if angle == 0:
         return (x, y)
-    rotation_rad = math.radians(rotation)
-    cos, sin = math.cos(rotation_rad), math.sin(rotation_rad)
+    angle_rad = math.radians(angle)
+    cos, sin = math.cos(angle_rad), math.sin(angle_rad)
     return (cos * x - sin * y, sin * x + cos * y)
 
 
@@ -529,12 +529,11 @@ class Text(Artist):
                              for x, y, w in zip(xs, ys, ws)]
 
         # the corners of the unrotated bounding box
-        corners_horiz = np.array(
-            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
+        corners_horiz = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
 
         # now rotate the bbox
-        rotation = self.get_rotation()
-        rotate = functools.partial(_rotate_point, rotation)
+        angle = self.get_rotation()
+        rotate = functools.partial(_rotate_point, angle)
         corners_rotated = [rotate(x, y) for x, y in corners_horiz]
 
         # compute the bounds of the rotated box
@@ -552,9 +551,9 @@ class Text(Artist):
         rotation_mode = self.get_rotation_mode()
         if rotation_mode != "anchor":
             if rotation_mode == 'xtick':
-                halign = self._ha_for_angle(rotation)
+                halign = self._ha_for_angle(angle)
             elif rotation_mode == 'ytick':
-                valign = self._va_for_angle(rotation)
+                valign = self._va_for_angle(angle)
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
             if halign == 'center':
@@ -746,11 +745,11 @@ class Text(Artist):
         # Calculate available width based on text alignment
         alignment = self.get_horizontalalignment()
         self.set_rotation_mode('anchor')
-        rotation = self.get_rotation()
+        angle = self.get_rotation()
 
-        left = self._get_dist_to_box(rotation, x0, y0, figure_box)
+        left = self._get_dist_to_box(angle, x0, y0, figure_box)
         right = self._get_dist_to_box(
-            (180 + rotation) % 360, x0, y0, figure_box)
+            (180 + angle) % 360, x0, y0, figure_box)
 
         if alignment == 'left':
             line_width = left
