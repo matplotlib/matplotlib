@@ -910,6 +910,8 @@ _docstring.interpd.register(barbs_doc=_barbs_doc)
 
 
 class Barbs(mcollections.PolyCollection):
+    _PIVOT_VALS = ('tail', 'mid', 'middle', 'tip')
+    _PIVOT_SYNONYMS = {'mid': 'middle'}
     """
     Specialized PolyCollection for barbs.
 
@@ -945,7 +947,9 @@ class Barbs(mcollections.PolyCollection):
         self.rounding = rounding
         self.flip = np.atleast_1d(flip_barb)
         transform = kwargs.pop('transform', ax.transData)
-        self._pivot = pivot
+        pivot = pivot.lower()
+        _api.check_in_list(self._PIVOT_VALS, pivot=pivot)
+        self.pivot = self._PIVOT_SYNONYMS.get(pivot, pivot)
         self._length = length
 
         # Flagcolor and barbcolor provide convenience parameters for
