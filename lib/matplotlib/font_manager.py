@@ -1489,7 +1489,7 @@ class FontManager:
             # repeated "not found" warnings.
             if (
                 family.lower() in {"sans", "sans serif", "sans-serif"}
-                and family_fpaths
+                and not family_fpaths
             ):
                 warning_filter = _FindfontNotFoundWarningFilter()
                 _log.addFilter(warning_filter)

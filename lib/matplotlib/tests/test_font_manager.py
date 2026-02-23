@@ -299,6 +299,8 @@ def test_find_fonts_by_props_adds_cjk_fallback(monkeypatch):
     def mock_findfont(prop, *args, **kwargs):
         family, = prop.get_family()
         calls.append(family)
+        if family == "sans-serif":
+            raise ValueError("sans-serif missing")
         return f"{family}.ttf"
 
     monkeypatch.setattr(fontManager, "findfont", mock_findfont)
