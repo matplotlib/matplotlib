@@ -298,15 +298,21 @@ def test_find_fonts_by_props_adds_cjk_fallback(monkeypatch):
 
     def mock_findfont(prop, *args, **kwargs):
         family, = prop.get_family()
-        calls.append(family)
+        calls.append(("primary", family))
         if family == "sans-serif":
             raise ValueError("sans-serif missing")
         return f"{family}.ttf"
 
+    def mock_findfont_no_warning(prop, *args, **kwargs):
+        family, = prop.get_family()
+        calls.append(("probe", family))
+        return f"{family}.ttf"
+
     monkeypatch.setattr(fontManager, "findfont", mock_findfont)
+    monkeypatch.setattr(fontManager, "_findfont_no_warning", mock_findfont_no_warning)
 
     fpaths = fontManager._find_fonts_by_props(FontProperties(family=["sans-serif"]))
-    assert "Noto Sans CJK SC" in calls
+    assert ("probe", "Noto Sans CJK SC") in calls
     assert "Noto Sans CJK SC.ttf" in fpaths
 
 

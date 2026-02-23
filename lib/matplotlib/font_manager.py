@@ -53,25 +53,6 @@ from matplotlib.rcsetup import _validators
 _log = logging.getLogger(__name__)
 
 
-class _FindfontNotFoundWarningFilter(logging.Filter):
-    """Filter only findfont not-found warnings for the current thread."""
-
-    def __init__(self):
-        super().__init__()
-        self._thread = threading.get_ident()
-
-    def filter(self, record):
-        if record.thread != self._thread or record.levelno != logging.WARNING:
-            return True
-        msg = record.getMessage()
-        is_family_not_found = (
-            msg.startswith("findfont: Font family")
-            and "not found" in msg
-        )
-        is_generic_not_found = msg.startswith("findfont: Generic family")
-        return not (is_family_not_found or is_generic_not_found)
-
-
 font_scalings = {
     'xx-small': 0.579,
     'x-small':  0.694,
@@ -1420,6 +1401,62 @@ class FontManager:
         """Return the list of available fonts."""
         return list({font.name for font in self.ttflist})
 
+    def _findfont_no_warning(
+        self, prop, fontext='ttf', directory=None, rebuild_if_missing=True
+    ):
+        """
+        Find the nearest font match without emitting findfont warnings.
+
+        This is used for exploratory fallback probing where we need to test
+        optional candidates without changing warning semantics for the primary
+        family lookup.
+        """
+        prop = FontProperties._from_any(prop)
+
+        fname = prop.get_file()
+        if fname is not None:
+            return fname
+
+        if fontext == 'afm':
+            fontlist = self.afmlist
+        else:
+            fontlist = self.ttflist
+
+        best_score = 1e64
+        best_font = None
+
+        for font in fontlist:
+            if (directory is not None and
+                    Path(directory) not in Path(font.fname).parents):
+                continue
+            score = (self.score_family(prop.get_family(), font.name) * 10
+                     + self.score_style(prop.get_style(), font.style)
+                     + self.score_variant(prop.get_variant(), font.variant)
+                     + self.score_weight(prop.get_weight(), font.weight)
+                     + self.score_stretch(prop.get_stretch(), font.stretch)
+                     + self.score_size(prop.get_size(), font.size))
+            if score < best_score:
+                best_score = score
+                best_font = font
+            if score == 0:
+                break
+
+        if best_font is None or best_score >= 10.0:
+            return None
+
+        result = best_font.fname
+        if not os.path.isfile(result):
+            if rebuild_if_missing:
+                _log.info(
+                    'findfont: Found a missing font file.  Rebuilding cache.')
+                new_fm = _load_fontmanager(try_read_cache=False)
+                vars(self).update(vars(new_fm))
+                return self._findfont_no_warning(
+                    prop, fontext, directory, rebuild_if_missing=False)
+            return None
+
+        return _cached_realpath(result)
+
     def _find_fonts_by_props(self, prop, fontext='ttf', directory=None,
                              fallback_to_default=True, rebuild_if_missing=True):
         """
@@ -1491,24 +1528,15 @@ class FontManager:
                 family.lower() in {"sans", "sans serif", "sans-serif"}
                 and not family_fpaths
             ):
-                warning_filter = _FindfontNotFoundWarningFilter()
-                _log.addFilter(warning_filter)
-                try:
-                    for cjk_family in self._get_cjk_sans_fallbacks():
-                        cprop = prop.copy()
-                        cprop.set_family(cjk_family)
-                        try:
-                            family_fpaths.append(
-                                self.findfont(
-                                    cprop, fontext, directory,
-                                    fallback_to_default=False,
-                                    rebuild_if_missing=rebuild_if_missing,
-                                )
-                            )
-                        except ValueError:
-                            continue
-                finally:
-                    _log.removeFilter(warning_filter)
+                for cjk_family in self._get_cjk_sans_fallbacks():
+                    cprop = prop.copy()
+                    cprop.set_family(cjk_family)
+                    cjk_fpath = self._findfont_no_warning(
+                        cprop, fontext, directory,
+                        rebuild_if_missing=rebuild_if_missing,
+                    )
+                    if cjk_fpath is not None:
+                        family_fpaths.append(cjk_fpath)
 
             # Preserve previous warning behavior: at most one warning per
             # requested family if no candidate could be resolved.
