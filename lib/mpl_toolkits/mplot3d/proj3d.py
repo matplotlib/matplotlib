@@ -131,6 +131,33 @@ def _ortho_transformation(zfront, zback):
     return proj_matrix
 
 
+def _apply_scale_transforms(xs, ys, zs, axes):
+    """
+    Apply axis scale transforms to 3D coordinates.
+
+    Transforms data coordinates to transformed coordinates (applying log,
+    symlog, etc.) for 3D projection. Preserves masked arrays.
+    """
+    def transform_coord(coord, axis):
+        coord = np.asanyarray(coord)
+        data = np.ma.getdata(coord).ravel()
+        return axis.get_transform().transform(data).reshape(coord.shape)
+
+    xs_scaled = transform_coord(xs, axes.xaxis)
+    ys_scaled = transform_coord(ys, axes.yaxis)
+    zs_scaled = transform_coord(zs, axes.zaxis)
+
+    # Preserve combined mask from any masked input
+    masks = [np.ma.getmask(a) for a in [xs, ys, zs]]
+    if any(m is not np.ma.nomask for m in masks):
+        combined = np.ma.mask_or(np.ma.mask_or(masks[0], masks[1]), masks[2])
+        xs_scaled = np.ma.array(xs_scaled, mask=combined)
+        ys_scaled = np.ma.array(ys_scaled, mask=combined)
+        zs_scaled = np.ma.array(zs_scaled, mask=combined)
+
+    return xs_scaled, ys_scaled, zs_scaled
+
+
 def _proj_transform_vec(vec, M):
     vecw = np.dot(M, vec.data)
     ts = vecw[0:3]/vecw[3]
@@ -234,3 +261,50 @@ def _proj_trans_points(points, M):
     points = np.asanyarray(points)
     xs, ys, zs = points[:, 0], points[:, 1], points[:, 2]
     return proj_transform(xs, ys, zs, M)
+
+
+def _proj_transform_clip_scaled(xs, ys, zs, axes):
+    """
+    Apply scale transforms and project with clipping.
+
+    Combines `_apply_scale_transforms` and `_proj_transform_clip` into a
+    single call. Returns txs, tys, tzs, tis.
+    """
+    xs, ys, zs = _apply_scale_transforms(xs, ys, zs, axes)
+    return _proj_transform_clip(xs, ys, zs, axes.M, axes._focal_length)
+
+
+def _proj_transform_vectors_scaled(vecs, axes):
+    """
+    Apply scale transforms and project vectors.
+
+    Combines `_apply_scale_transforms` and `_proj_transform_vectors` into a
+    single call. *vecs* has shape ``(..., 3)``.
+    """
+    xs, ys, zs = _apply_scale_transforms(
+        vecs[..., 0], vecs[..., 1], vecs[..., 2], axes)
+    vecs = np.stack([xs, ys, zs], axis=-1)
+    return _proj_transform_vectors(vecs, axes.M)
+
+
+def _proj_transform_scaled(xs, ys, zs, axes):
+    """
+    Apply scale transforms and project.
+
+    Combines `_apply_scale_transforms` and `proj_transform` into a single
+    call. Returns txs, tys, tzs.
+    """
+    xs, ys, zs = _apply_scale_transforms(xs, ys, zs, axes)
+    return proj_transform(xs, ys, zs, axes.M)
+
+
+def _proj_trans_points_scaled(points, axes):
+    """
+    Apply scale transforms and project points.
+
+    Combines `_apply_scale_transforms` and `_proj_trans_points` into a single
+    call.
+    """
+    points = np.asanyarray(points)
+    xs, ys, zs = points[:, 0], points[:, 1], points[:, 2]
+    return _proj_transform_scaled(xs, ys, zs, axes)
