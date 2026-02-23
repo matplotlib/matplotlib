@@ -52,6 +52,26 @@ from matplotlib.rcsetup import _validators
 
 _log = logging.getLogger(__name__)
 
+
+class _FindfontNotFoundWarningFilter(logging.Filter):
+    """Filter only findfont not-found warnings for the current thread."""
+
+    def __init__(self):
+        super().__init__()
+        self._thread = threading.get_ident()
+
+    def filter(self, record):
+        if record.thread != self._thread or record.levelno != logging.WARNING:
+            return True
+        msg = record.getMessage()
+        is_family_not_found = (
+            msg.startswith("findfont: Font family")
+            and "not found" in msg
+        )
+        is_generic_not_found = msg.startswith("findfont: Generic family")
+        return not (is_family_not_found or is_generic_not_found)
+
+
 font_scalings = {
     'xx-small': 0.579,
     'x-small':  0.694,
@@ -1465,13 +1485,19 @@ class FontManager:
                 pass
 
             # Keep historical warning behavior for the primary family search.
-            # CJK supplemental lookups are exploratory and stay silent.
-            if family.lower() in {"sans", "sans serif", "sans-serif"}:
-                for cjk_family in self._get_cjk_sans_fallbacks():
-                    cprop = prop.copy()
-                    cprop.set_family(cjk_family)
-                    try:
-                        with cbook._setattr_cm(_log, disabled=True):
+            # CJK supplemental lookups are exploratory and should not emit
+            # repeated "not found" warnings.
+            if (
+                family.lower() in {"sans", "sans serif", "sans-serif"}
+                and family_fpaths
+            ):
+                warning_filter = _FindfontNotFoundWarningFilter()
+                _log.addFilter(warning_filter)
+                try:
+                    for cjk_family in self._get_cjk_sans_fallbacks():
+                        cprop = prop.copy()
+                        cprop.set_family(cjk_family)
+                        try:
                             family_fpaths.append(
                                 self.findfont(
                                     cprop, fontext, directory,
@@ -1479,8 +1505,10 @@ class FontManager:
                                     rebuild_if_missing=rebuild_if_missing,
                                 )
                             )
-                    except ValueError:
-                        continue
+                        except ValueError:
+                            continue
+                finally:
+                    _log.removeFilter(warning_filter)
 
             # Preserve previous warning behavior: at most one warning per
             # requested family if no candidate could be resolved.
