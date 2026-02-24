@@ -501,7 +501,8 @@ class Quiver(mcollections.PolyCollection):
     in the draw() method.
     """
 
-    _PIVOT_VALS = ('tail', 'middle', 'tip')
+    _PIVOT_VALS = ('tail', 'mid','middle', 'tip')
+    _PIVOT_SYNONYMS={'mid':'middle'}
 
     @_docstring.Substitution(_quiver_doc)
     def __init__(self, ax, *args,
@@ -531,10 +532,9 @@ class Quiver(mcollections.PolyCollection):
         self.angles = angles
         self.width = width
 
-        if pivot.lower() == 'mid':
-            pivot = 'middle'
-        self.pivot = pivot.lower()
-        _api.check_in_list(self._PIVOT_VALS, pivot=self.pivot)
+        pivot: str = pivot.lower()
+        _api.check_in_list(self._PIVOT_VALS, pivot=pivot)
+        self.pivot=self._PIVOT_SYNONYMS.get(pivot,pivot)
 
         self.transform = kwargs.pop('transform', ax.transData)
         kwargs.setdefault('facecolors', color)
@@ -752,7 +752,7 @@ class Quiver(mcollections.PolyCollection):
             # float first, as with 'mid'.
             X = X - X[:, 3, np.newaxis]
         elif self.pivot != 'tail':
-            _api.check_in_list(["middle", "tip", "tail"], pivot=self.pivot)
+            _api.check_in_list(self._PIVOT_VALS, pivot=self.pivot)
 
         tooshort = length < self.minlength
         if tooshort.any():
@@ -910,6 +910,8 @@ _docstring.interpd.register(barbs_doc=_barbs_doc)
 
 
 class Barbs(mcollections.PolyCollection):
+    _PIVOT_VALS = ('tail', 'mid', 'middle', 'tip')
+    _PIVOT_SYNONYMS = {'mid': 'middle'}
     """
     Specialized PolyCollection for barbs.
 
@@ -945,7 +947,9 @@ class Barbs(mcollections.PolyCollection):
         self.rounding = rounding
         self.flip = np.atleast_1d(flip_barb)
         transform = kwargs.pop('transform', ax.transData)
-        self._pivot = pivot
+        pivot = pivot.lower()
+        _api.check_in_list(self._PIVOT_VALS, pivot=pivot)
+        self.pivot = self._PIVOT_SYNONYMS.get(pivot, pivot)
         self._length = length
 
         # Flagcolor and barbcolor provide convenience parameters for
