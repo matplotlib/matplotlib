@@ -62,10 +62,12 @@ Ways to contribute
 
       Understanding the entire codebase is a long-term project, and nobody expects
       you to do this right away. If you are determined to get started with
-      Matplotlib and want to learn, going through the basic functionality,
-      choosing something to focus on (3d, testing, documentation, animations, etc.)
-      and gaining context on this area by reading the issues and pull requests
-      touching these subjects is a reasonable approach.
+      Matplotlib and want to learn, go through the basic functionality and choose
+      something to focus on related to your interests, for example 3d, testing,
+      documentation, or animations. Please gain understanding and context of this area
+      by reading the issues and pull requests touching these subjects and then reach out
+      to us at the :ref:`new contributor <new_contributors>` meeting or discourse
+      channel (incubator) to discuss what you would like to work on.
 
 .. _contribute_code:
 
@@ -196,6 +198,10 @@ We expect authentic engagement in our community.
 - If you use generative AI tools as an aid in developing code or documentation
   changes, ensure that you fully understand the proposed changes and can
   explain why they are the correct approach.
+- If you use AI for translation or grammar correction, please keep the wording as close
+  as possible to the original wording. It is much easier to come to a mutual
+  understanding when we are working off a direct translation of your words/thoughts
+  rather than a text an LLM may have embellished with possibly spurious information.
 
 Make sure you have added value based on your personal competency to your
 contributions. Just taking some input, feeding it to an AI and posting the
@@ -283,7 +289,12 @@ guide you through each step:
    & `"Good first Issue" <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ (optional).
 3. Click on an issue you would like to work on, and check to see if the issue has a pull request opened to resolve it.
 
-   * A good way to judge if you chose a suitable issue is by asking yourself, "Can I independently submit a PR in 1-2 weeks?"
+   * A good way to judge if you chose a suitable issue is by asking yourself, "Can I
+     independently submit a PR in a reasonable time frame?" This should (at most)
+     be a few days for an easy issue. If it takes longer, let us know why.
+   * If you are new to open source, we strongly recommend that you do not choose a
+     complicated issue for your first contribution - please ask in the incubator
+     channel if you need help gauging the complexity of the work.
 4. Check existing pull requests (e.g., :ghpull:`28476`) and filter by the issue number to make sure the issue is not in progress:
 
    * If the issue has a pull request (is in progress), tag the user working on the issue, and ask to collaborate (optional).
