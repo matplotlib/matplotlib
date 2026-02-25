@@ -2795,6 +2795,7 @@ class DummyEvent:
         self.x = 0
         self.y = 0
         self.button = 1
+        self.key = "control"
 
 
 def _is_multiple_of_step(val, step):
@@ -2817,7 +2818,11 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
     ax.azim = 33.7
     ax.roll = 2.2
 
-    ax._snap_rotation = True
+    monkeypatch.setitem(
+        plt.rcParams,
+        "axes3d.snap_rotation",
+        5,
+    )
 
     monkeypatch.setitem(plt.rcParams, "axes3d.mouserotationstyle", "azel")
 
@@ -2830,7 +2835,7 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
 
     monkeypatch.setattr(ax, "view_init", fake_view_init)
 
-    event = DummyEvent(xdata=0.1, ydata=0.1, inaxes=ax)
+    event = DummyEvent(xdata=0.1, ydata=0.1, inaxes=ax,key="control")
     ax._on_move(event)
 
     assert _is_multiple_of_step(captured["elev"], 5)

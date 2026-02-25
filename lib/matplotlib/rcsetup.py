@@ -1181,6 +1181,7 @@ _validators = {
     "axes3d.mouserotationstyle": ["azel", "trackball", "sphere", "arcball"],
     "axes3d.trackballsize": validate_float,
     "axes3d.trackballborder": validate_float,
+    "axes3d.snap_rotation": validate_float,
 
     # scatter props
     "scatter.marker":     _validate_marker,
@@ -2143,6 +2144,12 @@ _params = [
         description="trackball border width, in units of the Axes bbox (only for "
                     "'sphere' and 'arcball' style)"
     ),
+    _Param(
+        "axes3d.snap_rotation",
+        default=5.0,
+        validator=validate_float,
+        description="Snap angle (in degrees) for 3D rotation when holding Control."
+   ),
     _Param(
         "xaxis.labellocation",
         default="center",

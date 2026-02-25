@@ -174,17 +174,12 @@ class Axes3D(Axes):
 
         self.mouse_init()
         fig = self.get_figure(root=True)
-        self._snap_rotation = False
         fig.canvas.callbacks._connect_picklable(
             'motion_notify_event', self._on_move)
         fig.canvas.callbacks._connect_picklable(
             'button_press_event', self._button_press)
         fig.canvas.callbacks._connect_picklable(
             'button_release_event', self._button_release)
-        fig.canvas.callbacks._connect_picklable(
-           'key_press_event', self._key_press)
-        fig.canvas.callbacks._connect_picklable(
-            'key_release_event', self._key_release)
         self.set_top_view()
 
         self.patch.set_linewidth(0)
@@ -1360,16 +1355,6 @@ class Axes3D(Axes):
 
         self.grid(mpl.rcParams['axes3d.grid'])
 
-    def _key_press(self, event):
-        if event.key in ("control", "ctrl"):
-            self._snap_rotation = True
-
-
-    def _key_release(self, event):
-        if event.key in ("control", "ctrl"):
-            self._snap_rotation = False
-
-
     def _button_press(self, event):
         if event.inaxes == self:
             self.button_pressed = event.button
@@ -1612,11 +1597,15 @@ class Axes3D(Axes):
 
                 q = dq * q
                 elev, azim, roll = np.rad2deg(q.as_cardan_angles())
-            if getattr(self, "_snap_rotation", False):
-                step = 5
-                elev = float(step * round(elev / step))
-                azim = float(step * round(azim / step))
-                roll = float(step * round(roll / step))
+            step = mpl.rcParams["axes3d.snap_rotation"]
+            if (
+                step > 0
+                and getattr(event, "key", None)
+                and "control" in event.key
+            ):
+                elev = step * round(elev / step)
+                azim = step * round(azim / step)
+                roll = step * round(roll / step)
 
             # update view
             vertical_axis = self._axis_names[self._vertical_axis]
