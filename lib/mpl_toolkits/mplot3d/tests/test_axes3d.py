@@ -2828,9 +2828,7 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
         button=1,
     )
     press_event.inaxes = ax
-    ax._button_press(press_event)
-
-    ax._sx, ax._sy = press_event.x, press_event.y
+    ax._on_press(press_event)
 
     move_event = MouseEvent(
         "motion_notify_event",
@@ -2841,7 +2839,6 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
         key="control",
     )
     move_event.inaxes = ax
-    move_event.button = 1
 
 
     ax._on_move(move_event)
@@ -2853,3 +2850,5 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
 
     assert captured["elev"] == pytest.approx(expected_elev)
     assert captured["azim"] == pytest.approx(expected_azim)
+
+    plt.close(fig)
