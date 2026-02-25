@@ -4,10 +4,14 @@ import os
 import platform
 import subprocess
 import sys
+import tkinter as tk
+from unittest.mock import patch
 
 import pytest
 
 from matplotlib import _c_internal_utils
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 from matplotlib.testing import subprocess_run_helper
 
 
@@ -283,58 +287,45 @@ def test_embedding():
 
 
 @_isolated_tk_test(success_count=1)
-def test_hidpi_embedded_canvas():
+def test_dpi_change_triggers_resize():
     """
-    Test that embedded canvas in layout-managed container handles HiDPI
-    correctly without clipping. This tests the fix for issue #31126.
+    Test that _update_device_pixel_ratio recalculates figure.size_inches
+    using the actual widget dimensions, so the render size matches the
+    visible canvas area even when constrained by a layout manager.
+    See issue #31126.
     """
-    import tkinter as tk
-    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-    from matplotlib.figure import Figure
-
     root = tk.Tk()
-    root.geometry("800x600")
+    root.geometry("400x300")
+    root.update_idletasks()
 
-    # Create a frame with pack layout manager
-    frame = tk.Frame(root)
-    frame.pack(fill=tk.BOTH, expand=True)
+    fig = Figure(dpi=100)
+    fig.add_subplot(111)
 
-    # Create figure with initial DPI
-    fig = Figure(dpi=96)
-    ax = fig.add_subplot(111)
-    ax.plot([1, 2, 3], [1, 2, 3])
-    ax.set_xlabel("X Axis")
-    ax.set_ylabel("Y Axis")
-    ax.set_title("HiDPI Test")
-
-    # Embed canvas in the frame
-    canvas = FigureCanvasTkAgg(fig, master=frame)
+    canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    canvas.draw()
+    root.update_idletasks()
 
-    def check_sizes():
-        # Force a draw and update
-        canvas.draw()
-        root.update_idletasks()
+    actual_w = canvas.get_tk_widget().winfo_width()
+    actual_h = canvas.get_tk_widget().winfo_height()
+    assert actual_w > 0 and actual_h > 0
 
-        # Get actual canvas size
-        w = canvas.get_tk_widget()
-        actual_w = w.winfo_width()
-        actual_h = w.winfo_height()
+    # Simulate a 2x DPI change through _update_device_pixel_ratio.
+    # Mock the platform-specific DPI query to return ratio=2.0.
+    with patch.object(sys, 'platform', 'linux'), \
+         patch.object(canvas._tkcanvas, 'winfo_fpixels',
+                      return_value=192.0):
+        canvas._update_device_pixel_ratio()
 
-        # Get render size
-        sz = fig.get_size_inches()
-        render_w = int(sz[0] * fig.dpi)
-        render_h = int(sz[1] * fig.dpi)
+    # Verify the render size matches the actual widget size, NOT the
+    # inflated physical size from get_width_height(physical=True).
+    size = fig.get_size_inches()
+    render_w = round(size[0] * fig.dpi)
+    render_h = round(size[1] * fig.dpi)
+    assert abs(render_w - actual_w) <= 2, \
+        f"render width {render_w} != actual width {actual_w}"
+    assert abs(render_h - actual_h) <= 2, \
+        f"render height {render_h} != actual height {actual_h}"
 
-        # The render size should match the actual size (within small tolerance
-        # for rounding). This verifies that figure.size_inches was properly
-        # recalculated after DPI change.
-        # Allow 2 pixel tolerance for rounding differences
-        if abs(render_w - actual_w) <= 2 and abs(render_h - actual_h) <= 2:
-            print("success")
-
-        root.destroy()
-
-    # Give the window time to appear and process DPI updates
-    root.after(500, check_sizes)
-    root.mainloop()
+    print("success")
+    root.destroy()
