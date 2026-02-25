@@ -27,14 +27,75 @@ Our approach to community engagement is foremost guided by our :ref:`mission-sta
   by creating educational resources, building third party tools, and building
   informal mentoring networks.
 
+
+Moderation
+===========
+All matplotlib maintainers are moderators on github. If you are interested in moderating
+the discourse forum or helping manage the social media accounts:
+
+* Matplotlib maintainers should reach out to the `community-manager`_.
+
+* Everyone else should send an email to matplotlib-social-admin@numfocus.org:
+
+  * Introduce yourself - GitHub handle and participation in the community.
+  * Describe the reason for wanting to moderate or contribute to social.
+
+Enforcement Responsibilities
+----------------------------
+Any person granted moderator responsibilities is granted the authority to clarify and
+enforce our standards of acceptable behavior. This is a supplement to our Code of Conduct,
+not a replacement; moderators should make use of the :ref:`code_of_conduct` process for
+CoC violations. In addition violations of platform specific terms of service
+(e.g. github, discourse, instagram) should be reported to that platform.
+
+On the platforms they have moderation rights on, moderators may hide, edit, or reject
+comments, commits, code, wiki edits, issues, and other contributions that violate our
+:ref:`contributing guidelines <developers-guide-index>`. Deletion should only be used to
+remove sensitive information that can not be removed through edits. On most platforms,
+these actions can be accessed through the [...] context menu.
+
+Communication
+^^^^^^^^^^^^^
+After taking action, Moderators should publicly communicate their reasons for
+doing so to the user when possible, e.g. when doing so will not reveal sensitive
+information. When the situation is sensitive, moderators should reassess whether the
+situation would be better handled through the code of conduct process and attempt to
+communicate privately with the user (e.g. DMs) if appropriate.
+
+Consequences
+^^^^^^^^^^^^
+Moderators have the right and responsibility to enforce consequences for disruptive
+behavior. Moderators are welcome to consult on levying consequences in the ``staff``
+discourse channel. When possible, this should be done in the following stages:
+
+* warn: alert the user of their misconduct and how they can remedy the situation
+  - this can be done privately and then publicly if the behavior persists
+  - second warning should mention consequence of not heeding warning
+* temporary ban: apply a short term ban from the platform (default 1 week)
+  - temporary bans can be applied in increasing increments at the moderator's discretion
+* permanent ban from the platform
+
+If the user has not modified their behavior in an acceptable fashion, then the moderator
+can move to the next stage. Moderators should notify the other maintainers of temporary
+and permanent bans via the ``staff`` discourse channel or at the weekly developer meeting.
+When feasible, moderators should also maintain a record of the unacceptable behavior. If
+the user would like to appeal the decision, moderators should make use of the code of
+conduct process to resolve the situation by directing the user to file a code of conduct
+report.
+
+Moderators may immediately ban users in extenuating circumstance, such as while a
+CoC or TOS report is being investigated or when the user is an agent or bot. Moderators
+should file a code of conduct report for users they feel should be banned from all
+platforms.
+
+
 .. _communication-channels:
 
-Official communication channels
-===============================
-The Scientific Python community uses various communications platforms to stay
-updated on new features and projects, to contribute by telling us what is on
-their mind and suggest issues and bugs, and to showcase their use cases and the
-tools they have built.
+Official project platforms
+==========================
+The Scientific Python community uses various platforms to stay updated on new features
+and projects, to contribute by telling us what is on their mind and suggest issues and
+bugs, and to showcase their use cases and the tools they have built.
 
 The following venues are managed by Matplotlib maintainers and contributors:
 
@@ -78,20 +139,6 @@ Social media coordination
 -------------------------
 * Team mailing list: matplotlib-social@numfocus.org
 * Public chat room: `https://matrix.to/#/#matplotlib_community:gitter.im <https://matrix.to/#/#matplotlib_community:gitter.im>`_
-
-
-Maintenance
------------
-
-If you are interested in moderating the chat or forum or accessing the social
-media accounts:
-
-* Matplotlib maintainers should reach out to the `community-manager`_.
-
-* Everyone else should send an email to matplotlib-social-admin@numfocus.org:
-
-  * Introduce yourself - GitHub handle and participation in the community.
-  * Describe the reason for wanting to moderate or contribute to social.
 
 
 Content guidelines
@@ -262,8 +309,8 @@ Changing the guidelines
 
 As the person tasked with implementing these guidelines, the `community-manager`_
 should be alerted to proposed changes. Similarly, specific platform guidelines
-(e.g. X, Instagram) should be reviewed by the person responsible for that
-platform, when different from the community manager. If there is no consensus,
+(e.g. github, discourse, Instagram) should be reviewed by the person responsible for
+that platform, when different from the community manager. If there is no consensus,
 decisions about guidelines revert to the community manager.
 
 .. _community-manager: https://matplotlib.org/governance/people.html#deputy-project-leads
