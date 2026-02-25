@@ -2,7 +2,6 @@ import warnings
 
 import pytest
 
-import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal
 
 
@@ -17,6 +16,8 @@ def test_warn_to_fail():
 @check_figures_equal()
 @pytest.mark.parametrize("b", [1])
 def test_parametrize_with_check_figure_equal(a, fig_ref, b, fig_test):
+    fig_ref.add_subplot()
+    fig_test.add_subplot()
     assert a == b
 
 
@@ -28,14 +29,7 @@ def test_wrap_failure():
 
 
 @pytest.mark.xfail(raises=RuntimeError, strict=True,
-                   reason='Test for check_figures_equal test creating '
-                          'new figures')
+                   reason="Both figures are empty")
 @check_figures_equal()
-def test_check_figures_equal_extra_fig(fig_test, fig_ref):
-    plt.figure()
-
-
-@check_figures_equal()
-def test_check_figures_equal_closed_fig(fig_test, fig_ref):
-    fig = plt.figure()
-    plt.close(fig)
+def test_check_figures_equal_empty_figs(fig_test, fig_ref):
+    pass

@@ -117,7 +117,7 @@ def test_polar_units_1(fig_test, fig_ref):
     xs = [30.0, 45.0, 60.0, 90.0]
     ys = [1.0, 2.0, 3.0, 4.0]
 
-    plt.figure(fig_test.number)
+    plt.figure(fig_test)
     plt.polar([x * units.deg for x in xs], ys)
 
     ax = fig_ref.add_subplot(projection="polar")
@@ -134,7 +134,7 @@ def test_polar_units_2(fig_test, fig_ref):
     ys = [1.0, 2.0, 3.0, 4.0]
     ys_km = [y * units.km for y in ys]
 
-    plt.figure(fig_test.number)
+    plt.figure(fig_test)
     # test {theta,r}units.
     plt.polar(xs_deg, ys_km, thetaunits="rad", runits="km")
     assert isinstance(plt.gca().xaxis.get_major_formatter(),

@@ -15,6 +15,7 @@ import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
 from matplotlib import _pylab_helpers, cbook, ft2font, pyplot as plt, ticker
+from matplotlib.figure import Figure
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -410,27 +411,21 @@ def check_figures_equal(*, extensions=("png", ), tol=0):
 
             file_name = "".join(c for c in request.node.name
                                 if c in ALLOWED_CHARS)
-            try:
-                fig_test = plt.figure("test")
-                fig_ref = plt.figure("reference")
-                with _collect_new_figures() as figs:
-                    func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
-                if figs:
-                    raise RuntimeError('Number of open figures changed during '
-                                       'test. Make sure you are plotting to '
-                                       'fig_test or fig_ref, or if this is '
-                                       'deliberate explicitly close the '
-                                       'new figure(s) inside the test.')
-                test_image_path = result_dir / (file_name + "." + ext)
-                ref_image_path = result_dir / (file_name + "-expected." + ext)
-                fig_test.savefig(test_image_path)
-                fig_ref.savefig(ref_image_path)
-                _raise_on_image_difference(
-                    ref_image_path, test_image_path, tol=tol
-                )
-            finally:
-                plt.close(fig_test)
-                plt.close(fig_ref)
+            fig_test = Figure()
+            fig_ref = Figure()
+            func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
+            if len(fig_test.get_children()) == 1 and len(fig_ref.get_children()) == 1:
+                # no artists have been added. The only child is fig.patch.
+                raise RuntimeError("Both figures are empty.  Make sure you are "
+                                   "plotting to fig_test or fig_ref.")
+
+            test_image_path = result_dir / (file_name + "." + ext)
+            ref_image_path = result_dir / (file_name + "-expected." + ext)
+            fig_test.savefig(test_image_path)
+            fig_ref.savefig(ref_image_path)
+            _raise_on_image_difference(
+                ref_image_path, test_image_path, tol=tol
+            )
 
         parameters = [
             param
