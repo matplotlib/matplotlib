@@ -52,6 +52,9 @@ In the root directory of your development repository run::
 ``--capture=no`` or ``-s``     Do not capture stdout
 =============================  ===========
 
+Some tests may use a large amount of memory (>0.5GiB); to enable those tests, set the
+environment variable ``MPL_TEST_EXPENSIVE``.
+
 To run a single test from the command line, you can provide a file path, optionally
 followed by the function separated by two colons, e.g., (tests do not need to be
 installed, but Matplotlib should be)::
@@ -147,8 +150,8 @@ tests it::
    from matplotlib.testing.decorators import image_comparison
    import matplotlib.pyplot as plt
 
-   @image_comparison(baseline_images=['line_dashes'], remove_text=True,
-                     extensions=['png'], style='mpl20')
+   @image_comparison(baseline_images=['line_dashes.png'], remove_text=True,
+                     style='mpl20')
    def test_line_dashes():
        fig, ax = plt.subplots()
        ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
@@ -160,6 +163,15 @@ subdirectory of :file:`baseline_images` tree in the source directory (in this
 case :file:`lib/matplotlib/tests/baseline_images/test_lines`).  Put this new
 file under source code revision control (with ``git add``).  When rerunning
 the tests, they should now pass.
+
+If you wish to compare multiple file formats, then omit the extension from the
+baseline image name and optionally pass the *extensions* argument::
+
+   @image_comparison(baseline_images=['line_dashes'], remove_text=True,
+                     extensions=['png', 'svg'], style='mpl20')
+   def test_line_dashes():
+       fig, ax = plt.subplots()
+       ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
 
 It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
 figures and reflects the newer look of default Matplotlib plots. Also, if the

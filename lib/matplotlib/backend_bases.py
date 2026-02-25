@@ -411,10 +411,12 @@ class RendererBase:
                     gc0.set_linewidth(lw)
                 if Nlinestyles:
                     gc0.set_dashes(*ls)
-                if len(ec) == 4 and ec[3] == 0.0:
+                ec_rgba = colors.to_rgba(ec)
+                # Fully transparent edges are treated as "no stroke".
+                if ec_rgba[3] == 0.0:
                     gc0.set_linewidth(0)
                 else:
-                    gc0.set_foreground(ec)
+                    gc0.set_foreground(ec_rgba, isRGBA=True)
             if Nhatchcolors:
                 gc0.set_hatch_color(hc)
             if fc is not None and len(fc) == 4 and fc[3] == 0:

@@ -455,7 +455,7 @@ AAj1//+nPwAA/////w=="""
     assert segs[0][1] == Path.MOVETO
 
 
-def test_throw_rendering_complexity_exceeded():
+def test_throw_rendering_complexity_exceeded(high_memory):
     plt.rcParams['path.simplify'] = False
     xx = np.arange(2_000_000)
     yy = np.random.rand(2_000_000)

@@ -697,6 +697,50 @@ fig.subplots_adjust(top=0.8)
 # Note that, unlike in `.Legend`, the ``bbox_transform`` is set to
 # `.IdentityTransform` by default
 #
+# .. _annotations-bbox:
+#
+# Using an Artist as an annotation
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# `.AnnotationBbox` uses artists in `.OffsetBox` container artists as the annotations
+# and supports positioning these annotations using the same coordinate systems as the
+# other annotation methods. For more examples, see
+# :doc:`/gallery/text_labels_and_annotations/demo_annotation_box`
+
+from matplotlib.offsetbox import AnnotationBbox, DrawingArea, OffsetImage
+from matplotlib.patches import Annulus
+
+fig, ax = plt.subplots()
+
+text = ax.text(.2, .8, "Green!", color='green')
+
+da = DrawingArea(20, 20)
+annulus = Annulus((10, 10), 10, 5, color='tab:green')
+da.add_artist(annulus)
+
+# position annulus relative to text
+ab1 = AnnotationBbox(da, xy=(.5, 0),
+                     xybox=(.5, .25),
+                     xycoords=text,
+                     boxcoords=(text, "data"),
+                     arrowprops=dict(arrowstyle="->"),
+                     bboxprops=dict(alpha=0.5))
+ax.add_artist(ab1)
+
+N = 25
+arr = np.repeat(np.linspace(0, 1, N), N).reshape(N, N)
+im = OffsetImage(arr, cmap='Greens')
+im.image.axes = ax
+
+# position gradient relative to text and annulus
+ab2 = AnnotationBbox(im, xy=(.5, 0),
+                     xybox=(.75, 0),
+                     xycoords=text,
+                     boxcoords=('data', annulus),
+                     arrowprops=dict(arrowstyle="->"),
+                     bboxprops=dict(alpha=0.5))
+ax.add_artist(ab2)
+
+# %%%%
 # .. _annotating_coordinate_systems:
 #
 # Coordinate systems for annotations

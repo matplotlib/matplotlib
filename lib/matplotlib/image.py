@@ -1404,9 +1404,9 @@ class BboxImage(_ImageBase):
 
     cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
-        data to colors.
+        data to colors. This parameter is ignored if X is RGB(A).
     norm : str or `~matplotlib.colors.Normalize`
-        Maps luminance to 0-1.
+        Maps luminance to 0-1. This parameter is ignored if X is RGB(A).
     interpolation : str, default: :rc:`image.interpolation`
         Supported values are 'none', 'auto', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',

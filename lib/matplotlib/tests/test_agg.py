@@ -328,7 +328,7 @@ def test_draw_path_collection_error_handling():
         fig.canvas.draw()
 
 
-def test_chunksize_fails():
+def test_chunksize_fails(high_memory):
     # NOTE: This test covers multiple independent test scenarios in a single
     #       function, because each scenario uses ~2GB of memory and we don't
     #       want parallel test executors to accidentally run multiple of these
