@@ -1598,14 +1598,9 @@ class Axes3D(Axes):
                 q = dq * q
                 elev, azim, roll = np.rad2deg(q.as_cardan_angles())
             step = mpl.rcParams["axes3d.snap_rotation"]
-            if (
-                step > 0
-                and getattr(event, "key", None)
-                and "control" in event.key
-            ):
+            if step > 0 and getattr(event, "key", None) == "control":
                 elev = step * round(elev / step)
                 azim = step * round(azim / step)
-                roll = step * round(roll / step)
 
             # update view
             vertical_axis = self._axis_names[self._vertical_axis]

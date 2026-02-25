@@ -451,7 +451,7 @@
                             # See also https://matplotlib.org/stable/api/toolkits/mplot3d/view_angles.html#rotation-with-mouse
 #axes3d.trackballsize: 0.667  # trackball diameter, in units of the Axes bbox
 #axes3d.trackballborder: 0.2  # trackball border width, in units of the Axes bbox (only for 'sphere' and 'arcball' style)
-#axes3d.snap_rotation: 5  # Snap angle (degrees) for 3D rotation when holding Control.
+#axes3d.snap_rotation: 0.0  # Snap angle (degrees) for 3D rotation when holding Control.
 ## ***************************************************************************
 ## * AXIS                                                                    *
 ## ***************************************************************************

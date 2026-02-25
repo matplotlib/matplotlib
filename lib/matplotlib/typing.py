@@ -222,6 +222,7 @@ RcKeyType: TypeAlias = Literal[
     "axes3d.grid",
     "axes3d.mouserotationstyle",
     "axes3d.trackballborder",
+    "axes3d.snap_rotation",
     "axes3d.trackballsize",
     "axes3d.xaxis.panecolor",
     "axes3d.yaxis.panecolor",
