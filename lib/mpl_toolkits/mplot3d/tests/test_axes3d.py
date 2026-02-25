@@ -2819,6 +2819,11 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
 
     monkeypatch.setattr(ax, "view_init", fake_view_init)
 
+    # activate rotation state
+    ax.button_pressed = 1
+    ax._rotate_btn = [1]
+    ax._sx, ax._sy = 0, 0
+
     # Simulate mouse movement with Control pressed
     event = MouseEvent(
         name="motion_notify_event",
