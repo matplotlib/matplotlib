@@ -32,6 +32,20 @@ take particular care when adding new API:
   __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
 
 
+Add new rcParams
+^^^^^^^^^^^^^^^^
+
+When adding a new rcParam, the following files must be updated:
+
+1. :file:`lib/matplotlib/rcsetup.py` - Add a validator entry to the
+   ``_validators`` dict and a corresponding ``_Param`` entry with default value
+   and description.
+2. :file:`lib/matplotlib/mpl-data/matplotlibrc` - Add a commented-out entry
+   showing the default value.
+3. :file:`lib/matplotlib/typing.py` - Add the key to the ``RcKeyType`` Literal
+   so that it is recognized as a valid rcParam key.
+
+
 Add or change colormaps, color sequences, and styles
 ----------------------------------------------------
 Visual changes are considered an API break. Therefore, we generally do not modify
