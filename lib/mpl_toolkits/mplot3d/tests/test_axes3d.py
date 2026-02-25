@@ -2790,6 +2790,7 @@ def test_axis_get_tightbbox_includes_offset_text():
 def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
+    fig.canvas.draw()
 
     # Initial angles
     initial_elev = 12.3
@@ -2819,22 +2820,29 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
 
     monkeypatch.setattr(ax, "view_init", fake_view_init)
 
-    # activate rotation state
-    ax.button_pressed = 1
-    ax._rotate_btn = [1]
-    ax._sx, ax._sy = 0, 0
-
-    # Simulate mouse movement with Control pressed
-    event = MouseEvent(
-        name="motion_notify_event",
-        canvas=fig.canvas,
+    press_event = MouseEvent(
+        "button_press_event",
+        fig.canvas,
         x=100,
         y=100,
+        button=1,
+    )
+    press_event.inaxes = ax
+    ax._button_press(press_event)
+
+    move_event = MouseEvent(
+        "motion_notify_event",
+        fig.canvas,
+        x=120,
+        y=120,
+        button=1,
         key="control",
     )
-    event.inaxes = ax
+    move_event.inaxes = ax
+    move_event.button = 1
 
-    ax._on_move(event)
+
+    ax._on_move(move_event)
 
     step = plt.rcParams["axes3d.snap_rotation"]
 
