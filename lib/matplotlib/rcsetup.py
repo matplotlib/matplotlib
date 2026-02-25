@@ -10,7 +10,8 @@ and is referenced throughout Matplotlib.
 The default values of the rc settings are set in the default matplotlibrc file.
 Any additions or deletions to the parameter set listed here should also be
 propagated to the :file:`lib/matplotlib/mpl-data/matplotlibrc` in Matplotlib's
-root source directory.
+root source directory. New rcparams also need to be added to the RcKeyType enum
+in :file:`lib/matplotlib/typing.py`.
 """
 
 
