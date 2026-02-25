@@ -1453,7 +1453,33 @@ class _Param:
     description: str = None
 
 
-_params = [
+@dataclass
+class _Section:
+    title: str
+    description: str = None
+
+
+@dataclass
+class _Subsection:
+    title: str
+    description: str = None
+
+
+# Definition of all rcParams. This is currently only used to generate the documentation.
+#
+# Actual runtime values do still come from the historic sources:
+# - available parameters and defaults: lib/matplotlib/mpl-data/matplotlibrc
+# - validators: _validators, see above
+#
+# The structure and format of this definition is not fixed and may change in the future.
+# It's a work-in-progress state towards a consistent and more structured definition of
+# rcParams that can be used both for documentation and runtime. The goal is to
+# eventually eliminate the old sources of defaults and validators and have this be the
+# single source of truth.
+#
+# In the transition phase, consistency is ensured via tests.
+_DEFINITION = [
+    _Section("Backends"),
     _Param(
         "webagg.port",
         default=8988,
@@ -1509,6 +1535,11 @@ _params = [
         default="UTC",
         validator=validate_string,
         description="a pytz timezone string, e.g., US/Central or Europe/Paris"
+    ),
+    _Section(
+        "Lines",
+        description="Default properties for line objects, such as those returned by "
+                    "plot()."
     ),
     _Param(
         "lines.linewidth",
@@ -1630,6 +1661,7 @@ _params = [
                     "solely to allow old test images to remain unchanged. Set to False "
                     "to obtain the previous behavior."
     ),
+    _Section("Patches"),
     _Param(
         "patch.linewidth",
         default=1.0,
@@ -1664,8 +1696,10 @@ _params = [
         validator=validate_bool,
         description="render patches in antialiased (no jaggies)"
     ),
+    _Section("Hatches"),
     _Param("hatch.color", "edge", _validate_color_or_edge),
     _Param("hatch.linewidth", 1.0, validate_float),
+    _Section("Boxplot"),
     _Param("boxplot.notch", False, validate_bool),
     _Param("boxplot.vertical", True, validate_bool),
     _Param("boxplot.whiskers", 1.5, validate_whiskers),
@@ -1703,6 +1737,13 @@ _params = [
     _Param("boxplot.meanprops.markersize", 6.0, validate_float),
     _Param("boxplot.meanprops.linestyle", "--", _validate_linestyle),
     _Param("boxplot.meanprops.linewidth", 1.0, validate_float),
+    _Section(
+        "Font",
+        description="The font properties used by `text.Text` "
+                    "See https://matplotlib.org/stable/api/font_manager_api.html for "
+                    "more information on font properties. The 6 font properties used "
+                    "for font matching are given below with their default values."
+    ),
     _Param("font.family", ["sans-serif"], validate_stringlist),
     _Param("font.style", "normal", validate_string),
     _Param("font.variant", "normal", validate_string),
@@ -1758,6 +1799,7 @@ _params = [
                     "appended to all font selections. This ensures that there will "
                     "always be a glyph displayed."
     ),
+    _Section("Text properties"),
     _Param(
         "text.color",
         default="black",
@@ -1811,6 +1853,7 @@ _params = [
         description="Use mathtext if there is an even number of unescaped dollar signs."
 
     ),
+    _Section("Mathtext and LaTeX"),
     _Param(
         "text.usetex",
         default=False,
@@ -1869,6 +1912,7 @@ _params = [
                     'names, including the special name "regular" for the same font '
                     'used in regular text.',
            ),
+    _Section("Axes"),
     _Param(
         "axes.facecolor",
         default="white",
@@ -2080,12 +2124,14 @@ _params = [
                     '"round_numbers", after application of margins, axis limits are '
                     'further expanded to the nearest "round" number.',
     ),
+    _Subsection("Polar Axes"),
     _Param(
         "polaraxes.grid",
         default=True,
         validator=validate_bool,
         description="display grid on polar axes"
     ),
+    _Subsection("3D Axes"),
     _Param(
         "axes3d.grid",
         default=True,
@@ -2146,6 +2192,7 @@ _params = [
         description="trackball border width, in units of the Axes bbox (only for "
                     "'sphere' and 'arcball' style)"
     ),
+    _Section("Axis"),
     _Param(
         "xaxis.labellocation",
         default="center",
@@ -2157,6 +2204,14 @@ _params = [
         default="center",
         validator=["bottom", "center", "top"],
         description="alignment of the yaxis label: {bottom, top, center}"
+    ),
+    _Section(
+        "Dates",
+        description="Default properties for date tick labels. These are used by the "
+                    "`.AutoDateFormatter` when the appropriate time unit is detected."
+                    "See "
+                    "https://matplotlib.org/stable/api/dates_api.html#date-formatters "
+                    "for more information."
     ),
     _Param("date.autoformatter.year", "%Y", validate_string),
     _Param("date.autoformatter.month", "%Y-%m", validate_string),
@@ -2183,6 +2238,7 @@ _params = [
         validator=validate_bool,
         description="For auto converter whether to use interval_multiples"
     ),
+    _Section("Ticks"),
     _Param(
         "xtick.top",
         default=False,
@@ -2433,6 +2489,7 @@ _params = [
            ["center", "top", "bottom", "baseline", "center_baseline"],
            description="alignment of yticks"
            ),
+    _Section("Grid"),
     _Param(
         "grid.color",
         default="#b0b0b0",
@@ -2505,6 +2562,7 @@ _params = [
         validator=validate_float_or_None,
         description="If None defaults to grid.alpha"
     ),
+    _Section("Legend"),
     _Param(
         "legend.loc",
         default="best",
@@ -2629,6 +2687,7 @@ _params = [
         default=2.0,
         validator=validate_float, description="column separation"
     ),
+    _Section("Figure"),
     _Param(
         "figure.titlesize",
         default="large",
@@ -2780,6 +2839,7 @@ _params = [
                     "figure.subplot.wspace) as constrained_layout already takes "
                     "surrounding texts (titles, labels, # ticklabels) into account."
     ),
+    _Section("Images"),
     _Param(
         "image.aspect",
         default="equal",
@@ -2828,6 +2888,7 @@ _params = [
                     "single composite image before saving a figure as a vector "
                     "graphics file, such as a PDF."
     ),
+    _Section("Contour plots"),
     _Param(
         "contour.negative_linestyle",
         default="dashed",
@@ -2852,12 +2913,14 @@ _params = [
         validator=["mpl2005", "mpl2014", "serial", "threaded"],
         description="{mpl2005, mpl2014, serial, threaded}"
     ),
+    _Section("Errorbar plots"),
     _Param(
         "errorbar.capsize",
         default=0.0,
         validator=validate_float,
         description="length of end cap on error bars in pixels"
     ),
+    _Section("Histogram plots"),
     _Param(
         "errorbar.capthick",
         default=None,
@@ -2875,6 +2938,7 @@ _params = [
         validator=validate_hist_bins,
         description="The default number of histogram bins or 'auto'."
     ),
+    _Section("Scatter plots"),
     _Param(
         "scatter.marker",
         default="o",
@@ -2887,6 +2951,7 @@ _params = [
         validator=validate_string,
         description="The default edge colors for scatter plots."
     ),
+    _Section("AGG rendering"),
     _Param(
         "agg.path.chunksize",
         default=0,
@@ -2897,6 +2962,7 @@ _params = [
                     "cause minor artifacts, though. A value of 20000 is probably a "
                     "good starting point."
     ),
+    _Section("Paths"),
     _Param(
         "path.simplify",
         default=True,
@@ -2936,6 +3002,7 @@ _params = [
         default=[],
         validator=validate_anylist
     ),
+    _Section("Saving figures"),
     _Param(
         "savefig.dpi",
         default="figure",
@@ -2994,6 +3061,7 @@ _params = [
         validator=["landscape", "portrait"],
         description="orientation of saved figure, for PostScript output only"
     ),
+    _Subsection("Mac OSX backend parameters"),
     _Param(
         "macosx.window_mode",
         default="system",
@@ -3001,12 +3069,14 @@ _params = [
         description="How to open new figures (system, tab, window) system uses "
                     "the MacOS system preferences"
     ),
+    _Subsection("Tk backend parameters"),
     _Param(
         "tk.window_focus",
         default=False,
         validator=validate_bool,
         description="Maintain shell focus for TkAgg"
     ),
+    _Subsection("PS backend parameters"),
     _Param(
         "ps.papersize",
         default="letter",
@@ -3042,6 +3112,7 @@ _params = [
         validator=validate_fonttype,
         description="Output Type 3 (Type3) or Type 42 (TrueType)"
     ),
+    _Subsection("PDF backend parameters"),
     _Param(
         "pdf.compression",
         default=6,
@@ -3064,6 +3135,7 @@ _params = [
         default=False,
         validator=validate_bool
     ),
+    _Subsection("SVG backend parameters"),
     _Param(
         "svg.image_inline",
         default=True,
@@ -3093,6 +3165,7 @@ _params = [
         description="If not None, use this string as the value for the `id` attribute "
                     "in the top <svg> tag"
     ),
+    _Subsection("PGF parameters"),
     _Param(
         "pgf.rcfonts",
         default=True,
@@ -3109,11 +3182,17 @@ _params = [
         default="xelatex",
         validator=["xelatex", "lualatex", "pdflatex"]
     ),
+    _Subsection("Docstring parameters"),
     _Param(
         "docstring.hardcopy",
         default=False,
         validator=validate_bool,
         description="set this when you want to generate hardcopy docstring"
+    ),
+    _Section(
+        "Interactive keymaps",
+        description="Default key mappings for interactive navigation. See "
+                    ":ref:`key-event-handling`."
     ),
     _Param(
         "keymap.fullscreen",
@@ -3201,6 +3280,7 @@ _params = [
         validator=validate_stringlist,
         description="copy figure to clipboard"
     ),
+    _Section("Animation"),
     _Param(
         "animation.html",
         default="none",
@@ -3274,3 +3354,7 @@ _params = [
     ),
     _Param("backend", None, validate_backend),
 ]
+
+
+def _params_list():
+    return [elem for elem in _DEFINITION if isinstance(elem, _Param)]
