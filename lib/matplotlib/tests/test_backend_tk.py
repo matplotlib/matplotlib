@@ -4,14 +4,11 @@ import os
 import platform
 import subprocess
 import sys
-import tkinter as tk
 from unittest.mock import patch
 
 import pytest
 
 from matplotlib import _c_internal_utils
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
 from matplotlib.testing import subprocess_run_helper
 
 
@@ -294,6 +291,10 @@ def test_dpi_change_triggers_resize():
     visible canvas area even when constrained by a layout manager.
     See issue #31126.
     """
+    import tkinter as tk
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    from matplotlib.figure import Figure
+
     root = tk.Tk()
     root.geometry("400x300")
     root.update_idletasks()
