@@ -2815,8 +2815,8 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
 
     # Capture snapped values
     def fake_view_init(elev=None, azim=None, **kwargs):
-        captured["elev"] = elev
-        captured["azim"] = azim
+        captured["elev"] = kwargs.get("elev", elev)
+        captured["azim"] = kwargs.get("azim", azim)
 
     monkeypatch.setattr(ax, "view_init", fake_view_init)
 
@@ -2829,6 +2829,8 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
     )
     press_event.inaxes = ax
     ax._button_press(press_event)
+
+    ax._sx, ax._sy = press_event.x, press_event.y
 
     move_event = MouseEvent(
         "motion_notify_event",
