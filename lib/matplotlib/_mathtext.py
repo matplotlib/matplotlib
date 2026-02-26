@@ -492,7 +492,6 @@ class BakomaFonts(TruetypeFonts):
             if fontname == "normal" and sym.isdigit():
                 # use digits from cmr (roman alphabet) instead of cmm (math alphabet),
                 # same as LaTeX does.
-                # This was previously mapped via `latex_to_bakoma`.
                 fontname = "rm"
                 slanted = False
             font = self._get_font(fontname)
