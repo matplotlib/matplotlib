@@ -7416,7 +7416,16 @@ such objects
 
         # Massage 'x' for processing.
         x = cbook._reshape_2D(x, 'x')
-        nx = len(x)  # number of datasets
+        nx = len(x)
+        
+        new_x = []
+        for xi in x:
+            arr = np.asarray(xi)
+            if np.issubdtype(arr.dtype, np.timedelta64):
+                arr = arr / np.timedelta64(1, 'D')
+            new_x.append(arr)
+
+        x = new_x
 
         # Process unit information.  _process_unit_info sets the unit and
         # converts the first dataset; then we convert each following dataset
@@ -7470,16 +7479,14 @@ such objects
         # does not do this for us when guessing the range (but will
         # happily ignore nans when computing the histogram).
         if bin_range is None:
-            xmin = np.inf
-            xmax = -np.inf
-            for xi in x:
-                if len(xi):
-                    # python's min/max ignore nan,
-                    # np.minnan returns nan for all nan input
-                    xmin = min(xmin, np.nanmin(xi))
-                    xmax = max(xmax, np.nanmax(xi))
-            if xmin <= xmax:  # Only happens if we have seen a finite value.
-                bin_range = (xmin, xmax)
+           flat = [np.ravel(xi) for xi in x if len(xi)]
+           if flat:
+               all_data = np.concatenate(flat)
+               xmin = np.nanmin(all_data)
+               xmax = np.nanmax(all_data)
+               bin_range = (xmin, xmax)
+           else:
+               bin_range = None
 
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
