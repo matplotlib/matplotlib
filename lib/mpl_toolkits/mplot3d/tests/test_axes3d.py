@@ -2790,36 +2790,41 @@ def test_axis_get_tightbbox_includes_offset_text():
 def test_ctrl_rotation_snaps_to_5deg():
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
+    ax.scatter(0, 0, 0)
     fig.canvas.draw()
 
-    ax.elev = 12.3
-    ax.azim = 33.7
-    ax.roll = 2.2
+    # Set initial angles
+    ax.view_init(elev=12.3, azim=33.7, roll=2.2)
 
-    press_event = MouseEvent(
-        "button_press_event", fig.canvas,
-        x=100, y=100, button=1,
+    # Use data coords → convert to screen coords
+    d0 = (0, 0)
+    d1 = (1, 1)
+    s0 = ax.transData.transform(d0).astype(int)
+    s1 = ax.transData.transform(d1).astype(int)
+
+    start_event = MouseEvent(
+        "button_press_event", fig.canvas, *s0,
+        button=1
     )
-    press_event.inaxes = ax
-    ax._button_press(press_event)
 
-    ax._button_pressed = 1
-    ax._rotate_btn = [1]
-    ax._sx, ax._sy = press_event.x, press_event.y
-
-    move_event = MouseEvent(
-        "motion_notify_event", fig.canvas,
-        x=120, y=120, button=1, key="control",
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *s1,
+        button=1, key="control", buttons={1}
     )
-    move_event.inaxes = ax
-    move_event.button = 1
-    ax._on_move(move_event)
+
+    stop_event = MouseEvent(
+        "button_release_event", fig.canvas, *s1,
+        button=1
+    )
+
+    start_event._process()
+    drag_event._process()
+    stop_event._process()
 
     step = plt.rcParams["axes3d.snap_rotation"]
 
-    assert ax.elev == pytest.approx(step * round(ax.elev / step))
-    assert ax.azim == pytest.approx(step * round(ax.azim / step))
-    assert ax.roll == pytest.approx(step * round(ax.roll / step))
-
+    assert ax.elev % step == pytest.approx(0)
+    assert ax.azim % step == pytest.approx(0)
+    assert ax.roll % step == pytest.approx(0)
 
     plt.close(fig)
