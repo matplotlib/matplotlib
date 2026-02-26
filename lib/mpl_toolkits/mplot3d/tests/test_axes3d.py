@@ -2789,37 +2789,27 @@ def test_axis_get_tightbbox_includes_offset_text():
 
 def test_ctrl_rotation_snaps_to_5deg():
     fig = plt.figure()
-    ax = fig.add_subplot(projection="3d")
-    ax.scatter(0, 0, 0)
+    ax = fig.add_subplot(projection='3d')
+    ax.view_init(12.3, 33.7, 2.2)
     fig.canvas.draw()
 
-    # Set initial angles
-    ax.view_init(elev=12.3, azim=33.7, roll=2.2)
+    s = 0.25
 
-    # Use data coords → convert to screen coords
-    d0 = (0, 0)
-    d1 = (1, 1)
-    s0 = ax.transData.transform(d0).astype(int)
-    s1 = ax.transData.transform(d1).astype(int)
+    # Press
+    MouseEvent._from_ax_coords(
+        "button_press_event", ax, (0, 0), MouseButton.LEFT
+    )._process()
 
-    start_event = MouseEvent(
-        "button_press_event", fig.canvas, *s0,
-        button=1
-    )
+    # Drag with Ctrl pressed
+    MouseEvent._from_ax_coords(
+        "motion_notify_event",
+        ax,
+        (s * ax._pseudo_w, s * ax._pseudo_h),
+        MouseButton.LEFT,
+        key="control"
+    )._process()
 
-    drag_event = MouseEvent(
-        "motion_notify_event", fig.canvas, *s1,
-        button=1, key="control", buttons={1}
-    )
-
-    stop_event = MouseEvent(
-        "button_release_event", fig.canvas, *s1,
-        button=1
-    )
-
-    start_event._process()
-    drag_event._process()
-    stop_event._process()
+    fig.canvas.draw()
 
     step = plt.rcParams["axes3d.snap_rotation"]
 
