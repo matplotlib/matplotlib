@@ -906,8 +906,7 @@ Supported properties are
 
     def _get_in_autoscale(self):
         """
-        Return boolean flag, ``True`` if artist is included in autoscaling
-        calculations.
+        Return whether the artist is included in autoscaling calculations.
 
         E.g. `.axes.Axes.autoscale_view()`.
         """
