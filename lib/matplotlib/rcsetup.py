@@ -1736,7 +1736,7 @@ _DEFINITION = [
     _Param("boxplot.meanprops.linewidth", 1.0, validate_float),
     _Section(
         "Font",
-        description="The font properties used by `text.Text` "
+        description="The font properties used by `.Text` "
                     "See https://matplotlib.org/stable/api/font_manager_api.html for "
                     "more information on font properties. The 6 font properties used "
                     "for font matching are given below with their default values."
