@@ -2396,7 +2396,6 @@ class _AxesBase(martist.Artist):
                 self._request_autoscale_view()
 
         self.stale = True
-        collection._set_in_autoscale(autolim)
         return collection
 
     def add_image(self, image):
@@ -2416,12 +2415,6 @@ class _AxesBase(martist.Artist):
     def _update_image_limits(self, image):
         xmin, xmax, ymin, ymax = image.get_extent()
         self.axes.update_datalim(((xmin, ymin), (xmax, ymax)))
-
-    def _update_collection_limits(self, collection):
-     offsets = collection.get_offsets()
-     if offsets is not None and len(offsets):
-        self.update_datalim(offsets)
-
 
     def add_line(self, line):
         """
