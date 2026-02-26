@@ -662,8 +662,8 @@
 ## * ERRORBAR PLOTS                                                          *
 ## ***************************************************************************
 #errorbar.capsize: 0  # length of end cap on error bars in pixels
-#errorbar.capthick: None  # thickness of end cap on error bars in points;
-#errorbar.elinewidth: None  # thickness of error bar lines in points;
+#errorbar.capthick: None  # thickness of end cap on error bars in points
+#errorbar.elinewidth: None  # line width of error bar lines in points
 
 
 ## ***************************************************************************
