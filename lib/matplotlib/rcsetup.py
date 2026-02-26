@@ -1115,7 +1115,7 @@ _validators = {
     # errorbar props
     "errorbar.capsize": validate_float,
     "errorbar.capthick": validate_float_or_None,
-    "errorbar.elinewidth" : validate_float_or_None,
+    "errorbar.elinewidth": validate_float_or_None,
 
     # axis props
     # alignment of x/y axis title
