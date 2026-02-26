@@ -69,6 +69,7 @@ class RendererAgg(RendererBase):
         self.height = height
         self._renderer = _RendererAgg(int(width), int(height), dpi)
         self._filter_renderers = []
+        self._group_states = []
 
         self._update_methods()
         self.mathtext_parser = MathTextParser('agg')
@@ -370,6 +371,31 @@ class RendererAgg(RendererBase):
             self._renderer.draw_image(
                 gc, slice_x.start + ox, int(self.height) - slice_y.stop + oy,
                 img[::-1])
+
+    def open_group(self, s, gid=None, *, blend_mode=None):
+        self._group_states.append((self._renderer, blend_mode))
+        if blend_mode:
+            self._renderer = _RendererAgg(int(self.width), int(self.height),
+                                          self.dpi)
+            self._update_methods()
+
+    def close_group(self, s):
+        renderer, blend_mode = self._group_states.pop()
+
+        if blend_mode:
+            orig_img = np.asarray(self.buffer_rgba())
+            slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
+            cropped_img = orig_img[slice_y, slice_x]
+
+            self._renderer = renderer
+            self._update_methods()
+
+            if cropped_img.size:
+                gc = self.new_gc()
+                gc.set_blend_mode(blend_mode)
+                self._renderer.draw_image(
+                    gc, slice_x.start, int(self.height) - slice_y.stop,
+                    cropped_img[::-1])
 
 
 class FigureCanvasAgg(FigureCanvasBase):

@@ -158,18 +158,32 @@ class RendererBase:
         self._raster_depth = 0
         self._rasterizing = False
 
-    def open_group(self, s, gid=None):
+    def open_group(self, s, gid=None, *, blend_mode=None):
         """
-        Open a grouping element with label *s* and *gid* (if set) as id.
+        Open a grouping element.
 
-        Only used by the SVG renderer.
+        Parameters
+        ----------
+        s : str
+            Label of the element.  Used only by the SVG renderer.
+        gid : ``None`` or str
+            Group ID of the element.  If ``None``, a group ID is automatically
+            generated.  Used only by the SVG renderer.
+        blend_mode : ``None`` or str
+            If not ``None``, render sub-elements in an isolated buffer.
+            When this group is closed, the isolated buffer is drawn as an image into
+            the primary buffer using the blend mode specified by ``blend_mode``.
+            Supported by the Agg, Cairo, PGF, and SVG renderers.
         """
 
     def close_group(self, s):
         """
-        Close a grouping element with label *s*.
+        Close a grouping element.
 
-        Only used by the SVG renderer.
+        Parameters
+        ----------
+        s : str
+            Label of the element.  Used only by the SVG renderer.
         """
 
     def draw_path(self, gc, path, transform, rgbFace=None):

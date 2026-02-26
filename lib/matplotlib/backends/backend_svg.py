@@ -685,13 +685,18 @@ class RendererSVG(RendererBase):
             writer.end('clipPath')
         writer.end('defs')
 
-    def open_group(self, s, gid=None):
+    def open_group(self, s, gid=None, *, blend_mode=None):
         # docstring inherited
-        if gid:
-            self.writer.start('g', id=gid)
-        else:
+        if gid is None:
             self._groupd[s] = self._groupd.get(s, 0) + 1
-            self.writer.start('g', id=f"{s}_{self._groupd[s]:d}")
+            gid = f"{s}_{self._groupd[s]:d}"
+
+        attrib = {'id': gid}
+        if blend_mode is not None:
+            attrib['style'] = ("isolation: isolate; "
+                               f"mix-blend-mode: {_svg_blend_mode(blend_mode)}")
+
+        self.writer.start('g', attrib=attrib)
 
     def close_group(self, s):
         # docstring inherited

@@ -91,6 +91,7 @@ class RendererCairo(RendererBase):
         self.height = None
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
+        self._group_blend_modes = []
         super().__init__()
 
     def set_context(self, ctx):
@@ -334,6 +335,24 @@ class RendererCairo(RendererBase):
     def points_to_pixels(self, points):
         # docstring inherited
         return points / 72 * self.dpi
+
+    def open_group(self, s, gid=None, *, blend_mode=None):
+        # docstring inherited
+        self._group_blend_modes.append(blend_mode)
+        if blend_mode:
+            self.gc.ctx.push_group()
+
+    def close_group(self, s):
+        # docstring inherited
+        blend_mode = self._group_blend_modes.pop()
+        if blend_mode:
+            ctx = self.gc.ctx
+            group = ctx.pop_group()
+            ctx.save()
+            self.gc.set_blend_mode(blend_mode)
+            ctx.set_source(group)
+            ctx.paint()
+            ctx.restore()
 
 
 class GraphicsContextCairo(GraphicsContextBase):
