@@ -2792,13 +2792,9 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
     ax = fig.add_subplot(projection="3d")
     fig.canvas.draw()
 
-    initial_elev = 12.3
-    initial_azim = 33.7
-    initial_roll = 2.2
-
-    ax.elev = initial_elev
-    ax.azim = initial_azim
-    ax.roll = initial_roll
+    ax.elev = 12.3
+    ax.azim = 33.7
+    ax.roll = 2.2
 
     monkeypatch.setitem(plt.rcParams, "axes3d.snap_rotation", 5.0)
     monkeypatch.setitem(plt.rcParams, "axes3d.mouserotationstyle", "azel")
@@ -2810,27 +2806,23 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
     press_event.inaxes = ax
     ax._button_press(press_event)
 
-    ax.button_pressed = 1
+    ax._button_pressed = 1
     ax._rotate_btn = [1]
     ax._sx, ax._sy = press_event.x, press_event.y
-
 
     move_event = MouseEvent(
         "motion_notify_event", fig.canvas,
         x=120, y=120, button=1, key="control",
     )
     move_event.inaxes = ax
-
+    move_event.button = 1
     ax._on_move(move_event)
 
     step = plt.rcParams["axes3d.snap_rotation"]
 
-    expected_elev = step * round(initial_elev / step)
-    expected_azim = step * round(initial_azim / step)
-    expected_roll = step * round(initial_roll / step)
+    assert ax.elev == pytest.approx(step * round(ax.elev / step))
+    assert ax.azim == pytest.approx(step * round(ax.azim / step))
+    assert ax.roll == pytest.approx(step * round(ax.roll / step))
 
-    assert ax.elev == pytest.approx(expected_elev)
-    assert ax.azim == pytest.approx(expected_azim)
-    assert ax.roll == pytest.approx(expected_roll)
 
     plt.close(fig)
