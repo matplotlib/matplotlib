@@ -2795,19 +2795,18 @@ def test_ctrl_rotation_snaps_to_5deg():
 
     s = 0.25
 
-    # Press
-    MouseEvent._from_ax_coords(
-        "button_press_event", ax, (0, 0), MouseButton.LEFT
-    )._process()
+    with mpl.rc_context({'axes3d.mouserotationstyle': 'azel'}):
+        MouseEvent._from_ax_coords(
+            "button_press_event", ax, (0, 0), MouseButton.LEFT
+        )._process()
 
-    # Drag with Ctrl pressed
-    MouseEvent._from_ax_coords(
-        "motion_notify_event",
-        ax,
-        (s * ax._pseudo_w, s * ax._pseudo_h),
-        MouseButton.LEFT,
-        key="control"
-    )._process()
+        MouseEvent._from_ax_coords(
+            "motion_notify_event",
+            ax,
+            (s * ax._pseudo_w, s * ax._pseudo_h),
+            MouseButton.LEFT,
+            key="control"
+        )._process()
 
     fig.canvas.draw()
 
