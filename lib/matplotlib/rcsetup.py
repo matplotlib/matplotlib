@@ -2146,7 +2146,7 @@ _params = [
     ),
     _Param(
         "axes3d.snap_rotation",
-        default=0.0,
+        default=5.0,
         validator=validate_float,
         description="Snap angle (in degrees) for 3D rotation when holding Control."
    ),

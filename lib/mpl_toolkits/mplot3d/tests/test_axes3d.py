@@ -2796,7 +2796,6 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
     ax.azim = 33.7
     ax.roll = 2.2
 
-    monkeypatch.setitem(plt.rcParams, "axes3d.snap_rotation", 5.0)
     monkeypatch.setitem(plt.rcParams, "axes3d.mouserotationstyle", "azel")
 
     press_event = MouseEvent(
