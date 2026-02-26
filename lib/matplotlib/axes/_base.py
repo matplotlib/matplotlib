@@ -2316,7 +2316,6 @@ class _AxesBase(martist.Artist):
         if a.get_clip_path() is None:
             a.set_clip_path(self.patch)
         self.stale = True
-        a._set_in_autoscale(False)
         return a
 
     def add_child_axes(self, ax):
