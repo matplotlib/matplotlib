@@ -1601,6 +1601,7 @@ class Axes3D(Axes):
             if step > 0 and getattr(event, "key", None) == "control":
                 elev = step * round(elev / step)
                 azim = step * round(azim / step)
+                roll= step * round(roll / step)
 
             # update view
             vertical_axis = self._axis_names[self._vertical_axis]

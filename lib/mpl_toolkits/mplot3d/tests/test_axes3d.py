@@ -2792,56 +2792,29 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
     ax = fig.add_subplot(projection="3d")
     fig.canvas.draw()
 
-    # Initial angles
     initial_elev = 12.3
     initial_azim = 33.7
+    initial_roll = 2.2
 
     ax.elev = initial_elev
     ax.azim = initial_azim
+    ax.roll = initial_roll
 
-    # Enable snapping
-    monkeypatch.setitem(
-        plt.rcParams,
-        "axes3d.snap_rotation",
-        5,
-    )
-    monkeypatch.setitem(
-        plt.rcParams,
-        "axes3d.mouserotationstyle",
-        "azel",
-    )
-
-    captured = {}
-
-    # Capture snapped values
-    def fake_view_init(elev=None, azim=None, **kwargs):
-        captured["elev"] = kwargs.get("elev", elev)
-        captured["azim"] = kwargs.get("azim", azim)
-
-    monkeypatch.setattr(ax, "view_init", fake_view_init)
+    monkeypatch.setitem(plt.rcParams, "axes3d.snap_rotation", 5.0)
+    monkeypatch.setitem(plt.rcParams, "axes3d.mouserotationstyle", "azel")
 
     press_event = MouseEvent(
-        "button_press_event",
-        fig.canvas,
-        x=100,
-        y=100,
-        button=1,
+        "button_press_event", fig.canvas,
+        x=100, y=100, button=1,
     )
     press_event.inaxes = ax
     ax._button_press(press_event)
 
-    ax._sx, ax._sy = press_event.x, press_event.y
-
     move_event = MouseEvent(
-        "motion_notify_event",
-        fig.canvas,
-        x=120,
-        y=120,
-        button=1,
-        key="control",
+        "motion_notify_event", fig.canvas,
+        x=120, y=120, button=1, key="control",
     )
     move_event.inaxes = ax
-
 
     ax._on_move(move_event)
 
@@ -2849,8 +2822,10 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
 
     expected_elev = step * round(initial_elev / step)
     expected_azim = step * round(initial_azim / step)
+    expected_roll = step * round(initial_roll / step)
 
-    assert captured["elev"] == pytest.approx(expected_elev)
-    assert captured["azim"] == pytest.approx(expected_azim)
+    assert ax.elev == pytest.approx(expected_elev)
+    assert ax.azim == pytest.approx(expected_azim)
+    assert ax.roll == pytest.approx(expected_roll)
 
     plt.close(fig)
