@@ -21,10 +21,9 @@ Ways to contribute
     :open:
     :icon: person-fill
 
-    100% yes! There are so many ways to contribute to our community. Take a look
-    at the following sections to learn more.
-
-    There are a few typical new contributor profiles:
+    Here are a few typical new contributor profiles. If you
+    don't fit into one of them, come talk to us on `Discourse
+    <https://discourse.matplotlib.org/>`_ about how you might contribute.
 
     * **You are a Matplotlib user, and you see a bug, a potential improvement, or
       something that annoys you, and you can fix it.**
@@ -60,14 +59,14 @@ Ways to contribute
       chance it is a unique context in any given conversation) and make it easier to
       understand where other people are coming from.
 
-      Understanding the entire codebase is a long-term project, and nobody expects
-      you to do this right away. If you are determined to get started with
-      Matplotlib and want to learn, go through the basic functionality and choose
-      something to focus on related to your interests, for example 3d, testing,
-      documentation, or animations. Please gain understanding and context of this area
-      by reading the issues and pull requests touching these subjects and then reach out
-      to us at the :ref:`new contributor <new_contributors>` meeting or discourse
-      channel (incubator) to discuss what you would like to work on.
+      Understanding the entire codebase is a long-term project, and nobody
+      expects you to do this right away. Start by building your experience in
+      using Matplotlib: make complicated visualizations, use niche features,
+      dive deep into one part of the library. This will help you build the
+      context to then look at the existing issues and pull requests. You can
+      then reach out to us at the :ref:`new contributor <new_contributors>`
+      meeting or Discourse channel (incubator) to discuss what you would like
+      to work on.
 
 .. _contribute_code:
 
