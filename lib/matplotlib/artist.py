@@ -912,6 +912,7 @@ Supported properties are
         E.g. `.axes.Axes.autoscale_view()`.
         """
         return self._in_autoscale
+
     def _fully_clipped_to_axes(self):
         """
         Return a boolean flag, ``True`` if the artist is clipped to the Axes
