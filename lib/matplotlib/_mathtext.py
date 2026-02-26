@@ -1845,12 +1845,8 @@ class ParserState:
 
     @font.setter
     def font(self, name: str) -> None:
-        if name in ('rm', 'it', 'bf', 'bfit'):
+        if name in ('normal', 'rm', 'it', 'bf', 'bfit'):
             self.font_class = name
-        if name == 'normal':
-            # workaround to keep hardcoded maps in _mathtext_data.py
-            # font_class is exclusively used by STIXFonts
-            self.font_class = 'it'
         self._font = name
 
     def get_current_underline_thickness(self) -> float:
