@@ -1067,10 +1067,6 @@ class DejaVuSansFontConstants(FontConstantsBase):
     denom2 = 768 / _x_height
 
 
-def _get_font_constant_set(state: ParserState) -> type[FontConstantsBase]:
-    return state.fontset.get_font_constants()
-
-
 class Node:
     """A node in the TeX box model."""
 
@@ -2611,7 +2607,7 @@ class Parser:
             nucleus = Hlist([nucleus])
 
         # Handle regular sub/superscripts
-        consts = _get_font_constant_set(state)
+        consts = state.fontset.get_font_constants()
         lc_height   = last_char.height
         lc_baseline = 0
         if self.is_dropsub(last_char):
@@ -2705,7 +2701,7 @@ class Parser:
 
         axis_height = state.fontset.get_axis_height(
             state.font, state.fontsize, state.dpi)
-        consts = _get_font_constant_set(state)
+        consts = state.fontset.get_font_constants()
         x_height = state.fontset.get_xheight(state.font, state.fontsize, state.dpi)
 
         for _ in range(style.value):
