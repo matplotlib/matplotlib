@@ -2787,7 +2787,7 @@ def test_axis_get_tightbbox_includes_offset_text():
             f"bbox.y1 ({bbox.y1}) should be >= offset_bbox.y1 ({offset_bbox.y1})"
 
 
-def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
+def test_ctrl_rotation_snaps_to_5deg():
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
     fig.canvas.draw()
@@ -2795,8 +2795,6 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
     ax.elev = 12.3
     ax.azim = 33.7
     ax.roll = 2.2
-
-    monkeypatch.setitem(plt.rcParams, "axes3d.mouserotationstyle", "azel")
 
     press_event = MouseEvent(
         "button_press_event", fig.canvas,
