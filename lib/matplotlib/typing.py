@@ -281,6 +281,8 @@ RcKeyType: TypeAlias = Literal[
     "date.interval_multiples",
     "docstring.hardcopy",
     "errorbar.capsize",
+    "errorbar.capthick",
+    "errorbar.elinewidth",
     "figure.autolayout",
     "figure.constrained_layout.h_pad",
     "figure.constrained_layout.hspace",
