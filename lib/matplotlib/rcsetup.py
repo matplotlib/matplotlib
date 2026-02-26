@@ -2920,7 +2920,6 @@ _DEFINITION = [
         validator=validate_float,
         description="length of end cap on error bars in pixels"
     ),
-    _Section("Histogram plots"),
     _Param(
         "errorbar.capthick",
         default=None,
@@ -2932,6 +2931,7 @@ _DEFINITION = [
         validator=validate_float_or_None,
         description="line width of the error bar lines in points."
     ),
+    _Section("Histogram plots"),
     _Param(
         "hist.bins",
         default=10,
