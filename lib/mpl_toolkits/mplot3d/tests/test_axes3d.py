@@ -2810,6 +2810,11 @@ def test_ctrl_rotation_snaps_to_5deg(monkeypatch):
     press_event.inaxes = ax
     ax._button_press(press_event)
 
+    ax.button_pressed = 1
+    ax._rotate_btn = [1]
+    ax._sx, ax._sy = press_event.x, press_event.y
+
+
     move_event = MouseEvent(
         "motion_notify_event", fig.canvas,
         x=120, y=120, button=1, key="control",
