@@ -2816,110 +2816,68 @@ def _make_triangulation_data():
     return x, y, z
 
 
-@mpl3d_image_comparison(['scale3d_lines_log.png'], style='mpl20', tol=0.03)
-def test_scale3d_lines_log():
-    """Test Line3D and Line3DCollection with log scale (plot, wireframe)."""
-    fig = plt.figure()
+@mpl3d_image_comparison(['scale3d_artists_log.png'], style='mpl20',
+                        remove_text=False, tol=0.03)
+def test_scale3d_artists_log():
+    """Test all 3D artist types with log scale."""
+    fig = plt.figure(figsize=(16, 12))
+    log_kw = dict(xscale='log', yscale='log', zscale='log')
+    line_data = _make_log_data()
+    surf_X, surf_Y, surf_Z = _make_surface_log_data()
 
-    # Left: regular plot (Line3D)
-    ax1 = fig.add_subplot(1, 2, 1, projection='3d')
-    x, y, z = _make_log_data()
-    ax1.plot(x, y, z)
-    ax1.set(xscale='log', yscale='log', zscale='log')
+    # Row 1: plot, wireframe, scatter, bar3d
+    ax = fig.add_subplot(3, 4, 1, projection='3d')
+    ax.plot(*line_data)
+    ax.set(**log_kw, title='plot')
 
-    # Right: wireframe (Line3DCollection)
-    ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-    X, Y, Z = _make_surface_log_data()
-    ax2.plot_wireframe(X, Y, Z, rstride=5, cstride=5)
-    ax2.set(xscale='log', yscale='log', zscale='log')
+    ax = fig.add_subplot(3, 4, 2, projection='3d')
+    ax.plot_wireframe(surf_X, surf_Y, surf_Z, rstride=5, cstride=5)
+    ax.set(**log_kw, title='wireframe')
 
+    ax = fig.add_subplot(3, 4, 3, projection='3d')
+    ax.scatter(*line_data, c=line_data[2], cmap='viridis')
+    ax.set(**log_kw, title='scatter')
 
-@mpl3d_image_comparison(['scale3d_scatter_log.png'], style='mpl20')
-def test_scale3d_scatter_log():
-    """Test Path3DCollection with log scale (scatter)."""
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    x, y, z = _make_log_data()
-    ax.scatter(x, y, z, c=z, cmap='viridis')
-    ax.set(xscale='log', yscale='log', zscale='log')
+    ax = fig.add_subplot(3, 4, 4, projection='3d')
+    bx, by = np.meshgrid([1, 10, 100], [1, 10, 100])
+    bx, by = bx.flatten(), by.flatten()
+    ax.bar3d(bx, by, np.ones_like(bx, dtype=float),
+             bx * 0.3, by * 0.3, bx * by / 10, alpha=0.8)
+    ax.set(**log_kw, title='bar3d')
 
+    # Row 2: surface, trisurf, contour, contourf
+    ax = fig.add_subplot(3, 4, 5, projection='3d')
+    ax.plot_surface(surf_X, surf_Y, surf_Z, cmap='viridis', alpha=0.8)
+    ax.set(**log_kw, title='surface')
 
-@mpl3d_image_comparison(['scale3d_surface_log.png'], style='mpl20')
-def test_scale3d_surface_log():
-    """Test Poly3DCollection with log scale (surface, trisurf)."""
-    fig = plt.figure()
+    ax = fig.add_subplot(3, 4, 6, projection='3d')
+    tri_data = _make_triangulation_data()
+    ax.plot_trisurf(*tri_data, cmap='viridis', alpha=0.8)
+    ax.set(**log_kw, title='trisurf')
 
-    # Left: plot_surface
-    ax1 = fig.add_subplot(1, 2, 1, projection='3d')
-    X, Y, Z = _make_surface_log_data()
-    ax1.plot_surface(X, Y, Z, cmap='viridis', alpha=0.8)
-    ax1.set(xscale='log', yscale='log', zscale='log')
+    ax = fig.add_subplot(3, 4, 7, projection='3d')
+    ax.contour(surf_X, surf_Y, surf_Z, levels=10)
+    ax.set(**log_kw, title='contour')
 
-    # Right: plot_trisurf
-    ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-    x, y, z = _make_triangulation_data()
-    ax2.plot_trisurf(x, y, z, cmap='viridis', alpha=0.8)
-    ax2.set(xscale='log', yscale='log', zscale='log')
+    ax = fig.add_subplot(3, 4, 8, projection='3d')
+    ax.contourf(surf_X, surf_Y, surf_Z, levels=10, alpha=0.8)
+    ax.set(**log_kw, title='contourf')
 
+    # Row 3: stem, quiver, text
+    ax = fig.add_subplot(3, 4, 9, projection='3d')
+    ax.stem([1, 10, 100], [1, 10, 100], [10, 100, 1000], bottom=1)
+    ax.set(**log_kw, title='stem')
 
-@mpl3d_image_comparison(['scale3d_bar3d_log.png'], style='mpl20')
-def test_scale3d_bar3d_log():
-    """Test bar3d with log scale."""
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+    ax = fig.add_subplot(3, 4, 10, projection='3d')
+    qxyz = np.array([1, 10, 100])
+    ax.quiver(qxyz, qxyz, qxyz, qxyz * 0.5, qxyz * 0.5, qxyz * 0.5)
+    ax.set(**log_kw, title='quiver')
 
-    # Bar positions (in log space, use positive values)
-    x, y = np.meshgrid([1, 10, 100], [1, 10, 100])
-    x, y = x.flatten(), y.flatten()
-    z = np.ones_like(x, dtype=float)
-    ax.bar3d(x, y, z, x * 0.3, y * 0.3, x * y / 10, alpha=0.8)
-    ax.set(xscale='log', yscale='log', zscale='log')
-
-
-@mpl3d_image_comparison(['scale3d_contour_log.png'], style='mpl20', tol=0.03)
-def test_scale3d_contour_log():
-    """Test contour and contourf with log scale."""
-    fig = plt.figure()
-    X, Y, Z = _make_surface_log_data()
-
-    # Left: contour (Line3DCollection)
-    ax1 = fig.add_subplot(1, 2, 1, projection='3d')
-    ax1.contour(X, Y, Z, levels=10)
-    ax1.set(xscale='log', yscale='log', zscale='log')
-
-    # Right: contourf (Poly3DCollection)
-    ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-    ax2.contourf(X, Y, Z, levels=10, alpha=0.8)
-    ax2.set(xscale='log', yscale='log', zscale='log')
-
-
-@mpl3d_image_comparison(['scale3d_stem_quiver_log.png'], style='mpl20', tol=0.03)
-def test_scale3d_stem_quiver_log():
-    """Test stem and quiver with log scale."""
-    fig = plt.figure()
-
-    # Left: stem
-    ax1 = fig.add_subplot(1, 2, 1, projection='3d')
-    x, y, z = [1, 10, 100], [1, 10, 100], [10, 100, 1000]
-    ax1.stem(x, y, z, bottom=1)
-    ax1.set(xscale='log', yscale='log', zscale='log')
-
-    # Right: quiver
-    ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-    x, y, z = np.array([1, 10, 100]), np.array([1, 10, 100]), np.array([1, 10, 100])
-    ax2.quiver(x, y, z, x * 0.5, y * 0.5, z * 0.5)
-    ax2.set(xscale='log', yscale='log', zscale='log')
-
-
-@mpl3d_image_comparison(['scale3d_text_log.png'], style='mpl20', remove_text=False)
-def test_scale3d_text_log():
-    """Test Text3D with log scale."""
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+    ax = fig.add_subplot(3, 4, 11, projection='3d')
     ax.text(1, 1, 1, "Point A")
     ax.text(10, 10, 10, "Point B")
     ax.text(100, 100, 100, "Point C")
-    ax.set(xscale='log', yscale='log', zscale='log',
+    ax.set(**log_kw, title='text',
            xlim=(0.5, 200), ylim=(0.5, 200), zlim=(0.5, 200))
 
 
