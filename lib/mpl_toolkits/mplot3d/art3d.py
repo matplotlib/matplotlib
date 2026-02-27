@@ -199,8 +199,9 @@ class Text3D(mtext.Text):
             pos3d = np.array([self._x, self._y, self._z], dtype=float)
 
         dir_end = pos3d + self._dir_vec
-        proj = proj3d._proj_trans_points_scaled(
-            [pos3d, dir_end], self.axes)
+        points = np.asarray([pos3d, dir_end])
+        proj = proj3d._scale_proj_transform(
+            points[:, 0], points[:, 1], points[:, 2], self.axes)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
@@ -336,7 +337,7 @@ class Line3D(lines.Line2D):
                                            dtype=float, mask=mask).filled(np.nan)
         else:
             xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs, tis = proj3d._proj_transform_clip_scaled(
+        xs, ys, zs, tis = proj3d._scale_proj_transform_clip(
             xs3d, ys3d, zs3d, self.axes)
         self.set_data(xs, ys)
         super().draw(renderer)
@@ -428,7 +429,7 @@ class Collection3D(Collection):
             vs_list = [np.ma.array(vs, mask=np.broadcast_to(
                        _viewlim_mask(*vs.T, self.axes), vs.shape))
                        for vs in vs_list]
-        xyzs_list = [proj3d._proj_transform_scaled(
+        xyzs_list = [proj3d._scale_proj_transform(
             vs[:, 0], vs[:, 1], vs[:, 2], self.axes) for vs in vs_list]
         self._paths = [mpath.Path(np.ma.column_stack([xs, ys]), cs)
                        for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
@@ -520,7 +521,7 @@ class Line3DCollection(LineCollection):
                 mask = mask | viewlim_mask
 
         xyzs = np.ma.array(
-            proj3d._proj_transform_vectors_scaled(segments, self.axes),
+            proj3d._scale_proj_transform_vectors(segments, self.axes),
             mask=mask)
         segments_2d = xyzs[..., 0:2]
         LineCollection.set_segments(self, segments_2d)
@@ -604,7 +605,7 @@ class Patch3D(Patch):
                                      dtype=float, mask=mask).filled(np.nan)
         else:
             xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip_scaled(
+        vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(
             xs, ys, zs, self.axes)
         self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]))
         return min(vzs)
@@ -665,7 +666,7 @@ class PathPatch3D(Patch3D):
                                      dtype=float, mask=mask).filled(np.nan)
         else:
             xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip_scaled(
+        vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(
             xs, ys, zs, self.axes)
         self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]), self._code3d)
         return min(vzs)
@@ -809,7 +810,7 @@ class Patch3DCollection(PatchCollection):
             xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip_scaled(
+        vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(
             xs, ys, zs, self.axes)
         self._vzs = vzs
         if np.ma.isMA(vxs):
@@ -1026,7 +1027,7 @@ class Path3DCollection(PathCollection):
             xyzs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xyzs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip_scaled(
+        vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(
             *xyzs, self.axes)
         self._data_scale = _get_data_scale(vxs, vys, vzs)
         # Sort the points based on z coordinates
@@ -1361,7 +1362,7 @@ class Poly3DCollection(PolyCollection):
         # Some faces might contain masked vertices, so we want to ignore any
         # errors that those might cause
         with np.errstate(invalid='ignore', divide='ignore'):
-            pfaces = proj3d._proj_transform_vectors_scaled(
+            pfaces = proj3d._scale_proj_transform_vectors(
                 self._faces, self.axes)
 
         if self._axlim_clip:

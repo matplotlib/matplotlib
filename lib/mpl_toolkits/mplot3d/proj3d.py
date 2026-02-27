@@ -166,27 +166,24 @@ def _proj_transform_vec(vec, M):
     return ts[0], ts[1], ts[2]
 
 
-def _proj_transform_vectors(vecs, M):
+def _scale_proj_transform_vectors(vecs, axes):
     """
-    Vectorized version of ``_proj_transform_vec``.
+    Apply scale transforms and project vectors.
 
     Parameters
     ----------
     vecs : ... x 3 np.ndarray
-        Input vectors
-    M : 4 x 4 np.ndarray
-        Projection matrix
+        Input vectors.
+    axes : Axes3D
+        The 3D axes (used for scale transforms and projection matrix).
     """
-    vecs_shape = vecs.shape
-    vecs = vecs.reshape(-1, 3).T
-
-    vecs_pad = np.empty((vecs.shape[0] + 1,) + vecs.shape[1:])
-    vecs_pad[:-1] = vecs
-    vecs_pad[-1] = 1
-    product = np.dot(M, vecs_pad)
+    result_shape = vecs.shape
+    xs, ys, zs = _apply_scale_transforms(
+        vecs[..., 0], vecs[..., 1], vecs[..., 2], axes)
+    vec = _vec_pad_ones(xs.ravel(), ys.ravel(), zs.ravel())
+    product = np.dot(axes.M, vec)
     tvecs = product[:3] / product[3]
-
-    return tvecs.T.reshape(vecs_shape)
+    return tvecs.T.reshape(result_shape)
 
 
 def _proj_transform_vec_clip(vec, M, focal_length):
@@ -240,21 +237,19 @@ def proj_transform(xs, ys, zs, M):
 
 @_api.deprecated("3.10")
 def proj_transform_clip(xs, ys, zs, M):
-    return _proj_transform_clip(xs, ys, zs, M, focal_length=np.inf)
-
-
-def _proj_transform_clip(xs, ys, zs, M, focal_length):
-    """
-    Transform the points by the projection matrix
-    and return the clipping result
-    returns txs, tys, tzs, tis
-    """
     vec = _vec_pad_ones(xs, ys, zs)
-    return _proj_transform_vec_clip(vec, M, focal_length)
+    return _proj_transform_vec_clip(vec, M, focal_length=np.inf)
 
 
-def _proj_points(points, M):
-    return np.column_stack(_proj_trans_points(points, M))
+def _scale_proj_transform_clip(xs, ys, zs, axes):
+    """
+    Apply scale transforms, project, and return clipping result.
+
+    Returns txs, tys, tzs, tis.
+    """
+    xs, ys, zs = _apply_scale_transforms(xs, ys, zs, axes)
+    vec = _vec_pad_ones(xs, ys, zs)
+    return _proj_transform_vec_clip(vec, axes.M, axes._focal_length)
 
 
 def _proj_trans_points(points, M):
@@ -263,31 +258,7 @@ def _proj_trans_points(points, M):
     return proj_transform(xs, ys, zs, M)
 
 
-def _proj_transform_clip_scaled(xs, ys, zs, axes):
-    """
-    Apply scale transforms and project with clipping.
-
-    Combines `_apply_scale_transforms` and `_proj_transform_clip` into a
-    single call. Returns txs, tys, tzs, tis.
-    """
-    xs, ys, zs = _apply_scale_transforms(xs, ys, zs, axes)
-    return _proj_transform_clip(xs, ys, zs, axes.M, axes._focal_length)
-
-
-def _proj_transform_vectors_scaled(vecs, axes):
-    """
-    Apply scale transforms and project vectors.
-
-    Combines `_apply_scale_transforms` and `_proj_transform_vectors` into a
-    single call. *vecs* has shape ``(..., 3)``.
-    """
-    xs, ys, zs = _apply_scale_transforms(
-        vecs[..., 0], vecs[..., 1], vecs[..., 2], axes)
-    vecs = np.stack([xs, ys, zs], axis=-1)
-    return _proj_transform_vectors(vecs, axes.M)
-
-
-def _proj_transform_scaled(xs, ys, zs, axes):
+def _scale_proj_transform(xs, ys, zs, axes):
     """
     Apply scale transforms and project.
 
@@ -296,15 +267,3 @@ def _proj_transform_scaled(xs, ys, zs, axes):
     """
     xs, ys, zs = _apply_scale_transforms(xs, ys, zs, axes)
     return proj_transform(xs, ys, zs, axes.M)
-
-
-def _proj_trans_points_scaled(points, axes):
-    """
-    Apply scale transforms and project points.
-
-    Combines `_apply_scale_transforms` and `_proj_trans_points` into a single
-    call.
-    """
-    points = np.asanyarray(points)
-    xs, ys, zs = points[:, 0], points[:, 1], points[:, 2]
-    return _proj_transform_scaled(xs, ys, zs, axes)

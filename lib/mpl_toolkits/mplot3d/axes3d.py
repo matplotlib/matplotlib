@@ -270,7 +270,7 @@ class Axes3D(Axes):
                 (maxx, miny, maxz),
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
-        return proj3d._proj_points(xyzs, self.M)
+        return np.column_stack(proj3d._proj_trans_points(xyzs, self.M))
 
     def _update_transScale(self):
         """
@@ -1137,7 +1137,7 @@ class Axes3D(Axes):
         """
         axis._set_axes_scale(value, **kwargs)
         # After setting scale, constrain limits using scale's limit_range_for_scale
-        if hasattr(axis, '_scale') and axis._scale is not None:
+        if getattr(axis, '_scale', None) is not None:
             vmin, vmax = get_lim()
             minpos = getattr(axis, '_minpos', 1e-300)
             new_vmin, new_vmax = axis._scale.limit_range_for_scale(
@@ -1377,7 +1377,7 @@ class Axes3D(Axes):
         return x_data, y_data, z_data
 
     def _set_lims_from_transformed(self, xmin_t, xmax_t, ymin_t, ymax_t,
-                                    zmin_t, zmax_t):
+                                   zmin_t, zmax_t):
         """
         Set axis limits from transformed coordinates.
 
@@ -1682,10 +1682,7 @@ class Axes3D(Axes):
         vec = self._get_camera_loc() - p1
 
         # Get the pane locations for each of the axes
-        pane_locs_data = []
-        for axis in self._axis_map.values():
-            xys, loc = axis.active_pane()
-            pane_locs_data.append(loc)
+        pane_locs_data = [axis.active_pane()[1] for axis in self._axis_map.values()]
 
         # Find the distance to the nearest pane by projecting the view vector
         scales = np.zeros(3)
