@@ -161,16 +161,6 @@ latex_to_bakoma: dict[str, tuple[str, CharacterCodeType]] = {
     '('                          : ('cmr10', 0x28),
     ')'                          : ('cmr10', 0x29),
     '+'                          : ('cmr10', 0x2b),
-    '0'                          : ('cmr10', 0x30),
-    '1'                          : ('cmr10', 0x31),
-    '2'                          : ('cmr10', 0x32),
-    '3'                          : ('cmr10', 0x33),
-    '4'                          : ('cmr10', 0x34),
-    '5'                          : ('cmr10', 0x35),
-    '6'                          : ('cmr10', 0x36),
-    '7'                          : ('cmr10', 0x37),
-    '8'                          : ('cmr10', 0x38),
-    '9'                          : ('cmr10', 0x39),
     ':'                          : ('cmr10', 0x3a),
     ';'                          : ('cmr10', 0x3b),
     '='                          : ('cmr10', 0x3d),
@@ -1350,7 +1340,7 @@ _stix_virtual_fonts: dict[str, dict[str, list[_EntryTypeIn]] | list[_EntryTypeIn
              "\N{DOUBLE-STRUCK CAPITAL PI}"),
             ("\N{GREEK CAPITAL LETTER SIGMA}",
              "\N{GREEK CAPITAL LETTER SIGMA}",
-             "it",
+             "rm",  # not in STIX italic
              "\N{DOUBLE-STRUCK N-ARY SUMMATION}"),  # \Sigma (not in beta STIX fonts)
             ("\N{GREEK SMALL LETTER GAMMA}",
              "\N{GREEK SMALL LETTER GAMMA}",
@@ -1777,6 +1767,9 @@ _stix_virtual_fonts: dict[str, dict[str, list[_EntryTypeIn]] | list[_EntryTypeIn
          "\N{MATHEMATICAL MONOSPACE SMALL A}")
     ],
 }
+
+_stix_virtual_fonts['bb']['normal'] = _stix_virtual_fonts['bb']['it']  # type:ignore[call-overload]
+_stix_virtual_fonts['sf']['normal'] = _stix_virtual_fonts['sf']['it']  # type:ignore[call-overload]
 
 
 @overload

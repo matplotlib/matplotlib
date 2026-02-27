@@ -571,6 +571,13 @@ def test_boldsymbol(fig_test, fig_ref):
     fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")
 
 
+@check_figures_equal()
+def test_mathnormal(fig_test, fig_ref):
+    # ensure that \mathnormal is parsed and sets digits upright
+    fig_test.text(0.1, 0.2, r"$\mathnormal{0123456789}$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{0123456789}$")
+
+
 def test_box_repr():
     s = repr(_mathtext.Parser().parse(
         r"$\frac{1}{2}$",

@@ -1093,7 +1093,7 @@ _validators = {
     "mathtext.fontset":        ["dejavusans", "dejavuserif", "cm", "stix",
                                 "stixsans", "custom"],
     "mathtext.default":        ["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default",
-                                "bb", "frak", "scr", "regular"],
+                                "bb", "frak", "scr", "regular", "normal"],
     "mathtext.fallback":       _validate_mathtext_fallback,
 
     "image.aspect":              validate_aspect,  # equal, auto, a number
@@ -1886,9 +1886,9 @@ _params = [
                     "math fonts. Select 'None' to not perform fallback and replace the "
                     "missing character by a dummy symbol."
     ),
-    _Param("mathtext.default", "it",
+    _Param("mathtext.default", "normal",
            ["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default", "bb", "frak", "scr",
-            "regular", ],
+            "regular", "normal"],
            description='The default font to use for math. Can be any of the LaTeX font '
                     'names, including the special name "regular" for the same font '
                     'used in regular text.',

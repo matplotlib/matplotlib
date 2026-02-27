@@ -269,8 +269,9 @@ class Fonts(abc.ABC):
         ----------
         font : str
             One of the TeX font names: "tt", "it", "rm", "cal", "sf", "bf",
-            "default", "regular", "bb", "frak", "scr".  "default" and "regular"
-            are synonyms and use the non-math font.
+            "default", "regular", "normal", "bb", "frak", "scr".  "default"
+            and "regular" are synonyms and use the non-math font.
+            "normal" denotes the normal math font.
         font_class : str
             One of the TeX font names (as for *font*), but **not** "bb",
             "frak", or "scr".  This is used to combine two font classes.  The
@@ -334,6 +335,9 @@ class Fonts(abc.ABC):
         appropriate size for a given situation from this list.
         """
         return [(fontname, sym)]
+
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        return FontConstantsBase
 
 
 class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
@@ -454,10 +458,11 @@ class BakomaFonts(TruetypeFonts):
     its own proprietary 8-bit encoding.
     """
     _fontmap = {
+        'normal': 'cmmi10',
         'cal': 'cmsy10',
         'rm':  'cmr10',
         'tt':  'cmtt10',
-        'it':  'cmmi10',
+        'it':  'cmti10',
         'bf':  'cmb10',
         'sf':  'cmss10',
         'ex':  'cmex10',
@@ -477,12 +482,18 @@ class BakomaFonts(TruetypeFonts):
     def _get_glyph(self, fontname: str, font_class: str,
                    sym: str) -> tuple[FT2Font, CharacterCodeType, bool]:
         font = None
+
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
-            slanted = (basename == "cmmi10") or sym in self._slanted_symbols
+            slanted = (basename in ("cmmi10", "cmti10")) or sym in self._slanted_symbols
             font = self._get_font(basename)
         elif len(sym) == 1:
-            slanted = (fontname == "it")
+            slanted = (fontname in ("it", "normal"))
+            if fontname == "normal" and sym.isdigit():
+                # use digits from cmr (roman alphabet) instead of cmm (math alphabet),
+                # same as LaTeX does.
+                fontname = "rm"
+                slanted = False
             font = self._get_font(fontname)
             if font is not None:
                 num = ord(sym)
@@ -530,6 +541,9 @@ class BakomaFonts(TruetypeFonts):
     def get_sized_alternatives_for_symbol(self, fontname: str,
                                           sym: str) -> list[tuple[str, str]]:
         return self._size_alternatives.get(sym, [(fontname, sym)])
+
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        return ComputerModernFontConstants
 
 
 class UnicodeFonts(TruetypeFonts):
@@ -610,11 +624,14 @@ class UnicodeFonts(TruetypeFonts):
         # Only characters in the "Letter" class should be italicized in 'it'
         # mode.  Greek capital letters should be Roman.
         if found_symbol:
-            if fontname == 'it' and uniindex < 0x10000:
+            if fontname == 'normal' and uniindex < 0x10000:
+                # normal mathematics font
                 char = chr(uniindex)
                 if (unicodedata.category(char)[0] != "L"
                         or unicodedata.name(char).startswith("GREEK CAPITAL")):
                     new_fontname = 'rm'
+                else:
+                    new_fontname = 'it'
 
             slanted = (new_fontname == 'it') or sym in self._slanted_symbols
             found_symbol = False
@@ -631,7 +648,7 @@ class UnicodeFonts(TruetypeFonts):
 
         if not found_symbol:
             if self._fallback_font:
-                if (fontname in ('it', 'regular')
+                if (fontname in ('it', 'regular', 'normal')
                         and isinstance(self._fallback_font, StixFonts)):
                     fontname = 'rm'
 
@@ -643,7 +660,7 @@ class UnicodeFonts(TruetypeFonts):
                 return g
 
             else:
-                if (fontname in ('it', 'regular')
+                if (fontname in ('it', 'regular', 'normal')
                         and isinstance(self, StixFonts)):
                     return self._get_glyph('rm', font_class, sym)
                 _log.warning("Font %r does not have a glyph for %a [U+%x], "
@@ -721,6 +738,9 @@ class DejaVuSerifFonts(DejaVuFonts):
         0:    'DejaVu Serif',
     }
 
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        return DejaVuSerifFontConstants
+
 
 class DejaVuSansFonts(DejaVuFonts):
     """
@@ -738,6 +758,9 @@ class DejaVuSansFonts(DejaVuFonts):
         'ex': 'DejaVu Sans Display',
         0:    'DejaVu Sans',
     }
+
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        return DejaVuSansFontConstants
 
 
 class StixFonts(UnicodeFonts):
@@ -822,7 +845,7 @@ class StixFonts(UnicodeFonts):
                 fontname = mpl.rcParams['mathtext.default']
 
         # Fix some incorrect glyphs.
-        if fontname in ('rm', 'it'):
+        if fontname in ('rm', 'it', 'normal'):
             uniindex = stix_glyph_fixes.get(uniindex, uniindex)
 
         # Handle private use area glyphs
@@ -853,6 +876,12 @@ class StixFonts(UnicodeFonts):
         if sym == r'\__sqrt__':
             alternatives = alternatives[:-1]
         return alternatives
+
+    def get_font_constants(self) -> type[FontConstantsBase]:
+        if self._sans:
+            return STIXSansFontConstants
+        else:
+            return STIXFontConstants
 
 
 class StixSansFonts(StixFonts):
@@ -1035,42 +1064,6 @@ class DejaVuSansFontConstants(FontConstantsBase):
     num3 = 970.752 / _x_height
     denom1 = 1548.29 / _x_height
     denom2 = 768 / _x_height
-
-
-# Maps font family names to the FontConstantBase subclass to use
-_font_constant_mapping = {
-    'DejaVu Sans': DejaVuSansFontConstants,
-    'DejaVu Sans Mono': DejaVuSansFontConstants,
-    'DejaVu Serif': DejaVuSerifFontConstants,
-    'cmb10': ComputerModernFontConstants,
-    'cmex10': ComputerModernFontConstants,
-    'cmmi10': ComputerModernFontConstants,
-    'cmr10': ComputerModernFontConstants,
-    'cmss10': ComputerModernFontConstants,
-    'cmsy10': ComputerModernFontConstants,
-    'cmtt10': ComputerModernFontConstants,
-    'STIXGeneral': STIXFontConstants,
-    'STIXNonUnicode': STIXFontConstants,
-    'STIXSizeFiveSym': STIXFontConstants,
-    'STIXSizeFourSym': STIXFontConstants,
-    'STIXSizeThreeSym': STIXFontConstants,
-    'STIXSizeTwoSym': STIXFontConstants,
-    'STIXSizeOneSym': STIXFontConstants,
-    # Map the fonts we used to ship, just for good measure
-    'Bitstream Vera Sans': DejaVuSansFontConstants,
-    'Bitstream Vera': DejaVuSansFontConstants,
-    }
-
-
-def _get_font_constant_set(state: ParserState) -> type[FontConstantsBase]:
-    constants = _font_constant_mapping.get(
-        state.fontset._get_font(state.font).family_name, FontConstantsBase)
-    # STIX sans isn't really its own fonts, just different code points
-    # in the STIX fonts, so we have to detect this one separately.
-    if (constants is STIXFontConstants and
-            isinstance(state.fontset, StixSansFonts)):
-        return STIXSansFontConstants
-    return constants
 
 
 class Node:
@@ -1852,7 +1845,7 @@ class ParserState:
 
     @font.setter
     def font(self, name: str) -> None:
-        if name in ('rm', 'it', 'bf', 'bfit'):
+        if name in ('normal', 'rm', 'it', 'bf', 'bfit'):
             self.font_class = name
         self._font = name
 
@@ -2024,7 +2017,7 @@ class Parser:
     _dropsub_symbols = set(r'\int \oint \iint \oiint \iiint \oiiint \iiiint'.split())
 
     _fontnames = set("rm cal it tt sf bf bfit "
-                     "default bb frak scr regular".split())
+                     "default bb frak scr regular normal".split())
 
     _function_names = set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
@@ -2281,7 +2274,7 @@ class Parser:
         s = toks[0].replace(r'\$', '$')
         symbols = [Char(c, self.get_state()) for c in s]
         hlist = Hlist(symbols)
-        # We're going into math now, so set font to 'it'
+        # We're going into math now, so set font to 'normal'
         self.push_state()
         self.get_state().font = mpl.rcParams['mathtext.default']
         return [hlist]
@@ -2300,14 +2293,15 @@ class Parser:
         # In TeX, an em (the unit usually used to measure horizontal lengths)
         # is not the width of the character 'm'; it is the same in different
         # font styles (e.g. roman or italic). Mathtext, however, uses 'm' in
-        # the italic style so that horizontal spaces don't depend on the
+        # the normal style so that horizontal spaces don't depend on the
         # current font style.
+        # TODO: this should be read from the font file
         state = self.get_state()
         key = (state.font, state.fontsize, state.dpi)
         width = self._em_width_cache.get(key)
         if width is None:
             metrics = state.fontset.get_metrics(
-                'it', mpl.rcParams['mathtext.default'], 'm',
+                'normal', 'it', 'm',
                 state.fontsize, state.dpi)
             width = metrics.advance
             self._em_width_cache[key] = width
@@ -2608,7 +2602,7 @@ class Parser:
             nucleus = Hlist([nucleus])
 
         # Handle regular sub/superscripts
-        consts = _get_font_constant_set(state)
+        consts = state.fontset.get_font_constants()
         lc_height   = last_char.height
         lc_baseline = 0
         if self.is_dropsub(last_char):
@@ -2702,7 +2696,7 @@ class Parser:
 
         axis_height = state.fontset.get_axis_height(
             state.font, state.fontsize, state.dpi)
-        consts = _get_font_constant_set(state)
+        consts = state.fontset.get_font_constants()
         x_height = state.fontset.get_xheight(state.font, state.fontsize, state.dpi)
 
         for _ in range(style.value):
