@@ -373,12 +373,11 @@ class _ColorizerInterface:
         Return the values (min, max) that are mapped to the colormap limits.
 
         This function is not available for multivariate data.
-        Use `.Colorizer.get_clim()` via the .colorizer property instead.
+        Use `.Colorizer.get_clim` via the .colorizer property instead.
         """
         if self._colorizer.norm.n_components > 1:
-            raise AttributeError("`.get_clim()` is unavailable when using a colormap "
-                                 "with multiple components. Use "
-                                 "`.colorizer.get_clim()` instead")
+            raise AttributeError("get_clim() cannot be used with a multi-component "
+                                 "colormap. Use .colorizer.get_clim() instead")
         return self.colorizer.norm.vmin, self.colorizer.norm.vmax
 
     def set_clim(self, vmin=None, vmax=None):
@@ -400,9 +399,8 @@ class _ColorizerInterface:
         # If the norm's limits are updated self.changed() will be called
         # through the callbacks attached to the norm
         if self._colorizer.norm.n_components > 1:
-            raise AttributeError("`.set_clim(vmin, vmax)` is unavailable "
-                                 "when using a colormap with multiple components. Use "
-                                 "`.colorizer.set_clim(vmin, vmax)` instead")
+            raise AttributeError("set_clim() cannot be used with a multi-component "
+                                 "colormap. Use .colorizer.set_clim() instead")
         self._colorizer.set_clim(vmin, vmax)
 
     def get_alpha(self):
