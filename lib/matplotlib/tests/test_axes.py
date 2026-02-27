@@ -10168,7 +10168,7 @@ def test_errorbar_uses_rcparams():
 
     data_line, caplines, barlinecols = eb.lines
     assert data_line is None
-    assert caplines 
+    assert caplines
 
     assert_allclose([cap.get_markersize() for cap in caplines], 10.0)
     assert_allclose([cap.get_markeredgewidth() for cap in caplines], 2.5)
