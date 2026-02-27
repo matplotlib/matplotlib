@@ -2971,7 +2971,8 @@ def test_scale3d_default_limits(scale, expected_lims):
 @check_figures_equal()
 @pytest.mark.filterwarnings("ignore:Data has no positive values")
 def test_scale3d_all_clipped(fig_test, fig_ref):
-    """Fully clipped data (e.g. negative values on log) should look like an empty plot."""
+    """Fully clipped data (e.g. negative values on log) should look like an empty plot.
+    """
     lims = (0.1, 10)
     for ax in [fig_test.add_subplot(projection='3d'),
                fig_ref.add_subplot(projection='3d')]:

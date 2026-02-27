@@ -851,7 +851,6 @@ class Axes3D(Axes):
         if view_margin > 0 and hasattr(axis, '_scale') and axis._scale is not None:
             transform = axis.get_transform()
             inverse_trans = transform.inverted()
-            # For log scale, need valid limits before transforming
             minpos = max(1e-300, abs(lower) if lower > 0 else 1e-5)
             lower, upper = axis._scale.limit_range_for_scale(lower, upper, minpos)
             lower_t, upper_t = transform.transform([lower, upper])
@@ -1135,15 +1134,20 @@ class Axes3D(Axes):
         **kwargs
             Forwarded to scale constructor.
         """
+        # For non-linear scales on the z-axis, switch from the [0, 1] +
+        # margin=0 representation to the same xymargin + margin=0.05
+        # representation that x/y use.  Both produce identical linear limits,
+        # but only the xymargin form has valid positive lower bounds for log
+        # etc.  This must happen before _set_axes_scale because that triggers
+        # autoscale_view internally.
+        if (axis is self.zaxis and value != 'linear'
+                and np.array_equal(self.zz_dataLim.get_points(),
+                                   [[0, 0], [1, 1]])):
+            xymargin = 0.05 * 10/11
+            self.zz_dataLim = Bbox([[xymargin, xymargin],
+                                    [1 - xymargin, 1 - xymargin]])
+            self._zmargin = self._xmargin
         axis._set_axes_scale(value, **kwargs)
-        # After setting scale, constrain limits using scale's limit_range_for_scale
-        if getattr(axis, '_scale', None) is not None:
-            vmin, vmax = get_lim()
-            minpos = getattr(axis, '_minpos', 1e-300)
-            new_vmin, new_vmax = axis._scale.limit_range_for_scale(
-                vmin, vmax, minpos)
-            if (new_vmin, new_vmax) != (vmin, vmax):
-                set_lim(new_vmin, new_vmax, auto=True)
 
     def set_xscale(self, value, **kwargs):
         """
