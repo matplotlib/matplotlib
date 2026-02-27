@@ -1767,8 +1767,9 @@ _stix_virtual_fonts: dict[str, dict[str, list[_EntryTypeIn]] | list[_EntryTypeIn
          "\N{MATHEMATICAL MONOSPACE SMALL A}")
     ],
 }
-_stix_virtual_fonts['bb']['normal'] = _stix_virtual_fonts['bb']['it']
-_stix_virtual_fonts['sf']['normal'] = _stix_virtual_fonts['sf']['it']
+
+_stix_virtual_fonts['bb']['normal'] = _stix_virtual_fonts['bb']['it']  # type:ignore[call-overload]
+_stix_virtual_fonts['sf']['normal'] = _stix_virtual_fonts['sf']['it']  # type:ignore[call-overload]
 
 
 @overload
