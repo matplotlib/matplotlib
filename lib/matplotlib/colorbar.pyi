@@ -1,5 +1,5 @@
 import matplotlib.spines as mspines
-from matplotlib import cm, collections, colors, contour, colorizer
+from matplotlib import cm, collections, colors, contour, colorizer as mcolorizer
 from matplotlib.axes import Axes
 from matplotlib.axis import Axis
 from matplotlib.backend_bases import RendererBase
@@ -21,7 +21,7 @@ class _ColorbarSpine(mspines.Spine):
 
 class Colorbar:
     n_rasterize: int
-    mappable: cm.ScalarMappable | colorizer.ColorizingArtist
+    mappable: cm.ScalarMappable | mcolorizer.ColorizingArtist
     ax: Axes
     alpha: float | None
     cmap: colors.Colormap
@@ -43,7 +43,7 @@ class Colorbar:
     def __init__(
         self,
         ax: Axes,
-        mappable: cm.ScalarMappable | colorizer.ColorizingArtist | None = ...,
+        mappable: cm.ScalarMappable | mcolorizer.ColorizingArtist | None = ...,
         *,
         cmap: str | colors.Colormap | None = ...,
         norm: colors.Normalize | None = ...,
@@ -115,7 +115,39 @@ class Colorbar:
     def remove(self) -> None: ...
     def drag_pan(self, button: Any, key: Any, x: float, y: float) -> None: ...
 
+
 ColorbarBase = Colorbar
+
+class BivarColorbar:
+    mappable: mcolorizer.ColorizingArtist
+    ax: Axes
+    alpha: float | None
+    colorizer: mcolorizer.Colorizer
+    ticklocations: tuple[Literal["auto", "left", "right"], Literal["auto", "top", "bottom"]]
+    def __init__(
+        self,
+        ax: Axes,
+        mappable: mcolorizer.ColorizingArtist | mcolorizer.Colorizer,
+        *,
+        alpha: float | None = ...,
+        ticklocations: tuple[Literal["auto", "left", "right"], Literal["auto", "top", "bottom"]] = ...,
+        location: Literal["left", "right", "top", "bottom"] | None = ...,
+        aspect: float = ...,
+    ) -> None: ...
+    @property
+    def aspect(self) -> float: ...
+    @aspect.setter
+    def aspect(self, aspect: float) -> None: ...
+    def set_xlabel(self, label: str) -> None: ...
+    def set_ylabel(self, label: str) -> None: ...
+    @property
+    def xaxis(self) -> Axis: ...
+    @property
+    def yaxis(self) -> Axis: ...
+    def update_normals(self, mappable: mcolorizer.ColorizingArtist | None = ...) -> None: ...
+    def set_alpha(self, alpha: float | None) -> None: ...
+    def remove(self) -> None: ...
+    def drag_pan(self, button: Any, key: Any, x: float, y: float) -> None: ...
 
 def make_axes(
     parents: Axes | list[Axes] | np.ndarray,
