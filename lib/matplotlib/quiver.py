@@ -113,11 +113,14 @@ angles : {'uv', 'xy'} or array-like, default: 'uv'
     Note: inverting a data axis will correspondingly invert the
     arrows only with ``angles='xy'``.
 
-pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
+pivot : {'tail', 'middle', 'tip'}, default: 'tail'
     The part of the arrow that is anchored to the *X*, *Y* grid. The arrow
     rotates about this point.
 
-    'mid' is a synonym for 'middle'.
+    .. admonition:: Discouraged
+
+        'mid' is a synonym for 'middle', which is retained for backwards
+        compatibility.  New code should use 'middle'.
 
 scale : float, optional
     Scales the length of the arrow inversely.
