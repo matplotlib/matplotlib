@@ -2947,6 +2947,43 @@ def test_scale3d_all_scales():
     axs[1].set(xlabel='asinh', ylabel='linear', zlabel='function')
 
 
+@pytest.mark.parametrize("scale, expected_lims", [
+    ("linear", (-0.020833333333333332, 1.0208333333333333)),
+    ("log", (0.03640537388223389, 1.1918138759519783)),
+    ("symlog", (-0.020833333333333332, 1.0208333333333333)),
+    ("logit", (0.029640777806688817, 0.9703592221933112)),
+    ("asinh", (-0.020833333333333332, 1.0208333333333333)),
+])
+@mpl.style.context("default")
+def test_scale3d_default_limits(scale, expected_lims):
+    """Default axis limits on an empty plot should be correct for each scale."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_xscale(scale)
+    ax.set_yscale(scale)
+    ax.set_zscale(scale)
+    fig.canvas.draw()
+
+    for get_lim in (ax.get_xlim, ax.get_ylim, ax.get_zlim):
+        np.testing.assert_allclose(get_lim(), expected_lims)
+
+
+@check_figures_equal()
+@pytest.mark.filterwarnings("ignore:Data has no positive values")
+def test_scale3d_all_clipped(fig_test, fig_ref):
+    """Fully clipped data (e.g. negative values on log) should look like an empty plot."""
+    lims = (0.1, 10)
+    for ax in [fig_test.add_subplot(projection='3d'),
+               fig_ref.add_subplot(projection='3d')]:
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        ax.set_zscale('log')
+        ax.set(xlim=lims, ylim=lims, zlim=lims)
+
+    # All negative data — everything is invalid for log scale
+    fig_test.axes[0].plot([-1, -2, -3], [-4, -5, -6], [-7, -8, -9])
+
+
 @mpl3d_image_comparison(['scale3d_log_bases.png'], style='mpl20', remove_text=False)
 def test_scale3d_log_bases():
     """Test log scale with different bases and subs."""
