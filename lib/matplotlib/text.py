@@ -4,13 +4,13 @@ Classes for including text in a figure.
 
 from collections.abc import Sequence
 import functools
+import itertools
 import logging
 import math
-import itertools
-import weakref
-import numpy as np
 from numbers import Real
-from functools import lru_cache
+import weakref
+
+import numpy as np
 
 import matplotlib as mpl
 from . import _api, artist, cbook, _docstring, colors as mcolors
@@ -25,7 +25,7 @@ from .transforms import (
 _log = logging.getLogger(__name__)
 
 
-@lru_cache(maxsize=128)
+@functools.lru_cache(maxsize=128)
 def _rotate(theta):
     """
     Return an Affine2D object that rotates by the given angle in radians.
@@ -515,7 +515,6 @@ class Text(Artist):
         xmax = width
         ymax = 0
         ymin = ys[-1] - descent  # baseline of last line minus its descent
-        height = ymax - ymin
 
         # now offset the individual text lines within the box
         malign = self._get_multialignment()
