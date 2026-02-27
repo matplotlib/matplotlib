@@ -3261,7 +3261,8 @@ class NavigationToolbar2:
         # to the edge of the Axes bbox in the other dimension. To do that we
         # store the orientation of the colorbar for later.
         parent_ax = axes[0]
-        if hasattr(parent_ax, "_colorbar"):
+        if hasattr(parent_ax, "_colorbar") and hasattr(parent_ax._colorbar,
+                                                       "orientation"):
             cbar = parent_ax._colorbar.orientation
         else:
             cbar = None
