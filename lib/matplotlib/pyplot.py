@@ -126,7 +126,7 @@ if TYPE_CHECKING:
         EventCollection,
         QuadMesh,
     )
-    from matplotlib.colorbar import Colorbar
+    from matplotlib.colorbar import Colorbar, BivarColorbar
     from matplotlib.container import (
         BarContainer,
         ErrorbarContainer,
@@ -2681,6 +2681,24 @@ def colorbar(
                                'an image (with imshow) or a contour set ('
                                'with contourf).')
     ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kwargs)
+    return ret
+
+
+@_copy_docstring_and_deprecators(Figure.bivar_colorbar)
+def bivar_colorbar(
+    mappable: ColorizingArtist | None = None,
+    cax: matplotlib.axes.Axes | None = None,
+    ax: matplotlib.axes.Axes | Iterable[matplotlib.axes.Axes] | None = None,
+    **kwargs
+) -> BivarColorbar:
+    if mappable is None:
+        mappable = gci()
+        if mappable is None:
+            raise RuntimeError('No mappable was found to use for colorbar '
+                               'creation. First define a mappable such as '
+                               'an image (with imshow) or a contour set ('
+                               'with contourf).')
+    ret = gcf().bivar_colorbar(mappable, cax=cax, ax=ax, **kwargs)
     return ret
 
 

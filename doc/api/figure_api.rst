@@ -60,6 +60,7 @@ Annotating
    :nosignatures:
 
    Figure.colorbar
+   Figure.bivar_colorbar
    Figure.legend
    Figure.text
    Figure.suptitle
@@ -254,6 +255,7 @@ Annotating
    :nosignatures:
 
    SubFigure.colorbar
+   SubFigure.bivar_colorbar
    SubFigure.legend
    SubFigure.text
    SubFigure.suptitle
