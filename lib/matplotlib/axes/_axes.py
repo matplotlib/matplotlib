@@ -4154,6 +4154,7 @@ or pandas.DataFrame
 
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
+        elinewidth = mpl._val_or_rc(elinewidth, "errorbar.elinewidth")
 
         if elinewidth is not None:
             eb_lines_style['linewidth'] = elinewidth
@@ -4170,6 +4171,8 @@ or pandas.DataFrame
         # Make the style dict for caps (the "hats").
         eb_cap_style = {**base_style, 'linestyle': 'none'}
         capsize = mpl._val_or_rc(capsize, "errorbar.capsize")
+        capthick = mpl._val_or_rc(capthick, "errorbar.capthick")
+
         if capsize > 0:
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:

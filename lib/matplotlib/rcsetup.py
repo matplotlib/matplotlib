@@ -1114,6 +1114,8 @@ _validators = {
 
     # errorbar props
     "errorbar.capsize": validate_float,
+    "errorbar.capthick": validate_float_or_None,
+    "errorbar.elinewidth": validate_float_or_None,
 
     # axis props
     # alignment of x/y axis title
@@ -2917,6 +2919,17 @@ _DEFINITION = [
         default=0.0,
         validator=validate_float,
         description="length of end cap on error bars in pixels"
+    ),
+    _Param(
+        "errorbar.capthick",
+        default=None,
+        validator=validate_float_or_None,
+        description="thickness of end cap on error bars in points."),
+    _Param(
+        "errorbar.elinewidth",
+        default=None,
+        validator=validate_float_or_None,
+        description="line width of the error bar lines in points."
     ),
     _Section("Histogram plots"),
     _Param(
