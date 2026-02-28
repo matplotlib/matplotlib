@@ -318,3 +318,58 @@ and running the same script will display
    :hidden:
 
    license.rst
+
+
+.. _verbose-error-messages:
+
+Error Messages
+--------------
+
+
+Error messages should err on the side of being verbose, descriptive, and
+specific about what went wrong.  They should be informative enough so that a
+typical user (not an expert of our API) can understand, debug, and fix their
+problem based solely on the message, without the need to consult the online
+documentation.
+
+For example, input validation errors should include, where possible,
+information about which input is invalid, what value was passed in, and why the
+value is invalid, e.g. ::
+
+    raise ValueError(f"{value=!r} is invalid, value must be a positive integer")
+
+This message helps the user to quickly diagnose and fix their problem.
+
+Remember that many other libraries are implemented on top of Matplotlib, and
+therefore ``value`` may not even have been directly passed by the user, but
+rather generated in some intermediate layer.  In such cases, this kind of
+highly explicit messages can be particularly useful, compared to shorter
+messages such as ::
+
+    raise ValueError("invalid value")
+
+
+Internal helpers
+~~~~~~~~~~~~~~~~
+
+Matplotlib has a number of helper functions in the ``matplotlib._api`` module
+named as ``check_*`` which provide nice error messages for common checks
+in Matplotlib.  Please use these when working on the Matplotlib code base, it
+both saves a bunch of duplicate code and ensures our error messages are
+consistent across the library.  Use them in your own code at your own risk, we
+consider them private API and reserve the right change them with no notice on
+any release.
+
+
+.. currentmodule:: matplotlib
+
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   _api.check_isinstance
+   _api.check_in_list
+   _api.check_shape
+   _api.check_getitem
