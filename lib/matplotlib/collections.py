@@ -1511,8 +1511,15 @@ class FillBetweenPolyCollection(PolyCollection):
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
 
         self._bbox = transforms.Bbox.null()
-        self._bbox.update_from_data_xy(self._fix_pts_xy_order(np.concatenate([
-            np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)])))
+        t_where = t.data[where] if np.ma.isMA(t) else t[where]
+        f1_where = f1.data[where] if np.ma.isMA(f1) else f1[where]
+        f2_where = f2.data[where] if np.ma.isMA(f2) else f2[where]
+        n = len(t_where)
+        if n > 0:
+            pts = np.empty((2 * n, 2))  # Preallocate and fill for speed
+            pts[:n, 0], pts[:n, 1] = t_where, f1_where
+            pts[n:, 0], pts[n:, 1] = t_where[::-1], f2_where[::-1]
+            self._bbox.update_from_data_xy(self._fix_pts_xy_order(pts))
 
         return [
             self._make_verts_for_region(t, f1, f2, idx0, idx1)
@@ -1570,11 +1577,13 @@ class FillBetweenPolyCollection(PolyCollection):
             start = t_slice[0], f2_slice[0]
             end = t_slice[-1], f2_slice[-1]
 
-        pts = np.concatenate((
-            np.asarray([start]),
-            np.stack((t_slice, f1_slice), axis=-1),
-            np.asarray([end]),
-            np.stack((t_slice, f2_slice), axis=-1)[::-1]))
+        # Build polygon: start -> along f1 -> end -> back along f2 (reversed)
+        # Preallocate and fill for speed
+        n = len(t_slice)
+        pts = np.empty((2 * n + 2, 2))
+        pts[0], pts[n+1] = start, end
+        pts[1:n+1, 0], pts[1:n+1, 1] = t_slice, f1_slice
+        pts[n+2:, 0], pts[n+2:, 1] = t_slice[::-1], f2_slice[::-1]
 
         return self._fix_pts_xy_order(pts)
 
