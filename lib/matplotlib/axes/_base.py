@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Sequence, Callable
 from contextlib import ExitStack
 import functools
 import inspect
@@ -594,6 +594,23 @@ class _AxesBase(martist.Artist):
     - :doc:`Axis API </api/axis_api>`
     """
 
+    fmt_xdata: Callable[[float], str] | None
+    """
+    Callable to format the x-data in an interactive window.
+
+    The expected signature is ::
+
+        def fmt(val: float, /) -> str: ...
+    """
+
+    fmt_ydata: Callable[[float], str] | None
+    """
+    Callable to format the y-data in an interactive window.
+
+    The expected signature is ::
+
+        def fmt(val: float, /) -> str: ...
+    """
     def __str__(self):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)

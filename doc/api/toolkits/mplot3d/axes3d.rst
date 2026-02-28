@@ -11,7 +11,7 @@ mpl\_toolkits.mplot3d.axes3d.Axes3D
    :show-inheritance:
 
 
-.. currentmodule:: mpl_toolkits.mplot3d.axes3d.Axes3D
+.. currentmodule:: mpl_toolkits.mplot3d.axes3d
 
 
 Plotting
@@ -22,26 +22,26 @@ Plotting
    :template: autosummary.rst
    :nosignatures:
 
-   plot
-   scatter
-   bar
-   bar3d
+   Axes3D.plot
+   Axes3D.scatter
+   Axes3D.bar
+   Axes3D.bar3d
 
-   plot_surface
-   plot_wireframe
-   plot_trisurf
-   fill_between
+   Axes3D.plot_surface
+   Axes3D.plot_wireframe
+   Axes3D.plot_trisurf
+   Axes3D.fill_between
 
-   clabel
-   contour
-   tricontour
-   contourf
-   tricontourf
+   Axes3D.clabel
+   Axes3D.contour
+   Axes3D.tricontour
+   Axes3D.contourf
+   Axes3D.tricontourf
 
-   quiver
-   voxels
-   errorbar
-   stem
+   Axes3D.quiver
+   Axes3D.voxels
+   Axes3D.errorbar
+   Axes3D.stem
 
 
 Text and annotations
@@ -52,8 +52,8 @@ Text and annotations
    :template: autosummary.rst
    :nosignatures:
 
-   text
-   text2D
+   Axes3D.text
+   Axes3D.text2D
 
 
 Clearing
@@ -64,7 +64,7 @@ Clearing
    :template: autosummary.rst
    :nosignatures:
 
-   clear
+   Axes3D.clear
 
 
 Appearance
@@ -75,9 +75,9 @@ Appearance
    :template: autosummary.rst
    :nosignatures:
 
-   set_axis_off
-   set_axis_on
-   grid
+   Axes3D.set_axis_off
+   Axes3D.set_axis_on
+   Axes3D.grid
 
 
 Axis
@@ -91,32 +91,32 @@ Axis limits and direction
    :template: autosummary.rst
    :nosignatures:
 
-   get_zaxis
-   get_xlim
-   set_xlim
-   get_ylim
-   set_ylim
-   get_zlim
-   set_zlim
-   get_w_lims
-   get_xinverted
-   set_xinverted
-   invert_xaxis
-   xaxis_inverted
-   get_yinverted
-   set_yinverted
-   invert_yaxis
-   yaxis_inverted
-   get_zinverted
-   set_zinverted
-   invert_zaxis
-   zaxis_inverted
-   get_xbound
-   set_xbound
-   get_ybound
-   set_ybound
-   get_zbound
-   set_zbound
+   Axes3D.get_zaxis
+   Axes3D.get_xlim
+   Axes3D.set_xlim
+   Axes3D.get_ylim
+   Axes3D.set_ylim
+   Axes3D.get_zlim
+   Axes3D.set_zlim
+   Axes3D.get_w_lims
+   Axes3D.get_xinverted
+   Axes3D.set_xinverted
+   Axes3D.invert_xaxis
+   Axes3D.xaxis_inverted
+   Axes3D.get_yinverted
+   Axes3D.set_yinverted
+   Axes3D.invert_yaxis
+   Axes3D.yaxis_inverted
+   Axes3D.get_zinverted
+   Axes3D.set_zinverted
+   Axes3D.invert_zaxis
+   Axes3D.zaxis_inverted
+   Axes3D.get_xbound
+   Axes3D.set_xbound
+   Axes3D.get_ybound
+   Axes3D.set_ybound
+   Axes3D.get_zbound
+   Axes3D.set_zbound
 
 
 Axis labels and title
@@ -127,9 +127,9 @@ Axis labels and title
    :template: autosummary.rst
    :nosignatures:
 
-   set_zlabel
-   get_zlabel
-   set_title
+   Axes3D.set_zlabel
+   Axes3D.get_zlabel
+   Axes3D.set_title
 
 
 Axis scales
@@ -140,10 +140,10 @@ Axis scales
    :template: autosummary.rst
    :nosignatures:
 
-   set_xscale
-   set_yscale
-   set_zscale
-   get_zscale
+   Axes3D.set_xscale
+   Axes3D.set_yscale
+   Axes3D.set_zscale
+   Axes3D.get_zscale
 
 
 Autoscaling and margins
@@ -154,14 +154,14 @@ Autoscaling and margins
    :template: autosummary.rst
    :nosignatures:
 
-   get_zmargin
-   set_zmargin
-   margins
-   autoscale
-   autoscale_view
-   set_autoscalez_on
-   get_autoscalez_on
-   auto_scale_xyz
+   Axes3D.get_zmargin
+   Axes3D.set_zmargin
+   Axes3D.margins
+   Axes3D.autoscale
+   Axes3D.autoscale_view
+   Axes3D.set_autoscalez_on
+   Axes3D.get_autoscalez_on
+   Axes3D.auto_scale_xyz
 
 
 Aspect ratio
@@ -172,9 +172,9 @@ Aspect ratio
    :template: autosummary.rst
    :nosignatures:
 
-   set_aspect
-   set_box_aspect
-   apply_aspect
+   Axes3D.set_aspect
+   Axes3D.set_box_aspect
+   Axes3D.apply_aspect
 
 
 Ticks
@@ -185,15 +185,15 @@ Ticks
    :template: autosummary.rst
    :nosignatures:
 
-   tick_params
-   set_zticks
-   get_zticks
-   set_zticklabels
-   get_zticklines
-   get_zgridlines
-   get_zminorticklabels
-   get_zmajorticklabels
-   zaxis_date
+   Axes3D.tick_params
+   Axes3D.set_zticks
+   Axes3D.get_zticks
+   Axes3D.set_zticklabels
+   Axes3D.get_zticklines
+   Axes3D.get_zgridlines
+   Axes3D.get_zminorticklabels
+   Axes3D.get_zmajorticklabels
+   Axes3D.zaxis_date
 
 
 Units
@@ -204,7 +204,7 @@ Units
    :template: autosummary.rst
    :nosignatures:
 
-   convert_zunits
+   Axes3D.convert_zunits
 
 
 Adding artists
@@ -215,7 +215,7 @@ Adding artists
    :template: autosummary.rst
    :nosignatures:
 
-   add_collection3d
+   Axes3D.add_collection3d
 
 
 Sharing
@@ -226,8 +226,8 @@ Sharing
    :template: autosummary.rst
    :nosignatures:
 
-   sharez
-   shareview
+   Axes3D.sharez
+   Axes3D.shareview
 
 
 Interactive
@@ -238,13 +238,16 @@ Interactive
    :template: autosummary.rst
    :nosignatures:
 
-   can_zoom
-   can_pan
-   disable_mouse_rotation
-   mouse_init
-   drag_pan
-   format_zdata
-   format_coord
+   Axes3D.can_zoom
+   Axes3D.can_pan
+   Axes3D.disable_mouse_rotation
+   Axes3D.mouse_init
+   Axes3D.drag_pan
+
+   Axes3D.fmt_zdata
+   Axes3D.format_zdata
+   Axes3D.format_coord
+
 
 
 Projection and perspective
@@ -255,10 +258,10 @@ Projection and perspective
    :template: autosummary.rst
    :nosignatures:
 
-   view_init
-   set_proj_type
-   get_proj
-   set_top_view
+   Axes3D.view_init
+   Axes3D.set_proj_type
+   Axes3D.get_proj
+   Axes3D.set_top_view
 
 
 Drawing
@@ -269,8 +272,8 @@ Drawing
    :template: autosummary.rst
    :nosignatures:
 
-   draw
-   get_tightbbox
+   Axes3D.draw
+   Axes3D.get_tightbbox
 
 
 Aliases and deprecated methods
@@ -281,9 +284,9 @@ Aliases and deprecated methods
    :template: autosummary.rst
    :nosignatures:
 
-    set_zlim3d
-    stem3D
-    text3D
+    Axes3D.set_zlim3d
+    Axes3D.stem3D
+    Axes3D.text3D
 
 
 Other
@@ -294,10 +297,10 @@ Other
    :template: autosummary.rst
    :nosignatures:
 
-   get_axis_position
-   add_contour_set
-   add_contourf_set
-   update_datalim
+   Axes3D.get_axis_position
+   Axes3D.add_contour_set
+   Axes3D.add_contourf_set
+   Axes3D.update_datalim
 
 
 .. currentmodule:: mpl_toolkits.mplot3d
@@ -310,7 +313,7 @@ Sample 3D data
    :template: autosummary.rst
    :nosignatures:
 
-   axes3d.get_test_data
+   mpl_toolkits.mplot3d.axes3d.get_test_data
 
 
 .. minigallery:: mpl_toolkits.mplot3d.axes3d.Axes3D
