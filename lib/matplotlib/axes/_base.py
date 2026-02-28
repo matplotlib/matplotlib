@@ -2443,6 +2443,20 @@ class _AxesBase(martist.Artist):
         self.stale = True
         return txt
 
+    def _point_in_data_domain(self, x, y):
+        """
+        Check if the data point (x, y) is within the valid domain of the axes
+        scales.
+
+        Returns False if the point is outside the data range
+        (e.g. negative coordinates with a log scale).
+        """
+        for val, axis in [(x, self.xaxis), (y, self.yaxis)]:
+            vmin, vmax = axis.limit_range_for_scale(val, val)
+            if vmin != val or vmax != val:
+                return False
+        return True
+
     def _update_line_limits(self, line):
         """
         Figures out the data limit of the given line, updating `.Axes.dataLim`.
