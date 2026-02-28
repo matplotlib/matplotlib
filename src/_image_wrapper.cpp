@@ -1,5 +1,9 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #include <algorithm>
 
@@ -283,9 +287,13 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
 }
 
 
-PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
+PYBIND11_MODULE(_image, m, py::mod_gil_not_used()
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+                ,py::multiple_interpreters::per_interpreter_gil()
+#endif
+)
 {
-    py::enum_<interpolation_e>(m, "_InterpolationType")
+    py::native_enum<interpolation_e>(m, "_InterpolationType", "enum.Enum")
         .value("NEAREST", NEAREST)
         .value("BILINEAR", BILINEAR)
         .value("BICUBIC", BICUBIC)
@@ -303,7 +311,8 @@ PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
         .value("SINC", SINC)
         .value("LANCZOS", LANCZOS)
         .value("BLACKMAN", BLACKMAN)
-        .export_values();
+        .export_values()
+        .finalize();
 
     m.def("resample", &image_resample,
         "input_array"_a,

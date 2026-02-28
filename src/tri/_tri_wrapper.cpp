@@ -1,10 +1,17 @@
 #include "_tri.h"
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 using namespace pybind11::literals;
 
-PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
+PYBIND11_MODULE(_tri, m, py::mod_gil_not_used()
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+                ,py::multiple_interpreters::per_interpreter_gil()
+#endif
+)
 {
-    py::class_<Triangulation>(m, "Triangulation", py::is_final())
+    py::classh<Triangulation>(m, "Triangulation", py::is_final())
         .def(py::init<const Triangulation::CoordinateArray&,
                       const Triangulation::CoordinateArray&,
                       const Triangulation::TriangleArray&,
@@ -31,7 +38,7 @@ PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
         .def("set_mask", &Triangulation::set_mask,
             "Set or clear the mask array.");
 
-    py::class_<TriContourGenerator>(m, "TriContourGenerator", py::is_final())
+    py::classh<TriContourGenerator>(m, "TriContourGenerator", py::is_final())
         .def(py::init<Triangulation&,
                       const TriContourGenerator::CoordinateArray&>(),
             "triangulation"_a,
@@ -44,7 +51,7 @@ PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
         .def("create_filled_contour", &TriContourGenerator::create_filled_contour,
             "Create and return a filled contour.");
 
-    py::class_<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder", py::is_final())
+    py::classh<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder", py::is_final())
         .def(py::init<Triangulation&>(),
             "triangulation"_a,
             "Create a new C++ TrapezoidMapTriFinder object.\n"
