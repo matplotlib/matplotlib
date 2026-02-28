@@ -969,36 +969,77 @@ class Path:
         return cls._unit_circle_righthalf
 
     @classmethod
-    def arc(cls, theta1, theta2, n=None, is_wedge=False):
+    def arc(cls, theta1, theta2, n=None, is_wedge=False, wrap=True):
         """
-        Return a `Path` for the unit circle arc from angles *theta1* to
-        *theta2* (in degrees).
+        Return a `Path` for a counter-clockwise unit circle arc from angles
+        *theta1* to *theta2* (in degrees).
 
-        *theta2* is unwrapped to produce the shortest arc within 360 degrees.
-        That is, if *theta2* > *theta1* + 360, the arc will be from *theta1* to
-        *theta2* - 360 and not a full circle plus some extra overlap.
+        Parameters
+        ----------
+        theta1, theta2 : float
+            The starting and ending angles (in degrees) of the arc, measured
+            counter-clockwise from the positive x-axis.
 
-        If *n* is provided, it is the number of spline segments to make.
-        If *n* is not provided, the number of spline segments is
-        determined based on the delta between *theta1* and *theta2*.
+            The arc is always drawn counter-clockwise from *theta1* to
+            *theta2*. If *theta2* < *theta1*, the arc wraps around. For
+            example, an arc from 90° to 70° travels 340° counter-clockwise
+            (through 90° → 180° → 270° → 360°/0° → 70°).
 
-           Masionobe, L.  2003.  `Drawing an elliptical arc using
-           polylines, quadratic or cubic Bezier curves
-           <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
+            By default (*wrap*=True) the arc is limited to span at most 360°,
+            so an arc from 0° to 700° would be drawn as a 340° arc. If
+            *wrap* is False, the full span from *theta1* to *theta2* is drawn,
+            which can exceed 360° (e.g., 0° to 700° draws a full circle and a
+            340° arc).
+
+        n : int, optional
+            The number of spline segments to make.  If not provided, the number
+            of spline segments is determined based on the delta between
+            *theta1* and *theta2*.
+
+        is_wedge : bool, default: False
+            If True, return a wedge: a pie-slice shape consisting of the arc
+            with lines connecting the endpoints to the origin (0, 0). If False,
+            return just the arc itself.
+
+        wrap : bool, default: True
+            Whether to limit the arc to span at most 360°.
+
+            If True, the angular span (*theta2* - *theta1*) is wrapped using
+            modulo 360°. Spans that are exact multiples of 360° (e.g., 360°,
+            720°, 1080°) are preserved as full circles (360°), while other
+            spans are reduced (e.g., 400° becomes 40°). If False, the full span
+            from *theta1* to *theta2* is drawn, which can exceed 360° (e.g., 0°
+            to 700° draws a full circle and a 340° arc).
+
+        Notes
+        -----
+        The arc is approximated using cubic Bézier curves, as described in
+        Masionobe, L.  2003.  `Drawing an elliptical arc using polylines,
+        quadratic or cubic Bezier curves
+        <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
-        halfpi = np.pi * 0.5
 
         eta1 = theta1
-        eta2 = theta2 - 360 * np.floor((theta2 - theta1) / 360)
-        # Ensure 2pi range is not flattened to 0 due to floating-point errors,
-        # but don't try to expand existing 0 range.
-        if theta2 != theta1 and eta2 <= eta1:
-            eta2 += 360
+        if wrap:
+            # Limit theta2 to be at most 360 degrees from theta1.
+            eta2 = np.mod(theta2 - theta1, 360.0) + theta1
+            # Ensure 360-deg range is not flattened to 0 due to floating-point
+            # errors, but don't try to expand existing 0 range.
+            if theta2 != theta1 and eta2 <= eta1:
+                eta2 += 360
+        else:
+            eta2 = theta2
         eta1, eta2 = np.deg2rad([eta1, eta2])
 
         # number of curve segments to make
         if n is None:
-            n = int(2 ** np.ceil((eta2 - eta1) / halfpi))
+            if np.abs(eta2 - eta1) <= 2 * np.pi + 1e-3:
+                # this doesn't need to grow exponentially, but we have left
+                # this way for back compatibility
+                n = int(2 ** np.ceil(2 * np.abs(eta2 - eta1) / np.pi))
+            else:
+                # this will grow linearly if we allow wrapping arcs:
+                n = int(2 * np.ceil(2 * np.abs(eta2 - eta1) / np.pi))
         if n < 1:
             raise ValueError("n must be >= 1 or None")
 
@@ -1048,22 +1089,44 @@ class Path:
         return cls(vertices, codes, readonly=True)
 
     @classmethod
-    def wedge(cls, theta1, theta2, n=None):
+    def wedge(cls, theta1, theta2, n=None, wrap=True):
         """
-        Return a `Path` for the unit circle wedge from angles *theta1* to
-        *theta2* (in degrees).
+        Return a `Path` for a counter-clockwise unit circle wedge from angles
+        *theta1* to *theta2* (in degrees).
 
-        *theta2* is unwrapped to produce the shortest wedge within 360 degrees.
-        That is, if *theta2* > *theta1* + 360, the wedge will be from *theta1*
-        to *theta2* - 360 and not a full circle plus some extra overlap.
+        Parameters
+        ----------
+        theta1, theta2 : float
+            The starting and ending angles (in degrees) of the wedge, measured
+            counter-clockwise from the positive x-axis.
 
-        If *n* is provided, it is the number of spline segments to make.
-        If *n* is not provided, the number of spline segments is
-        determined based on the delta between *theta1* and *theta2*.
+            The wedge is always drawn counter-clockwise from *theta1* to
+            *theta2*. If *theta2* < *theta1*, the wedge wraps around. For
+            example, a wedge from 90° to 70° spans 340° counter-clockwise
+            (through 90° → 180° → 270° → 360°/0° → 70°).
 
-        See `Path.arc` for the reference on the approximation used.
+            By default (*wrap*=True) the wedge is limited to span at most 360°,
+            so a wedge from 0° to 700° would be drawn as a 340° wedge. If
+            *wrap* is False, the full span from *theta1* to *theta2* is drawn,
+            which can exceed 360° (e.g., 0° to 700° draws a full circle and a
+            340° wedge).
+
+        n : int, optional
+            The number of spline segments to make.  If not provided, the number
+            of spline segments is determined based on the delta between
+            *theta1* and *theta2*.
+
+        wrap : bool, default: True
+            Whether to limit the wedge to span at most 360°.
+
+            If True, the angular span (*theta2* - *theta1*) is wrapped using
+            modulo 360°. Spans that are exact multiples of 360° (e.g., 360°,
+            720°, 1080°) are preserved as full circles (360°), while other
+            spans are reduced (e.g., 400° becomes 40°). If False, the full span
+            from *theta1* to *theta2* is drawn, which can exceed 360° (e.g., 0°
+            to 700° draws a full circle and a 340° arc).
         """
-        return cls.arc(theta1, theta2, n, True)
+        return cls.arc(theta1, theta2, n, is_wedge=True, wrap=wrap)
 
     @staticmethod
     @lru_cache(8)
