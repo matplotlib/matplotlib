@@ -11,6 +11,7 @@ import platform
 import re
 import sys
 from types import SimpleNamespace
+import warnings
 import unittest.mock
 
 import dateutil.tz
@@ -527,6 +528,50 @@ def test_inverted_cla():
 
     # clean up
     plt.close(fig)
+
+
+def test_shared_axes_clear_with_nonlinear_scale():
+    """
+    Test that clearing axes with shared non-linear scales doesn't warn.
+
+    Regression test for issue #9970.
+    When clearing an axes that shares with another axes having a non-linear
+    scale (log, logit, symlog, etc.), no warning should be generated about
+    setting non-positive limits.
+    """
+    # Test log scale on x-axis
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+    ax1.set_xscale('log')
+    x = np.logspace(0, 3, 100)
+    ax1.plot(x, x**2)
+    # Clearing should not generate warning about non-positive xlim
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        ax1.cla()
+        fig.clf()
+    # Test log scale on y-axis
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+    ax1.set_yscale('log')
+    y = np.logspace(0, 3, 100)
+    ax1.plot(y, y**2)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        ax1.cla()
+        fig.clf()
+    # Test other non-linear scales
+    for scale in ['logit', 'symlog']:
+        fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+        ax1.set_xscale(scale)
+        if scale == 'logit':
+            x = np.linspace(0.01, 0.99, 100)
+        else:  # symlog
+            x = np.linspace(-100, 100, 100)
+        ax1.plot(x, x**2)
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", UserWarning)
+            ax1.cla()
+            fig.clf()
+    plt.close('all')
 
 
 def test_subclass_clear_cla():
