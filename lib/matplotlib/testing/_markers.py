@@ -47,3 +47,4 @@ needs_pgf_xelatex = pytest.mark.skipif(
 needs_usetex = pytest.mark.skipif(
     not _checkdep_usetex(),
     reason="This test needs a TeX installation")
+starts_subprocess = pytest.mark.xdist_group("subprocess")

@@ -336,7 +336,7 @@ jobs:
           if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
             export PYTHON_GIL=0
           fi
-          pytest -rfEsXR -n auto \
+          pytest -rfEsXR -n auto --dist=loadgroup \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
