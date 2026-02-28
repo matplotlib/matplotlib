@@ -48,10 +48,17 @@ def _isolated_tk_test(success_count, func=None):
         # even if the package exists, may not actually be importable this can
         # be the case on some CI systems.
         pytest.importorskip('tkinter')
+
+        markers = getattr(test_func, "pytestmark", [])
+        filters = [arg for m in markers if m.name == 'filterwarnings'
+                   for arg in m.args]
+        existing = os.environ.get("PYTHONWARNINGS", "")
+        pywarn = ",".join(filters) + (f",{existing}" if existing else "")
         try:
             proc = subprocess_run_helper(
-                func, timeout=_test_timeout, extra_env=dict(
-                    MPLBACKEND="TkAgg", MPL_TEST_ESCAPE_HATCH="1"))
+                func, timeout=_test_timeout,
+                extra_env=dict(MPLBACKEND="TkAgg", MPL_TEST_ESCAPE_HATCH="1",
+                               PYTHONWARNINGS=pywarn))
         except subprocess.TimeoutExpired:
             pytest.fail("Subprocess timed out")
         except subprocess.CalledProcessError as e:
@@ -72,6 +79,7 @@ def _isolated_tk_test(success_count, func=None):
     return test_func
 
 
+@pytest.mark.filterwarnings("ignore:Automatic focus setting")
 @_isolated_tk_test(success_count=6)  # len(bad_boxes)
 def test_blit():
     import matplotlib.pyplot as plt
@@ -102,6 +110,7 @@ def test_blit():
     _backend_tk.blit(photoimage, data, (0, 1, 2, 3))
 
 
+@pytest.mark.filterwarnings("ignore:Automatic focus setting")
 @_isolated_tk_test(success_count=1)
 def test_figuremanager_preserves_host_mainloop():
     import tkinter
@@ -126,6 +135,7 @@ def test_figuremanager_preserves_host_mainloop():
         print("success")
 
 
+@pytest.mark.filterwarnings("ignore:Automatic focus setting")
 @pytest.mark.skipif(platform.python_implementation() != 'CPython',
                     reason='PyPy does not support Tkinter threading: '
                            'https://foss.heptapod.net/pypy/pypy/-/issues/1929')
@@ -156,6 +166,7 @@ def test_figuremanager_cleans_own_mainloop():
     thread.join()
 
 
+@pytest.mark.filterwarnings("ignore:Automatic focus setting")
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=0)
 def test_never_update():
@@ -182,6 +193,7 @@ def test_never_update():
     # checks them.
 
 
+@pytest.mark.filterwarnings("ignore:Automatic focus setting")
 @_isolated_tk_test(success_count=2)
 def test_missing_back_button():
     import matplotlib.pyplot as plt
@@ -198,6 +210,7 @@ def test_missing_back_button():
     print("success")
 
 
+@pytest.mark.filterwarnings("ignore:Automatic focus setting")
 @_isolated_tk_test(success_count=2)
 def test_save_figure_return():
     import matplotlib.pyplot as plt
@@ -215,35 +228,50 @@ def test_save_figure_return():
         print("success")
 
 
-@_isolated_tk_test(success_count=1)
+@_isolated_tk_test(success_count=2)
 def test_canvas_focus():
+    import matplotlib as mpl
     import tkinter as tk
     import matplotlib.pyplot as plt
-    success = []
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-    def check_focus():
-        tkcanvas = fig.canvas.get_tk_widget()
-        # Give the plot window time to appear
-        if not tkcanvas.winfo_viewable():
-            tkcanvas.wait_visibility()
-        # Make sure the canvas has the focus, so that it's able to receive
-        # keyboard events.
-        if tkcanvas.focus_lastfor() == tkcanvas:
-            success.append(True)
-        plt.close()
-        root.destroy()
+    def assert_focus(widget, expected_focus_state):
+        if not widget.winfo_viewable():
+            widget.wait_visibility()
+
+        has_focus = (widget.focus_lastfor() == widget)
+
+        if has_focus == expected_focus_state:
+            print("success")
 
     root = tk.Tk()
-    fig = plt.figure()
-    plt.plot([1, 2, 3])
-    root.after(0, plt.show)
-    root.after(100, check_focus)
-    root.mainloop()
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+        match="Automatic focus setting in FigureCanvasTkAgg"):
+        fig1 = plt.figure()
+        canvas = FigureCanvasTkAgg(fig1, root)
+    tkcanvas1 = canvas.get_tk_widget()
+    tkcanvas1.pack()
 
-    if success:
-        print("success")
+    # Test 1: Default Behavior (Focus Stealing)
+    assert_focus(tkcanvas1, expected_focus_state=True)
+
+    plt.close(fig1)
+    root.destroy()
+
+    # Test 2: Showing the plot should grab focus
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+        match="Automatic focus setting in FigureCanvasTkAgg"):
+        fig2 = plt.figure()
+    tkcanvas2 = fig2.canvas.get_tk_widget()
+
+    plt.show(block=False)
+
+    assert_focus(tkcanvas2, expected_focus_state=True)
+
+    plt.close(fig2)
 
 
+@pytest.mark.filterwarnings("ignore:Automatic focus setting")
 @_isolated_tk_test(success_count=2)
 def test_embedding():
     import tkinter as tk
