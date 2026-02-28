@@ -80,7 +80,11 @@ class Colormap:
     ) -> None: ...
     @overload
     def __call__(
-        self, X: Sequence[float] | np.ndarray, alpha: ArrayLike | None = ..., bytes: bool = ...
+        self,
+        X: Sequence[float] | np.ndarray,
+        alpha: ArrayLike | None = ...,
+        bytes: bool = ...,
+        by_index: bool | Literal['auto'] = ...,
     ) -> np.ndarray: ...
     @overload
     def __call__(
