@@ -270,14 +270,26 @@ class FigureCanvasTk(FigureCanvasBase):
         elif sys.platform == "linux":
             ratio = self._tkcanvas.winfo_fpixels('1i') / 96
         if ratio is not None and self._set_device_pixel_ratio(ratio):
-            # The easiest way to resize the canvas is to resize the canvas
-            # widget itself, since we implement all the logic for resizing the
-            # canvas backing store on that event.
+            # The easiest way to resize the canvas is to emit a
+            # resize event since we implement all the logic for resizing
+            # the canvas backing store on that event.
             w, h = self.get_width_height(physical=True)
             self._tkcanvas.configure(width=w, height=h)
+            # Use the current actual widget size to recalculate
+            # figure.size_inches with the new DPI.  When the canvas is
+            # constrained by a geometry manager (pack/grid), <Configure>
+            # may not fire after configure(), so we handle the resize
+            # directly — similar to Qt's _update_pixel_ratio approach.
+            self._resize_canvas(
+                self._tkcanvas.winfo_width(),
+                self._tkcanvas.winfo_height())
 
     def resize(self, event):
-        width, height = event.width, event.height
+        self._resize_canvas(event.width, event.height)
+
+    def _resize_canvas(self, width, height):
+        if width <= 0 or height <= 0:
+            return
 
         # compute desired figure size in inches
         dpival = self.figure.dpi
