@@ -661,8 +661,12 @@ class FigureManagerQT(FigureManagerBase):
         self.window._destroying = False
         self.window.show()
         if mpl.rcParams['figure.raise_window']:
-            self.window.activateWindow()
-            self.window.raise_()
+            self.raise_window()
+
+    def raise_window(self):
+        # docstring inherited
+        self.window.activateWindow()
+        self.window.raise_()
 
     def destroy(self, *args):
         # check for qApp first, as PySide deletes it in its atexit handler
