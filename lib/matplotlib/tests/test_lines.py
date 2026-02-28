@@ -22,12 +22,16 @@ import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
-def test_segment_hits():
+@pytest.mark.parametrize(
+    "cx,cy,answer", [(553, 902, ([0], 0)), (553, 95, ([0], 1)), (553, 947, ([1], 1))]
+)
+def test_segment_hits(cx, cy, answer):
     """Test a problematic case."""
-    cx, cy = 553, 902
-    x, y = np.array([553., 553.]), np.array([95., 947.])
+    x, y = np.array([553.0, 553.0]), np.array([95.0, 947.0])
     radius = 6.94
-    assert_array_equal(mlines.segment_hits(cx, cy, x, y, radius), [0])
+    res = mlines._segment_hits(cx, cy, x, y, radius)
+    assert_array_equal(res[0],answer[0])
+    assert res[1]==answer[1]
 
 
 def test_set_line_coll_dash():
@@ -316,6 +320,7 @@ def test_picking():
     found, indices = l1.contains(mouse_event)
     assert found
     assert_array_equal(indices['ind'], [0])
+    assert_array_equal(indices['vertex_hit'], [False])
 
     # And if we modify the pickradius after creation, it should work as well.
     l2, = ax.plot([0, 1], [0, 1], picker=True)
@@ -325,6 +330,21 @@ def test_picking():
     found, indices = l2.contains(mouse_event)
     assert found
     assert_array_equal(indices['ind'], [0])
+    assert_array_equal(indices['vertex_hit'], [False])
+
+    # test the vertex check
+    mouse_event = SimpleNamespace(x=80, y=48)
+    found, indices = l2.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])
+    assert_array_equal(indices['vertex_hit'], [True])
+
+    # test the vertex check when no edges are shown
+    l3, = ax.plot([0, 1], [0, 1], picker=True, ls='none')
+    found, indices = l3.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])
+    assert_array_equal(indices['vertex_hit'], [True])
 
 
 @check_figures_equal()

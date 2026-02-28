@@ -100,10 +100,19 @@ def segment_hits(cx, cy, x, y, radius):
     Return the indices of the segments in the polyline with coordinates (*cx*,
     *cy*) that are within a distance *radius* of the point (*x*, *y*).
     """
+
+    return _segment_hits(cx,cy,x,y,radius)[0]
+
+
+def _segment_hits(cx, cy, x, y, radius):
+    """Return the indices and number of vertex hits in the polyline with
+    coordinates (*cx*, *cy*) that are within a distance *radius* of the point
+    (*x*, *y*).
+    """
     # Process single points specially
     if len(x) <= 1:
         res, = np.nonzero((cx - x) ** 2 + (cy - y) ** 2 <= radius ** 2)
-        return res
+        return res, len(res)
 
     # We need to lop the last element off a lot.
     xr, yr = x[:-1], y[:-1]
@@ -129,7 +138,8 @@ def segment_hits(cx, cy, x, y, radius):
     line_hits = line_hits & candidates
     points, = point_hits.ravel().nonzero()
     lines, = line_hits.ravel().nonzero()
-    return np.concatenate((points, lines))
+
+    return np.concatenate((points, lines)), len(points)
 
 
 def _mark_every_path(markevery, tpath, affine, ax):
@@ -445,9 +455,11 @@ class Line2D(Artist):
         contains : bool
             Whether any values are within the radius.
         details : dict
-            A dictionary ``{'ind': pointlist}``, where *pointlist* is a
-            list of points of the line that are within the pickradius around
-            the event position.
+            A dictionary ``{'ind': pointlist, 'vertex_hit': boollist}``, where
+            *pointlist* is a list of points of the line that are within the
+            pickradius around the event position, and *boollist* is a bool
+            list indicating whether the corresponding *pointlist* element is a
+            hit on a vertex.
 
             TODO: sort returned indices by distance
         """
@@ -486,16 +498,26 @@ class Line2D(Artist):
                 ind, = np.nonzero(
                     (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
                     <= pixels ** 2)
+                nverts = len(ind)  # all vertex hits
             else:
                 # If line, return the nearby segment(s)
-                ind = segment_hits(mouseevent.x, mouseevent.y, xt, yt, pixels)
+                ind, nverts = _segment_hits(mouseevent.x, mouseevent.y, xt, yt,
+                                           pixels)
                 if self._drawstyle.startswith("steps"):
                     ind //= 2
 
         ind += self.ind_offset
 
+        # 'vertex_hit' details dict item is a bool array matching the size of `ind`
+        # Its element is True if the corresponding `ind` element indicates the
+        # hit on a vertex of the line, and False if only edge.
+        # _segment_hits() always returns the vertex hits before edge hits
+        # and nverts indicates how many of ind's are vertex hits.
+        nind = len(ind)
+        vertex_hit = np.repeat([True, False], [nverts, nind - nverts])
+
         # Return the point(s) within radius
-        return len(ind) > 0, dict(ind=ind)
+        return nind > 0, dict(ind=ind, vertex_hit=vertex_hit)
 
     def get_pickradius(self):
         """
