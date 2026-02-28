@@ -190,6 +190,7 @@ import shutil
 import sys
 import textwrap
 import traceback
+import warnings
 
 from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.images import Image
@@ -197,6 +198,7 @@ import jinja2  # Sphinx dependency.
 
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ExtensionError
+from sphinx.util import logging
 
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
@@ -207,7 +209,7 @@ matplotlib.use("agg")
 
 __version__ = 2
 
-
+logger = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 # Registration hook
 # -----------------------------------------------------------------------------
@@ -574,9 +576,10 @@ def _run_code(code, code_path, ns=None, function_name=None):
         dirname = os.path.abspath(os.path.dirname(code_path))
         os.chdir(dirname)
 
-    with cbook._setattr_cm(
+    with (warnings.catch_warnings(record=True) as caught_warnings,
+        cbook._setattr_cm(
             sys, argv=[code_path], path=[os.getcwd(), *sys.path]), \
-            contextlib.redirect_stdout(StringIO()):
+            contextlib.redirect_stdout(StringIO())):
         try:
             if ns is None:
                 ns = {}
@@ -599,6 +602,11 @@ def _run_code(code, code_path, ns=None, function_name=None):
             raise PlotError(traceback.format_exc()) from err
         finally:
             os.chdir(pwd)
+
+        for warn in caught_warnings:
+            logger.warning("[plot] Python warning during plot execution: %s (%s)",
+                        warn.message,
+                        warn.category.__name__)
     return ns
 
 
