@@ -597,11 +597,15 @@ class TestDatetimePlotting:
         ax.imshow(a, extent=extent)
         ax.tick_params(axis="x", labelrotation=90)
 
-    @pytest.mark.xfail(reason="Test for loglog not written yet")
     @mpl.style.context("default")
     def test_loglog(self):
-        fig, ax = plt.subplots()
-        ax.loglog(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, layout='constrained')
+        x = np.arange(np.datetime64('1980-12-01'), np.datetime64('2023-12-06'))
+        y = 10 ** np.linspace(0, 4, len(x))
+        ax1.loglog(x, y)
+        ax2.loglog(y, x)
+        ax3.loglog(x, x)
 
     @mpl.style.context("default")
     def test_matshow(self):
