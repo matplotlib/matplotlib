@@ -215,6 +215,11 @@ axes.prop_cycle    : cycler('color', 'bgrcmyk')
                                            # as list of string colorspecs:
                                            # single letter, long name, or
                                            # web-style hex
+axes.spines.bottom.position: outward, 0.0
+axes.spines.left.position:   outward, 0.0
+axes.spines.right.position:  outward, 0.0
+axes.spines.top.position:    outward, 0.0
+
 axes.autolimit_mode : round_numbers
 axes.xmargin        : 0  # x margin.  See `axes.Axes.margins`
 axes.ymargin        : 0  # y margin See `axes.Axes.margins`
