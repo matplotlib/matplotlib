@@ -29,6 +29,7 @@ import matplotlib.table as mtable
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
+import matplotlib.collections as mcollections
 
 _log = logging.getLogger(__name__)
 
@@ -2415,6 +2416,12 @@ class _AxesBase(martist.Artist):
         xmin, xmax, ymin, ymax = image.get_extent()
         self.axes.update_datalim(((xmin, ymin), (xmax, ymax)))
 
+    def _update_collection_limits(self, collection):
+     offsets = collection.get_offsets()
+     if offsets is not None and len(offsets):
+        self.update_datalim(offsets)
+
+
     def add_line(self, line):
         """
         Add a `.Line2D` to the Axes; return the line.
@@ -2605,6 +2612,8 @@ class _AxesBase(martist.Artist):
                     self._update_patch_limits(artist)
                 elif isinstance(artist, mimage.AxesImage):
                     self._update_image_limits(artist)
+                elif isinstance(artist, mcollections.Collection):
+                 self._update_collection_limits(artist)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
