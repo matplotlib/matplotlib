@@ -197,10 +197,17 @@ def inv_transform(xs, ys, zs, invM):
 
 
 def _vec_pad_ones(xs, ys, zs):
+    # Allocate and then fill for speed
+    shape = (4,) + np.shape(xs)
     if np.ma.isMA(xs) or np.ma.isMA(ys) or np.ma.isMA(zs):
-        return np.ma.array([xs, ys, zs, np.ones_like(xs)])
+        result = np.ma.empty(shape)
     else:
-        return np.array([xs, ys, zs, np.ones_like(xs)])
+        result = np.empty(shape)
+    result[0] = xs
+    result[1] = ys
+    result[2] = zs
+    result[3] = 1
+    return result
 
 
 def proj_transform(xs, ys, zs, M):

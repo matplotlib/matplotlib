@@ -22,6 +22,7 @@ def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
+
 def _tick_update_position(tick, tickxs, tickys, labelpos):
     """Update tick line and label position and style."""
 
@@ -158,6 +159,7 @@ class Axis(maxis.XAxis):
 
         self.axes._set_artist_props(self.line)
         self.axes._set_artist_props(self.pane)
+        self._ticks_to_draw = []
         self.gridlines = art3d.Line3DCollection([])
         self.axes._set_artist_props(self.gridlines)
         self.axes._set_artist_props(self.label)
@@ -266,38 +268,6 @@ class Axis(maxis.XAxis):
         else:
             return len(text) > 4
 
-    def _get_coord_info(self):
-        mins, maxs = np.array([
-            self.axes.get_xbound(),
-            self.axes.get_ybound(),
-            self.axes.get_zbound(),
-        ]).T
-
-        # Project the bounds along the current position of the cube:
-        bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
-        bounds_proj = self.axes._transformed_cube(bounds)
-
-        # Determine which one of the parallel planes are higher up:
-        means_z0 = np.zeros(3)
-        means_z1 = np.zeros(3)
-        for i in range(3):
-            means_z0[i] = np.mean(bounds_proj[self._PLANES[2 * i], 2])
-            means_z1[i] = np.mean(bounds_proj[self._PLANES[2 * i + 1], 2])
-        highs = means_z0 < means_z1
-
-        # Special handling for edge-on views
-        equals = np.abs(means_z0 - means_z1) <= np.finfo(float).eps
-        if np.sum(equals) == 2:
-            vertical = np.where(~equals)[0][0]
-            if vertical == 2:  # looking at XY plane
-                highs = np.array([True, True, highs[2]])
-            elif vertical == 1:  # looking at XZ plane
-                highs = np.array([True, highs[1], False])
-            elif vertical == 0:  # looking at YZ plane
-                highs = np.array([highs[0], False, False])
-
-        return mins, maxs, bounds_proj, highs
-
     def _calc_centers_deltas(self, maxs, mins):
         centers = 0.5 * (maxs + mins)
         # In mpl3.8, the scale factor was 1/12. mpl3.9 changes this to
@@ -402,7 +372,7 @@ class Axis(maxis.XAxis):
         return tickdir
 
     def active_pane(self):
-        mins, maxs, tc, highs = self._get_coord_info()
+        mins, maxs, tc, highs = self.axes._get_coord_info()
         info = self._axinfo
         index = info['i']
         if not highs[index]:
@@ -435,13 +405,21 @@ class Axis(maxis.XAxis):
 
     def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
                     deltas_per_point, pos):
-        ticks = self._update_ticks()
+        ticks = self._ticks_to_draw  # Set with _update_ticks() in axes3d.draw()
+        n_ticks = len(ticks)
+        if n_ticks == 0:
+            return
+
         info = self._axinfo
         index = info["i"]
         juggled = info["juggled"]
 
-        mins, maxs, tc, highs = self._get_coord_info()
+        mins, maxs, tc, highs = self.axes._get_coord_info()
         centers, deltas = self._calc_centers_deltas(maxs, mins)
+
+        # Get the scale transform for this axis to transform tick locations
+        axis = [self.axes.xaxis, self.axes.yaxis, self.axes.zaxis][index]
+        axis_trans = axis.get_transform()
 
         # Draw ticks:
         tickdir = self._get_tickdir(pos)
@@ -457,23 +435,39 @@ class Axis(maxis.XAxis):
 
         default_label_offset = 8.  # A rough estimate
         points = deltas_per_point * deltas
-        for tick in ticks:
-            # Get tick line positions
-            pos = edgep1.copy()
-            pos[index] = tick.get_loc()
-            pos[tickdir] = out_tickdir
-            x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
-            pos[tickdir] = in_tickdir
-            x2, y2, z2 = proj3d.proj_transform(*pos, self.axes.M)
 
-            # Get position of label
-            labeldeltas = (tick.get_pad() + default_label_offset) * points
+        # Collect tick data and batch transform tick locations
+        tick_locs = np.array([tick.get_loc() for tick in ticks])
+        tick_pads = np.array([tick.get_pad() for tick in ticks])
+        transformed_locs = axis_trans.transform(tick_locs)
 
-            pos[tickdir] = edgep1_tickdir
-            pos = _move_from_center(pos, centers, labeldeltas, self._axmask())
-            lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
+        # Build position arrays for tick line endpoints (shape: n_ticks x 3)
+        pos1 = np.tile(edgep1, (n_ticks, 1))
+        pos1[:, index] = transformed_locs
+        pos1[:, tickdir] = out_tickdir
 
-            _tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
+        pos2 = pos1.copy()
+        pos2[:, tickdir] = in_tickdir
+
+        # Batch proj_transform for tick lines
+        x1, y1, _ = proj3d.proj_transform(pos1[:, 0], pos1[:, 1], pos1[:, 2],
+                                          self.axes.M)
+        x2, y2, _ = proj3d.proj_transform(pos2[:, 0], pos2[:, 1], pos2[:, 2],
+                                          self.axes.M)
+
+        # Build label positions
+        labeldeltas = (tick_pads + default_label_offset)[:, np.newaxis] * points
+        pos_label = pos1.copy()
+        pos_label[:, tickdir] = edgep1_tickdir
+        axmask = self._axmask()
+        pos_label = _move_from_center(pos_label, centers, labeldeltas, axmask)
+        lx, ly, _ = proj3d.proj_transform(pos_label[:, 0], pos_label[:, 1],
+                                          pos_label[:, 2], self.axes.M)
+
+        # Update and draw each tick
+        for i, tick in enumerate(ticks):
+            _tick_update_position(tick, (x1[i], x2[i]), (y1[i], y2[i]),
+                                  (lx[i], ly[i]))
             tick.tick1line.set_linewidth(tick_lw[tick._major])
             tick.draw(renderer)
 
@@ -571,7 +565,7 @@ class Axis(maxis.XAxis):
         renderer.open_group("axis3d", gid=self.get_gid())
 
         # Get general axis information:
-        mins, maxs, tc, highs = self._get_coord_info()
+        mins, maxs, tc, highs = self.axes._get_coord_info()
         centers, deltas = self._calc_centers_deltas(maxs, mins)
 
         # Calculate offset distances
@@ -634,37 +628,43 @@ class Axis(maxis.XAxis):
         if not self.axes._draw_grid:
             return
 
+        ticks = self._ticks_to_draw  # Set with _update_ticks() in axes3d.draw()
+        if len(ticks) == 0:
+            return
+
         renderer.open_group("grid3d", gid=self.get_gid())
 
-        ticks = self._update_ticks()
-        if len(ticks):
-            # Get general axis information:
-            info = self._axinfo
-            index = info["i"]
+        # Get general axis information:
+        info = self._axinfo
+        index = info["i"]
 
-            mins, maxs, tc, highs = self._get_coord_info()
+        # Grid lines use data-space bounds (Line3DCollection applies transforms)
+        mins, maxs, tc, highs = self.axes._get_coord_info()
+        bounds = self.axes._get_bounds()
+        xlim, ylim, zlim = bounds[0:2], bounds[2:4], bounds[4:6]
+        data_mins = np.array([xlim[0], ylim[0], zlim[0]])
+        data_maxs = np.array([xlim[1], ylim[1], zlim[1]])
+        minmax = np.where(highs, data_maxs, data_mins)
+        maxmin = np.where(~highs, data_maxs, data_mins)
 
-            minmax = np.where(highs, maxs, mins)
-            maxmin = np.where(~highs, maxs, mins)
+        # Grid points where the planes meet
+        xyz0 = np.tile(minmax, (len(ticks), 1))
+        xyz0[:, index] = [tick.get_loc() for tick in ticks]
 
-            # Grid points where the planes meet
-            xyz0 = np.tile(minmax, (len(ticks), 1))
-            xyz0[:, index] = [tick.get_loc() for tick in ticks]
-
-            # Grid lines go from the end of one plane through the plane
-            # intersection (at xyz0) to the end of the other plane.  The first
-            # point (0) differs along dimension index-2 and the last (2) along
-            # dimension index-1.
-            lines = np.stack([xyz0, xyz0, xyz0], axis=1)
-            lines[:, 0, index - 2] = maxmin[index - 2]
-            lines[:, 2, index - 1] = maxmin[index - 1]
-            self.gridlines.set_segments(lines)
-            gridinfo = info['grid']
-            self.gridlines.set_color(gridinfo['color'])
-            self.gridlines.set_linewidth(gridinfo['linewidth'])
-            self.gridlines.set_linestyle(gridinfo['linestyle'])
-            self.gridlines.do_3d_projection()
-            self.gridlines.draw(renderer)
+        # Grid lines go from the end of one plane through the plane
+        # intersection (at xyz0) to the end of the other plane.  The first
+        # point (0) differs along dimension index-2 and the last (2) along
+        # dimension index-1.
+        lines = np.stack([xyz0, xyz0, xyz0], axis=1)
+        lines[:, 0, index - 2] = maxmin[index - 2]
+        lines[:, 2, index - 1] = maxmin[index - 1]
+        self.gridlines.set_segments(lines)
+        gridinfo = info['grid']
+        self.gridlines.set_color(gridinfo['color'])
+        self.gridlines.set_linewidth(gridinfo['linewidth'])
+        self.gridlines.set_linestyle(gridinfo['linestyle'])
+        self.gridlines.do_3d_projection()
+        self.gridlines.draw(renderer)
 
         renderer.close_group('grid3d')
 
