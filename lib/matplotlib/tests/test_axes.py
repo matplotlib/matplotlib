@@ -2461,6 +2461,15 @@ def test_hist_log_barstacked():
     assert axs[0].get_ylim() == axs[1].get_ylim()
 
 
+def test_hist_timedelta_no_crash():
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    arr = np.array([1,2,5,7], dtype="timedelta64[D]")
+    fig, ax = plt.subplots()
+    ax.hist(arr)
+
+
 @image_comparison(['hist_bar_empty.png'], remove_text=True)
 def test_hist_bar_empty():
     # From #3886: creating hist from empty dataset raises ValueError
