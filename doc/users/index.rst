@@ -42,6 +42,15 @@ Using Matplotlib
 
             explain/axes/index
 
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
+            explain/plotting/index
+
 
     .. grid-item-card::
         :padding: 2
