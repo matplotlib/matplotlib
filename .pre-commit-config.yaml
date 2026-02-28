@@ -5,6 +5,7 @@ ci:
 exclude: |
   (?x)^(
     extern|
+    subprojects/packagefiles|
     LICENSE|
     lib/matplotlib/mpl-data|
     doc/devel/gitwash|
