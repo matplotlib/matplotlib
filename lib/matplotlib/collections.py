@@ -102,7 +102,8 @@ class Collection(mcolorizer.ColorizingArtist):
         edgecolors : :mpltype:`color` or list of colors, default: :rc:`patch.edgecolor`
             Edge color for each patch making up the collection. The special
             value 'face' can be passed to make the edgecolor match the
-            facecolor.
+            facecolor. If facecolors is 'none' and an array is mapped,
+            'face' will use the mapped colors for the edges.
         facecolors : :mpltype:`color` or list of colors, default: :rc:`patch.facecolor`
             Face color for each patch making up the collection.
         hatchcolors : :mpltype:`color` or list of colors, default: :rc:`hatch.color`
@@ -916,7 +917,9 @@ class Collection(mcolorizer.ColorizingArtist):
         ----------
         c : :mpltype:`color` or list of :mpltype:`color` or 'face'
             The collection edgecolor(s).  If a sequence, the patches cycle
-            through it.  If 'face', match the facecolor.
+            through it.  If 'face', match the facecolor. If facecolor is
+            'none' and an array is mapped, 'face' will use the mapped colors
+            for the edges.
         """
         # We pass through a default value for use in LineCollection.
         # This allows us to maintain None as the default indicator in
@@ -997,7 +1000,10 @@ class Collection(mcolorizer.ColorizingArtist):
                 if cbook._str_equal(self._original_edgecolor, 'face'):
                     self._edge_is_mapped = True
             else:
-                if self._original_edgecolor is None:
+                # Map edges if edgecolor was not explicitly set, or if it was
+                # set to 'face' (which has no color to inherit from 'none')
+                if (self._original_edgecolor is None or
+                        cbook._str_equal(self._original_edgecolor, 'face')):
                     self._edge_is_mapped = True
 
         mapped = self._face_is_mapped or self._edge_is_mapped
