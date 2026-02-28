@@ -614,11 +614,20 @@ class TestDatetimePlotting:
         for label in ax.get_xticklabels():
             label.set_rotation(90)
 
-    @pytest.mark.xfail(reason="Test for pcolor not written yet")
     @mpl.style.context("default")
     def test_pcolor(self):
+        base_date = datetime.date(2020, 1, 1)
+        dates = [base_date + datetime.timedelta(days=i) for i in range(10)]
+        data = np.random.rand(10, 10)
+        data = np.sort(data, axis=0)
         fig, ax = plt.subplots()
-        ax.pcolor(...)
+        c = ax.pcolor(data, cmap='viridis')
+        ax.set_title('Pseudocolor Plot with Datetime Data')
+        ax.set_xticks(range(len(dates)))
+        ax.set_xticklabels([d.strftime('%Y-%m-%d') for d in dates], rotation=45)
+        fig.colorbar(c, ax=ax)
+        fig.tight_layout()
+        plt.close(fig)
 
     @pytest.mark.xfail(reason="Test for pcolorfast not written yet")
     @mpl.style.context("default")
