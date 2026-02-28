@@ -896,7 +896,7 @@ class _AxesBase(martist.Artist):
         Mark a single axis, or all of them, as stale wrt. autoscaling.
 
         No computation is performed until the next autoscaling; thus, separate
-        calls to control individual `Axis`s incur negligible performance cost.
+        calls to control individual `Axis`'s incur negligible performance cost.
 
         Parameters
         ----------
@@ -1313,8 +1313,9 @@ class _AxesBase(martist.Artist):
         xaxis_visible = self.xaxis.get_visible()
         yaxis_visible = self.yaxis.get_visible()
 
-        for axis in self._axis_map.values():
-            axis.clear()  # Also resets the scale to linear.
+        for name, axis in self._axis_map.items():
+            if self._shared_axes[name].get_siblings(self) == [self]:
+                axis.clear()  # Also resets the scale to linear.
         for spine in self.spines.values():
             spine._clear()  # Use _clear to not clear Axis again
 
@@ -1419,6 +1420,9 @@ class _AxesBase(martist.Artist):
             share = getattr(self, f"_share{name}")
             if share is not None:
                 getattr(self, f"share{name}")(share)
+            elif self in self._shared_axes[name]:
+                # Do not mess with limits of shared axes.
+                continue
             else:
                 # Although the scale was set to linear as part of clear,
                 # polar requires that _set_scale is called again
@@ -2188,9 +2192,9 @@ class _AxesBase(martist.Artist):
                     xlim = self.get_xlim()
                     ylim = self.get_ylim()
                     edge_size = max(np.diff(xlim), np.diff(ylim))[0]
-                    self.set_xlim(xlim[0], xlim[0] + edge_size,
+                    self.set_xlim([xlim[0], xlim[0] + edge_size],
                                   emit=emit, auto=False)
-                    self.set_ylim(ylim[0], ylim[0] + edge_size,
+                    self.set_ylim([ylim[0], ylim[0] + edge_size],
                                   emit=emit, auto=False)
             else:
                 raise ValueError(f"Unrecognized string {arg!r} to axis; "
