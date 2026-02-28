@@ -280,7 +280,8 @@ def test_colorbar_single_scatter():
 
 @pytest.mark.parametrize('use_gridspec', [True, False])
 @pytest.mark.parametrize('nested_gridspecs', [True, False])
-def test_remove_from_figure(nested_gridspecs, use_gridspec):
+@pytest.mark.parametrize('orphan_mappable', [True, False])
+def test_remove_from_figure(use_gridspec, nested_gridspecs, orphan_mappable):
     """Test `remove` with the specified ``use_gridspec`` setting."""
     fig = plt.figure()
     if nested_gridspecs:
@@ -288,10 +289,12 @@ def test_remove_from_figure(nested_gridspecs, use_gridspec):
         ax = fig.add_subplot(gs[1, 1])
     else:
         ax = fig.add_subplot()
-    sc = ax.scatter([1, 2], [3, 4])
-    sc.set_array(np.array([5, 6]))
     pre_position = ax.get_position()
-    cb = fig.colorbar(sc, use_gridspec=use_gridspec)
+    if orphan_mappable:
+        cb = fig.colorbar(mpl.cm.ScalarMappable(), ax=ax, use_gridspec=use_gridspec)
+    else:
+        sc = ax.scatter([1, 2], [3, 4], c=[5, 6])
+        cb = fig.colorbar(sc, use_gridspec=use_gridspec)
     fig.subplots_adjust()
     cb.remove()
     fig.subplots_adjust()
@@ -299,19 +302,23 @@ def test_remove_from_figure(nested_gridspecs, use_gridspec):
     assert (pre_position.get_points() == post_position.get_points()).all()
 
 
-def test_remove_from_figure_cl():
+@pytest.mark.parametrize('orphan_mappable', [True, False])
+def test_remove_from_figure_cl(orphan_mappable):
     """Test `remove` with constrained_layout."""
     fig, ax = plt.subplots(constrained_layout=True)
-    sc = ax.scatter([1, 2], [3, 4])
-    sc.set_array(np.array([5, 6]))
     fig.draw_without_rendering()
     pre_position = ax.get_position()
-    cb = fig.colorbar(sc)
+    if orphan_mappable:
+        cb = fig.colorbar(mpl.cm.ScalarMappable(), ax=ax)
+    else:
+        sc = ax.scatter([1, 2], [3, 4], c=[5, 6])
+        cb = fig.colorbar(sc)
     cb.remove()
     fig.draw_without_rendering()
     post_position = ax.get_position()
-    np.testing.assert_allclose(pre_position.get_points(),
-                               post_position.get_points())
+    np.testing.assert_allclose(
+        pre_position.get_points(), post_position.get_points(),
+        atol=0.0002 if orphan_mappable else 0)
 
 
 def test_colorbarbase():
