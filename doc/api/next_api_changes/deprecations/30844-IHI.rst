@@ -1,0 +1,6 @@
+``CallbackRegistry.disconnect`` *cid* parameter renamed to *cid_or_func*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *cid* parameter of `.CallbackRegistry.disconnect` has been renamed to
+*cid_or_func*. The method now also accepts a callable, which will disconnect
+that callback from all signals or from a specific signal if the *signal*
+keyword argument is provided.

@@ -229,6 +229,9 @@ class CallbackRegistry:
         >>> callbacks.process('drink', 123)
         drink 123
 
+        >>> callbacks.disconnect(ondrink, signal='drink')  # disconnect by func
+        >>> callbacks.process('drink', 123)      # nothing will be called
+
     In practice, one should always disconnect all callbacks when they are
     no longer needed to avoid dangling references (and thus memory leaks).
     However, real code in Matplotlib rarely does so, and due to its design,
@@ -331,23 +334,45 @@ class CallbackRegistry:
         if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
 
-    def disconnect(self, cid):
+    @_api.rename_parameter("3.11", "cid", "cid_or_func")
+    def disconnect(self, cid_or_func, *, signal=None):
         """
-        Disconnect the callback registered with callback id *cid*.
+        Disconnect a callback.
 
+        Parameters
+        ----------
+        cid_or_func : int or callable
+            If an int, disconnect the callback with that connection id.
+            If a callable, disconnect that function from signals.
+        signal : optional
+            Only used when *cid_or_func* is a callable. If given, disconnect
+            the function only from that specific signal. If not given,
+            disconnect from all signals the function is connected to.
+
+        Notes
+        -----
         No error is raised if such a callback does not exist.
         """
-        self._pickled_cids.discard(cid)
-        for signal, proxy in self._func_cid_map:
-            if self._func_cid_map[signal, proxy] == cid:
-                break
-        else:  # Not found
-            return
-        assert self.callbacks[signal][cid] == proxy
-        del self.callbacks[signal][cid]
-        self._func_cid_map.pop((signal, proxy))
-        if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
-            del self.callbacks[signal]
+        if isinstance(cid_or_func, int):
+            if signal is not None:
+                raise ValueError(
+                    "signal cannot be specified when disconnecting by cid")
+            for sig, proxy in self._func_cid_map:
+                if self._func_cid_map[sig, proxy] == cid_or_func:
+                    break
+            else:  # Not found
+                return
+            self._remove_proxy(sig, proxy)
+        elif signal is not None:
+            # Disconnect from a specific signal
+            proxy = _weak_or_strong_ref(cid_or_func, None)
+            self._remove_proxy(signal, proxy)
+        else:
+            # Disconnect from all signals
+            proxy = _weak_or_strong_ref(cid_or_func, None)
+            for sig, prx in list(self._func_cid_map):
+                if prx == proxy:
+                    self._remove_proxy(sig, proxy)
 
     def process(self, s, *args, **kwargs):
         """
