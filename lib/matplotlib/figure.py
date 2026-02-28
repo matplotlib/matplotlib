@@ -2905,6 +2905,111 @@ None}, default: None
         self.set_layout_engine(_tight, **_tight_parameters)
         self.stale = True
 
+    def set_subplotparams(self, subplotparams={}):
+        """
+        Set the subplot layout parameters.
+        Accepts either a `.SubplotParams` object, from which the relevant
+        parameters are copied, or a dictionary of subplot layout parameters.
+        If a dictionary is provided, this function is a convenience wrapper for
+        `matplotlib.figure.Figure.subplots_adjust`
+
+        Parameters
+        ----------
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
+            "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+            SubplotParams object to copy new subplot parameters from, or a dict
+            of SubplotParams constructor arguments.
+            By default, an empty dictionary is passed, which maintains the
+            current state of the figure's `.SubplotParams`
+
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+
+        subplotparams_args = ["left", "bottom", "right",
+                              "top", "wspace", "hspace"]
+        kwargs = {}
+        if isinstance(subplotparams, SubplotParams):
+            for key in subplotparams_args:
+                kwargs[key] = getattr(subplotparams, key)
+        elif isinstance(subplotparams, dict):
+            for key in subplotparams.keys():
+                if key in subplotparams_args:
+                    kwargs[key] = subplotparams[key]
+                else:
+                    _api.warn_external(
+                        f"'{key}' is not a valid key for set_subplotparams;"
+                        " this key was ignored.")
+        else:
+            raise TypeError(
+                "subplotparams must be a dictionary of keyword-argument pairs or"
+                " an instance of SubplotParams()")
+        if kwargs == {}:
+            self.set_subplotparams(self.get_subplotparams())
+        self.subplots_adjust(**kwargs)
+
+    def get_subplotparams(self):
+        """
+        Return the `.SubplotParams` object associated with the Figure.
+
+        Returns
+        -------
+        .SubplotParams`
+
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+        return self.subplotpars
+
+    def get_figsize(self):
+        """
+        Return the current size of the figure.
+
+        Returns
+        -------
+        ndarray
+           The size (width, height) of the figure in inches.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.get_size_inches
+        matplotlib.figure.Figure.set_size_inches
+        matplotlib.figure.Figure.get_figwidth
+        matplotlib.figure.Figure.get_figheight
+
+        Notes
+        -----
+        The size in pixels can be obtained by multiplying with `Figure.dpi`.
+        """
+        return self.get_size_inches()
+
+    def set_figsize(self, w, h=None, forward=True):
+        """
+        Set the figure size.
+
+        Parameters
+        ----------
+        w : (float, float) or float
+            Width and height in inches (if height not specified as a separate
+            argument) or width.
+        h : float
+            Height in inches.
+        forward : bool, default: True
+            If ``True``, the canvas size is automatically updated, e.g.,
+            you can resize the figure window from the shell.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.get_figsize
+        matplotlib.figure.Figure.get_size_inches
+        matplotlib.figure.Figure.set_size_inches
+        """
+        self.set_size_inches(w, h, forward=True)
+
     def get_constrained_layout(self):
         """
         Return whether constrained layout is being used.
