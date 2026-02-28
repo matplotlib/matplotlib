@@ -1337,9 +1337,229 @@ class Colorbar:
 ColorbarBase = Colorbar  # Backcompat API
 
 
+class BivarColorbar:
+    r"""
+    Draw a bivariate colorbar in an existing Axes.
+
+    Typically, bivariate colorbars are created using `.Figure.bivar_colorbar`
+    and associated with `.ColorizingArtist`\s (such as an
+    `.AxesImage` generated via `~.axes.Axes.imshow`).
+
+    Unlike `Colorbar`, `BivarColorbar` does not support
+    customizing the ticks, and ticks must be customized on the axes instead.
+    """
+
+    def __init__(
+        self, ax, mappable=None, *,
+        alpha=None,
+        location=None,
+        ticklocations=['auto', 'auto'],
+        aspect=1.0,
+                ):
+        """
+        Parameters
+        ----------
+        ax : `~matplotlib.axes.Axes`
+            The `~.axes.Axes` instance in which the colorbar is drawn.
+
+        mappable : `.ColorizingArtist`
+            The mappable whose colormap and norm will be used.
+
+            To show the colors versus index instead of on a 0-1 scale, set the
+            mappable's norm to ``colors.NoNorm()``.
+
+        alpha : float
+            The colorbars transparency between 0 (transparent) and 1 (opaque).
+
+        location : None or {'left', 'right', 'top', 'bottom'}
+            Set the bivariate colorbars's location
+
+            .. versionadded:: 3.7
+
+        %(_colormap_kw_doc)s
+
+        Other Parameters
+        ----------------
+        ticklocations : tuple describing the ticklocation of the y and x axis
+            The first element must be {'auto', 'left', 'right'}
+            The second element must be {'auto', 'top', 'bottom''}.
+            If 'auto', the ticklocations are determined by the *location*.
+        """
+
+        self.ax = ax
+        self.location = location
+        if isinstance(mappable, mpl.colorizer.Colorizer):
+            mappable = mcolorizer.ColorizingArtist(mappable)
+        self.mappable = mappable
+        self.aspect = aspect
+        self.colorizer = mappable.colorizer
+        self.alpha = alpha
+
+        mappable.colorbar = self
+        mappable.colorbar_cid = mappable.callbacks.connect(
+            'changed', self.update_normals)
+
+        ticklocations = list(ticklocations)
+        if len(ticklocations) != 2:
+            raise ValueError("ticklocations must be a tuple of length 2")
+        _api.check_in_list(['auto', 'left', 'right'],
+                           ticklocation=ticklocations[0])
+        _api.check_in_list(['auto', 'top', 'bottom'],
+                           ticklocation=ticklocations[1])
+
+        location_ticklocs = _get_bivar_ticklocations_from_location(location)
+        for i in range(2):
+            if ticklocations[i] == 'auto':
+                ticklocations[i] = location_ticklocs[i]
+        self.ticklocations = ticklocations
+        self.ax.yaxis.set(label_position=self.ticklocations[0],
+                          ticks_position=self.ticklocations[0])
+        self.ax.xaxis.set(label_position=self.ticklocations[1],
+                          ticks_position=self.ticklocations[1])
+
+        self._image = None
+        self._draw_all()
+        self.ax._colorbar = self
+        self._interactive_funcs = ["_get_view", "_set_view",
+                                   "_set_view_from_bbox", "drag_pan"]
+        for x in self._interactive_funcs:
+            setattr(self.ax, x, getattr(self, x))
+        self.ax.cla = self._cbar_cla
+
+    def _draw_all(self):
+        """
+        Calculate any free parameters based on the current cmap and norm,
+        and do all the drawing.
+        """
+        if self._image is not None:
+            self._image.remove()
+
+        extent = [
+            self.colorizer.norm.norms[1].vmin,
+            self.colorizer.norm.norms[1].vmax,
+            self.colorizer.norm.norms[0].vmin,
+            self.colorizer.norm.norms[0].vmax,
+        ]
+
+        """
+        `matplotlib.colors.LogNorm` etc. is supported
+        by plotting the colormap in the axis coordinate system rather than the
+        data coordinate system.
+        """
+        self._image = self.ax.imshow(
+            self.colorizer.cmap.lut,
+            origin='lower',
+            extent=(0, 1, 0, 1),
+            transform=self.ax.transAxes,
+            interpolation='nearest',
+            alpha=self.alpha,
+        )
+
+        # Apply norm scaling (supports LogNorm etc.)
+        self.ax.set_yscale(
+            'function',
+            functions=(
+                self.colorizer.norm.norms[0],
+                self.colorizer.norm.norms[0].inverse
+            )
+        )
+        self.ax.set_xscale(
+            'function',
+            functions=(
+                self.colorizer.norm.norms[1],
+                self.colorizer.norm.norms[1].inverse
+            )
+        )
+
+        # Manually set limits (image is in Axes coordinates)
+        self.ax.set_ylim(extent[2:4])
+        self.ax.set_xlim(extent[0:2])
+
+        self.ax.set_box_aspect(self.aspect)
+        #self.update_ticks()
+
+    def set_xlabel(self, label):
+        self.ax.set_xlabel(label)
+
+    def set_ylabel(self, label):
+        self.ax.set_ylabel(label)
+
+    def update_normals(self, mappable=None):
+        self._draw_all()
+
+    def set_alpha(self, alpha):
+        self.alpha = alpha
+        self._draw_all()
+
+    def remove(self):
+        if hasattr(self.ax, '_colorbar_info'):
+            parents = self.ax._colorbar_info['parents']
+            for a in parents:
+                if self.ax in a._colorbars:
+                    a._colorbars.remove(self.ax)
+        self.ax.remove()
+        self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)
+        self.mappable.colorbar = None
+        self.mappable.colorbar_cid = None
+
+        try:
+            ax = self.mappable.axes
+        except AttributeError:
+            return
+        try:
+            subplotspec = self.ax.get_subplotspec().get_gridspec()._subplot_spec
+        except AttributeError:  # use_gridspec was False
+            pos = ax.get_position(original=True)
+            ax._set_position(pos)
+        else:  # use_gridspec was True
+            ax.set_subplotspec(subplotspec)
+
+    def _get_view(self):
+        ynorm, xnorm = self.colorizer.norm.norms
+        return ynorm.vmin, ynorm.vmax, xnorm.vmin, xnorm.vmax
+
+    def _set_view(self, view):
+        ynorm, xnorm = self.colorizer.norm.norms
+        ynorm.vmin, ynorm.vmax, xnorm.vmin, xnorm.vmax = view
+
+    def _set_view_from_bbox(self, bbox, direction='in',
+                            mode=None, twinx=False, twiny=False):
+        new_xbound, new_ybound = self.ax._prepare_view_from_bbox(
+            bbox, direction=direction, mode=mode, twinx=twinx, twiny=twiny)
+        ynorm, xnorm = self.colorizer.norm.norms
+        ynorm.vmin, ynorm.vmax = new_ybound
+        xnorm.vmin, xnorm.vmax = new_xbound
+
+    def drag_pan(self, button, key, x, y):
+        points = self.ax._get_pan_points(button, key, x, y)
+        if points is not None:
+            ynorm, xnorm = self.colorizer.norm.norms
+            xnorm.vmin, xnorm.vmax = points[:, 0]
+            ynorm.vmin, ynorm.vmax = points[:, 1]
+
+    def _cbar_cla(self):
+        """Function to clear the interactive colorbar state."""
+        for x in self._interactive_funcs:
+            delattr(self.ax, x)
+        # We now restore the old cla() back and can call it directly
+        del self.ax.cla
+        self.ax.cla()
+
+
 def _normalize_location_orientation(location, orientation):
     if location is None:
         location = _get_ticklocation_from_orientation(orientation)
+    loc_settings = _normalize_location(location)
+    loc_settings["orientation"] = _get_orientation_from_location(location)
+    if orientation is not None and orientation != loc_settings["orientation"]:
+        # Allow the user to pass both if they are consistent.
+        raise TypeError("location and orientation are mutually exclusive")
+    return loc_settings
+
+
+def _normalize_location(location):
+    if location is None:
+        location = 'right'
     loc_settings = _api.getitem_checked({
         "left":   {"location": "left", "anchor": (1.0, 0.5),
                    "panchor": (0.0, 0.5), "pad": 0.10},
@@ -1350,10 +1570,6 @@ def _normalize_location_orientation(location, orientation):
         "bottom": {"location": "bottom", "anchor": (0.5, 1.0),
                    "panchor": (0.5, 0.0), "pad": 0.15},
     }, location=location)
-    loc_settings["orientation"] = _get_orientation_from_location(location)
-    if orientation is not None and orientation != loc_settings["orientation"]:
-        # Allow the user to pass both if they are consistent.
-        raise TypeError("location and orientation are mutually exclusive")
     return loc_settings
 
 
@@ -1367,6 +1583,16 @@ def _get_ticklocation_from_orientation(orientation):
     return _api.getitem_checked(
         {None: "right", "vertical": "right", "horizontal": "bottom"},
         orientation=orientation)
+
+
+def _get_bivar_ticklocations_from_location(location):
+    loc_0 = _api.getitem_checked(
+        {None: "right", "left": "left", "right": "right",
+         "top": "left", "bottom": "left"}, location=location)
+    loc_1 = _api.getitem_checked(
+        {None: "bottom", "left": "bottom", "right": "bottom",
+         "top": "top", "bottom": "bottom"}, location=location)
+    return (loc_0, loc_1)
 
 
 @_docstring.interpd
@@ -1560,6 +1786,194 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
         panchor=panchor,
         fraction=fraction,
         aspect=aspect0,
+        pad=pad)
+
+    return cax, kwargs
+
+
+@_docstring.interpd
+def make_bivar_axes(parents, location=None, fraction=0.15,
+                    shrink=1.0, **kwargs):
+    """
+    Create an `~.axes.Axes` suitable for a bivar_colorbar.
+
+    The Axes is placed in the figure of the *parents* Axes, by resizing and
+    repositioning *parents*.
+
+    Parameters
+    ----------
+    parents : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
+        The Axes to use as parents for placing the colorbar.
+    %(_make_axes_kw_doc)s
+
+    Returns
+    -------
+    cax : `~matplotlib.axes.Axes`
+        The child Axes.
+    kwargs : dict
+        The reduced keyword dictionary to be passed when creating the colorbar
+        instance.
+    """
+    loc_settings = _normalize_location(location)
+    # ticklocation_0, ticklocation_1 = _get_bivar_ticklocations_from_location(location)
+    # put appropriate values into the kwargs dict for passing back to
+    # the Colorbar class
+    # kwargs['orientation'] = loc_settings['orientation']
+    # location = kwargs['ticklocation']
+    location = loc_settings['location']
+    kwargs['location'] = location
+
+    anchor = kwargs.pop('anchor', loc_settings['anchor'])
+    panchor = kwargs.pop('panchor', loc_settings['panchor'])
+    # turn parents into a list if it is not already.  Note we cannot
+    # use .flatten or .ravel as these copy the references rather than
+    # reuse them, leading to a memory leak
+    if isinstance(parents, np.ndarray):
+        parents = list(parents.flat)
+    elif np.iterable(parents):
+        parents = list(parents)
+    else:
+        parents = [parents]
+
+    fig = parents[0].get_figure()
+
+    pad0 = 0.05 if fig.get_constrained_layout() else loc_settings['pad']
+    pad = kwargs.pop('pad', pad0)
+
+    if not all(fig is ax.get_figure() for ax in parents):
+        raise ValueError('Unable to create a colorbar Axes as not all '
+                         'parents share the same figure.')
+
+    # take a bounding box around all of the given Axes
+    parents_bbox = mtransforms.Bbox.union(
+        [ax.get_position(original=True).frozen() for ax in parents])
+
+    pb = parents_bbox
+    if location in ('left', 'right'):
+        if location == 'left':
+            pbcb, _, pb1 = pb.splitx(fraction, fraction + pad)
+        else:
+            pb1, _, pbcb = pb.splitx(1 - fraction - pad, 1 - fraction)
+        pbcb = pbcb.shrunk(1.0, shrink).anchored(anchor, pbcb)
+    else:
+        if location == 'bottom':
+            pbcb, _, pb1 = pb.splity(fraction, fraction + pad)
+        else:
+            pb1, _, pbcb = pb.splity(1 - fraction - pad, 1 - fraction)
+        pbcb = pbcb.shrunk(shrink, 1.0).anchored(anchor, pbcb)
+
+    # define a transform which takes us from old axes coordinates to
+    # new axes coordinates
+    shrinking_trans = mtransforms.BboxTransform(parents_bbox, pb1)
+
+    # transform each of the Axes in parents using the new transform
+    for ax in parents:
+        new_posn = shrinking_trans.transform(ax.get_position(original=True))
+        new_posn = mtransforms.Bbox(new_posn)
+        ax._set_position(new_posn)
+        if panchor is not False:
+            ax.set_anchor(panchor)
+
+    cax = fig.add_axes(pbcb, label="<colorbar>")
+    for a in parents:
+        a._colorbars.append(cax)  # tell the parent it has a colorbar
+    cax._colorbar_info = dict(
+        parents=parents,
+        location=location,
+        shrink=shrink,
+        anchor=anchor,
+        panchor=panchor,
+        fraction=fraction,
+        pad=pad)
+    # and we need to set the aspect ratio by hand...
+    cax.set_anchor(anchor)
+
+    return cax, kwargs
+
+
+@_docstring.interpd
+def make_bivar_axes_gridspec(parent, *, location=None,
+                             fraction=0.15, shrink=1.0, **kwargs):
+    """
+    Create an `~.axes.Axes` suitable for a colorbar.
+
+    The Axes is placed in the figure of the *parent* Axes, by resizing and
+    repositioning *parent*.
+
+    This function is similar to `.make_axes` and mostly compatible with it.
+    Primary differences are
+
+    - `.make_axes_gridspec` requires the *parent* to have a subplotspec.
+    - `.make_axes` positions the Axes in figure coordinates;
+      `.make_axes_gridspec` positions it using a subplotspec.
+    - `.make_axes` updates the position of the parent.  `.make_axes_gridspec`
+      replaces the parent gridspec with a new one.
+
+    Parameters
+    ----------
+    parent : `~matplotlib.axes.Axes`
+        The Axes to use as parent for placing the colorbar.
+    %(_make_axes_kw_doc)s
+
+    Returns
+    -------
+    cax : `~matplotlib.axes.Axes`
+        The child Axes.
+    kwargs : dict
+        The reduced keyword dictionary to be passed when creating the colorbar
+        instance.
+    """
+
+    loc_settings = _normalize_location(location)
+    location = loc_settings['location']
+    kwargs['location'] = location
+    # kwargs['ticklocations'] = loc_settings['location']
+
+    anchor = kwargs.pop('anchor', loc_settings['anchor'])
+    panchor = kwargs.pop('panchor', loc_settings['panchor'])
+    pad = kwargs.pop('pad', loc_settings["pad"])
+    wh_space = 2 * pad / (1 - pad)
+
+    if location in ('left', 'right'):
+        gs = parent.get_subplotspec().subgridspec(
+            3, 2, wspace=wh_space, hspace=0,
+            height_ratios=[(1-anchor[1])*(1-shrink), shrink, anchor[1]*(1-shrink)])
+        if location == 'left':
+            gs.set_width_ratios([fraction, 1 - fraction - pad])
+            ss_main = gs[:, 1]
+            ss_cb = gs[1, 0]
+        else:
+            gs.set_width_ratios([1 - fraction - pad, fraction])
+            ss_main = gs[:, 0]
+            ss_cb = gs[1, 1]
+    else:
+        gs = parent.get_subplotspec().subgridspec(
+            2, 3, hspace=wh_space, wspace=0,
+            width_ratios=[anchor[0]*(1-shrink), shrink, (1-anchor[0])*(1-shrink)])
+        if location == 'top':
+            gs.set_height_ratios([fraction, 1 - fraction - pad])
+            ss_main = gs[1, :]
+            ss_cb = gs[0, 1]
+        else:
+            gs.set_height_ratios([1 - fraction - pad, fraction])
+            ss_main = gs[0, :]
+            ss_cb = gs[1, 1]
+
+    parent.set_subplotspec(ss_main)
+    if panchor is not False:
+        parent.set_anchor(panchor)
+
+    fig = parent.get_figure()
+    cax = fig.add_subplot(ss_cb, label="<colorbar>")
+    parent._colorbars.append(cax)  # tell the parent it has a colorbar
+    cax.set_anchor(anchor)
+    cax._colorbar_info = dict(
+        location=location,
+        parents=[parent],
+        shrink=shrink,
+        anchor=anchor,
+        panchor=panchor,
+        fraction=fraction,
         pad=pad)
 
     return cax, kwargs

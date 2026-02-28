@@ -1319,6 +1319,92 @@ default: %(va)s
         cax.get_figure(root=False).stale = True
         return cb
 
+    @_docstring.interpd
+    def bivar_colorbar(
+            self, mappable, *, cax=None, ax=None, use_gridspec=True, **kwargs):
+        """
+        Add a bivariate colorbar to a plot.
+
+        Parameters
+        ----------
+        mappable
+            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`,
+            `.ContourSet`, etc.) described by this bivariate colorbar.
+            This argument is mandatory for the `.Figure.bivar_colorbar` method
+            but optional for the`.pyplot.bivar_colorbar` function, which sets
+            the default to the current image.
+
+        cax : `~matplotlib.axes.Axes`, optional
+            Axes into which the colorbar will be drawn.  If `None`, then a new
+            Axes is created and the space for it will be stolen from the Axes(s)
+            specified in *ax*.
+
+        ax : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
+            The one or more parent Axes from which space for a new colorbar Axes
+            will be stolen. This parameter is only used if *cax* is not set.
+
+            Defaults to the Axes that contains the mappable used to create the
+            colorbar.
+
+        use_gridspec : bool, optional
+            If *cax* is ``None``, a new *cax* is created as an instance of
+            Axes.  If *ax* is positioned with a subplotspec and *use_gridspec*
+            is ``True``, then *cax* is also positioned with a subplotspec.
+
+        Returns
+        -------
+        bivariate_colorbar : `~matplotlib.colorbar.BivarColorbar`
+
+        Other Parameters
+        ----------------
+        %(_make_axes_kw_doc)s
+        %(_colormap_kw_doc)s
+
+        """
+        if ax is None:
+            ax = getattr(mappable, "axes", None)
+
+        if cax is None:
+            if ax is None:
+                raise ValueError(
+                    'Unable to determine Axes to steal space for Colorbar. '
+                    'Either provide the *cax* argument to use as the Axes for '
+                    'the Colorbar, provide the *ax* argument to steal space '
+                    'from it, or add *mappable* to an Axes.')
+            fig = (  # Figure of first Axes; logic copied from make_axes.
+                [*ax.flat] if isinstance(ax, np.ndarray)
+                else [*ax] if np.iterable(ax)
+                else [ax])[0].get_figure(root=False)
+            current_ax = fig.gca()
+            if (fig.get_layout_engine() is not None and
+                    not fig.get_layout_engine().colorbar_gridspec):
+                use_gridspec = False
+            if (use_gridspec
+                    and isinstance(ax, mpl.axes._base._AxesBase)
+                    and ax.get_subplotspec()):
+                cax, kwargs = cbar.make_bivar_axes_gridspec(ax, **kwargs)
+            else:
+                cax, kwargs = cbar.make_bivar_axes(ax, **kwargs)
+            # make_axes calls add_{axes,subplot} which changes gca; undo that.
+            fig.sca(current_ax)
+            cax.grid(visible=False, which='both', axis='both')
+
+        if (hasattr(mappable, "get_figure") and
+                (mappable_host_fig := mappable.get_figure(root=True)) is not None):
+            # Warn in case of mismatch
+            if mappable_host_fig is not self._root_figure:
+                _api.warn_external(
+                        f'Adding colorbar to a different Figure '
+                        f'{repr(mappable_host_fig)} than '
+                        f'{repr(self._root_figure)} which '
+                        f'fig.colorbar is called on.')
+        NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
+            'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
+        cb = cbar.BivarColorbar(cax, mappable, **{
+              k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
+        cax.get_figure(root=False).stale = True
+        return cb
+
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
                         wspace=None, hspace=None):
         """
