@@ -2583,83 +2583,124 @@ class BoxStyle(_Style):
             return trans.transform_path(Path.unit_circle())
 
     @_register_style(_style_list)
-    class LArrow:
-        """A box in the shape of a left-pointing arrow."""
+    class RArrow:
+        """A box in the shape of a right-pointing arrow."""
 
-        def __init__(self, pad=0.3):
+        def __init__(self, pad=0.3, head_width=1.5, head_angle=90):
             """
             Parameters
             ----------
             pad : float, default: 0.3
                 The amount of padding around the original box.
+            head_width : float, default: 1.5
+                The head width, relative to the arrow shaft width; must be
+                nonnegative.
+            head_angle : float, default: 90
+                The angle at the tip of the arrow, in degrees; must be nonzero
+                (modulo 360).  Negative angles result in arrow heads pointing
+                backwards.
             """
             self.pad = pad
+            if head_width < 0:
+                raise ValueError("'head_width' must be nonnegative")
+            self.head_width = head_width
+            if head_angle % 360 == 0:
+                raise ValueError("'head_angle' must be nonzero")
+            self.head_angle = head_angle
 
         def __call__(self, x0, y0, width, height, mutation_size):
-            # padding
+            # padding & padded dimensions
             pad = mutation_size * self.pad
-            # width and height with padding added.
-            width, height = width + 2 * pad, height + 2 * pad
-            # boundary of the padded box
+            dx, dy = width + 2 * pad, height + 2 * pad
             x0, y0 = x0 - pad, y0 - pad,
-            x1, y1 = x0 + width, y0 + height
+            x1, y1 = x0 + dx, y0 + dy
 
-            dx = (y1 - y0) / 2
-            dxx = dx / 2
-            x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
+            head_dy = self.head_width * dy
+            mid_y = (y0 + y1) / 2
+            shaft_y0 = mid_y - head_dy / 2
+            shaft_y1 = mid_y + head_dy / 2
 
-            return Path._create_closed(
-                [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
-                 (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                 (x0 + dxx, y0 - dxx),  # arrow
-                 (x0 + dxx, y0)])
+            cot = 1 / math.tan(math.radians(self.head_angle / 2))
+
+            if cot > 0:
+                # tip_x is chosen s.t. the angled line moving back from the tip hits
+                # i) if head_width > 1: the box corner, or ii) if head_width <
+                # 1 the box edge at the point giving the correct shaft width.
+                tip_x = x1 + cot * min(dy, head_dy) / 2
+                shaft_x = tip_x - cot * head_dy / 2
+                return Path._create_closed([
+                    (x0, y0), (shaft_x, y0), (shaft_x, shaft_y0),
+                    (tip_x, mid_y),
+                    (shaft_x, shaft_y1), (shaft_x, y1), (x0, y1),
+                ])
+            else:  # Reverse arrowhead.
+                # Make the long (outer) side of the arrowhead flush with the
+                # original box, and move back accordingly (but clipped to no
+                # more than the box length).  If this clipping is necessary,
+                # the y positions at the short (inner) side of the arrowhead
+                # will be thicker than the original box, hence the need to
+                # recompute mid_y0 & mid_y1.
+                # If head_width < 1 no arrowhead is drawn.
+                dx = min(-cot * max(head_dy - dy, 0) / 2, dx)  # cot < 0!
+                mid_y0 = min(shaft_y0, y0) - dx / cot
+                mid_y1 = max(shaft_y1, y1) + dx / cot
+                return Path._create_closed([
+                    (x0, y0), (x1 - dx, mid_y0), (x1, shaft_y0),
+                    (x1, shaft_y1), (x1 - dx, mid_y1), (x0, y1),
+                ])
 
     @_register_style(_style_list)
-    class RArrow(LArrow):
-        """A box in the shape of a right-pointing arrow."""
+    class LArrow(RArrow):
+        """A box in the shape of a left-pointing arrow."""
 
         def __call__(self, x0, y0, width, height, mutation_size):
-            p = BoxStyle.LArrow.__call__(
-                self, x0, y0, width, height, mutation_size)
+            p = super().__call__(x0, y0, width, height, mutation_size)
             p.vertices[:, 0] = 2 * x0 + width - p.vertices[:, 0]
             return p
 
     @_register_style(_style_list)
-    class DArrow:
+    class DArrow(RArrow):
         """A box in the shape of a two-way arrow."""
-        # Modified from LArrow to add a right arrow to the bbox.
-
-        def __init__(self, pad=0.3):
-            """
-            Parameters
-            ----------
-            pad : float, default: 0.3
-                The amount of padding around the original box.
-            """
-            self.pad = pad
+        # Modified from RArrow to have arrows on both sides; see comments above.
 
         def __call__(self, x0, y0, width, height, mutation_size):
-            # padding
+            # padding & padded dimensions
             pad = mutation_size * self.pad
-            # width and height with padding added.
-            # The width is padded by the arrows, so we don't need to pad it.
-            height = height + 2 * pad
-            # boundary of the padded box
-            x0, y0 = x0 - pad, y0 - pad
-            x1, y1 = x0 + width, y0 + height
+            dx, dy = width + 2 * pad, height + 2 * pad
+            x0, y0 = x0 - pad, y0 - pad,
+            x1, y1 = x0 + dx, y0 + dy
 
-            dx = (y1 - y0) / 2
-            dxx = dx / 2
-            x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
+            head_dy = self.head_width * dy
+            mid_y = (y0 + y1) / 2
+            shaft_y0 = mid_y - head_dy / 2
+            shaft_y1 = mid_y + head_dy / 2
 
-            return Path._create_closed([
-                (x0 + dxx, y0), (x1, y0),  # bot-segment
-                (x1, y0 - dxx), (x1 + dx + dxx, y0 + dx),
-                (x1, y1 + dxx),  # right-arrow
-                (x1, y1), (x0 + dxx, y1),  # top-segment
-                (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                (x0 + dxx, y0 - dxx),  # left-arrow
-                (x0 + dxx, y0)])
+            cot = 1 / math.tan(math.radians(self.head_angle / 2))
+
+            if cot > 0:
+                tip_x0 = x0 - cot * min(dy, head_dy) / 2
+                shaft_x0 = tip_x0 + cot * head_dy / 2
+                tip_x1 = x1 + cot * min(dy, head_dy) / 2
+                shaft_x1 = tip_x1 - cot * head_dy / 2
+                return Path._create_closed([
+                    (shaft_x0, y1), (shaft_x0, shaft_y1),
+                    (tip_x0, mid_y),
+                    (shaft_x0, shaft_y0), (shaft_x0, y0),
+                    (shaft_x1, y0), (shaft_x1, shaft_y0),
+                    (tip_x1, mid_y),
+                    (shaft_x1, shaft_y1), (shaft_x1, y1),
+                ])
+            else:
+                # Don't move back by more than half the box length.
+                dx = min(-cot * max(head_dy - dy, 0) / 2, dx / 2)  # cot < 0!
+                mid_y0 = min(shaft_y0, y0) - dx / cot
+                mid_y1 = max(shaft_y1, y1) + dx / cot
+                return Path._create_closed([
+                    (x0, shaft_y0), (x0 + dx, mid_y0),
+                    (x1 - dx, mid_y0), (x1, shaft_y0),
+                    (x1, shaft_y1), (x1 - dx, mid_y1),
+                    (x0 + dx, mid_y1), (x0, shaft_y1),
+                ])
 
     @_register_style(_style_list)
     class Round:

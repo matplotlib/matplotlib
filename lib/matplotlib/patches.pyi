@@ -379,9 +379,13 @@ class BoxStyle(_Style):
             mutation_size: float,
         ) -> Path: ...
 
-    class LArrow(BoxStyle):
+    class RArrow(BoxStyle):
         pad: float
-        def __init__(self, pad: float = ...) -> None: ...
+        head_width: float
+        head_angle: float
+        def __init__(
+            self, pad: float = ..., head_width: float = ..., head_angle: float = ...
+        ) -> None: ...
         def __call__(
             self,
             x0: float,
@@ -391,7 +395,7 @@ class BoxStyle(_Style):
             mutation_size: float,
         ) -> Path: ...
 
-    class RArrow(LArrow):
+    class LArrow(RArrow):
         def __call__(
             self,
             x0: float,
@@ -403,7 +407,11 @@ class BoxStyle(_Style):
 
     class DArrow(BoxStyle):
         pad: float
-        def __init__(self, pad: float = ...) -> None: ...
+        head_width: float
+        head_angle: float
+        def __init__(
+            self, pad: float = ..., head_width: float = ..., head_angle: float = ...
+        ) -> None: ...
         def __call__(
             self,
             x0: float,
