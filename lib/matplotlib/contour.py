@@ -13,6 +13,7 @@ from numpy import ma
 import matplotlib as mpl
 from matplotlib import _api, _docstring
 from matplotlib.backend_bases import MouseButton
+from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.lines import Line2D
 from matplotlib.path import Path
 from matplotlib.text import Text
@@ -1261,7 +1262,20 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         paths = self._paths
         n_paths = len(paths)
         if not self.filled or all(hatch is None for hatch in self.hatches):
+            isolate = (isinstance(renderer, RendererAgg) and
+                       self.filled and self.get_antialiased())
+
+            if isolate:
+                blend_mode = self.get_blend_mode()
+                self.set_blend_mode("plus")
+                renderer.open_group("contourf", blend_mode=blend_mode)
+
             super().draw(renderer)
+
+            if isolate:
+                renderer.close_group("contourf")
+                self.set_blend_mode(blend_mode)
+
             return
         # In presence of hatching, draw contours one at a time.
         edgecolors = self.get_edgecolors()

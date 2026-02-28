@@ -2523,9 +2523,19 @@ class QuadMesh(_MeshData, Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        # avoid a circular import
+        from matplotlib.backends.backend_agg import RendererAgg
+
         if not self.get_visible():
             return
-        renderer.open_group(self.__class__.__name__, self.get_gid())
+        isolate = isinstance(renderer, RendererAgg) and self._antialiased
+        if isolate:
+            blend_mode = self.get_blend_mode()
+            self.set_blend_mode("plus")
+            renderer.open_group(self.__class__.__name__, self.get_gid(),
+                                blend_mode=blend_mode)
+        else:
+            renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
         offsets = self.get_offsets()
@@ -2569,6 +2579,8 @@ class QuadMesh(_MeshData, Collection):
                 self._antialiased, self.get_edgecolors().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
+        if isolate:
+            self.set_blend_mode(blend_mode)
         self.stale = False
 
     def get_cursor_data(self, event):
