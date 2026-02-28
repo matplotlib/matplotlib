@@ -105,15 +105,15 @@ class Axes3D(Axes):
             of the axis lengths in display units is x:y:z.
             If None, defaults to 4:4:3
         computed_zorder : bool, default: True
-        If True, the draw order is computed based on the average position
-        along the view direction for supported artist types (currently
-        Collections and Patches only).
-        Set to False if you want to manually control the order in which
-        Artists are drawn on top of each other using their *zorder*
-        attribute. This can be used for fine-tuning if the automatic order
-        does not produce the desired result. Note however, that a manual
-        order will only be correct for a limited view angle. If the figure
-        is rotated by the user, it will look wrong from certain angles.
+            If True, the draw order is computed based on the average position
+            along the view direction for supported artist types (currently
+            Collections and Patches only).
+            Set to False if you want to manually control the order in which
+            Artists are drawn on top of each other using their *zorder*
+            attribute. This can be used for fine-tuning if the automatic order
+            does not produce the desired result. Note however, that a manual
+            order will only be correct for a limited view angle. If the figure
+            is rotated by the user, it will look wrong from certain angles.
 
         **kwargs
             Other optional keyword arguments:
