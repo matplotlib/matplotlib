@@ -1537,3 +1537,10 @@ def test_third_party_backend_hatchcolors_arg_fallback(monkeypatch):
     ax.add_collection(coll)
 
     plt.draw()
+
+
+@pytest.mark.parametrize('lw', [np.nan, -5.0, np.inf])
+def test_invalid_linewidths(lw):
+    lc = LineCollection([[(0, 0), (1, 1)]])
+    lc.set_linewidth(lw)
+    assert lc.get_linewidth() == 0.0
