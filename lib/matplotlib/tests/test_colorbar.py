@@ -246,6 +246,15 @@ def test_contour_colorbar():
     fig.colorbar(CS, orientation='vertical')
 
 
+def test_contour_uniformfield_colorbar():
+    # Smoke test for issue
+    fig, ax = plt.subplots()
+    with pytest.warns(Warning) as record:
+        cs = ax.contour([[1, 1], [1, 1]])
+    assert len(record) == 1
+    fig.colorbar(cs, ax=ax)
+
+
 @image_comparison(['cbar_with_subplots_adjust.png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
 def test_gridspec_make_colorbar():
