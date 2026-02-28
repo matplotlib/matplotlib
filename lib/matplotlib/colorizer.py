@@ -74,7 +74,7 @@ class Colorizer:
         """
         if vmin is not None or vmax is not None:
             self.set_clim(vmin, vmax)
-            if isinstance(norm, colors.Normalize):
+            if isinstance(norm, colors.Norm):
                 raise ValueError(
                     "Passing a Normalize instance simultaneously with "
                     "vmin/vmax is not supported.  Please pass vmin/vmax "
@@ -277,8 +277,16 @@ class Colorizer:
     def get_clim(self):
         """
         Return the values (min, max) that are mapped to the colormap limits.
+
+        This function always returns min and max as tuples to ensure type consistency
+        when working with both scalar and multivariate color mapping.
+        See also `.ColorizingArtist.get_clim()` which returns scalars but is unavailable
+        for multivariate color mapping.
         """
-        return self.norm.vmin, self.norm.vmax
+        if self.norm.n_components == 1:
+            return (self.norm.vmin, ), (self.norm.vmax, )
+        else:
+            return self.norm.vmin, self.norm.vmax
 
     def changed(self):
         """
@@ -306,7 +314,10 @@ class Colorizer:
 
     @property
     def clip(self):
-        return self.norm.clip
+        if self.norm.n_components == 1:
+            return (self.norm.clip, )
+        else:
+            return self.norm.clip
 
     @clip.setter
     def clip(self, clip):
@@ -360,8 +371,14 @@ class _ColorizerInterface:
     def get_clim(self):
         """
         Return the values (min, max) that are mapped to the colormap limits.
+
+        This function is not available for multivariate data.
+        Use `.Colorizer.get_clim` via the .colorizer property instead.
         """
-        return self._colorizer.get_clim()
+        if self._colorizer.norm.n_components > 1:
+            raise AttributeError("get_clim() cannot be used with a multi-component "
+                                 "colormap. Use .colorizer.get_clim() instead")
+        return self.colorizer.norm.vmin, self.colorizer.norm.vmax
 
     def set_clim(self, vmin=None, vmax=None):
         """
@@ -376,9 +393,14 @@ class _ColorizerInterface:
              tuple (*vmin*, *vmax*) as a single positional argument.
 
              .. ACCEPTS: (vmin: float, vmax: float)
+
+        This function is not available for multivariate data.
         """
         # If the norm's limits are updated self.changed() will be called
         # through the callbacks attached to the norm
+        if self._colorizer.norm.n_components > 1:
+            raise AttributeError("set_clim() cannot be used with a multi-component "
+                                 "colormap. Use .colorizer.set_clim() instead")
         self._colorizer.set_clim(vmin, vmax)
 
     def get_alpha(self):
@@ -599,6 +621,18 @@ class _ScalarMappable(_ColorizerInterface):
         the dimensionality and shape of the array.
         """
         return self._A
+
+    def _getmaskarray(self, A):
+        """
+        Similar to np.ma.getmaskarray but also handles the case where
+        the data has multiple fields.
+
+        The return array always has the same shape as the input, and dtype bool
+        """
+        mask = np.ma.getmaskarray(A)
+        if isinstance(self.norm, colors.MultiNorm):
+            mask = np.any(mask.view('bool').reshape((*A.shape, -1)), axis=-1)
+        return mask
 
     def changed(self):
         """
