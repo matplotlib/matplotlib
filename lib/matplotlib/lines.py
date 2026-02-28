@@ -4,6 +4,7 @@
 
 import copy
 
+from dataclasses import dataclass
 from numbers import Integral, Number, Real
 import logging
 
@@ -18,6 +19,8 @@ from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
 from ._enums import JoinStyle, CapStyle
+from ._data_containers._helpers import containerize_draw, _get_graph, check_container
+from ._data_containers.description import Desc
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -227,6 +230,26 @@ def _mark_every_path(markevery, tpath, affine, ax):
         raise ValueError(f"markevery={markevery!r} is not a recognized value")
 
 
+@dataclass
+class LineContainer:
+    x: np.ndarray
+    y: np.ndarray
+
+    def describe(self):
+
+        return {
+            "x": Desc(("N",), "data"),
+            "y": Desc(("N",), "data"),
+        }
+
+    def query(self, graph, parent_coordinates="axes"):
+        return {
+            "x": self.x,
+            "y": self.y,
+        }, ""
+        # TODO hash
+
+
 @_docstring.interpd
 @_api.define_aliases({
     "antialiased": ["aa"],
@@ -335,6 +358,9 @@ class Line2D(Artist):
         """
         super().__init__()
 
+        self._container = self._init_container()
+        self.__query = None
+
         # Convert sequences to NumPy arrays.
         if not np.iterable(xdata):
             raise RuntimeError('xdata must be a sequence')
@@ -413,19 +439,59 @@ class Line2D(Artist):
                 not isinstance(self._picker, bool)):
             self._pickradius = self._picker
 
-        self._xorig = np.asarray([])
-        self._yorig = np.asarray([])
         self._invalidx = True
         self._invalidy = True
-        self._x = None
-        self._y = None
-        self._xy = None
         self._path = None
         self._transformed_path = None
         self._subslice = False
         self._x_filled = None  # used in subslicing; only x is needed
 
         self.set_data(xdata, ydata)
+
+    def set_container(self, container):
+        self._container = container
+        self.stale = True
+
+    def get_container(self):
+        return self._container
+
+    def _init_container(self):
+        return LineContainer(
+            x=np.array([]),
+            y=np.array([]),
+        )
+
+    @property
+    def _xorig(self):
+        return self._query["x"]
+
+    @property
+    def _x(self):
+        xconv = self.convert_xunits(self._xorig)
+        return _to_unmasked_float_array(xconv).ravel()
+
+    @property
+    def _yorig(self):
+        return self._query["y"]
+
+    @property
+    def _y(self):
+        yconv = self.convert_yunits(self._yorig)
+        return _to_unmasked_float_array(yconv).ravel()
+
+    @property
+    def _xy(self):
+        x, y = self._x, self._y
+        return np.column_stack(np.broadcast_arrays(x, y)).astype(float)
+
+    @property
+    def _query(self):
+        if self.__query is not None:
+            return self.__query
+        return self._container.query(_get_graph(self.axes))[0]
+
+    def _cache_query(self):
+        self.__query = self._container.query(_get_graph(self.axes))[0]
 
     def contains(self, mouseevent):
         """
@@ -683,9 +749,6 @@ class Line2D(Artist):
         else:
             y = self._y
 
-        self._xy = np.column_stack(np.broadcast_arrays(x, y)).astype(float)
-        self._x, self._y = self._xy.T  # views
-
         self._subslice = False
         if (self.axes
                 and len(x) > self._subslice_optim_min_size
@@ -744,11 +807,14 @@ class Line2D(Artist):
         super().set_transform(t)
 
     @allow_rasterization
-    def draw(self, renderer):
+    @containerize_draw
+    def draw(self, renderer, *, graph=None):
         # docstring inherited
 
         if not self.get_visible():
             return
+
+        self._cache_query()
 
         if self._invalidy or self._invalidx:
             self.recache()
@@ -1297,9 +1363,11 @@ class Line2D(Artist):
         set_data
         set_ydata
         """
+        check_container(self, LineContainer, "'set_xdata'")
         if not np.iterable(x):
             raise RuntimeError('x must be a sequence')
-        self._xorig = copy.copy(x)
+        self._container.x = copy.copy(x)
+        self.__query = None
         self._invalidx = True
         self.stale = True
 
@@ -1316,9 +1384,11 @@ class Line2D(Artist):
         set_data
         set_xdata
         """
+        check_container(self, LineContainer, "'set_ydata'")
         if not np.iterable(y):
             raise RuntimeError('y must be a sequence')
-        self._yorig = copy.copy(y)
+        self._container.y = copy.copy(y)
+        self.__query = None
         self._invalidy = True
         self.stale = True
 

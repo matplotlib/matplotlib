@@ -28,6 +28,7 @@ try:
 except ImportError:
     from numpy import VisibleDeprecationWarning
 
+
 import matplotlib
 from matplotlib import _api, _c_internal_utils, mlab
 

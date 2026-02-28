@@ -818,7 +818,9 @@ def test_setdata_xya(image_cls, x, y, a):
     im = image_cls(ax)
     im.set_data(x, y, a)
     x[0] = y[0] = a[0, 0] = 9.9
-    assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
+    Ax = im._container.x
+    Ay = im._container.y
+    assert im._A[0, 0] == Ax[0] == Ay[0] == 0, 'value changed'
     im.set_data(x, y, a.reshape((*a.shape, -1)))  # Just a smoketest.
 
 
@@ -1713,8 +1715,8 @@ def test_axesimage_get_shape():
     # generate dummy image to test get_shape method
     ax = plt.gca()
     im = AxesImage(ax)
-    with pytest.raises(RuntimeError, match="You must first set the image array"):
-        im.get_shape()
+    # Initial behavior is an empty 2D array
+    assert im.get_shape() == (1, 0)
     z = np.arange(12, dtype=float).reshape((4, 3))
     im.set_data(z)
     assert im.get_shape() == (4, 3)

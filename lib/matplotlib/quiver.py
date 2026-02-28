@@ -983,10 +983,11 @@ class Barbs(mcollections.PolyCollection):
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
         super().__init__(
-            [], (barb_size,), offsets=xy, offset_transform=transform, **kwargs)
+            [], (barb_size,), offsets=None, offset_transform=transform, **kwargs)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
+        self.set_offsets(xy)  # Call after super init/set_UVC because it references UVC
 
     def _find_tails(self, mag, rounding=True, half=5, full=10, flag=50):
         """
