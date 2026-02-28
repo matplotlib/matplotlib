@@ -184,7 +184,34 @@ def _proj_transform_vec_clip(vec, M, focal_length):
 
 def inv_transform(xs, ys, zs, invM):
     """
-    Transform the points by the inverse of the projection matrix, *invM*.
+    Transform 3D coordinates by the inverse of a 4×4 projection matrix.
+
+    Parameters
+    ----------
+    xs : float or np.ndarray of shape (N,)
+        X-coordinates of the points in world or display space.
+    ys : float or np.ndarray of shape (N,)
+        Y-coordinates of the points in world or display space.
+    zs : float or np.ndarray of shape (N,)
+        Z-coordinates of the points in world or display space.
+    invM : np.ndarray of shape (4, 4)
+        Inverse of the projection (transformation) matrix.
+
+    Returns
+    -------
+    x_out : np.ndarray of shape (N,)
+        Transformed X-coordinates.
+    y_out : np.ndarray of shape (N,)
+        Transformed Y-coordinates.
+    z_out : np.ndarray of shape (N,)
+        Transformed Z-coordinates.
+
+    Notes
+    -----
+    The function performs a homogeneous coordinate transformation
+    using the inverse projection matrix `invM`. The input points are
+    padded with ones to form 4D homogeneous vectors and then normalized
+    by their fourth component.
     """
     vec = _vec_pad_ones(xs, ys, zs)
     vecr = np.dot(invM, vec)
