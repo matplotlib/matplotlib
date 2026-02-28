@@ -148,9 +148,15 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac
 
-    def __init__(self, canvas, num):
+    def __init__(self, canvas, num, *, x=None, y=None):
         self._shown = False
-        _macosx.FigureManager.__init__(self, canvas)
+        self._window_event_callbacks = cbook.CallbackRegistry()
+        kwargs = {}
+        if x is not None:
+            kwargs['x'] = x
+        if y is not None:
+            kwargs['y'] = y
+        _macosx.FigureManager.__init__(self, canvas, **kwargs)
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
         FigureManagerBase.__init__(self, canvas, num)
@@ -164,6 +170,57 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     def _close_button_pressed(self):
         Gcf.destroy(self)
         self.canvas.flush_events()
+
+    def mpl_connect(self, event_name, callback):
+        """Register *callback* to be called on a window event.
+
+        Parameters
+        ----------
+        event_name : str
+            One of ``'window_resize_event'``, ``'window_resize_end_event'``,
+            ``'window_move_event'``, ``'window_move_end_event'``,
+            ``'focus_in_event'``, ``'focus_out_event'``.
+        callback : callable
+            - ``'window_resize_event'``: called with ``(width, height)``
+              in logical pixels; fires continuously while resizing.
+            - ``'window_resize_end_event'``: called with no arguments;
+              fires once when the user releases the mouse after resizing.
+            - ``'window_move_event'``: called with ``(x, y)`` in Cocoa
+              screen coordinates (origin at bottom-left of primary screen);
+              fires continuously while moving.
+            - ``'window_move_end_event'``: called with no arguments;
+              fires once when the user releases the mouse after moving.
+            - ``'focus_in_event'``, ``'focus_out_event'``: called with
+              no arguments.
+
+        Returns
+        -------
+        int
+            A callback id that can be passed to `mpl_disconnect`.
+        """
+        return self._window_event_callbacks.connect(event_name, callback)
+
+    def mpl_disconnect(self, cid):
+        """Remove a callback previously registered with `mpl_connect`."""
+        self._window_event_callbacks.disconnect(cid)
+
+    def _window_resize_event(self, width, height):
+        self._window_event_callbacks.process('window_resize_event', width, height)
+
+    def _window_resize_end_event(self):
+        self._window_event_callbacks.process('window_resize_end_event')
+
+    def _window_move_event(self, x, y):
+        self._window_event_callbacks.process('window_move_event', x, y)
+
+    def _window_move_end_event(self):
+        self._window_event_callbacks.process('window_move_end_event')
+
+    def _focus_in_event(self):
+        self._window_event_callbacks.process('focus_in_event')
+
+    def _focus_out_event(self):
+        self._window_event_callbacks.process('focus_out_event')
 
     def destroy(self):
         # We need to clear any pending timers that never fired, otherwise
