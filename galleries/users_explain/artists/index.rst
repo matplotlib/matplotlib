@@ -1,3 +1,5 @@
+.. _users-guide-artists:
+
 +++++++
 Artists
 +++++++
