@@ -18,7 +18,7 @@ from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.text import Text
-from matplotlib import  _api
+from matplotlib import _api
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -2783,3 +2783,340 @@ def test_axis_get_tightbbox_includes_offset_text():
             f"bbox.x1 ({bbox.x1}) should be >= offset_bbox.x1 ({offset_bbox.x1})"
         assert bbox.y1 >= offset_bbox.y1 - 1e-6, \
             f"bbox.y1 ({bbox.y1}) should be >= offset_bbox.y1 ({offset_bbox.y1})"
+
+
+# =============================================================================
+# Tests for 3D scale transforms (log, symlog, logit, etc.)
+# =============================================================================
+
+def _make_log_data():
+    """Data spanning 1 to ~1000 for log scale."""
+    t = np.linspace(0, 2 * np.pi, 50)
+    x = 10 ** (t / 2)
+    y = 10 ** (1 + np.sin(t))
+    z = 10 ** (2 * (1 + np.cos(t) / 2))
+    return x, y, z
+
+
+def _make_surface_log_data():
+    """Grid data for surface with positive Z."""
+    x = np.linspace(1, 10, 20)
+    y = np.linspace(1, 10, 20)
+    X, Y = np.meshgrid(x, y)
+    Z = X * Y
+    return X, Y, Z
+
+
+def _make_triangulation_data():
+    """Data for trisurf with positive values."""
+    np.random.seed(42)
+    x = np.random.uniform(1, 100, 100)
+    y = np.random.uniform(1, 100, 100)
+    z = x * y / 10
+    return x, y, z
+
+
+@mpl3d_image_comparison(['scale3d_artists_log.png'], style='mpl20',
+                        remove_text=False, tol=0.03)
+def test_scale3d_artists_log():
+    """Test all 3D artist types with log scale."""
+    fig = plt.figure(figsize=(16, 12))
+    log_kw = dict(xscale='log', yscale='log', zscale='log')
+    line_data = _make_log_data()
+    surf_X, surf_Y, surf_Z = _make_surface_log_data()
+
+    # Row 1: plot, wireframe, scatter, bar3d
+    ax = fig.add_subplot(3, 4, 1, projection='3d')
+    ax.plot(*line_data)
+    ax.set(**log_kw, title='plot')
+
+    ax = fig.add_subplot(3, 4, 2, projection='3d')
+    ax.plot_wireframe(surf_X, surf_Y, surf_Z, rstride=5, cstride=5)
+    ax.set(**log_kw, title='wireframe')
+
+    ax = fig.add_subplot(3, 4, 3, projection='3d')
+    ax.scatter(*line_data, c=line_data[2], cmap='viridis')
+    ax.set(**log_kw, title='scatter')
+
+    ax = fig.add_subplot(3, 4, 4, projection='3d')
+    bx, by = np.meshgrid([1, 10, 100], [1, 10, 100])
+    bx, by = bx.flatten(), by.flatten()
+    ax.bar3d(bx, by, np.ones_like(bx, dtype=float),
+             bx * 0.3, by * 0.3, bx * by / 10, alpha=0.8)
+    ax.set(**log_kw, title='bar3d')
+
+    # Row 2: surface, trisurf, contour, contourf
+    ax = fig.add_subplot(3, 4, 5, projection='3d')
+    ax.plot_surface(surf_X, surf_Y, surf_Z, cmap='viridis', alpha=0.8)
+    ax.set(**log_kw, title='surface')
+
+    ax = fig.add_subplot(3, 4, 6, projection='3d')
+    tri_data = _make_triangulation_data()
+    ax.plot_trisurf(*tri_data, cmap='viridis', alpha=0.8)
+    ax.set(**log_kw, title='trisurf')
+
+    ax = fig.add_subplot(3, 4, 7, projection='3d')
+    ax.contour(surf_X, surf_Y, surf_Z, levels=10)
+    ax.set(**log_kw, title='contour')
+
+    ax = fig.add_subplot(3, 4, 8, projection='3d')
+    ax.contourf(surf_X, surf_Y, surf_Z, levels=10, alpha=0.8)
+    ax.set(**log_kw, title='contourf')
+
+    # Row 3: stem, quiver, text
+    ax = fig.add_subplot(3, 4, 9, projection='3d')
+    ax.stem([1, 10, 100], [1, 10, 100], [10, 100, 1000], bottom=1)
+    ax.set(**log_kw, title='stem')
+
+    ax = fig.add_subplot(3, 4, 10, projection='3d')
+    qxyz = np.array([1, 10, 100])
+    ax.quiver(qxyz, qxyz, qxyz, qxyz * 0.5, qxyz * 0.5, qxyz * 0.5)
+    ax.set(**log_kw, title='quiver')
+
+    ax = fig.add_subplot(3, 4, 11, projection='3d')
+    ax.text(1, 1, 1, "Point A")
+    ax.text(10, 10, 10, "Point B")
+    ax.text(100, 100, 100, "Point C")
+    ax.set(**log_kw, title='text',
+           xlim=(0.5, 200), ylim=(0.5, 200), zlim=(0.5, 200))
+
+
+@mpl3d_image_comparison(['scale3d_all_scales.png'], style='mpl20', remove_text=False)
+def test_scale3d_all_scales():
+    """Test all scale types with mixed scales on each axis."""
+    fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'}, figsize=(10, 6))
+
+    # Data that works across all scale types
+    t = np.linspace(0.1, 0.9, 30)
+    # x: positive for log/asinh, y: spans neg/pos for symlog, z: (0,1) for logit
+    x = t * 100  # 10 to 90
+    y = (t - 0.5) * 20  # -10 to 10
+    z = t  # 0.1 to 0.9
+
+    # Subplot 1: x=log, y=symlog, z=logit
+    axs[0].scatter(x, y, z)
+    axs[0].set(xscale='log', yscale='symlog', zscale='logit',
+               xlabel='log', ylabel='symlog', zlabel='logit')
+
+    # Subplot 2: x=asinh, y=linear, z=function (square root)
+    axs[1].scatter(x, y, z)
+    axs[1].set_xscale('asinh')
+    axs[1].set_zscale('function', functions=(lambda v: v**0.5, lambda v: v**2))
+    axs[1].set(xlabel='asinh', ylabel='linear', zlabel='function')
+
+
+@pytest.mark.parametrize("scale, expected_lims", [
+    ("linear", (-0.020833333333333332, 1.0208333333333333)),
+    ("log", (0.03640537388223389, 1.1918138759519783)),
+    ("symlog", (-0.020833333333333332, 1.0208333333333333)),
+    ("logit", (0.029640777806688817, 0.9703592221933112)),
+    ("asinh", (-0.020833333333333332, 1.0208333333333333)),
+])
+@mpl.style.context("default")
+def test_scale3d_default_limits(scale, expected_lims):
+    """Default axis limits on an empty plot should be correct for each scale."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_xscale(scale)
+    ax.set_yscale(scale)
+    ax.set_zscale(scale)
+    fig.canvas.draw()
+
+    for get_lim in (ax.get_xlim, ax.get_ylim, ax.get_zlim):
+        np.testing.assert_allclose(get_lim(), expected_lims)
+
+
+@check_figures_equal()
+@pytest.mark.filterwarnings("ignore:Data has no positive values")
+def test_scale3d_all_clipped(fig_test, fig_ref):
+    """Fully clipped data (e.g. negative values on log) should look like an empty plot.
+    """
+    lims = (0.1, 10)
+    for ax in [fig_test.add_subplot(projection='3d'),
+               fig_ref.add_subplot(projection='3d')]:
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        ax.set_zscale('log')
+        ax.set(xlim=lims, ylim=lims, zlim=lims)
+
+    # All negative data — everything is invalid for log scale
+    fig_test.axes[0].plot([-1, -2, -3], [-4, -5, -6], [-7, -8, -9])
+
+
+@mpl3d_image_comparison(['scale3d_log_bases.png'], style='mpl20', remove_text=False)
+def test_scale3d_log_bases():
+    """Test log scale with different bases and subs."""
+    fig, axs = plt.subplots(2, 2, subplot_kw={'projection': '3d'}, figsize=(10, 8))
+    x, y, z = _make_log_data()
+
+    for ax, base, title in [(axs[0, 0], 10, 'base=10'),
+                            (axs[0, 1], 2, 'base=2'),
+                            (axs[1, 0], np.e, 'base=e')]:
+        ax.scatter(x, y, z, s=10)
+        ax.set_xscale('log', base=base)
+        ax.set_yscale('log', base=base)
+        ax.set_zscale('log', base=base)
+        ax.set_title(title)
+        if base == np.e:
+            # Format tick labels as e^n instead of 2.718...^n
+            def fmt_e(x, pos=None):
+                if x <= 0:
+                    return ''
+                exp = np.log(x)
+                if np.isclose(exp, round(exp)):
+                    return r'$e^{%d}$' % round(exp)
+                return ''
+            ax.xaxis.set_major_formatter(fmt_e)
+            ax.yaxis.set_major_formatter(fmt_e)
+            ax.zaxis.set_major_formatter(fmt_e)
+
+    # subs
+    axs[1, 1].scatter(x, y, z, s=10)
+    axs[1, 1].set_xscale('log', subs=[2, 5])
+    axs[1, 1].set_yscale('log', subs=[2, 5])
+    axs[1, 1].set_zscale('log', subs=[2, 5])
+    axs[1, 1].set_title('subs=[2,5]')
+
+
+@mpl3d_image_comparison(['scale3d_symlog_params.png'], style='mpl20',
+                        remove_text=False)
+def test_scale3d_symlog_params():
+    """Test symlog scale with different linthresh values."""
+    fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
+
+    # Data spanning negative, zero, and positive
+    t = np.linspace(-3, 3, 50)
+    x = np.sinh(t) * 10
+    y = t ** 3
+    z = np.sign(t) * np.abs(t) ** 2
+
+    for ax, linthresh in [(axs[0], 0.1), (axs[1], 10)]:
+        ax.scatter(x, y, z, c=np.abs(z), cmap='viridis', s=10)
+        ax.set_xscale('symlog', linthresh=linthresh)
+        ax.set_yscale('symlog', linthresh=linthresh)
+        ax.set_zscale('symlog', linthresh=linthresh)
+        ax.set_title(f'linthresh={linthresh}')
+
+
+@pytest.mark.parametrize('scale_type,kwargs', [
+    ('log', {'base': 10}),
+    ('log', {'base': 2}),
+    ('log', {'subs': [2, 5]}),
+    ('log', {'nonpositive': 'mask'}),
+    ('symlog', {'base': 2}),
+    ('symlog', {'linthresh': 1}),
+    ('symlog', {'linscale': 0.5}),
+    ('symlog', {'subs': [2, 5]}),
+    ('asinh', {'linear_width': 0.5}),
+    ('asinh', {'base': 2}),
+    ('logit', {'nonpositive': 'clip'}),
+])
+def test_scale3d_keywords_accepted(scale_type, kwargs):
+    """Verify that scale keywords are accepted on all 3 axes."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    for setter in [ax.set_xscale, ax.set_yscale, ax.set_zscale]:
+        setter(scale_type, **kwargs)
+    assert (ax.get_xscale(), ax.get_yscale(), ax.get_zscale()) == (scale_type,) * 3
+
+
+@pytest.mark.parametrize('axis', ['x', 'y', 'z'])
+def test_scale3d_limit_range_log(axis):
+    """Log scale should warn when setting non-positive limits."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    getattr(ax, f'set_{axis}scale')('log')
+
+    # Setting non-positive limits should warn
+    with pytest.warns(UserWarning, match="non-positive"):
+        getattr(ax, f'set_{axis}lim')(-10, 100)
+
+
+def test_scale3d_limit_range_logit():
+    """Logit scale should constrain axis to (0, 1)."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set(xscale='logit', yscale='logit', zscale='logit',
+           xlim=(-0.5, 1.5), ylim=(-0.5, 1.5), zlim=(-0.5, 1.5))
+
+    # Limits should be constrained to (0, 1)
+    for name, lim in [('x', ax.get_xlim()), ('y', ax.get_ylim()),
+                      ('z', ax.get_zlim())]:
+        assert lim[0] > 0, f"{name} lower limit should be > 0 for logit"
+        assert lim[1] < 1, f"{name} upper limit should be < 1 for logit"
+
+
+@pytest.mark.parametrize('scale_type', ['log', 'symlog', 'logit', 'asinh'])
+def test_scale3d_transform_roundtrip(scale_type):
+    """Forward/inverse transform should preserve values."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set(xscale=scale_type, yscale=scale_type, zscale=scale_type)
+
+    # Use appropriate test values for each scale type
+    test_values = {
+        'log': [1, 10, 100, 1000],
+        'symlog': [-100, -1, 0, 1, 100],
+        'asinh': [-100, -1, 0, 1, 100],
+        'logit': [0.01, 0.1, 0.5, 0.9, 0.99],
+    }[scale_type]
+    test_values = np.array(test_values)
+
+    # Test round-trip for each axis
+    for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
+        trans = axis.get_transform()
+        forward = trans.transform(test_values.reshape(-1, 1))
+        inverse = trans.inverted().transform(forward)
+        np.testing.assert_allclose(inverse.flatten(), test_values, rtol=1e-10)
+
+
+def test_scale3d_invalid_keywords_raise():
+    """Invalid kwargs should raise TypeError."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    with pytest.raises(TypeError):
+        ax.set_xscale('log', invalid_kwarg=True)
+
+    with pytest.raises(TypeError):
+        ax.set_yscale('symlog', invalid_kwarg=True)
+
+    with pytest.raises(TypeError):
+        ax.set_zscale('logit', invalid_kwarg=True)
+
+
+def test_scale3d_persists_after_plot():
+    """Scale should persist after adding plot data."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set(xscale='log', yscale='log', zscale='log')
+    ax.plot(*_make_log_data())
+    assert (ax.get_xscale(), ax.get_yscale(), ax.get_zscale()) == ('log',) * 3
+
+
+def test_scale3d_autoscale_with_log():
+    """Autoscale should work correctly with log scale."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set(xscale='log', yscale='log', zscale='log')
+    ax.scatter([1, 10, 100], [1, 10, 100], [1, 10, 100])
+
+    # All limits should be positive
+    for name, lim in [('x', ax.get_xlim()), ('y', ax.get_ylim()),
+                      ('z', ax.get_zlim())]:
+        assert lim[0] > 0, f"{name} lower limit should be positive"
+        assert lim[1] > 0, f"{name} upper limit should be positive"
+
+
+def test_scale3d_calc_coord():
+    """_calc_coord should return data coordinates with correct pane values."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter([1, 10, 100], [1, 10, 100], [1, 10, 100])
+    ax.set(xscale='log', yscale='log', zscale='log')
+    fig.canvas.draw()
+
+    point, pane_idx = ax._calc_coord(0.5, 0.5)
+    # Pane coordinate should match axis limit (y-pane at max)
+    assert pane_idx == 1
+    assert point[pane_idx] == pytest.approx(ax.get_ylim()[1])

@@ -8,6 +8,26 @@ Significant updates and revisions by Ben Root <ben.v.root@gmail.com>
 
 Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
+
+Coordinate Systems
+------------------
+3D plotting involves several coordinate transformations:
+
+1. **Data coordinates**: The user's raw x, y, z values.
+
+2. **Transformed coordinates**: Data coordinates after applying axis scale
+   transforms (log, symlog, etc.). For linear scales, these equal data
+   coordinates. Zoom/pan operations work in this space to ensure uniform
+   behavior with non-linear scales.
+
+3. **Normalized coordinates**: Transformed coordinates mapped to a [0, 1]
+   unit cube based on the current axis limits.
+
+4. **Projected coordinates**: 2D coordinates after applying the 3D to 2D
+   projection matrix, ready for display.
+
+Artists receive data in data coordinates, apply scale transforms internally
+via ``do_3d_projection()``, then project to 2D for rendering.
 """
 
 from collections import defaultdict
@@ -232,8 +252,16 @@ class Axes3D(Axes):
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
     def _transformed_cube(self, vals):
-        """Return cube with limits from *vals* transformed by self.M."""
+        """Return cube with limits from *vals* transformed by self.M.
+
+        The vals are in data space and are first transformed through the
+        axis scale transforms before being projected.
+        """
         minx, maxx, miny, maxy, minz, maxz = vals
+        # Transform from data space to transformed coordinates
+        minx, maxx = self.xaxis.get_transform().transform([minx, maxx])
+        miny, maxy = self.yaxis.get_transform().transform([miny, maxy])
+        minz, maxz = self.zaxis.get_transform().transform([minz, maxz])
         xyzs = [(minx, miny, minz),
                 (maxx, miny, minz),
                 (maxx, maxy, minz),
@@ -242,7 +270,22 @@ class Axes3D(Axes):
                 (maxx, miny, maxz),
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
-        return proj3d._proj_points(xyzs, self.M)
+        return np.column_stack(proj3d._proj_trans_points(xyzs, self.M))
+
+    def _update_transScale(self):
+        """
+        Override transScale to always use identity transforms.
+
+        In 2D axes, transScale applies scale transforms (log, symlog, etc.) to
+        convert data coordinates to display coordinates. In 3D axes, scale
+        transforms are applied to data coordinates before 3D projection via
+        each axis's transform. The projected 2D coordinates are already in
+        display space, so transScale must be identity to avoid double-scaling.
+        """
+        self.transScale.set(
+            mtransforms.blended_transform_factory(
+                mtransforms.IdentityTransform(),
+                mtransforms.IdentityTransform()))
 
     @_api.delete_parameter("3.11", "share")
     @_api.delete_parameter("3.11", "anchor")
@@ -602,6 +645,42 @@ class Axes3D(Axes):
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
 
+    def _autoscale_axis(self, axis, v0, v1, minpos, margin, set_bound, _tight):
+        """
+        Autoscale a single axis.
+
+        Parameters
+        ----------
+        axis : Axis
+            The axis to autoscale.
+        v0, v1 : float
+            Data interval limits.
+        minpos : float
+            Minimum positive value for log-scale handling.
+        margin : float
+            Margin to apply (e.g., self._xmargin).
+        set_bound : callable
+            Function to set the axis bound (e.g., self.set_xbound).
+        _tight : bool
+            Whether to use tight bounds.
+        """
+        locator = axis.get_major_locator()
+        v0, v1 = locator.nonsingular(v0, v1)
+        # Validate limits for the scale (e.g., positive for log scale)
+        v0, v1 = axis._scale.limit_range_for_scale(v0, v1, minpos)
+        if margin > 0:
+            # Apply margin in transformed space to handle non-linear scales
+            transform = axis.get_transform()
+            inverse_trans = transform.inverted()
+            v0t, v1t = transform.transform([v0, v1])
+            delta = (v1t - v0t) * margin
+            if not np.isfinite(delta):
+                delta = 0
+            v0, v1 = inverse_trans.transform([v0t - delta, v1t + delta])
+        if not _tight:
+            v0, v1 = locator.view_limits(v0, v1)
+        set_bound(v0, v1, self._view_margin)
+
     def autoscale_view(self, tight=None,
                        scalex=True, scaley=True, scalez=True):
         """
@@ -626,40 +705,22 @@ class Axes3D(Axes):
             _tight = self._tight = bool(tight)
 
         if scalex and self.get_autoscalex_on():
-            x0, x1 = self.xy_dataLim.intervalx
-            xlocator = self.xaxis.get_major_locator()
-            x0, x1 = xlocator.nonsingular(x0, x1)
-            if self._xmargin > 0:
-                delta = (x1 - x0) * self._xmargin
-                x0 -= delta
-                x1 += delta
-            if not _tight:
-                x0, x1 = xlocator.view_limits(x0, x1)
-            self.set_xbound(x0, x1, self._view_margin)
+            self._autoscale_axis(
+                self.xaxis, *self.xy_dataLim.intervalx,
+                self.xy_dataLim.minposx, self._xmargin,
+                self.set_xbound, _tight)
 
         if scaley and self.get_autoscaley_on():
-            y0, y1 = self.xy_dataLim.intervaly
-            ylocator = self.yaxis.get_major_locator()
-            y0, y1 = ylocator.nonsingular(y0, y1)
-            if self._ymargin > 0:
-                delta = (y1 - y0) * self._ymargin
-                y0 -= delta
-                y1 += delta
-            if not _tight:
-                y0, y1 = ylocator.view_limits(y0, y1)
-            self.set_ybound(y0, y1, self._view_margin)
+            self._autoscale_axis(
+                self.yaxis, *self.xy_dataLim.intervaly,
+                self.xy_dataLim.minposy, self._ymargin,
+                self.set_ybound, _tight)
 
         if scalez and self.get_autoscalez_on():
-            z0, z1 = self.zz_dataLim.intervalx
-            zlocator = self.zaxis.get_major_locator()
-            z0, z1 = zlocator.nonsingular(z0, z1)
-            if self._zmargin > 0:
-                delta = (z1 - z0) * self._zmargin
-                z0 -= delta
-                z1 += delta
-            if not _tight:
-                z0, z1 = zlocator.view_limits(z0, z1)
-            self.set_zbound(z0, z1, self._view_margin)
+            self._autoscale_axis(
+                self.zaxis, *self.zz_dataLim.intervalx,
+                self.zz_dataLim.minposx, self._zmargin,
+                self.set_zbound, _tight)
 
     def get_w_lims(self):
         """Get 3D world limits."""
@@ -786,9 +847,21 @@ class Axes3D(Axes):
                 view_margin = self._view_margin
             else:
                 view_margin = 0
-        delta = (upper - lower) * view_margin
-        lower -= delta
-        upper += delta
+        # Apply margin in transformed space to handle non-linear scales properly
+        if view_margin > 0 and hasattr(axis, '_scale') and axis._scale is not None:
+            transform = axis.get_transform()
+            inverse_trans = transform.inverted()
+            minpos = max(1e-300, abs(lower) if lower > 0 else 1e-5)
+            lower, upper = axis._scale.limit_range_for_scale(lower, upper, minpos)
+            lower_t, upper_t = transform.transform([lower, upper])
+            delta = (upper_t - lower_t) * view_margin
+            if np.isfinite(delta):
+                new_range = [lower_t - delta, upper_t + delta]
+                lower, upper = inverse_trans.transform(new_range)
+        else:
+            delta = (upper - lower) * view_margin
+            lower -= delta
+            upper += delta
         return axis._set_lim(lower, upper, emit=emit, auto=auto)
 
     def set_xlim(self, left=None, right=None, *, emit=True, auto=False,
@@ -1043,25 +1116,89 @@ class Axes3D(Axes):
 
     get_zscale = _axis_method_wrapper("zaxis", "get_scale")
 
-    # Redefine all three methods to overwrite their docstrings.
-    set_xscale = _axis_method_wrapper("xaxis", "_set_axes_scale")
-    set_yscale = _axis_method_wrapper("yaxis", "_set_axes_scale")
-    set_zscale = _axis_method_wrapper("zaxis", "_set_axes_scale")
-    set_xscale.__doc__, set_yscale.__doc__, set_zscale.__doc__ = map(
+    # Custom scale setters that handle limit validation for non-linear scales
+    def _set_axis_scale(self, axis, get_lim, set_lim, value, **kwargs):
         """
-        Set the {}-axis scale.
+        Set scale for an axis and constrain limits to valid range.
 
         Parameters
         ----------
-        value : {{"linear"}}
-            The axis scale type to apply.  3D Axes currently only support
-            linear scales; other scales yield nonsensical results.
+        axis : Axis
+            The axis to set the scale on.
+        get_lim : callable
+            Function to get current axis limits.
+        set_lim : callable
+            Function to set axis limits.
+        value : str
+            The scale name.
+        **kwargs
+            Forwarded to scale constructor.
+        """
+        # For non-linear scales on the z-axis, switch from the [0, 1] +
+        # margin=0 representation to the same xymargin + margin=0.05
+        # representation that x/y use.  Both produce identical linear limits,
+        # but only the xymargin form has valid positive lower bounds for log
+        # etc.  This must happen before _set_axes_scale because that triggers
+        # autoscale_view internally.
+        if (axis is self.zaxis and value != 'linear'
+                and np.array_equal(self.zz_dataLim.get_points(),
+                                   [[0, 0], [1, 1]])):
+            xymargin = 0.05 * 10/11
+            self.zz_dataLim = Bbox([[xymargin, xymargin],
+                                    [1 - xymargin, 1 - xymargin]])
+            self._zmargin = self._xmargin
+        axis._set_axes_scale(value, **kwargs)
+
+    def set_xscale(self, value, **kwargs):
+        """
+        Set the x-axis scale.
+
+        Parameters
+        ----------
+        value : {"linear", "log", "symlog", "logit", ...}
+            The axis scale type to apply. See `~.scale.ScaleBase` for
+            the list of available scales.
 
         **kwargs
-            Keyword arguments are nominally forwarded to the scale class, but
-            none of them is applicable for linear scales.
-        """.format,
-        ["x", "y", "z"])
+            Keyword arguments are forwarded to the scale class.
+            For example, ``base=2`` can be passed when using a log scale.
+        """
+        self._set_axis_scale(self.xaxis, self.get_xlim, self.set_xlim,
+                             value, **kwargs)
+
+    def set_yscale(self, value, **kwargs):
+        """
+        Set the y-axis scale.
+
+        Parameters
+        ----------
+        value : {"linear", "log", "symlog", "logit", ...}
+            The axis scale type to apply. See `~.scale.ScaleBase` for
+            the list of available scales.
+
+        **kwargs
+            Keyword arguments are forwarded to the scale class.
+            For example, ``base=2`` can be passed when using a log scale.
+        """
+        self._set_axis_scale(self.yaxis, self.get_ylim, self.set_ylim,
+                             value, **kwargs)
+
+    def set_zscale(self, value, **kwargs):
+        """
+        Set the z-axis scale.
+
+        Parameters
+        ----------
+        value : {"linear", "log", "symlog", "logit", ...}
+            The axis scale type to apply. See `~.scale.ScaleBase` for
+            the list of available scales.
+
+        **kwargs
+            Keyword arguments are forwarded to the scale class.
+            For example, ``base=2`` can be passed when using a log scale.
+        """
+        self._set_axis_scale(self.zaxis, self.get_zlim, self.set_zlim,
+                             value, **kwargs)
 
     get_zticks = _axis_method_wrapper("zaxis", "get_ticklocs")
     set_zticks = _axis_method_wrapper("zaxis", "set_ticks")
@@ -1209,15 +1346,82 @@ class Axes3D(Axes):
         else:
             return np.roll(arr, (self._vertical_axis - 2))
 
+    def _get_scaled_limits(self):
+        """
+        Get axis limits transformed through their respective scale transforms.
+
+        Returns
+        -------
+        tuple
+            (xmin_scaled, xmax_scaled, ymin_scaled, ymax_scaled,
+             zmin_scaled, zmax_scaled)
+        """
+        xmin, xmax = self.xaxis.get_transform().transform(self.get_xlim3d())
+        ymin, ymax = self.yaxis.get_transform().transform(self.get_ylim3d())
+        zmin, zmax = self.zaxis.get_transform().transform(self.get_zlim3d())
+        return xmin, xmax, ymin, ymax, zmin, zmax
+
+    def _untransform_point(self, x, y, z):
+        """
+        Convert a point from transformed coordinates to data coordinates.
+
+        Parameters
+        ----------
+        x, y, z : float
+            A single point in transformed coordinates.
+
+        Returns
+        -------
+        x_data, y_data, z_data : float
+            The point in data coordinates.
+        """
+        x_data = self.xaxis.get_transform().inverted().transform([x])[0]
+        y_data = self.yaxis.get_transform().inverted().transform([y])[0]
+        z_data = self.zaxis.get_transform().inverted().transform([z])[0]
+        return x_data, y_data, z_data
+
+    def _set_lims_from_transformed(self, xmin_t, xmax_t, ymin_t, ymax_t,
+                                   zmin_t, zmax_t):
+        """
+        Set axis limits from transformed coordinates.
+
+        Converts limits from transformed coordinates back to data coordinates,
+        applies limit_range_for_scale validation, and sets the axis limits.
+
+        Parameters
+        ----------
+        xmin_t, xmax_t, ymin_t, ymax_t, zmin_t, zmax_t : float
+            Axis limits in transformed coordinates.
+        """
+        # Transform back to data space
+        xmin, xmax = self.xaxis.get_transform().inverted().transform([xmin_t, xmax_t])
+        ymin, ymax = self.yaxis.get_transform().inverted().transform([ymin_t, ymax_t])
+        zmin, zmax = self.zaxis.get_transform().inverted().transform([zmin_t, zmax_t])
+
+        # Validate limits for scale constraints (e.g., positive for log scale)
+        xmin, xmax = self.xaxis._scale.limit_range_for_scale(
+            xmin, xmax, self.xy_dataLim.minposx)
+        ymin, ymax = self.yaxis._scale.limit_range_for_scale(
+            ymin, ymax, self.xy_dataLim.minposy)
+        zmin, zmax = self.zaxis._scale.limit_range_for_scale(
+            zmin, zmax, self.zz_dataLim.minposx)
+
+        # Set the new axis limits
+        self.set_xlim3d(xmin, xmax, auto=None)
+        self.set_ylim3d(ymin, ymax, auto=None)
+        self.set_zlim3d(zmin, zmax, auto=None)
+
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
 
         # Transform to uniform world coordinates 0-1, 0-1, 0-1
         box_aspect = self._roll_to_vertical(self._box_aspect)
+        # For non-linear scales, we use the scaled limits so the world
+        # transformation maps transformed coordinates (not data coordinates)
+        # to the unit cube
+        scaled_limits = self._get_scaled_limits()
         worldM = proj3d.world_transformation(
-            *self.get_xlim3d(),
-            *self.get_ylim3d(),
-            *self.get_zlim3d(),
+            *scaled_limits,
             pb_aspect=box_aspect,
         )
 
@@ -1452,7 +1656,7 @@ class Axes3D(Axes):
 
     def _get_camera_loc(self):
         """
-        Returns the current camera location in data coordinates.
+        Returns the current camera location in transformed coordinates.
         """
         cx, cy, cz, dx, dy, dz = self._get_w_centers_ranges()
         c = np.array([cx, cy, cz])
@@ -1476,17 +1680,13 @@ class Axes3D(Axes):
         else:  # perspective projection
             zv = -1 / self._focal_length
 
-        # Convert point on view plane to data coordinates
         p1 = np.array(proj3d.inv_transform(xv, yv, zv, self.invM)).ravel()
 
         # Get the vector from the camera to the point on the view plane
         vec = self._get_camera_loc() - p1
 
         # Get the pane locations for each of the axes
-        pane_locs = []
-        for axis in self._axis_map.values():
-            xys, loc = axis.active_pane()
-            pane_locs.append(loc)
+        pane_locs_data = [axis.active_pane()[1] for axis in self._axis_map.values()]
 
         # Find the distance to the nearest pane by projecting the view vector
         scales = np.zeros(3)
@@ -1494,12 +1694,15 @@ class Axes3D(Axes):
             if vec[i] == 0:
                 scales[i] = np.inf
             else:
-                scales[i] = (p1[i] - pane_locs[i]) / vec[i]
+                scales[i] = (pane_locs_data[i] - p1[i]) / vec[i]
         pane_idx = np.argmin(abs(scales))
         scale = scales[pane_idx]
 
         # Calculate the point on the closest pane
-        p2 = p1 - scale*vec
+        p2 = p1 + scale * vec
+
+        # Convert from transformed to data coordinates
+        p2 = np.array(self._untransform_point(p2[0], p2[1], p2[2]))
         return p2, pane_idx
 
     def _arcball(self, x: float, y: float) -> np.ndarray:
@@ -1654,16 +1857,17 @@ class Axes3D(Axes):
         R = -R / self._box_aspect * self._dist
         duvw_projected = R.T @ np.array([du, dv, dw])
 
-        # Calculate pan distance
-        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+        # Calculate pan distance in transformed coordinates for non-linear scales
+        minx, maxx, miny, maxy, minz, maxz = self._get_scaled_limits()
         dx = (maxx - minx) * duvw_projected[0]
         dy = (maxy - miny) * duvw_projected[1]
         dz = (maxz - minz) * duvw_projected[2]
 
-        # Set the new axis limits
-        self.set_xlim3d(minx + dx, maxx + dx, auto=None)
-        self.set_ylim3d(miny + dy, maxy + dy, auto=None)
-        self.set_zlim3d(minz + dz, maxz + dz, auto=None)
+        # Compute new limits in transformed coordinates
+        self._set_lims_from_transformed(
+            minx + dx, maxx + dx,
+            miny + dy, maxy + dy,
+            minz + dz, maxz + dz)
 
     def _calc_view_axes(self, eye):
         """
@@ -1779,6 +1983,9 @@ class Axes3D(Axes):
         limits by scale factors. A scale factor > 1 zooms out and a scale
         factor < 1 zooms in.
 
+        For non-linear scales, the scaling happens in transformed coordinates to ensure
+        uniform zoom behavior.
+
         Parameters
         ----------
         scale_x : float
@@ -1788,23 +1995,29 @@ class Axes3D(Axes):
         scale_z : float
             Scale factor for the z data axis.
         """
-        # Get the axis centers and ranges
+        # Get the axis centers and ranges in transformed coordinates
         cx, cy, cz, dx, dy, dz = self._get_w_centers_ranges()
 
-        # Set the scaled axis limits
-        self.set_xlim3d(cx - dx*scale_x/2, cx + dx*scale_x/2, auto=None)
-        self.set_ylim3d(cy - dy*scale_y/2, cy + dy*scale_y/2, auto=None)
-        self.set_zlim3d(cz - dz*scale_z/2, cz + dz*scale_z/2, auto=None)
+        # Compute new limits in transformed coordinates and set
+        self._set_lims_from_transformed(
+            cx - dx*scale_x/2, cx + dx*scale_x/2,
+            cy - dy*scale_y/2, cy + dy*scale_y/2,
+            cz - dz*scale_z/2, cz + dz*scale_z/2)
 
     def _get_w_centers_ranges(self):
-        """Get 3D world centers and axis ranges."""
-        # Calculate center of axis limits
-        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+        """
+        Get 3D world centers and axis ranges in transformed coordinates.
+
+        For non-linear scales (log, symlog, etc.), centers and ranges are
+        computed in transformed coordinates to ensure uniform zoom/pan behavior.
+        """
+        # Get limits in transformed coordinates for non-linear scale zoom/pan
+        minx, maxx, miny, maxy, minz, maxz = self._get_scaled_limits()
         cx = (maxx + minx)/2
         cy = (maxy + miny)/2
         cz = (maxz + minz)/2
 
-        # Calculate range of axis limits
+        # Calculate range of axis limits in transformed coordinates
         dx = (maxx - minx)
         dy = (maxy - miny)
         dz = (maxz - minz)
