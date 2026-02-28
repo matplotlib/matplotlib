@@ -22,6 +22,9 @@ from matplotlib.backend_tools import ToolToggleBase
 from matplotlib.testing import subprocess_run_helper as _run_helper, is_ci_environment
 
 
+pytestmark = pytest.mark.subprocess
+
+
 class _WaitForStringPopen(subprocess.Popen):
     """
     A Popen that passes flags that allow triggering KeyboardInterrupt.

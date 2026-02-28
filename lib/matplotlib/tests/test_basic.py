@@ -5,6 +5,8 @@ import textwrap
 
 from matplotlib.testing import subprocess_run_for_testing
 
+import pytest
+
 
 def test_simple():
     assert 1 + 1 == 2
@@ -28,6 +30,7 @@ def test_override_builtins():
     assert overridden <= ok_to_override
 
 
+@pytest.mark.subprocess
 def test_lazy_imports():
     source = textwrap.dedent("""
     import sys
