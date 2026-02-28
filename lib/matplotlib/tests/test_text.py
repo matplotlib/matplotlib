@@ -26,7 +26,7 @@ from matplotlib.text import Text, Annotation, OffsetFrom
 pyparsing_version = parse_version(pyparsing.__version__)
 
 
-@image_comparison(['font_styles'])
+@image_comparison(['font_styles'], style='_classic_test')
 def test_font_styles():
 
     def find_matplotlib_font(**kw):
@@ -115,7 +115,7 @@ def test_font_styles():
     ax.set_yticks([])
 
 
-@image_comparison(['multiline'])
+@image_comparison(['multiline'], style='_classic_test')
 def test_multiline():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -212,7 +212,7 @@ def test_antialiasing():
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['text_contains.png'], tol=0.05)
+@image_comparison(['text_contains.png'], style='_classic_test', tol=0.05)
 def test_contains():
     fig = plt.figure()
     ax = plt.axes()
@@ -270,7 +270,7 @@ def test_annotate_errors(err, xycoords, match):
         fig.canvas.draw()
 
 
-@image_comparison(['titles'])
+@image_comparison(['titles'], style='_classic_test')
 def test_titles():
     # left and right side titles
     plt.figure()
@@ -306,7 +306,7 @@ def test_alignment():
     ax.set_yticks([])
 
 
-@image_comparison(['axes_titles.png'])
+@image_comparison(['axes_titles.png'], style='_classic_test')
 def test_axes_titles():
     # Related to issue #3327
     plt.figure()
@@ -432,14 +432,14 @@ def test_null_rotation_with_rotation_mode(ha, va):
                         t1.get_window_extent(fig.canvas.renderer).get_points())
 
 
-@image_comparison(['text_bboxclip'])
+@image_comparison(['text_bboxclip'], style='_classic_test')
 def test_bbox_clipping():
     plt.text(0.9, 0.2, 'Is bbox clipped?', backgroundcolor='r', clip_on=True)
     t = plt.text(0.9, 0.5, 'Is fancy bbox clipped?', clip_on=True)
     t.set_bbox({"boxstyle": "round, pad=0.1"})
 
 
-@image_comparison(['annotation_negative_ax_coords.png'])
+@image_comparison(['annotation_negative_ax_coords.png'], style='_classic_test')
 def test_annotation_negative_ax_coords():
     fig, ax = plt.subplots()
 
@@ -467,7 +467,7 @@ def test_annotation_negative_ax_coords():
                 va='top')
 
 
-@image_comparison(['annotation_negative_fig_coords.png'])
+@image_comparison(['annotation_negative_fig_coords.png'], style='_classic_test')
 def test_annotation_negative_fig_coords():
     fig, ax = plt.subplots()
 
@@ -518,7 +518,7 @@ def test_text_stale():
     assert not fig.stale
 
 
-@image_comparison(['agg_text_clip.png'])
+@image_comparison(['agg_text_clip.png'], style='_classic_test')
 def test_agg_text_clip():
     np.random.seed(1)
     fig, (ax1, ax2) = plt.subplots(2)
@@ -536,7 +536,7 @@ def test_text_size_binding():
     assert sz1 == fp.get_size_in_points()
 
 
-@image_comparison(['font_scaling.pdf'])
+@image_comparison(['font_scaling.pdf'], style='_classic_test')
 def test_font_scaling():
     mpl.rcParams['pdf.fonttype'] = 42
     fig, ax = plt.subplots(figsize=(6.4, 12.4))
@@ -632,7 +632,7 @@ def test_single_artist_usenotex(fmt):
     fig.savefig(io.BytesIO(), format=fmt)
 
 
-@image_comparison(['text_as_path_opacity.svg'])
+@image_comparison(['text_as_path_opacity.svg'], style='_classic_test')
 def test_text_as_path_opacity():
     plt.figure()
     plt.gca().set_axis_off()
@@ -641,7 +641,7 @@ def test_text_as_path_opacity():
     plt.text(0.25, 0.75, 'x', alpha=0.5, color=(0, 0, 0, 1))
 
 
-@image_comparison(['text_as_text_opacity.svg'])
+@image_comparison(['text_as_text_opacity.svg'], style='_classic_test')
 def test_text_as_text_opacity():
     mpl.rcParams['svg.fonttype'] = 'none'
     plt.figure()
@@ -1136,7 +1136,7 @@ def test_empty_annotation_get_window_extent():
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['basictext_wrap.png'], tol=0.3)
+@image_comparison(['basictext_wrap.png'], style='_classic_test', tol=0.3)
 def test_basic_wrap():
     fig = plt.figure()
     plt.axis([0, 10, 0, 10])
@@ -1153,7 +1153,7 @@ def test_basic_wrap():
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['fonttext_wrap.png'], tol=0.3)
+@image_comparison(['fonttext_wrap.png'], style='_classic_test', tol=0.3)
 def test_font_wrap():
     fig = plt.figure()
     plt.axis([0, 10, 0, 10])

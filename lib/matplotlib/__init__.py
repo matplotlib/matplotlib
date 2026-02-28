@@ -1348,6 +1348,11 @@ def _init_tests():
             ft2font.__freetype_version__,
             "" if ft2font.__freetype_build_type__ == 'local' else "not ")
 
+    # Generate a shortcut for classic testing style.
+    from matplotlib.style import _base_library, library
+    _base_library['_classic_test'] = library['_classic_test'] = RcParams(
+            _base_library['classic'] | _base_library['_classic_test_patch'])
+
 
 def _replacer(data, value):
     """

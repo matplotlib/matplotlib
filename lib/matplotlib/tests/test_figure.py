@@ -27,6 +27,7 @@ import matplotlib.dates as mdates
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
+                  style='_classic_test',
                   tol=0.1 if platform.machine() == 'x86_64' else 0.1)
 def test_align_labels():
     fig = plt.figure(layout='tight')
@@ -209,7 +210,7 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(['figure_today.png'],
+@image_comparison(['figure_today.png'], style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.015)
 def test_figure():
     # named figure support
@@ -225,7 +226,7 @@ def test_figure():
     plt.close('tomorrow')
 
 
-@image_comparison(['figure_legend.png'])
+@image_comparison(['figure_legend.png'], style='_classic_test')
 def test_figure_legend():
     fig, axs = plt.subplots(2)
     axs[0].plot([0, 1], [1, 0], label='x', color='g')
@@ -323,7 +324,7 @@ def test_add_subplot_invalid():
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['figure_suptitle.png'], tol=0.02)
+@image_comparison(['figure_suptitle.png'], style='_classic_test', tol=0.02)
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
@@ -391,8 +392,8 @@ def test_remove_suptitle_supxlabel_supylabel():
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
                   extensions=['png', 'svg'],
-                  savefig_kwarg={'facecolor': (0, 1, 0.4),
-                                 'edgecolor': 'none'})
+                  savefig_kwarg={'facecolor': (0, 1, 0.4), 'edgecolor': 'none'},
+                  style='_classic_test')
 def test_alpha():
     # We want an image which has a background color and an alpha of 0.4.
     fig = plt.figure(figsize=[2, 1])

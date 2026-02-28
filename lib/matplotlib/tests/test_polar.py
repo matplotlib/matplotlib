@@ -72,7 +72,7 @@ def test_polar_coord_annotations():
     ax.set_ylim(-20, 20)
 
 
-@image_comparison(['polar_alignment.png'])
+@image_comparison(['polar_alignment.png'], style='_classic_test')
 def test_polar_alignment():
     # Test changing the vertical/horizontal alignment of a polar graph.
     angles = np.arange(0, 360, 90)

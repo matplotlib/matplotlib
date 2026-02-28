@@ -11,7 +11,7 @@ from PIL import Image
 import base64
 
 
-@image_comparison(["bivariate_cmap_shapes.png"])
+@image_comparison(["bivariate_cmap_shapes.png"], style='_classic_test')
 def test_bivariate_cmap_shapes():
     x_0 = np.repeat(np.linspace(-0.1, 1.1, 10, dtype='float32')[None, :], 10, axis=0)
     x_1 = x_0.T
@@ -63,7 +63,7 @@ def test_multivar_creation():
         cmap = mpl.colors.MultivarColormap((blues), 'sRGB_sub')
 
 
-@image_comparison(["multivar_alpha_mixing.png"])
+@image_comparison(["multivar_alpha_mixing.png"], style='_classic_test')
 def test_multivar_alpha_mixing():
     # test creation of a custom colormap using 'rainbow'
     # and a colormap that goes from alpha = 1 to alpha = 0

@@ -66,7 +66,7 @@ def test_mathdefault():
     fig.canvas.draw()
 
 
-@image_comparison(['eqnarray.png'])
+@image_comparison(['eqnarray.png'], style='_classic_test')
 def test_multiline_eqnarray():
     text = (
         r'\begin{eqnarray*}'
