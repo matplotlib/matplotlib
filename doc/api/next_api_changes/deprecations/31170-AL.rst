@@ -1,0 +1,6 @@
+``kw``, ``fontproperties``, ``labelcolor``, and ``verts`` attributes of ``QuiverKey``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes are deprecated (note that ``fontproperties``, ``labelcolor``,
+or ``verts`` after the first draw had no effect previously).  Directly
+access the relevant attributes on the sub-artists ``QuiverKey.vector`` and
+``QuiverKey.text``, instead.
