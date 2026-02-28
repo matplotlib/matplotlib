@@ -1553,27 +1553,46 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
 
     # Zip x and quantiles
     for (x, q) in zip(X, quantiles):
-        # Dictionary of results for this distribution
+        x = np.asarray(x)
+        x_valid = x[~np.isnan(x)]
+
         stats = {}
 
-        # Calculate basic stats for the distribution
-        min_val = np.min(x)
-        max_val = np.max(x)
-        quantile_val = np.percentile(x, 100 * q)
+        # All-NaN input: keep dataset but make it non-drawable
+        if x_valid.size == 0:
+            stats["coords"] = np.array([0.0])
+            stats["vals"] = np.array([0.0])
+            stats["mean"] = np.nan
+            stats["median"] = np.nan
+            stats["min"] = np.nan
+            stats["max"] = np.nan
+            stats["quantiles"] = np.full(len(q), np.nan)
+            vpstats.append(stats)
+            continue
 
-        # Evaluate the kernel density estimate
-        coords = np.linspace(min_val, max_val, points)
-        stats['vals'] = method(x, coords)
-        stats['coords'] = coords
+        # Normal case
+        min_val = np.min(x_valid)
+        max_val = np.max(x_valid)
+        quantile_val = (
+            np.percentile(x_valid, 100 * q)
+            if len(q) > 0 else np.array([])
+        )
+        coords = (
+            np.linspace(min_val, max_val, points)
+            if x_valid.size > 1 else np.array([min_val])
+        )
+        stats["vals"] = (
+            method(x_valid, coords)
+            if x_valid.size > 1 else np.array([1.0])
+        )
+        stats["coords"] = coords
 
-        # Store additional statistics for this distribution
-        stats['mean'] = np.mean(x)
-        stats['median'] = np.median(x)
-        stats['min'] = min_val
-        stats['max'] = max_val
-        stats['quantiles'] = np.atleast_1d(quantile_val)
+        stats["mean"] = np.mean(x_valid)
+        stats["median"] = np.median(x_valid)
+        stats["min"] = min_val
+        stats["max"] = max_val
+        stats["quantiles"] = np.atleast_1d(quantile_val)
 
-        # Append to output
         vpstats.append(stats)
 
     return vpstats
