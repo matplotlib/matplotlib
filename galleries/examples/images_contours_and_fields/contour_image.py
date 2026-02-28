@@ -65,8 +65,7 @@ cset2.set_linestyle('solid')
 
 cset3 = axs[0].contour(X, Y, Z, (0,), colors='g', linewidths=2)
 axs[0].set_title('Filled contours')
-fig.colorbar(cset1, ax=axs[0])
-
+axs[0].colorbar(cset1)
 
 axs[1].imshow(Z, extent=extent, cmap=cmap, norm=norm)
 axs[1].contour(Z, levels, colors='k', origin='upper', extent=extent)
@@ -82,13 +81,12 @@ axs[2].set_title("Image, origin 'lower'")
 # This is intentional. The Z values are defined at the center of each
 # image pixel (each color block on the following subplot), so the
 # domain that is contoured does not extend beyond these pixel centers.
-im = axs[3].imshow(Z, interpolation='nearest', extent=extent,
-                   cmap=cmap, norm=norm)
+im = axs[3].imshow(Z, interpolation='nearest', extent=extent, cmap=cmap, norm=norm)
 axs[3].contour(Z, levels, colors='k', origin='image', extent=extent)
 ylim = axs[3].get_ylim()
 axs[3].set_ylim(ylim[::-1])
 axs[3].set_title("Origin from rc, reversed y-axis")
-fig.colorbar(im, ax=axs[3])
+axs[3].colorbar(im)
 
 fig.tight_layout()
 plt.show()

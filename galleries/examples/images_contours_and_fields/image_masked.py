@@ -42,29 +42,26 @@ Zm = np.ma.masked_where(Z > 1.2, Z)
 fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 5.4))
 
 # plot using 'continuous' colormap
-im = ax1.imshow(Zm, interpolation='bilinear',
-                cmap=palette,
-                norm=colors.Normalize(vmin=-1.0, vmax=1.0),
-                aspect='auto',
-                origin='lower',
-                extent=[x0, x1, y0, y1])
+ax1.imshow(Zm, interpolation='bilinear',
+           cmap=palette,
+           norm=colors.Normalize(vmin=-1.0, vmax=1.0),
+           aspect='auto',
+           origin='lower',
+           extent=[x0, x1, y0, y1])
+ax1.colorbar(extend='both', shrink=0.9, label='uniform')
 ax1.set_title('Green=low, Red=high, Blue=masked')
-cbar = fig.colorbar(im, extend='both', shrink=0.9, ax=ax1)
-cbar.set_label('uniform')
 ax1.tick_params(axis='x', labelbottom=False)
 
 # Plot using a small number of colors, with unevenly spaced boundaries.
-im = ax2.imshow(Zm, interpolation='nearest',
-                cmap=palette,
-                norm=colors.BoundaryNorm([-1, -0.5, -0.2, 0, 0.2, 0.5, 1],
-                                         ncolors=palette.N),
-                aspect='auto',
-                origin='lower',
-                extent=[x0, x1, y0, y1])
+ax2.imshow(Zm, interpolation='nearest',
+           cmap=palette,
+           norm=colors.BoundaryNorm([-1, -0.5, -0.2, 0, 0.2, 0.5, 1],
+                                    ncolors=palette.N),
+           aspect='auto',
+           origin='lower',
+           extent=[x0, x1, y0, y1])
+ax2.colorbar(extend='both', spacing='proportional', shrink=0.9, label='proportional')
 ax2.set_title('With BoundaryNorm')
-cbar = fig.colorbar(im, extend='both', spacing='proportional',
-                    shrink=0.9, ax=ax2)
-cbar.set_label('proportional')
 
 fig.suptitle('imshow, with out-of-range and masked data')
 plt.show()

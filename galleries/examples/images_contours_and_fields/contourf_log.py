@@ -36,16 +36,16 @@ z = ma.masked_where(z <= 0, z)
 # Automatic selection of levels works; setting the
 # log locator tells contourf to use a log scale:
 fig, ax = plt.subplots()
-cs = ax.contourf(X, Y, z, locator=ticker.LogLocator(), cmap="PuBu_r")
+ax.contourf(X, Y, z, locator=ticker.LogLocator(), cmap="PuBu_r")
 
 # Alternatively, you can manually set the levels
 # and the norm:
 # lev_exp = np.arange(np.floor(np.log10(z.min())-1),
 #                    np.ceil(np.log10(z.max())+1))
 # levs = np.power(10, lev_exp)
-# cs = ax.contourf(X, Y, z, levs, norm=colors.LogNorm())
+# ax.contourf(X, Y, z, levs, norm=colors.LogNorm())
 
-cbar = fig.colorbar(cs)
+ax.colorbar()
 
 plt.show()
 

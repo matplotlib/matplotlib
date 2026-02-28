@@ -9404,6 +9404,27 @@ def test_automatic_legend():
     assert ax.get_yticklabels()[0].get_text() == 'b'
 
 
+def test_colorbar():
+    """Test that Axes.colorbar() without arguments uses the only mappable."""
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
+
+    im = ax1.imshow([[0, 1], [2, 3]])
+    cb = ax1.colorbar()
+    assert cb.mappable is im
+
+    path_collection = ax2.scatter([0, 1], [0, 1], c=[0, 1])
+    cb2 = ax2.colorbar()
+    assert cb2.mappable is path_collection
+
+    # in case of multiple mappables: bare colorbar() fails, but passing a mappable works
+    im = ax3.imshow([[0, 1], [2, 3]])
+    ax3.scatter([0, 1], [0, 1], c=[0, 1])
+    with pytest.raises(RuntimeError, match="requires exactly one colormapped Artist"):
+        ax3.colorbar()
+    cb3 = ax3.colorbar(im)
+    assert cb3.mappable is im
+
+
 def test_plot_errors():
     with pytest.raises(TypeError, match=r"plot\(\) got an unexpected keyword"):
         plt.plot([1, 2, 3], x=1)
