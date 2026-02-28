@@ -82,7 +82,7 @@ def _auto_adjust_subplotpars(
                 bb += [martist._get_tightbbox_for_layout_only(ax, renderer)]
 
         tight_bbox_raw = Bbox.union(bb)
-        tight_bbox = fig.transFigure.inverted().transform_bbox(tight_bbox_raw)
+        tight_bbox = fig.transSubfigure.inverted().transform_bbox(tight_bbox_raw)
 
         hspaces[rowspan, colspan.start] += ax_bbox.xmin - tight_bbox.xmin  # l
         hspaces[rowspan, colspan.stop] += tight_bbox.xmax - ax_bbox.xmax  # r
@@ -97,7 +97,7 @@ def _auto_adjust_subplotpars(
         margin_left = max(hspaces[:, 0].max(), 0) + pad_inch/fig_width_inch
         suplabel = fig._supylabel
         if suplabel and suplabel.get_in_layout():
-            rel_width = fig.transFigure.inverted().transform_bbox(
+            rel_width = fig.transSubfigure.inverted().transform_bbox(
                 suplabel.get_window_extent(renderer)).width
             margin_left += rel_width + pad_inch/fig_width_inch
     if not margin_right:
@@ -105,14 +105,14 @@ def _auto_adjust_subplotpars(
     if not margin_top:
         margin_top = max(vspaces[0, :].max(), 0) + pad_inch/fig_height_inch
         if fig._suptitle and fig._suptitle.get_in_layout():
-            rel_height = fig.transFigure.inverted().transform_bbox(
+            rel_height = fig.transSubfigure.inverted().transform_bbox(
                 fig._suptitle.get_window_extent(renderer)).height
             margin_top += rel_height + pad_inch/fig_height_inch
     if not margin_bottom:
         margin_bottom = max(vspaces[-1, :].max(), 0) + pad_inch/fig_height_inch
         suplabel = fig._supxlabel
         if suplabel and suplabel.get_in_layout():
-            rel_height = fig.transFigure.inverted().transform_bbox(
+            rel_height = fig.transSubfigure.inverted().transform_bbox(
                 suplabel.get_window_extent(renderer)).height
             margin_bottom += rel_height + pad_inch/fig_height_inch
 
