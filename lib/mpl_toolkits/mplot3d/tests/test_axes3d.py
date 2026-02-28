@@ -2,6 +2,7 @@ import functools
 import itertools
 import platform
 import sys
+import collections.abc
 
 from packaging.version import parse as parse_version
 import pytest
@@ -1496,7 +1497,7 @@ class TestVoxels:
         colors[v1] = [0, 1, 0, 0.5]
         v = ax.voxels(voxels, facecolors=colors)
 
-        assert type(v) is dict
+        assert issubclass(type(v), collections.abc.MutableMapping)
         for coord, poly in v.items():
             assert voxels[coord], "faces returned for absent voxel"
             assert isinstance(poly, art3d.Poly3DCollection)

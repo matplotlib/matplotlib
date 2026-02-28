@@ -514,7 +514,51 @@ class _ColorizerInterface:
         return g_sig_digits
 
 
-class _ScalarMappable(_ColorizerInterface):
+class _ColorbarMappable(_ColorizerInterface):
+
+    def __init__(self, colorizer, **kwargs):
+        """
+        Base class for objects that can connect to a colorbar.
+
+        All classes that can act as a mappable for `fig.colorbar(mappable)`
+        will subclass this class.
+        """
+        super().__init__(**kwargs)
+        self._colorizer = colorizer
+        self.colorbar = None
+        self._id_colorizer = self._colorizer.callbacks.connect('changed', self.changed)
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+        self._axes = None
+
+    @property
+    def axes(self):
+        return self._axes
+
+    @axes.setter
+    def axes(self, axes):
+        self._axes = axes
+
+    @property
+    def colorizer(self):
+        return self._colorizer
+
+    @colorizer.setter
+    def colorizer(self, cl):
+        _api.check_isinstance(Colorizer, colorizer=cl)
+        self._colorizer.callbacks.disconnect(self._id_colorizer)
+        self._colorizer = cl
+        self._id_colorizer = cl.callbacks.connect('changed', self.changed)
+
+    def changed(self):
+        """
+        Call this whenever the mappable is changed to notify all the
+        callbackSM listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
+        self.stale = True
+
+
+class _ScalarMappable(_ColorbarMappable):
     """
     A mixin class to map one or multiple sets of scalar data to RGBA.
 
@@ -550,13 +594,9 @@ class _ScalarMappable(_ColorizerInterface):
         cmap : str or `~matplotlib.colors.Colormap`
             The colormap used to map normalized data values to RGBA colors.
         """
-        super().__init__(**kwargs)
         self._A = None
-        self._colorizer = self._get_colorizer(colorizer=colorizer, norm=norm, cmap=cmap)
-
-        self.colorbar = None
-        self._id_colorizer = self._colorizer.callbacks.connect('changed', self.changed)
-        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+        colorizer = self._get_colorizer(colorizer=colorizer, norm=norm, cmap=cmap)
+        super().__init__(colorizer, **kwargs)
 
     def set_array(self, A):
         """
@@ -599,14 +639,6 @@ class _ScalarMappable(_ColorizerInterface):
         the dimensionality and shape of the array.
         """
         return self._A
-
-    def changed(self):
-        """
-        Call this whenever the mappable is changed to notify all the
-        callbackSM listeners to the 'changed' signal.
-        """
-        self.callbacks.process('changed', self)
-        self.stale = True
 
     @staticmethod
     def _check_exclusionary_keywords(colorizer, **kwargs):
@@ -709,17 +741,6 @@ class ColorizingArtist(_ScalarMappable, artist.Artist):
         """
         _api.check_isinstance(Colorizer, colorizer=colorizer)
         super().__init__(colorizer=colorizer, **kwargs)
-
-    @property
-    def colorizer(self):
-        return self._colorizer
-
-    @colorizer.setter
-    def colorizer(self, cl):
-        _api.check_isinstance(Colorizer, colorizer=cl)
-        self._colorizer.callbacks.disconnect(self._id_colorizer)
-        self._colorizer = cl
-        self._id_colorizer = cl.callbacks.connect('changed', self.changed)
 
     def _set_colorizer_check_keywords(self, colorizer, **kwargs):
         """
