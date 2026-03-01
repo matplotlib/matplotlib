@@ -282,8 +282,7 @@ def _validate_pathlike(s):
 
 def validate_fonttype(s):
     """
-    Confirm that this is a Postscript or PDF font type that we know how to
-    convert to.
+    Confirm that this is a PDF font type that we know how to convert to.
     """
     fonttypes = {'type3':    3,
                  'truetype': 42}
@@ -293,12 +292,36 @@ def validate_fonttype(s):
         try:
             return fonttypes[s.lower()]
         except KeyError as e:
-            raise ValueError('Supported Postscript/PDF font types are %s'
+            raise ValueError('Supported font types are %s'
                              % list(fonttypes)) from e
     else:
         if fonttype not in fonttypes.values():
             raise ValueError(
-                'Supported Postscript/PDF font types are %s' %
+                'Supported font types are %s' %
+                list(fonttypes.values()))
+        return fonttype
+
+
+def validate_ps_fonttype(s):
+    """
+    Confirm that this is a Postscript font type that we know how to
+    convert to.
+    """
+    fonttypes = {'type3':    3,
+                 'truetype': 42,
+                 'path':     0}
+    try:
+        fonttype = validate_int(s)
+    except ValueError:
+        try:
+            return fonttypes[s.lower()]
+        except KeyError as e:
+            raise ValueError('Supported Postscript font types are %s'
+                             % list(fonttypes)) from e
+    else:
+        if fonttype not in fonttypes.values():
+            raise ValueError(
+                'Supported Postscript font types are %s' %
                 list(fonttypes.values()))
         return fonttype
 
@@ -1361,7 +1384,7 @@ _validators = {
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,
     "ps.distiller.res":   validate_int,  # dpi
-    "ps.fonttype":        validate_fonttype,  # 3 (Type3) or 42 (Truetype)
+    "ps.fonttype":        validate_ps_fonttype,  # 0 (path), 3 (Type3) or 42 (TrueType)
     "pdf.compression":    validate_int,  # 0-9 compression level; 0 to disable
     "pdf.inheritcolor":   validate_bool,  # skip color setting commands
     # use only the 14 PDF core fonts embedded in every PDF viewing application
@@ -3096,8 +3119,9 @@ _DEFINITION = [
     _Param(
         "ps.fonttype",
         default=3,
-        validator=validate_fonttype,
-        description="Output Type 3 (Type3) or Type 42 (TrueType)"
+        validator=validate_ps_fonttype,
+        description="Output Type 3 (Type3), Type 42 (TrueType),"
+                    " or Type 0 / 'path' (converts text to path outlines)"
     ),
     _Subsection("PDF backend parameters"),
     _Param(
