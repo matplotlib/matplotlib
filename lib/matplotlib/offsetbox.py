@@ -799,7 +799,7 @@ class TextArea(OffsetBox):
             ismath="TeX" if self._text.get_usetex() else False,
             dpi=self.get_figure(root=True).dpi)
 
-        bbox, info = self._text._get_layout(renderer)
+        bbox, info, _ = self._text._get_layout(renderer)
         _last_line, (_last_width, _last_ascent, last_descent), _last_xy = info[-1]
         w, h = bbox.size
 

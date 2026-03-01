@@ -6,13 +6,14 @@ from collections.abc import Sequence
 import functools
 import logging
 import math
-from numbers import Real
+import itertools
 import weakref
-
 import numpy as np
+from numbers import Real
+from functools import lru_cache
 
 import matplotlib as mpl
-from . import _api, artist, cbook, _docstring
+from . import _api, artist, cbook, _docstring, colors as mcolors
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -24,42 +25,23 @@ from .transforms import (
 _log = logging.getLogger(__name__)
 
 
-def _get_textbox(text, renderer):
+@lru_cache(maxsize=128)
+def _rotate(theta):
     """
-    Calculate the bounding box of the text.
-
-    The bbox position takes text rotation into account, but the width and
-    height are those of the unrotated box (unlike `.Text.get_window_extent`).
+    Return an Affine2D object that rotates by the given angle in radians.
     """
-    # TODO : This function may move into the Text class as a method. As a
-    # matter of fact, the information from the _get_textbox function
-    # should be available during the Text._get_layout() call, which is
-    # called within the _get_textbox. So, it would be better to move this
-    # function as a method with some refactoring of _get_layout method.
+    return Affine2D().rotate(theta)
 
-    projected_xys = []
 
-    theta = np.deg2rad(text.get_rotation())
-    tr = Affine2D().rotate(-theta)
-
-    _, parts = text._get_layout(renderer)
-
-    for t, (w, a, d), xy in parts:
-        xt, yt = tr.transform(xy)
-        projected_xys.extend([
-            (xt, yt + a),
-            (xt, yt - d),
-            (xt + w, yt + a),
-            (xt + w, yt - d),
-        ])
-    projected_xs, projected_ys = zip(*projected_xys)
-
-    xt_box, yt_box = min(projected_xs), min(projected_ys)
-    w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
-
-    x_box, y_box = Affine2D().rotate(theta).transform((xt_box, yt_box))
-
-    return x_box, y_box, w_box, h_box
+def _rotate_point(angle, x, y):
+    """
+    Rotate point (x, y) by rotation angle in degrees
+    """
+    if angle == 0:
+        return (x, y)
+    angle_rad = math.radians(angle)
+    cos, sin = math.cos(angle_rad), math.sin(angle_rad)
+    return (cos * x - sin * y, sin * x + cos * y)
 
 
 def _get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
@@ -355,10 +337,10 @@ class Text(Artist):
         return (np.abs(size_accum - std_x)).argmin()
 
     def get_rotation(self):
-        """Return the text angle in degrees between 0 and 360."""
+        """Return the text angle in degrees in the range [0, 360)."""
         if self.get_transform_rotates_text():
             return self.get_transform().transform_angles(
-                [self._rotation], [self.get_unitless_position()]).item(0)
+                [self._rotation], [self.get_unitless_position()]).item(0) % 360
         else:
             return self._rotation
 
@@ -435,8 +417,11 @@ class Text(Artist):
         """
         Return
 
-        - the (rotated) text bbox, and
-        - a list of ``(line, (width, ascent, descent), xy)`` tuples for each line.
+        - the rotated, axis-aligned text bbox;
+        - a list of ``(line, (width, ascent, descent), xy)`` tuples for each line;
+        - a ``(xy, (width, height))` pair of the lower-left corner and size of the
+          rotated, *text-aligned* text box (i.e. describing how to draw the
+          text-surrounding box).
         """
         thisx, thisy = 0.0, 0.0
         lines = self._get_wrapped_text().split("\n")  # Ensures lines is not empty.
@@ -495,9 +480,7 @@ class Text(Artist):
         xmax = width
         ymax = 0
         ymin = ys[-1] - descent  # baseline of last line minus its descent
-
-        # get the rotation matrix
-        M = Affine2D().rotate_deg(self.get_rotation())
+        height = ymax - ymin
 
         # now offset the individual text lines within the box
         malign = self._get_multialignment()
@@ -511,18 +494,19 @@ class Text(Artist):
                              for x, y, w in zip(xs, ys, ws)]
 
         # the corners of the unrotated bounding box
-        corners_horiz = np.array(
-            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
-
+        corners_horiz = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
+        size_horiz = (xmax - xmin, ymax - ymin)
         # now rotate the bbox
-        corners_rotated = M.transform(corners_horiz)
+        angle = self.get_rotation()
+        rotate = functools.partial(_rotate_point, angle)
+        corners_rotated = [rotate(x, y) for x, y in corners_horiz]
+
         # compute the bounds of the rotated box
-        xmin = corners_rotated[:, 0].min()
-        xmax = corners_rotated[:, 0].max()
-        ymin = corners_rotated[:, 1].min()
-        ymax = corners_rotated[:, 1].max()
-        width = xmax - xmin
-        height = ymax - ymin
+        xs, ys = zip(*corners_rotated)
+        xmin, xmax = min(xs), max(xs)
+        ymin, ymax = min(ys), max(ys)
+        width_rot = xmax - xmin
+        height_rot = ymax - ymin
 
         # Now move the box to the target position offset the display
         # bbox by alignment
@@ -531,63 +515,53 @@ class Text(Artist):
 
         rotation_mode = self.get_rotation_mode()
         if rotation_mode != "anchor":
-            angle = self.get_rotation()
             if rotation_mode == 'xtick':
                 halign = self._ha_for_angle(angle)
             elif rotation_mode == 'ytick':
                 valign = self._va_for_angle(angle)
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
-            if halign == 'center':
-                offsetx = (xmin + xmax) / 2
-            elif halign == 'right':
-                offsetx = xmax
-            else:
-                offsetx = xmin
-
-            if valign == 'center':
-                offsety = (ymin + ymax) / 2
-            elif valign == 'top':
-                offsety = ymax
-            elif valign == 'baseline':
-                offsety = ymin + descent
-            elif valign == 'center_baseline':
-                offsety = ymin + height - baseline / 2.0
-            else:
-                offsety = ymin
+            offsetx = (
+                xmin if halign == "left" else
+                xmax if halign == "right" else
+                (xmin + xmax) / 2  # halign == "center"
+            )
+            offsety = (
+                ymin if valign == "bottom" else
+                ymax if valign == "top" else
+                (ymin + ymax) / 2 if valign == "center" else
+                ymin + descent if valign == "baseline" else
+                ymin + height_rot - baseline / 2  # valign == "center_baseline"
+            )
         else:
             xmin1, ymin1 = corners_horiz[0]
             xmax1, ymax1 = corners_horiz[2]
-
-            if halign == 'center':
-                offsetx = (xmin1 + xmax1) / 2.0
-            elif halign == 'right':
-                offsetx = xmax1
-            else:
-                offsetx = xmin1
-
-            if valign == 'center':
-                offsety = (ymin1 + ymax1) / 2.0
-            elif valign == 'top':
-                offsety = ymax1
-            elif valign == 'baseline':
-                offsety = ymax1 - baseline
-            elif valign == 'center_baseline':
-                offsety = ymax1 - baseline / 2.0
-            else:
-                offsety = ymin1
-
-            offsetx, offsety = M.transform((offsetx, offsety))
+            offsetx = (
+                xmin1 if halign == "left" else
+                xmax1 if halign == "right" else
+                (xmin1 + xmax1) / 2  # halign == "center"
+            )
+            offsety = (
+                ymin1 if valign == "bottom" else
+                ymax1 if valign == "top" else
+                (ymin1 + ymax1) / 2 if valign == "center" else
+                ymax1 - baseline if valign == "baseline" else
+                ymax1 - baseline / 2  # valign == "center_baseline"
+            )
+            offsetx, offsety = rotate(offsetx, offsety)
 
         xmin -= offsetx
         ymin -= offsety
 
-        bbox = Bbox.from_bounds(xmin, ymin, width, height)
+        bbox_rot = Bbox.from_bounds(xmin, ymin, width_rot, height_rot)
 
         # now rotate the positions around the first (x, y) position
-        xys = M.transform(offset_layout) - (offsetx, offsety)
+        xys = [(x - offsetx, y - offsety)
+               for x, y in itertools.starmap(rotate, offset_layout)]
+        x, y = corners_rotated[0]
+        xy_corner = (x - offsetx, y - offsety)
 
-        return bbox, list(zip(lines, wads, xys))
+        return bbox_rot, list(zip(lines, wads, xys)), (xy_corner, size_horiz)
 
     def set_bbox(self, rectprops):
         """
@@ -659,7 +633,7 @@ class Text(Artist):
             posy = float(self.convert_yunits(self._y))
             posx, posy = self.get_transform().transform((posx, posy))
 
-            x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
+            _, _, ((x_box, y_box), (w_box, h_box)) = self._get_layout(renderer)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
             self._bbox_patch.set_transform(
                 Affine2D()
@@ -726,11 +700,11 @@ class Text(Artist):
         # Calculate available width based on text alignment
         alignment = self.get_horizontalalignment()
         self.set_rotation_mode('anchor')
-        rotation = self.get_rotation()
+        angle = self.get_rotation()
 
-        left = self._get_dist_to_box(rotation, x0, y0, figure_box)
+        left = self._get_dist_to_box(angle, x0, y0, figure_box)
         right = self._get_dist_to_box(
-            (180 + rotation) % 360, x0, y0, figure_box)
+            (180 + angle) % 360, x0, y0, figure_box)
 
         if alignment == 'left':
             line_width = left
@@ -839,67 +813,65 @@ class Text(Artist):
 
         renderer.open_group('text', self.get_gid())
 
-        with self._cm_set(text=self._get_wrapped_text()):
-            bbox, info = self._get_layout(renderer)
-            trans = self.get_transform()
+        bbox, info, _ = self._get_layout(renderer)
+        trans = self.get_transform()
 
-            # don't use self.get_position here, which refers to text
-            # position in Text:
-            x, y = self._x, self._y
-            if np.ma.is_masked(x):
-                x = np.nan
-            if np.ma.is_masked(y):
-                y = np.nan
-            posx = float(self.convert_xunits(x))
-            posy = float(self.convert_yunits(y))
-            posx, posy = trans.transform((posx, posy))
-            if np.isnan(posx) or np.isnan(posy):
-                return  # don't throw a warning here
-            if not np.isfinite(posx) or not np.isfinite(posy):
-                _log.warning("posx and posy should be finite values")
-                return
-            canvasw, canvash = renderer.get_canvas_width_height()
+        # don't use self.get_position here, which refers to text
+        # position in Text:
+        x, y = self._x, self._y
+        if np.ma.is_masked(x):
+            x = np.nan
+        if np.ma.is_masked(y):
+            y = np.nan
+        posx = float(self.convert_xunits(x))
+        posy = float(self.convert_yunits(y))
+        posx, posy = trans.transform((posx, posy))
+        if np.isnan(posx) or np.isnan(posy):
+            return  # don't throw a warning here
+        if not np.isfinite(posx) or not np.isfinite(posy):
+            _log.warning("posx and posy should be finite values")
+            return
+        canvasw, canvash = renderer.get_canvas_width_height()
 
-            # Update the location and size of the bbox
-            # (`.patches.FancyBboxPatch`), and draw it.
-            if self._bbox_patch:
-                self.update_bbox_position_size(renderer)
-                self._bbox_patch.draw(renderer)
+        # Update the location and size of the bbox
+        # (`.patches.FancyBboxPatch`), and draw it.
+        if self._bbox_patch:
+            self.update_bbox_position_size(renderer)
+            self._bbox_patch.draw(renderer)
 
-            gc = renderer.new_gc()
-            gc.set_foreground(self.get_color())
-            gc.set_alpha(self.get_alpha())
-            gc.set_url(self._url)
-            gc.set_antialiased(self._antialiased)
-            gc.set_snap(self.get_snap())
-            self._set_gc_clip(gc)
+        gc = renderer.new_gc()
+        gc.set_foreground(mcolors.to_rgba(self.get_color()), isRGBA=True)
+        gc.set_alpha(self.get_alpha())
+        gc.set_url(self._url)
+        gc.set_antialiased(self._antialiased)
+        gc.set_snap(self.get_snap())
+        self._set_gc_clip(gc)
 
-            angle = self.get_rotation()
+        angle = self.get_rotation()
 
-            for line, wad, (x, y) in info:
+        for line, wad, (x, y) in info:
 
-                mtext = self if len(info) == 1 else None
-                x = x + posx
-                y = y + posy
-                if renderer.flipy():
-                    y = canvash - y
-                clean_line, ismath = self._preprocess_math(line)
+            mtext = self if len(info) == 1 else None
+            x = x + posx
+            y = y + posy
+            if renderer.flipy():
+                y = canvash - y
+            clean_line, ismath = self._preprocess_math(line)
 
-                if self.get_path_effects():
-                    from matplotlib.patheffects import PathEffectRenderer
-                    textrenderer = PathEffectRenderer(
-                        self.get_path_effects(), renderer)
-                else:
-                    textrenderer = renderer
+            if self.get_path_effects():
+                from matplotlib.patheffects import PathEffectRenderer
+                textrenderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            else:
+                textrenderer = renderer
 
-                if self.get_usetex():
-                    textrenderer.draw_tex(gc, x, y, clean_line,
-                                          self._fontproperties, angle,
-                                          mtext=mtext)
-                else:
-                    textrenderer.draw_text(gc, x, y, clean_line,
-                                           self._fontproperties, angle,
-                                           ismath=ismath, mtext=mtext)
+            if self.get_usetex():
+                textrenderer.draw_tex(gc, x, y, clean_line,
+                                      self._fontproperties, angle,
+                                      mtext=mtext)
+            else:
+                textrenderer.draw_text(gc, x, y, clean_line,
+                                       self._fontproperties, angle,
+                                       ismath=ismath, mtext=mtext)
 
         gc.restore()
         renderer.close_group('text')
@@ -1064,7 +1036,7 @@ class Text(Artist):
                 "want to call 'figure.draw_without_rendering()' first.")
 
         with cbook._setattr_cm(fig, dpi=dpi):
-            bbox, _ = self._get_layout(self._renderer)
+            bbox, _, _ = self._get_layout(self._renderer)
             x, y = self.get_unitless_position()
             x, y = self.get_transform().transform((x, y))
             bbox = bbox.translated(x, y)
