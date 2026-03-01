@@ -314,3 +314,93 @@ in between!"""
     # The resulting string contains 491 unique characters. Some file formats use 8-bit
     # tables, which the large number of characters exercises twice over.
     return fonts, test_str
+
+
+def _add_family_suffix(font, suffix):
+    """
+    Add a suffix to all names in a font.
+
+    This code comes from a fontTools snippet:
+    https://github.com/fonttools/fonttools/blob/main/Snippets/rename-fonts.py
+    """
+    WINDOWS_ENGLISH_IDS = 3, 1, 0x409
+    MAC_ROMAN_IDS = 1, 0, 0
+
+    FAMILY_RELATED_IDS = dict(LEGACY_FAMILY=1, TRUETYPE_UNIQUE_ID=3, FULL_NAME=4,
+                              POSTSCRIPT_NAME=6, PREFERRED_FAMILY=16, WWS_FAMILY=21)
+
+    def get_current_family_name(table):
+        family_name_rec = None
+        for plat_id, enc_id, lang_id in (WINDOWS_ENGLISH_IDS, MAC_ROMAN_IDS):
+            for name_id in (FAMILY_RELATED_IDS['PREFERRED_FAMILY'],
+                            FAMILY_RELATED_IDS['LEGACY_FAMILY']):
+                family_name_rec = table.getName(nameID=name_id, platformID=plat_id,
+                                                platEncID=enc_id, langID=lang_id)
+                if family_name_rec is not None:
+                    return family_name_rec.toUnicode()
+        raise ValueError("family name not found; can't add suffix")
+
+    def insert_suffix(string, family_name, suffix):
+        # check whether family_name is a substring
+        start = string.find(family_name)
+        if start != -1:
+            # insert suffix after the family_name substring
+            end = start + len(family_name)
+            return string[:end] + suffix + string[end:]
+        else:
+            # it's not, we just append the suffix at the end
+            return string + suffix
+
+    def rename_record(name_record, family_name, suffix):
+        string = name_record.toUnicode()
+        new_string = insert_suffix(string, family_name, suffix)
+        name_record.string = new_string
+        return string, new_string
+
+    table = font['name']
+    family_name = get_current_family_name(table)
+    ps_family_name = family_name.replace(' ', '')
+    ps_suffix = suffix.replace(' ', '')
+    for rec in table.names:
+        name_id = rec.nameID
+        if name_id not in FAMILY_RELATED_IDS.values():
+            continue
+        if name_id == FAMILY_RELATED_IDS['POSTSCRIPT_NAME']:
+            old, new = rename_record(rec, ps_family_name, ps_suffix)
+        elif name_id == FAMILY_RELATED_IDS['TRUETYPE_UNIQUE_ID']:
+            # The Truetype Unique ID rec may contain either the PostScript
+            # Name or the Full Name string, so we try both
+            if ps_family_name in rec.toUnicode():
+                old, new = rename_record(rec, ps_family_name, ps_suffix)
+            else:
+                old, new = rename_record(rec, family_name, suffix)
+        else:
+            old, new = rename_record(rec, family_name, suffix)
+
+    return family_name
+
+
+def _generate_font_subset(path, text):
+    """
+    Generate a subset of a font for testing purposes.
+
+    The font name will be suffixed with ' MplSubset'.
+
+    Parameters
+    ----------
+    path : str or bytes or os.PathLike
+        The path to the font to be subset. The new file will be saved in the same
+        location with a ``-subset`` suffix.
+    text : str
+        The text from which characters to be subset will be derived. Usually fonts do
+        not have a newline character, so any appearing in this text will be stripped
+        before subsetting.
+    """
+    from fontTools import subset
+    options = subset.Options()
+    font = subset.load_font(path, options)
+    subsetter = subset.Subsetter(options=options)
+    subsetter.populate(text=text.replace('\n', ''))
+    subsetter.subset(font)
+    _add_family_suffix(font, ' MplSubset')
+    subset.save_font(font, path.with_stem(path.stem + '-subset'), options)

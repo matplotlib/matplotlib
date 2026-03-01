@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <functional>
 #include <optional>
+#include <type_traits>
 #include <vector>
 
 #include "agg_alpha_mask_u8.h"
@@ -152,11 +153,18 @@ class RendererAgg
     template <class ImageArray>
     void draw_text_image(GCAgg &gc, ImageArray &image, int x, int y, double angle);
 
-    template <class ImageArray>
+    template <class ImageArray,
+              // This defines the input pixel order only, but is a full blender because
+              // Agg requires it internally.
+              class ImagePixelFormat=pixfmt,
+              // This defines the actual blender, but must use RGBA order, to correspond
+              // with the rendering buffer.
+              class Blender=pixfmt>
     void draw_image(GCAgg &gc,
                     double x,
                     double y,
-                    ImageArray &image);
+                    ImageArray &image,
+                    bool flip_image = false);
 
     template <class PathGenerator,
               class TransformArray,
@@ -807,11 +815,12 @@ class span_conv_alpha
     }
 };
 
-template <class ImageArray>
+template <class ImageArray, class ImagePixelFormat, class Blender>
 inline void RendererAgg::draw_image(GCAgg &gc,
                                     double x,
                                     double y,
-                                    ImageArray &image)
+                                    ImageArray &image,
+                                    bool flip_image)
 {
     double alpha = gc.alpha;
 
@@ -823,8 +832,9 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     agg::rendering_buffer buffer;
     buffer.attach(image.mutable_data(0, 0, 0),
                   (unsigned)image.shape(1), (unsigned)image.shape(0),
-                  -(int)image.shape(1) * 4);
-    pixfmt pixf(buffer);
+                  (flip_image ? 4 : -4) * image.shape(1));
+    // NOTE: this pixel format only describes the pixel order, not the colour state.
+    ImagePixelFormat pixf(buffer);
 
     if (has_clippath) {
         agg::trans_affine mtx;
@@ -847,7 +857,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
         inv_mtx.invert();
 
         typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
-        typedef agg::image_accessor_clip<pixfmt> image_accessor_type;
+        typedef agg::image_accessor_clip<ImagePixelFormat> image_accessor_type;
         typedef agg::span_interpolator_linear<> interpolator_type;
         typedef agg::span_image_filter_rgba_nn<image_accessor_type, interpolator_type>
         image_span_gen_type;
@@ -871,10 +881,21 @@ inline void RendererAgg::draw_image(GCAgg &gc,
 
         theRasterizer.add_path(rect2);
         agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
+    } else if constexpr(!std::is_same_v<Blender, pixfmt>) {
+        static_assert(std::is_same_v<typename Blender::order_type, agg::order_rgba>,
+                      "Blender order must be RGBA");
+        auto imgFmt = Blender{renderingBuffer};
+        auto rendererImage = agg::renderer_base{imgFmt};
+        rendererImage.reset_clipping(true);
+        set_clipbox(gc.cliprect, rendererImage);
+        rendererImage.blend_from(
+            pixf, nullptr, (int)x, (int)(height - (y + image.shape(0))),
+            (agg::int8u)(alpha * 255));
     } else {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
-            pixf, nullptr, (int)x, (int)(height - (y + image.shape(0))), (agg::int8u)(alpha * 255));
+            pixf, nullptr, (int)x, (int)(height - (y + image.shape(0))),
+            (agg::int8u)(alpha * 255));
     }
 
     rendererBase.reset_clipping(true);
