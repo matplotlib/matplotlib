@@ -536,6 +536,28 @@ def _get_config_or_cache_dir(xdg_base_getter):
             configdir = Path(xdg_base_getter(), "matplotlib")
         except RuntimeError:  # raised if Path.home() is not available
             pass
+    elif sys.platform == 'win32':
+        # On Windows, prefer %LOCALAPPDATA%\matplotlib which is the proper
+        # location for non-roaming application data (cache and config).
+        # See: https://docs.microsoft.com/en-us/windows/apps/design/app-settings/store-and-retrieve-app-data
+        #
+        # However, for backwards compatibility, if the old location
+        # (%USERPROFILE%\.matplotlib) exists, continue using it so existing
+        # users don't lose their config.
+        try:
+            old_configdir = Path.home() / ".matplotlib"
+            if old_configdir.is_dir():
+                configdir = old_configdir
+            else:
+                localappdata = os.environ.get('LOCALAPPDATA')
+                if localappdata:
+                    configdir = Path(localappdata) / "matplotlib"
+                else:
+                    configdir = old_configdir
+        except RuntimeError:  # raised if Path.home() is not available
+            localappdata = os.environ.get('LOCALAPPDATA')
+            if localappdata:
+                configdir = Path(localappdata) / "matplotlib"
     else:
         try:
             configdir = Path.home() / ".matplotlib"
@@ -586,8 +608,9 @@ def get_configdir():
 
     1. If the MPLCONFIGDIR environment variable is supplied, choose that.
     2. On Linux, follow the XDG specification and look first in
-       ``$XDG_CONFIG_HOME``, if defined, or ``$HOME/.config``.  On other
-       platforms, choose ``$HOME/.matplotlib``.
+       ``$XDG_CONFIG_HOME``, if defined, or ``$HOME/.config``.  On Windows,
+       use ``%LOCALAPPDATA%\\matplotlib``.  On other platforms, choose
+       ``$HOME/.matplotlib``.
     3. If the chosen directory exists and is writable, use that as the
        configuration directory.
     4. Else, create a temporary directory, and use it as the configuration
@@ -602,7 +625,8 @@ def get_cachedir():
     Return the string path of the cache directory.
 
     The procedure used to find the directory is the same as for
-    `get_configdir`, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
+    `get_configdir`, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead
+    on Linux.  On Windows, uses ``%LOCALAPPDATA%\\matplotlib`` (same as config).
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir)
 
