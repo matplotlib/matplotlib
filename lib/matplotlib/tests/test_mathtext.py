@@ -571,6 +571,21 @@ def test_boldsymbol(fig_test, fig_ref):
     fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")
 
 
+# Test vector output because in raster output some minor differences remain,
+# likely due to double-striking.
+@check_figures_equal(extensions=["pdf"])
+def test_phantoms(fig_test, fig_ref):
+    fig_test.text(0.5, 0.9, r"$\rlap{rlap}extra$", ha="left")
+    fig_ref.text(0.5, 0.9, r"$rlap$", ha="left")
+    fig_ref.text(0.5, 0.9, r"$extra$", ha="left")
+
+    fig_test.text(0.5, 0.8, r"$extra\llap{llap}$", ha="right")
+    fig_ref.text(0.5, 0.8, r"$llap$", ha="right")
+    fig_ref.text(0.5, 0.8, r"$extra$", ha="right")
+
+    fig_test.text(0.5, 0.7, r"$\phantom{phantom}$")
+
+
 def test_box_repr():
     s = repr(_mathtext.Parser().parse(
         r"$\frac{1}{2}$",

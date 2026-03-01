@@ -1336,6 +1336,7 @@ class Hlist(List):
         if do_kern:
             self.kern()
         self.hpack(w=w, m=m)
+        self.is_phantom = False
 
     def is_char_node(self) -> bool:
         # See description in Node.is_char_node.
@@ -1726,6 +1727,11 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
     off_v = oy + box.height
     output = Output(box)
 
+    phantom: list[bool] = []
+    def render(node, *args):
+        if not any(phantom):
+            node.render(*args)
+
     def clamp(value: float) -> float:
         return -1e9 if value < -1e9 else +1e9 if value > +1e9 else value
 
@@ -1739,9 +1745,11 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
         base_line = cur_v
         left_edge = cur_h
 
+        phantom.append(box.is_phantom)
+
         for p in box.children:
             if isinstance(p, Char):
-                p.render(output, cur_h + off_h, cur_v + off_v)
+                render(p, output, cur_h + off_h, cur_v + off_v)
                 cur_h += p.width
             elif isinstance(p, Kern):
                 cur_h += p.width
@@ -1772,9 +1780,9 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
                     rule_depth = box.depth
                 if rule_height > 0 and rule_width > 0:
                     cur_v = base_line + rule_depth
-                    p.render(output,
-                             cur_h + off_h, cur_v + off_v,
-                             rule_width, rule_height)
+                    render(p, output,
+                           cur_h + off_h, cur_v + off_v,
+                           rule_width, rule_height)
                     cur_v = base_line
                 cur_h += rule_width
             elif isinstance(p, Glue):
@@ -1791,6 +1799,8 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
                         cur_g = round(clamp(box.glue_set * cur_glue))
                 rule_width += cur_g
                 cur_h += rule_width
+
+        phantom.pop()
 
     def vlist_out(box: Vlist) -> None:
         nonlocal cur_v, cur_h
@@ -1831,9 +1841,9 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
                 rule_height += rule_depth
                 if rule_height > 0 and rule_depth > 0:
                     cur_v += rule_height
-                    p.render(output,
-                             cur_h + off_h, cur_v + off_v,
-                             rule_width, rule_height)
+                    render(p, output,
+                           cur_h + off_h, cur_v + off_v,
+                           rule_width, rule_height)
             elif isinstance(p, Glue):
                 glue_spec = p.glue_spec
                 rule_height = glue_spec.width - cur_g
@@ -2169,6 +2179,10 @@ class Parser:
 
         p.customspace = cmd(r"\hspace", "{" + p.float_literal("space") + "}")
 
+        p.phantom = cmd(r"\phantom", p.optional_group("value"))
+        p.llap = cmd(r"\llap", p.optional_group("value"))
+        p.rlap = cmd(r"\rlap", p.optional_group("value"))
+
         p.accent = (
             csnames("accent", [*self._accent_map, *self._wide_accents])
             - p.named_placeable("sym"))
@@ -2235,7 +2249,8 @@ class Parser:
             r"\boldsymbol", "{" + ZeroOrMore(p.simple)("value") + "}")
 
         p.placeable     <<= (
-            p.accent     # Must be before symbol as all accents are symbols
+            p.phantom | p.llap | p.rlap
+            | p.accent   # Must be before symbol as all accents are symbols
             | p.symbol   # Must be second to catch all named symbols and single
                          # chars not in a group
             | p.function
@@ -2427,6 +2442,16 @@ class Parser:
 
     def unknown_symbol(self, s: str, loc: int, toks: ParseResults) -> T.Any:
         raise ParseFatalException(s, loc, f"Unknown symbol: {toks['name']}")
+
+    def phantom(self, toks: ParseResults) -> T.Any:
+        toks["value"].is_phantom = True
+        return toks["value"]
+
+    def llap(self, toks: ParseResults) -> T.Any:
+        return [Hlist([Kern(-toks["value"].width), toks["value"]])]
+
+    def rlap(self, toks: ParseResults) -> T.Any:
+        return [Hlist([toks["value"], Kern(-toks["value"].width)])]
 
     _accent_map = {
         r'hat':            r'\circumflexaccent',
