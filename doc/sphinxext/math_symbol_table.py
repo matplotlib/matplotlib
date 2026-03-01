@@ -2,74 +2,16 @@ import re
 from docutils.parsers.rst import Directive
 
 from matplotlib import _mathtext, _mathtext_data
+from matplotlib import pyplot as plt
+from matplotlib.font_manager import FontProperties
+bb_pattern = re.compile(r'\\mathbb{([^}]+)}')
+script_pattern = re.compile(r'\\mathscr{([^}]+)}')
+fraktur_pattern = re.compile(r'\\mathfrak{([^}]+)}')
 
-bb_pattern = re.compile("Bbb[A-Z]")
-scr_pattern = re.compile("scr[a-zA-Z]")
-frak_pattern = re.compile("frak[A-Z]")
-
-symbols = [
-    ["Lower-case Greek",
-     4,
-     (r"\alpha", r"\beta", r"\gamma",  r"\chi", r"\delta", r"\epsilon",
-      r"\eta", r"\iota",  r"\kappa", r"\lambda", r"\mu", r"\nu",  r"\omega",
-      r"\phi",  r"\pi", r"\psi", r"\rho",  r"\sigma",  r"\tau", r"\theta",
-      r"\upsilon", r"\xi", r"\zeta",  r"\digamma", r"\varepsilon", r"\varkappa",
-      r"\varphi", r"\varpi", r"\varrho", r"\varsigma",  r"\vartheta")],
-    ["Upper-case Greek",
-     4,
-     (r"\Delta", r"\Gamma", r"\Lambda", r"\Omega", r"\Phi", r"\Pi", r"\Psi",
-      r"\Sigma", r"\Theta", r"\Upsilon", r"\Xi")],
-    ["Hebrew",
-     6,
-     (r"\aleph", r"\beth", r"\gimel", r"\daleth")],
-    ["Latin named characters",
-     6,
-     r"""\aa \AA \ae \AE \oe \OE \O \o \thorn \Thorn \ss \eth \dh \DH""".split()],
-    ["Delimiters",
-     5,
-     _mathtext.Parser._delims],
-    ["Big symbols",
-     5,
-     _mathtext.Parser._overunder_symbols | _mathtext.Parser._dropsub_symbols],
-    ["Standard function names",
-     5,
-     {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
-    ["Binary operation symbols",
-     4,
-     _mathtext.Parser._binary_operators],
-    ["Relation symbols",
-     4,
-     _mathtext.Parser._relation_symbols],
-    ["Arrow symbols",
-     4,
-     _mathtext.Parser._arrow_symbols],
-    ["Dot symbols",
-     4,
-     r"""\cdots \vdots \ldots \ddots \adots \Colon \therefore \because""".split()],
-    ["Black-board characters",
-     6,
-     [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
-      if re.match(bb_pattern, symbol)]],
-    ["Script characters",
-     6,
-     [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
-      if re.match(scr_pattern, symbol)]],
-    ["Fraktur characters",
-     6,
-     [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
-      if re.match(frak_pattern, symbol)]],
-    ["Miscellaneous symbols",
-     4,
-     r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
-     \nexists \measuredangle \emptyset \sphericalangle \clubsuit
-     \varnothing \complement \diamondsuit \imath \Finv \triangledown
-     \heartsuit \jmath \Game \spadesuit \ell \hbar \vartriangle
-     \hslash \blacksquare \blacktriangle \sharp \increment
-     \prime \blacktriangledown \Im \flat \backprime \Re \natural
-     \circledS \P \copyright \circledR \S \yen \checkmark \$
-     \cent \triangle \QED \sinewave \dag \ddag \perthousand \ac
-     \lambdabar \L \l \degree \danger \maltese \clubsuitopen
-     \i \hermitmatrix \sterling \nabla \mho""".split()],
+symbols =[
+    ('Black-board characters', 4, ['A', 'B', 'C', 'D']),
+    ('Script characters', 3, ['E', 'F', 'G', 'H', 'I', 'J']),
+    ('Fraktur characters', 2, ['K', 'L', 'M', 'N', 'O'])
 ]
 
 
@@ -110,24 +52,57 @@ def run(state_machine):
     state_machine.insert_input(lines, "Symbol table")
     return []
 
+def render_symbol(symbol):
+    # Render symbol as Unicode character or escape sequence
+    if symbol.startswith('\\'):
+        return symbol.encode().decode('unicode_escape')
+    return symbol
 
 class MathSymbolTableDirective(Directive):
-    has_content = False
-    required_arguments = 0
-    optional_arguments = 0
-    final_argument_whitespace = False
-    option_spec = {}
-
     def run(self):
-        return run(self.state_machine)
-
+        table_data = []
+        for category, columns, syms in symbols:
+            if not syms:
+                continue
+            table_data.append([f'**{category}**'])
+            max_width = max(len(sym) for sym in syms)
+            for i in range(0, len(syms), columns):
+                row = syms[i:i + columns]
+                row += [''] * (columns - len(row))  # Fill empty cells if needed
+                table_data.append([f'``{render_symbol(sym)}``' for sym in row])
+            table_data.append(['=' * max_width] * columns)
+            table_data.append([])  # Add empty row between categories
+        table_node = plt.table(cellText=table_data, loc='center')
+        plt.axis('off')
+        return table_node,
 
 def setup(app):
-    app.add_directive("math_symbol_table", MathSymbolTableDirective)
+    app.add_directive('mathsymboltable', MathSymbolTableDirective)
 
-    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
-    return metadata
+    return {
+        'version': '0.1',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
 
+
+# Verify symbols exist in Stix font and print symbol information
+font = FontProperties(family='STIXGeneral')
+
+for _, _, syms in symbols:
+    for sym in syms:
+        exists = font.has_char(ord(render_symbol(sym)))
+        print(f'Symbol: {sym}, Exists: {exists}')
+
+# Test the MathSymbolTableDirective
+from docutils.core import publish_string
+
+rst_content = """
+    .. mathsymboltable::
+
+    """
+
+publish_string(rst_content, writer_name='html')
 
 if __name__ == "__main__":
     # Do some verification of the tables
