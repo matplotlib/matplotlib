@@ -4,6 +4,7 @@
 #include <pybind11/stl.h>
 
 #include "ft2font.h"
+#include "mplutils.h"
 #include "_enums.h"
 
 #include <set>
@@ -18,23 +19,20 @@ using double_or_ = std::variant<double, T>;
 
 template <typename T>
 static T
-_double_to_(const char *name, double_or_<T> &var)
+_double_to_(const char *name, double_or_<T> var)
 {
-    if (auto value = std::get_if<double>(&var)) {
-        auto api = py::module_::import("matplotlib._api");
-        auto warn = api.attr("warn_deprecated");
-        warn("since"_a="3.10", "name"_a=name, "obj_type"_a="parameter as float",
-             "alternative"_a="int({})"_s.format(name));
-        return static_cast<T>(*value);
-    } else if (auto value = std::get_if<T>(&var)) {
-        return *value;
-    } else {
-        // pybind11 will have only allowed types that match the variant, so this `else`
-        // can't happen. We only have this case because older macOS doesn't support
-        // `std::get` and using the conditional `std::get_if` means an `else` to silence
-        // compiler warnings about "unhandled" cases.
-        throw std::runtime_error("Should not happen");
-    }
+    return std::visit(overloaded {
+        [&](double value) {
+            auto api = py::module_::import("matplotlib._api");
+            auto warn = api.attr("warn_deprecated");
+            warn("since"_a="3.10", "name"_a=name, "obj_type"_a="parameter as float",
+                 "alternative"_a="int({})"_s.format(name));
+            return static_cast<T>(value);
+        },
+        [](T value) {
+            return value;
+        }
+    }, var);
 }
 
 /**********************************************************************
@@ -684,22 +682,18 @@ static int
 PyFT2Font_get_kerning(PyFT2Font *self, FT_UInt left, FT_UInt right,
                       std::variant<FT_Kerning_Mode, FT_UInt> mode_or_int)
 {
-    FT_Kerning_Mode mode;
-
-    if (auto value = std::get_if<FT_UInt>(&mode_or_int)) {
-        auto api = py::module_::import("matplotlib._api");
-        auto warn = api.attr("warn_deprecated");
-        warn("since"_a="3.10", "name"_a="mode", "obj_type"_a="parameter as int",
-             "alternative"_a="Kerning enum values");
-        mode = static_cast<FT_Kerning_Mode>(*value);
-    } else if (auto value = std::get_if<FT_Kerning_Mode>(&mode_or_int)) {
-        mode = *value;
-    } else {
-        // NOTE: this can never happen as pybind11 would have checked the type in the
-        // Python wrapper before calling this function, but we need to keep the
-        // std::get_if instead of std::get for macOS 10.12 compatibility.
-        throw py::type_error("mode must be Kerning or int");
-    }
+    FT_Kerning_Mode mode = std::visit(overloaded {
+        [&](FT_UInt value) {
+            auto api = py::module_::import("matplotlib._api");
+            auto warn = api.attr("warn_deprecated");
+            warn("since"_a="3.10", "name"_a="mode", "obj_type"_a="parameter as int",
+                "alternative"_a="Kerning enum values");
+            return static_cast<FT_Kerning_Mode>(value);
+        },
+        [](FT_Kerning_Mode value) {
+            return value;
+        }
+    }, mode_or_int);
 
     return self->get_kerning(left, right, mode);
 }
@@ -741,36 +735,28 @@ PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0
                    std::variant<FT2Font::LanguageType, std::string> languages_or_str = nullptr)
 {
     std::vector<double> xys;
-    LoadFlags flags;
+    LoadFlags flags = std::visit(overloaded {
+        [&](FT_Int32 value) {
+            auto api = py::module_::import("matplotlib._api");
+            auto warn = api.attr("warn_deprecated");
+            warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
+                 "alternative"_a="LoadFlags enum values");
+            return static_cast<LoadFlags>(value);
+        },
+        [](LoadFlags value) {
+            return value;
+        }
+    }, flags_or_int);
 
-    if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
-        auto api = py::module_::import("matplotlib._api");
-        auto warn = api.attr("warn_deprecated");
-        warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
-             "alternative"_a="LoadFlags enum values");
-        flags = static_cast<LoadFlags>(*value);
-    } else if (auto value = std::get_if<LoadFlags>(&flags_or_int)) {
-        flags = *value;
-    } else {
-        // NOTE: this can never happen as pybind11 would have checked the type in the
-        // Python wrapper before calling this function, but we need to keep the
-        // std::get_if instead of std::get for macOS 10.12 compatibility.
-        throw py::type_error("flags must be LoadFlags or int");
-    }
-
-    FT2Font::LanguageType languages;
-    if (auto value = std::get_if<FT2Font::LanguageType>(&languages_or_str)) {
-        languages = std::move(*value);
-    } else if (auto value = std::get_if<std::string>(&languages_or_str)) {
-        languages = std::vector<FT2Font::LanguageRange>{
-            FT2Font::LanguageRange{*value, 0, text.size()}
-        };
-    } else {
-        // NOTE: this can never happen as pybind11 would have checked the type in the
-        // Python wrapper before calling this function, but we need to keep the
-        // std::get_if instead of std::get for macOS 10.12 compatibility.
-        throw py::type_error("languages must be str or list of tuple");
-    }
+    FT2Font::LanguageType languages = std::visit(overloaded {
+        [](FT2Font::LanguageType languages) {
+            return languages;
+        },
+        [&](std::string value) {
+            return FT2Font::LanguageType{{
+                FT2Font::LanguageRange{value, 0, text.size()}}};
+        }
+    }, languages_or_str);
 
     self->set_text(text, angle, static_cast<FT_Int32>(flags), features, languages, xys);
 
@@ -816,22 +802,18 @@ PyFT2Font_load_char(PyFT2Font *self, long charcode,
 {
     bool fallback = true;
     FT2Font *ft_object = nullptr;
-    LoadFlags flags;
-
-    if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
-        auto api = py::module_::import("matplotlib._api");
-        auto warn = api.attr("warn_deprecated");
-        warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
-             "alternative"_a="LoadFlags enum values");
-        flags = static_cast<LoadFlags>(*value);
-    } else if (auto value = std::get_if<LoadFlags>(&flags_or_int)) {
-        flags = *value;
-    } else {
-        // NOTE: this can never happen as pybind11 would have checked the type in the
-        // Python wrapper before calling this function, but we need to keep the
-        // std::get_if instead of std::get for macOS 10.12 compatibility.
-        throw py::type_error("flags must be LoadFlags or int");
-    }
+    LoadFlags flags = std::visit(overloaded {
+        [&](FT_Int32 value) {
+            auto api = py::module_::import("matplotlib._api");
+            auto warn = api.attr("warn_deprecated");
+            warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
+                 "alternative"_a="LoadFlags enum values");
+            return static_cast<LoadFlags>(value);
+        },
+        [](LoadFlags value) {
+            return value;
+        }
+    }, flags_or_int);
 
     self->load_char(charcode, static_cast<FT_Int32>(flags), ft_object, fallback);
 
@@ -868,22 +850,18 @@ static PyGlyph *
 PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
                      std::variant<LoadFlags, FT_Int32> flags_or_int = LoadFlags::FORCE_AUTOHINT)
 {
-    LoadFlags flags;
-
-    if (auto value = std::get_if<FT_Int32>(&flags_or_int)) {
-        auto api = py::module_::import("matplotlib._api");
-        auto warn = api.attr("warn_deprecated");
-        warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
-             "alternative"_a="LoadFlags enum values");
-        flags = static_cast<LoadFlags>(*value);
-    } else if (auto value = std::get_if<LoadFlags>(&flags_or_int)) {
-        flags = *value;
-    } else {
-        // NOTE: this can never happen as pybind11 would have checked the type in the
-        // Python wrapper before calling this function, but we need to keep the
-        // std::get_if instead of std::get for macOS 10.12 compatibility.
-        throw py::type_error("flags must be LoadFlags or int");
-    }
+    LoadFlags flags = std::visit(overloaded {
+        [&](FT_Int32 value) {
+            auto api = py::module_::import("matplotlib._api");
+            auto warn = api.attr("warn_deprecated");
+            warn("since"_a="3.10", "name"_a="flags", "obj_type"_a="parameter as int",
+                 "alternative"_a="LoadFlags enum values");
+            return static_cast<LoadFlags>(value);
+        },
+        [](LoadFlags value) {
+            return value;
+        }
+    }, flags_or_int);
 
     self->load_glyph(glyph_index, static_cast<FT_Int32>(flags));
 
