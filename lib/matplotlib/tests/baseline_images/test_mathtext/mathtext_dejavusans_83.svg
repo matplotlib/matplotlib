@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2024-05-08T19:52:35.349617</dc:date>
+    <dc:date>2026-02-14T03:33:16.003158</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.10.0.dev150+gec4808956b.d20240508, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1864+g6f7d0e9a17, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $a=-b-c$ -->
-   <g transform="translate(158.4 30.31125) scale(0.12 -0.12)">
+   <g transform="translate(158.4 30.312188) scale(0.12 -0.12)">
     <defs>
-     <path id="DejaVuSans-Oblique-61" d="M 3438 1997 
+     <path id="DejaVuSans-Oblique-44" d="M 3438 1997 
 L 3047 0 
 L 2472 0 
 L 2578 531 
@@ -69,7 +69,7 @@ Q 2678 1069 2791 1631
 L 2816 1759 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-3d" d="M 678 2906 
+     <path id="DejaVuSans-20" d="M 678 2906 
 L 4684 2906 
 L 4684 2381 
 L 678 2381 
@@ -82,14 +82,14 @@ L 678 1100
 L 678 1631 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-2212" d="M 678 2272 
+     <path id="DejaVuSans-c9c" d="M 678 2272 
 L 4684 2272 
 L 4684 1741 
 L 678 1741 
 L 678 2272 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-Oblique-62" d="M 3169 2138 
+     <path id="DejaVuSans-Oblique-45" d="M 3169 2138 
 Q 3169 2591 2961 2847 
 Q 2753 3103 2388 3103 
 Q 2122 3103 1889 2973 
@@ -121,7 +121,7 @@ L 1753 4863
 L 1381 2969 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-Oblique-63" d="M 3431 3366 
+     <path id="DejaVuSans-Oblique-46" d="M 3431 3366 
 L 3316 2797 
 Q 3109 2947 2876 3022 
 Q 2644 3097 2394 3097 
@@ -147,12 +147,12 @@ Q 3181 3475 3431 3366
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSans-Oblique-61" transform="translate(0 0.015625)"/>
-    <use xlink:href="#DejaVuSans-3d" transform="translate(80.761719 0.015625)"/>
-    <use xlink:href="#DejaVuSans-2212" transform="translate(184.033203 0.015625)"/>
-    <use xlink:href="#DejaVuSans-Oblique-62" transform="translate(267.822266 0.015625)"/>
-    <use xlink:href="#DejaVuSans-2212" transform="translate(350.78125 0.015625)"/>
-    <use xlink:href="#DejaVuSans-Oblique-63" transform="translate(454.052734 0.015625)"/>
+    <use xlink:href="#DejaVuSans-Oblique-44" transform="translate(0 0.015625)"/>
+    <use xlink:href="#DejaVuSans-20" transform="translate(80.761719 0.015625)"/>
+    <use xlink:href="#DejaVuSans-c9c" transform="translate(184.033203 0.015625)"/>
+    <use xlink:href="#DejaVuSans-Oblique-45" transform="translate(267.822266 0.015625)"/>
+    <use xlink:href="#DejaVuSans-c9c" transform="translate(350.78125 0.015625)"/>
+    <use xlink:href="#DejaVuSans-Oblique-46" transform="translate(454.052734 0.015625)"/>
    </g>
   </g>
  </g>

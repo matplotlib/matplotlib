@@ -1,0 +1,10 @@
+[wrap-file]
+directory = harfbuzz-12.3.0
+source_url = https://github.com/harfbuzz/harfbuzz/releases/download/12.3.0/harfbuzz-12.3.0.tar.xz
+source_filename = harfbuzz-12.3.0.tar.xz
+source_hash = 8660ebd3c27d9407fc8433b5d172bafba5f0317cb0bb4339f28e5370c93d42b7
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/harfbuzz_12.3.0-1/harfbuzz-12.3.0.tar.xz
+wrapdb_version = 12.3.0-1
+
+[provide]
+dependency_names = harfbuzz, harfbuzz-cairo, harfbuzz-gobject, harfbuzz-icu, harfbuzz-subset

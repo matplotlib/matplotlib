@@ -8,6 +8,7 @@ This backend depends on cairocffi or pycairo.
 
 import functools
 import gzip
+import itertools
 import math
 
 import numpy as np
@@ -248,13 +249,12 @@ class RendererCairo(RendererBase):
         if angle:
             ctx.rotate(np.deg2rad(-angle))
 
-        for font, fontsize, idx, ox, oy in glyphs:
+        for (font, fontsize), font_glyphs in itertools.groupby(
+                glyphs, key=lambda info: (info[0], info[1])):
             ctx.new_path()
-            ctx.move_to(ox, -oy)
-            ctx.select_font_face(
-                *_cairo_font_args_from_font_prop(ttfFontProperty(font)))
+            ctx.select_font_face(*_cairo_font_args_from_font_prop(ttfFontProperty(font)))
             ctx.set_font_size(self.points_to_pixels(fontsize))
-            ctx.show_text(chr(idx))
+            ctx.show_glyphs([(idx, ox, -oy) for _, _, idx, ox, oy in font_glyphs])
 
         for ox, oy, w, h in rects:
             ctx.new_path()

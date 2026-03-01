@@ -1,0 +1,9 @@
+FT2Font no longer sets a default size
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In the interest of handling non-scalable fonts and reducing font initialization, the
+`.FT2Font` constructor no longer sets a default size. Non-scalable fonts are sometimes
+used for bitmap-backed emoji fonts.
+
+If metrics are important (i.e., if you are loading character glyphs, or setting a text
+string), then explicitly call `.FT2Font.set_size` beforehand.

@@ -1027,19 +1027,19 @@ class RendererSVG(RendererBase):
         writer = self.writer
         if glyph_map_new:
             writer.start('defs')
-            for char_id, (vertices, codes) in glyph_map_new.items():
-                char_id = self._adjust_char_id(char_id)
+            for glyph_repr, (vertices, codes) in glyph_map_new.items():
+                glyph_repr = self._adjust_glyph_repr(glyph_repr)
                 # x64 to go back to FreeType's internal (integral) units.
                 path_data = self._convert_path(
                     Path(vertices * 64, codes), simplify=False)
                 writer.element(
-                    'path', id=char_id, d=path_data,
+                    'path', id=glyph_repr, d=path_data,
                     transform=_generate_transform([('scale', (1 / 64,))]))
             writer.end('defs')
             self._glyph_map.update(glyph_map_new)
 
-    def _adjust_char_id(self, char_id):
-        return char_id.replace("%20", "_")
+    def _adjust_glyph_repr(self, glyph_repr):
+        return glyph_repr.replace("%20", "_")
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath, mtext=None):
         # docstring inherited
@@ -1052,6 +1052,11 @@ class RendererSVG(RendererBase):
         text2path = self._text2path
         color = rgb2hex(gc.get_rgb())
         fontsize = prop.get_size_in_points()
+        if mtext is not None:
+            features = mtext.get_fontfeatures()
+            language = mtext.get_language()
+        else:
+            features = language = None
 
         style = {}
         if color != '#000000':
@@ -1071,19 +1076,19 @@ class RendererSVG(RendererBase):
 
         if not ismath:
             font = text2path._get_font(prop)
-            _glyphs = text2path.get_glyphs_with_font(
-                font, s, glyph_map=glyph_map, return_new_glyphs_only=True)
-            glyph_info, glyph_map_new, rects = _glyphs
+            glyph_info, glyph_map_new, rects = text2path.get_glyphs_with_font(
+                font, s, features=features, language=language,
+                glyph_map=glyph_map, return_new_glyphs_only=True)
             self._update_glyph_map_defs(glyph_map_new)
 
-            for glyph_id, xposition, yposition, scale in glyph_info:
+            for glyph_repr, xposition, yposition, scale in glyph_info:
                 writer.element(
                     'use',
                     transform=_generate_transform([
                         ('translate', (xposition, yposition)),
                         ('scale', (scale,)),
                         ]),
-                    attrib={'xlink:href': f'#{glyph_id}'})
+                    attrib={'xlink:href': f'#{glyph_repr}'})
 
         else:
             if ismath == "TeX":
@@ -1095,15 +1100,15 @@ class RendererSVG(RendererBase):
             glyph_info, glyph_map_new, rects = _glyphs
             self._update_glyph_map_defs(glyph_map_new)
 
-            for char_id, xposition, yposition, scale in glyph_info:
-                char_id = self._adjust_char_id(char_id)
+            for glyph_repr, xposition, yposition, scale in glyph_info:
+                glyph_repr = self._adjust_glyph_repr(glyph_repr)
                 writer.element(
                     'use',
                     transform=_generate_transform([
                         ('translate', (xposition, yposition)),
                         ('scale', (scale,)),
                         ]),
-                    attrib={'xlink:href': f'#{char_id}'})
+                    attrib={'xlink:href': f'#{glyph_repr}'})
 
             for verts, codes in rects:
                 path = Path(verts, codes)
@@ -1228,7 +1233,7 @@ class RendererSVG(RendererBase):
 
             # Sort the characters by font, and output one tspan for each.
             spans = {}
-            for font, fontsize, thetext, new_x, new_y in glyphs:
+            for font, fontsize, ccode, glyph_index, new_x, new_y in glyphs:
                 entry = fm.ttfFontProperty(font)
                 font_style = {}
                 # Separate font style in its separate attributes
@@ -1243,9 +1248,9 @@ class RendererSVG(RendererBase):
                 if entry.stretch != 'normal':
                     font_style['font-stretch'] = entry.stretch
                 style = _generate_css({**font_style, **color_style})
-                if thetext == 32:
-                    thetext = 0xa0  # non-breaking space
-                spans.setdefault(style, []).append((new_x, -new_y, thetext))
+                if ccode == 32:
+                    ccode = 0xa0  # non-breaking space
+                spans.setdefault(style, []).append((new_x, -new_y, ccode))
 
             for style, chars in spans.items():
                 chars.sort()  # Sort by increasing x position

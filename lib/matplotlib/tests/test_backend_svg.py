@@ -218,7 +218,7 @@ def test_unicode_won():
 
     tree = xml.etree.ElementTree.fromstring(buf)
     ns = 'http://www.w3.org/2000/svg'
-    won_id = 'SFSS1728-8e'
+    won_id = 'SFSS1728-232'
     assert len(tree.findall(f'.//{{{ns}}}path[@d][@id="{won_id}"]')) == 1
     assert f'#{won_id}' in tree.find(f'.//{{{ns}}}use').attrib.values()
 
@@ -528,7 +528,7 @@ def test_svg_metadata():
 
 
 @image_comparison(["multi_font_aspath.svg"])
-def test_multi_font_type3():
+def test_multi_font_aspath():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
     plt.rc('svg', fonttype='path')
@@ -539,7 +539,7 @@ def test_multi_font_type3():
 
 
 @image_comparison(["multi_font_astext.svg"])
-def test_multi_font_type42():
+def test_multi_font_astext():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
     plt.rc('svg', fonttype='none')

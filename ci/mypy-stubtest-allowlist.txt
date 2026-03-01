@@ -6,6 +6,7 @@ matplotlib\._.*
 matplotlib\.rcsetup\._listify_validator
 matplotlib\.rcsetup\._validate_linestyle
 matplotlib\.ft2font\.Glyph
+matplotlib\.ft2font\.LayoutItem
 matplotlib\.testing\.jpl_units\..*
 matplotlib\.sphinxext(\..*)?
 
@@ -52,3 +53,7 @@ matplotlib\.inset\.InsetIndicator\.__getitem__
 
 # only defined in stubs; not present at runtime
 matplotlib\.animation\.EventSourceProtocol
+
+# Avoid a regression in NewType handling for stubtest
+# https://github.com/python/mypy/issues/19877
+matplotlib\.ft2font\.GlyphIndexType\.__init__

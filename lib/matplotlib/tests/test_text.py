@@ -115,6 +115,26 @@ def test_font_styles():
     ax.set_yticks([])
 
 
+@image_comparison(['complex'], extensions=['png', 'pdf', 'svg', 'eps'])
+def test_complex_shaping():
+    # Raqm is Arabic for writing; note that because Arabic is RTL, the characters here
+    # may seem to be in a different order than expected, but libraqm will order them
+    # correctly for us.
+    text = (
+        'Arabic: \N{Arabic Letter REH}\N{Arabic FATHA}\N{Arabic Letter QAF}'
+        '\N{Arabic SUKUN}\N{Arabic Letter MEEM}')
+    math_signs = '\N{N-ary Product}\N{N-ary Coproduct}\N{N-ary summation}\N{Integral}'
+    text = math_signs + text + math_signs
+    fig = plt.figure(figsize=(6, 2))
+    fig.text(0.5, 0.75, text, size=32, ha='center', va='center')
+    # Also check fallback behaviour:
+    # - English should use cmr10
+    # - Math signs should use DejaVu Sans Display (and thus be larger than the rest)
+    # - Arabic should use DejaVu Sans
+    fig.text(0.5, 0.25, text, size=32, ha='center', va='center',
+             family=['cmr10', 'DejaVu Sans Display', 'DejaVu Sans'])
+
+
 @image_comparison(['multiline'])
 def test_multiline():
     plt.figure()
@@ -142,9 +162,6 @@ def test_multiline():
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['multiline2'], style='mpl20', tol=0.05)
 def test_multiline2():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig, ax = plt.subplots()
 
     ax.set_xlim(0, 1.4)
@@ -304,6 +321,22 @@ def test_alignment():
     ax.set_ylim(0, 1.5)
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+@image_comparison(baseline_images=['rotation_anchor.png'], style='mpl20',
+                  remove_text=True)
+def test_rotation_mode_anchor():
+    fig, ax = plt.subplots()
+
+    ax.plot([0, 1], lw=0)
+    ax.axvline(.5, linewidth=.5, color='.5')
+    ax.axhline(.5, linewidth=.5, color='.5')
+
+    N = 4
+    for r in range(N):
+        ax.text(.5, .5, 'pP', color=f'C{r}', size=100,
+                rotation=r/N*360, rotation_mode='anchor',
+                verticalalignment='center_baseline')
 
 
 @image_comparison(['axes_titles.png'])
@@ -683,8 +716,6 @@ def test_annotation_units(fig_test, fig_ref):
 
 @image_comparison(['large_subscript_title.png'], style='mpl20')
 def test_large_subscript_title():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
     plt.rcParams['axes.titley'] = None
 
     fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
@@ -721,7 +752,7 @@ def test_wrap(x, rotation, halign):
 
 
 def test_mathwrap():
-    fig = plt.figure(figsize=(6, 4))
+    fig = plt.figure(figsize=(5, 4))
     s = r'This is a very $\overline{\mathrm{long}}$ line of Mathtext.'
     text = fig.text(0, 0.5, s, size=40, wrap=True)
     fig.canvas.draw()
@@ -818,18 +849,6 @@ def test_invalid_color():
 def test_pdf_kerning():
     plt.figure()
     plt.figtext(0.1, 0.5, "ATATATATATATATATATA", size=30)
-
-
-def test_unsupported_script(recwarn):
-    fig = plt.figure()
-    t = fig.text(.5, .5, "\N{BENGALI DIGIT ZERO}")
-    fig.canvas.draw()
-    assert all(isinstance(warn.message, UserWarning) for warn in recwarn)
-    assert (
-        [warn.message.args for warn in recwarn] ==
-        [(r"Glyph 2534 (\N{BENGALI DIGIT ZERO}) missing from font(s) "
-            + f"{t.get_fontname()}.",),
-         (r"Matplotlib currently does not support Bengali natively.",)])
 
 
 # See gh-26152 for more information on this xfail
@@ -1224,3 +1243,78 @@ def test_ytick_rotation_mode():
         tick.set_rotation(angle)
 
     plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)
+
+
+@image_comparison(['features'], remove_text=False, style='mpl20',
+                  extensions=['png', 'pdf', 'svg', 'eps'])
+def test_text_features():
+    fig = plt.figure(figsize=(5, 1.5))
+    t = fig.text(1, 0.7, 'Default: fi ffi fl st',
+                 fontsize=32, horizontalalignment='right')
+    assert t.get_fontfeatures() is None
+    t = fig.text(1, 0.4, 'Disabled: fi ffi fl st',
+                 fontsize=32, horizontalalignment='right',
+                 fontfeatures=['-liga'])
+    assert t.get_fontfeatures() == ('-liga', )
+    t = fig.text(1, 0.1, 'Discretionary: fi ffi fl st',
+                 fontsize=32, horizontalalignment='right')
+    t.set_fontfeatures(['dlig'])
+    assert t.get_fontfeatures() == ('dlig', )
+
+
+@pytest.mark.parametrize(
+    'input, match',
+    [
+        ([1, 2, 3], 'must be list of tuple'),
+        ([(1, 2)], 'must be list of tuple'),
+        ([('en', 'foo', 2)], 'start location must be int'),
+        ([('en', 1, 'foo')], 'end location must be int'),
+    ],
+)
+def test_text_language_invalid(input, match):
+    with pytest.raises(TypeError, match=match):
+        Text(0, 0, 'foo', language=input)
+
+
+@image_comparison(['language'], remove_text=False, style='mpl20',
+                  extensions=['png', 'pdf', 'svg', 'eps'])
+def test_text_language():
+    fig = plt.figure(figsize=(5, 3))
+
+    t = fig.text(0, 0.8, 'Default', fontsize=32)
+    assert t.get_language() is None
+    t = fig.text(0, 0.55, 'Lang A', fontsize=32)
+    assert t.get_language() is None
+    t = fig.text(0, 0.3, 'Lang B', fontsize=32)
+    assert t.get_language() is None
+    t = fig.text(0, 0.05, 'Mixed', fontsize=32)
+    assert t.get_language() is None
+
+    # DejaVu Sans supports language-specific glyphs in the Serbian and Macedonian
+    # languages in the Cyrillic alphabet.
+    cyrillic = '\U00000431'
+    t = fig.text(0.4, 0.8, cyrillic, fontsize=32)
+    assert t.get_language() is None
+    t = fig.text(0.4, 0.55, cyrillic, fontsize=32, language='sr')
+    assert t.get_language() == 'sr'
+    t = fig.text(0.4, 0.3, cyrillic, fontsize=32)
+    t.set_language('ru')
+    assert t.get_language() == 'ru'
+    t = fig.text(0.4, 0.05, cyrillic * 4, fontsize=32,
+                 language=[('ru', 0, 1), ('sr', 1, 2), ('ru', 2, 3), ('sr', 3, 4)])
+    assert t.get_language() == (('ru', 0, 1), ('sr', 1, 2), ('ru', 2, 3), ('sr', 3, 4))
+
+    # Or the Sámi family of languages in the Latin alphabet.
+    latin = '\U0000014a'
+    t = fig.text(0.7, 0.8, latin, fontsize=32)
+    assert t.get_language() is None
+    with plt.rc_context({'text.language': 'en'}):
+        t = fig.text(0.7, 0.55, latin, fontsize=32)
+    assert t.get_language() == 'en'
+    t = fig.text(0.7, 0.3, latin, fontsize=32, language='smn')
+    assert t.get_language() == 'smn'
+    # Tuples are not documented, but we'll allow it.
+    t = fig.text(0.7, 0.05, latin * 4, fontsize=32)
+    t.set_language((('en', 0, 1), ('smn', 1, 2), ('en', 2, 3), ('smn', 3, 4)))
+    assert t.get_language() == (
+        ('en', 0, 1), ('smn', 1, 2), ('en', 2, 3), ('smn', 3, 4))

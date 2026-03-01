@@ -69,6 +69,25 @@ stages:
             displayName: 'Use Python $(python.version)'
 
           - bash: |
+              git config --global user.name 'Matplotlib'
+              git config --global user.email 'nobody@matplotlib.org'
+              git fetch https://github.com/QuLogic/matplotlib.git text-overhaul-figures:text-overhaul-figures
+              git merge --no-commit text-overhaul-figures || true
+              # If there are any conflicts in baseline images, then pick "ours",
+              # which should be the updated images in the PR.
+              conflicts=$(git diff --name-only --diff-filter=U \
+                          lib/matplotlib/tests/baseline_images \
+                          lib/mpl_toolkits/*/tests/baseline_images)
+              if [ -n "${conflicts}" ]; then
+                git checkout --ours -- ${conflicts}
+                git add -- ${conflicts}
+              fi
+              # If committing fails, there were conflicts other than the baseline images,
+              # which should not be allowed to happen, and should fail the build.
+              git commit -m 'Preload test images from branch text-overhaul-figures'
+            displayName: Preload test images
+
+          - bash: |
               choco install ninja
             displayName: 'Install dependencies'
 

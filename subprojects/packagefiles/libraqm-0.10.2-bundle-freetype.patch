@@ -1,0 +1,11 @@
+--- a/meson.build	2025-03-26 03:32:12.444735795 -0400
++++ b/meson.build	2025-03-26 03:32:16.117435140 -0400
+@@ -45,8 +45,7 @@
+ if not freetype.found()
+     freetype = dependency(
+         'freetype2',
+         version: '>= @0@'.format(freetype_version[0]),
+-        method: 'pkg-config',
+         fallback: ['freetype2', 'freetype_dep'],
+         default_options: [
+             'png=disabled',

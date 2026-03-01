@@ -8,9 +8,10 @@
  <g id="figure_1">
   <g id="text_1">
    <!-- $-$- -->
-   <g transform="translate(181.8 30.31125)">
+   <g transform="translate(179.4 31.415)">
     <text>
-     <tspan style="font: 12px 'DejaVu Sans'" x="0 10.054688" y="-0.734375">−-</tspan>
+     <tspan x="0" y="-0.3125" style="font-size: 16px; font-family: 'DejaVu Sans'">−</tspan>
+     <tspan x="13.40625" y="-0.3125" style="font-size: 16px; font-family: 'DejaVu Sans'">-</tspan>
     </text>
    </g>
   </g>

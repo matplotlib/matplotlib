@@ -755,6 +755,8 @@ class RcParams(MutableMapping, dict):
             cval = valid_key(val)
         except ValueError as ve:
             raise ValueError(f"Key {key}: {ve}") from None
+        if key == "text.kerning_factor" and cval is not None:
+           _api.warn_deprecated("3.11", name="text.kerning_factor", obj_type="rcParam")
         self._set(key, cval)
 
     def __getitem__(self, key):
@@ -1331,8 +1333,8 @@ def _val_or_rc(val, *rc_names):
 
 def _init_tests():
     # The version of FreeType to install locally for running the tests. This must match
-    # the value in `meson.build`.
-    LOCAL_FREETYPE_VERSION = '2.6.1'
+    # the value in `subprojects/freetype2.wrap`.
+    LOCAL_FREETYPE_VERSION = '2.14.1'
 
     from matplotlib import ft2font
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or

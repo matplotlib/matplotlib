@@ -1,0 +1,7 @@
+Font kerning factor is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Due to internal changes to support complex text rendering, the kerning factor on fonts is
+no longer used. Setting the ``text.kerning_factor`` rcParam (which existed only for
+backwards-compatibility) to any value other than None is deprecated, and the rcParam will
+be removed in the future.

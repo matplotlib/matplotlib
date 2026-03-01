@@ -10,9 +10,6 @@ from mpl_toolkits.axisartist import Axes, SubplotHost
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['SubplotZero.png'], style='default', tol=0.02)
 def test_SubplotZero():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig = plt.figure()
 
     ax = SubplotZero(fig, 1, 1, 1)
@@ -32,9 +29,6 @@ def test_SubplotZero():
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['Subplot.png'], style='default', tol=0.02)
 def test_Subplot():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig = plt.figure()
 
     ax = Subplot(fig, 1, 1, 1)
