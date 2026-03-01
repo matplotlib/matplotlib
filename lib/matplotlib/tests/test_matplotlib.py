@@ -7,6 +7,7 @@ import pytest
 
 import matplotlib
 from matplotlib.testing import subprocess_run_for_testing
+from matplotlib.testing._markers import starts_subprocess
 
 
 @pytest.mark.parametrize('version_str, version_tuple', [
@@ -19,6 +20,7 @@ def test_parse_to_version_info(version_str, version_tuple):
     assert matplotlib._parse_to_version_info(version_str) == version_tuple
 
 
+@starts_subprocess
 @pytest.mark.skipif(sys.platform == "win32",
                     reason="chmod() doesn't work as is on Windows")
 @pytest.mark.skipif(sys.platform != "win32" and os.geteuid() == 0,
@@ -37,6 +39,7 @@ def test_tmpconfigdir_warning(tmp_path):
         os.chmod(tmp_path, mode)
 
 
+@starts_subprocess
 def test_importable_with_no_home(tmp_path):
     subprocess_run_for_testing(
         [sys.executable, "-c",

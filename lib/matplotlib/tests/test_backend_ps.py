@@ -18,8 +18,6 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 
 
-# This tests tends to hit a TeX cache lock on AppVeyor.
-@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize('papersize', ['letter', 'figure'])
 @pytest.mark.parametrize('orientation', ['portrait', 'landscape'])
 @pytest.mark.parametrize('format, use_log, rcParams', [

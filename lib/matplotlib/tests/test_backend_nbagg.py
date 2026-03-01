@@ -3,12 +3,14 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
+from matplotlib.testing._markers import starts_subprocess
 
 from matplotlib.testing import subprocess_run_for_testing
 
 nbformat = pytest.importorskip('nbformat')
 pytest.importorskip('nbconvert')
 pytest.importorskip('ipykernel')
+pytestmark = starts_subprocess
 
 # From https://blog.thedataincubator.com/2016/06/testing-jupyter-notebooks/
 
