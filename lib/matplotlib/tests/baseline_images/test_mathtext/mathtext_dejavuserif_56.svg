@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:27:49.383690</dc:date>
+    <dc:date>2026-03-01T22:41:10.115407</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- ${\int }_{1}^{x}\frac{\mathrm{dt}}{t}$ -->
-   <g transform="translate(176.28 33.48) scale(0.12 -0.12)">
+   <g transform="translate(176.28 33.36) scale(0.12 -0.12)">
     <defs>
      <path id="DejaVuSerifDisplay-11" d="M 1375 -1159 
 Q 1844 -1159 1906 1881 
@@ -175,14 +175,14 @@ z
     <use xlink:href="#DejaVuSerifDisplay-11" transform="translate(0 0.634563)"/>
     <use xlink:href="#DejaVuSerif-Italic-5b" transform="translate(86.744141 102.665625) scale(0.7)"/>
     <use xlink:href="#DejaVuSerif-14" transform="translate(71.759766 -30.00625) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-47" transform="translate(132.47168 42.348626) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-57" transform="translate(177.28125 42.348626) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-Italic-57" transform="translate(154.47168 -25.616425) scale(0.7)"/>
-    <path d="M 132.47168 28.853313 
-L 132.47168 35.103313 
-L 205.411133 35.103313 
-L 205.411133 28.853313 
-L 132.47168 28.853313 
+    <use xlink:href="#DejaVuSerif-47" transform="translate(132.47168 36.004876) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-57" transform="translate(177.28125 36.004876) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-Italic-57" transform="translate(154.47168 -31.351374) scale(0.7)"/>
+    <path d="M 132.47168 22.509563 
+L 132.47168 28.759563 
+L 205.411133 28.759563 
+L 205.411133 22.509563 
+L 132.47168 22.509563 
 z
 "/>
    </g>

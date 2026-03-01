@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-14T03:33:07.354801</dc:date>
+    <dc:date>2026-03-01T22:41:08.260385</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1864+g6f7d0e9a17, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\left( \xi \left( 1 - \xi \right) \right)$ -->
-   <g transform="translate(166.86 30.239062) scale(0.12 -0.12)">
+   <g transform="translate(166.26 30.239062) scale(0.12 -0.12)">
     <defs>
      <path id="STIXGeneral-Regular-b" d="M 1946 -1030 
 L 1869 -1133 
@@ -120,10 +120,10 @@ z
     <use xlink:href="#STIXNonUnicode-Italic-62" transform="translate(33.299973 0.703125)"/>
     <use xlink:href="#STIXGeneral-Regular-b" transform="translate(76.699936 0.703125)"/>
     <use xlink:href="#STIXGeneral-Regular-cc0" transform="translate(109.999908 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(175.119849 0.703125)"/>
-    <use xlink:href="#STIXNonUnicode-Italic-62" transform="translate(258.739774 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Regular-c" transform="translate(302.139737 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Regular-c" transform="translate(335.439709 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(179.999863 0.703125)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-62" transform="translate(268.499802 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Regular-c" transform="translate(311.899765 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Regular-c" transform="translate(345.199738 0.703125)"/>
    </g>
   </g>
  </g>

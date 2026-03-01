@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:10.607965</dc:date>
+    <dc:date>2026-03-01T22:41:07.471645</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$ -->
-   <g transform="translate(155.28 30.31125) scale(0.12 -0.12)">
+   <g transform="translate(153.9 30.31125) scale(0.12 -0.12)">
     <defs>
-     <path id="STIXGeneral-Regular-22d3" d="M 3661 -198 
+     <path id="STIXGeneral-Regular-4e6" d="M 3661 -198 
 L 3238 -198 
 L 3238 1690 
 Q 3238 2240 2873 2624 
@@ -65,8 +65,8 @@ Q 2771 2086 2771 1715
 L 2771 -198 
 z
 " transform="scale(0.015625)"/>
-     <path id="DejaVuSans-20" transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-22d2" d="M 2771 3430 
+     <path id="DejaVuSans-3" transform="scale(0.015625)"/>
+     <path id="STIXGeneral-Regular-4e5" d="M 2771 3430 
 L 2771 1517 
 Q 2771 1146 2553 915 
 Q 2336 685 1984 685 
@@ -99,7 +99,7 @@ L 3238 3430
 L 3661 3430 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-21bc" d="M 5766 1408 
+     <path id="STIXGeneral-Regular-3d8" d="M 5766 1408 
 L 346 1408 
 L 346 1434 
 Q 576 1606 784 1776 
@@ -120,7 +120,7 @@ L 5766 1830
 L 5766 1408 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-22bc" d="M 3661 3712 
+     <path id="STIXGeneral-Regular-4cf" d="M 3661 3712 
 L 307 3712 
 L 307 4134 
 L 3661 4134 
@@ -136,7 +136,7 @@ L 2029 3430
 L 3776 -186 
 z
 " transform="scale(0.015625)"/>
-     <path id="STIXGeneral-Regular-21c0" d="M 5766 1408 
+     <path id="STIXGeneral-Regular-3dc" d="M 5766 1408 
 L 346 1408 
 L 346 1830 
 L 4218 1830 
@@ -158,15 +158,15 @@ L 5766 1408
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Regular-22d3" transform="translate(0 0.40625)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(61.999939 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-22d2" transform="translate(93.787048 0.40625)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(155.786987 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-21bc" transform="translate(202.014084 0.40625)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(311.953979 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-22bc" transform="translate(343.741089 0.40625)"/>
-    <use xlink:href="#DejaVuSans-20" transform="translate(405.741028 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-21c0" transform="translate(451.968124 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-4e6" transform="translate(0 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(61.999939 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-4e5" transform="translate(93.787048 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(155.786987 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-3d8" transform="translate(207.574097 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(323.074005 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-4cf" transform="translate(354.861115 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(416.861053 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-3dc" transform="translate(468.648163 0.40625)"/>
    </g>
   </g>
  </g>

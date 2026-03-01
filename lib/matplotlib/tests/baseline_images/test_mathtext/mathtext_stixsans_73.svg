@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:27:42.376337</dc:date>
+    <dc:date>2026-03-01T22:41:08.650481</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$ -->
-   <g transform="translate(119.76 30.72) scale(0.12 -0.12)">
+   <g transform="translate(119.34 30.72) scale(0.12 -0.12)">
     <defs>
      <path id="STIXGeneral-Italic-3e8" d="M 3482 2899 
 L 2202 1510 
@@ -333,24 +333,24 @@ z
     <use xlink:href="#STIXGeneral-Italic-3e0" transform="translate(324.674068 41.684965) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Italic-3e9" transform="translate(361.798882 0.1125)"/>
     <use xlink:href="#STIXGeneral-Italic-3e0" transform="translate(419.711174 41.684965) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(465.155134 41.684965) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-cc1" transform="translate(523.689081 41.684965) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3d4" transform="translate(560.953893 0.1125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3da" transform="translate(629.572122 51.465625) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3d9" transform="translate(610.353841 -36.184375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3d2" transform="translate(649.616951 0.1125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3da" transform="translate(699.216912 -14.986458) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3d3" transform="translate(719.26174 0.1125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3db" transform="translate(764.861701 -14.986458) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3d4" transform="translate(798.836515 0.1125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(848.236463 0.1125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3da" transform="translate(905.948758 51.465625) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3d9" transform="translate(896.436414 -36.184375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3bb" transform="translate(925.993586 0.1125)"/>
-    <use xlink:href="#STIXGeneral-Regular-cbf" transform="translate(1002.586497 41.684965) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3bb" transform="translate(1039.851309 0.1125)"/>
-    <use xlink:href="#STIXGeneral-Regular-cbf" transform="translate(1116.44422 41.684965) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e5" transform="translate(1098.151251 -30.991354) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(468.571144 41.684965) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-cc1" transform="translate(530.521101 41.684965) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3d4" transform="translate(567.785913 0.1125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3da" transform="translate(636.404142 51.465625) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3d9" transform="translate(617.185861 -36.184375) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3d2" transform="translate(656.448971 0.1125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3da" transform="translate(706.048931 -14.986458) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3d3" transform="translate(726.09376 0.1125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3db" transform="translate(771.69372 -14.986458) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3d4" transform="translate(805.668534 0.1125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(855.068482 0.1125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3da" transform="translate(912.780777 51.465625) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3d9" transform="translate(903.268434 -36.184375) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3bb" transform="translate(932.825606 0.1125)"/>
+    <use xlink:href="#STIXGeneral-Regular-cbf" transform="translate(1009.418517 41.684965) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3bb" transform="translate(1046.683329 0.1125)"/>
+    <use xlink:href="#STIXGeneral-Regular-cbf" transform="translate(1123.276239 41.684965) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e5" transform="translate(1104.983271 -30.991354) scale(0.7)"/>
    </g>
   </g>
  </g>

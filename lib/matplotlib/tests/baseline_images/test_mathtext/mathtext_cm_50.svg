@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:28:10.347076</dc:date>
+    <dc:date>2026-03-01T22:41:05.710476</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\binom{p}{2}{x}^{2}{y}^{p-2}-\frac{1}{1-x}\frac{1}{1-{x}^{2}}$ -->
-   <g transform="translate(132.66 29.52) scale(0.12 -0.12)">
+   <g transform="translate(131.76 29.52) scale(0.12 -0.12)">
     <defs>
      <path id="Cmex10-44" d="M 2503 -7406 
 Q 1713 -6744 1342 -5734 
@@ -323,30 +323,30 @@ z
     <use xlink:href="#Cmr10-31" transform="translate(200.027347 43.373438) scale(0.7)"/>
     <use xlink:href="#Cmmi10-72" transform="translate(240.898157 0.998675)"/>
     <use xlink:href="#Cmmi10-80" transform="translate(301.233853 43.373438) scale(0.7)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(348.729947 43.373438) scale(0.7)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(415.400845 43.373438) scale(0.7)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(473.830249 0.998675)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(634.32439 35.373675) scale(0.7)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(575.32439 -30.002887) scale(0.7)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(622.615405 -30.002887) scale(0.7)"/>
-    <use xlink:href="#Cmmi10-3f" transform="translate(689.286304 -30.002887) scale(0.7)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(819.742358 35.373675) scale(0.7)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(741.742358 -45.677252) scale(0.7)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(789.033374 -45.677252) scale(0.7)"/>
-    <use xlink:href="#Cmmi10-3f" transform="translate(855.704272 -45.677252) scale(0.7)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(903.578908 -16.014919) scale(0.49)"/>
-    <path d="M 575.32439 22.873675 
-L 575.32439 29.123675 
-L 729.242358 29.123675 
-L 729.242358 22.873675 
-L 575.32439 22.873675 
+    <use xlink:href="#Cmsy10-11" transform="translate(350.438971 43.373438) scale(0.7)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(418.818894 43.373438) scale(0.7)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(479.689761 0.998675)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(644.625365 35.373675) scale(0.7)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(583.625365 -30.002887) scale(0.7)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(632.625406 -30.002887) scale(0.7)"/>
+    <use xlink:href="#Cmmi10-3f" transform="translate(701.005328 -30.002887) scale(0.7)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(832.461383 35.373675) scale(0.7)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(753.461383 -45.677252) scale(0.7)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(802.461423 -45.677252) scale(0.7)"/>
+    <use xlink:href="#Cmmi10-3f" transform="translate(870.841346 -45.677252) scale(0.7)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(918.715982 -16.014919) scale(0.49)"/>
+    <path d="M 583.625365 22.873675 
+L 583.625365 29.123675 
+L 740.961383 29.123675 
+L 740.961383 22.873675 
+L 583.625365 22.873675 
 z
 "/>
-    <path d="M 741.742358 22.873675 
-L 741.742358 29.123675 
-L 932.188475 29.123675 
-L 932.188475 22.873675 
-L 741.742358 22.873675 
+    <path d="M 753.461383 22.873675 
+L 753.461383 29.123675 
+L 947.325549 29.123675 
+L 947.325549 22.873675 
+L 753.461383 22.873675 
 z
 "/>
    </g>

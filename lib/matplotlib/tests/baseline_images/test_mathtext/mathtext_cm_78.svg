@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:28:11.643284</dc:date>
+    <dc:date>2026-03-01T22:41:07.143724</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$ -->
-   <g transform="translate(113.94 30.24) scale(0.12 -0.12)">
+   <g transform="translate(113.64 30.24) scale(0.12 -0.12)">
     <defs>
      <path id="Cmr10-45" d="M 1600 -141 
 Q 1203 -141 937 70 
@@ -274,32 +274,32 @@ z
 " transform="scale(0.015625)"/>
     </defs>
     <use xlink:href="#Cmr10-45" transform="translate(0 0.998675)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(67.558594 0.998675)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(162.802734 0.998675)"/>
-    <use xlink:href="#DejaVuSans-1e" transform="translate(212.802734 0.998675)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(246.494141 0.998675)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(278.28125 0.998675)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(355.966797 0.998675)"/>
-    <use xlink:href="#DejaVuSans-1e" transform="translate(405.966797 0.998675)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(439.658203 0.998675)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(471.445312 0.998675)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(549.130859 0.998675)"/>
-    <use xlink:href="#DejaVuSans-1e" transform="translate(599.130859 0.998675)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(632.822266 0.998675)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(664.609375 0.998675)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(742.294922 0.998675)"/>
-    <use xlink:href="#DejaVuSans-1e" transform="translate(792.294922 0.998675)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(825.986328 0.998675)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(857.773438 0.998675)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(935.458984 0.998675)"/>
-    <use xlink:href="#DejaVuSans-1e" transform="translate(985.458984 0.998675)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(1019.150391 0.998675)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(1050.9375 0.998675)"/>
-    <use xlink:href="#Cmr10-28" transform="translate(1100.9375 0.998675)"/>
-    <use xlink:href="#Cmr10-4c" transform="translate(1155.047067 43.373438) scale(0.7)"/>
-    <use xlink:href="#Cmr10-6e" transform="translate(1209.42695 43.373438) scale(0.7)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(1155.047067 -34.060937) scale(0.7)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(1209.42695 -34.060937) scale(0.7)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(70.000057 0.998675)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(167.685661 0.998675)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(217.685661 0.998675)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(251.377068 0.998675)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(283.164177 0.998675)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(360.849724 0.998675)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(410.849724 0.998675)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(444.54113 0.998675)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(476.328239 0.998675)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(554.013786 0.998675)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(604.013786 0.998675)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(637.705193 0.998675)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(669.492302 0.998675)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(747.177849 0.998675)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(797.177849 0.998675)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(830.869255 0.998675)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(862.656364 0.998675)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(940.341911 0.998675)"/>
+    <use xlink:href="#DejaVuSans-1e" transform="translate(990.341911 0.998675)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(1024.033318 0.998675)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(1055.820427 0.998675)"/>
+    <use xlink:href="#Cmr10-28" transform="translate(1105.820427 0.998675)"/>
+    <use xlink:href="#Cmr10-4c" transform="translate(1159.929994 43.373438) scale(0.7)"/>
+    <use xlink:href="#Cmr10-6e" transform="translate(1214.309877 43.373438) scale(0.7)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(1159.929994 -34.060937) scale(0.7)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(1214.309877 -34.060937) scale(0.7)"/>
    </g>
   </g>
  </g>

@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:28:12.496835</dc:date>
+    <dc:date>2026-03-01T22:41:06.888772</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -220,7 +220,7 @@ z
     <use xlink:href="#STIXGeneral-Regular-16" transform="translate(110.020798 -17.013125) scale(0.49)"/>
     <use xlink:href="#STIXGeneral-Regular-c" transform="translate(134.520776 -17.013125) scale(0.49)"/>
     <use xlink:href="#STIXGeneral-Regular-17" transform="translate(109.703812 -71.933594) scale(0.49)"/>
-    <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(161.462762 0.185937)"/>
+    <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(161.462762 0.482813)"/>
     <use xlink:href="#STIXSizeTwoSym-Regular-5" transform="translate(205.862726 -48.355469) scale(0.845169)"/>
     <use xlink:href="#STIXSizeTwoSym-Regular-9" transform="translate(257.248193 -48.355469) scale(0.845169)"/>
     <path d="M 89.328812 22.357813 

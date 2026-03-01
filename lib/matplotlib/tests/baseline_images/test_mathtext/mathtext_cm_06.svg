@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-14T03:32:38.516142</dc:date>
+    <dc:date>2026-03-01T22:41:05.127357</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1864+g6f7d0e9a17, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $100\%y\ x*y\ x/y x\$y$ -->
-   <g transform="translate(138.3 30.059062) scale(0.12 -0.12)">
+   <g transform="translate(137.52 30.059062) scale(0.12 -0.12)">
     <defs>
      <path id="Cmr10-64" d="M 594 0 
 L 594 225 
@@ -401,15 +401,15 @@ z
     <use xlink:href="#Cmr10-28" transform="translate(100 0)"/>
     <use xlink:href="#Cmr10-30" transform="translate(150 0)"/>
     <use xlink:href="#Cmmi10-72" transform="translate(233.300781 0)"/>
-    <use xlink:href="#Cmmi10-3f" transform="translate(311.588249 0)"/>
-    <use xlink:href="#Cmsy10-9" transform="translate(386.226921 0)"/>
-    <use xlink:href="#Cmmi10-72" transform="translate(453.785515 0)"/>
-    <use xlink:href="#Cmmi10-3f" transform="translate(532.072982 0)"/>
-    <use xlink:href="#Cmmi10-62" transform="translate(589.153061 0)"/>
-    <use xlink:href="#Cmmi10-72" transform="translate(639.153061 0)"/>
-    <use xlink:href="#Cmmi10-3f" transform="translate(688.176498 0)"/>
-    <use xlink:href="#Cmr10-63" transform="translate(745.256576 0)"/>
-    <use xlink:href="#Cmmi10-72" transform="translate(795.256576 0)"/>
+    <use xlink:href="#Cmmi10-3f" transform="translate(315.657314 0)"/>
+    <use xlink:href="#Cmsy10-9" transform="translate(392.737449 0)"/>
+    <use xlink:href="#Cmmi10-72" transform="translate(462.737507 0)"/>
+    <use xlink:href="#Cmmi10-3f" transform="translate(545.09404 0)"/>
+    <use xlink:href="#Cmmi10-62" transform="translate(602.174118 0)"/>
+    <use xlink:href="#Cmmi10-72" transform="translate(652.174118 0)"/>
+    <use xlink:href="#Cmmi10-3f" transform="translate(701.197555 0)"/>
+    <use xlink:href="#Cmr10-63" transform="translate(758.277633 0)"/>
+    <use xlink:href="#Cmmi10-72" transform="translate(808.277633 0)"/>
    </g>
   </g>
  </g>

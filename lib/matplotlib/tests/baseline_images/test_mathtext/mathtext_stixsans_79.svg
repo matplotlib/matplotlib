@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:27:42.647481</dc:date>
+    <dc:date>2026-03-01T22:41:08.967097</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\overline{\omega}^x \frac{1}{2}_0^x$ -->
-   <g transform="translate(177.78 30.06) scale(0.12 -0.12)">
+   <g transform="translate(177.78 30) scale(0.12 -0.12)">
     <defs>
      <path id="STIXNonUnicode-Italic-6d" d="M 3200 2560 
 L 3482 2906 
@@ -152,17 +152,17 @@ Q 2547 1651 2547 2112
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXNonUnicode-Italic-6d" transform="translate(0 0.922361)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(64.58533 43.384375) scale(0.7)"/>
+    <use xlink:href="#STIXNonUnicode-Italic-6d" transform="translate(0 1.219236)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(64.58533 43.68125) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Regular-cc0" transform="translate(106.840139 35.094236) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Regular-cc1" transform="translate(106.840139 -30.971389) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(149.675498 55.292187) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Regular-cbf" transform="translate(149.675498 -34.493972) scale(0.7)"/>
-    <path d="M 0 64.328611 
-L 0 70.578611 
-L 62.999939 70.578611 
-L 62.999939 64.328611 
-L 0 64.328611 
+    <path d="M 0 64.625486 
+L 0 70.875486 
+L 62.999939 70.875486 
+L 62.999939 64.625486 
+L 0 64.625486 
 z
 "/>
     <path d="M 106.840139 22.594236 

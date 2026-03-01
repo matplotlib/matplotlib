@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:28:08.777318</dc:date>
+    <dc:date>2026-03-01T22:41:05.777327</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $dz/dt = \gamma x^2 + {\rm sin}(2\pi y+\phi)$ -->
-   <g transform="translate(119.88 30.9) scale(0.12 -0.12)">
+   <g transform="translate(118.98 30.9) scale(0.12 -0.12)">
     <defs>
      <path id="Cmmi10-51" d="M 1113 -72 
 Q 709 -72 476 233 
@@ -686,21 +686,21 @@ z
     <use xlink:href="#Cmmi10-62" transform="translate(98.486328 0.998675)"/>
     <use xlink:href="#Cmmi10-51" transform="translate(148.486328 0.998675)"/>
     <use xlink:href="#Cmmi10-30" transform="translate(200.488281 0.998675)"/>
-    <use xlink:href="#Cmr10-29" transform="translate(254.130859 0.998675)"/>
-    <use xlink:href="#Cmmi10-18" transform="translate(349.375 0.998675)"/>
-    <use xlink:href="#Cmmi10-3f" transform="translate(401.083984 0.998675)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(469.476321 43.373438) scale(0.7)"/>
-    <use xlink:href="#Cmr10-4c" transform="translate(527.905725 0.998675)"/>
-    <use xlink:href="#Cmr10-52" transform="translate(623.149866 0.998675)"/>
-    <use xlink:href="#Cmr10-24" transform="translate(662.554163 0.998675)"/>
-    <use xlink:href="#Cmr10-74" transform="translate(690.239709 0.998675)"/>
-    <use xlink:href="#Cmr10-77" transform="translate(745.757288 0.998675)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(784.575647 0.998675)"/>
-    <use xlink:href="#Cmmi10-24" transform="translate(834.575647 0.998675)"/>
-    <use xlink:href="#Cmmi10-72" transform="translate(891.558069 0.998675)"/>
-    <use xlink:href="#Cmr10-4c" transform="translate(958.1401 0.998675)"/>
-    <use xlink:href="#Cmmi10-2a" transform="translate(1053.384241 0.998675)"/>
-    <use xlink:href="#Cmr10-44" transform="translate(1112.905725 0.998675)"/>
+    <use xlink:href="#Cmr10-29" transform="translate(256.572323 0.998675)"/>
+    <use xlink:href="#Cmmi10-18" transform="translate(354.257927 0.998675)"/>
+    <use xlink:href="#Cmmi10-3f" transform="translate(405.966911 0.998675)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(474.359248 43.373438) scale(0.7)"/>
+    <use xlink:href="#Cmr10-4c" transform="translate(535.230116 0.998675)"/>
+    <use xlink:href="#Cmr10-52" transform="translate(632.91572 0.998675)"/>
+    <use xlink:href="#Cmr10-24" transform="translate(672.320016 0.998675)"/>
+    <use xlink:href="#Cmr10-74" transform="translate(700.005563 0.998675)"/>
+    <use xlink:href="#Cmr10-77" transform="translate(755.523141 0.998675)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(794.341501 0.998675)"/>
+    <use xlink:href="#Cmmi10-24" transform="translate(844.341501 0.998675)"/>
+    <use xlink:href="#Cmmi10-72" transform="translate(901.323923 0.998675)"/>
+    <use xlink:href="#Cmr10-4c" transform="translate(970.347417 0.998675)"/>
+    <use xlink:href="#Cmmi10-2a" transform="translate(1068.033022 0.998675)"/>
+    <use xlink:href="#Cmr10-44" transform="translate(1127.554506 0.998675)"/>
    </g>
   </g>
  </g>

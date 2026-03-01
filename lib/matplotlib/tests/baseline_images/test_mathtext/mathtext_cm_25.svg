@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:28:09.082905</dc:date>
+    <dc:date>2026-03-01T22:41:05.937470</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\Delta^j_{i+1}$ -->
-   <g transform="translate(175.08 30.18) scale(0.12 -0.12)">
+   <g transform="translate(174.9 30.18) scale(0.12 -0.12)">
     <defs>
      <path id="Cmr10-6" d="M 347 0 
 Q 294 0 294 50 
@@ -183,8 +183,8 @@ z
     <use xlink:href="#Cmr10-6" transform="translate(0 0.0125)"/>
     <use xlink:href="#Cmmi10-69" transform="translate(87.410348 49.723438) scale(0.7)"/>
     <use xlink:href="#Cmmi10-37" transform="translate(87.410348 -36.264062) scale(0.7)"/>
-    <use xlink:href="#Cmr10-4c" transform="translate(123.798044 -36.264062) scale(0.7)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(190.468942 -36.264062) scale(0.7)"/>
+    <use xlink:href="#Cmr10-4c" transform="translate(125.507068 -36.264062) scale(0.7)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(193.886991 -36.264062) scale(0.7)"/>
    </g>
   </g>
  </g>

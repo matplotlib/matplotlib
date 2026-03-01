@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:28:14.714915</dc:date>
+    <dc:date>2026-03-01T22:41:06.876278</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -215,14 +215,14 @@ z
     <use xlink:href="#STIXGeneral-Regular-43e" transform="translate(0 0.62745)"/>
     <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(71.857932 78.134375) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Regular-14" transform="translate(37.247307 -36.271875) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-47" transform="translate(109.187906 35.999325) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-57" transform="translate(144.187874 35.999325) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-47" transform="translate(109.187906 35.70245) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-57" transform="translate(144.187874 35.70245) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Italic-57" transform="translate(126.187906 -25.093904) scale(0.7)"/>
-    <path d="M 109.187906 22.799325 
-L 109.187906 29.049325 
-L 163.647855 29.049325 
-L 163.647855 22.799325 
-L 109.187906 22.799325 
+    <path d="M 109.187906 22.50245 
+L 109.187906 28.75245 
+L 163.647855 28.75245 
+L 163.647855 22.50245 
+L 109.187906 22.50245 
 z
 "/>
    </g>

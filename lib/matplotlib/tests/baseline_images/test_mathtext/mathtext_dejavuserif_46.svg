@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:27:48.804385</dc:date>
+    <dc:date>2026-03-01T22:41:10.380864</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\frac{a}{b/2}$ -->
-   <g transform="translate(181.44 29.52) scale(0.12 -0.12)">
+   <g transform="translate(181.44 28.859063) scale(0.12 -0.12)">
     <defs>
      <path id="DejaVuSerif-Italic-44" d="M 2325 519 
 Q 1909 -91 1238 -91 
@@ -123,15 +123,15 @@ Q 863 3997 819 3553
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSerif-Italic-44" transform="translate(42.25 42.670313) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-Italic-45" transform="translate(6.25 -30.264062) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-12" transform="translate(51.05957 -30.264062) scale(0.7)"/>
-    <use xlink:href="#DejaVuSerif-15" transform="translate(74.643555 -30.264062) scale(0.7)"/>
-    <path d="M 6.25 29.175 
-L 6.25 35.425 
-L 119.179687 35.425 
-L 119.179687 29.175 
-L 6.25 29.175 
+    <use xlink:href="#DejaVuSerif-Italic-44" transform="translate(42.25 35.670313) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-Italic-45" transform="translate(6.25 -37.264062) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-12" transform="translate(51.05957 -37.264062) scale(0.7)"/>
+    <use xlink:href="#DejaVuSerif-15" transform="translate(74.643555 -37.264062) scale(0.7)"/>
+    <path d="M 6.25 22.175 
+L 6.25 28.425 
+L 119.179687 28.425 
+L 119.179687 22.175 
+L 6.25 22.175 
 z
 "/>
    </g>

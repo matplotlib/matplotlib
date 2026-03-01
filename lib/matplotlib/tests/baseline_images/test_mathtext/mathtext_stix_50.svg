@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:28:14.363593</dc:date>
+    <dc:date>2026-03-01T22:41:06.398974</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\binom{p}{2}{x}^{2}{y}^{p-2}-\frac{1}{1-x}\frac{1}{1-{x}^{2}}$ -->
-   <g transform="translate(138.66 29.46) scale(0.12 -0.12)">
+   <g transform="translate(136.56 29.46) scale(0.12 -0.12)">
     <defs>
      <path id="STIXSizeOneSym-Regular-4" d="M 2445 -858 
 L 2445 -1050 
@@ -233,30 +233,30 @@ z
     <use xlink:href="#STIXGeneral-Regular-15" transform="translate(183.031702 40.684375) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Italic-5c" transform="translate(222.441045 0.216111)"/>
     <use xlink:href="#STIXGeneral-Italic-53" transform="translate(273.014133 40.684375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(318.402088 40.684375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(376.460036 40.684375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(430.309366 0.216111)"/>
-    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(569.499293 34.887986) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(519.499293 -31.177639) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(564.607252 -31.177639) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(622.6652 -31.177639) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(732.245174 34.887986) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(666.245174 -45.310736) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(711.353133 -45.310736) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(769.411082 -45.310736) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(804.812243 -16.982951) scale(0.49)"/>
-    <path d="M 519.499293 22.387986 
-L 519.499293 28.637986 
-L 653.745174 28.637986 
-L 653.745174 22.387986 
-L 519.499293 22.387986 
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(322.294097 40.684375) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(384.244054 40.684375) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(443.653397 0.216111)"/>
+    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(592.403336 34.591111) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(538.403336 -31.474514) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(587.403304 -31.474514) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(649.353261 -31.474514) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(761.933236 34.591111) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-14" transform="translate(692.933236 -45.607611) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-425" transform="translate(741.933204 -45.607611) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-5b" transform="translate(803.883161 -45.607611) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-15" transform="translate(839.284323 -17.279826) scale(0.49)"/>
+    <path d="M 538.403336 22.091111 
+L 538.403336 28.341111 
+L 680.433236 28.341111 
+L 680.433236 22.091111 
+L 538.403336 22.091111 
 z
 "/>
-    <path d="M 666.245174 22.387986 
-L 666.245174 28.637986 
-L 832.398783 28.637986 
-L 832.398783 22.387986 
-L 666.245174 22.387986 
+    <path d="M 692.933236 22.091111 
+L 692.933236 28.341111 
+L 866.870863 28.341111 
+L 866.870863 22.091111 
+L 692.933236 22.091111 
 z
 "/>
    </g>

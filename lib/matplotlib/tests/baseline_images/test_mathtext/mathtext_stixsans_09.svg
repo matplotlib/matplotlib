@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-14T03:33:02.913113</dc:date>
+    <dc:date>2026-03-01T22:41:06.531022</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1864+g6f7d0e9a17, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $x\ x\,x\;x\quad x\qquad x\!x\hspace{ 0.5 }y$ -->
-   <g transform="translate(147.18 30.239062) scale(0.12 -0.12)">
+   <g transform="translate(141.18 30.239062) scale(0.12 -0.12)">
     <defs>
      <path id="STIXGeneral-Italic-3e8" d="M 3482 2899 
 L 2202 1510 
@@ -69,13 +69,13 @@ z
 " transform="scale(0.015625)"/>
     </defs>
     <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(0 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(73.399676 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(134.199867 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(203.399967 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(327.199848 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(526.599659 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(562.19937 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e9" transform="translate(648.199286 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(81.532951 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(146.399902 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(222.377854 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(370.577805 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(618.777756 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e8" transform="translate(650.310707 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e9" transform="translate(748.510658 0.703125)"/>
    </g>
   </g>
  </g>

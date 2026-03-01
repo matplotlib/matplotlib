@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:28:10.127385</dc:date>
+    <dc:date>2026-03-01T22:41:05.535306</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- ${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$ -->
-   <g transform="translate(154.32 25.74) scale(0.12 -0.12)">
+   <g transform="translate(153.6 25.74) scale(0.12 -0.12)">
     <defs>
      <path id="Cmmi10-79" d="M 1113 -72 
 Q 709 -72 476 233 
@@ -278,48 +278,48 @@ z
     </defs>
     <use xlink:href="#Cmmi10-79" transform="translate(0 0.998437)"/>
     <use xlink:href="#Cmr10-28" transform="translate(52.783203 -14.395886) scale(0.7)"/>
-    <use xlink:href="#Cmr10-4c" transform="translate(111.212607 0.998437)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(374.706747 35.373438) scale(0.7)"/>
-    <use xlink:href="#Cmmi10-79" transform="translate(212.706747 -40.077656) scale(0.7)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(249.65499 -50.853683) scale(0.49)"/>
-    <use xlink:href="#Cmr10-4c" transform="translate(290.555572 -40.077656) scale(0.7)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(451.601471 -16.015156) scale(0.49)"/>
-    <use xlink:href="#Cmmi10-79" transform="translate(361.601471 -68.830922) scale(0.49)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(387.46524 -76.37414) scale(0.343)"/>
-    <use xlink:href="#Cmr10-4c" transform="translate(416.095648 -68.830922) scale(0.49)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(505.827777 -51.987172) scale(0.343)"/>
-    <use xlink:href="#Cmmi10-79" transform="translate(465.827777 -88.958208) scale(0.343)"/>
-    <use xlink:href="#Cmr10-6e" transform="translate(483.932416 -94.238461) scale(0.2401)"/>
-    <use xlink:href="#Cmr10-4c" transform="translate(503.973701 -88.958208) scale(0.343)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(543.786191 -77.167583) scale(0.2401)"/>
-    <use xlink:href="#Cmmi10-79" transform="translate(538.786191 -97.455519) scale(0.2401)"/>
-    <use xlink:href="#Cmr10-3b" transform="translate(551.459438 -101.151696) scale(0.16807)"/>
-    <path d="M 212.706747 22.873438 
-L 212.706747 29.123438 
-L 570.85377 29.123438 
-L 570.85377 22.873438 
-L 212.706747 22.873438 
+    <use xlink:href="#Cmr10-4c" transform="translate(113.65407 0.998437)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(382.589674 35.373438) scale(0.7)"/>
+    <use xlink:href="#Cmmi10-79" transform="translate(217.589674 -40.077656) scale(0.7)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(254.537917 -50.853683) scale(0.49)"/>
+    <use xlink:href="#Cmr10-4c" transform="translate(297.147524 -40.077656) scale(0.7)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(461.902446 -16.015156) scale(0.49)"/>
+    <use xlink:href="#Cmmi10-79" transform="translate(369.902446 -68.830922) scale(0.49)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(395.766216 -76.37414) scale(0.343)"/>
+    <use xlink:href="#Cmr10-4c" transform="translate(425.592941 -68.830922) scale(0.49)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(517.521387 -51.987172) scale(0.343)"/>
+    <use xlink:href="#Cmmi10-79" transform="translate(476.521387 -88.958208) scale(0.343)"/>
+    <use xlink:href="#Cmr10-6e" transform="translate(494.626026 -94.238461) scale(0.2401)"/>
+    <use xlink:href="#Cmr10-4c" transform="translate(515.504733 -88.958208) scale(0.343)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(556.154645 -77.167583) scale(0.2401)"/>
+    <use xlink:href="#Cmmi10-79" transform="translate(551.154645 -97.455519) scale(0.2401)"/>
+    <use xlink:href="#Cmr10-3b" transform="translate(563.827892 -101.151696) scale(0.16807)"/>
+    <path d="M 217.589674 22.873438 
+L 217.589674 29.123438 
+L 583.222224 29.123438 
+L 583.222224 22.873438 
+L 217.589674 22.873438 
 z
 "/>
-    <path d="M 361.601471 -24.765156 
-L 361.601471 -20.390156 
-L 566.47877 -20.390156 
-L 566.47877 -24.765156 
-L 361.601471 -24.765156 
+    <path d="M 369.902446 -24.765156 
+L 369.902446 -20.390156 
+L 578.847224 -20.390156 
+L 578.847224 -24.765156 
+L 369.902446 -24.765156 
 z
 "/>
-    <path d="M 465.827777 -58.112172 
-L 465.827777 -55.049672 
-L 563.41627 -55.049672 
-L 563.41627 -58.112172 
-L 465.827777 -58.112172 
+    <path d="M 476.521387 -58.112172 
+L 476.521387 -55.049672 
+L 575.784724 -55.049672 
+L 575.784724 -58.112172 
+L 476.521387 -58.112172 
 z
 "/>
-    <path d="M 538.786191 -81.455083 
-L 538.786191 -79.311333 
-L 561.27252 -79.311333 
-L 561.27252 -81.455083 
-L 538.786191 -81.455083 
+    <path d="M 551.154645 -81.455083 
+L 551.154645 -79.311333 
+L 573.640974 -79.311333 
+L 573.640974 -81.455083 
+L 551.154645 -81.455083 
 z
 "/>
    </g>

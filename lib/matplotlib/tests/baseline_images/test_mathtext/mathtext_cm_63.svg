@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-14T03:32:51.975946</dc:date>
+    <dc:date>2026-03-01T22:41:06.318238</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1864+g6f7d0e9a17, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\left( \xi \left( 1 - \xi \right) \right)$ -->
-   <g transform="translate(165.54 30.299062) scale(0.12 -0.12)">
+   <g transform="translate(165.24 30.299062) scale(0.12 -0.12)">
     <defs>
      <path id="Cmr10-77" d="M 1984 -1588 
 Q 1628 -1306 1370 -942 
@@ -177,10 +177,10 @@ z
     <use xlink:href="#Cmmi10-7" transform="translate(35.106354 0.078125)"/>
     <use xlink:href="#Cmr10-77" transform="translate(78.807526 2.171875) scale(0.904375)"/>
     <use xlink:href="#Cmr10-64" transform="translate(113.913879 0.078125)"/>
-    <use xlink:href="#Cmsy10-11" transform="translate(181.472473 0.078125)"/>
-    <use xlink:href="#Cmmi10-7" transform="translate(276.716614 0.078125)"/>
-    <use xlink:href="#Cmr10-44" transform="translate(320.417786 2.171875) scale(0.904375)"/>
-    <use xlink:href="#Cmr10-44" transform="translate(355.524139 2.171875) scale(0.904375)"/>
+    <use xlink:href="#Cmsy10-11" transform="translate(183.913937 0.078125)"/>
+    <use xlink:href="#Cmmi10-7" transform="translate(281.599541 0.078125)"/>
+    <use xlink:href="#Cmr10-44" transform="translate(325.300713 2.171875) scale(0.904375)"/>
+    <use xlink:href="#Cmr10-44" transform="translate(360.407066 2.171875) scale(0.904375)"/>
    </g>
   </g>
  </g>

@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2025-07-11T18:20:10.565344</dc:date>
+    <dc:date>2026-03-01T22:41:07.404668</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1079+g8ff030e131, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,9 +30,9 @@ z
   </g>
   <g id="text_1">
    <!-- $M \, M \thinspace M \/ M \&gt; M \: M \; M \ M \enspace M \quad M \qquad M \! M$ -->
-   <g transform="translate(107.82 30.31125) scale(0.12 -0.12)">
+   <g transform="translate(99.66 30.31125) scale(0.12 -0.12)">
     <defs>
-     <path id="STIXGeneral-Italic-4d" d="M 5581 4179 
+     <path id="STIXGeneral-Italic-30" d="M 5581 4179 
 L 5581 4077 
 Q 5318 4032 5225 3945 
 Q 5133 3859 5062 3603 
@@ -68,18 +68,18 @@ L 5581 4179
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(0 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(95.33349 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(190.66698 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(286.00047 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(385.344667 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(484.688863 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(588.044488 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(695.41082 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(814.810714 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(970.310577 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(1198.010376 0.703125)"/>
-    <use xlink:href="#STIXGeneral-Italic-4d" transform="translate(1269.276739 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(0 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(99.966927 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(199.933854 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(299.90078 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(405.422707 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(510.944634 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(622.022561 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(738.655487 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(871.955414 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(1055.255341 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(1338.555268 0.703125)"/>
+    <use xlink:href="#STIXGeneral-Italic-30" transform="translate(1405.188194 0.703125)"/>
    </g>
   </g>
  </g>

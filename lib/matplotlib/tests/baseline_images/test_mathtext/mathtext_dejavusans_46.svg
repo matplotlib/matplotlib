@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:27:44.763133</dc:date>
+    <dc:date>2026-03-01T22:41:08.622256</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\frac{a}{b/2}$ -->
-   <g transform="translate(181.44 29.58) scale(0.12 -0.12)">
+   <g transform="translate(181.44 28.859063) scale(0.12 -0.12)">
     <defs>
      <path id="DejaVuSans-Oblique-44" d="M 3438 1997 
 L 3047 0 
@@ -133,15 +133,15 @@ Q 1991 1309 1228 531
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#DejaVuSans-Oblique-44" transform="translate(41.25 41.8) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-Oblique-45" transform="translate(6.25 -31.134375) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-12" transform="translate(50.683594 -31.134375) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-15" transform="translate(74.267578 -31.134375) scale(0.7)"/>
-    <path d="M 6.25 28.304688 
-L 6.25 34.554688 
-L 118.803711 34.554688 
-L 118.803711 28.304688 
-L 6.25 28.304688 
+    <use xlink:href="#DejaVuSans-Oblique-44" transform="translate(41.25 35.8) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-Oblique-45" transform="translate(6.25 -37.134375) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-12" transform="translate(50.683594 -37.134375) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-15" transform="translate(74.267578 -37.134375) scale(0.7)"/>
+    <path d="M 6.25 22.304688 
+L 6.25 28.554688 
+L 118.803711 28.554688 
+L 118.803711 22.304688 
+L 6.25 22.304688 
 z
 "/>
    </g>

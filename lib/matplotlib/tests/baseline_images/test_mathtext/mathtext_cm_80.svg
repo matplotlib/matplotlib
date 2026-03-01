@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-14T03:32:53.755372</dc:date>
+    <dc:date>2026-03-01T22:41:06.172767</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1864+g6f7d0e9a17, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$ -->
-   <g transform="translate(91.5 30.312188) scale(0.12 -0.12)">
+   <g transform="translate(90.78 30.312188) scale(0.12 -0.12)">
     <defs>
      <path id="Cmmi10-2c" d="M 634 -1153 
 Q 634 -1125 659 -1100 
@@ -552,40 +552,40 @@ z
 " transform="scale(0.015625)"/>
     </defs>
     <use xlink:href="#Cmmi10-2c" transform="translate(0 0.015625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(45.244141 0.015625)"/>
-    <use xlink:href="#Cmmi10-33" transform="translate(77.03125 0.015625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(122.275391 0.015625)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(154.0625 0.015625)"/>
-    <use xlink:href="#Cmmi10-2c" transform="translate(204.0625 0.015625)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(231.748047 0.015625)"/>
-    <use xlink:href="#Cmr10-6e" transform="translate(281.748047 0.015625)"/>
-    <use xlink:href="#Cmr10-3b" transform="translate(331.748047 0.015625)"/>
-    <use xlink:href="#Cmmi10-2c" transform="translate(381.748047 0.015625)"/>
-    <use xlink:href="#Cmr10-78" transform="translate(409.433594 0.015625)"/>
-    <use xlink:href="#Cmr10-45" transform="translate(459.433594 0.015625)"/>
-    <use xlink:href="#Cmr10-7f" transform="translate(509.433594 0.015625)"/>
-    <use xlink:href="#Cmmi10-2c" transform="translate(559.433594 0.015625)"/>
-    <use xlink:href="#Cmr10-4d" transform="translate(587.119141 0.015625)"/>
-    <use xlink:href="#Cmr10-16" transform="translate(637.119141 0.015625)"/>
-    <use xlink:href="#Cmr10-28" transform="translate(687.119141 0.015625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(737.119141 0.015625)"/>
-    <use xlink:href="#DejaVuSans-44" transform="translate(768.90625 0.015625)"/>
-    <use xlink:href="#DejaVuSans-51" transform="translate(830.185547 0.015625)"/>
-    <use xlink:href="#DejaVuSans-47" transform="translate(893.564453 0.015625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(957.041016 0.015625)"/>
-    <use xlink:href="#Cmr10-64" transform="translate(988.828125 0.015625)"/>
-    <use xlink:href="#Cmmi10-2c" transform="translate(1038.828125 0.015625)"/>
-    <use xlink:href="#Cmr10-31" transform="translate(1084.072266 0.015625)"/>
-    <use xlink:href="#Cmr10-6e" transform="translate(1134.072266 0.015625)"/>
-    <use xlink:href="#Cmr10-3b" transform="translate(1184.072266 0.015625)"/>
-    <use xlink:href="#Cmmi10-2c" transform="translate(1234.072266 0.015625)"/>
-    <use xlink:href="#Cmr10-78" transform="translate(1279.316406 0.015625)"/>
-    <use xlink:href="#Cmr10-45" transform="translate(1329.316406 0.015625)"/>
-    <use xlink:href="#Cmr10-7f" transform="translate(1379.316406 0.015625)"/>
-    <use xlink:href="#Cmmi10-2c" transform="translate(1429.316406 0.015625)"/>
-    <use xlink:href="#Cmr10-4d" transform="translate(1474.560547 0.015625)"/>
-    <use xlink:href="#Cmr10-16" transform="translate(1524.560547 0.015625)"/>
-    <use xlink:href="#Cmr10-28" transform="translate(1574.560547 0.015625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(47.685604 0.015625)"/>
+    <use xlink:href="#Cmmi10-33" transform="translate(79.472713 0.015625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(127.158318 0.015625)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(158.945427 0.015625)"/>
+    <use xlink:href="#Cmmi10-2c" transform="translate(208.945427 0.015625)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(236.630974 0.015625)"/>
+    <use xlink:href="#Cmr10-6e" transform="translate(286.630974 0.015625)"/>
+    <use xlink:href="#Cmr10-3b" transform="translate(336.630974 0.015625)"/>
+    <use xlink:href="#Cmmi10-2c" transform="translate(386.630974 0.015625)"/>
+    <use xlink:href="#Cmr10-78" transform="translate(414.316521 0.015625)"/>
+    <use xlink:href="#Cmr10-45" transform="translate(464.316521 0.015625)"/>
+    <use xlink:href="#Cmr10-7f" transform="translate(514.316521 0.015625)"/>
+    <use xlink:href="#Cmmi10-2c" transform="translate(564.316521 0.015625)"/>
+    <use xlink:href="#Cmr10-4d" transform="translate(592.002068 0.015625)"/>
+    <use xlink:href="#Cmr10-16" transform="translate(642.002068 0.015625)"/>
+    <use xlink:href="#Cmr10-28" transform="translate(692.002068 0.015625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(742.002068 0.015625)"/>
+    <use xlink:href="#DejaVuSans-44" transform="translate(773.789177 0.015625)"/>
+    <use xlink:href="#DejaVuSans-51" transform="translate(835.068474 0.015625)"/>
+    <use xlink:href="#DejaVuSans-47" transform="translate(898.44738 0.015625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(961.923943 0.015625)"/>
+    <use xlink:href="#Cmr10-64" transform="translate(993.711052 0.015625)"/>
+    <use xlink:href="#Cmmi10-2c" transform="translate(1043.711052 0.015625)"/>
+    <use xlink:href="#Cmr10-31" transform="translate(1091.396656 0.015625)"/>
+    <use xlink:href="#Cmr10-6e" transform="translate(1141.396656 0.015625)"/>
+    <use xlink:href="#Cmr10-3b" transform="translate(1191.396656 0.015625)"/>
+    <use xlink:href="#Cmmi10-2c" transform="translate(1241.396656 0.015625)"/>
+    <use xlink:href="#Cmr10-78" transform="translate(1289.08226 0.015625)"/>
+    <use xlink:href="#Cmr10-45" transform="translate(1339.08226 0.015625)"/>
+    <use xlink:href="#Cmr10-7f" transform="translate(1389.08226 0.015625)"/>
+    <use xlink:href="#Cmmi10-2c" transform="translate(1439.08226 0.015625)"/>
+    <use xlink:href="#Cmr10-4d" transform="translate(1486.767864 0.015625)"/>
+    <use xlink:href="#Cmr10-16" transform="translate(1536.767864 0.015625)"/>
+    <use xlink:href="#Cmr10-28" transform="translate(1586.767864 0.015625)"/>
    </g>
   </g>
  </g>

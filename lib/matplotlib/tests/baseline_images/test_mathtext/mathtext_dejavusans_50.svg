@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:27:44.986110</dc:date>
+    <dc:date>2026-03-01T22:41:08.861980</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\binom{p}{2}{x}^{2}{y}^{p-2}-\frac{1}{1-x}\frac{1}{1-{x}^{2}}$ -->
-   <g transform="translate(127.08 30) scale(0.12 -0.12)">
+   <g transform="translate(127.08 29.64) scale(0.12 -0.12)">
     <defs>
      <path id="STIXSizeOneSym-Regular-4" d="M 2445 -858 
 L 2445 -1050 
@@ -175,27 +175,27 @@ z
     <use xlink:href="#DejaVuSans-c9c" transform="translate(384.381053 42.046875) scale(0.7)"/>
     <use xlink:href="#DejaVuSans-15" transform="translate(456.671092 42.046875) scale(0.7)"/>
     <use xlink:href="#DejaVuSans-c9c" transform="translate(523.424021 0.746875)"/>
-    <use xlink:href="#DejaVuSans-14" transform="translate(696.945506 41.473438) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-14" transform="translate(632.945506 -28.310937) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-c9c" transform="translate(691.119334 -28.310937) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-Oblique-5b" transform="translate(763.409373 -28.310937) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-14" transform="translate(899.335154 41.473437) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-14" transform="translate(817.335154 -42.55375) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-c9c" transform="translate(875.508982 -42.55375) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-Oblique-5b" transform="translate(947.799021 -42.55375) scale(0.7)"/>
-    <use xlink:href="#DejaVuSans-15" transform="translate(992.351105 -13.64375) scale(0.49)"/>
-    <path d="M 632.945506 28.973438 
-L 632.945506 35.223438 
-L 804.835154 35.223438 
-L 804.835154 28.973438 
-L 632.945506 28.973438 
+    <use xlink:href="#DejaVuSans-14" transform="translate(696.945506 35.121875) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-14" transform="translate(632.945506 -34.6625) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-c9c" transform="translate(691.119334 -34.6625) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-Oblique-5b" transform="translate(763.409373 -34.6625) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-14" transform="translate(899.335154 35.121875) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-14" transform="translate(817.335154 -48.905313) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-c9c" transform="translate(875.508982 -48.905313) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-Oblique-5b" transform="translate(947.799021 -48.905313) scale(0.7)"/>
+    <use xlink:href="#DejaVuSans-15" transform="translate(992.351105 -19.995313) scale(0.49)"/>
+    <path d="M 632.945506 22.621875 
+L 632.945506 28.871875 
+L 804.835154 28.871875 
+L 804.835154 22.621875 
+L 632.945506 22.621875 
 z
 "/>
-    <path d="M 817.335154 28.973437 
-L 817.335154 35.223437 
-L 1025.44046 35.223437 
-L 1025.44046 28.973437 
-L 817.335154 28.973437 
+    <path d="M 817.335154 22.621875 
+L 817.335154 28.871875 
+L 1025.44046 28.871875 
+L 1025.44046 22.621875 
+L 817.335154 22.621875 
 z
 "/>
    </g>

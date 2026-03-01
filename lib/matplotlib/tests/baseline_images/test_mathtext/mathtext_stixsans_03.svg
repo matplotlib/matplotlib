@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:27:39.388470</dc:date>
+    <dc:date>2026-03-01T22:41:05.895819</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -154,7 +154,7 @@ z
     <use xlink:href="#STIXGeneral-Regular-11" transform="translate(146.249872 41.107813) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Regular-cbf" transform="translate(163.74985 41.107813) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Regular-cbf" transform="translate(198.749818 41.107813) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Italic-3e9" transform="translate(103.25 -26.079427) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Italic-3e9" transform="translate(103.25 -25.782552) scale(0.7)"/>
     <path d="M 6.25 22.515625 
 L 6.25 28.765625 
 L 233.749786 28.765625 

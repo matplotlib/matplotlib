@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-02-06T03:27:40.386430</dc:date>
+    <dc:date>2026-03-01T22:41:07.181249</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev1856+ga22069c80c, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.11.0.dev1920+g7b52e93248, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\Delta^j_{i+1}$ -->
-   <g transform="translate(177.6 30.54) scale(0.12 -0.12)">
+   <g transform="translate(177.18 30.54) scale(0.12 -0.12)">
     <defs>
      <path id="STIXNonUnicode-Regular-11e" d="M 4064 0 
 L 198 0 
@@ -108,8 +108,8 @@ z
     <use xlink:href="#STIXNonUnicode-Regular-11e" transform="translate(0 0.1125)"/>
     <use xlink:href="#STIXGeneral-Italic-3da" transform="translate(68.18532 51.465625) scale(0.7)"/>
     <use xlink:href="#STIXGeneral-Italic-3d9" transform="translate(68.18532 -36.184375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(94.1693 -36.184375) scale(0.7)"/>
-    <use xlink:href="#STIXGeneral-Regular-cc0" transform="translate(152.703247 -36.184375) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-e" transform="translate(97.58531 -36.184375) scale(0.7)"/>
+    <use xlink:href="#STIXGeneral-Regular-cc0" transform="translate(159.535267 -36.184375) scale(0.7)"/>
    </g>
   </g>
  </g>
