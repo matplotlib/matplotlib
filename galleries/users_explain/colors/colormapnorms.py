@@ -375,7 +375,6 @@ cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 plt.show()
 
 # %%
-# 
 # Discrete vs. Categorical Colormapping
 # ------------------------------------
 #
@@ -395,7 +394,7 @@ x, y = np.random.rand(2, 100)
 z = np.random.uniform(0, 10, 100)
 
 # Define boundaries for 3 discrete bins:
-([0-3], [3-7], [7-10])
+# Bins:([0-3], [3-7], [7-10]).
 boundaries = [0, 3, 7, 10]
 cmap_discrete = plt.get_cmap('viridis', 3)
 norm_discrete = mcolors.BoundaryNorm(boundaries, cmap_discrete)
@@ -403,8 +402,9 @@ norm_discrete = mcolors.BoundaryNorm(boundaries, cmap_discrete)
 fig, ax = plt.subplots(figsize=(6, 4), layout='constrained')
 sc = ax.scatter(x, y, c=z,
 cmap=cmap_discrete, norm=norm_discrete)
-fig.colorbar(sc, ax=ax,
-spacing='proportional', label='Discrete Bins (0-3, 3-7, 7-10)')
+fig.colorbar(
+    sc, ax=ax, spacing='proportional', 
+    label='Discrete Bins (0-3, 3-7, 7-10)')
 ax.set_title("scatter plot with Discrete Color Bins")
 
 plt.show()
