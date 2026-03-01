@@ -289,6 +289,23 @@ def test_linedash():
     assert buf.tell() > 0
 
 
+def test_fonttype_path():
+    """Test ps.fonttype = 0 (path) converts text to outlines, no fonts."""
+    mpl.rcParams["ps.fonttype"] = 0
+    fig, ax = plt.subplots()
+
+    ax.text(0.25, 0.5, "Hello path mode!")
+    ax.set_title("Title $x^2$")
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="ps")
+    content = buf.getvalue()
+
+    assert b'/FontType' not in content
+    assert b'glyphshow' not in content
+    assert b'fill' in content
+
+
 def test_empty_line():
     # Smoke-test for gh#23954
     figure = Figure()
