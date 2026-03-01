@@ -376,7 +376,7 @@ plt.show()
 
 # %%
 # Discrete vs. Categorical Colormapping
-# ------------------------------------
+# -------------------------------------
 #
 # It is important to distinguish between two common use cases.
 # 1. Discretizing continuous data into bins (using .BoundaryNorm).
@@ -400,11 +400,7 @@ cmap_discrete = plt.get_cmap('viridis', 3)
 norm_discrete = mcolors.BoundaryNorm(boundaries, cmap_discrete)
 
 fig, ax = plt.subplots(figsize=(6, 4), layout='constrained')
-sc = ax.scatter(x, y, c=z,
-cmap=cmap_discrete, norm=norm_discrete)
-fig.colorbar(
-    sc, ax=ax, spacing='proportional', 
-    label='Discrete Bins (0-3, 3-7, 7-10)')
+sc = ax.scatter(x, y, c=z, cmap=cmap_discrete, norm=norm_discrete)
+fig.colorbar(sc, ax=ax, spacing='proportional', label='Discrete Bins (0-3, 3-7, 7-10)')
 ax.set_title("scatter plot with Discrete Color Bins")
-
 plt.show()
