@@ -144,8 +144,8 @@ class PathEffectRenderer(RendererBase):
             renderer.draw_path_collection(gc, master_transform, paths,
                                           *args, **kwargs)
 
-    def open_group(self, s, gid=None):
-        return self._renderer.open_group(s, gid)
+    def open_group(self, s, gid=None, *, blend_mode=None):
+        return self._renderer.open_group(s, gid=gid, blend_mode=blend_mode)
 
     def close_group(self, s):
         return self._renderer.close_group(s)

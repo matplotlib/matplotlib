@@ -366,6 +366,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_snap(self.get_snap())
 
         if self._hatch:
@@ -2302,6 +2303,7 @@ class TriMesh(Collection):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_linewidth(self.get_linewidth()[0])
         renderer.draw_gouraud_triangles(gc, verts, colors, transform.frozen())
         gc.restore()
@@ -2521,9 +2523,19 @@ class QuadMesh(_MeshData, Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        # avoid a circular import
+        from matplotlib.backends.backend_agg import RendererAgg
+
         if not self.get_visible():
             return
-        renderer.open_group(self.__class__.__name__, self.get_gid())
+        isolate = isinstance(renderer, RendererAgg) and self._antialiased
+        if isolate:
+            blend_mode = self.get_blend_mode()
+            self.set_blend_mode("plus")
+            renderer.open_group(self.__class__.__name__, self.get_gid(),
+                                blend_mode=blend_mode)
+        else:
+            renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
         offsets = self.get_offsets()
@@ -2550,6 +2562,7 @@ class QuadMesh(_MeshData, Collection):
         gc = renderer.new_gc()
         gc.set_snap(self.get_snap())
         self._set_gc_clip(gc)
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_linewidth(self.get_linewidth()[0])
 
         if self._shading == 'gouraud':
@@ -2566,6 +2579,8 @@ class QuadMesh(_MeshData, Collection):
                 self._antialiased, self.get_edgecolors().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
+        if isolate:
+            self.set_blend_mode(blend_mode)
         self.stale = False
 
     def get_cursor_data(self, event):

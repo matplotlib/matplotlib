@@ -556,13 +556,13 @@ class Stream:
             self.extra.update({'Filter':      Name('FlateDecode'),
                                'DecodeParms': png})
 
-        self.pdfFile.recordXref(self.id)
         if mpl.rcParams['pdf.compression'] and not png:
             self.compressobj = zlib.compressobj(
                 mpl.rcParams['pdf.compression'])
         if self.len is None:
             self.file = BytesIO()
         else:
+            self.pdfFile.recordXref(self.id)
             self._writeHeader()
             self.pos = self.file.tell()
 
@@ -582,6 +582,7 @@ class Stream:
 
         self._flush()
         if self.len is None:
+            self.pdfFile.recordXref(self.id)
             contents = self.file.getvalue()
             self.len = len(contents)
             self.file = self.pdfFile.fh
@@ -726,6 +727,8 @@ class PdfFile:
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
+        self._blend_mode_states = {}
+        self._blend_mode_state_seq = (Name(f'BM{i}') for i in itertools.count(1))
         self._soft_mask_states = {}
         self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
         self._soft_mask_groups = []
@@ -735,6 +738,9 @@ class PdfFile:
 
         self._images = {}
         self._image_seq = (Name(f'I{i}') for i in itertools.count(1))
+
+        self._transparency_groups = []
+        self._transparency_group_seq = (Name(f'TG{i}') for i in itertools.count(1))
 
         self.markers = {}
         self.multi_byte_charprocs = {}
@@ -792,12 +798,13 @@ class PdfFile:
         self.endStream()
 
         self.width, self.height = width, height
+        self.mediabox = [0, 0, 72 * width, 72 * height]
         contentObject = self.reserveObject('page contents')
         annotsObject = self.reserveObject('annotations')
         thePage = {'Type': Name('Page'),
                    'Parent': self.pagesObject,
                    'Resources': self.resourceObject,
-                   'MediaBox': [0, 0, 72 * width, 72 * height],
+                   'MediaBox': self.mediabox,
                    'Contents': contentObject,
                    'Annots': annotsObject,
                    }
@@ -806,8 +813,10 @@ class PdfFile:
         self.pageList.append(pageObject)
         self._annotations.append((annotsObject, self.pageAnnotations))
 
-        self.beginStream(contentObject.id,
-                         self.reserveObject('length of content stream'))
+        # Specify len=None so that the Contents stream is written to a separate buffer
+        # in case one or more transparency groups need to be first written to the file
+        self.beginStream(contentObject.id, None)
+
         # Initialize the pdf graphics state to match the default Matplotlib
         # graphics context (colorspace and joinstyle).
         self.output(Name('DeviceRGB'), Op.setcolorspace_stroke)
@@ -865,6 +874,7 @@ class PdfFile:
         self.writeGouraudTriangles()
         xobjects = {
             name: ob for image, name, ob in self._images.values()}
+        xobjects.update({name: ob for name, ob in self._transparency_groups})
         for tup in self.markers.values():
             xobjects[tup[0]] = tup[1]
         for name, value in self.multi_byte_charprocs.items():
@@ -1488,6 +1498,19 @@ end"""
                     'CA': alpha[0], 'ca': alpha[1]})
         return name
 
+    def _blend_mode_state(self, blend_mode):
+        """Return name of an ExtGState that sets blend mode to the given value."""
+
+        state = self._blend_mode_states.get(blend_mode, None)
+        if state is not None:
+            return state[0]
+
+        name = next(self._blend_mode_state_seq)
+        self._blend_mode_states[blend_mode] = \
+            (name, {'Type': Name('ExtGState'),
+                    'BM': blend_mode})
+        return name
+
     def _soft_mask_state(self, smask):
         """
         Return an ExtGState that sets the soft mask to the given shading.
@@ -1545,6 +1568,7 @@ end"""
             self._extGStateObject,
             dict([
                 *self.alphaStates.values(),
+                *self._blend_mode_states.values(),
                 *self._soft_mask_states.values()
             ])
         )
@@ -1979,6 +2003,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file = file
         self.gc = self.new_gc()
         self.image_dpi = image_dpi
+        self._group_states = []
 
     def finalize(self):
         self.file.output(*self.gc.finalize())
@@ -2507,6 +2532,46 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # docstring inherited
         return GraphicsContextPdf(self.file)
 
+    def open_group(self, s, gid=None, *, blend_mode=None):
+        # docstring inherited
+        groupOb = name = stream = None
+        if blend_mode:
+            stream, self.file.currentstream = self.file.currentstream, None
+            name = next(self.file._transparency_group_seq)
+            groupOb = self.file.reserveObject('transparency group')
+            self.file._transparency_groups.append((name, groupOb))
+            self.file.beginStream(
+                groupOb.id, None,
+                {
+                    'Type': Name('XObject'),
+                    'Subtype': Name('Form'),
+                    'FormType': 1,
+                    'Group': {
+                        'S': Name('Transparency'),
+                        'CS': Name('DeviceRGB'),
+                        'I': True,
+                    },
+                    'BBox': self.file.mediabox,
+                }
+            )
+            self.file.output(Op.gsave)  # puts a state on the stack for later restores
+        self._group_states.append((blend_mode, groupOb, name, stream))
+
+    def close_group(self, s):
+        # docstring inherited
+        blend_mode, groupOb, name, stream = self._group_states.pop()
+        if blend_mode:
+            self.file.recordXref(groupOb.id)
+            self.file.output(Op.grestore)  # see above
+            self.file.endStream()
+            self.file.currentstream = stream
+            self.file.output(Op.grestore,  # for a clean state prior to embedding
+                             Op.gsave,
+                             *self.gc.blendmode_cmd(blend_mode),
+                             name, Op.use_xobject,
+                             Op.grestore,
+                             Op.gsave)  # puts a state back on the stack for restoring
+
 
 class GraphicsContextPdf(GraphicsContextBase):
 
@@ -2579,6 +2644,34 @@ class GraphicsContextPdf(GraphicsContextBase):
         name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
+    def blendmode_cmd(self, blend_mode):
+        supported_blend_modes = {
+            "normal": Name("Normal"),
+            "multiply": Name("Multiply"),
+            "screen": Name("Screen"),
+            "overlay": Name("Overlay"),
+            "darken": Name("Darken"),
+            "lighten": Name("Lighten"),
+            "color dodge": Name("ColorDodge"),
+            "color burn": Name("ColorBurn"),
+            "hard light": Name("HardLight"),
+            "soft light": Name("SoftLight"),
+            "difference": Name("Difference"),
+            "exclusion": Name("Exclusion"),
+            "hue": Name("Hue"),
+            "saturation": Name("Saturation"),
+            "color": Name("Color"),
+            "luminosity": Name("Luminosity"),
+        }
+        if blend_mode not in supported_blend_modes:
+            _log.warning(f"The '{blend_mode}' blend mode is not supported by the PDF "
+                         f"backend. Falling back to the 'normal' blend mode.")
+            blend_mode = "Normal"
+        else:
+            blend_mode = supported_blend_modes[blend_mode]
+        name = self.file._blend_mode_state(blend_mode)
+        return [name, Op.setgstate]
+
     def hatch_cmd(self, hatch, hatch_color, hatch_linewidth):
         if not hatch:
             if self._fillcolor is not None:
@@ -2644,6 +2737,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         # must come first since may pop
         (('_cliprect', '_clippath'), clip_cmd),
         (('_alpha', '_forced_alpha', '_effective_alphas'), alpha_cmd),
+        (('_blend_mode',), blendmode_cmd),
         (('_capstyle',), capstyle_cmd),
         (('_fillcolor',), fillcolor_cmd),
         (('_joinstyle',), joinstyle_cmd),

@@ -9,6 +9,7 @@ This backend depends on cairocffi or pycairo.
 import functools
 import gzip
 import math
+import logging
 
 import numpy as np
 
@@ -32,6 +33,9 @@ from matplotlib.backend_bases import (
 from matplotlib.font_manager import ttfFontProperty
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
+
+
+_log = logging.getLogger(__name__)
 
 
 def _set_rgba(ctx, color, alpha, forced_alpha):
@@ -87,6 +91,7 @@ class RendererCairo(RendererBase):
         self.height = None
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
+        self._group_blend_modes = []
         super().__init__()
 
     def set_context(self, ctx):
@@ -264,6 +269,29 @@ class RendererCairo(RendererBase):
 
         ctx.restore()
 
+    def draw_gouraud_triangles(self, gc, triangles_array, colors_array, transform):
+        # docstring inherited
+        transform = (transform
+                     + Affine2D().scale(1, -1).translate(0, self.height))
+        points_array = transform.transform(triangles_array.reshape((-1, 2)))
+        points_array = points_array.reshape((-1, 3, 2))
+
+        pattern = cairo.MeshPattern()
+        for points, colors in zip(points_array, colors_array):
+            pattern.begin_patch()
+            pattern.move_to(points[0, 0], points[0, 1])
+            pattern.line_to(points[1, 0], points[1, 1])
+            pattern.line_to(points[2, 0], points[2, 1])
+            for i in range(3):
+                pattern.set_corner_color_rgba(i, *colors[i, :])
+            pattern.end_patch()
+
+        ctx = gc.ctx
+        ctx.save()
+        ctx.set_source(pattern)
+        ctx.paint()
+        ctx.restore()
+
     def get_canvas_width_height(self):
         # docstring inherited
         return self.width, self.height
@@ -308,6 +336,24 @@ class RendererCairo(RendererBase):
         # docstring inherited
         return points / 72 * self.dpi
 
+    def open_group(self, s, gid=None, *, blend_mode=None):
+        # docstring inherited
+        self._group_blend_modes.append(blend_mode)
+        if blend_mode:
+            self.gc.ctx.push_group()
+
+    def close_group(self, s):
+        # docstring inherited
+        blend_mode = self._group_blend_modes.pop()
+        if blend_mode:
+            ctx = self.gc.ctx
+            group = ctx.pop_group()
+            ctx.save()
+            self.gc.set_blend_mode(blend_mode)
+            ctx.set_source(group)
+            ctx.paint()
+            ctx.restore()
+
 
 class GraphicsContextCairo(GraphicsContextBase):
     _joind = {
@@ -320,6 +366,29 @@ class GraphicsContextCairo(GraphicsContextBase):
         'butt':        cairo.LINE_CAP_BUTT,
         'projecting':  cairo.LINE_CAP_SQUARE,
         'round':       cairo.LINE_CAP_ROUND,
+    }
+
+    _operatord = {
+        'normal':      cairo.OPERATOR_OVER,
+        'erase':       cairo.OPERATOR_DEST_OUT,
+        'atop':        cairo.OPERATOR_ATOP,
+        'xor':         cairo.OPERATOR_XOR,
+        'plus':        cairo.OPERATOR_ADD,
+        'multiply':    cairo.OPERATOR_MULTIPLY,
+        'screen':      cairo.OPERATOR_SCREEN,
+        'overlay':     cairo.OPERATOR_OVERLAY,
+        'darken':      cairo.OPERATOR_DARKEN,
+        'lighten':     cairo.OPERATOR_LIGHTEN,
+        'color dodge': cairo.OPERATOR_COLOR_DODGE,
+        'color burn':  cairo.OPERATOR_COLOR_BURN,
+        'hard light':  cairo.OPERATOR_HARD_LIGHT,
+        'soft light':  cairo.OPERATOR_SOFT_LIGHT,
+        'difference':  cairo.OPERATOR_DIFFERENCE,
+        'exclusion':   cairo.OPERATOR_EXCLUSION,
+        'hue':         cairo.OPERATOR_HSL_HUE,
+        'saturation':  cairo.OPERATOR_HSL_SATURATION,
+        'color':       cairo.OPERATOR_HSL_COLOR,
+        'luminosity':  cairo.OPERATOR_HSL_LUMINOSITY,
     }
 
     def __init__(self, renderer):
@@ -391,6 +460,11 @@ class GraphicsContextCairo(GraphicsContextBase):
     def set_linewidth(self, w):
         self._linewidth = float(w)
         self.ctx.set_line_width(self.renderer.points_to_pixels(w))
+
+    def set_blend_mode(self, blend_mode):
+        super().set_blend_mode(blend_mode)
+        self.ctx.set_operator(_api.getitem_checked(self._operatord,
+                                                   blend_mode=self._blend_mode))
 
 
 class _CairoRegion:

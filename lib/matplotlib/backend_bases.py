@@ -158,18 +158,32 @@ class RendererBase:
         self._raster_depth = 0
         self._rasterizing = False
 
-    def open_group(self, s, gid=None):
+    def open_group(self, s, gid=None, *, blend_mode=None):
         """
-        Open a grouping element with label *s* and *gid* (if set) as id.
+        Open a grouping element.
 
-        Only used by the SVG renderer.
+        Parameters
+        ----------
+        s : str
+            Label of the element.  Used only by the SVG renderer.
+        gid : ``None`` or str
+            Group ID of the element.  If ``None``, a group ID is automatically
+            generated.  Used only by the SVG renderer.
+        blend_mode : ``None`` or str
+            If not ``None``, render sub-elements in an isolated buffer.
+            When this group is closed, the isolated buffer is drawn as an image into
+            the primary buffer using the blend mode specified by ``blend_mode``.
+            Supported by the Agg, Cairo, PGF, and SVG renderers.
         """
 
     def close_group(self, s):
         """
-        Close a grouping element with label *s*.
+        Close a grouping element.
 
-        Only used by the SVG renderer.
+        Parameters
+        ----------
+        s : str
+            Label of the element.  Used only by the SVG renderer.
         """
 
     def draw_path(self, gc, path, transform, rgbFace=None):
@@ -698,6 +712,7 @@ class GraphicsContextBase:
     def __init__(self):
         self._alpha = 1.0
         self._forced_alpha = False  # if True, _alpha overrides A from RGBA
+        self._blend_mode = "normal"
         self._antialiased = 1  # use 0, 1 not True, False for extension code
         self._capstyle = CapStyle('butt')
         self._cliprect = None
@@ -719,6 +734,7 @@ class GraphicsContextBase:
         """Copy properties from *gc* to self."""
         self._alpha = gc._alpha
         self._forced_alpha = gc._forced_alpha
+        self._blend_mode = "normal"
         self._antialiased = gc._antialiased
         self._capstyle = gc._capstyle
         self._cliprect = gc._cliprect
@@ -748,6 +764,10 @@ class GraphicsContextBase:
         backends.
         """
         return self._alpha
+
+    def get_blend_mode(self):
+        """Return the blend mode for compositing - not supported on all backends."""
+        return self._blend_mode
 
     def get_antialiased(self):
         """Return whether the object should try to do antialiased rendering."""
@@ -842,6 +862,12 @@ class GraphicsContextBase:
             self._alpha = 1.0
             self._forced_alpha = False
         self.set_foreground(self._rgb, isRGBA=True)
+
+    def set_blend_mode(self, blend_mode):
+        """
+        Set the blend mode for compositing - not supported on all backends.
+        """
+        self._blend_mode = blend_mode
 
     def set_antialiased(self, b):
         """Set whether object should be drawn with antialiased rendering."""
