@@ -94,3 +94,48 @@ def test_get_executable_info_timeout(mock_check_output):
 
     with pytest.raises(matplotlib.ExecutableNotFoundError, match='Timed out'):
         matplotlib._get_executable_info.__wrapped__('inkscape')
+
+
+def test_mpl_init_mechanism():
+    """
+    Test that the _mpl_init() mechanism properly initializes submodules.
+    This test verifies that:
+    1. Colormap registries are initialized after matplotlib import
+    2. _LUTSIZE is set correctly from rcParams
+    3. The initialization happens after rcParams are loaded
+    See Issue #29813: Cleanup internal import dependencies and initialization logic
+    """
+    assert matplotlib.cm._colormaps is not None, \
+        "Colormap registry should be initialized after matplotlib import"
+    assert matplotlib.cm._LUTSIZE is not None, \
+        "_LUTSIZE should be set during initialization"
+    assert matplotlib.cm._LUTSIZE == matplotlib.rcParams['image.lut'], \
+        "_LUTSIZE should match rcParams['image.lut']"
+    assert len(matplotlib.colormaps) > 0, \
+        "Colormap registry should contain colormaps"
+    assert 'viridis' in matplotlib.colormaps, \
+        "Standard colormaps like 'viridis' should be available"
+    assert matplotlib.cm._multivar_colormaps is not None, \
+        "Multivariate colormap registry should be initialized"
+    assert matplotlib.cm._bivar_colormaps is not None, \
+        "Bivariate colormap registry should be initialized"
+
+
+def test_colormap_initialization_order():
+    """
+    Test that colormap initialization can access rcParams without import order issues.
+    This is a regression test for the issue where importing cm before rcParams
+    were loaded would cause errors.
+    See Issue #29813: Cleanup internal import dependencies and initialization logic
+    """
+    program = (
+        "import matplotlib; "
+        "import matplotlib.cm as cm; "
+        "assert cm._colormaps is not None, 'Colormaps should be initialized'; "
+        "assert cm._LUTSIZE == matplotlib.rcParams['image.lut'], "
+        "'LUTSIZE should match rcParams'"
+    )
+    subprocess_run_for_testing(
+        [sys.executable, "-c", program],
+        env={**os.environ, "MPLBACKEND": ""}, check=True
+    )
