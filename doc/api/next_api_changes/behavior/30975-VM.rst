@@ -1,0 +1,9 @@
+Windows configuration directory location
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On Windows, the default configuration and cache directories now use
+``%LOCALAPPDATA%\matplotlib`` instead of ``%USERPROFILE%\.matplotlib``.
+This follows Windows application data storage conventions.
+
+The ``MPLCONFIGDIR`` environment variable can still be used to override
+this default.
