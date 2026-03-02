@@ -243,6 +243,7 @@ ax[3].set_title('BoundaryNorm: extend="both"')
 plt.show()
 
 # %%
+from matplotlib import colors as mcolors
 # Categorical mapping with BoundaryNorm
 # -------------------------------------
 # BoundaryNorm can also be used to map 
