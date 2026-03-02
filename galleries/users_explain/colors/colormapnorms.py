@@ -243,6 +243,29 @@ ax[3].set_title('BoundaryNorm: extend="both"')
 plt.show()
 
 # %%
+# Categorical mapping with BoundaryNorm
+# -------------------------------------
+# BoundaryNorm can also be used to map 
+# integer categories to colors.
+
+# Create 100 random points belonging to 3
+# categories (1, 2, or 3)
+z_cat = np.random.randint(1, 4, size=100)
+# Define boundaries to wrap around
+# integers: 1 (0.5-1.5), 2 (1.5-2.5), 3 (2.5-3.5)
+bounds = [0.5, 1.5, 2.5, 3.5]
+cmap_cat = plt.get_cmap('viridis', 3)
+norm_cat = mcolors.BoundaryNorm(bounds, cmap_cat.N)
+
+fig, ax = plt.subplots(figsize=(6, 4),
+layout='constrained')
+sc = ax.scatter(x, y, c=z_cat,
+cmap=cmap_cat, norm=norm_cat)
+fig.colorbar(sc, ax=ax, label='Categories(1, 2, 3)')
+ax.set_title("Categorical Colormapping using BoundaryNorm")
+plt.show()
+
+# %%
 # TwoSlopeNorm: Different mapping on either side of a center
 # ----------------------------------------------------------
 #
@@ -374,33 +397,3 @@ cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 
 plt.show()
 
-# %%
-# Discrete vs. Categorical Colormapping
-# -------------------------------------
-#
-# It is important to distinguish between two common use cases.
-# 1. Discretizing continuous data into bins (using .BoundaryNorm).
-# 2. Mapping inherently categorical/disrete values (using .ListedColormap).
-# 
-# Here is a worked example showing how to create a scatter plot with 
-# discrete color bins for comtinuous data. 
-
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-import numpy as np 
-
-# Generate random continuous data np.random.seed(19680801)
-x, y = np.random.rand(2, 100)
-z = np.random.uniform(0, 10, 100)
-
-# Define boundaries for 3 discrete bins:
-# Bins:([0-3], [3-7], [7-10]).
-boundaries = [0, 3, 7, 10]
-cmap_discrete = plt.get_cmap('viridis', 3)
-norm_discrete = mcolors.BoundaryNorm(boundaries, cmap_discrete)
-
-fig, ax = plt.subplots(figsize=(6, 4), layout='constrained')
-sc = ax.scatter(x, y, c=z, cmap=cmap_discrete, norm=norm_discrete)
-fig.colorbar(sc, ax=ax, spacing='proportional', label='Discrete Bins (0-3, 3-7, 7-10)')
-ax.set_title("scatter plot with Discrete Color Bins")
-plt.show()
