@@ -2460,7 +2460,6 @@ def test_hist_log_barstacked():
     fig.canvas.draw()
     assert axs[0].get_ylim() == axs[1].get_ylim()
 
-import pytest
 
 def test_hist_timedelta_raises():
     import numpy as np
