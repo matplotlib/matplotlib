@@ -16,11 +16,24 @@ from matplotlib import (
     colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
+from matplotlib.patches import Rectangle
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.transforms import Bbox, Affine2D, Transform, TransformedBbox
 import matplotlib.ticker as mticker
 
 import pytest
+
+
+@pytest.fixture
+def nonaffine_identity():
+    """Non-affine identity transform for compositing with any affine transform"""
+    class NonAffineIdentityTransform(Transform):
+        input_dims = 2
+        output_dims = 2
+
+        def inverted(self):
+            return self
+    return NonAffineIdentityTransform()
 
 
 @image_comparison(['interp_alpha.png'], remove_text=True)
@@ -1679,7 +1692,7 @@ def test__resample_valid_output():
                       np.full(256, 0.9)]).reshape(1, -1)),
     ]
 )
-def test_resample_nonaffine(data, interpolation, expected):
+def test_resample_nonaffine(data, interpolation, expected, nonaffine_identity):
     # Test that both affine and nonaffine transforms resample to the correct answer
 
     # If the array is constant, the tolerance can be tight
@@ -1695,13 +1708,7 @@ def test_resample_nonaffine(data, interpolation, expected):
 
     # Create a nonaffine version of the same transform
     # by compositing with a nonaffine identity transform
-    class NonAffineIdentityTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-
-        def inverted(self):
-            return self
-    nonaffine_transform = NonAffineIdentityTransform() + affine_transform
+    nonaffine_transform = nonaffine_identity + affine_transform
 
     nonaffine_result = np.empty_like(expected)
     mimage.resample(data, nonaffine_result, nonaffine_transform,
@@ -1873,3 +1880,115 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
             (im_rgb, new_array_alpha.reshape((ny, nx, 1))), axis=-1
         ), interpolation_stage=intp_stage
     )
+
+
+@image_comparison(['nn_pixel_alignment.png'])
+def test_nn_pixel_alignment(nonaffine_identity):
+    fig, axs = plt.subplots(2, 3)
+
+    for j, N in enumerate([3, 7, 11]):
+        # In each column, the plots use the same data array
+        data = np.arange(N**2).reshape((N, N)) % 4
+        seps = np.arange(-0.5, N)
+
+        for i in range(2):
+            if i == 0:
+                # Top row uses an affine transform
+                axs[i, j].imshow(data, cmap='Grays', interpolation='nearest')
+            else:
+                # Bottom row uses a non-affine transform
+                axs[i, j].imshow(data, cmap='Grays', interpolation='nearest',
+                                 transform=nonaffine_identity + axs[i, j].transData)
+
+            axs[i, j].set_axis_off()
+            axs[i, j].vlines(seps, -1, N, lw=0.5, color='red', ls='dashed')
+            axs[i, j].hlines(seps, -1, N, lw=0.5, color='red', ls='dashed')
+
+
+@image_comparison(['image_bounds_handling.png'], tol=0.006)
+def test_image_bounds_handling(nonaffine_identity):
+    # TODO: The second and third panels in the bottom row show that the handling of
+    # image bounds is bugged for non-affine transforms and non-nearest-neighbor
+    # interpolation.  If this bug gets fixed, the baseline image should be updated.
+
+    fig, axs = plt.subplots(2, 3)
+
+    N = 11
+
+    for j, interpolation in enumerate(['nearest', 'hanning', 'bilinear']):
+        data = np.arange(N**2).reshape((N, N))
+        data = data / N**2 + (data % 4) / 6
+        rotation = Affine2D().rotate_around(N/2-0.5, N/2-0.5, 1)
+
+        for i in range(2):
+            transform = rotation + axs[i, j].transData
+            if i == 1:
+                # Bottom row uses a non-affine transform
+                transform = nonaffine_identity + transform
+
+            axs[i, j].imshow(data, cmap='Grays', interpolation=interpolation,
+                             transform=transform)
+
+            axs[i, j].set_axis_off()
+            box = Rectangle((-0.5, -0.5), N, N,
+                            edgecolor='red', facecolor='none', lw=0.5, ls='dashed',
+                            transform=rotation + axs[i, j].transData)
+            axs[i, j].add_artist(box)
+
+
+@image_comparison(['rgba_clean_edges.png'], tol=0.003)
+def test_rgba_clean_edges():
+    np.random.seed(19680801+9)  # same as in test_upsampling()
+    data = np.random.rand(8, 8)
+    data = np.stack([data, data])
+    data[1, 2:4, 2:4] = np.nan
+
+    rotation = Affine2D().rotate_around(3.5, 3.5, 1)
+
+    fig, axs = plt.subplots(1, 2)
+
+    for i in range(2):
+        # Add background patches to check the fading to non-white colors
+        black = Rectangle((3.75, 2), 5, 5, color='black', zorder=0)
+        gray = Rectangle((0, -2), 3.75, 4, color='gray', zorder=0)
+        partly_black = Rectangle((3.75, -2), 5, 4, fc='black', ec='none',
+                                 alpha=0.5, zorder=0)
+        axs[i].add_patch(black)
+        axs[i].add_patch(gray)
+        axs[i].add_patch(partly_black)
+
+        axs[i].imshow(data[i, ...],
+                      interpolation='bilinear', interpolation_stage='rgba',
+                      transform=rotation + axs[i].transData)
+
+        axs[i].set_axis_off()
+        axs[i].set_xlim(-2.5, 9.5)
+        axs[i].set_ylim(-2.5, 9.5)
+
+
+@image_comparison(['affine_fill_to_edges.png'])
+def test_affine_fill_to_edges():
+    # The two rows show the two settings of origin
+    # The three columns show the original and the two mirror flips
+    fig, axs = plt.subplots(2, 3)
+
+    N = 7
+    data = np.arange(N**2).reshape((N, N)) % 3
+
+    transform = [Affine2D(),
+                 Affine2D().translate(0, -N + 1).scale(1, -1),
+                 Affine2D().translate(-N + 1, 0).scale(-1, 1)]
+
+    for j in range(3):
+        for i in range(2):
+            origin = 'upper' if i == 0 else 'lower'
+
+            axs[i, j].imshow(data, cmap='Grays',
+                             interpolation='hanning', origin=origin,
+                             transform=transform[j] + axs[i, j].transData)
+
+            axs[i, j].set_axis_off()
+            axs[i, j].vlines([-0.5, N - 0.5], -1, 2, lw=0.5, color='red')
+            axs[i, j].vlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')
+            axs[i, j].hlines([-0.5, N - 0.5], -1, 2, lw=0.5, color='red')
+            axs[i, j].hlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')
