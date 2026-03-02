@@ -2460,14 +2460,17 @@ def test_hist_log_barstacked():
     fig.canvas.draw()
     assert axs[0].get_ylim() == axs[1].get_ylim()
 
+import pytest
 
-def test_hist_timedelta_no_crash():
+def test_hist_timedelta_raises():
     import numpy as np
     import matplotlib.pyplot as plt
 
     arr = np.array([1,2,5,7], dtype="timedelta64[D]")
     fig, ax = plt.subplots()
-    ax.hist(arr)
+
+    with pytest.raises(TypeError, match="does not currently support numpy.timedelta64"):
+        ax.hist(arr)
 
 
 @image_comparison(['hist_bar_empty.png'], remove_text=True)

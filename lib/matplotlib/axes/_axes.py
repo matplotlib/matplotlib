@@ -7417,15 +7417,13 @@ such objects
         # Massage 'x' for processing.
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)
-        
-        new_x = []
-        for xi in x:
-            arr = np.asarray(xi)
-            if np.issubdtype(arr.dtype, np.timedelta64):
-                arr = arr / np.timedelta64(1, 'D')
-            new_x.append(arr)
 
-        x = new_x
+        for arr in x:
+          if hasattr(arr, "dtype") and np.issubdtype(arr.dtype, np.timedelta64):
+              raise TypeError(
+                  "ax.hist does not currently support numpy.timedelta64."
+                   "Convert to numeric values  (e.g., .total_seconds()) first."
+        )
 
         # Process unit information.  _process_unit_info sets the unit and
         # converts the first dataset; then we convert each following dataset
@@ -7479,11 +7477,10 @@ such objects
         # does not do this for us when guessing the range (but will
         # happily ignore nans when computing the histogram).
         if bin_range is None:
-           flat = [np.ravel(xi) for xi in x if len(xi)]
-           if flat:
-               all_data = np.concatenate(flat)
-               xmin = np.nanmin(all_data)
-               xmax = np.nanmax(all_data)
+           finite_data = [xi for xi in x if len(xi)]
+           if finite_data:
+               xmin = min(np.nanmin(xi) for xi in finite_data)
+               xmax = max(np.nanmax(xi) for xi in finite_data)
                bin_range = (xmin, xmax)
            else:
                bin_range = None
