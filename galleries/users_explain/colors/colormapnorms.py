@@ -243,26 +243,31 @@ ax[3].set_title('BoundaryNorm: extend="both"')
 plt.show()
 
 # %%
-from matplotlib import colors as mcolors
 # Categorical mapping with BoundaryNorm
 # -------------------------------------
 # BoundaryNorm can also be used to map 
-# integer categories to colors.
+# specific integer categories to colors.
+# Generating x and y locally to ensure 
+# the example runs
+x_cat, y_cat = np.random.random((2, 100))
+# Mapping explicit integer IDs to colors as 
+# suggested by the reviewer
+codings = {101: "blue", 205: "red", 302: "green"}
+z_cat = np.random.choice(list(codings.keys()), size=100)
 
-# Create 100 random points belonging to 3
-# categories (1, 2, or 3)
-z_cat = np.random.randint(1, 4, size=100)
-# Define boundaries to wrap around
-# integers: 1 (0.5-1.5), 2 (1.5-2.5), 3 (2.5-3.5)
-bounds = [0.5, 1.5, 2.5, 3.5]
-cmap_cat = plt.get_cmap('viridis', 3)
-norm_cat = mcolors.BoundaryNorm(bounds, cmap_cat.N)
+# Create a colormap from the hex/name colors in our mapping
+cmap_cat = colors.ListedColormap(list(codings.values()))
+# Define boundaries to wrap around the specific IDs:
+# e.g., for 101, we use 100.5 to 101.5
+bounds = [100.5, 101.5, 204.5, 205.5, 301.5, 302.5]
+norm_cat = colors.BoundaryNorm(bounds, cmap_cat.N)
 
-fig, ax = plt.subplots(figsize=(6, 4),
-layout='constrained')
-sc = ax.scatter(x, y, c=z_cat,
+fig, ax = plt.subplots(figsize=(6, 4), layout='constrained')
+sc = ax.scatter(x_cat, y_cat, c=z_cat,
 cmap=cmap_cat, norm=norm_cat)
-fig.colorbar(sc, ax=ax, label='Categories(1, 2, 3)')
+# Adjust colorbar ticks to align with the
+# specific categorical IDs
+cbar = fig.colorbar(sc, ax=ax, label='Categories', ticks=list(codings.keys()))
 ax.set_title("Categorical Colormapping using BoundaryNorm")
 plt.show()
 
