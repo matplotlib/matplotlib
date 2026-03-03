@@ -7416,13 +7416,13 @@ such objects
 
         # Massage 'x' for processing.
         x = cbook._reshape_2D(x, 'x')
-        nx = len(x)
+        nx = len(x)  # number of datasets
 
         for arr in x:
           if hasattr(arr, "dtype") and np.issubdtype(arr.dtype, np.timedelta64):
               raise TypeError(
-                  "ax.hist does not currently support numpy.timedelta64."
-                   "Convert to numeric values  (e.g., .total_seconds()) first."
+                  "Axes.hist does not currently support numpy.timedelta64."
+                  "Convert to numeric values  (e.g., .total_seconds()) first."
         )
 
         # Process unit information.  _process_unit_info sets the unit and
@@ -7477,13 +7477,16 @@ such objects
         # does not do this for us when guessing the range (but will
         # happily ignore nans when computing the histogram).
         if bin_range is None:
-           finite_data = [xi for xi in x if len(xi)]
-           if finite_data:
-               xmin = min(np.nanmin(xi) for xi in finite_data)
-               xmax = max(np.nanmax(xi) for xi in finite_data)
-               bin_range = (xmin, xmax)
-           else:
-               bin_range = None
+            xmin = np.inf
+            xmax = -np.inf
+            for xi in x:
+                if len(xi):
+                    # python's min/max ignore nan,
+                    # np.minnan returns nan for all nan input
+                    xmin = min(xmin, np.nanmin(xi))
+                    xmax = max(xmax, np.nanmax(xi))
+            if xmin <= xmax:  # Only happens if we have seen a finite value.
+                bin_range = (xmin, xmax)
 
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
