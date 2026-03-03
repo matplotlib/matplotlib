@@ -2468,7 +2468,7 @@ def test_hist_timedelta_raises():
     arr = np.array([1,2,5,7], dtype="timedelta64[D]")
     fig, ax = plt.subplots()
 
-    with pytest.raises(TypeError, match="does not currently support numpy.timedelta64"):
+    with pytest.raises(TypeError, match="does not currently support timedelta"):
         ax.hist(arr)
 
 
