@@ -96,6 +96,48 @@ PyRendererAgg_draw_text_image(RendererAgg *self,
 }
 
 static void
+PyRendererAgg_draw_text_image_mm4(RendererAgg *self,
+                              py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> image_obj,
+                              std::variant<double, int> vx,
+                              std::variant<double, int> vy,
+                              double angle,
+                              GCAgg &gc)
+{
+    int x, y;
+
+    if (auto value = std::get_if<double>(&vx)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="x", "obj_type"_a="parameter as float",
+             "alternative"_a="int(x)");
+        x = static_cast<int>(*value);
+    } else if (auto value = std::get_if<int>(&vx)) {
+        x = *value;
+    } else {
+        throw std::runtime_error("Should not happen");
+    }
+
+    if (auto value = std::get_if<double>(&vy)) {
+        auto api = py::module_::import("matplotlib._api");
+        auto warn = api.attr("warn_deprecated");
+        warn("since"_a="3.10", "name"_a="y", "obj_type"_a="parameter as float",
+             "alternative"_a="int(y)");
+        y = static_cast<int>(*value);
+    } else if (auto value = std::get_if<int>(&vy)) {
+        y = *value;
+    } else {
+        throw std::runtime_error("Should not happen");
+    }
+
+    // TODO: This really shouldn't be mutable, but Agg's renderer buffers aren't const.
+    // NOTE: The only difference from the original is the number of dimensions.
+    //       In my example, the shape was (10, 164, 4). The last is the color channels.
+    auto image = image_obj.mutable_unchecked<3>();
+
+    self->draw_text_image_mm4(gc, image, x, y, angle);
+}
+
+static void
 PyRendererAgg_draw_markers(RendererAgg *self,
                            GCAgg &gc,
                            mpl::PathIterator marker_path,
@@ -226,6 +268,8 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "gc"_a, "marker_path"_a, "marker_path_trans"_a, "path"_a, "trans"_a,
              "face"_a = nullptr)
         .def("draw_text_image", &PyRendererAgg_draw_text_image,
+             "image"_a, "x"_a, "y"_a, "angle"_a, "gc"_a)
+        .def("draw_text_image_mm4", &PyRendererAgg_draw_text_image_mm4,
              "image"_a, "x"_a, "y"_a, "angle"_a, "gc"_a)
         .def("draw_image", &PyRendererAgg_draw_image,
              "gc"_a, "x"_a, "y"_a, "image"_a)
