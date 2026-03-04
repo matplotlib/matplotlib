@@ -91,7 +91,6 @@ class RendererAgg(RendererBase):
         self.__init__(state['width'], state['height'], state['dpi'])
 
     def _update_methods(self):
-        self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers
         self.draw_path_collection = self._renderer.draw_path_collection
@@ -305,6 +304,17 @@ class RendererAgg(RendererBase):
               text.x, text.y)
              for text in page.text),
             ((box.x, box.y, box.width, box.height) for box in page.boxes))
+
+    def draw_gouraud_triangles(self, gc, triangles_array, colors_array, transform):
+        # docstring inherited
+        # The Gouraud triangles are rendered into an isolated buffer using the "plus"
+        # blend mode in order to get the colors of the edges and vertices correct.
+        # Afterwards, the isolated buffer is blended into the primary buffer using the
+        # specified blend mode.
+        self.open_blend_group(gc.get_blend_mode())
+        self._renderer._draw_gouraud_triangles(gc, triangles_array, colors_array,
+                                               transform)
+        self.close_blend_group()
 
     def get_canvas_width_height(self):
         # docstring inherited
