@@ -127,7 +127,6 @@ PyRendererAgg_draw_image(RendererAgg *self,
     x = mpl_round(x);
     y = mpl_round(y);
 
-    gc.alpha = 1.0;
     self->draw_image(gc, x, y, image);
 }
 

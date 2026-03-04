@@ -620,7 +620,6 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         # actually render the image.
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_alpha(self._get_scalar_alpha())
         gc.set_blend_mode(self.get_blend_mode())
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
@@ -629,6 +628,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 and self.get_transform().is_affine):
             im, l, b, trans = self.make_image(renderer, unsampled=True)
             if im is not None:
+                gc.set_alpha(self._get_scalar_alpha())
                 trans = Affine2D().scale(im.shape[1], im.shape[0]) + trans
                 renderer.draw_image(gc, l, b, im, trans)
         else:
