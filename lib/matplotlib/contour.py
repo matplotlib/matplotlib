@@ -1029,8 +1029,12 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
-        if len(self.levels) > 1 and np.min(np.diff(self.levels)) <= 0.0:
-            raise ValueError("Contour levels must be increasing")
+
+        # check if filled contours are monotonically increasing:
+        if (self.filled and len(self.levels) > 1 and
+                np.any(np.diff(self.levels) <= 0)):
+            raise ValueError(
+                "Filled contour levels must be monotonically increasing")
 
     def _process_levels(self):
         """
@@ -1496,7 +1500,7 @@ levels : int or array-like, optional
     *n*=7 is the default.
 
     If array-like, draw contour lines at the specified levels.
-    The values must be in increasing order.
+    For filled contours, the values must be in increasing order.
 
     If not specified, a reasonable default is automatically chosen. For
     linear scales, this corresponds to *levels=7*. For logarithmic
