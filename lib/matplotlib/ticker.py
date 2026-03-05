@@ -263,6 +263,9 @@ class Formatter(TickHelper):
 class NullFormatter(Formatter):
     """Always return the empty string."""
 
+    def __repr__(self):
+        return f'{type(self).__name__}()'
+
     def __call__(self, x, pos=None):
         # docstring inherited
         return ''
@@ -281,6 +284,9 @@ class FixedFormatter(Formatter):
         """Set the sequence *seq* of strings that will be used for labels."""
         self.seq = seq
         self.offset_string = ''
+
+    def __repr__(self):
+        return f'{type(self).__name__}(seq={self.seq!r})'
 
     def __call__(self, x, pos=None):
         """
@@ -315,6 +321,9 @@ class FuncFormatter(Formatter):
         self.func = func
         self.offset_string = ""
 
+    def __repr__(self):
+        return f'{type(self).__name__}(func={self.func!r})'
+
     def __call__(self, x, pos=None):
         """
         Return the value of the user defined function.
@@ -344,6 +353,9 @@ class FormatStrFormatter(Formatter):
 
     def __init__(self, fmt):
         self.fmt = fmt
+
+    def __repr__(self):
+        return f'{type(self).__name__}(fmt={self.fmt!r})'
 
     def __call__(self, x, pos=None):
         """
@@ -383,6 +395,9 @@ class StrMethodFormatter(Formatter):
 
     def __init__(self, fmt):
         self.fmt = fmt
+
+    def __repr__(self):
+        return f'{type(self).__name__}(fmt={self.fmt!r})'
 
     def __call__(self, x, pos=None):
         """
@@ -461,6 +476,14 @@ class ScalarFormatter(Formatter):
         self._scientific = True
         self._powerlimits = mpl.rcParams['axes.formatter.limits']
         self.set_useLocale(useLocale)
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'useOffset={self._useOffset!r}, '
+            f'useMathText={self._useMathText!r}, '
+            f'useLocale={self._useLocale!r})'
+        )
 
     def get_usetex(self):
         """Return whether TeX's math mode is enabled for rendering."""
@@ -918,6 +941,13 @@ class LogFormatter(Formatter):
         self._sublabels = None
         self._linthresh = linthresh
 
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'base={self._base!r}, '
+            f'labelOnlyBase={self.labelOnlyBase!r})'
+        )
+
     def set_base(self, base):
         """
         Change the *base* for labeling.
@@ -1187,6 +1217,16 @@ class LogitFormatter(Formatter):
         self._minor_threshold = minor_threshold
         self._minor_number = minor_number
 
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'use_overline={self._use_overline!r}, '
+            f'one_half={self._one_half!r}, '
+            f'minor={self._minor!r}, '
+            f'minor_threshold={self._minor_threshold!r}, '
+            f'minor_number={self._minor_number!r})'
+        )
+
     def use_overline(self, use_overline):
         r"""
         Switch display mode with overline for labelling p>1/2.
@@ -1424,6 +1464,14 @@ class EngFormatter(ScalarFormatter):
             usetex=usetex,
         )
 
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'unit={self.unit!r}, '
+            f'places={self.places!r}, '
+            f'sep={self.sep!r})'
+        )
+
     def __call__(self, x, pos=None):
         """
         Return the format for tick value *x* at position *pos*.
@@ -1572,6 +1620,14 @@ class PercentFormatter(Formatter):
         self.decimals = decimals
         self._symbol = symbol
         self._is_latex = is_latex
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'xmax={self.xmax!r}, '
+            f'decimals={self.decimals!r}, '
+            f'symbol={self._symbol!r})'
+        )
 
     def __call__(self, x, pos=None):
         """Format the tick as a percentage with the appropriate scaling."""
@@ -1754,6 +1810,13 @@ class IndexLocator(Locator):
         self._base = base
         self.offset = offset
 
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'base={self._base!r}, '
+            f'offset={self.offset!r})'
+        )
+
     def set_params(self, base=None, offset=None):
         """Set parameters within this locator"""
         if base is not None:
@@ -1790,6 +1853,13 @@ class FixedLocator(Locator):
         _api.check_shape((None,), locs=self.locs)
         self.nbins = max(nbins, 2) if nbins is not None else None
 
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'locs={self.locs!r}, '
+            f'nbins={self.nbins!r})'
+        )
+
     def set_params(self, nbins=None):
         """Set parameters within this locator."""
         if nbins is not None:
@@ -1821,6 +1891,9 @@ class NullLocator(Locator):
     """
     Place no ticks.
     """
+
+    def __repr__(self):
+        return f'{type(self).__name__}()'
 
     def __call__(self):
         return self.tick_values(None, None)
@@ -1861,6 +1934,12 @@ class LinearLocator(Locator):
             self.presets = {}
         else:
             self.presets = presets
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'numticks={self._numticks!r})'
+        )
 
     @property
     def numticks(self):
@@ -1934,6 +2013,13 @@ class MultipleLocator(Locator):
         """
         self._edge = _Edge_integer(base, 0)
         self._offset = offset
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'base={self._edge.step!r}, '
+            f'offset={self._offset!r})'
+        )
 
     def set_params(self, base=None, offset=None):
         """
@@ -2097,6 +2183,13 @@ class MaxNLocator(Locator):
         if nbins is not None:
             kwargs['nbins'] = nbins
         self.set_params(**{**self.default_params, **kwargs})
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'nbins={self._nbins!r}, '
+            f'steps={list(self._steps)!r})'
+        )
 
     @staticmethod
     def _validate_steps(steps):
@@ -2371,6 +2464,17 @@ class LogLocator(Locator):
         self._set_subs(subs)
         self.numticks = numticks
 
+    def __repr__(self):
+        subs = self._subs
+        if isinstance(subs, np.ndarray):
+            subs = tuple(subs)
+        return (
+            f'{type(self).__name__}('
+            f'base={self._base!r}, '
+            f'subs={subs!r}, '
+            f'numticks={self.numticks!r})'
+        )
+
     def set_params(self, base=None, subs=None, *, numticks=None):
         """Set parameters within this locator."""
         if base is not None:
@@ -2609,6 +2713,14 @@ class SymmetricalLogLocator(Locator):
             self._subs = subs
         self.numticks = 15
 
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'base={self._base!r}, '
+            f'linthresh={self._linthresh!r}, '
+            f'subs={self._subs!r})'
+        )
+
     def set_params(self, subs=None, numticks=None):
         """Set parameters within this locator."""
         if numticks is not None:
@@ -2766,6 +2878,16 @@ class AsinhLocator(Locator):
         self.base = base
         self.subs = subs
 
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'linear_width={self.linear_width!r}, '
+            f'numticks={self.numticks!r}, '
+            f'symthresh={self.symthresh!r}, '
+            f'base={self.base!r}, '
+            f'subs={self.subs!r})'
+        )
+
     def set_params(self, numticks=None, symthresh=None,
                    base=None, subs=None):
         """Set parameters within this locator."""
@@ -2833,6 +2955,13 @@ class LogitLocator(MaxNLocator):
 
         self._minor = minor
         super().__init__(nbins=nbins, steps=[1, 2, 5, 10])
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            f'minor={self._minor!r}, '
+            f'nbins={self._nbins!r})'
+        )
 
     def set_params(self, minor=None, **kwargs):
         """Set parameters within this locator."""
@@ -2983,6 +3112,9 @@ class AutoLocator(MaxNLocator):
             steps = [1, 2, 2.5, 5, 10]
         super().__init__(nbins=nbins, steps=steps)
 
+    def __repr__(self):
+        return f'{type(self).__name__}()'
+
 
 class AutoMinorLocator(Locator):
     """
@@ -3006,6 +3138,9 @@ class AutoMinorLocator(Locator):
             0.05; otherwise, it is divided in 4 sub-intervals.
         """
         self.ndivs = n
+
+    def __repr__(self):
+        return f'{type(self).__name__}(n={self.ndivs!r})'
 
     def __call__(self):
         # docstring inherited
