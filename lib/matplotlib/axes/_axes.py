@@ -7423,19 +7423,21 @@ such objects
 
             # catch numpy.timedelta64
             if np.issubdtype(arr.dtype, np.timedelta64):
-              raise TypeError(
+                raise TypeError(
                   "Axes.hist does not currently support timedelta inputs. "
                   "Convert to numeric values  (e.g., .total_seconds()) first."
-        )
+                )
 
-            # catch python datetime.timedelata
-            if arr.dtype == object and any(
-                isinstance(val, datetime.timedelta) for val in arr
+            # catch python datetime.timedelta
+            if (
+                arr.dtype == object
+                and arr.size > 0
+                and isinstance(arr[0], datetime.timedelta)
             ):
                 raise TypeError(
                   "Axes.hist does not currently support timedelta inputs. "
                   "Convert to numeric values  (e.g., .total_seconds()) first."
-        )
+                )
 
 
         # Process unit information.  _process_unit_info sets the unit and
