@@ -204,6 +204,22 @@ plt.show()
 #   [0 0 1 2 3 3]
 #
 # Note: Unlike the other norms, this norm returns values from 0 to *ncolors*-1.
+#
+# A common case for `.BoundaryNorm` is truly discrete data (e.g. class labels),
+# where each value maps to one fixed color instead of first discretizing
+# continuous data. In that case, define one bin per class and combine
+# `.BoundaryNorm` with a `.ListedColormap`:
+#
+# .. code-block:: pycon
+#
+#   >>> classes = np.array([0, 1, 2, 3])
+#   >>> bounds = np.arange(-0.5, len(classes) + 0.5, 1)
+#   >>> cmap = colors.ListedColormap(['tab:blue', 'tab:orange',
+#   ...                               'tab:green', 'tab:red'])
+#   >>> norm = colors.BoundaryNorm(bounds, cmap.N)
+#
+# The ``bounds`` centered around integer labels ensure each class keeps one
+# stable color in both the artist and its colorbar.
 
 N = 100
 X, Y = np.meshgrid(np.linspace(-3, 3, N), np.linspace(-2, 2, N))
