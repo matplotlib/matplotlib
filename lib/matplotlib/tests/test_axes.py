@@ -2465,20 +2465,15 @@ def test_hist_timedelta_raises():
     import numpy as np
     import matplotlib.pyplot as plt
 
-    arr = np.array([1,2,5,7], dtype="timedelta64[D]")
     fig, ax = plt.subplots()
 
+    arr_np = np.array([1,2,5,7], dtype="timedelta64[D]")
     with pytest.raises(TypeError, match="does not currently support timedelta inputs"):
-        ax.hist(arr)
+        ax.hist(arr_np)
 
-
-def test_hist_datetime_timedelta():
-    fig, ax = plt.subplots()
-    arr = [datetime.timedelta(seconds=i) for i in range(5)]
-
+    arr_py = [datetime.timedelta(seconds=i) for i in range(5)]
     with pytest.raises(TypeError, match="does not currently support timedelta inputs"):
-        ax.hist(arr)
-
+        ax.hist(arr_py)
 
 
 @image_comparison(['hist_bar_empty.png'], remove_text=True)
