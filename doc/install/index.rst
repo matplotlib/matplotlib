@@ -101,13 +101,6 @@ scientific-python-nightly-wheels as the package index to query::
 
   python -m pip install --upgrade --pre --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple --extra-index-url https://pypi.org/simple matplotlib
 
-    .. note::
-
-   On Windows Command Prompt, line continuation using ``\`` is not supported.
-   Run the above command as a single line instead, e.g.:
-
-   ``python -m pip install --upgrade --pre --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple --extra-index-url https://pypi.org/simple matplotlib``
-
 .. _install-source:
 
 Install from source
