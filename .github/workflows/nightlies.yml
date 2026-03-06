@@ -14,7 +14,7 @@ permissions:
 jobs:
   upload_nightly_wheels:
     name: Upload nightly wheels to Anaconda Cloud
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     defaults:
       run:
         # The login shell is necessary for the setup-micromamba setup
