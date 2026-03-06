@@ -158,6 +158,7 @@ class RendererBase:
         self._raster_depth = 0
         self._rasterizing = False
         self._contourf_plus_blend_group = False
+        self._pcolor_plus_blend_group = False
 
     def open_group(self, s, gid=None):
         """

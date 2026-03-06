@@ -2544,6 +2544,7 @@ class QuadMesh(_MeshData, Collection):
         if not self.get_visible():
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
+
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
         offsets = self.get_offsets()
@@ -2578,6 +2579,12 @@ class QuadMesh(_MeshData, Collection):
             renderer.draw_gouraud_triangles(
                 gc, triangles, colors, transform.frozen())
         else:
+            isolate = (renderer._pcolor_plus_blend_group and self._antialiased
+                       and (self._edgecolors.size == 0 or self._edgecolors[0][3] == 0))
+            if isolate:
+                gc.set_blend_mode("plus")
+                renderer.open_blend_group(self.get_blend_mode())
+
             renderer.draw_quad_mesh(
                 gc, transform.frozen(),
                 coordinates.shape[1] - 1, coordinates.shape[0] - 1,
@@ -2585,7 +2592,11 @@ class QuadMesh(_MeshData, Collection):
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
                 self._antialiased, self.get_edgecolors().reshape((-1, 4)))
+
+            if isolate:
+                renderer.close_blend_group()
         gc.restore()
+
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
@@ -2685,6 +2696,21 @@ class PolyQuadMesh(_MeshData, PolyCollection):
             # Mapping is off
             return ec
         return ec[unmasked_polys, :]
+
+    @artist.allow_rasterization
+    def draw(self, renderer):
+        isolate = (renderer._pcolor_plus_blend_group and np.all(self._antialiaseds)
+                   and (self._edgecolors.size == 0 or self._edgecolors[0][3] == 0))
+        if isolate:
+            blend_mode = self.get_blend_mode()
+            self.set_blend_mode("plus")
+            renderer.open_blend_group(blend_mode)
+
+        super().draw(renderer)
+
+        if isolate:
+            renderer.close_blend_group()
+            self.set_blend_mode(blend_mode)
 
     def get_facecolor(self):
         # docstring inherited
