@@ -1310,6 +1310,7 @@ _validators = {
     # figure title
     "figure.titlesize":   validate_fontsize,
     "figure.titleweight": validate_fontweight,
+    "figure.titlelocation": ["left", "center", "right"],
 
     # figure labels
     "figure.labelsize":   validate_fontsize,
@@ -2706,6 +2707,12 @@ _DEFINITION = [
         default="normal",
         validator=validate_fontweight,
         description="weight of the figure title"
+    ),
+    _Param(
+        "figure.titlelocation",
+        default="center",
+        validator=["left", "center", "right"],
+        description="alignment of the figure title: {left, right, center}"
     ),
     _Param(
         "figure.labelsize",

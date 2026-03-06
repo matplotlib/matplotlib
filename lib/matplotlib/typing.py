@@ -306,6 +306,7 @@ RcKeyType: TypeAlias = Literal[
     "figure.subplot.right",
     "figure.subplot.top",
     "figure.subplot.wspace",
+    "figure.titlelocation",
     "figure.titlesize",
     "figure.titleweight",
     "font.cursive",

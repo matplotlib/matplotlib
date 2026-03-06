@@ -352,6 +352,28 @@ def test_suptitle_subfigures():
     assert sf2.get_facecolor() == (1.0, 1.0, 1.0, 1.0)
 
 
+@pytest.mark.parametrize('loc, expected_x, expected_ha', [
+    ('left', 0, 'left'),
+    ('center', 0.5, 'center'),
+    ('right', 1, 'right'),
+])
+def test_suptitle_location_rcparam(loc, expected_x, expected_ha):
+    with mpl.rc_context({'figure.titlelocation': loc}):
+        fig, _ = plt.subplots()
+        txt = fig.suptitle('title')
+        assert txt.get_position()[0] == expected_x
+        assert txt.get_ha() == expected_ha
+
+
+def test_suptitle_location_kwarg_override():
+    """Explicit x/ha kwargs should override the rcParam."""
+    with mpl.rc_context({'figure.titlelocation': 'left'}):
+        fig, _ = plt.subplots()
+        txt = fig.suptitle('title', x=0.7, ha='right')
+        assert txt.get_position()[0] == 0.7
+        assert txt.get_ha() == 'right'
+
+
 def test_get_suptitle_supxlabel_supylabel():
     fig, ax = plt.subplots()
     assert fig.get_suptitle() == ""
