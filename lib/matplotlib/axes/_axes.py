@@ -7419,26 +7419,17 @@ such objects
         nx = len(x)  # number of datasets
 
         for arr in x:
-            arr = np.asarray(arr)
-
-            # catch numpy.timedelta64
-            if np.issubdtype(arr.dtype, np.timedelta64):
-                raise TypeError(
-                  "Axes.hist does not currently support timedelta inputs. "
-                  "Convert to numeric values  (e.g., .total_seconds()) first."
-                )
-
-            # catch python datetime.timedelta
             if (
-                arr.dtype == object
-                and arr.size > 0
-                and isinstance(arr[0], datetime.timedelta)
+                hasattr(arr, "dtype") and np.issubdtype(arr.dtype, np.timedelta64)
+                or (
+                    len(arr) > 0
+                    and isinstance(arr[0], (datetime.timedelta, np.timedelta64))
+                )
             ):
-                raise TypeError(
+               raise TypeError(
                   "Axes.hist does not currently support timedelta inputs. "
                   "Convert to numeric values  (e.g., .total_seconds()) first."
-                )
-
+               )
 
         # Process unit information.  _process_unit_info sets the unit and
         # converts the first dataset; then we convert each following dataset
