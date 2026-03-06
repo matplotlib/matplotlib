@@ -98,6 +98,7 @@ class RendererCairo(RendererBase):
         self._override_blend_mode_to_knockout = False
 
         self._contourf_plus_blend_group = True
+        self._pcolor_plus_blend_group = True
 
     def set_context(self, ctx):
         surface = ctx.get_target()

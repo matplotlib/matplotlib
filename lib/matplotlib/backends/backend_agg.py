@@ -75,6 +75,7 @@ class RendererAgg(RendererBase):
         self._renderer = _RendererAgg(int(width), int(height), dpi)
         self._group_states = []
         self._contourf_plus_blend_group = True
+        self._pcolor_plus_blend_group = True
 
         self._override_blend_mode_to_knockout = False
 
