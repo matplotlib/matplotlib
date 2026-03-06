@@ -23,6 +23,7 @@ from matplotlib import _api, cbook, _docstring
 import matplotlib.artist as martist
 import matplotlib.collections as mcollections
 from matplotlib.patches import CirclePolygon
+import matplotlib.patches as patches
 import matplotlib.text as mtext
 import matplotlib.transforms as transforms
 
@@ -334,9 +335,9 @@ class QuiverKey(martist.Artist):
             The zorder of the key. The default is 0.1 above *Q*.
         **kwargs
             Any additional keyword arguments are used to override vector
-            properties taken from *Q*.
+            properties taken from *Q* - right now this is only arguments from 
+            FancyBboxPatch, such as *facecolor*, *edgecolor*, *linewidth*.
         """
-        super().__init__()
         self.Q = Q
         self.X = X
         self.Y = Y
@@ -360,7 +361,9 @@ class QuiverKey(martist.Artist):
             self.text.set_color(self.labelcolor)
         self._dpi_at_last_init = None
         self.zorder = zorder if zorder is not None else Q.zorder + 0.1
-
+        self._bbox = kwargs.pop('bbox', None)
+        super().__init__(**kwargs)
+      
     @property
     def labelsep(self):
         return self._labelsep_inches * self.Q.axes.get_figure(root=True).dpi
@@ -397,13 +400,112 @@ class QuiverKey(martist.Artist):
             "E": (+self.labelsep, 0),
             "W": (-self.labelsep, 0),
         }[self.labelpos]
+    
+    def _draw_bbox(self, renderer):
+        """
+        Draw a bounding box around the text and vector elements of a quiver key.
 
-    @martist.allow_rasterization
+        This function is used to draw a rectangular or styled bounding box that
+        encloses both the text label and the arrow (vector) in a quiver key,
+        enhancing visibility and grouping them visually.
+
+        Parameters
+        ----------
+        renderer : RendererBase
+            The renderer instance used to draw the box.
+        text : matplotlib.text.Text
+            The text label of the quiver key.
+        vector : matplotlib.collections.PolyCollection
+            The arrow graphic of the quiver key.
+        bbox_props : dict
+            A dictionary of properties passed to the FancyBboxPatch, such as
+            boxstyle, facecolor, edgecolor, linewidth, etc.
+
+
+        Notes
+        -----
+        This function transforms and aligns the vector and text elements in display
+        coordinates, computes a bounding rectangle around them with padding, and
+        draws a styled box using FancyBboxPatch.
+        """
+        if self._bbox is None:
+            return
+
+        # Update vector offset transform if vector exists, to keep arrow position current.
+        # Then get the text bounding box in display coordinates for positioning.
+        if hasattr(self, 'vector') and self.vector is not None:
+            self.vector.set_offset_transform(self.get_transform())
+
+        text_bbox = self.text.get_window_extent(renderer)
+
+        # Calculate arrow (vector) bounding box by transforming its vertices with offset.
+        # If vector or offsets are missing, fallback to text bbox to avoid errors.
+        if hasattr(self, 'vector') and self.vector is not None:
+            
+            offsets_display = self.vector.get_offset_transform().transform(self.vector.get_offsets())
+
+            if len(offsets_display) > 0:
+
+                arrow_center_display = offsets_display[0]
+                arrow_verts = self.vector.get_paths()[0].vertices
+                vector_transform = self.vector.get_transform()
+
+                arrow_display_coords = []
+                for x, y in arrow_verts:
+
+                    local_transformed = vector_transform.transform((x, y))
+                    display_point = (local_transformed[0] - vector_transform.transform((0, 0))[0] + arrow_center_display[0],
+                                local_transformed[1] - vector_transform.transform((0, 0))[1] + arrow_center_display[1])
+                    arrow_display_coords.append(display_point)
+
+                arrow_display_coords = np.array(arrow_display_coords)
+
+                # Get arrow bounds in display coordinates
+                arrow_min_x = np.min(arrow_display_coords[:, 0])
+                arrow_max_x = np.max(arrow_display_coords[:, 0])
+                arrow_min_y = np.min(arrow_display_coords[:, 1])
+                arrow_max_y = np.max(arrow_display_coords[:, 1])
+
+            else:
+                # Fallback if we cannot get offsets or they are empty
+                arrow_min_x = arrow_max_x = text_bbox.x0
+                arrow_min_y = arrow_max_y = text_bbox.y0
+        else:
+            # Fallback if vector is not available
+            arrow_min_x = arrow_max_x = text_bbox.x0
+            arrow_min_y = arrow_max_y = text_bbox.y0
+
+        # Combine text and arrow bboxes, add padding, then draw a FancyBboxPatch around all.
+        min_x = min(text_bbox.x0, arrow_min_x)
+        min_y = min(text_bbox.y0, arrow_min_y)
+        max_x = max(text_bbox.x1, arrow_max_x)
+        max_y = max(text_bbox.y1, arrow_max_y)
+
+        
+        padding = renderer.points_to_pixels(2)
+        bbox_x = min_x - padding
+        bbox_y = min_y - padding
+        bbox_width = (max_x - min_x) + 2 * padding
+        bbox_height = (max_y - min_y) + 2 * padding
+
+       
+        box_patch = patches.FancyBboxPatch(
+            (bbox_x, bbox_y), bbox_width, bbox_height,
+            transform=None,
+            zorder=self.zorder - 0.5,
+            mutation_scale= 10,
+            **self._bbox
+        )
+        box_patch.set_clip_on(False)
+        box_patch.draw(renderer)
+
     def draw(self, renderer):
+        # Draw bbox first (behind everything)
         self._init()
-        self.vector.draw(renderer)
         pos = self.get_transform().transform((self.X, self.Y))
         self.text.set_position(pos + self._text_shift())
+        self._draw_bbox(renderer)
+        self.vector.draw(renderer)
         self.text.draw(renderer)
         self.stale = False
 
