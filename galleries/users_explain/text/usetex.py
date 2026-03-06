@@ -165,3 +165,4 @@ Troubleshooting
 .. _underscore: https://ctan.org/pkg/underscore
 .. _Xpdf: http://www.xpdfreader.com/
 """
+# sphinx_gallery_thumbnail_path = '_static/usetex_tutorial.png'

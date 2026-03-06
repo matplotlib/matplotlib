@@ -263,3 +263,4 @@ Troubleshooting
 .. _LaTeX: http://www.tug.org
 .. _TeXLive: http://www.tug.org/texlive/
 """
+# sphinx_gallery_thumbnail_path = '_static/pgf_preamble.png'
