@@ -7423,8 +7423,8 @@ such objects
                 arr[0], (datetime.timedelta, np.timedelta64)
             ):
                 raise TypeError(
-                  "Axes.hist does not currently support timedelta inputs. "
-                  "Convert to numeric values  (e.g., .total_seconds()) first."
+                    "Axes.hist does not currently support timedelta inputs. "
+                    "Convert to numeric values  (e.g., .total_seconds()) first."
                 )
 
         # Process unit information.  _process_unit_info sets the unit and
