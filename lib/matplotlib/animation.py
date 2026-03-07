@@ -606,18 +606,28 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     """
     File-based ffmpeg writer.
 
-    Frames are written to temporary files on disk and then stitched together at the end.
+    Frames are written to temporary files on disk and then stitched
+    together at the end.
 
-    This effectively works as a slideshow input to ffmpeg with the fps passed as
-    ``-framerate``, so see also `their notes on frame rates`_ for further details.
-
-    .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
+    This effectively works as a slideshow input to ffmpeg with the fps
+    passed as ``-framerate``.
 
     Parameters
     ----------
-    *args, **kwargs
-        All arguments are forwarded to `FileMovieWriter`. See
-        `FileMovieWriter` for a list of all possible parameters.
+    fps : int, default: 5
+        Frames per second of the resulting video.
+
+    codec : str, optional
+        Video codec used by ffmpeg to encode the animation.
+
+    bitrate : int, optional
+        Bitrate used for encoding the video.
+
+    metadata : dict, optional
+        Metadata to include in the output video.
+
+    extra_args : list of str, optional
+        Additional arguments passed directly to ffmpeg.
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
