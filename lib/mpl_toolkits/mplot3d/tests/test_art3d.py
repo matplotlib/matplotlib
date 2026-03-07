@@ -117,3 +117,25 @@ def test_generate_normals():
     ax = fig.add_subplot(projection='3d')
     ax.add_collection3d(shape)
     plt.draw()
+
+
+def test_poly3dcollection_set_get_facecolor_consistency():
+    np.random.seed(0)
+
+    nx, nz = 5, 5
+    xi, zi = np.mgrid[0:nx + 1, 0:nz + 1]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+
+    colors = np.random.rand(nx, nz, 4)
+
+    surf = ax.plot_surface(xi, 0, zi, facecolors=colors, shade=False)
+
+    original_fc = surf.get_facecolor().copy()
+    surf.set_facecolor(original_fc)
+    new_fc = surf.get_facecolor()
+
+    np.testing.assert_allclose(original_fc, new_fc)
+
+    plt.close(fig)
