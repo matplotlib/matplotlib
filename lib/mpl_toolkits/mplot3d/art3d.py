@@ -1433,7 +1433,7 @@ class Poly3DCollection(PolyCollection):
     def set_facecolor(self, colors):
         # docstring inherited
         super().set_facecolor(colors)
-        self._facecolor3d = PolyCollection.get_facecolor(self)
+        self._facecolor3d = PolyCollection.get_facecolor(self).copy()
 
     def set_edgecolor(self, colors):
         # docstring inherited
@@ -1457,10 +1457,11 @@ class Poly3DCollection(PolyCollection):
 
     def get_facecolor(self):
         # docstring inherited
-        # Return original facecolor order instead of depth-sorted colors
-        if not hasattr(self, "_facecolor3d"):
-            self.set_3d_properties()
-        return np.asarray(self._facecolor3d)
+        # self._facecolors2d is not initialized until do_3d_projection
+        if not hasattr(self, '_facecolors2d'):
+            self.axes.M = self.axes.get_proj()
+            self.do_3d_projection()
+        return np.asarray(self._facecolors2d)
 
     def get_edgecolor(self):
         # docstring inherited
