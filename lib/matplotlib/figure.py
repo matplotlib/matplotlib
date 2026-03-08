@@ -1500,6 +1500,72 @@ default: %(va)s
         cax.get_figure(root=False).stale = True
         return cb
 
+    @_docstring.interpd
+    def multivar_colorbar(
+            self, mappable, *, caxes=None, ax=None, use_gridspec=True,
+            n_major=-1, **kwargs):
+
+        if isinstance(mappable, mpl.colorizer.Colorizer):
+            mappable = mcolorizer.ColorizingArtist(mappable)
+        if not isinstance(mappable.colorizer.cmap, mcolors.MultivarColormap):
+            raise ValueError("A multivariate colorbar can only be used together "
+                             "with a multivariate colormap, not "
+                             f"{type(mappable.colorizer.cmap)}")
+
+        n_variates = mappable.colorizer.cmap.n_variates
+
+        if ax is None:
+            ax = getattr(mappable, "axes", None)
+
+        cbar_info = None
+        if caxes is None:
+            if ax is None:
+                raise ValueError(
+                    'Unable to determine Axes to steal space for Colorbar. '
+                    'Either provide the *cax* argument to use as the Axes for '
+                    'the Colorbar, provide the *ax* argument to steal space '
+                    'from it, or add *mappable* to an Axes.')
+            fig = (  # Figure of first Axes; logic copied from make_axes.
+                [*ax.flat] if isinstance(ax, np.ndarray)
+                else [*ax] if np.iterable(ax)
+                else [ax])[0].get_figure(root=False)
+            current_ax = fig.gca()
+            if (fig.get_layout_engine() is not None and
+                    not fig.get_layout_engine().colorbar_gridspec):
+                use_gridspec = False
+            if (use_gridspec
+                    and isinstance(ax, mpl.axes._base._AxesBase)
+                    and ax.get_subplotspec()):
+                caxes, kwargs, cbar_info = cbar.make_multivar_axes_gridspec(ax,
+                        n_variates, n_major, **kwargs)
+            else:
+                caxes, kwargs, cbar_info = cbar.make_multivar_axes(ax,
+                        n_variates, n_major, **kwargs)
+            # make_axes calls add_{axes,subplot} which changes gca; undo that.
+            fig.sca(current_ax)
+            for cax in caxes:
+                cax.grid(visible=False, which='both', axis='both')
+
+        if (hasattr(mappable, "get_figure") and
+                (mappable_host_fig := mappable.get_figure(root=True)) is not None):
+            # Warn in case of mismatch
+            if mappable_host_fig is not self._root_figure:
+                _api.warn_external(
+                        f'Adding colorbar to a different Figure '
+                        f'{repr(mappable_host_fig)} than '
+                        f'{repr(self._root_figure)} which '
+                        f'fig.colorbar is called on.')
+        NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
+            'fraction', 'pad', 'shrink', 'anchor', 'panchor']
+
+        cb = cbar.MultivarColorbar(caxes, mappable, **{
+              k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
+        cb._set_colorbar_info(cbar_info)
+
+        for cax in caxes:
+            cax.get_figure(root=False).stale = True
+        return cb
+
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
                         wspace=None, hspace=None):
         """
