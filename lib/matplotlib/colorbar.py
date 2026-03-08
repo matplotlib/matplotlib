@@ -15,6 +15,7 @@ import functools
 import logging
 
 import numpy as np
+from collections.abc import Sequence
 
 import matplotlib as mpl
 from matplotlib import _api, cbook, collections, colors, contour, ticker
@@ -1695,6 +1696,73 @@ class BivarColorbar:
         self.ax.cla()
 
 
+class MultivarColorbar(Sequence):
+    def __init__(self, axes, mappable=None, **kwargs):
+        if isinstance(mappable, mpl.colorizer.Colorizer):
+            mappable = mcolorizer.ColorizingArtist(mappable)
+
+        self.mappable = mappable
+        self.colorizer = mappable.colorizer
+        cmap = self.colorizer.cmap
+        norm = self.colorizer.norm
+        n = cmap.n_variates
+
+        self._colorbars = [Colorbar(axes[i],
+                                    norm=norm.norms[i],
+                                    cmap=cmap[i],
+                                    **kwargs,
+                                    ) for i in range(n)]
+
+        mappable.colorbar = self
+        mappable.colorbar_cid = mappable.callbacks.connect(
+            'changed', self.update_normals)
+
+        self.axes = axes
+
+    def _set_colorbar_info(self, colorbar_info):
+        if colorbar_info is not None:
+            parents = colorbar_info['parents']
+            for a in parents:
+                a._colorbars.append(self)
+
+    def update_normals(self, mappable=None):
+        [c.update_normal() for c in self._colorbars]
+
+    def remove(self):
+        if hasattr(self, '_colorbar_info'):
+            parents = self._colorbar_info['parents']
+            for a in parents:
+                if self in a._colorbars:
+                    a._colorbars.remove(self)
+
+        for ax in self.axes:
+            ax.remove()
+
+        self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)
+        self.mappable.colorbar = None
+        self.mappable.colorbar_cid = None
+
+        try:
+            ax = self.mappable.axes
+            if ax is None:
+                return
+        except AttributeError:
+            return
+        try:
+            subplotspec = self.ax.get_subplotspec().get_gridspec()._subplot_spec
+        except AttributeError:  # use_gridspec was False
+            pos = ax.get_position(original=True)
+            ax._set_position(pos)
+        else:  # use_gridspec was True
+            ax.set_subplotspec(subplotspec)
+
+    def __getitem__(self, index):
+        return self._colorbars[index]
+
+    def __len__(self):
+        return len(self._colorbars)
+
+
 def _normalize_location_orientation(location, orientation):
     if location is None:
         location = _get_ticklocation_from_orientation(orientation)
@@ -1797,19 +1865,8 @@ def _get_bbox_shrink_parents(parents, location, fraction,
     return pbcb
 
 
-def _make_axes_helper(loc_settings, fraction, shrink, aspect, kwargs, parents):
-    """
-    Help function for `make_axes` and `make_bivar_axes`.
+def _make_axes_get_pbcb(loc_settings, fraction, shrink, aspect, kwargs, parents):
 
-    `make_axes` and `make_bivar_axes` are identical
-    except for the fact that `make_axes` also deals with:
-    1. the aspect
-    2. orientation.
-
-    `make_bivar_axes` on the other hand has no concept of orientation
-    and the aspect is handled by the `BivarColormap` instance, not during
-    creation of the axes.
-    """
     location = loc_settings['location']
     kwargs['location'] = location
 
@@ -1823,11 +1880,7 @@ def _make_axes_helper(loc_settings, fraction, shrink, aspect, kwargs, parents):
     # shrink the parents and get the bbox for the colorbar
     pbcb = _get_bbox_shrink_parents(parents, location, fraction,
                                     pad, shrink, anchor, panchor)
-    cax = fig.add_axes(pbcb, label="<colorbar>")
-    for a in parents:
-        a._colorbars.append(cax)  # tell the parent it has a colorbar
-
-    cax._colorbar_info = dict(
+    colorbar_info = dict(
         parents=parents,
         location=location,
         shrink=shrink,
@@ -1837,7 +1890,30 @@ def _make_axes_helper(loc_settings, fraction, shrink, aspect, kwargs, parents):
         aspect=aspect,
         pad=pad)
 
-    cax.set_anchor(anchor)
+    return fig, pbcb, colorbar_info
+
+
+def _make_axes_helper(loc_settings, fraction, shrink, aspect, kwargs, parents):
+    """
+    Help function for `make_axes` and `make_bivar_axes`.
+
+    `make_axes` and `make_bivar_axes` are identical
+    except for the fact that `make_axes` also deals with:
+    1. the aspect
+    2. orientation.
+
+    `make_bivar_axes` on the other hand has no concept of orientation
+    and the aspect is handled by the `BivarColormap` instance, not during
+    creation of the axes.
+    """
+    fig, pbcb, colorbar_info = _make_axes_get_pbcb(loc_settings, fraction, shrink,
+                                                   aspect, kwargs, parents)
+    cax = fig.add_axes(pbcb, label="<colorbar>")
+    for a in colorbar_info["parents"]:
+        a._colorbars.append(cax)  # tell the parent it has a colorbar
+
+    cax._colorbar_info = colorbar_info
+    cax.set_anchor(colorbar_info["anchor"])
     return cax
 
 
@@ -1910,6 +1986,103 @@ def make_bivar_axes(parents, location=None, fraction=0.15,
     kwargs["aspect"] = aspect
 
     return cax, kwargs
+
+
+@_docstring.interpd
+def make_multivar_axes(parents, n_variates, n_major, location=None, orientation=None,
+                       fraction=0.15, shrink=1.0, aspect=20, **kwargs):
+    """
+    Create an `~.axes.Axes` suitable for a mulitvariate colorbar.
+
+    The Axes is placed in the figure of the *parents* Axes, by resizing and
+    repositioning *parents*.
+
+    Parameters
+    ----------
+    parents : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
+        The Axes to use as parents for placing the colorbar.
+    %(_make_axes_kw_doc)s
+
+    Returns
+    -------
+    cax : `~matplotlib.axes.Axes`
+        The child Axes.
+    kwargs : dict
+        The reduced keyword dictionary to be passed when creating the colorbar
+        instance.
+    """
+    loc_settings = _normalize_location_orientation(location, orientation)
+    # put appropriate values into the kwargs dict for passing back to
+    # the Colorbar class
+    orientation = loc_settings['orientation']
+    kwargs['orientation'] = orientation
+    kwargs['ticklocation'] = loc_settings['location']
+    fig, pbcb, colorbar_info = _make_axes_get_pbcb(loc_settings, fraction, shrink,
+                                                   aspect, kwargs, parents)
+    major_pad = 0.1
+    minor_pad = 0.6
+
+    # get the shape of the grid of new colorbars
+    if n_major == -1:
+        n_major = n_variates
+        n_minor = 1
+    else:
+        n_minor = n_variates // n_major
+        if n_major * n_minor < n_variates:
+            n_minor += 1
+
+    # adjust aspect
+    aspect = aspect/n_major
+    if loc_settings["location"] in ('top', 'bottom'):
+        aspect = 1.0 / aspect
+
+    # define how the bbox needs to be split
+    major_width = (1-major_pad) / n_major
+    if n_major > 1:
+        major_space = major_pad / (n_major - 1)
+    else:
+        major_space = 0
+    major_split = np.empty(2 * (n_major - 1))
+    major_split[0::2] = major_width
+    major_split[1::2] = major_space
+    major_split = np.cumsum(major_split)
+
+    minor_width = (1-minor_pad) / n_minor
+    if n_minor > 1:
+        minor_space = minor_pad / (n_minor - 1)
+    else:
+        minor_space = 0
+    minor_split = np.empty(2 * (n_minor - 1))
+    minor_split[0::2] = minor_width
+    minor_split[1::2] = minor_space
+    minor_split = np.cumsum(minor_split)
+
+    # make the colorbar axes
+    caxes = []
+    v = orientation == "vertical"
+    pbcbs = pbcb.splitx(*minor_split) if v else pbcb.splity(*minor_split)[::-1]
+    for i, mpcbc in enumerate(pbcbs):
+        if i % 2 == 1:
+            continue
+        fbcbs = mpcbc.splity(*major_split)[::-1] if v else mpcbc.splitx(*major_split)
+        for j, bbox in enumerate(fbcbs):
+            if j % 2 == 1:
+                continue
+            if len(caxes) < n_variates:
+                cax = fig.add_axes(bbox, label="<colorbar>")
+                caxes.append(cax)
+
+    for cax in caxes:
+        for a in colorbar_info["parents"]:
+            a._colorbars.append(cax)  # tell the parent it has a colorbar
+
+        cax.set_anchor(colorbar_info["anchor"])
+
+        cax.set_box_aspect(aspect)
+        cax.set_aspect('auto')
+        cax._colorbar_info = colorbar_info
+
+    return caxes, kwargs, colorbar_info
 
 
 def _make_axes_gridspec_helper(loc_settings, fraction, shrink, aspect, kwargs, parent):
