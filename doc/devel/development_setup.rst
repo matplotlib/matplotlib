@@ -294,7 +294,9 @@ variable :envvar:`MESONPY_EDITABLE_VERBOSE` or by setting the ``editable-verbose
 config during installation ::
 
    python -m pip install --no-build-isolation --config-settings=editable-verbose=true --editable .
-.. note:
+
+.. note::
+
    On some Linux systems (for example Ubuntu 24.04 LTS) using conda-forge
    compilers, the editable install may fail due to LTO configuration issues.
    If this occurs, installation can succeed by disabling LTO during the build:
