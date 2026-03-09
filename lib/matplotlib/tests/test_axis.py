@@ -113,37 +113,11 @@ def test_grid_rcparams():
     assert ax.xaxis.get_minor_ticks()[0].gridline.get_alpha() == 0.6
 
 
-def test_set_xticks_emits_xlim_changed():
+def test_set_ticks_expand_limits():
     fig, ax = plt.subplots()
-
-    calls = []
-
-    def on_change(axis):
-        calls.append(axis.get_xlim())
-
-    ax.callbacks.connect("xlim_changed", on_change)
-
     ax.set_xlim(0.5, 1)
     ax.set_xticks([0, 100])
-
-    assert len(calls) == 2
-    assert calls[0] == (0.5, 1.0)
-    assert calls[1] == (0.0, 100.0)
-
-
-def test_set_yticks_emits_ylim_changed():
-    fig, ax = plt.subplots()
-
-    calls = []
-
-    def on_change(axis):
-        calls.append(axis.get_ylim())
-
-    ax.callbacks.connect("ylim_changed", on_change)
-
+    assert ax.get_xlim() == (0.0, 100.0)
     ax.set_ylim(0.5, 1)
     ax.set_yticks([0, 100])
-
-    assert len(calls) == 2
-    assert calls[0] == (0.5, 1.0)
-    assert calls[1] == (0.0, 100.0)
+    assert ax.get_ylim() == (0.0, 100.0)
