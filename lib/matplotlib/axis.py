@@ -2176,10 +2176,9 @@ class Axis(martist.Artist):
         locator = mticker.FixedLocator(ticks)  # validate ticks early.
         if len(ticks):
             old_vmin, old_vmax = self.get_view_interval()
-            self.set_view_interval(min(ticks), max(ticks))
-            new_vmin, new_vmax = self.get_view_interval()
+            new_vmin, new_vmax =min(ticks), max(ticks)
             if new_vmin != old_vmin or new_vmax != old_vmax:
-                self._set_lim(old_vmin, old_vmax, auto=False)
+                self._set_lim(new_vmin, new_vmax, auto=False)
         self.axes.stale = True
         if minor:
             self.set_minor_locator(locator)
