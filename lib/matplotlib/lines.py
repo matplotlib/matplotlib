@@ -547,7 +547,14 @@ class Line2D(Artist):
 
             For examples see :ref:`marker_fill_styles`.
         """
-        self.set_marker(MarkerStyle(self._marker.get_marker(), fs))
+
+        old_marker = self._marker
+
+        marker = MarkerStyle(old_marker.get_marker(), fillstyle=fs)
+
+        marker._user_transform = old_marker._user_transform
+
+        self._marker = marker
         self.stale = True
 
     def set_markevery(self, every):
