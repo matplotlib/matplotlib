@@ -1098,6 +1098,49 @@ def test_TextBox(ax, toolbar):
     assert text_change_event.call_count == 3
 
 
+def test_TextBox_keypresslock_race_condition():
+    """
+    Regression test for GH#29687: clicking between multiple TextBox widgets
+    when toolmanager is active should not raise ValueError('already locked').
+
+    The race condition occurs because button_press_event handlers are processed
+    in widget-creation order.  When clicking on TB1 while TB2 has focus, TB1's
+    _click fires first and calls begin_typing() before TB2's _click has a
+    chance to call stop_typing().  Without the fix, begin_typing() raises
+    ValueError because TB2 still holds the keypresslock.
+    """
+    plt.rcParams._set("toolbar", "toolmanager")
+    fig, axs = plt.subplots(1, 2)
+    fig.canvas.draw()
+
+    tb1 = widgets.TextBox(axs[0], 'TB1')
+    tb2 = widgets.TextBox(axs[1], 'TB2')
+
+    # TB2 is active (has acquired the keypresslock).
+    tb2.begin_typing()
+    toolmanager = fig.canvas.manager.toolmanager
+    assert toolmanager.keypresslock.isowner(tb2)
+    assert tb2.capturekeystrokes
+
+    # Simulate the race: TB1's _click fires (begin_typing) before TB2's _click
+    # has called stop_typing().  Before the fix this raised ValueError.
+    tb1.begin_typing()
+
+    # After the fix: TB1 has the lock; TB2 has been gracefully stopped.
+    assert toolmanager.keypresslock.isowner(tb1)
+    assert tb1.capturekeystrokes
+    assert not tb2.capturekeystrokes
+
+    # Now TB2's _click finally fires stop_typing — should be a no-op.
+    tb2.stop_typing()
+    assert toolmanager.keypresslock.isowner(tb1)
+
+    tb1.stop_typing()
+    assert not toolmanager.keypresslock.locked()
+
+    plt.close('all')
+
+
 def test_RadioButtons(ax):
     radio = widgets.RadioButtons(ax, ('Radio 1', 'Radio 2', 'Radio 3'))
     radio.set_active(1)

@@ -63,6 +63,11 @@ class LockDraw:
         """Return whether the lock is currently held by an owner."""
         return self._owner is not None
 
+    @property
+    def owner(self):
+        """Return the current owner of the lock, or None if unlocked."""
+        return self._owner
+
 
 class Widget:
     """
@@ -1678,6 +1683,18 @@ class TextBox(AxesWidget):
         if toolmanager is not None:
             # If using toolmanager, lock keypresses, and plan to release the
             # lock when typing stops.
+            lock = toolmanager.keypresslock
+            if lock.locked() and not lock.isowner(self):
+                # Race condition: this widget's _click handler fired before
+                # the previously active widget's _click handler had a chance
+                # to call stop_typing() and release the lock (event handlers
+                # are processed in widget-creation order, not click order).
+                # Gracefully transfer focus: call stop_typing() on the current
+                # owner so it releases the lock and cleans up its own state.
+                # When the previous owner's _click eventually fires stop_typing,
+                # it will be a no-op because capturekeystrokes is already False.
+                if hasattr(lock.owner, 'stop_typing'):
+                    lock.owner.stop_typing()
             toolmanager.keypresslock(self)
             stack.callback(toolmanager.keypresslock.release, self)
         else:
