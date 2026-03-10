@@ -2217,7 +2217,9 @@ class Axes3D(Axes):
                 if len(xytext) == 3:
                     # Only support a 3D text position when the text position is
                     # itself in data coordinates.
-                    effective_textcoords = xycoords if textcoords is None else textcoords
+                    effective_textcoords = (
+                        xycoords if textcoords is None else textcoords
+                    )
                     if effective_textcoords != 'data':
                         raise ValueError(
                             "3D annotation text positions require textcoords='data'")
