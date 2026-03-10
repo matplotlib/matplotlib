@@ -854,8 +854,9 @@ class UnicodeMathFonts(TruetypeFonts):
         if _is_digit(uniindex):
             # handle digits
             _alphabet_map = {
+                'normal': 'up',
                 'rm': 'up',
-                'it': 'up',  # convention! digits always upright - not handled in Parser
+                'it': 'it',
                 'tt': 'tt',
                 'sf': 'sfup',
                 'bf': 'bfup',
@@ -863,10 +864,9 @@ class UnicodeMathFonts(TruetypeFonts):
                 'bb': 'bb',
             }
             alphabet = _alphabet_map.get(fontname, 'up')
-            alphabet_lut = unicode_math_lut.get(alphabet, {})
-            new_uniindex = alphabet_lut.get(uniindex, uniindex)
         elif _is_latin_uppercase(uniindex) or _is_latin_lowercase(uniindex):
             _alphabet_map = {
+                'normal': 'it',
                 'rm': 'up',
                 'cal': 'scr',
                 'it': 'it',
@@ -879,20 +879,31 @@ class UnicodeMathFonts(TruetypeFonts):
                 'scr': 'scr'
             }
             alphabet = _alphabet_map.get(fontname, 'up')
-            alphabet_lut = unicode_math_lut.get(alphabet, {})
-            new_uniindex = alphabet_lut.get(uniindex, uniindex)
-        elif _is_greek_uppercase(uniindex) or _is_greek_lowercase(uniindex):
+        elif _is_greek_uppercase(uniindex):
             _alphabet_map = {
+                'normal': 'up',
                 'rm': 'up',
                 'it': 'it',
                 'bf': 'bfup',
                 'bfit': 'bfit',
             }
             alphabet = _alphabet_map.get(fontname, 'up')
+        elif _is_greek_lowercase(uniindex):
+            _alphabet_map = {
+                'normal': 'it',
+                'rm': 'up',
+                'it': 'it',
+                'bf': 'bfup',
+                'bfit': 'bfit',
+            }
+            alphabet = _alphabet_map.get(fontname, 'up')
+        else:
+            alphabet = 'up'
+
+        if (alphabet != 'up'):
             alphabet_lut = unicode_math_lut.get(alphabet, {})
             new_uniindex = alphabet_lut.get(uniindex, uniindex)
         else:
-            alphabet = 'up'
             new_uniindex = uniindex
 
         slanted = (alphabet == 'it') or sym in self._slanted_symbols
