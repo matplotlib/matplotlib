@@ -216,6 +216,59 @@ class Text3D(mtext.Text):
         return None
 
 
+class Annotation3D(mtext.Annotation):
+    """
+    A 3D variant of `.Annotation` that projects its anchor (and optionally the
+    text position) each draw.
+
+    This intentionally opts out of layout (like `Text3D`) by returning None from
+    `get_tightbbox`.
+    """
+
+    def set_3d_properties(self, xyz, xyztext=None, axlim_clip=False):
+        self._xyz = xyz
+        self._xyztext = xyztext
+        self._axlim_clip = axlim_clip
+        self.stale = True
+
+    def _project_xyz(self, xyz, renderer):
+        x, y, z = xyz
+        x = float(self.axes.convert_xunits(x))
+        y = float(self.axes.convert_yunits(y))
+        z = float(self.axes.convert_zunits(z))
+
+        if self._axlim_clip and _viewlim_mask(x, y, z, self.axes):
+            return np.nan, np.nan
+
+        if getattr(self.axes, "M", None) is None:
+            # get_window_extent() can be called outside of a normal draw path;
+            # ensure a projection matrix exists.
+            self.axes.M = self.axes.get_proj()
+        tx, ty, tz, vis = proj3d._scale_proj_transform_clip(x, y, z, self.axes)
+        if not np.asarray(vis).astype(bool).item():
+            return np.nan, np.nan
+        return float(tx), float(ty)
+
+    def _update_projection(self, renderer):
+        self.xy = self._project_xyz(self._xyz, renderer)
+        if self._xyztext is not None and self.anncoords == "data":
+            self.set_position(self._project_xyz(self._xyztext, renderer))
+
+    @artist.allow_rasterization
+    def draw(self, renderer):
+        self._update_projection(renderer)
+        super().draw(renderer)
+
+    def get_window_extent(self, renderer=None):
+        if renderer is None:
+            renderer = self.get_figure(root=True)._get_renderer()
+        self._update_projection(renderer)
+        return super().get_window_extent(renderer)
+
+    def get_tightbbox(self, renderer=None):
+        return None
+
+
 def text_2d_to_3d(obj, z=0, zdir='z', axlim_clip=False):
     """
     Convert a `.Text` to a `.Text3D` object.
@@ -234,6 +287,24 @@ def text_2d_to_3d(obj, z=0, zdir='z', axlim_clip=False):
     """
     obj.__class__ = Text3D
     obj.set_3d_properties(z, zdir, axlim_clip)
+
+
+def annotation_2d_to_3d(obj, xyz, xyztext=None, axlim_clip=False):
+    """
+    Convert a 2D `.Annotation` to an `.Annotation3D`.
+
+    Parameters
+    ----------
+    xyz : (float, float, float)
+        The anchor position in 3D data coordinates.
+    xyztext : (float, float, float) or None
+        Optional text position in 3D data coordinates (only meaningful when
+        textcoords='data').
+    axlim_clip : bool, default: False
+        Whether to hide annotations outside the 3D view limits.
+    """
+    obj.__class__ = Annotation3D
+    obj.set_3d_properties(xyz, xyztext=xyztext, axlim_clip=axlim_clip)
 
 
 class Line3D(lines.Line2D):

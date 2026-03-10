@@ -2190,6 +2190,50 @@ class Axes3D(Axes):
     text3D = text
     text2D = Axes.text
 
+    def annotate(self, text, xy, xytext=None, xycoords='data', textcoords=None,
+                 arrowprops=None, annotation_clip=None, *, axlim_clip=False,
+                 **kwargs):
+        """
+        Annotate a point.
+
+        This is the 3D counterpart of `.Axes.annotate`.  When *xycoords* is
+        ``'data'``, the annotated position *xy* may be a 3-tuple *(x, y, z)* in
+        3D data coordinates; in that case, the annotation will reproject during
+        draws (e.g. on rotation / zoom).
+        """
+        xyz = None
+        try:
+            if len(xy) == 3 and xycoords == 'data':
+                xyz = xy
+                xy = xy[:2]
+            elif len(xy) == 3:
+                raise ValueError("3D annotated positions require xycoords='data'")
+        except TypeError:
+            pass
+
+        xyztext = None
+        if xytext is not None:
+            try:
+                if len(xytext) == 3:
+                    # Only support a 3D text position when the text position is
+                    # itself in data coordinates.
+                    effective_textcoords = xycoords if textcoords is None else textcoords
+                    if effective_textcoords != 'data':
+                        raise ValueError(
+                            "3D annotation text positions require textcoords='data'")
+                    xyztext = xytext
+                    xytext = xytext[:2]
+            except TypeError:
+                pass
+
+        a = super().annotate(
+            text, xy, xytext=xytext, xycoords=xycoords, textcoords=textcoords,
+            arrowprops=arrowprops, annotation_clip=annotation_clip, **kwargs)
+
+        if xyz is not None:
+            art3d.annotation_2d_to_3d(a, xyz, xyztext=xyztext, axlim_clip=axlim_clip)
+        return a
+
     def plot(self, xs, ys, *args, zdir='z', axlim_clip=False, **kwargs):
         """
         Plot 2D or 3D data.

@@ -43,6 +43,45 @@ def test_invisible_axes(fig_test, fig_ref):
     ax.set_visible(False)
 
 
+def test_annotate_3d_follows_view():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ann = ax.annotate("foo", (1, 1, 1))
+    assert isinstance(ann, art3d.Annotation3D)
+
+    fig.canvas.draw()
+    r = fig.canvas.get_renderer()
+    p0 = np.asarray(ann._get_position_xy(r))
+
+    ax.view_init(elev=10, azim=20)
+    fig.canvas.draw()
+    r = fig.canvas.get_renderer()
+    p1 = np.asarray(ann._get_position_xy(r))
+
+    assert np.isfinite(p0).all() and np.isfinite(p1).all()
+    assert not np.allclose(p0, p1)
+
+
+def test_annotate_3d_clip_on_special_casing():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    ann = ax.annotate("foo", (1, 1, 1))
+    assert ann.get_clip_path() is None
+
+    ann = ax.annotate("foo", (1, 1, 1), clip_on=True)
+    assert isinstance(ann, art3d.Annotation3D)
+    assert ann.get_clip_on() is True
+    # Axes.annotate special-cases clip_on=True by setting the clip path to the
+    # Axes patch. When that patch is a Rectangle, Artist.set_clip_path
+    # optimizes this to a clip box (and leaves clip_path as None).
+    assert ann.get_clip_path() is None
+    fig.canvas.draw()
+    clip_box = ann.get_clip_box()
+    assert clip_box is not None
+    assert np.all(clip_box.extents == ax.bbox.extents)
+
+
 @mpl3d_image_comparison(['grid_off.png'], style='mpl20')
 def test_grid_off():
     fig = plt.figure()
