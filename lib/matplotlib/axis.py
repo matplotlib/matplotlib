@@ -2179,7 +2179,7 @@ class Axis(martist.Artist):
             self.set_view_interval(min(ticks), max(ticks))
             new_vmin, new_vmax = self.get_view_interval()
             if new_vmin != old_vmin or new_vmax != old_vmax:
-                self._set_lim(new_vmin, new_vmax, auto=False)
+                self._set_lim(new_vmin, new_vmax, auto=None)
         self.axes.stale = True
         if minor:
             self.set_minor_locator(locator)
