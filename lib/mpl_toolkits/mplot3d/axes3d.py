@@ -2285,6 +2285,11 @@ class Axes3D(Axes):
 
         if xyz is not None:
             art3d.annotation_2d_to_3d(a, xyz, xyztext=xyztext, axlim_clip=axlim_clip)
+        elif axlim_clip:
+            _api.warn_external(
+                "The 'axlim_clip' parameter is ignored for 2D annotated "
+                "positions (xy must be a 3-tuple in 3D data coordinates)."
+            )
         return a
 
     def plot(self, xs, ys, *args, zdir='z', axlim_clip=False, **kwargs):
