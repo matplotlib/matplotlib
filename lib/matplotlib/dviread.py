@@ -19,12 +19,14 @@ Interface::
 
 import dataclasses
 import enum
+import io
 import logging
 import os
 import re
 import struct
 import subprocess
 import sys
+import typing
 from collections import namedtuple
 from functools import cache, cached_property, lru_cache, partial, wraps
 from pathlib import Path
@@ -59,6 +61,124 @@ _log = logging.getLogger(__name__)
 #   finale:    the finale (unimplemented in our current implementation)
 
 _dvistate = enum.Enum('DviState', 'pre outer inpage post_post finale')
+
+class Ops:
+    """
+    Low-level tools for reading a DVI file as a sequence of ops.
+
+    This is just using a class for namespacing purposes, don't make instances of it.
+    Rather, you want to use functions like Ops.read_file, Ops.read_io, etc.
+    """
+    Op = namedtuple('Op', 'code name args')
+
+    @classmethod
+    def read_io(cls, f) -> typing.Generator[Op, None, None]:
+        while True:
+            opcode = f.read(1)
+            if not opcode:
+                break
+            opcode = int(opcode[0])
+            opname, base, atypes, anames = cls._dispatch_table[opcode]
+            delta = opcode-base
+            yield cls.Op(opcode, opname, cls._parse_args(f, delta, atypes, anames))
+            if opname == "unknown":
+                break
+
+    @classmethod
+    def read_file(cls, filename: str):
+        with open(filename, "rb") as f:
+            yield from cls.read_io(f)
+
+    @classmethod
+    def read_bytes(cls, b: bytes):
+        yield from cls.read_io(io.BytesIO(b))
+
+    # Internals
+    _parsers = {
+        # r = read_bytes(nbytes, signed)
+        'delta': lambda r, delta: delta,
+        'u1': lambda r, delta: r(1, False),
+        'u2': lambda r, delta: r(2, False),
+        'u3': lambda r, delta: r(3, False),
+        'u4': lambda r, delta: r(4, False),
+        's1': lambda r, delta: r(1, True),
+        's2': lambda r, delta: r(2, True),
+        's3': lambda r, delta: r(3, True),
+        's4': lambda r, delta: r(4, True),
+        'slen': lambda r, delta: r(delta, True) if delta else None,
+        'slen1': lambda r, delta: r(delta + 1, True),
+        'ulen1': lambda r, delta: r(delta + 1, False),
+        'olen1': lambda r, delta: r(delta + 1, delta == 3),
+        'fin': lambda r, delta: r(7, False),
+    }
+    @classmethod
+    def _parse_args(cls, f, delta, types, names) -> dict:
+        result = {}
+        read_arg = lambda n, s: int.from_bytes(f.read(n), signed=s)
+        for t, n in zip(types, names):
+            if t.startswith("@"):
+                result[n] = f.read(result[t[1:]])
+            else:
+                result[n] = cls._parsers[t](read_arg, delta)
+        return result
+
+    def _op(tbl, bmin, bmax, opname, arg_types='', arg_names=''):
+        arg_types = (' ' + arg_types).split()
+        arg_names = (' ' + arg_names).split()
+        entry = (opname, bmin, arg_types, arg_names)
+        for i in range(bmin, bmax+1):
+            tbl[i] = entry
+
+    _dispatch_table = [('unknown', 0, ['delta'], ['delta'])] * 256
+    _op = partial(_op, _dispatch_table)
+
+    # It's a valid question whether to group ops together under one name,
+    # or split them apart per code like the docs say. I'm going with the
+    # grouping approach, but we could theoretically offer both, and we do
+    # already provide the opcode to consumers.
+    _op(0, 127, 'set_char', 'delta', 'c')
+    _op(128, 128, 'set_char', 'u1', 'c')
+    _op(129, 129, 'set_char', 'u2', 'c')
+    _op(130, 130, 'set_char', 'u3', 'c')
+    _op(131, 131, 'set_char', 's4', 'c')
+    _op(132, 132, 'set_rule', 's4 s4', 'height width')
+
+    _op(133, 133, 'put_char', 'u1', 'c')
+    _op(134, 134, 'put_char', 'u2', 'c')
+    _op(135, 135, 'put_char', 'u3', 'c')
+    _op(136, 136, 'put_char', 's4', 'c')
+    _op(137, 137, 'put_rule', 's4 s4', 'height width')
+
+    _op(138, 138, 'nop')
+    _op(139, 139, 'bop',
+        "s4 s4 s4 s4 s4 s4 s4 s4 s4 s4 s4",
+        "c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 p")
+    _op(140, 140, 'eop')
+
+    _op(141, 141, 'push')
+    _op(142, 142, 'pop')
+
+    _op(143, 146, 'right', 'slen1', 'amount')
+    _op(147, 147, 'w0')
+    _op(148, 151, 'w', 'slen1', 'new_w')
+    _op(157, 160, 'down', 'slen1', 'amount')
+
+    _op(171, 234, 'fnt_num', 'delta', 'n')
+
+    _op(239, 242, 'special', 'ulen1 @k', 'k text')
+
+    _op(243, 246, 'fnt_def',
+        'olen1 u4 s4 u4 u1 u1 @a   @l',
+        'k     c  s  d  a  l  area name')
+
+    _op(247, 247, 'pre',
+        "u1 u4  u4  u4  u1 @k",
+        "i  num den mag k  cmnt")
+    _op(248, 248, 'post',
+        'u4 u4  u4  u4  u4 u4 u2 u2',
+        'p  num den mag l  u  s  t')
+    _op(249, 249, 'post_post', 'u4 u1 fin', 'q i padding')
+
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')

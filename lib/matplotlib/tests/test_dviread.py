@@ -4,8 +4,97 @@ import shutil
 
 from matplotlib import cbook, dviread as dr
 from matplotlib.testing import subprocess_run_for_testing, _has_tex_package
+from matplotlib.texmanager import TexManager
 import pytest
 
+def test_ops():
+    filename = str(Path(__file__).parent / 'baseline_images/dviread/color.dvi')
+    Op = dr.Ops.Op
+    set_chars = lambda s: [Op(ord(c), 'set_char', {'c': ord(c)}) for c in s]
+    assert list(dr.Ops.read_file(filename)) == [
+        Op(247, 'pre', {
+            'i': 2, 'num': 25400000, 'den': 473628672, 'mag': 1000, 'k': 27,
+            'cmnt': b' TeX output 2026.03.10:0955'}),
+        Op(139, 'bop', {
+            'c0': 1, 'c1': 0, 'c2': 0, 'c3': 0, 'c4': 0, 'c5': 0,
+            'c6': 0, 'c7': 0, 'c8': 0, 'c9': 0, 'p': -1}),
+        Op(141, 'push', {}),
+        Op(239, 'special', {'k': 26, 'text': b'header=l3backend-dvips.pro'}),
+        Op(239, 'special', {'k': 35, 'text': b'papersize=5203.43999pt,5203.43999pt'}),
+        Op(239, 'special', {'k': 35, 'text': b'papersize=5203.43999pt,5203.43999pt'}),
+        Op(142, 'pop', {}),
+        Op(160, 'down', {'amount': 333506151}),
+        Op(141, 'push', {}),
+        Op(160, 'down', {'amount': -335144551}),
+        Op(141, 'push', {}),
+        Op(141, 'push', {}),
+        Op(239, 'special', {'k': 17, 'text': b'color push  Black'}),
+        Op(146, 'right', {'amount': 331540071}),
+        Op(239, 'special', {'k': 9, 'text': b'color pop'}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+        Op(160, 'down', {'amount': 333178471}),
+        Op(141, 'push', {}),
+        Op(160, 'down', {'amount': -330098279}),
+        Op(141, 'push', {}),
+        Op(145, 'right', {'amount': 983040}),
+        Op(243, 'fnt_def', {
+            'k': 28, 'c': 2194559542, 's': 786432, 'd': 786432, 'a': 0, 'l': 6,
+            'area': b'', 'name': b'cmss12'}),
+        Op(199, 'fnt_num', {'n': 28}),
+    ] + set_chars("Default,") + [
+        Op(145, 'right', {'amount': 475130}),
+        Op(239, 'special', {'k': 28, 'text': b'color push rgb 1.0  0.0  0.0'}),
+    ] + set_chars("red") + [
+        Op(144, 'right', {'amount': 20984}),
+        Op(141, 'push', {}),
+        Op(141, 'push', {}),
+        Op(159, 'down', {'amount': -174762}),
+        Op(132, 'set_rule', {'height': 65536, 'width': 65536}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+        Op(150, 'w', args={'new_w': 65536}),
+        Op(141, 'push', {}),
+        Op(141, 'push', {}),
+        Op(159, 'down', {'amount': -174762}),
+        Op(132, 'set_rule', {'height': 65536, 'width': 65536}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+    ] + ([
+        # The red line is apparently a bunch of little red lines.
+        Op(147, 'w0', {}),
+        Op(141, 'push', {}),
+        Op(141, 'push', {}),
+        Op(159, 'down', {'amount': -174762}),
+        Op(132, 'set_rule', {'height': 65536, 'width': 65536}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+    ] * 83) + [
+        Op(145, 'right', {'amount': 68031}),
+        Op(239, 'special', {'k': 9, 'text': b'color pop'}),
+    ] + set_chars(",and") + [
+        Op(150, 'w', args={'new_w': 256680}),
+    ] + set_chars("back") + [
+        Op(147, 'w0', args={}),
+    ] + set_chars("again.") + [
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+        Op(159, 'down', {'amount': 1966080}),
+        Op(141, 'push', {}),
+        Op(239, 'special', {'k': 17, 'text': b'color push  Black'}),
+        Op(146, 'right', {'amount': 331540071}),
+        Op(239, 'special', {'k': 9, 'text': b'color pop'}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+        Op(140, 'eop', {}),
+        Op(248, 'post', {
+            'p': 42, 'num': 25400000, 'den': 473628672, 'mag': 1000,
+            'l': 333506151, 'u': 331540071, 's': 5, 't': 1}),
+        Op(243, 'fnt_def', {
+            'k': 28, 'c': 2194559542, 's': 786432, 'd': 786432, 'a': 0, 'l': 6,
+            'area': b'', 'name': b'cmss12'}),
+        Op(249, 'post_post', {'q': 1939, 'i': 2, 'padding': 3755991007}),
+    ]
 
 def test_PsfontsMap(monkeypatch):
     monkeypatch.setattr(dr, 'find_tex_file', lambda x: x.decode())
