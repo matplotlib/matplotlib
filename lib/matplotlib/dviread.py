@@ -360,6 +360,31 @@ class VM:
         if self.state != state:
             raise ValueError(f"state precondition failed: op {opname} must be used in state {state}, but was used in state {self.state}")
 
+    def reconsider_baseline_v(self):
+        "Should be called in ops that modify self.stack or self.down_stack."
+        # Pages appear to start with the sequence
+        #   bop (begin of page)
+        #   xxx comment
+        #   <push, ..., pop>  # if using chemformula
+        #   down
+        #   push
+        #     down
+        #     <push, push, xxx, right, xxx, pop, pop>  # if using xcolor
+        #     down
+        #     push
+        #       down (possibly multiple)
+        #       push  <=  here, v is the baseline position.
+        #         etc.
+        # (dviasm is useful to explore this structure.)
+        # Thus, we use the vertical position at the first time the stack depth
+        # reaches 3, while at least three "downs" have been executed (excluding
+        # those popped out (corresponding to the chemformula preamble)), as the
+        # baseline (the "down" count is necessary to handle xcolor).
+        if (self.baseline_v is None
+                and len(getattr(self, "stack", [])) == 3
+                and self.down_stack[-1] >= 4):
+            self.baseline_v = self.v
+
     def op_pre(self, _, i, num, den, mag, k, cmnt):
         self.assert_state("pre", _dvistate.pre)
         if i not in [2, 7]:  # 2: pdftex, luatex; 7: xetex
@@ -404,14 +429,17 @@ class VM:
     def op_push(self, _):
         self.down_stack.append(self.down_stack[-1])
         self.stack.append((self.h, self.v, self.w, self.x, self.y, self.z))
+        self.reconsider_baseline_v()
 
     def op_pop(self, _):
         self.down_stack.pop()
         self.h, self.v, self.w, self.x, self.y, self.z = self.stack.pop()
+        self.reconsider_baseline_v()
 
     def op_down(self, _, amount: int):
         self.down_stack[-1] += 1
         self.v += amount
+        self.reconsider_baseline_v()
 
     def op_right(self, _, amount: int):
         self.h += amount
@@ -547,11 +575,6 @@ class Dvi2:
         vm = VM()
         for opcode, opname, args in Ops.read_io(self.file):
             getattr(vm, f"op_{opname}")(opcode, **args)
-            # This is currently checked for every op, but we can probably be smarter.
-            if (vm.baseline_v is None
-                    and len(getattr(vm, "stack", [])) == 3
-                    and vm.down_stack[-1] >= 4):
-                vm.baseline_v = vm.v
             if opname == "eop":
                 yield self._output_page(vm, self.dpi)
 
