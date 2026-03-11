@@ -500,6 +500,24 @@ def test_scatter3d_offsets3d_modification(fig_ref, fig_test):
 
 
 @check_figures_equal()
+def test_scatter3d_set_array_modification(fig_ref, fig_test):
+    # Changing Path3DCollection scalar-mappable array post-creation should work.
+    x = np.linspace(0.1, 0.9, 10)
+    y = np.linspace(0.9, 0.1, 10)
+    z = np.linspace(0.1, 0.9, 10)
+    colors = np.arange(10)
+
+    ax_test = fig_test.add_subplot(projection='3d')
+    c_test = ax_test.scatter(x, y, z, c=colors, cmap='viridis',
+                             marker='o', s=75, depthshade=False)
+    c_test.set_array(colors[::-1])
+
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.scatter(x, y, z, c=colors[::-1], cmap='viridis',
+                   marker='o', s=75, depthshade=False)
+
+
+@check_figures_equal()
 def test_scatter3d_sorting(fig_ref, fig_test):
     """Test that marker properties are correctly sorted."""
 
@@ -1041,6 +1059,43 @@ def test_patch_collection_offsets3d_modification(fig_test, fig_ref):
     )
     ax_ref = fig_ref.add_subplot(projection='3d')
     ax_ref.add_collection3d(c_ref)
+    ax_ref.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
+
+
+@check_figures_equal()
+def test_patch_collection_set_array_modification(fig_test, fig_ref):
+    # Changing Patch3DCollection scalar-mappable array post-creation should work.
+    offsets = np.column_stack([
+        np.linspace(0.2, 0.8, 5),
+        np.linspace(0.8, 0.2, 5),
+    ])
+    zs = np.linspace(0.2, 0.8, 5)
+    colors = np.arange(5)
+
+    c_test = art3d.Patch3DCollection(
+        [Circle((0, 0), 0.04)],
+        offsets=offsets,
+        zs=zs,
+        cmap='viridis',
+        depthshade=False,
+    )
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.add_collection3d(c_test)
+    c_test.set_array(colors)
+    fig_test.canvas.draw()
+    c_test.set_array(colors[::-1])
+    ax_test.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
+
+    c_ref = art3d.Patch3DCollection(
+        [Circle((0, 0), 0.04)],
+        offsets=offsets,
+        zs=zs,
+        cmap='viridis',
+        depthshade=False,
+    )
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.add_collection3d(c_ref)
+    c_ref.set_array(colors[::-1])
     ax_ref.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
 
 
