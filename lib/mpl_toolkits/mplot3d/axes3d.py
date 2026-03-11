@@ -2194,12 +2194,63 @@ class Axes3D(Axes):
                  arrowprops=None, annotation_clip=None, *, axlim_clip=False,
                  **kwargs):
         """
-        Annotate a point.
+        Annotate the point *xy* with text *text*.
 
-        This is the 3D counterpart of `.Axes.annotate`.  When *xycoords* is
-        ``'data'``, the annotated position *xy* may be a 3-tuple *(x, y, z)* in
-        3D data coordinates; in that case, the annotation will reproject during
-        draws (e.g. on rotation / zoom).
+        This is the 3D counterpart of `.Axes.annotate`.  The main difference is
+        that when *xycoords* is ``'data'``, *xy* may be a 3-tuple *(x, y, z)* in
+        3D data coordinates.  In that case, the annotated point is projected
+        during draws, so the annotation follows rotations and zooming of the 3D
+        view.
+
+        If *xy* is a 2-tuple *(x, y)*, the annotation behaves like the 2D
+        version: the coordinates are interpreted in the (already projected)
+        coordinate system determined by *xycoords*, and the annotation does not
+        reproject with view changes.
+
+        Similarly, when the text position is specified in data coordinates
+        (``textcoords='data'`` or `None` with *xycoords* ``'data'``), *xytext*
+        may be a 3-tuple *(x, y, z)*.  In that case, the text position is also
+        projected during draws.
+
+        Parameters
+        ----------
+        text : str
+            The text of the annotation.
+        xy : (float, float) or (float, float, float)
+            The point to annotate.
+
+            - If a 2-tuple, interpreted like `.Axes.annotate` in the coordinate
+              system given by *xycoords*.
+            - If a 3-tuple, only supported when *xycoords* is ``'data'`` and
+              interpreted as 3D data coordinates.
+        xytext : (float, float) or (float, float, float), optional
+            The position to place the text at.
+
+            - If a 2-tuple, interpreted like `.Axes.annotate` according to
+              *textcoords*.
+            - If a 3-tuple, only supported when the text position is in data
+              coordinates (``textcoords='data'`` or `None` with *xycoords*
+              ``'data'``), and interpreted as 3D data coordinates.
+        xycoords, textcoords, arrowprops, annotation_clip
+            See `.Axes.annotate` for a detailed description.
+        axlim_clip : bool, default: False
+            Whether to hide the annotation when its 3D anchor is outside the
+            axes view limits.
+        **kwargs
+            Additional keyword arguments are forwarded to `.Annotation`.
+
+        Returns
+        -------
+        `.Annotation`
+            The created annotation.  When *xy* is a 3-tuple, the annotation
+            follows the 3D view by reprojecting during draws.
+
+        Raises
+        ------
+        ValueError
+            If a 3-tuple *xy* is passed with *xycoords* not equal to ``'data'``,
+            or if a 3-tuple *xytext* is passed with the text position not in
+            data coordinates.
         """
         xyz = None
         try:
