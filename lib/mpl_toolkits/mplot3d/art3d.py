@@ -794,10 +794,27 @@ class Patch3DCollection(PatchCollection):
         else:
             xs = []
             ys = []
+        self._zdir = zdir
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         self._z_markers_idx = slice(-1)
         self._vzs = None
         self._axlim_clip = axlim_clip
+        self.stale = True
+
+    def set_offsets(self, offsets):
+        # docstring inherited
+        super().set_offsets(offsets)
+        if len(self._offsets) > 0:
+            xs, ys = self._offsets.T
+        else:
+            xs, ys = [], []
+        if self._zdir in ('x', '-x'):
+            zs = self._offsets3d[0]
+        elif self._zdir in ('y', '-y'):
+            zs = self._offsets3d[1]
+        else:
+            zs = self._offsets3d[2]
+        self._offsets3d = juggle_axes(xs, ys, zs, self._zdir)
         self.stale = True
 
     def do_3d_projection(self):
@@ -971,6 +988,22 @@ class Path3DCollection(PathCollection):
         self._vzs = None
 
         self._axlim_clip = axlim_clip
+        self.stale = True
+
+    def set_offsets(self, offsets):
+        # docstring inherited
+        super().set_offsets(offsets)
+        if len(self._offsets) > 0:
+            xs, ys = self._offsets.T
+        else:
+            xs, ys = [], []
+        if self._zdir in ('x', '-x'):
+            zs = self._offsets3d[0]
+        elif self._zdir in ('y', '-y'):
+            zs = self._offsets3d[1]
+        else:
+            zs = self._offsets3d[2]
+        self._offsets3d = juggle_axes(xs, ys, zs, self._zdir)
         self.stale = True
 
     def set_sizes(self, sizes, dpi=72.0):

@@ -3,6 +3,8 @@ import numpy.testing as nptest
 import pytest
 
 import matplotlib.pyplot as plt
+from matplotlib.collections import PatchCollection
+from matplotlib.patches import Circle
 
 from matplotlib.backend_bases import MouseEvent
 from mpl_toolkits.mplot3d.art3d import (
@@ -60,6 +62,33 @@ def test_scatter_3d_projection_conservation():
             assert contains is True
             assert len(ind["ind"]) == 1
             assert ind["ind"][0] == i
+
+
+def test_path3dcollection_set_offsets_updates_offsets3d():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    col = ax.scatter([0, 1], [0, 1], [2, 3])
+    col.set_offsets(np.array([[10, 20], [30, 40]]))
+
+    nptest.assert_array_equal(col._offsets3d[0], [10, 30])
+    nptest.assert_array_equal(col._offsets3d[1], [20, 40])
+    nptest.assert_array_equal(col._offsets3d[2], [2, 3])
+
+
+def test_patch3dcollection_set_offsets_updates_offsets3d():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    col = PatchCollection([Circle((0, 0), 0.5), Circle((0, 0), 0.5)])
+    col.set_offsets(np.array([[0, 0], [1, 1]]))
+    ax.add_collection3d(col, zs=[5, 6], zdir='x')
+
+    col.set_offsets(np.array([[10, 20], [30, 40]]))
+
+    nptest.assert_array_equal(col._offsets3d[0], [5, 6])
+    nptest.assert_array_equal(col._offsets3d[1], [10, 30])
+    nptest.assert_array_equal(col._offsets3d[2], [20, 40])
 
 
 def test_zordered_error():
