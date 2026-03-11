@@ -794,10 +794,26 @@ class Patch3DCollection(PatchCollection):
         else:
             xs = []
             ys = []
+        self.set_offsets3d(xs, ys, zs, zdir=zdir)
+        self._axlim_clip = axlim_clip
+        self.stale = True
+
+    def set_offsets3d(self, xs, ys, zs, *, zdir='z'):
+        """
+        Set the collection offsets in 3D space.
+
+        Parameters
+        ----------
+        xs, ys, zs : array-like
+            The x, y, and z coordinates of the collection offsets.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            Plane to plot patches orthogonal to.
+            See `.get_dir_vector` for a description of the values.
+        """
+        self._zdir = zdir
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         self._z_markers_idx = slice(-1)
         self._vzs = None
-        self._axlim_clip = axlim_clip
         self.stale = True
 
     def do_3d_projection(self):
@@ -948,8 +964,7 @@ class Path3DCollection(PathCollection):
         else:
             xs = []
             ys = []
-        self._zdir = zdir
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self.set_offsets3d(xs, ys, zs, zdir=zdir)
         # In the base draw methods we access the attributes directly which
         # means we cannot resolve the shuffling in the getter methods like
         # we do for the edge and face colors.
@@ -962,15 +977,27 @@ class Path3DCollection(PathCollection):
         # Grab the current sizes and linewidths to preserve them.
         self._sizes3d = self._sizes
         self._linewidths3d = np.array(self._linewidths)
-        xs, ys, zs = self._offsets3d
-
-        # Sort the points based on z coordinates
-        # Performance optimization: Create a sorted index array and reorder
-        # points and point properties according to the index array
-        self._z_markers_idx = slice(-1)
-        self._vzs = None
 
         self._axlim_clip = axlim_clip
+        self.stale = True
+
+    def set_offsets3d(self, xs, ys, zs, *, zdir='z'):
+        """
+        Set the collection offsets in 3D space.
+
+        Parameters
+        ----------
+        xs, ys, zs : array-like
+            The x, y, and z coordinates of the collection offsets.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            Plane to plot paths orthogonal to.
+            See `.get_dir_vector` for a description of the values.
+        """
+        self._zdir = zdir
+        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self._z_markers_idx = slice(-1)
+        self._vzs = None
+        self._offset_zordered = None
         self.stale = True
 
     def set_sizes(self, sizes, dpi=72.0):
