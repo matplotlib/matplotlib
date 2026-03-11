@@ -53,14 +53,15 @@ jobs:
 
             To increase the chance of a productive review:
 
-            - Use the template provided in the PR description and fill it out as
-              completely as possible;
+            - Use [the template provided in the PR
+              description](https://github.com/matplotlib/matplotlib/blob/main/.github/PULL_REQUEST_TEMPLATE.md)
+              and fill it out as completely as possible;
 
             - Provide a clear description of the problem you are trying to solve
               and how your changes address it;
 
-            - Include tests that demonstrate the correctness of your changes and
-              make sure they pass;
+            - [Verify your changes](https://matplotlib.org/devdocs/devel/development_workflow.html#verify-your-changes)
+              and explain how reviewers can test them;
 
             - Submit only code you can explain and maintain. Reviewers will ask
               for clarifications and changes;
