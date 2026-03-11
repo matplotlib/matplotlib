@@ -250,7 +250,8 @@ class Annotation3D(mtext.Annotation):
         return float(tx), float(ty)
 
     def _update_projection(self, renderer):
-        self.xy = self._project_xyz(self._xyz, renderer)
+        if self._xyz is not None:
+            self.xy = self._project_xyz(self._xyz, renderer)
         if self._xyztext is not None and self.anncoords == "data":
             self.set_position(self._project_xyz(self._xyztext, renderer))
 
@@ -295,8 +296,9 @@ def annotation_2d_to_3d(obj, xyz, xyztext=None, axlim_clip=False):
 
     Parameters
     ----------
-    xyz : (float, float, float)
-        The anchor position in 3D data coordinates.
+    xyz : (float, float, float) or None
+        The anchor position in 3D data coordinates.  If None, the annotation
+        anchor remains a 2D point and only the text position may be projected.
     xyztext : (float, float, float) or None
         Optional text position in 3D data coordinates (only meaningful when
         textcoords='data').

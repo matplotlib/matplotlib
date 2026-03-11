@@ -127,6 +127,30 @@ def test_annotate_3d_clip_on_special_casing():
     assert clip_box is not None
     assert np.all(clip_box.extents == ax.bbox.extents)
 
+def test_annotate_3d_text_position_with_2d_anchor():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter(range(10), range(10), range(10))
+
+    # Need to draw so that PathCollection.get_offsets() is updated to the 2D
+    # projection of the coordinates.
+    fig.canvas.draw()
+    xy2d = ax.collections[0].get_offsets()[5]
+    ann = ax.annotate(
+        "foo", xy2d, xycoords='data',
+        xytext=(5, 5, 5), textcoords='data')
+    assert isinstance(ann, art3d.Annotation3D)
+
+    fig.canvas.draw()
+    p0 = np.asarray(ann.get_position())
+
+    ax.view_init(elev=10, azim=20)
+    fig.canvas.draw()
+    p1 = np.asarray(ann.get_position())
+
+    assert np.isfinite(p0).all() and np.isfinite(p1).all()
+    assert not np.allclose(p0, p1)
+
 
 def test_annotate_3d_offset_pixels_and_fontsize():
     fig = plt.figure()

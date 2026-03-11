@@ -2283,7 +2283,7 @@ class Axes3D(Axes):
             text, xy, xytext=xytext, xycoords=xycoords, textcoords=textcoords,
             arrowprops=arrowprops, annotation_clip=annotation_clip, **kwargs)
 
-        if xyz is not None:
+        if xyz is not None or xyztext is not None:
             art3d.annotation_2d_to_3d(a, xyz, xyztext=xyztext, axlim_clip=axlim_clip)
         elif axlim_clip:
             _api.warn_external(
