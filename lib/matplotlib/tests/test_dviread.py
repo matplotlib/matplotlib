@@ -153,7 +153,8 @@ def test_PsfontsMap(monkeypatch):
 @pytest.mark.skipif(shutil.which("kpsewhich") is None,
                     reason="kpsewhich is not available")
 @pytest.mark.parametrize("engine", ["pdflatex", "xelatex", "lualatex"])
-def test_dviread(tmp_path, engine, monkeypatch):
+@pytest.mark.parametrize("frontend", [dr.Dvi, dr.Dvi2])
+def test_dviread(tmp_path, engine, frontend, monkeypatch):
     dirpath = Path(__file__).parent / "baseline_images/dviread"
     shutil.copy(dirpath / "test.tex", tmp_path)
     shutil.copy(cbook._get_data_path("fonts/ttf/DejaVuSans.ttf"), tmp_path)
@@ -170,7 +171,7 @@ def test_dviread(tmp_path, engine, monkeypatch):
     # records the path to DejaVuSans.ttf as it is written in the tex source,
     # i.e. as a relative path.
     monkeypatch.chdir(tmp_path)
-    with dr.Dvi(tmp_path / f"test.{fmt}", None) as dvi:
+    with frontend(tmp_path / f"test.{fmt}", None) as dvi:
         try:
             pages = [*dvi]
         except FileNotFoundError as exc:
@@ -198,7 +199,8 @@ def test_dviread(tmp_path, engine, monkeypatch):
 
 @pytest.mark.skipif(shutil.which("latex") is None, reason="latex is not available")
 @pytest.mark.skipif(not _has_tex_package("concmath"), reason="needs concmath.sty")
-def test_dviread_pk(tmp_path):
+@pytest.mark.parametrize("frontend", [dr.Dvi, dr.Dvi2])
+def test_dviread_pk(tmp_path, frontend):
     (tmp_path / "test.tex").write_text(r"""
         \documentclass{article}
         \usepackage{concmath}
@@ -209,7 +211,7 @@ def test_dviread_pk(tmp_path):
         """)
     subprocess_run_for_testing(
         ["latex", "test.tex"], cwd=tmp_path, check=True, capture_output=True)
-    with dr.Dvi(tmp_path / "test.dvi", None) as dvi:
+    with frontend(tmp_path / "test.dvi", None) as dvi:
         pages = [*dvi]
     data = [
         {
