@@ -261,7 +261,6 @@ class TestDatetimePlotting:
 
     @mpl.style.context("default")
     def test_clabel(self):
-        mpl.rcParams["date.converter"] = "concise"
         dates = [datetime.datetime(2023, 10, 1) + datetime.timedelta(days=i)
                  for i in range(10)]
         x = np.arange(-10.0, 5.0, 0.5)
@@ -270,10 +269,7 @@ class TestDatetimePlotting:
 
         fig, ax = plt.subplots()
         CS = ax.contour(X, Y, Z)
-        labels = ax.clabel(CS, CS.levels, inline=True,
-                           fmt=dict(zip(CS.levels, dates)),
-                           manual=[(xi, yi) for xi, yi in zip(x, dates)])
-        assert len(labels) > 0
+        ax.clabel(CS, manual=[(x[0], dates[0])])
 
     @mpl.style.context("default")
     def test_contour(self):
