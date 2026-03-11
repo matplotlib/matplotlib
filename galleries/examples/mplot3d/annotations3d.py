@@ -57,4 +57,3 @@ plt.show()
 # .. tags::
 #    plot-type: 3D,
 #    level: beginner
-

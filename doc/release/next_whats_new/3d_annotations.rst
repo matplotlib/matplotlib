@@ -9,4 +9,3 @@ draws, so it stays attached to the intended point when rotating or zooming the
 
 The new keyword-only parameter ``axlim_clip`` can be used to hide annotations
 whose 3D anchor is outside the axes view limits.
-
