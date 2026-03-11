@@ -43,23 +43,69 @@ def test_invisible_axes(fig_test, fig_ref):
     ax.set_visible(False)
 
 
-def test_annotate_3d_follows_view():
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ann = ax.annotate("foo", (1, 1, 1))
+@check_figures_equal()
+def test_annotate_3d_follows_view(fig_test, fig_ref):
+    import matplotlib.axes as maxes
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+    xyz = np.arange(10)
+    idx = 5
+    xyztext = (xyz[idx] + 2, xyz[idx] + 1, xyz[idx] + 3)
+
+    arrowprops = dict(arrowstyle='->', lw=1)
+    bbox = dict(boxstyle='round', fc='w', ec='0.5')
+
+    def setup(fig):
+        ax = fig.add_subplot(projection='3d')
+        ax.scatter(xyz, xyz, xyz, s=20, color='tab:blue')
+        ax.set(xlim=(0, 9), ylim=(0, 9), zlim=(0, 9))
+        return ax
+
+    ax_test = setup(fig_test)
+    ann = ax_test.annotate(
+        "foo", (xyz[idx], xyz[idx], xyz[idx]),
+        xytext=(10, 10), textcoords='offset points',
+        bbox=bbox, arrowprops=arrowprops,
+    )
     assert isinstance(ann, art3d.Annotation3D)
 
-    fig.canvas.draw()
-    r = fig.canvas.get_renderer()
-    p0 = np.asarray(ann._get_position_xy(r))
+    # Hybrid mode: 2D anchor (snapshot) + 3D text position.
+    # We need a draw so that PathCollection.get_offsets() is updated.
+    FigureCanvasAgg(fig_test).draw()
+    xy2d = ax_test.collections[0].get_offsets()[idx]
+    ann = ax_test.annotate(
+        "bar", xy2d, xycoords='data',
+        xytext=xyztext, textcoords='data',
+        bbox=bbox, arrowprops=arrowprops,
+    )
+    assert isinstance(ann, art3d.Annotation3D)
 
-    ax.view_init(elev=10, azim=20)
-    fig.canvas.draw()
-    r = fig.canvas.get_renderer()
-    p1 = np.asarray(ann._get_position_xy(r))
+    ax_test.view_init(elev=10, azim=20)
+    FigureCanvasAgg(fig_test).draw()
 
-    assert np.isfinite(p0).all() and np.isfinite(p1).all()
-    assert not np.allclose(p0, p1)
+    ax_ref = setup(fig_ref)
+
+    FigureCanvasAgg(fig_ref).draw()
+    xy2d_snapshot = ax_ref.collections[0].get_offsets()[idx]
+
+    ax_ref.view_init(elev=10, azim=20)
+    FigureCanvasAgg(fig_ref).draw()
+    # Reference: annotate using a pre-projected 2D snapshot at the final view.
+    xy2d = ax_ref.collections[0].get_offsets()[idx]
+    maxes.Axes.annotate(
+        ax_ref, "foo", xy2d, xytext=(10, 10), textcoords='offset points',
+        bbox=bbox, arrowprops=arrowprops,
+    )
+
+    # Hybrid reference: keep the 2D anchor from the default view, but project
+    # the 3D text position at the final view.
+    ax_ref.scatter([xyztext[0]], [xyztext[1]], [xyztext[2]], s=1, alpha=0)
+    FigureCanvasAgg(fig_ref).draw()
+    xytext2d = ax_ref.collections[-1].get_offsets()[0]
+    maxes.Axes.annotate(
+        ax_ref, "bar", xy2d_snapshot, xytext=xytext2d, textcoords='data',
+        bbox=bbox, arrowprops=arrowprops,
+    )
 
 
 def test_annotate_3d_clip_on_special_casing():
@@ -80,6 +126,199 @@ def test_annotate_3d_clip_on_special_casing():
     clip_box = ann.get_clip_box()
     assert clip_box is not None
     assert np.all(clip_box.extents == ax.bbox.extents)
+
+
+def test_annotate_3d_offset_pixels_and_fontsize():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    xy = (1, 1, 1)
+    ann_px = ax.annotate(
+        "px", xy, xytext=(3, 5), textcoords="offset pixels",
+        arrowprops=dict(arrowstyle="->"),
+    )
+    ann_fs = ax.annotate(
+        "fs", xy, xytext=(2, -1), textcoords="offset fontsize",
+        arrowprops=dict(arrowstyle="->"),
+    )
+    assert isinstance(ann_px, art3d.Annotation3D)
+    assert isinstance(ann_fs, art3d.Annotation3D)
+
+    def assert_delta(ann):
+        fig.canvas.draw()
+        r = fig.canvas.get_renderer()
+        anchor = np.asarray(ann._get_position_xy(r))
+        text = ann.get_transform().transform(ann.get_position())
+        delta = np.asarray(text) - anchor
+
+        if ann.anncoords == "offset pixels":
+            expected = np.asarray(ann.get_position(), dtype=float)
+        else:  # "offset fontsize"
+            scale = ann.get_size() * fig.dpi / 72
+            expected = np.asarray(ann.get_position(), dtype=float) * scale
+
+        np.testing.assert_allclose(delta, expected, atol=0.05, rtol=0)
+
+    assert_delta(ann_px)
+    assert_delta(ann_fs)
+
+    ax.view_init(elev=10, azim=20)
+    assert_delta(ann_px)
+    assert_delta(ann_fs)
+
+
+@check_figures_equal()
+def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
+    import matplotlib.axes as maxes
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+    with mpl.style.context('mpl20'):
+        fig_test.set_size_inches(7, 3.2, forward=True)
+        fig_ref.set_size_inches(7, 3.2, forward=True)
+
+        axs_test = fig_test.subplots(1, 2, subplot_kw={'projection': '3d'})
+        axs_ref = fig_ref.subplots(1, 2, subplot_kw={'projection': '3d'})
+
+        xyz = np.arange(10)
+        idx = 5
+        arrowprops = dict(arrowstyle='->', lw=1)
+        bbox = dict(boxstyle='round', fc='w', ec='0.5')
+
+        def setup(ax):
+            ax.scatter(xyz, xyz, xyz, s=20, color='tab:blue')
+            ax.set(xlim=(0, 9), ylim=(0, 9), zlim=(0, 9))
+            ax.view_init(elev=20, azim=-60)
+
+        for ax in (*axs_test, *axs_ref):
+            setup(ax)
+
+        # We need a draw so that PathCollection.get_offsets() is updated.
+        FigureCanvasAgg(fig_test).draw()
+        FigureCanvasAgg(fig_ref).draw()
+
+        # 2D anchor (legacy behavior): annotate using a pre-projected 2D point.
+        xy2d_test = axs_test[0].collections[0].get_offsets()[idx]
+        axs_test[0].annotate(
+            "2D xy", xy2d_test, xytext=(10, 10), textcoords='offset points',
+            bbox=bbox, arrowprops=arrowprops)
+
+        xy2d_ref = axs_ref[0].collections[0].get_offsets()[idx]
+        maxes.Axes.annotate(
+            axs_ref[0], "2D xy", xy2d_ref, xytext=(10, 10),
+            textcoords='offset points', bbox=bbox, arrowprops=arrowprops)
+
+        # 3D anchor (new behavior) vs a pre-projected 2D snapshot.
+        axs_test[1].annotate(
+            "3D xy", (xyz[idx], xyz[idx], xyz[idx]),
+            xytext=(10, 10), textcoords='offset points',
+            bbox=bbox, arrowprops=arrowprops)
+
+        xy3d_ref = axs_ref[1].collections[0].get_offsets()[idx]
+        maxes.Axes.annotate(
+            axs_ref[1], "3D xy", xy3d_ref, xytext=(10, 10),
+            textcoords='offset points', bbox=bbox, arrowprops=arrowprops)
+
+
+@mpl3d_image_comparison(['annotate3d_axlim_clip.png'],
+                        remove_text=False, style='mpl20', tol=0.02)
+def test_annotate_3d_axlim_clip():
+    fig = plt.figure(figsize=(6, 4))
+    ax = fig.add_subplot(projection='3d')
+    ax.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
+    ax.view_init(elev=10, azim=30)
+    ax.scatter([.2, .8], [.2, .8], [.2, .8], s=30, color='tab:blue')
+
+    arrowprops = dict(arrowstyle='->', lw=1)
+
+    ax.annotate(
+        "inside", (0.8, 0.8, 0.8), xytext=(10, 10),
+        textcoords='offset points', arrowprops=arrowprops,
+        bbox=dict(boxstyle='round', fc='w', ec='0.5'), axlim_clip=True)
+
+    # Text position outside the view limits: with axlim_clip=True the annotation
+    # should hide, and with axlim_clip=False it should still draw.
+    ax.annotate(
+        "text outside (unclipped)", (0.2, 0.2, 0.2),
+        xytext=(1.5, 0.05, 0.85), textcoords='data',
+        arrowprops=arrowprops, bbox=dict(boxstyle='round', fc='w', ec='0.5'),
+        axlim_clip=False)
+    ax.annotate(
+        "text outside (clipped)", (0.2, 0.2, 0.2),
+        xytext=(1.5, 0.2, 0.2), textcoords='data',
+        arrowprops=arrowprops, bbox=dict(boxstyle='round', fc='w', ec='0.5'),
+        axlim_clip=True)
+
+    # Outside the view limits: axlim_clip=False should still draw, but
+    # axlim_clip=True should hide (by projecting to nan).
+    ax.annotate(
+        "outside (unclipped)", (1.5, 0.5, 0.5), xytext=(55, 25),
+        textcoords='offset points', arrowprops=arrowprops,
+        bbox=dict(boxstyle='round', fc='w', ec='0.5'), axlim_clip=False)
+    ax.annotate(
+        "outside (clipped)", (1.5, 0.5, 0.5), xytext=(10, -20),
+        textcoords='offset points', arrowprops=arrowprops,
+        bbox=dict(boxstyle='round', fc='w', ec='0.5'), axlim_clip=True)
+
+
+@mpl3d_image_comparison(['annotate3d_cases.png'],
+                        remove_text=False, style='mpl20', tol=0.02)
+def test_annotate_3d_cases():
+    fig = plt.figure(figsize=(6.5, 4))
+    ax = fig.add_subplot(projection='3d')
+    ax.set_zscale('log')
+    ax.view_init(elev=10, azim=-105)
+
+    xyz = np.array([
+        [0.2, 0.2, 0.2],
+        [0.8, 0.2, 0.5],
+        [0.2, 0.8, 1.0],
+        [0.8, 0.8, 2.0],
+    ])
+    ax.scatter(xyz[:, 0], xyz[:, 1], xyz[:, 2], s=30, color='tab:blue')
+    ax.set(xlim=(0, 1), ylim=(0, 1), zlim=(0.1, 3))
+
+    arrowprops = dict(arrowstyle='->', lw=1)
+    bbox = dict(boxstyle='round', fc='w', ec='0.5')
+
+    # Need to draw so that PathCollection.get_offsets() is updated to the 2D
+    # projection of the coordinates.
+    fig.canvas.draw()
+    xy2d = ax.collections[0].get_offsets()
+
+    # Test the four permutations of 2D/3D anchor and 2D/3D text position.
+    # Use different offsets / positions to keep the image readable.
+    ax.annotate(
+        "xy=2D, xytext=2D",
+        xy2d[0],
+        xytext=(12, 12),
+        textcoords='offset points',
+        bbox=bbox,
+        arrowprops=arrowprops,
+    )
+    ax.annotate(
+        "xy=3D, xytext=2D",
+        tuple(xyz[1]),
+        xytext=(-65, 12),
+        textcoords='offset points',
+        bbox=bbox,
+        arrowprops=arrowprops,
+    )
+    ax.annotate(
+        "xy=2D, xytext=3D",
+        xy2d[2],
+        xytext=(0.05, 0.95, 2.8),
+        textcoords='data',
+        bbox=bbox,
+        arrowprops=arrowprops,
+    )
+    ax.annotate(
+        "xy=3D, xytext=3D",
+        tuple(xyz[3]),
+        xytext=(0.95, 0.15, 2.8),
+        textcoords='data',
+        bbox=bbox,
+        arrowprops=arrowprops,
+    )
 
 
 @mpl3d_image_comparison(['grid_off.png'], style='mpl20')
