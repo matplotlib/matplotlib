@@ -46,6 +46,11 @@ jobs:
             contributions to keep Matplotlib maintainable.
 
 
+            Matplotlib maintainers cannot provide one-to-one guidance on this PR.
+            However, if you ask focused, well-researched questions, a community
+            member may be willing to help. 💬
+
+
             To increase the chance of a productive review:
 
             - Use the template provided in the PR description and fill it out as
@@ -64,26 +69,19 @@ jobs:
               Usage](https://matplotlib.org/devdocs/devel/contribute.html#generative-ai).
 
 
-            Please refer to our [Pull Request guidelines](https://matplotlib.org/devdocs/devel/pr_guide.html)
-            for more information.
-
-
-            Matplotlib maintainers cannot provide one-to-one guidance on this PR.
-            However, if you ask focused, well-researched questions, a community
-            member may be willing to help. 💬
-
-
             As the author, you are responsible for driving this PR, which entails doing
             necessary background research as well as presenting its context and your
             thought process. If you are a new contributor, or do not know how to
             fulfill these requirements, we recommend that you familiarize
-            yourself with Matplotlib's development conventions or engage with
-            the community via our [Discourse](https://discourse.matplotlib.org/)
+            yourself with Matplotlib's
+            [development conventions](https://matplotlib.org/devdocs/devel/index.html)
+            or engage with the community via our [Discourse](https://discourse.matplotlib.org/)
             or one of our [meetings](https://scientific-python.org/calendars/)
             before submitting code.
 
 
-            If you substantially improve this PR within two weeks, a team member may
-            remove the `status: needs work` label and the PR stays open. Cosmetic changes or
-            incomplete fixes will not be sufficient. Maintainers will assess
-            improvements on their own schedule. Please do not ping (`@`) maintainers.
+            If you substantially improve this PR within two weeks, leave a comment
+            and a team member may remove the `status: needs work` label and the
+            PR stays open. Cosmetic changes or incomplete fixes will not be
+            sufficient. Maintainers will assess improvements on their own
+            schedule. Please do not ping (`@`) maintainers.
