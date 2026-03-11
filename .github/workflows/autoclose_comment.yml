@@ -1,0 +1,88 @@
+name: autoclose comment
+# Post comment on PRs when labeled with "status: needs work".
+# Based on scikit-learn's autoclose bot at https://github.com/scikit-learn/scikit-learn/blob/main/.github/workflows/autoclose-comment.yml
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request_target:
+    types:
+      - labeled
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_REPO: ${{ github.repository }}
+  PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+
+jobs:
+
+  post_comment:
+    name: post_comment
+    if: github.event.label.name == 'status: needs work'
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: comment on potential autoclose
+        run: |
+          gh api \
+          --method POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          /repos/$GH_REPO/issues/$PULL_REQUEST_NUMBER/comments \
+          -f "body=$BODY"
+        env:
+          BODY: >
+            ⏰ This pull request might be automatically closed in two weeks from now.
+
+
+            Thank you for your contribution to Matplotlib and for the effort you have
+            put into this PR. This pull request does not yet meet the quality and
+            clarity needed for an effective review. Project maintainers have limited
+            time for code reviews, and our goal is to prioritize well-prepared
+            contributions to keep Matplotlib maintainable.
+
+
+            To increase the chance of a productive review:
+
+            - Use the template provided in the PR description and fill it out as
+              completely as possible;
+
+            - Provide a clear description of the problem you are trying to solve
+              and how your changes address it;
+
+            - Include tests that demonstrate the correctness of your changes and
+              make sure they pass;
+
+            - Submit only code you can explain and maintain. Reviewers will ask
+              for clarifications and changes;
+
+            - Disclose any AI assistance per our [Restrictions on Generative AI
+              Usage](https://matplotlib.org/devdocs/devel/contribute.html#generative-ai).
+
+
+            Please refer to our [Pull Request guidelines](https://matplotlib.org/devdocs/devel/pr_guide.html)
+            for more information.
+
+
+            Matplotlib maintainers cannot provide one-to-one guidance on this PR.
+            However, if you ask focused, well-researched questions, a community
+            member may be willing to help. 💬
+
+
+            As the author, you are responsible for driving this PR, which entails doing
+            necessary background research as well as presenting its context and your
+            thought process. If you are a new contributor, or do not know how to
+            fulfill these requirements, we recommend that you familiarize
+            yourself with Matplotlib's development conventions or engage with
+            the community via our [Discourse](https://discourse.matplotlib.org/)
+            or one of our [meetings](https://scientific-python.org/calendars/)
+            before submitting code.
+
+
+            If you substantially improve this PR within two weeks, a team member may
+            remove the `status: needs work` label and the PR stays open. Cosmetic changes or
+            incomplete fixes will not be sufficient. Maintainers will assess
+            improvements on their own schedule. Please do not ping (`@`) maintainers.
