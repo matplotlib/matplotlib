@@ -1,6 +1,8 @@
+---
 name: autoclose comment
 # Post comment on PRs when labeled with "status: needs work".
-# Based on scikit-learn's autoclose bot at https://github.com/scikit-learn/scikit-learn/blob/main/.github/workflows/autoclose-comment.yml
+# Based on scikit-learn's autoclose bot at
+# https://github.com/scikit-learn/scikit-learn/blob/main/.github/workflows/autoclose-comment.yml
 
 permissions:
   contents: read
@@ -17,10 +19,9 @@ env:
   PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
 
 jobs:
-
   post_comment:
     name: post_comment
-    if: github.event.label.name == 'status: needs work'
+    if: "${{ contains(github.event.label.name, 'status: needs work') }}"
     runs-on: ubuntu-latest
 
     steps:

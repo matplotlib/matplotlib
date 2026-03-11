@@ -1,6 +1,8 @@
+---
 name: autoclose schedule
 # Autoclose labeled PR after 2 weeks.
-# Based on scikit-learn's implementation at https://github.com/scikit-learn/scikit-learn/blob/main/.github/workflows/autoclose-schedule.yml
+# Based on scikit-learn's implementation at
+# https://github.com/scikit-learn/scikit-learn/blob/main/.github/workflows/autoclose-schedule.yml
 
 permissions:
   contents: read
@@ -8,7 +10,7 @@ permissions:
 
 on:
   schedule:
-    - cron: '0 2 * * *' # runs daily at 02:00 UTC
+    - cron: '0 2 * * *'  # runs daily at 02:00 UTC
   workflow_dispatch:
 
 env:
