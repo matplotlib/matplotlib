@@ -47,4 +47,3 @@ plt.show()
 #    level: beginner
 
 # %%
-
