@@ -19,6 +19,7 @@ from matplotlib import (
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.patches import Patch
+from matplotlib.transforms import Bbox
 from . import proj3d
 
 
@@ -250,20 +251,27 @@ class Annotation3D(mtext.Annotation):
         return float(tx), float(ty)
 
     def _update_projection(self, renderer):
+        valid = True
         if self._xyz is not None:
             self.xy = self._project_xyz(self._xyz, renderer)
+            valid &= np.isfinite(self.xy).all()
         if self._xyztext is not None and self.anncoords == "data":
-            self.set_position(self._project_xyz(self._xyztext, renderer))
+            pos = self._project_xyz(self._xyztext, renderer)
+            self.set_position(pos)
+            valid &= np.isfinite(pos).all()
+        return valid
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self._update_projection(renderer)
+        if not self._update_projection(renderer):
+            return
         super().draw(renderer)
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
             renderer = self.get_figure(root=True)._get_renderer()
-        self._update_projection(renderer)
+        if not self._update_projection(renderer):
+            return Bbox.unit()
         return super().get_window_extent(renderer)
 
     def get_tightbbox(self, renderer=None):
