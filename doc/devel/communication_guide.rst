@@ -40,7 +40,7 @@ The following venues are managed by Matplotlib maintainers and contributors:
 
 * library and docs: https://github.com/matplotlib/matplotlib
 * forum: https://discourse.matplotlib.org/
-* chat: `https://matrix.to/#/#matplotlib:matrix.org <https://matrix.to/#/#matplotlib:matrix.org>`_
+* chat: `https://discourse.matplotlib.org/chat/c/community/3 <https://discourse.matplotlib.org/chat/c/community/3>`_
 * blog: https://blog.scientific-python.org/
 
 .. _social-media:
@@ -77,8 +77,7 @@ Mailing lists
 Social media coordination
 -------------------------
 * Team mailing list: matplotlib-social@numfocus.org
-* Public chat room: `https://matrix.to/#/#matplotlib_community:gitter.im <https://matrix.to/#/#matplotlib_community:gitter.im>`_
-
+* Public chat room on Discourse: `Community <https://discourse.matplotlib.org/chat/c/community/3>`_
 
 Maintenance
 -----------

@@ -1,0 +1,3 @@
+``backend_svg.XMLWriter`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It is an internal helper not intended for external use.

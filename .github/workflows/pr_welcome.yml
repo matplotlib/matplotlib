@@ -7,6 +7,8 @@ on:
   issues:
     types: opened
 
+permissions: {}
+
 jobs:
   greeting:
     runs-on: ubuntu-latest

@@ -451,6 +451,8 @@ class ContourLabeler:
         if transform is None:
             transform = self.axes.transData
         if transform:
+            x = self.axes.convert_xunits(x)
+            y = self.axes.convert_yunits(y)
             x, y = transform.transform((x, y))
 
         idx_level_min, idx_vtx_min, proj = self._find_nearest_contour(

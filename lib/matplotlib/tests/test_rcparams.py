@@ -676,17 +676,17 @@ def test_rc_aliases(group, option, alias, value):
 
 
 def test_all_params_defined_as_code():
-    assert set(p.name for p in rcsetup._params) == set(mpl.rcParams.keys())
+    assert set(p.name for p in rcsetup._params_list()) == set(mpl.rcParams.keys())
 
 
 def test_validators_defined_as_code():
-    for param in rcsetup._params:
+    for param in rcsetup._params_list():
         validator = rcsetup._convert_validator_spec(param.name, param.validator)
         assert validator == rcsetup._validators[param.name]
 
 
 def test_defaults_as_code():
-    for param in rcsetup._params:
+    for param in rcsetup._params_list():
         if param.name == 'backend':
             # backend has special handling and no meaningful default
             continue

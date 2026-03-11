@@ -282,7 +282,7 @@ have :ghpull:`26621` in its history (log), you will have to reinstall from sourc
 each time you change any compiled extension code.
 
 If the installation is not working, please consult the :ref:`troubleshooting guide <troubleshooting-faq>`.
-If the guide does not offer a solution, please reach out via `chat <https://gitter.im/matplotlib/matplotlib>`_
+If the guide does not offer a solution, please reach out via `discourse <https://discourse.matplotlib.org>`_
 or :ref:`open an issue <submitting-a-bug-report>`.
 
 

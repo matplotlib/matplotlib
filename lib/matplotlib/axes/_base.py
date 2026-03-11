@@ -202,6 +202,42 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     return linestyle, marker, color
 
 
+class _PropCycle:
+    """
+    A class that holds the property cycle information.
+
+    It expands the iterator-based Cycler into an explicit indexed list to support
+    conditional advancing.
+    """
+    def __init__(self, cycler):
+        self._idx = 0
+        self._cycler_items = [*cycler]
+
+    def get_next_color(self):
+        """Return the next color in the cycle."""
+        entry = self._cycler_items[self._idx]
+        if "color" in entry:
+            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
+            return entry["color"]
+        else:
+            return "k"
+
+    def getdefaults(self, kw, ignore=frozenset()):
+        """
+        If some keys in the property cycle (excluding those in the set
+        *ignore*) are absent or set to None in the dict *kw*, return a copy
+        of the next entry in the property cycle, excluding keys in *ignore*.
+        Otherwise, don't advance the property cycle, and return an empty dict.
+        """
+        defaults = self._cycler_items[self._idx]
+        if any(kw.get(k, None) is None for k in {*defaults} - ignore):
+            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
+            # Return a new dict to avoid exposing _cycler_items entries to mutation.
+            return {k: v for k, v in defaults.items() if k not in ignore}
+        else:
+            return {}
+
+
 class _process_plot_var_args:
     """
     Process variable length arguments to `~.Axes.plot`, to support ::
@@ -220,8 +256,7 @@ class _process_plot_var_args:
         self.set_prop_cycle(None)
 
     def set_prop_cycle(self, cycler):
-        self._idx = 0
-        self._cycler_items = [*mpl._val_or_rc(cycler, 'axes.prop_cycle')]
+        self._prop_cycle = _PropCycle(mpl._val_or_rc(cycler, 'axes.prop_cycle'))
 
     def __call__(self, axes, *args, data=None, return_kwargs=False, **kwargs):
         axes._process_unit_info(kwargs=kwargs)
@@ -300,29 +335,10 @@ class _process_plot_var_args:
 
     def get_next_color(self):
         """Return the next color in the cycle."""
-        entry = self._cycler_items[self._idx]
-        if "color" in entry:
-            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
-            return entry["color"]
-        else:
-            return "k"
+        return self._prop_cycle.get_next_color()
 
-    def _getdefaults(self, kw, ignore=frozenset()):
-        """
-        If some keys in the property cycle (excluding those in the set
-        *ignore*) are absent or set to None in the dict *kw*, return a copy
-        of the next entry in the property cycle, excluding keys in *ignore*.
-        Otherwise, don't advance the property cycle, and return an empty dict.
-        """
-        defaults = self._cycler_items[self._idx]
-        if any(kw.get(k, None) is None for k in {*defaults} - ignore):
-            self._idx = (self._idx + 1) % len(self._cycler_items)  # Advance cycler.
-            # Return a new dict to avoid exposing _cycler_items entries to mutation.
-            return {k: v for k, v in defaults.items() if k not in ignore}
-        else:
-            return {}
-
-    def _setdefaults(self, defaults, kw):
+    @staticmethod
+    def _setdefaults(defaults, kw):
         """
         Add to the dict *kw* the entries in the dict *default* that are absent
         or set to None in *kw*.
@@ -333,13 +349,13 @@ class _process_plot_var_args:
 
     def _make_line(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
-        self._setdefaults(self._getdefaults(kw), kw)
+        self._setdefaults(self._prop_cycle.getdefaults(kw), kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
 
     def _make_coordinates(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
-        self._setdefaults(self._getdefaults(kw), kw)
+        self._setdefaults(self._prop_cycle.getdefaults(kw), kw)
         return (x, y), kw
 
     def _make_polygon(self, axes, x, y, kw, kwargs):
@@ -367,7 +383,7 @@ class _process_plot_var_args:
         # for getting defaults for back-compat reasons.
         # Doing it with both seems to mess things up in
         # various places (probably due to logic bugs elsewhere).
-        default_dict = self._getdefaults(kw, ignores)
+        default_dict = self._prop_cycle.getdefaults(kw, ignores)
         self._setdefaults(default_dict, kw)
 
         # Looks like we don't want "color" to be interpreted to
@@ -1700,12 +1716,21 @@ class _AxesBase(martist.Artist):
         share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
 
+        Notes
+        -----
+        The aspect will require an update of the Axes position or limits (which
+        one depends on *adjustable*). This update is applied lazily, the latest
+        when the figure is drawn. Use `.apply_aspect` to force an update.
+
         See Also
         --------
         matplotlib.axes.Axes.set_adjustable
             Set how the Axes adjusts to achieve the required aspect ratio.
         matplotlib.axes.Axes.set_anchor
             Set the position in case of extra space.
+        matplotlib.axes.Axes.apply_aspect
+            Force the update required to meet the aspect ratio to happen
+            immediately.
         """
         if cbook._str_equal(aspect, 'equal'):
             aspect = 1
@@ -2409,6 +2434,7 @@ class _AxesBase(martist.Artist):
         self._children.append(image)
         image._remove_method = self._children.remove
         self.stale = True
+        image._set_in_autoscale(True)
         return image
 
     def _update_image_limits(self, image):
@@ -2430,6 +2456,7 @@ class _AxesBase(martist.Artist):
         self._children.append(line)
         line._remove_method = self._children.remove
         self.stale = True
+        line._set_in_autoscale(True)
         return line
 
     def _add_text(self, txt):
@@ -2442,6 +2469,20 @@ class _AxesBase(martist.Artist):
         txt._remove_method = self._children.remove
         self.stale = True
         return txt
+
+    def _point_in_data_domain(self, x, y):
+        """
+        Check if the data point (x, y) is within the valid domain of the axes
+        scales.
+
+        Returns False if the point is outside the data range
+        (e.g. negative coordinates with a log scale).
+        """
+        for val, axis in zip([x, y], self._axis_map.values()):
+            vmin, vmax = axis.limit_range_for_scale(val, val)
+            if vmin != val or vmax != val:
+                return False
+        return True
 
     def _update_line_limits(self, line):
         """
@@ -2502,6 +2543,7 @@ class _AxesBase(martist.Artist):
         self._update_patch_limits(p)
         self._children.append(p)
         p._remove_method = self._children.remove
+        p._set_in_autoscale(True)
         return p
 
     def _update_patch_limits(self, patch):
@@ -2599,6 +2641,8 @@ class _AxesBase(martist.Artist):
 
         for artist in self._children:
             if not visible_only or artist.get_visible():
+                if not artist._get_in_autoscale():
+                    continue
                 if isinstance(artist, mlines.Line2D):
                     self._update_line_limits(artist)
                 elif isinstance(artist, mpatches.Patch):
@@ -3014,15 +3058,17 @@ class _AxesBase(martist.Artist):
         x_stickies = y_stickies = np.array([])
         if self.use_sticky_edges:
             if self._xmargin and scalex and self.get_autoscalex_on():
-                x_stickies = np.sort(np.concatenate([
-                    artist.sticky_edges.x
-                    for ax in self._shared_axes["x"].get_siblings(self)
-                    for artist in ax.get_children()]))
+                edges = []
+                for ax in self._shared_axes["x"].get_siblings(self):
+                    for artist in ax.get_children():
+                        edges.extend(artist.sticky_edges.x)
+                x_stickies = np.sort(edges)
             if self._ymargin and scaley and self.get_autoscaley_on():
-                y_stickies = np.sort(np.concatenate([
-                    artist.sticky_edges.y
-                    for ax in self._shared_axes["y"].get_siblings(self)
-                    for artist in ax.get_children()]))
+                edges = []
+                for ax in self._shared_axes["y"].get_siblings(self):
+                    for artist in ax.get_children():
+                        edges.extend(artist.sticky_edges.y)
+                y_stickies = np.sort(edges)
         if self.get_xscale() == 'log':
             x_stickies = x_stickies[x_stickies > 0]
         if self.get_yscale() == 'log':
@@ -4756,13 +4802,15 @@ class _AxesBase(martist.Artist):
         ax2.yaxis.units = self.yaxis.units
         return ax2
 
-    def get_shared_x_axes(self):
+    @classmethod
+    def get_shared_x_axes(cls):
         """Return an immutable view on the shared x-axes Grouper."""
-        return cbook.GrouperView(self._shared_axes["x"])
+        return cbook.GrouperView(cls._shared_axes["x"])
 
-    def get_shared_y_axes(self):
+    @classmethod
+    def get_shared_y_axes(cls):
         """Return an immutable view on the shared y-axes Grouper."""
-        return cbook.GrouperView(self._shared_axes["y"])
+        return cbook.GrouperView(cls._shared_axes["y"])
 
     def label_outer(self, remove_inner_ticks=False):
         """

@@ -5,8 +5,9 @@ Scales overview
 
 Illustrate the scale transformations applied to axes, e.g. log, symlog, logit.
 
-See `matplotlib.scale` for a full list of built-in scales, and
-:doc:`/gallery/scales/custom_scale` for how to create your own scale.
+See `matplotlib.scale` for a full list of built-in scales,
+:doc:`/gallery/scales/custom_scale` for how to create your own scale, and
+:doc:`/gallery/mplot3d/scales3d` for using scales on 3D axes.
 """
 
 import matplotlib.pyplot as plt

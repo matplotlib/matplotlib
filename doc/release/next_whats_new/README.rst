@@ -11,8 +11,8 @@ Instructions for writing "What's new" entries
 =============================================
 .. whats-new-guide-start
 
-Each new feature (e.g. function, parameter, config value, behavior, ...) must
-be described through a "What's new" entry.
+Each new feature (e.g. function, parameter, rcParam, config value, behavior,
+...) must be described through a "What's new" entry.
 
 Each entry is written into a separate file in the
 :file:`doc/release/next_whats_new/` directory. They are sorted and merged into

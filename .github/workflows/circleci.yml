@@ -1,6 +1,9 @@
 ---
 name: "CircleCI artifact handling"
 on: [status]
+
+permissions: {}
+
 jobs:
   circleci_artifacts_redirector_job:
     if: "${{ github.event.context == 'ci/circleci: docs-python3' }}"

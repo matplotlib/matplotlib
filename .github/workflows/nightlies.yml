@@ -8,8 +8,7 @@ on:
   # Run on demand with workflow dispatch
   workflow_dispatch:
 
-permissions:
-  actions: read
+permissions: {}
 
 jobs:
   upload_nightly_wheels:
@@ -21,6 +20,8 @@ jobs:
         # to work in subsequent jobs.
         # https://github.com/mamba-org/setup-micromamba#about-login-shells
         shell: bash -e -l {0}
+    permissions:
+      actions: read
     if: github.repository_owner == 'matplotlib'
 
     steps:

@@ -2461,6 +2461,21 @@ def test_hist_log_barstacked():
     assert axs[0].get_ylim() == axs[1].get_ylim()
 
 
+def test_hist_timedelta_raises():
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+
+    arr_np = np.array([1, 2, 5, 7], dtype="timedelta64[D]")
+    with pytest.raises(TypeError, match="does not currently support timedelta inputs"):
+        ax.hist(arr_np)
+
+    arr_py = [datetime.timedelta(seconds=i) for i in range(5)]
+    with pytest.raises(TypeError, match="does not currently support timedelta inputs"):
+        ax.hist(arr_py)
+
+
 @image_comparison(['hist_bar_empty.png'], remove_text=True)
 def test_hist_bar_empty():
     # From #3886: creating hist from empty dataset raises ValueError
@@ -10155,3 +10170,22 @@ def test_animated_artists_not_drawn_by_default():
 
     mocked_im_draw.assert_not_called()
     mocked_ln_draw.assert_not_called()
+
+
+def test_errorbar_uses_rcparams():
+    with mpl.rc_context({
+        "errorbar.capsize": 5.0,
+        "errorbar.capthick": 2.5,
+        "errorbar.elinewidth": 1.75,
+    }):
+        fig, ax = plt.subplots()
+        eb = ax.errorbar([0, 1, 2], [1, 2, 3], yerr=[0.1, 0.2, 0.3], fmt="none")
+
+    data_line, caplines, barlinecols = eb.lines
+    assert data_line is None
+    assert caplines
+
+    assert_allclose([cap.get_markersize() for cap in caplines], 10.0)
+    assert_allclose([cap.get_markeredgewidth() for cap in caplines], 2.5)
+    for barcol in barlinecols:
+        assert_allclose(barcol.get_linewidths(), 1.75)

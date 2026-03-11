@@ -9,6 +9,8 @@ on:
   pull_request_target:
     types: [synchronize]
 
+permissions: {}
+
 jobs:
   main:
     if: github.repository == 'matplotlib/matplotlib'

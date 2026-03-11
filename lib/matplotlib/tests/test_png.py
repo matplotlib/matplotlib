@@ -7,7 +7,7 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib import cm, pyplot as plt
 
 
-@image_comparison(['pngsuite.png'], tol=0.09)
+@image_comparison(['pngsuite.png'], style='default')
 def test_pngsuite():
     files = sorted(
         (Path(__file__).parent / "baseline_images/pngsuite").glob("basn*.png"))
@@ -20,10 +20,7 @@ def test_pngsuite():
         if data.ndim == 2:
             # keep grayscale images gray
             cmap = cm.gray
-        # Using the old default data interpolation stage lets us
-        # continue to use the existing reference image
-        plt.imshow(data, extent=(i, i + 1, 0, 1), cmap=cmap,
-                   interpolation_stage='data')
+        plt.imshow(data, extent=(i, i + 1, 0, 1), cmap=cmap, interpolation='nearest')
 
     plt.gca().patch.set_facecolor("#ddffff")
     plt.gca().set_xlim(0, len(files))

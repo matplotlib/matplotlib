@@ -30,8 +30,7 @@ on:
     - cron: "47 5 * * 6"
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 env:
   NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
@@ -47,6 +46,8 @@ jobs:
 
   test-cygwin:
     runs-on: windows-latest
+    permissions:
+      contents: read
     name: Python 3.${{ matrix.python-minor-version }} on Cygwin
     # Enable these when Cygwin has Python 3.12.
     if: >-

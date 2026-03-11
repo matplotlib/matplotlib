@@ -4154,6 +4154,7 @@ or pandas.DataFrame
 
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
+        elinewidth = mpl._val_or_rc(elinewidth, "errorbar.elinewidth")
 
         if elinewidth is not None:
             eb_lines_style['linewidth'] = elinewidth
@@ -4170,6 +4171,8 @@ or pandas.DataFrame
         # Make the style dict for caps (the "hats").
         eb_cap_style = {**base_style, 'linestyle': 'none'}
         capsize = mpl._val_or_rc(capsize, "errorbar.capsize")
+        capthick = mpl._val_or_rc(capthick, "errorbar.capthick")
+
         if capsize > 0:
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
@@ -7417,6 +7420,15 @@ such objects
         # Massage 'x' for processing.
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
+
+        for arr in x:
+            if len(arr) > 0 and isinstance(
+                arr[0], (datetime.timedelta, np.timedelta64)
+            ):
+                raise TypeError(
+                    "Axes.hist does not currently support timedelta inputs. "
+                    "Convert to numeric values  (e.g., .total_seconds()) first."
+                )
 
         # Process unit information.  _process_unit_info sets the unit and
         # converts the first dataset; then we convert each following dataset

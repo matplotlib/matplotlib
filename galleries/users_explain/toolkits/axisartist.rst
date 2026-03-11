@@ -287,16 +287,16 @@ HowTo
 
     ax.axis[:].major_ticklabels.set_color("r")
 
-4. To change the tick size (length), you need to use
-   axis.major_ticks.set_ticksize method. To change the direction of
-   the ticks (ticks are in opposite direction of ticklabels by
-   default), use axis.major_ticks.set_tick_out method.
+4. To change the tick size (length), use ``axis.major_ticks.set_ticksize``.
+
+   To change the direction of the ticks, use
+   ``axis.major_ticks.set_tick_direction``.
 
    To change the pad between ticks and ticklabels, use
-   axis.major_ticklabels.set_pad method.
+   ``axis.major_ticklabels.set_pad``.
 
-   To change the pad between ticklabels and axis label,
-   axis.label.set_pad method.
+   To change the pad between ticklabels and axis label, use
+   ``axis.label.set_pad``.
 
 Rotation and alignment of TickLabels
 ====================================
@@ -398,15 +398,14 @@ axis_direction of ticks, ticklabels, and axis-label does not affect
 them.
 
 If you want to make ticks outward and ticklabels inside the axes,
-use invert_ticklabel_direction method. ::
+use `.AxisArtist.invert_ticklabel_direction`::
 
    ax.axis[:].invert_ticklabel_direction()
 
-A related method is "set_tick_out". It makes ticks outward (as a
-matter of fact, it makes ticks toward the opposite direction of the
-default direction). ::
+A related method is `.Ticks.set_tick_direction`. It can make ticks point "in",
+"out", or "inout" (crossing the axis halfway)::
 
-   ax.axis[:].major_ticks.set_tick_out(True)
+   ax.axis[:].major_ticks.set_tick_direction("inout")
 
 .. figure:: /gallery/axisartist/images/sphx_glr_simple_axis_direction03_001.png
    :target: /gallery/axisartist/simple_axis_direction03.html
@@ -416,27 +415,28 @@ So, in summary,
 
 * AxisArtist's methods
 
-  - set_axis_direction: "left", "right", "bottom", or "top"
-  - set_ticklabel_direction: "+" or "-"
-  - set_axislabel_direction: "+" or "-"
-  - invert_ticklabel_direction
+  - `~.AxisArtist.set_axis_direction`: "left", "right", "bottom", or "top"
+  - `~.AxisArtist.set_ticklabel_direction`: "+" or "-"
+  - `~.AxisArtist.set_axislabel_direction`: "+" or "-"
+  - `~.AxisArtist.invert_ticklabel_direction`
 
 * Ticks' methods (major_ticks and minor_ticks)
 
-  - set_tick_out: True or False
-  - set_ticksize: size in points
+  - `~.Ticks.set_tick_direction`: "in", "out", or "inout"
+  - `~.Ticks.set_ticksize`: size in points
 
 * TickLabels' methods (major_ticklabels and minor_ticklabels)
 
-  - set_axis_direction: "left", "right", "bottom", or "top"
-  - set_rotation: angle with respect to the reference direction
-  - set_ha and set_va: see below
+  - `~.TickLabels.set_axis_direction`: "left", "right", "bottom", or "top"
+  - `~.Text.set_rotation`: angle with respect to the reference direction
+  - `~.Text.set_horizontalalignment` and `~.Text.set_verticalalignment`: see below
 
-* AxisLabels' methods (label)
+* AxisLabel' methods (label)
 
-  - set_axis_direction: "left", "right", "bottom", or "top"
-  - set_rotation: angle with respect to the reference direction
-  - set_ha and set_va
+  - `~.AxisLabel.set_axis_direction`: "left", "right", "bottom", or "top"
+  - `~.Text.set_rotation`: angle with respect to the reference direction
+  - `~.Text.set_horizontalalignment` and
+    `~.Text.set_verticalalignment`
 
 Adjusting ticklabels alignment
 ------------------------------

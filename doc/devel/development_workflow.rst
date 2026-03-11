@@ -22,8 +22,7 @@ why you did it, we recommend the following:
 * Make a new branch for each feature or bug fix — "one task, one branch".
 * Name your branch for the purpose of the changes - e.g.
   ``bugfix-for-issue-14`` or ``refactor-database-code``.
-* If you get stuck, reach out on Gitter or
-  `discourse <https://discourse.matplotlib.org>`__.
+* If you get stuck, reach out on `discourse <https://discourse.matplotlib.org>`__.
 * When you're ready or need feedback on your code, open a pull request so that the
   Matplotlib developers can give feedback and eventually include your suggested
   code into the ``main`` branch.

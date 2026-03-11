@@ -19,15 +19,26 @@ class RcParamsDirective(Directive):
         self.state.document.settings.env.note_dependency(__file__)
         self.state.document.settings.env.note_dependency(rcsetup.__file__)
         lines = []
-        for param in rcsetup._params:
-            if param.name[0] == '_':
-                continue
-            lines += [
-                f'.. _rcparam_{param.name.replace(".", "_")}:',
-                '',
-                f'{param.name}: ``{param.default!r}``',
-                f'    {param.description if param.description else "*no description*"}'
-            ]
+        for elem in rcsetup._DEFINITION:
+            if isinstance(elem, (rcsetup._Section, rcsetup._Subsection)):
+                title_char = '-' if isinstance(elem, rcsetup._Section) else '~'
+                lines += [
+                    '',
+                    elem.title,
+                    title_char * len(elem.title),
+                    '',
+                    elem.description or "",
+                    '',
+                ]
+            elif isinstance(elem, rcsetup._Param):
+                if elem.name[0] == '_':
+                    continue
+                lines += [
+                    f'.. _rcparam_{elem.name.replace(".", "_")}:',
+                    '',
+                    f'{elem.name}: ``{elem.default!r}``',
+                    f'   {elem.description if elem.description else "*no description*"}'
+                ]
         self.state_machine.insert_input(lines, 'rcParams table')
         return []
 

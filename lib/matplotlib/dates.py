@@ -1530,13 +1530,15 @@ class WeekdayLocator(RRuleLocator):
         """
         Parameters
         ----------
-        byweekday : int or list of int, default: all days
+        byweekday : int, list of int, constant from :mod:`dateutil.rrule`, or \
+            list of constants, default: 1 (Tuesday)
             Ticks will be placed on every weekday in *byweekday*. Default is
-            every day.
+            every Tuesday.
 
-            Elements of *byweekday* must be one of MO, TU, WE, TH, FR, SA,
-            SU, the constants from :mod:`dateutil.rrule`, which have been
-            imported into the :mod:`matplotlib.dates` namespace.
+            Elements of *byweekday* (if a sequence) must be either integers or
+            MO, TU, WE, TH, FR, SA, SU, the constants from
+            :mod:`dateutil.rrule`, which have been imported into the
+            :mod:`matplotlib.dates` namespace.
         interval : int, default: 1
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
