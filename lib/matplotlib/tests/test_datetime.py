@@ -262,14 +262,19 @@ class TestDatetimePlotting:
     @mpl.style.context("default")
     def test_clabel(self):
         dates = [datetime.datetime(2023, 10, 1) + datetime.timedelta(days=i)
-                 for i in range(10)]
+                for i in range(10)]
         x = np.arange(-10.0, 5.0, 0.5)
         X, Y = np.meshgrid(x, dates)
         Z = np.arange(X.size).reshape(X.shape)
 
         fig, ax = plt.subplots()
         CS = ax.contour(X, Y, Z)
-        ax.clabel(CS, manual=[(x[0], dates[0])])
+        labels = ax.clabel(CS, manual=[(x[0], dates[0])])
+        assert len(labels) == 1
+        assert labels[0].get_text() == '0'
+        x_pos, y_pos = labels[0].get_position()
+        assert x_pos == pytest.approx(-10.0, abs=1e-3)
+        assert y_pos == pytest.approx(mpl.dates.date2num(dates[0]), abs=1e-3)
 
     @mpl.style.context("default")
     def test_contour(self):
