@@ -3,7 +3,7 @@
 Annotating points in 3D
 ========================
 
-`~mpl_toolkits.mplot3d.axes3d.Axes3D.annotate` supports anchoring annotations in
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.annotate` supports anchoring annotations in
 3D data coordinates by passing ``(x, y, z)`` for *xy* (with ``xycoords='data'``,
 the default).  The annotation is projected during draws, so it stays attached
 to the point as the view changes.
