@@ -127,6 +127,7 @@ def test_annotate_3d_clip_on_special_casing():
     assert clip_box is not None
     assert np.all(clip_box.extents == ax.bbox.extents)
 
+
 def test_annotate_3d_text_position_with_2d_anchor():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -150,6 +151,7 @@ def test_annotate_3d_text_position_with_2d_anchor():
 
     assert np.isfinite(p0).all() and np.isfinite(p1).all()
     assert not np.allclose(p0, p1)
+
 
 def test_annotate_3d_text_position_clipped_does_not_crash():
     fig = plt.figure()
