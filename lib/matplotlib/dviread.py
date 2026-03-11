@@ -320,9 +320,6 @@ class VM:
     """
     Tracks the state of a DVI document over a series of ops.
     """
-    # Required fields
-    dpi: int
-
     # Default fields that you usually shouldn't provide
     stack: list = dataclasses.field(default_factory=list)
     text: list = dataclasses.field(default_factory=list)
@@ -547,7 +544,7 @@ class Dvi2:
             precision is not lost and coordinate values are not clipped to
             integers.
         """
-        vm = VM(dpi = self.dpi)
+        vm = VM()
         for opcode, opname, args in Ops.read_io(self.file):
             getattr(vm, f"op_{opname}")(opcode, **args)
             # This is currently checked for every op, but we can probably be smarter.
@@ -556,9 +553,9 @@ class Dvi2:
                     and vm.down_stack[-1] >= 4):
                 vm.baseline_v = vm.v
             if opname == "eop":
-                yield self._output_page(vm)
+                yield self._output_page(vm, self.dpi)
 
-    def _output_page(self, vm: VM) -> Page:
+    def _output_page(self, vm: VM, dpi: int) -> Page:
         "Output the text and boxes belonging to the most recent page."
         minx = miny = np.inf
         maxx = maxy = -np.inf
@@ -582,14 +579,14 @@ class Dvi2:
         if not vm.text and not vm.boxes:  # Avoid infs/nans from inf+/-inf.
             return Page(text=[], boxes=[], width=0, height=0, descent=0)
 
-        if vm.dpi is None:
+        if dpi is None:
             # special case for ease of debugging: output raw dvi coordinates
             return Page(text=vm.text, boxes=vm.boxes,
                         width=maxx-minx, height=maxy_pure-miny,
                         descent=maxy-maxy_pure)
 
         # convert from TeX's "scaled points" to dpi units
-        d = vm.dpi / (72.27 * 2**16)
+        d = dpi / (72.27 * 2**16)
         descent = (maxy - maxy_pure) * d
 
         text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
