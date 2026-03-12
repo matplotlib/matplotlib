@@ -146,7 +146,7 @@ scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'w
         length in x direction = :math:`\frac{u}{\mathrm{scale}} \mathrm{scale\_unit}`
 
         length in y direction = :math:`\frac{v}{\mathrm{scale}} \mathrm{scale\_unit}`
-        
+
     For example, ``(u, v) = (0.5, 0)`` with ``scale=10, scale_units="width"`` results
     in a horizontal arrow with a length of *0.5 / 10 * "width"*, i.e. 0.05 times the
     Axes width.
