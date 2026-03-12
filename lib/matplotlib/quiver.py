@@ -141,10 +141,11 @@ scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'w
     The physical image unit, which is used for rendering the scaled arrow
     data U, V.
 
-    The rendered arrow length is given by::
+    The rendered arrow length is given by:
 
-    length in x direction = (u / scale) * scale_units
-    length in y direction = (v / scale) * scale_units
+    - length in x direction = (u / scale) * scale_units
+    - length in y direction = (v / scale) * scale_units
+
     For example, ``(u, v) = (0.5, 0)`` with ``scale=10, scale_units="width"`` results
     in a horizontal arrow with a length of *0.5 / 10 * "width"*, i.e. 0.05 times the
     Axes width.
