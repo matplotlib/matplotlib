@@ -114,9 +114,15 @@ def test_grid_rcparams():
 
 
 def test_set_ticks_emits_lim_changed():
-    fig, ax = plt.subplots()
-    ax.set_xlim(0.5, 1)
-    called = []
-    ax.callbacks.connect("xlim_changed", called.append)
-    ax.set_xticks([0, 100])
-    assert called
+    fig, (ax1, ax2) = plt.subplots(1, 2, subplot_kw=[{}, {"projection": "polar"}])
+    ax1.set_xlim(0.5, 1)
+    called_cartesian = []
+    ax1.callbacks.connect("xlim_changed", called_cartesian.append)
+    ax1.set_xticks([0, 100])
+    assert called_cartesian
+
+    ax2.set_ylim(0.5, 1)
+    called_polar = []
+    ax2.callbacks.connect("ylim_changed", called_polar.append)
+    ax2.set_rticks([1, 2, 3])
+    assert called_polar
