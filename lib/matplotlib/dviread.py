@@ -330,7 +330,33 @@ class Ops:
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
-Box = namedtuple('Box', 'x y height width')
+
+
+# Supports namedtuple interface with fields 'x y height width'
+# for backwards compatibility, but is a dataclass.
+@dataclasses.dataclass(slots=True, frozen=True)
+class Box:
+    x: int
+    y: int
+    height: int
+    width: int
+
+    # Format varies by backend, so we just provide it verbatim. Default is None.
+    color: str | None = None
+
+    def as_legacy_tuple(self):
+        # In the future, we should add a deprecation warning to this central location.
+        # This will help us catch and clean up uses of the old API.
+        return (self.x, self.y, self.height, self.width)
+
+    def __iter__(self):
+        return iter(self.as_legacy_tuple())
+
+    def __getitem__(self, i):
+        return self.as_legacy_tuple()[i]
+
+    def replace(self, /, **kwargs):
+        return dataclasses.replace(self, **kwargs)
 
 
 # Supports namedtuple interface with fields 'x y font glyph width'
@@ -354,7 +380,9 @@ class Text:
     font: 'DviFont'
     glyph: int
     width: int
-    color: str | None = None  # Format varies by backend, so we just provide it verbatim
+
+    # Format varies by backend, so we just provide it verbatim. Default is None.
+    color: str | None = None
 
     @property
     def index(self):
@@ -454,16 +482,17 @@ class VM:
 
     @property
     def color(self):
-        "The current color according to color push/pop specials."
+        """The current color according to color push/pop specials."""
         return self.colors[-1] if self.colors else None
 
     def put_char(self, char):
         font = self.fonts[self.f]
+        color = self.color
         if isinstance(font, cbook._ExceptionInfo):
             raise font.to_exception()
         elif font._vf is None:
             self.text.append(Text(self.h, self.v, font, char,
-                                  font._width_of(char), self.color))
+                                  font._width_of(char), color))
         else:
             scale = font._scale
             for x, y, f, g, w in font._vf[char].text:
@@ -471,10 +500,10 @@ class VM:
                                metrics=f._metrics, texname=f.texname, vf=f._vf)
                 self.text.append(Text(self.h + _mul1220(x, scale),
                                       self.v + _mul1220(y, scale),
-                                      newf, g, newf._width_of(g), self.color))
+                                      newf, g, newf._width_of(g), color))
             self.boxes.extend([Box(self.h + _mul1220(x, scale),
                                    self.v + _mul1220(y, scale),
-                                   _mul1220(a, scale), _mul1220(b, scale))
+                                   _mul1220(a, scale), _mul1220(b, scale), color)
                                for x, y, a, b in font._vf[char].boxes])
 
     def assert_state(self, opname, state):
@@ -644,12 +673,12 @@ class VM:
 
     def op_set_rule(self, _, height, width):
         if height > 0 and width > 0:
-            self.boxes.append(Box(self.h, self.v, height, width))
+            self.boxes.append(Box(self.h, self.v, height, width, self.color))
         self.h += width
 
     def op_put_rule(self, _, height, width):
         if height > 0 and width > 0:
-            self.boxes.append(Box(self.h, self.v, height, width))
+            self.boxes.append(Box(self.h, self.v, height, width, self.color))
 
     def op_special(self, _, k: int, text: bytes):
         if text.startswith(b'color push'):
@@ -785,11 +814,14 @@ class Dvi:
         descent = (maxy - maxy_pure) * d
 
         text = [
-            t.replace(x = (t.x-minx)*d, y = (maxy-t.y)*d - descent, width = t.width * d)
+            t.replace(x=(t.x-minx)*d, y=(maxy-t.y)*d - descent, width=t.width * d)
             for t in vm.text
         ]
-        boxes = [Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
-                 for (x, y, h, w) in vm.boxes]
+        boxes = [
+            b.replace(
+                x=(b.x-minx)*d, y=(maxy-b.y)*d - descent,
+                height=b.height*d, width=b.width*d)
+            for b in vm.boxes]
 
         return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
                     height=(maxy_pure-miny)*d, descent=descent)

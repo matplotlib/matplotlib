@@ -150,6 +150,9 @@ def test_dvi_color(dpi):
         ('n', None),
         ('.', None),
     ]
+    # Red line is many little boxes
+    assert [b.color for b in page.boxes] == ["rgb 1.0  0.0  0.0"] * 85
+
 
 def test_PsfontsMap(monkeypatch):
     monkeypatch.setattr(dr, 'find_tex_file', lambda x: x.decode())
