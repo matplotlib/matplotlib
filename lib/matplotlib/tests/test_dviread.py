@@ -113,6 +113,44 @@ def test_vm_completeness():
         opname = entry[0]
         assert hasattr(dr.VM, f"op_{opname}"), f"VM cannot handle op {opname}"
 
+
+@pytest.mark.parametrize('dpi', [None, 72])
+def test_dvi_color(dpi):
+    filename = str(Path(__file__).parent / 'baseline_images/dviread/color.dvi')
+    with dr.Dvi(filename, dpi) as dvi:
+        parsed = [*dvi]
+    assert len(parsed) == 1
+    page = parsed[0]
+    print(page.text)
+
+    assert [(chr(t.glyph), t.color) for t in page.text] == [
+        ('D', None),
+        ('e', None),
+        ('f', None),
+        ('a', None),
+        ('u', None),
+        ('l', None),
+        ('t', None),
+        (',', None),
+        ('r', 'rgb 1.0  0.0  0.0'),
+        ('e', 'rgb 1.0  0.0  0.0'),
+        ('d', 'rgb 1.0  0.0  0.0'),
+        (',', None),
+        ('a', None),
+        ('n', None),
+        ('d', None),
+        ('b', None),
+        ('a', None),
+        ('c', None),
+        ('k', None),
+        ('a', None),
+        ('g', None),
+        ('a', None),
+        ('i', None),
+        ('n', None),
+        ('.', None),
+    ]
+
 def test_PsfontsMap(monkeypatch):
     monkeypatch.setattr(dr, 'find_tex_file', lambda x: x.decode())
 

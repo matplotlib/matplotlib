@@ -28,7 +28,7 @@ import subprocess
 import sys
 import typing
 from collections import namedtuple
-from functools import cache, cached_property, lru_cache, partial, wraps
+from functools import cache, cached_property, lru_cache, partial
 from pathlib import Path
 
 import fontTools.agl
@@ -123,7 +123,7 @@ class Ops:
         return cls.Op(opcode, opname, args)
 
     @classmethod
-    def read_io(cls, f, table = None) -> typing.Generator[Op, None, None]:
+    def read_io(cls, f, table=None) -> typing.Generator[Op, None, None]:
         table = table or cls.tbl_dvi
         while True:
             op = cls.read_op(f, table)
@@ -333,8 +333,10 @@ Page = namedtuple('Page', 'text boxes height width descent')
 Box = namedtuple('Box', 'x y height width')
 
 
-# Also a namedtuple, for backcompat.
-class Text(namedtuple('Text', 'x y font glyph width')):
+# Supports namedtuple interface with fields 'x y font glyph width'
+# for backwards compatibility, but is a dataclass.
+@dataclasses.dataclass(slots=True, frozen=True)
+class Text:
     """
     A glyph in the dvi file.
 
@@ -347,6 +349,12 @@ class Text(namedtuple('Text', 'x y font glyph width')):
     interpretation depends on the font).  ``text.width`` is the glyph width in
     dvi units.
     """
+    x: int
+    y: int
+    font: 'DviFont'
+    glyph: int
+    width: int
+    color: str | None = None  # Format varies by backend, so we just provide it verbatim
 
     @property
     def index(self):
@@ -359,6 +367,20 @@ class Text(namedtuple('Text', 'x y font glyph width')):
     font_path = property(lambda self: self.font.resolve_path())
     font_size = property(lambda self: self.font.size)
     font_effects = property(lambda self: self.font.effects)
+
+    def as_legacy_tuple(self):
+        # In the future, we should add a deprecation warning to this central location.
+        # This will help us catch and clean up uses of the old API.
+        return (self.x, self.y, self.font, self.glyph, self.width)
+
+    def __iter__(self):
+        return iter(self.as_legacy_tuple())
+
+    def __getitem__(self, i):
+        return self.as_legacy_tuple()[i]
+
+    def replace(self, /, **kwargs):
+        return dataclasses.replace(self, **kwargs)
 
     @property  # To be deprecated together with font_path, font_size, font_effects.
     def glyph_name_or_index(self):
@@ -417,6 +439,7 @@ class VM:
     stack: list = dataclasses.field(default_factory=list)
     text: list = dataclasses.field(default_factory=list)
     boxes: list = dataclasses.field(default_factory=list)
+    colors: list[str] = dataclasses.field(default_factory=list)
     down_stack: list = dataclasses.field(default_factory=list)
     fonts: dict = dataclasses.field(default_factory=dict)
     state: _dvistate = _dvistate.pre
@@ -429,13 +452,18 @@ class VM:
     z: int = 0
     f: int = 0
 
+    @property
+    def color(self):
+        "The current color according to color push/pop specials."
+        return self.colors[-1] if self.colors else None
+
     def put_char(self, char):
         font = self.fonts[self.f]
         if isinstance(font, cbook._ExceptionInfo):
             raise font.to_exception()
         elif font._vf is None:
             self.text.append(Text(self.h, self.v, font, char,
-                                  font._width_of(char)))
+                                  font._width_of(char), self.color))
         else:
             scale = font._scale
             for x, y, f, g, w in font._vf[char].text:
@@ -443,7 +471,7 @@ class VM:
                                metrics=f._metrics, texname=f.texname, vf=f._vf)
                 self.text.append(Text(self.h + _mul1220(x, scale),
                                       self.v + _mul1220(y, scale),
-                                      newf, g, newf._width_of(g)))
+                                      newf, g, newf._width_of(g), self.color))
             self.boxes.extend([Box(self.h + _mul1220(x, scale),
                                    self.v + _mul1220(y, scale),
                                    _mul1220(a, scale), _mul1220(b, scale))
@@ -624,6 +652,11 @@ class VM:
             self.boxes.append(Box(self.h, self.v, height, width))
 
     def op_special(self, _, k: int, text: bytes):
+        if text.startswith(b'color push'):
+            color = text[len('color push'):].decode('utf-8').strip()
+            self.colors.append(color)
+        elif text == b'color pop':
+            self.colors.pop()
         _log.debug('Dvi._xxx: encountered special: %r', text)
 
     def op_define_native_font(self, _, k, s, flags, l, n, i, effects):
@@ -633,14 +666,14 @@ class VM:
         font = self.fonts[self.f]
         for i in range(k):
             self.text.append(Text(self.h + xy[2 * i], self.v + xy[2 * i + 1],
-                                  font, g[i], font._width_of(g[i])))
+                                  font, g[i], font._width_of(g[i]), self.color))
         self.h += w
 
     def op_set_text_and_glyphs(self, _, l: int, t: bytes, w: int, k: int, xy, g):
         font = self.fonts[self.f]
         for i in range(k):
             self.text.append(Text(self.h + xy[2 * i], self.v + xy[2 * i + 1],
-                                  font, g[i], font._width_of(g[i])))
+                                  font, g[i], font._width_of(g[i]), self.color))
         self.h += w
 
     def op_begin_reflect(self, _, **kwargs):
@@ -751,13 +784,16 @@ class Dvi:
         d = dpi / (72.27 * 2**16)
         descent = (maxy - maxy_pure) * d
 
-        text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
-                for (x, y, f, g, w) in vm.text]
+        text = [
+            t.replace(x = (t.x-minx)*d, y = (maxy-t.y)*d - descent, width = t.width * d)
+            for t in vm.text
+        ]
         boxes = [Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
                  for (x, y, h, w) in vm.boxes]
 
         return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
                     height=(maxy_pure-miny)*d, descent=descent)
+
 
 class DviFont:
     """
@@ -988,7 +1024,7 @@ class Vf:
     def __init__(self, filename):
         self._chars = {}
 
-        self.inner_vm = VM(state = _dvistate.outer)
+        self.inner_vm = VM(state=_dvistate.outer)
         self.state = _dvistate.pre
         for op in Ops.read_file(filename, table=Ops.tbl_vf_outer):
             opcode, opname, args = op
@@ -1016,7 +1052,8 @@ class Vf:
 
     def op_char_packet(self, _, pl: int, cc: int, tfm: int, dvi: bytes):
         if self.state is not _dvistate.outer:
-            raise ValueError(f"char_packet command cannot be used in state {self.state}")
+            raise ValueError(
+                f"char_packet command cannot be used in state {self.state}")
         vm = self.inner_vm
 
         # Just feed these right on in to the inner VM, wrapping as a page
@@ -1027,13 +1064,15 @@ class Vf:
         vm.op_eop(0)
 
         # Create a Page object from that, and store it in self._chars.
-        if not False: #self._missing_font:  # Otherwise we don't have full glyph definition.
-            self._chars[cc] = Page(
-                text=vm.text, boxes=vm.boxes, width=tfm,
-                height=None, descent=None)
+        # Note, some prior logic was explicitly lenient about missing fonts here.
+        # It's unclear if this still needs to be explicitly handled. Tests welcome!
+        self._chars[cc] = Page(
+            text=vm.text, boxes=vm.boxes, width=tfm,
+            height=None, descent=None)
 
     def op_post(self, _, **kwargs):
         pass
+
 
 def _mul1220(num1, num2):
     """Multiply two numbers in 12.20 fixed point format."""
@@ -1461,10 +1500,11 @@ if __name__ == '__main__':
                 else:
                     print(f"font: {font_name}")
                 print(f"scale: {font._scale / 2 ** 20}")
-                _print_fields("x", "y", "glyph", "chr", "w")
+                _print_fields("x", "y", "glyph", "chr", "w", "color")
                 for text in group:
                     _print_fields(text.x, text.y, text.glyph,
-                                  text._as_unicode_or_name(), text.width)
+                                  text._as_unicode_or_name(), text.width,
+                                  text.color or "(default)")
             if page.boxes:
                 print("--- BOXES ---")
                 _print_fields("x", "y", "h", "w")
