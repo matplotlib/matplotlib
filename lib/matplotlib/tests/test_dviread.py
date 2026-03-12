@@ -111,7 +111,7 @@ def test_vm_completeness():
     # Correctness is a harder problem ;)
     for entry in dr.Ops.tbl_dvi.entries:
         opname = entry[0]
-        assert hasattr(dr.VM, f"op_{opname}"), f"VM cannot handle op {opname}"
+        assert hasattr(dr.VM, f"_op_{opname}"), f"VM cannot handle op {opname}"
 
 
 @pytest.mark.parametrize('dpi', [None, 72])

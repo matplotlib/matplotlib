@@ -12,8 +12,41 @@ class _dvistate(Enum):
     pre = ...
     outer = ...
     inpage = ...
+    post = ...
     post_post = ...
     finale = ...
+
+class Ops:
+    class Op(NamedTuple):
+        code: int
+        name: str
+        args: dict
+
+    @dataclasses.dataclass(slots=True)
+    class DispatchTable:
+        entries: list
+
+        def op(self, bmin: int, bmax: int, opname: str,
+            arg_types: str ='', arg_names: str ='', extra=None): ...
+        def __enter__(self) -> Self: ...
+        def __exit__(self, *exc) -> False: ...
+
+
+    @classmethod
+    def read_op(cls, f, table: DispatchTable) -> Generator[Op, None, None]: ...
+
+    @classmethod
+    def read_io(cls, f, table: DispatchTable | None = None) -> Generator[Op, None, None]: ...
+
+    @classmethod
+    def read_file(cls, filename: str, **kwargs) -> Generator[Op, None, None]: ...
+
+    @classmethod
+    def read_bytes(cls, b: bytes, **kwargs) -> Generator[Op, None, None]: ...
+
+    tbl_dvi: DispatchTable
+    tbl_vf_outer: DispatchTable
+    tbl_vf_inner: DispatchTable
 
 class Page(NamedTuple):
     text: list[Text]
@@ -22,18 +55,25 @@ class Page(NamedTuple):
     width: int
     descent: int
 
-class Box(NamedTuple):
+@dataclasses.dataclass(frozen=True, slots=True)
+class Box:
     x: int
     y: int
     height: int
     width: int
+    color: str | None = None
 
-class Text(NamedTuple):
+    def replace(self, /, **kwargs) -> Self: ...
+
+@dataclasses.dataclass(frozen=True, slots=True)
+class Text:
     x: int
     y: int
     font: DviFont
     glyph: int
     width: int
+    color: str | None = None
+
     @property
     def font_path(self) -> Path: ...
     @property
@@ -44,6 +84,29 @@ class Text(NamedTuple):
     def index(self) -> int: ...  # type: ignore[override]
     @property
     def glyph_name_or_index(self) -> int | str: ...
+
+    def replace(self, /, **kwargs) -> Self: ...
+
+@dataclasses.dataclass(slots=True)
+class VM:
+    stack: list
+    text: list[Text]
+    boxes: list[Box]
+    colors: list[str]
+    down_stack: list[int]
+    fonts: dict
+    state: _dvistate = _dvistate.pre
+    baseline_v: None | int = None
+    h: int = 0
+    v: int = 0
+    w: int = 0
+    x: int = 0
+    y: int = 0
+    z: int = 0
+    f: int = 0
+
+    @property
+    def color(self) -> str | None: ...
 
 class Dvi:
     file: io.BufferedReader

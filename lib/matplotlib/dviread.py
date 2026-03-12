@@ -549,7 +549,7 @@ class VM:
     down_stack: list = dataclasses.field(default_factory=list)
     fonts: dict = dataclasses.field(default_factory=dict)
     state: _dvistate = _dvistate.pre
-    baseline_v: None = None  # TODO: type
+    baseline_v: None | int = None
     h: int = 0
     v: int = 0
     w: int = 0
@@ -559,7 +559,7 @@ class VM:
     f: int = 0
 
     @property
-    def color(self):
+    def color(self) -> str | None:
         """The current color according to color push/pop specials."""
         return self.colors[-1] if self.colors else None
 
@@ -615,7 +615,7 @@ class VM:
                 and self.down_stack[-1] >= 4):
             self.baseline_v = self.v
 
-    def op_pre(self, _, i, num, den, mag, k, cmnt):
+    def _op_pre(self, _, i, num, den, mag, k, cmnt):
         self._assert_state("pre", _dvistate.pre)
         if i not in [2, 7]:  # 2: pdftex, luatex; 7: xetex
             raise ValueError(f"Unknown dvi format {i}")
@@ -632,7 +632,7 @@ class VM:
             # I think we can assume this is constant
         self.state = _dvistate.outer
 
-    def op_bop(self, _, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
+    def _op_bop(self, _, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
         self._assert_state("bop", _dvistate.outer)
         self.state = _dvistate.inpage
         self.h = self.v = self.w = self.x = self.y = self.z = 0
@@ -642,70 +642,70 @@ class VM:
         self.baseline_v = None
         self.down_stack = [0]
 
-    def op_eop(self, _):
+    def _op_eop(self, _):
         self._assert_state("eop", _dvistate.inpage)
         self.state = _dvistate.outer
         self.h = self.v = self.w = self.x = self.y = self.z = 0
         self.stack = []
 
-    def op_post(self, _, **kwargs):
+    def _op_post(self, _, **kwargs):
         self._assert_state("post", _dvistate.outer)
         self.state = _dvistate.post
 
-    def op_post_post(self, _, **kwargs):
+    def _op_post_post(self, _, **kwargs):
         self._assert_state("post_post", _dvistate.post)
         self.state = _dvistate.post_post
 
-    def op_nop(self, _):
+    def _op_nop(self, _):
         pass
 
-    def op_push(self, _):
+    def _op_push(self, _):
         self.down_stack.append(self.down_stack[-1])
         self.stack.append((self.h, self.v, self.w, self.x, self.y, self.z))
         self._reconsider_baseline_v()
 
-    def op_pop(self, _):
+    def _op_pop(self, _):
         self.down_stack.pop()
         self.h, self.v, self.w, self.x, self.y, self.z = self.stack.pop()
         self._reconsider_baseline_v()
 
-    def op_down(self, _, amount: int):
+    def _op_down(self, _, amount: int):
         self.down_stack[-1] += 1
         self.v += amount
         self._reconsider_baseline_v()
 
-    def op_right(self, _, amount: int):
+    def _op_right(self, _, amount: int):
         self.h += amount
 
-    def op_w0(self, _):
+    def _op_w0(self, _):
         self.h += self.w
 
-    def op_w(self, _, new_w: int):
+    def _op_w(self, _, new_w: int):
         self.w = new_w
         self.h += self.w
 
-    def op_x0(self, _):
+    def _op_x0(self, _):
         self.h += self.x
 
-    def op_x(self, _, new_x: int):
+    def _op_x(self, _, new_x: int):
         self.x = new_x
         self.h += self.x
 
-    def op_y0(self, _):
+    def _op_y0(self, _):
         self.v += self.y
 
-    def op_y(self, _, new_y: int):
+    def _op_y(self, _, new_y: int):
         self.y = new_y
         self.v += self.y
 
-    def op_z0(self, _):
+    def _op_z0(self, _):
         self.v += self.z
 
-    def op_z(self, _, new_z: int):
+    def _op_z(self, _, new_z: int):
         self.z = new_z
         self.v += self.z
 
-    def op_fnt_def(self, _, k, c, s, d, area: str, name: str, **kwargs):
+    def _op_fnt_def(self, _, k, c, s, d, area: str, name: str, **kwargs):
         n = area + name
         fontname = name
         if fontname.startswith(b"[") and c == 0x4c756146:  # c == "LuaF"
@@ -737,28 +737,28 @@ class VM:
             vf = None
         self.fonts[k] = DviFont(scale=s, metrics=tfm, texname=n, vf=vf)
 
-    def op_fnt_num(self, _, n: int):
+    def _op_fnt_num(self, _, n: int):
         self.f = n
 
-    def op_put_char(self, _, c):
+    def _op_put_char(self, _, c):
         self._put_char(c)
 
-    def op_set_char(self, _, c):
+    def _op_set_char(self, _, c):
         self._put_char(c)
         if isinstance(self.fonts[self.f], cbook._ExceptionInfo):
             return
         self.h += self.fonts[self.f]._width_of(c)
 
-    def op_set_rule(self, _, height, width):
+    def _op_set_rule(self, _, height, width):
         if height > 0 and width > 0:
             self.boxes.append(Box(self.h, self.v, height, width, self.color))
         self.h += width
 
-    def op_put_rule(self, _, height, width):
+    def _op_put_rule(self, _, height, width):
         if height > 0 and width > 0:
             self.boxes.append(Box(self.h, self.v, height, width, self.color))
 
-    def op_special(self, _, k: int, text: bytes):
+    def _op_special(self, _, k: int, text: bytes):
         if text.startswith(b'color push'):
             color = text[len('color push'):].decode('utf-8').strip()
             self.colors.append(color)
@@ -766,30 +766,30 @@ class VM:
             self.colors.pop()
         _log.debug('Dvi._xxx: encountered special: %r', text)
 
-    def op_define_native_font(self, _, k, s, flags, l, n, i, effects):
+    def _op_define_native_font(self, _, k, s, flags, l, n, i, effects):
         self.fonts[k] = DviFont.from_xetex(s, n, i, effects)
 
-    def op_set_glyphs(self, _, w, k, xy, g):
+    def _op_set_glyphs(self, _, w, k, xy, g):
         font = self.fonts[self.f]
         for i in range(k):
             self.text.append(Text(self.h + xy[2 * i], self.v + xy[2 * i + 1],
                                   font, g[i], font._width_of(g[i]), self.color))
         self.h += w
 
-    def op_set_text_and_glyphs(self, _, l: int, t: bytes, w: int, k: int, xy, g):
+    def _op_set_text_and_glyphs(self, _, l: int, t: bytes, w: int, k: int, xy, g):
         font = self.fonts[self.f]
         for i in range(k):
             self.text.append(Text(self.h + xy[2 * i], self.v + xy[2 * i + 1],
                                   font, g[i], font._width_of(g[i]), self.color))
         self.h += w
 
-    def op_begin_reflect(self, _, **kwargs):
+    def _op_begin_reflect(self, _, **kwargs):
         raise NotImplementedError()
 
-    def op_end_reflect(self, _, **kwargs):
+    def _op_end_reflect(self, _, **kwargs):
         raise NotImplementedError()
 
-    def op_malformed(self, _):
+    def _op_malformed(self, _):
         raise ValueError("Malformed DVI data")
 
 
@@ -853,7 +853,7 @@ class Dvi:
         """
         vm = VM()
         for opcode, opname, args in Ops.read_io(self.file):
-            getattr(vm, f"op_{opname}")(opcode, **args)
+            getattr(vm, f"_op_{opname}")(opcode, **args)
             if opname == "eop":
                 yield self._output_page(vm, self.dpi)
 
@@ -1138,14 +1138,14 @@ class Vf:
         self.state = _dvistate.pre
         for op in Ops.read_file(filename, table=Ops.tbl_vf_outer):
             opcode, opname, args = op
-            getattr(self, f"op_{opname}")(opcode, **args)
+            getattr(self, f"_op_{opname}")(opcode, **args)
         del self.inner_vm
         del self.state
 
     def __getitem__(self, code):
         return self._chars[code]
 
-    def op_pre(self, _, i, k, cmnt, cs, ds):
+    def _op_pre(self, _, i, k, cmnt, cs, ds):
         if self.state is not _dvistate.pre:
             raise ValueError("pre command in middle of vf file")
         if i != 202:
@@ -1155,23 +1155,23 @@ class Vf:
         self.state = _dvistate.outer
         # cs = checksum, ds = design size
 
-    def op_fnt_def(self, code: int, **kwargs):
+    def _op_fnt_def(self, code: int, **kwargs):
         if self.state is not _dvistate.outer:
             raise ValueError(f"fnt_def command cannot be used in state {self.state}")
-        self.inner_vm.op_fnt_def(code, **kwargs)
+        self.inner_vm._op_fnt_def(code, **kwargs)
 
-    def op_char_packet(self, _, pl: int, cc: int, tfm: int, dvi: bytes):
+    def _op_char_packet(self, _, pl: int, cc: int, tfm: int, dvi: bytes):
         if self.state is not _dvistate.outer:
             raise ValueError(
                 f"char_packet command cannot be used in state {self.state}")
         vm = self.inner_vm
 
         # Just feed these right on in to the inner VM, wrapping as a page
-        vm.op_bop(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        vm._op_bop(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         for op in Ops.read_bytes(dvi):
             opcode, opname, args = op
-            getattr(vm, f"op_{opname}")(opcode, **args)
-        vm.op_eop(0)
+            getattr(vm, f"_op_{opname}")(opcode, **args)
+        vm._op_eop(0)
 
         # Create a Page object from that, and store it in self._chars.
         # Note, some prior logic was explicitly lenient about missing fonts here.
@@ -1180,7 +1180,7 @@ class Vf:
             text=vm.text, boxes=vm.boxes, width=tfm,
             height=None, descent=None)
 
-    def op_post(self, _, **kwargs):
+    def _op_post(self, _, **kwargs):
         pass
 
 
