@@ -4,13 +4,14 @@ import shutil
 
 from matplotlib import cbook, dviread as dr
 from matplotlib.testing import subprocess_run_for_testing, _has_tex_package
-from matplotlib.texmanager import TexManager
 import pytest
+
 
 def test_ops():
     filename = str(Path(__file__).parent / 'baseline_images/dviread/color.dvi')
     Op = dr.Ops.Op
-    set_chars = lambda s: [Op(ord(c), 'set_char', {'c': ord(c)}) for c in s]
+    def set_chars(s: str):
+        return [Op(ord(c), 'set_char', {'c': ord(c)}) for c in s]
     assert list(dr.Ops.read_file(filename)) == [
         Op(247, 'pre', {
             'i': 2, 'num': 25400000, 'den': 473628672, 'mag': 1000, 'k': 27,
@@ -96,17 +97,21 @@ def test_ops():
         Op(249, 'post_post', {'q': 1939, 'i': 2, 'padding': 3755991007}),
     ]
 
-def test_ops_completeness():
-    assert len(dr.Ops._dispatch_table) == 256
-    for i, entry in enumerate(dr.Ops._dispatch_table):
+
+@pytest.mark.parametrize("table", [dr.Ops.tbl_dvi])
+def test_ops_completeness(table):
+    assert len(table.entries) == 256
+    for i, entry in enumerate(table.entries):
         opname = entry[0]
         assert opname != "unknown", f"Entry {i} has not been supplied"
 
+
 def test_vm_completeness():
     # Correctness is a harder problem ;)
-    for entry in dr.Ops._dispatch_table:
+    for entry in dr.Ops.tbl_dvi.entries:
         opname = entry[0]
         assert hasattr(dr.VM, f"op_{opname}"), f"VM cannot handle op {opname}"
+
 
 def test_PsfontsMap(monkeypatch):
     monkeypatch.setattr(dr, 'find_tex_file', lambda x: x.decode())

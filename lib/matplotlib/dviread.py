@@ -63,6 +63,17 @@ _log = logging.getLogger(__name__)
 
 _dvistate = enum.Enum('DviState', 'pre outer inpage post post_post finale')
 
+
+def read_num(f, nbytes: int, signed: bool, strict=True):
+    """
+    Read N bytes from a file as an big-endian number.
+    """
+    b = f.read(nbytes)
+    if strict:
+        assert len(b) == nbytes
+    return int.from_bytes(b, "big", signed=signed)
+
+
 class Ops:
     """
     Low-level tools for reading a DVI file as a sequence of ops.
@@ -72,17 +83,52 @@ class Ops:
     """
     Op = namedtuple('Op', 'code name args')
 
+    @dataclasses.dataclass(slots=True)
+    class DispatchTable:
+        entries: list = dataclasses.field(
+            default_factory=lambda: [('unknown', 0, ['delta'], ['delta'], None)] * 256)
+
+        def op(self, bmin, bmax, opname, arg_types='', arg_names='', extra=None):
+            """
+            Can be used standalone, or as a decorator.
+            """
+            arg_types = (' ' + arg_types).split()
+            arg_names = (' ' + arg_names).split()
+            entry = (opname, bmin, arg_types, arg_names, extra)
+            for i in range(bmin, bmax+1):
+                self.entries[i] = entry
+
+            # Optional decorator support
+            def decorator(fn):
+                entry = (opname, bmin, arg_types, arg_names, fn)
+                for i in range(bmin, bmax+1):
+                    self.entries[i] = entry
+            return decorator
+
+        def __enter__(self):
+            return self
+        def __exit__(self, *exc):
+            return False
+
+    @classmethod
+    def read_op(cls, f, table: DispatchTable) -> Op | None:
+        """Returns None if we've run out of file."""
+        opcode = f.read(1)
+        if not opcode:
+            return None
+        opcode = int(opcode[0])
+        entry = table.entries[opcode]
+        args = cls._parse_args(f, opcode, entry)
+        opname = entry[0]
+        return cls.Op(opcode, opname, args)
+
     @classmethod
     def read_io(cls, f) -> typing.Generator[Op, None, None]:
         while True:
-            opcode = f.read(1)
-            if not opcode:
-                break
-            opcode = int(opcode[0])
-            opname, base, atypes, anames = cls._dispatch_table[opcode]
-            delta = opcode-base
-            yield cls.Op(opcode, opname, cls._parse_args(f, opname, delta, atypes, anames))
-            if opname == "unknown":
+            op = cls.read_op(f, cls.tbl_dvi)
+            if op:
+                yield op
+            else:
                 break
 
     @classmethod
@@ -97,151 +143,134 @@ class Ops:
     # Internals
     _parsers = {
         # r = read_bytes(nbytes, signed)
-        'delta': lambda r, delta: delta,
-        'u1': lambda r, delta: r(1, False),
-        'u2': lambda r, delta: r(2, False),
-        'u3': lambda r, delta: r(3, False),
-        'u4': lambda r, delta: r(4, False),
-        's1': lambda r, delta: r(1, True),
-        's2': lambda r, delta: r(2, True),
-        's3': lambda r, delta: r(3, True),
-        's4': lambda r, delta: r(4, True),
-        'slen': lambda r, delta: r(delta, True) if delta else None,
-        'slen1': lambda r, delta: r(delta + 1, True),
-        'ulen1': lambda r, delta: r(delta + 1, False),
-        'olen1': lambda r, delta: r(delta + 1, delta == 3),
-        'fin': lambda r, delta: r(7, False),
+        'delta': lambda f, delta: delta,
+        'u1': lambda f, delta: read_num(f, 1, False),
+        'u2': lambda f, delta: read_num(f, 2, False),
+        'u3': lambda f, delta: read_num(f, 3, False),
+        'u4': lambda f, delta: read_num(f, 4, False),
+        's1': lambda f, delta: read_num(f, 1, True),
+        's2': lambda f, delta: read_num(f, 2, True),
+        's3': lambda f, delta: read_num(f, 3, True),
+        's4': lambda f, delta: read_num(f, 4, True),
+        'slen': lambda f, delta: read_num(f, delta, True) if delta else None,
+        'slen1': lambda f, delta: read_num(f, delta + 1, True),
+        'ulen1': lambda f, delta: read_num(f, delta + 1, False),
+        'olen1': lambda f, delta: read_num(f, delta + 1, delta == 3),
+        'fin': lambda f, delta: read_num(f, 7, False, strict=False),
     }
     @classmethod
-    def _parse_args(cls, f, opname, delta, types, names) -> dict:
+    def _parse_args(cls, f, opcode, entry) -> dict:
+        opname, base, types, names, extra_fn = entry
+        delta = opcode-base
         result = {}
-        read_arg = lambda n, s: int.from_bytes(f.read(n), signed=s)
         for t, n in zip(types, names):
             if t.startswith("@"):
                 result[n] = f.read(result[t[1:]])
             else:
-                result[n] = cls._parsers[t](read_arg, delta)
-        
+                result[n] = cls._parsers[t](f, delta)
+
         # Support arbitrary logic for extra params
-        extra_fn_name = f"_{opname}_extra"
-        if hasattr(cls, extra_fn_name):
-            extra = getattr(cls, extra_fn_name)(f, **result)
+        if extra_fn:
+            extra = extra_fn(f, **result)
             result.update(extra)
 
         return result
 
-    def _op(tbl, bmin, bmax, opname, arg_types='', arg_names=''):
-        arg_types = (' ' + arg_types).split()
-        arg_names = (' ' + arg_names).split()
-        entry = (opname, bmin, arg_types, arg_names)
-        for i in range(bmin, bmax+1):
-            tbl[i] = entry
+    tbl_dvi = DispatchTable()
+    with tbl_dvi as t:
+        t.op(0, 127, 'set_char', 'delta', 'c')
+        t.op(128, 128, 'set_char', 'u1', 'c')
+        t.op(129, 129, 'set_char', 'u2', 'c')
+        t.op(130, 130, 'set_char', 'u3', 'c')
+        t.op(131, 131, 'set_char', 's4', 'c')
+        t.op(132, 132, 'set_rule', 's4 s4', 'height width')
 
-    _dispatch_table = [('unknown', 0, ['delta'], ['delta'])] * 256
-    _op = partial(_op, _dispatch_table)
+        t.op(133, 133, 'put_char', 'u1', 'c')
+        t.op(134, 134, 'put_char', 'u2', 'c')
+        t.op(135, 135, 'put_char', 'u3', 'c')
+        t.op(136, 136, 'put_char', 's4', 'c')
+        t.op(137, 137, 'put_rule', 's4 s4', 'height width')
 
-    # It's a valid question whether to group ops together under one name,
-    # or split them apart per code like the docs say. I'm going with the
-    # grouping approach, but we could theoretically offer both, and we do
-    # already provide the opcode to consumers.
-    _op(0, 127, 'set_char', 'delta', 'c')
-    _op(128, 128, 'set_char', 'u1', 'c')
-    _op(129, 129, 'set_char', 'u2', 'c')
-    _op(130, 130, 'set_char', 'u3', 'c')
-    _op(131, 131, 'set_char', 's4', 'c')
-    _op(132, 132, 'set_rule', 's4 s4', 'height width')
+        t.op(138, 138, 'nop')
+        t.op(139, 139, 'bop',
+            "s4 s4 s4 s4 s4 s4 s4 s4 s4 s4 s4",
+            "c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 p")
+        t.op(140, 140, 'eop')
 
-    _op(133, 133, 'put_char', 'u1', 'c')
-    _op(134, 134, 'put_char', 'u2', 'c')
-    _op(135, 135, 'put_char', 'u3', 'c')
-    _op(136, 136, 'put_char', 's4', 'c')
-    _op(137, 137, 'put_rule', 's4 s4', 'height width')
+        t.op(141, 141, 'push')
+        t.op(142, 142, 'pop')
 
-    _op(138, 138, 'nop')
-    _op(139, 139, 'bop',
-        "s4 s4 s4 s4 s4 s4 s4 s4 s4 s4 s4",
-        "c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 p")
-    _op(140, 140, 'eop')
+        t.op(143, 146, 'right', 'slen1', 'amount')
+        t.op(147, 147, 'w0')
+        t.op(148, 151, 'w', 'slen1', 'new_w')
+        t.op(152, 152, 'x0')
+        t.op(153, 156, 'x', 'slen1', 'new_x')
 
-    _op(141, 141, 'push')
-    _op(142, 142, 'pop')
+        t.op(157, 160, 'down', 'slen1', 'amount')
+        t.op(161, 161, 'y0')
+        t.op(162, 165, 'y', 'slen1', 'new_y')
+        t.op(166, 166, 'z0')
+        t.op(167, 170, 'z', 'slen1', 'new_z')
 
-    _op(143, 146, 'right', 'slen1', 'amount')
-    _op(147, 147, 'w0')
-    _op(148, 151, 'w', 'slen1', 'new_w')
-    _op(152, 152, 'x0')
-    _op(153, 156, 'x', 'slen1', 'new_x')
+        t.op(171, 234, 'fnt_num', 'delta', 'n')
+        t.op(235, 238, 'fnt_num', 'slen1', 'n')
 
-    _op(157, 160, 'down', 'slen1', 'amount')
-    _op(161, 161, 'y0')
-    _op(162, 165, 'y', 'slen1', 'new_y')
-    _op(166, 166, 'z0')
-    _op(167, 170, 'z', 'slen1', 'new_z')
+        t.op(239, 242, 'special', 'ulen1 @k', 'k text')
 
-    _op(171, 234, 'fnt_num', 'delta', 'n')
-    _op(235, 238, 'fnt_num', 'slen1', 'n')
+        t.op(243, 246, 'fnt_def',
+            'olen1 u4 s4 u4 u1 u1 @a   @l',
+            'k     c  s  d  a  l  area name')
 
-    _op(239, 242, 'special', 'ulen1 @k', 'k text')
+        t.op(247, 247, 'pre',
+            "u1 u4  u4  u4  u1 @k",
+            "i  num den mag k  cmnt")
+        t.op(248, 248, 'post',
+            'u4 u4  u4  u4  u4 u4 u2 u2',
+            'p  num den mag l  u  s  t')
+        t.op(249, 249, 'post_post', 'u4 u1 fin', 'q i padding')
 
-    _op(243, 246, 'fnt_def',
-        'olen1 u4 s4 u4 u1 u1 @a   @l',
-        'k     c  s  d  a  l  area name')
+        t.op(250, 250, 'begin_reflect')
+        t.op(251, 251, 'end_reflect')
 
-    _op(247, 247, 'pre',
-        "u1 u4  u4  u4  u1 @k",
-        "i  num den mag k  cmnt")
-    _op(248, 248, 'post',
-        'u4 u4  u4  u4  u4 u4 u2 u2',
-        'p  num den mag l  u  s  t')
-    _op(249, 249, 'post_post', 'u4 u1 fin', 'q i padding')
+        @t.op(252, 252, 'define_native_font',
+            'u4 u4 u2    u1 @l u4',
+            'k  s  flags l  n  i')
+        def _extra(f, flags: int, **_) -> dict:
+            read_arg = partial(read_num, f)
+            effects = {}
+            if flags & 0x0200:
+                effects["rgba"] = [read_arg(1, False) for _ in range(4)]
+            if flags & 0x1000:
+                effects["extend"] = read_arg(4, True) / 65536
+            if flags & 0x2000:
+                effects["slant"] = read_arg(4, True) / 65536
+            if flags & 0x4000:
+                effects["embolden"] = read_arg(4, True) / 65536
+            return {'effects': effects}
 
-    _op(250, 250, 'begin_reflect')
-    _op(251, 251, 'end_reflect')
+        @t.op(253, 253, 'set_glyphs', 'u4 u2', 'w k')
+        def _extra(f, w, k) -> dict:
+            read_arg = partial(read_num, f)
+            xy = [read_arg(4, True) for _ in range(2 * k)]
+            g = [read_arg(2, False) for _ in range(k)]
+            return {'xy': xy, 'g': g}
 
-    _op(252, 252, 'define_native_font',
-        'u4 u4 u2    u1 @l u4',
-        'k  s  flags l  n  i')
+        @t.op(254, 254, 'set_text_and_glyphs', 'u2', 'l')
+        def _extra(f, l: int) -> dict:
+            read_arg = partial(read_num, f)
+            t = f.read(2 * l)  # utf16
+            w = read_arg(4, False)
+            k = read_arg(2, False)
+            xy = [read_arg(4, True) for _ in range(2 * k)]
+            g = [read_arg(2, False) for _ in range(k)]
+            return {'t': t, 'w': w, 'k': k, 'xy': xy, 'g': g}
 
-    @classmethod
-    def _define_native_font_extra(cls, f, flags: int, **_) -> dict:
-        read_arg = lambda n, s: int.from_bytes(f.read(n), signed=s)
-        effects = {}
-        if flags & 0x0200:
-            effects["rgba"] = [read_arg(1, False) for _ in range(4)]
-        if flags & 0x1000:
-            effects["extend"] = read_arg(4, True) / 65536
-        if flags & 0x2000:
-            effects["slant"] = read_arg(4, True) / 65536
-        if flags & 0x4000:
-            effects["embolden"] = read_arg(4, True) / 65536
-        return { 'effects': effects }
-
-    _op(253, 253, 'set_glyphs', 'u4 u2', 'w k')
-
-    @classmethod
-    def _set_glyphs_extra(cls, f, w, k) -> dict:
-        read_arg = lambda n, s: int.from_bytes(f.read(n), signed=s)
-        xy = [read_arg(4, True) for _ in range(2 * k)]
-        g = [read_arg(2, False) for _ in range(k)]
-        return { 'xy': xy, 'g': g }
-
-    _op(254, 254, 'set_text_and_glyphs', 'u2', 'l')
-
-    @classmethod
-    def _set_text_and_glyphs_extra(cls, f, l: int) -> dict:
-        read_arg = lambda n, s: int.from_bytes(f.read(n), signed=s)
-        t = f.read(2 * l)  # utf16
-        w = read_arg(4, False)
-        k = read_arg(2, False)
-        xy = [read_arg(4, True) for _ in range(2 * k)]
-        g = [read_arg(2, False) for _ in range(k)]
-        return { 't': t, 'w': w, 'k': k, 'xy': xy, 'g': g }
-
-    _op(255, 255, 'malformed')
+        t.op(255, 255, 'malformed')
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
 Box = namedtuple('Box', 'x y height width')
+
 
 # Also a namedtuple, for backcompat.
 class Text(namedtuple('Text', 'x y font glyph width')):
@@ -317,6 +346,7 @@ class Text(namedtuple('Text', 'x y font glyph width')):
         glyph_str = fontTools.agl.toUnicode(glyph_name)
         return glyph_str or glyph_name
 
+
 @dataclasses.dataclass(slots=True)
 class VM:
     """
@@ -329,7 +359,7 @@ class VM:
     down_stack: list = dataclasses.field(default_factory=list)
     fonts: dict = dataclasses.field(default_factory=dict)
     state: _dvistate = _dvistate.pre
-    baseline_v: None = None # TODO: type
+    baseline_v: None = None  # TODO: type
     h: int = 0
     v: int = 0
     w: int = 0
@@ -360,10 +390,12 @@ class VM:
 
     def assert_state(self, opname, state):
         if self.state != state:
-            raise ValueError(f"state precondition failed: op {opname} must be used in state {state}, but was used in state {self.state}")
+            raise ValueError(f"""state precondition failed:
+                op {opname} must be used in state {state},
+                but was used in state {self.state}""")
 
     def reconsider_baseline_v(self):
-        "Should be called in ops that modify self.stack or self.down_stack."
+        """Should be called in ops that modify self.stack or self.down_stack."""
         # Pages appear to start with the sequence
         #   bop (begin of page)
         #   xxx comment
@@ -559,6 +591,7 @@ class VM:
     def op_malformed(self, _):
         raise ValueError("Malformed DVI data")
 
+
 class Dvi:
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
@@ -624,7 +657,7 @@ class Dvi:
                 yield self._output_page(vm, self.dpi)
 
     def _output_page(self, vm: VM, dpi: int) -> Page:
-        "Output the text and boxes belonging to the most recent page."
+        """Output the text and boxes belonging to the most recent page."""
         minx = miny = np.inf
         maxx = maxy = -np.inf
         maxy_pure = -np.inf
@@ -1360,6 +1393,16 @@ class Vf(_Dvi):
     This class reuses some of the machinery of `Dvi`
     but replaces the `!_read` loop and dispatch mechanism.
 
+    The format is:
+     - `pre` op (247)
+     - font definitions (243-246)
+     - character packets (0-242)
+     - postamble (248)
+
+    Each character packet declares its payload length, and the payload is made
+    of (a subset of) the normal DVI ops. This is exposed as a Page object
+    and represents a single glyph, which is accessible via __getitem__.
+
     Examples
     --------
     ::
@@ -1378,14 +1421,25 @@ class Vf(_Dvi):
         finally:
             self.close()
 
+    # Notes for tomorrow:
+    #
+    # This does push in the direction of some API changes.
+    # We essentially want to move in the direction of multiple
+    # dispatch tables at the op interpretation level. We at least
+    # want these:
+    #
+    #  1. Classic DVI
+    #  2. VF Outer
+    #  3. VF Inner (restricted set per docs)
+    #
+    # A valid alternative would be to achieve #3 as a difference in VM rather
+    # than in op parsing. I do think doing it at the parse level will be a bit
+    # easier, though.
+
     def __getitem__(self, code):
         return self._chars[code]
 
     def _read(self):
-        """
-        Read one page from the file. Return True if successful,
-        False if there were no more pages.
-        """
         packet_char = packet_ends = None
         packet_len = packet_width = None
         while True:
