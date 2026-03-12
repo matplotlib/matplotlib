@@ -65,9 +65,7 @@ _dvistate = enum.Enum('DviState', 'pre outer inpage post post_post finale')
 
 
 def _read_num(f, nbytes: int, signed: bool, strict=True):
-    """
-    Read N bytes from a file as an big-endian number.
-    """
+    """Read N bytes from a file as an big-endian number."""
     b = f.read(nbytes)
     if strict:
         assert len(b) == nbytes
@@ -85,12 +83,89 @@ class Ops:
 
     @dataclasses.dataclass(slots=True)
     class DispatchTable:
+        """
+        Storage for how to interpret different bytes as operations, and unpack
+        their arguments. A table is naturally 256 entries long, covering every
+        possible single-byte value. It starts with every entry being a placeholder,
+        and the convention is to replace these placeholders with the .op() method.
+
+        The existing provided tables are:
+         - Ops.tbl_dvi, which is used for normal DVI files.
+         - Ops.tbl_vf_outer, which is used for VF files outside of packets.
+         - Ops.tbl_vf_inner, which is used for VF files inside of packets.
+
+        The ability to create other tables is available to anybody, but would
+        probably be a niche requirement in practice.
+        """
         entries: list = dataclasses.field(
             default_factory=lambda: [('unknown', 0, ['delta'], ['delta'], None)] * 256)
 
-        def op(self, bmin, bmax, opname, arg_types='', arg_names='', extra=None):
+        def op(self,
+            bmin: int, bmax: int, opname: str,
+            arg_types: str ='', arg_names: str ='', extra=None):
             """
             Can be used standalone, or as a decorator.
+
+            Parameters
+            ----------
+            bmin : int
+                Minimum byte for this op.
+
+            bmax : int
+                Maximum byte for this op. This creates an inclusive range.
+
+            opname : str
+                The reported symbolic name of the op. This is conventionally used
+                for dispatch, like with `.dviread.VM`.
+
+            arg_types : str
+                Space-separated series of extraction specifiers (see below).
+
+            arg_names : str
+                Space-separated series of argument names, one per extraction specifier.
+
+            extra : Fn[file, **args] -> dict, or None
+                An optional callback which extracts additional arguments, based on the
+                values of previously extracted arguments.
+
+            Returns
+            -------
+            decorator : Fn[extra_fn] -> None
+                A more ergonomic way to provide the `extra` param, if desired.
+
+            Extraction Specifiers
+            ---------------------
+            delta : the difference between the current op's code and `bmin`.
+            u1 : An unsigned 1-byte number.
+            u2 : An unsigned 2-byte number.
+            u3 : An unsigned 3-byte number.
+            u4 : An unsigned 4-byte number.
+            s1 : A signed 1-byte number.
+            s2 : A signed 2-byte number.
+            s3 : A signed 3-byte number.
+            s4 : A signed 4-byte number.
+            slen : A signed number `delta` bytes long, or if `delta` is 0, None.
+            slen1 : A signed number `delta`+1 bytes long.
+            ulen1 : An unsigned number `delta`+1 bytes long.
+            olen1 : A number `delta+1` bytes long, which is signed if `delta` == 3.
+            fin : Attempt to finish the file by reading up to 7 bytes.
+            @x : a byte string `x` bytes long, where `x` is a previous argument.
+
+            >>> from matplotlib.dviread import Ops
+            >>> my_table = Ops.DispatchTable()
+            >>> with my_table as t:
+            ...    t.op(0, 22, 'my_op_name', 'u1 u2', 'arg_a arg_b')
+            ...    @t.op(23, 23, 'my_op_2', 'u4', 'length')
+            ...    def _extra(f, length: int) -> dict:
+            ...        b: bytes = f.read(length)
+            ...        return { 'payload': b }
+            ...
+            ...    # While extra arguments offer a comprehensive escape hatch,
+            ...    # using a previous argument as a length is directly supported.
+            ...    # So the more idiomatic version of the previous example would be:
+            ...    t.op(23, 23, 'my_op_2',
+            ...        'u4      @length',
+            ...        'length  payload')
             """
             arg_types = (' ' + arg_types).split()
             arg_names = (' ' + arg_names).split()
@@ -124,7 +199,7 @@ class Ops:
 
     @classmethod
     def read_io(cls, f, table=None) -> typing.Generator[Op, None, None]:
-        "Read ops from a file-like object."
+        """Read ops from a file-like object."""
         table = table or cls.tbl_dvi
         while True:
             op = cls.read_op(f, table)
@@ -135,18 +210,17 @@ class Ops:
 
     @classmethod
     def read_file(cls, filename: str, **kwargs) -> typing.Generator[Op, None, None]:
-        "Open a file and read ops from it."
+        """Open a file and read ops from it."""
         with open(filename, "rb") as f:
             yield from cls.read_io(f, **kwargs)
 
     @classmethod
     def read_bytes(cls, b: bytes, **kwargs) -> typing.Generator[Op, None, None]:
-        "Read ops from an in-memory byte sequence."
+        """Read ops from an in-memory byte sequence."""
         yield from cls.read_io(io.BytesIO(b), **kwargs)
 
     # Internals
     _parsers = {
-        # r = read_bytes(nbytes, signed)
         'delta': lambda f, delta: delta,
         'u1': lambda f, delta: _read_num(f, 1, False),
         'u2': lambda f, delta: _read_num(f, 2, False),
