@@ -237,6 +237,8 @@ class Ops:
         g = [read_arg(2, False) for _ in range(k)]
         return { 't': t, 'w': w, 'k': k, 'xy': xy, 'g': g }
 
+    _op(255, 255, 'malformed')
+
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
 Box = namedtuple('Box', 'x y height width')
@@ -426,6 +428,9 @@ class VM:
         self.assert_state("post_post", _dvistate.post)
         self.state = _dvistate.post_post
 
+    def op_nop(self, _):
+        pass
+
     def op_push(self, _):
         self.down_stack.append(self.down_stack[-1])
         self.stack.append((self.h, self.v, self.w, self.x, self.y, self.z))
@@ -450,6 +455,27 @@ class VM:
     def op_w(self, _, new_w: int):
         self.w = new_w
         self.h += self.w
+
+    def op_x0(self, _):
+        self.h += self.x
+
+    def op_x(self, _, new_x: int):
+        self.x = new_x
+        self.h += self.x
+
+    def op_y0(self, _):
+        self.v += self.y
+
+    def op_y(self, _, new_y: int):
+        self.y = new_y
+        self.v += self.y
+
+    def op_z0(self, _):
+        self.v += self.z
+
+    def op_z(self, _, new_z: int):
+        self.z = new_z
+        self.v += self.z
 
     def op_fnt_def(self, _, k, c, s, d, area: str, name: str, **kwargs):
         n = area + name
@@ -486,6 +512,9 @@ class VM:
     def op_fnt_num(self, _, n: int):
         self.f = n
 
+    def op_put_char(self, _, c):
+        self.put_char(c)
+
     def op_set_char(self, _, c):
         self.put_char(c)
         if isinstance(self.fonts[self.f], cbook._ExceptionInfo):
@@ -501,6 +530,9 @@ class VM:
         if height > 0 and width > 0:
             self.boxes.append(Box(self.h, self.v, height, width))
 
+    def op_special(self, _, k: int, text: bytes):
+        _log.debug('Dvi._xxx: encountered special: %r', text)
+
     def op_define_native_font(self, _, k, s, flags, l, n, i, effects):
         self.fonts[k] = DviFont.from_xetex(s, n, i, effects)
 
@@ -511,10 +543,23 @@ class VM:
                                   font, g[i], font._width_of(g[i])))
         self.h += w
 
-    def op_special(self, _, k: int, text: bytes):
-        _log.debug('Dvi._xxx: encountered special: %r', text)
+    def op_set_text_and_glyphs(self, _, l: int, t: bytes, w: int, k: int, xy, g):
+        font = self.fonts[self.f]
+        for i in range(k):
+            self.text.append(Text(self.h + xy[2 * i], self.v + xy[2 * i + 1],
+                                  font, g[i], font._width_of(g[i])))
+        self.h += w
 
-class Dvi2:
+    def op_begin_reflect(self, _, **kwargs):
+        raise NotImplementedError()
+
+    def op_end_reflect(self, _, **kwargs):
+        raise NotImplementedError()
+
+    def op_malformed(self, _):
+        raise ValueError("Malformed DVI data")
+
+class Dvi:
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
 
@@ -537,7 +582,7 @@ class Dvi2:
         *dpi* only sets the units and does not limit the resolution.
         Use None to return TeX's internal units.
         """
-        _log.debug('Dvi2: %s', filename)
+        _log.debug('Dvi: %s', filename)
         self.file = open(filename, 'rb')
         self.dpi = dpi
 
@@ -696,7 +741,7 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
     return decorate
 
 
-class Dvi:
+class _Dvi:
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
 
@@ -1300,7 +1345,7 @@ class DviFont:
         return self._encoding[idx]
 
 
-class Vf(Dvi):
+class Vf(_Dvi):
     r"""
     A virtual font (\*.vf file) containing subroutines for dvi files.
 
@@ -1357,7 +1402,7 @@ class Vf(Dvi):
                 else:
                     if byte in (139, 140) or byte >= 243:
                         raise ValueError(f"Inappropriate opcode {byte} in vf file")
-                    Dvi._dtable[byte](self, byte)
+                    _Dvi._dtable[byte](self, byte)
                     continue
 
             # We are outside a packet
