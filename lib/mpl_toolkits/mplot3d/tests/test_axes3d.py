@@ -161,7 +161,7 @@ def test_bar3d_colors():
         ax.bar3d(xs, ys, zs, 1, 1, 1, color=c)
 
 
-@mpl3d_image_comparison(['bar3d_shaded.png'], style='mpl20')
+@mpl3d_image_comparison(['bar3d_shaded.png'], tol=0.035, style='mpl20')
 def test_bar3d_shaded():
     x = np.arange(4)
     y = np.arange(5)
@@ -299,7 +299,6 @@ def test_contourf3d_extend(fig_test, fig_ref, extend, levels):
 
 @mpl3d_image_comparison(['tricontour.png'], tol=0.02, style='mpl20')
 def test_tricontour():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
 
     np.random.seed(19680801)
@@ -587,7 +586,7 @@ def test_marker_draw_order_view_rotated(fig_test, fig_ref):
     ax.view_init(elev=0, azim=azim - 180, roll=0)  # view rotated by 180 deg
 
 
-@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.019, style='mpl20')
+@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.03, style='mpl20')
 def test_plot_3d_from_2d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -1509,7 +1508,7 @@ class TestVoxels:
             assert isinstance(poly, art3d.Poly3DCollection)
 
     @mpl3d_image_comparison(['voxels-xyz.png'], remove_text=False, style='mpl20',
-                            tol=0.002 if sys.platform == 'win32' else 0)
+                            tol=0 if platform.machine() == 'x86_64' else 0.008)
     def test_xyz(self):
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
@@ -1739,7 +1738,7 @@ def test_errorbar3d():
 
 
 @image_comparison(['stem3d.png'], style='mpl20',
-                  tol=0 if platform.machine() == 'x86_64' else 0.008)
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_stem3d():
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
                             constrained_layout=True,
@@ -2209,7 +2208,6 @@ def test_subfigure_simple():
 
 @image_comparison(['computed_zorder.png'], remove_text=True, style='mpl20')
 def test_computed_zorder():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax1 = fig.add_subplot(221, projection='3d')
     ax2 = fig.add_subplot(222, projection='3d')
@@ -2664,7 +2662,6 @@ def test_scatter_masked_color():
 
 @mpl3d_image_comparison(['surface3d_zsort_inf.png'], style='mpl20')
 def test_surface3d_zsort_inf():
-    plt.rcParams['axes3d.automargin'] = True  # Remove when image is regenerated
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 

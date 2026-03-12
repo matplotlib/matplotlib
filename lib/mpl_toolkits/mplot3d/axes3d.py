@@ -157,11 +157,10 @@ class Axes3D(Axes):
 
         self.xy_viewLim = Bbox.unit()
         self.zz_viewLim = Bbox.unit()
-        xymargin = 0.05 * 10/11  # match mpl3.8 appearance
-        self.xy_dataLim = Bbox([[xymargin, xymargin],
-                                [1 - xymargin, 1 - xymargin]])
-        # z-limits are encoded in the x-component of the Bbox, y is un-used
-        self.zz_dataLim = Bbox.unit()
+        self._xmargin = mpl.rcParams['axes.xmargin']
+        self._ymargin = mpl.rcParams['axes.ymargin']
+        self._zmargin = mpl.rcParams['axes.zmargin']
+        self._init_dataLims()
 
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
@@ -601,6 +600,25 @@ class Axes3D(Axes):
             tight=tight, scalex=(x is not None), scaley=(y is not None),
             scalez=(z is not None)
         )
+
+    def _init_dataLims(self):
+        """Reset dataLim bboxes for empty-plot defaults.
+
+        The per-axis padding ensures that the margin expansion in autoscale_view
+        cancels out exactly, landing on [0, 1] for empty plots.
+        """
+        def pad(margin):
+            # Note margin is validated to be > -0.5 in rcParams and set_x/y/zmargin
+            return margin / (1 + 2 * margin) if margin > 0 else 0
+
+        xpad = pad(self._xmargin)
+        ypad = pad(self._ymargin)
+        zpad = pad(self._zmargin)
+        self.xy_dataLim = Bbox([[xpad, ypad],
+                                [1 - xpad, 1 - ypad]])
+        # z-limits are encoded in the x-component of the Bbox, y is un-used
+        self.zz_dataLim = Bbox([[zpad, 0],
+                                [1 - zpad, 1]])
 
     def autoscale(self, enable=True, axis='both', tight=None):
         """
@@ -1142,18 +1160,6 @@ class Axes3D(Axes):
         **kwargs
             Forwarded to scale constructor.
         """
-        # For non-linear scales on the z-axis, switch from the [0, 1] +
-        # margin=0 representation to the same xymargin + margin=0.05
-        # representation that x/y use.  Both produce identical linear limits,
-        # but only the xymargin form has valid positive lower bounds for log
-        # etc.  This must happen before _set_axes_scale because that triggers
-        # autoscale_view internally.
-        if (axis is self.zaxis and value != 'linear'
-                and np.array_equal(self.zz_dataLim.get_points(), [[0, 0], [1, 1]])):
-            xymargin = 0.05 * 10/11
-            self.zz_dataLim = Bbox([[xymargin, xymargin],
-                                    [1 - xymargin, 1 - xymargin]])
-            self._zmargin = self._xmargin
         axis._set_axes_scale(value, **kwargs)
 
     def set_xscale(self, value, **kwargs):
@@ -1556,16 +1562,8 @@ class Axes3D(Axes):
     def clear(self):
         # docstring inherited.
         super().clear()
-        if self._focal_length == np.inf:
-            self._zmargin = mpl.rcParams['axes.zmargin']
-        else:
-            self._zmargin = 0.
-
-        xymargin = 0.05 * 10/11  # match mpl3.8 appearance
-        self.xy_dataLim = Bbox([[xymargin, xymargin],
-                                [1 - xymargin, 1 - xymargin]])
-        # z-limits are encoded in the x-component of the Bbox, y is un-used
-        self.zz_dataLim = Bbox.unit()
+        self._zmargin = mpl.rcParams['axes.zmargin']  # x, y are set in super().clear()
+        self._init_dataLims()
         self._view_margin = 1/48  # default value to match mpl3.8
         self.autoscale_view()
 
@@ -3235,9 +3233,6 @@ class Axes3D(Axes):
             depthshade_minalpha=depthshade_minalpha,
             axlim_clip=axlim_clip,
         )
-        if self._zmargin < 0.05 and xs.size > 0:
-            self.set_zmargin(0.05)
-
         self.auto_scale_xyz(xs, ys, zs, had_data)
 
         return patches
