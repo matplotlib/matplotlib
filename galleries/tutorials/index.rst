@@ -94,6 +94,9 @@ a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
 
   :ref:`sphx_glr_tutorials_artists.py`
 
+  .. minigallery:: artists.py
+     :add-heading:
+
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Artist tutorial</div>
