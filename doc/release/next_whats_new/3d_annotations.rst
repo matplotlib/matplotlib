@@ -1,5 +1,5 @@
 3D annotations can anchor to 3D coordinates
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.annotate` now accepts 3D data coordinates:
 when ``xycoords='data'``, the annotated position *xy* may be passed as a

@@ -3,10 +3,21 @@
 Annotating points in 3D
 ========================
 
-:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.annotate` supports anchoring annotations in
-3D data coordinates by passing ``(x, y, z)`` for *xy* (with ``xycoords='data'``,
-the default).  The annotation is projected during draws, so it stays attached
-to the point as the view changes.
+The :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.annotate` method supports two
+primary modes of annotation in 3D plots:
+
+3D Data Annotations
+   By passing a 3-tuple ``(x, y, z)`` to *xy* (and ensuring ``xycoords='data'``,
+   which is the default), the annotation is anchored to a specific point in 3D
+   space. As the 3D view is rotated or zoomed, the annotation is dynamically
+   re-projected so it stays attached to the data point.
+
+2D Screen Annotations
+   By passing a standard 2-tuple ``(x, y)`` to *xy*, the annotation is treated
+   as a standard 2D label on the canvas. This is highly useful for static UI
+   elements, watermarks, or fixed text (e.g., using
+   ``xycoords='axes fraction'``) that should remain stationary on the screen
+   regardless of how the 3D axes are manipulated.
 """
 
 import matplotlib.pyplot as plt
