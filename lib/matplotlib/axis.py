@@ -2182,8 +2182,9 @@ class Axis(martist.Artist):
             new_vmin, new_vmax = self.get_view_interval()
             if old_vmin != new_vmin or old_vmax != new_vmax:
                 self.axes.callbacks.process(
-                    f"{self.axis_name}lim_changed", self.axes
-                )
+                f"{self._get_axis_name()}lim_changed",
+                self.axes
+            )
         self.axes.stale = True
         if minor:
             self.set_minor_locator(locator)
