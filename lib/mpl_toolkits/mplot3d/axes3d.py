@@ -2200,7 +2200,7 @@ class Axes3D(Axes):
         that when *xycoords* is ``'data'``, *xy* may be a 3-tuple *(x, y, z)* in
         3D data coordinates.  In that case, the annotated point is projected
         during draws, so the annotation follows rotations and zooming of the 3D
-        view.
+        view.  A `~mpl_toolkits.mplot3d.art3d.Annotation3D` is returned.
 
         If *xy* is a 2-tuple *(x, y)*, the annotation behaves like the 2D
         version: the coordinates are interpreted in the (already projected)
@@ -2210,7 +2210,8 @@ class Axes3D(Axes):
         Similarly, when the text position is specified in data coordinates
         (``textcoords='data'`` or `None` with *xycoords* ``'data'``), *xytext*
         may be a 3-tuple *(x, y, z)*.  In that case, the text position is also
-        projected during draws.
+        projected during draws, and a
+        `~mpl_toolkits.mplot3d.art3d.Annotation3D` is returned.
 
         Parameters
         ----------
@@ -2241,9 +2242,13 @@ class Axes3D(Axes):
 
         Returns
         -------
-        `.Annotation`
-            The created annotation.  When *xy* is a 3-tuple, the annotation
-            follows the 3D view by reprojecting during draws.
+        `.Annotation` or `~mpl_toolkits.mplot3d.art3d.Annotation3D`
+            The created annotation.
+
+            If *xy* is a 3-tuple, or if *xytext* is a 3-tuple with the text
+            position specified in data coordinates, then an
+            `~mpl_toolkits.mplot3d.art3d.Annotation3D` is returned and the 3D
+            position(s) are reprojected during draws.
 
         Raises
         ------
