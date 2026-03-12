@@ -123,22 +123,23 @@ class Ops:
         return cls.Op(opcode, opname, args)
 
     @classmethod
-    def read_io(cls, f) -> typing.Generator[Op, None, None]:
+    def read_io(cls, f, table = None) -> typing.Generator[Op, None, None]:
+        table = table or cls.tbl_dvi
         while True:
-            op = cls.read_op(f, cls.tbl_dvi)
+            op = cls.read_op(f, table)
             if op:
                 yield op
             else:
                 break
 
     @classmethod
-    def read_file(cls, filename: str):
+    def read_file(cls, filename: str, **kwargs):
         with open(filename, "rb") as f:
-            yield from cls.read_io(f)
+            yield from cls.read_io(f, **kwargs)
 
     @classmethod
-    def read_bytes(cls, b: bytes):
-        yield from cls.read_io(io.BytesIO(b))
+    def read_bytes(cls, b: bytes, **kwargs):
+        yield from cls.read_io(io.BytesIO(b), **kwargs)
 
     # Internals
     _parsers = {
@@ -266,6 +267,66 @@ class Ops:
             return {'t': t, 'w': w, 'k': k, 'xy': xy, 'g': g}
 
         t.op(255, 255, 'malformed')
+
+    # Operations that are valid inside a VF packet. This is a subset of DVI.
+    tbl_vf_inner = DispatchTable()
+    with tbl_vf_inner as t:
+        t.op(0, 127, 'set_char', 'delta', 'c')
+        t.op(128, 128, 'set_char', 'u1', 'c')
+        t.op(129, 129, 'set_char', 'u2', 'c')
+        t.op(130, 130, 'set_char', 'u3', 'c')
+        t.op(131, 131, 'set_char', 's4', 'c')
+        t.op(132, 132, 'set_rule', 's4 s4', 'height width')
+
+        t.op(133, 133, 'put_char', 'u1', 'c')
+        t.op(134, 134, 'put_char', 'u2', 'c')
+        t.op(135, 135, 'put_char', 'u3', 'c')
+        t.op(136, 136, 'put_char', 's4', 'c')
+        t.op(137, 137, 'put_rule', 's4 s4', 'height width')
+
+        t.op(139, 139, 'malformed')
+        t.op(138, 138, 'nop')
+        t.op(140, 140, 'malformed')
+
+        t.op(141, 141, 'push')
+        t.op(142, 142, 'pop')
+
+        t.op(143, 146, 'right', 'slen1', 'amount')
+        t.op(147, 147, 'w0')
+        t.op(148, 151, 'w', 'slen1', 'new_w')
+        t.op(152, 152, 'x0')
+        t.op(153, 156, 'x', 'slen1', 'new_x')
+
+        t.op(157, 160, 'down', 'slen1', 'amount')
+        t.op(161, 161, 'y0')
+        t.op(162, 165, 'y', 'slen1', 'new_y')
+        t.op(166, 166, 'z0')
+        t.op(167, 170, 'z', 'slen1', 'new_z')
+
+        t.op(171, 234, 'fnt_num', 'delta', 'n')
+        t.op(235, 238, 'fnt_num', 'slen1', 'n')
+
+        t.op(239, 242, 'special', 'ulen1 @k', 'k text')
+
+        t.op(243, 255, 'malformed')
+
+    # Operations that are valid outside a VF packet.
+    tbl_vf_outer = DispatchTable()
+    with tbl_vf_outer as t:
+        t.op(0, 241, 'char_packet',
+            'delta u1 u3  @pl',
+            'pl    cc tfm dvi')
+        t.op(242, 242, 'char_packet',
+            'u4 u4 u4  @pl',
+            'pl cc tfm dvi')
+        t.op(243, 246, 'fnt_def',
+            'olen1 u4 s4 u4 u1 u1 @a   @l',
+            'k     c  s  d  a  l  area name')
+        t.op(247, 247, 'pre',
+            'u1 u1 @k   u4 u4',
+            'i  k  cmnt cs ds')
+        t.op(248, 248, 'post', 'fin', 'padding')
+        t.op(249, 255, 'malformed')
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
@@ -1378,7 +1439,7 @@ class DviFont:
         return self._encoding[idx]
 
 
-class Vf(_Dvi):
+class Vf:
     r"""
     A virtual font (\*.vf file) containing subroutines for dvi files.
 
@@ -1413,114 +1474,54 @@ class Vf(_Dvi):
     """
 
     def __init__(self, filename):
-        super().__init__(filename, 0)
-        try:
-            self._first_font = None
-            self._chars = {}
-            self._read()
-        finally:
-            self.close()
+        self._chars = {}
 
-    # Notes for tomorrow:
-    #
-    # This does push in the direction of some API changes.
-    # We essentially want to move in the direction of multiple
-    # dispatch tables at the op interpretation level. We at least
-    # want these:
-    #
-    #  1. Classic DVI
-    #  2. VF Outer
-    #  3. VF Inner (restricted set per docs)
-    #
-    # A valid alternative would be to achieve #3 as a difference in VM rather
-    # than in op parsing. I do think doing it at the parse level will be a bit
-    # easier, though.
+        self.inner_vm = VM(state = _dvistate.outer)
+        self.state = _dvistate.pre
+        for op in Ops.read_file(filename, table=Ops.tbl_vf_outer):
+            opcode, opname, args = op
+            getattr(self, f"op_{opname}")(opcode, **args)
+        del self.inner_vm
+        del self.state
 
     def __getitem__(self, code):
         return self._chars[code]
 
-    def _read(self):
-        packet_char = packet_ends = None
-        packet_len = packet_width = None
-        while True:
-            byte = self.file.read(1)[0]
-            # If we are in a packet, execute the dvi instructions
-            if self.state is _dvistate.inpage:
-                byte_at = self.file.tell()-1
-                if byte_at == packet_ends:
-                    self._finalize_packet(packet_char, packet_width)
-                    packet_len = packet_char = packet_width = None
-                    # fall through to out-of-packet code
-                elif byte_at > packet_ends:
-                    raise ValueError("Packet length mismatch in vf file")
-                else:
-                    if byte in (139, 140) or byte >= 243:
-                        raise ValueError(f"Inappropriate opcode {byte} in vf file")
-                    _Dvi._dtable[byte](self, byte)
-                    continue
-
-            # We are outside a packet
-            if byte < 242:          # a short packet (length given by byte)
-                packet_len = byte
-                packet_char = self._read_arg(1)
-                packet_width = self._read_arg(3)
-                packet_ends = self._init_packet(byte)
-                self.state = _dvistate.inpage
-            elif byte == 242:       # a long packet
-                packet_len = self._read_arg(4)
-                packet_char = self._read_arg(4)
-                packet_width = self._read_arg(4)
-                self._init_packet(packet_len)
-            elif 243 <= byte <= 246:
-                k = self._read_arg(byte - 242, byte == 246)
-                c = self._read_arg(4)
-                s = self._read_arg(4)
-                d = self._read_arg(4)
-                a = self._read_arg(1)
-                l = self._read_arg(1)
-                self._fnt_def_real(k, c, s, d, a, l)
-                if self._first_font is None:
-                    self._first_font = k
-            elif byte == 247:       # preamble
-                i = self._read_arg(1)
-                k = self._read_arg(1)
-                x = self.file.read(k)
-                cs = self._read_arg(4)
-                ds = self._read_arg(4)
-                self._pre(i, x, cs, ds)
-            elif byte == 248:       # postamble (just some number of 248s)
-                break
-            else:
-                raise ValueError(f"Unknown vf opcode {byte}")
-
-    def _init_packet(self, pl):
-        if self.state != _dvistate.outer:
-            raise ValueError("Misplaced packet in vf file")
-        self.h = self.v = self.w = self.x = self.y = self.z = 0
-        self.stack = []
-        self.text = []
-        self.boxes = []
-        self.f = self._first_font
-        self._missing_font = None
-        return self.file.tell() + pl
-
-    def _finalize_packet(self, packet_char, packet_width):
-        if not self._missing_font:  # Otherwise we don't have full glyph definition.
-            self._chars[packet_char] = Page(
-                text=self.text, boxes=self.boxes, width=packet_width,
-                height=None, descent=None)
-        self.state = _dvistate.outer
-
-    def _pre(self, i, x, cs, ds):
+    def op_pre(self, _, i, k, cmnt, cs, ds):
         if self.state is not _dvistate.pre:
             raise ValueError("pre command in middle of vf file")
         if i != 202:
             raise ValueError(f"Unknown vf format {i}")
-        if len(x):
-            _log.debug('vf file comment: %s', x)
+        if len(cmnt):
+            _log.debug('vf file comment: %s', cmnt)
         self.state = _dvistate.outer
         # cs = checksum, ds = design size
 
+    def op_fnt_def(self, code: int, **kwargs):
+        if self.state is not _dvistate.outer:
+            raise ValueError(f"fnt_def command cannot be used in state {self.state}")
+        self.inner_vm.op_fnt_def(code, **kwargs)
+
+    def op_char_packet(self, _, pl: int, cc: int, tfm: int, dvi: bytes):
+        if self.state is not _dvistate.outer:
+            raise ValueError(f"char_packet command cannot be used in state {self.state}")
+        vm = self.inner_vm
+
+        # Just feed these right on in to the inner VM, wrapping as a page
+        vm.op_bop(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        for op in Ops.read_bytes(dvi):
+            opcode, opname, args = op
+            getattr(vm, f"op_{opname}")(opcode, **args)
+        vm.op_eop(0)
+
+        # Create a Page object from that, and store it in self._chars.
+        if not False: #self._missing_font:  # Otherwise we don't have full glyph definition.
+            self._chars[cc] = Page(
+                text=vm.text, boxes=vm.boxes, width=tfm,
+                height=None, descent=None)
+
+    def op_post(self, _, **kwargs):
+        pass
 
 def _mul1220(num1, num2):
     """Multiply two numbers in 12.20 fixed point format."""

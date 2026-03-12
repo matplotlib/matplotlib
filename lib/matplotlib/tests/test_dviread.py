@@ -98,8 +98,9 @@ def test_ops():
     ]
 
 
-@pytest.mark.parametrize("table", [dr.Ops.tbl_dvi])
+@pytest.mark.parametrize("table", ['tbl_dvi', 'tbl_vf_inner', 'tbl_vf_outer'])
 def test_ops_completeness(table):
+    table = getattr(dr.Ops, table)
     assert len(table.entries) == 256
     for i, entry in enumerate(table.entries):
         opname = entry[0]
@@ -111,7 +112,6 @@ def test_vm_completeness():
     for entry in dr.Ops.tbl_dvi.entries:
         opname = entry[0]
         assert hasattr(dr.VM, f"op_{opname}"), f"VM cannot handle op {opname}"
-
 
 def test_PsfontsMap(monkeypatch):
     monkeypatch.setattr(dr, 'find_tex_file', lambda x: x.decode())
