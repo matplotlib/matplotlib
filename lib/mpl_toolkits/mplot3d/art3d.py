@@ -226,6 +226,43 @@ class Annotation3D(mtext.Annotation):
     `get_tightbbox`.
     """
 
+    def __init__(self, text, xy,
+                 xytext=None,
+                 xycoords='data',
+                 textcoords=None,
+                 arrowprops=None,
+                 annotation_clip=None,
+                 *, xyz=None, xyztext=None, axlim_clip=False,
+                 **kwargs):
+        """
+        Parameters
+        ----------
+        xyz : (float, float, float) or None, keyword-only
+            The anchor position in 3D data coordinates.  If None, the
+            annotation anchor remains a 2D point.
+        xyztext : (float, float, float) or None, keyword-only
+            The text position in 3D data coordinates (only meaningful when
+            ``textcoords='data'``).
+        axlim_clip : bool, default: False, keyword-only
+            Whether to hide annotations outside the 3D view limits.
+
+        Notes
+        -----
+        This class is typically constructed indirectly via
+        `.mpl_toolkits.mplot3d.axes3d.Axes3D.annotate`.
+        """
+        if xyz is None:
+            try:
+                if len(xy) == 3:
+                    xyz = xy
+                    xy = xy[:2]
+            except TypeError:
+                pass
+        super().__init__(
+            text, xy, xytext=xytext, xycoords=xycoords, textcoords=textcoords,
+            arrowprops=arrowprops, annotation_clip=annotation_clip, **kwargs)
+        self.set_3d_properties(xyz, xyztext=xyztext, axlim_clip=axlim_clip)
+
     def set_3d_properties(self, xyz, xyztext=None, axlim_clip=False):
         self._xyz = xyz
         self._xyztext = xyztext
