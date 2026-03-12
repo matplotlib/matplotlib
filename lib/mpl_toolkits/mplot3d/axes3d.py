@@ -2232,8 +2232,45 @@ class Axes3D(Axes):
             - If a 3-tuple, only supported when the text position is in data
               coordinates (``textcoords='data'`` or `None` with *xycoords*
               ``'data'``), and interpreted as 3D data coordinates.
-        xycoords, textcoords, arrowprops, annotation_clip
-            See `.Axes.annotate` for a detailed description.
+        xycoords : single or two-tuple of str or `.Artist` or `.Transform` or \
+callable, default: 'data'
+            The coordinate system that *xy* is given in.
+
+            See `.Annotation` for a full description of supported values.
+
+            Notes for 3D
+                3-tuple *xy* is only supported when ``xycoords='data'``.
+        textcoords : single or two-tuple of str or `.Artist` or `.Transform` \
+or callable, default: value of *xycoords*
+            The coordinate system that *xytext* is given in.
+
+            See `.Annotation` for a full description of supported values.  In
+            addition to all *xycoords* values, the following strings are
+            accepted:
+
+            - ``'offset points'``: Offset, in points, from the *xy* value.
+            - ``'offset pixels'``: Offset, in pixels, from the *xy* value.
+            - ``'offset fontsize'``: Offset, relative to fontsize, from the
+              *xy* value.
+
+            Notes for 3D
+                3-tuple *xytext* is only supported when the text position is
+                specified in data coordinates (``textcoords='data'`` or `None`
+                with ``xycoords='data'``).
+        arrowprops : dict, optional
+            The properties used to draw a `.FancyArrowPatch` arrow between the
+            positions *xy* and *xytext*.  If *None*, no arrow is drawn.
+
+            See `.Annotation` for supported keys.
+        annotation_clip : bool or None, default: None
+            Whether to clip (i.e. not draw) the annotation when the annotated
+            point *xy* is outside the Axes area.
+
+            - If *True*, the annotation will be clipped when *xy* is outside
+              the Axes.
+            - If *False*, the annotation will always be drawn.
+            - If *None*, the annotation will be clipped when *xy* is outside
+              the Axes and *xycoords* is ``'data'``.
         axlim_clip : bool, default: False
             Whether to hide the annotation when its 3D anchor is outside the
             axes view limits.
