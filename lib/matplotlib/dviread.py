@@ -1543,6 +1543,6 @@ if __name__ == '__main__':
                                   text.color or "(default)")
             if page.boxes:
                 print("--- BOXES ---")
-                _print_fields("x", "y", "h", "w")
+                _print_fields("x", "y", "h", "w", "color")
                 for box in page.boxes:
-                    _print_fields(box.x, box.y, box.height, box.width)
+                    _print_fields(box.x, box.y, box.height, box.width, box.color)
