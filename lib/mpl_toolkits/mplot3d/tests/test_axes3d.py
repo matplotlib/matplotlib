@@ -209,6 +209,7 @@ def test_annotate_3d_offset_pixels_and_fontsize():
     assert_delta(ann_px)
     assert_delta(ann_fs)
 
+
 @check_figures_equal()
 def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
     import matplotlib.axes as maxes
