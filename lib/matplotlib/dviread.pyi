@@ -5,8 +5,7 @@ import os
 from enum import Enum
 from collections.abc import Generator
 
-from typing import NamedTuple
-from typing import Self
+from typing import NamedTuple, Self, Literal
 
 class _dvistate(Enum):
     pre = ...
@@ -29,7 +28,7 @@ class Ops:
         def op(self, bmin: int, bmax: int, opname: str,
             arg_types: str ='', arg_names: str ='', extra=None): ...
         def __enter__(self) -> Self: ...
-        def __exit__(self, *exc) -> False: ...
+        def __exit__(self, *exc) -> Literal[False]: ...
 
 
     @classmethod
