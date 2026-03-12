@@ -64,7 +64,7 @@ _log = logging.getLogger(__name__)
 _dvistate = enum.Enum('DviState', 'pre outer inpage post post_post finale')
 
 
-def read_num(f, nbytes: int, signed: bool, strict=True):
+def _read_num(f, nbytes: int, signed: bool, strict=True):
     """
     Read N bytes from a file as an big-endian number.
     """
@@ -124,6 +124,7 @@ class Ops:
 
     @classmethod
     def read_io(cls, f, table=None) -> typing.Generator[Op, None, None]:
+        "Read ops from a file-like object."
         table = table or cls.tbl_dvi
         while True:
             op = cls.read_op(f, table)
@@ -133,31 +134,33 @@ class Ops:
                 break
 
     @classmethod
-    def read_file(cls, filename: str, **kwargs):
+    def read_file(cls, filename: str, **kwargs) -> typing.Generator[Op, None, None]:
+        "Open a file and read ops from it."
         with open(filename, "rb") as f:
             yield from cls.read_io(f, **kwargs)
 
     @classmethod
-    def read_bytes(cls, b: bytes, **kwargs):
+    def read_bytes(cls, b: bytes, **kwargs) -> typing.Generator[Op, None, None]:
+        "Read ops from an in-memory byte sequence."
         yield from cls.read_io(io.BytesIO(b), **kwargs)
 
     # Internals
     _parsers = {
         # r = read_bytes(nbytes, signed)
         'delta': lambda f, delta: delta,
-        'u1': lambda f, delta: read_num(f, 1, False),
-        'u2': lambda f, delta: read_num(f, 2, False),
-        'u3': lambda f, delta: read_num(f, 3, False),
-        'u4': lambda f, delta: read_num(f, 4, False),
-        's1': lambda f, delta: read_num(f, 1, True),
-        's2': lambda f, delta: read_num(f, 2, True),
-        's3': lambda f, delta: read_num(f, 3, True),
-        's4': lambda f, delta: read_num(f, 4, True),
-        'slen': lambda f, delta: read_num(f, delta, True) if delta else None,
-        'slen1': lambda f, delta: read_num(f, delta + 1, True),
-        'ulen1': lambda f, delta: read_num(f, delta + 1, False),
-        'olen1': lambda f, delta: read_num(f, delta + 1, delta == 3),
-        'fin': lambda f, delta: read_num(f, 7, False, strict=False),
+        'u1': lambda f, delta: _read_num(f, 1, False),
+        'u2': lambda f, delta: _read_num(f, 2, False),
+        'u3': lambda f, delta: _read_num(f, 3, False),
+        'u4': lambda f, delta: _read_num(f, 4, False),
+        's1': lambda f, delta: _read_num(f, 1, True),
+        's2': lambda f, delta: _read_num(f, 2, True),
+        's3': lambda f, delta: _read_num(f, 3, True),
+        's4': lambda f, delta: _read_num(f, 4, True),
+        'slen': lambda f, delta: _read_num(f, delta, True) if delta else None,
+        'slen1': lambda f, delta: _read_num(f, delta + 1, True),
+        'ulen1': lambda f, delta: _read_num(f, delta + 1, False),
+        'olen1': lambda f, delta: _read_num(f, delta + 1, delta == 3),
+        'fin': lambda f, delta: _read_num(f, 7, False, strict=False),
     }
     @classmethod
     def _parse_args(cls, f, opcode, entry) -> dict:
@@ -177,6 +180,7 @@ class Ops:
 
         return result
 
+    # Available dispatch tables
     tbl_dvi = DispatchTable()
     with tbl_dvi as t:
         t.op(0, 127, 'set_char', 'delta', 'c')
@@ -237,7 +241,7 @@ class Ops:
             'u4 u4 u2    u1 @l u4',
             'k  s  flags l  n  i')
         def _extra(f, flags: int, **_) -> dict:
-            read_arg = partial(read_num, f)
+            read_arg = partial(_read_num, f)
             effects = {}
             if flags & 0x0200:
                 effects["rgba"] = [read_arg(1, False) for _ in range(4)]
@@ -251,14 +255,14 @@ class Ops:
 
         @t.op(253, 253, 'set_glyphs', 'u4 u2', 'w k')
         def _extra(f, w, k) -> dict:
-            read_arg = partial(read_num, f)
+            read_arg = partial(_read_num, f)
             xy = [read_arg(4, True) for _ in range(2 * k)]
             g = [read_arg(2, False) for _ in range(k)]
             return {'xy': xy, 'g': g}
 
         @t.op(254, 254, 'set_text_and_glyphs', 'u2', 'l')
         def _extra(f, l: int) -> dict:
-            read_arg = partial(read_num, f)
+            read_arg = partial(_read_num, f)
             t = f.read(2 * l)  # utf16
             w = read_arg(4, False)
             k = read_arg(2, False)
@@ -344,16 +348,16 @@ class Box:
     # Format varies by backend, so we just provide it verbatim. Default is None.
     color: str | None = None
 
-    def as_legacy_tuple(self):
+    def _as_legacy_tuple(self):
         # In the future, we should add a deprecation warning to this central location.
         # This will help us catch and clean up uses of the old API.
         return (self.x, self.y, self.height, self.width)
 
     def __iter__(self):
-        return iter(self.as_legacy_tuple())
+        return iter(self._as_legacy_tuple())
 
     def __getitem__(self, i):
-        return self.as_legacy_tuple()[i]
+        return self._as_legacy_tuple()[i]
 
     def replace(self, /, **kwargs):
         return dataclasses.replace(self, **kwargs)
@@ -396,16 +400,16 @@ class Text:
     font_size = property(lambda self: self.font.size)
     font_effects = property(lambda self: self.font.effects)
 
-    def as_legacy_tuple(self):
+    def _as_legacy_tuple(self):
         # In the future, we should add a deprecation warning to this central location.
         # This will help us catch and clean up uses of the old API.
         return (self.x, self.y, self.font, self.glyph, self.width)
 
     def __iter__(self):
-        return iter(self.as_legacy_tuple())
+        return iter(self._as_legacy_tuple())
 
     def __getitem__(self, i):
-        return self.as_legacy_tuple()[i]
+        return self._as_legacy_tuple()[i]
 
     def replace(self, /, **kwargs):
         return dataclasses.replace(self, **kwargs)
@@ -485,7 +489,7 @@ class VM:
         """The current color according to color push/pop specials."""
         return self.colors[-1] if self.colors else None
 
-    def put_char(self, char):
+    def _put_char(self, char):
         font = self.fonts[self.f]
         color = self.color
         if isinstance(font, cbook._ExceptionInfo):
@@ -506,13 +510,13 @@ class VM:
                                    _mul1220(a, scale), _mul1220(b, scale), color)
                                for x, y, a, b in font._vf[char].boxes])
 
-    def assert_state(self, opname, state):
+    def _assert_state(self, opname, state):
         if self.state != state:
             raise ValueError(f"""state precondition failed:
                 op {opname} must be used in state {state},
                 but was used in state {self.state}""")
 
-    def reconsider_baseline_v(self):
+    def _reconsider_baseline_v(self):
         """Should be called in ops that modify self.stack or self.down_stack."""
         # Pages appear to start with the sequence
         #   bop (begin of page)
@@ -538,7 +542,7 @@ class VM:
             self.baseline_v = self.v
 
     def op_pre(self, _, i, num, den, mag, k, cmnt):
-        self.assert_state("pre", _dvistate.pre)
+        self._assert_state("pre", _dvistate.pre)
         if i not in [2, 7]:  # 2: pdftex, luatex; 7: xetex
             raise ValueError(f"Unknown dvi format {i}")
         if num != 25400000 or den != 7227 * 2**16:
@@ -555,7 +559,7 @@ class VM:
         self.state = _dvistate.outer
 
     def op_bop(self, _, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
-        self.assert_state("bop", _dvistate.outer)
+        self._assert_state("bop", _dvistate.outer)
         self.state = _dvistate.inpage
         self.h = self.v = self.w = self.x = self.y = self.z = 0
         self.stack = []
@@ -565,17 +569,17 @@ class VM:
         self.down_stack = [0]
 
     def op_eop(self, _):
-        self.assert_state("eop", _dvistate.inpage)
+        self._assert_state("eop", _dvistate.inpage)
         self.state = _dvistate.outer
         self.h = self.v = self.w = self.x = self.y = self.z = 0
         self.stack = []
 
     def op_post(self, _, **kwargs):
-        self.assert_state("post", _dvistate.outer)
+        self._assert_state("post", _dvistate.outer)
         self.state = _dvistate.post
 
     def op_post_post(self, _, **kwargs):
-        self.assert_state("post_post", _dvistate.post)
+        self._assert_state("post_post", _dvistate.post)
         self.state = _dvistate.post_post
 
     def op_nop(self, _):
@@ -584,17 +588,17 @@ class VM:
     def op_push(self, _):
         self.down_stack.append(self.down_stack[-1])
         self.stack.append((self.h, self.v, self.w, self.x, self.y, self.z))
-        self.reconsider_baseline_v()
+        self._reconsider_baseline_v()
 
     def op_pop(self, _):
         self.down_stack.pop()
         self.h, self.v, self.w, self.x, self.y, self.z = self.stack.pop()
-        self.reconsider_baseline_v()
+        self._reconsider_baseline_v()
 
     def op_down(self, _, amount: int):
         self.down_stack[-1] += 1
         self.v += amount
-        self.reconsider_baseline_v()
+        self._reconsider_baseline_v()
 
     def op_right(self, _, amount: int):
         self.h += amount
@@ -663,10 +667,10 @@ class VM:
         self.f = n
 
     def op_put_char(self, _, c):
-        self.put_char(c)
+        self._put_char(c)
 
     def op_set_char(self, _, c):
-        self.put_char(c)
+        self._put_char(c)
         if isinstance(self.fonts[self.f], cbook._ExceptionInfo):
             return
         self.h += self.fonts[self.f]._width_of(c)
