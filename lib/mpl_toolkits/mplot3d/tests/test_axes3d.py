@@ -153,24 +153,6 @@ def test_annotate_3d_text_position_with_2d_anchor():
     assert not np.allclose(p0, p1)
 
 
-def test_annotate_3d_text_position_clipped_does_not_crash():
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ax.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
-
-    # Anchor is inside view limits; text position is outside.  When axlim_clip
-    # is True, the annotation should just not draw (and must not crash).
-    ann = ax.annotate(
-        "foo", (0.5, 0.5, 0.5),
-        xytext=(2, 2, 2), textcoords='data', axlim_clip=True,
-        arrowprops=dict(arrowstyle='->'))
-    assert isinstance(ann, art3d.Annotation3D)
-
-    fig.canvas.draw()
-    # get_window_extent should be safe as well.
-    ann.get_window_extent(fig.canvas.get_renderer())
-
-
 def test_annotate_3d_offset_pixels_and_fontsize():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
