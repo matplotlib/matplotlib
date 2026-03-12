@@ -2296,11 +2296,11 @@ or callable, default: value of *xycoords*
         """
         xyz = None
         try:
-            if len(xy) == 3 and xycoords == 'data':
+            if len(xy) == 3:
+                if xycoords != 'data':
+                    _api.check_in_list(['data'], xycoords=xycoords)
                 xyz = xy
                 xy = xy[:2]
-            elif len(xy) == 3:
-                raise ValueError("3D annotated positions require xycoords='data'")
         except TypeError:
             pass
 
@@ -2314,8 +2314,7 @@ or callable, default: value of *xycoords*
                         xycoords if textcoords is None else textcoords
                     )
                     if effective_textcoords != 'data':
-                        raise ValueError(
-                            "3D annotation text positions require textcoords='data'")
+                        _api.check_in_list(['data'], textcoords=effective_textcoords)
                     xyztext = xytext
                     xytext = xytext[:2]
             except TypeError:
