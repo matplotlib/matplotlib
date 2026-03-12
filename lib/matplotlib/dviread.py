@@ -98,6 +98,7 @@ class Ops:
         probably be a niche requirement in practice.
         """
         entries: list = dataclasses.field(
+            repr=False,
             default_factory=lambda: [('unknown', 0, ['delta'], ['delta'], None)] * 256)
 
         def op(self,
@@ -167,6 +168,7 @@ class Ops:
             ...        'u4      @length',
             ...        'length  payload')
             """
+
             arg_types = (' ' + arg_types).split()
             arg_names = (' ' + arg_names).split()
             entry = (opname, bmin, arg_types, arg_names, extra)
@@ -414,6 +416,10 @@ Page = namedtuple('Page', 'text boxes height width descent')
 # for backwards compatibility, but is a dataclass.
 @dataclasses.dataclass(slots=True, frozen=True)
 class Box:
+    """
+    A rectangle defined within the dvi file.
+    """
+
     x: int
     y: int
     height: int
@@ -453,6 +459,7 @@ class Text:
     interpretation depends on the font).  ``text.width`` is the glyph width in
     dvi units.
     """
+
     x: int
     y: int
     font: 'DviFont'
@@ -1109,8 +1116,6 @@ class Vf:
     -----
     The virtual font format is a derivative of dvi:
     http://mirrors.ctan.org/info/knuth/virtual-fonts
-    This class reuses some of the machinery of `Dvi`
-    but replaces the `!_read` loop and dispatch mechanism.
 
     The format is:
      - `pre` op (247)
