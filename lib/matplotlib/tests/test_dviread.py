@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import shutil
 
-from matplotlib import cbook, dviread as dr
+from matplotlib import cbook, texmanager, pyplot as plt, dviread as dr
 from matplotlib.testing import subprocess_run_for_testing, _has_tex_package
 import pytest
 
@@ -116,7 +116,18 @@ def test_vm_completeness():
 
 @pytest.mark.parametrize('dpi', [None, 72])
 def test_dvi_color(dpi):
-    filename = str(Path(__file__).parent / 'baseline_images/dviread/color.dvi')
+    # Apparently, per TexManager tests, we can just play around with rcParams
+    # willy-nilly in order to get color support in our preamble.
+    plt.rcParams.update({
+        'text.usetex': True,
+        'text.latex.preamble':  r'\usepackage{color}\usepackage{dashrule}',
+    })
+    filename = texmanager.TexManager().make_dvi(r"""
+        Default,
+        $\;$ \textcolor[rgb]{1.0, 0.0, 0.0}{red\hdashrule[0.5ex]{3cm}{1pt}{1pt 0pt}},
+        and back again.
+    """, 12)
+
     with dr.Dvi(filename, dpi) as dvi:
         parsed = [*dvi]
     assert len(parsed) == 1
@@ -150,8 +161,11 @@ def test_dvi_color(dpi):
         ('n', None),
         ('.', None),
     ]
+
     # Red line is many little boxes
-    assert [b.color for b in page.boxes] == ["rgb 1.0  0.0  0.0"] * 85
+    assert len(page.boxes) > 10
+    for b in page.boxes:
+        assert b.color == "rgb 1.0  0.0  0.0"
 
 
 def test_PsfontsMap(monkeypatch):
