@@ -18,6 +18,6 @@ python-dateutil==2.7
 # This should be tested for a reasonably long transition period,
 # but we will eventually remove the test when we no longer support
 # ipython/matplotlib-inline versions from before the transition.
-ipython==7.29.0
+ipython==8.10.0
 ipykernel==5.5.6
 matplotlib-inline<0.1.7

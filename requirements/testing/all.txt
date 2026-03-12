@@ -1,6 +1,6 @@
 # pip requirements for all the CI builds
 
-black<26
+black<27
 certifi
 coverage!=6.3
 psutil
