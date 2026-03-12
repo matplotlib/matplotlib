@@ -140,7 +140,7 @@ scale : float, optional
 scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
     The physical image unit, which is used for rendering the scaled arrow data U, V.
 
-    The rendered arrow length is given by
+    The rendered arrow length is given by:
 
     - length in x direction = :math:`\frac{u}{\mathrm{scale}}\,\mathrm{scale\_unit}`
     - length in y direction = :math:`\frac{v}{\mathrm{scale}}\,\mathrm{scale\_unit}`
