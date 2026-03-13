@@ -263,6 +263,24 @@ class MarkerStyle:
         self._filled = self._fillstyle != 'none'
         self._marker_function()
 
+    @classmethod
+    def _with_attrs(cls, other, **kwargs):
+
+        if not isinstance(other, cls):
+            other = cls(other)
+
+        marker = kwargs.get("marker", other.get_marker())
+        fillstyle = kwargs.get("fillstyle", other.get_fillstyle())
+
+        new = cls(marker=marker, fillstyle=fillstyle)
+
+        new._user_transform = other._user_transform
+        new._joinstyle = other._joinstyle
+        new._capstyle = other._capstyle
+        new._snap_threshold = other._snap_threshold
+
+        return new
+
     def __bool__(self):
         return bool(len(self._path.vertices))
 

@@ -14,6 +14,18 @@ def test_marker_fillstyle():
     assert not marker_style.is_filled()
 
 
+def test_marker_fillstyle_rotation():
+
+    fig, ax = plt.subplots()
+
+    for x, angle in zip([0, 1, 2], [0, 45, 90]):
+        line, = ax.plot(x, 0, marker="*", markersize=20)
+        line.set_fillstyle("left")
+        line.set_marker((5, 1, angle))
+
+    fig.canvas.draw()
+
+
 @pytest.mark.parametrize('marker', [
     'o',
     'x',

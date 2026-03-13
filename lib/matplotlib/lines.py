@@ -530,6 +530,8 @@ class Line2D(Artist):
         """
         return self._marker.get_fillstyle()
 
+    from matplotlib.markers import MarkerStyle
+
     def set_fillstyle(self, fs):
         """
         Set the marker fill style.
@@ -547,7 +549,14 @@ class Line2D(Artist):
 
             For examples see :ref:`marker_fill_styles`.
         """
-        self.set_marker(MarkerStyle(self._marker.get_marker(), fs))
+        marker = self._marker
+
+        if not isinstance(marker, MarkerStyle):
+            marker = MarkerStyle(marker)
+
+        new_marker = MarkerStyle._with_attrs(marker, fillstyle=fs)
+
+        self.set_marker(new_marker)
         self.stale = True
 
     def set_markevery(self, every):
