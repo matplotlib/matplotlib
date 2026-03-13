@@ -231,7 +231,7 @@ def test_antialiasing():
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['text_contains.png'], style='mpl20', tol=0.05)
 def test_contains():
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 6))
     ax = plt.axes()
 
     mevent = MouseEvent('button_press_event', fig.canvas, 0.5, 0.5, 1, None)
@@ -505,26 +505,26 @@ def test_annotation_negative_fig_coords():
     fig, ax = plt.subplots()
 
     ax.annotate('+ pts',
-                xytext=[10, 120], textcoords='figure points',
-                xy=[10, 120], xycoords='figure points', fontsize=32)
+                xytext=[10, 250], textcoords='figure points',
+                xy=[10, 250], xycoords='figure points', fontsize=32)
     ax.annotate('- pts',
-                xytext=[-10, 180], textcoords='figure points',
-                xy=[-10, 180], xycoords='figure points', fontsize=32,
+                xytext=[-10, 310], textcoords='figure points',
+                xy=[-10, 310], xycoords='figure points', fontsize=32,
                 va='top')
     ax.annotate('+ frac',
-                xytext=[0.05, 0.55], textcoords='figure fraction',
-                xy=[0.05, 0.55], xycoords='figure fraction', fontsize=32)
+                xytext=[0.05, 0.5], textcoords='figure fraction',
+                xy=[0.05, 0.5], xycoords='figure fraction', fontsize=32)
     ax.annotate('- frac',
-                xytext=[-0.05, 0.5], textcoords='figure fraction',
-                xy=[-0.05, 0.5], xycoords='figure fraction', fontsize=32,
+                xytext=[-0.05, 0.45], textcoords='figure fraction',
+                xy=[-0.05, 0.45], xycoords='figure fraction', fontsize=32,
                 va='top')
 
     ax.annotate('+ pixels',
                 xytext=[50, 50], textcoords='figure pixels',
                 xy=[50, 50], xycoords='figure pixels', fontsize=32)
     ax.annotate('- pixels',
-                xytext=[-50, 100], textcoords='figure pixels',
-                xy=[-50, 100], xycoords='figure pixels', fontsize=32,
+                xytext=[-50, 150], textcoords='figure pixels',
+                xy=[-50, 150], xycoords='figure pixels', fontsize=32,
                 va='top')
 
 
@@ -1144,7 +1144,7 @@ def test_empty_annotation_get_window_extent():
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['basictext_wrap.png'], style='mpl20', tol=0.3)
 def test_basic_wrap():
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 6))
     plt.axis([0, 10, 0, 10])
     t = "This is a really long string that I'd rather have wrapped so that" \
         " it doesn't go outside of the figure, but if it's long enough it" \
@@ -1161,7 +1161,7 @@ def test_basic_wrap():
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['fonttext_wrap.png'], style='mpl20', tol=0.3)
 def test_font_wrap():
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 6))
     plt.axis([0, 10, 0, 10])
     t = "This is a really long string that I'd rather have wrapped so that" \
         " it doesn't go outside of the figure, but if it's long enough it" \

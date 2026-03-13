@@ -342,6 +342,7 @@ def test_twin_axis_locators_formatters():
 
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
+    ax1.margins(0)
     ax1.plot([0.1, 100], [0, 1])
     ax1.yaxis.set_major_locator(majl)
     ax1.yaxis.set_minor_locator(minl)
@@ -1845,9 +1846,9 @@ def test_markevery():
     # check marker only plot
     fig, ax = plt.subplots()
     ax.plot(x, y, 'o', label='default')
-    ax.plot(x, y, 'd', markevery=None, label='mark all')
-    ax.plot(x, y, 's', markevery=10, label='mark every 10')
-    ax.plot(x, y, '+', markevery=(5, 20), label='mark every 5 starting at 10')
+    ax.plot(x, y+1, 'd', markevery=None, label='mark all')
+    ax.plot(x, y+2, 's', markevery=10, label='mark every 10')
+    ax.plot(x, y+3, '+', markevery=(5, 20), label='mark every 20 starting at 5')
     ax.legend()
 
 
@@ -1863,9 +1864,9 @@ def test_markevery_line():
     # check line/marker combos
     fig, ax = plt.subplots()
     ax.plot(x, y, '-o', label='default')
-    ax.plot(x, y, '-d', markevery=None, label='mark all')
-    ax.plot(x, y, '-s', markevery=10, label='mark every 10')
-    ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
+    ax.plot(x, y+1, '-d', markevery=None, label='mark all')
+    ax.plot(x, y+2, '-s', markevery=10, label='mark every 10')
+    ax.plot(x, y+3, '-+', markevery=(5, 20), label='mark every 20 starting at 5')
     ax.legend()
 
 
@@ -4630,7 +4631,7 @@ def test_errorbar_limits():
                 color='red')
 
     # including upper and lower limits
-    ax.errorbar(x, y+1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
+    ax.errorbar(x, y+1.5, marker='o', ms=6, xerr=xerr, yerr=yerr,
                 lolims=lolims, uplims=uplims, ls=ls, color='magenta')
 
     # including xlower and xupper limits
@@ -4643,7 +4644,7 @@ def test_errorbar_limits():
     uplims = np.zeros_like(x)
     lolims[[6]] = True
     uplims[[3]] = True
-    ax.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
+    ax.errorbar(x, y+2.1, marker='o', ms=6, xerr=xerr, yerr=yerr,
                 xlolims=xlolims, xuplims=xuplims, uplims=uplims,
                 lolims=lolims, ls='none', mec='blue', capsize=0,
                 color='cyan')

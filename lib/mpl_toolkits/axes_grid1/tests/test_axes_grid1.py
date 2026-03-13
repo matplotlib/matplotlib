@@ -68,6 +68,7 @@ def test_twin_axes_empty_and_removed():
     generators = ["twinx", "twiny", "twin"]
     modifiers = ["", "host invisible", "twin removed", "twin invisible",
                  "twin removed\nhost invisible"]
+    plt.figure(figsize=(8, 6))
     # Unmodified host subplot at the beginning for reference
     h = host_subplot(len(modifiers)+1, len(generators), 2)
     h.text(0.5, 0.5, "host_subplot",
