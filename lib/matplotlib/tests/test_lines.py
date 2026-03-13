@@ -184,6 +184,26 @@ def test_markerfacecolor_fillstyle():
     assert l.get_markerfacecolor() == 'none'
 
 
+def test_set_fillstyle_preserves_marker_transform():
+    """Test that set_fillstyle does not drop the user-supplied marker transform."""
+    transform = mtransforms.Affine2D().rotate_deg(45)
+    marker = MarkerStyle('*', transform=transform)
+    line, = plt.plot([0], [0], marker=marker, markersize=20)
+
+    # Before changing fillstyle, the transform should exist
+    assert line._marker.get_user_transform() is not None
+
+    line.set_fillstyle('left')
+
+    # After changing fillstyle, the transform should still be preserved
+    assert line.get_fillstyle() == 'left'
+    user_t = line._marker.get_user_transform()
+    assert user_t is not None
+    expected = mtransforms.Affine2D().rotate_deg(45)
+    np.testing.assert_array_almost_equal(
+        user_t.get_matrix(), expected.get_matrix())
+
+
 @image_comparison(['scaled_lines'], style='default')
 def test_lw_scaling():
     th = np.linspace(0, 32)
