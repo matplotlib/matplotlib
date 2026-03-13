@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.testing import subprocess_run_for_testing
 from matplotlib.testing._markers import needs_usetex
 from matplotlib.texmanager import TexManager
+from matplotlib.testing._markers import starts_subprocess
 
 
 def test_fontconfig_preamble():
@@ -63,6 +64,7 @@ def test_unicode_characters():
         fig.canvas.draw()
 
 
+@starts_subprocess
 @needs_usetex
 def test_openin_any_paranoid():
     completed = subprocess_run_for_testing(

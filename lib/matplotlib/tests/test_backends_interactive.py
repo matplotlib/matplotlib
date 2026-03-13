@@ -20,6 +20,10 @@ import matplotlib as mpl
 from matplotlib import _c_internal_utils
 from matplotlib.backend_tools import ToolToggleBase
 from matplotlib.testing import subprocess_run_helper as _run_helper, is_ci_environment
+from matplotlib.testing._markers import starts_subprocess
+
+
+pytestmark = starts_subprocess
 
 
 class _WaitForStringPopen(subprocess.Popen):

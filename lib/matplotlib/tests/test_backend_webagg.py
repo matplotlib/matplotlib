@@ -3,9 +3,11 @@ import sys
 import pytest
 
 import matplotlib.backends.backend_webagg_core
+from matplotlib.testing._markers import starts_subprocess
 from matplotlib.testing import subprocess_run_for_testing
 
 
+@starts_subprocess
 @pytest.mark.parametrize("backend", ["webagg", "nbagg"])
 def test_webagg_fallback(backend):
     pytest.importorskip("tornado")
