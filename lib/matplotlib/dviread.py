@@ -23,10 +23,9 @@ import logging
 import os
 import re
 import struct
-import subprocess
 import sys
 from collections import namedtuple
-from functools import cache, cached_property, lru_cache, partial, wraps
+from functools import cached_property, lru_cache, partial, wraps
 from pathlib import Path
 
 import fontTools.agl
@@ -1244,31 +1243,6 @@ def _parse_enc(path):
         raise ValueError(f"Failed to parse {path} as Postscript encoding")
 
 
-class _LuatexKpsewhich:
-    @cache  # A singleton.
-    def __new__(cls):
-        self = object.__new__(cls)
-        self._proc = self._new_proc()
-        return self
-
-    def _new_proc(self):
-        return subprocess.Popen(
-            ["luatex", "--luaonly", str(cbook._get_data_path("kpsewhich.lua"))],
-            # mktexpk logs to stderr; suppress that.
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-            # Store generated pk fonts in our own cache.
-            env={"MT_VARTEXFONTS": str(Path(mpl.get_cachedir(), "vartexfonts")),
-                 **os.environ})
-
-    def search(self, filename):
-        if self._proc.poll() is not None:  # Dead, restart it.
-            self._proc = self._new_proc()
-        self._proc.stdin.write(os.fsencode(filename) + b"\n")
-        self._proc.stdin.flush()
-        out = self._proc.stdout.readline().rstrip()
-        return None if out == b"nil" else os.fsdecode(out)
-
-
 @lru_cache
 def find_tex_file(filename):
     """
@@ -1295,10 +1269,7 @@ def find_tex_file(filename):
     if isinstance(filename, bytes):
         filename = filename.decode('utf-8', errors='replace')
 
-    try:
-        lk = _LuatexKpsewhich()
-    except FileNotFoundError:
-        lk = None  # Fallback to directly calling kpsewhich, as below.
+    lk = None  # Fallback to directly calling kpsewhich, as below.
 
     if lk:
         path = lk.search(filename)

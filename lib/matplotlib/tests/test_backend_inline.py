@@ -5,11 +5,13 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from matplotlib.testing import subprocess_run_for_testing
+from matplotlib.testing._markers import starts_subprocess
 
 nbformat = pytest.importorskip('nbformat')
 pytest.importorskip('nbconvert')
 pytest.importorskip('ipykernel')
 pytest.importorskip('matplotlib_inline')
+pytestmark = starts_subprocess
 
 
 def test_ipynb():
