@@ -828,7 +828,7 @@ def _mask_tester(norm_instance, vals):
     assert_array_equal(masked_array.mask, norm_instance(masked_array).mask)
 
 
-@image_comparison(['levels_and_colors.png'])
+@image_comparison(['levels_and_colors.png'], style='mpl20')
 def test_cmap_and_norm_from_levels_and_colors():
     data = np.linspace(-2, 4, 49).reshape(7, 7)
     levels = [-1, 2, 2.5, 3]

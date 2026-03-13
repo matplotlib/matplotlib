@@ -493,7 +493,7 @@ def test_para_equal_perp():
     ax.plot(x + 1, y + 1, 'ro')
 
 
-@image_comparison(['clipping_with_nans'])
+@image_comparison(['clipping_with_nans'], style='mpl20')
 def test_clipping_with_nans():
     x = np.linspace(0, 3.14 * 2, 3000)
     y = np.sin(x)

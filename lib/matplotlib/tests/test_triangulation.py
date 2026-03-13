@@ -232,7 +232,7 @@ def test_delaunay_robust():
     triang = mtri.Triangulation(tri_points[1:, 0], tri_points[1:, 1])
 
 
-@image_comparison(['tripcolor1.png'])
+@image_comparison(['tripcolor1.png'], style='mpl20')
 def test_tripcolor():
     x = np.asarray([0, 0.5, 1, 0,   0.5, 1,   0, 0.5, 1, 0.75])
     y = np.asarray([0, 0,   0, 0.5, 0.5, 0.5, 1, 1,   1, 0.75])

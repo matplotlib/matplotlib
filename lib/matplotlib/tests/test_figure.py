@@ -27,7 +27,7 @@ import matplotlib.dates as mdates
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
+@image_comparison(['figure_align_labels'], extensions=['png', 'svg'], style='mpl20',
                   tol=0.1 if platform.machine() == 'x86_64' else 0.1)
 def test_align_labels():
     fig = plt.figure(layout='tight')
@@ -210,8 +210,8 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(['figure_today.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.015)
+@image_comparison(['figure_today.png'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.022)
 def test_figure():
     # named figure support
     fig = plt.figure('today')
@@ -226,7 +226,7 @@ def test_figure():
     plt.close('tomorrow')
 
 
-@image_comparison(['figure_legend.png'])
+@image_comparison(['figure_legend.png'], style='mpl20')
 def test_figure_legend():
     fig, axs = plt.subplots(2)
     axs[0].plot([0, 1], [1, 0], label='x', color='g')
@@ -324,7 +324,7 @@ def test_add_subplot_invalid():
 
 
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
-@image_comparison(['figure_suptitle.png'], tol=0.02)
+@image_comparison(['figure_suptitle.png'], style='mpl20', tol=0.02)
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')

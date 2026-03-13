@@ -68,7 +68,7 @@ def test_text_urls():
     assert expected in buf
 
 
-@image_comparison(['bold_font_output.svg'])
+@image_comparison(['bold_font_output.svg'], style='mpl20')
 def test_bold_font_output():
     fig, ax = plt.subplots()
     ax.plot(np.arange(10), np.arange(10))
@@ -527,7 +527,7 @@ def test_svg_metadata():
     assert values == metadata['Keywords']
 
 
-@image_comparison(["multi_font_aspath.svg"])
+@image_comparison(["multi_font_aspath.svg"], style='mpl20')
 def test_multi_font_aspath():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
@@ -538,7 +538,7 @@ def test_multi_font_aspath():
              horizontalalignment='center', verticalalignment='center')
 
 
-@image_comparison(["multi_font_astext.svg"])
+@image_comparison(["multi_font_astext.svg"], style='mpl20')
 def test_multi_font_astext():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)

@@ -61,13 +61,10 @@ def test_divider_append_axes():
     assert bboxes["top"].x1 == bboxes["main"].x1 == bboxes["bottom"].x1
 
 
-# Update style when regenerating the test image
-@image_comparison(['twin_axes_empty_and_removed.png'], tol=1,
-                  style=('classic', '_classic_test_patch'))
+@image_comparison(['twin_axes_empty_and_removed.png'], tol=1, style='mpl20')
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)
-    mpl.rcParams.update(
-        {"font.size": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
+    mpl.rcParams.update({"font.size": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
     generators = ["twinx", "twiny", "twin"]
     modifiers = ["", "host invisible", "twin removed", "twin invisible",
                  "twin removed\nhost invisible"]
@@ -343,10 +340,8 @@ def test_fill_facecolor():
     mark_inset(ax[3], axins, loc1=2, loc2=4, fc="g", ec="0.5", fill=False)
 
 
-# Update style when regenerating the test image
-@image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'],
-                  style=('classic', '_classic_test_patch'),
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+@image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_zooming_with_inverted_axes():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
@@ -361,10 +356,9 @@ def test_zooming_with_inverted_axes():
     inset_ax.axis([1.4, 1.1, 1.4, 1.1])
 
 
-# Update style when regenerating the test image
 @image_comparison(['anchored_direction_arrows.png'],
                   tol=0 if platform.machine() == 'x86_64' else 0.01,
-                  style=('classic', '_classic_test_patch'))
+                  style='mpl20')
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((10, 10)), interpolation='nearest')
@@ -373,9 +367,7 @@ def test_anchored_direction_arrows():
     ax.add_artist(simple_arrow)
 
 
-# Update style when regenerating the test image
-@image_comparison(['anchored_direction_arrows_many_args.png'],
-                  style=('classic', '_classic_test_patch'))
+@image_comparison(['anchored_direction_arrows_many_args.png'], style='mpl20')
 def test_anchored_direction_arrows_many_args():
     fig, ax = plt.subplots()
     ax.imshow(np.ones((10, 10)))

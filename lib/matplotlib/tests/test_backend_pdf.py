@@ -346,7 +346,7 @@ def test_empty_rasterized():
     fig.savefig(io.BytesIO(), format="pdf")
 
 
-@image_comparison(['kerning.pdf'])
+@image_comparison(['kerning.pdf'], style='mpl20')
 def test_kerning():
     fig = plt.figure()
     s = "AVAVAVAVAVAVAVAV€AAVV"
@@ -380,7 +380,7 @@ def test_glyphs_subset():
     assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
 
 
-@image_comparison(["multi_font_type3.pdf"])
+@image_comparison(["multi_font_type3.pdf"], style='mpl20')
 def test_multi_font_type3():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
@@ -391,7 +391,7 @@ def test_multi_font_type3():
              horizontalalignment='center', verticalalignment='center')
 
 
-@image_comparison(["multi_font_type42.pdf"])
+@image_comparison(["multi_font_type42.pdf"], style='mpl20')
 def test_multi_font_type42():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
@@ -450,7 +450,7 @@ def test_otf_font_smoke(family_name, file_name):
     fig.savefig(io.BytesIO(), format="pdf")
 
 
-@image_comparison(["truetype-conversion.pdf"])
+@image_comparison(["truetype-conversion.pdf"], style='mpl20')
 # mpltest.ttf does not have "l"/"p" glyphs so we get a warning when trying to
 # get the font extents.
 def test_truetype_conversion(recwarn):

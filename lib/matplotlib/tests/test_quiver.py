@@ -101,7 +101,7 @@ def test_zero_headlength():
     fig.canvas.draw()  # Check that no warning is emitted.
 
 
-@image_comparison(['quiver_animated_test_image.png'])
+@image_comparison(['quiver_animated_test_image.png'], style='mpl20')
 def test_quiver_animate():
     # Tests fix for #2616
     fig, ax = plt.subplots()
@@ -110,7 +110,7 @@ def test_quiver_animate():
                  labelpos='W', fontproperties={'weight': 'bold'})
 
 
-@image_comparison(['quiver_with_key_test_image.png'])
+@image_comparison(['quiver_with_key_test_image.png'], style='mpl20')
 def test_quiver_with_key():
     fig, ax = plt.subplots()
     ax.margins(0.1)
@@ -138,7 +138,7 @@ def test_quiver_copy():
     assert q0.V[0] == 2.0
 
 
-@image_comparison(['quiver_key_pivot.png'], remove_text=True)
+@image_comparison(['quiver_key_pivot.png'], remove_text=True, style='mpl20')
 def test_quiver_key_pivot():
     fig, ax = plt.subplots()
 

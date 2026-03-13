@@ -315,7 +315,7 @@ def test_no_duplicate_definition():
     assert max(Counter(wds).values()) == 1
 
 
-@image_comparison(["multi_font_type3.eps"])
+@image_comparison(["multi_font_type3.eps"], style='mpl20')
 def test_multi_font_type3():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)
@@ -326,7 +326,7 @@ def test_multi_font_type3():
              horizontalalignment='center', verticalalignment='center')
 
 
-@image_comparison(["multi_font_type42.eps"])
+@image_comparison(["multi_font_type42.eps"], style='mpl20')
 def test_multi_font_type42():
     fonts, test_str = _gen_multi_font_text()
     plt.rc('font', family=fonts, size=16)

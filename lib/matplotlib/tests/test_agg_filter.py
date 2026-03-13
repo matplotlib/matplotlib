@@ -5,7 +5,7 @@ from matplotlib.testing.decorators import image_comparison
 
 
 @image_comparison(baseline_images=['agg_filter_alpha'],
-                  extensions=['gif', 'png', 'pdf'])
+                  extensions=['gif', 'png', 'pdf'], style='mpl20')
 def test_agg_filter_alpha():
     ax = plt.axes()
     x, y = np.mgrid[0:7, 0:8]

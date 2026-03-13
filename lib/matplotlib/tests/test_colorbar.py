@@ -159,7 +159,7 @@ def test_colorbar_extension_inverted_axis(orientation, extend, expected):
                    'double_cbar.png',
                    'cbar_sharing.png',
                    ],
-                  remove_text=True, savefig_kwarg={'dpi': 40}, tol=0.05)
+                  remove_text=True, savefig_kwarg={'dpi': 40}, style='mpl20', tol=0.05)
 def test_colorbar_positioning(use_gridspec):
     data = np.arange(1200).reshape(30, 40)
     levels = [0, 200, 400, 600, 800, 1000, 1200]

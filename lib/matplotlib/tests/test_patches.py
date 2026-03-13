@@ -241,7 +241,7 @@ def test_negative_rect():
     assert_array_equal(np.roll(neg_vertices, 2, 0), pos_vertices)
 
 
-@image_comparison(['clip_to_bbox.png'])
+@image_comparison(['clip_to_bbox.png'], style='mpl20')
 def test_clip_to_bbox():
     fig, ax = plt.subplots()
     ax.set_xlim([-18, 20])
@@ -550,7 +550,7 @@ def test_multi_color_hatch():
         ax.add_patch(r)
 
 
-@image_comparison(['units_rectangle.png'])
+@image_comparison(['units_rectangle.png'], style='mpl20')
 def test_units_rectangle():
     import matplotlib.testing.jpl_units as U
     U.register()
@@ -813,7 +813,7 @@ def test_boxstyle_errors(fmt, match):
         BoxStyle(fmt)
 
 
-@image_comparison(['annulus.png'])
+@image_comparison(['annulus.png'], style='mpl20')
 def test_annulus():
 
     fig, ax = plt.subplots()
@@ -825,7 +825,7 @@ def test_annulus():
     ax.set_aspect('equal')
 
 
-@image_comparison(['annulus.png'])
+@image_comparison(['annulus.png'], style='mpl20')
 def test_annulus_setters():
 
     fig, ax = plt.subplots()
@@ -846,7 +846,7 @@ def test_annulus_setters():
     ell.angle = 45
 
 
-@image_comparison(['annulus.png'])
+@image_comparison(['annulus.png'], style='mpl20')
 def test_annulus_setters2():
 
     fig, ax = plt.subplots()
