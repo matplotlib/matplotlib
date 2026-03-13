@@ -5,7 +5,7 @@ import os
 from enum import Enum
 from collections.abc import Generator
 
-from typing import NamedTuple, Self, Literal
+from typing import NamedTuple, Self, Literal, Iterable
 
 class _dvistate(Enum):
     pre = ...
@@ -23,7 +23,7 @@ class Ops:
 
     @dataclasses.dataclass(slots=True)
     class DispatchTable:
-        entries: list
+        entries: list = []
 
         def op(self, bmin: int, bmax: int, opname: str,
             arg_types: str ='', arg_names: str ='', extra=None): ...
@@ -62,6 +62,8 @@ class Box:
     width: int
     color: str | None = None
 
+    def __iter__(self) -> Iterable[int]: ...
+    def __getitem__(self, i: int) -> int: ...
     def replace(self, /, **kwargs) -> Self: ...
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -84,16 +86,18 @@ class Text:
     @property
     def glyph_name_or_index(self) -> int | str: ...
 
+    def __iter__(self) -> Iterable: ...
+    def __getitem__(self, i: int) -> int | DviFont: ...
     def replace(self, /, **kwargs) -> Self: ...
 
 @dataclasses.dataclass(slots=True)
 class VM:
-    stack: list
-    text: list[Text]
-    boxes: list[Box]
-    colors: list[str]
-    down_stack: list[int]
-    fonts: dict
+    stack: list = []
+    text: list[Text] = []
+    boxes: list[Box] = []
+    colors: list[str] = []
+    down_stack: list[int] = []
+    fonts: dict = {}
     state: _dvistate = _dvistate.pre
     baseline_v: None | int = None
     h: int = 0

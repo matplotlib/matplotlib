@@ -114,6 +114,8 @@ def test_vm_completeness():
         assert hasattr(dr.VM, f"_op_{opname}"), f"VM cannot handle op {opname}"
 
 
+@pytest.mark.skipif(shutil.which("kpsewhich") is None,
+                    reason="kpsewhich is not available")
 @pytest.mark.parametrize('dpi', [None, 72])
 def test_dvi_color(dpi):
     # Apparently, per TexManager tests, we can just play around with rcParams

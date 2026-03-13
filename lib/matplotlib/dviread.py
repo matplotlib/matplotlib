@@ -408,6 +408,8 @@ class Ops:
         t.op(248, 248, 'post', 'fin', 'padding')
         t.op(249, 255, 'malformed')
 
+    del t
+
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
 
@@ -1118,7 +1120,7 @@ class Vf:
     http://mirrors.ctan.org/info/knuth/virtual-fonts
 
     The format is:
-     - `pre` op (247)
+     - ``pre`` op (247)
      - font definitions (243-246)
      - character packets (0-242)
      - postamble (248)
