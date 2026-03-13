@@ -168,6 +168,8 @@ Open a pull request
 
 When you are ready to ask for someone to review your code and consider a merge,
 `submit your Pull Request (PR) <https://docs.github.com/pull-requests>`_.
+Matplotlib generally prefers squash merging when integrating pull requests. 
+Squash merging combines all commits from a pull request into a single commit in the main branch, helping keep the project history clean and easy to follow.
 
 Go to the web page of *your fork* of the Matplotlib repo, and click
 ``Compare & pull request`` to send your changes to the maintainers for review.
