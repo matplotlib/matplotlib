@@ -1,6 +1,6 @@
 ---
 name: autoclose schedule
-# Autoclose labeled PR after 2 weeks.
+# Autoclose PRs labeled with "autoclose candidate" after 2 weeks.
 # Based on scikit-learn's implementation at
 # https://github.com/scikit-learn/scikit-learn/blob/main/.github/workflows/autoclose-schedule.yml
 
