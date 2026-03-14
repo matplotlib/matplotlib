@@ -1310,6 +1310,10 @@ _validators = {
     # figure title
     "figure.titlesize":   validate_fontsize,
     "figure.titleweight": validate_fontweight,
+    "figure.titlex":      validate_float,
+    "figure.titley":      validate_float,
+    "figure.titleha":     ["center", "left", "right"],
+    "figure.titleva":     ["top", "center", "bottom", "baseline"],
 
     # figure labels
     "figure.labelsize":   validate_fontsize,
@@ -2706,6 +2710,31 @@ _DEFINITION = [
         default="normal",
         validator=validate_fontweight,
         description="weight of the figure title"
+    ),
+    _Param(
+        "figure.titlex",
+        default=0.5,
+        validator=validate_float,
+        description="x position of the figure title in figure coordinates"
+    ),
+    _Param(
+        "figure.titley",
+        default=0.98,
+        validator=validate_float,
+        description="y position of the figure title in figure coordinates"
+    ),
+    _Param(
+        "figure.titleha",
+        default="center",
+        validator=ValidateInStrings("figure.titleha", ["center", "left", "right"]),
+        description="horizontal alignment of the figure title"
+    ),
+    _Param(
+        "figure.titleva",
+        default="top",
+        validator=ValidateInStrings(
+            "figure.titleva", ["top", "center", "bottom", "baseline"]),
+        description="vertical alignment of the figure title"
     ),
     _Param(
         "figure.labelsize",

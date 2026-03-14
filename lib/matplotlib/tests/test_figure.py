@@ -1683,6 +1683,27 @@ def test_rcparams(fig_test, fig_ref):
         fig_test.suptitle("Title")
 
 
+def test_suptitle_rcparams():
+    # Test that figure.titlex, figure.titley, figure.titleha, figure.titleva
+    # rcParams are respected by suptitle.
+    fig, ax = plt.subplots()
+    with mpl.rc_context({'figure.titlex': 0.0, 'figure.titley': 0.9,
+                         'figure.titleha': 'left', 'figure.titleva': 'center'}):
+        t = fig.suptitle('Test')
+        assert t.get_position() == (0.0, 0.9)
+        assert t.get_ha() == 'left'
+        assert t.get_va() == 'center'
+    plt.close()
+
+    # Explicit kwargs must take priority over rcParams.
+    fig2, ax2 = plt.subplots()
+    with mpl.rc_context({'figure.titleha': 'left', 'figure.titlex': 0.0}):
+        t2 = fig2.suptitle('Test', ha='right', x=0.8)
+        assert t2.get_ha() == 'right'
+        assert t2.get_position()[0] == 0.8
+    plt.close()
+
+
 def test_deepcopy():
     fig1, ax = plt.subplots()
     ax.plot([0, 1], [2, 3])

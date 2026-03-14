@@ -354,14 +354,18 @@ default: %(va)s
             autopos = y is None
         elif info['name'] == '_supylabel':
             autopos = x is None
+        def _rc_or_val(v):
+            """Return mpl.rcParams[v] if v is an rcParam key, else v itself."""
+            return mpl.rcParams[v] if (isinstance(v, str) and '.' in v) else v
+
         if x is None:
-            x = info['x0']
+            x = _rc_or_val(info['x0'])
         if y is None:
-            y = info['y0']
+            y = _rc_or_val(info['y0'])
 
         kwargs = cbook.normalize_kwargs(kwargs, Text)
-        kwargs.setdefault('horizontalalignment', info['ha'])
-        kwargs.setdefault('verticalalignment', info['va'])
+        kwargs.setdefault('horizontalalignment', _rc_or_val(info['ha']))
+        kwargs.setdefault('verticalalignment', _rc_or_val(info['va']))
         kwargs.setdefault('rotation', info['rotation'])
 
         if 'fontproperties' not in kwargs:
@@ -392,8 +396,8 @@ default: %(va)s
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
-                'ha': 'center', 'va': 'top', 'rotation': 0,
+        info = {'name': '_suptitle', 'x0': 'figure.titlex', 'y0': 'figure.titley',
+                'ha': 'figure.titleha', 'va': 'figure.titleva', 'rotation': 0,
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)
 
