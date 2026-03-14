@@ -2994,6 +2994,72 @@ def test_scale3d_default_limits(scale, expected_lims):
         np.testing.assert_allclose(get_lim(), expected_lims)
 
 
+@pytest.mark.parametrize("scale, expected_lims", [
+    ("linear", (0.041666666666666664, 0.9583333333333334)),
+    ("log", (0.08519612008506527, 1.056386134839687)),
+    ("symlog", (0.04166666666666668, 0.9583333333333334)),
+    ("logit", (0.0746298566901612, 0.9253701433098389)),
+    ("asinh", (0.04815235510959675, 0.9707897299792895)),
+])
+@mpl.style.context("default")
+def test_scale3d_automargin_limits(scale, expected_lims):
+    """Axis limits with data and automargin should be correct for each scale."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_xscale(scale)
+    ax.set_yscale(scale)
+    ax.set_zscale(scale)
+    ax.plot([0.1, 0.9], [0.1, 0.9], [0.1, 0.9])
+    fig.canvas.draw()
+
+    for get_lim in (ax.get_xlim, ax.get_ylim, ax.get_zlim):
+        np.testing.assert_allclose(get_lim(), expected_lims)
+
+
+@pytest.mark.parametrize("scale, expected_lims", [
+    ("linear", (0.08333333333333334, 0.9166666666666667)),
+    ("log", (0.09552563816905349, 0.9421554435545909)),
+    ("symlog", (0.08333333333333334, 0.9166666666666667)),
+    ("logit", (0.09205683697189532, 0.9079431630281046)),
+    ("asinh", (0.08516517850312533, 0.9199719582595468)),
+])
+@mpl.style.context("default")
+def test_scale3d_zero_margin_limits(scale, expected_lims):
+    """Axis limits with data and zero margins should be correct for each scale.
+
+    Limits are not exactly (0.1, 0.9) because view_margin still applies.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_xscale(scale)
+    ax.set_yscale(scale)
+    ax.set_zscale(scale)
+    ax.margins(0)
+    ax.plot([0.1, 0.9], [0.1, 0.9], [0.1, 0.9])
+    fig.canvas.draw()
+
+    for get_lim in (ax.get_xlim, ax.get_ylim, ax.get_zlim):
+        np.testing.assert_allclose(get_lim(), expected_lims)
+
+
+@pytest.mark.parametrize("scale", ["linear", "log", "symlog", "logit", "asinh"])
+@mpl.style.context("default")
+def test_scale3d_explicit_limits(scale):
+    """Explicitly set limits should be honored exactly for each scale."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_xscale(scale)
+    ax.set_yscale(scale)
+    ax.set_zscale(scale)
+    ax.set_xlim(0.1, 0.9)
+    ax.set_ylim(0.1, 0.9)
+    ax.set_zlim(0.1, 0.9)
+    fig.canvas.draw()
+
+    for get_lim in (ax.get_xlim, ax.get_ylim, ax.get_zlim):
+        np.testing.assert_allclose(get_lim(), (0.1, 0.9))
+
+
 @check_figures_equal()
 @pytest.mark.filterwarnings("ignore:Data has no positive values")
 def test_scale3d_all_clipped(fig_test, fig_ref):
