@@ -162,7 +162,7 @@ While it has been possible to use multiple fonts within a Figure, on distinct
 same `.Text` instance (as a web browser does).  As of Matplotlib 3.6 the Agg,
 SVG, PDF, and PS backends will "fallback" through multiple fonts in a single
 `.Text` instance:
-"""
+"""  # noqa: E501
 
 import matplotlib.pyplot as plt
 
