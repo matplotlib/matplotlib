@@ -29,22 +29,22 @@ which are explained later in the guide):
 
 .. table:: Types of Fonts
 
-  +--------------------------+----------------------------+-------------------------------+
-  | Type 1 (PDF with usetex) | Type 3 (PDF/PS)            | TrueType (PDF) / Type 42 (PS) |
-  +==========================+============================+===============================+
-  | Old font types introduced by Adobe.                   | Newer font type introduced by |
-  |                                                       | Apple; commonly used today.   |
-  +--------------------------+----------------------------+-------------------------------+
-  | Restricted subset of     | Full PostScript language,  | Includes a virtual machine    |
-  | PostScript, charstrings  | allows embedding arbitrary | that can execute code.        |
-  | are in bytecode.         | code.                      |                               |
-  +--------------------------+----------------------------+-------------------------------+
-  | Supports font hinting.   | Does not support font      | Supports font hinting,        |
-  |                          | hinting.                   | through the virtual machine.  |
-  +--------------------------+----------------------------+-------------------------------+
-  | Subsetted by code in     | Subsetted via external module                              |
-  | `matplotlib._type1font`. | `fontTools <https://github.com/fonttools/fonttools>`__.    |
-  +--------------------------+----------------------------+-------------------------------+
+  +------------------------+--------------------------+-----------------------------+
+  | Type 1 (PDF usetex)    | Type 3 (PDF/PS)          | TrueType (PDF) / Type 42 PS |
+  +========================+==========================+=============================+
+  | Old font types introduced by Adobe.               | Newer font type introduced  |
+  |                                                   | by Apple; commonly used.    |
+  +------------------------+--------------------------+-----------------------------+
+  | Restricted subset of   | Full PostScript language,| Includes a virtual machine  |
+  | PostScript,            | allows embedding         | that can execute code.      |
+  | charstrings in bytecode| arbitrary code.          |                             |
+  +------------------------+--------------------------+-----------------------------+
+  | Supports font hinting. | Does not support font    | Supports font hinting, via  |
+  |                        | hinting.                 | the virtual machine.        |
+  +------------------------+--------------------------+-----------------------------+
+  | Subsetted by code in   | Subsetted via external module                          |
+  | `_type1font`.          | `fontTools <https://github.com/fonttools/fonttools>`__. |
+  +------------------------+--------------------------+-----------------------------+
 
 .. note::
 
