@@ -22,9 +22,9 @@ strings. For example:
 import matplotlib.pyplot as plt
 
 fig = plt.figure(figsize=(3, 3), linewidth=1, edgecolor='black')
-fig.text(.2, .7, "plain text: alpha > beta")
-fig.text(.2, .5, "Mathtext: $\\alpha > \\beta$")
-fig.text(.2, .3, r"raw string Mathtext: $\alpha > \beta$")
+fig.text(.5, .7, "plain text: alpha > beta", ha='center', va='center')
+fig.text(.5, .5, "Mathtext: $\\alpha > \\beta$", ha='center', va='center')
+fig.text(.5, .3, r"raw string Mathtext: $\alpha > \beta$", ha='center', va='center')
 
 # %%
 # .. seealso::

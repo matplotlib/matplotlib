@@ -162,25 +162,24 @@ While it has been possible to use multiple fonts within a Figure, on distinct
 same `.Text` instance (as a web browser does).  As of Matplotlib 3.6 the Agg,
 SVG, PDF, and PS backends will "fallback" through multiple fonts in a single
 `.Text` instance:
+"""
 
-.. plot::
-   :include-source:
-   :caption: The string "There are 几个汉字 in between!" rendered with 2 fonts.
+import matplotlib.pyplot as plt
 
-   fig, ax = plt.subplots()
-   ax.text(
-       .5, .5, "There are 几个汉字 in between!",
-       family=['DejaVu Sans', 'Noto Sans CJK JP', 'Noto Sans TC'],
-       ha='center'
-   )
+fig, ax = plt.subplots()
+ax.text(
+    .5, .5, "There are 几个汉字 in between!",
+    family=['DejaVu Sans', 'Noto Sans CJK JP', 'Noto Sans TC'],
+    ha='center'
+)
 
-Internally this is implemented by setting The "font family" on
-`.FontProperties` objects to a list of font families.  A (currently)
-private API extracts a list of paths to all of the fonts found and then
-constructs a single `.ft2font.FT2Font` object that is aware of all of the fonts.
-Each glyph of the string is rendered using the first font in the list that
-contains that glyph.
-
-A majority of this work was done by Aitik Gupta supported by Google Summer of
-Code 2021.
-"""  # noqa: E501
+# %%
+# Internally this is implemented by setting The "font family" on
+# `.FontProperties` objects to a list of font families.  A (currently)
+# private API extracts a list of paths to all of the fonts found and then
+# constructs a single `.ft2font.FT2Font` object that is aware of all of the fonts.
+# Each glyph of the string is rendered using the first font in the list that
+# contains that glyph.
+#
+# A majority of this work was done by Aitik Gupta supported by Google Summer of
+# Code 2021.
