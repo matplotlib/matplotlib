@@ -486,6 +486,7 @@ class TestLegendFigureFunction:
         with pytest.raises(TypeError, match=msg):
             fig.legend((lines, lines2), labels=('a', 'b'))
 
+
 def test_figure_legend_outside():
     todos = ['upper ' + pos for pos in ['left', 'center', 'right']]
     todos += ['lower ' + pos for pos in ['left', 'center', 'right']]
