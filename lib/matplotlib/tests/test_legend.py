@@ -478,7 +478,7 @@ class TestLegendFigureFunction:
             fig.legend((lines, lines2), labels=('a', 'b'))
 
     def test_legend_mismatched_positional_args():
-        """Regression test for gh-24050: warn on mismatched handles/labels (2-arg form)."""
+        """Regression test for gh-24050: warn on mismatched handles(2-arg form)."""
         fig, ax = plt.subplots()
         line1, = ax.plot([1, 2])
         line2, = ax.plot([3, 4])
