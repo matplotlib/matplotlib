@@ -187,6 +187,7 @@ RcKeyType: TypeAlias = Literal[
     "axes.axisbelow",
     "axes.edgecolor",
     "axes.facecolor",
+    "axes.locator.legacy_symlog_ticker",
     "axes.formatter.limits",
     "axes.formatter.min_exponent",
     "axes.formatter.offset_threshold",
