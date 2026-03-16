@@ -1387,8 +1387,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         handles, labels = args[:2]
         if len(handles) != len(labels):
             _api.warn_external(
-                f"Mismatched number of handles and labels: "
-                f"len(handles) = {len(handles)} len(labels) = {len(labels)}"
+                f"Mismatched number of legend handles ({len(handles)}) and "
+                f"labels ({len(labels)}). Truncating to the smaller number."
             )
 
     else:
