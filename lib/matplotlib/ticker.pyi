@@ -280,6 +280,7 @@ class SymmetricalLogLocator(Locator):
         self,
         transform: Transform | None = ...,
         subs: Sequence[float] | Literal["auto", "all"] | None = ...,
+        numticks: int | None = ...,
         linthresh: float | None = ...,
         base: float | None = ...,
         linscale: float | None = ...,
