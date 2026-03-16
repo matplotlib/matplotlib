@@ -1050,11 +1050,8 @@ class LogFormatter(Formatter):
         else:
             lmin = math.log(vmin, b)
             lmax = math.log(vmax, b)
-            # The nextafter call handles the case where vmin is exactly at a
-            # decade (e.g. there's one major tick between 1 and 5).
-            numticks = (math.floor(lmax)
-                        - math.floor(math.nextafter(lmin, -math.inf)))
-            numdec = abs(lmax - lmin)
+            numdec = lmax - lmin
+            numticks = math.floor(lmax) - math.ceil(lmin) + 1
 
         if numticks > self.minor_thresholds[0]:
             # Label only bases
@@ -2520,7 +2517,7 @@ class LogLocator(Locator):
         n_avail = emax - emin + 1  # Total number of decade ticks available.
 
         if isinstance(self._subs, str):
-            if n_avail >= 10 or b < 3:
+            if n_avail > n_request or b < 3:
                 if self._subs == 'auto':
                     return np.array([])  # no minor or major ticks
                 else:
@@ -2542,7 +2539,7 @@ class LogLocator(Locator):
             # be drawn (e.g., with 9 decades ticks, no stride yields 7
             # ticks).  For a given value of the stride *s*, there are either
             # floor(n_avail/s) or ceil(n_avail/s) ticks depending on the
-            # offset.  Pick the smallest stride such that floor(n_avail/s) <
+            # offset.  Pick the smallest stride such that floor(n_avail/s) <=
             # n_request, i.e. n_avail/s < n_request+1, then re-set n_request
             # to ceil(...) if acceptable, else to floor(...) (which must then
             # equal the original n_request, i.e. n_request is kept unchanged).
@@ -2573,7 +2570,7 @@ class LogLocator(Locator):
                 #     n_avail/(n_request+1) < stride <= n_avail/n_request
                 # One of these cases must have an integer solution (given the
                 # choice of n_request above).
-                stride = (n_avail - 1) // (n_request - 1)
+                stride = math.ceil(n_avail / (n_request - 1)) - 1
                 if stride < n_avail / n_request:  # fallback to second case
                     stride = n_avail // n_request
                 # *Determine the offset*: For a given stride *and offset*
@@ -2604,17 +2601,18 @@ class LogLocator(Locator):
         else:
             ticklocs = b ** np.array(decades)
 
-        if (len(subs) > 1
-                and stride == 1
-                and (len(decades) - 2  # major
-                     + ((vmin <= ticklocs) & (ticklocs <= vmax)).sum())  # minor
-                     <= 1):
-            # If we're a minor locator *that expects at least two ticks per
-            # decade* and the major locator stride is 1 and there's no more
-            # than one major or minor tick, switch to AutoLocator.
-            return AutoLocator().tick_values(vmin, vmax)
-        else:
-            return self.raise_if_exceeds(ticklocs)
+        if is_minor and stride == 1:
+            numticks = ((vmin <= ticklocs) & (ticklocs <= vmax)).sum()
+            if subs[0] != 1.0:
+                # Major ticks are excluded from minor ticks.
+                numticks += n_avail
+            if numticks <= 1:
+                # If we're a minor locator (expecting at least two ticks per
+                # decade) and the major locator stride is 1 and there's no more
+                # than one major or minor tick, switch to AutoLocator.
+                return AutoLocator().tick_values(vmin, vmax)
+
+        return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
         """Try to choose the view limits intelligently."""
