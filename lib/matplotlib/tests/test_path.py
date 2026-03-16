@@ -254,6 +254,27 @@ def test_xkcd_seed_update():
         assert rcParams['path.sketch_seed'] == 2000
 
 
+def test_sketch_rolling_seed():
+    """Same seed should produce identical output every time (deterministic)"""
+
+    import io
+    x = np.linspace(0, 5, 200)
+    y = 20 * np.sin(x)
+
+    with plt.xkcd(seed=100):
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
+        ax.plot(x, y + 5)
+        buf1 = io.BytesIO()
+        buf2 = io.BytesIO()
+        fig.savefig(buf1, format='png')
+        fig.savefig(buf2, format='png')
+
+    buf1.seek(0)
+    buf2.seek(0)
+    assert buf1.read() == buf2.read()
+    plt.close('all')
+    
 @image_comparison(['xkcd.png'], remove_text=True)
 def test_xkcd():
     np.random.seed(0)
