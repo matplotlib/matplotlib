@@ -424,6 +424,15 @@ class TestLegendFunction:
             plt.legend()
         Legend.assert_called_with(host, [p1, p2], ['Density', 'Temperature'])
 
+    def test_legend_warns_on_unequal_number_of_handles_and_labels(self):
+        fig, ax = plt.subplots()
+        line1, = ax.plot([1, 2])
+        line2, = ax.plot([3, 4])
+        with pytest.warns(UserWarning, match="Mismatched number of handles and labels"):
+            ax.legend([line1, line2], ['only_one'])  # 2 handles, 1 label
+        with pytest.warns(UserWarning, match="Mismatched number of handles and labels"):
+            ax.legend([line1], ['label_a', 'label_b'])  # 1 handle, 2 labels
+
 
 class TestLegendFigureFunction:
     # Tests the legend function for figure
@@ -476,16 +485,6 @@ class TestLegendFigureFunction:
         msg = 'must both be passed positionally or both as keywords'
         with pytest.raises(TypeError, match=msg):
             fig.legend((lines, lines2), labels=('a', 'b'))
-
-    def test_legend_warns_on_unequal_number_of_handles_and_labels(self):
-        fig, ax = plt.subplots()
-        line1, = ax.plot([1, 2])
-        line2, = ax.plot([3, 4])
-        with pytest.warns(UserWarning, match="Mismatched number of handles and labels"):
-            ax.legend([line1, line2], ['only_one'])  # 2 handles, 1 label
-        with pytest.warns(UserWarning, match="Mismatched number of handles and labels"):
-            ax.legend([line1], ['label_a', 'label_b'])  # 1 handle, 2 labels
-
 
 def test_figure_legend_outside():
     todos = ['upper ' + pos for pos in ['left', 'center', 'right']]
