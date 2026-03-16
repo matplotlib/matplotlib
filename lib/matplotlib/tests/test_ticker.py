@@ -608,12 +608,62 @@ class TestIndexLocator:
 class TestSymmetricalLogLocator:
     def test_set_params(self):
         """
-        Create symmetrical log locator with default subs =[1.0] numticks = 15,
+        Create symmetrical log locator with default subs=[1.0] numticks='auto',
         and change it to something else.
         See if change was successful.
         Should not exception.
         """
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            legacy_symlog_ticker=False)
+        sym.set_params(subs=[2.0], numticks=8)
+        assert sym._subs == [2.0]
+        assert sym.numticks == 8
+
+    @pytest.mark.parametrize(
+            'vmin, vmax, expected',
+            [
+                (0, 1, [-1, 0, 1, 10]),
+                (-1, 1, [-10, -1, 0, 1, 10]),
+            ],
+    )
+    def test_values(self, vmin, vmax, expected):
+        # https://github.com/matplotlib/matplotlib/issues/25945
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            legacy_symlog_ticker=False)
+        ticks = sym.tick_values(vmin=vmin, vmax=vmax)
+        assert_array_equal(ticks, expected)
+
+    def test_subs(self):
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            subs=[2.0, 4.0], legacy_symlog_ticker=False)
+        sym.create_dummy_axis()
+        sym.axis.set_view_interval(-10, 10)
+        assert_array_equal(sym(), [-400, -200, -40, -20, -4, -2, -0.4, -0.2, -0.1,
+                                   0.1, 0.2, 0.4, 2, 4, 20, 40, 200, 400])
+
+    def test_extending(self):
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            legacy_symlog_ticker=False)
+        sym.create_dummy_axis()
+        sym.axis.set_view_interval(8, 9)
+        assert_array_equal(sym(), [1, 10])
+        sym.axis.set_view_interval(8, 12)
+        assert_array_equal(sym(), [1, 10, 100])
+        assert sym.view_limits(10, 10) == (1, 100)
+        assert sym.view_limits(-10, -10) == (-100, -1)
+        assert sym.view_limits(0, 0) == (-1, 1)
+
+
+class TestLegacySymmetricalLogLocator:
+    def test_set_params(self):
+        """
+        Create symmetrical log locator with default subs=[1.0] numticks='auto',
+        and change it to something else.
+        See if change was successful.
+        Should not exception.
+        """
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            legacy_symlog_ticker=True)
         sym.set_params(subs=[2.0], numticks=8)
         assert sym._subs == [2.0]
         assert sym.numticks == 8
@@ -627,18 +677,21 @@ class TestSymmetricalLogLocator:
     )
     def test_values(self, vmin, vmax, expected):
         # https://github.com/matplotlib/matplotlib/issues/25945
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            legacy_symlog_ticker=True)
         ticks = sym.tick_values(vmin=vmin, vmax=vmax)
         assert_array_equal(ticks, expected)
 
     def test_subs(self):
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, subs=[2.0, 4.0])
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            subs=[2.0, 4.0], legacy_symlog_ticker=True)
         sym.create_dummy_axis()
         sym.axis.set_view_interval(-10, 10)
-        assert_array_equal(sym(), [-20, -40, -2, -4, 0, 2, 4, 20, 40])
+        assert_array_equal(sym(), [-10, -1, 0, 1, 10])
 
     def test_extending(self):
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            legacy_symlog_ticker=True)
         sym.create_dummy_axis()
         sym.axis.set_view_interval(8, 9)
         assert (sym() == [1.0]).all()
@@ -646,7 +699,7 @@ class TestSymmetricalLogLocator:
         assert (sym() == [1.0, 10.0]).all()
         assert sym.view_limits(10, 10) == (1, 100)
         assert sym.view_limits(-10, -10) == (-100, -1)
-        assert sym.view_limits(0, 0) == (-0.001, 0.001)
+        assert sym.view_limits(0, 0) == (-1, 1)
 
 
 class TestAsinhLocator:
