@@ -1146,7 +1146,6 @@ _validators = {
     "axes.labelpad":      validate_float,  # space between label and axis
     "axes.labelweight":   validate_fontweight,  # fontsize of x & y labels
     "axes.labelcolor":    validate_color,  # color of axis label
-    "axes.locator.legacy_symlog_ticker": validate_bool,
     # use scientific notation if log10 of the axis range is smaller than the
     # first or larger than the second
     "axes.formatter.limits": validate_intlist,
@@ -1157,6 +1156,7 @@ _validators = {
     "axes.formatter.min_exponent": validate_int,
     "axes.formatter.useoffset": validate_bool,
     "axes.formatter.offset_threshold": validate_int,
+    "axes.formatter.legacy_symlog_ticker": validate_bool,
     "axes.unicode_minus": validate_bool,
     # This entry can be either a cycler object or a string repr of a
     # cycler-object, which gets eval()'ed to create the object.
@@ -1974,13 +1974,6 @@ _params = [
                     "- above all (False)"
     ),
     _Param(
-        "axes.locator.legacy_symlog_ticker",
-        default=True,
-        validator=validate_bool,
-        description="When True, ticks in symlog axes are placed using legacy rules. "
-                    "This is known to cause badly labeled axes in some cases."
-    ),
-    _Param(
         "axes.formatter.limits",
         default=[-5, 6],
         validator=validate_intlist,
@@ -2021,6 +2014,13 @@ _params = [
         description="When useoffset is True, the offset will be used when it can "
                     "remove at least this number of significant digits from tick "
                     "labels."
+    ),
+    _Param(
+        "axes.formatter.legacy_symlog_ticker",
+        default=True,
+        validator=validate_bool,
+        description="When True, ticks in symlog axes are placed using legacy rules. "
+                    "This is known to cause badly labeled axes in some cases."
     ),
     _Param(
         "axes.spines.left",

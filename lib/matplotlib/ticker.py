@@ -974,7 +974,7 @@ class LogFormatter(Formatter):
         If a symmetric log scale is in use, its ``linthresh`` and ``linscale``
         parameters must be supplied here.
 
-    legacy_symlog_ticker : bool, default: :rc:`axes.locator.legacy_symlog_ticker`
+    legacy_symlog_ticker : bool, default: :rc:`axes.formatter.legacy_symlog_ticker`
         Whether to use the legacy tick placement algorithm for symlog axes,
         which is known to cause bad tick placement in some cases.
 
@@ -1020,7 +1020,7 @@ class LogFormatter(Formatter):
         self._symlogutil = None
         self._firstsublabels = None
         self._legacy_symlog_ticker = mpl._val_or_rc(
-            legacy_symlog_ticker, 'axes.locator.legacy_symlog_ticker')
+            legacy_symlog_ticker, 'axes.formatter.legacy_symlog_ticker')
 
     def set_base(self, base):
         """
@@ -2755,7 +2755,7 @@ class SymmetricalLogLocator(Locator):
             already been assigned to an axis using `~.axis.Axis.get_tick_space`, but
             otherwise falls back to 9.
 
-        legacy_symlog_ticker : bool, default: :rc:`axes.locator.legacy_symlog_ticker`
+        legacy_symlog_ticker : bool, default: :rc:`axes.formatter.legacy_symlog_ticker`
             Whether to use the legacy tick placement algorithm for symlog axes,
             which is known to cause bad tick placement in some cases.
 
@@ -2772,7 +2772,7 @@ class SymmetricalLogLocator(Locator):
                 numticks = 'auto'
         self.numticks = numticks
         self._legacy_symlog_ticker = mpl._val_or_rc(
-            legacy_symlog_ticker, 'axes.locator.legacy_symlog_ticker')
+            legacy_symlog_ticker, 'axes.formatter.legacy_symlog_ticker')
 
     def set_params(self, subs=None, numticks=None,
                    base=None, linthresh=None, linscale=None):
