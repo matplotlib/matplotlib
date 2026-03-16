@@ -407,6 +407,9 @@
                              #     - above patches but below lines ('line')
                              #     - above all (False)
 
+#axes.locator.legacy_symlog_ticker: True # Use legacy tick placement algorithm
+                                         # for symlog axes. May cause bad tick
+                                         # placement in some cases.
 #axes.formatter.limits: -5, 6  # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second

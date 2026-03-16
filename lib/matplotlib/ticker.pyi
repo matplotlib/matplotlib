@@ -100,6 +100,20 @@ class ScalarFormatter(Formatter):
     def format_data_short(self, value: float | np.ma.MaskedArray) -> str: ...
     def format_data(self, value: float) -> str: ...
 
+class _SymmetricalLogUtil:
+    def __init__(
+        self,
+        transform: Transform | None = ...,
+        base: float | None = ...,
+        linthresh: float | None = ...,
+        linscale: float | None = ...,
+    ) -> None: ...
+    def pos(self, val: float) -> float: ...
+    def unpos(self, val: float) -> float: ...
+    def firstdec(self) -> tuple[float, float]: ...
+    def dec(self, val: float) -> float: ...
+    def undec(self, val: float) -> float: ...
+
 class LogFormatter(Formatter):
     minor_thresholds: tuple[float, float]
     def __init__(
@@ -108,6 +122,9 @@ class LogFormatter(Formatter):
         labelOnlyBase: bool = ...,
         minor_thresholds: tuple[float, float] | None = ...,
         linthresh: float | None = ...,
+        linscale: float | None = ...,
+        *,
+        legacy_symlog_ticker: bool | None = ...,
     ) -> None: ...
     def set_base(self, base: float) -> None: ...
     labelOnlyBase: bool
@@ -262,12 +279,20 @@ class SymmetricalLogLocator(Locator):
     def __init__(
         self,
         transform: Transform | None = ...,
-        subs: Sequence[float] | None = ...,
+        subs: Sequence[float] | Literal["auto", "all"] | None = ...,
         linthresh: float | None = ...,
         base: float | None = ...,
+        linscale: float | None = ...,
+        *,
+        legacy_symlog_ticker: bool | None = ...,
     ) -> None: ...
     def set_params(
-        self, subs: Sequence[float] | None = ..., numticks: int | None = ...
+        self,
+        subs: Sequence[float] | Literal["auto", "all"] | None = ...,
+        numticks: int | None = ...,
+        base: float | None = ...,
+        linthresh: float | None = ...,
+        linscale: float | None = ...,
     ) -> None: ...
 
 class AsinhLocator(Locator):

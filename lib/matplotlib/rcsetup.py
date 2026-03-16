@@ -1187,6 +1187,7 @@ _validators = {
     "axes.labelpad":      validate_float,  # space between label and axis
     "axes.labelweight":   validate_fontweight,  # fontsize of x & y labels
     "axes.labelcolor":    validate_color,  # color of axis label
+    "axes.locator.legacy_symlog_ticker": validate_bool,
     # use scientific notation if log10 of the axis range is smaller than the
     # first or larger than the second
     "axes.formatter.limits": validate_intlist,
@@ -2080,6 +2081,13 @@ _DEFINITION = [
                     "- below patches (True) "
                     "- above patches but below lines ('line') "
                     "- above all (False)"
+    ),
+    _Param(
+        "axes.locator.legacy_symlog_ticker",
+        default=True,
+        validator=validate_bool,
+        description="When True, ticks in symlog axes are placed using legacy rules. "
+                    "This is known to cause badly labeled axes in some cases."
     ),
     _Param(
         "axes.formatter.limits",
