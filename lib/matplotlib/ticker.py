@@ -2675,7 +2675,7 @@ class LogLocator(Locator):
         n_avail = emax - emin + 1  # Total number of decade ticks available.
 
         if isinstance(self._subs, str):
-            if n_avail > n_request or b < 3:
+            if n_avail >= 10 or b < 3:
                 if self._subs == 'auto':
                     return np.array([])  # no minor or major ticks
                 else:
@@ -2917,22 +2917,6 @@ class SymmetricalLogLocator(Locator):
         # Number of decade ticks available.
         n_avail = maxdec - mindec + 1
 
-        # Calculate the subs immediately, as we may be able to return early.
-        if isinstance(self._subs, str):
-            # Either 'auto' or 'all'.
-            if n_avail > n_request:
-                # No minor ticks.
-                if self._subs == 'auto':
-                    # No major ticks either.
-                    return np.array([])
-                else:
-                    subs = np.array([1.0])
-            else:
-                _first = 2.0 if self._subs == 'auto' else 1.0
-                subs = np.arange(_first, self._symlogutil.base)
-        else:
-            subs = self._subs
-
         # Get decades between major ticks.
         # We follow the same logic as LogLocator (see there for more
         # extensive comments), except when 0 is in the axis range.
@@ -2998,6 +2982,13 @@ class SymmetricalLogLocator(Locator):
                 decades = np.arange(mindec + offset - stride,
                                     maxdec + stride + 1,
                                     stride)
+
+        if isinstance(self._subs, str):
+            # Either 'auto' or 'all'.
+            _first = 2.0 if self._subs == 'auto' else 1.0
+            subs = np.arange(_first, self._symlogutil.base)
+        else:
+            subs = self._subs
 
         # Guess whether we're a minor locator, based on whether subs include
         # anything other than 1.
@@ -3117,6 +3108,27 @@ class SymmetricalLogLocator(Locator):
 
         if has_c:
             decades.extend(base ** (np.arange(c_lo, c_hi, stride)))
+
+        # The legacy symlog ticker did not use minor ticks by default,
+        # but they could be obtained explicitly, so we still want to
+        # support them. However, string values were not supported then
+        # but are the default now, so we need to test for it.
+        if isinstance(self._subs, str):
+            # Either 'auto' or 'all'.
+            _first = 2.0 if self._subs == 'auto' else 1.0
+            subs = np.arange(_first, self._symlogutil.base)
+        else:
+            subs = np.asarray(self._subs)
+
+        if len(subs) > 1 or subs[0] != 1.0:
+            ticklocs = []
+            for decade in decades:
+                if decade == 0:
+                    ticklocs.append(decade)
+                else:
+                    ticklocs.extend(subs * decade)
+        else:
+            ticklocs = decades
 
         # The legacy locator did not use minor ticks, so we don't support them.
         ticklocs = decades
