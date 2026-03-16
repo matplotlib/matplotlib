@@ -1379,7 +1379,7 @@ def test_fill_between_interpolate_nan():
 
 @image_comparison(['symlog_nolegacy.pdf'], style='mpl20')
 def test_symlog():
-    mpl.rcParams['axes.locator.legacy_symlog_ticker'] = False
+    mpl.rcParams['axes.formatter.legacy_symlog_ticker'] = False
     x = np.array([0, 1, 2, 4, 6, 9, 12, 24])
     y = np.array([1000000, 500000, 100000, 100, 5, 0, 0, 0])
 
@@ -1392,7 +1392,7 @@ def test_symlog():
 
 @image_comparison(['symlog2_nolegacy.pdf'], remove_text=True, style='_classic_test')
 def test_symlog2():
-    mpl.rcParams['axes.locator.legacy_symlog_ticker'] = False
+    mpl.rcParams['axes.formatter.legacy_symlog_ticker'] = False
     # Numbers from -50 to 50, with 0.1 as step
     x = np.arange(-50, 50, 0.001)
 
@@ -1406,7 +1406,7 @@ def test_symlog2():
 
 @image_comparison(['symlog.pdf'], style='mpl20')
 def test_legacy_symlog():
-    mpl.rcParams['axes.locator.legacy_symlog_ticker'] = True
+    mpl.rcParams['axes.formatter.legacy_symlog_ticker'] = True
     x = np.array([0, 1, 2, 4, 6, 9, 12, 24])
     y = np.array([1000000, 500000, 100000, 100, 5, 0, 0, 0])
 
@@ -1419,7 +1419,7 @@ def test_legacy_symlog():
 
 @image_comparison(['symlog2.pdf'], remove_text=True, style='_classic_test')
 def test_legacy_symlog2():
-    mpl.rcParams['axes.locator.legacy_symlog_ticker'] = True
+    mpl.rcParams['axes.formatter.legacy_symlog_ticker'] = True
     # Numbers from -50 to 50, with 0.1 as step
     x = np.arange(-50, 50, 0.001)
 
