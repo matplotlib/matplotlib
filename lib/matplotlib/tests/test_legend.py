@@ -485,7 +485,6 @@ class TestLegendFigureFunction:
             ax.legend([line1, line2], ['only_one'])  # 2 handles, 1 label
         with pytest.warns(UserWarning, match="Mismatched number of handles and labels"):
             ax.legend([line1], ['label_a', 'label_b'])  # 1 handle, 2 labels
-        plt.close('all')
 
 
 def test_figure_legend_outside():
