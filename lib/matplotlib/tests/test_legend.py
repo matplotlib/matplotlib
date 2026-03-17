@@ -428,9 +428,9 @@ class TestLegendFunction:
         fig, ax = plt.subplots()
         line1, = ax.plot([1, 2])
         line2, = ax.plot([3, 4])
-        with pytest.warns(UserWarning, match="Mismatched number of legend handles"):
+        with pytest.warns(UserWarning, match="Mismatched number of handles and labels"):
             ax.legend([line1, line2], ['only_one'])  # 2 handles, 1 label
-        with pytest.warns(UserWarning, match="Mismatched number of legend handles"):
+        with pytest.warns(UserWarning, match="Mismatched number of handles and labels"):
             ax.legend([line1], ['label_a', 'label_b'])  # 1 handle, 2 labels
 
 
