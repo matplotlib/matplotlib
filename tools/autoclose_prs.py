@@ -1,4 +1,4 @@
-"""Close PRs labeled with 'autoclose candidate' more than 14 days ago.
+"""Close PRs labeled with 'status: autoclose candidate' more than 14 days ago.
 
 Called from .github/workflows/autoclose_schedule.yml.
 
@@ -30,7 +30,7 @@ repo = gh.get_repo(gh_repo)
 
 
 now = datetime.now(timezone.utc)
-label = "autoclose candidate"
+label = "status: autoclose candidate"
 prs = [
     each
     for each in repo.get_issues(labels=[label])
