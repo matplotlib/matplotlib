@@ -2175,12 +2175,12 @@ class Axis(martist.Artist):
         ticks = self.convert_units(ticks)
         locator = mticker.FixedLocator(ticks)  # validate ticks early.
         if len(ticks):
-            old_vmin, old_vmax = self.get_view_interval()
+            old_view_interval = self.get_view_interval()
             for axis in self._get_shared_axis():
                 # set_view_interval maintains any preexisting inversion.
                 axis.set_view_interval(min(ticks), max(ticks))
-            new_vmin, new_vmax = self.get_view_interval()
-            if old_vmin != new_vmin or old_vmax != new_vmax:
+            new_view_interval = self.get_view_interval()
+            if old_view_interval != new_view_interval:
                 self.axes.callbacks.process(
                     f"{self._get_axis_name()}lim_changed",
                     self.axes,
