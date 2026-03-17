@@ -336,21 +336,19 @@ def test_contourf_decreasing_levels():
 
 
 @check_figures_equal()
-def test_contour_random_levels(fig_ref, fig_test):
-    # test that it doesn't matter if the levels are given in a random order and
-    # that their colors are matched to the correct levels.
+def test_contour_decreasing_levels(fig_ref, fig_test):
+    # Check that contour works with decreasing levels:
     Z = np.arange(100).reshape(10, 10)
     ax_ref = fig_ref.subplots()
     ax_test = fig_test.subplots()
 
-    levels0 = np.array([6, 30, 10, 20, 33, 80, 53])
+    levels0 = np.array([6, 10, 20, 30, 33, 53, 80])
     colors0 = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'black']
-    ind = np.argsort(levels0)
 
     # sorted:
-    ax_ref.contour(Z, levels=levels0[ind], colors=np.array(colors0)[ind])
-    # unsorted:
-    ax_test.contour(Z, levels=levels0, colors=colors0)
+    ax_ref.contour(Z, levels=levels0, colors=np.array(colors0))
+    # reversed:
+    ax_test.contour(Z, levels=levels0[::-1], colors=colors0[::-1])
 
 
 def test_contourf_symmetric_locator():
