@@ -155,13 +155,7 @@ path to the font on the filesystem.
 Font fallback
 -------------
 
-There is no font that covers the entire Unicode space thus it is possible for the
-users to require a mix of glyphs that cannot be satisfied from a single font.
-While it has been possible to use multiple fonts within a Figure, on distinct
-`.Text` instances, it was not previous possible to use multiple fonts in the
-same `.Text` instance (as a web browser does).  As of Matplotlib 3.6 the Agg,
-SVG, PDF, and PS backends will "fallback" through multiple fonts in a single
-`.Text` instance:
+As of Matplotlib 3.6 the Agg, SVG, PDF, and PS backends will "fallback" through multiple fonts in a single `.Text` instance. For example, the string "There are 几个汉字 in between!" is rendered with 2 fonts:
 """  # noqa: E501
 
 import matplotlib.pyplot as plt
