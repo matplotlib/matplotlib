@@ -289,6 +289,7 @@ def test_fontcache_thread_safe():
     subprocess_run_helper(_test_threading, timeout=10)
 
 
+@pytest.mark.subprocess
 def test_lockfilefailure(tmp_path):
     # The logic here:
     # 1. get a temp directory from pytest

@@ -11,6 +11,7 @@ from matplotlib.backends.backend_webagg_core import (
 from matplotlib.testing import subprocess_run_for_testing
 
 
+@pytest.mark.subprocess
 @pytest.mark.parametrize("backend", ["webagg", "nbagg"])
 def test_webagg_fallback(backend):
     pytest.importorskip("tornado")

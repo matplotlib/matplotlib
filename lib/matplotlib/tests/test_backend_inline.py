@@ -10,6 +10,7 @@ nbformat = pytest.importorskip('nbformat')
 pytest.importorskip('nbconvert')
 pytest.importorskip('ipykernel')
 pytest.importorskip('matplotlib_inline')
+pytestmark = pytest.mark.subprocess
 
 
 def test_ipynb():
