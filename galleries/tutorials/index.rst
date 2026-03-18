@@ -14,23 +14,23 @@ Introductory
 
 .. minigallery::
 
-   pyplot.py
-   images.py
-   coding_shortcuts.py
+   ../galleries/tutorials/pyplot.py
+   ../galleries/tutorials/images.py
+   ../galleries/tutorials/coding_shortcuts.py
 
 Intermediate
 ------------
 
 .. minigallery::
 
-   lifecycle.py
+   ../galleries/tutorials/lifecycle.py
 
 Advanced
 --------
 
 .. minigallery::
 
-   artists.py
+   ../galleries/tutorials/artists.py
 
 .. toctree::
    :hidden:
