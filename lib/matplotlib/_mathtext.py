@@ -796,7 +796,7 @@ class UnicodeMathFonts(TruetypeFonts):
     """
 
     def __init__(self, default_font_prop: FontProperties, load_glyph_flags: LoadFlags):
-        TruetypeFonts.__init__(self, default_font_prop, load_glyph_flags)
+        super().__init__(default_font_prop, load_glyph_flags)
         prop = mpl.rcParams['mathtext.mathfont']  # type: ignore[index]
         font = findfont(prop)
         self.fontmap['mathfont'] = font
@@ -850,17 +850,16 @@ class UnicodeMathFonts(TruetypeFonts):
         def _is_greek_lowercase(codepoint: CharacterCodeType) -> bool:
             return codepoint in greek_lowercase_domain
 
-        # check if character is digit, latin letter, or greek letter
+        # digits, latin letters, and greek letter are mapped by separate rules
         if _is_digit(uniindex):
-            # handle digits
             _alphabet_map = {
                 'normal': 'up',
                 'rm': 'up',
-                'it': 'it',
+                'it': 'up',  # italic digits are not available
                 'tt': 'tt',
                 'sf': 'sfup',
                 'bf': 'bfup',
-                'bfit': 'bfup',
+                'bfit': 'bfup',  # bold italic digits are not available
                 'bb': 'bb',
             }
             alphabet = _alphabet_map.get(fontname, 'up')
@@ -900,7 +899,7 @@ class UnicodeMathFonts(TruetypeFonts):
         else:
             alphabet = 'up'
 
-        if (alphabet != 'up'):
+        if alphabet != 'up':
             alphabet_lut = unicode_math_lut.get(alphabet, {})
             new_uniindex = alphabet_lut.get(uniindex, uniindex)
         else:
