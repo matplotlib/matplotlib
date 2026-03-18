@@ -6,6 +6,7 @@ from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.transforms import Affine2D
 
 import pytest
+from matplotlib.markers import MarkerStyle
 
 
 def test_marker_fillstyle():
@@ -14,16 +15,35 @@ def test_marker_fillstyle():
     assert not marker_style.is_filled()
 
 
-def test_marker_fillstyle_rotation():
+def test_marker_with_attrs_fillstyle():
 
-    fig, ax = plt.subplots()
+    marker = MarkerStyle("*")
+    new_marker = marker._with_attrs(fillstyle="left")
 
-    for x, angle in zip([0, 1, 2], [0, 45, 90]):
-        line, = ax.plot(x, 0, marker="*", markersize=20)
-        line.set_fillstyle("left")
-        line.set_marker((5, 1, angle))
+    assert new_marker.get_fillstyle() == "left"
+    assert new_marker is not marker
 
-    fig.canvas.draw()
+
+def test_marker_with_attrs_preserves_transform():
+
+    transform = Affine2D().rotate_deg(45)
+    marker = MarkerStyle("*", transform=transform)
+
+    new_marker = marker._with_attrs(fillstyle="left")
+    assert new_marker._user_transform is marker._user_transform
+
+
+def test_marker_with_attrs_preserves_other_props():
+
+    transform = Affine2D().rotate_deg(30)
+    marker = MarkerStyle("*", fillstyle="full", transform=transform)
+
+    new_marker = marker._with_attrs()
+
+    assert new_marker.get_fillstyle() == marker.get_fillstyle()
+    assert new_marker._user_transform is marker._user_transform
+    assert new_marker.get_marker() == marker.get_marker()
+    assert new_marker is not marker
 
 
 @pytest.mark.parametrize('marker', [

@@ -134,6 +134,7 @@ from collections.abc import Hashable, Sized
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib._api import UNSET
 from . import _api, cbook
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
@@ -263,21 +264,34 @@ class MarkerStyle:
         self._filled = self._fillstyle != 'none'
         self._marker_function()
 
-    @classmethod
-    def _with_attrs(cls, other, **kwargs):
+    def _with_attrs(self, *, fillstyle=UNSET):
+        """
+        Return a new MarkerStyle with updated attributes.
 
-        if not isinstance(other, cls):
-            other = cls(other)
+        Parameters
+        ----------
+        fillstyle : str, optional
+            The fillstyle to apply. If not provided, the existing
+            fillstyle value is preserved.
 
-        marker = kwargs.get("marker", other.get_marker())
-        fillstyle = kwargs.get("fillstyle", other.get_fillstyle())
+        Notes
+        -----
+        For markers such as '*', the fillstyle must be set during
+        initialization because it affects how the marker path is constructed.
+        Updating the fillstyle after initialization does not correctly
+        update half-filled markers.
+        """
+        marker = (
+            self._marker.get_marker()
+              if isinstance(self._marker, MarkerStyle)
+                else self._marker
+        )
+        if fillstyle is UNSET:
+            new = MarkerStyle(marker, fillstyle=self._fillstyle)
+        else:
+            new = MarkerStyle(marker, fillstyle=fillstyle)
 
-        new = cls(marker=marker, fillstyle=fillstyle)
-
-        new._user_transform = other._user_transform
-        new._joinstyle = other._joinstyle
-        new._capstyle = other._capstyle
-        new._snap_threshold = other._snap_threshold
+        new._user_transform = self._user_transform
 
         return new
 

@@ -554,7 +554,7 @@ class Line2D(Artist):
         if not isinstance(marker, MarkerStyle):
             marker = MarkerStyle(marker)
 
-        new_marker = MarkerStyle._with_attrs(marker, fillstyle=fs)
+        new_marker = marker._with_attrs(fillstyle=fs)
 
         self.set_marker(new_marker)
         self.stale = True
