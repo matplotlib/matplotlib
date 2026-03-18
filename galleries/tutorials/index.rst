@@ -141,28 +141,37 @@ Many of our tutorials were moved from this section to :ref:`users-guide-index`:
 Introductory
 ^^^^^^^^^^^^
 
-- :ref:`quick_start`
-- :ref:`customizing`
-- :ref:`animations`
+.. minigallery::
+   :add-heading:
+
+   quick_start
+   customizing
+   animations
 
 Intermediate
 ^^^^^^^^^^^^
 
-- :ref:`legend_guide`
-- :ref:`color_cycle`
-- :ref:`constrainedlayout_guide`
-- :ref:`tight_layout_guide`
-- :ref:`arranging_axes`
-- :ref:`autoscale`
-- :ref:`imshow_extent`
+.. minigallery::
+   :add-heading:
+
+   legend_guide
+   color_cycle
+   constrainedlayout_guide
+   tight_layout_guide
+   arranging_axes
+   autoscale
+   imshow_extent
 
 Advanced
 ^^^^^^^^
 
-- :ref:`blitting`
-- :ref:`paths`
-- :ref:`patheffects_guide`
-- :ref:`transforms_tutorial`
+.. minigallery::
+   :add-heading:
+
+   blitting
+   paths
+   patheffects_guide
+   transforms_tutorial
 
 Colors
 ^^^^^^
