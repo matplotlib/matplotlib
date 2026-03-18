@@ -9,127 +9,37 @@ For shorter examples, see our :ref:`examples page <examples-index>`.
 You can also find :ref:`external resources <resources-index>` and
 a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
 
+Introductory
+------------
 
-.. raw:: html
+.. minigallery::
 
-    <div class="sphx-glr-thumbnails">
+   pyplot.py
+   images.py
+   coding_shortcuts.py
 
+Intermediate
+------------
 
-.. raw:: html
+.. minigallery::
 
-    <div class="sphx-glr-thumbcontainer" tooltip="An introduction to the pyplot interface.  Please also see quick_start for an overview of how Ma...">
+   lifecycle.py
 
-.. only:: html
+Advanced
+--------
 
-  .. image:: /tutorials/images/thumb/sphx_glr_pyplot_thumb.png
-    :alt: Pyplot tutorial
+.. minigallery::
 
-  :ref:`sphx_glr_tutorials_pyplot.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Pyplot tutorial</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Coding shortcuts">
-
-.. only:: html
-
-  .. image:: /tutorials/images/thumb/sphx_glr_coding_shortcuts_thumb.png
-    :alt: Coding shortcuts
-
-  :ref:`sphx_glr_tutorials_coding_shortcuts.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Coding shortcuts</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="A short tutorial on plotting images with Matplotlib.">
-
-.. only:: html
-
-  .. image:: /tutorials/images/thumb/sphx_glr_images_thumb.png
-    :alt: Image tutorial
-
-  :ref:`sphx_glr_tutorials_images.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Image tutorial</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="This tutorial aims to show the beginning, middle, and end of a single visualization using Matpl...">
-
-.. only:: html
-
-  .. image:: /tutorials/images/thumb/sphx_glr_lifecycle_thumb.png
-    :alt: The Lifecycle of a Plot
-
-  :ref:`sphx_glr_tutorials_lifecycle.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">The Lifecycle of a Plot</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Using Artist objects to render on the canvas.">
-
-.. only:: html
-
-  .. image:: /tutorials/images/thumb/sphx_glr_artists_thumb.png
-    :alt: Artist tutorial
-
-  :ref:`sphx_glr_tutorials_artists.py`
-
-  .. minigallery:: artists.py
-     :add-heading:
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Artist tutorial</div>
-    </div>
-
-
-.. raw:: html
-
-    </div>
-
+   artists.py
 
 .. toctree::
    :hidden:
 
-   /tutorials/pyplot
-   /tutorials/coding_shortcuts
-   /tutorials/images
-   /tutorials/lifecycle
-   /tutorials/artists
-
-.. only:: html
-
-  .. container:: sphx-glr-footer sphx-glr-footer-gallery
-
-    .. container:: sphx-glr-download sphx-glr-download-python
-
-      :download:`Download all examples in Python source code: tutorials_python.zip </tutorials/tutorials_python.zip>`
-
-    .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-      :download:`Download all examples in Jupyter notebooks: tutorials_jupyter.zip </tutorials/tutorials_jupyter.zip>`
-
-
+   pyplot
+   coding_shortcuts
+   images
+   lifecycle
+   artists
 
 .. _user_guide_tutorials:
 
@@ -141,37 +51,28 @@ Many of our tutorials were moved from this section to :ref:`users-guide-index`:
 Introductory
 ^^^^^^^^^^^^
 
-.. minigallery::
-   :add-heading:
-
-   quick_start
-   customizing
-   animations
+- :ref:`quick_start`
+- :ref:`customizing`
+- :ref:`animations`
 
 Intermediate
 ^^^^^^^^^^^^
 
-.. minigallery::
-   :add-heading:
-
-   legend_guide
-   color_cycle
-   constrainedlayout_guide
-   tight_layout_guide
-   arranging_axes
-   autoscale
-   imshow_extent
+- :ref:`legend_guide`
+- :ref:`color_cycle`
+- :ref:`constrainedlayout_guide`
+- :ref:`tight_layout_guide`
+- :ref:`arranging_axes`
+- :ref:`autoscale`
+- :ref:`imshow_extent`
 
 Advanced
 ^^^^^^^^
 
-.. minigallery::
-   :add-heading:
-
-   blitting
-   paths
-   patheffects_guide
-   transforms_tutorial
+- :ref:`blitting`
+- :ref:`paths`
+- :ref:`patheffects_guide`
+- :ref:`transforms_tutorial`
 
 Colors
 ^^^^^^
