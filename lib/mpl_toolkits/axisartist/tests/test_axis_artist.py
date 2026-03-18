@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
+import mpl_toolkits.axisartist as axisartist
 
 from mpl_toolkits.axisartist import AxisArtistHelperRectlinear
 from mpl_toolkits.axisartist.axis_artist import (AxisArtist, AxisLabel,
@@ -100,3 +101,17 @@ def test_axis_artist():
     axisline.label.set_pad(5)
 
     ax.set_ylabel("Test")
+
+
+def test_axisartist_xlabel_update_after_draw_without_rendering():
+
+    fig = plt.figure()
+    ax = fig.add_subplot(axes_class=axisartist.Axes)
+
+    ax.set_xlabel("first label")
+    fig.draw_without_rendering()
+
+    ax.set_xlabel("second label")
+    fig.canvas.draw()
+
+    assert ax.get_xlabel() == "second label"

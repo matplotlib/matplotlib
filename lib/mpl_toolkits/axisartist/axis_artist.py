@@ -1005,6 +1005,10 @@ class AxisArtist(martist.Artist):
     def _update_label(self, renderer):
         if not self.label.get_visible():
             return
+        if self.label._text == "__from_axes__":
+            self.label.stale = True
+            if self.axes is not None:
+                self.axes.stale = True
 
         if self._ticklabel_add_angle != self._axislabel_add_angle:
             if ((self.major_ticks.get_visible()
