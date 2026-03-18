@@ -130,6 +130,7 @@ Examples showing the use of markers:
 import copy
 
 from collections.abc import Hashable, Sized
+from hashlib import new
 
 import numpy as np
 
@@ -393,7 +394,22 @@ class MarkerStyle:
         else:
             new_marker._user_transform = transform
         return new_marker
+    def _with_attrs(self, **kwargs):
+        """
+        Return a copy of this MarkerStyle with updated attributes.
 
+        Existing attributes are preserved unless explicitly overridden.
+        """
+        new = copy.copy(self)
+
+    # Update only provided attributes
+        for key, value in kwargs.items():
+         if key == "fillstyle":
+            new._set_fillstyle(value)
+        else:
+            setattr(new, key, value)
+
+        return new
     def rotated(self, *, deg=None, rad=None):
         """
         Return a new version of this marker rotated by specified angle.
