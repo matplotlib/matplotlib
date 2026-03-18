@@ -400,7 +400,7 @@ class MarkerStyle:
 
         Existing attributes are preserved unless explicitly overridden.
         """
-        new = copy.copy(self)
+        new_marker = copy.copy(self)
 
     # Update only provided attributes
         for key, value in kwargs.items():
@@ -409,7 +409,7 @@ class MarkerStyle:
         else:
             setattr(new, key, value)
 
-        return new
+        return new_marker
     def rotated(self, *, deg=None, rad=None):
         """
         Return a new version of this marker rotated by specified angle.
