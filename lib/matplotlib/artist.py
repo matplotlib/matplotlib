@@ -255,11 +255,12 @@ Supported properties are
             # clear stale callback
             self.stale_callback = None
             _ax_flag = False
-            from matplotlib.axes import Axes
-            if hasattr(self, 'axes') and self.axes is not None and isinstance(self.axes, Axes):
+            ax = getattr(self, 'axes', None)
+            mouseover_set = getattr(ax, '_mouseover_set', None)
+            if mouseover_set is not None:
                 # remove from the mouse hit list
-                self.axes._mouseover_set.discard(self)
-                self.axes.stale = True
+                mouseover_set.discard(self)
+                ax.stale = True
                 self.axes = None  # decouple the artist from the Axes
                 _ax_flag = True
 
