@@ -15,8 +15,8 @@ Introductory
 .. minigallery::
 
    ../galleries/tutorials/pyplot.py
-   ../galleries/tutorials/images.py
    ../galleries/tutorials/coding_shortcuts.py
+   ../galleries/tutorials/images.py
 
 Intermediate
 ------------
