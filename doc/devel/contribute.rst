@@ -310,6 +310,11 @@ guide you through each step:
     .. literalinclude:: ../../.github/PULL_REQUEST_TEMPLATE.md
        :language: markdown
 
+Make sure you finish addressing any review comments on your first PR and wait
+for it to be merged before opening a new one. It can be a valuable learning
+experience to go through the review process and to get feedback on your
+contribution, while also helping maintainers spend their time effectively.
+
 .. _get_connected:
 
 Get connected
