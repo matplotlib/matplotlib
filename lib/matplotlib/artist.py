@@ -255,7 +255,8 @@ Supported properties are
             # clear stale callback
             self.stale_callback = None
             _ax_flag = False
-            if hasattr(self, 'axes') and self.axes:
+            from matplotlib.axes import Axes
+            if hasattr(self, 'axes') and self.axes is not None and isinstance(self.axes, Axes):
                 # remove from the mouse hit list
                 self.axes._mouseover_set.discard(self)
                 self.axes.stale = True
