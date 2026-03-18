@@ -1004,19 +1004,18 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                 clipped, gc.snap_mode, path.total_vertices(), points_to_pixels(gc.linewidth));
             if (has_codes) {
                 snapped_curve_t curve(snapped);
-                sketch_snapped_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
-                _draw_path(sketch, has_clippath, face, gc);
+sketch_snapped_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness, gc.sketch.seed);                _draw_path(sketch, has_clippath, face, gc);
             } else {
-                sketch_snapped_t sketch(snapped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                sketch_snapped_t sketch(snapped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness, gc.sketch.seed);
                 _draw_path(sketch, has_clippath, face, gc);
             }
         } else {
             if (has_codes) {
                 curve_t curve(clipped);
-                sketch_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                sketch_curve_t sketch(curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness, gc.sketch.seed);
                 _draw_path(sketch, has_clippath, face, gc);
             } else {
-                sketch_clipped_t sketch(clipped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness);
+                sketch_clipped_t sketch(clipped, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness, gc.sketch.seed);
                 _draw_path(sketch, has_clippath, face, gc);
             }
         }
