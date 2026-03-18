@@ -6543,10 +6543,8 @@ or pandas.DataFrame
             :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
             If ``shading='flat'`` the dimensions of *X* and *Y* should be one
-            greater than those of *C*, and the quadrilateral is colored due
-            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
-            dimensions, a warning will be raised and the last row and column
-            of *C* will be ignored.
+            greater than those of *C*, otherwise a ValueError is raised.  The
+            quadrilateral is colored due to the value at ``C[i, j]``.
 
             If ``shading='nearest'``, the dimensions of *X* and *Y* should be
             the same as those of *C* (if not, a ValueError will be raised). The
@@ -6750,10 +6748,8 @@ or pandas.DataFrame
             :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
             If ``shading='flat'`` the dimensions of *X* and *Y* should be one
-            greater than those of *C*, and the quadrilateral is colored due
-            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
-            dimensions, a warning will be raised and the last row and column
-            of *C* will be ignored.
+            greater than those of *C*, otherwise a ValueError is raised. The
+            quadrilateral is colored due to the value at ``C[i, j]``.
 
             If ``shading='nearest'`` or ``'gouraud'``, the dimensions of *X*
             and *Y* should be the same as those of *C* (if not, a ValueError

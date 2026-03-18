@@ -15,6 +15,8 @@ import numpy as np
 
 from matplotlib.backends.backend_pdf import PdfPages
 
+# sphinx_gallery_thumbnail_path = '_static/multipage_pdf_thumbnail.svg'
+
 # Create the PdfPages object to which we will save the pages:
 # The with statement makes sure that the PdfPages object is closed properly at
 # the end of the block, even if an Exception occurs.
