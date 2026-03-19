@@ -35,11 +35,7 @@ Advanced
 .. toctree::
    :hidden:
 
-   pyplot
-   coding_shortcuts
-   images
-   lifecycle
-   artists
+  *.py
 
 .. _user_guide_tutorials:
 
