@@ -117,3 +117,29 @@ def test_generate_normals():
     ax = fig.add_subplot(projection='3d')
     ax.add_collection3d(shape)
     plt.draw()
+
+
+def test_poly3dcollection_facecolor_order():
+    """Regression test: set_fc(get_fc()) must not shuffle facecolor order."""
+    import numpy as np
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    xi, zi = np.mgrid[0:3, 0:3]
+    colors = np.array([
+        [1, 0, 0, 1],
+        [0, 1, 0, 1],
+        [0, 0, 1, 1],
+        [1, 1, 0, 1],
+    ])
+
+    surf = ax.plot_surface(xi, np.zeros_like(xi), zi,
+                           facecolors=colors.reshape(2, 2, 4),
+                           shade=False)
+
+    original = surf.get_fc().copy()
+    surf.set_fc(surf.get_fc())
+    after = surf.get_fc()
+
+    np.testing.assert_array_equal(original, after)
+    plt.close(fig)
