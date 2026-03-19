@@ -27,9 +27,9 @@ jobs:
             comment below and that should bring it to our attention.
             Most of our reviewers are volunteers and sometimes things fall
             through the cracks. We also ask that you please finish addressing
-            any review comments on this PR and wait for it to be merged before
-            opening a new one, as it can be a valuable learning experience to go
-            through the review process.
+            any review comments on this PR and wait for it to be merged (or
+            closed) before opening a new one, as it can be a valuable learning
+            experience to go through the review process.
 
 
             You can also join us [on
