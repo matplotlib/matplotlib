@@ -31,14 +31,15 @@ import matplotlib
 
 import itertools
 
+
 class PreserveOrder:
     """A sorting key to preserve the original order of items in minigalleries."""
     def __init__(self):
         self.count = itertools.count()
-        
+
     def __call__(self, item):
         return next(self.count)
-        
+
     def __repr__(self):
         return "PreserveOrder()"
 
