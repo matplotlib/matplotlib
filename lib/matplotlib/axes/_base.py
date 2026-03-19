@@ -1779,9 +1779,10 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         adjustable : {'box', 'datalim'}
-            If 'box', change the physical dimensions of the Axes.
-            If 'datalim', change the ``x`` or ``y`` data limits. This
-            may ignore explicitly defined axis limits.
+            If 'box', Explain the plot area itsef,will shrink or grow to fit the aspect ratio, leaving more background space (whitespace) around it if needed. 
+            This is best for when you want your plot to remain a perfect square or circle regardless of the window size.
+            If 'datalim', Explain that the plot area stays the same size (filling the available space), but Matplotlib will add extra padding to the axis numbers (limits) to keep the aspect ratio correct.
+            This is best if you want your plot to always fill the entire window.
 
         share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
@@ -1795,6 +1796,12 @@ class _AxesBase(martist.Artist):
 
         Notes
         -----
+        Summary:
+        - Use 'datalim' for twinned Axes (e.g., sharing an x-axis but having different y-scales).
+        - Use 'box' for Axes that share both x and y scales.
+        - In most other cases, 'box' is preferred to keep the plot area size consistent.
+    
+        Technical details:
         Shared Axes (of which twinned Axes are a special case)
         impose restrictions on how aspect ratios can be imposed.
         For twinned Axes, use 'datalim'.  For Axes that share both
