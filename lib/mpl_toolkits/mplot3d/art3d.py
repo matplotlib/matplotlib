@@ -1457,11 +1457,11 @@ class Poly3DCollection(PolyCollection):
 
     def get_facecolor(self):
         # docstring inherited
-        # self._facecolors2d is not initialized until do_3d_projection
-        if not hasattr(self, '_facecolors2d'):
+        # self._facecolors3d is not initialized until do_3d_projection
+        if not hasattr(self, '_facecolors3d'):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
-        return np.asarray(self._facecolors2d)
+        return np.asarray(self._facecolors3d)
 
     def get_edgecolor(self):
         # docstring inherited
