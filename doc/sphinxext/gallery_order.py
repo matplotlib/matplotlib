@@ -3,6 +3,7 @@ Configuration for the order of gallery sections and examples.
 Paths are relative to the conf.py file.
 """
 
+import itertools
 from sphinx_gallery.sorting import ExplicitOrder
 
 # Gallery sections shall be displayed in the following order.
@@ -125,3 +126,9 @@ class MplExplicitSubOrder(ExplicitOrder):
 # Provide the above classes for use in conf.py
 sectionorder = MplExplicitOrder(explicit_order_folders)
 subsectionorder = MplExplicitSubOrder
+
+_preserve_count = itertools.count()
+
+def preserve_order(item):
+    """A sorting key to preserve the original order of items in minigalleries."""
+    return next(_preserve_count)

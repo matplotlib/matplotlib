@@ -29,20 +29,6 @@ import yaml
 
 import matplotlib
 
-import itertools
-
-
-class PreserveOrder:
-    """A sorting key to preserve the original order of items in minigalleries."""
-    def __init__(self):
-        self.count = itertools.count()
-
-    def __call__(self, item):
-        return next(self.count)
-
-    def __repr__(self):
-        return "PreserveOrder()"
-
 # debug that building expected version
 print(f"Building Documentation for Matplotlib: {matplotlib.__version__}")
 
@@ -307,7 +293,7 @@ for gd in gallery_dirs:
 
 sphinx_gallery_conf = {
     'backreferences_dir': Path('api', '_as_gen'),
-    'minigallery_sort_order': PreserveOrder(),
+    'minigallery_sort_order': 'sphinxext.gallery_order.preserve_order',
     # Compression is a significant effort that we skip for local and CI builds.
     'compress_images': ('thumbnails', 'images') if is_release_build else (),
     'doc_module': ('matplotlib', 'mpl_toolkits'),
