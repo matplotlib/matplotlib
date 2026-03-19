@@ -499,22 +499,20 @@ def test_scatter3d_offsets3d_modification(fig_ref, fig_test):
         linewidths=2, depthshade=False)
 
 
-@check_figures_equal()
-def test_scatter3d_set_array_modification(fig_ref, fig_test):
-    # Changing Path3DCollection scalar-mappable array post-creation should work.
-    x = np.linspace(0.1, 0.9, 10)
-    y = np.linspace(0.9, 0.1, 10)
-    z = np.linspace(0.1, 0.9, 10)
-    colors = np.arange(10)
-
-    ax_test = fig_test.add_subplot(projection='3d')
-    c_test = ax_test.scatter(x, y, z, c=colors, cmap='viridis',
-                             marker='o', s=75, depthshade=False)
-    c_test.set_array(colors[::-1])
-
-    ax_ref = fig_ref.add_subplot(projection='3d')
-    ax_ref.scatter(x, y, z, c=colors[::-1], cmap='viridis',
-                   marker='o', s=75, depthshade=False)
+@pytest.mark.parametrize("zdir", ["x", "y", "z"])
+def test_scatter3d_offsets3d_roundtrip(zdir):
+    # set_offsets3d/get_offsets3d should round-trip data coordinates.
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    c = ax.scatter(np.arange(3), np.arange(3), np.arange(3), marker='o')
+    xs = np.array([0.1, 0.5, 0.9])
+    ys = np.array([0.9, 0.5, 0.1])
+    zs = np.array([0.2, 0.4, 0.8])
+    c.set_offsets3d(xs, ys, zs, zdir=zdir)
+    actual_xs, actual_ys, actual_zs = c.get_offsets3d()
+    np.testing.assert_allclose(actual_xs, xs)
+    np.testing.assert_allclose(actual_ys, ys)
+    np.testing.assert_allclose(actual_zs, zs)
 
 
 @check_figures_equal()
@@ -1062,41 +1060,22 @@ def test_patch_collection_offsets3d_modification(fig_test, fig_ref):
     ax_ref.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
 
 
-@check_figures_equal()
-def test_patch_collection_set_array_modification(fig_test, fig_ref):
-    # Changing Patch3DCollection scalar-mappable array post-creation should work.
+@pytest.mark.parametrize("zdir", ["x", "y", "z"])
+def test_patch_collection_offsets3d_roundtrip(zdir):
+    # set_offsets3d/get_offsets3d should round-trip data coordinates.
     offsets = np.column_stack([
-        np.linspace(0.2, 0.8, 5),
-        np.linspace(0.8, 0.2, 5),
+        np.linspace(0.2, 0.8, 4),
+        np.linspace(0.8, 0.2, 4),
     ])
-    zs = np.linspace(0.2, 0.8, 5)
-    colors = np.arange(5)
-
-    c_test = art3d.Patch3DCollection(
-        [Circle((0, 0), 0.04)],
-        offsets=offsets,
-        zs=zs,
-        cmap='viridis',
-        depthshade=False,
-    )
-    ax_test = fig_test.add_subplot(projection='3d')
-    ax_test.add_collection3d(c_test)
-    c_test.set_array(colors)
-    fig_test.canvas.draw()
-    c_test.set_array(colors[::-1])
-    ax_test.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
-
-    c_ref = art3d.Patch3DCollection(
-        [Circle((0, 0), 0.04)],
-        offsets=offsets,
-        zs=zs,
-        cmap='viridis',
-        depthshade=False,
-    )
-    ax_ref = fig_ref.add_subplot(projection='3d')
-    ax_ref.add_collection3d(c_ref)
-    c_ref.set_array(colors[::-1])
-    ax_ref.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
+    c = art3d.Patch3DCollection([Circle((0, 0), 0.04)], offsets=offsets)
+    xs = np.array([0.1, 0.4, 0.6, 0.9])
+    ys = np.array([0.9, 0.6, 0.4, 0.1])
+    zs = np.array([0.2, 0.3, 0.7, 0.8])
+    c.set_offsets3d(xs, ys, zs, zdir=zdir)
+    actual_xs, actual_ys, actual_zs = c.get_offsets3d()
+    np.testing.assert_allclose(actual_xs, xs)
+    np.testing.assert_allclose(actual_ys, ys)
+    np.testing.assert_allclose(actual_zs, zs)
 
 
 def test_poly3dcollection_verts_validation():

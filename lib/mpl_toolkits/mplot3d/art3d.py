@@ -696,6 +696,10 @@ def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
 class Patch3DCollection(PatchCollection):
     """
     A collection of 3D patches.
+
+    .. note:: Use `get_offsets3d` and `set_offsets3d` to obtain and set the
+              collection offsets in data coordinates. `~.Collection.get_offsets`
+              and `~.Collection.set_offsets` access the projected 2D offsets.
     """
 
     def __init__(
@@ -810,11 +814,34 @@ class Patch3DCollection(PatchCollection):
             Plane to plot patches orthogonal to.
             See `.get_dir_vector` for a description of the values.
         """
+        xs = np.asanyarray(xs)
+        ys = np.asanyarray(ys)
+        zs = np.asanyarray(np.atleast_1d(zs))
+        self._offsets3d_data = (xs, ys, zs)
         self._zdir = zdir
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self._offsets3d = juggle_axes(xs, ys, zs, zdir)
         self._z_markers_idx = slice(-1)
         self._vzs = None
         self.stale = True
+
+    def get_offsets3d(self):
+        """
+        Get the collection offsets in 3D data coordinates.
+
+        Returns
+        -------
+        xs, ys, zs : array-like
+            The x, y, and z coordinates of the collection offsets.
+        """
+        if hasattr(self, "_offsets3d_data"):
+            return self._offsets3d_data
+        # Backward compatibility for instances that pre-date get_offsets3d.
+        xs3d, ys3d, zs3d = self._offsets3d
+        if cbook._str_equal(self._zdir, 'x'):
+            return ys3d, zs3d, xs3d
+        if cbook._str_equal(self._zdir, 'y'):
+            return xs3d, zs3d, ys3d
+        return xs3d, ys3d, zs3d
 
     def do_3d_projection(self):
         if self._axlim_clip:
@@ -886,6 +913,10 @@ def _get_data_scale(X, Y, Z):
 class Path3DCollection(PathCollection):
     """
     A collection of 3D paths.
+
+    .. note:: Use `get_offsets3d` and `set_offsets3d` to obtain and set the
+              collection offsets in data coordinates. `~.Collection.get_offsets`
+              and `~.Collection.set_offsets` access the projected 2D offsets.
     """
 
     def __init__(
@@ -993,12 +1024,35 @@ class Path3DCollection(PathCollection):
             Plane to plot paths orthogonal to.
             See `.get_dir_vector` for a description of the values.
         """
+        xs = np.asanyarray(xs)
+        ys = np.asanyarray(ys)
+        zs = np.asanyarray(np.atleast_1d(zs))
+        self._offsets3d_data = (xs, ys, zs)
         self._zdir = zdir
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self._offsets3d = juggle_axes(xs, ys, zs, zdir)
         self._z_markers_idx = slice(-1)
         self._vzs = None
         self._offset_zordered = None
         self.stale = True
+
+    def get_offsets3d(self):
+        """
+        Get the collection offsets in 3D data coordinates.
+
+        Returns
+        -------
+        xs, ys, zs : array-like
+            The x, y, and z coordinates of the collection offsets.
+        """
+        if hasattr(self, "_offsets3d_data"):
+            return self._offsets3d_data
+        # Backward compatibility for instances that pre-date get_offsets3d.
+        xs3d, ys3d, zs3d = self._offsets3d
+        if cbook._str_equal(self._zdir, 'x'):
+            return ys3d, zs3d, xs3d
+        if cbook._str_equal(self._zdir, 'y'):
+            return xs3d, zs3d, ys3d
+        return xs3d, ys3d, zs3d
 
     def set_sizes(self, sizes, dpi=72.0):
         super().set_sizes(sizes, dpi)
