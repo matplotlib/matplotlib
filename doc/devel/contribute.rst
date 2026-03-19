@@ -304,7 +304,7 @@ guide you through each step:
    and ensure you understand/are able to complete the template when you open your pull request.
    Additional information can be found in the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
 
-.. note::
+.. important::
 
   Make sure you finish addressing any review comments on your first PR and wait
   for it to be merged (or closed)before opening a new one. It can be a valuable
