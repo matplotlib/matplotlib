@@ -1796,17 +1796,16 @@ class _AxesBase(martist.Artist):
 
         Notes
         -----
-        Summary:
-        - Use 'datalim' for twinned Axes (e.g., sharing an x-axis but having different y-scales).
-        - Use 'box' for Axes that share both x and y scales.
-        - In most other cases, 'box' is preferred to keep the plot area size consistent.
-    
-        Technical details:
+        Use 'datalim' for twinned Axes (e.g., sharing an x-axis but having 
+        different y-scales). Use 'box' for Axes that share both x and y 
+        scales. In most other cases, 'box' is preferred to keep the plot 
+        area size consistent.
+
         Shared Axes (of which twinned Axes are a special case)
         impose restrictions on how aspect ratios can be imposed.
-        For twinned Axes, use 'datalim'.  For Axes that share both
-        x and y, use 'box'.  Otherwise, either 'datalim' or 'box'
-        may be used.  These limitations are partly a requirement
+        For twinned Axes, use 'datalim'. For Axes that share both
+        x and y, use 'box'. Otherwise, either 'datalim' or 'box'
+        may be used. These limitations are partly a requirement
         to avoid over-specification, and partly a result of the
         particular implementation we are currently using, in
         which the adjustments for aspect ratios are done sequentially
