@@ -274,7 +274,8 @@ def test_sketch_rolling_seed():
     buf2.seek(0)
     assert buf1.read() == buf2.read()
     plt.close('all')
-    
+
+
 @image_comparison(['xkcd.png'], remove_text=True)
 def test_xkcd():
     np.random.seed(0)
