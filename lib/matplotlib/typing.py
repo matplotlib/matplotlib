@@ -418,6 +418,7 @@ RcKeyType: TypeAlias = Literal[
     "path.simplify",
     "path.simplify_threshold",
     "path.sketch",
+    "path.sketch_seed",
     "path.snap",
     "pcolor.shading",
     "pcolormesh.snap",

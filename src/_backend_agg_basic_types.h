@@ -220,7 +220,7 @@ namespace PYBIND11_NAMESPACE { namespace detail {
                 return true;
             }
 
-         
+
 
             auto params = src.cast<std::tuple<double, double, double, int>>();
             std::tie(value.scale, value.length, value.randomness, value.seed) = params;
