@@ -129,6 +129,7 @@ subsectionorder = MplExplicitSubOrder
 
 _preserve_count = itertools.count()
 
+
 def preserve_order(item):
     """A sorting key to preserve the original order of items in minigalleries."""
     return next(_preserve_count)
