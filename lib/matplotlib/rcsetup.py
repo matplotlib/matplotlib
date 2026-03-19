@@ -3015,6 +3015,13 @@ _DEFINITION = [
                     "  scaled."
     ),
     _Param(
+        "path.sketch_seed",
+        default=0,
+        validator=validate_sketch_seed,
+        description="Seed for the random number generator used in sketch mode. "
+                    "The seed is auto-incremented after each path is drawn."
+    ),
+    _Param(
         "path.effects",
         default=[],
         validator=validate_anylist
