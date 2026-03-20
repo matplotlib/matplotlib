@@ -530,8 +530,6 @@ class Line2D(Artist):
         """
         return self._marker.get_fillstyle()
 
-    from matplotlib.markers import MarkerStyle
-
     def set_fillstyle(self, fs):
         """
         Set the marker fill style.
@@ -549,12 +547,7 @@ class Line2D(Artist):
 
             For examples see :ref:`marker_fill_styles`.
         """
-        marker = self._marker
-
-        if not isinstance(marker, MarkerStyle):
-            marker = MarkerStyle(marker)
-
-        new_marker = marker._with_attrs(fillstyle=fs)
+        new_marker = self._marker._with_attrs(fillstyle=fs)
 
         self.set_marker(new_marker)
         self.stale = True
@@ -1221,11 +1214,14 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        marker : marker style string, `~.path.Path` or `~.markers.MarkerStyle`
+        marker : marker style string, `~.path.Path` or `~.MarkerStyle`
             See `~matplotlib.markers` for full description of possible
             arguments.
         """
-        self._marker = MarkerStyle(marker, self._marker.get_fillstyle())
+        if not isinstance(marker, MarkerStyle):
+            marker = MarkerStyle(marker, self._marker.get_fillstyle())
+
+        self._marker = marker
         self.stale = True
 
     def _set_markercolor(self, name, has_rcdefault, val):

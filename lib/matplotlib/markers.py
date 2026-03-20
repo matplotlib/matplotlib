@@ -281,16 +281,12 @@ class MarkerStyle:
         Updating the fillstyle after initialization does not correctly
         update half-filled markers.
         """
-        marker = (
-            self._marker.get_marker()
-              if isinstance(self._marker, MarkerStyle)
-                else self._marker
-        )
-        if fillstyle is UNSET:
-            new = MarkerStyle(marker, fillstyle=self._fillstyle)
-        else:
-            new = MarkerStyle(marker, fillstyle=fillstyle)
+        marker = self.get_marker()
 
+        if fillstyle is UNSET:
+            fillstyle = self._fillstyle
+
+        new = MarkerStyle(marker, fillstyle=fillstyle)
         new._user_transform = self._user_transform
 
         return new
