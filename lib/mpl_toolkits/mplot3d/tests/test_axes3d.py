@@ -567,7 +567,11 @@ def test_collection3d_set_get_verts_and_codes3d():
     assert len(verts_codes) == len(cset.get_paths())
 
     delta = np.array([0.0, 0.0, 0.1])
-    verts_codes_new = [(verts + delta, codes) for verts, codes in verts_codes]
+    verts_codes_new = []
+    for i, (verts, codes) in enumerate(verts_codes):
+        # Cover both branches in code-handling assertions below.
+        new_codes = None if (i == 0 and len(verts_codes) > 1) else codes
+        verts_codes_new.append((verts + delta, new_codes))
     cset.set_verts_and_codes3d(verts_codes_new)
 
     actual_verts_codes = cset.get_verts_and_codes3d()
@@ -596,6 +600,19 @@ def test_collection3d_set_verts_and_codes3d_empty_preserves_axlim_clip():
     verts_codes = cset.get_verts_and_codes3d()
     assert verts_codes[0][0].shape == (0, 3)
     assert verts_codes[0][1] is None
+
+
+def test_patch3d_get_verts3d_legacy_fallback():
+    circle = Circle((0, 0), radius=0.1)
+    art3d.patch_2d_to_3d(circle, z=0.2, zdir='z')
+    verts = circle.get_verts3d()
+    del circle._verts3d
+    np.testing.assert_allclose(circle.get_verts3d(), verts)
+
+
+def test_planar_patch_to_3d_empty():
+    verts = art3d._planar_patch_to_3d(np.empty((0, 2)), zs=0.3, zdir='y')
+    assert verts.shape == (0, 3)
 
 
 @check_figures_equal()
@@ -1278,14 +1295,26 @@ def test_poly3dcollection_set_get_verts_and_codes3d():
 
 
 def test_poly3dcollection_get_verts3d_legacy_fallback():
-    verts = [
-        np.array([[0, 0, 0], [0, 1, 0], [0, 0, 1]], float),
-        np.array([[1, 0, 0], [1, 1, 0], [1, 0, 1]], float),
-    ]
+    verts = np.array([
+        [[0, 0, 0], [0, 1, 0], [0, 0, 1]],
+        [[1, 0, 0], [1, 1, 0], [1, 0, 1]],
+    ], dtype=float)
     c = art3d.Poly3DCollection(verts)
     del c._verts3d_data
     actual = c.get_verts3d()
     np.testing.assert_allclose(actual, verts)
+
+
+def test_poly3dcollection_get_verts3d_legacy_fallback_ragged():
+    verts = [
+        np.array([[0, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=float),
+        np.array([[1, 0, 0], [1, 1, 0], [1, 0, 1], [1, 1, 1]], dtype=float),
+    ]
+    c = art3d.Poly3DCollection(verts)
+    del c._verts3d_data
+    actual = c.get_verts3d()
+    for actual_face, expected_face in zip(actual, verts):
+        np.testing.assert_allclose(actual_face, expected_face)
 
 
 def test_poly3dcollection_get_codes3d_legacy_fallback():
