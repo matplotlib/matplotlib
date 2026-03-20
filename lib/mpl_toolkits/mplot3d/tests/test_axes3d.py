@@ -538,6 +538,33 @@ def test_add_collection3d_patch_collection_offsets3d_roundtrip(zdir):
     np.testing.assert_allclose(actual_zs, zs)
 
 
+def test_collection3d_set_get_verts_and_codes3d():
+    x = y = np.linspace(-1, 1, 5)
+    X, Y = np.meshgrid(x, y)
+    Z = X**2 + Y**2
+
+    _, ax = plt.subplots()
+    cset = ax.contour(X, Y, Z, levels=[0.5, 1.0])
+    art3d.collection_2d_to_3d(cset, zs=cset.levels, zdir='z')
+
+    verts_codes = cset.get_verts_and_codes3d()
+    assert len(verts_codes) == len(cset.get_paths())
+
+    delta = np.array([0.0, 0.0, 0.1])
+    verts_codes_new = [(verts + delta, codes) for verts, codes in verts_codes]
+    cset.set_verts_and_codes3d(verts_codes_new)
+
+    actual_verts_codes = cset.get_verts_and_codes3d()
+    for (actual_verts, actual_codes), (expected_verts, expected_codes) in zip(
+        actual_verts_codes, verts_codes_new
+    ):
+        np.testing.assert_allclose(actual_verts, expected_verts)
+        if expected_codes is None:
+            assert actual_codes is None
+        else:
+            np.testing.assert_array_equal(actual_codes, expected_codes)
+
+
 @check_figures_equal()
 def test_scatter3d_sorting(fig_ref, fig_test):
     """Test that marker properties are correctly sorted."""
@@ -1030,6 +1057,14 @@ def test_patch3d_set_get_verts3d():
     np.testing.assert_allclose(circle.get_verts3d(), verts_new)
 
 
+def test_patch3d_set_verts3d_preserves_axlim_clip():
+    circle = Circle((0, 0), radius=0.1)
+    art3d.patch_2d_to_3d(circle, z=0.2, zdir='z', axlim_clip=True)
+    assert circle._axlim_clip
+    circle.set_verts3d(circle.get_verts3d())
+    assert circle._axlim_clip
+
+
 @check_figures_equal()
 def test_patch_collection_modification(fig_test, fig_ref):
     # Test that modifying Patch3DCollection properties after creation works.
@@ -1118,6 +1153,24 @@ def test_patch_collection_offsets3d_roundtrip(zdir):
     np.testing.assert_allclose(actual_zs, zs)
 
 
+def test_patch_collection_offsets3d_roundtrip_legacy_without_zdir():
+    offsets = np.column_stack([
+        np.linspace(0.2, 0.8, 4),
+        np.linspace(0.8, 0.2, 4),
+    ])
+    c = art3d.Patch3DCollection([Circle((0, 0), 0.04)], offsets=offsets)
+    xs = np.array([0.1, 0.4, 0.6, 0.9])
+    ys = np.array([0.9, 0.6, 0.4, 0.1])
+    zs = np.array([0.2, 0.3, 0.7, 0.8])
+    c.set_offsets3d(xs, ys, zs, zdir='z')
+    del c._offsets3d_data
+    del c._zdir
+    actual_xs, actual_ys, actual_zs = c.get_offsets3d()
+    np.testing.assert_allclose(actual_xs, xs)
+    np.testing.assert_allclose(actual_ys, ys)
+    np.testing.assert_allclose(actual_zs, zs)
+
+
 def test_poly3dcollection_verts_validation():
     poly = [[0, 0, 1], [0, 1, 1], [0, 1, 0], [0, 0, 0]]
     with pytest.raises(ValueError, match=r'list of \(N, 3\) array-like'):
@@ -1180,7 +1233,9 @@ def test_poly3dcollection_set_get_verts3d():
 
 def test_poly3dcollection_set_get_verts_and_codes3d():
     path = Path.unit_rectangle()
-    verts = [np.column_stack([path.vertices, np.linspace(0.1, 0.9, len(path.vertices))])]
+    verts = [
+        np.column_stack([path.vertices, np.linspace(0.1, 0.9, len(path.vertices))])
+    ]
     codes = [path.codes]
     c = art3d.Poly3DCollection(verts)
     c.set_verts_and_codes3d(verts, codes)
@@ -2608,6 +2663,16 @@ def test_pathpatch3d_set_get_verts_and_codes3d():
     actual_verts, actual_codes = pp3d.get_verts_and_codes3d()
     np.testing.assert_allclose(actual_verts, verts_new)
     np.testing.assert_array_equal(actual_codes, path.codes)
+
+
+def test_pathpatch3d_set_verts_and_codes3d_preserves_axlim_clip():
+    path = Path.unit_rectangle()
+    pp3d = art3d.PathPatch3D(path, zs=(0, 0.5, 0.7, 1, 0), zdir='y',
+                             axlim_clip=True)
+    assert pp3d._axlim_clip
+    verts, codes = pp3d.get_verts_and_codes3d()
+    pp3d.set_verts_and_codes3d(verts, codes)
+    assert pp3d._axlim_clip
 
 
 @image_comparison(baseline_images=['scatter_spiral.png'],

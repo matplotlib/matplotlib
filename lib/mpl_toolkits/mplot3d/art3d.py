@@ -419,7 +419,51 @@ def _paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
 
 
 class Collection3D(Collection):
-    """A collection of 3D paths."""
+    """
+    A collection of 3D paths.
+
+    .. note:: Use `get_verts_and_codes3d` and `set_verts_and_codes3d` to
+              obtain and set collection geometry in data coordinates.
+              `get_paths` returns projected 2D paths.
+    """
+
+    def set_verts_and_codes3d(self, verts_codes, *, axlim_clip=None):
+        """
+        Set the collection geometry in 3D space.
+
+        Parameters
+        ----------
+        verts_codes : sequence of (verts, codes)
+            Sequence where *verts* is a (N, 3) array-like in data coordinates
+            and *codes* are the corresponding path codes.
+        axlim_clip : bool or None, default: None
+            Whether to hide paths with a vertex outside the axes view limits.
+            If *None*, preserve the current setting.
+        """
+        verts_codes_3d = []
+        for verts, codes in verts_codes:
+            verts = np.asanyarray(verts)
+            if verts.size == 0:
+                verts = np.empty((0, 3), dtype=float)
+            _api.check_shape((None, 3), verts=verts)
+            verts_codes_3d.append((verts, codes))
+        self._3dverts_codes = verts_codes_3d
+        if axlim_clip is None:
+            axlim_clip = getattr(self, "_axlim_clip", False)
+        self._axlim_clip = axlim_clip
+        self.stale = True
+
+    def get_verts_and_codes3d(self):
+        """
+        Get the collection geometry in 3D data coordinates.
+
+        Returns
+        -------
+        verts_codes : list of (verts, codes)
+            Sequence where *verts* is a (N, 3) array-like and *codes* are the
+            corresponding path codes.
+        """
+        return self._3dverts_codes
 
     def do_3d_projection(self):
         """Project the points according to renderer matrix."""
@@ -439,14 +483,14 @@ class Collection3D(Collection):
 def collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
     """Convert a `.Collection` to a `.Collection3D` object."""
     zs = np.broadcast_to(zs, len(col.get_paths()))
-    col._3dverts_codes = [
+    verts_codes = [
         (np.column_stack(juggle_axes(
             *np.column_stack([p.vertices, np.broadcast_to(z, len(p.vertices))]).T,
             zdir)),
          p.codes)
         for p, z in zip(col.get_paths(), zs)]
     col.__class__ = cbook._make_class_factory(Collection3D, "{}3D")(type(col))
-    col._axlim_clip = axlim_clip
+    col.set_verts_and_codes3d(verts_codes, axlim_clip=axlim_clip)
 
 
 class Line3DCollection(LineCollection):
@@ -619,7 +663,7 @@ class Patch3D(Patch):
             axlim_clip=axlim_clip,
         )
 
-    def set_verts3d(self, verts, *, axlim_clip=False):
+    def set_verts3d(self, verts, *, axlim_clip=None):
         """
         Set the patch vertices in 3D space.
 
@@ -627,9 +671,12 @@ class Patch3D(Patch):
         ----------
         verts : (N, 3) array-like
             The patch vertices in data coordinates.
-        axlim_clip : bool, default: False
+        axlim_clip : bool or None, default: None
             Whether to hide patches with a vertex outside the axes view limits.
+            If *None*, preserve the current setting.
         """
+        if axlim_clip is None:
+            axlim_clip = getattr(self, "_axlim_clip", False)
         self._verts3d = np.asanyarray(verts)
         self._segment3d = self._verts3d
         self._axlim_clip = axlim_clip
@@ -722,7 +769,7 @@ class PathPatch3D(Patch3D):
             axlim_clip=axlim_clip,
         )
 
-    def set_verts_and_codes3d(self, verts, codes, *, axlim_clip=False):
+    def set_verts_and_codes3d(self, verts, codes, *, axlim_clip=None):
         """
         Set the path patch geometry in 3D space.
 
@@ -732,8 +779,9 @@ class PathPatch3D(Patch3D):
             The path vertices in data coordinates.
         codes : array-like or None
             The corresponding path codes.
-        axlim_clip : bool, default: False
+        axlim_clip : bool or None, default: None
             Whether to hide path patches with a point outside the axes view limits.
+            If *None*, preserve the current setting.
         """
         self.set_verts3d(verts, axlim_clip=axlim_clip)
         self._code3d = codes
@@ -955,7 +1003,7 @@ class Patch3DCollection(PatchCollection):
         if hasattr(self, "_offsets3d_data"):
             return self._offsets3d_data
         # Backward compatibility for instances that pre-date get_offsets3d.
-        return _backjuggle_axes(*self._offsets3d, self._zdir)
+        return _backjuggle_axes(*self._offsets3d, getattr(self, "_zdir", "z"))
 
     def do_3d_projection(self):
         if self._axlim_clip:
@@ -1161,7 +1209,7 @@ class Path3DCollection(PathCollection):
         if hasattr(self, "_offsets3d_data"):
             return self._offsets3d_data
         # Backward compatibility for instances that pre-date get_offsets3d.
-        return _backjuggle_axes(*self._offsets3d, self._zdir)
+        return _backjuggle_axes(*self._offsets3d, getattr(self, "_zdir", "z"))
 
     def set_sizes(self, sizes, dpi=72.0):
         super().set_sizes(sizes, dpi)
