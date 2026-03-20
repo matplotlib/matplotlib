@@ -14,7 +14,7 @@ from matplotlib.backend_bases import (MouseButton, MouseEvent,
 from matplotlib import cm
 from matplotlib import colors as mcolors, patches as mpatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.collections import LineCollection, PolyCollection
+from matplotlib.collections import LineCollection, PatchCollection, PolyCollection
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.text import Text
@@ -499,7 +499,7 @@ def test_scatter3d_offsets3d_modification(fig_ref, fig_test):
         linewidths=2, depthshade=False)
 
 
-@pytest.mark.parametrize("zdir", ["x", "y", "z"])
+@pytest.mark.parametrize("zdir", ["x", "y", "z", "-x", "-y", "-z"])
 def test_scatter3d_offsets3d_roundtrip(zdir):
     # set_offsets3d/get_offsets3d should round-trip data coordinates.
     fig = plt.figure()
@@ -512,6 +512,29 @@ def test_scatter3d_offsets3d_roundtrip(zdir):
     actual_xs, actual_ys, actual_zs = c.get_offsets3d()
     np.testing.assert_allclose(actual_xs, xs)
     np.testing.assert_allclose(actual_ys, ys)
+    np.testing.assert_allclose(actual_zs, zs)
+    del c._offsets3d_data
+    actual_xs, actual_ys, actual_zs = c.get_offsets3d()
+    np.testing.assert_allclose(actual_xs, xs)
+    np.testing.assert_allclose(actual_ys, ys)
+    np.testing.assert_allclose(actual_zs, zs)
+
+
+@pytest.mark.parametrize("zdir", ["x", "y", "z", "-x", "-y", "-z"])
+def test_add_collection3d_patch_collection_offsets3d_roundtrip(zdir):
+    offsets = np.column_stack([
+        np.linspace(0.2, 0.8, 4),
+        np.linspace(0.8, 0.2, 4),
+    ])
+    zs = np.array([0.2, 0.3, 0.7, 0.8])
+    c = PatchCollection([Circle((0, 0), 0.04)], offsets=offsets)
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.add_collection3d(c, zs=zs, zdir=zdir)
+    assert isinstance(c, art3d.Patch3DCollection)
+    actual_xs, actual_ys, actual_zs = c.get_offsets3d()
+    np.testing.assert_allclose(actual_xs, offsets[:, 0])
+    np.testing.assert_allclose(actual_ys, offsets[:, 1])
     np.testing.assert_allclose(actual_zs, zs)
 
 
@@ -995,6 +1018,18 @@ def test_patch_modification():
     assert mcolors.same_color(circle.get_facecolor(), (1, 0, 0, 1))
 
 
+def test_patch3d_set_get_verts3d():
+    circle = Circle((0, 0), radius=0.1)
+    art3d.patch_2d_to_3d(circle, z=0.2, zdir='z')
+    verts = circle.get_verts3d()
+    np.testing.assert_allclose(verts[:, 2], 0.2)
+
+    verts_new = verts.copy()
+    verts_new[:, 2] = np.linspace(0.1, 0.9, len(verts_new))
+    circle.set_verts3d(verts_new)
+    np.testing.assert_allclose(circle.get_verts3d(), verts_new)
+
+
 @check_figures_equal()
 def test_patch_collection_modification(fig_test, fig_ref):
     # Test that modifying Patch3DCollection properties after creation works.
@@ -1060,7 +1095,7 @@ def test_patch_collection_offsets3d_modification(fig_test, fig_ref):
     ax_ref.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
 
 
-@pytest.mark.parametrize("zdir", ["x", "y", "z"])
+@pytest.mark.parametrize("zdir", ["x", "y", "z", "-x", "-y", "-z"])
 def test_patch_collection_offsets3d_roundtrip(zdir):
     # set_offsets3d/get_offsets3d should round-trip data coordinates.
     offsets = np.column_stack([
@@ -1072,6 +1107,11 @@ def test_patch_collection_offsets3d_roundtrip(zdir):
     ys = np.array([0.9, 0.6, 0.4, 0.1])
     zs = np.array([0.2, 0.3, 0.7, 0.8])
     c.set_offsets3d(xs, ys, zs, zdir=zdir)
+    actual_xs, actual_ys, actual_zs = c.get_offsets3d()
+    np.testing.assert_allclose(actual_xs, xs)
+    np.testing.assert_allclose(actual_ys, ys)
+    np.testing.assert_allclose(actual_zs, zs)
+    del c._offsets3d_data
     actual_xs, actual_ys, actual_zs = c.get_offsets3d()
     np.testing.assert_allclose(actual_xs, xs)
     np.testing.assert_allclose(actual_ys, ys)
@@ -1116,6 +1156,37 @@ def test_poly_collection_2d_to_3d_empty():
 
     # Ensure drawing actually works.
     fig.canvas.draw()
+
+
+def test_poly3dcollection_set_get_verts3d():
+    verts = [
+        np.array([[0, 0, 0], [0, 1, 0], [0, 0, 1]], float),
+        np.array([[1, 0, 0], [1, 1, 0], [1, 0, 1]], float),
+    ]
+    c = art3d.Poly3DCollection(verts)
+    actual = c.get_verts3d()
+    for actual_face, expected_face in zip(actual, verts):
+        np.testing.assert_allclose(actual_face, expected_face)
+
+    verts_new = [
+        np.array([[0, 0, 1], [0, 1, 1], [0, 0, 2]], float),
+        np.array([[1, 0, 1], [1, 1, 1], [1, 0, 2]], float),
+    ]
+    c.set_verts3d(verts_new)
+    actual = c.get_verts3d()
+    for actual_face, expected_face in zip(actual, verts_new):
+        np.testing.assert_allclose(actual_face, expected_face)
+
+
+def test_poly3dcollection_set_get_verts_and_codes3d():
+    path = Path.unit_rectangle()
+    verts = [np.column_stack([path.vertices, np.linspace(0.1, 0.9, len(path.vertices))])]
+    codes = [path.codes]
+    c = art3d.Poly3DCollection(verts)
+    c.set_verts_and_codes3d(verts, codes)
+    actual_verts, actual_codes = c.get_verts_and_codes3d()
+    np.testing.assert_allclose(actual_verts[0], verts[0])
+    np.testing.assert_array_equal(actual_codes[0], codes[0])
 
 
 @mpl3d_image_comparison(['poly3dcollection_alpha.png'], style='mpl20')
@@ -1206,6 +1277,26 @@ def test_line3dCollection_autoscaling():
     assert np.allclose(ax.get_xlim3d(), (-0.041666666666666664, 2.0416666666666665))
     assert np.allclose(ax.get_ylim3d(), (-0.08333333333333333, 4.083333333333333))
     assert np.allclose(ax.get_zlim3d(), (-0.10416666666666666, 5.104166666666667))
+
+
+def test_line3dcollection_set_get_segments3d():
+    segments = [
+        np.array([[0, 0, 0], [1, 2, 3]], float),
+        np.array([[1, 0, 1], [2, 1, 0]], float),
+    ]
+    lc = art3d.Line3DCollection(segments)
+    actual = lc.get_segments3d()
+    for actual_segment, expected_segment in zip(actual, segments):
+        np.testing.assert_allclose(actual_segment, expected_segment)
+
+    segments_new = [
+        np.array([[0, 1, 0], [1, 3, 2]], float),
+        np.array([[1, 1, 1], [2, 2, 2]], float),
+    ]
+    lc.set_segments3d(segments_new)
+    actual = lc.get_segments3d()
+    for actual_segment, expected_segment in zip(actual, segments_new):
+        np.testing.assert_allclose(actual_segment, expected_segment)
 
 
 def test_poly3dCollection_autoscaling():
@@ -2496,6 +2587,27 @@ def test_pathpatch_3d(fig_test, fig_ref):
     ax = fig_test.add_subplot(projection="3d")
     pp3d = art3d.PathPatch3D(path, zs=(0, 0.5, 0.7, 1, 0), zdir='y')
     ax.add_artist(pp3d)
+
+
+def test_pathpatch3d_set_get_verts_and_codes3d():
+    path = Path.unit_rectangle()
+    zs = (0, 0.5, 0.7, 1, 0)
+    pp3d = art3d.PathPatch3D(path, zs=zs, zdir='y')
+    verts, codes = pp3d.get_verts_and_codes3d()
+    np.testing.assert_array_equal(codes, path.codes)
+    np.testing.assert_allclose(verts[:, 0], path.vertices[:, 0])
+    np.testing.assert_allclose(verts[:, 1], zs)
+    np.testing.assert_allclose(verts[:, 2], path.vertices[:, 1])
+
+    verts_new = np.column_stack([
+        np.linspace(0.1, 0.5, len(path.vertices)),
+        np.linspace(0.2, 0.6, len(path.vertices)),
+        np.linspace(0.3, 0.7, len(path.vertices)),
+    ])
+    pp3d.set_verts_and_codes3d(verts_new, path.codes)
+    actual_verts, actual_codes = pp3d.get_verts_and_codes3d()
+    np.testing.assert_allclose(actual_verts, verts_new)
+    np.testing.assert_array_equal(actual_codes, path.codes)
 
 
 @image_comparison(baseline_images=['scatter_spiral.png'],
