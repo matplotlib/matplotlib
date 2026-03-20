@@ -1427,7 +1427,7 @@ class FillBetweenPolyCollection(PolyCollection):
         self._step = step
         verts = self._make_verts(t, f1, f2, where)
         super().__init__(verts, **kwargs)
-    
+
     def set_verts(self, verts, closed=True):
         super().set_verts(verts, closed=closed)
         if self._paths is not None:

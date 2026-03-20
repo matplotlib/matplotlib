@@ -42,7 +42,7 @@ from matplotlib.dates import UTC
 from matplotlib import _path
 from . import _backend_pdf_ps
 
-from matplotlib.backend_bases import RendererBase
+from matplotlib import transforms as mtransforms
 
 _log = logging.getLogger(__name__)
 
@@ -1606,7 +1606,7 @@ end"""
                     stroke_rgb = fill_rgb
                 else:
                     stroke_rgb = (0, 0, 0)
-            
+
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
                         Op.setrgb_stroke)
             if fill_rgb is not None:

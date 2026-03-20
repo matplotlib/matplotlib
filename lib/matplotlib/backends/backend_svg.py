@@ -24,7 +24,6 @@ from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 
-from matplotlib.backend_bases import RendererBase
 
 
 _log = logging.getLogger(__name__)
@@ -781,7 +780,7 @@ class RendererSVG(RendererBase):
             # transform on display coords
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
 
-            # _convert_path decides wheter or not to simplify, based on rcParams
+            # _convert_path decides whether or not to simplify, based on rcParams
             # and a flag like "path.should_simplify".
             simplify = None  # None == "use default / rcParams / path flag"
             d = self._convert_path(path, transform, simplify=simplify)

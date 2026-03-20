@@ -5990,7 +5990,7 @@ or pandas.DataFrame
         collection = mcoll.FillBetweenPolyCollection(
             ind_dir, ind, dep1, dep2,
             where=where, interpolate=interpolate, step=step, **kwargs)
-        
+
         self.add_collection(collection)
         return collection
 
