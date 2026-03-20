@@ -2738,6 +2738,38 @@ def test_axes3d_set_aspect_deperecated_params():
         ax.set_aspect('equal', adjustable='invalid_value')
 
 
+def test_axis_get_tightbbox_before_draw_matches_after_draw():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    axes = [ax.xaxis, ax.yaxis, ax.zaxis]
+    renderer = fig.canvas.get_renderer()
+    bboxes_before = {
+        axis.axis_name: axis.get_tightbbox(renderer).extents.copy()
+        for axis in axes
+    }
+
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    for axis in axes:
+        np.testing.assert_allclose(
+            bboxes_before[axis.axis_name],
+            axis.get_tightbbox(renderer).extents)
+
+
+def test_constrained_layout_3d_axis_tightbbox_prevents_overlap():
+    fig = plt.figure(constrained_layout=True)
+    ax1 = fig.add_subplot(2, 1, 1, projection='3d')
+    ax1.set_title('3D Plot')
+    ax2 = fig.add_subplot(2, 1, 2)
+    ax2.set_title('2D Plot')
+
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+
+    assert ax1.get_tightbbox(renderer).y0 >= ax2.title.get_window_extent(renderer).y1
+
+
 def test_axis_get_tightbbox_includes_offset_text():
     # Test that axis.get_tightbbox includes the offset_text
     # Regression test for issue #30744

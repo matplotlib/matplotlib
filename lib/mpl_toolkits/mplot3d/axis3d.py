@@ -684,6 +684,20 @@ class Axis(maxis.XAxis):
         # docstring inherited
         if not self.get_visible():
             return
+        if renderer is None:
+            renderer = self.get_figure(root=True)._get_renderer()
+
+        locator = self.axes.get_axes_locator()
+        self.axes.apply_aspect(locator(self.axes, renderer) if locator else None)
+
+        # The 2D positions of 3D ticks and labels are updated during draw()
+        # based on the current projection. Refresh that state without
+        # rendering so the bbox query sees the same geometry as the real draw.
+        self.axes.M = self.axes.get_proj()
+        self.axes.invM = np.linalg.inv(self.axes.M)
+        with renderer._draw_disabled():
+            self.draw(renderer)
+
         # We have to directly access the internal data structures
         # (and hope they are up to date) because at draw time we
         # shift the ticks and their labels around in (x, y) space
