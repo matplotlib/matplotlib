@@ -722,7 +722,7 @@ class PathPatch3D(Patch3D):
 
     .. note:: Use `get_verts_and_codes3d` and `set_verts_and_codes3d` to
               obtain and set the path patch geometry in data coordinates.
-              `get_path` returns the projected 2D path.
+              ``get_path`` returns the projected 2D path.
     """
 
     def __init__(self, path, *, zs=(), zdir='z', axlim_clip=False, **kwargs):
@@ -1392,7 +1392,7 @@ class Poly3DCollection(PolyCollection):
 
     .. note:: Use `get_verts3d`, `set_verts3d`, `get_verts_and_codes3d`,
               and `set_verts_and_codes3d` to obtain and set the collection
-              geometry in data coordinates. `get_paths` returns the projected
+              geometry in data coordinates. ``get_paths`` returns the projected
               2D paths. `set_verts` and `set_verts_and_codes` remain
               backward-compatible aliases for the 3D setters.
 

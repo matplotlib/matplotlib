@@ -520,6 +520,22 @@ def test_scatter3d_offsets3d_roundtrip(zdir):
     np.testing.assert_allclose(actual_zs, zs)
 
 
+def test_scatter3d_offsets3d_roundtrip_legacy_without_zdir():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    c = ax.scatter(np.arange(3), np.arange(3), np.arange(3), marker='o')
+    xs = np.array([0.1, 0.5, 0.9])
+    ys = np.array([0.9, 0.5, 0.1])
+    zs = np.array([0.2, 0.4, 0.8])
+    c.set_offsets3d(xs, ys, zs, zdir='z')
+    del c._offsets3d_data
+    del c._zdir
+    actual_xs, actual_ys, actual_zs = c.get_offsets3d()
+    np.testing.assert_allclose(actual_xs, xs)
+    np.testing.assert_allclose(actual_ys, ys)
+    np.testing.assert_allclose(actual_zs, zs)
+
+
 @pytest.mark.parametrize("zdir", ["x", "y", "z", "-x", "-y", "-z"])
 def test_add_collection3d_patch_collection_offsets3d_roundtrip(zdir):
     offsets = np.column_stack([
@@ -563,6 +579,23 @@ def test_collection3d_set_get_verts_and_codes3d():
             assert actual_codes is None
         else:
             np.testing.assert_array_equal(actual_codes, expected_codes)
+
+
+def test_collection3d_set_verts_and_codes3d_empty_preserves_axlim_clip():
+    x = y = np.linspace(-1, 1, 5)
+    X, Y = np.meshgrid(x, y)
+    Z = X**2 + Y**2
+
+    _, ax = plt.subplots()
+    cset = ax.contour(X, Y, Z, levels=[0.5, 1.0])
+    art3d.collection_2d_to_3d(cset, zs=cset.levels, zdir='z', axlim_clip=True)
+    assert cset._axlim_clip
+
+    cset.set_verts_and_codes3d([(np.empty((0, 3)), None)])
+    assert cset._axlim_clip
+    verts_codes = cset.get_verts_and_codes3d()
+    assert verts_codes[0][0].shape == (0, 3)
+    assert verts_codes[0][1] is None
 
 
 @check_figures_equal()
@@ -1241,6 +1274,30 @@ def test_poly3dcollection_set_get_verts_and_codes3d():
     c.set_verts_and_codes3d(verts, codes)
     actual_verts, actual_codes = c.get_verts_and_codes3d()
     np.testing.assert_allclose(actual_verts[0], verts[0])
+    np.testing.assert_array_equal(actual_codes[0], codes[0])
+
+
+def test_poly3dcollection_get_verts3d_legacy_fallback():
+    verts = [
+        np.array([[0, 0, 0], [0, 1, 0], [0, 0, 1]], float),
+        np.array([[1, 0, 0], [1, 1, 0], [1, 0, 1]], float),
+    ]
+    c = art3d.Poly3DCollection(verts)
+    del c._verts3d_data
+    actual = c.get_verts3d()
+    np.testing.assert_allclose(actual, verts)
+
+
+def test_poly3dcollection_get_codes3d_legacy_fallback():
+    path = Path.unit_rectangle()
+    verts = [
+        np.column_stack([path.vertices, np.linspace(0.1, 0.9, len(path.vertices))])
+    ]
+    codes = [path.codes]
+    c = art3d.Poly3DCollection(verts)
+    c.set_verts_and_codes3d(verts, codes)
+    del c._codes3d_data
+    actual_codes = c.get_codes3d()
     np.testing.assert_array_equal(actual_codes[0], codes[0])
 
 
