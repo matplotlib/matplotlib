@@ -341,7 +341,7 @@ class RendererSVG(RendererBase):
         self._write_highlight_gradient()
         self._write_default_style()
 
-     def _write_highlight_gradient(self):
+    def _write_highlight_gradient(self):
         # Add highlight gradient (id="_m_overlayGradient")
         highlightGradient = """
             <radialGradient id="_m_overlayGradient" cx="40%" cy="40%" r="70%">
