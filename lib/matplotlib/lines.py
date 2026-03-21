@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib as mpl
 from . import _api, cbook, colors as mcolors, _docstring
 from .artist import Artist, allow_rasterization
+from .backends.backend_svg import RendererSVG
 from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
@@ -885,9 +886,15 @@ class Line2D(Artist):
                 else:
                     # Don't scale for pixels, and don't stroke them
                     marker_trans = marker_trans.scale(w)
+
+                kwargs = {}
+                svg_func = getattr(RendererSVG.draw_markers, "__qualname__", None)
+                local_func = getattr(renderer.draw_markers, "__qualname__", None)
+                if hasattr(self, "_highlight_svg") and svg_func == local_func:
+                    kwargs["highlight"] = self._highlight_svg
                 renderer.draw_markers(gc, marker_path, marker_trans,
                                       subsampled, affine.frozen(),
-                                      fc_rgba)
+                                      fc_rgba, **kwargs)
 
                 alt_marker_path = marker.get_alt_path()
                 if alt_marker_path:
@@ -895,7 +902,7 @@ class Line2D(Artist):
                     alt_marker_trans = alt_marker_trans.scale(w)
                     renderer.draw_markers(
                             gc, alt_marker_path, alt_marker_trans, subsampled,
-                            affine.frozen(), fcalt_rgba)
+                            affine.frozen(), fcalt_rgba, **kwargs)
 
             gc.restore()
 
