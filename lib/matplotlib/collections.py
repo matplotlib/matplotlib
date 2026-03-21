@@ -20,7 +20,6 @@ import numpy as np
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
                _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
-from .backends.backend_svg import RendererSVG
 from ._enums import JoinStyle, CapStyle
 
 
@@ -419,6 +418,7 @@ class Collection(mcolorizer.ColorizingArtist):
             gc.set_url(self._urls[0])
 
             kwargs = {}
+            from .backends.backend_svg import RendererSVG
             svg_func = getattr(RendererSVG.draw_markers, "__qualname__", None)
             local_func = getattr(renderer.draw_markers, "__qualname__", None)
             if hasattr(self, "_highlight_svg") and svg_func == local_func:
