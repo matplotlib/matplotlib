@@ -716,7 +716,7 @@ class RendererSVG(RendererBase):
             self.writer.end('a')
 
     def draw_markers(
-            self, gc, marker_path, marker_trans, path, 
+            self, gc, marker_path, marker_trans, path,
             trans, rgbFace=None, highlight=False):
         # docstring inherited
 
