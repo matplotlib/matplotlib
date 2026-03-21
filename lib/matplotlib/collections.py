@@ -20,6 +20,7 @@ import numpy as np
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, colorizer as mcolorizer, colors as mcolors,
                _docstring, hatch as mhatch, lines as mlines, path as mpath, transforms)
+from .backends.backend_svg import RendererSVG
 from ._enums import JoinStyle, CapStyle
 
 
@@ -416,9 +417,16 @@ class Collection(mcolorizer.ColorizingArtist):
             gc.set_dashes(*self._linestyles[0])
             gc.set_antialiased(self._antialiaseds[0])
             gc.set_url(self._urls[0])
+
+            kwargs = {}
+            svg_func = getattr(RendererSVG.draw_markers, "__qualname__", None)
+            local_func = getattr(renderer.draw_markers, "__qualname__", None)
+            if hasattr(self, "_highlight_svg") and svg_func == local_func:
+                kwargs["highlight"] = self._highlight_svg
+              
             renderer.draw_markers(
                 gc, paths[0], combined_transform.frozen(),
-                mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
+                mpath.Path(offsets), offset_trf, tuple(facecolors[0]), **kwargs)
         else:
             # The current new API of draw_path_collection() is provisional
             # and will be changed in a future PR.
