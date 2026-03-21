@@ -338,7 +338,19 @@ class RendererSVG(RendererBase):
             id=mpl.rcParams['svg.id'],
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
+        self._write_highlight_gradient()
         self._write_default_style()
+
+     def _write_highlight_gradient(self):
+        # Add highlight gradient (id="_m_overlayGradient")
+        highlightGradient = """
+            <radialGradient id="_m_overlayGradient" cx="40%" cy="40%" r="70%">
+                    <stop offset="10%" stop-color="#ffffff" stop-opacity="0.8"/>
+                    <stop offset="40%" stop-color="#ffffff" stop-opacity="0"/>
+                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </radialGradient>"""
+        self.writer._XMLWriter__write(f"<defs>\n{highlightGradient}\n</defs>")
+        return
 
     def _get_clippath_id(self, clippath):
         """
@@ -704,7 +716,8 @@ class RendererSVG(RendererBase):
             self.writer.end('a')
 
     def draw_markers(
-            self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+            self, gc, marker_path, marker_trans, path, 
+            trans, rgbFace=None, highlight=False):
         # docstring inherited
 
         if not len(path.vertices):
@@ -742,6 +755,11 @@ class RendererSVG(RendererBase):
                 attrib['y'] = _short_float_fmt(y)
                 attrib['style'] = self._get_style(gc, rgbFace)
                 writer.element('use', attrib=attrib)
+                if highlight:
+                    mask_attrib = attrib.copy()
+                    del mask_attrib['style']
+                    mask_attrib['fill'] = "url(#_m_overlayGradient)"
+                    writer.element('use', attrib=mask_attrib)
         if gc.get_url() is not None:
             self.writer.end('a')
         writer.end('g')
