@@ -12,7 +12,6 @@ import numpy as np
 import matplotlib as mpl
 from . import _api, cbook, colors as mcolors, _docstring
 from .artist import Artist, allow_rasterization
-from .backends.backend_svg import RendererSVG
 from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
@@ -888,6 +887,7 @@ class Line2D(Artist):
                     marker_trans = marker_trans.scale(w)
 
                 kwargs = {}
+                from .backends.backend_svg import RendererSVG
                 svg_func = getattr(RendererSVG.draw_markers, "__qualname__", None)
                 local_func = getattr(renderer.draw_markers, "__qualname__", None)
                 if hasattr(self, "_highlight_svg") and svg_func == local_func:
