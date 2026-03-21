@@ -423,7 +423,7 @@ class Collection(mcolorizer.ColorizingArtist):
             local_func = getattr(renderer.draw_markers, "__qualname__", None)
             if hasattr(self, "_highlight_svg") and svg_func == local_func:
                 kwargs["highlight"] = self._highlight_svg
-              
+
             renderer.draw_markers(
                 gc, paths[0], combined_transform.frozen(),
                 mpath.Path(offsets), offset_trf, tuple(facecolors[0]), **kwargs)
