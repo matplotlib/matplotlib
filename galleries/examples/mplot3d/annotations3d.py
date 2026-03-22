@@ -3,21 +3,16 @@
 Annotating points in 3D
 ========================
 
-The :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.annotate` method supports two
-primary modes of annotation in 3D plots:
+Demonstrates how to annotate 3D plots using 2D and 3D coordinates.
 
-3D Data Annotations
-   By passing a 3-tuple ``(x, y, z)`` to *xy* (and ensuring ``xycoords='data'``,
-   which is the default), the annotation is anchored to a specific point in 3D
-   space. As the 3D view is rotated or zoomed, the annotation is dynamically
-   re-projected so it stays attached to the data point.
+Both the anchor point (``xy``) and the text position (``xytext``) can be
+specified using 3D data coordinates (a 3-tuple) or 2D screen coordinates (a
+2-tuple).
 
-2D Screen Annotations
-   By passing a standard 2-tuple ``(x, y)`` to *xy*, the annotation is treated
-   as a standard 2D label on the canvas. This is highly useful for static UI
-   elements, watermarks, or fixed text (e.g., using
-   ``xycoords='axes fraction'``) that should remain stationary on the screen
-   regardless of how the 3D axes are manipulated.
+When using 3D coordinates, set the coordinate system to ``'data'``. The
+annotation will dynamically re-project as the 3D view is rotated. Mixing 2D and
+3D endpoints allows for labels that stay fixed on the screen while tracking a
+point in 3D space.
 """
 
 import matplotlib.pyplot as plt
@@ -30,37 +25,48 @@ x = np.cos(t)
 y = np.sin(t)
 z = t / (2 * np.pi)
 
-idx = 60
-xyz = (x[idx], y[idx], z[idx])
+# Select points for annotation.
+point_3d = (x[60], y[60], z[60])
+text_pos_3d = (x[120], y[120], z[120])
 
-fig, axs = plt.subplots(
-    1,
-    2,
-    figsize=(9, 4),
-    constrained_layout=True,
-    subplot_kw={"projection": "3d"},
+fig, (ax1, ax2) = plt.subplots(
+    1, 2, figsize=(10, 5),
+    subplot_kw={'projection': '3d'},
+    constrained_layout=True
 )
 
-views = [(25, -60), (25, 30)]
+for ax in (ax1, ax2):
+    ax.plot(x, y, z, lw=2, alpha=0.7)
+    ax.set(xlabel="X", ylabel="Y", zlabel="Z")
 
-for ax, (elev, azim) in zip(axs, views):
-    ax.plot(x, y, z, lw=2)
-    ax.scatter(*xyz, s=40, color="C3")
+# --- Subplot 1: 3D Data Anchor + 2D Screen Offset ---
+# Common use case: label tracks a point but stays readable and fixed on screen.
+ax1.scatter(*point_3d, color="C3", s=40)
+ax1.annotate(
+    "3D Anchor\n2D Offset",
+    xy=point_3d,
+    xytext=(20, 20),
+    textcoords="offset points",
+    ha="left",
+    va="bottom",
+    arrowprops=dict(arrowstyle="->", lw=1),
+)
+ax1.set_title("3D Data Anchor + 2D Offset\n(Text stays fixed on screen)")
 
-    # Anchor in 3D data coordinates using a 3-tuple (x, y, z).  Use a 2D text
-    # offset in points to keep the label readable.
-    ax.annotate(
-        "selected point",
-        xyz,
-        xytext=(10, 10),
-        textcoords="offset points",
-        ha="left",
-        va="bottom",
-        arrowprops=dict(arrowstyle="->", lw=1),
-    )
-
-    ax.view_init(elev=elev, azim=azim)
-    ax.set(xlabel="x", ylabel="y", zlabel="z", title=f"elev={elev}, azim={azim}")
+# --- Subplot 2: 3D Data Anchor + 3D Text Position ---
+# Demonstrates that the text position itself can live in the 3D data space.
+ax2.scatter(*point_3d, color="C3", s=40)
+ax2.scatter(*text_pos_3d, color="C1", s=40)
+ax2.annotate(
+    "3D Anchor\n3D Text Position",
+    xy=point_3d,
+    xytext=text_pos_3d,
+    textcoords="data",
+    ha="center",
+    va="center",
+    arrowprops=dict(arrowstyle="->", lw=1, color="C1"),
+)
+ax2.set_title("3D Data Anchor + 3D Text\n(Both orbit in 3D space)")
 
 plt.show()
 

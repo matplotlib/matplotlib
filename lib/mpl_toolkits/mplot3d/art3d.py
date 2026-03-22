@@ -232,30 +232,73 @@ class Annotation3D(mtext.Annotation):
                  textcoords=None,
                  arrowprops=None,
                  annotation_clip=None,
-                 *, xyz=None, xyztext=None, axlim_clip=False,
+                 *, axlim_clip=False,
                  **kwargs):
         """
         Parameters
         ----------
-        xyz : (float, float, float) or None, keyword-only
-            The anchor position in 3D data coordinates.  If None, the
-            annotation anchor remains a 2D point.
-        xyztext : (float, float, float) or None, keyword-only
-            The text position in 3D data coordinates (only meaningful when
-            ``textcoords='data'``).
+        text : str
+            The text of the annotation.
+        xy : (float, float) or (float, float, float)
+            The point to annotate.
+
+            - If a 2-tuple, interpreted like `.Annotation` in the coordinate
+              system given by *xycoords*.
+            - If a 3-tuple, only supported when *xycoords* is ``'data'`` and
+              interpreted as 3D data coordinates.
+        xytext : (float, float) or (float, float, float), optional
+            The position to place the text at.
+
+            - If a 2-tuple, interpreted like `.Annotation` according to
+              *textcoords*.
+            - If a 3-tuple, only supported when the text position is in data
+              coordinates (``textcoords='data'`` or `None` with *xycoords*
+              ``'data'``), and interpreted as 3D data coordinates.
+        xycoords : single or two-tuple of str or `.Artist` or `.Transform` or \
+callable, default: 'data'
+            The coordinate system that *xy* is given in.  See `.Annotation`
+            for a full description of supported values.
+        textcoords : single or two-tuple of str or `.Artist` or `.Transform` \
+or callable, default: value of *xycoords*
+            The coordinate system that *xytext* is given in.  See
+            `.Annotation` for a full description of supported values.
+        arrowprops : dict, optional
+            The properties used to draw a `.FancyArrowPatch` arrow between the
+            positions *xy* and *xytext*.  If *None*, no arrow is drawn.
+        annotation_clip : bool or None, default: None
+            Whether to clip (i.e. not draw) the annotation when the annotated
+            point *xy* is outside the Axes area.
         axlim_clip : bool, default: False, keyword-only
             Whether to hide annotations outside the 3D view limits.
+        **kwargs
+            Additional keyword arguments are passed to `.Annotation`.
 
         Notes
         -----
         This class is typically constructed indirectly via
         `.mpl_toolkits.mplot3d.axes3d.Axes3D.annotate`.
         """
-        if xyz is None:
+        xyz = None
+        try:
+            if len(xy) == 3:
+                if xycoords != 'data':
+                    _api.check_in_list(['data'], xycoords=xycoords)
+                xyz = xy
+                xy = xy[:2]
+        except TypeError:
+            pass
+
+        xyztext = None
+        if xytext is not None:
             try:
-                if len(xy) == 3:
-                    xyz = xy
-                    xy = xy[:2]
+                if len(xytext) == 3:
+                    effective_textcoords = (
+                        xycoords if textcoords is None else textcoords
+                    )
+                    if effective_textcoords != 'data':
+                        _api.check_in_list(['data'], textcoords=effective_textcoords)
+                    xyztext = xytext
+                    xytext = xytext[:2]
             except TypeError:
                 pass
         super().__init__(
