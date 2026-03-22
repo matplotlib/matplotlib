@@ -464,8 +464,8 @@ class ContourLabeler:
             path, idx_vtx_min, proj, label_width, inline_spacing)
         self.add_label(*proj, rotation, self.labelLevelList[idx_level_min],
                        self.labelCValueList[idx_level_min])
-
-        if inline:
+# 🔧 FIX: Do NOT modify paths for filled contours
+        if inline and not self.filled:
             self._paths[idx_level_min] = path
 
     def pop_label(self, index=-1):
