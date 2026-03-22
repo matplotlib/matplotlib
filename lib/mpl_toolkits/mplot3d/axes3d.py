@@ -335,7 +335,27 @@ class Axes3D(Axes):
                            aspect=aspect)
 
         self.set_adjustable(adjustable)
+
+        if (
+            self._aspect == "auto"
+            and aspect in ('equal', 'equalxy', 'equalxz', 'equalyz')
+        ):
+            self._auto_aspect_restore_limits = self.get_w_lims()
+
         self._aspect = aspect
+
+        if aspect == "auto":
+            if self._adjustable == "box":
+                self.set_box_aspect(None)
+
+            elif self._adjustable == "datalim":
+                if hasattr(self, "_auto_aspect_restore_limits"):
+                    limits = self._auto_aspect_restore_limits
+
+                    self.set_xlim3d(limits[0], limits[1])
+                    self.set_ylim3d(limits[2], limits[3])
+                    self.set_zlim3d(limits[4], limits[5])
+            return
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
             ax_indices = self._equal_aspect_axis_indices(aspect)
