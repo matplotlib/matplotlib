@@ -517,7 +517,7 @@ required. ::
                                                      )
 
     # Find a grid values appropriate for the coordinate (degree,
-    # minute, second). The argument is a approximate number of grids.
+    # minute, second). The argument is an approximate number of grids.
     grid_locator1 = angle_helper.LocatorDMS(12)
 
     # And also uses an appropriate formatter.  Note that the acceptable Locator

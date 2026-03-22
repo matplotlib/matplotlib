@@ -1183,7 +1183,7 @@ def test_limits_empty_data(plot_fun, fig_test, fig_ref):
 def test_imshow():
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
-    # Create a NxN image
+    # Create an NxN image
     N = 100
     (x, y) = np.indices((N, N))
     x -= N//2
@@ -1207,7 +1207,7 @@ def test_imshow_clip():
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
 
-    # Create a NxN image
+    # Create an NxN image
     N = 100
     (x, y) = np.indices((N, N))
     x -= N//2
