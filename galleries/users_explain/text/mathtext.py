@@ -18,6 +18,7 @@ dollar signs ``'$'``. Mathtext often contains many backslashes ``'\'``; so that
 the backslashes do not need to be escaped, Mathtext is often written using raw
 strings. For example:
 """
+# sphinx_gallery_thumbnail_number = 1
 
 import matplotlib.pyplot as plt
 

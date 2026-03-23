@@ -2699,8 +2699,14 @@ class BboxTransformFrom(Affine2DBase):
 
 class ScaledTranslation(Affine2DBase):
     """
-    A transformation that translates by *xt* and *yt*, after *xt* and *yt*
-    have been transformed by *scale_trans*.
+    Translate by (xt, yt) after applying another transform to them.
+
+This is useful when offsets need to be specified in a coordinate
+system different from the data coordinates (e.g., inches or pixels).
+
+Example:
+    Used internally for positioning elements like annotations
+    with offsets in physical units.
     """
     def __init__(self, xt, yt, scale_trans, **kwargs):
         super().__init__(**kwargs)
@@ -2717,11 +2723,14 @@ class ScaledTranslation(Affine2DBase):
         if self._invalid:
             # A bit faster than np.identity(3).
             self._mtx = IdentityTransform._mtx.copy()
+            # Apply scaling transform to translation vector before inserting into matrix
             self._mtx[:2, 2] = self._scale_trans.transform(self._t)
             self._invalid = 0
             self._inverted = None
         return self._mtx
 
+# Internal helper: applies rotation where the angle itself
+# is transformed by another transform (rare use case)
 
 class _ScaledRotation(Affine2DBase):
     """
