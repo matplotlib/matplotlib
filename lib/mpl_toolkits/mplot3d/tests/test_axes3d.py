@@ -9,6 +9,8 @@ import pytest
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from mpl_toolkits.mplot3d.axes3d import _Quaternion as Quaternion
 import matplotlib as mpl
+import matplotlib.axes as maxes
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (MouseButton, MouseEvent,
                                       NavigationToolbar2)
 from matplotlib import cm
@@ -45,9 +47,6 @@ def test_invisible_axes(fig_test, fig_ref):
 
 @check_figures_equal()
 def test_annotate_3d_follows_view(fig_test, fig_ref):
-    import matplotlib.axes as maxes
-    from matplotlib.backends.backend_agg import FigureCanvasAgg
-
     xyz = np.arange(10)
     idx = 5
     xyztext = (xyz[idx] + 2, xyz[idx] + 1, xyz[idx] + 3)
@@ -169,9 +168,6 @@ def test_annotate_3d_offset_pixels_and_fontsize():
 
 @check_figures_equal()
 def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
-    import matplotlib.axes as maxes
-    from matplotlib.backends.backend_agg import FigureCanvasAgg
-
     with mpl.style.context('mpl20'):
         fig_test.set_size_inches(7, 3.2, forward=True)
         fig_ref.set_size_inches(7, 3.2, forward=True)
@@ -1636,14 +1632,14 @@ def test_axes3d_ortho():
 
 @mpl3d_image_comparison(['axes3d_isometric.png'], style='mpl20')
 def test_axes3d_isometric():
-    from itertools import combinations, product
     fig, ax = plt.subplots(subplot_kw=dict(
         projection='3d',
         proj_type='ortho',
         box_aspect=(4, 4, 4)
     ))
     r = (-1, 1)  # stackoverflow.com/a/11156353
-    for s, e in combinations(np.array(list(product(r, r, r))), 2):
+    for s, e in itertools.combinations(
+            np.array(list(itertools.product(r, r, r))), 2):
         if abs(s - e).sum() == r[1] - r[0]:
             ax.plot3D(*zip(s, e), c='k')
     ax.view_init(elev=np.degrees(np.arctan(1. / np.sqrt(2))), azim=-45, roll=0)
@@ -2032,8 +2028,6 @@ def test_stem3d():
 
 @image_comparison(["equal_box_aspect.png"], style="mpl20")
 def test_equal_box_aspect():
-    from itertools import product, combinations
-
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
 
@@ -2049,7 +2043,8 @@ def test_equal_box_aspect():
 
     # draw cube
     r = [-1, 1]
-    for s, e in combinations(np.array(list(product(r, r, r))), 2):
+    for s, e in itertools.combinations(
+            np.array(list(itertools.product(r, r, r))), 2):
         if np.sum(np.abs(s - e)) == r[1] - r[0]:
             ax.plot3D(*zip(s, e), color="b")
 
