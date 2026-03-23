@@ -41,8 +41,6 @@
       you have disabled hints).
  */
 
-FT_Library _ft2Library;
-
 FT2Image::FT2Image(unsigned long width, unsigned long height)
     : m_buffer((unsigned char *)calloc(width * height, 1)), m_width(width), m_height(height)
 {
@@ -207,7 +205,7 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
     codes.push_back(CLOSEPOLY);
 }
 
-FT2Font::FT2Font(FT_Open_Args &open_args,
+FT2Font::FT2Font(FT_Library ft2Library, FT_Open_Args &open_args,
                  long hinting_factor_,
                  std::vector<FT2Font *> &fallback_list,
                  FT2Font::WarnFunc warn, bool warn_if_used)
@@ -217,7 +215,7 @@ FT2Font::FT2Font(FT_Open_Args &open_args,
       kerning_factor(0)
 {
     clear();
-    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, 0, &face);
+    FT_CHECK(FT_Open_Face, ft2Library, &open_args, 0, &face);
     if (open_args.stream != nullptr) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }

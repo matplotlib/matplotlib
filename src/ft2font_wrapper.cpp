@@ -1,10 +1,13 @@
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <pybind11/pybind11.h>
+#include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #include "ft2font.h"
-#include "_enums.h"
 
 #include <set>
 #include <sstream>
@@ -49,13 +52,6 @@ const char *Kerning__doc__ = R"""(
 
     .. versionadded:: 3.10
 )""";
-
-P11X_DECLARE_ENUM(
-    "Kerning", "Enum",
-    {"DEFAULT", FT_KERNING_DEFAULT},
-    {"UNFITTED", FT_KERNING_UNFITTED},
-    {"UNSCALED", FT_KERNING_UNSCALED},
-);
 
 const char *FaceFlags__doc__ = R"""(
     Flags returned by `FT2Font.face_flags`.
@@ -102,29 +98,6 @@ enum class FaceFlags : FT_Long {
     DECLARE_FLAG(SBIX_OVERLAY),
 #undef DECLARE_FLAG
 };
-
-P11X_DECLARE_ENUM(
-    "FaceFlags", "Flag",
-    {"SCALABLE", FaceFlags::SCALABLE},
-    {"FIXED_SIZES", FaceFlags::FIXED_SIZES},
-    {"FIXED_WIDTH", FaceFlags::FIXED_WIDTH},
-    {"SFNT", FaceFlags::SFNT},
-    {"HORIZONTAL", FaceFlags::HORIZONTAL},
-    {"VERTICAL", FaceFlags::VERTICAL},
-    {"KERNING", FaceFlags::KERNING},
-    {"FAST_GLYPHS", FaceFlags::FAST_GLYPHS},
-    {"MULTIPLE_MASTERS", FaceFlags::MULTIPLE_MASTERS},
-    {"GLYPH_NAMES", FaceFlags::GLYPH_NAMES},
-    {"EXTERNAL_STREAM", FaceFlags::EXTERNAL_STREAM},
-    {"HINTER", FaceFlags::HINTER},
-    {"CID_KEYED", FaceFlags::CID_KEYED},
-    {"TRICKY", FaceFlags::TRICKY},
-    {"COLOR", FaceFlags::COLOR},
-    {"VARIATION", FaceFlags::VARIATION},
-    {"SVG", FaceFlags::SVG},
-    {"SBIX", FaceFlags::SBIX},
-    {"SBIX_OVERLAY", FaceFlags::SBIX_OVERLAY},
-);
 
 const char *LoadFlags__doc__ = R"""(
     Flags for `FT2Font.load_char`, `FT2Font.load_glyph`, and `FT2Font.set_text`.
@@ -174,36 +147,6 @@ enum class LoadFlags : FT_Int32 {
 #undef DECLARE_FLAG
 };
 
-P11X_DECLARE_ENUM(
-    "LoadFlags", "Flag",
-    {"DEFAULT", LoadFlags::DEFAULT},
-    {"NO_SCALE", LoadFlags::NO_SCALE},
-    {"NO_HINTING", LoadFlags::NO_HINTING},
-    {"RENDER", LoadFlags::RENDER},
-    {"NO_BITMAP", LoadFlags::NO_BITMAP},
-    {"VERTICAL_LAYOUT", LoadFlags::VERTICAL_LAYOUT},
-    {"FORCE_AUTOHINT", LoadFlags::FORCE_AUTOHINT},
-    {"CROP_BITMAP", LoadFlags::CROP_BITMAP},
-    {"PEDANTIC", LoadFlags::PEDANTIC},
-    {"IGNORE_GLOBAL_ADVANCE_WIDTH", LoadFlags::IGNORE_GLOBAL_ADVANCE_WIDTH},
-    {"NO_RECURSE", LoadFlags::NO_RECURSE},
-    {"IGNORE_TRANSFORM", LoadFlags::IGNORE_TRANSFORM},
-    {"MONOCHROME", LoadFlags::MONOCHROME},
-    {"LINEAR_DESIGN", LoadFlags::LINEAR_DESIGN},
-    {"NO_AUTOHINT", LoadFlags::NO_AUTOHINT},
-    {"COLOR", LoadFlags::COLOR},
-    {"COMPUTE_METRICS", LoadFlags::COMPUTE_METRICS},
-    {"BITMAP_METRICS_ONLY", LoadFlags::BITMAP_METRICS_ONLY},
-    {"NO_SVG", LoadFlags::NO_SVG},
-    // These must be unique, but the others can be OR'd together; I don't know if
-    // there's any way to really enforce that.
-    {"TARGET_NORMAL", LoadFlags::TARGET_NORMAL},
-    {"TARGET_LIGHT", LoadFlags::TARGET_LIGHT},
-    {"TARGET_MONO", LoadFlags::TARGET_MONO},
-    {"TARGET_LCD", LoadFlags::TARGET_LCD},
-    {"TARGET_LCD_V", LoadFlags::TARGET_LCD_V},
-);
-
 const char *StyleFlags__doc__ = R"""(
     Flags returned by `FT2Font.style_flags`.
 
@@ -220,13 +163,6 @@ enum class StyleFlags : FT_Long {
     DECLARE_FLAG(BOLD),
 #undef DECLARE_FLAG
 };
-
-P11X_DECLARE_ENUM(
-    "StyleFlags", "Flag",
-    {"NORMAL", StyleFlags::NORMAL},
-    {"ITALIC", StyleFlags::ITALIC},
-    {"BOLD", StyleFlags::BOLD},
-);
 
 /**********************************************************************
  * FT2Image
@@ -446,7 +382,7 @@ const char *PyFT2Font_init__doc__ = R"""(
 )""";
 
 static PyFT2Font *
-PyFT2Font_init(py::object filename, long hinting_factor = 8,
+PyFT2Font_init(FT_Library ft2Library, py::object filename, long hinting_factor = 8,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
                int kerning_factor = 0, bool warn_if_used = false)
 {
@@ -497,8 +433,8 @@ PyFT2Font_init(py::object filename, long hinting_factor = 8,
         self->stream.close = nullptr;
     }
 
-    self->x = new FT2Font(open_args, hinting_factor, fallback_fonts, ft_glyph_warn,
-                          warn_if_used);
+    self->x = new FT2Font(ft2Library, open_args, hinting_factor, fallback_fonts,
+                          ft_glyph_warn, warn_if_used);
 
     self->x->set_kerning_factor(kerning_factor);
 
@@ -1542,23 +1478,86 @@ ft2font__getattr__(std::string name) {
         "module 'matplotlib.ft2font' has no attribute {!r}"_s.format(name));
 }
 
-PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
+PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used()
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+                ,py::multiple_interpreters::per_interpreter_gil()
+#endif
+)
 {
-    if (FT_Init_FreeType(&_ft2Library)) {  // initialize library
+    FT_Library ft2Library = nullptr;
+
+    if (FT_Init_FreeType(&ft2Library)) {  // initialize library
         throw std::runtime_error("Could not initialize the freetype2 library");
     }
     FT_Int major, minor, patch;
     char version_string[64];
-    FT_Library_Version(_ft2Library, &major, &minor, &patch);
+    FT_Library_Version(ft2Library, &major, &minor, &patch);
     snprintf(version_string, sizeof(version_string), "%d.%d.%d", major, minor, patch);
 
-    p11x::bind_enums(m);
-    p11x::enums["Kerning"].attr("__doc__") = Kerning__doc__;
-    p11x::enums["LoadFlags"].attr("__doc__") = LoadFlags__doc__;
-    p11x::enums["FaceFlags"].attr("__doc__") = FaceFlags__doc__;
-    p11x::enums["StyleFlags"].attr("__doc__") = StyleFlags__doc__;
+    py::native_enum<FT_Kerning_Mode>(m, "Kerning", "enum.Enum", Kerning__doc__)
+        .value("DEFAULT", FT_KERNING_DEFAULT)
+        .value("UNFITTED", FT_KERNING_UNFITTED)
+        .value("UNSCALED", FT_KERNING_UNSCALED)
+        .finalize();
 
-    py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
+    py::native_enum<LoadFlags>(m, "LoadFlags", "enum.Flag", LoadFlags__doc__)
+        .value("DEFAULT", LoadFlags::DEFAULT)
+        .value("NO_SCALE", LoadFlags::NO_SCALE)
+        .value("NO_HINTING", LoadFlags::NO_HINTING)
+        .value("RENDER", LoadFlags::RENDER)
+        .value("NO_BITMAP", LoadFlags::NO_BITMAP)
+        .value("VERTICAL_LAYOUT", LoadFlags::VERTICAL_LAYOUT)
+        .value("FORCE_AUTOHINT", LoadFlags::FORCE_AUTOHINT)
+        .value("CROP_BITMAP", LoadFlags::CROP_BITMAP)
+        .value("PEDANTIC", LoadFlags::PEDANTIC)
+        .value("IGNORE_GLOBAL_ADVANCE_WIDTH", LoadFlags::IGNORE_GLOBAL_ADVANCE_WIDTH)
+        .value("NO_RECURSE", LoadFlags::NO_RECURSE)
+        .value("IGNORE_TRANSFORM", LoadFlags::IGNORE_TRANSFORM)
+        .value("MONOCHROME", LoadFlags::MONOCHROME)
+        .value("LINEAR_DESIGN", LoadFlags::LINEAR_DESIGN)
+        .value("NO_AUTOHINT", LoadFlags::NO_AUTOHINT)
+        .value("COLOR", LoadFlags::COLOR)
+        .value("COMPUTE_METRICS", LoadFlags::COMPUTE_METRICS)
+        .value("BITMAP_METRICS_ONLY", LoadFlags::BITMAP_METRICS_ONLY)
+        .value("NO_SVG", LoadFlags::NO_SVG)
+        // These must be unique, but the others can be OR'd together; I don't know if
+        // there's any way to really enforce that.
+        .value("TARGET_NORMAL", LoadFlags::TARGET_NORMAL)
+        .value("TARGET_LIGHT", LoadFlags::TARGET_LIGHT)
+        .value("TARGET_MONO", LoadFlags::TARGET_MONO)
+        .value("TARGET_LCD", LoadFlags::TARGET_LCD)
+        .value("TARGET_LCD_V", LoadFlags::TARGET_LCD_V)
+        .finalize();
+
+    py::native_enum<FaceFlags>(m, "FaceFlags", "enum.Flag", FaceFlags__doc__)
+        .value("SCALABLE", FaceFlags::SCALABLE)
+        .value("FIXED_SIZES", FaceFlags::FIXED_SIZES)
+        .value("FIXED_WIDTH", FaceFlags::FIXED_WIDTH)
+        .value("SFNT", FaceFlags::SFNT)
+        .value("HORIZONTAL", FaceFlags::HORIZONTAL)
+        .value("VERTICAL", FaceFlags::VERTICAL)
+        .value("KERNING", FaceFlags::KERNING)
+        .value("FAST_GLYPHS", FaceFlags::FAST_GLYPHS)
+        .value("MULTIPLE_MASTERS", FaceFlags::MULTIPLE_MASTERS)
+        .value("GLYPH_NAMES", FaceFlags::GLYPH_NAMES)
+        .value("EXTERNAL_STREAM", FaceFlags::EXTERNAL_STREAM)
+        .value("HINTER", FaceFlags::HINTER)
+        .value("CID_KEYED", FaceFlags::CID_KEYED)
+        .value("TRICKY", FaceFlags::TRICKY)
+        .value("COLOR", FaceFlags::COLOR)
+        .value("VARIATION", FaceFlags::VARIATION)
+        .value("SVG", FaceFlags::SVG)
+        .value("SBIX", FaceFlags::SBIX)
+        .value("SBIX_OVERLAY", FaceFlags::SBIX_OVERLAY)
+        .finalize();
+
+    py::native_enum<StyleFlags>(m, "StyleFlags", "enum.Flag", StyleFlags__doc__)
+        .value("NORMAL", StyleFlags::NORMAL)
+        .value("ITALIC", StyleFlags::ITALIC)
+        .value("BOLD", StyleFlags::BOLD)
+        .finalize();
+
+    py::classh<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
                          PyFT2Image__doc__)
         .def(py::init(
                 [](double_or_<long> width, double_or_<long> height) {
@@ -1581,7 +1580,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             return py::buffer_info(self.get_buffer(), shape, strides);
         });
 
-    py::class_<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
+    py::classh<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
         .def(py::init<>([]() -> PyGlyph {
             // Glyph is not useful from Python, so mark it as not constructible.
             throw std::runtime_error("Glyph is not constructible");
@@ -1605,9 +1604,16 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_property_readonly("bbox", &PyGlyph_get_bbox,
                                "The control box of the glyph.");
 
-        auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
-                                         PyFT2Font__doc__)
-        .def(py::init(&PyFT2Font_init),
+    py::classh<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
+                          PyFT2Font__doc__)
+        .def(py::init(
+            [ft2Library](py::object filename, long hinting_factor = 8,
+                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
+                int kerning_factor = 0, bool warn_if_used = false) -> PyFT2Font *
+            {
+                return PyFT2Font_init(ft2Library, filename, hinting_factor,
+                                      fallback_list, kerning_factor, warn_if_used);
+            }),
              "filename"_a, "hinting_factor"_a=8, py::kw_only(),
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=0,
              "_warn_if_used"_a=false,
@@ -1640,20 +1646,10 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("get_descent", &PyFT2Font_get_descent, PyFT2Font_get_descent__doc__)
         .def("draw_glyphs_to_bitmap", &PyFT2Font_draw_glyphs_to_bitmap,
              py::kw_only(), "antialiased"_a=true,
-             PyFT2Font_draw_glyphs_to_bitmap__doc__);
-        // The generated docstring uses an unqualified "Buffer" as type hint,
-        // which causes an error in sphinx.  This is fixed as of pybind11
-        // master (since #5566) which now uses "collections.abc.Buffer";
-        // restore the signature once that version is released.
-        {
-            py::options options{};
-            options.disable_function_signatures();
-            cls
-            .def("draw_glyph_to_bitmap", &PyFT2Font_draw_glyph_to_bitmap,
-                "image"_a, "x"_a, "y"_a, "glyph"_a, py::kw_only(), "antialiased"_a=true,
-                PyFT2Font_draw_glyph_to_bitmap__doc__);
-        }
-        cls
+             PyFT2Font_draw_glyphs_to_bitmap__doc__)
+        .def("draw_glyph_to_bitmap", &PyFT2Font_draw_glyph_to_bitmap,
+            "image"_a, "x"_a, "y"_a, "glyph"_a, py::kw_only(), "antialiased"_a=true,
+            PyFT2Font_draw_glyph_to_bitmap__doc__)
         .def("get_glyph_name", &PyFT2Font_get_glyph_name, "index"_a,
              PyFT2Font_get_glyph_name__doc__)
         .def("get_charmap", &PyFT2Font_get_charmap, PyFT2Font_get_charmap__doc__)
@@ -1773,6 +1769,18 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
             return self.x->get_image().request();
         });
+
+    // Ensure FreeType library is closed after all instances of FT2Font are gone by
+    // tying a weak ref to the class itself.
+    (void)py::weakref(
+        m.attr("FT2Font"),
+        py::cpp_function(
+            [ft2Library](py::handle weakref) {
+                FT_Done_FreeType(ft2Library);
+                weakref.dec_ref();
+            }
+        )
+    ).release();
 
     m.attr("__freetype_version__") = version_string;
     m.attr("__freetype_build_type__") = FREETYPE_BUILD_TYPE;

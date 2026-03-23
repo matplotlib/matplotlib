@@ -1,6 +1,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
+
 #include "mplutils.h"
 #include "py_converters.h"
 #include "_backend_agg.h"
@@ -214,9 +218,13 @@ PyRendererAgg_draw_gouraud_triangles(RendererAgg *self,
     self->draw_gouraud_triangles(gc, points, colors, trans);
 }
 
-PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
+PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used()
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+                ,py::multiple_interpreters::per_interpreter_gil()
+#endif
+)
 {
-    py::class_<RendererAgg>(m, "RendererAgg", py::buffer_protocol())
+    py::classh<RendererAgg>(m, "RendererAgg", py::buffer_protocol())
         .def(py::init<unsigned int, unsigned int, double>(),
              "width"_a, "height"_a, "dpi"_a)
 
@@ -266,7 +274,7 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
             return py::buffer_info(renderer->pixBuffer, shape, strides);
         });
 
-    py::class_<BufferRegion>(m, "BufferRegion", py::buffer_protocol())
+    py::classh<BufferRegion>(m, "BufferRegion", py::buffer_protocol())
         // BufferRegion is not constructible from Python, thus no py::init is added.
         .def("set_x", &PyBufferRegion_set_x)
         .def("set_y", &PyBufferRegion_set_y)
