@@ -326,7 +326,7 @@ or callable, default: value of *xycoords*
             # ensure a projection matrix exists.
             self.axes.M = self.axes.get_proj()
         tx, ty, tz, vis = proj3d._scale_proj_transform_clip(x, y, z, self.axes)
-        if not np.asarray(vis).astype(bool).item():
+        if not np.asarray(vis).item():
             return np.nan, np.nan
         return float(tx), float(ty)
 
