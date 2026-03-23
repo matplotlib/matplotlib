@@ -2393,15 +2393,16 @@ class _AxesBase(martist.Artist):
         if collection.get_clip_path() is None:
             collection.set_clip_path(self.patch)
 
-        collection._set_in_autoscale(autolim)
-
         if autolim:
-            self._update_collection_limits(collection, autolim)
+            self._update_collection_limits(collection)
+
+        if autolim != "_datalim_only":
+            self._request_autoscale_view()
 
         self.stale = True
         return collection
 
-    def _update_collection_limits(self, collection, autolim):
+    def _update_collection_limits(self, collection):
         """
         Update Axes data limits using the data from a Collection.
 
@@ -2435,9 +2436,6 @@ class _AxesBase(martist.Artist):
          updatex=x_is_data or ox_is_data,
          updatey=y_is_data or oy_is_data,
        )
-
-        if autolim != "_datalim_only":
-            self._request_autoscale_view()
 
     def add_image(self, image):
         """
