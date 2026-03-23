@@ -39,23 +39,25 @@ def test_compiletime_checks():
     # this has "enough" information to do all the replaces
     _preprocess_data(replace_names=["x", "y"])(func_args)
 
-    # no positional_parameter_names but needed due to replaces
-    with pytest.raises(AssertionError):
-        # z is unknown
-        _preprocess_data(replace_names=["x", "y", "z"])(func_args)
-
     # no replacements at all -> all ok...
     _preprocess_data(replace_names=[], label_namer=None)(func)
     _preprocess_data(replace_names=[], label_namer=None)(func_args)
     _preprocess_data(replace_names=[], label_namer=None)(func_kwargs)
     _preprocess_data(replace_names=[], label_namer=None)(func_no_ax_args)
 
-    # label namer is unknown
-    with pytest.raises(AssertionError):
-        _preprocess_data(label_namer="z")(func)
+    # No asserts with optimizations.
+    if sys.flags.optimize < 1:
+        # no positional_parameter_names but needed due to replaces
+        with pytest.raises(AssertionError):
+            # z is unknown
+            _preprocess_data(replace_names=["x", "y", "z"])(func_args)
 
-    with pytest.raises(AssertionError):
-        _preprocess_data(label_namer="z")(func_args)
+        # label namer is unknown
+        with pytest.raises(AssertionError):
+            _preprocess_data(label_namer="z")(func)
+
+        with pytest.raises(AssertionError):
+            _preprocess_data(label_namer="z")(func_args)
 
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
@@ -193,6 +195,8 @@ def test_more_args_than_pos_parameter():
         func(None, "a", "b", "z", "z", data=data)
 
 
+@pytest.mark.skipif(sys.flags.optimize >= 2,
+                    reason='Python optimization is enabled and docstrings are stripped')
 def test_docstring_addition():
     @_preprocess_data()
     def funcy(ax, *args, **kwargs):
