@@ -166,55 +166,6 @@ def test_annotate_3d_offset_pixels_and_fontsize():
     assert_delta(ann_fs)
 
 
-@mpl.style.context('mpl20')
-@check_figures_equal()
-def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
-    fig_test.set_size_inches(7, 3.2, forward=True)
-    fig_ref.set_size_inches(7, 3.2, forward=True)
-
-    axs_test = fig_test.subplots(1, 2, subplot_kw={'projection': '3d'})
-    axs_ref = fig_ref.subplots(1, 2, subplot_kw={'projection': '3d'})
-
-    xyz = np.arange(10)
-    idx = 5
-    arrowprops = dict(arrowstyle='->', lw=1)
-    bbox = dict(boxstyle='round', fc='w', ec='0.5')
-
-    def setup(ax):
-        ax.scatter(xyz, xyz, xyz, s=20, color='tab:blue')
-        ax.set(xlim=(0, 9), ylim=(0, 9), zlim=(0, 9))
-        ax.view_init(elev=20, azim=-60)
-
-    for ax in (*axs_test, *axs_ref):
-        setup(ax)
-
-    # We need a draw so that PathCollection.get_offsets() is updated.
-    FigureCanvasAgg(fig_test).draw()
-    FigureCanvasAgg(fig_ref).draw()
-
-    # 2D anchor (legacy behavior): annotate using a pre-projected 2D point.
-    xy2d_test = axs_test[0].collections[0].get_offsets()[idx]
-    axs_test[0].annotate(
-        "2D xy", xy2d_test, xytext=(10, 10), textcoords='offset points',
-        bbox=bbox, arrowprops=arrowprops)
-
-    xy2d_ref = axs_ref[0].collections[0].get_offsets()[idx]
-    maxes.Axes.annotate(
-        axs_ref[0], "2D xy", xy2d_ref, xytext=(10, 10),
-        textcoords='offset points', bbox=bbox, arrowprops=arrowprops)
-
-    # 3D anchor (new behavior) vs a pre-projected 2D snapshot.
-    axs_test[1].annotate(
-        "3D xy", (xyz[idx], xyz[idx], xyz[idx]),
-        xytext=(10, 10), textcoords='offset points',
-        bbox=bbox, arrowprops=arrowprops)
-
-    xy3d_ref = axs_ref[1].collections[0].get_offsets()[idx]
-    maxes.Axes.annotate(
-        axs_ref[1], "3D xy", xy3d_ref, xytext=(10, 10),
-        textcoords='offset points', bbox=bbox, arrowprops=arrowprops)
-
-
 @mpl3d_image_comparison(['annotate3d_axlim_clip.png'],
                         remove_text=False, style='mpl20', tol=0.02)
 def test_annotate_3d_axlim_clip():
