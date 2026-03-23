@@ -145,6 +145,23 @@ from matplotlib import transforms as mtransforms
 
 _log = logging.getLogger(__name__)
 
+# Fixed helper functions
+def _is_close_to_int(x):
+    """Return True if x is close to an integer."""
+    return math.isclose(x, round(x), rel_tol=1e-9)
+
+def _is_decade(x, *, base=10, rtol=None):
+    """Return True if *x* is an integer power of *base*."""
+    if not np.isfinite(x):
+        return False
+    if x == 0.0:
+        return True
+    lx = np.log(abs(x)) / np.log(base)
+    if rtol is None:
+        return np.isclose(lx, np.round(lx))
+    else:
+        return np.isclose(lx, np.round(lx), rtol=rtol)
+
 __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
            'StrMethodFormatter', 'ScalarFormatter', 'LogFormatter',
