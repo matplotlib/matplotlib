@@ -1115,6 +1115,28 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         if self.extend in ('both', 'max', 'min'):
             self.norm.clip = False
 
+    def set_color(self, c):
+        """
+        Set the edgecolor(s) of the contour.
+
+        For unfilled contours (the default), this is the same as
+        `LineCollection.set_color` -- only the edge color is set,
+        because an unfilled contour has no face/area to fill.
+
+        For filled contours, both the edge and face colors are set.
+
+        Parameters
+        ----------
+        c : :mpltype:`color` or list of RGBA tuples
+        """
+        if self.filled:
+            self.set_edgecolor(c)
+            self.set_facecolor(c)
+        else:
+            self.set_edgecolor(c)
+
+    set_colors = set_color
+
     def _process_linewidths(self, linewidths):
         Nlev = len(self.levels)
         if linewidths is None:

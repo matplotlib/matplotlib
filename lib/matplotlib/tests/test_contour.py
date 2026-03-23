@@ -872,3 +872,63 @@ def test_contour_aliases(fig_test, fig_ref):
 def test_contour_singular_color():
     with pytest.raises(TypeError):
         plt.figure().add_subplot().contour([[0, 1], [2, 3]], color="r")
+
+
+def test_contour_set_color_unfilled():
+    """Test that set_color on unfilled contours only changes edgecolor, not facecolor."""
+    fig, ax = plt.subplots()
+    x = np.arange(-3.0, 3.0, 0.025)
+    y = np.arange(-2.0, 2.0, 0.025)
+    X, Y = np.meshgrid(x, y)
+    Z1 = np.exp(-X**2 - Y**2)
+    Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+    Z = (Z1 - Z2) * 2
+
+    CS = ax.contour(X, Y, Z)
+    # Unfilled contours should have empty facecolor initially
+    assert_array_almost_equal(CS.get_facecolor(),
+                               np.array([[0., 0., 0., 0.]]))
+
+    CS.set_color('k')
+    # After set_color, edgecolor should be black
+    ec = CS.get_edgecolor()
+    assert len(ec) == 1
+    assert_array_almost_equal(ec[0], [0., 0., 0., 1.])
+    # But facecolor should STILL be empty for unfilled contours
+    assert_array_almost_equal(CS.get_facecolor(),
+                               np.array([[0., 0., 0., 0.]]))
+
+
+def test_contour_set_color_filled():
+    """Test that set_color on filled contours changes both edge and face color."""
+    fig, ax = plt.subplots()
+    x = np.arange(-3.0, 3.0, 0.025)
+    y = np.arange(-2.0, 2.0, 0.025)
+    X, Y = np.meshgrid(x, y)
+    Z1 = np.exp(-X**2 - Y**2)
+    Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+    Z = (Z1 - Z2) * 2
+
+    CS = ax.contourf(X, Y, Z)
+    # Filled contours should have non-empty facecolor initially
+    assert not np.allclose(CS.get_facecolor(), 0)
+
+    orig_facecolors = CS.get_facecolor().copy()
+    CS.set_color('red')
+    # After set_color, edgecolor should be red
+    ec = CS.get_edgecolor()
+    assert len(ec) == 1
+    assert_array_almost_equal(ec[0], [1., 0., 0., 1.])
+    # And facecolor should also be red
+    fc = CS.get_facecolor()
+    assert len(fc) == 1
+    assert_array_almost_equal(fc[0], [1., 0., 0., 1.])
+
+
+def test_contour_set_colors_alias():
+    """Test that set_colors is an alias for set_color."""
+    fig, ax = plt.subplots()
+    CS = ax.contour([[0, 1], [2, 3]])
+    CS.set_colors('r')
+    ec = CS.get_edgecolor()
+    assert_array_almost_equal(ec[0], [1., 0., 0., 1.])
