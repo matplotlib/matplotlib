@@ -351,7 +351,7 @@ or callable, default: value of *xycoords*
         if renderer is None:
             renderer = self.get_figure(root=True)._get_renderer()
         if not self._update_projection(renderer):
-            return Bbox.unit()
+            return Bbox.null()
         return super().get_window_extent(renderer)
 
     def get_tightbbox(self, renderer=None):
