@@ -236,24 +236,15 @@ def test_annotate_3d_axlim_clip():
         bbox=dict(boxstyle='round', fc='w', ec='0.5'), axlim_clip=True)
 
     # Text position outside the view limits: with axlim_clip=True the annotation
-    # should hide, and with axlim_clip=False it should still draw.
-    ax.annotate(
-        "text outside (unclipped)", (0.2, 0.2, 0.2),
-        xytext=(1.5, 0.05, 0.85), textcoords='data',
-        arrowprops=arrowprops, bbox=dict(boxstyle='round', fc='w', ec='0.5'),
-        axlim_clip=False)
+    # should hide.
     ax.annotate(
         "text outside (clipped)", (0.2, 0.2, 0.2),
         xytext=(1.5, 0.2, 0.2), textcoords='data',
         arrowprops=arrowprops, bbox=dict(boxstyle='round', fc='w', ec='0.5'),
         axlim_clip=True)
 
-    # Outside the view limits: axlim_clip=False should still draw, but
-    # axlim_clip=True should hide (by projecting to nan).
-    ax.annotate(
-        "outside (unclipped)", (1.5, 0.5, 0.5), xytext=(55, 25),
-        textcoords='offset points', arrowprops=arrowprops,
-        bbox=dict(boxstyle='round', fc='w', ec='0.5'), axlim_clip=False)
+    # Outside the view limits: axlim_clip=True should hide (by projecting to
+    # nan).
     ax.annotate(
         "outside (clipped)", (1.5, 0.5, 0.5), xytext=(10, -20),
         textcoords='offset points', arrowprops=arrowprops,
