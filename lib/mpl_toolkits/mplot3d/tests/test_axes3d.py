@@ -67,6 +67,8 @@ def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
         bbox=bbox, arrowprops=arrowprops,
     )
     assert isinstance(ann, art3d.Annotation3D)
+    ann = ax_test.annotate("baz", (xyz[idx], xyz[idx], xyz[idx]))
+    assert isinstance(ann, art3d.Annotation3D)
 
     # Hybrid mode: 2D anchor (snapshot) + 3D text position.
     # We need a draw so that PathCollection.get_offsets() is updated.
@@ -95,6 +97,7 @@ def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
         ax_ref, "foo", xy2d, xytext=(10, 10), textcoords='offset points',
         bbox=bbox, arrowprops=arrowprops,
     )
+    maxes.Axes.annotate(ax_ref, "baz", xy2d)
 
     # Hybrid reference: keep the 2D anchor from the default view, but project
     # the 3D text position at the final view.

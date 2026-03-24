@@ -310,6 +310,9 @@ or callable, default: value of *xycoords*
             pass
 
         xyztext = None
+        if xytext is None and xyz is not None:
+            if textcoords is None or textcoords == "data":
+                xyztext = xyz
         if xytext is not None:
             try:
                 if len(xytext) == 3:

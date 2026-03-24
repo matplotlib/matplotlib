@@ -2194,7 +2194,7 @@ class Axes3D(Axes):
                  arrowprops=None, annotation_clip=None, *, axlim_clip=False,
                  **kwargs):
         # Signature must match Annotation. This is verified in
-        # test_annotate_signature().
+        # lib/matplotlib/tests/test_axes.py::test_annotate_signature.
         a = art3d.Annotation3D(
             text, xy, xytext=xytext, xycoords=xycoords, textcoords=textcoords,
             arrowprops=arrowprops, annotation_clip=annotation_clip,
@@ -2231,8 +2231,8 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         # `zs` can be passed positionally or as keyword; checking whether
-        # args[0] is a string matches the behavior of 2D `plot` (via
-        # `_process_plot_var_args`).
+        # args[0] is a string matches the behavior of 2D `plot`
+        # (via `_process_plot_var_args`).
         if args and not isinstance(args[0], str):
             zs, *args = args
             if 'zs' in kwargs:
@@ -2287,8 +2287,9 @@ class Axes3D(Axes):
             - 'quad':  A separate quadrilateral polygon is created for each
               pair of subsequent points in the two lines.
             - 'polygon': The two lines are connected to form a single polygon.
-              This is faster and can render more cleanly for simple shapes
-              (e.g. for filling between two lines that lie within a plane).
+              This is faster and can render more cleanly for simple
+              shapes (e.g. for filling between two lines that lie within
+              a plane).
             - 'auto': If the points all lie on the same 3D plane, 'polygon' is
               used. Otherwise, 'quad' is used.
 
