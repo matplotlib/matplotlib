@@ -2193,164 +2193,18 @@ class Axes3D(Axes):
     def annotate(self, text, xy, xytext=None, xycoords='data', textcoords=None,
                  arrowprops=None, annotation_clip=None, *, axlim_clip=False,
                  **kwargs):
-        """
-        Annotate the point *xy* with text *text*.
-
-        This is the 3D counterpart of `.Axes.annotate`.  The main difference is
-        that when *xycoords* is ``'data'``, *xy* may be a 3-tuple *(x, y, z)* in
-        3D data coordinates.  In that case, the annotated point is projected
-        during draws, so the annotation follows rotations and zooming of the 3D
-        view.  An ``Annotation3D`` is returned.
-
-        If *xy* is a 2-tuple *(x, y)*, the annotation behaves like the 2D
-        version: the coordinates are interpreted in the (already projected)
-        coordinate system determined by *xycoords*, and the annotation does not
-        reproject with view changes.
-
-        Similarly, when the text position is specified in data coordinates
-        (``textcoords='data'`` or `None` with *xycoords* ``'data'``), *xytext*
-        may be a 3-tuple *(x, y, z)*.  In that case, the text position is also
-        projected during draws, and a
-        ``Annotation3D`` is returned.
-
-        Parameters
-        ----------
-        text : str
-            The text of the annotation.
-        xy : (float, float) or (float, float, float)
-            The point to annotate.
-
-            - If a 2-tuple, interpreted like `.Axes.annotate` in the coordinate
-              system given by *xycoords*.
-            - If a 3-tuple, only supported when *xycoords* is ``'data'`` and
-              interpreted as 3D data coordinates.
-        xytext : (float, float) or (float, float, float), optional
-            The position to place the text at.
-
-            - If a 2-tuple, interpreted like `.Axes.annotate` according to
-              *textcoords*.
-            - If a 3-tuple, only supported when the text position is in data
-              coordinates (``textcoords='data'`` or `None` with *xycoords*
-              ``'data'``), and interpreted as 3D data coordinates.
-        xycoords : single or two-tuple of str or `.Artist` or `.Transform` or \
-callable, default: 'data'
-            The coordinate system that *xy* is given in.
-            Must be ``'data'`` when *xy* is a 3-tuple.
-            See `.Annotation` for a full description of supported values.
-        textcoords : single or two-tuple of str or `.Artist` or `.Transform` \
-or callable, default: value of *xycoords*
-            The coordinate system that *xytext* is given in.
-            Must be ``'data'`` when *xytext* is a 3-tuple
-            (or `None` with *xycoords* ``'data'``).
-            See `.Annotation` for a full description of supported values.
-            In addition to all *xycoords* values, the following strings are
-            accepted:
-
-            - ``'offset points'``: Offset, in points, from the *xy* value.
-            - ``'offset pixels'``: Offset, in pixels, from the *xy* value.
-            - ``'offset fontsize'``: Offset, relative to fontsize, from the
-              *xy* value.
-
-        arrowprops : dict, optional
-            The properties used to draw a `.FancyArrowPatch` arrow between the
-            positions *xy* and *xytext*.  If *None*, no arrow is drawn.
-
-            See `.Annotation` for supported keys.
-        annotation_clip : bool or None, default: None
-            Whether to clip (i.e. not draw) the annotation when the annotated
-            point *xy* is outside the 2D Axes area.
-
-            - If *True*, the annotation will be clipped when *xy* is outside
-              the Axes.
-            - If *False*, the annotation will always be drawn.
-            - If *None*, the annotation will be clipped when *xy* is outside
-              the Axes and *xycoords* is ``'data'``.
-        axlim_clip : bool, default: False
-            Whether to hide the annotation when its 3D anchor is outside the
-            axes view limits.
-        **kwargs
-            Additional keyword arguments are forwarded to `.Annotation`.
-
-        Returns
-        -------
-        `.Annotation` or ``Annotation3D``
-            The created annotation.
-
-            If *xy* is a 3-tuple, or if *xytext* is a 3-tuple with the text
-            position specified in data coordinates, then an
-            ``Annotation3D`` is returned and the 3D
-            position(s) are reprojected during draws.
-
-        Raises
-        ------
-        ValueError
-            If a 3-tuple *xy* or *xytext* is passed with their respective
-            coordinate type *xycoords* or *textcoords* not equal to
-            ``'data'``.
-        """
-        valid_xycoords = [
-            "figure points", "figure pixels",
-            "figure fraction", "subfigure points",
-            "subfigure pixels", "subfigure fraction",
-            "axes points", "axes pixels",
-            "axes fraction", "data", "polar",
-        ]
-        valid_textcoords = valid_xycoords + [
-            "offset points", "offset pixels", "offset fontsize",
-        ]
-
-        def _check_coords(coords, valid, argname):
-            if isinstance(coords, str):
-                _api.check_in_list(valid, **{argname: coords})
-            elif isinstance(coords, tuple):
-                for c in coords:
-                    if isinstance(c, str):
-                        _api.check_in_list(valid, **{argname: c})
-
-        _check_coords(xycoords, valid_xycoords, "xycoords")
-        if textcoords is not None:
-            _check_coords(textcoords, valid_textcoords, "textcoords")
-
-        xyz = None
-        try:
-            if len(xy) == 3:
-                if xycoords != "data":
-                    raise ValueError("3D *xy* is only supported when "
-                                     "xycoords='data'.")
-                xyz = xy
-                xy = xy[:2]
-        except TypeError:
-            pass
-
-        xyztext = None
-        if xytext is not None:
-            try:
-                if len(xytext) == 3:
-                    # Only support a 3D text position when the text position is
-                    # itself in data coordinates.
-                    effective_textcoords = (
-                        xycoords if textcoords is None else textcoords
-                    )
-                    if effective_textcoords != "data":
-                        raise ValueError("3D *xytext* is only supported when "
-                                         "textcoords='data'.")
-                    xyztext = xytext
-                    xytext = xytext[:2]
-            except TypeError:
-                pass
-
-        a = super().annotate(
+        # Signature must match Annotation. This is verified in
+        # test_annotate_signature().
+        a = art3d.Annotation3D(
             text, xy, xytext=xytext, xycoords=xycoords, textcoords=textcoords,
-            arrowprops=arrowprops, annotation_clip=annotation_clip, **kwargs)
-
-        if xyz is not None or xyztext is not None:
-            art3d.annotation_2d_to_3d(a, xyz, xyztext=xyztext, axlim_clip=axlim_clip)
-        elif axlim_clip:
-            _api.warn_external(
-                "The 'axlim_clip' parameter is ignored for 2D annotated "
-                "positions (xy must be a 3-tuple in 3D data coordinates)."
-            )
+            arrowprops=arrowprops, annotation_clip=annotation_clip,
+            axlim_clip=axlim_clip, **kwargs)
+        a.set_transform(mtransforms.IdentityTransform())
+        if kwargs.get('clip_on', False) and a.get_clip_path() is None:
+            a.set_clip_path(self.patch)
+        self._add_text(a)
         return a
+    annotate.__doc__ = art3d.Annotation3D.__init__.__doc__
 
     def plot(self, xs, ys, *args, zdir='z', axlim_clip=False, **kwargs):
         """

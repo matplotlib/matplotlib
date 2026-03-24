@@ -327,6 +327,12 @@ or callable, default: value of *xycoords*
             text, xy, xytext=xytext, xycoords=xycoords, textcoords=textcoords,
             arrowprops=arrowprops, annotation_clip=annotation_clip, **kwargs)
         self.set_3d_properties(xyz, xyztext=xyztext, axlim_clip=axlim_clip)
+        if axlim_clip and xyz is None and xyztext is None:
+            _api.warn_external(
+                "The 'axlim_clip' parameter is ignored for 2D annotated "
+                "positions (xy or xytext must be a 3-tuple in 3D data "
+                "coordinates)."
+            )
 
     def set_3d_properties(self, xyz, xyztext=None, axlim_clip=False):
         self._xyz = xyz
@@ -377,6 +383,8 @@ or callable, default: value of *xycoords*
         return super().get_window_extent(renderer)
 
     def get_tightbbox(self, renderer=None):
+        if self._xyz is None and self._xyztext is None:
+            return super().get_tightbbox(renderer)
         return None
 
 
@@ -398,25 +406,6 @@ def text_2d_to_3d(obj, z=0, zdir='z', axlim_clip=False):
     """
     obj.__class__ = Text3D
     obj.set_3d_properties(z, zdir, axlim_clip)
-
-
-def annotation_2d_to_3d(obj, xyz, xyztext=None, axlim_clip=False):
-    """
-    Convert a 2D `.Annotation` to an `.Annotation3D`.
-
-    Parameters
-    ----------
-    xyz : (float, float, float) or None
-        The anchor position in 3D data coordinates.  If None, the annotation
-        anchor remains a 2D point and only the text position may be projected.
-    xyztext : (float, float, float) or None
-        Optional text position in 3D data coordinates (only meaningful when
-        textcoords='data').
-    axlim_clip : bool, default: False
-        Whether to hide annotations outside the 3D view limits.
-    """
-    obj.__class__ = Annotation3D
-    obj.set_3d_properties(xyz, xyztext=xyztext, axlim_clip=axlim_clip)
 
 
 class Line3D(lines.Line2D):
