@@ -19,11 +19,8 @@ to highlight some neat features and best-practices using Matplotlib.
     <https://pbpython.com/effective-matplotlib.html>`_
     by Chris Moffitt. It was transformed into this tutorial by Chris Holdgraf.
 
-A note on the explicit vs. implicit interfaces
-==============================================
-
-Matplotlib has two interfaces. For an explanation of the trade-offs between the
-explicit and implicit interfaces see :ref:`api_interfaces`.
+For a detailed explanation of the explicit (object-oriented) vs implicit
+(pyplot) interfaces, see :ref:`api_interfaces`.
 
 In the explicit object-oriented (OO) interface we directly utilize instances of
 :class:`axes.Axes` to build up the visualization in an instance of
@@ -47,6 +44,10 @@ us much more flexibility and power in customizing our plot.
 
    In general, use the explicit interface over the implicit pyplot interface
    for plotting.
+
+.. image:: /tutorials/images/sphx_glr_lifecycle_010.png
+   :alt: Final visualization example
+   :align: center   
 
 Our data
 ========
@@ -117,7 +118,8 @@ plt.style.use('fivethirtyeight')
 # Now let's remake the above plot to see how it looks:
 
 fig, ax = plt.subplots()
-ax.barh(group_names, group_data)
+bars = ax.barh(group_names, group_data)
+ax.bar_label(bars, padding=3)
 
 # %%
 # The style controls many things, such as color, linewidths, backgrounds,
@@ -242,8 +244,12 @@ ax.axvline(group_mean, ls='--', color='r')
 
 # Annotate new companies
 for group in [3, 5, 8]:
-    ax.text(145000, group, "New Company", fontsize=10,
-            verticalalignment="center")
+    ax.annotate("New Company",
+                xy=(group_data[group], group),
+                xytext=(145000, group),
+                textcoords="data",
+                fontsize=10,
+                va="center")
 
 # Now we move our title up since it's getting a little cramped
 ax.title.set(y=1.05)
