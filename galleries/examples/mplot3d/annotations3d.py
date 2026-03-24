@@ -11,8 +11,8 @@ specified using 3D data coordinates (a 3-tuple) or 2D screen coordinates (a
 
 When using 3D coordinates, set the coordinate system to ``'data'``. The
 annotation will dynamically re-project as the 3D view is rotated. Mixing 2D and
-3D endpoints allows for labels that stay fixed on the screen while tracking a
-point in 3D space.
+3D endpoints allows for labels that keep a constant screen offset while
+tracking a point in 3D space.
 """
 
 import matplotlib.pyplot as plt
@@ -39,7 +39,7 @@ for ax in (ax1, ax2):
     ax.set(xlabel="X", ylabel="Y", zlabel="Z")
 
 # --- Subplot 1: 3D Data Anchor + 2D Screen Offset ---
-# Common use case: label tracks a point but stays readable and fixed on screen.
+# Common use case: label tracks a point with a fixed screen offset.
 ax1.scatter(*point_3d, color="C3", s=40)
 ax1.annotate(
     "3D Anchor\n2D Offset",
