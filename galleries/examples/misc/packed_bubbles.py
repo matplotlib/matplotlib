@@ -13,6 +13,7 @@ browsers.
 
 import matplotlib.pyplot as plt
 import numpy as np
+# sphinx_gallery_thumbnail_number = 1
 
 browser_market_share = {
     'browsers': ['firefox', 'chrome', 'safari', 'edge', 'ie', 'opera'],
