@@ -1,5 +1,5 @@
 Axes3D annotations return Annotation3D
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `~mpl_toolkits.mplot3d.axes3d.Axes3D.annotate` now constructs and returns an
 `~mpl_toolkits.mplot3d.art3d.Annotation3D` instance. Previously it returned a
