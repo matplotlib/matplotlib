@@ -2234,12 +2234,9 @@ class Axes3D(Axes):
               ``'data'``), and interpreted as 3D data coordinates.
         xycoords : single or two-tuple of str or `.Artist` or `.Transform` or \
 callable, default: 'data'
-            The coordinate system that *xy* is given in.
+            The coordinate system that *xy* is given in. Must be ``'data'`` when *xy* is a 3-tuple.
 
             See `.Annotation` for a full description of supported values.
-
-            Notes for 3D
-                3-tuple *xy* is only supported when ``xycoords='data'``.
         textcoords : single or two-tuple of str or `.Artist` or `.Transform` \
 or callable, default: value of *xycoords*
             The coordinate system that *xytext* is given in.
