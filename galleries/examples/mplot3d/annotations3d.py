@@ -65,7 +65,7 @@ ax2.annotate(
     va="bottom",
     arrowprops=dict(arrowstyle="->", lw=1, color="C1"),
 )
-ax2.set_title("3D Data Anchor + 3D Text\n(Both orbit in 3D space)")
+ax2.set_title("3D Data Anchor + 3D Text")
 
 plt.show()
 
