@@ -2119,14 +2119,15 @@ class Cursor(AxesWidget):
         self.lineh.set_visible(self.visible and self.horizOn)
         if not (self.visible and (self.vertOn or self.horizOn)):
             return
-        # Redraw.
+       # Redraw.
         if self.useblit:
             background = self._load_blit_background()
             if background is not None:
                 self.canvas.restore_region(background)
-            
+
             # --- UPDATED FIX STARTS HERE ---
-            # If there are other axes overlapping with the cursor's area, redraw them completely
+            # If there are other axes overlapping with the cursor's area,
+            # redraw them completely.
             for ax_ in self.ax.get_figure(root=True).get_axes():
                 if ax_ is not self.ax and self.ax.bbox.overlaps(ax_.bbox):
                     self.ax.draw_artist(ax_)
