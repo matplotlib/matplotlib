@@ -276,11 +276,34 @@ or callable, default: value of *xycoords*
         This class is typically constructed indirectly via
         `.mpl_toolkits.mplot3d.axes3d.Axes3D.annotate`.
         """
+        valid_xycoords = [
+            "figure points", "figure pixels", "figure fraction",
+            "subfigure points", "subfigure pixels", "subfigure fraction",
+            "axes points", "axes pixels", "axes fraction",
+            "data", "polar",
+        ]
+        valid_textcoords = valid_xycoords + [
+            "offset points", "offset pixels", "offset fontsize",
+        ]
+
+        def _check_coords(coords, valid, argname):
+            if isinstance(coords, str):
+                _api.check_in_list(valid, **{argname: coords})
+            elif isinstance(coords, tuple):
+                for c in coords:
+                    if isinstance(c, str):
+                        _api.check_in_list(valid, **{argname: c})
+
+        _check_coords(xycoords, valid_xycoords, "xycoords")
+        if textcoords is not None:
+            _check_coords(textcoords, valid_textcoords, "textcoords")
+
         xyz = None
         try:
             if len(xy) == 3:
-                if xycoords != 'data':
-                    _api.check_in_list(['data'], xycoords=xycoords)
+                if xycoords != "data":
+                    raise ValueError("3D *xy* is only supported when "
+                                     "xycoords='data'.")
                 xyz = xy
                 xy = xy[:2]
         except TypeError:
@@ -293,8 +316,9 @@ or callable, default: value of *xycoords*
                     effective_textcoords = (
                         xycoords if textcoords is None else textcoords
                     )
-                    if effective_textcoords != 'data':
-                        _api.check_in_list(['data'], textcoords=effective_textcoords)
+                    if effective_textcoords != "data":
+                        raise ValueError("3D *xytext* is only supported when "
+                                         "textcoords='data'.")
                     xyztext = xytext
                     xytext = xytext[:2]
             except TypeError:
