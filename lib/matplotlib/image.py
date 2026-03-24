@@ -401,177 +401,36 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                                "Your Artist's draw method must filter before "
                                "this method is called.")
 
-        clipped_bbox = Bbox.intersection(out_bbox, clip_bbox)
-
-        if clipped_bbox is None:
+        magnified_bbox = self._compute_clipped_bbox(
+            out_bbox, clip_bbox, magnification, unsampled, round_to_pixel_border)
+        if magnified_bbox is None:
             return None, 0, 0, None
 
-        # Define the magnified bbox after clipping
-        magnified_extents = clipped_bbox.extents * magnification
-        if ((not unsampled) and round_to_pixel_border):
-            # Round to the nearest output pixel
-            # Add a tiny fudge amount to account for numerical precision loss
-            # on the two sides away from the Agg anchor point (x0, y1)
-            x0 = np.floor(magnified_extents[0] + 0.5)  # round half up
-            y0 = np.ceil(magnified_extents[1] - 0.5 - 1e-8)  # round half down
-            x1 = np.floor(magnified_extents[2] + 0.5 + 1e-8)  # round half up
-            y1 = np.ceil(magnified_extents[3] - 0.5)  # round half down
-            magnified_bbox = Bbox.from_extents([x0, y0, x1, y1])
-        else:
-            magnified_bbox = Bbox.from_extents(magnified_extents)
-
-        if magnified_bbox.width == 0 or magnified_bbox.height == 0:
-            return None, 0, 0, None
-
-        if self.origin == 'upper':
-            # Flip the input image using a transform.  This avoids the
-            # problem with flipping the array, which results in a copy
-            # when it is converted to contiguous in the C wrapper
-            t0 = Affine2D().translate(0, -A.shape[0]).scale(1, -1)
-        else:
-            t0 = IdentityTransform()
-
-        t0 += (
-            Affine2D()
-            .scale(
-                in_bbox.width / A.shape[1],
-                in_bbox.height / A.shape[0])
-            .translate(in_bbox.x0, in_bbox.y0)
-            + self.get_transform())
-
-        t = (t0
-             + (Affine2D()
-                .scale(magnification)
-                .translate(-magnified_bbox.x0, -magnified_bbox.y0)))
-
-        out_shape = (int(magnified_bbox.height), int(magnified_bbox.width))
+        t0 = self._compute_base_transform(A, in_bbox)
+        t, out_shape = self._compute_scaled_transform(t0, magnified_bbox, magnification)
 
         if not unsampled:
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
                 raise ValueError(f"Invalid shape {A.shape} for image data")
 
             float_rgba_in = A.ndim == 3 and A.shape[-1] == 4 and A.dtype.kind == 'f'
-
-            # if antialiased, this needs to change as window sizes
-            # change:
-            interpolation_stage = self._interpolation_stage
-            if interpolation_stage in ['antialiased', 'auto']:
-                pos = np.array([[0, 0], [A.shape[1], A.shape[0]]])
-                disp = t.transform(pos)
-                dispx = np.abs(np.diff(disp[:, 0])) / A.shape[1]
-                dispy = np.abs(np.diff(disp[:, 1])) / A.shape[0]
-                if (dispx < 3) or (dispy < 3):
-                    interpolation_stage = 'rgba'
-                else:
-                    interpolation_stage = 'data'
+            interpolation_stage = self._determine_interpolation_stage(A, t)
 
             if A.ndim == 2 and interpolation_stage == 'data':
-                # if we are a 2D array, then we are running through the
-                # norm + colormap transformation.  However, in general the
-                # input data is not going to match the size on the screen so we
-                # have to resample to the correct number of pixels
-
-                if A.dtype.kind == 'f':  # Float dtype: scale to same dtype.
-                    scaled_dtype = np.dtype("f8" if A.dtype.itemsize > 4 else "f4")
-                    if scaled_dtype.itemsize < A.dtype.itemsize:
-                        _api.warn_external(f"Casting input data from {A.dtype}"
-                                           f" to {scaled_dtype} for imshow.")
-                else:  # Int dtype, likely.
-                    # TODO slice input array first
-                    # Scale to appropriately sized float: use float32 if the
-                    # dynamic range is small, to limit the memory footprint.
-                    da = A.max().astype("f8") - A.min().astype("f8")
-                    scaled_dtype = "f8" if da > 1e8 else "f4"
-
-                # resample the input data to the correct resolution and shape
-                A_resampled = _resample(self, A.astype(scaled_dtype), out_shape, t)
-
-                # if using NoNorm, cast back to the original datatype
-                if isinstance(self.norm, mcolors.NoNorm):
-                    A_resampled = A_resampled.astype(A.dtype)
-
-                # Compute out_mask (what screen pixels include "bad" data
-                # pixels) and out_alpha (to what extent screen pixels are
-                # covered by data pixels: 0 outside the data extent, 1 inside
-                # (even for bad data), and intermediate values at the edges).
-                mask = (np.where(A.mask, np.float32(np.nan), np.float32(1))
-                        if A.mask.shape == A.shape  # nontrivial mask
-                        else np.ones_like(A, np.float32))
-                # we always have to interpolate the mask to account for
-                # non-affine transformations
-                out_alpha = _resample(self, mask, out_shape, t, resample=True)
-                del mask  # Make sure we don't use mask anymore!
-                out_mask = np.isnan(out_alpha)
-                out_alpha[out_mask] = 1
-                # Apply the pixel-by-pixel alpha values if present
-                alpha = self.get_alpha()
-                if alpha is not None and np.ndim(alpha) > 0:
-                    out_alpha *= _resample(self, alpha, out_shape, t, resample=True)
-                # mask and run through the norm
-                resampled_masked = np.ma.masked_array(A_resampled, out_mask)
-                res = self.norm(resampled_masked)
-            else:
-                if A.ndim == 2:  # interpolation_stage = 'rgba'
-                    self.norm.autoscale_None(A)
-                    A = self.to_rgba(A)
-                if A.dtype == np.uint8:
-                    # uint8 is too imprecise for premultiplied alpha roundtrips.
-                    A = np.divide(A, 0xff, dtype=np.float32)
-                alpha = self.get_alpha()
-                post_apply_alpha = False
-                if alpha is None:  # alpha parameter not specified
-                    if A.shape[2] == 3:  # image has no alpha channel
-                        A = np.dstack([A, np.ones(A.shape[:2])])
-                elif np.ndim(alpha) > 0:  # Array alpha
-                    if A.shape[2] == 3:  # RGB: use array alpha directly
-                        A = np.dstack([A, alpha])
-                    else:  # RGBA: multiply existing alpha by array alpha
-                        A = np.dstack([A[..., :3], A[..., 3] * alpha])
-                else:  # Scalar alpha
-                    if A.shape[2] == 3:  # broadcast scalar alpha
-                        A = np.dstack([A, np.full(A.shape[:2], alpha, np.float32)])
-                    else:  # or apply scalar alpha to existing alpha channel
-                        post_apply_alpha = True
-                # Resample in premultiplied alpha space.  (TODO: Consider
-                # implementing premultiplied-space resampling in
-                # span_image_resample_rgba_affine::generate?)
-                if float_rgba_in and np.ndim(alpha) == 0 and np.any(A[..., 3] < 1):
-                    # Do not modify original RGBA input
-                    A = A.copy()
-                A[..., :3] *= A[..., 3:]
-                res = _resample(self, A, out_shape, t)
-                np.divide(res[..., :3], res[..., 3:], out=res[..., :3],
-                            where=res[..., 3:] != 0)
-                if post_apply_alpha:
-                    res[..., 3] *= alpha
-
-            # res is now either a 2D array of normed (int or float) data
-            # or an RGBA array of re-sampled input
-            output = self.to_rgba(res, bytes=True, norm=False)
-            # output is now a correctly sized RGBA array of uint8
-
-            # Apply alpha *after* if the input was greyscale without a mask
-            if A.ndim == 2:
+                res, out_alpha = self._process_2d_data_with_data_interp(
+                    A, t, out_shape)
+                output = self.to_rgba(res, bytes=True, norm=False)
+                # Apply alpha *after* if the input was greyscale
                 alpha = self._get_scalar_alpha()
                 alpha_channel = output[:, :, 3]
-                alpha_channel[:] = (  # Assignment will cast to uint8.
+                alpha_channel[:] = (
                     alpha_channel.astype(np.float32) * out_alpha * alpha)
-
+            else:
+                res = self._process_data_with_rgba_interp(
+                    A, t, out_shape, float_rgba_in)
+                output = self.to_rgba(res, bytes=True, norm=False)
         else:
-            if self._imcache is None:
-                self._imcache = self.to_rgba(A, bytes=True, norm=(A.ndim == 2))
-            output = self._imcache
-
-            # Subset the input image to only the part that will be displayed.
-            subset = TransformedBbox(clip_bbox, t0.inverted()).frozen()
-            output = output[
-                int(max(subset.ymin, 0)):
-                int(min(subset.ymax + 1, output.shape[0])),
-                int(max(subset.xmin, 0)):
-                int(min(subset.xmax + 1, output.shape[1]))]
-
-            t = Affine2D().translate(
-                int(max(subset.xmin, 0)), int(max(subset.ymin, 0))) + t
+            output, t = self._process_unsampled_image(A, t0, clip_bbox)
 
         return (output,
                 magnified_bbox.x0 / magnification,
@@ -597,6 +456,287 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             The affine transformation from image to pixel space.
         """
         raise NotImplementedError('The make_image method must be overridden')
+
+    def _compute_clipped_bbox(self, out_bbox, clip_bbox, magnification,
+                              unsampled=False, round_to_pixel_border=True):
+        """
+        Compute the clipped and magnified bounding box for rendering.
+
+        Parameters
+        ----------
+        out_bbox : `~matplotlib.transforms.Bbox`
+            The output bounding box in pixel space.
+        clip_bbox : `~matplotlib.transforms.Bbox`
+            The clipping bounding box in pixel space.
+        magnification : float
+            The magnification factor.
+        unsampled : bool, default: False
+            If True, the image will not be scaled.
+        round_to_pixel_border : bool, default: True
+            If True, round the output image size to the nearest pixel boundary.
+
+        Returns
+        -------
+        magnified_bbox : `~matplotlib.transforms.Bbox` or None
+            The magnified bounding box after clipping, or None if the boxes
+            do not intersect.
+        """
+        clipped_bbox = Bbox.intersection(out_bbox, clip_bbox)
+        if clipped_bbox is None:
+            return None
+
+        magnified_extents = clipped_bbox.extents * magnification
+        if not unsampled and round_to_pixel_border:
+            x0 = np.floor(magnified_extents[0] + 0.5)
+            y0 = np.ceil(magnified_extents[1] - 0.5 - 1e-8)
+            x1 = np.floor(magnified_extents[2] + 0.5 + 1e-8)
+            y1 = np.ceil(magnified_extents[3] - 0.5)
+            magnified_bbox = Bbox.from_extents([x0, y0, x1, y1])
+        else:
+            magnified_bbox = Bbox.from_extents(magnified_extents)
+
+        if magnified_bbox.width == 0 or magnified_bbox.height == 0:
+            return None
+        return magnified_bbox
+
+    def _compute_base_transform(self, A, in_bbox):
+        """
+        Compute the base transform accounting for origin and data scaling.
+
+        Parameters
+        ----------
+        A : ndarray
+            The image array.
+        in_bbox : `~matplotlib.transforms.Bbox`
+            The input bounding box in data space.
+
+        Returns
+        -------
+        t0 : `~matplotlib.transforms.Transform`
+            The base transform.
+        """
+        if self.origin == 'upper':
+            t0 = Affine2D().translate(0, -A.shape[0]).scale(1, -1)
+        else:
+            t0 = IdentityTransform()
+
+        t0 += (
+            Affine2D()
+            .scale(
+                in_bbox.width / A.shape[1],
+                in_bbox.height / A.shape[0])
+            .translate(in_bbox.x0, in_bbox.y0)
+            + self.get_transform())
+        return t0
+
+    def _compute_scaled_transform(self, t0, magnified_bbox, magnification):
+        """
+        Compute the final transform with scaling and translation applied.
+
+        Parameters
+        ----------
+        t0 : `~matplotlib.transforms.Transform`
+            The base transform from `_compute_base_transform`.
+        magnified_bbox : `~matplotlib.transforms.Bbox`
+            The magnified bounding box.
+        magnification : float
+            The magnification factor.
+
+        Returns
+        -------
+        t : `~matplotlib.transforms.Affine2D`
+            The scaled transform.
+        out_shape : tuple
+            The output shape (height, width).
+        """
+        t = (t0
+             + (Affine2D()
+                .scale(magnification)
+                .translate(-magnified_bbox.x0, -magnified_bbox.y0)))
+        out_shape = (int(magnified_bbox.height), int(magnified_bbox.width))
+        return t, out_shape
+
+    def _determine_interpolation_stage(self, A, t):
+        """
+        Determine the interpolation stage (data vs rgba) based on display size.
+
+        Parameters
+        ----------
+        A : ndarray
+            The image array.
+        t : `~matplotlib.transforms.Affine2D`
+            The transform to apply.
+
+        Returns
+        -------
+        interpolation_stage : str
+            Either 'data' or 'rgba'.
+        """
+        interpolation_stage = self._interpolation_stage
+        if interpolation_stage in ['antialiased', 'auto']:
+            pos = np.array([[0, 0], [A.shape[1], A.shape[0]]])
+            disp = t.transform(pos)
+            dispx = np.abs(np.diff(disp[:, 0])) / A.shape[1]
+            dispy = np.abs(np.diff(disp[:, 1])) / A.shape[0]
+            if (dispx < 3) or (dispy < 3):
+                interpolation_stage = 'rgba'
+            else:
+                interpolation_stage = 'data'
+        return interpolation_stage
+
+    def _determine_scaled_dtype(self, A):
+        """
+        Determine the appropriate dtype for scaled floating point operations.
+
+        Parameters
+        ----------
+        A : ndarray
+            The image array.
+
+        Returns
+        -------
+        scaled_dtype : str or dtype
+            The dtype to use for scaling.
+        """
+        if A.dtype.kind == 'f':
+            scaled_dtype = np.dtype("f8" if A.dtype.itemsize > 4 else "f4")
+            if scaled_dtype.itemsize < A.dtype.itemsize:
+                _api.warn_external(f"Casting input data from {A.dtype}"
+                                   f" to {scaled_dtype} for imshow.")
+        else:
+            da = A.max().astype("f8") - A.min().astype("f8")
+            scaled_dtype = "f8" if da > 1e8 else "f4"
+        return scaled_dtype
+
+    def _process_2d_data_with_data_interp(self, A, t, out_shape):
+        """
+        Process 2D (scalar) image data with data-stage interpolation.
+
+        Parameters
+        ----------
+        A : ndarray
+            The 2D image array.
+        t : `~matplotlib.transforms.Affine2D`
+            The transform to apply.
+        out_shape : tuple
+            The output shape (height, width).
+
+        Returns
+        -------
+        res : ndarray
+            The normalized resampled data.
+        out_alpha : ndarray
+            The alpha channel after resampling and masking.
+        """
+        scaled_dtype = self._determine_scaled_dtype(A)
+        A_resampled = _resample(self, A.astype(scaled_dtype), out_shape, t)
+
+        if isinstance(self.norm, mcolors.NoNorm):
+            A_resampled = A_resampled.astype(A.dtype)
+
+        mask = (np.where(A.mask, np.float32(np.nan), np.float32(1))
+                if A.mask.shape == A.shape
+                else np.ones_like(A, np.float32))
+        out_alpha = _resample(self, mask, out_shape, t, resample=True)
+        out_mask = np.isnan(out_alpha)
+        out_alpha[out_mask] = 1
+
+        alpha = self.get_alpha()
+        if alpha is not None and np.ndim(alpha) > 0:
+            out_alpha *= _resample(self, alpha, out_shape, t, resample=True)
+
+        resampled_masked = np.ma.masked_array(A_resampled, out_mask)
+        res = self.norm(resampled_masked)
+        return res, out_alpha
+
+    def _process_data_with_rgba_interp(self, A, t, out_shape, float_rgba_in):
+        """
+        Process image data with RGBA-stage interpolation.
+
+        Parameters
+        ----------
+        A : ndarray
+            The image array (2D or 3D).
+        t : `~matplotlib.transforms.Affine2D`
+            The transform to apply.
+        out_shape : tuple
+            The output shape (height, width).
+        float_rgba_in : bool
+            Whether input is float RGBA.
+
+        Returns
+        -------
+        res : ndarray
+            The resampled RGBA data.
+        """
+        if A.ndim == 2:
+            self.norm.autoscale_None(A)
+            A = self.to_rgba(A)
+        if A.dtype == np.uint8:
+            A = np.divide(A, 0xff, dtype=np.float32)
+
+        alpha = self.get_alpha()
+        post_apply_alpha = False
+        if alpha is None:
+            if A.shape[2] == 3:
+                A = np.dstack([A, np.ones(A.shape[:2])])
+        elif np.ndim(alpha) > 0:
+            if A.shape[2] == 3:
+                A = np.dstack([A, alpha])
+            else:
+                A = np.dstack([A[..., :3], A[..., 3] * alpha])
+        else:
+            if A.shape[2] == 3:
+                A = np.dstack([A, np.full(A.shape[:2], alpha, np.float32)])
+            else:
+                post_apply_alpha = True
+
+        if float_rgba_in and np.ndim(alpha) == 0 and np.any(A[..., 3] < 1):
+            A = A.copy()
+        A[..., :3] *= A[..., 3:]
+        res = _resample(self, A, out_shape, t)
+        np.divide(res[..., :3], res[..., 3:], out=res[..., :3],
+                  where=res[..., 3:] != 0)
+        if post_apply_alpha:
+            res[..., 3] *= alpha
+        return res
+
+    def _process_unsampled_image(self, A, t0, clip_bbox):
+        """
+        Process image data without sampling (unsampled mode).
+
+        Parameters
+        ----------
+        A : ndarray
+            The image array.
+        t0 : `~matplotlib.transforms.Transform`
+            The base transform.
+        clip_bbox : `~matplotlib.transforms.Bbox`
+            The clipping bounding box.
+
+        Returns
+        -------
+        output : ndarray
+            The RGBA output image.
+        t : `~matplotlib.transforms.Affine2D`
+            The adjusted transform.
+        """
+        if self._imcache is None:
+            self._imcache = self.to_rgba(A, bytes=True, norm=(A.ndim == 2))
+        output = self._imcache
+
+        subset = TransformedBbox(clip_bbox, t0.inverted()).frozen()
+        y_slice = slice(
+            int(max(subset.ymin, 0)),
+            int(min(subset.ymax + 1, output.shape[0])))
+        x_slice = slice(
+            int(max(subset.xmin, 0)),
+            int(min(subset.xmax + 1, output.shape[1])))
+        output = output[y_slice, x_slice]
+
+        t = Affine2D().translate(
+            int(max(subset.xmin, 0)), int(max(subset.ymin, 0))) + t0
+        return output, t
 
     def _check_unsampled_image(self):
         """
