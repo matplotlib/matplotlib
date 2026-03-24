@@ -1446,8 +1446,11 @@ class FillBetweenPolyCollection(PolyCollection):
 
     def set_verts(self, verts, closed=True):
         super().set_verts(verts, closed=closed)
+
+        # Respect global path simplification setting
+        simplify = bool(mpl.rcParams.get("path.simplify", True))
         for path in self._paths:
-            path.should_simplify = True
+            path.should_simplify = simplify
 
     set_paths = set_verts
 
