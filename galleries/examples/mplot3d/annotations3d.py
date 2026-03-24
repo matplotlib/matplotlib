@@ -18,7 +18,6 @@ point in 3D space.
 import matplotlib.pyplot as plt
 import numpy as np
 
-# %%
 # Create a simple 3D curve.
 t = np.linspace(0, 2 * np.pi, 200)
 x = np.cos(t)
