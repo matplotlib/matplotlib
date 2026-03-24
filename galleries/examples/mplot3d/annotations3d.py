@@ -50,7 +50,7 @@ ax1.annotate(
     va="bottom",
     arrowprops=dict(arrowstyle="->", lw=1),
 )
-ax1.set_title("3D Data Anchor + 2D Offset\n(Text stays fixed on screen)")
+ax1.set_title("3D Data Anchor + 2D Offset")
 
 # --- Subplot 2: 3D Data Anchor + 3D Text Position ---
 # Demonstrates that the text position itself can live in the 3D data space.
