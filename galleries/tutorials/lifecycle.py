@@ -44,10 +44,7 @@ us much more flexibility and power in customizing our plot.
 
    In general, use the explicit interface over the implicit pyplot interface
    for plotting.
-
-.. image:: /tutorials/images/sphx_glr_lifecycle_010.png
-   :alt: Final visualization example
-   :align: center   
+  
 
 Our data
 ========
