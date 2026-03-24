@@ -46,7 +46,7 @@ def test_invisible_axes(fig_test, fig_ref):
 
 
 @check_figures_equal()
-def test_annotate_3d_follows_view(fig_test, fig_ref):
+def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
     xyz = np.arange(10)
     idx = 5
     xyztext = (xyz[idx] + 2, xyz[idx] + 1, xyz[idx] + 3)
