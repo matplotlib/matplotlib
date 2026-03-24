@@ -2290,9 +2290,7 @@ or callable, default: value of *xycoords*
         Raises
         ------
         ValueError
-            If a 3-tuple *xy* is passed with *xycoords* not equal to ``'data'``,
-            or if a 3-tuple *xytext* is passed with the text position not in
-            data coordinates.
+            If a 3-tuple *xy* or *xytext* is passed with their respective coordinate type *xycoords* or *textcoords * not equal to ``'data'``.
         """
         valid_xycoords = [
             "figure points", "figure pixels", "figure fraction",
