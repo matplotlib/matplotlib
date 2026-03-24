@@ -2234,15 +2234,16 @@ class Axes3D(Axes):
               ``'data'``), and interpreted as 3D data coordinates.
         xycoords : single or two-tuple of str or `.Artist` or `.Transform` or \
 callable, default: 'data'
-            The coordinate system that *xy* is given in. Must be ``'data'`` when *xy* is a 3-tuple.
-
+            The coordinate system that *xy* is given in.
+            Must be ``'data'`` when *xy* is a 3-tuple.
             See `.Annotation` for a full description of supported values.
         textcoords : single or two-tuple of str or `.Artist` or `.Transform` \
 or callable, default: value of *xycoords*
             The coordinate system that *xytext* is given in.
-
-            See `.Annotation` for a full description of supported values.  In
-            addition to all *xycoords* values, the following strings are
+            Must be ``'data'`` when *xytext* is a 3-tuple
+            (or `None` with *xycoords* ``'data'``).
+            See `.Annotation` for a full description of supported values.
+            In addition to all *xycoords* values, the following strings are
             accepted:
 
             - ``'offset points'``: Offset, in points, from the *xy* value.
@@ -2250,10 +2251,6 @@ or callable, default: value of *xycoords*
             - ``'offset fontsize'``: Offset, relative to fontsize, from the
               *xy* value.
 
-            Notes for 3D
-                3-tuple *xytext* is only supported when the text position is
-                specified in data coordinates (``textcoords='data'`` or `None`
-                with ``xycoords='data'``).
         arrowprops : dict, optional
             The properties used to draw a `.FancyArrowPatch` arrow between the
             positions *xy* and *xytext*.  If *None*, no arrow is drawn.
@@ -2287,13 +2284,16 @@ or callable, default: value of *xycoords*
         Raises
         ------
         ValueError
-            If a 3-tuple *xy* or *xytext* is passed with their respective coordinate type *xycoords* or *textcoords * not equal to ``'data'``.
+            If a 3-tuple *xy* or *xytext* is passed with their respective
+            coordinate type *xycoords* or *textcoords* not equal to
+            ``'data'``.
         """
         valid_xycoords = [
-            "figure points", "figure pixels", "figure fraction",
-            "subfigure points", "subfigure pixels", "subfigure fraction",
-            "axes points", "axes pixels", "axes fraction",
-            "data", "polar",
+            "figure points", "figure pixels",
+            "figure fraction", "subfigure points",
+            "subfigure pixels", "subfigure fraction",
+            "axes points", "axes pixels",
+            "axes fraction", "data", "polar",
         ]
         valid_textcoords = valid_xycoords + [
             "offset points", "offset pixels", "offset fontsize",
