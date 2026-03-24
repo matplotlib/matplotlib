@@ -2261,7 +2261,7 @@ or callable, default: value of *xycoords*
             See `.Annotation` for supported keys.
         annotation_clip : bool or None, default: None
             Whether to clip (i.e. not draw) the annotation when the annotated
-            point *xy* is outside the Axes area.
+            point *xy* is outside the 2D Axes area.
 
             - If *True*, the annotation will be clipped when *xy* is outside
               the Axes.
