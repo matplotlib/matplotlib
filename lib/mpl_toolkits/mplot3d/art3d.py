@@ -222,8 +222,6 @@ class Annotation3D(mtext.Annotation):
     A 3D variant of `.Annotation` that projects its anchor (and optionally the
     text position) each draw.
 
-    This intentionally opts out of layout (like `Text3D`) by returning None from
-    `get_tightbbox`.
     """
 
     def __init__(self, text, xy,
