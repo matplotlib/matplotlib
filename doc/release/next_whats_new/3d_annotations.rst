@@ -21,7 +21,7 @@ draws, so it stays attached to the intended point when rotating or zooming the
    ax.annotate(
        "3D anchor",
        (x[5], y[5], z[5]),
-       xytext=(20, 20),
+       xytext=(35, 35),
        textcoords="offset points",
        ha="left",
        va="bottom",
