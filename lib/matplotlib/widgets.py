@@ -2124,6 +2124,14 @@ class Cursor(AxesWidget):
             background = self._load_blit_background()
             if background is not None:
                 self.canvas.restore_region(background)
+            
+            # --- UPDATED FIX STARTS HERE ---
+            # If there are other axes overlapping with the cursor's area, redraw them completely
+            for ax_ in self.ax.get_figure(root=True).get_axes():
+                if ax_ is not self.ax and self.ax.bbox.overlaps(ax_.bbox):
+                    self.ax.draw_artist(ax_)
+            # --- UPDATED FIX ENDS HERE ---
+
             self.ax.draw_artist(self.linev)
             self.ax.draw_artist(self.lineh)
             self.canvas.blit(self.ax.bbox)
