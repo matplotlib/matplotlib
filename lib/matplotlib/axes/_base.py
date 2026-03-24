@@ -2479,8 +2479,7 @@ class _AxesBase(martist.Artist):
         (e.g. negative coordinates with a log scale).
         """
         for val, axis in zip([x, y], self._axis_map.values()):
-            vmin, vmax = axis.limit_range_for_scale(val, val)
-            if vmin != val or vmax != val:
+            if not axis._scale.val_in_range(val):
                 return False
         return True
 
@@ -3055,20 +3054,29 @@ class _AxesBase(martist.Artist):
         if tight is not None:
             self._tight = bool(tight)
 
+        x_shared_axes = self._shared_axes["x"].get_siblings(self)
+        y_shared_axes = self._shared_axes["y"].get_siblings(self)
+
         x_stickies = y_stickies = np.array([])
         if self.use_sticky_edges:
             if self._xmargin and scalex and self.get_autoscalex_on():
-                edges = []
-                for ax in self._shared_axes["x"].get_siblings(self):
-                    for artist in ax.get_children():
-                        edges.extend(artist.sticky_edges.x)
-                x_stickies = np.sort(edges)
+                x_sticky = []
+                for ax in x_shared_axes:
+                    for artist in ax._get_data_children():
+                        sticky_edges = artist._sticky_edges
+                        if sticky_edges is not None and sticky_edges.x:
+                            x_sticky.extend(sticky_edges.x)
+                if x_sticky:
+                    x_stickies = np.sort(x_sticky)
             if self._ymargin and scaley and self.get_autoscaley_on():
-                edges = []
-                for ax in self._shared_axes["y"].get_siblings(self):
-                    for artist in ax.get_children():
-                        edges.extend(artist.sticky_edges.y)
-                y_stickies = np.sort(edges)
+                y_sticky = []
+                for ax in y_shared_axes:
+                    for artist in ax._get_data_children():
+                        sticky_edges = artist._sticky_edges
+                        if sticky_edges is not None and sticky_edges.y:
+                            y_sticky.extend(sticky_edges.y)
+                if y_sticky:
+                    y_stickies = np.sort(y_sticky)
         if self.get_xscale() == 'log':
             x_stickies = x_stickies[x_stickies > 0]
         if self.get_yscale() == 'log':
@@ -3079,11 +3087,9 @@ class _AxesBase(martist.Artist):
 
             if not (scale and axis._get_autoscale_on()):
                 return  # nothing to do...
-
-            shared = shared_axes.get_siblings(self)
             # Base autoscaling on finite data limits when there is at least one
             # finite data limit among all the shared_axes and intervals.
-            values = [val for ax in shared
+            values = [val for ax in shared_axes
                       for val in getattr(ax.dataLim, f"interval{name}")
                       if np.isfinite(val)]
             if values:
@@ -3099,20 +3105,22 @@ class _AxesBase(martist.Artist):
             x0, x1 = locator.nonsingular(x0, x1)
             # Find the minimum minpos for use in the margin calculation.
             minimum_minpos = min(
-                getattr(ax.dataLim, f"minpos{name}") for ax in shared)
+                getattr(ax.dataLim, f"minpos{name}") for ax in shared_axes)
 
             # Prevent margin addition from crossing a sticky value.  A small
             # tolerance must be added due to floating point issues with
             # streamplot; it is defined relative to x1-x0 but has
             # no absolute term (e.g. "+1e-8") to avoid issues when working with
             # datasets where all values are tiny (less than 1e-8).
-            tol = 1e-5 * abs(x1 - x0)
-            # Index of largest element < x0 + tol, if any.
-            i0 = stickies.searchsorted(x0 + tol) - 1
-            x0bound = stickies[i0] if i0 != -1 else None
-            # Index of smallest element > x1 - tol, if any.
-            i1 = stickies.searchsorted(x1 - tol)
-            x1bound = stickies[i1] if i1 != len(stickies) else None
+            x0bound = x1bound = None
+            if len(stickies):
+                tol = 1e-5 * abs(x1 - x0)
+                # Index of largest element < x0 + tol, if any.
+                i0 = stickies.searchsorted(x0 + tol) - 1
+                x0bound = stickies[i0] if i0 != -1 else None
+                # Index of smallest element > x1 - tol, if any.
+                i1 = stickies.searchsorted(x1 - tol)
+                x1bound = stickies[i1] if i1 != len(stickies) else None
 
             # Add the margin in figure space and then transform back, to handle
             # non-linear scales.
@@ -3137,10 +3145,10 @@ class _AxesBase(martist.Artist):
             # End of definition of internal function 'handle_single_axis'.
 
         handle_single_axis(
-            scalex, self._shared_axes["x"], 'x', self.xaxis, self._xmargin,
+            scalex, x_shared_axes, 'x', self.xaxis, self._xmargin,
             x_stickies, self.set_xbound)
         handle_single_axis(
-            scaley, self._shared_axes["y"], 'y', self.yaxis, self._ymargin,
+            scaley, y_shared_axes, 'y', self.yaxis, self._ymargin,
             y_stickies, self.set_ybound)
 
     def _update_title_position(self, renderer):
@@ -4542,6 +4550,20 @@ class _AxesBase(martist.Artist):
         if points is not None:
             self.set_xlim(points[:, 0])
             self.set_ylim(points[:, 1])
+
+    def _get_data_children(self):
+        """
+        Return artists that represent data (plot lines, collections, images,
+        patches, etc.) as opposed to auxiliary artists needed to draw the
+        Axes itself (spines, titles, axis objects, etc.).
+
+        Data children are the artists that can contribute to autoscaling
+        and sticky edges.
+
+        Note: This is a preliminary definition and has not been thought
+        through completely. We may want to revise this later.
+        """
+        return [*self._children, *self._axis_map.values()]
 
     def get_children(self):
         # docstring inherited.

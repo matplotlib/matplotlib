@@ -798,8 +798,11 @@ class Line2D(Artist):
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
 
-                # We first draw a path within the gaps if needed.
-                if self.is_dashed() and self._gapcolor is not None:
+                # We first draw a path within the gaps if needed, but only for
+                # visible dashed lines; zero-width lines would otherwise yield
+                # all-zero dashes.
+                if (self._linewidth > 0 and self.is_dashed()
+                        and self._gapcolor is not None):
                     lc_rgba = mcolors.to_rgba(self._gapcolor, self._alpha)
                     gc.set_foreground(lc_rgba, isRGBA=True)
 
@@ -812,7 +815,10 @@ class Line2D(Artist):
                 lc_rgba = mcolors.to_rgba(self._color, self._alpha)
                 gc.set_foreground(lc_rgba, isRGBA=True)
 
-                gc.set_dashes(*self._dash_pattern)
+                if self._linewidth > 0:
+                    gc.set_dashes(*self._dash_pattern)
+                else:
+                    gc.set_dashes(0, None)
                 renderer.draw_path(gc, tpath, affine.frozen())
                 gc.restore()
 

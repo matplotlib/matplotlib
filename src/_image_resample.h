@@ -589,8 +589,9 @@ public:
             if (dx >= 0 && dx < m_out_width &&
                 dy >= 0 && dy < m_out_height) {
                 const double *coord = m_mesh + (int(dy) * m_out_width + int(dx)) * 2;
-                *x = int(coord[0] * agg::image_subpixel_scale + offset);
-                *y = int(coord[1] * agg::image_subpixel_scale + offset);
+                // Add a tiny fudge amount to account for numerical precision loss
+                *x = int(coord[0] * agg::image_subpixel_scale + offset + 1e-8);
+                *y = int(coord[1] * agg::image_subpixel_scale + offset + 1e-8);
             }
         }
     }
@@ -780,10 +781,15 @@ void resample(
             params.affine.transform(&right, &top);
             if (left > right) { std::swap(left, right); }
             if (bottom > top) { std::swap(top, bottom); }
-            if (round(left) < left) { left = round(left); }
-            if (round(right) > right) { right = round(right); }
-            if (round(bottom) < bottom) { bottom = round(bottom); }
-            if (round(top) > top) { top = round(top); }
+            // Add a tiny fudge amount to account for numerical precision loss
+            int rleft = agg::iround(left - 1e-8);
+            int rright = agg::iround(right + 1e-8);
+            int rbottom = agg::iround(bottom - 1e-8);
+            int rtop = agg::iround(top + 1e-8);
+            if (rleft < left) { left = rleft; }
+            if (rright > right) { right = rright; }
+            if (rbottom < bottom) { bottom = rbottom; }
+            if (rtop > top) { top = rtop; }
             path.move_to(left, bottom);
             path.line_to(right, bottom);
             path.line_to(right, top);

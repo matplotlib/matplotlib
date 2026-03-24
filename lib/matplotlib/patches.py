@@ -709,8 +709,9 @@ class Patch(artist.Artist):
             from matplotlib.patheffects import PathEffectRenderer
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
-        # Draw the gaps first if gapcolor is set
-        if self._has_dashed_edge() and self._gapcolor is not None:
+        # We first draw a path within the gaps if needed, but only for visible
+        # dashed edges; zero-width edges would otherwise yield all-zero dashes.
+        if lw > 0 and self._has_dashed_edge() and self._gapcolor is not None:
             gc.set_foreground(self._gapcolor, isRGBA=True)
             offset_gaps, gaps = mlines._get_inverse_dash_pattern(
                 *self._dash_pattern)
@@ -720,7 +721,10 @@ class Patch(artist.Artist):
 
         # Draw the main edge
         gc.set_foreground(self._edgecolor, isRGBA=True)
-        gc.set_dashes(*self._dash_pattern)
+        if lw > 0:
+            gc.set_dashes(*self._dash_pattern)
+        else:
+            gc.set_dashes(0, None)
         for draw_path_args in draw_path_args_list:
             renderer.draw_path(gc, *draw_path_args)
 

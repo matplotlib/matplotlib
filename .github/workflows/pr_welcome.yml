@@ -26,7 +26,10 @@ jobs:
             If you have not heard from us in a week or so, please leave a new
             comment below and that should bring it to our attention.
             Most of our reviewers are volunteers and sometimes things fall
-            through the cracks.
+            through the cracks. We also ask that you please finish addressing
+            any review comments on this PR and wait for it to be merged (or
+            closed) before opening a new one, as it can be a valuable learning
+            experience to go through the review process.
 
 
             You can also join us [on
@@ -38,7 +41,7 @@ jobs:
             please see [the developer
             guide](https://matplotlib.org/devdocs/devel/index.html).
 
-            **Please let us know  if (and how) you use AI, it will help us give you
+            **Please let us know if (and how) you use AI, it will help us give you
             better feedback on your PR.**
 
 

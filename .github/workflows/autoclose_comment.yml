@@ -55,12 +55,11 @@ jobs:
             To increase the chance of a productive review:
 
             - Use [the template provided in the PR
-              description](https://github.com/matplotlib/matplotlib/blob/main/.github/PULL_REQUEST_TEMPLATE.md)
-              and fill it out as completely as possible, especially the summary
-              and AI Disclosure sections.
+            description](https://github.com/matplotlib/matplotlib/blob/main/.github/PULL_REQUEST_TEMPLATE.md)
+            and fill it out as completely as possible, especially the summary and AI Disclosure sections.
 
-            - Make sure your PR conforms to our
-              [PR checklist](https://matplotlib.org/devdocs/devel/pr_guide.html#summary-for-pull-request-authors).
+            - Make sure your PR conforms to our [PR
+            checklist](https://matplotlib.org/devdocs/devel/pr_guide.html#summary-for-pull-request-authors).
 
 
             As the author, you are responsible for driving this PR, which entails doing
@@ -75,7 +74,7 @@ jobs:
 
 
             If you substantially improve this PR within two weeks, leave a comment
-            and a team member may remove the `status: needs work` label and the
+            and a team member may remove the `status: autoclose candidate` label and the
             PR stays open. Cosmetic changes or incomplete fixes will not be
             sufficient. Maintainers will assess improvements on their own
             schedule. Please do not ping (`@`) maintainers.

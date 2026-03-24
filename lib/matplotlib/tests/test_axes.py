@@ -1183,7 +1183,7 @@ def test_limits_empty_data(plot_fun, fig_test, fig_ref):
 def test_imshow():
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
-    # Create a NxN image
+    # Create an NxN image
     N = 100
     (x, y) = np.indices((N, N))
     x -= N//2
@@ -1207,7 +1207,7 @@ def test_imshow_clip():
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
 
-    # Create a NxN image
+    # Create an NxN image
     N = 100
     (x, y) = np.indices((N, N))
     x -= N//2
@@ -8081,9 +8081,13 @@ def test_twinning_default_axes_class():
     assert type(twiny) is Axes
 
 
-def test_zero_linewidth():
-    # Check that setting a zero linewidth doesn't error
-    plt.plot([0, 1], [0, 1], ls='--', lw=0)
+@mpl.style.context('mpl20')
+@check_figures_equal()
+def test_stairs_fill_zero_linewidth(fig_test, fig_ref):
+    fig_test.subplots().stairs(
+        [1, 2, 3, 4], [1, 2, 3, 4, 5], fill=True, ls='--')
+    fig_ref.subplots().stairs(
+        [1, 2, 3, 4], [1, 2, 3, 4, 5], fill=True, ls='-')
 
 
 def test_empty_errorbar_legend():

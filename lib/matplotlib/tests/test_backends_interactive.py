@@ -702,8 +702,11 @@ def _test_sigint_impl(backend, target_name, kwargs):
 
     def interrupter():
         if sys.platform == 'win32':
-            import win32api
-            win32api.GenerateConsoleCtrlEvent(0, 0)
+            from ctypes import windll, wintypes
+            GenerateConsoleCtrlEvent = windll.kernel32.GenerateConsoleCtrlEvent
+            GenerateConsoleCtrlEvent.argtypes = [wintypes.DWORD, wintypes.DWORD]
+            GenerateConsoleCtrlEvent.restype = wintypes.BOOL
+            GenerateConsoleCtrlEvent(0, 0)
         else:
             import signal
             os.kill(os.getpid(), signal.SIGINT)

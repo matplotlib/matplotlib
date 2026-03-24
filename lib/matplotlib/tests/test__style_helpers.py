@@ -59,7 +59,7 @@ def test_style_generator_raises_on_empty_style_parameter_list(key):
 def test_style_generator_sequence_type_styles():
     """
     Test that sequence type style values are detected as single value
-    and passed to a all elements of the generator.
+    and passed to all elements of the generator.
     """
     kw = {'facecolor':  ('r', 0.5),
           'edgecolor': [0.5, 0.5, 0.5],

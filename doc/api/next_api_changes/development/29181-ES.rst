@@ -1,0 +1,11 @@
+pip 25.1 suggested for development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dependencies for development (build and testing) are now specified as `Dependency Groups
+<https://packaging.python.org/en/latest/specifications/dependency-groups/#dependency-groups>`_
+instead of `individual requirements files
+<https://pip.pypa.io/en/stable/reference/requirements-file-format/>`_.
+
+Consequently, a version of pip that supports Dependency Groups is suggested, namely
+version 25.1 or higher. Note that if you install build/testing dependencies manually (by
+copying the list from ``pyproject.toml``), then an older version of pip is sufficient.
