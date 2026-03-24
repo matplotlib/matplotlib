@@ -27,7 +27,7 @@ z = t / (2 * np.pi)
 
 # Select points for annotation.
 point_3d = (x[60], y[60], z[60])
-text_pos_3d = (x[120], y[120], z[120])
+text_pos_3d = (x[150], y[150], z[150] + 0.12)
 
 fig, (ax1, ax2) = plt.subplots(
     1, 2, figsize=(10, 5),
@@ -45,7 +45,7 @@ ax1.scatter(*point_3d, color="C3", s=40)
 ax1.annotate(
     "3D Anchor\n2D Offset",
     xy=point_3d,
-    xytext=(20, 20),
+    xytext=(35, 35),
     textcoords="offset points",
     ha="left",
     va="bottom",
@@ -62,8 +62,8 @@ ax2.annotate(
     xy=point_3d,
     xytext=text_pos_3d,
     textcoords="data",
-    ha="center",
-    va="center",
+    ha="left",
+    va="bottom",
     arrowprops=dict(arrowstyle="->", lw=1, color="C1"),
 )
 ax2.set_title("3D Data Anchor + 3D Text\n(Both orbit in 3D space)")
