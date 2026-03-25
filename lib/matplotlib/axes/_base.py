@@ -2403,19 +2403,6 @@ class _AxesBase(martist.Artist):
         return collection
 
     def _update_collection_limits(self, collection):
-        """
-        Update Axes data limits using the data from a Collection.
-
-        This helper extracts the limit update logic previously embedded
-        in `Axes.add_collection`. It ensures that collections participating
-        in autoscaling correctly contribute their data limits to the Axes.
-
-        Parameters
-        ----------
-        collection : matplotlib.collections.Collection
-        The collection whose data limits should be incorporated into
-        the Axes data limits.
-        """
         self._unstale_viewLim()
 
         datalim = collection.get_datalim(self.transData)
@@ -2424,18 +2411,16 @@ class _AxesBase(martist.Artist):
         if not np.isinf(datalim.minpos).all():
             points = np.concatenate([points, [datalim.minpos]])
 
-        x_is_data, y_is_data = (
-            collection.get_transform().contains_branch_separately(self.transData)
-       )
-        ox_is_data, oy_is_data = (
-             collection.get_offset_transform().contains_branch_separately(self.transData)
-       )
+        transform = collection.get_transform()
+        offset_trf = collection.get_offset_transform()
 
-        self.update_datalim(
-         points,
-         updatex=x_is_data or ox_is_data,
-         updatey=y_is_data or oy_is_data,
-       )
+        x_is_data, y_is_data = transform.contains_branch_separately(self.transData)
+        ox_is_data, oy_is_data = offset_trf.contains_branch_separately(self.transData)
+
+        updatex = x_is_data or ox_is_data
+        updatey = y_is_data or oy_is_data
+
+        self.update_datalim(points, updatex=updatex, updatey=updatey)
 
     def add_image(self, image):
         """
@@ -2655,8 +2640,8 @@ class _AxesBase(martist.Artist):
 
         for artist in self._children:
             if not visible_only or artist.get_visible():
-                if not artist._get_in_autoscale():
-                    continue
+                if hasattr(artist, "get_in_autoscale") and not artist.get_in_autoscale():  # noqa: E501
+                   continue
                 if isinstance(artist, mlines.Line2D):
                     self._update_line_limits(artist)
                 elif isinstance(artist, mpatches.Patch):
@@ -2664,7 +2649,7 @@ class _AxesBase(martist.Artist):
                 elif isinstance(artist, mimage.AxesImage):
                     self._update_image_limits(artist)
                 elif isinstance(artist, mcoll.Collection):
-                    self._update_collection_limits(artist, autolim="_datalim_only")
+                    self._update_collection_limits(artist)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
