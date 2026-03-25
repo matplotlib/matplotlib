@@ -20,6 +20,7 @@ from matplotlib.lines import Line2D
 from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox, DrawingArea,
                                   TextArea, VPacker)
 from matplotlib.patches import Circle, Ellipse
+ # sphinx_gallery_thumbnail_number = 1
 
 
 def draw_text(ax):
