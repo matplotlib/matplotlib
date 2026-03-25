@@ -2396,8 +2396,8 @@ class _AxesBase(martist.Artist):
         if autolim:
             self._update_collection_limits(collection)
 
-        if autolim != "_datalim_only":
-            self._request_autoscale_view()
+            if autolim != "_datalim_only":
+              self._request_autoscale_view()
 
         self.stale = True
         return collection
