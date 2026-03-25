@@ -199,6 +199,43 @@ setup.
 
       Remember to activate the environment whenever you start working on Matplotlib!
 
+   .. tab-item:: pixi environment
+
+      A pixi configuration is included in ``pyproject.toml``.  The environment
+      includes the base Matplotlib dependencies, and documentation and testing
+      dependencies. To install the dependencies::
+
+        pixi install
+
+      and then to install an editable version on Matplotlib::
+
+         pixi run python -m pip install \
+            --no-build-isolation \
+            --config-settings=setup-args="-Db_lto=false" \
+            --editable .
+
+      (the ``-Db_lto=false`` is not needed on all platforms).  You can test the installation with::
+
+         pixi run python -c "import matplotlib; print(matplotlib.__file__)"
+
+      Note there are some pixi tasks available as shortcuts::
+
+         pixi task list
+
+      If you do not want to use ``pixi run`` in front of every command, you can do::
+
+         pixi shell
+
+      and continue to use pixi as a python environment.
+
+      .. note:: do not edit the ``pyproject.toml`` file and commit to the repository, as this
+         will affect all developers.  If you want to change the dependencies, please open an
+         issue or pull request to discuss the change.  If you want a custom ``pixi.toml`` file,
+         you can create one in your home directory, and it will be used instead of the
+         repository one. An example is available in ``tools/pixi.example.toml`` that lists the
+         dependencies needed to build Matplotlib.
+
+      .. _pixi: https://pixi.prefix.dev/
 
 Install external dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
