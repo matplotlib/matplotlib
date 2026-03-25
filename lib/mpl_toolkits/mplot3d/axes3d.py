@@ -2193,8 +2193,6 @@ class Axes3D(Axes):
     def annotate(self, text, xy, xytext=None, xycoords='data', textcoords=None,
                  arrowprops=None, annotation_clip=None, *, axlim_clip=False,
                  **kwargs):
-        # Signature must match Annotation. This is verified in
-        # lib/matplotlib/tests/test_axes.py::test_annotate_signature.
         a = art3d.Annotation3D(
             text, xy, xytext=xytext, xycoords=xycoords, textcoords=textcoords,
             arrowprops=arrowprops, annotation_clip=annotation_clip,
