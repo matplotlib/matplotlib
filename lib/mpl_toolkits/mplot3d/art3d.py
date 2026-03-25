@@ -351,12 +351,6 @@ or callable, default: value of *xycoords*
         self._axlim_clip = axlim_clip
         self.stale = True
 
-    def _anncoords_is_data(self):
-        return self.anncoords == "data" or (
-            isinstance(self.anncoords, tuple)
-            and all(c == "data" for c in self.anncoords)
-        )
-
     def _project_xyz(self, xyz, renderer):
         x, y, z = xyz
         x = float(self.axes.convert_xunits(x))
@@ -380,7 +374,7 @@ or callable, default: value of *xycoords*
         if self._xyz is not None:
             self.xy = self._project_xyz(self._xyz, renderer)
             valid &= np.isfinite(self.xy).all()
-        if self._xyztext is not None and self._anncoords_is_data():
+        if self._xyztext is not None and self.anncoords == "data":
             pos = self._project_xyz(self._xyztext, renderer)
             self.set_position(pos)
             valid &= np.isfinite(pos).all()
