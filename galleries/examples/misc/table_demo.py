@@ -7,6 +7,7 @@ Demo of table function to display a table within a plot.
 """
 import matplotlib.pyplot as plt
 import numpy as np
+# sphinx_gallery_thumbnail_number = 1
 
 data = [[ 66386, 174296,  75131, 577908,  32015],
         [ 58230, 381139,  78045,  99308, 160454],
