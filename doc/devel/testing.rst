@@ -258,7 +258,7 @@ repositories but you can trigger a run manually from the `GitHub web interface
 <https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow>`_.
 
 You can see the GitHub Actions results at
-https://github.com/your_GitHub_user_name/matplotlib/actions -- here's `an
+https://github.com/matplotlib/matplotlib/actions -- here's `an
 example <https://github.com/QuLogic/matplotlib/actions>`_.
 
 
