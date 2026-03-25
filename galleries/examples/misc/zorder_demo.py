@@ -34,6 +34,7 @@ their relative zorder.
 
 import matplotlib.pyplot as plt
 import numpy as np
+# sphinx_gallery_thumbnail_number = 1
 
 r = np.linspace(0.3, 1, 30)
 theta = np.linspace(0, 4*np.pi, 30)
