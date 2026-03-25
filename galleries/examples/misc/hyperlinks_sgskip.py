@@ -13,6 +13,8 @@ This currently only works with the SVG backend.
 import matplotlib.pyplot as plt
 import numpy as np
 
+# sphinx_gallery_thumbnail_path = "_static/hyperlinks_thumbnail.png"
+
 # %%
 
 fig = plt.figure()
