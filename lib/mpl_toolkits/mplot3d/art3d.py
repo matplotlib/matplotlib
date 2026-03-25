@@ -294,11 +294,6 @@ or callable, default: value of *xycoords*
                     if isinstance(c, str):
                         _api.check_in_list(valid, **{argname: c})
 
-        def _is_data_coords(coords):
-            return coords == "data" or (
-                isinstance(coords, tuple) and all(c == "data" for c in coords)
-            )
-
         _check_coords(xycoords, valid_xycoords, "xycoords")
         if textcoords is not None:
             _check_coords(textcoords, valid_textcoords, "textcoords")
@@ -306,7 +301,7 @@ or callable, default: value of *xycoords*
         xyz = None
         try:
             if len(xy) == 3:
-                if not _is_data_coords(xycoords):
+                if xycoords != "data":
                     raise ValueError("3D *xy* is only supported when "
                                      "xycoords='data'.")
                 xyz = xy
@@ -316,10 +311,7 @@ or callable, default: value of *xycoords*
 
         xyztext = None
         if xytext is None and xyz is not None:
-            if textcoords is None:
-                if _is_data_coords(xycoords):
-                    xyztext = xyz
-            elif _is_data_coords(textcoords):
+            if textcoords is None or textcoords == "data":
                 xyztext = xyz
         if xytext is not None:
             try:
@@ -327,7 +319,7 @@ or callable, default: value of *xycoords*
                     effective_textcoords = (
                         xycoords if textcoords is None else textcoords
                     )
-                    if not _is_data_coords(effective_textcoords):
+                    if effective_textcoords != "data":
                         raise ValueError("3D *xytext* is only supported when "
                                          "textcoords='data'.")
                     xyztext = xytext
