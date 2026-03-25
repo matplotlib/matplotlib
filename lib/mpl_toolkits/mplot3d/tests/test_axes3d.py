@@ -76,7 +76,7 @@ def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
     xy2d = ax_test.collections[0].get_offsets()[idx]
     ann = ax_test.annotate(
         "bar", xy2d, xycoords='data',
-        xytext=xyztext, textcoords='data',
+        xytext=xyztext, textcoords=('data', 'data'),
         bbox=bbox, arrowprops=arrowprops,
     )
     assert isinstance(ann, art3d.Annotation3D)
@@ -105,7 +105,8 @@ def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
     FigureCanvasAgg(fig_ref).draw()
     xytext2d = ax_ref.collections[-1].get_offsets()[0]
     maxes.Axes.annotate(
-        ax_ref, "bar", xy2d_snapshot, xytext=xytext2d, textcoords='data',
+        ax_ref, "bar", xy2d_snapshot, xytext=xytext2d,
+        textcoords=('data', 'data'),
         bbox=bbox, arrowprops=arrowprops,
     )
 
