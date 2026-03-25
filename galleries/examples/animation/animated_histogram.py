@@ -14,6 +14,8 @@ import numpy as np
 
 import matplotlib.animation as animation
 
+# sphinx_gallery_thumbnail_path = '_static/animated_histogram_thumbnail.png'
+
 # Setting up a random number generator with a fixed state for reproducibility.
 rng = np.random.default_rng(seed=19680801)
 # Fixing bin edges.
