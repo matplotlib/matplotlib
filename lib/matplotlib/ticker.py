@@ -2708,13 +2708,21 @@ class SymmetricalLogLocator(Locator):
 
         # Add ticks with linear spacing in the linear region for better density
         if has_b:
-            n_linear = max(3, min(5, self.numticks))
-            linear_ticks = np.linspace(-linthresh, linthresh, n_linear)
-            # Filter to keep only ticks within the view interval
-            linear_ticks = linear_ticks[(linear_ticks >= vmin) & (linear_ticks <= vmax)]
-            # Merge with existing ticks and deduplicate
-            all_ticks = np.concatenate([np.asarray(ticklocs), linear_ticks])
-            ticklocs = np.sort(np.unique(all_ticks))
+            if self.numticks is None:
+                n_linear = 3
+            elif self.numticks <= 0:
+                n_linear = 0
+            else:
+                n_linear = min(5, self.numticks)
+            
+            if n_linear > 0:
+                linear_vmin = max(vmin, -linthresh)
+                linear_vmax = min(vmax, linthresh)
+                
+                if linear_vmax > linear_vmin:
+                    linear_ticks = np.linspace(linear_vmin, linear_vmax, n_linear)
+                    all_ticks = np.concatenate([np.asarray(ticklocs), linear_ticks])
+                    ticklocs = np.sort(np.unique(all_ticks))
 
         return self.raise_if_exceeds(np.array(ticklocs))
 
