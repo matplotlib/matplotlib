@@ -425,3 +425,46 @@ test-command = [
 CFLAGS = "-fexceptions"
 CXXFLAGS = "-fexceptions"
 LDFLAGS = "-fexceptions"
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64"]
+
+[tool.pixi.dependencies]
+python = "3.12.*"
+pip = "*"
+meson = "*"
+ninja = "*"
+pkg-config = "*"
+compilers = "*"
+meson-python = "*"
+pybind11 = "*"
+setuptools = ">=64"
+setuptools-scm = ">=7"
+
+[tool.pixi.tasks.clean-build]
+cmd = "rm -rf build meson-logs meson-private .mesonpy-*"
+description = "Clean meson build artifacts"
+
+[tool.pixi.tasks.build-doc]
+# for users: don't use for CI
+cmd = "make -C doc html"
+description = "Build the documentation"
+
+[tool.pixi.tasks.tests-core]
+# for users: don't use for CI
+cmd = "pytest --pyargs matplotlib"
+description = "Run Matplotlib tests (no toolboxes)"
+
+[tool.pixi.tasks.tests-all]
+# for users: don't use for CI
+cmd = "pytest --pyargs matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d"
+description = "Run Matplotlib tests (including all toolboxes)"
+
+[tool.pixi.environments]
+# These are all in one environment for the convenience of developers who
+# just want one env.
+default = { features = ["build", "test", "doc"], solve-group = "main" }
+test = { features = ["test"], solve-group = "main" }
+test-extra = { features = ["test", "test-extra"], solve-group = "main" }
+doc = { features = ["doc"], solve-group = "main" }
