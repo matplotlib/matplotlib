@@ -71,6 +71,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
     
 
     def paintEvent(self, event):
+        print("PAINT EVENT RUNNING")
         """
         Copy the image from the Agg canvas to the qt.drawable.
 
@@ -122,23 +123,17 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             if QT_API == "PySide2" and QtCore.__version_info__ < (5, 12):
                 ctypes.c_long.from_address(id(buf)).value = 1
 
-            # --- Overlay drawing ---
-            if self._overlay_lines or (self._overlay_start and self._overlay_end):
+           # --- Overlay drawing ---
+            for x1, y1, x2, y2, style in getattr(self, "_overlay_lines", []):
 
-             pen = QtGui.QPen(QtGui.QColor("red"),2)
+             color = style.get("color", "red")
+             width = style.get("width", 2)
+
+             pen = QtGui.QPen(QtGui.QColor(color), width)
              painter.setPen(pen)
-
-            # stored overlay lines
-            for x1, y1, x2, y2, style in self._overlay_lines:
+   
              painter.drawLine(int(x1), int(y1), int(x2), int(y2))
 
-            # interactive dragging line
-            if self._overlay_start and self._overlay_end:
-             x1, y1 = self._overlay_start
-             x2, y2 = self._overlay_end
-             painter.drawLine(int(x1), int(y1), int(x2), int(y2))
-
-            self._draw_rect_callback(painter)
         finally:
             painter.end()
 

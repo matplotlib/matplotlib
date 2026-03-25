@@ -1776,21 +1776,17 @@ class FigureCanvasBase:
         
         super().__init__()  # Typically the GUI widget init (if any).
     def add_overlay_line(self, x1, y1, x2, y2, **style):
-        """
-        Add a lightweight overlay line drawn in canvas pixel coordinates.
 
-        Parameters
-        ----------
-        x1, y1, x2, y2 : float
-            Coordinates in canvas pixel space.
-        **style : dict
-            Backend-specific drawing options.
-        """
+     if not hasattr(self, "_overlay_primitives"):
+        self._overlay_primitives = []
+
         self._overlay_primitives.append(
-            {"type": "line", "coords": (x1, y1, x2, y2), "style": style}
-    )
-        self._request_overlay_draw()
+          {"type": "line", "coords": (x1, y1, x2, y2), "style": style}
+        )
 
+        print("Added overlay:", self._overlay_primitives)
+
+        self.draw_idle()
 
     def clear_overlay(self):
         """
