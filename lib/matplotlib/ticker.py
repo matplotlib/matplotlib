@@ -2706,7 +2706,8 @@ class SymmetricalLogLocator(Locator):
         else:
             ticklocs = decades
 
-        # Add ticks with linear spacing in the linear region for better density
+        # Add ticks with linear spacing in the linear region for better
+        # density near zero.
         if has_b:
             if self.numticks is None:
                 n_linear = 3
@@ -2714,14 +2715,18 @@ class SymmetricalLogLocator(Locator):
                 n_linear = 0
             else:
                 n_linear = min(5, self.numticks)
-            
+
             if n_linear > 0:
                 linear_vmin = max(vmin, -linthresh)
                 linear_vmax = min(vmax, linthresh)
-                
+
                 if linear_vmax > linear_vmin:
-                    linear_ticks = np.linspace(linear_vmin, linear_vmax, n_linear)
-                    all_ticks = np.concatenate([np.asarray(ticklocs), linear_ticks])
+                    linear_ticks = np.linspace(
+                        linear_vmin, linear_vmax, n_linear
+                    )
+                    all_ticks = np.concatenate(
+                        [np.asarray(ticklocs), linear_ticks]
+                    )
                     ticklocs = np.sort(np.unique(all_ticks))
 
         return self.raise_if_exceeds(np.array(ticklocs))
