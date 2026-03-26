@@ -3045,3 +3045,138 @@ class AutoMinorLocator(Locator):
     def tick_values(self, vmin, vmax):
         raise NotImplementedError(
             f"Cannot get tick locations for a {type(self).__name__}")
+
+
+class WilkinsonLocator(Locator):
+    """
+    Tick locator based on an Extended Wilkinson-style algorithm.
+    Balances simplicity, coverage, and density.
+    """
+
+    def __init__(self, nbins=10):
+        self._nbins = max(1, int(nbins))
+
+    def __call__(self):
+        vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
+
+    def tick_values(self, vmin, vmax):
+        # Handle reversed inputs
+        if vmin > vmax:
+            vmin, vmax = vmax, vmin
+
+        vmin, vmax = mtransforms._nonsingular(
+            vmin, vmax, expander=1e-13, tiny=1e-14
+        )
+
+        locs = self._wilkinson(vmin, vmax)
+        return self.raise_if_exceeds(locs)
+
+    # ---------------- CORE ALGORITHM ---------------- #
+
+    def _wilkinson(self, vmin, vmax):
+        Q = [1, 2, 2.5, 5, 10]
+        best_score = -np.inf
+        best_ticks = None
+
+        span = vmax - vmin
+        if span == 0:
+            return np.array([vmin])
+
+        k_min = int(np.floor(np.log10(span))) - 1
+        k_max = int(np.ceil(np.log10(span))) + 1
+
+        for q in Q:
+            for k in range(k_min, k_max + 1):
+                if abs(k) > 10:
+                    continue
+
+                step = q * (10 ** k)
+                if step <= 0:
+                    continue
+
+                lmin = np.floor(vmin / step) * step
+                lmax = np.ceil(vmax / step) * step
+
+                ticks = np.arange(lmin, lmax + 0.5 * step, step)
+                n = len(ticks)
+
+                # Reject too many or too few ticks
+                if n < 2 or n > self._nbins * 2:
+                    continue
+
+                score = self._score(vmin, vmax, ticks, q)
+
+                if score > best_score:
+                    best_score = score
+                    best_ticks = ticks
+
+        # Fallback
+        if best_ticks is None:
+            step = span / self._nbins
+            best_ticks = np.arange(vmin, vmax + step, step)
+
+        # ---------------- FINAL ADJUSTMENT ---------------- #
+
+        # Clamp first
+        best_ticks = best_ticks[
+            (best_ticks >= vmin - 1e-9) &
+            (best_ticks <= vmax + 1e-9)
+        ]
+
+        # Ensure boundaries using consistent step
+        if len(best_ticks) >= 2:
+            step = best_ticks[1] - best_ticks[0]
+
+            start = np.floor(vmin / step) * step
+            end = np.ceil(vmax / step) * step
+
+            best_ticks = np.arange(start, end + 0.5 * step, step)
+
+        # Ensure at least 2 ticks
+        if len(best_ticks) < 2:
+            return np.array([vmin, vmax])
+
+        return best_ticks
+
+    # ---------------- SCORING ---------------- #
+
+    def _score(self, vmin, vmax, ticks, q):
+        n = len(ticks)
+
+        simplicity = self._simplicity(q)
+        coverage = self._coverage(vmin, vmax, ticks)
+        density = self._density(n)
+
+        overflow = (
+            max(0, vmin - ticks[0]) +
+            max(0, ticks[-1] - vmax)
+        )
+
+        # Penalize too many ticks
+        tick_penalty = max(0, n - self._nbins)
+
+        return (
+            0.2 * simplicity +
+            0.4 * coverage +
+            0.2 * density -
+            0.5 * tick_penalty -
+            2 * overflow / (vmax - vmin)
+        )
+
+    def _simplicity(self, q):
+        Q = [1, 2, 2.5, 5, 10]
+        return 1 - Q.index(q) / (len(Q) - 1)
+
+    def _coverage(self, vmin, vmax, ticks):
+        span = vmax - vmin
+        if span == 0:
+            return 1
+
+        return 1 - (
+            ((vmin - ticks[0]) ** 2 + (ticks[-1] - vmax) ** 2)
+            / (span ** 2)
+        )
+
+    def _density(self, n):
+        return max(0, 1 - abs(n - self._nbins) / self._nbins)
