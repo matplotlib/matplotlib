@@ -392,9 +392,16 @@ default: %(va)s
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
-                'ha': 'center', 'va': 'top', 'rotation': 0,
-                'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
+        info = {
+            'name': '_suptitle',
+            'x0': mpl.rcParams['figure.titlex'],   # NEW
+            'y0': mpl.rcParams['figure.titley'],   # NEW
+            'ha': mpl.rcParams['figure.titleha'],  # NEW
+            'va': mpl.rcParams['figure.titleva'],  # NEW
+            'rotation': 0,
+            'size': 'figure.titlesize',
+            'weight': 'figure.titleweight'
+        }
         return self._suplabels(t, info, **kwargs)
 
     def get_suptitle(self):
