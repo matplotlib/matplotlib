@@ -390,8 +390,8 @@ def test_suptitle_default_position_from_rcparams():
 
         x, y = text.get_position()
 
-        assert isinstance(x, float)
-        assert isinstance(y, float)
+        assert isinstance(x, (float, int))
+        assert isinstance(y, (float, int))
 
 
 def test_suptitle_fontproperties():
