@@ -2715,7 +2715,19 @@ class SymmetricalLogLocator(Locator):
         else:
             ticklocs = decades
 
+       # ENH: Add evenly spaced ticks in the linear region near zero
+        # to improve readability when both log and linear segments exist.
+        if not (-linthresh <= vmin < vmax <= linthresh):
+            lin_lo = max(vmin, -linthresh)
+            lin_hi = min(vmax, linthresh)
+            if lin_lo < lin_hi and (vmax - vmin) > 100 * linthresh:
+                linear_ticks = np.linspace(lin_lo, lin_hi, 3)
+                ticklocs = np.unique(
+                    np.concatenate([np.array(ticklocs), linear_ticks])
+                )
+
         return self.raise_if_exceeds(np.array(ticklocs))
+        
 
     def view_limits(self, vmin, vmax):
         """Try to choose the view limits intelligently."""
