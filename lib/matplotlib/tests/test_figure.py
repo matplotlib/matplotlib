@@ -334,6 +334,7 @@ def test_suptitle():
 # Added for Issue #24090: rcParams support in Figure.suptitle
 # -------------------------------------------------------------------
 
+
 def test_suptitle_rcparams_position_alignment():
     import matplotlib.pyplot as plt
     import matplotlib as mpl
