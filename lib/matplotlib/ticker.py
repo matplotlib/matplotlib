@@ -2427,7 +2427,7 @@ class LogLocator(Locator):
 
             if vmin <= 0.0 or not np.isfinite(vmin):
                 raise ValueError(
-                    "Data has no positive values, and therefore cannot be log-scaled.")
+                    "Data has non-positive values, and therefore cannot be log-scaled.")
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin
@@ -2554,7 +2554,7 @@ class LogLocator(Locator):
             vmin, vmax = 1, 10  # Initial range, no data plotted yet.
         elif vmax <= 0:
             _api.warn_external(
-                "Data has no positive values, and therefore cannot be "
+                "Data has non-positive values, and therefore cannot be "
                 "log-scaled.")
             vmin, vmax = 1, 10
         else:
