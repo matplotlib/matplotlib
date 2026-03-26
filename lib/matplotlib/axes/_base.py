@@ -1440,7 +1440,10 @@ class _AxesBase(martist.Artist):
                 # polar requires that _set_scale is called again
                 if self.name == "polar":
                     axis._set_scale("linear")
-                axis._set_lim(0, 1, auto=True)
+                if axis.get_scale() == "log":
+                    axis._set_lim(axis.get_transform().nonpos, 1, auto=True)
+                else:
+                    axis._set_lim(0, 1, auto=True)
         self._update_transScale()
 
         self.stale = True
