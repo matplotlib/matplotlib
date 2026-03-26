@@ -330,6 +330,68 @@ def test_suptitle():
     fig.suptitle('hello', color='r')
     fig.suptitle('title', color='g', rotation=30)
 
+# -------------------------------------------------------------------
+# Added for Issue #24090: rcParams support in Figure.suptitle
+# -------------------------------------------------------------------
+
+def test_suptitle_rcparams_position_alignment():
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+
+    with mpl.rc_context({
+        'figure.titlex': 0.3,
+        'figure.titley': 0.9,
+        'figure.titleha': 'left',
+        'figure.titleva': 'bottom'
+    }):
+        fig = plt.figure()
+        text = fig.suptitle("Test Title")
+
+        assert text.get_position() == (0.3, 0.9)
+        assert text.get_ha() == 'left'
+        assert text.get_va() == 'bottom'
+
+
+def test_suptitle_kwargs_override_rcparams_position():
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+
+    with mpl.rc_context({
+        'figure.titlex': 0.1,
+        'figure.titley': 0.1,
+        'figure.titleha': 'right',
+        'figure.titleva': 'top'
+    }):
+        fig = plt.figure()
+        text = fig.suptitle(
+            "Test Title",
+            x=0.8,
+            y=0.95,
+            ha='center',
+            va='center'
+        )
+
+        assert text.get_position() == (0.8, 0.95)
+        assert text.get_ha() == 'center'
+        assert text.get_va() == 'center'
+
+
+def test_suptitle_default_position_from_rcparams():
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+
+    with mpl.rc_context({
+        'figure.titlex': 0.5,
+        'figure.titley': 0.98
+    }):
+        fig = plt.figure()
+        text = fig.suptitle("Default Title")
+
+        x, y = text.get_position()
+
+        assert isinstance(x, float)
+        assert isinstance(y, float)
+  #--------------------------------------------------------------------------------------------
 
 def test_suptitle_fontproperties():
     fig, ax = plt.subplots()
