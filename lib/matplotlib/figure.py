@@ -392,6 +392,7 @@ default: %(va)s
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
+        #Fix for issue 24090
         info = {
             'name': '_suptitle',
             'x0': mpl.rcParams['figure.titlex'],   # NEW
