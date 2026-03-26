@@ -868,7 +868,7 @@ def xkcd(
     # because this needs to work as a non-contextmanager too.
 
     if seed is not None:
-        rcParams['path.sketch_seed'] = seed
+       rcParams.update({'path.sketch_seed': seed})
 
     if rcParams['text.usetex']:
         raise RuntimeError(
