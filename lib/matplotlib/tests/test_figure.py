@@ -392,7 +392,7 @@ def test_suptitle_default_position_from_rcparams():
 
         assert isinstance(x, float)
         assert isinstance(y, float)
-  #--------------------------------------------------------------------------------------------
+
 
 def test_suptitle_fontproperties():
     fig, ax = plt.subplots()
