@@ -3,6 +3,8 @@
 Tool Manager
 ============
 
+.. sphinx_gallery_thumbnail_path = 'gallery/user_interfaces/images/toolmanager.png'
+
 This example demonstrates how to
 
 * modify the Toolbar

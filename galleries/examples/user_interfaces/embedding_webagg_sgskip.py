@@ -3,6 +3,8 @@
 Embedding WebAgg
 ================
 
+.. sphinx_gallery_thumbnail_path = 'gallery/user_interfaces/images/embedding_webagg.png'
+
 This example demonstrates how to embed Matplotlib WebAgg interactive plotting
 in your own web application and framework.  It is not necessary to do all this
 if you merely want to display a plot in a browser or use Matplotlib's built-in

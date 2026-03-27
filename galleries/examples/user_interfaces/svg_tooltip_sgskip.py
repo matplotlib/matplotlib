@@ -3,6 +3,8 @@
 SVG Tooltip
 ===========
 
+.. sphinx_gallery_thumbnail_path = 'gallery/user_interfaces/images/svg_tooltip.svg'
+
 This example shows how to create a tooltip that will show up when
 hovering over a matplotlib patch.
 

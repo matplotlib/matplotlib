@@ -3,6 +3,8 @@
 SVG Histogram
 =============
 
+.. sphinx_gallery_thumbnail_path = 'gallery/user_interfaces/images/svg_histogram.svg'
+
 Demonstrate how to create an interactive histogram, in which bars
 are hidden or shown by clicking on legend markers.
 

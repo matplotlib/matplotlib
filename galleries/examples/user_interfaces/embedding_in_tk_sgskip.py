@@ -3,6 +3,7 @@
 Embed in Tk
 ===========
 
+.. sphinx_gallery_thumbnail_path = 'gallery/user_interfaces/images/embedding_in_tk.png'
 """
 
 import tkinter
