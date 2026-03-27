@@ -392,17 +392,33 @@ default: %(va)s
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
-        #Fix for issue 24090
+
+        import matplotlib as mpl
+
         info = {
             'name': '_suptitle',
-            'x0': mpl.rcParams.get('figure.titlex', 0.5),
-            'y0': mpl.rcParams.get('figure.titley', 0.98),
-            'ha': mpl.rcParams.get('figure.titleha', 'center'),
-            'va': mpl.rcParams.get('figure.titleva', 'top'),
+            'x0': 0.5,
+            'y0': 0.98,
+            'ha': 'center',
+            'va': 'top',
             'rotation': 0,
             'size': 'figure.titlesize',
             'weight': 'figure.titleweight'
         }
+
+        # Inject rcParams ONLY if user has not provided kwargs
+        if 'x' not in kwargs:
+            kwargs['x'] = mpl.rcParams.get('figure.titlex', 0.5)
+
+        if 'y' not in kwargs:
+            kwargs['y'] = mpl.rcParams.get('figure.titley', 0.98)
+
+        if 'ha' not in kwargs:
+            kwargs['ha'] = mpl.rcParams.get('figure.titleha', 'center')
+
+        if 'va' not in kwargs:
+            kwargs['va'] = mpl.rcParams.get('figure.titleva', 'top')
+
         return self._suplabels(t, info, **kwargs)
 
     def get_suptitle(self):
