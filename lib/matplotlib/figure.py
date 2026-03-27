@@ -395,10 +395,10 @@ default: %(va)s
         #Fix for issue 24090
         info = {
             'name': '_suptitle',
-            'x0': mpl.rcParams['figure.titlex'],   # NEW
-            'y0': mpl.rcParams['figure.titley'],   # NEW
-            'ha': mpl.rcParams['figure.titleha'],  # NEW
-            'va': mpl.rcParams['figure.titleva'],  # NEW
+            'x0': mpl.rcParams.get('figure.titlex', 0.5),
+            'y0': mpl.rcParams.get('figure.titley', 0.98),
+            'ha': mpl.rcParams.get('figure.titleha', 'center'),
+            'va': mpl.rcParams.get('figure.titleva', 'top'),
             'rotation': 0,
             'size': 'figure.titlesize',
             'weight': 'figure.titleweight'
