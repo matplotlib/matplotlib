@@ -1325,7 +1325,6 @@ _validators = {
         "top",
         validate_stringlist(["top", "center", "bottom", "baseline"]),
     ],
-    
     # figure size in inches: width by height
     "figure.figsize":          _listify_validator(validate_float, n=2),
     "figure.dpi":              validate_float,
