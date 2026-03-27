@@ -10,13 +10,14 @@ object, as returned by `.load_char`.
 
 import os
 
-import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.transforms
+
+import matplotlib
 from matplotlib.font_manager import FontProperties
+import matplotlib.ft2font as ft
 from matplotlib.patches import PathPatch, Rectangle
 from matplotlib.textpath import TextPath
-import matplotlib.ft2font as ft
+import matplotlib.transforms
 
 # Use a font shipped with Matplotlib.
 font_path = os.path.join(
