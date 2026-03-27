@@ -395,19 +395,14 @@ default: %(va)s
         #Fix for issue 24090
         info = {
             'name': '_suptitle',
-            'x0': 0.5,
-            'y0': 0.98,
-            'ha': 'center',
-            'va': 'top',
+            'x0': mpl.rcParams.get('figure.titlex', 0.5),
+            'y0': mpl.rcParams.get('figure.titley', 0.98),
+            'ha': mpl.rcParams.get('figure.titleha', 'center'),
+            'va': mpl.rcParams.get('figure.titleva', 'top'),
             'rotation': 0,
             'size': 'figure.titlesize',
             'weight': 'figure.titleweight'
         }
-
-        kwargs.setdefault('x', mpl.rcParams.get('figure.titlex', 0.5))
-        kwargs.setdefault('y', mpl.rcParams.get('figure.titley', 0.98))
-        kwargs.setdefault('ha', mpl.rcParams.get('figure.titleha', 'center'))
-        kwargs.setdefault('va', mpl.rcParams.get('figure.titleva', 'top'))
         return self._suplabels(t, info, **kwargs)
 
     def get_suptitle(self):
