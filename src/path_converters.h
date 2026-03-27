@@ -1068,7 +1068,7 @@ class Sketch
           m_last_y(0.0),
           m_has_last(false),
           m_p(0.0),
-          m_rand(0),
+          m_rand(seed),
           m_seed(seed)
     {
         const double d_M_PI = 3.14159265358979323846;
