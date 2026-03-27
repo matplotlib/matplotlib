@@ -33,15 +33,15 @@ print("Family name:    ", font.family_name)  # face family name
 print("Style name:     ", font.style_name)  # face style name
 print("PS name:        ", font.postscript_name)  # the postscript name
 print("Num fixed:      ", font.num_fixed_sizes)  # number of embedded bitmaps
-print("Bbox:               ", font.bbox)           # the face global bounding box (xmin, ymin, xmax, ymax)
-print("EM:                 ", font.units_per_EM)   # number of font units covered by the EM
+print("Bbox:               ", font.bbox)  # global bounding box (xmin, ymin, xmax, ymax)
+print("EM:                 ", font.units_per_EM)  # font units per EM
 print("Ascender:           ", font.ascender)       # the ascender in 26.6 units
 print("Descender:          ", font.descender)      # the descender in 26.6 units
 print("Height:             ", font.height)         # the height in 26.6 units
-print("Max adv width:      ", font.max_advance_width)   # maximum horizontal cursor advance
+print("Max adv width:      ", font.max_advance_width)  # max horizontal advance
 print("Max adv height:     ", font.max_advance_height)  # same for vertical layout
-print("Underline pos:      ", font.underline_position)  # vertical position of the underline bar
-print("Underline thickness:", font.underline_thickness) # vertical thickness of the underline
+print("Underline pos:      ", font.underline_position)  # underline bar position
+print("Underline thickness:", font.underline_thickness)  # underline thickness
 
 for flag in ft.StyleFlags:
     name = flag.name.replace('_', ' ').title() + ':'
@@ -53,12 +53,12 @@ for flag in ft.FaceFlags:
 
 # Normalise all vertical metrics to units_per_EM so all y-values sit in [-1, 1].
 u = font.units_per_EM
-asc       = font.ascender / u
-desc      = font.descender / u
+asc = font.ascender / u
+desc = font.descender / u
 bbox_ymax = font.bbox[3] / u
 bbox_ymin = font.bbox[1] / u
-ul_pos    = font.underline_position  / u
-ul_thick  = font.underline_thickness / u
+ul_pos = font.underline_position / u
+ul_thick = font.underline_thickness / u
 
 fig, ax = plt.subplots(figsize=(8, 6))
 
@@ -76,9 +76,9 @@ glyph_x1 = text_bb.x1 + x_offset
 
 # Lines, rectangle and labels are all derived from these real glyph bounds.
 H_MARGIN = 0.05                        # horizontal padding around glyph
-LINE_X0  = glyph_x0 - H_MARGIN        # lines start here
-LINE_X1  = glyph_x1 + H_MARGIN        # lines end here (always past glyph edge)
-LABEL_X  = LINE_X1  + 0.08            # metric labels start here
+LINE_X0 = glyph_x0 - H_MARGIN        # lines start here
+LINE_X1 = glyph_x1 + H_MARGIN        # lines end here (always past glyph edge)
+LABEL_X = LINE_X1 + 0.08            # metric labels start here
 
 metrics = [
     ("bbox top (ymax)",    bbox_ymax, "tab:green"),
@@ -93,7 +93,7 @@ for label, y, color in metrics:
     ax.plot([LINE_X0, LINE_X1], [y, y],
             color=color, linewidth=1.5, linestyle='--', alpha=0.9, zorder=2)
     # Nudge bbox-edge labels slightly away from the rectangle border.
-    y_text = (y - 0.015 if "bbox top"    in label else
+    y_text = (y - 0.015 if "bbox top" in label else
               y + 0.015 if "bbox bottom" in label else y)
     ax.text(LABEL_X, y_text, label,
             color=color, va='center', ha='left',
