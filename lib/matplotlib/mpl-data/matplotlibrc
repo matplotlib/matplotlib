@@ -590,13 +590,11 @@
 #figure.titlesize:   large     # size of the figure title (``Figure.suptitle()``)
 #figure.titleweight: normal    # weight of the figure title
 
-#================================================
-# NEW (Issue #24090)
+
 figure.titlex : 0.5
 figure.titley : 0.98
 figure.titleha : center
 figure.titleva : top
-#=================================================
 
 #figure.labelsize:   large     # size of the figure label (``Figure.sup[x|y]label()``)
 #figure.labelweight: normal    # weight of the figure label
