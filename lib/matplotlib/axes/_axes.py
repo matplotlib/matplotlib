@@ -2390,7 +2390,7 @@ class Axes(_AxesBase):
 
         label : str or list of str, optional
             A single label is attached to the resulting `.BarContainer` as a
-            label for the whole dataset.
+            legend label for the whole dataset.
             If a list is provided, it must be the same length as *x* and
             labels the individual bars. Repeated labels are not de-duplicated
             and will cause repeated label entries, so this is best used when
