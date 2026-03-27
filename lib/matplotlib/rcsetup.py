@@ -1319,8 +1319,8 @@ _validators = {
     # NEW ADDITIONS (Issue #24090)
     "figure.titlex": validate_float,
     "figure.titley": validate_float,
-    "figure.titleha": ["center", "left", "right"],
-    "figure.titleva": ["top", "center", "bottom", "baseline"],
+    "figure.titleha": validate_stringlist(["center", "left", "right"]),
+    "figure.titleva": validate_stringlist(["top", "center", "bottom", "baseline"]),
     #=================================================================
 
     # figure size in inches: width by height
