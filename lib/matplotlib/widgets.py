@@ -2119,7 +2119,13 @@ class Cursor(AxesWidget):
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
             if self.needclear:
-                self.canvas.draw()
+                if self.useblit:
+                    background = self._load_blit_background()
+                    if background is not None:
+                        self.canvas.restore_region(background)
+                    self.canvas.blit(self.ax.bbox)
+                else:
+                    self.canvas.draw()
                 self.needclear = False
             return
         self.needclear = True
