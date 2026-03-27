@@ -2395,7 +2395,8 @@ class Axes(_AxesBase):
             labels the individual bars. Repeated labels are not de-duplicated
             and will cause repeated label entries, so this is best used when
             bars also differ in style (e.g., by passing a list to *color*).
-            Use `.bar_label` to add labels to bars.
+
+            Tip: Use `.bar_label` to place labels on the bars.
 
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
