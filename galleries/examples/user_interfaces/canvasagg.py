@@ -3,6 +3,7 @@
 CanvasAgg demo
 ==============
 
+
 This example shows how to use the agg backend directly to create images, which
 may be of use to web application developers who want full control over their
 code without using the pyplot interface to manage figures, figure closing etc.
@@ -23,6 +24,7 @@ any format supported by Pillow.
 .. redirect-from:: /gallery/misc/agg_buffer
 .. redirect-from:: /gallery/misc/agg_buffer_to_array
 """
+# sphinx_gallery_thumbnail_path = '_static/canvasagg.png'
 
 from PIL import Image
 

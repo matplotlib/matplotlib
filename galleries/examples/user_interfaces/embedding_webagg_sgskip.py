@@ -3,6 +3,7 @@
 Embedding WebAgg
 ================
 
+
 This example demonstrates how to embed Matplotlib WebAgg interactive plotting
 in your own web application and framework.  It is not necessary to do all this
 if you merely want to display a plot in a browser or use Matplotlib's built-in
@@ -10,6 +11,7 @@ Tornado-based server "on the side".
 
 The framework being used must support web sockets.
 """
+# sphinx_gallery_thumbnail_path = '_static/embedding_webagg.png'
 
 import argparse
 import io
