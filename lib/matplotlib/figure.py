@@ -393,7 +393,7 @@ default: %(va)s
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
         #Fix for issue 24090
-       info = {
+        info = {
             'name': '_suptitle',
             'x0': 0.5,
             'y0': 0.98,
@@ -408,7 +408,6 @@ default: %(va)s
         kwargs.setdefault('y', mpl.rcParams.get('figure.titley', 0.98))
         kwargs.setdefault('ha', mpl.rcParams.get('figure.titleha', 'center'))
         kwargs.setdefault('va', mpl.rcParams.get('figure.titleva', 'top'))
-
         return self._suplabels(t, info, **kwargs)
 
     def get_suptitle(self):
