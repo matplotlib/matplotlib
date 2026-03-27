@@ -21,7 +21,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         self._overlay_start = None
         self._overlay_end = None
         self._drawing_overlay = False
-    
+
 
     def add_overlay_line(self, x1, y1, x2, y2, **style):
         """Add a lightweight overlay line drawn directly with Qt."""
@@ -44,13 +44,13 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
          self._overlay_start = (event.position().x(), event.position().y())
          self._overlay_end = None
          self._drawing_overlay = True
-        
+
 
     def mouseMoveEvent(self, event):
         if self._drawing_overlay and self._overlay_start:
          self._overlay_end = (event.position().x(), event.position().y())
          self._request_overlay_draw()
-        
+
 
     def mouseReleaseEvent(self, event):
         if event.button() == QtCore.Qt.MouseButton.LeftButton and self._drawing_overlay:
@@ -66,9 +66,9 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
          self._overlay_end = None
 
          self._request_overlay_draw()
-        
 
-    
+
+
 
     def paintEvent(self, event):
         print("PAINT EVENT RUNNING")
@@ -131,7 +131,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
              pen = QtGui.QPen(QtGui.QColor(color), width)
              painter.setPen(pen)
-   
+
              painter.drawLine(int(x1), int(y1), int(x2), int(y2))
 
         finally:

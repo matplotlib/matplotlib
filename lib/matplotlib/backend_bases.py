@@ -1773,7 +1773,7 @@ class FigureCanvasBase:
         self._device_pixel_ratio = 1
         self._blit_backgrounds = {}
         self._overlay_primitives = []
-        
+
         super().__init__()  # Typically the GUI widget init (if any).
     def add_overlay_line(self, x1, y1, x2, y2, **style):
 
@@ -1806,7 +1806,7 @@ class FigureCanvasBase:
         Backends must override this.
         """
         raise NotImplementedError
-    
+
 
     callbacks = property(lambda self: self.figure._canvas_callbacks)
     button_pick_id = property(lambda self: self.figure._button_pick_id)
