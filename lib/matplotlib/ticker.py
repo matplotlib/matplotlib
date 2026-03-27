@@ -154,7 +154,8 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator', 'AsinhLocator', 'LogitLocator')
+           'SymmetricalLogLocator', 'AsinhLocator', 'LogitLocator',
+           'WilkinsonLocator')
 
 
 class _DummyAxis:
@@ -3051,23 +3052,40 @@ class WilkinsonLocator(Locator):
     """
     Tick locator based on an Extended Wilkinson-style algorithm.
     Balances simplicity, coverage, and density.
+
+    Parameters
+    ----------
+    nbins : int, optional
+        Target number of tick intervals. Default is 10.
+    steps : list of float, optional
+        Sequence of "nice" step values (mantissas) to consider.
+        Each value should be in the range [1, 10].
+        Default is [1, 2, 2.5, 5, 10], matching Wilkinson's original Q set.
+        Example: steps=[1, 2, 5, 10] for a simpler set.
     """
 
-    def __init__(self, nbins=10):
+    def __init__(self, nbins=10, steps=None):
         self._nbins = max(1, int(nbins))
+        if steps is None:
+            self.steps = [1, 2, 2.5, 5, 10]
+        else:
+            if not steps:
+                raise ValueError("steps must be a non-empty list")
+            self.steps = sorted([float(s) for s in steps])
 
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
-        # Handle reversed inputs
+    # Handle reversed inputs
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
-        vmin, vmax = mtransforms._nonsingular(
-            vmin, vmax, expander=1e-13, tiny=1e-14
-        )
+    # Handle singular case (vmin == vmax)
+        if vmin == vmax:
+            vmin -= 1
+            vmax += 1
 
         locs = self._wilkinson(vmin, vmax)
         return self.raise_if_exceeds(locs)
@@ -3075,7 +3093,6 @@ class WilkinsonLocator(Locator):
     # ---------------- CORE ALGORITHM ---------------- #
 
     def _wilkinson(self, vmin, vmax):
-        Q = [1, 2, 2.5, 5, 10]
         best_score = -np.inf
         best_ticks = None
 
@@ -3086,7 +3103,7 @@ class WilkinsonLocator(Locator):
         k_min = int(np.floor(np.log10(span))) - 1
         k_max = int(np.ceil(np.log10(span))) + 1
 
-        for q in Q:
+        for q in self.steps:
             for k in range(k_min, k_max + 1):
                 if abs(k) > 10:
                     continue
@@ -3116,21 +3133,18 @@ class WilkinsonLocator(Locator):
             step = span / self._nbins
             best_ticks = np.arange(vmin, vmax + step, step)
 
-        # ---------------- FINAL ADJUSTMENT ---------------- #
 
-        # Clamp first
+        # Clamp to data range with small tolerance
         best_ticks = best_ticks[
             (best_ticks >= vmin - 1e-9) &
             (best_ticks <= vmax + 1e-9)
         ]
 
-        # Ensure boundaries using consistent step
+        # Rebuild tick array using consistent step to avoid float drift
         if len(best_ticks) >= 2:
             step = best_ticks[1] - best_ticks[0]
-
             start = np.floor(vmin / step) * step
             end = np.ceil(vmax / step) * step
-
             best_ticks = np.arange(start, end + 0.5 * step, step)
 
         # Ensure at least 2 ticks
@@ -3142,6 +3156,15 @@ class WilkinsonLocator(Locator):
     # ---------------- SCORING ---------------- #
 
     def _score(self, vmin, vmax, ticks, q):
+        """
+        Score a candidate tick sequence.
+
+        Weights are chosen so that coverage (how well ticks span the data)
+        and density (how close n is to nbins) dominate over simplicity
+        (niceness of q). This avoids always preferring q=2.5 (25-steps)
+        over q=2 (20-steps) regardless of context — the better choice
+        depends on coverage and density for the specific data range.
+        """
         n = len(ticks)
 
         simplicity = self._simplicity(q)
@@ -3153,25 +3176,37 @@ class WilkinsonLocator(Locator):
             max(0, ticks[-1] - vmax)
         )
 
-        # Penalize too many ticks
+        # Penalize exceeding target bin count
         tick_penalty = max(0, n - self._nbins)
 
         return (
-            0.2 * simplicity +
-            0.4 * coverage +
-            0.2 * density -
-            0.5 * tick_penalty -
-            2 * overflow / (vmax - vmin)
+            0.15 * simplicity +   # Low weight: niceness of q alone shouldn't decide
+            0.50 * coverage +     # High weight: ticks must cover the data range well
+            0.25 * density -      # Medium weight: stay close to nbins
+            0.50 * tick_penalty -  # Penalize too many ticks
+            2.00 * overflow / (vmax - vmin)  # Penalize ticks outside data range
         )
 
     def _simplicity(self, q):
-        Q = [1, 2, 2.5, 5, 10]
-        return 1 - Q.index(q) / (len(Q) - 1)
+        """
+        Score how 'nice' the step value q is.
+        Lower index in self.steps = simpler = higher score.
+        Returns a value in [0, 1].
+        """
+        n = len(self.steps)
+        if n == 1:
+            return 1.0
+        return 1 - self.steps.index(q) / (n - 1)
 
     def _coverage(self, vmin, vmax, ticks):
+        """
+        Score how well the ticks cover [vmin, vmax].
+        Penalizes both under- and over-shooting the data range.
+        Returns a value close to 1 when ticks align tightly with data.
+        """
         span = vmax - vmin
         if span == 0:
-            return 1
+            return 1.0
 
         return 1 - (
             ((vmin - ticks[0]) ** 2 + (ticks[-1] - vmax) ** 2)
@@ -3179,4 +3214,8 @@ class WilkinsonLocator(Locator):
         )
 
     def _density(self, n):
+        """
+        Score how close the number of ticks n is to the target nbins.
+        Returns 1 when n == nbins, decreasing as n moves away.
+        """
         return max(0, 1 - abs(n - self._nbins) / self._nbins)
