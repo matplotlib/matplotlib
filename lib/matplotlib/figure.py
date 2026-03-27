@@ -407,12 +407,13 @@ default: %(va)s
         }
 
         # Inject rcParams ONLY if user has not provided kwargs
-        if 'x' not in kwargs:
+        if 'x' not in kwargs and not self.get_constrained_layout():
             kwargs['x'] = mpl.rcParams.get('figure.titlex', 0.5)
 
-        if 'y' not in kwargs:
+        if 'y' not in kwargs and not self.get_constrained_layout():
             kwargs['y'] = mpl.rcParams.get('figure.titley', 0.98)
 
+        # ha/va are safe (do not affect layout size)
         if 'ha' not in kwargs:
             kwargs['ha'] = mpl.rcParams.get('figure.titleha', 'center')
 
