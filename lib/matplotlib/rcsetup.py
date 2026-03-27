@@ -1315,6 +1315,11 @@ _validators = {
     "figure.labelsize":   validate_fontsize,
     "figure.labelweight": validate_fontweight,
 
+    "figure.titlex": [0.5, validate_float],
+    "figure.titley": [0.98, validate_float],
+    "figure.titleha": ["center", validate_stringlist(["center", "left", "right"])],
+    "figure.titleva": ["top", validate_stringlist(["top", "center", "bottom", "baseline"])],
+    
     # figure size in inches: width by height
     "figure.figsize":          _listify_validator(validate_float, n=2),
     "figure.dpi":              validate_float,
