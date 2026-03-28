@@ -748,8 +748,9 @@ Supported properties are
         if scale is None:
             self._sketch = None
         else:
-            self._sketch = (scale, length or 128.0, randomness or 16.0,
-                            self._sketch_seed)
+             self._sketch = (scale,length if length is not None else 128.0,
+                             randomness if randomness is not None else 16.0)
+
         self.stale = True
 
     def set_path_effects(self, path_effects):
