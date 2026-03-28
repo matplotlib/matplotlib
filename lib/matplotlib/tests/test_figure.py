@@ -1898,17 +1898,21 @@ def test_figsize_partial_none():
     assert h == default_h
     plt.close(fig)
 
-    fig = plt.figure()
-    fig.set_size_inches(None, 4)
-    w, h = fig.get_size_inches()
-    assert w == default_w
-    assert h == 4
-    plt.close(fig)
-
-
 def test_figsize_both_none():
-    with pytest.raises(ValueError, match="Only one of width or height can be None"):
+    with pytest.raises(ValueError,
+                       match=r"figsize=\(None, None\) is invalid"):
         plt.figure(figsize=(None, None))
+
+
+@pytest.mark.parametrize("width, height", [
+    (None, 3),
+    (6, None),
+])
+def test_set_size_inches_rejects_none(width, height):
+    fig = Figure()
+    with pytest.raises(ValueError,
+                       match=r"Figure\.set_size_inches does not accept None"):
+        fig.set_size_inches(width, height)
 
 
 def test_figsize_invalid_unit():

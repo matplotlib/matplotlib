@@ -2629,7 +2629,9 @@ None}, default: None
         figsize = _parse_figsize(figsize, dpi)
         width, height = figsize
         if width is None and height is None:
-            raise ValueError("Only one of width or height can be None")
+            raise ValueError(
+                "figsize=(None, None) is invalid; at least one of width or "
+                "height must be provided")
         default_width, default_height = mpl.rcParams["figure.figsize"]
         if width is None:
             width = default_width
@@ -3163,14 +3165,16 @@ None}, default: None
         To transform from pixels to inches divide by `Figure.dpi`.
         """
         if h is None:  # Got called with a single pair as argument.
-            w, h = w
-        if w is None and h is None:
-            raise ValueError("Only one of width or height can be None")
-        default_width, default_height = mpl.rcParams["figure.figsize"]
-        if w is None:
-            w = default_width
-        if h is None:
-            h = default_height
+            try:
+                w, h = w
+            except (TypeError, ValueError):
+                raise ValueError(
+                    "Figure.set_size_inches does not accept None; provide "
+                    "both width and height explicitly") from None
+        if w is None or h is None:
+            raise ValueError(
+                "Figure.set_size_inches does not accept None; provide both "
+                "width and height explicitly")
         size = np.array([w, h])
         if not np.isfinite(size).all() or (size < 0).any():
             raise ValueError(f'figure size must be positive finite not {size}')
