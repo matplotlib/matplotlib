@@ -2627,6 +2627,15 @@ None}, default: None
         frameon = mpl._val_or_rc(frameon, 'figure.frameon')
 
         figsize = _parse_figsize(figsize, dpi)
+        width, height = figsize
+        if width is None and height is None:
+            raise ValueError("Only one of width or height can be None")
+        default_width, default_height = mpl.rcParams["figure.figsize"]
+        if width is None:
+            width = default_width
+        if height is None:
+            height = default_height
+        figsize = (width, height)
 
         if not np.isfinite(figsize).all() or (np.array(figsize) < 0).any():
             raise ValueError('figure size must be positive finite not '
@@ -3155,6 +3164,13 @@ None}, default: None
         """
         if h is None:  # Got called with a single pair as argument.
             w, h = w
+        if w is None and h is None:
+            raise ValueError("Only one of width or height can be None")
+        default_width, default_height = mpl.rcParams["figure.figsize"]
+        if w is None:
+            w = default_width
+        if h is None:
+            h = default_height
         size = np.array([w, h])
         if not np.isfinite(size).all() or (size < 0).any():
             raise ValueError(f'figure size must be positive finite not {size}')
