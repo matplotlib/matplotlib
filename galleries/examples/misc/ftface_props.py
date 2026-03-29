@@ -61,7 +61,7 @@ bbox_ymin = font.bbox[1] / u
 ul_pos = font.underline_position / u
 ul_thick = font.underline_thickness / u
 
-fig, ax = plt.subplots(figsize=(8, 6))
+fig, ax = plt.subplots(figsize=(9.8, 6))
 
 fp = FontProperties(fname=font_path)
 tp = TextPath((0, 0), "Água", size=1, prop=fp)
@@ -82,11 +82,11 @@ LINE_X1 = glyph_x1 + H_MARGIN        # lines end here (always past glyph edge)
 LABEL_X = LINE_X1 + 0.08            # metric labels start here
 
 metrics = [
-    ("bbox top (ymax)",    bbox_ymax, "tab:green"),
-    ("ascender",           asc,       "tab:blue"),
-    ("y = 0 (origin)",     0,         "black"),
-    ("underline_position", ul_pos,    "tab:orange"),
-    ("descender",          desc,      "tab:red"),
+    ("bbox top (ymax)", bbox_ymax, "tab:green"),
+    ("ascender", asc, "tab:blue"),
+    ("y = 0 (origin)", 0, "black"),
+    ("underline_position", ul_pos, "tab:orange"),
+    ("descender", desc, "tab:red"),
     ("bbox bottom (ymin)", bbox_ymin, "tab:purple"),
 ]
 
@@ -129,7 +129,8 @@ ax.set_xlim(LINE_X0 - 0.05, LABEL_X + 0.75)
 ax.set_ylim(bbox_ymin - 0.10, bbox_ymax + 0.15)
 ax.set_title(f"Font metrics — {font.family_name} {font.style_name}",
              fontsize=11.5, pad=15)
-ax.legend(fontsize=8, loc='upper right', bbox_to_anchor=(1.02, 0.95), frameon=False)
+ax.legend(fontsize=8, loc='lower center', bbox_to_anchor=(0.5, -0.12),
+    frameon=False, ncol=2)
 ax.axis('off')
 plt.tight_layout(pad=1.5)
 plt.show()
