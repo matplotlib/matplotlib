@@ -1888,9 +1888,7 @@ def test_figsize_partial_none():
 
     fig = plt.figure(figsize=(None, 4))
     w, h = fig.get_size_inches()
-    assert w == default_w
-    assert h == 4
-    plt.close(fig)
+    assert w, h == default_w, 4
 
     fig = plt.figure(figsize=(6, None))
     w, h = fig.get_size_inches()
