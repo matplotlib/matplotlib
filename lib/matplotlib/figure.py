@@ -3165,16 +3165,6 @@ None}, default: None
         To transform from pixels to inches divide by `Figure.dpi`.
         """
         if h is None:  # Got called with a single pair as argument.
-            try:
-                w, h = w
-            except (TypeError, ValueError):
-                raise ValueError(
-                    "Figure.set_size_inches does not accept None; provide "
-                    "both width and height explicitly") from None
-        if w is None or h is None:
-            raise ValueError(
-                "Figure.set_size_inches does not accept None; provide both "
-                "width and height explicitly")
         size = np.array([w, h])
         if not np.isfinite(size).all() or (size < 0).any():
             raise ValueError(f'figure size must be positive finite not {size}')
