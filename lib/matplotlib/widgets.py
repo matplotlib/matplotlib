@@ -2089,8 +2089,8 @@ class Cursor(AxesWidget):
             for ax_ in ax.get_figure(root=True).get_axes():
                 if ax_ is not ax and ax.bbox.overlaps(ax_.bbox):
                     _api.warn_external(
-                        "Cursor blitting is currently not supported on overlapping axes; "
-                        "falling back to useblit=False."
+                        "Cursor blitting is currently not supported on "
+                        "overlapping axes; falling back to useblit=False."
                     )
                     self.useblit = False
                     break
