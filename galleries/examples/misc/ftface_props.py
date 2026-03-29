@@ -64,7 +64,7 @@ ul_thick = font.underline_thickness / u
 fig, ax = plt.subplots(figsize=(8, 6))
 
 fp = FontProperties(fname=font_path)
-tp = TextPath((0, 0), "Ag", size=1, prop=fp)
+tp = TextPath((0, 0), "Água", size=1, prop=fp)
 text_bb = tp.get_extents()
 
 # Centre the glyph at a fixed x position, then read back where it actually lands.
