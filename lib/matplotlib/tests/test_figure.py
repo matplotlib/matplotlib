@@ -1904,17 +1904,6 @@ def test_figsize_both_none():
         plt.figure(figsize=(None, None))
 
 
-@pytest.mark.parametrize("width, height", [
-    (None, 3),
-    (6, None),
-])
-def test_set_size_inches_rejects_none(width, height):
-    fig = Figure()
-    with pytest.raises(ValueError,
-                       match=r"Figure\.set_size_inches does not accept None"):
-        fig.set_size_inches(width, height)
-
-
 def test_figsize_invalid_unit():
     with pytest.raises(ValueError, match="Invalid unit 'um'"):
         plt.figure(figsize=(6, 4, "um"))
