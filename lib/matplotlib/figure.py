@@ -2627,17 +2627,6 @@ None}, default: None
         frameon = mpl._val_or_rc(frameon, 'figure.frameon')
 
         figsize = _parse_figsize(figsize, dpi)
-        width, height = figsize
-        if width is None and height is None:
-            raise ValueError(
-                "figsize=(None, None) is invalid; at least one of width or "
-                "height must be provided")
-        default_width, default_height = mpl.rcParams["figure.figsize"]
-        if width is None:
-            width = default_width
-        if height is None:
-            height = default_height
-        figsize = (width, height)
 
         if not np.isfinite(figsize).all() or (np.array(figsize) < 0).any():
             raise ValueError('figure size must be positive finite not '
@@ -3165,6 +3154,16 @@ None}, default: None
         To transform from pixels to inches divide by `Figure.dpi`.
         """
         if h is None:  # Got called with a single pair as argument.
+            try:
+                w, h = w
+            except (TypeError, ValueError):
+                raise ValueError(
+                    "Figure.set_size_inches does not accept None; provide "
+                    "both width and height explicitly") from None
+        if w is None or h is None:
+            raise ValueError(
+                "Figure.set_size_inches does not accept None; provide both "
+                "width and height explicitly")
         size = np.array([w, h])
         if not np.isfinite(size).all() or (size < 0).any():
             raise ValueError(f'figure size must be positive finite not {size}')
@@ -3773,25 +3772,40 @@ def _parse_figsize(figsize, dpi):
     """
     num_parts = len(figsize)
     if num_parts == 2:
-        return figsize
+        x, y = figsize
     elif num_parts == 3:
         x, y, unit = figsize
         if unit == 'in':
             pass
         elif unit == 'cm':
-            x /= 2.54
-            y /= 2.54
+            if x is not None:
+                x /= 2.54
+            if y is not None:
+                y /= 2.54
         elif unit == 'px':
-            x /= dpi
-            y /= dpi
+            if x is not None:
+                x /= dpi
+            if y is not None:
+                y /= dpi
         else:
             raise ValueError(
                 f"Invalid unit {unit!r} in 'figsize'; "
                 "supported units are 'in', 'cm', 'px'"
             )
-        return x, y
     else:
         raise ValueError(
             "Invalid figsize format, expected (x, y) or (x, y, unit) but got "
             f"{figsize!r}"
         )
+
+    if x is None and y is None:
+        raise ValueError(
+            "figsize=(None, None) is invalid; at least one of width or "
+            "height must be provided")
+
+    default_width, default_height = mpl.rcParams["figure.figsize"]
+    if x is None:
+        x = default_width
+    if y is None:
+        y = default_height
+    return x, y
