@@ -2084,6 +2084,18 @@ class Cursor(AxesWidget):
         self.vertOn = vertOn
         self.useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
 
+        # --- NEW CODE: Check for overlapping axes and fallback ---
+        if self.useblit:
+            for ax_ in ax.get_figure(root=True).get_axes():
+                if ax_ is not ax and ax.bbox.overlaps(ax_.bbox):
+                    _api.warn_external(
+                        "Cursor blitting is currently not supported on overlapping axes; "
+                        "falling back to useblit=False."
+                    )
+                    self.useblit = False
+                    break
+        # ---------------------------------------------------------
+
         if self.useblit:
             lineprops['animated'] = True
         self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
@@ -2124,14 +2136,6 @@ class Cursor(AxesWidget):
             background = self._load_blit_background()
             if background is not None:
                 self.canvas.restore_region(background)
-
-            # --- UPDATED FIX STARTS HERE ---
-            # If there are other axes overlapping with the cursor's area,
-            # redraw them completely.
-            for ax_ in self.ax.get_figure(root=True).get_axes():
-                if ax_ is not self.ax and self.ax.bbox.overlaps(ax_.bbox):
-                    self.ax.draw_artist(ax_)
-            # --- UPDATED FIX ENDS HERE ---
 
             self.ax.draw_artist(self.linev)
             self.ax.draw_artist(self.lineh)
