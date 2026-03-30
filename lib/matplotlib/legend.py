@@ -121,9 +121,6 @@ bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
 
         loc='upper right', bbox_to_anchor=(0.5, 0.5)
 
-    For placing the legend outside the Axes, see
-    `.Figure.legend`, which supports ``'outside right upper'``
-    and similar location strings.
     For more details on legend positioning, see the
     :ref:`legend_guide`.
 
