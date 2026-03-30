@@ -98,9 +98,8 @@ class DraggableLegend(DraggableOffsetBox):
 _legend_kw_doc_base = """
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
-    This is an advanced option for free placement of the legend and is
-    typically used when placing the legend outside of the Axes or at a
-    custom position. For most use cases, *loc* alone is sufficient.
+    This is an advanced option for free placement of the legend. For
+    most use cases, *loc* alone is sufficient.
 
     Defaults to ``axes.bbox`` (if called as a method to `.Axes.legend`) or
     ``figure.bbox`` (if ``figure.legend``).
