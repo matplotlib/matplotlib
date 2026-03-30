@@ -91,13 +91,9 @@ metrics = [
 ]
 
 for label, y, color in metrics:
-    ax.plot([LINE_X0, LINE_X1], [y, y],
-            color=color, linewidth=1.5, linestyle='--', alpha=0.9, zorder=2)
+   l, = ax.hline(y, color=color, linewidth=1.5, linestyle='--', alpha=0.9, zorder=2)
     # Nudge bbox-edge labels slightly away from the rectangle border.
-    y_text = (y - 0.015 if "bbox top" in label else
-              y + 0.015 if "bbox bottom" in label else y)
-    ax.text(LABEL_X, y_text, label,
-            color=color, va='center', ha='left',
+    ax.annotate (LABEL_X, y_text, label, (), xycoords = (1, .5), color=color, va='center', ha='left',
             fontsize=9, fontweight='medium', zorder=2)
 
 # Underline thickness: shaded band from (ul_pos − ul_thick) to ul_pos.
