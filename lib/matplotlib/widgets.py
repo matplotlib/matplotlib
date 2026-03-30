@@ -2084,7 +2084,6 @@ class Cursor(AxesWidget):
         self.vertOn = vertOn
         self.useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
 
-        # --- NEW CODE: Check for overlapping axes and fallback ---
         if self.useblit:
             for ax_ in ax.get_figure(root=True).get_axes():
                 if ax_ is not ax and ax.bbox.overlaps(ax_.bbox):
@@ -2094,7 +2093,6 @@ class Cursor(AxesWidget):
                     )
                     self.useblit = False
                     break
-        # ---------------------------------------------------------
 
         if self.useblit:
             lineprops['animated'] = True
@@ -2131,12 +2129,11 @@ class Cursor(AxesWidget):
         self.lineh.set_visible(self.visible and self.horizOn)
         if not (self.visible and (self.vertOn or self.horizOn)):
             return
-       # Redraw.
+        # Redraw.
         if self.useblit:
             background = self._load_blit_background()
             if background is not None:
                 self.canvas.restore_region(background)
-
             self.ax.draw_artist(self.linev)
             self.ax.draw_artist(self.lineh)
             self.canvas.blit(self.ax.bbox)
