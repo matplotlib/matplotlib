@@ -141,6 +141,7 @@ setup.
 
 .. _venv: https://docs.python.org/3/library/venv.html
 .. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+.. _pixi: https://pixi.prefix.dev/
 
 .. tab-set::
 
@@ -201,13 +202,12 @@ setup.
 
    .. tab-item:: pixi environment
 
-      A pixi configuration is included in ``pyproject.toml``.  The environment
-      includes the base Matplotlib dependencies, and documentation and testing
-      dependencies. To install the dependencies::
+      A `pixi`_ configuration is included in ``pyproject.toml`` that will
+      install the development dependencies::
 
         pixi install
 
-      and then to install an editable version on Matplotlib::
+      and then to install an editable version of Matplotlib::
 
          pixi run python -m pip install \
             --no-build-isolation \
@@ -218,24 +218,19 @@ setup.
 
          pixi run python -c "import matplotlib; print(matplotlib.__file__)"
 
-      Note there are some pixi tasks available as shortcuts::
 
-         pixi task list
+      .. tip::
+         We provide some pixi tasks as shortcuts for common development tasks,
+         listed via::
 
-      If you do not want to use ``pixi run`` in front of every command, you can do::
+            pixi task list
 
-         pixi shell
+         If you do not want to use ``pixi run`` in front of every command, run::
 
-      and continue to use pixi as a python environment.
+            pixi shell
 
-      .. note:: do not edit the ``pyproject.toml`` file and commit to the repository, as this
-         will affect all developers.  If you want to change the dependencies, please open an
-         issue or pull request to discuss the change.  If you want a custom ``pixi.toml`` file,
-         you can create one in your home directory, and it will be used instead of the
-         repository one. An example is available in ``tools/pixi.example.toml`` that lists the
-         dependencies needed to build Matplotlib.
+         and continue to use pixi as a python environment.
 
-      .. _pixi: https://pixi.prefix.dev/
 
 Install external dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
