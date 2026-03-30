@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#ffffff"/>
+  <text x="100" y="80" font-size="64" text-anchor="middle" font-family="serif" fill="#1f77b4">A</text>
+  <text x="100" y="130" font-size="20" text-anchor="middle" font-family="sans-serif" fill="#333333">font index</text>
+</svg>
