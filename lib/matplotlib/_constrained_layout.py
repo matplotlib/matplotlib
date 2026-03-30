@@ -440,20 +440,20 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
 
     # make margins for figure-level legends:
     for leg in fig.legends:
-        # === NEW: handle figure-level texts ===
+    # === NEW: handle figure-level texts ===
         inv_trans_fig = fig.transFigure.inverted().transform_bbox
 
-        for text in fig.texts:
-            if not text.get_visible() or not text.get_in_layout():
-                continue
+for text in fig.texts:
+    if not text.get_visible() or not text.get_in_layout():
+        continue
 
-        try:
-            bbox = inv_trans_fig(text.get_tightbbox(renderer))
-        except Exception:
-            continue
+    try:
+        bbox = inv_trans_fig(text.get_tightbbox(renderer))
+    except Exception:
+        continue
 
-        if bbox is None:
-            continue
+    if bbox is None:
+        continue
 
     w = bbox.width + 2 * w_pad
     h = bbox.height + 2 * h_pad
@@ -493,7 +493,6 @@ for leg in fig.legends:
         layoutgrids[fig].edit_margin_min('left', w)
     if bbox.x1 > 1:
         layoutgrids[fig].edit_margin_min('right', w)
-
 
 def make_margin_suptitles(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0):
     # Figure out how large the suptitle is and make the

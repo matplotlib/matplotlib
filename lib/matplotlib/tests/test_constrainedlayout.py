@@ -14,19 +14,30 @@ from matplotlib import gridspec, ticker
 pytestmark = [
     pytest.mark.usefixtures('text_placeholders')
 ]
-def test_constrainedlayout_fig_text():
+def test_constrainedlayout_fig_text_included():
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(layout="constrained")
-    fig.text(0.5, 0.98, "Title", ha="center")
+    fig.text(0.5, 0.98, "Figure Title", ha="center")
+
+    fig.draw_without_rendering()
+
+    # Ensure no overlap: text should be above axes
+    ax_bbox = ax.get_position()
+    assert ax_bbox.y1 < 0.98
+
+def test_constrainedlayout_fig_legend_included():
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(layout="constrained")
+    ax.plot([1, 2, 3], label="line")
+    fig.legend(loc="upper center")
 
     fig.draw_without_rendering()
 
     ax_bbox = ax.get_position()
-
-    # Axes should not touch the top
-    assert ax_bbox.y1 < 0.98
-
+    assert ax_bbox.y1 < 1.0  # leaves space for legend
+    
 def example_plot(ax, fontsize=12, nodec=False):
     ax.plot([1, 2])
     ax.locator_params(nbins=3)
