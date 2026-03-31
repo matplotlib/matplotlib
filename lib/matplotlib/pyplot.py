@@ -947,9 +947,8 @@ def figure(
           "px".
         - a tuple ``(x, y)``, which is interpreted as ``(x, y, "inch")``.
 
-        One of *width* or *height* may be ``None``; the missing value is taken
-        from :rc:`figure.figsize`. Passing ``(None, None)`` is not allowed and
-        raises a `ValueError`.
+        One of *width* or *height* may be ``None``; the respective value is taken
+        from :rc:`figure.figsize`.
 
     dpi : float, default: :rc:`figure.dpi`
         The resolution of the figure in dots-per-inch.
