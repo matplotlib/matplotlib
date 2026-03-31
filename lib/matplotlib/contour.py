@@ -514,8 +514,10 @@ class ContourLabeler:
 
     def remove(self):
         super().remove()
-        for text in self.labelTexts:
-            text.remove()
+        for text in list(self.labelTexts):
+            if text in self.axes.texts:
+                text.remove()
+        self.labelTexts.clear()
 
 
 def _find_closest_point_on_path(xys, p):
