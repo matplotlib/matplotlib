@@ -2125,7 +2125,7 @@ class Cursor(AxesWidget):
                         self.canvas.restore_region(background)
                     self.canvas.blit(self.ax.bbox)
                 else:
-                    self.canvas.draw()
+                    self.canvas.draw_idle()
                 self.needclear = False
             return
         self.needclear = True
