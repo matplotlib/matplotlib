@@ -2492,9 +2492,8 @@ class Figure(FigureBase):
             - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
               ``(width, height, "in")``.
 
-            One of *width* or *height* may be ``None``; the missing value is
-            taken from :rc:`figure.figsize`. Passing ``(None, None)`` is not
-            allowed and raises a `ValueError`.
+            One of *width* or *height* may be ``None``; the respective value is
+            taken from :rc:`figure.figsize`.
 
         dpi : float, default: :rc:`figure.dpi`
             Dots per inch.
