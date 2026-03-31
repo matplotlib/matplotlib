@@ -513,9 +513,10 @@ class ContourLabeler:
                 self._paths[icon] = Path.make_compound_path(*additions)
 
     def remove(self):
+        axes = self.axes
         super().remove()
         for text in list(self.labelTexts):
-            if text in self.axes.texts:
+            if axes is not None and text in axes.texts:
                 text.remove()
         self.labelTexts.clear()
 
