@@ -1,5 +1,5 @@
-Partial ``None`` support for ``figsize`` at figure creation
-------------------------------------------------------------
+Partial ``figsize`` specification at figure creation
+----------------------------------------------------
 
 Figure creation now accepts a single ``None`` in ``figsize``.
 Passing ``(None, h)`` uses the default width from :rc:`figure.figsize`, and
