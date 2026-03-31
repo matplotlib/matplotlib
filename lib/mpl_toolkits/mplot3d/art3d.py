@@ -275,6 +275,11 @@ or callable, default: value of *xycoords*
         -----
         This class is typically constructed indirectly via
         `.mpl_toolkits.mplot3d.axes3d.Axes3D.annotate`.
+
+        Returns
+        -------
+        `.Annotation3D`
+            The created annotation.
         """
         valid_xycoords = [
             "figure points", "figure pixels", "figure fraction",

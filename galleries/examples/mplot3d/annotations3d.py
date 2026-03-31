@@ -6,8 +6,8 @@ Annotating points in 3D
 Demonstrates how to annotate 3D plots using 2D and 3D coordinates.
 
 Both the anchor point (``xy``) and the text position (``xytext``) can be
-specified using 3D data coordinates (a 3-tuple) or 2D screen coordinates (a
-2-tuple).
+specified using 3D data coordinates (a 3-tuple) or 2D coordinates (a 2-tuple)
+interpreted by ``xycoords``/``textcoords``.
 
 When using 3D coordinates, set the coordinate system to ``'data'``. The
 annotation will dynamically re-project as the 3D view is rotated. Mixing 2D and
