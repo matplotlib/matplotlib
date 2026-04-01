@@ -1623,6 +1623,40 @@ def test_pcolor_log_scale(fig_test, fig_ref):
     ax.set_xscale('log')
 
 
+def test_pcolormesh_switching_shadings():
+    nrows, ncols = 3, 4
+    Z = np.arange(nrows * ncols).reshape(nrows, ncols)
+    x = np.arange(ncols + 1)
+    y = np.arange(nrows + 1)
+
+    _, ax = plt.subplots()
+
+    ax.pcolormesh(x, y, Z, shading='flat')
+    ax.pcolormesh(x, y, Z, shading='gouraud')
+    with pytest.raises(TypeError):
+        ax.pcolormesh(x, y, Z, shading='nearest')
+
+    ax.pcolormesh(x[:-1], y[:-1], Z, shading='nearest')
+    ax.pcolormesh(x[:-1], y[:-1], Z, shading='gouraud')
+    with pytest.raises(TypeError):
+        ax.pcolormesh(x[:-1], y[:-1], Z, shading='flat')
+
+
+@check_figures_equal()
+def test_pcolormesh_gouraud_grid_conversion(fig_test, fig_ref):
+    Z = np.arange(6).reshape(2, 3)
+
+    x_test = np.array([0, 2, 8, 12])
+    y_test = np.array([0, 2, 6])
+    ax_test = fig_test.subplots()
+    ax_test.pcolormesh(x_test, y_test, Z, shading='gouraud')
+
+    x_ref = np.array([1, 5, 10])
+    y_ref = np.array([1, 4])
+    ax_ref = fig_ref.subplots()
+    ax_ref.pcolormesh(x_ref, y_ref, Z, shading='gouraud')
+
+
 def test_pcolorargs():
     n = 12
     x = np.linspace(-1.5, 1.5, n)
@@ -1636,9 +1670,9 @@ def test_pcolorargs():
     with pytest.raises(TypeError):
         ax.pcolormesh(X, Y, Z.T)
     with pytest.raises(TypeError):
-        ax.pcolormesh(x, y, Z[:-1, :-1], shading="gouraud")
+        ax.pcolormesh(x, y, Z[:-2, :-2], shading='gouraud')
     with pytest.raises(TypeError):
-        ax.pcolormesh(X, Y, Z[:-1, :-1], shading="gouraud")
+        ax.pcolormesh(X, Y, Z[:-2, :-2], shading='gouraud')
     x[0] = np.nan
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
