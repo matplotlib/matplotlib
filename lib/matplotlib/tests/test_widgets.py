@@ -1796,32 +1796,6 @@ def test_MultiCursor(horizOn, vertOn, with_deprecated_canvas):
         assert l.get_ydata() == (.25, .25)
 
 
-def test_cursor_clear_on_move_outside():
-    """Test that moving the mouse outside the axes clears the cursor safely."""
-    import matplotlib.pyplot as plt
-    from matplotlib.widgets import Cursor
-    
-    fig, ax = plt.subplots()
-    cursor = Cursor(ax, useblit=True)
-    
-    # Simulate the cursor lines being visible
-    cursor.linev.set_visible(True)
-    cursor.lineh.set_visible(True)
-    cursor.needclear = True
-    
-    # Create a mock mouse event where 'inaxes' is None (meaning outside)
-    class MockEvent:
-        inaxes = None
-    
-    # Trigger the movement cleanup
-    cursor.onmove(MockEvent())
-    
-    # Verify the lines were hidden and the flag reset
-    assert not cursor.linev.get_visible()
-    assert not cursor.lineh.get_visible()
-    assert not cursor.needclear
-
-
 def test_parent_axes_removal():
 
     fig, (ax_radio, ax_checks) = plt.subplots(1, 2)
@@ -1871,4 +1845,3 @@ def test_cursor_clear_on_move_outside():
     assert not cursor.linev.get_visible()
     assert not cursor.lineh.get_visible()
     assert not cursor.needclear
-    
