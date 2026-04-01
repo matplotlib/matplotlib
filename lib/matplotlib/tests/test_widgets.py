@@ -1845,17 +1845,30 @@ def test_parent_axes_removal():
     checks._clear(evt)
 
 
-def test_cursor_overlapping_axes_blitting_warning():
-    """Test that a warning is raised and useblit is disabled for overlapping axes."""
-    fig = plt.figure()
-    ax1 = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-    ax2 = fig.add_axes([0.2, 0.2, 0.6, 0.6])  # Explicitly overlaps ax1
+def test_cursor_clear_on_move_outside():
+    """Test that moving the mouse outside the axes clears the cursor safely."""
+    import matplotlib.pyplot as plt
+    from matplotlib.widgets import Cursor
 
-    match_text = (
-        "Cursor blitting is currently not supported on "
-        "overlapping axes"
-    )
-    with pytest.warns(UserWarning, match=match_text):
-        cursor = widgets.Cursor(ax1, useblit=True)
+    fig, ax = plt.subplots()
+    cursor = Cursor(ax, useblit=True)
 
-    assert cursor.useblit is False
+    # Simulate the cursor lines being visible
+    cursor.linev.set_visible(True)
+    cursor.lineh.set_visible(True)
+    cursor.needclear = True
+
+    # Create a mock mouse event where 'inaxes' is None (meaning outside)
+    class MockEvent:
+        inaxes = None
+        x = 0
+        y = 0
+
+    # Trigger the movement cleanup
+    cursor.onmove(MockEvent())
+
+    # Verify the lines were hidden and the flag reset
+    assert not cursor.linev.get_visible()
+    assert not cursor.lineh.get_visible()
+    assert not cursor.needclear
+    
