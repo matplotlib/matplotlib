@@ -14,9 +14,9 @@
 
 .. _installing_for_devs:
 
-=====================================
-Setting up Matplotlib for development
-=====================================
+=================
+Development setup
+=================
 
 To set up Matplotlib for development follow these steps:
 
