@@ -3,7 +3,7 @@
 # in `.circleci/config.yml` when changing requirements.
 [wrap-file]
 directory = freetype-2.14.3
-source_url = https://download.savannah.gnu.org/releases/freetype/freetype-2.14.3.tar.xz
+source_url = https://download.savannah.nongnu.org/releases/freetype/freetype-2.14.3.tar.xz
 source_fallback_url = https://downloads.sourceforge.net/project/freetype/freetype2/2.14.3/freetype-2.14.3.tar.xz
 source_filename = freetype-2.14.3.tar.xz
 source_hash = 36bc4f1cc413335368ee656c42afca65c5a3987e8768cc28cf11ba775e785a5f
