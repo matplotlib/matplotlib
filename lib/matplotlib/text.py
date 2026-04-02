@@ -2199,7 +2199,13 @@ or callable, default: value of *xycoords*
                 xy=(bbox.x0 - pad / 2, bbox.y0 - pad / 2),
                 width=bbox.width + pad, height=bbox.height + pad,
                 transform=IdentityTransform(), clip_on=False)
+        old_patchA = self.arrow_patch.patchA    
         self.arrow_patch.set_patchA(patchA)
+
+        # Ensure arrow updates when patchA changes
+        if old_patchA is not patchA:
+            self.stale = True
+        
 
     @artist.allow_rasterization
     def draw(self, renderer):
