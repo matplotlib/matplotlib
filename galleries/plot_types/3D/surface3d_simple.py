@@ -1,5 +1,5 @@
 """
-.. _surface3d_simple:
+.. _plot-types-surface3d-simple:
 
 =====================
 plot_surface(X, Y, Z)

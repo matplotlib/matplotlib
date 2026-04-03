@@ -1,5 +1,5 @@
 """
-.. _box3d:
+.. _examples-box3d:
 
 ===================
 3D box surface plot

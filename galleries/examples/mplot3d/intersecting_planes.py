@@ -1,5 +1,5 @@
 """
-.. _intersecting_planes:
+.. _examples-intersecting-planes:
 
 ===================
 Intersecting planes

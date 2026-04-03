@@ -1,5 +1,5 @@
 """
-.. _quiver3d:
+.. _examples-quiver3d:
 
 ==============
 3D quiver plot

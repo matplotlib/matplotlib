@@ -1,5 +1,5 @@
 """
-.. _histogram_multihist:
+.. _examples-histogram-multihist:
 
 =====================================================
 The histogram (hist) function with multiple data sets

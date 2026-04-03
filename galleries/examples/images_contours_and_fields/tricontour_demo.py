@@ -1,5 +1,5 @@
 """
-.. _tricontour_demo:
+.. _examples-tricontour-demo:
 
 ===============
 Tricontour Demo

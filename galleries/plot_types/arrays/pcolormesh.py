@@ -1,5 +1,5 @@
 """
-.. _pcolormesh:
+.. _plot-types-pcolormesh:
 
 ===================
 pcolormesh(X, Y, Z)

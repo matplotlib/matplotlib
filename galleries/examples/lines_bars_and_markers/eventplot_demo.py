@@ -1,5 +1,5 @@
 """
-.. _eventplot_demo:
+.. _examples-eventplot-demo:
 
 ==============
 Eventplot demo

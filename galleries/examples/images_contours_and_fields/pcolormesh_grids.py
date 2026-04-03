@@ -1,5 +1,5 @@
 """
-.. _pcolormesh_grids:
+.. _examples-pcolormesh-grids:
 
 ============================
 pcolormesh grids and shading

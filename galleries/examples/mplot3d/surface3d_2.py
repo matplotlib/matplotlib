@@ -1,5 +1,5 @@
 """
-.. _surface3d_2:
+.. _examples-surface3d-2:
 
 ========================
 3D surface (solid color)

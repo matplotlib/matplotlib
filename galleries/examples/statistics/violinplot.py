@@ -1,5 +1,5 @@
 """
-.. _violinplot:
+.. _examples-violinplot:
 
 ==================
 Violin plot basics

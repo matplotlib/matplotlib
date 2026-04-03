@@ -1,5 +1,5 @@
 """
-.. _bar3d_simple:
+.. _plot-types-bar3d-simple:
 
 ==========================
 bar3d(x, y, z, dx, dy, dz)

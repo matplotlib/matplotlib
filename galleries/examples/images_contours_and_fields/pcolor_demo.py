@@ -1,5 +1,5 @@
 """
-.. _pcolor_demo:
+.. _examples-pcolor-demo:
 
 =============
 pcolor images

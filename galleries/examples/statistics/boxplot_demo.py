@@ -1,5 +1,5 @@
 """
-.. _boxplot_demo:
+.. _examples-boxplot-demo:
 
 ========
 Boxplots

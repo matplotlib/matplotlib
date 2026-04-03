@@ -1,5 +1,5 @@
 """
-.. _surface3d:
+.. _examples-surface3d:
 
 =====================
 3D surface (colormap)

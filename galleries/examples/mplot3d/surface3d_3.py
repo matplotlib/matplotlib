@@ -1,5 +1,5 @@
 """
-.. _surface3d_3:
+.. _examples-surface3d-3:
 
 =========================
 3D surface (checkerboard)

@@ -1,5 +1,5 @@
 """
-.. _step_demo:
+.. _examples-step-demo:
 
 =========
 Step Demo

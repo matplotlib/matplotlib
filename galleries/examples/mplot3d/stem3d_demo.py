@@ -1,5 +1,5 @@
 """
-.. _stem3d_demo:
+.. _examples-stem3d-demo:
 
 =======
 3D stem

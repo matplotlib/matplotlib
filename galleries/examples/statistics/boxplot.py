@@ -1,5 +1,5 @@
 """
-.. _boxplot_artists:
+.. _examples-boxplot-artists:
 
 =================================
 Artist customization in box plots

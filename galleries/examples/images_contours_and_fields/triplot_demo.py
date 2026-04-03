@@ -1,5 +1,5 @@
 """
-.. _triplot_demo:
+.. _examples-triplot-demo:
 
 ============
 Triplot Demo

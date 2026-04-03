@@ -1,5 +1,5 @@
 """
-.. _tricontour_smooth_delaunay:
+.. _examples-tricontour-smooth-delaunay:
 
 ==========================
 Tricontour Smooth Delaunay

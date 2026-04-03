@@ -1,4 +1,4 @@
-.. _users-guide-artists:
+.. _users-explain-users-guide-artists:
 
 +++++++
 Artists

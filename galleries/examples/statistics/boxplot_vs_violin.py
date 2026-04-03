@@ -1,5 +1,5 @@
 """
-.. _boxplot_vs_violin:
+.. _examples-boxplot-vs-violin:
 
 ===================================
 Box plot vs. violin plot comparison

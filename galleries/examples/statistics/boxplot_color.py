@@ -1,5 +1,5 @@
 """
-.. _boxplot_color:
+.. _examples-boxplot-color:
 
 =================================
 Box plots with custom fill colors

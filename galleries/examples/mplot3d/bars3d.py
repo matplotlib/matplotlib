@@ -1,5 +1,5 @@
 """
-.. _bars3d:
+.. _examples-bars3d:
 
 ========================================
 Create 2D bar graphs in different planes

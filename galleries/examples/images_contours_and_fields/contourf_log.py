@@ -1,5 +1,5 @@
 """
-.. _contourf_log:
+.. _examples-contourf-log:
 
 ============================
 Contourf and log color scale

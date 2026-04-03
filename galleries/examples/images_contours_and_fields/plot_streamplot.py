@@ -1,5 +1,5 @@
 """
-.. _plot_streamplot:
+.. _examples-plot-streamplot:
 
 ==========
 Streamplot
