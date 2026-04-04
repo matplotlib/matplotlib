@@ -9,7 +9,7 @@ Installation quick-start
 Draw a first plot
 -----------------
 
-Here is a minimal example plot:
+Here is a minimal example of a plot:
 
 .. plot::
    :include-source:
