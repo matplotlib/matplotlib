@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 224">
+  <rect width="320" height="224" fill="white"/>
+  <!-- Film strip -->
+  <rect x="20" y="20" width="280" height="184" rx="8" fill="#222222"/>
+  <!-- Sprocket holes top -->
+  <rect x="30" y="26" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="58" y="26" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="86" y="26" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="114" y="26" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="142" y="26" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="170" y="26" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="198" y="26" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="226" y="26" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="254" y="26" width="18" height="14" rx="3" fill="#555555"/>
+  <!-- Sprocket holes bottom -->
+  <rect x="30" y="184" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="58" y="184" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="86" y="184" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="114" y="184" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="142" y="184" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="170" y="184" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="198" y="184" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="226" y="184" width="18" height="14" rx="3" fill="#555555"/>
+  <rect x="254" y="184" width="18" height="14" rx="3" fill="#555555"/>
+  <!-- Frame 1 -->
+  <rect x="28" y="48" width="76" height="128" fill="white"/>
+  <polyline points="28,176 56,120 70,140 90,96 104,176" fill="none" stroke="#1f77b4" stroke-width="2.5"/>
+  <!-- Frame 2 -->
+  <rect x="122" y="48" width="76" height="128" fill="white"/>
+  <polyline points="122,176 150,108 164,128 184,84 198,176" fill="none" stroke="#1f77b4" stroke-width="2.5"/>
+  <!-- Frame 3 -->
+  <rect x="216" y="48" width="76" height="128" fill="white"/>
+  <polyline points="216,176 244,96 258,116 278,72 292,176" fill="none" stroke="#1f77b4" stroke-width="2.5"/>
+</svg>

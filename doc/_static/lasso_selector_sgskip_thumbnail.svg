@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 224">
+  <rect width="320" height="224" fill="white"/>
+  <!-- Axes box -->
+  <rect x="40" y="16" width="260" height="192" fill="#f8f8f8" stroke="#cccccc" stroke-width="1"/>
+  <!-- Deselected scatter points (faded) -->
+  <circle cx="80" cy="80" r="7" fill="#1f77b4" opacity="0.3"/>
+  <circle cx="130" cy="50" r="7" fill="#1f77b4" opacity="0.3"/>
+  <circle cx="260" cy="60" r="7" fill="#1f77b4" opacity="0.3"/>
+  <circle cx="280" cy="140" r="7" fill="#1f77b4" opacity="0.3"/>
+  <circle cx="240" cy="170" r="7" fill="#1f77b4" opacity="0.3"/>
+  <circle cx="72" cy="170" r="7" fill="#1f77b4" opacity="0.3"/>
+  <!-- Selected scatter points (bright) -->
+  <circle cx="160" cy="100" r="7" fill="#1f77b4" opacity="1.0"/>
+  <circle cx="190" cy="140" r="7" fill="#1f77b4" opacity="1.0"/>
+  <circle cx="148" cy="158" r="7" fill="#1f77b4" opacity="1.0"/>
+  <circle cx="210" cy="110" r="7" fill="#1f77b4" opacity="1.0"/>
+  <circle cx="175" cy="170" r="7" fill="#1f77b4" opacity="1.0"/>
+  <!-- Lasso selection path -->
+  <path d="M 136,82 Q 250,68 236,190 Q 120,200 128,168 Q 110,130 136,82 Z"
+        fill="none" stroke="#ff7f0e" stroke-width="2" stroke-dasharray="6,3"/>
+</svg>

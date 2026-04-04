@@ -14,6 +14,7 @@ animations that are easily ported to multiple backends.
     You can copy and paste individual parts, or download the entire example
     using the link at the bottom of the page.
 """
+# sphinx_gallery_thumbnail_path = '_static/pong_sgskip_thumbnail.svg'
 
 import time
 

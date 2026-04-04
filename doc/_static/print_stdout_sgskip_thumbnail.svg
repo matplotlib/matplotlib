@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 224">
+  <rect width="320" height="224" fill="white"/>
+  <!-- Terminal / stdout box -->
+  <rect x="20" y="16" width="280" height="100" rx="6" fill="#1e1e1e"/>
+  <!-- Terminal dots -->
+  <circle cx="38" cy="32" r="6" fill="#ff5f57"/>
+  <circle cx="58" cy="32" r="6" fill="#febc2e"/>
+  <circle cx="78" cy="32" r="6" fill="#28c840"/>
+  <!-- Terminal text: binary data -->
+  <text x="32" y="58" font-family="monospace" font-size="10" fill="#888888">$ python print_stdout.py &gt; out.png</text>
+  <text x="32" y="74" font-family="monospace" font-size="10" fill="#4ec9b0">PNG</text>
+  <text x="60" y="74" font-family="monospace" font-size="10" fill="#9cdcfe">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;</text>
+  <text x="32" y="90" font-family="monospace" font-size="10" fill="#4ec9b0">IHDR</text>
+  <text x="60" y="90" font-family="monospace" font-size="10" fill="#9cdcfe">&#x2588;&#x2588;&#x2588;&#x2588;</text>
+  <!-- Simple line plot below -->
+  <rect x="44" y="130" width="232" height="78" fill="#f8f8f8" stroke="#cccccc" stroke-width="1"/>
+  <polyline points="44,208 120,170 196,155 276,140" fill="none" stroke="#1f77b4" stroke-width="2.5"/>
+  <text x="160" y="220" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#555555">plot saved to stdout</text>
+</svg>
