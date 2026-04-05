@@ -1236,8 +1236,11 @@ def test_text_tightbbox_outside_scale_domain():
     invalid_text = ax.text(0, -5, 'invalid')
     invalid_bbox = invalid_text.get_tightbbox(fig.canvas.get_renderer())
     assert not np.isfinite(invalid_bbox.width)
+
+
 def test_annotation_patchA_not_overridden():
-    # Test that manually setting patchA on annotation arrow is not overridden by update_positions. See GitHub issue #28316.
+    # Test that manually setting patchA on annotation arrow is not 
+    # overridden by update_positions. See GitHub issue #28316.
     fig, ax = plt.subplots()
     ann = ax.annotate(
         '',
