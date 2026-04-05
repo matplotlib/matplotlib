@@ -2101,17 +2101,10 @@ or callable, default: value of *xycoords*
                 xy=(bbox.x0 - pad / 2, bbox.y0 - pad / 2),
                 width=bbox.width + pad, height=bbox.height + pad,
                 transform=IdentityTransform(), clip_on=False)
-            # Check if user manually set patchA externally
-            current_patchA = self.arrow_patch.patchA
-            internal_patchA = getattr(self, '_internal_patchA', None)
-
-            if current_patchA is not internal_patchA:
-                # patchA was manually set by the user, do not override it
-                pass
-            else:
-                # patchA was set internally, update it.
-                self.arrow_patch.set_patchA(patchA)
-                self._internal_patchA = patchA
+     if self.arrow_patch.patchA is getattr(
+                self, '_internal_patchA', None):
+            self.arrow_patch.set_patchA(patchA)
+            self._internal_patchA = patchA
                 
     @artist.allow_rasterization
     def draw(self, renderer):
