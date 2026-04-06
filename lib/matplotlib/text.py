@@ -2199,11 +2199,11 @@ or callable, default: value of *xycoords*
                 xy=(bbox.x0 - pad / 2, bbox.y0 - pad / 2),
                 width=bbox.width + pad, height=bbox.height + pad,
                 transform=IdentityTransform(), clip_on=False)
-     if self.arrow_patch.patchA is getattr(
+        if self.arrow_patch.patchA is getattr(
                 self, '_internal_patchA', None):
-            self.arrow_patch.set_patchA(patchA)
-            self._internal_patchA = patchA
-                
+                self.arrow_patch.set_patchA(patchA)
+                self._internal_patchA = patchA
+
     @artist.allow_rasterization
     def draw(self, renderer):
         # docstring inherited
