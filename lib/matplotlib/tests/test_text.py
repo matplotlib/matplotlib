@@ -1239,7 +1239,7 @@ def test_text_tightbbox_outside_scale_domain():
 
 
 def test_annotation_patchA_not_overridden():
-    # Test that manually setting patchA on annotation arrow is not 
+    # Test that manually setting patchA on annotation arrow is not
     # overridden by update_positions. See GitHub issue #28316.
     fig, ax = plt.subplots()
     ann = ax.annotate(
