@@ -1,0 +1,11 @@
+y-axis labels with non-default rotation no longer overlap tick labels
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Setting a y-axis label with a rotation other than the default (e.g.
+``ax.set_ylabel("...", rotation=270)``, or ``cbar.set_label("...",
+rotation=270)`` on a colorbar) previously could cause the label to
+overlap the tick labels because the automatic label placement assumed a
+90° rotation. The label position is now computed from the rendered
+label's actual extent, so it sits clear of the tick labels for any
+rotation. This may shift the position of y-labels that use non-default
+rotations.

@@ -9070,6 +9070,54 @@ def test_ylabel_ha_with_position(ha):
     assert ax.yaxis.label.get_ha() == ha
 
 
+@pytest.mark.parametrize('label_position', ['left', 'right'])
+@pytest.mark.parametrize('rotation', [0, 45, 90, 135, 180, 270, -90])
+def test_ylabel_no_overlap_with_ticklabels(label_position, rotation):
+    """Regression test for #19029: a y-label with rotation other than 90°
+    must not overlap the tick labels regardless of label_position."""
+    fig, ax = plt.subplots()
+    ax.plot([1, 3, 2])
+    ax.yaxis.set_label_position(label_position)
+    if label_position == 'right':
+        ax.yaxis.tick_right()
+    ax.set_ylabel("test label", rotation=rotation)
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    label_bbox = ax.yaxis.label.get_window_extent(renderer)
+    tick_bboxes = [t.get_window_extent(renderer)
+                   for t in ax.yaxis.get_ticklabels() if t.get_visible()]
+    tick_union = mtransforms.Bbox.union(tick_bboxes)
+    if label_position == 'right':
+        assert label_bbox.x0 >= tick_union.x1
+    else:
+        assert label_bbox.x1 <= tick_union.x0
+
+
+@pytest.mark.parametrize('label_position', ['left', 'right'])
+def test_align_ylabels_mixed_rotation(label_position):
+    """Issue #19029: ``fig.align_ylabels`` must keep two y-labels visually
+    aligned even when they use different rotations. The per-axis overhang
+    correction in `_update_label_position` shifts each axis independently;
+    this test guards against that breaking sibling alignment."""
+    fig, axs = plt.subplots(2, figsize=(4, 6))
+    for ax in axs:
+        ax.plot([1, 30, 2])
+        ax.yaxis.set_label_position(label_position)
+        if label_position == 'right':
+            ax.yaxis.tick_right()
+    axs[0].set_ylabel('first', rotation=90)
+    axs[1].set_ylabel('second', rotation=270)
+    fig.align_ylabels(axs)
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    bbox0 = axs[0].yaxis.label.get_window_extent(renderer)
+    bbox1 = axs[1].yaxis.label.get_window_extent(renderer)
+    # Both visible label bboxes should occupy the same horizontal range,
+    # even though the underlying anchor positions differ between rotations.
+    assert bbox0.x0 == pytest.approx(bbox1.x0, abs=0.5)
+    assert bbox0.x1 == pytest.approx(bbox1.x1, abs=0.5)
+
+
 def test_bar_label_location_vertical():
     ax = plt.gca()
     xs, heights = [1, 2], [3, -4]

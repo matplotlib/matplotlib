@@ -733,6 +733,24 @@ def test_colorbar_label():
     assert cbar3.ax.get_xlabel() == 'horizontal cbar'
 
 
+def test_colorbar_label_rotation_no_overlap():
+    """Smoke test for #19029: a rotation=270 colorbar label must not
+    overlap negative tick labels (the original user-facing symptom)."""
+    fig, ax = plt.subplots()
+    im = ax.imshow([[-100, 0], [50, 100]])
+    cbar = fig.colorbar(im, ax=ax)
+    cbar.set_label('RT(1ax) - RT(2ax) [ms]', rotation=270)
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    label_bbox = cbar.ax.yaxis.label.get_window_extent(renderer)
+    # Colorbar labels live on the right, so the label must sit clear of
+    # the rightmost visible tick-label edge.
+    tick_x1_max = max(t.get_window_extent(renderer).x1
+                      for t in cbar.ax.yaxis.get_ticklabels()
+                      if t.get_visible())
+    assert label_bbox.x0 >= tick_x1_max
+
+
 # TODO: tighten tolerance after baseline image is regenerated for text overhaul
 @image_comparison(['colorbar_keeping_xlabel.png'], style='mpl20', tol=0.03)
 def test_keeping_xlabel():
