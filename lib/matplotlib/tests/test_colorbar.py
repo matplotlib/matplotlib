@@ -735,7 +735,8 @@ def test_colorbar_label():
 
 def test_colorbar_label_rotation_no_overlap():
     """Smoke test for #19029: a rotation=270 colorbar label must not
-    overlap negative tick labels (the original user-facing symptom)."""
+    overlap negative tick labels (the original user-facing symptom).
+    """
     fig, ax = plt.subplots()
     im = ax.imshow([[-100, 0], [50, 100]])
     cbar = fig.colorbar(im, ax=ax)

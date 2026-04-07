@@ -9074,7 +9074,8 @@ def test_ylabel_ha_with_position(ha):
 @pytest.mark.parametrize('rotation', [0, 45, 90, 135, 180, 270, -90])
 def test_ylabel_no_overlap_with_ticklabels(label_position, rotation):
     """Regression test for #19029: a y-label with rotation other than 90°
-    must not overlap the tick labels regardless of label_position."""
+    must not overlap the tick labels regardless of label_position.
+    """
     fig, ax = plt.subplots()
     ax.plot([1, 3, 2])
     ax.yaxis.set_label_position(label_position)
@@ -9098,7 +9099,8 @@ def test_align_ylabels_mixed_rotation(label_position):
     """Issue #19029: ``fig.align_ylabels`` must keep two y-labels visually
     aligned even when they use different rotations. The per-axis overhang
     correction in `_update_label_position` shifts each axis independently;
-    this test guards against that breaking sibling alignment."""
+    this test guards against that breaking sibling alignment.
+    """
     fig, axs = plt.subplots(2, figsize=(4, 6))
     for ax in axs:
         ax.plot([1, 30, 2])
