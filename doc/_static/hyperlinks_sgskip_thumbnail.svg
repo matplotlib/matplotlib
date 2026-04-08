@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 224">
+  <rect width="320" height="224" fill="white"/>
+  <!-- Axes box -->
+  <rect x="44" y="16" width="256" height="176" fill="#f8f8f8" stroke="#cccccc" stroke-width="1"/>
+  <!-- Scatter points with different colors (representing clickable links) -->
+  <circle cx="110" cy="108" r="14" fill="#1f77b4" opacity="0.8"/>
+  <circle cx="170" cy="76" r="14" fill="#ff7f0e" opacity="0.8"/>
+  <circle cx="230" cy="132" r="14" fill="#2ca02c" opacity="0.8"/>
+  <!-- Underline / hyperlink visual cue -->
+  <line x1="96" y1="122" x2="124" y2="122" stroke="#1f77b4" stroke-width="2"/>
+  <line x1="156" y1="90" x2="184" y2="90" stroke="#ff7f0e" stroke-width="2"/>
+  <line x1="216" y1="146" x2="244" y2="146" stroke="#2ca02c" stroke-width="2"/>
+  <!-- Link icon top right -->
+  <text x="270" y="42" font-family="sans-serif" font-size="20" fill="#555555">🔗</text>
+  <!-- Axis labels -->
+  <text x="172" y="208" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#555555">SVG Hyperlinks</text>
+</svg>

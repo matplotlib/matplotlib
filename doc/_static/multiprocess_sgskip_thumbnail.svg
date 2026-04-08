@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 224">
+  <rect width="320" height="224" fill="white"/>
+  <!-- Axes box -->
+  <rect x="44" y="16" width="252" height="172" fill="#f8f8f8" stroke="#cccccc" stroke-width="1"/>
+  <!-- Live data line (jagged, like real-time data) -->
+  <polyline
+    points="44,138 68,120 90,130 112,98 134,112 156,82 178,96 200,68 222,84 244,58 264,72 286,52 296,44"
+    fill="none" stroke="#1f77b4" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Process A label -->
+  <rect x="52" y="24" width="82" height="18" rx="3" fill="#1f77b4" opacity="0.15"/>
+  <text x="93" y="37" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#1f77b4">Process A (data)</text>
+  <!-- Process B label -->
+  <rect x="52" y="48" width="82" height="18" rx="3" fill="#ff7f0e" opacity="0.15"/>
+  <text x="93" y="61" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#ff7f0e">Process B (plot)</text>
+  <!-- Arrow between processes -->
+  <line x1="180" y1="33" x2="200" y2="33" stroke="#888888" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- Two process boxes at bottom -->
+  <rect x="52" y="198" width="84" height="20" rx="4" fill="#1f77b4" opacity="0.3"/>
+  <text x="94" y="212" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333333">Producer</text>
+  <rect x="184" y="198" width="84" height="20" rx="4" fill="#ff7f0e" opacity="0.3"/>
+  <text x="226" y="212" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#333333">Plotter</text>
+</svg>

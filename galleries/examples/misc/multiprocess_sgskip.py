@@ -8,6 +8,7 @@ plotting in another.
 
 Written by Robert Cimrman
 """
+# sphinx_gallery_thumbnail_path = '_static/multiprocess_sgskip_thumbnail.svg'
 
 import multiprocessing as mp
 import time

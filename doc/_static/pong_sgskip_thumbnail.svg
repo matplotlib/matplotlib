@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 224">
+  <rect width="320" height="224" fill="#1a1a2e"/>
+  <!-- Court boundary -->
+  <rect x="10" y="10" width="300" height="204" fill="none" stroke="#4a4a6a" stroke-width="2"/>
+  <!-- Center line (dashed) -->
+  <line x1="160" y1="10" x2="160" y2="214" stroke="#4a4a6a" stroke-width="2" stroke-dasharray="8,8"/>
+  <!-- Left paddle -->
+  <rect x="24" y="78" width="14" height="68" rx="4" fill="#1f77b4"/>
+  <!-- Right paddle -->
+  <rect x="282" y="88" width="14" height="68" rx="4" fill="#ff7f0e"/>
+  <!-- Ball -->
+  <circle cx="134" cy="118" r="9" fill="white"/>
+  <!-- Score -->
+  <text x="100" y="50" font-family="monospace" font-size="32" font-weight="bold" text-anchor="middle" fill="#aaaacc">3</text>
+  <text x="220" y="50" font-family="monospace" font-size="32" font-weight="bold" text-anchor="middle" fill="#aaaacc">5</text>
+</svg>

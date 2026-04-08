@@ -9,6 +9,7 @@ supported by Pillow.
 
 .. _Pillow: https://python-pillow.github.io
 """
+# sphinx_gallery_thumbnail_path = '_static/stinkbug.png'
 
 from argparse import ArgumentParser
 from pathlib import Path
