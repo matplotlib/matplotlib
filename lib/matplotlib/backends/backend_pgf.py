@@ -384,8 +384,7 @@ class RendererPgf(RendererBase):
         self.figure = figure
         self.image_counter = 0
 
-    def draw_markers(self, gc, marker_path, marker_trans, path, trans,
-                     rgbFace=None):
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         # docstring inherited
 
         _writeln(self.fh, r"\begin{pgfscope}")
@@ -404,8 +403,7 @@ class RendererPgf(RendererBase):
                  r"\pgfsys@defobject{currentmarker}"
                  r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
         self._print_pgf_path(None, marker_path, marker_trans)
-        self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
-                            fill=rgbFace is not None)
+        self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0, fill=rgbFace is not None)
         _writeln(self.fh, r"}")
 
         maxcoord = 16383 / 72.27 * self.dpi  # Max dimensions in LaTeX.
@@ -429,8 +427,7 @@ class RendererPgf(RendererBase):
         self._print_pgf_clip(gc)
         self._print_pgf_path_styles(gc, rgbFace)
         self._print_pgf_path(gc, path, transform, rgbFace)
-        self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
-                            fill=rgbFace is not None)
+        self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0, fill=rgbFace is not None)
         _writeln(self.fh, r"\end{pgfscope}")
 
         # if present, draw pattern on top
@@ -453,6 +450,8 @@ class RendererPgf(RendererBase):
                      r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
             _writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
+            lw = (mpl.rcParams["hatch.linewidth"] * mpl_pt_to_in * latex_in_to_pt)
+            _writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
             self._print_pgf_path(None, gc.get_hatch_path(), scale)
             self._pgf_path_draw(stroke=True)
             _writeln(self.fh, r"\end{pgfscope}")
@@ -464,8 +463,7 @@ class RendererPgf(RendererBase):
             xmin, xmax = f * xmin, f * xmax
             ymin, ymax = f * ymin, f * ymax
             repx, repy = math.ceil(xmax - xmin), math.ceil(ymax - ymin)
-            _writeln(self.fh,
-                     r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
+            _writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
             for iy in range(repy):
                 for ix in range(repx):
                     _writeln(self.fh, r"\pgfsys@useobject{currentpattern}{}")
