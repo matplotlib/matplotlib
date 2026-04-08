@@ -1363,7 +1363,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
                            f"len(handles) = {len(handles)} "
                            f"len(labels) = {len(labels)}")
     # if got both handles and labels as kwargs, make same length
-    if handles and labels:
+    if handles is not None and labels is not None:
         handles, labels = zip(*zip(handles, labels))
 
     elif handles is not None and labels is None:

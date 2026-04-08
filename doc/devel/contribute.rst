@@ -185,32 +185,42 @@ If you have developed an extension to Matplotlib, please consider adding it to o
 
 .. _generative_ai:
 
+Use of Generative AI
+====================
 
-Restrictions on Generative AI Usage
-===================================
+Generative AI tools are evolving rapidly and can be helpful. As with any tool,
+the resulting contribution is the responsibility of the contributor. We
+expect dedicated and authentic engagement in our community. In particular when
+using AI, carefully consider what and how to communicate, question results,
+think things through thoroughly and make well-informed decisions.
 
-We expect authentic engagement in our community.
+Some examples of acceptable and unacceptable AI uses are:
 
-- Do not post output from Large Language Models or similar generative AI as
-  comments on GitHub or our discourse server, as such comments tend to be
-  formulaic and low content.
-- If you use generative AI tools as an aid in developing code or documentation
-  changes, ensure that you fully understand the proposed changes and can
-  explain why they are the correct approach.
-- If you use AI for translation or grammar correction, please keep the wording as close
-  as possible to the original wording. It is much easier to come to a mutual
-  understanding when we are working off a direct translation of your words/thoughts
-  rather than a text an LLM may have embellished with possibly spurious information.
+.. grid:: 1 1 2 2
 
-Make sure you have added value based on your personal competency to your
-contributions. Just taking some input, feeding it to an AI and posting the
-result is not of value to the project. To preserve precious core developer
-capacity, we reserve the right to rigorously reject seemingly AI generated
-low-value contributions.
+  .. grid-item::
 
-In particular, it is also strictly forbidden to post AI generated
-content to issues or PRs via automated tooling such as bots or agents. We
-may ban such users and/or report them to GitHub.
+    :octicon:`check;1em;sd-text-success` **Acceptable uses**
+
+    - Gaining understanding of the existing code
+    - Getting solution ideas
+    - Translating or proof-reading your comments or PR descriptions. Please keep
+      the wording as close as possible to your original wording.
+
+  .. grid-item::
+
+    :octicon:`x;1em;sd-text-danger`  **Unacceptable uses**
+
+    - External AI tooling (e.g. bots, agents) directly interacting with the project;
+      including creating issues, PRs or commenting on GitHub or Discourse.
+    - Solving topics that you wouldn't be able to solve yourself without AI
+    - Using AI output without ensuring that you fully understand the output or
+      without verifying that it is the correct approach.
+
+To ensure project health and preserve limited core developer capacity, we will flag
+and reject low-value contributions that we believe are AI generated. We may ban
+and/or report users to GitHub if they harm the project or its community through
+irresponsible use of AI.
 
 .. _new_contributors:
 
