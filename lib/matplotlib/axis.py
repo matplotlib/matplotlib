@@ -2735,14 +2735,27 @@ class YAxis(Axis):
             # Union with extents of the left spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes, self.axes.spines.get("left", self.axes).get_window_extent()])
-            self.label.set_position(
-                (bbox.x0 - self.labelpad * self.get_figure(root=True).dpi / 72, y))
+            target_x = bbox.x0 - self.labelpad * self.get_figure(root=True).dpi / 72
+            self.label.set_position((target_x, y))
+            # The vertical alignment set in `set_label_position` assumes a
+            # 90° rotation; for any other rotation the rotated label may
+            # extend back toward the tick labels and overlap them. Shift
+            # the label outward by the overhang. See issue #19029.
+            label_bbox = self.label.get_window_extent(renderer)
+            overhang = label_bbox.x1 - target_x
+            if overhang > 0:
+                self.label.set_position((target_x - overhang, y))
         else:
             # Union with extents of the right spine if present, of the axes otherwise.
             bbox = mtransforms.Bbox.union([
                 *bboxes2, self.axes.spines.get("right", self.axes).get_window_extent()])
-            self.label.set_position(
-                (bbox.x1 + self.labelpad * self.get_figure(root=True).dpi / 72, y))
+            target_x = bbox.x1 + self.labelpad * self.get_figure(root=True).dpi / 72
+            self.label.set_position((target_x, y))
+            # See comment in the 'left' branch above (issue #19029).
+            label_bbox = self.label.get_window_extent(renderer)
+            overhang = target_x - label_bbox.x0
+            if overhang > 0:
+                self.label.set_position((target_x + overhang, y))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
