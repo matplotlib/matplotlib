@@ -36,8 +36,17 @@ _DOCUMENTCLASS = r"\documentclass{article}"
 # %f/{:f} format rather than %s/{} to avoid triggering scientific notation,
 # which is not recognized by TeX.
 
-def _get_preamble():
+def _get_documentclass():
+    if mpl.rcParams["pgf.documentclass"]:
+        return mpl.rcParams["pgf.documentclass"]
+    else:
+        return _DOCUMENTCLASS
+
+
+def _get_preamble(commands=None):
     """Prepare a LaTeX preamble based on the rcParams configuration."""
+    if commands is None:
+        commands = []
     font_size_pt = FontProperties(
         size=mpl.rcParams["font.size"]
     ).get_size_in_points()
@@ -47,18 +56,8 @@ def _get_preamble():
         r"\def\mathdefault#1{#1}",
         # Use displaystyle for all math.
         r"\everymath=\expandafter{\the\everymath\displaystyle}",
-        # Set up font sizes to match font.size setting.
-        # If present, use the KOMA package scrextend to adjust the standard
-        # LaTeX font commands (\tiny, ..., \normalsize, ..., \Huge) accordingly.
-        # Otherwise, only set \normalsize, manually.
-        r"\IfFileExists{scrextend.sty}{",
-        r"  \usepackage[fontsize=%fpt]{scrextend}" % font_size_pt,
-        r"}{",
-        r"  \renewcommand{\normalsize}{\fontsize{%f}{%f}\selectfont}"
-        % (font_size_pt, 1.2 * font_size_pt),
-        r"  \normalsize",
-        r"}",
-        # Allow pgf.preamble to override the above definitions.
+        # Allow pgf.documentclass and pgf.preamble to override the above definitions.
+        _get_documentclass(),
         mpl.rcParams["pgf.preamble"],
         *([
             r"\ifdefined\pdftexversion\else  % non-pdftex case.",
@@ -72,6 +71,7 @@ def _get_preamble():
                  for family in ["serif", "sans\\-serif", "monospace"]]
             )
         ] + [r"\fi"] if mpl.rcParams["pgf.rcfonts"] else []),
+        *commands,
         # Documented as "must come last".
         mpl.texmanager._usepackage_if_not_loaded("underscore", option="strings"),
     ])
@@ -205,13 +205,13 @@ class LatexManager:
     @staticmethod
     def _build_latex_header():
         latex_header = [
-            _DOCUMENTCLASS,
-            # Include TeX program name as a comment for cache invalidation.
-            # TeX does not allow this to be the first line.
-            rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
-            # Test whether \includegraphics supports interpolate option.
-            r"\usepackage{graphicx}",
-            _get_preamble(),
+            _get_preamble(commands=[
+                # Include TeX program name as a comment for cache invalidation.
+                # TeX does not allow this to be the first line.
+                rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
+                # Test whether \includegraphics supports interpolate option.
+                r"\usepackage{graphicx}",
+                ]),
             r"\begin{document}",
             r"\typeout{pgf_backend_query_start}",
         ]
@@ -823,6 +823,7 @@ class FigureCanvasPgf(FigureCanvasBase):
     def print_pdf(self, fname_or_fh, *, metadata=None, **kwargs):
         """Use LaTeX to compile a pgf generated figure to pdf."""
         w, h = self.figure.get_size_inches()
+        geometry_options = r"papersize={%fin,%fin}, margin=0in" % (w, h)
 
         info_dict = _create_pdf_info_dict('pgf', metadata or {})
         pdfinfo = ','.join(
@@ -834,12 +835,14 @@ class FigureCanvasPgf(FigureCanvasBase):
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
             (tmppath / "figure.tex").write_text(
                 "\n".join([
-                    _DOCUMENTCLASS,
-                    r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
-                    r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
-                    % (w, h),
-                    r"\usepackage{pgf}",
-                    _get_preamble(),
+                    r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+                    r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
+                    _get_preamble(commands=[
+                        r"\usepackage{hyperref}",
+                        r"\usepackage{geometry}",
+                        r"\geometry{reset, %s}" % geometry_options,
+                        r"\usepackage{pgf}",
+                        ]),
                     r"\begin{document}",
                     r"\centering",
                     r"\input{figure.pgf}",
@@ -928,15 +931,19 @@ class PdfPages:
         self._file = BytesIO()
 
     def _write_header(self, width_inches, height_inches):
+        geometry_options = (r"papersize={%fin,%fin}, margin=0in"
+                            % (width_inches, height_inches))
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
-            _DOCUMENTCLASS,
-            r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
-            r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
-            % (width_inches, height_inches),
-            r"\usepackage{pgf}",
-            _get_preamble(),
+            r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+            r"\PassOptionsToPackage{%s}{geometry}" % geometry_options,
+            _get_preamble(commands=[
+                r"\usepackage{hyperref}",
+                r"\usepackage{geometry}",
+                r"\geometry{reset, %s}" % geometry_options,
+                r"\usepackage{pgf}",
+                ]),
             r"\setlength{\parindent}{0pt}",
             r"\begin{document}%",
         ])
