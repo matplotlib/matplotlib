@@ -193,6 +193,7 @@ RcKeyType: TypeAlias = Literal[
     "axes.formatter.use_locale",
     "axes.formatter.use_mathtext",
     "axes.formatter.useoffset",
+    "axes.formatter.legacy_symlog_ticker",
     "axes.grid",
     "axes.grid.axis",
     "axes.grid.which",

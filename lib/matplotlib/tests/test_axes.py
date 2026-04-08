@@ -1342,11 +1342,36 @@ def test_fill_between_interpolate_nan():
                     interpolate=True, alpha=0.5)
 
 
-# test_symlog and test_symlog2 used to have baseline images in all three
-# formats, but the png and svg baselines got invalidated by the removal of
-# minor tick overstriking.
-@image_comparison(['symlog.pdf'])
+@image_comparison(['symlog_nolegacy.pdf'])
 def test_symlog():
+    mpl.rcParams['axes.formatter.legacy_symlog_ticker'] = False
+    x = np.array([0, 1, 2, 4, 6, 9, 12, 24])
+    y = np.array([1000000, 500000, 100000, 100, 5, 0, 0, 0])
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y)
+    ax.set_yscale('symlog')
+    ax.set_xscale('linear')
+    ax.set_ylim(-1, 10000000)
+
+
+@image_comparison(['symlog2_nolegacy.pdf'], remove_text=True)
+def test_symlog2():
+    mpl.rcParams['axes.formatter.legacy_symlog_ticker'] = False
+    # Numbers from -50 to 50, with 0.1 as step
+    x = np.arange(-50, 50, 0.001)
+
+    fig, axs = plt.subplots(5, 1)
+    for ax, linthresh in zip(axs, [20., 2., 1., 0.1, 0.01]):
+        ax.plot(x, x)
+        ax.set_xscale('symlog', linthresh=linthresh)
+        ax.grid(True)
+    axs[-1].set_ylim(-0.1, 0.1)
+
+
+@image_comparison(['symlog.pdf'])
+def test_legacy_symlog():
+    mpl.rcParams['axes.formatter.legacy_symlog_ticker'] = True
     x = np.array([0, 1, 2, 4, 6, 9, 12, 24])
     y = np.array([1000000, 500000, 100000, 100, 5, 0, 0, 0])
 
@@ -1358,7 +1383,8 @@ def test_symlog():
 
 
 @image_comparison(['symlog2.pdf'], remove_text=True)
-def test_symlog2():
+def test_legacy_symlog2():
+    mpl.rcParams['axes.formatter.legacy_symlog_ticker'] = True
     # Numbers from -50 to 50, with 0.1 as step
     x = np.arange(-50, 50, 0.001)
 

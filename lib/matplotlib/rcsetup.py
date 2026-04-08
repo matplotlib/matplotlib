@@ -1195,6 +1195,7 @@ _validators = {
     "axes.formatter.min_exponent": validate_int,
     "axes.formatter.useoffset": validate_bool,
     "axes.formatter.offset_threshold": validate_int,
+    "axes.formatter.legacy_symlog_ticker": validate_bool,
     "axes.unicode_minus": validate_bool,
     # This entry can be either a cycler object or a string repr of a
     # cycler-object, which is parsed safely via AST.
@@ -2097,6 +2098,13 @@ _DEFINITION = [
         description="When useoffset is True, the offset will be used when it can "
                     "remove at least this number of significant digits from tick "
                     "labels."
+    ),
+    _Param(
+        "axes.formatter.legacy_symlog_ticker",
+        default=True,
+        validator=validate_bool,
+        description="When True, ticks in symlog axes are placed using legacy rules. "
+                    "This is known to cause badly labeled axes in some cases."
     ),
     _Param(
         "axes.spines.left",
