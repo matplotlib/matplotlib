@@ -722,6 +722,10 @@ translate
         if self._is_transparent(gc.get_rgb()):
             return  # Special handling for fully transparent.
 
+        if mpl.rcParams['ps.fonttype'] == 0:
+            return self._draw_text_as_path(
+                gc, x, y, s, prop, angle, ismath="TeX")
+
         if not hasattr(self, "psfrag"):
             self._logwarn_once(
                 "The PS backend determines usetex status solely based on "
@@ -767,6 +771,9 @@ grestore
 
         if ismath == 'TeX':
             return self.draw_tex(gc, x, y, s, prop, angle)
+
+        if mpl.rcParams['ps.fonttype'] == 0:
+            return self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
 
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
@@ -820,6 +827,10 @@ grestore
     @_log_if_debug_on
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw the math text using matplotlib.mathtext."""
+        if mpl.rcParams['ps.fonttype'] == 0:
+            return self._draw_text_as_path(
+                gc, x, y, s, prop, angle, ismath=True)
+
         width, height, descent, glyphs, rects = \
             self._text2path.mathtext_parser.parse(s, 72, prop)
         self.set_color(*gc.get_rgb())
@@ -940,6 +951,56 @@ grestore
             write("stroke\n")
 
         write("grestore\n")
+
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
+        # Draw text as path outlines, bypassing font embedding.
+
+        if self._is_transparent(gc.get_rgb()):
+            return
+
+        self.set_color(*gc.get_rgb())
+
+        text2path = self._text2path
+        fontsize = prop.get_size_in_points()
+        font_scale = fontsize / text2path.FONT_SCALE
+
+        if ismath == "TeX":
+            glyph_info, glyph_map, rects = text2path.get_glyphs_tex(prop, s)
+        elif ismath:
+            glyph_info, glyph_map, rects = text2path.get_glyphs_mathtext(
+                prop, s)
+        else:
+            font = text2path._get_font(prop)
+            glyph_info, glyph_map, rects = text2path.get_glyphs_with_font(
+                font, s)
+
+        self._pswriter.write("gsave\n")
+        self._pswriter.write(self._get_clip_cmd(gc))
+        self._pswriter.write(
+            f"{x:g} {y:g} translate\n"
+            f"{angle:g} rotate\n"
+            f"{_nums_to_str(font_scale)} {_nums_to_str(font_scale)} scale\n")
+
+        for glyph_id, xposition, yposition, scale in glyph_info:
+            verts, codes = glyph_map[glyph_id]
+            if len(verts) == 0:
+                continue
+            path = Path(verts * 64, codes)
+            glyph_transform = (
+                Affine2D()
+                .scale(scale / 64.0)
+                .translate(xposition, yposition)
+            )
+            ps_path = self._convert_path(path, glyph_transform, simplify=False)
+            self._pswriter.write(f"{ps_path}\n")
+
+        for verts, codes in rects:
+            rect_path = Path(verts, codes)
+            ps_path = self._convert_path(rect_path, None, simplify=False)
+            self._pswriter.write(f"{ps_path}\n")
+
+        self._pswriter.write("fill\n")
+        self._pswriter.write("grestore\n")
 
 
 class _Orientation(Enum):
@@ -1066,12 +1127,14 @@ class FigureCanvasPS(FigureCanvasBase):
 
             Ndict = len(_psDefs)
             print("%%BeginProlog", file=fh)
-            if not mpl.rcParams['ps.useafm']:
+            if (not mpl.rcParams['ps.useafm']
+                    and mpl.rcParams['ps.fonttype'] != 0):
                 Ndict += len(ps_renderer._character_tracker.used)
             print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
             print("\n".join(_psDefs), file=fh)
-            if not mpl.rcParams['ps.useafm']:
+            if (not mpl.rcParams['ps.useafm']
+                    and mpl.rcParams['ps.fonttype'] != 0):
                 for font_path, chars \
                         in ps_renderer._character_tracker.used.items():
                     if not chars:
