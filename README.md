@@ -24,6 +24,8 @@ Check out our [home page](https://matplotlib.org/) for more information.
 
 ![image](https://matplotlib.org/stable/_static/readme_preview.png)
 
+[English](README.md) | [繁體中文](README.zh-TW.md)
+
 Matplotlib produces publication-quality figures in a variety of hardcopy
 formats and interactive environments across platforms. Matplotlib can be
 used in Python scripts, Python/IPython shells, web application servers,
