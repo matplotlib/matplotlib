@@ -4654,6 +4654,25 @@ def test_errorbar_limits():
     ax.set_title('Errorbar upper and lower limits')
 
 
+def test_errorbar_log_autoscale_order_independent():
+    x = 10 ** np.array([18, 18.1, 18.2, 18.3])
+    y = np.array([100, 80, 60, 30])
+    yerr = np.ones_like(y) * 10
+
+    fig1, ax1 = plt.subplots()
+    ax1.set_xscale("log")
+    ax1.set_yscale("log")
+    ax1.errorbar(x, y, yerr=yerr)
+
+    fig2, ax2 = plt.subplots()
+    ax2.errorbar(x, y, yerr=yerr)
+    ax2.set_xscale("log")
+    ax2.set_yscale("log")
+
+    assert_allclose(ax1.get_xlim(), ax2.get_xlim())
+    assert_allclose(ax1.get_ylim(), ax2.get_ylim())
+
+
 def test_errorbar_nonefmt():
     # Check that passing 'none' as a format still plots errorbars
     x = np.arange(5)

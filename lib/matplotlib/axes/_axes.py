@@ -1183,19 +1183,13 @@ class Axes(_AxesBase):
             # e.g. by errorbar()), which would make nanmin/nanmax stumble.
             updatex = True
             updatey = True
+            minx = np.nanmin(masked_verts[..., 0])
+            maxx = np.nanmax(masked_verts[..., 0])
+            miny = np.nanmin(masked_verts[..., 1])
+            maxy = np.nanmax(masked_verts[..., 1])
             if self.name == "rectilinear":
-                datalim = lines.get_datalim(self.transData)
                 t = lines.get_transform()
                 updatex, updatey = t.contains_branch_separately(self.transData)
-                minx = np.nanmin(datalim.xmin)
-                maxx = np.nanmax(datalim.xmax)
-                miny = np.nanmin(datalim.ymin)
-                maxy = np.nanmax(datalim.ymax)
-            else:
-                minx = np.nanmin(masked_verts[..., 0])
-                maxx = np.nanmax(masked_verts[..., 0])
-                miny = np.nanmin(masked_verts[..., 1])
-                maxy = np.nanmax(masked_verts[..., 1])
 
             corners = (minx, miny), (maxx, maxy)
             self.update_datalim(corners, updatex, updatey)
@@ -1275,19 +1269,13 @@ class Axes(_AxesBase):
             # e.g. by errorbar()), which would make nanmin/nanmax stumble.
             updatex = True
             updatey = True
+            minx = np.nanmin(masked_verts[..., 0])
+            maxx = np.nanmax(masked_verts[..., 0])
+            miny = np.nanmin(masked_verts[..., 1])
+            maxy = np.nanmax(masked_verts[..., 1])
             if self.name == "rectilinear":
-                datalim = lines.get_datalim(self.transData)
                 t = lines.get_transform()
                 updatex, updatey = t.contains_branch_separately(self.transData)
-                minx = np.nanmin(datalim.xmin)
-                maxx = np.nanmax(datalim.xmax)
-                miny = np.nanmin(datalim.ymin)
-                maxy = np.nanmax(datalim.ymax)
-            else:
-                minx = np.nanmin(masked_verts[..., 0])
-                maxx = np.nanmax(masked_verts[..., 0])
-                miny = np.nanmin(masked_verts[..., 1])
-                maxy = np.nanmax(masked_verts[..., 1])
 
             corners = (minx, miny), (maxx, maxy)
             self.update_datalim(corners, updatex, updatey)
