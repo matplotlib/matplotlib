@@ -86,7 +86,7 @@ important tasks:
   * **invite contributors to engage with the community** if the issue requires
     more information or discussion. These discussions can take place in the
     `weekly community meetings <https://scientific-python.org/calendars>`__, or
-    on `discourse <https://discourse.matplotlib.org>`_.
+    on `discourse <https://discourse.matplotlib.org>`__.
 
 .. topic:: Closing issues: a tough call
 
@@ -112,8 +112,9 @@ The following workflow is a good way to approach issue triaging:
 #. Is this a usage question?
 
    If so, close it with a polite message, point the reporter to use
-   `discourse <https://discourse.matplotlib.org>`_ or Stack Overflow instead and
-   use the `community support <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc+state%3Aopen+label%3A%22Community+support%22>`_
+   `discourse <https://discourse.matplotlib.org>`__ or Stack Overflow instead
+   and use the
+   `community support <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc+state%3Aopen+label%3A%22Community+support%22>`__
    label, if you have the necessary permissions.
 
 #. Is the necessary information provided?
@@ -168,14 +169,14 @@ The following workflow is a good way to approach issue triaging:
    slightly different example, add it to the original issue as a comment
    or an edit to the original post.
 
-   Label the closed issue with `status: duplicate <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc+state%3Aopen+label%3A%22status%3A+duplicate%22>`_.
+   Label the closed issue with `status: duplicate <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc+state%3Aopen+label%3A%22status%3A+duplicate%22>`__.
 
 #. Make sure that the title accurately reflects the issue. If you have the
    necessary permissions edit it yourself if it's not clear.
 
-#. Add the relevant labels, such as `Documentation <https://github.com/matplotlib/matplotlib/labels?q=documentation>`_
-   when the issue is about documentation, `status: confirmed bug <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc+state%3Aopen+label%3A%22status%3A+confirmed+bug%22>`_
-   if it is clearly a bug, `New feature <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc+state%3Aopen+label%3A%22New+feature%22>`_
+#. Add the relevant labels, such as `Documentation <https://github.com/matplotlib/matplotlib/labels?q=documentation>`__
+   when the issue is about documentation, `status: confirmed bug <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc+state%3Aopen+label%3A%22status%3A+confirmed+bug%22>`__
+   if it is clearly a bug, `New feature <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc+state%3Aopen+label%3A%22New+feature%22>`__
    if it is a new feature request, etc.
 
    An additional useful step can be to tag the corresponding module e.g.
