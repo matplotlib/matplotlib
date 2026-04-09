@@ -345,6 +345,16 @@ class TexManager:
         return alpha
 
     @classmethod
+    def get_rgba_mm4(cls, tex, fontsize=None, dpi=None):
+        """Return the full PNG image in RGBA format."""
+        fontsize = mpl._val_or_rc(fontsize, 'font.size')
+        dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
+        key = cls._get_tex_source(tex, fontsize), dpi
+        pngfile = cls.make_png(tex, fontsize, dpi)
+        rgba = mpl.image.imread(pngfile)
+        return rgba
+
+    @classmethod
     def get_rgba(cls, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):
         r"""
         Return latex's rendering of the tex string as an RGBA array.

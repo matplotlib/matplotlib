@@ -153,6 +153,9 @@ class RendererAgg
     void draw_text_image(GCAgg &gc, ImageArray &image, int x, int y, double angle);
 
     template <class ImageArray>
+    void draw_text_image_mm4(GCAgg &gc, ImageArray &image, int x, int y, double angle);
+
+    template <class ImageArray>
     void draw_image(GCAgg &gc,
                     double x,
                     double y,
@@ -779,6 +782,80 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
             for (int yi = text.y1; yi < text.y2; ++yi) {
                 pixFmt.blend_solid_hspan(text.x1, yi, deltax, gc.color,
                                          &image(yi - deltay, deltax2));
+            }
+        }
+    }
+}
+
+template <class ImageArray>
+inline void RendererAgg::draw_text_image_mm4(GCAgg &gc, ImageArray &image, int x, int y, double angle)
+{
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
+
+    if (angle != 0.0) {
+        auto image_height = static_cast<double>(image.shape(0)),
+             image_width = static_cast<double>(image.shape(1));
+
+        agg::rendering_buffer srcbuf(
+                image.mutable_data(0, 0, 0),
+                (unsigned)image_width,
+                (unsigned)image_height,
+                (unsigned)image_width * sizeof(agg::rgba8));
+        agg::pixfmt_rgba32 pixf_img(srcbuf);
+
+        set_clipbox(gc.cliprect, theRasterizer);
+
+        agg::trans_affine mtx;
+        mtx *= agg::trans_affine_translation(0, -image_height);
+        mtx *= agg::trans_affine_rotation(-angle * (agg::pi / 180.0));
+        mtx *= agg::trans_affine_translation(x, y);
+
+        agg::path_storage rect;
+        rect.move_to(0, 0);
+        rect.line_to(image_width, 0);
+        rect.line_to(image_width, image_height);
+        rect.line_to(0, image_height);
+        rect.line_to(0, 0);
+        agg::conv_transform<agg::path_storage> rect2(rect, mtx);
+
+        agg::trans_affine inv_mtx(mtx);
+        inv_mtx.invert();
+
+        typedef agg::span_interpolator_linear<> interp_t;
+        interp_t interpolator(inv_mtx);
+        agg::span_image_filter_rgba_bilinear_clip<agg::pixfmt_rgba32, interp_t> sg(
+          pixf_img, agg::rgba::no_color(), interpolator
+        );
+
+        theRasterizer.add_path(rect2);
+        agg::scanline_u8 sl;
+        agg::span_allocator<agg::rgba8> sa;
+        agg::render_scanlines_aa(theRasterizer, sl, rendererBase, sa, sg);
+    } else {
+        agg::rect_i fig, text;
+        fig.init(0, 0, width, height);
+        text.init(x, y - image.shape(0), x + image.shape(1), y);
+        text.clip(fig);
+
+        if (gc.cliprect.x1 != 0.0 || gc.cliprect.y1 != 0.0 || gc.cliprect.x2 != 0.0 || gc.cliprect.y2 != 0.0) {
+            agg::rect_i clip;
+
+            clip.init(mpl_round_to_int(gc.cliprect.x1),
+                      mpl_round_to_int(height - gc.cliprect.y2),
+                      mpl_round_to_int(gc.cliprect.x2),
+                      mpl_round_to_int(height - gc.cliprect.y1));
+            text.clip(clip);
+        }
+
+        if (text.x2 > text.x1) {
+            int deltax = text.x2 - text.x1;
+            int deltax2 = text.x1 - x;
+            int deltay = y - image.shape(0);
+            for (int yi = text.y1; yi < text.y2; ++yi) {
+                unsigned char *data = &image(yi - deltay, deltax2, 0);
+                agg::rgba8 *src_span = static_cast<agg::rgba8*>(static_cast<void*>(data));
+                pixFmt.blend_color_hspan(text.x1, yi, deltax, src_span, 0, agg::cover_full);
             }
         }
     }

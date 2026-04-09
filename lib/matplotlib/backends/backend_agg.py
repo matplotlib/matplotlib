@@ -271,6 +271,9 @@ class RendererAgg(RendererBase):
         return w, h, d
 
     def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
+        # Injection point
+        return self.draw_tex_mm4(gc, x, y, s, prop, angle)
+
         # docstring inherited
         # todo, handle props, angle, origins
 
@@ -298,6 +301,23 @@ class RendererAgg(RendererBase):
               text.x, text.y)
              for text in page.text),
             ((box.x, box.y, box.width, box.height) for box in page.boxes))
+
+    def draw_tex_mm4(self, gc, x, y, s, prop, angle, *, mtext=None):
+        # docstring inherited
+        # todo, handle props, angle, origins
+        size = prop.get_size_in_points()
+
+        texmanager = self.get_texmanager()
+
+        Z = texmanager.get_rgba_mm4(s, size, self.dpi)
+        Z = np.array(Z * 255.0, np.uint8)
+
+        w, h, d = self.get_text_width_height_descent(s, prop, ismath="TeX")
+        xd = d * sin(radians(angle))
+        yd = d * cos(radians(angle))
+        x = round(x + xd)
+        y = round(y + yd)
+        self._renderer.draw_text_image_mm4(Z, x, y, angle, gc)
 
     def get_canvas_width_height(self):
         # docstring inherited
