@@ -13,7 +13,7 @@ downstream libraries.
 from collections.abc import Hashable, Sequence
 import pathlib
 from typing import Any, Literal, TypeAlias, TypeVar, Union
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 
 from . import path
 from ._enums import JoinStyle, CapStyle
@@ -21,6 +21,9 @@ from .artist import Artist
 from .backend_bases import RendererBase
 from .markers import MarkerStyle
 from .transforms import Bbox, Transform
+
+DataParamType: TypeAlias = Mapping[str, Any] | None
+"""The type of the *data* parameter in plotting functions."""
 
 RGBColorType: TypeAlias = tuple[float, float, float] | str
 """Any RGB color specification accepted by Matplotlib."""
