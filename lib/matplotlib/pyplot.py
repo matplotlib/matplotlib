@@ -3033,8 +3033,8 @@ def angle_spectrum(
 @_copy_docstring_and_deprecators(Axes.annotate)
 def annotate(
     text: str,
-    xy: tuple[float, float],
-    xytext: tuple[float, float] | None = None,
+    xy: tuple[Any, Any],
+    xytext: tuple[Any, Any] | None = None,
     xycoords: CoordsType = "data",
     textcoords: CoordsType | None = None,
     arrowprops: dict[str, Any] | None = None,
