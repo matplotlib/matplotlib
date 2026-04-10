@@ -80,6 +80,7 @@ public:
     void begin(double x, double y, unsigned len)
     {
         m_len = len - 1;
+        m_cur = 0;
 
         m_stx1 = x;
         m_sty1 = y;
@@ -98,6 +99,7 @@ public:
     void resynchronize(double xe, double ye, unsigned len)
     {
         m_len = len - 1;
+        m_cur = 0;
 
         m_trans->transform(&xe, &ye);
         m_stx2 = xe * subpixel_scale;
@@ -107,9 +109,7 @@ public:
     //----------------------------------------------------------------
     void operator++()
     {
-        m_stx1 += (m_stx2 - m_stx1) / m_len;
-        m_sty1 += (m_sty2 - m_sty1) / m_len;
-        m_len--;
+        m_cur++;
     }
 
     //----------------------------------------------------------------
@@ -117,13 +117,22 @@ public:
     {
         // Truncate instead of round because this interpolator needs to
         // match the definitions for nearest-neighbor interpolation
-        *x = int(m_stx1);
-        *y = int(m_sty1);
+        if (m_cur == m_len)
+        {
+            *x = int(m_stx2);
+            *y = int(m_sty2);
+        }
+        else
+        {
+            // Add a tiny fudge amount to account for numerical precision loss
+            *x = int(m_stx1 + (m_stx2 - m_stx1) * m_cur / m_len + 1e-8);
+            *y = int(m_sty1 + (m_sty2 - m_sty1) * m_cur / m_len + 1e-8);
+        }
     }
 
 private:
     trans_type* m_trans;
-    unsigned m_len;
+    unsigned m_len, m_cur;
     double m_stx1, m_sty1, m_stx2, m_sty2;
 };
 #endif

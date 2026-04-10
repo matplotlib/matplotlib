@@ -310,6 +310,15 @@ def test_label_contour_start():
     assert 0 in idxs
 
 
+def test_clabel_raises_on_filled_contours():
+    X, Y = np.meshgrid(np.arange(10), np.arange(10))
+    _, ax = plt.subplots()
+    cs = ax.contourf(X, Y, X + Y)
+    # will be an exception once the deprecation expires
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ax.clabel(cs)
+
+
 @image_comparison(['contour_corner_mask_False.png', 'contour_corner_mask_True.png'],
                   remove_text=True, tol=1.88)
 def test_corner_mask():
@@ -359,21 +368,16 @@ def test_clabel_zorder(use_clabeltext, contour_zorder, clabel_zorder):
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
 
-    fig, (ax1, ax2) = plt.subplots(ncols=2)
-    cs = ax1.contour(x, y, z, zorder=contour_zorder)
-    cs_filled = ax2.contourf(x, y, z, zorder=contour_zorder)
-    clabels1 = cs.clabel(zorder=clabel_zorder, use_clabeltext=use_clabeltext)
-    clabels2 = cs_filled.clabel(zorder=clabel_zorder,
-                                use_clabeltext=use_clabeltext)
+    fig, ax = plt.subplots()
+    cs = ax.contour(x, y, z, zorder=contour_zorder)
+    clabels = cs.clabel(zorder=clabel_zorder, use_clabeltext=use_clabeltext)
 
     if clabel_zorder is None:
         expected_clabel_zorder = 2+contour_zorder
     else:
         expected_clabel_zorder = clabel_zorder
 
-    for clabel in clabels1:
-        assert clabel.get_zorder() == expected_clabel_zorder
-    for clabel in clabels2:
+    for clabel in clabels:
         assert clabel.get_zorder() == expected_clabel_zorder
 
 

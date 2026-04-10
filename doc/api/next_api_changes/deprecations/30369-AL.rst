@@ -1,0 +1,14 @@
+:mod:`.axisartist` now uses more standard tick direction controls
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, the position of :mod:`.axisartist` ticks (inside or outside
+the axes) were set using ``set_tick_out(bool)``.  They are now set
+using ``set_tick_direction("in")`` (or "out", or "inout"), and respect
+:rc:`xtick.direction` and :rc:`ytick.direction`.  In particular, they default
+to pointing outwards, consistently with the rest of the library.
+
+The *tick_out* parameter of `.Ticks` has been deprecated (use *tick_direction*
+instead).  The ``Ticks.get_tick_out`` method is deprecated (use
+`.Ticks.get_tick_direction` instead).
+
+The unused ``locs_angles_labels`` attribute of `.Ticks` and `.LabelBase` has
+also been deprecated.

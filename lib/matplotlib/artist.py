@@ -223,7 +223,7 @@ Supported properties are
         self._snap = None
         self._sketch = mpl.rcParams['path.sketch']
         self._path_effects = mpl.rcParams['path.effects']
-        self._sticky_edges = _XYPair([], [])
+        self._sticky_edges = None
         self._in_layout = True
         self._in_autoscale = False
 
@@ -255,10 +255,12 @@ Supported properties are
             # clear stale callback
             self.stale_callback = None
             _ax_flag = False
-            if hasattr(self, 'axes') and self.axes:
+            ax = getattr(self, 'axes', None)
+            mouseover_set = getattr(ax, '_mouseover_set', None)
+            if mouseover_set is not None:
                 # remove from the mouse hit list
-                self.axes._mouseover_set.discard(self)
-                self.axes.stale = True
+                mouseover_set.discard(self)
+                ax.stale = True
                 self.axes = None  # decouple the artist from the Axes
                 _ax_flag = True
 
@@ -1229,6 +1231,8 @@ Supported properties are
         >>> artist.sticky_edges.y[:] = (ymin, ymax)
 
         """
+        if self._sticky_edges is None:
+            self._sticky_edges = _XYPair([], [])
         return self._sticky_edges
 
     def update_from(self, other):
@@ -1243,8 +1247,11 @@ Supported properties are
         self._label = other._label
         self._sketch = other._sketch
         self._path_effects = other._path_effects
-        self.sticky_edges.x[:] = other.sticky_edges.x.copy()
-        self.sticky_edges.y[:] = other.sticky_edges.y.copy()
+        if other._sticky_edges is not None:
+            self.sticky_edges.x[:] = other._sticky_edges.x.copy()
+            self.sticky_edges.y[:] = other._sticky_edges.y.copy()
+        else:
+            self._sticky_edges = None
         self.pchanged()
         self.stale = True
 

@@ -1,7 +1,7 @@
 """
-==================
-Animated line plot
-==================
+========================
+Basic animated line plot
+========================
 
 Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
@@ -36,3 +36,9 @@ ani = animation.FuncAnimation(
 # ani.save("movie.mp4", writer=writer)
 
 plt.show()
+
+# %%
+#
+# .. tags::
+#    component: animation,
+#    level: beginner

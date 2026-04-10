@@ -2,7 +2,7 @@
 #
 #   conda env create -f environment.yml
 #   conda activate mpl-dev
-#   pip install --verbose --no-build-isolation --editable ".[dev]"
+#   pip install --verbose --no-build-isolation --group dev --editable .
 #
 ---
 name: mpl-dev
@@ -28,7 +28,7 @@ dependencies:
   - pyqt
   - python>=3.11
   - python-dateutil>=2.1
-  - setuptools_scm
+  - setuptools_scm<10
   - wxpython
   # building documentation
   - colorspacious

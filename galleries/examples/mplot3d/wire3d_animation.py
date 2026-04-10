@@ -4,15 +4,17 @@ Animate a 3D wireframe plot
 ===========================
 
 A very simple "animation" of a 3D plot.  See also :doc:`rotate_axes3d_sgskip`.
-
-(This example is skipped when building the documentation gallery because it
-intentionally takes a long time to run.)
 """
 
 import time
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+from matplotlib import animation
+
+FRAMES = 25
+FPS = 25
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
@@ -28,17 +30,28 @@ ax.set_zlim(-1, 1)
 # Begin plotting.
 wframe = None
 tstart = time.time()
-for phi in np.linspace(0, 180. / np.pi, 100):
-    # If a line collection is already remove it before drawing.
+
+
+def animate(i):
+    global wframe
+    # If a line collection is already there, remove it before drawing.
     if wframe:
         wframe.remove()
     # Generate data.
+    phi = i / FRAMES * 2 * np.pi
     Z = np.cos(2 * np.pi * X + phi) * (1 - np.hypot(X, Y))
-    # Plot the new wireframe and pause briefly before continuing.
+    # Plot the new wireframe.
     wframe = ax.plot_wireframe(X, Y, Z, rstride=2, cstride=2)
-    plt.pause(.001)
+    if i == FRAMES - 1:  # Print FPS at the end of the loop.
+        global tstart
+        fps = FRAMES / (time.time() - tstart)
+        print(f'Expected FPS: {FPS}; Average FPS: {fps}')
+        tstart = time.time()
 
-print('Average FPS: %f' % (100 / (time.time() - tstart)))
+
+ani = animation.FuncAnimation(fig, animate, interval=1000 / FPS, frames=FRAMES)
+
+plt.show()
 
 # %%
 # .. tags::

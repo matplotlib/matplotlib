@@ -1,0 +1,28 @@
+``pyplot.subplot`` and ``pyplot.subplot_mosaic`` raise *ValueError* on existing figures
+----------------------------------------------------------------------------------------
+
+Passing a *num* argument to `~.pyplot.subplots` or `~.pyplot.subplot_mosaic`
+that refers to an existing figure or is a ``Figure`` instance now raises a
+`ValueError`.
+
+These utility functions are intended strictly for the creation of new figures and
+subplots. Previously, they accidentally allowed the reuse of existing figures because
+they internally called `~.pyplot.figure`. This change ensures that these functions
+strictly follow their documented purpose of creating new figures.
+
+To reuse an existing figure, clear it first using ``clear=True``:
+
+.. code-block:: python
+
+    fig, axs = plt.subplots(num=1, clear=True)
+    # or
+    fig, axd = plt.subplot_mosaic([['A', 'B']], num=1, clear=True)
+
+If you have a ``Figure`` instance and want to add subplots to it, use the
+object-oriented API:
+
+.. code-block:: python
+
+    fig.subplots(nrows=2, ncols=2)
+    # or
+    fig.subplot_mosaic([['A', 'B']])

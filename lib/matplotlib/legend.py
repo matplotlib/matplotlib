@@ -98,9 +98,11 @@ class DraggableLegend(DraggableOffsetBox):
 _legend_kw_doc_base = """
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
+    This is an advanced option for free placement of the legend. For
+    most use cases, *loc* alone is sufficient.
+
     Defaults to ``axes.bbox`` (if called as a method to `.Axes.legend`) or
-    ``figure.bbox`` (if ``figure.legend``).  This argument allows arbitrary
-    placement of the legend.
+    ``figure.bbox`` (if ``figure.legend``).
 
     Bbox coordinates are interpreted in the coordinate system given by
     *bbox_transform*, with the default transform
@@ -118,6 +120,9 @@ bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     center of the Axes (or figure) the following keywords can be used::
 
         loc='upper right', bbox_to_anchor=(0.5, 0.5)
+
+    For more details on legend positioning, see the
+    :ref:`legend_guide`.
 
 ncols : int, default: 1
     The number of columns that the legend has.
@@ -265,15 +270,19 @@ _loc_doc_base = """
 loc : str or pair of floats, default: {default}
     The location of the legend.
 
-    The strings ``'upper left'``, ``'upper right'``, ``'lower left'``,
-    ``'lower right'`` place the legend at the corresponding corner of the
-    {parent}.
+    The string locations place the legend at the corresponding position
+    within the bounding box, which by default is the full {parent} area.
+    The bounding box can be changed via *bbox_to_anchor*.
 
-    The strings ``'upper center'``, ``'lower center'``, ``'center left'``,
-    ``'center right'`` place the legend at the center of the corresponding edge
-    of the {parent}.
+    The positions are visualized below::
 
-    The string ``'center'`` places the legend at the center of the {parent}.
+        +--------------+--------------+---------------+
+        | 'upper left' |'upper center'| 'upper right' |
+        +--------------+--------------+---------------+
+        |'center left' |   'center'   |'center right' |
+        +--------------+--------------+---------------+
+        | 'lower left' |'lower center'| 'lower right' |
+        +--------------+--------------+---------------+
 {best}
     The location can also be a 2-tuple giving the coordinates of the lower-left
     corner of the legend in {parent} coordinates (in which case *bbox_to_anchor*
@@ -1354,7 +1363,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
                            f"len(handles) = {len(handles)} "
                            f"len(labels) = {len(labels)}")
     # if got both handles and labels as kwargs, make same length
-    if handles and labels:
+    if handles is not None and labels is not None:
         handles, labels = zip(*zip(handles, labels))
 
     elif handles is not None and labels is None:
@@ -1385,6 +1394,11 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
 
     elif len(args) == 2:  # 2 args: user defined handles and labels.
         handles, labels = args[:2]
+        if (hasattr(handles, "__len__") and hasattr(labels, "__len__")
+                and len(handles) != len(labels)):
+            _api.warn_external(f"Mismatched number of handles and labels: "
+                               f"len(handles) = {len(handles)} "
+                               f"len(labels) = {len(labels)}")
 
     else:
         raise _api.nargs_error('legend', '0-2', len(args))

@@ -30,6 +30,7 @@ Third parties can register their scales by name through `register_scale`.
 """  # noqa: E501
 
 import inspect
+import math
 import textwrap
 from functools import wraps
 
@@ -114,6 +115,22 @@ class ScaleBase:
         """
         return vmin, vmax
 
+    def val_in_range(self, val):
+        """
+        Return whether the value(s) are within the valid range for this scale.
+
+        This method is a generic implementation. Subclasses may implement more
+        efficient solutions for their domain.
+        """
+        try:
+            if not math.isfinite(val):
+                return False
+            else:
+                vmin, vmax = self.limit_range_for_scale(val, val, minpos=1e-300)
+                return vmin == val and vmax == val
+        except (TypeError, ValueError):
+            return False
+
 
 def _make_axis_parameter_optional(init_func):
     """
@@ -195,6 +212,14 @@ class LinearScale(ScaleBase):
         `~matplotlib.transforms.IdentityTransform`.
         """
         return IdentityTransform()
+
+    def val_in_range(self, val):
+        """
+        Return whether the value is within the valid range for this scale.
+
+        This is True for all values, except +-inf and NaN.
+        """
+        return math.isfinite(val)
 
 
 class FuncTransform(Transform):
@@ -400,6 +425,14 @@ class LogScale(ScaleBase):
         return (minpos if vmin <= 0 else vmin,
                 minpos if vmax <= 0 else vmax)
 
+    def val_in_range(self, val):
+        """
+        Return whether the value is within the valid range for this scale.
+
+        This is True for value(s) > 0 except +inf and NaN.
+        """
+        return math.isfinite(val) and val > 0
+
 
 class FuncScaleLog(LogScale):
     """
@@ -581,6 +614,14 @@ class SymmetricalLogScale(ScaleBase):
         """Return the `.SymmetricalLogTransform` associated with this scale."""
         return self._transform
 
+    def val_in_range(self, val):
+        """
+        Return whether the value is within the valid range for this scale.
+
+        This is True for all values, except +-inf and NaN.
+        """
+        return math.isfinite(val)
+
 
 class AsinhTransform(Transform):
     """Inverse hyperbolic-sine transformation used by `.AsinhScale`"""
@@ -707,6 +748,14 @@ class AsinhScale(ScaleBase):
         else:
             axis.set_major_formatter('{x:.3g}')
 
+    def val_in_range(self, val):
+        """
+        Return whether the value is within the valid range for this scale.
+
+        This is True for all values, except +-inf and NaN.
+        """
+        return math.isfinite(val)
+
 
 class LogitTransform(Transform):
     input_dims = output_dims = 1
@@ -819,6 +868,14 @@ class LogitScale(ScaleBase):
             minpos = 1e-7  # Should rarely (if ever) have a visible effect.
         return (minpos if vmin <= 0 else vmin,
                 1 - minpos if vmax >= 1 else vmax)
+
+    def val_in_range(self, val):
+        """
+        Return whether the value is within the valid range for this scale.
+
+        This is True for value(s) which are between 0 and 1 (excluded).
+        """
+        return 0 < val < 1
 
 
 _scale_mapping = {

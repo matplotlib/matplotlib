@@ -275,16 +275,23 @@ def generate_validator_testcases(valid):
                       cycler('linestyle', ['-', '--'])),
                      (cycler(mew=[2, 5]),
                       cycler('markeredgewidth', [2, 5])),
+                     ("2 * cycler('color', 'rgb')", 2 * cycler('color', 'rgb')),
+                     ("2 * cycler('color', 'r' + 'gb')", 2 * cycler('color', 'rgb')),
+                     ("cycler(c='r' + 'gb', lw=[1, 2, 3])",
+                      cycler('color', 'rgb') + cycler('linewidth', [1, 2, 3])),
+                     ("cycler('color', 'rgb') * 2", cycler('color', 'rgb') * 2),
+                     ("concat(cycler('color', 'rgb'), cycler('color', 'cmk'))",
+                      cycler('color', list('rgbcmk'))),
+                     ("cycler('color', 'rgbcmk')[:3]", cycler('color', list('rgb'))),
+                     ("cycler('color', 'rgb')[::-1]", cycler('color', list('bgr'))),
                      ),
-         # This is *so* incredibly important: validate_cycler() eval's
-         # an arbitrary string! I think I have it locked down enough,
-         # and that is what this is testing.
-         # TODO: Note that these tests are actually insufficient, as it may
-         # be that they raised errors, but still did an action prior to
-         # raising the exception. We should devise some additional tests
-         # for that...
+         # validate_cycler() parses an arbitrary string using a safe
+         # AST-based parser (no eval). These tests verify that only valid
+         # cycler expressions are accepted.
          'fail': ((4, ValueError),  # Gotta be a string or Cycler object
                   ('cycler("bleh, [])', ValueError),  # syntax error
+                  ("cycler('color', 'rgb') * * cycler('color', 'rgb')",  # syntax error
+                  ValueError),
                   ('Cycler("linewidth", [1, 2, 3])',
                    ValueError),  # only 'cycler()' function is allowed
                   # do not allow dunder in string literals
@@ -297,6 +304,9 @@ def generate_validator_testcases(valid):
                   ("cycler('c', [j.\u000c__class__(j) for j in ['r', 'b']])",
                    ValueError),
                   ("cycler('c', [j.__class__(j).lower() for j in ['r', 'b']])",
+                   ValueError),
+                  # list comprehensions are arbitrary code, even if "safe"
+                  ("cycler('color', [x for x in ['r', 'g', 'b']])",
                    ValueError),
                   ('1 + 2', ValueError),  # doesn't produce a Cycler object
                   ('os.system("echo Gotcha")', ValueError),  # os not available

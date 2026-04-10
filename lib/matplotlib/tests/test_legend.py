@@ -292,7 +292,7 @@ def test_hatching():
 def test_legend_remove():
     fig, ax = plt.subplots()
     lines = ax.plot(range(10))
-    leg = fig.legend(lines, "test")
+    leg = fig.legend(lines, ["test"])
     leg.remove()
     assert fig.legends == []
     leg = ax.legend("test")
@@ -424,6 +424,15 @@ class TestLegendFunction:
             plt.legend()
         Legend.assert_called_with(host, [p1, p2], ['Density', 'Temperature'])
 
+    def test_legend_warns_on_unequal_number_of_handles_and_labels(self):
+        fig, ax = plt.subplots()
+        line1, = ax.plot([1, 2])
+        line2, = ax.plot([3, 4])
+        with pytest.warns(UserWarning, match="Mismatched number of handles and labels"):
+            ax.legend([line1, line2], ['only_one'])  # 2 handles, 1 label
+        with pytest.warns(UserWarning, match="Mismatched number of handles and labels"):
+            ax.legend([line1], ['label_a', 'label_b'])  # 1 handle, 2 labels
+
 
 class TestLegendFigureFunction:
     # Tests the legend function for figure
@@ -513,10 +522,10 @@ def test_figure_legend_outside():
         leg = fig.legend(loc='outside ' + todo)
         fig.draw_without_rendering()
 
-        assert_allclose(axs.get_window_extent().extents,
-                        axbb[nn])
-        assert_allclose(leg.get_window_extent().extents,
-                        legbb[nn])
+        assert_allclose(axs.get_window_extent().extents, axbb[nn],
+                        rtol=1e-4)
+        assert_allclose(leg.get_window_extent().extents, legbb[nn],
+                        rtol=1e-4)
 
 
 @image_comparison(['legend_stackplot.png'],

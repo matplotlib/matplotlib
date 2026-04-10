@@ -23,7 +23,7 @@ from matplotlib.widgets import RadioButtons
 t = np.arange(0.0, 2.0, 0.01)
 s = np.sin(2 * np.pi * t)
 
-fig, (ax_plot, ax_buttons) = plt.subplots(
+fig, (ax, ax_buttons) = plt.subplots(
     1,
     2,
     figsize=(8, 4),
@@ -31,27 +31,23 @@ fig, (ax_plot, ax_buttons) = plt.subplots(
 )
 
 # Create initial plot
-(line,) = ax_plot.plot(t, s, lw=2, color="red")
-ax_plot.set_xlabel("Time (s)")
-ax_plot.set_ylabel("Amplitude")
-ax_plot.set_title("Sine Wave - Click a color!")
-ax_plot.grid(True, alpha=0.3)
+(line,) = ax.plot(t, s, lw=2, color="red")
+ax.set(xlabel="Time (s)", ylabel="Amplitude", title="Sine Wave - Click a color!")
 
 # Configure the radio buttons axes
-ax_buttons.set_facecolor("0.9")
-ax_buttons.set_title("Line Color", fontsize=12, pad=10)
+ax_buttons.set_facecolor("0.95")
+ax_buttons.set_title("Line Color")
 # Create a 2D grid of color options (3 rows x 2 columns)
 colors = ["red", "yellow", "green", "purple", "brown", "gray"]
 radio = RadioButtons(ax_buttons, colors, layout=(3, 2))
 
 
-def color_func(label):
+def update_color(label):
     """Update the line color based on selected button."""
     line.set_color(label)
     fig.canvas.draw()
+radio.on_clicked(update_color)
 
-
-radio.on_clicked(color_func)
 
 plt.show()
 

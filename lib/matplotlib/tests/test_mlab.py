@@ -884,6 +884,8 @@ class TestGaussianKDECustom:
         with pytest.raises(ValueError):
             mlab.GaussianKDE([42])
 
+    @pytest.mark.skipif(sys.platform == 'emscripten',
+                        reason="WASM doesn't support floating-point exceptions")
     def test_silverman_multidim_dataset(self):
         """Test silverman's for a multi-dimensional array."""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
@@ -897,6 +899,8 @@ class TestGaussianKDECustom:
         y_expected = 0.76770389927475502
         assert_almost_equal(mygauss.covariance_factor(), y_expected, 7)
 
+    @pytest.mark.skipif(sys.platform == 'emscripten',
+                        reason="WASM doesn't support floating-point exceptions")
     def test_scott_multidim_dataset(self):
         """Test scott's output for a multi-dimensional array."""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])

@@ -1271,7 +1271,15 @@ class PathCollection(_CollectionWithSizes):
               "alpha": self.get_alpha(),
               **kwargs}
 
-        for val, lab in zip(values, label_values):
+        # Pre-format all labels
+        # TODO: check whether we can switch to
+        #       formatted_labels = fmt.format_ticks(label_values)
+        #       There are subtle differences for some formatters as that passes the
+        #       indices to __call__ as well.
+        fmt.set_locs(label_values)
+        formatted_labels = [fmt(lab) for lab in label_values]
+
+        for val, formatted in zip(values, formatted_labels):
             if prop == "colors":
                 color = self.cmap(self.norm(val))
             elif prop == "sizes":
@@ -1281,10 +1289,7 @@ class PathCollection(_CollectionWithSizes):
             h = mlines.Line2D([0], [0], ls="", color=color, ms=size,
                               marker=self.get_paths()[0], **kw)
             handles.append(h)
-            if hasattr(fmt, "set_locs"):
-                fmt.set_locs(label_values)
-            l = fmt(lab)
-            labels.append(l)
+            labels.append(formatted)
 
         return handles, labels
 

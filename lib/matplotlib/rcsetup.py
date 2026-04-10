@@ -36,7 +36,7 @@ from matplotlib._fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib._enums import JoinStyle, CapStyle
 
 # Don't let the original cycler collide with our validating cycler
-from cycler import Cycler, cycler as ccycler
+from cycler import Cycler, concat as cconcat, cycler as ccycler
 
 
 class ValidateInStrings:
@@ -815,11 +815,62 @@ def cycler(*args, **kwargs):
     return reduce(operator.add, (ccycler(k, v) for k, v in validated))
 
 
-class _DunderChecker(ast.NodeVisitor):
-    def visit_Attribute(self, node):
-        if node.attr.startswith("__") and node.attr.endswith("__"):
-            raise ValueError("cycler strings with dunders are forbidden")
-        self.generic_visit(node)
+def _parse_cycler_string(s):
+    """
+    Parse a string representation of a cycler into a Cycler object safely,
+    without using eval().
+
+    Accepts expressions like::
+
+        cycler('color', ['r', 'g', 'b'])
+        cycler('color', 'rgb') + cycler('linewidth', [1, 2, 3])
+        cycler(c='rgb', lw=[1, 2, 3])
+        cycler('c', 'rgb') * cycler('linestyle', ['-', '--'])
+    """
+    try:
+        tree = ast.parse(s, mode='eval')
+    except SyntaxError as e:
+        raise ValueError(f"Could not parse {s!r}: {e}") from e
+    return _eval_cycler_expr(tree.body)
+
+
+def _eval_cycler_expr(node):
+    """Recursively evaluate an AST node to build a Cycler object."""
+    if isinstance(node, ast.BinOp):
+        left = _eval_cycler_expr(node.left)
+        right = _eval_cycler_expr(node.right)
+        if isinstance(node.op, ast.Add):
+            return left + right
+        if isinstance(node.op, ast.Mult):
+            return left * right
+        raise ValueError(f"Unsupported operator: {type(node.op).__name__}")
+    if isinstance(node, ast.Call):
+        if not (isinstance(node.func, ast.Name)
+                and node.func.id in ('cycler', 'concat')):
+            raise ValueError(
+                "only the 'cycler()' and 'concat()' functions are allowed")
+        func = cycler if node.func.id == 'cycler' else cconcat
+        args = [_eval_cycler_expr(a) for a in node.args]
+        kwargs = {kw.arg: _eval_cycler_expr(kw.value) for kw in node.keywords}
+        return func(*args, **kwargs)
+    if isinstance(node, ast.Subscript):
+        sl = node.slice
+        if not isinstance(sl, ast.Slice):
+            raise ValueError("only slicing is supported, not indexing")
+        s = slice(
+            ast.literal_eval(sl.lower) if sl.lower else None,
+            ast.literal_eval(sl.upper) if sl.upper else None,
+            ast.literal_eval(sl.step) if sl.step else None,
+        )
+        value = _eval_cycler_expr(node.value)
+        return value[s]
+    # Allow literal values (int, strings, lists, tuples) as arguments
+    # to cycler() and concat().
+    try:
+        return ast.literal_eval(node)
+    except (ValueError, TypeError):
+        raise ValueError(
+            f"Unsupported expression in cycler string: {ast.dump(node)}")
 
 
 # A validator dedicated to the named legend loc
@@ -870,25 +921,11 @@ def _validate_legend_loc(loc):
 def validate_cycler(s):
     """Return a Cycler object from a string repr or the object itself."""
     if isinstance(s, str):
-        # TODO: We might want to rethink this...
-        # While I think I have it quite locked down, it is execution of
-        # arbitrary code without sanitation.
-        # Combine this with the possibility that rcparams might come from the
-        # internet (future plans), this could be downright dangerous.
-        # I locked it down by only having the 'cycler()' function available.
-        # UPDATE: Partly plugging a security hole.
-        # I really should have read this:
-        # https://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html
-        # We should replace this eval with a combo of PyParsing and
-        # ast.literal_eval()
         try:
-            _DunderChecker().visit(ast.parse(s))
-            s = eval(s, {'cycler': cycler, '__builtins__': {}})
-        except BaseException as e:
+            s = _parse_cycler_string(s)
+        except Exception as e:
             raise ValueError(f"{s!r} is not a valid cycler construction: {e}"
                              ) from e
-    # Should make sure what comes from the above eval()
-    # is a Cycler object.
     if isinstance(s, Cycler):
         cycler_inst = s
     else:
@@ -1160,7 +1197,7 @@ _validators = {
     "axes.formatter.offset_threshold": validate_int,
     "axes.unicode_minus": validate_bool,
     # This entry can be either a cycler object or a string repr of a
-    # cycler-object, which gets eval()'ed to create the object.
+    # cycler-object, which is parsed safely via AST.
     "axes.prop_cycle": validate_cycler,
     # If "data", axes limits are set close to the data.
     # If "round_numbers" axes limits are set to the nearest round numbers.

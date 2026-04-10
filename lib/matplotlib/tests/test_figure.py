@@ -3,6 +3,7 @@ from datetime import datetime
 import io
 import pickle
 import platform
+import sys
 from threading import Timer
 from types import SimpleNamespace
 import warnings
@@ -1575,6 +1576,7 @@ def test_subfigures_wspace_hspace():
 def test_subfigure_remove():
     fig = plt.figure()
     sfs = fig.subfigures(2, 2)
+    sfs[1, 1].subplots()
     sfs[1, 1].remove()
     assert len(fig.subfigs) == 3
 
@@ -1629,6 +1631,8 @@ def test_add_axes_kwargs():
     plt.close()
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support threads')
 def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig, ax = plt.subplots()
@@ -1651,6 +1655,8 @@ def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     np.testing.assert_allclose(fig.ginput(3), [(.3, .4), (.5, .6)])
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support threads')
 def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig = plt.figure()
@@ -1875,6 +1881,24 @@ def test_subfigure_stale_propagation():
 def test_figsize(figsize, figsize_inches):
     fig = plt.figure(figsize=figsize, dpi=100)
     assert tuple(fig.get_size_inches()) == figsize_inches
+
+
+def test_figsize_partial_none():
+    default_w, default_h = mpl.rcParams["figure.figsize"]
+
+    fig = plt.figure(figsize=(None, 4))
+    w, h = fig.get_size_inches()
+    assert (w, h) == (default_w, 4)
+
+    fig = plt.figure(figsize=(6, None))
+    w, h = fig.get_size_inches()
+    assert (w, h) == (6, default_h)
+
+
+def test_figsize_both_none():
+    with pytest.raises(ValueError,
+                       match=r"figsize=\(None, None\) is invalid"):
+        plt.figure(figsize=(None, None))
 
 
 def test_figsize_invalid_unit():

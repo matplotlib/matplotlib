@@ -1,0 +1,6 @@
+``image.thumbnail``
+~~~~~~~~~~~~~~~~~~~
+
+... is deprecated without replacement. Use :external:py:`Pillow's thumbnail
+method <PIL.Image.Image.thumbnail>` instead. See also the `Pillow tutorial
+<https://pillow.readthedocs.io/en/stable/handbook/tutorial.html#create-jpeg-thumbnails>`_.

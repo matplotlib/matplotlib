@@ -9,3 +9,9 @@ updates:
       actions:
         patterns:
           - "*"
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    exclude-paths:
+      - "ci/minver-requirements.txt"

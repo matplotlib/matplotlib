@@ -1256,8 +1256,9 @@ def _convert_psfrags(tmppath, psfrags, paper_width, paper_height, orientation):
 
     with TemporaryDirectory() as tmpdir:
         psfile = os.path.join(tmpdir, "tmp.ps")
+        # -R1 is a security flag used to prevent shell command execution
         cbook._check_and_log_subprocess(
-            ['dvips', '-q', '-R0', '-o', psfile, dvifile], _log)
+            ['dvips', '-q', '-R1', '-o', psfile, dvifile], _log)
         shutil.move(psfile, tmppath)
 
     # check if the dvips created a ps in landscape paper.  Somehow,
@@ -1301,7 +1302,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
 
     cbook._check_and_log_subprocess(
         [mpl._get_executable_info("gs").executable,
-         "-dBATCH", "-dNOPAUSE", "-r%d" % dpi, "-sDEVICE=ps2write",
+         "-dBATCH", "-dNOPAUSE", "-dSAFER", "-r%d" % dpi, "-sDEVICE=ps2write",
          *paper_option, f"-sOutputFile={psfile}", tmpfile],
         _log)
 
@@ -1345,6 +1346,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         # happy (https://ghostscript.com/doc/9.56.1/Use.htm#MS_Windows).
         cbook._check_and_log_subprocess(
             ["ps2pdf",
+             "-dSAFER",
              "-dAutoFilterColorImages#false",
              "-dAutoFilterGrayImages#false",
              "-sAutoRotatePages#None",

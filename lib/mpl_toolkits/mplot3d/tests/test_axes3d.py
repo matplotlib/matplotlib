@@ -3169,6 +3169,15 @@ def test_scale3d_autoscale_with_log():
         assert lim[1] > 0, f"{name} upper limit should be positive"
 
 
+@pytest.mark.parametrize("method", ["semilogx", "semilogy", "semilogz", "loglog"])
+def test_semilog_loglog_not_implemented(method):
+    """semilogx/y/z and loglog should raise NotImplementedError on Axes3D."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    with pytest.raises(NotImplementedError, match="Axes3D does not support"):
+        getattr(ax, method)([1, 10, 100], [1, 2, 3])
+
+
 def test_scale3d_calc_coord():
     """_calc_coord should return data coordinates with correct pane values."""
     fig = plt.figure()

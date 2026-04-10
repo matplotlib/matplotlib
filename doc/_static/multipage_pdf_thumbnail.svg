@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 224">
+  <rect width="320" height="224" fill="white"/>
+  <!-- back page -->
+  <rect x="44" y="10" width="256" height="176" fill="white" stroke="#cccccc" stroke-width="2"/>
+  <!-- middle page -->
+  <rect x="30" y="22" width="256" height="176" fill="white" stroke="#bbbbbb" stroke-width="2"/>
+  <!-- front page -->
+  <rect x="16" y="34" width="256" height="176" fill="white" stroke="#888888" stroke-width="2.5"/>
+  <!-- text -->
+  <text x="144" y="118" font-family="sans-serif" font-size="24" text-anchor="middle" fill="#333333">Multipage</text>
+  <text x="144" y="146" font-family="sans-serif" font-size="24" text-anchor="middle" fill="#333333">PDF</text>
+</svg>

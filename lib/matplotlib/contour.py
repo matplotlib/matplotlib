@@ -145,6 +145,17 @@ class ContourLabeler:
             A list of `.Text` instances for the labels.
         """
 
+        if self.filled:
+            _api.warn_deprecated(
+                "3.11",
+                message="clabel() is not designed to be used with filled contours and "
+                        "may result in inconsistent plots. Applying clabel() to filled "
+                        "contours is thus deprecated since %(since)s. If you need "
+                        "labels with filled contours, instead draw contour lines "
+                        "using contour() in addition to contourf() and add the labels "
+                        "to the contour lines."
+            )
+
         # Based on the input arguments, clabel() adds a list of "label
         # specific" attributes to the ContourSet object.  These attributes are
         # all of the form label* and names should be fairly self explanatory.
@@ -451,6 +462,8 @@ class ContourLabeler:
         if transform is None:
             transform = self.axes.transData
         if transform:
+            x = self.axes.convert_xunits(x)
+            y = self.axes.convert_yunits(y)
             x, y = transform.transform((x, y))
 
         idx_level_min, idx_vtx_min, proj = self._find_nearest_contour(

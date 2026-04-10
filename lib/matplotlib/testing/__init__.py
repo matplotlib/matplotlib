@@ -87,9 +87,14 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
 
     Raises
     ------
+    pytest.skip
+        If running on emscripten, which does not support subprocesses.
     pytest.xfail
         If platform is Cygwin and subprocess reports a fork() failure.
     """
+    if sys.platform == 'emscripten':
+        import pytest
+        pytest.skip('emscripten does not support subprocesses')
     if capture_output:
         stdout = stderr = subprocess.PIPE
     # Add CREATE_NO_WINDOW flag on Windows to prevent console window overhead
@@ -196,7 +201,8 @@ def _check_for_pgf(texsystem):
         """, encoding="utf-8")
         try:
             subprocess.check_call(
-                [texsystem, "-halt-on-error", str(tex_path)], cwd=tmpdir,
+                [texsystem, "-halt-on-error", "-no-shell-escape",
+                 str(tex_path)], cwd=tmpdir,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except (OSError, subprocess.CalledProcessError):
             return False
@@ -207,7 +213,7 @@ def _has_tex_package(package):
     try:
         mpl.dviread.find_tex_file(f"{package}.sty")
         return True
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError):
         return False
 
 

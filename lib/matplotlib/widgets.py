@@ -2085,6 +2085,16 @@ class Cursor(AxesWidget):
         self.useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
 
         if self.useblit:
+            for ax_ in ax.get_figure(root=True).get_axes():
+                if ax_ is not ax and ax.bbox.overlaps(ax_.bbox):
+                    _api.warn_external(
+                        "Cursor blitting is currently not supported on "
+                        "overlapping axes; falling back to useblit=False."
+                    )
+                    self.useblit = False
+                    break
+
+        if self.useblit:
             lineprops['animated'] = True
         self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
         self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)

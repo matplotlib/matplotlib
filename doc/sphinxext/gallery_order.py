@@ -83,6 +83,8 @@ list_all = [
     "colors",
 
     #  **Examples**
+    #  animation
+    "simple_anim",  # Most basic example
     #  color
     "color_demo",
     #  pies

@@ -199,6 +199,17 @@ class TickHelper:
 class Formatter(TickHelper):
     """
     Create a string based on a tick value and location.
+
+    The Formatter provides four formatting methods for different use cases:
+
+    - `format_ticks`: The public API for generating tick labels from a set of
+      tick values.
+    - `__call__`: The low-level primitive for formatting a single tick value,
+      potentially in the context of multiple values.
+    - `format_data`: Context-independent representation of a single value.
+      Used internally, e.g. for offset and scientific-notation strings.
+    - `format_data_short`: Concise plain-text representation of a single value
+      for the interactive mouseover tooltip.
     """
     # some classes want to see all the locs to help format
     # individual ones
@@ -206,28 +217,69 @@ class Formatter(TickHelper):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick value *x* at position pos.
-        ``pos=None`` indicates an unspecified location.
+        Return the tick label strings for value *x* at tick index *pos*.
+
+        This is the low-level formatting primitive for a single tick in
+        the context of multiple ticks. Any context-dependent state
+        (e.g. locs, offset, order of magnitude) must already be configured,
+        typically by a prior call to ``format_ticks`` or ``set_locs``.
+
+        *pos* defines the index into ``self.locs`` so that the format can
+        depend on the location. ``pos=None`` indicates an unspecified
+        location.
+
+        The output may contain mathtext or LaTeX markup.
+
+        Subclasses must override this method.
         """
         raise NotImplementedError('Derived must override')
 
     def format_ticks(self, values):
-        """Return the tick labels for all the ticks at once."""
+        """
+        Return the tick label strings for all *values*.
+
+        This is the public API for generating tick labels.  It calls
+        ``set_locs`` to configure context-dependent formatting state before
+        delegating to ``__call__`` for each individual value.
+
+        The output may contain mathtext or LaTeX markup.
+
+        Use this method (rather than ``__call__``) whenever formatting a
+        complete set of tick values, so that formatters which need to see
+        all tick locations (e.g. to determine precision, offsets, or which
+        date components to display) can work correctly.
+        """
         self.set_locs(values)
         return [self(value, i) for i, value in enumerate(values)]
 
     def format_data(self, value):
         """
-        Return the full string representation of the value with the
-        position unspecified.
+        Return the context-independent string representation of a single *value*.
+
+        This is used internally, e.g. for constructing offset and
+        scientific-notation strings.  It always formats with ``pos=None``
+        and should return a context-independent representation
+        rather than a concise tick label.
+
+        The output may contain mathtext or LaTeX markup.
         """
         return self.__call__(value)
 
     def format_data_short(self, value):
         """
-        Return a short string version of the tick value.
+        Return a short string representation of *value* for the mouseover
+        tooltip (the coordinate display in the interactive figure window).
 
-        Defaults to the position-independent long value.
+        This should return concise, plain text (no mathtext / LaTeX).
+        The precision is typically adapted to the current axis resolution
+        so that neighbouring pixels produce distinguishable labels.
+
+        Defaults to `.Formatter.format_data`; subclasses should override
+        this to provide a plain-text representation that is independent
+        of the current tick locations.
+
+        Note: The mouseover text can be customized by setting the
+        ``Axes.fmt_xdata`` and ``Axes.fmt_ydata`` attributes.
         """
         return self.format_data(value)
 
@@ -379,6 +431,12 @@ class StrMethodFormatter(Formatter):
     It is typically unnecessary to explicitly construct `.StrMethodFormatter`
     objects, as `~.Axis.set_major_formatter` directly accepts the format string
     itself.
+
+    Examples
+    --------
+    >>> formatter = StrMethodFormatter("{x} km")
+    >>> formatter(10)
+    "10 km"
     """
 
     def __init__(self, fmt):
@@ -2427,7 +2485,7 @@ class LogLocator(Locator):
 
             if vmin <= 0.0 or not np.isfinite(vmin):
                 raise ValueError(
-                    "Data has no positive values, and therefore cannot be log-scaled.")
+                    "Data cannot be log-scaled because all values are <= 0.")
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin

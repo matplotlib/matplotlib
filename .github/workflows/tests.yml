@@ -52,14 +52,14 @@ jobs:
           - name-suffix: "(Minimum Versions)"
             os: ubuntu-22.04
             python-version: '3.11'
-            extra-requirements: '-c requirements/testing/minver.txt'
+            extra-requirements: '-c ci/minver-requirements.txt'
             delete-font-cache: true
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04
             python-version: '3.11'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-            extra-requirements: '-r requirements/testing/extra.txt'
+            extra-requirements: '--group test-extra'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
           - name-suffix: "(Extra TeX packages)"
@@ -186,23 +186,25 @@ jobs:
           esac
 
       - name: Cache pip
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
         if: startsWith(runner.os, 'Linux')
         with:
           path: ~/.cache/pip
-          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          key: |
+            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{
+            hashFiles('pyproject.toml', 'ci/minver-requirements.txt') }}
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache pip
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
         if: startsWith(runner.os, 'macOS')
         with:
           path: ~/Library/Caches/pip
-          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache ccache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
         with:
           path: |
             ~/.ccache
@@ -210,7 +212,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-
       - name: Cache Matplotlib
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5.0.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7  # v5.0.4
         with:
           path: |
             ~/.cache/matplotlib
@@ -235,12 +237,8 @@ jobs:
 
           # Install dependencies from PyPI.
           # Preinstall build requirements to enable no-build-isolation builds.
-          python -m pip install --upgrade $PRE \
-            'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
-            packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
-            'meson-python>=0.13.1' 'pybind11>=2.13.2' \
-            -r requirements/testing/all.txt \
-            ${{ matrix.extra-requirements }}
+          python -m pip install --upgrade $PRE --prefer-binary \
+            --group build --group test ${{ matrix.extra-requirements }}
 
           # Install optional dependencies from PyPI.
           # Sphinx is needed to run sphinxext tests
@@ -397,7 +395,7 @@ jobs:
           fi
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de  # v5.5.2
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2  # v6.0.0
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}

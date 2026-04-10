@@ -5,7 +5,7 @@
 [![LFX Health Score](https://insights.linuxfoundation.org/api/badge/health-score?project=matplotlib)](https://insights.linuxfoundation.org/project/matplotlib)
 
 [![Discourse help forum](https://img.shields.io/badge/help_forum-discourse-blue.svg)](https://discourse.matplotlib.org)
-[![Gitter](https://badges.gitter.im/matplotlib/matplotlib.svg)](https://gitter.im/matplotlib/matplotlib)
+[![Discourse chat](https://img.shields.io/badge/chat-discourse-mediumaquamarine)](https://discourse.matplotlib.org/chat/c/matplotlib/2)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/matplotlib/matplotlib/issues)
 [![Contributing](https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?)](https://matplotlib.org/stable/devel/index.html)
 
@@ -61,9 +61,9 @@ Our active mailing lists (which are mirrored on Discourse) are:
 -   [Development](https://mail.python.org/mailman/listinfo/matplotlib-devel)
     mailing list: <matplotlib-devel@python.org>
 
-[Gitter](https://gitter.im/matplotlib/matplotlib) is for coordinating
-development and asking questions directly related to contributing to
-matplotlib.
+[Discourse Chat](https://discourse.matplotlib.org/chat/c/matplotlib/2) is for
+coordinating development and asking questions directly related to contributing
+to matplotlib.
 
 ## Citing Matplotlib
 

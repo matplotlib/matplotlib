@@ -947,6 +947,9 @@ def figure(
           "px".
         - a tuple ``(x, y)``, which is interpreted as ``(x, y, "inch")``.
 
+        One of *width* or *height* may be ``None``; the respective value is taken
+        from :rc:`figure.figsize`.
+
     dpi : float, default: :rc:`figure.dpi`
         The resolution of the figure in dots-per-inch.
 
@@ -1176,6 +1179,25 @@ def fignum_exists(num: int | str) -> bool:
         if isinstance(num, int)
         else num in get_figlabels()
     )
+
+
+def _raise_if_figure_exists(num, func_name, clear=False):
+    """
+    Raise a ValueError if the figure *num* already exists.
+    """
+    if num is not None and not clear:
+        if isinstance(num, FigureBase):
+            raise ValueError(
+                f"num {num!r} cannot be a FigureBase instance. "
+                f"plt.{func_name}() is for creating new figures. "
+                f"To add to an existing figure, use fig.{func_name}() "
+                "instead.")
+
+        if fignum_exists(num):
+            raise ValueError(
+                f"Figure {num!r} already exists. Use plt.figure({num!r}) "
+                f"to get it or plt.close({num!r}) to close it. "
+                f"Alternatively, pass 'clear=True' to {func_name}().")
 
 
 def get_fignums() -> list[int]:
@@ -1856,6 +1878,9 @@ def subplots(
         fig, ax = plt.subplots(num=10, clear=True)
 
     """
+    num = fig_kw.get('num')
+    _raise_if_figure_exists(fig_kw.get('num'), "subplots", fig_kw.get('clear'))
+
     fig = figure(**fig_kw)
     axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
                        squeeze=squeeze, subplot_kw=subplot_kw,
@@ -2029,6 +2054,9 @@ def subplot_mosaic(
        total layout.
 
     """
+    num = fig_kw.get('num')
+    _raise_if_figure_exists(fig_kw.get('num'), "subplot_mosaic", fig_kw.get('clear'))
+
     fig = figure(**fig_kw)
     ax_dict = fig.subplot_mosaic(  # type: ignore[misc]
         mosaic,  # type: ignore[arg-type]

@@ -92,6 +92,13 @@ def test_valid_linestyles():
         line.set_linestyle('aardvark')
 
 
+@mpl.style.context('mpl20')
+def test_zero_linewidth_dashed_uses_solid_gc_dashes():
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], ls='--', lw=0)
+    fig.draw_without_rendering()
+
+
 @image_comparison(['drawstyle_variants.png'], remove_text=True,
                   tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_drawstyle_variants():

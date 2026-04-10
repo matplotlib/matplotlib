@@ -16,7 +16,7 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: plbstl/first-contribution@4fb1541ce2706255850d56c5684552607be1ae9b  # v4.2.0
+      - uses: plbstl/first-contribution@7c31f41b0e7a70adfcae06cf964679f61af6780b  # v4.3.0
         with:
           labels: first-contribution
           pr-opened-msg: >+
@@ -26,19 +26,22 @@ jobs:
             If you have not heard from us in a week or so, please leave a new
             comment below and that should bring it to our attention.
             Most of our reviewers are volunteers and sometimes things fall
-            through the cracks.
+            through the cracks. We also ask that you please finish addressing
+            any review comments on this PR and wait for it to be merged (or
+            closed) before opening a new one, as it can be a valuable learning
+            experience to go through the review process.
 
 
-            You can also join us [on
-            gitter](https://gitter.im/matplotlib/matplotlib) for real-time
-            discussion.
+            You can also join us [on discourse
+            chat](https://discourse.matplotlib.org/chat/c/matplotlib/2) for
+            real-time discussion.
 
 
             For details on testing, writing docs, and our review process,
             please see [the developer
             guide](https://matplotlib.org/devdocs/devel/index.html).
 
-            **Please let us know  if (and how) you use AI, it will help us give you
+            **Please let us know if (and how) you use AI, it will help us give you
             better feedback on your PR.**
 
 

@@ -7,5 +7,5 @@ contact_links:
     url: https://discourse.matplotlib.org
     about: If you have a usage question
   - name: Chat with devs
-    url: https://gitter.im/matplotlib/matplotlib
+    url: https://discourse.matplotlib.org/chat/c/matplotlib/2
     about: Ask short questions about contributing to Matplotlib

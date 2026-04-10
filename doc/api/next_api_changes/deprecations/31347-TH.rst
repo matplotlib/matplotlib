@@ -1,0 +1,8 @@
+Contour labelling on filled contours
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using `~.Axes.clabel` to label filled contours created with `~.Axes.contourf` is deprecated. ``clabel()``
+is designed to label contour lines (`.Axes.contour`), and using it with filled contours can lead to inconsistent
+plots. If you want to add labels to filled contours, the recommended approach is to first create the filled contours
+with `~.Axes.contourf`, then overlay contour lines using `~.Axes.contour`, and finally apply `~.Axes.clabel` to those
+contour lines for labeling. For an example see :doc:`/gallery/images_contours_and_fields/contourf_demo`.

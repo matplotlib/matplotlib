@@ -556,8 +556,8 @@ class Axes(_AxesBase):
         """
         Add a second x-axis to this `~.axes.Axes`.
 
-        For example if we want to have a second scale for the data plotted on
-        the xaxis.
+        This axis is typically used to display a second x-scale for the data
+        plotted on the Axes.
 
         %(_secax_docstring)s
 
@@ -610,8 +610,8 @@ class Axes(_AxesBase):
         """
         Add a second y-axis to this `~.axes.Axes`.
 
-        For example if we want to have a second scale for the data plotted on
-        the yaxis.
+        This axis is typically used to display a second y-scale for the data
+        plotted on the Axes.
 
         %(_secax_docstring)s
 
@@ -2390,11 +2390,13 @@ class Axes(_AxesBase):
 
         label : str or list of str, optional
             A single label is attached to the resulting `.BarContainer` as a
-            label for the whole dataset.
+            legend label for the whole dataset.
             If a list is provided, it must be the same length as *x* and
             labels the individual bars. Repeated labels are not de-duplicated
             and will cause repeated label entries, so this is best used when
-            bars also differ in style (e.g., by passing a list to *color*.)
+            bars also differ in style (e.g., by passing a list to *color*).
+
+            Tip: Use `.bar_label` to place labels on the bars.
 
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
@@ -2435,6 +2437,7 @@ class Axes(_AxesBase):
         --------
         barh : Plot a horizontal bar plot.
         grouped_bar : Plot multiple datasets as grouped bar plot.
+        bar_label : Add labels to bars.
 
         Notes
         -----
@@ -2730,11 +2733,13 @@ class Axes(_AxesBase):
 
         label : str or list of str, optional
             A single label is attached to the resulting `.BarContainer` as a
-            label for the whole dataset.
-            If a list is provided, it must be the same length as *y* and
+            legend label for the whole dataset.
+            If a list is provided, it must be the same length as *x* and
             labels the individual bars. Repeated labels are not de-duplicated
             and will cause repeated label entries, so this is best used when
-            bars also differ in style (e.g., by passing a list to *color*.)
+            bars also differ in style (e.g., by passing a list to *color*).
+
+            Tip: Use `.bar_label` to place labels on the bars.
 
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
@@ -2775,6 +2780,7 @@ class Axes(_AxesBase):
         See Also
         --------
         bar : Plot a vertical bar plot.
+        bar_label : Add labels to bars.
 
         Notes
         -----
@@ -6543,10 +6549,8 @@ or pandas.DataFrame
             :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
             If ``shading='flat'`` the dimensions of *X* and *Y* should be one
-            greater than those of *C*, and the quadrilateral is colored due
-            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
-            dimensions, a warning will be raised and the last row and column
-            of *C* will be ignored.
+            greater than those of *C*, otherwise a ValueError is raised.  The
+            quadrilateral is colored due to the value at ``C[i, j]``.
 
             If ``shading='nearest'``, the dimensions of *X* and *Y* should be
             the same as those of *C* (if not, a ValueError will be raised). The
@@ -6750,10 +6754,8 @@ or pandas.DataFrame
             :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
             If ``shading='flat'`` the dimensions of *X* and *Y* should be one
-            greater than those of *C*, and the quadrilateral is colored due
-            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
-            dimensions, a warning will be raised and the last row and column
-            of *C* will be ignored.
+            greater than those of *C*, otherwise a ValueError is raised. The
+            quadrilateral is colored due to the value at ``C[i, j]``.
 
             If ``shading='nearest'`` or ``'gouraud'``, the dimensions of *X*
             and *Y* should be the same as those of *C* (if not, a ValueError
@@ -7420,6 +7422,15 @@ such objects
         # Massage 'x' for processing.
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
+
+        for arr in x:
+            if len(arr) > 0 and isinstance(
+                arr[0], (datetime.timedelta, np.timedelta64)
+            ):
+                raise TypeError(
+                    "Axes.hist does not currently support timedelta inputs. "
+                    "Convert to numeric values  (e.g., .total_seconds()) first."
+                )
 
         # Process unit information.  _process_unit_info sets the unit and
         # converts the first dataset; then we convert each following dataset

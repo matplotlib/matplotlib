@@ -31,6 +31,7 @@ via ``do_3d_projection()``, then project to 2D for rendering.
 """
 
 from collections import defaultdict
+from functools import partialmethod
 import itertools
 import math
 import textwrap
@@ -1195,6 +1196,17 @@ class Axes3D(Axes):
             For example, ``base=2`` can be passed when using a log scale.
         """
         self._set_axis_scale(self.zaxis, value, **kwargs)
+
+    def _raise_semilog_not_implemented(self, name, *args, **kwargs):
+        raise NotImplementedError(
+            f"Axes3D does not support {name}. Use ax.set_xscale/set_yscale/set_zscale "
+            "and ax.plot(...) instead."
+        )
+
+    semilogx = partialmethod(_raise_semilog_not_implemented, "semilogx")
+    semilogy = partialmethod(_raise_semilog_not_implemented, "semilogy")
+    semilogz = partialmethod(_raise_semilog_not_implemented, "semilogz")
+    loglog = partialmethod(_raise_semilog_not_implemented, "loglog")
 
     get_zticks = _axis_method_wrapper("zaxis", "get_ticklocs")
     set_zticks = _axis_method_wrapper("zaxis", "set_ticks")

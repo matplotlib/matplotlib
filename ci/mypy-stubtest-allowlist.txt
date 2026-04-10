@@ -28,7 +28,6 @@ matplotlib\.ticker\.LogitLocator\.nonsingular
 
 # Stdlib/Enum considered inconsistent (no fault of ours, I don't think)
 matplotlib\.backend_bases\._Mode\.__new__
-matplotlib\.units\.Number\.__hash__
 
 # 3.6 Pending deprecations
 matplotlib\.figure\.Figure\.set_constrained_layout

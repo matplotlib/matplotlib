@@ -12,6 +12,7 @@ class ScaleBase:
     def limit_range_for_scale(
         self, vmin: float, vmax: float, minpos: float
     ) -> tuple[float, float]: ...
+    def val_in_range(self, val: float) -> bool: ...
 
 class LinearScale(ScaleBase):
     name: str

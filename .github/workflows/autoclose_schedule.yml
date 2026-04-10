@@ -1,0 +1,37 @@
+---
+name: autoclose schedule
+# Autoclose PRs labeled with "status: autoclose candidate" after 2 weeks.
+# Based on scikit-learn's implementation at
+# https://github.com/scikit-learn/scikit-learn/blob/main/.github/workflows/autoclose-schedule.yml
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # runs daily at 02:00 UTC
+  workflow_dispatch:
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+
+  autoclose:
+    name: autoclose labeled PRs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: '3.13'
+      - name: Install PyGithub
+        run: pip install -Uq PyGithub
+
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Close PRs labeled more than 14 days ago
+        run: |
+          python tools/autoclose_prs.py

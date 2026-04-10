@@ -309,7 +309,7 @@ def get_epoch():
 
 def _dt64_to_ordinalf(d):
     """
-    Convert `numpy.datetime64` or an `numpy.ndarray` of those types to
+    Convert a `numpy.ndarray` of np.datetime64 to
     Gregorian date as UTC float relative to the epoch (see `.get_epoch`).
     Roundoff is float64 precision.  Practically: microseconds for dates
     between 290301 BC, 294241 AD, milliseconds for larger dates
@@ -1530,13 +1530,15 @@ class WeekdayLocator(RRuleLocator):
         """
         Parameters
         ----------
-        byweekday : int or list of int, default: all days
+        byweekday : int, list of int, constant from :mod:`dateutil.rrule`, or \
+            list of constants, default: 1 (Tuesday)
             Ticks will be placed on every weekday in *byweekday*. Default is
-            every day.
+            every Tuesday.
 
-            Elements of *byweekday* must be one of MO, TU, WE, TH, FR, SA,
-            SU, the constants from :mod:`dateutil.rrule`, which have been
-            imported into the :mod:`matplotlib.dates` namespace.
+            Elements of *byweekday* (if a sequence) must be either integers or
+            MO, TU, WE, TH, FR, SA, SU, the constants from
+            :mod:`dateutil.rrule`, which have been imported into the
+            :mod:`matplotlib.dates` namespace.
         interval : int, default: 1
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
