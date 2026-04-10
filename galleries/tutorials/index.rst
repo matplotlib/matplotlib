@@ -10,11 +10,11 @@ You can also find :ref:`external resources <resources-index>` and
 a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
 
 .. minigallery::
-   /tutorials/pyplot
-   /tutorials/coding_shortcuts
-   /tutorials/images
-   /tutorials/lifecycle
-   /tutorials/artists
+   tutorials/pyplot.py
+   tutorials/coding_shortcuts.py
+   tutorials/images.py
+   tutorials/lifecycle.py
+   tutorials/artists.py
 
 .. toctree::
    :hidden:
