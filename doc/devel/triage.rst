@@ -179,8 +179,8 @@ The following workflow is a good way to approach issue triaging:
    if it is clearly a bug, `New feature <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc+state%3Aopen+label%3A%22New+feature%22>`__
    if it is a new feature request, etc.
 
-   An additional useful step can be to tag the corresponding module e.g.
-   the "GUI/Qt" label when relevant.
+   An additional useful step can be to tag with the relevant "topic: ..." label,
+   e.g. "topic: widgets/UI" or "topic: animation".
 
    Take some time to familiarize yourself with the available labels and their
    meaning, and try to use them consistently.
@@ -219,10 +219,10 @@ can:
 AI-generated contributions
 --------------------------
 
-Make sure PRs comply with our :ref:`policy on AI-generated contributions <generative_ai>`.
-If you identify a PR that does not comply with the policy, ask the contributor
-to clarify the AI tools used and the contribution of the author, and to update
-the PR description accordingly.
+Make sure PRs comply with our :ref:`AI policy <generative_ai>`. If you identify
+a PR that does not comply with the policy, ask the contributor to clarify the AI
+tools used and the contribution of the author, and to update the PR description
+accordingly to comply with our AI policy.
 
 .. _triage_team:
 
