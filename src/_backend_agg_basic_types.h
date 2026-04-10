@@ -29,6 +29,7 @@ struct SketchParams
     double scale;
     double length;
     double randomness;
+    int seed;
 };
 
 class Dashes
@@ -219,8 +220,10 @@ namespace PYBIND11_NAMESPACE { namespace detail {
                 return true;
             }
 
-            auto params = src.cast<std::tuple<double, double, double>>();
-            std::tie(value.scale, value.length, value.randomness) = params;
+
+
+            auto params = src.cast<std::tuple<double, double, double, int>>();
+            std::tie(value.scale, value.length, value.randomness, value.seed) = params;
 
             return true;
         }
