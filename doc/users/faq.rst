@@ -20,7 +20,7 @@ Please see :ref:`figures-not-showing`.
 Why do I have so many ticks, and/or why are they out of order?
 --------------------------------------------------------------
 
-One common cause for unexpected tick behavior is passing a *list of strings
+A common cause for unexpected tick behavior is passing a *list of strings
 instead of numbers or datetime objects*. This can easily happen without notice
 when reading in a comma-delimited text file. Matplotlib treats lists of strings
 as *categorical* variables
