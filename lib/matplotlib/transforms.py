@@ -2660,8 +2660,8 @@ class BboxTransformTo(Affine2DBase):
             self._inverted = None
             self._invalid = 0
         return self._mtx
-    
-    
+
+
 class IndirectTransform(Transform):
     """
     A transform that wraps a callable and resolves it lazily at draw time.
