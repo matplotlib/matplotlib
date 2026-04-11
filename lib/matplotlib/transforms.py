@@ -2660,6 +2660,65 @@ class BboxTransformTo(Affine2DBase):
             self._inverted = None
             self._invalid = 0
         return self._mtx
+    class IndirectTransform(Transform):
+    """
+    A transform that wraps a callable and resolves it lazily at draw time.
+
+    This is useful when the actual transform depends on something not
+    known until draw time, like another artist's bounding box.
+
+    Parameters
+    ----------
+    func : callable
+        A callable that takes no arguments and returns a `.Transform`
+        or `.BboxBase`.
+
+    Examples
+    --------
+    ::
+
+        tr = IndirectTransform(
+            lambda: BboxTransformTo(some_artist.get_window_extent())
+        )
+    """
+
+    input_dims = 2
+    output_dims = 2
+
+    def __init__(self, func, **kwargs):
+        if not callable(func):
+            raise TypeError(
+                f"func must be callable, not {type(func).__name__!r}"
+            )
+        super().__init__(**kwargs)
+        self._func = func
+
+    def _resolve(self):
+        """Call the wrapped function and return a proper Transform."""
+        result = self._func()
+        if isinstance(result, BboxBase):
+            return BboxTransformTo(result)
+        elif isinstance(result, Transform):
+            return result
+        raise TypeError(
+            f"func must return a Transform or BboxBase, "
+            f"not {type(result).__name__!r}"
+        )
+
+    def get_affine(self):
+        return self._resolve().get_affine()
+
+    def frozen(self):
+        return self._resolve().frozen()
+
+    def inverted(self):
+        return self._resolve().inverted()
+
+    def transform_affine(self, points):
+        return self._resolve().transform_affine(points)
+
+    def transform_non_affine(self, points):
+        return self._resolve().transform_non_affine(points)
 
 
 class BboxTransformFrom(Affine2DBase):
