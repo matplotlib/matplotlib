@@ -40,8 +40,10 @@ fig, axd = plt.subplot_mosaic(
 axd['main'].set(xlabel="Time (s)", ylabel="Amplitude", title="Sine Wave")
 
 background_color = '0.95'
+edge_color = '0.8'
 
 axd['freq'].set_facecolor(background_color)
+axd['freq'].spines[:].set_color(edge_color)
 axd['freq'].set_title('Frequency')
 radio = RadioButtons(axd['freq'], labels=list(FREQUENCIES.keys()),
                      label_props={'fontsize': [12, 14, 16]},
@@ -56,6 +58,7 @@ radio.on_clicked(update_frequency)
 
 
 axd['color'].set_facecolor(background_color)
+axd['color'].spines[:].set_color(edge_color)
 axd['color'].set_title('Color')
 radio2 = RadioButtons(
     axd['color'], ('red', 'blue', 'green'),
@@ -73,6 +76,7 @@ radio2.on_clicked(update_color)
 
 
 axd['linestyle'].set_facecolor(background_color)
+axd['linestyle'].spines[:].set_color(edge_color)
 axd['linestyle'].set_title('Linestyle')
 radio3 = RadioButtons(axd['linestyle'], ('solid', 'dashed', 'dashdot', 'dotted'))
 

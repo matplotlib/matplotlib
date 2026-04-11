@@ -36,6 +36,7 @@ ax.set(xlabel="Time (s)", ylabel="Amplitude", title="Sine Wave - Click a color!"
 
 # Configure the radio buttons axes
 ax_buttons.set_facecolor("0.95")
+ax_buttons.spines[:].set_color("0.8")
 ax_buttons.set_title("Line Color")
 # Create a 2D grid of color options (3 rows x 2 columns)
 colors = ["red", "yellow", "green", "purple", "brown", "gray"]
