@@ -94,7 +94,7 @@ CapStyleType: TypeAlias = CapStyle | Literal["butt", "projecting", "round"]
 """Line cap styles. See :doc:`/gallery/lines_bars_and_markers/capstyle`."""
 
 LogLevel: TypeAlias = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-"""Literal type for valid logging levels accepted by `set_loglevel()`."""
+"""Literal type for valid logging levels accepted by `matplotlib.set_loglevel()`."""
 
 CoordsBaseType = Union[
     str,
@@ -116,6 +116,10 @@ RcStyleType: TypeAlias = (
     pathlib.Path |
     Sequence[str | pathlib.Path | dict[str, Any]]
 )
+"""
+Valid specifiers for styles as used in `matplotlib.style.use` and
+`matplotlib.style.context`.
+"""
 
 _HT = TypeVar("_HT", bound=Hashable)
 HashableList: TypeAlias = list[_HT | "HashableList[_HT]"]
@@ -170,6 +174,12 @@ LegendLocType: TypeAlias = (
     tuple[float, float] |
     int
 )
+"""
+Supported location specifiers for legends.
+
+This is a superset of permissible entries. "best" is only applicable to Axes legends.
+All the "outside ..." locations are only applicable to figure legends.
+"""
 
 RcKeyType: TypeAlias = Literal[
     "agg.path.chunksize",
