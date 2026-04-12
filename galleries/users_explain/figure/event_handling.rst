@@ -208,6 +208,41 @@ Event name             Class            Description
 Matplotlib attaches some keypress callbacks by default for interactivity; they
 are documented in the :ref:`key-event-handling` section.
 
+.. _axes-limit-events:
+
+Axes limit change events
+========================
+
+In addition to the canvas events listed above, :class:`~matplotlib.axes.Axes`
+instances expose their own callback registry for axes-specific events.  Connect
+to these events with ``ax.callbacks.connect()`` rather than
+``fig.canvas.mpl_connect()``:
+
+``'xlim_changed'``
+    Fired when the x-axis view limits change. The callback receives the
+    :class:`~matplotlib.axes.Axes` instance as its sole argument.
+
+``'ylim_changed'``
+    Fired when the y-axis view limits change. The callback receives the
+    :class:`~matplotlib.axes.Axes` instance as its sole argument.
+
+``'zlim_changed'``
+    *(3D axes only)* Fired when the z-axis view limits change. The callback
+    receives the :class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` instance as its
+    sole argument.
+
+For example::
+
+    fig, ax = plt.subplots()
+
+    def on_xlim_change(ax):
+        print(f"x limits changed to {ax.get_xlim()}")
+
+    ax.callbacks.connect('xlim_changed', on_xlim_change)
+
+These callbacks are disconnected via ``ax.callbacks.disconnect(cid)`` where
+*cid* is the integer connection id returned by ``ax.callbacks.connect()``.
+
 .. _event-attributes:
 
 Event attributes
