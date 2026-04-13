@@ -11,7 +11,7 @@ numpy==1.25.0
 packaging==20.0
 pillow==9.0.1
 pyparsing==3.0.0
-pytest==7.0.0
+pytest==9.0.3
 python-dateutil==2.7
 
 # Test ipython/matplotlib-inline before backend mapping moved to mpl.
