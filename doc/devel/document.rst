@@ -26,7 +26,7 @@ when the documentation is built.  See :ref:`writing-docstrings`.
 Second, our example pages, tutorials, and some of the user guide are created by
 `Sphinx Gallery`_.  Sphinx Gallery converts Python files in :file:`galleries` to
 ``*.rst`` files that contain the results of Matplotlib plot calls as embedded images.
-See :ref:`writing-examples-and-tutorials`.
+See :ref:`create-examples-and-tutorials`.
 
 Third, Matplotlib has informative documentation written in ReST in subdirectories of
 :file:`doc`. General and historical information about the project is in :file:`doc/project`,
@@ -955,10 +955,10 @@ Example:
 .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
    :parts: 2
 
-.. _writing-examples-and-tutorials:
+.. _create-examples-and-tutorials:
 
-Write examples and tutorials
-============================
+Create examples and tutorials
+=============================
 
 Examples and tutorials are Python scripts that are run by `Sphinx Gallery`_.
 Sphinx Gallery finds ``*.py`` files in source directories and runs the files to
@@ -967,24 +967,42 @@ location of the :file:`doc/` directory.  Files in the build location should not
 be directly edited as they will be overwritten by Sphinx gallery. Currently
 Matplotlib has four galleries as follows:
 
-===============================  ==========================
-Source location                  Build location
-===============================  ==========================
-:file:`galleries/plot_types`     :file:`doc/plot_types`
-:file:`galleries/examples`       :file:`doc/gallery`
-:file:`galleries/tutorials`      :file:`doc/tutorials`
-:file:`galleries/users_explain`  :file:`doc/users/explain`
-===============================  ==========================
+.. list-table::
+   :widths: 20 28 22 30
+   :header-rows: 1
 
-The first three are traditional galleries.  The last,
-:file:`galleries/users_explain`, is a mixed gallery where some of the files are
-raw ``*.rst`` files and some are ``*.py`` files; Sphinx Gallery just copies
-these ``*.rst`` files from the source location to the build location (see
-:ref:`raw_restructured_gallery`, below).
+   * - Gallery
+     - Source location
+     - Build location
+     - Purpose
+   * - ``users_explain``
+     - :file:`galleries/users_explain`
+     - :file:`doc/users/explain`
+     - User guide narrative explanations of how to use Matplotlib.
+   * - ``plot_types``
+     - :file:`galleries/plot_types`
+     - :file:`doc/plot_types`
+     - A curated overview of the plot types Matplotlib provides out of the box.
+   * - ``examples``
+     - :file:`galleries/examples`
+     - :file:`doc/gallery`
+     - Visual examples that demonstrate features and usage patterns.
+   * - ``tutorials``
+     - :file:`galleries/tutorials`
+     - :file:`doc/tutorials`
+     - Step-by-step guides for learning broader workflows in more depth.
+
+See :ref:`organization-of-examples-and-tutorials` for more guidance about what
+gallery to use for what purpose.
+
+In terms of how they are created, the first three are traditional Sphinx
+galleries. The last, :file:`galleries/users_explain`, is a mixed gallery where
+some of the files are raw ``*.rst`` files and some are ``*.py`` files; Sphinx
+Gallery just copies these ``*.rst`` files from the source location to the build
+location (see :ref:`raw_restructured_gallery`, below).
 
 In the Python files, to exclude an example from having a plot generated, insert
 "sgskip" somewhere in the filename.
-
 
 The format of these files is relatively straightforward.  Properly
 formatted comment blocks are treated as ReST_ text, the code is
@@ -1142,8 +1160,56 @@ subdirectory, but  :file:`galleries/users_explain/artists` has a mix of
 any ``*.rst`` files to a ``:toctree:``, either in the ``README.txt`` or in a
 manual ``index.rst``.
 
-Examples guidelines
--------------------
+.. _organization-of-examples-and-tutorials:
+
+Organization of examples and tutorials
+--------------------------------------
+
+Matplotlib's documentation has a summary of :ref:`plot_types`, a
+:ref:`user_guide`, a large gallery of :ref:`examples-index`, and a small set of
+:ref:`tutorials`.  While this material overlaps in some ways, each section has
+a different overall purpose and audience.  The following guidelines are meant
+to help authors decide where to place new material.
+
+User's guide guidelines
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The user's guide is a collection of pages that explain how to use Matplotlib to
+create visualizations. It should help readers understand the main concepts,
+workflow, and decisions involved in making plots with Matplotlib. A reader
+should have a solid understanding of how to approach common plotting tasks
+after working through the user's guide, but it is not meant to be a
+comprehensive API reference.
+
+The user's guide should be organized as a coherent narrative so that pages can
+be read linearly and build on previously introduced concepts. It should
+contain more explanation and instruction than the gallery of examples, while
+still being concise and to the point. Cross-link related documentation
+(e.g. tutorials, gallery examples, and API entries) and tag the page with
+related concepts.
+
+The user's guide should be organized into sections that cover related topics.
+For example, a section on "Customizing Plots" might include pages on how to
+change colors, fonts, and line styles. Each page should have a clear title that
+describes the content of the page. The code examples should be minimal and
+focused on the concept being explained. Avoid including extraneous code that
+does not directly contribute to the explanation.
+
+The material should stay relatively balanced and move between basic and more
+advanced concepts in as natural a manner as possible. The goal is for a user to
+read the material without having to spend too much effort trying to understand
+the examples. Deep dives into one feature set should usually live elsewhere and
+be linked as further reading when appropriate.
+
+.. note::
+
+   The user's guide contains some older material that was ported over from
+   Tutorials, so some of the content may not yet conform to the suggestions
+   above.
+
+
+Examples gallery guidelines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The gallery of examples contains visual demonstrations of matplotlib features. Gallery
 examples exist so that users can scan through visual examples. Unlike tutorials or user
@@ -1157,7 +1223,7 @@ documentation (e.g. tutorials, user guides and API entries) and tag the example 
 related concepts.
 
 Format
-^^^^^^
+~~~~~~
 
 All :ref:`examples-index` should aim to follow these guidelines:
 
@@ -1198,15 +1264,36 @@ makes it easier for the reader to map which parts of code correspond to which pa
 the plot.
 
 Figure size
-^^^^^^^^^^^
+~~~~~~~~~~~
 When customizing figure sizes, we aim to avoid downscaling in rendered HTML docs.
 The current width limit (induced by *pydata-sphinx-theme*) is 720px, i.e.
 ``figsize=(7.2, ...)``, or 896px if the page does not have subsections and
 thus does not have the "On this page" navigation on the right-hand side.
 
+Tutorials guidelines
+^^^^^^^^^^^^^^^^^^^^
 
-Plot types guidelines
----------------------
+Tutorials are step-by-step guides for learning broader workflows in more depth.
+They should contain explanation and instruction, and can be more cross-cutting
+than individual sections of the user's guide and more in-depth than an
+example. Tutorials need not be limited to assuming basic Matplotlib knowledge,
+but should clearly state the assumed level of knowledge and learning goals in
+the introduction.
+
+Long-form tutorials should be organized as a coherent narrative, with sections
+that build on one another and contribute to a clear end result. Break the
+material into stages with clear subsections, and make it easy for readers to see
+what each section adds and when to refer to other documentation for deeper
+detail on a specific feature. A table of contents may be helpful for longer
+tutorials.
+
+Formatting guidelines are the same as for Examples above.  Cross-link
+related documentation (e.g. user guides, gallery examples, and API entries) and
+tag the page with related concepts.
+
+
+Plot types gallery guidelines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :ref:`plot_types` gallery provides an overview of the types of visualizations that
 Matplotlib provides out of the box, meaning that there is a high-level API for
@@ -1215,7 +1302,8 @@ because this gallery is heavily curated and tightly scoped to methods on
 `matplotlib.axes.Axes`.
 
 Format
-^^^^^^
+~~~~~~
+
 :title: Method signature with required arguments, e.g. ``plot(x, y)``
 :description: In one sentence, describe the visualization that the method produces and
               link to the API documentation, e.g. *Draws a bar chart. See ~Axes.bar*.
