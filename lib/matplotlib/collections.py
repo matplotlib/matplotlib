@@ -291,8 +291,11 @@ class Collection(mcolorizer.ColorizingArtist):
             if isinstance(offsets, np.ma.MaskedArray):
                 offsets = offsets.filled(np.nan)
                 # get_path_collection_extents handles nan but not masked arrays
+            data_trf = transform.get_affine() - transData
+            if not data_trf.is_affine:
+                paths = [data_trf.transform_path_non_affine(p) for p in paths]
             return mpath.get_path_collection_extents(
-                transform.get_affine() - transData, paths,
+                data_trf.get_affine(), paths,
                 self.get_transforms(),
                 offset_trf.transform_non_affine(offsets),
                 offset_trf.get_affine().frozen())
