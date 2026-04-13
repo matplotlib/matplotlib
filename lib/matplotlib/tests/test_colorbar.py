@@ -1260,7 +1260,7 @@ def test_colorbar_format_string_and_old():
 @image_comparison(['bivar_cbar_locationing.png',
                    ],
                   remove_text=True, savefig_kwarg={'dpi': 40}, tol=0.05)
-def test_bivar_colorbar_location(use_gridspec):
+def test_colorbar_bivar_location(use_gridspec):
     data = (np.arange(12).reshape((3, 4)) % 4,
             np.arange(12).reshape((3, 4)) % 3)
     # -------------------
@@ -1268,14 +1268,14 @@ def test_bivar_colorbar_location(use_gridspec):
     fig, axes = plt.subplots(2, 2)
     for i, ax in enumerate(axes.ravel()):
         mim = ax.imshow(data, cmap='BiOrangeBlue')
-        fig.bivar_colorbar(mim, location=locations[i], use_gridspec=use_gridspec)
+        fig.colorbar_bivar(mim, location=locations[i], use_gridspec=use_gridspec)
 
 
 @pytest.mark.parametrize('use_gridspec', [True, False])
 @image_comparison(['bivar_cbar_sharing.png',
                    ],
                   remove_text=True, savefig_kwarg={'dpi': 40}, tol=0.05)
-def test_bivar_colorbar_sharing(use_gridspec):
+def test_colorbar_bivar_sharing(use_gridspec):
     data = (np.arange(12).reshape((3, 4)) % 4,
             np.arange(12).reshape((3, 4)) % 3)
     # -------------------
@@ -1287,11 +1287,11 @@ def test_bivar_colorbar_sharing(use_gridspec):
     ax3 = plt.subplot(224)
     plt.imshow(data, cmap='BiOrangeBlue')
 
-    plt.bivar_colorbar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5,
+    plt.colorbar_bivar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5,
                        panchor=False, use_gridspec=use_gridspec)
-    plt.bivar_colorbar(ax=[ax2, ax3, ax1], location='left', shrink=0.5,
+    plt.colorbar_bivar(ax=[ax2, ax3, ax1], location='left', shrink=0.5,
                        panchor=False, use_gridspec=use_gridspec)
-    plt.bivar_colorbar(ax=[ax1], location='bottom', panchor=False,
+    plt.colorbar_bivar(ax=[ax1], location='bottom', panchor=False,
                        anchor=(0.8, 0.5), shrink=0.6, use_gridspec=use_gridspec)
 
 
@@ -1302,14 +1302,14 @@ def test_bivar_cbar_single_ax_panchor_east(constrained):
     ax.set_anchor('N')
     assert ax.get_anchor() == 'N'
     mp = ax.imshow([[[0, 1], [1, 2]], [[2, 1], [0, 1]]], cmap='BiOrangeBlue')
-    fig.bivar_colorbar(mp, panchor='E')
+    fig.colorbar_bivar(mp, panchor='E')
     assert ax.get_anchor() == 'E'
 
 
 def test_bivar_cbar_set_xylabel():
     fig, axes = plt.subplots(1, 2)
     mp = axes[0].imshow([[[0, 1], [1, 2]], [[2, 1], [0, 1]]], cmap='BiOrangeBlue')
-    cb = fig.bivar_colorbar(mp, cax=axes[1])
+    cb = fig.colorbar_bivar(mp, cax=axes[1])
     cb.set_ylabel('y')
     cb.set_xlabel('x')
     assert axes[1].get_ylabel() == 'y'
@@ -1326,7 +1326,7 @@ def test_bivar_cbar_log_no_scale():
                         )
     assert axes[1].get_yscale() == 'linear'
     assert axes[1].get_xscale() == 'linear'
-    fig.bivar_colorbar(mp, cax=axes[1])
+    fig.colorbar_bivar(mp, cax=axes[1])
     assert axes[1].get_yscale() == 'log'
     assert axes[1].get_xscale() == 'function'
 
@@ -1336,7 +1336,7 @@ def test_bivar_cbar_change_vmin_vmax():
     mp = axes[0].imshow([[[100, 1], [10, 1]], [[0.5, 0], [0.3, 1]]],
                         cmap='BiOrangeBlue',
                         )
-    fig.bivar_colorbar(mp, cax=axes[1])
+    fig.colorbar_bivar(mp, cax=axes[1])
     assert np.all(axes[1].get_ylim() == np.array([1, 100]))
     assert np.all(axes[1].get_xlim() == np.array([0, 1]))
     mp.colorizer.norm.vmin = [-1, -2]
@@ -1350,7 +1350,7 @@ def test_bivar_cbar_change_norms():
     mp = axes[0].imshow([[[100, 1], [10, 1]], [[0.5, 0.2], [0.3, 1]]],
                         cmap='BiOrangeBlue',
                         )
-    fig.bivar_colorbar(mp, cax=axes[1])
+    fig.colorbar_bivar(mp, cax=axes[1])
     assert axes[1].get_yscale() == 'linear'
     assert axes[1].get_xscale() == 'linear'
     mp.colorizer.norm = ['log', mcolors.NoNorm()]
@@ -1364,7 +1364,7 @@ def test_bivar_cbar_anchor():
     mp = ax.imshow([[[0, 1], [1, 2]], [[2, 1], [0, 1]]], cmap='BiOrangeBlue')
     anchor = (1, 0.3)
     shrink = 0.3
-    cbar = fig.bivar_colorbar(mp, anchor=anchor, shrink=shrink)
+    cbar = fig.colorbar_bivar(mp, anchor=anchor, shrink=shrink)
 
     x0, y0, x1, y1 = ax.get_position().extents
     cx0, cy0, cx1, cy1 = cbar.ax.get_position().extents
@@ -1378,7 +1378,7 @@ def test_bivar_cbar_anchor():
     mp = ax.imshow([[[0, 1], [1, 2]], [[2, 1], [0, 1]]], cmap='BiOrangeBlue')
     anchor = (1, 0.7)
     shrink = 0.3
-    cbar = fig.bivar_colorbar(mp, anchor=anchor, shrink=shrink, location='left')
+    cbar = fig.colorbar_bivar(mp, anchor=anchor, shrink=shrink, location='left')
 
     x0, y0, x1, y1 = ax.get_position().extents
     cx0, cy0, cx1, cy1 = cbar.ax.get_position().extents
@@ -1392,7 +1392,7 @@ def test_bivar_cbar_anchor():
     mp = ax.imshow([[[0, 1], [1, 2]], [[2, 1], [0, 1]]], cmap='BiOrangeBlue')
     anchor = (0.3, 1)
     shrink = 0.3
-    cbar = fig.bivar_colorbar(mp, anchor=anchor, shrink=shrink, location='top')
+    cbar = fig.colorbar_bivar(mp, anchor=anchor, shrink=shrink, location='top')
 
     x0, y0, x1, y1 = ax.get_position().extents
     cx0, cy0, cx1, cy1 = cbar.ax.get_position().extents
@@ -1406,7 +1406,7 @@ def test_bivar_cbar_anchor():
     mp = ax.imshow([[[0, 1], [1, 2]], [[2, 1], [0, 1]]], cmap='BiOrangeBlue')
     anchor = (0.3, 1)
     shrink = 0.3
-    cbar = fig.bivar_colorbar(mp, anchor=anchor, shrink=shrink, location='bottom')
+    cbar = fig.colorbar_bivar(mp, anchor=anchor, shrink=shrink, location='bottom')
 
     x0, y0, x1, y1 = ax.get_position().extents
     cx0, cy0, cx1, cy1 = cbar.ax.get_position().extents
@@ -1421,7 +1421,7 @@ def test_bivar_cbar_aspect():
     mp = ax.imshow([[[100, 1], [10, 1]], [[0.5, 0.2], [0.3, 1]]],
                    cmap='BiOrangeBlue',
                    )
-    cbar = fig.bivar_colorbar(mp, aspect=0.3)
+    cbar = fig.colorbar_bivar(mp, aspect=0.3)
     assert cbar.ax.get_box_aspect() == 0.3
     assert cbar.ax._colorbar_info["aspect"] == 0.3
     assert cbar.aspect == 0.3
@@ -1437,7 +1437,7 @@ def test_bivar_cbar_alpha():
                    cmap='BiOrangeBlue',
                    alpha=0.5,
                    )
-    cbar = fig.bivar_colorbar(mp)
+    cbar = fig.colorbar_bivar(mp)
     assert cbar._image._alpha == 0.5
 
 
@@ -1450,7 +1450,7 @@ def test_bivar_cbar_wrong_figure():
                     cmap='BiOrangeBlue',
                     )
     with pytest.warns(UserWarning, match="different Figure"):
-        fig1.bivar_colorbar(mp)
+        fig1.colorbar_bivar(mp)
 
 
 @pytest.mark.parametrize('use_gridspec', [True, False])
@@ -1467,7 +1467,7 @@ def test_bivar_cbar_remove_from_figure(nested_gridspecs, use_gridspec):
                        cmap='BiOrangeBlue',
                        )
     pre_position = ax.get_position()
-    cb = fig.bivar_colorbar(mp, use_gridspec=use_gridspec)
+    cb = fig.colorbar_bivar(mp, use_gridspec=use_gridspec)
     fig.subplots_adjust()
     cb.remove()
     fig.subplots_adjust()
@@ -1488,8 +1488,8 @@ def test_bivar_cbar_ticklocations():
     ca = mpl.colorizer.Colorizer('BiOrangeBlue', norm)
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match='ticklocations must be a tuple of'):
-        cbar = fig.bivar_colorbar(ca, cax=ax, ticklocations=['left'])
-    cbar = fig.bivar_colorbar(ca, cax=ax, ticklocations=['left', 'top'])
+        cbar = fig.colorbar_bivar(ca, cax=ax, ticklocations=['left'])
+    cbar = fig.colorbar_bivar(ca, cax=ax, ticklocations=['left', 'top'])
     cbar.ax.yaxis.get_label_position() == 'left'
     cbar.ax.xaxis.get_label_position() == 'top'
 
@@ -1505,10 +1505,10 @@ def test_wrong_kind_colorbar():
     fig, ax = plt.subplots(1, 1)
     mp = ax.imshow([[100, 1], [10, 1]])
     with pytest.raises(ValueError, match='bivariate colorbar can only be used '):
-        fig.bivar_colorbar(mp, ax=ax)
+        fig.colorbar_bivar(mp, ax=ax)
 
 
-def test_bivar_colorbar_set_get_view():
+def test_colorbar_bivar_set_get_view():
     # maybe not the best way to test this, this is normally used
     # interacitively ._get_view() and ._set_view() are normally
     # used in interactive mode
@@ -1516,7 +1516,7 @@ def test_bivar_colorbar_set_get_view():
     mp = axes.imshow([[[100, 1], [10, 1]], [[0.5, 0.2], [0.3, 1]]],
                      cmap='BiOrangeBlue',
                      )
-    cb = fig.bivar_colorbar(mp, ax=axes)
+    cb = fig.colorbar_bivar(mp, ax=axes)
     # limits are x: (0.2, 1), y: (1, 100)
     view = cb._get_view()
     view = np.array(view) + 1
@@ -1528,20 +1528,20 @@ def test_bivar_colorbar_set_get_view():
     assert mp.colorizer.norm.norms[0].vmax == 101
 
 
-def test_bivar_colorbar_no_ax():
+def test_colorbar_bivar_no_ax():
     norm = mpl.colors.MultiNorm(['linear', 'linear'])
     ca = mpl.colorizer.Colorizer('BiOrangeBlue', norm)
     fig, ax = plt.subplots()
     with pytest.raises(ValueError, match='Unable to determine Axes'):
-        fig.bivar_colorbar(ca)
+        fig.colorbar_bivar(ca)
 
 
-def test_bivar_colorbar_custom_norm():
+def test_colorbar_bivar_custom_norm():
     """
     This tests setting the correct scale for norms that do not have a
     ._scale property.
 
-    In the normal case, bivar_colorbar uses the ._scale property
+    In the normal case, colorbar_bivar uses the ._scale property
     of each norm to set the transform on each axis.
     """
     class CustomHalfNorm(mcolors.Normalize):
@@ -1552,13 +1552,25 @@ def test_bivar_colorbar_custom_norm():
         def vmin(self):
             return 0
 
+        @vmin.setter
+        def vmin(self, val):
+            ...
+
         @property
         def vmax(self):
             return 1
 
+        @vmax.setter
+        def vmax(self, val):
+            ...
+
         @property
         def clip(self):
             return False
+
+        @clip.setter
+        def clip(self, val):
+            ...
 
         def __call__(self, value, clip=None):
             return value / 2
@@ -1582,14 +1594,14 @@ def test_bivar_colorbar_custom_norm():
     norm = mpl.colors.MultiNorm([CustomHalfNorm(), CustomHalfNorm()])
     ca = mpl.colorizer.Colorizer('BiOrangeBlue', norm)
     fig, ax = plt.subplots()
-    fig.bivar_colorbar(ca, cax=ax)
+    fig.colorbar_bivar(ca, cax=ax)
     assert ax.get_yscale() == 'function'
     assert ax.get_xscale() == 'function'
 
 
-def test_bivar_colorbar_not_via_fig():
+def test_colorbar_bivar_not_via_fig():
     # This test makes a colorbar without calling
-    # fig.bivar_colorbar() and without a ColorizingArtist
+    # fig.colorbar_bivar() and without a ColorizingArtist
     norm = mpl.colors.MultiNorm(['linear', 'linear'])
     ca = mpl.colorizer.Colorizer('BiOrangeBlue', norm)
     fig, ax = plt.subplots()
@@ -1613,7 +1625,7 @@ def test_bivar_cbar_not_rasterized():
                      cmap=cm,
                      interpolation='nearest'
                      )
-    fig.bivar_colorbar(mp)
+    fig.colorbar_bivar(mp)
 
 
 def test_cbar_wrong_figures():

@@ -148,6 +148,47 @@ ticklocations : tuple describing the ticklocation of the y and x axis
     The second element must be {'auto', 'top', 'bottom''}.
     If 'auto', the ticklocations are determined by the *location*.
 
+""",
+    _make_multivar_axes_kw_doc="""
+location : None or {'left', 'right', 'top', 'bottom'}
+    The location, relative to the parent Axes, where the colorbar Axes
+    is created.  It also determines the *orientation* of the colorbar
+    (colorbars on the left and right are vertical, colorbars at the top
+    and bottom are horizontal).  If None, the location will come from the
+    *orientation* if it is set (vertical colorbars on the right, horizontal
+    ones at the bottom), or default to 'right' if *orientation* is unset.
+
+orientation : None or {'vertical', 'horizontal'}
+    The orientation of the colorbars.  It is preferable to set the *location*
+    of the colorbar, as that also determines the *orientation*; passing
+    incompatible values for *location* and *orientation* raises an exception.
+
+fraction : float, default: 0.15
+    Fraction of original Axes to use for colorbars.
+
+shrink : float, default: 1.0
+    Fraction by which to multiply the size.
+
+aspect : float, default: 20
+    Ratio of long to short dimensions.
+
+pad : float, default: 0.05 if vertical, 0.15 if horizontal
+    Fraction of original Axes between colorbars and new image Axes.
+
+anchor : (float, float), optional
+    The anchor point of the colorbars Axes.
+    Defaults to (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal.
+
+panchor : (float, float), or *False*, optional
+    The anchor point of the colorbars parent Axes. If *False*, the parent
+    axes' anchor will be unchanged.
+    Defaults to (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal.
+
+major_pad : float
+    Spacing between colorbars along the long axis
+
+major_pad : float
+    Spacing between colorbars along the short axis
 """)
 
 
@@ -1411,7 +1452,7 @@ class BivarColorbar:
         *,
         alpha=None,
         location=None,
-        ticklocations=['auto', 'auto'],
+        ticklocations=('auto', 'auto'),
         aspect=1.0,
                 ):
         """
@@ -1720,6 +1761,7 @@ class MultivarColorbar(Sequence):
         self.axes = axes
 
     def _set_colorbar_info(self, colorbar_info):
+        self._colorbar_info = colorbar_info
         if colorbar_info is not None:
             parents = colorbar_info['parents']
             for a in parents:
@@ -1761,6 +1803,187 @@ class MultivarColorbar(Sequence):
 
     def __len__(self):
         return len(self._colorbars)
+
+    def get_tightbbox(self, renderer=None, for_layout_only=False):
+        if for_layout_only and hasattr(self, '_colorbar_info'):
+            # figure out the maximum size of the tight boxes
+            # then multiply that up to the correct size
+            bounds = self.axes[0].get_tightbbox(renderer=renderer,
+                                                for_layout_only=True).bounds
+            x0, y0, width, height = bounds
+            for ax in self.axes[1:]:
+                bb = ax.get_tightbbox(renderer=renderer,
+                                      for_layout_only=True).bounds
+                x0 = min(x0, bb[0])
+                y0 = min(y0, bb[1])
+                width = max(width, bb[2])
+                height = max(height, bb[3])
+            n_major = self._colorbar_info["n_major"]
+            n_minor = self._colorbar_info["n_minor"]
+
+            maj_p = self._colorbar_info["major_pad"]
+            min_p = self._colorbar_info["minor_pad"]
+
+            if self._colorbar_info["orientation"] == 'vertical':
+                # height *= n_major
+                width *= n_minor + min_p * (n_minor - 1)
+                height *= n_major + maj_p * (n_major - 1)
+            else:
+                width *= n_major + maj_p * (n_major - 1)
+                height *= n_minor + min_p * (n_minor - 1)
+
+            bbox = mtransforms.Bbox.from_bounds(x0, y0, width, height)
+        else:
+            # calculate the minimum size of the bbox that
+            # fits the current distribution of colormaps
+            # colorbars in the required grid
+            bbox = self.axes[0].get_tightbbox(renderer=renderer,
+                                              for_layout_only=for_layout_only)
+            for ax in self.axes[1:]:
+                bb = ax.get_tightbbox(renderer=renderer,
+                                      for_layout_only=for_layout_only)
+                if bb.x0 < bbox.x0:
+                    bbox.x0 = bb.x0
+                if bb.y0 < bbox.y0:
+                    bbox.y0 = bb.y0
+                if bb.x1 > bbox.x1:
+                    bbox.x1 = bb.x1
+                if bb.y1 > bbox.y1:
+                    bbox.y1 = bb.y1
+        return bbox
+
+    def _get_tight_packing_inside(self, bbox):
+        """
+        Positions the colorbars in a grid contained in bbox
+
+        This function relates to get_tightbbox(for_layout_only=True)
+        It requires that self._colorbar_info exists
+
+        It will position colorbars so that the bboxes
+        of each cmponent spans the assigned bbox
+
+        The procedure for vertical colorbars is as follows:
+        1. Calculate the height of each colorbar, based on n_minor and the padding
+        2. From the height calculate the width using the aspect
+        3. With both the width and height known, position the colorbars equispaced.
+
+        Horizontal colorbars follow the same procedure but the height and width
+        are swapped.
+        """
+        x_b, y_b, width_b, height_b = bbox.bounds  # b for box
+        if hasattr(self, '_colorbar_info'):
+            n_major = self._colorbar_info["n_major"]
+            n_minor = self._colorbar_info["n_minor"]
+            aspect = self._colorbar_info["aspect"]
+            major_pad = self._colorbar_info["major_pad"]
+            # pad_minor = 0.6
+            if self._colorbar_info["orientation"] == 'vertical':
+                if n_major > 1:
+                    bar_height = height_b * (1 - major_pad) / n_major
+                    y_spacing = (height_b - bar_height * n_major)/(n_major-1)
+                else:
+                    bar_height = height_b
+                    y_spacing = 0
+                bar_width = bar_height / aspect
+                if n_minor > 1:
+                    x_spacing = (width_b - bar_width * n_minor)/(n_minor)
+                else:
+                    x_spacing = 0
+            else:
+                if n_major > 1:
+                    bar_width = width_b * (1 - major_pad) / n_major
+                    x_spacing = (width_b - bar_width * n_major)/(n_major-1)
+                else:
+                    bar_width = width_b
+                    x_spacing = 0
+                bar_height = bar_width / aspect
+                if n_minor > 1:
+                    y_spacing = (height_b - bar_height * n_minor)/(n_minor)
+                else:
+                    y_spacing = 0
+
+            x_step = bar_width + x_spacing
+            y_step = bar_height + y_spacing
+            bboxes = []
+            if self._colorbar_info["orientation"] == 'vertical':
+                for i in range(n_minor):
+                    for j in range(n_major):
+                        bboxes.append(mtransforms.Bbox([[x_b + i * x_step,
+                                                         y_b + j * y_step],
+                                                        [x_b + i * x_step + bar_width,
+                                                         y_b + j * y_step + bar_height],
+                                                        ]))
+            else:
+                for i in range(n_minor):
+                    for j in range(n_major):
+                        bboxes.append(mtransforms.Bbox([[x_b + j * x_step,
+                                                         y_b + i * y_step],
+                                                        [x_b + j * x_step + bar_width,
+                                                         y_b + i * y_step + bar_height],
+                                                        ]))
+            return bboxes
+        else:
+            raise ValueError("_set_tight_packing cannot be called "
+                             "unless the MultivarColorbar was created "
+                             "by fig.multicolorbar(mappable).")
+
+    def _get_original_position(self):
+        # comparable to axes.get_position(original=True)
+        bbox = self.axes[0].get_position(original=True)
+        for ax in self.axes[1:]:
+            bb = ax.get_position(original=True)
+            if bb.x0 < bbox.x0:
+                bbox.x0 = bb.x0
+            if bb.y0 < bbox.y0:
+                bbox.y0 = bb.y0
+            if bb.x1 > bbox.x1:
+                bbox.x1 = bb.x1
+            if bb.y1 > bbox.y1:
+                bbox.y1 = bb.y1
+        return bbox
+
+    @staticmethod
+    def _subdivide_bbox(bbox,
+                        n_major,
+                        n_minor,
+                        orientation,
+                        major_pad=0.1,
+                        minor_pad=0.6,
+                        ):
+        major_width = (1-major_pad) / n_major
+        if n_major > 1:
+            major_space = major_pad / (n_major - 1)
+        else:
+            major_space = 0
+        major_split = np.empty(2 * (n_major - 1))
+        major_split[0::2] = major_width
+        major_split[1::2] = major_space
+        major_split = np.cumsum(major_split)
+
+        minor_width = (1-minor_pad) / n_minor
+        if n_minor > 1:
+            minor_space = minor_pad / (n_minor - 1)
+        else:
+            minor_space = 0
+        minor_split = np.empty(2 * (n_minor - 1))
+        minor_split[0::2] = minor_width
+        minor_split[1::2] = minor_space
+        minor_split = np.cumsum(minor_split)
+
+        # make the colorbar bboxes
+        sub_bboxs = []
+        v = orientation == "vertical"
+        bboxs = bbox.splitx(*minor_split) if v else bbox.splity(*minor_split)[::-1]
+        for i, bboxs_i in enumerate(bboxs):
+            if i % 2 == 1:
+                continue
+            bboxs_j = bboxs_i.splity(*major_split
+                                     )[::-1] if v else bboxs_i.splitx(*major_split)
+            for j, sub_bbox in enumerate(bboxs_j):
+                if j % 2 == 1:
+                    continue
+                sub_bboxs.append(sub_bbox)
+        return sub_bboxs
 
 
 def _normalize_location_orientation(location, orientation):
@@ -1947,7 +2170,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     kwargs['ticklocation'] = loc_settings['location']
 
     cax = _make_axes_helper(loc_settings, fraction, shrink, aspect, kwargs, parents)
-
+    cax._colorbar_info["type"] = 'Colorbar'
     if loc_settings["location"] in ('top', 'bottom'):
         aspect = 1.0 / aspect
     cax.set_box_aspect(aspect)
@@ -1982,6 +2205,7 @@ def make_bivar_axes(parents, location=None, fraction=0.15,
     """
     loc_settings = _normalize_location(location)
     cax = _make_axes_helper(loc_settings, fraction, shrink, aspect, kwargs, parents)
+    cax._colorbar_info["type"] = 'BivarColorbar'
     # need to add aspect to kwargs so it propagates to the BivarColorbar
     kwargs["aspect"] = aspect
 
@@ -1990,7 +2214,8 @@ def make_bivar_axes(parents, location=None, fraction=0.15,
 
 @_docstring.interpd
 def make_multivar_axes(parents, n_variates, n_major, location=None, orientation=None,
-                       fraction=0.15, shrink=1.0, aspect=20, **kwargs):
+                       fraction=0.15, shrink=1.0, aspect=20, major_pad=0.2,
+                       minor_pad=0.6, **kwargs):
     """
     Create an `~.axes.Axes` suitable for a mulitvariate colorbar.
 
@@ -2001,7 +2226,13 @@ def make_multivar_axes(parents, n_variates, n_major, location=None, orientation=
     ----------
     parents : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
         The Axes to use as parents for placing the colorbar.
-    %(_make_axes_kw_doc)s
+
+    n_variates : int
+        The number of colorbars to be made
+
+    n_major : int
+        Number of colorbars along the long axis of the colorbars
+    %(_make_multivar_axes_kw_doc)s
 
     Returns
     -------
@@ -2011,18 +2242,6 @@ def make_multivar_axes(parents, n_variates, n_major, location=None, orientation=
         The reduced keyword dictionary to be passed when creating the colorbar
         instance.
     """
-    loc_settings = _normalize_location_orientation(location, orientation)
-    # put appropriate values into the kwargs dict for passing back to
-    # the Colorbar class
-    orientation = loc_settings['orientation']
-    kwargs['orientation'] = orientation
-    kwargs['ticklocation'] = loc_settings['location']
-    fig, pbcb, colorbar_info = _make_axes_get_pbcb(loc_settings, fraction, shrink,
-                                                   aspect, kwargs, parents)
-    major_pad = 0.1
-    minor_pad = 0.6
-
-    # get the shape of the grid of new colorbars
     if n_major == -1:
         n_major = n_variates
         n_minor = 1
@@ -2031,57 +2250,59 @@ def make_multivar_axes(parents, n_variates, n_major, location=None, orientation=
         if n_major * n_minor < n_variates:
             n_minor += 1
 
+    aspect = aspect / n_major
+    fraction = fraction * n_minor
+
+    loc_settings = _normalize_location_orientation(location, orientation)
+
+    # put appropriate values into the kwargs dict for passing back to
+    # the Colorbar class
+    orientation = loc_settings['orientation']
+    kwargs['orientation'] = orientation
+    kwargs['ticklocation'] = loc_settings['location']
+
+    # get the shape of the grid of new colorbars
+
+    if n_minor > 1:
+        location = loc_settings["location"]
+        if location == 'left':
+            loc_settings["anchor"] = (1, 0.5)
+        elif location == 'right':
+            loc_settings["anchor"] = (0, 0.5)
+        elif location == 'top':
+            loc_settings["anchor"] = (0.5, 0)
+        else:
+            loc_settings["anchor"] = (0.5, 1)
+
+    fig, pbcb, colorbar_info = _make_axes_get_pbcb(loc_settings, fraction, shrink,
+                                                   aspect, kwargs, parents)
+    colorbar_info["type"] = 'MultivarColorbar'
+
+    # split pbcb into the required parts
+    sub_bboxes = MultivarColorbar._subdivide_bbox(pbcb,
+                                                  n_major,
+                                                  n_minor,
+                                                  orientation,
+                                                  major_pad=major_pad,
+                                                  minor_pad=minor_pad,
+                                                  )[:n_variates]
+    caxes = [fig.add_axes(sub_bbox, label="<colorbar>")
+             for sub_bbox in sub_bboxes]
+
     # adjust aspect
-    aspect = aspect/n_major
     if loc_settings["location"] in ('top', 'bottom'):
         aspect = 1.0 / aspect
 
-    # define how the bbox needs to be split
-    major_width = (1-major_pad) / n_major
-    if n_major > 1:
-        major_space = major_pad / (n_major - 1)
-    else:
-        major_space = 0
-    major_split = np.empty(2 * (n_major - 1))
-    major_split[0::2] = major_width
-    major_split[1::2] = major_space
-    major_split = np.cumsum(major_split)
-
-    minor_width = (1-minor_pad) / n_minor
-    if n_minor > 1:
-        minor_space = minor_pad / (n_minor - 1)
-    else:
-        minor_space = 0
-    minor_split = np.empty(2 * (n_minor - 1))
-    minor_split[0::2] = minor_width
-    minor_split[1::2] = minor_space
-    minor_split = np.cumsum(minor_split)
-
-    # make the colorbar axes
-    caxes = []
-    v = orientation == "vertical"
-    pbcbs = pbcb.splitx(*minor_split) if v else pbcb.splity(*minor_split)[::-1]
-    for i, mpcbc in enumerate(pbcbs):
-        if i % 2 == 1:
-            continue
-        fbcbs = mpcbc.splity(*major_split)[::-1] if v else mpcbc.splitx(*major_split)
-        for j, bbox in enumerate(fbcbs):
-            if j % 2 == 1:
-                continue
-            if len(caxes) < n_variates:
-                cax = fig.add_axes(bbox, label="<colorbar>")
-                caxes.append(cax)
-
     for cax in caxes:
-        for a in colorbar_info["parents"]:
-            a._colorbars.append(cax)  # tell the parent it has a colorbar
-
         cax.set_anchor(colorbar_info["anchor"])
-
         cax.set_box_aspect(aspect)
         cax.set_aspect('auto')
-        cax._colorbar_info = colorbar_info
 
+    colorbar_info["n_major"] = n_major
+    colorbar_info["n_minor"] = n_minor
+    colorbar_info["major_pad"] = major_pad
+    colorbar_info["minor_pad"] = minor_pad
+    colorbar_info["orientation"] = orientation
     return caxes, kwargs, colorbar_info
 
 
@@ -2191,7 +2412,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
 
     cax = _make_axes_gridspec_helper(loc_settings, fraction, shrink,
                                      aspect, kwargs, parent)
-
+    cax._colorbar_info["type"] = 'Colorbar'
     if loc_settings["location"] in ('top', 'bottom'):
         aspect = 1 / aspect
     cax.set_box_aspect(aspect)
@@ -2236,6 +2457,7 @@ def make_bivar_axes_gridspec(parent, *, location=None,
 
     cax = _make_axes_gridspec_helper(loc_settings, fraction, shrink,
                                      aspect, kwargs, parent)
+    cax._colorbar_info["type"] = 'BivarColorbar'
 
     # need to add aspect to kwargs so it propagates to the BivarColorbar
     kwargs["aspect"] = aspect

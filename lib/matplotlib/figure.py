@@ -1357,7 +1357,7 @@ default: %(va)s
         """
         if isinstance(mappable.cmap, mcolors.BivarColormap):
             raise ValueError("`Figure.colorbar` can only be together with a "
-                             "scalar colormap, please use `Figure.bivar_colorbar` "
+                             "scalar colormap, please use `Figure.colorbar_bivar` "
                              "when working with a bivariate colormap")
         if isinstance(mappable.cmap, mcolors.MultivarColormap):
             raise ValueError("colorbar can only be together with a"
@@ -1409,7 +1409,7 @@ default: %(va)s
         return cb
 
     @_docstring.interpd
-    def bivar_colorbar(
+    def colorbar_bivar(
             self, mappable, *, cax=None, ax=None, use_gridspec=True, **kwargs):
         """
         Add a bivariate colorbar to a plot.
@@ -1419,8 +1419,8 @@ default: %(va)s
         mappable
             The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`,
             `.ContourSet`, etc.) described by this bivariate colorbar.
-            This argument is mandatory for the `.Figure.bivar_colorbar` method
-            but optional for the`.pyplot.bivar_colorbar` function, which sets
+            This argument is mandatory for the `.Figure.colorbar_bivar` method
+            but optional for the`.pyplot.colorbar_bivar` function, which sets
             the default to the current image.
 
         cax : `~matplotlib.axes.Axes`, optional
@@ -1501,8 +1501,8 @@ default: %(va)s
         return cb
 
     @_docstring.interpd
-    def multivar_colorbar(
-            self, mappable, *, caxes=None, ax=None, use_gridspec=True,
+    def colorbar_multivar(
+            self, mappable, *, caxes=None, ax=None,
             n_major=-1, **kwargs):
 
         if isinstance(mappable, mpl.colorizer.Colorizer):
@@ -1530,17 +1530,8 @@ default: %(va)s
                 else [*ax] if np.iterable(ax)
                 else [ax])[0].get_figure(root=False)
             current_ax = fig.gca()
-            if (fig.get_layout_engine() is not None and
-                    not fig.get_layout_engine().colorbar_gridspec):
-                use_gridspec = False
-            if (use_gridspec
-                    and isinstance(ax, mpl.axes._base._AxesBase)
-                    and ax.get_subplotspec()):
-                caxes, kwargs, cbar_info = cbar.make_multivar_axes_gridspec(ax,
-                        n_variates, n_major, **kwargs)
-            else:
-                caxes, kwargs, cbar_info = cbar.make_multivar_axes(ax,
-                        n_variates, n_major, **kwargs)
+            caxes, kwargs, cbar_info = cbar.make_multivar_axes(ax, n_variates,
+                                                               n_major, **kwargs)
             # make_axes calls add_{axes,subplot} which changes gca; undo that.
             fig.sca(current_ax)
             for cax in caxes:
