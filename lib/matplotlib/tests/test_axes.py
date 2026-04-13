@@ -4660,7 +4660,7 @@ def test_errorbar_log_autoscale_order_independent():
     yerr = np.ones_like(y) * 10
 
     fig, (ax1, ax2) = plt.subplots(2)
-    
+
     ax1.set_xscale("log")
     ax1.set_yscale("log")
     ax1.errorbar(x, y, yerr=yerr)
