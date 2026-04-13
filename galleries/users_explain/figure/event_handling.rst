@@ -208,26 +208,14 @@ Event name             Class            Description
 Matplotlib attaches some keypress callbacks by default for interactivity; they
 are documented in the :ref:`key-event-handling` section.
 
-.. _axes-callbacks:
-
-Axes callbacks
-==============
-
-The events listed above are canvas events connected with
-``canvas.mpl_connect``. `~.axes.Axes` also has a ``callbacks`` registry for
-Axes-specific changes. For limit changes, connect with
-``ax.callbacks.connect``; the callback receives the `~.axes.Axes` rather than
-an event.
-
-``'xlim_changed'``
-    Called when the x-axis view limits change.
-
-``'ylim_changed'``
-    Called when the y-axis view limits change.
-
-See :doc:`/gallery/subplots_axes_and_figures/fahrenheit_celsius_scales`
-for a ``ylim_changed`` example and :doc:`/gallery/event_handling/resample`
-for a ``xlim_changed`` example.
+.. note::
+   ``'xlim_changed'`` and ``'ylim_changed'`` are Axes callbacks rather than
+   canvas events, so they do not appear in the table above. Connect to them
+   with ``ax.callbacks.connect``; the callback receives the `~.axes.Axes`
+   rather than an event. See
+   :doc:`/gallery/subplots_axes_and_figures/fahrenheit_celsius_scales` for a
+   ``ylim_changed`` example and :doc:`/gallery/event_handling/resample` for a
+   ``xlim_changed`` example.
 
 .. _event-attributes:
 
