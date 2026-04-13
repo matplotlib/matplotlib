@@ -4659,12 +4659,12 @@ def test_errorbar_log_autoscale_order_independent():
     y = np.array([100, 80, 60, 30])
     yerr = np.ones_like(y) * 10
 
-    fig1, ax1 = plt.subplots()
+    fig, (ax1, ax2) = plt.subplots(2)
+    
     ax1.set_xscale("log")
     ax1.set_yscale("log")
     ax1.errorbar(x, y, yerr=yerr)
 
-    fig2, ax2 = plt.subplots()
     ax2.errorbar(x, y, yerr=yerr)
     ax2.set_xscale("log")
     ax2.set_yscale("log")
