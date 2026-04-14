@@ -4,11 +4,12 @@
 Gridded data
 ============
 
-This section discusses data that mapped onto a two-dimensional grid.  The data
-usually has structured coordinates defined by arrays of x and y values, and data
-mapped onto those coordinates :math:`Data(x, y)` in a two-dimensional array. The grid
-can either be regular, in which case the x and y arrays are 1D and the Data is 2D,
-or the grid can be irregular, and X, Y, and Data are all 2D arrays.
+This section discusses plotting data that is mapped onto a two-dimensional grid
+using either colors or contours.  The data usually has structured coordinates
+defined by arrays of x and y values, and data mapped onto those coordinates
+:math:`Data(x, y)` in a two-dimensional array. The grid can either be regular,
+in which case the x and y arrays are 1D and the Data is 2D, or the grid can be
+irregular, and X, Y, and Data are all 2D arrays.
 
 """
 

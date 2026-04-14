@@ -31,7 +31,7 @@ Using Matplotlib
             :maxdepth: 2
             :includehidden:
 
-            explain/figure/index
+            explain/plotting/index
 
     .. grid-item-card::
         :padding: 2
@@ -40,7 +40,7 @@ Using Matplotlib
             :maxdepth: 2
             :includehidden:
 
-            explain/plotting/index
+            explain/figure/index
 
     .. grid-item-card::
         :padding: 2
