@@ -1347,4 +1347,3 @@ def test_annotation_patchA_not_overridden():
     ann.arrow_patch.set_patchA(text)
     fig.draw_without_rendering()
     assert ann.arrow_patch.patchA is text
-
