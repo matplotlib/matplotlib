@@ -14,7 +14,7 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 
 template <typename T>
-using double_or_ = std::variant<double, T>;
+using double_or_ = std::variant<T, double>;
 
 template <typename T>
 static T

@@ -58,8 +58,8 @@ PyRendererAgg_draw_path(RendererAgg *self,
 static void
 PyRendererAgg_draw_text_image(RendererAgg *self,
                               py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> image_obj,
-                              std::variant<double, int> vx,
-                              std::variant<double, int> vy,
+                              std::variant<int, double> vx,
+                              std::variant<int, double> vy,
                               double angle,
                               GCAgg &gc)
 {
