@@ -16,8 +16,8 @@ how to create such animations and the different options available.  More informa
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 import matplotlib.animation as animation
+from IPython.display import HTML
 
 # %%
 # Animation classes
@@ -140,7 +140,6 @@ plt.show()
 #
 # Example:
 
-from IPython.display import HTML
 
 fig, ax = plt.subplots()
 x = np.linspace(0, 2*np.pi)
@@ -148,6 +147,7 @@ line, = ax.plot(x, np.sin(x))
 title = ax.set_title("Frame 0")
 
 FRAMES = 50
+
 
 def animate(i):
     phi = 2 * np.pi * i / FRAMES
