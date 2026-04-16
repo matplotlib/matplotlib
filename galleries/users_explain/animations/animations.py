@@ -131,6 +131,33 @@ def update(frame):
 ani = animation.FuncAnimation(fig=fig, func=update, frames=40, interval=30)
 plt.show()
 
+# %%
+# Animations in Jupyter Notebooks
+# ===============================
+#
+# Animations can also be displayed inside Jupyter notebooks using HTML rendering.
+# This allows interactive playback controls directly in the notebook.
+#
+# Example:
+
+from IPython.display import HTML
+
+fig, ax = plt.subplots()
+x = np.linspace(0, 2*np.pi)
+line, = ax.plot(x, np.sin(x))
+title = ax.set_title("Frame 0")
+
+FRAMES = 50
+
+def animate(i):
+    phi = 2 * np.pi * i / FRAMES
+    line.set_data(x, np.sin(x - phi))
+    title.set_text(f"Frame {i}, Phase = {phi:.2f}")
+    return (line,)
+
+ani = animation.FuncAnimation(fig, animate, frames=FRAMES)
+plt.close(fig)
+HTML(ani.to_jshtml(fps=20))
 
 # %%
 # ``ArtistAnimation``
