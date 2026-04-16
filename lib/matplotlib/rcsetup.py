@@ -1448,7 +1448,7 @@ _validators = {
     "keymap.copy":       validate_stringlist,
 
     # Animation settings
-    "animation.html":         ["html5", "jshtml", "none"],
+    "animation.html":         ["auto", "html5", "jshtml", "none"],
     # Limit, in MB, of size of base64 encoded animation in HTML
     # (i.e. IPython notebook)
     "animation.embed_limit":  validate_float,
@@ -3833,13 +3833,14 @@ _DEFINITION = [
     _Section("Animation"),
     _Param(
         "animation.html",
-        default="none",
-        type=Literal["html5", "jshtml", "none"],
-        validator=["html5", "jshtml", "none"],
-        description="How to display animations as HTML in IPython notebooks: "
-                    "'html5' uses the HTML5 video tag, "
-                    "'jshtml' creates a JavaScript animation, and "
-                    "'none' disables HTML output."
+        default="auto",
+        type=Literal["auto", "html5", "jshtml", "none"],
+        validator=["auto", "html5", "jshtml", "none"],
+        description="How to display animations as HTML in IPython notebooks:\n"
+                    "- 'auto' picks the best available option\n"
+                    "- 'html5' uses HTML5 video tag\n"
+                    "- 'jshtml' creates a JavaScript animation\n"
+                    "- 'none' displays nothing"
     ),
     _Param(
         "animation.writer",
