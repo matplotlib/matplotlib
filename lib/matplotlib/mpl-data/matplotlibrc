@@ -823,10 +823,11 @@
 ## ***************************************************************************
 ## * ANIMATION                                                               *
 ## ***************************************************************************
-#animation.html: none  # How to display the animation as HTML in
-                       # the IPython notebook:
-                       #     - 'html5' uses HTML5 video tag
-                       #     - 'jshtml' creates a JavaScript animation
+#animation.html: auto  # How to display the animation as HTML in the IPython notebook:
+                       #   - 'none' displays nothing
+                       #   - 'html5' uses HTML5 video tag
+                       #   - 'jshtml' creates a JavaScript animation
+                       #   - 'auto' picks the best available option
 #animation.writer:  ffmpeg        # MovieWriter 'backend' to use
 #animation.codec:   h264          # Codec to use for writing movie
 #animation.bitrate: -1            # Controls size/quality trade-off for movie.

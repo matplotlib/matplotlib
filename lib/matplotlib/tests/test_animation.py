@@ -270,6 +270,22 @@ def test_animation_repr_html(writer, html, want, anim):
         assert want in html
 
 
+@pytest.mark.parametrize('writer, want', [
+    pytest.param(
+        'ffmpeg', '<video width',
+        marks=pytest.mark.skipif(not animation.FFMpegWriter.isAvailable(),
+                                 reason='Requires FFMpeg')),
+    pytest.param('jshtml', '<script '),
+])
+@pytest.mark.parametrize('anim', [{}], indirect=['anim'])
+def test_animation_repr_html_auto(writer, want, anim, monkeypatch):
+    monkeypatch.setattr('matplotlib.animation.writers.is_available',
+                        lambda name: name == writer)
+    with plt.rc_context({'animation.html': 'auto'}):
+        html = anim._repr_html_()
+    assert want in html
+
+
 @pytest.mark.parametrize(
     'anim',
     [{'save_count': 10, 'frames': iter(range(5))}],
