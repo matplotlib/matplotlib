@@ -20,7 +20,7 @@ If possible, please provide a minimum self-contained example.
 ## AI Disclosure
 <!-- Please tell us whether you used AI in writing this PR, and if so briefly describe how.
 Read our policy at
-https://matplotlib.org/devdocs/devel/contribute.html#restrictions-on-generative-ai-usage
+https://matplotlib.org/devdocs/devel/contribute.html#use-of-generative-ai
 -->
 
 ## PR checklist
