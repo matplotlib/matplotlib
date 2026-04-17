@@ -826,10 +826,8 @@ def _ensure_cmap(cmap, accept_multivariate=False):
     # this error message is a variant of _api.check_in_list but gives
     # additional hints as to how to access multivariate colormaps
 
-    raise ValueError(f"{cmap!r} is not a valid value for cmap"
-                     "; supported values for scalar colormaps are "
-                     f"{', '.join(map(repr, sorted(mpl.colormaps)))}\n"
-                     "See `matplotlib.bivar_colormaps()` and"
+    raise ValueError(_api.list_suggestion_error_msg('cmap', cmap, mpl.colormaps) +
+                     "\nSee `matplotlib.bivar_colormaps()` and"
                      " `matplotlib.multivar_colormaps()` for"
                      " bivariate and multivariate colormaps")
 
