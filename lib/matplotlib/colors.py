@@ -142,10 +142,8 @@ class ColorSequenceRegistry(Mapping):
         self._color_sequences = {**self._BUILTIN_COLOR_SEQUENCES}
 
     def __getitem__(self, item):
-        try:
-            return list(self._color_sequences[item])
-        except KeyError:
-            raise KeyError(f"{item!r} is not a known color sequence name")
+        return list(_api.getitem_checked(self._color_sequences, _error_cls=KeyError,
+                                         sequence_name=item))
 
     def __iter__(self):
         return iter(self._color_sequences)
