@@ -107,6 +107,36 @@ def check_isinstance(types, /, **kwargs):
                     type_name(type(v))))
 
 
+def list_suggestion_error_msg(name, potential, values):
+    """
+    Generate an error message that a potential setting is not an acceptable value.
+
+    If the acceptable values are all strings, and sufficiently large, then add just a
+    few suggestions to the end of the message. Otherwise list the supported values.
+
+    Parameters
+    ----------
+    name : str
+        The name of the setting, keyword argument, etc. to generate the message for.
+    potential
+        The potential value from the user that is not a valid choice.
+    values : iterable
+        Sequence of values to check on.
+    """
+    if len(values) > 5 and all(isinstance(v, str) for v in [potential, *values]):
+        best = difflib.get_close_matches(potential, values, cutoff=0.5)
+        match len(best):
+            case 0:
+                suggestion = ""
+            case 1:
+                suggestion = f" Did you mean: {best[0]!r}?"
+            case _:
+                suggestion = f" Did you mean one of: {', '.join(map(repr, best))}?"
+    else:
+        suggestion = f" Supported values are {', '.join(map(repr, values))}"
+    return f"{potential!r} is not a valid value for {name}.{suggestion}"
+
+
 def check_in_list(values, /, **kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is in *values*;
@@ -146,9 +176,7 @@ def check_in_list(values, /, **kwargs):
             # the individual `val == values[i]` ValueError surface.
             exists = False
         if not exists:
-            msg = (f"{val!r} is not a valid value for {key}"
-                   f"; supported values are {', '.join(map(repr, values))}")
-            raise ValueError(msg)
+            raise ValueError(list_suggestion_error_msg(key, val, values))
 
 
 def check_shape(shape, /, **kwargs):
@@ -207,18 +235,7 @@ def getitem_checked(mapping, /, _error_cls=ValueError, **kwargs):
     try:
         return mapping[v]
     except KeyError:
-        if len(mapping) > 5:
-            best = difflib.get_close_matches(v, mapping.keys(), cutoff=0.5)
-            match len(best):
-                case 0:
-                    suggestion = ""
-                case 1:
-                    suggestion = f" Did you mean: {best[0]!r}?"
-                case _:
-                    suggestion = f" Did you mean one of: {', '.join(map(repr, best))}?"
-        else:
-            suggestion = f" Supported values are {', '.join(map(repr, mapping))}"
-        raise _error_cls(f"{v!r} is not a valid value for {k}.{suggestion}") from None
+        raise _error_cls(list_suggestion_error_msg(k, v, mapping.keys())) from None
 
 
 def caching_module_getattr(cls):

@@ -1072,8 +1072,8 @@ def test_scale_swapping(fig_test, fig_ref):
 
 def test_offset_copy_errors():
     with pytest.raises(ValueError,
-                       match="'fontsize' is not a valid value for units;"
-                             " supported values are 'dots', 'points', 'inches'"):
+                       match="'fontsize' is not a valid value for units. "
+                             "Supported values are 'dots', 'points', 'inches'"):
         mtransforms.offset_copy(None, units='fontsize')
 
     with pytest.raises(ValueError,
