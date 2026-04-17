@@ -3338,6 +3338,13 @@ def test_scatter_c_facecolor_warning_integration(c, facecolor):
         ax.scatter(x, y, c=c, facecolor=facecolor)
 
 
+def test_invalid_projection():
+    with pytest.raises(ValueError,
+                       match=r"'aitof' is not a valid value for projection\. "
+                             r"Did you mean: 'aitoff'\?"):
+        plt.subplots(subplot_kw={'projection': 'aitof'})
+
+
 def test_as_mpl_axes_api():
     # tests the _as_mpl_axes api
     class Polar:

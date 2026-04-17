@@ -52,7 +52,7 @@ A full-fledged and heavily annotated example is in
 `matplotlib.projections.polar` may also be of interest.
 """
 
-from .. import axes, _docstring
+from .. import _api, axes, _docstring
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
 
@@ -78,9 +78,10 @@ class ProjectionRegistry:
             name = projection.name
             self._all_projection_types[name] = projection
 
-    def get_projection_class(self, name):
+    def get_projection_class(self, name, _error_cls=KeyError):
         """Get a projection class from its *name*."""
-        return self._all_projection_types[name]
+        return _api.getitem_checked(self._all_projection_types, _error_cls=_error_cls,
+                                    projection=name)
 
     def get_projection_names(self):
         """Return the names of all projections currently registered."""
@@ -116,10 +117,7 @@ def get_projection_class(projection=None):
     if projection is None:
         projection = 'rectilinear'
 
-    try:
-        return projection_registry.get_projection_class(projection)
-    except KeyError as err:
-        raise ValueError("Unknown projection %r" % projection) from err
+    return projection_registry.get_projection_class(projection, _error_cls=ValueError)
 
 
 get_projection_names = projection_registry.get_projection_names
