@@ -107,7 +107,7 @@ def check_isinstance(types, /, **kwargs):
                     type_name(type(v))))
 
 
-def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
+def check_in_list(values, /, **kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is in *values*;
     if not, raise an appropriate ValueError.
@@ -119,8 +119,6 @@ def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
 
         Note: All values must support == comparisons.
         This means in particular the entries must not be numpy arrays.
-    _print_supported_values : bool, default: True
-        Whether to print *values* when raising ValueError.
     **kwargs : dict
         *key, value* pairs as keyword arguments to find in *values*.
 
@@ -148,9 +146,8 @@ def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
             # the individual `val == values[i]` ValueError surface.
             exists = False
         if not exists:
-            msg = f"{val!r} is not a valid value for {key}"
-            if _print_supported_values:
-                msg += f"; supported values are {', '.join(map(repr, values))}"
+            msg = (f"{val!r} is not a valid value for {key}"
+                   f"; supported values are {', '.join(map(repr, values))}")
             raise ValueError(msg)
 
 
