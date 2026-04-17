@@ -211,13 +211,17 @@ def getitem_checked(mapping, /, _error_cls=ValueError, **kwargs):
         return mapping[v]
     except KeyError:
         if len(mapping) > 5:
-            if len(best := difflib.get_close_matches(v, mapping.keys(), cutoff=0.5)):
-                suggestion = f"Did you mean one of {best}?"
-            else:
-                suggestion = ""
+            best = difflib.get_close_matches(v, mapping.keys(), cutoff=0.5)
+            match len(best):
+                case 0:
+                    suggestion = ""
+                case 1:
+                    suggestion = f" Did you mean: {best[0]!r}?"
+                case _:
+                    suggestion = f" Did you mean one of: {', '.join(map(repr, best))}?"
         else:
-            suggestion = f"Supported values are {', '.join(map(repr, mapping))}"
-        raise _error_cls(f"{v!r} is not a valid value for {k}. {suggestion}") from None
+            suggestion = f" Supported values are {', '.join(map(repr, mapping))}"
+        raise _error_cls(f"{v!r} is not a valid value for {k}.{suggestion}") from None
 
 
 def caching_module_getattr(cls):
