@@ -44,6 +44,14 @@ def anim(request):
     return klass(fig=fig, func=animate, init_func=init, **kwargs)
 
 
+def test_invalid_writer():
+    # Note, this triggers for Animation.save as well, but this is a lighter test.
+    with pytest.raises(ValueError,
+                       match=r"'pllow' is not a valid value for writer\. "
+                             r"Did you mean: 'pillow'\?"):
+        animation.writers['pllow']
+
+
 class NullMovieWriter(animation.AbstractMovieWriter):
     """
     A minimal MovieWriter.  It doesn't actually write anything.

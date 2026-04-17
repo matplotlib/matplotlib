@@ -117,6 +117,7 @@ class MovieWriterRegistry:
 
     def __getitem__(self, name):
         """Get an available writer class from its name."""
+        _api.check_in_list(self._registered, writer=name)
         if self.is_available(name):
             return self._registered[name]
         raise RuntimeError(f"Requested MovieWriter ({name}) not available")
