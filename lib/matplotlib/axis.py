@@ -561,11 +561,23 @@ class _LazyTickList:
             if self._major:
                 instance.majorTicks = []
                 tick = instance._get_tick(major=True)
+                tick.clipbox = instance.clipbox
+                tick._clippath = instance._clippath
+                tick._clipon = instance._clipon
+                tick.gridline.clipbox = instance.clipbox
+                tick.gridline._clippath = instance._clippath
+                tick.gridline._clipon = instance._clipon
                 instance.majorTicks = [tick]
                 return instance.majorTicks
             else:
                 instance.minorTicks = []
                 tick = instance._get_tick(major=False)
+                tick.clipbox = instance.clipbox
+                tick._clippath = instance._clippath
+                tick._clipon = instance._clipon
+                tick.gridline.clipbox = instance.clipbox
+                tick.gridline._clippath = instance._clippath
+                tick.gridline._clipon = instance._clipon
                 instance.minorTicks = [tick]
                 return instance.minorTicks
 
@@ -908,18 +920,45 @@ class Axis(martist.Artist):
         Each list starts with a single fresh Tick.
         """
         # Restore the lazy tick lists.
-        try:
-            del self.majorTicks
-        except AttributeError:
-            pass
-        try:
-            del self.minorTicks
-        except AttributeError:
-            pass
-        try:
-            self.set_clip_path(self.axes.patch)
-        except AttributeError:
-            pass
+        had_major = bool(self.__dict__.pop('majorTicks', None))
+        had_minor = bool(self.__dict__.pop('minorTicks', None))
+        if had_major or had_minor:
+            try:
+                self.set_clip_path(self.axes.patch)
+            except AttributeError:
+                pass
+
+    def _existing_ticks(self, major=None):
+        """
+        Yield already-materialized ticks without triggering the lazy descriptor.
+
+        `majorTicks` and `minorTicks` are `_LazyTickList` descriptors that
+        create a fresh `.Tick` on first access. Several internal methods
+        (`set_clip_path`, `set_tick_params`) need to touch every
+        *already-materialized* tick without forcing materialization, because
+        doing so would
+
+        (a) create throwaway Tick objects during ``Axes.__init__`` and
+            ``Axes.__clear`` -- defeating the whole point of the lazy lists --
+            and
+
+        (b) risk re-entering the
+            ``Spine.set_position -> Axis.reset_ticks -> Axis.set_clip_path
+            -> _LazyTickList.__get__ -> Tick.__init__ -> Spine.set_position``
+            cascade.
+
+        Reading the instance ``__dict__`` directly bypasses the descriptor.
+
+        Parameters
+        ----------
+        major : bool, optional
+            If True, yield only major ticks; if False, only minor ticks;
+            if None (default), yield major followed by minor.
+        """
+        if major is None or major:
+            yield from self.__dict__.get('majorTicks', ())
+        if major is None or not major:
+            yield from self.__dict__.get('minorTicks', ())
 
     def minorticks_on(self):
         """
@@ -988,11 +1027,11 @@ class Axis(martist.Artist):
         else:
             if which in ['major', 'both']:
                 self._major_tick_kw.update(kwtrans)
-                for tick in self.majorTicks:
+                for tick in self._existing_ticks(major=True):
                     tick._apply_params(**kwtrans)
             if which in ['minor', 'both']:
                 self._minor_tick_kw.update(kwtrans)
-                for tick in self.minorTicks:
+                for tick in self._existing_ticks(major=False):
                     tick._apply_params(**kwtrans)
             # labelOn and labelcolor also apply to the offset text.
             if 'label1On' in kwtrans or 'label2On' in kwtrans:
@@ -1131,7 +1170,7 @@ class Axis(martist.Artist):
 
     def set_clip_path(self, path, transform=None):
         super().set_clip_path(path, transform)
-        for child in self.majorTicks + self.minorTicks:
+        for child in self._existing_ticks():
             child.set_clip_path(path, transform)
         self.stale = True
 
