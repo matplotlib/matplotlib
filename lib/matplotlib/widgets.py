@@ -2119,10 +2119,6 @@ class Cursor(AxesWidget):
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
             if self.needclear:
-                if self.useblit:
-                    background = self._load_blit_background()
-                    if background is not None:
-                        self.canvas.restore_region(background)
                 background = self._load_blit_background()
                 if self.useblit and background is not None:
                     self.canvas.restore_region(background)
@@ -2147,7 +2143,7 @@ class Cursor(AxesWidget):
             self.ax.draw_artist(self.lineh)
             self.canvas.blit(self.ax.bbox)
         else:
-            self.canvas.draw()
+            self.canvas.draw_idle()
 
 
 class MultiCursor(Widget):
