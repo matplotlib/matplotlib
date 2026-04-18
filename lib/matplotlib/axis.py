@@ -577,6 +577,17 @@ class _LazyTickList:
                 rc._update_raw(orig)
         else:
             tick = instance._get_tick(major=self._major)
+        # Re-apply any ``set_tick_params`` overrides to the fresh Tick.
+        # Subclasses of ``Axis`` (e.g. the ``SkewXAxis`` in the skewt
+        # gallery example) sometimes override ``_get_tick`` without
+        # forwarding ``_{major,minor}_tick_kw``; calling ``_apply_params``
+        # here guarantees those overrides still take effect, matching the
+        # pre-lazy behaviour where the first tick was materialized eagerly
+        # and updated in place by ``set_tick_params``.
+        tick_kw = (instance._major_tick_kw if self._major
+                   else instance._minor_tick_kw)
+        if tick_kw:
+            tick._apply_params(**tick_kw)
         instance._propagate_axis_state_to_tick(tick)
         setattr(instance, attr, [tick])
         return getattr(instance, attr)
