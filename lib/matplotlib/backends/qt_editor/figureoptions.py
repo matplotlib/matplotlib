@@ -248,11 +248,30 @@ def figure_edit(axes, parent=None):
         if generate_legend:
             draggable = None
             ncols = 1
+            # Collect legend properties from the old legend to preserve them
+            legend_kwargs = {}
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
                 ncols = old_legend._ncols
-            new_legend = axes.legend(ncols=ncols)
+                legend_kwargs['ncols'] = ncols
+                # Preserve bbox_to_anchor
+                if old_legend._bbox_to_anchor is not None:
+                    bbox = old_legend._bbox_to_anchor._bbox
+                    legend_kwargs['bbox_to_anchor'] = (
+                        bbox.x0, bbox.y0,
+                        bbox.x1 - bbox.x0, bbox.y1 - bbox.y0
+                    )
+                # Preserve loc
+                legend_kwargs['loc'] = old_legend._loc_real
+                # Preserve mode (horizontal vs vertical distribution)
+                if old_legend._mode is not None:
+                    legend_kwargs['mode'] = old_legend._mode
+                # Preserve borderaxespad
+                legend_kwargs['borderaxespad'] = old_legend.borderaxespad
+            else:
+                legend_kwargs['ncols'] = ncols
+            new_legend = axes.legend(**legend_kwargs)
             if new_legend:
                 new_legend.set_draggable(draggable)
 
