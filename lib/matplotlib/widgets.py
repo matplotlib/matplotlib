@@ -2123,6 +2123,9 @@ class Cursor(AxesWidget):
                     background = self._load_blit_background()
                     if background is not None:
                         self.canvas.restore_region(background)
+                background = self._load_blit_background()
+                if self.useblit and background is not None:
+                    self.canvas.restore_region(background)
                     self.canvas.blit(self.ax.bbox)
                 else:
                     self.canvas.draw()
