@@ -39,11 +39,11 @@ def test_cm_stub_matches_runtime_colormaps():
 
 def test_typing_aliases_documented():
     """Every public type in typing.py is documented or intentionally undocumented."""
-    typing_docs = Path(__file__).parent / "../../../doc/api/typing_api.rst"
+    typing_docs = Path(__file__).parents[3] / "doc/api/typing_api.rst"
     if not typing_docs.exists():
         pytest.skip("Documentation sources not available")
 
-    typing_py_path = Path(__file__).parent.parent / "typing.py"
+    typing_py_path = Path(__file__).parents[1] / "typing.py"
     assert typing_py_path.exists(), f"{typing_py_path} does not exist"
     tree = ast.parse(typing_py_path.read_text(encoding="utf-8"))
 
