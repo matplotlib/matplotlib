@@ -550,36 +550,36 @@ class _LazyTickList:
     def __get__(self, instance, owner):
         if instance is None:
             return self
+        # instance._get_tick() can itself try to access the majorTicks
+        # attribute (e.g. in certain projection classes which override
+        # e.g. get_xaxis_text1_transform).  In order to avoid infinite
+        # recursion, first set the majorTicks on the instance temporarily
+        # to an empty list. Then create the tick; note that _get_tick()
+        # may call reset_ticks(). Therefore, the final tick list is
+        # created and assigned afterwards.
+        attr = 'majorTicks' if self._major else 'minorTicks'
+        setattr(instance, attr, [])
+        # Build the Tick (and its sub-artists) under the rcParams snapshot
+        # taken at the last ``Axis.clear`` so that a lazily-materialized
+        # Tick matches the values an eager (pre-lazy) Tick would have had
+        # (see ``Axis._rc_snapshot``). Use ``_update_raw`` rather than
+        # ``rc_context`` to bypass validators that would otherwise fire
+        # spurious warnings when re-applying settings like
+        # ``rcParams['toolbar'] = 'toolmanager'``.
+        snapshot = instance._rc_snapshot
+        if snapshot is not None:
+            rc = mpl.rcParams
+            orig = dict(rc)
+            rc._update_raw(snapshot)
+            try:
+                tick = instance._get_tick(major=self._major)
+            finally:
+                rc._update_raw(orig)
         else:
-            # instance._get_tick() can itself try to access the majorTicks
-            # attribute (e.g. in certain projection classes which override
-            # e.g. get_xaxis_text1_transform).  In order to avoid infinite
-            # recursion, first set the majorTicks on the instance temporarily
-            # to an empty list. Then create the tick; note that _get_tick()
-            # may call reset_ticks(). Therefore, the final tick list is
-            # created and assigned afterwards.
-            if self._major:
-                instance.majorTicks = []
-                tick = instance._get_tick(major=True)
-                tick.clipbox = instance.clipbox
-                tick._clippath = instance._clippath
-                tick._clipon = instance._clipon
-                tick.gridline.clipbox = instance.clipbox
-                tick.gridline._clippath = instance._clippath
-                tick.gridline._clipon = instance._clipon
-                instance.majorTicks = [tick]
-                return instance.majorTicks
-            else:
-                instance.minorTicks = []
-                tick = instance._get_tick(major=False)
-                tick.clipbox = instance.clipbox
-                tick._clippath = instance._clippath
-                tick._clipon = instance._clipon
-                tick.gridline.clipbox = instance.clipbox
-                tick.gridline._clippath = instance._clippath
-                tick.gridline._clipon = instance._clipon
-                instance.minorTicks = [tick]
-                return instance.minorTicks
+            tick = instance._get_tick(major=self._major)
+        instance._propagate_axis_state_to_tick(tick)
+        setattr(instance, attr, [tick])
+        return getattr(instance, attr)
 
 
 class Axis(martist.Artist):
@@ -684,6 +684,13 @@ class Axis(martist.Artist):
         # Initialize here for testing; later add API
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
+        # Snapshot of rcParams at the time of the last ``Axis.clear`` (or
+        # ``set_tick_params(reset=True)``). ``_LazyTickList`` applies this
+        # via ``rc_context`` when it lazily creates a Tick so that the Tick
+        # and its sub-artists see the same rcParams an eager (pre-lazy)
+        # materialization would have seen. See ``_propagate_axis_state_to_tick``
+        # for the clip-state counterpart.
+        self._rc_snapshot = None
 
         if clear:
             self.clear()
@@ -858,17 +865,36 @@ class Axis(martist.Artist):
         return [self.label, self.offsetText,
                 *self.get_major_ticks(), *self.get_minor_ticks()]
 
+    def _propagate_axis_state_to_tick(self, tick):
+        """
+        Copy Axis clip state onto a lazily-created Tick.
+
+        `Axis.set_clip_path` runs during ``Axes.__clear`` before any Tick
+        exists under the lazy-init refactor, so the clip stored on the
+        Axis must be re-stamped onto the first Tick when it materializes
+        (only the Tick itself and its gridline are clipped, matching
+        `Tick.set_clip_path`). Per-Artist rcParams like ``path.sketch`` /
+        ``path.effects`` are handled by the ``rc_context`` wrapping in
+        `_LazyTickList.__get__`, not here.
+        """
+        for artist in (tick, tick.gridline):
+            artist.clipbox = self.clipbox
+            artist._clippath = self._clippath
+            artist._clipon = self._clipon
+
     def _reset_major_tick_kw(self):
         self._major_tick_kw.clear()
         self._major_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'major'))
+        self._rc_snapshot = dict(mpl.rcParams)
 
     def _reset_minor_tick_kw(self):
         self._minor_tick_kw.clear()
         self._minor_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
+        self._rc_snapshot = dict(mpl.rcParams)
 
     def clear(self):
         """
@@ -898,6 +924,11 @@ class Axis(martist.Artist):
 
         # Clear the callback registry for this axis, or it may "leak"
         self.callbacks = cbook.CallbackRegistry(signals=["units"])
+
+        # Snapshot current rcParams so that a Tick materialized later by
+        # ``_LazyTickList`` (possibly outside any ``rc_context`` active
+        # now) sees the same rcParams an eager pre-lazy tick would have.
+        self._rc_snapshot = dict(mpl.rcParams)
 
         # whether the grids are on
         self._major_tick_kw['gridOn'] = (
@@ -939,9 +970,7 @@ class Axis(martist.Artist):
         doing so would
 
         (a) create throwaway Tick objects during ``Axes.__init__`` and
-            ``Axes.__clear`` -- defeating the whole point of the lazy lists --
-            and
-
+            ``Axes.__clear``
         (b) risk re-entering the
             ``Spine.set_position -> Axis.reset_ticks -> Axis.set_clip_path
             -> _LazyTickList.__get__ -> Tick.__init__ -> Spine.set_position``
