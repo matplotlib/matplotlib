@@ -24,6 +24,8 @@ Here is a minimal example of a plot:
    fig, ax = plt.subplots()
    ax.plot(x, y)
    plt.show()
+   
+This will open a window displaying the plotted graph.
 
 If a plot does not show up please check :ref:`troubleshooting-faq`.
 
