@@ -41,7 +41,7 @@ transform                   `~matplotlib.transforms.Transform` subclass
 variant                     [ ``'normal'`` | ``'small-caps'`` ]
 verticalalignment or va     [ ``'center'`` | ``'top'`` | ``'bottom'`` | ``'baseline'`` ]
 visible                     bool
-weight or fontweight        [ ``'normal'`` | ``'bold'`` | ``'heavy'`` | ``'light'`` | ``'ultrabold'`` | ``'ultralight'``]
+weight or fontweight        [ ``'ultralight'`` | ``'light'`` | ``'normal'`` | ``'semibold'`` | ``'bold'`` | ``'heavy'`` | ``'extra bold'`` | ``'black'``]
 x                           `float`
 y                           `float`
 zorder                      any number
@@ -82,66 +82,106 @@ ax = fig.add_axes((0, 0, 1, 1))
 
 # axes coordinates: (0, 0) is bottom left and (1, 1) is upper right
 p = patches.Rectangle(
-    (left, bottom), width, height,
-    fill=False, transform=ax.transAxes, clip_on=False
-    )
+    (left, bottom), width, height, fill=False, transform=ax.transAxes, clip_on=False
+)
 
 ax.add_patch(p)
 
-ax.text(left, bottom, 'left top',
-        horizontalalignment='left',
-        verticalalignment='top',
-        transform=ax.transAxes)
+ax.text(
+    left,
+    bottom,
+    "left top",
+    horizontalalignment="left",
+    verticalalignment="top",
+    transform=ax.transAxes,
+)
 
-ax.text(left, bottom, 'left bottom',
-        horizontalalignment='left',
-        verticalalignment='bottom',
-        transform=ax.transAxes)
+ax.text(
+    left,
+    bottom,
+    "left bottom",
+    horizontalalignment="left",
+    verticalalignment="bottom",
+    transform=ax.transAxes,
+)
 
-ax.text(right, top, 'right bottom',
-        horizontalalignment='right',
-        verticalalignment='bottom',
-        transform=ax.transAxes)
+ax.text(
+    right,
+    top,
+    "right bottom",
+    horizontalalignment="right",
+    verticalalignment="bottom",
+    transform=ax.transAxes,
+)
 
-ax.text(right, top, 'right top',
-        horizontalalignment='right',
-        verticalalignment='top',
-        transform=ax.transAxes)
+ax.text(
+    right,
+    top,
+    "right top",
+    horizontalalignment="right",
+    verticalalignment="top",
+    transform=ax.transAxes,
+)
 
-ax.text(right, bottom, 'center top',
-        horizontalalignment='center',
-        verticalalignment='top',
-        transform=ax.transAxes)
+ax.text(
+    right,
+    bottom,
+    "center top",
+    horizontalalignment="center",
+    verticalalignment="top",
+    transform=ax.transAxes,
+)
 
-ax.text(left, 0.5*(bottom+top), 'right center',
-        horizontalalignment='right',
-        verticalalignment='center',
-        rotation='vertical',
-        transform=ax.transAxes)
+ax.text(
+    left,
+    0.5 * (bottom + top),
+    "right center",
+    horizontalalignment="right",
+    verticalalignment="center",
+    rotation="vertical",
+    transform=ax.transAxes,
+)
 
-ax.text(left, 0.5*(bottom+top), 'left center',
-        horizontalalignment='left',
-        verticalalignment='center',
-        rotation='vertical',
-        transform=ax.transAxes)
+ax.text(
+    left,
+    0.5 * (bottom + top),
+    "left center",
+    horizontalalignment="left",
+    verticalalignment="center",
+    rotation="vertical",
+    transform=ax.transAxes,
+)
 
-ax.text(0.5*(left+right), 0.5*(bottom+top), 'middle',
-        horizontalalignment='center',
-        verticalalignment='center',
-        fontsize=20, color='red',
-        transform=ax.transAxes)
+ax.text(
+    0.5 * (left + right),
+    0.5 * (bottom + top),
+    "middle",
+    horizontalalignment="center",
+    verticalalignment="center",
+    fontsize=20,
+    color="red",
+    transform=ax.transAxes,
+)
 
-ax.text(right, 0.5*(bottom+top), 'centered',
-        horizontalalignment='center',
-        verticalalignment='center',
-        rotation='vertical',
-        transform=ax.transAxes)
+ax.text(
+    right,
+    0.5 * (bottom + top),
+    "centered",
+    horizontalalignment="center",
+    verticalalignment="center",
+    rotation="vertical",
+    transform=ax.transAxes,
+)
 
-ax.text(left, top, 'rotated\nwith newlines',
-        horizontalalignment='center',
-        verticalalignment='center',
-        rotation=45,
-        transform=ax.transAxes)
+ax.text(
+    left,
+    top,
+    "rotated\nwith newlines",
+    horizontalalignment="center",
+    verticalalignment="center",
+    rotation=45,
+    transform=ax.transAxes,
+)
 
 ax.set_axis_off()
 plt.show()
