@@ -427,6 +427,9 @@ def test_normalize_weights():
     assert _normalize_weight('bold') == 700
     assert _normalize_weight('heavy') == 800
     assert _normalize_weight('extra bold') == 800
+    assert _normalize_weight('extrabold') == 800
+    assert _normalize_weight('superbold') == 800
+    assert _normalize_weight('ultrabold') == 800
     assert _normalize_weight('black') == 900
     with pytest.raises(KeyError):
         _normalize_weight('invalid')
