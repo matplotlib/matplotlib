@@ -18,6 +18,7 @@ Please see :ref:`figures-not-showing`.
 .. _how-to-too-many-ticks:
 
 Why do I have so many ticks, and/or why are they out of order?
+In simple terms, this happens because Matplotlib treats strings as categories instead of numeric values. As a result, the axis may display ticks in an unexpected order or show too many ticks.
 --------------------------------------------------------------
 
 A common cause for unexpected tick behavior is passing a *list of strings
