@@ -6,7 +6,7 @@ from contextlib import ExitStack
 import functools
 import math
 from numbers import Integral
-
+import warnings
 import numpy as np
 from numpy import ma
 
@@ -998,6 +998,15 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         """
+       
+
+        if self.zmin == self.zmax:
+            warnings.warn(
+                "Z is constant; contour levels are not meaningful.",
+                stacklevel=2
+            )
+            return np.array([self.zmin])
+
         lev = self.locator.tick_values(self.zmin, self.zmax)
 
         try:
@@ -1006,7 +1015,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         except AttributeError:
             pass
 
-        # Trim excess levels the locator may have supplied.
+    # Trim excess levels the locator may have supplied.
         under = np.nonzero(lev < self.zmin)[0]
         i0 = under[-1] if len(under) else 0
         over = np.nonzero(lev > self.zmax)[0]

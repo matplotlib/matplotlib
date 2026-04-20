@@ -876,3 +876,16 @@ def test_contour_aliases(fig_test, fig_ref):
 def test_contour_singular_color():
     with pytest.raises(TypeError):
         plt.figure().add_subplot().contour([[0, 1], [2, 3]], color="r")
+
+def test_contour_constant_z_warns_and_single_level():
+    Z = np.ones((10, 10))
+
+    fig, ax = plt.subplots()
+
+    # Expect a warning
+    with pytest.warns(UserWarning, match="Z is constant"):
+        cs = ax.contour(Z)
+
+    # Ensure only one level is created
+    assert len(cs.levels) == 1
+    assert cs.levels[0] == 1.0
