@@ -3520,7 +3520,7 @@ class MultiNorm(Norm):
             - If iterable, must be of length `n_components`. Each element can be a
               scalar or array-like and is mapped through the corresponding norm.
             - If structured array, must have `n_components` fields. Each field
-              is mapped through the the corresponding norm.
+              is mapped through the corresponding norm.
 
         """
         values = self._iterable_components_in_data(values, self.n_components)

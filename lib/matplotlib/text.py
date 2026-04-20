@@ -1614,7 +1614,7 @@ class OffsetFrom:
 
         ref_coord : (float, float)
             If *artist* is an `.Artist` or `.BboxBase`, this values is
-            the location to of the offset origin in fractions of the
+            the location of the offset origin in fractions of the
             *artist* bounding box.
 
             If *artist* is a transform, the offset origin is the
