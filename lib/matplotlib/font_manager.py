@@ -96,6 +96,9 @@ weight_dict = {
     'extrabold':  800,
     'superbold':  800,
     'ultrabold':  800,
+    'ultrablack': 1000,
+    'superblack': 1000,
+    'extrablack': 1000,
     'black':      900,
 }
 _weight_regexes = [
