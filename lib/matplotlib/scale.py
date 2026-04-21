@@ -955,6 +955,19 @@ def register_scale(scale_class):
             pending=True,
         )
 
+def unregister_scale(name):
+    """
+    Remove a custom scale from the registry.
+
+    Parameters
+    ----------
+    name : str
+        The name of the scale to remove.
+    """
+    if name not in _scale_mapping:
+        raise ValueError(f"Scale '{name}' is not registered.")
+    del _scale_mapping[name]
+
 
 def _get_scale_docs():
     """
