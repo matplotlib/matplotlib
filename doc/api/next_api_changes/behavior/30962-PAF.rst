@@ -1,0 +1,7 @@
+``edgecolors='face'`` with ``facecolors='none'`` now maps edge colors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When using `~.Axes.scatter`, `~.Axes.pcolor`, `~.Axes.pcolormesh`, or other
+Collection-based plotting functions with ``edgecolors='face'`` and
+``facecolors='none'``, the edge colors are now mapped from the array data
+(if provided) instead of being set to 'none'. This allows creating scatter
+plots with unfilled markers where the edge colors follow the colormap.
