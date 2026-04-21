@@ -10274,3 +10274,24 @@ def test_errorbar_uses_rcparams():
     assert_allclose([cap.get_markeredgewidth() for cap in caplines], 2.5)
     for barcol in barlinecols:
         assert_allclose(barcol.get_linewidths(), 1.75)
+
+
+def test_relim_updates_scatter_offsets():
+    fig, ax = plt.subplots()
+
+    xs = np.linspace(0, 10, 100)
+    ys = np.sin(xs)
+    scatter = ax.scatter(xs, ys)
+
+    # Shift scatter upward
+    new_ys = np.sin(xs) + 5
+    scatter.set_offsets(np.column_stack((xs, new_ys)))
+
+    ax.relim()
+    ax.autoscale_view()
+
+    ymin, ymax = ax.get_ylim()
+
+    # New limits should reflect shifted data
+    assert ymin > 3
+    assert ymax > 5
