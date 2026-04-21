@@ -559,18 +559,19 @@ class _LazyTickList:
         # created and assigned afterwards.
         attr = 'majorTicks' if self._major else 'minorTicks'
         setattr(instance, attr, [])
-        # Build the Tick (and its sub-artists) under the rcParams snapshot
-        # taken at the last ``Axis.clear`` so that a lazily-materialized
-        # Tick matches the values an eager (pre-lazy) Tick would have had
-        # (see ``Axis._rc_snapshot``). Use ``_update_raw`` rather than
-        # ``rc_context`` to bypass validators that would otherwise fire
-        # spurious warnings when re-applying settings like
-        # ``rcParams['toolbar'] = 'toolmanager'``.
-        snapshot = instance._rc_snapshot
-        if snapshot is not None:
+        # Build the Tick (and its sub-artists) under the rcParams captured
+        # at the last ``Axis.clear`` so that a lazily-materialized Tick
+        # matches an eager (pre-lazy) Tick (see ``Axis._tick_rcParams``).
+        # We avoid ``rc_context`` here because it re-applies rcParams via
+        # ``RcParams.__setitem__``, whose validators emit warnings on every
+        # assignment for keys like ``toolbar='toolmanager'`` -- re-setting
+        # the snapshot to its own (identical) values would spuriously
+        # re-trigger those warnings. ``_update_raw`` bypasses the validators
+        # on both entry and exit.
+        if instance._tick_rcParams is not None:
             rc = mpl.rcParams
             orig = dict(rc)
-            rc._update_raw(snapshot)
+            rc._update_raw(instance._tick_rcParams)
             try:
                 tick = instance._get_tick(major=self._major)
             finally:
@@ -696,12 +697,14 @@ class Axis(martist.Artist):
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
         # Snapshot of rcParams at the time of the last ``Axis.clear`` (or
-        # ``set_tick_params(reset=True)``). ``_LazyTickList`` applies this
-        # via ``rc_context`` when it lazily creates a Tick so that the Tick
-        # and its sub-artists see the same rcParams an eager (pre-lazy)
-        # materialization would have seen. See ``_propagate_axis_state_to_tick``
-        # for the clip-state counterpart.
-        self._rc_snapshot = None
+        # ``set_tick_params(reset=True)``). ``_LazyTickList`` re-applies
+        # these when it lazily creates a Tick so that the Tick and its
+        # sub-artists see the same rcParams an eager (pre-lazy)
+        # materialization would have seen. Kept separate from
+        # ``_major_tick_kw``/``_minor_tick_kw``, which hold user-provided
+        # ``set_tick_params`` overrides rather than ambient rcParams. See
+        # ``_propagate_axis_state_to_tick`` for the clip-state counterpart.
+        self._tick_rcParams = None
 
         if clear:
             self.clear()
@@ -898,14 +901,14 @@ class Axis(martist.Artist):
         self._major_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'major'))
-        self._rc_snapshot = dict(mpl.rcParams)
+        self._tick_rcParams = dict(mpl.rcParams)
 
     def _reset_minor_tick_kw(self):
         self._minor_tick_kw.clear()
         self._minor_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
-        self._rc_snapshot = dict(mpl.rcParams)
+        self._tick_rcParams = dict(mpl.rcParams)
 
     def clear(self):
         """
@@ -939,7 +942,7 @@ class Axis(martist.Artist):
         # Snapshot current rcParams so that a Tick materialized later by
         # ``_LazyTickList`` (possibly outside any ``rc_context`` active
         # now) sees the same rcParams an eager pre-lazy tick would have.
-        self._rc_snapshot = dict(mpl.rcParams)
+        self._tick_rcParams = dict(mpl.rcParams)
 
         # whether the grids are on
         self._major_tick_kw['gridOn'] = (
@@ -961,7 +964,9 @@ class Axis(martist.Artist):
 
         Each list starts with a single fresh Tick.
         """
-        # Restore the lazy tick lists.
+        # Drop any materialized tick lists so the _LazyTickList descriptor is
+        # reactivated on next access. If ticks were already materialized,
+        # re-apply the axes-patch clip path; otherwise skip.
         had_major = bool(self.__dict__.pop('majorTicks', None))
         had_minor = bool(self.__dict__.pop('minorTicks', None))
         if had_major or had_minor:
