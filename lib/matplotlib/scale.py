@@ -968,6 +968,7 @@ def unregister_scale(name):
     if name not in _scale_mapping:
         raise ValueError(f"Scale '{name}' is not registered.")
     _scale_mapping.pop(name)
+    _scale_has_axis_parameter.pop(name, None)
 
 
 def _get_scale_docs():
