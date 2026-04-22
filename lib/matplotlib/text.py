@@ -757,6 +757,21 @@ class Text(Artist):
         Return the distance from the given points to the boundaries of a
         rotated box, in pixels.
         """
+        # Normalize rotation; transform_angles can return values outside
+        # [0, 360) with tiny float noise.
+        rotation = rotation % 360
+        # Short-circuit cardinal angles, otherwise cos(radians(90)) makes
+        # the trig formula below blow up when the text is on the edge.
+        tol = 1e-10
+        if rotation < tol or rotation > 360 - tol:
+            return figure_box.x1 - x0
+        if abs(rotation - 90) < tol:
+            return figure_box.y1 - y0
+        if abs(rotation - 180) < tol:
+            return x0 - figure_box.x0
+        if abs(rotation - 270) < tol:
+            return y0 - figure_box.y0
+
         if rotation > 270:
             quad = rotation - 270
             h1 = (y0 - figure_box.y0) / math.cos(math.radians(quad))
