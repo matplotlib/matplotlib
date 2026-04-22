@@ -2780,6 +2780,39 @@ def test_axis_get_tightbbox_includes_offset_text():
             f"bbox.y1 ({bbox.y1}) should be >= offset_bbox.y1 ({offset_bbox.y1})"
 
 
+def test_axis_get_tightbbox_before_draw_includes_ticklabels():
+    # Regression test for GH#31277.
+    # Axis3D.get_tightbbox() must return a non-degenerate bbox before draw()
+    # has been called when constrained_layout is active, so that the layout
+    # engine can account for 3D tick labels.
+    fig = plt.figure(constrained_layout=True)
+    ax = fig.add_subplot(projection='3d')
+
+    renderer = fig.canvas.get_renderer()
+    for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
+        bbox = axis.get_tightbbox(renderer)
+        assert bbox is not None, f"{axis.axis_name}: get_tightbbox returned None"
+        assert bbox.width > 0 and bbox.height > 0, \
+            f"{axis.axis_name}: tightbbox has zero area before draw()"
+
+
+def test_constrained_layout_3d_no_overlap_with_subplot_title():
+    # Regression test for GH#31277.
+    # When using constrained_layout, 3D tick labels must not overlap the title
+    # of an adjacent 2D subplot.
+    fig = plt.figure(constrained_layout=True)
+    ax1 = fig.add_subplot(2, 1, 1, projection='3d')
+    ax1.set_title('3D Plot')
+    ax2 = fig.add_subplot(2, 1, 2)
+    ax2.set_title('2D Plot')
+
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+
+    assert ax1.get_tightbbox(renderer).y0 >= ax2.title.get_window_extent(renderer).y1, \
+        "3D subplot tick labels overlap the title of the 2D subplot below"
+
+
 def test_ctrl_rotation_snaps_to_5deg():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
