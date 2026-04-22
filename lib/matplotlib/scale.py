@@ -956,7 +956,7 @@ def register_scale(scale_class):
         )
 
 
-def unregister_scale(name):
+def deregister_scale(name):
     """
     Remove a custom scale from the registry.
 
