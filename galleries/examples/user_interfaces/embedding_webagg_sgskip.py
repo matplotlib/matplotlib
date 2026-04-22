@@ -3,7 +3,6 @@
 Embedding WebAgg
 ================
 
-
 This example demonstrates how to embed Matplotlib WebAgg interactive plotting
 in your own web application and framework.  It is not necessary to do all this
 if you merely want to display a plot in a browser or use Matplotlib's built-in

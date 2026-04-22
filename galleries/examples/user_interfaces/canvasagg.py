@@ -3,7 +3,6 @@
 CanvasAgg demo
 ==============
 
-
 This example shows how to use the agg backend directly to create images, which
 may be of use to web application developers who want full control over their
 code without using the pyplot interface to manage figures, figure closing etc.
