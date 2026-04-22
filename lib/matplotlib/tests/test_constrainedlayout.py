@@ -809,3 +809,24 @@ def test_submerged_subfig():
     for ax in axs[1:]:
         assert np.allclose(ax.get_position().bounds[-1],
                            axs[0].get_position().bounds[-1], atol=1e-6)
+
+
+def test_colorbar_remove_axes_no_crash():
+    """
+    Regression test for GH #31330.
+
+    Directly removing the colorbar Axes (``cbar.ax.remove()``) should not
+    crash when the figure is subsequently drawn with constrained layout.
+    """
+    import numpy as np
+    x = y = np.linspace(-1, 1, 20)
+    X, Y = np.meshgrid(x, y)
+    Z = X**2 - Y**2
+
+    # cbar.ax.remove() (direct axes removal) should not raise
+    fig, ax = plt.subplots(layout='constrained')
+    CS = ax.contourf(X, Y, Z, cmap='bone')
+    cbar = fig.colorbar(CS)
+    cbar.ax.remove()
+    # Drawing must not crash with AttributeError on transSubfigure
+    fig.draw_without_rendering()

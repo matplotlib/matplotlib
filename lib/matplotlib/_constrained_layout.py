@@ -398,6 +398,10 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
         # make margin for colorbars.  These margins go in the
         # padding margin, versus the margin for Axes decorators.
         for cbax in ax._colorbars:
+            # Skip colorbar axes that have been removed from the figure
+            # (e.g. via ``cbar.ax.remove()`` instead of ``cbar.remove()``).
+            if cbax.get_figure(root=False) is None:
+                continue
             # note pad is a fraction of the parent width...
             pad = colorbar_get_pad(layoutgrids, cbax)
             # colorbars can be child of more than one subplot spec:
@@ -688,6 +692,8 @@ def reposition_axes(layoutgrids, fig, renderer, *,
         # one colorbar:
         offset = {'left': 0, 'right': 0, 'bottom': 0, 'top': 0}
         for nn, cbax in enumerate(ax._colorbars[::-1]):
+            if cbax.get_figure(root=False) is None:
+                continue  # colorbar axes was removed from the figure
             if ax == cbax._colorbar_info['parents'][0]:
                 reposition_colorbar(layoutgrids, cbax, renderer,
                                     offset=offset, compress=compress)
