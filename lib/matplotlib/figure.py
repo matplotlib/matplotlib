@@ -1417,8 +1417,8 @@ default: %(va)s
         Parameters
         ----------
         mappable
-            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`,
-            `.ContourSet`, etc.) described by this bivariate colorbar.
+            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`
+            etc.) described by this bivariate colorbar.
             This argument is mandatory for the `.Figure.colorbar_bivar` method
             but optional for the`.pyplot.colorbar_bivar` function, which sets
             the default to the current image.
@@ -1504,6 +1504,39 @@ default: %(va)s
     def colorbar_multivar(
             self, mappable, *, caxes=None, ax=None,
             n_major=-1, **kwargs):
+        """
+        Add a bivariate colorbar to a plot.
+
+        Parameters
+        ----------
+        mappable
+            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`
+            etc.) described by this multivariate colorbar.
+            This argument is mandatory for the `.Figure.colorbar_multivar` method
+            but optional for the`.pyplot.colorbar_multivar` function, which sets
+            the default to the current image.
+
+        caxes : `~matplotlib.axes.Axes`, optional
+            Axes into which the colorbar will be drawn.  If `None`, then new
+            Axes are created and the space for it will be stolen from the Axes(s)
+            specified in *ax*.
+
+        ax : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
+            The one or more parent Axes from which space for a new colorbar Axes
+            will be stolen. This parameter is only used if *cax* is not set.
+
+            Defaults to the Axes that contains the mappable used to create the
+            colorbar.
+
+        Returns
+        -------
+        multivariate_colorbar : `~matplotlib.colorbar.MultivarColorbar`
+
+        Other Parameters
+        ----------------
+        %(_make_multivar_axes_kw_doc)s
+
+        """
 
         if isinstance(mappable, mpl.colorizer.Colorizer):
             mappable = mcolorizer.ColorizingArtist(mappable)
