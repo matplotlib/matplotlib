@@ -5,12 +5,11 @@ Embed in wx #5
 
 .. tip::
 
-    :class:`wx.lib.mixins.inspection.InspectableApp` is a drop-in
-    replacement for :class:`wx.App` that opens an inspection window
-    letting you browse the live widget and sizer tree. It is a useful
-    debugging aid when embedding Matplotlib in wxPython. See the
-    `wx.lib.inspection documentation
-    <https://docs.wxpython.org/wx.lib.inspection.html>`_.
+    As a development and debugging aid, you can replace :class:`wx.App`
+    by :class:`wx.lib.mixins.inspection.InspectableApp`.
+    This adds the capability to start the `Widget Inspection Tool
+    <https://wiki.wxpython.org/How%20to%20use%20Widget%20Inspection%20Tool%20-%20WIT%20%28Phoenix%29>`_
+    via :kbd:`Ctrl-Alt-I`.
 """
 
 import wx
