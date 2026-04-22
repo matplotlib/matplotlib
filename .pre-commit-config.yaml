@@ -120,3 +120,7 @@ repos:
         name: "Validate Conda environment file"
         files: ^environment\.yml$
         args: ["--verbose", "--schemafile", "ci/schemas/conda-environment.json"]
+  - repo: https://github.com/shssoichiro/oxipng
+    rev: d54e7c04ea58170167d95d9b2b2ec07571602fe2  # frozen: v10.1.0
+    hooks:
+      - id: oxipng
