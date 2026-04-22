@@ -115,7 +115,6 @@ class Colorbar:
     def remove(self) -> None: ...
     def drag_pan(self, button: Any, key: Any, x: float, y: float) -> None: ...
 
-
 ColorbarBase = Colorbar
 
 class BivarColorbar:

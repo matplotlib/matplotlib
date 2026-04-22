@@ -256,7 +256,8 @@ Annotating
    :nosignatures:
 
    SubFigure.colorbar
-   SubFigure.bivar_colorbar
+   SubFigure.colorbar_bivar
+   SubFigure.colorbar_multivar
    SubFigure.legend
    SubFigure.text
    SubFigure.suptitle
