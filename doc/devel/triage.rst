@@ -241,6 +241,6 @@ If you would like to join the triage team:
 Anyone with commit or triage rights may nominate a user to be invited to join
 the triage team by nominating them through the private "Triage team nominations"
 category on `Discourse <https://discourse.matplotlib.org>`__ (Note that only
-``maintainers`` and ``triage`` members can see this category). The nomination
+``@maintainers`` and ``@triage`` members can see this category). The nomination
 will then be confirmed by the Steering Council and the user, if accepted, will
 be added to the triage team on GitHub.
