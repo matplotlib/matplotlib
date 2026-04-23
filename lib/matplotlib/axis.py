@@ -548,6 +548,7 @@ class _LazyTickList:
         self._major = major
 
     def __get__(self, instance, owner):
+        """Materialize the descriptor to a list with one configured tick."""
         if instance is None:
             return self
         # instance._get_tick() can itself try to access the majorTicks
@@ -560,13 +561,13 @@ class _LazyTickList:
         attr = 'majorTicks' if self._major else 'minorTicks'
         setattr(instance, attr, [])
         # Build the Tick (and its sub-artists) under the rcParams captured
-        # at the last ``Axis.clear`` so that a lazily-materialized Tick
-        # matches an eager (pre-lazy) Tick (see ``Axis._tick_rcParams``).
-        # We avoid ``rc_context`` here because it re-applies rcParams via
-        # ``RcParams.__setitem__``, whose validators emit warnings on every
-        # assignment for keys like ``toolbar='toolmanager'`` -- re-setting
+        # at the last Axis.clear() so that a lazily-materialized Tick
+        # matches an eager (pre-lazy) Tick (see Axis._tick_rcParams).
+        # We avoid rc_context() here because it re-applies rcParams via
+        # RcParams.__setitem__, whose validators emit warnings on every
+        # assignment for keys like toolbar='toolmanager' -- re-setting
         # the snapshot to its own (identical) values would spuriously
-        # re-trigger those warnings. ``_update_raw`` bypasses the validators
+        # re-trigger those warnings. _update_raw() bypasses the validators
         # on both entry and exit.
         if instance._tick_rcParams is not None:
             rc = mpl.rcParams
@@ -578,13 +579,13 @@ class _LazyTickList:
                 rc._update_raw(orig)
         else:
             tick = instance._get_tick(major=self._major)
-        # Re-apply any ``set_tick_params`` overrides to the fresh Tick.
-        # Subclasses of ``Axis`` (e.g. the ``SkewXAxis`` in the skewt
-        # gallery example) sometimes override ``_get_tick`` without
-        # forwarding ``_{major,minor}_tick_kw``; calling ``_apply_params``
-        # here guarantees those overrides still take effect, matching the
-        # pre-lazy behaviour where the first tick was materialized eagerly
-        # and updated in place by ``set_tick_params``.
+        # Re-apply any set_tick_params() overrides to the fresh Tick.
+        # Subclasses of Axis (e.g. the SkewXAxis in the skewt gallery
+        # example) sometimes override _get_tick() without forwarding
+        # _{major,minor}_tick_kw; calling _apply_params() here guarantees
+        # those overrides still take effect, matching the pre-lazy
+        # behaviour where the first tick was materialized eagerly and
+        # updated in place by set_tick_params().
         tick_kw = (instance._major_tick_kw if self._major
                    else instance._minor_tick_kw)
         if tick_kw:
@@ -696,14 +697,14 @@ class Axis(martist.Artist):
         # Initialize here for testing; later add API
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
-        # Snapshot of rcParams at the time of the last ``Axis.clear`` (or
-        # ``set_tick_params(reset=True)``). ``_LazyTickList`` re-applies
-        # these when it lazily creates a Tick so that the Tick and its
+        # Snapshot of rcParams at the time of the last Axis.clear() (or
+        # set_tick_params(reset=True)). _LazyTickList re-applies these
+        # when it lazily creates a Tick so that the Tick and its
         # sub-artists see the same rcParams an eager (pre-lazy)
         # materialization would have seen. Kept separate from
-        # ``_major_tick_kw``/``_minor_tick_kw``, which hold user-provided
-        # ``set_tick_params`` overrides rather than ambient rcParams. See
-        # ``_propagate_axis_state_to_tick`` for the clip-state counterpart.
+        # _major_tick_kw/_minor_tick_kw, which hold user-provided
+        # set_tick_params() overrides rather than ambient rcParams. See
+        # _propagate_axis_state_to_tick() for the clip-state counterpart.
         self._tick_rcParams = None
 
         if clear:
@@ -883,13 +884,12 @@ class Axis(martist.Artist):
         """
         Copy Axis clip state onto a lazily-created Tick.
 
-        `Axis.set_clip_path` runs during ``Axes.__clear`` before any Tick
-        exists under the lazy-init refactor, so the clip stored on the
-        Axis must be re-stamped onto the first Tick when it materializes
-        (only the Tick itself and its gridline are clipped, matching
-        `Tick.set_clip_path`). Per-Artist rcParams like ``path.sketch`` /
-        ``path.effects`` are handled by the ``rc_context`` wrapping in
-        `_LazyTickList.__get__`, not here.
+        `Axis.set_clip_path` can run before any Tick exists, so the clip
+        stored on the Axis must be re-stamped onto the first Tick when
+        it materializes (only the Tick itself and its gridline are
+        clipped, matching `Tick.set_clip_path`). Per-Artist rcParams
+        like ``path.sketch`` / ``path.effects`` are handled by the
+        rcParams restore in `_LazyTickList.__get__`, not here.
         """
         for artist in (tick, tick.gridline):
             artist.clipbox = self.clipbox
@@ -940,8 +940,8 @@ class Axis(martist.Artist):
         self.callbacks = cbook.CallbackRegistry(signals=["units"])
 
         # Snapshot current rcParams so that a Tick materialized later by
-        # ``_LazyTickList`` (possibly outside any ``rc_context`` active
-        # now) sees the same rcParams an eager pre-lazy tick would have.
+        # _LazyTickList (possibly outside any rc_context() active now)
+        # sees the same rcParams an eager pre-lazy tick would have.
         self._tick_rcParams = dict(mpl.rcParams)
 
         # whether the grids are on

@@ -1436,18 +1436,17 @@ class _AxesBase(martist.Artist):
         self.yaxis.set_clip_path(self.patch)
 
         # Ensure spines have the correct transform before any subsequent
-        # layout or draw. Spine.__init__ installs ``self.axes.transData`` as
+        # layout or draw. Spine.__init__ installs self.axes.transData as
         # a placeholder; the real blended transform is set by
-        # Spine.set_position (via ``_ensure_position_is_set``).  Historically
-        # this fired as a side effect of tick materialization during clear;
-        # with lazy tick lists that cascade no longer runs, so nudge it here
-        # for spines that still carry the placeholder (projections like
-        # polar or secondary axes install custom transforms and are
-        # skipped).
+        # Spine.set_position via _ensure_position_is_set().  Historically
+        # this fired as a side effect of tick materialization during
+        # clear; with lazy tick lists that cascade no longer runs, so
+        # nudge it here for spines that still carry the placeholder
+        # (projections like polar or secondary axes install custom
+        # transforms and are skipped).
         for spine in self.spines.values():
             if spine._position is None and spine._transform is self.transData:
-                spine._position = ('outward', 0.0)
-                spine.set_transform(spine.get_spine_transform())
+                spine._ensure_position_is_set()
 
         if self._sharex is not None:
             self.xaxis.set_visible(xaxis_visible)
