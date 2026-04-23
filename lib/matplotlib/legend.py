@@ -1098,6 +1098,34 @@ class Legend(Artist):
 
     draw_frame = set_frame_on  # Backcompat alias.
 
+    def _get_properties(self):
+        """
+        Return a dictionary of legend properties for recreation.
+
+        This is used by the Qt figure options dialog to preserve legend
+        settings when regenerating the legend.
+        """
+        props = {
+            'loc': self._loc,
+            'fontsize': self._fontsize,
+            'frameon': self.get_frame_on(),
+            'shadow': self.shadow,
+            'framealpha': self.get_frame().get_alpha(),
+            'title': self.get_title().get_text(),
+            'columnspacing': self.columnspacing,
+            'labelspacing': self.labelspacing,
+            'handlelength': self.handlelength,
+            'handletextpad': self.handletextpad,
+            'borderpad': self.borderpad,
+            'borderaxespad': self.borderaxespad,
+            'markerscale': self.markerscale,
+        }
+        if self._bbox_to_anchor is not None:
+            props['bbox_to_anchor'] = self._bbox_to_anchor.bounds
+        if self._mode is not None:
+            props['mode'] = self._mode
+        return props
+
     def get_bbox_to_anchor(self):
         """Return the bbox that the legend will be anchored to."""
         if self._bbox_to_anchor is None:

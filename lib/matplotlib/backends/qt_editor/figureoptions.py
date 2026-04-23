@@ -253,28 +253,7 @@ def figure_edit(axes, parent=None):
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
                 ncols = old_legend._ncols
-                # Preserve location and positioning
-                legend_kwargs['loc'] = old_legend._loc
-                if old_legend._bbox_to_anchor is not None:
-                    legend_kwargs['bbox_to_anchor'] = (
-                        old_legend._bbox_to_anchor.bounds)
-                # Preserve styling
-                legend_kwargs['fontsize'] = old_legend._fontsize
-                legend_kwargs['frameon'] = old_legend.get_frame_on()
-                legend_kwargs['shadow'] = old_legend.shadow
-                legend_kwargs['framealpha'] = (
-                    old_legend.get_frame().get_alpha())
-                legend_kwargs['title'] = (
-                    old_legend.get_title().get_text())
-                # Preserve layout settings
-                if old_legend._mode is not None:
-                    legend_kwargs['mode'] = old_legend._mode
-                legend_kwargs['columnspacing'] = (
-                    old_legend.columnspacing)
-                legend_kwargs['labelspacing'] = old_legend.labelspacing
-                legend_kwargs['handlelength'] = old_legend.handlelength
-                legend_kwargs['handletextpad'] = (
-                    old_legend.handletextpad)
+                legend_kwargs = old_legend._get_properties()
             new_legend = axes.legend(ncols=ncols, **legend_kwargs)
             if new_legend:
                 new_legend.set_draggable(draggable)
