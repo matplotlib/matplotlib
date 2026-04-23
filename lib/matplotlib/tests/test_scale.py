@@ -330,7 +330,7 @@ def test_custom_scale_without_axis():
         ax.set_xscale('custom')
         assert isinstance(ax.xaxis.get_transform(), CustomTransform)
     finally:
-        # cleanup - there's no public unregister_scale()
+        # cleanup - there's no public deregister_scale()
         del mscale._scale_mapping["custom"]
         del mscale._scale_has_axis_parameter["custom"]
 
@@ -368,7 +368,7 @@ def test_custom_scale_with_axis():
         ax.set_xscale('custom')
         assert isinstance(ax.xaxis.get_transform(), CustomTransform)
     finally:
-        # cleanup - there's no public unregister_scale()
+        # cleanup - there's no public deregister_scale()
         del mscale._scale_mapping["custom"]
         del mscale._scale_has_axis_parameter["custom"]
 
@@ -436,7 +436,7 @@ def test_val_in_range_base_fallback():
 
 
 def test_deregister_scale():
-    """Test that unregister_scale removes a scale correctly."""
+    """Test that deregister_scale removes a scale correctly."""
     # Register a temporary custom scale
     class TempScale(mscale.LinearScale):
         name = 'temp_test_scale'
@@ -450,6 +450,6 @@ def test_deregister_scale():
 
 
 def test_deregister_scale_invalid():
-    """Test that unregister_scale raises ValueError for unknown scale."""
+    """Test that deregister_scale raises ValueError for unknown scale."""
     with pytest.raises(ValueError, match="not registered"):
         mscale.deregister_scale('this_does_not_exist')
