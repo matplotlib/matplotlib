@@ -435,7 +435,7 @@ def test_val_in_range_base_fallback():
     assert s.val_in_range(-np.inf) is False
 
 
-def test_unregister_scale():
+def test_deregister_scale():
     """Test that unregister_scale removes a scale correctly."""
     # Register a temporary custom scale
     class TempScale(mscale.LinearScale):
@@ -449,7 +449,7 @@ def test_unregister_scale():
     assert 'temp_test_scale' not in mscale._scale_mapping
 
 
-def test_unregister_scale_invalid():
+def test_deregister_scale_invalid():
     """Test that unregister_scale raises ValueError for unknown scale."""
     with pytest.raises(ValueError, match="not registered"):
         mscale.deregister_scale('this_does_not_exist')
