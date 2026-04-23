@@ -29,7 +29,7 @@ repos:
       - id: trailing-whitespace
         exclude_types: [diff, svg]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 0f369d245750787ce34997d464ed9605391a5283  # frozen: v1.20.1
+    rev: fc0f09a29bb495f4a91f00266155d6282d52485d  # frozen: v1.20.2
     hooks:
       - id: mypy
         additional_dependencies:
