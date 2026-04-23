@@ -778,20 +778,22 @@ def test_wrap_on_figure_edge(x, y, rotation):
 
 
 def test_wrap_on_figure_edge_transform_rotates_text():
-    # With transform_rotates_text=True, get_rotation() goes through
-    # transform_angles() and can return near-cardinal angles with float
-    # noise (e.g. -90.00000000000003 for a 270 degree rotation), which
-    # used to skip the cardinal-angle short-circuit in _get_dist_to_box.
-    from matplotlib.transforms import Affine2D
-    fig = plt.figure(figsize=(6, 4))
+    # Regression test for #31537 - transform_rotates_text with an axis-aligned
+    # transform can make get_rotation() float-round to 360.0.
     s = 'This is a very long text that should be wrapped multiple times.'
-    # rotate_deg(90).rotate_deg(-90) is identity geometrically, but carries
-    # enough numerical slop to perturb transform_angles.
-    transform = Affine2D().rotate_deg(90).rotate_deg(-90) + fig.transFigure
-    t = fig.text(0.0, 0.5, s, transform=transform, wrap=True, rotation=270,
-                 transform_rotates_text=True)
+
+    fig = plt.figure(figsize=(6, 4))
+    transform = mtransforms.Affine2D().rotate_deg(270) + fig.transFigure
+    t = fig.text(0.0, 0.0, s, transform=transform, wrap=True,
+                 rotation=90, transform_rotates_text=True)
     fig.canvas.draw()
-    assert any(' ' in line for line in t._get_wrapped_text().split('\n'))
+
+    fig_ref = plt.figure(figsize=(6, 4))
+    t_ref = fig_ref.text(0.0, 0.0, s, wrap=True, rotation=0)
+    fig_ref.canvas.draw()
+
+    assert 0 <= t.get_rotation() < 360
+    assert t._get_wrapped_text() == t_ref._get_wrapped_text()
 
 
 @check_figures_equal()

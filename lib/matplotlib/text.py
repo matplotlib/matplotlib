@@ -339,8 +339,10 @@ class Text(Artist):
     def get_rotation(self):
         """Return the text angle in degrees in the range [0, 360)."""
         if self.get_transform_rotates_text():
-            return self.get_transform().transform_angles(
+            angle = self.get_transform().transform_angles(
                 [self._rotation], [self.get_unitless_position()]).item(0) % 360
+            # `(tiny_negative) % 360` can float-round to exactly 360.0.
+            return 0.0 if angle == 360 else angle
         else:
             return self._rotation
 
@@ -757,19 +759,15 @@ class Text(Artist):
         Return the distance from the given points to the boundaries of a
         rotated box, in pixels.
         """
-        # Normalize rotation; transform_angles can return values outside
-        # [0, 360) with tiny float noise.
-        rotation = rotation % 360
-        # Short-circuit cardinal angles, otherwise cos(radians(90)) makes
-        # the trig formula below blow up when the text is on the edge.
-        tol = 1e-10
-        if rotation < tol or rotation > 360 - tol:
+        # Short-circuit cardinals; otherwise cos(radians(90)) makes the trig
+        # formula below blow up when the text is on the matching edge.
+        if rotation == 0:
             return figure_box.x1 - x0
-        if abs(rotation - 90) < tol:
+        if rotation == 90:
             return figure_box.y1 - y0
-        if abs(rotation - 180) < tol:
+        if rotation == 180:
             return x0 - figure_box.x0
-        if abs(rotation - 270) < tol:
+        if rotation == 270:
             return y0 - figure_box.y0
 
         if rotation > 270:
