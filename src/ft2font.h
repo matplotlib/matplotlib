@@ -41,7 +41,7 @@ inline char const* ft_error_string(FT_Error error) {
 #undef __FTERRORS_H__
 #define FT_ERROR_START_LIST     switch (error) {
 #define FT_ERRORDEF( e, v, s )    case v: return s;
-#define FT_ERROR_END_LIST         default: return NULL; }
+#define FT_ERROR_END_LIST         default: return "unknown error"; }
 #include FT_ERRORS_H
 }
 
