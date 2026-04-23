@@ -2,6 +2,7 @@
 Classes for the ticks and x- and y-axis.
 """
 
+import contextlib
 import datetime
 import functools
 import logging
@@ -536,6 +537,26 @@ class Ticker:
         self._formatter = formatter
 
 
+@contextlib.contextmanager
+def _rc_context_raw(snapshot):
+    """
+    Like ``mpl.rc_context(snapshot)`` but bypasses ``RcParams`` validators
+    on entry and exit; re-applying a snapshot to its own values must not
+    re-trigger one-shot validator warnings (e.g. ``toolbar='toolmanager'``).
+    ``snapshot=None`` is a no-op.
+    """
+    if snapshot is None:
+        yield
+        return
+    rc = mpl.rcParams
+    orig = dict(rc)
+    rc._update_raw(snapshot)
+    try:
+        yield
+    finally:
+        rc._update_raw(orig)
+
+
 class _LazyTickList:
     """
     A descriptor for lazy instantiation of tick lists.
@@ -553,31 +574,18 @@ class _LazyTickList:
             return self
         # instance._get_tick() can itself try to access the majorTicks
         # attribute (e.g. in certain projection classes which override
-        # e.g. get_xaxis_text1_transform).  In order to avoid infinite
-        # recursion, first set the majorTicks on the instance temporarily
-        # to an empty list. Then create the tick; note that _get_tick()
-        # may call reset_ticks(). Therefore, the final tick list is
-        # created and assigned afterwards.
+        # e.g. get_xaxis_text1_transform).  To avoid infinite recursion,
+        # bind the attribute to an empty list before calling _get_tick().
+        # _get_tick() may also call reset_ticks(), which pops the attribute
+        # from the instance dict; the final setattr below re-binds the
+        # (now non-empty) list so subsequent accesses skip the descriptor.
         attr = 'majorTicks' if self._major else 'minorTicks'
-        setattr(instance, attr, [])
+        tick_list = []
+        setattr(instance, attr, tick_list)
         # Build the Tick (and its sub-artists) under the rcParams captured
         # at the last Axis.clear() so that a lazily-materialized Tick
         # matches an eager (pre-lazy) Tick (see Axis._tick_rcParams).
-        # We avoid rc_context() here because it re-applies rcParams via
-        # RcParams.__setitem__, whose validators emit warnings on every
-        # assignment for keys like toolbar='toolmanager' -- re-setting
-        # the snapshot to its own (identical) values would spuriously
-        # re-trigger those warnings. _update_raw() bypasses the validators
-        # on both entry and exit.
-        if instance._tick_rcParams is not None:
-            rc = mpl.rcParams
-            orig = dict(rc)
-            rc._update_raw(instance._tick_rcParams)
-            try:
-                tick = instance._get_tick(major=self._major)
-            finally:
-                rc._update_raw(orig)
-        else:
+        with _rc_context_raw(instance._tick_rcParams):
             tick = instance._get_tick(major=self._major)
         # Re-apply any set_tick_params() overrides to the fresh Tick.
         # Subclasses of Axis (e.g. the SkewXAxis in the skewt gallery
@@ -591,8 +599,9 @@ class _LazyTickList:
         if tick_kw:
             tick._apply_params(**tick_kw)
         instance._propagate_axis_state_to_tick(tick)
-        setattr(instance, attr, [tick])
-        return getattr(instance, attr)
+        tick_list.append(tick)
+        setattr(instance, attr, tick_list)
+        return tick_list
 
 
 class Axis(martist.Artist):
