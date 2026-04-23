@@ -244,6 +244,18 @@ class Tick(martist.Artist):
         self.gridline.set_clip_path(path, transform)
         self.stale = True
 
+    def _configure_for_axis(self, axis):
+        """
+        Copy the Axis clip state onto this Tick and its gridline.
+
+        Used by `_LazyTickList` to stamp clip state set via
+        `Axis.set_clip_path` onto a lazily-materialized Tick.
+        """
+        for artist in (self, self.gridline):
+            artist.clipbox = axis.clipbox
+            artist._clippath = axis._clippath
+            artist._clipon = axis._clipon
+
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred in the Tick marks.
@@ -598,7 +610,7 @@ class _LazyTickList:
                    else instance._minor_tick_kw)
         if tick_kw:
             tick._apply_params(**tick_kw)
-        instance._propagate_axis_state_to_tick(tick)
+        tick._configure_for_axis(instance)
         tick_list.append(tick)
         setattr(instance, attr, tick_list)
         return tick_list
@@ -713,7 +725,7 @@ class Axis(martist.Artist):
         # materialization would have seen. Kept separate from
         # _major_tick_kw/_minor_tick_kw, which hold user-provided
         # set_tick_params() overrides rather than ambient rcParams. See
-        # _propagate_axis_state_to_tick() for the clip-state counterpart.
+        # Tick._configure_for_axis() for the clip-state counterpart.
         self._tick_rcParams = None
 
         if clear:
@@ -888,22 +900,6 @@ class Axis(martist.Artist):
     def get_children(self):
         return [self.label, self.offsetText,
                 *self.get_major_ticks(), *self.get_minor_ticks()]
-
-    def _propagate_axis_state_to_tick(self, tick):
-        """
-        Copy Axis clip state onto a lazily-created Tick.
-
-        `Axis.set_clip_path` can run before any Tick exists, so the clip
-        stored on the Axis must be re-stamped onto the first Tick when
-        it materializes (only the Tick itself and its gridline are
-        clipped, matching `Tick.set_clip_path`). Per-Artist rcParams
-        like ``path.sketch`` / ``path.effects`` are handled by the
-        rcParams restore in `_LazyTickList.__get__`, not here.
-        """
-        for artist in (tick, tick.gridline):
-            artist.clipbox = self.clipbox
-            artist._clippath = self._clippath
-            artist._clipon = self._clipon
 
     def _reset_major_tick_kw(self):
         self._major_tick_kw.clear()
