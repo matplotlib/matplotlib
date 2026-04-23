@@ -445,11 +445,11 @@ def test_unregister_scale():
     assert 'temp_test_scale' in mscale._scale_mapping
 
     # Now unregister it
-    mscale.unregister_scale('temp_test_scale')
+    mscale.deregister_scale('temp_test_scale')
     assert 'temp_test_scale' not in mscale._scale_mapping
 
 
 def test_unregister_scale_invalid():
     """Test that unregister_scale raises ValueError for unknown scale."""
     with pytest.raises(ValueError, match="not registered"):
-        mscale.unregister_scale('this_does_not_exist')
+        mscale.deregister_scale('this_does_not_exist')
