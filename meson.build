@@ -6,7 +6,6 @@ project(
     find_program('python3', 'python', version: '>= 3.11'),
     '-m', 'setuptools_scm', check: true).stdout().strip(),
   # qt_editor backend is MIT
-  # ResizeObserver at end of lib/matplotlib/backends/web_backend/js/mpl.js is CC0
   # STIX, Computer Modern, and Last Resort are OFL
   # DejaVu is Bitstream Vera and Public Domain
   license: 'PSF-2.0 AND MIT AND CC0-1.0 AND OFL-1.1 AND Bitstream-Vera AND Public-Domain',
@@ -19,7 +18,6 @@ project(
     'LICENSE/LICENSE_COURIERTEN',
     'LICENSE/LICENSE_FREETYPE',
     'LICENSE/LICENSE_HARFBUZZ',
-    'LICENSE/LICENSE_JSXTOOLS_RESIZE_OBSERVER',
     'LICENSE/LICENSE_LAST_RESORT_FONT',
     'LICENSE/LICENSE_LIBRAQM',
     'LICENSE/LICENSE_QT4_EDITOR',
