@@ -151,12 +151,6 @@ Fonts
    .. literalinclude:: ../../LICENSE/LICENSE_BAKOMA
       :language: none
 
-.. dropdown:: Carlogo
-   :class-container: sdd
-
-   .. literalinclude:: ../../LICENSE/LICENSE_CARLOGO
-      :language: none
-
 .. dropdown:: Courier 10
    :class-container: sdd
 
