@@ -722,9 +722,17 @@ class Axis(maxis.XAxis):
             other.append(self.offsetText.get_window_extent(renderer))
         if self.line.get_visible():
             other.append(self.line.get_window_extent(renderer))
-        if (self.label.get_visible() and not for_layout_only and
-                self.label.get_text()):
-            other.append(self.label.get_window_extent(renderer))
+        if self.label.get_visible() and self.label.get_text():
+            bb = self.label.get_window_extent(renderer)
+            if for_layout_only:
+                angle = self.label.get_rotation()
+                if abs(angle % 180) < 45:  # label is roughly horizontal
+                    bb = mtransforms.Bbox([[bb.x0, (bb.y0 + bb.y1) / 2 - 0.5],
+                                           [bb.x1, (bb.y0 + bb.y1) / 2 + 0.5]])
+                else:  # label is roughly vertical
+                    bb = mtransforms.Bbox([[(bb.x0 + bb.x1) / 2 - 0.5, bb.y0],
+                                           [(bb.x0 + bb.x1) / 2 + 0.5, bb.y1]])
+            other.append(bb)
 
         return mtransforms.Bbox.union([*bb_1, *bb_2, *other])
 
