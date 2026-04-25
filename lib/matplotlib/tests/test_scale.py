@@ -330,7 +330,9 @@ def test_custom_scale_without_axis():
         ax.set_xscale('custom')
         assert isinstance(ax.xaxis.get_transform(), CustomTransform)
     finally:
-        mscale.deregister_scale("custom")
+        # cleanup - there's no public deregister_scale()
+        del mscale._scale_mapping["custom"]
+        del mscale._scale_has_axis_parameter["custom"]
 
 
 def test_custom_scale_with_axis():
@@ -366,6 +368,7 @@ def test_custom_scale_with_axis():
         ax.set_xscale('custom')
         assert isinstance(ax.xaxis.get_transform(), CustomTransform)
     finally:
+        # cleanup - there's no public deregister_scale()
         del mscale._scale_mapping["custom"]
         del mscale._scale_has_axis_parameter["custom"]
 
@@ -435,8 +438,16 @@ def test_val_in_range_base_fallback():
 def test_deregister_scale():
     """Test that deregister_scale removes a scale correctly."""
     # Register a temporary custom scale
-    class TempScale(mscale.LinearScale):
+    class TempScale(mscale.ScaleBase):
         name = 'temp_test_scale'
+    
+        def get_transform(self):
+                from matplotlib.transforms import IdentityTransform
+                return IdentityTransform()
+    
+        def set_default_locators_and_formatters(
+                self, axis):
+            pass
 
     mscale.register_scale(TempScale)
     assert 'temp_test_scale' in mscale._scale_mapping
