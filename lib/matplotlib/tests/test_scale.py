@@ -330,7 +330,6 @@ def test_custom_scale_without_axis():
         ax.set_xscale('custom')
         assert isinstance(ax.xaxis.get_transform(), CustomTransform)
     finally:
-        # cleanup - there's no public deregister_scale()
         mscale.deregister_scale("custom")
 
 
@@ -367,7 +366,6 @@ def test_custom_scale_with_axis():
         ax.set_xscale('custom')
         assert isinstance(ax.xaxis.get_transform(), CustomTransform)
     finally:
-        # cleanup - there's no public deregister_scale()
         del mscale._scale_mapping["custom"]
         del mscale._scale_has_axis_parameter["custom"]
 
