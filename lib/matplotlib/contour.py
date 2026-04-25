@@ -837,6 +837,26 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         state['_contour_generator'] = None
         return state
 
+    def set_color(self, c):
+        """
+        Set the color(s) of the contour lines or filled regions.
+
+        For unfilled contours this sets the edgecolor (line color) only.
+        For filled contours this sets both facecolor and edgecolor,
+        matching the behaviour of `~.Collection.set_color`.
+
+        Parameters
+        ----------
+        c : :mpltype:`color` or list of :mpltype:`color`
+            Single color or a sequence of colors.
+        """
+        if self.filled:
+            super().set_color(c)
+        else:
+            self.set_edgecolor(c)
+
+    set_colors = set_color
+
     def legend_elements(self, variable_name='x', str_format=str):
         """
         Return a list of artists and labels suitable for passing through

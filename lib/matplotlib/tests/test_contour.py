@@ -891,3 +891,28 @@ def test_contour_aliases(fig_test, fig_ref):
 def test_contour_singular_color():
     with pytest.raises(TypeError):
         plt.figure().add_subplot().contour([[0, 1], [2, 3]], color="r")
+
+
+def test_contourset_set_color():
+    """set_color on unfilled contours sets edgecolor only (GH#31335)."""
+    import matplotlib.colors as mcolors
+    fig, ax = plt.subplots()
+    data = [[0, 1], [2, 3]]
+
+    # Unfilled contour: set_color should only affect edgecolor (lines)
+    cs = ax.contour(data)
+    cs.set_color('red')
+    for col in cs.collections if hasattr(cs, 'collections') else [cs]:
+        ec = col.get_edgecolor() if hasattr(col, 'get_edgecolor') else cs.get_edgecolor()
+        assert mcolors.same_color(ec[0], 'red'), (
+            "set_color on unfilled ContourSet should set edgecolor to red"
+        )
+
+    # Filled contour: set_color should set facecolor
+    csf = ax.contourf(data)
+    csf.set_color('blue')
+    # After set_color the facecolor of the filled collection should be blue
+    fc = csf.get_facecolor()
+    assert mcolors.same_color(fc[0], 'blue'), (
+        "set_color on filled ContourSet should set facecolor"
+    )
