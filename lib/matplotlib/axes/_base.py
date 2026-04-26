@@ -1439,8 +1439,8 @@ class _AxesBase(martist.Artist):
         # layout or draw. Spine.__init__ installs self.axes.transData as
         # a placeholder; the real blended transform is set by
         # Spine.set_position via _ensure_position_is_set().  Historically
-        # this fired as a side effect of tick materialization during
-        # clear; with lazy tick lists that cascade no longer runs, so
+        # the spine position was set as a side effect of tick materialization
+        # during clear; with lazy tick lists that cascade no longer runs, so
         # nudge it here for spines that still carry the placeholder
         # (projections like polar or secondary axes install custom
         # transforms and are skipped).

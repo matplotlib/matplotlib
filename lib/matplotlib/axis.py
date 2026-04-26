@@ -244,13 +244,25 @@ class Tick(martist.Artist):
         self.gridline.set_clip_path(path, transform)
         self.stale = True
 
-    def _configure_for_axis(self, axis):
+    def _configure_for_axis(self, axis, major):
         """
-        Copy the Axis clip state onto this Tick and its gridline.
+        Apply axis-level configuration to a freshly-materialized Tick.
 
-        Used by `_LazyTickList` to stamp clip state set via
-        `Axis.set_clip_path` onto a lazily-materialized Tick.
+        Used by `_LazyTickList` to:
+
+        - re-apply any ``set_tick_params()`` overrides held on the Axis.
+          Subclasses of Axis (e.g. the SkewXAxis in the skewt gallery
+          example) sometimes override ``_get_tick()`` without forwarding
+          ``_{major,minor}_tick_kw``; calling ``_apply_params()`` here
+          guarantees those overrides still take effect, matching the
+          pre-lazy behaviour where the first tick was materialized eagerly
+          and updated in place by ``set_tick_params()``.
+        - stamp the clip state set via ``Axis.set_clip_path`` onto this
+          Tick and its gridline.
         """
+        tick_kw = axis._major_tick_kw if major else axis._minor_tick_kw
+        if tick_kw:
+            self._apply_params(**tick_kw)
         for artist in (self, self.gridline):
             artist.clipbox = axis.clipbox
             artist._clippath = axis._clippath
@@ -584,34 +596,22 @@ class _LazyTickList:
         """Materialize the descriptor to a list with one configured tick."""
         if instance is None:
             return self
-        # instance._get_tick() can itself try to access the majorTicks
-        # attribute (e.g. in certain projection classes which override
-        # e.g. get_xaxis_text1_transform).  To avoid infinite recursion,
-        # bind the attribute to an empty list before calling _get_tick().
-        # _get_tick() may also call reset_ticks(), which pops the attribute
-        # from the instance dict; the final setattr below re-binds the
-        # (now non-empty) list so subsequent accesses skip the descriptor.
+        # 1. Bind a placeholder so reentrant access via _get_tick() (e.g.
+        #    projections overriding get_xaxis_text1_transform) does not
+        #    recurse back into this descriptor.
+        # 2. Build the tick under the rcParams snapshot taken at the last
+        #    Axis.clear(), so it matches an eager (pre-lazy) Tick.
+        # 3. Apply set_tick_params() overrides and axis state via
+        #    Tick._configure_for_axis().
+        # 4. Re-bind the final list; _get_tick() may have called
+        #    reset_ticks(), which pops the attribute, so this assignment is
+        #    what makes future accesses skip the descriptor.
         attr = 'majorTicks' if self._major else 'minorTicks'
-        tick_list = []
-        setattr(instance, attr, tick_list)
-        # Build the Tick (and its sub-artists) under the rcParams captured
-        # at the last Axis.clear() so that a lazily-materialized Tick
-        # matches an eager (pre-lazy) Tick (see Axis._tick_rcParams).
+        setattr(instance, attr, ())  # placeholder; not appended to
         with _rc_context_raw(instance._tick_rcParams):
             tick = instance._get_tick(major=self._major)
-        # Re-apply any set_tick_params() overrides to the fresh Tick.
-        # Subclasses of Axis (e.g. the SkewXAxis in the skewt gallery
-        # example) sometimes override _get_tick() without forwarding
-        # _{major,minor}_tick_kw; calling _apply_params() here guarantees
-        # those overrides still take effect, matching the pre-lazy
-        # behaviour where the first tick was materialized eagerly and
-        # updated in place by set_tick_params().
-        tick_kw = (instance._major_tick_kw if self._major
-                   else instance._minor_tick_kw)
-        if tick_kw:
-            tick._apply_params(**tick_kw)
-        tick._configure_for_axis(instance)
-        tick_list.append(tick)
+        tick._configure_for_axis(instance, self._major)
+        tick_list = [tick]
         setattr(instance, attr, tick_list)
         return tick_list
 
