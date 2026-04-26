@@ -35,3 +35,12 @@ im = plt.imshow(Z, interpolation='bilinear', cmap="gray",
 
 im.set_url('https://www.google.com/')
 fig.savefig('image.svg')
+
+# %%
+# Display generated SVGs with working hyperlinks
+#
+# .. raw:: html
+#
+#     <object data="../../_static/scatter.svg" type="image/svg+xml"></object>
+#     <br><br>
+#     <object data="../../_static/image.svg" type="image/svg+xml"></object>
