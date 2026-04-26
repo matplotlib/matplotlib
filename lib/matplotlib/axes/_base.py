@@ -4747,7 +4747,10 @@ class _AxesBase(martist.Artist):
 
         for axis in self._axis_map.values():
             if self.axison and axis.get_visible():
-                ba = martist._get_tightbbox_for_layout_only(axis, renderer)
+                if for_layout_only:
+                    ba = martist._get_tightbbox_for_layout_only(axis, renderer)
+                else:
+                    ba = axis.get_tightbbox(renderer)
                 if ba:
                     bb.append(ba)
         self._update_title_position(renderer)
