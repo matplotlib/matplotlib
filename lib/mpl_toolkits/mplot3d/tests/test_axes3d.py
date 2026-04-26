@@ -3176,3 +3176,37 @@ def test_scale3d_calc_coord():
     # Pane coordinate should match axis limit (y-pane at max)
     assert pane_idx == 1
     assert point[pane_idx] == pytest.approx(ax.get_ylim()[1])
+
+
+def test_axes3d_tightbbox_includes_axis_labels():
+    """Axis labels must not be clipped when saving with bbox_inches='tight'.
+
+    Previously get_tightbbox always called _get_tightbbox_for_layout_only on
+    each 3D axis, which explicitly excludes labels (for_layout_only=True).
+    This caused zlabel/xlabel to be cut off in saved figures. GH#28117.
+    """
+    import io
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_xlabel('X label')
+    ax.set_ylabel('Y label')
+    ax.set_zlabel('Z label')
+    ax.scatter([1], [1], [1])
+
+    renderer = fig.canvas.get_renderer()
+
+    # bbox without for_layout_only should include axis labels
+    bb_full = ax.get_tightbbox(renderer, for_layout_only=False)
+    # bbox with for_layout_only=True excludes labels (layout engine path)
+    bb_layout = ax.get_tightbbox(renderer, for_layout_only=True)
+
+    # The full bbox must be strictly larger than the layout bbox in at least
+    # one dimension, because axis labels are included.
+    assert bb_full.width > bb_layout.width or bb_full.height > bb_layout.height, (
+        "Full tightbbox should be strictly larger than layout-only tightbbox "
+        "because it includes axis labels"
+    )
+    # Sanity: saving should not crash
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png', bbox_inches='tight')
+    assert buf.tell() > 0
