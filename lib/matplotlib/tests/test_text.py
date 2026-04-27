@@ -778,8 +778,8 @@ def test_wrap_on_figure_edge(x, y, rotation):
 
 
 def test_wrap_on_figure_edge_transform_rotates_text():
-    # Regression test for #31537 - transform_rotates_text with an axis-aligned
-    # transform can make get_rotation() float-round to 360.0.
+    # transform_rotates_text with an axis-aligned transform can make
+    # get_rotation() float-round to 360.0, breaking the wrap logic.
     s = 'This is a very long text that should be wrapped multiple times.'
 
     fig = plt.figure(figsize=(6, 4))
