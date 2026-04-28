@@ -6829,7 +6829,7 @@ or pandas.DataFrame
             If ``shading='gouraud'`` the dimensions of *X* and *Y* should be
             the same as those of *C* or be one greater than those of *C*,
             otherwise a TypeError is raised. If the dimensions of *X* and *Y*
-            are one greater, they are automatically converted to match the shape
+            are one greater, they are internally converted to match the shape
             of *C* by replacing each quadrilateral with a point at its center,
             computed as the average of their four corners. In both cases a
             smooth interpolation is carried out between the quadrilateral corners.
@@ -6871,11 +6871,15 @@ or pandas.DataFrame
             - 'nearest': Each grid point will have a color centered on it,
               extending halfway between the adjacent grid centers.  The
               dimensions of *X* and *Y* must be the same as *C*.
-            - 'gouraud': Each quad will be Gouraud shaded: The color of the
-              corners (i', j') are given by ``C[i', j']``. The color values of
-              the area in between is interpolated from the corner values.
-              If the dimensions of *X* and *Y* are one greater, the grid is
-              automatically converted to match the shape of *C*.
+            - 'gouraud': If the mesh data is defined at the corners of grid
+              quadrilaterals, with *X*, *Y* and *C* having the same dimensions,
+              each grid quad will be Gouraud shaded. If the color values
+              are specified at the centers of grid quadrilaterals, *X* and *Y*
+              have dimensions one greater than those of *C*, and each colored
+              quadrilateral will use the grid quad centers as its corners, so
+              that it can be Gouraud shaded: The color of the corners (i', j')
+              are given by ``C[i', j']``, and the color values of the area
+              in between are interpolated from the corner values.
               When Gouraud shading is used, *edgecolors* is ignored.
             - 'auto': Choose 'flat' if dimensions of *X* and *Y* are one
               larger than *C*.  Choose 'nearest' if dimensions are the same.

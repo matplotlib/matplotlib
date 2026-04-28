@@ -120,10 +120,11 @@ _annotate(ax, x, y, "shading='gouraud'; X, Y same shape as Z")
 # %%
 # Gouraud Shading, one larger grid
 # --------------------------------
+#
 # In some cases, the user has data defined at the centers of the quadrilaterals
 # with *X* and *Y* one larger than *Z*. ``shading='gouraud'`` also supports
-# this, and automatically converts the grid to match the shape of *Z*
-# by replacing each quadrilateral with a single point at its center.
+# this by using the grid quadrilateral centers as the corners of each colored
+# quadrilateral.
 
 fig, ax = plt.subplots(layout='constrained')
 x = np.arange(ncols + 1)
