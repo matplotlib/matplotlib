@@ -184,7 +184,6 @@ extend-exclude = [
     "doc/tutorials",
     "tools/gh_api.py",
 ]
-target-version = "py311"
 line-length = 88
 
 [tool.ruff.lint]
@@ -296,7 +295,6 @@ convention = "numpy"
 "galleries/users_explain/text/text_props.py" = ["E501"]
 
 [tool.mypy]
-python_version = "3.11"
 ignore_missing_imports = true
 enable_error_code = [
   "ignore-without-code",
