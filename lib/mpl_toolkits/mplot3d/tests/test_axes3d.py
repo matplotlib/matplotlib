@@ -3177,6 +3177,7 @@ def test_scale3d_calc_coord():
     assert pane_idx == 1
     assert point[pane_idx] == pytest.approx(ax.get_ylim()[1])
 
+
 def test_tightbbox_3d_labels_not_clipped():
     # Regression test for GH#31568 - zlabel and xlabel were excluded from
     # get_tightbbox(), causing them to be clipped by savefig(bbox_inches='tight')
