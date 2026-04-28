@@ -1,4 +1,5 @@
 import sys
+import warnings
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -551,6 +552,25 @@ def test_radial_limits_behavior():
     # negative data also autoscales to negative limits
     ax.plot([1, 2], [-1, -2])
     assert ax.get_ylim() == (-2, 2)
+
+
+def test_polar_set_ticks_with_labels():
+    fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
+    ticks = [0.25, 0.5, 0.75, 1.0]
+    labels = ["A", "B", "C", "D"]
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        ax.yaxis.set_ticks(ticks, labels=labels)
+
+    assert [tick.get_text() for tick in ax.yaxis.get_ticklabels()] == labels
+
+
+def test_polar_set_ticks_with_mismatched_labels():
+    fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
+
+    with pytest.raises(ValueError, match="FixedLocator locations"):
+        ax.yaxis.set_ticks([0.25, 0.5], labels=["A"])
 
 
 def test_radial_locator_wrapping():

@@ -448,6 +448,9 @@ class RadialLocator(mticker.Locator):
                 return [tick for tick in self.base() if tick > rorigin]
         return self.base()
 
+    def _get_fixed_locs(self):
+        return self.base._get_fixed_locs()
+
     def _zero_in_bounds(self):
         """
         Return True if zero is within the valid values for the

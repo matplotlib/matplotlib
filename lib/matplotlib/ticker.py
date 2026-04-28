@@ -1761,6 +1761,10 @@ class Locator(TickHelper):
         # hence there is no *one* interface to call self.tick_values.
         raise NotImplementedError('Derived must override')
 
+    def _get_fixed_locs(self):
+        """Return the fixed tick locations, or None if locations are not fixed."""
+        return None
+
     def raise_if_exceeds(self, locs):
         """
         Log at WARNING level if *locs* is longer than `Locator.MAXTICKS`.
@@ -1860,6 +1864,9 @@ class FixedLocator(Locator):
 
     def __call__(self):
         return self.tick_values(None, None)
+
+    def _get_fixed_locs(self):
+        return self.locs
 
     def tick_values(self, vmin, vmax):
         """

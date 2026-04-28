@@ -1999,7 +1999,7 @@ class Axis(martist.Artist):
 
         if (isinstance(formatter, mticker.FixedFormatter)
                 and len(formatter.seq) > 0
-                and not isinstance(level.locator, mticker.FixedLocator)):
+                and level.locator._get_fixed_locs() is None):
             _api.warn_external('FixedFormatter should only be used together '
                                'with FixedLocator')
 
@@ -2142,16 +2142,16 @@ class Axis(martist.Artist):
         if not labels:
             # eg labels=[]:
             formatter = mticker.NullFormatter()
-        elif isinstance(locator, mticker.FixedLocator):
+        elif (locs := locator._get_fixed_locs()) is not None:
             # Passing [] as a list of labels is often used as a way to
             # remove all tick labels, so only error for > 0 labels
-            if len(locator.locs) != len(labels) and len(labels) != 0:
+            if len(locs) != len(labels) and len(labels) != 0:
                 raise ValueError(
                     "The number of FixedLocator locations"
-                    f" ({len(locator.locs)}), usually from a call to"
+                    f" ({len(locs)}), usually from a call to"
                     " set_ticks, does not match"
                     f" the number of labels ({len(labels)}).")
-            tickd = {loc: lab for loc, lab in zip(locator.locs, labels)}
+            tickd = {loc: lab for loc, lab in zip(locs, labels)}
             func = functools.partial(self._format_with_dict, tickd)
             formatter = mticker.FuncFormatter(func)
         else:
