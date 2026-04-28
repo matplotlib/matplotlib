@@ -612,5 +612,3 @@ def test_set_rticks_ticklabels_no_warning():
     ax3.set_rticks([0, 1, 2])
     with pytest.raises(ValueError, match="does not match"):
         ax3.yaxis.set_ticklabels(['a', 'b'])  # 3 ticks, 2 labels
-
-    plt.close('all')
