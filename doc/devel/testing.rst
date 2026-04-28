@@ -181,6 +181,66 @@ will lead to smaller figures and reduce possible issues with font mismatch on
 different platforms.
 
 
+.. _text-rendering-instability:
+
+Handling text rendering differences across versions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Matplotlib's image comparison tests check rendered output against stored
+baseline images at the pixel level.  Text rendering is not guaranteed to
+be pixel-identical across environments or Matplotlib versions.  Character
+spacing, glyph shapes, and sub-pixel positioning all depend on the version of
+`FreeType <https://freetype.org/>`_ in use; they may also change when
+Matplotlib's own text-layout code is updated.  A test that passes on one
+environment can therefore fail on another even though the visual output is
+correct. **This is expected behaviour and is not considered a bug.**
+
+There are several strategies for dealing with this:
+
+**Update the baseline images.**  When a rendering change is intentional or
+otherwise accepted, regenerate the baseline images.  This is the most
+accurate approach: the stored reference exactly matches what the code now
+produces.  The downside is that updated baselines encode a particular
+FreeType version, so future upgrades may require another round of
+regeneration.  The ``triage_tests`` tool (see :ref:`run_tests`) can be used
+to accept new images and copy them into :file:`baseline_images`.
+
+**Use a tolerance.**  The ``tol`` argument of
+`~matplotlib.testing.decorators.image_comparison` (and
+`~matplotlib.testing.decorators.check_figures_equal`) sets the maximum
+allowed average per-pixel difference (on a 0-255 scale) before a test
+fails::
+
+    @image_comparison(['my_plot'], tol=0.5, style='mpl20')
+    def test_my_plot():
+        ...
+
+A small tolerance (around 0.5 or less) accommodates minor rendering
+differences while still catching meaningful regressions.  Tolerances
+above a few units risk masking real visual defects and should be used
+with caution.  When a tolerance is added to handle a specific rendering
+change, a comment explaining the reason helps future contributors decide
+whether it can be removed after baseline regeneration.
+
+**Remove text when it is not essential.**  If text is not the subject of
+the test, strip it from the comparison image entirely.  Pass
+``remove_text=True`` to `~matplotlib.testing.decorators.image_comparison`::
+
+    @image_comparison(['my_plot'], remove_text=True, style='mpl20')
+    def test_my_plot():
+        ...
+
+This removes the figure title and all tick labels, making the baseline
+independent of text rendering.  Individual labels can also be suppressed
+directly in the test body::
+
+    fig, ax = plt.subplots()
+    ax.plot(data)
+    ax.tick_params(labelbottom=False, labelleft=False)
+
+Text that is deliberately part of the figure (annotations, legends,
+etc.) should not be removed. Use a tolerance instead for those cases.
+
 Compare two methods of creating an image
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
