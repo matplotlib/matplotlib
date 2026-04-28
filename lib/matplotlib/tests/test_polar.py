@@ -591,3 +591,31 @@ def test_radial_locator_wrapping():
     assert ax.yaxis.isDefault_majloc
     assert isinstance(ax.yaxis.get_major_locator(), RadialLocator)
     assert isinstance(ax.yaxis.get_major_locator().base, mticker.LogLocator)
+
+
+def test_set_rticks_ticklabels_no_warning():
+    # Regression test: RadialLocator wrapping a FixedLocator must not trigger
+    # the "set_ticklabels() should only be used with a fixed number of ticks"
+    # UserWarning when set_ticks()/set_rticks() was called first.
+    import warnings
+
+    # Path 1: set_rticks then set_ticklabels separately
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    ax.set_rticks([0, 1, 2, 3])
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        ax.yaxis.set_ticklabels(['zero', 'one', 'two', 'three'])
+
+    # Path 2: combined set_ticks(ticks, labels) call
+    fig2, ax2 = plt.subplots(subplot_kw={'projection': 'polar'})
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        ax2.yaxis.set_ticks([0, 1, 2], labels=['a', 'b', 'c'])
+
+    # Mismatched label count must still raise ValueError
+    fig3, ax3 = plt.subplots(subplot_kw={'projection': 'polar'})
+    ax3.set_rticks([0, 1, 2])
+    with pytest.raises(ValueError, match="does not match"):
+        ax3.yaxis.set_ticklabels(['a', 'b'])  # 3 ticks, 2 labels
+
+    plt.close('all')
