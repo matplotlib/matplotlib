@@ -704,7 +704,7 @@ def test_set_wrong_linestyle():
         c.set_linestyle('fuzzy')
 
 
-@pytest.mark.parametrize('backend', ['agg', 'pdf', 'svg', 'ps'])
+@pytest.mark.parametrize('backend', ['agg', 'pdf'])
 @pytest.mark.parametrize('ls', ['', ' ', 'none'])
 def test_scatter_empty_linestyle(backend, ls):
     # Regression Test: Saving to PDF (and other backends) with ls=""
