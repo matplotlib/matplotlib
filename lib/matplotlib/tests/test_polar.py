@@ -602,4 +602,3 @@ def test_set_rticks_ticklabels_no_warning():
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     ax.set_rticks([0, 1, 2, 3])
     ax.yaxis.set_ticklabels(['zero', 'one', 'two', 'three'])
-
