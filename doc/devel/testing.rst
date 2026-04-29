@@ -103,22 +103,22 @@ to the folder where the baseline test images are stored. The triage tool require
 Writing tests
 -------------
 Tests are located in :file:`lib/matplotlib/tests`. They are organized to mirror
-the structure of the main code in :file:`lib/matplotlib`. For example, tests for
+the structure of the code in :file:`lib/matplotlib`. For example, tests for
 the ``mathtext.py`` module are in :file:`lib/matplotlib/tests/test_mathtext.py`.
 
 Naming follows standard pytest conventions:
 
 - files begin with ``"test_"``
 - test functions begin with ``"test_"``
-- test class begin ``"Test"``.
+- test classes begin with ``"Test"``.
 
 We prefer simple test functions, but test classes are also acceptable.
 Test function names should be descriptive of what they are testing, and long names
 like ``test_to_rgba_array_accepts_color_alpha_tuple_with_multiple_colors()`` are
 perfectly fine.
 
-Simple unit tests
-^^^^^^^^^^^^^^^^^
+Unit tests
+^^^^^^^^^^
 
 Many elements of Matplotlib can be tested using simple unit tests, e.g. ::
 
@@ -127,8 +127,8 @@ Many elements of Matplotlib can be tested using simple unit tests, e.g. ::
 
 Data in tests
 ^^^^^^^^^^^^^
-Try to use minimal explicit data. Often you can use explicit values like
-``[1, 2, 3]``, ``range(5)`` or ``np.arange(5)``. This is cheap and
+Try to use minimal explicit data, such as
+``[1, 2, 3]``, ``range(5)`` or ``np.arange(5)``, because it
 makes the test more readable.
 
 When you need more and non-trivial data, generate it programmatically, e.g. ::
@@ -136,8 +136,8 @@ When you need more and non-trivial data, generate it programmatically, e.g. ::
    x = np.linspace(0, 2*np.pi, 101)
    y = 2 * np.sin(x) + 1
 
-Use random numbers only, if an algorihmical way to generate the data is not
-possible or too cumbersome. In this case, set the seed to a fixed value to make
+Use random numbers only when an algorithmic way to generate the data is too
+cumbersome or impossible. In this case, set the seed to a fixed value to make
 the test deterministic. For numpy's default random number generator use ::
 
   import numpy as np
@@ -149,9 +149,10 @@ The seed is :ref:`John Hunter's <project_history>` birthday.
 
 Test cleanup
 ^^^^^^^^^^^^
-We often need figures or modify `.rcParams` to test some functionality. Cleanup
-of such side effects is handled automatically through the the pytest fixture
-``matplotlib.testing.conftest.mpl_test_settings``.
+We often need to create figures or to modify `.rcParams` to test some functionality.
+Cleanup of such side effects is handled automatically through a pytest fixture
+(``matplotlib.testing.conftest.mpl_test_settings``) so that no manual cleanup is
+necessary.
 
 In particular, you don't need to call ``plt.close()``.
 
@@ -161,8 +162,9 @@ When you need figures and/or Axes, create them through the standard methods
 (``plt.figure()``, ``plt.subplots()``, etc.).
 
 Creating figures and Axes is rather expensive (>100ms). Only create as many as you need for
-the test, and reuse them if possible. It is perfectly fine to do multiple operations
-and asserts in one test, e.g.::
+the test, and reuse them if possible. It is perfectly fine to test multiple parametrizations
+or related functionality in one test; i.e. extend the classical test structure
+*Arrange–Act–Assert* with multiple *Act-Assert* blocks, e.g. ::
 
   def test_stackplot_facecolor():
       # Test that facecolors are properly passed and take precedence over colors parameter
@@ -172,17 +174,19 @@ and asserts in one test, e.g.::
 
       fig, ax = plt.subplots()
 
-      colls = ax.stackplot(x, y1, y2, facecolor=['r', 'b'], colors=['c', 'm'])
+      facecolors = ['r', 'b']
+
+      colls = ax.stackplot(x, y1, y2, facecolor=facecolors, colors=['c', 'm'])
       for coll, fcolor in zip(colls, facecolors):
           assert mcolors.same_color(coll.get_facecolor(), fcolor)
 
      # Plural alias should also work
-      colls = ax.stackplot(x, y1, y2, facecolors=['r', 'b'], colors=['c', 'm'])
+      colls = ax.stackplot(x, y1, y2, facecolors=facecolors, colors=['c', 'm'])
       for coll, fcolor in zip(colls, facecolors):
           assert mcolors.same_color(coll.get_facecolor(), fcolor)
 
 Assert values rather than visual results when feasible. This is clearer,
-less expensive and less fragile than comparing images, e.g. ::
+less computationally expensive and less fragile than comparing images, e.g. ::
 
   def test_savefig_preserve_layout_engine():
       fig = plt.figure(layout='compressed')
