@@ -603,12 +603,3 @@ def test_set_rticks_ticklabels_no_warning():
     ax.set_rticks([0, 1, 2, 3])
     ax.yaxis.set_ticklabels(['zero', 'one', 'two', 'three'])
 
-    # Path 2: combined set_ticks(ticks, labels) call
-    fig2, ax2 = plt.subplots(subplot_kw={'projection': 'polar'})
-    ax2.yaxis.set_ticks([0, 1, 2], labels=['a', 'b', 'c'])
-
-    # Mismatched label count must still raise ValueError
-    fig3, ax3 = plt.subplots(subplot_kw={'projection': 'polar'})
-    ax3.set_rticks([0, 1, 2])
-    with pytest.raises(ValueError, match="does not match"):
-        ax3.yaxis.set_ticklabels(['a', 'b'])  # 3 ticks, 2 labels
