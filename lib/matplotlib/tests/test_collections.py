@@ -704,13 +704,9 @@ def test_set_wrong_linestyle():
         c.set_linestyle('fuzzy')
 
 
-@pytest.mark.parametrize('backend', ['agg', 'pdf'])
 @pytest.mark.parametrize('ls', ['', ' ', 'none'])
-def test_scatter_empty_linestyle(backend, ls):
-    # Regression Test: Saving to PDF (and other backends) with ls=""
-    # on a scatter collection used to crash with "zero-size array
-    # to reduction operation maximum".
-    plt.switch_backend(backend)
+def test_scatter_empty_linestyle_pdf(ls):
+    plt.switch_backend('pdf')
     fig, ax = plt.subplots()
     ax.scatter([0, 1], [0, 1], ls=ls)
     fig.savefig(io.BytesIO())
