@@ -1999,7 +1999,9 @@ class Axis(martist.Artist):
 
         if (isinstance(formatter, mticker.FixedFormatter)
                 and len(formatter.seq) > 0
-                and not isinstance(level.locator, mticker.FixedLocator)):
+                and not isinstance(level.locator, mticker.FixedLocator)
+                and not (hasattr(level.locator, 'base') and
+                         isinstance(level.locator.base, mticker.FixedLocator))):
             _api.warn_external('FixedFormatter should only be used together '
                                'with FixedLocator')
 
@@ -2142,16 +2144,21 @@ class Axis(martist.Artist):
         if not labels:
             # eg labels=[]:
             formatter = mticker.NullFormatter()
-        elif isinstance(locator, mticker.FixedLocator):
+        elif (isinstance(locator, mticker.FixedLocator) or
+              (hasattr(locator, 'base') and
+               isinstance(locator.base, mticker.FixedLocator))):
+            # Also handles locators that wrap a FixedLocator (e.g. RadialLocator).
+            fixed_locator = (locator if isinstance(locator, mticker.FixedLocator)
+                             else locator.base)
             # Passing [] as a list of labels is often used as a way to
             # remove all tick labels, so only error for > 0 labels
-            if len(locator.locs) != len(labels) and len(labels) != 0:
+            if len(fixed_locator.locs) != len(labels) and len(labels) != 0:
                 raise ValueError(
                     "The number of FixedLocator locations"
-                    f" ({len(locator.locs)}), usually from a call to"
+                    f" ({len(fixed_locator.locs)}), usually from a call to"
                     " set_ticks, does not match"
                     f" the number of labels ({len(labels)}).")
-            tickd = {loc: lab for loc, lab in zip(locator.locs, labels)}
+            tickd = {loc: lab for loc, lab in zip(fixed_locator.locs, labels)}
             func = functools.partial(self._format_with_dict, tickd)
             formatter = mticker.FuncFormatter(func)
         else:
