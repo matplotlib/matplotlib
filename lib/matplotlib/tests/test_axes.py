@@ -10047,21 +10047,13 @@ def test_axes_clear_reference_cycle():
 
 
 def test_boxplot_tick_labels():
-    # Test the renamed `tick_labels` parameter.
-    # Test for deprecation of old name `labels`.
+    # Test the `tick_labels` parameter.
     np.random.seed(19680801)
     data = np.random.random((10, 3))
 
-    fig, axs = plt.subplots(nrows=1, ncols=2, sharey=True)
-    # Should get deprecation warning for `labels`
-    with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match='has been renamed \'tick_labels\''):
-        axs[0].boxplot(data, labels=['A', 'B', 'C'])
-    assert [l.get_text() for l in axs[0].get_xticklabels()] == ['A', 'B', 'C']
-
-    # Test the new tick_labels parameter
-    axs[1].boxplot(data, tick_labels=['A', 'B', 'C'])
-    assert [l.get_text() for l in axs[1].get_xticklabels()] == ['A', 'B', 'C']
+    fig, ax = plt.subplots()
+    ax.boxplot(data, tick_labels=['A', 'B', 'C'])
+    assert [l.get_text() for l in ax.get_xticklabels()] == ['A', 'B', 'C']
 
 
 @needs_usetex
