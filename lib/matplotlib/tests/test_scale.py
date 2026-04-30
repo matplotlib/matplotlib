@@ -330,7 +330,7 @@ def test_custom_scale_without_axis():
         ax.set_xscale('custom')
         assert isinstance(ax.xaxis.get_transform(), CustomTransform)
     finally:
-        mscale.deregister_scale("custom")
+        mscale.unregister_scale("custom")
 
 
 def test_custom_scale_with_axis():
@@ -366,7 +366,7 @@ def test_custom_scale_with_axis():
         ax.set_xscale('custom')
         assert isinstance(ax.xaxis.get_transform(), CustomTransform)
     finally:
-        mscale.deregister_scale("custom")
+        mscale.unregister_scale("custom")
 
 
 def test_val_in_range():
@@ -431,8 +431,8 @@ def test_val_in_range_base_fallback():
     assert s.val_in_range(-np.inf) is False
 
 
-def test_deregister_scale():
-    """Test that deregister_scale removes a scale correctly."""
+def test_unregister_scale():
+    """Test that unregister_scale removes a scale correctly."""
     # Register a temporary custom scale
     class TempScale(mscale.ScaleBase):
         name = 'temp_test_scale'
@@ -452,11 +452,18 @@ def test_deregister_scale():
     assert 'temp_test_scale' in mscale._scale_mapping
 
     # Now unregister it
-    mscale.deregister_scale('temp_test_scale')
+    mscale.unregister_scale('temp_test_scale')
     assert 'temp_test_scale' not in mscale._scale_mapping
 
 
-def test_deregister_scale_invalid():
-    """Test that deregister_scale raises ValueError for unknown scale."""
+def test_unregister_scale_invalid():
+    """Test that unregister_scale raises ValueError for unknown scale."""
     with pytest.raises(ValueError, match="not registered"):
-        mscale.deregister_scale('this_does_not_exist')
+        mscale.unregister_scale('this_does_not_exist')
+
+
+def test_unregister_scale_builtin():
+    """Test that built-in scales cannot be unregistered."""
+    with pytest.raises(ValueError, match="Cannot unregister built-in scale"):
+        mscale.unregister_scale('log')
+        
