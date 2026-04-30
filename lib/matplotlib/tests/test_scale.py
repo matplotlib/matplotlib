@@ -466,4 +466,3 @@ def test_unregister_scale_builtin():
     """Test that built-in scales cannot be unregistered."""
     with pytest.raises(ValueError, match="Cannot unregister built-in scale"):
         mscale.unregister_scale('log')
-
