@@ -3516,20 +3516,6 @@ class ToolContainerBase:
         for filename in [filename, filename + self._icon_extension]:
             if os.path.isfile(filename):
                 return os.path.abspath(filename)
-        for fname in [  # Fallback; once deprecation elapses.
-            tool.image,
-            tool.image + self._icon_extension,
-            cbook._get_data_path("images", tool.image),
-            cbook._get_data_path("images", tool.image + self._icon_extension),
-        ]:
-            if os.path.isfile(fname):
-                _api.warn_deprecated(
-                    "3.9", message=f"Loading icon {tool.image!r} from the current "
-                    "directory or from Matplotlib's image directory.  This behavior "
-                    "is deprecated since %(since)s and will be removed in %(removal)s; "
-                    "Tool.image should be set to a path relative to the Tool's source "
-                    "file, or to an absolute path.")
-                return os.path.abspath(fname)
 
     def trigger_tool(self, name):
         """
