@@ -1,9 +1,9 @@
 
 .. _bug_triaging:
 
-*******************************
-Bug triaging and issue curation
-*******************************
+*****************************
+Bug triage and issue curation
+*****************************
 
 The `issue tracker <https://github.com/matplotlib/matplotlib/issues>`_
 is important to communication in the project because it serves as the
@@ -107,8 +107,8 @@ important tasks:
     question or has been considered as unclear for many years, then it
     should be closed.
 
-Preparing PRs for review
-========================
+Prepare PRs for review
+======================
 
 Reviewing code is also encouraged. Contributors and users are welcome to
 participate to the review process following our :ref:`review guidelines

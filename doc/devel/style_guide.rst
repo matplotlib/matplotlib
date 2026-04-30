@@ -176,6 +176,51 @@ reliability and consistency in documentation. They are not interchangeable.
 .. |Axis| replace:: :class:`~matplotlib.axis.Axis`
 
 
+Headings
+--------
+Use sentence case for headings.
+
+.. table::
+   :width: 100%
+   :widths: 50, 50
+
+   +------------------------------------+------------------------------------+
+   | Correct                            | Incorrect                          |
+   +====================================+====================================+
+   | Quick start guide                  | Quick Start Guide                  |
+   +------------------------------------+------------------------------------+
+
+Noun phrases and verb phrases are both acceptable for headings. Noun phrases
+are preferred for higher-level headings and descriptive sections as they
+simply state the content.
+
+.. table::
+   :width: 100%
+   :widths: 50, 50
+
+   +------------------------------------+------------------------------------+
+   | Correct                            | Incorrect                          |
+   +====================================+====================================+
+   | Bug triage and issue curation      | Triage bugs and curate issues      |
+   +------------------------------------+------------------------------------+
+
+Verb phrases are preferred for instructive and action-oriented sections; in
+particular when they cover steps in a process, such as the subsections in
+:ref:`installing_for_devs`.
+
+Use the second-person imperative form of the verb rather than the gerund form.
+
+.. table::
+   :width: 100%
+   :widths: 50, 50
+
+   +------------------------------------+------------------------------------+
+   | Correct                            | Incorrect                          |
+   +====================================+====================================+
+   | Fork the Matplotlib repository     | Forking the Matplotlib repository  |
+   +------------------------------------+------------------------------------+
+
+
 Grammar
 -------
 

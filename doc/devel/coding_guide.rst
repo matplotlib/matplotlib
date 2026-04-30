@@ -190,8 +190,8 @@ local arguments and the rest are passed on as
 
 .. _using_logging:
 
-Using logging for debug messages
-================================
+Use logging for debug messages
+==============================
 
 Matplotlib uses the standard Python `logging` library to write verbose
 warnings, information, and debug messages. Please use it! In all those places
