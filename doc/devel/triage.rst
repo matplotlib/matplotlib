@@ -247,7 +247,7 @@ be added to the triage team on GitHub.
 
 If no objections are raised within one week of the nomination, a member with the ``owner`` role on GitHub will:
 1. Send an invitation email to the nominee following a template.
-2. Once the nominee responds affirmatively, they will add the nominee to the Triage group on GitHub
+2. Once the nominee responds affirmatively, they will add the nominee to the Triage group on GitHub, and to the ``@triage`` group on Discourse.
 3. Close the Discourse thread with a confirmation that the nomination was accepted (or turned down).
 
 If objections are raised, no action will be taken and the nomination can be revisited in the future.
