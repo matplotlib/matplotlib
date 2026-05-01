@@ -1094,7 +1094,6 @@ class Path3DCollection(PathCollection):
 
         return mcolors.to_rgba_array(color_array, alpha)
 
-
     def get_facecolor(self):
         return self._maybe_depth_shade_and_sort_colors(super().get_facecolor())
 
