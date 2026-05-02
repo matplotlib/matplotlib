@@ -108,6 +108,8 @@ for ax in fig.get_axes():
     ax.label_outer()
 
 # %%
+# .. _sharing-axes:
+#
 # Sharing axes
 # """"""""""""
 #
