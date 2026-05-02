@@ -835,6 +835,8 @@ class Patch3DCollection(PatchCollection):
         # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
+            if np.ndim(alpha) > 0:
+                alpha = np.asarray(alpha)[self._z_markers_idx]
 
         return mcolors.to_rgba_array(color_array, alpha)
 
@@ -1091,6 +1093,8 @@ class Path3DCollection(PathCollection):
         # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
+            if np.ndim(alpha) > 0:
+                alpha = np.asarray(alpha)[self._z_markers_idx]
 
         return mcolors.to_rgba_array(color_array, alpha)
 
