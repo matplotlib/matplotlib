@@ -1,7 +1,10 @@
 """
+.. _pcolormesh:
+
 ===================
 pcolormesh(X, Y, Z)
 ===================
+
 Create a pseudocolor plot with a non-regular rectangular grid.
 
 `~.axes.Axes.pcolormesh` is more flexible than `~.axes.Axes.imshow` in that
