@@ -141,8 +141,18 @@ axs[2].plot(x, y, '+')
 # %%
 # For subplots that are sharing axes one set of tick labels is enough. Tick
 # labels of inner Axes are automatically removed by *sharex* and *sharey*.
-# Still there remains an unused empty space between the subplots.
-#
+# You can selectively restore them using `~.axes.Axes.tick_params`.
+
+fig, axs = plt.subplots(3, sharex=True, sharey=True)
+fig.suptitle('Restored xtick labels on to Axes')
+axs[0].plot(x, y ** 2)
+axs[1].plot(x, 0.3 * y, 'o')
+axs[2].plot(x, y, '+')
+
+axs[0].tick_params(labelbottom=True)
+
+# %%
+# It is also possible to remove the empty space between the subplots.
 # To precisely control the positioning of the subplots, one can explicitly
 # create a `.GridSpec` with `.Figure.add_gridspec`, and then call its
 # `~.GridSpecBase.subplots` method.  For example, we can reduce the height

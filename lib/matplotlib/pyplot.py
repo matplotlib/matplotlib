@@ -60,6 +60,7 @@ from cycler import cycler  # noqa: F401
 import matplotlib
 import matplotlib.image
 from matplotlib import _api
+from matplotlib._api import UNSET as _UNSET
 # Re-exported (import x as x) for typing.
 from matplotlib import get_backend as get_backend, rcParams as rcParams
 from matplotlib import cm as cm  # noqa: F401
@@ -153,6 +154,7 @@ if TYPE_CHECKING:
         LogLevel
     )
     from matplotlib.widgets import SubplotTool
+    from matplotlib._api import _Unset
 
     _P = ParamSpec('_P')
     _R = TypeVar('_R')
@@ -3963,13 +3965,16 @@ def phase_spectrum(
 @_copy_docstring_and_deprecators(Axes.pie)
 def pie(
     x: ArrayLike,
+    *,
     explode: ArrayLike | None = None,
     labels: Sequence[str] | None = None,
     colors: ColorType | Sequence[ColorType] | None = None,
+    wedge_labels: str | Sequence | None = None,
+    wedge_label_distance: float | Sequence = 0.6,
     autopct: str | Callable[[float], str] | None = None,
     pctdistance: float = 0.6,
     shadow: bool = False,
-    labeldistance: float | None = 1.1,
+    labeldistance: float | None | _Unset = _UNSET,
     startangle: float = 0,
     radius: float = 1,
     counterclock: bool = True,
@@ -3978,7 +3983,6 @@ def pie(
     center: tuple[float, float] = (0, 0),
     frame: bool = False,
     rotatelabels: bool = False,
-    *,
     normalize: bool = True,
     hatch: str | Sequence[str] | None = None,
     data=None,
@@ -3988,6 +3992,8 @@ def pie(
         explode=explode,
         labels=labels,
         colors=colors,
+        wedge_labels=wedge_labels,
+        wedge_label_distance=wedge_label_distance,
         autopct=autopct,
         pctdistance=pctdistance,
         shadow=shadow,

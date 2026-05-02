@@ -44,7 +44,7 @@ repos:
         pass_filenames: false
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: d1b833175a5d08a925900115526febd8fe71c98e  # frozen: v0.15.11
+    rev: 6fec9b7edb08fd9989088709d864a7826dc74e80  # frozen: v0.15.12
     hooks:
       # Run the linter.
       - id: ruff-check

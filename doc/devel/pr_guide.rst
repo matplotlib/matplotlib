@@ -208,11 +208,20 @@ Review
   push changes to the contributor branch, or merge the PR and then
   open a new PR against upstream.
 
-* If you push to a contributor branch leave a comment explaining what
+* If you push to a contributor branch, leave a comment explaining what
   you did, ex "I took the liberty of pushing a small clean-up PR to
   your branch, thanks for your work.".  If you are going to make
   substantial changes to the code or intent of the PR please check
   with the contributor first.
+
+* If you find yourself spending too much time on a PR, or feeling frustrated,
+  it's ok to step back. You can ask for help from other reviewers, or if you are
+  the only reviewer, you can ask the contributor to find another reviewer or to
+  wait until you have more time. Make sure to communicate with the contributor
+  to set the right expectations, e.g. "I currently don't have the bandwidth to
+  review this PR, but will try to loop someone else in." If you feel like this
+  PR is not a good fit for the project, you can close it with an explanation or
+  add the "status: autoclose candidate" label to trigger the autoclose workflow.
 
 .. _pr-approval:
 

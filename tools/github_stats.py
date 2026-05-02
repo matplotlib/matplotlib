@@ -28,6 +28,8 @@ ISO8601 = "%Y-%m-%dT%H:%M:%SZ"
 PER_PAGE = 100
 
 REPORT_TEMPLATE = """\
+.. redirect-from:: /users/github_stats
+
 .. _github-stats:
 
 {title}

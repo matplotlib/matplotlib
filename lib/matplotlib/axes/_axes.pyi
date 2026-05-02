@@ -31,6 +31,7 @@ import matplotlib.tri as mtri
 import matplotlib.table as mtable
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
+from matplotlib._api import _Unset
 
 import PIL.Image
 from collections.abc import Callable, Iterable, Sequence
@@ -310,10 +311,12 @@ class Axes(_AxesBase):
         explode: ArrayLike | None = ...,
         labels: Sequence[str] | None = ...,
         colors: ColorType | Sequence[ColorType] | None = ...,
+        wedge_labels: str | Sequence | None = ...,
+        wedge_label_distance: float | Sequence = ...,
         autopct: str | Callable[[float], str] | None = ...,
         pctdistance: float = ...,
         shadow: bool = ...,
-        labeldistance: float | None = ...,
+        labeldistance: float | None | _Unset = ...,
         startangle: float = ...,
         radius: float = ...,
         counterclock: bool = ...,

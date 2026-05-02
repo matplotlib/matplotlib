@@ -154,8 +154,8 @@ for opening them in your default browser is:
 
 .. _writing-rest-pages:
 
-Write ReST pages
-================
+reStructuredText pages
+======================
 
 Most documentation is either in the docstrings of individual
 classes and methods, in explicit ``.rst`` files, or in examples and tutorials.
@@ -243,11 +243,15 @@ nor the ````literal```` role:
    Do not describe ``argument`` like this.
 
 
-Write mathematical expressions
-------------------------------
+Mathematical expressions
+------------------------
+Use sphinx's built in math support:
 
-In most cases, you will likely want to use one of `Sphinx's builtin Math
-extensions <https://www.sphinx-doc.org/en/master/usage/extensions/math.html>`__.
+- **Inline math:** Use the ``:math:``
+  `role <https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#math>`__
+- **Math blocks:** Use the ``.. math::``
+  `directive <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#math>`__
+
 In rare cases we want the rendering of the mathematical text in the
 documentation html to exactly match with the rendering of the mathematical
 expression in the Matplotlib figure. In these cases, you can use the
@@ -257,17 +261,17 @@ expression in the Matplotlib figure. In these cases, you can use the
 
 .. _internal-section-refs:
 
-Refer to other documents and sections
--------------------------------------
+Cross-references
+----------------
 
 Sphinx_ supports internal references_:
 
-==========  ===============  ===========================================
-Role        Links target     Representation in rendered HTML
-==========  ===============  ===========================================
-|doc-dir|_  document         link to a page
-|ref-dir|_  reference label  link to an anchor associated with a heading
-==========  ===============  ===========================================
+==========  ==============================  ===========================================
+Role        Link target                     Representation in rendered HTML
+==========  ==============================  ===========================================
+|doc-dir|_  :ref:`page <link-pages>`        link to a page
+|ref-dir|_  :ref:`section <link-sections>`  link to an anchor associated with a heading
+==========  ==============================  ===========================================
 
 .. The following is a hack to have a link with literal formatting
    See https://stackoverflow.com/a/4836544
@@ -277,63 +281,53 @@ Role        Links target     Representation in rendered HTML
 .. |ref-dir| replace:: ``:ref:``
 .. _ref-dir: https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-ref
 
-Examples:
+.. _link-pages:
+
+Link to pages
+^^^^^^^^^^^^^
+
+To cross-link to another page, use the ``:doc:`` role. We generally prefer
+absolute paths, starting with ``/`` as the :file:`doc` root directory.
+
+Example:
 
 .. code-block:: rst
 
    See the :doc:`/install/index`
 
-   See the tutorial :ref:`quick_start`
-
-   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
-
 will render as:
 
   See the :doc:`/install/index`
 
-  See the tutorial :ref:`quick_start`
+.. _link-sections:
 
-  See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
+Link to sections
+^^^^^^^^^^^^^^^^
 
-Sections can also be given reference labels.  For instance from the
-:doc:`/install/index` link:
+Use hyphen-separated, descriptive names for reference labels.
+Do not encode the documentation hierarchy in the label as that may change;
+e.g. do not prefix all *User guide* labels with ``user-``.
 
-.. code-block:: rst
-
-   .. _clean-install:
-
-   How to completely remove Matplotlib
-   ===================================
-
-   Occasionally, problems with Matplotlib can be solved with a clean...
-
-and refer to it using the standard reference syntax:
+To cross-link a specific section, add a reference label ``.. _label-name:``
+before the section
 
 .. code-block:: rst
 
-   See :ref:`clean-install`
+   .. _pr-author-guidelines:
 
-will give the following link: :ref:`clean-install`
+   Summary for pull request authors
+   ================================
 
-To maximize internal consistency in section labeling and references,
-use hyphen separated, descriptive labels for section references.
-Keep in mind that contents may be reorganized later, so
-avoid top level names in references like ``user`` or ``devel``
-or ``faq`` unless necessary, because for example the FAQ "what is a
-backend?" could later become part of the users guide, so the label:
+and then link to with ``:ref:`label-name```
 
 .. code-block:: rst
 
-   .. _what-is-a-backend:
+   See the :ref:`pr-author-guidelines`
 
-is better than:
+This will render as:
 
-.. code-block:: rst
+    See the :ref:`pr-author-guidelines`
 
-   .. _faq-backend:
-
-In addition, since underscores are widely used by Sphinx itself, use
-hyphens to separate words.
 
 .. _referring-to-other-code:
 
@@ -461,8 +455,8 @@ For clarity, do not use relative links.
 
 .. _writing-docstrings:
 
-Write API documentation
-=======================
+API documentation
+=================
 
 The API reference documentation describes the library interfaces, e.g. inputs, outputs,
 and expected behavior. Most of the API documentation is written in docstrings. These are
@@ -957,8 +951,8 @@ Example:
 
 .. _writing-examples-and-tutorials:
 
-Write examples and tutorials
-============================
+Examples and tutorials
+======================
 
 Examples and tutorials are Python scripts that are run by `Sphinx Gallery`_.
 Sphinx Gallery finds ``*.py`` files in source directories and runs the files to
@@ -1226,10 +1220,10 @@ Format
 :code: The code should be about 5-10 lines with minimal customization. Plots in
        this gallery use the ``_mpl-gallery`` stylesheet for a uniform aesthetic.
 
-Analytics
-==========
+Website analytics
+=================
 
-Documentation page analytics are available at
+Analytics of our hosted documentation https://matplotlib.org is available at
 https://views.scientific-python.org/matplotlib.org.
 
 

@@ -19,6 +19,7 @@ from .deprecation import (  # noqa: F401, re-exported API
 _T = TypeVar("_T")
 
 class _Unset: ...
+UNSET = _Unset()
 
 class classproperty(Any):
     def __init__(

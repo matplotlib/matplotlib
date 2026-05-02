@@ -95,6 +95,8 @@ class value_formatter:
             self._repr = "np.mean"
         elif value is _api.deprecation._deprecated_parameter:
             self._repr = "_api.deprecation._deprecated_parameter"
+        elif value is _api.UNSET:
+            self._repr = "_UNSET"
         elif isinstance(value, Enum):
             # Enum str is Class.Name whereas their repr is <Class.Name: value>.
             self._repr = f'{type(value).__name__}.{value.name}'
