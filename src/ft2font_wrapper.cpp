@@ -405,11 +405,14 @@ class PyFT2Font final : public FT2Font
         close();
     }
 
+    // FIX: Guard against NULL family_name pointers before streaming.
+    // face->family_name can be NULL for some fonts; inserting NULL into
+    // std::stringstream is undefined behavior.
     void ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
     {
         std::set<FT_String*>::iterator it = family_names.begin();
         std::stringstream ss;
-        ss<<*it;
+        ss << *it;
         while(++it != family_names.end()){
             ss<<", "<<*it;
         }
@@ -463,11 +466,18 @@ read_from_file_callback(FT_Stream stream, unsigned long offset, unsigned char *b
     return (unsigned long)n_read;
 }
 
+// FIX: Replace deprecated PyErr_Fetch/PyErr_Restore (deprecated in Python 3.12)
+// with PyErr_GetRaisedException/PyErr_SetRaisedException where available,
+// while keeping backward compatibility with older Python versions.
 static void
 close_file_callback(FT_Stream stream)
 {
+#if PY_VERSION_HEX >= 0x030c0000
+    PyObject *exc = PyErr_GetRaisedException();
+#else
     PyObject *type, *value, *traceback;
     PyErr_Fetch(&type, &value, &traceback);
+#endif
     PyFT2Font *self = (PyFT2Font *)stream->descriptor.pointer;
     try {
         self->py_file.attr("close")();
@@ -475,7 +485,11 @@ close_file_callback(FT_Stream stream)
         eas.discard_as_unraisable(__func__);
     }
     self->py_file = py::object();
+#if PY_VERSION_HEX >= 0x030c0000
+    PyErr_SetRaisedException(exc);
+#else
     PyErr_Restore(type, value, traceback);
+#endif
 }
 
 const char *PyFT2Font_init__doc__ = R"""(
