@@ -16,31 +16,6 @@
 #define M_PI 3.14159265358979323846264338328
 #endif
 
-/**
- To improve the hinting of the fonts, this code uses a hack
- presented here:
-
- http://agg.sourceforge.net/antigrain.com/research/font_rasterization/index.html
-
- The idea is to limit the effect of hinting in the x-direction, while
- preserving hinting in the y-direction.  Since freetype does not
- support this directly, the dpi in the x-direction is set higher than
- in the y-direction, which affects the hinting grid.  Then, a global
- transform is placed on the font to shrink it back to the desired
- size.  While it is a bit surprising that the dpi setting affects
- hinting, whereas the global transform does not, this is documented
- behavior of FreeType, and therefore hopefully unlikely to change.
- The FreeType 2 tutorial says:
-
-      NOTE: The transformation is applied to every glyph that is
-      loaded through FT_Load_Glyph and is completely independent of
-      any hinting process. This means that you won't get the same
-      results if you load a glyph at the size of 24 pixels, or a glyph
-      at the size at 12 pixels scaled by 2 through a transform,
-      because the hints will have been computed differently (except
-      you have disabled hints).
- */
-
 FT_Library _ft2Library;
 
 FT2Image::FT2Image(unsigned long width, unsigned long height)
