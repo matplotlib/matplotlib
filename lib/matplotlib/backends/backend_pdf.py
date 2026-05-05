@@ -2003,7 +2003,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position, hatchcolors=hatchcolors)
 
-        padding = np.max(linewidths)
+        padding = np.max(linewidths) if len(linewidths) else 0
         path_codes = []
         path_extents = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
