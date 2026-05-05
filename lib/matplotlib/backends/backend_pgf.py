@@ -394,6 +394,7 @@ class RendererPgf(RendererBase):
         self.fh = fh
         self.figure = figure
         self.image_counter = 0
+        self._group_blend_modes = []
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
@@ -768,6 +769,29 @@ class RendererPgf(RendererBase):
     def points_to_pixels(self, points):
         # docstring inherited
         return points * mpl_pt_to_in * self.dpi
+
+    def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
+        if blend_mode is not None and blend_mode not in _BLEND_MODES_PDFSPEC:
+            _log.warning(f"The '{blend_mode}' blend mode is not supported by the "
+                         f"PGF backend. Falling back to the 'normal' blend mode.")
+            blend_mode = "normal"
+        self._group_blend_modes.append(blend_mode)
+        if self.fh.closed:  # layout computation has a closed file handle
+            return
+        if blend_mode is not None:
+            _writeln(self.fh, r"\pgfsetblendmode{%s}" % blend_mode)
+            _writeln(self.fh, r"\pgfsetfillopacity{%s}" % alpha)
+        options = ["isolated"] if blend_mode is not None else []
+        options += ["knockout"] if knockout else []
+        _writeln(self.fh, r"\pgftransparencygroup[%s]" % (",".join(options)))
+
+    def close_blend_group(self):
+        blend_mode = self._group_blend_modes.pop()
+        if self.fh.closed:  # layout computation has a closed file handle
+            return
+        _writeln(self.fh, r"\endpgftransparencygroup")
+        if blend_mode is not None:
+            _writeln(self.fh, r"\pgfsetfillopacity{1}")
 
 
 class FigureCanvasPgf(FigureCanvasBase):

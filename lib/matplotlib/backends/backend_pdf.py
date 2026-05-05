@@ -541,13 +541,13 @@ class Stream:
             self.extra.update({'Filter':      Name('FlateDecode'),
                                'DecodeParms': png})
 
-        self.pdfFile.recordXref(self.id)
         if mpl.rcParams['pdf.compression'] and not png:
             self.compressobj = zlib.compressobj(
                 mpl.rcParams['pdf.compression'])
         if self.len is None:
             self.file = BytesIO()
         else:
+            self.pdfFile.recordXref(self.id)
             self._writeHeader()
             self.pos = self.file.tell()
 
@@ -567,6 +567,7 @@ class Stream:
 
         self._flush()
         if self.len is None:
+            self.pdfFile.recordXref(self.id)
             contents = self.file.getvalue()
             self.len = len(contents)
             self.file = self.pdfFile.fh
@@ -702,6 +703,9 @@ class PdfFile:
         self._images = {}
         self._image_seq = (Name(f'I{i}') for i in itertools.count(1))
 
+        self._transparency_groups = []
+        self._transparency_group_seq = (Name(f'TG{i}') for i in itertools.count(1))
+
         self.markers = {}
 
         self.paths = []
@@ -758,12 +762,13 @@ class PdfFile:
         self.endStream()
 
         self.width, self.height = width, height
+        self.mediabox = [0, 0, 72 * width, 72 * height]
         contentObject = self.reserveObject('page contents')
         annotsObject = self.reserveObject('annotations')
         thePage = {'Type': Name('Page'),
                    'Parent': self.pagesObject,
                    'Resources': self.resourceObject,
-                   'MediaBox': [0, 0, 72 * width, 72 * height],
+                   'MediaBox': self.mediabox,
                    'Contents': contentObject,
                    'Annots': annotsObject,
                    }
@@ -772,8 +777,10 @@ class PdfFile:
         self.pageList.append(pageObject)
         self._annotations.append((annotsObject, self.pageAnnotations))
 
-        self.beginStream(contentObject.id,
-                         self.reserveObject('length of content stream'))
+        # Specify len=None so that the Contents stream is written to a separate buffer
+        # in case one or more transparency groups need to be first written to the file
+        self.beginStream(contentObject.id, None)
+
         # Initialize the pdf graphics state to match the default Matplotlib
         # graphics context (colorspace and joinstyle).
         self.output(Name('DeviceRGB'), Op.setcolorspace_stroke)
@@ -831,6 +838,7 @@ class PdfFile:
         self.writeGouraudTriangles()
         xobjects = {
             name: ob for image, name, ob in self._images.values()}
+        xobjects.update({name: ob for name, ob in self._transparency_groups})
         for tup in self.markers.values():
             xobjects[tup[0]] = tup[1]
         for name, path, trans, ob, join, cap, padding, filled, stroked \
@@ -1896,6 +1904,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file = file
         self.gc = self.new_gc()
         self.image_dpi = image_dpi
+        self._group_states = []
 
     def finalize(self):
         self.file.output(*self.gc.finalize())
@@ -2407,6 +2416,46 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     def new_gc(self):
         # docstring inherited
         return GraphicsContextPdf(self.file)
+
+    def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
+        # docstring inherited
+        stream, self.file.currentstream = self.file.currentstream, None
+        name = next(self.file._transparency_group_seq)
+        groupOb = self.file.reserveObject('transparency group')
+        self.file._transparency_groups.append((name, groupOb))
+        self.file.beginStream(
+            groupOb.id, None,
+            {
+                'Type': Name('XObject'),
+                'Subtype': Name('Form'),
+                'FormType': 1,
+                'Group': {
+                    'S': Name('Transparency'),
+                    'CS': Name('DeviceRGB'),
+                    'I': blend_mode is not None,
+                    'K': knockout,
+                },
+                'BBox': self.file.mediabox,
+            }
+        )
+        self.file.output(Op.gsave)  # puts a state on the stack for later restores
+        self._group_states.append((blend_mode, alpha, groupOb, name, stream))
+
+    def close_blend_group(self):
+        # docstring inherited
+        blend_mode, alpha, groupOb, name, stream = self._group_states.pop()
+        self.file.recordXref(groupOb.id)
+        self.file.output(Op.grestore)  # see above
+        self.file.endStream()
+        self.file.currentstream = stream
+        self.file.output(Op.grestore,  # for a clean state prior to embedding
+                         Op.gsave)
+        if blend_mode is not None:
+            self.file.output(*self.gc.blendmode_cmd(blend_mode),
+                             *self.gc.alpha_cmd(0, 0, (alpha, alpha)))
+        self.file.output(name, Op.use_xobject,
+                         Op.grestore,
+                         Op.gsave)  # puts a state back on the stack for restoring
 
 
 class GraphicsContextPdf(GraphicsContextBase):
