@@ -10,6 +10,7 @@ import functools
 import gzip
 import itertools
 import math
+import logging
 
 import numpy as np
 
@@ -33,6 +34,9 @@ from matplotlib.backend_bases import (
 from matplotlib.font_manager import ttfFontProperty
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
+
+
+_log = logging.getLogger(__name__)
 
 
 def _set_rgba(ctx, color, alpha, forced_alpha):
@@ -88,7 +92,10 @@ class RendererCairo(RendererBase):
         self.height = None
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
+        self._group_states = []
         super().__init__()
+
+        self._override_blend_mode_to_knockout = False
 
     def set_context(self, ctx):
         surface = ctx.get_target()
@@ -339,6 +346,38 @@ class RendererCairo(RendererBase):
         # docstring inherited
         return points / 72 * self.dpi
 
+    def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
+        # docstring inherited
+        self._group_states.append((blend_mode, alpha,
+                                   self._override_blend_mode_to_knockout))
+
+        if knockout and blend_mode is None:
+            _log.warning("A non-isolated blend group cannot also be a knockout "
+                         "blend group in the Cairo backend.  Falling back to a "
+                         "non-knockout blend group.")
+            knockout = False
+
+        if blend_mode is not None:
+            self.gc.ctx.push_group()
+            self._override_blend_mode_to_knockout = knockout
+
+
+    def close_blend_group(self):
+        # docstring inherited
+        blend_mode, alpha, override = self._group_states.pop()
+        self._override_blend_mode_to_knockout = override
+        if blend_mode is not None:
+            ctx = self.gc.ctx
+            group = ctx.pop_group()
+            ctx.save()
+            self.gc.set_blend_mode(blend_mode)
+            ctx.set_source(group)
+            if alpha != 1:
+                ctx.paint_with_alpha(alpha)
+            else:
+                ctx.paint()
+            ctx.restore()
+
 
 class GraphicsContextCairo(GraphicsContextBase):
     _joind = {
@@ -450,8 +489,11 @@ class GraphicsContextCairo(GraphicsContextBase):
 
     def set_blend_mode(self, blend_mode):
         super().set_blend_mode(blend_mode)
-        self.ctx.set_operator(_api.getitem_checked(self._operatord,
-                                                   blend_mode=self._blend_mode))
+        if self.renderer._override_blend_mode_to_knockout:
+            self.ctx.set_operator(cairo.OPERATOR_SOURCE)
+        else:
+            self.ctx.set_operator(_api.getitem_checked(self._operatord,
+                                                       blend_mode=self._blend_mode))
 
 
 class _CairoRegion:
