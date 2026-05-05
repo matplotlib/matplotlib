@@ -800,6 +800,76 @@ class LogisticTransform(Transform):
         return f"{type(self).__name__}({self._nonpositive!r})"
 
 
+class PowerTransform(Transform):
+    input_dims = output_dims = 1
+
+    def __init__(self, gamma):
+        super().__init__()
+        if gamma <= 0:
+            raise ValueError('gamma must be > 0')
+        self.gamma = gamma
+
+    def transform_non_affine(self, values):
+        with np.errstate(invalid="ignore"):
+            out = np.power(values, self.gamma)
+        return out
+
+    def inverted(self):
+        return InvertedPowerTransform(self.gamma)
+
+    def __str__(self):
+        return f"{type(self).__name__}(gamma={self.gamma})"
+
+
+class InvertedPowerTransform(Transform):
+    input_dims = output_dims = 1
+
+    def __init__(self, gamma):
+        super().__init__()
+        self.gamma = gamma
+
+    def transform_non_affine(self, values):
+        with np.errstate(invalid="ignore"):
+            out = np.power(values, 1 / self.gamma)
+        return out
+
+    def inverted(self):
+        return PowerTransform(self.gamma)
+
+
+
+class PowerScale(ScaleBase):
+    """
+    A power-law scale.  Useful for emphasizing small values or compressing
+    dynamic range.
+
+    This scale is similar to a linear scale close to zero and compresses
+    data at larger values depending on the gamma value.
+    """
+    name = 'power'
+
+    @_make_axis_parameter_optional
+    def __init__(self, axis=None, gamma=1):
+        super().__init__()
+        self._transform = PowerTransform(gamma)
+
+    def get_transform(self):
+        """Return the `.PowerTransform` associated with this scale."""
+        return self._transform
+
+
+    def set_default_locators_and_formatters(self, axis):
+        # docstring inherited
+        axis.set_major_locator(AutoLocator())
+        axis.set_major_formatter(DefaultFormatter())
+
+    def limit_range_for_scale(self, vmin, vmax, minpos):
+        """
+        Limit the domain to values.
+        """
+        return vmin, vmax
+
+
 class LogitScale(ScaleBase):
     """
     Logit scale for data between zero and one, both excluded.
@@ -886,6 +956,7 @@ _scale_mapping = {
     'logit':  LogitScale,
     'function': FuncScale,
     'functionlog': FuncScaleLog,
+    'power': PowerScale,
     }
 
 # caching of signature info
@@ -900,6 +971,7 @@ _scale_has_axis_parameter = {
     'logit': True,
     'function': True,
     'functionlog': True,
+    'power': True,
 }
 
 
