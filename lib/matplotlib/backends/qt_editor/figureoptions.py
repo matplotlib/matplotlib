@@ -248,11 +248,19 @@ def figure_edit(axes, parent=None):
         if generate_legend:
             draggable = None
             ncols = 1
+            legend_opts = {}
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
                 ncols = old_legend._ncols
-            new_legend = axes.legend(ncols=ncols)
+                legend_opts = {
+                    "loc": old_legend._loc_real,
+                    "bbox_to_anchor": old_legend.get_bbox_to_anchor(),
+                    "frame_on": old_legend.get_frame_on(),
+                    "mode": old_legend._mode,
+                    "borderaxespad": old_legend.borderaxespad,
+                }
+            new_legend = axes.legend(ncols=ncols, **legend_opts)
             if new_legend:
                 new_legend.set_draggable(draggable)
 
