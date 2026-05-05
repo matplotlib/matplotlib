@@ -902,6 +902,21 @@ class _AxesBase(martist.Artist):
             for name in need_scale:
                 for ax in self._shared_axes[name].get_siblings(self):
                     ax._stale_viewlims[name] = False
+            # Skip autoscale for an axis if the leader's scale is 'linear' but
+            # a follower's scale is non-linear (e.g., 'log'). Autoscale computes
+            # bounds using the leader's scale, which the follower's non-linear
+            # scale would reject. This prevents spurious warnings when clearing
+            # an axes with shared non-linear axes.
+            for name in need_scale:
+                if need_scale[name]:
+                    leader_axis = getattr(self, f"{name}axis")
+                    if leader_axis.get_scale() == 'linear':
+                        for ax in self._shared_axes[name].get_siblings(self):
+                            follow_axis = ax._axis_map[name]
+                            if follow_axis is not leader_axis and \
+                                    follow_axis.get_scale() != 'linear':
+                                need_scale[name] = False
+                                break
             self.autoscale_view(**{f"scale{name}": scale
                                    for name, scale in need_scale.items()})
 
