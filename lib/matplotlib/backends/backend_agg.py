@@ -380,7 +380,7 @@ class RendererAgg(RendererBase):
                                       self.dpi)
         self._update_methods()
 
-    def stop_filter(self, post_processing):
+    def stop_filter(self, post_processing, *, blend_mode="normal"):
         """
         Save the current canvas as an image and apply post processing.
 
@@ -396,7 +396,8 @@ class RendererAgg(RendererBase):
              return new_image, offset_x, offset_y
 
         The saved renderer is restored and the returned image from
-        post_processing is plotted (using draw_image) on it.
+        post_processing is plotted (using draw_image) on it, using the blend
+        mode specified by ``blend_mode``.
         """
         orig_img = np.asarray(self.buffer_rgba())
         slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
@@ -408,6 +409,7 @@ class RendererAgg(RendererBase):
         if cropped_img.size:
             img, ox, oy = post_processing(cropped_img / 255, self.dpi)
             gc = self.new_gc()
+            gc.set_blend_mode(blend_mode)
             if img.dtype.kind == 'f':
                 img = np.asarray(img * 255., np.uint8)
             self._renderer.draw_image(

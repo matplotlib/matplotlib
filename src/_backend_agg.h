@@ -109,8 +109,8 @@ class RendererAgg
 {
   public:
 
-    typedef fixed_blender_rgba_plain<agg::rgba8, agg::order_rgba> fixed_blender_rgba32_plain;
-    typedef agg::pixfmt_alpha_blend_rgba<fixed_blender_rgba32_plain, agg::rendering_buffer> pixfmt;
+    typedef agg::comp_op_adaptor_rgba_plain<agg::rgba8, agg::order_rgba> comp_op_blender_plain;
+    typedef agg::pixfmt_custom_blend_rgba<comp_op_blender_plain, agg::rendering_buffer> pixfmt;
     typedef agg::renderer_base<pixfmt> renderer_base;
     typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
     typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
@@ -439,6 +439,8 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
         face = color;
     }
 
+    pixFmt.comp_op(gc.comp_op);
+
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
@@ -464,6 +466,8 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
         curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness};
 
     _draw_path(sketch, has_clippath, face, gc);
+
+    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class PathIterator>
@@ -542,6 +546,9 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                                   std::min(marker_size.y1, scanlines.min_y()),
                                   std::max(marker_size.x2, scanlines.max_x()),
                                   std::max(marker_size.y2, scanlines.max_y()));
+
+
+        pixFmt.comp_op(gc.comp_op);
 
         theRasterizer.reset_clipping();
         rendererBase.reset_clipping(true);
@@ -630,6 +637,8 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
+
+    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 /**
@@ -678,6 +687,8 @@ class font_to_rgba
 template <class ImageArray>
 inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, int y, double angle)
 {
+    pixFmt.comp_op(gc.comp_op);
+
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     if (angle != 0.0) {
@@ -746,6 +757,8 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
             }
         }
     }
+
+    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 class span_conv_alpha
@@ -778,6 +791,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
                                     ImageArray &image)
 {
     double alpha = gc.alpha;
+    pixFmt.comp_op(gc.comp_op);
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
@@ -830,6 +844,8 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     }
 
     rendererBase.reset_clipping(true);
+
+    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class PathIterator,
@@ -987,6 +1003,7 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                               AntialiasedArray &antialiaseds,
                                               ColorArray &hatchcolors)
 {
+    pixFmt.comp_op(gc.comp_op);
     _draw_path_collection_generic(gc,
                                   master_transform,
                                   gc.cliprect,
@@ -1004,6 +1021,7 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                   true,
                                   true,
                                   hatchcolors);
+    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class CoordinateArray>
@@ -1099,6 +1117,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
     DashesVector linestyles;
     ColorArray hatchcolors = py::array_t<double>().reshape({0, 4}).unchecked<double, 2>();
 
+    pixFmt.comp_op(gc.comp_op);
     _draw_path_collection_generic(gc,
                                   master_transform,
                                   gc.cliprect,
@@ -1116,6 +1135,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                   true, // check_snap
                                   false,
                                   hatchcolors);
+    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class PointArray, class ColorArray>
@@ -1188,6 +1208,8 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
             std::to_string(colors.shape(0)) + "colors");
     }
 
+    pixFmt.comp_op(gc.comp_op);
+
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
@@ -1199,6 +1221,8 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
 
         _draw_gouraud_triangle(point, color, trans, has_clippath);
     }
+
+    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class R>
