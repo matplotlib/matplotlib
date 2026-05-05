@@ -6523,9 +6523,30 @@ or pandas.DataFrame
                                 f" see help({funcname})")
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
+                if shading == 'gouraud' and (Nx, Ny) == (ncols + 1, nrows + 1):
+                    # User provided cell edges, but gouraud shading expects
+                    # cell centers. Interpolate to cell centers with warning.
+                    def _interp_grid(X):
+                        if np.shape(X)[1] > 1:
+                            hstack = np.ma.hstack if np.ma.isMA(X) else np.hstack
+                            dX = np.diff(X, axis=1) * 0.5
+                            X = hstack((X[:, [0]] - dX[:, [0]],
+                                        X[:, :-1] + dX,
+                                        X[:, [-1]] + dX[:, [-1]]))
+                        else:
+                            X = np.hstack((X, X))
+                        return X
+                    X = _interp_grid(X)
+                    Y = _interp_grid(Y)
+                    _api.warn_external(
+                        f"X and Y are interpreted as cell edges for"
+                        f" {funcname} with shading='gouraud'. Interpreting"
+                        f" as cell centers. Provide cell centers matching C"
+                        f" shape to silence this warning.")
+                else:
+                    raise TypeError('Dimensions of C %s are incompatible with'
+                                    ' X (%d) and/or Y (%d); see help(%s)' % (
+                                        C.shape, Nx, Ny, funcname))
             if shading == 'nearest':
                 # grid is specified at the center, so define corners
                 # at the midpoints between the grid centers and then use the
