@@ -1441,22 +1441,36 @@ def polygon_remove_vertex(ax, xy):
     ]
 
 
-@pytest.mark.parametrize('draw_bounding_box', [False, True])
-def test_polygon_selector(ax, draw_bounding_box):
-    check_selector = functools.partial(
-        check_polygon_selector, draw_bounding_box=draw_bounding_box)
+def polygon_complete_chain(ax, closed, xy):
+    if closed:
+        return [
+            *polygon_place_vertex(ax, xy)
+        ]
+    else:
+        return [
+            KeyEvent("key_press_event", ax.figure.canvas, "enter"),
+            KeyEvent("key_release_event", ax.figure.canvas, "enter"),
+        ]
 
-    # Simple polygon
+
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+@pytest.mark.parametrize('closed', [False, True])
+def test_polygon_selector(ax, draw_bounding_box, closed):
+    check_selector = functools.partial(check_polygon_selector,
+                                       draw_bounding_box=draw_bounding_box,
+                                       closed=closed)
+
+    # Simple polygonal chain.
     expected_result = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_complete_chain(ax, closed, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
-    # Move first vertex before completing the polygon.
+    # Move first vertex before completing the polygonal chain.
     expected_result = [(75, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
@@ -1468,11 +1482,11 @@ def test_polygon_selector(ax, draw_bounding_box):
         MouseEvent._from_ax_coords("button_release_event", ax, (75, 50), 1),
         KeyEvent("key_release_event", ax.figure.canvas, "control"),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_place_vertex(ax, (75, 50)),
+        *polygon_complete_chain(ax, closed, (75, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
-    # Move first two vertices at once before completing the polygon.
+    # Move first two vertices at once before completing the polygonal chain.
     expected_result = [(50, 75), (150, 75), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
@@ -1484,17 +1498,17 @@ def test_polygon_selector(ax, draw_bounding_box):
         MouseEvent._from_ax_coords("button_release_event", ax, (100, 125), 1),
         KeyEvent("key_release_event", ax.figure.canvas, "shift"),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_place_vertex(ax, (50, 75)),
+        *polygon_complete_chain(ax, closed, (50, 75)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
-    # Move first vertex after completing the polygon.
+    # Move first vertex after completing the polygonal chain.
     expected_result = [(85, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (60, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_place_vertex(ax, (60, 50)),
+        *polygon_complete_chain(ax, closed, (60, 50)),
         MouseEvent._from_ax_coords("motion_notify_event", ax, (60, 50)),
         MouseEvent._from_ax_coords("button_press_event", ax, (60, 50), 1),
         MouseEvent._from_ax_coords("motion_notify_event", ax, (85, 50)),
@@ -1502,13 +1516,13 @@ def test_polygon_selector(ax, draw_bounding_box):
     ]
     check_selector(event_sequence, expected_result, 2)
 
-    # Move all vertices after completing the polygon.
+    # Move all vertices after completing the polygonal chain.
     expected_result = [(75, 75), (175, 75), (75, 175)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_complete_chain(ax, closed, (50, 50)),
         KeyEvent("key_press_event", ax.figure.canvas, "shift"),
         MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
         MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
@@ -1536,11 +1550,11 @@ def test_polygon_selector(ax, draw_bounding_box):
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_complete_chain(ax, closed, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
-    # Try to place vertex out-of-bounds, then reset, and start a new polygon.
+    # Try to place vertex out-of-bounds, then reset, and start a new polygonal chain.
     expected_result = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
@@ -1550,7 +1564,7 @@ def test_polygon_selector(ax, draw_bounding_box):
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_complete_chain(ax, closed, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
@@ -1599,13 +1613,14 @@ def test_rect_visibility(fig_test, fig_ref):
 # Change the order that the extra point is inserted in
 @pytest.mark.parametrize('idx', [1, 2, 3])
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-def test_polygon_selector_remove(ax, idx, draw_bounding_box):
+@pytest.mark.parametrize('closed', [False, True])
+def test_polygon_selector_remove(ax, idx, draw_bounding_box, closed):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [polygon_place_vertex(ax, verts[0]),
                       polygon_place_vertex(ax, verts[1]),
                       polygon_place_vertex(ax, verts[2]),
                       # Finish the polygon
-                      polygon_place_vertex(ax, verts[0])]
+                      polygon_complete_chain(ax, closed, verts[0])]
     # Add an extra point
     event_sequence.insert(idx, polygon_place_vertex(ax, (200, 200)))
     # Remove the extra point
@@ -1613,21 +1628,22 @@ def test_polygon_selector_remove(ax, idx, draw_bounding_box):
     # Flatten list of lists
     event_sequence = functools.reduce(operator.iadd, event_sequence, [])
     check_polygon_selector(event_sequence, verts, 2,
-                           draw_bounding_box=draw_bounding_box)
+                           draw_bounding_box=draw_bounding_box, closed=closed)
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-def test_polygon_selector_remove_first_point(ax, draw_bounding_box):
+@pytest.mark.parametrize('closed', [False, True])
+def test_polygon_selector_remove_first_point(ax, draw_bounding_box, closed):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, verts[0]),
         *polygon_place_vertex(ax, verts[1]),
         *polygon_place_vertex(ax, verts[2]),
-        *polygon_place_vertex(ax, verts[0]),
+        *polygon_complete_chain(ax, closed, verts[0]),
         *polygon_remove_vertex(ax, verts[0]),
     ]
     check_polygon_selector(event_sequence, verts[1:], 2,
-                           draw_bounding_box=draw_bounding_box)
+                           draw_bounding_box=draw_bounding_box, closed=closed)
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])

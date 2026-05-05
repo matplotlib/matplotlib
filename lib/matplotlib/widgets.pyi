@@ -470,7 +470,8 @@ class PolygonSelector(_SelectorWidget):
         grab_range: float = ...,
         draw_bounding_box: bool = ...,
         box_handle_props: dict[str, Any] | None = ...,
-        box_props: dict[str, Any] | None = ...
+        box_props: dict[str, Any] | None = ...,
+        closed: bool = ...,
     ) -> None: ...
     def onmove(self, event: Event) -> bool: ...
     @property
