@@ -8,7 +8,7 @@ ensure they are on the same scale. To do so, pass ``sharex=True`` and/or ``share
 to `~.pyplot.subplots`.
 
 This ensures the x- or y-axis limits are synchronized across the subplots. Autoscaling
-considers the data on all Axes and any limit changes, including interactive zoom
+considers the data on all Axes; therefore, any limit changes, including interactive zoom
 and pan, will affect all shared axes.
 
 The plot below illustrates this by showing two different time-series and using *sharex*
