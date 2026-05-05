@@ -198,3 +198,16 @@ and mixins
 are provided.
 
 See the source code for how to easily implement new `MovieWriter` classes.
+
+---------------
+FuncAnimation
+---------------
+For detailed explanation of how FuncAnimation works see :ref: `animation_api`.
+
+The inner workings of FuncAnimation is based on the following loo::
+    for d in frames:
+        artists=func(d, *frags)
+        fig.canvas.draw_idle()
+        fig.canvas.start_event_loop(interval)
+This also handles blitting, repeating, 
+multiple axes and saving to movie files.
