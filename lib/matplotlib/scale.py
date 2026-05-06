@@ -138,7 +138,7 @@ def _make_axis_parameter_optional(init_func):
 
     This decorator ensures backward compatibility for scale classes that
     previously required an *axis* parameter. It allows constructors to be
-    callerd with or without the *axis* parameter.
+    called with or without the *axis* parameter.
 
     For simplicity, this does not handle the case when *axis*
     is passed as a keyword. However,
@@ -170,12 +170,16 @@ def _make_axis_parameter_optional(init_func):
     """
     @wraps(init_func)
     def wrapper(self, *args, **kwargs):
-        if args and isinstance(args[0], mpl.axis.Axis):
-            return init_func(self, *args, **kwargs)
+        sig = inspect.signature(init_func)
+        try:
+            # Try old signature.
+            sig.bind(self, *args, **kwargs)
+        except TypeError:
+            # Use the new signature and pass in an unused axis=None.
+            init_func(self, None, *args, **kwargs)
         else:
-            # Remove 'axis' from kwargs to avoid double assignment
-            axis = kwargs.pop('axis', None)
-            return init_func(self, axis, *args, **kwargs)
+            # Use the old signature.
+            init_func(self, *args, **kwargs)
     return wrapper
 
 
@@ -449,6 +453,11 @@ class FuncScaleLog(LogScale):
         ----------
         axis : `~matplotlib.axis.Axis`
             The axis for the scale.
+
+            .. note::
+                This parameter is unused and about to be removed in the future.
+                It can already now be left out because of special preprocessing,
+                so that ``FuncScaleLog(functions=(forward, inverse))`` is valid.
         functions : (callable, callable)
             two-tuple of the forward and inverse functions for the scale.
             The forward function must be monotonic.
