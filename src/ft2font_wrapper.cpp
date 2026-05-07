@@ -409,9 +409,9 @@ class PyFT2Font final : public FT2Font
     {
         std::set<FT_String*>::iterator it = family_names.begin();
         std::stringstream ss;
-        ss<<*it;
+        ss<< (*it ? *it : "unknown family name");
         while(++it != family_names.end()){
-            ss<<", "<<*it;
+            ss<<", "<< (*it ? *it : "unknown family name");
         }
 
         auto text_helpers = py::module_::import("matplotlib._text_helpers");
