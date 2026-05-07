@@ -15,7 +15,7 @@ from matplotlib.font_manager import FontProperties, findfont
 from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib.testing.compare import compare_images
-from matplotlib.backends.backend_pgf import PdfPages
+from matplotlib.backends.backend_pgf import _metadata_to_str, PdfPages
 from matplotlib.testing.decorators import (
     _image_directories, check_figures_equal, image_comparison)
 from matplotlib.testing._markers import (
@@ -35,6 +35,26 @@ def compare_figure(fname, savefig_kwargs={}, tol=0):
     err = compare_images(expected, actual, tol=tol)
     if err:
         raise ImageComparisonFailure(err)
+
+
+@pytest.mark.parametrize("key, value, expected_str", [
+    ("Author", "me", "Author={me}"),
+    ("ModDate",
+     datetime.datetime(1968, 8, 1, tzinfo=datetime.timezone(datetime.timedelta(0))),
+     "ModDate={D:19680801000000Z}"),
+])
+def test__metadata_to_str(key, value, expected_str):
+    assert _metadata_to_str(key, value) == expected_str
+
+
+@pytest.mark.parametrize("value", [
+    r"Backslashes, e.g. in \commands",
+    r"funny braces {}",
+    r"and square brackets]",
+])
+def test__metadata_to_str_error(value):
+    with pytest.raises(ValueError, match="value must not contain the chars"):
+        _metadata_to_str("Title", value)
 
 
 @needs_pgf_xelatex

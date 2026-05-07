@@ -154,6 +154,13 @@ def _metadata_to_str(key, value):
         value = value.name.decode('ascii')
     else:
         value = str(value)
+
+    invalid_chars = r"\{}[]()"
+    if any(c in value for c in invalid_chars):
+        raise ValueError(
+            f"Invalid metadata value for {key!r}: {value!r}. "
+            f"The value must not contain the chars {invalid_chars}.")
+
     return f'{key}={{{value}}}'
 
 
