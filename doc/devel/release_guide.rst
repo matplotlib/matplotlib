@@ -45,7 +45,7 @@ versioning scheme: *macro.meso.micro*.
 
 .. _release_feature_freeze:
 
-Making the release branch
+Create the release branch
 =========================
 
 .. note::
@@ -379,8 +379,8 @@ to the VER-doc branch and push to GitHub. ::
 
 .. _release_bld_bin:
 
-Building binaries
-=================
+Build binaries
+==============
 
 We distribute macOS, Windows, and many Linux wheels as well as a source tarball via
 PyPI.
@@ -412,8 +412,8 @@ PyPI.
 
 .. _release_upload_bin:
 
-Manually uploading to PyPI
-==========================
+Manual upload to PyPI
+=====================
 
 .. note::
 

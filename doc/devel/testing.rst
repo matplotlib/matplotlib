@@ -13,10 +13,8 @@ testing infrastructure are in :mod:`matplotlib.testing`.
 .. _pytest-xdist: https://pypi.org/project/pytest-xdist/
 
 
-.. _testing_requirements:
-
-Requirements
-------------
+Prerequisites
+-------------
 
 To run the tests you will need to
 :ref:`set up Matplotlib for development <installing_for_devs>`. Note in
@@ -34,8 +32,8 @@ particular the :ref:`additional dependencies <test-dependencies>` for testing.
 
 .. _run_tests:
 
-Running the tests
------------------
+Run the tests
+-------------
 
 In the root directory of your development repository run::
 
@@ -82,8 +80,8 @@ to avoid clashes between ``pytest``'s import mode and Python's search path:
 
       python -m pytest --import-mode prepend
 
-Viewing image test output
-^^^^^^^^^^^^^^^^^^^^^^^^^
+View image test output
+^^^^^^^^^^^^^^^^^^^^^^
 
 The output of :ref:`image-based <image-comparison>` tests is stored in a
 ``result_images`` directory. These images can be compiled into one HTML page, containing
@@ -100,8 +98,8 @@ to the folder where the baseline test images are stored. The triage tool require
 :ref:`QT <backend_dependencies>` is installed.
 
 
-Writing tests
--------------
+Write tests
+-----------
 Tests are located in :file:`lib/matplotlib/tests`. They are organized to mirror
 the structure of the code in :file:`lib/matplotlib`. For example, tests for
 the ``mathtext.py`` module are in :file:`lib/matplotlib/tests/test_mathtext.py`.
@@ -284,8 +282,8 @@ See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information
 about their use.
 
-Using GitHub Actions for CI
----------------------------
+CI with GitHub Actions
+----------------------
 
 `GitHub Actions <https://docs.github.com/en/actions>`_ is a hosted CI system
 "in the cloud".
@@ -311,8 +309,8 @@ https://github.com/your_GitHub_user_name/matplotlib/actions -- here's `an
 example <https://github.com/QuLogic/matplotlib/actions>`_.
 
 
-Using tox
----------
+tox: Test multiple python versions
+----------------------------------
 
 `Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running tests
 against multiple Python environments, including multiple versions of Python
@@ -352,8 +350,8 @@ tests are run. For more info on the ``tox.ini`` file, see the `Tox
 Configuration Specification
 <https://tox.readthedocs.io/en/latest/config.html>`_.
 
-Building old versions of Matplotlib
------------------------------------
+Build old versions of Matplotlib
+--------------------------------
 
 When running a ``git bisect`` to see which commit introduced a certain bug,
 you may (rarely) need to build very old versions of Matplotlib.  The following
@@ -361,8 +359,8 @@ constraints need to be taken into account:
 
 - Matplotlib 1.3 (or earlier) requires numpy 1.8 (or earlier).
 
-Testing released versions of Matplotlib
----------------------------------------
+Test released versions of Matplotlib
+------------------------------------
 Running the tests on an installation of a released version (e.g. PyPI package
 or conda package) also requires additional setup.
 

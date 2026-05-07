@@ -157,8 +157,8 @@ Matplotlib  Python    NumPy
 .. _`1.3`: https://matplotlib.org/1.3.0/users/installing.html#build-requirements
 
 
-Updating Python and NumPy versions
-==================================
+Update Python and NumPy versions
+================================
 
 To update the minimum versions of Python we need to update:
 
