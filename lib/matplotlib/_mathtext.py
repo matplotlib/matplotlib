@@ -1721,8 +1721,8 @@ def ship(box: Box, xy: tuple[float, float] = (0, 0)) -> Output:
     off_h = ox
     off_v = oy + box.height
     output = Output(box)
-
     phantom: list[bool] = []
+
     def render(node, *args):
         if not any(phantom):
             node.render(*args)

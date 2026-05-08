@@ -133,11 +133,19 @@ class FontManager:
         self,
         prop: str | FontProperties,
         fontext: Literal["ttf", "afm"] = ...,
-        directory: str | None = ...,
+        directory: str | os.PathLike | None = ...,
         fallback_to_default: bool = ...,
         rebuild_if_missing: bool = ...,
     ) -> FontPath: ...
     def get_font_names(self) -> list[str]: ...
+    def _find_fonts_by_props(
+        self,
+        prop: str | FontProperties,
+        fontext: Literal["ttf", "afm"] = ...,
+        directory: str | os.PathLike | None = ...,
+        fallback_to_default: bool = ...,
+        rebuild_if_missing: bool = ...,
+    ) -> list[FontPath]: ...
 
 def is_opentype_cff_font(filename: str) -> bool: ...
 def get_font(
@@ -149,8 +157,8 @@ fontManager: FontManager
 def findfont(
     prop: str | FontProperties,
     fontext: Literal["ttf", "afm"] = ...,
-    directory: str | None = ...,
+    directory: str | os.PathLike | None = ...,
     fallback_to_default: bool = ...,
     rebuild_if_missing: bool = ...,
-) -> str: ...
+) -> FontPath: ...
 def get_font_names() -> list[str]: ...
