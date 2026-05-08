@@ -1086,7 +1086,7 @@ class AxisArtist(martist.Artist):
             *self.minor_ticklabels.get_window_extents(renderer),
             self.label.get_window_extent(renderer),
             self.offsetText.get_window_extent(renderer),
-            self.line.get_window_extent(renderer),
+            self.line.get_tightbbox(renderer),
         ]
         bb = [b for b in bb if b and (b.width != 0 or b.height != 0)]
         if bb:
