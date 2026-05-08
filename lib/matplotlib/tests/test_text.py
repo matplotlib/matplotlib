@@ -752,6 +752,7 @@ def test_wrap_no_wrap():
     fig.canvas.draw()
     assert text._get_wrapped_text() == 'non wrapped text'
 
+
 def test_wrap_uses_axes_boundary():
     """Text wrap=True should use axes boundary, not figure boundary."""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 4))
@@ -761,7 +762,7 @@ def test_wrap_uses_axes_boundary():
     fig.canvas.draw()
     # wrapped line width should be <= axes width, not figure width
     assert text._get_wrap_line_width() <= ax1.get_window_extent().width
-    
+
 @check_figures_equal()
 def test_buffer_size(fig_test, fig_ref):
     # On old versions of the Agg renderer, large non-ascii single-character
