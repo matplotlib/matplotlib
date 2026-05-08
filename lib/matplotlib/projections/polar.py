@@ -34,7 +34,9 @@ class PolarTransform(mtransforms.Transform):
 
     input_dims = output_dims = 2
 
-    def __init__(self, axis=None, use_rmin=True, *, scale_transform=None):
+    @_api.delete_parameter('3.11', 'apply_theta_transforms')
+    def __init__(self, axis=None, use_rmin=True, *,
+                 apply_theta_transforms=False, scale_transform=None):
         """
         Parameters
         ----------
@@ -183,7 +185,9 @@ class InvertedPolarTransform(mtransforms.Transform):
     """
     input_dims = output_dims = 2
 
-    def __init__(self, axis=None, use_rmin=True):
+    @_api.delete_parameter('3.11', 'apply_theta_transforms')
+    def __init__(self, axis=None, use_rmin=True,
+                 *, apply_theta_transforms=False):
         """
         Parameters
         ----------
