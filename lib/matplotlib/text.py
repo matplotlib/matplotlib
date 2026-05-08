@@ -732,16 +732,22 @@ class Text(Artist):
         orientation.
         """
         x0, y0 = self.get_transform().transform(self.get_position())
-        figure_box = self.get_figure().get_window_extent()
+
+        # Use axes boundary if text lives inside an axes,
+        # otherwise fall back to the figure boundary
+        if self.axes is not None:
+            clip_box = self.axes.get_window_extent()
+        else:
+            clip_box = self.get_figure().get_window_extent()
 
         # Calculate available width based on text alignment
         alignment = self.get_horizontalalignment()
         self.set_rotation_mode('anchor')
-        angle = self.get_rotation()
+        rotation = self.get_rotation()
 
-        left = self._get_dist_to_box(angle, x0, y0, figure_box)
+        left = self._get_dist_to_box(rotation, x0, y0, clip_box)
         right = self._get_dist_to_box(
-            (180 + angle) % 360, x0, y0, figure_box)
+            (180 + rotation) % 360, x0, y0, clip_box)
 
         if alignment == 'left':
             line_width = left
