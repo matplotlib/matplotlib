@@ -634,6 +634,29 @@ class Patch(artist.Artist):
         """Return the hatch linewidth."""
         return self._hatch_linewidth
 
+    def set_fill_rule(self, fill_rule):
+        """
+        Set the rule for filling a shape.
+
+        See :doc:`/gallery/shapes_and_collections/fill_rule_demo`.
+
+        Parameters
+        ----------
+        fill_rule : {'nonzero', 'evenodd'}
+             'nonzero' for the non-zero winding rule (the default), or
+             'evenodd' for the even-odd rule
+
+        References
+        ----------
+        * `Wikipedia: Non-zero winding rule <https://en.wikipedia.org/wiki/Nonzero-rule>`__
+        * `Wikipedia: Even-odd rule <https://en.wikipedia.org/wiki/Even%E2%80%93odd_rule>`__
+        """
+        _api.check_in_list(["nonzero", "evenodd"], fill_rule=fill_rule)
+        self._fill_rule = fill_rule
+
+    def get_fill_rule(self):
+        return self._fill_rule
+
     def _has_dashed_edge(self):
         """
         Return whether the patch edge has a dashed linestyle.
@@ -673,6 +696,7 @@ class Patch(artist.Artist):
 
         gc.set_alpha(self._alpha)
         gc.set_blend_mode(self.get_blend_mode())
+        gc.set_fill_rule(self.get_fill_rule())
 
         if self._hatch:
             gc.set_hatch(self._hatch)
