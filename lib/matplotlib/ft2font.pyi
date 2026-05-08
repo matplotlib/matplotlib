@@ -239,7 +239,8 @@ class FT2Font(Buffer):
         *,
         face_index: int = ...,
         _fallback_list: list[FT2Font] | None = ...,
-        _kerning_factor: int | None = ...
+        _kerning_factor: int | None = ...,
+        _warn_if_used: bool = ...,
     ) -> None: ...
     if sys.version_info[:2] >= (3, 12):
         def __buffer__(self, /, flags: int) -> memoryview: ...

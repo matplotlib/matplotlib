@@ -18,6 +18,7 @@ from ..backend_bases import RendererBase
 
 
 if typing.TYPE_CHECKING:
+    from .font_manager import FontPath
     from .ft2font import CharacterCodeType, FT2Font, GlyphIndexType
     from fontTools.ttLib import TTFont
 
@@ -34,7 +35,7 @@ def _cached_get_afm_from_fname(fname):
         return AFM(fh)
 
 
-def get_glyphs_subset(fontfile: str, glyphs: set[GlyphIndexType]) -> TTFont:
+def get_glyphs_subset(fontfile: FontPath, glyphs: set[GlyphIndexType]) -> TTFont:
     """
     Subset a TTF font.
 
@@ -199,7 +200,7 @@ class CharacterTracker:
         self.subset_size = subset_size
 
     def track(self, font: FT2Font, s: str,
-              features: tuple[str, ...] | None = ...,
+              features: tuple[str, ...] | None = None,
               language: str | tuple[tuple[str, int, int], ...] | None = None
               ) -> list[tuple[int, CharacterCodeType]]:
         """
