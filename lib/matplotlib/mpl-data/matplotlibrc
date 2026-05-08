@@ -331,9 +331,9 @@
                      # computer modern sans serif, computer modern typewriter
 
 ## The TeX engine/format to use.  The following values are supported:
-## - "latex": The classic TeX engine (the current default).  All backends render
-##    TeX's output by parsing the DVI output into glyphs and boxes and emitting
-##    those one by one.
+## - "latex", "xelatex", "lualatex": The corresponding TeX engines.  All
+##    backends render TeX's output by parsing the DVI output into glyphs and
+##    boxes and emitting those one by one.
 ## - "latex+dvipng": The same as "latex", with the exception that Agg-based
 ##   backends rely on dvipng to rasterize TeX's output.  This value was the
 ##   default up to Matplotlib 3.10.
