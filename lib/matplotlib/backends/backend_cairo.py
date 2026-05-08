@@ -254,7 +254,10 @@ class RendererCairo(RendererBase):
             ctx.new_path()
             ctx.select_font_face(*_cairo_font_args_from_font_prop(ttfFontProperty(font)))
             ctx.set_font_size(self.points_to_pixels(fontsize))
-            ctx.show_glyphs([(idx, ox, -oy) for _, _, idx, ox, oy in font_glyphs])
+            ctx.show_glyphs([
+                (glyph_index, ox, -oy)
+                for _font, _size, _ccode, glyph_index, ox, oy in font_glyphs
+            ])
 
         for ox, oy, w, h in rects:
             ctx.new_path()

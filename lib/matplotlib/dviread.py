@@ -121,7 +121,7 @@ class Text(namedtuple('Text', 'x y font glyph width')):
         # control all involved versions and are deeply familiar with the
         # implementation", but a further mapping bug was fixed in luaotfload
         # commit 8f2dca4, first included in v3.23).
-        entry = self._get_pdftexmap_entry()
+        entry = PsfontsMap(find_tex_file("pdftex.map"))[self.font.texname]
         return (_parse_enc(entry.encoding)[self.glyph]
                 if entry.encoding is not None else self.glyph)
 
