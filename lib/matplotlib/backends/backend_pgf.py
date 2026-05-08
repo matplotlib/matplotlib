@@ -156,7 +156,7 @@ def _metadata_to_str(key, value):
         value = str(value)
 
     invalid_chars = r"\{}[]()"
-    if any(c in value for c in invalid_chars):
+    if any(c in value + key for c in invalid_chars):
         raise ValueError(
             f"Invalid metadata value for {key!r}: {value!r}. "
             f"The value must not contain the chars {invalid_chars}.")
