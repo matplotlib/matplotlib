@@ -15,7 +15,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
-from matplotlib.text import Text
+from matplotlib.text import Text, TextToPath
 from matplotlib.transforms import Bbox, BboxBase, Transform, TransformedPath
 
 from collections.abc import Callable, Iterable, Sequence
@@ -40,6 +40,7 @@ def register_backend(
 def get_registered_canvas_class(format: str) -> type[FigureCanvasBase]: ...
 
 class RendererBase:
+    _text2path: TextToPath
     def __init__(self) -> None: ...
     def open_group(self, s: str, gid: str | None = ...) -> None: ...
     def close_group(self, s: str) -> None: ...
