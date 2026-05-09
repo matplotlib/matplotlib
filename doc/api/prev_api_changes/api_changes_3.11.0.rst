@@ -7,6 +7,8 @@ API Changes for 3.11.0
 
 .. include:: /api/prev_api_changes/api_changes_3.10.0/behavior.rst
 
+.. include:: /api/prev_api_changes/api_changes_3.10.0/deprecations.rst
+
 .. include:: /api/prev_api_changes/api_changes_3.10.0/removals.rst
 
 .. include:: /api/prev_api_changes/api_changes_3.10.0/development.rst

@@ -1,3 +1,0 @@
-``PdfFile.multi_byte_charprocs``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... is deprecated with no replacement.

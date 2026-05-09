@@ -1,4 +1,0 @@
-``BezierSegment.point_at_t``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-... is deprecated. Instead, it is possible to call the BezierSegment with an argument.
