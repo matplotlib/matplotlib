@@ -57,7 +57,7 @@ init:
   - micromamba info
 
 install:
-  - micromamba env create -f environment.yml python=%PYTHON_VERSION% pywin32
+  - micromamba env create -vv -f environment.yml python=%PYTHON_VERSION% pywin32
   - micromamba activate mpl-dev
 
 test_script:
