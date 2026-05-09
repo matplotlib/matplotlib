@@ -6,33 +6,41 @@
 Axis autoscaling
 ================
 
-The limits on an axis can be set manually (e.g. ``ax.set_xlim(xmin, xmax)``)
-or Matplotlib can set them automatically based on the data already on the Axes.
-There are a number of options to this autoscaling behaviour, discussed below.
-"""
+Basic concept
+-------------
 
-# %%
-# We will start with a simple line plot showing that autoscaling
-# extends the axis limits 5% beyond the data limits (-2π, 2π).
+Autoscaling ensures that data is visible within the Axes by automatically adjusting
+the axis limits. When you plot data, Matplotlib's autoscaling mechanism updates the
+axis limits accordingly.
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-x = np.linspace(-2 * np.pi, 2 * np.pi, 100)
+x = np.linspace(-6, 6, 201)
 y = np.sinc(x)
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
 
 # %%
+#
+# .. _autoscale_margins:
+#
 # Margins
 # -------
-# The default margin around the data limits is 5%, which is based on the
-# default configuration setting of :rc:`axes.xmargin`, :rc:`axes.ymargin`,
-# and :rc:`axes.zmargin`:
+# To ensure that the data is not at the very edge of the plot, Matplotlib adds a
+# margin around the data limits. Note that the *x* data range in the above plot is
+# [-6, 6], but the x-axis limits are slightly wider due to the margin.
+#
+# The default margin is 5%, defined via
+#
+# - :rc:`axes.xmargin`
+# - :rc:`axes.ymargin`
+# - :rc:`axes.zmargin`
 
-print(ax.margins())
+print(ax.get_xmargin(), ax.get_ymargin())
 
 # %%
 # The margin size can be overridden to make them smaller or larger using
@@ -116,14 +124,14 @@ ax[1].plot(x * 2.0, y)
 ax[1].set_title("Two curves")
 
 # %%
-# However, there are cases when you don't want to automatically adjust the
-# viewport to new data.
+# If you don't want automatic updates of the axis limits, either deactivate
+# autoscaling with `~.axes.Axes.autoscale` or set the limits
+# manually with `~.axes.Axes.set_xlim` / `~.axes.Axes.set_ylim`.
 #
-# One way to disable autoscaling is to manually set the
-# axis limit. Let's say that we want to see only a part of the data in
+# Let's say that we want to see only a part of the data in
 # greater detail. Setting the ``xlim`` persists even if we add more curves to
-# the data. To recalculate the new limits  calling `.Axes.autoscale` will
-# toggle the functionality manually.
+# the data. Calling `.Axes.autoscale` will re-enable the autoscaling and
+# recalculate the limits to fit all the data.
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
 ax[0].plot(x, y)

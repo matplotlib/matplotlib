@@ -2787,6 +2787,13 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         b : bool
+
+        See Also
+        --------
+        :ref:`autoscale`
+        matplotlib.axes.Axes.autoscale
+        matplotlib.axes.Axes.set_autoscalex_on
+        matplotlib.axes.Axes.set_autoscaley_on
         """
         for axis in self._axis_map.values():
             axis._set_autoscale_on(b)
@@ -2825,6 +2832,7 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
+        :ref:`autoscale_margins`
         matplotlib.axes.Axes.set_xmargin
         """
         return self._xmargin
@@ -2841,6 +2849,7 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
+        :ref:`autoscale_margins`
         matplotlib.axes.Axes.set_ymargin
         """
         return self._ymargin
@@ -2860,6 +2869,13 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         m : float greater than -0.5
+
+        See Also
+        --------
+        :ref:`autoscale_margins`
+        matplotlib.axes.Axes.margins
+        matplotlib.axes.Axes.get_xmargin
+
         """
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
@@ -2882,6 +2898,12 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         m : float greater than -0.5
+
+        See Also
+        --------
+        :ref:`autoscale_margins`
+        matplotlib.axes.Axes.margins
+        matplotlib.axes.Axes.get_ymargin
         """
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
@@ -2945,6 +2967,7 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
+        :ref:`autoscale_margins`
         .Axes.set_xmargin, .Axes.set_ymargin
         """
 
@@ -2999,10 +3022,12 @@ class _AxesBase(martist.Artist):
         """
         Autoscale the axis view to the data (toggle).
 
-        Convenience method for simple axis view autoscaling.
-        It turns autoscaling on or off, and then,
-        if autoscaling for either axis is on, it performs
-        the autoscaling on the specified axis or Axes.
+        Convenience method for simple axis view autoscaling. This:
+
+        - Turns autoscaling on or off (`~.axes.Axes.set_autoscalex_on` /
+          `~.axes.Axes.set_autoscaley_on`).
+        - Ensures that view limits will get updated when needed. - As view limits
+          are lazy-updated, this technically marks the view limits as stale.
 
         Parameters
         ----------
@@ -3016,6 +3041,13 @@ class _AxesBase(martist.Artist):
             If True, first set the margins to zero.  Then, this argument is
             forwarded to `~.axes.Axes.autoscale_view` (regardless of
             its value); see the description of its behavior there.
+
+        See Also
+        --------
+        :ref:`autoscale`
+        matplotlib.axes.Axes.set_autoscale_on
+        matplotlib.axes.Axes.set_autoscalex_on
+        matplotlib.axes.Axes.set_autoscaley_on
         """
         if enable is None:
             scalex = True
