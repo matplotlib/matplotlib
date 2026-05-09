@@ -1,4 +1,0 @@
-``GridHelperCurveLinear.get_tick_iterator``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-... is removed with no replacement.
