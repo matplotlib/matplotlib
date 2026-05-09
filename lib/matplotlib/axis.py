@@ -838,6 +838,15 @@ class Axis(martist.Artist):
         Parameters
         ----------
         b : bool
+
+        See Also
+        --------
+        matplotlib.axes.Axes.autoscale
+        matplotlib.axes.Axes.set_autoscale_on
+        matplotlib.axes.Axes.get_autoscalex_on
+        matplotlib.axes.Axes.set_autoscalex_on
+        matplotlib.axes.Axes.get_autoscaley_on
+        matplotlib.axes.Axes.set_autoscaley_on
         """
         if b is not None:
             self._autoscale_on = b
