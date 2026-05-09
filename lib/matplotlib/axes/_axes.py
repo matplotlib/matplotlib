@@ -2416,7 +2416,6 @@ class Axes(_AxesBase):
 
         ecolor : :mpltype:`color` or list of :mpltype:`color`, default: 'black'
             The line color of the errorbars.
-            
             Multiple colors are only supported if the errorbars do not have
             caps. If you need individually colored errorbars with caps, instead
             use explicit `~.axes.Axes.errorbar` calls for each data point.
