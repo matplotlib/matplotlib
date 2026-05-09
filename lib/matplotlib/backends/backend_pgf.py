@@ -155,6 +155,8 @@ def _metadata_to_str(key, value):
     else:
         value = str(value)
 
+    # ensure that metadata does not contain special TeX chars because we
+    # insert the metadata as raw text into the TeX source
     invalid_chars = r"\{}[]()"
     if any(c in value + key for c in invalid_chars):
         raise ValueError(
