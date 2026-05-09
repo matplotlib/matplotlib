@@ -69,7 +69,7 @@ test_script:
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
-  - if x%TEST_ALL% == xyes micromamba install -q ffmpeg inkscape
+  - if x%TEST_ALL% == xyes micromamba install -vv -q ffmpeg inkscape
   # miktex is available on conda, but seems to fail with permission errors.
   # missing packages on conda-forge for imagemagick
   # This install sometimes failed randomly :-(
