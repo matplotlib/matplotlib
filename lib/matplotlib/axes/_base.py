@@ -3022,11 +3022,11 @@ class _AxesBase(martist.Artist):
         """
         Autoscale the axis view to the data (toggle).
 
-        Convenience method for simple axis view autoscaling. This does:
+        Convenience method for simple axis view autoscaling. This:
 
-        - Turn autoscaling on or off (`~.axes.Axes.set_autoscalex_on` /
+        - Turns autoscaling on or off (`~.axes.Axes.set_autoscalex_on` /
           `~.axes.Axes.set_autoscaley_on`).
-        - Ensure that view limits will get updated when needed. - As view limits
+        - Ensures that view limits will get updated when needed. - As view limits
           are lazy-updated, this technically marks the view limits as stale.
 
         Parameters

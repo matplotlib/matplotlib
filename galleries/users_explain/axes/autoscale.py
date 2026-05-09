@@ -130,7 +130,7 @@ ax[1].set_title("Two curves")
 #
 # Let's say that we want to see only a part of the data in
 # greater detail. Setting the ``xlim`` persists even if we add more curves to
-# the data. Calling `.Axes.autoscale` will again re-enable the autoscaling and
+# the data. Calling `.Axes.autoscale` will re-enable the autoscaling and
 # recalculate the limits to fit all the data.
 
 fig, ax = plt.subplots(ncols=2, figsize=(12, 8))
