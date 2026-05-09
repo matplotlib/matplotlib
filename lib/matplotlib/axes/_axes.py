@@ -2414,15 +2414,12 @@ class Axes(_AxesBase):
             :doc:`/gallery/statistics/errorbar_features` for an example on
             the usage of *xerr* and *yerr*.
 
-            Errorbars are not officially supported when bars are
-            individually colored, because the underlying `~.axes.Axes.errorbar`
-            is not designed for individual coloring per data point. It may partly
-            work for certain errorbar settings, but that's an implementation detail
-            that is not guaranteed.  Please use explicit `~.axes.Axes.errorbar`
-            calls for each data point if you need individually colored errorbars.
-
         ecolor : :mpltype:`color` or list of :mpltype:`color`, default: 'black'
             The line color of the errorbars.
+            
+            Multiple colors are only supported if the errorbars do not have
+            caps. If you need individually colored errorbars with caps, instead
+            use explicit `~.axes.Axes.errorbar` calls for each data point.
 
         capsize : float, default: :rc:`errorbar.capsize`
            The length of the error bar caps in points.
