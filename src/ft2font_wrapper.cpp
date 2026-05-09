@@ -405,9 +405,7 @@ class PyFT2Font final : public FT2Font
         close();
     }
 
-    // FIX: Guard against NULL family_name pointers before streaming.
-    // face->family_name can be NULL for some fonts; inserting NULL into
-    // std::stringstream is undefined behavior.
+
     void ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
     {
         std::set<FT_String*>::iterator it = family_names.begin();
