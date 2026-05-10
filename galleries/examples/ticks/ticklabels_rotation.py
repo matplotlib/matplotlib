@@ -8,7 +8,7 @@ Adjust the tick properties using `~.Axes.tick_params`: Set the angle in degrees 
 the *rotation* parameter. Set the *rotation_mode* parameter to "xtick" / "ytick" to
 make the text point towards the tick, see also `~.Text.set_rotation_mode`.
 
-Note: We use `layout="constrained"` to make sure there is enough space for the tick
+Note: We use ``layout="constrained"`` to make sure there is enough space for the tick
 labels so that they are not cut off.
 """
 
