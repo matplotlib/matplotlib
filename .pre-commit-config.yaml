@@ -70,6 +70,7 @@ repos:
     hooks:
       - id: rstcheck
         additional_dependencies:
+          - rstcheck-core!=1.3  # https://github.com/rstcheck/rstcheck-core/pull/114#pullrequestreview-4239740896
           - sphinx>=1.8.1
           - tomli
   - repo: https://github.com/adrienverge/yamllint
