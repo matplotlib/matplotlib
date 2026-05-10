@@ -7,6 +7,9 @@ Rotating tick labels can be useful when the labels are long and overlap with eac
 Adjust the tick properties using `~.Axes.tick_params`: Set the angle in degrees via
 the *rotation* parameter. Set the *rotation_mode* parameter to "xtick" / "ytick" to
 make the text point towards the tick, see also `~.Text.set_rotation_mode`.
+
+Note: We use `layout="constrained"` to make sure there is enough space for the tick
+labels so that they are not cut off.
 """
 
 import matplotlib.pyplot as plt
@@ -30,7 +33,7 @@ population = {
     'Vietnam': 102.3,
 }
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(layout="constrained")
 ax.bar(population.keys(), population.values())
 ax.tick_params("x", rotation=45, rotation_mode="xtick")
 ax.set_ylabel("population (millions)")
