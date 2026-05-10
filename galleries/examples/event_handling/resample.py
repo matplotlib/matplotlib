@@ -32,7 +32,8 @@ class DataDisplayDownsampler:
     def plot(self, ax):
         x, y1, y2 = self._downsample(self.origXData.min(), self.origXData.max())
         (self.line,) = ax.plot(x, y1, 'o-')
-        self.poly_collection = ax.fill_between(x, y1, y2, step="pre", color="r")
+        self.poly_collection = ax.fill_between(x, y1, y2,
+                                               drawstyle="steps-pre", color="r")
 
     def _downsample(self, xstart, xend):
         # get the points in the view range

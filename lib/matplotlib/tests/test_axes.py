@@ -2709,15 +2709,15 @@ def test_stairs_fill(fig_test, fig_ref):
 
     # # Ref
     ref_axes = fig_ref.subplots(2, 2).flatten()
-    ref_axes[0].fill_between(bins, np.append(h, h[-1]), step='post', lw=0)
+    ref_axes[0].fill_between(bins, np.append(h, h[-1]), drawstyle='steps-post', lw=0)
     ref_axes[0].set_ylim(0, None)
-    ref_axes[1].fill_betweenx(bins, np.append(h, h[-1]), step='post', lw=0)
+    ref_axes[1].fill_betweenx(bins, np.append(h, h[-1]), drawstyle='steps-post', lw=0)
     ref_axes[1].set_xlim(0, None)
     ref_axes[2].fill_between(bins, np.append(h, h[-1]),
-                             np.ones(len(h)+1)*bs, step='post', lw=0)
+                             np.ones(len(h)+1)*bs, drawstyle='steps-post', lw=0)
     ref_axes[2].set_ylim(bs, None)
     ref_axes[3].fill_betweenx(bins, np.append(h, h[-1]),
-                              np.ones(len(h)+1)*bs, step='post', lw=0)
+                              np.ones(len(h)+1)*bs, drawstyle='steps-post', lw=0)
     ref_axes[3].set_xlim(bs, None)
 
 
