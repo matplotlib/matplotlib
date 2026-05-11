@@ -697,7 +697,7 @@ class RendererSVG(RendererBase):
             sketch=gc.get_sketch_params())
 
         if gc.get_url() is not None:
-            self.writer.start('a', {'xlink:href': gc.get_url()})
+            self.writer.start('a', {'xlink:href': gc.get_url(), 'target': '_blank'})
         self.writer.element('path', d=path_data, **self._get_clip_attrs(gc),
                             style=self._get_style(gc, rgbFace))
         if gc.get_url() is not None:
@@ -730,7 +730,7 @@ class RendererSVG(RendererBase):
 
         writer.start('g', **self._get_clip_attrs(gc))
         if gc.get_url() is not None:
-            self.writer.start('a', {'xlink:href': gc.get_url()})
+            self.writer.start('a', {'xlink:href': gc.get_url(), 'target': '_blank'})
         trans_and_flip = self._make_flip_transform(trans)
         attrib = {'xlink:href': f'#{oid}'}
         clip = (0, 0, self.width*72, self.height*72)
@@ -788,7 +788,7 @@ class RendererSVG(RendererBase):
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
             url = gc0.get_url()
             if url is not None:
-                writer.start('a', attrib={'xlink:href': url})
+                writer.start('a', attrib={'xlink:href': url, 'target': '_blank'})
             clip_attrs = self._get_clip_attrs(gc0)
             if clip_attrs:
                 writer.start('g', **clip_attrs)
@@ -966,7 +966,7 @@ class RendererSVG(RendererBase):
 
         url = gc.get_url()
         if url is not None:
-            self.writer.start('a', attrib={'xlink:href': url})
+            self.writer.start('a', attrib={'xlink:href': url, 'target': '_blank'})
 
         attrib = {}
         oid = gc.get_gid()
@@ -1288,7 +1288,7 @@ class RendererSVG(RendererBase):
             self.writer.start('g', **clip_attrs)
 
         if gc.get_url() is not None:
-            self.writer.start('a', {'xlink:href': gc.get_url()})
+            self.writer.start('a', {'xlink:href': gc.get_url(), 'target': '_blank'})
 
         if mpl.rcParams['svg.fonttype'] == 'path':
             self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
