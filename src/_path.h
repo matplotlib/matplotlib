@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <limits>
 #include <string>
@@ -115,6 +116,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
     bool all_done;
 
     size_t n = safe_first_shape(points);
+    assert(safe_first_shape(inside_flag) >= n);
 
     std::vector<uint8_t> yflag0(n);
     std::vector<uint8_t> subpath_flag(n);
@@ -242,6 +244,7 @@ inline void points_in_path(PointArray &points,
                            agg::trans_affine &trans,
                            ResultArray &result)
 {
+    assert(safe_first_shape(result) >= safe_first_shape(points));
     for (auto i = 0; i < safe_first_shape(points); ++i) {
         result[i] = false;
     }
@@ -270,8 +273,7 @@ inline bool point_in_path(
     *points_arr.mutable_data(0, 1) = y;
     auto points = points_arr.mutable_unchecked<2>();
 
-    int result[1];
-    result[0] = 0;
+    std::array<int, 1> result{};
 
     points_in_path(points, r, path, trans, result);
 
@@ -288,8 +290,7 @@ inline bool point_on_path(
     *points_arr.mutable_data(0, 1) = y;
     auto points = points_arr.mutable_unchecked<2>();
 
-    int result[1];
-    result[0] = 0;
+    std::array<int, 1> result{};
 
     auto trans_path = agg::conv_transform{path, trans};
     auto nan_removed_path = PathNanRemover{trans_path, true, path.has_codes()};
