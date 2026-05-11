@@ -1,0 +1,7 @@
+Clearing an Axes now unshares shared axes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Calling `.Axes.clear` or `.Axes.cla` now removes the Axes from any shared-axis
+groups before resetting its state. Sibling Axes remain shared with each other.
+This prevents warnings from shared non-linear scales during clearing and matches
+the expectation that a cleared Axes returns to an unshared, newly-created state.

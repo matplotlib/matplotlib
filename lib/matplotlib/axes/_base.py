@@ -737,7 +737,11 @@ class _AxesBase(martist.Artist):
         self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
 
         self._rasterization_zorder = None
-        self.clear()
+        self._initializing = True
+        try:
+            self.clear()
+        finally:
+            self._initializing = False
 
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
@@ -1326,6 +1330,40 @@ class _AxesBase(martist.Artist):
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
 
+    def _unshare_axis(self, name):
+        """Remove this Axes from the shared-axis group for *name*."""
+        grouper = self._shared_axes[name]
+        if self not in grouper:
+            return
+
+        siblings = grouper.get_siblings(self, include_self=False)
+        grouper.remove(self)
+        setattr(self, f"_share{name}", None)
+
+        # The shared axes use the same Ticker instances.  Detach this axis
+        # before clearing it so the remaining siblings keep their state.
+        axis = self._axis_map[name]
+        axis.major = maxis.Ticker()
+        axis.minor = maxis.Ticker()
+
+        if not siblings:
+            return
+
+        share_attr = f"_share{name}"
+        remaining = siblings[0]
+        for sibling in siblings:
+            if getattr(sibling, share_attr) is self:
+                setattr(sibling, share_attr,
+                        None if sibling is remaining else remaining)
+
+        # Formatters and locators may previously have been associated with the
+        # cleared axis.  Update them to point to an axis still in the group.
+        remaining_axis = remaining._axis_map[name]
+        remaining_axis.get_major_formatter().set_axis(remaining_axis)
+        remaining_axis.get_major_locator().set_axis(remaining_axis)
+        remaining_axis.get_minor_formatter().set_axis(remaining_axis)
+        remaining_axis.get_minor_locator().set_axis(remaining_axis)
+
     def __clear(self):
         """Clear the Axes."""
         # The actual implementation of clear() as long as clear() has to be
@@ -1341,6 +1379,12 @@ class _AxesBase(martist.Artist):
 
         xaxis_visible = self.xaxis.get_visible()
         yaxis_visible = self.yaxis.get_visible()
+        shared_x = self in self._shared_axes["x"] or self._sharex is not None
+        shared_y = self in self._shared_axes["y"] or self._sharey is not None
+
+        if not getattr(self, "_initializing", False):
+            for name in self._axis_names:
+                self._unshare_axis(name)
 
         for axis in self._axis_map.values():
             axis.clear()  # Also resets the scale to linear.
@@ -1435,10 +1479,10 @@ class _AxesBase(martist.Artist):
         self.xaxis.set_clip_path(self.patch)
         self.yaxis.set_clip_path(self.patch)
 
-        if self._sharex is not None:
+        if shared_x:
             self.xaxis.set_visible(xaxis_visible)
             self.patch.set_visible(patch_visible)
-        if self._sharey is not None:
+        if shared_y:
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
 

@@ -12,6 +12,7 @@ import re
 import sys
 from types import SimpleNamespace
 import unittest.mock
+import warnings
 
 import dateutil.tz
 
@@ -545,15 +546,15 @@ def test_inverted_cla():
     for ax in fig.axes:
         ax.remove()
     # 5. two shared axes. Inverting the leader axis should invert the shared
-    # axes; clearing the leader axis should bring axes in shared
-    # axes back to normal.
+    # axes; clearing the leader axis should return it to an unshared state.
     ax0 = plt.subplot(211)
     ax1 = plt.subplot(212, sharey=ax0)
     ax0.yaxis.set_inverted(True)
     assert ax1.yaxis_inverted()
     ax1.plot(x, np.cos(x))
     ax0.cla()
-    assert not ax1.yaxis_inverted()
+    assert ax1.yaxis_inverted()
+    assert not ax0.get_shared_y_axes().joined(ax0, ax1)
     ax1.cla()
     # 6. clearing the follower should not touch limits
     ax0.imshow(img)
@@ -9251,19 +9252,56 @@ def test_2dcolor_plot(fig_test, fig_ref):
     axs[4].bar(np.arange(10), np.arange(10), color=color.reshape((1, -1)))
 
 
-@check_figures_equal()
-def test_shared_axes_clear(fig_test, fig_ref):
-    x = np.arange(0.0, 2*np.pi, 0.01)
-    y = np.sin(x)
+def test_shared_axes_clear():
+    _fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
+    shared_x = axs[0, 0].get_shared_x_axes()
+    shared_y = axs[0, 0].get_shared_y_axes()
 
-    axs = fig_ref.subplots(2, 2, sharex=True, sharey=True)
-    for ax in axs.flat:
-        ax.plot(x, y)
+    axs[0, 0].clear()
 
-    axs = fig_test.subplots(2, 2, sharex=True, sharey=True)
-    for ax in axs.flat:
-        ax.clear()
-        ax.plot(x, y)
+    for ax in axs.flat[1:]:
+        assert not shared_x.joined(axs[0, 0], ax)
+        assert not shared_y.joined(axs[0, 0], ax)
+
+    assert shared_x.joined(axs[0, 1], axs[1, 0])
+    assert shared_y.joined(axs[0, 1], axs[1, 0])
+
+
+def test_shared_axes_clear_with_non_linear_scale():
+    _fig, (ax0, ax1) = plt.subplots(1, 2, sharex=True)
+    x = range(1, 10)
+    ax0.plot(x, x)
+    ax1.semilogx(x, x)
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "error",
+            "Attempt to set non-positive xlim on a log-scaled axis "
+            "will be ignored.",
+            UserWarning,
+        )
+        ax0.clear()
+
+    assert not ax0.get_shared_x_axes().joined(ax0, ax1)
+    assert ax0.get_xscale() == "linear"
+    assert ax1.get_xscale() == "log"
+    assert isinstance(ax1.xaxis.get_major_locator(), mticker.LogLocator)
+
+
+def test_figure_clear_with_shared_non_linear_scale():
+    fig, (ax0, ax1) = plt.subplots(1, 2, sharex=True)
+    x = range(1, 10)
+    ax0.plot(x, x)
+    ax1.semilogx(x, x)
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "error",
+            "Attempt to set non-positive xlim on a log-scaled axis "
+            "will be ignored.",
+            UserWarning,
+        )
+        fig.clear()
 
 
 def test_shared_axes_retick():
