@@ -19,6 +19,7 @@ information is available in the API description:
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
+from IPython.display import HTML
 
 # %%
 # Animation classes
@@ -125,8 +126,6 @@ plt.show()
 #
 # Example:
 
-from IPython.display import HTML
-
 fig, ax = plt.subplots()
 
 x = np.linspace(0, 2 * np.pi)
@@ -181,6 +180,7 @@ for i in range(20):
         high=10,
         size=data.shape,
     )
+
     container = ax.barh(
         x,
         data,
