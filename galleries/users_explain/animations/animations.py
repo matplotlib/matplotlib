@@ -16,9 +16,9 @@ information is available in the API description:
 `~matplotlib.animation`
 """
 
+import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.animation as animation
 
 # %%
 # Animation classes
@@ -131,7 +131,7 @@ fig, ax = plt.subplots()
 
 x = np.linspace(0, 2 * np.pi)
 
-line, = ax.plot(x, np.sin(x))
+(line,) = ax.plot(x, np.sin(x))
 
 
 def animate(i):
@@ -181,7 +181,6 @@ for i in range(20):
         high=10,
         size=data.shape,
     )
-
     container = ax.barh(
         x,
         data,
