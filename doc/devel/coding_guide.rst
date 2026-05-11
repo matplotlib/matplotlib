@@ -131,6 +131,44 @@ C/C++ extensions
   implement new features only if the required changes cannot be made elsewhere
   in the codebase.  In particular, avoid making style fixes to it.
 
+.. _clang-tidy:
+
+Static analysis with clang-tidy
+--------------------------------
+
+Matplotlib's C/C++ sources in :file:`src/` are checked with
+`clang-tidy <https://clang.llvm.org/extra/clang-tidy/>`__ in CI (see
+:file:`.github/workflows/linting.yml`).  The check
+configuration lives in :file:`.clang-tidy`.
+
+The logic lives in :file:`tools/run_clang_tidy.py`.  It requires
+``clang-tidy`` on ``PATH`` and ``meson`` and ``pybind11`` installed::
+
+    pip install meson pybind11
+
+On macOS, ``clang-tidy`` is not on ``PATH`` after a Homebrew install::
+
+    brew install llvm
+    export PATH=$(brew --prefix llvm)/bin:$PATH
+
+The script uses a dedicated ``build/clang-tidy/`` directory (created
+automatically on first run) and delegates to meson's built-in
+``clang-tidy`` target. To run locally:
+
+.. code-block:: bash
+
+   python tools/run_clang_tidy.py
+
+
+To suppress false-positives use narrow checks and a comment:
+
+.. code-block:: c++
+
+   *indices++ = value;  // NOLINT(clang-analyzer-security.ArrayBound): loop
+   // iterates exactly N times; the analyzer cannot prove this from the macro.
+
+
+
 .. _keyword-argument-processing:
 
 Keyword argument processing
