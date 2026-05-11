@@ -5,9 +5,14 @@ Lasso Selector
 
 Interactively selecting data points with the lasso tool.
 
-This examples plots a scatter plot. You can then select a few points by drawing
+This example plots a scatter plot. You can then select a few points by drawing
 a lasso loop around the points on the graph. To draw, just click
 on the graph, hold, and drag it around the points you need to select.
+
+For most lasso-selection use cases, prefer `~matplotlib.widgets.LassoSelector`
+over `~matplotlib.widgets.Lasso`, which is shown in the
+:doc:`/gallery/event_handling/lasso_demo` example. `~.LassoSelector` follows
+the selector-widget API and stays connected until explicitly disconnected.
 """
 
 

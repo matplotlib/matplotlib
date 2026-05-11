@@ -4376,7 +4376,13 @@ class PolygonSelector(_SelectorWidget):
 
 class Lasso(AxesWidget):
     """
-    Selection curve of an arbitrary shape.
+    [*Discouraged*] Selection curve of an arbitrary shape.
+
+    .. admonition:: Discouraged
+
+        The use of `Lasso` is discouraged for new code. Use `LassoSelector`
+        instead, which uses the selector-widget interface and remains
+        connected to the Axes until disconnected.
 
     The selected path can be used in conjunction with
     `~matplotlib.path.Path.contains_point` to select data points from an image.

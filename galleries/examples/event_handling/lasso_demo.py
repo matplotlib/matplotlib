@@ -6,6 +6,12 @@ Lasso Demo
 Use a lasso to select a set of points and get the indices of the selected points.
 A callback is used to change the color of the selected points.
 
+This example uses the low-level `~matplotlib.widgets.Lasso` widget. For new
+code, prefer `~matplotlib.widgets.LassoSelector`, which is shown in the
+:doc:`/gallery/widgets/lasso_selector_demo_sgskip` example. `~.LassoSelector`
+uses the same interface as the other selector widgets and remains connected
+until it is disconnected.
+
 .. note::
     This example exercises the interactive capabilities of Matplotlib, and this
     will not appear in the static documentation. Please run this code on your
