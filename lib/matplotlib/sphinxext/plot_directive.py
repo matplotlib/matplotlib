@@ -162,6 +162,12 @@ plot_srcset
     The plot_srcset option is incompatible with *singlehtml* builds, and an
     error will be raised.
 
+plot_skip_execution
+    If True, will not run any plot directives. Code, captions, etc. will all
+    still be rendered, but no plots will be created.
+
+    .. versionadded:: 3.11
+
 Notes on how it works
 ---------------------
 
@@ -323,6 +329,7 @@ def setup(app):
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
     app.add_config_value('plot_srcset', [], True)
+    app.add_config_value('plot_skip_execution', False, True)
     app.connect('doctree-read', mark_plot_labels)
     app.add_css_file('plot_directive.css')
     app.connect('build-finished', _copy_css_file)
@@ -925,16 +932,19 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # make figures
     try:
-        results = render_figures(code=code,
-                                 code_path=source_file_name,
-                                 output_dir=build_dir,
-                                 output_base=output_base,
-                                 context=keep_context,
-                                 function_name=function_name,
-                                 config=config,
-                                 context_reset=context_opt == 'reset',
-                                 close_figs=context_opt == 'close-figs',
-                                 code_includes=source_file_includes)
+        if config.plot_skip_execution:
+            results = [(code, [])]
+        else:
+            results = render_figures(code=code,
+                                     code_path=source_file_name,
+                                     output_dir=build_dir,
+                                     output_base=output_base,
+                                     context=keep_context,
+                                     function_name=function_name,
+                                     config=config,
+                                     context_reset=context_opt == 'reset',
+                                     close_figs=context_opt == 'close-figs',
+                                     code_includes=source_file_includes)
         errors = []
     except PlotError as err:
         reporter = state.memo.reporter
