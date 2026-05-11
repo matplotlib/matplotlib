@@ -65,7 +65,7 @@ def test_text_urls():
         fig.savefig(fd, format='svg')
         buf = fd.getvalue().decode()
 
-    expected = f'<a xlink:href="{test_url}">'
+    expected = f'<a xlink:href="{test_url}" target="_blank">'
     assert expected in buf
 
 
