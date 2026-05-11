@@ -1,0 +1,6 @@
+Complex layouts and constrained layout
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Constrained layout now produces smaller spacing between subplots in some
+circumstances.  This should only affect complex layouts where rows or columns
+contain different numbers of subplots, for example a layout created with
+``plt.subplot_mosaic('AC;BC', layout='constrained')``.
