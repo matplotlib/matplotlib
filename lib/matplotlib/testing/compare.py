@@ -146,8 +146,7 @@ class _GSConverter(_Converter):
 
 class _SVGConverter(_Converter):
     def __call__(self, orig, dest):
-        old_inkscape = mpl._get_executable_info("inkscape").version.major < 1
-        terminator = b"\n>" if old_inkscape else b"> "
+        terminator = b"> "
         if not hasattr(self, "_tmpdir"):
             self._tmpdir = TemporaryDirectory()
             # On Windows, we must make sure that self._proc has terminated
@@ -171,13 +170,11 @@ class _SVGConverter(_Converter):
                 # Do not load any user options.
                 "INKSCAPE_PROFILE_DIR": self._tmpdir.name,
             }
-            # Old versions of Inkscape (e.g. 0.48.3.1) seem to sometimes
-            # deadlock when stderr is redirected to a pipe, so we redirect it
-            # to a temporary file instead.  This is not necessary anymore as of
-            # Inkscape 0.92.1.
+            # Certain versions of Inkscape (e.g., 1.2.2) seem to sometimes deadlock when
+            # stderr is redirected to a pipe, so we redirect it to a temporary file
+            # instead. This is not necessary anymore as of Inkscape 1.4.3.
             stderr = TemporaryFile()
             self._proc = subprocess.Popen(
-                ["inkscape", "--without-gui", "--shell"] if old_inkscape else
                 ["inkscape", "--shell"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=stderr,
                 env=env, cwd=self._tmpdir.name)
@@ -200,7 +197,6 @@ class _SVGConverter(_Converter):
         except OSError:
             shutil.copyfile(orig, inkscape_orig)
         self._proc.stdin.write(
-            b"f.svg --export-png=f.png\n" if old_inkscape else
             b"file-open:f.svg;export-filename:f.png;export-do;file-close\n")
         self._proc.stdin.flush()
         try:
