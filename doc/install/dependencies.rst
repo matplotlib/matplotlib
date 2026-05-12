@@ -365,7 +365,7 @@ otherwise they must be installed manually:
 External tools
 ^^^^^^^^^^^^^^
 - Ghostscript_ (>= 9.0, to render PDF files)
-- Inkscape_ (to render SVG files)
+- Inkscape_ (>= 1.0, to render SVG files)
 - `WenQuanYi Zen Hei`_ and `Noto Sans CJK`_ fonts for testing font fallback and
   non-Western fonts
 
@@ -476,7 +476,7 @@ Optional
 The documentation can be built without these packages, but the build
 process will raise various warnings:
 
-* Inkscape_
+* Inkscape_ (>= 1.0)
 * `optipng <http://optipng.sourceforge.net>`_
 * ffmpeg_
 * the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_

@@ -446,15 +446,7 @@ def _get_executable_info(name):
         message = "Failed to find a Ghostscript installation"
         raise ExecutableNotFoundError(message)
     elif name == "inkscape":
-        try:
-            # Try headless option first (needed for Inkscape version < 1.0):
-            return impl(["inkscape", "--without-gui", "-V"],
-                        "Inkscape ([^ ]*)")
-        except ExecutableNotFoundError:
-            pass  # Suppress exception chaining.
-        # If --without-gui is not accepted, we may be using Inkscape >= 1.0 so
-        # try without it:
-        return impl(["inkscape", "-V"], "Inkscape ([^ ]*)")
+        return impl(["inkscape", "-V"], "Inkscape ([^ ]*)", min_ver="1")
     elif name == "magick":
         if sys.platform == "win32":
             # Check the registry to avoid confusing ImageMagick's convert with

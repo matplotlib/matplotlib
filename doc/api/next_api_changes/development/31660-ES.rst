@@ -1,0 +1,5 @@
+New minimum version of Inkscape
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The required version of Inkscape for testing SVG is now 1.0 (previously there was no
+minimum).
