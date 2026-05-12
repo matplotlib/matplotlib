@@ -738,10 +738,8 @@ class _AxesBase(martist.Artist):
 
         self._rasterization_zorder = None
         self._initializing = True
-        try:
-            self.clear()
-        finally:
-            self._initializing = False
+        self.clear()
+        self._initializing = False
 
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
