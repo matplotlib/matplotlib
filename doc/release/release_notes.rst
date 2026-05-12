@@ -13,6 +13,13 @@ Release notes
 
    .. include:: release_notes_next.rst
 
+Version 3.11
+^^^^^^^^^^^^
+.. toctree::
+    :maxdepth: 1
+
+    github_stats.rst
+
 Version 3.10
 ^^^^^^^^^^^^
 .. toctree::
@@ -23,7 +30,7 @@ Version 3.10
     ../api/prev_api_changes/api_changes_3.10.7.rst
     ../api/prev_api_changes/api_changes_3.10.1.rst
     ../api/prev_api_changes/api_changes_3.10.0.rst
-    github_stats.rst
+    prev_whats_new/github_stats_3.10.9.rst
     prev_whats_new/github_stats_3.10.8.rst
     prev_whats_new/github_stats_3.10.7.rst
     prev_whats_new/github_stats_3.10.6.rst
