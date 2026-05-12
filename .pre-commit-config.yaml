@@ -86,6 +86,14 @@ repos:
     rev: a4727cbbcd26d7098e96b9cb738169b59711ae51  # frozen: v1.24.1
     hooks:
       - id: zizmor
+  - repo: https://github.com/simple-icons/svglint
+    rev: 8402586b94f073686e46707a163082e270ee5768  # frozen: v4.2.1
+    hooks:
+      - id: svglint
+        # Override the top-level exclude so that mpl-data/images/ toolbar
+        # icons are also linted.  Exemptions for the intentional interactive
+        # SVG examples are handled in .svglintrc.mjs.
+        exclude: '^$'
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 13614ab716a3113145f1294ed259d9fbe5678ff3  # frozen: 0.37.1
     hooks:
