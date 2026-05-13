@@ -1018,23 +1018,80 @@ class Axes3D(Axes):
 
     def set_zlim(self, bottom=None, top=None, *, emit=True, auto=False,
                  view_margin=None, zmin=None, zmax=None):
-        if zmin is not None:
-            if bottom is not None:
-                raise TypeError("Cannot set both 'bottom' and 'zmin'")
-            bottom = zmin
-        if zmax is not None:
-            if top is not None:
-                raise TypeError("Cannot pass both 'top' and 'zmax'")
-            top = zmax
+        """
+        Set the 3D z-axis view limits.
 
-        # --- RESTORE THIS FIX ---
+        Parameters
+        ----------
+        bottom : float, optional
+            The bottom zlim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
+            The bottom and top zlims may also be passed as the tuple
+            (*bottom*, *top*) as the first positional argument (or as
+            the *bottom* keyword argument).
+
+            .. ACCEPTS: (bottom: float, top: float)
+
+        top : float, optional
+            The top zlim in data coordinates. Passing *None* leaves the
+            limit unchanged.
+
+        emit : bool, default: True
+            Whether to notify observers of limit change.
+
+        auto : bool or None, default: False
+            Whether to turn on autoscaling of the z-axis. *True* turns on,
+            *False* turns off, *None* leaves unchanged.
+
+        view_margin : float, optional
+            The additional margin to apply to the limits.
+
+        zmin, zmax : float, optional
+            They are equivalent to bottom and top respectively, and it is an
+            error to pass both *zmin* and *bottom* or *zmax* and *top*.
+
+        Returns
+        -------
+        bottom, top : (float, float)
+            The new z-axis limits in data coordinates.
+
+        See Also
+        --------
+        get_zlim
+        set_zbound, get_zbound
+        invert_zaxis, zaxis_inverted
+
+        Notes
+        -----
+        The *bottom* value may be greater than the *top* value, in which
+        case the z-axis values will decrease from *bottom* to *top*.
+
+        Examples
+        --------
+        >>> set_zlim(bottom, top)
+        >>> set_zlim((bottom, top))
+        >>> bottom, top = set_zlim(bottom, top)
+
+        One limit may be left unchanged.
+
+        >>> set_zlim(top=top_lim)
+
+        Limits may be passed in reverse order to flip the direction of
+        the z-axis. For example, suppose ``z`` represents depth of the
+        ocean in m. The z-axis limits might be set like the following
+        so 5000 m depth is at the bottom of the plot and the surface,
+        0 m, is at the top.
+
+        >>> set_zlim(5000, 0)
+        """
         bottom = self.convert_zunits(bottom)
         top = self.convert_zunits(top)
-        # ------------------------
 
         return self._set_lim3d(self.zaxis, bottom, top, emit=emit, auto=auto,
-                               view_margin=view_margin, axmin=None, axmax=None,
+                               view_margin=view_margin, axmin=zmin, axmax=zmax,
                                minpos=self.zz_dataLim.minposx)
+
     set_xlim3d = set_xlim
     set_ylim3d = set_ylim
     set_zlim3d = set_zlim
@@ -3087,24 +3144,17 @@ class Axes3D(Axes):
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"])
-    
-    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=None,
-                *args, depthshade_minalpha=None, axlim_clip=False, **kwargs):
-        
-        # --- RESTORE THIS FIX ---
-        xs = self.convert_xunits(xs)
-        ys = self.convert_yunits(ys)
-        zs = self.convert_zunits(zs)
-        xs, ys, zs = np.atleast_1d(xs, ys, zs)
-        # ------------------------
-
-        had_data = self.has_data()
-        # ... (keep the rest of the existing scatter logic)
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=None,
                 *args,
                 depthshade_minalpha=None,
                 axlim_clip=False,
                 **kwargs):
+        
+        xs = self.convert_xunits(xs)
+        ys = self.convert_yunits(ys)
+        zs = self.convert_zunits(zs)
+        xs, ys, zs = np.atleast_1d(xs, ys, zs)
+        
         """
         Create a scatter plot.
 
