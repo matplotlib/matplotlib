@@ -1,0 +1,6 @@
+``Lasso`` is discouraged
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The use of `.Lasso` is discouraged for new code. Use `.LassoSelector`
+instead, which follows the selector-widget interface and remains connected
+to the Axes until disconnected.
