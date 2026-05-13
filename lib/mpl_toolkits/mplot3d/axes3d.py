@@ -3149,68 +3149,10 @@ class Axes3D(Axes):
                 depthshade_minalpha=None,
                 axlim_clip=False,
                 **kwargs):
-        
         xs = self.convert_xunits(xs)
         ys = self.convert_yunits(ys)
         zs = self.convert_zunits(zs)
         xs, ys, zs = np.atleast_1d(xs, ys, zs)
-        
-        """
-        Create a scatter plot.
-
-        Parameters
-        ----------
-        xs, ys : array-like
-            The data positions.
-        zs : float or array-like, default: 0
-            The z-positions. Either an array of the same length as *xs* and
-            *ys* or a single value to place all points in the same plane.
-        zdir : {'x', 'y', 'z', '-x', '-y', '-z'}, default: 'z'
-            The axis direction for the *zs*. This is useful when plotting 2D
-            data on a 3D Axes. The data must be passed as *xs*, *ys*. Setting
-            *zdir* to 'y' then plots the data to the x-z-plane.
-
-            See also :doc:`/gallery/mplot3d/2dcollections3d`.
-
-        s : float or array-like, default: 20
-            The marker size in points**2. Either an array of the same length
-            as *xs* and *ys* or a single value to make all markers the same
-            size.
-        c : :mpltype:`color`, sequence, or sequence of colors, optional
-            The marker color. Possible values:
-
-            - A single color format string.
-            - A sequence of colors of length n.
-            - A sequence of n numbers to be mapped to colors using *cmap* and
-              *norm*.
-            - A 2D array in which the rows are RGB or RGBA.
-
-            For more details see the *c* argument of `~.axes.Axes.scatter`.
-        depthshade : bool, default: :rc:`axes3d.depthshade`
-            Whether to shade the scatter markers to give the appearance of
-            depth. Each call to ``scatter()`` will perform its depthshading
-            independently.
-
-        depthshade_minalpha : float, default: :rc:`axes3d.depthshade_minalpha`
-            The lowest alpha value applied by depth-shading.
-
-            .. versionadded:: 3.11
-
-        axlim_clip : bool, default: False
-            Whether to hide the scatter points outside the axes view limits.
-
-            .. versionadded:: 3.10
-
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
-
-        **kwargs
-            All other keyword arguments are passed on to `~.axes.Axes.scatter`.
-
-        Returns
-        -------
-        paths : `~matplotlib.collections.PathCollection`
-        """
 
         had_data = self.has_data()
         zs_orig = zs
