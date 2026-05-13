@@ -592,9 +592,10 @@ class Line2D(Artist):
         -----
         Setting *markevery* will still only draw markers at actual data points.
         While the float argument form aims for uniform visual spacing, it has
-        to coerce from the ideal spacing to the nearest available data point.
-        Depending on the number and distribution of data points, the result
-        may still not look evenly spaced.
+        to coerce from the ideal spacing along the drawn line to the nearest
+        available data point. Depending on the number and distribution of data
+        points, and on how jagged the line is, the result may still not look
+        evenly spaced along the x- or y-axis.
 
         When using a start offset to specify the first marker, the offset will
         be from the first data point which may be different from the first
