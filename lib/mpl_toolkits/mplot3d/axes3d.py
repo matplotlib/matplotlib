@@ -1018,6 +1018,8 @@ class Axes3D(Axes):
 
     def set_zlim(self, bottom=None, top=None, *, emit=True, auto=False,
                  view_margin=None, zmin=None, zmax=None):
+        
+        bottom, top = self.convert_zunits((bottom, top))
         """
         Set the 3D z-axis view limits.
 
@@ -3148,6 +3150,10 @@ class Axes3D(Axes):
                 **kwargs):
         """
         Create a scatter plot.
+
+        xs = self.convert_xunits(xs)
+        ys = self.convert_yunits(ys)
+        zs = self.convert_zunits(zs)
 
         Parameters
         ----------
