@@ -7827,8 +7827,12 @@ such objects
         if edges is None:
             edges = np.arange(len(values) + 1)
 
-        edges, values, baseline = self._process_unit_info(
-            [("x", edges), ("y", values), ("y", baseline)], kwargs)
+        if orientation == "vertical":
+            edges, values, baseline = self._process_unit_info(
+                [("x", edges), ("y", values), ("y", baseline)], kwargs)
+        else:
+            edges, values, baseline = self._process_unit_info(
+                [("y", edges), ("x", values), ("x", baseline)], kwargs)
 
         patch = mpatches.StepPatch(values,
                                    edges,
