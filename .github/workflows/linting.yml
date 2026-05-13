@@ -108,7 +108,11 @@ jobs:
       - name: Run clang-tidy
         run: |
           set -o pipefail
-          export PATH=$(brew --prefix llvm)/bin:$PATH
+          LLVM_PREFIX=$(brew --prefix llvm)
+          export CC=$LLVM_PREFIX/bin/clang
+          export CXX=$LLVM_PREFIX/bin/clang++
+          export OBJC=$LLVM_PREFIX/bin/clang
+          export PATH=$LLVM_PREFIX/bin:$PATH
           python tools/run_clang_tidy.py
 
   eslint:
