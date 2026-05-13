@@ -1018,7 +1018,7 @@ class Axes3D(Axes):
 
     def set_zlim(self, bottom=None, top=None, *, emit=True, auto=False,
                  view_margin=None, zmin=None, zmax=None):
-        
+
         bottom, top = self.convert_zunits((bottom, top))
         """
         Set the 3D z-axis view limits.
