@@ -106,7 +106,10 @@ jobs:
         run: pip3 install meson ninja pybind11 setuptools-scm
 
       - name: Run clang-tidy
-        run: python tools/run_clang_tidy.py
+        run: |
+          set -o pipefail
+          export PATH=$(brew --prefix llvm)/bin:$PATH
+          python tools/run_clang_tidy.py
 
   eslint:
     name: eslint
