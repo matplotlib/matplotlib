@@ -693,6 +693,20 @@ static void get_filter(const resample_params_t &params,
 }
 
 
+template<typename renderer_t, typename rasterizer_t, typename span_gen_t>
+void render_image(renderer_t &renderer, rasterizer_t &rasterizer, span_gen_t &span_gen, double alpha)
+{
+    auto span_alloc = agg::span_allocator<typename renderer_t::color_type>{};
+    auto conv_alpha = span_conv_alpha<typename renderer_t::color_type>{alpha};
+    auto span_conv = agg::span_converter{span_gen, conv_alpha};
+
+    auto renderer_scanline = agg::renderer_scanline_aa{renderer, span_alloc, span_conv};
+
+    auto scanline = agg::scanline32_u8{};
+    agg::render_scanlines(rasterizer, scanline, renderer_scanline);
+}
+
+
 template<typename color_type>
 void resample(
     const void *input, int in_width, int in_height,
@@ -704,6 +718,7 @@ void resample(
     using input_pixfmt_t = typename type_mapping_t::pixfmt_type;
     using output_pixfmt_t = typename type_mapping_t::pixfmt_type;
 
+    // Need to define this class explicitly because the first argument cannot be deduced
     using arbitrary_interpolator_t =
         agg::span_interpolator_adaptor<agg::span_interpolator_linear<>, lookup_distortion>;
 
@@ -720,12 +735,6 @@ void resample(
         params.affine.shy == 0.0) {
         params.interpolation = NEAREST;
     }
-
-    auto span_alloc = agg::span_allocator<color_type>{};
-    auto rasterizer = agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl>{};
-    auto scanline = agg::scanline32_u8{};
-
-    auto conv_alpha = span_conv_alpha<color_type>{params.alpha};
 
     agg::rendering_buffer input_buffer;
     input_buffer.attach(
@@ -744,6 +753,7 @@ void resample(
     agg::trans_affine inverted = params.affine;
     inverted.invert();
 
+    auto rasterizer = agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl>{};
     rasterizer.clip_box(0, 0, out_width, out_height);
 
     agg::path_storage path;
@@ -801,9 +811,7 @@ void resample(
             using span_gen_t = typename type_mapping_t::
                 template span_gen_nn_type<decltype(image_accessor_clip), decltype(interpolator)>;
             auto span_gen = span_gen_t{image_accessor_clip, interpolator};
-            auto span_conv = agg::span_converter{span_gen, conv_alpha};
-            auto nn_renderer = agg::renderer_scanline_aa{renderer, span_alloc, span_conv};
-            agg::render_scanlines(rasterizer, scanline, nn_renderer);
+            render_image(renderer, rasterizer, span_gen, params.alpha);
         } else {
             lookup_distortion dist(
                 params.transform_mesh, in_width, in_height, out_width, out_height, true);
@@ -812,9 +820,7 @@ void resample(
             using span_gen_t = typename type_mapping_t::
                 template span_gen_nn_type<decltype(image_accessor_clip), decltype(interpolator)>;
             auto span_gen = span_gen_t{image_accessor_clip, interpolator};
-            auto span_conv = agg::span_converter{span_gen, conv_alpha};
-            auto nn_renderer = agg::renderer_scanline_aa{renderer, span_alloc, span_conv};
-            agg::render_scanlines(rasterizer, scanline, nn_renderer);
+            render_image(renderer, rasterizer, span_gen, params.alpha);
         }
     } else {
         agg::image_filter_lut filter;
@@ -826,9 +832,7 @@ void resample(
             using span_gen_t = typename type_mapping_t::
                 template span_gen_affine_type<decltype(image_accessor_wrap)>;
             auto span_gen = span_gen_t{image_accessor_wrap, interpolator, filter};
-            auto span_conv = agg::span_converter{span_gen, conv_alpha};
-            auto int_renderer = agg::renderer_scanline_aa{renderer, span_alloc, span_conv};
-            agg::render_scanlines(rasterizer, scanline, int_renderer);
+            render_image(renderer, rasterizer, span_gen, params.alpha);
         } else {
             lookup_distortion dist(
                 params.transform_mesh, in_width, in_height, out_width, out_height, false);
@@ -837,9 +841,7 @@ void resample(
             using span_gen_t = typename type_mapping_t::
                 template span_gen_filter_type<decltype(image_accessor_wrap), decltype(interpolator)>;
             auto span_gen = span_gen_t{image_accessor_wrap, interpolator, filter};
-            auto span_conv = agg::span_converter{span_gen, conv_alpha};
-            auto int_renderer = agg::renderer_scanline_aa{renderer, span_alloc, span_conv};
-            agg::render_scanlines(rasterizer, scanline, int_renderer);
+            render_image(renderer, rasterizer, span_gen, params.alpha);
         }
     }
 }
