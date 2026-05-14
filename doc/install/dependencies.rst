@@ -232,7 +232,7 @@ Python
 
 ``pip`` normally builds packages using :external+pip:doc:`build isolation <reference/build-system>`,
 which means that ``pip`` installs the dependencies listed here for the
-duration of the build process. However, build isolation is disabled via the the
+duration of the build process. However, build isolation is disabled via the
 :external+pip:ref:`--no-build-isolation <install_--no-build-isolation>` flag
 when :ref:`installing Matplotlib for development <development-install>`, which
 means that the dependencies must be explicitly installed, either by :ref:`creating a virtual environment <dev-environment>`
