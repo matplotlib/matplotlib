@@ -21,6 +21,11 @@ s.set_urls(['https://www.bbc.com/news', 'https://www.google.com/', None])
 fig.savefig('scatter.svg')
 
 # %%
+# .. raw:: html
+#
+#    <object data="../../_static/scatter.svg" type="image/svg+xml"></object>
+
+# %%
 
 fig = plt.figure()
 delta = 0.025
@@ -37,10 +42,6 @@ im.set_url('https://www.google.com/')
 fig.savefig('image.svg')
 
 # %%
-# Display generated SVGs with working hyperlinks
-#
 # .. raw:: html
 #
-#     <object data="../../_static/scatter.svg" type="image/svg+xml"></object>
-#     <br><br>
-#     <object data="../../_static/image.svg" type="image/svg+xml"></object>
+#    <object data="../../_static/image.svg" type="image/svg+xml"></object>
