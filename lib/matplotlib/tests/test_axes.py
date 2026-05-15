@@ -6300,6 +6300,54 @@ def test_grid():
     assert not ax.xaxis.majorTicks[0].gridline.get_visible()
 
 
+def test_get_gridlines_which():
+    """`Axis.get_gridlines` selects major, minor, or both via *which*."""
+    fig, ax = plt.subplots()
+    ax.minorticks_on()
+
+    n_major = len(ax.xaxis.get_major_ticks())
+    n_minor = len(ax.xaxis.get_minor_ticks())
+
+    major_lines = ax.xaxis.get_gridlines()
+    assert len(major_lines) == n_major
+    assert major_lines == ax.xaxis.get_gridlines(which='major')
+
+    minor_lines = ax.xaxis.get_gridlines(which='minor')
+    assert len(minor_lines) == n_minor
+    assert all(line not in major_lines for line in minor_lines)
+
+    both_lines = ax.xaxis.get_gridlines(which='both')
+    assert len(both_lines) == n_major + n_minor
+    assert both_lines[:n_major] == major_lines
+    assert both_lines[n_major:] == minor_lines
+
+    with pytest.raises(ValueError,
+                       match="'invalid' is not a valid value for which"):
+        ax.xaxis.get_gridlines(which='invalid')
+
+
+def test_get_gridlines_visibility_reflects_grid_state():
+    """Visibility of returned gridlines tracks the active grid state."""
+    fig, ax = plt.subplots()
+    ax.minorticks_on()
+
+    ax.grid(visible=False, which='both')
+    fig.canvas.draw()
+    assert not any(line.get_visible()
+                   for line in ax.xaxis.get_gridlines(which='both'))
+
+    ax.grid(visible=True, which='major')
+    fig.canvas.draw()
+    assert all(line.get_visible() for line in ax.xaxis.get_gridlines('major'))
+    assert not any(line.get_visible()
+                   for line in ax.xaxis.get_gridlines('minor'))
+
+    ax.grid(visible=True, which='minor')
+    fig.canvas.draw()
+    assert all(line.get_visible()
+               for line in ax.xaxis.get_gridlines(which='both'))
+
+
 def test_grid_color_with_alpha():
     """Test that grid(color=(..., alpha)) respects the alpha value."""
     fig, ax = plt.subplots()

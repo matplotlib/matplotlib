@@ -1470,11 +1470,39 @@ class Axis(martist.Artist):
         renderer.close_group(__name__)
         self.stale = False
 
-    def get_gridlines(self):
-        r"""Return this Axis' grid lines as a list of `.Line2D`\s."""
-        ticks = self.get_major_ticks()
-        return cbook.silent_list('Line2D gridline',
-                                 [tick.gridline for tick in ticks])
+    def get_gridlines(self, which='major'):
+        r"""
+        Return this Axis' grid lines as a list of `.Line2D`\s.
+
+        Parameters
+        ----------
+        which : {'major', 'minor', 'both'}, default: 'major'
+            Which set of gridlines to return.
+
+            .. versionchanged:: 3.11
+               Added the *which* parameter; previously only major gridlines
+               were returned.
+
+        Returns
+        -------
+        list of `.Line2D`
+            The gridline `.Line2D` objects. For ``which='both'``, major
+            gridlines come before minor gridlines.
+
+        Notes
+        -----
+        The returned list contains every gridline managed by this Axis
+        regardless of its visibility. Use ``Line2D.get_visible()`` on each
+        returned object to check whether a particular gridline is currently
+        drawn.
+        """
+        _api.check_in_list(['major', 'minor', 'both'], which=which)
+        lines = []
+        if which in ('major', 'both'):
+            lines.extend(tick.gridline for tick in self.get_major_ticks())
+        if which in ('minor', 'both'):
+            lines.extend(tick.gridline for tick in self.get_minor_ticks())
+        return cbook.silent_list('Line2D gridline', lines)
 
     def set_label(self, s):
         """Assigning legend labels is not supported. Raises RuntimeError."""
