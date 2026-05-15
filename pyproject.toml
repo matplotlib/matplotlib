@@ -61,6 +61,8 @@ requires = [
     # you really need it and aren't using an sdist.
     "meson-python>=0.13.2,!=0.17.*",
     "pybind11>=2.13.2,!=2.13.3",
+    # setuptools_scm 10 breaks versioning in editable installs. You can remove this pin
+    # if you're a downstream distributor just building wheels or your equivalent.
     "setuptools_scm>=7,<10",
 ]
 
