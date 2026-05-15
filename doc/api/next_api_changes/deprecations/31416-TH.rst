@@ -1,8 +1,0 @@
-Formatter attributes
-~~~~~~~~~~~~~~~~~~~~
-
-These following attributes are considered internal and users should not have a need to access them:
-
-- `.ScalarFormatter`: ``orderOfMagnitude`` and ``format``
-- `.ConciseDateFormatter`: ``offset_format``
-- `.Formatter`: ``locs``

@@ -18,6 +18,7 @@ Version 3.11
 .. toctree::
     :maxdepth: 1
 
+    ../api/prev_api_changes/api_changes_3.11.0.rst
     github_stats.rst
 
 Version 3.10
