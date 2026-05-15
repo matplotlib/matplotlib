@@ -2,17 +2,17 @@
 
 .. _github-stats:
 
-GitHub statistics for 3.11.0 (Apr 24, 2026)
+GitHub statistics for 3.11.0 (May 12, 2026)
 ===========================================
 
-GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2026/04/24
+GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2026/05/12
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 246 issues and merged 764 pull requests.
+We closed 257 issues and merged 812 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/96?closed=1>`__
 
-The following 264 authors contributed 4590 commits.
+The following 266 authors contributed 4674 commits.
 
 * 34j
 * Aaratrika-Shelly
@@ -33,8 +33,8 @@ The following 264 authors contributed 4590 commits.
 * Alexandra Khoo
 * Allison
 * alphanoobie
-* Aman Kushwaha
 * AMAN KUSHWAHA
+* Aman Kushwaha
 * Aman Nijjar
 * Aman Parganiha
 * Aman Srivastava
@@ -58,6 +58,7 @@ The following 264 authors contributed 4590 commits.
 * Ben Root
 * Bodhi Silberling
 * Brian Christian
+* Brian Lau
 * BriAnna Foreman
 * brk
 * Carlos Ramos Carreño
@@ -234,6 +235,7 @@ The following 264 authors contributed 4590 commits.
 * Raphael Erik Hviding
 * Raphael Quast
 * RETHICK CB
+* Ricardo Peres
 * RogueRebel33
 * Roman
 * Roman A
@@ -281,8 +283,56 @@ The following 264 authors contributed 4590 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (764):
+Pull Requests (812):
 
+* :ghpull:`31662`: Backport PR #31659 on branch v3.11.x (ci: Re-arrange AppVeyor pipeline)
+* :ghpull:`31659`: ci: Re-arrange AppVeyor pipeline
+* :ghpull:`31658`: Backport PR #31578 on branch v3.11.x (FIX: URL links in SVG should have target='_blank')
+* :ghpull:`31578`: FIX: URL links in SVG should have target='_blank'
+* :ghpull:`31654`: Backport PR #30108 on branch v3.11.x (Fix constrained layout applying pad multiple times)
+* :ghpull:`30108`: Fix constrained layout applying pad multiple times
+* :ghpull:`31651`: Backport PR #31649 on branch v3.11.x (DOC: Prevent ticks from being cut off in tick rotation example)
+* :ghpull:`31650`: Backport PR #31647 on branch v3.11.x (FIX: Pin rstcheck to prevent CI failure)
+* :ghpull:`31649`: DOC: Prevent ticks from being cut off in tick rotation example
+* :ghpull:`31647`: FIX: Pin rstcheck to prevent CI failure
+* :ghpull:`31646`: Backport PR #31632 on branch v3.11.x (FIX: Prohibit special TeX chars in pgf metadata)
+* :ghpull:`31632`: FIX: Prohibit special TeX chars in pgf metadata
+* :ghpull:`31643`: Backport PR #31609 on branch v3.11.x (DOC: Improve autoscaling and margin docs)
+* :ghpull:`31644`: Backport PR #31579 on branch v3.11.x (DOC: Document that bar() errorbars do not support individual coloring)
+* :ghpull:`31579`: DOC: Document that bar() errorbars do not support individual coloring
+* :ghpull:`31609`: DOC: Improve autoscaling and margin docs
+* :ghpull:`31640`: Backport PR #31638 on branch v3.11.x (Bump the actions group with 2 updates)
+* :ghpull:`31639`: Backport PR #31628 on branch v3.11.x (FIX: use axis lines tight bbox within axis artist tight bbox)
+* :ghpull:`31638`: Bump the actions group with 2 updates
+* :ghpull:`31637`: Backport PR #31634 on branch v3.11.x (Fix some font-related issues)
+* :ghpull:`31628`: FIX: use axis lines tight bbox within axis artist tight bbox
+* :ghpull:`31634`: Fix some font-related issues
+* :ghpull:`31636`: Backport PR #31630 on branch v3.11.x (Restore PolarTransform(apply_theta_transforms) parameter)
+* :ghpull:`31630`: Restore PolarTransform(apply_theta_transforms) parameter
+* :ghpull:`31631`: Backport PR #31557 on branch v3.11.x (FIX: Added ft2font null checks added)
+* :ghpull:`31629`: Backport PR #31621 on branch v3.11.x (Make Scale axis parameter handling more flexible)
+* :ghpull:`31557`: FIX: Added ft2font null checks added
+* :ghpull:`31621`: Make Scale axis parameter handling more flexible
+* :ghpull:`31627`: Backport PR #31625 on branch v3.11.x (DOC: Inline ScalarMappable reStructuredText entries)
+* :ghpull:`31626`: Backport PR #25478 on branch v3.11.x ([BUG] Fix alpha bug on 3D PathCollection plots.)
+* :ghpull:`31625`: DOC: Inline ScalarMappable reStructuredText entries
+* :ghpull:`25478`: [BUG] Fix alpha bug on 3D PathCollection plots.
+* :ghpull:`31611`: Backport PR #31608 on branch v3.11.x (Remove outdated comment re: implementation of hinting_factor.)
+* :ghpull:`31608`: Remove outdated comment re: implementation of hinting_factor.
+* :ghpull:`31602`: Backport PR #31599 on branch v3.11.x (Bump the actions group with 2 updates)
+* :ghpull:`31603`: Backport PR #31594 on branch v3.11.x (DOC: Explain how to selectively restore ticks that are removed by sharex)
+* :ghpull:`31594`: DOC: Explain how to selectively restore ticks that are removed by sharex
+* :ghpull:`31601`: Backport PR #31600 on branch v3.11.x (Bump https://github.com/astral-sh/ruff-pre-commit from v0.15.11 to 0.15.12)
+* :ghpull:`31599`: Bump the actions group with 2 updates
+* :ghpull:`31600`: Bump https://github.com/astral-sh/ruff-pre-commit from v0.15.11 to 0.15.12
+* :ghpull:`31592`: Backport PR #31588 on branch v3.11.x (Expire some missed deprecations from 3.9)
+* :ghpull:`31588`: Expire some missed deprecations from 3.9
+* :ghpull:`31583`: Backport PR #31577 on branch v3.11.x (FIX: Polar Radial Tick Warnings Labels Bug)
+* :ghpull:`31577`: FIX: Polar Radial Tick Warnings Labels Bug
+* :ghpull:`31582`: Backport PR #31580 on branch v3.11.x (DOC: added unregister to colormap guide)
+* :ghpull:`31580`: DOC: added unregister to colormap guide
+* :ghpull:`31564`: Backport PR #31563 on branch v3.11.x (LIC: remove carlogo license)
+* :ghpull:`31563`: LIC: remove carlogo license
 * :ghpull:`31561`: Fixed bug with an uninitialized colormap in parallel threads
 * :ghpull:`31555`: FIX: removing colorbar's axes also removes colorbar
 * :ghpull:`31560`: merge up v3.10.9
@@ -1048,8 +1098,19 @@ Pull Requests (764):
 * :ghpull:`29079`: DOC: Replaced colormap for colorblindness
 * :ghpull:`29077`: DOC: Replaced green with blue for colorblindness
 
-Issues (246):
+Issues (257):
 
+* :ghissue:`23290`: [Bug]: Constrained Layout scaling of layouts with submerged spines
+* :ghissue:`31622`: [Bug]: ``tight`` and ``constrained`` layouts honouring invisible parts of ``floating_axis``
+* :ghissue:`31624`: [MNT]: PolarTransform deprecation didn't warn
+* :ghissue:`31590`: Should ``_make_axis_parameter_optional`` handle ``None``?
+* :ghissue:`25446`: [Bug]: Nan values in scatter 3d plot show in black colour when alpha parameter is passed.
+* :ghissue:`22546`: [Doc]: svg.fonttype: None in custom style sheet gives an error
+* :ghissue:`24958`: [Doc]: Provide a working example for turning on specific axes labels when sharex or sharey are used with subplots
+* :ghissue:`25818`: [Doc]: Heatmap border pixels leak outside grid
+* :ghissue:`31574`: [Bug]: polar projection with ``labels`` on ``set_ticks`` gives UserWarning
+* :ghissue:`14480`: Multicolor errorbars cannot have caps
+* :ghissue:`31330`: [Bug]: Crash when removing colorbar axes in a constrained layout
 * :ghissue:`14235`: Add \underline to mathtext?
 * :ghissue:`31462`: [Bug]: Errorbar plot on log-scaled Axes sets incorrect automatic lower limits
 * :ghissue:`30859`: [Bug]: ax.relim() ignores scatter artist
