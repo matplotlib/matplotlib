@@ -61,7 +61,7 @@ requires = [
     # you really need it and aren't using an sdist.
     "meson-python>=0.13.2,!=0.17.*",
     "pybind11>=2.13.2,!=2.13.3",
-    "setuptools_scm>=7,<10",
+    "setuptools_scm>=7",
 ]
 
 [dependency-groups]
@@ -80,7 +80,7 @@ build = [
     # Should be the same as `[build-system] requires` above.
     "meson-python>=0.13.1,!=0.17.*",
     "pybind11>=2.13.2,!=2.13.3",
-    "setuptools_scm>=7,<10",
+    "setuptools_scm>=7",
     # Not required by us but setuptools_scm without a version, so _if_
     # installed, then setuptools_scm 8 requires at least this version.
     # Unfortunately, we can't do a sort of minimum-if-installed dependency, so
