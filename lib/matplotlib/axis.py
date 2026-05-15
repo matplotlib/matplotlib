@@ -2,6 +2,7 @@
 Classes for the ticks and x- and y-axis.
 """
 
+import contextlib
 import datetime
 import functools
 import logging
@@ -242,6 +243,25 @@ class Tick(martist.Artist):
         super().set_clip_path(path, transform)
         self.gridline.set_clip_path(path, transform)
         self.stale = True
+
+    def _configure_for_axis(self, axis, major):
+        """
+        Apply axis-level configuration to a freshly-materialized Tick.
+
+        Used by `_LazyTickList` to apply ``set_tick_params()`` overrides
+        held on the Axis and to stamp the clip state set via
+        ``Axis.set_clip_path`` onto the Tick and its gridline.
+        """
+        # Subclasses of Axis (e.g. SkewXAxis in the skewt gallery example)
+        # may override _get_tick() without forwarding _{major,minor}_tick_kw,
+        # so apply them here.
+        tick_kw = axis._major_tick_kw if major else axis._minor_tick_kw
+        if tick_kw:
+            self._apply_params(**tick_kw)
+        for artist in (self, self.gridline):
+            artist.clipbox = axis.clipbox
+            artist._clippath = axis._clippath
+            artist._clipon = axis._clipon
 
     def contains(self, mouseevent):
         """
@@ -536,6 +556,26 @@ class Ticker:
         self._formatter = formatter
 
 
+@contextlib.contextmanager
+def _rc_context_raw(snapshot):
+    """
+    Like ``mpl.rc_context(snapshot)`` but bypasses ``RcParams`` validators
+    on entry and exit; re-applying a snapshot to its own values must not
+    re-trigger one-shot validator warnings (e.g. ``toolbar='toolmanager'``).
+    ``snapshot=None`` is a no-op.
+    """
+    if snapshot is None:
+        yield
+        return
+    rc = mpl.rcParams
+    orig = dict(rc)
+    rc._update_raw(snapshot)
+    try:
+        yield
+    finally:
+        rc._update_raw(orig)
+
+
 class _LazyTickList:
     """
     A descriptor for lazy instantiation of tick lists.
@@ -548,26 +588,26 @@ class _LazyTickList:
         self._major = major
 
     def __get__(self, instance, owner):
+        """Materialize the descriptor to a list with one configured tick."""
         if instance is None:
             return self
-        else:
-            # instance._get_tick() can itself try to access the majorTicks
-            # attribute (e.g. in certain projection classes which override
-            # e.g. get_xaxis_text1_transform).  In order to avoid infinite
-            # recursion, first set the majorTicks on the instance temporarily
-            # to an empty list. Then create the tick; note that _get_tick()
-            # may call reset_ticks(). Therefore, the final tick list is
-            # created and assigned afterwards.
-            if self._major:
-                instance.majorTicks = []
-                tick = instance._get_tick(major=True)
-                instance.majorTicks = [tick]
-                return instance.majorTicks
-            else:
-                instance.minorTicks = []
-                tick = instance._get_tick(major=False)
-                instance.minorTicks = [tick]
-                return instance.minorTicks
+        # 1. Bind a placeholder so reentrant access via _get_tick() (e.g.
+        #    projections overriding get_xaxis_text1_transform) does not
+        #    recurse back into this descriptor.
+        # 2. Build the tick under the rcParams snapshot from the last
+        #    Axis.clear() so its sub-artists pick up the right rcParams.
+        # 3. Apply set_tick_params() overrides and axis state.
+        # 4. Re-bind the final list; _get_tick() may have called
+        #    reset_ticks(), which pops the attribute, so this assignment
+        #    is what makes future accesses skip the descriptor.
+        attr = 'majorTicks' if self._major else 'minorTicks'
+        setattr(instance, attr, ())  # placeholder; not appended to
+        with _rc_context_raw(instance._tick_rcParams):
+            tick = instance._get_tick(major=self._major)
+        tick._configure_for_axis(instance, self._major)
+        tick_list = [tick]
+        setattr(instance, attr, tick_list)
+        return tick_list
 
 
 class Axis(martist.Artist):
@@ -672,6 +712,12 @@ class Axis(martist.Artist):
         # Initialize here for testing; later add API
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
+        # Snapshot of rcParams from the last Axis.clear() (or
+        # set_tick_params(reset=True)); re-applied by _LazyTickList when
+        # it lazily materializes a Tick. Kept separate from
+        # _major_tick_kw/_minor_tick_kw, which hold user-provided
+        # set_tick_params() overrides rather than ambient rcParams.
+        self._tick_rcParams = None
 
         if clear:
             self.clear()
@@ -860,12 +906,14 @@ class Axis(martist.Artist):
         self._major_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'major'))
+        self._tick_rcParams = dict(mpl.rcParams)
 
     def _reset_minor_tick_kw(self):
         self._minor_tick_kw.clear()
         self._minor_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
+        self._tick_rcParams = dict(mpl.rcParams)
 
     def clear(self):
         """
@@ -896,6 +944,11 @@ class Axis(martist.Artist):
         # Clear the callback registry for this axis, or it may "leak"
         self.callbacks = cbook.CallbackRegistry(signals=["units"])
 
+        # Snapshot current rcParams so that a Tick materialized later by
+        # _LazyTickList (possibly outside any rc_context() active now)
+        # sees the same rcParams an eager pre-lazy tick would have.
+        self._tick_rcParams = dict(mpl.rcParams)
+
         # whether the grids are on
         self._major_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
@@ -916,19 +969,46 @@ class Axis(martist.Artist):
 
         Each list starts with a single fresh Tick.
         """
-        # Restore the lazy tick lists.
-        try:
-            del self.majorTicks
-        except AttributeError:
-            pass
-        try:
-            del self.minorTicks
-        except AttributeError:
-            pass
-        try:
-            self.set_clip_path(self.axes.patch)
-        except AttributeError:
-            pass
+        # Drop any materialized tick lists so the _LazyTickList descriptor is
+        # reactivated on next access. If ticks were already materialized,
+        # re-apply the axes-patch clip path; otherwise skip.
+        had_major = bool(self.__dict__.pop('majorTicks', None))
+        had_minor = bool(self.__dict__.pop('minorTicks', None))
+        if had_major or had_minor:
+            try:
+                self.set_clip_path(self.axes.patch)
+            except AttributeError:
+                pass
+
+    def _existing_ticks(self, major=None):
+        """
+        Yield already-materialized ticks without triggering the lazy descriptor.
+
+        `majorTicks` and `minorTicks` are `_LazyTickList` descriptors that
+        create a fresh `.Tick` on first access. Several internal methods
+        (`set_clip_path`, `set_tick_params`) need to touch every
+        *already-materialized* tick without forcing materialization, because
+        doing so would
+
+        (a) create throwaway Tick objects during ``Axes.__init__`` and
+            ``Axes.__clear``
+        (b) risk re-entering the
+            ``Spine.set_position -> Axis.reset_ticks -> Axis.set_clip_path
+            -> _LazyTickList.__get__ -> Tick.__init__ -> Spine.set_position``
+            cascade.
+
+        Reading the instance ``__dict__`` directly bypasses the descriptor.
+
+        Parameters
+        ----------
+        major : bool, optional
+            If True, yield only major ticks; if False, only minor ticks;
+            if None (default), yield major followed by minor.
+        """
+        if major is None or major:
+            yield from self.__dict__.get('majorTicks', ())
+        if major is None or not major:
+            yield from self.__dict__.get('minorTicks', ())
 
     def minorticks_on(self):
         """
@@ -997,11 +1077,11 @@ class Axis(martist.Artist):
         else:
             if which in ['major', 'both']:
                 self._major_tick_kw.update(kwtrans)
-                for tick in self.majorTicks:
+                for tick in self._existing_ticks(major=True):
                     tick._apply_params(**kwtrans)
             if which in ['minor', 'both']:
                 self._minor_tick_kw.update(kwtrans)
-                for tick in self.minorTicks:
+                for tick in self._existing_ticks(major=False):
                     tick._apply_params(**kwtrans)
             # labelOn and labelcolor also apply to the offset text.
             if 'label1On' in kwtrans or 'label2On' in kwtrans:
@@ -1140,7 +1220,7 @@ class Axis(martist.Artist):
 
     def set_clip_path(self, path, transform=None):
         super().set_clip_path(path, transform)
-        for child in self.majorTicks + self.minorTicks:
+        for child in self._existing_ticks():
             child.set_clip_path(path, transform)
         self.stale = True
 

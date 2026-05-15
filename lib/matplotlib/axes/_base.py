@@ -1435,6 +1435,11 @@ class _AxesBase(martist.Artist):
         self.xaxis.set_clip_path(self.patch)
         self.yaxis.set_clip_path(self.patch)
 
+        # Lazy tick lists no longer trigger spine transform setup as a
+        # side effect, so nudge each spine explicitly.
+        for spine in self.spines.values():
+            spine._ensure_transform_is_set()
+
         if self._sharex is not None:
             self.xaxis.set_visible(xaxis_visible)
             self.patch.set_visible(patch_visible)
