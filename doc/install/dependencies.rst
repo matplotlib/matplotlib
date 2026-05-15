@@ -213,7 +213,7 @@ Minimum pip / manylinux support (linux)
 Matplotlib publishes `manylinux wheels <https://github.com/pypa/manylinux>`_
 which have a minimum version of pip which will recognize the wheels
 
-- Python 3.9+: ``manylinux2014`` / pip >= 19.3
+- Python 3.11+: ``manylinux2014`` / pip >= 19.3
 
 In all cases the required version of pip is embedded in the CPython source.
 
