@@ -1,8 +1,9 @@
 import numpy as np
 import pytest
 
+import matplotlib.path as mpath
 import matplotlib.pyplot as plt
-from matplotlib.spines import Spines
+from matplotlib.spines import Spine, Spines
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
@@ -197,3 +198,19 @@ def test_spine_set_bounds_with_none():
         "left bound should be numeric"
     assert np.isclose(left_bound[0], ylim[0]), "Lower bound should match original value"
     assert np.isclose(left_bound[1], ylim[1]), "Upper bound should match original value"
+
+
+def test_clear_with_custom_spine_type():
+    # Spines with a non-cartesian spine_type (e.g. cartopy's GeoSpine) manage
+    # their own transform and may reject set_position(); Axes.clear() must not
+    # call _ensure_transform_is_set() on them. See SciTools/cartopy#2674.
+    class NoPositionSpine(Spine):
+        def __init__(self, axes, **kwargs):
+            super().__init__(axes, 'geo', mpath.Path(np.empty((0, 2))), **kwargs)
+
+        def set_position(self, position):
+            raise NotImplementedError('spine does not support set_position')
+
+    fig, ax = plt.subplots()
+    ax.spines['geo'] = NoPositionSpine(ax)
+    ax.clear()  # must not raise
