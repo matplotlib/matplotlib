@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 224">
+  <rect width="320" height="224" fill="white"/>
+  <rect x="28" y="30" width="264" height="164" rx="8" fill="#f7f7f7" stroke="#cccccc" stroke-width="2"/>
+  <rect x="54" y="56" width="126" height="88" fill="white" stroke="#888888" stroke-width="2"/>
+  <polyline points="70,126 102,106 134,88 164,70" fill="none" stroke="#1f77b4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="70" cy="126" r="5" fill="#1f77b4"/>
+  <circle cx="102" cy="106" r="5" fill="#1f77b4"/>
+  <circle cx="134" cy="88" r="5" fill="#1f77b4"/>
+  <circle cx="164" cy="70" r="5" fill="#1f77b4"/>
+  <path d="M190 100 H250" fill="none" stroke="#555555" stroke-width="5" stroke-linecap="round"/>
+  <path d="M235 84 L252 100 L235 116" fill="none" stroke="#555555" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g font-family="DejaVu Sans Mono, monospace" font-size="16" fill="#333333">
+    <text x="68" y="170">plt.savefig(stdout)</text>
+  </g>
+</svg>
