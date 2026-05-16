@@ -11,6 +11,8 @@ import os
 import matplotlib
 from matplotlib.ft2font import FT2Font, Kerning
 
+# sphinx_gallery_thumbnail_path = '_static/font_indexing_thumbnail.svg'
+
 font = FT2Font(
     os.path.join(matplotlib.get_data_path(), 'fonts/ttf/DejaVuSans.ttf'))
 font.set_charmap(0)

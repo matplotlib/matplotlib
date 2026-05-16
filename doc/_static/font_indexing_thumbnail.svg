@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 224">
+  <rect width="320" height="224" fill="white"/>
+  <rect x="30" y="28" width="260" height="168" rx="8" fill="#f7f7f7" stroke="#cccccc" stroke-width="2"/>
+  <text x="74" y="112" font-family="DejaVu Sans, sans-serif" font-size="74" font-weight="700" fill="#333333">A</text>
+  <text x="150" y="112" font-family="DejaVu Sans, sans-serif" font-size="74" font-weight="700" fill="#333333">V</text>
+  <path d="M108 128 C128 142, 150 142, 170 128" fill="none" stroke="#1f77b4" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="108" cy="128" r="5" fill="#1f77b4"/>
+  <circle cx="170" cy="128" r="5" fill="#1f77b4"/>
+  <g font-family="DejaVu Sans Mono, monospace" font-size="14" fill="#555555">
+    <text x="74" y="154">glyph index</text>
+    <text x="74" y="176">char code</text>
+    <text x="190" y="154">36</text>
+    <text x="190" y="176">0x41</text>
+  </g>
+</svg>
