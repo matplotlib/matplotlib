@@ -4002,7 +4002,7 @@ class LassoSelector(_SelectorWidget):
 
 class PolygonSelector(_SelectorWidget):
     """
-    Select a polygonal region or chain within an Axes.
+    Select a polygon region of an Axes.
 
     Place vertices with each mouse click, and make the selection by completing
     the polygon (clicking on the first vertex). Once drawn individual vertices
@@ -4072,6 +4072,7 @@ class PolygonSelector(_SelectorWidget):
     --------
     :doc:`/gallery/widgets/polygon_selector_simple`
     :doc:`/gallery/widgets/polygon_selector_demo`
+    :doc:`/gallery/widgets/polygon_selector_open_chain`
 
     Notes
     -----
