@@ -1443,14 +1443,11 @@ def polygon_remove_vertex(ax, xy):
 
 def polygon_complete_chain(ax, closed, xy):
     if closed:
-        return [
-            *polygon_place_vertex(ax, xy)
-        ]
-    else:
-        return [
-            KeyEvent("key_press_event", ax.figure.canvas, "enter"),
-            KeyEvent("key_release_event", ax.figure.canvas, "enter"),
-        ]
+        return [*polygon_place_vertex(ax, xy)]
+    return [
+        KeyEvent("key_press_event", ax.figure.canvas, "enter"),
+        KeyEvent("key_release_event", ax.figure.canvas, "enter"),
+    ]
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
@@ -1570,17 +1567,19 @@ def test_polygon_selector(ax, draw_bounding_box, closed):
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-def test_polygon_selector_set_props_handle_props(ax, draw_bounding_box):
+@pytest.mark.parametrize('closed', [False, True])
+def test_polygon_selector_set_props_handle_props(ax, draw_bounding_box, closed):
     tool = widgets.PolygonSelector(ax,
                                    props=dict(color='b', alpha=0.2),
                                    handle_props=dict(alpha=0.5),
-                                   draw_bounding_box=draw_bounding_box)
+                                   draw_bounding_box=draw_bounding_box,
+                                   closed=closed)
 
     for event in [
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_complete_chain(ax, closed, (50, 50)),
     ]:
         event._process()
 
@@ -1619,7 +1618,7 @@ def test_polygon_selector_remove(ax, idx, draw_bounding_box, closed):
     event_sequence = [polygon_place_vertex(ax, verts[0]),
                       polygon_place_vertex(ax, verts[1]),
                       polygon_place_vertex(ax, verts[2]),
-                      # Finish the polygon
+                      # Finish the polygonal chain
                       polygon_complete_chain(ax, closed, verts[0])]
     # Add an extra point
     event_sequence.insert(idx, polygon_place_vertex(ax, (200, 200)))
@@ -1669,23 +1668,54 @@ def test_polygon_selector_redraw(ax, draw_bounding_box):
     assert tool.verts == verts[0:2]
 
 
+def test_polygon_selector_redraw_open_chain(ax):
+    verts = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = [
+        *polygon_place_vertex(ax, verts[0]),
+        *polygon_place_vertex(ax, verts[1]),
+        *polygon_place_vertex(ax, verts[2]),
+        KeyEvent("key_press_event", ax.figure.canvas, "enter"),
+        KeyEvent("key_release_event", ax.figure.canvas, "enter"),
+        # Open polygonal chain completed, now remove all three verts.
+        *polygon_remove_vertex(ax, verts[0]),
+        *polygon_remove_vertex(ax, verts[1]),
+        *polygon_remove_vertex(ax, verts[2]),
+        # At this point the tool should be reset so we can add more vertices.
+        *polygon_place_vertex(ax, verts[0]),
+        # Complete the new open polygonal chain.
+        KeyEvent("key_press_event", ax.figure.canvas, "enter"),
+        KeyEvent("key_release_event", ax.figure.canvas, "enter"),
+    ]
+
+    tool = widgets.PolygonSelector(ax, closed=False)
+    for event in event_sequence:
+        event._process()
+    # After removing all verts, the selector should be automatically reset.
+    assert tool.verts == verts[0:1]
+
+
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
+@pytest.mark.parametrize('closed', [False, True])
 @check_figures_equal()
-def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box):
+def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box, closed):
     verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
     ax_test = fig_test.add_subplot()
 
-    tool_test = widgets.PolygonSelector(ax_test, draw_bounding_box=draw_bounding_box)
+    tool_test = widgets.PolygonSelector(ax_test,
+                                        draw_bounding_box=draw_bounding_box,
+                                        closed=closed)
     tool_test.verts = verts
     assert tool_test.verts == verts
 
     ax_ref = fig_ref.add_subplot()
-    tool_ref = widgets.PolygonSelector(ax_ref, draw_bounding_box=draw_bounding_box)
+    tool_ref = widgets.PolygonSelector(ax_ref,
+                                       draw_bounding_box=draw_bounding_box,
+                                       closed=closed)
     for event in [
         *polygon_place_vertex(ax_ref, verts[0]),
         *polygon_place_vertex(ax_ref, verts[1]),
         *polygon_place_vertex(ax_ref, verts[2]),
-        *polygon_place_vertex(ax_ref, verts[0]),
+        *polygon_complete_chain(ax_ref, closed, verts[0]),
     ]:
         event._process()
 
@@ -1733,23 +1763,27 @@ def test_polygon_selector_box(ax):
         tool._box.extents, (20.0, 40.0, 30.0, 40.0))
 
 
-def test_polygon_selector_clear_method(ax):
+@pytest.mark.parametrize('closed', [False, True])
+def test_polygon_selector_clear_method(ax, closed):
     onselect = mock.Mock(spec=noop, return_value=None)
-    tool = widgets.PolygonSelector(ax, onselect)
+    tool = widgets.PolygonSelector(ax, onselect, closed=closed)
 
-    for result in ([(50, 50), (150, 50), (50, 150), (50, 50)],
-                   [(50, 50), (100, 50), (50, 150), (50, 50)]):
+    for result in ([(50, 50), (150, 50), (50, 150)],
+                   [(50, 50), (100, 50), (50, 150)]):
         for xy in result:
             for event in polygon_place_vertex(ax, xy):
                 event._process()
+        for event in polygon_complete_chain(ax, closed, result[0]):
+            event._process()
 
         artist = tool._selection_artist
 
         assert tool._selection_completed
         assert tool.get_visible()
         assert artist.get_visible()
-        np.testing.assert_equal(artist.get_xydata(), result)
-        assert onselect.call_args == ((result[:-1],), {})
+        expected_xydata = result + [result[0]] if closed else result
+        np.testing.assert_equal(artist.get_xydata(), expected_xydata)
+        assert onselect.call_args == ((result,), {})
 
         tool.clear()
         assert not tool._selection_completed
