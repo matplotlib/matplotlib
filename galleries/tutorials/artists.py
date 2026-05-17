@@ -604,7 +604,7 @@ plt.show()
 # directly working on the ticks and their parts (tick lines, tick labels, grid lines)
 # is discouraged. Instead, the high-level concepts tick locators, tick formatters
 # and style configuration via `~.Axes.tick_params` should be used. See
-# :ref:'user_axes_ticks` for details.
+# :ref:`user_axes_ticks` for details.
 #
 # Here is a summary of some of the useful accessor methods of the ``Axis``
 # (these have corresponding setters where useful, such as
