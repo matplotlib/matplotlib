@@ -1572,7 +1572,20 @@ class Axis(martist.Artist):
         self.stale = False
 
     def get_gridlines(self):
-        r"""Return this Axis' grid lines as a list of `.Line2D`\s."""
+        """
+        Return this Axis' grid lines as a list of `.Line2D`.
+
+        .. warning::
+
+            Ticks and their constituent parts, including grid lines, are not
+            persistent. Various operations can create, delete, and modify the tick
+            instances; see :ref:`axes-tick-objects`.
+
+            You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
+            to define and query grid styling; see :ref:`axes-ticks-styling`. Working
+            directly with the grid line objects is typically not necessary, except for
+            very special customizations.
+        """
         ticks = self.get_major_ticks()
         return cbook.silent_list('Line2D gridline',
                                  [tick.gridline for tick in ticks])
@@ -1603,7 +1616,20 @@ class Axis(martist.Artist):
         return self._pickradius
 
     def get_majorticklabels(self):
-        """Return this Axis' major tick labels, as a list of `~.text.Text`."""
+        """
+        Return this Axis' major tick labels, as a list of `~.text.Text`.
+
+        .. warning::
+
+            Ticks and their constituent parts, including tick labels, are not
+            persistent. Various operations can create, delete, and modify the tick
+            instances; see :ref:`axes-tick-objects`.
+
+            You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
+            to define and query tick styling; see :ref:`axes-ticks-styling`. Working
+            directly with the tick text objects is typically not necessary, except for
+            very special customizations.
+        """
         self._update_ticks()
         ticks = self.get_major_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
@@ -1611,7 +1637,20 @@ class Axis(martist.Artist):
         return labels1 + labels2
 
     def get_minorticklabels(self):
-        """Return this Axis' minor tick labels, as a list of `~.text.Text`."""
+        """
+        Return this Axis' minor tick labels, as a list of `~.text.Text`.
+
+        .. warning::
+
+            Ticks and their constituent parts, including tick labels, are not
+            persistent. Various operations can create, delete, and modify the tick
+            instances; see :ref:`axes-tick-objects`.
+
+            You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
+            to define and query tick styling; see :ref:`axes-ticks-styling`. Working
+            directly with the tick text objects is typically not necessary, except for
+            very special customizations.
+        """
         self._update_ticks()
         ticks = self.get_minor_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
@@ -1621,6 +1660,17 @@ class Axis(martist.Artist):
     def get_ticklabels(self, minor=False, which=None):
         """
         Get this Axis' tick labels.
+
+        .. warning::
+
+            Ticks and their constituent parts, including tick labels, are not
+            persistent. Various operations can create, delete, and modify the tick
+            instances; see :ref:`axes-tick-objects`.
+
+            You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
+            to define and query tick styling; see :ref:`axes-ticks-styling`. Working
+            directly with the tick text objects is typically not necessary, except for
+            very special customizations.
 
         Parameters
         ----------
@@ -1650,7 +1700,20 @@ class Axis(martist.Artist):
         return self.get_majorticklabels()
 
     def get_majorticklines(self):
-        r"""Return this Axis' major tick lines as a list of `.Line2D`\s."""
+        """
+        Return this Axis' major tick lines as a list of `.Line2D`.
+
+        .. warning::
+
+            Ticks and their constituent parts, including tick lines, are not
+            persistent. Various operations can create, delete, and modify the tick
+            instances; see :ref:`axes-tick-objects`.
+
+            You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
+            to define and query tick styling; see :ref:`axes-ticks-styling`. Working
+            directly with the tick line objects is typically not necessary, except for
+            very special customizations.
+        """
         lines = []
         ticks = self.get_major_ticks()
         for tick in ticks:
@@ -1659,7 +1722,20 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D ticklines', lines)
 
     def get_minorticklines(self):
-        r"""Return this Axis' minor tick lines as a list of `.Line2D`\s."""
+        """
+        Return this Axis' minor tick lines as a list of `.Line2D`.
+
+        .. warning::
+
+            Ticks and their constituent parts, including tick lines, are not
+            persistent. Various operations can create, delete, and modify the tick
+            instances; see :ref:`axes-tick-objects`.
+
+            You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
+            to define and query tick styling; see :ref:`axes-ticks-styling`. Working
+            directly with the tick line objects is typically not necessary, except for
+            very special customizations.
+        """
         lines = []
         ticks = self.get_minor_ticks()
         for tick in ticks:
@@ -1668,7 +1744,20 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D ticklines', lines)
 
     def get_ticklines(self, minor=False):
-        r"""Return this Axis' tick lines as a list of `.Line2D`\s."""
+        """
+        Return this Axis' tick lines as a list of `.Line2D`.
+
+        .. warning::
+
+            Ticks and their constituent parts, including tick lines, are not
+            persistent. Various operations can create, delete, and modify the tick
+            instances; see :ref:`axes-tick-objects`.
+
+            You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
+            to define and query tick styling; see :ref:`axes-ticks-styling`. Working
+            directly with the tick line objects is typically not necessary, except for
+            very special customizations.
+        """
         if minor:
             return self.get_minorticklines()
         return self.get_majorticklines()
