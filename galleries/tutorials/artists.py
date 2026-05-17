@@ -38,9 +38,7 @@ instances, and use the ``Axes`` instance
 helper methods to create the primitives.  In the example below, we create a
 ``Figure`` instance using :func:`matplotlib.pyplot.figure`, which is a
 convenience method for instantiating ``Figure`` instances and connecting them
-with your user interface.  This is not always necessary -- you can instantiate
-the ``Figure`` instance directly if you do not require the
-`matplotlib.pyplot.show` functionality::
+with a GUI framework so that they can be shown in a window on the screen::
 
     import matplotlib.pyplot as plt
     fig = plt.figure()
