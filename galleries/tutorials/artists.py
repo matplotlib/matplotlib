@@ -606,6 +606,14 @@ plt.show()
 # the ticks contain all the primitives and will be covered below, ``Axis``
 # instances have accessor methods that return the tick lines, tick labels, tick
 # locations etc.:
+#
+# .. warning::
+#
+#    The tick, tick line, and tick label ``Artist`` objects are mainly useful
+#    for introspection.  Because ticks may be created, deleted, or replaced when
+#    the view changes, avoid directly modifying tick artists for styling.  Use
+#    higher-level APIs such as `.Axes.tick_params`, `.Axis.set_major_locator`,
+#    and `.Axis.set_major_formatter` instead.
 
 fig, ax = plt.subplots()
 axis = ax.xaxis
@@ -662,7 +670,7 @@ axis.get_ticklines(minor=True)
 # =============================  ==============================================
 #
 # Here is an example, not recommended for its beauty, which customizes
-# the Axes and Tick properties.
+# the Axes and tick appearance using higher-level APIs.
 
 # plt.figure creates a matplotlib.figure.Figure instance
 fig = plt.figure()
@@ -674,17 +682,8 @@ rect = ax1.patch
 rect.set_facecolor('lightslategray')
 
 
-for label in ax1.xaxis.get_ticklabels():
-    # label is a Text instance
-    label.set_color('red')
-    label.set_rotation(45)
-    label.set_fontsize(16)
-
-for line in ax1.yaxis.get_ticklines():
-    # line is a Line2D instance
-    line.set_color('green')
-    line.set_markersize(25)
-    line.set_markeredgewidth(3)
+ax1.tick_params(axis='x', labelcolor='red', labelrotation=45, labelsize=16)
+ax1.tick_params(axis='y', color='green', length=25, width=3)
 
 plt.show()
 
@@ -700,7 +699,8 @@ plt.show()
 # to the :class:`~matplotlib.axis.Tick`.  The ``Tick`` contains the tick
 # and grid line instances, as well as the label instances for the upper
 # and lower ticks.  Each of these is accessible directly as an attribute
-# of the ``Tick``.
+# of the ``Tick``, but should generally be treated as implementation detail
+# rather than as the preferred way to configure ticks.
 #
 # ==============  ==========================================================
 # Tick attribute  Description
