@@ -596,40 +596,16 @@ plt.show()
 # the ticks are placed and how they are represented as strings.
 #
 # Each ``Axis`` object contains a :attr:`~matplotlib.axis.Axis.label` attribute
-# (this is what :mod:`.pyplot` modifies in calls to `~.pyplot.xlabel` and
-# `~.pyplot.ylabel`) as well as a list of major and minor ticks.  The ticks are
+# (this is what `~.Axes.set_xlabel` / `~.Axes.set_ylabel` modifies internally)
+# as well as a list of major and minor ticks.  The ticks are
 # `.axis.XTick` and `.axis.YTick` instances, which contain the actual line and
 # text primitives that render the ticks and ticklabels.  Because the ticks are
-# dynamically created as needed (e.g., when panning and zooming), you should
-# access the lists of major and minor ticks through their accessor methods
-# `.axis.Axis.get_major_ticks` and `.axis.Axis.get_minor_ticks`.  Although
-# the ticks contain all the primitives and will be covered below, ``Axis``
-# instances have accessor methods that return the tick lines, tick labels, tick
-# locations etc.:
-
-fig, ax = plt.subplots()
-axis = ax.xaxis
-axis.get_ticklocs()
-
-# %%
-
-axis.get_ticklabels()
-
-# %%
-# note there are twice as many ticklines as labels because by default there are
-# tick lines at the top and bottom but only tick labels below the xaxis;
-# however, this can be customized.
-
-axis.get_ticklines()
-
-# %%
-# And with the above methods, you only get lists of major ticks back by
-# default, but you can also ask for the minor ticks:
-
-axis.get_ticklabels(minor=True)
-axis.get_ticklines(minor=True)
-
-# %%
+# dynamically created and modified as needed (e.g., when panning and zooming),
+# directly working on the ticks and their parts (tick lines, tick labels, grid lines)
+# is discouraged. Instead, the high-level concepts tick locators, tick formatters
+# and style configuration via `~.Axes.tick_params` should be used. See
+# :ref:'user_axes_ticks` for details.
+#
 # Here is a summary of some of the useful accessor methods of the ``Axis``
 # (these have corresponding setters where useful, such as
 # :meth:`~matplotlib.axis.Axis.set_major_formatter`.)
@@ -640,82 +616,16 @@ axis.get_ticklines(minor=True)
 # `~.Axis.get_scale`             The scale of the Axis, e.g., 'log' or 'linear'
 # `~.Axis.get_view_interval`     The interval instance of the Axis view limits
 # `~.Axis.get_data_interval`     The interval instance of the Axis data limits
-# `~.Axis.get_gridlines`         A list of grid lines for the Axis
 # `~.Axis.get_label`             The Axis label - a `.Text` instance
-# `~.Axis.get_offset_text`       The Axis offset text - a `.Text` instance
-# `~.Axis.get_ticklabels`        A list of `.Text` instances -
-#                                keyword minor=True|False
-# `~.Axis.get_ticklines`         A list of `.Line2D` instances -
-#                                keyword minor=True|False
-# `~.Axis.get_ticklocs`          A list of Tick locations -
-#                                keyword minor=True|False
 # `~.Axis.get_major_locator`     The `.ticker.Locator` instance for major ticks
 # `~.Axis.get_major_formatter`   The `.ticker.Formatter` instance for major
 #                                ticks
 # `~.Axis.get_minor_locator`     The `.ticker.Locator` instance for minor ticks
 # `~.Axis.get_minor_formatter`   The `.ticker.Formatter` instance for minor
 #                                ticks
-# `~.axis.Axis.get_major_ticks`  A list of `.Tick` instances for major ticks
-# `~.axis.Axis.get_minor_ticks`  A list of `.Tick` instances for minor ticks
+# `~.Axis.get_tick_params`       Styling of ticks, ticklabels and gridlines
 # `~.Axis.grid`                  Turn the grid on or off for the major or minor
 #                                ticks
 # =============================  ==============================================
 #
-# Here is an example, not recommended for its beauty, which customizes
-# the Axes and Tick properties.
-
-# plt.figure creates a matplotlib.figure.Figure instance
-fig = plt.figure()
-rect = fig.patch  # a rectangle instance
-rect.set_facecolor('lightgoldenrodyellow')
-
-ax1 = fig.add_axes((0.1, 0.3, 0.4, 0.4))
-rect = ax1.patch
-rect.set_facecolor('lightslategray')
-
-
-for label in ax1.xaxis.get_ticklabels():
-    # label is a Text instance
-    label.set_color('red')
-    label.set_rotation(45)
-    label.set_fontsize(16)
-
-for line in ax1.yaxis.get_ticklines():
-    # line is a Line2D instance
-    line.set_color('green')
-    line.set_markersize(25)
-    line.set_markeredgewidth(3)
-
-plt.show()
-
-# %%
-# .. _tick-container:
-#
-# Tick containers
-# ---------------
-#
-# The :class:`matplotlib.axis.Tick` is the final container object in our
-# descent from the :class:`~matplotlib.figure.Figure` to the
-# :class:`~matplotlib.axes.Axes` to the :class:`~matplotlib.axis.Axis`
-# to the :class:`~matplotlib.axis.Tick`.  The ``Tick`` contains the tick
-# and grid line instances, as well as the label instances for the upper
-# and lower ticks.  Each of these is accessible directly as an attribute
-# of the ``Tick``.
-#
-# ==============  ==========================================================
-# Tick attribute  Description
-# ==============  ==========================================================
-# tick1line       A `.Line2D` instance
-# tick2line       A `.Line2D` instance
-# gridline        A `.Line2D` instance
-# label1          A `.Text` instance
-# label2          A `.Text` instance
-# ==============  ==========================================================
-#
-# Here is an example which sets the formatter for the right side ticks with
-# dollar signs and colors them green on the right side of the yaxis.
-#
-#
-# .. include:: ../gallery/ticks/dollar_ticks.rst
-#    :start-after: .. redirect-from:: /gallery/pyplots/dollar_ticks
-#    :end-before: .. admonition:: References
+# The full Axis API can be found at :doc:`/api/axis_api`.
