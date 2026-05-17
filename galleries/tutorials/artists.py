@@ -38,12 +38,9 @@ instances, and use the ``Axes`` instance
 helper methods to create the primitives.  In the example below, we create a
 ``Figure`` instance using :func:`matplotlib.pyplot.figure`, which is a
 convenience method for instantiating ``Figure`` instances and connecting them
-with your user interface or drawing toolkit ``FigureCanvas``.  As we will
-discuss below, this is not necessary -- you can work directly with PostScript,
-PDF Gtk+, or wxPython ``FigureCanvas`` instances, instantiate your ``Figures``
-directly and connect them yourselves -- but since we are focusing here on the
-``Artist`` API we'll let :mod:`~matplotlib.pyplot` handle some of those details
-for us::
+with your user interface.  This is not always necessary -- you can instantiate
+the ``Figure`` instance directly if you do not require the
+`matplotlib.pyplot.show` functionality::
 
     import matplotlib.pyplot as plt
     fig = plt.figure()
@@ -94,9 +91,8 @@ contains the same line that was returned by the ``line, = ax.plot...`` call:
     In [102]: line
     Out[102]: <matplotlib.lines.Line2D at 0x19a95710>
 
-If you make subsequent calls to ``ax.plot`` (and the hold state is "on"
-which is the default) then additional lines will be added to the list.
-You can remove a line later by calling its ``remove`` method::
+If you make subsequent calls to ``ax.plot`` then additional lines will be added
+to the list.  You can remove a line later by calling its ``remove`` method::
 
     line = ax.lines[0]
     line.remove()
@@ -301,7 +297,7 @@ plt.show()
 #     Out[159]: <Axes:>
 #
 #     In [160]: print(fig.axes)
-#     [<Axes:>, <matplotlib.axes._axes.Axes object at 0x7f0768702be0>]
+#     [<Axes: >, <Axes: >]
 #
 # Because the figure maintains the concept of the "current Axes" (see
 # :meth:`Figure.gca <matplotlib.figure.Figure.gca>` and
