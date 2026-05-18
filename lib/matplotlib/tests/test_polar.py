@@ -399,7 +399,7 @@ def test_axvspan():
 
 
 def test_polar_get_rlim():
-    # GH#31694 — PolarAxes.get_rlim() should mirror set_rlim()
+    # PolarAxes.get_rlim() should mirror set_rlim()
     ax = plt.figure().add_subplot(projection='polar')
     ax.set_rlim(1.5, 8.0)
     assert ax.get_rlim() == (1.5, 8.0)
