@@ -406,7 +406,7 @@ def test_polar_get_rlim():
 
 
 def test_polar_get_rlim_after_plot():
-    # GH#31694 — get_rlim() should work after autoscaling via plot()
+    # get_rlim() should work after autoscaling via plot()
     ax = plt.figure().add_subplot(projection='polar')
     theta = np.linspace(0, 2 * np.pi, 10)
     ax.plot(theta, np.ones(10) * 5.0)
