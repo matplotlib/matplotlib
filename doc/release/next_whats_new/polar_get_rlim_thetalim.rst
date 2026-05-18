@@ -5,9 +5,10 @@
 `~matplotlib.projections.polar.PolarAxes.get_rlim` and
 `~matplotlib.projections.polar.PolarAxes.get_thetalim` to complement the
 existing `~matplotlib.projections.polar.PolarAxes.set_rlim` and
-`~matplotlib.projections.polar.PolarAxes.set_thetalim`. Previously, calling
-these getters raised an ``AttributeError``; the workaround was to call the
-base-class ``get_ylim()`` / ``get_xlim()`` directly::
+`~matplotlib.projections.polar.PolarAxes.set_thetalim`. Previously, one
+had to use `.Axes.get_ylim`, `.Axes.get_xlim` as a workaround.
+
+::
 
     ax = plt.subplot(projection="polar")
     ax.set_rlim(1, 5)
