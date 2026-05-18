@@ -415,7 +415,7 @@ def test_polar_get_rlim_after_plot():
 
 
 def test_polar_get_thetalim():
-    # GH#31694 — PolarAxes.get_thetalim() should mirror set_thetalim()
+    # PolarAxes.get_thetalim() should mirror set_thetalim()
     ax = plt.figure().add_subplot(projection='polar')
     ax.set_thetalim(thetamin=30, thetamax=90)
     assert_allclose(ax.get_thetalim(), (30, 90))
