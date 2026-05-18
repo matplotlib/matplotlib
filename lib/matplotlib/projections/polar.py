@@ -86,9 +86,6 @@ class PolarTransform(mtransforms.Transform):
                     xys.extend(self.transform_non_affine(trs))
                     codes.append(Path.LINETO)
                 elif r == last_r:  # Same radius: draw an arc.
-                    # The following is complicated by Path.arc() being
-                    # "helpful" and unwrapping the angles, but we don't want
-                    # that behavior here.
                     last_td, td = np.rad2deg([last_t, t])
                     if self._use_rmin and self._axis is not None:
                         r = ((r - self._get_rorigin())
@@ -99,7 +96,11 @@ class PolarTransform(mtransforms.Transform):
                             xys.extend(arc.vertices[1:] * r)
                             codes.extend(arc.codes[1:])
                             last_td += 360
-                        arc = Path.arc(last_td, td)
+                        # Pass unwrap_angles=False on the final partial
+                        # chunk so a delta of nearly-but-not-exactly 360
+                        # degrees doesn't collapse to a near-empty arc.
+                        # See gh-20388.
+                        arc = Path.arc(last_td, td, unwrap_angles=False)
                         xys.extend(arc.vertices[1:] * r)
                         codes.extend(arc.codes[1:])
                     else:
@@ -110,7 +111,7 @@ class PolarTransform(mtransforms.Transform):
                             xys.extend(arc.vertices[::-1][1:] * r)
                             codes.extend(arc.codes[1:])
                             last_td -= 360
-                        arc = Path.arc(td, last_td)
+                        arc = Path.arc(td, last_td, unwrap_angles=False)
                         xys.extend(arc.vertices[::-1][1:] * r)
                         codes.extend(arc.codes[1:])
                 else:  # Interpolate.

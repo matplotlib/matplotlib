@@ -119,7 +119,13 @@ class Path:
     def unit_circle_righthalf(cls) -> Path: ...
     @classmethod
     def arc(
-        cls, theta1: float, theta2: float, n: int | None = ..., is_wedge: bool = ...
+        cls,
+        theta1: float,
+        theta2: float,
+        n: int | None = ...,
+        is_wedge: bool = ...,
+        *,
+        unwrap_angles: bool = ...,
     ) -> Path: ...
     @classmethod
     def wedge(cls, theta1: float, theta2: float, n: int | None = ...) -> Path: ...

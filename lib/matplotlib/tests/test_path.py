@@ -511,6 +511,35 @@ def test_full_arc(offset):
     np.testing.assert_allclose(maxs, 1)
 
 
+def test_arc_unwrap_angles():
+    # With unwrap_angles=True (the default), Path.arc collapses requests for
+    # arcs spanning more than 360 degrees into the shortest equivalent arc.
+    short = Path.arc(0, 720)
+    full = Path.arc(0, 360)
+    assert len(short.vertices) == len(full.vertices)
+
+    # With unwrap_angles=False, the caller's exact angular span is honoured,
+    # producing additional control points for multi-turn arcs that still
+    # trace the unit circle.
+    long = Path.arc(0, 720, unwrap_angles=False)
+    assert len(long.vertices) > len(full.vertices)
+    np.testing.assert_allclose(np.min(long.vertices, axis=0), -1)
+    np.testing.assert_allclose(np.max(long.vertices, axis=0), 1)
+
+    # The floating-point edge case behind the polar grid bug: a span of slightly
+    # more than 360 degrees gets unwrapped to a near-empty arc by the
+    # default code path, but unwrap_angles=False preserves the full turn.
+    overshoot = 360 + 1e-9
+    collapsed = Path.arc(0, overshoot)
+    # collapsed traces only ~1e-9 degrees of arc, so its extent is tiny.
+    assert np.ptp(collapsed.vertices, axis=0).max() < 1e-6
+    preserved = Path.arc(0, overshoot, unwrap_angles=False)
+    np.testing.assert_allclose(
+        np.max(preserved.vertices, axis=0), 1, atol=1e-6)
+    np.testing.assert_allclose(
+        np.min(preserved.vertices, axis=0), -1, atol=1e-6)
+
+
 def test_disjoint_zero_length_segment():
     this_path = Path(
         np.array([

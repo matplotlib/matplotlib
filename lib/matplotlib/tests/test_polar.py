@@ -5,6 +5,7 @@ from numpy.testing import assert_allclose
 import pytest
 
 import matplotlib as mpl
+from matplotlib.path import Path
 from matplotlib.projections.polar import RadialLocator
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -326,6 +327,56 @@ def test_polar_gridlines():
     fig.canvas.draw()
     assert ax.xaxis.majorTicks[0].gridline.get_alpha() == .2
     assert ax.yaxis.majorTicks[0].gridline.get_alpha() == .2
+
+
+@pytest.mark.parametrize('span_deg', [359.999999, 360.0,
+                                      360 - 1e-9, 720.0])
+def test_polar_transform_constant_r_arc(span_deg):
+    # PolarTransform's chunking boundary used to disagree with Path.arc's
+    # angle-unwrap step, so an angular delta of nearly-but-not-exactly
+    # 360 degrees collapsed to a near-empty arc. Apply the transform to
+    # a constant-r path of varying angular span and check that the
+    # result remains a non-degenerate circle.
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    fig.canvas.draw()
+    r = 1.0
+    path = Path([(0.0, r), (np.deg2rad(span_deg), r)],
+                [Path.MOVETO, Path.LINETO])
+    path._interpolation_steps = 100
+    out = ax.transProjection.transform_path_non_affine(path)
+    spread = np.ptp(out.vertices, axis=0)
+    assert spread.min() > r * 1.5, (
+        f"transformed arc collapsed for span={span_deg}: spread={spread}")
+
+
+@pytest.mark.parametrize('angle', [10, 20, 30, 45, 90, 110])
+def test_polar_inverted_theta_outer_spine(angle):
+    # With set_theta_direction(-1) and certain values of
+    # set_theta_zero_location offset, the polar outer spine used to
+    # collapse to a near-empty arc.
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    ax.set_theta_direction(-1)
+    ax.set_theta_zero_location("N", angle)
+    fig.canvas.draw()
+    spine = ax.spines['polar']
+    tpath = spine.get_transform().transform_path(spine.get_path())
+    spread = np.ptp(tpath.vertices, axis=0)
+    assert spread.min() > 50, (
+        f"outer spine collapsed for angle={angle}: spread={spread}")
+
+
+@pytest.mark.parametrize('offset', [1.0, np.pi / 2, np.pi, 1.570796327])
+def test_polar_theta_offset_outer_spine(offset):
+    # set_theta_offset used to remove the outer spine outline; same
+    # floating-point root cause as the inverted-theta case above.
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    ax.set_theta_offset(offset)
+    fig.canvas.draw()
+    spine = ax.spines['polar']
+    tpath = spine.get_transform().transform_path(spine.get_path())
+    spread = np.ptp(tpath.vertices, axis=0)
+    assert spread.min() > 50, (
+        f"outer spine collapsed for theta_offset={offset}: spread={spread}")
 
 
 def test_get_tightbbox_polar():

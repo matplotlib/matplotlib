@@ -272,7 +272,12 @@ class Spine(mpatches.Patch):
                 if low > high:
                     low, high = high, low
 
-                self._path = mpath.Path.arc(np.rad2deg(low), np.rad2deg(high))
+                # Pass unwrap_angles=False so Path.arc honours the full
+                # angular span; without it, floating-point noise on a
+                # near-360 delta can collapse the spine to a near-empty
+                # arc. See gh-26972.
+                self._path = mpath.Path.arc(
+                    np.rad2deg(low), np.rad2deg(high), unwrap_angles=False)
 
                 if self.spine_type == 'bottom':
                     if self.axis is None:
