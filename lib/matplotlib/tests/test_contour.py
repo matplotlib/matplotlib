@@ -891,3 +891,12 @@ def test_contour_aliases(fig_test, fig_ref):
 def test_contour_singular_color():
     with pytest.raises(TypeError):
         plt.figure().add_subplot().contour([[0, 1], [2, 3]], color="r")
+
+
+def test_clabel_manual_subset():
+    # Test for issue #31702: clabel manual indexing with subset of levels
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    cs = ax.contour([[1, 2], [3, 4]], levels=[1.5, 2.5, 3.5])
+    # Attempt to label only one specific level manually
+    ax.clabel(cs, levels=[2.5], manual=[(0.5, 0.5)])
