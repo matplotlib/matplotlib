@@ -273,3 +273,30 @@ for nn, ax in enumerate(axs):
                        grid_color='none')
         ax.tick_params(axis='x', color='m', length=4, direction='in', width=4,
                        labelcolor='g', grid_color='b')
+
+plt.show()
+
+# %%
+#
+# .. _tick-ephemeral:
+#
+# Lifetime of tick instances
+# ==========================
+#
+# Ticks and their constituent parts (tick lines, tick labels, grid lines)
+# are not guaranteed to be persistent. Various operations can create,
+# delete, or modify `.axis.Tick` instances.
+#
+# `.Axes.tick_params` is the preferred way to define and query tick styling, since
+# settings apply to current and future ticks::
+#
+#     ax.tick_params(axis='x', colors='red')
+#
+# For cases that require direct access to individual tick instances
+# or their constituent Artists (``tick1line``, ``tick2line``,
+# ``gridline``. ``label1``, ``label2``), e.g. styling a single tick
+# differently, be aware that such changes may not persist when ticks
+# are regenerated::
+#
+#     ticks = ax.xaxis.get_major_ticks()
+#     ticks[2].label1.set_color('red')
