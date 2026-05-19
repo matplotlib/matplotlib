@@ -4,6 +4,9 @@ from matplotlib import pyplot as plt
 import pytest
 from unittest import mock
 
+@pytest.mark.filterwarnings(
+    "ignore:.*unix_signal_add_full.*:gi.PyGIDeprecationWarning"
+)
 
 @pytest.mark.backend("gtk3agg", skip_on_importerror=True)
 def test_save_figure_return():
