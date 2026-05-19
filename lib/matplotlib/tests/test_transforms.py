@@ -927,7 +927,7 @@ CompositeGenericTransform(
                          [-- --]])))),
         BboxTransformTo(
             TransformedBbox(
-                Bbox(x0=0.125, y0=0.09999999999999998, x1=0.9, y1=0.9),
+                Bbox(x0=0.125, y0=0.1, x1=0.9, y1=0.9),
                 BboxTransformTo(
                     TransformedBbox(
                         Bbox(x0=0.0, y0=0.0, x1=8.0, y1=6.0),
