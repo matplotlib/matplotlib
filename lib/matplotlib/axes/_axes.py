@@ -9329,7 +9329,8 @@ such objects
         for stats, pos, width, facecolor in bodies_zip:
             # The 0.5 factor reflects the fact that we plot from v-p to v+p.
             vals = np.array(stats['vals'])
-            vals = 0.5 * width * vals / vals.max()
+            if len(vals) != 0:
+                vals = 0.5 * width * vals / vals.max()
             bodies += [fill(stats['coords'],
                             -vals + pos if side in ['both', 'low'] else pos,
                             vals + pos if side in ['both', 'high'] else pos,

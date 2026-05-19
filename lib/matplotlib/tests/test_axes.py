@@ -10405,3 +10405,9 @@ def test_errorbar_uses_rcparams():
     assert_allclose([cap.get_markeredgewidth() for cap in caplines], 2.5)
     for barcol in barlinecols:
         assert_allclose(barcol.get_linewidths(), 1.75)
+
+
+def test_violinplot_empty_dataset():
+    fig, ax = plt.subplots()
+    # This should not raise an exception
+    ax.violinplot([np.random.randn(100), []])
