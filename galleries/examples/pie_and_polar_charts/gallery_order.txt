@@ -1,0 +1,3 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+pie_features
+*

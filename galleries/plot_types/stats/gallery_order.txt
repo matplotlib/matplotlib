@@ -1,0 +1,10 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+hist_plot
+boxplot_plot
+errorbar_plot
+violin
+eventplot
+hist2d
+hexbin
+pie
+ecdf
