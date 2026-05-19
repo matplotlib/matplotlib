@@ -398,6 +398,29 @@ def test_axvspan():
     assert span.get_path()._interpolation_steps > 1
 
 
+def test_polar_get_rlim():
+    # PolarAxes.get_rlim() should mirror set_rlim()
+    ax = plt.figure().add_subplot(projection='polar')
+    ax.set_rlim(1.5, 8.0)
+    assert ax.get_rlim() == (1.5, 8.0)
+
+
+def test_polar_get_rlim_after_plot():
+    # get_rlim() should work after autoscaling via plot()
+    ax = plt.figure().add_subplot(projection='polar')
+    theta = np.linspace(0, 2 * np.pi, 10)
+    ax.plot(theta, np.ones(10) * 5.0)
+    rmin, rmax = ax.get_rlim()
+    assert rmax >= 5.0
+
+
+def test_polar_get_thetalim():
+    # PolarAxes.get_thetalim() should mirror set_thetalim()
+    ax = plt.figure().add_subplot(projection='polar')
+    ax.set_thetalim(thetamin=30, thetamax=90)
+    assert_allclose(ax.get_thetalim(), (30, 90))
+
+
 @check_figures_equal()
 def test_remove_shared_polar(fig_ref, fig_test):
     # Removing shared polar axes used to crash.  Test removing them, keeping in
