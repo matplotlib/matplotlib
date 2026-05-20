@@ -709,12 +709,14 @@ class Text(Artist):
         """
         Set whether the text can be wrapped.
 
-        Wrapping makes sure the text is confined to the (sub)figure box. It
-        does not take into account any other artists.
+        Wrapping makes sure the text is confined to the (sub)figure or axes
+        box. It does not take into account any other artists.
 
         Parameters
         ----------
-        wrap : bool
+        wrap : bool or {'axes', 'figure'}
+            - True or 'figure': wrap to the figure boundary (default)
+            - 'axes': wrap to the axes boundary
 
         Notes
         -----
@@ -724,6 +726,10 @@ class Text(Artist):
         rescales the canvas to accommodate all content and happens before
         wrapping.
         """
+        if wrap not in (True, False, 'axes', 'figure'):
+            raise ValueError(
+                f"wrap must be True, False, 'axes', or 'figure', "
+                f"got {wrap!r}")
         self._wrap = wrap
 
     def _get_wrap_line_width(self):
@@ -732,16 +738,21 @@ class Text(Artist):
         orientation.
         """
         x0, y0 = self.get_transform().transform(self.get_position())
-        figure_box = self.get_figure().get_window_extent()
+
+        # Determine clip boundary based on wrap setting
+        if self.get_wrap() == 'axes' and self.axes is not None:
+            clip_box = self.axes.get_window_extent()
+        else:
+            clip_box = self.get_figure().get_window_extent()
 
         # Calculate available width based on text alignment
         alignment = self.get_horizontalalignment()
         self.set_rotation_mode('anchor')
         angle = self.get_rotation()
 
-        left = self._get_dist_to_box(angle, x0, y0, figure_box)
+        left = self._get_dist_to_box(angle, x0, y0, clip_box)
         right = self._get_dist_to_box(
-            (180 + angle) % 360, x0, y0, figure_box)
+            (180 + angle) % 360, x0, y0, clip_box)
 
         if alignment == 'left':
             line_width = left
@@ -791,7 +802,7 @@ class Text(Artist):
         Return a copy of the text string with new lines added so that the text
         is wrapped relative to the parent figure (if `get_wrap` is True).
         """
-        if not self.get_wrap():
+        if self._wrap is False:
             return self.get_text()
 
         # Not fit to handle breaking up latex syntax correctly, so
