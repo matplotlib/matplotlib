@@ -390,3 +390,59 @@ axd = plt.figure(layout="constrained").subplot_mosaic(
     empty_sentinel=0,
 )
 identify_axes(axd)
+
+
+# %%
+# Axis sharing
+# ============
+#
+# `.Figure.subplot_mosaic` supports *sharex* and *sharey* as does
+# `.Figure.subplots`.  When ``True``, all Axes in the mosaic share
+# the same x-axis or y-axis, which is useful for directly comparing
+# data across panels.
+
+fig = plt.figure(layout="constrained")
+axd = fig.subplot_mosaic("AC;BC", sharex=True)
+axd["A"].set_title("Axes A")
+axd["B"].set_title("Axes B")
+axd["C"].set_title("Axes C")
+for ax in axd.values():
+    ax.plot([1, 2, 3, 4], [1, 4, 2, 3])
+identify_axes(axd)
+
+# %%
+# Note that when using ``sharex=True`` only the bottom row of Axes shows
+# x-axis tick labels, and when using ``sharey=True`` only the left column
+# shows y-axis tick labels.  This is identical to the behavior of
+# `.Figure.subplots`.
+#
+# Interaction with empty sentinels
+# ---------------------------------
+#
+# When the mosaic layout has blank spaces (empty sentinels), axis sharing
+# can produce unexpected results.  In the following example, the top-left
+# cell is empty and ``sharey=True`` is used:
+
+fig, axd = plt.subplot_mosaic(".A;BC", sharey=True, layout="constrained")
+for ax in axd.values():
+    ax.plot([1, 2, 3, 4], [1, 4, 2, 3])
+identify_axes(axd)
+
+# %%
+# Because the left column's topmost Axes is blank, Axes ``"B"`` would
+# normally be the leftmost visible Axes in its row, but axis sharing has
+# already removed its y-axis tick labels (since it is not the first column
+# in the grid).  As a result, *none* of the Axes in the top row display
+# y-axis tick labels, which is usually not what you want.
+#
+# The fix is to manually re-enable tick labels on the Axes that should
+# display them using `.Axes.tick_params`:
+
+fig, axd = plt.subplot_mosaic(".A;BC", sharey=True, layout="constrained")
+for ax in axd.values():
+    ax.plot([1, 2, 3, 4], [1, 4, 2, 3])
+
+# Re-enable y-axis tick labels on Axes "B"
+axd["B"].tick_params(labelleft=True)
+
+identify_axes(axd)
