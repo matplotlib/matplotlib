@@ -1590,6 +1590,9 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
         # Dictionary of results for this distribution
         stats = {}
 
+        # note tricksiness, append up here and then mutate below
+        vpstats.append(stats)
+
         # if empty, bail
         if len(x) == 0:
             stats['vals'] = np.array([])
@@ -1599,7 +1602,6 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
             stats['min'] = np.nan
             stats['max'] = np.nan
             stats['quantiles'] = np.array([])
-            vpstats.append(stats)
             continue
 
         # Calculate basic stats for the distribution
@@ -1618,9 +1620,6 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
         stats['min'] = min_val
         stats['max'] = max_val
         stats['quantiles'] = np.atleast_1d(quantile_val)
-
-        # Append to output
-        vpstats.append(stats)
 
     return vpstats
 
