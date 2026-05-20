@@ -6928,6 +6928,10 @@ or pandas.DataFrame
             coords = trans_to_data.transform(coords)
 
         self.add_collection(collection, autolim=False)
+        # Mark the collection as participating in autoscaling so that future
+        # calls to relim() + autoscale_view() correctly include pcolor/pcolormesh
+        # data limits (via Collection.get_datalim).
+        collection._set_in_autoscale(True)
 
         minx, miny = np.min(coords, axis=0)
         maxx, maxy = np.max(coords, axis=0)

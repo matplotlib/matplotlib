@@ -1718,6 +1718,34 @@ def test_pcolorargs_with_read_only():
     plt.pcolor(masked_X, masked_Y, masked_Z)
 
 
+def test_pcolormesh_relim():
+    # GH#XXXXX: pcolormesh should remain visible to relim() + autoscale_view()
+    # so that re-computing axis limits after changes to the figure gives
+    # correct results.
+    fig, ax = plt.subplots()
+    X, Y = np.meshgrid(np.linspace(0, 3, 5), np.linspace(0, 2, 5))
+    Z = np.ones((4, 4))
+    ax.pcolormesh(X, Y, Z)
+    ax.relim()
+    ax.autoscale_view()
+    np.testing.assert_allclose(ax.get_xlim(), (0, 3), atol=0.01)
+    np.testing.assert_allclose(ax.get_ylim(), (0, 2), atol=0.01)
+
+
+def test_pcolor_relim():
+    # GH#XXXXX: pcolor should remain visible to relim() + autoscale_view()
+    # so that re-computing axis limits after changes to the figure gives
+    # correct results.
+    fig, ax = plt.subplots()
+    X, Y = np.meshgrid(np.linspace(0, 3, 5), np.linspace(0, 2, 5))
+    Z = np.ones((4, 4))
+    ax.pcolor(X, Y, Z)
+    ax.relim()
+    ax.autoscale_view()
+    np.testing.assert_allclose(ax.get_xlim(), (0, 3), atol=0.01)
+    np.testing.assert_allclose(ax.get_ylim(), (0, 2), atol=0.01)
+
+
 @check_figures_equal()
 def test_pcolornearest(fig_test, fig_ref):
     ax = fig_test.subplots()
