@@ -3040,7 +3040,6 @@ class Axes(_AxesBase):
         # _convert_dx() in the same way as width handling in bar().
         y0 = self.convert_yunits(ypos)
         dy = self._convert_dx(height, ypos, np.array(y0), self.convert_yunits)
-        print(type(y0), type(dy))
 
         _api.check_in_list(['bottom', 'center', 'top'], align=align)
         if align == "bottom":
@@ -3060,7 +3059,6 @@ class Axes(_AxesBase):
             x0, x1 = self.convert_xunits((x0, x0 + dx))
             vertices.append([(x0, y0), (x0, y1), (x1, y1), (x1, y0)])
 
-        print(vertices)
         col = mcoll.PolyCollection(np.array(vertices), **kwargs)
         self.add_collection(col)
 
