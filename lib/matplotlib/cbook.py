@@ -1593,6 +1593,9 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
         # note tricksiness, append up here and then mutate below
         vpstats.append(stats)
 
+        x = np.asarray(x)
+        x = x[~(np.isnan(x) | np.isinf(x))]
+
         # if empty, bail
         if len(x) == 0:
             stats['vals'] = np.array([])
