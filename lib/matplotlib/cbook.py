@@ -1607,12 +1607,12 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
             min_val = np.min(x)
             max_val = np.max(x)
             quantile_val = np.percentile(x, 100 * q)
-    
+
             # Evaluate the kernel density estimate
             coords = np.linspace(min_val, max_val, points)
             stats['vals'] = method(x, coords)
             stats['coords'] = coords
-    
+
             # Store additional statistics for this distribution
             stats['mean'] = np.mean(x)
             stats['median'] = np.median(x)
