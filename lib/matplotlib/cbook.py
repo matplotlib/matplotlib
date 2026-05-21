@@ -1586,43 +1586,35 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
                          " must have the same length")
 
     # Zip x and quantiles
-    for (x, q) in zip(X, quantiles):
-        # Dictionary of results for this distribution
-        stats = {}
-
+    for (x, quantile) in zip(X, quantiles):
+        # Drop NaNs and infs before length check to safely handle all-NaN datasets
         x = np.asarray(x)
         x = x[~(np.isnan(x) | np.isinf(x))]
 
-        # if empty, bail
         if len(x) == 0:
-            stats['vals'] = np.array([])
-            stats['coords'] = np.array([])
-            stats['mean'] = np.nan
-            stats['median'] = np.nan
-            stats['min'] = np.nan
-            stats['max'] = np.nan
-            stats['quantiles'] = np.array([])
-            vpstats.append(stats)
-            continue
+            vpstats.append({
+                'vals': np.array([]),
+                'coords': np.array([]),
+                'mean': np.nan,
+                'median': np.nan,
+                'min': np.nan,
+                'max': np.nan,
+                'quantiles': np.array([]),
+            })
+        else:
+            min_val = np.min(x)
+            max_val = np.max(x)
+            coords = np.linspace(min_val, max_val, points)
 
-        # Calculate basic stats for the distribution
-        min_val = np.min(x)
-        max_val = np.max(x)
-        quantile_val = np.percentile(x, 100 * q)
-
-        # Evaluate the kernel density estimate
-        coords = np.linspace(min_val, max_val, points)
-        stats['vals'] = method(x, coords)
-        stats['coords'] = coords
-
-        # Store additional statistics for this distribution
-        stats['mean'] = np.mean(x)
-        stats['median'] = np.median(x)
-        stats['min'] = min_val
-        stats['max'] = max_val
-        stats['quantiles'] = np.atleast_1d(quantile_val)
-
-        vpstats.append(stats)
+            vpstats.append({
+                'vals': method(x, coords),
+                'coords': coords,
+                'mean': np.mean(x),
+                'median': np.median(x),
+                'min': min_val,
+                'max': max_val,
+                'quantiles': np.atleast_1d(np.percentile(x, 100 * quantile))
+            })
 
     return vpstats
 
