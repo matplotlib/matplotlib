@@ -6617,11 +6617,11 @@ or pandas.DataFrame
             :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
             If ``shading='flat'`` the dimensions of *X* and *Y* should be one
-            greater than those of *C*, otherwise a ValueError is raised.  The
+            greater than those of *C*, otherwise a TypeError is raised.  The
             quadrilateral is colored due to the value at ``C[i, j]``.
 
             If ``shading='nearest'``, the dimensions of *X* and *Y* should be
-            the same as those of *C* (if not, a ValueError will be raised). The
+            the same as those of *C* (if not, a TypeError will be raised). The
             color ``C[i, j]`` will be centered on ``(X[i, j], Y[i, j])``.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
@@ -6822,11 +6822,11 @@ or pandas.DataFrame
             :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
             If ``shading='flat'`` the dimensions of *X* and *Y* should be one
-            greater than those of *C*, otherwise a ValueError is raised. The
+            greater than those of *C*, otherwise a TypeError is raised. The
             quadrilateral is colored due to the value at ``C[i, j]``.
 
             If ``shading='nearest'`` or ``'gouraud'``, the dimensions of *X*
-            and *Y* should be the same as those of *C* (if not, a ValueError
+            and *Y* should be the same as those of *C* (if not, a TypeError
             will be raised).  For ``'nearest'`` the color ``C[i, j]`` is
             centered on ``(X[i, j], Y[i, j])``.  For ``'gouraud'``, a smooth
             interpolation is carried out between the quadrilateral corners.
