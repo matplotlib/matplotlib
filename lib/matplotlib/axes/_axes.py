@@ -6634,9 +6634,7 @@ or pandas.DataFrame
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
               ``C[i, j]``. The dimensions of *X* and *Y* should be
-              one greater than those of *C*; if they are the same as *C*,
-              then a deprecation warning is raised, and the last row
-              and column of *C* are dropped.
+              one greater than those of *C*.
             - 'nearest': Each grid point will have a color centered on it,
               extending halfway between the adjacent grid centers.  The
               dimensions of *X* and *Y* must be the same as *C*.
@@ -6864,9 +6862,7 @@ or pandas.DataFrame
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
               ``C[i, j]``. The dimensions of *X* and *Y* should be
-              one greater than those of *C*; if they are the same as *C*,
-              then a deprecation warning is raised, and the last row
-              and column of *C* are dropped.
+              one greater than those of *C*.
             - 'nearest': Each grid point will have a color centered on it,
               extending halfway between the adjacent grid centers.  The
               dimensions of *X* and *Y* must be the same as *C*.
