@@ -660,6 +660,92 @@ def test_surface3d():
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
+def test_plot_surface_axlim_clip_mode_clip_smoke():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+
+    x = np.linspace(-2, 2, 9)
+    y = np.linspace(-2, 2, 9)
+    X, Y = np.meshgrid(x, y)
+    Z = np.sin(np.hypot(X, Y))
+
+    ax.plot_surface(
+        X, Y, Z,
+        axlim_clip=True,
+        axlim_clip_mode="clip",
+        color="C0",
+        linewidth=0,
+    )
+
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-1, 1)
+    ax.set_zlim(-0.5, 0.5)
+
+    fig.canvas.draw()
+
+
+def test_plot_surface_axlim_clip_mode_invalid():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+
+    X, Y = np.meshgrid([0, 1], [0, 1])
+    Z = X + Y
+
+    with pytest.raises(ValueError, match="axlim_clip_mode"):
+        ax.plot_surface(X, Y, Z, axlim_clip_mode="bad")
+
+
+def test_plot_wireframe_axlim_clip_mode_clip_smoke():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    x = np.linspace(-2, 2, 9)
+    y = np.linspace(-2, 2, 9)
+    X, Y = np.meshgrid(x, y)
+    Z = np.sin(np.hypot(X, Y))
+
+    ax.plot_wireframe(
+        X, Y, Z,
+        axlim_clip=True,
+        axlim_clip_mode='clip',
+    )
+
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-1, 1)
+    ax.set_zlim(-0.5, 0.5)
+
+    fig.canvas.draw()
+
+
+def test_plot_wireframe_axlim_clip_mode_invalid():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    X, Y = np.meshgrid([0, 1], [0, 1])
+    Z = X + Y
+
+    with pytest.raises(ValueError, match='axlim_clip_mode'):
+        ax.plot_wireframe(X, Y, Z, axlim_clip_mode='bad')
+
+
+def test_quiver_axlim_clip_mode_clip_smoke():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    ax.quiver(
+        [-2, 0, 2], [0, 0, 0], [0, 0, 0],
+        [1, 1, 1], [0, 0, 0], [0, 0, 0],
+        axlim_clip=True,
+        axlim_clip_mode='clip',
+    )
+
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-1, 1)
+    ax.set_zlim(-1, 1)
+
+    fig.canvas.draw()
+
+
 @image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20')
 def test_surface3d_label_offset_tick_position():
     ax = plt.figure().add_subplot(projection="3d")

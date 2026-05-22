@@ -10,6 +10,8 @@ from mpl_toolkits.mplot3d.art3d import (
     Line3DCollection,
     Poly3DCollection,
     _all_points_on_plane,
+    _clip_line_segment_to_box,
+    _clip_polygon_to_box,
 )
 
 
@@ -108,6 +110,95 @@ def test_all_points_on_plane():
     assert _all_points_on_plane(*points.T)
 
 
+
+def test_clip_polygon_to_box_xmin():
+    poly = np.array([
+        [-1, 0, 0],
+        [1, 0, 0],
+        [1, 1, 0],
+        [-1, 1, 0],
+    ], dtype=float)
+
+    clipped = _clip_polygon_to_box(
+        poly,
+        xlim=(0, 1),
+        ylim=(-1, 2),
+        zlim=(-1, 1),
+    )
+
+    expected = np.array([
+        [0, 0, 0],
+        [1, 0, 0],
+        [1, 1, 0],
+        [0, 1, 0],
+    ], dtype=float)
+
+    nptest.assert_allclose(clipped, expected)
+
+
+def test_clip_polygon_to_box_fully_outside():
+    poly = np.array([
+        [-2, 0, 0],
+        [-1, 0, 0],
+        [-1, 1, 0],
+        [-2, 1, 0],
+    ], dtype=float)
+
+    clipped = _clip_polygon_to_box(
+        poly,
+        xlim=(0, 1),
+        ylim=(-1, 2),
+        zlim=(-1, 1),
+    )
+
+    assert clipped.shape == (0, 3)
+
+
+def test_clip_polygon_to_box_zmin():
+    poly = np.array([
+        [0, 0, -1],
+        [1, 0, 1],
+        [0, 1, 1],
+    ], dtype=float)
+
+    clipped = _clip_polygon_to_box(
+        poly,
+        xlim=(-1, 2),
+        ylim=(-1, 2),
+        zlim=(0, 2),
+    )
+
+    assert clipped.shape[1] == 3
+    assert len(clipped) >= 3
+    assert np.all(clipped[:, 2] >= 0)
+    assert np.all(clipped[:, 2] <= 2)
+
+
+
+
+def test_clip_line_segment_to_box_crossing():
+    segment = _clip_line_segment_to_box(
+        [-1, 0.5, 0.5], [2, 0.5, 0.5],
+        xlim=(0, 1), ylim=(0, 1), zlim=(0, 1),
+    )
+
+    expected = np.array([
+        [0, 0.5, 0.5],
+        [1, 0.5, 0.5],
+    ], dtype=float)
+
+    nptest.assert_allclose(segment, expected)
+
+
+def test_clip_line_segment_to_box_fully_outside():
+    segment = _clip_line_segment_to_box(
+        [-2, 0.5, 0.5], [-1, 0.5, 0.5],
+        xlim=(0, 1), ylim=(0, 1), zlim=(0, 1),
+    )
+
+    assert segment.shape == (0, 3)
+
+
 def test_generate_normals():
     # Smoke test for https://github.com/matplotlib/matplotlib/issues/29156
     vertices = ((0, 0, 0), (0, 5, 0), (5, 5, 0), (5, 0, 0))
@@ -117,3 +208,63 @@ def test_generate_normals():
     ax = fig.add_subplot(projection='3d')
     ax.add_collection3d(shape)
     plt.draw()
+
+
+def test_clip_polygon_to_box_near_parallel():
+    # Ensure near-parallel edge (very small denom) does not error and
+    # produced vertices lie within the box.
+    poly = np.array([
+        [-1e-12, 0, 0],
+        [1, 0, 0],
+        [1, 1, 0],
+        [-1, 1, 0],
+    ], dtype=float)
+
+    clipped = _clip_polygon_to_box(
+        poly,
+        xlim=(0, 1),
+        ylim=(-1, 2),
+        zlim=(-1, 1),
+    )
+
+    assert clipped.shape[1] == 3
+    assert len(clipped) >= 3
+    assert np.all(clipped[:, 0] >= 0)
+    assert np.all(clipped[:, 0] <= 1)
+
+
+def test_clip_polygon_to_box_degenerate_collinear():
+    # Collinear polygon should be considered degenerate after clipping
+    # and yield fewer than 3 vertices.
+    poly = np.array([
+        [0, 0, 0],
+        [1, 0, 0],
+        [2, 0, 0],
+    ], dtype=float)
+
+    clipped = _clip_polygon_to_box(
+        poly,
+        xlim=(0.5, 1.5),
+        ylim=(-1, 1),
+        zlim=(-1, 1),
+    )
+
+    assert clipped.shape[0] < 3
+
+
+def test_clip_polygon_to_box_with_nan():
+    # Inputs containing NaNs must be treated as invalid and return empty.
+    poly = np.array([
+        [0, 0, 0],
+        [1, np.nan, 0],
+        [0, 1, 0],
+    ], dtype=float)
+
+    clipped = _clip_polygon_to_box(
+        poly,
+        xlim=(-1, 2),
+        ylim=(-1, 2),
+        zlim=(-1, 2),
+    )
+
+    assert clipped.shape == (0, 3)

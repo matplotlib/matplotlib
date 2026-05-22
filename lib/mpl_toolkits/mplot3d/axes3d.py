@@ -2371,7 +2371,8 @@ class Axes3D(Axes):
         return polyc
 
     def plot_surface(self, X, Y, Z, *, norm=None, vmin=None,
-                     vmax=None, lightsource=None, axlim_clip=False, **kwargs):
+                     vmax=None, lightsource=None, axlim_clip=False,
+                     axlim_clip_mode='hide', **kwargs):
         """
         Create a surface plot.
 
@@ -2437,13 +2438,23 @@ class Axes3D(Axes):
             The lightsource to use when *shade* is True.
 
         axlim_clip : bool, default: False
-            Whether to hide patches with a vertex outside the axes view limits.
+            Whether to apply axes-limit clipping to patches.
 
             .. versionadded:: 3.10
+
+        axlim_clip_mode : {'hide', 'clip'}, default: 'hide'
+            The clipping strategy used when *axlim_clip* is True.
+
+            - 'hide': hide patches with a vertex outside the axes view
+              limits. This preserves the existing behavior.
+            - 'clip': geometrically clip patches to the axes view-limit box.
 
         **kwargs
             Other keyword arguments are forwarded to `.Poly3DCollection`.
         """
+
+        _api.check_in_list(['hide', 'clip'],
+                           axlim_clip_mode=axlim_clip_mode)
 
         had_data = self.has_data()
 
@@ -2541,9 +2552,12 @@ class Axes3D(Axes):
         if fcolors is not None:
             polyc = art3d.Poly3DCollection(
                 polys, edgecolors=colset, facecolors=colset, shade=shade,
-                lightsource=lightsource, axlim_clip=axlim_clip, **kwargs)
+                lightsource=lightsource, axlim_clip=axlim_clip,
+                axlim_clip_mode=axlim_clip_mode, **kwargs)
         elif cmap:
-            polyc = art3d.Poly3DCollection(polys, axlim_clip=axlim_clip, **kwargs)
+            polyc = art3d.Poly3DCollection(
+                polys, axlim_clip=axlim_clip,
+                axlim_clip_mode=axlim_clip_mode, **kwargs)
             # can't always vectorize, because polys might be jagged
             if isinstance(polys, np.ndarray):
                 avg_z = polys[..., 2].mean(axis=-1)
@@ -2562,14 +2576,16 @@ class Axes3D(Axes):
 
             polyc = art3d.Poly3DCollection(
                 polys, facecolors=color, shade=shade, lightsource=lightsource,
-                axlim_clip=axlim_clip, **kwargs)
+                axlim_clip=axlim_clip, axlim_clip_mode=axlim_clip_mode,
+                **kwargs)
 
         self.add_collection(polyc, autolim="_datalim_only")
         self.auto_scale_xyz(X, Y, Z, had_data)
 
         return polyc
 
-    def plot_wireframe(self, X, Y, Z, *, axlim_clip=False, **kwargs):
+    def plot_wireframe(self, X, Y, Z, *, axlim_clip=False,
+                       axlim_clip_mode='hide', **kwargs):
         """
         Plot a 3D wireframe.
 
@@ -2586,10 +2602,17 @@ class Axes3D(Axes):
             Data values.
 
         axlim_clip : bool, default: False
-            Whether to hide lines and patches with vertices outside the axes
-            view limits.
+            Whether to apply axes-limit clipping to lines.
 
             .. versionadded:: 3.10
+
+        axlim_clip_mode : {'hide', 'clip'}, default: 'hide'
+            The clipping strategy used when *axlim_clip* is True.
+
+            - 'hide': hide line segments with a vertex outside the axes view
+              limits. This preserves the existing behavior.
+            - 'clip': geometrically clip line segments to the axes view-limit
+              box.
 
         rcount, ccount : int
             Maximum number of samples used in each direction.  If the input
@@ -2612,6 +2635,8 @@ class Axes3D(Axes):
         **kwargs
             Other keyword arguments are forwarded to `.Line3DCollection`.
         """
+
+        _api.check_in_list(['hide', 'clip'], axlim_clip_mode=axlim_clip_mode)
 
         had_data = self.has_data()
         if Z.ndim != 2:
@@ -2689,7 +2714,9 @@ class Axes3D(Axes):
                             had_data=True)
 
         lines = list(row_lines) + list(col_lines)
-        linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
+        linec = art3d.Line3DCollection(
+            lines, axlim_clip=axlim_clip,
+            axlim_clip_mode=axlim_clip_mode, **kwargs)
         self.add_collection(linec, autolim="_datalim_only")
 
         return linec
@@ -3479,7 +3506,7 @@ class Axes3D(Axes):
     @_preprocess_data()
     def quiver(self, X, Y, Z, U, V, W, *,
                length=1, arrow_length_ratio=.3, pivot='tail', normalize=False,
-               axlim_clip=False, **kwargs):
+               axlim_clip=False, axlim_clip_mode='hide', **kwargs):
         """
         Plot a 3D field of arrows.
 
@@ -3512,9 +3539,12 @@ class Axes3D(Axes):
             the lengths defined by *u*, *v*, and *w*.
 
         axlim_clip : bool, default: False
-            Whether to hide arrows with points outside the axes view limits.
+            Whether to apply axes-limit clipping to arrows.
 
             .. versionadded:: 3.10
+
+        axlim_clip_mode : {'hide', 'clip'}, default: 'hide'
+            The clipping strategy used when *axlim_clip* is True.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -3523,6 +3553,8 @@ class Axes3D(Axes):
             Any additional keyword arguments are delegated to
             :class:`.Line3DCollection`
         """
+
+        _api.check_in_list(['hide', 'clip'], axlim_clip_mode=axlim_clip_mode)
 
         def calc_arrows(UVW):
             # get unit direction vector perpendicular to (u, v, w)
@@ -3559,7 +3591,9 @@ class Axes3D(Axes):
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
-            linec = art3d.Line3DCollection([], **kwargs)
+            linec = art3d.Line3DCollection(
+                [], axlim_clip=axlim_clip,
+                axlim_clip_mode=axlim_clip_mode, **kwargs)
             self.add_collection(linec, autolim="_datalim_only")
             return linec
 
@@ -3597,7 +3631,9 @@ class Axes3D(Axes):
         else:
             lines = []
 
-        linec = art3d.Line3DCollection(lines, axlim_clip=axlim_clip, **kwargs)
+        linec = art3d.Line3DCollection(
+            lines, axlim_clip=axlim_clip,
+            axlim_clip_mode=axlim_clip_mode, **kwargs)
         self.add_collection(linec, autolim="_datalim_only")
 
         self.auto_scale_xyz(XYZ[:, 0], XYZ[:, 1], XYZ[:, 2], had_data)
@@ -4172,7 +4208,8 @@ class Axes3D(Axes):
 
     @_preprocess_data()
     def stem(self, x, y, z, *, linefmt='C0-', markerfmt='C0o', basefmt='C3-',
-             bottom=0, label=None, orientation='z', axlim_clip=False):
+             bottom=0, label=None, orientation='z', axlim_clip=False,
+             axlim_clip_mode='hide'):
         """
         Create a 3D stem plot.
 
@@ -4223,9 +4260,12 @@ class Axes3D(Axes):
             The direction along which stems are drawn.
 
         axlim_clip : bool, default: False
-            Whether to hide stems that are outside the axes limits.
+            Whether to apply axes-limit clipping to stems.
 
             .. versionadded:: 3.10
+
+        axlim_clip_mode : {'hide', 'clip'}, default: 'hide'
+            The clipping strategy used when *axlim_clip* is True.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -4242,6 +4282,8 @@ class Axes3D(Axes):
         """
 
         from matplotlib.container import StemContainer
+
+        _api.check_in_list(['hide', 'clip'], axlim_clip_mode=axlim_clip_mode)
 
         had_data = self.has_data()
 
@@ -4278,7 +4320,7 @@ class Axes3D(Axes):
                               zdir=orientation, label='_nolegend_')
         stemlines = art3d.Line3DCollection(
             lines, linestyles=linestyle, colors=linecolor, label='_nolegend_',
-            axlim_clip=axlim_clip)
+            axlim_clip=axlim_clip, axlim_clip_mode=axlim_clip_mode)
         self.add_collection(stemlines, autolim="_datalim_only")
         markerline, = self.plot(x, y, z, markerfmt, label='_nolegend_')
 

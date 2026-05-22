@@ -97,6 +97,158 @@ def _viewlim_mask(xs, ys, zs, axes):
     return mask
 
 
+def _clip_polygon_against_plane(poly, axis, value, keep_greater):
+    """Clip a 3D polygon against one axis-aligned plane."""
+    if len(poly) == 0:
+        return np.empty((0, 3), dtype=float)
+
+    def inside(point):
+        return point[axis] >= value if keep_greater else point[axis] <= value
+
+    clipped = []
+    prev = poly[-1]
+    prev_inside = inside(prev)
+
+    for curr in poly:
+        curr_inside = inside(curr)
+
+        if curr_inside != prev_inside:
+            denom = curr[axis] - prev[axis]
+            if not np.isclose(denom, 0.0):
+                t = (value - prev[axis]) / denom
+                t = np.clip(t, 0.0, 1.0)
+                clipped.append(prev + t * (curr - prev))
+
+        if curr_inside:
+            clipped.append(curr)
+
+        prev = curr
+        prev_inside = curr_inside
+
+    if len(clipped) == 0:
+        return np.empty((0, 3), dtype=float)
+
+    return np.asarray(clipped, dtype=float)
+
+
+def _is_degenerate_polygon(poly, tol=1e-12):
+    """Return whether a polygon has fewer than two independent dimensions."""
+    poly = np.asarray(poly, dtype=float)
+
+    if poly.ndim != 2 or poly.shape[1] != 3 or len(poly) < 3:
+        return True
+
+    if not np.isfinite(poly).all():
+        return True
+
+    centered = poly - poly.mean(axis=0)
+    scale = np.linalg.norm(centered, axis=1).max(initial=0)
+
+    if scale == 0:
+        return True
+
+    return np.linalg.matrix_rank(centered, tol=tol * scale) < 2
+
+
+def _clip_polygon_to_box(poly, xlim, ylim, zlim):
+    """Clip a 3D polygon against the six planes of an axis-aligned box."""
+    poly = np.asarray(poly, dtype=float)
+
+    if poly.ndim != 2 or poly.shape[1] != 3:
+        raise ValueError("poly must be an (N, 3) array")
+
+    if _is_degenerate_polygon(poly):
+        return np.empty((0, 3), dtype=float)
+
+    planes = [
+        (0, xlim[0], True),
+        (0, xlim[1], False),
+        (1, ylim[0], True),
+        (1, ylim[1], False),
+        (2, zlim[0], True),
+        (2, zlim[1], False),
+    ]
+
+    for axis, value, keep_greater in planes:
+        poly = _clip_polygon_against_plane(poly, axis, value, keep_greater)
+        if len(poly) < 3:
+            return np.empty((0, 3), dtype=float)
+
+    if _is_degenerate_polygon(poly):
+        return np.empty((0, 3), dtype=float)
+
+    return poly
+
+
+def _clip_polygon_to_axes_view(poly, axes):
+    """Clip a 3D polygon to the current Axes3D view limits."""
+    xlim = (axes.xy_viewLim.xmin, axes.xy_viewLim.xmax)
+    ylim = (axes.xy_viewLim.ymin, axes.xy_viewLim.ymax)
+    zlim = (axes.zz_viewLim.xmin, axes.zz_viewLim.xmax)
+
+    return _clip_polygon_to_box(poly, xlim, ylim, zlim)
+
+
+def _clip_line_segment_to_box(p0, p1, xlim, ylim, zlim):
+    """Clip a 3D line segment against an axis-aligned box."""
+    p0 = np.asarray(p0, dtype=float)
+    p1 = np.asarray(p1, dtype=float)
+
+    if p0.shape != (3,) or p1.shape != (3,):
+        raise ValueError("line segment endpoints must be 3D points")
+    if not np.isfinite(p0).all() or not np.isfinite(p1).all():
+        return np.empty((0, 3), dtype=float)
+
+    d = p1 - p0
+    t0, t1 = 0.0, 1.0
+    bounds = (xlim, ylim, zlim)
+
+    for axis, (lower, upper) in enumerate(bounds):
+        if d[axis] == 0:
+            if p0[axis] < lower or p0[axis] > upper:
+                return np.empty((0, 3), dtype=float)
+            continue
+
+        t_lower = (lower - p0[axis]) / d[axis]
+        t_upper = (upper - p0[axis]) / d[axis]
+        t_enter = min(t_lower, t_upper)
+        t_exit = max(t_lower, t_upper)
+
+        t0 = max(t0, t_enter)
+        t1 = min(t1, t_exit)
+
+        if t0 > t1:
+            return np.empty((0, 3), dtype=float)
+
+    return np.asarray([p0 + t0 * d, p0 + t1 * d], dtype=float)
+
+
+def _clip_line_segment_to_axes_view(p0, p1, axes):
+    """Clip a 3D line segment to the current Axes3D view limits."""
+    xlim = (axes.xy_viewLim.xmin, axes.xy_viewLim.xmax)
+    ylim = (axes.xy_viewLim.ymin, axes.xy_viewLim.ymax)
+    zlim = (axes.zz_viewLim.xmin, axes.zz_viewLim.xmax)
+
+    return _clip_line_segment_to_box(p0, p1, xlim, ylim, zlim)
+
+
+def _clip_lines_to_axes_view(segments, axes):
+    """Clip 3D polylines to the current Axes3D view limits."""
+    clipped_segments = []
+
+    for segment in segments:
+        segment = np.asarray(segment, dtype=float)
+        if segment.ndim != 2 or segment.shape[1] != 3 or len(segment) < 2:
+            continue
+
+        for p0, p1 in zip(segment[:-1], segment[1:]):
+            clipped = _clip_line_segment_to_axes_view(p0, p1, axes)
+            if len(clipped) == 2:
+                clipped_segments.append(clipped)
+
+    return clipped_segments
+
+
 class Text3D(mtext.Text):
     """
     Text object with 3D position and direction.
@@ -453,9 +605,11 @@ class Line3DCollection(LineCollection):
     """
     A collection of 3D lines.
     """
-    def __init__(self, lines, axlim_clip=False, **kwargs):
+    def __init__(self, lines, axlim_clip=False, axlim_clip_mode='hide', **kwargs):
+        _api.check_in_list(['hide', 'clip'], axlim_clip_mode=axlim_clip_mode)
         super().__init__(lines, **kwargs)
         self._axlim_clip = axlim_clip
+        self._axlim_clip_mode = axlim_clip_mode
         """
         Parameters
         ----------
@@ -478,6 +632,8 @@ class Line3DCollection(LineCollection):
             each line, please use `.PathCollection` instead, where the
             "interior" can be specified by appropriate usage of
             `~.path.Path.CLOSEPOLY`.
+        axlim_clip_mode : {'hide', 'clip'}, default: 'hide'
+            The clipping strategy used when *axlim_clip* is True.
         **kwargs : Forwarded to `.Collection`.
         """
 
@@ -497,6 +653,35 @@ class Line3DCollection(LineCollection):
         """
         Project the points according to renderer matrix.
         """
+        if len(self._segments3d) == 0:
+            LineCollection.set_segments(self, [])
+            return np.nan
+
+        use_geometric_clip = (
+            self._axlim_clip
+            and self._axlim_clip_mode == 'clip'
+        )
+
+        if use_geometric_clip:
+            segments = _clip_lines_to_axes_view(self._segments3d, self.axes)
+            if len(segments) == 0:
+                LineCollection.set_segments(self, [])
+                return np.nan
+
+            # Geometric clipping can split one original polyline into multiple
+            # disconnected visible pieces. Keep those pieces as independent
+            # segments; otherwise LineCollection would draw artificial
+            # connections between clipped pieces.
+            xyzs = [
+                proj3d._scale_proj_transform_vectors(
+                    np.asarray(segment, dtype=float), self.axes)
+                for segment in segments
+            ]
+            LineCollection.set_segments(
+                self, [xyz[..., 0:2] for xyz in xyzs])
+
+            return np.min([xyz[..., 2].min() for xyz in xyzs])
+
         segments = np.asanyarray(self._segments3d)
 
         # Handle empty segments
@@ -515,8 +700,9 @@ class Line3DCollection(LineCollection):
                                          self.axes)
             if np.any(viewlim_mask):
                 # broadcast mask to 3D
-                viewlim_mask = np.broadcast_to(viewlim_mask[..., np.newaxis],
-                                               (*viewlim_mask.shape, 3))
+                viewlim_mask = np.broadcast_to(
+                    viewlim_mask[..., np.newaxis],
+                    (*viewlim_mask.shape, 3))
                 mask = mask | viewlim_mask
 
         xyzs = np.ma.array(
@@ -538,6 +724,7 @@ def line_collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
     col.__class__ = Line3DCollection
     col.set_segments(segments3d)
     col._axlim_clip = axlim_clip
+    col._axlim_clip_mode = 'hide'
 
 
 class Patch3D(Patch):
@@ -1183,7 +1370,8 @@ class Poly3DCollection(PolyCollection):
     """
 
     def __init__(self, verts, *args, zsort='average', shade=False,
-                 lightsource=None, axlim_clip=False, **kwargs):
+                 lightsource=None, axlim_clip=False,
+                 axlim_clip_mode='hide', **kwargs):
         """
         Parameters
         ----------
@@ -1206,9 +1394,16 @@ class Poly3DCollection(PolyCollection):
             .. versionadded:: 3.7
 
         axlim_clip : bool, default: False
-            Whether to hide polygons with a vertex outside the view limits.
+            Whether to apply axes-limit clipping to polygons.
 
             .. versionadded:: 3.10
+
+        axlim_clip_mode : {'hide', 'clip'}, default: 'hide'
+            The clipping strategy used when *axlim_clip* is True.
+
+            - 'hide': hide polygons with a vertex outside the axes view
+              limits. This preserves the existing behavior.
+            - 'clip': geometrically clip polygons to the axes view-limit box.
 
         *args, **kwargs
             All other parameters are forwarded to `.PolyCollection`.
@@ -1218,6 +1413,8 @@ class Poly3DCollection(PolyCollection):
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
         """
+        _api.check_in_list(['hide', 'clip'],
+                           axlim_clip_mode=axlim_clip_mode)
         if shade:
             normals = _generate_normals(verts)
             facecolors = kwargs.get('facecolors', None)
@@ -1245,6 +1442,7 @@ class Poly3DCollection(PolyCollection):
         self.set_zsort(zsort)
         self._codes3d = None
         self._axlim_clip = axlim_clip
+        self._axlim_clip_mode = axlim_clip_mode
 
     _zsort_functions = {
         'average': np.average,
@@ -1365,6 +1563,74 @@ class Poly3DCollection(PolyCollection):
         needs_masking = np.any(self._invalid_vertices)
         num_faces = len(self._faces)
         mask = self._invalid_vertices
+
+        use_geometric_clip = (
+            self._axlim_clip
+            and self._axlim_clip_mode == 'clip'
+            and self._codes3d is None
+        )
+
+        if use_geometric_clip:
+            clipped_faces = []
+            clip_indices = []
+            invalid_vertices = np.broadcast_to(
+                self._invalid_vertices, self._faces.shape[:2])
+            for idx, (face, invalid) in enumerate(
+                    zip(self._faces, invalid_vertices)):
+                face = np.asarray(face[~invalid], dtype=float)
+                clipped = _clip_polygon_to_axes_view(face, self.axes)
+                if len(clipped) >= 3:
+                    clipped_faces.append(clipped)
+                    clip_indices.append(idx)
+
+            clip_indices = np.asarray(clip_indices, dtype=np.intp)
+            num_clipped_faces = len(clipped_faces)
+
+            # Some faces might contain masked vertices, so we want to ignore
+            # any errors that those might cause.
+            with np.errstate(invalid='ignore', divide='ignore'):
+                pfaces = [proj3d._scale_proj_transform_vectors(
+                    face, self.axes) for face in clipped_faces]
+
+            pzs = [face[:, 2] for face in pfaces]
+            face_z = np.asarray([self._zsortfunc(zs) for zs in pzs])
+            face_order = np.argsort(face_z, axis=-1)[::-1]
+            faces_2d = [pfaces[idx][:, :2] for idx in face_order]
+
+            # This extra fuss is to re-order face / edge colors.
+            cface = self._facecolor3d
+            cedge = self._edgecolor3d
+            if len(cface) != num_faces:
+                cface = cface.repeat(num_faces, axis=0)
+            if len(cedge) != num_faces:
+                if len(cedge) == 0:
+                    cedge = cface
+                else:
+                    cedge = cedge.repeat(num_faces, axis=0)
+
+            if len(clip_indices) > 0:
+                cface = cface[clip_indices]
+                cedge = cedge[clip_indices]
+
+            PolyCollection.set_verts(self, faces_2d, self._closed)
+
+            if len(cface) > 0:
+                self._facecolors2d = cface[face_order]
+            else:
+                self._facecolors2d = cface
+            if len(cedge) > 0:
+                self._edgecolors2d = cedge[face_order]
+            else:
+                self._edgecolors2d = cedge
+
+            if self._sort_zpos is not None:
+                zvec = np.array([[0], [0], [self._sort_zpos], [1]])
+                ztrans = proj3d._proj_transform_vec(zvec, self.axes.M)
+                return ztrans[2][0]
+            elif num_clipped_faces > 0:
+                return np.min(np.concatenate(pzs))
+            else:
+                return np.nan
 
         # Some faces might contain masked vertices, so we want to ignore any
         # errors that those might cause
