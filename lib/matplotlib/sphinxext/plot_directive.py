@@ -166,7 +166,7 @@ plot_skip_execution
     If True, will not run any plot directives. Code, captions, etc. will all
     still be rendered, but no plots will be created.
 
-    .. versionadded:: 3.11
+    .. versionadded:: 3.12
 
 Notes on how it works
 ---------------------
