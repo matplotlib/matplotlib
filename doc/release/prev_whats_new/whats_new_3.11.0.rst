@@ -21,16 +21,16 @@ Figures can now be attached to and removed from management through pyplot, which
 background also means a less strict coupling to backends.
 
 In particular, standalone figures (created with the `.Figure` constructor) can now be
-registered with the `.pyplot` module by calling ``plt.figure(fig)``. This allows to show
+registered with the `.pyplot` module by calling ``plt.figure(fig)``. This allows showing
 them with ``plt.show()`` as you would do with any figure created with pyplot factory
-methods such as ``plt.figure()`` or ``plt.subplots()``.
+functions such as ``plt.figure()`` or ``plt.subplots()``.
 
 When closing a shown figure window, the related figure is reset to the standalone state,
-i.e. it's not visible to pyplot anymore, but if you still hold a reference to it, you
+i.e., it's not visible to pyplot anymore, but if you still hold a reference to it, you
 can continue to work with it (e.g. do ``fig.savefig()``, or re-add it to pyplot with
 ``plt.figure(fig)`` and then show it again).
 
-The following is now possible - though the example is exaggerated to show what's
+The following is now possible — though the example is exaggerated to show what's
 possible. In practice, you'll stick with much simpler versions for better consistency ::
 
     import matplotlib.pyplot as plt
@@ -60,32 +60,37 @@ possible. In practice, you'll stick with much simpler versions for better consis
     plt.figure(fig)
     plt.show()
 
-Technical detail: Standalone figures use `.FigureCanvasBase` as canvas. This is replaced
-by a backend-dependent subclass when registering with pyplot, and is reset to
-`.FigureCanvasBase` when the figure is closed. `.Figure.savefig` uses the current canvas
-to save the figure (if possible). Since `.FigureCanvasBase` can not render the figure,
-when saving the figure, it will fallback to a suitable canvas subclass, e.g.
-`.FigureCanvasAgg` for raster outputs such as png. Any Agg-based backend will create the
-same file output. However, there may be slight differences for non-Agg backends; e.g. if
-you use "GTK4Cairo" as interactive backend, ``fig.savefig("file.png")`` may create a
-slightly different image depending on whether the figure is registered with pyplot or
-not. In general, you should not store a reference to the canvas, but rather always
-obtain it from the figure with ``fig.canvas``. This will return the current canvas,
-which is either the original `.FigureCanvasBase` or a backend-dependent subclass,
-depending on whether the figure is registered with pyplot or not. Additionally, the
-swapping of the canvas currently does not play well with blitting of matplotlib widgets;
-in such cases either deactivate blitting or do not continue to use the figure (e.g.
-saving it after closing the window).
+.. dropdown:: Technical detail
+    :color: info
+    :icon: info
+
+    Standalone figures use `.FigureCanvasBase` as canvas. This is replaced by a
+    backend-dependent subclass when registering with pyplot, and is reset to
+    `.FigureCanvasBase` when the figure is closed. `.Figure.savefig` uses the current
+    canvas to save the figure (if possible). Since `.FigureCanvasBase` can not render
+    the figure, when saving the figure, it will fall back to a suitable canvas subclass,
+    e.g., `.FigureCanvasAgg` for raster outputs such as PNG.
+
+    Any Agg-based backend will create the same file output. However, there may be slight
+    differences for non-Agg backends; e.g. if you use "GTK4Cairo" as interactive
+    backend, ``fig.savefig("file.png")`` may create a slightly different image depending
+    on whether the figure is registered with pyplot or not.
+
+    In general, you should not store a reference to the canvas, but rather always obtain
+    it from the figure with ``fig.canvas``. This will return the current canvas, which
+    is either the original `.FigureCanvasBase` or a backend-dependent subclass,
+    depending on whether the figure is registered with pyplot or not.
 
 Figure size units
 -----------------
 
-When creating figures, it is now possible to define figure sizes in cm or pixel.
+When creating figures, it is now possible to define figure sizes in centimetres or
+pixels.
 
 Up to now the figure size is specified via ``plt.figure(..., figsize=(6, 4))``, and the
 given numbers are interpreted as inches. It is now possible to add a unit string to the
 tuple, i.e. ``plt.figure(..., figsize=(600, 400, "px"))``. Supported unit strings are
-"in", "cm", "px".
+``"in"``, ``"cm"``, or ``"px"``.
 
 Partial ``figsize`` specification at figure creation
 ----------------------------------------------------
@@ -96,17 +101,17 @@ height. Passing ``(None, None)`` is invalid and raises a `ValueError`.
 
 For example::
 
-    import matplotlib.pyplot as plt
-    fig = plt.figure(figsize=(None, 4))
+    plt.rcParams['figure.figsize'] = (14, 11)
+    fig = plt.figure(figsize=(None, 4))  # Size will be (14, 4)
 
-Resetting the subplot parameters for figure.clear()
----------------------------------------------------
+Subplot parameters are reset in ``Figure.clear``
+------------------------------------------------
 
 When calling `.Figure.clear()` the settings for `.gridspec.SubplotParams` are restored
 to the default values.
 
-`~.SubplotParams.to_dict` is a new method to get the subplot parameters as a dict, and
-`~.SubplotParams.reset` resets the parameters to the defaults.
+`.SubplotParams.to_dict` is a new method to get the subplot parameters as a dict, and
+`.SubplotParams.reset` resets the parameters to the defaults.
 
 Plotting methods
 ================
@@ -119,13 +124,9 @@ significantly. It supports different input data types (lists of datasets, dicts 
 datasets, data in 2D arrays, pandas DataFrames), and allows for easy customization of
 placement via controllable distances between bars and between bar groups.
 
-Example:
-
 .. plot::
-    :include-source: true
+    :include-source:
     :alt: Diagram of a grouped bar chart of 3 datasets with 2 categories.
-
-    import matplotlib.pyplot as plt
 
     categories = ['A', 'B']
     datasets = {
@@ -138,10 +139,10 @@ Example:
     ax.grouped_bar(datasets, tick_labels=categories)
     ax.legend()
 
-``broken_barh()`` vertical alignment though ``align`` parameter
----------------------------------------------------------------
+``broken_barh()`` vertical alignment through *align* parameter
+--------------------------------------------------------------
 
-`~.Axes.broken_barh` now supports vertical alignment of the bars through the ``align``
+`~.Axes.broken_barh` now supports vertical alignment of the bars through the *align*
 parameter.
 
 ``hist()`` supports a single color for multiple datasets
@@ -160,14 +161,18 @@ already handled.
 Streamplot integration control
 ------------------------------
 
-Two new options have been added to the `~.axes.Axes.streamplot` function that give the
-user better control of the streamline integration. The first is called
-``integration_max_step_scale`` and multiplies the default max step computed by the
-integrator. The second is called ``integration_max_error_scale`` and multiplies the
-default max error set by the integrator. Values for these parameters between zero and
-one reduce (tighten) the max step or error to improve streamline accuracy by performing
-more computation. Values greater than one increase (loosen) the max step or error to
-reduce computation time at the cost of lower streamline accuracy.
+Two new options have been added to the `~.axes.Axes.streamplot` method that give better
+control of the streamline integration:
+
+``integration_max_step_scale``
+    Multiplies the default max step computed by the integrator.
+``integration_max_error_scale``
+    Multiplies the default max error set by the integrator.
+
+Values for these parameters between zero and one reduce (tighten) the max step or error
+to improve streamline accuracy by performing more computation. Values greater than one
+increase (loosen) the max step or error to reduce computation time at the cost of lower
+streamline accuracy.
 
 The integrator defaults are both hand-tuned values and may not be applicable to all
 cases, so this allows customizing the behavior to specific use cases. Modifying only
@@ -177,11 +182,11 @@ error as well.
 Multiple arrows on a streamline
 -------------------------------
 
-A new ``num_arrows`` argument has been added to `~matplotlib.axes.Axes.streamplot` that
+A new *num_arrows* argument has been added to `~matplotlib.axes.Axes.streamplot` that
 allows more than one arrow to be added to each streamline:
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt: One chart showing a streamplot. Each streamline has three arrows.
 
     import matplotlib.pyplot as plt
@@ -201,9 +206,9 @@ allows more than one arrow to be added to each streamline:
 ------------------------------------------
 
 `~.Axes.violinplot` and `~.Axes.violin` now accept ``facecolor`` and ``linecolor`` as
-input arguments. This means that users can set the color of violinplots as they make
-them, rather than setting the color of individual objects afterwards. It is possible to
-pass a single color to be used for all violins, or pass a sequence of colors.
+input arguments. This means that the color of violinplots can be set as they are made,
+rather than setting the color of individual objects afterwards. It is possible to pass a
+single color to be used for all violins, or pass a sequence of colors.
 
 Annotations
 ===========
@@ -211,7 +216,7 @@ Annotations
 ``bar_label`` supports individual padding per label
 ---------------------------------------------------
 
-``bar_label`` will now accept both a float value or an array-like for padding. The
+`~.Axes.bar_label` will now accept both a float value or an array-like for padding. The
 array-like defines the padding for each label individually.
 
 Adding labels to pie chart wedges
@@ -228,7 +233,7 @@ The new `~.Axes.pie_label` method adds a label to each wedge in a pie chart crea
 For more examples, see :doc:`/gallery/pie_and_polar_charts/pie_label`.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt:
         A pie chart with three labels on each wedge, showing a food type, number, and
         fraction associated with the wedge.
@@ -260,7 +265,7 @@ By using negative angles (or corresponding reflex angles) for *head_angle*, arro
 'backwards' heads may be created.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt:
         Six arrow-shaped text boxes.  The arrows on the left have the shaft on their
         left; the arrows on the right have the shaft on the right; the arrows in the
@@ -280,13 +285,14 @@ By using negative angles (or corresponding reflex angles) for *head_angle*, arro
              bbox=dict(boxstyle="rarrow, pad=0.3, head_angle=30"))
     plt.text(0.8, 0.2, "RArrow", ha='center', size=16,
              bbox=dict(boxstyle="rarrow, pad=0.3, head_width=2, head_angle=-90"))
+    plt.axis("off")
 
     plt.show()
 
-``borderpad`` accepts a tuple for separate x/y padding
--------------------------------------------------------
+*borderpad* accepts a tuple for separate x/y padding
+----------------------------------------------------
 
-The ``borderpad`` parameter used for placing anchored artists (such as inset axes) now
+The *borderpad* parameter used for placing anchored artists (such as inset axes) now
 accepts a tuple of ``(x_pad, y_pad)``.
 
 This allows for specifying separate padding values for the horizontal and vertical
@@ -311,7 +317,7 @@ Twin Axes ``delta_zorder``
 `~matplotlib.axes.Axes.twinx` and `~matplotlib.axes.Axes.twiny` now accept a
 *delta_zorder* keyword argument, a relative offset added to the original Axes' zorder,
 to control whether the twin Axes is drawn in front of, or behind, the original Axes. For
-example, pass ``delta_zorder=-1`` to easily draw a twin Axes behind the main Axes.
+example, pass ``delta_zorder=-1`` to draw a twin Axes behind the main Axes.
 
 In addition, Matplotlib now automatically manages background patch visibility for each
 group of twinned Axes so that only the bottom-most Axes in the group has a visible
@@ -343,7 +349,7 @@ This is useful when drawing unfilled patches on backgrounds of unknown color, wh
 alternating edge colors ensure the patch boundary remains visible.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt:
         A rectangle with a dashed orange edge and blue gaps, demonstrating the
         edgegapcolor feature.
@@ -368,7 +374,7 @@ edgecolor is 'none'. Previously, hatch colors were the same as edge colors, with
 fallback to :rc:`hatch.color` if the patch did not have an edge color.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt:
         Four Rectangle patches, each displaying the color of hatches in different
         specifications of edgecolor and hatchcolor. Top left has hatchcolor='black'
@@ -434,7 +440,7 @@ alpha value of the collection. This behavior has been changed such that, if both
 'patch.edgecolor' with the alpha value of the collection.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt:
         A random scatter plot with hatches on the markers. The hatches are colored in
         blue, orange, and green, respectively. After the first three markers, the colors
@@ -469,8 +475,8 @@ Axis and Ticks
 Standard getters/setters for axis inversion state
 -------------------------------------------------
 
-Whether an axis is inverted can now be queried and set using the `.axes.Axes` getters
-`~.Axes.get_xinverted`/`~.Axes.get_yinverted` and setters
+Whether an axis is inverted can now be queried using the `.axes.Axes` getters
+`~.Axes.get_xinverted`/`~.Axes.get_yinverted` and set using
 `~.Axes.set_xinverted`/`~.Axes.set_yinverted`.
 
 The previously existing methods (`.Axes.xaxis_inverted`, `.Axes.invert_xaxis`) are now
@@ -487,7 +493,7 @@ points towards their anchor point, i.e. ticks. This works for all four sides of 
 labels.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt: Example of rotated xtick and ytick labels.
 
     import matplotlib.pyplot as plt
@@ -522,10 +528,9 @@ Colors and colormaps
 Okabe-Ito accessible color sequence
 -----------------------------------
 
-Matplotlib now includes the `Okabe-Ito color sequence`_. Its colors remain
-distinguishable for common forms of color-vision deficiency and when printed.
-
-.. _Okabe-Ito color sequence: https://jfly.uni-koeln.de/color/#pallet
+Matplotlib now includes the `Okabe-Ito color sequence
+<https://jfly.uni-koeln.de/color/#pallet>`_. Its colors remain distinguishable for
+common forms of color-vision deficiency and when printed.
 
 For example, to set it as the default colormap for your plots and image-like artists,
 use:
@@ -535,7 +540,7 @@ use:
     import matplotlib.pyplot as plt
     from cycler import cycler
 
-    plt.rcParams['axes.prop_cycle'] = cycler('color', plt.colormaps['okabe_ito'].colors)
+    plt.rcParams['axes.prop_cycle'] = cycler(color='okabe_ito')
     plt.rcParams['image.cmap'] = 'okabe_ito'
 
 Or, when creating plots, you can pass it explicitly:
@@ -554,23 +559,21 @@ Or, when creating plots, you can pass it explicitly:
 Six and eight color Petroff color cycles
 ----------------------------------------
 
-The six and eight color accessible Petroff color cycles are named 'petroff6' and
-'petroff8'. They compliment the existing 'petroff10' color cycle, added in `Matplotlib
-3.10.0`_
+The six and eight color accessible Petroff color cycles are named ``'petroff6'`` and
+``'petroff8'``. They complement the existing ``'petroff10'`` color cycle, added in
+:ref:`Matplotlib 3.10.0 <whats-new-3-10-0-petroff10>`.
 
 For more details see `Petroff, M. A.: "Accessible Color Sequences for Data
-Visualization" <https://arxiv.org/abs/2107.02270>`_. To load the 'petroff6' color cycle
-in place of the default::
+Visualization" <https://arxiv.org/abs/2107.02270>`_. To load the ``'petroff6'`` color
+cycle in place of the default::
 
   import matplotlib.pyplot as plt
   plt.style.use('petroff6')
 
-or to load the 'petroff8' color cycle::
+or to load the ``'petroff8'`` color cycle::
 
   import matplotlib.pyplot as plt
   plt.style.use('petroff8')
-
-.. _Matplotlib 3.10.0: https://matplotlib.org/stable/users/prev_whats_new/whats_new_3.10.0.html#new-more-accessible-color-cycle
 
 Setting the default color cycle to a named color sequence
 ---------------------------------------------------------
@@ -887,13 +890,10 @@ satisfy format limits. Additionally, a corrected Unicode mapping is added for ea
 This means that *all* text should now be selectable and copyable in PDF viewers that
 support doing so.
 
-PDF files created with usetex now embed subsets of Type 1 fonts
----------------------------------------------------------------
-
-When using the PDF backend with the usetex feature, Matplotlib calls TeX to render the
-text and formulas in the figure. The fonts that get used are usually "Type 1" fonts.
-They used to be embedded in full but are now limited to the glyphs that are actually
-used in the figure. This reduces the size of the resulting PDF files.
+When using the ``usetex`` feature, Matplotlib calls TeX to render the text and formulas
+in the figure. The fonts that get used are usually "Type 1" fonts. They used to be
+embedded in full but are now limited to the glyphs that are actually used in the figure.
+This reduces the size of the resulting PDF files.
 
 rcParams improvements
 =====================
@@ -905,7 +905,7 @@ Using :rc:`grid.major.*` or :rc:`grid.minor.*` will overwrite the value in :rc:`
 for the major and minor gridlines, respectively.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt: Modifying the gridlines using the new options `rcParams`
 
     import matplotlib as mpl
@@ -918,15 +918,13 @@ for the major and minor gridlines, respectively.
     mpl.rcParams["xtick.minor.visible"] = True
     mpl.rcParams["axes.grid.which"] = "both"
 
-    # Using old values to set both major and minor properties
-    mpl.rcParams["grid.color"] = "red"
-    mpl.rcParams["grid.linewidth"] = 1
+    # Using grid.* to set both major and minor properties
+    mpl.rcParams["grid.color"] = "lightgrey"
 
     # Overwrite some values for major and minor separately
-    mpl.rcParams["grid.major.color"] = "black"
-    mpl.rcParams["grid.major.linewidth"] = 2
+    mpl.rcParams["grid.major.linewidth"] = 1.2
+    mpl.rcParams["grid.minor.color"] = "tab:blue"
     mpl.rcParams["grid.minor.linestyle"] = ":"
-    mpl.rcParams["grid.minor.alpha"] = 0.6
 
     plt.plot([0, 1], [0, 1])
 
@@ -962,7 +960,7 @@ The `.Legend` constructor also accepts a new *linewidth* parameter to set the le
 frame line width directly, overriding the rcParam value.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt: A line plot with a legend showing a thick border around the legend box.
 
     import matplotlib.pyplot as plt
@@ -980,7 +978,7 @@ Previously, labels on `~.PatchCollection` objects were ignored by the legend sys
 requiring users to create manual legend entries.
 
 .. plot::
-   :include-source: true
+   :include-source:
    :alt:
        The legend entry displays a rectangle matching the visual properties (colors,
        line styles, line widths) of the first patch in the collection.
@@ -990,7 +988,7 @@ requiring users to create manual legend entries.
     from matplotlib.collections import PatchCollection
 
     fig, ax = plt.subplots()
-    patches = [mpatches.Circle((0, 0), 0.1), mpatches.Rectangle((0.5, 0.5), 0.2, 0.3)]
+    patches = [mpatches.Circle((0, 0.5), 0.1), mpatches.Rectangle((0.5, 0), 0.2, 0.3)]
     pc = PatchCollection(patches, facecolor='blue', edgecolor='black', label='My patches')
     ax.add_collection(pc)
     ax.legend()  # Now displays the label "My patches"
@@ -1002,11 +1000,11 @@ Widgets and Interactivity
 Zooming using mouse wheel
 -------------------------
 
-``Ctrl+MouseWheel`` can be used to zoom in the plot windows. Additionally,
-``x+MouseWheel`` zooms only the x-axis and ``y+MouseWheel`` zooms only the y-axis.
+:kbd:`Control+MouseWheel` can be used to zoom in the plot windows. Additionally,
+:kbd:`x+MouseWheel` zooms only the x-axis and :kbd:`y+MouseWheel` zooms only the y-axis.
 
-The zoom focusses on the mouse pointer. With ``Ctrl``, the axes aspect ratio is kept;
-with ``x`` or ``y``, only the respective axis is scaled.
+The zoom focusses on the mouse pointer. With :kbd:`Control`, the axes aspect ratio is
+kept; with :kbd:`x` or :kbd:`y`, only the respective axis is scaled.
 
 Zooming is currently only supported on rectilinear Axes.
 
@@ -1025,7 +1023,7 @@ vertically (default), horizontally, or in a 2D grid by passing a ``(rows, cols)`
 See :doc:`/gallery/widgets/radio_buttons_grid` for a ``(rows, cols)`` example.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt: Multiple sine waves with checkboxes to toggle their visibility.
 
     import matplotlib.pyplot as plt
@@ -1044,16 +1042,16 @@ See :doc:`/gallery/widgets/radio_buttons_grid` for a ``(rows, cols)`` example.
         layout="constrained",
     )
 
-    l0, = axes['main'].plot(t, s0, lw=2, color='red', label='2 Hz')
-    l1, = axes['main'].plot(t, s1, lw=2, color='green', label='4 Hz')
-    l2, = axes['main'].plot(t, s2, lw=2, color='blue', label='6 Hz')
-    l3, = axes['main'].plot(t, s3, lw=2, color='purple', label='8 Hz')
+    l0, = axes['main'].plot(t, s0, lw=2, label='2 Hz')
+    l1, = axes['main'].plot(t, s1, lw=2, label='4 Hz')
+    l2, = axes['main'].plot(t, s2, lw=2, label='6 Hz')
+    l3, = axes['main'].plot(t, s3, lw=2, label='8 Hz')
     axes['main'].set_xlabel('Time (s)')
     axes['main'].set_ylabel('Amplitude')
 
     lines_by_label = {l.get_label(): l for l in [l0, l1, l2, l3]}
 
-    axes['buttons'].set_facecolor('0.9')
+    axes['buttons'].set_facecolor('0.95')
     check = CheckButtons(
         axes['buttons'],
         labels=lines_by_label.keys(),
@@ -1091,12 +1089,12 @@ Non-linear scales on 3D axes
 ----------------------------
 
 Resolving a long-standing issue, 3D axes now support non-linear axis scales such as
-'log', 'symlog', 'logit', 'asinh', and custom 'function' scales, just like 2D axes. Use
-`~.Axes3D.set_xscale`, `~.Axes3D.set_yscale`, and `~.Axes3D.set_zscale` to set the scale
-for each axis independently.
+``'log'``, ``'symlog'``, ``'logit'``, ``'asinh'``, and custom ``'function'`` scales,
+just like 2D axes. Use `~.Axes3D.set_xscale`, `~.Axes3D.set_yscale`, and
+`~.Axes3D.set_zscale` to set the scale for each axis independently.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt: A 3D plot with a linear x-axis, logarithmic y-axis, and symlog z-axis.
 
     import matplotlib.pyplot as plt
@@ -1126,11 +1124,11 @@ See `matplotlib.scale` for details on all available scales and their parameters.
 Snapping 3D rotation angles with Control key
 --------------------------------------------
 
-3D axes rotation now supports snapping to fixed angular increments when holding the
-``Control`` key during mouse rotation.
+Rotation of 3D axes now supports snapping to fixed angular increments when holding the
+:kbd:`Control` key during mouse rotation.
 
-The snap step size is controlled by the new ``axes3d.snap_rotation`` rcParam (default:
-5.0 degrees). Setting it to 0 disables snapping.
+The snap step size is controlled by the new :rc:`axes3d.snap_rotation` rcParam. Setting
+it to 0 disables snapping.
 
 For example::
 
@@ -1146,17 +1144,17 @@ Previously, a slightly buggy method of estimating the visual "depth" of 3D items
 lead to sudden and unexpected changes in transparency as the plot orientation changed.
 
 Now, the behavior has been made smooth and predictable. A new parameter
-``depthshade_minalpha`` has also been added to allow users to set the minimum
-transparency level. Depth-shading is an option for Patch3DCollections and
-Path3DCollections, including 3D scatter plots.
+*depthshade_minalpha* has also been added to allow users to set the minimum transparency
+level. Depth-shading is an option for `.Patch3DCollection` and `.Path3DCollection`,
+including 3D scatter plots.
 
-The default values for ``depthshade`` and ``depthshade_minalpha`` are now also controlled
-via rcParams, with values of ``True`` and ``0.3`` respectively.
+The default values for ``depthshade`` and ``depthshade_minalpha`` are now controlled by
+:rc:`axes3d.depthshade` and :rc:`axes3d.depthshade_minalpha`, respectively.
 
 A simple example:
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt: A 3D scatter plot with depth-shading enabled.
 
     import matplotlib.pyplot as plt
@@ -1182,7 +1180,7 @@ A simple example:
 ---------------------------
 
 Draw time for 3D plots has been improved, especially for surface and wireframe plots.
-Users should see up to a 10x speedup in some cases. This should make interacting with 3D
+Users should see up to a 10× speedup in some cases. This should make interacting with 3D
 plots much more responsive.
 
 Other improvements
@@ -1224,7 +1222,7 @@ strings, and has a new default ``("GaussianKDE", "scott")``.  Calling
 calling `~.Axes.violinplot`.
 
 .. plot::
-    :include-source: true
+    :include-source:
     :alt:
         Example showing violin_stats followed by violin gives the same result as
         violinplot.

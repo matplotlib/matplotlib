@@ -16,6 +16,8 @@ For a list of all of the issues and pull requests since the last revision, see t
 Accessible Colors
 =================
 
+.. _whats-new-3-10-0-petroff10:
+
 New more-accessible color cycle
 -------------------------------
 
