@@ -3189,3 +3189,24 @@ def test_scale3d_calc_coord():
     # Pane coordinate should match axis limit (y-pane at max)
     assert pane_idx == 1
     assert point[pane_idx] == pytest.approx(ax.get_ylim()[1])
+
+
+def test_3d_log_scale_negative_masking():
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Create mock arrays with zeroes and negative values
+    X, Y = np.meshgrid(np.linspace(-1, 1, 5), np.linspace(-1, 1, 5))
+    Z = X + Y
+    
+    ax.plot_surface(X, Y, Z)
+    
+    # Apply non-linear scales
+    ax.set_xscale('log')
+    ax.set_zscale('log')
+    
+    # Drawing forces evaluation and confirms the absence of crashes
+    fig.canvas.draw()

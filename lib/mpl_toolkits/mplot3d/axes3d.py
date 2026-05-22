@@ -2370,6 +2370,17 @@ class Axes3D(Axes):
         self.auto_scale_xyz([x1, x2], [y1, y2], [z1, z2], had_data)
         return polyc
 
+    def _mask_invalid_scale_values(self, X, Y, Z):
+        """Mask out values that are invalid for the current scale."""
+        val_in_range_X = np.vectorize(self.xaxis._scale.val_in_range, otypes=[bool])
+        val_in_range_Y = np.vectorize(self.yaxis._scale.val_in_range, otypes=[bool])
+        val_in_range_Z = np.vectorize(self.zaxis._scale.val_in_range, otypes=[bool])
+        
+        X = np.where(val_in_range_X(X), X, np.nan)
+        Y = np.where(val_in_range_Y(Y), Y, np.nan)
+        Z = np.where(val_in_range_Z(Z), Z, np.nan)
+        return X, Y, Z
+
     def plot_surface(self, X, Y, Z, *, norm=None, vmin=None,
                      vmax=None, lightsource=None, axlim_clip=False, **kwargs):
         """
@@ -2453,14 +2464,7 @@ class Axes3D(Axes):
         Z = cbook._to_unmasked_float_array(Z)
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
 
-        # Mask out values that are invalid for the current scale
-        val_in_range_X = np.vectorize(self.xaxis._scale.val_in_range, otypes=[bool])
-        val_in_range_Y = np.vectorize(self.yaxis._scale.val_in_range, otypes=[bool])
-        val_in_range_Z = np.vectorize(self.zaxis._scale.val_in_range, otypes=[bool])
-
-        X = np.where(val_in_range_X(X), X, np.nan)
-        Y = np.where(val_in_range_Y(Y), Y, np.nan)
-        Z = np.where(val_in_range_Z(Z), Z, np.nan)
+        X, Y, Z = self._mask_invalid_scale_values(X, Y, Z)
 
         rows, cols = Z.shape
 
@@ -2628,6 +2632,9 @@ class Axes3D(Axes):
             raise ValueError("Argument Z must be 2-dimensional.")
         # FIXME: Support masked arrays
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
+        
+        X, Y, Z = self._mask_invalid_scale_values(X, Y, Z)
+        
         rows, cols = Z.shape
 
         has_stride = 'rstride' in kwargs or 'cstride' in kwargs
@@ -2780,10 +2787,12 @@ class Axes3D(Axes):
             z, *args = args
         z = np.asarray(z)
 
+        tx, ty, tz = self._mask_invalid_scale_values(tri.x, tri.y, z)
+
         triangles = tri.get_masked_triangles()
-        xt = tri.x[triangles]
-        yt = tri.y[triangles]
-        zt = z[triangles]
+        xt = tx[triangles]
+        yt = ty[triangles]
+        zt = tz[triangles]
         verts = np.stack((xt, yt, zt), axis=-1)
 
         if cmap:
@@ -2802,7 +2811,7 @@ class Axes3D(Axes):
                 facecolors=color, axlim_clip=axlim_clip, **kwargs)
 
         self.add_collection(polyc, autolim="_datalim_only")
-        self.auto_scale_xyz(tri.x, tri.y, z, had_data)
+        self.auto_scale_xyz(tx, ty, tz, had_data)
 
         return polyc
 
