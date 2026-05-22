@@ -471,10 +471,72 @@ meson = "*"
 ninja = "*"
 pkg-config = "*"
 compilers = "*"
-meson-python = "*"
-pybind11 = "*"
 setuptools = ">=64"
 setuptools-scm = ">=7"
+contourpy = ">=1.0.1"
+cycler = ">=0.10"
+fonttools = ">=4.22.0"
+kiwisolver = ">=1.3.1"
+numpy = ">=1.25"
+packaging = ">=20.0"
+pillow = ">=9"
+pyparsing = ">=3"
+python-dateutil = ">=2.7"
+meson-python = ">=0.13.1,!=0.17.*"
+pybind11 = ">=2.13.2,!=2.13.3"
+setuptools_scm = ">=7,<10"
+
+[tool.pixi.pypi-dependencies]
+matplotlib = { path = ".", editable = true }
+
+[tool.pixi.feature.doc.dependencies]
+sphinx= ">=5.1.0,!=6.1.2"
+colorspacious = "*"
+ipython = '*'
+ipywidgets = "*"
+ipykernel = "*"
+numpydoc = ">=1.0"
+# mpl-sphinx-theme = "~=3.10.0"
+pyyaml = "*"
+PyStemmer = "*"
+sphinxcontrib-svg2pdfconverter = ">=1.1.0"
+sphinxcontrib-video = ">=0.2.1"
+sphinx-copybutton = "*"
+sphinx-design = "*"
+sphinx-gallery = ">=0.17.0"
+sphinx-tags = ">=0.4.0"
+accessible-pygments = ">=0.0.5,<0.0.6"
+
+[tool.pixi.feature.test.dependencies]
+black = "<27"
+certifi = "*"
+coverage = "!=6.3"
+psutil = '*'
+pytest = "!=4.6.0,!=5.4.0,!=8.1.0"
+pytest-cov = "*"
+pytest-rerunfailures = "!=16.0"
+pytest-timeout = "*"
+pytest-xdist = "*"
+pytest-xvfb = "*"
+tornado = "*"
+[tool.pixi.feature.test-extra.dependencies]
+ipykernel = '*'
+# jupyter/nbconvert#1970 for the 7.3 series exclusions
+nbconvert = "!=6.0.0,!=6.0.1,!=7.3.0,!=7.3.1"
+nbformat = "!=5.0.0,!=5.0.1"
+pandas= "!=0.25.0"
+pikepdf = '*'
+pytz = '*'
+xarray = '*'
+[tool.pixi.feature.typing.dependencies]
+mypy = ">=1.9"
+typing-extensions = ">=4.6"
+# Extra stubs distributed separately from the main pypi package
+pandas-stubs = '*'
+types-pillow = '*'
+types-python-dateutil = '*'
+types-psutil = '*'
+sphinx = '*'
 
 [tool.pixi.tasks.clean-build]
 cmd = "rm -rf build meson-logs meson-private .mesonpy-*"
@@ -502,3 +564,4 @@ default = { features = ["build", "test", "doc"], solve-group = "main" }
 test = { features = ["test"], solve-group = "main" }
 test-extra = { features = ["test", "test-extra"], solve-group = "main" }
 doc = { features = ["doc"], solve-group = "main" }
+typing = { features = ["typing"], solve-group = "main" }
