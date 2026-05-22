@@ -704,6 +704,17 @@ def test_set_wrong_linestyle():
         c.set_linestyle('fuzzy')
 
 
+@pytest.mark.parametrize('ls', ['', ' ', 'none'])
+def test_scatter_empty_linestyle_pdf(ls):
+    # Regression test: '', ' ', and 'none' are documented "draw nothing"
+    # linestyle aliases but were not recognized by _get_dash_pattern, causing
+    # savefig to PDF to crash with "zero-size array to reduction operation maximum".
+    plt.switch_backend('pdf')
+    fig, ax = plt.subplots()
+    ax.scatter([0, 1], [0, 1], ls=ls)
+    fig.savefig(io.BytesIO())
+
+
 @mpl.style.context('default')
 def test_capstyle():
     col = mcollections.PathCollection([])
