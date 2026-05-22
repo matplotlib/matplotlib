@@ -269,3 +269,51 @@ def test_srcset_version(tmp_path):
     st = ('srcset="../_images/nestedpage2-index-2.png, '
           '../_images/nestedpage2-index-2.2x.png 2.00x"')
     assert st in (html_dir / 'nestedpage2/index.html').read_text(encoding='utf-8')
+
+
+def test_plot_skip_execution(tmp_path):
+    # test that modifying plot_exclude_patterns in config leads to skipping files
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    shutil.copyfile(tinypages / 'range4.py', tmp_path / 'range4.py')
+    shutil.copyfile(tinypages / 'range6.py', tmp_path / 'range6.py')
+
+    html_dir = tmp_path / '_build' / 'html'
+    img_dir = html_dir / '_images'
+    doctree_dir = tmp_path / 'doctrees'
+
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+
+    plt.plot(range(2))
+
+.. toctree::
+
+    script_func
+    script_nofunc
+""")
+    (tmp_path / 'script_func.rst').write_text("""
+##########
+Some plots
+##########
+
+.. plot:: range6.py range6
+
+.. plot:: range6.py range10
+""")
+    (tmp_path / 'script_nofunc.rst').write_text("""
+##########
+Some plots
+##########
+
+.. plot:: range4.py
+""")
+
+    # Build the pages with warnings turned into errors
+    build_sphinx_html(tmp_path, doctree_dir, html_dir,
+                      extra_args=["-D", "plot_skip_execution=1"])
+
+    assert not (img_dir / "index-1.png").exists()
+    assert not (img_dir / "range6_range6.png").exists()
+    assert not (img_dir / "range6_range10.png").exists()
+    assert not (img_dir / "range4.png").exists()
