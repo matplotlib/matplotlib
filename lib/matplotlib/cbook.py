@@ -1499,7 +1499,8 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
     ----------
     X : 1D array or sequence of 1D arrays or 2D array
         Sample data that will be used to produce the gaussian kernel density
-        estimates. Possible values:
+        estimates. Must have a length of at least 1. NaN and infinite values are
+        automatically stripped. Possible values:
 
         - 1D array: Statistics are computed for that array.
         - sequence of 1D arrays: Statistics are computed for each array in the sequence.
@@ -1587,7 +1588,6 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
 
     # Zip x and quantiles
     for (x, quantile) in zip(X, quantiles):
-        # Drop NaNs and infs before length check to safely handle all-NaN datasets
         x = np.asarray(x)
         x = x[~(np.isnan(x) | np.isinf(x))]
 
