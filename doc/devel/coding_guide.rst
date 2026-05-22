@@ -144,7 +144,7 @@ configuration lives in :file:`.clang-tidy`.
 The logic lives in :file:`tools/run_clang_tidy.py`.  It requires
 ``clang-tidy`` on ``PATH`` and ``meson`` and ``pybind11`` installed::
 
-    pip install meson pybind11
+    pip install meson pybind11 setuptools-scm
 
 On macOS, ``clang-tidy`` is not on ``PATH`` after a Homebrew install::
 
