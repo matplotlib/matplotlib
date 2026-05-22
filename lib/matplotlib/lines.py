@@ -36,7 +36,7 @@ def _get_dash_pattern(style):
     if isinstance(style, str):
         style = ls_mapper.get(style, style)
     # un-dashed styles
-    if style in ['solid', 'None']:
+    if style in ['solid', 'None', 'none', '', ' ']:
         offset = 0
         dashes = None
     # dashed styles
