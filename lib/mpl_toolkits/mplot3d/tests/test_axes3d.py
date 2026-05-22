@@ -3194,17 +3194,17 @@ def test_scale3d_calc_coord():
 def test_3d_log_scale_negative_masking():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    
+
     # Set scales BEFORE plotting so the masking logic is triggered
     ax.set_xscale('log')
     ax.set_zscale('log')
-    
+
     # A 3x3 grid normally yields 4 polygons total
     X, Y = np.meshgrid(np.linspace(-1, 1, 3), np.linspace(-1, 1, 3))
     Z = X + Y
-    
+
     surf = ax.plot_surface(X, Y, Z)
-    
+
     # On main (broken), no values are masked, so all 4 polygons are generated.
     # On our branch (fixed), the negative/zero values are masked to NaN,
     # and plot_surface gracefully drops the invalid polygons.
