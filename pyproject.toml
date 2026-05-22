@@ -103,21 +103,21 @@ dev = [
 #     pip install --group doc
 #
 doc = [
-    "sphinx>=5.1.0,!=6.1.2",
+    "PyStemmer",
     "colour-science",
+    "ipykernel",
     "ipython",
     "ipywidgets",
-    "ipykernel",
+    "mpl-sphinx-theme~=3.11",
     "numpydoc>=1.0",
-    "mpl-sphinx-theme~=3.11.0",
     "pyyaml",
-    "PyStemmer",
-    "sphinxcontrib-svg2pdfconverter>=1.1.0",
-    "sphinxcontrib-video>=0.2.1",
     "sphinx-copybutton",
     "sphinx-design",
     "sphinx-gallery[parallel]>=0.17.0",
     "sphinx-tags>=0.4.0",
+    "sphinx>=5.1.0,!=6.1.2",
+    "sphinxcontrib-svg2pdfconverter>=1.1.0",
+    "sphinxcontrib-video>=0.2.1",
 ]
 
 # pip requirements for all the CI builds
@@ -151,13 +151,13 @@ test-extra = [
 # Extra pip requirements for the GitHub Actions mypy build
 typing = [
     "mypy>=1.14",
-    "typing-extensions>=4.6",
     # Extra stubs distributed separately from the main pypi package
     "pandas-stubs",
-    "types-pillow",
-    "types-python-dateutil",
-    "types-psutil",
     "sphinx",
+    "types-pillow",
+    "types-psutil",
+    "types-python-dateutil",
+    "typing-extensions>=4.6",
 ]
 
 [tool.meson-python.args]
@@ -500,46 +500,3 @@ setup-args = [
 [[tool.cibuildwheel.overrides]]
 select = ["cp314*", "cp315*"]
 manylinux-x86_64-image = "manylinux_2_28"
-
-[tool.pixi.workspace]
-channels = ["conda-forge"]
-platforms = ["linux-64", "osx-arm64", "osx-64"]
-
-[tool.pixi.dependencies]
-python = "3.12.*"
-pip = "*"
-meson = "*"
-ninja = "*"
-pkg-config = "*"
-compilers = "*"
-meson-python = "*"
-pybind11 = "*"
-setuptools = ">=64"
-setuptools-scm = ">=7"
-
-[tool.pixi.tasks.clean-build]
-cmd = "rm -rf build meson-logs meson-private .mesonpy-*"
-description = "Clean meson build artifacts"
-
-[tool.pixi.tasks.build-doc]
-# for users: don't use for CI
-cmd = "make -C doc html"
-description = "Build the documentation"
-
-[tool.pixi.tasks.tests-core]
-# for users: don't use for CI
-cmd = "pytest --pyargs matplotlib"
-description = "Run Matplotlib tests (no toolboxes)"
-
-[tool.pixi.tasks.tests-all]
-# for users: don't use for CI
-cmd = "pytest --pyargs matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d"
-description = "Run Matplotlib tests (including all toolboxes)"
-
-[tool.pixi.environments]
-# These are all in one environment for the convenience of developers who
-# just want one env.
-default = { features = ["build", "test", "doc"], solve-group = "main" }
-test = { features = ["test"], solve-group = "main" }
-test-extra = { features = ["test", "test-extra"], solve-group = "main" }
-doc = { features = ["doc"], solve-group = "main" }
