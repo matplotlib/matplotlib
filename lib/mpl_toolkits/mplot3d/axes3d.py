@@ -2452,6 +2452,12 @@ class Axes3D(Axes):
 
         Z = cbook._to_unmasked_float_array(Z)
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
+
+        # Mask out values that are invalid for the current scale
+        X = np.where(self.xaxis._scale.val_in_range(X), X, np.nan)
+        Y = np.where(self.yaxis._scale.val_in_range(Y), Y, np.nan)
+        Z = np.where(self.zaxis._scale.val_in_range(Z), Z, np.nan)
+
         rows, cols = Z.shape
 
         has_stride = 'rstride' in kwargs or 'cstride' in kwargs
