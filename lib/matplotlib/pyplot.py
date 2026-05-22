@@ -427,6 +427,8 @@ def switch_backend(newbackend: str) -> None:
             try:
                 switch_backend(candidate)
             except ImportError:
+                _log.debug("Skipping backend candidate %r as loading failed.",
+                           candidate, exc_info=True)
                 continue
             else:
                 rcParamsOrig['backend'] = candidate
