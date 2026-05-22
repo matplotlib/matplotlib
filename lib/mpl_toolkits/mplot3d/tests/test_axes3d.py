@@ -3197,16 +3197,16 @@ def test_3d_log_scale_negative_masking():
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    
+
     # Create mock arrays with zeroes and negative values
     X, Y = np.meshgrid(np.linspace(-1, 1, 5), np.linspace(-1, 1, 5))
     Z = X + Y
-    
+
     ax.plot_surface(X, Y, Z)
-    
+
     # Apply non-linear scales
     ax.set_xscale('log')
     ax.set_zscale('log')
-    
+
     # Drawing forces evaluation and confirms the absence of crashes
     fig.canvas.draw()
