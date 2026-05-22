@@ -134,7 +134,7 @@ C/C++ extensions
 .. _clang-tidy:
 
 Static analysis with clang-tidy
---------------------------------
+-------------------------------
 
 Matplotlib's C/C++ sources in :file:`src/` are checked with
 `clang-tidy <https://clang.llvm.org/extra/clang-tidy/>`__ in CI (see
