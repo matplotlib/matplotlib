@@ -2457,7 +2457,7 @@ class Axes3D(Axes):
         val_in_range_X = np.vectorize(self.xaxis._scale.val_in_range, otypes=[bool])
         val_in_range_Y = np.vectorize(self.yaxis._scale.val_in_range, otypes=[bool])
         val_in_range_Z = np.vectorize(self.zaxis._scale.val_in_range, otypes=[bool])
-        
+
         X = np.where(val_in_range_X(X), X, np.nan)
         Y = np.where(val_in_range_Y(Y), Y, np.nan)
         Z = np.where(val_in_range_Z(Z), Z, np.nan)
