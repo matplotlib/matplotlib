@@ -326,11 +326,6 @@ for param in _thread_safe_backends:
                 reason='PyPy does not support Tkinter threading: '
                        'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
                 strict=True))
-    elif (backend == 'tkagg' and
-          ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
-          sys.platform == 'darwin' and sys.version_info[:2] < (3, 11)):
-        param.marks.append(  # https://github.com/actions/setup-python/issues/649
-            pytest.mark.xfail('Tk version mismatch on Azure macOS CI'))
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
@@ -610,14 +605,6 @@ for param in _blit_backends:
     elif backend == "wx":
         param.marks.append(
             pytest.mark.skip("wx does not support blitting"))
-    elif (backend == 'tkagg' and
-          ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
-          sys.platform == 'darwin' and
-          sys.version_info[:2] < (3, 11)
-          ):
-        param.marks.append(  # https://github.com/actions/setup-python/issues/649
-            pytest.mark.xfail('Tk version mismatch on Azure macOS CI')
-        )
 
 
 @pytest.mark.parametrize("env", _blit_backends)

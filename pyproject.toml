@@ -16,7 +16,6 @@ classifiers=[
     "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -42,7 +41,7 @@ dependencies = [
     "python-dateutil >= 2.7",
 ]
 # Also keep in sync with find_program of meson.build.
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 
 [project.urls]
 "Homepage" = "https://matplotlib.org"

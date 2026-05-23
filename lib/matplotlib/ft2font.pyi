@@ -1,8 +1,7 @@
+from collections.abc import Buffer
 from enum import Enum, Flag
 from os import PathLike
-import sys
 from typing import BinaryIO, Literal, NewType, NotRequired, TypeAlias, TypedDict, cast, final, overload
-from typing_extensions import Buffer  # < Py 3.12
 
 import numpy as np
 from numpy.typing import NDArray
@@ -242,8 +241,7 @@ class FT2Font(Buffer):
         _kerning_factor: int | None = ...,
         _warn_if_used: bool = ...,
     ) -> None: ...
-    if sys.version_info[:2] >= (3, 12):
-        def __buffer__(self, /, flags: int) -> memoryview: ...
+    def __buffer__(self, flags: int, /) -> memoryview: ...
     def _layout(
         self,
         text: str,
@@ -348,8 +346,7 @@ class FT2Font(Buffer):
 class FT2Image(Buffer):
     def __init__(self, width: int, height: int) -> None: ...
     def draw_rect_filled(self, x0: int, y0: int, x1: int, y1: int) -> None: ...
-    if sys.version_info[:2] >= (3, 12):
-        def __buffer__(self, /, flags: int) -> memoryview: ...
+    def __buffer__(self, flags: int, /) -> memoryview: ...
 
 @final
 class Glyph:
