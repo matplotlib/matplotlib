@@ -632,5 +632,3 @@ Other
    Axes.get_figure
    Axes.figure
    Axes.remove
-
-.. autoclass:: matplotlib.axes.Axes.ArtistList

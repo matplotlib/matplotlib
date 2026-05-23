@@ -200,4 +200,14 @@ Functions
    getp
    setp
    kwdoc
+
+Helper classes
+==============
+
+.. autosummary::
+   :template: autosummary.rst
+   :toctree: _as_gen
+   :nosignatures:
+
    ArtistInspector
+   ArtistList
