@@ -14,6 +14,7 @@ import difflib
 import functools
 import itertools
 import pathlib
+import sys
 import warnings
 
 from .deprecation import (  # noqa: F401
@@ -470,7 +471,26 @@ def warn_external(message, category=None):
     """
     # Go to Python's `site-packages` or `lib` from an editable install.
     basedir = pathlib.Path(__file__).parents[2]
-    skip_file_prefixes = (str(basedir / 'matplotlib'),
-                          str(basedir / 'mpl_toolkits'))
+    skip_file_prefixes = (
+        str(basedir / 'matplotlib'),
+        str(basedir / 'mpl_toolkits'),
+        # If we subclass a collections.abc class, the user may call an abc method that
+        # calls our method.  For example if we warn within insert on a MutableSequence,
+        # and the user calls append or extend.
+        '<frozen _collections_abc>')
 
-    warnings.warn(message, category, skip_file_prefixes=skip_file_prefixes)
+    stacklevel = 2
+    if sys.version_info[:2] < (3, 14):
+        # Including the collections.abc string in skip_file_prefixes is not yet honored.
+        # Add the relevant frame count to the stacklevel instead.
+        frame = sys._getframe()
+        while True:
+            if frame.f_globals.get("__name__") == 'collections.abc':
+                stacklevel += 1
+
+            frame = frame.f_back
+            if frame is None:
+                break
+
+    warnings.warn(message, category, skip_file_prefixes=skip_file_prefixes,
+                  stacklevel=stacklevel)
