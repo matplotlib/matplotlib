@@ -377,7 +377,7 @@ del BoxStyle._style_list["angled"]  # Unregister it.
 
 # %%
 # Similarly, you can define a custom `.ConnectionStyle` and a custom `.ArrowStyle`. View
-# the source code at `.patches` to learn how each class is defined.
+# the source code at `~matplotlib.patches` to learn how each class is defined.
 #
 # .. _annotation_with_custom_arrow:
 #

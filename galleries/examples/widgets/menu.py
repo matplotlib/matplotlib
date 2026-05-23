@@ -113,7 +113,7 @@ class Menu:
 
             item.set_extent(left, bottom, width, height, depth)
 
-            fig.artists.append(item)
+            fig.add_artist(item)
             y0 -= maxh + MenuItem.pady
 
         fig.canvas.mpl_connect('motion_notify_event', self.on_move)

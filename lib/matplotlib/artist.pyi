@@ -191,7 +191,7 @@ class ArtistInspector:
 class ArtistList[T: Artist](Sequence[T]):
     def __init__(
         self,
-        axes: _AxesBase,
+        parent: _AxesBase | Figure | SubFigure,
         prop_name: str,
         valid_types: type | Iterable[type] | None = ...,
         invalid_types: type | Iterable[type] | None = ...,
