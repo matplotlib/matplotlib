@@ -21,12 +21,12 @@ mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
 * `Python <https://www.python.org/downloads/>`_ (>= 3.12)
-* `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
+* `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.2.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
 * `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
-* `NumPy <https://numpy.org>`_ (>= 1.25)
+* `NumPy <https://numpy.org>`_ (>= 2.0)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 3)

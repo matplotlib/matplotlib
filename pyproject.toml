@@ -30,11 +30,11 @@ classifiers=[
 # - doc/devel/dependencies.rst
 # - environment.yml
 dependencies = [
-    "contourpy >= 1.0.1",
+    "contourpy >= 1.2.1",
     "cycler >= 0.10",
     "fonttools >= 4.22.0",
     "kiwisolver >= 1.3.1",
-    "numpy >= 1.25",
+    "numpy >= 2.0",
     "packaging >= 20.0",
     "pillow >= 9",
     "pyparsing >= 3",
@@ -68,11 +68,11 @@ requires = [
 [dependency-groups]
 build = [
     # Should be the same as `[project] dependencies` above.
-    "contourpy >= 1.0.1",
+    "contourpy >= 1.2.1",
     "cycler >= 0.10",
     "fonttools >= 4.22.0",
     "kiwisolver >= 1.3.1",
-    "numpy >= 1.25",
+    "numpy >= 2.0",
     "packaging >= 20.0",
     "pillow >= 9",
     "pyparsing >= 3",
