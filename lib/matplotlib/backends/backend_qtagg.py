@@ -14,8 +14,64 @@ from .backend_qt import (  # noqa: F401 # pylint: disable=W0611
 
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
+    def __init__(self, figure):
+        super().__init__(figure)
+
+        self._overlay_lines = []
+        self._overlay_start = None
+        self._overlay_end = None
+        self._drawing_overlay = False
+
+
+    def add_overlay_line(self, x1, y1, x2, y2, **style):
+        """Add a lightweight overlay line drawn directly with Qt."""
+
+        self._overlay_lines.append((x1, y1, x2, y2, style))
+
+        self._request_overlay_draw()
+
+    def clear_overlay(self):
+        """Remove all overlay drawings from the canvas."""
+        self._overlay_lines.clear()
+
+        self._request_overlay_draw()
+
+    def _request_overlay_draw(self):
+        self.update()
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+         self._overlay_start = (event.position().x(), event.position().y())
+         self._overlay_end = None
+         self._drawing_overlay = True
+
+
+    def mouseMoveEvent(self, event):
+        if self._drawing_overlay and self._overlay_start:
+         self._overlay_end = (event.position().x(), event.position().y())
+         self._request_overlay_draw()
+
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton and self._drawing_overlay:
+         self._overlay_end = (event.position().x(), event.position().y())
+         self._drawing_overlay = False
+
+        # store the finished line
+         x1, y1 = self._overlay_start
+         x2, y2 = self._overlay_end
+         self._overlay_lines.append((x1, y1, x2, y2, {}))
+
+         self._overlay_start = None
+         self._overlay_end = None
+
+         self._request_overlay_draw()
+
+
+
 
     def paintEvent(self, event):
+        print("PAINT EVENT RUNNING")
         """
         Copy the image from the Agg canvas to the qt.drawable.
 
@@ -67,7 +123,17 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             if QT_API == "PySide2" and QtCore.__version_info__ < (5, 12):
                 ctypes.c_long.from_address(id(buf)).value = 1
 
-            self._draw_rect_callback(painter)
+           # --- Overlay drawing ---
+            for x1, y1, x2, y2, style in getattr(self, "_overlay_lines", []):
+
+             color = style.get("color", "red")
+             width = style.get("width", 2)
+
+             pen = QtGui.QPen(QtGui.QColor(color), width)
+             painter.setPen(pen)
+
+             painter.drawLine(int(x1), int(y1), int(x2), int(y2))
+
         finally:
             painter.end()
 
