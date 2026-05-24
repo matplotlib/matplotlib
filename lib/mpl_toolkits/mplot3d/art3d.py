@@ -217,7 +217,7 @@ class Text3D(mtext.Text):
     def draw(self, renderer):
         mask = _scale_invalid_mask(self._x, self._y, self._z, self.axes)
         if self._axlim_clip:
-            mask = mask | _viewlim_mask(self._x, self._y, self._z, self.axes)
+            mask |= _viewlim_mask(self._x, self._y, self._z, self.axes)
         if np.any(mask):
             pos3d = np.ma.array([self._x, self._y, self._z],
                                 mask=mask, dtype=float).filled(np.nan)
@@ -356,7 +356,7 @@ class Line3D(lines.Line2D):
     def draw(self, renderer):
         scale_mask = _scale_invalid_mask(*self._verts3d, self.axes)
         if self._axlim_clip:
-            scale_mask = scale_mask | _viewlim_mask(*self._verts3d, self.axes)
+            scale_mask |= _viewlim_mask(*self._verts3d, self.axes)
         if np.any(scale_mask):
             mask = np.broadcast_to(
                 scale_mask,
