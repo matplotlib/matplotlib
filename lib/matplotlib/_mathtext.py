@@ -1010,7 +1010,7 @@ class FontConstantsBase:
 
 class ComputerModernFontConstants(FontConstantsBase):
     # Previously, the x-height of Computer Modern was obtained from the font
-    # table. However, that x-height was greater than the the actual (rendered)
+    # table. However, that x-height was greater than the actual (rendered)
     # x-height by a factor of 1.771484375 (at font size 12, DPI 100 and hinting
     # type 32). Now that we're using the rendered x-height, some font constants
     # have been increased by the same factor to compensate.
