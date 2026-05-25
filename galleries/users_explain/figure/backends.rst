@@ -321,7 +321,7 @@ program that can be run to test basic functionality.  If this test fails, try re
 QtAgg, QtCairo, Qt5Agg, and Qt5Cairo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Test ``PyQt6`` (if you have ``PyQt5``, ``PySide2`` or ``PySide6`` installed
+Test ``PyQt6`` (if you have ``PyQt5`` or ``PySide6`` installed
 rather than ``PyQt6``, just change the import accordingly):
 
 .. code-block:: bash

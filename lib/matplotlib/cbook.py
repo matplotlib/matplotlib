@@ -76,7 +76,6 @@ def _get_running_interactive_framework():
         sys.modules.get("PyQt6.QtWidgets")
         or sys.modules.get("PySide6.QtWidgets")
         or sys.modules.get("PyQt5.QtWidgets")
-        or sys.modules.get("PySide2.QtWidgets")
     )
     if QtWidgets and QtWidgets.QApplication.instance():
         return "qt"
