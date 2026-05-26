@@ -1,3 +1,7 @@
+Behavior Changes
+----------------
+
+
 ``pyplot.subplot`` and ``pyplot.subplot_mosaic`` raise *ValueError* on existing figures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

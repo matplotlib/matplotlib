@@ -1,3 +1,7 @@
+Removals
+--------
+
+
 ``matplotlib.cm.get_cmap``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
