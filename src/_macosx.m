@@ -1820,6 +1820,9 @@ show(PyObject* self)
         while ((window = [enumerator nextObject])) {
             [window orderFront:nil];
         }
+    }
+
+    @autoreleasepool {
         Py_BEGIN_ALLOW_THREADS
         [NSApp run];
         Py_END_ALLOW_THREADS
