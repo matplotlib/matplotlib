@@ -1,3 +1,7 @@
+Deprecations
+------------
+
+
 In-place modification of colormaps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
