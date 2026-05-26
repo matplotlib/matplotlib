@@ -69,14 +69,16 @@ static void handleSigint(int signal) {
 // It is used in the input hook as well as wrapped in a version callable from Python.
 static void flushEvents() {
     while (true) {
-        NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                            untilDate: [NSDate distantPast]
-                                               inMode: NSDefaultRunLoopMode
-                                              dequeue: YES];
-        if (!event) {
-            break;
+        @autoreleasepool {
+            NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                                untilDate: [NSDate distantPast]
+                                                   inMode: NSDefaultRunLoopMode
+                                                  dequeue: YES];
+            if (!event) {
+                break;
+            }
+            [NSApp sendEvent:event];
         }
-        [NSApp sendEvent:event];
     }
 }
 
@@ -522,13 +524,15 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
         NSDate* date =
             (timeout > 0.0) ? [NSDate dateWithTimeIntervalSinceNow: timeout]
                             : [NSDate distantFuture];
-        while (true)
-        {   NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                                untilDate: date
-                                                   inMode: NSDefaultRunLoopMode
-                                                  dequeue: YES];
-           if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
-           [NSApp sendEvent: event];
+        while (true) {
+            @autoreleasepool {
+                NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                                    untilDate: date
+                                                       inMode: NSDefaultRunLoopMode
+                                                      dequeue: YES];
+               if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
+               [NSApp sendEvent: event];
+            }
         }
 
         Py_END_ALLOW_THREADS
