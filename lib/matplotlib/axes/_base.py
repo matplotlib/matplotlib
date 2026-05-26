@@ -2356,7 +2356,7 @@ class _AxesBase(martist.Artist):
         self._children.append(a)
         a._remove_method = self._children.remove
         self._set_artist_props(a)
-        if a.get_clip_path() is None:
+        if a.get_clip_path() is None and a.get_clip_on():
             a.set_clip_path(self.patch)
         self.stale = True
         return a
