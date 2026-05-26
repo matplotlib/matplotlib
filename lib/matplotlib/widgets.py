@@ -4000,7 +4000,237 @@ class LassoSelector(_SelectorWidget):
         self.update()
 
 
-class PolygonSelector(_SelectorWidget):
+class _PolygonalSelector(_SelectorWidget):
+    """
+    The base class for polygonal chain selectors.
+
+    This class provides common functionality for polygonal chain selector widgets,
+    defining the core structure and behavior of such widgets.
+    """
+
+    def __init__(self, ax, onselect=None, *, useblit=False,
+                 props=None, handle_props=None, grab_range=10):
+        # The state modifiers 'move', 'square', and 'center' are expected by
+        # _SelectorWidget but are not supported by polygonal chain selectors.
+        # Note: could not use the existing 'move' state modifier in-place of
+        # 'move_all' because _SelectorWidget automatically discards 'move'
+        # from the state on button release.
+        state_modifier_keys = dict(
+            clear='escape', move_vertex='control', move_all='shift',
+            move='not-applicable', square='not-applicable',
+            center='not-applicable', rotate='not-applicable')
+
+        super().__init__(ax, onselect, useblit=useblit,
+                         state_modifier_keys=state_modifier_keys)
+
+        self._xys = [(0, 0)]
+
+        if props is None:
+            props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
+        props = {**props, 'animated': self._useblit}
+        self._selection_artist = line = Line2D([], [], **props)
+        self.ax.add_line(line)
+
+        if handle_props is None:
+            handle_props = dict(markeredgecolor='k',
+                                markerfacecolor=props.get('color', 'k'))
+        self._handle_props = handle_props
+        self._vertex_handles = ToolHandles(self.ax, [], [],
+                                            useblit=self._useblit,
+                                            marker_props=self._handle_props)
+        self._active_handle_idx = -1
+
+        self.grab_range = grab_range
+
+        self.set_visible(True)
+
+    @property
+    def _handles_artists(self):
+        return self._vertex_handles.artists
+
+    def remove_vertex(self, i):
+        """Remove vertex handler."""
+        if self._selection_completed:
+            self._remove_vertex(i)
+            self._verify_incompletion()
+
+    def _remove_vertex(self, i):
+        """Remove vertex with index i."""
+
+    def _verify_incompletion(self):
+        """Verify and update incompletion of polygonal chain."""
+
+    def _press(self, event):
+        """Button press event handler."""
+        # Check for selection of a tool handle.
+        if ((self._selection_completed or 'move_vertex' in self._state)
+                and len(self._xys) > 0):
+            h_idx, h_dist = self._vertex_handles.closest(event.x, event.y)
+            if h_dist < self.grab_range:
+                self._active_handle_idx = h_idx
+        # Save the vertex positions at the time of the press event (needed to
+        # support the 'move_all' state modifier).
+        self._xys_at_press = self._xys.copy()
+
+    @_call_with_reparented_event
+    def _release(self, event):
+        """Button release event handler."""
+        # Release active tool handle.
+        if self._active_handle_idx >= 0:
+            if event.button == 3:
+                self.remove_vertex(self._active_handle_idx)
+                self._draw_polygonal_chain()
+            self._active_handle_idx = -1
+
+        # Place new vertex.
+        elif (not self._selection_completed
+              and 'move_all' not in self._state
+              and 'move_vertex' not in self._state):
+            self._place_vertex(event)
+
+        if self._selection_completed:
+            self.onselect(self.verts)
+
+    def _verify_completion(self, event):
+        """Verify completion of the polygonal chain."""
+
+    def _complete_chain(self, event):
+        """Complete the polygonal chain."""
+
+    def _place_vertex(self, event):
+        """Place a vertex at the position of given event."""
+
+    @_call_with_reparented_event
+    def onmove(self, event):
+        """Cursor move event handler and validator."""
+        # Method overrides _SelectorWidget.onmove because the polygon selector
+        # needs to process the move callback even if there is no button press.
+        # _SelectorWidget.onmove include logic to ignore move event if
+        # _eventpress is None.
+        if self.ignore(event):
+            # Hide the cursor when interactive zoom/pan is active
+            if not self.canvas.widgetlock.available(self) and self._xys:
+                self._xys[-1] = (np.nan, np.nan)
+                self._draw_polygonal_chain()
+            return False
+
+        else:
+            event = self._clean_event(event)
+            self._onmove(event)
+            return True
+
+    def _onmove(self, event):
+        """Cursor move event handler."""
+        # Move the active vertex (ToolHandle).
+        if self._active_handle_idx >= 0:
+            self._move_active_vertex(event)
+
+        # Move all vertices.
+        elif 'move_all' in self._state and self._eventpress:
+            dx = event.xdata - self._eventpress.xdata
+            dy = event.ydata - self._eventpress.ydata
+            for k in range(len(self._xys)):
+                x_at_press, y_at_press = self._xys_at_press[k]
+                self._xys[k] = x_at_press + dx, y_at_press + dy
+
+        # Do nothing if completed or waiting for a move.
+        elif (self._selection_completed
+              or 'move_vertex' in self._state or 'move_all' in self._state):
+            return
+
+        # Position pending vertex.
+        else:
+            self._move_pending_vertex(event)
+
+        self._draw_polygonal_chain()
+
+    def _move_active_vertex(self, event):
+        """Move active vertex to the position of given event."""
+        self._xys[self._active_handle_idx] = (event.xdata, event.ydata)
+
+    def _move_pending_vertex(self, event):
+        """Move pending vertex to the position of given event."""
+
+    def _on_key_press(self, event):
+        """Key press event handler."""
+        # Remove the pending vertex if entering the 'move_vertex' or
+        # 'move_all' mode
+        if (not self._selection_completed
+                and ('move_vertex' in self._state or
+                     'move_all' in self._state)):
+            self._xys.pop()
+            self._draw_polygonal_chain()
+
+    def _on_key_release(self, event):
+        """Key release event handler."""
+        # Add back the pending vertex if leaving the 'move_vertex' or
+        # 'move_all' mode (by checking the released key)
+        if (not self._selection_completed
+                and
+                (event.key == self._state_modifier_keys.get('move_vertex')
+                 or event.key == self._state_modifier_keys.get('move_all'))):
+            self._xys.append((event.xdata, event.ydata))
+            self._draw_polygonal_chain()
+        # Reset the polygon if the released key is the 'clear' key.
+        elif event.key == self._state_modifier_keys.get('clear'):
+            self._reset_polygonal_chain(event)
+
+    def _reset_polygonal_chain(self, event):
+        """Reset the polygonal chain."""
+
+    def _draw_polygonal_chain_without_update(self):
+        """Redraw the polygonal chain based on new vertex positions, no update()."""
+        xs, ys = zip(*self._xys) if self._xys else ([], [])
+        self._selection_artist.set_data(xs, ys)
+        self._update_vertex_handles(xs, ys)
+
+    def _update_vertex_handles(self, xs, ys):
+        """Update the positions of vertex handles."""
+        self._vertex_handles.set_data(xs, ys)
+
+    def _draw_polygonal_chain(self):
+        """Redraw the polygonal chain based on the new vertex positions."""
+        self._draw_polygonal_chain_without_update()
+        self.update()
+
+    def _clear_without_update(self):
+        self._selection_completed = False
+        self._xys = [(0, 0)]
+        self._draw_polygonal_chain_without_update()
+
+    @property
+    def verts(self):
+        """The polygonal chain vertices, as a list of ``(x, y)`` pairs."""
+        return self._get_vertices()
+
+    def _get_vertices(self):
+        """Get polygonal chain vertices as a list of ``(x, y)`` pairs."""
+        return self._xys
+
+    @verts.setter
+    def verts(self, xys):
+        """
+        Set the polygonal vertices.
+
+        This will remove any preexisting vertices,
+        creating a complete polygonal chain with the new vertices.
+        """
+        self._xys = self._build_vertices(xys)
+        self._selection_completed = True
+        self.set_visible(True)
+        self._draw_polygonal_chain()
+        self._after_set_verts()
+
+    def _build_vertices(self, xys):
+        """Build the vertices list from the given list of ``(x, y)`` pairs."""
+        return [*xys]
+
+    def _after_set_verts(self):
+        """Logic to execute after setting vertices."""
+        pass
+
+
+class PolygonSelector(_PolygonalSelector):
     """
     Select a polygon region of an Axes.
 
@@ -4015,7 +4245,6 @@ class PolygonSelector(_SelectorWidget):
       polygon has been completed.
     - Hold the *shift* key and click and drag anywhere in the Axes to move
       all vertices.
-    - Press *enter* to finalize the selection of an open polygonal chain.
     - Press the *esc* key to start a new polygon.
 
     For the selector to remain responsive you must keep a reference to it.
@@ -4065,14 +4294,10 @@ class PolygonSelector(_SelectorWidget):
         Properties to set for the box. See the documentation for the *props*
         argument to `RectangleSelector` for more info.
 
-    closed : bool, default: True
-        Whether to select a closed polygonal region or an open polygonal chain.
-
     Examples
     --------
     :doc:`/gallery/widgets/polygon_selector_simple`
     :doc:`/gallery/widgets/polygon_selector_demo`
-    :doc:`/gallery/widgets/polygon_selector_open_chain`
 
     Notes
     -----
@@ -4084,49 +4309,18 @@ class PolygonSelector(_SelectorWidget):
     def __init__(self, ax, onselect=None, *, useblit=False,
                  props=None, handle_props=None, grab_range=10,
                  draw_bounding_box=False, box_handle_props=None,
-                 box_props=None, closed=True):
-        # The state modifiers 'move', 'square', and 'center' are expected by
-        # _SelectorWidget but are not supported by PolygonSelector
-        # Note: could not use the existing 'move' state modifier in-place of
-        # 'move_all' because _SelectorWidget automatically discards 'move'
-        # from the state on button release.
-        state_modifier_keys = dict(clear='escape', move_vertex='control',
-                                   move_all='shift', move='not-applicable',
-                                   square='not-applicable',
-                                   center='not-applicable',
-                                   rotate='not-applicable')
+                 box_props=None):
         super().__init__(ax, onselect, useblit=useblit,
-                         state_modifier_keys=state_modifier_keys)
+                         props=props, handle_props=handle_props,
+                         grab_range=grab_range)
 
-        self._xys = [(0, 0)]
-
-        if props is None:
-            props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
-        props = {**props, 'animated': self._useblit}
-        self._selection_artist = line = Line2D([], [], **props)
-        self.ax.add_line(line)
-
-        if handle_props is None:
-            handle_props = dict(markeredgecolor='k',
-                                markerfacecolor=props.get('color', 'k'))
-        self._handle_props = handle_props
-        self._polygon_handles = ToolHandles(self.ax, [], [],
-                                            useblit=self._useblit,
-                                            marker_props=self._handle_props)
-
-        self._active_handle_idx = -1
-        self.grab_range = grab_range
-
-        self.set_visible(True)
-        self._draw_box = draw_bounding_box and closed
+        self._draw_box = draw_bounding_box
         self._box = None
 
         if box_handle_props is None:
             box_handle_props = {}
         self._box_handle_props = self._handle_props.update(box_handle_props)
         self._box_props = box_props
-
-        self.closed = closed
 
     def _get_bbox(self):
         return self._selection_artist.get_bbox()
@@ -4145,7 +4339,7 @@ class PolygonSelector(_SelectorWidget):
         # by the user
         self._box._allow_creation = False
         self._box._selection_completed = True
-        self._draw_polygon()
+        self._draw_polygonal_chain()
 
     def _remove_box(self):
         if self._box is not None:
@@ -4186,18 +4380,12 @@ class PolygonSelector(_SelectorWidget):
         # Update polygon verts.  Must be a list of tuples for consistency.
         new_verts = [(x, y) for x, y in t.transform(np.array(self.verts))]
         self._xys = [*new_verts, new_verts[0]]
-        self._draw_polygon()
+        self._draw_polygonal_chain()
         self._old_box_extents = self._box.extents
-
-    @property
-    def _handles_artists(self):
-        return self._polygon_handles.artists
 
     def _remove_vertex(self, i):
         """Remove vertex with index i."""
-        if (self.closed and len(self._xys) > 2 and
-                self._selection_completed and
-                i in (0, len(self._xys) - 1)):
+        if (len(self._xys) > 2 and i in (0, len(self._xys) - 1)):
             # If selecting the first or final vertex, remove both first and
             # last vertex as they are the same for a closed polygon
             self._xys.pop(0)
@@ -4207,199 +4395,84 @@ class PolygonSelector(_SelectorWidget):
             self._xys.append(self._xys[0])
         else:
             self._xys.pop(i)
-        if ((self.closed and len(self._xys) <= 2)
-            or (not self.closed and len(self._xys) == 0)):
-            # If only one point left for polygon or
-            # or no points left for open polygonal chain,
-            # return to incomplete state to let user start drawing again.
+
+    def _verify_incompletion(self):
+        """Verify and update incompletion of polygonal chain."""
+        if len(self._xys) <= 2:
+            # If only one point left, return to incomplete state to let user
+            # start drawing again
             self._selection_completed = False
             self._remove_box()
 
-    def _press(self, event):
-        """Button press event handler."""
-        # Check for selection of a tool handle.
-        if ((self._selection_completed or 'move_vertex' in self._state)
-                and len(self._xys) > 0):
-            h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
-            if h_dist < self.grab_range:
-                self._active_handle_idx = h_idx
-        # Save the vertex positions at the time of the press event (needed to
-        # support the 'move_all' state modifier).
-        self._xys_at_press = self._xys.copy()
+    def _verify_completion(self, event):
+        """Verify completion of the polygonal chain."""
+        return (not self._selection_completed
+                and len(self._xys) > 3 and self._xys[-1] == self._xys[0])
 
-    @_call_with_reparented_event
-    def _release(self, event):
-        """Button release event handler."""
-        # Release active tool handle.
-        if self._active_handle_idx >= 0:
-            if event.button == 3:
-                self._remove_vertex(self._active_handle_idx)
-                self._draw_polygon()
-            self._active_handle_idx = -1
-
-        # Complete the polygon.
-        elif self.closed and len(self._xys) > 3 and self._xys[-1] == self._xys[0]:
-            self._selection_completed = True
-            if self._draw_box and self._box is None:
-                self._add_box()
-
-        # Place new vertex.
-        elif (not self._selection_completed
-              and 'move_all' not in self._state
-              and 'move_vertex' not in self._state):
-            if self.closed:
-                self._xys.insert(-1, (event.xdata, event.ydata))
-            else:
-                self._xys.append((event.xdata, event.ydata))
-
-        if self._selection_completed:
-            self.onselect(self.verts)
-
-    @_call_with_reparented_event
-    def onmove(self, event):
-        """Cursor move event handler and validator."""
-        # Method overrides _SelectorWidget.onmove because the polygon selector
-        # needs to process the move callback even if there is no button press.
-        # _SelectorWidget.onmove include logic to ignore move event if
-        # _eventpress is None.
-        if self.ignore(event):
-            # Hide the cursor when interactive zoom/pan is active
-            if not self.canvas.widgetlock.available(self) and self._xys:
-                self._xys[-1] = (np.nan, np.nan)
-                self._draw_polygon()
-            return False
-
-        else:
-            event = self._clean_event(event)
-            self._onmove(event)
-            return True
-
-    def _onmove(self, event):
-        """Cursor move event handler."""
-        # Move the active vertex (ToolHandle).
-        if self._active_handle_idx >= 0:
-            idx = self._active_handle_idx
-            self._xys[idx] = (event.xdata, event.ydata)
-            # Also update the end of the polygon line if the first vertex is
-            # the active handle and the polygon is completed.
-            if idx == 0 and self.closed and self._selection_completed:
-                self._xys[-1] = (event.xdata, event.ydata)
-
-        # Move all vertices.
-        elif 'move_all' in self._state and self._eventpress:
-            dx = event.xdata - self._eventpress.xdata
-            dy = event.ydata - self._eventpress.ydata
-            for k in range(len(self._xys)):
-                x_at_press, y_at_press = self._xys_at_press[k]
-                self._xys[k] = x_at_press + dx, y_at_press + dy
-
-        # Do nothing if completed or waiting for a move.
-        elif (self._selection_completed
-              or 'move_vertex' in self._state or 'move_all' in self._state):
-            return
-
-        # Position pending polygon vertex.
-        elif self.closed:
-            # Calculate distance to the start vertex.
-            x0, y0 = \
-                self._selection_artist.get_transform().transform(self._xys[0])
-            v0_dist = np.hypot(x0 - event.x, y0 - event.y)
-            # Lock on to the start vertex if near it and ready to complete.
-            if len(self._xys) > 3 and v0_dist < self.grab_range:
-                self._xys[-1] = self._xys[0]
-            else:
-                self._xys[-1] = (event.xdata, event.ydata)
-
-        # Position pending open polygonal chain vertex.
-        else:
-            if len(self._xys) == 0:
-                # After removal of the only vertex in open polygonal chain,
-                # add a new vertex at the current cursor position.
-                self._xys.append((event.xdata, event.ydata))
-            else:
-                self._xys[-1] = (event.xdata, event.ydata)
-
-        self._draw_polygon()
-
-    def _on_key_press(self, event):
-        """Key press event handler."""
-        # Remove the pending vertex if entering the 'move_vertex' or
-        # 'move_all' mode
-        if (not self._selection_completed
-                and ('move_vertex' in self._state or
-                     'move_all' in self._state)):
-            self._xys.pop()
-            self._draw_polygon()
-
-    def _on_key_release(self, event):
-        """Key release event handler."""
-        # Add back the pending vertex if leaving the 'move_vertex' or
-        # 'move_all' mode (by checking the released key)
-        if (not self._selection_completed
-                and
-                (event.key == self._state_modifier_keys.get('move_vertex')
-                 or event.key == self._state_modifier_keys.get('move_all'))):
-            self._xys.append((event.xdata, event.ydata))
-            self._draw_polygon()
-        elif (not self.closed and not self._selection_completed
-              and event.key == 'enter' and len(self._xys) > 1):
-            # Complete the open polygonal chain.
-            self._xys.pop()
-            self._selection_completed = True
-            self._draw_polygon()
-            self.onselect(self.verts)
-        # Reset the polygon if the released key is the 'clear' key.
-        elif event.key == self._state_modifier_keys.get('clear'):
-            event = self._clean_event(event)
-            self._xys = [(event.xdata, event.ydata)]
-            self._selection_completed = False
-            self._remove_box()
-            self.set_visible(True)
-
-    def _draw_polygon_without_update(self):
-        """Redraw the polygon based on new vertex positions, no update()."""
-        xs, ys = zip(*self._xys) if self._xys else ([], [])
-        self._selection_artist.set_data(xs, ys)
-        self._update_box()
-        # Only show one tool handle at the start and end vertex of the polygon
-        # if the polygon is completed or the user is locked on to the start
-        # vertex.
-        if (self.closed and self._selection_completed
-                or (len(self._xys) > 3
-                    and self._xys[-1] == self._xys[0])):
-            self._polygon_handles.set_data(xs[:-1], ys[:-1])
-        else:
-            self._polygon_handles.set_data(xs, ys)
-
-    def _draw_polygon(self):
-        """Redraw the polygon based on the new vertex positions."""
-        self._draw_polygon_without_update()
-        self.update()
-
-    @property
-    def verts(self):
-        """The polygon vertices, as a list of ``(x, y)`` pairs."""
-        return self._xys[:-1] if self.closed else self._xys
-
-    @verts.setter
-    def verts(self, xys):
-        """
-        Set the polygon vertices.
-
-        This will remove any preexisting vertices, creating a complete polygon
-        with the new vertices.
-        """
-        self._xys = [*xys, xys[0]] if self.closed else [*xys]
+    def _complete_chain(self, event):
+        """Complete the polygonal chain."""
         self._selection_completed = True
-        self.set_visible(True)
         if self._draw_box and self._box is None:
             self._add_box()
-        self._draw_polygon()
 
-    def _clear_without_update(self):
+    def _place_vertex(self, event):
+        """Place a vertex at the position of given event."""
+        if self._verify_completion(event):
+            # Pending vertex closed the polygon.
+            self._complete_chain(event)
+        else:
+            self._xys.insert(-1, (event.xdata, event.ydata))
+
+    def _move_active_vertex(self, event):
+        """Move active vertex to the position of given event."""
+        super()._move_active_vertex(event)
+        # Also update the end of the polygon line if the first vertex is
+        # the active handle and the polygon is completed.
+        if self._selection_completed and self._active_handle_idx == 0:
+            self._xys[-1] = (event.xdata, event.ydata)
+
+    def _move_pending_vertex(self, event):
+        """Move pending vertex to the position of given event."""
+        # Calculate distance to the start vertex.
+        x0, y0 = \
+            self._selection_artist.get_transform().transform(self._xys[0])
+        v0_dist = np.hypot(x0 - event.x, y0 - event.y)
+        # Lock on to the start vertex if near it and ready to complete.
+        if len(self._xys) > 3 and v0_dist < self.grab_range:
+            self._xys[-1] = self._xys[0]
+        else:
+            self._xys[-1] = (event.xdata, event.ydata)
+
+    def _reset_polygonal_chain(self, event):
+        """Reset the polygonal chain."""
+        event = self._clean_event(event)
+        self._xys = [(event.xdata, event.ydata)]
         self._selection_completed = False
-        self._xys = [(0, 0)]
-        self._draw_polygon_without_update()
+        self._remove_box()
+        self.set_visible(True)
+
+    def _update_vertex_handles(self, xs, ys):
+        """Update the positions of vertex handles."""
+        self._update_box()
+        if (self._selection_completed
+                or (len(self._xys) > 3
+                    and self._xys[-1] == self._xys[0])):
+            self._vertex_handles.set_data(xs[:-1], ys[:-1])
+        else:
+            self._vertex_handles.set_data(xs, ys)
+
+    def _get_vertices(self):
+        """Get polygonal chain vertices as a list of ``(x, y)`` pairs."""
+        return self._xys[:-1]
+
+    def _build_vertices(self, xys):
+        """Build the vertices list from the given list of ``(x, y)`` pairs."""
+        return [*xys, xys[0]]
+
+    def _after_set_verts(self):
+        """Logic to execute after setting vertices."""
+        if self._draw_box and self._box is None:
+            self._add_box()
 
 
 class Lasso(AxesWidget):

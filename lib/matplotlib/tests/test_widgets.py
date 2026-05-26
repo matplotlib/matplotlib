@@ -1441,33 +1441,22 @@ def polygon_remove_vertex(ax, xy):
     ]
 
 
-def polygon_complete_chain(ax, closed, xy):
-    if closed:
-        return [*polygon_place_vertex(ax, xy)]
-    return [
-        KeyEvent("key_press_event", ax.figure.canvas, "enter"),
-        KeyEvent("key_release_event", ax.figure.canvas, "enter"),
-    ]
-
-
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-@pytest.mark.parametrize('closed', [False, True])
-def test_polygon_selector(ax, draw_bounding_box, closed):
-    check_selector = functools.partial(check_polygon_selector,
-                                       draw_bounding_box=draw_bounding_box,
-                                       closed=closed)
+def test_polygon_selector(ax, draw_bounding_box):
+    check_selector = functools.partial(
+        check_polygon_selector, draw_bounding_box=draw_bounding_box)
 
-    # Simple polygonal chain.
+    # Simple polygon
     expected_result = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_complete_chain(ax, closed, (50, 50)),
+        *polygon_place_vertex(ax, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
-    # Move first vertex before completing the polygonal chain.
+    # Move first vertex before completing the polygon.
     expected_result = [(75, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
@@ -1479,11 +1468,11 @@ def test_polygon_selector(ax, draw_bounding_box, closed):
         MouseEvent._from_ax_coords("button_release_event", ax, (75, 50), 1),
         KeyEvent("key_release_event", ax.figure.canvas, "control"),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_complete_chain(ax, closed, (75, 50)),
+        *polygon_place_vertex(ax, (75, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
-    # Move first two vertices at once before completing the polygonal chain.
+    # Move first two vertices at once before completing the polygon.
     expected_result = [(50, 75), (150, 75), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
@@ -1495,17 +1484,17 @@ def test_polygon_selector(ax, draw_bounding_box, closed):
         MouseEvent._from_ax_coords("button_release_event", ax, (100, 125), 1),
         KeyEvent("key_release_event", ax.figure.canvas, "shift"),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_complete_chain(ax, closed, (50, 75)),
+        *polygon_place_vertex(ax, (50, 75)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
-    # Move first vertex after completing the polygonal chain.
+    # Move first vertex after completing the polygon.
     expected_result = [(85, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (60, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_complete_chain(ax, closed, (60, 50)),
+        *polygon_place_vertex(ax, (60, 50)),
         MouseEvent._from_ax_coords("motion_notify_event", ax, (60, 50)),
         MouseEvent._from_ax_coords("button_press_event", ax, (60, 50), 1),
         MouseEvent._from_ax_coords("motion_notify_event", ax, (85, 50)),
@@ -1513,13 +1502,13 @@ def test_polygon_selector(ax, draw_bounding_box, closed):
     ]
     check_selector(event_sequence, expected_result, 2)
 
-    # Move all vertices after completing the polygonal chain.
+    # Move all vertices after completing the polygon.
     expected_result = [(75, 75), (175, 75), (75, 175)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_complete_chain(ax, closed, (50, 50)),
+        *polygon_place_vertex(ax, (50, 50)),
         KeyEvent("key_press_event", ax.figure.canvas, "shift"),
         MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
         MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
@@ -1547,11 +1536,11 @@ def test_polygon_selector(ax, draw_bounding_box, closed):
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_complete_chain(ax, closed, (50, 50)),
+        *polygon_place_vertex(ax, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
-    # Try to place vertex out-of-bounds, then reset, and start a new polygonal chain.
+    # Try to place vertex out-of-bounds, then reset, and start a new polygon.
     expected_result = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, (50, 50)),
@@ -1561,25 +1550,23 @@ def test_polygon_selector(ax, draw_bounding_box, closed):
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_complete_chain(ax, closed, (50, 50)),
+        *polygon_place_vertex(ax, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-@pytest.mark.parametrize('closed', [False, True])
-def test_polygon_selector_set_props_handle_props(ax, draw_bounding_box, closed):
+def test_polygon_selector_set_props_handle_props(ax, draw_bounding_box):
     tool = widgets.PolygonSelector(ax,
                                    props=dict(color='b', alpha=0.2),
                                    handle_props=dict(alpha=0.5),
-                                   draw_bounding_box=draw_bounding_box,
-                                   closed=closed)
+                                   draw_bounding_box=draw_bounding_box)
 
     for event in [
         *polygon_place_vertex(ax, (50, 50)),
         *polygon_place_vertex(ax, (150, 50)),
         *polygon_place_vertex(ax, (50, 150)),
-        *polygon_complete_chain(ax, closed, (50, 50)),
+        *polygon_place_vertex(ax, (50, 50)),
     ]:
         event._process()
 
@@ -1612,14 +1599,13 @@ def test_rect_visibility(fig_test, fig_ref):
 # Change the order that the extra point is inserted in
 @pytest.mark.parametrize('idx', [1, 2, 3])
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-@pytest.mark.parametrize('closed', [False, True])
-def test_polygon_selector_remove(ax, idx, draw_bounding_box, closed):
+def test_polygon_selector_remove(ax, idx, draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [polygon_place_vertex(ax, verts[0]),
                       polygon_place_vertex(ax, verts[1]),
                       polygon_place_vertex(ax, verts[2]),
-                      # Finish the polygonal chain
-                      polygon_complete_chain(ax, closed, verts[0])]
+                      # Finish the polygon
+                      polygon_place_vertex(ax, verts[0])]
     # Add an extra point
     event_sequence.insert(idx, polygon_place_vertex(ax, (200, 200)))
     # Remove the extra point
@@ -1627,22 +1613,21 @@ def test_polygon_selector_remove(ax, idx, draw_bounding_box, closed):
     # Flatten list of lists
     event_sequence = functools.reduce(operator.iadd, event_sequence, [])
     check_polygon_selector(event_sequence, verts, 2,
-                           draw_bounding_box=draw_bounding_box, closed=closed)
+                           draw_bounding_box=draw_bounding_box)
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-@pytest.mark.parametrize('closed', [False, True])
-def test_polygon_selector_remove_first_point(ax, draw_bounding_box, closed):
+def test_polygon_selector_remove_first_point(ax, draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [
         *polygon_place_vertex(ax, verts[0]),
         *polygon_place_vertex(ax, verts[1]),
         *polygon_place_vertex(ax, verts[2]),
-        *polygon_complete_chain(ax, closed, verts[0]),
+        *polygon_place_vertex(ax, verts[0]),
         *polygon_remove_vertex(ax, verts[0]),
     ]
     check_polygon_selector(event_sequence, verts[1:], 2,
-                           draw_bounding_box=draw_bounding_box, closed=closed)
+                           draw_bounding_box=draw_bounding_box)
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
@@ -1668,54 +1653,23 @@ def test_polygon_selector_redraw(ax, draw_bounding_box):
     assert tool.verts == verts[0:2]
 
 
-def test_polygon_selector_redraw_open_chain(ax):
-    verts = [(50, 50), (150, 50), (50, 150)]
-    event_sequence = [
-        *polygon_place_vertex(ax, verts[0]),
-        *polygon_place_vertex(ax, verts[1]),
-        *polygon_place_vertex(ax, verts[2]),
-        KeyEvent("key_press_event", ax.figure.canvas, "enter"),
-        KeyEvent("key_release_event", ax.figure.canvas, "enter"),
-        # Open polygonal chain completed, now remove all three verts.
-        *polygon_remove_vertex(ax, verts[0]),
-        *polygon_remove_vertex(ax, verts[1]),
-        *polygon_remove_vertex(ax, verts[2]),
-        # At this point the tool should be reset so we can add more vertices.
-        *polygon_place_vertex(ax, verts[0]),
-        # Complete the new open polygonal chain.
-        KeyEvent("key_press_event", ax.figure.canvas, "enter"),
-        KeyEvent("key_release_event", ax.figure.canvas, "enter"),
-    ]
-
-    tool = widgets.PolygonSelector(ax, closed=False)
-    for event in event_sequence:
-        event._process()
-    # After removing all verts, the selector should be automatically reset.
-    assert tool.verts == verts[0:1]
-
-
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
-@pytest.mark.parametrize('closed', [False, True])
 @check_figures_equal()
-def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box, closed):
+def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box):
     verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
     ax_test = fig_test.add_subplot()
 
-    tool_test = widgets.PolygonSelector(ax_test,
-                                        draw_bounding_box=draw_bounding_box,
-                                        closed=closed)
+    tool_test = widgets.PolygonSelector(ax_test, draw_bounding_box=draw_bounding_box)
     tool_test.verts = verts
     assert tool_test.verts == verts
 
     ax_ref = fig_ref.add_subplot()
-    tool_ref = widgets.PolygonSelector(ax_ref,
-                                       draw_bounding_box=draw_bounding_box,
-                                       closed=closed)
+    tool_ref = widgets.PolygonSelector(ax_ref, draw_bounding_box=draw_bounding_box)
     for event in [
         *polygon_place_vertex(ax_ref, verts[0]),
         *polygon_place_vertex(ax_ref, verts[1]),
         *polygon_place_vertex(ax_ref, verts[2]),
-        *polygon_complete_chain(ax_ref, closed, verts[0]),
+        *polygon_place_vertex(ax_ref, verts[0]),
     ]:
         event._process()
 
@@ -1763,27 +1717,23 @@ def test_polygon_selector_box(ax):
         tool._box.extents, (20.0, 40.0, 30.0, 40.0))
 
 
-@pytest.mark.parametrize('closed', [False, True])
-def test_polygon_selector_clear_method(ax, closed):
+def test_polygon_selector_clear_method(ax):
     onselect = mock.Mock(spec=noop, return_value=None)
-    tool = widgets.PolygonSelector(ax, onselect, closed=closed)
+    tool = widgets.PolygonSelector(ax, onselect)
 
-    for result in ([(50, 50), (150, 50), (50, 150)],
-                   [(50, 50), (100, 50), (50, 150)]):
+    for result in ([(50, 50), (150, 50), (50, 150), (50, 50)],
+                   [(50, 50), (100, 50), (50, 150), (50, 50)]):
         for xy in result:
             for event in polygon_place_vertex(ax, xy):
                 event._process()
-        for event in polygon_complete_chain(ax, closed, result[0]):
-            event._process()
 
         artist = tool._selection_artist
 
         assert tool._selection_completed
         assert tool.get_visible()
         assert artist.get_visible()
-        expected_xydata = result + [result[0]] if closed else result
-        np.testing.assert_equal(artist.get_xydata(), expected_xydata)
-        assert onselect.call_args == ((result,), {})
+        np.testing.assert_equal(artist.get_xydata(), result)
+        assert onselect.call_args == ((result[:-1],), {})
 
         tool.clear()
         assert not tool._selection_completed

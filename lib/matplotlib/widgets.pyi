@@ -457,7 +457,25 @@ class LassoSelector(_SelectorWidget):
         button: MouseButton | Collection[MouseButton] | None = ...,
     ) -> None: ...
 
-class PolygonSelector(_SelectorWidget):
+class _PolygonalSelector(_SelectorWidget):
+    grab_range: float
+    def __init__(
+        self,
+        ax: Axes,
+        onselect: Callable[[ArrayLike, ArrayLike], Any] | None = ...,
+        *,
+        useblit: bool = ...,
+        props: dict[str, Any] | None = ...,
+        handle_props: dict[str, Any] | None = ...,
+        grab_range: float = ...,
+    ) -> None: ...
+    def onmove(self, event: Event) -> bool: ...
+    @property
+    def verts(self) -> list[tuple[float, float]]: ...
+    @verts.setter
+    def verts(self, xys: Sequence[tuple[float, float]]) -> None: ...
+
+class PolygonSelector(_PolygonalSelector):
     grab_range: float
     def __init__(
         self,
@@ -471,13 +489,7 @@ class PolygonSelector(_SelectorWidget):
         draw_bounding_box: bool = ...,
         box_handle_props: dict[str, Any] | None = ...,
         box_props: dict[str, Any] | None = ...,
-        closed: bool = ...,
     ) -> None: ...
-    def onmove(self, event: Event) -> bool: ...
-    @property
-    def verts(self) -> list[tuple[float, float]]: ...
-    @verts.setter
-    def verts(self, xys: Sequence[tuple[float, float]]) -> None: ...
 
 class Lasso(AxesWidget):
     useblit: bool

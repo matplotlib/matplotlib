@@ -35,6 +35,7 @@ Widget classes
    RangeSlider
    TextBox
    _SelectorWidget
+   _PolygonalSelector
    RectangleSelector
    EllipseSelector
    Lasso
