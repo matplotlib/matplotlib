@@ -4611,6 +4611,11 @@ class PolylineSelector(_PolygonalSelector):
         A vertex is selected (to move or remove it) if
         the mouse click is within *grab_range* pixels of the vertex.
 
+    Examples
+    --------
+    :doc:`/gallery/widgets/polyline_selector_simple`
+    :doc:`/gallery/widgets/polyline_selector_demo`
+
     Notes
     -----
     If no point remains after removing points, the selector reverts to an

@@ -1,11 +1,10 @@
-``PolygonSelector`` now supports open polygonal chains
-------------------------------------------------------
+Introduce open polygonal chains in ``matplotlib.widgets``
+---------------------------------------------------------
 
 The widget class `.widgets.PolygonSelector` is used to select a
-polygonal region within an Axes. More precisely, it enables the
-selection of a closed polygonal chain, i.e., a sequence of vertices
-connected by line segments where the first and last vertices are connected.
-These chains may be non-self-intersecting or self-intersecting.
+polygon region of an Axes. More precisely, it enables the selection
+of a closed polygonal chain, a sequence of vertices connected by
+line segments where the first and last vertices are connected.
 
 .. plot::
     :include-source: true
@@ -14,64 +13,39 @@ These chains may be non-self-intersecting or self-intersecting.
     import matplotlib.pyplot as plt
     from matplotlib.widgets import PolygonSelector
 
-    def setup(ax, title):
-        ax.set(xlim=(0, 1), ylim=(0, 1))
-        ax.set_title(title)
-        ax.grid(alpha=0.5)
-
-    fig, axs = plt.subplots(1, 2, layout="constrained")
-    fig.suptitle("Closed polygonal chains")
-
-    setup(axs[0], "Non-self-intersecting")
-    selector1 = PolygonSelector(axs[0])
-    selector1.verts = [(0.3, 0.4), (0.5, 0.2), (0.7, 0.4),
-                       (0.7, 0.6), (0.5, 0.8), (0.3, 0.6)]
-
-    setup(axs[1], "Self-intersecting")
-    selector2 = PolygonSelector(axs[1])
-    selector2.verts = [(0.2, 0.5), (0.8, 0.4), (0.6, 0.2), (0.5, 0.8)]
+    _, ax = plt.subplots()
+    selector = PolygonSelector(ax)
+    selector.verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
 
     plt.show()
 
-An open polygonal chain is a sequence of vertices connected by line
-segments, where the first and last vertices are not connected.
-`~.widgets.PolygonSelector` now supports both programmatic and
-interactive selection of open polygonal chains within an Axes,
-including both non-self-intersecting and self-intersecting chains.
+Support for open polygonal chains has been added through the new
+`.widgets.PolylineSelector` class. A polyline is a sequence of
+vertices connected by line segments, where the first and
+last vertices are not connected, i.e., an open polygonal chain.
 
 .. plot::
     :include-source: true
-    :alt: Open polygonal chains using PolygonSelector.
+    :alt: Open polygonal chains using PolylineSelector.
 
     import matplotlib.pyplot as plt
-    from matplotlib.widgets import PolygonSelector
+    from matplotlib.widgets import PolylineSelector
 
-    def setup(ax, title):
-        ax.set(xlim=(0, 1), ylim=(0, 1))
-        ax.set_title(title)
-        ax.grid(alpha=0.5)
-
-    fig, axs = plt.subplots(1, 2, layout="constrained")
-    fig.suptitle("Open polygonal chains")
-
-    setup(axs[0], "Non-self-intersecting")
-    selector1 = PolygonSelector(axs[0], closed=False)
-    selector1.verts = [(0.3, 0.2), (0.5, 0.3), (0.6, 0.4), (0.7, 0.6), (0.7, 0.7),
-                       (0.6, 0.8), (0.5, 0.8), (0.4, 0.7), (0.4, 0.6), (0.5, 0.5)]
-
-    setup(axs[1], "Self-intersecting")
-    selector2 = PolygonSelector(axs[1], closed=False)
-    selector2.verts = [(0.2, 0.5), (0.2, 0.6), (0.3, 0.7), (0.4, 0.7), (0.5, 0.6),
-                       (0.6, 0.5), (0.7, 0.5), (0.8, 0.6), (0.8, 0.7), (0.7, 0.8),
-                       (0.6, 0.8), (0.5, 0.7), (0.4, 0.5), (0.4, 0.3), (0.5, 0.2)]
+    _, ax = plt.subplots()
+    selector = PolylineSelector(ax)
+    selector.verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
 
     plt.show()
 
-A new parameter, ``closed``, has been added to `~.widgets.PolygonSelector`
-to explicitly control whether the polygonal chain is open or closed.
-By default, the parameter selects closed polygonal regions, ``closed=True``,
-preserving the current behavior.
+Both selectors share the same interactive editing capabilities,
+including vertex repositioning and removal, as well as the ability
+to define polygonal chains both programmatically and interactively.
 
 The interactive selection of an open polygonal chain is completed by
-pressing the Enter key after placing a vertex. The existing interactive
-editing functionality is preserved and applies consistently to both modes.
+pressing the *Enter* key after placing the final vertex.
+
+Internally, the common functionality of polygonal chain selector
+widgets has been extracted into the new private base class
+`.widgets._PolygonalSelector`. `~.widgets.PolygonSelector` now
+inherits from `~.widgets._PolygonalSelector` while preserving
+its existing API and behavior.
