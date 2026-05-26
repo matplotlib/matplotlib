@@ -508,3 +508,16 @@ class Lasso(AxesWidget):
     ) -> None: ...
     def onrelease(self, event: Event) -> None: ...
     def onmove(self, event: Event) -> None: ...
+
+class PolylineSelector(_PolygonalSelector):
+    grab_range: float
+    def __init__(
+        self,
+        ax: Axes,
+        onselect: Callable[[ArrayLike, ArrayLike], Any] | None = ...,
+        *,
+        useblit: bool = ...,
+        props: dict[str, Any] | None = ...,
+        handle_props: dict[str, Any] | None = ...,
+        grab_range: float = ...,
+    ) -> None: ...

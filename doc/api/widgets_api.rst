@@ -41,6 +41,7 @@ Widget classes
    Lasso
    LassoSelector
    PolygonSelector
+   PolylineSelector
    SpanSelector
    SubplotTool
 

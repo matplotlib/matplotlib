@@ -4554,3 +4554,119 @@ class Lasso(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
+
+
+class PolylineSelector(_PolygonalSelector):
+    """
+    Select a polyline within an Axes.
+
+    Place vertices sequentially with each mouse click, and make the selection
+    by pressing the *enter* key to complete the chain. Once vertices are
+    placed, they can be repositioned or removed.
+
+    The following modifier keys can be used:
+
+    - Hold *ctrl* and drag a vertex to reposition it while the polygonal
+      chain is incomplete.
+    - Hold *shift* to move all vertices, i.e. the entire polygonal chain.
+    - Left click and drag a vertex to reposition it after the polygonal
+      chain is completed.
+    - Right click and drag a vertex to remove it after the polygonal
+      chain is completed.
+    - Press the *enter* key to complete the polygonal chain.
+    - Press the *esc* key to start a new polygonal chain.
+
+    For the selector to remain responsive you must keep a reference to it.
+
+
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        The parent Axes for the widget.
+
+    onselect : function, optional
+        When a polyline is completed or modified after completion,
+        the *onselect* function is called and passed a list of the vertices as
+        ``(xdata, ydata)`` tuples.
+
+    useblit : bool, default: False
+        Whether to use blitting for faster drawing (if supported by the
+        backend). See the tutorial :ref:`blitting`
+        for details.
+
+    props : dict, optional
+        Properties with which the line is drawn, see `.Line2D` for valid properties.
+        Default::
+
+            dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
+
+    handle_props : dict, optional
+        Artist properties for the markers drawn at the vertices of the polyline.
+        See the marker arguments in `.Line2D` for valid
+        properties.  Default values are defined in ``mpl.rcParams`` except for
+        the default value of ``markeredgecolor`` which will be the same as the
+        ``color`` property in *props*.
+
+    grab_range : float, default: 10
+        A vertex is selected (to move or remove it) if
+        the mouse click is within *grab_range* pixels of the vertex.
+
+    Notes
+    -----
+    If no point remains after removing points, the selector reverts to an
+    incomplete state and you can start drawing a new polyline.
+    """
+
+    def __init__(self, ax, onselect=None, *, useblit=False,
+                 props=None, handle_props=None, grab_range=10):
+        super().__init__(ax, onselect, useblit=useblit, props=props,
+                         handle_props=handle_props, grab_range=grab_range)
+
+    def _remove_vertex(self, i):
+        """Remove vertex with index i."""
+        self._xys.pop(i)
+
+    def _verify_incompletion(self):
+        """Verify and update incompletion of polygonal chain."""
+        if len(self._xys) == 0:
+            # If no points left, return to incomplete state to let user start
+            # drawing again
+            self._selection_completed = False
+
+    def _verify_completion(self, event):
+        """Verify completion of the polygonal chain."""
+        return (not self._selection_completed
+                and event.key == 'enter' and len(self._xys) > 1)
+
+    def _complete_chain(self, event):
+        """Complete the polygonal chain."""
+        self._xys.pop()
+        self._selection_completed = True
+        self._draw_polygonal_chain()
+        self.onselect(self.verts)
+
+    def _place_vertex(self, event):
+        """Place a vertex at the position of the given event."""
+        self._xys.append((event.xdata, event.ydata))
+
+    def _move_pending_vertex(self, event):
+        """Move pending vertex to the position of given event."""
+        if len(self._xys) == 0:
+            # After removal of the only vertex in open polygonal chain,
+            # add new pending vertex at cursor position.
+            self._xys.append((event.xdata, event.ydata))
+        else:
+            self._xys[-1] = (event.xdata, event.ydata)
+
+    def _on_key_release(self, event):
+        """Key release event handler."""
+        super()._on_key_release(event)
+        if self._verify_completion(event):
+            self._complete_chain(event)
+
+    def _reset_polygonal_chain(self, event):
+        """Reset the polygonal chain."""
+        event = self._clean_event(event)
+        self._xys = [(event.xdata, event.ydata)]
+        self._selection_completed = False
+        self.set_visible(True)
