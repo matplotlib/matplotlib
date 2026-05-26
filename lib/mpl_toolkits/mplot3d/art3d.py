@@ -545,8 +545,8 @@ class Line3DCollection(LineCollection):
                                          segments[..., 2],
                                          self.axes)
         if np.any(scale_mask):
-            mask = mask | np.broadcast_to(scale_mask[..., np.newaxis],
-                                          (*scale_mask.shape, 3))
+            mask |= np.broadcast_to(scale_mask[..., np.newaxis],
+                                    (*scale_mask.shape, 3))
 
         if self._axlim_clip:
             viewlim_mask = _viewlim_mask(segments[..., 0],
@@ -640,7 +640,7 @@ class Patch3D(Patch):
         xs0, ys0, zs0 = zip(*s)
         mask = _scale_invalid_mask(xs0, ys0, zs0, self.axes)
         if self._axlim_clip:
-            mask = mask | _viewlim_mask(xs0, ys0, zs0, self.axes)
+            mask |= _viewlim_mask(xs0, ys0, zs0, self.axes)
         if np.any(mask):
             xs, ys, zs = np.ma.array(zip(*s),
                                      dtype=float, mask=mask).filled(np.nan)
@@ -703,7 +703,7 @@ class PathPatch3D(Patch3D):
         xs0, ys0, zs0 = zip(*s)
         mask = _scale_invalid_mask(xs0, ys0, zs0, self.axes)
         if self._axlim_clip:
-            mask = mask | _viewlim_mask(xs0, ys0, zs0, self.axes)
+            mask |= _viewlim_mask(xs0, ys0, zs0, self.axes)
         if np.any(mask):
             xs, ys, zs = np.ma.array(zip(*s),
                                      dtype=float, mask=mask).filled(np.nan)
@@ -849,7 +849,7 @@ class Patch3DCollection(PatchCollection):
     def do_3d_projection(self):
         mask = _scale_invalid_mask(*self._offsets3d, self.axes)
         if self._axlim_clip:
-            mask = mask | _viewlim_mask(*self._offsets3d, self.axes)
+            mask |= _viewlim_mask(*self._offsets3d, self.axes)
         if np.any(mask):
             xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
         else:
