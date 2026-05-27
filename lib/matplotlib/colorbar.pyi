@@ -1,5 +1,5 @@
 import matplotlib.spines as mspines
-from matplotlib import cm, collections, colors, contour, colorizer
+from matplotlib import cm, collections, colors, contour, colorizer as mcolorizer
 from matplotlib.axes import Axes
 from matplotlib.axis import Axis
 from matplotlib.backend_bases import RendererBase
@@ -22,7 +22,7 @@ class _ColorbarSpine(mspines.Spines):
 
 class Colorbar:
     n_rasterize: int
-    mappable: cm.ScalarMappable | colorizer.ColorizingArtist
+    mappable: cm.ScalarMappable | mcolorizer.ColorizingArtist
     ax: Axes
     alpha: float | None
     cmap: colors.Colormap
@@ -44,7 +44,7 @@ class Colorbar:
     def __init__(
         self,
         ax: Axes,
-        mappable: cm.ScalarMappable | colorizer.ColorizingArtist | None = ...,
+        mappable: cm.ScalarMappable | mcolorizer.ColorizingArtist | None = ...,
         *,
         cmap: str | colors.Colormap | None = ...,
         norm: colors.Normalize | None = ...,
@@ -116,7 +116,61 @@ class Colorbar:
     def remove(self) -> None: ...
     def drag_pan(self, button: Any, key: Any, x: float, y: float) -> None: ...
 
+
 ColorbarBase = Colorbar
+
+class BivarColorbar:
+    n_rasterize: int
+    mappable: mcolorizer.ColorizingArtist
+    ax: Axes
+    alpha: float | None
+    colorizer: mcolorizer.Colorizer
+    ticklocations: tuple[Literal["auto", "left", "right"], Literal["auto", "top", "bottom"]]
+    def __init__(
+        self,
+        ax: Axes,
+        mappable: mcolorizer.ColorizingArtist | mcolorizer.Colorizer,
+        *,
+        alpha: float | None = ...,
+        location: Literal["left", "right", "top", "bottom"] | None = ...,
+        ticklocations: tuple[Literal["auto", "left", "right"], Literal["auto", "top", "bottom"]] = ...,
+        aspect: float = ...,
+    ) -> None: ...
+    @property
+    def aspect(self) -> float: ...
+    @aspect.setter
+    def aspect(self, aspect: float) -> None: ...
+    def set_xlabel(self, label: str) -> None: ...
+    def set_ylabel(self, label: str) -> None: ...
+    @property
+    def xaxis(self) -> Axis: ...
+    @property
+    def yaxis(self) -> Axis: ...
+    def update_normals(self, mappable: mcolorizer.ColorizingArtist | None = ...) -> None: ...
+    def set_alpha(self, alpha: float | None) -> None: ...
+    def remove(self) -> None: ...
+    def drag_pan(self, button: Any, key: Any, x: float, y: float) -> None: ...
+
+class MultivarColorbar(Sequence[Colorbar]):
+    mappable: mcolorizer.ColorizingArtist
+    colorizer: mcolorizer.Colorizer
+    axes: Sequence[Axes]
+    _colorbars: list[Colorbar]
+    def __init__(
+        self,
+        axes: Sequence[Axes],
+        mappable: mcolorizer.ColorizingArtist | mcolorizer.Colorizer | None = ...,
+        **kwargs: Any,
+    ) -> None: ...
+
+    def update_normals(self, mappable: mcolorizer.ColorizingArtist | None = ...) -> None: ...
+    def remove(self) -> None: ...
+    @overload
+    def __getitem__(self, index: int, /) -> Colorbar: ...
+    @overload
+    def __getitem__(self, index: slice[int | None, int | None, int | None], /) -> Sequence[Colorbar]: ...
+    def __len__(self) -> int: ...
+    def get_tightbbox(self, renderer: RendererBase | None = ..., for_layout_only: bool = ...) -> Bbox: ...
 
 def make_axes(
     parents: Axes | list[Axes] | np.ndarray,
@@ -127,11 +181,41 @@ def make_axes(
     aspect: float = ...,
     **kwargs
 ) -> tuple[Axes, dict[str, Any]]: ...
+def make_bivar_axes(
+    parents: Axes | list[Axes] | np.ndarray,
+    location: Literal["left", "right", "top", "bottom"] | None = ...,
+    fraction: float = ...,
+    shrink: float = ...,
+    aspect: float = ...,
+    **kwargs
+) -> tuple[Axes, dict[str, Any]]: ...
+def make_multivar_axes(
+    parents: Axes | list[Axes] | np.ndarray,
+    n_variates: int,
+    n_major: int,
+    location: Literal["left", "right", "top", "bottom"] | None = ...,
+    orientation: Literal["vertical", "horizontal"] | None = ...,
+    fraction: float = ...,
+    shrink: float = ...,
+    aspect: float = ...,
+    major_pad: float = ...,
+    minor_pad: float = ...,
+    **kwargs
+) -> tuple[Axes, dict[str, Any], dict[str, Any]]: ...
 def make_axes_gridspec(
     parent: Axes,
     *,
     location: Literal["left", "right", "top", "bottom"] | None = ...,
     orientation: Literal["vertical", "horizontal"] | None = ...,
+    fraction: float = ...,
+    shrink: float = ...,
+    aspect: float = ...,
+    **kwargs
+) -> tuple[Axes, dict[str, Any]]: ...
+def make_bivar_axes_gridspec(
+    parent: Axes | list[Axes] | np.ndarray,
+    *,
+    location: Literal["left", "right", "top", "bottom"] | None = ...,
     fraction: float = ...,
     shrink: float = ...,
     aspect: float = ...,

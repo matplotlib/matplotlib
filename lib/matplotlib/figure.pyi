@@ -14,7 +14,7 @@ from matplotlib.backend_bases import (
     RendererBase,
 )
 from matplotlib.colors import Colormap, Normalize
-from matplotlib.colorbar import Colorbar
+from matplotlib.colorbar import Colorbar, BivarColorbar, MultivarColorbar
 from matplotlib.colorizer import ColorizingArtist, Colorizer
 from matplotlib.cm import ScalarMappable
 from matplotlib.gridspec import GridSpec, SubplotSpec, SubplotParams as SubplotParams
@@ -179,6 +179,24 @@ class FigureBase(Artist):
         use_gridspec: bool = ...,
         **kwargs
     ) -> Colorbar: ...
+    def colorbar_bivar(
+        self,
+        mappable: ColorizingArtist,
+        *,
+        cax: Axes | None = ...,
+        ax: Axes | Iterable[Axes] | None = ...,
+        use_gridspec: bool = ...,
+        **kwargs
+    ) -> BivarColorbar: ...
+    def colorbar_multivar(
+        self,
+        mappable: ColorizingArtist,
+        *,
+        caxes: Iterable[Axes] | None = ...,
+        ax: Axes | Iterable[Axes] | None = ...,
+        n_major: int = ...,
+        **kwargs
+    ) -> MultivarColorbar: ...
     def subplots_adjust(
         self,
         left: float | None = ...,

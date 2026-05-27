@@ -791,7 +791,7 @@ class Axes3D(Axes):
             is not modified.
         view_margin : float or None
             The margin to apply to the bounds. If *None*, the margin is handled
-            by `.set_ylim`.
+            by `.Axes3D.set_ylim`.
 
         See Also
         --------
@@ -2039,7 +2039,7 @@ class Axes3D(Axes):
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Set zlabel.  See doc for `.set_ylabel` for description.
+        Set zlabel.  See doc for `.Axes.set_ylabel` for description.
         """
         if labelpad is not None:
             self.zaxis.labelpad = labelpad

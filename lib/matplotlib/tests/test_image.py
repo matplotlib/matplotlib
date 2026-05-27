@@ -2055,3 +2055,12 @@ def test_affine_fill_to_edges():
             axs[i, j].vlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')
             axs[i, j].hlines([-0.5, N - 0.5], -1, 2, lw=0.5, color='red')
             axs[i, j].hlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')
+
+
+def test_invalid_interpolation_stage_multinorm():
+    fig, ax = plt.subplots()
+    data = np.arange(24).reshape((2, 3, 4))
+
+    with pytest.raises(ValueError,
+            match="'data' is the only valid interpolation_stage"):
+        ax.imshow(data, cmap='2VarAddA', interpolation_stage='rgba')

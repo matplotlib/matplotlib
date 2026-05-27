@@ -1436,9 +1436,9 @@ class MultivarColormap:
             Describe how colormaps are combined in sRGB space
 
             - If 'sRGB_add' -> Mixing produces brighter colors
-              `sRGB = sum(colors)`
+              ``sRGB = sum(colors)``
             - If 'sRGB_sub' -> Mixing produces darker colors
-              `sRGB = 1 - sum(1 - colors)`
+              ``sRGB = 1 - sum(1 - colors)``
         name : str, optional
             The name of the colormap family.
         """
@@ -1610,15 +1610,15 @@ class MultivarColormap:
 
         Parameters
         ----------
-        bad: :mpltype:`color`, default: None
+        bad : :mpltype:`color`, default: None
             If Matplotlib color, the bad value is set accordingly in the copy
 
-        under tuple of :mpltype:`color`, default: None
-            If tuple, the `under` value of each component is set with the values
+        under : tuple of :mpltype:`color`, default: None
+            If tuple, the 'under' value of each component is set with the values
             from the tuple.
 
-        over tuple of :mpltype:`color`, default: None
-            If tuple, the `over` value of each component is set with the values
+        over : tuple of :mpltype:`color`, default: None
+            If tuple, the 'over' value of each component is set with the values
             from the tuple.
 
         Returns
@@ -3565,11 +3565,16 @@ class MultiNorm(Norm):
             - If structured array, must have `n_components` fields. Each field
               is used for the limits of one constituent norm.
         """
+        changed = False
         with self.callbacks.blocked():
             A = self._iterable_components_in_data(A, self.n_components)
             for n, a in zip(self.norms, A):
+                vmin, vmax = n.vmin, n.vmax
                 n.autoscale_None(a)
-        self._changed()
+                if vmin != n.vmin or vmax != n.vmax:
+                    changed = True
+        if changed:
+            self._changed()
 
     def scaled(self):
         """Return whether both *vmin* and *vmax* are set on all constituent norms."""
