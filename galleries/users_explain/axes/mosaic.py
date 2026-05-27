@@ -390,3 +390,56 @@ axd = plt.figure(layout="constrained").subplot_mosaic(
     empty_sentinel=0,
 )
 identify_axes(axd)
+
+
+# %%
+# Axis sharing
+# ============
+#
+# `.Figure.subplot_mosaic` supports *sharex* and *sharey* as does
+# `.Figure.subplots`.  When ``True``, all Axes in the mosaic share
+# the same x-axis or y-axis, which is useful for directly comparing
+# data across panels.
+
+fig = plt.figure(layout="constrained")
+axd = fig.subplot_mosaic("AC;BC", sharex=True)
+axd["A"].set_title("Axes A")
+axd["B"].set_title("Axes B")
+axd["C"].set_title("Axes C")
+for ax in axd.values():
+    ax.plot([1, 2, 3, 4], [1, 4, 2, 3])
+identify_axes(axd)
+
+# %%
+# Note that when using ``sharex=True`` only the bottom row of Axes shows
+# x-axis tick labels, and when using ``sharey=True`` only the left column
+# shows y-axis tick labels.  This is identical to the behavior of
+# `.Figure.subplots`.
+#
+# Interaction with empty sentinels
+# ---------------------------------
+#
+# When the mosaic layout has blank spaces (empty sentinels), axis sharing
+# can produce inintended results.  In the following example, there are no
+# tick labels in the top row:
+
+fig, axd = plt.subplot_mosaic(".A;BC", sharey=True, layout="constrained")
+for ax in axd.values():
+    ax.plot([1, 2, 3, 4], [1, 4, 2, 3])
+identify_axes(axd)
+
+# %%
+# The reason for this behavior is that sharing removes tick labels from
+# all but the most-left / most-bottom grid positions.
+#
+# The fix is to manually re-enable tick labels on the Axes that should
+# display them using `.Axes.tick_params`:
+
+fig, axd = plt.subplot_mosaic(".A;BC", sharey=True, layout="constrained")
+for ax in axd.values():
+    ax.plot([1, 2, 3, 4], [1, 4, 2, 3])
+
+# Re-enable y-axis tick labels on Axes "A"
+axd["A"].tick_params(labelleft=True)
+
+identify_axes(axd)
