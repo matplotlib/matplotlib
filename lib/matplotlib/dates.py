@@ -20,7 +20,7 @@ A basic example using `numpy.datetime64` is::
 
 .. seealso::
 
-    - :doc:`/gallery/text_labels_and_annotations/date`
+    - :doc:`/gallery/ticks/date`
     - :doc:`/gallery/ticks/date_concise_formatter`
     - :doc:`/gallery/ticks/date_demo_convert`
 
