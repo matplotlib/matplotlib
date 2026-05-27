@@ -497,7 +497,19 @@ class Line3DCollection(LineCollection):
         """
         Project the points according to renderer matrix.
         """
-        segments = np.asanyarray(self._segments3d)
+        segments = self._segments3d
+
+        # Handle ragged inputs, but prefer a faster path for same-length segments
+        segment_lengths = [len(segment) for segment in segments]
+        ragged = len(set(segment_lengths)) > 1
+        if ragged:
+            # Branch masked / non-masked for speed
+            if any(np.ma.isMA(segment) for segment in segments):
+                segments = np.ma.concatenate(segments)
+            else:
+                segments = np.concatenate(segments)
+        else:
+            segments = np.asanyarray(segments)
 
         # Handle empty segments
         if segments.size == 0:
@@ -505,7 +517,7 @@ class Line3DCollection(LineCollection):
             return np.nan
 
         mask = False
-        if np.ma.isMA(segments):
+        if np.ma.isMA(segments) and segments.mask is not np.ma.nomask:
             mask = segments.mask
 
         if self._axlim_clip:
@@ -519,9 +531,12 @@ class Line3DCollection(LineCollection):
                                                (*viewlim_mask.shape, 3))
                 mask = mask | viewlim_mask
 
-        xyzs = np.ma.array(
-            proj3d._scale_proj_transform_vectors(segments, self.axes), mask=mask)
+        xyzs = proj3d._scale_proj_transform_vectors(segments, self.axes)
+        if mask is not False:
+            xyzs = np.ma.array(xyzs, mask=mask)
         segments_2d = xyzs[..., 0:2]
+        if ragged:
+            segments_2d = np.split(segments_2d, np.cumsum(segment_lengths[:-1]))
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
