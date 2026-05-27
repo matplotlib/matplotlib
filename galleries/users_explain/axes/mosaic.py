@@ -420,8 +420,8 @@ identify_axes(axd)
 # ---------------------------------
 #
 # When the mosaic layout has blank spaces (empty sentinels), axis sharing
-# can produce unexpected results.  In the following example, the top-left
-# cell is empty and ``sharey=True`` is used:
+# can produce inintended results.  In the following example, there are no
+# tick labels in the top row:
 
 fig, axd = plt.subplot_mosaic(".A;BC", sharey=True, layout="constrained")
 for ax in axd.values():
@@ -429,11 +429,8 @@ for ax in axd.values():
 identify_axes(axd)
 
 # %%
-# Because the left column's topmost Axes is blank, Axes ``"B"`` would
-# normally be the leftmost visible Axes in its row, but axis sharing has
-# already removed its y-axis tick labels (since it is not the first column
-# in the grid).  As a result, *none* of the Axes in the top row display
-# y-axis tick labels, which is usually not what you want.
+# The reason for this behavior is that sharing removes tick labels from
+# all but the most-left / most-bottom grid positions.
 #
 # The fix is to manually re-enable tick labels on the Axes that should
 # display them using `.Axes.tick_params`:
@@ -442,7 +439,7 @@ fig, axd = plt.subplot_mosaic(".A;BC", sharey=True, layout="constrained")
 for ax in axd.values():
     ax.plot([1, 2, 3, 4], [1, 4, 2, 3])
 
-# Re-enable y-axis tick labels on Axes "B"
-axd["B"].tick_params(labelleft=True)
+# Re-enable y-axis tick labels on Axes "A"
+axd["A"].tick_params(labelleft=True)
 
 identify_axes(axd)
