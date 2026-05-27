@@ -20,6 +20,10 @@
 #define STOP_EVENT_LOOP 2
 #define WINDOW_CLOSING 3
 
+/* Variable for our delegate since it has a +1 reference count.
+   Not needed under manual reference count, but standard practice
+   under ARC. */
+static id<NSApplicationDelegate> appDelegate = nil;
 
 /* Keep track of number of windows present
    Needed to know when to stop the NSApp */
@@ -223,7 +227,8 @@ static void lazy_init(void) {
 
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-    [NSApp setDelegate: [[[MatplotlibAppDelegate alloc] init] autorelease]];
+    appDelegate = [[MatplotlibAppDelegate alloc] init];
+    [NSApp setDelegate:appDelegate];
 
     // Run our own event loop while waiting for stdin on the Python side
     // this is needed to keep the application responsive while waiting for input
