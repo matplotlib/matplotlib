@@ -87,13 +87,15 @@ static void flushEvents() {
 }
 
 static int wait_for_stdin() {
-    // Short circuit if no windows are active
-    // Rely on Python's input handling to manage CPU usage
-    // This queries the NSApp, rather than using our FigureWindowCount because that is decremented when events still
-    // need to be processed to properly close the windows.
-    if (![[NSApp windows] count]) {
-      flushEvents();
-      return 1;
+    @autoreleasepool {
+        // Short circuit if no windows are active
+        // Rely on Python's input handling to manage CPU usage
+        // This queries the NSApp, rather than using our FigureWindowCount because that is decremented when events still
+        // need to be processed to properly close the windows.
+        if (![[NSApp windows] count]) {
+          flushEvents();
+          return 1;
+        }
     }
 
     @autoreleasepool {
