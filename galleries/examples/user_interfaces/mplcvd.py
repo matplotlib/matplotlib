@@ -104,7 +104,7 @@ def setup(figure):
             break
     if pkg == "gi":
         _setup_gtk(tb)
-    elif pkg in ("PyQt5", "PySide2", "PyQt6", "PySide6"):
+    elif pkg in ("PyQt5", "PyQt6", "PySide6"):
         _setup_qt(tb)
     elif pkg == "tkinter":
         _setup_tk(tb)

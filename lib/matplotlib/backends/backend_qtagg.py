@@ -2,7 +2,6 @@
 Render to qt from agg.
 """
 
-import ctypes
 
 from matplotlib.transforms import Bbox
 
@@ -62,11 +61,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
-            # Adjust the buf reference count to work around a memory
-            # leak bug in QImage under PySide.
-            if QT_API == "PySide2" and QtCore.__version_info__ < (5, 12):
-                ctypes.c_long.from_address(id(buf)).value = 1
-
             self._draw_rect_callback(painter)
         finally:
             painter.end()

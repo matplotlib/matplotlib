@@ -11,7 +11,6 @@ from matplotlib import pyplot as plt, rc_context, ticker
 from matplotlib.colors import LogNorm, same_color
 import matplotlib.patches as mpatches
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from packaging.version import parse as parse_version
 import pytest
 
 
@@ -257,8 +256,7 @@ def test_contour_datetime_axis():
 
 @image_comparison(['contour_test_label_transforms.png'],
                   remove_text=True, style='mpl20',
-                  tol=1 if parse_version(np.version.version).major < 2 else
-                  0 if platform.machine() == 'x86_64' else 0.005)
+                  tol=0 if platform.machine() == 'x86_64' else 0.005)
 def test_labels():
     # Adapted from pylab_examples example code: contour_demo.py
     # see issues #2475, #2843, and #2818 for explanation

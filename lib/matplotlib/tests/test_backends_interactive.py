@@ -63,10 +63,10 @@ def _get_available_interactive_backends():
     for deps, env in [
             *[([qt_api],
                {"MPLBACKEND": "qtagg", "QT_API": qt_api})
-              for qt_api in ["PyQt6", "PySide6", "PyQt5", "PySide2"]],
+              for qt_api in ["PyQt6", "PySide6", "PyQt5"]],
             *[([qt_api, "cairocffi"],
                {"MPLBACKEND": "qtcairo", "QT_API": qt_api})
-              for qt_api in ["PyQt6", "PySide6", "PyQt5", "PySide2"]],
+              for qt_api in ["PyQt6", "PySide6", "PyQt5"]],
             *[(["cairo", "gi"], {"MPLBACKEND": f"gtk{version}{renderer}"})
               for version in [3, 4] for renderer in ["agg", "cairo"]],
             (["tkinter"], {"MPLBACKEND": "tkagg"}),
@@ -317,20 +317,12 @@ for param in _thread_safe_backends:
             param.marks.append(
                 pytest.mark.xfail(raises=subprocess.TimeoutExpired,
                                   strict=True))
-    elif param.values[0].get("QT_API") == "PySide2":
-        param.marks.append(
-            pytest.mark.xfail(raises=subprocess.CalledProcessError))
     elif backend == "tkagg" and platform.python_implementation() != 'CPython':
         param.marks.append(
             pytest.mark.xfail(
                 reason='PyPy does not support Tkinter threading: '
                        'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
                 strict=True))
-    elif (backend == 'tkagg' and
-          ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
-          sys.platform == 'darwin' and sys.version_info[:2] < (3, 11)):
-        param.marks.append(  # https://github.com/actions/setup-python/issues/649
-            pytest.mark.xfail('Tk version mismatch on Azure macOS CI'))
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
@@ -365,7 +357,7 @@ def _implqt5agg():
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
-    assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+    assert 'PyQt5' in sys.modules
 
 
 def _implcairo():
@@ -374,7 +366,7 @@ def _implcairo():
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
-    assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+    assert 'PyQt5' in sys.modules
 
 
 def _implcore():
@@ -383,12 +375,12 @@ def _implcore():
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
-    assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+    assert 'PyQt5' in sys.modules
 
 
 def test_qt5backends_uses_qt5():
     qt5_bindings = [
-        dep for dep in ['PyQt5', 'pyside2']
+        dep for dep in ['PyQt5']
         if importlib.util.find_spec(dep) is not None
     ]
     qt6_bindings = [
@@ -408,7 +400,6 @@ def _impl_missing():
     # Simulate uninstalled
     sys.modules["PyQt6"] = None
     sys.modules["PyQt5"] = None
-    sys.modules["PySide2"] = None
     sys.modules["PySide6"] = None
 
     import matplotlib.pyplot as plt
@@ -443,7 +434,7 @@ def _impl_test_cross_Qt_imports():
 
 def qt5_and_qt6_pairs():
     qt5_bindings = [
-        dep for dep in ['PyQt5', 'PySide2']
+        dep for dep in ['PyQt5']
         if importlib.util.find_spec(dep) is not None
     ]
     qt6_bindings = [
@@ -610,14 +601,6 @@ for param in _blit_backends:
     elif backend == "wx":
         param.marks.append(
             pytest.mark.skip("wx does not support blitting"))
-    elif (backend == 'tkagg' and
-          ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
-          sys.platform == 'darwin' and
-          sys.version_info[:2] < (3, 11)
-          ):
-        param.marks.append(  # https://github.com/actions/setup-python/issues/649
-            pytest.mark.xfail('Tk version mismatch on Azure macOS CI')
-        )
 
 
 @pytest.mark.parametrize("env", _blit_backends)
