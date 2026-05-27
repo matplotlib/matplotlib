@@ -2147,11 +2147,10 @@ class Axis(martist.Artist):
             labels = [t.get_text() if hasattr(t, 'get_text') else t
                       for t in labels]
         except TypeError:
-            raise TypeError(f"{labels:=} must be a sequence") from None
+            raise TypeError(f"{labels=!r} must be a sequence") from None
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if not labels:
-            # eg labels=[]:
             formatter = mticker.NullFormatter()
         elif (isinstance(locator, mticker.FixedLocator) or
               (hasattr(locator, 'base') and
