@@ -395,12 +395,13 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
         self->view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
         int opts = (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
                     NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect);
-        [self->view addTrackingArea: [
-            [NSTrackingArea alloc] initWithRect: rect
-                                        options: opts
-                                          owner: self->view
-                                       userInfo: nil]];
+        NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect: rect
+                                                                    options: opts
+                                                                      owner: self->view
+                                                                   userInfo: nil];
+        [self->view addTrackingArea:trackingArea];
         [self->view setCanvas: (PyObject*)self];
+        [trackingArea release];
 
     exit:
         Py_XDECREF(super_obj);
