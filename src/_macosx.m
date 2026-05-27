@@ -685,6 +685,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
         Window* window = self->window;
         [window setDelegate: view];
         [window makeFirstResponder: view];
+        [window setReleasedWhenClosed:NO];
         [[window contentView] addSubview: view];
         [view updateDevicePixelRatio: [window backingScaleFactor]];
 
@@ -727,6 +728,8 @@ FigureManager_dealloc(FigureManager* self)
 {
     @autoreleasepool {
         [self->window close];
+        [self->window setDelegate:nil];
+        [self->window release];
         Py_TYPE(self)->tp_free((PyObject*)self);
     }
 }
@@ -754,6 +757,8 @@ FigureManager_destroy(FigureManager* self)
 {
     @autoreleasepool {
         [self->window close];
+        [self->window setDelegate:nil];
+        [self->window release];
         self->window = NULL;
 
         // call super(self, FigureManager).destroy() - it seems we need the
