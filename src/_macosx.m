@@ -254,8 +254,7 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
         int fd;
         if (!PyArg_ParseTuple(args, "i", &fd)) { return NULL; }
         NSFileHandle* fh = [[NSFileHandle alloc] initWithFileDescriptor: fd];
-        [fh waitForDataInBackgroundAndNotify];
-        [[NSNotificationCenter defaultCenter]
+        __block id notificationID = [[NSNotificationCenter defaultCenter]
             addObserverForName: NSFileHandleDataAvailableNotification
                         object: fh
                          queue: nil
@@ -263,7 +262,10 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
                         PyGILState_STATE gstate = PyGILState_Ensure();
                         PyErr_CheckSignals();
                         PyGILState_Release(gstate);
+                        [fh release];
+                        [[NSNotificationCenter defaultCenter] removeObserver:notificationID];
                     }];
+        [fh waitForDataInBackgroundAndNotify];
         Py_RETURN_NONE;
     }
 }
