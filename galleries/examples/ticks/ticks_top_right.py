@@ -10,7 +10,7 @@ to the top or right side of the Axes::
     ax.tick_params(right=True, labelright=True, left=False, labelleft=False)
 
 To also reposition the axes labels (xlabel/ylabel), use
-`.Axes.xaxis.set_label_position` and `.Axes.yaxis.set_label_position`.
+``Axes.xaxis.set_label_position`` and ``Axes.yaxis.set_label_position``.
 
 .. note::
 
