@@ -501,9 +501,13 @@ class Line3DCollection(LineCollection):
         """
         segments = self._segments3d
 
-        # Handle ragged inputs, but prefer a faster path for same-length segments
-        segment_lengths = [len(segment) for segment in segments]
-        ragged = len(set(segment_lengths)) > 1
+        if isinstance(segments, np.ndarray):
+            ragged = False
+        else:
+            # Handle ragged inputs, but prefer a faster path for same-length segments
+            segment_lengths = [len(segment) for segment in segments]
+            ragged = len(set(segment_lengths)) > 1
+
         if ragged:
             # Branch masked / non-masked for speed
             if any(np.ma.isMA(segment) for segment in segments):
