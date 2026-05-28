@@ -1686,11 +1686,11 @@ def test_rcparams(fig_test, fig_ref):
 
 
 def test_suptitle_rcparams_alignment():
-    """Test that suptitle respects figure.titlehorizontalalign and titleverticalalign."""
+    """Test that suptitle respects figure.title_horizontalalignment and titleverticalalign."""
     fig, ax = plt.subplots()
     with mpl.rc_context({
-        'figure.titlehorizontalalign': 'left',
-        'figure.titleverticalalign': 'center',
+        'figure.title_horizontalalignment': 'left',
+        'figure.title_verticalalignment': 'center',
     }):
         txt = fig.suptitle("Title")
     assert txt.get_horizontalalignment() == 'left'
@@ -1701,8 +1701,8 @@ def test_suptitle_rcparams_alignment_override():
     """Test that explicit kwargs override suptitle rcParams defaults."""
     fig, ax = plt.subplots()
     with mpl.rc_context({
-        'figure.titlehorizontalalign': 'left',
-        'figure.titleverticalalign': 'center',
+        'figure.title_horizontalalignment': 'left',
+        'figure.title_verticalalignment': 'center',
     }):
         txt = fig.suptitle("Title", ha='right', va='bottom')
     assert txt.get_horizontalalignment() == 'right'

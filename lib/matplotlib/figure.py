@@ -331,10 +331,10 @@ default: %(va)s
             The font weight of the text. See `.Text.set_weight` for possible
             values.
         horizontalalignment, ha : {'center', 'left', 'right'}, \
-default: :rc:`figure.titlehorizontalalign`
+default: :rc:`figure.title_horizontalalignment`
             The horizontal alignment of the text relative to (*x*, *y*).
         verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
-default: :rc:`figure.titleverticalalign`
+default: :rc:`figure.title_verticalalignment`
             The vertical alignment of the text relative to (*x*, *y*).
 
         Returns
@@ -411,8 +411,8 @@ default: :rc:`figure.titleverticalalign`
         info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
                 'ha': 'center', 'va': 'top', 'rotation': 0,
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight',
-                'horizontalalign': 'figure.titlehorizontalalign',
-                'verticalalign': 'figure.titleverticalalign'}
+                'horizontalalign': 'figure.title_horizontalalignment',
+                'verticalalign': 'figure.title_verticalalignment'}
         return self._suplabels(t, info, **kwargs)
 
     def get_suptitle(self):

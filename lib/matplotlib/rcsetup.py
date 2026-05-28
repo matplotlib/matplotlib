@@ -1358,10 +1358,10 @@ _validators = {
     # figure title
     "figure.titlesize":            validate_fontsize,
     "figure.titleweight":          validate_fontweight,
-    "figure.titlehorizontalalign": validate_suptitle_ha,
+    "figure.title_horizontalalignment": validate_suptitle_ha,
     # Validate that suptitle rcParams are set together to avoid inconsistent defaults
     # if someone sets ha but not va (or vice versa) — the pair should change together.
-    "figure.titleverticalalign":   validate_verticalalignment,
+    "figure.title_verticalalignment":   validate_verticalalignment,
 
     # figure labels
     "figure.labelsize":   validate_fontsize,
@@ -2783,13 +2783,13 @@ _DEFINITION = [
         description="weight of the figure title"
     ),
     _Param(
-        "figure.titlehorizontalalign",
+        "figure.title_horizontalalignment",
         default="center",
         validator=validate_suptitle_ha,
         description="horizontal alignment of the figure title (``Figure.suptitle()``)"
     ),
     _Param(
-        "figure.titleverticalalign",
+        "figure.title_verticalalignment",
         default="top",
         validator=validate_verticalalignment,
         description="vertical alignment of the figure title (``Figure.suptitle()``)"
