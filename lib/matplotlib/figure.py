@@ -330,6 +330,12 @@ default: %(va)s
         fontweight, weight : default: :rc:`figure.%(rc)sweight`
             The font weight of the text. See `.Text.set_weight` for possible
             values.
+        horizontalalignment, ha : {'center', 'left', 'right'}, \
+default: :rc:`figure.titlehorizontalalign`
+            The horizontal alignment of the text relative to (*x*, *y*).
+        verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
+default: :rc:`figure.titleverticalalign`
+            The vertical alignment of the text relative to (*x*, *y*).
 
         Returns
         -------
@@ -360,8 +366,18 @@ default: %(va)s
             y = info['y0']
 
         kwargs = cbook.normalize_kwargs(kwargs, Text)
-        kwargs.setdefault('horizontalalignment', info['ha'])
-        kwargs.setdefault('verticalalignment', info['va'])
+
+        # Resolve defaults: rcParam key if present, else hardcoded fallback
+        ha_key = info.get('horizontalalign')
+        va_key = info.get('verticalalign')
+        kwargs.setdefault(
+            'horizontalalignment',
+            mpl.rcParams[ha_key] if ha_key else info['ha'],
+        )
+        kwargs.setdefault(
+            'verticalalignment',
+            mpl.rcParams[va_key] if va_key else info['va'],
+        )
         kwargs.setdefault('rotation', info['rotation'])
 
         if 'fontproperties' not in kwargs:
@@ -394,7 +410,9 @@ default: %(va)s
         # docstring from _suplabels...
         info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
                 'ha': 'center', 'va': 'top', 'rotation': 0,
-                'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
+                'size': 'figure.titlesize', 'weight': 'figure.titleweight',
+                'horizontalalign': 'figure.titlehorizontalalign',
+                'verticalalign': 'figure.titleverticalalign'}
         return self._suplabels(t, info, **kwargs)
 
     def get_suptitle(self):

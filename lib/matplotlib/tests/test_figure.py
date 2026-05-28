@@ -1685,6 +1685,30 @@ def test_rcparams(fig_test, fig_ref):
         fig_test.suptitle("Title")
 
 
+def test_suptitle_rcparams_alignment():
+    """Test that suptitle respects figure.titlehorizontalalign and titleverticalalign."""
+    fig, ax = plt.subplots()
+    with mpl.rc_context({
+        'figure.titlehorizontalalign': 'left',
+        'figure.titleverticalalign': 'center',
+    }):
+        txt = fig.suptitle("Title")
+    assert txt.get_horizontalalignment() == 'left'
+    assert txt.get_verticalalignment() == 'center'
+
+
+def test_suptitle_rcparams_alignment_override():
+    """Test that explicit kwargs override suptitle rcParams defaults."""
+    fig, ax = plt.subplots()
+    with mpl.rc_context({
+        'figure.titlehorizontalalign': 'left',
+        'figure.titleverticalalign': 'center',
+    }):
+        txt = fig.suptitle("Title", ha='right', va='bottom')
+    assert txt.get_horizontalalignment() == 'right'
+    assert txt.get_verticalalignment() == 'bottom'
+
+
 def test_deepcopy():
     fig1, ax = plt.subplots()
     ax.plot([0, 1], [2, 3])

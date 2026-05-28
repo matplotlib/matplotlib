@@ -445,6 +445,15 @@ def validate_fontsize(s):
 validate_fontsizelist = _listify_validator(validate_fontsize)
 
 
+def validate_suptitle_ha(s):
+    """
+    Validate horizontal alignment for suptitle rcParams.
+    """
+    return _str_to_one_of(
+        ['center', 'left', 'right', 'center_left', 'center_right'],
+    )(s)
+
+
 def validate_fontweight(s):
     weights = [
         'ultralight', 'light', 'normal', 'regular', 'book', 'medium', 'roman',
@@ -1347,8 +1356,12 @@ _validators = {
 
     ## figure props
     # figure title
-    "figure.titlesize":   validate_fontsize,
-    "figure.titleweight": validate_fontweight,
+    "figure.titlesize":            validate_fontsize,
+    "figure.titleweight":          validate_fontweight,
+    "figure.titlehorizontalalign": validate_suptitle_ha,
+    # Validate that suptitle rcParams are set together to avoid inconsistent defaults
+    # if someone sets ha but not va (or vice versa) — the pair should change together.
+    "figure.titleverticalalign":   validate_verticalalignment,
 
     # figure labels
     "figure.labelsize":   validate_fontsize,
@@ -2768,6 +2781,18 @@ _DEFINITION = [
         default="normal",
         validator=validate_fontweight,
         description="weight of the figure title"
+    ),
+    _Param(
+        "figure.titlehorizontalalign",
+        default="center",
+        validator=validate_suptitle_ha,
+        description="horizontal alignment of the figure title (``Figure.suptitle()``)"
+    ),
+    _Param(
+        "figure.titleverticalalign",
+        default="top",
+        validator=validate_verticalalignment,
+        description="vertical alignment of the figure title (``Figure.suptitle()``)"
     ),
     _Param(
         "figure.labelsize",
