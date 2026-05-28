@@ -684,6 +684,64 @@ transparency of mapped colors for an Artist.
 Fonts and Text
 ==============
 
+.. dropdown:: Important
+    :color: warning
+    :icon: alert
+
+    This release of Matplotlib includes a large update to text processing and rendering.
+    Within our published wheels, the bundled version of FreeType has been updated, and
+    the rendering pipeline itself has been overhauled to support modern features and
+    fonts, as outlined below. It is unfortunately not possible to reproduce the exact
+    same pixel values for a piece of rendered text as in previous versions.
+
+    If you are reliant on pixel-perfect consistency between versions, this will be
+    broken in this release. For downstream packages that are testing plots, we recommend
+    a few options:
+
+    1. Update your test images directly; if you are comfortable with requiring 3.11 and
+       above only, then this is the simplest option. However, it does mean dropping
+       support for many users with older Matplotlib versions. Alternatively, provide two
+       sets of test images, one before and one after. This would increase compatibility
+       at the cost of disk space.
+    2. Increase tolerances on tests with text. Note that this might obscure unintended
+       differences, so be careful with increasing tolerances too high. If you are using
+       Matplotlib's `.image_comparison` decorator, you can pass the *tol* argument::
+
+           @image_comparison(['plot.png'], tol=5, style='mpl20')
+           def test_plot():
+               ...
+
+       If you are using `pytest-mpl`_, then you can pass the *tolerance* argument::
+
+           @pytest.mark.mpl_image_compare(tolerance=5)
+           def test_plot():
+               ...
+    3. Remove non-essential text elements. The easiest way to avoid this problem is to
+       not have any text to worry about. For both the `.image_comparison` decorator and
+       `pytest-mpl`_, you can pass the *remove_text* argument::
+
+           @image_comparison(['plot.png'], remove_text=True, style='mpl20')
+           def test_plot():
+               ...
+
+           @pytest.mark.mpl_image_compare(remove_text=True)
+           def test_plot():
+               ...
+
+       to remove the title and tick texts; note other deliberate texts are not removed.
+    4. Replace text with placeholders. If you do need text to exist, but don't intend to
+       check the exact pixels (for example, to confirm layout is correct), then you can
+       replace the text with a placeholder of a fixed size. If you are using `pytest`_,
+       the `.text_placeholders` fixture may be used to replace text with a fixed-size
+       box. Consider vendoring a similar fixture in your own tests if necessary.
+    5. Use a different image comparison algorithm. While not available in Matplotlib's
+       testing framework, a `perceptual hashing algorithm`_ may be more appropriate if
+       you wish to avoid depending on exact pixel values.
+
+.. _perceptual hashing algorithm: https://en.wikipedia.org/wiki/Perceptual_hashing
+.. _pytest: http://doc.pytest.org/en/latest/
+.. _pytest-mpl: https://pytest-mpl.readthedocs.io/
+
 Complex text layout with libraqm
 --------------------------------
 
