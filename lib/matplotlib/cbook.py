@@ -1589,7 +1589,7 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
     # Zip x and quantiles
     for (x, quantile) in zip(X, quantiles):
         x = np.asarray(x)
-        x = x[~(np.isnan(x) | np.isinf(x))]
+        x, = delete_masked_points(x)
 
         if len(x) == 0:
             vpstats.append({
