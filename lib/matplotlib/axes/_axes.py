@@ -8958,7 +8958,7 @@ such objects
             - sequence of 1D arrays: A violin is drawn for each array in the sequence.
             - 2D array: A violin is drawn for each column in the array.
 
-            NaN, infinite values, and masked points are automatically stripped.
+            Non-finite and masked values are ignored.
 
         positions : array-like, default: [1, 2, ..., n]
             The positions of the violins; i.e. coordinates on the x-axis for
