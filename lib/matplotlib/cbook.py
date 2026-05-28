@@ -1499,7 +1499,7 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
     ----------
     X : 1D array or sequence of 1D arrays or 2D array
         Sample data that will be used to produce the gaussian kernel density
-        estimates. NaN and infinite values are automatically stripped.
+        estimates. Non-finite and masked values are ignored.
         Possible values:
 
         - 1D array: Statistics are computed for that array.
