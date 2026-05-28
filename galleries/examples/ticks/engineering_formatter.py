@@ -4,6 +4,8 @@ Format ticks using engineering notation
 =======================================
 
 Use of the engineering Formatter.
+
+.. redirect-from:: /gallery/text_labels_and_annotations/engineering_formatter
 """
 
 import matplotlib.pyplot as plt
