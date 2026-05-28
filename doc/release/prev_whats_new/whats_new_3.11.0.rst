@@ -145,6 +145,20 @@ placement via controllable distances between bars and between bar groups.
 `~.Axes.broken_barh` now supports vertical alignment of the bars through the *align*
 parameter.
 
+.. plot::
+    :include-source:
+    :alt:
+        A plot with three horizontal bars at 0, 10, and 20. Each is aligned to the
+        bottom, center, and top of those values, respectively.
+
+    fig, ax = plt.subplots()
+    ax.axhline(0, color='tab:red')
+    ax.broken_barh([(0, 10)], (0, 2))  # Default is 'bottom'.
+    ax.axhline(10, color='tab:red')
+    ax.broken_barh([(0, 10)], (10, 2), align='center')
+    ax.axhline(20, color='tab:red')
+    ax.broken_barh([(0, 10)], (20, 2), align='top')
+
 ``hist()`` supports a single color for multiple datasets
 --------------------------------------------------------
 
@@ -157,6 +171,17 @@ Stackplot styling
 `~.Axes.stackplot` now accepts sequences for the style parameters *facecolor*,
 *edgecolor*, *linestyle*, and *linewidth*, similar to how the *hatch* parameter is
 already handled.
+
+.. plot::
+    :include-source:
+    :alt: A plot of stacked datasets. The bottom area is orange and the top is green.
+
+    x = np.linspace(0, 10)
+    y1 = x + np.sin(x)
+    y2 = x + np.cos(x)
+
+    fig, ax = plt.subplots()
+    ax.stackplot(x, y1, y2, facecolor=['tab:orange', 'tab:green'])
 
 Streamplot integration control
 ------------------------------
@@ -209,6 +234,30 @@ allows more than one arrow to be added to each streamline:
 input arguments. This means that the color of violinplots can be set as they are made,
 rather than setting the color of individual objects afterwards. It is possible to pass a
 single color to be used for all violins, or pass a sequence of colors.
+
+.. plot::
+    :include-source:
+    :alt:
+        Two violin plots. On the left, all elements are blue. On the right, each is a
+        custom colour: a desaturated yellow, blue, red, and green for each data set,
+        and black for the vertical bars.
+
+    np.random.seed(19680801)
+    data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 5)]
+
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, sharey=True)
+
+    ax1.set_title('Default violin plot')
+    ax1.set_ylabel('Observed values')
+    ax1.violinplot(data)
+
+    ax2.set_title('Set colors of violins')
+    ax2.set_ylabel('Observed values')
+    ax2.violinplot(
+        data,
+        facecolor=[('yellow', 0.3), ('blue', 0.3), ('red', 0.3), ('green', 0.3)],
+        linecolor='black',
+    )
 
 Annotations
 ===========
@@ -570,10 +619,26 @@ cycle in place of the default::
   import matplotlib.pyplot as plt
   plt.style.use('petroff6')
 
+.. plot::
+
+    plt.style.use('petroff6')
+    x = range(5)
+    for i in range(6):
+        plt.plot(x, [v*(i+1) for v in x], label=f'line {i}')
+    plt.legend()
+
 or to load the ``'petroff8'`` color cycle::
 
   import matplotlib.pyplot as plt
   plt.style.use('petroff8')
+
+.. plot::
+
+    plt.style.use('petroff8')
+    x = range(5)
+    for i in range(8):
+        plt.plot(x, [v*(i+1) for v in x], label=f'line {i}')
+    plt.legend()
 
 Setting the default color cycle to a named color sequence
 ---------------------------------------------------------
@@ -867,18 +932,45 @@ Altogether these macros allow some finer control of text alignments.
 See https://www.tug.org/TUGboat/tb22-4/tb72perlS.pdf for a detailed description of these
 macros.
 
+For example, using these macros in the first legend below allows reserving space so that
+it is the same size as the second legend with longer text:
+
+.. plot::
+    :include-source:
+    :alt:
+        Two plots of diagonal lines. The first Axes has a legend with a single entry
+        labelled "foo". The second Axes has a legend with two entries labelled "foo" and
+        "a longer label". Both legends are the same width despite the former containing
+        a shorter label.
+
+    fig = plt.figure(layout="constrained")
+    sfs = fig.subfigures(2)
+
+    ax0 = sfs[0].add_subplot()
+    ax0.plot([1, 2], label=r"$\rlap{\text{foo}}\phantom{\text{a longer label}}$")
+    sfs[0].legend(loc="outside right upper")
+
+    ax1 = sfs[1].add_subplot()
+    ax1.plot([1, 2], label="foo")
+    ax1.plot([2, 1], label="a longer label")
+    sfs[1].legend(loc="outside right upper")
+
 Underlining text while using Mathtext
 -------------------------------------
 
 Mathtext now supports the ``\underline`` command.
 
-.. code-block:: python
+.. plot::
+    :include-source:
+    :alt:
+        Two lines of text. The first says "This is underlined text." and the word
+        "underlined" is italic and has a line under it. The second line says "So us
+        this." and the word "this" has a line under it.
 
-    import matplotlib.pyplot as plt
-
-    plt.text(0.4, 0.7, r'This is $\underline{underlined}$ text.')
-    plt.text(0.4, 0.3, r'So is $\underline{\mathrm{this}}$.')
-    plt.show()
+    plt.figure(figsize=(6, 2))
+    plt.text(0.05, 0.7, r'This is $\underline{underlined}$ text.', fontsize=24)
+    plt.text(0.05, 0.2, r'So is $\underline{\mathrm{this}}$.', fontsize=24)
+    plt.axis('off')
 
 Improved font embedding in PDF
 ------------------------------
