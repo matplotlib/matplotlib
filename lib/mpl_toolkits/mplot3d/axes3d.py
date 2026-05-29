@@ -191,6 +191,7 @@ class Axes3D(Axes):
         self.set_axis_on()
         self.M = None
         self.invM = None
+        self._draw_cache = {}
 
         self._view_margin = 1/48  # default value to match mpl3.8
         self.autoscale_view()
@@ -277,6 +278,20 @@ class Axes3D(Axes):
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
         return np.column_stack(proj3d._proj_trans_points(xyzs, self.M))
+
+    def _get_transformed_cube(self):
+        """Get transformed cube from draw cache, or compute if outside draw cycle."""
+        if 'transformed_cube' in self._draw_cache:
+            return self._draw_cache['transformed_cube']
+        bounds = self._draw_cache.get('bounds',
+            (*self.get_xbound(), *self.get_ybound(), *self.get_zbound()))
+        return self._transformed_cube(bounds)
+
+    def _get_bounds(self):
+        """Get data bounds from draw cache, or compute if outside draw cycle."""
+        if 'bounds' in self._draw_cache:
+            return self._draw_cache['bounds']
+        return (*self.get_xbound(), *self.get_ybound(), *self.get_zbound())
 
     def _update_transScale(self):
         """
@@ -474,6 +489,14 @@ class Axes3D(Axes):
         self.M = self.get_proj()
         self.invM = np.linalg.inv(self.M)
 
+        # Cache values used multiple times during axis drawing
+        self._draw_cache = {}
+        bounds = (*self.get_xbound(), *self.get_ybound(), *self.get_zbound())
+        self._draw_cache['scaled_limits'] = self._calc_scaled_limits()
+        self._draw_cache['bounds'] = bounds
+        self._draw_cache['transformed_cube'] = self._transformed_cube(bounds)
+        self._draw_cache['coord_info'] = self._calc_coord_info()
+
         collections_and_patches = (
             artist for artist in self._children
             if isinstance(artist, (mcoll.Collection, mpatches.Patch))
@@ -499,6 +522,9 @@ class Axes3D(Axes):
                 artist.do_3d_projection()
 
         if self._axis3don:
+            # Update ticks on all axes
+            for axis in self._axis_map.values():
+                axis._ticks_to_draw = axis._update_ticks()
             # Draw panes first
             for axis in self._axis_map.values():
                 axis.draw_pane(renderer)
@@ -1358,7 +1384,7 @@ class Axes3D(Axes):
         else:
             return np.roll(arr, (self._vertical_axis - 2))
 
-    def _get_scaled_limits(self):
+    def _calc_scaled_limits(self):
         """
         Get axis limits transformed through their respective scale transforms.
 
@@ -1372,6 +1398,61 @@ class Axes3D(Axes):
         ymin, ymax = self.yaxis.get_transform().transform(self.get_ylim3d())
         zmin, zmax = self.zaxis.get_transform().transform(self.get_zlim3d())
         return xmin, xmax, ymin, ymax, zmin, zmax
+
+    def _get_scaled_limits(self):
+        """Get scaled limits from draw cache, or compute if outside draw cycle."""
+        if 'scaled_limits' in self._draw_cache:
+            return self._draw_cache['scaled_limits']
+        return self._calc_scaled_limits()
+
+    def _calc_coord_info(self):
+        """
+        Compute coordinate info for axis drawing.
+
+        Returns
+        -------
+        mins : ndarray
+            Minimum values [xmin, ymin, zmin] in scaled coordinates.
+        maxs : ndarray
+            Maximum values [xmax, ymax, zmax] in scaled coordinates.
+        bounds_proj : ndarray
+            Projected cube corners.
+        highs : ndarray
+            Boolean array indicating which planes are higher up.
+        """
+        xmin, xmax, ymin, ymax, zmin, zmax = self._get_scaled_limits()
+        mins = np.array([xmin, ymin, zmin])
+        maxs = np.array([xmax, ymax, zmax])
+        bounds_proj = self._get_transformed_cube()
+
+        # Determine which one of the parallel planes are higher up
+        means_z0 = np.zeros(3)
+        means_z1 = np.zeros(3)
+        for i in range(3):
+            means_z0[i] = np.mean(bounds_proj[axis3d.Axis._PLANES[2 * i], 2])
+            means_z1[i] = np.mean(bounds_proj[axis3d.Axis._PLANES[2 * i + 1], 2])
+        highs = means_z0 < means_z1
+
+        # Special handling for edge-on views
+        equals = np.abs(means_z0 - means_z1) <= np.finfo(float).eps
+        if np.sum(equals) == 2:
+            vertical = np.where(~equals)[0][0]
+            if vertical == 2:  # looking at XY plane
+                highs = np.array([True, True, highs[2]])
+            elif vertical == 1:  # looking at XZ plane
+                highs = np.array([True, highs[1], False])
+            elif vertical == 0:  # looking at YZ plane
+                highs = np.array([highs[0], False, False])
+
+        return mins, maxs, bounds_proj, highs
+
+    def _get_coord_info(self):
+        """Get coord info from draw cache, or compute if outside draw cycle."""
+        if 'coord_info' in self._draw_cache:
+            return self._draw_cache['coord_info']
+        coord_info = self._calc_coord_info()
+        self._draw_cache['coord_info'] = coord_info
+        return coord_info
 
     def _untransform_point(self, x, y, z):
         """
@@ -1431,8 +1512,11 @@ class Axes3D(Axes):
         # For non-linear scales, we use the scaled limits so the world
         # transformation maps transformed coordinates (not data coordinates)
         # to the unit cube
-        scaled_limits = self._get_scaled_limits()
-        worldM = proj3d.world_transformation(*scaled_limits, pb_aspect=box_aspect)
+        scaled_limits = self._calc_scaled_limits()
+        worldM = proj3d.world_transformation(
+            *scaled_limits,
+            pb_aspect=box_aspect,
+        )
 
         # Look into the middle of the world coordinates:
         R = 0.5 * box_aspect
@@ -1872,7 +1956,7 @@ class Axes3D(Axes):
         duvw_projected = R.T @ np.array([du, dv, dw])
 
         # Calculate pan distance in transformed coordinates for non-linear scales
-        minx, maxx, miny, maxy, minz, maxz = self._get_scaled_limits()
+        minx, maxx, miny, maxy, minz, maxz = self._calc_scaled_limits()
         dx = (maxx - minx) * duvw_projected[0]
         dy = (maxy - miny) * duvw_projected[1]
         dz = (maxz - minz) * duvw_projected[2]
@@ -2026,7 +2110,7 @@ class Axes3D(Axes):
         computed in transformed coordinates to ensure uniform zoom/pan behavior.
         """
         # Get limits in transformed coordinates for non-linear scale zoom/pan
-        minx, maxx, miny, maxy, minz, maxz = self._get_scaled_limits()
+        minx, maxx, miny, maxy, minz, maxz = self._calc_scaled_limits()
         cx = (maxx + minx)/2
         cy = (maxy + miny)/2
         cz = (maxz + minz)/2

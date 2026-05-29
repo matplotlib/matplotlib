@@ -191,12 +191,11 @@ class Text3D(mtext.Text):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        pos3d = np.array([self._x, self._y, self._z], dtype=float)
         if self._axlim_clip:
             mask = _viewlim_mask(self._x, self._y, self._z, self.axes)
-            pos3d = np.ma.array([self._x, self._y, self._z],
-                                mask=mask, dtype=float).filled(np.nan)
-        else:
-            pos3d = np.array([self._x, self._y, self._z], dtype=float)
+            if np.any(mask):
+                pos3d = np.where(mask, np.nan, pos3d)
 
         dir_end = pos3d + self._dir_vec
         points = np.asarray([pos3d, dir_end])
@@ -328,15 +327,13 @@ class Line3D(lines.Line2D):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        xs3d, ys3d, zs3d = self._verts3d
         if self._axlim_clip:
-            mask = np.broadcast_to(
-                _viewlim_mask(*self._verts3d, self.axes),
-                (len(self._verts3d), *self._verts3d[0].shape)
-            )
-            xs3d, ys3d, zs3d = np.ma.array(self._verts3d,
-                                           dtype=float, mask=mask).filled(np.nan)
-        else:
-            xs3d, ys3d, zs3d = self._verts3d
+            mask = _viewlim_mask(xs3d, ys3d, zs3d, self.axes)
+            if np.any(mask):
+                xs3d = np.where(mask, np.nan, xs3d)
+                ys3d = np.where(mask, np.nan, ys3d)
+                zs3d = np.where(mask, np.nan, zs3d)
         xs, ys, zs, tis = proj3d._scale_proj_transform_clip(xs3d, ys3d, zs3d, self.axes)
         self.set_data(xs, ys)
         super().draw(renderer)
@@ -425,15 +422,20 @@ class Collection3D(Collection):
         """Project the points according to renderer matrix."""
         vs_list = [vs for vs, _ in self._3dverts_codes]
         if self._axlim_clip:
-            vs_list = [np.ma.array(vs, mask=np.broadcast_to(
-                       _viewlim_mask(*vs.T, self.axes), vs.shape))
-                       for vs in vs_list]
+            vs_list_new = []
+            for vs in vs_list:
+                mask = _viewlim_mask(*vs.T, self.axes)
+                if np.any(mask):
+                    vs = vs.astype(float, copy=True)
+                    vs[mask] = np.nan
+                vs_list_new.append(vs)
+            vs_list = vs_list_new
         xyzs_list = [proj3d._scale_proj_transform(
             vs[:, 0], vs[:, 1], vs[:, 2], self.axes) for vs in vs_list]
-        self._paths = [mpath.Path(np.ma.column_stack([xs, ys]), cs)
+        self._paths = [mpath.Path(np.column_stack([xs, ys]), cs)
                        for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
         zs = np.concatenate([zs for _, _, zs in xyzs_list])
-        return zs.min() if len(zs) else 1e9
+        return np.nanmin(zs) if len(zs) else 1e9
 
 
 def collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
@@ -499,9 +501,13 @@ class Line3DCollection(LineCollection):
         """
         segments = self._segments3d
 
-        # Handle ragged inputs, but prefer a faster path for same-length segments
-        segment_lengths = [len(segment) for segment in segments]
-        ragged = len(set(segment_lengths)) > 1
+        if isinstance(segments, np.ndarray):
+            ragged = False
+        else:
+            # Handle ragged inputs, but prefer a faster path for same-length segments
+            segment_lengths = [len(segment) for segment in segments]
+            ragged = len(set(segment_lengths)) > 1
+
         if ragged:
             # Branch masked / non-masked for speed
             if any(np.ma.isMA(segment) for segment in segments):
@@ -531,9 +537,9 @@ class Line3DCollection(LineCollection):
                                                (*viewlim_mask.shape, 3))
                 mask = mask | viewlim_mask
 
-        xyzs = proj3d._scale_proj_transform_vectors(segments, self.axes)
-        if mask is not False:
-            xyzs = np.ma.array(xyzs, mask=mask)
+        xyzs = np.asarray(
+            proj3d._scale_proj_transform_vectors(segments, self.axes))
+        xyzs[mask] = np.nan
         segments_2d = xyzs[..., 0:2]
         if ragged:
             segments_2d = np.split(segments_2d, np.cumsum(segment_lengths[:-1]))
@@ -541,7 +547,7 @@ class Line3DCollection(LineCollection):
 
         # FIXME
         if len(xyzs) > 0:
-            minz = min(xyzs[..., 2].min(), 1e9)
+            minz = min(np.nanmin(xyzs[..., 2]), 1e9)
         else:
             minz = np.nan
         return minz
@@ -612,15 +618,17 @@ class Patch3D(Patch):
 
     def do_3d_projection(self):
         s = self._segment3d
+        mask = False
+        xs, ys, zs = zip(*s)
         if self._axlim_clip:
-            mask = _viewlim_mask(*zip(*s), self.axes)
-            xs, ys, zs = np.ma.array(zip(*s),
-                                     dtype=float, mask=mask).filled(np.nan)
-        else:
-            xs, ys, zs = zip(*s)
+            mask = _viewlim_mask(xs, ys, zs, self.axes)
+            if np.any(mask):
+                xs = np.where(mask, np.nan, xs)
+                ys = np.where(mask, np.nan, ys)
+                zs = np.where(mask, np.nan, zs)
         vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(xs, ys, zs, self.axes)
-        self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]))
-        return min(vzs)
+        self._path2d = mpath.Path(np.column_stack([vxs, vys]))
+        return np.nanmin(vzs)
 
 
 class PathPatch3D(Patch3D):
@@ -672,15 +680,18 @@ class PathPatch3D(Patch3D):
 
     def do_3d_projection(self):
         s = self._segment3d
+        mask = False
+        xs, ys, zs = zip(*s)
         if self._axlim_clip:
-            mask = _viewlim_mask(*zip(*s), self.axes)
-            xs, ys, zs = np.ma.array(zip(*s),
-                                     dtype=float, mask=mask).filled(np.nan)
-        else:
-            xs, ys, zs = zip(*s)
+            mask = _viewlim_mask(xs, ys, zs, self.axes)
+            if np.any(mask):
+                xs = np.where(mask, np.nan, xs)
+                ys = np.where(mask, np.nan, ys)
+                zs = np.where(mask, np.nan, zs)
         vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(xs, ys, zs, self.axes)
-        self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]), self._code3d)
-        return min(vzs)
+        self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
+
+        return np.nanmin(vzs)
 
 
 def _get_patch_verts(patch):
@@ -816,20 +827,20 @@ class Patch3DCollection(PatchCollection):
         self.stale = True
 
     def do_3d_projection(self):
+        xs, ys, zs = self._offsets3d
+        mask = False
         if self._axlim_clip:
-            mask = _viewlim_mask(*self._offsets3d, self.axes)
-            xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
-        else:
-            xs, ys, zs = self._offsets3d
+            mask = _viewlim_mask(xs, ys, zs, self.axes)
+            if np.any(mask):
+                xs = np.where(mask, np.nan, xs)
+                ys = np.where(mask, np.nan, ys)
+                zs = np.where(mask, np.nan, zs)
         vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(xs, ys, zs, self.axes)
         self._vzs = vzs
-        if np.ma.isMA(vxs):
-            super().set_offsets(np.ma.column_stack([vxs, vys]))
-        else:
-            super().set_offsets(np.column_stack([vxs, vys]))
+        super().set_offsets(np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
-            return min(vzs)
+            return np.nanmin(vzs)
         else:
             return np.nan
 
