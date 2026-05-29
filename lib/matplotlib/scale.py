@@ -965,6 +965,25 @@ def register_scale(scale_class):
         )
 
 
+def unregister_scale(name):
+    """
+    Remove a custom scale from the registry.
+
+    Parameters
+    ----------
+    name : str
+        The name of the scale to remove.
+    """
+    _builtin_scales = {'linear', 'log', 'symlog', 'logit',
+                       'asinh', 'function', 'functionlog'}
+    if name in _builtin_scales:
+        raise ValueError(
+            f"Cannot unregister built-in scale {name!r}.")
+    if name not in _scale_mapping:
+        raise ValueError(f"Scale '{name}' is not registered.")
+    del _scale_mapping[name]
+
+
 def _get_scale_docs():
     """
     Helper function for generating docstrings related to scales.
