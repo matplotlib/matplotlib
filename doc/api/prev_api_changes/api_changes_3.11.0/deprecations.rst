@@ -282,8 +282,9 @@ It is an internal helper not intended for external use.
 ``image.thumbnail``
 ~~~~~~~~~~~~~~~~~~~
 
-... is deprecated without replacement. Use :external:py:`Pillow's thumbnail method
-<PIL.Image.Image.thumbnail>` instead. See also the `Pillow tutorial
+... is deprecated without replacement. Use :external:py:meth:`Pillow's
+thumbnail method <PIL.Image.Image.thumbnail>` instead. See also the `Pillow
+tutorial
 <https://pillow.readthedocs.io/en/stable/handbook/tutorial.html#create-jpeg-thumbnails>`_.
 
 ``testing.widgets.mock_event`` and ``testing.widgets.do_event``
