@@ -195,7 +195,13 @@ class TimerQT(TimerBase):
         super().__init__(*args, **kwargs)
 
     def __del__(self):
-        self._timer_stop()
+        try:
+            self._timer_stop()
+        except RuntimeError as e:
+            # Silence warning on shutdown.
+            ignore_msg = "wrapped C/C++ object of type QTimer has been deleted"
+            if str(e) != ignore_msg:
+                raise
 
     def _timer_set_single_shot(self):
         self._timer.setSingleShot(self._single)
