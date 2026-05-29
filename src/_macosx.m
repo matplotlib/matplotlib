@@ -23,7 +23,7 @@
 
 /* When calling into Objective-C from Python, wrap the calls with
    BEGIN_OBJC_ENTRY and END_OBJC_ENTRY. This will set up an autorelease
-   pool as well as catch any Obj-C exceptions thrown. These macros 
+   pool as well as catch any Obj-C exceptions thrown. These macros
    should be used for any call exposed to Python via the external module
    interface. */
 #define BEGIN_OBJC_ENTRY \
