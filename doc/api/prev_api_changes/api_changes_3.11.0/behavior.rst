@@ -105,6 +105,12 @@ histogrammed data, ignoring any other artists. `.Axes.hist2d` now behaves simila
 `.Axes.imshow`: axes limits are updated to fit the data, but autoscaling is not
 otherwise disabled.
 
+Axes.violinplot and cbook.violin_stats ignore non-finite values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`~matplotlib.axes.Axes.violinplot` and `matplotlib.cbook.violin_stats` now ignore masked
+and non-finite (NaN and inf) values.
+
 Minor log tick labels are set by number of major log ticks, not number of decades spanned
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
