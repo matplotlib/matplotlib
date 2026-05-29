@@ -871,6 +871,15 @@ class Axis(martist.Artist):
         """
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
+    def _nan_out_of_scale_range(self, data):
+        """
+        Return *data* with values that are out of range for this axis's scale
+        replaced by NaN. E.g. ``<=0`` on a log axis.
+        """
+        data = np.asanyarray(data, dtype=float)
+        valid = self._scale.val_in_range(data)
+        return data if np.all(valid) else np.where(valid, data, np.nan)
+
     def _get_autoscale_on(self):
         """Return whether this Axis is autoscaled."""
         return self._autoscale_on
