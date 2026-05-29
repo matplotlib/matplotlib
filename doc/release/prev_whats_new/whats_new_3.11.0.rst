@@ -214,9 +214,6 @@ allows more than one arrow to be added to each streamline:
     :include-source:
     :alt: One chart showing a streamplot. Each streamline has three arrows.
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-
     w = 3
     Y, X = np.mgrid[-w:w:100j, -w:w:100j]
     U = -1 - X**2 + Y
@@ -224,8 +221,6 @@ allows more than one arrow to be added to each streamline:
 
     fig, ax = plt.subplots()
     ax.streamplot(X, Y, U, V, num_arrows=3)
-
-    plt.show()
 
 ``violinplot`` now accepts color arguments
 ------------------------------------------
@@ -287,8 +282,6 @@ For more examples, see :doc:`/gallery/pie_and_polar_charts/pie_label`.
         A pie chart with three labels on each wedge, showing a food type, number, and
         fraction associated with the wedge.
 
-    import matplotlib.pyplot as plt
-
     data = [36, 24, 8, 12]
     labels = ['spam', 'eggs', 'bacon', 'sausage']
 
@@ -320,8 +313,6 @@ By using negative angles (or corresponding reflex angles) for *head_angle*, arro
         left; the arrows on the right have the shaft on the right; the arrows in the
         middle have shafts on both sides.
 
-    import matplotlib.pyplot as plt
-
     plt.text(0.2, 0.8, "LArrow", ha='center', size=16,
              bbox=dict(boxstyle="larrow, pad=0.3, head_angle=150"))
     plt.text(0.2, 0.2, "LArrow", ha='center', size=16,
@@ -335,8 +326,6 @@ By using negative angles (or corresponding reflex angles) for *head_angle*, arro
     plt.text(0.8, 0.2, "RArrow", ha='center', size=16,
              bbox=dict(boxstyle="rarrow, pad=0.3, head_width=2, head_angle=-90"))
     plt.axis("off")
-
-    plt.show()
 
 *borderpad* accepts a tuple for separate x/y padding
 ----------------------------------------------------
@@ -403,7 +392,6 @@ alternating edge colors ensure the patch boundary remains visible.
         A rectangle with a dashed orange edge and blue gaps, demonstrating the
         edgegapcolor feature.
 
-    import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
 
     fig, ax = plt.subplots()
@@ -411,7 +399,6 @@ alternating edge colors ensure the patch boundary remains visible.
                       edgecolor='orange', edgegapcolor='blue',
                       linestyle='--', linewidth=3)
     ax.add_patch(rect)
-    plt.show()
 
 Separated ``hatchcolor`` from ``edgecolor``
 -------------------------------------------
@@ -434,7 +421,6 @@ fallback to :rc:`hatch.color` if the patch did not have an edge color.
         hatchcolor='green' when the hatchcolor is not set.
 
     import matplotlib as mpl
-    import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
 
     fig, ax = plt.subplots()
@@ -477,8 +463,6 @@ fallback to :rc:`hatch.color` if the patch did not have an edge color.
     ax.annotate("hatch.color='black'",
                 xy=(.5, 1.03), xycoords=patch4, ha='center', va='bottom')
 
-    plt.show()
-
 For collections, a sequence of colors can be passed to the *hatchcolor* parameter which
 will be cycled through for each hatch, similar to *facecolor* and *edgecolor*.
 
@@ -494,9 +478,6 @@ alpha value of the collection. This behavior has been changed such that, if both
         A random scatter plot with hatches on the markers. The hatches are colored in
         blue, orange, and green, respectively. After the first three markers, the colors
         are cycled through again.
-
-    import matplotlib.pyplot as plt
-    import numpy as np
 
     np.random.seed(19680801)
 
@@ -515,8 +496,6 @@ alpha value of the collection. This behavior has been changed such that, if both
         facecolor="none",
         edgecolor="black",
     )
-
-    plt.show()
 
 Axis and Ticks
 ==============
@@ -545,8 +524,6 @@ labels.
     :include-source:
     :alt: Example of rotated xtick and ytick labels.
 
-    import matplotlib.pyplot as plt
-
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 3.5), layout='constrained')
 
     pos = range(5)
@@ -557,8 +534,6 @@ labels.
     ax2.set_xticks(pos, labels, rotation=-45, rotation_mode='xtick')
     ax2.yaxis.tick_right()
     ax2.set_yticks(pos, labels, rotation=45, rotation_mode='ytick')
-
-    plt.show()
 
 Improved selection of log-scale ticks
 -------------------------------------
@@ -596,14 +571,11 @@ Or, when creating plots, you can pass it explicitly:
 
 .. plot::
 
-    import matplotlib.pyplot as plt
-
     colors = plt.colormaps['okabe_ito'].colors
     x = range(5)
     for i, c in enumerate(colors):
         plt.plot(x, [v*(i+1) for v in x], color=c, label=f'line {i}')
     plt.legend()
-    plt.show()
 
 Six and eight color Petroff color cycles
 ----------------------------------------
@@ -1059,8 +1031,6 @@ for the major and minor gridlines, respectively.
     :alt: Modifying the gridlines using the new options `rcParams`
 
     import matplotlib as mpl
-    import matplotlib.pyplot as plt
-
 
     # Set visibility for major and minor gridlines
     mpl.rcParams["axes.grid"] = True
@@ -1077,8 +1047,6 @@ for the major and minor gridlines, respectively.
     mpl.rcParams["grid.minor.linestyle"] = ":"
 
     plt.plot([0, 1], [0, 1])
-
-    plt.show()
 
 ``axes.prop_cycle`` rcParam security improvements
 -------------------------------------------------
@@ -1113,12 +1081,9 @@ frame line width directly, overriding the rcParam value.
     :include-source:
     :alt: A line plot with a legend showing a thick border around the legend box.
 
-    import matplotlib.pyplot as plt
-
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], label='data')
     ax.legend(linewidth=2.0)  # Thick legend box edge
-    plt.show()
 
 ``PatchCollection`` legends now supported
 -----------------------------------------
@@ -1133,7 +1098,6 @@ requiring users to create manual legend entries.
        The legend entry displays a rectangle matching the visual properties (colors,
        line styles, line widths) of the first patch in the collection.
 
-    import matplotlib.pyplot as plt
     import matplotlib.patches as mpatches
     from matplotlib.collections import PatchCollection
 
@@ -1142,7 +1106,6 @@ requiring users to create manual legend entries.
     pc = PatchCollection(patches, facecolor='blue', edgecolor='black', label='My patches')
     ax.add_collection(pc)
     ax.legend()  # Now displays the label "My patches"
-    plt.show()
 
 Widgets and Interactivity
 =========================
@@ -1176,8 +1139,6 @@ See :doc:`/gallery/widgets/radio_buttons_grid` for a ``(rows, cols)`` example.
     :include-source:
     :alt: Multiple sine waves with checkboxes to toggle their visibility.
 
-    import matplotlib.pyplot as plt
-    import numpy as np
     from matplotlib.widgets import CheckButtons
 
     t = np.arange(0.0, 2.0, 0.01)
@@ -1215,7 +1176,6 @@ See :doc:`/gallery/widgets/radio_buttons_grid` for a ``(rows, cols)`` example.
         fig.canvas.draw_idle()
 
     check.on_clicked(callback)
-    plt.show()
 
 Callable *valfmt* for ``Slider`` and ``RangeSlider``
 ----------------------------------------------------
@@ -1247,9 +1207,6 @@ just like 2D axes. Use `~.Axes3D.set_xscale`, `~.Axes3D.set_yscale`, and
     :include-source:
     :alt: A 3D plot with a linear x-axis, logarithmic y-axis, and symlog z-axis.
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-
     # A sine chirp with increasing frequency and amplitude
     x = np.linspace(0, 1, 400)  # time
     y = 10 ** (2 * x)  # frequency, growing exponentially from 1 to 100 Hz
@@ -1266,8 +1223,6 @@ just like 2D axes. Use `~.Axes3D.set_xscale`, `~.Axes3D.set_yscale`, and
 
     ax.set_yscale('log')
     ax.set_zscale('symlog')
-
-    plt.show()
 
 See `matplotlib.scale` for details on all available scales and their parameters.
 
@@ -1307,8 +1262,6 @@ A simple example:
     :include-source:
     :alt: A 3D scatter plot with depth-shading enabled.
 
-    import matplotlib.pyplot as plt
-
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
 
@@ -1323,8 +1276,6 @@ A simple example:
         depthshade_minalpha=0.3,
     )
     ax.view_init(elev=10, azim=-150, roll=0)
-
-    plt.show()
 
 3D performance improvements
 ---------------------------
@@ -1377,9 +1328,7 @@ calling `~.Axes.violinplot`.
         Example showing violin_stats followed by violin gives the same result as
         violinplot.
 
-    import matplotlib.pyplot as plt
     from matplotlib.cbook import violin_stats
-    import numpy as np
 
     rng = np.random.default_rng(19680801)
     data = rng.normal(size=(10, 3))
@@ -1394,5 +1343,3 @@ calling `~.Axes.violinplot`.
     vstats = violin_stats(data)
     ax2.violin(vstats)
     ax2.set_title('Two Steps')
-
-    plt.show()
