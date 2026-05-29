@@ -30,7 +30,6 @@ Third parties can register their scales by name through `register_scale`.
 """  # noqa: E501
 
 import inspect
-import math
 import textwrap
 from functools import wraps
 
@@ -119,17 +118,20 @@ class ScaleBase:
         """
         Return whether the value(s) are within the valid range for this scale.
 
-        This method is a generic implementation. Subclasses may implement more
-        efficient solutions for their domain.
+        Accepts a scalar or array-like ``val``. For a scalar, returns a
+        Python ``bool``. For an array, returns a bool ndarray of the same
+        shape. This is a generic implementation, and subclasses may implement
+        more efficient solutions for their domain.
         """
-        try:
-            if not math.isfinite(val):
-                return False
+        arr = np.asarray(val)
+        with np.errstate(invalid='ignore'):
+            try:
+                vmin, vmax = self.limit_range_for_scale(arr, arr, minpos=1e-300)
+            except (TypeError, ValueError):
+                result = np.zeros(arr.shape, dtype=bool)
             else:
-                vmin, vmax = self.limit_range_for_scale(val, val, minpos=1e-300)
-                return vmin == val and vmax == val
-        except (TypeError, ValueError):
-            return False
+                result = np.isfinite(arr) & (vmin == arr) & (vmax == arr)
+        return bool(result) if arr.ndim == 0 else result
 
 
 def _make_axis_parameter_optional(init_func):
@@ -219,11 +221,13 @@ class LinearScale(ScaleBase):
 
     def val_in_range(self, val):
         """
-        Return whether the value is within the valid range for this scale.
+        Return whether the value(s) are within the valid range for this scale.
 
         This is True for all values, except +-inf and NaN.
         """
-        return math.isfinite(val)
+        arr = np.asarray(val)
+        result = np.isfinite(arr)
+        return bool(result) if arr.ndim == 0 else result
 
 
 class FuncTransform(Transform):
@@ -431,11 +435,14 @@ class LogScale(ScaleBase):
 
     def val_in_range(self, val):
         """
-        Return whether the value is within the valid range for this scale.
+        Return whether the value(s) are within the valid range for this scale.
 
         This is True for value(s) > 0 except +inf and NaN.
         """
-        return math.isfinite(val) and val > 0
+        arr = np.asarray(val)
+        with np.errstate(invalid='ignore'):
+            result = np.isfinite(arr) & (arr > 0)
+        return bool(result) if arr.ndim == 0 else result
 
 
 class FuncScaleLog(LogScale):
@@ -625,11 +632,13 @@ class SymmetricalLogScale(ScaleBase):
 
     def val_in_range(self, val):
         """
-        Return whether the value is within the valid range for this scale.
+        Return whether the value(s) are within the valid range for this scale.
 
         This is True for all values, except +-inf and NaN.
         """
-        return math.isfinite(val)
+        arr = np.asarray(val)
+        result = np.isfinite(arr)
+        return bool(result) if arr.ndim == 0 else result
 
 
 class AsinhTransform(Transform):
@@ -759,11 +768,13 @@ class AsinhScale(ScaleBase):
 
     def val_in_range(self, val):
         """
-        Return whether the value is within the valid range for this scale.
+        Return whether the value(s) are within the valid range for this scale.
 
         This is True for all values, except +-inf and NaN.
         """
-        return math.isfinite(val)
+        arr = np.asarray(val)
+        result = np.isfinite(arr)
+        return bool(result) if arr.ndim == 0 else result
 
 
 class LogitTransform(Transform):
@@ -880,11 +891,14 @@ class LogitScale(ScaleBase):
 
     def val_in_range(self, val):
         """
-        Return whether the value is within the valid range for this scale.
+        Return whether the value(s) are within the valid range for this scale.
 
         This is True for value(s) which are between 0 and 1 (excluded).
         """
-        return 0 < val < 1
+        arr = np.asarray(val)
+        with np.errstate(invalid='ignore'):
+            result = (0 < arr) & (arr < 1)
+        return bool(result) if arr.ndim == 0 else result
 
 
 _scale_mapping = {
