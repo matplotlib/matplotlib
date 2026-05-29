@@ -189,7 +189,7 @@ Use of Generative AI
 ====================
 
 Generative AI tools are evolving rapidly and can be helpful. As with any tool,
-the resulting contribution is the responsibility of the contributor. We
+the resulting contribution is the responsibility of the human contributor. We
 expect dedicated and authentic engagement in our community. In particular when
 using AI, carefully consider what and how to communicate, question results,
 think things through thoroughly and make well-informed decisions.
@@ -216,6 +216,9 @@ Some examples of acceptable and unacceptable AI uses are:
     - Solving topics that you wouldn't be able to solve yourself without AI
     - Using AI output without ensuring that you fully understand the output or
       without verifying that it is the correct approach.
+    - Increase breadth of contributions, i.e. simultaneously contributing to several
+      projects. Instead of spreading your resources, you can provide greater value
+      by engaging more deeply with one or two projects.
 
 To ensure project health and preserve limited core developer capacity, we will flag
 and reject low-value contributions that we believe are AI generated. We may ban
