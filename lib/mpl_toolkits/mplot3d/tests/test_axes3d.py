@@ -3188,3 +3188,35 @@ def test_scale3d_calc_coord():
     # Pane coordinate should match axis limit (y-pane at max)
     assert pane_idx == 1
     assert point[pane_idx] == pytest.approx(ax.get_ylim()[1])
+
+
+def test_tightbbox_3d_labels_not_clipped():
+    # Regression test for GH#31568 - zlabel and xlabel were excluded from
+    # get_tightbbox(), causing them to be clipped by savefig(bbox_inches='tight')
+    fig = plt.figure(figsize=(3, 3))
+    ax = fig.add_subplot(projection='3d')
+    ax.plot([0, 1], [0, 1], [0, 1])
+    ax.set_zlabel("Z axis label")
+    ax.set_xlabel("X axis label")
+
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+
+    tightbbox = ax.get_tightbbox(renderer)
+
+    for axis in [ax.xaxis, ax.zaxis]:
+        if axis.label.get_visible():
+            label_bb = axis.label.get_window_extent(renderer)
+            if label_bb.width > 0 or label_bb.height > 0:
+                assert tightbbox.x0 <= label_bb.x0 + 1e-6, (
+                    f"{axis.axis_name}label left edge outside tightbbox: "
+                    f"{label_bb.x0:.1f} > {tightbbox.x0:.1f}"
+                )
+                assert tightbbox.x1 >= label_bb.x1 - 1e-6, (
+                    f"{axis.axis_name}label right edge outside tightbbox: "
+                    f"{label_bb.x1:.1f} > {tightbbox.x1:.1f}"
+                )
+                assert tightbbox.y0 <= label_bb.y0 + 1e-6, (
+                    f"{axis.axis_name}label bottom edge outside tightbbox: "
+                    f"{label_bb.y0:.1f} < {tightbbox.y0:.1f}"
+                )

@@ -4155,7 +4155,7 @@ class Axes3D(Axes):
         return errlines, caplines, limmarks
 
     def get_tightbbox(self, renderer=None, *, call_axes_locator=True,
-                      bbox_extra_artists=None, for_layout_only=False):
+                    bbox_extra_artists=None, for_layout_only=False):
         ret = super().get_tightbbox(renderer,
                                     call_axes_locator=call_axes_locator,
                                     bbox_extra_artists=bbox_extra_artists,
@@ -4168,6 +4168,10 @@ class Axes3D(Axes):
                         axis, renderer)
                     if axis_bb:
                         batch.append(axis_bb)
+                    if not for_layout_only and axis.label.get_visible():
+                        label_bb = axis.label.get_window_extent(renderer)
+                        if label_bb.width > 0 or label_bb.height > 0:
+                            batch.append(label_bb)
         return mtransforms.Bbox.union(batch)
 
     @_preprocess_data()
