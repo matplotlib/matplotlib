@@ -2115,14 +2115,26 @@ class MaxNLocator(Locator):
     Finds nice tick locations with no more than :math:`nbins + 1` ticks being within the
     view limits. Locations beyond the limits are added to support autoscaling.
     """
-    default_params = dict(nbins=10,
-                          steps=None,
-                          integer=False,
-                          symmetric=False,
-                          prune=None,
-                          min_n_ticks=2)
 
-    def __init__(self, nbins=None, **kwargs):
+    default_params = _api.deprecated("3.12")(property(lambda self: dict(
+        nbins=10,
+        steps=None,
+        integer=False,
+        symmetric=False,
+        prune=None,
+        min_n_ticks=2,
+    )))
+
+    def __init__(
+        self,
+        nbins=10,
+        *,
+        steps=None,
+        integer=False,
+        symmetric=False,
+        prune=None,
+        min_n_ticks=2,
+    ):
         """
         Parameters
         ----------
@@ -2157,9 +2169,14 @@ class MaxNLocator(Locator):
             Relax *nbins* and *integer* constraints if necessary to obtain
             this minimum number of ticks.
         """
-        if nbins is not None:
-            kwargs['nbins'] = nbins
-        self.set_params(**{**self.default_params, **kwargs})
+        self.set_params(
+            nbins=nbins,
+            steps=steps,
+            integer=integer,
+            symmetric=symmetric,
+            prune=prune,
+            min_n_ticks=min_n_ticks,
+        )
 
     @staticmethod
     def _validate_steps(steps):
@@ -3033,7 +3050,8 @@ class AutoLocator(MaxNLocator):
     This is a subclass of `~matplotlib.ticker.MaxNLocator`, with parameters
     *nbins = 'auto'* and *steps = [1, 2, 2.5, 5, 10]*.
     """
-    def __init__(self):
+
+    def __init__(self, **kwargs):
         """
         To know the values of the non-public parameters, please have a
         look to the defaults of `~matplotlib.ticker.MaxNLocator`.
@@ -3044,7 +3062,7 @@ class AutoLocator(MaxNLocator):
         else:
             nbins = 'auto'
             steps = [1, 2, 2.5, 5, 10]
-        super().__init__(nbins=nbins, steps=steps)
+        super().__init__(nbins=nbins, steps=steps, **kwargs)
 
 
 class AutoMinorLocator(Locator):
