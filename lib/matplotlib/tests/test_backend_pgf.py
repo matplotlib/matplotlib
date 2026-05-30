@@ -110,10 +110,12 @@ def test_xelatex():
 
 
 try:
-    _old_gs_version = \
-        mpl._get_executable_info('gs').version < parse_version('9.50')
+    _gs_version = mpl._get_executable_info('gs').version
 except mpl.ExecutableNotFoundError:
-    _old_gs_version = True
+    _gs_version_lt_950 = _gs_version_lt_1007 = True
+else:
+    _gs_version_lt_950 = _gs_version < parse_version('9.50')
+    _gs_version_lt_1007 = _gs_version < parse_version('10.07')
 
 
 # test compiling a figure to pdf with pdflatex
@@ -122,7 +124,7 @@ except mpl.ExecutableNotFoundError:
 @pytest.mark.skipif(not _has_tex_package('ucs'), reason='needs ucs.sty')
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_pdflatex.pdf'], style='default',
-                  tol=11.71 if _old_gs_version else 0)
+                  tol=11.71 if _gs_version_lt_950 else 0)
 def test_pdflatex():
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
@@ -154,7 +156,8 @@ def test_rcupdate():
                 'pgf.preamble': ('\\usepackage[utf8x]{inputenc}'
                                  '\\usepackage[T1]{fontenc}'
                                  '\\usepackage{sfmath}')}]
-    tol = [0, 13.2] if _old_gs_version else [0, 0]
+    tol = ([0, 13.2] if _gs_version_lt_950 else
+           [0, 4.25] if _gs_version_lt_1007 else [0, 0])
     for i, rc_set in enumerate(rc_sets):
         with mpl.rc_context(rc_set):
             for substring, pkg in [('sfmath', 'sfmath'), ('utf8x', 'ucs')]:
