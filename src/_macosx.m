@@ -31,7 +31,7 @@
    by a return statement which handles the rare case when an Objective-C
    exception was thrown.
    
-   As a convinience, the RETURN_NULL_OR_NONE macro can be used for functions
+   As a convenience, the RETURN_NULL_OR_NONE macro can be used for functions
    that return a PyObject* */
 #define BEGIN_OBJC_ENTRY \
     @autoreleasepool { @try {
