@@ -44,7 +44,7 @@
         return NULL; \
     } else { \
         Py_RETURN_NONE; \
-    } 
+    }
     
 
 /* Variable for our delegate since it has a +1 reference count.
