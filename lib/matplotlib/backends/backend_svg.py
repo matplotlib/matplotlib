@@ -714,7 +714,11 @@ class RendererSVG(RendererBase):
         path_data = self._convert_path(
             marker_path,
             marker_trans + Affine2D().scale(1.0, -1.0),
-            simplify=False)
+            # Honor path simplification for large reused paths (e.g. the polygon
+            # from fill_between, cached here like a marker). Without this the
+            # full vertex list is written verbatim (see #22803). Ordinary markers
+            # have few vertices and fall below the threshold, so are unaffected.
+            simplify=len(marker_path.vertices) >= 128)
         style = self._get_style_dict(gc, rgbFace)
         dictkey = (path_data, _generate_css(style))
         oid = self._markers.get(dictkey)
