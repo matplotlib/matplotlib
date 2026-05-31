@@ -26,11 +26,11 @@
    pool as well as catch any Obj-C exceptions thrown. These macros
    should be used for any call exposed to Python via the external module
    interface.
-   
+
    To avoid undefined behavior, each END_OBJC_ENTRY should be followed
    by a return statement which handles the rare case when an Objective-C
    exception was thrown.
-   
+
    As a convenience, the RETURN_NULL_OR_NONE macro can be used for functions
    that return a PyObject* */
 #define BEGIN_OBJC_ENTRY \
@@ -45,7 +45,7 @@
     } else { \
         Py_RETURN_NONE; \
     }
-    
+
 
 /* Variable for our delegate since it has a +1 reference count.
    Not needed under manual reference count, but standard practice
