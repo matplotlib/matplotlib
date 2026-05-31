@@ -25,7 +25,7 @@
    BEGIN_OBJC_ENTRY and END_OBJC_ENTRY. This will set up an autorelease
    pool as well as catch any Obj-C exceptions thrown. These macros
    should be used for any call exposed to Python via the external module
-   interface. 
+   interface.
    
    To avoid undefined behavior, each END_OBJC_ENTRY should be followed
    by a return statement which handles the rare case when an Objective-C
