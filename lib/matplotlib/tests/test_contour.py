@@ -895,7 +895,6 @@ def test_contour_singular_color():
 
 def test_clabel_manual_subset():
     # Test for issue #31702: clabel manual indexing with subset of levels
-    import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
     cs = ax.contour([[1, 2], [3, 4]], levels=[1.5, 2.5, 3.5])
     # Attempt to label only one specific level manually
