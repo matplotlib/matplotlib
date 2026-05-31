@@ -705,3 +705,25 @@ def test_svgid():
 
     assert plt.rcParams['svg.id'] == svg_id
     assert tree.findall(f'.[@id="{svg_id}"]')
+
+
+def test_fill_between_svg_simplified():
+    # Regression test for #22803: the polygon produced by fill_between is cached
+    # in the SVG backend like a reusable marker and was written without path
+    # simplification, producing very large files. It should be simplified like any
+    # other large path, while staying vector (not rasterized).
+    import re
+    rng = np.random.default_rng(424242)
+    n = 20000
+    x = np.arange(n)
+    y = rng.normal(size=(10, n))
+    fig, ax = plt.subplots()
+    ax.fill_between(x, y.min(axis=0), y.max(axis=0))
+    ax.set_xlim(0, n)
+    buf = BytesIO()
+    fig.savefig(buf, format="svg")
+    svg = buf.getvalue().decode("utf-8")
+    biggest = max(re.findall(r'\sd="([^"]*)"', svg, re.S), key=len)
+    n_verts = biggest.count("L") + biggest.count("M")
+    assert n_verts < n, f"fill path not simplified ({n_verts} vertices)"
+    assert "<image" not in svg

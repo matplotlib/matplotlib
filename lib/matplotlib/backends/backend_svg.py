@@ -691,7 +691,13 @@ class RendererSVG(RendererBase):
         # docstring inherited
         trans_and_flip = self._make_flip_transform(transform)
         clip = (rgbFace is None and gc.get_hatch_path() is None)
-        simplify = path.should_simplify and clip
+        # Also simplify large filled paths (e.g. fill_between); see #22803.
+        # Lines already simplify via should_simplify; honor the rcParam and
+        # leave hatched paths exact.
+        simplify = ((path.should_simplify
+                     or (mpl.rcParams['path.simplify']
+                         and len(path.vertices) >= 128))
+                    and gc.get_hatch_path() is None)
         path_data = self._convert_path(
             path, trans_and_flip, clip=clip, simplify=simplify,
             sketch=gc.get_sketch_params())
@@ -714,7 +720,9 @@ class RendererSVG(RendererBase):
         path_data = self._convert_path(
             marker_path,
             marker_trans + Affine2D().scale(1.0, -1.0),
-            simplify=False)
+            simplify=(marker_path.should_simplify
+                      or (mpl.rcParams['path.simplify']
+                          and len(marker_path.vertices) >= 128)))
         style = self._get_style_dict(gc, rgbFace)
         dictkey = (path_data, _generate_css(style))
         oid = self._markers.get(dictkey)
