@@ -25,13 +25,27 @@
    BEGIN_OBJC_ENTRY and END_OBJC_ENTRY. This will set up an autorelease
    pool as well as catch any Obj-C exceptions thrown. These macros
    should be used for any call exposed to Python via the external module
-   interface. */
+   interface. 
+   
+   To avoid undefined behavior, each END_OBJC_ENTRY should be followed
+   by a return statement which handles the rare case when an Objective-C
+   exception was thrown.
+   
+   As a convinience, the RETURN_NULL_OR_NONE macro can be used for functions
+   that return a PyObject* */
 #define BEGIN_OBJC_ENTRY \
     @autoreleasepool { @try {
 
 #define END_OBJC_ENTRY \
     } @catch (NSException *e) { errSetException(e); } }
 
+#define RETURN_NULL_OR_NONE \
+    if (PyErr_Occurred()) { \
+        return NULL; \
+    } else { \
+        Py_RETURN_NONE; \
+    } 
+    
 
 /* Variable for our delegate since it has a +1 reference count.
    Not needed under manual reference count, but standard practice
@@ -148,6 +162,7 @@ static int wait_for_stdin() {
     }
 
     END_OBJC_ENTRY
+    return 0;
 }
 
 /* ---------------------------- Cocoa classes ---------------------------- */
@@ -269,6 +284,7 @@ event_loop_is_running(PyObject* self)
     }
 
     END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -291,7 +307,7 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
                 }];
     [fh waitForDataInBackgroundAndNotify];
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -300,7 +316,7 @@ stop(PyObject* self, PyObject* _ /* ignored */)
     BEGIN_OBJC_ENTRY
     stopWithEvent();
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static CGFloat _get_device_scale(CGContextRef cr)
@@ -444,8 +460,8 @@ FigureCanvas_dealloc(FigureCanvas* self)
     BEGIN_OBJC_ENTRY
     [self->view setCanvas: NULL];
     [self->view release];
-    Py_TYPE(self)->tp_free((PyObject*)self);
     END_OBJC_ENTRY
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject*
@@ -461,7 +477,7 @@ FigureCanvas_update(FigureCanvas* self)
     BEGIN_OBJC_ENTRY
     [self->view setNeedsDisplay: YES];
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE;
 }
 
 static PyObject*
@@ -479,7 +495,7 @@ FigureCanvas_flush_events(FigureCanvas* self)
 
     [self->view displayIfNeeded];
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -506,7 +522,7 @@ FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
       default: return NULL;
     }
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -530,7 +546,7 @@ FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
                                    abs(x1 - x0), abs(y1 - y0));
     [view setRubberband: rubberband];
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -539,7 +555,7 @@ FigureCanvas_remove_rubberband(FigureCanvas* self)
     BEGIN_OBJC_ENTRY
     [self->view removeRubberband];
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -572,7 +588,7 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
     Py_END_ALLOW_THREADS
 
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -590,7 +606,7 @@ FigureCanvas_stop_event_loop(FigureCanvas* self)
                                            data2: 0];
     [NSApp postEvent: event atStart: true];
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyTypeObject FigureCanvasType = {
@@ -736,7 +752,7 @@ FigureManager__set_window_mode(FigureManager* self, PyObject* args)
         [self->window setTabbingMode: NSWindowTabbingModeAutomatic];
     }
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -753,8 +769,8 @@ FigureManager_dealloc(FigureManager* self)
     [self->window close];
     [self->window setDelegate:nil];
     [self->window release];
-    Py_TYPE(self)->tp_free((PyObject*)self);
     END_OBJC_ENTRY
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject*
@@ -762,8 +778,8 @@ FigureManager__show(FigureManager* self)
 {
     BEGIN_OBJC_ENTRY
     [self->window makeKeyAndOrderFront: nil];
-    Py_RETURN_NONE;
     END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -772,7 +788,7 @@ FigureManager__raise(FigureManager* self)
     BEGIN_OBJC_ENTRY
     [self->window orderFrontRegardless];
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -803,7 +819,7 @@ FigureManager_destroy(FigureManager* self)
     Py_DECREF(result);
 
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -839,11 +855,7 @@ FigureManager_set_icon(PyObject* null, PyObject* args) {
     app.applicationIconImage = image;
 
     END_OBJC_ENTRY
-    if (PyErr_Occurred()) {
-        return NULL;
-    } else {
-        Py_RETURN_NONE;
-    }
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -857,7 +869,7 @@ FigureManager_set_window_title(FigureManager* self,
     }
     [self->window setTitle: [NSString stringWithUTF8String: title]];
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -869,7 +881,7 @@ FigureManager_get_window_title(FigureManager* self)
         return PyUnicode_FromString([title UTF8String]);
     }
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -889,7 +901,7 @@ FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
         [window setContentSize: NSMakeSize(width, height + 36.)];
     }
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -898,7 +910,7 @@ FigureManager_full_screen_toggle(FigureManager* self)
     BEGIN_OBJC_ENTRY
     [self->window toggleFullScreen: nil];
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyTypeObject FigureManagerType = {
@@ -1155,8 +1167,8 @@ NavigationToolbar2_dealloc(NavigationToolbar2 *self)
     BEGIN_OBJC_ENTRY
     [self->handler release];
     [self->messagebox release];
-    Py_TYPE(self)->tp_free((PyObject*)self);
     END_OBJC_ENTRY
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject*
@@ -1199,7 +1211,7 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
     }
 
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static PyTypeObject NavigationToolbar2Type = {
@@ -1250,7 +1262,7 @@ choose_save_file(PyObject* unused, PyObject* args)
     }
 
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 @implementation Window
@@ -1873,7 +1885,7 @@ show(PyObject* self)
     Py_END_ALLOW_THREADS
 
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 typedef struct {
@@ -1943,11 +1955,7 @@ exit:
     Py_XDECREF(py_single);
     Py_XDECREF(py_on_timer);
     END_OBJC_ENTRY
-    if (PyErr_Occurred()) {
-        return NULL;
-    } else {
-        Py_RETURN_NONE;
-    }
+    RETURN_NULL_OR_NONE
 }
 
 static void
@@ -1965,7 +1973,7 @@ Timer__timer_stop(Timer* self)
     BEGIN_OBJC_ENTRY
     Timer__timer_stop_impl(self);
     END_OBJC_ENTRY
-    Py_RETURN_NONE;
+    RETURN_NULL_OR_NONE
 }
 
 static void
@@ -1973,8 +1981,8 @@ Timer_dealloc(Timer* self)
 {
     BEGIN_OBJC_ENTRY
     Timer__timer_stop_impl(self);
-    Py_TYPE(self)->tp_free((PyObject*)self);
     END_OBJC_ENTRY
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyTypeObject TimerType = {
