@@ -57,6 +57,15 @@ class Tick(martist.Artist):
     label2 : `~matplotlib.text.Text`
         The right/top tick label.
 
+    Notes
+    -----
+    Ticks are managed though the autoscaling / view limit mechanism and therefore
+    need very careful handling when explicitly accessed, see :ref:`axes-tick-objects`.
+
+    The tick lines are implemented as `~matplotlib.lines.Line2D` instances using the
+    `~.matplotlib.markers` TICKLEFT, TICKRIGHT, TICKDOWN, TICKUP. Therefore,
+    properties are controlled via the marker, e.g. for the color
+    `.Line2D.set_markeredgecolor` and not `.Line2D.set_color`.
     """
     def __init__(
         self, axes, loc, *,
@@ -84,9 +93,12 @@ class Tick(martist.Artist):
         **kwargs,  # Other Line2D kwargs applied to gridlines.
     ):
         """
-        bbox is the Bound2D bounding box in display coords of the Axes
-        loc is the tick location in data coords
-        size is the tick size in points
+        Parameters
+        ----------
+        loc
+            The tick location in data coords.
+        size
+            The tick size in points.
         """
         super().__init__()
 
