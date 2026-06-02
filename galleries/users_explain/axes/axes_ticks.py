@@ -227,7 +227,7 @@ axs2[6].xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
 
 # %%
 #
-# .. _axes_ticks_styling:
+# .. _axes-ticks-styling:
 #
 # Styling ticks (tick parameters)
 # ===============================
