@@ -395,6 +395,8 @@ Aspect ratio
    Axes.set_adjustable
    Axes.get_adjustable
 
+.. _axes-api-ticks:
+
 Ticks and tick labels
 ---------------------
 
