@@ -527,7 +527,7 @@ void FT2Font::load_char(long charcode, FT_Int32 flags, FT2Font *&ft_object, bool
         ft_object->load_char(charcode, flags, throwaway, false);
     } else if (fallback) {
         FT_UInt final_glyph_index;
-        FT_Error charcode_error, glyph_error;
+        FT_Error charcode_error = FT_Err_Ok, glyph_error = FT_Err_Ok;
         FT2Font *ft_object_with_glyph = this;
         bool was_found = load_char_with_fallback(ft_object_with_glyph, final_glyph_index,
                                                  glyphs, char_to_font,
@@ -595,6 +595,8 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
                                       FT_Error &glyph_error,
                                       std::set<FT_String*> &glyph_seen_fonts)
 {
+    charcode_error = FT_Err_Ok;
+    glyph_error = FT_Err_Ok;
     FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
     if (!warn_if_used) {
         glyph_seen_fonts.insert(face->family_name);
