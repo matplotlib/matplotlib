@@ -1,0 +1,6 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+spines
+spine_placement_demo
+spines_dropped
+multiple_yaxis_with_spines
+centered_spines_with_arrows
