@@ -2908,10 +2908,8 @@ class Axes(_AxesBase):
 
             if orientation == "vertical":
                 extrema = max(y0, y1) if dat >= 0 else min(y0, y1)
-                length = abs(y0 - y1)
             else:  # horizontal
                 extrema = max(x0, x1) if dat >= 0 else min(x0, x1)
-                length = abs(x0 - x1)
 
             if err is None or np.size(err) == 0:
                 endpt = extrema
@@ -2919,11 +2917,6 @@ class Axes(_AxesBase):
                 endpt = err[:, 1].max() if dat >= 0 else err[:, 1].min()
             else:  # horizontal
                 endpt = err[:, 0].max() if dat >= 0 else err[:, 0].min()
-
-            if label_type == "center":
-                value = sign(dat) * length
-            else:  # edge
-                value = extrema
 
             if label_type == "center":
                 xy = (0.5, 0.5)
@@ -2967,9 +2960,9 @@ class Axes(_AxesBase):
 
             if lbl is None:
                 if isinstance(fmt, str):
-                    lbl = cbook._auto_format_str(fmt, value)
+                    lbl = cbook._auto_format_str(fmt, dat)
                 elif callable(fmt):
-                    lbl = fmt(value)
+                    lbl = fmt(dat)
                 else:
                     raise TypeError("fmt must be a str or callable")
             annotation = self.annotate(lbl,
