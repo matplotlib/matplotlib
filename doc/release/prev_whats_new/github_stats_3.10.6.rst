@@ -3,51 +3,33 @@
 GitHub statistics for 3.10.6 (Aug 29, 2025)
 ===========================================
 
-GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2025/08/29
+GitHub statistics for 2025/07/31 (tag: v3.10.5) - 2025/08/29
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 4 issues and merged 19 pull requests.
+We closed 5 issues and merged 20 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/103?closed=1>`__
 
-The following 31 authors contributed 380 commits.
+The following 12 authors contributed 47 commits.
 
 * Alan Burlot
 * Antony Lee
-* Christine P. Chai
 * David Stansby
-* dependabot[bot]
 * Doron Behar
 * Elliott Sales de Andrade
-* G.D. McBain
-* Greg Lucas
 * hannah
-* hu-xiaonan
 * Ian Thomas
-* Inês Cachola
 * Jody Klymak
-* Jouni K. Seppänen
-* Khushi_29
 * Kyle Sunden
-* Lumberbot (aka Jack)
-* N R Navaneet
-* Nathan G. Wiseman
-* Oscar Gustafsson
-* Praful Gulani
-* Qian Zhang
-* Raphael Erik Hviding
-* Roman
 * Ruth Comer
-* saikarna913
-* Scott Shambaugh
 * Thomas A Caswell
 * Tim Hoffmann
-* Trygve Magnus Ræder
 
 GitHub issues and pull requests:
 
-Pull Requests (19):
+Pull Requests (20):
 
+* :ghpull:`30488`: Backport PR #30486 on branch v3.10.x (doc: Update warnings about python-build-standalone)
 * :ghpull:`30487`: Backport PR #30484 on branch v3.10.x (FIX: be more cautious about checking widget size)
 * :ghpull:`30484`: FIX: be more cautious about checking widget size
 * :ghpull:`30481`: Backport PR #30394 on branch v3.10.x (ENH: Gracefully handle python-build-standalone ImportError with Tk)
@@ -68,8 +50,9 @@ Pull Requests (19):
 * :ghpull:`30415`: Backport PR #30414 on branch v3.10.x (DOC: update Cartopy url)
 * :ghpull:`30414`: DOC: update Cartopy url
 
-Issues (4):
+Issues (5):
 
+* :ghissue:`30409`: [Doc]: Update note on uv/python-build-standalone incompatibility
 * :ghissue:`29618`: [Bug]: FigureCanvasQT is seemingly prematurely freed under certain conditions
 * :ghissue:`30390`: [ENH]: Gracefully handle python-build-standalone ImportError
 * :ghissue:`30420`: [ENH]: Support parallel plotting

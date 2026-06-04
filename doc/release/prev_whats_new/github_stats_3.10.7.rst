@@ -3,47 +3,23 @@
 GitHub statistics for 3.10.7 (Oct 08, 2025)
 ===========================================
 
-GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2025/10/08
+GitHub statistics for 2025/08/29 (tag: v3.10.6) - 2025/10/08
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 4 issues and merged 16 pull requests.
+We closed 5 issues and merged 16 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/105?closed=1>`__
 
-The following 32 authors contributed 422 commits.
+The following 8 authors contributed 25 commits.
 
 * Aasma Gupta
-* AASMA GUPTA
-* Antony Lee
-* Christine P. Chai
 * David Stansby
-* dependabot[bot]
 * Elliott Sales de Andrade
-* G.D. McBain
-* Greg Lucas
-* hannah
-* hu-xiaonan
-* Ian Thomas
-* Inês Cachola
-* Jody Klymak
-* Jouni K. Seppänen
-* Khushi_29
 * Kyle Sunden
-* Lumberbot (aka Jack)
-* N R Navaneet
-* Nathan G. Wiseman
-* Oscar Gustafsson
-* Praful Gulani
-* Qian Zhang
-* Raphael Erik Hviding
-* Roman
 * Ruth Comer
-* saikarna913
-* Scott Shambaugh
 * Thomas A Caswell
 * Tim Heap
 * Tim Hoffmann
-* Trygve Magnus Ræder
 
 GitHub issues and pull requests:
 
@@ -66,8 +42,9 @@ Pull Requests (16):
 * :ghpull:`30490`: Fix SVG rendering error in def update_background
 * :ghpull:`30494`: Backport PR #30492 on branch v3.10.x (DOC: pytz link should be from PyPI)
 
-Issues (4):
+Issues (5):
 
+* :ghissue:`30617`: [ENH]: pyparsing 3.3.0a1 deprecation warnings
 * :ghissue:`30611`: [MNT]: black version
 * :ghissue:`30551`: [Bug]: Mypy stubtest failure on disjoint_base
 * :ghissue:`30493`: [Bug]: test_save_figure_return seems flaky
