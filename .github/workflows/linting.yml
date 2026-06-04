@@ -36,7 +36,7 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install ruff
         run: pip3 install ruff
@@ -66,7 +66,7 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install mypy
         run: pip3 install --group build --group typing
@@ -83,6 +83,37 @@ jobs:
             reviewdog -f=mypy -name=mypy \
               -tee -reporter=github-check -filter-mode nofilter
 
+
+  clang-tidy:
+    name: clang-tidy (macOS / Objective-C)
+    runs-on: macos-latest   # run on macOS so we can lint the objectiveC file
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: '3.14'
+
+      - name: Install OS dependencies
+        run: brew install llvm
+
+      - name: Install build dependencies
+        run: pip3 install meson ninja pybind11 setuptools-scm
+
+      - name: Run clang-tidy
+        run: |
+          set -o pipefail
+          LLVM_PREFIX=$(brew --prefix llvm)
+          export CC=$LLVM_PREFIX/bin/clang
+          export CXX=$LLVM_PREFIX/bin/clang++
+          export OBJC=$LLVM_PREFIX/bin/clang
+          export PATH=$LLVM_PREFIX/bin:$PATH
+          python tools/run_clang_tidy.py
 
   eslint:
     name: eslint

@@ -1609,9 +1609,6 @@ def test_pcolor_log_scale(fig_test, fig_ref):
     when using pcolor.
     """
     x = np.linspace(0, 1, 11)
-    # Ensuring second x value always falls slightly above 0.1 prevents flakiness with
-    # numpy v1 #30882. This can be removed once we require numpy >= 2.
-    x[1] += 0.00001
     y = np.linspace(1, 2, 5)
     X, Y = np.meshgrid(x, y)
     C = X[:-1, :-1] + Y[:-1, :-1]
@@ -7035,6 +7032,8 @@ def test_xticks_bad_args():
     ax = plt.figure().add_subplot()
     with pytest.raises(TypeError, match='must be a sequence'):
         ax.set_xticks([2, 9], 3.1)
+    with pytest.raises(TypeError, match='must be a sequence'):
+        ax.set_xticks([2, 9], ax)
     with pytest.raises(ValueError, match='must be 1D'):
         plt.xticks(np.arange(4).reshape((-1, 1)))
     with pytest.raises(ValueError, match='must be 1D'):
@@ -10405,3 +10404,10 @@ def test_errorbar_uses_rcparams():
     assert_allclose([cap.get_markeredgewidth() for cap in caplines], 2.5)
     for barcol in barlinecols:
         assert_allclose(barcol.get_linewidths(), 1.75)
+
+
+def test_violinplot_empty_dataset():
+    fig, ax = plt.subplots()
+    # This should not raise an exception
+    parts = ax.violinplot([np.random.randn(100), [], [np.nan, np.nan]])
+    assert len(parts["bodies"]) == 3

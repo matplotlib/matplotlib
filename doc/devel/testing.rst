@@ -331,7 +331,7 @@ You can also run tox on a subset of environments:
 
 .. code-block:: bash
 
-    $ tox -e py310,py311
+    $ tox -e py312,py314
 
 Tox processes environments sequentially by default,
 which can be slow when testing multiple environments.

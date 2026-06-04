@@ -640,6 +640,8 @@ class Axes3D(Axes):
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
         # This updates the bounding boxes as to keep a record as to what the
         # minimum sized rectangular volume holds the data.
+        X = self.xaxis._nan_out_of_scale_range(X)
+        Y = self.yaxis._nan_out_of_scale_range(Y)
         if np.shape(X) == np.shape(Y):
             self.xy_dataLim.update_from_data_xy(
                 np.column_stack([np.ravel(X), np.ravel(Y)]), not had_data)
@@ -647,6 +649,7 @@ class Axes3D(Axes):
             self.xy_dataLim.update_from_data_x(X, not had_data)
             self.xy_dataLim.update_from_data_y(Y, not had_data)
         if Z is not None:
+            Z = self.zaxis._nan_out_of_scale_range(Z)
             self.zz_dataLim.update_from_data_x(Z, not had_data)
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()

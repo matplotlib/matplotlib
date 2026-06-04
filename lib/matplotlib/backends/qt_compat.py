@@ -2,7 +2,7 @@
 Qt binding and backend selector.
 
 The selection logic is as follows:
-- if any of PyQt6, PySide6, PyQt5, or PySide2 have already been
+- if any of PyQt6, PySide6, or PyQt5 have already been
   imported (checked in that order), use it;
 - otherwise, if the QT_API environment variable (used by Enthought) is set, use
   it to determine which binding to use;
@@ -23,13 +23,12 @@ from . import _QT_FORCE_QT5_BINDING
 QT_API_PYQT6 = "PyQt6"
 QT_API_PYSIDE6 = "PySide6"
 QT_API_PYQT5 = "PyQt5"
-QT_API_PYSIDE2 = "PySide2"
 QT_API_ENV = os.environ.get("QT_API")
 if QT_API_ENV is not None:
     QT_API_ENV = QT_API_ENV.lower()
 _ETS = {  # Mapping of QT_API_ENV to requested binding.
     "pyqt6": QT_API_PYQT6, "pyside6": QT_API_PYSIDE6,
-    "pyqt5": QT_API_PYQT5, "pyside2": QT_API_PYSIDE2,
+    "pyqt5": QT_API_PYQT5,
 }
 # First, check if anything is already imported.
 if sys.modules.get("PyQt6.QtCore"):
@@ -38,15 +37,13 @@ elif sys.modules.get("PySide6.QtCore"):
     QT_API = QT_API_PYSIDE6
 elif sys.modules.get("PyQt5.QtCore"):
     QT_API = QT_API_PYQT5
-elif sys.modules.get("PySide2.QtCore"):
-    QT_API = QT_API_PYSIDE2
 # Otherwise, check the QT_API environment variable (from Enthought).  This can
 # only override the binding, not the backend (in other words, we check that the
 # requested backend actually matches).  Use _get_backend_or_none to avoid
 # triggering backend resolution (which can result in a partially but
 # incompletely imported backend_qt5).
 elif (mpl.rcParams._get_backend_or_none() or "").lower().startswith("qt5"):
-    if QT_API_ENV in ["pyqt5", "pyside2"]:
+    if QT_API_ENV == "pyqt5":
         QT_API = _ETS[QT_API_ENV]
     else:
         _QT_FORCE_QT5_BINDING = True  # noqa: F811
@@ -92,33 +89,22 @@ def _setup_pyqt5plus():
         QtCore.Property = QtCore.pyqtProperty
         _isdeleted = sip.isdeleted
         _to_int = int
-    elif QT_API == QT_API_PYSIDE2:
-        from PySide2 import QtCore, QtGui, QtWidgets, QtSvg, __version__
-        try:
-            from PySide2 import shiboken2
-        except ImportError:
-            import shiboken2
-        def _isdeleted(obj):
-            return not shiboken2.isValid(obj)
-        _to_int = int
     else:
         raise AssertionError(f"Unexpected QT_API: {QT_API}")
 
 
-if QT_API in [QT_API_PYQT6, QT_API_PYQT5, QT_API_PYSIDE6, QT_API_PYSIDE2]:
+if QT_API in [QT_API_PYQT6, QT_API_PYQT5, QT_API_PYSIDE6]:
     _setup_pyqt5plus()
 elif QT_API is None:  # See above re: dict.__getitem__.
     if _QT_FORCE_QT5_BINDING:
         _candidates = [
             (_setup_pyqt5plus, QT_API_PYQT5),
-            (_setup_pyqt5plus, QT_API_PYSIDE2),
         ]
     else:
         _candidates = [
             (_setup_pyqt5plus, QT_API_PYQT6),
             (_setup_pyqt5plus, QT_API_PYSIDE6),
             (_setup_pyqt5plus, QT_API_PYQT5),
-            (_setup_pyqt5plus, QT_API_PYSIDE2),
         ]
     for _setup, QT_API in _candidates:
         try:

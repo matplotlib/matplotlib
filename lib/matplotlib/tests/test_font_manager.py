@@ -286,6 +286,9 @@ def _model_handler(_):
                     reason='emscripten does not support subprocesses')
 @pytest.mark.skipif(not hasattr(os, "register_at_fork"),
                     reason="Cannot register at_fork handlers")
+# Python 3.15+ raises DeprecationWarning for fork in multi-threaded process
+@pytest.mark.filterwarnings("ignore:.*multi-threaded.*fork.*:DeprecationWarning")
+@pytest.mark.filterwarnings("ignore:.*multi-threaded.*fork.*:RuntimeWarning")
 def test_fork():
     _model_handler(0)  # Make sure the font cache is filled.
     ctx = multiprocessing.get_context("fork")

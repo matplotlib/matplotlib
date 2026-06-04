@@ -20,6 +20,8 @@ used in the second ``Axes`` below (see
 rotate the tick labels. The last ``Axes`` formats the dates manually, using
 `~.dates.DateFormatter` to format the dates using the format strings documented
 at `datetime.date.strftime`.
+
+.. redirect-from:: /gallery/text_labels_and_annotations/date
 """
 
 import matplotlib.pyplot as plt

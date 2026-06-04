@@ -186,10 +186,6 @@ jobs:
              python -c 'import PyQt5.QtCore' &&
              echo 'PyQt5 is available' ||
              echo 'PyQt5 is not available'
-          python -mpip install --upgrade pyside2 &&
-              python -c 'import PySide2.QtCore' &&
-              echo 'PySide2 is available' ||
-              echo 'PySide2 is not available'
           python -m pip uninstall --yes wxpython || echo 'wxPython already uninstalled'
 
       - name: Install Matplotlib

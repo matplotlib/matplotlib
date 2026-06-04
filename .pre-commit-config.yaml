@@ -29,7 +29,7 @@ repos:
       - id: trailing-whitespace
         exclude_types: [diff, svg]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: fc0f09a29bb495f4a91f00266155d6282d52485d  # frozen: v1.20.2
+    rev: d2823d321df3af8f878f7ee3414dc94d037145b9  # frozen: v2.1.0
     hooks:
       - id: mypy
         additional_dependencies:
@@ -44,7 +44,7 @@ repos:
         pass_filenames: false
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: 6fec9b7edb08fd9989088709d864a7826dc74e80  # frozen: v0.15.12
+    rev: 0671d8ab202c4ac093b78433ae5baf74f3fc7246  # frozen: v0.15.15
     hooks:
       # Run the linter.
       - id: ruff-check
@@ -77,8 +77,24 @@ repos:
     hooks:
       - id: yamllint
         args: ["--strict", "--config-file=.yamllint.yml"]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: 745eface02aef23e168a8afb6b5737818efbea95  # frozen: v0.11.0.1
+    hooks:
+      - id: shellcheck
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: a4727cbbcd26d7098e96b9cb738169b59711ae51  # frozen: v1.24.1
+    hooks:
+      - id: zizmor
+  - repo: https://github.com/simple-icons/svglint
+    rev: 8402586b94f073686e46707a163082e270ee5768  # frozen: v4.2.1
+    hooks:
+      - id: svglint
+        # Override the top-level exclude so that mpl-data/images/ toolbar
+        # icons are also linted.  Exemptions for the intentional interactive
+        # SVG examples are handled in .svglintrc.mjs.
+        exclude: '^$'
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 13614ab716a3113145f1294ed259d9fbe5678ff3  # frozen: 0.37.1
+    rev: f805888065fdb6162e1f800e50bb9460cbd223d6  # frozen: 0.37.2
     hooks:
       # TODO: Re-enable this when https://github.com/microsoft/azure-pipelines-vscode/issues/567 is fixed.
       # - id: check-azure-pipelines

@@ -20,7 +20,7 @@ A basic example using `numpy.datetime64` is::
 
 .. seealso::
 
-    - :doc:`/gallery/text_labels_and_annotations/date`
+    - :doc:`/gallery/ticks/date`
     - :doc:`/gallery/ticks/date_concise_formatter`
     - :doc:`/gallery/ticks/date_demo_convert`
 
@@ -826,7 +826,7 @@ class AutoDateFormatter(ticker.Formatter):
     A `.Formatter` which attempts to figure out the best format to use.  This
     is most useful when used with the `AutoDateLocator`.
 
-    `.AutoDateFormatter` has a ``.scale`` dictionary that maps tick scales (the
+    `.AutoDateFormatter` has a ``.scaled`` dictionary that maps tick scales (the
     interval in days between one major tick) to format strings; this dictionary
     defaults to ::
 

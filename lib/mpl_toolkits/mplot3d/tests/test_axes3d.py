@@ -3,7 +3,6 @@ import itertools
 import platform
 import sys
 
-from packaging.version import parse as parse_version
 import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
@@ -182,8 +181,7 @@ def test_bar3d_shaded():
     fig.canvas.draw()
 
 
-@mpl3d_image_comparison(['bar3d_notshaded.png'], style='mpl20',
-                        tol=0.01 if parse_version(np.version.version).major < 2 else 0)
+@mpl3d_image_comparison(['bar3d_notshaded.png'], style='mpl20')
 def test_bar3d_notshaded():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -854,6 +852,7 @@ def test_wireframe3dasymmetric():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
+    X, Y, Z = X[:-1], Y[:-1], Z[:-1]  # Drop a row so the grid is non-square
     ax.plot_wireframe(X, Y, Z, rcount=3, ccount=13)
 
 
@@ -3189,3 +3188,17 @@ def test_scale3d_calc_coord():
     # Pane coordinate should match axis limit (y-pane at max)
     assert pane_idx == 1
     assert point[pane_idx] == pytest.approx(ax.get_ylim()[1])
+
+
+def test_plot_surface_log_scale_invalid_values():
+    """Ensure non-positive Z values on a log z-axis does not corrupt zlim."""
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_zscale('log')
+    X, Y = np.meshgrid(np.linspace(1, 3, 4), np.linspace(1, 3, 4))
+    Z = X * Y - 4  # half the entries are <= 0, invalid for a log scale
+    ax.plot_surface(X, Y, Z)
+    fig.canvas.draw()
+
+    zmin, zmax = ax.get_zlim()
+    assert 1e-3 < zmin < zmax < 1e3, f"zlim corrupted: {(zmin, zmax)}"

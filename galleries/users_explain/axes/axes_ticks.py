@@ -227,6 +227,8 @@ axs2[6].xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
 
 # %%
 #
+# .. _axes-ticks-styling:
+#
 # Styling ticks (tick parameters)
 # ===============================
 #
@@ -273,3 +275,53 @@ for nn, ax in enumerate(axs):
                        grid_color='none')
         ax.tick_params(axis='x', color='m', length=4, direction='in', width=4,
                        labelcolor='g', grid_color='b')
+
+# %%
+#
+# .. _axes-tick-objects:
+#
+# Tick objects
+# ============
+#
+# .. warning::
+#
+#     Ticks are managed through the autoscaling / view limit mechanism, which may
+#     create, move and delete ticks as necessary.
+#
+#     Working with tick instances should only be an option of last resort and requires
+#     careful handling to not accidentally overwrite any manual changes through this
+#     mechanism.
+#
+#     If a tick configuration can be achieved through `.Axes.tick_params` (see
+#     :ref:`axes-ticks-styling`), that approach should be preferred.
+#
+# On the technical level, ticks are realized through `.Tick` objects. They consist of
+#
+# - ``tick1line`` / ``tick2line`` for the tick lines on either side of the axis.
+# - ``label1`` / ``label2`` for the tick labels on either side of the axis.
+# - ``gridline`` for the grid line.
+#
+# These objects are publicly accessible through :ref:`Axes methods <axes-api-ticks>`
+# and :ref:`Axis methods <axis-api-ticks>` and allow extreme customization such as
+# coloring a specific tick line or tick label separately.
+
+x = 1.1 * np.exp(-3 * np.random.random(500))
+y = np.random.random(500)
+
+fig, ax = plt.subplots()
+
+ax.plot(x, y, 'o')
+ax.grid()
+ticks = ax.set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1, 1.2])
+ticks[5].label1.set_color("red")
+ticks[5].tick1line.set_markeredgecolor("red")
+ticks[5].gridline.set(visible=True, linestyle=':', linewidth=1.5, color='red')
+
+# %%
+# Because of the managed nature of ticks, such operations only make sense for static
+# output (e.g., when using the jupyter inline backend or saving the figure to a file)
+# or when you are sure that the view limits of the axis will not change (e.g., when
+# using a fixed locator).
+#
+# In contrast, `.Axes.tick_params` configures the default properties so that they are
+# applied to all current and future ticks.

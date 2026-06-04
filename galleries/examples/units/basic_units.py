@@ -18,8 +18,6 @@ documentation.
 import itertools
 import math
 
-from packaging.version import parse as parse_version
-
 import numpy as np
 
 import matplotlib.ticker as ticker
@@ -170,9 +168,8 @@ class TaggedValue(metaclass=TaggedValueMeta):
     def __len__(self):
         return len(self.value)
 
-    if parse_version(np.__version__) >= parse_version('1.20'):
-        def __getitem__(self, key):
-            return TaggedValue(self.value[key], self.unit)
+    def __getitem__(self, key):
+        return TaggedValue(self.value[key], self.unit)
 
     def __iter__(self):
         # Return a generator expression rather than use `yield`, so that

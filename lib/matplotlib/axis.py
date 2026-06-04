@@ -57,6 +57,15 @@ class Tick(martist.Artist):
     label2 : `~matplotlib.text.Text`
         The right/top tick label.
 
+    Notes
+    -----
+    Ticks are managed though the autoscaling / view limit mechanism and therefore
+    need very careful handling when explicitly accessed, see :ref:`axes-tick-objects`.
+
+    The tick lines are implemented as `~matplotlib.lines.Line2D` instances using the
+    `~.matplotlib.markers` TICKLEFT, TICKRIGHT, TICKDOWN, TICKUP. Therefore,
+    properties are controlled via the marker, e.g. for the color
+    `.Line2D.set_markeredgecolor` and not `.Line2D.set_color`.
     """
     def __init__(
         self, axes, loc, *,
@@ -84,9 +93,12 @@ class Tick(martist.Artist):
         **kwargs,  # Other Line2D kwargs applied to gridlines.
     ):
         """
-        bbox is the Bound2D bounding box in display coords of the Axes
-        loc is the tick location in data coords
-        size is the tick size in points
+        Parameters
+        ----------
+        loc
+            The tick location in data coords.
+        size
+            The tick size in points.
         """
         super().__init__()
 
@@ -870,6 +882,15 @@ class Axis(martist.Artist):
         current scale.
         """
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
+
+    def _nan_out_of_scale_range(self, data):
+        """
+        Return *data* with values that are out of range for this axis's scale
+        replaced by NaN. E.g. ``<=0`` on a log axis.
+        """
+        data = np.asanyarray(data, dtype=float)
+        valid = self._scale.val_in_range(data)
+        return data if np.all(valid) else np.where(valid, data, np.nan)
 
     def _get_autoscale_on(self):
         """Return whether this Axis is autoscaled."""
@@ -2227,11 +2248,10 @@ class Axis(martist.Artist):
             labels = [t.get_text() if hasattr(t, 'get_text') else t
                       for t in labels]
         except TypeError:
-            raise TypeError(f"{labels:=} must be a sequence") from None
+            raise TypeError(f"{labels=!r} must be a sequence") from None
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if not labels:
-            # eg labels=[]:
             formatter = mticker.NullFormatter()
         elif (isinstance(locator, mticker.FixedLocator) or
               (hasattr(locator, 'base') and

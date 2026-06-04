@@ -28,7 +28,7 @@ environment:
                  --cov-report= --cov=lib --log-level=DEBUG
 
   matrix:
-    - PYTHON_VERSION: "3.11"
+    - PYTHON_VERSION: "3.12"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable

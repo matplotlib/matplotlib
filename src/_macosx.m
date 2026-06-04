@@ -83,16 +83,20 @@ static void errSetException(NSException *exception) {
 static void stopWithEvent() {
     [NSApp stop: nil];
     // Post an event to trigger the actual stopping.
-    [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
-                                         location: NSZeroPoint
-                                    modifierFlags: 0
-                                        timestamp: 0
-                                     windowNumber: 0
-                                          context: nil
-                                          subtype: 0
-                                            data1: 0
-                                            data2: 0]
-             atStart: YES];
+    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
+    // nil for these constant, valid arguments; guard defensively anyway.
+    NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
+                                        location: NSZeroPoint
+                                   modifierFlags: 0
+                                       timestamp: 0
+                                    windowNumber: 0
+                                         context: nil
+                                         subtype: 0
+                                           data1: 0
+                                           data2: 0];
+    if (event) {
+        [NSApp postEvent: event atStart: YES];
+    }
 }
 
 // Signal handler for SIGINT, only argument matching for stopWithEvent
@@ -106,16 +110,16 @@ static void handleSigint(int signal) {
 static void flushEvents() {
     while (true) {
         @autoreleasepool {
-            NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                                untilDate: [NSDate distantPast]
-                                                   inMode: NSDefaultRunLoopMode
-                                                  dequeue: YES];
-            if (!event) {
-                break;
-            }
-            [NSApp sendEvent:event];
+        NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                            untilDate: [NSDate distantPast]
+                                               inMode: NSDefaultRunLoopMode
+                                              dequeue: YES];
+        if (!event) {
+            break;
         }
+        [NSApp sendEvent:event];
     }
+}
 }
 
 static int wait_for_stdin() {
@@ -436,13 +440,13 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
     self->view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     int opts = (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
                 NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect);
-    NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect: rect
-                                                                options: opts
-                                                                  owner: self->view
-                                                               userInfo: nil];
-    [self->view addTrackingArea:trackingArea];
+    NSTrackingArea* area = [[NSTrackingArea alloc] initWithRect: rect
+                                                        options: opts
+                                                          owner: self->view
+                                                       userInfo: nil];
+    [self->view addTrackingArea: area];
+    [area release];
     [self->view setCanvas: (PyObject*)self];
-    [trackingArea release];
 
 exit:
     Py_XDECREF(super_obj);
@@ -577,12 +581,12 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
     while (true) {
         @autoreleasepool {
             NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                                untilDate: date
-                                                   inMode: NSDefaultRunLoopMode
-                                                  dequeue: YES];
-           if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
-           [NSApp sendEvent: event];
-        }
+                                            untilDate: date
+                                               inMode: NSDefaultRunLoopMode
+                                              dequeue: YES];
+       if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
+       [NSApp sendEvent: event];
+    }
     }
 
     Py_END_ALLOW_THREADS
@@ -594,7 +598,8 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
 static PyObject*
 FigureCanvas_stop_event_loop(FigureCanvas* self)
 {
-    BEGIN_OBJC_ENTRY
+    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
+    // nil for these constant, valid arguments; guard defensively anyway.
     NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                         location: NSZeroPoint
                                    modifierFlags: 0
@@ -604,9 +609,10 @@ FigureCanvas_stop_event_loop(FigureCanvas* self)
                                          subtype: STOP_EVENT_LOOP
                                            data1: 0
                                            data2: 0];
-    [NSApp postEvent: event atStart: true];
-    END_OBJC_ENTRY
-    RETURN_NULL_OR_NONE
+    if (event) {
+        [NSApp postEvent: event atStart: true];
+    }
+    Py_RETURN_NONE;
 }
 
 static PyTypeObject FigureCanvasType = {
@@ -835,24 +841,24 @@ FigureManager_set_icon(PyObject* null, PyObject* args) {
         return NULL;
     }
 
-    NSString* ns_icon_path = [NSString stringWithUTF8String: icon_path_ptr];
-    Py_DECREF(icon_path);
-    if (!ns_icon_path) {
-        PyErr_SetString(PyExc_RuntimeError, "Could not convert to NSString*");
-        return NULL;
-    }
-    NSImage* image = [[[NSImage alloc] initByReferencingFile: ns_icon_path] autorelease];
-    if (!image) {
-        PyErr_SetString(PyExc_RuntimeError, "Could not create NSImage*");
-        return NULL;
-    }
-    if (!image.valid) {
-        PyErr_SetString(PyExc_RuntimeError, "Image is not valid");
-        return NULL;
-    }
+        NSString* ns_icon_path = [NSString stringWithUTF8String: icon_path_ptr];
+        Py_DECREF(icon_path);
+        if (!ns_icon_path) {
+            PyErr_SetString(PyExc_RuntimeError, "Could not convert to NSString*");
+            return NULL;
+        }
+        NSImage* image = [[[NSImage alloc] initByReferencingFile: ns_icon_path] autorelease];
+        if (!image) {
+            PyErr_SetString(PyExc_RuntimeError, "Could not create NSImage*");
+            return NULL;
+        }
+        if (!image.valid) {
+            PyErr_SetString(PyExc_RuntimeError, "Image is not valid");
+            return NULL;
+        }
 
-    NSApplication* app = [NSApplication sharedApplication];
-    app.applicationIconImage = image;
+          NSApplication* app = [NSApplication sharedApplication];
+          app.applicationIconImage = image;
 
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
@@ -867,6 +873,9 @@ FigureManager_set_window_title(FigureManager* self,
     if (!PyArg_ParseTuple(args, "s", &title)) {
         return NULL;
     }
+    // PyArg_ParseTuple "s" guarantees valid UTF-8, so stringWithUTF8String: will
+    // not return nil here; the nullable annotation is a false positive.
+    // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
     [self->window setTitle: [NSString stringWithUTF8String: title]];
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
@@ -991,7 +1000,8 @@ typedef struct {
 @implementation NavigationToolbar2Handler
 - (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)theToolbar
 {
-    [self init];
+    self = [self init];
+    if (!self) { return nil; }
     toolbar = theToolbar;
     return self;
 }
@@ -1115,8 +1125,10 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.origin.y = 0.5*(height - rect.size.height);
 
     for (int i = 0; i < 7; i++) {
+        // PyArg_ParseTuple "s" guarantees valid UTF-8; stringWithUTF8String: will not return nil.
         NSString* filename = [NSString stringWithUTF8String: images[i]];
         NSString* tooltip = [NSString stringWithUTF8String: tooltips[i]];
+        // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
         [image setSize: size];
@@ -1188,7 +1200,9 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
     NSTextView* messagebox = self->messagebox;
 
     if (messagebox) {
+        // PyArg_ParseTuple "s" guarantees valid UTF-8; stringWithUTF8String: will not return nil.
         NSString* text = [NSString stringWithUTF8String: message];
+        // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
         [messagebox setString: text];
 
         // Adjust width and height with the window size and content
@@ -1248,6 +1262,8 @@ choose_save_file(PyObject* unused, PyObject* args)
     }
     NSSavePanel* panel = [NSSavePanel savePanel];
     [panel setTitle: [NSString stringWithUTF8String: title]];
+    // PyArg_ParseTuple "s" guarantees valid UTF-8; stringWithUTF8String: will not return nil.
+    // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
     [panel setDirectoryURL: [NSURL fileURLWithPath: [NSString stringWithUTF8String: directory]
                                        isDirectory: YES]];
     [panel setNameFieldStringValue: [NSString stringWithUTF8String: default_filename]];
@@ -1505,6 +1521,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 - (BOOL)windowShouldClose:(NSNotification*)notification
 {
     NSWindow* window = [self window];
+    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
+    // nil for these constant, valid arguments; guard defensively anyway.
     NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                         location: NSZeroPoint
                                    modifierFlags: 0
@@ -1514,7 +1532,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
                                          subtype: WINDOW_CLOSING
                                            data1: 0
                                            data2: 0];
-    [NSApp postEvent: event atStart: true];
+    if (event) {
+        [NSApp postEvent: event atStart: true];
+    }
     if ([window respondsToSelector: @selector(closeButtonPressed)]) {
         BOOL closed = [((Window*) window) closeButtonPressed];
         /* If closed, the window has already been closed via the manager. */
@@ -1735,7 +1755,12 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
             }
             [returnkey appendString:specialchar];
         } else {
-            [returnkey appendString:[event charactersIgnoringModifiers]];
+            // charactersIgnoringModifiers is nullable; guard defensively in case
+            // an unexpected event type reaches this path.
+            NSString* chars = [event charactersIgnoringModifiers];
+            if (chars) {
+                [returnkey appendString:chars];
+            }
         }
     } else {
         if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {
@@ -1871,13 +1896,13 @@ show(PyObject* self)
     // Iterating over -[NSApp windows] will add the windows to the topmost
     // autorelease pool, wrap in @autoreleasepool as -[NSApp run] is long-running.
     @autoreleasepool {
-        [NSApp activateIgnoringOtherApps: YES];
-        NSArray *windowsArray = [NSApp windows];
-        NSEnumerator *enumerator = [windowsArray objectEnumerator];
-        NSWindow *window;
-        while ((window = [enumerator nextObject])) {
-            [window orderFront:nil];
-        }
+    [NSApp activateIgnoringOtherApps: YES];
+    NSArray *windowsArray = [NSApp windows];
+    NSEnumerator *enumerator = [windowsArray objectEnumerator];
+    NSWindow *window;
+    while ((window = [enumerator nextObject])) {
+        [window orderFront:nil];
+    }
     }
 
     Py_BEGIN_ALLOW_THREADS

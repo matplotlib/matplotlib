@@ -104,9 +104,9 @@ def _create_qApp():
         # Check to make sure a QApplication from a different major version
         # of Qt is not instantiated in the process
         if QT_API in {'PyQt6', 'PySide6'}:
-            other_bindings = ('PyQt5', 'PySide2')
+            other_bindings = ('PyQt5',)
             qt_version = 6
-        elif QT_API in {'PyQt5', 'PySide2'}:
+        elif QT_API == 'PyQt5':
             other_bindings = ('PyQt6', 'PySide6')
             qt_version = 5
         else:
@@ -195,10 +195,13 @@ class TimerQT(TimerBase):
         super().__init__(*args, **kwargs)
 
     def __del__(self):
-        # The check for deletedness is needed to avoid an error at animation
-        # shutdown with PySide2.
-        if not _isdeleted(self._timer):
+        try:
             self._timer_stop()
+        except RuntimeError as e:
+            # Silence warning on shutdown.
+            ignore_msg = "wrapped C/C++ object of type QTimer has been deleted"
+            if str(e) != ignore_msg:
+                raise
 
     def _timer_set_single_shot(self):
         self._timer.setSingleShot(self._single)

@@ -76,7 +76,6 @@ def _get_running_interactive_framework():
         sys.modules.get("PyQt6.QtWidgets")
         or sys.modules.get("PySide6.QtWidgets")
         or sys.modules.get("PyQt5.QtWidgets")
-        or sys.modules.get("PySide2.QtWidgets")
     )
     if QtWidgets and QtWidgets.QApplication.instance():
         return "qt"
@@ -1499,7 +1498,8 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
     ----------
     X : 1D array or sequence of 1D arrays or 2D array
         Sample data that will be used to produce the gaussian kernel density
-        estimates. Possible values:
+        estimates. Non-finite and masked values are ignored.
+        Possible values:
 
         - 1D array: Statistics are computed for that array.
         - sequence of 1D arrays: Statistics are computed for each array in the sequence.
@@ -1586,29 +1586,34 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
                          " must have the same length")
 
     # Zip x and quantiles
-    for (x, q) in zip(X, quantiles):
-        # Dictionary of results for this distribution
-        stats = {}
+    for (x, quantile) in zip(X, quantiles):
+        x = np.asarray(x)
+        x, = delete_masked_points(x)
 
-        # Calculate basic stats for the distribution
-        min_val = np.min(x)
-        max_val = np.max(x)
-        quantile_val = np.percentile(x, 100 * q)
+        if len(x) == 0:
+            vpstats.append({
+                'vals': np.array([]),
+                'coords': np.array([]),
+                'mean': np.nan,
+                'median': np.nan,
+                'min': np.nan,
+                'max': np.nan,
+                'quantiles': np.array([]),
+            })
+        else:
+            min_val = np.min(x)
+            max_val = np.max(x)
+            coords = np.linspace(min_val, max_val, points)
 
-        # Evaluate the kernel density estimate
-        coords = np.linspace(min_val, max_val, points)
-        stats['vals'] = method(x, coords)
-        stats['coords'] = coords
-
-        # Store additional statistics for this distribution
-        stats['mean'] = np.mean(x)
-        stats['median'] = np.median(x)
-        stats['min'] = min_val
-        stats['max'] = max_val
-        stats['quantiles'] = np.atleast_1d(quantile_val)
-
-        # Append to output
-        vpstats.append(stats)
+            vpstats.append({
+                'vals': method(x, coords),
+                'coords': coords,
+                'mean': np.mean(x),
+                'median': np.median(x),
+                'min': min_val,
+                'max': max_val,
+                'quantiles': np.atleast_1d(np.percentile(x, 100 * quantile))
+            })
 
     return vpstats
 

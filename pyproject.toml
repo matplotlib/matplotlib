@@ -16,7 +16,6 @@ classifiers=[
     "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -31,18 +30,18 @@ classifiers=[
 # - doc/devel/dependencies.rst
 # - environment.yml
 dependencies = [
-    "contourpy >= 1.0.1",
+    "contourpy >= 1.2.1",
     "cycler >= 0.10",
     "fonttools >= 4.22.0",
     "kiwisolver >= 1.3.1",
-    "numpy >= 1.25",
+    "numpy >= 2.0",
     "packaging >= 20.0",
     "pillow >= 9",
     "pyparsing >= 3",
     "python-dateutil >= 2.7",
 ]
 # Also keep in sync with find_program of meson.build.
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 
 [project.urls]
 "Homepage" = "https://matplotlib.org"
@@ -69,11 +68,11 @@ requires = [
 [dependency-groups]
 build = [
     # Should be the same as `[project] dependencies` above.
-    "contourpy >= 1.0.1",
+    "contourpy >= 1.2.1",
     "cycler >= 0.10",
     "fonttools >= 4.22.0",
     "kiwisolver >= 1.3.1",
-    "numpy >= 1.25",
+    "numpy >= 2.0",
     "packaging >= 20.0",
     "pillow >= 9",
     "pyparsing >= 3",
