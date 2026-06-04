@@ -9,10 +9,10 @@ GitHub statistics for 2022/10/08 (tag: v3.6.1) - 2022/11/02
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 21 issues and merged 86 pull requests.
+We closed 25 issues and merged 86 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/75?closed=1>`__
 
-The following 22 authors contributed 27 commits.
+The following 23 authors contributed 89 commits.
 
 * Antony Lee
 * Carsten Schnober
@@ -28,6 +28,7 @@ The following 22 authors contributed 27 commits.
 * Jody Klymak
 * Kostya Farber
 * Kyle Sunden
+* Lumberbot (aka Jack)
 * Martok
 * Muhammad Abdur Rakib
 * Oscar Gustafsson
@@ -128,8 +129,12 @@ Pull Requests (86):
 * :ghpull:`24130`: DOC: align contour parameter doc with implementation
 * :ghpull:`24081`: TST: force test with shared test image to run in serial
 
-Issues (21):
+Issues (25):
 
+* :ghissue:`28161`: [Bug]: Pyplot internal bug
+* :ghissue:`24150`: [Doc]: Improve animation.FuncAnimation.save - link parent methods in child's method documentation
+* :ghissue:`24389`: [Bug]: LayoutEngine rect not respected when saving figure with ``rcParams['figure.constrained_layout.use'] = True``
+* :ghissue:`24374`: TypeError: int() argument must be a string, a bytes-like object or a number, not 'KeyboardModifier'[Bug]:
 * :ghissue:`20326`: FuncAnimation Named Arguments
 * :ghissue:`24332`: [Bug]: backend bug in matplotlib==3.6.1 with python3.11 and PySide6==6.4.0.1
 * :ghissue:`24296`: [Doc]:  Axes limits not updated in animate decay

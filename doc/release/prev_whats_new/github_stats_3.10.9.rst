@@ -3,57 +3,35 @@
 GitHub statistics for 3.10.9 (Apr 23, 2026)
 ===========================================
 
-GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2026/04/23
+GitHub statistics for 2025/11/13 (tag: v3.10.8) - 2026/04/23
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 10 issues and merged 34 pull requests.
+We closed 10 issues and merged 35 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/107?closed=1>`__
 
-The following 37 authors contributed 519 commits.
+The following 14 authors contributed 65 commits.
 
-* Aasma Gupta
 * Aman Srivastava
-* Antony Lee
-* beelauuu
 * Ben Root
-* Christine P. Chai
-* David Stansby
-* dependabot[bot]
+* Brian Lau
 * Elliott Sales de Andrade
-* G.D. McBain
-* Greg Lucas
-* hannah
-* hu-xiaonan
-* Ian Thomas
-* Inês Cachola
-* Jody Klymak
-* Jouni K. Seppänen
-* Khushi_29
 * Kyle Sunden
 * Lumberbot (aka Jack)
 * m-sahare
-* N R Navaneet
-* Nathan G. Wiseman
-* Oscar Gustafsson
-* Praful Gulani
-* Qian Zhang
-* Raphael Erik Hviding
 * Raphael Quast
-* Roman
 * Ruth Comer
-* saikarna913
 * Scott Shambaugh
 * Steve Berardi
 * Thomas A Caswell
 * Tim Hoffmann
-* Trygve Magnus Ræder
 * Vikash Kumar
 
 GitHub issues and pull requests:
 
-Pull Requests (34):
+Pull Requests (35):
 
+* :ghpull:`31558`: Backport PR #31556 on branch v3.10.x (FIX: Inverted PyErr_Occurred check in enum type caster (_enums.h))
 * :ghpull:`31556`: FIX: Inverted PyErr_Occurred check in enum type caster (_enums.h)
 * :ghpull:`31078`: Backport PR #31075 on branch v3.10.x (Fix remove method for figure title and xy-labels)
 * :ghpull:`31280`: Backport PR #31278 on branch v3.10.x (Fix ``clabel`` manual argument not accepting unit-typed coordinates)

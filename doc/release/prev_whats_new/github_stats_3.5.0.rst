@@ -452,7 +452,6 @@ Pull Requests (939):
 * :ghpull:`21089`: Update sticky_edges docstring to new behavior.
 * :ghpull:`21084`: Backport PR #20988 on branch v3.5.x (Add HiDPI support in GTK.)
 * :ghpull:`21085`: Backport PR #21082 on branch v3.5.x (Fix layout of sidebar entries)
-* :ghpull:`20345`: ENH: call update_ticks before we return them to the user
 * :ghpull:`21082`: Fix layout of sidebar entries
 * :ghpull:`20988`: Add HiDPI support in GTK.
 * :ghpull:`21080`: Backport PR #19619 on branch v3.5.x (Fix bug in shape assignment)

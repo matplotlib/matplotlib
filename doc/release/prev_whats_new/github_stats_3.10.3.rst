@@ -7,10 +7,10 @@ GitHub statistics for 2025/02/27 (tag: v3.10.1) - 2025/05/08
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 16 issues and merged 78 pull requests.
+We closed 17 issues and merged 78 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/101?closed=1>`__
 
-The following 28 authors contributed 128 commits.
+The following 26 authors contributed 96 commits.
 
 * Alexandra Khoo
 * Antony Lee
@@ -26,7 +26,6 @@ The following 28 authors contributed 128 commits.
 * James Addison
 * Jody Klymak
 * Kyle Sunden
-* Marten H. van Kerkwijk
 * Marten Henric van Kerkwijk
 * martincornejo
 * Mateusz Sokół
@@ -39,7 +38,6 @@ The following 28 authors contributed 128 commits.
 * Ruth Comer
 * Thomas A Caswell
 * Tim Hoffmann
-* Weh Andreas
 
 GitHub issues and pull requests:
 
@@ -124,8 +122,9 @@ Pull Requests (78):
 * :ghpull:`29584`: DOC: Recommend constrained_layout over tight_layout
 * :ghpull:`29552`: Bug Fix: Normalize kwargs for Histogram
 
-Issues (16):
+Issues (17):
 
+* :ghissue:`29959`: [MNT]: Python 3.14.0a7 test failures
 * :ghissue:`29183`: [Bug]: I give an RGB image to imsave but I don't have the right color map!
 * :ghissue:`29797`: [MNT]: Flaky Windows_py31x tests on Azure Pipelines
 * :ghissue:`26827`: [Bug]: ImportError when using Matplotlib v3.8.0 in Python package tests

@@ -9,10 +9,10 @@ GitHub statistics for 2023/02/13 (tag: v3.7.0) - 2023/09/14
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 185 issues and merged 649 pull requests.
+We closed 189 issues and merged 648 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/77?closed=1>`__
 
-The following 146 authors contributed 2914 commits.
+The following 138 authors contributed 2269 commits.
 
 * 0xedl
 * Aalok Chhetri
@@ -39,8 +39,6 @@ The following 146 authors contributed 2914 commits.
 * David Stansby
 * dependabot[bot]
 * Devilsaint
-* devRD
-* Dusch4593
 * DWesl
 * Eero Vaher
 * Elliott Sales de Andrade
@@ -58,6 +56,7 @@ The following 146 authors contributed 2914 commits.
 * Hai Zhu
 * hannah
 * Haojun Song
+* Haoying Zhang
 * Hasan Rashid
 * haval0
 * Higgs32584
@@ -74,7 +73,6 @@ The following 146 authors contributed 2914 commits.
 * Jonathan Wheeler
 * jsdodge
 * Julian Chen
-* kolibril13
 * krooijers
 * Kyle Sunden
 * Larry Bradley
@@ -82,6 +80,7 @@ The following 146 authors contributed 2914 commits.
 * lganic
 * Lukas Schrangl
 * luke
+* Lumberbot (aka Jack)
 * marbled-toast
 * mariamalykh
 * Marisa Wong
@@ -91,9 +90,7 @@ The following 146 authors contributed 2914 commits.
 * Matthew Feickert
 * Matthew Morrison
 * Matthias Bussonnier
-* MeeseeksMachine
 * Melissa Weber Mendonça
-* melissawm
 * Michael Dittrich
 * Michael Higgins
 * Mubin Manasia
@@ -106,7 +103,6 @@ The following 146 authors contributed 2914 commits.
 * Pavel Zwerschke
 * Peter Cock
 * Petros Tzathas
-* Photoniker
 * photoniker
 * Pierre Haessig
 * Pieter Eendebak
@@ -119,14 +115,13 @@ The following 146 authors contributed 2914 commits.
 * Ratnabali Dutta
 * rbt94
 * Richard Barnes
-* richardsheridan
+* Richard Sheridan
 * RishabhSpark
 * Rob Righter
 * roberto.bodo
 * root
 * Ruth Comer
 * Sam
-* saranti
 * Scott Shambaugh
 * Shreeya Ramesh
 * Sia Ghelichkhan
@@ -135,14 +130,11 @@ The following 146 authors contributed 2914 commits.
 * SnorfYang
 * Stefanie Molin
 * Steffen Rehberg
-* stevezhang
-* stevezhang1999
 * Talha Irfan
 * Thomas A Caswell
 * Thomas J. Fan
 * Tigran Khachatryan
 * Tim Hoffmann
-* Tom
 * Tom Sarantis
 * Tunç Başar Köse
 * Utkarsh Verma
@@ -163,7 +155,7 @@ The following 146 authors contributed 2914 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (649):
+Pull Requests (648):
 
 * :ghpull:`26777`: Backport PR #26702 on branch v3.8.x (converted coc to rst and put links in code_of_conduct.md)
 * :ghpull:`26775`: Backport PR #26767 on branch v3.8.x (Trim Gouraud triangles that contain NaN)
@@ -200,7 +192,6 @@ Pull Requests (649):
 * :ghpull:`26695`: Bump actions/checkout from 3 to 4
 * :ghpull:`26694`: Backport PR #26689 on branch v3.8.x (Fix error generation for missing pgf.texsystem.)
 * :ghpull:`26522`: TST: Add failing test
-* :ghpull:`26689`: Fix error generation for missing pgf.texsystem.
 * :ghpull:`26688`: Backport PR #26680 on branch v3.8.x (Fix flaky CI tests)
 * :ghpull:`26680`: Fix flaky CI tests
 * :ghpull:`26675`: Backport PR #26665 on branch v3.8.x (Clarify loading of backend FigureCanvas and show().)
@@ -815,8 +806,12 @@ Pull Requests (649):
 * :ghpull:`24913`: Deprecate Bbox.anchored() with no container.
 * :ghpull:`24905`: Remove some long-obsolete commented code in grid_helper_curvelinear.
 
-Issues (185):
+Issues (189):
 
+* :ghissue:`22389`: [MNT]: gtk4 backends are not tested on GHA
+* :ghissue:`20877`: Possible issue in hexbin using weights
+* :ghissue:`24104`: [Bug]: fig.tight_layout when quiver collection is clipped produces AttributeError
+* :ghissue:`26736`: [ENH]: matplotlib 3.12 prelease wheels
 * :ghissue:`26765`: [Bug]: Crash in Windows 10 if polar axis lim is lower than lowest data point.
 * :ghissue:`26674`: [Doc]: Line3DCollection segments
 * :ghissue:`26531`: [Bug]: ValueError thrown when ``levels`` is set to a lower value than ``vmin`` when using ``contours`` method of Axes
@@ -1002,4 +997,3 @@ Issues (185):
 * :ghissue:`17583`: Linter complains about unexpected data-type, however, docs say this is possible
 * :ghissue:`15926`: Support for Python Type Hints (PEP 484)
 * :ghissue:`13798`: Add PEP484 type hints to the code (For IDE autocompletion / hints)
-
