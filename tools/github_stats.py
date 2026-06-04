@@ -207,7 +207,7 @@ if __name__ == "__main__":
             since -= td
 
     since = round_hour(since)
-    end_date = datetime.today()
+    end_date = datetime.today()  # will be overwritten for closed milestones
 
     milestone = opts.milestone
     project = opts.project
