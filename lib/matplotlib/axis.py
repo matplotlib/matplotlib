@@ -1582,9 +1582,7 @@ class Axis(martist.Artist):
             instances; see :ref:`axes-tick-objects`.
 
             You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
-            to define and query grid styling; see :ref:`axes-ticks-styling`. Working
-            directly with the grid line objects is typically not necessary, except for
-            very special customizations.
+            to define and query grid styling; see :ref:`axes-ticks-styling`. 
         """
         ticks = self.get_major_ticks()
         return cbook.silent_list('Line2D gridline',
@@ -1626,9 +1624,7 @@ class Axis(martist.Artist):
             instances; see :ref:`axes-tick-objects`.
 
             You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
-            to define and query tick styling; see :ref:`axes-ticks-styling`. Working
-            directly with the tick text objects is typically not necessary, except for
-            very special customizations.
+            to define and query tick styling; see :ref:`axes-ticks-styling`.
         """
         self._update_ticks()
         ticks = self.get_major_ticks()
@@ -1647,9 +1643,7 @@ class Axis(martist.Artist):
             instances; see :ref:`axes-tick-objects`.
 
             You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
-            to define and query tick styling; see :ref:`axes-ticks-styling`. Working
-            directly with the tick text objects is typically not necessary, except for
-            very special customizations.
+            to define and query tick styling; see :ref:`axes-ticks-styling`. 
         """
         self._update_ticks()
         ticks = self.get_minor_ticks()
