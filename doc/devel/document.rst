@@ -1106,24 +1106,18 @@ reference should always be the second to mention; see the example above.
 Order examples
 --------------
 
-The order of the sections of the :ref:`tutorials` and the :ref:`gallery`, as
-well as the order of the examples within each section are determined in a
-two step process from within the :file:`/doc/sphinxext/gallery_order.py`:
+The order of the sections in :ref:`plot_types`, :ref:`tutorials` and :ref:`gallery`
+are determined through a custom Sphinx Gallery plugin in :file:`/doc/sphinxext/gallery_order.py`
+Configuration happens directly in that file.
 
-* *Explicit order*: This file contains a list of folders for the section order
-  and a list of examples for the subsection order. The order of the items
-  shown in the doc pages is the order those items appear in those lists.
-* *Implicit order*: If a folder or example is not in those lists, it will be
-  appended after the explicitly ordered items and all of those additional
-  items will be ordered by pathname (for the sections) or by filename
-  (for the subsections).
+The order of examples within each gallery section is determined from a file
+:file:`gallery_order.txt` in each folder. If the file is missing, the examples
+are sorted alphabetically by filename.
 
-As a consequence, if you want to let your example appear in a certain
-position in the gallery, extend those lists with your example.
-In case no explicit order is desired or necessary, still make sure
-to name your example consistently, i.e. use the main function or subject
-of the example as first word in the filename; e.g. an image example
-should ideally be named similar to :file:`imshow_mynewexample.py`.
+:file:`gallery_order.txt` contains a list of example filenames (without the .py extension)
+in the desired order, with an optional '*' to indicate where not-listed examples should be
+placed. If '*' is not present, all examples must be listed, or an error will be raised.
+Use this if you want to ensure that a full order is intentionally maintained.
 
 .. _raw_restructured_gallery:
 
