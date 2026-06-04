@@ -1202,20 +1202,24 @@ class Legend(Artist):
         if offsets:
             pts.append(np.asarray(offsets, dtype=float))
         pts = np.concatenate(pts) if pts else np.empty((0, 2))
-        xL = np.unique([c[1] for c in candidate_boxes])
-        yB = np.unique([c[2] for c in candidate_boxes])
+        x_left = np.unique([c[1] for c in candidate_boxes])
+        y_bottom = np.unique([c[2] for c in candidate_boxes])
         x, y = pts[:, 0], pts[:, 1]
         with np.errstate(invalid='ignore'):
-            in_x = (xL[:, None] < x) & (x < xL[:, None] + width)
-            in_y = (yB[:, None] < y) & (y < yB[:, None] + height)
+            # Broadcast the (n_edges, 1) edge positions against the (n_points,)
+            # coordinates to get (n_edges, n_points) interval membership arrays.
+            in_x = ((x_left[:, np.newaxis] < x)
+                    & (x < x_left[:, np.newaxis] + width))
+            in_y = ((y_bottom[:, np.newaxis] < y)
+                    & (y < y_bottom[:, np.newaxis] + height))
 
         candidates = []
         for idx, l, b, legendBox in candidate_boxes:
-            contained = np.count_nonzero(in_x[np.searchsorted(xL, l)]
-                                         & in_y[np.searchsorted(yB, b)])
+            contained_count = np.count_nonzero(in_x[np.where(x_left == l)[0][0]]
+                                               & in_y[np.where(y_bottom == b)[0][0]])
             # XXX TODO: If markers are present, it would be good to take them
             # into account when checking vertex overlaps in the next line.
-            badness = (contained
+            badness = (contained_count
                        + legendBox.count_overlaps(bboxes)
                        + sum(line.intersects_bbox(legendBox, filled=False)
                              for line in lines))
