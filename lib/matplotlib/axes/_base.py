@@ -2652,7 +2652,7 @@ class _AxesBase(martist.Artist):
                 self._unit_change_handler, axis_name, event=object())
         _api.check_in_list(self._axis_map, axis_name=axis_name)
         for line in self.lines:
-            line.recache_always()
+            line.recache(always=True)
         self.relim()
         self._request_autoscale_view(axis_name)
 
