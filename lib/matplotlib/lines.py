@@ -669,6 +669,7 @@ class Line2D(Artist):
         self.set_xdata(x)
         self.set_ydata(y)
 
+    @_api.deprecated("3.12", alternative="recache(always=True)")
     def recache_always(self):
         self.recache(always=True)
 
