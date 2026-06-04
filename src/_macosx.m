@@ -47,16 +47,20 @@ static PyOS_sighandler_t originalSigintAction = NULL;
 static void stopWithEvent() {
     [NSApp stop: nil];
     // Post an event to trigger the actual stopping.
-    [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
-                                         location: NSZeroPoint
-                                    modifierFlags: 0
-                                        timestamp: 0
-                                     windowNumber: 0
-                                          context: nil
-                                          subtype: 0
-                                            data1: 0
-                                            data2: 0]
-             atStart: YES];
+    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
+    // nil for these constant, valid arguments; guard defensively anyway.
+    NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
+                                        location: NSZeroPoint
+                                   modifierFlags: 0
+                                       timestamp: 0
+                                    windowNumber: 0
+                                         context: nil
+                                         subtype: 0
+                                           data1: 0
+                                           data2: 0];
+    if (event) {
+        [NSApp postEvent: event atStart: YES];
+    }
 }
 
 // Signal handler for SIGINT, only argument matching for stopWithEvent
@@ -375,11 +379,12 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
     self->view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     int opts = (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
                 NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect);
-    [self->view addTrackingArea: [
-        [NSTrackingArea alloc] initWithRect: rect
-                                    options: opts
-                                      owner: self->view
-                                   userInfo: nil]];
+    NSTrackingArea* area = [[NSTrackingArea alloc] initWithRect: rect
+                                                        options: opts
+                                                          owner: self->view
+                                                       userInfo: nil];
+    [self->view addTrackingArea: area];
+    [area release];
     [self->view setCanvas: (PyObject*)self];
 
 exit:
@@ -514,6 +519,8 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
 static PyObject*
 FigureCanvas_stop_event_loop(FigureCanvas* self)
 {
+    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
+    // nil for these constant, valid arguments; guard defensively anyway.
     NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                         location: NSZeroPoint
                                    modifierFlags: 0
@@ -523,7 +530,9 @@ FigureCanvas_stop_event_loop(FigureCanvas* self)
                                          subtype: STOP_EVENT_LOOP
                                            data1: 0
                                            data2: 0];
-    [NSApp postEvent: event atStart: true];
+    if (event) {
+        [NSApp postEvent: event atStart: true];
+    }
     Py_RETURN_NONE;
 }
 
@@ -767,6 +776,9 @@ FigureManager_set_window_title(FigureManager* self,
     if (!PyArg_ParseTuple(args, "s", &title)) {
         return NULL;
     }
+    // PyArg_ParseTuple "s" guarantees valid UTF-8, so stringWithUTF8String: will
+    // not return nil here; the nullable annotation is a false positive.
+    // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
     [self->window setTitle: [NSString stringWithUTF8String: title]];
     Py_RETURN_NONE;
 }
@@ -885,7 +897,8 @@ typedef struct {
 @implementation NavigationToolbar2Handler
 - (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)theToolbar
 {
-    [self init];
+    self = [self init];
+    if (!self) { return nil; }
     toolbar = theToolbar;
     return self;
 }
@@ -1005,8 +1018,10 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.origin.y = 0.5*(height - rect.size.height);
 
     for (int i = 0; i < 7; i++) {
+        // PyArg_ParseTuple "s" guarantees valid UTF-8; stringWithUTF8String: will not return nil.
         NSString* filename = [NSString stringWithUTF8String: images[i]];
         NSString* tooltip = [NSString stringWithUTF8String: tooltips[i]];
+        // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
         [image setSize: size];
@@ -1074,7 +1089,9 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
     NSTextView* messagebox = self->messagebox;
 
     if (messagebox) {
+        // PyArg_ParseTuple "s" guarantees valid UTF-8; stringWithUTF8String: will not return nil.
         NSString* text = [NSString stringWithUTF8String: message];
+        // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
         [messagebox setString: text];
 
         // Adjust width and height with the window size and content
@@ -1131,6 +1148,8 @@ choose_save_file(PyObject* unused, PyObject* args)
     }
     NSSavePanel* panel = [NSSavePanel savePanel];
     [panel setTitle: [NSString stringWithUTF8String: title]];
+    // PyArg_ParseTuple "s" guarantees valid UTF-8; stringWithUTF8String: will not return nil.
+    // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
     [panel setDirectoryURL: [NSURL fileURLWithPath: [NSString stringWithUTF8String: directory]
                                        isDirectory: YES]];
     [panel setNameFieldStringValue: [NSString stringWithUTF8String: default_filename]];
@@ -1386,6 +1405,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 - (BOOL)windowShouldClose:(NSNotification*)notification
 {
     NSWindow* window = [self window];
+    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
+    // nil for these constant, valid arguments; guard defensively anyway.
     NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                         location: NSZeroPoint
                                    modifierFlags: 0
@@ -1395,7 +1416,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
                                          subtype: WINDOW_CLOSING
                                            data1: 0
                                            data2: 0];
-    [NSApp postEvent: event atStart: true];
+    if (event) {
+        [NSApp postEvent: event atStart: true];
+    }
     if ([window respondsToSelector: @selector(closeButtonPressed)]) {
         BOOL closed = [((Window*) window) closeButtonPressed];
         /* If closed, the window has already been closed via the manager. */
@@ -1616,7 +1639,12 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
             }
             [returnkey appendString:specialchar];
         } else {
-            [returnkey appendString:[event charactersIgnoringModifiers]];
+            // charactersIgnoringModifiers is nullable; guard defensively in case
+            // an unexpected event type reaches this path.
+            NSString* chars = [event charactersIgnoringModifiers];
+            if (chars) {
+                [returnkey appendString:chars];
+            }
         }
     } else {
         if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {

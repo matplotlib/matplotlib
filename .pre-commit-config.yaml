@@ -77,6 +77,22 @@ repos:
     hooks:
       - id: yamllint
         args: ["--strict", "--config-file=.yamllint.yml"]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: 745eface02aef23e168a8afb6b5737818efbea95  # frozen: v0.11.0.1
+    hooks:
+      - id: shellcheck
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: a4727cbbcd26d7098e96b9cb738169b59711ae51  # frozen: v1.24.1
+    hooks:
+      - id: zizmor
+  - repo: https://github.com/simple-icons/svglint
+    rev: 8402586b94f073686e46707a163082e270ee5768  # frozen: v4.2.1
+    hooks:
+      - id: svglint
+        # Override the top-level exclude so that mpl-data/images/ toolbar
+        # icons are also linted.  Exemptions for the intentional interactive
+        # SVG examples are handled in .svglintrc.mjs.
+        exclude: '^$'
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: f805888065fdb6162e1f800e50bb9460cbd223d6  # frozen: 0.37.2
     hooks:
