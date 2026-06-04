@@ -1722,9 +1722,7 @@ class Axis(martist.Artist):
             instances; see :ref:`axes-tick-objects`.
 
             You should generally use `.Axis.set_tick_params` / `.Axis.get_tick_params`
-            to define and query tick styling; see :ref:`axes-ticks-styling`. Working
-            directly with the tick line objects is typically not necessary, except for
-            very special customizations.
+            to define and query tick styling; see :ref:`axes-ticks-styling`.
         """
         lines = []
         ticks = self.get_minor_ticks()
