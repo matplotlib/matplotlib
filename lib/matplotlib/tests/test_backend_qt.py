@@ -219,6 +219,49 @@ def test_figureoptions():
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_figureoptions_preserve_legend_settings():
+    # Regenerating the legend from the figure options dialog must preserve
+    # the existing legend's loc and mode, not reset them to defaults.
+    from matplotlib.backends.qt_editor import _formlayout
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], label="data")
+    ax.legend(loc="lower right", mode="expand", ncols=1)
+    old_loc = ax.get_legend()._loc
+    old_mode = ax.get_legend()._mode
+
+    def reconstruct(content):
+        # Mirror FormWidget.get(): a multi-page form is a list of
+        # (widgets, title, comment) triples; a flat form is a list of
+        # (label, value) pairs with separators/static text using label=None.
+        if content and all(
+            isinstance(it, (list, tuple)) and len(it) == 3
+            and isinstance(it[0], list)
+            for it in content
+        ):
+            return [reconstruct(it[0]) for it in content]
+        values = []
+        for label, value in content:
+            if label is None:
+                continue
+            if isinstance(value, list):  # combo box -> current selection
+                value = value[0]
+            values.append(value)
+        return values
+
+    def fake_fedit(datalist, title="", parent=None, icon=None, apply=None):
+        data = [reconstruct(page[0]) for page in datalist]
+        data[0][-1] = True  # tick "(Re-)Generate automatic legend"
+        apply(data)
+
+    with mock.patch.object(_formlayout, "fedit", fake_fedit):
+        fig.canvas.manager.toolbar.edit_parameters()
+
+    assert ax.get_legend()._loc == old_loc
+    assert ax.get_legend()._mode == old_mode
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_save_figure_return(tmp_path):
     fig, ax = plt.subplots()
     ax.imshow([[1]])
