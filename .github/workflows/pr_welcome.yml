@@ -19,7 +19,7 @@ jobs:
       - uses: plbstl/first-contribution@5e84b16ee0cef8f8a87cb7a2cf247b187c228879  # v4.3.1
         with:
           labels: first-contribution
-          skip-internal-contributors: true
+          skip-internal-contributors: false
           pr-opened-msg: >+
             Thank you for opening your first PR into Matplotlib!
 
