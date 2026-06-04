@@ -12,21 +12,38 @@ from sphinx_gallery.sorting import ExplicitOrder
 UNSORTED = "unsorted"
 
 examples_order = [
+    # plotting data
     '../galleries/examples/lines_bars_and_markers',
     '../galleries/examples/images_contours_and_fields',
-    '../galleries/examples/subplots_axes_and_figures',
     '../galleries/examples/statistics',
     '../galleries/examples/pie_and_polar_charts',
+    # figure, Axes, subplots
+    '../galleries/examples/subplots_axes_and_figures',
+    # axis properties
+    '../galleries/examples/ticks',
+    '../galleries/examples/scales',
+    '../galleries/examples/spines',
+    # decorations, individual artists
     '../galleries/examples/text_labels_and_annotations',
-    '../galleries/examples/color',
     '../galleries/examples/shapes_and_collections',
+    # styling
+    '../galleries/examples/color',
     '../galleries/examples/style_sheets',
+    # interfaces / add-ons
     '../galleries/examples/pyplots',
+    '../galleries/examples/mplot3d',
     '../galleries/examples/axes_grid1',
     '../galleries/examples/axisartist',
-    '../galleries/examples/showcase',
+    # animation, interactivity
+    '../galleries/examples/animation',
+    '../galleries/examples/widgets',
+    '../galleries/examples/event_handling',
+    '../galleries/examples/user_interfaces',
     UNSORTED,
-    '../galleries/examples/userdemo',
+    '../galleries/examples/misc',
+    # nice and special visualizations
+    '../galleries/examples/showcase',
+    '../galleries/examples/specialty_plots',
 ]
 
 tutorials_order = [
