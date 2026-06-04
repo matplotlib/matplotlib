@@ -9,13 +9,13 @@ GitHub statistics for 2023/10/31 (tag: v3.8.1) - 2023/11/17
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 3 issues and merged 27 pull requests.
+We closed 2 issues and merged 27 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/86?closed=1>`__
 
-The following 10 authors contributed 39 commits.
+The following 10 authors contributed 53 commits.
 
+* Andrew Kim
 * Antony Lee
-* dohyun
 * Elliott Sales de Andrade
 * hannah
 * Jody Klymak
@@ -57,8 +57,7 @@ Pull Requests (27):
 * :ghpull:`27246`: Backport PR #27244 on branch v3.8.x (Clarify semantics of plt.matshow(..., fignum=...).)
 * :ghpull:`27244`: Clarify semantics of plt.matshow(..., fignum=...).
 
-Issues (3):
+Issues (2):
 
 * :ghissue:`27333`: [Bug]: Spurious lines added with some manually add contour labels
 * :ghissue:`27274`: [Bug]: prune parameter of MaxNLocator has no effect
-* :ghissue:`27262`: [Bug]: Segmentation fault when resizing on Python 3.12 and MacOS 14

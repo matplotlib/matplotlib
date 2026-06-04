@@ -9,10 +9,10 @@ GitHub statistics for 2022/11/02 (tag: v3.6.2) - 2023/01/11
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 16 issues and merged 107 pull requests.
+We closed 17 issues and merged 107 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/76?closed=1>`__
 
-The following 20 authors contributed 198 commits.
+The following 20 authors contributed 194 commits.
 
 * Antony Lee
 * Chahak Mehta
@@ -147,8 +147,9 @@ Pull Requests (107):
 * :ghpull:`24344`: Add test for colorbar extend alpha
 * :ghpull:`23974`: Fix repeated word typos
 
-Issues (16):
+Issues (17):
 
+* :ghissue:`9960`: Wrong path in the html file when running save function in FuncAnimation
 * :ghissue:`23389`: [Bug]: Colorbar with log scales wrong format
 * :ghissue:`24589`: [Bug]: inset_locator is broken when used with subfigures
 * :ghissue:`10160`: Low resolution (dpi problem) with Qt5 backend on new iMac Pro Retina

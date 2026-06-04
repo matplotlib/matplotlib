@@ -9,10 +9,10 @@ GitHub statistics for 2023/11/17 (tag: v3.8.2) - 2024/02/14
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 18 issues and merged 74 pull requests.
+We closed 19 issues and merged 71 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/88?closed=1>`__
 
-The following 25 authors contributed 133 commits.
+The following 25 authors contributed 114 commits.
 
 * Allan Haldane
 * Antony Lee
@@ -22,6 +22,7 @@ The following 25 authors contributed 133 commits.
 * Elliott Sales de Andrade
 * Greg Lucas
 * hannah
+* Haoying Zhang
 * James Salsman
 * Jody Klymak
 * Joshua Stevenson
@@ -31,22 +32,20 @@ The following 25 authors contributed 133 commits.
 * Oscar Gustafsson
 * Ruth Comer
 * Samuel Diebolt
-* saranti
 * sdiebolt
 * Shriya Kalakata
 * Stefan
 * Steffen Rehberg
-* stevezhang1999
 * Thomas A Caswell
 * Tim Hoffmann
+* Tom Sarantis
 
 GitHub issues and pull requests:
 
-Pull Requests (74):
+Pull Requests (71):
 
 * :ghpull:`27790`: Backport PR #27785 on branch v3.8.x (FIX: be careful about communicating with subprocess)
 * :ghpull:`27789`: Backport PR #27756 on branch v3.8.x (Add protections against infinite loop in bezier calculations)
-* :ghpull:`27785`: FIX: be careful about communicating with subprocess
 * :ghpull:`27756`: Add protections against infinite loop in bezier calculations
 * :ghpull:`27779`: Manual backport of dependabot cibw upgrades
 * :ghpull:`27778`: Backport PR #27773 on branch v3.8.x (MNT: pcolormesh robust underflow)
@@ -54,7 +53,6 @@ Pull Requests (74):
 * :ghpull:`27777`: Backport PR #27776 on branch v3.8.x (Better document the relation between figure and manager)
 * :ghpull:`27776`: Better document the relation between figure and manager
 * :ghpull:`27759`: Backport PR #27755 on branch v3.8.x (Allow threads during macos event loop)
-* :ghpull:`27755`: Allow threads during macos event loop
 * :ghpull:`27742`: Backport PR #27708 on branch v3.8.x (DOC: update colors from colormaps example)
 * :ghpull:`27718`: Backport PR #27716 on branch v3.8.x (fix default image format in gtk4 savefig dialog)
 * :ghpull:`27716`: fix default image format in gtk4 savefig dialog
@@ -71,7 +69,6 @@ Pull Requests (74):
 * :ghpull:`27657`: Fix Numpy 2.0 related test failures
 * :ghpull:`27647`: Fix error that occurs when minorticks are on multi-Axes Figure with more than one boxplot
 * :ghpull:`27660`: Backport PR #27624 on branch v3.8.x (Prepare for Pytest v8)
-* :ghpull:`27624`: Prepare for Pytest v8
 * :ghpull:`27636`: Backport PR #27634 on branch v3.8.x (circle: Make deploy stage into a normal step)
 * :ghpull:`27622`: Backport PR #27620 on branch v3.8.x (DOC: simplify histogram animation example)
 * :ghpull:`27612`: Backport PR #27606 on branch v3.8.x (Pin black version)
@@ -119,8 +116,9 @@ Pull Requests (74):
 * :ghpull:`27365`: [DOC]: Fix menu example
 * :ghpull:`27354`: Backport PR #27348 on branch v3.8.x (updated api/animation documentation as per standards)
 
-Issues (18):
+Issues (19):
 
+* :ghissue:`27627`: Optional Dependencies Link not working on Installing user's page
 * :ghissue:`27437`: [Bug]: PGF backend crashes at program exit after creating a plot
 * :ghissue:`27770`: [Bug]: pcolormesh issue with np.seterr(under='raise')
 * :ghissue:`27720`: [Bug]: pyplot hangs at pause in sonoma 14.3 with backend MacOSX
