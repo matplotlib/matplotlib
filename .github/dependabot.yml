@@ -5,6 +5,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns:
@@ -13,9 +15,13 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
     exclude-paths:
       - "ci/minver-requirements.txt"
   - package-ecosystem: "pre-commit"
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
