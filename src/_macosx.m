@@ -598,6 +598,7 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
 static PyObject*
 FigureCanvas_stop_event_loop(FigureCanvas* self)
 {
+    BEGIN_OBJC_ENTRY
     // +[NSEvent otherEventWithType:...] is declared nullable but will not return
     // nil for these constant, valid arguments; guard defensively anyway.
     NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
@@ -612,7 +613,8 @@ FigureCanvas_stop_event_loop(FigureCanvas* self)
     if (event) {
         [NSApp postEvent: event atStart: true];
     }
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyTypeObject FigureCanvasType = {
