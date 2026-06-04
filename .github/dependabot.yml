@@ -25,3 +25,7 @@ updates:
       interval: "monthly"
     cooldown:
       default-days: 7
+    groups:
+      pre-commit:
+        patterns:
+          - "*"
