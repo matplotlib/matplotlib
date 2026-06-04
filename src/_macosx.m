@@ -110,16 +110,16 @@ static void handleSigint(int signal) {
 static void flushEvents() {
     while (true) {
         @autoreleasepool {
-        NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                            untilDate: [NSDate distantPast]
-                                               inMode: NSDefaultRunLoopMode
-                                              dequeue: YES];
-        if (!event) {
-            break;
+            NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                                untilDate: [NSDate distantPast]
+                                                   inMode: NSDefaultRunLoopMode
+                                                  dequeue: YES];
+            if (!event) {
+                break;
+            }
+            [NSApp sendEvent:event];
         }
-        [NSApp sendEvent:event];
     }
-}
 }
 
 static int wait_for_stdin() {
@@ -584,9 +584,9 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
                                             untilDate: date
                                                inMode: NSDefaultRunLoopMode
                                               dequeue: YES];
-       if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
-       [NSApp sendEvent: event];
-    }
+            if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
+            [NSApp sendEvent: event];
+        }
     }
 
     Py_END_ALLOW_THREADS
@@ -1896,13 +1896,13 @@ show(PyObject* self)
     // Iterating over -[NSApp windows] will add the windows to the topmost
     // autorelease pool, wrap in @autoreleasepool as -[NSApp run] is long-running.
     @autoreleasepool {
-    [NSApp activateIgnoringOtherApps: YES];
-    NSArray *windowsArray = [NSApp windows];
-    NSEnumerator *enumerator = [windowsArray objectEnumerator];
-    NSWindow *window;
-    while ((window = [enumerator nextObject])) {
-        [window orderFront:nil];
-    }
+        [NSApp activateIgnoringOtherApps: YES];
+        NSArray *windowsArray = [NSApp windows];
+        NSEnumerator *enumerator = [windowsArray objectEnumerator];
+        NSWindow *window;
+        while ((window = [enumerator nextObject])) {
+            [window orderFront:nil];
+        }
     }
 
     Py_BEGIN_ALLOW_THREADS
