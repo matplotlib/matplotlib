@@ -13,7 +13,7 @@ import sys
 from types import SimpleNamespace
 import unittest.mock
 
-import dateutil.tz
+import dateutil
 
 import numpy as np
 from numpy import ma
@@ -9457,6 +9457,13 @@ def test_nan_barlabels():
     labels = ax.bar_label(bars)
     assert [l.get_text() for l in labels] == ['', '1', '2']
     assert np.allclose(ax.get_ylim(), (0.0, 3.0))
+
+
+def test_int_fmt_bar_label():
+    fig, ax = plt.subplots()
+    bars = ax.bar(['foo', 'bar'], [5, 7])
+    labels = ax.bar_label(bars, fmt='{:d}')
+    assert [l.get_text() for l in labels] == ['5', '7']
 
 
 def test_patch_bounds():  # PR 19078
