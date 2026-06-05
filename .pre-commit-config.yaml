@@ -71,7 +71,7 @@ repos:
       - id: rstcheck
         additional_dependencies:
           - rstcheck-core!=1.3  # https://github.com/rstcheck/rstcheck-core/pull/114#pullrequestreview-4239740896
-          - sphinx>=1.8.1
+          - sphinx>=9.1.0
   - repo: https://github.com/adrienverge/yamllint
     rev: cba56bcde1fdd01c1deb3f945e69764c291a6530  # frozen: v1.38.0
     hooks:
