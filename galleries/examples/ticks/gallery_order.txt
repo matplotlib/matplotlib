@@ -1,0 +1,34 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+
+# positioning and alignment
+auto_ticks
+tick-locators
+major_minor_demo
+align_ticklabels
+ticks_top_right
+centered_ticklabels
+ticklabels_rotation
+multilevel_ticks
+
+# formatting
+scalarformatter
+tick-formatters
+custom_ticker1
+dollar_ticks
+engineering_formatter
+engformatter_offset
+tick_labels_from_values
+
+# date
+date
+date_formatters_locators
+date_concise_formatter
+date_demo_convert
+date_demo_rrule
+date_index_formatter
+date_precision_and_epochs
+
+# other
+colorbar_tick_labelling_demo
+fig_axes_customize_simple
+ticks_too_many
