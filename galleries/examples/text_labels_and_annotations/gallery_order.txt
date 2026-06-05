@@ -11,7 +11,7 @@ text_rotation_relative_to_line
 rainbow_text
 demo_text_path
 
-# annoations
+# annotations
 annotation_basic
 annotation_demo
 annotation_polar
