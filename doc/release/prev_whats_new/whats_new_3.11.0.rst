@@ -570,6 +570,10 @@ use:
 Or, when creating plots, you can pass it explicitly:
 
 .. plot::
+    :alt:
+        A plot of 8 lines, with colors of the Okabe-Ito sequence, from bottom to top:
+        black, orange, sky blue, bluish green, yellow, blue, vermilion, and reddish
+        purple.
 
     colors = plt.colormaps['okabe_ito'].colors
     x = range(5)
@@ -592,6 +596,9 @@ cycle in place of the default::
   plt.style.use('petroff6')
 
 .. plot::
+    :alt:
+        A plot of 6 lines, with colors of the Petroff six-color cycle, from bottom to
+        top: blue, orange, red, dark purple, grey, light purple.
 
     plt.style.use('petroff6')
     x = range(5)
@@ -605,6 +612,9 @@ or to load the ``'petroff8'`` color cycle::
   plt.style.use('petroff8')
 
 .. plot::
+    :alt:
+        A plot of 8 lines, with colors of the Petroff eight-color cycle, from bottom to
+        top: blue, orange, red, purple, grey, light blue, blue, dark grey.
 
     plt.style.use('petroff8')
     x = range(5)
@@ -724,6 +734,7 @@ Text support has been extended to include complex text layout. This support incl
 
    .. plot::
        :show-source-link: False
+       :alt: The mixed-language text 'Here is some رَقْم in اَلْعَرَبِيَّةُ'.
 
        text = 'Here is some رَقْم in اَلْعَرَبِيَّةُ'
        fig = plt.figure(figsize=(6, 1))
@@ -733,6 +744,9 @@ Text support has been extended to include complex text layout. This support incl
 
    .. plot::
        :show-source-link: False
+       :alt:
+           A rightwards arrow pointing from the individual letters 'f', 'f', and 'i', to
+           the 'ffi' ligature.
 
        text = 'f\N{Hair Space}f\N{Hair Space}i \N{Rightwards Arrow} ffi'
        fig = plt.figure(figsize=(3, 1))
@@ -742,6 +756,9 @@ Text support has been extended to include complex text layout. This support incl
 
    .. plot::
        :show-source-link: False
+       :alt:
+           An "equation" showing the letter 'a' plus a circumflex accent plus a tilde
+           plus the letter 'c' plus a diaeresis, producing a single glyph of all of them.
 
        text = (
            'a\N{Combining Circumflex Accent}\N{Combining Double Tilde}'
@@ -780,6 +797,13 @@ These may be toggled with ``+`` or ``-``.
 
 .. plot::
     :include-source:
+    :alt:
+        An example of ligatures affecting text, in four lines. The first line is the
+        title "Ligatures". Each subsequent line shows the style, followed by the
+        examples "fi", "ffi", "fl", and "st". The second line is the default, where all
+        but "st" use ligatures. The third line has disabled ligatures and all examples
+        are drawn as individual glyphs. The fourth line has enabled discretionary
+        ligatures and all examples, including the "st", use ligatures.
 
     fig = plt.figure(figsize=(7, 3))
 
@@ -822,6 +846,13 @@ Sámi family of languages in the Latin alphabet (vs English).
 
 .. plot::
     :include-source:
+    :alt:
+        An example of how text language affects rendering, in four lines. The first line
+        lists the Unicode code point '\U00000431`, which is the Cyrillic small letter BE.
+        The second line then shows the rendering when the language is set to Serbian vs
+        set to Russian. The third line lists the Unicode code point '\U0000014a`, which
+        is the Latin capital letter ENG. The fourth line then shows the rendering when
+        the language is set to Inari Sámi vs set to English.
 
     fig = plt.figure(figsize=(7, 3))
 
