@@ -2242,13 +2242,10 @@ class Axes(_AxesBase):
             except (TypeError, IndexError, KeyError):
                 x = xconv
 
-            delist = False
-            if not np.iterable(dx):
-                dx = [dx]
-                delist = True
-            dx = [convert(x0 + ddx) - x for ddx in dx]
-            if delist:
-                dx = dx[0]
+            if np.iterable(dx):
+                dx = [convert(x0 + ddx) - x for ddx in dx]
+            else:
+                dx = convert(x0 + dx) - x
         except (ValueError, TypeError, AttributeError):
             # if the above fails (for any reason) just fallback to what
             # we do by default and convert dx by itself.
@@ -3036,15 +3033,20 @@ class Axes(_AxesBase):
             [("x", xdata), ("y", ydata)], kwargs, convert=False)
 
         vertices = []
-        y0, dy = yrange
+        ypos, height = yrange
+
+        # Unit conversion: handling of the difference quantity height is done through
+        # _convert_dx() in the same way as width handling in bar().
+        y0 = self.convert_yunits(ypos)
+        dy = self._convert_dx(height, ypos, np.array(y0), self.convert_yunits)
 
         _api.check_in_list(['bottom', 'center', 'top'], align=align)
         if align == "bottom":
-            y0, y1 = self.convert_yunits((y0, y0 + dy))
+            y1 = y0 + dy
         elif align == "center":
-            y0, y1 = self.convert_yunits((y0 - dy/2, y0 + dy/2))
+            y0, y1 = y0 - dy / 2, y0 + dy / 2
         else:
-            y0, y1 = self.convert_yunits((y0 - dy, y0))
+            y0, y1 = y0 - dy, y0
 
         for xr in xranges:  # convert the absolute values, not the x and dx
             try:
