@@ -7,6 +7,9 @@ import itertools
 from pathlib import Path
 
 from sphinx_gallery.sorting import ExplicitOrder
+from sphinx.util import logging as sphinx_logging
+
+logger = sphinx_logging.getLogger(__name__)
 
 # Gallery sections shall be displayed in the following order.
 # Non-matching sections are inserted at the unsorted position
@@ -98,7 +101,7 @@ class MplFileExplicitOrder(ExplicitOrder):
     Use this if you want to ensure that a full order is intentionally maintained.
     """
     def __init__(self, src_dir):
-        ordered_list = self.read_gallery_order(Path(src_dir)) or []
+        ordered_list = self.read_gallery_order(Path(src_dir).resolve()) or []
         super().__init__(ordered_list)
 
     @staticmethod
@@ -135,13 +138,14 @@ class MplFileExplicitOrder(ExplicitOrder):
         non_existing_examples = listed_examples - existing_examples
         missing_examples = existing_examples - listed_examples
 
+        rel_txt_path = gallery_order_txt.relative_to(gallery_order_txt.parents[3])
         if non_existing_examples:
-            raise ValueError(
-                f"The following examples listed in {gallery_order_txt} do not exist: "
+            logger.warning(
+                f"The following examples listed in {rel_txt_path} do not exist: "
                 f"{', '.join(non_existing_examples)}")
         if placeholder_index is None and missing_examples:
-            raise ValueError(
-                f"The following examples are not listed in {gallery_order_txt}. "
+            logger.warning(
+                f"The following examples are not listed in {rel_txt_path}. "
                 f"Either include them or add a '*' to indicate where not listed "
                 f"examples should be placed: "
                 f"{', '.join(missing_examples)}"
