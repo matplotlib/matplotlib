@@ -129,41 +129,41 @@ static int wait_for_stdin() {
     // Rely on Python's input handling to manage CPU usage
     // This queries the NSApp, rather than using our FigureWindowCount because that is decremented when events still
     // need to be processed to properly close the windows.
-    if (![[NSApp windows] count]) {
-      flushEvents();
-      return 1;
-    }
-
     @autoreleasepool {
-        // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
-        originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
-
-        // Create an NSFileHandle for standard input
-        NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
-
-
-        // Register for data available notifications on standard input
-        id notificationID = [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
-                                                                              object: stdinHandle
-                                                                               queue: [NSOperationQueue mainQueue] // Use the main queue
-                                                                          usingBlock: ^(NSNotification *notification) {stopWithEvent();}
-        ];
-
-        // Wait in the background for anything that happens to stdin
-        [stdinHandle waitForDataInBackgroundAndNotify];
-
-        // Run the application's event loop, which will be interrupted on stdin or SIGINT
-        [NSApp run];
-
-        // Remove the input handler as an observer
-        [[NSNotificationCenter defaultCenter] removeObserver: notificationID];
-
-
-        // Restore the original SIGINT handler upon exiting the function
-        PyOS_setsig(SIGINT, originalSigintAction);
-
-        return 1;
+        if (![[NSApp windows] count]) {
+            flushEvents();
+            return 1;
+        }
     }
+
+    // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
+    originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
+
+    // Create an NSFileHandle for standard input
+    NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
+
+
+    // Register for data available notifications on standard input
+    id notificationID = [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
+                                                                          object: stdinHandle
+                                                                           queue: [NSOperationQueue mainQueue] // Use the main queue
+                                                                      usingBlock: ^(NSNotification *notification) {stopWithEvent();}
+    ];
+
+    // Wait in the background for anything that happens to stdin
+    [stdinHandle waitForDataInBackgroundAndNotify];
+
+    // Run the application's event loop, which will be interrupted on stdin or SIGINT
+    [NSApp run];
+
+    // Remove the input handler as an observer
+    [[NSNotificationCenter defaultCenter] removeObserver: notificationID];
+
+
+    // Restore the original SIGINT handler upon exiting the function
+    PyOS_setsig(SIGINT, originalSigintAction);
+
+    return 1;
 
     END_OBJC_ENTRY
     return 0;
