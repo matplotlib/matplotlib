@@ -134,8 +134,6 @@ class MplFileExplicitOrder(ExplicitOrder):
 
         non_existing_examples = listed_examples - existing_examples
         missing_examples = existing_examples - listed_examples
-        print(f"non_existing_examples: {non_existing_examples}")
-        print(f"missing_examples: {missing_examples}")
 
         if non_existing_examples:
             raise ValueError(
