@@ -113,12 +113,17 @@ jobs:
 
       - name: Summary
         if: always()
+        env:
+          VENV_PIP_OUTCOME: ${{ steps.venv_pip.outcome }}
+          CONDA_OUTCOME: ${{ steps.conda.outcome }}
+          UV_PIP_OUTCOME: ${{ steps.uv_pip.outcome }}
+          UV_SYNC_OUTCOME: ${{ steps.uv_sync.outcome }}
         run: |
-          echo "venv + pip : ${{ steps.venv_pip.outcome }}"
-          echo "conda      : ${{ steps.conda.outcome }}"
-          echo "uv pip     : ${{ steps.uv_pip.outcome }}"
-          echo "uv sync    : ${{ steps.uv_sync.outcome }}"
-          test "${{ steps.venv_pip.outcome }}" = success \
-            && test "${{ steps.conda.outcome }}" = success \
-            && test "${{ steps.uv_pip.outcome }}" = success \
-            && test "${{ steps.uv_sync.outcome }}" = success
+          echo "venv + pip : $VENV_PIP_OUTCOME"
+          echo "conda      : $CONDA_OUTCOME"
+          echo "uv pip     : $UV_PIP_OUTCOME"
+          echo "uv sync    : $UV_SYNC_OUTCOME"
+          test "$VENV_PIP_OUTCOME" = success \
+            && test "$CONDA_OUTCOME" = success \
+            && test "$UV_PIP_OUTCOME" = success \
+            && test "$UV_SYNC_OUTCOME" = success
