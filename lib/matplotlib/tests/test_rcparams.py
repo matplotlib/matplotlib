@@ -79,19 +79,12 @@ def test_RcParams_class():
                        'font.size': 12})
 
     expected_repr = """
-RcParams({
-          'font.cursive': ['Zapf Chancery', 'cursive'],
+RcParams({'font.cursive': ['Zapf Chancery', 'cursive'],
           'font.family': ['sans-serif'],
           'font.size': 12.0,
-          'font.weight': 'normal',
-         })""".lstrip()
+          'font.weight': 'normal'})""".lstrip()
 
     actual_repr = repr(rc)
-    if sys.version_info[:2] < (3, 15):
-        actual_repr = (actual_repr
-                       .replace("{'", "{\n          '")
-                       .replace("'}", "',\n         }"))
-
     assert actual_repr == expected_repr
 
     expected_str = """
