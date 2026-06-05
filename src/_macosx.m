@@ -581,9 +581,9 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
     while (true) {
         @autoreleasepool {
             NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                            untilDate: date
-                                               inMode: NSDefaultRunLoopMode
-                                              dequeue: YES];
+                                                untilDate: date
+                                                   inMode: NSDefaultRunLoopMode
+                                                  dequeue: YES];
             if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
             [NSApp sendEvent: event];
         }
@@ -843,24 +843,24 @@ FigureManager_set_icon(PyObject* null, PyObject* args) {
         return NULL;
     }
 
-        NSString* ns_icon_path = [NSString stringWithUTF8String: icon_path_ptr];
-        Py_DECREF(icon_path);
-        if (!ns_icon_path) {
-            PyErr_SetString(PyExc_RuntimeError, "Could not convert to NSString*");
-            return NULL;
-        }
-        NSImage* image = [[[NSImage alloc] initByReferencingFile: ns_icon_path] autorelease];
-        if (!image) {
-            PyErr_SetString(PyExc_RuntimeError, "Could not create NSImage*");
-            return NULL;
-        }
-        if (!image.valid) {
-            PyErr_SetString(PyExc_RuntimeError, "Image is not valid");
-            return NULL;
-        }
+    NSString* ns_icon_path = [NSString stringWithUTF8String: icon_path_ptr];
+    Py_DECREF(icon_path);
+    if (!ns_icon_path) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not convert to NSString*");
+        return NULL;
+    }
+    NSImage* image = [[[NSImage alloc] initByReferencingFile: ns_icon_path] autorelease];
+    if (!image) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not create NSImage*");
+        return NULL;
+    }
+    if (!image.valid) {
+        PyErr_SetString(PyExc_RuntimeError, "Image is not valid");
+        return NULL;
+    }
 
-          NSApplication* app = [NSApplication sharedApplication];
-          app.applicationIconImage = image;
+    NSApplication* app = [NSApplication sharedApplication];
+    app.applicationIconImage = image;
 
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
