@@ -16,9 +16,10 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: plbstl/first-contribution@4fb1541ce2706255850d56c5684552607be1ae9b  # v4.2.0
+      - uses: plbstl/first-contribution@fa732d1b5586da1a72ba34290a32e87467a59b78  # v4.3.2
         with:
           labels: first-contribution
+          skip-internal-contributors: false
           pr-opened-msg: >+
             Thank you for opening your first PR into Matplotlib!
 
