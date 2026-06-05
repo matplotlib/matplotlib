@@ -12,7 +12,7 @@ These lists are automatically generated, and may be incomplete or contain duplic
 We closed 2 issues and merged 3 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/100?closed=1>`__
 
-The following 3 authors contributed 15 commits.
+The following 3 authors contributed 10 commits.
 
 * Elliott Sales de Andrade
 * Scott Shambaugh
