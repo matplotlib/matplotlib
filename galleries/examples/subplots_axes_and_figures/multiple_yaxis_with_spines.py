@@ -11,6 +11,8 @@ Note that this approach uses `matplotlib.axes.Axes` and their
 `~matplotlib.spines.Spine`\s.  Alternative approaches using non-standard Axes
 are shown in the :doc:`/gallery/axisartist/demo_parasite_axes` and
 :doc:`/gallery/axisartist/demo_parasite_axes2` examples.
+
+.. redirect-from:: /gallery/spines/multiple_yaxis_with_spines
 """
 
 import matplotlib.pyplot as plt
@@ -44,3 +46,6 @@ twin2.tick_params(axis='y', colors=p3.get_color())
 ax.legend(handles=[p1, p2, p3])
 
 plt.show()
+
+# %%
+# .. tags:: component: spines
