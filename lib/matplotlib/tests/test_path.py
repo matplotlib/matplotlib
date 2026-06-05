@@ -511,33 +511,25 @@ def test_full_arc(offset):
     np.testing.assert_allclose(maxs, 1)
 
 
-def test_arc_unwrap_angles():
-    # With unwrap_angles=True (the default), Path.arc collapses requests for
-    # arcs spanning more than 360 degrees into the shortest equivalent arc.
-    short = Path.arc(0, 720)
+@pytest.mark.parametrize('theta2', [360 + 1e-9, 720, 720 + 1e-9, 360 * 5])
+def test_arc_full_circle_snap(theta2):
+    # A span that is within floating-point tolerance of a whole number of
+    # turns must draw a complete circle, not collapse to a near-empty arc.
+    # This is the floating-point edge case behind gh-20388 and gh-26972.
     full = Path.arc(0, 360)
-    assert len(short.vertices) == len(full.vertices)
+    snapped = Path.arc(0, theta2)
+    assert len(snapped.vertices) == len(full.vertices)
+    np.testing.assert_allclose(np.min(snapped.vertices, axis=0), -1, atol=1e-12)
+    np.testing.assert_allclose(np.max(snapped.vertices, axis=0), 1, atol=1e-12)
 
-    # With unwrap_angles=False, the caller's exact angular span is honoured,
-    # producing additional control points for multi-turn arcs that still
-    # trace the unit circle.
-    long = Path.arc(0, 720, unwrap_angles=False)
-    assert len(long.vertices) > len(full.vertices)
-    np.testing.assert_allclose(np.min(long.vertices, axis=0), -1)
-    np.testing.assert_allclose(np.max(long.vertices, axis=0), 1)
 
-    # The floating-point edge case behind the polar grid bug: a span of slightly
-    # more than 360 degrees gets unwrapped to a near-empty arc by the
-    # default code path, but unwrap_angles=False preserves the full turn.
-    overshoot = 360 + 1e-9
-    collapsed = Path.arc(0, overshoot)
-    # collapsed traces only ~1e-9 degrees of arc, so its extent is tiny.
-    assert np.ptp(collapsed.vertices, axis=0).max() < 1e-6
-    preserved = Path.arc(0, overshoot, unwrap_angles=False)
-    np.testing.assert_allclose(
-        np.max(preserved.vertices, axis=0), 1, atol=1e-6)
-    np.testing.assert_allclose(
-        np.min(preserved.vertices, axis=0), -1, atol=1e-6)
+def test_arc_unwrap_partial_turn():
+    # A span comfortably more than a whole number of turns (not near-integer)
+    # is still unwrapped to the equivalent shortest arc within 360 degrees.
+    np.testing.assert_allclose(Path.arc(0, 410).vertices,
+                               Path.arc(0, 50).vertices)
+    np.testing.assert_allclose(Path.arc(0, 540).vertices,
+                               Path.arc(0, 180).vertices)
 
 
 def test_disjoint_zero_length_segment():

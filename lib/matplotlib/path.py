@@ -969,21 +969,19 @@ class Path:
         return cls._unit_circle_righthalf
 
     @classmethod
-    def arc(cls, theta1, theta2, n=None, is_wedge=False, *,
-            unwrap_angles=True):
+    def arc(cls, theta1, theta2, n=None, is_wedge=False):
         """
         Return a `Path` for the unit circle arc from angles *theta1* to
         *theta2* (in degrees).
 
-        If *unwrap_angles* is True (the default), *theta2* is unwrapped to
-        produce the shortest arc within 360 degrees: if *theta2* > *theta1*
-        + 360, the arc will be from *theta1* to *theta2* - 360 and not a
-        full circle plus some extra overlap.
+        *theta2* is unwrapped to produce the shortest arc within 360 degrees.
+        That is, if *theta2* > *theta1* + 360, the arc will be from *theta1* to
+        *theta2* - 360 and not a full circle plus some extra overlap.
 
-        If *unwrap_angles* is False, *theta1* and *theta2* are used as
-        given, which lets callers produce arcs spanning more than 360
-        degrees (or avoid the floating-point edge case where a near-360
-        delta is collapsed to a near-zero arc by the unwrap step).
+        As a special case, if the span *theta2* - *theta1* is within
+        floating-point tolerance of a whole number of turns, a complete circle
+        is drawn rather than collapsing a delta of 360*n plus a tiny rounding
+        error to a near-empty arc (matplotlib issues #20388 and #26972).
 
         If *n* is provided, it is the number of spline segments to make.
         If *n* is not provided, the number of spline segments is
@@ -992,22 +990,21 @@ class Path:
            Masionobe, L.  2003.  `Drawing an elliptical arc using
            polylines, quadratic or cubic Bezier curves
            <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
-
-        .. versionchanged:: 3.11
-           Added the *unwrap_angles* keyword-only parameter.
         """
         halfpi = np.pi * 0.5
 
-        if unwrap_angles:
-            eta1 = theta1
-            eta2 = theta2 - 360 * np.floor((theta2 - theta1) / 360)
-            # Ensure 2pi range is not flattened to 0 due to floating-point
-            # errors, but don't try to expand existing 0 range.
-            if theta2 != theta1 and eta2 <= eta1:
-                eta2 += 360
+        eta1 = theta1
+        n_turns = (theta2 - theta1) / 360
+        # If the requested span is within floating-point tolerance of a whole
+        # number of turns, draw a complete circle.  Otherwise unwrap *theta2*
+        # to the shortest arc within 360 degrees.  Snapping near-integer
+        # windings here avoids the edge case where a delta of 360*n plus a
+        # tiny rounding error would otherwise collapse to a near-empty arc.
+        if (theta2 != theta1 and round(n_turns) >= 1
+                and abs(n_turns - round(n_turns)) < 1e-9):
+            eta2 = theta1 + 360
         else:
-            eta1 = theta1
-            eta2 = theta2
+            eta2 = theta2 - 360 * np.floor(n_turns)
         eta1, eta2 = np.deg2rad([eta1, eta2])
 
         # number of curve segments to make
