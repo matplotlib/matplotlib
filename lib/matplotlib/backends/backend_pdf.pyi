@@ -1,25 +1,44 @@
 import os
 import pathlib
 import types
-from collections.abc import Iterable, Callable
+from collections.abc import Callable, Iterable, Sequence
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
-from typing import IO, Any, Protocol, Self, TypeAlias
+from typing import IO, Any, Literal, Protocol, Self, TypeAlias
 
 import numpy as np
 from _typeshed import ReadableBuffer, SupportsWrite
 from numpy import typing as npt
 
-from matplotlib import _api
+from matplotlib import _api, path, transforms
 from matplotlib._type1font import Type1Font
 from matplotlib.backend_bases import FigureCanvasBase, GraphicsContextBase
 from matplotlib.dviread import DviFont
 from matplotlib.figure import Figure
-from matplotlib.font_manager import FontPath
-from matplotlib.transforms import BboxBase
+from matplotlib.font_manager import FontPath, FontProperties
+from matplotlib.text import Text
+from matplotlib.transforms import BboxBase, Transform, TransformedBbox, TransformedPath
+from matplotlib.typing import (
+    CapStyleType,
+    ColorType,
+    JoinStyleType,
+    LineStyleType,
+    RGBColorType,
+)
 
 from . import _backend_pdf_ps
+
+# XXX: Some of these might be worth moving to `mpl.typing`
+_CommandType: TypeAlias = list[_SupportsPdfReprExt]
+_CommandFuncType: TypeAlias = Callable[..., _CommandType]
+_RectangleType: TypeAlias = tuple[float, float, float, float] | list[float]
+# struct definition SketchParams in _backend_agg_basic_types.h
+_SketchParamsType: TypeAlias = tuple[float, float, float]
+_HatchType: TypeAlias = str
+_HatchStyleType: TypeAlias = tuple[
+    ColorType | None, ColorType | None, _HatchType | None, float
+]
 
 class _SupportsPdfRepr(Protocol):
     def pdfRepr(self) -> bytes: ...
@@ -163,101 +182,199 @@ class PdfFile:
         subset_index: int,
         charmap: dict[int, int],
     ) -> Reference: ...
-    # TODO: It seems that `alpha` is a dead value from my naive search
     def alphaState(self, alpha: int) -> Name: ...
     def writeExtGSTates(self) -> None: ...
-    def hatchPattern(self, hatch_style): ...
+    def hatchPattern(self, hatch_style: _HatchStyleType) -> Name: ...
     def writeHatches(self) -> None: ...
-    def addGouraudTriangles(self, points, colors): ...
+    def addGouraudTriangles(
+        self, points: npt.ArrayLike, colors: npt.ArrayLike
+    ) -> tuple[Name, Reference]: ...
     def writeGouraudTriangles(self) -> None: ...
     def imageObject(self, image: npt.NDArray[np.uint8]) -> Name: ...
     def writeImages(self) -> None: ...
     def markerObject(
-        self, path, trans, fill, stroke, lw, joinstyle, capstyle
+        self,
+        path: path.Path,
+        trans: Transform,
+        fill: bool,
+        stroke: bool,
+        lw: float,
+        joinstyle: JoinStyleType,
+        capstyle: CapStyleType,
     ) -> Name: ...
     def writeMarkers(self) -> None: ...
     def pathCollectionObject(
-        self, gc, path, trans, padding, filled, stroked
+        self,
+        gc: GraphicsContextBase,
+        path: path.Path,
+        trans: Transform,
+        padding: float,
+        filled: bool,
+        stroked: bool,
     ) -> Name: ...
     def writePathCollectionTemplates(self) -> None: ...
+    # types in _path.h::convert_to_string
     @staticmethod
     def pathOperations(
-        path, transform, clip=None, simplify=None, sketch=None
+        path: path.Path,
+        transform: Transform,
+        clip: _RectangleType | None = None,
+        simplify: bool | None = None,
+        sketch: _SketchParamsType | None = None,
     ) -> list[Verbatim]: ...
-    def writePath(self, path, transform, clip=False, sketch=None) -> None: ...
+    def writePath(
+        self,
+        path: path.Path,
+        transform: Transform,
+        clip: bool = False,
+        sketch: _SketchParamsType | None = None,
+    ) -> None: ...
     def reserveObject(self, name: str = "") -> Reference: ...
     def recordXref(self, id: int) -> None: ...
-    def writeObject(self, object, contents) -> None: ...
+    def writeObject(
+        self, object: _SupportsPdfReprExt, contents: dict[str, _SupportsPdfReprExt]
+    ) -> None: ...
     def writeXref(self) -> None: ...
     def writeInfoDict(self) -> None: ...
     def writeTrailer(self) -> None: ...
 
 class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
-    def __init__(self, file, image_dpi, height, width): ...
+    paths: tuple[
+        Name,
+        path.Path,
+        Transform,
+        Reference,
+        JoinStyleType,
+        CapStyleType,
+        float,
+        bool,
+        bool,
+    ]
+    def __init__(
+        self, file: PdfFile, image_dpi: float, height: float, width: float
+    ): ...
     def finalize(self) -> None: ...
-    def check_gc(self, gc, fillcolor=None) -> None: ...
+    def check_gc(
+        self, gc: GraphicsContextBase, fillcolor: ColorType | None = None
+    ) -> None: ...
     def get_image_magnification(self) -> float: ...
-    def draw_image(self, gc, x, y, im, transform=None) -> None: ...
-    def draw_path(self, gc, path, transform, rgbFace=None) -> None: ...
+    def draw_image(
+        self,
+        gc: GraphicsContextBase,
+        x: float,
+        y: float,
+        im: npt.ArrayLike,
+        transform: transforms.Affine2DBase | None = None,
+    ) -> None: ...
+    def draw_path(
+        self,
+        gc: GraphicsContextBase,
+        path: path.Path,
+        transform: Transform,
+        rgbFace: ColorType | None = None,
+    ) -> None: ...
     def draw_path_collection(
         self,
-        gc,
-        master_transform,
-        paths,
-        all_transforms,
-        offsets,
-        offset_trans,
-        facecolors,
-        edgecolors,
-        linewidths,
-        linestyles,
-        antialiaseds,
-        urls,
-        offset_position,
+        gc: GraphicsContextBase,
+        master_transform: Transform,
+        paths: Sequence[path.Path],
+        all_transforms: Sequence[npt.ArrayLike],
+        offsets: npt.ArrayLike | Sequence[npt.ArrayLike],
+        offset_trans: Transform,
+        facecolors: ColorType | Sequence[ColorType],
+        edgecolors: ColorType | Sequence[ColorType],
+        linewidths: float | Sequence[float],
+        linestyles: LineStyleType | Sequence[LineStyleType],
+        antialiaseds: bool | Sequence[bool],
+        urls: str | Sequence[str],
+        offset_position: Any,
         *,
-        hatchcolors=None,
+        hatchcolors: ColorType | Sequence[ColorType] | None = None,
     ) -> None: ...
+    # XXX: Here the implementation relies on `fill` and `stroke` which are not
+    # in the interface of `GraphicsContextBase`. Here we use
+    # `GraphicsContextPdf` to annotate `gc`, as a result, `RendererPdf` does not
+    # strictly inherit from `RenderedBase` correctly.
     def draw_markers(
-        self, gc, marker_path, marker_trans, path, trans, rgbFace=None
+        self,
+        gc: GraphicsContextPdf,  # type: ignore[override]
+        marker_path: path.Path,
+        marker_trans: Transform,
+        path: path.Path,
+        trans: Transform,
+        rgbFace: ColorType | None = None,
     ) -> None: ...
-    def draw_gouraud_triangles(self, gc, points, colors, trans) -> None: ...
-    def draw_mathtext(self, gc, x, y, s, prop, angle) -> None: ...
-    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None) -> None: ...
+    def draw_gouraud_triangles(
+        self,
+        gc: GraphicsContextBase,
+        points: npt.ArrayLike,
+        colors: npt.ArrayLike,
+        trans: Transform,
+    ) -> None: ...
+    def draw_mathtext(
+        self,
+        gc: GraphicsContextBase,
+        x: float,
+        y: float,
+        s: str,
+        prop: FontProperties,
+        angle: float,
+    ) -> None: ...
+    def draw_tex(
+        self,
+        gc: GraphicsContextBase,
+        x: float,
+        y: float,
+        s: str,
+        prop: FontProperties,
+        angle: float,
+        *,
+        mtext: Text | None = None,
+    ) -> None: ...
     def encode_string(self, s: str, fonttype: int) -> bytes: ...
     def draw_text(
-        self, gc, x, y, s: str, prop, angle, ismath=False, mtext=None
+        self,
+        gc: GraphicsContextBase,
+        x: float,
+        y: float,
+        s: str,
+        prop: FontProperties,
+        angle: float,
+        ismath: bool | Literal["TeX"] = False,
+        mtext: Text | None = None,
     ) -> None: ...
     def new_gc(self) -> GraphicsContextPdf: ...
 
-_Command: TypeAlias = list[_SupportsPdfReprExt]
-_CommandFunction: TypeAlias = Callable[[GraphicsContextBase, Any, ...], _Command]
-
 class GraphicsContextPdf(GraphicsContextBase):
     file: PdfFile
-    capstyles: dict[str, int]
-    joinstyles: dict[str, int]
-    commands: tuple[tuple[str, ...], _CommandFunction]
-    def __init__(self, file): ...
-    def __repr__(self): ...
+    capstyles: dict[CapStyleType, int]
+    joinstyles: dict[JoinStyleType, int]
+    commands: tuple[tuple[str, ...], _CommandFuncType]
+    def __init__(self, file: PdfFile): ...
+    def __repr__(self) -> str: ...
     def stroke(self) -> bool: ...
-    def fill(self, *args) -> bool: ...
+    def fill(self, *args: ColorType) -> bool: ...
     def paint(self) -> Op: ...
-    def capstyle_cmd(self, style: int) -> _Command: ...
-    def joinstyle_cmd(self, style) -> _Command: ...
-    def linewidth_cmd(self, width) -> _Command: ...
+    def capstyle_cmd(self, style: CapStyleType) -> _CommandType: ...
+    def joinstyle_cmd(self, style: JoinStyleType) -> _CommandType: ...
+    def linewidth_cmd(self, width: float) -> _CommandType: ...
     def dash_cmd(
         self, dashes: tuple[float, Iterable[_SupportsPdfReprExt]]
-    ) -> _Command: ...
-    # TODO: unable to determine types for unused `alpha`, `forced`
-    def alpha_cmd(self, alpha: int, forced: bool, effective_alphas) -> _Command: ...
-    def hatch_cmd(self, hatch, hatch_color, hatch_linewidth) -> _Command: ...
-    # TODO: determine type of `rgb[:]`
-    def rgb_cmd(self, rgb: list[int]) -> _Command: ...
-    def fillcolor_cmd(self, rgb: list[int]) -> _Command: ...
+    ) -> _CommandType: ...
+    def alpha_cmd(
+        self, alpha: int, forced: bool, effective_alphas: int
+    ) -> _CommandType: ...
+    def hatch_cmd(
+        self, hatch: _HatchType, hatch_color: ColorType, hatch_linewidth: float
+    ) -> _CommandType: ...
+    def rgb_cmd(self, rgb: RGBColorType) -> _CommandType: ...
+    def fillcolor_cmd(self, rgb: RGBColorType) -> _CommandType: ...
     def push(self) -> list[Op]: ...
     def pop(self) -> list[Op]: ...
-    def clip_cmd(self, cliprect, clippath) -> _Command: ...
-    def delta(self, other: GraphicsContextBase) -> _Command: ...
+    def clip_cmd(
+        self, cliprect: TransformedBbox, clippath: TransformedPath
+    ) -> _CommandType: ...
+    def delta(self, other: GraphicsContextBase) -> _CommandType: ...
     def copy_properties(self, other: GraphicsContextBase) -> None: ...
     def finalize(self) -> list[Op]: ...
 
@@ -281,17 +398,18 @@ class PdfPages:
     def attach_note(
         self,
         text: _SupportsPdfReprExt,
-        positionRect: list[int | float] = [-100, -100, 0, 0],
+        positionRect: _RectangleType = [-100, -100, 0, 0],
     ) -> None: ...
 
 class FigureCanvasPdf(FigureCanvasBase):
     filetypes: dict[str, str]
-    def get_default_filetype(cls) -> str: ...
+    # FIXME: `get_default_filetype` does not inherit from `FigureCanvasBase` correctly
+    def get_default_filetype(cls) -> str: ...  # type: ignore[override]
     def print_pdf(
         self,
         filename: PdfPages | IO[Any],
         *,
-        bbox_inches_restore: list[int | float] | None = None,
+        bbox_inches_restore: _RectangleType | None = None,
         metadata: _MetadataDict | None = None,
     ) -> None: ...
     def draw(self) -> None: ...
