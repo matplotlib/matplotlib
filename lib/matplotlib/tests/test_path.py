@@ -519,20 +519,15 @@ def test_full_arc(offset):
 ])
 def test_arc_full_circle_snap(theta2):
     # A span within floating-point tolerance of a whole number of turns must
-    # draw a complete circle, not collapse to a near-empty arc.  This is the
-    # floating-point edge case behind gh-20388 and gh-26972.
-    full = Path.arc(0, 360)
-    snapped = Path.arc(0, theta2)
-    assert len(snapped.vertices) == len(full.vertices)
-    np.testing.assert_allclose(np.min(snapped.vertices, axis=0), -1, atol=1e-12)
-    np.testing.assert_allclose(np.max(snapped.vertices, axis=0), 1, atol=1e-12)
+    # draw a complete circle, not collapse to a near-empty arc.
+    np.testing.assert_allclose(Path.arc(0, theta2).vertices,
+                               Path.arc(0, 360).vertices)
 
 
 @pytest.mark.parametrize('theta1, theta2', [(0, -360), (0, -720), (360, 0),
                                             (10, -350)])
 def test_arc_negative_full_circle(theta1, theta2):
-    # An exact negative multiple of 360 must still draw a complete circle,
-    # matching the legacy behaviour (regression guard for the unwrap rework).
+    # An exact negative multiple of 360 must draw a complete circle.
     # The result is the same complete circle as the equivalent positive turn
     # starting from *theta1* (so the assertion holds for non-cardinal starts).
     np.testing.assert_allclose(Path.arc(theta1, theta2).vertices,
@@ -541,7 +536,7 @@ def test_arc_negative_full_circle(theta1, theta2):
 
 def test_arc_unwrap_partial_turn():
     # A span comfortably more than a whole number of turns (not near-integer)
-    # is still unwrapped to the equivalent shortest arc within 360 degrees.
+    # is unwrapped to the equivalent shortest arc within 360 degrees.
     np.testing.assert_allclose(Path.arc(0, 410).vertices,
                                Path.arc(0, 50).vertices)
     np.testing.assert_allclose(Path.arc(0, 540).vertices,

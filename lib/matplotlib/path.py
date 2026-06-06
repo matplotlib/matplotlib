@@ -980,8 +980,7 @@ class Path:
 
         As a special case, if the span *theta2* - *theta1* is within
         floating-point tolerance of a whole number of turns, a complete circle
-        is drawn rather than collapsing a delta of 360*n plus a tiny rounding
-        error to a near-empty arc (matplotlib issues #20388 and #26972).
+        is drawn.
 
         If *n* is provided, it is the number of spline segments to make.
         If *n* is not provided, the number of spline segments is
