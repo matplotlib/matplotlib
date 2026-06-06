@@ -280,8 +280,8 @@ class Colorizer:
 
         This function always returns min and max as tuples to ensure type consistency
         when working with both scalar and multivariate color mapping.
-        See also `.ColorizingArtist.get_clim()` which returns scalars but is unavailable
-        for multivariate color mapping.
+        See also `._ColorizerInterface.get_clim()` which returns scalars but is
+        unavailable for multivariate color mapping.
         """
         if self.norm.n_components == 1:
             return (self.norm.vmin, ), (self.norm.vmax, )

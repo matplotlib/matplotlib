@@ -2213,6 +2213,30 @@ def test_colorizer_multinorm_explicit():
     assert_array_almost_equal(ca.to_rgba(data), res)
 
 
+def test_get_set_clim_raises():
+    fig, ax = plt.subplots(1, 1)
+    x_0 = np.arange(9, dtype='float32').reshape(3, 3)
+    x_1 = np.arange(9, dtype='float32').reshape(3, 3).T
+    colorizing_artist = ax.imshow((x_0, x_1), cmap='BiPeak', interpolation='nearest')
+
+    # test get_clim
+    with pytest.raises(AttributeError,
+                       match=("cannot be used with a multi-component")):
+        colorizing_artist.get_clim()
+
+    res = [[0, 0], [8, 8]]
+    assert_array_almost_equal(colorizing_artist.colorizer.get_clim(), res)
+
+    # test set_clim
+    with pytest.raises(AttributeError,
+                       match=("cannot be used with a multi-component")):
+        colorizing_artist.set_clim(vmin=(1, 1))
+
+    colorizing_artist.colorizer.set_clim(vmin=(2, 2), vmax=(5, 5))
+    res = [[2, 2], [5, 5]]
+    assert_array_almost_equal(colorizing_artist.colorizer.get_clim(), res)
+
+
 def test_invalid_cmap_n_components_zero():
     class CustomColormap(mcolors.Colormap):
         def __init__(self):
