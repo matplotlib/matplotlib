@@ -2882,6 +2882,31 @@ class FigureManagerBase:
     def full_screen_toggle(self):
         pass
 
+    def raise_window(self, *, with_focus=False):
+        """
+        For GUI backends, raise the figure window to the top.
+
+        Parameters
+        ----------
+        with_focus : bool, default: False
+            Whether to also give the window keyboard focus (activate it).
+            If False (the default), the window is raised in the stacking
+            order without stealing keyboard focus from the currently active
+            application. If True, the window is additionally activated and
+            given keyboard focus.
+
+        Notes
+        -----
+        Raising and focusing are treated as independent operations, with a
+        consistent default across backends: raising never steals focus
+        unless ``with_focus=True`` is passed.
+
+        This is a best-effort operation. Some window managers (notably
+        Wayland compositors) may ignore or modify raise and focus requests,
+        so the exact behavior is platform-dependent.
+        """
+        pass
+
     def resize(self, w, h):
         """For GUI backends, resize the window (in physical pixels)."""
 
