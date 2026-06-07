@@ -10,6 +10,7 @@ python_sources = [
   'backend_gtk4agg.py',
   'backend_gtk4cairo.py',
   'backend_macosx.py',
+  '_macos_window.py',
   'backend_mixed.py',
   'backend_nbagg.py',
   '_backend_pdf_ps.py',
