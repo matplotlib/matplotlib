@@ -1002,7 +1002,22 @@ class FigureManagerWx(FigureManagerBase):
         self.frame.Show()
         self.canvas.draw()
         if mpl.rcParams['figure.raise_window']:
-            self.frame.Raise()
+            self.raise_window()
+
+    def raise_window(self, *, with_focus=False):
+        # docstring inherited
+        if sys.platform == "darwin":
+            # wx's Raise()/SetFocus() don't lift above other apps or activate
+            # on macOS; use the native NSWindow calls instead.
+            from ._macos_window import MacOSWindow
+            MacOSWindow.from_nsview(self.frame.GetHandle()).raise_window(
+                with_focus=with_focus)
+            return
+        # Raise() only changes the stacking order (it does not activate the
+        # window or take keyboard focus); SetFocus() additionally grabs focus.
+        self.frame.Raise()
+        if with_focus:
+            self.frame.SetFocus()
 
     def destroy(self, *args):
         # docstring inherited
