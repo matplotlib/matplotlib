@@ -67,6 +67,8 @@ def test_figure_manager_base_raise_window_noop():
     canvas = FigureCanvasBase(Figure())
     manager = FigureManagerBase(canvas, 1)
     assert manager.raise_window() is None
+    assert manager.raise_window(with_focus=True) is None
+    assert manager.raise_window(with_focus=False) is None
 
 
 def test_get_default_filename():
