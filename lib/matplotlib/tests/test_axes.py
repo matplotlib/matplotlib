@@ -8190,6 +8190,27 @@ def test_eventplot_errors(err, args, kwargs, match):
         plt.eventplot(*args, **kwargs)
 
 
+def test_eventplot_snap_threshold():
+    """Snap is disabled when there are more than 100 event groups."""
+    fig, ax = plt.subplots()
+    positions = [np.random.rand(5) for _ in range(150)]
+    colls = ax.eventplot(positions)
+    for coll in colls:
+        assert coll.get_snap() is False
+
+    fig2, ax2 = plt.subplots()
+    positions_small = [np.random.rand(5) for _ in range(50)]
+    colls_small = ax2.eventplot(positions_small)
+    for coll in colls_small:
+        assert coll.get_snap() is not False
+
+    fig3, ax3 = plt.subplots()
+    positions_explicit = [np.random.rand(5) for _ in range(150)]
+    colls_explicit = ax3.eventplot(positions_explicit, snap=True)
+    for coll in colls_explicit:
+        assert coll.get_snap() is True
+
+
 def test_bar_broadcast_args():
     fig, ax = plt.subplots()
     # Check that a bar chart with a single height for all bars works.

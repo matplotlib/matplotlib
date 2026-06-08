@@ -1517,6 +1517,8 @@ class Axes(_AxesBase):
                                          linestyle=linestyle)
             self.add_collection(coll, autolim=False)
             coll._internal_update(kwargs)
+            if 'snap' not in kwargs and len(positions) > 100:
+                coll.set_snap(False)
             colls.append(coll)
 
         if len(positions) > 0:
