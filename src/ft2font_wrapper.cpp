@@ -453,6 +453,11 @@ read_from_file_callback(FT_Stream stream, unsigned long offset, unsigned char *b
         if (PyBytes_AsStringAndSize(read_result.ptr(), &tmpbuf, &n_read) == -1) {
             throw py::error_already_set();
         }
+        if ((unsigned long)n_read > count) {
+            // A file object's read() is not obliged to honor the requested
+            // size; FreeType only ever sized `buffer` for `count` bytes.
+            n_read = (Py_ssize_t)count;
+        }
         memcpy(buffer, tmpbuf, n_read);
     } catch (py::error_already_set &eas) {
         eas.discard_as_unraisable(__func__);
