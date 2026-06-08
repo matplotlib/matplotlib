@@ -454,9 +454,13 @@ read_from_file_callback(FT_Stream stream, unsigned long offset, unsigned char *b
             throw py::error_already_set();
         }
         if ((unsigned long)n_read > count) {
-            // A file object's read() is not obliged to honor the requested
-            // size; FreeType only ever sized `buffer` for `count` bytes.
-            n_read = (Py_ssize_t)count;
+            // A well-behaved read() never returns more than the requested
+            // number of bytes.  FreeType only ever sized `buffer` for `count`
+            // bytes, so honoring an over-long read would overflow it.  Rather
+            // than silently truncate (which would feed FreeType corrupt data),
+            // signal a failed read so that FT_Open_Face -- and in turn the
+            // FT2Font constructor -- raises.
+            n_read = 0;
         }
         memcpy(buffer, tmpbuf, n_read);
     } catch (py::error_already_set &eas) {
