@@ -3,18 +3,10 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <Python.h>
 
-/* Proper way to check for the OS X version we are compiling for, from
- * https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html
 
- * Renamed symbols cause deprecation warnings, so define macros for the new
- * names if we are compiling on an older SDK */
-#if __MAC_OS_X_VERSION_MIN_REQUIRED < 101400
-#define NSButtonTypeMomentaryLight           NSMomentaryLightButton
-#define NSButtonTypePushOnPushOff            NSPushOnPushOffButton
-#define NSBezelStyleShadowlessSquare         NSShadowlessSquareBezelStyle
-#define CGContext                            graphicsPort
+#if !__has_feature(objc_arc_fields)
+#error "The macOS backend requires ARC C struct fields support (objc_arc_fields)."
 #endif
-
 
 /* Various NSApplicationDefined event subtypes */
 #define STOP_EVENT_LOOP 2
@@ -45,23 +37,6 @@
     } else { \
         Py_RETURN_NONE; \
     }
-
-
-/* This file is compiled with Automatic Reference Counting (ARC).
-   We need to store Objective-C objects into C structs allocated with tp_alloc().
-   Support for ARC'd C struct members was not added until macOS 10.14 / Xcode 10.
-   As we support macOS 10.12, the following rules apply:
-
-   1) Each Obj-C struct member should use the __unsafe_unretained attribute.
-   2) To store or update an object in a C struct, use:
-      STORE_OBJC_OBJECT(self->theObject, localVariable);
-   3) In a tp_dealloc callback, use:
-      STORE_OBJC_OBJECT(self->theObject, nil);
-*/
-#define STORE_OBJC_OBJECT(LOCATION, OBJECT) \
-    if (LOCATION) CFRelease((__bridge void *)(LOCATION)); \
-    if (OBJECT)   CFRetain((__bridge void *)(id)(OBJECT)); \
-    (LOCATION) = (OBJECT);
 
 
 /* Variable for our delegate since it needs a +1 reference count. */
@@ -401,7 +376,7 @@ PyObject* mpl_modifiers(NSEvent* event)
 
 typedef struct {
     PyObject_HEAD
-    __unsafe_unretained View* view;
+    __strong View* view;
 } FigureCanvas;
 
 static PyTypeObject FigureCanvasType;
@@ -453,7 +428,7 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
                                                userInfo: nil];
     [view addTrackingArea:trackingArea];
     [view setCanvas: (PyObject*)self];
-    STORE_OBJC_OBJECT(self->view, view);
+    self->view = view;
 
 exit:
     Py_XDECREF(super_obj);
@@ -469,8 +444,9 @@ static void
 FigureCanvas_dealloc(FigureCanvas* self)
 {
     BEGIN_OBJC_ENTRY
+    NSLog(@"FigureCanvas_dealloc");
     [self->view setCanvas: NULL];
-    STORE_OBJC_OBJECT(self->view, nil);
+    self->view = nil;
     END_OBJC_ENTRY
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -673,7 +649,7 @@ static PyTypeObject FigureManagerType;  // forward declaration, needed in destro
 
 typedef struct {
     PyObject_HEAD
-    __unsafe_unretained Window* window;
+    __strong Window* window;
 } FigureManager;
 
 static PyObject*
@@ -740,7 +716,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [[window contentView] addSubview: view];
     [view updateDevicePixelRatio: [window backingScaleFactor]];
 
-    STORE_OBJC_OBJECT(self->window, window);
+    self->window = window;
 
     END_OBJC_ENTRY
     return 0;
@@ -780,7 +756,7 @@ FigureManager__closeAndClearWindow(FigureManager* self)
     [self->window close];
     [self->window setDelegate:nil];
     [self->window setManager:NULL];
-    STORE_OBJC_OBJECT(self->window, nil);
+    self->window = nil;
 }
 
 static void
@@ -1000,8 +976,8 @@ static PyTypeObject FigureManagerType = {
 
 typedef struct {
     PyObject_HEAD
-    __unsafe_unretained NSTextView* messagebox;
-    __unsafe_unretained NavigationToolbar2Handler* handler;
+    __strong NSTextView* messagebox;
+    __strong NavigationToolbar2Handler* handler;
     int height;
 } NavigationToolbar2;
 
@@ -1162,8 +1138,8 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     [[window contentView] addSubview: messagebox];
     [[window contentView] display];
 
-    STORE_OBJC_OBJECT(self->handler, handler);
-    STORE_OBJC_OBJECT(self->messagebox, messagebox);
+    self->handler = handler;
+    self->messagebox = messagebox;
     END_OBJC_ENTRY
     return 0;
 }
@@ -1173,8 +1149,8 @@ NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 {
     BEGIN_OBJC_ENTRY
     [self->handler setToolbar:NULL];
-    STORE_OBJC_OBJECT(self->handler, nil);
-    STORE_OBJC_OBJECT(self->messagebox, nil);
+    self->handler = nil;
+    self->messagebox = nil;
     END_OBJC_ENTRY
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1887,7 +1863,7 @@ show(PyObject* self)
 
 typedef struct {
     PyObject_HEAD
-    __unsafe_unretained NSTimer* timer;
+    __strong NSTimer* timer;
     BOOL shouldInvalidate;
 } Timer;
 
@@ -1916,7 +1892,7 @@ Timer__timer_stop_impl(Timer* self)
         [self->timer invalidate];
         self->shouldInvalidate = NO;
     }
-    STORE_OBJC_OBJECT(self->timer, nil);
+    self->timer = nil;
 }
 
 static PyObject*
@@ -1958,7 +1934,7 @@ Timer__timer_start(Timer* self, PyObject* args)
     // when updating the UI from a background thread
     [[NSRunLoop mainRunLoop] addTimer: timer forMode: NSRunLoopCommonModes];
 
-    STORE_OBJC_OBJECT(self->timer, timer);
+    self->timer = timer;
     self->shouldInvalidate = YES;
 
 exit:
