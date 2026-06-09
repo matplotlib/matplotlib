@@ -995,15 +995,15 @@ class Path:
         eta1 = theta1
         n_turns = (theta2 - theta1) / 360
         nearest_turn = np.rint(n_turns)
-        # If the span is within floating-point tolerance of a non-zero whole
-        # number of turns, draw a complete circle; otherwise unwrap *theta2*
-        # to the shortest arc within 360 degrees.  Without the snap, a span of
-        # 360*n plus a tiny rounding error is reduced modulo 360 to a
-        # near-empty arc (the polar gridline/spine collapse).  The error from
-        # the polar transform pipeline is at the machine-epsilon level (under
-        # 1e-15 turns in practice), so this tolerance reliably snaps genuine
-        # full turns while leaving any intentionally non-integer span alone.
-        if nearest_turn != 0 and abs(n_turns - nearest_turn) <= 1e-12:
+        is_full_circle = nearest_turn != 0 and abs(n_turns - nearest_turn) <= 1e-12
+        # We unwrap *theta2* to the shortest arc within 360 degrees.
+        # Full circles need special handling as floating point errors can
+        # make a full circle have 360° + eps, which would be unwrapped
+        # to eps only, i.e. collapsing the full circle to an infinitesimal arc.
+        # The threshold of 1e-12 is a defensive choice: Much larger than
+        # numeric precision errors (~1e-15) but still smaller than any
+        # expected real-world arcs.
+        if is_full_circle:
             eta2 = theta1 + 360
         else:
             eta2 = theta2 - 360 * np.floor(n_turns)
