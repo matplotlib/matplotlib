@@ -10,7 +10,6 @@
 
 /* Various NSApplicationDefined event subtypes */
 #define STOP_EVENT_LOOP 2
-#define WINDOW_CLOSING 3
 
 
 /* When calling into Objective-C from Python, wrap the calls with
@@ -42,8 +41,8 @@
 /* Variable for our delegate since it needs a +1 reference count. */
 static id<NSApplicationDelegate> appDelegate = nil;
 
-/* Keep track of number of windows present
-   Needed to know when to stop the NSApp */
+/* Variables to keep track of state and window count for show() */
+static BOOL IsRunningFromShow = NO;
 static long FigureWindowCount = 0;
 
 /* Keep track of modifier key states for flagsChanged
@@ -166,7 +165,6 @@ static int wait_for_stdin() {
 
 @interface Window : NSWindow
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen;
-- (BOOL)closeButtonPressed;
 @property (nonatomic, assign) PyObject* manager;
 @end
 
@@ -179,8 +177,6 @@ static int wait_for_stdin() {
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification;
 - (void)windowDidResize:(NSNotification*)notification;
 - (instancetype)initWithFrame:(NSRect)rect;
-- (void)windowWillClose:(NSNotification*)notification;
-- (BOOL)windowShouldClose:(NSNotification*)notification;
 - (void)mouseEntered:(NSEvent*)event;
 - (void)mouseExited:(NSEvent*)event;
 - (void)mouseDown:(NSEvent*)event;
@@ -671,7 +667,6 @@ FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (!self) {
         return NULL;
     }
-    ++FigureWindowCount;
     return (PyObject*)self;
     END_OBJC_ENTRY
     return NULL;
@@ -717,6 +712,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [view updateDevicePixelRatio: [window backingScaleFactor]];
 
     self->window = window;
+    ++FigureWindowCount;
 
     END_OBJC_ENTRY
     return 0;
@@ -753,10 +749,16 @@ FigureManager_repr(FigureManager* self)
 static void
 FigureManager__closeAndClearWindow(FigureManager* self)
 {
-    [self->window close];
-    [self->window setDelegate:nil];
-    [self->window setManager:NULL];
-    self->window = nil;
+    if (self->window) {
+        [self->window close];
+        [self->window setDelegate:nil];
+        [self->window setManager:NULL];
+
+        self->window = nil;
+        if (--FigureWindowCount == 0 && IsRunningFromShow) {
+            [NSApp stop:nil];
+        }
+    }
 }
 
 static void
@@ -1265,21 +1267,6 @@ choose_save_file(PyObject* unused, PyObject* args)
     return suggested;
 }
 
-- (BOOL)closeButtonPressed
-{
-    gil_call_method(_manager, "_close_button_pressed");
-    return YES;
-}
-
-- (void)close
-{
-    [super close];
-    --FigureWindowCount;
-    if (!FigureWindowCount) [NSApp stop: self];
-    /* This is needed for show(), which should exit from [NSApp run]
-     * after all windows are closed.
-     */
-}
 @end
 
 @implementation View
@@ -1461,32 +1448,21 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)windowWillClose:(NSNotification*)notification
 {
-    process_event(
-        "CloseEvent", "{s:s, s:O}",
-        "name", "close_event", "canvas", _canvas);
+    // A view should not be the delegate of a window, this check
+    // will go away with next refactor
+    Window *window = (Window *)[self window];
+    if ([window isKindOfClass:[Window class]]) {
+        gil_call_method([window manager], "_handle_window_will_close");
+    }
 }
 
 - (BOOL)windowShouldClose:(NSNotification*)notification
 {
-    NSWindow* window = [self window];
-    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
-    // nil for these constant, valid arguments; guard defensively anyway.
-    NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
-                                        location: NSZeroPoint
-                                   modifierFlags: 0
-                                       timestamp: 0.0
-                                    windowNumber: 0
-                                         context: nil
-                                         subtype: WINDOW_CLOSING
-                                           data1: 0
-                                           data2: 0];
-    if (event) {
-        [NSApp postEvent: event atStart: true];
-    }
-    if ([window respondsToSelector: @selector(closeButtonPressed)]) {
-        BOOL closed = [((Window*) window) closeButtonPressed];
-        /* If closed, the window has already been closed via the manager. */
-        if (closed) { return NO; }
+    // A view should not be the delegate of a window, this check
+    // will go away with next refactor
+    Window *window = (Window *)[self window];
+    if ([window isKindOfClass:[Window class]]) {
+        gil_call_method([window manager], "_handle_window_should_close");
     }
     return YES;
 }
@@ -1854,7 +1830,9 @@ show(PyObject* self)
     }
 
     Py_BEGIN_ALLOW_THREADS
+    IsRunningFromShow = YES;
     [NSApp run];
+    IsRunningFromShow = NO;
     Py_END_ALLOW_THREADS
 
     END_OBJC_ENTRY
