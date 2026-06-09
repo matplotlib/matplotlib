@@ -16,8 +16,9 @@ pytest.importorskip('sphinx', minversion='4.1.3')
 tinypages = Path(__file__).parent / 'data/tinypages'
 
 
-def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
-    # Build the pages with warnings turned into errors
+def build_sphinx_html(
+        source_dir, doctree_dir, html_dir, extra_args=None, expected_returncode=0):
+    # Build the pages with warnings turned into errors.
     extra_args = [] if extra_args is None else extra_args
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
            '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
@@ -31,12 +32,31 @@ def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
     out = proc.stdout
     err = proc.stderr
 
-    assert proc.returncode == 0, \
+    assert proc.returncode == expected_returncode, \
         f"sphinx build failed with stdout:\n{out}\nstderr:\n{err}\n"
-    if err:
+    if expected_returncode == 0 and err:
         pytest.fail(f"sphinx build emitted the following warnings:\n{err}")
 
-    assert html_dir.is_dir()
+    if expected_returncode == 0:
+        assert html_dir.is_dir()
+    return proc
+
+
+def test_plot_directive_exception_fails_build(tmp_path):
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+
+    raise RuntimeError("plot directive failure")
+""")
+
+    proc = build_sphinx_html(
+        tmp_path, tmp_path / 'doctrees', tmp_path / '_build' / 'html',
+        expected_returncode=1)
+
+    assert "Exception occurred in plotting index-1" in proc.stderr
+    assert "RuntimeError: plot directive failure" in proc.stderr
 
 
 def test_tinypages(tmp_path):
