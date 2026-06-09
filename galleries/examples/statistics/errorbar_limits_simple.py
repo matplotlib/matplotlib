@@ -7,6 +7,8 @@ Illustration of selectively drawing lower and/or upper limit symbols on
 errorbars using the parameters ``uplims``, ``lolims`` of `~.pyplot.errorbar`.
 
 Alternatively, you can use 2xN values to draw errorbars in only one direction.
+
+.. redirect-from:: /gallery/lines_bars_and_markers/errorbar_limits_simple
 """
 
 import matplotlib.pyplot as plt

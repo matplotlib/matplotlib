@@ -51,9 +51,6 @@ span_regions
 stem_plot
 
 # other
-errorbar_limits_simple
-errorbar_subsample
 categorical_variables
 masked_demo
-curve_error_band
 spectrum_demo
