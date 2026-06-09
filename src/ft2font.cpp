@@ -269,7 +269,7 @@ void FT2Font::_set_transform(
 
 void FT2Font::set_charmap(int i)
 {
-    if (i >= face->num_charmaps) {
+    if (i < 0 || i >= face->num_charmaps) {
         throw std::runtime_error("i exceeds the available number of char maps");
     }
     FT_CHECK(FT_Set_Charmap, face, face->charmaps[i]);

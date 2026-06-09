@@ -346,6 +346,14 @@ def test_ft2font_charmaps():
         # Though the encoding is different, the glyph should be the same.
         assert unic[u] == armn[m]
 
+    # Out-of-range charmap indices must be rejected rather than indexing out of
+    # bounds. A negative index previously passed the upper-bound-only check and
+    # read face->charmaps[i] out of bounds.
+    with pytest.raises(RuntimeError, match='exceeds the available number'):
+        font.set_charmap(-1)
+    with pytest.raises(RuntimeError, match='exceeds the available number'):
+        font.set_charmap(font.num_charmaps)
+
 
 _expected_sfnt_names = {
     'DejaVu Sans': {
