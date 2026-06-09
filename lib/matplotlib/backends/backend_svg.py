@@ -1371,7 +1371,8 @@ class FigureCanvasSVG(FigureCanvasBase):
               gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter):
             return self.print_svg(gzipwriter, **kwargs)
 
-    def get_default_filetype(self):
+    @classmethod
+    def get_default_filetype(cls):
         return 'svg'
 
     def draw(self):
