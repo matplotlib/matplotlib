@@ -6,6 +6,8 @@ Curve with error band
 This example illustrates how to draw an error band around a parametrized curve.
 
 A parametrized curve x(t), y(t) can directly be drawn using `~.Axes.plot`.
+
+.. redirect-from:: /gallery/lines_bars_and_markers/curve_error_band
 """
 # sphinx_gallery_thumbnail_number = 2
 

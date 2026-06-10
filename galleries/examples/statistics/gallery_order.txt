@@ -3,9 +3,12 @@
 # errorbars
 errorbar
 errorbar_features
+errorbar_subsample
+errorbar_limits_simple
 errorbar_limits
 errorbars_and_boxes
 confidence_ellipse
+curve_error_band
 
 # histograms
 hist
