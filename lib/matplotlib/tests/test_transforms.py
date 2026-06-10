@@ -873,6 +873,21 @@ def test_bbox_intersection():
     assert_bbox_eq(inter(r1, r5), bbox_from_ext(1, 1, 1, 1))
 
 
+def test_bbox_count_contains():
+    bbox = mtransforms.Bbox.from_extents(0, 0, 1, 1)
+    assert bbox.count_contains([]) == 0
+    assert bbox.count_contains([
+        [0.5, 0.5],         # inside
+        [0.1, 0.9],         # inside
+        [2.0, 2.0],         # outside
+        [-1.0, 0.5],        # outside
+        [0.0, 0.5],         # on left edge -> excluded
+        [1.0, 1.0],         # on corner -> excluded
+        [np.nan, 0.5],      # non-finite -> ignored
+        [0.5, np.inf],      # non-finite -> ignored
+    ]) == 2
+
+
 def test_bbox_as_strings():
     b = mtransforms.Bbox([[.5, 0], [.75, .75]])
     assert_bbox_eq(b, eval(repr(b), {'Bbox': mtransforms.Bbox}))
