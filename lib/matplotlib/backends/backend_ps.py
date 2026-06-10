@@ -967,7 +967,8 @@ class FigureCanvasPS(FigureCanvasBase):
     filetypes = {'ps': 'Postscript',
                  'eps': 'Encapsulated Postscript'}
 
-    def get_default_filetype(self):
+    @classmethod
+    def get_default_filetype(cls):
         return 'ps'
 
     def _print_ps(

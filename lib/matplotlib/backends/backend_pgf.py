@@ -761,7 +761,8 @@ class FigureCanvasPgf(FigureCanvasBase):
                  "pdf": "LaTeX compiled PGF picture",
                  "png": "Portable Network Graphics", }
 
-    def get_default_filetype(self):
+    @classmethod
+    def get_default_filetype(cls):
         return 'pdf'
 
     def _print_pgf_to_fh(self, fh, *, bbox_inches_restore=None):
